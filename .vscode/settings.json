@@ -1,0 +1,56 @@
+{
+  "python.defaultInterpreterPath": "${workspaceFolder}/venv/Scripts/python.exe",
+  "python.terminal.activateEnvironment": true,
+
+  // Linting
+  "python.linting.enabled": true,
+  "python.linting.flake8Enabled": true,
+  "python.linting.flake8Path": "${workspaceFolder}/venv/Scripts/flake8.exe",
+  "python.linting.pylintEnabled": false,
+  "python.linting.mypyEnabled": true,
+  "python.linting.mypyPath": "${workspaceFolder}/venv/Scripts/mypy.exe",
+
+  // Formatting
+  "python.formatting.provider": "black",
+  "python.formatting.blackPath": "${workspaceFolder}/venv/Scripts/black.exe",
+  "editor.formatOnSave": true,
+
+  // Testing
+  "python.testing.pytestEnabled": true,
+  "python.testing.pytestPath": "${workspaceFolder}/venv/Scripts/pytest.exe",
+  "python.testing.unittestEnabled": false,
+  "python.testing.pytestArgs": [
+    "src/tests",
+    "-v"
+  ],
+
+  // Editor
+  "editor.rulers": [100],
+  "files.trimTrailingWhitespace": true,
+  "files.insertFinalNewline": true,
+  "files.encoding": "utf8",
+  "files.eol": "\n",
+
+  // File exclusions
+  "files.exclude": {
+    "**/__pycache__": true,
+    "**/*.pyc": true,
+    ".pytest_cache": true,
+    "*.egg-info": true
+  },
+
+  // Search exclusions
+  "search.exclude": {
+    "**/venv": true,
+    "**/__pycache__": true,
+    "**/*.pyc": true,
+    "**/data/*.db": true
+  },
+
+  // File associations
+  "files.associations": {
+    "*.ini": "ini",
+    ".flake8": "ini",
+    ".editorconfig": "editorconfig"
+  }
+}

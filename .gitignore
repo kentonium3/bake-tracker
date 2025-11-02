@@ -37,12 +37,19 @@ data/*.db-wal
 *.sqlite3
 
 # IDE
-.vscode/
 .idea/
 *.swp
 *.swo
 *~
 .DS_Store
+
+# VS Code - Allow shared settings, exclude personal workspace
+.vscode/*
+!.vscode/settings.json
+!.vscode/launch.json
+!.vscode/extensions.json
+!.vscode/tasks.json
+.vscode/*.code-workspace
 
 # OS
 Thumbs.db
