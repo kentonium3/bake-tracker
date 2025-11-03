@@ -229,10 +229,14 @@ class RecipesTab(ctk.CTkFrame):
                 # Extract ingredients from result
                 ingredients = result.pop("ingredients", [])
 
+                # Map prep_time to estimated_time_minutes
+                if "prep_time" in result:
+                    result["estimated_time_minutes"] = result.pop("prep_time")
+
                 # Create recipe
                 new_recipe = recipe_service.create_recipe(
-                    **result,
-                    ingredients=ingredients,
+                    result,
+                    ingredients,
                 )
 
                 show_success(
@@ -267,11 +271,15 @@ class RecipesTab(ctk.CTkFrame):
                 # Extract ingredients from result
                 ingredients = result.pop("ingredients", [])
 
+                # Map prep_time to estimated_time_minutes
+                if "prep_time" in result:
+                    result["estimated_time_minutes"] = result.pop("prep_time")
+
                 # Update recipe
                 updated_recipe = recipe_service.update_recipe(
                     self.selected_recipe.id,
-                    **result,
-                    ingredients=ingredients,
+                    result,
+                    ingredients,
                 )
 
                 show_success(

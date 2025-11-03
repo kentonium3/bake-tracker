@@ -226,7 +226,7 @@ class InventoryTab(ctk.CTkFrame):
 
         if result:
             try:
-                new_ingredient = inventory_service.create_ingredient(**result)
+                new_ingredient = inventory_service.create_ingredient(result)
                 show_success(
                     "Success",
                     f"Ingredient '{new_ingredient.name}' added successfully",
@@ -258,7 +258,7 @@ class InventoryTab(ctk.CTkFrame):
             try:
                 updated_ingredient = inventory_service.update_ingredient(
                     self.selected_ingredient.id,
-                    **result,
+                    result,
                 )
                 show_success(
                     "Success",
