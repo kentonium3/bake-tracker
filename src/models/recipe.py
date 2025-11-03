@@ -173,18 +173,46 @@ class RecipeIngredient(BaseModel):
         """
         Calculate cost of this ingredient in the recipe.
 
+        This method handles conversion from any recipe unit to the ingredient's
+        purchase units, supporting cross-unit conversions (volume↔weight) when needed.
+
         Returns:
             Cost of this ingredient for the recipe
         """
         if not self.ingredient:
             return 0.0
 
-        cost_per_recipe_unit = self.ingredient.get_cost_per_recipe_unit()
-        return cost_per_recipe_unit * self.quantity
+        # Import here to avoid circular import
+        from src.services.unit_converter import convert_any_units
+
+        # Convert recipe unit to ingredient's recipe_unit
+        # This handles cross-unit conversions (e.g., grams → cups) using ingredient density
+        success, quantity_in_recipe_unit, error = convert_any_units(
+            self.quantity,
+            self.unit,
+            self.ingredient.recipe_unit,
+            ingredient_name=self.ingredient.name,
+        )
+
+        if not success:
+            # If conversion fails, fall back to treating units as equivalent
+            # This handles cases where density data is missing
+            quantity_in_recipe_unit = self.quantity
+
+        # Convert from recipe_unit to purchase_unit using conversion_factor
+        purchase_unit_quantity = quantity_in_recipe_unit / self.ingredient.conversion_factor
+
+        # Calculate cost
+        cost = purchase_unit_quantity * self.ingredient.unit_cost
+
+        return cost
 
     def get_purchase_unit_quantity(self) -> float:
         """
         Calculate how many purchase units are needed for this ingredient.
+
+        This method handles conversion from any recipe unit to purchase units,
+        supporting cross-unit conversions (volume↔weight) when needed.
 
         Returns:
             Quantity in purchase units
@@ -192,7 +220,23 @@ class RecipeIngredient(BaseModel):
         if not self.ingredient:
             return 0.0
 
-        return self.ingredient.convert_from_recipe_units(self.quantity)
+        # Import here to avoid circular import
+        from src.services.unit_converter import convert_any_units
+
+        # Convert recipe unit to ingredient's recipe_unit
+        success, quantity_in_recipe_unit, error = convert_any_units(
+            self.quantity,
+            self.unit,
+            self.ingredient.recipe_unit,
+            ingredient_name=self.ingredient.name,
+        )
+
+        if not success:
+            # Fallback: treat units as equivalent
+            quantity_in_recipe_unit = self.quantity
+
+        # Convert from recipe_unit to purchase_unit using conversion_factor
+        return quantity_in_recipe_unit / self.ingredient.conversion_factor
 
     def to_dict(self, include_relationships: bool = False) -> dict:
         """
