@@ -26,8 +26,7 @@ class Ingredient(BaseModel):
         category: Category (e.g., "Flour/Grains", "Sugar/Sweeteners")
         purchase_unit: Unit purchased in (e.g., "bag", "lb")
         purchase_unit_size: Size description (e.g., "50 lb")
-        recipe_unit: Optional default unit hint for recipes (e.g., "cup", "oz")
-        conversion_factor: Purchase units to recipe units (e.g., 200 = 1 bag = 200 cups)
+        conversion_factor: Conversion factor to base unit (e.g., 56.25 = 1 bag = 56.25 cups)
         density_g_per_cup: Density in grams per cup for volume-weight conversions
         quantity: Current quantity in purchase units
         unit_cost: Cost per purchase unit
@@ -45,7 +44,6 @@ class Ingredient(BaseModel):
     # Unit information
     purchase_unit = Column(String(50), nullable=False)
     purchase_unit_size = Column(String(100), nullable=True)
-    recipe_unit = Column(String(50), nullable=True)  # Optional: used as default unit hint
     conversion_factor = Column(Float, nullable=False)
 
     # Density for volume-weight conversions (grams per cup)

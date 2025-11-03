@@ -180,7 +180,7 @@ class IngredientFormDialog(ctk.CTkToplevel):
         # Help text
         help_text = ctk.CTkLabel(
             parent,
-            text="For flexible recipe units, enter density below. Recipe unit & conversion factor are optional.",
+            text="Density enables volume↔weight conversions in recipes (e.g., cups↔grams).\nRequired only when recipes use different unit types than purchase unit.",
             font=ctk.CTkFont(size=11),
             text_color="gray",
             wraplength=400,
@@ -209,23 +209,7 @@ class IngredientFormDialog(ctk.CTkToplevel):
         self.density_entry.grid(row=row, column=1, sticky="ew", padx=PADDING_MEDIUM, pady=5)
         row += 1
 
-        # Recipe unit (optional)
-        recipe_unit_label = ctk.CTkLabel(parent, text="Default Recipe Unit:", anchor="w")
-        recipe_unit_label.grid(row=row, column=0, sticky="w", padx=PADDING_MEDIUM, pady=5)
-
-        # Group units by type for easier selection
-        recipe_units = [""] + WEIGHT_UNITS + VOLUME_UNITS + COUNT_UNITS
-        self.recipe_unit_combo = ctk.CTkComboBox(
-            parent,
-            width=400,
-            values=recipe_units,
-            state="readonly",
-        )
-        self.recipe_unit_combo.set("")  # Optional
-        self.recipe_unit_combo.grid(row=row, column=1, sticky="ew", padx=PADDING_MEDIUM, pady=5)
-        row += 1
-
-        # Conversion factor (required only if recipe_unit is set)
+        # Conversion factor (required)
         conversion_factor_label = ctk.CTkLabel(parent, text="Conversion Factor*:", anchor="w")
         conversion_factor_label.grid(row=row, column=0, sticky="w", padx=PADDING_MEDIUM, pady=5)
 
@@ -344,12 +328,6 @@ class IngredientFormDialog(ctk.CTkToplevel):
         if self.ingredient.density_g_per_cup:
             self.density_entry.insert(0, str(self.ingredient.density_g_per_cup))
 
-        # Recipe unit (optional)
-        if self.ingredient.recipe_unit:
-            self.recipe_unit_combo.set(self.ingredient.recipe_unit)
-        else:
-            self.recipe_unit_combo.set("")
-
         self.conversion_entry.insert(0, str(self.ingredient.conversion_factor))
         self.quantity_entry.insert(0, str(self.ingredient.quantity))
         self.unit_cost_entry.insert(0, str(self.ingredient.unit_cost))
@@ -370,9 +348,6 @@ class IngredientFormDialog(ctk.CTkToplevel):
         purchase_unit = self.purchase_unit_combo.get()
         purchase_unit_size = self.purchase_size_entry.get().strip() or None
         density_str = self.density_entry.get().strip()
-        recipe_unit = self.recipe_unit_combo.get().strip()
-        if not recipe_unit:  # Empty string means None
-            recipe_unit = None
         conversion_factor_str = self.conversion_entry.get().strip()
         quantity_str = self.quantity_entry.get().strip()
         unit_cost_str = self.unit_cost_entry.get().strip()
@@ -459,7 +434,6 @@ class IngredientFormDialog(ctk.CTkToplevel):
             "purchase_unit": purchase_unit,
             "purchase_unit_size": purchase_unit_size,
             "density_g_per_cup": density,
-            "recipe_unit": recipe_unit,
             "conversion_factor": conversion_factor,
             "quantity": quantity,
             "unit_cost": unit_cost,

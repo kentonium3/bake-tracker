@@ -77,17 +77,15 @@ class Recipe(BaseModel):
         """
         Calculate total recipe cost based on ingredient costs.
 
+        Uses each RecipeIngredient's calculate_cost() which handles
+        unit conversions and density-based calculations.
+
         Returns:
             Total cost of all ingredients in the recipe
         """
         total_cost = 0.0
         for recipe_ingredient in self.recipe_ingredients:
-            ingredient = recipe_ingredient.ingredient
-            if ingredient:
-                # Cost = (unit_cost / conversion_factor) × recipe_quantity
-                cost_per_recipe_unit = ingredient.get_cost_per_recipe_unit()
-                ingredient_cost = cost_per_recipe_unit * recipe_ingredient.quantity
-                total_cost += ingredient_cost
+            total_cost += recipe_ingredient.calculate_cost()
         return total_cost
 
     def get_cost_per_unit(self) -> float:
@@ -188,37 +186,19 @@ class RecipeIngredient(BaseModel):
         # Get ingredient density for cross-unit conversions
         ingredient_density = self.ingredient.get_density() if hasattr(self.ingredient, 'get_density') else 0.0
 
-        # If ingredient has recipe_unit defined, convert to it first
-        # Otherwise, convert directly to purchase_unit
-        if self.ingredient.recipe_unit:
-            # Convert recipe unit to ingredient's recipe_unit using density if needed
-            success, quantity_in_recipe_unit, error = convert_any_units(
-                self.quantity,
-                self.unit,
-                self.ingredient.recipe_unit,
-                ingredient_name=self.ingredient.name,
-                density_override=ingredient_density if ingredient_density > 0 else None,
-            )
+        # Convert recipe unit directly to purchase_unit
+        success, purchase_unit_quantity, error = convert_any_units(
+            self.quantity,
+            self.unit,
+            self.ingredient.purchase_unit,
+            ingredient_name=self.ingredient.name,
+            density_override=ingredient_density if ingredient_density > 0 else None,
+        )
 
-            if not success:
-                # Fallback: treat units as equivalent
-                quantity_in_recipe_unit = self.quantity
-
-            # Convert from recipe_unit to purchase_unit using conversion_factor
-            purchase_unit_quantity = quantity_in_recipe_unit / self.ingredient.conversion_factor
-        else:
-            # No recipe_unit defined - convert directly to purchase_unit
-            success, purchase_unit_quantity, error = convert_any_units(
-                self.quantity,
-                self.unit,
-                self.ingredient.purchase_unit,
-                ingredient_name=self.ingredient.name,
-                density_override=ingredient_density if ingredient_density > 0 else None,
-            )
-
-            if not success:
-                # Fallback: treat units as equivalent
-                purchase_unit_quantity = self.quantity
+        if not success:
+            # Fallback: use conversion_factor if available
+            # Assumes recipe unit and purchase unit are compatible
+            purchase_unit_quantity = self.quantity / self.ingredient.conversion_factor
 
         # Calculate cost
         cost = purchase_unit_quantity * self.ingredient.unit_cost
@@ -244,39 +224,21 @@ class RecipeIngredient(BaseModel):
         # Get ingredient density for cross-unit conversions
         ingredient_density = self.ingredient.get_density() if hasattr(self.ingredient, 'get_density') else 0.0
 
-        # If ingredient has recipe_unit defined, convert to it first
-        # Otherwise, convert directly to purchase_unit
-        if self.ingredient.recipe_unit:
-            # Convert recipe unit to ingredient's recipe_unit
-            success, quantity_in_recipe_unit, error = convert_any_units(
-                self.quantity,
-                self.unit,
-                self.ingredient.recipe_unit,
-                ingredient_name=self.ingredient.name,
-                density_override=ingredient_density if ingredient_density > 0 else None,
-            )
+        # Convert recipe unit directly to purchase_unit
+        success, purchase_unit_quantity, error = convert_any_units(
+            self.quantity,
+            self.unit,
+            self.ingredient.purchase_unit,
+            ingredient_name=self.ingredient.name,
+            density_override=ingredient_density if ingredient_density > 0 else None,
+        )
 
-            if not success:
-                # Fallback: treat units as equivalent
-                quantity_in_recipe_unit = self.quantity
+        if not success:
+            # Fallback: use conversion_factor if available
+            # Assumes recipe unit and purchase unit are compatible
+            purchase_unit_quantity = self.quantity / self.ingredient.conversion_factor
 
-            # Convert from recipe_unit to purchase_unit using conversion_factor
-            return quantity_in_recipe_unit / self.ingredient.conversion_factor
-        else:
-            # No recipe_unit defined - convert directly to purchase_unit
-            success, purchase_unit_quantity, error = convert_any_units(
-                self.quantity,
-                self.unit,
-                self.ingredient.purchase_unit,
-                ingredient_name=self.ingredient.name,
-                density_override=ingredient_density if ingredient_density > 0 else None,
-            )
-
-            if not success:
-                # Fallback: treat units as equivalent
-                purchase_unit_quantity = self.quantity
-
-            return purchase_unit_quantity
+        return purchase_unit_quantity
 
     def to_dict(self, include_relationships: bool = False) -> dict:
         """
