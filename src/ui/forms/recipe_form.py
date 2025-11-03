@@ -105,9 +105,11 @@ class RecipeIngredientRow(ctk.CTkFrame):
         # Get selected ingredient
         selected_name = self.ingredient_combo.get()
         ingredient_id = None
+        ingredient_unit = None
         for idx, ing in enumerate(self.ingredients):
             if f"{ing.name} ({ing.recipe_unit})" == selected_name:
                 ingredient_id = ing.id
+                ingredient_unit = ing.recipe_unit
                 break
 
         if not ingredient_id:
@@ -121,7 +123,11 @@ class RecipeIngredientRow(ctk.CTkFrame):
         except ValueError:
             return None
 
-        return {"ingredient_id": ingredient_id, "quantity": quantity}
+        return {
+            "ingredient_id": ingredient_id,
+            "quantity": quantity,
+            "unit": ingredient_unit,
+        }
 
 
 class RecipeFormDialog(ctk.CTkToplevel):
