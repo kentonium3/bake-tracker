@@ -68,6 +68,9 @@ class RecipesTab(ctk.CTkFrame):
         # Load initial data
         self.refresh()
 
+        # Grid the frame
+        self.grid(row=0, column=0, sticky="nsew", padx=10, pady=10)
+
     def _create_search_bar(self):
         """Create the search bar with category filter."""
         self.search_bar = SearchBar(
