@@ -55,7 +55,7 @@ class TestIngredientModel:
         ingredient = Ingredient(
             name="Flour",
             brand="King Arthur",
-            category="Flour/Grains",
+            category="Flour",
             purchase_unit="bag",
             purchase_unit_size="50 lb",
             recipe_unit="cup",
@@ -75,7 +75,7 @@ class TestIngredientModel:
         """Test total value calculation."""
         ingredient = Ingredient(
             name="Sugar",
-            category="Sugar/Sweeteners",
+            category="Sugar",
             purchase_unit="bag",
             recipe_unit="cup",
             conversion_factor=20.0,
@@ -88,7 +88,7 @@ class TestIngredientModel:
         """Test available recipe units calculation."""
         ingredient = Ingredient(
             name="Flour",
-            category="Flour/Grains",
+            category="Flour",
             purchase_unit="bag",
             recipe_unit="cup",
             conversion_factor=200.0,
@@ -101,7 +101,7 @@ class TestIngredientModel:
         """Test conversion from purchase to recipe units."""
         ingredient = Ingredient(
             name="Flour",
-            category="Flour/Grains",
+            category="Flour",
             purchase_unit="bag",
             recipe_unit="cup",
             conversion_factor=200.0,
@@ -115,7 +115,7 @@ class TestIngredientModel:
         """Test conversion from recipe to purchase units."""
         ingredient = Ingredient(
             name="Flour",
-            category="Flour/Grains",
+            category="Flour",
             purchase_unit="bag",
             recipe_unit="cup",
             conversion_factor=200.0,
@@ -129,7 +129,7 @@ class TestIngredientModel:
         """Test cost per recipe unit calculation."""
         ingredient = Ingredient(
             name="Flour",
-            category="Flour/Grains",
+            category="Flour",
             purchase_unit="bag",
             recipe_unit="cup",
             conversion_factor=200.0,
@@ -143,7 +143,7 @@ class TestIngredientModel:
         """Test updating quantity."""
         ingredient = Ingredient(
             name="Flour",
-            category="Flour/Grains",
+            category="Flour",
             purchase_unit="bag",
             recipe_unit="cup",
             conversion_factor=200.0,
@@ -161,7 +161,7 @@ class TestIngredientModel:
         """Test adjusting quantity by delta."""
         ingredient = Ingredient(
             name="Flour",
-            category="Flour/Grains",
+            category="Flour",
             purchase_unit="bag",
             recipe_unit="cup",
             conversion_factor=200.0,
@@ -178,7 +178,7 @@ class TestIngredientModel:
         """Test dictionary serialization."""
         ingredient = Ingredient(
             name="Flour",
-            category="Flour/Grains",
+            category="Flour",
             purchase_unit="bag",
             recipe_unit="cup",
             conversion_factor=200.0,
@@ -221,7 +221,7 @@ class TestRecipeModel:
         # Create ingredient
         flour = Ingredient(
             name="Flour",
-            category="Flour/Grains",
+            category="Flour",
             purchase_unit="bag",
             recipe_unit="cup",
             conversion_factor=200.0,
@@ -262,7 +262,7 @@ class TestRecipeModel:
         # Create ingredients
         flour = Ingredient(
             name="Flour",
-            category="Flour/Grains",
+            category="Flour",
             purchase_unit="bag",
             recipe_unit="cup",
             conversion_factor=100.0,
@@ -271,7 +271,7 @@ class TestRecipeModel:
         )
         sugar = Ingredient(
             name="Sugar",
-            category="Sugar/Sweeteners",
+            category="Sugar",
             purchase_unit="bag",
             recipe_unit="cup",
             conversion_factor=20.0,
@@ -337,7 +337,7 @@ class TestRecipeIngredientModel:
         """Test creating recipe ingredient junction."""
         ingredient = Ingredient(
             name="Flour",
-            category="Flour/Grains",
+            category="Flour",
             purchase_unit="bag",
             recipe_unit="cup",
             conversion_factor=200.0,
@@ -371,7 +371,7 @@ class TestRecipeIngredientModel:
         """Test recipe ingredient cost calculation."""
         ingredient = Ingredient(
             name="Flour",
-            category="Flour/Grains",
+            category="Flour",
             purchase_unit="bag",
             recipe_unit="cup",
             conversion_factor=100.0,  # 100 cups per bag
@@ -404,7 +404,7 @@ class TestRecipeIngredientModel:
         """Test conversion to purchase units."""
         ingredient = Ingredient(
             name="Flour",
-            category="Flour/Grains",
+            category="Flour",
             purchase_unit="bag",
             recipe_unit="cup",
             conversion_factor=200.0,  # 200 cups per bag
@@ -455,7 +455,7 @@ class TestInventorySnapshotModel:
         # Create ingredients
         flour = Ingredient(
             name="Flour",
-            category="Flour/Grains",
+            category="Flour",
             purchase_unit="bag",
             recipe_unit="cup",
             conversion_factor=200.0,
@@ -488,7 +488,7 @@ class TestInventorySnapshotModel:
         # Create ingredients
         flour = Ingredient(
             name="Flour",
-            category="Flour/Grains",
+            category="Flour",
             purchase_unit="bag",
             recipe_unit="cup",
             conversion_factor=200.0,
@@ -497,7 +497,7 @@ class TestInventorySnapshotModel:
         )
         sugar = Ingredient(
             name="Sugar",
-            category="Sugar/Sweeteners",
+            category="Sugar",
             purchase_unit="bag",
             recipe_unit="cup",
             conversion_factor=20.0,
@@ -529,7 +529,7 @@ class TestInventorySnapshotModel:
         """Test getting specific ingredient quantity from snapshot."""
         ingredient = Ingredient(
             name="Flour",
-            category="Flour/Grains",
+            category="Flour",
             purchase_unit="bag",
             recipe_unit="cup",
             conversion_factor=200.0,
@@ -563,7 +563,7 @@ class TestModelRelationships:
         """Test ingredient can access recipes that use it."""
         ingredient = Ingredient(
             name="Flour",
-            category="Flour/Grains",
+            category="Flour",
             purchase_unit="bag",
             recipe_unit="cup",
             conversion_factor=200.0,
@@ -596,7 +596,7 @@ class TestModelRelationships:
         """Test that deleting recipe cascades to recipe_ingredients."""
         ingredient = Ingredient(
             name="Flour",
-            category="Flour/Grains",
+            category="Flour",
             purchase_unit="bag",
             recipe_unit="cup",
             conversion_factor=200.0,

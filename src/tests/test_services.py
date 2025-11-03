@@ -73,7 +73,7 @@ def sample_ingredient_data():
     return {
         "name": "All-Purpose Flour",
         "brand": "King Arthur",
-        "category": "Flour/Grains",
+        "category": "Flour",
         "purchase_unit": "bag",
         "purchase_unit_size": "50 lb",
         "recipe_unit": "cup",
@@ -114,7 +114,7 @@ class TestInventoryServiceCRUD:
         assert ingredient.id is not None
         assert ingredient.name == "All-Purpose Flour"
         assert ingredient.brand == "King Arthur"
-        assert ingredient.category == "Flour/Grains"
+        assert ingredient.category == "Flour"
         assert ingredient.quantity == 2.5
         assert ingredient.unit_cost == 20.00
 
@@ -153,7 +153,7 @@ class TestInventoryServiceCRUD:
 
         data2 = sample_ingredient_data.copy()
         data2["name"] = "Granulated Sugar"
-        data2["category"] = "Sugar/Sweeteners"
+        data2["category"] = "Sugar"
         inventory_service.create_ingredient(data2)
 
         ingredients = inventory_service.get_all_ingredients()
@@ -166,13 +166,13 @@ class TestInventoryServiceCRUD:
 
         data2 = sample_ingredient_data.copy()
         data2["name"] = "Sugar"
-        data2["category"] = "Sugar/Sweeteners"
+        data2["category"] = "Sugar"
         inventory_service.create_ingredient(data2)
 
-        flour_ingredients = inventory_service.get_all_ingredients(category="Flour/Grains")
+        flour_ingredients = inventory_service.get_all_ingredients(category="Flour")
 
         assert len(flour_ingredients) == 1
-        assert flour_ingredients[0].category == "Flour/Grains"
+        assert flour_ingredients[0].category == "Flour"
 
     def test_get_all_ingredients_filter_by_name(self, db_session, sample_ingredient_data):
         """Test filtering ingredients by name search."""
@@ -331,13 +331,13 @@ class TestInventoryServiceUtilities:
 
         data2 = sample_ingredient_data.copy()
         data2["name"] = "Sugar"
-        data2["category"] = "Sugar/Sweeteners"
+        data2["category"] = "Sugar"
         inventory_service.create_ingredient(data2)
 
         categories = inventory_service.get_category_list()
 
-        assert "Flour/Grains" in categories
-        assert "Sugar/Sweeteners" in categories
+        assert "Flour" in categories
+        assert "Sugar" in categories
 
     def test_get_total_inventory_value(self, db_session, sample_ingredient_data):
         """Test calculating total inventory value."""

@@ -183,7 +183,7 @@ class TestCategoryValidation:
 
     def test_validate_ingredient_category_valid(self):
         """Test ingredient category with valid category."""
-        is_valid, error = validators.validate_ingredient_category("Flour/Grains", "Category")
+        is_valid, error = validators.validate_ingredient_category("Flour", "Category")
         assert is_valid is True
 
     def test_validate_ingredient_category_invalid(self):
@@ -215,7 +215,7 @@ class TestIngredientValidation:
         return {
             "name": "All-Purpose Flour",
             "brand": "King Arthur",
-            "category": "Flour/Grains",
+            "category": "Flour",
             "purchase_unit": "bag",
             "purchase_unit_size": "50 lb",
             "recipe_unit": "cup",
