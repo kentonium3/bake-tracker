@@ -338,40 +338,41 @@ class RecipesTab(ctk.CTkFrame):
         try:
             # Get recipe with calculated costs
             recipe_data = recipe_service.get_recipe_with_costs(self.selected_recipe.id)
+            recipe = recipe_data['recipe']
 
             # Build details message
             details = []
-            details.append(f"Recipe: {recipe_data['name']}")
-            details.append(f"Category: {recipe_data['category']}")
-            details.append(f"Yields: {recipe_data['yield_quantity']} {recipe_data['yield_unit']}")
+            details.append(f"Recipe: {recipe.name}")
+            details.append(f"Category: {recipe.category}")
+            details.append(f"Yields: {recipe.yield_quantity} {recipe.yield_unit}")
 
-            if recipe_data.get("prep_time"):
-                details.append(f"Prep Time: {recipe_data['prep_time']} minutes")
+            if recipe.estimated_time_minutes:
+                details.append(f"Prep Time: {recipe.estimated_time_minutes} minutes")
 
             details.append("")
             details.append("Cost Breakdown:")
             details.append(f"  Total Cost: ${recipe_data['total_cost']:.2f}")
             details.append(
-                f"  Cost per {recipe_data['yield_unit']}: ${recipe_data['cost_per_unit']:.4f}"
+                f"  Cost per {recipe.yield_unit}: ${recipe_data['cost_per_unit']:.4f}"
             )
 
             details.append("")
             details.append("Ingredients:")
 
             for ing in recipe_data["ingredients"]:
-                ing_name = ing["ingredient_name"]
+                ing_name = ing["ingredient"].name
                 ing_qty = ing["quantity"]
                 ing_unit = ing["unit"]
                 ing_cost = ing["cost"]
                 details.append(f"  • {ing_qty} {ing_unit} {ing_name} (${ing_cost:.2f})")
 
-            if recipe_data.get("notes"):
+            if recipe.notes:
                 details.append("")
                 details.append("Notes:")
-                details.append(f"  {recipe_data['notes']}")
+                details.append(f"  {recipe.notes}")
 
             show_info(
-                f"Recipe Details: {recipe_data['name']}",
+                f"Recipe Details: {recipe.name}",
                 "\n".join(details),
                 parent=self,
             )

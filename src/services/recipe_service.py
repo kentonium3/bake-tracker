@@ -479,6 +479,11 @@ def get_recipe_with_costs(recipe_id: int) -> Dict:
             if not recipe:
                 raise RecipeNotFound(recipe_id)
 
+            # Eagerly load relationships to avoid lazy loading issues
+            _ = recipe.recipe_ingredients
+            for ri in recipe.recipe_ingredients:
+                _ = ri.ingredient
+
             # Build ingredient cost breakdown
             ingredient_costs = []
             for recipe_ingredient in recipe.recipe_ingredients:
