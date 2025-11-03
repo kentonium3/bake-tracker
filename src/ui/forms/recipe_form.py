@@ -36,6 +36,7 @@ class RecipeIngredientRow(ctk.CTkFrame):
         remove_callback,
         ingredient_id: Optional[int] = None,
         quantity: float = 1.0,
+        unit: Optional[str] = None,
     ):
         """
         Initialize ingredient row.
@@ -46,6 +47,7 @@ class RecipeIngredientRow(ctk.CTkFrame):
             remove_callback: Callback to remove this row
             ingredient_id: Selected ingredient ID (None for new row)
             quantity: Ingredient quantity
+            unit: Unit of measurement (None to use ingredient's default recipe_unit)
         """
         super().__init__(parent)
 
@@ -53,12 +55,13 @@ class RecipeIngredientRow(ctk.CTkFrame):
         self.ingredients = ingredients
 
         # Configure grid
-        self.grid_columnconfigure(0, weight=2)  # Ingredient dropdown
-        self.grid_columnconfigure(1, weight=1)  # Quantity
-        self.grid_columnconfigure(2, weight=0)  # Remove button
+        self.grid_columnconfigure(0, weight=3)  # Ingredient dropdown
+        self.grid_columnconfigure(1, weight=2)  # Unit dropdown
+        self.grid_columnconfigure(2, weight=1)  # Quantity
+        self.grid_columnconfigure(3, weight=0)  # Remove button
 
-        # Ingredient dropdown
-        ingredient_names = [f"{i.name} ({i.recipe_unit})" for i in ingredients]
+        # Ingredient dropdown (no unit suffix)
+        ingredient_names = [i.name for i in ingredients]
         self.ingredient_combo = ctk.CTkComboBox(
             self,
             values=ingredient_names if ingredient_names else ["No ingredients available"],
@@ -76,10 +79,32 @@ class RecipeIngredientRow(ctk.CTkFrame):
 
         self.ingredient_combo.grid(row=0, column=0, padx=(0, PADDING_MEDIUM), pady=5, sticky="ew")
 
+        # Unit dropdown - shows all recipe units
+        available_units = WEIGHT_UNITS + VOLUME_UNITS + COUNT_UNITS
+        self.unit_combo = ctk.CTkComboBox(
+            self,
+            values=available_units,
+            state="readonly",
+            width=100,
+        )
+        # Set unit: use provided unit, or ingredient's recipe_unit, or default to "cup"
+        if unit:
+            default_unit = unit
+        elif ingredient_id and ingredients:
+            default_unit = "cup"  # fallback
+            for ing in ingredients:
+                if ing.id == ingredient_id:
+                    default_unit = ing.recipe_unit
+                    break
+        else:
+            default_unit = "cup"
+        self.unit_combo.set(default_unit)
+        self.unit_combo.grid(row=0, column=1, padx=PADDING_MEDIUM, pady=5, sticky="ew")
+
         # Quantity entry
         self.quantity_entry = ctk.CTkEntry(self, width=100, placeholder_text="Quantity")
         self.quantity_entry.insert(0, str(quantity))
-        self.quantity_entry.grid(row=0, column=1, padx=PADDING_MEDIUM, pady=5)
+        self.quantity_entry.grid(row=0, column=2, padx=PADDING_MEDIUM, pady=5)
 
         # Remove button
         remove_button = ctk.CTkButton(
@@ -90,29 +115,32 @@ class RecipeIngredientRow(ctk.CTkFrame):
             fg_color="darkred",
             hover_color="red",
         )
-        remove_button.grid(row=0, column=2, padx=(PADDING_MEDIUM, 0), pady=5)
+        remove_button.grid(row=0, column=3, padx=(PADDING_MEDIUM, 0), pady=5)
 
     def get_data(self) -> Optional[Dict[str, Any]]:
         """
         Get ingredient data from this row.
 
         Returns:
-            Dictionary with ingredient_id and quantity, or None if invalid
+            Dictionary with ingredient_id, quantity, and unit, or None if invalid
         """
         if not self.ingredients:
             return None
 
-        # Get selected ingredient
+        # Get selected ingredient by name
         selected_name = self.ingredient_combo.get()
         ingredient_id = None
-        ingredient_unit = None
-        for idx, ing in enumerate(self.ingredients):
-            if f"{ing.name} ({ing.recipe_unit})" == selected_name:
+        for ing in self.ingredients:
+            if ing.name == selected_name:
                 ingredient_id = ing.id
-                ingredient_unit = ing.recipe_unit
                 break
 
         if not ingredient_id:
+            return None
+
+        # Get selected unit from dropdown
+        unit = self.unit_combo.get()
+        if not unit:
             return None
 
         # Get quantity
@@ -126,7 +154,7 @@ class RecipeIngredientRow(ctk.CTkFrame):
         return {
             "ingredient_id": ingredient_id,
             "quantity": quantity,
-            "unit": ingredient_unit,
+            "unit": unit,
         }
 
 
@@ -381,6 +409,7 @@ class RecipeFormDialog(ctk.CTkToplevel):
         self,
         ingredient_id: Optional[int] = None,
         quantity: float = 1.0,
+        unit: Optional[str] = None,
     ):
         """
         Add a new ingredient row.
@@ -388,6 +417,7 @@ class RecipeFormDialog(ctk.CTkToplevel):
         Args:
             ingredient_id: Ingredient to select (None for default)
             quantity: Ingredient quantity
+            unit: Unit of measurement (None for default)
         """
         if not self.available_ingredients:
             show_error(
@@ -403,6 +433,7 @@ class RecipeFormDialog(ctk.CTkToplevel):
             self._remove_ingredient_row,
             ingredient_id,
             quantity,
+            unit,
         )
         row.grid(row=len(self.ingredient_rows), column=0, sticky="ew", pady=2)
         self.ingredient_rows.append(row)
@@ -437,10 +468,11 @@ class RecipeFormDialog(ctk.CTkToplevel):
             self.notes_text.insert("1.0", self.recipe.notes)
 
         # Recipe ingredients
-        for recipe_ingredient in self.recipe.ingredients:
+        for recipe_ingredient in self.recipe.recipe_ingredients:
             self._add_ingredient_row(
                 ingredient_id=recipe_ingredient.ingredient_id,
                 quantity=float(recipe_ingredient.quantity),
+                unit=recipe_ingredient.unit,
             )
 
     def _validate_form(self) -> Optional[Dict[str, Any]]:
