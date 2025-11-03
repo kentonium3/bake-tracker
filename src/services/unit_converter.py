@@ -14,6 +14,7 @@ Conversion Strategy:
 """
 
 from typing import Optional, Tuple
+from src.utils.constants import get_ingredient_density
 
 
 # ============================================================================
@@ -190,6 +191,138 @@ def format_conversion(value: float, from_unit: str, to_unit: str, precision: int
         return f"Error: {error}"
 
     return f"{value:g} {from_unit} = {converted:.{precision}f} {to_unit}"
+
+
+# ============================================================================
+# Volume-to-Weight Conversions
+# ============================================================================
+
+
+def convert_volume_to_weight(
+    volume_value: float,
+    volume_unit: str,
+    weight_unit: str,
+    ingredient_name: str,
+) -> Tuple[bool, float, str]:
+    """
+    Convert a volume measurement to weight using ingredient density.
+
+    Args:
+        volume_value: Quantity in volume units
+        volume_unit: Volume unit (e.g., "cup", "tbsp", "ml")
+        weight_unit: Target weight unit (e.g., "g", "oz", "lb")
+        ingredient_name: Name of ingredient (for density lookup)
+
+    Returns:
+        Tuple of (success, weight_value, error_message)
+    """
+    # Get ingredient density (g/cup)
+    density_g_per_cup = get_ingredient_density(ingredient_name)
+    if density_g_per_cup == 0.0:
+        return False, 0.0, f"No density data available for ingredient: {ingredient_name}"
+
+    # Convert volume to cups first
+    success, cups, error = convert_standard_units(volume_value, volume_unit, "cup")
+    if not success:
+        return False, 0.0, f"Failed to convert {volume_unit} to cups: {error}"
+
+    # Convert cups to grams using density
+    grams = cups * density_g_per_cup
+
+    # Convert grams to target weight unit
+    success, weight_value, error = convert_standard_units(grams, "g", weight_unit)
+    if not success:
+        return False, 0.0, f"Failed to convert grams to {weight_unit}: {error}"
+
+    return True, weight_value, ""
+
+
+def convert_weight_to_volume(
+    weight_value: float,
+    weight_unit: str,
+    volume_unit: str,
+    ingredient_name: str,
+) -> Tuple[bool, float, str]:
+    """
+    Convert a weight measurement to volume using ingredient density.
+
+    Args:
+        weight_value: Quantity in weight units
+        weight_unit: Weight unit (e.g., "g", "oz", "lb")
+        volume_unit: Target volume unit (e.g., "cup", "tbsp", "ml")
+        ingredient_name: Name of ingredient (for density lookup)
+
+    Returns:
+        Tuple of (success, volume_value, error_message)
+    """
+    # Get ingredient density (g/cup)
+    density_g_per_cup = get_ingredient_density(ingredient_name)
+    if density_g_per_cup == 0.0:
+        return False, 0.0, f"No density data available for ingredient: {ingredient_name}"
+
+    # Convert weight to grams first
+    success, grams, error = convert_standard_units(weight_value, weight_unit, "g")
+    if not success:
+        return False, 0.0, f"Failed to convert {weight_unit} to grams: {error}"
+
+    # Convert grams to cups using density
+    cups = grams / density_g_per_cup
+
+    # Convert cups to target volume unit
+    success, volume_value, error = convert_standard_units(cups, "cup", volume_unit)
+    if not success:
+        return False, 0.0, f"Failed to convert cups to {volume_unit}: {error}"
+
+    return True, volume_value, ""
+
+
+def convert_any_units(
+    value: float,
+    from_unit: str,
+    to_unit: str,
+    ingredient_name: Optional[str] = None,
+) -> Tuple[bool, float, str]:
+    """
+    Convert between any units, including cross-type conversions (volume↔weight).
+
+    This function intelligently handles:
+    - Same-type conversions (weight→weight, volume→volume)
+    - Cross-type conversions (volume→weight, weight→volume) using ingredient density
+
+    Args:
+        value: Quantity to convert
+        from_unit: Source unit
+        to_unit: Target unit
+        ingredient_name: Name of ingredient (required for volume↔weight conversions)
+
+    Returns:
+        Tuple of (success, converted_value, error_message)
+    """
+    from_type = get_unit_type(from_unit)
+    to_type = get_unit_type(to_unit)
+
+    # Same type conversion - use standard conversion
+    if from_type == to_type:
+        return convert_standard_units(value, from_unit, to_unit)
+
+    # Volume to weight conversion
+    if from_type == "volume" and to_type == "weight":
+        if not ingredient_name:
+            return False, 0.0, "Ingredient name required for volume-to-weight conversion"
+        return convert_volume_to_weight(value, from_unit, to_unit, ingredient_name)
+
+    # Weight to volume conversion
+    if from_type == "weight" and to_type == "volume":
+        if not ingredient_name:
+            return False, 0.0, "Ingredient name required for weight-to-volume conversion"
+        return convert_weight_to_volume(value, from_unit, to_unit, ingredient_name)
+
+    # Incompatible conversion
+    return (
+        False,
+        0.0,
+        f"Cannot convert between {from_type} and {to_type} (incompatible unit types)",
+    )
 
 
 # ============================================================================
