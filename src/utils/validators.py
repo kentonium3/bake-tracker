@@ -235,10 +235,17 @@ def validate_ingredient_data(data: dict) -> Tuple[bool, list]:  # noqa: C901
     if not is_valid:
         errors.append(error)
 
-    # Recipe unit
-    is_valid, error = validate_unit(data.get("recipe_unit", ""), "Recipe Unit")
-    if not is_valid:
-        errors.append(error)
+    # Recipe unit (optional)
+    if data.get("recipe_unit"):
+        is_valid, error = validate_unit(data.get("recipe_unit"), "Recipe Unit")
+        if not is_valid:
+            errors.append(error)
+
+    # Density (optional, must be positive if provided)
+    if data.get("density_g_per_cup") is not None:
+        is_valid, error = validate_positive_number(data.get("density_g_per_cup"), "Density")
+        if not is_valid:
+            errors.append(error)
 
     # Conversion factor (must be positive)
     is_valid, error = validate_positive_number(data.get("conversion_factor"), "Conversion Factor")

@@ -26,8 +26,9 @@ class Ingredient(BaseModel):
         category: Category (e.g., "Flour/Grains", "Sugar/Sweeteners")
         purchase_unit: Unit purchased in (e.g., "bag", "lb")
         purchase_unit_size: Size description (e.g., "50 lb")
-        recipe_unit: Unit used in recipes (e.g., "cup", "oz")
+        recipe_unit: Optional default unit hint for recipes (e.g., "cup", "oz")
         conversion_factor: Purchase units to recipe units (e.g., 200 = 1 bag = 200 cups)
+        density_g_per_cup: Density in grams per cup for volume-weight conversions
         quantity: Current quantity in purchase units
         unit_cost: Cost per purchase unit
         last_updated: Last modification timestamp
@@ -44,8 +45,11 @@ class Ingredient(BaseModel):
     # Unit information
     purchase_unit = Column(String(50), nullable=False)
     purchase_unit_size = Column(String(100), nullable=True)
-    recipe_unit = Column(String(50), nullable=False)
+    recipe_unit = Column(String(50), nullable=True)  # Optional: used as default unit hint
     conversion_factor = Column(Float, nullable=False)
+
+    # Density for volume-weight conversions (grams per cup)
+    density_g_per_cup = Column(Float, nullable=True)
 
     # Inventory tracking
     quantity = Column(Float, nullable=False, default=0.0)
@@ -161,3 +165,28 @@ class Ingredient(BaseModel):
         """
         self.quantity += adjustment
         self.last_updated = datetime.utcnow()
+
+    def get_density(self) -> float:
+        """
+        Get ingredient density (grams per cup).
+
+        Returns stored density if available, otherwise looks up from constants.
+
+        Returns:
+            Density in grams per cup, or 0.0 if not available
+        """
+        if self.density_g_per_cup is not None and self.density_g_per_cup > 0:
+            return self.density_g_per_cup
+
+        # Fallback to constants lookup
+        from src.utils.constants import get_ingredient_density
+        return get_ingredient_density(self.name)
+
+    def has_density_data(self) -> bool:
+        """
+        Check if ingredient has density data available for volume-weight conversions.
+
+        Returns:
+            True if density data is available
+        """
+        return self.get_density() > 0.0

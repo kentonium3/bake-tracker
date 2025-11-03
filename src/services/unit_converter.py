@@ -202,7 +202,8 @@ def convert_volume_to_weight(
     volume_value: float,
     volume_unit: str,
     weight_unit: str,
-    ingredient_name: str,
+    ingredient_name: str = None,
+    density_override: float = None,
 ) -> Tuple[bool, float, str]:
     """
     Convert a volume measurement to weight using ingredient density.
@@ -211,15 +212,22 @@ def convert_volume_to_weight(
         volume_value: Quantity in volume units
         volume_unit: Volume unit (e.g., "cup", "tbsp", "ml")
         weight_unit: Target weight unit (e.g., "g", "oz", "lb")
-        ingredient_name: Name of ingredient (for density lookup)
+        ingredient_name: Name of ingredient (for density lookup from constants)
+        density_override: Direct density value (g/cup) to use instead of lookup
 
     Returns:
         Tuple of (success, weight_value, error_message)
     """
     # Get ingredient density (g/cup)
-    density_g_per_cup = get_ingredient_density(ingredient_name)
+    if density_override and density_override > 0:
+        density_g_per_cup = density_override
+    elif ingredient_name:
+        density_g_per_cup = get_ingredient_density(ingredient_name)
+    else:
+        density_g_per_cup = 0.0
+
     if density_g_per_cup == 0.0:
-        return False, 0.0, f"No density data available for ingredient: {ingredient_name}"
+        return False, 0.0, f"No density data available for ingredient: {ingredient_name or 'unknown'}"
 
     # Convert volume to cups first
     success, cups, error = convert_standard_units(volume_value, volume_unit, "cup")
@@ -241,7 +249,8 @@ def convert_weight_to_volume(
     weight_value: float,
     weight_unit: str,
     volume_unit: str,
-    ingredient_name: str,
+    ingredient_name: str = None,
+    density_override: float = None,
 ) -> Tuple[bool, float, str]:
     """
     Convert a weight measurement to volume using ingredient density.
@@ -250,15 +259,22 @@ def convert_weight_to_volume(
         weight_value: Quantity in weight units
         weight_unit: Weight unit (e.g., "g", "oz", "lb")
         volume_unit: Target volume unit (e.g., "cup", "tbsp", "ml")
-        ingredient_name: Name of ingredient (for density lookup)
+        ingredient_name: Name of ingredient (for density lookup from constants)
+        density_override: Direct density value (g/cup) to use instead of lookup
 
     Returns:
         Tuple of (success, volume_value, error_message)
     """
     # Get ingredient density (g/cup)
-    density_g_per_cup = get_ingredient_density(ingredient_name)
+    if density_override and density_override > 0:
+        density_g_per_cup = density_override
+    elif ingredient_name:
+        density_g_per_cup = get_ingredient_density(ingredient_name)
+    else:
+        density_g_per_cup = 0.0
+
     if density_g_per_cup == 0.0:
-        return False, 0.0, f"No density data available for ingredient: {ingredient_name}"
+        return False, 0.0, f"No density data available for ingredient: {ingredient_name or 'unknown'}"
 
     # Convert weight to grams first
     success, grams, error = convert_standard_units(weight_value, weight_unit, "g")
@@ -281,6 +297,7 @@ def convert_any_units(
     from_unit: str,
     to_unit: str,
     ingredient_name: Optional[str] = None,
+    density_override: Optional[float] = None,
 ) -> Tuple[bool, float, str]:
     """
     Convert between any units, including cross-type conversions (volume↔weight).
@@ -293,7 +310,8 @@ def convert_any_units(
         value: Quantity to convert
         from_unit: Source unit
         to_unit: Target unit
-        ingredient_name: Name of ingredient (required for volume↔weight conversions)
+        ingredient_name: Name of ingredient (for density lookup from constants)
+        density_override: Direct density value (g/cup) to use instead of lookup
 
     Returns:
         Tuple of (success, converted_value, error_message)
@@ -307,15 +325,15 @@ def convert_any_units(
 
     # Volume to weight conversion
     if from_type == "volume" and to_type == "weight":
-        if not ingredient_name:
-            return False, 0.0, "Ingredient name required for volume-to-weight conversion"
-        return convert_volume_to_weight(value, from_unit, to_unit, ingredient_name)
+        if not ingredient_name and not density_override:
+            return False, 0.0, "Ingredient name or density required for volume-to-weight conversion"
+        return convert_volume_to_weight(value, from_unit, to_unit, ingredient_name, density_override)
 
     # Weight to volume conversion
     if from_type == "weight" and to_type == "volume":
-        if not ingredient_name:
-            return False, 0.0, "Ingredient name required for weight-to-volume conversion"
-        return convert_weight_to_volume(value, from_unit, to_unit, ingredient_name)
+        if not ingredient_name and not density_override:
+            return False, 0.0, "Ingredient name or density required for weight-to-volume conversion"
+        return convert_weight_to_volume(value, from_unit, to_unit, ingredient_name, density_override)
 
     # Incompatible conversion
     return (

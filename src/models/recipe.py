@@ -185,22 +185,40 @@ class RecipeIngredient(BaseModel):
         # Import here to avoid circular import
         from src.services.unit_converter import convert_any_units
 
-        # Convert recipe unit to ingredient's recipe_unit
-        # This handles cross-unit conversions (e.g., grams → cups) using ingredient density
-        success, quantity_in_recipe_unit, error = convert_any_units(
-            self.quantity,
-            self.unit,
-            self.ingredient.recipe_unit,
-            ingredient_name=self.ingredient.name,
-        )
+        # Get ingredient density for cross-unit conversions
+        ingredient_density = self.ingredient.get_density() if hasattr(self.ingredient, 'get_density') else 0.0
 
-        if not success:
-            # If conversion fails, fall back to treating units as equivalent
-            # This handles cases where density data is missing
-            quantity_in_recipe_unit = self.quantity
+        # If ingredient has recipe_unit defined, convert to it first
+        # Otherwise, convert directly to purchase_unit
+        if self.ingredient.recipe_unit:
+            # Convert recipe unit to ingredient's recipe_unit using density if needed
+            success, quantity_in_recipe_unit, error = convert_any_units(
+                self.quantity,
+                self.unit,
+                self.ingredient.recipe_unit,
+                ingredient_name=self.ingredient.name,
+                density_override=ingredient_density if ingredient_density > 0 else None,
+            )
 
-        # Convert from recipe_unit to purchase_unit using conversion_factor
-        purchase_unit_quantity = quantity_in_recipe_unit / self.ingredient.conversion_factor
+            if not success:
+                # Fallback: treat units as equivalent
+                quantity_in_recipe_unit = self.quantity
+
+            # Convert from recipe_unit to purchase_unit using conversion_factor
+            purchase_unit_quantity = quantity_in_recipe_unit / self.ingredient.conversion_factor
+        else:
+            # No recipe_unit defined - convert directly to purchase_unit
+            success, purchase_unit_quantity, error = convert_any_units(
+                self.quantity,
+                self.unit,
+                self.ingredient.purchase_unit,
+                ingredient_name=self.ingredient.name,
+                density_override=ingredient_density if ingredient_density > 0 else None,
+            )
+
+            if not success:
+                # Fallback: treat units as equivalent
+                purchase_unit_quantity = self.quantity
 
         # Calculate cost
         cost = purchase_unit_quantity * self.ingredient.unit_cost
@@ -223,20 +241,42 @@ class RecipeIngredient(BaseModel):
         # Import here to avoid circular import
         from src.services.unit_converter import convert_any_units
 
-        # Convert recipe unit to ingredient's recipe_unit
-        success, quantity_in_recipe_unit, error = convert_any_units(
-            self.quantity,
-            self.unit,
-            self.ingredient.recipe_unit,
-            ingredient_name=self.ingredient.name,
-        )
+        # Get ingredient density for cross-unit conversions
+        ingredient_density = self.ingredient.get_density() if hasattr(self.ingredient, 'get_density') else 0.0
 
-        if not success:
-            # Fallback: treat units as equivalent
-            quantity_in_recipe_unit = self.quantity
+        # If ingredient has recipe_unit defined, convert to it first
+        # Otherwise, convert directly to purchase_unit
+        if self.ingredient.recipe_unit:
+            # Convert recipe unit to ingredient's recipe_unit
+            success, quantity_in_recipe_unit, error = convert_any_units(
+                self.quantity,
+                self.unit,
+                self.ingredient.recipe_unit,
+                ingredient_name=self.ingredient.name,
+                density_override=ingredient_density if ingredient_density > 0 else None,
+            )
 
-        # Convert from recipe_unit to purchase_unit using conversion_factor
-        return quantity_in_recipe_unit / self.ingredient.conversion_factor
+            if not success:
+                # Fallback: treat units as equivalent
+                quantity_in_recipe_unit = self.quantity
+
+            # Convert from recipe_unit to purchase_unit using conversion_factor
+            return quantity_in_recipe_unit / self.ingredient.conversion_factor
+        else:
+            # No recipe_unit defined - convert directly to purchase_unit
+            success, purchase_unit_quantity, error = convert_any_units(
+                self.quantity,
+                self.unit,
+                self.ingredient.purchase_unit,
+                ingredient_name=self.ingredient.name,
+                density_override=ingredient_density if ingredient_density > 0 else None,
+            )
+
+            if not success:
+                # Fallback: treat units as equivalent
+                purchase_unit_quantity = self.quantity
+
+            return purchase_unit_quantity
 
     def to_dict(self, include_relationships: bool = False) -> dict:
         """

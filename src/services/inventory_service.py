@@ -58,8 +58,9 @@ def create_ingredient(data: Dict) -> Ingredient:
                 category=data["category"],
                 purchase_unit=data["purchase_unit"],
                 purchase_unit_size=data.get("purchase_unit_size"),
-                recipe_unit=data["recipe_unit"],
+                recipe_unit=data.get("recipe_unit"),  # Optional
                 conversion_factor=data["conversion_factor"],
+                density_g_per_cup=data.get("density_g_per_cup"),  # Optional
                 quantity=data.get("quantity", 0.0),
                 unit_cost=data.get("unit_cost", 0.0),
                 notes=data.get("notes"),
