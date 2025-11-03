@@ -10,6 +10,7 @@ from tkinter import messagebox
 from src.utils.constants import APP_NAME, APP_VERSION
 from src.ui.dashboard_tab import DashboardTab
 from src.ui.inventory_tab import InventoryTab
+from src.ui.recipes_tab import RecipesTab
 
 
 class MainWindow(ctk.CTk):
@@ -95,8 +96,11 @@ class MainWindow(ctk.CTk):
         inventory_frame = self.tabview.tab("Inventory")
         self.inventory_tab = InventoryTab(inventory_frame)
 
+        # Initialize Recipes tab
+        recipes_frame = self.tabview.tab("Recipes")
+        self.recipes_tab = RecipesTab(recipes_frame)
+
         # Add placeholders for other tabs
-        self._add_placeholder_tab("Recipes", "Phase 1: Available")
         self._add_placeholder_tab("Bundles", "Phase 2: Coming Soon")
         self._add_placeholder_tab("Packages", "Phase 2: Coming Soon")
         self._add_placeholder_tab("Recipients", "Phase 3: Coming Soon")
@@ -178,6 +182,10 @@ class MainWindow(ctk.CTk):
     def refresh_inventory(self):
         """Refresh the inventory tab with current data."""
         self.inventory_tab.refresh()
+
+    def refresh_recipes(self):
+        """Refresh the recipes tab with current data."""
+        self.recipes_tab.refresh()
 
     def switch_to_tab(self, tab_name: str):
         """
