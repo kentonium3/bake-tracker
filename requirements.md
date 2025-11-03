@@ -227,7 +227,7 @@ A desktop application for managing holiday baking inventory, recipes, and gift p
 ### 2.3 File Structure
 
 ```
-seasonal-baking-tracker/
+bake-tracker/
 ├── src/
 │   ├── main.py                 # Application entry point
 │   ├── models/
