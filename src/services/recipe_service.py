@@ -95,6 +95,11 @@ def create_recipe(recipe_data: Dict, ingredients_data: List[Dict] = None) -> Rec
             session.flush()
             session.refresh(recipe)
 
+            # Eagerly load relationships to avoid lazy loading issues
+            _ = recipe.recipe_ingredients
+            for ri in recipe.recipe_ingredients:
+                _ = ri.ingredient
+
             return recipe
 
     except (ValidationError, IngredientNotFound):
@@ -125,8 +130,10 @@ def get_recipe(recipe_id: int, include_costs: bool = False) -> Recipe:
             if not recipe:
                 raise RecipeNotFound(recipe_id)
 
-            # Access relationships to load them
+            # Eagerly load relationships to avoid lazy loading issues
             _ = recipe.recipe_ingredients
+            for ri in recipe.recipe_ingredients:
+                _ = ri.ingredient
 
             return recipe
 
@@ -175,6 +182,12 @@ def get_all_recipes(
             query = query.order_by(Recipe.name)
 
             recipes = query.all()
+
+            # Eagerly load relationships to avoid lazy loading issues
+            for recipe in recipes:
+                _ = recipe.recipe_ingredients
+                for ri in recipe.recipe_ingredients:
+                    _ = ri.ingredient
 
             return recipes
 
@@ -247,6 +260,11 @@ def update_recipe(  # noqa: C901
 
             session.flush()
             session.refresh(recipe)
+
+            # Eagerly load relationships to avoid lazy loading issues
+            _ = recipe.recipe_ingredients
+            for ri in recipe.recipe_ingredients:
+                _ = ri.ingredient
 
             return recipe
 
