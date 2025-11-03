@@ -56,10 +56,12 @@ COUNT_UNITS: List[str] = [
 PACKAGE_UNITS: List[str] = [
     "bag",
     "box",
-    "container",
-    "jar",
+    "bar",
     "bottle",
     "can",
+    "jar",
+    "packet",
+    "container",
     "package",
     "case",
 ]
@@ -92,10 +94,12 @@ UNIT_TYPE_MAP: Dict[str, str] = {
     # Package (custom units - type determined by ingredient)
     "bag": "package",
     "box": "package",
-    "container": "package",
-    "jar": "package",
+    "bar": "package",
     "bottle": "package",
     "can": "package",
+    "jar": "package",
+    "packet": "package",
+    "container": "package",
     "package": "package",
     "case": "package",
 }
@@ -105,19 +109,18 @@ UNIT_TYPE_MAP: Dict[str, str] = {
 # ============================================================================
 
 INGREDIENT_CATEGORIES: List[str] = [
-    "Flour/Grains",
-    "Sugar/Sweeteners",
-    "Dairy",
-    "Eggs",
-    "Chocolate/Cocoa",
-    "Nuts/Seeds",
-    "Spices/Extracts",
-    "Fats/Oils",
-    "Leavening",
-    "Dried Fruit",
-    "Fresh Fruit",
-    "Decorations",
-    "Other",
+    "Flour",
+    "Sugar",
+    "Oils/Butters",
+    "Nuts",
+    "Spices",
+    "Chocolate/Candies",
+    "Cocoa Powders",
+    "Dried Fruits",
+    "Extracts",
+    "Syrups",
+    "Alcohol",
+    "Misc",
 ]
 
 # ============================================================================
@@ -127,14 +130,13 @@ INGREDIENT_CATEGORIES: List[str] = [
 RECIPE_CATEGORIES: List[str] = [
     "Cookies",
     "Cakes",
+    "Candies",
     "Bars",
     "Brownies",
-    "Candies",
     "Breads",
     "Pastries",
     "Pies",
     "Tarts",
-    "Fudge",
     "Other",
 ]
 
@@ -356,3 +358,60 @@ def format_quantity(quantity: float, precision: int = QUANTITY_DECIMAL_PLACES) -
     formatted = f"{quantity:.{precision}f}"
     # Remove trailing zeros and decimal point if not needed
     return formatted.rstrip("0").rstrip(".")
+
+
+# ============================================================================
+# Sample/Demo Data
+# ============================================================================
+
+SAMPLE_INGREDIENTS: List[Dict] = [
+    # Flour category
+    {
+        "name": "All-Purpose Flour",
+        "brand": "King Arthur",
+        "category": "Flour",
+        "purchase_unit": "bag",
+        "purchase_unit_size": "25 lb",
+        "recipe_unit": "cup",
+        "conversion_factor": 100.0,
+        "quantity": 2.0,
+        "unit_cost": 18.99,
+        "notes": "Store in cool, dry place",
+    },
+    # Sugar category
+    {
+        "name": "White Granulated Sugar",
+        "brand": "Costco",
+        "category": "Sugar",
+        "purchase_unit": "bag",
+        "purchase_unit_size": "25 lb",
+        "recipe_unit": "cup",
+        "conversion_factor": 56.25,
+        "quantity": 1.5,
+        "unit_cost": 16.99,
+    },
+    # Chocolate/Candies category
+    {
+        "name": "Semi-Sweet Chocolate Chips",
+        "brand": "Nestle",
+        "category": "Chocolate/Candies",
+        "purchase_unit": "bag",
+        "purchase_unit_size": "72 oz",
+        "recipe_unit": "cup",
+        "conversion_factor": 9.0,
+        "quantity": 0.5,
+        "unit_cost": 12.99,
+    },
+    # Nuts category
+    {
+        "name": "Almonds",
+        "brand": "Costco",
+        "category": "Nuts",
+        "purchase_unit": "bag",
+        "purchase_unit_size": "3 lb",
+        "recipe_unit": "cup",
+        "conversion_factor": 12.0,
+        "quantity": 1.0,
+        "unit_cost": 15.99,
+    },
+]
