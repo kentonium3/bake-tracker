@@ -226,6 +226,35 @@ class IngredientDataTable(DataTable):
     Specialized data table for displaying ingredients.
     """
 
+    def __init__(
+        self,
+        parent,
+        select_callback: Optional[Callable[[Any], None]] = None,
+        double_click_callback: Optional[Callable[[Any], None]] = None,
+    ):
+        """
+        Initialize ingredient data table.
+
+        Args:
+            parent: Parent widget
+            select_callback: Callback for row selection
+            double_click_callback: Callback for row double-click
+        """
+        columns = [
+            ("Name", 200),
+            ("Brand", 150),
+            ("Category", 120),
+            ("Quantity", 100),
+            ("Unit Cost", 100),
+            ("Total Value", 120),
+        ]
+        super().__init__(
+            parent,
+            columns=columns,
+            on_row_select=select_callback,
+            on_row_double_click=double_click_callback,
+        )
+
     def _get_row_values(self, row_data: Any) -> List[str]:
         """
         Extract ingredient-specific row values.
@@ -250,6 +279,34 @@ class RecipeDataTable(DataTable):
     """
     Specialized data table for displaying recipes.
     """
+
+    def __init__(
+        self,
+        parent,
+        select_callback: Optional[Callable[[Any], None]] = None,
+        double_click_callback: Optional[Callable[[Any], None]] = None,
+    ):
+        """
+        Initialize recipe data table.
+
+        Args:
+            parent: Parent widget
+            select_callback: Callback for row selection
+            double_click_callback: Callback for row double-click
+        """
+        columns = [
+            ("Name", 250),
+            ("Category", 120),
+            ("Yield", 150),
+            ("Total Cost", 100),
+            ("Cost/Unit", 100),
+        ]
+        super().__init__(
+            parent,
+            columns=columns,
+            on_row_select=select_callback,
+            on_row_double_click=double_click_callback,
+        )
 
     def _get_row_values(self, row_data: Any) -> List[str]:
         """
