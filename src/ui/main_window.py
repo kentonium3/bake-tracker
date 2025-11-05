@@ -11,6 +11,11 @@ from src.utils.constants import APP_NAME, APP_VERSION
 from src.ui.dashboard_tab import DashboardTab
 from src.ui.inventory_tab import InventoryTab
 from src.ui.recipes_tab import RecipesTab
+from src.ui.finished_goods_tab import FinishedGoodsTab
+from src.ui.bundles_tab import BundlesTab
+from src.ui.packages_tab import PackagesTab
+from src.ui.recipients_tab import RecipientsTab
+from src.ui.events_tab import EventsTab
 
 
 class MainWindow(ctk.CTk):
@@ -26,7 +31,7 @@ class MainWindow(ctk.CTk):
 
         # Window configuration
         self.title(f"{APP_NAME} - v{APP_VERSION}")
-        self.geometry("1200x800")
+        self.geometry("1400x900")
         self.minsize(1000, 600)
 
         # Configure grid layout
@@ -54,14 +59,14 @@ class MainWindow(ctk.CTk):
         menu_frame.grid(row=0, column=0, sticky="ew")
         menu_frame.grid_columnconfigure(0, weight=1)
 
-        # File menu button
-        file_button = ctk.CTkButton(
+        # Exit button
+        exit_button = ctk.CTkButton(
             menu_frame,
-            text="File",
+            text="Exit",
             width=80,
             command=self._show_file_menu,
         )
-        file_button.grid(row=0, column=0, padx=5, pady=5, sticky="w")
+        exit_button.grid(row=0, column=0, padx=5, pady=5, sticky="w")
 
         # Help menu button
         help_button = ctk.CTkButton(
@@ -82,6 +87,7 @@ class MainWindow(ctk.CTk):
         self.tabview.add("Dashboard")
         self.tabview.add("Inventory")
         self.tabview.add("Recipes")
+        self.tabview.add("Finished Goods")
         self.tabview.add("Bundles")
         self.tabview.add("Packages")
         self.tabview.add("Recipients")
@@ -100,15 +106,34 @@ class MainWindow(ctk.CTk):
         recipes_frame = self.tabview.tab("Recipes")
         self.recipes_tab = RecipesTab(recipes_frame)
 
-        # Add placeholders for other tabs
-        self._add_placeholder_tab("Bundles", "Phase 2: Coming Soon")
-        self._add_placeholder_tab("Packages", "Phase 2: Coming Soon")
-        self._add_placeholder_tab("Recipients", "Phase 3: Coming Soon")
-        self._add_placeholder_tab("Events", "Phase 3: Coming Soon")
+        # Initialize Finished Goods tab
+        finished_goods_frame = self.tabview.tab("Finished Goods")
+        self.finished_goods_tab = FinishedGoodsTab(finished_goods_frame)
+
+        # Initialize Bundles tab
+        bundles_frame = self.tabview.tab("Bundles")
+        self.bundles_tab = BundlesTab(bundles_frame)
+
+        # Initialize Packages tab
+        packages_frame = self.tabview.tab("Packages")
+        self.packages_tab = PackagesTab(packages_frame)
+
+        # Initialize Recipients tab
+        recipients_frame = self.tabview.tab("Recipients")
+        self.recipients_tab = RecipientsTab(recipients_frame)
+
+        # Initialize Events tab
+        events_frame = self.tabview.tab("Events")
+        self.events_tab = EventsTab(events_frame)
+
+        # Add placeholders for future tabs
         self._add_placeholder_tab("Reports", "Phase 4: Coming Soon")
 
         # Set default tab
         self.tabview.set("Dashboard")
+
+        # Add tab change callback to refresh dashboard when selected
+        self.tabview.configure(command=self._on_tab_change)
 
     def _add_placeholder_tab(self, tab_name: str, message: str):
         """
@@ -175,6 +200,12 @@ class MainWindow(ctk.CTk):
             parent=self,
         )
 
+    def _on_tab_change(self):
+        """Handle tab change event - refresh dashboard when it's selected."""
+        current_tab = self.tabview.get()
+        if current_tab == "Dashboard":
+            self.dashboard_tab.refresh()
+
     def refresh_dashboard(self):
         """Refresh the dashboard tab with current data."""
         self.dashboard_tab.refresh()
@@ -186,6 +217,26 @@ class MainWindow(ctk.CTk):
     def refresh_recipes(self):
         """Refresh the recipes tab with current data."""
         self.recipes_tab.refresh()
+
+    def refresh_finished_goods(self):
+        """Refresh the finished goods tab with current data."""
+        self.finished_goods_tab.refresh()
+
+    def refresh_bundles(self):
+        """Refresh the bundles tab with current data."""
+        self.bundles_tab.refresh()
+
+    def refresh_packages(self):
+        """Refresh the packages tab with current data."""
+        self.packages_tab.refresh()
+
+    def refresh_recipients(self):
+        """Refresh the recipients tab with current data."""
+        self.recipients_tab.refresh()
+
+    def refresh_events(self):
+        """Refresh the events tab with current data."""
+        self.events_tab.refresh()
 
     def switch_to_tab(self, tab_name: str):
         """

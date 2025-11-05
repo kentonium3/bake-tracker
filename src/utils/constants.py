@@ -111,6 +111,7 @@ UNIT_TYPE_MAP: Dict[str, str] = {
 INGREDIENT_CATEGORIES: List[str] = [
     "Flour",
     "Sugar",
+    "Dairy",
     "Oils/Butters",
     "Nuts",
     "Spices",

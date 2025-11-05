@@ -230,6 +230,11 @@ def validate_ingredient_data(data: dict) -> Tuple[bool, list]:  # noqa: C901
     if not is_valid:
         errors.append(error)
 
+    # Purchase quantity (must be positive)
+    is_valid, error = validate_positive_number(data.get("purchase_quantity"), "Purchase Quantity")
+    if not is_valid:
+        errors.append(error)
+
     # Purchase unit
     is_valid, error = validate_unit(data.get("purchase_unit", ""), "Purchase Unit")
     if not is_valid:
@@ -238,20 +243,6 @@ def validate_ingredient_data(data: dict) -> Tuple[bool, list]:  # noqa: C901
     # Density (optional, must be positive if provided)
     if data.get("density_g_per_cup") is not None:
         is_valid, error = validate_positive_number(data.get("density_g_per_cup"), "Density")
-        if not is_valid:
-            errors.append(error)
-
-    # Conversion factor (must be positive)
-    is_valid, error = validate_positive_number(data.get("conversion_factor"), "Conversion Factor")
-    if not is_valid:
-        errors.append(error)
-    else:
-        is_valid, error = validate_number_range(
-            data.get("conversion_factor"),
-            MIN_CONVERSION_FACTOR,
-            MAX_CONVERSION_FACTOR,
-            "Conversion Factor",
-        )
         if not is_valid:
             errors.append(error)
 

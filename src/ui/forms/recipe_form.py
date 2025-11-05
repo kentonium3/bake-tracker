@@ -54,11 +54,29 @@ class RecipeIngredientRow(ctk.CTkFrame):
         self.remove_callback = remove_callback
         self.ingredients = ingredients
 
-        # Configure grid
-        self.grid_columnconfigure(0, weight=3)  # Ingredient dropdown
+        # Configure grid (Quantity / Unit / Ingredient - traditional recipe format)
+        self.grid_columnconfigure(0, weight=1)  # Quantity
         self.grid_columnconfigure(1, weight=2)  # Unit dropdown
-        self.grid_columnconfigure(2, weight=1)  # Quantity
+        self.grid_columnconfigure(2, weight=3)  # Ingredient dropdown
         self.grid_columnconfigure(3, weight=0)  # Remove button
+
+        # Quantity entry
+        self.quantity_entry = ctk.CTkEntry(self, width=100, placeholder_text="Quantity")
+        self.quantity_entry.insert(0, str(quantity))
+        self.quantity_entry.grid(row=0, column=0, padx=(0, PADDING_MEDIUM), pady=5)
+
+        # Unit dropdown - shows all recipe units
+        available_units = WEIGHT_UNITS + VOLUME_UNITS + COUNT_UNITS
+        self.unit_combo = ctk.CTkComboBox(
+            self,
+            values=available_units,
+            state="readonly",
+            width=100,
+        )
+        # Set unit: use provided unit or default to "cup"
+        default_unit = unit if unit else "cup"
+        self.unit_combo.set(default_unit)
+        self.unit_combo.grid(row=0, column=1, padx=PADDING_MEDIUM, pady=5, sticky="ew")
 
         # Ingredient dropdown (no unit suffix)
         ingredient_names = [i.name for i in ingredients]
@@ -77,25 +95,7 @@ class RecipeIngredientRow(ctk.CTkFrame):
             else:
                 self.ingredient_combo.set(ingredient_names[0])
 
-        self.ingredient_combo.grid(row=0, column=0, padx=(0, PADDING_MEDIUM), pady=5, sticky="ew")
-
-        # Unit dropdown - shows all recipe units
-        available_units = WEIGHT_UNITS + VOLUME_UNITS + COUNT_UNITS
-        self.unit_combo = ctk.CTkComboBox(
-            self,
-            values=available_units,
-            state="readonly",
-            width=100,
-        )
-        # Set unit: use provided unit or default to "cup"
-        default_unit = unit if unit else "cup"
-        self.unit_combo.set(default_unit)
-        self.unit_combo.grid(row=0, column=1, padx=PADDING_MEDIUM, pady=5, sticky="ew")
-
-        # Quantity entry
-        self.quantity_entry = ctk.CTkEntry(self, width=100, placeholder_text="Quantity")
-        self.quantity_entry.insert(0, str(quantity))
-        self.quantity_entry.grid(row=0, column=2, padx=PADDING_MEDIUM, pady=5)
+        self.ingredient_combo.grid(row=0, column=2, padx=PADDING_MEDIUM, pady=5, sticky="ew")
 
         # Remove button
         remove_button = ctk.CTkButton(
@@ -473,8 +473,8 @@ class RecipeFormDialog(ctk.CTkToplevel):
         self.category_combo.set(self.recipe.category)
         self.yield_quantity_entry.insert(0, str(self.recipe.yield_quantity))
         self.yield_unit_combo.set(self.recipe.yield_unit)
-        if self.recipe.prep_time:
-            self.prep_time_entry.insert(0, str(self.recipe.prep_time))
+        if self.recipe.estimated_time_minutes:
+            self.prep_time_entry.insert(0, str(self.recipe.estimated_time_minutes))
         if self.recipe.notes:
             self.notes_text.insert("1.0", self.recipe.notes)
 
@@ -524,7 +524,7 @@ class RecipeFormDialog(ctk.CTkToplevel):
 
         # Validate yield quantity
         try:
-            yield_quantity = int(yield_quantity_str)
+            yield_quantity = float(yield_quantity_str)
             if yield_quantity <= 0:
                 show_error(
                     "Validation Error",
@@ -535,7 +535,7 @@ class RecipeFormDialog(ctk.CTkToplevel):
         except ValueError:
             show_error(
                 "Validation Error",
-                "Yield quantity must be a valid whole number",
+                "Yield quantity must be a valid number",
                 parent=self,
             )
             return None

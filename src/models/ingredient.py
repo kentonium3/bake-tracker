@@ -24,12 +24,12 @@ class Ingredient(BaseModel):
         name: Ingredient name (required)
         brand: Brand or supplier name
         category: Category (e.g., "Flour/Grains", "Sugar/Sweeteners")
-        purchase_unit: Unit purchased in (e.g., "bag", "lb")
-        purchase_unit_size: Size description (e.g., "50 lb")
-        conversion_factor: Conversion factor to base unit (e.g., 56.25 = 1 bag = 56.25 cups)
+        package_type: Optional package descriptor (e.g., "bag", "box", "bar")
+        purchase_quantity: Quantity per package (e.g., 25)
+        purchase_unit: Standard unit (e.g., "lb", "oz", "kg", "g")
         density_g_per_cup: Density in grams per cup for volume-weight conversions
-        quantity: Current quantity in purchase units
-        unit_cost: Cost per purchase unit
+        quantity: Current inventory quantity in packages
+        unit_cost: Cost per package
         last_updated: Last modification timestamp
         notes: Additional notes
     """
@@ -41,10 +41,10 @@ class Ingredient(BaseModel):
     brand = Column(String(200), nullable=True)
     category = Column(String(100), nullable=False, index=True)
 
-    # Unit information
-    purchase_unit = Column(String(50), nullable=False)
-    purchase_unit_size = Column(String(100), nullable=True)
-    conversion_factor = Column(Float, nullable=False)
+    # Purchase information
+    package_type = Column(String(50), nullable=True)  # Optional: bag, box, bar, etc.
+    purchase_quantity = Column(Float, nullable=False)  # Quantity per package
+    purchase_unit = Column(String(50), nullable=False)  # Standard unit: lb, oz, kg, g, etc.
 
     # Density for volume-weight conversions (grams per cup)
     density_g_per_cup = Column(Float, nullable=True)
@@ -82,14 +82,14 @@ class Ingredient(BaseModel):
         return self.quantity * self.unit_cost
 
     @property
-    def available_recipe_units(self) -> float:
+    def total_quantity_in_purchase_units(self) -> float:
         """
-        Calculate available quantity in recipe units.
+        Calculate total inventory in purchase units.
 
         Returns:
-            Quantity in recipe units (quantity × conversion_factor)
+            Total quantity in purchase units (quantity × purchase_quantity)
         """
-        return self.quantity * self.conversion_factor
+        return self.quantity * self.purchase_quantity
 
     def to_dict(self, include_relationships: bool = False) -> dict:
         """
@@ -105,44 +105,9 @@ class Ingredient(BaseModel):
 
         # Add calculated fields
         result["total_value"] = self.total_value
-        result["available_recipe_units"] = self.available_recipe_units
+        result["total_quantity_in_purchase_units"] = self.total_quantity_in_purchase_units
 
         return result
-
-    def convert_to_recipe_units(self, purchase_unit_quantity: float) -> float:
-        """
-        Convert a quantity from purchase units to recipe units.
-
-        Args:
-            purchase_unit_quantity: Quantity in purchase units
-
-        Returns:
-            Quantity in recipe units
-        """
-        return purchase_unit_quantity * self.conversion_factor
-
-    def convert_from_recipe_units(self, recipe_unit_quantity: float) -> float:
-        """
-        Convert a quantity from recipe units to purchase units.
-
-        Args:
-            recipe_unit_quantity: Quantity in recipe units
-
-        Returns:
-            Quantity in purchase units
-        """
-        return recipe_unit_quantity / self.conversion_factor
-
-    def get_cost_per_recipe_unit(self) -> float:
-        """
-        Calculate cost per recipe unit.
-
-        Returns:
-            Cost per recipe unit
-        """
-        if self.conversion_factor == 0:
-            return 0.0
-        return self.unit_cost / self.conversion_factor
 
     def update_quantity(self, new_quantity: float) -> None:
         """

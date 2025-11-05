@@ -1,0 +1,115 @@
+{
+  "version": "1.0",
+  "export_date": "2025-11-04T12:00:00Z",
+  "source": "Simple Example",
+  "recipes": [
+    {
+      "name": "Classic Chocolate Chip Cookies",
+      "category": "Cookies",
+      "source": "Family Recipe",
+      "yield_quantity": 24,
+      "yield_unit": "cookies",
+      "yield_description": "2-inch diameter cookies",
+      "estimated_time_minutes": 45,
+      "notes": "Flatten slightly before baking. Bake at 375°F for 10-12 minutes.",
+      "ingredients": [
+        {
+          "ingredient_name": "All-Purpose Flour",
+          "ingredient_brand": "King Arthur",
+          "quantity": 2.5,
+          "unit": "cup",
+          "notes": "Sifted"
+        },
+        {
+          "ingredient_name": "White Granulated Sugar",
+          "ingredient_brand": "Costco",
+          "quantity": 0.75,
+          "unit": "cup"
+        },
+        {
+          "ingredient_name": "Unsalted Butter",
+          "ingredient_brand": "Kirkland",
+          "quantity": 1.0,
+          "unit": "cup",
+          "notes": "Softened"
+        },
+        {
+          "ingredient_name": "Semi-Sweet Chocolate Chips",
+          "ingredient_brand": "Nestle",
+          "quantity": 2.0,
+          "unit": "cup"
+        },
+        {
+          "ingredient_name": "Pure Vanilla Extract",
+          "ingredient_brand": "McCormick",
+          "quantity": 2.0,
+          "unit": "tsp"
+        }
+      ]
+    },
+    {
+      "name": "Simple Sugar Cookies",
+      "category": "Cookies",
+      "source": "Betty Crocker",
+      "yield_quantity": 36,
+      "yield_unit": "cookies",
+      "yield_description": "3-inch round cookies",
+      "estimated_time_minutes": 60,
+      "notes": "Roll dough to 1/4 inch thickness. Cut with cookie cutter. Bake at 350°F for 8-10 minutes.",
+      "ingredients": [
+        {
+          "ingredient_name": "All-Purpose Flour",
+          "quantity": 3.0,
+          "unit": "cup"
+        },
+        {
+          "ingredient_name": "White Granulated Sugar",
+          "quantity": 1.5,
+          "unit": "cup"
+        },
+        {
+          "ingredient_name": "Unsalted Butter",
+          "quantity": 1.0,
+          "unit": "cup",
+          "notes": "Softened"
+        },
+        {
+          "ingredient_name": "Pure Vanilla Extract",
+          "quantity": 1.0,
+          "unit": "tsp"
+        }
+      ]
+    },
+    {
+      "name": "Double Chocolate Cookies",
+      "category": "Cookies",
+      "yield_quantity": 30,
+      "yield_unit": "cookies",
+      "estimated_time_minutes": 50,
+      "notes": "Rich chocolate cookies with chocolate chips. Bake at 350°F for 12 minutes.",
+      "ingredients": [
+        {
+          "ingredient_name": "All-Purpose Flour",
+          "quantity": 2.0,
+          "unit": "cup"
+        },
+        {
+          "ingredient_name": "White Granulated Sugar",
+          "quantity": 1.0,
+          "unit": "cup"
+        },
+        {
+          "ingredient_name": "Unsalted Butter",
+          "quantity": 0.75,
+          "unit": "cup",
+          "notes": "Melted"
+        },
+        {
+          "ingredient_name": "Semi-Sweet Chocolate Chips",
+          "quantity": 1.5,
+          "unit": "cup"
+        }
+      ]
+    }
+  ]
+}

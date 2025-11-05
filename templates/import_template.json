@@ -1,0 +1,47 @@
+{
+  "version": "1.0",
+  "export_date": "YYYY-MM-DDTHH:MM:SSZ",
+  "source": "Import Template",
+  "ingredients": [
+    {
+      "name": "INGREDIENT_NAME",
+      "brand": "BRAND_NAME",
+      "category": "CATEGORY",
+      "purchase_quantity": 0.0,
+      "purchase_unit": "UNIT",
+      "quantity": 0.0,
+      "unit_cost": 0.00,
+      "package_type": "PACKAGE_TYPE",
+      "volume_equivalents": [
+        {
+          "volume_unit": "cup",
+          "volume_quantity": 1.0,
+          "weight_quantity": 120.0,
+          "weight_unit": "g"
+        }
+      ],
+      "notes": "OPTIONAL_NOTES"
+    }
+  ],
+  "recipes": [
+    {
+      "name": "RECIPE_NAME",
+      "category": "CATEGORY",
+      "source": "SOURCE",
+      "yield_quantity": 0,
+      "yield_unit": "UNIT",
+      "yield_description": "DESCRIPTION",
+      "estimated_time_minutes": 0,
+      "notes": "INSTRUCTIONS",
+      "ingredients": [
+        {
+          "ingredient_name": "INGREDIENT_NAME",
+          "ingredient_brand": "BRAND_NAME",
+          "quantity": 0.0,
+          "unit": "UNIT",
+          "notes": "PREP_NOTES"
+        }
+      ]
+    }
+  ]
+}

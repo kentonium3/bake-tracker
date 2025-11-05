@@ -45,55 +45,72 @@ The Seasonal Baking Tracker is a desktop application built with Python and Custo
 ## Component Diagram
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                     Presentation Layer                       │
-│  ┌─────────┐  ┌─────────┐  ┌─────────┐  ┌──────────────┐   │
-│  │Dashboard│  │Inventory│  │ Recipes │  │Events/Reports│   │
-│  │   Tab   │  │   Tab   │  │   Tab   │  │     Tabs     │   │
-│  └─────────┘  └─────────┘  └─────────┘  └──────────────┘   │
-└────────────────────────┬────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────────┐
+│                        Presentation Layer                             │
+│  ┌─────────┐ ┌─────────┐ ┌──────┐ ┌────────┐ ┌────────┐ ┌────────┐ │
+│  │Dashboard│ │Inventory│ │Recipe│ │Finished│ │Bundles │ │Packages│ │
+│  │   Tab   │ │   Tab   │ │ Tab  │ │ Goods  │ │  Tab   │ │  Tab   │ │
+│  └─────────┘ └─────────┘ └──────┘ └────────┘ └────────┘ └────────┘ │
+│  ┌────────┐  ┌──────────┐  ┌───────────────────────────────────┐   │
+│  │Recipients │  │ Events   │  │   EventDetailWindow (4 tabs)    │   │
+│  │   Tab   │  │   Tab    │  │  - Assignments                    │   │
+│  └────────┘  └──────────┘  │  - Recipe Needs                   │   │
+│                             │  - Shopping List                  │   │
+│                             │  - Summary                        │   │
+│                             └───────────────────────────────────┘   │
+└────────────────────────┬─────────────────────────────────────────────┘
                          │
-┌────────────────────────┴────────────────────────────────────┐
-│                  Business Logic Layer                        │
-│  ┌──────────┐  ┌────────┐  ┌─────────┐  ┌──────────────┐   │
-│  │Inventory │  │ Recipe │  │Planning │  │  Reporting   │   │
-│  │ Service  │  │Service │  │ Service │  │   Service    │   │
-│  └──────────┘  └────────┘  └─────────┘  └──────────────┘   │
-│  ┌──────────────┐  ┌──────────────┐                         │
-│  │Unit Converter│  │Undo Service  │                         │
-│  └──────────────┘  └──────────────┘                         │
-└────────────────────────┬────────────────────────────────────┘
+┌────────────────────────┴─────────────────────────────────────────────┐
+│                       Business Logic Layer                            │
+│  ┌──────────┐ ┌────────┐ ┌────────────┐ ┌────────┐ ┌──────────────┐ │
+│  │Inventory │ │ Recipe │ │Finished Gd │ │Package │ │    Event     │ │
+│  │ Service  │ │Service │ │  Service   │ │Service │ │   Service    │ │
+│  └──────────┘ └────────┘ └────────────┘ └────────┘ └──────────────┘ │
+│  ┌───────────┐ ┌──────────────┐ ┌────────────────────────────────┐  │
+│  │ Recipient │ │Unit Converter│ │  Import/Export Service         │  │
+│  │  Service  │ └──────────────┘ └────────────────────────────────┘  │
+│  └───────────┘                                                       │
+└────────────────────────┬─────────────────────────────────────────────┘
                          │
-┌────────────────────────┴────────────────────────────────────┐
-│                   Data Access Layer                          │
-│  ┌──────────┐  ┌──────┐  ┌────────┐  ┌────────┐  ┌──────┐ │
-│  │Ingredient│  │Recipe│  │ Bundle │  │Package │  │Event │ │
-│  │  Model   │  │Model │  │ Model  │  │ Model  │  │Model │ │
-│  └──────────┘  └──────┘  └────────┘  └────────┘  └──────┘ │
-└────────────────────────┬────────────────────────────────────┘
+┌────────────────────────┴─────────────────────────────────────────────┐
+│                      Data Access Layer                                │
+│  ┌──────────┐ ┌──────┐ ┌──────────┐ ┌──────┐ ┌──────┐ ┌─────────┐  │
+│  │Ingredient│ │Recipe│ │Finished  │ │Bundle│ │Package│ │Recipient│  │
+│  │  Model   │ │Model │ │Good Model│ │Model │ │Model  │ │ Model   │  │
+│  └──────────┘ └──────┘ └──────────┘ └──────┘ └──────┘ └─────────┘  │
+│  ┌──────┐  ┌───────────────────┐                                    │
+│  │Event │  │EventRecipientPkg  │  (Junction tables for many-to-many)│
+│  │Model │  │   (Junction)      │                                    │
+│  └──────┘  └───────────────────┘                                    │
+└────────────────────────┬─────────────────────────────────────────────┘
                          │
-┌────────────────────────┴────────────────────────────────────┐
-│                    Data Storage Layer                        │
-│                    SQLite Database                           │
-│                  (data/baking_tracker.db)                    │
-└─────────────────────────────────────────────────────────────┘
+┌────────────────────────┴─────────────────────────────────────────────┐
+│                       Data Storage Layer                              │
+│                       SQLite Database                                 │
+│                 (C:\Users\Kent\Documents\BakingTracker\               │
+│                      baking_tracker.db)                               │
+└───────────────────────────────────────────────────────────────────────┘
 ```
 
 ## Data Flow
 
-### Example: Creating a Shopping List
+### Example: Creating a Shopping List for an Event
 
-1. **User Action:** User opens Event tab and clicks "Generate Shopping List"
-2. **UI Layer:** `event_tab.py` calls `planning_service.generate_shopping_list(event_id)`
-3. **Service Layer:**
-   - Retrieves event and associated packages
-   - Calculates total ingredients needed
-   - Retrieves inventory snapshot
-   - Compares required vs available
-   - Groups by category
-4. **Data Layer:** Models query database through SQLAlchemy
-5. **Response:** Service returns structured data
-6. **UI Layer:** Displays shopping list with color coding
+1. **User Action:** User opens Event, clicks "View Details", then switches to "Shopping List" tab
+2. **UI Layer:** `event_detail_window.py` calls `event_service.generate_shopping_list(event_id)`
+3. **Service Layer (`event_service.py`):**
+   - Retrieves event and all EventRecipientPackage assignments
+   - For each assignment:
+     - Gets package → bundles → finished goods → recipes
+     - Calculates ingredient quantities needed (accounting for quantities at each level)
+   - Aggregates ingredients by ID
+   - Retrieves current inventory (ingredient.quantity)
+   - Calculates shortfall: `to_buy = needed - on_hand`
+   - Includes cost per ingredient: `cost = to_buy × (unit_cost / conversion_factor)`
+   - Returns list with only items where `to_buy > 0`
+4. **Data Layer:** SQLAlchemy models query with eager loading (joinedload)
+5. **Response:** Service returns list of dicts: `{ingredient, needed, on_hand, to_buy, cost}`
+6. **UI Layer:** Displays shopping list table with totals
 
 ## Database Schema Overview
 
@@ -113,11 +130,12 @@ The Seasonal Baking Tracker is a desktop application built with Python and Custo
 ```
 Ingredient ←→ Recipe (many-to-many via RecipeIngredient)
 Recipe → Finished Good (one-to-many)
-Finished Good ←→ Bundle (many-to-many via BundleItem)
+Finished Good → Bundle (one-to-many, simplified: each bundle has 1 FG type)
 Bundle ←→ Package (many-to-many via PackageBundle)
-Event ← Package Assignment → Recipient
-Event → Inventory Snapshot
+Event ←→ Recipient ←→ Package (via EventRecipientPackage junction)
 ```
+
+**Note:** Inventory Snapshot feature was simplified out - shopping lists use live inventory.
 
 ## Unit Conversion Strategy
 
@@ -145,16 +163,25 @@ recipe_cost = sum(
 )
 ```
 
-## Inventory Snapshot Strategy
+## Event Planning Strategy
 
 ### Purpose
-Multiple events may overlap, requiring independent planning from different baseline inventories.
+Enable comprehensive planning for seasonal baking events with recipient-package assignments.
 
-### Implementation
-- Events reference a specific inventory snapshot
-- Snapshots are immutable copies of ingredient quantities
-- Shopping lists compare needs vs snapshot (not live inventory)
-- Production updates live inventory, not snapshots
+### Implementation (Simplified Approach)
+- Events track year, name, and event date
+- Recipients can be assigned packages via EventRecipientPackage junction
+- Shopping lists compare needs vs **live inventory** (simplified - no snapshots)
+- Event service calculates:
+  - Recipe batches needed across all assignments
+  - Ingredient quantities needed (aggregated)
+  - Shopping list (what to buy = needed - on_hand)
+  - Total event cost
+
+### Recipient History
+- `get_recipient_history(recipient_id)` shows packages received in past events
+- Displayed in assignment form to avoid duplicate gifts year-over-year
+- Sorted by most recent first
 
 ## Technology Decisions
 
@@ -208,4 +235,4 @@ Multiple events may overlap, requiring independent planning from different basel
 ---
 
 **Document Status:** Living document, updated as architecture evolves
-**Last Updated:** 2025-11-02
+**Last Updated:** 2025-11-04 (Phase 3b completion - Event planning features and import/export expansion)

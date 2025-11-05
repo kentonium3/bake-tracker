@@ -63,3 +63,8 @@ htmlcov/
 
 # Logs
 *.log
+
+# Test artifacts in root (tests should be in src/tests/)
+/test_*.py
+/bake_tracker_import.json
+/nul

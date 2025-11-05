@@ -488,12 +488,14 @@ def get_recipe_with_costs(recipe_id: int) -> Dict:
             ingredient_costs = []
             for recipe_ingredient in recipe.recipe_ingredients:
                 cost = recipe_ingredient.calculate_cost()
+                packages_needed = recipe_ingredient.get_packages_needed()
                 ingredient_costs.append(
                     {
                         "ingredient": recipe_ingredient.ingredient,
                         "quantity": recipe_ingredient.quantity,
                         "unit": recipe_ingredient.unit,
                         "cost": cost,
+                        "packages_needed": packages_needed,
                         "notes": recipe_ingredient.notes,
                     }
                 )

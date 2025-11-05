@@ -119,10 +119,10 @@ class IngredientFormDialog(ctk.CTkToplevel):
         self.category_combo.grid(row=row, column=1, sticky="ew", padx=PADDING_MEDIUM, pady=5)
         row += 1
 
-        # Purchase unit section
+        # Purchase information section
         purchase_label = ctk.CTkLabel(
             parent,
-            text="Purchase Unit Information",
+            text="Purchase Information",
             font=ctk.CTkFont(size=14, weight="bold"),
         )
         purchase_label.grid(
@@ -135,39 +135,55 @@ class IngredientFormDialog(ctk.CTkToplevel):
         )
         row += 1
 
+        # Package type (optional)
+        package_type_label = ctk.CTkLabel(parent, text="Package Type:", anchor="w")
+        package_type_label.grid(row=row, column=0, sticky="w", padx=PADDING_MEDIUM, pady=5)
+
+        package_types = [""] + PACKAGE_UNITS  # Empty string for "none"
+        self.package_type_combo = ctk.CTkComboBox(
+            parent,
+            width=400,
+            values=package_types,
+            state="readonly",
+        )
+        self.package_type_combo.set("")  # Optional
+        self.package_type_combo.grid(row=row, column=1, sticky="ew", padx=PADDING_MEDIUM, pady=5)
+        row += 1
+
+        # Purchase quantity (required)
+        purchase_qty_label = ctk.CTkLabel(parent, text="Quantity per Package*:", anchor="w")
+        purchase_qty_label.grid(row=row, column=0, sticky="w", padx=PADDING_MEDIUM, pady=5)
+
+        self.purchase_quantity_entry = ctk.CTkEntry(
+            parent,
+            width=400,
+            placeholder_text="e.g., 25 (how much in each package)",
+        )
+        self.purchase_quantity_entry.grid(row=row, column=1, sticky="ew", padx=PADDING_MEDIUM, pady=5)
+        row += 1
+
         # Purchase unit (required)
         purchase_unit_label = ctk.CTkLabel(parent, text="Purchase Unit*:", anchor="w")
         purchase_unit_label.grid(row=row, column=0, sticky="w", padx=PADDING_MEDIUM, pady=5)
 
+        standard_units = WEIGHT_UNITS + VOLUME_UNITS + COUNT_UNITS
         self.purchase_unit_combo = ctk.CTkComboBox(
             parent,
             width=400,
-            values=PACKAGE_UNITS,
+            values=standard_units,
             state="readonly",
         )
-        self.purchase_unit_combo.set(PACKAGE_UNITS[0])
+        self.purchase_unit_combo.set("lb")  # Common default
         self.purchase_unit_combo.grid(row=row, column=1, sticky="ew", padx=PADDING_MEDIUM, pady=5)
         row += 1
 
-        # Purchase unit size (optional)
-        purchase_size_label = ctk.CTkLabel(parent, text="Purchase Unit Size:", anchor="w")
-        purchase_size_label.grid(row=row, column=0, sticky="w", padx=PADDING_MEDIUM, pady=5)
-
-        self.purchase_size_entry = ctk.CTkEntry(
+        # Volume/Weight Equivalency section
+        equivalency_label = ctk.CTkLabel(
             parent,
-            width=400,
-            placeholder_text="e.g., 25 lb or 72 oz",
-        )
-        self.purchase_size_entry.grid(row=row, column=1, sticky="ew", padx=PADDING_MEDIUM, pady=5)
-        row += 1
-
-        # Unit Conversion section
-        conversion_label = ctk.CTkLabel(
-            parent,
-            text="Unit Conversion Information",
+            text="Volume ↔ Weight Equivalency (Optional)",
             font=ctk.CTkFont(size=14, weight="bold"),
         )
-        conversion_label.grid(
+        equivalency_label.grid(
             row=row,
             column=0,
             columnspan=2,
@@ -180,7 +196,7 @@ class IngredientFormDialog(ctk.CTkToplevel):
         # Help text
         help_text = ctk.CTkLabel(
             parent,
-            text="Density enables volume↔weight conversions in recipes (e.g., cups↔grams).\nRequired only when recipes use different unit types than purchase unit.",
+            text="Define how volume relates to weight for this ingredient (e.g., 1 cup = 200 grams).\nRequired only when recipes use different unit types (volume/weight) than purchase unit.",
             font=ctk.CTkFont(size=11),
             text_color="gray",
             wraplength=400,
@@ -197,28 +213,54 @@ class IngredientFormDialog(ctk.CTkToplevel):
         )
         row += 1
 
-        # Density (grams per cup)
-        density_label = ctk.CTkLabel(parent, text="Density (g/cup):", anchor="w")
-        density_label.grid(row=row, column=0, sticky="w", padx=PADDING_MEDIUM, pady=5)
+        # Equivalency input: Volume = Weight
+        equiv_frame = ctk.CTkFrame(parent, fg_color="transparent")
+        equiv_frame.grid(row=row, column=0, columnspan=2, sticky="ew", padx=PADDING_MEDIUM, pady=5)
+        equiv_frame.grid_columnconfigure(1, weight=1)
+        equiv_frame.grid_columnconfigure(3, weight=1)
 
-        self.density_entry = ctk.CTkEntry(
-            parent,
-            width=400,
-            placeholder_text="e.g., 200 for sugar, 120 for flour (optional)",
+        # Volume quantity
+        self.equiv_volume_qty_entry = ctk.CTkEntry(
+            equiv_frame,
+            width=80,
+            placeholder_text="1",
         )
-        self.density_entry.grid(row=row, column=1, sticky="ew", padx=PADDING_MEDIUM, pady=5)
-        row += 1
+        self.equiv_volume_qty_entry.grid(row=0, column=0, padx=(0, 5))
 
-        # Conversion factor (required)
-        conversion_factor_label = ctk.CTkLabel(parent, text="Conversion Factor*:", anchor="w")
-        conversion_factor_label.grid(row=row, column=0, sticky="w", padx=PADDING_MEDIUM, pady=5)
-
-        self.conversion_entry = ctk.CTkEntry(
-            parent,
-            width=400,
-            placeholder_text="e.g., 100 (1 bag = 100 cups)",
+        # Volume unit dropdown
+        volume_units = ["cup", "tbsp", "tsp", "fl oz", "ml", "L"]
+        self.equiv_volume_unit_combo = ctk.CTkComboBox(
+            equiv_frame,
+            width=100,
+            values=volume_units,
+            state="readonly",
         )
-        self.conversion_entry.grid(row=row, column=1, sticky="ew", padx=PADDING_MEDIUM, pady=5)
+        self.equiv_volume_unit_combo.set("cup")
+        self.equiv_volume_unit_combo.grid(row=0, column=1, padx=(0, 10))
+
+        # Equals label
+        equals_label = ctk.CTkLabel(equiv_frame, text="=")
+        equals_label.grid(row=0, column=2, padx=10)
+
+        # Weight quantity
+        self.equiv_weight_qty_entry = ctk.CTkEntry(
+            equiv_frame,
+            width=80,
+            placeholder_text="200",
+        )
+        self.equiv_weight_qty_entry.grid(row=0, column=3, padx=(10, 5))
+
+        # Weight unit dropdown
+        weight_units = ["g", "kg", "oz", "lb"]
+        self.equiv_weight_unit_combo = ctk.CTkComboBox(
+            equiv_frame,
+            width=100,
+            values=weight_units,
+            state="readonly",
+        )
+        self.equiv_weight_unit_combo.set("g")
+        self.equiv_weight_unit_combo.grid(row=0, column=4)
+
         row += 1
 
         # Inventory section
@@ -320,15 +362,22 @@ class IngredientFormDialog(ctk.CTkToplevel):
         if self.ingredient.brand:
             self.brand_entry.insert(0, self.ingredient.brand)
         self.category_combo.set(self.ingredient.category)
+
+        # Purchase information
+        if self.ingredient.package_type:
+            self.package_type_combo.set(self.ingredient.package_type)
+        self.purchase_quantity_entry.insert(0, str(self.ingredient.purchase_quantity))
         self.purchase_unit_combo.set(self.ingredient.purchase_unit)
-        if self.ingredient.purchase_unit_size:
-            self.purchase_size_entry.insert(0, self.ingredient.purchase_unit_size)
 
-        # Density
+        # Equivalency (convert density back to equivalency format)
         if self.ingredient.density_g_per_cup:
-            self.density_entry.insert(0, str(self.ingredient.density_g_per_cup))
+            # Display as: 1 cup = X grams
+            self.equiv_volume_qty_entry.insert(0, "1")
+            self.equiv_volume_unit_combo.set("cup")
+            self.equiv_weight_qty_entry.insert(0, str(self.ingredient.density_g_per_cup))
+            self.equiv_weight_unit_combo.set("g")
 
-        self.conversion_entry.insert(0, str(self.ingredient.conversion_factor))
+        # Inventory
         self.quantity_entry.insert(0, str(self.ingredient.quantity))
         self.unit_cost_entry.insert(0, str(self.ingredient.unit_cost))
         if self.ingredient.notes:
@@ -345,10 +394,16 @@ class IngredientFormDialog(ctk.CTkToplevel):
         name = self.name_entry.get().strip()
         brand = self.brand_entry.get().strip() or None
         category = self.category_combo.get()
+        package_type = self.package_type_combo.get().strip() or None
+        purchase_quantity_str = self.purchase_quantity_entry.get().strip()
         purchase_unit = self.purchase_unit_combo.get()
-        purchase_unit_size = self.purchase_size_entry.get().strip() or None
-        density_str = self.density_entry.get().strip()
-        conversion_factor_str = self.conversion_entry.get().strip()
+
+        # Get equivalency values
+        equiv_vol_qty_str = self.equiv_volume_qty_entry.get().strip()
+        equiv_vol_unit = self.equiv_volume_unit_combo.get()
+        equiv_wt_qty_str = self.equiv_weight_qty_entry.get().strip()
+        equiv_wt_unit = self.equiv_weight_unit_combo.get()
+
         quantity_str = self.quantity_entry.get().strip()
         unit_cost_str = self.unit_cost_entry.get().strip()
         notes = self.notes_text.get("1.0", "end-1c").strip() or None
@@ -382,32 +437,81 @@ class IngredientFormDialog(ctk.CTkToplevel):
             )
             return None
 
-        # Validate density (optional)
-        density = None
-        if density_str:
-            try:
-                density = float(density_str)
-                if density <= 0:
-                    show_error(
-                        "Validation Error", "Density must be greater than zero", parent=self
-                    )
-                    return None
-            except ValueError:
-                show_error("Validation Error", "Density must be a valid number", parent=self)
-                return None
-
-        # Validate conversion factor (required)
+        # Validate purchase quantity (required)
         try:
-            conversion_factor = float(conversion_factor_str)
-            if conversion_factor <= 0:
+            purchase_quantity = float(purchase_quantity_str)
+            if purchase_quantity <= 0:
                 show_error(
-                    "Validation Error", "Conversion factor must be greater than zero", parent=self
+                    "Validation Error", "Quantity per package must be greater than zero", parent=self
                 )
                 return None
         except ValueError:
-            show_error("Validation Error", "Conversion factor must be a valid number", parent=self)
+            show_error("Validation Error", "Quantity per package must be a valid number", parent=self)
             return None
 
+        # Validate equivalency and convert to density (g/cup) - optional
+        density_g_per_cup = None
+        has_volume = bool(equiv_vol_qty_str)
+        has_weight = bool(equiv_wt_qty_str)
+
+        # If user entered equivalency data, validate and convert
+        if has_volume or has_weight:
+            # Both fields must be filled if one is filled
+            if not (has_volume and has_weight):
+                show_error(
+                    "Validation Error",
+                    "Both volume and weight must be specified for equivalency",
+                    parent=self
+                )
+                return None
+
+            try:
+                equiv_vol_qty = float(equiv_vol_qty_str)
+                equiv_wt_qty = float(equiv_wt_qty_str)
+
+                if equiv_vol_qty <= 0 or equiv_wt_qty <= 0:
+                    show_error(
+                        "Validation Error",
+                        "Equivalency values must be greater than zero",
+                        parent=self
+                    )
+                    return None
+
+                # Convert equivalency to density (g/cup)
+                from src.services.unit_converter import convert_standard_units
+
+                # Convert volume to cups
+                success, vol_in_cups, error = convert_standard_units(equiv_vol_qty, equiv_vol_unit, "cup")
+                if not success:
+                    show_error(
+                        "Validation Error",
+                        f"Invalid volume unit conversion: {error}",
+                        parent=self
+                    )
+                    return None
+
+                # Convert weight to grams
+                success, wt_in_grams, error = convert_standard_units(equiv_wt_qty, equiv_wt_unit, "g")
+                if not success:
+                    show_error(
+                        "Validation Error",
+                        f"Invalid weight unit conversion: {error}",
+                        parent=self
+                    )
+                    return None
+
+                # Calculate density (g/cup)
+                density_g_per_cup = wt_in_grams / vol_in_cups
+
+            except ValueError:
+                show_error(
+                    "Validation Error",
+                    "Equivalency values must be valid numbers",
+                    parent=self
+                )
+                return None
+
+        # Validate inventory quantity
         try:
             quantity = float(quantity_str)
             if quantity < 0:
@@ -431,10 +535,10 @@ class IngredientFormDialog(ctk.CTkToplevel):
             "name": name,
             "brand": brand,
             "category": category,
+            "package_type": package_type,
+            "purchase_quantity": purchase_quantity,
             "purchase_unit": purchase_unit,
-            "purchase_unit_size": purchase_unit_size,
-            "density_g_per_cup": density,
-            "conversion_factor": conversion_factor,
+            "density_g_per_cup": density_g_per_cup,
             "quantity": quantity,
             "unit_cost": unit_cost,
             "notes": notes,

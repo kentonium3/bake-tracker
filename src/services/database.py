@@ -104,7 +104,7 @@ def init_database(engine: Optional[Engine] = None) -> None:
 
     # Import all models to ensure they're registered with Base
     # This is necessary for Base.metadata.create_all() to work
-    from ..models import ingredient, recipe, inventory_snapshot  # noqa: F401
+    from ..models import ingredient, recipe, inventory_snapshot, finished_good  # noqa: F401
 
     # Create all tables
     Base.metadata.create_all(engine)
@@ -254,7 +254,7 @@ def reset_database(confirm: bool = False) -> None:
     engine = get_engine()
 
     # Import all models
-    from ..models import ingredient, recipe, inventory_snapshot  # noqa: F401
+    from ..models import ingredient, recipe, inventory_snapshot, finished_good  # noqa: F401
 
     # Drop all tables
     Base.metadata.drop_all(engine)

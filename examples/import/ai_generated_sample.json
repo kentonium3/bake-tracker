@@ -1,0 +1,367 @@
+{
+  "version": "1.0",
+  "export_date": "2025-11-04T12:00:00Z",
+  "source": "AI Generated Sample - Realistic Holiday Baking Pantry",
+  "ingredients": [
+    {
+      "name": "All-Purpose Flour",
+      "brand": "King Arthur",
+      "category": "Flour",
+      "purchase_quantity": 25.0,
+      "purchase_unit": "lb",
+      "quantity": 2.0,
+      "unit_cost": 18.99,
+      "package_type": "bag",
+      "volume_equivalents": [
+        {
+          "volume_unit": "cup",
+          "volume_quantity": 1.0,
+          "weight_quantity": 120.0,
+          "weight_unit": "g"
+        }
+      ],
+      "notes": "Use for most cookie and cake recipes"
+    },
+    {
+      "name": "White Granulated Sugar",
+      "brand": "Costco Kirkland",
+      "category": "Sugar",
+      "purchase_quantity": 25.0,
+      "purchase_unit": "lb",
+      "quantity": 1.0,
+      "unit_cost": 16.99,
+      "package_type": "bag",
+      "volume_equivalents": [
+        {
+          "volume_unit": "cup",
+          "volume_quantity": 1.0,
+          "weight_quantity": 200.0,
+          "weight_unit": "g"
+        }
+      ]
+    },
+    {
+      "name": "Light Brown Sugar",
+      "brand": "Domino",
+      "category": "Sugar",
+      "purchase_quantity": 2.0,
+      "purchase_unit": "lb",
+      "quantity": 3.0,
+      "unit_cost": 3.49,
+      "package_type": "bag",
+      "volume_equivalents": [
+        {
+          "volume_unit": "cup",
+          "volume_quantity": 1.0,
+          "weight_quantity": 220.0,
+          "weight_unit": "g"
+        }
+      ],
+      "notes": "Packed measurement for volume equivalents"
+    },
+    {
+      "name": "Powdered Sugar",
+      "brand": "C&H",
+      "category": "Sugar",
+      "purchase_quantity": 2.0,
+      "purchase_unit": "lb",
+      "quantity": 2.0,
+      "unit_cost": 3.99,
+      "package_type": "bag",
+      "volume_equivalents": [
+        {
+          "volume_unit": "cup",
+          "volume_quantity": 1.0,
+          "weight_quantity": 120.0,
+          "weight_unit": "g"
+        }
+      ],
+      "notes": "For frosting and dusting"
+    },
+    {
+      "name": "Unsalted Butter",
+      "brand": "Kirkland",
+      "category": "Dairy",
+      "purchase_quantity": 4.0,
+      "purchase_unit": "lb",
+      "quantity": 2.0,
+      "unit_cost": 16.99,
+      "package_type": "box",
+      "notes": "Four 1-lb packages per box"
+    },
+    {
+      "name": "Large Eggs",
+      "brand": "Costco",
+      "category": "Dairy",
+      "purchase_quantity": 24.0,
+      "purchase_unit": "count",
+      "quantity": 1.0,
+      "unit_cost": 6.99,
+      "package_type": "carton"
+    },
+    {
+      "name": "Semi-Sweet Chocolate Chips",
+      "brand": "Nestle Toll House",
+      "category": "Chocolate/Candies",
+      "purchase_quantity": 72.0,
+      "purchase_unit": "oz",
+      "quantity": 1.0,
+      "unit_cost": 12.99,
+      "package_type": "bag",
+      "volume_equivalents": [
+        {
+          "volume_unit": "cup",
+          "volume_quantity": 1.0,
+          "weight_quantity": 170.0,
+          "weight_unit": "g"
+        }
+      ]
+    },
+    {
+      "name": "Dark Chocolate Chips",
+      "brand": "Ghirardelli",
+      "category": "Chocolate/Candies",
+      "purchase_quantity": 20.0,
+      "purchase_unit": "oz",
+      "quantity": 2.0,
+      "unit_cost": 8.99,
+      "package_type": "bag",
+      "notes": "60% cacao"
+    },
+    {
+      "name": "Pure Vanilla Extract",
+      "brand": "McCormick",
+      "category": "Extracts",
+      "purchase_quantity": 4.0,
+      "purchase_unit": "fl oz",
+      "quantity": 1.0,
+      "unit_cost": 8.99,
+      "package_type": "bottle"
+    },
+    {
+      "name": "Almond Extract",
+      "brand": "McCormick",
+      "category": "Extracts",
+      "purchase_quantity": 1.0,
+      "purchase_unit": "fl oz",
+      "quantity": 1.0,
+      "unit_cost": 4.99,
+      "package_type": "bottle",
+      "notes": "Use sparingly - very strong flavor"
+    },
+    {
+      "name": "Ground Cinnamon",
+      "brand": "Costco Kirkland",
+      "category": "Spices",
+      "purchase_quantity": 10.7,
+      "purchase_unit": "oz",
+      "quantity": 1.0,
+      "unit_cost": 5.99,
+      "package_type": "container"
+    },
+    {
+      "name": "Baking Soda",
+      "brand": "Arm & Hammer",
+      "category": "Misc",
+      "purchase_quantity": 1.0,
+      "purchase_unit": "lb",
+      "quantity": 1.0,
+      "unit_cost": 2.99,
+      "package_type": "box"
+    },
+    {
+      "name": "Baking Powder",
+      "brand": "Clabber Girl",
+      "category": "Misc",
+      "purchase_quantity": 8.1,
+      "purchase_unit": "oz",
+      "quantity": 1.0,
+      "unit_cost": 3.49,
+      "package_type": "can"
+    },
+    {
+      "name": "Table Salt",
+      "brand": "Morton",
+      "category": "Spices",
+      "purchase_quantity": 26.0,
+      "purchase_unit": "oz",
+      "quantity": 1.0,
+      "unit_cost": 1.99,
+      "package_type": "box"
+    },
+    {
+      "name": "Chopped Pecans",
+      "brand": "Costco",
+      "category": "Nuts",
+      "purchase_quantity": 2.0,
+      "purchase_unit": "lb",
+      "quantity": 1.0,
+      "unit_cost": 16.99,
+      "package_type": "bag",
+      "notes": "Store in freezer for freshness"
+    }
+  ],
+  "recipes": [
+    {
+      "name": "Classic Chocolate Chip Cookies",
+      "category": "Cookies",
+      "source": "Nestle Toll House Original",
+      "yield_quantity": 60,
+      "yield_unit": "cookies",
+      "yield_description": "2-inch diameter cookies",
+      "estimated_time_minutes": 45,
+      "notes": "Preheat oven to 375°F. Drop rounded tablespoons onto ungreased baking sheets. Bake 9-11 minutes or until golden brown.",
+      "ingredients": [
+        {
+          "ingredient_name": "All-Purpose Flour",
+          "ingredient_brand": "King Arthur",
+          "quantity": 2.25,
+          "unit": "cup"
+        },
+        {
+          "ingredient_name": "Baking Soda",
+          "ingredient_brand": "Arm & Hammer",
+          "quantity": 1.0,
+          "unit": "tsp"
+        },
+        {
+          "ingredient_name": "Table Salt",
+          "ingredient_brand": "Morton",
+          "quantity": 1.0,
+          "unit": "tsp"
+        },
+        {
+          "ingredient_name": "Unsalted Butter",
+          "ingredient_brand": "Kirkland",
+          "quantity": 1.0,
+          "unit": "cup",
+          "notes": "Softened"
+        },
+        {
+          "ingredient_name": "White Granulated Sugar",
+          "ingredient_brand": "Costco Kirkland",
+          "quantity": 0.75,
+          "unit": "cup"
+        },
+        {
+          "ingredient_name": "Light Brown Sugar",
+          "ingredient_brand": "Domino",
+          "quantity": 0.75,
+          "unit": "cup",
+          "notes": "Packed"
+        },
+        {
+          "ingredient_name": "Pure Vanilla Extract",
+          "ingredient_brand": "McCormick",
+          "quantity": 1.0,
+          "unit": "tsp"
+        },
+        {
+          "ingredient_name": "Large Eggs",
+          "ingredient_brand": "Costco",
+          "quantity": 2.0,
+          "unit": "each"
+        },
+        {
+          "ingredient_name": "Semi-Sweet Chocolate Chips",
+          "ingredient_brand": "Nestle Toll House",
+          "quantity": 2.0,
+          "unit": "cup"
+        }
+      ]
+    },
+    {
+      "name": "Snickerdoodles",
+      "category": "Cookies",
+      "source": "Joy of Cooking",
+      "yield_quantity": 48,
+      "yield_unit": "cookies",
+      "yield_description": "2.5-inch cookies",
+      "estimated_time_minutes": 50,
+      "notes": "Roll balls in cinnamon-sugar mixture before baking. Bake at 375°F for 10-12 minutes.",
+      "ingredients": [
+        {
+          "ingredient_name": "All-Purpose Flour",
+          "ingredient_brand": "King Arthur",
+          "quantity": 2.75,
+          "unit": "cup"
+        },
+        {
+          "ingredient_name": "Baking Soda",
+          "ingredient_brand": "Arm & Hammer",
+          "quantity": 2.0,
+          "unit": "tsp"
+        },
+        {
+          "ingredient_name": "Unsalted Butter",
+          "ingredient_brand": "Kirkland",
+          "quantity": 1.0,
+          "unit": "cup",
+          "notes": "Softened"
+        },
+        {
+          "ingredient_name": "White Granulated Sugar",
+          "ingredient_brand": "Costco Kirkland",
+          "quantity": 1.5,
+          "unit": "cup"
+        },
+        {
+          "ingredient_name": "Large Eggs",
+          "ingredient_brand": "Costco",
+          "quantity": 2.0,
+          "unit": "each"
+        },
+        {
+          "ingredient_name": "Ground Cinnamon",
+          "ingredient_brand": "Costco Kirkland",
+          "quantity": 3.0,
+          "unit": "tbsp",
+          "notes": "For coating"
+        }
+      ]
+    },
+    {
+      "name": "Pecan Sandies",
+      "category": "Cookies",
+      "source": "Betty Crocker",
+      "yield_quantity": 36,
+      "yield_unit": "cookies",
+      "estimated_time_minutes": 55,
+      "notes": "Buttery shortbread-style cookies. Bake at 325°F for 18-20 minutes until edges are lightly golden.",
+      "ingredients": [
+        {
+          "ingredient_name": "All-Purpose Flour",
+          "ingredient_brand": "King Arthur",
+          "quantity": 2.0,
+          "unit": "cup"
+        },
+        {
+          "ingredient_name": "Unsalted Butter",
+          "ingredient_brand": "Kirkland",
+          "quantity": 1.0,
+          "unit": "cup",
+          "notes": "Softened"
+        },
+        {
+          "ingredient_name": "Powdered Sugar",
+          "ingredient_brand": "C&H",
+          "quantity": 0.5,
+          "unit": "cup"
+        },
+        {
+          "ingredient_name": "Pure Vanilla Extract",
+          "ingredient_brand": "McCormick",
+          "quantity": 1.0,
+          "unit": "tsp"
+        },
+        {
+          "ingredient_name": "Chopped Pecans",
+          "ingredient_brand": "Costco",
+          "quantity": 1.0,
+          "unit": "cup",
+          "notes": "Finely chopped"
+        }
+      ]
+    }
+  ]
+}

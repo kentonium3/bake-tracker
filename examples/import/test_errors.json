@@ -1,0 +1,145 @@
+{
+  "version": "1.0",
+  "export_date": "2025-11-04T12:00:00Z",
+  "source": "Error Testing Example - Contains Intentional Errors",
+  "ingredients": [
+    {
+      "name": "All-Purpose Flour",
+      "brand": "King Arthur",
+      "category": "Flour",
+      "purchase_quantity": 25.0,
+      "purchase_unit": "lb",
+      "quantity": 2.0,
+      "unit_cost": 18.99,
+      "package_type": "bag",
+      "notes": "This one is valid - should import successfully"
+    },
+    {
+      "name": "",
+      "brand": "Some Brand",
+      "category": "Sugar",
+      "purchase_quantity": 5.0,
+      "purchase_unit": "lb",
+      "quantity": 1.0,
+      "unit_cost": 10.00,
+      "notes": "ERROR: Missing name (required field)"
+    },
+    {
+      "name": "Invalid Category Ingredient",
+      "brand": "Test",
+      "category": "NotAValidCategory",
+      "purchase_quantity": 1.0,
+      "purchase_unit": "lb",
+      "quantity": 1.0,
+      "unit_cost": 5.00,
+      "notes": "ERROR: Invalid category"
+    },
+    {
+      "name": "Invalid Unit",
+      "brand": "Test",
+      "category": "Flour",
+      "purchase_quantity": 10.0,
+      "purchase_unit": "invalidunit",
+      "quantity": 1.0,
+      "unit_cost": 12.00,
+      "notes": "ERROR: Invalid purchase_unit"
+    },
+    {
+      "name": "Negative Quantity",
+      "brand": "Test",
+      "category": "Sugar",
+      "purchase_quantity": 5.0,
+      "purchase_unit": "lb",
+      "quantity": -1.0,
+      "unit_cost": 8.00,
+      "notes": "ERROR: Negative quantity (should be >= 0)"
+    },
+    {
+      "name": "Zero Purchase Quantity",
+      "brand": "Test",
+      "category": "Dairy",
+      "purchase_quantity": 0.0,
+      "purchase_unit": "lb",
+      "quantity": 1.0,
+      "unit_cost": 5.00,
+      "notes": "ERROR: Zero or negative purchase_quantity (should be > 0)"
+    },
+    {
+      "name": "Missing Required Field",
+      "brand": "Test",
+      "category": "Nuts",
+      "quantity": 2.0,
+      "unit_cost": 15.00,
+      "notes": "ERROR: Missing purchase_quantity and purchase_unit (required)"
+    }
+  ],
+  "recipes": [
+    {
+      "name": "Valid Test Recipe",
+      "category": "Cookies",
+      "yield_quantity": 24,
+      "yield_unit": "cookies",
+      "estimated_time_minutes": 30,
+      "ingredients": [
+        {
+          "ingredient_name": "All-Purpose Flour",
+          "ingredient_brand": "King Arthur",
+          "quantity": 2.0,
+          "unit": "cup",
+          "notes": "This recipe is valid"
+        }
+      ]
+    },
+    {
+      "name": "Missing Ingredients Recipe",
+      "category": "Cakes",
+      "yield_quantity": 1,
+      "yield_unit": "cake",
+      "ingredients": [],
+      "notes": "ERROR: Empty ingredients array (need at least one)"
+    },
+    {
+      "name": "Invalid Category Recipe",
+      "category": "NotValidCategory",
+      "yield_quantity": 12,
+      "yield_unit": "servings",
+      "ingredients": [
+        {
+          "ingredient_name": "All-Purpose Flour",
+          "quantity": 1.0,
+          "unit": "cup"
+        }
+      ],
+      "notes": "ERROR: Invalid recipe category"
+    },
+    {
+      "name": "Missing Ingredient Reference",
+      "category": "Cookies",
+      "yield_quantity": 24,
+      "yield_unit": "cookies",
+      "ingredients": [
+        {
+          "ingredient_name": "Nonexistent Ingredient",
+          "ingredient_brand": "Some Brand",
+          "quantity": 2.0,
+          "unit": "cup",
+          "notes": "ERROR: This ingredient doesn't exist in the database"
+        }
+      ]
+    },
+    {
+      "name": "Negative Yield",
+      "category": "Bars",
+      "yield_quantity": -10,
+      "yield_unit": "bars",
+      "ingredients": [
+        {
+          "ingredient_name": "All-Purpose Flour",
+          "quantity": 1.0,
+          "unit": "cup"
+        }
+      ],
+      "notes": "ERROR: Negative yield_quantity"
+    }
+  ]
+}

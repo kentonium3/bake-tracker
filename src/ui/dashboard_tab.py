@@ -6,7 +6,7 @@ Displays welcome message, quick stats, and phase information.
 
 import customtkinter as ctk
 
-from src.services import inventory_service, recipe_service
+from src.services import inventory_service, recipe_service, finished_good_service
 from src.utils.constants import APP_NAME
 
 
@@ -81,7 +81,10 @@ class DashboardTab(ctk.CTkFrame):
         ingredient_count = self._get_ingredient_count()
         recipe_count = self._get_recipe_count()
         inventory_value = self._get_inventory_value()
+        finished_good_count = self._get_finished_good_count()
+        bundle_count = self._get_bundle_count()
 
+        # Row 1: Ingredients, Recipes, Inventory Value
         # Ingredient count card
         self._create_stat_card(
             stats_frame,
@@ -110,6 +113,27 @@ class DashboardTab(ctk.CTkFrame):
             "total value",
             row=1,
             column=2,
+        )
+
+        # Row 2: Finished Goods, Bundles (centered across 3 columns)
+        # Finished Goods count card
+        self._create_stat_card(
+            stats_frame,
+            "Finished Goods",
+            str(finished_good_count),
+            "products defined",
+            row=2,
+            column=0,
+        )
+
+        # Bundle count card
+        self._create_stat_card(
+            stats_frame,
+            "Bundles",
+            str(bundle_count),
+            "bundles configured",
+            row=2,
+            column=1,
         )
 
     def _create_stat_card(
@@ -169,7 +193,7 @@ class DashboardTab(ctk.CTkFrame):
         # Phase title
         phase_title = ctk.CTkLabel(
             phase_frame,
-            text="Phase 1: Core Functionality",
+            text="Phase 2: Finished Goods & Bundles",
             font=ctk.CTkFont(size=18, weight="bold"),
         )
         phase_title.grid(row=0, column=0, sticky="w", padx=15, pady=(15, 10))
@@ -178,8 +202,8 @@ class DashboardTab(ctk.CTkFrame):
         phase_desc = ctk.CTkLabel(
             phase_frame,
             text=(
-                "Track raw ingredient inventory and manage recipes.\n"
-                "Calculate costs and manage basic inventory operations."
+                "Define finished goods from recipes and create bundles for planning.\n"
+                "Support both discrete items (cookies) and batch portions (cakes)."
             ),
             font=ctk.CTkFont(size=14),
             justify="left",
@@ -199,8 +223,11 @@ class DashboardTab(ctk.CTkFrame):
             text=(
                 "• Ingredient Management (CRUD operations)\n"
                 "• Recipe Management with ingredients\n"
-                "• Cost Calculations (ingredient and recipe level)\n"
+                "• Cost Calculations (ingredient, recipe, and finished good level)\n"
                 "• Unit Conversions (weight, volume, count)\n"
+                "• Finished Goods (discrete items & batch portions)\n"
+                "• Bundles (bags/groups of finished goods)\n"
+                "• Batch Planning (calculate batches needed)\n"
                 "• Search and Filter capabilities"
             ),
             font=ctk.CTkFont(size=13),
@@ -219,8 +246,7 @@ class DashboardTab(ctk.CTkFrame):
         coming_text = ctk.CTkLabel(
             phase_frame,
             text=(
-                "• Bundles (Phase 2): Group finished goods into gift packages\n"
-                "• Packages (Phase 2): Manage complete gift packages\n"
+                "• Packages (Phase 2 cont.): Complete gift package management\n"
                 "• Recipients (Phase 3): Track gift recipients and history\n"
                 "• Events (Phase 3): Plan seasonal baking events\n"
                 "• Reports (Phase 4): Analytics and export capabilities"
@@ -265,6 +291,30 @@ class DashboardTab(ctk.CTkFrame):
             return inventory_service.get_total_inventory_value()
         except Exception:
             return 0.0
+
+    def _get_finished_good_count(self) -> int:
+        """
+        Get the current finished good count.
+
+        Returns:
+            Number of finished goods in system
+        """
+        try:
+            return finished_good_service.get_finished_good_count()
+        except Exception:
+            return 0
+
+    def _get_bundle_count(self) -> int:
+        """
+        Get the current bundle count.
+
+        Returns:
+            Number of bundles in system
+        """
+        try:
+            return finished_good_service.get_bundle_count()
+        except Exception:
+            return 0
 
     def refresh(self):
         """Refresh the dashboard with current data."""

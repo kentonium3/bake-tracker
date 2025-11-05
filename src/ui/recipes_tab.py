@@ -259,12 +259,23 @@ class RecipesTab(ctk.CTkFrame):
         if not self.selected_recipe:
             return
 
-        dialog = RecipeFormDialog(
-            self,
-            recipe=self.selected_recipe,
-            title=f"Edit Recipe: {self.selected_recipe.name}",
-        )
-        result = dialog.get_result()
+        try:
+            # Reload recipe with ingredients to avoid lazy loading issues
+            recipe = recipe_service.get_recipe(self.selected_recipe.id)
+
+            dialog = RecipeFormDialog(
+                self,
+                recipe=recipe,
+                title=f"Edit Recipe: {recipe.name}",
+            )
+            result = dialog.get_result()
+        except Exception as e:
+            show_error(
+                "Error",
+                f"Failed to load recipe for editing: {str(e)}",
+                parent=self,
+            )
+            return
 
         if result:
             try:
@@ -364,7 +375,25 @@ class RecipesTab(ctk.CTkFrame):
                 ing_qty = ing["quantity"]
                 ing_unit = ing["unit"]
                 ing_cost = ing["cost"]
-                details.append(f"  • {ing_qty} {ing_unit} {ing_name} (${ing_cost:.2f})")
+                packages_needed = ing["packages_needed"]
+
+                # Get package information from ingredient
+                ingredient = ing["ingredient"]
+
+                # Format package display
+                if packages_needed > 0:
+                    if ingredient.package_type:
+                        # Use package type if available
+                        package_label = self._pluralize_package(ingredient.package_type, packages_needed)
+                        package_info = f" → {packages_needed:.2f} {package_label}"
+                    else:
+                        # Use generic "packages"
+                        package_label = "package" if packages_needed == 1 else "packages"
+                        package_info = f" → {packages_needed:.2f} {package_label}"
+                else:
+                    package_info = ""
+
+                details.append(f"  • {ing_qty} {ing_unit} {ing_name}{package_info} (${ing_cost:.2f})")
 
             if recipe.notes:
                 details.append("")
@@ -416,3 +445,35 @@ class RecipesTab(ctk.CTkFrame):
             self.status_label.configure(text_color=COLOR_ERROR)
         else:
             self.status_label.configure(text_color=("gray10", "gray90"))  # Default theme colors
+
+    def _pluralize_package(self, word: str, count: float) -> str:
+        """
+        Simple pluralization helper for package types.
+
+        Args:
+            word: Singular word
+            count: Count to determine singular/plural
+
+        Returns:
+            Pluralized word
+        """
+        if count == 1:
+            return word
+
+        # Handle common irregular plurals
+        irregular = {
+            "box": "boxes",
+            "can": "cans",
+            "jar": "jars",
+            "bag": "bags",
+            "bottle": "bottles",
+            "bar": "bars",
+            "package": "packages",
+        }
+
+        word_lower = word.lower()
+        if word_lower in irregular:
+            return irregular[word_lower]
+
+        # Default: add 's'
+        return f"{word}s"

@@ -61,7 +61,7 @@ class Recipe(BaseModel):
         lazy="joined",
     )
 
-    # finished_goods = relationship("FinishedGood", back_populates="recipe")
+    finished_goods = relationship("FinishedGood", back_populates="recipe")
 
     # Indexes
     __table_args__ = (
@@ -186,8 +186,8 @@ class RecipeIngredient(BaseModel):
         # Get ingredient density for cross-unit conversions
         ingredient_density = self.ingredient.get_density() if hasattr(self.ingredient, 'get_density') else 0.0
 
-        # Convert recipe unit directly to purchase_unit
-        success, purchase_unit_quantity, error = convert_any_units(
+        # Convert recipe unit to purchase_unit
+        success, quantity_in_purchase_units, error = convert_any_units(
             self.quantity,
             self.unit,
             self.ingredient.purchase_unit,
@@ -196,24 +196,26 @@ class RecipeIngredient(BaseModel):
         )
 
         if not success:
-            # Fallback: use conversion_factor if available
-            # Assumes recipe unit and purchase unit are compatible
-            purchase_unit_quantity = self.quantity / self.ingredient.conversion_factor
+            # Conversion failed - cannot calculate cost
+            return 0.0
+
+        # Calculate how many packages needed
+        packages_needed = quantity_in_purchase_units / self.ingredient.purchase_quantity
 
         # Calculate cost
-        cost = purchase_unit_quantity * self.ingredient.unit_cost
+        cost = packages_needed * self.ingredient.unit_cost
 
         return cost
 
     def get_purchase_unit_quantity(self) -> float:
         """
-        Calculate how many purchase units are needed for this ingredient.
+        Calculate how many purchase units (in standard units) are needed.
 
         This method handles conversion from any recipe unit to purchase units,
         supporting cross-unit conversions (volume↔weight) when needed.
 
         Returns:
-            Quantity in purchase units
+            Quantity in purchase units (not packages)
         """
         if not self.ingredient:
             return 0.0
@@ -224,8 +226,8 @@ class RecipeIngredient(BaseModel):
         # Get ingredient density for cross-unit conversions
         ingredient_density = self.ingredient.get_density() if hasattr(self.ingredient, 'get_density') else 0.0
 
-        # Convert recipe unit directly to purchase_unit
-        success, purchase_unit_quantity, error = convert_any_units(
+        # Convert recipe unit to purchase_unit
+        success, quantity_in_purchase_units, error = convert_any_units(
             self.quantity,
             self.unit,
             self.ingredient.purchase_unit,
@@ -234,11 +236,23 @@ class RecipeIngredient(BaseModel):
         )
 
         if not success:
-            # Fallback: use conversion_factor if available
-            # Assumes recipe unit and purchase unit are compatible
-            purchase_unit_quantity = self.quantity / self.ingredient.conversion_factor
+            # Conversion failed
+            return 0.0
 
-        return purchase_unit_quantity
+        return quantity_in_purchase_units
+
+    def get_packages_needed(self) -> float:
+        """
+        Calculate how many packages are needed for this ingredient.
+
+        Returns:
+            Number of packages needed
+        """
+        if not self.ingredient:
+            return 0.0
+
+        quantity_in_purchase_units = self.get_purchase_unit_quantity()
+        return quantity_in_purchase_units / self.ingredient.purchase_quantity
 
     def to_dict(self, include_relationships: bool = False) -> dict:
         """

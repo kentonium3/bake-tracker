@@ -22,6 +22,7 @@ class DataTable(ctk.CTkFrame):
         columns: List[Tuple[str, int]],
         on_row_select: Optional[Callable[[Any], None]] = None,
         on_row_double_click: Optional[Callable[[Any], None]] = None,
+        height: int = 500,
     ):
         """
         Initialize the data table.
@@ -31,6 +32,7 @@ class DataTable(ctk.CTkFrame):
             columns: List of (column_name, width) tuples
             on_row_select: Callback for row selection (receives row data)
             on_row_double_click: Callback for row double-click (receives row data)
+            height: Height of the scrollable data area in pixels (default: 500)
         """
         super().__init__(parent)
 
@@ -40,6 +42,7 @@ class DataTable(ctk.CTkFrame):
         self.data = []
         self.row_widgets = []
         self.selected_row = None
+        self.table_height = height
 
         # Configure grid
         self.grid_columnconfigure(0, weight=1)
@@ -62,13 +65,14 @@ class DataTable(ctk.CTkFrame):
                 text=col_name,
                 width=col_width,
                 font=ctk.CTkFont(weight="bold"),
+                anchor="w",  # Left-justify header text to match data
             )
             header_label.grid(row=0, column=i, padx=5, pady=8, sticky="w")
 
     def _create_data_frame(self):
         """Create the scrollable frame for data rows."""
-        # Create scrollable frame
-        self.scrollable_frame = ctk.CTkScrollableFrame(self)
+        # Create scrollable frame with specified height
+        self.scrollable_frame = ctk.CTkScrollableFrame(self, height=self.table_height)
         self.scrollable_frame.grid(row=1, column=0, sticky="nsew")
 
         # Configure columns
@@ -106,8 +110,8 @@ class DataTable(ctk.CTkFrame):
             row_data: Data for the row
         """
         # Create frame for the row
-        row_frame = ctk.CTkFrame(self.scrollable_frame, fg_color="transparent")
-        row_frame.grid(row=row_index, column=0, columnspan=len(self.columns), sticky="ew")
+        row_frame = ctk.CTkFrame(self.scrollable_frame, fg_color="transparent", height=25)
+        row_frame.grid(row=row_index, column=0, columnspan=len(self.columns), sticky="ew", pady=0)
 
         # Store reference
         row_widgets_list = []
@@ -121,9 +125,10 @@ class DataTable(ctk.CTkFrame):
                 row_frame,
                 text=str(col_value),
                 width=col_width,
+                height=20,  # Fixed compact height
                 anchor="w",
             )
-            cell_label.grid(row=0, column=col_index, padx=5, pady=4, sticky="w")
+            cell_label.grid(row=0, column=col_index, padx=5, pady=0, sticky="w")  # Zero padding for compact spacing
 
             # Bind click events
             cell_label.bind("<Button-1>", lambda e, idx=row_index: self._on_row_click(idx))
@@ -231,6 +236,7 @@ class IngredientDataTable(DataTable):
         parent,
         select_callback: Optional[Callable[[Any], None]] = None,
         double_click_callback: Optional[Callable[[Any], None]] = None,
+        height: int = 500,
     ):
         """
         Initialize ingredient data table.
@@ -239,12 +245,13 @@ class IngredientDataTable(DataTable):
             parent: Parent widget
             select_callback: Callback for row selection
             double_click_callback: Callback for row double-click
+            height: Height of the table in pixels (default: 500)
         """
         columns = [
-            ("Name", 200),
-            ("Brand", 150),
-            ("Category", 120),
-            ("Quantity", 100),
+            ("Name", 180),
+            ("Brand", 140),
+            ("Category", 110),
+            ("Quantity", 200),
             ("Unit Cost", 100),
             ("Total Value", 120),
         ]
@@ -253,6 +260,7 @@ class IngredientDataTable(DataTable):
             columns=columns,
             on_row_select=select_callback,
             on_row_double_click=double_click_callback,
+            height=height,
         )
 
     def _get_row_values(self, row_data: Any) -> List[str]:
@@ -265,14 +273,58 @@ class IngredientDataTable(DataTable):
         Returns:
             List of formatted values
         """
+        # Format quantity with package information
+        total_qty = row_data.total_quantity_in_purchase_units
+
+        if row_data.package_type:
+            # Use package type if available
+            package_label = self._pluralize(row_data.package_type, row_data.quantity)
+            quantity_display = f"{row_data.quantity:.1f} {package_label} ({total_qty:.1f} {row_data.purchase_unit})"
+        else:
+            # Use generic "packages" if no package type
+            package_label = "package" if row_data.quantity == 1 else "packages"
+            quantity_display = f"{row_data.quantity:.1f} {package_label} ({total_qty:.1f} {row_data.purchase_unit})"
+
         return [
             row_data.name,
             row_data.brand or "",
             row_data.category,
-            f"{row_data.quantity:.2f}",
+            quantity_display,
             f"${row_data.unit_cost:.2f}",
             f"${row_data.total_value:.2f}",
         ]
+
+    def _pluralize(self, word: str, count: float) -> str:
+        """
+        Simple pluralization helper.
+
+        Args:
+            word: Singular word
+            count: Count to determine singular/plural
+
+        Returns:
+            Pluralized word
+        """
+        if count == 1:
+            return word
+
+        # Handle common irregular plurals
+        irregular = {
+            "box": "boxes",
+            "can": "cans",
+            "jar": "jars",
+            "bag": "bags",
+            "bottle": "bottles",
+            "bar": "bars",
+            "package": "packages",
+        }
+
+        word_lower = word.lower()
+        if word_lower in irregular:
+            return irregular[word_lower]
+
+        # Default: add 's'
+        return f"{word}s"
 
 
 class RecipeDataTable(DataTable):
@@ -285,6 +337,7 @@ class RecipeDataTable(DataTable):
         parent,
         select_callback: Optional[Callable[[Any], None]] = None,
         double_click_callback: Optional[Callable[[Any], None]] = None,
+        height: int = 500,
     ):
         """
         Initialize recipe data table.
@@ -293,6 +346,7 @@ class RecipeDataTable(DataTable):
             parent: Parent widget
             select_callback: Callback for row selection
             double_click_callback: Callback for row double-click
+            height: Height of the table in pixels (default: 500)
         """
         columns = [
             ("Name", 250),
@@ -306,6 +360,7 @@ class RecipeDataTable(DataTable):
             columns=columns,
             on_row_select=select_callback,
             on_row_double_click=double_click_callback,
+            height=height,
         )
 
     def _get_row_values(self, row_data: Any) -> List[str]:
@@ -329,4 +384,316 @@ class RecipeDataTable(DataTable):
             f"{row_data.yield_quantity:.0f} {row_data.yield_unit}",
             f"${total_cost:.2f}",
             f"${cost_per_unit:.4f}",
+        ]
+
+
+class FinishedGoodDataTable(DataTable):
+    """
+    Specialized data table for displaying finished goods.
+    """
+
+    def __init__(
+        self,
+        parent,
+        select_callback: Optional[Callable[[Any], None]] = None,
+        double_click_callback: Optional[Callable[[Any], None]] = None,
+        height: int = 500,
+    ):
+        """
+        Initialize finished good data table.
+
+        Args:
+            parent: Parent widget
+            select_callback: Callback for row selection
+            double_click_callback: Callback for row double-click
+            height: Height of the table in pixels (default: 500)
+        """
+        columns = [
+            ("Name", 200),
+            ("Recipe", 180),
+            ("Category", 100),
+            ("Type", 120),
+            ("Yield Info", 180),
+            ("Cost/Item", 90),
+        ]
+        super().__init__(
+            parent,
+            columns=columns,
+            on_row_select=select_callback,
+            on_row_double_click=double_click_callback,
+            height=height,
+        )
+
+    def _get_row_values(self, row_data: Any) -> List[str]:
+        """
+        Extract finished good-specific row values.
+
+        Args:
+            row_data: FinishedGood object
+
+        Returns:
+            List of formatted values
+        """
+        # Get yield info based on mode
+        if row_data.yield_mode.value == "discrete_count":
+            yield_info = f"{row_data.items_per_batch} {row_data.item_unit}/batch"
+            type_display = "Discrete Items"
+        else:
+            yield_info = f"{row_data.batch_percentage}% of batch"
+            type_display = "Batch Portion"
+
+        # Calculate cost per item
+        cost_per_item = row_data.get_cost_per_item() if hasattr(row_data, "get_cost_per_item") else 0.0
+
+        return [
+            row_data.name,
+            row_data.recipe.name if row_data.recipe else "N/A",
+            row_data.category or "",
+            type_display,
+            yield_info,
+            f"${cost_per_item:.4f}",
+        ]
+
+
+class BundleDataTable(DataTable):
+    """
+    Specialized data table for displaying bundles.
+    """
+
+    def __init__(
+        self,
+        parent,
+        select_callback: Optional[Callable[[Any], None]] = None,
+        double_click_callback: Optional[Callable[[Any], None]] = None,
+        height: int = 500,
+    ):
+        """
+        Initialize bundle data table.
+
+        Args:
+            parent: Parent widget
+            select_callback: Callback for row selection
+            double_click_callback: Callback for row double-click
+            height: Height of the table in pixels (default: 500)
+        """
+        columns = [
+            ("Bundle Name", 250),
+            ("Finished Good", 220),
+            ("Quantity", 100),
+            ("Cost", 100),
+        ]
+        super().__init__(
+            parent,
+            columns=columns,
+            on_row_select=select_callback,
+            on_row_double_click=double_click_callback,
+            height=height,
+        )
+
+    def _get_row_values(self, row_data: Any) -> List[str]:
+        """
+        Extract bundle-specific row values.
+
+        Args:
+            row_data: Bundle object
+
+        Returns:
+            List of formatted values
+        """
+        # Calculate bundle cost
+        cost = row_data.calculate_cost() if hasattr(row_data, "calculate_cost") else 0.0
+
+        # Format quantity with unit from finished good
+        if row_data.finished_good:
+            if row_data.finished_good.yield_mode.value == "discrete_count":
+                quantity_display = f"{row_data.quantity} {row_data.finished_good.item_unit}"
+            else:
+                quantity_display = f"{row_data.quantity} item(s)"
+        else:
+            quantity_display = str(row_data.quantity)
+
+        return [
+            row_data.name,
+            row_data.finished_good.name if row_data.finished_good else "N/A",
+            quantity_display,
+            f"${cost:.2f}",
+        ]
+
+
+class PackageDataTable(DataTable):
+    """
+    Specialized data table for displaying packages.
+    """
+
+    def __init__(
+        self,
+        parent,
+        select_callback: Optional[Callable[[Any], None]] = None,
+        double_click_callback: Optional[Callable[[Any], None]] = None,
+        height: int = 500,
+    ):
+        """
+        Initialize package data table.
+
+        Args:
+            parent: Parent widget
+            select_callback: Callback for row selection
+            double_click_callback: Callback for row double-click
+            height: Height of the table in pixels (default: 500)
+        """
+        columns = [
+            ("Package Name", 250),
+            ("Bundles", 80),
+            ("Template", 80),
+            ("Cost", 100),
+        ]
+        super().__init__(
+            parent,
+            columns=columns,
+            on_row_select=select_callback,
+            on_row_double_click=double_click_callback,
+            height=height,
+        )
+
+    def _get_row_values(self, row_data: Any) -> List[str]:
+        """
+        Extract package-specific row values.
+
+        Args:
+            row_data: Package object
+
+        Returns:
+            List of formatted values
+        """
+        # Calculate package cost
+        cost = row_data.calculate_cost() if hasattr(row_data, "calculate_cost") else 0.0
+
+        # Bundle count
+        bundle_count = row_data.get_bundle_count() if hasattr(row_data, "get_bundle_count") else 0
+
+        # Template flag
+        template_display = "Yes" if row_data.is_template else "No"
+
+        return [
+            row_data.name,
+            str(bundle_count),
+            template_display,
+            f"${cost:.2f}",
+        ]
+
+
+class RecipientDataTable(DataTable):
+    """
+    Specialized data table for displaying recipients.
+    """
+
+    def __init__(
+        self,
+        parent,
+        select_callback: Optional[Callable[[Any], None]] = None,
+        double_click_callback: Optional[Callable[[Any], None]] = None,
+        height: int = 500,
+    ):
+        """
+        Initialize recipient data table.
+
+        Args:
+            parent: Parent widget
+            select_callback: Callback for row selection
+            double_click_callback: Callback for row double-click
+            height: Height of the table in pixels (default: 500)
+        """
+        columns = [
+            ("Name", 220),
+            ("Household", 220),
+            ("Address", 300),
+        ]
+        super().__init__(
+            parent,
+            columns=columns,
+            on_row_select=select_callback,
+            on_row_double_click=double_click_callback,
+            height=height,
+        )
+
+    def _get_row_values(self, row_data: Any) -> List[str]:
+        """
+        Extract recipient-specific row values.
+
+        Args:
+            row_data: Recipient object
+
+        Returns:
+            List of formatted values
+        """
+        return [
+            row_data.name,
+            row_data.household_name or "",
+            row_data.address or "",
+        ]
+
+class EventDataTable(DataTable):
+    """
+    Specialized data table for displaying events.
+    """
+
+    def __init__(
+        self,
+        parent,
+        select_callback: Optional[Callable[[Any], None]] = None,
+        double_click_callback: Optional[Callable[[Any], None]] = None,
+        height: int = 500,
+    ):
+        """
+        Initialize event data table.
+
+        Args:
+            parent: Parent widget
+            select_callback: Callback for row selection
+            double_click_callback: Callback for row double-click
+            height: Height of the table in pixels (default: 500)
+        """
+        columns = [
+            ("Event Name", 300),
+            ("Date", 100),
+            ("Year", 60),
+            ("Recipients", 80),
+            ("Packages", 80),
+            ("Cost", 100),
+        ]
+        super().__init__(
+            parent,
+            columns=columns,
+            on_row_select=select_callback,
+            on_row_double_click=double_click_callback,
+            height=height,
+        )
+
+    def _get_row_values(self, row_data: Any) -> List[str]:
+        """
+        Extract event-specific row values.
+
+        Args:
+            row_data: Event object
+
+        Returns:
+            List of formatted values
+        """
+        # Format date
+        event_date = row_data.event_date.strftime("%m/%d/%Y") if row_data.event_date else ""
+        
+        # Get counts
+        recipient_count = row_data.get_recipient_count() if hasattr(row_data, "get_recipient_count") else 0
+        package_count = row_data.get_package_count() if hasattr(row_data, "get_package_count") else 0
+        
+        # Calculate cost
+        cost = row_data.get_total_cost() if hasattr(row_data, "get_total_cost") else 0.0
+
+        return [
+            row_data.name,
+            event_date,
+            str(row_data.year),
+            str(recipient_count),
+            str(package_count),
+            f"${cost:.2f}",
         ]
