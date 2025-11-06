@@ -121,16 +121,20 @@ class Recipe(BaseModel):
 
 class RecipeIngredient(BaseModel):
     """
-    Junction table linking recipes to ingredients with quantities.
+    Junction table linking recipes to ingredients/products with quantities.
 
     This model represents an ingredient used in a recipe with specific
     quantity and unit requirements.
 
+    MIGRATION NOTE: During refactoring, both ingredient_id (old) and product_id (new)
+    exist. After migration, ingredient_id will be removed.
+
     Attributes:
         recipe_id: Foreign key to Recipe
-        ingredient_id: Foreign key to Ingredient
-        quantity: Amount needed (in ingredient's recipe_unit)
-        unit: Unit of measurement (must match ingredient's recipe_unit)
+        ingredient_id: Foreign key to Ingredient (LEGACY - for migration only)
+        product_id: Foreign key to Product (NEW - brand-agnostic reference)
+        quantity: Amount needed (in product's recipe_unit)
+        unit: Unit of measurement (must match product's recipe_unit)
         notes: Optional notes (e.g., "sifted", "melted")
     """
 
@@ -138,8 +142,15 @@ class RecipeIngredient(BaseModel):
 
     # Foreign keys
     recipe_id = Column(Integer, ForeignKey("recipes.id", ondelete="CASCADE"), nullable=False)
+
+    # LEGACY: ingredient_id for backward compatibility during migration
     ingredient_id = Column(
-        Integer, ForeignKey("ingredients.id", ondelete="RESTRICT"), nullable=False
+        Integer, ForeignKey("ingredients.id", ondelete="RESTRICT"), nullable=True
+    )
+
+    # NEW: product_id for brand-agnostic recipe ingredients
+    product_id = Column(
+        Integer, ForeignKey("products.id", ondelete="RESTRICT"), nullable=True
     )
 
     # Quantity information
@@ -151,7 +162,8 @@ class RecipeIngredient(BaseModel):
 
     # Relationships
     recipe = relationship("Recipe", back_populates="recipe_ingredients")
-    ingredient = relationship("Ingredient")
+    ingredient = relationship("Ingredient")  # LEGACY - for migration only
+    product = relationship("Product", back_populates="recipe_ingredients")  # NEW
 
     # Indexes
     __table_args__ = (
