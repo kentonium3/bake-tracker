@@ -1,9 +1,19 @@
-# Product/Pantry Model Refactoring Plan
+# Ingredient/Variant Model Refactoring Plan
 
-**Document Purpose:** Architecture plan for separating conflated Ingredient model into Product catalog and Pantry inventory
+**Document Purpose:** Architecture plan for separating conflated Ingredient model into Ingredient catalog and Pantry inventory
 
 **Created:** 2025-11-06
-**Status:** Planning phase - to be implemented on feature branch in parallel with v0.3.x testing
+**Status:** ⏸️ PAUSED - Planning complete, implementation deferred
+**Terminology Update:** 2025-11-06 - Changed from "Product/ProductVariant" to "Ingredient/Variant"
+
+> **NOTE:** This document uses "Product" terminology but has been conceptually updated to "Ingredient/Variant":
+> - Product → Ingredient (generic ingredient concept)
+> - ProductVariant → Variant (specific brand/source)
+> - "My Products" → "My Ingredients"
+>
+> **Rationale:** "Ingredient" handles both commercial products (Domino Sugar) AND non-commercial sources (farm stand tomatoes, butcher's chicken). More domain-appropriate for baking application.
+>
+> **See `PAUSE_POINT.md` for current pause point and resumption plan.**
 
 ---
 
