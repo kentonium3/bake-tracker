@@ -46,17 +46,17 @@ pip install pyinstaller
 **Basic Usage:**
 ```bash
 # Create spec file (one-time setup)
-pyi-makespec --onedir --windowed --name="BakingTracker" src/main.py
+pyi-makespec --onedir --windowed --name="BakeTracker" src/main.py
 
 # Build executable
-pyinstaller BakingTracker.spec
+pyinstaller BakeTracker.spec
 
-# Output: dist/BakingTracker/BakingTracker.exe
+# Output: dist/BakeTracker/BakeTracker.exe
 ```
 
 **CustomTkinter-specific Configuration:**
 
-Edit `BakingTracker.spec`:
+Edit `BakeTracker.spec`:
 
 ```python
 # -*- mode: python ; coding: utf-8 -*-
@@ -91,7 +91,7 @@ exe = EXE(
     a.zipfiles,
     a.datas,
     [],
-    name='BakingTracker',
+    name='BakeTracker',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
@@ -199,7 +199,7 @@ build_exe_options = {
 }
 
 setup(
-    name="BakingTracker",
+    name="BakeTracker",
     version="0.3.0",
     description="Seasonal Baking Tracker",
     options={"build_exe": build_exe_options},
@@ -207,7 +207,7 @@ setup(
         Executable(
             "src/main.py",
             base="Win32GUI",
-            target_name="BakingTracker.exe",
+            target_name="BakeTracker.exe",
             icon="assets/icon.ico"
         )
     ]
@@ -217,7 +217,7 @@ setup(
 **Usage:**
 ```bash
 python setup.py build
-# Output: build/exe.win-amd64-3.12/BakingTracker.exe
+# Output: build/exe.win-amd64-3.12/BakeTracker.exe
 ```
 
 **Recommendation:** Skip unless cross-platform deployment becomes a requirement
@@ -253,15 +253,15 @@ After creating an executable with PyInstaller/Nuitka, create a professional Wind
 AppName=Seasonal Baking Tracker
 AppVersion=0.3.0
 AppPublisher=Your Name
-DefaultDirName={autopf}\BakingTracker
+DefaultDirName={autopf}\BakeTracker
 DefaultGroupName=Baking Tracker
 OutputDir=installer_output
-OutputBaseFilename=BakingTracker_Setup_v0.3.0
+OutputBaseFilename=BakeTracker_Setup_v0.3.0
 Compression=lzma2
 SolidCompression=yes
 WizardStyle=modern
 PrivilegesRequired=lowest
-UninstallDisplayIcon={app}\BakingTracker.exe
+UninstallDisplayIcon={app}\BakeTracker.exe
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
@@ -270,26 +270,26 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "desktopicon"; Description: "Create a &desktop icon"; GroupDescription: "Additional icons:"
 
 [Files]
-Source: "dist\BakingTracker\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "dist\BakeTracker\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Icons]
-Name: "{group}\Baking Tracker"; Filename: "{app}\BakingTracker.exe"
+Name: "{group}\Baking Tracker"; Filename: "{app}\BakeTracker.exe"
 Name: "{group}\Uninstall Baking Tracker"; Filename: "{uninstallexe}"
-Name: "{commondesktop}\Baking Tracker"; Filename: "{app}\BakingTracker.exe"; Tasks: desktopicon
+Name: "{commondesktop}\Baking Tracker"; Filename: "{app}\BakeTracker.exe"; Tasks: desktopicon
 
 [Run]
-Filename: "{app}\BakingTracker.exe"; Description: "Launch Baking Tracker"; Flags: postinstall nowait skipifsilent
+Filename: "{app}\BakeTracker.exe"; Description: "Launch Baking Tracker"; Flags: postinstall nowait skipifsilent
 
 [UninstallDelete]
-Type: filesandordirs; Name: "{userappdata}\BakingTracker"
-Type: filesandordirs; Name: "{userdocs}\BakingTracker"
+Type: filesandordirs; Name: "{userappdata}\BakeTracker"
+Type: filesandordirs; Name: "{userdocs}\BakeTracker"
 ```
 
 **Compile:**
 1. Open Inno Setup Compiler
 2. Load `installer.iss`
 3. Click "Compile"
-4. Output: `installer_output/BakingTracker_Setup_v0.3.0.exe`
+4. Output: `installer_output/BakeTracker_Setup_v0.3.0.exe`
 
 ---
 
@@ -322,9 +322,9 @@ Type: filesandordirs; Name: "{userdocs}\BakingTracker"
 
 ```bash
 # Build with PyInstaller --onedir
-pyinstaller --onedir --windowed --name="BakingTracker" src/main.py
+pyinstaller --onedir --windowed --name="BakeTracker" src/main.py
 
-# ZIP the entire dist/BakingTracker folder
+# ZIP the entire dist/BakeTracker folder
 # Include README_INSTALL.txt with instructions
 ```
 
@@ -365,7 +365,7 @@ pyinstaller --onedir --windowed --name="BakingTracker" src/main.py
 
 Current configuration:
 ```
-C:\Users\[Username]\Documents\BakingTracker\baking_tracker.db
+C:\Users\[Username]\Documents\BakeTracker\bake_tracker.db
 ```
 
 **Why this is good:**
@@ -426,7 +426,7 @@ C:\Users\[Username]\Documents\BakingTracker\baking_tracker.db
 
 **Solution:**
 ```python
-# In BakingTracker.spec, ensure:
+# In BakeTracker.spec, ensure:
 datas=[
     ('venv/Lib/site-packages/customtkinter', 'customtkinter'),
 ],
@@ -556,7 +556,7 @@ bake-tracker/
 ├── build/                        # Build artifacts (gitignored)
 ├── dist/                         # Distribution output (gitignored)
 ├── installer_output/             # Installer output (gitignored)
-├── BakingTracker.spec           # PyInstaller configuration
+├── BakeTracker.spec           # PyInstaller configuration
 ├── installer.iss                # Inno Setup script
 ├── build.py                     # Automated build script
 └── README_INSTALL.txt           # User installation instructions

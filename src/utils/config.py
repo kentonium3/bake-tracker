@@ -82,7 +82,7 @@ class Config:
             documents = Path.home() / "Documents"
 
         # Create app-specific subdirectory
-        app_dir = documents / "BakingTracker"
+        app_dir = documents / "BakeTracker"
         return app_dir
 
     def _ensure_directories(self):
@@ -145,7 +145,7 @@ class Config:
             from datetime import datetime
 
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            backup_name = f"baking_tracker_backup_{timestamp}.db"
+            backup_name = f"bake_tracker_backup_{timestamp}.db"
 
         return self._database_dir / backup_name
 

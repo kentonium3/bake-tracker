@@ -231,7 +231,7 @@ CONVERSION_DECIMAL_PLACES = 6
 # ============================================================================
 
 # Database file name
-DATABASE_FILENAME = "baking_tracker.db"
+DATABASE_FILENAME = "bake_tracker.db"
 
 # Table names (for reference)
 TABLE_INGREDIENT = "ingredients"

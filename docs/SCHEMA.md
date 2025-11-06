@@ -372,7 +372,7 @@ package_cost = sum(
 
 ### SQLite Settings
 ```python
-SQLALCHEMY_DATABASE_URI = 'sqlite:///data/baking_tracker.db'
+SQLALCHEMY_DATABASE_URI = 'sqlite:///data/bake_tracker.db'
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 # Connection arguments

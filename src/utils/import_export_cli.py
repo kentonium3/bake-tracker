@@ -37,11 +37,17 @@ from src.services.import_export_service import (
     export_recipes_to_json,
     export_finished_goods_to_json,
     export_bundles_to_json,
+    export_packages_to_json,
+    export_recipients_to_json,
+    export_events_to_json,
     export_all_to_json,
     import_ingredients_from_json,
     import_recipes_from_json,
     import_finished_goods_from_json,
     import_bundles_from_json,
+    import_packages_from_json,
+    import_recipients_from_json,
+    import_events_from_json,
     import_all_from_json,
 )
 
@@ -111,11 +117,51 @@ def export_bundles(output_file: str):
         return 1
 
 
+def export_packages(output_file: str):
+    """Export packages only."""
+    print(f"Exporting packages to {output_file}...")
+    result = export_packages_to_json(output_file)
+
+    if result.success:
+        print(result.get_summary())
+        return 0
+    else:
+        print(f"ERROR: {result.error}")
+        return 1
+
+
+def export_recipients(output_file: str):
+    """Export recipients only."""
+    print(f"Exporting recipients to {output_file}...")
+    result = export_recipients_to_json(output_file)
+
+    if result.success:
+        print(result.get_summary())
+        return 0
+    else:
+        print(f"ERROR: {result.error}")
+        return 1
+
+
+def export_events(output_file: str):
+    """Export events only."""
+    print(f"Exporting events to {output_file}...")
+    result = export_events_to_json(output_file)
+
+    if result.success:
+        print(result.get_summary())
+        return 0
+    else:
+        print(f"ERROR: {result.error}")
+        return 1
+
+
 def import_all(input_file: str):
-    """Import all data (ingredients, recipes, finished goods, bundles)."""
+    """Import all data (ingredients, recipes, finished goods, bundles, packages, recipients, events)."""
     print(f"Importing all data from {input_file}...")
 
-    ingredient_result, recipe_result, finished_good_result, bundle_result = import_all_from_json(input_file)
+    (ingredient_result, recipe_result, finished_good_result, bundle_result,
+     package_result, recipient_result, event_result) = import_all_from_json(input_file)
 
     print("\n" + "=" * 60)
     print("INGREDIENT IMPORT RESULTS")
@@ -137,8 +183,25 @@ def import_all(input_file: str):
     print("=" * 60)
     print(bundle_result.get_summary())
 
+    print("\n" + "=" * 60)
+    print("PACKAGE IMPORT RESULTS")
+    print("=" * 60)
+    print(package_result.get_summary())
+
+    print("\n" + "=" * 60)
+    print("RECIPIENT IMPORT RESULTS")
+    print("=" * 60)
+    print(recipient_result.get_summary())
+
+    print("\n" + "=" * 60)
+    print("EVENT IMPORT RESULTS")
+    print("=" * 60)
+    print(event_result.get_summary())
+
     if (ingredient_result.failed > 0 or recipe_result.failed > 0 or
-        finished_good_result.failed > 0 or bundle_result.failed > 0):
+        finished_good_result.failed > 0 or bundle_result.failed > 0 or
+        package_result.failed > 0 or recipient_result.failed > 0 or
+        event_result.failed > 0):
         return 1
     return 0
 
@@ -187,6 +250,39 @@ def import_bundles(input_file: str):
     return 0
 
 
+def import_packages(input_file: str):
+    """Import packages only."""
+    print(f"Importing packages from {input_file}...")
+    result = import_packages_from_json(input_file)
+    print(result.get_summary())
+
+    if result.failed > 0:
+        return 1
+    return 0
+
+
+def import_recipients(input_file: str):
+    """Import recipients only."""
+    print(f"Importing recipients from {input_file}...")
+    result = import_recipients_from_json(input_file)
+    print(result.get_summary())
+
+    if result.failed > 0:
+        return 1
+    return 0
+
+
+def import_events(input_file: str):
+    """Import events only."""
+    print(f"Importing events from {input_file}...")
+    result = import_events_from_json(input_file)
+    print(result.get_summary())
+
+    if result.failed > 0:
+        return 1
+    return 0
+
+
 def main():
     """Main CLI entry point."""
     parser = argparse.ArgumentParser(
@@ -210,7 +306,9 @@ Examples:
         'command',
         choices=[
             'export', 'export-ingredients', 'export-recipes', 'export-finished-goods', 'export-bundles',
-            'import', 'import-ingredients', 'import-recipes', 'import-finished-goods', 'import-bundles'
+            'export-packages', 'export-recipients', 'export-events',
+            'import', 'import-ingredients', 'import-recipes', 'import-finished-goods', 'import-bundles',
+            'import-packages', 'import-recipients', 'import-events'
         ],
         help='Command to execute'
     )
@@ -237,6 +335,12 @@ Examples:
         return export_finished_goods(args.file)
     elif args.command == 'export-bundles':
         return export_bundles(args.file)
+    elif args.command == 'export-packages':
+        return export_packages(args.file)
+    elif args.command == 'export-recipients':
+        return export_recipients(args.file)
+    elif args.command == 'export-events':
+        return export_events(args.file)
     elif args.command == 'import':
         return import_all(args.file)
     elif args.command == 'import-ingredients':
@@ -247,6 +351,12 @@ Examples:
         return import_finished_goods(args.file)
     elif args.command == 'import-bundles':
         return import_bundles(args.file)
+    elif args.command == 'import-packages':
+        return import_packages(args.file)
+    elif args.command == 'import-recipients':
+        return import_recipients(args.file)
+    elif args.command == 'import-events':
+        return import_events(args.file)
     else:
         print(f"Unknown command: {args.command}")
         return 1

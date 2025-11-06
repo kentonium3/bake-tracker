@@ -277,7 +277,7 @@ bake-tracker/
 │       ├── test_services.py
 │       └── test_unit_converter.py
 ├── data/                       # Created at runtime
-│   └── baking_tracker.db      # SQLite database (gitignored)
+│   └── bake_tracker.db      # SQLite database (gitignored)
 ├── docs/
 │   ├── ARCHITECTURE.md
 │   ├── USER_GUIDE.md

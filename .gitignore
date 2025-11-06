@@ -68,3 +68,6 @@ htmlcov/
 /test_*.py
 /bake_tracker_import.json
 /nul
+
+# Packaging artifacts
+*.zip

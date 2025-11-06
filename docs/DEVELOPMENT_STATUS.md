@@ -453,10 +453,12 @@ src/
 - [ ] Application icon design
 
 **Data Management:**
-- [ ] Database backup/restore functionality in UI
+- [ ] **UI Import/Export** - Add File menu with import/export dialogs (HIGH PRIORITY)
+- [✅] **Complete CLI Export/Import** - All 7 entity types supported (completed 2025-11-05)
+- [ ] **Database backup/restore** - Simple file copy helper in UI
+- [ ] **Database upgrade/migration** - Schema version tracking and migration scripts
 - [ ] Sample data generator improvements
-- [ ] Bulk import from CSV
-- [ ] Import/export for packages, recipients, and events
+- [ ] Bulk import from CSV for ingredients
 
 **Testing:**
 - [ ] End-to-end workflow testing
@@ -465,40 +467,47 @@ src/
 
 ---
 
-### Packaging & Distribution 🔄 PLANNED
+### Packaging & Distribution ⚡ IN PROGRESS
 
-**Status:** Not started
+**Status:** Phase 1 complete - Ready for user testing
 **Priority:** High (required for user testing)
+**Completion Date:** 2025-11-05 (Phase 1)
 
-#### Planned Features
+#### Completed Features (Phase 1 - User Testing)
 
 **Executable Creation:**
-- [ ] Set up PyInstaller configuration
-- [ ] Create BakingTracker.spec with CustomTkinter assets
-- [ ] Test --onedir build (folder distribution)
-- [ ] Test --onefile build (single executable)
-- [ ] Verify all UI elements render in bundled version
-- [ ] Test on clean Windows machine (no Python)
+- ✅ Set up PyInstaller configuration
+- ✅ Created BakeTracker.spec with CustomTkinter assets
+- ✅ Built --onedir distribution (77 MB, 35 MB compressed)
+- ✅ Created README_INSTALL.txt with installation instructions
+- ✅ Created TESTING_GUIDE.txt for test protocol
+- ✅ Built BakeTracker_v0.3.0_Windows.zip distribution package
+
+**Package Details:**
+- Main executable: BakeTracker.exe (9.3 MB)
+- Total size: 77 MB extracted, 35 MB compressed
+- Build time: ~16 seconds
+- Distribution method: ZIP file (portable)
+
+#### Pending Features (Phase 2 - Wider Testing)
 
 **Installer Creation:**
 - [ ] Create Inno Setup script (installer.iss)
 - [ ] Configure installation directory and shortcuts
 - [ ] Add uninstaller functionality
 - [ ] Test installation/uninstallation process
-- [ ] Create README_INSTALL.txt for users
 
 **Testing & Validation:**
-- [ ] Test on Windows 10 and Windows 11
+- [ ] Test on Windows 10 and Windows 11 (in progress)
 - [ ] Verify database creation in user Documents folder
-- [ ] Test import/export functionality in bundled version
+- [ ] Test all features in bundled version
 - [ ] Check for antivirus false positives
-- [ ] Measure executable size and startup time
+- [ ] Gather user feedback from testing
 
 **Distribution Preparation:**
-- [ ] Create versioned releases
-- [ ] Write installation instructions
-- [ ] Document known issues (antivirus warnings, etc.)
-- [ ] Prepare for initial user testing distribution
+- [ ] Create versioned releases on GitHub
+- [ ] Document known issues from testing
+- [ ] Refine based on user feedback
 
 **Future Enhancements:**
 - [ ] Evaluate Nuitka for better performance

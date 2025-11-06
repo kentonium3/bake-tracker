@@ -11,6 +11,7 @@ from datetime import datetime
 from pathlib import Path
 
 from src.services import inventory_service, recipe_service, finished_good_service
+from src.services import package_service, recipient_service, event_service
 from src.services.exceptions import ValidationError
 from src.utils.constants import APP_NAME, APP_VERSION
 
@@ -371,9 +372,199 @@ def export_bundles_to_json(
         return result
 
 
+def export_packages_to_json(
+    file_path: str,
+    include_all: bool = True
+) -> ExportResult:
+    """
+    Export packages to JSON file.
+
+    Args:
+        file_path: Path to output JSON file
+        include_all: If True, export all packages (default)
+
+    Returns:
+        ExportResult with export statistics
+    """
+    try:
+        # Get packages
+        packages = package_service.get_all_packages()
+
+        # Build export data
+        export_data = {
+            "version": "1.0",
+            "export_date": datetime.utcnow().isoformat() + "Z",
+            "source": f"{APP_NAME} v{APP_VERSION}",
+            "packages": []
+        }
+
+        for package in packages:
+            package_data = {
+                "name": package.name,
+                "is_template": package.is_template,
+                "bundles": []
+            }
+
+            # Optional fields
+            if package.description:
+                package_data["description"] = package.description
+
+            if package.notes:
+                package_data["notes"] = package.notes
+
+            # Package bundles
+            for pb in package.package_bundles:
+                bundle_item = {
+                    "bundle_name": pb.bundle.name,
+                    "quantity": pb.quantity,
+                }
+                package_data["bundles"].append(bundle_item)
+
+            export_data["packages"].append(package_data)
+
+        # Write to file
+        with open(file_path, 'w', encoding='utf-8') as f:
+            json.dump(export_data, f, indent=2, ensure_ascii=False)
+
+        return ExportResult(file_path, len(packages))
+
+    except Exception as e:
+        result = ExportResult(file_path, 0)
+        result.success = False
+        result.error = str(e)
+        return result
+
+
+def export_recipients_to_json(
+    file_path: str,
+    include_all: bool = True
+) -> ExportResult:
+    """
+    Export recipients to JSON file.
+
+    Args:
+        file_path: Path to output JSON file
+        include_all: If True, export all recipients (default)
+
+    Returns:
+        ExportResult with export statistics
+    """
+    try:
+        # Get recipients
+        recipients = recipient_service.get_all_recipients()
+
+        # Build export data
+        export_data = {
+            "version": "1.0",
+            "export_date": datetime.utcnow().isoformat() + "Z",
+            "source": f"{APP_NAME} v{APP_VERSION}",
+            "recipients": []
+        }
+
+        for recipient in recipients:
+            recipient_data = {
+                "name": recipient.name,
+            }
+
+            # Optional fields
+            if recipient.household_name:
+                recipient_data["household_name"] = recipient.household_name
+
+            if recipient.address:
+                recipient_data["address"] = recipient.address
+
+            if recipient.notes:
+                recipient_data["notes"] = recipient.notes
+
+            export_data["recipients"].append(recipient_data)
+
+        # Write to file
+        with open(file_path, 'w', encoding='utf-8') as f:
+            json.dump(export_data, f, indent=2, ensure_ascii=False)
+
+        return ExportResult(file_path, len(recipients))
+
+    except Exception as e:
+        result = ExportResult(file_path, 0)
+        result.success = False
+        result.error = str(e)
+        return result
+
+
+def export_events_to_json(
+    file_path: str,
+    include_all: bool = True
+) -> ExportResult:
+    """
+    Export events to JSON file.
+
+    Includes event details and all recipient-package assignments.
+
+    Args:
+        file_path: Path to output JSON file
+        include_all: If True, export all events (default)
+
+    Returns:
+        ExportResult with export statistics
+    """
+    try:
+        # Get events
+        events = event_service.get_all_events()
+
+        # Build export data
+        export_data = {
+            "version": "1.0",
+            "export_date": datetime.utcnow().isoformat() + "Z",
+            "source": f"{APP_NAME} v{APP_VERSION}",
+            "events": []
+        }
+
+        for event in events:
+            event_data = {
+                "name": event.name,
+                "event_date": event.event_date.isoformat(),
+                "year": event.year,
+                "assignments": []
+            }
+
+            # Optional fields
+            if event.notes:
+                event_data["notes"] = event.notes
+
+            # Event assignments
+            for assignment in event.event_recipient_packages:
+                assignment_data = {
+                    "recipient_name": assignment.recipient.name,
+                    "package_name": assignment.package.name,
+                    "quantity": assignment.quantity,
+                }
+
+                if assignment.notes:
+                    assignment_data["notes"] = assignment.notes
+
+                event_data["assignments"].append(assignment_data)
+
+            export_data["events"].append(event_data)
+
+        # Write to file
+        with open(file_path, 'w', encoding='utf-8') as f:
+            json.dump(export_data, f, indent=2, ensure_ascii=False)
+
+        return ExportResult(file_path, len(events))
+
+    except Exception as e:
+        result = ExportResult(file_path, 0)
+        result.success = False
+        result.error = str(e)
+        return result
+
+
 def export_all_to_json(file_path: str) -> ExportResult:
     """
-    Export all data (ingredients, recipes, finished goods, bundles) to a single JSON file.
+    Export all data to a single JSON file.
+
+    Exports in dependency order: ingredients, recipes, finished goods,
+    bundles, packages, recipients, events (with assignments).
 
     Args:
         file_path: Path to output JSON file
@@ -387,6 +578,9 @@ def export_all_to_json(file_path: str) -> ExportResult:
         recipes = recipe_service.get_all_recipes()
         finished_goods = finished_good_service.get_all_finished_goods()
         bundles = finished_good_service.get_all_bundles()
+        packages = package_service.get_all_packages()
+        recipients = recipient_service.get_all_recipients()
+        events = event_service.get_all_events()
 
         # Build combined export data
         export_data = {
@@ -396,7 +590,10 @@ def export_all_to_json(file_path: str) -> ExportResult:
             "ingredients": [],
             "recipes": [],
             "finished_goods": [],
-            "bundles": []
+            "bundles": [],
+            "packages": [],
+            "recipients": [],
+            "events": []
         }
 
         # Add ingredients
@@ -488,11 +685,71 @@ def export_all_to_json(file_path: str) -> ExportResult:
 
             export_data["bundles"].append(bundle_data)
 
+        # Add packages
+        for package in packages:
+            package_data = {
+                "name": package.name,
+                "is_template": package.is_template,
+                "bundles": []
+            }
+            if package.description:
+                package_data["description"] = package.description
+            if package.notes:
+                package_data["notes"] = package.notes
+
+            for pb in package.package_bundles:
+                bundle_item = {
+                    "bundle_name": pb.bundle.name,
+                    "quantity": pb.quantity,
+                }
+                package_data["bundles"].append(bundle_item)
+
+            export_data["packages"].append(package_data)
+
+        # Add recipients
+        for recipient in recipients:
+            recipient_data = {
+                "name": recipient.name,
+            }
+            if recipient.household_name:
+                recipient_data["household_name"] = recipient.household_name
+            if recipient.address:
+                recipient_data["address"] = recipient.address
+            if recipient.notes:
+                recipient_data["notes"] = recipient.notes
+
+            export_data["recipients"].append(recipient_data)
+
+        # Add events (with assignments)
+        for event in events:
+            event_data = {
+                "name": event.name,
+                "event_date": event.event_date.isoformat(),
+                "year": event.year,
+                "assignments": []
+            }
+            if event.notes:
+                event_data["notes"] = event.notes
+
+            for assignment in event.event_recipient_packages:
+                assignment_data = {
+                    "recipient_name": assignment.recipient.name,
+                    "package_name": assignment.package.name,
+                    "quantity": assignment.quantity,
+                }
+                if assignment.notes:
+                    assignment_data["notes"] = assignment.notes
+
+                event_data["assignments"].append(assignment_data)
+
+            export_data["events"].append(event_data)
+
         # Write to file
         with open(file_path, 'w', encoding='utf-8') as f:
             json.dump(export_data, f, indent=2, ensure_ascii=False)
 
-        total_records = len(ingredients) + len(recipes) + len(finished_goods) + len(bundles)
+        total_records = (len(ingredients) + len(recipes) + len(finished_goods) +
+                        len(bundles) + len(packages) + len(recipients) + len(events))
         return ExportResult(file_path, total_records)
 
     except Exception as e:
@@ -925,25 +1182,363 @@ def import_bundles_from_json(
         return result
 
 
+def import_packages_from_json(
+    file_path: str,
+    skip_duplicates: bool = True,
+    skip_missing_bundles: bool = True
+) -> ImportResult:
+    """
+    Import packages from JSON file.
+
+    Args:
+        file_path: Path to JSON file
+        skip_duplicates: If True, skip packages that already exist (default)
+        skip_missing_bundles: If True, skip packages with missing bundles (default)
+
+    Returns:
+        ImportResult with import statistics
+    """
+    result = ImportResult()
+
+    try:
+        # Read file
+        with open(file_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+
+        # Validate structure
+        if "packages" not in data:
+            result.add_error("file", file_path, "Missing 'packages' key in JSON")
+            return result
+
+        packages_data = data["packages"]
+
+        # Import each package
+        for idx, package_data in enumerate(packages_data):
+            try:
+                name = package_data.get("name", "")
+
+                if not name:
+                    result.add_error("package", f"Record {idx+1}", "Missing name")
+                    continue
+
+                # Check for duplicate
+                if skip_duplicates:
+                    existing = package_service.get_all_packages(name_search=name)
+                    for existing_package in existing:
+                        if existing_package.name == name:
+                            result.add_skip("package", name, "Already exists")
+                            continue
+
+                # Build package data
+                package_create_data = {
+                    "name": name,
+                    "is_template": package_data.get("is_template", False),
+                }
+
+                # Optional fields
+                if "description" in package_data:
+                    package_create_data["description"] = package_data["description"]
+
+                if "notes" in package_data:
+                    package_create_data["notes"] = package_data["notes"]
+
+                # Build bundle items
+                bundle_items = []
+                bundles_data = package_data.get("bundles", [])
+
+                for bundle_item_data in bundles_data:
+                    bundle_name = bundle_item_data.get("bundle_name", "")
+                    if not bundle_name:
+                        result.add_error("package", name, "Bundle item missing bundle_name")
+                        continue
+
+                    # Find bundle
+                    bundles = finished_good_service.get_all_bundles(name_search=bundle_name)
+                    bundle = None
+                    for b in bundles:
+                        if b.name == bundle_name:
+                            bundle = b
+                            break
+
+                    if not bundle:
+                        if skip_missing_bundles:
+                            result.add_skip("package", name, f"Bundle not found: {bundle_name}")
+                            continue
+                        else:
+                            result.add_error("package", name, f"Bundle not found: {bundle_name}")
+                            continue
+
+                    bundle_items.append({
+                        "bundle_id": bundle.id,
+                        "quantity": bundle_item_data.get("quantity", 1),
+                    })
+
+                # Only create if we have bundle items
+                if not bundle_items:
+                    result.add_skip("package", name, "No valid bundles found")
+                    continue
+
+                # Create package
+                package_service.create_package(package_create_data, bundle_items)
+                result.add_success()
+
+            except ValidationError as e:
+                result.add_error("package", name, f"Validation error: {e}")
+            except Exception as e:
+                result.add_error("package", name, str(e))
+
+        return result
+
+    except json.JSONDecodeError as e:
+        result.add_error("file", file_path, f"Invalid JSON: {e}")
+        return result
+    except Exception as e:
+        result.add_error("file", file_path, f"Failed to read file: {e}")
+        return result
+
+
+def import_recipients_from_json(
+    file_path: str,
+    skip_duplicates: bool = True
+) -> ImportResult:
+    """
+    Import recipients from JSON file.
+
+    Args:
+        file_path: Path to JSON file
+        skip_duplicates: If True, skip recipients that already exist (default)
+
+    Returns:
+        ImportResult with import statistics
+    """
+    result = ImportResult()
+
+    try:
+        # Read file
+        with open(file_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+
+        # Validate structure
+        if "recipients" not in data:
+            result.add_error("file", file_path, "Missing 'recipients' key in JSON")
+            return result
+
+        recipients_data = data["recipients"]
+
+        # Import each recipient
+        for idx, recipient_data in enumerate(recipients_data):
+            try:
+                name = recipient_data.get("name", "")
+
+                if not name:
+                    result.add_error("recipient", f"Record {idx+1}", "Missing name")
+                    continue
+
+                # Check for duplicate
+                if skip_duplicates:
+                    existing = recipient_service.get_all_recipients(name_search=name)
+                    for existing_recipient in existing:
+                        if existing_recipient.name == name:
+                            result.add_skip("recipient", name, "Already exists")
+                            continue
+
+                # Build recipient data
+                recipient_create_data = {
+                    "name": name,
+                }
+
+                # Optional fields
+                if "household_name" in recipient_data:
+                    recipient_create_data["household_name"] = recipient_data["household_name"]
+
+                if "address" in recipient_data:
+                    recipient_create_data["address"] = recipient_data["address"]
+
+                if "notes" in recipient_data:
+                    recipient_create_data["notes"] = recipient_data["notes"]
+
+                # Create recipient
+                recipient_service.create_recipient(recipient_create_data)
+                result.add_success()
+
+            except ValidationError as e:
+                result.add_error("recipient", name, f"Validation error: {e}")
+            except Exception as e:
+                result.add_error("recipient", name, str(e))
+
+        return result
+
+    except json.JSONDecodeError as e:
+        result.add_error("file", file_path, f"Invalid JSON: {e}")
+        return result
+    except Exception as e:
+        result.add_error("file", file_path, f"Failed to read file: {e}")
+        return result
+
+
+def import_events_from_json(
+    file_path: str,
+    skip_duplicates: bool = True,
+    skip_missing_refs: bool = True
+) -> ImportResult:
+    """
+    Import events from JSON file.
+
+    Includes event details and recipient-package assignments.
+
+    Args:
+        file_path: Path to JSON file
+        skip_duplicates: If True, skip events that already exist (default)
+        skip_missing_refs: If True, skip assignments with missing recipients/packages (default)
+
+    Returns:
+        ImportResult with import statistics
+    """
+    result = ImportResult()
+
+    try:
+        # Read file
+        with open(file_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+
+        # Validate structure
+        if "events" not in data:
+            result.add_error("file", file_path, "Missing 'events' key in JSON")
+            return result
+
+        events_data = data["events"]
+
+        # Import each event
+        for idx, event_data in enumerate(events_data):
+            try:
+                name = event_data.get("name", "")
+
+                if not name:
+                    result.add_error("event", f"Record {idx+1}", "Missing name")
+                    continue
+
+                # Check for duplicate
+                if skip_duplicates:
+                    year = event_data.get("year")
+                    if year:
+                        existing = event_service.get_all_events(year=year)
+                        for existing_event in existing:
+                            if existing_event.name == name:
+                                result.add_skip("event", name, "Already exists")
+                                continue
+
+                # Build event data
+                from datetime import date
+                event_date_str = event_data.get("event_date")
+                event_date = date.fromisoformat(event_date_str) if event_date_str else None
+
+                event_create_data = {
+                    "name": name,
+                    "event_date": event_date,
+                    "year": event_data.get("year"),
+                }
+
+                # Optional fields
+                if "notes" in event_data:
+                    event_create_data["notes"] = event_data["notes"]
+
+                # Create event
+                event = event_service.create_event(event_create_data)
+                result.add_success()
+
+                # Import assignments
+                assignments_data = event_data.get("assignments", [])
+                for assignment_data in assignments_data:
+                    try:
+                        recipient_name = assignment_data.get("recipient_name", "")
+                        package_name = assignment_data.get("package_name", "")
+
+                        if not recipient_name or not package_name:
+                            continue
+
+                        # Find recipient
+                        recipients = recipient_service.get_all_recipients(name_search=recipient_name)
+                        recipient = None
+                        for r in recipients:
+                            if r.name == recipient_name:
+                                recipient = r
+                                break
+
+                        if not recipient:
+                            if not skip_missing_refs:
+                                result.add_error("event", name, f"Recipient not found: {recipient_name}")
+                            continue
+
+                        # Find package
+                        packages = package_service.get_all_packages(name_search=package_name)
+                        package = None
+                        for p in packages:
+                            if p.name == package_name:
+                                package = p
+                                break
+
+                        if not package:
+                            if not skip_missing_refs:
+                                result.add_error("event", name, f"Package not found: {package_name}")
+                            continue
+
+                        # Create assignment
+                        assignment_create_data = {
+                            "quantity": assignment_data.get("quantity", 1),
+                        }
+
+                        if "notes" in assignment_data:
+                            assignment_create_data["notes"] = assignment_data["notes"]
+
+                        event_service.assign_package_to_recipient(
+                            event.id,
+                            recipient.id,
+                            package.id,
+                            **assignment_create_data
+                        )
+
+                    except Exception as e:
+                        # Don't fail entire event for assignment errors
+                        pass
+
+            except ValidationError as e:
+                result.add_error("event", name, f"Validation error: {e}")
+            except Exception as e:
+                result.add_error("event", name, str(e))
+
+        return result
+
+    except json.JSONDecodeError as e:
+        result.add_error("file", file_path, f"Invalid JSON: {e}")
+        return result
+    except Exception as e:
+        result.add_error("file", file_path, f"Failed to read file: {e}")
+        return result
+
+
 def import_all_from_json(
     file_path: str,
     skip_duplicates: bool = True
-) -> Tuple[ImportResult, ImportResult, ImportResult, ImportResult]:
+) -> Tuple[ImportResult, ImportResult, ImportResult, ImportResult, ImportResult, ImportResult, ImportResult]:
     """
-    Import all data (ingredients, recipes, finished goods, bundles) from a single JSON file.
+    Import all data from a single JSON file.
 
     Imports in proper dependency order:
     1. Ingredients (no dependencies)
     2. Recipes (depend on ingredients)
     3. Finished goods (depend on recipes)
     4. Bundles (depend on finished goods)
+    5. Packages (depend on bundles)
+    6. Recipients (no dependencies)
+    7. Events with assignments (depend on recipients and packages)
 
     Args:
         file_path: Path to JSON file
         skip_duplicates: If True, skip duplicates (default)
 
     Returns:
-        Tuple of (ingredient_result, recipe_result, finished_good_result, bundle_result)
+        Tuple of (ingredient_result, recipe_result, finished_good_result,
+                 bundle_result, package_result, recipient_result, event_result)
     """
     import tempfile
 
@@ -992,12 +1587,47 @@ def import_all_from_json(
             bundle_result = import_bundles_from_json(tmp_path, skip_duplicates)
             Path(tmp_path).unlink()
 
-        return ingredient_result, recipe_result, finished_good_result, bundle_result
+        # Import packages fifth
+        package_result = ImportResult()
+        if "packages" in data:
+            with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False, encoding='utf-8') as tmp:
+                json.dump({"packages": data["packages"]}, tmp)
+                tmp_path = tmp.name
+
+            package_result = import_packages_from_json(tmp_path, skip_duplicates)
+            Path(tmp_path).unlink()
+
+        # Import recipients sixth (no dependencies)
+        recipient_result = ImportResult()
+        if "recipients" in data:
+            with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False, encoding='utf-8') as tmp:
+                json.dump({"recipients": data["recipients"]}, tmp)
+                tmp_path = tmp.name
+
+            recipient_result = import_recipients_from_json(tmp_path, skip_duplicates)
+            Path(tmp_path).unlink()
+
+        # Import events seventh (with assignments)
+        event_result = ImportResult()
+        if "events" in data:
+            with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False, encoding='utf-8') as tmp:
+                json.dump({"events": data["events"]}, tmp)
+                tmp_path = tmp.name
+
+            event_result = import_events_from_json(tmp_path, skip_duplicates)
+            Path(tmp_path).unlink()
+
+        return (ingredient_result, recipe_result, finished_good_result, bundle_result,
+                package_result, recipient_result, event_result)
 
     except Exception as e:
         ingredient_result = ImportResult()
         recipe_result = ImportResult()
         finished_good_result = ImportResult()
         bundle_result = ImportResult()
+        package_result = ImportResult()
+        recipient_result = ImportResult()
+        event_result = ImportResult()
         ingredient_result.add_error("file", file_path, str(e))
-        return ingredient_result, recipe_result, finished_good_result, bundle_result
+        return (ingredient_result, recipe_result, finished_good_result, bundle_result,
+                package_result, recipient_result, event_result)

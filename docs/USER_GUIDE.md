@@ -248,7 +248,7 @@ The event dashboard shows:
 - Take photos of finished packages (store separately)
 
 ### Data Backup
-- Database is in `data/baking_tracker.db`
+- Database is in `data/bake_tracker.db`
 - Back up before major changes
 - Use Carbonite or similar for automatic backup
 - Export reports periodically as CSV

@@ -36,7 +36,7 @@ The Seasonal Baking Tracker is a desktop application built with Python and Custo
 
 ### 4. Data Storage Layer
 - **Technology:** SQLite
-- **Location:** `data/baking_tracker.db`
+- **Location:** `data/bake_tracker.db`
 - **Features:**
   - Write-Ahead Logging (WAL) mode
   - Foreign key constraints
@@ -87,8 +87,8 @@ The Seasonal Baking Tracker is a desktop application built with Python and Custo
 ┌────────────────────────┴─────────────────────────────────────────────┐
 │                       Data Storage Layer                              │
 │                       SQLite Database                                 │
-│                 (C:\Users\Kent\Documents\BakingTracker\               │
-│                      baking_tracker.db)                               │
+│                 (C:\Users\Kent\Documents\BakeTracker\                 │
+│                      bake_tracker.db)                                 │
 └───────────────────────────────────────────────────────────────────────┘
 ```
 

@@ -1,0 +1,210 @@
+================================================================================
+                   BAKETRACKER - USER TESTING GUIDE
+================================================================================
+
+DISTRIBUTION FILE
+================================================================================
+
+File: BakeTracker_v0.3.0_Windows.zip
+Size: 35 MB (compressed), 77 MB (extracted)
+Platform: Windows 10/11 (64-bit)
+
+INSTALLATION
+================================================================================
+
+1. Transfer BakeTracker_v0.3.0_Windows.zip to the test computer
+   - Via USB drive, email, or network share
+
+2. Extract the ZIP file
+   - Right-click > Extract All
+   - Recommended location: C:\Program Files\BakeTracker
+   - The README_INSTALL.txt file will be extracted alongside the BakeTracker folder
+
+3. Run BakeTracker.exe from the extracted BakeTracker folder
+
+4. Handle Windows security warnings:
+   - Click "More info" then "Run anyway" if SmartScreen appears
+   - See README_INSTALL.txt for detailed instructions
+
+WHAT TO TEST
+================================================================================
+
+PHASE 1: Basic Functionality (10 minutes)
+- [ ] Application launches without errors
+- [ ] All 8 tabs are visible (Dashboard, Inventory, Recipes, Finished Goods,
+      Bundles, Packages, Recipients, Events)
+- [ ] Window resizes properly
+- [ ] Application closes cleanly
+
+PHASE 2: Data Entry (20 minutes)
+- [ ] Inventory Tab:
+      * Add ingredient: "All-Purpose Flour" (50 lb bag, purchase unit cost $15)
+      * Set recipe unit to "cup" with conversion factor
+      * Edit and delete work correctly
+
+- [ ] Recipes Tab:
+      * Create "Sugar Cookie Dough" recipe
+      * Add flour and other ingredients
+      * Verify cost calculation appears
+      * Save and reload recipe
+
+- [ ] Finished Goods Tab:
+      * Create "Decorated Sugar Cookies" from Sugar Cookie Dough recipe
+      * Set yield to "24 cookies"
+      * Verify cost per cookie calculation
+
+- [ ] Bundles Tab:
+      * Create "Cookie Dozen" bundle
+      * Add 12 decorated sugar cookies
+      * Verify total cost
+
+- [ ] Packages Tab:
+      * Create "Holiday Cookie Box" package
+      * Add cookie dozen bundle
+      * Check total package cost
+
+- [ ] Recipients Tab:
+      * Add recipient with name and address
+      * Test edit and delete
+
+PHASE 3: Event Planning (20 minutes)
+- [ ] Events Tab:
+      * Create "Christmas 2025" event
+      * Set event date
+      * Click "View Details" button
+
+- [ ] Event Detail Window:
+      * Assignments Tab:
+        - Assign "Holiday Cookie Box" to a recipient
+        - Check if "last received" info appears
+        - Try editing quantity
+        - Delete and re-add assignment
+
+      * Recipe Needs Tab:
+        - Verify recipe batches are calculated
+        - Check if quantities make sense
+
+      * Shopping List Tab:
+        - View items needed to purchase
+        - Check if costs are calculated
+        - Verify total cost appears
+
+      * Summary Tab:
+        - Review event summary information
+        - Check total event cost
+
+PHASE 4: Data Persistence (5 minutes)
+- [ ] Close application completely
+- [ ] Reopen BakeTracker.exe
+- [ ] Verify all data is still present
+- [ ] Check database file exists at:
+      C:\Users\[Username]\Documents\BakeTracker\bake_tracker.db
+
+ISSUES TO WATCH FOR
+================================================================================
+
+CRITICAL (Stop testing and report immediately):
+- Application crashes or freezes
+- Data loss after reopening
+- Cannot create or save basic records
+- Database errors preventing startup
+
+HIGH PRIORITY (Report after testing session):
+- Features not working as expected
+- Incorrect calculations (costs, quantities)
+- UI elements not visible or misaligned
+- Slow performance (>10 seconds to open)
+
+MEDIUM PRIORITY (Note but continue testing):
+- Confusing labels or unclear workflows
+- Minor UI cosmetic issues
+- Features that could be more convenient
+
+LOW PRIORITY (Optional feedback):
+- Feature requests
+- Nice-to-have improvements
+- Suggestions for future versions
+
+REPORTING FEEDBACK
+================================================================================
+
+Please provide feedback on:
+
+1. Installation Experience:
+   - Easy or difficult?
+   - Any confusing steps?
+   - Windows security warnings handled ok?
+
+2. First Impressions:
+   - Is the interface intuitive?
+   - Are the 8 tabs organized logically?
+   - Any features that are confusing?
+
+3. Specific Features:
+   - Which features did you try?
+   - Did they work as expected?
+   - Any errors or unexpected behavior?
+
+4. Performance:
+   - How long did it take to launch?
+   - Is the UI responsive?
+   - Any lag or slowness?
+
+5. Overall Assessment:
+   - Would this be useful for seasonal baking planning?
+   - What's missing or needs improvement?
+   - Any show-stopper issues?
+
+EXPECTED BEHAVIOR
+================================================================================
+
+- First launch may take 5-10 seconds (normal for PyInstaller apps)
+- Database file is created automatically in Documents\BakeTracker\
+- All data persists between sessions
+- No internet connection required
+- Application runs completely offline
+- Each Windows user gets their own separate database
+
+TROUBLESHOOTING
+================================================================================
+
+If application won't start:
+1. Check Windows Event Viewer for errors
+2. Try running as Administrator
+3. Verify antivirus hasn't quarantined files
+4. Re-extract ZIP to a new location
+
+If features aren't working:
+1. Try closing and reopening the application
+2. Check if database file is writable
+3. Verify all files in _internal folder are present
+
+If UI looks wrong:
+1. Try maximizing the window
+2. Check Windows display scaling (100% or 125% recommended)
+3. Adjust window size manually
+
+BACKUP YOUR TEST DATA
+================================================================================
+
+If you create valuable test data, back it up:
+
+Location: C:\Users\[YourUsername]\Documents\BakeTracker\bake_tracker.db
+
+Simply copy this file to a safe location. You can restore it by copying
+it back to the same location.
+
+UNINSTALLING AFTER TESTING
+================================================================================
+
+To remove BakeTracker after testing:
+
+1. Delete the BakeTracker folder (where BakeTracker.exe is located)
+2. Optionally delete: C:\Users\[Username]\Documents\BakeTracker\
+3. Remove any desktop shortcuts
+
+No registry entries or system files are modified.
+
+Thank you for testing BakeTracker!
+
+================================================================================
