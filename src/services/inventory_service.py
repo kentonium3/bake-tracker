@@ -51,18 +51,21 @@ def create_ingredient(data: Dict) -> Ingredient:
 
     try:
         with session_scope() as session:
-            # Create ingredient
+            # Create ingredient (NEW SCHEMA: generic ingredient definition)
             ingredient = Ingredient(
                 name=data["name"],
-                brand=data.get("brand"),
+                slug=data.get("slug", data["name"].lower().replace(' ', '_')),
                 category=data["category"],
-                package_type=data.get("package_type"),
-                purchase_quantity=data["purchase_quantity"],
-                purchase_unit=data["purchase_unit"],
-                density_g_per_cup=data.get("density_g_per_cup"),  # Optional
-                quantity=data.get("quantity", 0.0),
-                unit_cost=data.get("unit_cost", 0.0),
+                recipe_unit=data["recipe_unit"],
+                description=data.get("description"),
                 notes=data.get("notes"),
+                density_g_per_ml=data.get("density_g_per_ml"),
+                moisture_pct=data.get("moisture_pct"),
+                allergens=data.get("allergens"),
+                foodon_id=data.get("foodon_id"),
+                foodex2_code=data.get("foodex2_code"),
+                langual_terms=data.get("langual_terms"),
+                fdc_ids=data.get("fdc_ids"),
             )
 
             session.add(ingredient)
@@ -135,12 +138,13 @@ def get_all_ingredients(
                 query = query.filter(
                     or_(
                         Ingredient.name.ilike(f"%{name_search}%"),
-                        Ingredient.brand.ilike(f"%{name_search}%"),
+                        Ingredient.slug.ilike(f"%{name_search}%"),
                     )
                 )
 
-            if low_stock_threshold is not None:
-                query = query.filter(Ingredient.quantity <= low_stock_threshold)
+            # Note: low_stock_threshold filtering removed - quantity is now on PantryItem, not Ingredient
+            # if low_stock_threshold is not None:
+            #     query = query.filter(Ingredient.quantity <= low_stock_threshold)
 
             # Order by name
             query = query.order_by(Ingredient.name)

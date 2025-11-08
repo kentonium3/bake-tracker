@@ -10,9 +10,14 @@ from typing import Dict, List, Optional, Tuple
 from datetime import datetime
 from pathlib import Path
 
+from sqlalchemy.orm import joinedload
+
 from src.services import inventory_service, recipe_service, finished_good_service
 from src.services import package_service, recipient_service, event_service
 from src.services.exceptions import ValidationError
+from src.services.database import session_scope
+from src.models.ingredient import Ingredient
+from src.models.variant import Variant
 from src.utils.constants import APP_NAME, APP_VERSION
 
 
@@ -573,8 +578,14 @@ def export_all_to_json(file_path: str) -> ExportResult:
         ExportResult with export statistics
     """
     try:
-        # Get all data
-        ingredients = inventory_service.get_all_ingredients()
+        # Get all data - use session scope to eagerly load variants
+        with session_scope() as session:
+            # Eagerly load variants to avoid detached instance errors
+            ingredients = session.query(Ingredient).options(joinedload(Ingredient.variants)).all()
+            # Make objects accessible outside session by accessing all lazy-loaded attributes
+            for ing in ingredients:
+                _ = ing.variants  # Access to ensure loaded
+
         recipes = recipe_service.get_all_recipes()
         finished_goods = finished_good_service.get_all_finished_goods()
         bundles = finished_good_service.get_all_bundles()
@@ -588,6 +599,7 @@ def export_all_to_json(file_path: str) -> ExportResult:
             "export_date": datetime.utcnow().isoformat() + "Z",
             "source": f"{APP_NAME} v{APP_VERSION}",
             "ingredients": [],
+            "variants": [],
             "recipes": [],
             "finished_goods": [],
             "bundles": [],
@@ -596,26 +608,79 @@ def export_all_to_json(file_path: str) -> ExportResult:
             "events": []
         }
 
-        # Add ingredients
+        # Add ingredients (NEW SCHEMA: generic ingredient definitions)
         for ingredient in ingredients:
             ingredient_data = {
                 "name": ingredient.name,
-                "brand": ingredient.brand,
+                "slug": ingredient.slug,
                 "category": ingredient.category,
-                "purchase_quantity": ingredient.purchase_quantity,
-                "purchase_unit": ingredient.purchase_unit,
-                "quantity": ingredient.quantity,
-                "unit_cost": ingredient.unit_cost,
+                "recipe_unit": ingredient.recipe_unit,
             }
 
-            if ingredient.package_type:
-                ingredient_data["package_type"] = ingredient.package_type
-            if ingredient.density_g_per_cup:
-                ingredient_data["density_g_per_cup"] = ingredient.density_g_per_cup
+            # Optional fields
+            if ingredient.description:
+                ingredient_data["description"] = ingredient.description
             if ingredient.notes:
                 ingredient_data["notes"] = ingredient.notes
+            if ingredient.density_g_per_ml:
+                ingredient_data["density_g_per_ml"] = ingredient.density_g_per_ml
+            if ingredient.moisture_pct:
+                ingredient_data["moisture_pct"] = ingredient.moisture_pct
+            if ingredient.allergens:
+                ingredient_data["allergens"] = ingredient.allergens
+            if ingredient.foodon_id:
+                ingredient_data["foodon_id"] = ingredient.foodon_id
+            if ingredient.foodex2_code:
+                ingredient_data["foodex2_code"] = ingredient.foodex2_code
+            if ingredient.langual_terms:
+                ingredient_data["langual_terms"] = ingredient.langual_terms
+            if ingredient.fdc_ids:
+                ingredient_data["fdc_ids"] = ingredient.fdc_ids
 
             export_data["ingredients"].append(ingredient_data)
+
+        # Add variants (NEW SCHEMA: brand/package-specific versions)
+        for ingredient in ingredients:
+            for variant in ingredient.variants:
+                variant_data = {
+                    "ingredient_slug": ingredient.slug,
+                    "purchase_unit": variant.purchase_unit,
+                    "purchase_quantity": variant.purchase_quantity,
+                }
+
+                # Optional fields
+                if variant.brand:
+                    variant_data["brand"] = variant.brand
+                if variant.package_size:
+                    variant_data["package_size"] = variant.package_size
+                if variant.package_type:
+                    variant_data["package_type"] = variant.package_type
+                if variant.upc_code:
+                    variant_data["upc_code"] = variant.upc_code
+                if variant.supplier:
+                    variant_data["supplier"] = variant.supplier
+                if variant.supplier_sku:
+                    variant_data["supplier_sku"] = variant.supplier_sku
+                if variant.gtin:
+                    variant_data["gtin"] = variant.gtin
+                if variant.brand_owner:
+                    variant_data["brand_owner"] = variant.brand_owner
+                if variant.gpc_brick_code:
+                    variant_data["gpc_brick_code"] = variant.gpc_brick_code
+                if variant.net_content_value:
+                    variant_data["net_content_value"] = variant.net_content_value
+                if variant.net_content_uom:
+                    variant_data["net_content_uom"] = variant.net_content_uom
+                if variant.country_of_sale:
+                    variant_data["country_of_sale"] = variant.country_of_sale
+                if variant.off_id:
+                    variant_data["off_id"] = variant.off_id
+                if variant.preferred:
+                    variant_data["preferred"] = variant.preferred
+                if variant.notes:
+                    variant_data["notes"] = variant.notes
+
+                export_data["variants"].append(variant_data)
 
         # Add recipes
         for recipe in recipes:
@@ -637,13 +702,14 @@ def export_all_to_json(file_path: str) -> ExportResult:
 
             recipe_data["ingredients"] = []
             for ri in recipe.recipe_ingredients:
+                # Use ingredient_new if available (new schema), fallback to ingredient (old schema)
+                ingredient = ri.ingredient_new if hasattr(ri, 'ingredient_new') and ri.ingredient_new else ri.ingredient
+
                 ingredient_data = {
-                    "ingredient_name": ri.ingredient.name,
+                    "ingredient_slug": ingredient.slug if ingredient.slug else ingredient.name.lower().replace(' ', '_'),
                     "quantity": ri.quantity,
                     "unit": ri.unit,
                 }
-                if ri.ingredient.brand:
-                    ingredient_data["ingredient_brand"] = ri.ingredient.brand
                 if ri.notes:
                     ingredient_data["notes"] = ri.notes
 
@@ -792,37 +858,170 @@ def import_ingredients_from_json(
 
         ingredients_data = data["ingredients"]
 
-        # Import each ingredient
+        # Import each ingredient (NEW SCHEMA: generic ingredient definitions)
         for idx, ingredient_data in enumerate(ingredients_data):
             try:
                 name = ingredient_data.get("name", "")
-                brand = ingredient_data.get("brand", "")
+                slug = ingredient_data.get("slug", "")
+                category = ingredient_data.get("category", "")
+                recipe_unit = ingredient_data.get("recipe_unit", "")
 
                 if not name:
                     result.add_error("ingredient", f"Record {idx+1}", "Missing name")
                     continue
 
-                # Check for duplicate
+                if not category:
+                    result.add_error("ingredient", name, "Missing category")
+                    continue
+
+                if not recipe_unit:
+                    result.add_error("ingredient", name, "Missing recipe_unit")
+                    continue
+
+                # Check for duplicate by name or slug
                 if skip_duplicates:
                     existing = inventory_service.get_all_ingredients(name_search=name)
-                    # Check if exact match (name + brand)
                     for existing_ing in existing:
-                        if existing_ing.name == name and existing_ing.brand == brand:
-                            result.add_skip(
-                                "ingredient",
-                                name,
-                                f"Already exists (brand: {brand or 'none'})"
-                            )
-                            continue
-
-                # Create ingredient
-                inventory_service.create_ingredient(ingredient_data)
-                result.add_success()
+                        if existing_ing.name == name:
+                            result.add_skip("ingredient", name, "Already exists")
+                            break
+                    else:
+                        # Not duplicate, create it
+                        inventory_service.create_ingredient(ingredient_data)
+                        result.add_success()
+                else:
+                    # Create ingredient
+                    inventory_service.create_ingredient(ingredient_data)
+                    result.add_success()
 
             except ValidationError as e:
                 result.add_error("ingredient", name, f"Validation error: {e}")
             except Exception as e:
                 result.add_error("ingredient", name, str(e))
+
+        return result
+
+    except json.JSONDecodeError as e:
+        result.add_error("file", file_path, f"Invalid JSON: {e}")
+        return result
+    except Exception as e:
+        result.add_error("file", file_path, f"Failed to read file: {e}")
+        return result
+
+
+def import_variants_from_json(
+    file_path: str,
+    skip_duplicates: bool = True
+) -> ImportResult:
+    """
+    Import variants from JSON file.
+
+    Args:
+        file_path: Path to JSON file
+        skip_duplicates: If True, skip variants that already exist (default)
+
+    Returns:
+        ImportResult with import statistics
+    """
+    result = ImportResult()
+
+    try:
+        # Read file
+        with open(file_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+
+        # Validate structure
+        if "variants" not in data:
+            # No variants in file is OK, not an error
+            return result
+
+        variants_data = data["variants"]
+
+        # Import each variant
+        for idx, variant_data in enumerate(variants_data):
+            try:
+                ingredient_slug = variant_data.get("ingredient_slug", "")
+                brand = variant_data.get("brand", "")
+                purchase_unit = variant_data.get("purchase_unit", "")
+                purchase_quantity = variant_data.get("purchase_quantity", 0)
+
+                if not ingredient_slug:
+                    result.add_error("variant", f"Record {idx+1}", "Missing ingredient_slug")
+                    continue
+
+                if not purchase_unit:
+                    result.add_error("variant", f"Record {idx+1}", "Missing purchase_unit")
+                    continue
+
+                if not purchase_quantity:
+                    result.add_error("variant", f"Record {idx+1}", "Missing purchase_quantity")
+                    continue
+
+                # Find the ingredient by slug
+                all_ingredients = inventory_service.get_all_ingredients()
+                ingredient = None
+                for ing in all_ingredients:
+                    if ing.slug == ingredient_slug:
+                        ingredient = ing
+                        break
+
+                if not ingredient:
+                    result.add_error("variant", f"Record {idx+1}", f"Ingredient not found: {ingredient_slug}")
+                    continue
+
+                # Create variant with ingredient_id
+                with session_scope() as session:
+                    # Re-fetch ingredient in this session
+                    ingredient_in_session = session.query(Ingredient).filter(Ingredient.id == ingredient.id).first()
+
+                    # Check for duplicate within the session
+                    if skip_duplicates:
+                        package_size = variant_data.get("package_size", "")
+                        duplicate_found = False
+                        for existing_variant in ingredient_in_session.variants:
+                            if (existing_variant.brand == brand and
+                                existing_variant.package_size == package_size and
+                                existing_variant.purchase_unit == purchase_unit):
+                                result.add_skip(
+                                    "variant",
+                                    f"{ingredient_in_session.name} - {brand or 'generic'}",
+                                    "Already exists"
+                                )
+                                duplicate_found = True
+                                break
+
+                        if duplicate_found:
+                            continue
+
+                    new_variant = Variant(
+                        ingredient_id=ingredient.id,
+                        purchase_unit=purchase_unit,
+                        purchase_quantity=purchase_quantity,
+                        brand=variant_data.get("brand"),
+                        package_size=variant_data.get("package_size"),
+                        package_type=variant_data.get("package_type"),
+                        upc_code=variant_data.get("upc_code"),
+                        supplier=variant_data.get("supplier"),
+                        supplier_sku=variant_data.get("supplier_sku"),
+                        gtin=variant_data.get("gtin"),
+                        brand_owner=variant_data.get("brand_owner"),
+                        gpc_brick_code=variant_data.get("gpc_brick_code"),
+                        net_content_value=variant_data.get("net_content_value"),
+                        net_content_uom=variant_data.get("net_content_uom"),
+                        country_of_sale=variant_data.get("country_of_sale"),
+                        off_id=variant_data.get("off_id"),
+                        preferred=variant_data.get("preferred", False),
+                        notes=variant_data.get("notes")
+                    )
+                    session.add(new_variant)
+                    session.commit()
+
+                result.add_success()
+
+            except ValidationError as e:
+                result.add_error("variant", f"Record {idx+1}", f"Validation error: {e}")
+            except Exception as e:
+                result.add_error("variant", f"Record {idx+1}", str(e))
 
         return result
 
@@ -892,29 +1091,25 @@ def import_recipes_from_json(
                 validated_ingredients = []
 
                 for ri_data in recipe_ingredients:
-                    ing_name = ri_data.get("ingredient_name", "")
-                    ing_brand = ri_data.get("ingredient_brand", "")
+                    # NEW SCHEMA: Use ingredient_slug
+                    ing_slug = ri_data.get("ingredient_slug", "")
 
-                    # Find ingredient
-                    candidates = inventory_service.get_all_ingredients(name_search=ing_name)
+                    # Fallback to old schema for backwards compatibility
+                    if not ing_slug:
+                        ing_name = ri_data.get("ingredient_name", "")
+                        ing_slug = ing_name.lower().replace(' ', '_') if ing_name else ""
+
+                    # Find ingredient by slug
+                    all_ingredients = inventory_service.get_all_ingredients()
                     found = None
 
-                    # Try exact match with brand first
-                    if ing_brand:
-                        for candidate in candidates:
-                            if candidate.name == ing_name and candidate.brand == ing_brand:
-                                found = candidate
-                                break
-
-                    # Try exact match without brand
-                    if not found:
-                        for candidate in candidates:
-                            if candidate.name == ing_name:
-                                found = candidate
-                                break
+                    for ingredient in all_ingredients:
+                        if ingredient.slug == ing_slug:
+                            found = ingredient
+                            break
 
                     if not found:
-                        missing_ingredients.append(f"{ing_name} ({ing_brand})" if ing_brand else ing_name)
+                        missing_ingredients.append(ing_slug)
                     else:
                         # Build validated ingredient data
                         validated_ingredients.append({
@@ -1519,25 +1714,26 @@ def import_events_from_json(
 def import_all_from_json(
     file_path: str,
     skip_duplicates: bool = True
-) -> Tuple[ImportResult, ImportResult, ImportResult, ImportResult, ImportResult, ImportResult, ImportResult]:
+) -> Tuple[ImportResult, ImportResult, ImportResult, ImportResult, ImportResult, ImportResult, ImportResult, ImportResult]:
     """
     Import all data from a single JSON file.
 
     Imports in proper dependency order:
     1. Ingredients (no dependencies)
-    2. Recipes (depend on ingredients)
-    3. Finished goods (depend on recipes)
-    4. Bundles (depend on finished goods)
-    5. Packages (depend on bundles)
-    6. Recipients (no dependencies)
-    7. Events with assignments (depend on recipients and packages)
+    2. Variants (depend on ingredients)
+    3. Recipes (depend on ingredients)
+    4. Finished goods (depend on recipes)
+    5. Bundles (depend on finished goods)
+    6. Packages (depend on bundles)
+    7. Recipients (no dependencies)
+    8. Events with assignments (depend on recipients and packages)
 
     Args:
         file_path: Path to JSON file
         skip_duplicates: If True, skip duplicates (default)
 
     Returns:
-        Tuple of (ingredient_result, recipe_result, finished_good_result,
+        Tuple of (ingredient_result, variant_result, recipe_result, finished_good_result,
                  bundle_result, package_result, recipient_result, event_result)
     """
     import tempfile
@@ -1557,7 +1753,17 @@ def import_all_from_json(
             ingredient_result = import_ingredients_from_json(tmp_path, skip_duplicates)
             Path(tmp_path).unlink()
 
-        # Import recipes second
+        # Import variants second (depends on ingredients)
+        variant_result = ImportResult()
+        if "variants" in data:
+            with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False, encoding='utf-8') as tmp:
+                json.dump({"variants": data["variants"]}, tmp)
+                tmp_path = tmp.name
+
+            variant_result = import_variants_from_json(tmp_path, skip_duplicates)
+            Path(tmp_path).unlink()
+
+        # Import recipes third
         recipe_result = ImportResult()
         if "recipes" in data:
             with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False, encoding='utf-8') as tmp:
@@ -1617,11 +1823,12 @@ def import_all_from_json(
             event_result = import_events_from_json(tmp_path, skip_duplicates)
             Path(tmp_path).unlink()
 
-        return (ingredient_result, recipe_result, finished_good_result, bundle_result,
+        return (ingredient_result, variant_result, recipe_result, finished_good_result, bundle_result,
                 package_result, recipient_result, event_result)
 
     except Exception as e:
         ingredient_result = ImportResult()
+        variant_result = ImportResult()
         recipe_result = ImportResult()
         finished_good_result = ImportResult()
         bundle_result = ImportResult()
@@ -1629,5 +1836,5 @@ def import_all_from_json(
         recipient_result = ImportResult()
         event_result = ImportResult()
         ingredient_result.add_error("file", file_path, str(e))
-        return (ingredient_result, recipe_result, finished_good_result, bundle_result,
+        return (ingredient_result, variant_result, recipe_result, finished_good_result, bundle_result,
                 package_result, recipient_result, event_result)

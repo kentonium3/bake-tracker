@@ -200,7 +200,7 @@ def validate_recipe_category(category: str, field_name: str = "Category") -> Tup
 
 def validate_ingredient_data(data: dict) -> Tuple[bool, list]:  # noqa: C901
     """
-    Validate all fields for an ingredient.
+    Validate all fields for an ingredient (NEW SCHEMA: generic ingredient definition).
 
     Args:
         data: Dictionary containing ingredient fields
@@ -210,7 +210,7 @@ def validate_ingredient_data(data: dict) -> Tuple[bool, list]:  # noqa: C901
     """
     errors = []
 
-    # Required string fields
+    # Required: Name
     is_valid, error = validate_required_string(data.get("name"), "Name")
     if not is_valid:
         errors.append(error)
@@ -219,56 +219,41 @@ def validate_ingredient_data(data: dict) -> Tuple[bool, list]:  # noqa: C901
         if not is_valid:
             errors.append(error)
 
-    # Optional brand field
-    if data.get("brand"):
-        is_valid, error = validate_string_length(data.get("brand"), MAX_BRAND_LENGTH, "Brand")
-        if not is_valid:
-            errors.append(error)
-
-    # Category
+    # Required: Category
     is_valid, error = validate_ingredient_category(data.get("category", ""), "Category")
     if not is_valid:
         errors.append(error)
 
-    # Purchase quantity (must be positive)
-    is_valid, error = validate_positive_number(data.get("purchase_quantity"), "Purchase Quantity")
+    # Required: Recipe unit
+    is_valid, error = validate_unit(data.get("recipe_unit", ""), "Recipe Unit")
     if not is_valid:
         errors.append(error)
 
-    # Purchase unit
-    is_valid, error = validate_unit(data.get("purchase_unit", ""), "Purchase Unit")
-    if not is_valid:
-        errors.append(error)
-
-    # Density (optional, must be positive if provided)
-    if data.get("density_g_per_cup") is not None:
-        is_valid, error = validate_positive_number(data.get("density_g_per_cup"), "Density")
+    # Optional: Slug (will be auto-generated if not provided)
+    if data.get("slug"):
+        is_valid, error = validate_string_length(data.get("slug"), MAX_NAME_LENGTH, "Slug")
         if not is_valid:
             errors.append(error)
 
-    # Quantity (must be non-negative)
-    is_valid, error = validate_non_negative_number(data.get("quantity"), "Quantity")
-    if not is_valid:
-        errors.append(error)
-    else:
-        is_valid, error = validate_number_range(
-            data.get("quantity"), MIN_QUANTITY, MAX_QUANTITY, "Quantity"
-        )
+    # Optional: Description
+    if data.get("description"):
+        is_valid, error = validate_string_length(data.get("description"), MAX_NOTES_LENGTH * 2, "Description")
         if not is_valid:
             errors.append(error)
 
-    # Unit cost (must be non-negative)
-    is_valid, error = validate_non_negative_number(data.get("unit_cost"), "Unit Cost")
-    if not is_valid:
-        errors.append(error)
-    else:
-        is_valid, error = validate_number_range(
-            data.get("unit_cost"), MIN_COST, MAX_COST, "Unit Cost"
-        )
+    # Optional: Density (must be positive if provided)
+    if data.get("density_g_per_ml") is not None:
+        is_valid, error = validate_positive_number(data.get("density_g_per_ml"), "Density (g/mL)")
         if not is_valid:
             errors.append(error)
 
-    # Notes (optional but length-limited)
+    # Optional: Moisture percentage (must be 0-100 if provided)
+    if data.get("moisture_pct") is not None:
+        is_valid, error = validate_number_range(data.get("moisture_pct"), 0, 100, "Moisture %")
+        if not is_valid:
+            errors.append(error)
+
+    # Optional: Notes
     if data.get("notes"):
         is_valid, error = validate_string_length(data.get("notes"), MAX_NOTES_LENGTH, "Notes")
         if not is_valid:
