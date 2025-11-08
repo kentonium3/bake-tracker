@@ -36,6 +36,9 @@ data/*.db-wal
 *.sqlite
 *.sqlite3
 
+# Health check runtime files
+data/health.json*
+
 # IDE
 .idea/
 *.swp

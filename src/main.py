@@ -10,8 +10,12 @@ import traceback
 import customtkinter as ctk
 
 from src.services.database import initialize_app_database
+from src.services.health_service import HealthCheckService
 from src.ui.main_window import MainWindow
 from src.utils.config import get_config
+
+# Global health service instance
+_health_service = None
 
 
 def initialize_application():
@@ -24,10 +28,18 @@ def initialize_application():
         True if initialization successful, False otherwise
     """
     try:
+        global _health_service
+
         # Initialize database
         print("Initializing database...")
         initialize_app_database()
         print("Database initialized successfully")
+
+        # Initialize and start health check service
+        print("Starting health check service...")
+        _health_service = HealthCheckService()
+        _health_service.start()
+        print("Health check service started")
 
         return True
 
@@ -66,6 +78,12 @@ def main():
         print(f"ERROR: Application crashed: {e}")
         traceback.print_exc()
         sys.exit(1)
+
+    finally:
+        # Cleanup health service
+        if _health_service:
+            print("Stopping health check service...")
+            _health_service.stop()
 
     print("Application closed successfully")
     sys.exit(0)
