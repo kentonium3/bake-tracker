@@ -1,5 +1,5 @@
 """
-PurchaseHistory model for tracking ingredient purchase events and price history.
+Purchase model for tracking ingredient purchase events and price history.
 
 This model records each purchase transaction, enabling:
 - Price trend analysis
@@ -16,14 +16,14 @@ from sqlalchemy.orm import relationship
 from .base import BaseModel
 
 
-class PurchaseHistory(BaseModel):
+class Purchase(BaseModel):
     """
-    PurchaseHistory model representing individual purchase transactions.
+    Purchase model representing individual purchase transactions.
 
-    Each record represents a single purchase event for a specific product variant.
+    Each record represents a single purchase event for a specific variant.
 
     Attributes:
-        product_variant_id: Foreign key to ProductVariant
+        variant_id: Foreign key to Variant
         purchase_date: When the purchase was made
         unit_cost: Cost per purchase unit
         quantity_purchased: How many units were purchased
@@ -36,8 +36,8 @@ class PurchaseHistory(BaseModel):
 
     __tablename__ = "purchase_history"
 
-    # Foreign key to ProductVariant
-    product_variant_id = Column(
+    # Foreign key to Variant
+    variant_id = Column(
         Integer,
         ForeignKey("product_variants.id", ondelete="CASCADE"),
         nullable=False,
@@ -59,19 +59,19 @@ class PurchaseHistory(BaseModel):
     created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
 
     # Relationships
-    product_variant = relationship("ProductVariant", back_populates="purchases")
+    variant = relationship("Variant", back_populates="purchases")
 
     # Indexes for common queries
     __table_args__ = (
-        Index("idx_purchase_variant", "product_variant_id"),
+        Index("idx_purchase_variant", "variant_id"),
         Index("idx_purchase_date", "purchase_date"),
     )
 
     def __repr__(self) -> str:
         """String representation of purchase."""
         return (
-            f"PurchaseHistory(id={self.id}, "
-            f"variant_id={self.product_variant_id}, "
+            f"Purchase(id={self.id}, "
+            f"variant_id={self.variant_id}, "
             f"date={self.purchase_date}, "
             f"cost=${self.total_cost:.2f})"
         )

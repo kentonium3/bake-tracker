@@ -29,7 +29,7 @@ class PantryItem(BaseModel):
     Items are consumed in purchase_date order (oldest first).
 
     Attributes:
-        product_variant_id: Foreign key to ProductVariant
+        variant_id: Foreign key to Variant
         quantity: Quantity on hand (in purchase units)
         purchase_date: When this item was purchased
         expiration_date: When it expires (if applicable)
@@ -41,8 +41,8 @@ class PantryItem(BaseModel):
 
     __tablename__ = "pantry_items"
 
-    # Foreign key to ProductVariant
-    product_variant_id = Column(
+    # Foreign key to Variant
+    variant_id = Column(
         Integer,
         ForeignKey("product_variants.id", ondelete="CASCADE"),
         nullable=False,
@@ -50,15 +50,18 @@ class PantryItem(BaseModel):
     )
 
     # Inventory tracking
-    quantity = Column(Float, nullable=False, default=0.0)  # Quantity on hand
+    quantity = Column(Float, nullable=False, default=0.0)  # Quantity on hand (qty_on_hand in spec)
 
     # Date tracking
     purchase_date = Column(Date, nullable=True, index=True)  # When purchased
-    expiration_date = Column(Date, nullable=True, index=True)  # When expires
-    opened_date = Column(Date, nullable=True)  # When opened
+    expiration_date = Column(Date, nullable=True, index=True)  # When expires (best_by in spec)
+    opened_date = Column(Date, nullable=True)  # When opened (opened_at in spec)
 
     # Location tracking
     location = Column(String(100), nullable=True, index=True)  # Where stored
+
+    # Industry standard tracking (FUTURE READY - nullable)
+    lot_or_batch = Column(String(100), nullable=True)  # Lot or batch number for tracking
 
     # Additional information
     notes = Column(Text, nullable=True)
@@ -67,11 +70,11 @@ class PantryItem(BaseModel):
     last_updated = Column(DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     # Relationships
-    product_variant = relationship("ProductVariant", back_populates="pantry_items")
+    variant = relationship("Variant", back_populates="pantry_items")
 
     # Indexes for common queries
     __table_args__ = (
-        Index("idx_pantry_variant", "product_variant_id"),
+        Index("idx_pantry_variant", "variant_id"),
         Index("idx_pantry_location", "location"),
         Index("idx_pantry_expiration", "expiration_date"),
         Index("idx_pantry_purchase", "purchase_date"),
@@ -81,7 +84,7 @@ class PantryItem(BaseModel):
         """String representation of pantry item."""
         return (
             f"PantryItem(id={self.id}, "
-            f"variant_id={self.product_variant_id}, "
+            f"variant_id={self.variant_id}, "
             f"quantity={self.quantity}, "
             f"location='{self.location}')"
         )
@@ -190,12 +193,12 @@ class PantryItem(BaseModel):
         result["days_until_expiration"] = self.days_until_expiration
         result["is_expiring_soon"] = self.is_expiring_soon()
 
-        if include_relationships and self.product_variant:
-            result["product_variant"] = {
-                "id": self.product_variant.id,
-                "display_name": self.product_variant.display_name,
-                "product_name": self.product_variant.product.name,
-                "product_id": self.product_variant.product.id
+        if include_relationships and self.variant:
+            result["variant"] = {
+                "id": self.variant.id,
+                "display_name": self.variant.display_name,
+                "product_name": self.variant.product.name,
+                "product_id": self.variant.product.id
             }
 
         return result
@@ -214,12 +217,12 @@ def get_pantry_items_fifo(product_id: int, session) -> list:
     Returns:
         List of PantryItem instances ordered by purchase_date (oldest first)
     """
-    from src.models.product_variant import ProductVariant
+    from src.models.variant import Variant
 
     items = (
         session.query(PantryItem)
-        .join(ProductVariant)
-        .filter(ProductVariant.product_id == product_id)
+        .join(Variant)
+        .filter(Variant.product_id == product_id)
         .filter(PantryItem.quantity > 0)
         .order_by(PantryItem.purchase_date.asc().nullslast())
         .all()
@@ -262,12 +265,12 @@ def consume_fifo(product_id: int, quantity_needed: float, session) -> tuple:
         item.consume(consumed)
 
         # Calculate cost for this consumption
-        variant_cost = item.product_variant.get_current_cost_per_unit()
+        variant_cost = item.variant.get_current_cost_per_unit()
         cost = consumed * variant_cost
 
         cost_breakdown.append({
             "item_id": item.id,
-            "variant_id": item.product_variant_id,
+            "variant_id": item.variant_id,
             "quantity": consumed,
             "cost": cost,
             "purchase_date": item.purchase_date
@@ -335,12 +338,12 @@ def get_total_quantity_for_product(product_id: int, session) -> float:
     Returns:
         Total quantity (in purchase units, needs conversion)
     """
-    from src.models.product_variant import ProductVariant
+    from src.models.variant import Variant
 
     items = (
         session.query(PantryItem)
-        .join(ProductVariant)
-        .filter(ProductVariant.product_id == product_id)
+        .join(Variant)
+        .filter(Variant.product_id == product_id)
         .all()
     )
 

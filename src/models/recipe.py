@@ -121,20 +121,21 @@ class Recipe(BaseModel):
 
 class RecipeIngredient(BaseModel):
     """
-    Junction table linking recipes to ingredients/products with quantities.
+    Junction table linking recipes to ingredients with quantities.
 
     This model represents an ingredient used in a recipe with specific
     quantity and unit requirements.
 
-    MIGRATION NOTE: During refactoring, both ingredient_id (old) and product_id (new)
-    exist. After migration, ingredient_id will be removed.
+    MIGRATION NOTE: During refactoring, both ingredient_id (old, FK to legacy table)
+    and ingredient_new_id (new, FK to refactored Ingredient) exist.
+    After migration, ingredient_id will be removed.
 
     Attributes:
         recipe_id: Foreign key to Recipe
-        ingredient_id: Foreign key to Ingredient (LEGACY - for migration only)
-        product_id: Foreign key to Product (NEW - brand-agnostic reference)
-        quantity: Amount needed (in product's recipe_unit)
-        unit: Unit of measurement (must match product's recipe_unit)
+        ingredient_id: Foreign key to legacy Ingredient table (LEGACY - for migration only)
+        ingredient_new_id: Foreign key to new Ingredient (brand-agnostic reference)
+        quantity: Amount needed (in ingredient's recipe_unit)
+        unit: Unit of measurement (must match ingredient's recipe_unit)
         notes: Optional notes (e.g., "sifted", "melted")
     """
 
@@ -144,12 +145,14 @@ class RecipeIngredient(BaseModel):
     recipe_id = Column(Integer, ForeignKey("recipes.id", ondelete="CASCADE"), nullable=False)
 
     # LEGACY: ingredient_id for backward compatibility during migration
+    # Points to old "ingredients" table
     ingredient_id = Column(
         Integer, ForeignKey("ingredients.id", ondelete="RESTRICT"), nullable=True
     )
 
-    # NEW: product_id for brand-agnostic recipe ingredients
-    product_id = Column(
+    # NEW: ingredient_new_id for brand-agnostic recipe ingredients
+    # Points to new "products" table (which stores Ingredient entities)
+    ingredient_new_id = Column(
         Integer, ForeignKey("products.id", ondelete="RESTRICT"), nullable=True
     )
 
@@ -162,22 +165,35 @@ class RecipeIngredient(BaseModel):
 
     # Relationships
     recipe = relationship("Recipe", back_populates="recipe_ingredients")
-    ingredient = relationship("Ingredient")  # LEGACY - for migration only
-    product = relationship("Product", back_populates="recipe_ingredients")  # NEW
+    ingredient = relationship("IngredientLegacy", foreign_keys=[ingredient_id])  # LEGACY
+    ingredient_new = relationship("Ingredient", back_populates="recipe_ingredients")  # NEW
 
     # Indexes
     __table_args__ = (
         Index("idx_recipe_ingredient_recipe", "recipe_id"),
         Index("idx_recipe_ingredient_ingredient", "ingredient_id"),
+        Index("idx_recipe_ingredient_ingredient_new", "ingredient_new_id"),
     )
 
     def __repr__(self) -> str:
         """String representation of recipe ingredient."""
+        # Show whichever FK is populated
+        ing_ref = f"ingredient_id={self.ingredient_id}" if self.ingredient_id else f"ingredient_new_id={self.ingredient_new_id}"
         return (
             f"RecipeIngredient(recipe_id={self.recipe_id}, "
-            f"ingredient_id={self.ingredient_id}, "
+            f"{ing_ref}, "
             f"quantity={self.quantity}, unit='{self.unit}')"
         )
+
+    @property
+    def active_ingredient(self):
+        """
+        Get the active ingredient reference (new preferred, legacy fallback).
+
+        Returns:
+            The new Ingredient if available, otherwise legacy Ingredient
+        """
+        return self.ingredient_new if self.ingredient_new else self.ingredient
 
     def calculate_cost(self) -> float:
         """

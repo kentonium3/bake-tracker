@@ -2,24 +2,30 @@
 
 **Branch:** `feature/product-pantry-refactor`
 **Started:** 2025-11-06
-**Status:** ⏸️ PAUSED - Planning Complete, Implementation Deferred
-**Terminology:** Using "Ingredient/Variant" (not Product/ProductVariant)
+**Last Updated:** 2025-11-07
+**Status:** 🚧 IN PROGRESS - Implementation Items 1-6 Complete
+**Terminology:** Using "Ingredient/Variant" throughout (models renamed Nov 7, 2025)
 
-> **NOTE:** This document was created with "Product" terminology but has been conceptually updated to "Ingredient/Variant". When resuming, models will be renamed:
-> - Product → Ingredient
-> - ProductVariant → Variant
-> - ProductAlias → IngredientAlias
-> - ProductCrosswalk → IngredientCrosswalk
->
-> **See `PAUSE_POINT.md` for current status and next steps.**
+**Current Progress:**
+- ✅ **Items 1-6 Complete** (Nov 7, 2025):
+  - Models renamed (Ingredient, Variant, Purchase)
+  - Industry spec fields added (all nullable)
+  - Supporting models created (IngredientAlias, IngredientCrosswalk, VariantPackaging)
+  - UUID support added to BaseModel
+  - RecipeIngredient dual FK support implemented
+  - Migration utilities created (`migrate_to_ingredient_variant.py`)
+- 🔄 **Documentation update in progress**
+- ⏸️ **Next:** Run migration, create services, build UI
+
+**See `PAUSE_POINT.md` for detailed next steps.**
 
 ---
 
-## ✅ Phase 1: New Models Created (COMPLETE)
+## ✅ Phase 1: Models Created & Updated (COMPLETE - Nov 7, 2025)
 
 ### Models Implemented
 
-#### 1. Product Model (`src/models/product.py`)
+#### 1. Ingredient Model (`src/models/ingredient.py`)
 **Purpose:** Generic ingredient definitions - the "platonic ideal" of an ingredient
 
 **Key Features:**
@@ -30,13 +36,13 @@
 - Conversion factors via UnitConversion table
 
 **Relationships:**
-- One-to-many with ProductVariant
+- One-to-many with Variant
 - One-to-many with UnitConversion
 - One-to-many with RecipeIngredient (recipes reference products, not variants)
 
 ---
 
-#### 2. ProductVariant Model (`src/models/product_variant.py`)
+#### 2. Variant Model (`src/models/variant.py`)
 **Purpose:** Specific purchasable versions with brand, package size, supplier
 
 **Key Features:**
@@ -55,12 +61,12 @@
 
 **Relationships:**
 - Many-to-one with Product
-- One-to-many with PurchaseHistory
+- One-to-many with Purchase
 - One-to-many with PantryItem
 
 ---
 
-#### 3. PurchaseHistory Model (`src/models/purchase_history.py`)
+#### 3. Purchase Model (`src/models/purchase.py`)
 **Purpose:** Track all purchase transactions for price trend analysis
 
 **Key Features:**
@@ -109,15 +115,15 @@
 - `add_quantity(quantity)` - Add to this item
 
 **Module-Level FIFO Functions:**
-- `get_pantry_items_fifo(product_id, session)` - Get items ordered by purchase date
-- `consume_fifo(product_id, quantity, session)` - Consume across multiple items using FIFO
+- `get_pantry_items_fifo(ingredient_id, session)` - Get items ordered by purchase date
+- `consume_fifo(ingredient_id, quantity, session)` - Consume across multiple items using FIFO
 - `get_expiring_soon(days, session)` - All items expiring soon
-- `get_total_quantity_for_product(product_id, session)` - Aggregate by product
+- `get_total_quantity_for_product(ingredient_id, session)` - Aggregate by product
 
 **FIFO Consumption Example:**
 ```python
 # Recipe needs 10 cups flour
-consumed, breakdown = consume_fifo(product_id=1, quantity_needed=10.0, session=session)
+consumed, breakdown = consume_fifo(ingredient_id=1, quantity_needed=10.0, session=session)
 
 # Returns:
 # consumed = 10.0 (total consumed)
@@ -138,9 +144,9 @@ consumed, breakdown = consume_fifo(product_id=1, quantity_needed=10.0, session=s
 - Notes for context (e.g., "sifted", "packed")
 
 **Module-Level Functions:**
-- `get_conversion(product_id, from_unit, to_unit, session)` - Find conversion
-- `convert_quantity(product_id, quantity, from_unit, to_unit, session)` - Convert
-- `create_standard_conversions(product_id, name, session)` - Auto-create from density data
+- `get_conversion(ingredient_id, from_unit, to_unit, session)` - Find conversion
+- `convert_quantity(ingredient_id, quantity, from_unit, to_unit, session)` - Convert
+- `create_standard_conversions(ingredient_id, name, session)` - Auto-create from density data
 
 **Example:**
 ```python
@@ -161,7 +167,7 @@ consumed, breakdown = consume_fifo(product_id=1, quantity_needed=10.0, session=s
 ### RecipeIngredient Updates
 
 **Added Fields:**
-- `product_id` (Integer, FK to Product) - NEW: brand-agnostic reference
+- `ingredient_id` (Integer, FK to Product) - NEW: brand-agnostic reference
 - `ingredient_id` (nullable) - LEGACY: kept for migration compatibility
 
 **Relationships:**
@@ -170,7 +176,7 @@ consumed, breakdown = consume_fifo(product_id=1, quantity_needed=10.0, session=s
 
 **Migration Strategy:**
 - Both FKs exist during transition
-- Migration script will populate product_id from ingredient_id
+- Migration script will populate ingredient_id from ingredient_id
 - After migration complete, ingredient_id will be removed
 
 ---
@@ -205,7 +211,7 @@ consumed, breakdown = consume_fifo(product_id=1, quantity_needed=10.0, session=s
 
 ### 2. Recipes Reference Products (Not Variants) ✅
 
-**Decision:** RecipeIngredient links to Product, not ProductVariant
+**Decision:** RecipeIngredient links to Product, not Variant
 
 **Rationale:**
 - Recipes should be brand-agnostic
@@ -217,7 +223,7 @@ consumed, breakdown = consume_fifo(product_id=1, quantity_needed=10.0, session=s
 ```python
 # Recipe says: "2 cups All-Purpose Flour"
 recipe_ingredient = {
-    "product_id": 1,  # All-Purpose Flour (generic)
+    "ingredient_id": 1,  # All-Purpose Flour (generic)
     "quantity": 2.0,
     "unit": "cup"
 }
@@ -254,9 +260,9 @@ recipe_ingredient = {
 ```
 Product (Generic ingredient)
 ├─ name, category, recipe_unit
-├─ ProductVariant (Specific brand/package)
+├─ Variant (Specific brand/package)
 │  ├─ brand, package_size, package_type, preferred
-│  ├─ PurchaseHistory (Price tracking)
+│  ├─ Purchase (Price tracking)
 │  │  └─ purchase_date, unit_cost, quantity, supplier
 │  └─ PantryItem (Actual inventory)
 │     └─ quantity, purchase_date, expiration_date, location
@@ -265,7 +271,7 @@ Product (Generic ingredient)
 
 Recipe
 └─ RecipeIngredient
-   ├─ product_id (NEW - brand-agnostic)
+   ├─ ingredient_id (NEW - brand-agnostic)
    └─ ingredient_id (LEGACY - migration only)
 ```
 
@@ -283,11 +289,11 @@ Recipe
 ```python
 for each Ingredient:
     1. Create Product (generic ingredient)
-    2. Create ProductVariant (current brand/package as "preferred")
+    2. Create Variant (current brand/package as "preferred")
     3. Create PantryItem (if quantity > 0)
     4. Create UnitConversion (from conversion_factor)
-    5. Create PurchaseHistory (if unit_cost > 0)
-    6. Update RecipeIngredient.product_id
+    5. Create Purchase (if unit_cost > 0)
+    6. Update RecipeIngredient.ingredient_id
 ```
 
 **Validation:**
@@ -303,7 +309,7 @@ for each Ingredient:
 **New Services to Create:**
 
 1. **ProductService** - Product catalog CRUD
-2. **ProductVariantService** - Variant management
+2. **VariantService** - Variant management
 3. **PantryService** - Inventory operations with FIFO
 4. **PurchaseService** - Purchase history tracking
 
@@ -352,12 +358,12 @@ def calculate_recipe_cost_fifo(recipe_id):
     total_cost = 0
 
     for recipe_ingredient in recipe.ingredients:
-        product_id = recipe_ingredient.product_id
+        ingredient_id = recipe_ingredient.ingredient_id
         quantity_needed = recipe_ingredient.quantity
 
         # Consume using FIFO and get cost breakdown
         consumed, cost_breakdown = consume_fifo(
-            product_id=product_id,
+            ingredient_id=ingredient_id,
             quantity_needed=quantity_needed,
             session=session
         )
@@ -369,7 +375,7 @@ def calculate_recipe_cost_fifo(recipe_id):
         # If insufficient inventory, estimate remaining
         if consumed < quantity_needed:
             remaining = quantity_needed - consumed
-            preferred_variant = get_preferred_variant(product_id)
+            preferred_variant = get_preferred_variant(ingredient_id)
             fallback_cost = remaining * preferred_variant.get_current_cost_per_unit()
             total_cost += fallback_cost
 
@@ -384,8 +390,8 @@ def calculate_recipe_cost_fifo(recipe_id):
 
 **Model Tests:**
 - Product CRUD operations
-- ProductVariant preferred flag logic
-- PurchaseHistory price trend calculations
+- Variant preferred flag logic
+- Purchase price trend calculations
 - PantryItem FIFO consumption
 - UnitConversion conversion accuracy
 
@@ -396,8 +402,8 @@ def calculate_recipe_cost_fifo(recipe_id):
 - Shopping list variant recommendations
 
 **Migration Tests:**
-- Ingredient → Product/Variant/Pantry migration
-- RecipeIngredient product_id population
+- Ingredient → Ingredient/Variant/Pantry migration
+- RecipeIngredient ingredient_id population
 - Cost calculation equivalence (old vs new)
 
 ---
@@ -430,17 +436,17 @@ feature/product-pantry ──→ models → services → UI → v0.4.0
 ```
 src/
 ├── models/
-│   ├── product.py                    # NEW
-│   ├── product_variant.py            # NEW
-│   ├── purchase_history.py           # NEW
+│   ├── ingredient.py                    # NEW
+│   ├── variant.py            # NEW
+│   ├── purchase.py           # NEW
 │   ├── pantry_item.py                # NEW
 │   ├── unit_conversion.py            # NEW
 │   ├── ingredient.py                 # LEGACY (for migration)
-│   ├── recipe.py                     # UPDATED (product_id added)
+│   ├── recipe.py                     # UPDATED (ingredient_id added)
 │   └── __init__.py                   # UPDATED
 ├── services/
 │   ├── product_service.py            # TODO
-│   ├── product_variant_service.py    # TODO
+│   ├── variant_service.py    # TODO
 │   ├── pantry_service.py             # TODO
 │   ├── purchase_service.py           # TODO
 │   ├── recipe_service.py             # TODO (update for FIFO)
@@ -452,7 +458,7 @@ src/
 │   │   └── inventory_tab.py          # LEGACY (hide after migration)
 │   └── forms/
 │       ├── product_form.py           # TODO
-│       ├── product_variant_form.py   # TODO
+│       ├── variant_form.py   # TODO
 │       └── pantry_item_form.py       # TODO
 └── utils/
     └── migrate_to_product_pantry.py  # TODO

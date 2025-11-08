@@ -5,12 +5,15 @@ This package contains all SQLAlchemy ORM models for the application.
 """
 
 from .base import Base, BaseModel
-from .ingredient import Ingredient  # LEGACY - for migration compatibility
-from .product import Product  # NEW
-from .product_variant import ProductVariant  # NEW
-from .purchase_history import PurchaseHistory  # NEW
+from .ingredient_legacy import Ingredient as IngredientLegacy  # LEGACY - for migration compatibility
+from .ingredient import Ingredient  # NEW refactored model
+from .variant import Variant  # NEW
+from .purchase import Purchase  # NEW
 from .pantry_item import PantryItem  # NEW
 from .unit_conversion import UnitConversion  # NEW
+from .ingredient_alias import IngredientAlias  # NEW supporting model
+from .ingredient_crosswalk import IngredientCrosswalk  # NEW supporting model
+from .variant_packaging import VariantPackaging  # NEW supporting model
 from .recipe import Recipe, RecipeIngredient
 from .inventory_snapshot import InventorySnapshot, SnapshotIngredient
 from .finished_good import FinishedGood, Bundle, YieldMode
@@ -22,13 +25,17 @@ __all__ = [
     "Base",
     "BaseModel",
     # Legacy
+    "IngredientLegacy",
+    # New Ingredient/Variant/Pantry Models
     "Ingredient",
-    # New Product/Pantry Models
-    "Product",
-    "ProductVariant",
-    "PurchaseHistory",
+    "Variant",
+    "Purchase",
     "PantryItem",
     "UnitConversion",
+    # New Supporting Models
+    "IngredientAlias",
+    "IngredientCrosswalk",
+    "VariantPackaging",
     # Existing Models
     "Recipe",
     "RecipeIngredient",

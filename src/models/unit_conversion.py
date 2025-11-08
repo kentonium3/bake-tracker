@@ -1,8 +1,8 @@
 """
-UnitConversion model for product-specific unit conversions.
+UnitConversion model for ingredient-specific unit conversions.
 
 This model stores conversion factors between purchase units and recipe units
-for each product. Multiple conversions can exist per product.
+for each ingredient. Multiple conversions can exist per ingredient.
 
 Example: All-Purpose Flour
 - 1 lb = 3.6 cups (unsifted)
@@ -20,9 +20,9 @@ from .base import BaseModel
 
 class UnitConversion(BaseModel):
     """
-    UnitConversion model for product-specific unit conversion factors.
+    UnitConversion model for ingredient-specific unit conversion factors.
 
-    Each conversion defines how to convert between two units for a specific product.
+    Each conversion defines how to convert between two units for a specific ingredient.
 
     Example:
         from_unit: "lb"
@@ -32,7 +32,7 @@ class UnitConversion(BaseModel):
         Meaning: 1 lb = 3.6 cups
 
     Attributes:
-        product_id: Foreign key to Product
+        ingredient_id: Foreign key to Ingredient
         from_unit: Source unit (e.g., "lb", "kg", "bag")
         from_quantity: Amount in source unit (typically 1.0)
         to_unit: Target unit (e.g., "cup", "oz", "g")
@@ -42,10 +42,10 @@ class UnitConversion(BaseModel):
 
     __tablename__ = "unit_conversions"
 
-    # Foreign key to Product
-    product_id = Column(
+    # Foreign key to Ingredient
+    ingredient_id = Column(
         Integer,
-        ForeignKey("products.id", ondelete="CASCADE"),
+        ForeignKey("ingredients.id", ondelete="CASCADE"),
         nullable=False,
         index=True
     )
@@ -60,19 +60,19 @@ class UnitConversion(BaseModel):
     notes = Column(Text, nullable=True)
 
     # Relationships
-    product = relationship("Product", back_populates="conversions")
+    ingredient = relationship("Ingredient", back_populates="conversions")
 
     # Indexes for common queries
     __table_args__ = (
-        Index("idx_conversion_product", "product_id"),
-        Index("idx_conversion_from_to", "product_id", "from_unit", "to_unit"),
+        Index("idx_conversion_ingredient", "ingredient_id"),
+        Index("idx_conversion_from_to", "ingredient_id", "from_unit", "to_unit"),
     )
 
     def __repr__(self) -> str:
         """String representation of conversion."""
         return (
             f"UnitConversion(id={self.id}, "
-            f"product_id={self.product_id}, "
+            f"ingredient_id={self.ingredient_id}, "
             f"{self.from_quantity} {self.from_unit} = {self.to_quantity} {self.to_unit})"
         )
 
@@ -115,7 +115,7 @@ class UnitConversion(BaseModel):
         Convert conversion to dictionary.
 
         Args:
-            include_relationships: If True, include product information
+            include_relationships: If True, include ingredient information
 
         Returns:
             Dictionary representation
@@ -125,10 +125,10 @@ class UnitConversion(BaseModel):
         # Add calculated fields
         result["conversion_factor"] = self.conversion_factor
 
-        if include_relationships and self.product:
-            result["product"] = {
-                "id": self.product.id,
-                "name": self.product.name
+        if include_relationships and self.ingredient:
+            result["ingredient"] = {
+                "id": self.ingredient.id,
+                "name": self.ingredient.name
             }
 
         return result
@@ -136,12 +136,12 @@ class UnitConversion(BaseModel):
 
 # Module-level helper functions for unit conversion
 
-def get_conversion(product_id: int, from_unit: str, to_unit: str, session) -> UnitConversion:
+def get_conversion(ingredient_id: int, from_unit: str, to_unit: str, session) -> UnitConversion:
     """
-    Get conversion for product between specified units.
+    Get conversion for ingredient between specified units.
 
     Args:
-        product_id: Product ID
+        ingredient_id: Ingredient ID
         from_unit: Source unit
         to_unit: Target unit
         session: SQLAlchemy session
@@ -152,7 +152,7 @@ def get_conversion(product_id: int, from_unit: str, to_unit: str, session) -> Un
     conversion = (
         session.query(UnitConversion)
         .filter(
-            UnitConversion.product_id == product_id,
+            UnitConversion.ingredient_id == ingredient_id,
             UnitConversion.from_unit == from_unit,
             UnitConversion.to_unit == to_unit
         )
@@ -164,7 +164,7 @@ def get_conversion(product_id: int, from_unit: str, to_unit: str, session) -> Un
         reverse = (
             session.query(UnitConversion)
             .filter(
-                UnitConversion.product_id == product_id,
+                UnitConversion.ingredient_id == ingredient_id,
                 UnitConversion.from_unit == to_unit,
                 UnitConversion.to_unit == from_unit
             )
@@ -176,17 +176,17 @@ def get_conversion(product_id: int, from_unit: str, to_unit: str, session) -> Un
 
 
 def convert_quantity(
-    product_id: int,
+    ingredient_id: int,
     quantity: float,
     from_unit: str,
     to_unit: str,
     session
 ) -> float:
     """
-    Convert quantity between units for a product.
+    Convert quantity between units for a ingredient.
 
     Args:
-        product_id: Product ID
+        ingredient_id: Ingredient ID
         quantity: Amount to convert
         from_unit: Source unit
         to_unit: Target unit
@@ -200,7 +200,7 @@ def convert_quantity(
         return quantity
 
     # Look up conversion
-    conversion = get_conversion(product_id, from_unit, to_unit, session)
+    conversion = get_conversion(ingredient_id, from_unit, to_unit, session)
 
     if not conversion:
         # Try standard conversions from unit_converter module
@@ -218,15 +218,15 @@ def convert_quantity(
         return conversion.reverse_convert(quantity)
 
 
-def create_standard_conversions(product_id: int, product_name: str, session) -> list:
+def create_standard_conversions(ingredient_id: int, ingredient_name: str, session) -> list:
     """
-    Create standard conversions for a product based on ingredient name.
+    Create standard conversions for a ingredient based on ingredient name.
 
     Uses density data from constants to create volume-weight conversions.
 
     Args:
-        product_id: Product ID
-        product_name: Product name for density lookup
+        ingredient_id: Ingredient ID
+        ingredient_name: Ingredient name for density lookup
         session: SQLAlchemy session
 
     Returns:
@@ -234,7 +234,7 @@ def create_standard_conversions(product_id: int, product_name: str, session) -> 
     """
     from src.utils.constants import get_ingredient_density
 
-    density_g_per_cup = get_ingredient_density(product_name)
+    density_g_per_cup = get_ingredient_density(ingredient_name)
 
     if density_g_per_cup == 0:
         # No standard density data available
@@ -244,7 +244,7 @@ def create_standard_conversions(product_id: int, product_name: str, session) -> 
 
     # Create cup ↔ g conversion
     conversion_cup_g = UnitConversion(
-        product_id=product_id,
+        ingredient_id=ingredient_id,
         from_unit="cup",
         from_quantity=1.0,
         to_unit="g",
@@ -260,7 +260,7 @@ def create_standard_conversions(product_id: int, product_name: str, session) -> 
     cups_per_lb = lb_to_g / density_g_per_cup
 
     conversion_lb_cup = UnitConversion(
-        product_id=product_id,
+        ingredient_id=ingredient_id,
         from_unit="lb",
         from_quantity=1.0,
         to_unit="cup",

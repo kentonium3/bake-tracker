@@ -3,17 +3,18 @@
 **Document Purpose:** Architecture plan for separating conflated Ingredient model into Ingredient catalog and Pantry inventory
 
 **Created:** 2025-11-06
-**Status:** ⏸️ PAUSED - Planning complete, implementation deferred
-**Terminology Update:** 2025-11-06 - Changed from "Product/ProductVariant" to "Ingredient/Variant"
+**Status:** 🚧 IN PROGRESS - Schema design complete, implementation started (Nov 7, 2025)
+**Last Updated:** 2025-11-07
 
-> **NOTE:** This document uses "Product" terminology but has been conceptually updated to "Ingredient/Variant":
-> - Product → Ingredient (generic ingredient concept)
-> - ProductVariant → Variant (specific brand/source)
-> - "My Products" → "My Ingredients"
->
-> **Rationale:** "Ingredient" handles both commercial products (Domino Sugar) AND non-commercial sources (farm stand tomatoes, butcher's chicken). More domain-appropriate for baking application.
->
-> **See `PAUSE_POINT.md` for current pause point and resumption plan.**
+**Terminology:** Using "Ingredient/Variant" (not "Product/Variant")
+- **Ingredient** = Generic ingredient concept (e.g., "All-Purpose Flour")
+- **Variant** = Specific brand/package (e.g., "King Arthur 25 lb bag")
+- **Rationale:** "Ingredient" handles both commercial products (Domino Sugar) AND non-commercial sources (farm stand tomatoes, butcher's chicken). More domain-appropriate for baking application.
+
+**Implementation Progress:**
+- ✅ Items 1-6 Complete (Models renamed, spec fields added, supporting models created, UUID support, dual FK migration, migration utilities)
+- ⏸️ Paused at Item 7 for documentation updates
+- **See `PAUSE_POINT.md` for detailed status and next steps.**
 
 ---
 
@@ -43,7 +44,7 @@ The existing `Ingredient` model conflates multiple concerns:
 
 **Separate into two core concepts:**
 
-1. **"My Products"** - Catalog of purchasable ingredients
+1. **"My Ingredients"** - Catalog of purchasable ingredients
    - Generic ingredient definitions
    - Multiple brands, package sizes, suppliers
    - Price history tracking
@@ -64,12 +65,12 @@ The existing `Ingredient` model conflates multiple concerns:
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                         MY PRODUCTS                              │
+│                         MY INGREDIENTS                              │
 │  (What can I buy?)                                               │
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                  │
 │  ┌──────────────┐         ┌──────────────────┐                 │
-│  │   Product    │◄────────│ ProductVariant   │                 │
+│  │  Ingredient  │◄────────│ Variant   │                 │
 │  │              │         │                  │                 │
 │  │ • Name       │         │ • Brand          │                 │
 │  │ • Category   │         │ • Package size   │                 │
@@ -81,7 +82,7 @@ The existing `Ingredient` model conflates multiple concerns:
 │         │                         │                             │
 │         │                         ▼                             │
 │  ┌──────────────┐         ┌──────────────────┐                 │
-│  │UnitConversion│         │ PurchaseHistory  │                 │
+│  │UnitConversion│         │ Purchase  │                 │
 │  │              │         │                  │                 │
 │  │ • From unit  │         │ • Date           │                 │
 │  │ • To unit    │         │ • Cost           │                 │
@@ -96,7 +97,7 @@ The existing `Ingredient` model conflates multiple concerns:
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                  │
 │  ┌──────────────────┐                                           │
-│  │   PantryItem     │◄─────────(references ProductVariant)      │
+│  │   PantryItem     │◄─────────(references Variant)      │
 │  │                  │                                           │
 │  │ • Quantity       │                                           │
 │  │ • Purchase date  │                                           │
@@ -127,7 +128,7 @@ The existing `Ingredient` model conflates multiple concerns:
 
 ## Detailed Schema Design
 
-### 1. Product Table
+### 1. Ingredient Table
 
 **Purpose:** Generic ingredient definition - the "platonic ideal" of an ingredient
 
@@ -143,7 +144,7 @@ The existing `Ingredient` model conflates multiple concerns:
 | `last_modified` | DateTime | NOT NULL | Last update |
 
 **Relationships:**
-- `variants` - One-to-many with ProductVariant
+- `variants` - One-to-many with Variant
 - `conversions` - One-to-many with UnitConversion
 - `recipe_ingredients` - One-to-many with RecipeIngredient
 
@@ -159,14 +160,14 @@ The existing `Ingredient` model conflates multiple concerns:
 
 ---
 
-### 2. ProductVariant Table
+### 2. Variant Table
 
 **Purpose:** Specific purchasable version of a product (brand, size, package)
 
 | Column | Type | Constraints | Description |
 |--------|------|-------------|-------------|
 | `id` | Integer | PK, Auto | Unique identifier |
-| `product_id` | Integer | FK → Product, NOT NULL, Indexed | Parent product |
+| `ingredient_id` | Integer | FK → Ingredient, NOT NULL, Indexed | Parent product |
 | `brand` | String(200) | Indexed | Brand name (e.g., "King Arthur") |
 | `package_size` | String(100) | | Size description (e.g., "25 lb", "5 kg") |
 | `package_type` | String(50) | | Package type (bag, box, jar, bottle, etc.) |
@@ -181,19 +182,19 @@ The existing `Ingredient` model conflates multiple concerns:
 | `last_modified` | DateTime | NOT NULL | Last update |
 
 **Relationships:**
-- `product` - Many-to-one with Product
-- `purchases` - One-to-many with PurchaseHistory
+- `product` - Many-to-one with Ingredient
+- `purchases` - One-to-many with Purchase
 - `pantry_items` - One-to-many with PantryItem
 
 **Indexes:**
-- `idx_variant_product` on `product_id`
+- `idx_variant_product` on `ingredient_id`
 - `idx_variant_brand` on `brand`
 - `idx_variant_upc` on `upc_code`
 
 **Example:**
 ```python
 {
-  "product_id": 1,  # All-Purpose Flour
+  "ingredient_id": 1,  # All-Purpose Flour
   "brand": "King Arthur",
   "package_size": "25 lb",
   "package_type": "bag",
@@ -207,14 +208,14 @@ The existing `Ingredient` model conflates multiple concerns:
 
 ---
 
-### 3. PurchaseHistory Table
+### 3. Purchase Table
 
 **Purpose:** Track price history and purchase events for cost analysis
 
 | Column | Type | Constraints | Description |
 |--------|------|-------------|-------------|
 | `id` | Integer | PK, Auto | Unique identifier |
-| `product_variant_id` | Integer | FK → ProductVariant, NOT NULL, Indexed | Which variant |
+| `variant_id` | Integer | FK → Variant, NOT NULL, Indexed | Which variant |
 | `purchase_date` | Date | NOT NULL, Indexed | When purchased |
 | `unit_cost` | Float | NOT NULL, >= 0 | Cost per purchase unit |
 | `quantity_purchased` | Float | NOT NULL, > 0 | How many units purchased |
@@ -224,21 +225,21 @@ The existing `Ingredient` model conflates multiple concerns:
 | `notes` | Text | | Additional notes |
 
 **Relationships:**
-- `product_variant` - Many-to-one with ProductVariant
+- `variant` - Many-to-one with Variant
 
 **Indexes:**
-- `idx_purchase_variant` on `product_variant_id`
+- `idx_purchase_variant` on `variant_id`
 - `idx_purchase_date` on `purchase_date`
 
 **Methods:**
-- `get_average_price(product_variant_id, days=90)` - Average price over time period
-- `get_most_recent_price(product_variant_id)` - Latest purchase price
-- `get_price_trend(product_variant_id)` - Price change over time
+- `get_average_price(variant_id, days=90)` - Average price over time period
+- `get_most_recent_price(variant_id)` - Latest purchase price
+- `get_price_trend(variant_id)` - Price change over time
 
 **Example:**
 ```python
 {
-  "product_variant_id": 5,  # King Arthur 25 lb bag
+  "variant_id": 5,  # King Arthur 25 lb bag
   "purchase_date": "2025-11-01",
   "unit_cost": 15.99,
   "quantity_purchased": 2.0,
@@ -257,7 +258,7 @@ The existing `Ingredient` model conflates multiple concerns:
 | Column | Type | Constraints | Description |
 |--------|------|-------------|-------------|
 | `id` | Integer | PK, Auto | Unique identifier |
-| `product_variant_id` | Integer | FK → ProductVariant, NOT NULL, Indexed | Which variant |
+| `variant_id` | Integer | FK → Variant, NOT NULL, Indexed | Which variant |
 | `quantity` | Float | NOT NULL, >= 0 | Quantity on hand (in purchase units) |
 | `purchase_date` | Date | Indexed | When this item was purchased |
 | `expiration_date` | Date | Indexed | When it expires (if applicable) |
@@ -267,23 +268,23 @@ The existing `Ingredient` model conflates multiple concerns:
 | `last_updated` | DateTime | NOT NULL | Last modification timestamp |
 
 **Relationships:**
-- `product_variant` - Many-to-one with ProductVariant
+- `variant` - Many-to-one with Variant
 
 **Indexes:**
-- `idx_pantry_variant` on `product_variant_id`
+- `idx_pantry_variant` on `variant_id`
 - `idx_pantry_location` on `location`
 - `idx_pantry_expiration` on `expiration_date`
 
 **Methods:**
-- `get_total_quantity_for_product(product_id)` - Sum all pantry items for a product
+- `get_total_quantity_for_product(ingredient_id)` - Sum all pantry items for a product
 - `get_expiring_soon(days=30)` - Items expiring within X days
 - `get_items_by_location(location)` - All items in a location
-- `apply_fifo_consumption(product_variant_id, quantity)` - Consume oldest first
+- `apply_fifo_consumption(variant_id, quantity)` - Consume oldest first
 
 **Example:**
 ```python
 {
-  "product_variant_id": 5,  # King Arthur 25 lb bag
+  "variant_id": 5,  # King Arthur 25 lb bag
   "quantity": 1.5,  # 1.5 bags remaining
   "purchase_date": "2025-10-15",
   "expiration_date": "2026-10-15",
@@ -301,7 +302,7 @@ The existing `Ingredient` model conflates multiple concerns:
 | Column | Type | Constraints | Description |
 |--------|------|-------------|-------------|
 | `id` | Integer | PK, Auto | Unique identifier |
-| `product_id` | Integer | FK → Product, NOT NULL, Indexed | Which product |
+| `ingredient_id` | Integer | FK → Ingredient, NOT NULL, Indexed | Which product |
 | `from_unit` | String(50) | NOT NULL | Purchase unit (lb, oz, kg, etc.) |
 | `from_quantity` | Float | NOT NULL, > 0 | Amount in from_unit (e.g., 1 lb) |
 | `to_unit` | String(50) | NOT NULL | Recipe unit (cup, oz, g, etc.) |
@@ -309,18 +310,18 @@ The existing `Ingredient` model conflates multiple concerns:
 | `notes` | Text | | Additional notes (e.g., "sifted", "packed") |
 
 **Relationships:**
-- `product` - Many-to-one with Product
+- `product` - Many-to-one with Ingredient
 
 **Indexes:**
-- `idx_conversion_product` on `product_id`
+- `idx_conversion_product` on `ingredient_id`
 
 **Methods:**
-- `convert(product_id, quantity, from_unit, to_unit)` - Convert between units
+- `convert(ingredient_id, quantity, from_unit, to_unit)` - Convert between units
 
 **Example:**
 ```python
 {
-  "product_id": 1,  # All-Purpose Flour
+  "ingredient_id": 1,  # All-Purpose Flour
   "from_unit": "lb",
   "from_quantity": 1.0,
   "to_unit": "cup",
@@ -341,7 +342,7 @@ The existing `Ingredient` model conflates multiple concerns:
 # RecipeIngredient
 recipe_ingredient = {
   "recipe_id": 42,
-  "product_id": 1,      # All-Purpose Flour (generic)
+  "ingredient_id": 1,      # All-Purpose Flour (generic)
   "quantity": 2.0,
   "unit": "cup"
 }
@@ -352,15 +353,15 @@ recipe_ingredient = {
 - User can switch brands without updating recipes
 - Shopping list aggregates by product, user chooses which variant to buy
 
-### 2. Inventory Aggregates by Product
+### 2. Inventory Aggregates by Ingredient
 
 **When showing inventory:**
 ```python
 # "How much All-Purpose Flour do I have?"
 total_flour = sum(
-    pantry_item.quantity * product_variant.purchase_quantity
+    pantry_item.quantity * variant.purchase_quantity
     for pantry_item in PantryItem
-    where pantry_item.product_variant.product_id == 1
+    where pantry_item.variant.ingredient_id == 1
 )
 
 # Breakdown:
@@ -379,11 +380,11 @@ total_flour = sum(
 
 **Implementation:**
 ```python
-def get_product_cost_per_recipe_unit(product_id: int, strategy: str = "preferred"):
+def get_product_cost_per_recipe_unit(ingredient_id: int, strategy: str = "preferred"):
     if strategy == "preferred":
-        variant = get_preferred_variant(product_id)
+        variant = get_preferred_variant(ingredient_id)
         latest_price = get_most_recent_price(variant.id)
-        conversion = get_conversion(product_id, variant.purchase_unit, product.recipe_unit)
+        conversion = get_conversion(ingredient_id, variant.purchase_unit, ingredient.recipe_unit)
         return latest_price.unit_cost / conversion.to_quantity
     # ... other strategies
 ```
@@ -414,13 +415,13 @@ def get_product_cost_per_recipe_unit(product_id: int, strategy: str = "preferred
 
 **Tasks:**
 1. Create new SQLAlchemy models:
-   - `Product`
-   - `ProductVariant`
-   - `PurchaseHistory`
+   - `Ingredient`
+   - `Variant`
+   - `Purchase`
    - `PantryItem`
    - `UnitConversion`
 
-2. Update `RecipeIngredient` to reference `Product` (add new FK, keep old for migration)
+2. Update `RecipeIngredient` to reference `Ingredient` (add new FK, keep old for migration)
 
 3. Create database migration script
 
@@ -437,13 +438,13 @@ def get_product_cost_per_recipe_unit(product_id: int, strategy: str = "preferred
 def migrate_ingredient_to_new_schema(ingredient: Ingredient):
     """
     Each existing Ingredient becomes:
-    - 1 Product (generic ingredient)
-    - 1 ProductVariant (the specific brand/package currently in system)
+    - 1 Ingredient (generic ingredient)
+    - 1 Variant (the specific brand/package currently in system)
     - 1 PantryItem (current inventory)
     - 1 UnitConversion (purchase → recipe unit conversion)
     """
 
-    # 1. Create Product
+    # 1. Create Ingredient
     product = Product(
         name=ingredient.name,
         category=ingredient.category,
@@ -451,9 +452,9 @@ def migrate_ingredient_to_new_schema(ingredient: Ingredient):
         notes=ingredient.notes
     )
 
-    # 2. Create ProductVariant
-    variant = ProductVariant(
-        product_id=product.id,
+    # 2. Create Variant
+    variant = Variant(
+        ingredient_id=ingredient.id,
         brand=ingredient.brand,
         package_size=ingredient.purchase_unit_size,
         package_type=ingredient.package_type,
@@ -465,7 +466,7 @@ def migrate_ingredient_to_new_schema(ingredient: Ingredient):
     # 3. Create PantryItem (if quantity > 0)
     if ingredient.quantity > 0:
         pantry_item = PantryItem(
-            product_variant_id=variant.id,
+            variant_id=variant.id,
             quantity=ingredient.quantity,
             purchase_date=ingredient.last_updated,  # Best guess
             location="Main Pantry"  # Default
@@ -475,17 +476,17 @@ def migrate_ingredient_to_new_schema(ingredient: Ingredient):
     # Old: conversion_factor (purchase units → recipe units)
     # New: from_quantity / to_quantity
     conversion = UnitConversion(
-        product_id=product.id,
+        ingredient_id=ingredient.id,
         from_unit=ingredient.purchase_unit,
         from_quantity=1.0,
         to_unit=ingredient.recipe_unit,
         to_quantity=ingredient.conversion_factor
     )
 
-    # 5. Create PurchaseHistory entry (if unit_cost > 0)
+    # 5. Create Purchase entry (if unit_cost > 0)
     if ingredient.unit_cost > 0:
-        purchase = PurchaseHistory(
-            product_variant_id=variant.id,
+        purchase = Purchase(
+            variant_id=variant.id,
             purchase_date=ingredient.last_updated,
             unit_cost=ingredient.unit_cost,
             quantity_purchased=ingredient.quantity,
@@ -494,7 +495,7 @@ def migrate_ingredient_to_new_schema(ingredient: Ingredient):
 
     # 6. Update RecipeIngredient references
     for recipe_ing in ingredient.recipe_ingredients:
-        recipe_ing.product_id = product.id
+        recipe_ing.ingredient_id = ingredient.id
         # Keep old ingredient_id for rollback capability
 ```
 
@@ -512,18 +513,18 @@ def migrate_ingredient_to_new_schema(ingredient: Ingredient):
 
 **New Services:**
 
-#### `ProductService`
+#### `IngredientService`
 Replaces: Part of `InventoryService` (CRUD for products)
 - `create_product(data)` - Create generic product
-- `get_product(product_id)` - Get product by ID
+- `get_product(ingredient_id)` - Get product by ID
 - `search_products(name, category)` - Search product catalog
-- `update_product(product_id, data)` - Update product
-- `delete_product(product_id)` - Delete product (checks dependencies)
+- `update_product(ingredient_id, data)` - Update product
+- `delete_product(ingredient_id)` - Delete product (checks dependencies)
 
-#### `ProductVariantService`
+#### `VariantService`
 New service for managing variants
-- `create_variant(product_id, data)` - Add variant to product
-- `get_variants_for_product(product_id)` - Get all variants
+- `create_variant(ingredient_id, data)` - Add variant to product
+- `get_variants_for_product(ingredient_id)` - Get all variants
 - `set_preferred_variant(variant_id)` - Mark as preferred
 - `update_variant(variant_id, data)` - Update variant
 - `delete_variant(variant_id)` - Delete variant
@@ -531,9 +532,9 @@ New service for managing variants
 #### `PantryService`
 Replaces: Part of `InventoryService` (inventory management)
 - `add_to_pantry(variant_id, quantity, purchase_date, location)` - Add item
-- `get_pantry_items(product_id=None, location=None)` - Get pantry items
-- `get_total_quantity(product_id)` - Aggregate by product
-- `consume_quantity(product_id, quantity)` - FIFO consumption
+- `get_pantry_items(ingredient_id=None, location=None)` - Get pantry items
+- `get_total_quantity(ingredient_id)` - Aggregate by product
+- `consume_quantity(ingredient_id, quantity)` - FIFO consumption
 - `get_expiring_soon(days=30)` - Expiration tracking
 - `update_pantry_item(item_id, data)` - Update item
 
@@ -541,8 +542,8 @@ Replaces: Part of `InventoryService` (inventory management)
 New service for purchase history
 - `record_purchase(variant_id, data)` - Record purchase
 - `get_purchase_history(variant_id, days=90)` - Get history
-- `get_price_trend(product_id)` - Analyze price trends
-- `get_average_price(product_id, days=90)` - Calculate average
+- `get_price_trend(ingredient_id)` - Analyze price trends
+- `get_average_price(ingredient_id, days=90)` - Calculate average
 
 #### Updated Services:
 
@@ -552,7 +553,7 @@ New service for purchase history
 
 #### `EventService`
 - Update `generate_shopping_list()` to:
-  - Aggregate by Product (not ProductVariant)
+  - Aggregate by Ingredient (not Variant)
   - Recommend preferred or cheapest variant
   - Show purchase options
 
@@ -564,7 +565,7 @@ New service for purchase history
 
 #### New Tabs:
 
-**"My Products" Tab** (replaces "Inventory" tab)
+**"My Ingredients" Tab** (replaces "Inventory" tab)
 - Product catalog management
 - CRUD for products and variants
 - View/edit variants per product
@@ -657,7 +658,7 @@ When adding ingredient to recipe:
 ┌──────────────────────────────────────────────────────────────────┐
 │ Shopping List for Christmas 2025                                 │
 ├──────────────────────────────────────────────────────────────────┤
-│ Product              Need    Have    Buy    Recommended          │
+│ Ingredient              Need    Have    Buy    Recommended          │
 │                                                                   │
 │ All-Purpose Flour    15 lb   5 lb   10 lb  King Arthur 25 lb    │
 │                                             ($15.99) [preferred]  │
@@ -686,7 +687,7 @@ When adding ingredient to recipe:
 **Export Format:**
 ```json
 {
-  "products": [
+  "ingredients": [
     {
       "id": 1,
       "name": "All-Purpose Flour",
@@ -753,7 +754,7 @@ venv/Scripts/python.exe src/utils/import_export_cli.py import-migrated old_data.
 
 **New test files:**
 - `test_product_service.py`
-- `test_product_variant_service.py`
+- `test_variant_service.py`
 - `test_pantry_service.py`
 - `test_purchase_service.py`
 
@@ -910,9 +911,9 @@ venv/Scripts/python.exe src/utils/import_export_cli.py import-migrated old_data.
 | Date | Decision | Rationale |
 |------|----------|-----------|
 | 2025-11-06 | Separate Product and Pantry | Conflated model limits scalability |
-| 2025-11-06 | Recipes reference Product (not Variant) | Brand-agnostic recipes |
-| 2025-11-06 | Use ProductVariant for purchase specifics | Multiple brands per product |
-| 2025-11-06 | Add PurchaseHistory for price tracking | Cost trends and analysis |
+| 2025-11-06 | Recipes reference Ingredient (not Variant) | Brand-agnostic recipes |
+| 2025-11-06 | Use Variant for purchase specifics | Multiple brands per product |
+| 2025-11-06 | Add Purchase for price tracking | Cost trends and analysis |
 | 2025-11-06 | Add PantryItem for inventory | Location, FIFO, expiration tracking |
 | 2025-11-06 | Feature branch during v0.3.x testing | Parallel development |
 

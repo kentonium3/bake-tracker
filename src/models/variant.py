@@ -1,11 +1,11 @@
 """
-ProductVariant model for specific purchasable versions of products.
+Variant model for specific purchasable versions of ingredients.
 
 This model represents a specific brand, package size, and supplier combination
-for a Product. Multiple variants can exist for the same product.
+for an Ingredient. Multiple variants can exist for the same ingredient.
 
 Example: "King Arthur All-Purpose Flour 25 lb bag from Costco" is a variant
-         of the "All-Purpose Flour" product.
+         of the "All-Purpose Flour" ingredient.
 """
 
 from datetime import datetime
@@ -16,9 +16,9 @@ from sqlalchemy.orm import relationship
 from .base import BaseModel
 
 
-class ProductVariant(BaseModel):
+class Variant(BaseModel):
     """
-    ProductVariant model representing specific purchasable versions of products.
+    Variant model representing specific purchasable versions of ingredients.
 
     Each variant represents a specific combination of:
     - Brand (e.g., "King Arthur", "Bob's Red Mill", "Generic")
@@ -27,7 +27,7 @@ class ProductVariant(BaseModel):
     - Supplier (e.g., "Costco", "Wegmans", "Amazon")
 
     Attributes:
-        product_id: Foreign key to Product
+        ingredient_id: Foreign key to Ingredient
         brand: Brand name
         package_size: Size description (e.g., "25 lb", "5 kg")
         package_type: Package type (bag, box, jar, bottle, etc.)
@@ -36,7 +36,7 @@ class ProductVariant(BaseModel):
         upc_code: UPC/barcode for scanning (future use)
         supplier: Supplier/store name
         supplier_sku: Supplier's SKU/product code
-        preferred: Is this the preferred variant for this product?
+        preferred: Is this the preferred variant for this ingredient?
         notes: Additional notes
         date_added: When variant was created
         last_modified: Last modification timestamp
@@ -44,8 +44,8 @@ class ProductVariant(BaseModel):
 
     __tablename__ = "product_variants"
 
-    # Foreign key to Product
-    product_id = Column(Integer, ForeignKey("products.id", ondelete="CASCADE"), nullable=False, index=True)
+    # Foreign key to Ingredient
+    ingredient_id = Column(Integer, ForeignKey("products.id", ondelete="CASCADE"), nullable=False, index=True)
 
     # Brand and package information
     brand = Column(String(200), nullable=True, index=True)
@@ -57,9 +57,18 @@ class ProductVariant(BaseModel):
     purchase_quantity = Column(Float, nullable=False)  # Quantity per package
 
     # Identification codes (for future use)
-    upc_code = Column(String(20), nullable=True, index=True)  # UPC/barcode
+    upc_code = Column(String(20), nullable=True, index=True)  # UPC/barcode (legacy name, use gtin for GS1)
     supplier = Column(String(200), nullable=True)  # Where to buy
     supplier_sku = Column(String(100), nullable=True)  # Supplier's product code
+
+    # Industry standard identifiers (FUTURE READY - all nullable)
+    gtin = Column(String(20), nullable=True, unique=True, index=True)  # GS1 GTIN (preferred over upc_code)
+    brand_owner = Column(String(200), nullable=True)  # Brand owner/manufacturer
+    gpc_brick_code = Column(String(20), nullable=True)  # GS1 GPC category code
+    net_content_value = Column(Float, nullable=True)  # Net content quantity from label
+    net_content_uom = Column(String(20), nullable=True)  # Net content unit of measure (g, kg, ml, L, oz)
+    country_of_sale = Column(String(3), nullable=True)  # ISO 3166-1 alpha-3 country code
+    off_id = Column(String(50), nullable=True)  # Open Food Facts product code
 
     # Preference flag
     preferred = Column(Boolean, nullable=False, default=False)
@@ -72,23 +81,23 @@ class ProductVariant(BaseModel):
     last_modified = Column(DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     # Relationships
-    product = relationship("Product", back_populates="variants")
+    ingredient = relationship("Ingredient", back_populates="variants")
     purchases = relationship(
-        "PurchaseHistory",
-        back_populates="product_variant",
+        "Purchase",
+        back_populates="variant",
         cascade="all, delete-orphan",
         lazy="select"
     )
     pantry_items = relationship(
         "PantryItem",
-        back_populates="product_variant",
+        back_populates="variant",
         cascade="all, delete-orphan",
         lazy="select"
     )
 
     # Indexes for common queries
     __table_args__ = (
-        Index("idx_variant_product", "product_id"),
+        Index("idx_variant_product", "ingredient_id"),
         Index("idx_variant_brand", "brand"),
         Index("idx_variant_upc", "upc_code"),
     )
@@ -97,7 +106,7 @@ class ProductVariant(BaseModel):
         """String representation of variant."""
         brand_str = f" {self.brand}" if self.brand else ""
         size_str = f" {self.package_size}" if self.package_size else ""
-        return f"ProductVariant(id={self.id}, product='{self.product.name}'{brand_str}{size_str})"
+        return f"Variant(id={self.id}, ingredient='{self.ingredient.name}'{brand_str}{size_str})"
 
     @property
     def display_name(self) -> str:
@@ -116,7 +125,7 @@ class ProductVariant(BaseModel):
             parts.append(self.package_type)
 
         if not parts:
-            return f"{self.product.name} (generic)"
+            return f"{self.ingredient.name} (generic)"
 
         return " ".join(parts)
 
@@ -125,7 +134,7 @@ class ProductVariant(BaseModel):
         Get the most recent purchase for this variant.
 
         Returns:
-            PurchaseHistory instance or None if no purchases
+            Purchase instance or None if no purchases
         """
         if not self.purchases:
             return None

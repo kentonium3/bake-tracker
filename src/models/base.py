@@ -2,16 +2,18 @@
 Base model class for all database models.
 
 Provides common functionality and fields for all models:
-- Primary key
+- Primary key (Integer for now, UUID for future)
+- UUID column (for migration to UUID primary keys)
 - Timestamp fields (created_at, updated_at)
 - Utility methods (to_dict, from_dict)
 - SQLAlchemy declarative base
 """
 
+import uuid as uuid_lib
 from datetime import datetime
 from typing import Any, Dict
 
-from sqlalchemy import Column, Integer, DateTime
+from sqlalchemy import Column, Integer, String, DateTime
 from sqlalchemy.orm import declarative_base
 
 # Create the declarative base for all models
@@ -23,7 +25,8 @@ class BaseModel(Base):
     Abstract base model with common fields and methods.
 
     All models should inherit from this class to get:
-    - id: Primary key
+    - id: Primary key (Integer, will be migrated to UUID)
+    - uuid: UUID identifier (will become primary key in future)
     - created_at: Timestamp when record was created
     - updated_at: Timestamp when record was last modified
     - to_dict(): Convert model to dictionary
@@ -31,8 +34,18 @@ class BaseModel(Base):
 
     __abstract__ = True
 
-    # Primary key
+    # Primary key (Integer for backward compatibility during migration)
     id = Column(Integer, primary_key=True, autoincrement=True)
+
+    # UUID (will become primary key after migration)
+    # Stored as string for SQLite compatibility
+    uuid = Column(
+        String(36),
+        unique=True,
+        nullable=False,
+        default=lambda: str(uuid_lib.uuid4()),
+        index=True
+    )
 
     # Timestamp fields
     created_at = Column(DateTime, nullable=False, default=datetime.utcnow)

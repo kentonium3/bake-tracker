@@ -1,9 +1,9 @@
 # Bake Tracker - Development Pause Point
 
-**Date:** 2025-11-06
+**Date:** 2025-11-07 (Updated)
 **Branch:** `feature/product-pantry-refactor`
-**Status:** Planning complete, implementation paused
-**Next Project:** Intentional (returning to bake-tracker later)
+**Status:** 🚧 Items 1-6 COMPLETE - Documentation update in progress
+**Progress:** Schema design ✅ | Model implementation ✅ | Migration utilities ✅
 
 ---
 
@@ -82,7 +82,7 @@ Ingredient (Generic concept)
 
 ---
 
-## Models Designed (Not Yet Implemented)
+## Models Implemented (Nov 7, 2025) ✅
 
 ### Core Models
 
@@ -260,18 +260,18 @@ class VariantPackaging(BaseModel):
 - ✅ `docs/ingredient_data_model_spec.md` - Industry standard fields spec
 - ✅ `docs/ingredient_taxonomy_research.md` - Taxonomy research
 
-### Models (Created, Not Yet Updated with Spec)
-- ⚠️ `src/models/product.py` → Needs rename to `ingredient.py`
-- ⚠️ `src/models/product_variant.py` → Needs rename to `variant.py`
-- ⚠️ `src/models/purchase_history.py` → Needs rename to `purchase.py`
-- ✅ `src/models/pantry_item.py` - Mostly correct, needs UUID
-- ⚠️ `src/models/unit_conversion.py` - Needs refactoring per spec
-
-### Models to Create
-- ❌ `src/models/ingredient_alias.py`
-- ❌ `src/models/ingredient_crosswalk.py`
-- ❌ `src/models/variant_packaging.py`
-- ❌ `src/models/unit.py`
+### Models ✅ COMPLETE (Nov 7, 2025)
+- ✅ `src/models/ingredient.py` - Renamed from product.py, spec fields added
+- ✅ `src/models/variant.py` - Renamed from product_variant.py, spec fields added
+- ✅ `src/models/purchase.py` - Renamed from purchase_history.py, updated
+- ✅ `src/models/pantry_item.py` - Updated with lot_or_batch field
+- ✅ `src/models/unit_conversion.py` - Updated to use ingredient_id
+- ✅ `src/models/ingredient_alias.py` - Created
+- ✅ `src/models/ingredient_crosswalk.py` - Created
+- ✅ `src/models/variant_packaging.py` - Created
+- ✅ `src/models/base.py` - UUID support added
+- ✅ `src/models/recipe.py` - Dual FK support (ingredient_id + ingredient_new_id)
+- ✅ `src/models/ingredient_legacy.py` - Old model preserved for migration
 
 ### Services (Not Yet Created)
 - ❌ `src/services/ingredient_service.py`
@@ -280,8 +280,13 @@ class VariantPackaging(BaseModel):
 - ❌ `src/services/purchase_service.py`
 - ⚠️ `src/services/recipe_service.py` - Needs FIFO costing update
 
-### Migration Script (Not Yet Created)
-- ❌ `src/utils/migrate_to_ingredient_variant.py`
+### Migration Utilities ✅ COMPLETE (Nov 7, 2025)
+- ✅ `src/utils/migrate_to_ingredient_variant.py` - Full migration script with dry-run support
+  - `populate_uuids()` - Generate UUIDs for existing records
+  - `migrate_ingredient_to_new_schema()` - Convert single ingredient
+  - `migrate_all_ingredients()` - Batch migration
+  - `update_recipe_ingredient_references()` - Update RecipeIngredient FKs
+  - `run_full_migration()` - Orchestrate complete migration
 
 ---
 
@@ -293,17 +298,22 @@ class VariantPackaging(BaseModel):
 - Full import/export for all 7 entity types
 - Database: `bake_tracker.db` with consistent naming
 
-**Feature Branch (`feature/product-pantry-refactor`):**
-- Initial models created (need renaming to Ingredient/Variant)
-- RecipeIngredient updated for dual FK support
-- FIFO logic implemented in pantry_item module
-- Documentation complete with Ingredient/Variant terminology
+**Feature Branch (`feature/product-pantry-refactor`):** ✅ Items 1-6 Complete (Nov 7, 2025)
+- ✅ Models renamed (Ingredient, Variant, Purchase)
+- ✅ Spec-compliant field additions (foodon_id, gtin, density, allergens, etc. - all nullable)
+- ✅ UUID support added to BaseModel (all models inherit)
+- ✅ Supporting tables created (IngredientAlias, IngredientCrosswalk, VariantPackaging)
+- ✅ RecipeIngredient dual FK support (ingredient_id + ingredient_new_id)
+- ✅ FIFO logic implemented in pantry_item module
+- ✅ Migration utilities complete (`migrate_to_ingredient_variant.py`)
+- ✅ Documentation updated with Ingredient/Variant terminology
 
-**Not Yet on Feature Branch:**
-- Spec-compliant field additions (foodon_id, gtin, etc.)
-- UUID migration
-- Supporting tables (IngredientAlias, IngredientCrosswalk, VariantPackaging)
-- Unit system refactoring
+**Remaining Work:**
+- ❌ Run migration script (test with dry-run first)
+- ❌ Create service layer (IngredientService, VariantService, PantryService, PurchaseService)
+- ❌ Update RecipeService for FIFO costing with new models
+- ❌ Build UI (My Ingredients tab, My Pantry tab)
+- ❌ Update shopping list generation
 
 ---
 
@@ -381,26 +391,38 @@ Optional (future ready):
 
 ## Next Steps When Resuming
 
-1. **Pull feature branch:** `git checkout feature/product-pantry-refactor`
+✅ **COMPLETED (Items 1-6 - Nov 7, 2025):**
+- ✅ Models renamed to Ingredient/Variant/Purchase
+- ✅ Spec fields added (all nullable)
+- ✅ Supporting models created (IngredientAlias, IngredientCrosswalk, VariantPackaging)
+- ✅ UUID support added
+- ✅ Dual FK in RecipeIngredient
+- ✅ Migration script created
 
-2. **Rename model files:**
+🚀 **NEXT (When Resuming Development):**
+
+1. **Run Migration (Dry-Run First):**
    ```bash
-   git mv src/models/product.py src/models/ingredient.py
-   git mv src/models/product_variant.py src/models/variant.py
-   git mv src/models/purchase_history.py src/models/purchase.py
+   venv/Scripts/python -c "from src.utils.migrate_to_ingredient_variant import run_full_migration; from src.models import Session; run_full_migration(Session(), dry_run=True)"
    ```
 
-3. **Update model classes:** Add spec fields (foodon_id, gtin, etc.) as nullable
+2. **Create Service Layer:**
+   - `src/services/ingredient_service.py`
+   - `src/services/variant_service.py`
+   - `src/services/pantry_service.py`
+   - `src/services/purchase_service.py`
 
-4. **Create new models:** IngredientAlias, IngredientCrosswalk, VariantPackaging
+3. **Update RecipeService:** Integrate FIFO costing with new models
 
-5. **UUID migration:** Add UUID columns, populate, update FKs
+4. **Build Minimal UI:**
+   - "My Ingredients" tab (manage catalog)
+   - "My Pantry" tab (track inventory)
+   - Update recipe ingredient selector
 
-6. **Data migration script:** `migrate_to_ingredient_variant.py`
-
-7. **Minimal UI:** My Ingredients tab, My Pantry tab
-
-8. **FIFO service:** Update recipe costing with new models
+5. **Test & Validate:**
+   - Migration preserves all data
+   - Cost calculations match v0.3.0
+   - Shopping lists generate correctly
 
 ---
 
@@ -511,8 +533,8 @@ git pull origin feature/product-pantry-refactor
 
 ---
 
-**Status:** ⏸️ PAUSED - Documentation complete, ready to resume implementation
+**Status:** 🚧 IN PROGRESS - Items 1-6 Complete, Documentation Updated
 **Branch:** `feature/product-pantry-refactor`
-**Last Updated:** 2025-11-06
-**Next Project:** Intentional
-**Return Context:** Start with model renaming, add spec fields, implement UUID migration
+**Last Updated:** 2025-11-07
+**Completed:** Model renaming ✅ | Spec fields ✅ | UUID support ✅ | Migration script ✅ | Docs ✅
+**Next:** Run migration → Create services → Build UI

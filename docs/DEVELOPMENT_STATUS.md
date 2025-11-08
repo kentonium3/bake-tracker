@@ -1,8 +1,9 @@
 # Seasonal Baking Tracker - Development Status
 
-**Last Updated:** 2025-11-04
-**Current Phase:** Phase 3b Complete
-**Application Version:** 0.3.0
+**Last Updated:** 2025-11-07
+**Current Phase:** Phase 4 In Progress (Ingredient/Variant Refactor)
+**Application Version:** 0.3.0 (stable) | 0.4.0-dev (feature branch)
+**Active Branch:** `feature/product-pantry-refactor`
 
 ---
 
@@ -398,9 +399,97 @@ src/
 
 ---
 
-### Phase 4: Production Tracking 🔄 PLANNED
+### Phase 4: Ingredient/Variant Refactor 🚧 IN PROGRESS
 
-**Status:** Not started
+**Status:** Items 1-6 Complete (Nov 7, 2025)
+**Branch:** `feature/product-pantry-refactor`
+**Target Version:** 0.4.0
+
+#### Completed Features (Items 1-6)
+
+**Schema Redesign:**
+- ✅ Separated conflated Ingredient model into distinct entities:
+  - `Ingredient` - Generic ingredient concept (e.g., "All-Purpose Flour")
+  - `Variant` - Specific brand/package (e.g., "King Arthur 25 lb bag")
+  - `PantryItem` - Current inventory lots with FIFO tracking
+  - `Purchase` - Price history for cost trending
+- ✅ Added industry standard fields (all nullable for future use):
+  - FoodOn IDs, USDA FDC IDs, GTIN/UPC, LanguaL facets, FoodEx2 codes
+  - Density, moisture, allergens, packaging hierarchy
+- ✅ UUID support added to BaseModel for distributed-system readiness
+- ✅ Supporting models created:
+  - `IngredientAlias` - Synonyms and multilingual names
+  - `IngredientCrosswalk` - External system ID mappings
+  - `VariantPackaging` - GS1-compatible packaging hierarchy
+
+**Migration Support:**
+- ✅ RecipeIngredient updated with dual FK support (legacy + new)
+- ✅ Full migration script created (`migrate_to_ingredient_variant.py`)
+  - UUID population
+  - Legacy Ingredient → Ingredient + Variant + PantryItem conversion
+  - RecipeIngredient FK updates
+  - Dry-run and validation support
+
+**Documentation:**
+- ✅ All refactor docs updated to use Ingredient/Variant terminology
+- ✅ Industry spec integration documented
+- ✅ Migration plan detailed with testing strategy
+
+#### Pending Features (Items 7+)
+
+**Service Layer:**
+- [ ] IngredientService - CRUD and catalog management
+- [ ] VariantService - Brand/package management
+- [ ] PantryService - Inventory tracking with FIFO
+- [ ] PurchaseService - Price history and trending
+
+**Business Logic:**
+- [ ] FIFO cost calculation integration with RecipeService
+- [ ] Multi-brand support (preferred variant logic)
+- [ ] Price trend analysis
+- [ ] Shopping list variant recommendations
+
+**User Interface:**
+- [ ] "My Ingredients" tab (catalog management)
+- [ ] "My Pantry" tab (inventory tracking by variant)
+- [ ] Updated recipe ingredient selector (ingredients, not variants)
+- [ ] Shopping list with variant recommendations
+
+**Testing:**
+- [ ] Run migration on test data
+- [ ] Validate cost calculations match v0.3.0
+- [ ] Shopping list generation tests
+
+#### Key Files (Phase 4)
+
+```
+src/
+├── models/
+│   ├── ingredient.py (renamed from product.py, spec fields added)
+│   ├── variant.py (renamed from product_variant.py, spec fields added)
+│   ├── purchase.py (renamed from purchase_history.py)
+│   ├── pantry_item.py (updated with lot_or_batch)
+│   ├── ingredient_alias.py (new)
+│   ├── ingredient_crosswalk.py (new)
+│   ├── variant_packaging.py (new)
+│   ├── base.py (UUID support added)
+│   └── recipe.py (dual FK support)
+├── utils/
+│   └── migrate_to_ingredient_variant.py (new)
+docs/
+├── REFACTOR_PRODUCT_PANTRY.md (updated)
+├── REFACTOR_STATUS.md (updated)
+├── PAUSE_POINT.md (updated)
+└── ingredient_data_model_spec.md
+```
+
+**See:** `docs/PAUSE_POINT.md` for detailed status and next steps.
+
+---
+
+### Phase 5: Production Tracking 🔄 PLANNED
+
+**Status:** Not started (deferred until Phase 4 complete)
 
 #### Planned Features
 
