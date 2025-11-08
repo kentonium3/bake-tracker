@@ -69,5 +69,8 @@ htmlcov/
 /bake_tracker_import.json
 /nul
 
+# Auto-generated test data exports
+test_data/exported_data.json
+
 # Packaging artifacts
 *.zip
