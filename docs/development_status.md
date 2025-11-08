@@ -1,6 +1,6 @@
 # Seasonal Baking Tracker - Development Status
 
-**Last Updated:** 2025-11-07
+**Last Updated:** 2025-11-08
 **Current Phase:** Phase 4 In Progress (Ingredient/Variant Refactor)
 **Application Version:** 0.3.0 (stable) | 0.4.0-dev (feature branch)
 **Active Branch:** `feature/product-pantry-refactor`
@@ -9,11 +9,14 @@
 
 ## Quick Reference
 
+- **Current Priorities:** See [current_priorities.md](./current_priorities.md) for immediate next steps and Spec-Kitty task generation
 - **Requirements:** See [requirements.md](./requirements.md) for complete functional and non-functional requirements
-- **Database Schema:** See [SCHEMA.md](./SCHEMA.md) for detailed database design and relationships
-- **Architecture:** See [ARCHITECTURE.md](./ARCHITECTURE.md) for system architecture and design decisions
-- **Import/Export Spec:** See [import_export_specification.md](./import_export_specification.md) for data portability details
-- **Packaging Options:** See [PACKAGING_OPTIONS.md](./PACKAGING_OPTIONS.md) for Windows distribution strategies
+- **Database Schema (v0.3):** See [schema_v0.3.md](./schema_v0.3.md) for current production schema
+- **Database Schema (v0.4 Design):** See [schema_v0.4_design.md](./schema_v0.4_design.md) for Phase 4 refactor design
+- **Architecture:** See [architecture.md](./architecture.md) for system architecture and design decisions
+- **Import/Export Spec:** See [import_export_specification.md](./import_export_specification.md) for data portability (v2.0)
+- **Packaging Options:** See [packaging_options.md](./packaging_options.md) for Windows distribution strategies
+- **Testing Workflow:** See [workflows/testing_workflow.md](./workflows/testing_workflow.md) for data management during testing
 
 ---
 
@@ -401,11 +404,11 @@ src/
 
 ### Phase 4: Ingredient/Variant Refactor 🚧 IN PROGRESS
 
-**Status:** Items 1-6 Complete (Nov 7, 2025)
+**Status:** Items 1-7 Complete (Nov 8, 2025)
 **Branch:** `feature/product-pantry-refactor`
 **Target Version:** 0.4.0
 
-#### Completed Features (Items 1-6)
+#### Completed Features (Items 1-7)
 
 **Schema Redesign:**
 - ✅ Separated conflated Ingredient model into distinct entities:
@@ -430,10 +433,37 @@ src/
   - RecipeIngredient FK updates
   - Dry-run and validation support
 
-**Documentation:**
-- ✅ All refactor docs updated to use Ingredient/Variant terminology
-- ✅ Industry spec integration documented
-- ✅ Migration plan detailed with testing strategy
+**Import/Export v2.0 (Nov 8, 2025):**
+- ✅ Updated import/export specification to v2.0
+  - Reflects Ingredient/Variant architecture
+  - Separate ingredients and variants arrays
+  - Slug-based foreign keys throughout
+  - Complete field specifications for all 11 entity types
+  - AI generation guidelines for bulk data creation
+- ✅ Test data conversion tool created (`convert_v1_to_v2.py`)
+  - Converts v1.0 format (ingredients with brands) to v2.0 (separate arrays)
+  - Generates proper slugs automatically
+  - Infers recipe_unit from ingredient names
+  - Creates missing ingredients automatically
+  - Handles name mapping (e.g., "Vanilla Extract" → "Pure Vanilla Extract")
+- ✅ Working v2.0 test data created (`examples/test_data_v2.json`)
+  - 83 ingredients with proper slugs
+  - 83 variants (brand-specific products)
+  - 20 recipes from actual recipe scans
+  - 15 finished goods
+  - 12 unit conversions
+  - Successfully imports with no errors
+
+**Documentation Consolidation (Nov 8, 2025):**
+- ✅ Reorganized documentation structure:
+  - Created `docs/workflows/` for process documentation
+  - Created `docs/archive/` for historical documents
+  - Created `docs/research/` for reference materials
+  - Renamed all SCREAMING_SNAKE_CASE files to snake_case
+  - Versioned schema docs (schema_v0.3.md, schema_v0.4_design.md)
+- ✅ Created `current_priorities.md` for Spec-Kitty task generation
+- ✅ Updated all cross-references to new filenames
+- ✅ Archived redundant status documents (pause_point.md, refactor_status.md)
 
 #### Pending Features (Items 7+)
 
@@ -477,13 +507,19 @@ src/
 ├── utils/
 │   └── migrate_to_ingredient_variant.py (new)
 docs/
-├── REFACTOR_PRODUCT_PANTRY.md (updated)
-├── REFACTOR_STATUS.md (updated)
-├── PAUSE_POINT.md (updated)
-└── ingredient_data_model_spec.md
+├── schema_v0.4_design.md (Phase 4 schema specification)
+├── ingredient_industry_standards.md (FoodOn/FDC/GTIN reference)
+├── import_export_specification.md (v2.0 format)
+├── current_priorities.md (immediate next steps)
+└── archive/
+    ├── pause_point.md (historical reference)
+    └── refactor_status.md (historical reference)
+examples/
+├── test_data_v2.json (working v2.0 test data - 83 ingredients, 20 recipes)
+└── convert_v1_to_v2.py (conversion tool)
 ```
 
-**See:** `docs/PAUSE_POINT.md` for detailed status and next steps.
+**See:** `docs/current_priorities.md` for detailed next steps and task generation.
 
 ---
 
