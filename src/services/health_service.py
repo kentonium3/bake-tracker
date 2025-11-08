@@ -238,8 +238,8 @@ class HealthCheckService:
             with open(tmp_file, "w", encoding="utf-8") as f:
                 json.dump(status_data, f, indent=2, ensure_ascii=False)
 
-            # Atomic rename (on most file systems)
-            tmp_file.rename(self._health_file)
+            # Atomic replace (works on both Unix and Windows)
+            tmp_file.replace(self._health_file)
 
             return True
 
