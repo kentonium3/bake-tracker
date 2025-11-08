@@ -5,7 +5,7 @@ This package contains all SQLAlchemy ORM models for the application.
 """
 
 from .base import Base, BaseModel
-from .ingredient_legacy import Ingredient as IngredientLegacy  # LEGACY - for migration compatibility
+from .ingredient_legacy import IngredientLegacy  # LEGACY - for migration compatibility
 from .ingredient import Ingredient  # NEW refactored model
 from .variant import Variant  # NEW
 from .purchase import Purchase  # NEW
