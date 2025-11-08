@@ -16,9 +16,12 @@ from sqlalchemy.orm import relationship
 from .base import BaseModel
 
 
-class Ingredient(BaseModel):
+class IngredientLegacy(BaseModel):
     """
-    Ingredient model representing raw materials and supplies.
+    LEGACY Ingredient model for migration compatibility.
+
+    This model represents the old ingredient structure before the Ingredient/Variant refactoring.
+    After migration is complete, this model and table will be removed.
 
     Attributes:
         name: Ingredient name (required)
@@ -69,7 +72,7 @@ class Ingredient(BaseModel):
 
     def __repr__(self) -> str:
         """String representation of ingredient."""
-        return f"Ingredient(id={self.id}, name='{self.name}', brand='{self.brand}')"
+        return f"IngredientLegacy(id={self.id}, name='{self.name}', brand='{self.brand}')"
 
     @property
     def total_value(self) -> float:

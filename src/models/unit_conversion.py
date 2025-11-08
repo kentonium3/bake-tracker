@@ -42,10 +42,10 @@ class UnitConversion(BaseModel):
 
     __tablename__ = "unit_conversions"
 
-    # Foreign key to Ingredient
+    # Foreign key to Ingredient (NEW refactored model - "products" table)
     ingredient_id = Column(
         Integer,
-        ForeignKey("ingredients.id", ondelete="CASCADE"),
+        ForeignKey("products.id", ondelete="CASCADE"),
         nullable=False,
         index=True
     )

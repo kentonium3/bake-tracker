@@ -131,7 +131,7 @@ class SnapshotIngredient(BaseModel):
 
     # Relationships
     snapshot = relationship("InventorySnapshot", back_populates="snapshot_ingredients")
-    ingredient = relationship("Ingredient")
+    ingredient = relationship("IngredientLegacy")  # LEGACY - references old ingredient table
 
     # Indexes
     __table_args__ = (
