@@ -35,7 +35,64 @@ The planner will not begin until all planning questions have been answered—cap
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-[Gates determined based on constitution file]
+### Core Principles Review
+
+**I. User-Centric Design**
+- [ ] Does this feature solve a real user problem?
+- [ ] Will the primary user understand how to use it?
+- [ ] Does it match natural baking planning workflows?
+- [ ] Can it be validated with user testing?
+
+**II. Data Integrity & FIFO Accuracy**
+- [ ] Are cost calculations accurate and trustworthy?
+- [ ] Is FIFO consumption enforced where applicable?
+- [ ] Are unit conversions ingredient-specific?
+- [ ] Will data migration preserve all existing data?
+
+**III. Future-Proof Schema, Present-Simple Implementation**
+- [ ] Does schema support future enhancements (nullable industry fields)?
+- [ ] Are only required fields populated initially?
+- [ ] Can features be added without breaking changes?
+- [ ] Is user not burdened with unnecessary data entry?
+
+**IV. Test-Driven Development**
+- [ ] Are unit tests planned for all service layer methods?
+- [ ] Do tests cover happy path, edge cases, and errors?
+- [ ] Is test coverage goal >70% for services?
+- [ ] Will failing tests block feature completion?
+
+**V. Layered Architecture Discipline**
+- [ ] Is UI layer free of business logic?
+- [ ] Do services avoid importing UI components?
+- [ ] Do models only define schema and relationships?
+- [ ] Do dependencies flow downward only (UI → Services → Models)?
+
+**VI. Migration Safety & Validation**
+- [ ] Does migration support dry-run mode?
+- [ ] Is rollback plan documented?
+- [ ] Is data preservation validated?
+- [ ] Are schema changes backward-compatible?
+
+**VII. Pragmatic Aspiration**
+
+*Desktop Phase (Current):*
+- [ ] Does this design block web deployment? → Must be NO or have documented path
+- [ ] Is the service layer UI-independent? → Must be YES
+- [ ] Are business rules in services, not UI? → Must be YES
+- [ ] What's the web migration cost? → Must be documented in `/docs/web_migration_notes.md`
+
+*Web Phase Readiness (6-18 months):*
+- [ ] Does this assume single-tenant database? → Should be NO (or document migration path)
+- [ ] Could this expose user data to other users? → Must be NO
+- [ ] Can this scale to 50 users? → Should be YES (or document limitations)
+- [ ] What security vulnerabilities exist? → Must be assessed
+
+*Platform Readiness (1-3+ years):*
+- [ ] Does this assume baking domain only? → Should be NO (or document generalization path)
+- [ ] Does this assume English only? → Should be NO (or document i18n path)
+- [ ] Does this assume manual data entry? → Should be NO (or document automation path)
+
+**Decision**: [ ] ✅ Passes all checks | [ ] ⚠️ Has justified violations (see Complexity Tracking)
 
 ## Project Structure
 
