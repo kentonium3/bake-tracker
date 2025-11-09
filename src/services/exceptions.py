@@ -1,14 +1,37 @@
-"""
-Custom exceptions for service layer operations.
+"""Service layer exception classes for Bake Tracker.
 
-These exceptions provide meaningful error messages for common
-failure scenarios in the business logic layer.
+This module defines all custom exceptions used by the service layer to provide
+consistent error handling across the application.
+
+Exception Hierarchy:
+    ServiceException (base - legacy)
+    ServiceError (base - new service layer)
+    ├── IngredientNotFoundBySlug
+    ├── VariantNotFound
+    ├── PantryItemNotFound
+    ├── PurchaseNotFound
+    ├── SlugAlreadyExists
+    ├── IngredientInUse
+    ├── VariantInUse
+    ├── ValidationError
+    └── DatabaseError
 """
 
 
 class ServiceException(Exception):
-    """Base exception for all service layer errors."""
+    """Base exception for all service layer errors (legacy).
 
+    Note: New code should use ServiceError instead.
+    """
+
+    pass
+
+
+class ServiceError(Exception):
+    """Base exception for all service layer errors.
+
+    All service-specific exceptions should inherit from this class.
+    """
     pass
 
 
@@ -67,3 +90,112 @@ class DatabaseError(ServiceException):
     def __init__(self, message: str, original_error: Exception = None):
         self.original_error = original_error
         super().__init__(f"Database error: {message}")
+
+
+# New Service Layer Exceptions (Ingredient/Variant/Pantry/Purchase Services)
+
+class IngredientNotFoundBySlug(ServiceError):
+    """Raised when ingredient cannot be found by slug.
+
+    Args:
+        slug: The ingredient slug that was not found
+
+    Example:
+        >>> raise IngredientNotFoundBySlug("all_purpose_flour")
+        IngredientNotFoundBySlug: Ingredient 'all_purpose_flour' not found
+    """
+
+    def __init__(self, slug: str):
+        self.slug = slug
+        super().__init__(f"Ingredient '{slug}' not found")
+
+
+class VariantNotFound(ServiceError):
+    """Raised when variant cannot be found by ID.
+
+    Args:
+        variant_id: The variant ID that was not found
+
+    Example:
+        >>> raise VariantNotFound(123)
+        VariantNotFound: Variant with ID 123 not found
+    """
+
+    def __init__(self, variant_id: int):
+        self.variant_id = variant_id
+        super().__init__(f"Variant with ID {variant_id} not found")
+
+
+class PantryItemNotFound(ServiceError):
+    """Raised when pantry item cannot be found by ID.
+
+    Args:
+        pantry_item_id: The pantry item ID that was not found
+
+    Example:
+        >>> raise PantryItemNotFound(456)
+        PantryItemNotFound: Pantry item with ID 456 not found
+    """
+
+    def __init__(self, pantry_item_id: int):
+        self.pantry_item_id = pantry_item_id
+        super().__init__(f"Pantry item with ID {pantry_item_id} not found")
+
+
+class PurchaseNotFound(ServiceError):
+    """Raised when purchase record cannot be found by ID.
+
+    Args:
+        purchase_id: The purchase ID that was not found
+
+    Example:
+        >>> raise PurchaseNotFound(789)
+        PurchaseNotFound: Purchase with ID 789 not found
+    """
+
+    def __init__(self, purchase_id: int):
+        self.purchase_id = purchase_id
+        super().__init__(f"Purchase with ID {purchase_id} not found")
+
+
+class SlugAlreadyExists(ServiceError):
+    """Raised when attempting to create ingredient with duplicate slug.
+
+    Args:
+        slug: The slug that already exists
+
+    Example:
+        >>> raise SlugAlreadyExists("all_purpose_flour")
+        SlugAlreadyExists: Ingredient with slug 'all_purpose_flour' already exists
+    """
+
+    def __init__(self, slug: str):
+        self.slug = slug
+        super().__init__(f"Ingredient with slug '{slug}' already exists")
+
+
+class VariantInUse(ServiceError):
+    """Raised when attempting to delete variant that has dependencies.
+
+    Args:
+        variant_id: The variant ID being deleted
+        dependencies: Dictionary of dependency counts {entity_type: count}
+
+    Example:
+        >>> deps = {"pantry_items": 12, "purchases": 25}
+        >>> raise VariantInUse(123, deps)
+        VariantInUse: Cannot delete variant 123: used in 12 pantry_items, 25 purchases
+    """
+
+    def __init__(self, variant_id: int, dependencies: dict):
+        self.variant_id = variant_id
+        self.dependencies = dependencies
+
+        # Format dependency details
+        details = ', '.join(
+            f"{count} {entity_type}"
+            for entity_type, count in dependencies.items()
+            if count > 0
+        )
+
+        super().__init__(f"Cannot delete variant {variant_id}: used in {details}")

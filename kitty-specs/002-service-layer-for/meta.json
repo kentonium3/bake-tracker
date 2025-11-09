@@ -1,0 +1,7 @@
+﻿{
+    "feature_number":  "002",
+    "slug":  "002-service-layer-for",
+    "friendly_name":  "Service Layer for Ingredient/Variant Architecture",
+    "source_description":  "Implement all four service layer components to complete Phase 4 of the Ingredient/Variant refactor: IngredientService (catalog CRUD operations), VariantService (brand/package management), PantryService (inventory tracking with FIFO consumption), and PurchaseService (price history tracking and trend analysis). Enable UI interaction with the refactored data model through clean, testable service abstractions that enforce business rules.",
+    "created_at":  "2025-11-09T01:53:21Z"
+}

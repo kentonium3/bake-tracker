@@ -383,3 +383,90 @@ def parse_int(value: any, default: int = 0) -> int:
         return int(value)
     except (ValueError, TypeError):
         return default
+
+
+def validate_variant_data(data: dict, ingredient_slug: str) -> Tuple[bool, list]:
+    """
+    Validate all fields for a variant (brand-specific product).
+
+    Args:
+        data: Dictionary containing variant fields
+        ingredient_slug: Slug of parent ingredient (for context)
+
+    Returns:
+        Tuple of (is_valid, list_of_errors)
+
+    Required fields:
+        - brand (str): Brand name
+        - purchase_unit (str): Unit purchased in
+        - purchase_quantity (Decimal/float): Quantity in package (must be > 0)
+
+    Optional fields:
+        - package_size (str): Human-readable size description
+        - upc (str): Universal Product Code (12-14 digits)
+        - gtin (str): Global Trade Item Number
+        - supplier (str): Where to buy
+        - preferred (bool): Mark as preferred variant
+        - net_content_value (Decimal/float): Industry standard field
+        - net_content_uom (str): Industry standard field
+    """
+    errors = []
+
+    # Required: Brand
+    is_valid, error = validate_required_string(data.get("brand"), "Brand")
+    if not is_valid:
+        errors.append(error)
+    else:
+        is_valid, error = validate_string_length(data.get("brand"), MAX_BRAND_LENGTH, "Brand")
+        if not is_valid:
+            errors.append(error)
+
+    # Required: Purchase unit
+    is_valid, error = validate_unit(data.get("purchase_unit", ""), "Purchase Unit")
+    if not is_valid:
+        errors.append(error)
+
+    # Required: Purchase quantity (must be positive)
+    is_valid, error = validate_positive_number(data.get("purchase_quantity"), "Purchase Quantity")
+    if not is_valid:
+        errors.append(error)
+
+    # Optional: Package size
+    if data.get("package_size"):
+        is_valid, error = validate_string_length(
+            data.get("package_size"), MAX_DESCRIPTION_LENGTH, "Package Size"
+        )
+        if not is_valid:
+            errors.append(error)
+
+    # Optional: UPC (12-14 digit string if provided)
+    if data.get("upc"):
+        upc = str(data.get("upc")).strip()
+        if not upc.isdigit():
+            errors.append("UPC: Must contain only digits")
+        elif len(upc) < 12 or len(upc) > 14:
+            errors.append("UPC: Must be 12-14 digits")
+
+    # Optional: Supplier
+    if data.get("supplier"):
+        is_valid, error = validate_string_length(
+            data.get("supplier"), MAX_NAME_LENGTH, "Supplier"
+        )
+        if not is_valid:
+            errors.append(error)
+
+    # Optional: Net content value (must be positive if provided)
+    if data.get("net_content_value") is not None:
+        is_valid, error = validate_positive_number(
+            data.get("net_content_value"), "Net Content Value"
+        )
+        if not is_valid:
+            errors.append(error)
+
+    # Optional: Net content unit (must be valid unit if provided)
+    if data.get("net_content_uom"):
+        is_valid, error = validate_unit(data.get("net_content_uom", ""), "Net Content UOM")
+        if not is_valid:
+            errors.append(error)
+
+    return len(errors) == 0, errors
