@@ -1,9 +1,9 @@
 # Seasonal Baking Tracker - Development Status
 
-**Last Updated:** 2025-11-08
+**Last Updated:** 2025-11-09
 **Current Phase:** Phase 4 In Progress (Ingredient/Variant Refactor)
-**Application Version:** 0.3.0 (stable) | 0.4.0-dev (feature branch)
-**Active Branch:** `feature/product-pantry-refactor`
+**Application Version:** 0.3.0 (stable) | 0.4.0-dev (in development)
+**Active Branch:** `main`
 
 ---
 
@@ -404,11 +404,11 @@ src/
 
 ### Phase 4: Ingredient/Variant Refactor 🚧 IN PROGRESS
 
-**Status:** Items 1-7 Complete (Nov 8, 2025)
-**Branch:** `feature/product-pantry-refactor`
+**Status:** Service Layer Complete (Nov 9, 2025) - UI Implementation Next
+**Branch:** `main`
 **Target Version:** 0.4.0
 
-#### Completed Features (Items 1-7)
+#### Completed Features (Items 1-10)
 
 **Schema Redesign:**
 - ✅ Separated conflated Ingredient model into distinct entities:
@@ -465,13 +465,51 @@ src/
 - ✅ Updated all cross-references to new filenames
 - ✅ Archived redundant status documents (pause_point.md, refactor_status.md)
 
-#### Pending Features (Items 7+)
+**Service Layer Implementation (Nov 9, 2025) - Feature 002:**
+- ✅ **IngredientService** - CRUD operations with slug-based lookup
+  - create_ingredient(), get_ingredient(), search_ingredients()
+  - update_ingredient(), delete_ingredient() with dependency checking
+  - list_ingredients() with category filtering
+- ✅ **VariantService** - Brand/package management
+  - create_variant(), get_variant(), get_variants_for_ingredient()
+  - set_preferred_variant() with atomic toggle (only one preferred per ingredient)
+  - update_variant(), delete_variant() with dependency checking
+  - search_variants_by_upc(), get_preferred_variant()
+- ✅ **PantryService** - Inventory tracking with FIFO consumption
+  - add_to_pantry() with purchase date and location tracking
+  - get_pantry_items() with filtering by ingredient, location, min_quantity
+  - get_total_quantity() aggregating across all variants and locations
+  - **consume_fifo()** - Core FIFO algorithm with unit conversion
+  - get_expiring_soon() for waste prevention
+  - update_pantry_item(), delete_pantry_item()
+- ✅ **PurchaseService** - Price history and trend analysis
+  - record_purchase() with auto-calculation of unit_cost
+  - get_purchase(), get_purchase_history() with filtering
+  - get_most_recent_purchase() for latest price
+  - calculate_average_price() with 60-day rolling window
+  - detect_price_change() with configurable alert thresholds
+  - get_price_trend() using linear regression for trend analysis
+- ✅ **Infrastructure:**
+  - Service exceptions hierarchy (ServiceError, NotFound, Validation, DatabaseError)
+  - session_scope() context manager for transaction management
+  - Slug generation with Unicode normalization and uniqueness checking
+  - Input validation utilities for ingredient and variant data
+- ✅ **Integration Tests:**
+  - 16/16 tests passing (100%)
+  - test_inventory_flow.py - Complete workflow (6 tests)
+  - test_fifo_scenarios.py - FIFO edge cases (6 tests)
+  - test_purchase_flow.py - Price tracking (4 tests)
+- ✅ **Spec-Kitty Workflow:**
+  - All 6 work packages (WP01-WP06) completed
+  - All 75 tasks (T001-T075) checked off
+  - Feature branch merged to main
 
-**Service Layer:**
-- [ ] IngredientService - CRUD and catalog management
-- [ ] VariantService - Brand/package management
-- [ ] PantryService - Inventory tracking with FIFO
-- [ ] PurchaseService - Price history and trending
+#### Pending Features (Items 11+)
+
+**Business Logic Integration:**
+- [ ] Update RecipeService - FIFO cost calculations
+- [ ] Update EventService - Variant-aware shopping lists
+- [ ] Multi-brand recommendations in shopping lists
 
 **Business Logic:**
 - [ ] FIFO cost calculation integration with RecipeService
@@ -504,19 +542,38 @@ src/
 │   ├── variant_packaging.py (new)
 │   ├── base.py (UUID support added)
 │   └── recipe.py (dual FK support)
+├── services/
+│   ├── ingredient_service.py (new - Feature 002)
+│   ├── variant_service.py (new - Feature 002)
+│   ├── pantry_service.py (new - Feature 002)
+│   ├── purchase_service.py (new - Feature 002)
+│   ├── exceptions.py (updated with new exception types)
+│   ├── database.py (new - session_scope context manager)
+│   └── __init__.py (updated exports)
 ├── utils/
+│   ├── slug_utils.py (new - slug generation)
+│   ├── validators.py (updated for ingredient/variant validation)
 │   └── migrate_to_ingredient_variant.py (new)
+├── tests/
+│   ├── conftest.py (test fixtures)
+│   └── integration/
+│       ├── test_inventory_flow.py (6 tests)
+│       ├── test_fifo_scenarios.py (6 tests)
+│       └── test_purchase_flow.py (4 tests)
 docs/
 ├── schema_v0.4_design.md (Phase 4 schema specification)
 ├── ingredient_industry_standards.md (FoodOn/FDC/GTIN reference)
 ├── import_export_specification.md (v2.0 format)
-├── current_priorities.md (immediate next steps)
+├── current_priorities.md (immediate next steps - updated Nov 9)
+├── development_status.md (this file - updated Nov 9)
 └── archive/
     ├── pause_point.md (historical reference)
     └── refactor_status.md (historical reference)
 examples/
 ├── test_data_v2.json (working v2.0 test data - 83 ingredients, 20 recipes)
 └── convert_v1_to_v2.py (conversion tool)
+kitty-specs/
+└── 002-service-layer-for/ (Feature 002 spec and work packages)
 ```
 
 **See:** `docs/current_priorities.md` for detailed next steps and task generation.
@@ -878,8 +935,16 @@ tests/         # Unit and integration tests
   - Created PACKAGING_OPTIONS.md reference document
   - Added packaging as planned feature with detailed task breakdown
   - Prioritized for user testing preparation
+- **v4.0** (2025-11-09) - Phase 4 Service Layer Implementation (Feature 002) Complete:
+  - All 4 core services implemented and tested (Ingredient, Variant, Pantry, Purchase)
+  - Infrastructure components created (exceptions, session_scope, slug generation, validation)
+  - 16/16 integration tests passing (100% test coverage)
+  - Spec-Kitty workflow completed (6 work packages, 75 tasks)
+  - Feature branch merged to main
+  - Updated current_priorities.md with UI implementation as next steps
+  - Ready for UI implementation phase
 
 ---
 
 **Document Status:** Living document, updated with each phase completion
-**Next Update:** When Phase 4 begins or Phase 3b user testing reveals issues
+**Next Update:** When Phase 4 UI implementation begins or service layer integration reveals issues

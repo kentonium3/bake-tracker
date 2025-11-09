@@ -1,7 +1,7 @@
 # Current Development Priorities
 
-**Last Updated:** 2025-11-08
-**Active Branch:** `feature/product-pantry-refactor`
+**Last Updated:** 2025-11-09
+**Active Branch:** `main`
 **Target Version:** 0.4.0
 
 ---
@@ -15,14 +15,14 @@
 - ✅ Import/Export Specification v2.0 (Ingredient/Variant architecture)
 - ✅ Test Data Conversion Tool (v1.0 → v2.0 format)
 - ✅ Phase 4 Items 1-6: Models renamed, spec fields added, migration script ready
+- ✅ Phase 4 Service Layer: All 4 services implemented and tested (Feature 002)
 
 **Current Focus:**
-- 🔄 Phase 4: Ingredient/Variant Refactor (Items 7+)
-- 🔄 Documentation consolidation and organization
+- 🔄 Phase 4: UI updates (My Ingredients, My Pantry tabs)
+- 🔄 Phase 4: Migration execution and testing
 
 **Next Up:**
-- Phase 4 Service Layer implementation
-- Phase 4 UI updates (My Ingredients, My Pantry tabs)
+- Phase 4: Service layer integration with existing UI
 - Phase 5: Production Tracking
 - Phase 6: Reporting & Polish
 
@@ -52,24 +52,42 @@
 - Test data conversion script created (`convert_v1_to_v2.py`)
 - Working v2.0 test data (83 ingredients, 20 recipes, 15 finished goods)
 
-### ⏳ Pending (Items 7+)
+### ✅ Completed (Items 7-10) - Feature 002 Service Layer
 
-**Service Layer** (Not Started):
+**Service Layer** (Completed 2025-11-09):
 ```
-Priority Order:
-1. IngredientService - Catalog CRUD operations
-2. VariantService - Brand/package management
-3. PantryService - Inventory tracking with FIFO
-4. PurchaseService - Price history and trending
-5. Update RecipeService - FIFO cost calculations
-6. Update EventService - Variant-aware shopping lists
+✅ 1. IngredientService - Catalog CRUD operations with slug-based lookup
+✅ 2. VariantService - Brand/package management with preferred variant support
+✅ 3. PantryService - Inventory tracking with FIFO consumption algorithm
+✅ 4. PurchaseService - Price history and trending with linear regression analysis
 ```
 
-**Business Logic** (Not Started):
-- FIFO cost calculation integration
-- Multi-brand support (preferred variant logic)
-- Price trend analysis
-- Shopping list variant recommendations
+**Infrastructure** (Completed 2025-11-09):
+- ✅ Service exceptions hierarchy (ServiceError, NotFound, Validation, DatabaseError)
+- ✅ session_scope() context manager for transaction management
+- ✅ Slug generation utility with Unicode normalization
+- ✅ Input validation utilities for ingredient and variant data
+
+**Testing** (Completed 2025-11-09):
+- ✅ 16/16 integration tests passing (100%)
+- ✅ test_inventory_flow.py - Complete ingredient→variant→pantry workflow (6 tests)
+- ✅ test_fifo_scenarios.py - FIFO consumption edge cases (6 tests)
+- ✅ test_purchase_flow.py - Purchase tracking and price analysis (4 tests)
+
+**Key Features Delivered:**
+- ✅ FIFO inventory consumption with unit conversion
+- ✅ Density-based unit conversions (g/ml to g/cup)
+- ✅ Price trend analysis with linear regression
+- ✅ Preferred variant logic with atomic toggle
+- ✅ Eager loading preventing DetachedInstanceError
+- ✅ Decimal precision for all monetary values
+
+### ⏳ Pending (Items 11+)
+
+**Business Logic Integration** (Not Started):
+- Update RecipeService - FIFO cost calculations
+- Update EventService - Variant-aware shopping lists
+- Multi-brand recommendations in shopping lists
 
 **UI Updates** (Not Started):
 ```
@@ -83,52 +101,55 @@ Updated Components:
 - Inventory dashboard (aggregate by ingredient)
 ```
 
-**Testing & Validation** (Not Started):
+**Migration & Validation** (Not Started):
 - Run migration on test data (dry-run first)
 - Validate cost calculations match v0.3.0
-- Shopping list generation tests
+- Shopping list generation tests with new services
 - UI integration tests
 
 ---
 
 ## Immediate Next Steps (Priority Order)
 
-### 1. Service Layer Implementation
+### 1. UI Implementation - "My Ingredients" Tab
 
-**Start with IngredientService:**
+**Create New Tab:**
 ```python
-# src/services/ingredient_service.py
-class IngredientService:
-    - create_ingredient(data) -> Ingredient
-    - get_ingredient(slug) -> Ingredient
-    - search_ingredients(query, category) -> List[Ingredient]
-    - update_ingredient(slug, data) -> Ingredient
-    - delete_ingredient(slug) -> bool (check dependencies)
+# src/ui/ingredients_tab.py (NEW - replaces old inventory_tab.py)
+Features:
+- Ingredient catalog management (generic ingredients, not products)
+- Search and filter by category
+- Add/Edit/Delete ingredients
+- View variants for each ingredient
+- Industry standard fields (optional: FoodOn, FDC, allergens)
+- Unit conversion management
 ```
 
-**Then VariantService:**
+**Integration:**
+- Use `ingredient_service.py` for all operations
+- Use `variant_service.py` for variant management
+- Replace old inventory_tab.py references in main_window.py
+
+### 2. UI Implementation - "My Pantry" Tab
+
+**Create New Tab:**
 ```python
-# src/services/variant_service.py
-class VariantService:
-    - create_variant(ingredient_slug, data) -> Variant
-    - get_variants_for_ingredient(ingredient_slug) -> List[Variant]
-    - set_preferred_variant(variant_id) -> Variant
-    - update_variant(variant_id, data) -> Variant
-    - delete_variant(variant_id) -> bool
+# src/ui/pantry_tab.py (NEW)
+Features:
+- Pantry inventory by variant (lot tracking)
+- FIFO consumption interface
+- Add pantry items with purchase date, location, expiration
+- View total quantity by ingredient (aggregated across variants)
+- Expiring soon alerts
+- Consumption history
 ```
 
-**Then PantryService:**
-```python
-# src/services/pantry_service.py
-class PantryService:
-    - add_to_pantry(variant_id, quantity, purchase_date, location) -> PantryItem
-    - get_pantry_items(ingredient_slug, location) -> List[PantryItem]
-    - get_total_quantity(ingredient_slug) -> float
-    - consume_fifo(ingredient_slug, quantity) -> (consumed, breakdown)
-    - get_expiring_soon(days) -> List[PantryItem]
-```
+**Integration:**
+- Use `pantry_service.py` for all operations
+- Use `purchase_service.py` for price history
+- Add to main_window.py tabbed interface
 
-### 2. Run Migration (After Services)
+### 3. Run Migration (After UI Ready)
 
 **Test Migration Process:**
 ```bash
@@ -150,15 +171,22 @@ run_full_migration(get_session(), dry_run=False)
 "
 ```
 
-### 3. Build UI Components
+### 4. Update Recipe & Event Services
 
-**Order of Implementation:**
-1. "My Ingredients" tab (manage catalog)
-2. "My Pantry" tab (track inventory)
-3. Update recipe ingredient selector
-4. Update shopping list display
+**Integrate with New Services:**
+```python
+# Update src/services/recipe_service.py
+- Use ingredient_service instead of direct Ingredient queries
+- Implement FIFO cost calculation using pantry_service.consume_fifo()
+- Update recipe cost calculation to use variant pricing
 
-### 4. Testing & Validation
+# Update src/services/event_service.py
+- Use ingredient_service for shopping lists
+- Use variant_service for brand recommendations
+- Integrate preferred variant logic into shopping lists
+```
+
+### 5. Testing & Validation
 
 **Test Coverage:**
 - Service layer unit tests
@@ -190,20 +218,20 @@ run_full_migration(get_session(), dry_run=False)
 ## Success Criteria for Phase 4
 
 **Must Have:**
-- ✅ Ingredient/Variant separation working
-- ✅ Multiple brands/sources per ingredient
-- ✅ Preferred variant logic
-- ✅ FIFO costing accurate
-- ✅ Pantry lot tracking
-- ✅ Migration from v0.3.0 preserves all data
-- ✅ Cost calculations match v0.3.0
+- ✅ Ingredient/Variant separation working (models & services complete)
+- ✅ Multiple brands/sources per ingredient (VariantService complete)
+- ✅ Preferred variant logic (atomic toggle implemented)
+- ✅ FIFO costing accurate (consume_fifo() tested with 6 scenarios)
+- ✅ Pantry lot tracking (PantryItem with purchase_date, location)
+- ⏳ Migration from v0.3.0 preserves all data (script ready, execution pending)
+- ⏳ Cost calculations match v0.3.0 (pending migration execution)
 
 **Testing Checklist:**
-- [ ] Create ingredient with 2+ variants
-- [ ] Add pantry items with different purchase dates
-- [ ] Create recipe using ingredient (not variant)
-- [ ] Calculate cost - verify FIFO order
-- [ ] Generate shopping list - verify variant recommendations
+- ✅ Create ingredient with 2+ variants (VariantService tests)
+- ✅ Add pantry items with different purchase dates (PantryService tests)
+- ✅ Calculate cost - verify FIFO order (test_fifo_scenarios.py - 6 tests passing)
+- [ ] Create recipe using ingredient (not variant) - UI pending
+- [ ] Generate shopping list - verify variant recommendations - UI pending
 - [ ] Migrate v0.3.0 data - verify preservation
 - [ ] Compare costs (old vs new) - verify match
 
