@@ -81,3 +81,7 @@ test_data/exported_data.json
 # Spec-Kitty
 .worktrees/
 .kittify/.dashboard
+
+# AI Agents (credentials and state)
+.claude/
+ai-agents/
