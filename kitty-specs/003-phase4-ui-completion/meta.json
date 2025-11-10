@@ -1,0 +1,13 @@
+{
+  "accept_commit": null,
+  "acceptance_history": [],
+  "acceptance_mode": "local",
+  "accepted_at": null,
+  "accepted_by": null,
+  "accepted_from_commit": null,
+  "created_at": "2025-11-10T18:01:00Z",
+  "feature_number": "003",
+  "friendly_name": "Phase 4 UI Completion - My Ingredients & My Pantry",
+  "slug": "003-phase4-ui-completion",
+  "source_description": "Complete Phase 4 of the Ingredient/Variant refactor by implementing user interface components for the new architecture. Create My Ingredients tab for ingredient catalog and variant management, My Pantry tab for inventory tracking with FIFO consumption, and execute data migration from v0.3.0 to v0.4.0 schema. Integrate UI with ingredient_service, variant_service, pantry_service, and purchase_service to enable end-to-end functionality."
+}
