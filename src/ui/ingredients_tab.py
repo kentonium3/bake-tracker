@@ -9,7 +9,7 @@ import customtkinter as ctk
 from typing import Optional, List
 from tkinter import messagebox
 
-from src.services import ingredient_service
+from src.services import ingredient_service, variant_service
 from src.services.exceptions import NotFound, ValidationError, DatabaseError
 from src.utils.constants import PADDING_MEDIUM, PADDING_LARGE
 
@@ -422,16 +422,26 @@ class IngredientsTab(ctk.CTkFrame):
             messagebox.showerror("Database Error", f"Failed to delete ingredient: {e}")
 
     def _view_variants(self):
-        """View variants for the selected ingredient (WP02 feature)."""
+        """View variants for the selected ingredient."""
         if not self.selected_ingredient_slug:
             return
 
-        # Placeholder for WP02
-        messagebox.showinfo(
-            "Coming Soon",
-            "Variant management will be implemented in WP02.\n\n"
-            "You'll be able to add and manage brand-specific variants here.",
-        )
+        try:
+            # Get ingredient details
+            ingredient = ingredient_service.get_ingredient(self.selected_ingredient_slug)
+
+            # Open variants dialog
+            dialog = VariantsDialog(self, ingredient)
+            self.wait_window(dialog)
+
+            # Refresh in case variants changed
+            self.refresh()
+
+        except NotFound:
+            messagebox.showerror("Error", "Ingredient not found")
+            self.refresh()
+        except DatabaseError as e:
+            messagebox.showerror("Database Error", f"Failed to load variants: {e}")
 
     def update_status(self, message: str):
         """Update the status bar message."""
@@ -622,5 +632,577 @@ class IngredientFormDialog(ctk.CTkToplevel):
 
     def _cancel(self):
         """Cancel the form."""
+        self.result = None
+        self.destroy()
+
+
+class VariantsDialog(ctk.CTkToplevel):
+    """
+    Dialog for managing variants of an ingredient.
+
+    Displays list of variants with add/edit/delete/preferred toggle operations.
+    """
+
+    def __init__(self, parent, ingredient: dict):
+        """
+        Initialize the variants dialog.
+
+        Args:
+            parent: Parent window
+            ingredient: Ingredient dict with id, slug, name
+        """
+        super().__init__(parent)
+
+        self.ingredient = ingredient
+        self.variants: List[dict] = []
+        self.selected_variant_id: Optional[int] = None
+
+        # Configure window
+        self.title(f"Variants - {ingredient['name']}")
+        self.geometry("900x600")
+        self.resizable(True, True)
+
+        # Center on parent
+        self.transient(parent)
+        self.grab_set()
+
+        # Configure grid
+        self.grid_columnconfigure(0, weight=1)
+        self.grid_rowconfigure(0, weight=0)  # Title
+        self.grid_rowconfigure(1, weight=0)  # Buttons
+        self.grid_rowconfigure(2, weight=1)  # Variant list
+        self.grid_rowconfigure(3, weight=0)  # Close button
+
+        # Create UI
+        self._create_title()
+        self._create_action_buttons()
+        self._create_variant_list()
+        self._create_close_button()
+
+        # Load variants
+        self.refresh()
+
+    def _create_title(self):
+        """Create title label."""
+        title_text = f"Brand & Package Variants for: {self.ingredient['name']}"
+        title_label = ctk.CTkLabel(
+            self,
+            text=title_text,
+            font=ctk.CTkFont(size=18, weight="bold"),
+        )
+        title_label.grid(row=0, column=0, sticky="w", padx=20, pady=(20, 10))
+
+    def _create_action_buttons(self):
+        """Create action buttons."""
+        button_frame = ctk.CTkFrame(self, fg_color="transparent")
+        button_frame.grid(row=1, column=0, sticky="ew", padx=20, pady=10)
+
+        # Add Variant button
+        add_button = ctk.CTkButton(
+            button_frame,
+            text="➕ Add Variant",
+            command=self._add_variant,
+            width=140,
+        )
+        add_button.grid(row=0, column=0, padx=(0, 10))
+
+        # Edit button
+        self.edit_button = ctk.CTkButton(
+            button_frame,
+            text="✏️ Edit",
+            command=self._edit_variant,
+            width=100,
+            state="disabled",
+        )
+        self.edit_button.grid(row=0, column=1, padx=(0, 10))
+
+        # Delete button
+        self.delete_button = ctk.CTkButton(
+            button_frame,
+            text="🗑️ Delete",
+            command=self._delete_variant,
+            width=100,
+            state="disabled",
+            fg_color="darkred",
+            hover_color="red",
+        )
+        self.delete_button.grid(row=0, column=2, padx=(0, 10))
+
+        # Refresh button
+        refresh_button = ctk.CTkButton(
+            button_frame,
+            text="🔄 Refresh",
+            command=self.refresh,
+            width=100,
+        )
+        refresh_button.grid(row=0, column=3)
+
+    def _create_variant_list(self):
+        """Create scrollable variant list."""
+        # Create scrollable frame
+        self.list_frame = ctk.CTkScrollableFrame(
+            self,
+            label_text="Variants (Brand & Package)",
+        )
+        self.list_frame.grid(row=2, column=0, sticky="nsew", padx=20, pady=10)
+        self.list_frame.grid_columnconfigure(0, weight=1)
+
+        # Empty state label
+        self.empty_label = ctk.CTkLabel(
+            self.list_frame,
+            text="No variants. Click 'Add Variant' to create one.",
+            text_color="gray",
+        )
+
+    def _create_close_button(self):
+        """Create close button."""
+        close_button = ctk.CTkButton(
+            self,
+            text="Close",
+            command=self.destroy,
+            width=120,
+        )
+        close_button.grid(row=3, column=0, pady=(0, 20))
+
+    def refresh(self):
+        """Refresh variant list from database."""
+        try:
+            # Get variants for this ingredient
+            self.variants = variant_service.get_variants_by_ingredient(
+                self.ingredient['id']
+            )
+
+            # Sort: preferred first, then alphabetically
+            self.variants.sort(
+                key=lambda v: (not v.get('is_preferred', False), v.get('brand', ''))
+            )
+
+            # Update display
+            self._update_variant_display()
+
+        except DatabaseError as e:
+            messagebox.showerror("Database Error", f"Failed to load variants: {e}")
+
+    def _update_variant_display(self):
+        """Update displayed variant list."""
+        # Clear existing
+        for widget in self.list_frame.winfo_children():
+            if widget != self.empty_label:
+                widget.destroy()
+
+        # Show empty state if no variants
+        if not self.variants:
+            self.empty_label.grid(row=0, column=0, pady=50)
+            self._disable_selection_buttons()
+            return
+
+        # Hide empty label
+        self.empty_label.grid_forget()
+
+        # Display variants
+        for idx, variant in enumerate(self.variants):
+            self._create_variant_row(idx, variant)
+
+    def _create_variant_row(self, row_idx: int, variant: dict):
+        """Create a row displaying variant information."""
+        row_frame = ctk.CTkFrame(self.list_frame)
+        row_frame.grid(row=row_idx, column=0, sticky="ew", pady=2)
+        row_frame.grid_columnconfigure(1, weight=1)
+
+        # Selection radio
+        radio = ctk.CTkRadioButton(
+            row_frame,
+            text="",
+            variable=ctk.StringVar(value=""),
+            value=str(variant['id']),
+            command=lambda: self._on_variant_select(variant['id']),
+        )
+        radio.grid(row=0, column=0, padx=(10, 5), pady=10)
+
+        # Preferred indicator
+        preferred_text = "⭐" if variant.get('is_preferred') else ""
+        if preferred_text:
+            preferred_label = ctk.CTkLabel(
+                row_frame,
+                text=preferred_text,
+                font=ctk.CTkFont(size=16),
+            )
+            preferred_label.grid(row=0, column=1, padx=(0, 5))
+
+        # Variant info
+        brand = variant.get('brand', 'Unknown')
+        purchase_qty = variant.get('purchase_quantity', 0)
+        purchase_unit = variant.get('purchase_unit', '')
+        package_size = f"{purchase_qty} {purchase_unit}"
+        upc = variant.get('upc_gtin', 'N/A')
+        supplier = variant.get('supplier', 'N/A')
+
+        # Get pantry total (placeholder for now - will integrate with pantry service)
+        pantry_total = variant.get('total_pantry_quantity', 0) or 0
+        pantry_text = f"{pantry_total} {purchase_unit}" if pantry_total > 0 else "None in pantry"
+
+        info_text = (
+            f"{brand} - {package_size} | "
+            f"UPC: {upc} | Supplier: {supplier} | "
+            f"Pantry: {pantry_text}"
+        )
+
+        info_label = ctk.CTkLabel(
+            row_frame,
+            text=info_text,
+            anchor="w",
+        )
+        info_label.grid(
+            row=0,
+            column=2 if preferred_text else 1,
+            sticky="ew",
+            padx=10,
+            pady=10,
+        )
+
+        # Mark as Preferred button
+        if not variant.get('is_preferred'):
+            mark_preferred_btn = ctk.CTkButton(
+                row_frame,
+                text="Mark Preferred",
+                command=lambda: self._toggle_preferred(variant['id']),
+                width=120,
+                height=28,
+            )
+            mark_preferred_btn.grid(row=0, column=3, padx=5)
+
+    def _on_variant_select(self, variant_id: int):
+        """Handle variant selection."""
+        self.selected_variant_id = variant_id
+        self._enable_selection_buttons()
+
+    def _enable_selection_buttons(self):
+        """Enable buttons that require selection."""
+        self.edit_button.configure(state="normal")
+        self.delete_button.configure(state="normal")
+
+    def _disable_selection_buttons(self):
+        """Disable buttons that require selection."""
+        self.edit_button.configure(state="disabled")
+        self.delete_button.configure(state="disabled")
+        self.selected_variant_id = None
+
+    def _add_variant(self):
+        """Add new variant."""
+        dialog = VariantFormDialog(
+            self,
+            ingredient=self.ingredient,
+            title="Add Variant",
+        )
+        self.wait_window(dialog)
+
+        if dialog.result:
+            try:
+                # Create variant
+                variant = variant_service.create_variant(
+                    self.ingredient['id'],
+                    dialog.result,
+                )
+                self.refresh()
+                messagebox.showinfo(
+                    "Success",
+                    f"Variant '{variant['brand']}' created!",
+                )
+
+            except ValidationError as e:
+                messagebox.showerror("Validation Error", str(e))
+            except DatabaseError as e:
+                messagebox.showerror("Database Error", f"Failed to create variant: {e}")
+
+    def _edit_variant(self):
+        """Edit selected variant."""
+        if not self.selected_variant_id:
+            return
+
+        try:
+            # Get variant
+            variant = variant_service.get_variant(self.selected_variant_id)
+
+            dialog = VariantFormDialog(
+                self,
+                ingredient=self.ingredient,
+                variant=variant,
+                title="Edit Variant",
+            )
+            self.wait_window(dialog)
+
+            if dialog.result:
+                # Update variant
+                updated = variant_service.update_variant(
+                    self.selected_variant_id,
+                    dialog.result,
+                )
+                self.refresh()
+                messagebox.showinfo("Success", "Variant updated!")
+
+        except NotFound:
+            messagebox.showerror("Error", "Variant not found")
+            self.refresh()
+        except ValidationError as e:
+            messagebox.showerror("Validation Error", str(e))
+        except DatabaseError as e:
+            messagebox.showerror("Database Error", f"Failed to update variant: {e}")
+
+    def _delete_variant(self):
+        """Delete selected variant."""
+        if not self.selected_variant_id:
+            return
+
+        try:
+            # Get variant for confirmation
+            variant = variant_service.get_variant(self.selected_variant_id)
+            brand = variant['brand']
+
+            # Confirm
+            result = messagebox.askyesno(
+                "Confirm Deletion",
+                f"Delete variant '{brand}'?\n\n"
+                "This will fail if the variant has pantry items.",
+            )
+
+            if result:
+                variant_service.delete_variant(self.selected_variant_id)
+                self.selected_variant_id = None
+                self.refresh()
+                messagebox.showinfo("Success", "Variant deleted!")
+
+        except NotFound:
+            messagebox.showerror("Error", "Variant not found")
+            self.refresh()
+        except ValidationError as e:
+            messagebox.showerror(
+                "Cannot Delete",
+                f"Cannot delete variant:\n\n{e}\n\nRemove pantry items first.",
+            )
+        except DatabaseError as e:
+            messagebox.showerror("Database Error", f"Failed to delete variant: {e}")
+
+    def _toggle_preferred(self, variant_id: int):
+        """Toggle preferred status for variant."""
+        try:
+            variant_service.toggle_preferred_variant(variant_id)
+            self.refresh()
+
+        except NotFound:
+            messagebox.showerror("Error", "Variant not found")
+            self.refresh()
+        except DatabaseError as e:
+            messagebox.showerror("Database Error", f"Failed to update preferred: {e}")
+
+
+class VariantFormDialog(ctk.CTkToplevel):
+    """
+    Dialog for creating or editing a variant.
+
+    Form for brand/package specific information.
+    """
+
+    def __init__(
+        self,
+        parent,
+        ingredient: dict,
+        variant: Optional[dict] = None,
+        title: str = "Add Variant",
+    ):
+        """
+        Initialize variant form dialog.
+
+        Args:
+            parent: Parent window
+            ingredient: Ingredient dict
+            variant: Existing variant dict (None for new)
+            title: Dialog title
+        """
+        super().__init__(parent)
+
+        self.ingredient = ingredient
+        self.variant = variant
+        self.result = None
+
+        # Configure window
+        self.title(title)
+        self.geometry("550x550")
+        self.resizable(False, False)
+
+        # Center on parent
+        self.transient(parent)
+        self.grab_set()
+
+        # Configure grid
+        self.grid_columnconfigure(0, weight=1)
+
+        # Create form
+        self._create_form()
+        self._create_buttons()
+
+        # Populate if editing
+        if self.variant:
+            self._populate_form()
+
+    def _create_form(self):
+        """Create form fields."""
+        form_frame = ctk.CTkFrame(self)
+        form_frame.grid(row=0, column=0, sticky="nsew", padx=20, pady=20)
+        form_frame.grid_columnconfigure(1, weight=1)
+
+        row = 0
+
+        # Ingredient name (read-only)
+        ctk.CTkLabel(form_frame, text="Ingredient:").grid(
+            row=row, column=0, sticky="w", padx=10, pady=(10, 5)
+        )
+        ingredient_label = ctk.CTkLabel(
+            form_frame,
+            text=self.ingredient['name'],
+            font=ctk.CTkFont(weight="bold"),
+        )
+        ingredient_label.grid(row=row, column=1, sticky="w", padx=10, pady=(10, 5))
+        row += 1
+
+        # Brand (required)
+        ctk.CTkLabel(form_frame, text="Brand*:").grid(
+            row=row, column=0, sticky="w", padx=10, pady=5
+        )
+        self.brand_entry = ctk.CTkEntry(
+            form_frame, placeholder_text="e.g., King Arthur"
+        )
+        self.brand_entry.grid(row=row, column=1, sticky="ew", padx=10, pady=5)
+        row += 1
+
+        # Purchase Quantity (required)
+        ctk.CTkLabel(form_frame, text="Purchase Quantity*:").grid(
+            row=row, column=0, sticky="w", padx=10, pady=5
+        )
+        self.purchase_qty_entry = ctk.CTkEntry(
+            form_frame, placeholder_text="e.g., 25"
+        )
+        self.purchase_qty_entry.grid(row=row, column=1, sticky="ew", padx=10, pady=5)
+        row += 1
+
+        # Purchase Unit (required)
+        ctk.CTkLabel(form_frame, text="Purchase Unit*:").grid(
+            row=row, column=0, sticky="w", padx=10, pady=5
+        )
+        self.purchase_unit_var = ctk.StringVar(value="lb")
+        self.purchase_unit_dropdown = ctk.CTkOptionMenu(
+            form_frame,
+            values=["lb", "oz", "g", "kg", "bag", "box", "count"],
+            variable=self.purchase_unit_var,
+        )
+        self.purchase_unit_dropdown.grid(row=row, column=1, sticky="ew", padx=10, pady=5)
+        row += 1
+
+        # UPC/GTIN (optional)
+        ctk.CTkLabel(form_frame, text="UPC/GTIN:").grid(
+            row=row, column=0, sticky="w", padx=10, pady=5
+        )
+        self.upc_entry = ctk.CTkEntry(
+            form_frame, placeholder_text="Optional barcode"
+        )
+        self.upc_entry.grid(row=row, column=1, sticky="ew", padx=10, pady=5)
+        row += 1
+
+        # Supplier (optional)
+        ctk.CTkLabel(form_frame, text="Supplier:").grid(
+            row=row, column=0, sticky="w", padx=10, pady=5
+        )
+        self.supplier_entry = ctk.CTkEntry(
+            form_frame, placeholder_text="Optional supplier name"
+        )
+        self.supplier_entry.grid(row=row, column=1, sticky="ew", padx=10, pady=5)
+        row += 1
+
+        # Help text
+        help_label = ctk.CTkLabel(
+            form_frame,
+            text="* Required fields\n\n"
+            "Package size is calculated from quantity + unit.\n"
+            "Example: 25 lb → '25 lb bag'",
+            text_color="gray",
+            justify="left",
+        )
+        help_label.grid(row=row, column=0, columnspan=2, sticky="w", padx=10, pady=10)
+
+    def _create_buttons(self):
+        """Create Save and Cancel buttons."""
+        button_frame = ctk.CTkFrame(self, fg_color="transparent")
+        button_frame.grid(row=1, column=0, sticky="ew", padx=20, pady=(0, 20))
+
+        cancel_button = ctk.CTkButton(
+            button_frame,
+            text="Cancel",
+            command=self._cancel,
+            width=120,
+        )
+        cancel_button.grid(row=0, column=0, padx=(0, 10))
+
+        save_button = ctk.CTkButton(
+            button_frame,
+            text="Save",
+            command=self._save,
+            width=120,
+        )
+        save_button.grid(row=0, column=1)
+
+    def _populate_form(self):
+        """Populate form with existing variant data."""
+        if not self.variant:
+            return
+
+        self.brand_entry.insert(0, self.variant.get('brand', ''))
+        self.purchase_qty_entry.insert(0, str(self.variant.get('purchase_quantity', '')))
+        self.purchase_unit_var.set(self.variant.get('purchase_unit', 'lb'))
+        self.upc_entry.insert(0, self.variant.get('upc_gtin', ''))
+        self.supplier_entry.insert(0, self.variant.get('supplier', ''))
+
+    def _save(self):
+        """Validate and save form data."""
+        # Get values
+        brand = self.brand_entry.get().strip()
+        purchase_qty_str = self.purchase_qty_entry.get().strip()
+        purchase_unit = self.purchase_unit_var.get()
+        upc = self.upc_entry.get().strip()
+        supplier = self.supplier_entry.get().strip()
+
+        # Validate required
+        if not brand:
+            messagebox.showerror("Validation Error", "Brand is required")
+            return
+
+        if not purchase_qty_str:
+            messagebox.showerror("Validation Error", "Purchase quantity is required")
+            return
+
+        # Validate quantity
+        try:
+            purchase_qty = float(purchase_qty_str)
+            if purchase_qty <= 0:
+                messagebox.showerror("Validation Error", "Quantity must be positive")
+                return
+        except ValueError:
+            messagebox.showerror("Validation Error", "Quantity must be a valid number")
+            return
+
+        # Build result
+        self.result = {
+            "brand": brand,
+            "purchase_quantity": purchase_qty,
+            "purchase_unit": purchase_unit,
+        }
+
+        if upc:
+            self.result["upc_gtin"] = upc
+        if supplier:
+            self.result["supplier"] = supplier
+
+        self.destroy()
+
+    def _cancel(self):
+        """Cancel form."""
         self.result = None
         self.destroy()
