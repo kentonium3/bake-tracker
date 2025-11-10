@@ -10,6 +10,7 @@ from tkinter import messagebox
 from src.utils.constants import APP_NAME, APP_VERSION
 from src.ui.dashboard_tab import DashboardTab
 from src.ui.ingredients_tab import IngredientsTab
+from src.ui.pantry_tab import PantryTab
 from src.ui.inventory_tab import InventoryTab
 from src.ui.recipes_tab import RecipesTab
 from src.ui.finished_goods_tab import FinishedGoodsTab
@@ -87,6 +88,7 @@ class MainWindow(ctk.CTk):
         # Add tabs
         self.tabview.add("Dashboard")
         self.tabview.add("My Ingredients")
+        self.tabview.add("My Pantry")
         self.tabview.add("Inventory")
         self.tabview.add("Recipes")
         self.tabview.add("Finished Goods")
@@ -103,6 +105,10 @@ class MainWindow(ctk.CTk):
         # Initialize My Ingredients tab (v0.4.0 architecture)
         ingredients_frame = self.tabview.tab("My Ingredients")
         self.ingredients_tab = IngredientsTab(ingredients_frame)
+
+        # Initialize My Pantry tab (v0.4.0 architecture)
+        pantry_frame = self.tabview.tab("My Pantry")
+        self.pantry_tab = PantryTab(pantry_frame)
 
         # Initialize Inventory tab (legacy - will be deprecated)
         inventory_frame = self.tabview.tab("Inventory")
@@ -215,6 +221,10 @@ class MainWindow(ctk.CTk):
     def refresh_dashboard(self):
         """Refresh the dashboard tab with current data."""
         self.dashboard_tab.refresh()
+
+    def refresh_pantry(self):
+        """Refresh the pantry tab with current data."""
+        self.pantry_tab.refresh()
 
     def refresh_inventory(self):
         """Refresh the inventory tab with current data."""
