@@ -1,0 +1,10 @@
+Additional user stories as of 11/10/2025
+
+1. As a cook, when I enter a recipe that has a discrete yield then it creates a finished good record automatically.
+2. As a cook, after deciding on the contents of packages and the number of packages to produce for an event I can see a consolidated summary of the total amount of each ingredient needed, whether or not the required ingredients are in the pantry, what ingredients need to be purchased, how many batches need to be made of each recipe, the quantity of each finished good required, how many bundles of each type that need to be assembled, and the estimated cost so I can plan my time and budget.  
+3. As a cook, after planning what to produce for an event I can easily do a quick inventory update of just the panty items needed to complete the event so I don’t need to inventory all possible pantry items. I can see a list of ingredients that I am missing or low on so I can plan my shopping.  
+4. As a cook, at anytime during baking production for an event I can update or check off the completed finished goods to clearly see what finished goods have been produced relative to how much is left to make.
+5. As a cook, I can update or check off how many different bundles for an event have been assembled relative to how many of each type are needed for an event.
+6. As a cook, I can specify the materials needed to make bundles such as cellophane bags, ribbon, plastic wrap, tin foil, little boxes, etc. and they are similarly sourced, tracked in inventory, consumed and reported on like ingredients only they aren’t associated with recipes but with bundles. This is so I know what I have and what I need to buy when planning and producing bundles for an event. 
+7. As a cook creating food for events, the outputs may be described as packages, servings, or plates to accommodate different types of foods and events.
+8. As a cook using this tool, I can add, rename, or retire categories of recipes and finished goods without loss to help organize the presentation of information on-screen and in reports for my purposes. (this will require categories to have UIDs and for category names to be labels)
