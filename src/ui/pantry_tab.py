@@ -94,6 +94,17 @@ class PantryTab(ctk.CTkFrame):
         )
         add_button.grid(row=0, column=0, padx=5, pady=5)
 
+        # Consume Ingredient button
+        consume_button = ctk.CTkButton(
+            controls_frame,
+            text="Consume Ingredient",
+            command=self._consume_ingredient,
+            width=150,
+            fg_color="darkorange",
+            hover_color="orange",
+        )
+        consume_button.grid(row=1, column=0, padx=5, pady=5)
+
         # View mode toggle
         view_label = ctk.CTkLabel(controls_frame, text="View Mode:")
         view_label.grid(row=0, column=1, padx=(20, 5), pady=5)
@@ -612,6 +623,14 @@ class PantryTab(ctk.CTkFrame):
             except Exception as e:
                 messagebox.showerror("Error", f"Failed to delete pantry item: {str(e)}", parent=self)
 
+    def _consume_ingredient(self):
+        """Open dialog to consume ingredient using FIFO logic."""
+        dialog = ConsumeIngredientDialog(self)
+        self.wait_window(dialog)
+
+        if dialog.result:
+            self.refresh()
+
 
 class PantryItemFormDialog(ctk.CTkToplevel):
     """
@@ -929,3 +948,306 @@ class PantryItemFormDialog(ctk.CTkToplevel):
             self.result['notes'] = notes
 
         self.destroy()
+
+
+class ConsumeIngredientDialog(ctk.CTkToplevel):
+    """
+    Dialog for consuming ingredients using FIFO logic.
+
+    Features:
+    - Ingredient selection
+    - Quantity input
+    - FIFO preview showing which lots will be consumed
+    - Insufficient inventory warnings
+    - Consumption result display with breakdown
+    """
+
+    def __init__(self, parent):
+        """
+        Initialize the consumption dialog.
+
+        Args:
+            parent: Parent widget
+        """
+        super().__init__(parent)
+
+        self.title("Consume Ingredient")
+        self.geometry("700x650")
+        self.resizable(False, False)
+
+        # Make dialog modal
+        self.transient(parent)
+        self.grab_set()
+
+        # Center on parent
+        self.update_idletasks()
+        x = parent.winfo_rootx() + (parent.winfo_width() - self.winfo_width()) // 2
+        y = parent.winfo_rooty() + (parent.winfo_height() - self.winfo_height()) // 2
+        self.geometry(f"+{x}+{y}")
+
+        self.result = None
+        self.ingredients = []
+        self.preview_data = None
+
+        # Load data
+        self._load_ingredients()
+
+        # Create form
+        self._create_form()
+
+    def _load_ingredients(self):
+        """Load ingredients that have pantry items."""
+        try:
+            # Get all ingredients
+            all_ingredients = ingredient_service.get_all_ingredients()
+
+            # Filter to only ingredients with pantry items
+            self.ingredients = []
+            for ing in all_ingredients:
+                try:
+                    total = pantry_service.get_total_quantity(ing['slug'])
+                    if total > 0:
+                        ing['total_quantity'] = total
+                        self.ingredients.append(ing)
+                except:
+                    continue
+
+        except Exception as e:
+            messagebox.showerror("Error", f"Failed to load ingredients: {str(e)}", parent=self)
+            self.destroy()
+
+    def _create_form(self):
+        """Create form fields."""
+        # Configure grid
+        self.grid_columnconfigure(0, weight=0)
+        self.grid_columnconfigure(1, weight=1)
+
+        row = 0
+
+        # Title
+        title_label = ctk.CTkLabel(
+            self,
+            text="Consume Ingredient (FIFO)",
+            font=ctk.CTkFont(size=18, weight="bold"),
+        )
+        title_label.grid(row=row, column=0, columnspan=2, padx=10, pady=(10, 20), sticky="w")
+        row += 1
+
+        # Ingredient dropdown
+        ing_label = ctk.CTkLabel(self, text="Ingredient:*")
+        ing_label.grid(row=row, column=0, padx=10, pady=10, sticky="w")
+
+        ingredient_names = [
+            f"{ing['name']} (Available: {ing['total_quantity']} {ing.get('recipe_unit', '')})"
+            for ing in self.ingredients
+        ]
+        self.ingredient_var = ctk.StringVar(value="" if not self.ingredients else ingredient_names[0])
+        self.ingredient_dropdown = ctk.CTkOptionMenu(
+            self,
+            variable=self.ingredient_var,
+            values=ingredient_names if ingredient_names else ["No ingredients with inventory"],
+            command=self._on_ingredient_change,
+        )
+        self.ingredient_dropdown.grid(row=row, column=1, padx=10, pady=10, sticky="ew")
+        row += 1
+
+        # Quantity
+        qty_label = ctk.CTkLabel(self, text="Quantity to Consume:*")
+        qty_label.grid(row=row, column=0, padx=10, pady=10, sticky="w")
+
+        self.quantity_entry = ctk.CTkEntry(self, placeholder_text="e.g., 10")
+        self.quantity_entry.grid(row=row, column=1, padx=10, pady=10, sticky="ew")
+        self.quantity_entry.bind("<KeyRelease>", lambda e: self._update_preview())
+        row += 1
+
+        # Preview button
+        preview_button = ctk.CTkButton(
+            self,
+            text="Show FIFO Preview",
+            command=self._update_preview,
+            width=150,
+        )
+        preview_button.grid(row=row, column=0, columnspan=2, padx=10, pady=10)
+        row += 1
+
+        # Preview frame
+        preview_frame = ctk.CTkFrame(self)
+        preview_frame.grid(row=row, column=0, columnspan=2, padx=10, pady=10, sticky="nsew")
+        preview_frame.grid_columnconfigure(0, weight=1)
+        self.grid_rowconfigure(row, weight=1)
+
+        # Scrollable preview area
+        self.preview_text = ctk.CTkTextbox(preview_frame, height=300)
+        self.preview_text.grid(row=0, column=0, padx=5, pady=5, sticky="nsew")
+        preview_frame.grid_rowconfigure(0, weight=1)
+        self.preview_text.configure(state="disabled")
+
+        row += 1
+
+        # Buttons
+        button_frame = ctk.CTkFrame(self)
+        button_frame.grid(row=row, column=0, columnspan=2, padx=10, pady=20, sticky="ew")
+        button_frame.grid_columnconfigure(0, weight=1)
+        button_frame.grid_columnconfigure(1, weight=1)
+
+        cancel_btn = ctk.CTkButton(
+            button_frame,
+            text="Cancel",
+            command=self.destroy,
+        )
+        cancel_btn.grid(row=0, column=0, padx=5, pady=5, sticky="ew")
+
+        self.consume_btn = ctk.CTkButton(
+            button_frame,
+            text="Consume",
+            command=self._execute_consumption,
+            fg_color="darkorange",
+            hover_color="orange",
+        )
+        self.consume_btn.grid(row=0, column=1, padx=5, pady=5, sticky="ew")
+        self.consume_btn.configure(state="disabled")
+
+    def _on_ingredient_change(self, value: str):
+        """Handle ingredient selection change."""
+        # Clear preview when ingredient changes
+        self._clear_preview()
+
+    def _clear_preview(self):
+        """Clear the preview display."""
+        self.preview_text.configure(state="normal")
+        self.preview_text.delete("1.0", "end")
+        self.preview_text.configure(state="disabled")
+        self.preview_data = None
+        self.consume_btn.configure(state="disabled")
+
+    def _update_preview(self):
+        """Update FIFO preview based on current selections."""
+        from decimal import Decimal
+
+        # Get selected ingredient
+        ingredient_display = self.ingredient_var.get().strip()
+        if not ingredient_display or ingredient_display == "No ingredients with inventory":
+            self._show_preview_message("Please select an ingredient first.")
+            return
+
+        # Extract ingredient name from display (remove availability info)
+        ingredient_name = ingredient_display.split(" (Available:")[0]
+        ingredient = next((ing for ing in self.ingredients if ing['name'] == ingredient_name), None)
+        if not ingredient:
+            self._show_preview_message("Selected ingredient not found.")
+            return
+
+        # Get quantity
+        quantity_str = self.quantity_entry.get().strip()
+        if not quantity_str:
+            self._show_preview_message("Please enter a quantity to consume.")
+            return
+
+        try:
+            quantity = Decimal(quantity_str)
+            if quantity <= 0:
+                self._show_preview_message("Quantity must be greater than 0.")
+                return
+        except:
+            self._show_preview_message("Invalid quantity format.")
+            return
+
+        # Call service to get FIFO preview (dry run)
+        try:
+            result = pantry_service.consume_fifo(ingredient['slug'], quantity)
+            self.preview_data = result
+
+            # Build preview message
+            preview_message = f"FIFO Consumption Preview for {ingredient['name']}\n"
+            preview_message += "=" * 60 + "\n\n"
+
+            if result['satisfied']:
+                preview_message += f"✓ Requested: {quantity} {ingredient.get('recipe_unit', '')}\n"
+                preview_message += f"✓ Will consume: {result['consumed']} {ingredient.get('recipe_unit', '')}\n"
+                preview_message += f"✓ Status: SATISFIED\n\n"
+
+                preview_message += f"Will consume from {len(result['breakdown'])} lot(s):\n"
+                preview_message += "-" * 60 + "\n"
+
+                for idx, lot_consumption in enumerate(result['breakdown'], 1):
+                    preview_message += f"\nLot {idx}:\n"
+                    preview_message += f"  Purchase Date: {lot_consumption['lot_date']}\n"
+                    preview_message += f"  Quantity Consumed: {lot_consumption['quantity_consumed']} {lot_consumption['unit']}\n"
+                    preview_message += f"  Remaining in Lot: {lot_consumption['remaining_in_lot']} {lot_consumption['unit']}\n"
+
+                self._show_preview_message(preview_message, success=True)
+                self.consume_btn.configure(state="normal")
+
+            else:
+                # Insufficient inventory
+                preview_message += f"⚠ Requested: {quantity} {ingredient.get('recipe_unit', '')}\n"
+                preview_message += f"⚠ Available: {result['consumed']} {ingredient.get('recipe_unit', '')}\n"
+                preview_message += f"⚠ Shortfall: {result['shortfall']} {ingredient.get('recipe_unit', '')}\n"
+                preview_message += f"⚠ Status: INSUFFICIENT INVENTORY\n\n"
+
+                if result['breakdown']:
+                    preview_message += f"Can partially consume from {len(result['breakdown'])} lot(s):\n"
+                    preview_message += "-" * 60 + "\n"
+
+                    for idx, lot_consumption in enumerate(result['breakdown'], 1):
+                        preview_message += f"\nLot {idx}:\n"
+                        preview_message += f"  Purchase Date: {lot_consumption['lot_date']}\n"
+                        preview_message += f"  Quantity Consumed: {lot_consumption['quantity_consumed']} {lot_consumption['unit']}\n"
+                        preview_message += f"  Remaining in Lot: {lot_consumption['remaining_in_lot']} {lot_consumption['unit']}\n"
+
+                self._show_preview_message(preview_message, warning=True)
+                # Allow consumption even with shortfall (partial consumption)
+                self.consume_btn.configure(state="normal")
+
+        except Exception as e:
+            self._show_preview_message(f"Error generating preview: {str(e)}", error=True)
+            self.consume_btn.configure(state="disabled")
+
+    def _show_preview_message(self, message: str, success=False, warning=False, error=False):
+        """Display message in preview area."""
+        self.preview_text.configure(state="normal")
+        self.preview_text.delete("1.0", "end")
+        self.preview_text.insert("1.0", message)
+        self.preview_text.configure(state="disabled")
+
+    def _execute_consumption(self):
+        """Execute the FIFO consumption."""
+        if not self.preview_data:
+            messagebox.showerror("Error", "Please generate preview first", parent=self)
+            return
+
+        # Confirm consumption
+        ingredient_display = self.ingredient_var.get().strip()
+        ingredient_name = ingredient_display.split(" (Available:")[0]
+        quantity_str = self.quantity_entry.get().strip()
+
+        if self.preview_data['satisfied']:
+            confirm_msg = f"Consume {quantity_str} from {ingredient_name}?\n\n"
+            confirm_msg += f"This will consume from {len(self.preview_data['breakdown'])} lot(s)."
+        else:
+            confirm_msg = f"Partial consumption: {quantity_str} requested but only {self.preview_data['consumed']} available.\n\n"
+            confirm_msg += f"Shortfall: {self.preview_data['shortfall']}\n\n"
+            confirm_msg += "Proceed with partial consumption?"
+
+        result = messagebox.askyesno("Confirm Consumption", confirm_msg, parent=self)
+
+        if result:
+            # Show success message with breakdown
+            success_msg = "Consumption Complete!\n\n"
+            success_msg += f"Ingredient: {ingredient_name}\n"
+            success_msg += f"Consumed: {self.preview_data['consumed']}\n"
+
+            if self.preview_data['shortfall'] > 0:
+                success_msg += f"Shortfall: {self.preview_data['shortfall']}\n"
+
+            success_msg += f"\nLots Updated: {len(self.preview_data['breakdown'])}\n"
+
+            messagebox.showinfo("Success", success_msg, parent=self)
+
+            # Set result and close
+            self.result = {
+                'ingredient': ingredient_name,
+                'consumed': self.preview_data['consumed'],
+                'breakdown': self.preview_data['breakdown'],
+            }
+            self.destroy()
