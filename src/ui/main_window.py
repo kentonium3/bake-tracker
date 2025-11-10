@@ -18,6 +18,7 @@ from src.ui.bundles_tab import BundlesTab
 from src.ui.packages_tab import PackagesTab
 from src.ui.recipients_tab import RecipientsTab
 from src.ui.events_tab import EventsTab
+from src.ui.migration_wizard import MigrationWizardDialog
 
 
 class MainWindow(ctk.CTk):
@@ -70,6 +71,15 @@ class MainWindow(ctk.CTk):
         )
         exit_button.grid(row=0, column=0, padx=5, pady=5, sticky="w")
 
+        # Tools menu button
+        tools_button = ctk.CTkButton(
+            menu_frame,
+            text="Tools",
+            width=80,
+            command=self._show_tools_menu,
+        )
+        tools_button.grid(row=0, column=1, padx=5, pady=5, sticky="w")
+
         # Help menu button
         help_button = ctk.CTkButton(
             menu_frame,
@@ -77,7 +87,7 @@ class MainWindow(ctk.CTk):
             width=80,
             command=self._show_help_menu,
         )
-        help_button.grid(row=0, column=1, padx=5, pady=5, sticky="w")
+        help_button.grid(row=0, column=2, padx=5, pady=5, sticky="w")
 
     def _create_tabs(self):
         """Create the tabbed interface."""
@@ -201,6 +211,21 @@ class MainWindow(ctk.CTk):
         )
         if result:
             self.quit()
+
+    def _show_tools_menu(self):
+        """Show the Tools menu - opens Migration Wizard."""
+        wizard = MigrationWizardDialog(self)
+        self.wait_window(wizard)
+
+        # Refresh tabs after migration if it was executed
+        if hasattr(wizard, 'migration_running') and not wizard.migration_running:
+            # Migration may have been executed, refresh all tabs
+            try:
+                self.refresh_dashboard()
+                self.ingredients_tab.refresh()
+                self.pantry_tab.refresh()
+            except:
+                pass  # Ignore errors during refresh
 
     def _show_help_menu(self):
         """Show the Help menu."""
