@@ -12,12 +12,12 @@ Provides interface for:
 
 import customtkinter as ctk
 from tkinter import messagebox
-from datetime import date, timedelta
-from typing import Optional, List
+from datetime import date
+from typing import Optional, List, Dict, Any
 
 from src.services import pantry_service, ingredient_service, variant_service
 from src.services.exceptions import (
-    NotFound,
+    PantryItemNotFound,
     ValidationError as ServiceValidationError,
     DatabaseError,
 )
@@ -49,12 +49,17 @@ class PantryTab(ctk.CTkFrame):
 
         # Configure grid
         self.grid_columnconfigure(0, weight=1)
-        self.grid_rowconfigure(2, weight=1)
+        self.grid_rowconfigure(0, weight=0)  # Header - fixed height
+        self.grid_rowconfigure(1, weight=0)  # Controls - fixed height
+        self.grid_rowconfigure(2, weight=1)  # Item list - expandable
 
         # Create UI components
         self._create_header()
         self._create_controls()
         self._create_item_list()
+
+        # Grid the frame
+        self.grid(row=0, column=0, sticky="nsew", padx=10, pady=10)
 
         # Initial load
         self.refresh()
@@ -144,29 +149,32 @@ class PantryTab(ctk.CTkFrame):
 
     def _create_item_list(self):
         """Create scrollable list for displaying pantry items."""
-        # Container frame
+        # Container frame - make taller and wider
         list_frame = ctk.CTkFrame(self)
-        list_frame.grid(row=2, column=0, padx=10, pady=(0, 10), sticky="nsew")
+        list_frame.grid(row=2, column=0, padx=5, pady=5, sticky="nsew")
         list_frame.grid_columnconfigure(0, weight=1)
         list_frame.grid_rowconfigure(0, weight=1)
 
-        # Scrollable frame
-        self.scrollable_frame = ctk.CTkScrollableFrame(list_frame)
+        # Scrollable frame - wider minimum width
+        self.scrollable_frame = ctk.CTkScrollableFrame(list_frame, height=500, width=1000)
         self.scrollable_frame.grid(row=0, column=0, sticky="nsew")
         self.scrollable_frame.grid_columnconfigure(0, weight=1)
 
     def refresh(self):
         """Refresh pantry list from database."""
         try:
-            # Get all pantry items from service
+            # Get all pantry items from service (returns PantryItem instances)
             self.pantry_items = pantry_service.get_pantry_items()
 
             # Update location dropdown with unique locations
-            locations = set(
-                item.get('location') for item in self.pantry_items
-                if item.get('location')
+            locations = sorted(
+                {
+                    str(item.location)
+                    for item in self.pantry_items
+                    if getattr(item, "location", None)
+                }
             )
-            location_list = ["All Locations"] + sorted(locations)
+            location_list = ["All Locations"] + locations
             self.location_dropdown.configure(values=location_list)
 
             # Apply filters
@@ -183,11 +191,12 @@ class PantryTab(ctk.CTkFrame):
         """Apply location filter and update display."""
         # Filter by location
         if self.selected_location == "All Locations":
-            self.filtered_items = self.pantry_items
+            self.filtered_items = list(self.pantry_items)
         else:
             self.filtered_items = [
-                item for item in self.pantry_items
-                if item.get('location') == self.selected_location
+                item
+                for item in self.pantry_items
+                if (item.location or "") == self.selected_location
             ]
 
         # Update display based on view mode
@@ -221,10 +230,13 @@ class PantryTab(ctk.CTkFrame):
         """Display pantry items grouped by ingredient with totals."""
         # Group items by ingredient
         from collections import defaultdict
+
         ingredient_groups = defaultdict(list)
 
         for item in self.filtered_items:
-            ingredient_slug = item.get('ingredient_slug')
+            variant = getattr(item, "variant", None)
+            ingredient = getattr(variant, "ingredient", None) if variant else None
+            ingredient_slug = getattr(ingredient, "slug", None)
             if ingredient_slug:
                 ingredient_groups[ingredient_slug].append(item)
 
@@ -258,28 +270,36 @@ class PantryTab(ctk.CTkFrame):
             )
             label.grid(row=0, column=col, padx=5, pady=5, sticky="w")
 
-    def _create_aggregate_row(self, row_idx: int, ingredient_slug: str, items: List[dict]):
+    def _create_aggregate_row(self, row_idx: int, ingredient_slug: str, items):
         """Create a row for aggregated ingredient."""
         row_frame = ctk.CTkFrame(self.scrollable_frame)
         row_frame.grid(row=row_idx, column=0, padx=5, pady=2, sticky="ew")
         row_frame.grid_columnconfigure(1, weight=1)
 
         # Get ingredient info
+        ingredient_obj = None
         try:
-            ingredient = ingredient_service.get_ingredient(ingredient_slug)
-            ingredient_name = ingredient.get('name', ingredient_slug)
-            recipe_unit = ingredient.get('recipe_unit', '')
-        except:
-            ingredient_name = ingredient_slug
-            recipe_unit = ''
+            ingredient_obj = ingredient_service.get_ingredient(ingredient_slug)
+        except Exception:
+            ingredient_obj = None
+
+        ingredient_name = getattr(ingredient_obj, "name", ingredient_slug)
+        recipe_unit = getattr(ingredient_obj, "recipe_unit", "") or ""
 
         # Calculate total quantity in recipe units
-        total_qty = pantry_service.get_total_quantity(ingredient_slug)
+        try:
+            total_qty = pantry_service.get_total_quantity(ingredient_slug)
+            qty_display = f"{total_qty} {recipe_unit}".strip()
+        except Exception:
+            qty_display = "N/A"
 
         # Get lot count and oldest purchase date
         lot_count = len(items)
-        oldest_date = min(item.get('purchase_date') for item in items if item.get('purchase_date'))
-        oldest_str = oldest_date.strftime('%Y-%m-%d') if oldest_date else 'N/A'
+        oldest_date = min(
+            (item.purchase_date for item in items if getattr(item, "purchase_date", None)),
+            default=None,
+        )
+        oldest_str = oldest_date.strftime("%Y-%m-%d") if oldest_date else "N/A"
 
         # Check for expiration warnings
         warning_color = self._get_expiration_warning_color(items)
@@ -298,7 +318,7 @@ class PantryTab(ctk.CTkFrame):
         # Total quantity
         qty_label = ctk.CTkLabel(
             row_frame,
-            text=f"{total_qty} {recipe_unit}",
+            text=qty_display,
             width=150,
             anchor="w",
         )
@@ -342,7 +362,7 @@ class PantryTab(ctk.CTkFrame):
         # Sort items by purchase date (FIFO order - oldest first)
         sorted_items = sorted(
             self.filtered_items,
-            key=lambda x: x.get('purchase_date') or date.today()
+            key=lambda x: getattr(x, "purchase_date", None) or date.today(),
         )
 
         # Display each item
@@ -352,17 +372,17 @@ class PantryTab(ctk.CTkFrame):
     def _create_detail_header(self):
         """Create header for detail view."""
         header_frame = ctk.CTkFrame(self.scrollable_frame)
-        header_frame.grid(row=0, column=0, padx=5, pady=5, sticky="ew")
+        header_frame.grid(row=0, column=0, padx=2, pady=2, sticky="ew")
         header_frame.grid_columnconfigure(2, weight=1)
 
         headers = [
-            ("Ingredient", 0, 200),
+            ("Ingredient", 0, 180),
             ("Variant", 1, 200),
-            ("Quantity", 2, 100),
-            ("Purchase Date", 3, 120),
-            ("Expiration", 4, 120),
-            ("Location", 5, 150),
-            ("Actions", 6, 200),
+            ("Quantity", 2, 120),  # Wider quantity column
+            ("Purchase Date", 3, 110),
+            ("Expiration", 4, 110),
+            ("Location", 5, 120),
+            ("Actions", 6, 180),
         ]
 
         for text, col, width in headers:
@@ -372,33 +392,34 @@ class PantryTab(ctk.CTkFrame):
                 font=ctk.CTkFont(weight="bold"),
                 width=width,
             )
-            label.grid(row=0, column=col, padx=5, pady=5, sticky="w")
+            label.grid(row=0, column=col, padx=3, pady=3, sticky="w")
 
     def _create_detail_row(self, row_idx: int, item: dict):
         """Create a row for individual pantry item."""
         row_frame = ctk.CTkFrame(self.scrollable_frame)
-        row_frame.grid(row=row_idx, column=0, padx=5, pady=2, sticky="ew")
+        row_frame.grid(row=row_idx, column=0, padx=2, pady=1, sticky="ew")  # Denser spacing
         row_frame.grid_columnconfigure(2, weight=1)
 
         # Get ingredient and variant info
-        try:
-            variant = variant_service.get_variant(item.get('variant_id'))
-            ingredient = ingredient_service.get_ingredient(variant.get('ingredient_id'))
-            ingredient_name = ingredient.get('name', 'Unknown')
-            variant_name = f"{variant.get('brand', 'Unknown')} - {variant.get('purchase_quantity')} {variant.get('purchase_unit')}"
-            purchase_unit = variant.get('purchase_unit', '')
-        except:
-            ingredient_name = 'Unknown'
-            variant_name = 'Unknown'
-            purchase_unit = ''
+        variant_obj = getattr(item, "variant", None)
+        ingredient_obj = getattr(variant_obj, "ingredient", None) if variant_obj else None
+
+        ingredient_name = getattr(ingredient_obj, "name", "Unknown")
+        brand = getattr(variant_obj, "brand", "Unknown") if variant_obj else "Unknown"
+        purchase_quantity = getattr(variant_obj, "purchase_quantity", None) or ""
+        purchase_unit = getattr(variant_obj, "purchase_unit", "") or ""
+        if purchase_quantity:
+            variant_name = f"{brand} - {purchase_quantity} {purchase_unit}".strip()
+        else:
+            variant_name = brand
 
         # Check expiration status
-        expiration_date = item.get('expiration_date')
+        expiration_date = getattr(item, "expiration_date", None)
         warning_color = None
-        expiration_text = 'None'
+        expiration_text = "None"
 
         if expiration_date:
-            expiration_text = expiration_date.strftime('%Y-%m-%d')
+            expiration_text = expiration_date.strftime("%Y-%m-%d")
             days_until_expiry = (expiration_date - date.today()).days
 
             if days_until_expiry < 0:
@@ -415,66 +436,77 @@ class PantryTab(ctk.CTkFrame):
         ing_label = ctk.CTkLabel(
             row_frame,
             text=ingredient_name,
-            width=200,
+            width=180,  # Match header width
             anchor="w",
         )
-        ing_label.grid(row=0, column=0, padx=5, pady=5, sticky="w")
+        ing_label.grid(row=0, column=0, padx=3, pady=3, sticky="w")
 
         # Variant
         variant_label = ctk.CTkLabel(
             row_frame,
             text=variant_name,
-            width=200,
+            width=200,  # Match header width
             anchor="w",
         )
-        variant_label.grid(row=0, column=1, padx=5, pady=5, sticky="w")
+        variant_label.grid(row=0, column=1, padx=3, pady=3, sticky="w")
 
-        # Quantity
+        # Quantity - improved formatting
+        qty_value = getattr(item, "quantity", 0)
+        if isinstance(qty_value, (int, float)) and qty_value != 0:
+            # Format numbers nicely - remove trailing zeros
+            if qty_value == int(qty_value):
+                qty_text = str(int(qty_value))
+            else:
+                qty_text = f"{qty_value:.1f}"
+        else:
+            qty_text = "0"
+
         qty_label = ctk.CTkLabel(
             row_frame,
-            text=f"{item.get('quantity', 0)} {purchase_unit}",
-            width=100,
+            text=f"{qty_text} {purchase_unit}".strip(),
+            width=120,  # Wider to match header
             anchor="w",
+            font=ctk.CTkFont(weight="bold"),  # Make quantity more prominent
         )
-        qty_label.grid(row=0, column=2, padx=5, pady=5, sticky="w")
+        qty_label.grid(row=0, column=2, padx=3, pady=3, sticky="w")
 
         # Purchase date
-        purchase_date = item.get('purchase_date')
-        purchase_str = purchase_date.strftime('%Y-%m-%d') if purchase_date else 'N/A'
+        purchase_date = getattr(item, "purchase_date", None)
+        purchase_str = purchase_date.strftime("%Y-%m-%d") if purchase_date else "N/A"
         purchase_label = ctk.CTkLabel(
             row_frame,
             text=purchase_str,
-            width=120,
+            width=110,  # Match header width
             anchor="w",
         )
-        purchase_label.grid(row=0, column=3, padx=5, pady=5, sticky="w")
+        purchase_label.grid(row=0, column=3, padx=3, pady=3, sticky="w")
 
         # Expiration date
         exp_label = ctk.CTkLabel(
             row_frame,
             text=expiration_text,
-            width=120,
+            width=110,  # Match header width
             anchor="w",
         )
-        exp_label.grid(row=0, column=4, padx=5, pady=5, sticky="w")
+        exp_label.grid(row=0, column=4, padx=3, pady=3, sticky="w")
 
         # Location
         location_label = ctk.CTkLabel(
             row_frame,
-            text=item.get('location', 'N/A'),
-            width=150,
+            text=getattr(item, "location", "N/A"),
+            width=120,  # Match header width
             anchor="w",
         )
-        location_label.grid(row=0, column=5, padx=5, pady=5, sticky="w")
+        location_label.grid(row=0, column=5, padx=3, pady=3, sticky="w")
 
         # Actions
         actions_frame = ctk.CTkFrame(row_frame)
-        actions_frame.grid(row=0, column=6, padx=5, pady=5)
+        actions_frame.grid(row=0, column=6, padx=3, pady=3)
 
         edit_btn = ctk.CTkButton(
             actions_frame,
             text="Edit",
-            command=lambda: self._edit_pantry_item(item['id']),
+            command=lambda: self._edit_pantry_item(item["id"]),
             width=80,
         )
         edit_btn.grid(row=0, column=0, padx=2)
@@ -482,7 +514,7 @@ class PantryTab(ctk.CTkFrame):
         delete_btn = ctk.CTkButton(
             actions_frame,
             text="Delete",
-            command=lambda: self._delete_pantry_item(item['id']),
+            command=lambda: self._delete_pantry_item(item["id"]),
             width=80,
             fg_color="darkred",
             hover_color="red",
@@ -495,7 +527,7 @@ class PantryTab(ctk.CTkFrame):
         has_expiring_soon = False
 
         for item in items:
-            expiration_date = item.get('expiration_date')
+            expiration_date = getattr(item, "expiration_date", None)
             if expiration_date:
                 days_until_expiry = (expiration_date - date.today()).days
                 if days_until_expiry < 0:
@@ -527,10 +559,54 @@ class PantryTab(ctk.CTkFrame):
 
         # Filter to specific ingredient
         self.filtered_items = [
-            item for item in self.pantry_items
-            if item.get('ingredient_slug') == ingredient_slug
+            item
+            for item in self.pantry_items
+            if getattr(getattr(item, "variant", None), "ingredient", None)
+            and item.variant.ingredient.slug == ingredient_slug
         ]
 
+        self._update_display()
+
+    def filter_by_ingredient(self, ingredient_slug: str) -> None:
+        """
+        Public helper to focus the view on a specific ingredient.
+
+        Args:
+            ingredient_slug: Slug of the ingredient to filter by.
+        """
+        if not ingredient_slug:
+            return
+
+        if not any(
+            getattr(getattr(item, "variant", None), "ingredient", None)
+            and item.variant.ingredient.slug == ingredient_slug
+            for item in self.pantry_items
+        ):
+            self.refresh()
+
+        if not any(
+            getattr(getattr(item, "variant", None), "ingredient", None)
+            and item.variant.ingredient.slug == ingredient_slug
+            for item in self.pantry_items
+        ):
+            messagebox.showinfo(
+                "No Pantry Items",
+                f"No pantry inventory found for ingredient '{ingredient_slug}'.",
+                parent=self,
+            )
+            return
+
+        self.view_mode = "detail"
+        self.view_mode_var.set("Detail")
+        self.selected_location = "All Locations"
+        self.location_var.set("All Locations")
+
+        self.filtered_items = [
+            item
+            for item in self.pantry_items
+            if getattr(getattr(item, "variant", None), "ingredient", None)
+            and item.variant.ingredient.slug == ingredient_slug
+        ]
         self._update_display()
 
     def _add_pantry_item(self):
@@ -538,56 +614,64 @@ class PantryTab(ctk.CTkFrame):
         dialog = PantryItemFormDialog(self, title="Add Pantry Item")
         self.wait_window(dialog)
 
-        if dialog.result:
-            try:
-                # Create pantry item via service
-                pantry_service.add_to_pantry(
-                    variant_id=dialog.result['variant_id'],
-                    quantity=dialog.result['quantity'],
-                    purchase_date=dialog.result['purchase_date'],
-                    expiration_date=dialog.result.get('expiration_date'),
-                    location=dialog.result.get('location'),
-                    notes=dialog.result.get('notes'),
-                )
+        if not dialog.result:
+            return
 
-                messagebox.showinfo(
-                    "Success",
-                    "Pantry item added successfully",
-                    parent=self,
-                )
-                self.refresh()
+        try:
+            # Create pantry item via service
+            pantry_service.add_to_pantry(
+                variant_id=dialog.result["variant_id"],
+                quantity=dialog.result["quantity"],
+                purchase_date=dialog.result["purchase_date"],
+                expiration_date=dialog.result.get("expiration_date"),
+                location=dialog.result.get("location"),
+                notes=dialog.result.get("notes"),
+            )
 
-            except ServiceValidationError as e:
-                messagebox.showerror("Validation Error", str(e), parent=self)
-            except DatabaseError as e:
-                messagebox.showerror("Database Error", str(e), parent=self)
-            except Exception as e:
-                messagebox.showerror("Error", f"Failed to add pantry item: {str(e)}", parent=self)
+            messagebox.showinfo(
+                "Success",
+                "Pantry item added successfully",
+                parent=self,
+            )
+            self.refresh()
+
+        except ServiceValidationError as e:
+            messagebox.showerror("Validation Error", str(e), parent=self)
+        except DatabaseError as e:
+            messagebox.showerror("Database Error", str(e), parent=self)
+        except Exception as e:
+            messagebox.showerror("Error", f"Failed to add pantry item: {str(e)}", parent=self)
 
     def _edit_pantry_item(self, pantry_item_id: int):
         """Open dialog to edit pantry item."""
         try:
             # Get current item data
-            item = next((i for i in self.pantry_items if i['id'] == pantry_item_id), None)
+            item = next((i for i in self.pantry_items if i.id == pantry_item_id), None)
             if not item:
                 messagebox.showerror("Error", "Pantry item not found", parent=self)
                 return
 
-            dialog = PantryItemFormDialog(self, title="Edit Pantry Item", item=item)
+            dialog = PantryItemFormDialog(
+                self,
+                title="Edit Pantry Item",
+                item=self._serialize_pantry_item(item),
+            )
             self.wait_window(dialog)
 
-            if dialog.result:
-                # Update pantry item via service
-                pantry_service.update_pantry_item(pantry_item_id, dialog.result)
+            if not dialog.result:
+                return
 
-                messagebox.showinfo(
-                    "Success",
-                    "Pantry item updated successfully",
-                    parent=self,
-                )
-                self.refresh()
+            # Update pantry item via service
+            pantry_service.update_pantry_item(pantry_item_id, dialog.result)
 
-        except NotFound:
+            messagebox.showinfo(
+                "Success",
+                "Pantry item updated successfully",
+                parent=self,
+            )
+            self.refresh()
+
+        except PantryItemNotFound:
             messagebox.showerror("Error", "Pantry item not found", parent=self)
             self.refresh()
         except ServiceValidationError as e:
@@ -615,13 +699,15 @@ class PantryTab(ctk.CTkFrame):
                 )
                 self.refresh()
 
-            except NotFound:
+            except PantryItemNotFound:
                 messagebox.showerror("Error", "Pantry item not found", parent=self)
                 self.refresh()
             except DatabaseError as e:
                 messagebox.showerror("Database Error", str(e), parent=self)
             except Exception as e:
-                messagebox.showerror("Error", f"Failed to delete pantry item: {str(e)}", parent=self)
+                messagebox.showerror(
+                    "Error", f"Failed to delete pantry item: {str(e)}", parent=self
+                )
 
     def _consume_ingredient(self):
         """Open dialog to consume ingredient using FIFO logic."""
@@ -630,6 +716,25 @@ class PantryTab(ctk.CTkFrame):
 
         if dialog.result:
             self.refresh()
+
+    def _serialize_pantry_item(self, item) -> dict:
+        """Convert a PantryItem ORM instance to a simple dict for dialog usage."""
+        variant = getattr(item, "variant", None)
+        ingredient = getattr(variant, "ingredient", None) if variant else None
+
+        return {
+            "id": item.id,
+            "variant_id": item.variant_id,
+            "quantity": item.quantity,
+            "purchase_date": item.purchase_date,
+            "expiration_date": item.expiration_date,
+            "location": item.location,
+            "notes": item.notes,
+            "variant_brand": getattr(variant, "brand", None),
+            "variant_purchase_quantity": getattr(variant, "purchase_quantity", None),
+            "variant_purchase_unit": getattr(variant, "purchase_unit", None),
+            "ingredient_name": getattr(ingredient, "name", None),
+        }
 
 
 class PantryItemFormDialog(ctk.CTkToplevel):
@@ -672,9 +777,9 @@ class PantryItemFormDialog(ctk.CTkToplevel):
         self.geometry(f"+{x}+{y}")
 
         self.item = item
-        self.result = None
-        self.ingredients = []
-        self.variants = []
+        self.result: Optional[Dict[str, Any]] = None
+        self.ingredients: List[Dict[str, Any]] = []
+        self.variants: List[Dict[str, Any]] = []
 
         # Load data
         self._load_ingredients()
@@ -706,8 +811,9 @@ class PantryItemFormDialog(ctk.CTkToplevel):
         ing_label = ctk.CTkLabel(self, text="Ingredient:*")
         ing_label.grid(row=row, column=0, padx=10, pady=10, sticky="w")
 
-        ingredient_names = [ing['name'] for ing in self.ingredients]
-        self.ingredient_var = ctk.StringVar(value="" if not self.item else "")
+        ingredient_names = [ing["name"] for ing in self.ingredients]
+        default_ingredient = ingredient_names[0] if ingredient_names else ""
+        self.ingredient_var = ctk.StringVar(value=default_ingredient if not self.item else "")
         self.ingredient_dropdown = ctk.CTkOptionMenu(
             self,
             variable=self.ingredient_var,
@@ -731,6 +837,10 @@ class PantryItemFormDialog(ctk.CTkToplevel):
         self.variant_dropdown.configure(state="disabled")
         row += 1
 
+        # Now that variant_dropdown exists, we can safely call _on_ingredient_change
+        if default_ingredient and not self.item:
+            self._on_ingredient_change(default_ingredient)
+
         # Quantity
         qty_label = ctk.CTkLabel(self, text="Quantity:*")
         qty_label.grid(row=row, column=0, padx=10, pady=10, sticky="w")
@@ -747,7 +857,7 @@ class PantryItemFormDialog(ctk.CTkToplevel):
         self.purchase_date_entry.grid(row=row, column=1, padx=10, pady=10, sticky="ew")
 
         # Set default to today
-        self.purchase_date_entry.insert(0, date.today().strftime('%Y-%m-%d'))
+        self.purchase_date_entry.insert(0, date.today().strftime("%Y-%m-%d"))
         row += 1
 
         # Expiration Date
@@ -797,19 +907,25 @@ class PantryItemFormDialog(ctk.CTkToplevel):
     def _on_ingredient_change(self, ingredient_name: str):
         """Handle ingredient selection change."""
         # Find ingredient
-        ingredient = next((ing for ing in self.ingredients if ing['name'] == ingredient_name), None)
+        ingredient = next((ing for ing in self.ingredients if ing["name"] == ingredient_name), None)
         if not ingredient:
             return
 
         # Load variants for this ingredient
         try:
-            self.variants = variant_service.get_variants_by_ingredient(ingredient['id'])
+            variant_objects = variant_service.get_variants_for_ingredient(ingredient["slug"])
+            self.variants = [
+                {
+                    "id": v.id,
+                    "brand": v.brand,
+                    "purchase_quantity": v.purchase_quantity,
+                    "purchase_unit": v.purchase_unit,
+                }
+                for v in variant_objects
+            ]
 
             if self.variants:
-                variant_names = [
-                    f"{v.get('brand', 'Unknown')} - {v.get('purchase_quantity')} {v.get('purchase_unit')}"
-                    for v in self.variants
-                ]
+                variant_names = [self._format_variant_display(v) for v in self.variants]
                 self.variant_dropdown.configure(values=variant_names, state="normal")
                 self.variant_var.set(variant_names[0])
             else:
@@ -819,56 +935,73 @@ class PantryItemFormDialog(ctk.CTkToplevel):
         except Exception as e:
             messagebox.showerror("Error", f"Failed to load variants: {str(e)}", parent=self)
 
-    def _populate_form(self):
+    def _format_variant_display(self, variant: dict) -> str:
+        """Format a variant dictionary into a human-readable label."""
+        brand = variant.get("brand") or "Unknown"
+        quantity = variant.get("purchase_quantity")
+        unit = variant.get("purchase_unit") or ""
+        if quantity:
+            return f"{brand} - {quantity} {unit}".strip()
+        return brand
+
+    def _populate_form(self):  # noqa: C901
         """Populate form with existing item data."""
         if not self.item:
             return
 
         try:
-            # Get variant and ingredient
-            variant = variant_service.get_variant(self.item['variant_id'])
-            ingredient = ingredient_service.get_ingredient(variant['ingredient_id'])
+            ingredient_name = self.item.get("ingredient_name")
+            if ingredient_name:
+                self.ingredient_var.set(ingredient_name)
+                self._on_ingredient_change(ingredient_name)
 
-            # Set ingredient
-            self.ingredient_var.set(ingredient['name'])
-            self._on_ingredient_change(ingredient['name'])
-
-            # Set variant
-            variant_name = f"{variant.get('brand', 'Unknown')} - {variant.get('purchase_quantity')} {variant.get('purchase_unit')}"
-            self.variant_var.set(variant_name)
+            variant_id = self.item.get("variant_id")
+            display = None
+            if variant_id and self.variants:
+                for variant in self.variants:
+                    if variant["id"] == variant_id:
+                        display = self._format_variant_display(variant)
+                        break
+            if display:
+                self.variant_var.set(display)
 
             # Set quantity
-            self.quantity_entry.delete(0, 'end')
-            self.quantity_entry.insert(0, str(self.item.get('quantity', '')))
+            self.quantity_entry.delete(0, "end")
+            self.quantity_entry.insert(0, str(self.item.get("quantity", "")))
 
             # Set purchase date
-            purchase_date = self.item.get('purchase_date')
+            purchase_date = self.item.get("purchase_date")
             if purchase_date:
-                self.purchase_date_entry.delete(0, 'end')
-                self.purchase_date_entry.insert(0, purchase_date.strftime('%Y-%m-%d'))
+                self.purchase_date_entry.delete(0, "end")
+                self.purchase_date_entry.insert(0, purchase_date.strftime("%Y-%m-%d"))
 
             # Set expiration date
-            expiration_date = self.item.get('expiration_date')
+            expiration_date = self.item.get("expiration_date")
             if expiration_date:
-                self.expiration_date_entry.delete(0, 'end')
-                self.expiration_date_entry.insert(0, expiration_date.strftime('%Y-%m-%d'))
+                self.expiration_date_entry.delete(0, "end")
+                self.expiration_date_entry.insert(0, expiration_date.strftime("%Y-%m-%d"))
 
             # Set location
-            location = self.item.get('location')
+            location = self.item.get("location")
             if location:
-                self.location_entry.delete(0, 'end')
+                self.location_entry.delete(0, "end")
                 self.location_entry.insert(0, location)
 
             # Set notes
-            notes = self.item.get('notes')
+            notes = self.item.get("notes")
             if notes:
-                self.notes_text.delete('1.0', 'end')
-                self.notes_text.insert('1.0', notes)
+                self.notes_text.delete("1.0", "end")
+                self.notes_text.insert("1.0", notes)
+
+            # Prevent editing immutable fields
+            self.ingredient_dropdown.configure(state="disabled")
+            self.variant_dropdown.configure(state="disabled")
+            self.purchase_date_entry.configure(state="disabled")
 
         except Exception as e:
             messagebox.showerror("Error", f"Failed to populate form: {str(e)}", parent=self)
 
-    def _save(self):
+    def _save(self):  # noqa: C901
         """Validate and save form data."""
         from decimal import Decimal
 
@@ -879,14 +1012,17 @@ class PantryItemFormDialog(ctk.CTkToplevel):
         purchase_date_str = self.purchase_date_entry.get().strip()
         expiration_date_str = self.expiration_date_entry.get().strip()
         location = self.location_entry.get().strip()
-        notes = self.notes_text.get('1.0', 'end').strip()
+        notes = self.notes_text.get("1.0", "end").strip()
 
         # Validate required fields
         if not ingredient_name or ingredient_name == "No ingredients":
             messagebox.showerror("Validation Error", "Please select an ingredient", parent=self)
             return
 
-        if not variant_display or variant_display in ["Select ingredient first", "No variants available"]:
+        if not variant_display or variant_display in [
+            "Select ingredient first",
+            "No variants available",
+        ]:
             messagebox.showerror("Validation Error", "Please select a variant", parent=self)
             return
 
@@ -898,22 +1034,34 @@ class PantryItemFormDialog(ctk.CTkToplevel):
             messagebox.showerror("Validation Error", "Purchase date is required", parent=self)
             return
 
+        is_editing = self.item is not None
+        item_data: Dict[str, Any] = self.item or {}
+
         # Parse and validate quantity
         try:
             quantity = Decimal(quantity_str)
             if quantity <= 0:
-                messagebox.showerror("Validation Error", "Quantity must be greater than 0", parent=self)
+                messagebox.showerror(
+                    "Validation Error", "Quantity must be greater than 0", parent=self
+                )
                 return
-        except:
+        except Exception:
             messagebox.showerror("Validation Error", "Invalid quantity format", parent=self)
             return
 
         # Parse purchase date
-        try:
-            purchase_date = date.fromisoformat(purchase_date_str)
-        except:
-            messagebox.showerror("Validation Error", "Invalid purchase date format (use YYYY-MM-DD)", parent=self)
-            return
+        if is_editing and item_data.get("purchase_date"):
+            purchase_date = item_data["purchase_date"]
+        else:
+            try:
+                purchase_date = date.fromisoformat(purchase_date_str)
+            except Exception:
+                messagebox.showerror(
+                    "Validation Error",
+                    "Invalid purchase date format (use YYYY-MM-DD)",
+                    parent=self,
+                )
+                return
 
         # Parse expiration date (optional)
         expiration_date = None
@@ -921,31 +1069,48 @@ class PantryItemFormDialog(ctk.CTkToplevel):
             try:
                 expiration_date = date.fromisoformat(expiration_date_str)
                 if expiration_date < purchase_date:
-                    messagebox.showerror("Validation Error", "Expiration date must be after purchase date", parent=self)
+                    messagebox.showerror(
+                        "Validation Error",
+                        "Expiration date must be after purchase date",
+                        parent=self,
+                    )
                     return
-            except:
-                messagebox.showerror("Validation Error", "Invalid expiration date format (use YYYY-MM-DD)", parent=self)
+            except Exception:
+                messagebox.showerror(
+                    "Validation Error",
+                    "Invalid expiration date format (use YYYY-MM-DD)",
+                    parent=self,
+                )
                 return
 
-        # Find variant ID
-        variant = next((v for v in self.variants if f"{v.get('brand', 'Unknown')} - {v.get('purchase_quantity')} {v.get('purchase_unit')}" == variant_display), None)
-        if not variant:
-            messagebox.showerror("Validation Error", "Selected variant not found", parent=self)
-            return
+        # Determine variant ID
+        if is_editing:
+            variant_id = item_data.get("variant_id")
+        else:
+            variant = next(
+                (v for v in self.variants if self._format_variant_display(v) == variant_display),
+                None,
+            )
+            if not variant:
+                messagebox.showerror("Validation Error", "Selected variant not found", parent=self)
+                return
+            variant_id = variant["id"]
 
         # Build result
         self.result = {
-            'variant_id': variant['id'],
-            'quantity': quantity,
-            'purchase_date': purchase_date,
+            "quantity": quantity,
         }
 
+        if not is_editing:
+            self.result["variant_id"] = variant_id
+            self.result["purchase_date"] = purchase_date
+
         if expiration_date:
-            self.result['expiration_date'] = expiration_date
+            self.result["expiration_date"] = expiration_date
         if location:
-            self.result['location'] = location
+            self.result["location"] = location
         if notes:
-            self.result['notes'] = notes
+            self.result["notes"] = notes
 
         self.destroy()
 
@@ -985,7 +1150,7 @@ class ConsumeIngredientDialog(ctk.CTkToplevel):
         y = parent.winfo_rooty() + (parent.winfo_height() - self.winfo_height()) // 2
         self.geometry(f"+{x}+{y}")
 
-        self.result = None
+        self.result: Optional[Dict[str, Any]] = None
         self.ingredients = []
         self.preview_data = None
 
@@ -1005,11 +1170,11 @@ class ConsumeIngredientDialog(ctk.CTkToplevel):
             self.ingredients = []
             for ing in all_ingredients:
                 try:
-                    total = pantry_service.get_total_quantity(ing['slug'])
+                    total = pantry_service.get_total_quantity(ing["slug"])
                     if total > 0:
-                        ing['total_quantity'] = total
+                        ing["total_quantity"] = total
                         self.ingredients.append(ing)
-                except:
+                except Exception:
                     continue
 
         except Exception as e:
@@ -1041,7 +1206,9 @@ class ConsumeIngredientDialog(ctk.CTkToplevel):
             f"{ing['name']} (Available: {ing['total_quantity']} {ing.get('recipe_unit', '')})"
             for ing in self.ingredients
         ]
-        self.ingredient_var = ctk.StringVar(value="" if not self.ingredients else ingredient_names[0])
+        self.ingredient_var = ctk.StringVar(
+            value="" if not self.ingredients else ingredient_names[0]
+        )
         self.ingredient_dropdown = ctk.CTkOptionMenu(
             self,
             variable=self.ingredient_var,
@@ -1120,7 +1287,7 @@ class ConsumeIngredientDialog(ctk.CTkToplevel):
         self.preview_data = None
         self.consume_btn.configure(state="disabled")
 
-    def _update_preview(self):
+    def _update_preview(self):  # noqa: C901
         """Update FIFO preview based on current selections."""
         from decimal import Decimal
 
@@ -1132,7 +1299,7 @@ class ConsumeIngredientDialog(ctk.CTkToplevel):
 
         # Extract ingredient name from display (remove availability info)
         ingredient_name = ingredient_display.split(" (Available:")[0]
-        ingredient = next((ing for ing in self.ingredients if ing['name'] == ingredient_name), None)
+        ingredient = next((ing for ing in self.ingredients if ing["name"] == ingredient_name), None)
         if not ingredient:
             self._show_preview_message("Selected ingredient not found.")
             return
@@ -1148,28 +1315,30 @@ class ConsumeIngredientDialog(ctk.CTkToplevel):
             if quantity <= 0:
                 self._show_preview_message("Quantity must be greater than 0.")
                 return
-        except:
+        except Exception:
             self._show_preview_message("Invalid quantity format.")
             return
 
         # Call service to get FIFO preview (dry run)
         try:
-            result = pantry_service.consume_fifo(ingredient['slug'], quantity)
+            result = pantry_service.consume_fifo(ingredient["slug"], quantity)
             self.preview_data = result
 
             # Build preview message
             preview_message = f"FIFO Consumption Preview for {ingredient['name']}\n"
             preview_message += "=" * 60 + "\n\n"
 
-            if result['satisfied']:
+            if result["satisfied"]:
                 preview_message += f"✓ Requested: {quantity} {ingredient.get('recipe_unit', '')}\n"
-                preview_message += f"✓ Will consume: {result['consumed']} {ingredient.get('recipe_unit', '')}\n"
-                preview_message += f"✓ Status: SATISFIED\n\n"
+                preview_message += (
+                    f"✓ Will consume: {result['consumed']} {ingredient.get('recipe_unit', '')}\n"
+                )
+                preview_message += "✓ Status: SATISFIED\n\n"
 
                 preview_message += f"Will consume from {len(result['breakdown'])} lot(s):\n"
                 preview_message += "-" * 60 + "\n"
 
-                for idx, lot_consumption in enumerate(result['breakdown'], 1):
+                for idx, lot_consumption in enumerate(result["breakdown"], 1):
                     preview_message += f"\nLot {idx}:\n"
                     preview_message += f"  Purchase Date: {lot_consumption['lot_date']}\n"
                     preview_message += f"  Quantity Consumed: {lot_consumption['quantity_consumed']} {lot_consumption['unit']}\n"
@@ -1181,15 +1350,21 @@ class ConsumeIngredientDialog(ctk.CTkToplevel):
             else:
                 # Insufficient inventory
                 preview_message += f"⚠ Requested: {quantity} {ingredient.get('recipe_unit', '')}\n"
-                preview_message += f"⚠ Available: {result['consumed']} {ingredient.get('recipe_unit', '')}\n"
-                preview_message += f"⚠ Shortfall: {result['shortfall']} {ingredient.get('recipe_unit', '')}\n"
-                preview_message += f"⚠ Status: INSUFFICIENT INVENTORY\n\n"
+                preview_message += (
+                    f"⚠ Available: {result['consumed']} {ingredient.get('recipe_unit', '')}\n"
+                )
+                preview_message += (
+                    f"⚠ Shortfall: {result['shortfall']} {ingredient.get('recipe_unit', '')}\n"
+                )
+                preview_message += "⚠ Status: INSUFFICIENT INVENTORY\n\n"
 
-                if result['breakdown']:
-                    preview_message += f"Can partially consume from {len(result['breakdown'])} lot(s):\n"
+                if result["breakdown"]:
+                    preview_message += (
+                        f"Can partially consume from {len(result['breakdown'])} lot(s):\n"
+                    )
                     preview_message += "-" * 60 + "\n"
 
-                    for idx, lot_consumption in enumerate(result['breakdown'], 1):
+                    for idx, lot_consumption in enumerate(result["breakdown"], 1):
                         preview_message += f"\nLot {idx}:\n"
                         preview_message += f"  Purchase Date: {lot_consumption['lot_date']}\n"
                         preview_message += f"  Quantity Consumed: {lot_consumption['quantity_consumed']} {lot_consumption['unit']}\n"
@@ -1221,7 +1396,7 @@ class ConsumeIngredientDialog(ctk.CTkToplevel):
         ingredient_name = ingredient_display.split(" (Available:")[0]
         quantity_str = self.quantity_entry.get().strip()
 
-        if self.preview_data['satisfied']:
+        if self.preview_data["satisfied"]:
             confirm_msg = f"Consume {quantity_str} from {ingredient_name}?\n\n"
             confirm_msg += f"This will consume from {len(self.preview_data['breakdown'])} lot(s)."
         else:
@@ -1237,7 +1412,7 @@ class ConsumeIngredientDialog(ctk.CTkToplevel):
             success_msg += f"Ingredient: {ingredient_name}\n"
             success_msg += f"Consumed: {self.preview_data['consumed']}\n"
 
-            if self.preview_data['shortfall'] > 0:
+            if self.preview_data["shortfall"] > 0:
                 success_msg += f"Shortfall: {self.preview_data['shortfall']}\n"
 
             success_msg += f"\nLots Updated: {len(self.preview_data['breakdown'])}\n"
@@ -1246,8 +1421,8 @@ class ConsumeIngredientDialog(ctk.CTkToplevel):
 
             # Set result and close
             self.result = {
-                'ingredient': ingredient_name,
-                'consumed': self.preview_data['consumed'],
-                'breakdown': self.preview_data['breakdown'],
+                "ingredient": ingredient_name,
+                "consumed": self.preview_data["consumed"],
+                "breakdown": self.preview_data["breakdown"],
             }
             self.destroy()
