@@ -1,24 +1,26 @@
 # Seasonal Baking Tracker - Master Test Plan
 
-**Version:** 1.0
+**Version:** 1.1
 **Last Updated:** 2025-11-12
-**Current Phase:** Phase 4 UI Completion - Session #6+ Testing
+**Current Phase:** Phase 4 UI Completion - Session #8 Testing
 
 ---
 
 ## 📋 Current Test Status
 
-**Overall Progress:** 0/10 tests completed
-**Last Test Session:** Session #6 (failed due to SQLAlchemy errors - now fixed)
-**Next Action:** Run Session #7 with updated test plan
+**Overall Progress:** 9/10 tests completed (90% success rate!)
+**Last Test Session:** Session #7 (major progress - SQLAlchemy errors resolved)
+**Next Action:** Fix VAR-03 variant list display issue → Run Session #8
 
 ---
 
-## 🎯 Active Test Suite - Session #7
+## 🎯 Active Test Suite - Session #8
 
 ### Test Environment Setup
 - [ ] **ENV-01:** App launches without critical errors
-  - **Status:** ⏳ PENDING
+  - **Action:** Start app, verify no critical error dialogs
+  - **Expected:** App opens cleanly
+  - [ ] **PASS** - [ ] **FAIL**
   - **Comments:**
   - **Images:**
 
@@ -28,43 +30,43 @@
 - [ ] **ING-01:** Duplicate ingredient detection shows friendly error
   - **Action:** Try to add "Black Licorice" (already exists)
   - **Expected:** User-friendly popup error message
-  - **Status:** ⏳ PENDING
+  - [ ] **PASS** - [ ] **FAIL**
   - **Comments:**
   - **Images:**
 
 - [ ] **ING-02:** Add new ingredient successfully
-  - **Action:** Add "Test Sugar v6" / Category: "Sugar" / Unit: "cup"
+  - **Action:** Add "Test Sugar v7" / Category: "Sugar" / Unit: "cup"
   - **Expected:** Ingredient appears in list
-  - **Status:** ⏳ PENDING
+  - [ ] **PASS** - [ ] **FAIL**
   - **Comments:**
   - **Images:**
 
-#### Test Group B: Variant Management (Critical - Previous Failures)
+#### Test Group B: Variant Management (Critical - VAR-03 was failing)
 - [ ] **VAR-01:** View Variants dialog opens without errors
   - **Action:** Select ingredient → Click "View Variants"
   - **Expected:** Dialog opens, no SQLAlchemy session errors
-  - **Status:** ⏳ PENDING
+  - [ ] **PASS** - [ ] **FAIL**
   - **Comments:**
   - **Images:**
 
 - [ ] **VAR-02:** Add Variant dialog shows preferred checkbox
   - **Action:** In Variants dialog → Click "Add Variant"
   - **Expected:** "Mark as Preferred" checkbox is visible
-  - **Status:** ⏳ PENDING
+  - [ ] **PASS** - [ ] **FAIL**
   - **Comments:**
   - **Images:**
 
-- [ ] **VAR-03:** Save variant with preferred setting
+- [ ] **VAR-03:** Save variant with preferred setting (CRITICAL FIX)
   - **Action:** Fill Brand: "Domino" / Qty: "5" / Unit: "lb" / Check "Preferred" → Save
-  - **Expected:** Variant appears in list with ⭐ star, no session errors
-  - **Status:** ⏳ PENDING
+  - **Expected:** Variant appears in list with proper variant name (not ingredient name) and ⭐ star
+  - [ ] **PASS** - [ ] **FAIL**
   - **Comments:**
   - **Images:**
 
 - [ ] **VAR-04:** Refresh variants list shows saved variants
   - **Action:** Click "Refresh" in variants dialog
-  - **Expected:** All variants display correctly, no session binding errors
-  - **Status:** ⏳ PENDING
+  - **Expected:** All variants display correctly with proper variant names
+  - [ ] **PASS** - [ ] **FAIL**
   - **Comments:**
   - **Images:**
 
@@ -72,21 +74,21 @@
 - [ ] **PAN-01:** My Pantry tab displays content
   - **Action:** Click "My Pantry" tab
   - **Expected:** Tab shows controls and content (not blank screen)
-  - **Status:** ⏳ PENDING
+  - [ ] **PASS** - [ ] **FAIL**
   - **Comments:**
   - **Images:**
 
 - [ ] **PAN-02:** Add Pantry Item dialog opens successfully
   - **Action:** In My Pantry → Click "Add Pantry Item"
   - **Expected:** Dialog opens with ingredient/variant dropdowns, no session errors
-  - **Status:** ⏳ PENDING
+  - [ ] **PASS** - [ ] **FAIL**
   - **Comments:**
   - **Images:**
 
 - [ ] **PAN-03:** Add pantry item end-to-end workflow
   - **Action:** Select ingredient/variant → Enter quantity/date → Save
-  - **Expected:** Item appears in pantry list
-  - **Status:** ⏳ PENDING
+  - **Expected:** Item appears in pantry list with visible quantities
+  - [ ] **PASS** - [ ] **FAIL**
   - **Comments:**
   - **Images:**
 
@@ -94,7 +96,7 @@
 - [ ] **PER-01:** Restart app retains all data
   - **Action:** Close app → Restart → Check all added data still exists
   - **Expected:** All ingredients, variants, pantry items persist correctly
-  - **Status:** ⏳ PENDING
+  - [ ] **PASS** - [ ] **FAIL**
   - **Comments:**
   - **Images:**
 
@@ -102,59 +104,61 @@
 
 ## 📸 Image Guidelines
 
-Save all test screenshots in: `user_testing/images/`
-
-**Naming Convention:**
-- `session7_test_[ID]_[status].png`
-- Example: `session7_test_VAR01_PASS.png` or `session7_test_VAR03_FAIL.png`
-
-**Link in test comments:**
-```markdown
-**Images:** ![Screenshot](images/session7_test_VAR01_PASS.png)
-```
+Save screenshots in: `docs/user_testing/images/`
+Use any filename - no naming convention required. Just drag and drop images into the markdown.
 
 ---
 
 ## 🔄 Test Iteration Process
 
 ### After Each Test Run:
-1. **Update Status:** Change ⏳ PENDING to ✅ PASS or ❌ FAIL
+1. **Check boxes:** Mark [x] for PASS or FAIL
 2. **Add Comments:** Describe what happened, any errors seen
-3. **Add Screenshots:** Link relevant images showing results
+3. **Add Screenshots:** Drag/drop relevant images
 4. **Report Results:** Let Claude know which tests failed for immediate fixes
 
 ### When Tests Fail:
-1. **Don't proceed:** Stop testing and report failure details
+1. **Stop testing** and report failure details
 2. **Include specifics:** Error messages, unexpected behavior
 3. **Add screenshots:** Visual evidence of the failure
 4. **Wait for fixes:** Claude will fix issues and update test plan
-
-### When All Tests Pass:
-1. **Archive session:** Move to "Completed Sessions" section
-2. **Plan next phase:** Add new test scenarios as needed
-3. **Celebrate:** We're making progress! 🎉
 
 ---
 
 ## 📚 Test History
 
 ### Completed Sessions
-*(None yet - Session #7 is our first with this new process)*
+
+#### ✅ Session #7 Results (9/10 PASS - 90% Success!)
+- **ENV-01:** ✅ PASS - App launches without critical errors
+- **ING-01:** ✅ PASS - Duplicate ingredient detection works
+- **ING-02:** ✅ PASS - Add new ingredient successful
+- **VAR-01:** ✅ PASS - View Variants dialog opens without errors
+- **VAR-02:** ✅ PASS - Add Variant dialog shows preferred checkbox
+- **VAR-03:** ❌ FAIL - Variant list shows ingredient name instead of variant name
+- **VAR-04:** ✅ PASS - Refresh variants list works
+- **PAN-01:** ✅ PASS - My Pantry tab displays content
+- **PAN-02:** ✅ PASS - Add Pantry Item dialog opens (note: quantities not visible in list)
+- **PAN-03:** ✅ PASS - Add pantry item end-to-end workflow
+- **PER-01:** ✅ PASS - Restart app retains all data
 
 ### Known Issues Fixed
 - ✅ **Session #5:** SQLAlchemy session binding error (pantry service)
 - ✅ **Session #6:** SQLAlchemy session binding error (variant service)
 - ✅ **Previous:** My Pantry blank screen, missing Preferred checkbox, ValidationError formatting
 
+### Issues to Fix
+- 🔧 **VAR-03:** Variant list display shows ingredient name instead of variant name/brand
+- 🔧 **PAN-02:** Pantry list should show quantities (enhancement)
+
 ---
 
 ## 🎯 Success Criteria
 
-**Session #7 Success Definition:**
-- All 10 tests in Active Test Suite show ✅ PASS
-- No critical SQLAlchemy session errors
-- Core ingredient → variant → pantry workflow functional
-- Data persists across app restarts
+**Session #8 Success Definition:**
+- VAR-03 fixed: Variant list shows proper variant names (brand, size, etc.)
+- All 10 tests show PASS
+- Core ingredient → variant → pantry workflow fully functional
 
 **Overall Phase 4 Success:**
 - End-to-end workflow: Add Ingredient → Add Variant → Add Pantry Item → View/Manage inventory
