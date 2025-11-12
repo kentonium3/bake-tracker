@@ -20,7 +20,8 @@
 - [ ] **ENV-01:** App launches without critical errors
   - **Action:** Start app, verify no critical error dialogs
   - **Expected:** App opens cleanly
-  - [ ] **PASS** - [ ] **FAIL**
+  - [ ] **PASS**
+  - [ ] **FAIL**
   - **Comments:**
   - **Images:**
 
@@ -30,14 +31,16 @@
 - [ ] **ING-01:** Duplicate ingredient detection shows friendly error
   - **Action:** Try to add "Black Licorice" (already exists)
   - **Expected:** User-friendly popup error message
-  - [ ] **PASS** - [ ] **FAIL**
+  - [ ] **PASS**
+  - [ ] **FAIL**
   - **Comments:**
   - **Images:**
 
 - [ ] **ING-02:** Add new ingredient successfully
   - **Action:** Add "Test Sugar v7" / Category: "Sugar" / Unit: "cup"
   - **Expected:** Ingredient appears in list
-  - [ ] **PASS** - [ ] **FAIL**
+  - [ ] **PASS**
+  - [ ] **FAIL**
   - **Comments:**
   - **Images:**
 
@@ -45,28 +48,32 @@
 - [ ] **VAR-01:** View Variants dialog opens without errors
   - **Action:** Select ingredient → Click "View Variants"
   - **Expected:** Dialog opens, no SQLAlchemy session errors
-  - [ ] **PASS** - [ ] **FAIL**
+  - [ ] **PASS**
+  - [ ] **FAIL**
   - **Comments:**
   - **Images:**
 
 - [ ] **VAR-02:** Add Variant dialog shows preferred checkbox
   - **Action:** In Variants dialog → Click "Add Variant"
   - **Expected:** "Mark as Preferred" checkbox is visible
-  - [ ] **PASS** - [ ] **FAIL**
+  - [ ] **PASS**
+  - [ ] **FAIL**
   - **Comments:**
   - **Images:**
 
 - [ ] **VAR-03:** Save variant with preferred setting (CRITICAL FIX)
   - **Action:** Fill Brand: "Domino" / Qty: "5" / Unit: "lb" / Check "Preferred" → Save
   - **Expected:** Variant appears in list with proper variant name (not ingredient name) and ⭐ star
-  - [ ] **PASS** - [ ] **FAIL**
+  - [ ] **PASS**
+  - [ ] **FAIL**
   - **Comments:**
   - **Images:**
 
 - [ ] **VAR-04:** Refresh variants list shows saved variants
   - **Action:** Click "Refresh" in variants dialog
   - **Expected:** All variants display correctly with proper variant names
-  - [ ] **PASS** - [ ] **FAIL**
+  - [ ] **PASS**
+  - [ ] **FAIL**
   - **Comments:**
   - **Images:**
 
@@ -74,21 +81,24 @@
 - [ ] **PAN-01:** My Pantry tab displays content
   - **Action:** Click "My Pantry" tab
   - **Expected:** Tab shows controls and content (not blank screen)
-  - [ ] **PASS** - [ ] **FAIL**
+  - [ ] **PASS**
+  - [ ] **FAIL**
   - **Comments:**
   - **Images:**
 
 - [ ] **PAN-02:** Add Pantry Item dialog opens successfully
   - **Action:** In My Pantry → Click "Add Pantry Item"
   - **Expected:** Dialog opens with ingredient/variant dropdowns, no session errors
-  - [ ] **PASS** - [ ] **FAIL**
+  - [ ] **PASS**
+  - [ ] **FAIL**
   - **Comments:**
   - **Images:**
 
 - [ ] **PAN-03:** Add pantry item end-to-end workflow
   - **Action:** Select ingredient/variant → Enter quantity/date → Save
   - **Expected:** Item appears in pantry list with visible quantities
-  - [ ] **PASS** - [ ] **FAIL**
+  - [ ] **PASS**
+  - [ ] **FAIL**
   - **Comments:**
   - **Images:**
 
@@ -96,7 +106,8 @@
 - [ ] **PER-01:** Restart app retains all data
   - **Action:** Close app → Restart → Check all added data still exists
   - **Expected:** All ingredients, variants, pantry items persist correctly
-  - [ ] **PASS** - [ ] **FAIL**
+  - [ ] **PASS**
+  - [ ] **FAIL**
   - **Comments:**
   - **Images:**
 
