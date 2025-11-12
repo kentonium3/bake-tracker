@@ -161,7 +161,9 @@ def get_pantry_items(
           True
       """
       with session_scope() as session:
-          q = session.query(PantryItem).options(joinedload(PantryItem.variant))
+          q = session.query(PantryItem).options(
+              joinedload(PantryItem.variant).joinedload(Variant.ingredient)
+          )
 
           # Join Variant if filtering by ingredient_slug
           if ingredient_slug:
@@ -283,7 +285,9 @@ def consume_fifo(ingredient_slug: str, quantity_needed: Decimal) -> Dict[str, An
       try:
           with session_scope() as session:
               # Get all lots ordered by purchase_date ASC (oldest first)
-              pantry_items = session.query(PantryItem).options(joinedload(PantryItem.variant)).join(Variant).filter(
+              pantry_items = session.query(PantryItem).options(
+                  joinedload(PantryItem.variant).joinedload(Variant.ingredient)
+              ).join(Variant).filter(
                   Variant.ingredient_id == ingredient.id,
                   PantryItem.quantity >= 0.001  # Exclude negligible amounts from floating-point errors
               ).order_by(PantryItem.purchase_date.asc()).all()
@@ -380,7 +384,9 @@ def get_expiring_soon(days: int = 14) -> List[PantryItem]:
       cutoff_date = date.today() + timedelta(days=days)
 
       with session_scope() as session:
-          return session.query(PantryItem).filter(
+          return session.query(PantryItem).options(
+              joinedload(PantryItem.variant).joinedload(Variant.ingredient)
+          ).filter(
               PantryItem.expiration_date.isnot(None),
               PantryItem.expiration_date <= cutoff_date,
               PantryItem.quantity > 0
@@ -422,7 +428,9 @@ def update_pantry_item(pantry_item_id: int, item_data: Dict[str, Any]) -> Pantry
 
       try:
           with session_scope() as session:
-              item = session.query(PantryItem).filter_by(id=pantry_item_id).first()
+              item = session.query(PantryItem).options(
+                  joinedload(PantryItem.variant).joinedload(Variant.ingredient)
+              ).filter_by(id=pantry_item_id).first()
               if not item:
                   raise PantryItemNotFound(pantry_item_id)
 
