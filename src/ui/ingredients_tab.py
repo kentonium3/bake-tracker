@@ -6,11 +6,19 @@ Provides CRUD interface for managing generic ingredient catalog
 """
 
 import customtkinter as ctk
-from typing import Optional, List
+from typing import Optional, List, Dict, Any
 from tkinter import messagebox
 
 from src.services import ingredient_service, variant_service
-from src.services.exceptions import NotFound, ValidationError, DatabaseError
+from src.services.exceptions import (
+    IngredientInUse,
+    IngredientNotFoundBySlug,
+    SlugAlreadyExists,
+    ValidationError,
+    DatabaseError,
+    VariantInUse,
+    VariantNotFound,
+)
 from src.utils.constants import PADDING_MEDIUM, PADDING_LARGE
 
 
@@ -38,6 +46,7 @@ class IngredientsTab(ctk.CTkFrame):
 
         self.selected_ingredient_slug: Optional[str] = None
         self.ingredients: List[dict] = []
+        self.selection_var = ctk.StringVar(value="")
 
         # Configure grid
         self.grid_columnconfigure(0, weight=1)
@@ -67,7 +76,9 @@ class IngredientsTab(ctk.CTkFrame):
             text="My Ingredients",
             font=ctk.CTkFont(size=24, weight="bold"),
         )
-        title_label.grid(row=0, column=0, sticky="w", padx=PADDING_LARGE, pady=(PADDING_LARGE, PADDING_MEDIUM))
+        title_label.grid(
+            row=0, column=0, sticky="w", padx=PADDING_LARGE, pady=(PADDING_LARGE, PADDING_MEDIUM)
+        )
 
     def _create_search_filter(self):
         """Create search and filter controls."""
@@ -166,8 +177,12 @@ class IngredientsTab(ctk.CTkFrame):
 
     def _create_ingredient_list(self):
         """Create the scrollable list for displaying ingredients."""
-        # Create scrollable frame
-        self.list_frame = ctk.CTkScrollableFrame(self, label_text="Ingredient Catalog")
+        # Create scrollable frame with explicit minimum width
+        self.list_frame = ctk.CTkScrollableFrame(
+            self,
+            label_text="Ingredient Catalog",
+            width=700,  # Minimum width to prevent truncation
+        )
         self.list_frame.grid(
             row=3,
             column=0,
@@ -207,7 +222,7 @@ class IngredientsTab(ctk.CTkFrame):
             self.ingredients = ingredient_service.get_all_ingredients()
 
             # Update category dropdown with unique categories
-            categories = set(ing['category'] for ing in self.ingredients if ing.get('category'))
+            categories = set(ing["category"] for ing in self.ingredients if ing.get("category"))
             category_list = ["All Categories"] + sorted(categories)
             self.category_dropdown.configure(values=category_list)
 
@@ -236,10 +251,20 @@ class IngredientsTab(ctk.CTkFrame):
         if not filtered_ingredients:
             self.empty_label.grid(row=0, column=0, pady=50)
             self._disable_selection_buttons()
+            self.selection_var.set("")
             return
 
         # Hide empty label
         self.empty_label.grid_forget()
+
+        # Restore selection if still present
+        if self.selected_ingredient_slug and any(
+            ing["slug"] == self.selected_ingredient_slug for ing in filtered_ingredients
+        ):
+            self.selection_var.set(self.selected_ingredient_slug)
+        else:
+            self.selection_var.set("")
+            self._disable_selection_buttons()
 
         # Display ingredients
         for idx, ingredient in enumerate(filtered_ingredients):
@@ -256,20 +281,22 @@ class IngredientsTab(ctk.CTkFrame):
         radio = ctk.CTkRadioButton(
             row_frame,
             text="",
-            variable=ctk.StringVar(value=""),
-            value=ingredient['slug'],
-            command=lambda: self._on_ingredient_select(ingredient['slug']),
+            variable=self.selection_var,
+            value=ingredient["slug"],
+            command=lambda slug=ingredient["slug"]: self._on_ingredient_select(slug),
         )
         radio.grid(row=0, column=0, padx=(PADDING_MEDIUM, 5), pady=PADDING_MEDIUM)
 
         # Ingredient info
-        name_text = ingredient['name']
-        category_text = ingredient.get('category', 'Uncategorized')
-        recipe_unit = ingredient.get('recipe_unit', 'N/A')
-        density = ingredient.get('density_g_per_ml')
+        name_text = ingredient["name"]
+        category_text = ingredient.get("category", "Uncategorized")
+        recipe_unit = ingredient.get("recipe_unit", "N/A")
+        density = ingredient.get("density_g_per_ml")
         density_text = f"{density:.3f} g/ml" if density else "No density"
 
-        info_text = f"{name_text} | Category: {category_text} | Unit: {recipe_unit} | {density_text}"
+        info_text = (
+            f"{name_text} | Category: {category_text} | Unit: {recipe_unit} | {density_text}"
+        )
 
         info_label = ctk.CTkLabel(
             row_frame,
@@ -285,18 +312,12 @@ class IngredientsTab(ctk.CTkFrame):
         # Apply search filter
         search_text = self.search_entry.get().lower()
         if search_text:
-            filtered = [
-                ing for ing in filtered
-                if search_text in ing['name'].lower()
-            ]
+            filtered = [ing for ing in filtered if search_text in ing["name"].lower()]
 
         # Apply category filter
         category = self.category_var.get()
         if category and category != "All Categories":
-            filtered = [
-                ing for ing in filtered
-                if ing.get('category') == category
-            ]
+            filtered = [ing for ing in filtered if ing.get("category") == category]
 
         return filtered
 
@@ -310,13 +331,41 @@ class IngredientsTab(ctk.CTkFrame):
 
     def _clear_filters(self):
         """Clear all filters and refresh display."""
-        self.search_entry.delete(0, 'end')
+        self.search_entry.delete(0, "end")
         self.category_var.set("All Categories")
         self._update_ingredient_display()
+
+    def select_ingredient(self, ingredient_slug: str, variant_id: Optional[int] = None) -> None:
+        """
+        Programmatically select an ingredient (and optional variant) from the list.
+
+        Args:
+            ingredient_slug: Slug of the ingredient to select.
+            variant_id: Optional variant ID to highlight within the variants dialog.
+        """
+        if not ingredient_slug:
+            return
+
+        if not any(ing["slug"] == ingredient_slug for ing in self.ingredients):
+            self.refresh()
+
+        if not any(ing["slug"] == ingredient_slug for ing in self.ingredients):
+            self.update_status(f"Ingredient '{ingredient_slug}' not found")
+            return
+
+        self.selected_ingredient_slug = ingredient_slug
+        self._update_ingredient_display()
+        self.selection_var.set(ingredient_slug)
+        self._enable_selection_buttons()
+        self.update_status(f"Ingredient '{ingredient_slug}' selected")
+
+        if variant_id is not None:
+            self._view_variants(selected_variant_id=variant_id)
 
     def _on_ingredient_select(self, slug: str):
         """Handle ingredient selection."""
         self.selected_ingredient_slug = slug
+        self.selection_var.set(slug)
         self._enable_selection_buttons()
 
     def _enable_selection_buttons(self):
@@ -331,6 +380,7 @@ class IngredientsTab(ctk.CTkFrame):
         self.delete_button.configure(state="disabled")
         self.variants_button.configure(state="disabled")
         self.selected_ingredient_slug = None
+        self.selection_var.set("")
 
     def _add_ingredient(self):
         """Open dialog to add a new ingredient."""
@@ -340,13 +390,21 @@ class IngredientsTab(ctk.CTkFrame):
         if dialog.result:
             try:
                 # Create ingredient using service
-                ingredient = ingredient_service.create_ingredient(dialog.result)
+                ingredient_obj = ingredient_service.create_ingredient(dialog.result)
+                ingredient_name = getattr(
+                    ingredient_obj, "name", dialog.result.get("name", "Ingredient")
+                )
+                self.selected_ingredient_slug = getattr(ingredient_obj, "slug", None)
                 self.refresh()
-                self.update_status(f"Ingredient '{ingredient['name']}' added successfully")
-                messagebox.showinfo("Success", f"Ingredient '{ingredient['name']}' created!")
+                if self.selected_ingredient_slug:
+                    self.selection_var.set(self.selected_ingredient_slug)
+                self.update_status(f"Ingredient '{ingredient_name}' added successfully")
+                messagebox.showinfo("Success", f"Ingredient '{ingredient_name}' created!")
 
             except ValidationError as e:
                 messagebox.showerror("Validation Error", str(e))
+            except SlugAlreadyExists as e:
+                messagebox.showerror("Duplicate Ingredient", str(e))
             except DatabaseError as e:
                 messagebox.showerror("Database Error", f"Failed to create ingredient: {e}")
 
@@ -357,26 +415,47 @@ class IngredientsTab(ctk.CTkFrame):
 
         try:
             # Get current ingredient data
-            ingredient = ingredient_service.get_ingredient(self.selected_ingredient_slug)
+            ingredient_obj = ingredient_service.get_ingredient(self.selected_ingredient_slug)
+            ingredient_data = (
+                ingredient_obj.to_dict()
+                if hasattr(ingredient_obj, "to_dict")
+                else {
+                    "name": ingredient_obj.name,
+                    "category": ingredient_obj.category,
+                    "recipe_unit": ingredient_obj.recipe_unit,
+                    "density_g_per_ml": ingredient_obj.density_g_per_ml,
+                }
+            )
 
             dialog = IngredientFormDialog(
                 self,
-                ingredient=ingredient,
+                ingredient=ingredient_data,
                 title="Edit Ingredient",
             )
             self.wait_window(dialog)
 
             if dialog.result:
                 # Update ingredient using service
-                updated = ingredient_service.update_ingredient(
+                updated_obj = ingredient_service.update_ingredient(
                     self.selected_ingredient_slug,
                     dialog.result,
                 )
                 self.refresh()
-                self.update_status(f"Ingredient '{updated['name']}' updated successfully")
+                if updated_obj:
+                    updated_name = getattr(
+                        updated_obj, "name", dialog.result.get("name", "Ingredient")
+                    )
+                    self.selected_ingredient_slug = getattr(
+                        updated_obj, "slug", self.selected_ingredient_slug
+                    )
+                    if self.selected_ingredient_slug:
+                        self.selection_var.set(self.selected_ingredient_slug)
+                    self.update_status(f"Ingredient '{updated_name}' updated successfully")
+                else:
+                    self.update_status("Ingredient updated successfully")
                 messagebox.showinfo("Success", "Ingredient updated!")
 
-        except NotFound:
+        except IngredientNotFoundBySlug:
             messagebox.showerror("Error", "Ingredient not found")
             self.refresh()
         except ValidationError as e:
@@ -392,7 +471,7 @@ class IngredientsTab(ctk.CTkFrame):
         try:
             # Get ingredient name for confirmation
             ingredient = ingredient_service.get_ingredient(self.selected_ingredient_slug)
-            name = ingredient['name']
+            name = ingredient.name  # Fixed: access attribute not dict key
 
             # Confirm deletion
             result = messagebox.askyesno(
@@ -409,10 +488,10 @@ class IngredientsTab(ctk.CTkFrame):
                 self.update_status(f"Ingredient '{name}' deleted successfully")
                 messagebox.showinfo("Success", "Ingredient deleted!")
 
-        except NotFound:
+        except IngredientNotFoundBySlug:
             messagebox.showerror("Error", "Ingredient not found")
             self.refresh()
-        except ValidationError as e:
+        except IngredientInUse as e:
             messagebox.showerror(
                 "Cannot Delete",
                 f"Cannot delete this ingredient:\n\n{e}\n\n"
@@ -420,24 +499,43 @@ class IngredientsTab(ctk.CTkFrame):
             )
         except DatabaseError as e:
             messagebox.showerror("Database Error", f"Failed to delete ingredient: {e}")
+        except Exception as e:
+            # Catch-all for unexpected errors
+            messagebox.showerror("Error", f"Unexpected error deleting ingredient: {e}")
+            import traceback
 
-    def _view_variants(self):
+            traceback.print_exc()
+
+    def _view_variants(self, selected_variant_id: Optional[int] = None):
         """View variants for the selected ingredient."""
         if not self.selected_ingredient_slug:
+            messagebox.showinfo(
+                "No Selection", "Please select an ingredient first to view its variants."
+            )
             return
 
         try:
             # Get ingredient details
-            ingredient = ingredient_service.get_ingredient(self.selected_ingredient_slug)
+            ingredient_obj = ingredient_service.get_ingredient(self.selected_ingredient_slug)
+
+            # Convert to dict for dialog compatibility
+            ingredient = {
+                "id": ingredient_obj.id,
+                "slug": ingredient_obj.slug,
+                "name": ingredient_obj.name,
+                "category": ingredient_obj.category,
+                "recipe_unit": ingredient_obj.recipe_unit,
+                "density_g_per_ml": ingredient_obj.density_g_per_ml,
+            }
 
             # Open variants dialog
-            dialog = VariantsDialog(self, ingredient)
+            dialog = VariantsDialog(self, ingredient, initial_variant_id=selected_variant_id)
             self.wait_window(dialog)
 
             # Refresh in case variants changed
             self.refresh()
 
-        except NotFound:
+        except IngredientNotFoundBySlug:
             messagebox.showerror("Error", "Ingredient not found")
             self.refresh()
         except DatabaseError as e:
@@ -471,8 +569,10 @@ class IngredientFormDialog(ctk.CTkToplevel):
         """
         super().__init__(parent)
 
+        if ingredient is not None and hasattr(ingredient, "to_dict"):
+            ingredient = ingredient.to_dict()
         self.ingredient = ingredient
-        self.result = None
+        self.result: Optional[Dict[str, Any]] = None
 
         # Configure window
         self.title(title)
@@ -506,9 +606,7 @@ class IngredientFormDialog(ctk.CTkToplevel):
         ctk.CTkLabel(form_frame, text="Name*:").grid(
             row=row, column=0, sticky="w", padx=10, pady=(10, 5)
         )
-        self.name_entry = ctk.CTkEntry(
-            form_frame, placeholder_text="e.g., All-Purpose Flour"
-        )
+        self.name_entry = ctk.CTkEntry(form_frame, placeholder_text="e.g., All-Purpose Flour")
         self.name_entry.grid(row=row, column=1, sticky="ew", padx=10, pady=(10, 5))
         row += 1
 
@@ -516,9 +614,7 @@ class IngredientFormDialog(ctk.CTkToplevel):
         ctk.CTkLabel(form_frame, text="Category*:").grid(
             row=row, column=0, sticky="w", padx=10, pady=5
         )
-        self.category_entry = ctk.CTkEntry(
-            form_frame, placeholder_text="e.g., Flour"
-        )
+        self.category_entry = ctk.CTkEntry(form_frame, placeholder_text="e.g., Flour")
         self.category_entry.grid(row=row, column=1, sticky="ew", padx=10, pady=5)
         row += 1
 
@@ -539,9 +635,7 @@ class IngredientFormDialog(ctk.CTkToplevel):
         ctk.CTkLabel(form_frame, text="Density (g/ml):").grid(
             row=row, column=0, sticky="w", padx=10, pady=5
         )
-        self.density_entry = ctk.CTkEntry(
-            form_frame, placeholder_text="Optional, e.g., 0.48"
-        )
+        self.density_entry = ctk.CTkEntry(form_frame, placeholder_text="Optional, e.g., 0.48")
         self.density_entry.grid(row=row, column=1, sticky="ew", padx=10, pady=5)
         row += 1
 
@@ -582,11 +676,11 @@ class IngredientFormDialog(ctk.CTkToplevel):
         if not self.ingredient:
             return
 
-        self.name_entry.insert(0, self.ingredient.get('name', ''))
-        self.category_entry.insert(0, self.ingredient.get('category', ''))
-        self.recipe_unit_var.set(self.ingredient.get('recipe_unit', 'cup'))
+        self.name_entry.insert(0, self.ingredient.get("name", ""))
+        self.category_entry.insert(0, self.ingredient.get("category", ""))
+        self.recipe_unit_var.set(self.ingredient.get("recipe_unit", "cup"))
 
-        density = self.ingredient.get('density_g_per_ml')
+        density = self.ingredient.get("density_g_per_ml")
         if density is not None:
             self.density_entry.insert(0, str(density))
 
@@ -619,14 +713,16 @@ class IngredientFormDialog(ctk.CTkToplevel):
                 return
 
         # Build result dict
-        self.result = {
+        result: Dict[str, Any] = {
             "name": name,
             "category": category,
             "recipe_unit": recipe_unit,
         }
 
         if density is not None:
-            self.result["density_g_per_ml"] = density
+            result["density_g_per_ml"] = density
+
+        self.result = result
 
         self.destroy()
 
@@ -643,7 +739,7 @@ class VariantsDialog(ctk.CTkToplevel):
     Displays list of variants with add/edit/delete/preferred toggle operations.
     """
 
-    def __init__(self, parent, ingredient: dict):
+    def __init__(self, parent, ingredient: dict, initial_variant_id: Optional[int] = None):
         """
         Initialize the variants dialog.
 
@@ -656,6 +752,8 @@ class VariantsDialog(ctk.CTkToplevel):
         self.ingredient = ingredient
         self.variants: List[dict] = []
         self.selected_variant_id: Optional[int] = None
+        self.variant_selection_var = ctk.StringVar(value="")
+        self.initial_variant_id = initial_variant_id
 
         # Configure window
         self.title(f"Variants - {ingredient['name']}")
@@ -767,21 +865,50 @@ class VariantsDialog(ctk.CTkToplevel):
     def refresh(self):
         """Refresh variant list from database."""
         try:
-            # Get variants for this ingredient
-            self.variants = variant_service.get_variants_by_ingredient(
-                self.ingredient['id']
-            )
+            # Get variants for this ingredient (returns Variant objects)
+            variant_objects = variant_service.get_variants_for_ingredient(self.ingredient["slug"])
 
-            # Sort: preferred first, then alphabetically
-            self.variants.sort(
-                key=lambda v: (not v.get('is_preferred', False), v.get('brand', ''))
-            )
+            # Convert to dicts for UI compatibility
+            self.variants = []
+            for variant_obj in variant_objects:
+                variant_dict = (
+                    variant_obj.to_dict()
+                    if hasattr(variant_obj, "to_dict")
+                    else {
+                        "id": variant_obj.id,
+                        "brand": variant_obj.brand,
+                        "purchase_unit": variant_obj.purchase_unit,
+                        "purchase_quantity": variant_obj.purchase_quantity,
+                        "package_size": getattr(variant_obj, "package_size", None),
+                        "upc_code": getattr(variant_obj, "upc_code", None),
+                        "gtin": getattr(variant_obj, "gtin", None),
+                        "supplier": getattr(variant_obj, "supplier", None),
+                    }
+                )
+                # Ensure expected keys exist
+                variant_dict["brand"] = variant_obj.brand
+                variant_dict["purchase_unit"] = variant_obj.purchase_unit
+                variant_dict["purchase_quantity"] = variant_obj.purchase_quantity
+                variant_dict["package_size"] = getattr(variant_obj, "package_size", None)
+                variant_dict["upc_code"] = getattr(variant_obj, "upc_code", None)
+                variant_dict["gtin"] = getattr(variant_obj, "gtin", None)
+                variant_dict["supplier"] = getattr(variant_obj, "supplier", None)
+                variant_dict["preferred"] = getattr(variant_obj, "preferred", False)
+                variant_dict["id"] = variant_obj.id
+                self.variants.append(variant_dict)
 
             # Update display
             self._update_variant_display()
+            if self.initial_variant_id is not None:
+                self.select_variant(self.initial_variant_id)
+                self.initial_variant_id = None
 
         except DatabaseError as e:
             messagebox.showerror("Database Error", f"Failed to load variants: {e}")
+        except Exception as e:
+            messagebox.showerror("Error", f"Failed to refresh variants: {e}")
+            import traceback
+            traceback.print_exc()
 
     def _update_variant_display(self):
         """Update displayed variant list."""
@@ -794,14 +921,34 @@ class VariantsDialog(ctk.CTkToplevel):
         if not self.variants:
             self.empty_label.grid(row=0, column=0, pady=50)
             self._disable_selection_buttons()
+            self.variant_selection_var.set("")
             return
 
         # Hide empty label
         self.empty_label.grid_forget()
 
+        # Restore selection if still present
+        if self.selected_variant_id and any(
+            variant["id"] == self.selected_variant_id for variant in self.variants
+        ):
+            self.variant_selection_var.set(str(self.selected_variant_id))
+        else:
+            self.selected_variant_id = None
+            self.variant_selection_var.set("")
+            self._disable_selection_buttons()
+
         # Display variants
         for idx, variant in enumerate(self.variants):
             self._create_variant_row(idx, variant)
+
+    def select_variant(self, variant_id: int) -> None:
+        """Programmatically select a variant within the dialog."""
+        if not any(variant["id"] == variant_id for variant in self.variants):
+            return
+
+        self.selected_variant_id = variant_id
+        self.variant_selection_var.set(str(variant_id))
+        self._enable_selection_buttons()
 
     def _create_variant_row(self, row_idx: int, variant: dict):
         """Create a row displaying variant information."""
@@ -813,14 +960,14 @@ class VariantsDialog(ctk.CTkToplevel):
         radio = ctk.CTkRadioButton(
             row_frame,
             text="",
-            variable=ctk.StringVar(value=""),
-            value=str(variant['id']),
-            command=lambda: self._on_variant_select(variant['id']),
+            variable=self.variant_selection_var,
+            value=str(variant["id"]),
+            command=lambda variant_id=variant["id"]: self._on_variant_select(variant_id),
         )
         radio.grid(row=0, column=0, padx=(10, 5), pady=10)
 
         # Preferred indicator
-        preferred_text = "⭐" if variant.get('is_preferred') else ""
+        preferred_text = "⭐" if variant.get("preferred") else ""
         if preferred_text:
             preferred_label = ctk.CTkLabel(
                 row_frame,
@@ -829,23 +976,25 @@ class VariantsDialog(ctk.CTkToplevel):
             )
             preferred_label.grid(row=0, column=1, padx=(0, 5))
 
-        # Variant info
-        brand = variant.get('brand', 'Unknown')
-        purchase_qty = variant.get('purchase_quantity', 0)
-        purchase_unit = variant.get('purchase_unit', '')
-        package_size = f"{purchase_qty} {purchase_unit}"
-        upc = variant.get('upc_gtin', 'N/A')
-        supplier = variant.get('supplier', 'N/A')
+        # Variant info - use cleaner display format
+        brand = variant.get("brand", "Generic")
+        purchase_qty = variant.get("purchase_quantity") or 0
+        purchase_unit = variant.get("purchase_unit", "")
+        package_size = variant.get("package_size") or f"{purchase_qty} {purchase_unit}".strip()
+        supplier = variant.get("supplier", "")
 
-        # Get pantry total (placeholder for now - will integrate with pantry service)
-        pantry_total = variant.get('total_pantry_quantity', 0) or 0
-        pantry_text = f"{pantry_total} {purchase_unit}" if pantry_total > 0 else "None in pantry"
+        # Build primary display name
+        display_name = f"{brand}"
+        if package_size and package_size != f"{purchase_qty} {purchase_unit}":
+            display_name += f" - {package_size}"
+        elif purchase_qty and purchase_unit:
+            display_name += f" ({purchase_qty} {purchase_unit})"
 
-        info_text = (
-            f"{brand} - {package_size} | "
-            f"UPC: {upc} | Supplier: {supplier} | "
-            f"Pantry: {pantry_text}"
-        )
+        # Add supplier if available
+        if supplier:
+            display_name += f" [from {supplier}]"
+
+        info_text = display_name
 
         info_label = ctk.CTkLabel(
             row_frame,
@@ -861,11 +1010,11 @@ class VariantsDialog(ctk.CTkToplevel):
         )
 
         # Mark as Preferred button
-        if not variant.get('is_preferred'):
+        if not variant.get("preferred"):
             mark_preferred_btn = ctk.CTkButton(
                 row_frame,
                 text="Mark Preferred",
-                command=lambda: self._toggle_preferred(variant['id']),
+                command=lambda vid=variant["id"]: self._toggle_preferred(vid),
                 width=120,
                 height=28,
             )
@@ -874,6 +1023,7 @@ class VariantsDialog(ctk.CTkToplevel):
     def _on_variant_select(self, variant_id: int):
         """Handle variant selection."""
         self.selected_variant_id = variant_id
+        self.variant_selection_var.set(str(variant_id))
         self._enable_selection_buttons()
 
     def _enable_selection_buttons(self):
@@ -886,6 +1036,7 @@ class VariantsDialog(ctk.CTkToplevel):
         self.edit_button.configure(state="disabled")
         self.delete_button.configure(state="disabled")
         self.selected_variant_id = None
+        self.variant_selection_var.set("")
 
     def _add_variant(self):
         """Add new variant."""
@@ -900,13 +1051,18 @@ class VariantsDialog(ctk.CTkToplevel):
             try:
                 # Create variant
                 variant = variant_service.create_variant(
-                    self.ingredient['id'],
+                    self.ingredient["slug"],  # Fixed: use slug not id
                     dialog.result,
                 )
+                variant_id_attr = getattr(variant, "id", None)
+                if variant_id_attr is not None:
+                    variant_id = int(variant_id_attr)
+                    self.selected_variant_id = variant_id
+                    self.variant_selection_var.set(str(variant_id))
                 self.refresh()
                 messagebox.showinfo(
                     "Success",
-                    f"Variant '{variant['brand']}' created!",
+                    f"Variant '{variant.brand}' created!",
                 )
 
             except ValidationError as e:
@@ -921,26 +1077,40 @@ class VariantsDialog(ctk.CTkToplevel):
 
         try:
             # Get variant
-            variant = variant_service.get_variant(self.selected_variant_id)
+            variant_obj = variant_service.get_variant(self.selected_variant_id)
+            variant_data = (
+                variant_obj.to_dict()
+                if hasattr(variant_obj, "to_dict")
+                else {
+                    "id": variant_obj.id,
+                    "brand": variant_obj.brand,
+                    "purchase_quantity": variant_obj.purchase_quantity,
+                    "purchase_unit": variant_obj.purchase_unit,
+                    "package_size": getattr(variant_obj, "package_size", None),
+                    "upc_code": getattr(variant_obj, "upc_code", None),
+                    "gtin": getattr(variant_obj, "gtin", None),
+                    "supplier": getattr(variant_obj, "supplier", None),
+                }
+            )
 
             dialog = VariantFormDialog(
                 self,
                 ingredient=self.ingredient,
-                variant=variant,
+                variant=variant_data,
                 title="Edit Variant",
             )
             self.wait_window(dialog)
 
             if dialog.result:
                 # Update variant
-                updated = variant_service.update_variant(
+                variant_service.update_variant(
                     self.selected_variant_id,
                     dialog.result,
                 )
                 self.refresh()
                 messagebox.showinfo("Success", "Variant updated!")
 
-        except NotFound:
+        except VariantNotFound:
             messagebox.showerror("Error", "Variant not found")
             self.refresh()
         except ValidationError as e:
@@ -955,14 +1125,13 @@ class VariantsDialog(ctk.CTkToplevel):
 
         try:
             # Get variant for confirmation
-            variant = variant_service.get_variant(self.selected_variant_id)
-            brand = variant['brand']
+            variant_obj = variant_service.get_variant(self.selected_variant_id)
+            brand = getattr(variant_obj, "brand", "Variant")
 
             # Confirm
             result = messagebox.askyesno(
                 "Confirm Deletion",
-                f"Delete variant '{brand}'?\n\n"
-                "This will fail if the variant has pantry items.",
+                f"Delete variant '{brand}'?\n\n" "This will fail if the variant has pantry items.",
             )
 
             if result:
@@ -971,10 +1140,10 @@ class VariantsDialog(ctk.CTkToplevel):
                 self.refresh()
                 messagebox.showinfo("Success", "Variant deleted!")
 
-        except NotFound:
+        except VariantNotFound:
             messagebox.showerror("Error", "Variant not found")
             self.refresh()
-        except ValidationError as e:
+        except VariantInUse as e:
             messagebox.showerror(
                 "Cannot Delete",
                 f"Cannot delete variant:\n\n{e}\n\nRemove pantry items first.",
@@ -985,10 +1154,11 @@ class VariantsDialog(ctk.CTkToplevel):
     def _toggle_preferred(self, variant_id: int):
         """Toggle preferred status for variant."""
         try:
-            variant_service.toggle_preferred_variant(variant_id)
+            variant_service.set_preferred_variant(variant_id)
+            self.selected_variant_id = variant_id
             self.refresh()
 
-        except NotFound:
+        except VariantNotFound:
             messagebox.showerror("Error", "Variant not found")
             self.refresh()
         except DatabaseError as e:
@@ -1021,8 +1191,10 @@ class VariantFormDialog(ctk.CTkToplevel):
         super().__init__(parent)
 
         self.ingredient = ingredient
-        self.variant = variant
-        self.result = None
+        if variant is not None and hasattr(variant, "to_dict"):
+            variant = variant.to_dict()
+        self.variant = variant or {}
+        self.result: Optional[Dict[str, Any]] = None
 
         # Configure window
         self.title(title)
@@ -1058,7 +1230,7 @@ class VariantFormDialog(ctk.CTkToplevel):
         )
         ingredient_label = ctk.CTkLabel(
             form_frame,
-            text=self.ingredient['name'],
+            text=self.ingredient["name"],
             font=ctk.CTkFont(weight="bold"),
         )
         ingredient_label.grid(row=row, column=1, sticky="w", padx=10, pady=(10, 5))
@@ -1068,9 +1240,7 @@ class VariantFormDialog(ctk.CTkToplevel):
         ctk.CTkLabel(form_frame, text="Brand*:").grid(
             row=row, column=0, sticky="w", padx=10, pady=5
         )
-        self.brand_entry = ctk.CTkEntry(
-            form_frame, placeholder_text="e.g., King Arthur"
-        )
+        self.brand_entry = ctk.CTkEntry(form_frame, placeholder_text="e.g., King Arthur")
         self.brand_entry.grid(row=row, column=1, sticky="ew", padx=10, pady=5)
         row += 1
 
@@ -1078,9 +1248,7 @@ class VariantFormDialog(ctk.CTkToplevel):
         ctk.CTkLabel(form_frame, text="Purchase Quantity*:").grid(
             row=row, column=0, sticky="w", padx=10, pady=5
         )
-        self.purchase_qty_entry = ctk.CTkEntry(
-            form_frame, placeholder_text="e.g., 25"
-        )
+        self.purchase_qty_entry = ctk.CTkEntry(form_frame, placeholder_text="e.g., 25")
         self.purchase_qty_entry.grid(row=row, column=1, sticky="ew", padx=10, pady=5)
         row += 1
 
@@ -1101,9 +1269,7 @@ class VariantFormDialog(ctk.CTkToplevel):
         ctk.CTkLabel(form_frame, text="UPC/GTIN:").grid(
             row=row, column=0, sticky="w", padx=10, pady=5
         )
-        self.upc_entry = ctk.CTkEntry(
-            form_frame, placeholder_text="Optional barcode"
-        )
+        self.upc_entry = ctk.CTkEntry(form_frame, placeholder_text="Optional barcode")
         self.upc_entry.grid(row=row, column=1, sticky="ew", padx=10, pady=5)
         row += 1
 
@@ -1111,10 +1277,21 @@ class VariantFormDialog(ctk.CTkToplevel):
         ctk.CTkLabel(form_frame, text="Supplier:").grid(
             row=row, column=0, sticky="w", padx=10, pady=5
         )
-        self.supplier_entry = ctk.CTkEntry(
-            form_frame, placeholder_text="Optional supplier name"
-        )
+        self.supplier_entry = ctk.CTkEntry(form_frame, placeholder_text="Optional supplier name")
         self.supplier_entry.grid(row=row, column=1, sticky="ew", padx=10, pady=5)
+        row += 1
+
+        # Preferred (checkbox)
+        ctk.CTkLabel(form_frame, text="Mark as Preferred:").grid(
+            row=row, column=0, sticky="w", padx=10, pady=5
+        )
+        self.preferred_var = ctk.BooleanVar(value=False)
+        self.preferred_checkbox = ctk.CTkCheckBox(
+            form_frame,
+            text="Set as preferred variant for this ingredient",
+            variable=self.preferred_var,
+        )
+        self.preferred_checkbox.grid(row=row, column=1, sticky="w", padx=10, pady=5)
         row += 1
 
         # Help text
@@ -1122,7 +1299,8 @@ class VariantFormDialog(ctk.CTkToplevel):
             form_frame,
             text="* Required fields\n\n"
             "Package size is calculated from quantity + unit.\n"
-            "Example: 25 lb → '25 lb bag'",
+            "Example: 25 lb → '25 lb bag'\n"
+            "Preferred variants are used by default in shopping lists.",
             text_color="gray",
             justify="left",
         )
@@ -1154,11 +1332,19 @@ class VariantFormDialog(ctk.CTkToplevel):
         if not self.variant:
             return
 
-        self.brand_entry.insert(0, self.variant.get('brand', ''))
-        self.purchase_qty_entry.insert(0, str(self.variant.get('purchase_quantity', '')))
-        self.purchase_unit_var.set(self.variant.get('purchase_unit', 'lb'))
-        self.upc_entry.insert(0, self.variant.get('upc_gtin', ''))
-        self.supplier_entry.insert(0, self.variant.get('supplier', ''))
+        self.brand_entry.insert(0, self.variant.get("brand", ""))
+        purchase_qty = self.variant.get("purchase_quantity", "")
+        self.purchase_qty_entry.insert(0, str(purchase_qty) if purchase_qty is not None else "")
+        self.purchase_unit_var.set(self.variant.get("purchase_unit", "lb"))
+        upc_value = (
+            self.variant.get("upc_code")
+            or self.variant.get("gtin")
+            or self.variant.get("upc")
+            or ""
+        )
+        self.upc_entry.insert(0, upc_value)
+        self.supplier_entry.insert(0, self.variant.get("supplier", ""))
+        self.preferred_var.set(self.variant.get("preferred", False))
 
     def _save(self):
         """Validate and save form data."""
@@ -1168,6 +1354,7 @@ class VariantFormDialog(ctk.CTkToplevel):
         purchase_unit = self.purchase_unit_var.get()
         upc = self.upc_entry.get().strip()
         supplier = self.supplier_entry.get().strip()
+        preferred = self.preferred_var.get()
 
         # Validate required
         if not brand:
@@ -1189,16 +1376,26 @@ class VariantFormDialog(ctk.CTkToplevel):
             return
 
         # Build result
-        self.result = {
+        result: Dict[str, Any] = {
             "brand": brand,
             "purchase_quantity": purchase_qty,
             "purchase_unit": purchase_unit,
+            "preferred": preferred,
         }
 
+        package_size = f"{purchase_qty:g} {purchase_unit}".strip()
+        if package_size:
+            result["package_size"] = package_size
+
         if upc:
-            self.result["upc_gtin"] = upc
+            result["upc"] = upc
+            result["upc_code"] = upc
+            if len(upc) == 14:
+                result["gtin"] = upc
         if supplier:
-            self.result["supplier"] = supplier
+            result["supplier"] = supplier
+
+        self.result = result
 
         self.destroy()
 
