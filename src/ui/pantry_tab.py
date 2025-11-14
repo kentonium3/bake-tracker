@@ -284,12 +284,23 @@ class PantryTab(ctk.CTkFrame):
             ingredient_obj = None
 
         ingredient_name = getattr(ingredient_obj, "name", ingredient_slug)
-        recipe_unit = getattr(ingredient_obj, "recipe_unit", "") or ""
 
-        # Calculate total quantity in recipe units
+        # Calculate total quantity using new service function
         try:
-            total_qty = pantry_service.get_total_quantity(ingredient_slug)
-            qty_display = f"{total_qty} {recipe_unit}".strip()
+            unit_totals = pantry_service.get_total_quantity(ingredient_slug)
+            if unit_totals:
+                # Format as "25 lb + 3 cup" style display
+                qty_parts = []
+                for unit, total in unit_totals.items():
+                    if total > 0:
+                        if total == int(total):
+                            qty_parts.append(f"{int(total)} {unit}")
+                        else:
+                            qty_parts.append(f"{total:.1f} {unit}")
+
+                qty_display = " + ".join(qty_parts) if qty_parts else "0"
+            else:
+                qty_display = "0"
         except Exception:
             qty_display = "N/A"
 
@@ -406,10 +417,13 @@ class PantryTab(ctk.CTkFrame):
 
         ingredient_name = getattr(ingredient_obj, "name", "Unknown")
         brand = getattr(variant_obj, "brand", "Unknown") if variant_obj else "Unknown"
-        purchase_quantity = getattr(variant_obj, "purchase_quantity", None) or ""
-        purchase_unit = getattr(variant_obj, "purchase_unit", "") or ""
-        if purchase_quantity:
-            variant_name = f"{brand} - {purchase_quantity} {purchase_unit}".strip()
+        # Get package size info for variant display (purchase_quantity = package size)
+        package_size = getattr(variant_obj, "purchase_quantity", None)
+        inventory_unit = getattr(variant_obj, "purchase_unit", "") or ""
+
+        # Create descriptive variant name showing brand and package size
+        if package_size and inventory_unit:
+            variant_name = f"{brand} ({package_size} {inventory_unit} package)".strip()
         else:
             variant_name = brand
 
@@ -463,7 +477,7 @@ class PantryTab(ctk.CTkFrame):
 
         qty_label = ctk.CTkLabel(
             row_frame,
-            text=f"{qty_text} {purchase_unit}".strip(),
+            text=f"{qty_text} {inventory_unit}".strip(),
             width=120,  # Wider to match header
             anchor="w",
             font=ctk.CTkFont(weight="bold"),  # Make quantity more prominent

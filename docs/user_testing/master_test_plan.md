@@ -8,9 +8,9 @@
 
 ## 📋 Current Test Status
 
-**Overall Progress:** 9/10 tests completed (90% success rate!)
+**Overall Progress:** 9/11 tests completed from Session #7 (82% success rate!)
 **Last Test Session:** Session #7 (major progress - SQLAlchemy errors resolved)
-**Next Action:** Fix VAR-03 variant list display issue → Run Session #8
+**Next Action:** Test VAR-03 variant display fix + new PAN-04 pantry improvements → Run Session #8
 
 ---
 
@@ -20,7 +20,7 @@
 - [ ] **ENV-01:** App launches without critical errors
   - **Action:** Start app, verify no critical error dialogs
   - **Expected:** App opens cleanly
-  - [ ] **PASS**
+  - [x] **PASS**
   - [ ] **FAIL**
   - **Comments:**
   - **Images:**
@@ -31,7 +31,7 @@
 - [ ] **ING-01:** Duplicate ingredient detection shows friendly error
   - **Action:** Try to add "Black Licorice" (already exists)
   - **Expected:** User-friendly popup error message
-  - [ ] **PASS**
+  - [x] **PASS**
   - [ ] **FAIL**
   - **Comments:**
   - **Images:**
@@ -39,7 +39,7 @@
 - [ ] **ING-02:** Add new ingredient successfully
   - **Action:** Add "Test Sugar v7" / Category: "Sugar" / Unit: "cup"
   - **Expected:** Ingredient appears in list
-  - [ ] **PASS**
+  - [x] **PASS**
   - [ ] **FAIL**
   - **Comments:**
   - **Images:**
@@ -48,7 +48,7 @@
 - [ ] **VAR-01:** View Variants dialog opens without errors
   - **Action:** Select ingredient → Click "View Variants"
   - **Expected:** Dialog opens, no SQLAlchemy session errors
-  - [ ] **PASS**
+  - [x] **PASS**
   - [ ] **FAIL**
   - **Comments:**
   - **Images:**
@@ -56,7 +56,7 @@
 - [ ] **VAR-02:** Add Variant dialog shows preferred checkbox
   - **Action:** In Variants dialog → Click "Add Variant"
   - **Expected:** "Mark as Preferred" checkbox is visible
-  - [ ] **PASS**
+  - [x] **PASS**
   - [ ] **FAIL**
   - **Comments:**
   - **Images:**
@@ -64,15 +64,15 @@
 - [ ] **VAR-03:** Save variant with preferred setting (CRITICAL FIX)
   - **Action:** Fill Brand: "Domino" / Qty: "5" / Unit: "lb" / Check "Preferred" → Save
   - **Expected:** Variant appears in list with proper variant name (not ingredient name) and ⭐ star
-  - [ ] **PASS**
+  - [x] **PASS**
   - [ ] **FAIL**
-  - **Comments:**
-  - **Images:**
+  - **Comments:** It works but the layout looks silly with the star having the largest column.
+  - **Images:** ![Screenshot 2025-11-12 135050](<./images/Screenshot 2025-11-12 135050.jpg>)
 
 - [ ] **VAR-04:** Refresh variants list shows saved variants
   - **Action:** Click "Refresh" in variants dialog
   - **Expected:** All variants display correctly with proper variant names
-  - [ ] **PASS**
+  - [x] **PASS**
   - [ ] **FAIL**
   - **Comments:**
   - **Images:**
@@ -81,7 +81,7 @@
 - [ ] **PAN-01:** My Pantry tab displays content
   - **Action:** Click "My Pantry" tab
   - **Expected:** Tab shows controls and content (not blank screen)
-  - [ ] **PASS**
+  - [x] **PASS**
   - [ ] **FAIL**
   - **Comments:**
   - **Images:**
@@ -89,7 +89,7 @@
 - [ ] **PAN-02:** Add Pantry Item dialog opens successfully
   - **Action:** In My Pantry → Click "Add Pantry Item"
   - **Expected:** Dialog opens with ingredient/variant dropdowns, no session errors
-  - [ ] **PASS**
+  - [x] **PASS**
   - [ ] **FAIL**
   - **Comments:**
   - **Images:**
@@ -98,17 +98,27 @@
   - **Action:** Select ingredient/variant → Enter quantity/date → Save
   - **Expected:** Item appears in pantry list with visible quantities
   - [ ] **PASS**
-  - [ ] **FAIL**
-  - **Comments:**
-  - **Images:**
+  - [x] **FAIL**
+  - **Comments:** There is now a quantity column in the pantry display but it displays the packaging size and not the number of items in the pantry. 
+  - **Images:** ![Screenshot 2025-11-12 135450](<./images/Screenshot 2025-11-12 135450.jpg>)
+
+- [ ] **PAN-04:** Pantry table display quality (NEW FIX)
+  - **Action:** View pantry list with multiple items
+  - **Expected:** Bold quantity column visible, dense row spacing, wider table, quantities like "25 lb", "2.5 cup" clearly shown
+  - [ ] **PASS**
+  - [x] **FAIL**
+  - **Comments:** Detail View shows sensible information. The Aggregate View makes no sense. 
+  - 1. The column headings do not align with their data. 
+  - 2. The quantity column does not show quantity. It shows Unit Cup, which is an attribute that shouldn't even exist on an ingredient. 
+  - **Images:** ![Screenshot 2025-11-12 140407](<./images/Screenshot 2025-11-12 140407.jpg>)
 
 #### Test Group D: Data Persistence (Critical)
 - [ ] **PER-01:** Restart app retains all data
   - **Action:** Close app → Restart → Check all added data still exists
   - **Expected:** All ingredients, variants, pantry items persist correctly
-  - [ ] **PASS**
+  - [x] **PASS**
   - [ ] **FAIL**
-  - **Comments:**
+  - **Comments:** There are still many UI adjustments to make at some point. The tables are too short and skinny. The Consume Ingredient screen is unusable as designed. 
   - **Images:**
 
 ---
@@ -168,7 +178,8 @@ Use any filename - no naming convention required. Just drag and drop images into
 
 **Session #8 Success Definition:**
 - VAR-03 fixed: Variant list shows proper variant names (brand, size, etc.)
-- All 10 tests show PASS
+- PAN-04 fixed: Pantry table shows quantities clearly with improved layout
+- All 11 tests show PASS
 - Core ingredient → variant → pantry workflow fully functional
 
 **Overall Phase 4 Success:**

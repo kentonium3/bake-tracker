@@ -146,20 +146,20 @@ def get_average_price(product_variant_id: int, days: int = 90, session=None) -> 
 
     if session:
         purchases = (
-            session.query(PurchaseHistory)
+            session.query(Purchase)
             .filter(
-                PurchaseHistory.product_variant_id == product_variant_id,
-                PurchaseHistory.purchase_date >= cutoff_date
+                Purchase.product_variant_id == product_variant_id,
+                Purchase.purchase_date >= cutoff_date
             )
             .all()
         )
     else:
         with session_scope() as sess:
             purchases = (
-                sess.query(PurchaseHistory)
+                sess.query(Purchase)
                 .filter(
-                    PurchaseHistory.product_variant_id == product_variant_id,
-                    PurchaseHistory.purchase_date >= cutoff_date
+                    Purchase.product_variant_id == product_variant_id,
+                    Purchase.purchase_date >= cutoff_date
                 )
                 .all()
             )
@@ -186,17 +186,17 @@ def get_most_recent_price(product_variant_id: int, session=None) -> float:
 
     if session:
         purchase = (
-            session.query(PurchaseHistory)
-            .filter(PurchaseHistory.product_variant_id == product_variant_id)
-            .order_by(PurchaseHistory.purchase_date.desc())
+            session.query(Purchase)
+            .filter(Purchase.product_variant_id == product_variant_id)
+            .order_by(Purchase.purchase_date.desc())
             .first()
         )
     else:
         with session_scope() as sess:
             purchase = (
-                sess.query(PurchaseHistory)
-                .filter(PurchaseHistory.product_variant_id == product_variant_id)
-                .order_by(PurchaseHistory.purchase_date.desc())
+                sess.query(Purchase)
+                .filter(Purchase.product_variant_id == product_variant_id)
+                .order_by(Purchase.purchase_date.desc())
                 .first()
             )
 
@@ -226,23 +226,23 @@ def get_price_trend(product_variant_id: int, days: int = 180, session=None) -> d
 
     if session:
         purchases = (
-            session.query(PurchaseHistory)
+            session.query(Purchase)
             .filter(
-                PurchaseHistory.product_variant_id == product_variant_id,
-                PurchaseHistory.purchase_date >= cutoff_date
+                Purchase.product_variant_id == product_variant_id,
+                Purchase.purchase_date >= cutoff_date
             )
-            .order_by(PurchaseHistory.purchase_date)
+            .order_by(Purchase.purchase_date)
             .all()
         )
     else:
         with session_scope() as sess:
             purchases = (
-                sess.query(PurchaseHistory)
+                sess.query(Purchase)
                 .filter(
-                    PurchaseHistory.product_variant_id == product_variant_id,
-                    PurchaseHistory.purchase_date >= cutoff_date
+                    Purchase.product_variant_id == product_variant_id,
+                    Purchase.purchase_date >= cutoff_date
                 )
-                .order_by(PurchaseHistory.purchase_date)
+                .order_by(Purchase.purchase_date)
                 .all()
             )
 

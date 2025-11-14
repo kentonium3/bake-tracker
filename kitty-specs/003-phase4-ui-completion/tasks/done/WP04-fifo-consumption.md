@@ -53,3 +53,8 @@ Add FIFO consumption interface to My Pantry tab. Users can consume ingredients w
 ## Estimated Effort
 
 8-10 hours
+
+## Activity Log
+
+- 2025-11-10 – Claude Code – lane=planned – Work package created
+- 2025-11-10 – Claude Code – lane=done – Work package completed - FIFO consumption interface with preview and execution implemented

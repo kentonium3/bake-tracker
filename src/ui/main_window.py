@@ -6,12 +6,12 @@ Provides the main window with tabbed navigation and menu bar.
 
 import customtkinter as ctk
 from tkinter import messagebox
+from typing import Optional
 
 from src.utils.constants import APP_NAME, APP_VERSION
 from src.ui.dashboard_tab import DashboardTab
 from src.ui.ingredients_tab import IngredientsTab
 from src.ui.pantry_tab import PantryTab
-from src.ui.inventory_tab import InventoryTab
 from src.ui.recipes_tab import RecipesTab
 from src.ui.finished_goods_tab import FinishedGoodsTab
 from src.ui.bundles_tab import BundlesTab
@@ -95,11 +95,10 @@ class MainWindow(ctk.CTk):
         self.tabview = ctk.CTkTabview(self, corner_radius=10)
         self.tabview.grid(row=1, column=0, padx=10, pady=(0, 10), sticky="nsew")
 
-        # Add tabs
+        # Add tabs (v0.4.0 architecture - Inventory tab removed, replaced with My Ingredients + My Pantry)
         self.tabview.add("Dashboard")
         self.tabview.add("My Ingredients")
         self.tabview.add("My Pantry")
-        self.tabview.add("Inventory")
         self.tabview.add("Recipes")
         self.tabview.add("Finished Goods")
         self.tabview.add("Bundles")
@@ -119,10 +118,6 @@ class MainWindow(ctk.CTk):
         # Initialize My Pantry tab (v0.4.0 architecture)
         pantry_frame = self.tabview.tab("My Pantry")
         self.pantry_tab = PantryTab(pantry_frame)
-
-        # Initialize Inventory tab (legacy - will be deprecated)
-        inventory_frame = self.tabview.tab("Inventory")
-        self.inventory_tab = InventoryTab(inventory_frame)
 
         # Initialize Recipes tab
         recipes_frame = self.tabview.tab("Recipes")
@@ -210,22 +205,33 @@ class MainWindow(ctk.CTk):
             parent=self,
         )
         if result:
-            self.quit()
+            self.destroy()
 
     def _show_tools_menu(self):
         """Show the Tools menu - opens Migration Wizard."""
-        wizard = MigrationWizardDialog(self)
-        self.wait_window(wizard)
+        try:
+            wizard = MigrationWizardDialog(self)
+            self.wait_window(wizard)
+        except Exception as exc:
+            messagebox.showerror(
+                "Migration Wizard Error",
+                f"Unable to open the migration wizard:\n\n{exc}",
+                parent=self,
+            )
+            return
 
-        # Refresh tabs after migration if it was executed
-        if hasattr(wizard, 'migration_running') and not wizard.migration_running:
-            # Migration may have been executed, refresh all tabs
+        if getattr(wizard, "migration_executed", False):
             try:
                 self.refresh_dashboard()
                 self.ingredients_tab.refresh()
                 self.pantry_tab.refresh()
-            except:
-                pass  # Ignore errors during refresh
+                self.update_status("Migration completed successfully. Data refreshed.")
+            except Exception as exc:
+                messagebox.showwarning(
+                    "Refresh Warning",
+                    f"Migration completed, but refreshing data failed:\n\n{exc}",
+                    parent=self,
+                )
 
     def _show_help_menu(self):
         """Show the Help menu."""
@@ -250,10 +256,6 @@ class MainWindow(ctk.CTk):
     def refresh_pantry(self):
         """Refresh the pantry tab with current data."""
         self.pantry_tab.refresh()
-
-    def refresh_inventory(self):
-        """Refresh the inventory tab with current data."""
-        self.inventory_tab.refresh()
 
     def refresh_recipes(self):
         """Refresh the recipes tab with current data."""
@@ -290,3 +292,36 @@ class MainWindow(ctk.CTk):
             self.tabview.set(tab_name)
         except Exception:
             pass  # Tab doesn't exist or is disabled
+
+    def navigate_to_ingredient(self, ingredient_slug: str, variant_id: Optional[int] = None):
+        """
+        Navigate to My Ingredients tab with specific ingredient selected.
+
+        This is a cross-tab navigation helper for Recipe and Events tabs.
+
+        Args:
+            ingredient_slug: Slug of ingredient to select
+            variant_id: Optional variant ID to highlight
+        """
+        # Switch to My Ingredients tab
+        self.switch_to_tab("My Ingredients")
+
+        # Tell ingredients tab to select the ingredient
+        if hasattr(self.ingredients_tab, "select_ingredient"):
+            self.ingredients_tab.select_ingredient(ingredient_slug, variant_id)
+
+    def navigate_to_pantry(self, ingredient_slug: Optional[str] = None):
+        """
+        Navigate to My Pantry tab, optionally filtered by ingredient.
+
+        This is a cross-tab navigation helper for Recipe and Events tabs.
+
+        Args:
+            ingredient_slug: Optional ingredient slug to filter by
+        """
+        # Switch to My Pantry tab
+        self.switch_to_tab("My Pantry")
+
+        # Tell pantry tab to filter by ingredient
+        if ingredient_slug and hasattr(self.pantry_tab, "filter_by_ingredient"):
+            self.pantry_tab.filter_by_ingredient(ingredient_slug)

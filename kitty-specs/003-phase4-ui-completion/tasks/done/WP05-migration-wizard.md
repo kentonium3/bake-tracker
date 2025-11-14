@@ -57,3 +57,8 @@ Create migration wizard UI for executing v0.3.0 → v0.4.0 data migration with d
 ## Estimated Effort
 
 10-12 hours
+
+## Activity Log
+
+- 2025-11-10 – Claude Code – lane=planned – Work package created
+- 2025-11-10 – Claude Code – lane=done – Work package completed - migration wizard with dry-run, execution, and results display implemented

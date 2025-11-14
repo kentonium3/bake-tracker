@@ -27,7 +27,6 @@ class Ingredient(BaseModel):
         name: Ingredient name (e.g., "All-Purpose Flour", "White Granulated Sugar")
         slug: URL-friendly identifier (e.g., "all_purpose_flour")
         category: Category (e.g., "Flour", "Sugar", "Dairy")
-        recipe_unit: Default unit for recipes (e.g., "cup", "oz", "g")
         description: Optional detailed description
         notes: Additional notes
 
@@ -52,7 +51,6 @@ class Ingredient(BaseModel):
     name = Column(String(200), nullable=False, unique=True, index=True)
     slug = Column(String(200), nullable=True, unique=True, index=True)  # Will be required after migration
     category = Column(String(100), nullable=False, index=True)
-    recipe_unit = Column(String(50), nullable=False)  # Default unit for recipes
 
     # Additional information
     description = Column(Text, nullable=True)
@@ -127,16 +125,17 @@ class Ingredient(BaseModel):
         """
         Get total quantity across all pantry items for this ingredient.
 
-        Aggregates across all variants and converts to recipe_unit.
+        Note: This returns quantities in their original units and should not
+        be aggregated directly. Use pantry_service.get_total_quantity() for
+        proper unit conversion and aggregation.
 
         Returns:
-            Total quantity in recipe units
+            Raw total without unit conversion (deprecated)
         """
         total = 0.0
         for variant in self.variants:
             for pantry_item in variant.pantry_items:
-                # Convert pantry item quantity to recipe units
-                # TODO: Implement conversion logic
+                # Note: Raw quantity addition without unit conversion
                 total += pantry_item.quantity
         return total
 

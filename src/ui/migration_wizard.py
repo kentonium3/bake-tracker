@@ -59,6 +59,7 @@ class MigrationWizardDialog(ctk.CTkToplevel):
         # State
         self.dry_run_results = None
         self.migration_running = False
+        self.migration_executed = False
 
         # Configure grid
         self.grid_columnconfigure(0, weight=1)
@@ -421,6 +422,7 @@ STEP 1: UUID POPULATION
     def _display_migration_results(self, results: Dict):
         """Display migration results."""
         self.migration_running = False
+        self.migration_executed = True
 
         self.content_text.configure(state="normal")
         self.content_text.delete("1.0", "end")
@@ -494,6 +496,7 @@ STEP 1: UUID POPULATION
     def _display_error(self, error_msg: str, critical: bool = False):
         """Display error message."""
         self.migration_running = False
+        self.migration_executed = False
 
         self.content_text.configure(state="normal")
         self.content_text.delete("1.0", "end")

@@ -290,12 +290,11 @@ class IngredientsTab(ctk.CTkFrame):
         # Ingredient info
         name_text = ingredient["name"]
         category_text = ingredient.get("category", "Uncategorized")
-        recipe_unit = ingredient.get("recipe_unit", "N/A")
         density = ingredient.get("density_g_per_ml")
         density_text = f"{density:.3f} g/ml" if density else "No density"
 
         info_text = (
-            f"{name_text} | Category: {category_text} | Unit: {recipe_unit} | {density_text}"
+            f"{name_text} | Category: {category_text} | {density_text}"
         )
 
         info_label = ctk.CTkLabel(
@@ -422,7 +421,6 @@ class IngredientsTab(ctk.CTkFrame):
                 else {
                     "name": ingredient_obj.name,
                     "category": ingredient_obj.category,
-                    "recipe_unit": ingredient_obj.recipe_unit,
                     "density_g_per_ml": ingredient_obj.density_g_per_ml,
                 }
             )
@@ -524,7 +522,6 @@ class IngredientsTab(ctk.CTkFrame):
                 "slug": ingredient_obj.slug,
                 "name": ingredient_obj.name,
                 "category": ingredient_obj.category,
-                "recipe_unit": ingredient_obj.recipe_unit,
                 "density_g_per_ml": ingredient_obj.density_g_per_ml,
             }
 
@@ -618,18 +615,6 @@ class IngredientFormDialog(ctk.CTkToplevel):
         self.category_entry.grid(row=row, column=1, sticky="ew", padx=10, pady=5)
         row += 1
 
-        # Recipe Unit field (required)
-        ctk.CTkLabel(form_frame, text="Recipe Unit*:").grid(
-            row=row, column=0, sticky="w", padx=10, pady=5
-        )
-        self.recipe_unit_var = ctk.StringVar(value="cup")
-        self.recipe_unit_dropdown = ctk.CTkOptionMenu(
-            form_frame,
-            values=["cup", "oz", "lb", "g", "kg", "tsp", "tbsp", "ml", "l", "count"],
-            variable=self.recipe_unit_var,
-        )
-        self.recipe_unit_dropdown.grid(row=row, column=1, sticky="ew", padx=10, pady=5)
-        row += 1
 
         # Density field (optional)
         ctk.CTkLabel(form_frame, text="Density (g/ml):").grid(
@@ -678,7 +663,6 @@ class IngredientFormDialog(ctk.CTkToplevel):
 
         self.name_entry.insert(0, self.ingredient.get("name", ""))
         self.category_entry.insert(0, self.ingredient.get("category", ""))
-        self.recipe_unit_var.set(self.ingredient.get("recipe_unit", "cup"))
 
         density = self.ingredient.get("density_g_per_ml")
         if density is not None:
@@ -689,7 +673,6 @@ class IngredientFormDialog(ctk.CTkToplevel):
         # Get values
         name = self.name_entry.get().strip()
         category = self.category_entry.get().strip()
-        recipe_unit = self.recipe_unit_var.get()
         density_str = self.density_entry.get().strip()
 
         # Validate required fields
@@ -716,7 +699,6 @@ class IngredientFormDialog(ctk.CTkToplevel):
         result: Dict[str, Any] = {
             "name": name,
             "category": category,
-            "recipe_unit": recipe_unit,
         }
 
         if density is not None:
