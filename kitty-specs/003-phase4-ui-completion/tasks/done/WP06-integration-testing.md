@@ -62,5 +62,5 @@ Integrate new tabs with existing Recipe and Events tabs. Update ingredient selec
 
 ## Activity Log
 
-- 2025-11-10 – Claude Code – lane=planned – Work package created
-- 2025-11-10 – Claude Code – lane=done – Work package completed - integration guide created, navigation helpers added, legacy code removed
+- 2025-11-10T18:01:00Z – Claude Code – shell_pid=1 – lane=planned – Work package created
+- 2025-11-10T19:30:00Z – Claude Code – shell_pid=1 – lane=done – Work package completed - integration guide created, navigation helpers added, legacy code removed

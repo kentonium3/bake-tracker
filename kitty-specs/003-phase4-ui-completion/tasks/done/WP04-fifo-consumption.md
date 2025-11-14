@@ -56,5 +56,5 @@ Add FIFO consumption interface to My Pantry tab. Users can consume ingredients w
 
 ## Activity Log
 
-- 2025-11-10 – Claude Code – lane=planned – Work package created
-- 2025-11-10 – Claude Code – lane=done – Work package completed - FIFO consumption interface with preview and execution implemented
+- 2025-11-10T18:01:00Z – Claude Code – shell_pid=1 – lane=planned – Work package created
+- 2025-11-10T20:07:20Z – Claude Code – shell_pid=1 – lane=done – Work package completed - FIFO consumption interface with preview and execution implemented

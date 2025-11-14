@@ -60,5 +60,5 @@ Create migration wizard UI for executing v0.3.0 → v0.4.0 data migration with d
 
 ## Activity Log
 
-- 2025-11-10 – Claude Code – lane=planned – Work package created
-- 2025-11-10 – Claude Code – lane=done – Work package completed - migration wizard with dry-run, execution, and results display implemented
+- 2025-11-10T18:01:00Z – Claude Code – shell_pid=1 – lane=planned – Work package created
+- 2025-11-10T20:14:10Z – Claude Code – shell_pid=1 – lane=done – Work package completed - migration wizard with dry-run, execution, and results display implemented
