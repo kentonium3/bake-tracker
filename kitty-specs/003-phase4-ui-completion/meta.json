@@ -1,10 +1,21 @@
 {
   "accept_commit": null,
-  "acceptance_history": [],
-  "acceptance_mode": "local",
-  "accepted_at": null,
-  "accepted_by": null,
-  "accepted_from_commit": null,
+  "acceptance_history": [
+    {
+      "accepted_at": "2025-11-14T14:09:49Z",
+      "accepted_by": "claude",
+      "accepted_from_commit": "f248710cfdaa71fde4ac70d7adf1bc466945f11c",
+      "branch": "003-phase4-ui-completion",
+      "mode": "pr",
+      "validation_commands": [
+        "Manual testing documented in docs/user_testing/master_test_plan.md"
+      ]
+    }
+  ],
+  "acceptance_mode": "pr",
+  "accepted_at": "2025-11-14T14:09:49Z",
+  "accepted_by": "claude",
+  "accepted_from_commit": "f248710cfdaa71fde4ac70d7adf1bc466945f11c",
   "created_at": "2025-11-10T18:01:00Z",
   "feature_number": "003",
   "friendly_name": "Phase 4 UI Completion - My Ingredients & My Pantry",
