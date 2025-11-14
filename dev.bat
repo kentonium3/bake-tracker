@@ -11,17 +11,23 @@ if "%1"=="lint" goto lint
 if "%1"=="format" goto format
 if "%1"=="clean" goto clean
 if "%1"=="run" goto run
+if "%1"=="setup-worktree" goto setup-worktree
 goto help
 
 :help
 echo Available commands:
-echo   dev install    - Install dependencies
-echo   dev test       - Run tests
-echo   dev test-cov   - Run tests with coverage
-echo   dev lint       - Run linters (flake8, mypy)
-echo   dev format     - Format code with black
-echo   dev clean      - Remove build artifacts
-echo   dev run        - Run the application
+echo   dev install        - Install dependencies
+echo   dev test           - Run tests
+echo   dev test-cov       - Run tests with coverage
+echo   dev lint           - Run linters (flake8, mypy)
+echo   dev format         - Format code with black
+echo   dev clean          - Remove build artifacts
+echo   dev run            - Run the application
+echo   dev setup-worktree - Setup Python environment for worktree
+echo.
+echo Worktree setup usage:
+echo   dev setup-worktree [worktree-path]
+echo   Example: dev setup-worktree .worktrees\004-finishedunit
 goto end
 
 :install
@@ -65,6 +71,17 @@ goto end
 :run
 echo Running application...
 venv\Scripts\python.exe src\main.py
+goto end
+
+:setup-worktree
+if "%2"=="" (
+    echo Error: Worktree path required
+    echo Usage: dev setup-worktree [worktree-path]
+    echo Example: dev setup-worktree .worktrees\004-finishedunit
+    goto end
+)
+echo Setting up worktree environment: %2
+setup-worktree.bat %2
 goto end
 
 :end
