@@ -18,6 +18,9 @@ from src.services.exceptions import ValidationError
 from src.services.database import session_scope
 from src.models.ingredient import Ingredient
 from src.models.variant import Variant
+from src.models.pantry_item import PantryItem
+from src.models.purchase import Purchase
+from src.models.unit_conversion import UnitConversion
 from src.utils.constants import APP_NAME, APP_VERSION
 
 
@@ -46,23 +49,27 @@ class ImportResult:
         """Record a skipped record."""
         self.skipped += 1
         self.total_records += 1
-        self.warnings.append({
-            "record_type": record_type,
-            "record_name": record_name,
-            "warning_type": "skipped",
-            "message": reason
-        })
+        self.warnings.append(
+            {
+                "record_type": record_type,
+                "record_name": record_name,
+                "warning_type": "skipped",
+                "message": reason,
+            }
+        )
 
     def add_error(self, record_type: str, record_name: str, error: str):
         """Record a failed import."""
         self.failed += 1
         self.total_records += 1
-        self.errors.append({
-            "record_type": record_type,
-            "record_name": record_name,
-            "error_type": "import_error",
-            "message": error
-        })
+        self.errors.append(
+            {
+                "record_type": record_type,
+                "record_name": record_name,
+                "error_type": "import_error",
+                "message": error,
+            }
+        )
 
     def get_summary(self) -> str:
         """Get a summary string of the import results."""
@@ -115,9 +122,7 @@ class ExportResult:
 
 
 def export_ingredients_to_json(
-    file_path: str,
-    include_all: bool = True,
-    category_filter: Optional[str] = None
+    file_path: str, include_all: bool = True, category_filter: Optional[str] = None
 ) -> ExportResult:
     """
     Export ingredients to JSON file.
@@ -139,7 +144,7 @@ def export_ingredients_to_json(
             "version": "1.0",
             "export_date": datetime.utcnow().isoformat() + "Z",
             "source": f"{APP_NAME} v{APP_VERSION}",
-            "ingredients": []
+            "ingredients": [],
         }
 
         for ingredient in ingredients:
@@ -166,7 +171,7 @@ def export_ingredients_to_json(
             export_data["ingredients"].append(ingredient_data)
 
         # Write to file
-        with open(file_path, 'w', encoding='utf-8') as f:
+        with open(file_path, "w", encoding="utf-8") as f:
             json.dump(export_data, f, indent=2, ensure_ascii=False)
 
         return ExportResult(file_path, len(ingredients))
@@ -179,9 +184,7 @@ def export_ingredients_to_json(
 
 
 def export_recipes_to_json(
-    file_path: str,
-    include_all: bool = True,
-    category_filter: Optional[str] = None
+    file_path: str, include_all: bool = True, category_filter: Optional[str] = None
 ) -> ExportResult:
     """
     Export recipes to JSON file.
@@ -203,7 +206,7 @@ def export_recipes_to_json(
             "version": "1.0",
             "export_date": datetime.utcnow().isoformat() + "Z",
             "source": f"{APP_NAME} v{APP_VERSION}",
-            "recipes": []
+            "recipes": [],
         }
 
         for recipe in recipes:
@@ -248,7 +251,7 @@ def export_recipes_to_json(
             export_data["recipes"].append(recipe_data)
 
         # Write to file
-        with open(file_path, 'w', encoding='utf-8') as f:
+        with open(file_path, "w", encoding="utf-8") as f:
             json.dump(export_data, f, indent=2, ensure_ascii=False)
 
         return ExportResult(file_path, len(recipes))
@@ -261,9 +264,7 @@ def export_recipes_to_json(
 
 
 def export_finished_goods_to_json(
-    file_path: str,
-    include_all: bool = True,
-    category_filter: Optional[str] = None
+    file_path: str, include_all: bool = True, category_filter: Optional[str] = None
 ) -> ExportResult:
     """
     Export finished goods to JSON file.
@@ -285,7 +286,7 @@ def export_finished_goods_to_json(
             "version": "1.0",
             "export_date": datetime.utcnow().isoformat() + "Z",
             "source": f"{APP_NAME} v{APP_VERSION}",
-            "finished_goods": []
+            "finished_goods": [],
         }
 
         for fg in finished_goods:
@@ -313,7 +314,7 @@ def export_finished_goods_to_json(
             export_data["finished_goods"].append(fg_data)
 
         # Write to file
-        with open(file_path, 'w', encoding='utf-8') as f:
+        with open(file_path, "w", encoding="utf-8") as f:
             json.dump(export_data, f, indent=2, ensure_ascii=False)
 
         return ExportResult(file_path, len(finished_goods))
@@ -325,10 +326,7 @@ def export_finished_goods_to_json(
         return result
 
 
-def export_bundles_to_json(
-    file_path: str,
-    include_all: bool = True
-) -> ExportResult:
+def export_bundles_to_json(file_path: str, include_all: bool = True) -> ExportResult:
     """
     Export bundles to JSON file.
 
@@ -348,7 +346,7 @@ def export_bundles_to_json(
             "version": "1.0",
             "export_date": datetime.utcnow().isoformat() + "Z",
             "source": f"{APP_NAME} v{APP_VERSION}",
-            "bundles": []
+            "bundles": [],
         }
 
         for bundle in bundles:
@@ -365,7 +363,7 @@ def export_bundles_to_json(
             export_data["bundles"].append(bundle_data)
 
         # Write to file
-        with open(file_path, 'w', encoding='utf-8') as f:
+        with open(file_path, "w", encoding="utf-8") as f:
             json.dump(export_data, f, indent=2, ensure_ascii=False)
 
         return ExportResult(file_path, len(bundles))
@@ -377,10 +375,7 @@ def export_bundles_to_json(
         return result
 
 
-def export_packages_to_json(
-    file_path: str,
-    include_all: bool = True
-) -> ExportResult:
+def export_packages_to_json(file_path: str, include_all: bool = True) -> ExportResult:
     """
     Export packages to JSON file.
 
@@ -400,15 +395,11 @@ def export_packages_to_json(
             "version": "1.0",
             "export_date": datetime.utcnow().isoformat() + "Z",
             "source": f"{APP_NAME} v{APP_VERSION}",
-            "packages": []
+            "packages": [],
         }
 
         for package in packages:
-            package_data = {
-                "name": package.name,
-                "is_template": package.is_template,
-                "bundles": []
-            }
+            package_data = {"name": package.name, "is_template": package.is_template, "bundles": []}
 
             # Optional fields
             if package.description:
@@ -428,7 +419,7 @@ def export_packages_to_json(
             export_data["packages"].append(package_data)
 
         # Write to file
-        with open(file_path, 'w', encoding='utf-8') as f:
+        with open(file_path, "w", encoding="utf-8") as f:
             json.dump(export_data, f, indent=2, ensure_ascii=False)
 
         return ExportResult(file_path, len(packages))
@@ -440,10 +431,7 @@ def export_packages_to_json(
         return result
 
 
-def export_recipients_to_json(
-    file_path: str,
-    include_all: bool = True
-) -> ExportResult:
+def export_recipients_to_json(file_path: str, include_all: bool = True) -> ExportResult:
     """
     Export recipients to JSON file.
 
@@ -463,7 +451,7 @@ def export_recipients_to_json(
             "version": "1.0",
             "export_date": datetime.utcnow().isoformat() + "Z",
             "source": f"{APP_NAME} v{APP_VERSION}",
-            "recipients": []
+            "recipients": [],
         }
 
         for recipient in recipients:
@@ -484,7 +472,7 @@ def export_recipients_to_json(
             export_data["recipients"].append(recipient_data)
 
         # Write to file
-        with open(file_path, 'w', encoding='utf-8') as f:
+        with open(file_path, "w", encoding="utf-8") as f:
             json.dump(export_data, f, indent=2, ensure_ascii=False)
 
         return ExportResult(file_path, len(recipients))
@@ -496,10 +484,7 @@ def export_recipients_to_json(
         return result
 
 
-def export_events_to_json(
-    file_path: str,
-    include_all: bool = True
-) -> ExportResult:
+def export_events_to_json(file_path: str, include_all: bool = True) -> ExportResult:
     """
     Export events to JSON file.
 
@@ -521,7 +506,7 @@ def export_events_to_json(
             "version": "1.0",
             "export_date": datetime.utcnow().isoformat() + "Z",
             "source": f"{APP_NAME} v{APP_VERSION}",
-            "events": []
+            "events": [],
         }
 
         for event in events:
@@ -529,7 +514,7 @@ def export_events_to_json(
                 "name": event.name,
                 "event_date": event.event_date.isoformat(),
                 "year": event.year,
-                "assignments": []
+                "assignments": [],
             }
 
             # Optional fields
@@ -552,7 +537,7 @@ def export_events_to_json(
             export_data["events"].append(event_data)
 
         # Write to file
-        with open(file_path, 'w', encoding='utf-8') as f:
+        with open(file_path, "w", encoding="utf-8") as f:
             json.dump(export_data, f, indent=2, ensure_ascii=False)
 
         return ExportResult(file_path, len(events))
@@ -600,12 +585,15 @@ def export_all_to_json(file_path: str) -> ExportResult:
             "source": f"{APP_NAME} v{APP_VERSION}",
             "ingredients": [],
             "variants": [],
+            "pantry_items": [],
+            "purchases": [],
+            "unit_conversions": [],
             "recipes": [],
             "finished_goods": [],
             "bundles": [],
             "packages": [],
             "recipients": [],
-            "events": []
+            "events": [],
         }
 
         # Add ingredients (NEW SCHEMA: generic ingredient definitions)
@@ -682,6 +670,68 @@ def export_all_to_json(file_path: str) -> ExportResult:
 
                 export_data["variants"].append(variant_data)
 
+        # Add pantry items (actual inventory lots)
+        with session_scope() as session:
+            pantry_items = session.query(PantryItem).join(Variant).join(Ingredient).all()
+            for item in pantry_items:
+                pantry_data = {
+                    "ingredient_slug": item.variant.ingredient.slug,
+                    "variant_brand": item.variant.brand or "",
+                    "quantity": item.quantity,
+                    "purchase_date": item.purchase_date.isoformat() if item.purchase_date else None,
+                }
+
+                # Optional fields
+                if item.expiration_date:
+                    pantry_data["expiration_date"] = item.expiration_date.isoformat()
+                if item.location:
+                    pantry_data["location"] = item.location
+                if item.notes:
+                    pantry_data["notes"] = item.notes
+
+                export_data["pantry_items"].append(pantry_data)
+
+        # Add purchases (price history)
+        with session_scope() as session:
+            purchases = session.query(Purchase).join(Variant).join(Ingredient).all()
+            for purchase in purchases:
+                purchase_data = {
+                    "ingredient_slug": purchase.variant.ingredient.slug,
+                    "variant_brand": purchase.variant.brand or "",
+                    "purchased_at": (
+                        purchase.purchase_date.isoformat() if purchase.purchase_date else None
+                    ),
+                    "quantity_purchased": purchase.quantity_purchased,
+                    "unit_cost": float(purchase.unit_cost) if purchase.unit_cost else 0.0,
+                    "total_cost": float(purchase.total_cost) if purchase.total_cost else 0.0,
+                }
+
+                # Optional fields
+                if purchase.supplier:
+                    purchase_data["supplier"] = purchase.supplier
+                if purchase.notes:
+                    purchase_data["notes"] = purchase.notes
+
+                export_data["purchases"].append(purchase_data)
+
+        # Add unit conversions
+        with session_scope() as session:
+            conversions = session.query(UnitConversion).join(Ingredient).all()
+            for conv in conversions:
+                conv_data = {
+                    "ingredient_slug": conv.ingredient.slug,
+                    "from_unit": conv.from_unit,
+                    "from_quantity": float(conv.from_quantity),
+                    "to_unit": conv.to_unit,
+                    "to_quantity": float(conv.to_quantity),
+                }
+
+                # Optional fields
+                if conv.notes:
+                    conv_data["notes"] = conv.notes
+
+                export_data["unit_conversions"].append(conv_data)
+
         # Add recipes
         for recipe in recipes:
             recipe_data = {
@@ -703,10 +753,18 @@ def export_all_to_json(file_path: str) -> ExportResult:
             recipe_data["ingredients"] = []
             for ri in recipe.recipe_ingredients:
                 # Use ingredient_new if available (new schema), fallback to ingredient (old schema)
-                ingredient = ri.ingredient_new if hasattr(ri, 'ingredient_new') and ri.ingredient_new else ri.ingredient
+                ingredient = (
+                    ri.ingredient_new
+                    if hasattr(ri, "ingredient_new") and ri.ingredient_new
+                    else ri.ingredient
+                )
 
                 ingredient_data = {
-                    "ingredient_slug": ingredient.slug if ingredient.slug else ingredient.name.lower().replace(' ', '_'),
+                    "ingredient_slug": (
+                        ingredient.slug
+                        if ingredient.slug
+                        else ingredient.name.lower().replace(" ", "_")
+                    ),
                     "quantity": ri.quantity,
                     "unit": ri.unit,
                 }
@@ -753,11 +811,7 @@ def export_all_to_json(file_path: str) -> ExportResult:
 
         # Add packages
         for package in packages:
-            package_data = {
-                "name": package.name,
-                "is_template": package.is_template,
-                "bundles": []
-            }
+            package_data = {"name": package.name, "is_template": package.is_template, "bundles": []}
             if package.description:
                 package_data["description"] = package.description
             if package.notes:
@@ -792,7 +846,7 @@ def export_all_to_json(file_path: str) -> ExportResult:
                 "name": event.name,
                 "event_date": event.event_date.isoformat(),
                 "year": event.year,
-                "assignments": []
+                "assignments": [],
             }
             if event.notes:
                 event_data["notes"] = event.notes
@@ -811,11 +865,22 @@ def export_all_to_json(file_path: str) -> ExportResult:
             export_data["events"].append(event_data)
 
         # Write to file
-        with open(file_path, 'w', encoding='utf-8') as f:
+        with open(file_path, "w", encoding="utf-8") as f:
             json.dump(export_data, f, indent=2, ensure_ascii=False)
 
-        total_records = (len(ingredients) + len(recipes) + len(finished_goods) +
-                        len(bundles) + len(packages) + len(recipients) + len(events))
+        total_records = (
+            len(ingredients)
+            + len(export_data["variants"])
+            + len(export_data["pantry_items"])
+            + len(export_data["purchases"])
+            + len(export_data["unit_conversions"])
+            + len(recipes)
+            + len(finished_goods)
+            + len(bundles)
+            + len(packages)
+            + len(recipients)
+            + len(events)
+        )
         return ExportResult(file_path, total_records)
 
     except Exception as e:
@@ -830,10 +895,7 @@ def export_all_to_json(file_path: str) -> ExportResult:
 # ============================================================================
 
 
-def import_ingredients_from_json(
-    file_path: str,
-    skip_duplicates: bool = True
-) -> ImportResult:
+def import_ingredients_from_json(file_path: str, skip_duplicates: bool = True) -> ImportResult:
     """
     Import ingredients from JSON file.
 
@@ -848,7 +910,7 @@ def import_ingredients_from_json(
 
     try:
         # Read file
-        with open(file_path, 'r', encoding='utf-8') as f:
+        with open(file_path, "r", encoding="utf-8") as f:
             data = json.load(f)
 
         # Validate structure
@@ -909,10 +971,7 @@ def import_ingredients_from_json(
         return result
 
 
-def import_variants_from_json(
-    file_path: str,
-    skip_duplicates: bool = True
-) -> ImportResult:
+def import_variants_from_json(file_path: str, skip_duplicates: bool = True) -> ImportResult:
     """
     Import variants from JSON file.
 
@@ -927,7 +986,7 @@ def import_variants_from_json(
 
     try:
         # Read file
-        with open(file_path, 'r', encoding='utf-8') as f:
+        with open(file_path, "r", encoding="utf-8") as f:
             data = json.load(f)
 
         # Validate structure
@@ -966,26 +1025,32 @@ def import_variants_from_json(
                         break
 
                 if not ingredient:
-                    result.add_error("variant", f"Record {idx+1}", f"Ingredient not found: {ingredient_slug}")
+                    result.add_error(
+                        "variant", f"Record {idx+1}", f"Ingredient not found: {ingredient_slug}"
+                    )
                     continue
 
                 # Create variant with ingredient_id
                 with session_scope() as session:
                     # Re-fetch ingredient in this session
-                    ingredient_in_session = session.query(Ingredient).filter(Ingredient.id == ingredient.id).first()
+                    ingredient_in_session = (
+                        session.query(Ingredient).filter(Ingredient.id == ingredient.id).first()
+                    )
 
                     # Check for duplicate within the session
                     if skip_duplicates:
                         package_size = variant_data.get("package_size", "")
                         duplicate_found = False
                         for existing_variant in ingredient_in_session.variants:
-                            if (existing_variant.brand == brand and
-                                existing_variant.package_size == package_size and
-                                existing_variant.purchase_unit == purchase_unit):
+                            if (
+                                existing_variant.brand == brand
+                                and existing_variant.package_size == package_size
+                                and existing_variant.purchase_unit == purchase_unit
+                            ):
                                 result.add_skip(
                                     "variant",
                                     f"{ingredient_in_session.name} - {brand or 'generic'}",
-                                    "Already exists"
+                                    "Already exists",
                                 )
                                 duplicate_found = True
                                 break
@@ -1011,7 +1076,7 @@ def import_variants_from_json(
                         country_of_sale=variant_data.get("country_of_sale"),
                         off_id=variant_data.get("off_id"),
                         preferred=variant_data.get("preferred", False),
-                        notes=variant_data.get("notes")
+                        notes=variant_data.get("notes"),
                     )
                     session.add(new_variant)
                     session.commit()
@@ -1034,9 +1099,7 @@ def import_variants_from_json(
 
 
 def import_recipes_from_json(
-    file_path: str,
-    skip_duplicates: bool = True,
-    skip_missing_ingredients: bool = True
+    file_path: str, skip_duplicates: bool = True, skip_missing_ingredients: bool = True
 ) -> ImportResult:
     """
     Import recipes from JSON file.
@@ -1053,7 +1116,7 @@ def import_recipes_from_json(
 
     try:
         # Read file
-        with open(file_path, 'r', encoding='utf-8') as f:
+        with open(file_path, "r", encoding="utf-8") as f:
             data = json.load(f)
 
         # Validate structure
@@ -1075,10 +1138,14 @@ def import_recipes_from_json(
                 # Check for duplicate
                 if skip_duplicates:
                     existing = recipe_service.get_all_recipes(name_search=name)
+                    duplicate_found = False
                     for existing_recipe in existing:
                         if existing_recipe.name == name:
                             result.add_skip("recipe", name, "Already exists")
-                            continue
+                            duplicate_found = True
+                            break
+                    if duplicate_found:
+                        continue
 
                 # Validate ingredients exist
                 recipe_ingredients = recipe_data.get("ingredients", [])
@@ -1097,7 +1164,7 @@ def import_recipes_from_json(
                     # Fallback to old schema for backwards compatibility
                     if not ing_slug:
                         ing_name = ri_data.get("ingredient_name", "")
-                        ing_slug = ing_name.lower().replace(' ', '_') if ing_name else ""
+                        ing_slug = ing_name.lower().replace(" ", "_") if ing_name else ""
 
                     # Find ingredient by slug
                     all_ingredients = inventory_service.get_all_ingredients()
@@ -1112,26 +1179,24 @@ def import_recipes_from_json(
                         missing_ingredients.append(ing_slug)
                     else:
                         # Build validated ingredient data
-                        validated_ingredients.append({
-                            "ingredient_id": found.id,
-                            "quantity": ri_data.get("quantity"),
-                            "unit": ri_data.get("unit"),
-                            "notes": ri_data.get("notes")
-                        })
+                        validated_ingredients.append(
+                            {
+                                "ingredient_id": found.id,
+                                "quantity": ri_data.get("quantity"),
+                                "unit": ri_data.get("unit"),
+                                "notes": ri_data.get("notes"),
+                            }
+                        )
 
                 if missing_ingredients:
                     if skip_missing_ingredients:
                         result.add_skip(
-                            "recipe",
-                            name,
-                            f"Missing ingredients: {', '.join(missing_ingredients)}"
+                            "recipe", name, f"Missing ingredients: {', '.join(missing_ingredients)}"
                         )
                         continue
                     else:
                         result.add_error(
-                            "recipe",
-                            name,
-                            f"Missing ingredients: {', '.join(missing_ingredients)}"
+                            "recipe", name, f"Missing ingredients: {', '.join(missing_ingredients)}"
                         )
                         continue
 
@@ -1149,7 +1214,9 @@ def import_recipes_from_json(
                 if "yield_description" in recipe_data:
                     recipe_base_data["yield_description"] = recipe_data["yield_description"]
                 if "estimated_time_minutes" in recipe_data:
-                    recipe_base_data["estimated_time_minutes"] = recipe_data["estimated_time_minutes"]
+                    recipe_base_data["estimated_time_minutes"] = recipe_data[
+                        "estimated_time_minutes"
+                    ]
                 if "notes" in recipe_data:
                     recipe_base_data["notes"] = recipe_data["notes"]
 
@@ -1172,9 +1239,7 @@ def import_recipes_from_json(
 
 
 def import_finished_goods_from_json(
-    file_path: str,
-    skip_duplicates: bool = True,
-    skip_missing_recipes: bool = True
+    file_path: str, skip_duplicates: bool = True, skip_missing_recipes: bool = True
 ) -> ImportResult:
     """
     Import finished goods from JSON file.
@@ -1191,7 +1256,7 @@ def import_finished_goods_from_json(
 
     try:
         # Read file
-        with open(file_path, 'r', encoding='utf-8') as f:
+        with open(file_path, "r", encoding="utf-8") as f:
             data = json.load(f)
 
         # Validate structure
@@ -1213,10 +1278,14 @@ def import_finished_goods_from_json(
                 # Check for duplicate
                 if skip_duplicates:
                     existing = finished_good_service.get_all_finished_goods(name_search=name)
+                    duplicate_found = False
                     for existing_fg in existing:
                         if existing_fg.name == name:
                             result.add_skip("finished_good", name, "Already exists")
-                            continue
+                            duplicate_found = True
+                            break
+                    if duplicate_found:
+                        continue
 
                 # Find recipe
                 recipe_name = fg_data.get("recipe_name", "")
@@ -1280,9 +1349,7 @@ def import_finished_goods_from_json(
 
 
 def import_bundles_from_json(
-    file_path: str,
-    skip_duplicates: bool = True,
-    skip_missing_finished_goods: bool = True
+    file_path: str, skip_duplicates: bool = True, skip_missing_finished_goods: bool = True
 ) -> ImportResult:
     """
     Import bundles from JSON file.
@@ -1299,7 +1366,7 @@ def import_bundles_from_json(
 
     try:
         # Read file
-        with open(file_path, 'r', encoding='utf-8') as f:
+        with open(file_path, "r", encoding="utf-8") as f:
             data = json.load(f)
 
         # Validate structure
@@ -1321,10 +1388,14 @@ def import_bundles_from_json(
                 # Check for duplicate
                 if skip_duplicates:
                     existing = finished_good_service.get_all_bundles(name_search=name)
+                    duplicate_found = False
                     for existing_bundle in existing:
                         if existing_bundle.name == name:
                             result.add_skip("bundle", name, "Already exists")
-                            continue
+                            duplicate_found = True
+                            break
+                    if duplicate_found:
+                        continue
 
                 # Find finished good
                 fg_name = bundle_data.get("finished_good_name", "")
@@ -1378,9 +1449,7 @@ def import_bundles_from_json(
 
 
 def import_packages_from_json(
-    file_path: str,
-    skip_duplicates: bool = True,
-    skip_missing_bundles: bool = True
+    file_path: str, skip_duplicates: bool = True, skip_missing_bundles: bool = True
 ) -> ImportResult:
     """
     Import packages from JSON file.
@@ -1397,7 +1466,7 @@ def import_packages_from_json(
 
     try:
         # Read file
-        with open(file_path, 'r', encoding='utf-8') as f:
+        with open(file_path, "r", encoding="utf-8") as f:
             data = json.load(f)
 
         # Validate structure
@@ -1419,10 +1488,14 @@ def import_packages_from_json(
                 # Check for duplicate
                 if skip_duplicates:
                     existing = package_service.get_all_packages(name_search=name)
+                    duplicate_found = False
                     for existing_package in existing:
                         if existing_package.name == name:
                             result.add_skip("package", name, "Already exists")
-                            continue
+                            duplicate_found = True
+                            break
+                    if duplicate_found:
+                        continue
 
                 # Build package data
                 package_create_data = {
@@ -1463,10 +1536,12 @@ def import_packages_from_json(
                             result.add_error("package", name, f"Bundle not found: {bundle_name}")
                             continue
 
-                    bundle_items.append({
-                        "bundle_id": bundle.id,
-                        "quantity": bundle_item_data.get("quantity", 1),
-                    })
+                    bundle_items.append(
+                        {
+                            "bundle_id": bundle.id,
+                            "quantity": bundle_item_data.get("quantity", 1),
+                        }
+                    )
 
                 # Only create if we have bundle items
                 if not bundle_items:
@@ -1492,10 +1567,7 @@ def import_packages_from_json(
         return result
 
 
-def import_recipients_from_json(
-    file_path: str,
-    skip_duplicates: bool = True
-) -> ImportResult:
+def import_recipients_from_json(file_path: str, skip_duplicates: bool = True) -> ImportResult:
     """
     Import recipients from JSON file.
 
@@ -1510,7 +1582,7 @@ def import_recipients_from_json(
 
     try:
         # Read file
-        with open(file_path, 'r', encoding='utf-8') as f:
+        with open(file_path, "r", encoding="utf-8") as f:
             data = json.load(f)
 
         # Validate structure
@@ -1532,10 +1604,14 @@ def import_recipients_from_json(
                 # Check for duplicate
                 if skip_duplicates:
                     existing = recipient_service.get_all_recipients(name_search=name)
+                    duplicate_found = False
                     for existing_recipient in existing:
                         if existing_recipient.name == name:
                             result.add_skip("recipient", name, "Already exists")
-                            continue
+                            duplicate_found = True
+                            break
+                    if duplicate_found:
+                        continue
 
                 # Build recipient data
                 recipient_create_data = {
@@ -1572,9 +1648,7 @@ def import_recipients_from_json(
 
 
 def import_events_from_json(
-    file_path: str,
-    skip_duplicates: bool = True,
-    skip_missing_refs: bool = True
+    file_path: str, skip_duplicates: bool = True, skip_missing_refs: bool = True
 ) -> ImportResult:
     """
     Import events from JSON file.
@@ -1593,7 +1667,7 @@ def import_events_from_json(
 
     try:
         # Read file
-        with open(file_path, 'r', encoding='utf-8') as f:
+        with open(file_path, "r", encoding="utf-8") as f:
             data = json.load(f)
 
         # Validate structure
@@ -1617,13 +1691,18 @@ def import_events_from_json(
                     year = event_data.get("year")
                     if year:
                         existing = event_service.get_all_events(year=year)
+                        duplicate_found = False
                         for existing_event in existing:
                             if existing_event.name == name:
                                 result.add_skip("event", name, "Already exists")
-                                continue
+                                duplicate_found = True
+                                break
+                        if duplicate_found:
+                            continue
 
                 # Build event data
                 from datetime import date
+
                 event_date_str = event_data.get("event_date")
                 event_date = date.fromisoformat(event_date_str) if event_date_str else None
 
@@ -1652,7 +1731,9 @@ def import_events_from_json(
                             continue
 
                         # Find recipient
-                        recipients = recipient_service.get_all_recipients(name_search=recipient_name)
+                        recipients = recipient_service.get_all_recipients(
+                            name_search=recipient_name
+                        )
                         recipient = None
                         for r in recipients:
                             if r.name == recipient_name:
@@ -1661,7 +1742,9 @@ def import_events_from_json(
 
                         if not recipient:
                             if not skip_missing_refs:
-                                result.add_error("event", name, f"Recipient not found: {recipient_name}")
+                                result.add_error(
+                                    "event", name, f"Recipient not found: {recipient_name}"
+                                )
                             continue
 
                         # Find package
@@ -1674,7 +1757,9 @@ def import_events_from_json(
 
                         if not package:
                             if not skip_missing_refs:
-                                result.add_error("event", name, f"Package not found: {package_name}")
+                                result.add_error(
+                                    "event", name, f"Package not found: {package_name}"
+                                )
                             continue
 
                         # Create assignment
@@ -1686,10 +1771,7 @@ def import_events_from_json(
                             assignment_create_data["notes"] = assignment_data["notes"]
 
                         event_service.assign_package_to_recipient(
-                            event.id,
-                            recipient.id,
-                            package.id,
-                            **assignment_create_data
+                            event.id, recipient.id, package.id, **assignment_create_data
                         )
 
                     except Exception as e:
@@ -1711,10 +1793,16 @@ def import_events_from_json(
         return result
 
 
-def import_all_from_json(
-    file_path: str,
-    skip_duplicates: bool = True
-) -> Tuple[ImportResult, ImportResult, ImportResult, ImportResult, ImportResult, ImportResult, ImportResult, ImportResult]:
+def import_all_from_json(file_path: str, skip_duplicates: bool = True) -> Tuple[
+    ImportResult,
+    ImportResult,
+    ImportResult,
+    ImportResult,
+    ImportResult,
+    ImportResult,
+    ImportResult,
+    ImportResult,
+]:
     """
     Import all data from a single JSON file.
 
@@ -1740,13 +1828,15 @@ def import_all_from_json(
 
     try:
         # Read file
-        with open(file_path, 'r', encoding='utf-8') as f:
+        with open(file_path, "r", encoding="utf-8") as f:
             data = json.load(f)
 
         # Import ingredients first
         ingredient_result = ImportResult()
         if "ingredients" in data:
-            with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False, encoding='utf-8') as tmp:
+            with tempfile.NamedTemporaryFile(
+                mode="w", suffix=".json", delete=False, encoding="utf-8"
+            ) as tmp:
                 json.dump({"ingredients": data["ingredients"]}, tmp)
                 tmp_path = tmp.name
 
@@ -1756,7 +1846,9 @@ def import_all_from_json(
         # Import variants second (depends on ingredients)
         variant_result = ImportResult()
         if "variants" in data:
-            with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False, encoding='utf-8') as tmp:
+            with tempfile.NamedTemporaryFile(
+                mode="w", suffix=".json", delete=False, encoding="utf-8"
+            ) as tmp:
                 json.dump({"variants": data["variants"]}, tmp)
                 tmp_path = tmp.name
 
@@ -1766,7 +1858,9 @@ def import_all_from_json(
         # Import recipes third
         recipe_result = ImportResult()
         if "recipes" in data:
-            with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False, encoding='utf-8') as tmp:
+            with tempfile.NamedTemporaryFile(
+                mode="w", suffix=".json", delete=False, encoding="utf-8"
+            ) as tmp:
                 json.dump({"recipes": data["recipes"]}, tmp)
                 tmp_path = tmp.name
 
@@ -1776,7 +1870,9 @@ def import_all_from_json(
         # Import finished goods third
         finished_good_result = ImportResult()
         if "finished_goods" in data:
-            with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False, encoding='utf-8') as tmp:
+            with tempfile.NamedTemporaryFile(
+                mode="w", suffix=".json", delete=False, encoding="utf-8"
+            ) as tmp:
                 json.dump({"finished_goods": data["finished_goods"]}, tmp)
                 tmp_path = tmp.name
 
@@ -1786,7 +1882,9 @@ def import_all_from_json(
         # Import bundles fourth
         bundle_result = ImportResult()
         if "bundles" in data:
-            with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False, encoding='utf-8') as tmp:
+            with tempfile.NamedTemporaryFile(
+                mode="w", suffix=".json", delete=False, encoding="utf-8"
+            ) as tmp:
                 json.dump({"bundles": data["bundles"]}, tmp)
                 tmp_path = tmp.name
 
@@ -1796,7 +1894,9 @@ def import_all_from_json(
         # Import packages fifth
         package_result = ImportResult()
         if "packages" in data:
-            with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False, encoding='utf-8') as tmp:
+            with tempfile.NamedTemporaryFile(
+                mode="w", suffix=".json", delete=False, encoding="utf-8"
+            ) as tmp:
                 json.dump({"packages": data["packages"]}, tmp)
                 tmp_path = tmp.name
 
@@ -1806,7 +1906,9 @@ def import_all_from_json(
         # Import recipients sixth (no dependencies)
         recipient_result = ImportResult()
         if "recipients" in data:
-            with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False, encoding='utf-8') as tmp:
+            with tempfile.NamedTemporaryFile(
+                mode="w", suffix=".json", delete=False, encoding="utf-8"
+            ) as tmp:
                 json.dump({"recipients": data["recipients"]}, tmp)
                 tmp_path = tmp.name
 
@@ -1816,15 +1918,25 @@ def import_all_from_json(
         # Import events seventh (with assignments)
         event_result = ImportResult()
         if "events" in data:
-            with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False, encoding='utf-8') as tmp:
+            with tempfile.NamedTemporaryFile(
+                mode="w", suffix=".json", delete=False, encoding="utf-8"
+            ) as tmp:
                 json.dump({"events": data["events"]}, tmp)
                 tmp_path = tmp.name
 
             event_result = import_events_from_json(tmp_path, skip_duplicates)
             Path(tmp_path).unlink()
 
-        return (ingredient_result, variant_result, recipe_result, finished_good_result, bundle_result,
-                package_result, recipient_result, event_result)
+        return (
+            ingredient_result,
+            variant_result,
+            recipe_result,
+            finished_good_result,
+            bundle_result,
+            package_result,
+            recipient_result,
+            event_result,
+        )
 
     except Exception as e:
         ingredient_result = ImportResult()
@@ -1836,5 +1948,13 @@ def import_all_from_json(
         recipient_result = ImportResult()
         event_result = ImportResult()
         ingredient_result.add_error("file", file_path, str(e))
-        return (ingredient_result, variant_result, recipe_result, finished_good_result, bundle_result,
-                package_result, recipient_result, event_result)
+        return (
+            ingredient_result,
+            variant_result,
+            recipe_result,
+            finished_good_result,
+            bundle_result,
+            package_result,
+            recipient_result,
+            event_result,
+        )

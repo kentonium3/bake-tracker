@@ -161,7 +161,9 @@ def get_pantry_items(
           True
       """
       with session_scope() as session:
-          q = session.query(PantryItem).options(joinedload(PantryItem.variant))
+          q = session.query(PantryItem).options(
+              joinedload(PantryItem.variant).joinedload(Variant.ingredient)
+          )
 
           # Join Variant if filtering by ingredient_slug
           if ingredient_slug:
@@ -180,34 +182,31 @@ def get_pantry_items(
           return q.order_by(PantryItem.purchase_date.asc()).all()
 
 
-def get_total_quantity(ingredient_slug: str) -> Decimal:
-      """Calculate total quantity for ingredient across all variants and locations.
+def get_total_quantity(ingredient_slug: str) -> Dict[str, Decimal]:
+      """Calculate total quantity for ingredient grouped by unit.
 
-      This function aggregates inventory across all lots, converting to the
-      ingredient's recipe_unit for consistent totals.
+      This function aggregates inventory across all lots, grouping by unit
+      since we no longer convert to a single standard unit.
 
       Args:
           ingredient_slug: Ingredient identifier
 
       Returns:
-          Decimal: Total quantity in ingredient's recipe_unit (0.0 if no inventory)
+          Dict[str, Decimal]: Total quantities by unit (e.g., {"lb": 25.0, "cup": 3.5})
 
       Raises:
           IngredientNotFoundBySlug: If ingredient_slug doesn't exist
 
       Example:
-          >>> total = get_total_quantity("all_purpose_flour")
-          >>> total  # In cups (if recipe_unit="cup")
-          Decimal('125.5')
+          >>> totals = get_total_quantity("all_purpose_flour")
+          >>> totals
+          {"lb": Decimal('25.0'), "cup": Decimal('3.5')}
 
-          >>> # Empty inventory returns 0
+          >>> # Empty inventory returns empty dict
           >>> get_total_quantity("new_ingredient")
-          Decimal('0.0')
+          {}
       """
-      from ..services.unit_converter import convert_any_units
-
       ingredient = get_ingredient(ingredient_slug)  # Validate exists
-      target_unit = ingredient.recipe_unit
 
       # Get all pantry items for this ingredient with quantity > 0
       items = get_pantry_items(
@@ -215,26 +214,16 @@ def get_total_quantity(ingredient_slug: str) -> Decimal:
           min_quantity=Decimal("0.001")
       )
 
-      # Calculate density in g/cup if available
-      density_g_per_cup = None
-      if ingredient.density_g_per_ml:
-          density_g_per_cup = ingredient.density_g_per_ml * 236.588  # Convert g/ml to g/cup
-      
-      total = Decimal("0.0")
+      # Group quantities by unit
+      unit_totals = {}
       for item in items:
-          # Convert item quantity to ingredient's recipe_unit
-          success, converted, error = convert_any_units(
-              float(item.quantity),
-              item.variant.purchase_unit,
-              target_unit,
-              ingredient_name=ingredient.name,
-              density_override=density_g_per_cup
-          )
-          if not success:
-              raise ValueError(f"Unit conversion failed: {error}")
-          total += Decimal(str(converted))
+          unit = item.variant.purchase_unit
+          if unit:
+              if unit not in unit_totals:
+                  unit_totals[unit] = Decimal("0.0")
+              unit_totals[unit] += Decimal(str(item.quantity))
 
-      return total
+      return unit_totals
 
 
 def consume_fifo(ingredient_slug: str, quantity_needed: Decimal) -> Dict[str, Any]:
@@ -283,7 +272,9 @@ def consume_fifo(ingredient_slug: str, quantity_needed: Decimal) -> Dict[str, An
       try:
           with session_scope() as session:
               # Get all lots ordered by purchase_date ASC (oldest first)
-              pantry_items = session.query(PantryItem).options(joinedload(PantryItem.variant)).join(Variant).filter(
+              pantry_items = session.query(PantryItem).options(
+                  joinedload(PantryItem.variant).joinedload(Variant.ingredient)
+              ).join(Variant).filter(
                   Variant.ingredient_id == ingredient.id,
                   PantryItem.quantity >= 0.001  # Exclude negligible amounts from floating-point errors
               ).order_by(PantryItem.purchase_date.asc()).all()
@@ -380,7 +371,9 @@ def get_expiring_soon(days: int = 14) -> List[PantryItem]:
       cutoff_date = date.today() + timedelta(days=days)
 
       with session_scope() as session:
-          return session.query(PantryItem).filter(
+          return session.query(PantryItem).options(
+              joinedload(PantryItem.variant).joinedload(Variant.ingredient)
+          ).filter(
               PantryItem.expiration_date.isnot(None),
               PantryItem.expiration_date <= cutoff_date,
               PantryItem.quantity > 0
@@ -422,7 +415,9 @@ def update_pantry_item(pantry_item_id: int, item_data: Dict[str, Any]) -> Pantry
 
       try:
           with session_scope() as session:
-              item = session.query(PantryItem).filter_by(id=pantry_item_id).first()
+              item = session.query(PantryItem).options(
+                  joinedload(PantryItem.variant).joinedload(Variant.ingredient)
+              ).filter_by(id=pantry_item_id).first()
               if not item:
                   raise PantryItemNotFound(pantry_item_id)
 

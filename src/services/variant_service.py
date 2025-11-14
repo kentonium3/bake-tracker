@@ -103,7 +103,7 @@ def create_variant(ingredient_slug: str, variant_data: Dict[str, Any]) -> Varian
   # Validate variant data
   is_valid, errors = validate_variant_data(variant_data, ingredient_slug)
   if not is_valid:
-      raise ServiceValidationError("; ".join(errors))
+      raise ServiceValidationError(errors)
 
   try:
       with session_scope() as session:
@@ -160,7 +160,9 @@ def get_variant(variant_id: int) -> Variant:
   """
   with session_scope() as session:
       variant = session.query(Variant).options(
-          joinedload(Variant.ingredient)
+          joinedload(Variant.ingredient),
+          joinedload(Variant.purchases),
+          joinedload(Variant.pantry_items)
       ).filter_by(id=variant_id).first()
 
       if not variant:
@@ -192,7 +194,11 @@ def get_variants_for_ingredient(ingredient_slug: str) -> List[Variant]:
   ingredient = get_ingredient(ingredient_slug)
 
   with session_scope() as session:
-      return session.query(Variant).filter_by(ingredient_id=ingredient.id).order_by(
+      return session.query(Variant).options(
+          joinedload(Variant.ingredient),
+          joinedload(Variant.purchases),
+          joinedload(Variant.pantry_items)
+      ).filter_by(ingredient_id=ingredient.id).order_by(
           Variant.preferred.desc(),  # Preferred first
           Variant.brand  # Then alphabetical by brand
       ).all()
@@ -236,7 +242,11 @@ def set_preferred_variant(variant_id: int) -> Variant:
           ).update({'preferred': False})
 
           # Set this variant to preferred
-          variant_to_update = session.query(Variant).get(variant_id)
+          variant_to_update = session.query(Variant).options(
+              joinedload(Variant.ingredient),
+              joinedload(Variant.purchases),
+              joinedload(Variant.pantry_items)
+          ).get(variant_id)
           variant_to_update.preferred = True
 
           return variant_to_update
@@ -291,7 +301,11 @@ def update_variant(variant_id: int, variant_data: Dict[str, Any]) -> Variant:
   try:
       with session_scope() as session:
           # Get existing variant
-          variant = session.query(Variant).filter_by(id=variant_id).first()
+          variant = session.query(Variant).options(
+              joinedload(Variant.ingredient),
+              joinedload(Variant.purchases),
+              joinedload(Variant.pantry_items)
+          ).filter_by(id=variant_id).first()
           if not variant:
               raise VariantNotFound(variant_id)
 
@@ -413,7 +427,11 @@ def search_variants_by_upc(upc: str) -> List[Variant]:
       ['Costco Kirkland', 'Amazon Basics']
   """
   with session_scope() as session:
-      return session.query(Variant).filter_by(upc=upc).all()
+      return session.query(Variant).options(
+          joinedload(Variant.ingredient),
+          joinedload(Variant.purchases),
+          joinedload(Variant.pantry_items)
+      ).filter_by(upc=upc).all()
 
 
 def get_preferred_variant(ingredient_slug: str) -> Optional[Variant]:
@@ -441,7 +459,11 @@ def get_preferred_variant(ingredient_slug: str) -> Optional[Variant]:
   ingredient = get_ingredient(ingredient_slug)
 
   with session_scope() as session:
-      return session.query(Variant).filter_by(
+      return session.query(Variant).options(
+          joinedload(Variant.ingredient),
+          joinedload(Variant.purchases),
+          joinedload(Variant.pantry_items)
+      ).filter_by(
           ingredient_id=ingredient.id,
           preferred=True
       ).first()

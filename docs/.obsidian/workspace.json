@@ -1,0 +1,224 @@
+{
+  "main": {
+    "id": "253058aa77740867",
+    "type": "split",
+    "children": [
+      {
+        "id": "853979da3d492229",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "36797ad18d5bef73",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "user_testing/master_test_plan.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "master_test_plan"
+            }
+          },
+          {
+            "id": "5b87ff74dcc244c1",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "user_stories.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "user_stories"
+            }
+          },
+          {
+            "id": "7178f8215aa42347",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "design/consumption_inventory_design.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "consumption_inventory_design"
+            }
+          }
+        ],
+        "currentTab": 2
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "7de5f41348416411",
+    "type": "split",
+    "children": [
+      {
+        "id": "d47da6dee83f7bcc",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "94556ee432ef29b0",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false
+              },
+              "icon": "lucide-folder-closed",
+              "title": "Files"
+            }
+          },
+          {
+            "id": "6301afad54bfd363",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "Search"
+            }
+          },
+          {
+            "id": "f00129d2df47410a",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "Bookmarks"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "220b0486d74ace3b",
+    "type": "split",
+    "children": [
+      {
+        "id": "513e8cae6d889e84",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "ea472563826ecf88",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "user_testing/master_test_plan.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "Backlinks for master_test_plan"
+            }
+          },
+          {
+            "id": "77ad718a5cdc89a3",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "user_testing/master_test_plan.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "Outgoing links from master_test_plan"
+            }
+          },
+          {
+            "id": "0edd0ddb5e11d52c",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "Tags"
+            }
+          },
+          {
+            "id": "9f415c2ca0ca161c",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "user_testing/master_test_plan.md",
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "Outline of master_test_plan"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Open quick switcher": false,
+      "graph:Open graph view": false,
+      "canvas:Create new canvas": false,
+      "daily-notes:Open today's daily note": false,
+      "templates:Insert template": false,
+      "command-palette:Open command palette": false,
+      "bases:Create new base": false
+    }
+  },
+  "active": "7178f8215aa42347",
+  "lastOpenFiles": [
+    "design/cons_inv_design_feedback.md",
+    "design/consumption_inventory_design.md",
+    "user_stories.md",
+    "design",
+    "user_testing/master_test_plan.md",
+    "user_testing/images/Screenshot 2025-11-12 140407.jpg",
+    "user_testing/images/Screenshot 2025-11-12 135450.jpg",
+    "user_testing/images/Screenshot 2025-11-12 135050.jpg",
+    "user_testing/images/Screenshot 2025-11-12 134700.jpg",
+    "user_testing/images/Screenshot 2025-11-12 012624.png",
+    "user_testing/MASTER_TEST_PLAN.md",
+    "user_testing/images/Screenshot 2025-11-12 012106.png",
+    "Pasted image 20251112012631.png",
+    "Screenshot 2025-11-12 012106.png",
+    "user_guide.md",
+    "user_testing/images/variant_list_2025-11-12 010658.jpg",
+    "__bake-tracker-vault.md",
+    "__bake-tracker-vault",
+    "user_testing/images",
+    "user_testing"
+  ]
+}

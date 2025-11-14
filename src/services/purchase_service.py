@@ -44,6 +44,7 @@ from statistics import linear_regression
 
 from ..models import Purchase, Variant
 from .database import session_scope
+from .ingredient_service import get_ingredient
 from .exceptions import (
     PurchaseNotFound,
     VariantNotFound,
