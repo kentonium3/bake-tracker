@@ -7,7 +7,7 @@ subtasks:
   - "T022"
 title: "Integration & Testing Suite"
 phase: "Phase 5 - Validation & Quality Assurance"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "claude"
 shell_pid: "24734"
@@ -148,3 +148,4 @@ history:
 ## Activity Log
 
 - 2025-11-15T16:17:05Z – claude – shell_pid=24734 – lane=doing – Started WP05 implementation
+- 2025-11-15T17:01:08Z – claude – shell_pid=24734 – lane=for_review – Moved to for_review
