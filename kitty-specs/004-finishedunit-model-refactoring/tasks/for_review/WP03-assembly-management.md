@@ -7,7 +7,7 @@ subtasks:
   - "T014"
 title: "Assembly Management Services"
 phase: "Phase 3 - User Story 2 Implementation"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "claude"
 shell_pid: "26869"
@@ -153,3 +153,4 @@ history:
 ## Activity Log
 
 - 2025-11-15T17:15:32Z – system – shell_pid= – lane=doing – Moved to doing
+- 2025-11-15T17:17:45Z – claude – shell_pid=26869 – lane=for_review – Moved to for_review
