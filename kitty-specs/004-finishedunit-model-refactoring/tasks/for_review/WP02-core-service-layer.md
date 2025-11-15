@@ -7,7 +7,7 @@ subtasks:
   - "T010"
 title: "Core Service Layer Implementation"
 phase: "Phase 2 - User Story 1 Foundation"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "claude"
 shell_pid: "25985"
@@ -151,3 +151,4 @@ history:
 ## Activity Log
 
 - 2025-11-15T17:06:39Z – system – shell_pid= – lane=doing – Moved to doing
+- 2025-11-15T17:11:56Z – claude – shell_pid=25985 – lane=for_review – Moved to for_review
