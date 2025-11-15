@@ -19,6 +19,8 @@ from decimal import Decimal
 from typing import List, Optional, Dict, Any, Set, Tuple
 from collections import deque
 from datetime import datetime
+import threading
+import time
 
 from sqlalchemy import and_, or_, text, func
 from sqlalchemy.orm import Session, selectinload
@@ -33,6 +35,65 @@ from .exceptions import (
 )
 
 logger = logging.getLogger(__name__)
+
+
+# Hierarchy caching for performance optimization
+class HierarchyCache:
+    """
+    Thread-safe cache for hierarchy operations to improve performance.
+
+    Caches frequently accessed hierarchy structures with TTL (Time To Live)
+    to balance performance with data freshness.
+    """
+
+    def __init__(self, ttl_seconds: int = 300):  # 5 minute TTL
+        self.cache: Dict[str, Tuple[Any, float]] = {}
+        self.ttl = ttl_seconds
+        self.lock = threading.RLock()
+
+    def get(self, key: str) -> Optional[Any]:
+        """Get cached value if not expired."""
+        with self.lock:
+            if key in self.cache:
+                value, timestamp = self.cache[key]
+                if time.time() - timestamp < self.ttl:
+                    return value
+                else:
+                    # Expired, remove from cache
+                    del self.cache[key]
+            return None
+
+    def put(self, key: str, value: Any) -> None:
+        """Store value in cache with current timestamp."""
+        with self.lock:
+            self.cache[key] = (value, time.time())
+
+    def invalidate(self, pattern: str = None) -> None:
+        """Remove cache entries, optionally matching pattern."""
+        with self.lock:
+            if pattern is None:
+                self.cache.clear()
+            else:
+                keys_to_remove = [k for k in self.cache.keys() if pattern in k]
+                for key in keys_to_remove:
+                    del self.cache[key]
+
+    def size(self) -> int:
+        """Get current cache size."""
+        with self.lock:
+            # Clean expired entries first
+            current_time = time.time()
+            expired_keys = [
+                k for k, (_, timestamp) in self.cache.items()
+                if current_time - timestamp >= self.ttl
+            ]
+            for key in expired_keys:
+                del self.cache[key]
+            return len(self.cache)
+
+
+# Global hierarchy cache instance
+_hierarchy_cache = HierarchyCache()
 
 
 # Custom exceptions for Composition service
@@ -170,6 +231,9 @@ class CompositionService:
                 session.add(composition)
                 session.flush()
 
+                # Invalidate hierarchy cache for affected assembly
+                _hierarchy_cache.invalidate(f"hierarchy_{assembly_id}_")
+
                 logger.info(f"Created composition: {component_type} {component_id} in assembly {assembly_id}")
                 return composition
 
@@ -289,6 +353,9 @@ class CompositionService:
                 assembly_id = composition.assembly_id
                 session.delete(composition)
 
+                # Invalidate hierarchy cache for affected assembly
+                _hierarchy_cache.invalidate(f"hierarchy_{assembly_id}_")
+
                 logger.info(f"Deleted composition ID {composition_id} from assembly {assembly_id}")
                 return True
 
@@ -390,9 +457,16 @@ class CompositionService:
             Must complete in <500ms for maximum depth per contract
 
         Algorithm:
-            Iterative breadth-first search
+            Iterative breadth-first search with caching optimization
         """
         try:
+            # Check cache first
+            cache_key = f"hierarchy_{assembly_id}_{max_depth}"
+            cached_result = _hierarchy_cache.get(cache_key)
+            if cached_result is not None:
+                logger.debug(f"Retrieved hierarchy from cache for assembly {assembly_id}")
+                return cached_result
+
             with get_db_session() as session:
                 # Get root assembly
                 assembly = session.query(FinishedGood)\
@@ -459,6 +533,9 @@ class CompositionService:
                     'max_depth': max_depth,
                     'components': build_hierarchy_level(assembly_id)
                 }
+
+                # Cache the result for future requests
+                _hierarchy_cache.put(cache_key, hierarchy)
 
                 logger.debug(f"Built hierarchy for assembly {assembly_id} with max depth {max_depth}")
                 return hierarchy
@@ -1208,6 +1285,45 @@ class CompositionService:
         except SQLAlchemyError as e:
             logger.error(f"Database error generating assembly statistics: {e}")
             raise DatabaseError(f"Failed to generate assembly statistics: {e}")
+
+    # Cache Management
+
+    @staticmethod
+    def get_cache_statistics() -> dict:
+        """
+        Get statistics about the hierarchy cache for monitoring.
+
+        Returns:
+            Dictionary with cache size and hit rate information
+        """
+        return {
+            'cache_size': _hierarchy_cache.size(),
+            'cache_ttl_seconds': _hierarchy_cache.ttl,
+            'cache_type': 'hierarchy_operations'
+        }
+
+    @staticmethod
+    def clear_hierarchy_cache(assembly_id: Optional[int] = None) -> bool:
+        """
+        Clear hierarchy cache entries.
+
+        Args:
+            assembly_id: If provided, clear only entries for this assembly
+
+        Returns:
+            True if cache was cleared
+        """
+        try:
+            if assembly_id is not None:
+                _hierarchy_cache.invalidate(f"hierarchy_{assembly_id}_")
+                logger.info(f"Cleared hierarchy cache for assembly {assembly_id}")
+            else:
+                _hierarchy_cache.invalidate()
+                logger.info("Cleared all hierarchy cache entries")
+            return True
+        except Exception as e:
+            logger.error(f"Error clearing hierarchy cache: {e}")
+            return False
 
 
 # Module-level convenience functions for backward compatibility
