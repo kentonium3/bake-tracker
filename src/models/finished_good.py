@@ -1,147 +1,287 @@
 """
-Finished Good models for tracking final baked products.
+FinishedGood model for assembled packages containing multiple components.
 
-This module contains:
-- FinishedGood: Products made from recipes (cakes, cookies, etc.)
-- Bundle: Grouped finished goods (e.g., bag of 4 cookies)
+This model represents the new assembly-focused FinishedGood in the two-tier
+hierarchical system, where FinishedGood contains multiple FinishedUnits and/or
+other FinishedGoods in complex packaging scenarios.
+
+Migration Note:
+- Original FinishedGood functionality moved to FinishedUnit model
+- This new model focuses on assemblies and packaged combinations
+- Uses Composition model for component relationships
 """
 
 from datetime import datetime
+from decimal import Decimal
 
-from sqlalchemy import Column, String, Float, Integer, Text, DateTime, ForeignKey, Index, Enum
+from sqlalchemy import (
+    Column, String, Numeric, Integer, Text, DateTime,
+    Index, Enum, CheckConstraint, UniqueConstraint
+)
 from sqlalchemy.orm import relationship
-import enum
 
 from .base import BaseModel
-
-
-class YieldMode(enum.Enum):
-    """Enum for finished good yield modes."""
-    DISCRETE_COUNT = "discrete_count"  # Fixed count items (cookies, truffles)
-    BATCH_PORTION = "batch_portion"    # Portion of batch (cakes)
+from .assembly_type import AssemblyType
 
 
 class FinishedGood(BaseModel):
     """
-    Finished Good model representing final baked products.
+    FinishedGood model representing assembled packages with multiple components.
 
-    Finished goods are created from recipes and represent the actual items
-    that go into packages for recipients.
+    This is the new assembly-focused model in the two-tier hierarchical system.
+    FinishedGoods contain multiple FinishedUnits and/or other FinishedGoods
+    through the Composition junction model.
 
-    Two yield modes:
-    1. DISCRETE_COUNT: Recipe yields a fixed number of items (e.g., 24 cookies)
-    2. BATCH_PORTION: Item uses a percentage of recipe batch (e.g., large cake = 100%)
+    Key Features:
+    - Represents packaged assemblies rather than individual items
+    - Components managed through Composition relationships
+    - Calculated costs derived from component costs and quantities
+    - Support for complex hierarchical packaging scenarios
+    - Assembly-specific packaging and presentation instructions
 
     Attributes:
-        name: Product name (e.g., "Sugar Cookie", "9-inch Chocolate Cake")
-        recipe_id: Foreign key to Recipe
-        yield_mode: How this product relates to recipe yield
-        items_per_batch: Number of items per recipe batch (discrete_count mode)
-        item_unit: Unit name for discrete items (e.g., "cookie", "truffle")
-        batch_percentage: Percentage of recipe batch used (batch_portion mode)
-        portion_description: Description of portion size (e.g., "9-inch round pan")
-        category: Product category
-        notes: Additional notes
+        slug: Unique URL-safe identifier for references
+        display_name: Package name (e.g., "Holiday Gift Box", "Cookie Sampler")
+        description: Detailed description of the assembly
+        assembly_type: Type of assembly (gift_box, variety_pack, etc.)
+        packaging_instructions: Detailed instructions for assembly and packaging
+        total_cost: Calculated total cost from all components
+        inventory_count: Current available quantity of assembled packages
+        notes: Additional notes about the assembly
     """
 
     __tablename__ = "finished_goods"
 
+    # Unique identification
+    slug = Column(String(100), nullable=False, unique=True, index=True)
+
     # Basic information
-    name = Column(String(200), nullable=False, index=True)
-    recipe_id = Column(Integer, ForeignKey("recipes.id", ondelete="RESTRICT"), nullable=False)
+    display_name = Column(String(200), nullable=False, index=True)
+    description = Column(Text, nullable=True)
 
-    # Yield mode
-    yield_mode = Column(
-        Enum(YieldMode),
+    # Assembly-specific attributes
+    assembly_type = Column(
+        Enum(AssemblyType),
         nullable=False,
-        default=YieldMode.DISCRETE_COUNT
+        default=AssemblyType.CUSTOM_ORDER
     )
+    packaging_instructions = Column(Text, nullable=True)
 
-    # For DISCRETE_COUNT mode (cookies, truffles, etc.)
-    items_per_batch = Column(Integer, nullable=True)
-    item_unit = Column(String(50), nullable=True)  # "cookie", "truffle", "piece"
-
-    # For BATCH_PORTION mode (cakes)
-    batch_percentage = Column(Float, nullable=True)
-    portion_description = Column(String(200), nullable=True)  # "9-inch round", "8x8 square"
+    # Cost and inventory
+    total_cost = Column(Numeric(10, 4), nullable=False, default=Decimal('0.0000'))
+    inventory_count = Column(Integer, nullable=False, default=0)
 
     # Additional information
-    category = Column(String(100), nullable=True, index=True)
     notes = Column(Text, nullable=True)
 
-    # Timestamps
-    date_added = Column(DateTime, nullable=False, default=datetime.utcnow)
-    last_modified = Column(
+    # Enhanced timestamps
+    created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
+    updated_at = Column(
         DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow
     )
 
     # Relationships
-    recipe = relationship("Recipe", back_populates="finished_goods")
-    bundles = relationship("Bundle", back_populates="finished_good", cascade="all, delete-orphan")
+    # Components managed through Composition model
+    components = relationship("Composition", foreign_keys="Composition.assembly_id",
+                            back_populates="assembly", cascade="all, delete-orphan")
 
-    # Indexes
+    # Table constraints
     __table_args__ = (
-        Index("idx_finished_good_name", "name"),
-        Index("idx_finished_good_recipe", "recipe_id"),
-        Index("idx_finished_good_category", "category"),
+        Index("idx_finished_good_slug", "slug"),
+        Index("idx_finished_good_display_name", "display_name"),
+        Index("idx_finished_good_assembly_type", "assembly_type"),
+        Index("idx_finished_good_inventory", "inventory_count"),
+        UniqueConstraint("slug", name="uq_finished_good_slug"),
+        CheckConstraint("total_cost >= 0", name="ck_finished_good_total_cost_non_negative"),
+        CheckConstraint("inventory_count >= 0", name="ck_finished_good_inventory_non_negative"),
     )
 
     def __repr__(self) -> str:
-        """String representation of finished good."""
-        return f"FinishedGood(id={self.id}, name='{self.name}', mode='{self.yield_mode.value}')"
+        """String representation of finished good assembly."""
+        return f"FinishedGood(id={self.id}, slug='{self.slug}', display_name='{self.display_name}')"
 
-    def calculate_batches_needed(self, quantity: int) -> float:
+    def calculate_component_cost(self) -> Decimal:
         """
-        Calculate how many recipe batches are needed for a given quantity.
+        Calculate total cost from all components in the assembly.
+
+        This method dynamically calculates the cost by summing all
+        component costs through the Composition relationships.
+
+        Returns:
+            Total cost based on current component costs and quantities
+        """
+        if not hasattr(self, 'components') or not self.components:
+            return Decimal('0.0000')
+
+        total_cost = Decimal('0.0000')
+
+        for composition in self.components:
+            if composition.finished_unit_component:
+                # FinishedUnit component cost
+                unit_cost = composition.finished_unit_component.unit_cost or Decimal('0.0000')
+                component_cost = unit_cost * Decimal(str(composition.component_quantity))
+                total_cost += component_cost
+
+            elif composition.finished_good_component:
+                # FinishedGood component cost (recursive assembly)
+                assembly_cost = composition.finished_good_component.total_cost or Decimal('0.0000')
+                component_cost = assembly_cost * Decimal(str(composition.component_quantity))
+                total_cost += component_cost
+
+        return total_cost
+
+    def update_total_cost_from_components(self) -> None:
+        """
+        Update the stored total_cost field based on current component costs.
+
+        This method should be called when component costs or quantities change
+        to keep the stored cost in sync.
+        """
+        self.total_cost = self.calculate_component_cost()
+
+    def get_component_breakdown(self) -> list:
+        """
+        Get detailed breakdown of all components in the assembly.
+
+        Returns:
+            List of dictionaries with component details including costs
+        """
+        if not hasattr(self, 'components') or not self.components:
+            return []
+
+        breakdown = []
+
+        for composition in self.components:
+            component_info = {
+                'composition_id': composition.id,
+                'quantity': composition.component_quantity,
+                'notes': composition.component_notes,
+                'sort_order': composition.sort_order,
+                'type': None,
+                'name': None,
+                'unit_cost': Decimal('0.0000'),
+                'total_cost': Decimal('0.0000')
+            }
+
+            if composition.finished_unit_component:
+                component_info.update({
+                    'type': 'finished_unit',
+                    'name': composition.finished_unit_component.display_name,
+                    'unit_cost': composition.finished_unit_component.unit_cost,
+                    'total_cost': composition.finished_unit_component.unit_cost * composition.component_quantity
+                })
+
+            elif composition.finished_good_component:
+                component_info.update({
+                    'type': 'finished_good',
+                    'name': composition.finished_good_component.display_name,
+                    'unit_cost': composition.finished_good_component.total_cost,
+                    'total_cost': composition.finished_good_component.total_cost * composition.component_quantity
+                })
+
+            breakdown.append(component_info)
+
+        # Sort by sort_order if specified
+        breakdown.sort(key=lambda x: x.get('sort_order', 999))
+        return breakdown
+
+    def is_available(self, quantity: int = 1) -> bool:
+        """
+        Check if the specified quantity is available in inventory.
 
         Args:
-            quantity: Number of finished goods needed
+            quantity: Quantity needed
 
         Returns:
-            Number of recipe batches required
+            True if available, False otherwise
         """
-        if self.yield_mode == YieldMode.DISCRETE_COUNT:
-            if not self.items_per_batch or self.items_per_batch <= 0:
-                return 0.0
-            return quantity / self.items_per_batch
+        return self.inventory_count >= quantity
 
-        elif self.yield_mode == YieldMode.BATCH_PORTION:
-            if not self.batch_percentage or self.batch_percentage <= 0:
-                return 0.0
-            return quantity * (self.batch_percentage / 100.0)
-
-        return 0.0
-
-    def get_cost_per_item(self) -> float:
+    def update_inventory(self, quantity_change: int) -> bool:
         """
-        Calculate cost per finished good item.
+        Update inventory count with the specified change.
+
+        Args:
+            quantity_change: Positive or negative change to inventory
 
         Returns:
-            Cost per item based on recipe cost
+            True if successful, False if would result in negative inventory
         """
-        if not self.recipe:
-            return 0.0
+        new_count = self.inventory_count + quantity_change
+        if new_count < 0:
+            return False
 
-        recipe_cost = self.recipe.calculate_cost()
+        self.inventory_count = new_count
+        return True
 
-        if self.yield_mode == YieldMode.DISCRETE_COUNT:
-            if not self.items_per_batch or self.items_per_batch <= 0:
-                return 0.0
-            return recipe_cost / self.items_per_batch
+    def can_assemble(self, quantity: int = 1) -> dict:
+        """
+        Check if the assembly can be created with current component inventory.
 
-        elif self.yield_mode == YieldMode.BATCH_PORTION:
-            if not self.batch_percentage or self.batch_percentage <= 0:
-                return 0.0
-            return recipe_cost * (self.batch_percentage / 100.0)
+        Args:
+            quantity: Number of assemblies to create
 
-        return 0.0
+        Returns:
+            Dictionary with availability status and missing components
+        """
+        result = {
+            'can_assemble': True,
+            'missing_components': [],
+            'sufficient_components': []
+        }
+
+        if not hasattr(self, 'components') or not self.components:
+            result['can_assemble'] = False
+            return result
+
+        for composition in self.components:
+            required_qty = composition.component_quantity * quantity
+            component_info = {
+                'type': None,
+                'name': None,
+                'required': required_qty,
+                'available': 0,
+                'shortage': 0
+            }
+
+            if composition.finished_unit_component:
+                component = composition.finished_unit_component
+                component_info.update({
+                    'type': 'finished_unit',
+                    'name': component.display_name,
+                    'available': component.inventory_count
+                })
+
+                if component.inventory_count < required_qty:
+                    component_info['shortage'] = required_qty - component.inventory_count
+                    result['missing_components'].append(component_info)
+                    result['can_assemble'] = False
+                else:
+                    result['sufficient_components'].append(component_info)
+
+            elif composition.finished_good_component:
+                component = composition.finished_good_component
+                component_info.update({
+                    'type': 'finished_good',
+                    'name': component.display_name,
+                    'available': component.inventory_count
+                })
+
+                if component.inventory_count < required_qty:
+                    component_info['shortage'] = required_qty - component.inventory_count
+                    result['missing_components'].append(component_info)
+                    result['can_assemble'] = False
+                else:
+                    result['sufficient_components'].append(component_info)
+
+        return result
 
     def to_dict(self, include_relationships: bool = False) -> dict:
         """
-        Convert finished good to dictionary.
+        Convert finished good assembly to dictionary.
 
         Args:
-            include_relationships: If True, include recipe details
+            include_relationships: If True, include component details
 
         Returns:
             Dictionary representation with calculated fields
@@ -149,101 +289,16 @@ class FinishedGood(BaseModel):
         result = super().to_dict(include_relationships)
 
         # Convert enum to string
-        result["yield_mode"] = self.yield_mode.value
+        result["assembly_type"] = self.assembly_type.value if self.assembly_type else None
+
+        # Convert Decimal fields to float for JSON serialization
+        result["total_cost"] = float(self.total_cost) if self.total_cost else 0.0
 
         # Add calculated fields
-        result["cost_per_item"] = self.get_cost_per_item()
+        result["component_cost"] = float(self.calculate_component_cost())
+        result["is_in_stock"] = self.inventory_count > 0
 
-        return result
-
-
-class Bundle(BaseModel):
-    """
-    Bundle model representing grouped finished goods.
-
-    Bundles are quantities of the same finished good packaged together
-    (e.g., "Bag of 4 Sugar Cookies", "Box of 6 Truffles").
-
-    Attributes:
-        name: Bundle name
-        finished_good_id: Foreign key to FinishedGood
-        quantity: Number of items in bundle
-        packaging_notes: Notes about packaging
-    """
-
-    __tablename__ = "bundles"
-
-    # Basic information
-    name = Column(String(200), nullable=False, index=True)
-    finished_good_id = Column(
-        Integer, ForeignKey("finished_goods.id", ondelete="RESTRICT"), nullable=False
-    )
-    quantity = Column(Integer, nullable=False)  # Number of items per bundle
-
-    # Additional information
-    packaging_notes = Column(Text, nullable=True)
-
-    # Timestamps
-    date_added = Column(DateTime, nullable=False, default=datetime.utcnow)
-    last_modified = Column(
-        DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow
-    )
-
-    # Relationships
-    finished_good = relationship("FinishedGood", back_populates="bundles")
-
-    # Indexes
-    __table_args__ = (
-        Index("idx_bundle_name", "name"),
-        Index("idx_bundle_finished_good", "finished_good_id"),
-    )
-
-    def __repr__(self) -> str:
-        """String representation of bundle."""
-        return f"Bundle(id={self.id}, name='{self.name}', qty={self.quantity})"
-
-    def calculate_cost(self) -> float:
-        """
-        Calculate cost of bundle.
-
-        Returns:
-            Total cost (cost per item × quantity)
-        """
-        if not self.finished_good:
-            return 0.0
-
-        cost_per_item = self.finished_good.get_cost_per_item()
-        return cost_per_item * self.quantity
-
-    def calculate_batches_needed(self, bundle_count: int) -> float:
-        """
-        Calculate recipe batches needed for a given number of bundles.
-
-        Args:
-            bundle_count: Number of bundles needed
-
-        Returns:
-            Number of recipe batches required
-        """
-        if not self.finished_good:
-            return 0.0
-
-        total_items = self.quantity * bundle_count
-        return self.finished_good.calculate_batches_needed(total_items)
-
-    def to_dict(self, include_relationships: bool = False) -> dict:
-        """
-        Convert bundle to dictionary.
-
-        Args:
-            include_relationships: If True, include finished good details
-
-        Returns:
-            Dictionary representation with calculated fields
-        """
-        result = super().to_dict(include_relationships)
-
-        # Add calculated fields
-        result["cost"] = self.calculate_cost()
+        if include_relationships:
+            result["components"] = self.get_component_breakdown()
 
         return result
