@@ -16,10 +16,14 @@ from .ingredient_crosswalk import IngredientCrosswalk  # NEW supporting model
 from .variant_packaging import VariantPackaging  # NEW supporting model
 from .recipe import Recipe, RecipeIngredient
 from .inventory_snapshot import InventorySnapshot, SnapshotIngredient
-from .finished_good import FinishedGood, Bundle, YieldMode
-from .package import Package, PackageBundle
+from .finished_good import FinishedGood
+from .assembly_type import AssemblyType
+# Note: Bundle and YieldMode moved to legacy compatibility or removed in refactoring
+from .finished_unit import FinishedUnit
+from .composition import Composition
+# from .package import Package, PackageBundle  # DISABLED: References removed Bundle model
 from .recipient import Recipient
-from .event import Event, EventRecipientPackage
+# from .event import Event, EventRecipientPackage  # DISABLED: References removed Package model
 
 __all__ = [
     "Base",
@@ -42,11 +46,13 @@ __all__ = [
     "InventorySnapshot",
     "SnapshotIngredient",
     "FinishedGood",
-    "Bundle",
-    "YieldMode",
-    "Package",
-    "PackageBundle",
+    "AssemblyType",
+    "FinishedUnit",
+    "Composition",
+    # Note: Bundle, Package, PackageBundle, Event, EventRecipientPackage removed in refactoring
+    # "Package",
+    # "PackageBundle",
     "Recipient",
-    "Event",
-    "EventRecipientPackage",
+    # "Event",
+    # "EventRecipientPackage",
 ]

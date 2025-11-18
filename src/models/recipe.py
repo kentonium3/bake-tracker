@@ -61,7 +61,7 @@ class Recipe(BaseModel):
         lazy="joined",
     )
 
-    finished_goods = relationship("FinishedGood", back_populates="recipe")
+    finished_units = relationship("FinishedUnit", back_populates="recipe")
 
     # Indexes
     __table_args__ = (

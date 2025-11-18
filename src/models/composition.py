@@ -1,0 +1,349 @@
+"""
+Composition junction model for polymorphic component references in assemblies.
+
+This model enables FinishedGoods to contain both FinishedUnits and other FinishedGoods
+through a flexible association object pattern with proper referential integrity
+constraints.
+
+Key Features:
+- Polymorphic references supporting both FinishedUnit and FinishedGood components
+- Constraint ensuring exactly one component type is specified per composition
+- Sort ordering for consistent component presentation
+- Component quantity and notes for assembly instructions
+"""
+
+from datetime import datetime
+
+from sqlalchemy import (
+    Column, Integer, Text, DateTime, ForeignKey,
+    Index, CheckConstraint, UniqueConstraint
+)
+from sqlalchemy.orm import relationship
+
+from .base import BaseModel
+
+
+class Composition(BaseModel):
+    """
+    Composition junction model for polymorphic component relationships.
+
+    This association object pattern allows FinishedGoods to contain multiple
+    components where each component can be either a FinishedUnit (individual item)
+    or another FinishedGood (sub-assembly).
+
+    Key Features:
+    - Polymorphic component references with integrity constraints
+    - Exactly one of finished_unit_id or finished_good_id must be non-null
+    - Component quantity for multi-item compositions
+    - Sort ordering for consistent presentation
+    - Component-specific notes for assembly instructions
+
+    Attributes:
+        assembly_id: Foreign key to parent FinishedGood assembly
+        finished_unit_id: Foreign key to FinishedUnit component (if applicable)
+        finished_good_id: Foreign key to FinishedGood sub-assembly (if applicable)
+        component_quantity: Number of this component in the assembly
+        component_notes: Notes specific to this component's inclusion
+        sort_order: Display order for components (lower = earlier)
+    """
+
+    __tablename__ = "compositions"
+
+    # Parent assembly reference
+    assembly_id = Column(
+        Integer,
+        ForeignKey("finished_goods.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True
+    )
+
+    # Polymorphic component references (exactly one must be non-null)
+    finished_unit_id = Column(
+        Integer,
+        ForeignKey("finished_units.id", ondelete="CASCADE"),
+        nullable=True,
+        index=True
+    )
+
+    finished_good_id = Column(
+        Integer,
+        ForeignKey("finished_goods.id", ondelete="CASCADE"),
+        nullable=True,
+        index=True
+    )
+
+    # Component attributes
+    component_quantity = Column(Integer, nullable=False, default=1)
+    component_notes = Column(Text, nullable=True)
+    sort_order = Column(Integer, nullable=False, default=0)
+
+    # Timestamps
+    created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
+
+    # Relationships
+    assembly = relationship(
+        "FinishedGood",
+        foreign_keys=[assembly_id],
+        back_populates="components"
+    )
+
+    finished_unit_component = relationship(
+        "FinishedUnit",
+        foreign_keys=[finished_unit_id]
+    )
+
+    finished_good_component = relationship(
+        "FinishedGood",
+        foreign_keys=[finished_good_id]
+    )
+
+    # Table constraints and indexes
+    __table_args__ = (
+        # Primary indexes
+        Index("idx_composition_assembly", "assembly_id"),
+        Index("idx_composition_finished_unit", "finished_unit_id"),
+        Index("idx_composition_finished_good", "finished_good_id"),
+        Index("idx_composition_sort_order", "assembly_id", "sort_order"),
+
+        # Polymorphic integrity constraint
+        CheckConstraint(
+            "((finished_unit_id IS NOT NULL) AND (finished_good_id IS NULL)) OR "
+            "((finished_unit_id IS NULL) AND (finished_good_id IS NOT NULL))",
+            name="ck_composition_exactly_one_component"
+        ),
+
+        # Positive quantity constraint
+        CheckConstraint(
+            "component_quantity > 0",
+            name="ck_composition_component_quantity_positive"
+        ),
+
+        # Non-negative sort order constraint
+        CheckConstraint(
+            "sort_order >= 0",
+            name="ck_composition_sort_order_non_negative"
+        ),
+
+        # Prevent self-referential assemblies
+        CheckConstraint(
+            "assembly_id != finished_good_id",
+            name="ck_composition_no_self_reference"
+        ),
+
+        # Unique component within assembly (prevent duplicates)
+        UniqueConstraint(
+            "assembly_id", "finished_unit_id",
+            name="uq_composition_assembly_unit"
+        ),
+        UniqueConstraint(
+            "assembly_id", "finished_good_id",
+            name="uq_composition_assembly_good"
+        ),
+    )
+
+    def __repr__(self) -> str:
+        """String representation of composition."""
+        component_type = "unit" if self.finished_unit_id else "assembly"
+        component_id = self.finished_unit_id or self.finished_good_id
+        return (f"Composition(id={self.id}, assembly_id={self.assembly_id}, "
+                f"{component_type}={component_id}, qty={self.component_quantity})")
+
+    @property
+    def component_type(self) -> str:
+        """
+        Get the type of component referenced.
+
+        Returns:
+            "finished_unit" or "finished_good"
+        """
+        if self.finished_unit_id is not None:
+            return "finished_unit"
+        elif self.finished_good_id is not None:
+            return "finished_good"
+        else:
+            return "unknown"
+
+    @property
+    def component_id(self) -> int:
+        """
+        Get the ID of the referenced component.
+
+        Returns:
+            Component ID or None if no valid component
+        """
+        return self.finished_unit_id or self.finished_good_id
+
+    @property
+    def component_name(self) -> str:
+        """
+        Get the display name of the referenced component.
+
+        Returns:
+            Component display name or "Unknown Component"
+        """
+        if self.finished_unit_component:
+            return self.finished_unit_component.display_name
+        elif self.finished_good_component:
+            return self.finished_good_component.display_name
+        else:
+            return "Unknown Component"
+
+    def get_component_cost(self) -> float:
+        """
+        Get the unit cost of the referenced component.
+
+        Returns:
+            Unit cost for the component
+        """
+        if self.finished_unit_component:
+            return float(self.finished_unit_component.unit_cost or 0.0)
+        elif self.finished_good_component:
+            return float(self.finished_good_component.total_cost or 0.0)
+        else:
+            return 0.0
+
+    def get_total_cost(self) -> float:
+        """
+        Calculate total cost for this composition entry.
+
+        Returns:
+            Component unit cost × component quantity
+        """
+        unit_cost = self.get_component_cost()
+        return unit_cost * self.component_quantity
+
+    def get_component_availability(self) -> int:
+        """
+        Get the available inventory for the referenced component.
+
+        Returns:
+            Available inventory count
+        """
+        if self.finished_unit_component:
+            return self.finished_unit_component.inventory_count
+        elif self.finished_good_component:
+            return self.finished_good_component.inventory_count
+        else:
+            return 0
+
+    def is_available(self, required_quantity: int = None) -> bool:
+        """
+        Check if sufficient component inventory is available.
+
+        Args:
+            required_quantity: Quantity needed (defaults to component_quantity)
+
+        Returns:
+            True if sufficient inventory available
+        """
+        if required_quantity is None:
+            required_quantity = self.component_quantity
+
+        available = self.get_component_availability()
+        return available >= required_quantity
+
+    def validate_polymorphic_constraint(self) -> bool:
+        """
+        Validate that exactly one component type is specified.
+
+        Returns:
+            True if constraint is satisfied
+        """
+        unit_specified = self.finished_unit_id is not None
+        good_specified = self.finished_good_id is not None
+
+        # Exactly one should be true (XOR)
+        return unit_specified != good_specified
+
+    def validate_no_circular_reference(self) -> bool:
+        """
+        Validate that this composition doesn't create a circular reference.
+
+        This is a basic check - more comprehensive validation should be done
+        at the service layer for deep hierarchy validation.
+
+        Returns:
+            True if no immediate circular reference
+        """
+        return self.assembly_id != self.finished_good_id
+
+    def to_dict(self, include_relationships: bool = False) -> dict:
+        """
+        Convert composition to dictionary.
+
+        Args:
+            include_relationships: If True, include component details
+
+        Returns:
+            Dictionary representation with calculated fields
+        """
+        result = super().to_dict(include_relationships)
+
+        # Add computed fields
+        result["component_type"] = self.component_type
+        result["component_id"] = self.component_id
+        result["component_name"] = self.component_name
+        result["unit_cost"] = self.get_component_cost()
+        result["total_cost"] = self.get_total_cost()
+        result["available_inventory"] = self.get_component_availability()
+        result["is_available"] = self.is_available()
+
+        if include_relationships:
+            if self.finished_unit_component:
+                result["finished_unit_component"] = self.finished_unit_component.to_dict()
+            elif self.finished_good_component:
+                result["finished_good_component"] = self.finished_good_component.to_dict()
+
+        return result
+
+    @classmethod
+    def create_unit_composition(cls, assembly_id: int, finished_unit_id: int,
+                               quantity: int = 1, notes: str = None,
+                               sort_order: int = 0) -> 'Composition':
+        """
+        Factory method to create composition with FinishedUnit component.
+
+        Args:
+            assembly_id: Parent FinishedGood ID
+            finished_unit_id: Component FinishedUnit ID
+            quantity: Number of units in composition
+            notes: Component-specific notes
+            sort_order: Display order
+
+        Returns:
+            New Composition instance
+        """
+        return cls(
+            assembly_id=assembly_id,
+            finished_unit_id=finished_unit_id,
+            finished_good_id=None,
+            component_quantity=quantity,
+            component_notes=notes,
+            sort_order=sort_order
+        )
+
+    @classmethod
+    def create_assembly_composition(cls, assembly_id: int, finished_good_id: int,
+                                   quantity: int = 1, notes: str = None,
+                                   sort_order: int = 0) -> 'Composition':
+        """
+        Factory method to create composition with FinishedGood sub-assembly.
+
+        Args:
+            assembly_id: Parent FinishedGood ID
+            finished_good_id: Component FinishedGood ID
+            quantity: Number of sub-assemblies in composition
+            notes: Component-specific notes
+            sort_order: Display order
+
+        Returns:
+            New Composition instance
+        """
+        return cls(
+            assembly_id=assembly_id,
+            finished_unit_id=None,
+            finished_good_id=finished_good_id,
+            component_quantity=quantity,
+            component_notes=notes,
+            sort_order=sort_order
+        )

@@ -1,12 +1,18 @@
 """
 Finished Goods tab for the Seasonal Baking Tracker.
 
+⚠️  DEPRECATED: This component is deprecated as of v0.4.0.
+For individual consumable items, use FinishedUnitsTab instead.
+This component will be updated to handle package assemblies only.
+
 Provides full CRUD interface for managing finished goods with cost calculations
 and batch planning.
 """
 
 import customtkinter as ctk
 from typing import Optional
+
+from src.utils.deprecation_warnings import warn_deprecated_ui_component
 
 from src.models.finished_good import FinishedGood
 from src.services import finished_good_service
@@ -48,6 +54,13 @@ class FinishedGoodsTab(ctk.CTkFrame):
         Args:
             parent: Parent widget
         """
+        # Warn about deprecation
+        warn_deprecated_ui_component(
+            component_name="FinishedGoodsTab",
+            replacement="FinishedUnitsTab (for individual items) or enhanced FinishedGoodsTab (for assemblies)",
+            removal_version="v0.5.0"
+        )
+
         super().__init__(parent)
 
         self.selected_finished_good: Optional[FinishedGood] = None

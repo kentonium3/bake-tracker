@@ -202,6 +202,29 @@ def session_scope():
         session.close()
 
 
+@contextmanager
+def get_db_session():
+    """
+    Provide a database session for read operations without automatic transaction management.
+
+    This context manager is primarily used for read operations where you need manual
+    control over transactions. For operations that modify data, prefer session_scope().
+
+    Yields:
+        Database session
+
+    Example:
+        with get_db_session() as session:
+            items = session.query(Item).all()
+            # No automatic commit - session is just closed
+    """
+    session = get_session()
+    try:
+        yield session
+    finally:
+        session.close()
+
+
 def database_exists() -> bool:
     """
     Check if the database file exists.

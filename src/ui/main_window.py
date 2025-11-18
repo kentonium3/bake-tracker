@@ -13,12 +13,13 @@ from src.ui.dashboard_tab import DashboardTab
 from src.ui.ingredients_tab import IngredientsTab
 from src.ui.pantry_tab import PantryTab
 from src.ui.recipes_tab import RecipesTab
-from src.ui.finished_goods_tab import FinishedGoodsTab
+from src.ui.finished_units_tab import FinishedUnitsTab
 from src.ui.bundles_tab import BundlesTab
 from src.ui.packages_tab import PackagesTab
 from src.ui.recipients_tab import RecipientsTab
 from src.ui.events_tab import EventsTab
 from src.ui.migration_wizard import MigrationWizardDialog
+from src.ui.service_integration import check_service_integration_health
 
 
 class MainWindow(ctk.CTk):
@@ -100,7 +101,7 @@ class MainWindow(ctk.CTk):
         self.tabview.add("My Ingredients")
         self.tabview.add("My Pantry")
         self.tabview.add("Recipes")
-        self.tabview.add("Finished Goods")
+        self.tabview.add("Finished Units")
         self.tabview.add("Bundles")
         self.tabview.add("Packages")
         self.tabview.add("Recipients")
@@ -123,9 +124,9 @@ class MainWindow(ctk.CTk):
         recipes_frame = self.tabview.tab("Recipes")
         self.recipes_tab = RecipesTab(recipes_frame)
 
-        # Initialize Finished Goods tab
-        finished_goods_frame = self.tabview.tab("Finished Goods")
-        self.finished_goods_tab = FinishedGoodsTab(finished_goods_frame)
+        # Initialize Finished Units tab
+        finished_units_frame = self.tabview.tab("Finished Units")
+        self.finished_units_tab = FinishedUnitsTab(finished_units_frame)
 
         # Initialize Bundles tab
         bundles_frame = self.tabview.tab("Bundles")
@@ -208,30 +209,91 @@ class MainWindow(ctk.CTk):
             self.destroy()
 
     def _show_tools_menu(self):
-        """Show the Tools menu - opens Migration Wizard."""
-        try:
-            wizard = MigrationWizardDialog(self)
-            self.wait_window(wizard)
-        except Exception as exc:
-            messagebox.showerror(
-                "Migration Wizard Error",
-                f"Unable to open the migration wizard:\n\n{exc}",
-                parent=self,
-            )
-            return
+        """Show the Tools menu with multiple options."""
+        # Create a simple menu using multiple dialogs
+        # In a production app, you might use a custom dropdown menu
 
-        if getattr(wizard, "migration_executed", False):
+        # Ask user what tool they want to use
+        tool_choice = messagebox.askyesnocancel(
+            "Tools Menu",
+            "Choose a tool:\n\n"
+            "Yes: Migration Wizard\n"
+            "No: Service Health Check\n"
+            "Cancel: Close menu",
+            parent=self,
+        )
+
+        if tool_choice is True:
+            # Migration Wizard
             try:
-                self.refresh_dashboard()
-                self.ingredients_tab.refresh()
-                self.pantry_tab.refresh()
-                self.update_status("Migration completed successfully. Data refreshed.")
+                wizard = MigrationWizardDialog(self)
+                self.wait_window(wizard)
             except Exception as exc:
-                messagebox.showwarning(
-                    "Refresh Warning",
-                    f"Migration completed, but refreshing data failed:\n\n{exc}",
+                messagebox.showerror(
+                    "Migration Wizard Error",
+                    f"Unable to open the migration wizard:\n\n{exc}",
                     parent=self,
                 )
+                return
+
+            if getattr(wizard, "migration_executed", False):
+                try:
+                    self.refresh_dashboard()
+                    self.ingredients_tab.refresh()
+                    self.pantry_tab.refresh()
+                    self.update_status("Migration completed successfully. Data refreshed.")
+                except Exception as exc:
+                    messagebox.showwarning(
+                        "Refresh Warning",
+                        f"Migration completed, but refreshing data failed:\n\n{exc}",
+                        parent=self,
+                    )
+
+        elif tool_choice is False:
+            # Service Health Check
+            self._show_service_health_check()
+
+    def _show_service_health_check(self):
+        """Show service integration health status."""
+        try:
+            health_data = check_service_integration_health()
+            status = health_data["status"]
+            stats = health_data["statistics"]
+            recommendations = health_data["recommendations"]
+
+            # Build health report
+            health_report = []
+            health_report.append(f"Service Integration Health: {status.upper()}")
+            health_report.append("")
+            health_report.append("Statistics:")
+            health_report.append(f"  Total Operations: {stats['total_operations']}")
+            health_report.append(f"  Success Rate: {stats['success_rate']}%")
+            health_report.append(f"  Failure Rate: {stats['failure_rate']}%")
+            health_report.append(f"  Average Time: {stats['average_operation_time']}s")
+
+            if recommendations:
+                health_report.append("")
+                health_report.append("Recommendations:")
+                for rec in recommendations:
+                    health_report.append(f"  • {rec}")
+
+            if stats['total_operations'] == 0:
+                health_report.append("")
+                health_report.append("No service operations have been performed yet.")
+                health_report.append("Health check will be more informative after using the application.")
+
+            messagebox.showinfo(
+                "Service Health Check",
+                "\n".join(health_report),
+                parent=self
+            )
+
+        except Exception as exc:
+            messagebox.showerror(
+                "Health Check Error",
+                f"Failed to check service health:\n\n{exc}",
+                parent=self
+            )
 
     def _show_help_menu(self):
         """Show the Help menu."""
@@ -261,9 +323,9 @@ class MainWindow(ctk.CTk):
         """Refresh the recipes tab with current data."""
         self.recipes_tab.refresh()
 
-    def refresh_finished_goods(self):
-        """Refresh the finished goods tab with current data."""
-        self.finished_goods_tab.refresh()
+    def refresh_finished_units(self):
+        """Refresh the finished units tab with current data."""
+        self.finished_units_tab.refresh()
 
     def refresh_bundles(self):
         """Refresh the bundles tab with current data."""

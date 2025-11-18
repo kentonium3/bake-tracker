@@ -1,0 +1,7 @@
+﻿{
+    "feature_number":  "004",
+    "slug":  "004-finishedunit-model-refactoring",
+    "friendly_name":  "FinishedUnit Model Refactoring",
+    "source_description":  "Transform the existing FinishedGood model into a two-tier hierarchical system where FinishedUnit represents individual consumable units renamed from FinishedGood and a new FinishedGood model represents assembled items that can contain both FinishedUnits and other FinishedGoods in hierarchical compositions for complex packaging scenarios",
+    "created_at":  "2025-11-14T21:49:31Z"
+}

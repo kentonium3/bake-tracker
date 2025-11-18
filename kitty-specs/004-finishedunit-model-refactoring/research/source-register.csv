@@ -1,0 +1,7 @@
+Source_ID,Type,Title,URL,Date_Accessed,Reliability,Notes
+PLAN-001,Planning Session,Polymorphic Reference Strategy Discussion,Local Planning Session,2025-11-14,High,User confirmed separate foreign keys approach
+PLAN-002,Planning Session,Migration Strategy Clarification,Local Planning Session,2025-11-14,High,User clarified desktop-only deployment context
+PLAN-003,Planning Session,Hierarchy Traversal Pattern Selection,Local Planning Session,2025-11-14,High,User recommended application-level approach over SQL
+CODE-001,Code Analysis,event_service.py Pattern Analysis,Local Repository,2025-11-14,High,Existing multi-query aggregation patterns
+ARCH-001,Documentation,SQLAlchemy 2.x Association Objects,https://docs.sqlalchemy.org/en/20/orm/basic_relationships.html#association-object,2025-11-14,High,Official documentation on association patterns
+PERF-001,Requirements Analysis,Performance Target Assessment,Local Specification,2025-11-14,Medium,Derived from spec requirements and system constraints

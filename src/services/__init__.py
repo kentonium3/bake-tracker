@@ -34,9 +34,68 @@ from . import (
     recipe_service,
     unit_converter,
     finished_good_service,
-    package_service,
+    # package_service,  # DISABLED: Bundle model removed in refactoring
     recipient_service,
-    event_service,
+    # event_service,  # DISABLED: Bundle model removed in refactoring
+)
+
+# Migration services
+from .migration_service import MigrationService
+
+# FinishedUnit services
+from .finished_unit_service import (
+    FinishedUnitService,
+    get_finished_unit_count,
+    get_finished_unit_by_id,
+    get_finished_unit_by_slug,
+    get_all_finished_units,
+    create_finished_unit,
+    update_finished_unit,
+    delete_finished_unit,
+    update_inventory,
+    check_availability,
+    calculate_unit_cost,
+    search_finished_units,
+    get_units_by_recipe,
+    # Exceptions
+    FinishedUnitNotFoundError,
+    InvalidInventoryError,
+    DuplicateSlugError,
+    ReferencedUnitError,
+)
+
+# FinishedGood services
+from .finished_good_service import (
+    FinishedGoodService,
+    get_finished_good_by_id,
+    get_finished_good_by_slug,
+    get_all_finished_goods,
+    create_finished_good,
+    add_component,
+    search_finished_goods,
+    get_assemblies_by_type,
+    # Exceptions
+    FinishedGoodNotFoundError,
+    CircularReferenceError,
+    InsufficientInventoryError,
+    InvalidComponentError,
+    AssemblyIntegrityError,
+)
+
+# Composition services
+from .composition_service import (
+    CompositionService,
+    create_composition,
+    get_composition_by_id,
+    get_assembly_components,
+    get_component_usages,
+    validate_no_circular_reference,
+    flatten_assembly_components,
+    # Exceptions
+    CompositionNotFoundError,
+    InvalidComponentTypeError,
+    DuplicateCompositionError,
+    IntegrityViolationError,
 )
 
 # Infrastructure exports for new service layer
@@ -63,9 +122,55 @@ __all__ = [
     "recipe_service",
     "unit_converter",
     "finished_good_service",
-    "package_service",
+    # "package_service",  # DISABLED: Bundle model removed in refactoring
     "recipient_service",
-    "event_service",
+    # "event_service",  # DISABLED: Bundle model removed in refactoring
+    # Migration services
+    "MigrationService",
+    # FinishedUnit services
+    "FinishedUnitService",
+    "get_finished_unit_count",
+    "get_finished_unit_by_id",
+    "get_finished_unit_by_slug",
+    "get_all_finished_units",
+    "create_finished_unit",
+    "update_finished_unit",
+    "delete_finished_unit",
+    "update_inventory",
+    "check_availability",
+    "calculate_unit_cost",
+    "search_finished_units",
+    "get_units_by_recipe",
+    "FinishedUnitNotFoundError",
+    "InvalidInventoryError",
+    "DuplicateSlugError",
+    "ReferencedUnitError",
+    # FinishedGood services
+    "FinishedGoodService",
+    "get_finished_good_by_id",
+    "get_finished_good_by_slug",
+    "get_all_finished_goods",
+    "create_finished_good",
+    "add_component",
+    "search_finished_goods",
+    "get_assemblies_by_type",
+    "FinishedGoodNotFoundError",
+    "CircularReferenceError",
+    "InsufficientInventoryError",
+    "InvalidComponentError",
+    "AssemblyIntegrityError",
+    # Composition services
+    "CompositionService",
+    "create_composition",
+    "get_composition_by_id",
+    "get_assembly_components",
+    "get_component_usages",
+    "validate_no_circular_reference",
+    "flatten_assembly_components",
+    "CompositionNotFoundError",
+    "InvalidComponentTypeError",
+    "DuplicateCompositionError",
+    "IntegrityViolationError",
     # Infrastructure - Exception hierarchy
     "ServiceError",
     "ServiceException",
