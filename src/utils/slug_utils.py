@@ -1,6 +1,6 @@
 """Slug generation utilities for ingredient naming.
 
-This module provides utilities for generating URL-safe, deterministic slugs from
+This module provides utilities for generating URL-safe,deterministic slugs from
 ingredient names with Unicode support and uniqueness guarantees.
 
 Key Features:
@@ -17,7 +17,7 @@ Examples:
     >>> create_slug("Confectioner's Sugar")
     'confectioners_sugar'
 
-    >>> create_slug("Jalapeno Peppers")
+    >>> create_slug("Jalapeño Peppers")
     'jalapeno_peppers'
 """
 
@@ -48,13 +48,10 @@ def create_slug(name: str, session: Optional[Session] = None) -> str:
     Args:
         name: Ingredient name to convert to slug
         session: Optional database session for uniqueness checking.
-                 If provided, will auto-increment slug if collision detected.
+                If None, no uniqueness check is performed.
 
     Returns:
-        str: URL-safe slug (lowercase, underscores, alphanumeric only)
-
-    Raises:
-        ValueError: If name is empty or results in empty slug after processing
+        URL-safe slug string (lowercase, alphanumeric + underscores only)
 
     Examples:
         >>> create_slug("All-Purpose Flour")
@@ -63,92 +60,130 @@ def create_slug(name: str, session: Optional[Session] = None) -> str:
         >>> create_slug("Confectioner's Sugar")
         'confectioners_sugar'
 
+        >>> create_slug("Jalapeño Peppers")
+        'jalapeno_peppers'
+
+        >>> create_slug("    Extra  Spaces   ")
+        'extra_spaces'
+
         >>> create_slug("100% Whole Wheat")
         '100_whole_wheat'
 
-        >>> # With uniqueness checking (requires session)
-        >>> create_slug("Sugar", session)  # First call
-        'sugar'
-        >>> create_slug("Sugar", session)  # Second call (collision)
-        'sugar_1'
-    """
-    if not name or not name.strip():
-        raise ValueError("Name cannot be empty")
+        >>> # With session - auto-increment on conflicts
+        >>> create_slug("All-Purpose Flour", session)  # First time
+        'all_purpose_flour'
+        >>> create_slug("All-Purpose Flour", session)  # Duplicate
+        'all_purpose_flour_1'
+        >>> create_slug("All-Purpose Flour", session)  # Another duplicate
+        'all_purpose_flour_2'
 
-    # Step 1-2: Unicode normalization and ASCII conversion
-    # NFD = Canonical Decomposition (e.g., "Ã©" -> "e" + combining accent)
+    Note:
+        - Slug generation is deterministic: same input always produces same base slug
+        - Only numeric suffixes are appended for uniqueness, never random strings
+        - Empty or whitespace-only input will result in empty slug (caller should validate)
+    """
+    # Unicode normalization: decompose accented characters
+    # Example: "é" (U+00E9) becomes "e" (U+0065) + combining acute accent
     normalized = unicodedata.normalize('NFD', name)
+
+    # Encode to ASCII, ignoring characters that can't be represented
+    # This converts "Jalapeño" to "Jalapeno", "Crème" to "Creme", etc.
     slug = normalized.encode('ascii', 'ignore').decode('ascii')
 
-    # Step 3: Lowercase
+    # Convert to lowercase
     slug = slug.lower()
 
-    # Step 4: Replace whitespace and hyphens with underscores
+    # Replace whitespace and hyphens with underscores
+    # "All-Purpose Flour" ’ "all_purpose_flour"
     slug = re.sub(r'[\s\-]+', '_', slug)
 
-    # Step 5: Remove all non-alphanumeric except underscores
+    # Remove all non-alphanumeric characters except underscores
+    # "100% Whole" ’ "100_whole"
     slug = re.sub(r'[^a-z0-9_]', '', slug)
 
-    # Step 6: Collapse multiple underscores
+    # Collapse multiple consecutive underscores to single underscore
+    # "extra___spaces" ’ "extra_spaces"
     slug = re.sub(r'_+', '_', slug)
 
-    # Step 7: Strip leading/trailing underscores
+    # Strip leading and trailing underscores
     slug = slug.strip('_')
 
-    # Validate result
-    if not slug:
-        raise ValueError(f"Name '{name}' resulted in empty slug after processing")
+    # If no session provided, return base slug without uniqueness check
+    if session is None:
+        return slug
 
-    # Step 8: Ensure uniqueness if session provided
-    if session:
-        from ..models import Ingredient
-        original_slug = slug
-        counter = 1
+    # Uniqueness checking with auto-increment
+    # Check if slug already exists in database
+    from ..models import Ingredient  # Import here to avoid circular dependency
 
-        # Keep incrementing until we find an unused slug
-        while session.query(Ingredient).filter_by(slug=slug).first():
-            slug = f"{original_slug}_{counter}"
-            counter += 1
+    # Try base slug first
+    existing = session.query(Ingredient).filter_by(slug=slug).first()
+    if not existing:
+        return slug
 
-    return slug
+    # Base slug exists, try appending incrementing numbers
+    original_slug = slug
+    counter = 1
+
+    while True:
+        candidate_slug = f"{original_slug}_{counter}"
+        existing = session.query(Ingredient).filter_by(slug=candidate_slug).first()
+
+        if not existing:
+            return candidate_slug
+
+        counter += 1
+
+        # Safety check: prevent infinite loop (should never happen in practice)
+        if counter > 10000:
+            raise ValueError(
+                f"Unable to generate unique slug for '{name}' after 10000 attempts. "
+                "This should never happen - please investigate database state."
+            )
 
 
 def validate_slug_format(slug: str) -> bool:
     """Validate that a slug meets format requirements.
 
-    A valid slug:
-    - Contains only lowercase letters, numbers, and underscores
-    - Does not start or end with underscores
-    - Does not contain consecutive underscores
-    - Is not empty
-
     Args:
         slug: Slug string to validate
 
     Returns:
-        bool: True if slug is valid format, False otherwise
+        True if slug is valid, False otherwise
+
+    Valid slugs must:
+        - Contain only lowercase letters, digits, and underscores
+        - Not start or end with underscore
+        - Not contain consecutive underscores
+        - Not be empty
 
     Examples:
         >>> validate_slug_format("all_purpose_flour")
         True
 
-        >>> validate_slug_format("All-Purpose")  # Uppercase/hyphens
+        >>> validate_slug_format("AllPurpose")  # Has uppercase
         False
 
-        >>> validate_slug_format("_flour")  # Leading underscore
+        >>> validate_slug_format("_starts_with_underscore")
         False
 
-        >>> validate_slug_format("flour__mix")  # Consecutive underscores
+        >>> validate_slug_format("ends_with_underscore_")
+        False
+
+        >>> validate_slug_format("has__double__underscores")
+        False
+
+        >>> validate_slug_format("")
         False
     """
     if not slug:
         return False
 
-    # Check for valid characters only
+    # Check for valid characters (lowercase alphanumeric + underscore)
     if not re.match(r'^[a-z0-9_]+$', slug):
         return False
 
-    # Check for leading/trailing underscores
+    # Check doesn't start or end with underscore
     if slug.startswith('_') or slug.endswith('_'):
         return False
 
@@ -160,22 +195,17 @@ def validate_slug_format(slug: str) -> bool:
 
 
 def slug_to_display_name(slug: str) -> str:
-    """Convert slug back to human-readable display name.
+    """Convert slug back to approximate display name.
 
     This function attempts to reverse the slug generation process to create
-    a readable name. Note that this is lossy (cannot perfectly recover
-    original capitalization or punctuation).
-
-    Algorithm:
-        1. Replace underscores with spaces
-        2. Title case each word
-        3. Handle common abbreviations (e.g., "lb" -> "lb", not "Lb")
+    a human-readable name. Note that this is lossy - some information like
+    original capitalization and punctuation cannot be recovered.
 
     Args:
-        slug: Slug string to convert
+        slug: Slug to convert
 
     Returns:
-        str: Human-readable display name
+        Display name with title case and spaces
 
     Examples:
         >>> slug_to_display_name("all_purpose_flour")
@@ -184,13 +214,17 @@ def slug_to_display_name(slug: str) -> str:
         >>> slug_to_display_name("confectioners_sugar")
         'Confectioners Sugar'
 
-        >>> slug_to_display_name("bread_flour_50_lb")
-        'Bread Flour 50 Lb'
+        >>> slug_to_display_name("100_whole_wheat")
+        '100 Whole Wheat'
+
+    Note:
+        This is a best-effort conversion. Original names should be stored
+        separately and not derived from slugs.
     """
     # Replace underscores with spaces
-    name = slug.replace('_', ' ')
+    display = slug.replace('_', ' ')
 
     # Title case (capitalize first letter of each word)
-    name = name.title()
+    display = display.title()
 
-    return name
+    return display

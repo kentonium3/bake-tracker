@@ -48,9 +48,23 @@
               "icon": "lucide-file",
               "title": "Spec-kitty errors"
             }
+          },
+          {
+            "id": "eda01dd0769858f1",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "spec-kitty_abandon_feature_steps.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "spec-kitty_abandon_feature_steps"
+            }
           }
         ],
-        "currentTab": 2
+        "currentTab": 3
       }
     ],
     "direction": "vertical"
@@ -198,11 +212,25 @@
       "bases:Create new base": false
     }
   },
-  "active": "729f7378c67614a2",
+  "active": "94556ee432ef29b0",
   "lastOpenFiles": [
-    "cursor_WP01-6_review.md",
+    "bake-tracker reorg.md",
+    "spec-kitty_abandon_feature_steps.md",
+    "REORGANIZATION_SUMMARY.md",
+    "FEATURE_004_EXTRACTION_PLAN.md",
+    "AUDIT_SUMMARY_2025-11-16.md",
+    "design/user_stories.md",
     "user_stories.md",
     "Spec-kitty errors.md",
+    "design/schema_v0.4_design.md",
+    "design/schema_v0.3.md",
+    "design/packaging_options.md",
+    "design/import_export_specification.md",
+    "design/architecture.md",
+    "design/ingredient_industry_standards.md",
+    "cursor_WP03_review.md",
+    "cursor_WP02_review.md",
+    "cursor_WP01-6_review.md",
     "design/consumption_inventory_implementation_plan.md",
     "user_testing/images/Screenshot 2025-11-12 140407.jpg",
     "user_testing/images/Screenshot 2025-11-12 012624.png",
