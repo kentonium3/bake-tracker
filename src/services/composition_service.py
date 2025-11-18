@@ -26,7 +26,7 @@ from sqlalchemy import and_, or_, text, func
 from sqlalchemy.orm import Session, selectinload
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
-from ..database import get_db_session, session_scope
+from .database import get_db_session, session_scope
 from ..models import Composition, FinishedGood, FinishedUnit
 from .exceptions import (
     ServiceError,

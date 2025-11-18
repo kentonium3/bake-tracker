@@ -1,18 +1,12 @@
 """
 Finished Good form dialog for adding and editing finished goods.
 
-⚠️  DEPRECATED: This form is deprecated as of v0.4.0.
-For individual consumable items, use FinishedUnitFormDialog instead.
-This form will be updated to handle package assemblies only.
-
 Provides a form for creating and updating finished good records
 with smart field visibility based on yield mode.
 """
 
 import customtkinter as ctk
 from typing import Optional, Dict, Any
-
-from src.utils.deprecation_warnings import warn_deprecated_ui_component
 
 from src.models.finished_unit import FinishedUnit, YieldMode
 from src.services import recipe_service
@@ -46,13 +40,6 @@ class FinishedUnitFormDialog(ctk.CTkToplevel):
             finished_unit: Existing finished unit to edit (None for new)
             title: Dialog title
         """
-        # Warn about deprecation
-        warn_deprecated_ui_component(
-            component_name="FinishedGoodFormDialog",
-            replacement="FinishedUnitFormDialog (for individual items) or enhanced form (for assemblies)",
-            removal_version="v0.5.0"
-        )
-
         super().__init__(parent)
 
         self.finished_unit = finished_unit
@@ -90,7 +77,7 @@ class FinishedUnitFormDialog(ctk.CTkToplevel):
         self._create_buttons()
 
         # Populate if editing
-        if self.finished_good:
+        if self.finished_unit:
             self._populate_form()
         else:
             # Set default yield mode
@@ -359,39 +346,39 @@ class FinishedUnitFormDialog(ctk.CTkToplevel):
 
     def _populate_form(self):
         """Populate form fields with existing finished good data."""
-        if not self.finished_good:
+        if not self.finished_unit:
             return
 
-        self.name_entry.insert(0, self.finished_good.name)
+        self.name_entry.insert(0, self.finished_unit.display_name)
 
         # Select recipe
         for idx, recipe in enumerate(self.available_recipes):
-            if recipe.id == self.finished_good.recipe_id:
+            if recipe.id == self.finished_unit.recipe_id:
                 self.recipe_combo.set(recipe.name)
                 break
 
-        if self.finished_good.category:
-            self.category_combo.set(self.finished_good.category)
+        if self.finished_unit.category:
+            self.category_combo.set(self.finished_unit.category)
 
         # Set yield mode
-        yield_mode = self.finished_good.yield_mode.value
+        yield_mode = self.finished_unit.yield_mode.value
         self.yield_mode_var.set(yield_mode)
         self._on_yield_mode_change(yield_mode)
 
         # Populate mode-specific fields
         if yield_mode == "discrete_count":
-            if self.finished_good.items_per_batch:
-                self.items_per_batch_entry.insert(0, str(self.finished_good.items_per_batch))
-            if self.finished_good.item_unit:
-                self.item_unit_entry.insert(0, self.finished_good.item_unit)
+            if self.finished_unit.items_per_batch:
+                self.items_per_batch_entry.insert(0, str(self.finished_unit.items_per_batch))
+            if self.finished_unit.item_unit:
+                self.item_unit_entry.insert(0, self.finished_unit.item_unit)
         else:
-            if self.finished_good.batch_percentage:
-                self.batch_percentage_entry.insert(0, str(self.finished_good.batch_percentage))
-            if self.finished_good.portion_description:
-                self.portion_description_entry.insert(0, self.finished_good.portion_description)
+            if self.finished_unit.batch_percentage:
+                self.batch_percentage_entry.insert(0, str(self.finished_unit.batch_percentage))
+            if self.finished_unit.portion_description:
+                self.portion_description_entry.insert(0, self.finished_unit.portion_description)
 
-        if self.finished_good.notes:
-            self.notes_text.insert("1.0", self.finished_good.notes)
+        if self.finished_unit.notes:
+            self.notes_text.insert("1.0", self.finished_unit.notes)
 
     def _validate_form(self) -> Optional[Dict[str, Any]]:
         """
@@ -493,7 +480,7 @@ class FinishedUnitFormDialog(ctk.CTkToplevel):
 
         # Return validated data
         return {
-            "name": name,
+            "display_name": name,
             "recipe_id": recipe_id,
             "category": category,
             "yield_mode": yield_mode,

@@ -16,7 +16,7 @@ from sqlalchemy import text
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
 
-from ..database import get_db_session
+from .database import get_db_session
 from ..models import FinishedUnit
 from ..utils.backup_validator import (
     create_database_backup,
@@ -499,6 +499,9 @@ class MigrationService:
             Tuple of (success: bool, message: str)
         """
         try:
+            from ..utils.config import get_database_path  # Correct import path
+            from ..utils.backup_validator import restore_database_from_backup
+
             # Validate backup before restoration
             validation = validate_backup_integrity(backup_path)
             if not validation["is_valid"]:
@@ -506,11 +509,29 @@ class MigrationService:
                 logger.error(error_msg)
                 return False, error_msg
 
-            # Get current database path (this would need to be configured)
-            # For now, we'll log the rollback attempt
-            logger.warning("Rollback requested - backup restoration should be handled at application level")
+            # Get current database path
+            try:
+                current_db_path = str(get_database_path())  # Convert Path to string
+            except (ImportError, AttributeError):
+                # Fallback to default path if get_database_path not available
+                current_db_path = "bake_tracker.db"
+                logger.warning(f"Using fallback database path: {current_db_path}")
 
-            return True, "Rollback preparation completed - restore backup manually"
+            logger.warning("Starting database rollback restoration...")
+
+            # Perform actual backup restoration
+            success, message = restore_database_from_backup(
+                backup_path=backup_path,
+                target_path=current_db_path,
+                safety_backup=True  # Create safety backup of current state
+            )
+
+            if success:
+                logger.info(f"Rollback completed successfully: {message}")
+                return True, f"Database successfully restored from backup: {message}"
+            else:
+                logger.error(f"Rollback restoration failed: {message}")
+                return False, f"Failed to restore database from backup: {message}"
 
         except Exception as e:
             error_msg = f"Rollback failed: {e}"
@@ -526,13 +547,35 @@ class MigrationService:
             Tuple of (success: bool, backup_path: str)
         """
         try:
-            # This would need database path configuration
-            # For now, we'll return a placeholder
-            logger.info("Migration backup creation requested")
-            return True, "backup_placeholder.sqlite"
+            from ..utils.config import get_database_path
+            from ..utils.backup_validator import create_database_backup, validate_backup_integrity
+
+            database_path = str(get_database_path())
+            logger.info(f"Creating migration backup for database: {database_path}")
+
+            # Create backup with migration-specific subdirectory
+            success, backup_path = create_database_backup(
+                database_path,
+                backup_dir="migration_backups"
+            )
+
+            if success:
+                # Validate backup integrity
+                validation = validate_backup_integrity(backup_path)
+                if validation["is_valid"]:
+                    logger.info(f"Migration backup created and validated: {backup_path}")
+                    return True, backup_path
+                else:
+                    error_msg = f"Backup validation failed: {validation['error_message']}"
+                    logger.error(error_msg)
+                    return False, ""
+            else:
+                logger.error(f"Backup creation failed: {backup_path}")
+                return False, ""
 
         except Exception as e:
-            logger.error(f"Backup creation failed: {e}")
+            error_msg = f"Migration backup creation failed: {e}"
+            logger.error(error_msg)
             return False, ""
 
     @staticmethod

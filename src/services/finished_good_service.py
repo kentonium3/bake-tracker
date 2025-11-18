@@ -26,14 +26,14 @@ from sqlalchemy import and_, or_, text
 from sqlalchemy.orm import Session, selectinload
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
-from ..database import get_db_session, session_scope
+from .database import get_db_session, session_scope
 from ..models import FinishedGood, FinishedUnit, Composition, AssemblyType
 from ..models.assembly_type import (
     validate_assembly_type_business_rules,
     calculate_packaging_cost,
     get_suggested_retail_price
 )
-from ..services.finished_unit_service import FinishedUnitService
+from . import finished_unit_service
 from .exceptions import (
     ServiceError,
     ValidationError,
@@ -199,10 +199,10 @@ class FinishedGoodService:
         try:
             # Validate required fields
             if not display_name or not display_name.strip():
-                raise ValidationError("Display name is required and cannot be empty")
+                raise ValidationError(["Display name is required and cannot be empty"])
 
             if not isinstance(assembly_type, AssemblyType):
-                raise ValidationError("Assembly type must be a valid AssemblyType enum")
+                raise ValidationError(["Assembly type must be a valid AssemblyType enum"])
 
             # Generate unique slug
             slug = FinishedGoodService._generate_slug(display_name.strip())
@@ -273,7 +273,7 @@ class FinishedGoodService:
                         assembly_type, component_count, total_cost_with_packaging
                     )
                     if not is_valid:
-                        raise ValidationError(f"Assembly type validation failed: {'; '.join(errors)}")
+                        raise ValidationError([f"Assembly type validation failed: {'; '.join(errors)}"])
 
                 elif 'total_cost' not in kwargs:
                     # No components provided, validate minimum requirements
@@ -282,7 +282,7 @@ class FinishedGoodService:
                         assembly_type, component_count, Decimal('0.0000')
                     )
                     if not is_valid:
-                        raise ValidationError(f"Assembly type validation failed: {'; '.join(errors)}")
+                        raise ValidationError([f"Assembly type validation failed: {'; '.join(errors)}"])
 
                 logger.info(f"Created FinishedGood assembly: {finished_good.display_name} (ID: {finished_good.id})")
                 return finished_good
@@ -346,7 +346,7 @@ class FinishedGoodService:
                     raise ValidationError("Inventory count must be non-negative")
 
                 if 'assembly_type' in updates and not isinstance(updates['assembly_type'], AssemblyType):
-                    raise ValidationError("Assembly type must be a valid AssemblyType enum")
+                    raise ValidationError(["Assembly type must be a valid AssemblyType enum"])
 
                 # Apply updates
                 for field, value in updates.items():
@@ -443,10 +443,10 @@ class FinishedGoodService:
         """
         try:
             if component_type not in ["finished_unit", "finished_good"]:
-                raise ValidationError("Component type must be 'finished_unit' or 'finished_good'")
+                raise ValidationError(["Component type must be 'finished_unit' or 'finished_good'"])
 
             if quantity <= 0:
-                raise ValidationError("Quantity must be positive")
+                raise ValidationError(["Quantity must be positive"])
 
             with session_scope() as session:
                 # Validate assembly exists
@@ -488,7 +488,7 @@ class FinishedGoodService:
                     ).first()
 
                 if existing_composition:
-                    raise ValidationError(f"Component already exists in assembly")
+                    raise ValidationError([f"Component already exists in assembly"])
 
                 # Create composition
                 composition_data = {
@@ -586,7 +586,7 @@ class FinishedGoodService:
         """
         try:
             if new_quantity <= 0:
-                raise ValidationError("Quantity must be positive")
+                raise ValidationError(["Quantity must be positive"])
 
             with session_scope() as session:
                 composition = session.query(Composition)\
@@ -755,7 +755,7 @@ class FinishedGoodService:
 
                     if composition.finished_unit_component:
                         # Update FinishedUnit inventory
-                        FinishedUnitService.update_inventory(
+                        finished_unit_service.update_inventory(
                             composition.finished_unit_id, -required_qty
                         )
                     elif composition.finished_good_component:
@@ -810,7 +810,7 @@ class FinishedGoodService:
 
                     if composition.finished_unit_component:
                         # Update FinishedUnit inventory
-                        FinishedUnitService.update_inventory(
+                        finished_unit_service.update_inventory(
                             composition.finished_unit_id, restored_qty
                         )
                     elif composition.finished_good_component:
@@ -1036,7 +1036,7 @@ class FinishedGoodService:
                 if not component:
                     raise InvalidComponentError(f"FinishedGood ID {component_id} not found")
             else:
-                raise ValidationError("Component type must be 'finished_unit' or 'finished_good'")
+                raise ValidationError(["Component type must be 'finished_unit' or 'finished_good'"])
 
     @staticmethod
     def _create_composition(assembly_id: int, component_spec: dict, session: Session) -> Composition:

@@ -225,6 +225,7 @@ class FinishedUnit(BaseModel):
             return False
 
         self.inventory_count = new_count
+        self.updated_at = datetime.utcnow()  # Update timestamp
         return True
 
     def to_dict(self, include_relationships: bool = False) -> dict:

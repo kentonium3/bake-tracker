@@ -382,6 +382,9 @@ class MigrationOrchestrator:
             self.migration_state["current_phase"] = MigrationPhase.INDEXES
             phase_start = datetime.now()
 
+            # Create indexes if they don't exist
+            index_creation_result = self._create_missing_indexes()
+
             # Validate index creation and performance
             index_results = self._validate_index_performance()
 
@@ -389,6 +392,7 @@ class MigrationOrchestrator:
                 "started_at": phase_start.isoformat(),
                 "completed_at": datetime.now().isoformat(),
                 "completed": index_results["all_indexes_valid"],
+                "index_creation": index_creation_result,
                 "index_validation": index_results
             }
 
@@ -409,6 +413,80 @@ class MigrationOrchestrator:
             logger.error(error_msg)
             self.migration_state["errors"].append(error_msg)
             return False
+
+    def _create_missing_indexes(self) -> dict:
+        """Create indexes that don't exist."""
+        from ..database import get_db_session
+        from sqlalchemy import text
+
+        result = {
+            "indexes_created": [],
+            "indexes_existed": [],
+            "errors": []
+        }
+
+        try:
+            with get_db_session() as session:
+                # Index definitions from FinishedUnit model
+                index_definitions = [
+                    {
+                        "name": "idx_finished_unit_slug",
+                        "sql": "CREATE INDEX IF NOT EXISTS idx_finished_unit_slug ON finished_units(slug)"
+                    },
+                    {
+                        "name": "idx_finished_unit_display_name",
+                        "sql": "CREATE INDEX IF NOT EXISTS idx_finished_unit_display_name ON finished_units(display_name)"
+                    },
+                    {
+                        "name": "idx_finished_unit_recipe",
+                        "sql": "CREATE INDEX IF NOT EXISTS idx_finished_unit_recipe ON finished_units(recipe_id)"
+                    },
+                    {
+                        "name": "idx_finished_unit_category",
+                        "sql": "CREATE INDEX IF NOT EXISTS idx_finished_unit_category ON finished_units(category)"
+                    },
+                    {
+                        "name": "idx_finished_unit_inventory",
+                        "sql": "CREATE INDEX IF NOT EXISTS idx_finished_unit_inventory ON finished_units(inventory_count)"
+                    },
+                    {
+                        "name": "idx_finished_unit_created_at",
+                        "sql": "CREATE INDEX IF NOT EXISTS idx_finished_unit_created_at ON finished_units(created_at)"
+                    },
+                    {
+                        "name": "idx_finished_unit_recipe_inventory",
+                        "sql": "CREATE INDEX IF NOT EXISTS idx_finished_unit_recipe_inventory ON finished_units(recipe_id, inventory_count)"
+                    }
+                ]
+
+                for index_def in index_definitions:
+                    try:
+                        # Check if index exists
+                        existing = session.execute(
+                            text("SELECT name FROM sqlite_master WHERE type='index' AND name = :name"),
+                            {"name": index_def["name"]}
+                        ).fetchone()
+
+                        if existing:
+                            result["indexes_existed"].append(index_def["name"])
+                            logger.debug(f"Index {index_def['name']} already exists")
+                        else:
+                            # Create index
+                            session.execute(text(index_def["sql"]))
+                            result["indexes_created"].append(index_def["name"])
+                            logger.info(f"Created index {index_def['name']}")
+                    except Exception as e:
+                        error_msg = f"Failed to create index {index_def['name']}: {e}"
+                        result["errors"].append(error_msg)
+                        logger.error(error_msg)
+
+                session.commit()
+
+        except Exception as e:
+            result["errors"].append(f"Index creation error: {e}")
+            logger.error(f"Index creation failed: {e}")
+
+        return result
 
     def _validate_index_performance(self) -> dict:
         """Validate that indexes exist and meet performance targets."""

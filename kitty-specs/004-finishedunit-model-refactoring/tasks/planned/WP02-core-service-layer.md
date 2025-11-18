@@ -7,10 +7,10 @@ subtasks:
   - "T010"
 title: "Core Service Layer Implementation"
 phase: "Phase 2 - User Story 1 Foundation"
-lane: "for_review"
+lane: "planned"
 assignee: ""
-agent: "claude"
-shell_pid: "25985"
+agent: "system"
+shell_pid: ""
 history:
   - timestamp: "2025-11-14T17:30:00Z"
     lane: "planned"
@@ -148,7 +148,34 @@ history:
 - [ ] Migration preserves all existing relationships and data integrity
 - [ ] Documentation updated with service usage examples
 
+## Review Feedback
+
+### Critical Issues Requiring Changes (2025-11-15T21:45:00Z)
+
+**Status: NEEDS CHANGES - Critical syntax and import issues prevent compilation**
+
+1. **BLOCKING: Syntax Error in finished_unit_service.py**
+   - Location: Line 297 - `except SQLAlchemyError as e:` without matching try block
+   - Impact: Code will not compile or run
+   - Fix Required: Correct try-except block structure and indentation
+
+2. **BLOCKING: Import Path Inconsistencies**
+   - Location: Multiple service files have conflicting import patterns
+   - Examples: `..database` vs `.database` imports
+   - Impact: ModuleNotFoundError prevents module loading and testing
+   - Fix Required: Standardize all database imports to consistent pattern
+
+3. **TEST VALIDATION BLOCKED**
+   - Cannot execute required tests due to syntax/import errors
+   - Cannot validate 70% coverage requirement per constitution
+   - Cannot validate Definition of Done criteria
+   - Fix Required: Resolve syntax issues then re-run test validation
+
+**Reviewer Recommendation**: Return to planned status for immediate syntax fixes, then re-submit for review.
+
 ## Activity Log
 
 - 2025-11-15T17:06:39Z – system – shell_pid= – lane=doing – Moved to doing
 - 2025-11-15T17:11:56Z – claude – shell_pid=25985 – lane=for_review – Moved to for_review
+- 2025-11-15T21:45:00Z – claude – shell_pid=39144 – lane=planned – Review failed: Critical syntax errors prevent compilation and testing validation
+- 2025-11-15T22:14:45Z – system – shell_pid= – lane=planned – Returned for changes: Critical syntax errors prevent compilation

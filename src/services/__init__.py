@@ -34,9 +34,9 @@ from . import (
     recipe_service,
     unit_converter,
     finished_good_service,
-    package_service,
+    # package_service,  # DISABLED: Bundle model removed in refactoring
     recipient_service,
-    event_service,
+    # event_service,  # DISABLED: Bundle model removed in refactoring
 )
 
 # Migration services
@@ -122,9 +122,9 @@ __all__ = [
     "recipe_service",
     "unit_converter",
     "finished_good_service",
-    "package_service",
+    # "package_service",  # DISABLED: Bundle model removed in refactoring
     "recipient_service",
-    "event_service",
+    # "event_service",  # DISABLED: Bundle model removed in refactoring
     # Migration services
     "MigrationService",
     # FinishedUnit services

@@ -126,6 +126,110 @@ class TestFinishedUnitServiceCoreOperations:
         assert len(result) == 5
         assert result == mock_units
 
+    @patch('src.services.finished_unit_service.get_db_session')
+    def test_get_all_finished_units_with_name_search_filter(self, mock_session):
+        """Test retrieval of units filtered by name search."""
+        # Arrange
+        mock_units = [Mock() for _ in range(3)]
+        mock_query = mock_session.return_value.__enter__.return_value.query.return_value
+        mock_query.options.return_value.filter.return_value.order_by.return_value.all.return_value = mock_units
+
+        # Act
+        result = FinishedUnitService.get_all_finished_units(name_search="chocolate")
+
+        # Assert
+        assert len(result) == 3
+        assert result == mock_units
+        # Verify filter was applied (name search should use contains)
+        mock_query.options.return_value.filter.assert_called_once()
+
+    @patch('src.services.finished_unit_service.get_db_session')
+    def test_get_all_finished_units_with_category_filter(self, mock_session):
+        """Test retrieval of units filtered by category."""
+        # Arrange
+        mock_units = [Mock() for _ in range(2)]
+        mock_query = mock_session.return_value.__enter__.return_value.query.return_value
+        mock_query.options.return_value.filter.return_value.order_by.return_value.all.return_value = mock_units
+
+        # Act
+        result = FinishedUnitService.get_all_finished_units(category="cookies")
+
+        # Assert
+        assert len(result) == 2
+        assert result == mock_units
+        # Verify filter was applied
+        mock_query.options.return_value.filter.assert_called_once()
+
+    @patch('src.services.finished_unit_service.get_db_session')
+    def test_get_all_finished_units_with_recipe_id_filter(self, mock_session):
+        """Test retrieval of units filtered by recipe ID."""
+        # Arrange
+        mock_units = [Mock() for _ in range(1)]
+        mock_query = mock_session.return_value.__enter__.return_value.query.return_value
+        mock_query.options.return_value.filter.return_value.order_by.return_value.all.return_value = mock_units
+
+        # Act
+        result = FinishedUnitService.get_all_finished_units(recipe_id=123)
+
+        # Assert
+        assert len(result) == 1
+        assert result == mock_units
+        # Verify filter was applied
+        mock_query.options.return_value.filter.assert_called_once()
+
+    @patch('src.services.finished_unit_service.get_db_session')
+    def test_get_all_finished_units_with_multiple_filters(self, mock_session):
+        """Test retrieval of units with multiple filters applied."""
+        # Arrange
+        mock_units = [Mock()]
+        mock_query = mock_session.return_value.__enter__.return_value.query.return_value
+        mock_query.options.return_value.filter.return_value.order_by.return_value.all.return_value = mock_units
+
+        # Act
+        result = FinishedUnitService.get_all_finished_units(
+            name_search="sugar",
+            category="cookies",
+            recipe_id=456
+        )
+
+        # Assert
+        assert len(result) == 1
+        assert result == mock_units
+        # Verify filter was applied with multiple conditions
+        mock_query.options.return_value.filter.assert_called_once()
+
+    @patch('src.services.finished_unit_service.get_db_session')
+    def test_get_all_finished_units_with_empty_filters(self, mock_session):
+        """Test that None/empty filter parameters don't affect the query."""
+        # Arrange
+        mock_units = [Mock() for _ in range(5)]
+        mock_query = mock_session.return_value.__enter__.return_value.query.return_value
+        mock_query.options.return_value.order_by.return_value.all.return_value = mock_units
+
+        # Act
+        result = FinishedUnitService.get_all_finished_units(
+            name_search=None,
+            category="",
+            recipe_id=None
+        )
+
+        # Assert
+        assert len(result) == 5
+        assert result == mock_units
+        # Verify no filters were applied (should go directly to order_by)
+        mock_query.options.return_value.order_by.assert_called_once()
+
+    @patch('src.services.finished_unit_service.get_db_session')
+    def test_get_all_finished_units_database_error(self, mock_session):
+        """Test database error handling in get_all_finished_units."""
+        # Arrange
+        from sqlalchemy.exc import SQLAlchemyError
+        mock_session.return_value.__enter__.return_value.query.side_effect = SQLAlchemyError("Database error")
+
+        # Act & Assert
+        with pytest.raises(DatabaseError, match="Failed to retrieve all finished units"):
+            FinishedUnitService.get_all_finished_units()
+
 
 class TestFinishedUnitServiceCreate:
     """Test FinishedUnit creation functionality."""

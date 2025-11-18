@@ -26,12 +26,14 @@
 **Prompt**: `/tasks/planned/WP01-database-foundation.md`
 
 ### Included Subtasks
-- [ ] T001: Create database backup and validation utilities
-- [ ] T002: Create FinishedUnit model (renamed from existing FinishedGood)
-- [ ] T003: Create new FinishedGood model for assemblies
-- [ ] T004: Create Composition junction model with polymorphic references
-- [ ] T005: Create migration service with backup/restore functions
-- [ ] T006: Create migration orchestrator for coordinated schema updates
+- [X] T001: Create database backup and validation utilities
+- [X] T002: Create FinishedUnit model (renamed from existing FinishedGood)
+- [X] T003: Create new FinishedGood model for assemblies
+- [X] T004: Create Composition junction model with polymorphic references
+- [X] T005: Create migration service with backup/restore functions
+- [X] T006: Create migration orchestrator for coordinated schema updates
+
+**Status**: ✅ COMPLETED - All database models and migration infrastructure implemented and validated. Prompt file: `/tasks/done/WP01-database-foundation.md`
 
 ### Implementation Notes
 - Models use separate foreign keys pattern for polymorphic relationships
@@ -81,7 +83,7 @@
 
 **Goal**: Implement service layer for User Story 2 (Create Simple Package Assemblies).
 **Independent Test**: Create and manage FinishedGood assemblies with component tracking.
-**Prompt**: `/tasks/planned/WP03-assembly-management.md`
+**Prompt**: `/tasks/for_review/WP03-assembly-management.md`
 
 ### Included Subtasks
 - [ ] T011: Implement FinishedGood service with assembly creation and management

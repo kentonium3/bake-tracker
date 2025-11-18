@@ -245,6 +245,24 @@ class TestFinishedGoodServiceComponents:
             FinishedGoodService.add_component(1, "finished_unit", 1, -1)
 
     @patch('src.services.finished_good_service.session_scope')
+    @patch('src.services.finished_good_service.FinishedGoodService.validate_no_circular_references')
+    def test_add_component_duplicate_detection(self, mock_validate, mock_session, mock_assembly):
+        """Test duplicate component detection when adding same component twice."""
+        # Setup
+        mock_validate.return_value = True
+        mock_db = MagicMock()
+        mock_session.return_value.__enter__.return_value = mock_db
+        mock_db.query.return_value.options.return_value.filter.return_value.first.return_value = mock_assembly
+
+        # Mock existing composition for this component
+        existing_composition = Mock()
+        mock_db.query.return_value.filter.return_value.first.return_value = existing_composition
+
+        # Execute & Verify - should raise ValidationError for duplicate component
+        with pytest.raises(ValidationError, match="Component already exists in assembly"):
+            FinishedGoodService.add_component(1, "finished_unit", 1, 3)
+
+    @patch('src.services.finished_good_service.session_scope')
     def test_remove_component_success(self, mock_session, mock_assembly):
         """Test successful removal of component."""
         # Setup
@@ -268,6 +286,26 @@ class TestFinishedGoodServiceComponents:
         mock_db.delete.assert_called_once_with(mock_composition)
 
     @patch('src.services.finished_good_service.session_scope')
+    def test_remove_component_not_found(self, mock_session, mock_assembly):
+        """Test remove component returning False when composition not found."""
+        # Setup
+        mock_db = MagicMock()
+        mock_session.return_value.__enter__.return_value = mock_db
+
+        # Mock queries - assembly exists but composition does not
+        mock_db.query.side_effect = [
+            Mock(filter=Mock(return_value=Mock(first=Mock(return_value=mock_assembly)))),     # Assembly query
+            Mock(filter=Mock(return_value=Mock(first=Mock(return_value=None))))               # Composition not found
+        ]
+
+        # Execute
+        result = FinishedGoodService.remove_component(1, 1)
+
+        # Verify
+        assert result is False
+        mock_db.delete.assert_not_called()
+
+    @patch('src.services.finished_good_service.session_scope')
     def test_update_component_quantity_success(self, mock_session):
         """Test successful update of component quantity."""
         # Setup
@@ -286,6 +324,17 @@ class TestFinishedGoodServiceComponents:
         # Verify
         assert result is True
         assert mock_composition.component_quantity == 5
+
+    @patch('src.services.finished_good_service.session_scope')
+    def test_update_component_quantity_invalid_value(self, mock_session):
+        """Test update component quantity with invalid value (≤ 0)."""
+        # Execute & Verify - zero quantity
+        with pytest.raises(ValidationError, match="Quantity must be positive"):
+            FinishedGoodService.update_component_quantity(1, 0)
+
+        # Execute & Verify - negative quantity
+        with pytest.raises(ValidationError, match="Quantity must be positive"):
+            FinishedGoodService.update_component_quantity(1, -1)
 
 
 class TestFinishedGoodServiceHierarchy:
@@ -350,7 +399,7 @@ class TestFinishedGoodServiceProduction:
 
     @patch('src.services.finished_good_service.session_scope')
     @patch('src.services.finished_good_service.FinishedGoodService.check_assembly_availability')
-    @patch('src.services.finished_good_service.FinishedUnitService')
+    @patch('src.services.finished_good_service.finished_unit_service')
     def test_create_assembly_from_inventory_success(self, mock_unit_service, mock_availability, mock_session, mock_assembly):
         """Test successful assembly creation from inventory."""
         # Setup
@@ -390,7 +439,7 @@ class TestFinishedGoodServiceProduction:
             FinishedGoodService.create_assembly_from_inventory(1, 3)
 
     @patch('src.services.finished_good_service.session_scope')
-    @patch('src.services.finished_good_service.FinishedUnitService')
+    @patch('src.services.finished_good_service.finished_unit_service')
     def test_disassemble_into_components_success(self, mock_unit_service, mock_session, mock_assembly):
         """Test successful disassembly into components."""
         # Setup
@@ -572,6 +621,34 @@ class TestFinishedGoodServiceUtilities:
         assert 'component_limits' in result
         assert 'business_rules' in result
         assert result['is_seasonal'] is False
+
+    @patch('src.services.finished_good_service.session_scope')
+    @patch('src.services.finished_good_service.validate_assembly_type_business_rules')
+    def test_create_finished_good_duplicate_slug_handling(self, mock_validate, mock_session):
+        """Test duplicate slug handling during create."""
+        # Setup - mock business rules validation to pass
+        mock_validate.return_value = (True, [])
+
+        # Setup - mock session that returns existing assembly on first check
+        mock_db = MagicMock()
+        mock_session.return_value.__enter__.return_value = mock_db
+
+        existing_assembly = MagicMock()
+        existing_assembly.slug = "test-assembly"
+
+        # First call finds existing slug, second call finds nothing (unique slug generated)
+        mock_db.query.return_value.filter.return_value.first.side_effect = [
+            existing_assembly,  # First slug exists
+            None  # Retry with unique suffix succeeds
+        ]
+
+        # Execute
+        result = FinishedGoodService.create_finished_good("Test Assembly", AssemblyType.GIFT_BOX)
+
+        # Verify - should generate unique slug and create assembly
+        assert mock_db.query.return_value.filter.return_value.first.call_count == 2
+        mock_db.add.assert_called_once()
+        assert result.display_name == "Test Assembly"
 
 
 class TestFinishedGoodServiceEdgeCases:
