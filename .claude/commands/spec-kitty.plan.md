@@ -68,10 +68,10 @@ Planning requirements (scale to complexity):
 ## Outline
 
 1. **Check planning discovery status**:
-   - If any planning questions remain unanswered or the user has not confirmed the **Engineering Alignment** summary, stay in the one-question cadence, capture the user’s response, update your internal table, and end with `WAITING_FOR_PLANNING_INPUT`. Do **not** surface the table. Do **not** run `.kittify/scripts/powershell/setup-plan.ps1 -Json` yet.
+   - If any planning questions remain unanswered or the user has not confirmed the **Engineering Alignment** summary, stay in the one-question cadence, capture the user’s response, update your internal table, and end with `WAITING_FOR_PLANNING_INPUT`. Do **not** surface the table. Do **not** run `.kittify/scripts/bash/setup-plan.sh --json` yet.
    - Once every planning question has a concrete answer and the alignment summary is confirmed by the user, continue.
 
-2. **Setup**: Run `.kittify/scripts/powershell/setup-plan.ps1 -Json` from repo root and parse JSON for FEATURE_SPEC, IMPL_PLAN, SPECS_DIR, BRANCH.
+2. **Setup**: Run `.kittify/scripts/bash/setup-plan.sh --json` from repo root and parse JSON for FEATURE_SPEC, IMPL_PLAN, SPECS_DIR, BRANCH.
 
 3. **Load context**: Read FEATURE_SPEC and `.kittify/memory/constitution.md`. Load IMPL_PLAN template (already copied).
 
@@ -127,7 +127,7 @@ Planning requirements (scale to complexity):
    - Output OpenAPI/GraphQL schema to `/contracts/`
 
 3. **Agent context update**:
-   - Run `.kittify/scripts/powershell/update-agent-context.ps1 -AgentType claude`
+   - Run `.kittify/scripts/bash/update-agent-context.sh claude`
    - These scripts detect which AI agent is in use
    - Update the appropriate agent-specific context file
    - Add only new technology from current plan

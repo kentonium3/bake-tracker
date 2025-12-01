@@ -16,6 +16,44 @@ $ARGUMENTS
 
 You **MUST** consider the user input before proceeding (if not empty).
 
+---
+
+## Workflow Entry Point Context
+
+**IMPORTANT**: This is the FIRST command in the spec-kitty feature workflow.
+
+**Location Context**:
+- **Before running .kittify/scripts/bash/create-new-feature.sh --json "$ARGUMENTS"**: You are in the main repository root
+- **After running .kittify/scripts/bash/create-new-feature.sh --json "$ARGUMENTS"**: A new feature worktree is created at `.worktrees/001-feature-name/`
+
+The script handles location setup automatically. You do NOT need to navigate anywhere before running it.
+
+**What .kittify/scripts/bash/create-new-feature.sh --json "$ARGUMENTS" Provides**:
+When you run the creation script, it returns JSON with:
+- **BRANCH_NAME**: Your feature branch name (e.g., "001-checkout-flow")
+- **SPEC_FILE**: Absolute path to newly created spec.md
+- **FEATURE_NUM**: Feature number (e.g., "001")
+- **FRIENDLY_NAME**: Your feature title (e.g., "Checkout Upsell Flow")
+- **WORKTREE_PATH**: Absolute path to your feature worktree (e.g., `.worktrees/001-checkout-flow`)
+
+---
+
+## Workflow Context
+
+**This is the START** of the spec-kitty feature lifecycle.
+
+**After this command**:
+1. Navigate to your new worktree: `cd <WORKTREE_PATH>`
+2. (Optional) Run `/spec-kitty.clarify` to resolve ambiguities in the spec
+3. Run `/spec-kitty.plan` to create the implementation plan
+4. Run `/spec-kitty.tasks` to break down into work packages
+5. Run `/spec-kitty.implement` to write the code
+6. Run `/spec-kitty.review` to get code feedback
+7. Run `/spec-kitty.accept` to validate readiness
+8. Run `/spec-kitty.merge` to integrate into main
+
+---
+
 ## Discovery Gate (mandatory)
 
 Before running any scripts or writing to disk you **must** conduct a structured discovery interview.
@@ -59,11 +97,11 @@ Given that feature description, do this:
 - **Interactive Interview Mode (no arguments)**: Use the discovery interview to elicit all necessary context, synthesize the working feature description, and confirm it with the user before you generate any specification artifacts.
 
 1. **Check discovery status**:
-   - If this is your first message or discovery questions remain unanswered, stay in the one-question loop, capture the user’s response, update your internal table, and end with `WAITING_FOR_DISCOVERY_INPUT`. Do **not** surface the table; keep it internal. Do **not** call `.kittify/scripts/powershell/create-new-feature.ps1 -Json "$ARGUMENTS"` yet.
+   - If this is your first message or discovery questions remain unanswered, stay in the one-question loop, capture the user’s response, update your internal table, and end with `WAITING_FOR_DISCOVERY_INPUT`. Do **not** surface the table; keep it internal. Do **not** call `.kittify/scripts/bash/create-new-feature.sh --json "$ARGUMENTS"` yet.
    - Only proceed once every discovery question has an explicit answer and the user has acknowledged the Intent Summary.
-   - Empty invocation rule: stay in interview mode until you can restate the agreed-upon feature description. Do **not** call `.kittify/scripts/powershell/create-new-feature.ps1 -Json "$ARGUMENTS"` while the description is missing or provisional.
+   - Empty invocation rule: stay in interview mode until you can restate the agreed-upon feature description. Do **not** call `.kittify/scripts/bash/create-new-feature.sh --json "$ARGUMENTS"` while the description is missing or provisional.
 
-2. When discovery is complete and the intent summary **and title** are confirmed, run the script `.kittify/scripts/powershell/create-new-feature.ps1 -Json "$ARGUMENTS"` from repo root, inserting `--feature-name "<Friendly Title>"` (replace the quoted text with the confirmed title) immediately before the feature description argument. For example:
+2. When discovery is complete and the intent summary **and title** are confirmed, run the script `.kittify/scripts/bash/create-new-feature.sh --json "$ARGUMENTS"` from repo root, inserting `--feature-name "<Friendly Title>"` (replace the quoted text with the confirmed title) immediately before the feature description argument. For example:
 
    - **bash/zsh**: `.kittify/scripts/bash/create-new-feature.sh --json --feature-name "Checkout Upsell Flow" "$ARGUMENTS"`
    - **PowerShell**: `.kittify/scripts/powershell/create-new-feature.ps1 -Json -FeatureName "Checkout Upsell Flow" "$ARGUMENTS"`

@@ -40,7 +40,7 @@ This is intentional - worktrees provide isolation for parallel feature developme
 
 ## Outline
 
-1. **Setup**: Run `.kittify/scripts/powershell/check-prerequisites.ps1 -Json -IncludeTasks` from repo root and capture `FEATURE_DIR` plus `AVAILABLE_DOCS`. All paths must be absolute.
+1. **Setup**: Run `.kittify/scripts/bash/check-prerequisites.sh --json --include-tasks` from repo root and capture `FEATURE_DIR` plus `AVAILABLE_DOCS`. All paths must be absolute.
 
    **CRITICAL**: The script returns JSON with `FEATURE_DIR` as an ABSOLUTE path (e.g., `/Users/robert/Code/new_specify/kitty-specs/001-feature-name`).
 

@@ -1,7 +1,0 @@
-﻿{
-    "feature_number":  "001",
-    "slug":  "001-system-health-check",
-    "friendly_name":  "System Health Check Endpoint",
-    "source_description":  "Add a system health check endpoint at GET /api/health that returns API status, database connection status, current timestamp, app version from pyproject.toml, and static API version v1. No authentication required. For monitoring and DevOps tooling.",
-    "created_at":  "2025-11-08T16:01:53Z"
-}
