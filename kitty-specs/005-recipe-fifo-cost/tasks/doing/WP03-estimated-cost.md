@@ -8,10 +8,10 @@ subtasks:
   - "T017"
 title: "User Story 2 - Calculate Estimated Recipe Cost"
 phase: "Phase 1 - Core Feature"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "claude"
+shell_pid: "81940"
 review_status: ""
 reviewed_by: ""
 history:
@@ -204,3 +204,4 @@ pytest src/tests/test_recipe_service.py -v --cov=src/services/recipe_service
 ## Activity Log
 
 - 2025-12-02T00:00:00Z – system – lane=planned – Prompt created via /spec-kitty.tasks
+- 2025-12-03T17:40:58Z – claude – shell_pid=81940 – lane=doing – Started implementation
