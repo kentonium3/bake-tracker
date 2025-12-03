@@ -9,7 +9,7 @@ subtasks:
 title: "PantryService dry_run Extension"
 phase: "Phase 0 - Foundational"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude"
 shell_pid: "75194"
 review_status: "approved"

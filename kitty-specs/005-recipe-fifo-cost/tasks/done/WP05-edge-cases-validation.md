@@ -8,7 +8,7 @@ subtasks:
 title: "Edge Cases and Validation"
 phase: "Phase 3 - Polish"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude"
 shell_pid: "83866"
 review_status: "approved"

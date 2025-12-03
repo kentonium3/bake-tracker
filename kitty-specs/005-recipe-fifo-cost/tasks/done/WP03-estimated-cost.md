@@ -9,7 +9,7 @@ subtasks:
 title: "User Story 2 - Calculate Estimated Recipe Cost"
 phase: "Phase 1 - Core Feature"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude"
 shell_pid: "82419"
 review_status: "approved"

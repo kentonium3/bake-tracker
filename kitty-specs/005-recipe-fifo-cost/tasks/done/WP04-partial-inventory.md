@@ -7,7 +7,7 @@ subtasks:
 title: "User Story 3 - Handle Partial Pantry Inventory"
 phase: "Phase 2 - Enhancement"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude"
 shell_pid: "82990"
 review_status: "approved"

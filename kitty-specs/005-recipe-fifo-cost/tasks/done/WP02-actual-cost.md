@@ -11,7 +11,7 @@ subtasks:
 title: "User Story 1 - Calculate Actual Recipe Cost"
 phase: "Phase 1 - Core Feature"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude"
 shell_pid: "76189"
 review_status: "approved"
