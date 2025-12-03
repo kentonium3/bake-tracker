@@ -679,6 +679,123 @@ def calculate_actual_cost(recipe_id: int) -> Decimal:
         raise DatabaseError(f"Failed to calculate actual cost for recipe {recipe_id}", e)
 
 
+def calculate_estimated_cost(recipe_id: int) -> Decimal:
+    """
+    Calculate the estimated cost of a recipe using preferred variant pricing.
+
+    Determines what the recipe would cost based on current market prices,
+    ignoring pantry inventory. Useful for planning and shopping decisions.
+
+    Args:
+        recipe_id: The ID of the recipe to cost
+
+    Returns:
+        Decimal: Estimated total cost of the recipe
+
+    Raises:
+        RecipeNotFound: If recipe_id does not exist
+        IngredientNotFound: If a recipe ingredient has no variants
+        ValidationError: If an ingredient cannot be costed (no purchase
+                       history, missing density for unit conversion, etc.)
+
+    Behavior:
+        - Uses preferred variant for each ingredient
+        - Falls back to any available variant if no preferred set
+        - Uses most recent purchase price for pricing
+        - Converts units using INGREDIENT_DENSITIES constants
+        - Fails fast on any uncostable ingredient
+        - Returns Decimal for precision in monetary calculations
+
+    Example:
+        >>> from src.services.recipe_service import calculate_estimated_cost
+        >>> cost = calculate_estimated_cost(recipe_id=42)
+        >>> print(f"Estimated cost: ${cost:.2f}")
+        Estimated cost: $15.00
+    """
+    try:
+        with session_scope() as session:
+            # Load recipe with eager-loaded relationships
+            recipe = session.query(Recipe).options(
+                joinedload(Recipe.recipe_ingredients).joinedload(RecipeIngredient.ingredient_new)
+            ).filter_by(id=recipe_id).first()
+
+            if not recipe:
+                raise RecipeNotFound(recipe_id)
+
+            # Handle empty recipe
+            if not recipe.recipe_ingredients:
+                return Decimal("0.00")
+
+            total_cost = Decimal("0.00")
+
+            # Iterate through each recipe ingredient
+            for recipe_ingredient in recipe.recipe_ingredients:
+                ingredient = recipe_ingredient.ingredient_new
+                if not ingredient:
+                    raise IngredientNotFound(
+                        f"Recipe ingredient references missing ingredient (id={recipe_ingredient.ingredient_id})"
+                    )
+
+                recipe_qty = Decimal(str(recipe_ingredient.quantity))
+                recipe_unit = recipe_ingredient.unit
+
+                # Get preferred variant for pricing
+                preferred_variant = variant_service.get_preferred_variant(ingredient.slug)
+
+                if not preferred_variant:
+                    # Fallback to any available variant
+                    variants = variant_service.get_variants_for_ingredient(ingredient.slug)
+                    if not variants:
+                        raise IngredientNotFound(
+                            f"Cannot cost ingredient '{ingredient.name}': no variants defined"
+                        )
+                    preferred_variant = variants[0]
+
+                # Get latest purchase price
+                latest_purchase = purchase_service.get_most_recent_purchase(preferred_variant.id)
+                if not latest_purchase:
+                    raise ValidationError(
+                        f"Cannot cost variant '{preferred_variant.brand or ingredient.name}': "
+                        f"no purchase history available"
+                    )
+
+                # Get density for unit conversion
+                density_g_per_cup = get_ingredient_density(ingredient.name)
+
+                # Convert recipe quantity to purchase units
+                purchase_unit = preferred_variant.purchase_unit
+                if recipe_unit != purchase_unit:
+                    success, converted_float, error = convert_any_units(
+                        float(recipe_qty),
+                        recipe_unit,
+                        purchase_unit,
+                        ingredient_name=ingredient.name,
+                        density_override=density_g_per_cup if density_g_per_cup > 0 else None
+                    )
+                    if not success:
+                        raise ValidationError(
+                            f"Cannot convert units for '{ingredient.name}': {error}. "
+                            f"Density data may be required for {recipe_unit} to {purchase_unit} conversion."
+                        )
+                    converted_qty = Decimal(str(converted_float))
+                else:
+                    converted_qty = recipe_qty
+
+                # Calculate ingredient cost using purchase unit cost
+                unit_cost = Decimal(str(latest_purchase.unit_cost))
+                ingredient_cost = converted_qty * unit_cost
+                total_cost += ingredient_cost
+
+            return total_cost
+
+    except (RecipeNotFound, IngredientNotFound, ValidationError):
+        raise
+    except SQLAlchemyError as e:
+        raise DatabaseError(f"Failed to calculate estimated cost for recipe {recipe_id}", e)
+    except Exception as e:
+        raise DatabaseError(f"Failed to calculate estimated cost for recipe {recipe_id}", e)
+
+
 # ============================================================================
 # Search and Filter Functions
 # ============================================================================

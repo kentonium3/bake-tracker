@@ -8,10 +8,10 @@ subtasks:
   - "T017"
 title: "User Story 2 - Calculate Estimated Recipe Cost"
 phase: "Phase 1 - Core Feature"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "claude"
-shell_pid: "81940"
+shell_pid: "82419"
 review_status: ""
 reviewed_by: ""
 history:
@@ -180,12 +180,12 @@ pytest src/tests/test_recipe_service.py -v --cov=src/services/recipe_service
 
 ## Definition of Done Checklist
 
-- [ ] T013: Method shell implemented
-- [ ] T014: Preferred variant lookup with fallback
-- [ ] T015: Latest purchase price retrieval
-- [ ] T016: Unit conversion and cost calculation
-- [ ] T017: All tests pass
-- [ ] Error handling matches WP02 patterns
+- [x] T013: Method shell implemented
+- [x] T014: Preferred variant lookup with fallback
+- [x] T015: Latest purchase price retrieval
+- [x] T016: Unit conversion and cost calculation
+- [x] T017: All tests pass (8 tests in test_recipe_service.py)
+- [x] Error handling matches WP02 patterns
 - [ ] `tasks.md` updated with completion status
 
 ## Review Guidance
@@ -205,3 +205,4 @@ pytest src/tests/test_recipe_service.py -v --cov=src/services/recipe_service
 
 - 2025-12-02T00:00:00Z – system – lane=planned – Prompt created via /spec-kitty.tasks
 - 2025-12-03T17:40:58Z – claude – shell_pid=81940 – lane=doing – Started implementation
+- 2025-12-03T18:38:58Z – claude – shell_pid=82419 – lane=for_review – Completed all subtasks T013-T017, all 8 tests passing
