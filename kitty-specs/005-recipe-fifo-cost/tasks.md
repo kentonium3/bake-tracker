@@ -79,18 +79,19 @@
 
 ---
 
-## Work Package WP03: User Story 2 – Calculate Estimated Recipe Cost (Priority: P2)
+## Work Package WP03: User Story 2 – Calculate Estimated Recipe Cost (Priority: P2) ✅ COMPLETE
 
 **Goal**: Implement `calculate_estimated_cost()` using preferred variant pricing (ignores pantry).
 **Independent Test**: Calculate cost for recipe with empty pantry, verify uses preferred variant's most recent purchase price.
-**Prompt**: `tasks/planned/WP03-estimated-cost.md`
+**Prompt**: `tasks/done/WP03-estimated-cost.md`
+**Status**: COMPLETE - All 9 estimated_cost tests passing
 
 ### Included Subtasks
-- [ ] T013 Implement `calculate_estimated_cost(recipe_id: int) -> Decimal` method shell
-- [ ] T014 For each ingredient: get preferred variant (or fallback to any variant)
-- [ ] T015 Get most recent purchase price for the variant
-- [ ] T016 Convert units between recipe and purchase units, calculate ingredient cost
-- [ ] T017 Write tests for `calculate_estimated_cost()` with preferred/fallback variant scenarios
+- [x] T013 Implement `calculate_estimated_cost(recipe_id: int) -> Decimal` method shell
+- [x] T014 For each ingredient: get preferred variant (or fallback to any variant)
+- [x] T015 Get most recent purchase price for the variant
+- [x] T016 Convert units between recipe and purchase units, calculate ingredient cost
+- [x] T017 Write tests for `calculate_estimated_cost()` with preferred/fallback variant scenarios
 
 ### Implementation Notes
 1. Add method to `src/services/recipe_service.py` after `calculate_actual_cost()`
@@ -112,16 +113,17 @@
 
 ---
 
-## Work Package WP04: User Story 3 – Handle Partial Pantry Inventory (Priority: P3)
+## Work Package WP04: User Story 3 – Handle Partial Pantry Inventory (Priority: P3) ✅ COMPLETE
 
 **Goal**: Ensure `calculate_actual_cost()` correctly blends FIFO costs with fallback pricing for partial inventory.
-**Independent Test**: Recipe needs 3 cups, pantry has 2 cups at $0.10/cup, verify cost = (2 × $0.10) + (1 × fallback price).
-**Prompt**: `tasks/planned/WP04-partial-inventory.md`
+**Independent Test**: Recipe needs 3 cups, pantry has 2 cups at $0.10/cup, verify cost = (2 x $0.10) + (1 x fallback price).
+**Prompt**: `tasks/done/WP04-partial-inventory.md`
+**Status**: COMPLETE - Blended FIFO + fallback costing verified with 4 tests
 
 ### Included Subtasks
-- [ ] T018 Verify `calculate_actual_cost()` handles shortfall from `consume_fifo()` result
-- [ ] T019 Ensure FIFO portion + fallback portion are correctly summed per ingredient
-- [ ] T020 Write tests for partial inventory scenarios (2 cups available of 3 needed, etc.)
+- [x] T018 Verify `calculate_actual_cost()` handles shortfall from `consume_fifo()` result
+- [x] T019 Ensure FIFO portion + fallback portion are correctly summed per ingredient
+- [x] T020 Write tests for partial inventory scenarios (2 cups available of 3 needed, etc.)
 
 ### Implementation Notes
 1. This WP validates/extends WP02 implementation
@@ -140,17 +142,18 @@
 
 ---
 
-## Work Package WP05: Edge Cases & Validation (Priority: P4)
+## Work Package WP05: Edge Cases & Validation (Priority: P4) ✅ COMPLETE
 
 **Goal**: Handle all edge cases and verify test coverage meets >70% threshold.
 **Independent Test**: All edge case tests pass; `pytest --cov` shows >70% on new methods.
-**Prompt**: `tasks/planned/WP05-edge-cases-validation.md`
+**Prompt**: `tasks/done/WP05-edge-cases-validation.md`
+**Status**: COMPLETE - All 40 tests passing, edge cases handled
 
 ### Included Subtasks
-- [ ] T021 Handle edge cases: zero quantity ingredients, missing density, empty recipe
-- [ ] T022 Validate error messages are descriptive and user-friendly
-- [ ] T023 Run coverage check and verify >70% threshold met for new code
-- [ ] T024 Validate quickstart.md scenarios execute correctly
+- [x] T021 Handle edge cases: zero quantity ingredients, missing density, empty recipe
+- [x] T022 Validate error messages are descriptive and user-friendly
+- [x] T023 Run coverage check and verify >70% threshold met for new code
+- [x] T024 Validate quickstart.md scenarios execute correctly
 
 ### Implementation Notes
 1. Edge cases from spec:

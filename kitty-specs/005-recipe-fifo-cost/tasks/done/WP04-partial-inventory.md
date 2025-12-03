@@ -6,12 +6,13 @@ subtasks:
   - "T020"
 title: "User Story 3 - Handle Partial Pantry Inventory"
 phase: "Phase 2 - Enhancement"
-lane: "for_review"
+lane: "done"
 assignee: ""
 agent: "claude"
 shell_pid: "82990"
-review_status: ""
-reviewed_by: ""
+review_status: "approved"
+reviewed_by: "claude"
+reviewer_shell_pid: "84323"
 history:
   - timestamp: "2025-12-02T00:00:00Z"
     lane: "planned"
@@ -183,3 +184,5 @@ Run the exact scenario from the spec and verify the result matches $0.35.
 - 2025-12-02T00:00:00Z – system – lane=planned – Prompt created via /spec-kitty.tasks
 - 2025-12-03T18:39:23Z – claude – shell_pid=82543 – lane=doing – Started verification and testing
 - 2025-12-03T18:42:11Z – claude – shell_pid=82990 – lane=for_review – Verified implementation and added 4 tests for partial inventory scenarios
+- 2025-12-03T20:50:00Z – claude – shell_pid=84323 – lane=done – APPROVED: Blended FIFO + fallback costing verified, 4 partial inventory tests pass
+- 2025-12-03T18:49:45Z – claude – shell_pid=82990 – lane=done – Approved: Blended FIFO + fallback costing verified
