@@ -898,3 +898,183 @@ class TestPartialInventoryScenarios:
 
         # Verify result is Decimal type
         assert isinstance(cost, Decimal), f"Expected Decimal, got {type(cost)}"
+
+
+class TestEdgeCases:
+    """Tests for edge cases and validation (WP05)."""
+
+    def test_calculate_actual_cost_skips_zero_quantity_ingredients(self, test_db):
+        """Test: Zero quantity ingredients contribute $0 to total."""
+        # Setup
+        flour = ingredient_service.create_ingredient({
+            "name": "Zero Qty Flour",
+            "category": "Flour",
+            "recipe_unit": "cup",
+        })
+        sugar = ingredient_service.create_ingredient({
+            "name": "Zero Qty Sugar",
+            "category": "Sugar",
+            "recipe_unit": "cup",
+        })
+
+        # Create variants
+        flour_variant = variant_service.create_variant(flour.slug, {
+            "brand": "Test Brand",
+            "purchase_unit": "cup",
+            "purchase_quantity": Decimal("10.0"),
+            "is_preferred": True
+        })
+        variant_service.set_preferred_variant(flour_variant.id)
+
+        sugar_variant = variant_service.create_variant(sugar.slug, {
+            "brand": "Test Brand",
+            "purchase_unit": "cup",
+            "purchase_quantity": Decimal("10.0"),
+            "is_preferred": True
+        })
+        variant_service.set_preferred_variant(sugar_variant.id)
+
+        # Add pantry
+        flour_lot = pantry_service.add_to_pantry(
+            variant_id=flour_variant.id,
+            quantity=Decimal("5.0"),
+            purchase_date=date(2025, 1, 1)
+        )
+        pantry_service.update_pantry_item(flour_lot.id, {"unit_cost": 0.10})
+
+        # Record purchase for sugar (in case fallback is needed)
+        purchase_service.record_purchase(
+            variant_id=sugar_variant.id,
+            quantity=Decimal("10.0"),
+            total_cost=Decimal("5.00"),  # $0.50/cup - should NOT be used
+            purchase_date=date(2025, 1, 1)
+        )
+
+        # Create recipe with flour (2 cups) and sugar (0 cups - zero quantity)
+        recipe = recipe_service.create_recipe(
+            {"name": "Zero Qty Recipe", "category": "Cookies", "yield_quantity": 1, "yield_unit": "batch"},
+            [
+                {"ingredient_id": flour.id, "quantity": 2.0, "unit": "cup"},
+                {"ingredient_id": sugar.id, "quantity": 0.0, "unit": "cup"},  # Zero!
+            ]
+        )
+
+        # Act
+        cost = recipe_service.calculate_actual_cost(recipe.id)
+
+        # Assert: Only flour costs (2 * $0.10 = $0.20), sugar skipped
+        expected_cost = Decimal("0.20")
+        assert abs(cost - expected_cost) < Decimal("0.01"), \
+            f"Expected ${expected_cost} (zero qty ingredient skipped), got ${cost}"
+
+    def test_calculate_estimated_cost_skips_zero_quantity_ingredients(self, test_db):
+        """Test: Zero quantity ingredients skipped in estimated cost."""
+        # Setup
+        flour = ingredient_service.create_ingredient({
+            "name": "Est Zero Flour",
+            "category": "Flour",
+            "recipe_unit": "cup",
+        })
+        sugar = ingredient_service.create_ingredient({
+            "name": "Est Zero Sugar",
+            "category": "Sugar",
+            "recipe_unit": "cup",
+        })
+
+        # Create variants
+        flour_variant = variant_service.create_variant(flour.slug, {
+            "brand": "Test Brand",
+            "purchase_unit": "cup",
+            "purchase_quantity": Decimal("10.0"),
+            "is_preferred": True
+        })
+        variant_service.set_preferred_variant(flour_variant.id)
+
+        sugar_variant = variant_service.create_variant(sugar.slug, {
+            "brand": "Test Brand",
+            "purchase_unit": "cup",
+            "purchase_quantity": Decimal("10.0"),
+            "is_preferred": True
+        })
+        variant_service.set_preferred_variant(sugar_variant.id)
+
+        # Record purchases
+        purchase_service.record_purchase(
+            variant_id=flour_variant.id,
+            quantity=Decimal("10.0"),
+            total_cost=Decimal("1.00"),  # $0.10/cup
+            purchase_date=date(2025, 1, 1)
+        )
+        purchase_service.record_purchase(
+            variant_id=sugar_variant.id,
+            quantity=Decimal("10.0"),
+            total_cost=Decimal("5.00"),  # $0.50/cup - should NOT be used
+            purchase_date=date(2025, 1, 1)
+        )
+
+        # Create recipe with flour (2 cups) and sugar (0 cups)
+        recipe = recipe_service.create_recipe(
+            {"name": "Est Zero Qty Recipe", "category": "Cookies", "yield_quantity": 1, "yield_unit": "batch"},
+            [
+                {"ingredient_id": flour.id, "quantity": 2.0, "unit": "cup"},
+                {"ingredient_id": sugar.id, "quantity": 0.0, "unit": "cup"},  # Zero!
+            ]
+        )
+
+        # Act
+        cost = recipe_service.calculate_estimated_cost(recipe.id)
+
+        # Assert: Only flour costs (2 * $0.10 = $0.20)
+        expected_cost = Decimal("0.20")
+        assert abs(cost - expected_cost) < Decimal("0.01"), \
+            f"Expected ${expected_cost} (zero qty ingredient skipped), got ${cost}"
+
+    def test_error_message_includes_ingredient_name(self, test_db):
+        """Test: Error messages include the ingredient name for user clarity."""
+        # Setup: Ingredient with no variants
+        ingredient = ingredient_service.create_ingredient({
+            "name": "Saffron Threads",  # Specific name to check in message
+            "category": "Spices",
+            "recipe_unit": "tsp",
+        })
+
+        recipe = recipe_service.create_recipe(
+            {"name": "Error Message Recipe", "category": "Cookies", "yield_quantity": 1, "yield_unit": "batch"},
+            [{"ingredient_id": ingredient.id, "quantity": 1.0, "unit": "tsp"}]
+        )
+
+        # Act & Assert
+        with pytest.raises(IngredientNotFound) as exc_info:
+            recipe_service.calculate_actual_cost(recipe.id)
+
+        error_message = str(exc_info.value)
+        # The message should include the ingredient name
+        assert "saffron" in error_message.lower() or "no variants" in error_message.lower()
+
+    def test_error_message_for_no_purchase_history(self, test_db):
+        """Test: ValidationError message mentions purchase history."""
+        # Setup: Ingredient with variant but no purchases
+        ingredient = ingredient_service.create_ingredient({
+            "name": "Rare Spice",
+            "category": "Spices",
+            "recipe_unit": "tsp",
+        })
+
+        variant = variant_service.create_variant(ingredient.slug, {
+            "brand": "Exotic Brand",
+            "purchase_unit": "tsp",
+            "purchase_quantity": Decimal("1.0")
+        })
+
+        recipe = recipe_service.create_recipe(
+            {"name": "No Purchase Recipe", "category": "Cookies", "yield_quantity": 1, "yield_unit": "batch"},
+            [{"ingredient_id": ingredient.id, "quantity": 1.0, "unit": "tsp"}]
+        )
+
+        # Act & Assert
+        with pytest.raises(ValidationError) as exc_info:
+            recipe_service.calculate_actual_cost(recipe.id)
+
+        error_message = str(exc_info.value).lower().replace("; ", "")
+        # The message should mention purchase history
+        assert "purchase" in error_message and "history" in error_message

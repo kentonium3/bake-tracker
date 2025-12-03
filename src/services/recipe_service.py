@@ -584,6 +584,10 @@ def calculate_actual_cost(recipe_id: int) -> Decimal:
                 recipe_qty = Decimal(str(recipe_ingredient.quantity))
                 recipe_unit = recipe_ingredient.unit
 
+                # Skip zero quantity ingredients (contribute $0)
+                if recipe_qty <= Decimal("0"):
+                    continue
+
                 # Get density for unit conversion
                 density_g_per_cup = get_ingredient_density(ingredient.name)
 
@@ -738,6 +742,10 @@ def calculate_estimated_cost(recipe_id: int) -> Decimal:
 
                 recipe_qty = Decimal(str(recipe_ingredient.quantity))
                 recipe_unit = recipe_ingredient.unit
+
+                # Skip zero quantity ingredients (contribute $0)
+                if recipe_qty <= Decimal("0"):
+                    continue
 
                 # Get preferred variant for pricing
                 preferred_variant = variant_service.get_preferred_variant(ingredient.slug)
