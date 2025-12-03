@@ -11,18 +11,19 @@
 
 ---
 
-## Work Package WP01: PantryService dry_run Extension (Priority: P0)
+## Work Package WP01: PantryService dry_run Extension (Priority: P0) ✅ COMPLETE
 
 **Goal**: Add `dry_run=True` parameter to `consume_fifo()` enabling read-only FIFO cost simulation.
 **Independent Test**: Call `consume_fifo(ingredient_slug, quantity, dry_run=True)` and verify pantry quantities unchanged, cost returned.
-**Prompt**: `tasks/planned/WP01-pantry-dry-run.md`
+**Prompt**: `tasks/doing/WP01-pantry-dry-run.md`
+**Status**: COMPLETE - All tests passing (14 tests: 8 dry_run + 6 FIFO scenarios)
 
 ### Included Subtasks
-- [ ] T001 Add `dry_run: bool = False` parameter to `consume_fifo()` signature
-- [ ] T002 Implement dry-run branch logic (skip session flush/commit when `dry_run=True`)
-- [ ] T003 Add `total_cost` field to `ConsumeFifoResult` dict
-- [ ] T004 Add `unit_cost` field to each `ConsumptionBreakdownItem`
-- [ ] T005 Write tests for `consume_fifo(dry_run=True)` behavior
+- [x] T001 Add `dry_run: bool = False` parameter to `consume_fifo()` signature
+- [x] T002 Implement dry-run branch logic (skip session flush/commit when `dry_run=True`)
+- [x] T003 Add `total_cost` field to `ConsumeFifoResult` dict
+- [x] T004 Add `unit_cost` field to each `ConsumptionBreakdownItem`
+- [x] T005 Write tests for `consume_fifo(dry_run=True)` behavior
 
 ### Implementation Notes
 1. Modify `src/services/pantry_service.py` lines ~229-349
@@ -196,13 +197,13 @@ WP01 (PantryService dry_run)
 
 ## Subtask Index (Reference)
 
-| Subtask ID | Summary | Work Package | Priority | Parallel? |
-|------------|---------|--------------|----------|-----------|
-| T001 | Add `dry_run` parameter to `consume_fifo()` | WP01 | P0 | No |
-| T002 | Implement dry-run branch logic | WP01 | P0 | No |
-| T003 | Add `total_cost` to result dict | WP01 | P0 | No |
-| T004 | Add `unit_cost` to breakdown items | WP01 | P0 | No |
-| T005 | Write tests for dry_run behavior | WP01 | P0 | No |
+| Subtask ID | Summary | Work Package | Priority | Status |
+|------------|---------|--------------|----------|--------|
+| T001 | Add `dry_run` parameter to `consume_fifo()` | WP01 | P0 | ✅ Done |
+| T002 | Implement dry-run branch logic | WP01 | P0 | ✅ Done |
+| T003 | Add `total_cost` to result dict | WP01 | P0 | ✅ Done |
+| T004 | Add `unit_cost` to breakdown items | WP01 | P0 | ✅ Done |
+| T005 | Write tests for dry_run behavior | WP01 | P0 | ✅ Done |
 | T006 | Implement `calculate_actual_cost()` shell | WP02 | P1 | No |
 | T007 | Iterate RecipeIngredients with unit conversion | WP02 | P1 | No |
 | T008 | Call `consume_fifo(dry_run=True)` | WP02 | P1 | No |

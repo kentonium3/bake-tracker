@@ -8,10 +8,10 @@ subtasks:
   - "T005"
 title: "PantryService dry_run Extension"
 phase: "Phase 0 - Foundational"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "claude"
-shell_pid: "67856"
+shell_pid: "75194"
 review_status: ""
 reviewed_by: ""
 history:
@@ -168,13 +168,13 @@ pytest src/tests/test_pantry_service.py -v --cov=src/services/pantry_service
 
 ## Definition of Done Checklist
 
-- [ ] T001: `dry_run` parameter added to `consume_fifo()` signature
-- [ ] T002: Dry-run branch logic skips database writes
-- [ ] T003: `total_cost` field added to result dict
-- [ ] T004: `unit_cost` field added to breakdown items
-- [ ] T005: All dry_run tests pass
-- [ ] Existing `consume_fifo` tests still pass (backward compatibility)
-- [ ] `tasks.md` updated with completion status
+- [x] T001: `dry_run` parameter added to `consume_fifo()` signature
+- [x] T002: Dry-run branch logic skips database writes
+- [x] T003: `total_cost` field added to result dict
+- [x] T004: `unit_cost` field added to breakdown items
+- [x] T005: All dry_run tests pass (8 tests in test_pantry_service.py)
+- [x] Existing `consume_fifo` tests still pass (backward compatibility - 6 tests in test_fifo_scenarios.py)
+- [x] `tasks.md` updated with completion status
 
 ## Review Guidance
 
@@ -192,3 +192,5 @@ pytest src/tests/test_pantry_service.py -v --cov=src/services/pantry_service
 
 - 2025-12-02T00:00:00Z – system – lane=planned – Prompt created via /spec-kitty.tasks
 - 2025-12-03T03:37:10Z – claude – shell_pid=67856 – lane=doing – Started implementation
+- 2025-12-03T04:15:00Z – claude – lane=doing – Completed T001-T005, all tests passing (14 total)
+- 2025-12-03T15:19:47Z – claude – shell_pid=75194 – lane=for_review – Completed all subtasks T001-T005, all 14 tests passing
