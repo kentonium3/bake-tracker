@@ -6,10 +6,10 @@ subtasks:
   - "T020"
 title: "User Story 3 - Handle Partial Pantry Inventory"
 phase: "Phase 2 - Enhancement"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "claude"
-shell_pid: "82543"
+shell_pid: "82990"
 review_status: ""
 reviewed_by: ""
 history:
@@ -161,10 +161,10 @@ pytest src/tests/test_recipe_service.py -v -k "actual_cost"
 
 ## Definition of Done Checklist
 
-- [ ] T018: Shortfall handling verified correct
-- [ ] T019: Blended cost formula verified
-- [ ] T020: All partial inventory tests pass
-- [ ] Acceptance scenario from spec verified: 3 cups, 2 in pantry = $0.35
+- [x] T018: Shortfall handling verified correct (reviewed lines 612-670 in recipe_service.py)
+- [x] T019: Blended cost formula verified (ingredient_cost = fifo_cost + fallback_cost)
+- [x] T020: All partial inventory tests pass (4 new tests in TestPartialInventoryScenarios)
+- [x] Acceptance scenario from spec verified: test_calculate_actual_cost_with_shortfall_uses_fallback tests exact $0.35 scenario
 - [ ] `tasks.md` updated with completion status
 
 ## Review Guidance
@@ -182,3 +182,4 @@ Run the exact scenario from the spec and verify the result matches $0.35.
 
 - 2025-12-02T00:00:00Z – system – lane=planned – Prompt created via /spec-kitty.tasks
 - 2025-12-03T18:39:23Z – claude – shell_pid=82543 – lane=doing – Started verification and testing
+- 2025-12-03T18:42:11Z – claude – shell_pid=82990 – lane=for_review – Verified implementation and added 4 tests for partial inventory scenarios

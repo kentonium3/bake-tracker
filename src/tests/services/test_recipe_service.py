@@ -641,3 +641,260 @@ class TestCalculateEstimatedCost:
             recipe_service.calculate_estimated_cost(recipe.id)
 
         assert "no variants" in str(exc_info.value).lower()
+
+
+class TestPartialInventoryScenarios:
+    """Tests for partial inventory blended costing scenarios (WP04)."""
+
+    def test_partial_inventory_full_coverage_no_fallback(self, test_db):
+        """Test: When pantry has more than needed, uses only FIFO costs (no fallback)."""
+        # Setup
+        ingredient = ingredient_service.create_ingredient({
+            "name": "Full Coverage Flour",
+            "category": "Flour",
+            "recipe_unit": "cup",
+        })
+
+        variant = variant_service.create_variant(ingredient.slug, {
+            "brand": "Test Brand",
+            "purchase_unit": "cup",
+            "purchase_quantity": Decimal("10.0"),
+            "is_preferred": True
+        })
+        variant_service.set_preferred_variant(variant.id)
+
+        # Add 5 cups to pantry at $0.10/cup (more than needed)
+        lot = pantry_service.add_to_pantry(
+            variant_id=variant.id,
+            quantity=Decimal("5.0"),
+            purchase_date=date(2025, 1, 1)
+        )
+        pantry_service.update_pantry_item(lot.id, {"unit_cost": 0.10})
+
+        # Record a purchase for fallback at HIGHER price - should NOT be used
+        purchase_service.record_purchase(
+            variant_id=variant.id,
+            quantity=Decimal("10.0"),
+            total_cost=Decimal("5.00"),  # $0.50/cup - expensive!
+            purchase_date=date(2025, 1, 15)
+        )
+
+        # Create recipe needing 2 cups (pantry has 5)
+        recipe = recipe_service.create_recipe(
+            {"name": "Full Coverage Recipe", "category": "Cookies", "yield_quantity": 1, "yield_unit": "batch"},
+            [{"ingredient_id": ingredient.id, "quantity": 2.0, "unit": "cup"}]
+        )
+
+        # Act
+        cost = recipe_service.calculate_actual_cost(recipe.id)
+
+        # Assert: Only FIFO cost used (2 * $0.10 = $0.20), NOT fallback ($0.50/cup)
+        expected_cost = Decimal("0.20")
+        assert abs(cost - expected_cost) < Decimal("0.01"), \
+            f"Expected ${expected_cost} (FIFO only, no fallback), got ${cost}"
+
+    def test_partial_inventory_multiple_ingredients_mixed_coverage(self, test_db):
+        """Test: Multiple ingredients with varying coverage levels costed correctly."""
+        # Setup: Three ingredients with different coverage levels
+        # Flour: partial coverage (2 of 3 cups)
+        # Sugar: full coverage (5 of 1 cup)
+        # Butter: no coverage (0 of 2 cups)
+
+        flour = ingredient_service.create_ingredient({
+            "name": "Mixed Flour",
+            "category": "Flour",
+            "recipe_unit": "cup",
+        })
+        sugar = ingredient_service.create_ingredient({
+            "name": "Mixed Sugar",
+            "category": "Sugar",
+            "recipe_unit": "cup",
+        })
+        butter = ingredient_service.create_ingredient({
+            "name": "Mixed Butter",
+            "category": "Dairy",
+            "recipe_unit": "cup",
+        })
+
+        # Create variants
+        flour_variant = variant_service.create_variant(flour.slug, {
+            "brand": "Test Brand",
+            "purchase_unit": "cup",
+            "purchase_quantity": Decimal("10.0"),
+            "is_preferred": True
+        })
+        variant_service.set_preferred_variant(flour_variant.id)
+
+        sugar_variant = variant_service.create_variant(sugar.slug, {
+            "brand": "Test Brand",
+            "purchase_unit": "cup",
+            "purchase_quantity": Decimal("10.0"),
+            "is_preferred": True
+        })
+        variant_service.set_preferred_variant(sugar_variant.id)
+
+        butter_variant = variant_service.create_variant(butter.slug, {
+            "brand": "Test Brand",
+            "purchase_unit": "cup",
+            "purchase_quantity": Decimal("10.0"),
+            "is_preferred": True
+        })
+        variant_service.set_preferred_variant(butter_variant.id)
+
+        # Add pantry items
+        # Flour: 2 cups at $0.10/cup (partial coverage)
+        flour_lot = pantry_service.add_to_pantry(
+            variant_id=flour_variant.id,
+            quantity=Decimal("2.0"),
+            purchase_date=date(2025, 1, 1)
+        )
+        pantry_service.update_pantry_item(flour_lot.id, {"unit_cost": 0.10})
+
+        # Sugar: 5 cups at $0.20/cup (full coverage)
+        sugar_lot = pantry_service.add_to_pantry(
+            variant_id=sugar_variant.id,
+            quantity=Decimal("5.0"),
+            purchase_date=date(2025, 1, 1)
+        )
+        pantry_service.update_pantry_item(sugar_lot.id, {"unit_cost": 0.20})
+
+        # Butter: NO pantry inventory (zero coverage)
+
+        # Record purchases for fallback pricing
+        purchase_service.record_purchase(
+            variant_id=flour_variant.id,
+            quantity=Decimal("10.0"),
+            total_cost=Decimal("1.50"),  # $0.15/cup
+            purchase_date=date(2025, 1, 15)
+        )
+        purchase_service.record_purchase(
+            variant_id=sugar_variant.id,
+            quantity=Decimal("10.0"),
+            total_cost=Decimal("3.00"),  # $0.30/cup (won't be used - full coverage)
+            purchase_date=date(2025, 1, 15)
+        )
+        purchase_service.record_purchase(
+            variant_id=butter_variant.id,
+            quantity=Decimal("10.0"),
+            total_cost=Decimal("5.00"),  # $0.50/cup (100% fallback)
+            purchase_date=date(2025, 1, 15)
+        )
+
+        # Create recipe with all three ingredients
+        recipe = recipe_service.create_recipe(
+            {"name": "Mixed Coverage Recipe", "category": "Cookies", "yield_quantity": 1, "yield_unit": "batch"},
+            [
+                {"ingredient_id": flour.id, "quantity": 3.0, "unit": "cup"},   # 2 FIFO + 1 fallback
+                {"ingredient_id": sugar.id, "quantity": 1.0, "unit": "cup"},   # 1 FIFO only
+                {"ingredient_id": butter.id, "quantity": 2.0, "unit": "cup"},  # 2 fallback only
+            ]
+        )
+
+        # Act
+        cost = recipe_service.calculate_actual_cost(recipe.id)
+
+        # Assert:
+        # Flour: 2*$0.10 + 1*$0.15 = $0.35
+        # Sugar: 1*$0.20 = $0.20
+        # Butter: 2*$0.50 = $1.00
+        # Total: $1.55
+        expected_cost = Decimal("1.55")
+        assert abs(cost - expected_cost) < Decimal("0.01"), \
+            f"Expected ${expected_cost} (mixed coverage), got ${cost}"
+
+    def test_partial_inventory_exact_coverage_boundary(self, test_db):
+        """Test: Boundary condition - pantry has exactly what's needed (no shortfall)."""
+        # Setup
+        ingredient = ingredient_service.create_ingredient({
+            "name": "Exact Coverage Flour",
+            "category": "Flour",
+            "recipe_unit": "cup",
+        })
+
+        variant = variant_service.create_variant(ingredient.slug, {
+            "brand": "Test Brand",
+            "purchase_unit": "cup",
+            "purchase_quantity": Decimal("10.0"),
+            "is_preferred": True
+        })
+        variant_service.set_preferred_variant(variant.id)
+
+        # Add exactly 3 cups at $0.10/cup
+        lot = pantry_service.add_to_pantry(
+            variant_id=variant.id,
+            quantity=Decimal("3.0"),
+            purchase_date=date(2025, 1, 1)
+        )
+        pantry_service.update_pantry_item(lot.id, {"unit_cost": 0.10})
+
+        # Record expensive fallback (should NOT be used)
+        purchase_service.record_purchase(
+            variant_id=variant.id,
+            quantity=Decimal("10.0"),
+            total_cost=Decimal("10.00"),  # $1.00/cup
+            purchase_date=date(2025, 1, 15)
+        )
+
+        # Create recipe needing exactly 3 cups
+        recipe = recipe_service.create_recipe(
+            {"name": "Exact Coverage Recipe", "category": "Cookies", "yield_quantity": 1, "yield_unit": "batch"},
+            [{"ingredient_id": ingredient.id, "quantity": 3.0, "unit": "cup"}]
+        )
+
+        # Act
+        cost = recipe_service.calculate_actual_cost(recipe.id)
+
+        # Assert: Exactly 3 cups at $0.10 = $0.30 (no fallback)
+        expected_cost = Decimal("0.30")
+        assert abs(cost - expected_cost) < Decimal("0.01"), \
+            f"Expected ${expected_cost} (exact coverage), got ${cost}"
+
+    def test_partial_inventory_decimal_precision_maintained(self, test_db):
+        """Test: Decimal precision maintained in blended cost calculations."""
+        # Setup
+        ingredient = ingredient_service.create_ingredient({
+            "name": "Precision Blend Flour",
+            "category": "Flour",
+            "recipe_unit": "cup",
+        })
+
+        variant = variant_service.create_variant(ingredient.slug, {
+            "brand": "Test Brand",
+            "purchase_unit": "cup",
+            "purchase_quantity": Decimal("10.0"),
+            "is_preferred": True
+        })
+        variant_service.set_preferred_variant(variant.id)
+
+        # Add 1.5 cups at $0.123/cup (precise value)
+        lot = pantry_service.add_to_pantry(
+            variant_id=variant.id,
+            quantity=Decimal("1.5"),
+            purchase_date=date(2025, 1, 1)
+        )
+        pantry_service.update_pantry_item(lot.id, {"unit_cost": 0.123})
+
+        # Record fallback at $0.456/cup (precise value)
+        purchase_service.record_purchase(
+            variant_id=variant.id,
+            quantity=Decimal("10.0"),
+            total_cost=Decimal("4.56"),  # $0.456/cup
+            purchase_date=date(2025, 1, 15)
+        )
+
+        # Create recipe needing 2.5 cups (1 cup shortfall)
+        recipe = recipe_service.create_recipe(
+            {"name": "Precision Recipe", "category": "Cookies", "yield_quantity": 1, "yield_unit": "batch"},
+            [{"ingredient_id": ingredient.id, "quantity": 2.5, "unit": "cup"}]
+        )
+
+        # Act
+        cost = recipe_service.calculate_actual_cost(recipe.id)
+
+        # Assert: 1.5 * $0.123 + 1.0 * $0.456 = $0.1845 + $0.456 = $0.6405
+        expected_cost = Decimal("0.6405")
+        assert abs(cost - expected_cost) < Decimal("0.001"), \
+            f"Expected ${expected_cost} (precise calculation), got ${cost}"
+
+        # Verify result is Decimal type
+        assert isinstance(cost, Decimal), f"Expected Decimal, got {type(cost)}"
