@@ -15,7 +15,7 @@
 
 **Goal**: Add `dry_run=True` parameter to `consume_fifo()` enabling read-only FIFO cost simulation.
 **Independent Test**: Call `consume_fifo(ingredient_slug, quantity, dry_run=True)` and verify pantry quantities unchanged, cost returned.
-**Prompt**: `tasks/doing/WP01-pantry-dry-run.md`
+**Prompt**: `tasks/done/WP01-pantry-dry-run.md`
 **Status**: COMPLETE - All tests passing (14 tests: 8 dry_run + 6 FIFO scenarios)
 
 ### Included Subtasks
