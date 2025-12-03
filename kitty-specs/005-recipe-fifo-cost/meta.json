@@ -1,7 +1,24 @@
 {
+  "accept_commit": null,
+  "acceptance_history": [
+    {
+      "accepted_at": "2025-12-03T19:23:34Z",
+      "accepted_by": "claude",
+      "accepted_from_commit": "8e50b4d7e303b2017b838534b411f8e4b1fc467a",
+      "branch": "005-recipe-fifo-cost",
+      "mode": "pr",
+      "validation_commands": [
+        "pytest src/tests/services/test_recipe_service.py src/tests/services/test_pantry_service.py src/tests/integration/test_fifo_scenarios.py -v"
+      ]
+    }
+  ],
+  "acceptance_mode": "pr",
+  "accepted_at": "2025-12-03T19:23:34Z",
+  "accepted_by": "claude",
+  "accepted_from_commit": "8e50b4d7e303b2017b838534b411f8e4b1fc467a",
+  "created_at": "2025-12-01T23:47:02Z",
   "feature_number": "005",
-  "slug": "005-recipe-fifo-cost",
   "friendly_name": "Recipe FIFO Cost Integration",
-  "source_description": "Update RecipeService to calculate recipe costs using actual pantry inventory costs via FIFO consumption logic",
-  "created_at": "2025-12-01T23:47:02Z"
+  "slug": "005-recipe-fifo-cost",
+  "source_description": "Update RecipeService to calculate recipe costs using actual pantry inventory costs via FIFO consumption logic"
 }
