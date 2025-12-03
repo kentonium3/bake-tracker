@@ -96,6 +96,25 @@ Features follow a documentation-first workflow:
 - **Git**: Descriptive commit messages in imperative mood. Never commit secrets.
 - **Context**: Read `plan.md`, `tasks.md`, and relevant artifacts at session start
 
+## Spec-Kitty Workflow Compliance (NON-NEGOTIABLE)
+
+This project uses spec-kitty for feature development. The workflow is AUTHORITATIVE.
+
+**STOP and ask the user if:**
+- A `/spec-kitty.*` command fails or errors
+- Task lane transitions don't work as expected
+- Acceptance checks fail
+- Any workflow step produces unexpected results
+
+**NEVER manually:**
+- Move files between `planned/`, `doing/`, `for_review/`, `done/` directories
+- Edit task frontmatter fields (`lane`, `review_status`, `assignee`, etc.)
+- Run `git worktree` commands outside of `/spec-kitty.merge`
+- "Fix" git state to make acceptance pass
+- Simulate what a workflow command "should have done"
+
+**The correct response to workflow issues is to STOP and report, not to work around.**
+
 ## Key Design Decisions
 
 - **Ingredients vs Variants**: Recipes reference generic Ingredients; Pantry holds specific Variants (brands). This enables recipe sharing and brand flexibility.
