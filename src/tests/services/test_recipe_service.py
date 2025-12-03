@@ -1,0 +1,368 @@
+"""Tests for RecipeService, focusing on calculate_actual_cost() functionality.
+
+Tests cover:
+- FIFO ordering verification (oldest inventory consumed first)
+- Read-only behavior (pantry unchanged after cost calculation)
+- Multiple ingredients summation
+- Unit conversion (volume <-> weight)
+- Error handling (RecipeNotFound, IngredientNotFound, ValidationError)
+- Shortfall handling with fallback pricing
+"""
+
+import pytest
+from decimal import Decimal
+from datetime import date
+
+from src.services import (
+    recipe_service,
+    ingredient_service,
+    variant_service,
+    pantry_service,
+    purchase_service
+)
+from src.services.exceptions import RecipeNotFound, IngredientNotFound, ValidationError
+from src.models import Recipe, RecipeIngredient
+
+
+class TestCalculateActualCost:
+    """Tests for calculate_actual_cost() method."""
+
+    def test_calculate_actual_cost_uses_fifo_ordering(self, test_db):
+        """Test: FIFO ordering - oldest inventory costs used first."""
+        # Setup: Create ingredient and variant
+        ingredient = ingredient_service.create_ingredient({
+            "name": "Test FIFO Flour",
+            "category": "Flour",
+            "recipe_unit": "cup",
+        })
+
+        variant = variant_service.create_variant(ingredient.slug, {
+            "brand": "Test Brand",
+            "purchase_unit": "cup",
+            "purchase_quantity": Decimal("10.0")
+        })
+
+        # Add two lots with different costs (older lot cheaper)
+        # Lot 1: 2 cups at $0.10/cup (older - should be used)
+        lot1 = pantry_service.add_to_pantry(
+            variant_id=variant.id,
+            quantity=Decimal("2.0"),
+            purchase_date=date(2025, 1, 1)
+        )
+        pantry_service.update_pantry_item(lot1.id, {"unit_cost": 0.10})
+
+        # Lot 2: 2 cups at $0.12/cup (newer - should NOT be used if qty <= 2)
+        lot2 = pantry_service.add_to_pantry(
+            variant_id=variant.id,
+            quantity=Decimal("2.0"),
+            purchase_date=date(2025, 2, 1)
+        )
+        pantry_service.update_pantry_item(lot2.id, {"unit_cost": 0.12})
+
+        # Create recipe needing 2 cups
+        recipe = recipe_service.create_recipe(
+            {"name": "FIFO Test Recipe", "category": "Cookies", "yield_quantity": 1, "yield_unit": "batch"},
+            [{"ingredient_id": ingredient.id, "quantity": 2.0, "unit": "cup"}]
+        )
+
+        # Act
+        cost = recipe_service.calculate_actual_cost(recipe.id)
+
+        # Assert: Should use FIFO (2 cups * $0.10 = $0.20)
+        expected_cost = Decimal("0.20")
+        assert abs(cost - expected_cost) < Decimal("0.01"), \
+            f"Expected ${expected_cost}, got ${cost}. FIFO should use oldest lot at $0.10/cup"
+
+    def test_calculate_actual_cost_does_not_modify_pantry(self, test_db):
+        """Test: Pantry quantities remain unchanged after cost calculation."""
+        # Setup
+        ingredient = ingredient_service.create_ingredient({
+            "name": "Test Pantry Unchanged",
+            "category": "Flour",
+            "recipe_unit": "cup",
+        })
+
+        variant = variant_service.create_variant(ingredient.slug, {
+            "brand": "Test Brand",
+            "purchase_unit": "cup",
+            "purchase_quantity": Decimal("10.0")
+        })
+
+        initial_quantity = Decimal("5.0")
+        lot = pantry_service.add_to_pantry(
+            variant_id=variant.id,
+            quantity=initial_quantity,
+            purchase_date=date(2025, 1, 1)
+        )
+        pantry_service.update_pantry_item(lot.id, {"unit_cost": 0.10})
+
+        recipe = recipe_service.create_recipe(
+            {"name": "Pantry Test Recipe", "category": "Cookies", "yield_quantity": 1, "yield_unit": "batch"},
+            [{"ingredient_id": ingredient.id, "quantity": 3.0, "unit": "cup"}]
+        )
+
+        # Capture pantry state before
+        items_before = pantry_service.get_pantry_items(ingredient_slug=ingredient.slug)
+        qty_before = Decimal(str(items_before[0].quantity))
+
+        # Act
+        recipe_service.calculate_actual_cost(recipe.id)
+
+        # Assert: Pantry unchanged
+        items_after = pantry_service.get_pantry_items(ingredient_slug=ingredient.slug)
+        qty_after = Decimal(str(items_after[0].quantity))
+
+        assert abs(qty_after - qty_before) < Decimal("0.001"), \
+            f"Pantry quantity changed from {qty_before} to {qty_after}. Should be read-only."
+
+    def test_calculate_actual_cost_handles_multiple_ingredients(self, test_db):
+        """Test: Multiple ingredients are summed correctly."""
+        # Setup: Create two ingredients
+        flour = ingredient_service.create_ingredient({
+            "name": "Multi Test Flour",
+            "category": "Flour",
+            "recipe_unit": "cup",
+        })
+        sugar = ingredient_service.create_ingredient({
+            "name": "Multi Test Sugar",
+            "category": "Sugar",
+            "recipe_unit": "cup",
+        })
+
+        # Create variants
+        flour_variant = variant_service.create_variant(flour.slug, {
+            "brand": "Test Brand",
+            "purchase_unit": "cup",
+            "purchase_quantity": Decimal("10.0")
+        })
+        sugar_variant = variant_service.create_variant(sugar.slug, {
+            "brand": "Test Brand",
+            "purchase_unit": "cup",
+            "purchase_quantity": Decimal("10.0")
+        })
+
+        # Add pantry items
+        flour_lot = pantry_service.add_to_pantry(
+            variant_id=flour_variant.id,
+            quantity=Decimal("5.0"),
+            purchase_date=date(2025, 1, 1)
+        )
+        pantry_service.update_pantry_item(flour_lot.id, {"unit_cost": 0.10})  # $0.10/cup
+
+        sugar_lot = pantry_service.add_to_pantry(
+            variant_id=sugar_variant.id,
+            quantity=Decimal("5.0"),
+            purchase_date=date(2025, 1, 1)
+        )
+        pantry_service.update_pantry_item(sugar_lot.id, {"unit_cost": 0.20})  # $0.20/cup
+
+        # Create recipe with both ingredients
+        recipe = recipe_service.create_recipe(
+            {"name": "Multi Ingredient Recipe", "category": "Cookies", "yield_quantity": 1, "yield_unit": "batch"},
+            [
+                {"ingredient_id": flour.id, "quantity": 2.0, "unit": "cup"},  # 2 * $0.10 = $0.20
+                {"ingredient_id": sugar.id, "quantity": 1.0, "unit": "cup"},  # 1 * $0.20 = $0.20
+            ]
+        )
+
+        # Act
+        cost = recipe_service.calculate_actual_cost(recipe.id)
+
+        # Assert: Total = $0.20 + $0.20 = $0.40
+        expected_cost = Decimal("0.40")
+        assert abs(cost - expected_cost) < Decimal("0.01"), \
+            f"Expected ${expected_cost}, got ${cost}"
+
+    def test_calculate_actual_cost_empty_recipe_returns_zero(self, test_db):
+        """Test: Empty recipe (no ingredients) returns $0.00."""
+        # Create recipe with no ingredients
+        recipe = recipe_service.create_recipe(
+            {"name": "Empty Recipe", "category": "Cookies", "yield_quantity": 1, "yield_unit": "batch"},
+            []  # No ingredients
+        )
+
+        # Act
+        cost = recipe_service.calculate_actual_cost(recipe.id)
+
+        # Assert
+        assert cost == Decimal("0.00"), f"Expected $0.00 for empty recipe, got ${cost}"
+
+    def test_calculate_actual_cost_raises_recipe_not_found(self, test_db):
+        """Test: Invalid recipe_id raises RecipeNotFound."""
+        with pytest.raises(RecipeNotFound):
+            recipe_service.calculate_actual_cost(99999)  # Non-existent ID
+
+    def test_calculate_actual_cost_with_shortfall_uses_fallback(self, test_db):
+        """Test: When pantry insufficient, uses fallback pricing for shortfall."""
+        # Setup
+        ingredient = ingredient_service.create_ingredient({
+            "name": "Shortfall Test Flour",
+            "category": "Flour",
+            "recipe_unit": "cup",
+        })
+
+        variant = variant_service.create_variant(ingredient.slug, {
+            "brand": "Test Brand",
+            "purchase_unit": "cup",
+            "purchase_quantity": Decimal("10.0"),
+            "is_preferred": True
+        })
+        variant_service.set_preferred_variant(variant.id)
+
+        # Add only 2 cups to pantry at $0.10/cup
+        lot = pantry_service.add_to_pantry(
+            variant_id=variant.id,
+            quantity=Decimal("2.0"),
+            purchase_date=date(2025, 1, 1)
+        )
+        pantry_service.update_pantry_item(lot.id, {"unit_cost": 0.10})
+
+        # Record a purchase for fallback pricing at $0.15/cup
+        purchase_service.record_purchase(
+            variant_id=variant.id,
+            quantity=Decimal("10.0"),
+            total_cost=Decimal("1.50"),  # $0.15/cup
+            purchase_date=date(2025, 1, 15)
+        )
+
+        # Create recipe needing 3 cups (1 cup shortfall)
+        recipe = recipe_service.create_recipe(
+            {"name": "Shortfall Recipe", "category": "Cookies", "yield_quantity": 1, "yield_unit": "batch"},
+            [{"ingredient_id": ingredient.id, "quantity": 3.0, "unit": "cup"}]
+        )
+
+        # Act
+        cost = recipe_service.calculate_actual_cost(recipe.id)
+
+        # Assert: 2 cups * $0.10 (FIFO) + 1 cup * $0.15 (fallback) = $0.35
+        expected_cost = Decimal("0.35")
+        assert abs(cost - expected_cost) < Decimal("0.01"), \
+            f"Expected ${expected_cost} (FIFO + fallback), got ${cost}"
+
+    def test_calculate_actual_cost_no_pantry_uses_all_fallback(self, test_db):
+        """Test: Empty pantry uses 100% fallback pricing."""
+        # Setup
+        ingredient = ingredient_service.create_ingredient({
+            "name": "No Pantry Flour",
+            "category": "Flour",
+            "recipe_unit": "cup",
+        })
+
+        variant = variant_service.create_variant(ingredient.slug, {
+            "brand": "Test Brand",
+            "purchase_unit": "cup",
+            "purchase_quantity": Decimal("10.0")
+        })
+        variant_service.set_preferred_variant(variant.id)
+
+        # Record purchase for fallback pricing (no pantry inventory)
+        purchase_service.record_purchase(
+            variant_id=variant.id,
+            quantity=Decimal("10.0"),
+            total_cost=Decimal("2.00"),  # $0.20/cup
+            purchase_date=date(2025, 1, 15)
+        )
+
+        # Create recipe needing 3 cups
+        recipe = recipe_service.create_recipe(
+            {"name": "No Pantry Recipe", "category": "Cookies", "yield_quantity": 1, "yield_unit": "batch"},
+            [{"ingredient_id": ingredient.id, "quantity": 3.0, "unit": "cup"}]
+        )
+
+        # Act
+        cost = recipe_service.calculate_actual_cost(recipe.id)
+
+        # Assert: 3 cups * $0.20 (all fallback) = $0.60
+        expected_cost = Decimal("0.60")
+        assert abs(cost - expected_cost) < Decimal("0.01"), \
+            f"Expected ${expected_cost} (100% fallback), got ${cost}"
+
+    def test_calculate_actual_cost_raises_validation_error_no_purchase_history(self, test_db):
+        """Test: Raises ValidationError when no purchase history for fallback."""
+        # Setup: Ingredient with variant but no purchase history and no pantry
+        ingredient = ingredient_service.create_ingredient({
+            "name": "No History Flour",
+            "category": "Flour",
+            "recipe_unit": "cup",
+        })
+
+        variant = variant_service.create_variant(ingredient.slug, {
+            "brand": "Test Brand",
+            "purchase_unit": "cup",
+            "purchase_quantity": Decimal("10.0")
+        })
+
+        # Create recipe (no pantry = shortfall, but no purchase history for fallback)
+        recipe = recipe_service.create_recipe(
+            {"name": "No History Recipe", "category": "Cookies", "yield_quantity": 1, "yield_unit": "batch"},
+            [{"ingredient_id": ingredient.id, "quantity": 2.0, "unit": "cup"}]
+        )
+
+        # Act & Assert
+        with pytest.raises(ValidationError) as exc_info:
+            recipe_service.calculate_actual_cost(recipe.id)
+
+        # Check for the expected error message (the message includes: "no purchase history")
+        error_text = str(exc_info.value).lower().replace("; ", "")
+        assert "purchase history" in error_text or "no purchase" in error_text
+
+    def test_calculate_actual_cost_raises_ingredient_not_found_no_variants(self, test_db):
+        """Test: Raises IngredientNotFound when ingredient has no variants."""
+        # Setup: Ingredient with NO variants
+        ingredient = ingredient_service.create_ingredient({
+            "name": "No Variants Flour",
+            "category": "Flour",
+            "recipe_unit": "cup",
+        })
+
+        # Create recipe with this ingredient (no variants, so shortfall can't be priced)
+        recipe = recipe_service.create_recipe(
+            {"name": "No Variants Recipe", "category": "Cookies", "yield_quantity": 1, "yield_unit": "batch"},
+            [{"ingredient_id": ingredient.id, "quantity": 2.0, "unit": "cup"}]
+        )
+
+        # Act & Assert
+        with pytest.raises(IngredientNotFound) as exc_info:
+            recipe_service.calculate_actual_cost(recipe.id)
+
+        assert "no variants" in str(exc_info.value).lower()
+
+    def test_calculate_actual_cost_decimal_precision(self, test_db):
+        """Test: Decimal precision maintained in cost calculations."""
+        # Setup
+        ingredient = ingredient_service.create_ingredient({
+            "name": "Precision Test Flour",
+            "category": "Flour",
+            "recipe_unit": "cup",
+        })
+
+        variant = variant_service.create_variant(ingredient.slug, {
+            "brand": "Test Brand",
+            "purchase_unit": "cup",
+            "purchase_quantity": Decimal("10.0")
+        })
+
+        # Add pantry with precise unit cost
+        lot = pantry_service.add_to_pantry(
+            variant_id=variant.id,
+            quantity=Decimal("10.0"),
+            purchase_date=date(2025, 1, 1)
+        )
+        pantry_service.update_pantry_item(lot.id, {"unit_cost": 0.123})  # Precise value
+
+        # Create recipe
+        recipe = recipe_service.create_recipe(
+            {"name": "Precision Recipe", "category": "Cookies", "yield_quantity": 1, "yield_unit": "batch"},
+            [{"ingredient_id": ingredient.id, "quantity": 3.0, "unit": "cup"}]
+        )
+
+        # Act
+        cost = recipe_service.calculate_actual_cost(recipe.id)
+
+        # Assert: Result is Decimal type
+        assert isinstance(cost, Decimal), f"Expected Decimal, got {type(cost)}"
+
+        # Assert: Precision maintained (3 * $0.123 = $0.369)
+        expected_cost = Decimal("0.369")
+        assert abs(cost - expected_cost) < Decimal("0.001"), \
+            f"Expected ${expected_cost}, got ${cost}"

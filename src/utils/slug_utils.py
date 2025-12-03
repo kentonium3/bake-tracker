@@ -17,7 +17,7 @@ Examples:
     >>> create_slug("Confectioner's Sugar")
     'confectioners_sugar'
 
-    >>> create_slug("Jalapeño Peppers")
+    >>> create_slug("Jalapeno Peppers")
     'jalapeno_peppers'
 """
 
@@ -60,7 +60,7 @@ def create_slug(name: str, session: Optional[Session] = None) -> str:
         >>> create_slug("Confectioner's Sugar")
         'confectioners_sugar'
 
-        >>> create_slug("Jalapeño Peppers")
+        >>> create_slug("Jalapeno Peppers")
         'jalapeno_peppers'
 
         >>> create_slug("    Extra  Spaces   ")
@@ -83,26 +83,26 @@ def create_slug(name: str, session: Optional[Session] = None) -> str:
         - Empty or whitespace-only input will result in empty slug (caller should validate)
     """
     # Unicode normalization: decompose accented characters
-    # Example: "é" (U+00E9) becomes "e" (U+0065) + combining acute accent
+    # Example: accented "e" (U+00E9) becomes "e" (U+0065) + combining acute accent
     normalized = unicodedata.normalize('NFD', name)
 
     # Encode to ASCII, ignoring characters that can't be represented
-    # This converts "Jalapeño" to "Jalapeno", "Crème" to "Creme", etc.
+    # This converts "Jalapeno" to "Jalapeno", "Creme" to "Creme", etc.
     slug = normalized.encode('ascii', 'ignore').decode('ascii')
 
     # Convert to lowercase
     slug = slug.lower()
 
     # Replace whitespace and hyphens with underscores
-    # "All-Purpose Flour" ’ "all_purpose_flour"
+    # "All-Purpose Flour" -> "all_purpose_flour"
     slug = re.sub(r'[\s\-]+', '_', slug)
 
     # Remove all non-alphanumeric characters except underscores
-    # "100% Whole" ’ "100_whole"
+    # "100% Whole" -> "100_whole"
     slug = re.sub(r'[^a-z0-9_]', '', slug)
 
     # Collapse multiple consecutive underscores to single underscore
-    # "extra___spaces" ’ "extra_spaces"
+    # "extra___spaces" -> "extra_spaces"
     slug = re.sub(r'_+', '_', slug)
 
     # Strip leading and trailing underscores

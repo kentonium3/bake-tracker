@@ -43,20 +43,21 @@
 
 ---
 
-## Work Package WP02: User Story 1 – Calculate Actual Recipe Cost (Priority: P1) 🎯 MVP
+## Work Package WP02: User Story 1 – Calculate Actual Recipe Cost (Priority: P1) 🎯 MVP ✅ COMPLETE
 
 **Goal**: Implement `calculate_actual_cost()` in RecipeService using FIFO pantry inventory.
 **Independent Test**: Create recipe with known ingredient quantities, pantry with known costs at different dates, verify FIFO ordering in returned cost.
-**Prompt**: `tasks/planned/WP02-actual-cost.md`
+**Prompt**: `tasks/doing/WP02-actual-cost.md`
+**Status**: COMPLETE - All 10 tests passing
 
 ### Included Subtasks
-- [ ] T006 Implement `calculate_actual_cost(recipe_id: int) -> Decimal` method shell
-- [ ] T007 Load Recipe with RecipeIngredients, iterate each ingredient
-- [ ] T008 For each ingredient: convert units and call `consume_fifo(dry_run=True)`
-- [ ] T009 Implement fallback to preferred variant pricing for any shortfall
-- [ ] T010 Sum all ingredient costs and return Decimal total
-- [ ] T011 Implement fail-fast error handling (RecipeNotFound, IngredientNotFound, ValidationError)
-- [ ] T012 Write tests for `calculate_actual_cost()` covering FIFO ordering and read-only behavior
+- [x] T006 Implement `calculate_actual_cost(recipe_id: int) -> Decimal` method shell
+- [x] T007 Load Recipe with RecipeIngredients, iterate each ingredient
+- [x] T008 For each ingredient: convert units and call `consume_fifo(dry_run=True)`
+- [x] T009 Implement fallback to preferred variant pricing for any shortfall
+- [x] T010 Sum all ingredient costs and return Decimal total
+- [x] T011 Implement fail-fast error handling (RecipeNotFound, IngredientNotFound, ValidationError)
+- [x] T012 Write tests for `calculate_actual_cost()` covering FIFO ordering and read-only behavior
 
 ### Implementation Notes
 1. Add method to `src/services/recipe_service.py` after existing cost methods (~line 412+)
@@ -204,13 +205,13 @@ WP01 (PantryService dry_run)
 | T003 | Add `total_cost` to result dict | WP01 | P0 | ✅ Done |
 | T004 | Add `unit_cost` to breakdown items | WP01 | P0 | ✅ Done |
 | T005 | Write tests for dry_run behavior | WP01 | P0 | ✅ Done |
-| T006 | Implement `calculate_actual_cost()` shell | WP02 | P1 | No |
-| T007 | Iterate RecipeIngredients with unit conversion | WP02 | P1 | No |
-| T008 | Call `consume_fifo(dry_run=True)` | WP02 | P1 | No |
-| T009 | Implement fallback to preferred variant | WP02 | P1 | No |
-| T010 | Sum ingredient costs, return Decimal | WP02 | P1 | No |
-| T011 | Implement fail-fast error handling | WP02 | P1 | No |
-| T012 | Write tests for actual cost calculation | WP02 | P1 | No |
+| T006 | Implement `calculate_actual_cost()` shell | WP02 | P1 | ✅ Done |
+| T007 | Iterate RecipeIngredients with unit conversion | WP02 | P1 | ✅ Done |
+| T008 | Call `consume_fifo(dry_run=True)` | WP02 | P1 | ✅ Done |
+| T009 | Implement fallback to preferred variant | WP02 | P1 | ✅ Done |
+| T010 | Sum ingredient costs, return Decimal | WP02 | P1 | ✅ Done |
+| T011 | Implement fail-fast error handling | WP02 | P1 | ✅ Done |
+| T012 | Write tests for actual cost calculation | WP02 | P1 | ✅ Done |
 | T013 | Implement `calculate_estimated_cost()` shell | WP03 | P2 | No |
 | T014 | Get preferred variant for each ingredient | WP03 | P2 | No |
 | T015 | Get most recent purchase price | WP03 | P2 | No |

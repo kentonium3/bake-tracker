@@ -27,6 +27,7 @@ class Ingredient(BaseModel):
         name: Ingredient name (e.g., "All-Purpose Flour", "White Granulated Sugar")
         slug: URL-friendly identifier (e.g., "all_purpose_flour")
         category: Category (e.g., "Flour", "Sugar", "Dairy")
+        recipe_unit: Unit used in recipes (e.g., "cup", "oz", "g")
         description: Optional detailed description
         notes: Additional notes
 
@@ -51,6 +52,7 @@ class Ingredient(BaseModel):
     name = Column(String(200), nullable=False, unique=True, index=True)
     slug = Column(String(200), nullable=True, unique=True, index=True)  # Will be required after migration
     category = Column(String(100), nullable=False, index=True)
+    recipe_unit = Column(String(50), nullable=True)  # Unit used in recipes (e.g., "cup", "oz", "g")
 
     # Additional information
     description = Column(Text, nullable=True)
