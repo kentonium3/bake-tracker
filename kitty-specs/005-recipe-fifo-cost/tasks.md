@@ -47,7 +47,7 @@
 
 **Goal**: Implement `calculate_actual_cost()` in RecipeService using FIFO pantry inventory.
 **Independent Test**: Create recipe with known ingredient quantities, pantry with known costs at different dates, verify FIFO ordering in returned cost.
-**Prompt**: `tasks/doing/WP02-actual-cost.md`
+**Prompt**: `tasks/done/WP02-actual-cost.md`
 **Status**: COMPLETE - All 10 tests passing
 
 ### Included Subtasks
