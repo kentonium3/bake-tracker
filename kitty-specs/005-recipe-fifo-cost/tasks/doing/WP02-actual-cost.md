@@ -10,10 +10,10 @@ subtasks:
   - "T012"
 title: "User Story 1 - Calculate Actual Recipe Cost"
 phase: "Phase 1 - Core Feature"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "claude"
+shell_pid: "75289"
 review_status: ""
 reviewed_by: ""
 history:
@@ -245,3 +245,4 @@ pytest src/tests/test_recipe_service.py -v --cov=src/services/recipe_service
 ## Activity Log
 
 - 2025-12-02T00:00:00Z – system – lane=planned – Prompt created via /spec-kitty.tasks
+- 2025-12-03T15:20:04Z – claude – shell_pid=75289 – lane=doing – Started implementation of calculate_actual_cost()
