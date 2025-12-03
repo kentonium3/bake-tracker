@@ -1,0 +1,7 @@
+date,decision_id,finding,source,notes
+2025-12-02,D1,RecipeService pattern follows existing service conventions,src/services/recipe_service.py,Existing service methods provide template for new cost methods
+2025-12-02,D2,consume_fifo() exists and implements FIFO ordering correctly,src/services/pantry_service.py,Needs dry_run parameter added for read-only costing
+2025-12-02,D3,INGREDIENT_DENSITIES contains ~40 baking ingredients with g/cup values,src/utils/constants.py,Sufficient coverage for typical recipes
+2025-12-02,D3,get_ingredient_density() provides fuzzy matching for ingredient names,src/utils/constants.py,Handles name normalization and partial matching
+2025-12-02,D3,convert_any_units() supports density-based volume-weight conversion,src/services/unit_converter.py,Ready to use for recipe-pantry unit conversion
+2025-12-02,D4,Fail-fast error handling matches user preference for data accuracy,planning-interrogation,User confirmed upstream controls should enforce data completeness

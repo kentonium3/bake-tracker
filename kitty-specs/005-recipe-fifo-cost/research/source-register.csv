@@ -1,0 +1,12 @@
+source_id,type,path_or_url,description,accessed_date
+SRC-001,code,src/services/unit_converter.py,Unit conversion service with density support,2025-12-02
+SRC-002,code,src/utils/constants.py,INGREDIENT_DENSITIES constants and get_ingredient_density(),2025-12-02
+SRC-003,code,src/services/pantry_service.py,FIFO consumption logic,2025-12-02
+SRC-004,code,src/services/recipe_service.py,Existing recipe service patterns,2025-12-02
+SRC-005,code,src/services/variant_service.py,Preferred variant lookup,2025-12-02
+SRC-006,code,src/services/purchase_service.py,Purchase history and pricing,2025-12-02
+SRC-007,code,src/models/ingredient.py,Ingredient model with density_g_per_ml field,2025-12-02
+SRC-008,code,src/models/recipe.py,Recipe and RecipeIngredient models,2025-12-02
+SRC-009,code,src/models/pantry_item.py,PantryItem model with FIFO ordering,2025-12-02
+SRC-010,code,src/models/variant.py,Variant model with is_preferred flag,2025-12-02
+SRC-011,document,.kittify/memory/constitution.md,Project constitution with FIFO accuracy principle,2025-12-02

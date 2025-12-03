@@ -31,6 +31,7 @@ class PantryItem(BaseModel):
     Attributes:
         variant_id: Foreign key to Variant
         quantity: Quantity on hand (in purchase units)
+        unit_cost: Cost per unit at time of purchase (for FIFO costing)
         purchase_date: When this item was purchased
         expiration_date: When it expires (if applicable)
         opened_date: When package was opened (if applicable)
@@ -51,6 +52,7 @@ class PantryItem(BaseModel):
 
     # Inventory tracking
     quantity = Column(Float, nullable=False, default=0.0)  # Quantity on hand (qty_on_hand in spec)
+    unit_cost = Column(Float, nullable=True)  # Cost per unit at time of purchase (for FIFO costing)
 
     # Date tracking
     purchase_date = Column(Date, nullable=True, index=True)  # When purchased

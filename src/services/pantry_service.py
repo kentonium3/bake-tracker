@@ -226,7 +226,11 @@ def get_total_quantity(ingredient_slug: str) -> Dict[str, Decimal]:
       return unit_totals
 
 
-def consume_fifo(ingredient_slug: str, quantity_needed: Decimal) -> Dict[str, Any]:
+def consume_fifo(
+      ingredient_slug: str,
+      quantity_needed: Decimal,
+      dry_run: bool = False
+) -> Dict[str, Any]:
       """Consume pantry inventory using FIFO (First In, First Out) logic.
 
       **CRITICAL FUNCTION**: This implements the core inventory consumption algorithm.
@@ -235,30 +239,36 @@ def consume_fifo(ingredient_slug: str, quantity_needed: Decimal) -> Dict[str, An
           1. Query all lots for ingredient ordered by purchase_date ASC (oldest first)
           2. Iterate through lots, consuming from each until quantity_needed satisfied
           3. Convert between lot units and ingredient recipe_unit as needed
-          4. Update lot quantities atomically within single transaction
+          4. Update lot quantities atomically within single transaction (unless dry_run)
           5. Track consumption breakdown for audit trail
           6. Calculate shortfall if insufficient inventory
+          7. Calculate total FIFO cost of consumed inventory
 
       Args:
           ingredient_slug: Ingredient to consume from
           quantity_needed: Amount to consume in ingredient's recipe_unit
+          dry_run: If True, simulate consumption without modifying database.
+                   Returns cost data for recipe costing calculations.
+                   If False (default), actually consume inventory.
 
       Returns:
           Dict[str, Any]: Consumption result with keys:
               - "consumed" (Decimal): Amount actually consumed in recipe_unit
-              - "breakdown" (List[Dict]): Per-lot consumption details
+              - "breakdown" (List[Dict]): Per-lot consumption details including unit_cost
               - "shortfall" (Decimal): Amount not available (0.0 if satisfied)
               - "satisfied" (bool): True if quantity_needed fully consumed
+              - "total_cost" (Decimal): Total FIFO cost of consumed portion
 
       Raises:
           IngredientNotFoundBySlug: If ingredient_slug doesn't exist
           DatabaseError: If database operation fails
 
       Note:
-          - All updates occur within single transaction (atomic)
+          - All updates occur within single transaction (atomic) unless dry_run=True
           - Quantities maintained at 3 decimal precision
           - Unit conversion uses ingredient's unit_converter configuration
           - Empty lots (quantity=0) are kept for audit trail, not deleted
+          - When dry_run=True, pantry quantities are NOT modified (read-only)
       """
       from ..services.unit_converter import convert_any_units
 
@@ -280,6 +290,7 @@ def consume_fifo(ingredient_slug: str, quantity_needed: Decimal) -> Dict[str, An
               ).order_by(PantryItem.purchase_date.asc()).all()
 
               consumed = Decimal("0.0")
+              total_cost = Decimal("0.0")
               breakdown = []
               remaining_needed = quantity_needed
 
@@ -315,10 +326,25 @@ def consume_fifo(ingredient_slug: str, quantity_needed: Decimal) -> Dict[str, An
                       raise ValueError(f"Unit conversion failed: {error}")
                   to_consume_in_lot_unit = Decimal(str(to_consume_float))
 
-                  # Update lot quantity
-                  item.quantity -= float(to_consume_in_lot_unit)
+                  # Get unit cost from the pantry item (if available)
+                  item_unit_cost = Decimal(str(item.unit_cost)) if item.unit_cost else Decimal("0.0")
+
+                  # Calculate cost for this lot's consumption
+                  lot_cost = to_consume_in_lot_unit * item_unit_cost
+                  total_cost += lot_cost
+
+                  # Update lot quantity only if NOT dry_run
+                  if not dry_run:
+                      item.quantity -= float(to_consume_in_lot_unit)
+
                   consumed += to_consume_in_recipe_unit
                   remaining_needed -= to_consume_in_recipe_unit
+
+                  # Calculate remaining_in_lot (for dry_run, simulate the deduction)
+                  if dry_run:
+                      remaining_in_lot = item_qty_decimal - to_consume_in_lot_unit
+                  else:
+                      remaining_in_lot = Decimal(str(item.quantity))
 
                   breakdown.append({
                       "pantry_item_id": item.id,
@@ -326,10 +352,13 @@ def consume_fifo(ingredient_slug: str, quantity_needed: Decimal) -> Dict[str, An
                       "lot_date": item.purchase_date,
                       "quantity_consumed": to_consume_in_lot_unit,
                       "unit": item.variant.purchase_unit,
-                      "remaining_in_lot": Decimal(str(item.quantity))
+                      "remaining_in_lot": remaining_in_lot,
+                      "unit_cost": item_unit_cost
                   })
 
-                  session.flush()  # Persist update within transaction
+                  # Only flush to database if NOT dry_run
+                  if not dry_run:
+                      session.flush()  # Persist update within transaction
 
               # Calculate results
               shortfall = max(Decimal("0.0"), remaining_needed)
@@ -339,7 +368,8 @@ def consume_fifo(ingredient_slug: str, quantity_needed: Decimal) -> Dict[str, An
                   "consumed": consumed,
                   "breakdown": breakdown,
                   "shortfall": shortfall,
-                  "satisfied": satisfied
+                  "satisfied": satisfied,
+                  "total_cost": total_cost
               }
 
       except Exception as e:

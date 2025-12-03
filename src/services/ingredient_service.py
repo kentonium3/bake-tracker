@@ -108,6 +108,7 @@ def create_ingredient(ingredient_data: Dict[str, Any]) -> Ingredient:
                 slug=slug,
                 name=ingredient_data["name"],
                 category=ingredient_data["category"],
+                recipe_unit=ingredient_data.get("recipe_unit"),
                 description=ingredient_data.get("description"),
                 density_g_per_ml=ingredient_data.get("density_g_per_ml"),
                 moisture_pct=ingredient_data.get("moisture_pct"),
