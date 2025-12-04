@@ -8,7 +8,7 @@ subtasks:
 title: "Core Production Recording Service"
 phase: "Phase 2 - Service Layer"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude"
 shell_pid: "58999"
 review_status: "approved"

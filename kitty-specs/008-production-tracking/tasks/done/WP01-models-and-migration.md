@@ -10,7 +10,7 @@ subtasks:
 title: "Models & Database Migration"
 phase: "Phase 1 - Foundation"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude"
 shell_pid: "58999"
 review_status: "approved"
