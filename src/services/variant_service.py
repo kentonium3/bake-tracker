@@ -140,7 +140,7 @@ def create_variant(ingredient_slug: str, variant_data: Dict[str, Any]) -> Varian
     except ServiceValidationError:
         raise
     except Exception as e:
-        raise DatabaseError(f"Failed to create variant", original_error=e)
+        raise DatabaseError("Failed to create variant", original_error=e)
 
 
 def get_variant(variant_id: int) -> Variant:
@@ -413,19 +413,17 @@ def check_variant_dependencies(variant_id: int) -> Dict[str, int]:
     # Import models here to avoid circular dependencies
     # from ..models import PantryItem, Purchase
 
-    # Verify variant exists
-    variant = get_variant(variant_id)
+    # Verify variant exists (validates variant_id)
+    get_variant(variant_id)
 
-    with session_scope() as session:
-        # TODO: Implement when PantryItem model exists
-        pantry_count = 0
-        # pantry_count = session.query(PantryItem).filter_by(variant_id=variant_id).count()
+    # TODO: Implement when PantryItem and Purchase models are connected
+    # with session_scope() as session:
+    #     pantry_count = session.query(PantryItem).filter_by(variant_id=variant_id).count()
+    #     purchase_count = session.query(Purchase).filter_by(variant_id=variant_id).count()
+    pantry_count = 0
+    purchase_count = 0
 
-        # TODO: Implement when Purchase model exists
-        purchase_count = 0
-        # purchase_count = session.query(Purchase).filter_by(variant_id=variant_id).count()
-
-        return {"pantry_items": pantry_count, "purchases": purchase_count}
+    return {"pantry_items": pantry_count, "purchases": purchase_count}
 
 
 def search_variants_by_upc(upc: str) -> List[Variant]:

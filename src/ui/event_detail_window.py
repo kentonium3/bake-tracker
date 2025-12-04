@@ -10,7 +10,6 @@ Provides comprehensive interface for:
 
 import customtkinter as ctk
 from typing import Optional
-from tkinter import messagebox
 
 from src.models.event import Event, EventRecipientPackage
 from src.services import event_service

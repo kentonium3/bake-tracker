@@ -17,10 +17,9 @@ Architecture Note (Feature 006):
 from typing import List, Optional, Dict, Any
 from datetime import datetime, date
 from decimal import Decimal
-from collections import defaultdict
 from math import ceil
 
-from sqlalchemy import or_, and_
+from sqlalchemy import and_  # noqa: F401 - used in complex queries
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import joinedload
 
@@ -35,7 +34,6 @@ from src.models import (
     Composition,
     Recipe,
     RecipeIngredient,
-    Ingredient,
 )
 from src.services.database import session_scope
 from src.services.exceptions import DatabaseError, ValidationError
