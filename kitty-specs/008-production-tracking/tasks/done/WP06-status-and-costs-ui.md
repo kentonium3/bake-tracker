@@ -8,7 +8,7 @@ subtasks:
 title: "Production Tab UI - Status & Costs"
 phase: "Phase 3 - UI Layer"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude"
 shell_pid: "62373"
 review_status: "approved"
