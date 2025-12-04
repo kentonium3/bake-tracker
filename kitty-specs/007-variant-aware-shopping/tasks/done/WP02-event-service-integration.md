@@ -7,7 +7,7 @@ subtasks:
 title: "EventService Shopping List Integration"
 phase: "Phase 2 - Service Integration"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude"
 shell_pid: "35768"
 review_status: "approved"

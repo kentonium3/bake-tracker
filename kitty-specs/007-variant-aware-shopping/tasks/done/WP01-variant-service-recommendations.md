@@ -8,7 +8,7 @@ subtasks:
 title: "VariantService Recommendation Engine"
 phase: "Phase 1 - Service Layer"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude"
 shell_pid: "33737"
 review_status: "approved"
