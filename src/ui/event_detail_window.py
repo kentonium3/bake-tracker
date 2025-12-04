@@ -440,16 +440,58 @@ class EventDetailWindow(ctk.CTkToplevel):
             )
             label.grid(row=0, column=0, pady=20)
 
+    def _format_single_variant(self, rec, show_preferred=False, recipe_unit="unit"):
+        """Format columns for a single variant recommendation.
+
+        Args:
+            rec: Variant recommendation dict
+            show_preferred: Whether to show [preferred] indicator
+            recipe_unit: Unit for cost display (e.g., "cup")
+
+        Returns:
+            Tuple of (brand, package_size, cost_unit, est_cost) strings
+        """
+        if not rec:
+            return ("", "", "", "")
+
+        # Brand with [preferred] indicator (T010)
+        brand = rec.get("brand", "")
+        if show_preferred and rec.get("is_preferred"):
+            brand = f"{brand} [preferred]"
+
+        # Package size context: "25 lb bag"
+        package_size = rec.get("package_size", "")
+
+        # Cost per recipe unit: "$0.18/cup"
+        cost_per_unit = rec.get("cost_per_recipe_unit")
+        cost_available = rec.get("cost_available", True)
+        if cost_per_unit and cost_available:
+            cost_unit = f"${float(cost_per_unit):.2f}/{recipe_unit}"
+        elif not cost_available:
+            cost_unit = "Cost unknown"
+        else:
+            cost_unit = "-"
+
+        # Estimated total cost
+        total_cost = rec.get("total_cost")
+        if total_cost and cost_available:
+            est_cost = f"${float(total_cost):.2f}"
+        else:
+            est_cost = "-"
+
+        return (brand, package_size, cost_unit, est_cost)
+
     def _refresh_shopping_list(self):
-        """Refresh shopping list tab."""
+        """Refresh shopping list tab with variant recommendations (Feature 007)."""
         # Clear existing
         for widget in self.shopping_list_frame.winfo_children():
             widget.destroy()
 
         try:
-            shopping_list = event_service.generate_shopping_list(self.event.id)
+            # Feature 007: Now returns dict with 'items' key
+            shopping_data = event_service.get_shopping_list(self.event.id)
 
-            if not shopping_list:
+            if not shopping_data or not shopping_data.get("items"):
                 label = ctk.CTkLabel(
                     self.shopping_list_frame,
                     text="No shopping needed. Add package assignments first.",
@@ -467,64 +509,150 @@ class EventDetailWindow(ctk.CTkToplevel):
             )
             title_label.grid(row=0, column=0, sticky="w", pady=(0, 15))
 
-            # Header
+            # Header (T008: Extended with variant columns)
             header_frame = ctk.CTkFrame(self.shopping_list_frame, fg_color=("gray85", "gray25"))
             header_frame.grid(row=1, column=0, sticky="ew", pady=(0, 5))
-            header_frame.grid_columnconfigure((0, 1, 2, 3, 4), weight=1)
+            header_frame.grid_columnconfigure((0, 1, 2, 3, 4, 5, 6, 7), weight=1)
 
-            headers = ["Ingredient", "Needed", "On Hand", "To Buy", "Cost"]
+            headers = [
+                "Ingredient",
+                "Needed",
+                "On Hand",
+                "To Buy",
+                "Variant",
+                "Package",
+                "Cost/Unit",
+                "Est. Cost",
+            ]
             for col, header in enumerate(headers):
                 ctk.CTkLabel(header_frame, text=header, font=ctk.CTkFont(weight="bold")).grid(
-                    row=0, column=col, padx=10, pady=8
+                    row=0, column=col, padx=8, pady=8
                 )
 
             # Shopping items
-            total_cost = 0.0
             row = 2
-            for item in shopping_list:
-                if item["to_buy"] <= 0:
+            for item in shopping_data["items"]:
+                shortfall = float(item.get("shortfall", 0))
+                if shortfall <= 0:
                     continue  # Skip items we don't need to buy
 
-                ingredient = item["ingredient"]
-                needed = item["needed"]
-                on_hand = item["on_hand"]
-                to_buy = item["to_buy"]
-                cost = item["cost"]
-                unit = item["unit"]
-                total_cost += cost
+                ingredient_name = item.get("ingredient_name", "Unknown")
+                quantity_needed = float(item.get("quantity_needed", 0))
+                quantity_on_hand = float(item.get("quantity_on_hand", 0))
+                unit = item.get("unit", "")
+                variant_status = item.get("variant_status", "none")
 
-                item_frame = ctk.CTkFrame(self.shopping_list_frame, fg_color="transparent")
-                item_frame.grid(row=row, column=0, sticky="ew", pady=2)
-                item_frame.grid_columnconfigure((0, 1, 2, 3, 4), weight=1)
+                # Format base columns
+                needed_str = f"{quantity_needed:.2f} {unit}"
+                on_hand_str = f"{quantity_on_hand:.2f} {unit}"
+                to_buy_str = f"{shortfall:.2f} {unit}"
 
-                ctk.CTkLabel(item_frame, text=ingredient.name).grid(
-                    row=0, column=0, padx=10, pady=5, sticky="w"
-                )
-                ctk.CTkLabel(item_frame, text=f"{needed:.2f} {unit}").grid(
-                    row=0, column=1, padx=10, pady=5, sticky="w"
-                )
-                ctk.CTkLabel(item_frame, text=f"{on_hand:.2f} {unit}").grid(
-                    row=0, column=2, padx=10, pady=5, sticky="w"
-                )
-                ctk.CTkLabel(item_frame, text=f"{to_buy:.2f} {unit}").grid(
-                    row=0, column=3, padx=10, pady=5, sticky="w"
-                )
-                ctk.CTkLabel(item_frame, text=f"${cost:.2f}").grid(
-                    row=0, column=4, padx=10, pady=5, sticky="w"
-                )
+                # Handle different variant statuses (T009, T010, T011)
+                if variant_status == "multiple":
+                    # T009: Multiple variants - display as stacked rows
+                    all_variants = item.get("all_variants", [])
+                    if all_variants:
+                        # First row with ingredient info
+                        first_variant = all_variants[0]
+                        v_cols = self._format_single_variant(
+                            first_variant, show_preferred=False, recipe_unit=unit
+                        )
+                        self._create_shopping_row(
+                            row,
+                            ingredient_name,
+                            needed_str,
+                            on_hand_str,
+                            to_buy_str,
+                            *v_cols,
+                        )
+                        row += 1
 
-                row += 1
+                        # Additional variant rows (blank ingredient columns)
+                        for variant in all_variants[1:]:
+                            v_cols = self._format_single_variant(
+                                variant, show_preferred=False, recipe_unit=unit
+                            )
+                            self._create_shopping_row(row, "", "", "", "", *v_cols, indent=True)
+                            row += 1
+                    else:
+                        # No variants available
+                        self._create_shopping_row(
+                            row,
+                            ingredient_name,
+                            needed_str,
+                            on_hand_str,
+                            to_buy_str,
+                            "No variant configured",
+                            "",
+                            "",
+                            "",
+                        )
+                        row += 1
 
-            # Total
+                elif variant_status == "preferred":
+                    # T010: Show preferred variant with indicator
+                    rec = item.get("variant_recommendation")
+                    v_cols = self._format_single_variant(rec, show_preferred=True, recipe_unit=unit)
+                    self._create_shopping_row(
+                        row,
+                        ingredient_name,
+                        needed_str,
+                        on_hand_str,
+                        to_buy_str,
+                        *v_cols,
+                    )
+                    row += 1
+
+                elif variant_status == "none":
+                    # T011: No variant configured fallback
+                    self._create_shopping_row(
+                        row,
+                        ingredient_name,
+                        needed_str,
+                        on_hand_str,
+                        to_buy_str,
+                        "No variant configured",
+                        "",
+                        "",
+                        "",
+                    )
+                    row += 1
+
+                else:
+                    # Sufficient or other status - just show basic info
+                    self._create_shopping_row(
+                        row,
+                        ingredient_name,
+                        needed_str,
+                        on_hand_str,
+                        to_buy_str,
+                        variant_status.capitalize(),
+                        "",
+                        "",
+                        "",
+                    )
+                    row += 1
+
+            # T012: Total estimated cost at bottom
+            total_estimated_cost = shopping_data.get("total_estimated_cost", 0)
             total_frame = ctk.CTkFrame(self.shopping_list_frame, fg_color=("gray90", "gray20"))
             total_frame.grid(row=row, column=0, sticky="ew", pady=(15, 0))
             total_frame.grid_columnconfigure(1, weight=1)
 
             ctk.CTkLabel(
                 total_frame,
-                text=f"Total Shopping Cost: ${total_cost:.2f}",
+                text=f"Total Estimated Cost: ${float(total_estimated_cost):.2f}",
                 font=ctk.CTkFont(size=14, weight="bold"),
-            ).grid(row=0, column=0, columnspan=5, padx=15, pady=15)
+            ).grid(row=0, column=0, columnspan=8, padx=15, pady=15)
+
+            # Note about total calculation
+            note_label = ctk.CTkLabel(
+                total_frame,
+                text="* Total includes only items with a preferred variant selected",
+                font=ctk.CTkFont(size=10, slant="italic"),
+                text_color="gray",
+            )
+            note_label.grid(row=1, column=0, columnspan=8, padx=15, pady=(0, 10))
 
         except Exception as e:
             label = ctk.CTkLabel(
@@ -533,6 +661,57 @@ class EventDetailWindow(ctk.CTkToplevel):
                 text_color="red",
             )
             label.grid(row=0, column=0, pady=20)
+
+    def _create_shopping_row(
+        self,
+        row,
+        ingredient,
+        needed,
+        on_hand,
+        to_buy,
+        variant,
+        package,
+        cost_unit,
+        est_cost,
+        indent=False,
+    ):
+        """Create a single row in the shopping list table.
+
+        Args:
+            row: Grid row number
+            ingredient: Ingredient name (blank for sub-rows)
+            needed: Quantity needed string
+            on_hand: Quantity on hand string
+            to_buy: Quantity to buy string
+            variant: Variant brand/status text
+            package: Package size text
+            cost_unit: Cost per unit text
+            est_cost: Estimated total cost text
+            indent: Whether this is an indented sub-row (for multiple variants)
+        """
+        # Different background for sub-rows to show grouping
+        if indent:
+            fg_color = ("gray95", "gray15")
+        else:
+            fg_color = "transparent"
+
+        item_frame = ctk.CTkFrame(self.shopping_list_frame, fg_color=fg_color)
+        item_frame.grid(row=row, column=0, sticky="ew", pady=1)
+        item_frame.grid_columnconfigure((0, 1, 2, 3, 4, 5, 6, 7), weight=1)
+
+        # Add slight indent for sub-rows
+        indent_text = "  " if indent else ""
+
+        ctk.CTkLabel(item_frame, text=ingredient).grid(row=0, column=0, padx=8, pady=5, sticky="w")
+        ctk.CTkLabel(item_frame, text=needed).grid(row=0, column=1, padx=8, pady=5, sticky="w")
+        ctk.CTkLabel(item_frame, text=on_hand).grid(row=0, column=2, padx=8, pady=5, sticky="w")
+        ctk.CTkLabel(item_frame, text=to_buy).grid(row=0, column=3, padx=8, pady=5, sticky="w")
+        ctk.CTkLabel(item_frame, text=f"{indent_text}{variant}").grid(
+            row=0, column=4, padx=8, pady=5, sticky="w"
+        )
+        ctk.CTkLabel(item_frame, text=package).grid(row=0, column=5, padx=8, pady=5, sticky="w")
+        ctk.CTkLabel(item_frame, text=cost_unit).grid(row=0, column=6, padx=8, pady=5, sticky="w")
+        ctk.CTkLabel(item_frame, text=est_cost).grid(row=0, column=7, padx=8, pady=5, sticky="w")
 
     def _refresh_summary(self):
         """Refresh summary tab."""
