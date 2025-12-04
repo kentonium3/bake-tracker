@@ -7,10 +7,10 @@ subtasks:
   - "T014"
 title: "Package Status Management"
 phase: "Phase 2 - Service Layer"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "claude"
+shell_pid: "58999"
 review_status: ""
 reviewed_by: ""
 history:
@@ -429,3 +429,4 @@ class TestCanAssemblePackage:
 ## Activity Log
 
 - 2025-12-04T12:00:00Z - system - lane=planned - Prompt created via /spec-kitty.tasks
+- 2025-12-04T16:27:17Z – claude – shell_pid=58999 – lane=doing – Started implementation (retroactive recovery)
