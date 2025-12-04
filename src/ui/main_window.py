@@ -4,6 +4,7 @@ Main application window for the Seasonal Baking Tracker.
 Provides the main window with tabbed navigation and menu bar.
 """
 
+import tkinter as tk
 import customtkinter as ctk
 from tkinter import messagebox
 from typing import Optional
@@ -59,38 +60,29 @@ class MainWindow(ctk.CTk):
         self.update_status("Ready")
 
     def _create_menu_bar(self):
-        """Create the menu bar."""
-        # Create menu frame
-        menu_frame = ctk.CTkFrame(self, height=40, corner_radius=0)
-        menu_frame.grid(row=0, column=0, sticky="ew")
-        menu_frame.grid_columnconfigure(0, weight=1)
+        """Create the native tkinter menu bar."""
+        # Create native menu bar (better compatibility than CTk buttons)
+        self.menu_bar = tk.Menu(self)
+        self.config(menu=self.menu_bar)
 
-        # Exit button
-        exit_button = ctk.CTkButton(
-            menu_frame,
-            text="Exit",
-            width=80,
-            command=self._show_file_menu,
-        )
-        exit_button.grid(row=0, column=0, padx=5, pady=5, sticky="w")
+        # File menu
+        file_menu = tk.Menu(self.menu_bar, tearoff=0)
+        file_menu.add_command(label="Import Data...", command=self._show_import_dialog)
+        file_menu.add_command(label="Export Data...", command=self._show_export_dialog)
+        file_menu.add_separator()
+        file_menu.add_command(label="Exit", command=self._on_exit)
+        self.menu_bar.add_cascade(label="File", menu=file_menu)
 
-        # Tools menu button
-        tools_button = ctk.CTkButton(
-            menu_frame,
-            text="Tools",
-            width=80,
-            command=self._show_tools_menu,
-        )
-        tools_button.grid(row=0, column=1, padx=5, pady=5, sticky="w")
+        # Tools menu
+        tools_menu = tk.Menu(self.menu_bar, tearoff=0)
+        tools_menu.add_command(label="Migration Wizard...", command=self._show_migration_wizard)
+        tools_menu.add_command(label="Service Health Check...", command=self._show_service_health_check)
+        self.menu_bar.add_cascade(label="Tools", menu=tools_menu)
 
-        # Help menu button
-        help_button = ctk.CTkButton(
-            menu_frame,
-            text="Help",
-            width=80,
-            command=self._show_help_menu,
-        )
-        help_button.grid(row=0, column=2, padx=5, pady=5, sticky="w")
+        # Help menu
+        help_menu = tk.Menu(self.menu_bar, tearoff=0)
+        help_menu.add_command(label="About", command=self._show_about)
+        self.menu_bar.add_cascade(label="Help", menu=help_menu)
 
     def _create_tabs(self):
         """Create the tabbed interface."""
@@ -201,10 +193,8 @@ class MainWindow(ctk.CTk):
         """
         self.status_label.configure(text=message)
 
-    def _show_file_menu(self):
-        """Show the File menu."""
-        # Create a simple menu using messagebox for now
-        # In a production app, you might use a custom dropdown menu
+    def _on_exit(self):
+        """Handle application exit."""
         result = messagebox.askyesno(
             "Exit",
             "Are you sure you want to exit the application?",
@@ -213,50 +203,53 @@ class MainWindow(ctk.CTk):
         if result:
             self.destroy()
 
-    def _show_tools_menu(self):
-        """Show the Tools menu with multiple options."""
-        # Create a simple menu using multiple dialogs
-        # In a production app, you might use a custom dropdown menu
+    def _show_import_dialog(self):
+        """Show the import data dialog."""
+        from src.ui.import_export_dialog import ImportDialog
 
-        # Ask user what tool they want to use
-        tool_choice = messagebox.askyesnocancel(
-            "Tools Menu",
-            "Choose a tool:\n\n"
-            "Yes: Migration Wizard\n"
-            "No: Service Health Check\n"
-            "Cancel: Close menu",
-            parent=self,
-        )
+        dialog = ImportDialog(self)
+        self.wait_window(dialog)
 
-        if tool_choice is True:
-            # Migration Wizard
+        if dialog.result:
+            # Import was successful - refresh all tabs
+            self._refresh_all_tabs()
+            self.update_status("Import completed successfully. Data refreshed.")
+
+    def _show_export_dialog(self):
+        """Show the export data dialog."""
+        from src.ui.import_export_dialog import ExportDialog
+
+        dialog = ExportDialog(self)
+        self.wait_window(dialog)
+
+        if dialog.result:
+            self.update_status(f"Export completed successfully.")
+
+    def _show_migration_wizard(self):
+        """Show the migration wizard dialog."""
+        try:
+            wizard = MigrationWizardDialog(self)
+            self.wait_window(wizard)
+        except Exception as exc:
+            messagebox.showerror(
+                "Migration Wizard Error",
+                f"Unable to open the migration wizard:\n\n{exc}",
+                parent=self,
+            )
+            return
+
+        if getattr(wizard, "migration_executed", False):
             try:
-                wizard = MigrationWizardDialog(self)
-                self.wait_window(wizard)
+                self.refresh_dashboard()
+                self.ingredients_tab.refresh()
+                self.pantry_tab.refresh()
+                self.update_status("Migration completed successfully. Data refreshed.")
             except Exception as exc:
-                messagebox.showerror(
-                    "Migration Wizard Error",
-                    f"Unable to open the migration wizard:\n\n{exc}",
+                messagebox.showwarning(
+                    "Refresh Warning",
+                    f"Migration completed, but refreshing data failed:\n\n{exc}",
                     parent=self,
                 )
-                return
-
-            if getattr(wizard, "migration_executed", False):
-                try:
-                    self.refresh_dashboard()
-                    self.ingredients_tab.refresh()
-                    self.pantry_tab.refresh()
-                    self.update_status("Migration completed successfully. Data refreshed.")
-                except Exception as exc:
-                    messagebox.showwarning(
-                        "Refresh Warning",
-                        f"Migration completed, but refreshing data failed:\n\n{exc}",
-                        parent=self,
-                    )
-
-        elif tool_choice is False:
-            # Service Health Check
-            self._show_service_health_check()
 
     def _show_service_health_check(self):
         """Show service integration health status."""
@@ -296,8 +289,8 @@ class MainWindow(ctk.CTk):
                 "Health Check Error", f"Failed to check service health:\n\n{exc}", parent=self
             )
 
-    def _show_help_menu(self):
-        """Show the Help menu."""
+    def _show_about(self):
+        """Show the About dialog."""
         messagebox.showinfo(
             "About",
             f"{APP_NAME}\nVersion {APP_VERSION}\n\n"
@@ -346,6 +339,18 @@ class MainWindow(ctk.CTk):
 
     def refresh_production(self):
         """Refresh the production tab with current data."""
+        self.production_tab.refresh()
+
+    def _refresh_all_tabs(self):
+        """Refresh all tabs after data import."""
+        self.dashboard_tab.refresh()
+        self.ingredients_tab.refresh()
+        self.pantry_tab.refresh()
+        self.recipes_tab.refresh()
+        self.finished_units_tab.refresh()
+        self.packages_tab.refresh()
+        self.recipients_tab.refresh()
+        self.events_tab.refresh()
         self.production_tab.refresh()
 
     def switch_to_tab(self, tab_name: str):

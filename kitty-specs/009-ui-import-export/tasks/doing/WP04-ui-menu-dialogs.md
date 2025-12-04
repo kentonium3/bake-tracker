@@ -13,10 +13,10 @@ subtasks:
   - "T032"
 title: "UI - Menu Bar and Dialogs"
 phase: "Phase 3 - UI Layer"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "claude"
+shell_pid: "82440"
 review_status: ""
 reviewed_by: ""
 history:
@@ -391,3 +391,4 @@ history:
 ## Activity Log
 
 - 2025-12-04T00:00:00Z - system - lane=planned - Prompt created via /spec-kitty.tasks
+- 2025-12-04T20:16:44Z – claude – shell_pid=82440 – lane=doing – Started implementation
