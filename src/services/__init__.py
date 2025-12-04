@@ -34,9 +34,9 @@ from . import (
     recipe_service,
     unit_converter,
     finished_good_service,
-    # package_service,  # DISABLED: Bundle model removed in refactoring
+    package_service,  # Re-enabled Feature 006: Uses FinishedGood not Bundle
     recipient_service,
-    # event_service,  # DISABLED: Bundle model removed in refactoring
+    # event_service,  # DISABLED: Will be re-enabled in WP04
 )
 
 # Migration services
@@ -82,6 +82,34 @@ from .finished_good_service import (
     AssemblyIntegrityError,
 )
 
+# Package services (Feature 006)
+from .package_service import (
+    create_package,
+    get_package_by_id,
+    get_package_by_name,
+    get_all_packages,
+    update_package,
+    delete_package,
+    add_finished_good_to_package,
+    remove_finished_good_from_package,
+    update_finished_good_quantity,
+    get_package_contents,
+    calculate_package_cost,
+    get_package_cost_breakdown,
+    search_packages,
+    get_template_packages,
+    get_packages_containing_finished_good,
+    check_package_has_event_assignments,
+    get_package_event_assignment_count,
+    duplicate_package,
+    # Exceptions
+    PackageNotFoundError,
+    PackageInUseError,
+    InvalidFinishedGoodError,
+    DuplicatePackageNameError,
+    PackageFinishedGoodNotFoundError,
+)
+
 # Composition services
 from .composition_service import (
     CompositionService,
@@ -122,9 +150,9 @@ __all__ = [
     "recipe_service",
     "unit_converter",
     "finished_good_service",
-    # "package_service",  # DISABLED: Bundle model removed in refactoring
+    "package_service",  # Re-enabled Feature 006
     "recipient_service",
-    # "event_service",  # DISABLED: Bundle model removed in refactoring
+    # "event_service",  # Will be re-enabled in WP04
     # Migration services
     "MigrationService",
     # FinishedUnit services
@@ -171,6 +199,30 @@ __all__ = [
     "InvalidComponentTypeError",
     "DuplicateCompositionError",
     "IntegrityViolationError",
+    # Package services (Feature 006)
+    "create_package",
+    "get_package_by_id",
+    "get_package_by_name",
+    "get_all_packages",
+    "update_package",
+    "delete_package",
+    "add_finished_good_to_package",
+    "remove_finished_good_from_package",
+    "update_finished_good_quantity",
+    "get_package_contents",
+    "calculate_package_cost",
+    "get_package_cost_breakdown",
+    "search_packages",
+    "get_template_packages",
+    "get_packages_containing_finished_good",
+    "check_package_has_event_assignments",
+    "get_package_event_assignment_count",
+    "duplicate_package",
+    "PackageNotFoundError",
+    "PackageInUseError",
+    "InvalidFinishedGoodError",
+    "DuplicatePackageNameError",
+    "PackageFinishedGoodNotFoundError",
     # Infrastructure - Exception hierarchy
     "ServiceError",
     "ServiceException",
