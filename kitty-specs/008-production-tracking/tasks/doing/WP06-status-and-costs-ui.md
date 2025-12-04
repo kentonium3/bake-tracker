@@ -7,10 +7,10 @@ subtasks:
   - "T027"
 title: "Production Tab UI - Status & Costs"
 phase: "Phase 3 - UI Layer"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "claude"
+shell_pid: "62373"
 review_status: ""
 reviewed_by: ""
 history:
@@ -464,3 +464,4 @@ def _create_progress_indicators(self, progress: dict):
 ## Activity Log
 
 - 2025-12-04T12:00:00Z - system - lane=planned - Prompt created via /spec-kitty.tasks
+- 2025-12-04T16:51:07Z – claude – shell_pid=62373 – lane=doing – Started implementation
