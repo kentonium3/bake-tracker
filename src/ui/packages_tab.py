@@ -2,14 +2,19 @@
 Packages tab for the Seasonal Baking Tracker.
 
 Provides full CRUD interface for managing gift packages.
+
+Updated for Feature 006 Event Planning Restoration:
+- Uses PackageFinishedGood instead of PackageBundle
+- Displays FinishedGoods in package details
 """
 
 import customtkinter as ctk
 from typing import Optional
+from decimal import Decimal
 
 from src.models.package import Package
 from src.services import package_service
-from src.services.package_service import PackageNotFound, PackageInUse
+from src.services.package_service import PackageNotFoundError, PackageInUseError
 from src.utils.constants import (
     PADDING_MEDIUM,
     PADDING_LARGE,
@@ -219,8 +224,8 @@ class PackagesTab(ctk.CTkFrame):
         if result:
             try:
                 package_data = result["package_data"]
-                bundle_items = result["bundle_items"]
-                package_service.create_package(package_data, bundle_items)
+                finished_good_items = result["finished_good_items"]
+                package_service.create_package(package_data, finished_good_items)
                 show_success("Success", f"Package '{package_data['name']}' added successfully", parent=self)
                 self.refresh()
             except Exception as e:
@@ -242,11 +247,11 @@ class PackagesTab(ctk.CTkFrame):
         if result:
             try:
                 package_data = result["package_data"]
-                bundle_items = result["bundle_items"]
-                package_service.update_package(self.selected_package.id, package_data, bundle_items)
+                finished_good_items = result["finished_good_items"]
+                package_service.update_package(self.selected_package.id, package_data, finished_good_items)
                 show_success("Success", "Package updated successfully", parent=self)
                 self.refresh()
-            except PackageNotFound:
+            except PackageNotFoundError:
                 show_error("Error", "Package not found", parent=self)
                 self.refresh()
             except Exception as e:
@@ -271,13 +276,13 @@ class PackagesTab(ctk.CTkFrame):
             show_success("Success", "Package deleted successfully", parent=self)
             self.selected_package = None
             self.refresh()
-        except PackageInUse as e:
+        except PackageInUseError as e:
             show_error(
                 "Cannot Delete",
-                f"This package is used in {e.event_count} event(s) and cannot be deleted.",
+                f"This package is used in {e.assignment_count} event assignment(s) and cannot be deleted.",
                 parent=self
             )
-        except PackageNotFound:
+        except PackageNotFoundError:
             show_error("Error", "Package not found", parent=self)
             self.refresh()
         except Exception as e:
@@ -329,28 +334,28 @@ class PackagesTab(ctk.CTkFrame):
                 justify="left"
             ).pack(anchor="w", pady=(0, 10))
 
-        # Bundles
+        # Finished Goods
         ctk.CTkLabel(
             scroll_frame,
-            text="Bundles:",
+            text="Finished Goods:",
             font=ctk.CTkFont(weight="bold")
         ).pack(anchor="w", pady=(10, 5))
 
-        if self.selected_package.package_bundles:
-            for pb in self.selected_package.package_bundles:
-                bundle_name = pb.bundle.name if pb.bundle else "Unknown"
-                bundle_cost = pb.bundle.calculate_cost() if pb.bundle else 0.0
-                total_cost = bundle_cost * pb.quantity
+        if self.selected_package.package_finished_goods:
+            for pfg in self.selected_package.package_finished_goods:
+                fg_name = pfg.finished_good.name if pfg.finished_good else "Unknown"
+                fg_cost = pfg.finished_good.total_cost if pfg.finished_good and pfg.finished_good.total_cost else Decimal("0.00")
+                total_cost = fg_cost * pfg.quantity
 
                 ctk.CTkLabel(
                     scroll_frame,
-                    text=f"  • {bundle_name} × {pb.quantity} = ${total_cost:.2f}",
+                    text=f"  - {fg_name} x {pfg.quantity} = ${total_cost:.2f}",
                     font=ctk.CTkFont(size=12)
                 ).pack(anchor="w", pady=2)
         else:
             ctk.CTkLabel(
                 scroll_frame,
-                text="  No bundles",
+                text="  No finished goods",
                 font=ctk.CTkFont(size=12),
                 text_color="gray"
             ).pack(anchor="w", pady=2)

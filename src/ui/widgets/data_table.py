@@ -523,6 +523,8 @@ class BundleDataTable(DataTable):
 class PackageDataTable(DataTable):
     """
     Specialized data table for displaying packages.
+
+    Updated for Feature 006: Uses FinishedGoods instead of Bundles.
     """
 
     def __init__(
@@ -543,7 +545,7 @@ class PackageDataTable(DataTable):
         """
         columns = [
             ("Package Name", 250),
-            ("Bundles", 80),
+            ("Items", 80),
             ("Template", 80),
             ("Cost", 100),
         ]
@@ -568,15 +570,15 @@ class PackageDataTable(DataTable):
         # Calculate package cost
         cost = row_data.calculate_cost() if hasattr(row_data, "calculate_cost") else 0.0
 
-        # Bundle count
-        bundle_count = row_data.get_bundle_count() if hasattr(row_data, "get_bundle_count") else 0
+        # Item count (FinishedGoods in package)
+        item_count = row_data.get_item_count() if hasattr(row_data, "get_item_count") else 0
 
         # Template flag
         template_display = "Yes" if row_data.is_template else "No"
 
         return [
             row_data.name,
-            str(bundle_count),
+            str(item_count),
             template_display,
             f"${cost:.2f}",
         ]

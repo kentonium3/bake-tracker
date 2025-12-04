@@ -10,10 +10,10 @@ subtasks:
   - "T048"
 title: "UI - Packages Tab"
 phase: "Phase 3 - UI Layer"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "claude"
+shell_pid: "9077"
 review_status: ""
 reviewed_by: ""
 history:
@@ -201,3 +201,4 @@ class PackagesTab(ctk.CTkFrame):
 ## Activity Log
 
 - 2025-12-03 - system - lane=planned - Prompt created.
+- 2025-12-04T02:45:21Z – claude – shell_pid=9077 – lane=doing – Started: Updating PackagesTab to use FinishedGood instead of Bundle

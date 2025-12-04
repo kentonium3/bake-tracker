@@ -14,7 +14,7 @@ from tkinter import messagebox
 
 from src.models.event import Event, EventRecipientPackage
 from src.services import event_service
-from src.services.event_service import AssignmentNotFound
+from src.services.event_service import AssignmentNotFoundError
 from src.utils.constants import (
     PADDING_MEDIUM,
     PADDING_LARGE,
@@ -281,7 +281,7 @@ class EventDetailWindow(ctk.CTkToplevel):
             show_success("Success", "Assignment removed successfully", parent=self)
             self.selected_assignment = None
             self.refresh()
-        except AssignmentNotFound:
+        except AssignmentNotFoundError:
             show_error("Error", "Assignment not found", parent=self)
             self.refresh()
         except Exception as e:

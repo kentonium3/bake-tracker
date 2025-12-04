@@ -10,7 +10,7 @@ from datetime import datetime
 
 from src.models.event import Event
 from src.services import event_service
-from src.services.event_service import EventNotFound
+from src.services.event_service import EventNotFoundError
 from src.utils.constants import (
     PADDING_MEDIUM,
     PADDING_LARGE,
@@ -251,7 +251,7 @@ class EventsTab(ctk.CTkFrame):
                 event_service.update_event(self.selected_event.id, result)
                 show_success("Success", "Event updated successfully", parent=self)
                 self.refresh()
-            except EventNotFound:
+            except EventNotFoundError:
                 show_error("Error", "Event not found", parent=self)
                 self.refresh()
             except Exception as e:
@@ -305,7 +305,7 @@ class EventsTab(ctk.CTkFrame):
             show_success("Success", "Event deleted successfully", parent=self)
             self.selected_event = None
             self.refresh()
-        except EventNotFound:
+        except EventNotFoundError:
             show_error("Error", "Event not found", parent=self)
             self.refresh()
         except Exception as e:

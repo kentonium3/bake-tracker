@@ -2,12 +2,15 @@
 Forms package for the Seasonal Baking Tracker.
 
 Contains form dialogs for adding and editing entities.
+
+Updated for Feature 006 Event Planning Restoration:
+- Removed BundleFormDialog (Bundle concept eliminated)
 """
 
 from .ingredient_form import IngredientFormDialog
 from .recipe_form import RecipeFormDialog
-from .finished_good_form import FinishedGoodFormDialog
-from .bundle_form import BundleFormDialog
+from .finished_good_form import FinishedUnitFormDialog
+# BundleFormDialog removed - Bundle concept eliminated in Feature 006
 from .package_form import PackageFormDialog
 from .recipient_form import RecipientFormDialog
 from .event_form import EventFormDialog
@@ -16,8 +19,8 @@ from .assignment_form import AssignmentFormDialog
 __all__ = [
     "IngredientFormDialog",
     "RecipeFormDialog",
-    "FinishedGoodFormDialog",
-    "BundleFormDialog",
+    "FinishedUnitFormDialog",
+    # BundleFormDialog removed - Bundle concept eliminated
     "PackageFormDialog",
     "RecipientFormDialog",
     "EventFormDialog",

@@ -1,11 +1,16 @@
 """
 Package form dialog for adding and editing packages.
 
-Provides a form for creating and updating package records with bundle selection.
+Provides a form for creating and updating package records with FinishedGood selection.
+
+Updated for Feature 006 Event Planning Restoration:
+- Replaced Bundle references with FinishedGood
+- Uses finished_good_service.get_all_finished_goods()
 """
 
 import customtkinter as ctk
 from typing import Optional, Dict, Any, List
+from decimal import Decimal
 
 from src.models.package import Package
 from src.services import finished_good_service
@@ -18,30 +23,30 @@ from src.utils.constants import (
 from src.ui.widgets.dialogs import show_error
 
 
-class BundleRow(ctk.CTkFrame):
-    """Row widget for a single bundle in the package."""
+class FinishedGoodRow(ctk.CTkFrame):
+    """Row widget for a single FinishedGood in the package."""
 
     def __init__(
         self,
         parent,
-        bundles: List,
+        finished_goods: List,
         remove_callback,
-        bundle_id: Optional[int] = None,
+        finished_good_id: Optional[int] = None,
         quantity: int = 1,
     ):
         """
-        Initialize bundle row.
+        Initialize FinishedGood row.
 
         Args:
             parent: Parent widget
-            bundles: List of available bundles
+            finished_goods: List of available FinishedGoods
             remove_callback: Callback to remove this row
-            bundle_id: Selected bundle ID (None for new row)
-            quantity: Bundle quantity
+            finished_good_id: Selected FinishedGood ID (None for new row)
+            quantity: FinishedGood quantity
         """
         super().__init__(parent, fg_color="transparent")
 
-        self.bundles = bundles
+        self.finished_goods = finished_goods
         self.remove_callback = remove_callback
 
         # Configure grid
@@ -49,25 +54,29 @@ class BundleRow(ctk.CTkFrame):
         self.grid_columnconfigure(1, weight=0)
         self.grid_columnconfigure(2, weight=0)
 
-        # Bundle dropdown
-        bundle_names = [f"{b.name} (${b.calculate_cost():.2f})" for b in bundles]
-        self.bundle_combo = ctk.CTkComboBox(
+        # FinishedGood dropdown
+        fg_names = []
+        for fg in finished_goods:
+            cost = fg.total_cost if fg.total_cost else Decimal("0.00")
+            fg_names.append(f"{fg.name} (${cost:.2f})")
+
+        self.fg_combo = ctk.CTkComboBox(
             self,
             width=350,
-            values=bundle_names if bundle_names else ["No bundles available"],
-            state="readonly" if bundle_names else "disabled",
+            values=fg_names if fg_names else ["No finished goods available"],
+            state="readonly" if fg_names else "disabled",
         )
-        if bundle_names:
-            # Set selected bundle if provided
-            if bundle_id:
-                for i, bundle in enumerate(bundles):
-                    if bundle.id == bundle_id:
-                        self.bundle_combo.set(bundle_names[i])
+        if fg_names:
+            # Set selected FinishedGood if provided
+            if finished_good_id:
+                for i, fg in enumerate(finished_goods):
+                    if fg.id == finished_good_id:
+                        self.fg_combo.set(fg_names[i])
                         break
             else:
-                self.bundle_combo.set(bundle_names[0])
+                self.fg_combo.set(fg_names[0])
 
-        self.bundle_combo.grid(row=0, column=0, sticky="ew", padx=(0, PADDING_MEDIUM))
+        self.fg_combo.grid(row=0, column=0, sticky="ew", padx=(0, PADDING_MEDIUM))
 
         # Quantity entry
         self.quantity_entry = ctk.CTkEntry(self, width=80, placeholder_text="Qty")
@@ -77,7 +86,7 @@ class BundleRow(ctk.CTkFrame):
         # Remove button
         remove_button = ctk.CTkButton(
             self,
-            text="✕",
+            text="X",
             width=30,
             command=lambda: remove_callback(self),
             fg_color="darkred",
@@ -87,27 +96,27 @@ class BundleRow(ctk.CTkFrame):
 
     def get_data(self) -> Optional[Dict[str, Any]]:
         """
-        Get bundle data from this row.
+        Get FinishedGood data from this row.
 
         Returns:
-            Dictionary with bundle_id and quantity, or None if invalid
+            Dictionary with finished_good_id and quantity, or None if invalid
         """
-        bundle_name = self.bundle_combo.get()
-        if not bundle_name or bundle_name == "No bundles available":
+        fg_name = self.fg_combo.get()
+        if not fg_name or fg_name == "No finished goods available":
             return None
 
-        # Extract bundle name (remove cost suffix)
-        if " ($" in bundle_name:
-            bundle_name = bundle_name.split(" ($")[0]
+        # Extract FinishedGood name (remove cost suffix)
+        if " ($" in fg_name:
+            fg_name = fg_name.split(" ($")[0]
 
-        # Find bundle by name
-        bundle = None
-        for b in self.bundles:
-            if b.name == bundle_name:
-                bundle = b
+        # Find FinishedGood by name
+        finished_good = None
+        for fg in self.finished_goods:
+            if fg.name == fg_name:
+                finished_good = fg
                 break
 
-        if not bundle:
+        if not finished_good:
             return None
 
         # Get quantity
@@ -119,7 +128,7 @@ class BundleRow(ctk.CTkFrame):
             return None
 
         return {
-            "bundle_id": bundle.id,
+            "finished_good_id": finished_good.id,
             "quantity": quantity,
         }
 
@@ -128,7 +137,7 @@ class PackageFormDialog(ctk.CTkToplevel):
     """
     Dialog for creating or editing a package.
 
-    Provides a form with bundle selection and management.
+    Provides a form with FinishedGood selection and management.
     """
 
     def __init__(
@@ -149,13 +158,13 @@ class PackageFormDialog(ctk.CTkToplevel):
 
         self.package = package
         self.result = None
-        self.bundle_rows: List[BundleRow] = []
+        self.finished_good_rows: List[FinishedGoodRow] = []
 
-        # Load available bundles
+        # Load available FinishedGoods
         try:
-            self.available_bundles = finished_good_service.get_all_bundles()
+            self.available_finished_goods = finished_good_service.get_all_finished_goods()
         except Exception:
-            self.available_bundles = []
+            self.available_finished_goods = []
 
         # Configure window
         self.title(title)
@@ -185,8 +194,8 @@ class PackageFormDialog(ctk.CTkToplevel):
         if self.package:
             self._populate_form()
         else:
-            # Add one empty bundle row for new packages
-            self._add_bundle_row()
+            # Add one empty FinishedGood row for new packages
+            self._add_finished_good_row()
 
     def _create_form_fields(self, parent):
         """Create all form input fields."""
@@ -226,13 +235,13 @@ class PackageFormDialog(ctk.CTkToplevel):
         )
         row += 1
 
-        # Bundles section
-        bundles_label = ctk.CTkLabel(
+        # Finished Goods section
+        fg_label = ctk.CTkLabel(
             parent,
-            text="Bundles in Package",
+            text="Finished Goods in Package",
             font=ctk.CTkFont(size=14, weight="bold"),
         )
-        bundles_label.grid(
+        fg_label.grid(
             row=row,
             column=0,
             columnspan=2,
@@ -242,20 +251,20 @@ class PackageFormDialog(ctk.CTkToplevel):
         )
         row += 1
 
-        # Bundles list frame
-        self.bundles_frame = ctk.CTkFrame(parent, fg_color="transparent")
-        self.bundles_frame.grid(
+        # Finished Goods list frame
+        self.fg_frame = ctk.CTkFrame(parent, fg_color="transparent")
+        self.fg_frame.grid(
             row=row, column=0, columnspan=2, sticky="ew", padx=PADDING_MEDIUM, pady=5
         )
-        self.bundles_frame.grid_columnconfigure(0, weight=1)
+        self.fg_frame.grid_columnconfigure(0, weight=1)
         row += 1
 
-        # Add bundle button
+        # Add FinishedGood button
         add_button = ctk.CTkButton(
             parent,
-            text="+ Add Bundle",
-            command=self._add_bundle_row,
-            width=150,
+            text="+ Add Finished Good",
+            command=self._add_finished_good_row,
+            width=180,
         )
         add_button.grid(
             row=row, column=0, columnspan=2, sticky="w", padx=PADDING_MEDIUM, pady=PADDING_MEDIUM
@@ -286,37 +295,37 @@ class PackageFormDialog(ctk.CTkToplevel):
             pady=(PADDING_MEDIUM, 0),
         )
 
-    def _add_bundle_row(self, bundle_id: Optional[int] = None, quantity: int = 1):
+    def _add_finished_good_row(self, finished_good_id: Optional[int] = None, quantity: int = 1):
         """
-        Add a new bundle row.
+        Add a new FinishedGood row.
 
         Args:
-            bundle_id: Optional bundle ID to pre-select
-            quantity: Bundle quantity
+            finished_good_id: Optional FinishedGood ID to pre-select
+            quantity: FinishedGood quantity
         """
-        row = BundleRow(
-            self.bundles_frame,
-            self.available_bundles,
-            self._remove_bundle_row,
-            bundle_id=bundle_id,
+        row = FinishedGoodRow(
+            self.fg_frame,
+            self.available_finished_goods,
+            self._remove_finished_good_row,
+            finished_good_id=finished_good_id,
             quantity=quantity,
         )
-        row.grid(row=len(self.bundle_rows), column=0, sticky="ew", pady=2)
-        self.bundle_rows.append(row)
+        row.grid(row=len(self.finished_good_rows), column=0, sticky="ew", pady=2)
+        self.finished_good_rows.append(row)
 
-    def _remove_bundle_row(self, row: BundleRow):
+    def _remove_finished_good_row(self, row: FinishedGoodRow):
         """
-        Remove a bundle row.
+        Remove a FinishedGood row.
 
         Args:
-            row: BundleRow to remove
+            row: FinishedGoodRow to remove
         """
-        if row in self.bundle_rows:
-            self.bundle_rows.remove(row)
+        if row in self.finished_good_rows:
+            self.finished_good_rows.remove(row)
             row.destroy()
 
             # Re-grid remaining rows
-            for i, remaining_row in enumerate(self.bundle_rows):
+            for i, remaining_row in enumerate(self.finished_good_rows):
                 remaining_row.grid(row=i, column=0, sticky="ew", pady=2)
 
     def _create_buttons(self):
@@ -360,10 +369,10 @@ class PackageFormDialog(ctk.CTkToplevel):
         if self.package.notes:
             self.notes_text.insert("1.0", self.package.notes)
 
-        # Add bundle rows
-        if self.package.package_bundles:
-            for pb in self.package.package_bundles:
-                self._add_bundle_row(bundle_id=pb.bundle_id, quantity=pb.quantity)
+        # Add FinishedGood rows
+        if self.package.package_finished_goods:
+            for pfg in self.package.package_finished_goods:
+                self._add_finished_good_row(finished_good_id=pfg.finished_good_id, quantity=pfg.quantity)
 
     def _save(self):
         """Validate and save the package data."""
@@ -386,7 +395,7 @@ class PackageFormDialog(ctk.CTkToplevel):
         Validate form inputs and collect data.
 
         Returns:
-            Dictionary with package data and bundle_items list, or None if validation fails
+            Dictionary with package data and finished_good_items list, or None if validation fails
         """
         # Get values
         name = self.name_entry.get().strip()
@@ -420,18 +429,18 @@ class PackageFormDialog(ctk.CTkToplevel):
             )
             return None
 
-        # Collect bundle items
-        bundle_items = []
-        for row in self.bundle_rows:
-            bundle_data = row.get_data()
-            if bundle_data:
-                bundle_items.append(bundle_data)
+        # Collect FinishedGood items
+        finished_good_items = []
+        for row in self.finished_good_rows:
+            fg_data = row.get_data()
+            if fg_data:
+                finished_good_items.append(fg_data)
 
-        # Validate at least one bundle
-        if not bundle_items:
+        # Validate at least one FinishedGood
+        if not finished_good_items:
             show_error(
                 "Validation Error",
-                "Package must contain at least one bundle",
+                "Package must contain at least one finished good",
                 parent=self,
             )
             return None
@@ -444,7 +453,7 @@ class PackageFormDialog(ctk.CTkToplevel):
                 "is_template": is_template,
                 "notes": notes if notes else None,
             },
-            "bundle_items": bundle_items,
+            "finished_good_items": finished_good_items,
         }
 
     def get_result(self) -> Optional[Dict[str, Any]]:
