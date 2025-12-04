@@ -1,7 +1,26 @@
 {
+  "accept_commit": null,
+  "acceptance_history": [
+    {
+      "accepted_at": "2025-12-04T07:47:11Z",
+      "accepted_by": "claude",
+      "accepted_from_commit": "788490389f61ee25a5479fb978bf13858128ecea",
+      "branch": "007-variant-aware-shopping",
+      "mode": "pr",
+      "validation_commands": [
+        "pytest src/tests/services/test_variant_service.py src/tests/services/test_event_service_variants.py src/tests/test_event_planning_workflow.py -v",
+        "black src/ --check",
+        "flake8 src/services/variant_service.py src/services/event_service.py src/ui/event_detail_window.py"
+      ]
+    }
+  ],
+  "acceptance_mode": "pr",
+  "accepted_at": "2025-12-04T07:47:11Z",
+  "accepted_by": "claude",
+  "accepted_from_commit": "788490389f61ee25a5479fb978bf13858128ecea",
+  "created_at": "2025-12-04T05:25:51Z",
   "feature_number": "007",
-  "slug": "007-variant-aware-shopping",
   "friendly_name": "Variant-Aware Shopping List Recommendations",
-  "source_description": "Enhance shopping list to include variant-aware purchase recommendations with preferred variant logic, cost per unit, package size context, and total estimated cost",
-  "created_at": "2025-12-04T05:25:51Z"
+  "slug": "007-variant-aware-shopping",
+  "source_description": "Enhance shopping list to include variant-aware purchase recommendations with preferred variant logic, cost per unit, package size context, and total estimated cost"
 }
