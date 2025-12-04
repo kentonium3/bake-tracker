@@ -19,6 +19,7 @@ from src.ui.finished_units_tab import FinishedUnitsTab
 from src.ui.packages_tab import PackagesTab
 from src.ui.recipients_tab import RecipientsTab
 from src.ui.events_tab import EventsTab
+from src.ui.production_tab import ProductionTab
 from src.ui.migration_wizard import MigrationWizardDialog
 from src.ui.service_integration import check_service_integration_health
 
@@ -107,6 +108,7 @@ class MainWindow(ctk.CTk):
         self.tabview.add("Packages")
         self.tabview.add("Recipients")
         self.tabview.add("Events")
+        self.tabview.add("Production")
         self.tabview.add("Reports")
 
         # Initialize Dashboard tab
@@ -142,6 +144,10 @@ class MainWindow(ctk.CTk):
         # Initialize Events tab
         events_frame = self.tabview.tab("Events")
         self.events_tab = EventsTab(events_frame)
+
+        # Initialize Production tab (Feature 008)
+        production_frame = self.tabview.tab("Production")
+        self.production_tab = ProductionTab(production_frame)
 
         # Add placeholders for future tabs
         self._add_placeholder_tab("Reports", "Phase 4: Coming Soon")
@@ -301,10 +307,12 @@ class MainWindow(ctk.CTk):
         )
 
     def _on_tab_change(self):
-        """Handle tab change event - refresh dashboard when it's selected."""
+        """Handle tab change event - refresh certain tabs when selected."""
         current_tab = self.tabview.get()
         if current_tab == "Dashboard":
             self.dashboard_tab.refresh()
+        elif current_tab == "Production":
+            self.production_tab.refresh()
 
     def refresh_dashboard(self):
         """Refresh the dashboard tab with current data."""
@@ -335,6 +343,10 @@ class MainWindow(ctk.CTk):
     def refresh_events(self):
         """Refresh the events tab with current data."""
         self.events_tab.refresh()
+
+    def refresh_production(self):
+        """Refresh the production tab with current data."""
+        self.production_tab.refresh()
 
     def switch_to_tab(self, tab_name: str):
         """
