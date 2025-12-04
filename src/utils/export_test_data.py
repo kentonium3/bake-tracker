@@ -82,9 +82,9 @@ def export_database_to_json(output_file: str) -> Dict[str, int]:
             counts["ingredients"] += 1
 
         # 2. Export Variants (brand-specific)
-        variants = session.query(Variant).join(Ingredient).order_by(
-            Ingredient.name, Variant.brand
-        ).all()
+        variants = (
+            session.query(Variant).join(Ingredient).order_by(Ingredient.name, Variant.brand).all()
+        )
         export_data["variants"] = []
 
         for variant in variants:
@@ -105,9 +105,13 @@ def export_database_to_json(output_file: str) -> Dict[str, int]:
             counts["variants"] += 1
 
         # 3. Export Purchases (price history)
-        purchases = session.query(Purchase).join(Variant).join(Ingredient).order_by(
-            Ingredient.name, Purchase.purchase_date
-        ).all()
+        purchases = (
+            session.query(Purchase)
+            .join(Variant)
+            .join(Ingredient)
+            .order_by(Ingredient.name, Purchase.purchase_date)
+            .all()
+        )
         export_data["purchases"] = []
 
         for purchase in purchases:
@@ -129,9 +133,13 @@ def export_database_to_json(output_file: str) -> Dict[str, int]:
             counts["purchases"] += 1
 
         # 4. Export PantryItems (actual inventory)
-        pantry_items = session.query(PantryItem).join(Variant).join(Ingredient).order_by(
-            Ingredient.name, PantryItem.purchase_date
-        ).all()
+        pantry_items = (
+            session.query(PantryItem)
+            .join(Variant)
+            .join(Ingredient)
+            .order_by(Ingredient.name, PantryItem.purchase_date)
+            .all()
+        )
         export_data["pantry_items"] = []
 
         for item in pantry_items:
@@ -150,9 +158,12 @@ def export_database_to_json(output_file: str) -> Dict[str, int]:
             counts["pantry_items"] += 1
 
         # 5. Export UnitConversions
-        conversions = session.query(UnitConversion).join(Ingredient).order_by(
-            Ingredient.name, UnitConversion.from_unit, UnitConversion.to_unit
-        ).all()
+        conversions = (
+            session.query(UnitConversion)
+            .join(Ingredient)
+            .order_by(Ingredient.name, UnitConversion.from_unit, UnitConversion.to_unit)
+            .all()
+        )
         export_data["unit_conversions"] = []
 
         for conv in conversions:
@@ -332,7 +343,7 @@ def export_database_to_json(output_file: str) -> Dict[str, int]:
             counts["events"] += 1
 
         # Write to file
-        with open(output_file, 'w', encoding='utf-8') as f:
+        with open(output_file, "w", encoding="utf-8") as f:
             json.dump(export_data, f, indent=2, ensure_ascii=False)
 
         print(f"\n[OK] Database exported to {output_file}")

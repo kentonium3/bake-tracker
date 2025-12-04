@@ -37,12 +37,14 @@ from src.models import Recipient, Event, EventRecipientPackage, Package
 @pytest.fixture
 def sample_recipient(test_db):
     """Create a sample recipient for testing."""
-    recipient = create_recipient({
-        "name": "John Doe",
-        "household_name": "Doe Family",
-        "address": "123 Main St",
-        "notes": "Test recipient",
-    })
+    recipient = create_recipient(
+        {
+            "name": "John Doe",
+            "household_name": "Doe Family",
+            "address": "123 Main St",
+            "notes": "Test recipient",
+        }
+    )
     return recipient
 
 
@@ -50,12 +52,14 @@ def sample_recipient(test_db):
 def sample_recipients(test_db):
     """Create multiple recipients for testing."""
     recipients = []
-    for i, data in enumerate([
-        {"name": "Alice Smith", "household_name": "Smith Family"},
-        {"name": "Bob Smith", "household_name": "Smith Family"},
-        {"name": "Carol Johnson", "household_name": "Johnson Family"},
-        {"name": "Dan Brown", "household_name": None},
-    ]):
+    for i, data in enumerate(
+        [
+            {"name": "Alice Smith", "household_name": "Smith Family"},
+            {"name": "Bob Smith", "household_name": "Smith Family"},
+            {"name": "Carol Johnson", "household_name": "Johnson Family"},
+            {"name": "Dan Brown", "household_name": None},
+        ]
+    ):
         recipients.append(create_recipient(data))
     return recipients
 
@@ -102,12 +106,14 @@ class TestCreateRecipient:
 
     def test_create_recipient_success(self, test_db):
         """Should create a recipient with valid data."""
-        recipient = create_recipient({
-            "name": "Test Person",
-            "household_name": "Test Family",
-            "address": "456 Oak St",
-            "notes": "Some notes",
-        })
+        recipient = create_recipient(
+            {
+                "name": "Test Person",
+                "household_name": "Test Family",
+                "address": "456 Oak St",
+                "notes": "Some notes",
+            }
+        )
 
         assert recipient is not None
         assert recipient.id is not None
@@ -232,12 +238,15 @@ class TestUpdateRecipient:
 
     def test_update_recipient_success(self, test_db, sample_recipient):
         """Should update recipient with valid data."""
-        updated = update_recipient(sample_recipient.id, {
-            "name": "John Updated",
-            "household_name": "Updated Family",
-            "address": "789 New St",
-            "notes": "Updated notes",
-        })
+        updated = update_recipient(
+            sample_recipient.id,
+            {
+                "name": "John Updated",
+                "household_name": "Updated Family",
+                "address": "789 New St",
+                "notes": "Updated notes",
+            },
+        )
 
         assert updated.name == "John Updated"
         assert updated.household_name == "Updated Family"
@@ -289,9 +298,7 @@ class TestDeleteRecipient:
         assert exc_info.value.recipient_id == recipient.id
         assert exc_info.value.assignment_count == 1
 
-    def test_delete_recipient_with_assignments_force(
-        self, test_db, sample_event_with_assignment
-    ):
+    def test_delete_recipient_with_assignments_force(self, test_db, sample_event_with_assignment):
         """Should delete recipient with force=True."""
         event, recipient, package = sample_event_with_assignment
 

@@ -259,15 +259,15 @@ modifying your database.
             with session_scope() as session:
                 # Step 1: Populate UUIDs (dry run)
                 uuid_counts = populate_uuids(session, dry_run=True)
-                results['uuid_counts'] = uuid_counts
+                results["uuid_counts"] = uuid_counts
 
                 # Step 2: Migrate ingredients (dry run)
                 migration_stats = migrate_all_ingredients(session, dry_run=True)
-                results['migration_stats'] = migration_stats
+                results["migration_stats"] = migration_stats
 
                 # Step 3: Update recipe references (dry run)
                 updated_count = update_recipe_ingredient_references(session, dry_run=True)
-                results['recipe_updates'] = updated_count
+                results["recipe_updates"] = updated_count
 
             self.dry_run_results = results
 
@@ -295,7 +295,7 @@ No changes have been made to your database.
 STEP 1: UUID POPULATION
 """
 
-        uuid_counts = results.get('uuid_counts', {})
+        uuid_counts = results.get("uuid_counts", {})
         total_uuids = sum(uuid_counts.values())
         if total_uuids > 0:
             report += f"\nWill populate UUIDs for {total_uuids} records:\n"
@@ -308,7 +308,7 @@ STEP 1: UUID POPULATION
         report += "\n" + "═" * 67 + "\n\n"
         report += "STEP 2: INGREDIENT MIGRATION\n"
 
-        migration_stats = results.get('migration_stats', {})
+        migration_stats = results.get("migration_stats", {})
         report += f"\nTotal legacy ingredients: {migration_stats.get('total_legacy', 0)}\n"
         report += f"\nWill create:\n"
         report += f"  • {migration_stats.get('migrated_ingredients', 0)} new generic ingredients\n"
@@ -317,19 +317,19 @@ STEP 1: UUID POPULATION
         report += f"  • {migration_stats.get('created_conversions', 0)} unit conversions\n"
         report += f"  • {migration_stats.get('created_purchases', 0)} purchase records\n"
 
-        if migration_stats.get('errors', 0) > 0:
+        if migration_stats.get("errors", 0) > 0:
             report += f"\n⚠️  Errors encountered: {migration_stats['errors']}\n"
 
         report += "\n" + "═" * 67 + "\n\n"
         report += "STEP 3: RECIPE UPDATES\n"
 
-        recipe_updates = results.get('recipe_updates', 0)
+        recipe_updates = results.get("recipe_updates", 0)
         report += f"\nWill update {recipe_updates} recipe ingredient references\n"
 
         report += "\n" + "═" * 67 + "\n\n"
         report += "SUMMARY\n\n"
 
-        if migration_stats.get('errors', 0) > 0:
+        if migration_stats.get("errors", 0) > 0:
             report += "⚠️  DRY RUN COMPLETED WITH ERRORS\n\n"
             report += "Please review the errors above before proceeding.\n"
         else:
@@ -343,7 +343,7 @@ STEP 1: UUID POPULATION
 
         # Update button states
         self.dry_run_btn.configure(state="normal", text="Run Dry Run")
-        if migration_stats.get('errors', 0) == 0:
+        if migration_stats.get("errors", 0) == 0:
             self.execute_btn.configure(state="normal")
 
     def _execute_migration(self):
@@ -374,7 +374,9 @@ STEP 1: UUID POPULATION
 
         self.content_text.configure(state="normal")
         self.content_text.delete("1.0", "end")
-        self.content_text.insert("1.0", "Executing migration...\n\nPlease wait, do not close this window...\n")
+        self.content_text.insert(
+            "1.0", "Executing migration...\n\nPlease wait, do not close this window...\n"
+        )
         self.content_text.configure(state="disabled")
 
         # Run in thread
@@ -390,17 +392,17 @@ STEP 1: UUID POPULATION
             with session_scope() as session:
                 # Step 1: Populate UUIDs (LIVE)
                 uuid_counts = populate_uuids(session, dry_run=False)
-                results['uuid_counts'] = uuid_counts
+                results["uuid_counts"] = uuid_counts
                 self.after(0, self._update_progress, "UUIDs populated")
 
                 # Step 2: Migrate ingredients (LIVE)
                 migration_stats = migrate_all_ingredients(session, dry_run=False)
-                results['migration_stats'] = migration_stats
+                results["migration_stats"] = migration_stats
                 self.after(0, self._update_progress, "Ingredients migrated")
 
                 # Step 3: Update recipe references (LIVE)
                 updated_count = update_recipe_ingredient_references(session, dry_run=False)
-                results['recipe_updates'] = updated_count
+                results["recipe_updates"] = updated_count
                 self.after(0, self._update_progress, "Recipe references updated")
 
             # Update UI on main thread
@@ -441,7 +443,7 @@ RESULTS:
 STEP 1: UUID POPULATION
 """
 
-        uuid_counts = results.get('uuid_counts', {})
+        uuid_counts = results.get("uuid_counts", {})
         total_uuids = sum(uuid_counts.values())
         if total_uuids > 0:
             report += f"\nPopulated UUIDs for {total_uuids} records:\n"
@@ -454,7 +456,7 @@ STEP 1: UUID POPULATION
         report += "\n" + "═" * 67 + "\n\n"
         report += "STEP 2: INGREDIENT MIGRATION\n"
 
-        migration_stats = results.get('migration_stats', {})
+        migration_stats = results.get("migration_stats", {})
         report += f"\nTotal legacy ingredients: {migration_stats.get('total_legacy', 0)}\n"
         report += f"\nCreated:\n"
         report += f"  • {migration_stats.get('migrated_ingredients', 0)} new generic ingredients\n"
@@ -466,7 +468,7 @@ STEP 1: UUID POPULATION
         report += "\n" + "═" * 67 + "\n\n"
         report += "STEP 3: RECIPE UPDATES\n"
 
-        recipe_updates = results.get('recipe_updates', 0)
+        recipe_updates = results.get("recipe_updates", 0)
         report += f"\nUpdated {recipe_updates} recipe ingredient references\n"
 
         report += "\n" + "═" * 67 + "\n\n"

@@ -51,9 +51,11 @@ def populate_uuids(session: Session, dry_run: bool = True) -> Dict[str, int]:
 
     for model_name, model_class in models:
         # Find records without UUIDs
-        records_without_uuid = session.query(model_class).filter(
-            (model_class.uuid == None) | (model_class.uuid == "")
-        ).all()
+        records_without_uuid = (
+            session.query(model_class)
+            .filter((model_class.uuid == None) | (model_class.uuid == ""))
+            .all()
+        )
 
         count = 0
         for record in records_without_uuid:
@@ -73,8 +75,7 @@ def populate_uuids(session: Session, dry_run: bool = True) -> Dict[str, int]:
 
 
 def migrate_ingredient_to_new_schema(
-    legacy_ingredient: IngredientLegacy,
-    session: Session
+    legacy_ingredient: IngredientLegacy, session: Session
 ) -> Tuple[Ingredient, Variant, PantryItem, UnitConversion, Purchase]:
     """
     Migrate a single legacy Ingredient to the new schema.
@@ -104,7 +105,11 @@ def migrate_ingredient_to_new_schema(
         description=None,
         notes=legacy_ingredient.notes,
         # Populate density if available
-        density_g_per_ml=legacy_ingredient.density_g_per_cup / 236.588 if legacy_ingredient.density_g_per_cup else None,
+        density_g_per_ml=(
+            legacy_ingredient.density_g_per_cup / 236.588
+            if legacy_ingredient.density_g_per_cup
+            else None
+        ),
     )
     session.add(ingredient)
     session.flush()  # Get the ID
@@ -113,7 +118,11 @@ def migrate_ingredient_to_new_schema(
     variant = Variant(
         ingredient_id=ingredient.id,
         brand=legacy_ingredient.brand,
-        package_size=f"{legacy_ingredient.purchase_quantity} {legacy_ingredient.purchase_unit}" if legacy_ingredient.purchase_quantity else None,
+        package_size=(
+            f"{legacy_ingredient.purchase_quantity} {legacy_ingredient.purchase_unit}"
+            if legacy_ingredient.purchase_quantity
+            else None
+        ),
         package_type=legacy_ingredient.package_type,
         purchase_unit=legacy_ingredient.purchase_unit,
         purchase_quantity=legacy_ingredient.purchase_quantity,
@@ -129,7 +138,11 @@ def migrate_ingredient_to_new_schema(
         pantry_item = PantryItem(
             variant_id=variant.id,
             quantity=legacy_ingredient.quantity,
-            purchase_date=legacy_ingredient.last_updated.date() if isinstance(legacy_ingredient.last_updated, datetime) else date.today(),
+            purchase_date=(
+                legacy_ingredient.last_updated.date()
+                if isinstance(legacy_ingredient.last_updated, datetime)
+                else date.today()
+            ),
             location="Main Pantry",  # Default location
             notes=f"Migrated from legacy ingredient ID {legacy_ingredient.id}",
         )
@@ -152,10 +165,15 @@ def migrate_ingredient_to_new_schema(
     if legacy_ingredient.unit_cost and legacy_ingredient.unit_cost > 0:
         purchase = Purchase(
             variant_id=variant.id,
-            purchase_date=legacy_ingredient.last_updated.date() if isinstance(legacy_ingredient.last_updated, datetime) else date.today(),
+            purchase_date=(
+                legacy_ingredient.last_updated.date()
+                if isinstance(legacy_ingredient.last_updated, datetime)
+                else date.today()
+            ),
             unit_cost=legacy_ingredient.unit_cost,
             quantity_purchased=legacy_ingredient.quantity if legacy_ingredient.quantity else 1.0,
-            total_cost=legacy_ingredient.unit_cost * (legacy_ingredient.quantity if legacy_ingredient.quantity else 1.0),
+            total_cost=legacy_ingredient.unit_cost
+            * (legacy_ingredient.quantity if legacy_ingredient.quantity else 1.0),
             notes=f"Migrated from legacy ingredient ID {legacy_ingredient.id}",
         )
         session.add(purchase)
@@ -190,8 +208,8 @@ def migrate_all_ingredients(session: Session, dry_run: bool = True) -> Dict[str,
 
     for legacy_ing in legacy_ingredients:
         try:
-            ingredient, variant, pantry_item, conversion, purchase = migrate_ingredient_to_new_schema(
-                legacy_ing, session
+            ingredient, variant, pantry_item, conversion, purchase = (
+                migrate_ingredient_to_new_schema(legacy_ing, session)
             )
 
             stats["migrated_ingredients"] += 1
@@ -234,10 +252,13 @@ def update_recipe_ingredient_references(session: Session, dry_run: bool = True) 
     updated_count = 0
 
     # Get all RecipeIngredients with legacy ingredient_id but no ingredient_new_id
-    recipe_ingredients = session.query(RecipeIngredient).filter(
-        RecipeIngredient.ingredient_id.isnot(None),
-        RecipeIngredient.ingredient_new_id.is_(None)
-    ).all()
+    recipe_ingredients = (
+        session.query(RecipeIngredient)
+        .filter(
+            RecipeIngredient.ingredient_id.isnot(None), RecipeIngredient.ingredient_new_id.is_(None)
+        )
+        .all()
+    )
 
     for recipe_ing in recipe_ingredients:
         # Find the new Ingredient that was migrated from this legacy ingredient
@@ -249,9 +270,7 @@ def update_recipe_ingredient_references(session: Session, dry_run: bool = True) 
             continue
 
         # Find matching new Ingredient by name
-        new_ing = session.query(Ingredient).filter(
-            Ingredient.name == legacy_ing.name
-        ).first()
+        new_ing = session.query(Ingredient).filter(Ingredient.name == legacy_ing.name).first()
 
         if new_ing:
             recipe_ing.ingredient_new_id = new_ing.id
@@ -284,7 +303,9 @@ def run_full_migration(session: Session, dry_run: bool = True) -> None:
     print("=" * 60)
     print("INGREDIENT/VARIANT MIGRATION")
     print("=" * 60)
-    print(f"Mode: {'DRY RUN (no changes will be saved)' if dry_run else 'LIVE (changes will be committed)'}")
+    print(
+        f"Mode: {'DRY RUN (no changes will be saved)' if dry_run else 'LIVE (changes will be committed)'}"
+    )
     print()
 
     # Step 1: Populate UUIDs
@@ -304,7 +325,7 @@ def run_full_migration(session: Session, dry_run: bool = True) -> None:
     print(f"  - Pantry items created: {migration_stats['created_pantry_items']}")
     print(f"  - Conversions created: {migration_stats['created_conversions']}")
     print(f"  - Purchases created: {migration_stats['created_purchases']}")
-    if migration_stats['errors'] > 0:
+    if migration_stats["errors"] > 0:
         print(f"  - Errors: {migration_stats['errors']}")
     print()
 

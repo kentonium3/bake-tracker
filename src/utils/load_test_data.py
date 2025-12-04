@@ -41,7 +41,7 @@ def load_test_data_from_json(json_file_path: str) -> Dict[str, int]:
         Dictionary with counts of created entities
     """
     # Read JSON file
-    with open(json_file_path, 'r') as f:
+    with open(json_file_path, "r") as f:
         data = json.load(f)
 
     session = get_session()

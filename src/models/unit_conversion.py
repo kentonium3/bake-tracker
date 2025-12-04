@@ -44,10 +44,7 @@ class UnitConversion(BaseModel):
 
     # Foreign key to Ingredient (NEW refactored model - "products" table)
     ingredient_id = Column(
-        Integer,
-        ForeignKey("products.id", ondelete="CASCADE"),
-        nullable=False,
-        index=True
+        Integer, ForeignKey("products.id", ondelete="CASCADE"), nullable=False, index=True
     )
 
     # Conversion specification
@@ -126,15 +123,13 @@ class UnitConversion(BaseModel):
         result["conversion_factor"] = self.conversion_factor
 
         if include_relationships and self.ingredient:
-            result["ingredient"] = {
-                "id": self.ingredient.id,
-                "name": self.ingredient.name
-            }
+            result["ingredient"] = {"id": self.ingredient.id, "name": self.ingredient.name}
 
         return result
 
 
 # Module-level helper functions for unit conversion
+
 
 def get_conversion(ingredient_id: int, from_unit: str, to_unit: str, session) -> UnitConversion:
     """
@@ -154,7 +149,7 @@ def get_conversion(ingredient_id: int, from_unit: str, to_unit: str, session) ->
         .filter(
             UnitConversion.ingredient_id == ingredient_id,
             UnitConversion.from_unit == from_unit,
-            UnitConversion.to_unit == to_unit
+            UnitConversion.to_unit == to_unit,
         )
         .first()
     )
@@ -166,7 +161,7 @@ def get_conversion(ingredient_id: int, from_unit: str, to_unit: str, session) ->
             .filter(
                 UnitConversion.ingredient_id == ingredient_id,
                 UnitConversion.from_unit == to_unit,
-                UnitConversion.to_unit == from_unit
+                UnitConversion.to_unit == from_unit,
             )
             .first()
         )
@@ -176,11 +171,7 @@ def get_conversion(ingredient_id: int, from_unit: str, to_unit: str, session) ->
 
 
 def convert_quantity(
-    ingredient_id: int,
-    quantity: float,
-    from_unit: str,
-    to_unit: str,
-    session
+    ingredient_id: int, quantity: float, from_unit: str, to_unit: str, session
 ) -> float:
     """
     Convert quantity between units for a ingredient.
@@ -205,6 +196,7 @@ def convert_quantity(
     if not conversion:
         # Try standard conversions from unit_converter module
         from src.services.unit_converter import convert as standard_convert
+
         try:
             return standard_convert(quantity, from_unit, to_unit)
         except ValueError:
@@ -249,7 +241,7 @@ def create_standard_conversions(ingredient_id: int, ingredient_name: str, sessio
         from_quantity=1.0,
         to_unit="g",
         to_quantity=density_g_per_cup,
-        notes="Based on standard density data"
+        notes="Based on standard density data",
     )
     session.add(conversion_cup_g)
     conversions.append(conversion_cup_g)
@@ -265,7 +257,7 @@ def create_standard_conversions(ingredient_id: int, ingredient_name: str, sessio
         from_quantity=1.0,
         to_unit="cup",
         to_quantity=cups_per_lb,
-        notes="Calculated from density"
+        notes="Calculated from density",
     )
     session.add(conversion_lb_cup)
     conversions.append(conversion_lb_cup)

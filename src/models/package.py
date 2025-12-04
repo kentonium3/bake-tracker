@@ -56,7 +56,7 @@ class Package(BaseModel):
         "PackageFinishedGood",
         back_populates="package",
         cascade="all, delete-orphan",
-        lazy="selectin"
+        lazy="selectin",
     )
 
     # Indexes
@@ -128,13 +128,15 @@ class Package(BaseModel):
                 fg = pfg.finished_good
                 unit_cost = fg.total_cost or Decimal("0.00")
                 line_total = unit_cost * Decimal(str(pfg.quantity))
-                breakdown.append({
-                    "finished_good_id": fg.id,
-                    "name": fg.display_name,
-                    "quantity": pfg.quantity,
-                    "unit_cost": float(unit_cost),
-                    "line_total": float(line_total)
-                })
+                breakdown.append(
+                    {
+                        "finished_good_id": fg.id,
+                        "name": fg.display_name,
+                        "quantity": pfg.quantity,
+                        "unit_cost": float(unit_cost),
+                        "line_total": float(line_total),
+                    }
+                )
 
         return breakdown
 
@@ -178,16 +180,10 @@ class PackageFinishedGood(BaseModel):
 
     # Foreign keys
     package_id = Column(
-        Integer,
-        ForeignKey("packages.id", ondelete="CASCADE"),
-        nullable=False,
-        index=True
+        Integer, ForeignKey("packages.id", ondelete="CASCADE"), nullable=False, index=True
     )
     finished_good_id = Column(
-        Integer,
-        ForeignKey("finished_goods.id", ondelete="RESTRICT"),
-        nullable=False,
-        index=True
+        Integer, ForeignKey("finished_goods.id", ondelete="RESTRICT"), nullable=False, index=True
     )
 
     # Quantity

@@ -372,7 +372,9 @@ class PackageFormDialog(ctk.CTkToplevel):
         # Add FinishedGood rows
         if self.package.package_finished_goods:
             for pfg in self.package.package_finished_goods:
-                self._add_finished_good_row(finished_good_id=pfg.finished_good_id, quantity=pfg.quantity)
+                self._add_finished_good_row(
+                    finished_good_id=pfg.finished_good_id, quantity=pfg.quantity
+                )
 
     def _save(self):
         """Validate and save the package data."""

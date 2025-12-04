@@ -13,18 +13,22 @@ from contextlib import contextmanager
 # Conditional imports for forward compatibility
 try:
     from src.models.finished_unit import FinishedUnit
+
     HAS_FINISHED_UNIT_MODEL = True
 except ImportError:
     # Fall back to FinishedGood model until FinishedUnit is implemented
     from src.models.finished_good import FinishedGood as FinishedUnit
+
     HAS_FINISHED_UNIT_MODEL = False
 
 try:
     from src.services import finished_unit_service
+
     HAS_FINISHED_UNIT_SERVICE = True
 except ImportError:
     # Fall back to finished_good_service until FinishedUnit service is implemented
     from src.services import finished_good_service as finished_unit_service
+
     HAS_FINISHED_UNIT_SERVICE = False
 from src.utils.constants import (
     RECIPE_CATEGORIES,
@@ -41,13 +45,16 @@ from src.ui.widgets.dialogs import (
     show_success,
     show_info,
 )
+
 # Conditional import for form dialog
 try:
     from src.ui.forms.finished_unit_form import FinishedUnitFormDialog
+
     HAS_FINISHED_UNIT_FORM = True
 except ImportError:
     # Fall back to FinishedGood form until FinishedUnit form is implemented
     from src.ui.forms.finished_good_form import FinishedGoodFormDialog as FinishedUnitFormDialog
+
     HAS_FINISHED_UNIT_FORM = False
 from src.ui.service_integration import get_ui_service_integrator, OperationType
 
@@ -55,6 +62,7 @@ from src.ui.service_integration import get_ui_service_integrator, OperationType
 # Constants for UI sizing
 class ButtonWidths:
     """Button width constants for consistent UI sizing."""
+
     ADD_BUTTON = 180
     STANDARD_BUTTON = 120
     DETAILS_BUTTON = 150
@@ -63,6 +71,7 @@ class ButtonWidths:
 # Constants for status messages
 class StatusMessages:
     """Status message constants for internationalization and consistency."""
+
     READY = "Ready"
     SEARCH_FAILED = "Search failed"
     FAILED_TO_ADD = "Failed to add finished unit"
@@ -160,7 +169,7 @@ class FinishedUnitsTab(ctk.CTkFrame):
                 self._update_status(success_message, success=True)
         except Exception as e:
             # Operation failed
-            error_msg = getattr(e, 'message', str(e))
+            error_msg = getattr(e, "message", str(e))
             self._update_status(f"{operation_message} failed: {error_msg}", error=True)
             raise  # Re-raise the exception
 
@@ -276,12 +285,11 @@ class FinishedUnitsTab(ctk.CTkFrame):
                 operation_name="Search Finished Units",
                 operation_type=OperationType.SEARCH,
                 service_function=lambda: finished_unit_service.get_all_finished_units(
-                    name_search=search_text if search_text else None,
-                    category=category_filter
+                    name_search=search_text if search_text else None, category=category_filter
                 ),
                 parent_widget=self,
                 error_context="Searching finished units",
-                log_level=logging.DEBUG  # Reduce log noise for frequent operations
+                log_level=logging.DEBUG,  # Reduce log noise for frequent operations
             )
 
             self.data_table.set_data(finished_units)
@@ -341,7 +349,7 @@ class FinishedUnitsTab(ctk.CTkFrame):
                     parent_widget=self,
                     success_message=f"Finished unit '{result.get('display_name', 'New Unit')}' added successfully",
                     error_context="Creating finished unit",
-                    show_success_dialog=True
+                    show_success_dialog=True,
                 )
 
                 self.refresh()
@@ -349,7 +357,9 @@ class FinishedUnitsTab(ctk.CTkFrame):
 
             except Exception as e:
                 # Error already handled by service integrator
-                logging.exception("Add finished unit operation failed after service integrator handling")
+                logging.exception(
+                    "Add finished unit operation failed after service integrator handling"
+                )
                 self._update_status(StatusMessages.FAILED_TO_ADD, error=True)
 
     def _edit_finished_unit(self):
@@ -362,9 +372,11 @@ class FinishedUnitsTab(ctk.CTkFrame):
             unit = self.service_integrator.execute_service_operation(
                 operation_name="Load Finished Unit for Edit",
                 operation_type=OperationType.READ,
-                service_function=lambda: finished_unit_service.get_finished_unit_by_id(self.selected_finished_unit.id),
+                service_function=lambda: finished_unit_service.get_finished_unit_by_id(
+                    self.selected_finished_unit.id
+                ),
                 parent_widget=self,
-                error_context="Loading finished unit for editing"
+                error_context="Loading finished unit for editing",
             )
 
             dialog = FinishedUnitFormDialog(
@@ -376,7 +388,9 @@ class FinishedUnitsTab(ctk.CTkFrame):
 
         except Exception as e:
             # Error already handled by service integrator
-            logging.exception("Edit finished unit dialog creation failed after service integrator handling")
+            logging.exception(
+                "Edit finished unit dialog creation failed after service integrator handling"
+            )
             return
 
         if result:
@@ -384,19 +398,25 @@ class FinishedUnitsTab(ctk.CTkFrame):
                 updated_unit = self.service_integrator.execute_service_operation(
                     operation_name="Update Finished Unit",
                     operation_type=OperationType.UPDATE,
-                    service_function=lambda: finished_unit_service.update_finished_unit(self.selected_finished_unit.id, result),
+                    service_function=lambda: finished_unit_service.update_finished_unit(
+                        self.selected_finished_unit.id, result
+                    ),
                     parent_widget=self,
                     success_message=f"Finished unit '{result.get('display_name', 'Unit')}' updated successfully",
                     error_context="Updating finished unit",
-                    show_success_dialog=True
+                    show_success_dialog=True,
                 )
 
                 self.refresh()
-                self._update_status(StatusMessages.updated_unit(updated_unit.display_name), success=True)
+                self._update_status(
+                    StatusMessages.updated_unit(updated_unit.display_name), success=True
+                )
 
             except Exception as e:
                 # Error already handled by service integrator
-                logging.exception("Update finished unit operation failed after service integrator handling")
+                logging.exception(
+                    "Update finished unit operation failed after service integrator handling"
+                )
                 self._update_status(StatusMessages.FAILED_TO_UPDATE, error=True)
 
     def _delete_finished_unit(self):
@@ -418,11 +438,13 @@ class FinishedUnitsTab(ctk.CTkFrame):
                 self.service_integrator.execute_service_operation(
                     operation_name="Delete Finished Unit",
                     operation_type=OperationType.DELETE,
-                    service_function=lambda: finished_unit_service.delete_finished_unit(self.selected_finished_unit.id),
+                    service_function=lambda: finished_unit_service.delete_finished_unit(
+                        self.selected_finished_unit.id
+                    ),
                     parent_widget=self,
                     success_message=f"Finished unit '{self.selected_finished_unit.display_name}' deleted successfully",
                     error_context="Deleting finished unit",
-                    show_success_dialog=True
+                    show_success_dialog=True,
                 )
 
                 self.selected_finished_unit = None
@@ -431,7 +453,9 @@ class FinishedUnitsTab(ctk.CTkFrame):
 
             except Exception as e:
                 # Error already handled by service integrator with user-friendly messages
-                logging.exception("Delete finished unit operation failed after service integrator handling")
+                logging.exception(
+                    "Delete finished unit operation failed after service integrator handling"
+                )
                 self._update_status(StatusMessages.FAILED_TO_DELETE, error=True)
 
     def _view_details(self):
@@ -448,7 +472,7 @@ class FinishedUnitsTab(ctk.CTkFrame):
                     self.selected_finished_unit.id
                 ),
                 parent_widget=self,
-                error_context="Loading finished unit details"
+                error_context="Loading finished unit details",
             )
 
             if not fg:
@@ -486,9 +510,13 @@ class FinishedUnitsTab(ctk.CTkFrame):
             details.append("")
             details.append("Batch Planning:")
             if fg.yield_mode.value == "discrete_count":
-                details.append(f"  Example: Need 50 items → {fg.calculate_batches_needed(50):.2f} batches")
+                details.append(
+                    f"  Example: Need 50 items → {fg.calculate_batches_needed(50):.2f} batches"
+                )
             else:
-                details.append(f"  Example: Need 2 items → {fg.calculate_batches_needed(2):.2f} batches")
+                details.append(
+                    f"  Example: Need 2 items → {fg.calculate_batches_needed(2):.2f} batches"
+                )
 
             if fg.notes:
                 details.append("")
@@ -520,7 +548,7 @@ class FinishedUnitsTab(ctk.CTkFrame):
                 service_function=lambda: finished_unit_service.get_all_finished_units(),
                 parent_widget=self,
                 error_context="Loading finished units",
-                log_level=logging.DEBUG  # Reduce log noise for frequent operations
+                log_level=logging.DEBUG,  # Reduce log noise for frequent operations
             )
 
             self.data_table.set_data(finished_units)
@@ -528,7 +556,9 @@ class FinishedUnitsTab(ctk.CTkFrame):
 
         except Exception as e:
             # Error already handled by service integrator
-            logging.exception("Load finished units operation failed after service integrator handling")
+            logging.exception(
+                "Load finished units operation failed after service integrator handling"
+            )
             self._update_status(StatusMessages.FAILED_TO_LOAD, error=True)
 
     def _add_item_to_table(self, item: FinishedUnit) -> None:
@@ -581,7 +611,7 @@ class FinishedUnitsTab(ctk.CTkFrame):
                 ),
                 parent_widget=self,
                 error_context="Validating selected unit",
-                suppress_exception=True  # Don't show error dialogs for validation checks
+                suppress_exception=True,  # Don't show error dialogs for validation checks
             )
 
             if not unit:
@@ -611,43 +641,28 @@ class FinishedUnitsTab(ctk.CTkFrame):
             True if validation passes, False if validation fails
         """
         if not form_data:
-            show_error(
-                "Validation Error",
-                "No form data provided.",
-                parent=self
-            )
+            show_error("Validation Error", "No form data provided.", parent=self)
             return False
 
         # Validate required fields
-        required_fields = [
-            ("display_name", "Display Name"),
-            ("recipe_id", "Recipe")
-        ]
+        required_fields = [("display_name", "Display Name"), ("recipe_id", "Recipe")]
 
         for field_name, field_display in required_fields:
             if not form_data.get(field_name):
-                show_error(
-                    "Validation Error",
-                    f"'{field_display}' is required.",
-                    parent=self
-                )
+                show_error("Validation Error", f"'{field_display}' is required.", parent=self)
                 return False
 
         # Validate display_name format
         display_name = form_data.get("display_name", "").strip()
         if len(display_name) < 2:
             show_error(
-                "Validation Error",
-                "Display Name must be at least 2 characters long.",
-                parent=self
+                "Validation Error", "Display Name must be at least 2 characters long.", parent=self
             )
             return False
 
         if len(display_name) > 100:
             show_error(
-                "Validation Error",
-                "Display Name cannot exceed 100 characters.",
-                parent=self
+                "Validation Error", "Display Name cannot exceed 100 characters.", parent=self
             )
             return False
 
@@ -657,7 +672,7 @@ class FinishedUnitsTab(ctk.CTkFrame):
             show_error(
                 "Validation Error",
                 "Slug must only contain letters, numbers, hyphens, and underscores.",
-                parent=self
+                parent=self,
             )
             return False
 
@@ -671,7 +686,7 @@ class FinishedUnitsTab(ctk.CTkFrame):
                     show_error(
                         "Validation Error",
                         "Batch percentage must be between 0 and 100.",
-                        parent=self
+                        parent=self,
                     )
                     return False
 
@@ -681,17 +696,13 @@ class FinishedUnitsTab(ctk.CTkFrame):
                 items_per_batch = int(items_per_batch)
                 if items_per_batch <= 0:
                     show_error(
-                        "Validation Error",
-                        "Items per batch must be greater than 0.",
-                        parent=self
+                        "Validation Error", "Items per batch must be greater than 0.", parent=self
                     )
                     return False
 
         except (ValueError, TypeError) as e:
             show_error(
-                "Validation Error",
-                f"Invalid numerical value in form data: {e}",
-                parent=self
+                "Validation Error", f"Invalid numerical value in form data: {e}", parent=self
             )
             return False
 
@@ -702,7 +713,7 @@ class FinishedUnitsTab(ctk.CTkFrame):
                 show_error(
                     "Validation Error",
                     "Discrete count mode requires 'Items per Batch' and 'Item Unit'.",
-                    parent=self
+                    parent=self,
                 )
                 return False
         elif yield_mode == "percentage_based":
@@ -710,7 +721,7 @@ class FinishedUnitsTab(ctk.CTkFrame):
                 show_error(
                     "Validation Error",
                     "Percentage-based mode requires 'Batch Percentage'.",
-                    parent=self
+                    parent=self,
                 )
                 return False
 

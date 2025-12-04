@@ -32,6 +32,7 @@ class ServiceError(Exception):
 
     All service-specific exceptions should inherit from this class.
     """
+
     pass
 
 
@@ -93,6 +94,7 @@ class DatabaseError(ServiceException):
 
 
 # New Service Layer Exceptions (Ingredient/Variant/Pantry/Purchase Services)
+
 
 class IngredientNotFoundBySlug(ServiceError):
     """Raised when ingredient cannot be found by slug.
@@ -192,10 +194,8 @@ class VariantInUse(ServiceError):
         self.dependencies = dependencies
 
         # Format dependency details
-        details = ', '.join(
-            f"{count} {entity_type}"
-            for entity_type, count in dependencies.items()
-            if count > 0
+        details = ", ".join(
+            f"{count} {entity_type}" for entity_type, count in dependencies.items() if count > 0
         )
 
         super().__init__(f"Cannot delete variant {variant_id}: used in {details}")

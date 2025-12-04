@@ -7,16 +7,8 @@ import pytest
 from decimal import Decimal
 from datetime import date, timedelta
 
-from src.services import (
-    ingredient_service,
-    variant_service,
-    pantry_service
-)
-from src.services.exceptions import (
-    IngredientNotFoundBySlug,
-    VariantNotFound,
-    ValidationError
-)
+from src.services import ingredient_service, variant_service, pantry_service
+from src.services.exceptions import IngredientNotFoundBySlug, VariantNotFound, ValidationError
 
 
 def test_complete_inventory_workflow(test_db):
@@ -27,7 +19,7 @@ def test_complete_inventory_workflow(test_db):
         "name": "All-Purpose Flour",
         "category": "Flour",
         "recipe_unit": "cup",
-        "density_g_per_ml": 0.4793
+        "density_g_per_ml": 0.4793,
     }
     ingredient = ingredient_service.create_ingredient(ingredient_data)
     assert ingredient.slug == "all_purpose_flour"
@@ -40,7 +32,7 @@ def test_complete_inventory_workflow(test_db):
         "package_size": "25 lb bag",
         "purchase_unit": "lb",
         "purchase_quantity": Decimal("25.0"),
-        "preferred": True
+        "preferred": True,
     }
     variant = variant_service.create_variant(ingredient.slug, variant_data)
     assert variant.preferred is True
@@ -53,7 +45,7 @@ def test_complete_inventory_workflow(test_db):
         quantity=Decimal("25.0"),
         purchase_date=date.today(),
         expiration_date=date.today() + timedelta(days=365),
-        location="Main Pantry"
+        location="Main Pantry",
     )
     assert pantry_item.quantity == 25.0
     assert pantry_item.variant_id == variant.id
@@ -73,11 +65,7 @@ def test_multiple_variants_preferred_toggle(test_db):
     """Test: Create multiple variants -> Toggle preferred -> Verify atomicity."""
 
     # Create ingredient
-    ingredient_data = {
-        "name": "Granulated Sugar",
-        "category": "Sugar",
-        "recipe_unit": "cup"
-    }
+    ingredient_data = {"name": "Granulated Sugar", "category": "Sugar", "recipe_unit": "cup"}
     ingredient = ingredient_service.create_ingredient(ingredient_data)
 
     # Create variant 1 (preferred)
@@ -86,7 +74,7 @@ def test_multiple_variants_preferred_toggle(test_db):
         "package_size": "4 lb bag",
         "purchase_unit": "lb",
         "purchase_quantity": Decimal("4.0"),
-        "preferred": True
+        "preferred": True,
     }
     variant1 = variant_service.create_variant(ingredient.slug, variant1_data)
     assert variant1.preferred is True
@@ -97,7 +85,7 @@ def test_multiple_variants_preferred_toggle(test_db):
         "package_size": "5 lb bag",
         "purchase_unit": "lb",
         "purchase_quantity": Decimal("5.0"),
-        "preferred": False
+        "preferred": False,
     }
     variant2 = variant_service.create_variant(ingredient.slug, variant2_data)
     assert variant2.preferred is False
@@ -117,83 +105,89 @@ def test_pantry_items_filtering(test_db):
     """Test: Add multiple pantry items -> Filter by location and ingredient."""
 
     # Setup: Create ingredient and variant
-    ingredient = ingredient_service.create_ingredient({
-        "name": "Bread Flour",
-        "category": "Flour",
-        "recipe_unit": "cup",
-        "density_g_per_ml": 0.4793  # 4 cups/lb
-    })
+    ingredient = ingredient_service.create_ingredient(
+        {
+            "name": "Bread Flour",
+            "category": "Flour",
+            "recipe_unit": "cup",
+            "density_g_per_ml": 0.4793,  # 4 cups/lb
+        }
+    )
 
-    variant = variant_service.create_variant(ingredient.slug, {
-        "brand": "Bob's Red Mill",
-        "package_size": "5 lb bag",
-        "purchase_unit": "lb",
-        "purchase_quantity": Decimal("5.0")
-    })
+    variant = variant_service.create_variant(
+        ingredient.slug,
+        {
+            "brand": "Bob's Red Mill",
+            "package_size": "5 lb bag",
+            "purchase_unit": "lb",
+            "purchase_quantity": Decimal("5.0"),
+        },
+    )
 
     # Add pantry items to different locations
     item1 = pantry_service.add_to_pantry(
         variant_id=variant.id,
         quantity=Decimal("5.0"),
         purchase_date=date.today() - timedelta(days=30),
-        location="Main Pantry"
+        location="Main Pantry",
     )
 
     item2 = pantry_service.add_to_pantry(
         variant_id=variant.id,
         quantity=Decimal("10.0"),
         purchase_date=date.today() - timedelta(days=15),
-        location="Basement"
+        location="Basement",
     )
 
     item3 = pantry_service.add_to_pantry(
         variant_id=variant.id,
         quantity=Decimal("3.0"),
         purchase_date=date.today(),
-        location="Main Pantry"
+        location="Main Pantry",
     )
 
     # Filter by location
     main_pantry_items = pantry_service.get_pantry_items(
-        ingredient_slug=ingredient.slug,
-        location="Main Pantry"
+        ingredient_slug=ingredient.slug, location="Main Pantry"
     )
     assert len(main_pantry_items) == 2
 
     basement_items = pantry_service.get_pantry_items(
-        ingredient_slug=ingredient.slug,
-        location="Basement"
+        ingredient_slug=ingredient.slug, location="Basement"
     )
     assert len(basement_items) == 1
 
     # Verify total quantity
     total = pantry_service.get_total_quantity(ingredient.slug)
-    assert abs(total - Decimal("72.0")) < Decimal("0.01"), f"Expected 72.0 cups, got {total}"  # 18 lb = 72 cups at 4 cups/lb
+    assert abs(total - Decimal("72.0")) < Decimal(
+        "0.01"
+    ), f"Expected 72.0 cups, got {total}"  # 18 lb = 72 cups at 4 cups/lb
 
 
 def test_expiring_items_detection(test_db):
     """Test: Add items with various expiration dates -> Get expiring soon."""
 
     # Setup
-    ingredient = ingredient_service.create_ingredient({
-        "name": "Yeast",
-        "category": "Misc",
-        "recipe_unit": "tsp"
-    })
+    ingredient = ingredient_service.create_ingredient(
+        {"name": "Yeast", "category": "Misc", "recipe_unit": "tsp"}
+    )
 
-    variant = variant_service.create_variant(ingredient.slug, {
-        "brand": "Red Star",
-        "package_size": "4 oz jar",
-        "purchase_unit": "oz",
-        "purchase_quantity": Decimal("4.0")
-    })
+    variant = variant_service.create_variant(
+        ingredient.slug,
+        {
+            "brand": "Red Star",
+            "package_size": "4 oz jar",
+            "purchase_unit": "oz",
+            "purchase_quantity": Decimal("4.0"),
+        },
+    )
 
     # Add item expiring in 7 days
     expiring_soon = pantry_service.add_to_pantry(
         variant_id=variant.id,
         quantity=Decimal("2.0"),
         purchase_date=date.today() - timedelta(days=60),
-        expiration_date=date.today() + timedelta(days=7)
+        expiration_date=date.today() + timedelta(days=7),
     )
 
     # Add item expiring in 30 days
@@ -201,14 +195,12 @@ def test_expiring_items_detection(test_db):
         variant_id=variant.id,
         quantity=Decimal("4.0"),
         purchase_date=date.today() - timedelta(days=30),
-        expiration_date=date.today() + timedelta(days=30)
+        expiration_date=date.today() + timedelta(days=30),
     )
 
     # Add item with no expiration
     no_expiration = pantry_service.add_to_pantry(
-        variant_id=variant.id,
-        quantity=Decimal("1.0"),
-        purchase_date=date.today()
+        variant_id=variant.id, quantity=Decimal("1.0"), purchase_date=date.today()
     )
 
     # Get items expiring within 14 days
@@ -225,17 +217,14 @@ def test_ingredient_deletion_blocked_by_variants(test_db):
     """Test: Create variant -> Attempt to delete ingredient -> Verify blocked."""
 
     # Create ingredient and variant
-    ingredient = ingredient_service.create_ingredient({
-        "name": "Baking Powder",
-        "category": "Misc",
-        "recipe_unit": "tsp"
-    })
+    ingredient = ingredient_service.create_ingredient(
+        {"name": "Baking Powder", "category": "Misc", "recipe_unit": "tsp"}
+    )
 
-    variant = variant_service.create_variant(ingredient.slug, {
-        "brand": "Rumford",
-        "purchase_unit": "oz",
-        "purchase_quantity": Decimal("8.0")
-    })
+    variant = variant_service.create_variant(
+        ingredient.slug,
+        {"brand": "Rumford", "purchase_unit": "oz", "purchase_quantity": Decimal("8.0")},
+    )
 
     # Attempt to delete ingredient should fail
     with pytest.raises(Exception):  # IngredientInUse exception

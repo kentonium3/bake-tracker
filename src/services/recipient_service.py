@@ -31,6 +31,7 @@ from src.services.exceptions import (
 
 class RecipientNotFound(Exception):
     """Raised when a recipient is not found."""
+
     def __init__(self, recipient_id: int):
         self.recipient_id = recipient_id
         super().__init__(f"Recipient with ID {recipient_id} not found")
@@ -38,16 +39,16 @@ class RecipientNotFound(Exception):
 
 class RecipientInUse(Exception):
     """Raised when trying to delete a recipient that's used in events."""
+
     def __init__(self, recipient_id: int, event_count: int):
         self.recipient_id = recipient_id
         self.event_count = event_count
-        super().__init__(
-            f"Recipient {recipient_id} is used in {event_count} event(s)"
-        )
+        super().__init__(f"Recipient {recipient_id} is used in {event_count} event(s)")
 
 
 class RecipientHasAssignmentsError(Exception):
     """Raised when trying to delete a recipient that has event assignments."""
+
     def __init__(self, recipient_id: int, assignment_count: int):
         self.recipient_id = recipient_id
         self.assignment_count = assignment_count
@@ -151,9 +152,7 @@ def get_recipient_by_name(name: str) -> Optional[Recipient]:
     """
     try:
         with session_scope() as session:
-            recipient = session.query(Recipient).filter(
-                Recipient.name.ilike(name)
-            ).first()
+            recipient = session.query(Recipient).filter(Recipient.name.ilike(name)).first()
 
             return recipient
 
@@ -162,8 +161,7 @@ def get_recipient_by_name(name: str) -> Optional[Recipient]:
 
 
 def get_all_recipients(
-    name_search: Optional[str] = None,
-    household_search: Optional[str] = None
+    name_search: Optional[str] = None, household_search: Optional[str] = None
 ) -> List[Recipient]:
     """
     Get all recipients with optional filters.
@@ -274,9 +272,11 @@ def delete_recipient(recipient_id: int, force: bool = False) -> bool:
                 raise RecipientNotFound(recipient_id)
 
             # Check for event assignments (FR-018)
-            assignment_count = session.query(EventRecipientPackage).filter(
-                EventRecipientPackage.recipient_id == recipient_id
-            ).count()
+            assignment_count = (
+                session.query(EventRecipientPackage)
+                .filter(EventRecipientPackage.recipient_id == recipient_id)
+                .count()
+            )
 
             if assignment_count > 0 and not force:
                 raise RecipientHasAssignmentsError(recipient_id, assignment_count)
@@ -319,9 +319,11 @@ def check_recipient_has_assignments(recipient_id: int) -> bool:
     """
     try:
         with session_scope() as session:
-            count = session.query(EventRecipientPackage).filter(
-                EventRecipientPackage.recipient_id == recipient_id
-            ).count()
+            count = (
+                session.query(EventRecipientPackage)
+                .filter(EventRecipientPackage.recipient_id == recipient_id)
+                .count()
+            )
 
             return count > 0
 
@@ -344,9 +346,11 @@ def get_recipient_assignment_count(recipient_id: int) -> int:
     """
     try:
         with session_scope() as session:
-            count = session.query(EventRecipientPackage).filter(
-                EventRecipientPackage.recipient_id == recipient_id
-            ).count()
+            count = (
+                session.query(EventRecipientPackage)
+                .filter(EventRecipientPackage.recipient_id == recipient_id)
+                .count()
+            )
 
             return count
 
@@ -369,9 +373,14 @@ def get_recipient_events(recipient_id: int) -> List[Event]:
     """
     try:
         with session_scope() as session:
-            events = session.query(Event).join(EventRecipientPackage).filter(
-                EventRecipientPackage.recipient_id == recipient_id
-            ).distinct().order_by(Event.event_date.desc()).all()
+            events = (
+                session.query(Event)
+                .join(EventRecipientPackage)
+                .filter(EventRecipientPackage.recipient_id == recipient_id)
+                .distinct()
+                .order_by(Event.event_date.desc())
+                .all()
+            )
 
             return events
 
@@ -399,12 +408,17 @@ def search_recipients(query: str) -> List[Recipient]:
     """
     try:
         with session_scope() as session:
-            recipients = session.query(Recipient).filter(
-                or_(
-                    Recipient.name.ilike(f"%{query}%"),
-                    Recipient.household_name.ilike(f"%{query}%")
+            recipients = (
+                session.query(Recipient)
+                .filter(
+                    or_(
+                        Recipient.name.ilike(f"%{query}%"),
+                        Recipient.household_name.ilike(f"%{query}%"),
+                    )
                 )
-            ).order_by(Recipient.name).all()
+                .order_by(Recipient.name)
+                .all()
+            )
 
             return recipients
 
@@ -427,9 +441,12 @@ def get_recipients_by_household(household_name: str) -> List[Recipient]:
     """
     try:
         with session_scope() as session:
-            recipients = session.query(Recipient).filter(
-                Recipient.household_name == household_name
-            ).order_by(Recipient.name).all()
+            recipients = (
+                session.query(Recipient)
+                .filter(Recipient.household_name == household_name)
+                .order_by(Recipient.name)
+                .all()
+            )
 
             return recipients
 

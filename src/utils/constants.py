@@ -377,7 +377,6 @@ INGREDIENT_DENSITIES: Dict[str, float] = {
     "self-rising flour": 120.0,
     "almond flour": 96.0,
     "coconut flour": 112.0,
-
     # Sugars
     "white granulated sugar": 200.0,
     "granulated sugar": 200.0,
@@ -390,7 +389,6 @@ INGREDIENT_DENSITIES: Dict[str, float] = {
     "icing sugar": 120.0,
     "turbinado sugar": 180.0,
     "demerara sugar": 180.0,
-
     # Fats
     "butter": 227.0,
     "margarine": 227.0,
@@ -399,7 +397,6 @@ INGREDIENT_DENSITIES: Dict[str, float] = {
     "vegetable oil": 224.0,
     "olive oil": 216.0,
     "coconut oil": 218.0,
-
     # Liquids
     "water": 237.0,
     "milk": 244.0,
@@ -410,7 +407,6 @@ INGREDIENT_DENSITIES: Dict[str, float] = {
     "maple syrup": 312.0,
     "corn syrup": 312.0,
     "molasses": 322.0,
-
     # Chocolate & Cocoa
     "cocoa powder": 85.0,
     "dutch cocoa": 85.0,
@@ -419,7 +415,6 @@ INGREDIENT_DENSITIES: Dict[str, float] = {
     "dark chocolate chips": 170.0,
     "milk chocolate chips": 170.0,
     "white chocolate chips": 170.0,
-
     # Nuts (whole/chopped)
     "almonds": 143.0,
     "walnuts": 120.0,
@@ -429,14 +424,12 @@ INGREDIENT_DENSITIES: Dict[str, float] = {
     "hazelnuts": 135.0,
     "pistachios": 123.0,
     "macadamia nuts": 134.0,
-
     # Dried Fruits
     "raisins": 165.0,
     "cranberries": 120.0,
     "dates": 178.0,
     "apricots": 130.0,
     "figs": 149.0,
-
     # Spices & Leavening
     "baking powder": 192.0,
     "baking soda": 220.0,
@@ -446,7 +439,6 @@ INGREDIENT_DENSITIES: Dict[str, float] = {
     "sea salt": 273.0,
     "cinnamon": 124.0,
     "vanilla extract": 208.0,
-
     # Other Common
     "oats": 81.0,  # old-fashioned
     "rolled oats": 81.0,

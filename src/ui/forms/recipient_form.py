@@ -103,9 +103,7 @@ class RecipientFormDialog(ctk.CTkToplevel):
         address_label = ctk.CTkLabel(parent, text="Address:", anchor="w")
         address_label.grid(row=row, column=0, sticky="nw", padx=PADDING_MEDIUM, pady=5)
 
-        self.address_text = ctk.CTkTextbox(
-            parent, width=400, height=100
-        )
+        self.address_text = ctk.CTkTextbox(parent, width=400, height=100)
         self.address_text.grid(row=row, column=1, sticky="ew", padx=PADDING_MEDIUM, pady=5)
         row += 1
 
@@ -113,9 +111,7 @@ class RecipientFormDialog(ctk.CTkToplevel):
         notes_label = ctk.CTkLabel(parent, text="Notes:", anchor="w")
         notes_label.grid(row=row, column=0, sticky="nw", padx=PADDING_MEDIUM, pady=5)
 
-        self.notes_text = ctk.CTkTextbox(
-            parent, width=400, height=120
-        )
+        self.notes_text = ctk.CTkTextbox(parent, width=400, height=120)
         self.notes_text.grid(row=row, column=1, sticky="ew", padx=PADDING_MEDIUM, pady=5)
         row += 1
 

@@ -238,11 +238,7 @@ class EventsTab(ctk.CTkFrame):
         if not self.selected_event:
             return
 
-        dialog = EventFormDialog(
-            self,
-            event=self.selected_event,
-            title="Edit Event"
-        )
+        dialog = EventFormDialog(self, event=self.selected_event, title="Edit Event")
         self.wait_window(dialog)
 
         result = dialog.get_result()
@@ -265,9 +261,7 @@ class EventsTab(ctk.CTkFrame):
         # For now, show a simple dialog for the new year
         # In a more complete implementation, this would be a custom form
         dialog = EventFormDialog(
-            self,
-            clone_from=self.selected_event,
-            title=f"Clone Event: {self.selected_event.name}"
+            self, clone_from=self.selected_event, title=f"Clone Event: {self.selected_event.name}"
         )
         self.wait_window(dialog)
 
@@ -275,12 +269,11 @@ class EventsTab(ctk.CTkFrame):
         if result:
             try:
                 event_service.clone_event(
-                    self.selected_event.id,
-                    result["name"],
-                    result["year"],
-                    result["event_date"]
+                    self.selected_event.id, result["name"], result["year"], result["event_date"]
                 )
-                show_success("Success", f"Event '{result['name']}' cloned successfully", parent=self)
+                show_success(
+                    "Success", f"Event '{result['name']}' cloned successfully", parent=self
+                )
                 self.refresh()
             except Exception as e:
                 show_error("Error", f"Failed to clone event: {str(e)}", parent=self)
@@ -296,7 +289,7 @@ class EventsTab(ctk.CTkFrame):
             f"Are you sure you want to delete event '{self.selected_event.name}'?\n\n"
             "This will also delete all package assignments for this event.\n"
             "This action cannot be undone.",
-            parent=self
+            parent=self,
         ):
             return
 

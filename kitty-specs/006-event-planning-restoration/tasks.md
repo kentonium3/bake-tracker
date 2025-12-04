@@ -310,20 +310,20 @@
 
 ---
 
-## Work Package WP10: Integration & Polish (Priority: P3)
+## Work Package WP10: Integration & Polish (Priority: P3) ✅ COMPLETE
 
 **Goal**: Integration testing, FIFO accuracy verification, and polish.
 **Independent Test**: Full workflow completes in <5 minutes (SC-001), costs match manual verification (SC-002).
-**Prompt**: `kitty-specs/006-event-planning-restoration/tasks/planned/WP10-integration-polish.md`
+**Prompt**: `kitty-specs/006-event-planning-restoration/tasks/done/WP10-integration-polish.md`
 
 ### Included Subtasks
-- [ ] T067 Write integration test for full workflow in `src/tests/test_event_planning_workflow.py`
-- [ ] T068 Verify FIFO cost accuracy against manual calculation (SC-002)
-- [ ] T069 Verify shopping list shortfall accuracy (SC-003)
-- [ ] T070 Performance testing: 50 assignments load in <2s (SC-004)
-- [ ] T071 Edge case testing: empty states, missing costs, large datasets
-- [ ] T072 Update test_data/sample_data.json if needed for event planning data
-- [ ] T073 Final code cleanup and documentation review
+- [x] T067 Write integration test for full workflow in `src/tests/test_event_planning_workflow.py`
+- [x] T068 Verify FIFO cost accuracy against manual calculation (SC-002)
+- [x] T069 Verify shopping list shortfall accuracy (SC-003)
+- [x] T070 Performance testing: 50 assignments load in <2s (SC-004)
+- [x] T071 Edge case testing: empty states, missing costs, large datasets
+- [x] T072 Update test_data/sample_data.json if needed for event planning data
+- [x] T073 Final code cleanup and documentation review
 
 ### Implementation Notes
 - Integration test should cover: create package -> add FinishedGoods -> create event -> assign to recipient -> verify costs

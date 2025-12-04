@@ -160,8 +160,15 @@ def import_all(input_file: str):
     """Import all data (ingredients, recipes, finished goods, bundles, packages, recipients, events)."""
     print(f"Importing all data from {input_file}...")
 
-    (ingredient_result, recipe_result, finished_good_result, bundle_result,
-     package_result, recipient_result, event_result) = import_all_from_json(input_file)
+    (
+        ingredient_result,
+        recipe_result,
+        finished_good_result,
+        bundle_result,
+        package_result,
+        recipient_result,
+        event_result,
+    ) = import_all_from_json(input_file)
 
     print("\n" + "=" * 60)
     print("INGREDIENT IMPORT RESULTS")
@@ -198,10 +205,15 @@ def import_all(input_file: str):
     print("=" * 60)
     print(event_result.get_summary())
 
-    if (ingredient_result.failed > 0 or recipe_result.failed > 0 or
-        finished_good_result.failed > 0 or bundle_result.failed > 0 or
-        package_result.failed > 0 or recipient_result.failed > 0 or
-        event_result.failed > 0):
+    if (
+        ingredient_result.failed > 0
+        or recipe_result.failed > 0
+        or finished_good_result.failed > 0
+        or bundle_result.failed > 0
+        or package_result.failed > 0
+        or recipient_result.failed > 0
+        or event_result.failed > 0
+    ):
         return 1
     return 0
 
@@ -299,24 +311,33 @@ Examples:
   Export/Import specific types:
     python -m src.utils.import_export_cli export-ingredients ingredients.json
     python -m src.utils.import_export_cli import-recipes recipes.json
-"""
+""",
     )
 
     parser.add_argument(
-        'command',
+        "command",
         choices=[
-            'export', 'export-ingredients', 'export-recipes', 'export-finished-goods', 'export-bundles',
-            'export-packages', 'export-recipients', 'export-events',
-            'import', 'import-ingredients', 'import-recipes', 'import-finished-goods', 'import-bundles',
-            'import-packages', 'import-recipients', 'import-events'
+            "export",
+            "export-ingredients",
+            "export-recipes",
+            "export-finished-goods",
+            "export-bundles",
+            "export-packages",
+            "export-recipients",
+            "export-events",
+            "import",
+            "import-ingredients",
+            "import-recipes",
+            "import-finished-goods",
+            "import-bundles",
+            "import-packages",
+            "import-recipients",
+            "import-events",
         ],
-        help='Command to execute'
+        help="Command to execute",
     )
 
-    parser.add_argument(
-        'file',
-        help='JSON file path'
-    )
+    parser.add_argument("file", help="JSON file path")
 
     args = parser.parse_args()
 
@@ -325,37 +346,37 @@ Examples:
     initialize_app_database()
 
     # Execute command
-    if args.command == 'export':
+    if args.command == "export":
         return export_all(args.file)
-    elif args.command == 'export-ingredients':
+    elif args.command == "export-ingredients":
         return export_ingredients(args.file)
-    elif args.command == 'export-recipes':
+    elif args.command == "export-recipes":
         return export_recipes(args.file)
-    elif args.command == 'export-finished-goods':
+    elif args.command == "export-finished-goods":
         return export_finished_goods(args.file)
-    elif args.command == 'export-bundles':
+    elif args.command == "export-bundles":
         return export_bundles(args.file)
-    elif args.command == 'export-packages':
+    elif args.command == "export-packages":
         return export_packages(args.file)
-    elif args.command == 'export-recipients':
+    elif args.command == "export-recipients":
         return export_recipients(args.file)
-    elif args.command == 'export-events':
+    elif args.command == "export-events":
         return export_events(args.file)
-    elif args.command == 'import':
+    elif args.command == "import":
         return import_all(args.file)
-    elif args.command == 'import-ingredients':
+    elif args.command == "import-ingredients":
         return import_ingredients(args.file)
-    elif args.command == 'import-recipes':
+    elif args.command == "import-recipes":
         return import_recipes(args.file)
-    elif args.command == 'import-finished-goods':
+    elif args.command == "import-finished-goods":
         return import_finished_goods(args.file)
-    elif args.command == 'import-bundles':
+    elif args.command == "import-bundles":
         return import_bundles(args.file)
-    elif args.command == 'import-packages':
+    elif args.command == "import-packages":
         return import_packages(args.file)
-    elif args.command == 'import-recipients':
+    elif args.command == "import-recipients":
         return import_recipients(args.file)
-    elif args.command == 'import-events':
+    elif args.command == "import-events":
         return import_events(args.file)
     else:
         print(f"Unknown command: {args.command}")

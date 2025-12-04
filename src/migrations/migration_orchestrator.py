@@ -16,7 +16,7 @@ from ..services.migration_service import MigrationService
 from ..utils.backup_validator import (
     create_database_backup,
     validate_backup_integrity,
-    restore_database_from_backup
+    restore_database_from_backup,
 )
 
 logger = logging.getLogger(__name__)
@@ -24,6 +24,7 @@ logger = logging.getLogger(__name__)
 
 class MigrationPhase(Enum):
     """Enum for migration phases."""
+
     NOT_STARTED = "not_started"
     VALIDATION = "validation"
     BACKUP = "backup"
@@ -77,7 +78,7 @@ class MigrationOrchestrator:
             "backup_path": None,
             "phases": {},
             "errors": [],
-            "warnings": []
+            "warnings": [],
         }
 
     def get_migration_status(self) -> Dict[str, Any]:
@@ -98,9 +99,13 @@ class MigrationOrchestrator:
         """
         status = {
             "current_phase": self.migration_state["current_phase"].value,
-            "migration_completed": self.migration_state["current_phase"] == MigrationPhase.COMPLETED,
-            "migration_started": self.migration_state["current_phase"] != MigrationPhase.NOT_STARTED,
-            "phases_completed": len([p for p in self.migration_state["phases"].values() if p.get("completed", False)]),
+            "migration_completed": self.migration_state["current_phase"]
+            == MigrationPhase.COMPLETED,
+            "migration_started": self.migration_state["current_phase"]
+            != MigrationPhase.NOT_STARTED,
+            "phases_completed": len(
+                [p for p in self.migration_state["phases"].values() if p.get("completed", False)]
+            ),
             "total_phases": 6,  # validation, backup, schema, data, indexes, post_validation
             "errors": self.migration_state["errors"],
             "warnings": self.migration_state["warnings"],
@@ -108,7 +113,7 @@ class MigrationOrchestrator:
             "rollback_available": self._is_rollback_available(),
             "started_at": self.migration_state.get("started_at"),
             "completed_at": self.migration_state.get("completed_at"),
-            "phases": self.migration_state["phases"]
+            "phases": self.migration_state["phases"],
         }
 
         # Add phase-specific progress
@@ -139,7 +144,7 @@ class MigrationOrchestrator:
             "failed_phase": None,
             "backup_path": None,
             "errors": [],
-            "rollback_performed": False
+            "rollback_performed": False,
         }
 
         try:
@@ -236,7 +241,7 @@ class MigrationOrchestrator:
                 "started_at": phase_start.isoformat(),
                 "completed_at": datetime.now().isoformat(),
                 "completed": validation_result["is_ready"],
-                "result": validation_result
+                "result": validation_result,
             }
 
             self.migration_state["phases"][phase_name] = phase_info
@@ -281,7 +286,7 @@ class MigrationOrchestrator:
                         "completed_at": datetime.now().isoformat(),
                         "completed": True,
                         "backup_path": backup_path,
-                        "validation": validation
+                        "validation": validation,
                     }
 
                     self.migration_state["phases"][phase_name] = phase_info
@@ -318,7 +323,7 @@ class MigrationOrchestrator:
             phase_info = {
                 "started_at": phase_start.isoformat(),
                 "completed_at": datetime.now().isoformat(),
-                "completed": success
+                "completed": success,
             }
 
             self.migration_state["phases"][phase_name] = phase_info
@@ -353,13 +358,15 @@ class MigrationOrchestrator:
                 "started_at": phase_start.isoformat(),
                 "completed_at": datetime.now().isoformat(),
                 "completed": migration_result["success"],
-                "result": migration_result
+                "result": migration_result,
             }
 
             self.migration_state["phases"][phase_name] = phase_info
 
             if migration_result["success"]:
-                logger.info(f"{phase_name} phase completed: {migration_result['migrated_count']} records migrated")
+                logger.info(
+                    f"{phase_name} phase completed: {migration_result['migrated_count']} records migrated"
+                )
                 return True
             else:
                 error_msg = f"Data migration failed: {migration_result['errors']}"
@@ -393,7 +400,7 @@ class MigrationOrchestrator:
                 "completed_at": datetime.now().isoformat(),
                 "completed": index_results["all_indexes_valid"],
                 "index_creation": index_creation_result,
-                "index_validation": index_results
+                "index_validation": index_results,
             }
 
             self.migration_state["phases"][phase_name] = phase_info
@@ -419,11 +426,7 @@ class MigrationOrchestrator:
         from ..database import get_db_session
         from sqlalchemy import text
 
-        result = {
-            "indexes_created": [],
-            "indexes_existed": [],
-            "errors": []
-        }
+        result = {"indexes_created": [], "indexes_existed": [], "errors": []}
 
         try:
             with get_db_session() as session:
@@ -431,40 +434,42 @@ class MigrationOrchestrator:
                 index_definitions = [
                     {
                         "name": "idx_finished_unit_slug",
-                        "sql": "CREATE INDEX IF NOT EXISTS idx_finished_unit_slug ON finished_units(slug)"
+                        "sql": "CREATE INDEX IF NOT EXISTS idx_finished_unit_slug ON finished_units(slug)",
                     },
                     {
                         "name": "idx_finished_unit_display_name",
-                        "sql": "CREATE INDEX IF NOT EXISTS idx_finished_unit_display_name ON finished_units(display_name)"
+                        "sql": "CREATE INDEX IF NOT EXISTS idx_finished_unit_display_name ON finished_units(display_name)",
                     },
                     {
                         "name": "idx_finished_unit_recipe",
-                        "sql": "CREATE INDEX IF NOT EXISTS idx_finished_unit_recipe ON finished_units(recipe_id)"
+                        "sql": "CREATE INDEX IF NOT EXISTS idx_finished_unit_recipe ON finished_units(recipe_id)",
                     },
                     {
                         "name": "idx_finished_unit_category",
-                        "sql": "CREATE INDEX IF NOT EXISTS idx_finished_unit_category ON finished_units(category)"
+                        "sql": "CREATE INDEX IF NOT EXISTS idx_finished_unit_category ON finished_units(category)",
                     },
                     {
                         "name": "idx_finished_unit_inventory",
-                        "sql": "CREATE INDEX IF NOT EXISTS idx_finished_unit_inventory ON finished_units(inventory_count)"
+                        "sql": "CREATE INDEX IF NOT EXISTS idx_finished_unit_inventory ON finished_units(inventory_count)",
                     },
                     {
                         "name": "idx_finished_unit_created_at",
-                        "sql": "CREATE INDEX IF NOT EXISTS idx_finished_unit_created_at ON finished_units(created_at)"
+                        "sql": "CREATE INDEX IF NOT EXISTS idx_finished_unit_created_at ON finished_units(created_at)",
                     },
                     {
                         "name": "idx_finished_unit_recipe_inventory",
-                        "sql": "CREATE INDEX IF NOT EXISTS idx_finished_unit_recipe_inventory ON finished_units(recipe_id, inventory_count)"
-                    }
+                        "sql": "CREATE INDEX IF NOT EXISTS idx_finished_unit_recipe_inventory ON finished_units(recipe_id, inventory_count)",
+                    },
                 ]
 
                 for index_def in index_definitions:
                     try:
                         # Check if index exists
                         existing = session.execute(
-                            text("SELECT name FROM sqlite_master WHERE type='index' AND name = :name"),
-                            {"name": index_def["name"]}
+                            text(
+                                "SELECT name FROM sqlite_master WHERE type='index' AND name = :name"
+                            ),
+                            {"name": index_def["name"]},
                         ).fetchone()
 
                         if existing:
@@ -498,7 +503,7 @@ class MigrationOrchestrator:
             "all_indexes_valid": True,
             "indexes_checked": [],
             "performance_summary": {},
-            "errors": []
+            "errors": [],
         }
 
         try:
@@ -511,28 +516,29 @@ class MigrationOrchestrator:
                     "idx_finished_unit_inventory",
                     "idx_finished_unit_created_at",
                     "idx_finished_unit_recipe_inventory",
-                    "uq_finished_unit_slug"
+                    "uq_finished_unit_slug",
                 ]
 
                 # Check if indexes exist
                 for index_name in expected_indexes:
-                    index_exists = session.execute(text("""
+                    index_exists = session.execute(
+                        text(
+                            """
                         SELECT name FROM sqlite_master
                         WHERE type='index' AND name = :index_name
-                    """), {"index_name": index_name}).fetchone()
+                    """
+                        ),
+                        {"index_name": index_name},
+                    ).fetchone()
 
                     if index_exists:
-                        result["indexes_checked"].append({
-                            "name": index_name,
-                            "exists": True,
-                            "status": "OK"
-                        })
+                        result["indexes_checked"].append(
+                            {"name": index_name, "exists": True, "status": "OK"}
+                        )
                     else:
-                        result["indexes_checked"].append({
-                            "name": index_name,
-                            "exists": False,
-                            "status": "MISSING"
-                        })
+                        result["indexes_checked"].append(
+                            {"name": index_name, "exists": False, "status": "MISSING"}
+                        )
                         result["errors"].append(f"Index {index_name} not found")
                         result["all_indexes_valid"] = False
 
@@ -542,26 +548,26 @@ class MigrationOrchestrator:
                         "name": "slug_lookup",
                         "query": "SELECT COUNT(*) FROM finished_units WHERE slug = 'test-slug'",
                         "target_ms": 50,
-                        "description": "Fast slug lookup"
+                        "description": "Fast slug lookup",
                     },
                     {
                         "name": "display_name_search",
                         "query": "SELECT COUNT(*) FROM finished_units WHERE display_name LIKE '%test%'",
                         "target_ms": 200,
-                        "description": "Display name search"
+                        "description": "Display name search",
                     },
                     {
                         "name": "recipe_inventory_query",
                         "query": "SELECT COUNT(*) FROM finished_units WHERE recipe_id = 1 AND inventory_count > 0",
                         "target_ms": 200,
-                        "description": "Recipe-inventory composite query"
+                        "description": "Recipe-inventory composite query",
                     },
                     {
                         "name": "temporal_query",
                         "query": "SELECT COUNT(*) FROM finished_units WHERE created_at > datetime('now', '-30 days')",
                         "target_ms": 300,
-                        "description": "Recent items temporal query"
-                    }
+                        "description": "Recent items temporal query",
+                    },
                 ]
 
                 for test in performance_tests:
@@ -575,18 +581,22 @@ class MigrationOrchestrator:
                             "duration_ms": round(duration_ms, 2),
                             "target_ms": test["target_ms"],
                             "meets_target": duration_ms <= test["target_ms"],
-                            "description": test["description"]
+                            "description": test["description"],
                         }
 
                         if duration_ms > test["target_ms"]:
-                            logger.warning(f"Performance test '{test['name']}' took {duration_ms:.2f}ms, "
-                                         f"exceeds target {test['target_ms']}ms")
+                            logger.warning(
+                                f"Performance test '{test['name']}' took {duration_ms:.2f}ms, "
+                                f"exceeds target {test['target_ms']}ms"
+                            )
 
                     except Exception as e:
                         result["errors"].append(f"Performance test '{test['name']}' failed: {e}")
                         result["all_indexes_valid"] = False
 
-                logger.info(f"Index validation completed: {len(result['indexes_checked'])} indexes checked")
+                logger.info(
+                    f"Index validation completed: {len(result['indexes_checked'])} indexes checked"
+                )
 
         except Exception as e:
             result["errors"].append(f"Index validation error: {e}")
@@ -610,7 +620,7 @@ class MigrationOrchestrator:
                 "started_at": phase_start.isoformat(),
                 "completed_at": datetime.now().isoformat(),
                 "completed": validation_result["is_valid"],
-                "result": validation_result
+                "result": validation_result,
             }
 
             self.migration_state["phases"][phase_name] = phase_info
@@ -658,14 +668,9 @@ class MigrationOrchestrator:
 
     def _is_rollback_available(self) -> bool:
         """Check if rollback is available."""
-        return (
-            bool(self.migration_state.get("backup_path")) and
-            self.migration_state["current_phase"] not in [
-                MigrationPhase.NOT_STARTED,
-                MigrationPhase.COMPLETED,
-                MigrationPhase.ROLLED_BACK
-            ]
-        )
+        return bool(self.migration_state.get("backup_path")) and self.migration_state[
+            "current_phase"
+        ] not in [MigrationPhase.NOT_STARTED, MigrationPhase.COMPLETED, MigrationPhase.ROLLED_BACK]
 
     def _calculate_progress_percentage(self) -> int:
         """Calculate migration progress percentage."""
@@ -698,11 +703,7 @@ class MigrationOrchestrator:
         Returns:
             Dictionary with rollback results
         """
-        result = {
-            "success": False,
-            "message": "",
-            "backup_used": None
-        }
+        result = {"success": False, "message": "", "backup_used": None}
 
         try:
             if not self._is_rollback_available():

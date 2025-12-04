@@ -25,11 +25,13 @@ import functools
 # Conditional imports for forward compatibility (using module-level function pattern)
 try:
     from . import finished_unit_service
+
     HAS_FINISHED_UNIT_SERVICE = True
 except ImportError:
     # Create placeholder service module until FinishedUnit service is implemented
     class finished_unit_service:
         """Placeholder service module until FinishedUnit implementation is complete."""
+
         @staticmethod
         def get_all_finished_units():
             raise NotImplementedError("FinishedUnit service not yet implemented")
@@ -54,11 +56,13 @@ except ImportError:
 
 try:
     from . import finished_good_service
+
     HAS_FINISHED_GOOD_SERVICE = True
 except ImportError:
     # Create placeholder service module until FinishedGood service is updated
     class finished_good_service:
         """Placeholder service module until FinishedGood service is updated."""
+
         @staticmethod
         def get_all_finished_goods():
             raise NotImplementedError("Enhanced FinishedGood service not yet implemented")
@@ -74,28 +78,33 @@ from .exceptions import ServiceError, DatabaseError, ValidationError
 # Conditional model imports
 try:
     from ..models import FinishedUnit
+
     HAS_FINISHED_UNIT_MODEL = True
 except ImportError:
     # Create placeholder model until FinishedUnit model is implemented
     class FinishedUnit:
         """Placeholder model until FinishedUnit implementation is complete."""
+
         pass
 
     HAS_FINISHED_UNIT_MODEL = False
 
 try:
     from ..models import FinishedGood
+
     HAS_FINISHED_GOOD_MODEL = True
 except ImportError:
     # Create placeholder model
     class FinishedGood:
         """Placeholder model."""
+
         pass
 
     HAS_FINISHED_GOOD_MODEL = False
 
 try:
     from .deprecation_warnings import warn_deprecated_service_method
+
     HAS_DEPRECATION_WARNINGS = True
 except ImportError:
     # Create placeholder warning function
@@ -111,15 +120,17 @@ logger = logging.getLogger(__name__)
 # Constants for compatibility thresholds
 class CompatibilityThresholds:
     """Threshold constants for compatibility service monitoring and rollback decisions."""
-    UNHEALTHY_FAILURE_RATE = 10.0          # percent - failure rate indicating unhealthy state
-    DEGRADED_FALLBACK_RATE = 20.0          # percent - fallback usage indicating degraded performance
-    ROLLBACK_FAILURE_RATE = 15.0           # percent - failure rate triggering automatic rollback
-    MIN_OPERATIONS_FOR_ROLLBACK = 10       # minimum operations before rollback consideration
+
+    UNHEALTHY_FAILURE_RATE = 10.0  # percent - failure rate indicating unhealthy state
+    DEGRADED_FALLBACK_RATE = 20.0  # percent - fallback usage indicating degraded performance
+    ROLLBACK_FAILURE_RATE = 15.0  # percent - failure rate triggering automatic rollback
+    MIN_OPERATIONS_FOR_ROLLBACK = 10  # minimum operations before rollback consideration
 
 
 # Protocol definitions for type safety
 class IndividualItemLike(Protocol):
     """Protocol for individual item objects (FinishedUnit or dict)."""
+
     id: int
     display_name: str
     slug: str
@@ -128,6 +139,7 @@ class IndividualItemLike(Protocol):
 
 class AssemblyItemLike(Protocol):
     """Protocol for assembly item objects (FinishedGood or dict)."""
+
     id: int
     display_name: str
     slug: str
@@ -150,14 +162,16 @@ class CompatibilityOperationFailed(Exception):
 
 class CompatibilityMode(Enum):
     """Compatibility operation modes."""
-    NEW_ONLY = "new_only"          # Use only new services
-    OLD_ONLY = "old_only"          # Use only legacy services (fallback)
+
+    NEW_ONLY = "new_only"  # Use only new services
+    OLD_ONLY = "old_only"  # Use only legacy services (fallback)
     NEW_WITH_FALLBACK = "new_with_fallback"  # Try new, fallback to old
-    GRADUAL_ROLLOUT = "gradual_rollout"      # Gradual migration
+    GRADUAL_ROLLOUT = "gradual_rollout"  # Gradual migration
 
 
 class TransitionStatus(Enum):
     """Status of transition operations."""
+
     SUCCESS = "success"
     PARTIAL_SUCCESS = "partial_success"
     FALLBACK_USED = "fallback_used"
@@ -180,7 +194,7 @@ class UICompatibilityService:
             "new_success": 0,
             "new_failure": 0,
             "fallback_used": 0,
-            "total_operations": 0
+            "total_operations": 0,
         }
 
     def set_compatibility_mode(self, mode: CompatibilityMode) -> None:
@@ -191,7 +205,9 @@ class UICompatibilityService:
     def set_rollout_percentage(self, percentage: int) -> None:
         """Set the percentage of operations that should use new services."""
         if not isinstance(percentage, int):
-            raise TypeError(f"Rollout percentage must be an integer, got {type(percentage).__name__}")
+            raise TypeError(
+                f"Rollout percentage must be an integer, got {type(percentage).__name__}"
+            )
         if not 0 <= percentage <= 100:
             raise ValueError(f"Rollout percentage must be between 0 and 100, got {percentage}")
         self.rollout_percentage = percentage
@@ -207,8 +223,13 @@ class UICompatibilityService:
             return random.randint(1, 100) <= self.rollout_percentage
         return True  # NEW_WITH_FALLBACK uses new by default
 
-    def record_operation_result(self, operation: str, status: TransitionStatus,
-                              execution_time: float, error: Optional[Exception] = None) -> None:
+    def record_operation_result(
+        self,
+        operation: str,
+        status: TransitionStatus,
+        execution_time: float,
+        error: Optional[Exception] = None,
+    ) -> None:
         """Record the result of a compatibility operation for monitoring."""
         self.operation_stats["total_operations"] += 1
 
@@ -219,16 +240,21 @@ class UICompatibilityService:
         elif status == TransitionStatus.FAILED:
             self.operation_stats["new_failure"] += 1
 
-        logger.info(f"UI Compatibility Operation: {operation} - {status.value} "
-                   f"({execution_time:.3f}s)")
+        logger.info(
+            f"UI Compatibility Operation: {operation} - {status.value} " f"({execution_time:.3f}s)"
+        )
 
         if error:
             logger.warning(f"UI Compatibility Error in {operation}: {error}")
 
-    def safe_operation(self, operation_name: str, new_operation: Callable,
-                      fallback_operation: Optional[Callable] = None,
-                      default_return: Any = None,
-                      raise_on_failure: bool = False) -> Any:
+    def safe_operation(
+        self,
+        operation_name: str,
+        new_operation: Callable,
+        fallback_operation: Optional[Callable] = None,
+        default_return: Any = None,
+        raise_on_failure: bool = False,
+    ) -> Any:
         """
         Execute an operation safely with fallback capabilities.
 
@@ -252,13 +278,15 @@ class UICompatibilityService:
                 try:
                     result = fallback_operation()
                     execution_time = time.time() - start_time
-                    self.record_operation_result(operation_name, TransitionStatus.FALLBACK_USED,
-                                               execution_time)
+                    self.record_operation_result(
+                        operation_name, TransitionStatus.FALLBACK_USED, execution_time
+                    )
                     return result
                 except Exception as e:
                     execution_time = time.time() - start_time
-                    self.record_operation_result(operation_name, TransitionStatus.FAILED,
-                                               execution_time, e)
+                    self.record_operation_result(
+                        operation_name, TransitionStatus.FAILED, execution_time, e
+                    )
                     logger.error(f"Fallback operation failed for {operation_name}: {e}")
                     if raise_on_failure:
                         raise CompatibilityOperationFailed(operation_name, e)
@@ -279,22 +307,25 @@ class UICompatibilityService:
                 try:
                     result = fallback_operation()
                     execution_time = time.time() - start_time
-                    self.record_operation_result(operation_name, TransitionStatus.FALLBACK_USED,
-                                               execution_time)
+                    self.record_operation_result(
+                        operation_name, TransitionStatus.FALLBACK_USED, execution_time
+                    )
                     logger.info(f"Successfully used fallback for {operation_name}")
                     return result
 
                 except Exception as fallback_error:
                     execution_time = time.time() - start_time
-                    self.record_operation_result(operation_name, TransitionStatus.FAILED,
-                                               execution_time, fallback_error)
+                    self.record_operation_result(
+                        operation_name, TransitionStatus.FAILED, execution_time, fallback_error
+                    )
                     logger.error(f"Both new and fallback operations failed for {operation_name}")
                     # Use the fallback error as the final error
                     e = fallback_error
             else:
                 execution_time = time.time() - start_time
-                self.record_operation_result(operation_name, TransitionStatus.FAILED,
-                                           execution_time, e)
+                self.record_operation_result(
+                    operation_name, TransitionStatus.FAILED, execution_time, e
+                )
 
         # Final failure handling
         if raise_on_failure:
@@ -308,7 +339,7 @@ class UICompatibilityService:
         return self.safe_operation(
             operation_name="get_all_individual_items",
             new_operation=lambda: finished_unit_service.get_all_finished_units(),
-            default_return=[]
+            default_return=[],
         )
 
     def create_individual_item(self, item_data: Dict[str, Any]) -> Optional[IndividualItemLike]:
@@ -316,15 +347,17 @@ class UICompatibilityService:
         return self.safe_operation(
             operation_name="create_individual_item",
             new_operation=lambda: finished_unit_service.create_finished_unit(**item_data),
-            default_return=None
+            default_return=None,
         )
 
-    def update_individual_item(self, item_id: int, updates: Dict[str, Any]) -> Optional[IndividualItemLike]:
+    def update_individual_item(
+        self, item_id: int, updates: Dict[str, Any]
+    ) -> Optional[IndividualItemLike]:
         """Update an individual item with compatibility fallback."""
         return self.safe_operation(
             operation_name="update_individual_item",
             new_operation=lambda: finished_unit_service.update_finished_unit(item_id, **updates),
-            default_return=None
+            default_return=None,
         )
 
     def delete_individual_item(self, item_id: int) -> bool:
@@ -332,15 +365,17 @@ class UICompatibilityService:
         return self.safe_operation(
             operation_name="delete_individual_item",
             new_operation=lambda: finished_unit_service.delete_finished_unit(item_id),
-            default_return=False
+            default_return=False,
         )
 
-    def update_item_inventory(self, item_id: int, quantity_change: int) -> Optional[IndividualItemLike]:
+    def update_item_inventory(
+        self, item_id: int, quantity_change: int
+    ) -> Optional[IndividualItemLike]:
         """Update item inventory with compatibility fallback."""
         return self.safe_operation(
             operation_name="update_item_inventory",
             new_operation=lambda: finished_unit_service.update_inventory(item_id, quantity_change),
-            default_return=None
+            default_return=None,
         )
 
     # Assembly Operations (FinishedGood compatibility)
@@ -350,7 +385,7 @@ class UICompatibilityService:
         return self.safe_operation(
             operation_name="get_all_assemblies",
             new_operation=lambda: finished_good_service.get_all_finished_goods(),
-            default_return=[]
+            default_return=[],
         )
 
     def create_assembly(self, assembly_data: Dict[str, Any]) -> Optional[AssemblyItemLike]:
@@ -358,7 +393,7 @@ class UICompatibilityService:
         return self.safe_operation(
             operation_name="create_assembly",
             new_operation=lambda: finished_good_service.create_finished_good(**assembly_data),
-            default_return=None
+            default_return=None,
         )
 
     # Monitoring and Health Check Operations
@@ -366,9 +401,15 @@ class UICompatibilityService:
     def get_migration_health_status(self) -> Dict[str, Any]:
         """Get current migration health status."""
         total_ops = self.operation_stats["total_operations"]
-        success_rate = (self.operation_stats["new_success"] / total_ops * 100) if total_ops > 0 else 0
-        fallback_rate = (self.operation_stats["fallback_used"] / total_ops * 100) if total_ops > 0 else 0
-        failure_rate = (self.operation_stats["new_failure"] / total_ops * 100) if total_ops > 0 else 0
+        success_rate = (
+            (self.operation_stats["new_success"] / total_ops * 100) if total_ops > 0 else 0
+        )
+        fallback_rate = (
+            (self.operation_stats["fallback_used"] / total_ops * 100) if total_ops > 0 else 0
+        )
+        failure_rate = (
+            (self.operation_stats["new_failure"] / total_ops * 100) if total_ops > 0 else 0
+        )
 
         health_status = "healthy"
         if failure_rate > CompatibilityThresholds.UNHEALTHY_FAILURE_RATE:
@@ -384,10 +425,10 @@ class UICompatibilityService:
                 "total_operations": total_ops,
                 "success_rate": round(success_rate, 2),
                 "fallback_rate": round(fallback_rate, 2),
-                "failure_rate": round(failure_rate, 2)
+                "failure_rate": round(failure_rate, 2),
             },
             "raw_stats": copy.deepcopy(self.operation_stats),
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.utcnow().isoformat(),
         }
 
     def should_rollback(self) -> bool:
@@ -397,7 +438,9 @@ class UICompatibilityService:
             return False
 
         failure_rate = self.operation_stats["new_failure"] / total_ops
-        return failure_rate > (CompatibilityThresholds.ROLLBACK_FAILURE_RATE / 100)  # Convert percentage to decimal
+        return failure_rate > (
+            CompatibilityThresholds.ROLLBACK_FAILURE_RATE / 100
+        )  # Convert percentage to decimal
 
     def emergency_rollback_to_legacy(self) -> None:
         """Emergency rollback to legacy services only."""
@@ -411,7 +454,7 @@ class UICompatibilityService:
             "new_success": 0,
             "new_failure": 0,
             "fallback_used": 0,
-            "total_operations": 0
+            "total_operations": 0,
         }
         logger.info("UI Compatibility statistics reset")
 
@@ -425,7 +468,9 @@ def get_ui_compatibility_service() -> UICompatibilityService:
     return _compatibility_service
 
 
-def ui_safe_operation(operation_name: str, fallback_return: Any = None, fallback_operation: Optional[Callable] = None):
+def ui_safe_operation(
+    operation_name: str, fallback_return: Any = None, fallback_operation: Optional[Callable] = None
+):
     """
     Decorator to make UI operations safe with automatic compatibility handling.
 
@@ -437,6 +482,7 @@ def ui_safe_operation(operation_name: str, fallback_return: Any = None, fallback
     Returns:
         Decorated function with compatibility layer
     """
+
     def decorator(func):
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
@@ -446,14 +492,17 @@ def ui_safe_operation(operation_name: str, fallback_return: Any = None, fallback
                 operation_name=operation_name,
                 new_operation=lambda: func(*args, **kwargs),
                 fallback_operation=fallback_operation,
-                default_return=fallback_return
+                default_return=fallback_return,
             )
+
         return wrapper
+
     return decorator
 
 
-def configure_ui_compatibility(mode: CompatibilityMode = CompatibilityMode.NEW_WITH_FALLBACK,
-                              rollout_percentage: int = 100) -> None:
+def configure_ui_compatibility(
+    mode: CompatibilityMode = CompatibilityMode.NEW_WITH_FALLBACK, rollout_percentage: int = 100
+) -> None:
     """
     Configure the UI compatibility layer.
 

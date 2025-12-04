@@ -51,9 +51,7 @@ class PackageInUseError(Exception):
     def __init__(self, package_id: int, event_count: int):
         self.package_id = package_id
         self.event_count = event_count
-        super().__init__(
-            f"Package {package_id} is assigned to {event_count} event(s)"
-        )
+        super().__init__(f"Package {package_id} is assigned to {event_count} event(s)")
 
 
 class InvalidFinishedGoodError(Exception):
@@ -78,9 +76,7 @@ class PackageFinishedGoodNotFoundError(Exception):
     def __init__(self, package_id: int, finished_good_id: int):
         self.package_id = package_id
         self.finished_good_id = finished_good_id
-        super().__init__(
-            f"FinishedGood {finished_good_id} not found in Package {package_id}"
-        )
+        super().__init__(f"FinishedGood {finished_good_id} not found in Package {package_id}")
 
 
 # ============================================================================
@@ -365,11 +361,7 @@ def add_finished_good_to_package(
                 raise PackageNotFoundError(package_id)
 
             # Verify FinishedGood exists
-            fg = (
-                session.query(FinishedGood)
-                .filter(FinishedGood.id == finished_good_id)
-                .first()
-            )
+            fg = session.query(FinishedGood).filter(FinishedGood.id == finished_good_id).first()
             if not fg:
                 raise InvalidFinishedGoodError(finished_good_id)
 
@@ -408,9 +400,7 @@ def add_finished_good_to_package(
         raise DatabaseError(f"Failed to add FinishedGood to package: {str(e)}")
 
 
-def remove_finished_good_from_package(
-    package_id: int, finished_good_id: int
-) -> bool:
+def remove_finished_good_from_package(package_id: int, finished_good_id: int) -> bool:
     """
     Remove a FinishedGood from a package.
 

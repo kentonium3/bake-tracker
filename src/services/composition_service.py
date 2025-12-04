@@ -28,11 +28,7 @@ from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
 from .database import get_db_session, session_scope
 from ..models import Composition, FinishedGood, FinishedUnit
-from .exceptions import (
-    ServiceError,
-    ValidationError,
-    DatabaseError
-)
+from .exceptions import ServiceError, ValidationError, DatabaseError
 
 logger = logging.getLogger(__name__)
 
@@ -84,7 +80,8 @@ class HierarchyCache:
             # Clean expired entries first
             current_time = time.time()
             expired_keys = [
-                k for k, (_, timestamp) in self.cache.items()
+                k
+                for k, (_, timestamp) in self.cache.items()
                 if current_time - timestamp >= self.ttl
             ]
             for key in expired_keys:
@@ -99,26 +96,31 @@ _hierarchy_cache = HierarchyCache()
 # Custom exceptions for Composition service
 class CompositionNotFoundError(ServiceError):
     """Raised when a Composition cannot be found."""
+
     pass
 
 
 class InvalidComponentTypeError(ServiceError):
     """Raised when component type is invalid."""
+
     pass
 
 
 class CircularReferenceError(ServiceError):
     """Raised when operation would create circular dependency."""
+
     pass
 
 
 class DuplicateCompositionError(ServiceError):
     """Raised when composition already exists."""
+
     pass
 
 
 class IntegrityViolationError(ServiceError):
     """Raised when operation would violate referential integrity."""
+
     pass
 
 
@@ -134,11 +136,7 @@ class CompositionService:
 
     @staticmethod
     def create_composition(
-        assembly_id: int,
-        component_type: str,
-        component_id: int,
-        quantity: int,
-        **kwargs
+        assembly_id: int, component_type: str, component_id: int, quantity: int, **kwargs
     ) -> Composition:
         """
         Create a new composition relationship.
@@ -175,9 +173,9 @@ class CompositionService:
 
             with session_scope() as session:
                 # Validate assembly exists
-                assembly = session.query(FinishedGood)\
-                    .filter(FinishedGood.id == assembly_id)\
-                    .first()
+                assembly = (
+                    session.query(FinishedGood).filter(FinishedGood.id == assembly_id).first()
+                )
 
                 if not assembly:
                     raise ValidationError(f"Assembly ID {assembly_id} not found")
@@ -186,9 +184,7 @@ class CompositionService:
                 if not CompositionService.validate_component_exists(
                     component_type, component_id, session
                 ):
-                    raise ValidationError(
-                        f"Component {component_type} ID {component_id} not found"
-                    )
+                    raise ValidationError(f"Component {component_type} ID {component_id} not found")
 
                 # Check for circular references (only for FinishedGood components)
                 if component_type == "finished_good":
@@ -200,9 +196,7 @@ class CompositionService:
                         )
 
                 # Check for duplicate composition
-                existing = session.query(Composition).filter(
-                    Composition.assembly_id == assembly_id
-                )
+                existing = session.query(Composition).filter(Composition.assembly_id == assembly_id)
 
                 if component_type == "finished_unit":
                     existing = existing.filter(Composition.finished_unit_id == component_id)
@@ -216,16 +210,16 @@ class CompositionService:
 
                 # Create composition
                 composition_data = {
-                    'assembly_id': assembly_id,
-                    'component_quantity': quantity,
-                    'component_notes': kwargs.get('notes'),
-                    'sort_order': kwargs.get('sort_order', 0)
+                    "assembly_id": assembly_id,
+                    "component_quantity": quantity,
+                    "component_notes": kwargs.get("notes"),
+                    "sort_order": kwargs.get("sort_order", 0),
                 }
 
                 if component_type == "finished_unit":
-                    composition_data['finished_unit_id'] = component_id
+                    composition_data["finished_unit_id"] = component_id
                 else:
-                    composition_data['finished_good_id'] = component_id
+                    composition_data["finished_good_id"] = component_id
 
                 composition = Composition(**composition_data)
                 session.add(composition)
@@ -234,7 +228,9 @@ class CompositionService:
                 # Invalidate hierarchy cache for affected assembly
                 _hierarchy_cache.invalidate(f"hierarchy_{assembly_id}_")
 
-                logger.info(f"Created composition: {component_type} {component_id} in assembly {assembly_id}")
+                logger.info(
+                    f"Created composition: {component_type} {component_id} in assembly {assembly_id}"
+                )
                 return composition
 
         except SQLAlchemyError as e:
@@ -257,14 +253,16 @@ class CompositionService:
         """
         try:
             with get_db_session() as session:
-                composition = session.query(Composition)\
+                composition = (
+                    session.query(Composition)
                     .options(
                         selectinload(Composition.finished_unit_component),
                         selectinload(Composition.finished_good_component),
-                        selectinload(Composition.assembly)
-                    )\
-                    .filter(Composition.id == composition_id)\
+                        selectinload(Composition.assembly),
+                    )
+                    .filter(Composition.id == composition_id)
                     .first()
+                )
 
                 if composition:
                     logger.debug(f"Retrieved composition ID {composition_id}")
@@ -298,16 +296,16 @@ class CompositionService:
         """
         try:
             with session_scope() as session:
-                composition = session.query(Composition)\
-                    .filter(Composition.id == composition_id)\
-                    .first()
+                composition = (
+                    session.query(Composition).filter(Composition.id == composition_id).first()
+                )
 
                 if not composition:
                     raise CompositionNotFoundError(f"Composition ID {composition_id} not found")
 
                 # Validate updates
-                if 'component_quantity' in updates:
-                    quantity = updates['component_quantity']
+                if "component_quantity" in updates:
+                    quantity = updates["component_quantity"]
                     if quantity <= 0:
                         raise ValidationError("Component quantity must be positive")
 
@@ -342,9 +340,9 @@ class CompositionService:
         """
         try:
             with session_scope() as session:
-                composition = session.query(Composition)\
-                    .filter(Composition.id == composition_id)\
-                    .first()
+                composition = (
+                    session.query(Composition).filter(Composition.id == composition_id).first()
+                )
 
                 if not composition:
                     logger.debug(f"Composition ID {composition_id} not found for deletion")
@@ -382,12 +380,14 @@ class CompositionService:
         """
         try:
             with get_db_session() as session:
-                query = session.query(Composition)\
+                query = (
+                    session.query(Composition)
                     .options(
                         selectinload(Composition.finished_unit_component),
-                        selectinload(Composition.finished_good_component)
-                    )\
+                        selectinload(Composition.finished_good_component),
+                    )
                     .filter(Composition.assembly_id == assembly_id)
+                )
 
                 if ordered:
                     query = query.order_by(Composition.sort_order, Composition.id)
@@ -425,8 +425,7 @@ class CompositionService:
                 )
 
             with get_db_session() as session:
-                query = session.query(Composition)\
-                    .options(selectinload(Composition.assembly))
+                query = session.query(Composition).options(selectinload(Composition.assembly))
 
                 if component_type == "finished_unit":
                     query = query.filter(Composition.finished_unit_id == component_id)
@@ -469,16 +468,16 @@ class CompositionService:
 
             with get_db_session() as session:
                 # Get root assembly
-                assembly = session.query(FinishedGood)\
-                    .filter(FinishedGood.id == assembly_id)\
-                    .first()
+                assembly = (
+                    session.query(FinishedGood).filter(FinishedGood.id == assembly_id).first()
+                )
 
                 if not assembly:
                     raise ValidationError(f"Assembly ID {assembly_id} not found")
 
                 def build_hierarchy_level(current_assembly_id: int, depth: int = 0) -> dict:
                     if depth >= max_depth:
-                        return {'max_depth_reached': True}
+                        return {"max_depth_reached": True}
 
                     # Get direct components
                     compositions = CompositionService.get_assembly_components(current_assembly_id)
@@ -488,37 +487,39 @@ class CompositionService:
                         if comp.finished_unit_component:
                             unit = comp.finished_unit_component
                             component_data = {
-                                'composition_id': comp.id,
-                                'component_type': 'finished_unit',
-                                'component_id': unit.id,
-                                'display_name': unit.display_name,
-                                'slug': unit.slug,
-                                'quantity': comp.component_quantity,
-                                'unit_cost': float(unit.unit_cost),
-                                'total_cost': float(unit.unit_cost * comp.component_quantity),
-                                'inventory_count': unit.inventory_count,
-                                'notes': comp.component_notes,
-                                'sort_order': comp.sort_order,
-                                'depth': depth,
-                                'subcomponents': []  # FinishedUnits have no subcomponents
+                                "composition_id": comp.id,
+                                "component_type": "finished_unit",
+                                "component_id": unit.id,
+                                "display_name": unit.display_name,
+                                "slug": unit.slug,
+                                "quantity": comp.component_quantity,
+                                "unit_cost": float(unit.unit_cost),
+                                "total_cost": float(unit.unit_cost * comp.component_quantity),
+                                "inventory_count": unit.inventory_count,
+                                "notes": comp.component_notes,
+                                "sort_order": comp.sort_order,
+                                "depth": depth,
+                                "subcomponents": [],  # FinishedUnits have no subcomponents
                             }
                         elif comp.finished_good_component:
                             subassembly = comp.finished_good_component
                             component_data = {
-                                'composition_id': comp.id,
-                                'component_type': 'finished_good',
-                                'component_id': subassembly.id,
-                                'display_name': subassembly.display_name,
-                                'slug': subassembly.slug,
-                                'quantity': comp.component_quantity,
-                                'unit_cost': float(subassembly.total_cost),
-                                'total_cost': float(subassembly.total_cost * comp.component_quantity),
-                                'inventory_count': subassembly.inventory_count,
-                                'assembly_type': subassembly.assembly_type.value,
-                                'notes': comp.component_notes,
-                                'sort_order': comp.sort_order,
-                                'depth': depth,
-                                'subcomponents': build_hierarchy_level(subassembly.id, depth + 1)
+                                "composition_id": comp.id,
+                                "component_type": "finished_good",
+                                "component_id": subassembly.id,
+                                "display_name": subassembly.display_name,
+                                "slug": subassembly.slug,
+                                "quantity": comp.component_quantity,
+                                "unit_cost": float(subassembly.total_cost),
+                                "total_cost": float(
+                                    subassembly.total_cost * comp.component_quantity
+                                ),
+                                "inventory_count": subassembly.inventory_count,
+                                "assembly_type": subassembly.assembly_type.value,
+                                "notes": comp.component_notes,
+                                "sort_order": comp.sort_order,
+                                "depth": depth,
+                                "subcomponents": build_hierarchy_level(subassembly.id, depth + 1),
                             }
 
                         components.append(component_data)
@@ -526,18 +527,20 @@ class CompositionService:
                     return components
 
                 hierarchy = {
-                    'assembly_id': assembly.id,
-                    'assembly_name': assembly.display_name,
-                    'assembly_slug': assembly.slug,
-                    'assembly_type': assembly.assembly_type.value,
-                    'max_depth': max_depth,
-                    'components': build_hierarchy_level(assembly_id)
+                    "assembly_id": assembly.id,
+                    "assembly_name": assembly.display_name,
+                    "assembly_slug": assembly.slug,
+                    "assembly_type": assembly.assembly_type.value,
+                    "max_depth": max_depth,
+                    "components": build_hierarchy_level(assembly_id),
                 }
 
                 # Cache the result for future requests
                 _hierarchy_cache.put(cache_key, hierarchy)
 
-                logger.debug(f"Built hierarchy for assembly {assembly_id} with max depth {max_depth}")
+                logger.debug(
+                    f"Built hierarchy for assembly {assembly_id} with max depth {max_depth}"
+                )
                 return hierarchy
 
         except SQLAlchemyError as e:
@@ -592,12 +595,12 @@ class CompositionService:
                             else:
                                 components[key] = effective_quantity
                                 component_details[key] = {
-                                    'component_type': 'finished_unit',
-                                    'component_id': unit.id,
-                                    'display_name': unit.display_name,
-                                    'slug': unit.slug,
-                                    'unit_cost': float(unit.unit_cost),
-                                    'inventory_count': unit.inventory_count
+                                    "component_type": "finished_unit",
+                                    "component_id": unit.id,
+                                    "display_name": unit.display_name,
+                                    "slug": unit.slug,
+                                    "unit_cost": float(unit.unit_cost),
+                                    "inventory_count": unit.inventory_count,
                                 }
 
                         elif comp.finished_good_component:
@@ -610,13 +613,13 @@ class CompositionService:
                             else:
                                 components[key] = effective_quantity
                                 component_details[key] = {
-                                    'component_type': 'finished_good',
-                                    'component_id': subassembly.id,
-                                    'display_name': subassembly.display_name,
-                                    'slug': subassembly.slug,
-                                    'unit_cost': float(subassembly.total_cost),
-                                    'inventory_count': subassembly.inventory_count,
-                                    'assembly_type': subassembly.assembly_type.value
+                                    "component_type": "finished_good",
+                                    "component_id": subassembly.id,
+                                    "display_name": subassembly.display_name,
+                                    "slug": subassembly.slug,
+                                    "unit_cost": float(subassembly.total_cost),
+                                    "inventory_count": subassembly.inventory_count,
+                                    "assembly_type": subassembly.assembly_type.value,
                                 }
 
                             # Add to queue for expansion
@@ -626,13 +629,15 @@ class CompositionService:
                 result = []
                 for key, total_quantity in components.items():
                     detail = component_details[key].copy()
-                    detail['total_quantity'] = total_quantity
-                    detail['total_cost'] = detail['unit_cost'] * total_quantity
+                    detail["total_quantity"] = total_quantity
+                    detail["total_cost"] = detail["unit_cost"] * total_quantity
                     result.append(detail)
 
                 # Sort by component type and name
-                result.sort(key=lambda x: (x['component_type'], x['display_name']))
-                logger.debug(f"Flattened {len(result)} unique components for assembly {assembly_id}")
+                result.sort(key=lambda x: (x["component_type"], x["display_name"]))
+                logger.debug(
+                    f"Flattened {len(result)} unique components for assembly {assembly_id}"
+                )
                 return result
 
         except SQLAlchemyError as e:
@@ -643,9 +648,7 @@ class CompositionService:
 
     @staticmethod
     def validate_no_circular_reference(
-        assembly_id: int,
-        new_component_id: int,
-        session: Session = None
+        assembly_id: int, new_component_id: int, session: Session = None
     ) -> bool:
         """
         Check if adding a component would create circular dependency.
@@ -666,7 +669,7 @@ class CompositionService:
         try:
             use_session = session or get_db_session()
 
-            with (use_session if session else use_session()) as s:
+            with use_session if session else use_session() as s:
                 # Use breadth-first search to detect cycles
                 visited = set()
                 queue = deque([new_component_id])
@@ -683,10 +686,12 @@ class CompositionService:
                     visited.add(current_id)
 
                     # Get FinishedGood components of current assembly
-                    components = s.query(Composition)\
-                        .filter(Composition.assembly_id == current_id)\
-                        .filter(Composition.finished_good_id.isnot(None))\
+                    components = (
+                        s.query(Composition)
+                        .filter(Composition.assembly_id == current_id)
+                        .filter(Composition.finished_good_id.isnot(None))
                         .all()
+                    )
 
                     for comp in components:
                         queue.append(comp.finished_good_id)
@@ -699,9 +704,7 @@ class CompositionService:
 
     @staticmethod
     def validate_component_exists(
-        component_type: str,
-        component_id: int,
-        session: Session = None
+        component_type: str, component_id: int, session: Session = None
     ) -> bool:
         """
         Verify that a component exists and is valid.
@@ -719,15 +722,17 @@ class CompositionService:
         try:
             use_session = session or get_db_session()
 
-            with (use_session if session else use_session()) as s:
+            with use_session if session else use_session() as s:
                 if component_type == "finished_unit":
-                    exists = s.query(FinishedUnit)\
-                        .filter(FinishedUnit.id == component_id)\
-                        .first() is not None
+                    exists = (
+                        s.query(FinishedUnit).filter(FinishedUnit.id == component_id).first()
+                        is not None
+                    )
                 elif component_type == "finished_good":
-                    exists = s.query(FinishedGood)\
-                        .filter(FinishedGood.id == component_id)\
-                        .first() is not None
+                    exists = (
+                        s.query(FinishedGood).filter(FinishedGood.id == component_id).first()
+                        is not None
+                    )
                 else:
                     return False
 
@@ -764,15 +769,21 @@ class CompositionService:
                     # Check referential integrity
                     if comp.finished_unit_id:
                         if not comp.finished_unit_component:
-                            issues.append(f"Composition {comp.id} references missing FinishedUnit {comp.finished_unit_id}")
+                            issues.append(
+                                f"Composition {comp.id} references missing FinishedUnit {comp.finished_unit_id}"
+                            )
 
                     if comp.finished_good_id:
                         if not comp.finished_good_component:
-                            issues.append(f"Composition {comp.id} references missing FinishedGood {comp.finished_good_id}")
+                            issues.append(
+                                f"Composition {comp.id} references missing FinishedGood {comp.finished_good_id}"
+                            )
 
                     # Check quantity validation
                     if comp.component_quantity <= 0:
-                        issues.append(f"Composition {comp.id} has invalid quantity {comp.component_quantity}")
+                        issues.append(
+                            f"Composition {comp.id} has invalid quantity {comp.component_quantity}"
+                        )
 
                     # Check for orphaned compositions (both IDs are null)
                     if not comp.finished_unit_id and not comp.finished_good_id:
@@ -788,20 +799,24 @@ class CompositionService:
                         if not CompositionService.validate_no_circular_reference(
                             assembly_id, comp.finished_good_id, session
                         ):
-                            issues.append(f"Circular reference detected with FinishedGood {comp.finished_good_id}")
+                            issues.append(
+                                f"Circular reference detected with FinishedGood {comp.finished_good_id}"
+                            )
 
                 result = {
-                    'assembly_id': assembly_id,
-                    'is_valid': len(issues) == 0,
-                    'issues_count': len(issues),
-                    'warnings_count': len(warnings),
-                    'issues': issues,
-                    'warnings': warnings,
-                    'total_compositions': len(compositions),
-                    'checked_at': datetime.utcnow().isoformat()
+                    "assembly_id": assembly_id,
+                    "is_valid": len(issues) == 0,
+                    "issues_count": len(issues),
+                    "warnings_count": len(warnings),
+                    "issues": issues,
+                    "warnings": warnings,
+                    "total_compositions": len(compositions),
+                    "checked_at": datetime.utcnow().isoformat(),
                 }
 
-                logger.debug(f"Integrity check for assembly {assembly_id}: {len(issues)} issues found")
+                logger.debug(
+                    f"Integrity check for assembly {assembly_id}: {len(issues)} issues found"
+                )
                 return result
 
         except SQLAlchemyError as e:
@@ -837,15 +852,17 @@ class CompositionService:
                 # Validate all compositions first
                 for comp_spec in compositions:
                     # Validate required fields
-                    required_fields = ['assembly_id', 'component_type', 'component_id', 'quantity']
+                    required_fields = ["assembly_id", "component_type", "component_id", "quantity"]
                     for field in required_fields:
                         if field not in comp_spec:
-                            raise ValidationError(f"Missing required field '{field}' in composition spec")
+                            raise ValidationError(
+                                f"Missing required field '{field}' in composition spec"
+                            )
 
-                    assembly_id = comp_spec['assembly_id']
-                    component_type = comp_spec['component_type']
-                    component_id = comp_spec['component_id']
-                    quantity = comp_spec['quantity']
+                    assembly_id = comp_spec["assembly_id"]
+                    component_type = comp_spec["component_type"]
+                    component_id = comp_spec["component_id"]
+                    quantity = comp_spec["quantity"]
 
                     if component_type not in ["finished_unit", "finished_good"]:
                         raise InvalidComponentTypeError(
@@ -856,9 +873,9 @@ class CompositionService:
                         raise ValidationError("Quantity must be positive")
 
                     # Validate assembly exists
-                    assembly = session.query(FinishedGood)\
-                        .filter(FinishedGood.id == assembly_id)\
-                        .first()
+                    assembly = (
+                        session.query(FinishedGood).filter(FinishedGood.id == assembly_id).first()
+                    )
                     if not assembly:
                         raise ValidationError(f"Assembly ID {assembly_id} not found")
 
@@ -882,16 +899,16 @@ class CompositionService:
                 # Create all compositions
                 for comp_spec in compositions:
                     composition_data = {
-                        'assembly_id': comp_spec['assembly_id'],
-                        'component_quantity': comp_spec['quantity'],
-                        'component_notes': comp_spec.get('notes'),
-                        'sort_order': comp_spec.get('sort_order', 0)
+                        "assembly_id": comp_spec["assembly_id"],
+                        "component_quantity": comp_spec["quantity"],
+                        "component_notes": comp_spec.get("notes"),
+                        "sort_order": comp_spec.get("sort_order", 0),
                     }
 
-                    if comp_spec['component_type'] == "finished_unit":
-                        composition_data['finished_unit_id'] = comp_spec['component_id']
+                    if comp_spec["component_type"] == "finished_unit":
+                        composition_data["finished_unit_id"] = comp_spec["component_id"]
                     else:
-                        composition_data['finished_good_id'] = comp_spec['component_id']
+                        composition_data["finished_good_id"] = comp_spec["component_id"]
 
                     composition = Composition(**composition_data)
                     session.add(composition)
@@ -924,20 +941,24 @@ class CompositionService:
         try:
             with session_scope() as session:
                 # Get all compositions for the assembly
-                compositions = session.query(Composition)\
-                    .filter(Composition.assembly_id == assembly_id)\
-                    .all()
+                compositions = (
+                    session.query(Composition).filter(Composition.assembly_id == assembly_id).all()
+                )
 
                 composition_dict = {comp.id: comp for comp in compositions}
 
                 # Validate all composition IDs in new_order exist
                 for comp_id in new_order:
                     if comp_id not in composition_dict:
-                        raise ValidationError(f"Composition ID {comp_id} not found in assembly {assembly_id}")
+                        raise ValidationError(
+                            f"Composition ID {comp_id} not found in assembly {assembly_id}"
+                        )
 
                 # Check if all compositions are included
                 if set(new_order) != set(composition_dict.keys()):
-                    raise ValidationError("new_order must include all composition IDs for the assembly")
+                    raise ValidationError(
+                        "new_order must include all composition IDs for the assembly"
+                    )
 
                 # Update sort orders
                 for index, comp_id in enumerate(new_order):
@@ -973,15 +994,19 @@ class CompositionService:
         try:
             with session_scope() as session:
                 # Validate both assemblies exist
-                source_assembly = session.query(FinishedGood)\
-                    .filter(FinishedGood.id == source_assembly_id)\
+                source_assembly = (
+                    session.query(FinishedGood)
+                    .filter(FinishedGood.id == source_assembly_id)
                     .first()
+                )
                 if not source_assembly:
                     raise ValidationError(f"Source assembly ID {source_assembly_id} not found")
 
-                target_assembly = session.query(FinishedGood)\
-                    .filter(FinishedGood.id == target_assembly_id)\
+                target_assembly = (
+                    session.query(FinishedGood)
+                    .filter(FinishedGood.id == target_assembly_id)
                     .first()
+                )
                 if not target_assembly:
                     raise ValidationError(f"Target assembly ID {target_assembly_id} not found")
 
@@ -1002,16 +1027,16 @@ class CompositionService:
                 copied_count = 0
                 for comp in source_compositions:
                     composition_data = {
-                        'assembly_id': target_assembly_id,
-                        'component_quantity': comp.component_quantity,
-                        'component_notes': comp.component_notes,
-                        'sort_order': comp.sort_order
+                        "assembly_id": target_assembly_id,
+                        "component_quantity": comp.component_quantity,
+                        "component_notes": comp.component_notes,
+                        "sort_order": comp.sort_order,
                     }
 
                     if comp.finished_unit_id:
-                        composition_data['finished_unit_id'] = comp.finished_unit_id
+                        composition_data["finished_unit_id"] = comp.finished_unit_id
                     elif comp.finished_good_id:
-                        composition_data['finished_good_id'] = comp.finished_good_id
+                        composition_data["finished_good_id"] = comp.finished_good_id
 
                     new_composition = Composition(**composition_data)
                     session.add(new_composition)
@@ -1019,7 +1044,9 @@ class CompositionService:
 
                 session.flush()
 
-                logger.info(f"Copied {copied_count} compositions from assembly {source_assembly_id} to {target_assembly_id}")
+                logger.info(
+                    f"Copied {copied_count} compositions from assembly {source_assembly_id} to {target_assembly_id}"
+                )
                 return True
 
         except SQLAlchemyError as e:
@@ -1047,11 +1074,11 @@ class CompositionService:
                 compositions = CompositionService.get_assembly_components(assembly_id)
 
                 cost_breakdown = {
-                    'finished_unit_costs': [],
-                    'finished_good_costs': [],
-                    'total_finished_unit_cost': Decimal('0.0000'),
-                    'total_finished_good_cost': Decimal('0.0000'),
-                    'total_assembly_cost': Decimal('0.0000')
+                    "finished_unit_costs": [],
+                    "finished_good_costs": [],
+                    "total_finished_unit_cost": Decimal("0.0000"),
+                    "total_finished_good_cost": Decimal("0.0000"),
+                    "total_assembly_cost": Decimal("0.0000"),
                 }
 
                 for comp in compositions:
@@ -1059,41 +1086,49 @@ class CompositionService:
                         unit = comp.finished_unit_component
                         component_total = unit.unit_cost * comp.component_quantity
 
-                        cost_breakdown['finished_unit_costs'].append({
-                            'composition_id': comp.id,
-                            'component_id': unit.id,
-                            'display_name': unit.display_name,
-                            'unit_cost': float(unit.unit_cost),
-                            'quantity': comp.component_quantity,
-                            'total_cost': float(component_total)
-                        })
+                        cost_breakdown["finished_unit_costs"].append(
+                            {
+                                "composition_id": comp.id,
+                                "component_id": unit.id,
+                                "display_name": unit.display_name,
+                                "unit_cost": float(unit.unit_cost),
+                                "quantity": comp.component_quantity,
+                                "total_cost": float(component_total),
+                            }
+                        )
 
-                        cost_breakdown['total_finished_unit_cost'] += component_total
+                        cost_breakdown["total_finished_unit_cost"] += component_total
 
                     elif comp.finished_good_component:
                         subassembly = comp.finished_good_component
                         component_total = subassembly.total_cost * comp.component_quantity
 
-                        cost_breakdown['finished_good_costs'].append({
-                            'composition_id': comp.id,
-                            'component_id': subassembly.id,
-                            'display_name': subassembly.display_name,
-                            'unit_cost': float(subassembly.total_cost),
-                            'quantity': comp.component_quantity,
-                            'total_cost': float(component_total)
-                        })
+                        cost_breakdown["finished_good_costs"].append(
+                            {
+                                "composition_id": comp.id,
+                                "component_id": subassembly.id,
+                                "display_name": subassembly.display_name,
+                                "unit_cost": float(subassembly.total_cost),
+                                "quantity": comp.component_quantity,
+                                "total_cost": float(component_total),
+                            }
+                        )
 
-                        cost_breakdown['total_finished_good_cost'] += component_total
+                        cost_breakdown["total_finished_good_cost"] += component_total
 
-                cost_breakdown['total_assembly_cost'] = (
-                    cost_breakdown['total_finished_unit_cost'] +
-                    cost_breakdown['total_finished_good_cost']
+                cost_breakdown["total_assembly_cost"] = (
+                    cost_breakdown["total_finished_unit_cost"]
+                    + cost_breakdown["total_finished_good_cost"]
                 )
 
                 # Convert Decimal to float for JSON serialization
-                cost_breakdown['total_finished_unit_cost'] = float(cost_breakdown['total_finished_unit_cost'])
-                cost_breakdown['total_finished_good_cost'] = float(cost_breakdown['total_finished_good_cost'])
-                cost_breakdown['total_assembly_cost'] = float(cost_breakdown['total_assembly_cost'])
+                cost_breakdown["total_finished_unit_cost"] = float(
+                    cost_breakdown["total_finished_unit_cost"]
+                )
+                cost_breakdown["total_finished_good_cost"] = float(
+                    cost_breakdown["total_finished_good_cost"]
+                )
+                cost_breakdown["total_assembly_cost"] = float(cost_breakdown["total_assembly_cost"])
 
                 logger.debug(f"Calculated component costs for assembly {assembly_id}")
                 return cost_breakdown
@@ -1122,36 +1157,38 @@ class CompositionService:
             flattened_components = CompositionService.flatten_assembly_components(assembly_id)
 
             requirements = {
-                'assembly_id': assembly_id,
-                'assembly_quantity': assembly_quantity,
-                'finished_unit_requirements': [],
-                'finished_good_requirements': [],
-                'availability_status': 'available'
+                "assembly_id": assembly_id,
+                "assembly_quantity": assembly_quantity,
+                "finished_unit_requirements": [],
+                "finished_good_requirements": [],
+                "availability_status": "available",
             }
 
             for component in flattened_components:
-                required_quantity = component['total_quantity'] * assembly_quantity
-                available_quantity = component['inventory_count']
+                required_quantity = component["total_quantity"] * assembly_quantity
+                available_quantity = component["inventory_count"]
                 shortage = max(0, required_quantity - available_quantity)
 
                 requirement = {
-                    'component_id': component['component_id'],
-                    'display_name': component['display_name'],
-                    'required_quantity': required_quantity,
-                    'available_quantity': available_quantity,
-                    'shortage': shortage,
-                    'is_sufficient': shortage == 0
+                    "component_id": component["component_id"],
+                    "display_name": component["display_name"],
+                    "required_quantity": required_quantity,
+                    "available_quantity": available_quantity,
+                    "shortage": shortage,
+                    "is_sufficient": shortage == 0,
                 }
 
-                if component['component_type'] == 'finished_unit':
-                    requirements['finished_unit_requirements'].append(requirement)
+                if component["component_type"] == "finished_unit":
+                    requirements["finished_unit_requirements"].append(requirement)
                 else:
-                    requirements['finished_good_requirements'].append(requirement)
+                    requirements["finished_good_requirements"].append(requirement)
 
                 if shortage > 0:
-                    requirements['availability_status'] = 'insufficient'
+                    requirements["availability_status"] = "insufficient"
 
-            logger.debug(f"Calculated inventory requirements for {assembly_quantity} assemblies of {assembly_id}")
+            logger.debug(
+                f"Calculated inventory requirements for {assembly_quantity} assemblies of {assembly_id}"
+            )
             return requirements
 
         except SQLAlchemyError as e:
@@ -1182,23 +1219,25 @@ class CompositionService:
 
             with get_db_session() as session:
                 # Search in both FinishedUnit and FinishedGood components
-                compositions = session.query(Composition)\
+                compositions = (
+                    session.query(Composition)
                     .options(
                         selectinload(Composition.finished_unit_component),
                         selectinload(Composition.finished_good_component),
-                        selectinload(Composition.assembly)
-                    )\
-                    .outerjoin(Composition.finished_unit_component)\
-                    .outerjoin(Composition.finished_good_component)\
+                        selectinload(Composition.assembly),
+                    )
+                    .outerjoin(Composition.finished_unit_component)
+                    .outerjoin(Composition.finished_good_component)
                     .filter(
                         or_(
                             FinishedUnit.display_name.ilike(search_pattern),
                             FinishedUnit.description.ilike(search_pattern),
                             FinishedGood.display_name.ilike(search_pattern),
-                            FinishedGood.description.ilike(search_pattern)
+                            FinishedGood.description.ilike(search_pattern),
                         )
-                    )\
+                    )
                     .all()
+                )
 
                 logger.debug(f"Found {len(compositions)} compositions matching '{search_term}'")
                 return compositions
@@ -1244,39 +1283,49 @@ class CompositionService:
                     max_depth = max(max_depth, depth)
 
                     # Get FinishedGood components to continue traversal
-                    subassemblies = session.query(Composition)\
+                    subassemblies = (
+                        session.query(Composition)
                         .filter(
                             Composition.assembly_id == current_id,
-                            Composition.finished_good_id.isnot(None)
-                        )\
+                            Composition.finished_good_id.isnot(None),
+                        )
                         .all()
+                    )
 
                     for sub in subassemblies:
                         queue.append((sub.finished_good_id, depth + 1))
 
                 # Count component types
-                direct_finished_units = sum(1 for comp in direct_components if comp.finished_unit_id)
-                direct_finished_goods = sum(1 for comp in direct_components if comp.finished_good_id)
+                direct_finished_units = sum(
+                    1 for comp in direct_components if comp.finished_unit_id
+                )
+                direct_finished_goods = sum(
+                    1 for comp in direct_components if comp.finished_good_id
+                )
 
-                total_finished_units = sum(1 for comp in flattened_components if comp['component_type'] == 'finished_unit')
-                total_finished_goods = sum(1 for comp in flattened_components if comp['component_type'] == 'finished_good')
+                total_finished_units = sum(
+                    1 for comp in flattened_components if comp["component_type"] == "finished_unit"
+                )
+                total_finished_goods = sum(
+                    1 for comp in flattened_components if comp["component_type"] == "finished_good"
+                )
 
                 # Calculate costs
                 cost_breakdown = CompositionService.calculate_assembly_component_costs(assembly_id)
 
                 statistics = {
-                    'assembly_id': assembly_id,
-                    'direct_components_count': len(direct_components),
-                    'direct_finished_units': direct_finished_units,
-                    'direct_finished_goods': direct_finished_goods,
-                    'total_unique_components': len(flattened_components),
-                    'total_finished_units': total_finished_units,
-                    'total_finished_goods': total_finished_goods,
-                    'hierarchy_depth': max_depth,
-                    'total_cost': cost_breakdown['total_assembly_cost'],
-                    'finished_unit_cost': cost_breakdown['total_finished_unit_cost'],
-                    'finished_good_cost': cost_breakdown['total_finished_good_cost'],
-                    'calculated_at': datetime.utcnow().isoformat()
+                    "assembly_id": assembly_id,
+                    "direct_components_count": len(direct_components),
+                    "direct_finished_units": direct_finished_units,
+                    "direct_finished_goods": direct_finished_goods,
+                    "total_unique_components": len(flattened_components),
+                    "total_finished_units": total_finished_units,
+                    "total_finished_goods": total_finished_goods,
+                    "hierarchy_depth": max_depth,
+                    "total_cost": cost_breakdown["total_assembly_cost"],
+                    "finished_unit_cost": cost_breakdown["total_finished_unit_cost"],
+                    "finished_good_cost": cost_breakdown["total_finished_good_cost"],
+                    "calculated_at": datetime.utcnow().isoformat(),
                 }
 
                 logger.debug(f"Generated statistics for assembly {assembly_id}")
@@ -1297,9 +1346,9 @@ class CompositionService:
             Dictionary with cache size and hit rate information
         """
         return {
-            'cache_size': _hierarchy_cache.size(),
-            'cache_ttl_seconds': _hierarchy_cache.ttl,
-            'cache_type': 'hierarchy_operations'
+            "cache_size": _hierarchy_cache.size(),
+            "cache_ttl_seconds": _hierarchy_cache.ttl,
+            "cache_type": "hierarchy_operations",
         }
 
     @staticmethod
@@ -1328,9 +1377,14 @@ class CompositionService:
 
 # Module-level convenience functions for backward compatibility
 
-def create_composition(assembly_id: int, component_type: str, component_id: int, quantity: int, **kwargs) -> Composition:
+
+def create_composition(
+    assembly_id: int, component_type: str, component_id: int, quantity: int, **kwargs
+) -> Composition:
     """Create a new composition relationship."""
-    return CompositionService.create_composition(assembly_id, component_type, component_id, quantity, **kwargs)
+    return CompositionService.create_composition(
+        assembly_id, component_type, component_id, quantity, **kwargs
+    )
 
 
 def get_composition_by_id(composition_id: int) -> Optional[Composition]:

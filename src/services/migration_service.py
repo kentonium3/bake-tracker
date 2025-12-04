@@ -21,7 +21,7 @@ from ..models import FinishedUnit
 from ..utils.backup_validator import (
     create_database_backup,
     validate_backup_integrity,
-    restore_database_from_backup
+    restore_database_from_backup,
 )
 
 logger = logging.getLogger(__name__)
@@ -64,14 +64,16 @@ class MigrationService:
             "finished_good_count": 0,
             "validation_errors": [],
             "warnings": [],
-            "data_integrity": True
+            "data_integrity": True,
         }
 
         try:
             with get_db_session() as session:
                 # Check if old finished_goods table exists
                 table_check = session.execute(
-                    text("SELECT name FROM sqlite_master WHERE type='table' AND name='finished_goods'")
+                    text(
+                        "SELECT name FROM sqlite_master WHERE type='table' AND name='finished_goods'"
+                    )
                 ).fetchone()
 
                 if not table_check:
@@ -79,7 +81,9 @@ class MigrationService:
                     return result
 
                 # Count existing records
-                count_result = session.execute(text("SELECT COUNT(*) FROM finished_goods")).fetchone()
+                count_result = session.execute(
+                    text("SELECT COUNT(*) FROM finished_goods")
+                ).fetchone()
                 result["finished_good_count"] = count_result[0] if count_result else 0
 
                 if result["finished_good_count"] == 0:
@@ -93,11 +97,15 @@ class MigrationService:
 
                 # Check for duplicate names (will become slugs)
                 duplicate_check = session.execute(
-                    text("SELECT name, COUNT(*) FROM finished_goods GROUP BY name HAVING COUNT(*) > 1")
+                    text(
+                        "SELECT name, COUNT(*) FROM finished_goods GROUP BY name HAVING COUNT(*) > 1"
+                    )
                 ).fetchall()
 
                 if duplicate_check:
-                    result["warnings"].append(f"Found {len(duplicate_check)} duplicate names - will add suffixes")
+                    result["warnings"].append(
+                        f"Found {len(duplicate_check)} duplicate names - will add suffixes"
+                    )
 
                 # Check for foreign key constraints
                 fk_issues = MigrationService._validate_foreign_keys(session)
@@ -107,8 +115,10 @@ class MigrationService:
                 result["is_ready"] = len(result["validation_errors"]) == 0
                 result["data_integrity"] = len(result["validation_errors"]) == 0
 
-                logger.info(f"Pre-migration validation completed: {result['finished_good_count']} records, "
-                          f"ready: {result['is_ready']}")
+                logger.info(
+                    f"Pre-migration validation completed: {result['finished_good_count']} records, "
+                    f"ready: {result['is_ready']}"
+                )
 
         except Exception as e:
             result["validation_errors"].append(f"Pre-migration validation failed: {e}")
@@ -132,14 +142,20 @@ class MigrationService:
                 errors.append(f"Found {null_names} finished goods with missing names")
 
             # Check for invalid recipe references
-            invalid_recipes = session.execute(text("""
+            invalid_recipes = session.execute(
+                text(
+                    """
                 SELECT COUNT(*) FROM finished_goods fg
                 WHERE fg.recipe_id IS NOT NULL
                 AND NOT EXISTS (SELECT 1 FROM recipes r WHERE r.id = fg.recipe_id)
-            """)).fetchone()[0]
+            """
+                )
+            ).fetchone()[0]
 
             if invalid_recipes > 0:
-                errors.append(f"Found {invalid_recipes} finished goods with invalid recipe references")
+                errors.append(
+                    f"Found {invalid_recipes} finished goods with invalid recipe references"
+                )
 
         except SQLAlchemyError as e:
             errors.append(f"Data integrity check failed: {e}")
@@ -153,14 +169,20 @@ class MigrationService:
 
         try:
             # Check recipe references exist
-            orphaned_recipes = session.execute(text("""
+            orphaned_recipes = session.execute(
+                text(
+                    """
                 SELECT id, name FROM finished_goods
                 WHERE recipe_id IS NOT NULL
                 AND recipe_id NOT IN (SELECT id FROM recipes)
-            """)).fetchall()
+            """
+                )
+            ).fetchall()
 
             if orphaned_recipes:
-                errors.append(f"Found {len(orphaned_recipes)} finished goods with orphaned recipe references")
+                errors.append(
+                    f"Found {len(orphaned_recipes)} finished goods with orphaned recipe references"
+                )
 
         except SQLAlchemyError as e:
             errors.append(f"Foreign key validation failed: {e}")
@@ -186,7 +208,9 @@ class MigrationService:
 
                 # Verify new table was created
                 table_check = session.execute(
-                    text("SELECT name FROM sqlite_master WHERE type='table' AND name='finished_units'")
+                    text(
+                        "SELECT name FROM sqlite_master WHERE type='table' AND name='finished_units'"
+                    )
                 ).fetchone()
 
                 if not table_check:
@@ -221,19 +245,23 @@ class MigrationService:
             "migrated_count": 0,
             "failed_count": 0,
             "errors": [],
-            "duplicates_handled": 0
+            "duplicates_handled": 0,
         }
 
         try:
             with get_db_session() as session:
                 # Fetch all existing FinishedGood records
-                existing_records = session.execute(text("""
+                existing_records = session.execute(
+                    text(
+                        """
                     SELECT id, name, recipe_id, yield_mode, items_per_batch, item_unit,
                            batch_percentage, portion_description, category, notes,
                            date_added, last_modified
                     FROM finished_goods
                     ORDER BY id
-                """)).fetchall()
+                """
+                    )
+                ).fetchall()
 
                 if not existing_records:
                     result["success"] = True
@@ -246,9 +274,7 @@ class MigrationService:
                 for record in existing_records:
                     try:
                         # Generate unique slug from name
-                        slug = MigrationService._generate_unique_slug(
-                            record.name, used_slugs
-                        )
+                        slug = MigrationService._generate_unique_slug(record.name, used_slugs)
 
                         if slug != MigrationService._generate_slug(record.name):
                             result["duplicates_handled"] += 1
@@ -257,30 +283,30 @@ class MigrationService:
 
                         # Create new FinishedUnit from legacy data
                         unit_data = {
-                            'slug': slug,
-                            'display_name': record.name,
-                            'recipe_id': record.recipe_id,
-                            'unit_cost': Decimal('0.0000'),  # Will be calculated later
-                            'inventory_count': 0,  # Start with zero inventory
-                            'created_at': record.date_added,
-                            'updated_at': record.last_modified or record.date_added
+                            "slug": slug,
+                            "display_name": record.name,
+                            "recipe_id": record.recipe_id,
+                            "unit_cost": Decimal("0.0000"),  # Will be calculated later
+                            "inventory_count": 0,  # Start with zero inventory
+                            "created_at": record.date_added,
+                            "updated_at": record.last_modified or record.date_added,
                         }
 
                         # Map yield_mode and related fields
                         if record.yield_mode:
-                            unit_data['yield_mode'] = record.yield_mode
+                            unit_data["yield_mode"] = record.yield_mode
                         if record.items_per_batch:
-                            unit_data['items_per_batch'] = record.items_per_batch
+                            unit_data["items_per_batch"] = record.items_per_batch
                         if record.item_unit:
-                            unit_data['item_unit'] = record.item_unit
+                            unit_data["item_unit"] = record.item_unit
                         if record.batch_percentage:
-                            unit_data['batch_percentage'] = Decimal(str(record.batch_percentage))
+                            unit_data["batch_percentage"] = Decimal(str(record.batch_percentage))
                         if record.portion_description:
-                            unit_data['portion_description'] = record.portion_description
+                            unit_data["portion_description"] = record.portion_description
                         if record.category:
-                            unit_data['category'] = record.category
+                            unit_data["category"] = record.category
                         if record.notes:
-                            unit_data['notes'] = record.notes
+                            unit_data["notes"] = record.notes
 
                         # Create FinishedUnit instance
                         finished_unit = FinishedUnit(**unit_data)
@@ -304,8 +330,10 @@ class MigrationService:
                 session.commit()
 
                 result["success"] = result["failed_count"] == 0
-                logger.info(f"Migration completed: {result['migrated_count']} migrated, "
-                          f"{result['failed_count']} failed")
+                logger.info(
+                    f"Migration completed: {result['migrated_count']} migrated, "
+                    f"{result['failed_count']} failed"
+                )
 
         except Exception as e:
             result["errors"].append(f"Migration process failed: {e}")
@@ -328,14 +356,14 @@ class MigrationService:
             return "unknown-item"
 
         # Normalize unicode characters
-        slug = unicodedata.normalize('NFKD', name)
+        slug = unicodedata.normalize("NFKD", name)
 
         # Convert to lowercase and replace spaces/punctuation with hyphens
-        slug = re.sub(r'[^\w\s-]', '', slug).strip().lower()
-        slug = re.sub(r'[\s_-]+', '-', slug)
+        slug = re.sub(r"[^\w\s-]", "", slug).strip().lower()
+        slug = re.sub(r"[\s_-]+", "-", slug)
 
         # Remove leading/trailing hyphens
-        slug = slug.strip('-')
+        slug = slug.strip("-")
 
         # Ensure not empty
         if not slug:
@@ -343,7 +371,7 @@ class MigrationService:
 
         # Limit length
         if len(slug) > 90:
-            slug = slug[:90].rstrip('-')
+            slug = slug[:90].rstrip("-")
 
         return slug
 
@@ -394,7 +422,7 @@ class MigrationService:
             "migrated_count": 0,
             "data_matches": False,
             "missing_records": [],
-            "cost_calculations": True
+            "cost_calculations": True,
         }
 
         try:
@@ -429,8 +457,10 @@ class MigrationService:
                 result["data_matches"] = len(result["missing_records"]) == 0
                 result["is_valid"] = result["data_matches"] and result["cost_calculations"]
 
-                logger.info(f"Post-migration validation: {result['migrated_count']} records, "
-                          f"valid: {result['is_valid']}")
+                logger.info(
+                    f"Post-migration validation: {result['migrated_count']} records, "
+                    f"valid: {result['is_valid']}"
+                )
 
         except Exception as e:
             result["missing_records"].append(f"Validation failed: {e}")
@@ -445,13 +475,17 @@ class MigrationService:
 
         try:
             # Check that all names were mapped to display_name
-            unmapped_names = session.execute(text("""
+            unmapped_names = session.execute(
+                text(
+                    """
                 SELECT fg.name
                 FROM finished_goods fg
                 LEFT JOIN finished_units fu ON fg.name = fu.display_name
                 WHERE fu.display_name IS NULL
                 LIMIT 5
-            """)).fetchall()
+            """
+                )
+            ).fetchall()
 
             if unmapped_names:
                 errors.append(f"Found unmapped names: {[r[0] for r in unmapped_names]}")
@@ -468,16 +502,22 @@ class MigrationService:
 
         try:
             # Check for units with recipes that should have calculated costs
-            zero_cost_with_recipe = session.execute(text("""
+            zero_cost_with_recipe = session.execute(
+                text(
+                    """
                 SELECT fu.slug, fu.display_name
                 FROM finished_units fu
                 JOIN recipes r ON fu.recipe_id = r.id
                 WHERE fu.unit_cost = 0 AND fu.items_per_batch > 0
                 LIMIT 5
-            """)).fetchall()
+            """
+                )
+            ).fetchall()
 
             if zero_cost_with_recipe:
-                errors.append(f"Found units with zero cost despite having recipes: {len(zero_cost_with_recipe)}")
+                errors.append(
+                    f"Found units with zero cost despite having recipes: {len(zero_cost_with_recipe)}"
+                )
 
         except SQLAlchemyError as e:
             errors.append(f"Cost calculation validation failed: {e}")
@@ -523,7 +563,7 @@ class MigrationService:
             success, message = restore_database_from_backup(
                 backup_path=backup_path,
                 target_path=current_db_path,
-                safety_backup=True  # Create safety backup of current state
+                safety_backup=True,  # Create safety backup of current state
             )
 
             if success:
@@ -555,8 +595,7 @@ class MigrationService:
 
             # Create backup with migration-specific subdirectory
             success, backup_path = create_database_backup(
-                database_path,
-                backup_dir="migration_backups"
+                database_path, backup_dir="migration_backups"
             )
 
             if success:
@@ -589,11 +628,7 @@ class MigrationService:
         Returns:
             Dictionary with cleanup results
         """
-        result = {
-            "success": False,
-            "tables_dropped": [],
-            "errors": []
-        }
+        result = {"success": False, "tables_dropped": [], "errors": []}
 
         try:
             with get_db_session() as session:

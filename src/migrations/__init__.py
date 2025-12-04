@@ -8,7 +8,7 @@ for safely transforming the database structure and data.
 from .migration_orchestrator import (
     get_migration_status,
     execute_full_migration,
-    MigrationOrchestrator
+    MigrationOrchestrator,
 )
 
 __all__ = [

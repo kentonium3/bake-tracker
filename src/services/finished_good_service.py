@@ -31,14 +31,10 @@ from ..models import FinishedGood, FinishedUnit, Composition, AssemblyType
 from ..models.assembly_type import (
     validate_assembly_type_business_rules,
     calculate_packaging_cost,
-    get_suggested_retail_price
+    get_suggested_retail_price,
 )
 from . import finished_unit_service
-from .exceptions import (
-    ServiceError,
-    ValidationError,
-    DatabaseError
-)
+from .exceptions import ServiceError, ValidationError, DatabaseError
 
 logger = logging.getLogger(__name__)
 
@@ -46,26 +42,31 @@ logger = logging.getLogger(__name__)
 # Custom exceptions for FinishedGood service
 class FinishedGoodNotFoundError(ServiceError):
     """Raised when a FinishedGood assembly cannot be found."""
+
     pass
 
 
 class CircularReferenceError(ServiceError):
     """Raised when operation would create circular dependency."""
+
     pass
 
 
 class InsufficientInventoryError(ServiceError):
     """Raised when components unavailable for assembly."""
+
     pass
 
 
 class InvalidComponentError(ServiceError):
     """Raised when component doesn't exist or is invalid."""
+
     pass
 
 
 class AssemblyIntegrityError(ServiceError):
     """Raised when assembly state becomes invalid."""
+
     pass
 
 
@@ -95,13 +96,17 @@ class FinishedGoodService:
         """
         try:
             with get_db_session() as session:
-                finished_good = session.query(FinishedGood)\
-                    .options(selectinload(FinishedGood.components))\
-                    .filter(FinishedGood.id == finished_good_id)\
+                finished_good = (
+                    session.query(FinishedGood)
+                    .options(selectinload(FinishedGood.components))
+                    .filter(FinishedGood.id == finished_good_id)
                     .first()
+                )
 
                 if finished_good:
-                    logger.debug(f"Retrieved FinishedGood by ID {finished_good_id}: {finished_good.display_name}")
+                    logger.debug(
+                        f"Retrieved FinishedGood by ID {finished_good_id}: {finished_good.display_name}"
+                    )
                 else:
                     logger.debug(f"FinishedGood not found for ID {finished_good_id}")
 
@@ -127,13 +132,17 @@ class FinishedGoodService:
         """
         try:
             with get_db_session() as session:
-                finished_good = session.query(FinishedGood)\
-                    .options(selectinload(FinishedGood.components))\
-                    .filter(FinishedGood.slug == slug)\
+                finished_good = (
+                    session.query(FinishedGood)
+                    .options(selectinload(FinishedGood.components))
+                    .filter(FinishedGood.slug == slug)
                     .first()
+                )
 
                 if finished_good:
-                    logger.debug(f"Retrieved FinishedGood by slug '{slug}': {finished_good.display_name}")
+                    logger.debug(
+                        f"Retrieved FinishedGood by slug '{slug}': {finished_good.display_name}"
+                    )
                 else:
                     logger.debug(f"FinishedGood not found for slug '{slug}'")
 
@@ -156,10 +165,12 @@ class FinishedGoodService:
         """
         try:
             with get_db_session() as session:
-                finished_goods = session.query(FinishedGood)\
-                    .options(selectinload(FinishedGood.components))\
-                    .order_by(FinishedGood.display_name)\
+                finished_goods = (
+                    session.query(FinishedGood)
+                    .options(selectinload(FinishedGood.components))
+                    .order_by(FinishedGood.display_name)
                     .all()
+                )
 
                 logger.debug(f"Retrieved {len(finished_goods)} FinishedGoods")
                 return finished_goods
@@ -170,10 +181,7 @@ class FinishedGoodService:
 
     @staticmethod
     def create_finished_good(
-        display_name: str,
-        assembly_type: AssemblyType,
-        components: List[dict] = None,
-        **kwargs
+        display_name: str, assembly_type: AssemblyType, components: List[dict] = None, **kwargs
     ) -> FinishedGood:
         """
         Create a new assembly package.
@@ -208,15 +216,13 @@ class FinishedGoodService:
             slug = FinishedGoodService._generate_slug(display_name.strip())
 
             # Validate total cost
-            total_cost = kwargs.get('total_cost', Decimal('0.0000'))
+            total_cost = kwargs.get("total_cost", Decimal("0.0000"))
             if total_cost < 0:
                 raise ValidationError("Total cost must be non-negative")
 
             with session_scope() as session:
                 # Check slug uniqueness
-                existing = session.query(FinishedGood)\
-                    .filter(FinishedGood.slug == slug)\
-                    .first()
+                existing = session.query(FinishedGood).filter(FinishedGood.slug == slug).first()
 
                 if existing:
                     # Generate unique slug with suffix
@@ -228,14 +234,14 @@ class FinishedGoodService:
 
                 # Create FinishedGood with validated data
                 assembly_data = {
-                    'slug': slug,
-                    'display_name': display_name.strip(),
-                    'assembly_type': assembly_type,
-                    'total_cost': total_cost,
-                    'inventory_count': kwargs.get('inventory_count', 0),
-                    'description': kwargs.get('description'),
-                    'packaging_instructions': kwargs.get('packaging_instructions'),
-                    'notes': kwargs.get('notes'),
+                    "slug": slug,
+                    "display_name": display_name.strip(),
+                    "assembly_type": assembly_type,
+                    "total_cost": total_cost,
+                    "inventory_count": kwargs.get("inventory_count", 0),
+                    "description": kwargs.get("description"),
+                    "packaging_instructions": kwargs.get("packaging_instructions"),
+                    "notes": kwargs.get("notes"),
                 }
 
                 # Remove None values
@@ -247,7 +253,7 @@ class FinishedGoodService:
 
                 # Add components if provided
                 if components:
-                    total_component_cost = Decimal('0.0000')
+                    total_component_cost = Decimal("0.0000")
 
                     for component_spec in components:
                         composition = FinishedGoodService._create_composition(
@@ -256,15 +262,17 @@ class FinishedGoodService:
                         session.add(composition)
 
                         # Calculate component cost contribution
-                        component_cost = FinishedGoodService._get_component_cost(component_spec, session)
-                        total_component_cost += component_cost * component_spec['quantity']
+                        component_cost = FinishedGoodService._get_component_cost(
+                            component_spec, session
+                        )
+                        total_component_cost += component_cost * component_spec["quantity"]
 
                     # Calculate packaging cost and total cost
                     packaging_cost = calculate_packaging_cost(assembly_type, total_component_cost)
                     total_cost_with_packaging = total_component_cost + packaging_cost
 
                     # Update total cost if not explicitly provided
-                    if 'total_cost' not in kwargs:
+                    if "total_cost" not in kwargs:
                         finished_good.total_cost = total_cost_with_packaging
 
                     # Validate business rules
@@ -273,18 +281,24 @@ class FinishedGoodService:
                         assembly_type, component_count, total_cost_with_packaging
                     )
                     if not is_valid:
-                        raise ValidationError([f"Assembly type validation failed: {'; '.join(errors)}"])
+                        raise ValidationError(
+                            [f"Assembly type validation failed: {'; '.join(errors)}"]
+                        )
 
-                elif 'total_cost' not in kwargs:
+                elif "total_cost" not in kwargs:
                     # No components provided, validate minimum requirements
                     component_count = 0
                     is_valid, errors = validate_assembly_type_business_rules(
-                        assembly_type, component_count, Decimal('0.0000')
+                        assembly_type, component_count, Decimal("0.0000")
                     )
                     if not is_valid:
-                        raise ValidationError([f"Assembly type validation failed: {'; '.join(errors)}"])
+                        raise ValidationError(
+                            [f"Assembly type validation failed: {'; '.join(errors)}"]
+                        )
 
-                logger.info(f"Created FinishedGood assembly: {finished_good.display_name} (ID: {finished_good.id})")
+                logger.info(
+                    f"Created FinishedGood assembly: {finished_good.display_name} (ID: {finished_good.id})"
+                )
                 return finished_good
 
         except IntegrityError as e:
@@ -319,16 +333,16 @@ class FinishedGoodService:
         """
         try:
             with session_scope() as session:
-                assembly = session.query(FinishedGood)\
-                    .filter(FinishedGood.id == finished_good_id)\
-                    .first()
+                assembly = (
+                    session.query(FinishedGood).filter(FinishedGood.id == finished_good_id).first()
+                )
 
                 if not assembly:
                     raise FinishedGoodNotFoundError(f"FinishedGood ID {finished_good_id} not found")
 
                 # Validate updates
-                if 'display_name' in updates:
-                    display_name = updates['display_name']
+                if "display_name" in updates:
+                    display_name = updates["display_name"]
                     if not display_name or not display_name.strip():
                         raise ValidationError("Display name cannot be empty")
 
@@ -337,15 +351,17 @@ class FinishedGoodService:
                         new_slug = FinishedGoodService._generate_unique_slug(
                             display_name.strip(), session, assembly.id
                         )
-                        updates['slug'] = new_slug
+                        updates["slug"] = new_slug
 
-                if 'total_cost' in updates and updates['total_cost'] < 0:
+                if "total_cost" in updates and updates["total_cost"] < 0:
                     raise ValidationError("Total cost must be non-negative")
 
-                if 'inventory_count' in updates and updates['inventory_count'] < 0:
+                if "inventory_count" in updates and updates["inventory_count"] < 0:
                     raise ValidationError("Inventory count must be non-negative")
 
-                if 'assembly_type' in updates and not isinstance(updates['assembly_type'], AssemblyType):
+                if "assembly_type" in updates and not isinstance(
+                    updates["assembly_type"], AssemblyType
+                ):
                     raise ValidationError(["Assembly type must be a valid AssemblyType enum"])
 
                 # Apply updates
@@ -382,21 +398,25 @@ class FinishedGoodService:
         """
         try:
             with session_scope() as session:
-                assembly = session.query(FinishedGood)\
-                    .filter(FinishedGood.id == finished_good_id)\
-                    .first()
+                assembly = (
+                    session.query(FinishedGood).filter(FinishedGood.id == finished_good_id).first()
+                )
 
                 if not assembly:
                     logger.debug(f"FinishedGood ID {finished_good_id} not found for deletion")
                     return False
 
                 # Check if this assembly is used as a component in other assemblies
-                usage_count = session.query(Composition)\
-                    .filter(Composition.finished_good_id == finished_good_id)\
+                usage_count = (
+                    session.query(Composition)
+                    .filter(Composition.finished_good_id == finished_good_id)
                     .count()
+                )
 
                 if usage_count > 0:
-                    logger.warning(f"FinishedGood '{assembly.display_name}' is used in {usage_count} other assemblies")
+                    logger.warning(
+                        f"FinishedGood '{assembly.display_name}' is used in {usage_count} other assemblies"
+                    )
 
                 # Delete the assembly (cascade will handle compositions)
                 display_name = assembly.display_name
@@ -413,11 +433,7 @@ class FinishedGoodService:
 
     @staticmethod
     def add_component(
-        finished_good_id: int,
-        component_type: str,
-        component_id: int,
-        quantity: int,
-        **kwargs
+        finished_good_id: int, component_type: str, component_id: int, quantity: int, **kwargs
     ) -> bool:
         """
         Add a component to an assembly.
@@ -450,25 +466,25 @@ class FinishedGoodService:
 
             with session_scope() as session:
                 # Validate assembly exists
-                assembly = session.query(FinishedGood)\
-                    .filter(FinishedGood.id == finished_good_id)\
-                    .first()
+                assembly = (
+                    session.query(FinishedGood).filter(FinishedGood.id == finished_good_id).first()
+                )
 
                 if not assembly:
                     raise FinishedGoodNotFoundError(f"FinishedGood ID {finished_good_id} not found")
 
                 # Validate component exists
                 if component_type == "finished_unit":
-                    component = session.query(FinishedUnit)\
-                        .filter(FinishedUnit.id == component_id)\
-                        .first()
+                    component = (
+                        session.query(FinishedUnit).filter(FinishedUnit.id == component_id).first()
+                    )
                     if not component:
                         raise InvalidComponentError(f"FinishedUnit ID {component_id} not found")
 
                 elif component_type == "finished_good":
-                    component = session.query(FinishedGood)\
-                        .filter(FinishedGood.id == component_id)\
-                        .first()
+                    component = (
+                        session.query(FinishedGood).filter(FinishedGood.id == component_id).first()
+                    )
                     if not component:
                         raise InvalidComponentError(f"FinishedGood ID {component_id} not found")
 
@@ -481,27 +497,30 @@ class FinishedGoodService:
                         )
 
                 # Check if component already exists in assembly
-                existing_composition = session.query(Composition)\
+                existing_composition = (
+                    session.query(Composition)
                     .filter(
                         Composition.assembly_id == finished_good_id,
-                        getattr(Composition, f"{component_type}_id") == component_id
-                    ).first()
+                        getattr(Composition, f"{component_type}_id") == component_id,
+                    )
+                    .first()
+                )
 
                 if existing_composition:
                     raise ValidationError([f"Component already exists in assembly"])
 
                 # Create composition
                 composition_data = {
-                    'assembly_id': finished_good_id,
-                    'component_quantity': quantity,
-                    'component_notes': kwargs.get('notes'),
-                    'sort_order': kwargs.get('sort_order', 0)
+                    "assembly_id": finished_good_id,
+                    "component_quantity": quantity,
+                    "component_notes": kwargs.get("notes"),
+                    "sort_order": kwargs.get("sort_order", 0),
                 }
 
                 if component_type == "finished_unit":
-                    composition_data['finished_unit_id'] = component_id
+                    composition_data["finished_unit_id"] = component_id
                 else:
-                    composition_data['finished_good_id'] = component_id
+                    composition_data["finished_good_id"] = component_id
 
                 composition = Composition(**composition_data)
                 session.add(composition)
@@ -510,11 +529,15 @@ class FinishedGoodService:
                 # Update assembly total cost
                 FinishedGoodService._recalculate_assembly_cost(finished_good_id, session)
 
-                logger.info(f"Added {component_type} {component_id} (qty: {quantity}) to assembly {finished_good_id}")
+                logger.info(
+                    f"Added {component_type} {component_id} (qty: {quantity}) to assembly {finished_good_id}"
+                )
                 return True
 
         except SQLAlchemyError as e:
-            logger.error(f"Database error adding component to FinishedGood ID {finished_good_id}: {e}")
+            logger.error(
+                f"Database error adding component to FinishedGood ID {finished_good_id}: {e}"
+            )
             raise DatabaseError(f"Failed to add component: {e}")
 
     @staticmethod
@@ -535,22 +558,27 @@ class FinishedGoodService:
         try:
             with session_scope() as session:
                 # Validate assembly exists
-                assembly = session.query(FinishedGood)\
-                    .filter(FinishedGood.id == finished_good_id)\
-                    .first()
+                assembly = (
+                    session.query(FinishedGood).filter(FinishedGood.id == finished_good_id).first()
+                )
 
                 if not assembly:
                     raise FinishedGoodNotFoundError(f"FinishedGood ID {finished_good_id} not found")
 
                 # Find and remove composition
-                composition = session.query(Composition)\
+                composition = (
+                    session.query(Composition)
                     .filter(
                         Composition.id == composition_id,
-                        Composition.assembly_id == finished_good_id
-                    ).first()
+                        Composition.assembly_id == finished_good_id,
+                    )
+                    .first()
+                )
 
                 if not composition:
-                    logger.debug(f"Composition ID {composition_id} not found in assembly {finished_good_id}")
+                    logger.debug(
+                        f"Composition ID {composition_id} not found in assembly {finished_good_id}"
+                    )
                     return False
 
                 session.delete(composition)
@@ -559,11 +587,15 @@ class FinishedGoodService:
                 # Update assembly total cost
                 FinishedGoodService._recalculate_assembly_cost(finished_good_id, session)
 
-                logger.info(f"Removed composition {composition_id} from assembly {finished_good_id}")
+                logger.info(
+                    f"Removed composition {composition_id} from assembly {finished_good_id}"
+                )
                 return True
 
         except SQLAlchemyError as e:
-            logger.error(f"Database error removing component from FinishedGood ID {finished_good_id}: {e}")
+            logger.error(
+                f"Database error removing component from FinishedGood ID {finished_good_id}: {e}"
+            )
             raise DatabaseError(f"Failed to remove component: {e}")
 
     @staticmethod
@@ -589,9 +621,9 @@ class FinishedGoodService:
                 raise ValidationError(["Quantity must be positive"])
 
             with session_scope() as session:
-                composition = session.query(Composition)\
-                    .filter(Composition.id == composition_id)\
-                    .first()
+                composition = (
+                    session.query(Composition).filter(Composition.id == composition_id).first()
+                )
 
                 if not composition:
                     logger.debug(f"Composition ID {composition_id} not found")
@@ -632,9 +664,9 @@ class FinishedGoodService:
         """
         try:
             with get_db_session() as session:
-                assembly = session.query(FinishedGood)\
-                    .filter(FinishedGood.id == finished_good_id)\
-                    .first()
+                assembly = (
+                    session.query(FinishedGood).filter(FinishedGood.id == finished_good_id).first()
+                )
 
                 if not assembly:
                     raise FinishedGoodNotFoundError(f"FinishedGood ID {finished_good_id} not found")
@@ -642,10 +674,14 @@ class FinishedGoodService:
                 if flatten:
                     return FinishedGoodService._get_flattened_components(finished_good_id, session)
                 else:
-                    return FinishedGoodService._get_hierarchical_components(finished_good_id, session)
+                    return FinishedGoodService._get_hierarchical_components(
+                        finished_good_id, session
+                    )
 
         except SQLAlchemyError as e:
-            logger.error(f"Database error getting components for FinishedGood ID {finished_good_id}: {e}")
+            logger.error(
+                f"Database error getting components for FinishedGood ID {finished_good_id}: {e}"
+            )
             raise DatabaseError(f"Failed to get components: {e}")
 
     @staticmethod
@@ -664,10 +700,12 @@ class FinishedGoodService:
         """
         try:
             with get_db_session() as session:
-                assembly = session.query(FinishedGood)\
-                    .options(selectinload(FinishedGood.components))\
-                    .filter(FinishedGood.id == finished_good_id)\
+                assembly = (
+                    session.query(FinishedGood)
+                    .options(selectinload(FinishedGood.components))
+                    .filter(FinishedGood.id == finished_good_id)
                     .first()
+                )
 
                 if not assembly:
                     raise FinishedGoodNotFoundError(f"FinishedGood ID {finished_good_id} not found")
@@ -677,7 +715,9 @@ class FinishedGoodService:
                 return total_cost
 
         except SQLAlchemyError as e:
-            logger.error(f"Database error calculating cost for FinishedGood ID {finished_good_id}: {e}")
+            logger.error(
+                f"Database error calculating cost for FinishedGood ID {finished_good_id}: {e}"
+            )
             raise DatabaseError(f"Failed to calculate total cost: {e}")
 
     @staticmethod
@@ -697,20 +737,26 @@ class FinishedGoodService:
         """
         try:
             with get_db_session() as session:
-                assembly = session.query(FinishedGood)\
-                    .options(selectinload(FinishedGood.components))\
-                    .filter(FinishedGood.id == finished_good_id)\
+                assembly = (
+                    session.query(FinishedGood)
+                    .options(selectinload(FinishedGood.components))
+                    .filter(FinishedGood.id == finished_good_id)
                     .first()
+                )
 
                 if not assembly:
                     raise FinishedGoodNotFoundError(f"FinishedGood ID {finished_good_id} not found")
 
                 availability_result = assembly.can_assemble(required_quantity)
-                logger.debug(f"Availability check for assembly {finished_good_id}: {availability_result['can_assemble']}")
+                logger.debug(
+                    f"Availability check for assembly {finished_good_id}: {availability_result['can_assemble']}"
+                )
                 return availability_result
 
         except SQLAlchemyError as e:
-            logger.error(f"Database error checking availability for FinishedGood ID {finished_good_id}: {e}")
+            logger.error(
+                f"Database error checking availability for FinishedGood ID {finished_good_id}: {e}"
+            )
             raise DatabaseError(f"Failed to check assembly availability: {e}")
 
     # Assembly Production
@@ -736,19 +782,23 @@ class FinishedGoodService:
         try:
             with session_scope() as session:
                 # Check availability first
-                availability = FinishedGoodService.check_assembly_availability(finished_good_id, quantity)
+                availability = FinishedGoodService.check_assembly_availability(
+                    finished_good_id, quantity
+                )
 
-                if not availability['can_assemble']:
-                    missing_components = availability.get('missing_components', [])
+                if not availability["can_assemble"]:
+                    missing_components = availability.get("missing_components", [])
                     raise InsufficientInventoryError(
                         f"Cannot create {quantity} assemblies: {missing_components}"
                     )
 
                 # Consume component inventory
-                assembly = session.query(FinishedGood)\
-                    .options(selectinload(FinishedGood.components))\
-                    .filter(FinishedGood.id == finished_good_id)\
+                assembly = (
+                    session.query(FinishedGood)
+                    .options(selectinload(FinishedGood.components))
+                    .filter(FinishedGood.id == finished_good_id)
                     .first()
+                )
 
                 for composition in assembly.components:
                     required_qty = composition.component_quantity * quantity
@@ -791,10 +841,12 @@ class FinishedGoodService:
         """
         try:
             with session_scope() as session:
-                assembly = session.query(FinishedGood)\
-                    .options(selectinload(FinishedGood.components))\
-                    .filter(FinishedGood.id == finished_good_id)\
+                assembly = (
+                    session.query(FinishedGood)
+                    .options(selectinload(FinishedGood.components))
+                    .filter(FinishedGood.id == finished_good_id)
                     .first()
+                )
 
                 if not assembly:
                     raise FinishedGoodNotFoundError(f"FinishedGood ID {finished_good_id} not found")
@@ -822,7 +874,9 @@ class FinishedGoodService:
                 assembly.update_inventory(-quantity)
                 session.flush()
 
-                logger.info(f"Disassembled {quantity} assemblies of FinishedGood {finished_good_id}")
+                logger.info(
+                    f"Disassembled {quantity} assemblies of FinishedGood {finished_good_id}"
+                )
                 return True
 
         except SQLAlchemyError as e:
@@ -831,9 +885,7 @@ class FinishedGoodService:
 
     @staticmethod
     def validate_no_circular_references(
-        finished_good_id: int,
-        new_component_id: int,
-        session: Session = None
+        finished_good_id: int, new_component_id: int, session: Session = None
     ) -> bool:
         """
         Ensure adding a component won't create circular references.
@@ -851,7 +903,7 @@ class FinishedGoodService:
         try:
             use_session = session or get_db_session()
 
-            with (use_session if session else use_session()) as s:
+            with use_session if session else use_session() as s:
                 # Use breadth-first search to detect cycles
                 visited = set()
                 queue = deque([new_component_id])
@@ -868,9 +920,9 @@ class FinishedGoodService:
                     visited.add(current_id)
 
                     # Get components of current assembly
-                    components = s.query(Composition)\
-                        .filter(Composition.assembly_id == current_id)\
-                        .all()
+                    components = (
+                        s.query(Composition).filter(Composition.assembly_id == current_id).all()
+                    )
 
                     for comp in components:
                         if comp.finished_good_id:  # Only check FinishedGood components
@@ -905,17 +957,19 @@ class FinishedGoodService:
             search_term = f"%{query.strip().lower()}%"
 
             with get_db_session() as session:
-                assemblies = session.query(FinishedGood)\
-                    .options(selectinload(FinishedGood.components))\
+                assemblies = (
+                    session.query(FinishedGood)
+                    .options(selectinload(FinishedGood.components))
                     .filter(
                         or_(
                             FinishedGood.display_name.ilike(search_term),
                             FinishedGood.description.ilike(search_term),
-                            FinishedGood.notes.ilike(search_term)
+                            FinishedGood.notes.ilike(search_term),
                         )
-                    )\
-                    .order_by(FinishedGood.display_name)\
+                    )
+                    .order_by(FinishedGood.display_name)
                     .all()
+                )
 
                 logger.debug(f"Search for '{query}' returned {len(assemblies)} FinishedGoods")
                 return assemblies
@@ -940,11 +994,13 @@ class FinishedGoodService:
         """
         try:
             with get_db_session() as session:
-                assemblies = session.query(FinishedGood)\
-                    .options(selectinload(FinishedGood.components))\
-                    .filter(FinishedGood.assembly_type == assembly_type)\
-                    .order_by(FinishedGood.display_name)\
+                assemblies = (
+                    session.query(FinishedGood)
+                    .options(selectinload(FinishedGood.components))
+                    .filter(FinishedGood.assembly_type == assembly_type)
+                    .order_by(FinishedGood.display_name)
                     .all()
+                )
 
                 logger.debug(f"Retrieved {len(assemblies)} FinishedGoods of type {assembly_type}")
                 return assemblies
@@ -962,14 +1018,14 @@ class FinishedGoodService:
             return "unknown-assembly"
 
         # Normalize unicode characters
-        slug = unicodedata.normalize('NFKD', display_name)
+        slug = unicodedata.normalize("NFKD", display_name)
 
         # Convert to lowercase and replace spaces/punctuation with hyphens
-        slug = re.sub(r'[^\w\s-]', '', slug).strip().lower()
-        slug = re.sub(r'[\s_-]+', '-', slug)
+        slug = re.sub(r"[^\w\s-]", "", slug).strip().lower()
+        slug = re.sub(r"[\s_-]+", "-", slug)
 
         # Remove leading/trailing hyphens
-        slug = slug.strip('-')
+        slug = slug.strip("-")
 
         # Ensure not empty
         if not slug:
@@ -977,12 +1033,14 @@ class FinishedGoodService:
 
         # Limit length
         if len(slug) > 90:
-            slug = slug[:90].rstrip('-')
+            slug = slug[:90].rstrip("-")
 
         return slug
 
     @staticmethod
-    def _generate_unique_slug(display_name: str, session: Session, exclude_id: Optional[int] = None) -> str:
+    def _generate_unique_slug(
+        display_name: str, session: Session, exclude_id: Optional[int] = None
+    ) -> str:
         """Generate unique slug, adding suffix if needed."""
         base_slug = FinishedGoodService._generate_slug(display_name)
 
@@ -1015,68 +1073,76 @@ class FinishedGoodService:
     def _validate_components(components: List[dict], session: Session) -> None:
         """Validate component specifications."""
         for component_spec in components:
-            if 'component_type' not in component_spec:
+            if "component_type" not in component_spec:
                 raise ValidationError("Component must specify 'component_type'")
 
-            if 'component_id' not in component_spec:
+            if "component_id" not in component_spec:
                 raise ValidationError("Component must specify 'component_id'")
 
-            if 'quantity' not in component_spec or component_spec['quantity'] <= 0:
+            if "quantity" not in component_spec or component_spec["quantity"] <= 0:
                 raise ValidationError("Component must specify positive quantity")
 
-            component_type = component_spec['component_type']
-            component_id = component_spec['component_id']
+            component_type = component_spec["component_type"]
+            component_id = component_spec["component_id"]
 
             if component_type == "finished_unit":
-                component = session.query(FinishedUnit).filter(FinishedUnit.id == component_id).first()
+                component = (
+                    session.query(FinishedUnit).filter(FinishedUnit.id == component_id).first()
+                )
                 if not component:
                     raise InvalidComponentError(f"FinishedUnit ID {component_id} not found")
             elif component_type == "finished_good":
-                component = session.query(FinishedGood).filter(FinishedGood.id == component_id).first()
+                component = (
+                    session.query(FinishedGood).filter(FinishedGood.id == component_id).first()
+                )
                 if not component:
                     raise InvalidComponentError(f"FinishedGood ID {component_id} not found")
             else:
                 raise ValidationError(["Component type must be 'finished_unit' or 'finished_good'"])
 
     @staticmethod
-    def _create_composition(assembly_id: int, component_spec: dict, session: Session) -> Composition:
+    def _create_composition(
+        assembly_id: int, component_spec: dict, session: Session
+    ) -> Composition:
         """Create composition from component specification."""
         composition_data = {
-            'assembly_id': assembly_id,
-            'component_quantity': component_spec['quantity'],
-            'component_notes': component_spec.get('notes'),
-            'sort_order': component_spec.get('sort_order', 0)
+            "assembly_id": assembly_id,
+            "component_quantity": component_spec["quantity"],
+            "component_notes": component_spec.get("notes"),
+            "sort_order": component_spec.get("sort_order", 0),
         }
 
-        if component_spec['component_type'] == "finished_unit":
-            composition_data['finished_unit_id'] = component_spec['component_id']
+        if component_spec["component_type"] == "finished_unit":
+            composition_data["finished_unit_id"] = component_spec["component_id"]
         else:
-            composition_data['finished_good_id'] = component_spec['component_id']
+            composition_data["finished_good_id"] = component_spec["component_id"]
 
         return Composition(**composition_data)
 
     @staticmethod
     def _get_component_cost(component_spec: dict, session: Session) -> Decimal:
         """Get unit cost for a component."""
-        component_type = component_spec['component_type']
-        component_id = component_spec['component_id']
+        component_type = component_spec["component_type"]
+        component_id = component_spec["component_id"]
 
         if component_type == "finished_unit":
             component = session.query(FinishedUnit).filter(FinishedUnit.id == component_id).first()
-            return component.unit_cost if component else Decimal('0.0000')
+            return component.unit_cost if component else Decimal("0.0000")
         elif component_type == "finished_good":
             component = session.query(FinishedGood).filter(FinishedGood.id == component_id).first()
-            return component.total_cost if component else Decimal('0.0000')
+            return component.total_cost if component else Decimal("0.0000")
 
-        return Decimal('0.0000')
+        return Decimal("0.0000")
 
     @staticmethod
     def _recalculate_assembly_cost(assembly_id: int, session: Session) -> None:
         """Recalculate and update assembly total cost."""
-        assembly = session.query(FinishedGood)\
-            .options(selectinload(FinishedGood.components))\
-            .filter(FinishedGood.id == assembly_id)\
+        assembly = (
+            session.query(FinishedGood)
+            .options(selectinload(FinishedGood.components))
+            .filter(FinishedGood.id == assembly_id)
             .first()
+        )
 
         if assembly:
             assembly.update_total_cost_from_components()
@@ -1104,13 +1170,15 @@ class FinishedGoodService:
             visited_assemblies.add(current_assembly_id)
 
             # Get direct components of current assembly
-            compositions = session.query(Composition)\
+            compositions = (
+                session.query(Composition)
                 .options(
                     selectinload(Composition.finished_unit_component),
-                    selectinload(Composition.finished_good_component)
-                )\
-                .filter(Composition.assembly_id == current_assembly_id)\
+                    selectinload(Composition.finished_good_component),
+                )
+                .filter(Composition.assembly_id == current_assembly_id)
                 .all()
+            )
 
             for comp in compositions:
                 effective_quantity = comp.component_quantity * multiplier
@@ -1125,12 +1193,12 @@ class FinishedGoodService:
                     else:
                         components[key] = effective_quantity
                         component_details[key] = {
-                            'component_type': 'finished_unit',
-                            'component_id': unit.id,
-                            'display_name': unit.display_name,
-                            'unit_cost': float(unit.unit_cost),
-                            'inventory_count': unit.inventory_count,
-                            'slug': unit.slug
+                            "component_type": "finished_unit",
+                            "component_id": unit.id,
+                            "display_name": unit.display_name,
+                            "unit_cost": float(unit.unit_cost),
+                            "inventory_count": unit.inventory_count,
+                            "slug": unit.slug,
                         }
 
                 elif comp.finished_good_component:
@@ -1143,13 +1211,13 @@ class FinishedGoodService:
                     else:
                         components[key] = effective_quantity
                         component_details[key] = {
-                            'component_type': 'finished_good',
-                            'component_id': subassembly.id,
-                            'display_name': subassembly.display_name,
-                            'unit_cost': float(subassembly.total_cost),
-                            'inventory_count': subassembly.inventory_count,
-                            'slug': subassembly.slug,
-                            'assembly_type': subassembly.assembly_type.value
+                            "component_type": "finished_good",
+                            "component_id": subassembly.id,
+                            "display_name": subassembly.display_name,
+                            "unit_cost": float(subassembly.total_cost),
+                            "inventory_count": subassembly.inventory_count,
+                            "slug": subassembly.slug,
+                            "assembly_type": subassembly.assembly_type.value,
                         }
 
                     # Add to queue for expansion
@@ -1159,12 +1227,12 @@ class FinishedGoodService:
         result = []
         for key, total_quantity in components.items():
             detail = component_details[key].copy()
-            detail['total_quantity'] = total_quantity
-            detail['total_cost'] = detail['unit_cost'] * total_quantity
+            detail["total_quantity"] = total_quantity
+            detail["total_cost"] = detail["unit_cost"] * total_quantity
             result.append(detail)
 
         # Sort by component type and name
-        result.sort(key=lambda x: (x['component_type'], x['display_name']))
+        result.sort(key=lambda x: (x["component_type"], x["display_name"]))
         return result
 
     @staticmethod
@@ -1174,19 +1242,22 @@ class FinishedGoodService:
 
         Returns nested structure showing assembly composition levels.
         """
+
         def get_assembly_components(assembly_id: int, level: int = 0) -> List[dict]:
             if level > 10:  # Prevent infinite recursion
                 logger.warning(f"Maximum hierarchy depth reached for assembly {assembly_id}")
                 return []
 
-            compositions = session.query(Composition)\
+            compositions = (
+                session.query(Composition)
                 .options(
                     selectinload(Composition.finished_unit_component),
-                    selectinload(Composition.finished_good_component)
-                )\
-                .filter(Composition.assembly_id == assembly_id)\
-                .order_by(Composition.sort_order, Composition.id)\
+                    selectinload(Composition.finished_good_component),
+                )
+                .filter(Composition.assembly_id == assembly_id)
+                .order_by(Composition.sort_order, Composition.id)
                 .all()
+            )
 
             components = []
             for comp in compositions:
@@ -1194,39 +1265,39 @@ class FinishedGoodService:
                     # FinishedUnit component
                     unit = comp.finished_unit_component
                     component_data = {
-                        'composition_id': comp.id,
-                        'component_type': 'finished_unit',
-                        'component_id': unit.id,
-                        'display_name': unit.display_name,
-                        'slug': unit.slug,
-                        'quantity': comp.component_quantity,
-                        'unit_cost': float(unit.unit_cost),
-                        'total_cost': float(unit.unit_cost * comp.component_quantity),
-                        'inventory_count': unit.inventory_count,
-                        'component_notes': comp.component_notes,
-                        'sort_order': comp.sort_order,
-                        'level': level,
-                        'subcomponents': []  # FinishedUnits have no subcomponents
+                        "composition_id": comp.id,
+                        "component_type": "finished_unit",
+                        "component_id": unit.id,
+                        "display_name": unit.display_name,
+                        "slug": unit.slug,
+                        "quantity": comp.component_quantity,
+                        "unit_cost": float(unit.unit_cost),
+                        "total_cost": float(unit.unit_cost * comp.component_quantity),
+                        "inventory_count": unit.inventory_count,
+                        "component_notes": comp.component_notes,
+                        "sort_order": comp.sort_order,
+                        "level": level,
+                        "subcomponents": [],  # FinishedUnits have no subcomponents
                     }
 
                 elif comp.finished_good_component:
                     # FinishedGood component
                     subassembly = comp.finished_good_component
                     component_data = {
-                        'composition_id': comp.id,
-                        'component_type': 'finished_good',
-                        'component_id': subassembly.id,
-                        'display_name': subassembly.display_name,
-                        'slug': subassembly.slug,
-                        'quantity': comp.component_quantity,
-                        'unit_cost': float(subassembly.total_cost),
-                        'total_cost': float(subassembly.total_cost * comp.component_quantity),
-                        'inventory_count': subassembly.inventory_count,
-                        'assembly_type': subassembly.assembly_type.value,
-                        'component_notes': comp.component_notes,
-                        'sort_order': comp.sort_order,
-                        'level': level,
-                        'subcomponents': get_assembly_components(subassembly.id, level + 1)
+                        "composition_id": comp.id,
+                        "component_type": "finished_good",
+                        "component_id": subassembly.id,
+                        "display_name": subassembly.display_name,
+                        "slug": subassembly.slug,
+                        "quantity": comp.component_quantity,
+                        "unit_cost": float(subassembly.total_cost),
+                        "total_cost": float(subassembly.total_cost * comp.component_quantity),
+                        "inventory_count": subassembly.inventory_count,
+                        "assembly_type": subassembly.assembly_type.value,
+                        "component_notes": comp.component_notes,
+                        "sort_order": comp.sort_order,
+                        "level": level,
+                        "subcomponents": get_assembly_components(subassembly.id, level + 1),
                     }
 
                 components.append(component_data)
@@ -1253,10 +1324,12 @@ class FinishedGoodService:
         """
         try:
             with get_db_session() as session:
-                assembly = session.query(FinishedGood)\
-                    .options(selectinload(FinishedGood.components))\
-                    .filter(FinishedGood.id == assembly_id)\
+                assembly = (
+                    session.query(FinishedGood)
+                    .options(selectinload(FinishedGood.components))
+                    .filter(FinishedGood.id == assembly_id)
                     .first()
+                )
 
                 if not assembly:
                     raise FinishedGoodNotFoundError(f"FinishedGood ID {assembly_id} not found")
@@ -1269,16 +1342,16 @@ class FinishedGoodService:
                 )
 
                 result = {
-                    'assembly_id': assembly_id,
-                    'assembly_type': assembly.assembly_type.value,
-                    'assembly_type_name': assembly.assembly_type.get_display_name(),
-                    'is_valid': is_valid,
-                    'errors': errors,
-                    'component_count': component_count,
-                    'total_cost': float(total_cost),
-                    'business_rules': assembly.assembly_type.get_business_rules(),
-                    'component_limits': assembly.assembly_type.get_component_limits(),
-                    'validated_at': datetime.utcnow().isoformat()
+                    "assembly_id": assembly_id,
+                    "assembly_type": assembly.assembly_type.value,
+                    "assembly_type_name": assembly.assembly_type.get_display_name(),
+                    "is_valid": is_valid,
+                    "errors": errors,
+                    "component_count": component_count,
+                    "total_cost": float(total_cost),
+                    "business_rules": assembly.assembly_type.get_business_rules(),
+                    "component_limits": assembly.assembly_type.get_component_limits(),
+                    "validated_at": datetime.utcnow().isoformat(),
                 }
 
                 logger.debug(f"Business rule validation for assembly {assembly_id}: {is_valid}")
@@ -1304,9 +1377,9 @@ class FinishedGoodService:
         """
         try:
             with get_db_session() as session:
-                assembly = session.query(FinishedGood)\
-                    .filter(FinishedGood.id == assembly_id)\
-                    .first()
+                assembly = (
+                    session.query(FinishedGood).filter(FinishedGood.id == assembly_id).first()
+                )
 
                 if not assembly:
                     raise FinishedGoodNotFoundError(f"FinishedGood ID {assembly_id} not found")
@@ -1318,20 +1391,24 @@ class FinishedGoodService:
                 packaging_cost = calculate_packaging_cost(assembly.assembly_type, cost_breakdown)
 
                 # Calculate suggested retail price
-                suggested_price = get_suggested_retail_price(assembly.assembly_type, assembly.total_cost)
+                suggested_price = get_suggested_retail_price(
+                    assembly.assembly_type, assembly.total_cost
+                )
 
                 pricing_info = {
-                    'assembly_id': assembly_id,
-                    'assembly_type': assembly.assembly_type.value,
-                    'assembly_type_name': assembly.assembly_type.get_display_name(),
-                    'component_cost': float(cost_breakdown),
-                    'packaging_cost': float(packaging_cost),
-                    'total_cost': float(assembly.total_cost),
-                    'markup_percentage': float(assembly.assembly_type.get_pricing_markup() * 100),
-                    'suggested_retail_price': float(suggested_price),
-                    'profit_margin': float(suggested_price - assembly.total_cost),
-                    'profit_margin_percentage': float(((suggested_price - assembly.total_cost) / suggested_price) * 100),
-                    'calculated_at': datetime.utcnow().isoformat()
+                    "assembly_id": assembly_id,
+                    "assembly_type": assembly.assembly_type.value,
+                    "assembly_type_name": assembly.assembly_type.get_display_name(),
+                    "component_cost": float(cost_breakdown),
+                    "packaging_cost": float(packaging_cost),
+                    "total_cost": float(assembly.total_cost),
+                    "markup_percentage": float(assembly.assembly_type.get_pricing_markup() * 100),
+                    "suggested_retail_price": float(suggested_price),
+                    "profit_margin": float(suggested_price - assembly.total_cost),
+                    "profit_margin_percentage": float(
+                        ((suggested_price - assembly.total_cost) / suggested_price) * 100
+                    ),
+                    "calculated_at": datetime.utcnow().isoformat(),
                 }
 
                 logger.debug(f"Calculated pricing for assembly {assembly_id}: ${suggested_price}")
@@ -1354,16 +1431,16 @@ class FinishedGoodService:
         """
         try:
             recommendations = {
-                'assembly_type': assembly_type.value,
-                'display_name': assembly_type.get_display_name(),
-                'description': assembly_type.get_description(),
-                'component_limits': assembly_type.get_component_limits(),
-                'business_rules': assembly_type.get_business_rules(),
-                'is_seasonal': assembly_type.is_seasonal(),
-                'packaging_priority': assembly_type.get_packaging_priority(),
-                'requires_special_handling': assembly_type.requires_special_handling(),
-                'pricing_markup': float(assembly_type.get_pricing_markup()),
-                'packaging_notes': assembly_type.get_business_rules().get('packaging_notes', '')
+                "assembly_type": assembly_type.value,
+                "display_name": assembly_type.get_display_name(),
+                "description": assembly_type.get_description(),
+                "component_limits": assembly_type.get_component_limits(),
+                "business_rules": assembly_type.get_business_rules(),
+                "is_seasonal": assembly_type.is_seasonal(),
+                "packaging_priority": assembly_type.get_packaging_priority(),
+                "requires_special_handling": assembly_type.requires_special_handling(),
+                "pricing_markup": float(assembly_type.get_pricing_markup()),
+                "packaging_notes": assembly_type.get_business_rules().get("packaging_notes", ""),
             }
 
             logger.debug(f"Retrieved recommendations for assembly type {assembly_type.value}")
@@ -1386,9 +1463,9 @@ class FinishedGoodService:
         """
         try:
             with get_db_session() as session:
-                assemblies = session.query(FinishedGood)\
-                    .options(selectinload(FinishedGood.components))\
-                    .all()
+                assemblies = (
+                    session.query(FinishedGood).options(selectinload(FinishedGood.components)).all()
+                )
 
                 attention_required = []
 
@@ -1413,16 +1490,20 @@ class FinishedGoodService:
                         issues.append("Requires special handling - review packaging instructions")
 
                     if issues:
-                        attention_required.append({
-                            'assembly_id': assembly.id,
-                            'display_name': assembly.display_name,
-                            'assembly_type': assembly.assembly_type.value,
-                            'assembly_type_name': assembly.assembly_type.get_display_name(),
-                            'issues': issues,
-                            'component_count': component_count,
-                            'total_cost': float(assembly.total_cost),
-                            'last_updated': assembly.updated_at.isoformat() if assembly.updated_at else None
-                        })
+                        attention_required.append(
+                            {
+                                "assembly_id": assembly.id,
+                                "display_name": assembly.display_name,
+                                "assembly_type": assembly.assembly_type.value,
+                                "assembly_type_name": assembly.assembly_type.get_display_name(),
+                                "issues": issues,
+                                "component_count": component_count,
+                                "total_cost": float(assembly.total_cost),
+                                "last_updated": (
+                                    assembly.updated_at.isoformat() if assembly.updated_at else None
+                                ),
+                            }
+                        )
 
                 logger.debug(f"Found {len(attention_required)} assemblies requiring attention")
                 return attention_required
@@ -1433,6 +1514,7 @@ class FinishedGoodService:
 
 
 # Module-level convenience functions for backward compatibility
+
 
 def get_finished_good_by_id(finished_good_id: int) -> Optional[FinishedGood]:
     """Retrieve a specific FinishedGood by ID."""
@@ -1454,9 +1536,13 @@ def create_finished_good(display_name: str, assembly_type: AssemblyType, **kwarg
     return FinishedGoodService.create_finished_good(display_name, assembly_type, **kwargs)
 
 
-def add_component(finished_good_id: int, component_type: str, component_id: int, quantity: int) -> bool:
+def add_component(
+    finished_good_id: int, component_type: str, component_id: int, quantity: int
+) -> bool:
     """Add a component to an assembly."""
-    return FinishedGoodService.add_component(finished_good_id, component_type, component_id, quantity)
+    return FinishedGoodService.add_component(
+        finished_good_id, component_type, component_id, quantity
+    )
 
 
 def search_finished_goods(query: str) -> List[FinishedGood]:

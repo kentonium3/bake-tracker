@@ -40,11 +40,7 @@ class BaseModel(Base):
     # UUID (will become primary key after migration)
     # Stored as string for SQLite compatibility
     uuid = Column(
-        String(36),
-        unique=True,
-        nullable=False,
-        default=lambda: str(uuid_lib.uuid4()),
-        index=True
+        String(36), unique=True, nullable=False, default=lambda: str(uuid_lib.uuid4()), index=True
     )
 
     # Timestamp fields

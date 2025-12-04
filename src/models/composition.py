@@ -15,8 +15,14 @@ Key Features:
 from datetime import datetime
 
 from sqlalchemy import (
-    Column, Integer, Text, DateTime, ForeignKey,
-    Index, CheckConstraint, UniqueConstraint
+    Column,
+    Integer,
+    Text,
+    DateTime,
+    ForeignKey,
+    Index,
+    CheckConstraint,
+    UniqueConstraint,
 )
 from sqlalchemy.orm import relationship
 
@@ -51,25 +57,16 @@ class Composition(BaseModel):
 
     # Parent assembly reference
     assembly_id = Column(
-        Integer,
-        ForeignKey("finished_goods.id", ondelete="CASCADE"),
-        nullable=False,
-        index=True
+        Integer, ForeignKey("finished_goods.id", ondelete="CASCADE"), nullable=False, index=True
     )
 
     # Polymorphic component references (exactly one must be non-null)
     finished_unit_id = Column(
-        Integer,
-        ForeignKey("finished_units.id", ondelete="CASCADE"),
-        nullable=True,
-        index=True
+        Integer, ForeignKey("finished_units.id", ondelete="CASCADE"), nullable=True, index=True
     )
 
     finished_good_id = Column(
-        Integer,
-        ForeignKey("finished_goods.id", ondelete="CASCADE"),
-        nullable=True,
-        index=True
+        Integer, ForeignKey("finished_goods.id", ondelete="CASCADE"), nullable=True, index=True
     )
 
     # Component attributes
@@ -81,21 +78,11 @@ class Composition(BaseModel):
     created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
 
     # Relationships
-    assembly = relationship(
-        "FinishedGood",
-        foreign_keys=[assembly_id],
-        back_populates="components"
-    )
+    assembly = relationship("FinishedGood", foreign_keys=[assembly_id], back_populates="components")
 
-    finished_unit_component = relationship(
-        "FinishedUnit",
-        foreign_keys=[finished_unit_id]
-    )
+    finished_unit_component = relationship("FinishedUnit", foreign_keys=[finished_unit_id])
 
-    finished_good_component = relationship(
-        "FinishedGood",
-        foreign_keys=[finished_good_id]
-    )
+    finished_good_component = relationship("FinishedGood", foreign_keys=[finished_good_id])
 
     # Table constraints and indexes
     __table_args__ = (
@@ -104,49 +91,33 @@ class Composition(BaseModel):
         Index("idx_composition_finished_unit", "finished_unit_id"),
         Index("idx_composition_finished_good", "finished_good_id"),
         Index("idx_composition_sort_order", "assembly_id", "sort_order"),
-
         # Polymorphic integrity constraint
         CheckConstraint(
             "((finished_unit_id IS NOT NULL) AND (finished_good_id IS NULL)) OR "
             "((finished_unit_id IS NULL) AND (finished_good_id IS NOT NULL))",
-            name="ck_composition_exactly_one_component"
+            name="ck_composition_exactly_one_component",
         ),
-
         # Positive quantity constraint
         CheckConstraint(
-            "component_quantity > 0",
-            name="ck_composition_component_quantity_positive"
+            "component_quantity > 0", name="ck_composition_component_quantity_positive"
         ),
-
         # Non-negative sort order constraint
-        CheckConstraint(
-            "sort_order >= 0",
-            name="ck_composition_sort_order_non_negative"
-        ),
-
+        CheckConstraint("sort_order >= 0", name="ck_composition_sort_order_non_negative"),
         # Prevent self-referential assemblies
-        CheckConstraint(
-            "assembly_id != finished_good_id",
-            name="ck_composition_no_self_reference"
-        ),
-
+        CheckConstraint("assembly_id != finished_good_id", name="ck_composition_no_self_reference"),
         # Unique component within assembly (prevent duplicates)
-        UniqueConstraint(
-            "assembly_id", "finished_unit_id",
-            name="uq_composition_assembly_unit"
-        ),
-        UniqueConstraint(
-            "assembly_id", "finished_good_id",
-            name="uq_composition_assembly_good"
-        ),
+        UniqueConstraint("assembly_id", "finished_unit_id", name="uq_composition_assembly_unit"),
+        UniqueConstraint("assembly_id", "finished_good_id", name="uq_composition_assembly_good"),
     )
 
     def __repr__(self) -> str:
         """String representation of composition."""
         component_type = "unit" if self.finished_unit_id else "assembly"
         component_id = self.finished_unit_id or self.finished_good_id
-        return (f"Composition(id={self.id}, assembly_id={self.assembly_id}, "
-                f"{component_type}={component_id}, qty={self.component_quantity})")
+        return (
+            f"Composition(id={self.id}, assembly_id={self.assembly_id}, "
+            f"{component_type}={component_id}, qty={self.component_quantity})"
+        )
 
     @property
     def component_type(self) -> str:
@@ -297,9 +268,14 @@ class Composition(BaseModel):
         return result
 
     @classmethod
-    def create_unit_composition(cls, assembly_id: int, finished_unit_id: int,
-                               quantity: int = 1, notes: str = None,
-                               sort_order: int = 0) -> 'Composition':
+    def create_unit_composition(
+        cls,
+        assembly_id: int,
+        finished_unit_id: int,
+        quantity: int = 1,
+        notes: str = None,
+        sort_order: int = 0,
+    ) -> "Composition":
         """
         Factory method to create composition with FinishedUnit component.
 
@@ -319,13 +295,18 @@ class Composition(BaseModel):
             finished_good_id=None,
             component_quantity=quantity,
             component_notes=notes,
-            sort_order=sort_order
+            sort_order=sort_order,
         )
 
     @classmethod
-    def create_assembly_composition(cls, assembly_id: int, finished_good_id: int,
-                                   quantity: int = 1, notes: str = None,
-                                   sort_order: int = 0) -> 'Composition':
+    def create_assembly_composition(
+        cls,
+        assembly_id: int,
+        finished_good_id: int,
+        quantity: int = 1,
+        notes: str = None,
+        sort_order: int = 0,
+    ) -> "Composition":
         """
         Factory method to create composition with FinishedGood sub-assembly.
 
@@ -345,5 +326,5 @@ class Composition(BaseModel):
             finished_good_id=finished_good_id,
             component_quantity=quantity,
             component_notes=notes,
-            sort_order=sort_order
+            sort_order=sort_order,
         )

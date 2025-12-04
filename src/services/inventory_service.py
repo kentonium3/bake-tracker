@@ -54,7 +54,7 @@ def create_ingredient(data: Dict) -> Ingredient:
             # Create ingredient (NEW SCHEMA: generic ingredient definition)
             ingredient = Ingredient(
                 name=data["name"],
-                slug=data.get("slug", data["name"].lower().replace(' ', '_')),
+                slug=data.get("slug", data["name"].lower().replace(" ", "_")),
                 category=data["category"],
                 recipe_unit=data["recipe_unit"],
                 description=data.get("description"),

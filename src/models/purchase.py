@@ -38,10 +38,7 @@ class Purchase(BaseModel):
 
     # Foreign key to Variant
     variant_id = Column(
-        Integer,
-        ForeignKey("product_variants.id", ondelete="CASCADE"),
-        nullable=False,
-        index=True
+        Integer, ForeignKey("product_variants.id", ondelete="CASCADE"), nullable=False, index=True
     )
 
     # Purchase details
@@ -120,13 +117,14 @@ class Purchase(BaseModel):
             result["product_variant"] = {
                 "id": self.product_variant.id,
                 "display_name": self.product_variant.display_name,
-                "product_name": self.product_variant.product.name
+                "product_name": self.product_variant.product.name,
             }
 
         return result
 
 
 # Module-level helper functions for price analysis
+
 
 def get_average_price(product_variant_id: int, days: int = 90, session=None) -> float:
     """
@@ -149,7 +147,7 @@ def get_average_price(product_variant_id: int, days: int = 90, session=None) -> 
             session.query(Purchase)
             .filter(
                 Purchase.product_variant_id == product_variant_id,
-                Purchase.purchase_date >= cutoff_date
+                Purchase.purchase_date >= cutoff_date,
             )
             .all()
         )
@@ -159,7 +157,7 @@ def get_average_price(product_variant_id: int, days: int = 90, session=None) -> 
                 sess.query(Purchase)
                 .filter(
                     Purchase.product_variant_id == product_variant_id,
-                    Purchase.purchase_date >= cutoff_date
+                    Purchase.purchase_date >= cutoff_date,
                 )
                 .all()
             )
@@ -229,7 +227,7 @@ def get_price_trend(product_variant_id: int, days: int = 180, session=None) -> d
             session.query(Purchase)
             .filter(
                 Purchase.product_variant_id == product_variant_id,
-                Purchase.purchase_date >= cutoff_date
+                Purchase.purchase_date >= cutoff_date,
             )
             .order_by(Purchase.purchase_date)
             .all()
@@ -240,20 +238,14 @@ def get_price_trend(product_variant_id: int, days: int = 180, session=None) -> d
                 sess.query(Purchase)
                 .filter(
                     Purchase.product_variant_id == product_variant_id,
-                    Purchase.purchase_date >= cutoff_date
+                    Purchase.purchase_date >= cutoff_date,
                 )
                 .order_by(Purchase.purchase_date)
                 .all()
             )
 
     if not purchases:
-        return {
-            "average": 0.0,
-            "min": 0.0,
-            "max": 0.0,
-            "trend": "unknown",
-            "percent_change": 0.0
-        }
+        return {"average": 0.0, "min": 0.0, "max": 0.0, "trend": "unknown", "percent_change": 0.0}
 
     prices = [p.unit_cost for p in purchases]
     average = sum(prices) / len(prices)
@@ -281,5 +273,5 @@ def get_price_trend(product_variant_id: int, days: int = 180, session=None) -> d
         "min": min_price,
         "max": max_price,
         "trend": trend,
-        "percent_change": percent_change
+        "percent_change": percent_change,
     }

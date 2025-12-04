@@ -159,7 +159,9 @@ class IngredientFormDialog(ctk.CTkToplevel):
             width=400,
             placeholder_text="e.g., 25 (how much in each package)",
         )
-        self.purchase_quantity_entry.grid(row=row, column=1, sticky="ew", padx=PADDING_MEDIUM, pady=5)
+        self.purchase_quantity_entry.grid(
+            row=row, column=1, sticky="ew", padx=PADDING_MEDIUM, pady=5
+        )
         row += 1
 
         # Purchase unit (required)
@@ -442,11 +444,15 @@ class IngredientFormDialog(ctk.CTkToplevel):
             purchase_quantity = float(purchase_quantity_str)
             if purchase_quantity <= 0:
                 show_error(
-                    "Validation Error", "Quantity per package must be greater than zero", parent=self
+                    "Validation Error",
+                    "Quantity per package must be greater than zero",
+                    parent=self,
                 )
                 return None
         except ValueError:
-            show_error("Validation Error", "Quantity per package must be a valid number", parent=self)
+            show_error(
+                "Validation Error", "Quantity per package must be a valid number", parent=self
+            )
             return None
 
         # Validate equivalency and convert to density (g/cup) - optional
@@ -461,7 +467,7 @@ class IngredientFormDialog(ctk.CTkToplevel):
                 show_error(
                     "Validation Error",
                     "Both volume and weight must be specified for equivalency",
-                    parent=self
+                    parent=self,
                 )
                 return None
 
@@ -473,7 +479,7 @@ class IngredientFormDialog(ctk.CTkToplevel):
                     show_error(
                         "Validation Error",
                         "Equivalency values must be greater than zero",
-                        parent=self
+                        parent=self,
                     )
                     return None
 
@@ -481,22 +487,22 @@ class IngredientFormDialog(ctk.CTkToplevel):
                 from src.services.unit_converter import convert_standard_units
 
                 # Convert volume to cups
-                success, vol_in_cups, error = convert_standard_units(equiv_vol_qty, equiv_vol_unit, "cup")
+                success, vol_in_cups, error = convert_standard_units(
+                    equiv_vol_qty, equiv_vol_unit, "cup"
+                )
                 if not success:
                     show_error(
-                        "Validation Error",
-                        f"Invalid volume unit conversion: {error}",
-                        parent=self
+                        "Validation Error", f"Invalid volume unit conversion: {error}", parent=self
                     )
                     return None
 
                 # Convert weight to grams
-                success, wt_in_grams, error = convert_standard_units(equiv_wt_qty, equiv_wt_unit, "g")
+                success, wt_in_grams, error = convert_standard_units(
+                    equiv_wt_qty, equiv_wt_unit, "g"
+                )
                 if not success:
                     show_error(
-                        "Validation Error",
-                        f"Invalid weight unit conversion: {error}",
-                        parent=self
+                        "Validation Error", f"Invalid weight unit conversion: {error}", parent=self
                     )
                     return None
 
@@ -505,9 +511,7 @@ class IngredientFormDialog(ctk.CTkToplevel):
 
             except ValueError:
                 show_error(
-                    "Validation Error",
-                    "Equivalency values must be valid numbers",
-                    parent=self
+                    "Validation Error", "Equivalency values must be valid numbers", parent=self
                 )
                 return None
 

@@ -10,6 +10,7 @@ Updated for Feature 006 Event Planning Restoration:
 from .ingredient_form import IngredientFormDialog
 from .recipe_form import RecipeFormDialog
 from .finished_good_form import FinishedUnitFormDialog
+
 # BundleFormDialog removed - Bundle concept eliminated in Feature 006
 from .package_form import PackageFormDialog
 from .recipient_form import RecipientFormDialog

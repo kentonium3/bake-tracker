@@ -84,25 +84,23 @@ class EventDetailWindow(ctk.CTkToplevel):
 
         # Event name
         name_label = ctk.CTkLabel(
-            title_frame,
-            text=self.event.name,
-            font=ctk.CTkFont(size=20, weight="bold")
+            title_frame, text=self.event.name, font=ctk.CTkFont(size=20, weight="bold")
         )
         name_label.grid(row=0, column=0, sticky="w", padx=PADDING_MEDIUM)
 
         # Event details
-        details_text = f"Date: {self.event.event_date.strftime('%B %d, %Y')} | Year: {self.event.year}"
-        details_label = ctk.CTkLabel(
-            title_frame,
-            text=details_text,
-            font=ctk.CTkFont(size=12)
+        details_text = (
+            f"Date: {self.event.event_date.strftime('%B %d, %Y')} | Year: {self.event.year}"
         )
+        details_label = ctk.CTkLabel(title_frame, text=details_text, font=ctk.CTkFont(size=12))
         details_label.grid(row=1, column=0, sticky="w", padx=PADDING_MEDIUM)
 
     def _create_tabs(self):
         """Create tabbed interface."""
         self.tabview = ctk.CTkTabview(self)
-        self.tabview.grid(row=1, column=0, padx=PADDING_LARGE, pady=(0, PADDING_MEDIUM), sticky="nsew")
+        self.tabview.grid(
+            row=1, column=0, padx=PADDING_LARGE, pady=(0, PADDING_MEDIUM), sticky="nsew"
+        )
 
         # Add tabs
         self.tabview.add("Assignments")
@@ -181,7 +179,7 @@ class EventDetailWindow(ctk.CTkToplevel):
             tab_frame,
             text="Shopping list compares what you need for this event vs current inventory on hand.",
             font=ctk.CTkFont(size=12, slant="italic"),
-            text_color="gray"
+            text_color="gray",
         )
         instructions.grid(row=0, column=0, sticky="w", pady=(0, PADDING_MEDIUM))
 
@@ -217,7 +215,9 @@ class EventDetailWindow(ctk.CTkToplevel):
 
     def _add_assignment(self):
         """Add a new package assignment to recipient."""
-        dialog = AssignmentFormDialog(self, event_id=self.event.id, title="Assign Package to Recipient")
+        dialog = AssignmentFormDialog(
+            self, event_id=self.event.id, title="Assign Package to Recipient"
+        )
         self.wait_window(dialog)
 
         result = dialog.get_result()
@@ -244,7 +244,7 @@ class EventDetailWindow(ctk.CTkToplevel):
             self,
             event_id=self.event.id,
             assignment=self.selected_assignment,
-            title="Edit Assignment"
+            title="Edit Assignment",
         )
         self.wait_window(dialog)
 
@@ -267,12 +267,14 @@ class EventDetailWindow(ctk.CTkToplevel):
         if not self.selected_assignment:
             return
 
-        recipient_name = self.selected_assignment.recipient.name if self.selected_assignment.recipient else "Unknown"
+        recipient_name = (
+            self.selected_assignment.recipient.name
+            if self.selected_assignment.recipient
+            else "Unknown"
+        )
 
         if not show_confirmation(
-            "Confirm Removal",
-            f"Remove package assignment for {recipient_name}?",
-            parent=self
+            "Confirm Removal", f"Remove package assignment for {recipient_name}?", parent=self
         ):
             return
 
@@ -309,7 +311,7 @@ class EventDetailWindow(ctk.CTkToplevel):
                     self.assignments_frame,
                     text="No package assignments yet. Click 'Assign Package to Recipient' to get started.",
                     font=ctk.CTkFont(size=12, slant="italic"),
-                    text_color="gray"
+                    text_color="gray",
                 )
                 label.grid(row=0, column=0, pady=50)
                 return
@@ -319,10 +321,18 @@ class EventDetailWindow(ctk.CTkToplevel):
             header_frame.grid(row=0, column=0, sticky="ew", pady=(0, 5))
             header_frame.grid_columnconfigure((0, 1, 2, 3), weight=1)
 
-            ctk.CTkLabel(header_frame, text="Recipient", font=ctk.CTkFont(weight="bold")).grid(row=0, column=0, padx=10, pady=8)
-            ctk.CTkLabel(header_frame, text="Package", font=ctk.CTkFont(weight="bold")).grid(row=0, column=1, padx=10, pady=8)
-            ctk.CTkLabel(header_frame, text="Quantity", font=ctk.CTkFont(weight="bold")).grid(row=0, column=2, padx=10, pady=8)
-            ctk.CTkLabel(header_frame, text="Cost", font=ctk.CTkFont(weight="bold")).grid(row=0, column=3, padx=10, pady=8)
+            ctk.CTkLabel(header_frame, text="Recipient", font=ctk.CTkFont(weight="bold")).grid(
+                row=0, column=0, padx=10, pady=8
+            )
+            ctk.CTkLabel(header_frame, text="Package", font=ctk.CTkFont(weight="bold")).grid(
+                row=0, column=1, padx=10, pady=8
+            )
+            ctk.CTkLabel(header_frame, text="Quantity", font=ctk.CTkFont(weight="bold")).grid(
+                row=0, column=2, padx=10, pady=8
+            )
+            ctk.CTkLabel(header_frame, text="Cost", font=ctk.CTkFont(weight="bold")).grid(
+                row=0, column=3, padx=10, pady=8
+            )
 
             # Rows
             for idx, assignment in enumerate(assignments, start=1):
@@ -360,7 +370,7 @@ class EventDetailWindow(ctk.CTkToplevel):
             label = ctk.CTkLabel(
                 self.assignments_frame,
                 text=f"Error loading assignments: {str(e)}",
-                text_color="red"
+                text_color="red",
             )
             label.grid(row=0, column=0, pady=20)
 
@@ -384,7 +394,7 @@ class EventDetailWindow(ctk.CTkToplevel):
                     self.recipe_needs_frame,
                     text="No recipe needs calculated yet. Add package assignments first.",
                     font=ctk.CTkFont(size=12, slant="italic"),
-                    text_color="gray"
+                    text_color="gray",
                 )
                 label.grid(row=0, column=0, pady=50)
                 return
@@ -393,7 +403,7 @@ class EventDetailWindow(ctk.CTkToplevel):
             title_label = ctk.CTkLabel(
                 self.recipe_needs_frame,
                 text="Recipes Needed for This Event",
-                font=ctk.CTkFont(size=16, weight="bold")
+                font=ctk.CTkFont(size=16, weight="bold"),
             )
             title_label.grid(row=0, column=0, sticky="w", pady=(0, 15))
 
@@ -409,16 +419,14 @@ class EventDetailWindow(ctk.CTkToplevel):
                 frame.grid_columnconfigure(0, weight=1)
 
                 name_label = ctk.CTkLabel(
-                    frame,
-                    text=recipe.name,
-                    font=ctk.CTkFont(size=14, weight="bold")
+                    frame, text=recipe.name, font=ctk.CTkFont(size=14, weight="bold")
                 )
                 name_label.grid(row=0, column=0, sticky="w", padx=15, pady=(10, 5))
 
                 details_label = ctk.CTkLabel(
                     frame,
                     text=f"  • Batches needed: {batches:.2f}   |   Total items: {items}",
-                    font=ctk.CTkFont(size=12)
+                    font=ctk.CTkFont(size=12),
                 )
                 details_label.grid(row=1, column=0, sticky="w", padx=15, pady=(0, 10))
 
@@ -428,7 +436,7 @@ class EventDetailWindow(ctk.CTkToplevel):
             label = ctk.CTkLabel(
                 self.recipe_needs_frame,
                 text=f"Error calculating recipe needs: {str(e)}",
-                text_color="red"
+                text_color="red",
             )
             label.grid(row=0, column=0, pady=20)
 
@@ -446,7 +454,7 @@ class EventDetailWindow(ctk.CTkToplevel):
                     self.shopping_list_frame,
                     text="No shopping needed. Add package assignments first.",
                     font=ctk.CTkFont(size=12, slant="italic"),
-                    text_color="gray"
+                    text_color="gray",
                 )
                 label.grid(row=0, column=0, pady=50)
                 return
@@ -455,7 +463,7 @@ class EventDetailWindow(ctk.CTkToplevel):
             title_label = ctk.CTkLabel(
                 self.shopping_list_frame,
                 text="Shopping List",
-                font=ctk.CTkFont(size=16, weight="bold")
+                font=ctk.CTkFont(size=16, weight="bold"),
             )
             title_label.grid(row=0, column=0, sticky="w", pady=(0, 15))
 
@@ -489,11 +497,21 @@ class EventDetailWindow(ctk.CTkToplevel):
                 item_frame.grid(row=row, column=0, sticky="ew", pady=2)
                 item_frame.grid_columnconfigure((0, 1, 2, 3, 4), weight=1)
 
-                ctk.CTkLabel(item_frame, text=ingredient.name).grid(row=0, column=0, padx=10, pady=5, sticky="w")
-                ctk.CTkLabel(item_frame, text=f"{needed:.2f} {unit}").grid(row=0, column=1, padx=10, pady=5, sticky="w")
-                ctk.CTkLabel(item_frame, text=f"{on_hand:.2f} {unit}").grid(row=0, column=2, padx=10, pady=5, sticky="w")
-                ctk.CTkLabel(item_frame, text=f"{to_buy:.2f} {unit}").grid(row=0, column=3, padx=10, pady=5, sticky="w")
-                ctk.CTkLabel(item_frame, text=f"${cost:.2f}").grid(row=0, column=4, padx=10, pady=5, sticky="w")
+                ctk.CTkLabel(item_frame, text=ingredient.name).grid(
+                    row=0, column=0, padx=10, pady=5, sticky="w"
+                )
+                ctk.CTkLabel(item_frame, text=f"{needed:.2f} {unit}").grid(
+                    row=0, column=1, padx=10, pady=5, sticky="w"
+                )
+                ctk.CTkLabel(item_frame, text=f"{on_hand:.2f} {unit}").grid(
+                    row=0, column=2, padx=10, pady=5, sticky="w"
+                )
+                ctk.CTkLabel(item_frame, text=f"{to_buy:.2f} {unit}").grid(
+                    row=0, column=3, padx=10, pady=5, sticky="w"
+                )
+                ctk.CTkLabel(item_frame, text=f"${cost:.2f}").grid(
+                    row=0, column=4, padx=10, pady=5, sticky="w"
+                )
 
                 row += 1
 
@@ -505,14 +523,14 @@ class EventDetailWindow(ctk.CTkToplevel):
             ctk.CTkLabel(
                 total_frame,
                 text=f"Total Shopping Cost: ${total_cost:.2f}",
-                font=ctk.CTkFont(size=14, weight="bold")
+                font=ctk.CTkFont(size=14, weight="bold"),
             ).grid(row=0, column=0, columnspan=5, padx=15, pady=15)
 
         except Exception as e:
             label = ctk.CTkLabel(
                 self.shopping_list_frame,
                 text=f"Error generating shopping list: {str(e)}",
-                text_color="red"
+                text_color="red",
             )
             label.grid(row=0, column=0, pady=20)
 
@@ -525,9 +543,7 @@ class EventDetailWindow(ctk.CTkToplevel):
         try:
             # Event info
             ctk.CTkLabel(
-                self.summary_frame,
-                text="Event Summary",
-                font=ctk.CTkFont(size=18, weight="bold")
+                self.summary_frame, text="Event Summary", font=ctk.CTkFont(size=18, weight="bold")
             ).grid(row=0, column=0, sticky="w", pady=(0, 20))
 
             # Get fresh event data
@@ -543,29 +559,23 @@ class EventDetailWindow(ctk.CTkToplevel):
             info_frame.grid_columnconfigure(0, weight=1)
 
             ctk.CTkLabel(
-                info_frame,
-                text=f"Recipients: {recipient_count}",
-                font=ctk.CTkFont(size=14)
+                info_frame, text=f"Recipients: {recipient_count}", font=ctk.CTkFont(size=14)
             ).grid(row=0, column=0, sticky="w", padx=20, pady=5)
 
             ctk.CTkLabel(
-                info_frame,
-                text=f"Total Packages: {package_count}",
-                font=ctk.CTkFont(size=14)
+                info_frame, text=f"Total Packages: {package_count}", font=ctk.CTkFont(size=14)
             ).grid(row=1, column=0, sticky="w", padx=20, pady=5)
 
             ctk.CTkLabel(
                 info_frame,
                 text=f"Estimated Total Cost: ${total_cost:.2f}",
-                font=ctk.CTkFont(size=14, weight="bold")
+                font=ctk.CTkFont(size=14, weight="bold"),
             ).grid(row=2, column=0, sticky="w", padx=20, pady=(5, 15))
 
             # Notes
             if event.notes:
                 ctk.CTkLabel(
-                    self.summary_frame,
-                    text="Notes:",
-                    font=ctk.CTkFont(size=14, weight="bold")
+                    self.summary_frame, text="Notes:", font=ctk.CTkFont(size=14, weight="bold")
                 ).grid(row=2, column=0, sticky="w", pady=(20, 5))
 
                 notes_label = ctk.CTkLabel(
@@ -573,14 +583,12 @@ class EventDetailWindow(ctk.CTkToplevel):
                     text=event.notes,
                     font=ctk.CTkFont(size=12),
                     wraplength=900,
-                    justify="left"
+                    justify="left",
                 )
                 notes_label.grid(row=3, column=0, sticky="w", pady=(0, 10))
 
         except Exception as e:
             label = ctk.CTkLabel(
-                self.summary_frame,
-                text=f"Error loading summary: {str(e)}",
-                text_color="red"
+                self.summary_frame, text=f"Error loading summary: {str(e)}", text_color="red"
             )
             label.grid(row=0, column=0, pady=20)

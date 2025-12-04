@@ -349,7 +349,7 @@ class RecipesTab(ctk.CTkFrame):
         try:
             # Get recipe with calculated costs
             recipe_data = recipe_service.get_recipe_with_costs(self.selected_recipe.id)
-            recipe = recipe_data['recipe']
+            recipe = recipe_data["recipe"]
 
             # Build details message
             details = []
@@ -363,9 +363,7 @@ class RecipesTab(ctk.CTkFrame):
             details.append("")
             details.append("Cost Breakdown:")
             details.append(f"  Total Cost: ${recipe_data['total_cost']:.2f}")
-            details.append(
-                f"  Cost per {recipe.yield_unit}: ${recipe_data['cost_per_unit']:.4f}"
-            )
+            details.append(f"  Cost per {recipe.yield_unit}: ${recipe_data['cost_per_unit']:.4f}")
 
             details.append("")
             details.append("Ingredients:")
@@ -384,7 +382,9 @@ class RecipesTab(ctk.CTkFrame):
                 if packages_needed > 0:
                     if ingredient.package_type:
                         # Use package type if available
-                        package_label = self._pluralize_package(ingredient.package_type, packages_needed)
+                        package_label = self._pluralize_package(
+                            ingredient.package_type, packages_needed
+                        )
                         package_info = f" → {packages_needed:.2f} {package_label}"
                     else:
                         # Use generic "packages"
@@ -393,7 +393,9 @@ class RecipesTab(ctk.CTkFrame):
                 else:
                     package_info = ""
 
-                details.append(f"  • {ing_qty} {ing_unit} {ing_name}{package_info} (${ing_cost:.2f})")
+                details.append(
+                    f"  • {ing_qty} {ing_unit} {ing_name}{package_info} (${ing_cost:.2f})"
+                )
 
             if recipe.notes:
                 details.append("")

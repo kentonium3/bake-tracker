@@ -266,12 +266,7 @@ def get_available_years() -> List[int]:
     """
     try:
         with session_scope() as session:
-            years = (
-                session.query(Event.year)
-                .distinct()
-                .order_by(Event.year.desc())
-                .all()
-            )
+            years = session.query(Event.year).distinct().order_by(Event.year.desc()).all()
             return [y[0] for y in years]
 
     except SQLAlchemyError as e:
@@ -414,9 +409,7 @@ def assign_package_to_recipient(
                 raise ValidationError([f"Event with ID {event_id} not found"])
 
             # Verify recipient exists
-            recipient = (
-                session.query(Recipient).filter(Recipient.id == recipient_id).first()
-            )
+            recipient = session.query(Recipient).filter(Recipient.id == recipient_id).first()
             if not recipient:
                 raise ValidationError([f"Recipient with ID {recipient_id} not found"])
 
@@ -489,9 +482,7 @@ def update_assignment(
 
             if package_id is not None:
                 # Verify package exists
-                package = (
-                    session.query(Package).filter(Package.id == package_id).first()
-                )
+                package = session.query(Package).filter(Package.id == package_id).first()
                 if not package:
                     raise ValidationError([f"Package with ID {package_id} not found"])
                 assignment.package_id = package_id
@@ -641,11 +632,10 @@ def get_event_total_cost(event_id: int) -> Decimal:
             event = (
                 session.query(Event)
                 .options(
-                    joinedload(Event.event_recipient_packages).joinedload(
-                        EventRecipientPackage.package
-                    ).joinedload(Package.package_finished_goods).joinedload(
-                        PackageFinishedGood.finished_good
-                    )
+                    joinedload(Event.event_recipient_packages)
+                    .joinedload(EventRecipientPackage.package)
+                    .joinedload(Package.package_finished_goods)
+                    .joinedload(PackageFinishedGood.finished_good)
                 )
                 .filter(Event.id == event_id)
                 .first()
@@ -739,11 +729,10 @@ def get_event_summary(event_id: int) -> Dict[str, Any]:
                     joinedload(Event.event_recipient_packages).joinedload(
                         EventRecipientPackage.recipient
                     ),
-                    joinedload(Event.event_recipient_packages).joinedload(
-                        EventRecipientPackage.package
-                    ).joinedload(Package.package_finished_goods).joinedload(
-                        PackageFinishedGood.finished_good
-                    ),
+                    joinedload(Event.event_recipient_packages)
+                    .joinedload(EventRecipientPackage.package)
+                    .joinedload(Package.package_finished_goods)
+                    .joinedload(PackageFinishedGood.finished_good),
                 )
                 .filter(Event.id == event_id)
                 .first()
@@ -810,7 +799,7 @@ def get_recipe_needs(event_id: int) -> List[Dict[str, Any]]:
                     .joinedload(Package.package_finished_goods)
                     .joinedload(PackageFinishedGood.finished_good)
                     .joinedload(FinishedGood.components)
-                    .joinedload(Composition.finished_unit)
+                    .joinedload(Composition.finished_unit_component)
                     .joinedload(FinishedUnit.recipe)
                 )
                 .filter(Event.id == event_id)
@@ -836,10 +825,10 @@ def get_recipe_needs(event_id: int) -> List[Dict[str, Any]]:
 
                     # Traverse compositions to get FinishedUnits
                     for composition in fg.components:
-                        if not composition.finished_unit:
+                        if not composition.finished_unit_component:
                             continue
 
-                        fu = composition.finished_unit
+                        fu = composition.finished_unit_component
                         if not fu.recipe:
                             continue
 
@@ -847,11 +836,7 @@ def get_recipe_needs(event_id: int) -> List[Dict[str, Any]]:
                         items_per_batch = fu.items_per_batch or 1
 
                         # Calculate units: composition_qty * pfg_qty * erp_qty
-                        units = (
-                            int(composition.component_quantity)
-                            * pfg.quantity
-                            * erp.quantity
-                        )
+                        units = int(composition.component_quantity) * pfg.quantity * erp.quantity
 
                         recipe_totals[recipe_id] = recipe_totals.get(recipe_id, 0) + units
                         recipe_info[recipe_id] = {
@@ -864,13 +849,15 @@ def get_recipe_needs(event_id: int) -> List[Dict[str, Any]]:
             for recipe_id, total_units in recipe_totals.items():
                 info = recipe_info[recipe_id]
                 batches_needed = ceil(total_units / info["items_per_batch"])
-                result.append({
-                    "recipe_id": recipe_id,
-                    "recipe_name": info["name"],
-                    "total_units_needed": total_units,
-                    "batches_needed": batches_needed,
-                    "items_per_batch": info["items_per_batch"],
-                })
+                result.append(
+                    {
+                        "recipe_id": recipe_id,
+                        "recipe_name": info["name"],
+                        "total_units_needed": total_units,
+                        "batches_needed": batches_needed,
+                        "items_per_batch": info["items_per_batch"],
+                    }
+                )
 
             # Sort by recipe name
             result.sort(key=lambda x: x["recipe_name"])
@@ -950,20 +937,24 @@ def get_shopping_list(event_id: int) -> List[Dict[str, Any]]:
 
                 # Get on-hand quantity from pantry service
                 try:
-                    qty_on_hand = Decimal(str(pantry_service.get_ingredient_quantity_on_hand(ing_id)))
+                    qty_on_hand = Decimal(
+                        str(pantry_service.get_ingredient_quantity_on_hand(ing_id))
+                    )
                 except Exception:
                     qty_on_hand = Decimal("0")
 
                 shortfall = max(Decimal("0"), qty_needed - qty_on_hand)
 
-                result.append({
-                    "ingredient_id": ing_id,
-                    "ingredient_name": info["name"],
-                    "unit": info["unit"],
-                    "quantity_needed": qty_needed,
-                    "quantity_on_hand": qty_on_hand,
-                    "shortfall": shortfall,
-                })
+                result.append(
+                    {
+                        "ingredient_id": ing_id,
+                        "ingredient_name": info["name"],
+                        "unit": info["unit"],
+                        "quantity_needed": qty_needed,
+                        "quantity_on_hand": qty_on_hand,
+                        "shortfall": shortfall,
+                    }
+                )
 
             # Sort by ingredient name
             result.sort(key=lambda x: x["ingredient_name"])

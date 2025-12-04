@@ -178,7 +178,11 @@ class RecipeIngredient(BaseModel):
     def __repr__(self) -> str:
         """String representation of recipe ingredient."""
         # Show whichever FK is populated
-        ing_ref = f"ingredient_id={self.ingredient_id}" if self.ingredient_id else f"ingredient_new_id={self.ingredient_new_id}"
+        ing_ref = (
+            f"ingredient_id={self.ingredient_id}"
+            if self.ingredient_id
+            else f"ingredient_new_id={self.ingredient_new_id}"
+        )
         return (
             f"RecipeIngredient(recipe_id={self.recipe_id}, "
             f"{ing_ref}, "
@@ -212,7 +216,9 @@ class RecipeIngredient(BaseModel):
         from src.services.unit_converter import convert_any_units
 
         # Get ingredient density for cross-unit conversions
-        ingredient_density = self.ingredient.get_density() if hasattr(self.ingredient, 'get_density') else 0.0
+        ingredient_density = (
+            self.ingredient.get_density() if hasattr(self.ingredient, "get_density") else 0.0
+        )
 
         # Convert recipe unit to purchase_unit
         success, quantity_in_purchase_units, error = convert_any_units(
@@ -252,7 +258,9 @@ class RecipeIngredient(BaseModel):
         from src.services.unit_converter import convert_any_units
 
         # Get ingredient density for cross-unit conversions
-        ingredient_density = self.ingredient.get_density() if hasattr(self.ingredient, 'get_density') else 0.0
+        ingredient_density = (
+            self.ingredient.get_density() if hasattr(self.ingredient, "get_density") else 0.0
+        )
 
         # Convert recipe unit to purchase_unit
         success, quantity_in_purchase_units, error = convert_any_units(

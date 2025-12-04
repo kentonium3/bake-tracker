@@ -4,6 +4,7 @@ Database backup and validation utilities for FinishedUnit Model Refactoring.
 This module provides safe backup and restore functionality for SQLite database
 migration operations, ensuring zero data loss during model transformation.
 """
+
 import shutil
 import hashlib
 import os
@@ -89,7 +90,7 @@ def validate_backup_integrity(backup_path: str) -> Dict[str, any]:
         "checksum": "",
         "sqlite_valid": False,
         "table_count": 0,
-        "error_message": None
+        "error_message": None,
     }
 
     try:
@@ -104,7 +105,7 @@ def validate_backup_integrity(backup_path: str) -> Dict[str, any]:
         result["file_size"] = backup_file.stat().st_size
 
         # Calculate file checksum
-        with open(backup_path, 'rb') as f:
+        with open(backup_path, "rb") as f:
             file_hash = hashlib.sha256()
             while chunk := f.read(8192):
                 file_hash.update(chunk)
@@ -121,9 +122,7 @@ def validate_backup_integrity(backup_path: str) -> Dict[str, any]:
                     result["sqlite_valid"] = True
 
                     # Count tables
-                    cursor = conn.execute(
-                        "SELECT COUNT(*) FROM sqlite_master WHERE type='table'"
-                    )
+                    cursor = conn.execute("SELECT COUNT(*) FROM sqlite_master WHERE type='table'")
                     result["table_count"] = cursor.fetchone()[0]
 
                     result["is_valid"] = True
@@ -141,8 +140,9 @@ def validate_backup_integrity(backup_path: str) -> Dict[str, any]:
     return result
 
 
-def restore_database_from_backup(backup_path: str, target_path: str,
-                                safety_backup: bool = True) -> Tuple[bool, str]:
+def restore_database_from_backup(
+    backup_path: str, target_path: str, safety_backup: bool = True
+) -> Tuple[bool, str]:
     """
     Restore database from backup file with safety checks.
 
@@ -165,10 +165,7 @@ def restore_database_from_backup(backup_path: str, target_path: str,
         # Create safety backup of existing target if requested
         safety_backup_path = ""
         if safety_backup and os.path.exists(target_path):
-            success, safety_backup_path = create_database_backup(
-                target_path,
-                "safety_backups"
-            )
+            success, safety_backup_path = create_database_backup(target_path, "safety_backups")
             if not success:
                 return False, "Failed to create safety backup before restore"
 
@@ -185,7 +182,9 @@ def restore_database_from_backup(backup_path: str, target_path: str,
                 logger.info(success_msg)
                 return True, success_msg
             else:
-                error_msg = f"Restored database validation failed: {restore_validation['error_message']}"
+                error_msg = (
+                    f"Restored database validation failed: {restore_validation['error_message']}"
+                )
                 logger.error(error_msg)
                 return False, error_msg
         else:
@@ -217,15 +216,17 @@ def list_available_backups(backup_dir: str = "backups") -> list:
         for backup_file in backup_path.glob("*_backup_*.sqlite"):
             validation = validate_backup_integrity(str(backup_file))
 
-            backups.append({
-                "filename": backup_file.name,
-                "path": str(backup_file),
-                "size": validation["file_size"],
-                "created": datetime.fromtimestamp(backup_file.stat().st_mtime),
-                "valid": validation["is_valid"],
-                "checksum": validation["checksum"][:16] + "...",  # Truncated for display
-                "table_count": validation["table_count"]
-            })
+            backups.append(
+                {
+                    "filename": backup_file.name,
+                    "path": str(backup_file),
+                    "size": validation["file_size"],
+                    "created": datetime.fromtimestamp(backup_file.stat().st_mtime),
+                    "valid": validation["is_valid"],
+                    "checksum": validation["checksum"][:16] + "...",  # Truncated for display
+                    "table_count": validation["table_count"],
+                }
+            )
 
         # Sort by creation time, newest first
         backups.sort(key=lambda x: x["created"], reverse=True)

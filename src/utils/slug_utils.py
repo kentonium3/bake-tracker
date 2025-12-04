@@ -84,29 +84,29 @@ def create_slug(name: str, session: Optional[Session] = None) -> str:
     """
     # Unicode normalization: decompose accented characters
     # Example: accented "e" (U+00E9) becomes "e" (U+0065) + combining acute accent
-    normalized = unicodedata.normalize('NFD', name)
+    normalized = unicodedata.normalize("NFD", name)
 
     # Encode to ASCII, ignoring characters that can't be represented
     # This converts "Jalapeno" to "Jalapeno", "Creme" to "Creme", etc.
-    slug = normalized.encode('ascii', 'ignore').decode('ascii')
+    slug = normalized.encode("ascii", "ignore").decode("ascii")
 
     # Convert to lowercase
     slug = slug.lower()
 
     # Replace whitespace and hyphens with underscores
     # "All-Purpose Flour" -> "all_purpose_flour"
-    slug = re.sub(r'[\s\-]+', '_', slug)
+    slug = re.sub(r"[\s\-]+", "_", slug)
 
     # Remove all non-alphanumeric characters except underscores
     # "100% Whole" -> "100_whole"
-    slug = re.sub(r'[^a-z0-9_]', '', slug)
+    slug = re.sub(r"[^a-z0-9_]", "", slug)
 
     # Collapse multiple consecutive underscores to single underscore
     # "extra___spaces" -> "extra_spaces"
-    slug = re.sub(r'_+', '_', slug)
+    slug = re.sub(r"_+", "_", slug)
 
     # Strip leading and trailing underscores
-    slug = slug.strip('_')
+    slug = slug.strip("_")
 
     # If no session provided, return base slug without uniqueness check
     if session is None:
@@ -180,15 +180,15 @@ def validate_slug_format(slug: str) -> bool:
         return False
 
     # Check for valid characters (lowercase alphanumeric + underscore)
-    if not re.match(r'^[a-z0-9_]+$', slug):
+    if not re.match(r"^[a-z0-9_]+$", slug):
         return False
 
     # Check doesn't start or end with underscore
-    if slug.startswith('_') or slug.endswith('_'):
+    if slug.startswith("_") or slug.endswith("_"):
         return False
 
     # Check for consecutive underscores
-    if '__' in slug:
+    if "__" in slug:
         return False
 
     return True
@@ -222,7 +222,7 @@ def slug_to_display_name(slug: str) -> str:
         separately and not derived from slugs.
     """
     # Replace underscores with spaces
-    display = slug.replace('_', ' ')
+    display = slug.replace("_", " ")
 
     # Title case (capitalize first letter of each word)
     display = display.title()

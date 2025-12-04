@@ -14,6 +14,7 @@ from src.ui.ingredients_tab import IngredientsTab
 from src.ui.pantry_tab import PantryTab
 from src.ui.recipes_tab import RecipesTab
 from src.ui.finished_units_tab import FinishedUnitsTab
+
 # BundlesTab removed - Bundle concept eliminated in Feature 006
 from src.ui.packages_tab import PackagesTab
 from src.ui.recipients_tab import RecipientsTab
@@ -275,22 +276,18 @@ class MainWindow(ctk.CTk):
                 for rec in recommendations:
                     health_report.append(f"  • {rec}")
 
-            if stats['total_operations'] == 0:
+            if stats["total_operations"] == 0:
                 health_report.append("")
                 health_report.append("No service operations have been performed yet.")
-                health_report.append("Health check will be more informative after using the application.")
+                health_report.append(
+                    "Health check will be more informative after using the application."
+                )
 
-            messagebox.showinfo(
-                "Service Health Check",
-                "\n".join(health_report),
-                parent=self
-            )
+            messagebox.showinfo("Service Health Check", "\n".join(health_report), parent=self)
 
         except Exception as exc:
             messagebox.showerror(
-                "Health Check Error",
-                f"Failed to check service health:\n\n{exc}",
-                parent=self
+                "Health Check Error", f"Failed to check service health:\n\n{exc}", parent=self
             )
 
     def _show_help_menu(self):

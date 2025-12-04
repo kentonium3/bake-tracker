@@ -226,7 +226,9 @@ class PackagesTab(ctk.CTkFrame):
                 package_data = result["package_data"]
                 finished_good_items = result["finished_good_items"]
                 package_service.create_package(package_data, finished_good_items)
-                show_success("Success", f"Package '{package_data['name']}' added successfully", parent=self)
+                show_success(
+                    "Success", f"Package '{package_data['name']}' added successfully", parent=self
+                )
                 self.refresh()
             except Exception as e:
                 show_error("Error", f"Failed to add package: {str(e)}", parent=self)
@@ -236,11 +238,7 @@ class PackagesTab(ctk.CTkFrame):
         if not self.selected_package:
             return
 
-        dialog = PackageFormDialog(
-            self,
-            package=self.selected_package,
-            title="Edit Package"
-        )
+        dialog = PackageFormDialog(self, package=self.selected_package, title="Edit Package")
         self.wait_window(dialog)
 
         result = dialog.get_result()
@@ -248,7 +246,9 @@ class PackagesTab(ctk.CTkFrame):
             try:
                 package_data = result["package_data"]
                 finished_good_items = result["finished_good_items"]
-                package_service.update_package(self.selected_package.id, package_data, finished_good_items)
+                package_service.update_package(
+                    self.selected_package.id, package_data, finished_good_items
+                )
                 show_success("Success", "Package updated successfully", parent=self)
                 self.refresh()
             except PackageNotFoundError:
@@ -267,7 +267,7 @@ class PackagesTab(ctk.CTkFrame):
             "Confirm Deletion",
             f"Are you sure you want to delete package '{self.selected_package.name}'?\n\n"
             "This action cannot be undone.",
-            parent=self
+            parent=self,
         ):
             return
 
@@ -280,7 +280,7 @@ class PackagesTab(ctk.CTkFrame):
             show_error(
                 "Cannot Delete",
                 f"This package is used in {e.assignment_count} event assignment(s) and cannot be deleted.",
-                parent=self
+                parent=self,
             )
         except PackageNotFoundError:
             show_error("Error", "Package not found", parent=self)
@@ -306,9 +306,7 @@ class PackagesTab(ctk.CTkFrame):
 
         # Package name
         ctk.CTkLabel(
-            scroll_frame,
-            text=self.selected_package.name,
-            font=ctk.CTkFont(size=18, weight="bold")
+            scroll_frame, text=self.selected_package.name, font=ctk.CTkFont(size=18, weight="bold")
         ).pack(anchor="w", pady=(0, 10))
 
         # Template flag
@@ -317,47 +315,44 @@ class PackagesTab(ctk.CTkFrame):
                 scroll_frame,
                 text="📋 Template Package",
                 font=ctk.CTkFont(size=12),
-                text_color="blue"
+                text_color="blue",
             ).pack(anchor="w", pady=(0, 10))
 
         # Description
         if self.selected_package.description:
+            ctk.CTkLabel(scroll_frame, text="Description:", font=ctk.CTkFont(weight="bold")).pack(
+                anchor="w", pady=(10, 5)
+            )
             ctk.CTkLabel(
-                scroll_frame,
-                text="Description:",
-                font=ctk.CTkFont(weight="bold")
-            ).pack(anchor="w", pady=(10, 5))
-            ctk.CTkLabel(
-                scroll_frame,
-                text=self.selected_package.description,
-                wraplength=550,
-                justify="left"
+                scroll_frame, text=self.selected_package.description, wraplength=550, justify="left"
             ).pack(anchor="w", pady=(0, 10))
 
         # Finished Goods
-        ctk.CTkLabel(
-            scroll_frame,
-            text="Finished Goods:",
-            font=ctk.CTkFont(weight="bold")
-        ).pack(anchor="w", pady=(10, 5))
+        ctk.CTkLabel(scroll_frame, text="Finished Goods:", font=ctk.CTkFont(weight="bold")).pack(
+            anchor="w", pady=(10, 5)
+        )
 
         if self.selected_package.package_finished_goods:
             for pfg in self.selected_package.package_finished_goods:
                 fg_name = pfg.finished_good.name if pfg.finished_good else "Unknown"
-                fg_cost = pfg.finished_good.total_cost if pfg.finished_good and pfg.finished_good.total_cost else Decimal("0.00")
+                fg_cost = (
+                    pfg.finished_good.total_cost
+                    if pfg.finished_good and pfg.finished_good.total_cost
+                    else Decimal("0.00")
+                )
                 total_cost = fg_cost * pfg.quantity
 
                 ctk.CTkLabel(
                     scroll_frame,
                     text=f"  - {fg_name} x {pfg.quantity} = ${total_cost:.2f}",
-                    font=ctk.CTkFont(size=12)
+                    font=ctk.CTkFont(size=12),
                 ).pack(anchor="w", pady=2)
         else:
             ctk.CTkLabel(
                 scroll_frame,
                 text="  No finished goods",
                 font=ctk.CTkFont(size=12),
-                text_color="gray"
+                text_color="gray",
             ).pack(anchor="w", pady=2)
 
         # Total cost
@@ -365,30 +360,22 @@ class PackagesTab(ctk.CTkFrame):
         ctk.CTkLabel(
             scroll_frame,
             text=f"\nTotal Package Cost: ${total_cost:.2f}",
-            font=ctk.CTkFont(size=14, weight="bold")
+            font=ctk.CTkFont(size=14, weight="bold"),
         ).pack(anchor="w", pady=(15, 10))
 
         # Notes
         if self.selected_package.notes:
+            ctk.CTkLabel(scroll_frame, text="Notes:", font=ctk.CTkFont(weight="bold")).pack(
+                anchor="w", pady=(10, 5)
+            )
             ctk.CTkLabel(
-                scroll_frame,
-                text="Notes:",
-                font=ctk.CTkFont(weight="bold")
-            ).pack(anchor="w", pady=(10, 5))
-            ctk.CTkLabel(
-                scroll_frame,
-                text=self.selected_package.notes,
-                wraplength=550,
-                justify="left"
+                scroll_frame, text=self.selected_package.notes, wraplength=550, justify="left"
             ).pack(anchor="w", pady=(0, 10))
 
         # Close button
-        ctk.CTkButton(
-            scroll_frame,
-            text="Close",
-            command=dialog.destroy,
-            width=100
-        ).pack(pady=(20, 0))
+        ctk.CTkButton(scroll_frame, text="Close", command=dialog.destroy, width=100).pack(
+            pady=(20, 0)
+        )
 
     def refresh(self):
         """Refresh the packages list."""

@@ -146,6 +146,7 @@ class IngredientLegacy(BaseModel):
 
         # Fallback to constants lookup
         from src.utils.constants import get_ingredient_density
+
         return get_ingredient_density(self.name)
 
     def has_density_data(self) -> bool:

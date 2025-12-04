@@ -293,9 +293,7 @@ class IngredientsTab(ctk.CTkFrame):
         density = ingredient.get("density_g_per_ml")
         density_text = f"{density:.3f} g/ml" if density else "No density"
 
-        info_text = (
-            f"{name_text} | Category: {category_text} | {density_text}"
-        )
+        info_text = f"{name_text} | Category: {category_text} | {density_text}"
 
         info_label = ctk.CTkLabel(
             row_frame,
@@ -615,7 +613,6 @@ class IngredientFormDialog(ctk.CTkToplevel):
         self.category_entry.grid(row=row, column=1, sticky="ew", padx=10, pady=5)
         row += 1
 
-
         # Density field (optional)
         ctk.CTkLabel(form_frame, text="Density (g/ml):").grid(
             row=row, column=0, sticky="w", padx=10, pady=5
@@ -890,6 +887,7 @@ class VariantsDialog(ctk.CTkToplevel):
         except Exception as e:
             messagebox.showerror("Error", f"Failed to refresh variants: {e}")
             import traceback
+
             traceback.print_exc()
 
     def _update_variant_display(self):

@@ -45,10 +45,7 @@ class Event(BaseModel):
 
     # Relationships
     event_recipient_packages = relationship(
-        "EventRecipientPackage",
-        back_populates="event",
-        cascade="all, delete-orphan",
-        lazy="joined"
+        "EventRecipientPackage", back_populates="event", cascade="all, delete-orphan", lazy="joined"
     )
 
     # Indexes
@@ -154,15 +151,9 @@ class EventRecipientPackage(BaseModel):
     __tablename__ = "event_recipient_packages"
 
     # Foreign keys
-    event_id = Column(
-        Integer, ForeignKey("events.id", ondelete="CASCADE"), nullable=False
-    )
-    recipient_id = Column(
-        Integer, ForeignKey("recipients.id", ondelete="RESTRICT"), nullable=False
-    )
-    package_id = Column(
-        Integer, ForeignKey("packages.id", ondelete="RESTRICT"), nullable=False
-    )
+    event_id = Column(Integer, ForeignKey("events.id", ondelete="CASCADE"), nullable=False)
+    recipient_id = Column(Integer, ForeignKey("recipients.id", ondelete="RESTRICT"), nullable=False)
+    package_id = Column(Integer, ForeignKey("packages.id", ondelete="RESTRICT"), nullable=False)
 
     # Quantity and notes
     quantity = Column(Integer, nullable=False, default=1)

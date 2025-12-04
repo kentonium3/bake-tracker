@@ -44,10 +44,7 @@ class PantryItem(BaseModel):
 
     # Foreign key to Variant
     variant_id = Column(
-        Integer,
-        ForeignKey("product_variants.id", ondelete="CASCADE"),
-        nullable=False,
-        index=True
+        Integer, ForeignKey("product_variants.id", ondelete="CASCADE"), nullable=False, index=True
     )
 
     # Inventory tracking
@@ -69,7 +66,9 @@ class PantryItem(BaseModel):
     notes = Column(Text, nullable=True)
 
     # Timestamp
-    last_updated = Column(DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
+    last_updated = Column(
+        DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow
+    )
 
     # Relationships
     variant = relationship("Variant", back_populates="pantry_items")
@@ -200,13 +199,14 @@ class PantryItem(BaseModel):
                 "id": self.variant.id,
                 "display_name": self.variant.display_name,
                 "product_name": self.variant.product.name,
-                "product_id": self.variant.product.id
+                "product_id": self.variant.product.id,
             }
 
         return result
 
 
 # Module-level helper functions for FIFO operations
+
 
 def get_pantry_items_fifo(product_id: int, session) -> list:
     """
@@ -270,13 +270,15 @@ def consume_fifo(product_id: int, quantity_needed: float, session) -> tuple:
         variant_cost = item.variant.get_current_cost_per_unit()
         cost = consumed * variant_cost
 
-        cost_breakdown.append({
-            "item_id": item.id,
-            "variant_id": item.variant_id,
-            "quantity": consumed,
-            "cost": cost,
-            "purchase_date": item.purchase_date
-        })
+        cost_breakdown.append(
+            {
+                "item_id": item.id,
+                "variant_id": item.variant_id,
+                "quantity": consumed,
+                "cost": cost,
+                "purchase_date": item.purchase_date,
+            }
+        )
 
         total_consumed += consumed
         remaining -= consumed
@@ -307,7 +309,7 @@ def get_expiring_soon(days: int = 30, session=None) -> list:
                 PantryItem.expiration_date.isnot(None),
                 PantryItem.expiration_date <= cutoff_date,
                 PantryItem.expiration_date >= date.today(),
-                PantryItem.quantity > 0
+                PantryItem.quantity > 0,
             )
             .order_by(PantryItem.expiration_date.asc())
             .all()
@@ -320,7 +322,7 @@ def get_expiring_soon(days: int = 30, session=None) -> list:
                     PantryItem.expiration_date.isnot(None),
                     PantryItem.expiration_date <= cutoff_date,
                     PantryItem.expiration_date >= date.today(),
-                    PantryItem.quantity > 0
+                    PantryItem.quantity > 0,
                 )
                 .order_by(PantryItem.expiration_date.asc())
                 .all()
@@ -342,12 +344,7 @@ def get_total_quantity_for_product(product_id: int, session) -> float:
     """
     from src.models.variant import Variant
 
-    items = (
-        session.query(PantryItem)
-        .join(Variant)
-        .filter(Variant.product_id == product_id)
-        .all()
-    )
+    items = session.query(PantryItem).join(Variant).filter(Variant.product_id == product_id).all()
 
     # TODO: Convert quantities to common unit (recipe_unit)
     # For now, just sum raw quantities
