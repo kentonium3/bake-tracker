@@ -122,17 +122,17 @@
 
 ---
 
-## Work Package WP04: Validation and Polish (Priority: P3)
+## Work Package WP04: Validation and Polish (Priority: P3) ✅ COMPLETE
 
 **Goal**: End-to-end validation against all acceptance criteria and polish.
 **Independent Test**: All acceptance scenarios from spec.md pass manual testing.
-**Prompt**: `tasks/planned/WP04-validation-polish.md`
+**Prompt**: `tasks/done/WP04-validation-polish.md`
 
 ### Included Subtasks
-- [ ] T013 Validate all acceptance scenarios from User Stories 1-4
-- [ ] T014 [P] Verify edge cases: zero shortfall, significant overbuy, unit conversion failure
-- [ ] T015 [P] Run full test suite and verify >70% service coverage
-- [ ] T016 Code formatting (black) and linting (flake8, mypy)
+- [x] T013 Validate all acceptance scenarios from User Stories 1-4
+- [x] T014 [P] Verify edge cases: zero shortfall, significant overbuy, unit conversion failure
+- [x] T015 [P] Run full test suite and verify >70% service coverage (38 tests pass)
+- [x] T016 Code formatting (black) and linting (flake8, mypy)
 
 ### Implementation Notes
 1. Manual validation checklist:
