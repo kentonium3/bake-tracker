@@ -10,7 +10,7 @@ subtasks:
   - "T041"
 title: "Recipient Service Verification"
 phase: "Phase 2 - Services Layer"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "claude"
 shell_pid: "9077"
@@ -212,3 +212,4 @@ history:
 - 2025-12-03 - system - lane=planned - Prompt created.
 - 2025-12-04T02:38:59Z – claude – shell_pid=9077 – lane=doing – Started verification
 - 2025-12-04T03:15:00Z – claude – shell_pid=9077 – lane=for_review – Completed: Added missing methods (get_recipient_by_name, check_recipient_has_assignments, get_recipient_assignment_count, get_recipient_events, search_recipients, get_recipients_by_household), force delete with FR-018, 33 tests passing at 81.38% coverage
+- 2025-12-04T02:44:28Z – claude – shell_pid=9077 – lane=for_review – Completed: RecipientService verification with 33 tests at 81.38% coverage
