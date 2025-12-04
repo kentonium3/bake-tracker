@@ -14,10 +14,10 @@ subtasks:
   - "T022"
 title: "Package Service Implementation"
 phase: "Phase 2 - Services Layer"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "claude"
-shell_pid: "7659"
+shell_pid: "8192"
 review_status: ""
 reviewed_by: ""
 history:
@@ -359,3 +359,4 @@ def test_calculate_package_cost_with_multiple_finished_goods(session):
 
 - 2025-12-03 - system - lane=planned - Prompt created.
 - 2025-12-04T02:31:51Z – claude – shell_pid=7659 – lane=doing – Started implementation
+- 2025-12-04T02:34:45Z – claude – shell_pid=8192 – lane=for_review – Completed: PackageService rewritten with FinishedGood support, all functions from contract implemented
