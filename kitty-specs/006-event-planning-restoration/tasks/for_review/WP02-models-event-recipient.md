@@ -9,10 +9,10 @@ subtasks:
   - "T011"
 title: "Models Layer - Event & Recipient"
 phase: "Phase 1 - Models Layer"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "claude"
-shell_pid: "7182"
+shell_pid: "7541"
 review_status: ""
 reviewed_by: ""
 history:
@@ -210,3 +210,4 @@ history:
 
 - 2025-12-03 - system - lane=planned - Prompt created.
 - 2025-12-04T02:30:15Z – claude – shell_pid=7182 – lane=doing – Started implementation
+- 2025-12-04T02:31:30Z – claude – shell_pid=7541 – lane=for_review – Completed: Event/ERP models updated to Decimal, re-enabled in __init__.py, cost chain verified
