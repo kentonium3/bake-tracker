@@ -66,7 +66,7 @@ def record_purchase(
     purchase_date: date,
     store: Optional[str] = None,
     receipt_number: Optional[str] = None,
-    notes: Optional[str] = None
+    notes: Optional[str] = None,
 ) -> Purchase:
     """Record a new purchase with automatic unit cost calculation.
 
@@ -131,7 +131,7 @@ def record_purchase(
                 purchase_date=purchase_date,
                 supplier=store,
                 receipt_number=receipt_number,
-                notes=notes
+                notes=notes,
             )
 
             session.add(purchase)
@@ -181,7 +181,7 @@ def get_purchase_history(
     start_date: Optional[date] = None,
     end_date: Optional[date] = None,
     store: Optional[str] = None,
-    limit: Optional[int] = None
+    limit: Optional[int] = None,
 ) -> List[Purchase]:
     """Retrieve purchase history with flexible filtering.
 
@@ -265,9 +265,12 @@ def get_most_recent_purchase(variant_id: int) -> Optional[Purchase]:
     get_variant(variant_id)
 
     with session_scope() as session:
-        return session.query(Purchase).filter_by(
-            variant_id=variant_id
-        ).order_by(Purchase.purchase_date.desc()).first()
+        return (
+            session.query(Purchase)
+            .filter_by(variant_id=variant_id)
+            .order_by(Purchase.purchase_date.desc())
+            .first()
+        )
 
 
 def calculate_average_price(variant_id: int, days: int = 60) -> Optional[Decimal]:
@@ -302,10 +305,11 @@ def calculate_average_price(variant_id: int, days: int = 60) -> Optional[Decimal
     cutoff_date = date.today() - timedelta(days=days)
 
     with session_scope() as session:
-        purchases = session.query(Purchase).filter(
-            Purchase.variant_id == variant_id,
-            Purchase.purchase_date >= cutoff_date
-        ).all()
+        purchases = (
+            session.query(Purchase)
+            .filter(Purchase.variant_id == variant_id, Purchase.purchase_date >= cutoff_date)
+            .all()
+        )
 
         if not purchases:
             return None
@@ -317,9 +321,7 @@ def calculate_average_price(variant_id: int, days: int = 60) -> Optional[Decimal
 
 
 def detect_price_change(
-    variant_id: int,
-    new_unit_cost: Decimal,
-    comparison_days: int = 60
+    variant_id: int, new_unit_cost: Decimal, comparison_days: int = 60
 ) -> Dict[str, Any]:
     """Detect significant price changes compared to historical average.
 
@@ -374,7 +376,7 @@ def detect_price_change(
             "change_amount": None,
             "change_percent": None,
             "alert_level": "none",
-            "message": "No historical data for comparison"
+            "message": "No historical data for comparison",
         }
 
     # Calculate change
@@ -406,7 +408,7 @@ def detect_price_change(
         "change_amount": change_amount,
         "change_percent": change_percent,
         "alert_level": alert_level,
-        "message": message
+        "message": message,
     }
 
 
@@ -453,10 +455,12 @@ def get_price_trend(variant_id: int, days: int = 90) -> Dict[str, Any]:
     cutoff_date = date.today() - timedelta(days=days)
 
     with session_scope() as session:
-        purchases = session.query(Purchase).filter(
-            Purchase.variant_id == variant_id,
-            Purchase.purchase_date >= cutoff_date
-        ).order_by(Purchase.purchase_date.asc()).all()
+        purchases = (
+            session.query(Purchase)
+            .filter(Purchase.variant_id == variant_id, Purchase.purchase_date >= cutoff_date)
+            .order_by(Purchase.purchase_date.asc())
+            .all()
+        )
 
         # Need at least 2 data points for regression
         if len(purchases) < 2:
@@ -466,7 +470,7 @@ def get_price_trend(variant_id: int, days: int = 90) -> Dict[str, Any]:
                 "data_points": len(purchases),
                 "oldest_date": purchases[0].purchase_date if purchases else None,
                 "newest_date": purchases[0].purchase_date if purchases else None,
-                "message": f"Insufficient data for trend analysis ({len(purchases)} purchase)"
+                "message": f"Insufficient data for trend analysis ({len(purchases)} purchase)",
             }
 
         # Prepare data for linear regression
@@ -500,7 +504,7 @@ def get_price_trend(variant_id: int, days: int = 90) -> Dict[str, Any]:
             "data_points": len(purchases),
             "oldest_date": oldest_date,
             "newest_date": purchases[-1].purchase_date,
-            "message": message
+            "message": message,
         }
 
 

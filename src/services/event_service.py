@@ -6,11 +6,19 @@ This service provides:
 - Assignment of recipients to packages for events
 - Calculation of ingredient needs and shopping lists
 - Event cloning and comparison
+
+Architecture Note (Feature 006):
+- Bundle concept eliminated per research decision D1
+- Package now references FinishedGood assemblies via PackageFinishedGood
+- Cost calculation chains: Event -> ERP -> Package -> FinishedGood for FIFO accuracy
+- Recipe needs traverse: Package -> FinishedGood -> Composition -> FinishedUnit -> Recipe
 """
 
-from typing import List, Optional, Dict, Tuple
+from typing import List, Optional, Dict, Any
 from datetime import datetime, date
+from decimal import Decimal
 from collections import defaultdict
+from math import ceil
 
 from sqlalchemy import or_, and_
 from sqlalchemy.exc import SQLAlchemyError
@@ -21,9 +29,10 @@ from src.models import (
     EventRecipientPackage,
     Recipient,
     Package,
-    PackageBundle,
-    Bundle,
+    PackageFinishedGood,
     FinishedGood,
+    FinishedUnit,
+    Composition,
     Recipe,
     RecipeIngredient,
     Ingredient,
@@ -37,7 +46,7 @@ from src.services.exceptions import DatabaseError, ValidationError
 # ============================================================================
 
 
-class EventNotFound(Exception):
+class EventNotFoundError(Exception):
     """Raised when an event is not found."""
 
     def __init__(self, event_id: int):
@@ -45,18 +54,18 @@ class EventNotFound(Exception):
         super().__init__(f"Event with ID {event_id} not found")
 
 
-class EventInUse(Exception):
+class EventHasAssignmentsError(Exception):
     """Raised when trying to delete an event that has assignments."""
 
     def __init__(self, event_id: int, assignment_count: int):
         self.event_id = event_id
         self.assignment_count = assignment_count
         super().__init__(
-            f"Event {event_id} has {assignment_count} assignment(s) and cannot be deleted"
+            f"Event {event_id} has {assignment_count} assignment(s). Use cascade_assignments=True to delete."
         )
 
 
-class AssignmentNotFound(Exception):
+class AssignmentNotFoundError(Exception):
     """Raised when an assignment is not found."""
 
     def __init__(self, assignment_id: int):
@@ -64,17 +73,45 @@ class AssignmentNotFound(Exception):
         super().__init__(f"Assignment with ID {assignment_id} not found")
 
 
+class RecipientNotFoundError(Exception):
+    """Raised when a recipient is not found."""
+
+    def __init__(self, recipient_id: int):
+        self.recipient_id = recipient_id
+        super().__init__(f"Recipient with ID {recipient_id} not found")
+
+
+class DuplicateAssignmentError(Exception):
+    """Raised when assignment already exists."""
+
+    def __init__(self, event_id: int, recipient_id: int, package_id: int):
+        self.event_id = event_id
+        self.recipient_id = recipient_id
+        self.package_id = package_id
+        super().__init__(
+            f"Assignment already exists: Event {event_id}, Recipient {recipient_id}, Package {package_id}"
+        )
+
+
 # ============================================================================
 # Event CRUD Operations
 # ============================================================================
 
 
-def create_event(data: Dict) -> Event:
+def create_event(
+    name: str,
+    event_date: date,
+    year: int,
+    notes: Optional[str] = None,
+) -> Event:
     """
     Create a new event.
 
     Args:
-        data: Dictionary with event fields (name, event_date, year, notes)
+        name: Event name (required)
+        event_date: Event date (required)
+        year: Event year (required)
+        notes: Optional notes
 
     Returns:
         Created Event instance
@@ -83,36 +120,34 @@ def create_event(data: Dict) -> Event:
         ValidationError: If data validation fails
         DatabaseError: If database operation fails
     """
-    # Validate required fields
     errors = []
-
-    if not data.get("name"):
+    if not name or not name.strip():
         errors.append("Name is required")
-
-    if not data.get("event_date"):
+    if not event_date:
         errors.append("Event date is required")
-
-    if not data.get("year"):
+    if not year:
         errors.append("Year is required")
-
     if errors:
         raise ValidationError(errors)
 
     try:
         with session_scope() as session:
             event = Event(
-                name=data["name"],
-                event_date=data["event_date"],
-                year=data["year"],
-                notes=data.get("notes"),
+                name=name.strip(),
+                event_date=event_date,
+                year=year,
+                notes=notes,
             )
-
             session.add(event)
-            session.commit()
+            session.flush()
 
             # Reload with relationships
-            event = session.query(Event).filter(Event.id == event.id).one()
-
+            event = (
+                session.query(Event)
+                .options(joinedload(Event.event_recipient_packages))
+                .filter(Event.id == event.id)
+                .one()
+            )
             return event
 
     except ValidationError:
@@ -121,181 +156,230 @@ def create_event(data: Dict) -> Event:
         raise DatabaseError(f"Failed to create event: {str(e)}")
 
 
-def get_event(event_id: int) -> Event:
+def get_event_by_id(event_id: int) -> Optional[Event]:
     """
-    Get an event by ID with all relationships loaded.
+    Get an event by ID.
 
     Args:
         event_id: Event ID
 
     Returns:
-        Event instance
-
-    Raises:
-        EventNotFound: If event not found
-        DatabaseError: If database operation fails
+        Event instance or None if not found
     """
     try:
         with session_scope() as session:
             event = (
                 session.query(Event)
                 .options(
-                    joinedload(Event.event_recipient_packages)
-                    .joinedload(EventRecipientPackage.recipient),
-                    joinedload(Event.event_recipient_packages)
-                    .joinedload(EventRecipientPackage.package)
-                    .joinedload(Package.package_bundles)
-                    .joinedload(PackageBundle.bundle)
-                    .joinedload(Bundle.finished_good)
-                    .joinedload(FinishedGood.recipe)
-                    .joinedload(Recipe.recipe_ingredients)
-                    .joinedload(RecipeIngredient.ingredient),
+                    joinedload(Event.event_recipient_packages).joinedload(
+                        EventRecipientPackage.recipient
+                    ),
+                    joinedload(Event.event_recipient_packages).joinedload(
+                        EventRecipientPackage.package
+                    ),
                 )
                 .filter(Event.id == event_id)
                 .first()
             )
-
-            if not event:
-                raise EventNotFound(event_id)
-
             return event
 
-    except EventNotFound:
-        raise
     except SQLAlchemyError as e:
         raise DatabaseError(f"Failed to get event: {str(e)}")
 
 
-def get_all_events(year: Optional[int] = None) -> List[Event]:
+def get_event_by_name(name: str) -> Optional[Event]:
     """
-    Get all events with optional year filter.
+    Get an event by exact name match.
 
     Args:
-        year: Optional year filter
+        name: Event name
 
     Returns:
-        List of Event instances ordered by event_date descending
-
-    Raises:
-        DatabaseError: If database operation fails
+        Event instance or None if not found
     """
     try:
         with session_scope() as session:
-            query = session.query(Event).options(
-                joinedload(Event.event_recipient_packages)
+            event = (
+                session.query(Event)
+                .options(joinedload(Event.event_recipient_packages))
+                .filter(Event.name == name)
+                .first()
             )
+            return event
 
-            # Apply year filter if provided
-            if year is not None:
-                query = query.filter(Event.year == year)
+    except SQLAlchemyError as e:
+        raise DatabaseError(f"Failed to get event by name: {str(e)}")
 
-            # Order by event_date descending (most recent first)
-            query = query.order_by(Event.event_date.desc())
 
-            events = query.all()
+def get_all_events() -> List[Event]:
+    """
+    Get all events ordered by event_date descending.
 
+    Returns:
+        List of Event instances
+    """
+    try:
+        with session_scope() as session:
+            events = (
+                session.query(Event)
+                .options(joinedload(Event.event_recipient_packages))
+                .order_by(Event.event_date.desc())
+                .all()
+            )
             return events
 
     except SQLAlchemyError as e:
         raise DatabaseError(f"Failed to get events: {str(e)}")
 
 
-def update_event(event_id: int, data: Dict) -> Event:
+def get_events_by_year(year: int) -> List[Event]:
+    """
+    Get events filtered by year (FR-020).
+
+    Args:
+        year: Year to filter by
+
+    Returns:
+        List of Event instances for that year
+    """
+    try:
+        with session_scope() as session:
+            events = (
+                session.query(Event)
+                .options(joinedload(Event.event_recipient_packages))
+                .filter(Event.year == year)
+                .order_by(Event.event_date.desc())
+                .all()
+            )
+            return events
+
+    except SQLAlchemyError as e:
+        raise DatabaseError(f"Failed to get events by year: {str(e)}")
+
+
+def get_available_years() -> List[int]:
+    """
+    Get list of distinct years with events (for year filter dropdown).
+
+    Returns:
+        List of years in descending order
+    """
+    try:
+        with session_scope() as session:
+            years = session.query(Event.year).distinct().order_by(Event.year.desc()).all()
+            return [y[0] for y in years]
+
+    except SQLAlchemyError as e:
+        raise DatabaseError(f"Failed to get available years: {str(e)}")
+
+
+def update_event(event_id: int, **updates) -> Event:
     """
     Update an existing event.
 
     Args:
         event_id: Event ID to update
-        data: Dictionary with updated event fields
+        **updates: Field updates (name, event_date, year, notes)
 
     Returns:
         Updated Event instance
 
     Raises:
-        EventNotFound: If event not found
+        EventNotFoundError: If event not found
         ValidationError: If data validation fails
         DatabaseError: If database operation fails
     """
-    # Validate required fields
-    errors = []
-
-    if not data.get("name"):
-        errors.append("Name is required")
-
-    if not data.get("event_date"):
-        errors.append("Event date is required")
-
-    if not data.get("year"):
-        errors.append("Year is required")
-
-    if errors:
-        raise ValidationError(errors)
-
     try:
         with session_scope() as session:
             event = session.query(Event).filter(Event.id == event_id).first()
             if not event:
-                raise EventNotFound(event_id)
+                raise EventNotFoundError(event_id)
 
-            # Update fields
-            event.name = data["name"]
-            event.event_date = data["event_date"]
-            event.year = data["year"]
-            event.notes = data.get("notes")
+            if "name" in updates:
+                name = updates["name"]
+                if not name or not name.strip():
+                    raise ValidationError(["Name is required"])
+                event.name = name.strip()
+
+            if "event_date" in updates:
+                event.event_date = updates["event_date"]
+
+            if "year" in updates:
+                event.year = updates["year"]
+
+            if "notes" in updates:
+                event.notes = updates["notes"]
+
             event.last_modified = datetime.utcnow()
-
-            session.commit()
+            session.flush()
 
             # Reload with relationships
-            event = session.query(Event).filter(Event.id == event.id).one()
-
+            event = (
+                session.query(Event)
+                .options(joinedload(Event.event_recipient_packages))
+                .filter(Event.id == event.id)
+                .one()
+            )
             return event
 
-    except (EventNotFound, ValidationError):
+    except (EventNotFoundError, ValidationError):
         raise
     except SQLAlchemyError as e:
         raise DatabaseError(f"Failed to update event: {str(e)}")
 
 
-def delete_event(event_id: int) -> bool:
+def delete_event(event_id: int, cascade_assignments: bool = False) -> bool:
     """
     Delete an event.
 
     Args:
         event_id: Event ID to delete
+        cascade_assignments: If True, delete assignments too (FR-022)
 
     Returns:
         True if deleted successfully
 
     Raises:
-        EventNotFound: If event not found
+        EventNotFoundError: If event not found
+        EventHasAssignmentsError: If event has assignments and cascade_assignments=False
         DatabaseError: If database operation fails
     """
     try:
         with session_scope() as session:
-            event = session.query(Event).filter(Event.id == event_id).first()
+            event = (
+                session.query(Event)
+                .options(joinedload(Event.event_recipient_packages))
+                .filter(Event.id == event_id)
+                .first()
+            )
             if not event:
-                raise EventNotFound(event_id)
+                raise EventNotFoundError(event_id)
 
-            # Delete event (cascade will delete EventRecipientPackage records)
+            assignment_count = len(event.event_recipient_packages)
+            if assignment_count > 0 and not cascade_assignments:
+                raise EventHasAssignmentsError(event_id, assignment_count)
+
+            # Delete event (cascade will delete assignments if configured)
             session.delete(event)
-            session.commit()
-
             return True
 
-    except EventNotFound:
+    except (EventNotFoundError, EventHasAssignmentsError):
         raise
     except SQLAlchemyError as e:
         raise DatabaseError(f"Failed to delete event: {str(e)}")
 
 
 # ============================================================================
-# Event Assignment Operations
+# Event Assignment Operations (FR-024)
 # ============================================================================
 
 
 def assign_package_to_recipient(
-    event_id: int, recipient_id: int, package_id: int, quantity: int = 1, notes: str = None
+    event_id: int,
+    recipient_id: int,
+    package_id: int,
+    quantity: int = 1,
+    notes: Optional[str] = None,
 ) -> EventRecipientPackage:
     """
     Assign a package to a recipient for an event.
@@ -314,26 +398,22 @@ def assign_package_to_recipient(
         ValidationError: If validation fails
         DatabaseError: If database operation fails
     """
-    # Validate
-    errors = []
-
-    if quantity <= 0:
-        errors.append("Quantity must be greater than 0")
-
-    if errors:
-        raise ValidationError(errors)
+    if quantity < 1:
+        raise ValidationError(["Quantity must be at least 1"])
 
     try:
         with session_scope() as session:
-            # Verify event, recipient, and package exist
+            # Verify event exists
             event = session.query(Event).filter(Event.id == event_id).first()
             if not event:
                 raise ValidationError([f"Event with ID {event_id} not found"])
 
+            # Verify recipient exists
             recipient = session.query(Recipient).filter(Recipient.id == recipient_id).first()
             if not recipient:
                 raise ValidationError([f"Recipient with ID {recipient_id} not found"])
 
+            # Verify package exists
             package = session.query(Package).filter(Package.id == package_id).first()
             if not package:
                 raise ValidationError([f"Package with ID {package_id} not found"])
@@ -346,9 +426,8 @@ def assign_package_to_recipient(
                 quantity=quantity,
                 notes=notes,
             )
-
             session.add(assignment)
-            session.commit()
+            session.flush()
 
             # Reload with relationships
             assignment = (
@@ -360,7 +439,6 @@ def assign_package_to_recipient(
                 .filter(EventRecipientPackage.id == assignment.id)
                 .one()
             )
-
             return assignment
 
     except ValidationError:
@@ -369,67 +447,29 @@ def assign_package_to_recipient(
         raise DatabaseError(f"Failed to assign package: {str(e)}")
 
 
-def get_event_assignments(event_id: int) -> List[EventRecipientPackage]:
-    """
-    Get all package assignments for an event.
-
-    Args:
-        event_id: Event ID
-
-    Returns:
-        List of EventRecipientPackage instances
-
-    Raises:
-        DatabaseError: If database operation fails
-    """
-    try:
-        with session_scope() as session:
-            assignments = (
-                session.query(EventRecipientPackage)
-                .options(
-                    joinedload(EventRecipientPackage.recipient),
-                    joinedload(EventRecipientPackage.package),
-                )
-                .filter(EventRecipientPackage.event_id == event_id)
-                .order_by(EventRecipientPackage.recipient_id)
-                .all()
-            )
-
-            return assignments
-
-    except SQLAlchemyError as e:
-        raise DatabaseError(f"Failed to get assignments: {str(e)}")
-
-
 def update_assignment(
-    assignment_id: int, package_id: int, quantity: int = 1, notes: str = None
+    assignment_id: int,
+    package_id: Optional[int] = None,
+    quantity: Optional[int] = None,
+    notes: Optional[str] = None,
 ) -> EventRecipientPackage:
     """
     Update an existing assignment.
 
     Args:
         assignment_id: Assignment ID
-        package_id: New package ID
-        quantity: New quantity
-        notes: New notes
+        package_id: New package ID (optional)
+        quantity: New quantity (optional)
+        notes: New notes (optional)
 
     Returns:
         Updated EventRecipientPackage instance
 
     Raises:
-        AssignmentNotFound: If assignment not found
+        AssignmentNotFoundError: If assignment not found
         ValidationError: If validation fails
         DatabaseError: If database operation fails
     """
-    # Validate
-    errors = []
-
-    if quantity <= 0:
-        errors.append("Quantity must be greater than 0")
-
-    if errors:
-        raise ValidationError(errors)
-
     try:
         with session_scope() as session:
             assignment = (
@@ -438,19 +478,24 @@ def update_assignment(
                 .first()
             )
             if not assignment:
-                raise AssignmentNotFound(assignment_id)
+                raise AssignmentNotFoundError(assignment_id)
 
-            # Verify package exists
-            package = session.query(Package).filter(Package.id == package_id).first()
-            if not package:
-                raise ValidationError([f"Package with ID {package_id} not found"])
+            if package_id is not None:
+                # Verify package exists
+                package = session.query(Package).filter(Package.id == package_id).first()
+                if not package:
+                    raise ValidationError([f"Package with ID {package_id} not found"])
+                assignment.package_id = package_id
 
-            # Update
-            assignment.package_id = package_id
-            assignment.quantity = quantity
-            assignment.notes = notes
+            if quantity is not None:
+                if quantity < 1:
+                    raise ValidationError(["Quantity must be at least 1"])
+                assignment.quantity = quantity
 
-            session.commit()
+            if notes is not None:
+                assignment.notes = notes
+
+            session.flush()
 
             # Reload with relationships
             assignment = (
@@ -462,27 +507,26 @@ def update_assignment(
                 .filter(EventRecipientPackage.id == assignment_id)
                 .one()
             )
-
             return assignment
 
-    except (AssignmentNotFound, ValidationError):
+    except (AssignmentNotFoundError, ValidationError):
         raise
     except SQLAlchemyError as e:
         raise DatabaseError(f"Failed to update assignment: {str(e)}")
 
 
-def delete_assignment(assignment_id: int) -> bool:
+def remove_assignment(assignment_id: int) -> bool:
     """
-    Delete an assignment.
+    Remove an assignment.
 
     Args:
         assignment_id: Assignment ID
 
     Returns:
-        True if deleted successfully
+        True if removed successfully
 
     Raises:
-        AssignmentNotFound: If assignment not found
+        AssignmentNotFoundError: If assignment not found
         DatabaseError: If database operation fails
     """
     try:
@@ -493,209 +537,444 @@ def delete_assignment(assignment_id: int) -> bool:
                 .first()
             )
             if not assignment:
-                raise AssignmentNotFound(assignment_id)
+                raise AssignmentNotFoundError(assignment_id)
 
             session.delete(assignment)
-            session.commit()
-
             return True
 
-    except AssignmentNotFound:
+    except AssignmentNotFoundError:
         raise
     except SQLAlchemyError as e:
-        raise DatabaseError(f"Failed to delete assignment: {str(e)}")
+        raise DatabaseError(f"Failed to remove assignment: {str(e)}")
 
 
-# ============================================================================
-# Event Planning and Calculation Functions
-# ============================================================================
-
-
-def calculate_recipe_needs(event_id: int) -> Dict[int, Dict]:
+def get_event_assignments(event_id: int) -> List[EventRecipientPackage]:
     """
-    Calculate recipe batch needs for an event.
+    Get all assignments for an event.
 
     Args:
         event_id: Event ID
 
     Returns:
-        Dictionary: {recipe_id: {"recipe": Recipe, "batches": float, "items": int}}
-
-    Raises:
-        EventNotFound: If event not found
-        DatabaseError: If database operation fails
+        List of EventRecipientPackage instances
     """
     try:
-        event = get_event(event_id)
+        with session_scope() as session:
+            assignments = (
+                session.query(EventRecipientPackage)
+                .options(
+                    joinedload(EventRecipientPackage.recipient),
+                    joinedload(EventRecipientPackage.package).joinedload(
+                        Package.package_finished_goods
+                    ),
+                )
+                .filter(EventRecipientPackage.event_id == event_id)
+                .order_by(EventRecipientPackage.recipient_id)
+                .all()
+            )
+            return assignments
 
-        recipe_needs = defaultdict(lambda: {"recipe": None, "batches": 0.0, "items": 0})
+    except SQLAlchemyError as e:
+        raise DatabaseError(f"Failed to get assignments: {str(e)}")
 
-        # Iterate through all assignments
-        for erp in event.event_recipient_packages:
-            if not erp.package:
-                continue
 
-            # Iterate through bundles in package
-            for pb in erp.package.package_bundles:
-                if not pb.bundle or not pb.bundle.finished_good:
+def get_recipient_assignments_for_event(
+    event_id: int, recipient_id: int
+) -> List[EventRecipientPackage]:
+    """
+    Get all assignments for a specific recipient in an event.
+
+    Args:
+        event_id: Event ID
+        recipient_id: Recipient ID
+
+    Returns:
+        List of EventRecipientPackage instances
+    """
+    try:
+        with session_scope() as session:
+            assignments = (
+                session.query(EventRecipientPackage)
+                .options(
+                    joinedload(EventRecipientPackage.package),
+                )
+                .filter(
+                    EventRecipientPackage.event_id == event_id,
+                    EventRecipientPackage.recipient_id == recipient_id,
+                )
+                .all()
+            )
+            return assignments
+
+    except SQLAlchemyError as e:
+        raise DatabaseError(f"Failed to get recipient assignments: {str(e)}")
+
+
+# ============================================================================
+# Event Cost Calculations
+# ============================================================================
+
+
+def get_event_total_cost(event_id: int) -> Decimal:
+    """
+    Calculate total cost of all packages in an event.
+
+    Cost chains through: Event -> ERP -> Package -> FinishedGood for FIFO accuracy.
+
+    Args:
+        event_id: Event ID
+
+    Returns:
+        Total cost as Decimal
+    """
+    try:
+        with session_scope() as session:
+            event = (
+                session.query(Event)
+                .options(
+                    joinedload(Event.event_recipient_packages)
+                    .joinedload(EventRecipientPackage.package)
+                    .joinedload(Package.package_finished_goods)
+                    .joinedload(PackageFinishedGood.finished_good)
+                )
+                .filter(Event.id == event_id)
+                .first()
+            )
+
+            if not event:
+                return Decimal("0.00")
+
+            return event.get_total_cost()
+
+    except SQLAlchemyError as e:
+        raise DatabaseError(f"Failed to calculate event cost: {str(e)}")
+
+
+def get_event_recipient_count(event_id: int) -> int:
+    """
+    Get number of unique recipients in an event.
+
+    Args:
+        event_id: Event ID
+
+    Returns:
+        Number of unique recipients
+    """
+    try:
+        with session_scope() as session:
+            event = (
+                session.query(Event)
+                .options(joinedload(Event.event_recipient_packages))
+                .filter(Event.id == event_id)
+                .first()
+            )
+
+            if not event:
+                return 0
+
+            return event.get_recipient_count()
+
+    except SQLAlchemyError as e:
+        raise DatabaseError(f"Failed to count recipients: {str(e)}")
+
+
+def get_event_package_count(event_id: int) -> int:
+    """
+    Get total number of packages in an event (sum of quantities).
+
+    Args:
+        event_id: Event ID
+
+    Returns:
+        Total package count
+    """
+    try:
+        with session_scope() as session:
+            event = (
+                session.query(Event)
+                .options(joinedload(Event.event_recipient_packages))
+                .filter(Event.id == event_id)
+                .first()
+            )
+
+            if not event:
+                return 0
+
+            return event.get_package_count()
+
+    except SQLAlchemyError as e:
+        raise DatabaseError(f"Failed to count packages: {str(e)}")
+
+
+# ============================================================================
+# Event Summary (FR-027)
+# ============================================================================
+
+
+def get_event_summary(event_id: int) -> Dict[str, Any]:
+    """
+    Get complete event summary for Summary tab.
+
+    Args:
+        event_id: Event ID
+
+    Returns:
+        Dict with total_cost, recipient_count, package_count, assignment_count, cost_by_recipient
+    """
+    try:
+        with session_scope() as session:
+            event = (
+                session.query(Event)
+                .options(
+                    joinedload(Event.event_recipient_packages).joinedload(
+                        EventRecipientPackage.recipient
+                    ),
+                    joinedload(Event.event_recipient_packages)
+                    .joinedload(EventRecipientPackage.package)
+                    .joinedload(Package.package_finished_goods)
+                    .joinedload(PackageFinishedGood.finished_good),
+                )
+                .filter(Event.id == event_id)
+                .first()
+            )
+
+            if not event:
+                return {
+                    "total_cost": Decimal("0.00"),
+                    "recipient_count": 0,
+                    "package_count": 0,
+                    "assignment_count": 0,
+                    "cost_by_recipient": [],
+                }
+
+            # Calculate cost by recipient
+            cost_by_recipient = {}
+            for erp in event.event_recipient_packages:
+                recipient_name = erp.recipient.name if erp.recipient else "Unknown"
+                assignment_cost = erp.calculate_cost()
+                cost_by_recipient[recipient_name] = (
+                    cost_by_recipient.get(recipient_name, Decimal("0.00")) + assignment_cost
+                )
+
+            return {
+                "total_cost": event.get_total_cost(),
+                "recipient_count": event.get_recipient_count(),
+                "package_count": event.get_package_count(),
+                "assignment_count": len(event.event_recipient_packages),
+                "cost_by_recipient": [
+                    {"recipient_name": name, "cost": cost}
+                    for name, cost in sorted(cost_by_recipient.items())
+                ],
+            }
+
+    except SQLAlchemyError as e:
+        raise DatabaseError(f"Failed to get event summary: {str(e)}")
+
+
+# ============================================================================
+# Recipe Needs (FR-025)
+# ============================================================================
+
+
+def get_recipe_needs(event_id: int) -> List[Dict[str, Any]]:
+    """
+    Calculate batch counts needed for all recipes in an event.
+
+    Traverses: Event -> ERP -> Package -> FinishedGood -> Composition -> FinishedUnit -> Recipe
+
+    Args:
+        event_id: Event ID
+
+    Returns:
+        List of dicts with recipe_id, recipe_name, total_units_needed, batches_needed, items_per_batch
+    """
+    try:
+        with session_scope() as session:
+            # Load event with full traversal chain
+            event = (
+                session.query(Event)
+                .options(
+                    joinedload(Event.event_recipient_packages)
+                    .joinedload(EventRecipientPackage.package)
+                    .joinedload(Package.package_finished_goods)
+                    .joinedload(PackageFinishedGood.finished_good)
+                    .joinedload(FinishedGood.components)
+                    .joinedload(Composition.finished_unit_component)
+                    .joinedload(FinishedUnit.recipe)
+                )
+                .filter(Event.id == event_id)
+                .first()
+            )
+
+            if not event:
+                return []
+
+            # Aggregate recipe needs
+            recipe_totals: Dict[int, int] = {}  # recipe_id -> total units needed
+            recipe_info: Dict[int, Dict] = {}  # recipe_id -> {name, items_per_batch}
+
+            for erp in event.event_recipient_packages:
+                if not erp.package:
                     continue
 
-                bundle = pb.bundle
-                finished_good = bundle.finished_good
-                recipe = finished_good.recipe
+                for pfg in erp.package.package_finished_goods:
+                    if not pfg.finished_good:
+                        continue
+
+                    fg = pfg.finished_good
+
+                    # Traverse compositions to get FinishedUnits
+                    for composition in fg.components:
+                        if not composition.finished_unit_component:
+                            continue
+
+                        fu = composition.finished_unit_component
+                        if not fu.recipe:
+                            continue
+
+                        recipe_id = fu.recipe_id
+                        items_per_batch = fu.items_per_batch or 1
+
+                        # Calculate units: composition_qty * pfg_qty * erp_qty
+                        units = int(composition.component_quantity) * pfg.quantity * erp.quantity
+
+                        recipe_totals[recipe_id] = recipe_totals.get(recipe_id, 0) + units
+                        recipe_info[recipe_id] = {
+                            "name": fu.recipe.name,
+                            "items_per_batch": items_per_batch,
+                        }
+
+            # Build result
+            result = []
+            for recipe_id, total_units in recipe_totals.items():
+                info = recipe_info[recipe_id]
+                batches_needed = ceil(total_units / info["items_per_batch"])
+                result.append(
+                    {
+                        "recipe_id": recipe_id,
+                        "recipe_name": info["name"],
+                        "total_units_needed": total_units,
+                        "batches_needed": batches_needed,
+                        "items_per_batch": info["items_per_batch"],
+                    }
+                )
+
+            # Sort by recipe name
+            result.sort(key=lambda x: x["recipe_name"])
+            return result
+
+    except SQLAlchemyError as e:
+        raise DatabaseError(f"Failed to calculate recipe needs: {str(e)}")
+
+
+# ============================================================================
+# Shopping List (FR-026)
+# ============================================================================
+
+
+def get_shopping_list(event_id: int) -> List[Dict[str, Any]]:
+    """
+    Calculate ingredients needed with pantry comparison.
+
+    Args:
+        event_id: Event ID
+
+    Returns:
+        List of dicts with ingredient_id, ingredient_name, unit, quantity_needed, quantity_on_hand, shortfall
+    """
+    try:
+        # Get recipe needs first
+        recipe_needs = get_recipe_needs(event_id)
+
+        if not recipe_needs:
+            return []
+
+        with session_scope() as session:
+            # Aggregate ingredient needs across all recipes
+            ingredient_totals: Dict[int, Decimal] = {}  # ingredient_id -> quantity needed
+            ingredient_info: Dict[int, Dict] = {}  # ingredient_id -> {name, unit}
+
+            for recipe_need in recipe_needs:
+                recipe_id = recipe_need["recipe_id"]
+                batches_needed = recipe_need["batches_needed"]
+
+                # Get recipe with ingredients
+                recipe = (
+                    session.query(Recipe)
+                    .options(
+                        joinedload(Recipe.recipe_ingredients).joinedload(
+                            RecipeIngredient.ingredient
+                        )
+                    )
+                    .filter(Recipe.id == recipe_id)
+                    .first()
+                )
 
                 if not recipe:
                     continue
 
-                # Calculate items needed: package_quantity × bundle_quantity × bundles_per_package
-                items_needed = erp.quantity * bundle.quantity * pb.quantity
+                for ri in recipe.recipe_ingredients:
+                    if not ri.ingredient:
+                        continue
 
-                # Calculate batches needed based on finished good yield mode
-                batches_needed = finished_good.get_batches_needed(items_needed)
+                    ing_id = ri.ingredient_id
+                    # Scale quantity by batches needed
+                    qty = Decimal(str(ri.quantity)) * Decimal(str(batches_needed))
 
-                # Add to total
-                recipe_id = recipe.id
-                if recipe_needs[recipe_id]["recipe"] is None:
-                    recipe_needs[recipe_id]["recipe"] = recipe
+                    ingredient_totals[ing_id] = ingredient_totals.get(ing_id, Decimal("0")) + qty
+                    ingredient_info[ing_id] = {
+                        "name": ri.ingredient.display_name,
+                        "unit": ri.unit,
+                    }
 
-                recipe_needs[recipe_id]["batches"] += batches_needed
-                recipe_needs[recipe_id]["items"] += items_needed
+            # Get on-hand quantities from pantry
+            # Import here to avoid circular imports
+            from src.services import pantry_service
 
-        return dict(recipe_needs)
+            result = []
+            for ing_id, qty_needed in ingredient_totals.items():
+                info = ingredient_info[ing_id]
 
-    except EventNotFound:
-        raise
-    except Exception as e:
-        raise DatabaseError(f"Failed to calculate recipe needs: {str(e)}")
-
-
-def calculate_ingredient_needs(event_id: int) -> Dict[int, Dict]:
-    """
-    Calculate ingredient needs for an event.
-
-    Args:
-        event_id: Event ID
-
-    Returns:
-        Dictionary: {ingredient_id: {"ingredient": Ingredient, "quantity": float, "unit": str}}
-
-    Raises:
-        EventNotFound: If event not found
-        DatabaseError: If database operation fails
-    """
-    try:
-        # Get recipe needs first
-        recipe_needs = calculate_recipe_needs(event_id)
-
-        ingredient_needs = defaultdict(lambda: {"ingredient": None, "quantity": 0.0, "unit": None})
-
-        # Import converter for unit conversions
-        from src.services.unit_converter import convert_any_units
-
-        # Iterate through recipe needs
-        for recipe_data in recipe_needs.values():
-            recipe = recipe_data["recipe"]
-            batches = recipe_data["batches"]
-
-            # Iterate through recipe ingredients
-            for recipe_ingredient in recipe.recipe_ingredients:
-                ingredient = recipe_ingredient.ingredient
-                if not ingredient:
-                    continue
-
-                # Calculate quantity needed for this recipe (recipe_unit × batches)
-                quantity_in_recipe_unit = recipe_ingredient.quantity * batches
-
-                # Convert to ingredient's purchase unit
-                ingredient_density = ingredient.get_density() if hasattr(ingredient, "get_density") else 0.0
-
+                # Get on-hand quantity from pantry service
                 try:
-                    quantity_in_purchase_unit = convert_any_units(
-                        quantity_in_recipe_unit,
-                        recipe_ingredient.unit,
-                        ingredient.purchase_unit,
-                        ingredient_density,
+                    qty_on_hand = Decimal(
+                        str(pantry_service.get_ingredient_quantity_on_hand(ing_id))
                     )
                 except Exception:
-                    # If conversion fails, use recipe unit as-is
-                    quantity_in_purchase_unit = quantity_in_recipe_unit
+                    qty_on_hand = Decimal("0")
 
-                # Add to total
-                ingredient_id = ingredient.id
-                if ingredient_needs[ingredient_id]["ingredient"] is None:
-                    ingredient_needs[ingredient_id]["ingredient"] = ingredient
-                    ingredient_needs[ingredient_id]["unit"] = ingredient.purchase_unit
+                shortfall = max(Decimal("0"), qty_needed - qty_on_hand)
 
-                ingredient_needs[ingredient_id]["quantity"] += quantity_in_purchase_unit
+                result.append(
+                    {
+                        "ingredient_id": ing_id,
+                        "ingredient_name": info["name"],
+                        "unit": info["unit"],
+                        "quantity_needed": qty_needed,
+                        "quantity_on_hand": qty_on_hand,
+                        "shortfall": shortfall,
+                    }
+                )
 
-        return dict(ingredient_needs)
+            # Sort by ingredient name
+            result.sort(key=lambda x: x["ingredient_name"])
+            return result
 
-    except EventNotFound:
-        raise
-    except Exception as e:
-        raise DatabaseError(f"Failed to calculate ingredient needs: {str(e)}")
-
-
-def generate_shopping_list(event_id: int) -> List[Dict]:
-    """
-    Generate shopping list comparing needs vs current inventory.
-
-    Args:
-        event_id: Event ID
-
-    Returns:
-        List of dictionaries with shopping items:
-        [{
-            "ingredient": Ingredient,
-            "needed": float,
-            "on_hand": float,
-            "to_buy": float,
-            "unit": str,
-            "cost": float
-        }]
-
-    Raises:
-        EventNotFound: If event not found
-        DatabaseError: If database operation fails
-    """
-    try:
-        ingredient_needs = calculate_ingredient_needs(event_id)
-
-        shopping_list = []
-
-        for ingredient_id, need_data in ingredient_needs.items():
-            ingredient = need_data["ingredient"]
-            needed = need_data["quantity"]
-            on_hand = ingredient.quantity if ingredient.quantity else 0.0
-            to_buy = max(0.0, needed - on_hand)
-
-            # Calculate cost (to_buy / purchase_quantity × unit_cost)
-            if ingredient.purchase_quantity and ingredient.purchase_quantity > 0:
-                cost = (to_buy / ingredient.purchase_quantity) * ingredient.unit_cost
-            else:
-                cost = 0.0
-
-            shopping_list.append({
-                "ingredient": ingredient,
-                "needed": needed,
-                "on_hand": on_hand,
-                "to_buy": to_buy,
-                "unit": need_data["unit"],
-                "cost": cost,
-            })
-
-        # Sort by ingredient name
-        shopping_list.sort(key=lambda x: x["ingredient"].name)
-
-        return shopping_list
-
-    except EventNotFound:
-        raise
-    except Exception as e:
+    except SQLAlchemyError as e:
         raise DatabaseError(f"Failed to generate shopping list: {str(e)}")
 
 
-def clone_event(source_event_id: int, new_name: str, new_year: int, new_event_date: date) -> Event:
+# ============================================================================
+# Event Cloning
+# ============================================================================
+
+
+def clone_event(
+    source_event_id: int,
+    new_name: str,
+    new_year: int,
+    new_event_date: date,
+) -> Event:
     """
     Clone an event and all its assignments to a new year.
 
@@ -709,34 +988,35 @@ def clone_event(source_event_id: int, new_name: str, new_year: int, new_event_da
         New Event instance with cloned assignments
 
     Raises:
-        EventNotFound: If source event not found
+        EventNotFoundError: If source event not found
         ValidationError: If validation fails
         DatabaseError: If database operation fails
     """
+    if not new_name or not new_name.strip():
+        raise ValidationError(["New event name is required"])
+
     try:
         with session_scope() as session:
             # Get source event with assignments
             source_event = (
                 session.query(Event)
-                .options(
-                    joinedload(Event.event_recipient_packages)
-                )
+                .options(joinedload(Event.event_recipient_packages))
                 .filter(Event.id == source_event_id)
                 .first()
             )
 
             if not source_event:
-                raise EventNotFound(source_event_id)
+                raise EventNotFoundError(source_event_id)
 
             # Create new event
             new_event = Event(
-                name=new_name,
+                name=new_name.strip(),
                 event_date=new_event_date,
                 year=new_year,
                 notes=source_event.notes,
             )
             session.add(new_event)
-            session.flush()  # Get new_event.id
+            session.flush()
 
             # Clone assignments
             for source_assignment in source_event.event_recipient_packages:
@@ -749,20 +1029,29 @@ def clone_event(source_event_id: int, new_name: str, new_year: int, new_event_da
                 )
                 session.add(new_assignment)
 
-            session.commit()
+            session.flush()
 
             # Reload with relationships
-            new_event = session.query(Event).filter(Event.id == new_event.id).one()
-
+            new_event = (
+                session.query(Event)
+                .options(joinedload(Event.event_recipient_packages))
+                .filter(Event.id == new_event.id)
+                .one()
+            )
             return new_event
 
-    except EventNotFound:
+    except (EventNotFoundError, ValidationError):
         raise
     except SQLAlchemyError as e:
         raise DatabaseError(f"Failed to clone event: {str(e)}")
 
 
-def get_recipient_history(recipient_id: int) -> List[Dict]:
+# ============================================================================
+# Recipient History
+# ============================================================================
+
+
+def get_recipient_history(recipient_id: int) -> List[Dict[str, Any]]:
     """
     Get package history for a recipient across all events.
 
@@ -770,17 +1059,7 @@ def get_recipient_history(recipient_id: int) -> List[Dict]:
         recipient_id: Recipient ID
 
     Returns:
-        List of dictionaries with event assignments:
-        [{
-            "event": Event,
-            "package": Package,
-            "quantity": int,
-            "notes": str
-        }]
-        Ordered by event date descending
-
-    Raises:
-        DatabaseError: If database operation fails
+        List of dicts with event, package, quantity, notes - ordered by event date descending
     """
     try:
         with session_scope() as session:
@@ -796,16 +1075,15 @@ def get_recipient_history(recipient_id: int) -> List[Dict]:
                 .all()
             )
 
-            history = []
-            for assignment in assignments:
-                history.append({
+            return [
+                {
                     "event": assignment.event,
                     "package": assignment.package,
                     "quantity": assignment.quantity,
                     "notes": assignment.notes,
-                })
-
-            return history
+                }
+                for assignment in assignments
+            ]
 
     except SQLAlchemyError as e:
         raise DatabaseError(f"Failed to get recipient history: {str(e)}")

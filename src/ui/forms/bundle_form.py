@@ -121,11 +121,7 @@ class BundleFormDialog(ctk.CTkToplevel):
         quantity_frame = ctk.CTkFrame(parent, fg_color="transparent")
         quantity_frame.grid(row=row, column=1, sticky="ew", padx=PADDING_MEDIUM, pady=5)
 
-        self.quantity_entry = ctk.CTkEntry(
-            quantity_frame,
-            width=100,
-            placeholder_text="4"
-        )
+        self.quantity_entry = ctk.CTkEntry(quantity_frame, width=100, placeholder_text="4")
         self.quantity_entry.pack(side="left", padx=(0, 10))
 
         quantity_help = ctk.CTkLabel(
@@ -250,11 +246,7 @@ class BundleFormDialog(ctk.CTkToplevel):
         try:
             quantity = int(quantity_str)
             if quantity <= 0:
-                show_error(
-                    "Validation Error",
-                    "Quantity must be greater than zero",
-                    parent=self
-                )
+                show_error("Validation Error", "Quantity must be greater than zero", parent=self)
                 return None
         except ValueError:
             show_error("Validation Error", "Quantity must be a valid whole number", parent=self)

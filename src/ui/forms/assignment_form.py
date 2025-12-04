@@ -107,10 +107,7 @@ class AssignmentFormDialog(ctk.CTkToplevel):
         # Show last year's package if available
         if not self.assignment:
             self.last_year_label = ctk.CTkLabel(
-                parent,
-                text="",
-                font=ctk.CTkFont(size=11, slant="italic"),
-                text_color="gray"
+                parent, text="", font=ctk.CTkFont(size=11, slant="italic"), text_color="gray"
             )
             self.last_year_label.grid(
                 row=row, column=1, sticky="w", padx=PADDING_MEDIUM, pady=(0, 10)
@@ -213,6 +210,7 @@ class AssignmentFormDialog(ctk.CTkToplevel):
         # Get recipient history
         try:
             from src.services import event_service
+
             history = event_service.get_recipient_history(recipient.id)
 
             if history:
@@ -221,9 +219,7 @@ class AssignmentFormDialog(ctk.CTkToplevel):
                 event = recent["event"]
                 package = recent["package"]
 
-                self.last_year_label.configure(
-                    text=f"Last received: {package.name} ({event.name})"
-                )
+                self.last_year_label.configure(text=f"Last received: {package.name} ({event.name})")
             else:
                 self.last_year_label.configure(text="No previous packages")
 

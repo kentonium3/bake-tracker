@@ -45,7 +45,9 @@ class Variant(BaseModel):
     __tablename__ = "product_variants"
 
     # Foreign key to Ingredient
-    ingredient_id = Column(Integer, ForeignKey("products.id", ondelete="CASCADE"), nullable=False, index=True)
+    ingredient_id = Column(
+        Integer, ForeignKey("products.id", ondelete="CASCADE"), nullable=False, index=True
+    )
 
     # Brand and package information
     brand = Column(String(200), nullable=True, index=True)
@@ -57,16 +59,22 @@ class Variant(BaseModel):
     purchase_quantity = Column(Float, nullable=False)  # Quantity per package
 
     # Identification codes (for future use)
-    upc_code = Column(String(20), nullable=True, index=True)  # UPC/barcode (legacy name, use gtin for GS1)
+    upc_code = Column(
+        String(20), nullable=True, index=True
+    )  # UPC/barcode (legacy name, use gtin for GS1)
     supplier = Column(String(200), nullable=True)  # Where to buy
     supplier_sku = Column(String(100), nullable=True)  # Supplier's product code
 
     # Industry standard identifiers (FUTURE READY - all nullable)
-    gtin = Column(String(20), nullable=True, unique=True, index=True)  # GS1 GTIN (preferred over upc_code)
+    gtin = Column(
+        String(20), nullable=True, unique=True, index=True
+    )  # GS1 GTIN (preferred over upc_code)
     brand_owner = Column(String(200), nullable=True)  # Brand owner/manufacturer
     gpc_brick_code = Column(String(20), nullable=True)  # GS1 GPC category code
     net_content_value = Column(Float, nullable=True)  # Net content quantity from label
-    net_content_uom = Column(String(20), nullable=True)  # Net content unit of measure (g, kg, ml, L, oz)
+    net_content_uom = Column(
+        String(20), nullable=True
+    )  # Net content unit of measure (g, kg, ml, L, oz)
     country_of_sale = Column(String(3), nullable=True)  # ISO 3166-1 alpha-3 country code
     off_id = Column(String(50), nullable=True)  # Open Food Facts product code
 
@@ -78,21 +86,17 @@ class Variant(BaseModel):
 
     # Timestamps
     date_added = Column(DateTime, nullable=False, default=datetime.utcnow)
-    last_modified = Column(DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
+    last_modified = Column(
+        DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow
+    )
 
     # Relationships
     ingredient = relationship("Ingredient", back_populates="variants")
     purchases = relationship(
-        "Purchase",
-        back_populates="variant",
-        cascade="all, delete-orphan",
-        lazy="select"
+        "Purchase", back_populates="variant", cascade="all, delete-orphan", lazy="select"
     )
     pantry_items = relationship(
-        "PantryItem",
-        back_populates="variant",
-        cascade="all, delete-orphan",
-        lazy="select"
+        "PantryItem", back_populates="variant", cascade="all, delete-orphan", lazy="select"
     )
 
     # Indexes for common queries
@@ -156,10 +160,7 @@ class Variant(BaseModel):
         from datetime import date, timedelta
 
         cutoff_date = date.today() - timedelta(days=days)
-        recent_purchases = [
-            p for p in self.purchases
-            if p.purchase_date >= cutoff_date
-        ]
+        recent_purchases = [p for p in self.purchases if p.purchase_date >= cutoff_date]
 
         if not recent_purchases:
             return 0.0

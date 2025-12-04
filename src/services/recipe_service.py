@@ -560,9 +560,16 @@ def calculate_actual_cost(recipe_id: int) -> Decimal:
     try:
         with session_scope() as session:
             # Load recipe with eager-loaded relationships
-            recipe = session.query(Recipe).options(
-                joinedload(Recipe.recipe_ingredients).joinedload(RecipeIngredient.ingredient_new)
-            ).filter_by(id=recipe_id).first()
+            recipe = (
+                session.query(Recipe)
+                .options(
+                    joinedload(Recipe.recipe_ingredients).joinedload(
+                        RecipeIngredient.ingredient_new
+                    )
+                )
+                .filter_by(id=recipe_id)
+                .first()
+            )
 
             if not recipe:
                 raise RecipeNotFound(recipe_id)
@@ -602,7 +609,7 @@ def calculate_actual_cost(recipe_id: int) -> Decimal:
                         recipe_unit,
                         target_unit,
                         ingredient_name=ingredient.name,
-                        density_override=density_g_per_cup if density_g_per_cup > 0 else None
+                        density_override=density_g_per_cup if density_g_per_cup > 0 else None,
                     )
                     if not success:
                         raise ValidationError(
@@ -615,9 +622,7 @@ def calculate_actual_cost(recipe_id: int) -> Decimal:
 
                 # Call consume_fifo with dry_run=True to get FIFO cost without modifying pantry
                 fifo_result = pantry_service.consume_fifo(
-                    ingredient.slug,
-                    converted_qty,
-                    dry_run=True
+                    ingredient.slug, converted_qty, dry_run=True
                 )
 
                 # Get FIFO cost from pantry consumption
@@ -640,7 +645,9 @@ def calculate_actual_cost(recipe_id: int) -> Decimal:
                         preferred_variant = variants[0]
 
                     # Get latest purchase price
-                    latest_purchase = purchase_service.get_most_recent_purchase(preferred_variant.id)
+                    latest_purchase = purchase_service.get_most_recent_purchase(
+                        preferred_variant.id
+                    )
                     if not latest_purchase:
                         raise ValidationError(
                             f"Cannot cost variant '{preferred_variant.brand or ingredient.name}': "
@@ -655,7 +662,7 @@ def calculate_actual_cost(recipe_id: int) -> Decimal:
                             target_unit,
                             purchase_unit,
                             ingredient_name=ingredient.name,
-                            density_override=density_g_per_cup if density_g_per_cup > 0 else None
+                            density_override=density_g_per_cup if density_g_per_cup > 0 else None,
                         )
                         if not success:
                             raise ValidationError(
@@ -719,9 +726,16 @@ def calculate_estimated_cost(recipe_id: int) -> Decimal:
     try:
         with session_scope() as session:
             # Load recipe with eager-loaded relationships
-            recipe = session.query(Recipe).options(
-                joinedload(Recipe.recipe_ingredients).joinedload(RecipeIngredient.ingredient_new)
-            ).filter_by(id=recipe_id).first()
+            recipe = (
+                session.query(Recipe)
+                .options(
+                    joinedload(Recipe.recipe_ingredients).joinedload(
+                        RecipeIngredient.ingredient_new
+                    )
+                )
+                .filter_by(id=recipe_id)
+                .first()
+            )
 
             if not recipe:
                 raise RecipeNotFound(recipe_id)
@@ -778,7 +792,7 @@ def calculate_estimated_cost(recipe_id: int) -> Decimal:
                         recipe_unit,
                         purchase_unit,
                         ingredient_name=ingredient.name,
-                        density_override=density_g_per_cup if density_g_per_cup > 0 else None
+                        density_override=density_g_per_cup if density_g_per_cup > 0 else None,
                     )
                     if not success:
                         raise ValidationError(

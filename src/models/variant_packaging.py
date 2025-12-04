@@ -32,17 +32,12 @@ class VariantPackaging(BaseModel):
 
     # Foreign key to Variant
     variant_id = Column(
-        Integer,
-        ForeignKey("product_variants.id", ondelete="CASCADE"),
-        nullable=False,
-        index=True
+        Integer, ForeignKey("product_variants.id", ondelete="CASCADE"), nullable=False, index=True
     )
 
     # Packaging hierarchy
     packaging_level = Column(
-        String(20),
-        nullable=False,
-        index=True
+        String(20), nullable=False, index=True
     )  # Valid values: "each", "inner", "case", "pallet"
 
     # GS1 packaging codes (FUTURE READY - nullable)
@@ -65,7 +60,7 @@ class VariantPackaging(BaseModel):
         Index("idx_packaging_level", "packaging_level"),
         CheckConstraint(
             "packaging_level IN ('each', 'inner', 'case', 'pallet')",
-            name="ck_packaging_level_valid"
+            name="ck_packaging_level_valid",
         ),
     )
 
@@ -86,9 +81,6 @@ class VariantPackaging(BaseModel):
         result = super().to_dict(include_relationships)
 
         if include_relationships and self.variant:
-            result["variant"] = {
-                "id": self.variant.id,
-                "display_name": self.variant.display_name
-            }
+            result["variant"] = {"id": self.variant.id, "display_name": self.variant.display_name}
 
         return result

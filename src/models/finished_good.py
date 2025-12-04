@@ -15,8 +15,16 @@ from datetime import datetime
 from decimal import Decimal
 
 from sqlalchemy import (
-    Column, String, Numeric, Integer, Text, DateTime,
-    Index, Enum, CheckConstraint, UniqueConstraint
+    Column,
+    String,
+    Numeric,
+    Integer,
+    Text,
+    DateTime,
+    Index,
+    Enum,
+    CheckConstraint,
+    UniqueConstraint,
 )
 from sqlalchemy.orm import relationship
 
@@ -60,15 +68,11 @@ class FinishedGood(BaseModel):
     description = Column(Text, nullable=True)
 
     # Assembly-specific attributes
-    assembly_type = Column(
-        Enum(AssemblyType),
-        nullable=False,
-        default=AssemblyType.CUSTOM_ORDER
-    )
+    assembly_type = Column(Enum(AssemblyType), nullable=False, default=AssemblyType.CUSTOM_ORDER)
     packaging_instructions = Column(Text, nullable=True)
 
     # Cost and inventory
-    total_cost = Column(Numeric(10, 4), nullable=False, default=Decimal('0.0000'))
+    total_cost = Column(Numeric(10, 4), nullable=False, default=Decimal("0.0000"))
     inventory_count = Column(Integer, nullable=False, default=0)
 
     # Additional information
@@ -76,14 +80,16 @@ class FinishedGood(BaseModel):
 
     # Enhanced timestamps
     created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
-    updated_at = Column(
-        DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow
-    )
+    updated_at = Column(DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     # Relationships
     # Components managed through Composition model
-    components = relationship("Composition", foreign_keys="Composition.assembly_id",
-                            back_populates="assembly", cascade="all, delete-orphan")
+    components = relationship(
+        "Composition",
+        foreign_keys="Composition.assembly_id",
+        back_populates="assembly",
+        cascade="all, delete-orphan",
+    )
 
     # Table constraints
     __table_args__ = (
@@ -110,21 +116,21 @@ class FinishedGood(BaseModel):
         Returns:
             Total cost based on current component costs and quantities
         """
-        if not hasattr(self, 'components') or not self.components:
-            return Decimal('0.0000')
+        if not hasattr(self, "components") or not self.components:
+            return Decimal("0.0000")
 
-        total_cost = Decimal('0.0000')
+        total_cost = Decimal("0.0000")
 
         for composition in self.components:
             if composition.finished_unit_component:
                 # FinishedUnit component cost
-                unit_cost = composition.finished_unit_component.unit_cost or Decimal('0.0000')
+                unit_cost = composition.finished_unit_component.unit_cost or Decimal("0.0000")
                 component_cost = unit_cost * Decimal(str(composition.component_quantity))
                 total_cost += component_cost
 
             elif composition.finished_good_component:
                 # FinishedGood component cost (recursive assembly)
-                assembly_cost = composition.finished_good_component.total_cost or Decimal('0.0000')
+                assembly_cost = composition.finished_good_component.total_cost or Decimal("0.0000")
                 component_cost = assembly_cost * Decimal(str(composition.component_quantity))
                 total_cost += component_cost
 
@@ -146,43 +152,49 @@ class FinishedGood(BaseModel):
         Returns:
             List of dictionaries with component details including costs
         """
-        if not hasattr(self, 'components') or not self.components:
+        if not hasattr(self, "components") or not self.components:
             return []
 
         breakdown = []
 
         for composition in self.components:
             component_info = {
-                'composition_id': composition.id,
-                'quantity': composition.component_quantity,
-                'notes': composition.component_notes,
-                'sort_order': composition.sort_order,
-                'type': None,
-                'name': None,
-                'unit_cost': Decimal('0.0000'),
-                'total_cost': Decimal('0.0000')
+                "composition_id": composition.id,
+                "quantity": composition.component_quantity,
+                "notes": composition.component_notes,
+                "sort_order": composition.sort_order,
+                "type": None,
+                "name": None,
+                "unit_cost": Decimal("0.0000"),
+                "total_cost": Decimal("0.0000"),
             }
 
             if composition.finished_unit_component:
-                component_info.update({
-                    'type': 'finished_unit',
-                    'name': composition.finished_unit_component.display_name,
-                    'unit_cost': composition.finished_unit_component.unit_cost,
-                    'total_cost': composition.finished_unit_component.unit_cost * composition.component_quantity
-                })
+                component_info.update(
+                    {
+                        "type": "finished_unit",
+                        "name": composition.finished_unit_component.display_name,
+                        "unit_cost": composition.finished_unit_component.unit_cost,
+                        "total_cost": composition.finished_unit_component.unit_cost
+                        * composition.component_quantity,
+                    }
+                )
 
             elif composition.finished_good_component:
-                component_info.update({
-                    'type': 'finished_good',
-                    'name': composition.finished_good_component.display_name,
-                    'unit_cost': composition.finished_good_component.total_cost,
-                    'total_cost': composition.finished_good_component.total_cost * composition.component_quantity
-                })
+                component_info.update(
+                    {
+                        "type": "finished_good",
+                        "name": composition.finished_good_component.display_name,
+                        "unit_cost": composition.finished_good_component.total_cost,
+                        "total_cost": composition.finished_good_component.total_cost
+                        * composition.component_quantity,
+                    }
+                )
 
             breakdown.append(component_info)
 
         # Sort by sort_order if specified
-        breakdown.sort(key=lambda x: x.get('sort_order', 999))
+        breakdown.sort(key=lambda x: x.get("sort_order", 999))
         return breakdown
 
     def is_available(self, quantity: int = 1) -> bool:
@@ -224,55 +236,55 @@ class FinishedGood(BaseModel):
         Returns:
             Dictionary with availability status and missing components
         """
-        result = {
-            'can_assemble': True,
-            'missing_components': [],
-            'sufficient_components': []
-        }
+        result = {"can_assemble": True, "missing_components": [], "sufficient_components": []}
 
-        if not hasattr(self, 'components') or not self.components:
-            result['can_assemble'] = False
+        if not hasattr(self, "components") or not self.components:
+            result["can_assemble"] = False
             return result
 
         for composition in self.components:
             required_qty = composition.component_quantity * quantity
             component_info = {
-                'type': None,
-                'name': None,
-                'required': required_qty,
-                'available': 0,
-                'shortage': 0
+                "type": None,
+                "name": None,
+                "required": required_qty,
+                "available": 0,
+                "shortage": 0,
             }
 
             if composition.finished_unit_component:
                 component = composition.finished_unit_component
-                component_info.update({
-                    'type': 'finished_unit',
-                    'name': component.display_name,
-                    'available': component.inventory_count
-                })
+                component_info.update(
+                    {
+                        "type": "finished_unit",
+                        "name": component.display_name,
+                        "available": component.inventory_count,
+                    }
+                )
 
                 if component.inventory_count < required_qty:
-                    component_info['shortage'] = required_qty - component.inventory_count
-                    result['missing_components'].append(component_info)
-                    result['can_assemble'] = False
+                    component_info["shortage"] = required_qty - component.inventory_count
+                    result["missing_components"].append(component_info)
+                    result["can_assemble"] = False
                 else:
-                    result['sufficient_components'].append(component_info)
+                    result["sufficient_components"].append(component_info)
 
             elif composition.finished_good_component:
                 component = composition.finished_good_component
-                component_info.update({
-                    'type': 'finished_good',
-                    'name': component.display_name,
-                    'available': component.inventory_count
-                })
+                component_info.update(
+                    {
+                        "type": "finished_good",
+                        "name": component.display_name,
+                        "available": component.inventory_count,
+                    }
+                )
 
                 if component.inventory_count < required_qty:
-                    component_info['shortage'] = required_qty - component.inventory_count
-                    result['missing_components'].append(component_info)
-                    result['can_assemble'] = False
+                    component_info["shortage"] = required_qty - component.inventory_count
+                    result["missing_components"].append(component_info)
+                    result["can_assemble"] = False
                 else:
-                    result['sufficient_components'].append(component_info)
+                    result["sufficient_components"].append(component_info)
 
         return result
 

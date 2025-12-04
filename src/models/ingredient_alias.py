@@ -30,10 +30,7 @@ class IngredientAlias(BaseModel):
 
     # Foreign key to Ingredient
     ingredient_id = Column(
-        Integer,
-        ForeignKey("products.id", ondelete="CASCADE"),
-        nullable=False,
-        index=True
+        Integer, ForeignKey("products.id", ondelete="CASCADE"), nullable=False, index=True
     )
 
     # Alias information
@@ -68,9 +65,6 @@ class IngredientAlias(BaseModel):
         result = super().to_dict(include_relationships)
 
         if include_relationships and self.ingredient:
-            result["ingredient"] = {
-                "id": self.ingredient.id,
-                "name": self.ingredient.name
-            }
+            result["ingredient"] = {"id": self.ingredient.id, "name": self.ingredient.name}
 
         return result

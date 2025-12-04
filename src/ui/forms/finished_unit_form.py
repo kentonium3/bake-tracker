@@ -154,7 +154,9 @@ class FinishedUnitFormDialog(ctk.CTkToplevel):
 
         # Yield mode radio buttons
         yield_mode_frame = ctk.CTkFrame(parent, fg_color="transparent")
-        yield_mode_frame.grid(row=row, column=0, columnspan=2, sticky="ew", padx=PADDING_MEDIUM, pady=5)
+        yield_mode_frame.grid(
+            row=row, column=0, columnspan=2, sticky="ew", padx=PADDING_MEDIUM, pady=5
+        )
 
         self.yield_mode_var = ctk.StringVar(value="discrete_count")
 
@@ -223,9 +225,7 @@ class FinishedUnitFormDialog(ctk.CTkToplevel):
         items_label.grid(row=row, column=0, sticky="w", padx=PADDING_MEDIUM, pady=5)
 
         self.items_per_batch_entry = ctk.CTkEntry(
-            self.discrete_frame,
-            width=400,
-            placeholder_text="e.g., 24 (recipe yields 24 cookies)"
+            self.discrete_frame, width=400, placeholder_text="e.g., 24 (recipe yields 24 cookies)"
         )
         self.items_per_batch_entry.grid(row=row, column=1, sticky="ew", padx=PADDING_MEDIUM, pady=5)
         row += 1
@@ -235,9 +235,7 @@ class FinishedUnitFormDialog(ctk.CTkToplevel):
         unit_label.grid(row=row, column=0, sticky="w", padx=PADDING_MEDIUM, pady=5)
 
         self.item_unit_entry = ctk.CTkEntry(
-            self.discrete_frame,
-            width=400,
-            placeholder_text="e.g., cookie, truffle, piece"
+            self.discrete_frame, width=400, placeholder_text="e.g., cookie, truffle, piece"
         )
         self.item_unit_entry.grid(row=row, column=1, sticky="ew", padx=PADDING_MEDIUM, pady=5)
 
@@ -255,9 +253,11 @@ class FinishedUnitFormDialog(ctk.CTkToplevel):
         self.batch_percentage_entry = ctk.CTkEntry(
             self.batch_frame,
             width=400,
-            placeholder_text="e.g., 100 (large cake uses 100% of batch), 25 (small cake uses 25%)"
+            placeholder_text="e.g., 100 (large cake uses 100% of batch), 25 (small cake uses 25%)",
         )
-        self.batch_percentage_entry.grid(row=row, column=1, sticky="ew", padx=PADDING_MEDIUM, pady=5)
+        self.batch_percentage_entry.grid(
+            row=row, column=1, sticky="ew", padx=PADDING_MEDIUM, pady=5
+        )
         row += 1
 
         # Portion description
@@ -265,11 +265,11 @@ class FinishedUnitFormDialog(ctk.CTkToplevel):
         desc_label.grid(row=row, column=0, sticky="w", padx=PADDING_MEDIUM, pady=5)
 
         self.portion_description_entry = ctk.CTkEntry(
-            self.batch_frame,
-            width=400,
-            placeholder_text="e.g., 9-inch round pan, 8x8 square"
+            self.batch_frame, width=400, placeholder_text="e.g., 9-inch round pan, 8x8 square"
         )
-        self.portion_description_entry.grid(row=row, column=1, sticky="ew", padx=PADDING_MEDIUM, pady=5)
+        self.portion_description_entry.grid(
+            row=row, column=1, sticky="ew", padx=PADDING_MEDIUM, pady=5
+        )
 
     def _on_yield_mode_change(self, mode: str):
         """Handle yield mode change - show/hide appropriate fields."""
@@ -448,13 +448,13 @@ class FinishedUnitFormDialog(ctk.CTkToplevel):
                 items_per_batch = int(items_str)
                 if items_per_batch <= 0:
                     show_error(
-                        "Validation Error",
-                        "Items per batch must be greater than zero",
-                        parent=self
+                        "Validation Error", "Items per batch must be greater than zero", parent=self
                     )
                     return None
             except ValueError:
-                show_error("Validation Error", "Items per batch must be a valid number", parent=self)
+                show_error(
+                    "Validation Error", "Items per batch must be a valid number", parent=self
+                )
                 return None
 
         else:  # batch_portion
@@ -471,11 +471,13 @@ class FinishedUnitFormDialog(ctk.CTkToplevel):
                     show_error(
                         "Validation Error",
                         "Batch percentage must be greater than zero",
-                        parent=self
+                        parent=self,
                     )
                     return None
             except ValueError:
-                show_error("Validation Error", "Batch percentage must be a valid number", parent=self)
+                show_error(
+                    "Validation Error", "Batch percentage must be a valid number", parent=self
+                )
                 return None
 
         # Return validated data

@@ -121,8 +121,18 @@ class EventFormDialog(ctk.CTkToplevel):
 
         # Month dropdown
         months = [
-            "January", "February", "March", "April", "May", "June",
-            "July", "August", "September", "October", "November", "December"
+            "January",
+            "February",
+            "March",
+            "April",
+            "May",
+            "June",
+            "July",
+            "August",
+            "September",
+            "October",
+            "November",
+            "December",
         ]
         self.month_combo = ctk.CTkComboBox(
             date_frame,
@@ -291,8 +301,18 @@ class EventFormDialog(ctk.CTkToplevel):
 
         # Convert month name to number
         months = [
-            "January", "February", "March", "April", "May", "June",
-            "July", "August", "September", "October", "November", "December"
+            "January",
+            "February",
+            "March",
+            "April",
+            "May",
+            "June",
+            "July",
+            "August",
+            "September",
+            "October",
+            "November",
+            "December",
         ]
         try:
             month = months.index(month_str) + 1

@@ -158,7 +158,9 @@ class RecipientsTab(ctk.CTkFrame):
         """
         # Get filtered recipients
         try:
-            recipients = recipient_service.get_all_recipients(name_search=search_text if search_text else None)
+            recipients = recipient_service.get_all_recipients(
+                name_search=search_text if search_text else None
+            )
             self.data_table.set_data(recipients)
             self._update_status(f"Found {len(recipients)} recipient(s)")
         except Exception as e:
@@ -197,7 +199,9 @@ class RecipientsTab(ctk.CTkFrame):
         if result:
             try:
                 recipient_service.create_recipient(result)
-                show_success("Success", f"Recipient '{result['name']}' added successfully", parent=self)
+                show_success(
+                    "Success", f"Recipient '{result['name']}' added successfully", parent=self
+                )
                 self.refresh()
             except Exception as e:
                 show_error("Error", f"Failed to add recipient: {str(e)}", parent=self)
@@ -208,9 +212,7 @@ class RecipientsTab(ctk.CTkFrame):
             return
 
         dialog = RecipientFormDialog(
-            self,
-            recipient=self.selected_recipient,
-            title="Edit Recipient"
+            self, recipient=self.selected_recipient, title="Edit Recipient"
         )
         self.wait_window(dialog)
 
@@ -236,7 +238,7 @@ class RecipientsTab(ctk.CTkFrame):
             "Confirm Deletion",
             f"Are you sure you want to delete recipient '{self.selected_recipient.name}'?\n\n"
             "This action cannot be undone.",
-            parent=self
+            parent=self,
         ):
             return
 
@@ -249,7 +251,7 @@ class RecipientsTab(ctk.CTkFrame):
             show_error(
                 "Cannot Delete",
                 f"This recipient is used in {e.event_count} event(s) and cannot be deleted.",
-                parent=self
+                parent=self,
             )
         except RecipientNotFound:
             show_error("Error", "Recipient not found", parent=self)

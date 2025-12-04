@@ -50,7 +50,9 @@ class Ingredient(BaseModel):
 
     # Basic information (REQUIRED NOW)
     name = Column(String(200), nullable=False, unique=True, index=True)
-    slug = Column(String(200), nullable=True, unique=True, index=True)  # Will be required after migration
+    slug = Column(
+        String(200), nullable=True, unique=True, index=True
+    )  # Will be required after migration
     category = Column(String(100), nullable=False, index=True)
     recipe_unit = Column(String(50), nullable=True)  # Unit used in recipes (e.g., "cup", "oz", "g")
 
@@ -71,25 +73,19 @@ class Ingredient(BaseModel):
 
     # Timestamps
     date_added = Column(DateTime, nullable=False, default=datetime.utcnow)
-    last_modified = Column(DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
+    last_modified = Column(
+        DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow
+    )
 
     # Relationships
     variants = relationship(
-        "Variant",
-        back_populates="ingredient",
-        cascade="all, delete-orphan",
-        lazy="select"
+        "Variant", back_populates="ingredient", cascade="all, delete-orphan", lazy="select"
     )
     conversions = relationship(
-        "UnitConversion",
-        back_populates="ingredient",
-        cascade="all, delete-orphan",
-        lazy="select"
+        "UnitConversion", back_populates="ingredient", cascade="all, delete-orphan", lazy="select"
     )
     recipe_ingredients = relationship(
-        "RecipeIngredient",
-        back_populates="ingredient_new",
-        lazy="select"
+        "RecipeIngredient", back_populates="ingredient_new", lazy="select"
     )
 
     # Indexes for common queries

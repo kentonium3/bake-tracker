@@ -58,7 +58,7 @@ class FinishedGoodsTab(ctk.CTkFrame):
         warn_deprecated_ui_component(
             component_name="FinishedGoodsTab",
             replacement="FinishedUnitsTab (for individual items) or enhanced FinishedGoodsTab (for assemblies)",
-            removal_version="v0.5.0"
+            removal_version="v0.5.0",
         )
 
         super().__init__(parent)
@@ -385,9 +385,13 @@ class FinishedGoodsTab(ctk.CTkFrame):
             details.append("")
             details.append("Batch Planning:")
             if fg.yield_mode.value == "discrete_count":
-                details.append(f"  Example: Need 50 items → {fg.calculate_batches_needed(50):.2f} batches")
+                details.append(
+                    f"  Example: Need 50 items → {fg.calculate_batches_needed(50):.2f} batches"
+                )
             else:
-                details.append(f"  Example: Need 2 items → {fg.calculate_batches_needed(2):.2f} batches")
+                details.append(
+                    f"  Example: Need 2 items → {fg.calculate_batches_needed(2):.2f} batches"
+                )
 
             if fg.notes:
                 details.append("")

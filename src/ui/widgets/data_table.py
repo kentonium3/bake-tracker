@@ -128,7 +128,9 @@ class DataTable(ctk.CTkFrame):
                 height=20,  # Fixed compact height
                 anchor="w",
             )
-            cell_label.grid(row=0, column=col_index, padx=5, pady=0, sticky="w")  # Zero padding for compact spacing
+            cell_label.grid(
+                row=0, column=col_index, padx=5, pady=0, sticky="w"
+            )  # Zero padding for compact spacing
 
             # Bind click events
             cell_label.bind("<Button-1>", lambda e, idx=row_index: self._on_row_click(idx))
@@ -443,7 +445,9 @@ class FinishedGoodDataTable(DataTable):
             type_display = "Batch Portion"
 
         # Calculate cost per item
-        cost_per_item = row_data.get_cost_per_item() if hasattr(row_data, "get_cost_per_item") else 0.0
+        cost_per_item = (
+            row_data.get_cost_per_item() if hasattr(row_data, "get_cost_per_item") else 0.0
+        )
 
         return [
             row_data.name,
@@ -523,6 +527,8 @@ class BundleDataTable(DataTable):
 class PackageDataTable(DataTable):
     """
     Specialized data table for displaying packages.
+
+    Updated for Feature 006: Uses FinishedGoods instead of Bundles.
     """
 
     def __init__(
@@ -543,7 +549,7 @@ class PackageDataTable(DataTable):
         """
         columns = [
             ("Package Name", 250),
-            ("Bundles", 80),
+            ("Items", 80),
             ("Template", 80),
             ("Cost", 100),
         ]
@@ -568,15 +574,15 @@ class PackageDataTable(DataTable):
         # Calculate package cost
         cost = row_data.calculate_cost() if hasattr(row_data, "calculate_cost") else 0.0
 
-        # Bundle count
-        bundle_count = row_data.get_bundle_count() if hasattr(row_data, "get_bundle_count") else 0
+        # Item count (FinishedGoods in package)
+        item_count = row_data.get_item_count() if hasattr(row_data, "get_item_count") else 0
 
         # Template flag
         template_display = "Yes" if row_data.is_template else "No"
 
         return [
             row_data.name,
-            str(bundle_count),
+            str(item_count),
             template_display,
             f"${cost:.2f}",
         ]
@@ -632,6 +638,7 @@ class RecipientDataTable(DataTable):
             row_data.address or "",
         ]
 
+
 class EventDataTable(DataTable):
     """
     Specialized data table for displaying events.
@@ -681,11 +688,15 @@ class EventDataTable(DataTable):
         """
         # Format date
         event_date = row_data.event_date.strftime("%m/%d/%Y") if row_data.event_date else ""
-        
+
         # Get counts
-        recipient_count = row_data.get_recipient_count() if hasattr(row_data, "get_recipient_count") else 0
-        package_count = row_data.get_package_count() if hasattr(row_data, "get_package_count") else 0
-        
+        recipient_count = (
+            row_data.get_recipient_count() if hasattr(row_data, "get_recipient_count") else 0
+        )
+        package_count = (
+            row_data.get_package_count() if hasattr(row_data, "get_package_count") else 0
+        )
+
         # Calculate cost
         cost = row_data.get_total_cost() if hasattr(row_data, "get_total_cost") else 0.0
 

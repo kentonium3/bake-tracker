@@ -15,8 +15,17 @@ from datetime import datetime
 from decimal import Decimal
 
 from sqlalchemy import (
-    Column, String, Numeric, Integer, Text, DateTime,
-    ForeignKey, Index, Enum, CheckConstraint, UniqueConstraint
+    Column,
+    String,
+    Numeric,
+    Integer,
+    Text,
+    DateTime,
+    ForeignKey,
+    Index,
+    Enum,
+    CheckConstraint,
+    UniqueConstraint,
 )
 from sqlalchemy.orm import relationship
 import enum
@@ -26,8 +35,9 @@ from .base import BaseModel
 
 class YieldMode(enum.Enum):
     """Enum for finished unit yield modes."""
+
     DISCRETE_COUNT = "discrete_count"  # Fixed count items (cookies, truffles)
-    BATCH_PORTION = "batch_portion"    # Portion of batch (cakes)
+    BATCH_PORTION = "batch_portion"  # Portion of batch (cakes)
 
 
 class FinishedUnit(BaseModel):
@@ -73,11 +83,7 @@ class FinishedUnit(BaseModel):
     recipe_id = Column(Integer, ForeignKey("recipes.id", ondelete="RESTRICT"), nullable=False)
 
     # Yield mode (preserved from original FinishedGood)
-    yield_mode = Column(
-        Enum(YieldMode),
-        nullable=False,
-        default=YieldMode.DISCRETE_COUNT
-    )
+    yield_mode = Column(Enum(YieldMode), nullable=False, default=YieldMode.DISCRETE_COUNT)
 
     # For DISCRETE_COUNT mode (cookies, truffles, etc.)
     items_per_batch = Column(Integer, nullable=True)
@@ -88,7 +94,7 @@ class FinishedUnit(BaseModel):
     portion_description = Column(String(200), nullable=True)  # "9-inch round", "8x8 square"
 
     # Cost and inventory
-    unit_cost = Column(Numeric(10, 4), nullable=False, default=Decimal('0.0000'))
+    unit_cost = Column(Numeric(10, 4), nullable=False, default=Decimal("0.0000"))
     inventory_count = Column(Integer, nullable=False, default=0)
 
     # Additional information
@@ -98,9 +104,7 @@ class FinishedUnit(BaseModel):
 
     # Enhanced timestamps
     created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
-    updated_at = Column(
-        DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow
-    )
+    updated_at = Column(DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     # Relationships
     recipe = relationship("Recipe", back_populates="finished_units")
@@ -118,21 +122,19 @@ class FinishedUnit(BaseModel):
         Index("idx_finished_unit_category", "category"),
         Index("idx_finished_unit_inventory", "inventory_count"),
         Index("idx_finished_unit_created_at", "created_at"),
-
         # Composite indexes for complex queries
         Index("idx_finished_unit_recipe_inventory", "recipe_id", "inventory_count"),
-
         # Unique constraints
         UniqueConstraint("slug", name="uq_finished_unit_slug"),
         CheckConstraint("unit_cost >= 0", name="ck_finished_unit_unit_cost_non_negative"),
         CheckConstraint("inventory_count >= 0", name="ck_finished_unit_inventory_non_negative"),
         CheckConstraint(
             "items_per_batch IS NULL OR items_per_batch > 0",
-            name="ck_finished_unit_items_per_batch_positive"
+            name="ck_finished_unit_items_per_batch_positive",
         ),
         CheckConstraint(
             "batch_percentage IS NULL OR (batch_percentage > 0 AND batch_percentage <= 100)",
-            name="ck_finished_unit_batch_percentage_valid"
+            name="ck_finished_unit_batch_percentage_valid",
         ),
     )
 
@@ -173,21 +175,21 @@ class FinishedUnit(BaseModel):
             Cost per item based on recipe cost
         """
         if not self.recipe:
-            return Decimal('0.0000')
+            return Decimal("0.0000")
 
         recipe_cost = Decimal(str(self.recipe.calculate_cost()))
 
         if self.yield_mode == YieldMode.DISCRETE_COUNT:
             if not self.items_per_batch or self.items_per_batch <= 0:
-                return Decimal('0.0000')
+                return Decimal("0.0000")
             return recipe_cost / Decimal(str(self.items_per_batch))
 
         elif self.yield_mode == YieldMode.BATCH_PORTION:
             if not self.batch_percentage or self.batch_percentage <= 0:
-                return Decimal('0.0000')
-            return recipe_cost * (self.batch_percentage / Decimal('100.0'))
+                return Decimal("0.0000")
+            return recipe_cost * (self.batch_percentage / Decimal("100.0"))
 
-        return Decimal('0.0000')
+        return Decimal("0.0000")
 
     def update_unit_cost_from_recipe(self) -> None:
         """
@@ -254,8 +256,9 @@ class FinishedUnit(BaseModel):
         return result
 
     @classmethod
-    def create_from_finished_good(cls, finished_good_data: dict, slug: str,
-                                 unit_cost: Decimal = None) -> 'FinishedUnit':
+    def create_from_finished_good(
+        cls, finished_good_data: dict, slug: str, unit_cost: Decimal = None
+    ) -> "FinishedUnit":
         """
         Factory method to create FinishedUnit from existing FinishedGood data.
 
@@ -272,9 +275,9 @@ class FinishedUnit(BaseModel):
         """
         # Map old field names to new field names
         field_mapping = {
-            'name': 'display_name',
-            'date_added': 'created_at',
-            'last_modified': 'updated_at'
+            "name": "display_name",
+            "date_added": "created_at",
+            "last_modified": "updated_at",
         }
 
         # Create new instance data
@@ -285,16 +288,22 @@ class FinishedUnit(BaseModel):
 
         # Copy fields that don't need mapping
         copy_fields = [
-            'recipe_id', 'yield_mode', 'items_per_batch', 'item_unit',
-            'batch_percentage', 'portion_description', 'category', 'notes'
+            "recipe_id",
+            "yield_mode",
+            "items_per_batch",
+            "item_unit",
+            "batch_percentage",
+            "portion_description",
+            "category",
+            "notes",
         ]
         for field in copy_fields:
             if field in finished_good_data:
                 unit_data[field] = finished_good_data[field]
 
         # Set new required fields
-        unit_data['slug'] = slug
-        unit_data['unit_cost'] = unit_cost or Decimal('0.0000')
-        unit_data['inventory_count'] = 0  # Start with zero inventory
+        unit_data["slug"] = slug
+        unit_data["unit_cost"] = unit_cost or Decimal("0.0000")
+        unit_data["inventory_count"] = 0  # Start with zero inventory
 
         return cls(**unit_data)

@@ -144,21 +144,24 @@ class RecipeIngredientRow(ctk.CTkFrame):
 
         # Validate density requirement for cross-type unit conversions
         from src.services.unit_converter import get_unit_type
+
         recipe_unit_type = get_unit_type(unit)
         purchase_unit_type = get_unit_type(ingredient.purchase_unit)
 
         # Check if cross-type conversion is needed (volume↔weight)
         if recipe_unit_type != purchase_unit_type:
-            if (recipe_unit_type == "volume" and purchase_unit_type == "weight") or \
-               (recipe_unit_type == "weight" and purchase_unit_type == "volume"):
+            if (recipe_unit_type == "volume" and purchase_unit_type == "weight") or (
+                recipe_unit_type == "weight" and purchase_unit_type == "volume"
+            ):
                 # Density is required for volume↔weight conversion
                 if not ingredient.has_density_data():
                     from src.ui.widgets.dialogs import show_error
+
                     show_error(
                         "Density Required",
                         f"'{ingredient.name}' requires density data for {recipe_unit_type}↔{purchase_unit_type} conversion.\n\n"
                         f"Please edit the ingredient and add density (g/cup) before using it with {unit} in recipes.",
-                        parent=self.winfo_toplevel()
+                        parent=self.winfo_toplevel(),
                     )
                     return None
 

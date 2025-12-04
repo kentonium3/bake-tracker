@@ -237,7 +237,9 @@ def validate_ingredient_data(data: dict) -> Tuple[bool, list]:  # noqa: C901
 
     # Optional: Description
     if data.get("description"):
-        is_valid, error = validate_string_length(data.get("description"), MAX_NOTES_LENGTH * 2, "Description")
+        is_valid, error = validate_string_length(
+            data.get("description"), MAX_NOTES_LENGTH * 2, "Description"
+        )
         if not is_valid:
             errors.append(error)
 
@@ -449,9 +451,7 @@ def validate_variant_data(data: dict, ingredient_slug: str) -> Tuple[bool, list]
 
     # Optional: Supplier
     if data.get("supplier"):
-        is_valid, error = validate_string_length(
-            data.get("supplier"), MAX_NAME_LENGTH, "Supplier"
-        )
+        is_valid, error = validate_string_length(data.get("supplier"), MAX_NAME_LENGTH, "Supplier")
         if not is_valid:
             errors.append(error)
 

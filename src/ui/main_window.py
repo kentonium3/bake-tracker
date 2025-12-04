@@ -14,7 +14,8 @@ from src.ui.ingredients_tab import IngredientsTab
 from src.ui.pantry_tab import PantryTab
 from src.ui.recipes_tab import RecipesTab
 from src.ui.finished_units_tab import FinishedUnitsTab
-from src.ui.bundles_tab import BundlesTab
+
+# BundlesTab removed - Bundle concept eliminated in Feature 006
 from src.ui.packages_tab import PackagesTab
 from src.ui.recipients_tab import RecipientsTab
 from src.ui.events_tab import EventsTab
@@ -102,7 +103,7 @@ class MainWindow(ctk.CTk):
         self.tabview.add("My Pantry")
         self.tabview.add("Recipes")
         self.tabview.add("Finished Units")
-        self.tabview.add("Bundles")
+        # Bundles tab removed - Bundle concept eliminated in Feature 006
         self.tabview.add("Packages")
         self.tabview.add("Recipients")
         self.tabview.add("Events")
@@ -128,9 +129,7 @@ class MainWindow(ctk.CTk):
         finished_units_frame = self.tabview.tab("Finished Units")
         self.finished_units_tab = FinishedUnitsTab(finished_units_frame)
 
-        # Initialize Bundles tab
-        bundles_frame = self.tabview.tab("Bundles")
-        self.bundles_tab = BundlesTab(bundles_frame)
+        # Bundles tab removed - Bundle concept eliminated in Feature 006
 
         # Initialize Packages tab
         packages_frame = self.tabview.tab("Packages")
@@ -277,22 +276,18 @@ class MainWindow(ctk.CTk):
                 for rec in recommendations:
                     health_report.append(f"  • {rec}")
 
-            if stats['total_operations'] == 0:
+            if stats["total_operations"] == 0:
                 health_report.append("")
                 health_report.append("No service operations have been performed yet.")
-                health_report.append("Health check will be more informative after using the application.")
+                health_report.append(
+                    "Health check will be more informative after using the application."
+                )
 
-            messagebox.showinfo(
-                "Service Health Check",
-                "\n".join(health_report),
-                parent=self
-            )
+            messagebox.showinfo("Service Health Check", "\n".join(health_report), parent=self)
 
         except Exception as exc:
             messagebox.showerror(
-                "Health Check Error",
-                f"Failed to check service health:\n\n{exc}",
-                parent=self
+                "Health Check Error", f"Failed to check service health:\n\n{exc}", parent=self
             )
 
     def _show_help_menu(self):
@@ -327,9 +322,7 @@ class MainWindow(ctk.CTk):
         """Refresh the finished units tab with current data."""
         self.finished_units_tab.refresh()
 
-    def refresh_bundles(self):
-        """Refresh the bundles tab with current data."""
-        self.bundles_tab.refresh()
+    # refresh_bundles removed - Bundle concept eliminated in Feature 006
 
     def refresh_packages(self):
         """Refresh the packages tab with current data."""

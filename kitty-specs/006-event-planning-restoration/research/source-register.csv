@@ -1,0 +1,14 @@
+id,source_type,path,description,last_accessed
+S001,code,src/models/__init__.py,Model exports and disabled imports,2025-12-03
+S002,code,src/models/event.py,Event and EventRecipientPackage models,2025-12-03
+S003,code,src/models/package.py,Package and PackageBundle models,2025-12-03
+S004,code,src/models/recipient.py,Recipient model,2025-12-03
+S005,code,src/models/finished_good.py,FinishedGood assembly model,2025-12-03
+S006,code,src/models/finished_unit.py,FinishedUnit individual item model,2025-12-03
+S007,code,src/models/composition.py,Composition junction model,2025-12-03
+S008,code,src/services/event_service.py,Event business logic (broken imports),2025-12-03
+S009,code,src/services/package_service.py,Package business logic (broken imports),2025-12-03
+S010,code,src/ui/bundles_tab.py,Bundle UI tab (obsolete imports),2025-12-03
+S011,user,Interview,User confirmation of reimplementation approach,2025-12-03
+S012,user,Interview,User confirmation of clean slate for data,2025-12-03
+S013,spec,kitty-specs/006-event-planning-restoration/spec.md,Feature specification,2025-12-03

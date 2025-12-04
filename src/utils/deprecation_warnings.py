@@ -17,8 +17,10 @@ logger = logging.getLogger(__name__)
 MIGRATION_START_DATE = "2025-11-15"
 PLANNED_REMOVAL_DATE = "2025-12-15"  # 30 days from start
 
+
 class DeprecationCategory:
     """Categories for different types of deprecation warnings."""
+
     UI_COMPONENT = "ui_component"
     SERVICE_METHOD = "service_method"
     MODEL_USAGE = "model_usage"
@@ -27,11 +29,13 @@ class DeprecationCategory:
 
 class LegacyAPIWarning(UserWarning):
     """Custom warning class for legacy API usage."""
+
     pass
 
 
-def warn_deprecated_ui_component(component_name: str, replacement: str,
-                                 removal_version: str = "v0.5.0") -> None:
+def warn_deprecated_ui_component(
+    component_name: str, replacement: str, removal_version: str = "v0.5.0"
+) -> None:
     """
     Warn about deprecated UI component usage.
 
@@ -51,8 +55,9 @@ def warn_deprecated_ui_component(component_name: str, replacement: str,
     logger.warning(f"DEPRECATED UI: {component_name} -> {replacement}")
 
 
-def warn_deprecated_service_method(method_name: str, replacement: str,
-                                   removal_version: str = "v0.5.0") -> None:
+def warn_deprecated_service_method(
+    method_name: str, replacement: str, removal_version: str = "v0.5.0"
+) -> None:
     """
     Warn about deprecated service method usage.
 
@@ -72,8 +77,9 @@ def warn_deprecated_service_method(method_name: str, replacement: str,
     logger.warning(f"DEPRECATED SERVICE: {method_name} -> {replacement}")
 
 
-def warn_deprecated_model_usage(model_name: str, context: str,
-                                 replacement: str = "FinishedUnit") -> None:
+def warn_deprecated_model_usage(
+    model_name: str, context: str, replacement: str = "FinishedUnit"
+) -> None:
     """
     Warn about deprecated model usage patterns.
 
@@ -93,8 +99,11 @@ def warn_deprecated_model_usage(model_name: str, context: str,
     logger.warning(f"DEPRECATED MODEL: {model_name} in {context} -> {replacement}")
 
 
-def deprecated_api(replacement: str, removal_version: str = "v0.5.0",
-                   category: str = DeprecationCategory.SERVICE_METHOD):
+def deprecated_api(
+    replacement: str,
+    removal_version: str = "v0.5.0",
+    category: str = DeprecationCategory.SERVICE_METHOD,
+):
     """
     Decorator to mark API methods as deprecated.
 
@@ -106,6 +115,7 @@ def deprecated_api(replacement: str, removal_version: str = "v0.5.0",
     Returns:
         Decorated function with deprecation warning
     """
+
     def decorator(func):
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
@@ -118,7 +128,9 @@ def deprecated_api(replacement: str, removal_version: str = "v0.5.0",
             logger.warning(f"DEPRECATED API CALL: {func.__name__} -> {replacement}")
 
             return func(*args, **kwargs)
+
         return wrapper
+
     return decorator
 
 
@@ -135,7 +147,7 @@ def log_legacy_usage_stats() -> Dict[str, Any]:
         "timestamp": datetime.utcnow().isoformat(),
         "deprecated_ui_components": {
             "FinishedGoodsTab": {"usage_count": 0, "last_used": None},
-            "FinishedGoodFormDialog": {"usage_count": 0, "last_used": None}
+            "FinishedGoodFormDialog": {"usage_count": 0, "last_used": None},
         },
         "deprecated_service_methods": {
             "legacy_finished_good_operations": {"usage_count": 0, "last_used": None}
@@ -144,8 +156,8 @@ def log_legacy_usage_stats() -> Dict[str, Any]:
             "start_date": MIGRATION_START_DATE,
             "planned_completion": PLANNED_REMOVAL_DATE,
             "components_migrated": 2,
-            "components_remaining": 0
-        }
+            "components_remaining": 0,
+        },
     }
 
 
@@ -179,9 +191,7 @@ def configure_deprecation_warnings():
     deprecation_logger = logging.getLogger(__name__)
     if not deprecation_logger.handlers:
         handler = logging.StreamHandler()
-        formatter = logging.Formatter(
-            '%(asctime)s - DEPRECATION - %(levelname)s - %(message)s'
-        )
+        formatter = logging.Formatter("%(asctime)s - DEPRECATION - %(levelname)s - %(message)s")
         handler.setFormatter(formatter)
         deprecation_logger.addHandler(handler)
         deprecation_logger.setLevel(logging.WARNING)

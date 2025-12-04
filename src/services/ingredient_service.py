@@ -133,10 +133,12 @@ def create_ingredient(ingredient_data: Dict[str, Any]) -> Ingredient:
         error_str = str(e).lower()
         if "unique constraint" in error_str or "duplicate" in error_str:
             if "name" in error_str or "products.name" in error_str:
-                raise ServiceValidationError([
-                    f"An ingredient named '{ingredient_data['name']}' already exists. "
-                    f"Please use a different name or edit the existing ingredient."
-                ])
+                raise ServiceValidationError(
+                    [
+                        f"An ingredient named '{ingredient_data['name']}' already exists. "
+                        f"Please use a different name or edit the existing ingredient."
+                    ]
+                )
         raise DatabaseError(f"Failed to create ingredient", original_error=e)
 
 
