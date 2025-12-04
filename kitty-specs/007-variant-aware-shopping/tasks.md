@@ -85,18 +85,18 @@
 
 ---
 
-## Work Package WP03: Shopping List UI Enhancement (Priority: P2)
+## Work Package WP03: Shopping List UI Enhancement (Priority: P2) ✅ COMPLETE
 
 **Goal**: Add variant recommendation columns to the shopping list table and handle multiple variant display.
 **Independent Test**: Visual verification shows variant columns, preferred indicators, and stacked rows for multiple variants.
-**Prompt**: `tasks/planned/WP03-shopping-list-ui.md`
+**Prompt**: `tasks/done/WP03-shopping-list-ui.md`
 
 ### Included Subtasks
-- [ ] T008 Add columns to shopping list table: Variant, Package Size, Cost/Unit, Est. Cost
-- [ ] T009 Handle vertically stacked rows for `variant_status='multiple'` (FR-002)
-- [ ] T010 Display "[preferred]" indicator for preferred variants (FR-001)
-- [ ] T011 Display "No variant configured" for `variant_status='none'` (FR-003)
-- [ ] T012 Display total estimated cost at bottom of shopping list (FR-007)
+- [x] T008 Add columns to shopping list table: Variant, Package Size, Cost/Unit, Est. Cost
+- [x] T009 Handle vertically stacked rows for `variant_status='multiple'` (FR-002)
+- [x] T010 Display "[preferred]" indicator for preferred variants (FR-001)
+- [x] T011 Display "No variant configured" for `variant_status='none'` (FR-003)
+- [x] T012 Display total estimated cost at bottom of shopping list (FR-007)
 
 ### Implementation Notes
 1. Extend existing table in `src/ui/event_planning_tab.py`:
