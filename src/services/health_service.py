@@ -158,6 +158,7 @@ class HealthCheckService:
 
         Attempts to execute a simple query to verify database connection.
         Uses existing session_scope context manager for safe connection handling.
+        Uses concurrent.futures for timeout (works from any thread, unlike signals).
 
         Returns:
             "connected" if database is accessible
@@ -168,38 +169,22 @@ class HealthCheckService:
             This method must complete quickly to avoid blocking the health check loop.
             Maximum execution time is 3 seconds before timeout.
         """
-        try:
+        import concurrent.futures
+        from sqlalchemy.exc import SQLAlchemyError
+
+        def do_db_check():
             from src.services.database import session_scope
             from sqlalchemy import text
-            from sqlalchemy.exc import SQLAlchemyError
-            import signal
-
-            def timeout_handler(signum, frame):
-                raise TimeoutError("Database check timed out")
-
-            # Set 3-second timeout
-            # Note: signal.alarm only works on Unix/Linux
-            # For Windows, this will skip timeout enforcement (acceptable for health check)
-            try:
-                signal.signal(signal.SIGALRM, timeout_handler)
-                signal.alarm(3)
-            except AttributeError:
-                # Windows doesn't have SIGALRM, continue without timeout
-                pass
-
-            # Attempt simple database query
             with session_scope() as session:
                 session.execute(text("SELECT 1"))
-
-            # Cancel timeout if it was set
-            try:
-                signal.alarm(0)
-            except AttributeError:
-                pass
-
             return "connected"
 
-        except TimeoutError:
+        try:
+            with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
+                future = executor.submit(do_db_check)
+                return future.result(timeout=3)
+
+        except concurrent.futures.TimeoutError:
             self._logger.warning("Database connection check timed out after 3 seconds")
             return "timeout"
 
