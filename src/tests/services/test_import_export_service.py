@@ -669,3 +669,219 @@ class TestImportUserFriendlyErrors:
         result = import_all_from_json_v3("/nonexistent/path/data.json")
 
         assert result.failed > 0 or len(result.errors) > 0
+
+
+# ============================================================================
+# Integration Tests - WP05 (T035-T038)
+# ============================================================================
+
+import time
+
+# Path to sample data file
+SAMPLE_DATA_PATH = "test_data/sample_data.json"
+
+
+class TestSampleDataIntegration:
+    """Integration tests for sample data import (T035).
+
+    These tests require a test database fixture.
+    """
+
+    def test_sample_data_file_exists(self):
+        """Verify sample_data.json exists and is valid JSON."""
+        assert os.path.exists(SAMPLE_DATA_PATH), "Sample data file must exist"
+
+        with open(SAMPLE_DATA_PATH, "r") as f:
+            data = json.load(f)
+
+        assert data is not None
+        assert "version" in data
+        assert data["version"] == "3.0"
+
+    def test_sample_data_has_v3_header(self):
+        """Verify sample data has proper v3.0 header."""
+        with open(SAMPLE_DATA_PATH, "r") as f:
+            data = json.load(f)
+
+        assert data.get("version") == "3.0"
+        assert "exported_at" in data
+        assert "application" in data
+        assert data.get("application") == "bake-tracker"
+
+    def test_sample_data_has_all_entity_types(self):
+        """Verify sample data includes all 15 entity types."""
+        expected_entities = [
+            "unit_conversions",
+            "ingredients",
+            "variants",
+            "purchases",
+            "pantry_items",
+            "recipes",
+            "finished_units",
+            "finished_goods",
+            "compositions",
+            "packages",
+            "package_finished_goods",
+            "recipients",
+            "events",
+            "event_recipient_packages",
+            "production_records",
+        ]
+
+        with open(SAMPLE_DATA_PATH, "r") as f:
+            data = json.load(f)
+
+        for entity in expected_entities:
+            assert entity in data, f"Sample data must include {entity}"
+            assert isinstance(data[entity], list), f"{entity} must be a list"
+            assert len(data[entity]) > 0, f"{entity} should have at least one record"
+
+    def test_sample_data_referential_integrity(self):
+        """Verify sample data has consistent references."""
+        with open(SAMPLE_DATA_PATH, "r") as f:
+            data = json.load(f)
+
+        # Collect slugs
+        ingredient_slugs = {i["slug"] for i in data["ingredients"]}
+        recipe_slugs = {r["slug"] for r in data["recipes"]}
+        finished_good_slugs = {fg["slug"] for fg in data["finished_goods"]}
+        package_slugs = {p["slug"] for p in data["packages"]}
+        event_slugs = {e["slug"] for e in data["events"]}
+        recipient_names = {r["name"] for r in data["recipients"]}
+
+        # Verify variants reference valid ingredients
+        for variant in data["variants"]:
+            assert variant["ingredient_slug"] in ingredient_slugs, \
+                f"Variant references invalid ingredient: {variant['ingredient_slug']}"
+
+        # Verify unit_conversions reference valid ingredients
+        for conv in data["unit_conversions"]:
+            assert conv["ingredient_slug"] in ingredient_slugs, \
+                f"Conversion references invalid ingredient: {conv['ingredient_slug']}"
+
+        # Verify finished_units reference valid recipes
+        for fu in data["finished_units"]:
+            assert fu["recipe_slug"] in recipe_slugs, \
+                f"Finished unit references invalid recipe: {fu['recipe_slug']}"
+
+        # Verify compositions reference valid finished_goods
+        for comp in data["compositions"]:
+            assert comp["finished_good_slug"] in finished_good_slugs, \
+                f"Composition references invalid finished_good: {comp['finished_good_slug']}"
+
+        # Verify package_finished_goods reference valid packages and finished_goods
+        for pfg in data["package_finished_goods"]:
+            assert pfg["package_slug"] in package_slugs, \
+                f"Package-FG references invalid package: {pfg['package_slug']}"
+            assert pfg["finished_good_slug"] in finished_good_slugs, \
+                f"Package-FG references invalid finished_good: {pfg['finished_good_slug']}"
+
+        # Verify event_recipient_packages reference valid events, recipients, packages
+        for erp in data["event_recipient_packages"]:
+            assert erp["event_slug"] in event_slugs, \
+                f"Assignment references invalid event: {erp['event_slug']}"
+            assert erp["recipient_name"] in recipient_names, \
+                f"Assignment references invalid recipient: {erp['recipient_name']}"
+            assert erp["package_slug"] in package_slugs, \
+                f"Assignment references invalid package: {erp['package_slug']}"
+
+        # Verify production_records reference valid events and recipes
+        for pr in data["production_records"]:
+            assert pr["event_slug"] in event_slugs, \
+                f"Production record references invalid event: {pr['event_slug']}"
+            assert pr["recipe_slug"] in recipe_slugs, \
+                f"Production record references invalid recipe: {pr['recipe_slug']}"
+
+
+class TestPerformance:
+    """Performance tests (T037) - SC-001 and SC-002."""
+
+    def test_sample_data_export_format_performance(self):
+        """Test that reading and parsing sample data is fast."""
+        # This tests the JSON parsing performance
+        start = time.time()
+
+        with open(SAMPLE_DATA_PATH, "r") as f:
+            data = json.load(f)
+
+        elapsed = time.time() - start
+
+        # JSON parsing should be nearly instant
+        assert elapsed < 1.0, f"JSON parsing took {elapsed:.2f}s, expected <1s"
+        assert data is not None
+
+    def test_sample_data_record_count(self):
+        """Verify sample data has a reasonable number of records."""
+        with open(SAMPLE_DATA_PATH, "r") as f:
+            data = json.load(f)
+
+        total_records = 0
+        for key, value in data.items():
+            if isinstance(value, list):
+                total_records += len(value)
+
+        # Sample data should have a reasonable size (not too small, not huge)
+        assert total_records >= 50, f"Sample data too small: {total_records} records"
+        assert total_records < 10000, f"Sample data too large: {total_records} records"
+
+
+class TestSuccessCriteriaValidation:
+    """Tests validating success criteria (T038)."""
+
+    def test_sc007_all_entities_in_spec(self):
+        """SC-007: v3.0 spec covers 100% of entities."""
+        spec_path = "docs/design/import_export_specification.md"
+
+        if not os.path.exists(spec_path):
+            pytest.skip("Specification document not found")
+
+        with open(spec_path, "r") as f:
+            spec_content = f.read().lower()
+
+        expected_entities = [
+            "unit_conversions",
+            "ingredients",
+            "variants",
+            "purchases",
+            "pantry_items",
+            "recipes",
+            "finished_units",
+            "finished_goods",
+            "compositions",
+            "packages",
+            "package_finished_goods",
+            "recipients",
+            "events",
+            "event_recipient_packages",
+            "production_records",
+        ]
+
+        for entity in expected_entities:
+            # Check for entity mention (allow underscores or spaces)
+            entity_variations = [entity, entity.replace("_", " "), entity.replace("_", "-")]
+            found = any(var in spec_content for var in entity_variations)
+            assert found, f"Entity '{entity}' not documented in specification"
+
+    def test_sample_data_is_realistic_scenario(self):
+        """Verify sample data represents a coherent holiday baking scenario."""
+        with open(SAMPLE_DATA_PATH, "r") as f:
+            data = json.load(f)
+
+        # Should have holiday-related events
+        event_names = [e["name"].lower() for e in data["events"]]
+        has_holiday = any("holiday" in n or "christmas" in n or "new year" in n for n in event_names)
+        assert has_holiday, "Sample data should include holiday events"
+
+        # Should have baking-related recipes
+        recipe_categories = {r["category"] for r in data["recipes"]}
+        has_baking = any(
+            cat.lower() in ["cookies", "brownies", "cakes", "candies", "pies"]
+            for cat in recipe_categories
+        )
+        assert has_baking, "Sample data should include baking recipes"
+
+        # Should have gift recipients
+        assert len(data["recipients"]) >= 2, "Should have multiple gift recipients"
+
+        # Should have production records
+        assert len(data["production_records"]) >= 1, "Should have production history"
