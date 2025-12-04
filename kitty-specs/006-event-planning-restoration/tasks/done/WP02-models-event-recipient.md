@@ -9,12 +9,12 @@ subtasks:
   - "T011"
 title: "Models Layer - Event & Recipient"
 phase: "Phase 1 - Models Layer"
-lane: "for_review"
+lane: "done"
 assignee: ""
 agent: "claude"
 shell_pid: "7541"
-review_status: ""
-reviewed_by: ""
+review_status: "approved"
+reviewed_by: "claude"
 history:
   - timestamp: "2025-12-03"
     lane: "planned"
@@ -211,3 +211,5 @@ history:
 - 2025-12-03 - system - lane=planned - Prompt created.
 - 2025-12-04T02:30:15Z – claude – shell_pid=7182 – lane=doing – Started implementation
 - 2025-12-04T02:31:30Z – claude – shell_pid=7541 – lane=for_review – Completed: Event/ERP models updated to Decimal, re-enabled in __init__.py, cost chain verified
+- 2025-12-04T05:29:00Z – claude – shell_pid=14505 – lane=done – Approved: All DoD met - imports work, no Bundle refs, FK constraints correct (CASCADE/RESTRICT), aggregation methods verified
+- 2025-12-04T02:59:17Z – claude – shell_pid=7541 – lane=done – Approved: Models layer complete
