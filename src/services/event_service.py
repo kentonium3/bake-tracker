@@ -868,31 +868,71 @@ def get_recipe_needs(event_id: int) -> List[Dict[str, Any]]:
 
 
 # ============================================================================
-# Shopping List (FR-026)
+# Shopping List (FR-026) - Extended for Feature 007 Variant Recommendations
 # ============================================================================
 
 
-def get_shopping_list(event_id: int) -> List[Dict[str, Any]]:
+def _calculate_total_estimated_cost(items: List[Dict[str, Any]]) -> Decimal:
     """
-    Calculate ingredients needed with pantry comparison.
+    Calculate total estimated cost for shopping list.
+
+    Only includes items with:
+    - variant_status = 'preferred' (user has a clear recommendation)
+    - variant_recommendation is not None
+    - variant_recommendation has valid total_cost
+
+    Items with 'multiple' status are excluded (user hasn't chosen).
+    Items with 'none' status are excluded (no variant to price).
+    Items with 'sufficient' status are excluded (no purchase needed).
+
+    Args:
+        items: List of shopping list item dicts
+
+    Returns:
+        Total estimated cost as Decimal
+    """
+    total = Decimal("0.00")
+    for item in items:
+        if item.get("variant_status") == "preferred":
+            rec = item.get("variant_recommendation")
+            if rec and rec.get("total_cost"):
+                total += Decimal(str(rec["total_cost"]))
+    return total
+
+
+def get_shopping_list(event_id: int) -> Dict[str, Any]:
+    """
+    Calculate ingredients needed with pantry comparison and variant recommendations.
+
+    Feature 007 Extension: Each item with a shortfall includes variant
+    recommendation data (variant_status, variant_recommendation, all_variants).
 
     Args:
         event_id: Event ID
 
     Returns:
-        List of dicts with ingredient_id, ingredient_name, unit, quantity_needed, quantity_on_hand, shortfall
+        Dict with:
+        - items: List of shopping list items with variant data
+        - total_estimated_cost: Sum of preferred variant purchase costs
+        - items_count: Total number of ingredients
+        - items_with_shortfall: Count of items needing purchase
     """
     try:
         # Get recipe needs first
         recipe_needs = get_recipe_needs(event_id)
 
         if not recipe_needs:
-            return []
+            return {
+                "items": [],
+                "total_estimated_cost": Decimal("0.00"),
+                "items_count": 0,
+                "items_with_shortfall": 0,
+            }
 
         with session_scope() as session:
             # Aggregate ingredient needs across all recipes
             ingredient_totals: Dict[int, Decimal] = {}  # ingredient_id -> quantity needed
-            ingredient_info: Dict[int, Dict] = {}  # ingredient_id -> {name, unit}
+            ingredient_info: Dict[int, Dict] = {}  # ingredient_id -> {name, unit, slug}
 
             for recipe_need in recipe_needs:
                 recipe_id = recipe_need["recipe_id"]
@@ -925,13 +965,15 @@ def get_shopping_list(event_id: int) -> List[Dict[str, Any]]:
                     ingredient_info[ing_id] = {
                         "name": ri.ingredient.display_name,
                         "unit": ri.unit,
+                        "slug": ri.ingredient.slug,  # Added for variant lookup
                     }
 
             # Get on-hand quantities from pantry
             # Import here to avoid circular imports
             from src.services import pantry_service
+            from src.services.variant_service import get_variant_recommendation
 
-            result = []
+            items = []
             for ing_id, qty_needed in ingredient_totals.items():
                 info = ingredient_info[ing_id]
 
@@ -945,20 +987,46 @@ def get_shopping_list(event_id: int) -> List[Dict[str, Any]]:
 
                 shortfall = max(Decimal("0"), qty_needed - qty_on_hand)
 
-                result.append(
-                    {
-                        "ingredient_id": ing_id,
-                        "ingredient_name": info["name"],
-                        "unit": info["unit"],
-                        "quantity_needed": qty_needed,
-                        "quantity_on_hand": qty_on_hand,
-                        "shortfall": shortfall,
-                    }
-                )
+                item = {
+                    "ingredient_id": ing_id,
+                    "ingredient_name": info["name"],
+                    "ingredient_slug": info["slug"],
+                    "unit": info["unit"],
+                    "quantity_needed": qty_needed,
+                    "quantity_on_hand": qty_on_hand,
+                    "shortfall": shortfall,
+                }
+
+                # Feature 007: Add variant recommendations if shortfall > 0
+                if shortfall > 0:
+                    variant_data = get_variant_recommendation(
+                        info["slug"],
+                        shortfall,
+                        info["unit"],
+                    )
+                    item["variant_status"] = variant_data["variant_status"]
+                    item["variant_recommendation"] = variant_data.get("variant_recommendation")
+                    item["all_variants"] = variant_data.get("all_variants", [])
+                else:
+                    # No shortfall - sufficient stock
+                    item["variant_status"] = "sufficient"
+                    item["variant_recommendation"] = None
+                    item["all_variants"] = []
+
+                items.append(item)
 
             # Sort by ingredient name
-            result.sort(key=lambda x: x["ingredient_name"])
-            return result
+            items.sort(key=lambda x: x["ingredient_name"])
+
+            # Calculate total estimated cost (T006)
+            total_estimated_cost = _calculate_total_estimated_cost(items)
+
+            return {
+                "items": items,
+                "total_estimated_cost": total_estimated_cost,
+                "items_count": len(items),
+                "items_with_shortfall": sum(1 for i in items if i["shortfall"] > 0),
+            }
 
     except SQLAlchemyError as e:
         raise DatabaseError(f"Failed to generate shopping list: {str(e)}")

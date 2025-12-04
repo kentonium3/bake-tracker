@@ -383,15 +383,22 @@ class TestShoppingListAccuracy:
         # Get shopping list - may be empty if no recipe ingredients
         shopping = get_shopping_list(event.id)
 
-        # Should return a list (possibly empty)
-        assert isinstance(shopping, list)
+        # Feature 007: Now returns dict with 'items' key
+        assert isinstance(shopping, dict)
+        assert "items" in shopping
+        assert "total_estimated_cost" in shopping
+        assert "items_count" in shopping
+        assert "items_with_shortfall" in shopping
+        assert isinstance(shopping["items"], list)
 
     def test_shopping_list_empty_event(self, test_db, sample_event):
         """Test shopping list for event with no assignments."""
         shopping = get_shopping_list(sample_event.id)
 
-        # Should return empty list
-        assert shopping == []
+        # Feature 007: Returns dict with empty items list
+        assert isinstance(shopping, dict)
+        assert shopping["items"] == []
+        assert shopping["items_count"] == 0
 
 
 # ============================================================================
