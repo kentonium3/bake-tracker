@@ -188,19 +188,32 @@ class ProductionTab(ctk.CTkFrame):
         try:
             progress = production_service.get_production_progress(event_id)
 
+            # Create scrollable container for all detail content
+            scroll_container = ctk.CTkScrollableFrame(self.detail_panel)
+            scroll_container.pack(fill="both", expand=True, padx=5, pady=5)
+
             # Event header
             header = ctk.CTkLabel(
-                self.detail_panel,
+                scroll_container,
                 text=f"Event: {progress['event_name']}",
                 font=ctk.CTkFont(size=18, weight="bold"),
             )
             header.pack(pady=PADDING_MEDIUM)
 
+            # Progress indicators (WP06 T027)
+            self._create_progress_indicators(scroll_container, progress)
+
+            # Cost summary (WP06 T025)
+            self._create_cost_summary(scroll_container, progress)
+
             # Production recording form
-            self._create_production_form(event_id, progress)
+            self._create_production_form(scroll_container, event_id, progress)
 
             # Recipe progress list
-            self._create_recipe_progress_list(progress["recipes"])
+            self._create_recipe_progress_list(scroll_container, progress["recipes"])
+
+            # Package status controls (WP06 T024)
+            self._create_package_status_section(scroll_container, event_id, progress)
 
         except Exception as e:
             error_label = ctk.CTkLabel(
@@ -208,9 +221,9 @@ class ProductionTab(ctk.CTkFrame):
             )
             error_label.pack(pady=20)
 
-    def _create_production_form(self, event_id: int, progress: dict):
+    def _create_production_form(self, parent, event_id: int, progress: dict):
         """Create form to record production."""
-        form_frame = ctk.CTkFrame(self.detail_panel)
+        form_frame = ctk.CTkFrame(parent)
         form_frame.pack(fill="x", padx=PADDING_MEDIUM, pady=PADDING_MEDIUM)
 
         form_header = ctk.CTkLabel(
@@ -305,9 +318,9 @@ class ProductionTab(ctk.CTkFrame):
         except Exception as e:
             self.status_label.configure(text=f"Error: {str(e)}", text_color="red")
 
-    def _create_recipe_progress_list(self, recipes: List[dict]):
+    def _create_recipe_progress_list(self, parent, recipes: List[dict]):
         """Display recipe progress list."""
-        list_frame = ctk.CTkFrame(self.detail_panel)
+        list_frame = ctk.CTkFrame(parent)
         list_frame.pack(fill="both", expand=True, padx=PADDING_MEDIUM, pady=PADDING_MEDIUM)
 
         header = ctk.CTkLabel(
@@ -350,3 +363,373 @@ class ProductionTab(ctk.CTkFrame):
         self._load_data()
         if self.selected_event_id:
             self._load_event_detail(self.selected_event_id)
+
+    # =========================================================================
+    # WP06: Progress Indicators, Cost Summary, Package Status
+    # =========================================================================
+
+    def _create_progress_indicators(self, parent, progress: dict):
+        """Create visual progress bars (T027)."""
+        section = ctk.CTkFrame(parent)
+        section.pack(fill="x", padx=PADDING_MEDIUM, pady=5)
+
+        # Recipe progress bar
+        recipes = progress.get("recipes", [])
+        recipes_complete = sum(1 for r in recipes if r.get("is_complete", False))
+        recipes_total = len(recipes)
+        recipe_pct = recipes_complete / recipes_total if recipes_total > 0 else 0
+
+        recipe_frame = ctk.CTkFrame(section)
+        recipe_frame.pack(fill="x", pady=2)
+
+        ctk.CTkLabel(
+            recipe_frame, text=f"Recipes: {recipes_complete}/{recipes_total}", width=120
+        ).pack(side="left", padx=5)
+
+        recipe_bar = ctk.CTkProgressBar(recipe_frame, width=200)
+        recipe_bar.set(recipe_pct)
+        recipe_bar.pack(side="left", padx=5)
+
+        if recipe_pct >= 1.0:
+            ctk.CTkLabel(recipe_frame, text="Complete", text_color="green").pack(
+                side="left", padx=5
+            )
+
+        # Package delivery progress
+        packages = progress.get("packages", {})
+        delivered = packages.get("delivered", 0)
+        assembled = packages.get("assembled", 0)
+        total = packages.get("total", 0)
+        delivery_pct = delivered / total if total > 0 else 0
+
+        delivery_frame = ctk.CTkFrame(section)
+        delivery_frame.pack(fill="x", pady=2)
+
+        ctk.CTkLabel(
+            delivery_frame, text=f"Delivered: {delivered}/{total}", width=120
+        ).pack(side="left", padx=5)
+
+        delivery_bar = ctk.CTkProgressBar(delivery_frame, width=200)
+        delivery_bar.set(delivery_pct)
+        delivery_bar.pack(side="left", padx=5)
+
+        # Assembly progress (assembled + delivered)
+        assembly_frame = ctk.CTkFrame(section)
+        assembly_frame.pack(fill="x", pady=2)
+
+        assembled_plus_delivered = assembled + delivered
+        assembly_pct = assembled_plus_delivered / total if total > 0 else 0
+
+        ctk.CTkLabel(
+            assembly_frame,
+            text=f"Assembled: {assembled_plus_delivered}/{total}",
+            width=120,
+        ).pack(side="left", padx=5)
+
+        assembly_bar = ctk.CTkProgressBar(assembly_frame, width=200)
+        assembly_bar.set(assembly_pct)
+        assembly_bar.pack(side="left", padx=5)
+
+    def _create_cost_summary(self, parent, progress: dict):
+        """Create cost comparison display (T025)."""
+        section = ctk.CTkFrame(parent)
+        section.pack(fill="x", padx=PADDING_MEDIUM, pady=5)
+
+        header = ctk.CTkLabel(
+            section, text="Cost Summary", font=ctk.CTkFont(size=14, weight="bold")
+        )
+        header.pack(pady=5)
+
+        costs = progress.get("costs", {})
+        actual = float(costs.get("actual_total", 0))
+        planned = float(costs.get("planned_total", 0))
+        variance = actual - planned
+
+        # Actual cost (larger font)
+        ctk.CTkLabel(
+            section, text=f"Actual Cost: ${actual:.2f}", font=ctk.CTkFont(size=16)
+        ).pack()
+
+        # Planned cost
+        ctk.CTkLabel(
+            section, text=f"Planned Cost: ${planned:.2f}", font=ctk.CTkFont(size=14)
+        ).pack()
+
+        # Variance with color coding
+        if variance > 0:
+            variance_text = f"Over budget: +${variance:.2f}"
+            color = "red"
+        elif variance < 0:
+            variance_text = f"Under budget: ${abs(variance):.2f}"
+            color = "green"
+        else:
+            variance_text = "On budget"
+            color = "gray"
+
+        ctk.CTkLabel(
+            section,
+            text=variance_text,
+            text_color=color,
+            font=ctk.CTkFont(size=12),
+        ).pack()
+
+        # Drill-down button
+        event_id = progress.get("event_id")
+        if event_id:
+            breakdown_btn = ctk.CTkButton(
+                section,
+                text="View Recipe Breakdown",
+                command=lambda: self._show_cost_breakdown(event_id),
+                width=150,
+            )
+            breakdown_btn.pack(pady=5)
+
+    def _show_cost_breakdown(self, event_id: int):
+        """Show detailed recipe cost breakdown in a popup (T026)."""
+        try:
+            breakdown = production_service.get_recipe_cost_breakdown(event_id)
+
+            # Create popup window
+            popup = ctk.CTkToplevel(self)
+            popup.title("Recipe Cost Breakdown")
+            popup.geometry("550x400")
+            popup.transient(self)
+            popup.grab_set()
+
+            # Header
+            header = ctk.CTkLabel(
+                popup, text="Cost by Recipe", font=ctk.CTkFont(size=16, weight="bold")
+            )
+            header.pack(pady=10)
+
+            # Scrollable frame for recipes
+            scroll = ctk.CTkScrollableFrame(popup)
+            scroll.pack(fill="both", expand=True, padx=10, pady=10)
+
+            # Table header
+            header_frame = ctk.CTkFrame(scroll)
+            header_frame.pack(fill="x", pady=5)
+
+            ctk.CTkLabel(header_frame, text="Recipe", width=150, anchor="w").pack(
+                side="left", padx=2
+            )
+            ctk.CTkLabel(header_frame, text="Actual", width=70, anchor="e").pack(
+                side="left", padx=2
+            )
+            ctk.CTkLabel(header_frame, text="Planned", width=70, anchor="e").pack(
+                side="left", padx=2
+            )
+            ctk.CTkLabel(header_frame, text="Variance", width=100, anchor="e").pack(
+                side="left", padx=2
+            )
+
+            # Recipe rows
+            for recipe in breakdown:
+                row = ctk.CTkFrame(scroll)
+                row.pack(fill="x", pady=1)
+
+                actual = float(recipe.get("actual_cost", 0))
+                planned = float(recipe.get("planned_cost", 0))
+                variance = float(recipe.get("variance", 0))
+                variance_pct = recipe.get("variance_percent", 0)
+
+                ctk.CTkLabel(
+                    row, text=recipe.get("recipe_name", ""), width=150, anchor="w"
+                ).pack(side="left", padx=2)
+                ctk.CTkLabel(row, text=f"${actual:.2f}", width=70, anchor="e").pack(
+                    side="left", padx=2
+                )
+                ctk.CTkLabel(row, text=f"${planned:.2f}", width=70, anchor="e").pack(
+                    side="left", padx=2
+                )
+
+                # Variance with color
+                if variance > 0:
+                    var_text = f"+${variance:.2f} ({variance_pct:+.1f}%)"
+                    color = "red"
+                elif variance < 0:
+                    var_text = f"${variance:.2f} ({variance_pct:+.1f}%)"
+                    color = "green"
+                else:
+                    var_text = "$0.00 (0%)"
+                    color = "gray"
+
+                ctk.CTkLabel(
+                    row, text=var_text, width=100, anchor="e", text_color=color
+                ).pack(side="left", padx=2)
+
+            # Close button
+            close_btn = ctk.CTkButton(popup, text="Close", command=popup.destroy)
+            close_btn.pack(pady=10)
+
+        except Exception as e:
+            self._show_error(f"Error loading breakdown: {e}")
+
+    def _create_package_status_section(self, parent, event_id: int, progress: dict):
+        """Create package status controls (T024)."""
+        section = ctk.CTkFrame(parent)
+        section.pack(fill="x", padx=PADDING_MEDIUM, pady=5)
+
+        header = ctk.CTkLabel(
+            section, text="Package Status", font=ctk.CTkFont(size=14, weight="bold")
+        )
+        header.pack(pady=5)
+
+        # Get assignments for this event
+        try:
+            assignments = self._get_event_assignments(event_id)
+
+            if not assignments:
+                ctk.CTkLabel(section, text="No package assignments found").pack(pady=5)
+                return
+
+            # Scrollable frame for packages
+            pkg_scroll = ctk.CTkScrollableFrame(section, height=150)
+            pkg_scroll.pack(fill="x", padx=5, pady=5)
+
+            for assignment in assignments:
+                self._create_package_row(pkg_scroll, assignment, event_id)
+
+        except Exception as e:
+            error = ctk.CTkLabel(section, text=f"Error: {e}", text_color="red")
+            error.pack()
+
+    def _get_event_assignments(self, event_id: int) -> List[dict]:
+        """Get package assignments for an event."""
+        from src.services.database import session_scope
+        from src.models import EventRecipientPackage
+
+        with session_scope() as session:
+            assignments = (
+                session.query(EventRecipientPackage)
+                .filter(EventRecipientPackage.event_id == event_id)
+                .all()
+            )
+
+            result = []
+            for a in assignments:
+                result.append(
+                    {
+                        "id": a.id,
+                        "recipient_name": a.recipient.name if a.recipient else "Unknown",
+                        "package_name": a.package.name if a.package else "Unknown",
+                        "status": a.status.value if a.status else "pending",
+                        "delivered_to": a.delivered_to,
+                    }
+                )
+            return result
+
+    def _create_package_row(self, parent, assignment: dict, event_id: int):
+        """Create a row for one package assignment."""
+        row = ctk.CTkFrame(parent)
+        row.pack(fill="x", pady=2, padx=5)
+
+        # Recipient and package name
+        info_text = f"{assignment['recipient_name']} - {assignment['package_name']}"
+        info = ctk.CTkLabel(row, text=info_text, width=200, anchor="w")
+        info.pack(side="left", padx=5)
+
+        # Current status
+        status = assignment["status"]
+        status_label = ctk.CTkLabel(row, text=status.upper(), width=80)
+
+        if status == "delivered":
+            status_label.configure(text_color="green")
+        elif status == "assembled":
+            status_label.configure(text_color="blue")
+        else:
+            status_label.configure(text_color="gray")
+
+        status_label.pack(side="left", padx=5)
+
+        # Action buttons based on current status
+        if status == "pending":
+            assemble_btn = ctk.CTkButton(
+                row,
+                text="Mark Assembled",
+                width=120,
+                command=lambda: self._update_status(
+                    assignment["id"], "assembled", event_id
+                ),
+            )
+            assemble_btn.pack(side="right", padx=2)
+
+        elif status == "assembled":
+            deliver_btn = ctk.CTkButton(
+                row,
+                text="Mark Delivered",
+                width=120,
+                command=lambda: self._show_delivery_dialog(assignment["id"], event_id),
+            )
+            deliver_btn.pack(side="right", padx=2)
+
+        elif status == "delivered":
+            if assignment.get("delivered_to"):
+                note = ctk.CTkLabel(
+                    row,
+                    text=f"({assignment['delivered_to']})",
+                    font=ctk.CTkFont(size=10),
+                )
+                note.pack(side="right", padx=5)
+
+    def _update_status(self, assignment_id: int, new_status: str, event_id: int):
+        """Update package status via service."""
+        from src.models import PackageStatus
+        from src.services.production_service import (
+            IncompleteProductionError,
+            InvalidStatusTransitionError,
+        )
+
+        status_map = {
+            "pending": PackageStatus.PENDING,
+            "assembled": PackageStatus.ASSEMBLED,
+            "delivered": PackageStatus.DELIVERED,
+        }
+
+        try:
+            production_service.update_package_status(
+                assignment_id=assignment_id, new_status=status_map[new_status]
+            )
+
+            # Refresh view
+            self._load_data()
+            self._load_event_detail(event_id)
+
+        except IncompleteProductionError as e:
+            missing = ", ".join(r["recipe_name"] for r in e.missing_recipes)
+            self._show_error(f"Cannot assemble: Missing production for {missing}")
+
+        except InvalidStatusTransitionError as e:
+            self._show_error(
+                f"Cannot change from {e.current.value} to {e.target.value}"
+            )
+
+        except Exception as e:
+            self._show_error(str(e))
+
+    def _show_delivery_dialog(self, assignment_id: int, event_id: int):
+        """Show dialog to optionally add delivery note."""
+        dialog = ctk.CTkInputDialog(
+            title="Mark as Delivered",
+            text="Optional delivery note (e.g., 'Left with neighbor'):",
+        )
+        note = dialog.get_input()
+
+        from src.models import PackageStatus
+
+        try:
+            production_service.update_package_status(
+                assignment_id=assignment_id,
+                new_status=PackageStatus.DELIVERED,
+                delivered_to=note if note else None,
+            )
+            self._load_data()
+            self._load_event_detail(event_id)
+        except Exception as e:
+            self._show_error(str(e))
+
+    def _show_error(self, message: str):
+        """Show error message to user."""
+        from tkinter import messagebox
+
+        messagebox.showerror("Error", message, parent=self)
