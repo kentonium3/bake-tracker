@@ -194,11 +194,11 @@ history:
 
 ## Definition of Done Checklist
 
-- [ ] All methods from contract verified or implemented
-- [ ] Deletion warning works with assignments
-- [ ] Force delete cascades assignments
-- [ ] Search functionality works
-- [ ] Unit tests pass with >70% coverage
+- [x] All methods from contract verified or implemented
+- [x] Deletion warning works with assignments
+- [x] Force delete cascades assignments
+- [x] Search functionality works
+- [x] Unit tests pass with >70% coverage (81.38%)
 - [ ] `tasks.md` updated with status change
 
 ## Review Guidance
@@ -211,3 +211,4 @@ history:
 
 - 2025-12-03 - system - lane=planned - Prompt created.
 - 2025-12-04T02:38:59Z – claude – shell_pid=9077 – lane=doing – Started verification
+- 2025-12-04T03:15:00Z – claude – shell_pid=9077 – lane=for_review – Completed: Added missing methods (get_recipient_by_name, check_recipient_has_assignments, get_recipient_assignment_count, get_recipient_events, search_recipients, get_recipients_by_household), force delete with FR-018, 33 tests passing at 81.38% coverage

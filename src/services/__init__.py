@@ -141,6 +141,25 @@ from .event_service import (
     DuplicateAssignmentError,
 )
 
+# Recipient services (Feature 006)
+from .recipient_service import (
+    create_recipient,
+    get_recipient,
+    get_recipient_by_name,
+    get_all_recipients,
+    update_recipient,
+    delete_recipient,
+    check_recipient_has_assignments,
+    get_recipient_assignment_count,
+    get_recipient_events,
+    search_recipients,
+    get_recipients_by_household,
+    # Exceptions
+    RecipientNotFound,
+    RecipientInUse,
+    RecipientHasAssignmentsError,
+)
+
 # Composition services
 from .composition_service import (
     CompositionService,
@@ -280,6 +299,21 @@ __all__ = [
     "AssignmentNotFoundError",
     "RecipientNotFoundError",
     "DuplicateAssignmentError",
+    # Recipient services (Feature 006)
+    "create_recipient",
+    "get_recipient",
+    "get_recipient_by_name",
+    "get_all_recipients",
+    "update_recipient",
+    "delete_recipient",
+    "check_recipient_has_assignments",
+    "get_recipient_assignment_count",
+    "get_recipient_events",
+    "search_recipients",
+    "get_recipients_by_household",
+    "RecipientNotFound",
+    "RecipientInUse",
+    "RecipientHasAssignmentsError",
     # Infrastructure - Exception hierarchy
     "ServiceError",
     "ServiceException",
