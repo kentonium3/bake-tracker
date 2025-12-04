@@ -14,10 +14,10 @@ subtasks:
   - "T022"
 title: "Package Service Implementation"
 phase: "Phase 2 - Services Layer"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "claude"
+shell_pid: "7659"
 review_status: ""
 reviewed_by: ""
 history:
@@ -358,3 +358,4 @@ def test_calculate_package_cost_with_multiple_finished_goods(session):
 ## Activity Log
 
 - 2025-12-03 - system - lane=planned - Prompt created.
+- 2025-12-04T02:31:51Z – claude – shell_pid=7659 – lane=doing – Started implementation
