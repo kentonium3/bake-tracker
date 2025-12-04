@@ -9,10 +9,10 @@ subtasks:
   - "T038"
 title: "Sample Data & Integration Testing"
 phase: "Phase 4 - Testing & Polish"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "claude"
-shell_pid: "83554"
+shell_pid: "84357"
 review_status: ""
 reviewed_by: ""
 history:
@@ -290,3 +290,4 @@ history:
 
 - 2025-12-04T00:00:00Z - system - lane=planned - Prompt created via /spec-kitty.tasks
 - 2025-12-04T20:28:43Z – claude – shell_pid=83554 – lane=doing – Started implementation
+- 2025-12-04T20:48:01Z – claude – shell_pid=84357 – lane=for_review – Completed all integration tests - T033-T038 done. 39 tests passing.
