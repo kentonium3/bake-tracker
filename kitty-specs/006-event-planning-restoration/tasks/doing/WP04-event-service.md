@@ -15,10 +15,10 @@ subtasks:
   - "T034"
 title: "Event Service Implementation"
 phase: "Phase 2 - Services Layer"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "claude"
+shell_pid: "8297"
 review_status: ""
 reviewed_by: ""
 history:
@@ -392,3 +392,4 @@ history:
 ## Activity Log
 
 - 2025-12-03 - system - lane=planned - Prompt created.
+- 2025-12-04T02:35:08Z – claude – shell_pid=8297 – lane=doing – Started implementation
