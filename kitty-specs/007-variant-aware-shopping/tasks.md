@@ -53,16 +53,16 @@
 
 ---
 
-## Work Package WP02: EventService Shopping List Integration (Priority: P1) MVP
+## Work Package WP02: EventService Shopping List Integration (Priority: P1) MVP ✅ COMPLETE
 
 **Goal**: Extend `get_shopping_list()` to include variant recommendations and calculate total estimated cost.
 **Independent Test**: Integration test verifies shopping list returns variant data and correct total cost.
-**Prompt**: `tasks/planned/WP02-event-service-integration.md`
+**Prompt**: `tasks/done/WP02-event-service-integration.md`
 
 ### Included Subtasks
-- [ ] T005 Modify `get_shopping_list()` in `src/services/event_service.py` to call VariantService
-- [ ] T006 Calculate and return `total_estimated_cost` across all items (FR-007)
-- [ ] T007 [P] Integration tests in `src/tests/test_event_service.py`
+- [x] T005 Modify `get_shopping_list()` in `src/services/event_service.py` to call VariantService
+- [x] T006 Calculate and return `total_estimated_cost` across all items (FR-007)
+- [x] T007 [P] Integration tests in `src/tests/services/test_event_service_variants.py` (5 tests)
 
 ### Implementation Notes
 1. For each item in shopping list with shortfall > 0:
