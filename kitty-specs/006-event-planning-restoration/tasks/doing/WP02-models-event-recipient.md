@@ -9,10 +9,10 @@ subtasks:
   - "T011"
 title: "Models Layer - Event & Recipient"
 phase: "Phase 1 - Models Layer"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "claude"
+shell_pid: "7182"
 review_status: ""
 reviewed_by: ""
 history:
@@ -209,3 +209,4 @@ history:
 ## Activity Log
 
 - 2025-12-03 - system - lane=planned - Prompt created.
+- 2025-12-04T02:30:15Z – claude – shell_pid=7182 – lane=doing – Started implementation
