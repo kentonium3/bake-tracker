@@ -1,0 +1,14 @@
+id,date,source,finding,relevance,decision_impact
+E001,2025-12-03,src/models/__init__.py,Package and Event models disabled due to Bundle dependency,Critical,D1 - Eliminate Bundle
+E002,2025-12-03,src/models/__init__.py,"Bundle noted as 'moved to legacy or removed'",Critical,D1 - Eliminate Bundle
+E003,2025-12-03,src/models/finished_good.py,FinishedGood repurposed as assembly container,High,D2 - Package references FinishedGood
+E004,2025-12-03,src/models/finished_unit.py,FinishedUnit now holds individual item properties,High,Architecture understanding
+E005,2025-12-03,src/models/composition.py,Polymorphic junction supports nested assemblies,Medium,Architecture understanding
+E006,2025-12-03,src/services/event_service.py,Imports Bundle which doesn't exist - broken,Critical,D4 - Reimplement services
+E007,2025-12-03,src/services/package_service.py,Imports Bundle which doesn't exist - broken,Critical,D4 - Reimplement services
+E008,2025-12-03,src/ui/bundles_tab.py,References non-existent Bundle import from finished_good,Medium,UI needs rewrite
+E009,2025-12-03,src/models/event.py,Event model functional - just needs re-enabling,High,Minimal changes to Event
+E010,2025-12-03,src/models/package.py,Package model needs relationship update only,High,D2 - Adapt PackageBundle
+E011,2025-12-03,src/models/recipient.py,Recipient model enabled and functional,Low,No changes needed
+E012,2025-12-03,User input,Density calculation mechanism was simplified,Medium,Avoid complex density patterns
+E013,2025-12-03,User input,FinishedUnit concept changed from original FinishedGood,High,D1 - Adapt to new architecture

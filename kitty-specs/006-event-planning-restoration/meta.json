@@ -1,0 +1,7 @@
+{
+  "feature_number": "006",
+  "slug": "006-event-planning-restoration",
+  "friendly_name": "Event Planning Restoration",
+  "source_description": "Reimplement the gift planning subsystem (Bundle, Package, Event model chain) that was disabled during the Ingredient/Variant refactor, updated to work with the new architecture and FIFO-based costing from Feature 005.",
+  "created_at": "2025-12-04T00:56:51Z"
+}
