@@ -20,7 +20,7 @@ class ImportDialog(ctk.CTkToplevel):
         """Initialize the import dialog."""
         super().__init__(parent)
         self.title("Import Data")
-        self.geometry("500x380")
+        self.geometry("500x450")
         self.resizable(False, False)
 
         self.result = None
