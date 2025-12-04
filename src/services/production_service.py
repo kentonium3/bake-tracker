@@ -505,6 +505,7 @@ def get_production_progress(event_id: int) -> Dict[str, Any]:
                 raise EventNotFoundError(event_id)
 
             event_name = event.name
+            event_date = event.event_date
 
     except SQLAlchemyError as e:
         raise DatabaseError(f"Failed to verify event: {str(e)}")
@@ -585,6 +586,7 @@ def get_production_progress(event_id: int) -> Dict[str, Any]:
             return {
                 "event_id": event_id,
                 "event_name": event_name,
+                "event_date": event_date.isoformat() if event_date else None,
                 "recipes": recipes,
                 "packages": {
                     "total": total_packages,
@@ -638,6 +640,7 @@ def get_dashboard_summary() -> List[Dict[str, Any]]:
             {
                 "event_id": progress["event_id"],
                 "event_name": progress["event_name"],
+                "event_date": progress["event_date"],
                 "recipes_complete": recipes_complete,
                 "recipes_total": recipes_total,
                 "packages_pending": progress["packages"]["pending"],
@@ -691,3 +694,42 @@ def get_recipe_cost_breakdown(event_id: int) -> List[Dict[str, Any]]:
         )
 
     return breakdown
+
+
+def get_event_assignments(event_id: int) -> List[Dict[str, Any]]:
+    """
+    Get package assignments for an event with status info.
+
+    Args:
+        event_id: Event to get assignments for
+
+    Returns:
+        List of assignment dicts with recipient, package, status info
+    """
+    try:
+        with session_scope() as session:
+            assignments = (
+                session.query(EventRecipientPackage)
+                .options(
+                    joinedload(EventRecipientPackage.recipient),
+                    joinedload(EventRecipientPackage.package),
+                )
+                .filter(EventRecipientPackage.event_id == event_id)
+                .all()
+            )
+
+            result = []
+            for a in assignments:
+                result.append(
+                    {
+                        "id": a.id,
+                        "recipient_name": a.recipient.name if a.recipient else "Unknown",
+                        "package_name": a.package.name if a.package else "Unknown",
+                        "status": a.status.value if a.status else "pending",
+                        "delivered_to": a.delivered_to,
+                    }
+                )
+            return result
+
+    except SQLAlchemyError as e:
+        raise DatabaseError(f"Failed to get event assignments: {str(e)}")

@@ -696,7 +696,7 @@ class ProductionTab(ctk.CTkFrame):
 
         # Get assignments for this event
         try:
-            assignments = self._get_event_assignments(event_id)
+            assignments = production_service.get_event_assignments(event_id)
 
             if not assignments:
                 ctk.CTkLabel(section, text="No package assignments found").pack(pady=5)
@@ -712,31 +712,6 @@ class ProductionTab(ctk.CTkFrame):
         except Exception as e:
             error = ctk.CTkLabel(section, text=f"Error: {e}", text_color="red")
             error.pack()
-
-    def _get_event_assignments(self, event_id: int) -> List[dict]:
-        """Get package assignments for an event."""
-        from src.services.database import session_scope
-        from src.models import EventRecipientPackage
-
-        with session_scope() as session:
-            assignments = (
-                session.query(EventRecipientPackage)
-                .filter(EventRecipientPackage.event_id == event_id)
-                .all()
-            )
-
-            result = []
-            for a in assignments:
-                result.append(
-                    {
-                        "id": a.id,
-                        "recipient_name": a.recipient.name if a.recipient else "Unknown",
-                        "package_name": a.package.name if a.package else "Unknown",
-                        "status": a.status.value if a.status else "pending",
-                        "delivered_to": a.delivered_to,
-                    }
-                )
-            return result
 
     def _create_package_row(self, parent, assignment: dict, event_id: int):
         """Create a row for one package assignment."""

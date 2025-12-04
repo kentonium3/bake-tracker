@@ -323,7 +323,10 @@ class EventsTab(ctk.CTkFrame):
             year_filter = self.year_filter_var.get()
             year = None if year_filter == "All Years" else int(year_filter)
 
-            events = event_service.get_all_events(year=year)
+            if year is not None:
+                events = event_service.get_events_by_year(year)
+            else:
+                events = event_service.get_all_events()
             self.data_table.set_data(events)
             self._update_status(f"Loaded {len(events)} event(s)")
         except Exception as e:

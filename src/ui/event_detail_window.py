@@ -278,7 +278,7 @@ class EventDetailWindow(ctk.CTkToplevel):
             return
 
         try:
-            event_service.delete_assignment(self.selected_assignment.id)
+            event_service.remove_assignment(self.selected_assignment.id)
             show_success("Success", "Assignment removed successfully", parent=self)
             self.selected_assignment = None
             self.refresh()
@@ -386,7 +386,7 @@ class EventDetailWindow(ctk.CTkToplevel):
             widget.destroy()
 
         try:
-            recipe_needs = event_service.calculate_recipe_needs(self.event.id)
+            recipe_needs = event_service.get_recipe_needs(self.event.id)
 
             if not recipe_needs:
                 label = ctk.CTkLabel(
@@ -725,7 +725,7 @@ class EventDetailWindow(ctk.CTkToplevel):
             ).grid(row=0, column=0, sticky="w", pady=(0, 20))
 
             # Get fresh event data
-            event = event_service.get_event(self.event.id)
+            event = event_service.get_event_by_id(self.event.id)
 
             recipient_count = event.get_recipient_count()
             package_count = event.get_package_count()
