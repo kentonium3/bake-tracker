@@ -14,7 +14,7 @@ subtasks:
 title: "UI - Menu Bar and Dialogs"
 phase: "Phase 3 - UI Layer"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude-reviewer"
 shell_pid: "85463"
 review_status: "approved"

@@ -14,7 +14,7 @@ subtasks:
 title: "Service Layer - Import Functions with Mode Support"
 phase: "Phase 2 - Service Layer"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude-reviewer"
 shell_pid: "85228"
 review_status: "approved"

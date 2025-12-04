@@ -10,7 +10,7 @@ subtasks:
 title: "Sample Data & Integration Testing"
 phase: "Phase 4 - Testing & Polish"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude-reviewer"
 shell_pid: "85685"
 review_status: "approved"

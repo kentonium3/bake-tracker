@@ -11,7 +11,7 @@ subtasks:
 title: "Service Layer - Export Functions"
 phase: "Phase 2 - Service Layer"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude-reviewer"
 shell_pid: "85066"
 review_status: "approved"

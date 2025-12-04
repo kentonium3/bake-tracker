@@ -9,7 +9,7 @@ subtasks:
 title: "v3.0 Specification Document"
 phase: "Phase 1 - Foundation"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude-reviewer"
 shell_pid: "84858"
 review_status: "approved"

@@ -22,11 +22,11 @@
 **Prompt**: `/tasks/planned/WP01-v3-specification.md`
 
 ### Included Subtasks
-- [ ] T001 Archive v2.0 specification to `docs/archive/import_export_specification_v2.md`
-- [ ] T002 Create v3.0 specification document at `docs/design/import_export_specification.md`
-- [ ] T003 Document all 16 exportable entities with JSON examples
-- [ ] T004 Document import dependency order for referential integrity
-- [ ] T005 Document validation rules and error handling
+- [x] T001 Archive v2.0 specification to `docs/archive/import_export_specification_v2.md`
+- [x] T002 Create v3.0 specification document at `docs/design/import_export_specification.md`
+- [x] T003 Document all 16 exportable entities with JSON examples
+- [x] T004 Document import dependency order for referential integrity
+- [x] T005 Document validation rules and error handling
 
 ### Implementation Notes
 - Use `data-model.md` as primary source for entity definitions
@@ -51,13 +51,13 @@
 **Prompt**: `/tasks/planned/WP02-export-functions.md`
 
 ### Included Subtasks
-- [ ] T006 Add `ExportResult` class enhancements (record counts per entity)
-- [ ] T007 [P] Implement `export_finished_units_to_json()` in `src/services/import_export_service.py`
-- [ ] T008 [P] Implement `export_compositions_to_json()` in `src/services/import_export_service.py`
-- [ ] T009 [P] Implement `export_package_finished_goods_to_json()` in `src/services/import_export_service.py`
-- [ ] T010 [P] Implement `export_production_records_to_json()` in `src/services/import_export_service.py`
-- [ ] T011 Update `export_all_to_json()` to include new entities and v3.0 header
-- [ ] T012 Add unit tests for new export functions in `src/tests/services/test_import_export_service.py`
+- [x] T006 Add `ExportResult` class enhancements (record counts per entity)
+- [x] T007 [P] Implement `export_finished_units_to_json()` in `src/services/import_export_service.py`
+- [x] T008 [P] Implement `export_compositions_to_json()` in `src/services/import_export_service.py`
+- [x] T009 [P] Implement `export_package_finished_goods_to_json()` in `src/services/import_export_service.py`
+- [x] T010 [P] Implement `export_production_records_to_json()` in `src/services/import_export_service.py`
+- [x] T011 Update `export_all_to_json()` to include new entities and v3.0 header
+- [x] T012 Add unit tests for new export functions in `src/tests/services/test_import_export_service.py`
 
 ### Implementation Notes
 - Follow existing export function patterns (use `session_scope()`, return `List[Dict]`)
@@ -82,16 +82,16 @@
 **Prompt**: `/tasks/planned/WP03-import-functions.md`
 
 ### Included Subtasks
-- [ ] T013 Add `mode` parameter to `import_all_from_json()` ("merge" or "replace")
-- [ ] T014 Implement `_clear_all_tables()` helper for Replace mode
-- [ ] T015 Add v3.0 version detection and rejection of non-v3.0 files (FR-018)
-- [ ] T016 [P] Implement `import_finished_units_from_json()` in `src/services/import_export_service.py`
-- [ ] T017 [P] Implement `import_compositions_from_json()` in `src/services/import_export_service.py`
-- [ ] T018 [P] Implement `import_package_finished_goods_from_json()` in `src/services/import_export_service.py`
-- [ ] T019 [P] Implement `import_production_records_from_json()` in `src/services/import_export_service.py`
-- [ ] T020 Update `import_all_from_json()` to call new entity imports in dependency order
-- [ ] T021 Enhance `ImportResult` with per-entity counts and skip tracking
-- [ ] T022 Add unit tests for import modes and version validation
+- [x] T013 Add `mode` parameter to `import_all_from_json()` ("merge" or "replace")
+- [x] T014 Implement `_clear_all_tables()` helper for Replace mode
+- [x] T015 Add v3.0 version detection and rejection of non-v3.0 files (FR-018)
+- [x] T016 [P] Implement `import_finished_units_from_json()` in `src/services/import_export_service.py`
+- [x] T017 [P] Implement `import_compositions_from_json()` in `src/services/import_export_service.py`
+- [x] T018 [P] Implement `import_package_finished_goods_from_json()` in `src/services/import_export_service.py`
+- [x] T019 [P] Implement `import_production_records_from_json()` in `src/services/import_export_service.py`
+- [x] T020 Update `import_all_from_json()` to call new entity imports in dependency order
+- [x] T021 Enhance `ImportResult` with per-entity counts and skip tracking
+- [x] T022 Add unit tests for import modes and version validation
 
 ### Implementation Notes
 - Merge mode: Use existing duplicate detection logic, skip and count
@@ -118,16 +118,16 @@
 **Prompt**: `/tasks/planned/WP04-ui-menu-dialogs.md`
 
 ### Included Subtasks
-- [ ] T023 Add menu bar to `src/ui/main_window.py` with File menu
-- [ ] T024 Create `src/ui/import_export_dialog.py` with `ImportDialog` class
-- [ ] T025 Create `ExportDialog` class in same file
-- [ ] T026 Implement file dialogs with JSON filter (FR-004)
-- [ ] T027 Add mode selection (Merge/Replace) to ImportDialog (FR-013)
-- [ ] T028 Add Replace mode confirmation dialog (FR-013b)
-- [ ] T029 Implement progress indication for large datasets
-- [ ] T030 Add success/error message dialogs with user-friendly text (FR-006, FR-007, FR-008)
-- [ ] T031 Wire dialogs to service layer functions
-- [ ] T032 Add tab refresh after successful import
+- [x] T023 Add menu bar to `src/ui/main_window.py` with File menu
+- [x] T024 Create `src/ui/import_export_dialog.py` with `ImportDialog` class
+- [x] T025 Create `ExportDialog` class in same file
+- [x] T026 Implement file dialogs with JSON filter (FR-004)
+- [x] T027 Add mode selection (Merge/Replace) to ImportDialog (FR-013)
+- [x] T028 Add Replace mode confirmation dialog (FR-013b)
+- [x] T029 Implement progress indication for large datasets
+- [x] T030 Add success/error message dialogs with user-friendly text (FR-006, FR-007, FR-008)
+- [x] T031 Wire dialogs to service layer functions
+- [x] T032 Add tab refresh after successful import
 
 ### Implementation Notes
 - Use tkinter `Menu` widget (works with CustomTkinter per research.md)
@@ -154,12 +154,12 @@
 **Prompt**: `/tasks/planned/WP05-sample-data-integration.md`
 
 ### Included Subtasks
-- [ ] T033 Update `test_data/sample_data.json` to v3.0 format
-- [ ] T034 Add realistic test data for all 16 entity types
-- [ ] T035 Add integration test for sample data import
-- [ ] T036 Add round-trip test (export -> clear -> import -> verify)
-- [ ] T037 Add performance test for <60s import of typical dataset
-- [ ] T038 Validate all success criteria (SC-001 through SC-007)
+- [x] T033 Update `test_data/sample_data.json` to v3.0 format
+- [x] T034 Add realistic test data for all 16 entity types
+- [x] T035 Add integration test for sample data import
+- [x] T036 Add round-trip test (export -> clear -> import -> verify)
+- [x] T037 Add performance test for <60s import of typical dataset
+- [x] T038 Validate all success criteria (SC-001 through SC-007)
 
 ### Implementation Notes
 - Sample data should include realistic holiday baking scenario
