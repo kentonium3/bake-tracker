@@ -7,10 +7,10 @@ subtasks:
   - "T004"
 title: "VariantService Recommendation Engine"
 phase: "Phase 1 - Service Layer"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "claude"
+shell_pid: "31801"
 review_status: ""
 reviewed_by: ""
 history:
@@ -379,3 +379,4 @@ pytest src/tests/test_variant_service.py -v -k "recommendation"
 ## Activity Log
 
 - 2025-12-04 - system - lane=planned - Prompt created via /spec-kitty.tasks.
+- 2025-12-04T06:29:27Z – claude – shell_pid=31801 – lane=doing – Started implementation
