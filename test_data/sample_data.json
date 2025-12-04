@@ -1,4 +1,63 @@
 {
+  "version": "3.0",
+  "exported_at": "2025-12-04T00:00:00Z",
+  "application": "bake-tracker",
+  "unit_conversions": [
+    {
+      "ingredient_slug": "all_purpose_flour",
+      "from_unit": "lb",
+      "to_unit": "cup",
+      "factor": 3.6
+    },
+    {
+      "ingredient_slug": "white_granulated_sugar",
+      "from_unit": "lb",
+      "to_unit": "cup",
+      "factor": 2.25
+    },
+    {
+      "ingredient_slug": "semi_sweet_chocolate_chips",
+      "from_unit": "oz",
+      "to_unit": "cup",
+      "factor": 0.167
+    },
+    {
+      "ingredient_slug": "unsalted_butter",
+      "from_unit": "lb",
+      "to_unit": "cup",
+      "factor": 2.0
+    },
+    {
+      "ingredient_slug": "brown_sugar",
+      "from_unit": "lb",
+      "to_unit": "cup",
+      "factor": 2.25
+    },
+    {
+      "ingredient_slug": "powdered_sugar",
+      "from_unit": "lb",
+      "to_unit": "cup",
+      "factor": 3.75
+    },
+    {
+      "ingredient_slug": "cocoa_powder",
+      "from_unit": "oz",
+      "to_unit": "cup",
+      "factor": 0.25
+    },
+    {
+      "ingredient_slug": "pecans",
+      "from_unit": "lb",
+      "to_unit": "cup",
+      "factor": 4.0
+    },
+    {
+      "ingredient_slug": "walnuts",
+      "from_unit": "lb",
+      "to_unit": "cup",
+      "factor": 4.0
+    }
+  ],
   "ingredients": [
     {
       "name": "All-Purpose Flour",
@@ -100,7 +159,7 @@
       "package_type": "bag",
       "purchase_unit": "lb",
       "purchase_quantity": 25.0,
-      "preferred": true,
+      "is_preferred": true,
       "notes": "Premium quality, consistent results"
     },
     {
@@ -110,7 +169,7 @@
       "package_type": "bag",
       "purchase_unit": "lb",
       "purchase_quantity": 5.0,
-      "preferred": false,
+      "is_preferred": false,
       "notes": "Good budget option"
     },
     {
@@ -120,7 +179,7 @@
       "package_type": "bag",
       "purchase_unit": "lb",
       "purchase_quantity": 25.0,
-      "preferred": true,
+      "is_preferred": true,
       "notes": "Best price per pound at Costco"
     },
     {
@@ -130,7 +189,7 @@
       "package_type": "bag",
       "purchase_unit": "oz",
       "purchase_quantity": 72.0,
-      "preferred": true,
+      "is_preferred": true,
       "notes": "Costco bulk bag"
     },
     {
@@ -140,7 +199,7 @@
       "package_type": "box",
       "purchase_unit": "lb",
       "purchase_quantity": 4.0,
-      "preferred": true,
+      "is_preferred": true,
       "notes": "Costco 4-pack"
     },
     {
@@ -150,7 +209,7 @@
       "package_type": "bag",
       "purchase_unit": "lb",
       "purchase_quantity": 2.0,
-      "preferred": true,
+      "is_preferred": true,
       "notes": "Light brown sugar"
     },
     {
@@ -160,7 +219,7 @@
       "package_type": "bag",
       "purchase_unit": "lb",
       "purchase_quantity": 2.0,
-      "preferred": true
+      "is_preferred": true
     },
     {
       "ingredient_slug": "cocoa_powder",
@@ -169,7 +228,7 @@
       "package_type": "jar",
       "purchase_unit": "oz",
       "purchase_quantity": 8.0,
-      "preferred": true,
+      "is_preferred": true,
       "notes": "Premium dutch-processed cocoa"
     },
     {
@@ -179,7 +238,7 @@
       "package_type": "bottle",
       "purchase_unit": "oz",
       "purchase_quantity": 16.0,
-      "preferred": true
+      "is_preferred": true
     },
     {
       "ingredient_slug": "baking_soda",
@@ -188,7 +247,7 @@
       "package_type": "box",
       "purchase_unit": "lb",
       "purchase_quantity": 1.0,
-      "preferred": true
+      "is_preferred": true
     },
     {
       "ingredient_slug": "salt",
@@ -197,7 +256,7 @@
       "package_type": "box",
       "purchase_unit": "oz",
       "purchase_quantity": 26.0,
-      "preferred": true
+      "is_preferred": true
     },
     {
       "ingredient_slug": "pecans",
@@ -206,7 +265,7 @@
       "package_type": "bag",
       "purchase_unit": "lb",
       "purchase_quantity": 2.0,
-      "preferred": true,
+      "is_preferred": true,
       "notes": "Halves and pieces"
     },
     {
@@ -216,245 +275,180 @@
       "package_type": "bag",
       "purchase_unit": "lb",
       "purchase_quantity": 3.0,
-      "preferred": true,
+      "is_preferred": true,
       "notes": "Halves and pieces"
     }
   ],
   "purchases": [
     {
-      "variant_brand": "King Arthur",
       "ingredient_slug": "all_purpose_flour",
-      "purchased_at": "2024-10-15T10:30:00",
-      "unit_cost": 18.99,
-      "quantity_purchased": 1.0,
-      "total_cost": 18.99,
-      "supplier": "Costco",
+      "variant_brand": "King Arthur",
+      "purchase_date": "2024-10-15",
+      "quantity": 1,
+      "unit_price": 18.99,
+      "store": "Costco",
       "notes": "Stock up purchase"
     },
     {
-      "variant_brand": "King Arthur",
       "ingredient_slug": "all_purpose_flour",
-      "purchased_at": "2024-11-05T14:20:00",
-      "unit_cost": 19.99,
-      "quantity_purchased": 2.0,
-      "total_cost": 39.98,
-      "supplier": "Costco",
+      "variant_brand": "King Arthur",
+      "purchase_date": "2024-11-05",
+      "quantity": 2,
+      "unit_price": 19.99,
+      "store": "Costco",
       "notes": "Price increase from last time"
     },
     {
-      "variant_brand": "Domino",
       "ingredient_slug": "white_granulated_sugar",
-      "purchased_at": "2024-10-15T10:30:00",
-      "unit_cost": 16.99,
-      "quantity_purchased": 1.0,
-      "total_cost": 16.99,
-      "supplier": "Costco"
+      "variant_brand": "Domino",
+      "purchase_date": "2024-10-15",
+      "quantity": 1,
+      "unit_price": 16.99,
+      "store": "Costco"
     },
     {
-      "variant_brand": "Nestle Toll House",
       "ingredient_slug": "semi_sweet_chocolate_chips",
-      "purchased_at": "2024-10-20T09:15:00",
-      "unit_cost": 12.99,
-      "quantity_purchased": 1.0,
-      "total_cost": 12.99,
-      "supplier": "Costco"
+      "variant_brand": "Nestle Toll House",
+      "purchase_date": "2024-10-20",
+      "quantity": 1,
+      "unit_price": 12.99,
+      "store": "Costco"
     },
     {
-      "variant_brand": "Kirkland",
       "ingredient_slug": "unsalted_butter",
-      "purchased_at": "2024-11-01T16:45:00",
-      "unit_cost": 14.99,
-      "quantity_purchased": 2.0,
-      "total_cost": 29.98,
-      "supplier": "Costco"
+      "variant_brand": "Kirkland",
+      "purchase_date": "2024-11-01",
+      "quantity": 2,
+      "unit_price": 14.99,
+      "store": "Costco"
     }
   ],
   "pantry_items": [
     {
-      "variant_brand": "King Arthur",
       "ingredient_slug": "all_purpose_flour",
+      "variant_brand": "King Arthur",
       "quantity": 1.5,
-      "purchase_date": "2024-10-15",
-      "location": "Main Pantry",
+      "unit": "lb",
+      "acquisition_date": "2024-10-15",
+      "unit_cost": 0.76,
       "notes": "Opened bag from October purchase"
     },
     {
-      "variant_brand": "King Arthur",
       "ingredient_slug": "all_purpose_flour",
+      "variant_brand": "King Arthur",
       "quantity": 2.0,
-      "purchase_date": "2024-11-05",
-      "location": "Main Pantry",
+      "unit": "lb",
+      "acquisition_date": "2024-11-05",
+      "unit_cost": 0.80,
       "notes": "Unopened from November purchase"
     },
     {
-      "variant_brand": "Domino",
       "ingredient_slug": "white_granulated_sugar",
+      "variant_brand": "Domino",
       "quantity": 0.75,
-      "purchase_date": "2024-10-15",
-      "location": "Main Pantry",
+      "unit": "lb",
+      "acquisition_date": "2024-10-15",
+      "unit_cost": 0.68,
       "notes": "Opened bag, about 3/4 remaining"
     },
     {
-      "variant_brand": "Nestle Toll House",
       "ingredient_slug": "semi_sweet_chocolate_chips",
-      "quantity": 0.5,
-      "purchase_date": "2024-10-20",
-      "location": "Main Pantry",
+      "variant_brand": "Nestle Toll House",
+      "quantity": 36.0,
+      "unit": "oz",
+      "acquisition_date": "2024-10-20",
+      "unit_cost": 0.18,
       "notes": "Half bag remaining"
     },
     {
-      "variant_brand": "Kirkland",
       "ingredient_slug": "unsalted_butter",
+      "variant_brand": "Kirkland",
       "quantity": 1.5,
-      "purchase_date": "2024-11-01",
-      "location": "Refrigerator",
+      "unit": "lb",
+      "acquisition_date": "2024-11-01",
+      "unit_cost": 3.75,
       "notes": "6 sticks remaining (1.5 lb)"
     },
     {
-      "variant_brand": "Domino",
       "ingredient_slug": "brown_sugar",
+      "variant_brand": "Domino",
       "quantity": 1.0,
-      "purchase_date": "2024-10-20",
-      "location": "Main Pantry",
+      "unit": "lb",
+      "acquisition_date": "2024-10-20",
+      "unit_cost": 2.50,
       "notes": "Opened bag"
     },
     {
-      "variant_brand": "C&H",
       "ingredient_slug": "powdered_sugar",
+      "variant_brand": "C&H",
       "quantity": 1.5,
-      "purchase_date": "2024-10-20",
-      "location": "Main Pantry"
+      "unit": "lb",
+      "acquisition_date": "2024-10-20",
+      "unit_cost": 1.50
     },
     {
-      "variant_brand": "Penzeys Dutch Process",
       "ingredient_slug": "cocoa_powder",
-      "quantity": 0.5,
-      "purchase_date": "2024-09-15",
-      "location": "Main Pantry",
+      "variant_brand": "Penzeys Dutch Process",
+      "quantity": 4.0,
+      "unit": "oz",
+      "acquisition_date": "2024-09-15",
+      "unit_cost": 1.12,
       "notes": "Half jar remaining"
     },
     {
-      "variant_brand": "McCormick",
       "ingredient_slug": "vanilla_extract",
-      "quantity": 0.75,
-      "purchase_date": "2024-08-01",
-      "location": "Main Pantry",
+      "variant_brand": "McCormick",
+      "quantity": 12.0,
+      "unit": "oz",
+      "acquisition_date": "2024-08-01",
+      "unit_cost": 0.94,
       "notes": "About 3/4 full"
     },
     {
-      "variant_brand": "Arm & Hammer",
       "ingredient_slug": "baking_soda",
+      "variant_brand": "Arm & Hammer",
       "quantity": 0.5,
-      "purchase_date": "2024-06-01",
-      "location": "Main Pantry"
+      "unit": "lb",
+      "acquisition_date": "2024-06-01",
+      "unit_cost": 2.00
     },
     {
-      "variant_brand": "Morton",
       "ingredient_slug": "salt",
-      "quantity": 0.8,
-      "purchase_date": "2024-05-01",
-      "location": "Main Pantry"
+      "variant_brand": "Morton",
+      "quantity": 20.8,
+      "unit": "oz",
+      "acquisition_date": "2024-05-01",
+      "unit_cost": 0.08
     },
     {
-      "variant_brand": "Costco",
       "ingredient_slug": "pecans",
+      "variant_brand": "Costco",
       "quantity": 1.25,
-      "purchase_date": "2024-10-25",
-      "location": "Freezer",
+      "unit": "lb",
+      "acquisition_date": "2024-10-25",
+      "unit_cost": 6.00,
       "notes": "Store in freezer to keep fresh"
     },
     {
+      "ingredient_slug": "walnuts",
       "variant_brand": "Kirkland",
-      "ingredient_slug": "walnuts",
       "quantity": 2.0,
-      "purchase_date": "2024-10-25",
-      "location": "Freezer",
+      "unit": "lb",
+      "acquisition_date": "2024-10-25",
+      "unit_cost": 4.00,
       "notes": "Unopened bag in freezer"
-    }
-  ],
-  "unit_conversions": [
-    {
-      "ingredient_slug": "all_purpose_flour",
-      "from_unit": "lb",
-      "from_quantity": 1.0,
-      "to_unit": "cup",
-      "to_quantity": 3.6,
-      "notes": "Unsifted, spooned and leveled"
-    },
-    {
-      "ingredient_slug": "white_granulated_sugar",
-      "from_unit": "lb",
-      "from_quantity": 1.0,
-      "to_unit": "cup",
-      "to_quantity": 2.25,
-      "notes": "Standard granulated sugar"
-    },
-    {
-      "ingredient_slug": "semi_sweet_chocolate_chips",
-      "from_unit": "oz",
-      "from_quantity": 12.0,
-      "to_unit": "cup",
-      "to_quantity": 2.0,
-      "notes": "Standard chocolate chip measurement"
-    },
-    {
-      "ingredient_slug": "unsalted_butter",
-      "from_unit": "lb",
-      "from_quantity": 1.0,
-      "to_unit": "cup",
-      "to_quantity": 2.0,
-      "notes": "4 sticks = 1 lb = 2 cups"
-    },
-    {
-      "ingredient_slug": "brown_sugar",
-      "from_unit": "lb",
-      "from_quantity": 1.0,
-      "to_unit": "cup",
-      "to_quantity": 2.25,
-      "notes": "Packed brown sugar"
-    },
-    {
-      "ingredient_slug": "powdered_sugar",
-      "from_unit": "lb",
-      "from_quantity": 1.0,
-      "to_unit": "cup",
-      "to_quantity": 3.75,
-      "notes": "Sifted powdered sugar"
-    },
-    {
-      "ingredient_slug": "cocoa_powder",
-      "from_unit": "oz",
-      "from_quantity": 8.0,
-      "to_unit": "cup",
-      "to_quantity": 2.0,
-      "notes": "8 oz jar = approximately 2 cups"
-    },
-    {
-      "ingredient_slug": "pecans",
-      "from_unit": "lb",
-      "from_quantity": 1.0,
-      "to_unit": "cup",
-      "to_quantity": 4.0,
-      "notes": "Chopped pecans"
-    },
-    {
-      "ingredient_slug": "walnuts",
-      "from_unit": "lb",
-      "from_quantity": 1.0,
-      "to_unit": "cup",
-      "to_quantity": 4.0,
-      "notes": "Chopped walnuts"
     }
   ],
   "recipes": [
     {
       "name": "Classic Chocolate Chip Cookies",
+      "slug": "classic_chocolate_chip_cookies",
       "category": "Cookies",
       "source": "SG-Binder",
       "yield_quantity": 48.0,
       "yield_unit": "cookies",
-      "yield_description": "2-inch cookies",
-      "estimated_time_minutes": 45,
+      "prep_time_minutes": 20,
+      "cook_time_minutes": 12,
       "notes": "Family favorite recipe",
       "ingredients": [
         {
@@ -504,12 +498,13 @@
     },
     {
       "name": "Fudgy Brownies",
+      "slug": "fudgy_brownies",
       "category": "Brownies",
       "source": "SG-Binder",
       "yield_quantity": 16.0,
       "yield_unit": "brownies",
-      "yield_description": "2-inch square brownies",
-      "estimated_time_minutes": 60,
+      "prep_time_minutes": 15,
+      "cook_time_minutes": 35,
       "notes": "Dense and fudgy, not cakey",
       "ingredients": [
         {
@@ -547,12 +542,13 @@
     },
     {
       "name": "Pecan Sandies",
+      "slug": "pecan_sandies",
       "category": "Cookies",
       "source": "SG-Binder",
       "yield_quantity": 36.0,
       "yield_unit": "cookies",
-      "yield_description": "1.5-inch round cookies",
-      "estimated_time_minutes": 40,
+      "prep_time_minutes": 15,
+      "cook_time_minutes": 18,
       "notes": "Buttery shortbread-style cookies",
       "ingredients": [
         {
@@ -591,12 +587,13 @@
     },
     {
       "name": "Chocolate Walnut Fudge",
+      "slug": "chocolate_walnut_fudge",
       "category": "Candies",
       "source": "SG-Binder",
       "yield_quantity": 64.0,
       "yield_unit": "pieces",
-      "yield_description": "1-inch squares",
-      "estimated_time_minutes": 120,
+      "prep_time_minutes": 30,
+      "cook_time_minutes": 10,
       "notes": "Includes 2 hours cooling time",
       "ingredients": [
         {
@@ -634,12 +631,13 @@
     },
     {
       "name": "Snickerdoodles",
+      "slug": "snickerdoodles",
       "category": "Cookies",
       "source": "SG-Binder",
       "yield_quantity": 36.0,
       "yield_unit": "cookies",
-      "yield_description": "3-inch cookies",
-      "estimated_time_minutes": 35,
+      "prep_time_minutes": 15,
+      "cook_time_minutes": 10,
       "notes": "Classic cinnamon sugar cookies",
       "ingredients": [
         {
@@ -676,170 +674,286 @@
       ]
     }
   ],
-  "finished_goods": [
+  "finished_units": [
     {
-      "name": "Chocolate Chip Cookie Dozen",
-      "recipe_name": "Classic Chocolate Chip Cookies",
-      "category": "Cookies",
-      "yield_mode": "DISCRETE_COUNT",
+      "recipe_slug": "classic_chocolate_chip_cookies",
+      "display_name": "Chocolate Chip Cookie",
+      "yield_mode": "discrete_count",
       "items_per_batch": 48,
-      "item_unit": "cookies",
+      "item_unit": "cookie",
+      "category": "Cookies",
       "notes": "Recipe makes 48 cookies, package as dozens"
     },
     {
-      "name": "Brownie Square",
-      "recipe_name": "Fudgy Brownies",
-      "category": "Brownies",
-      "yield_mode": "DISCRETE_COUNT",
+      "recipe_slug": "fudgy_brownies",
+      "display_name": "Brownie Square",
+      "yield_mode": "discrete_count",
       "items_per_batch": 16,
-      "item_unit": "brownies",
+      "item_unit": "brownie",
+      "category": "Brownies",
       "notes": "2-inch squares from 9x9 pan"
     },
     {
-      "name": "Pecan Sandy Cookies",
-      "recipe_name": "Pecan Sandies",
-      "category": "Cookies",
-      "yield_mode": "DISCRETE_COUNT",
+      "recipe_slug": "pecan_sandies",
+      "display_name": "Pecan Sandy",
+      "yield_mode": "discrete_count",
       "items_per_batch": 36,
-      "item_unit": "cookies",
+      "item_unit": "cookie",
+      "category": "Cookies",
       "notes": "Buttery shortbread cookies"
     },
     {
-      "name": "Fudge Piece",
-      "recipe_name": "Chocolate Walnut Fudge",
-      "category": "Candies",
-      "yield_mode": "DISCRETE_COUNT",
+      "recipe_slug": "chocolate_walnut_fudge",
+      "display_name": "Fudge Piece",
+      "yield_mode": "discrete_count",
       "items_per_batch": 64,
-      "item_unit": "pieces",
+      "item_unit": "piece",
+      "category": "Candies",
       "notes": "1-inch squares"
     },
     {
-      "name": "Snickerdoodle Cookies",
-      "recipe_name": "Snickerdoodles",
-      "category": "Cookies",
-      "yield_mode": "DISCRETE_COUNT",
+      "recipe_slug": "snickerdoodles",
+      "display_name": "Snickerdoodle",
+      "yield_mode": "discrete_count",
       "items_per_batch": 36,
-      "item_unit": "cookies",
+      "item_unit": "cookie",
+      "category": "Cookies",
       "notes": "Classic cinnamon sugar cookies"
     }
   ],
-  "bundles": [
+  "finished_goods": [
     {
-      "name": "Cookie Assortment",
-      "finished_good_name": "Chocolate Chip Cookie Dozen",
-      "quantity": 12,
-      "notes": "One dozen chocolate chip cookies"
+      "name": "Cookie Assortment Box",
+      "slug": "cookie_assortment_box",
+      "category": "Gift Items",
+      "description": "Assorted cookies including chocolate chip and snickerdoodles"
     },
     {
       "name": "Brownie Box",
-      "finished_good_name": "Brownie Square",
-      "quantity": 8,
-      "notes": "Eight fudgy brownies"
+      "slug": "brownie_box",
+      "category": "Gift Items",
+      "description": "Eight fudgy brownies"
     },
     {
-      "name": "Pecan Sandy Bundle",
-      "finished_good_name": "Pecan Sandy Cookies",
-      "quantity": 12,
-      "notes": "One dozen pecan sandies"
+      "name": "Pecan Sandy Box",
+      "slug": "pecan_sandy_box",
+      "category": "Gift Items",
+      "description": "One dozen pecan sandies"
     },
     {
       "name": "Fudge Box",
-      "finished_good_name": "Fudge Piece",
-      "quantity": 16,
+      "slug": "fudge_box",
+      "category": "Gift Items",
+      "description": "16 pieces of chocolate walnut fudge"
+    },
+    {
+      "name": "Snickerdoodle Box",
+      "slug": "snickerdoodle_box",
+      "category": "Gift Items",
+      "description": "One dozen snickerdoodles"
+    }
+  ],
+  "compositions": [
+    {
+      "finished_good_slug": "cookie_assortment_box",
+      "finished_unit_slug": "classic_chocolate_chip_cookies",
+      "component_quantity": 12,
+      "notes": "One dozen chocolate chip cookies"
+    },
+    {
+      "finished_good_slug": "brownie_box",
+      "finished_unit_slug": "fudgy_brownies",
+      "component_quantity": 8,
+      "notes": "Eight fudgy brownies"
+    },
+    {
+      "finished_good_slug": "pecan_sandy_box",
+      "finished_unit_slug": "pecan_sandies",
+      "component_quantity": 12,
+      "notes": "One dozen pecan sandies"
+    },
+    {
+      "finished_good_slug": "fudge_box",
+      "finished_unit_slug": "chocolate_walnut_fudge",
+      "component_quantity": 16,
       "notes": "16 pieces of chocolate walnut fudge"
     },
     {
-      "name": "Snickerdoodle Bundle",
-      "finished_good_name": "Snickerdoodle Cookies",
-      "quantity": 12,
+      "finished_good_slug": "snickerdoodle_box",
+      "finished_unit_slug": "snickerdoodles",
+      "component_quantity": 12,
       "notes": "One dozen snickerdoodles"
     }
   ],
   "packages": [
     {
       "name": "Holiday Cookie Box",
-      "description": "Assorted cookie gift box with variety",
-      "bundles": [
-        {
-          "bundle_name": "Cookie Assortment",
-          "quantity": 1.0
-        },
-        {
-          "bundle_name": "Snickerdoodle Bundle",
-          "quantity": 1.0
-        }
-      ]
+      "slug": "holiday_cookie_box",
+      "is_template": false,
+      "description": "Assorted cookie gift box with variety"
     },
     {
       "name": "Deluxe Dessert Package",
-      "description": "Premium assortment with cookies, brownies, and fudge",
-      "bundles": [
-        {
-          "bundle_name": "Cookie Assortment",
-          "quantity": 1.0
-        },
-        {
-          "bundle_name": "Brownie Box",
-          "quantity": 1.0
-        },
-        {
-          "bundle_name": "Fudge Box",
-          "quantity": 1.0
-        }
-      ]
+      "slug": "deluxe_dessert_package",
+      "is_template": false,
+      "description": "Premium assortment with cookies, brownies, and fudge"
     },
     {
       "name": "Cookie Lovers Box",
-      "description": "Three varieties of cookies",
-      "bundles": [
-        {
-          "bundle_name": "Cookie Assortment",
-          "quantity": 1.0
-        },
-        {
-          "bundle_name": "Pecan Sandy Bundle",
-          "quantity": 1.0
-        },
-        {
-          "bundle_name": "Snickerdoodle Bundle",
-          "quantity": 1.0
-        }
-      ]
+      "slug": "cookie_lovers_box",
+      "is_template": false,
+      "description": "Three varieties of cookies"
+    }
+  ],
+  "package_finished_goods": [
+    {
+      "package_slug": "holiday_cookie_box",
+      "finished_good_slug": "cookie_assortment_box",
+      "quantity": 1
+    },
+    {
+      "package_slug": "holiday_cookie_box",
+      "finished_good_slug": "snickerdoodle_box",
+      "quantity": 1
+    },
+    {
+      "package_slug": "deluxe_dessert_package",
+      "finished_good_slug": "cookie_assortment_box",
+      "quantity": 1
+    },
+    {
+      "package_slug": "deluxe_dessert_package",
+      "finished_good_slug": "brownie_box",
+      "quantity": 1
+    },
+    {
+      "package_slug": "deluxe_dessert_package",
+      "finished_good_slug": "fudge_box",
+      "quantity": 1
+    },
+    {
+      "package_slug": "cookie_lovers_box",
+      "finished_good_slug": "cookie_assortment_box",
+      "quantity": 1
+    },
+    {
+      "package_slug": "cookie_lovers_box",
+      "finished_good_slug": "pecan_sandy_box",
+      "quantity": 1
+    },
+    {
+      "package_slug": "cookie_lovers_box",
+      "finished_good_slug": "snickerdoodle_box",
+      "quantity": 1
     }
   ],
   "recipients": [
     {
       "name": "Alice Johnson",
-      "household_name": "Johnson Family",
+      "household": "Johnson Family",
       "address": "123 Main St, Anytown, USA",
       "notes": "Loves chocolate chip cookies. Email: alice@example.com, Phone: 555-0101"
     },
     {
       "name": "Bob Smith",
-      "household_name": "Smith Family",
+      "household": "Smith Family",
       "notes": "Prefers less sweet items. Email: bob@example.com, Phone: 555-0102"
+    },
+    {
+      "name": "Carol Davis",
+      "household": "Davis Family",
+      "address": "456 Oak Ave, Somewhere, USA",
+      "notes": "Allergic to nuts, give cookie-only boxes"
+    },
+    {
+      "name": "David Wilson",
+      "household": "Wilson Family",
+      "address": "789 Pine Rd, Elsewhere, USA",
+      "notes": "Loves variety packs"
     }
   ],
   "events": [
     {
       "name": "Holiday Baking 2024",
-      "year": 2024,
+      "slug": "holiday_baking_2024",
       "event_date": "2024-12-15",
-      "notes": "Annual holiday gift baking",
-      "assignments": [
-        {
-          "recipient_name": "Alice Johnson",
-          "package_name": "Holiday Cookie Box",
-          "quantity": 1.0,
-          "notes": "Deliver by Dec 20"
-        },
-        {
-          "recipient_name": "Bob Smith",
-          "package_name": "Deluxe Dessert Package",
-          "quantity": 1.0,
-          "notes": "Prefers variety, less sweet items"
-        }
-      ]
+      "description": "Annual holiday gift baking",
+      "notes": "Main baking day December 15"
+    },
+    {
+      "name": "New Year 2025",
+      "slug": "new_year_2025",
+      "event_date": "2025-01-01",
+      "description": "New Year celebrations",
+      "notes": "Small batch for neighborhood party"
+    }
+  ],
+  "event_recipient_packages": [
+    {
+      "event_slug": "holiday_baking_2024",
+      "recipient_name": "Alice Johnson",
+      "package_slug": "holiday_cookie_box",
+      "quantity": 1,
+      "status": "pending",
+      "notes": "Deliver by Dec 20"
+    },
+    {
+      "event_slug": "holiday_baking_2024",
+      "recipient_name": "Bob Smith",
+      "package_slug": "deluxe_dessert_package",
+      "quantity": 1,
+      "status": "pending",
+      "notes": "Prefers variety, less sweet items"
+    },
+    {
+      "event_slug": "holiday_baking_2024",
+      "recipient_name": "Carol Davis",
+      "package_slug": "holiday_cookie_box",
+      "quantity": 1,
+      "status": "pending",
+      "notes": "No nuts - cookie box is safe"
+    },
+    {
+      "event_slug": "holiday_baking_2024",
+      "recipient_name": "David Wilson",
+      "package_slug": "cookie_lovers_box",
+      "quantity": 1,
+      "status": "pending",
+      "notes": "Loves variety"
+    },
+    {
+      "event_slug": "new_year_2025",
+      "recipient_name": "Alice Johnson",
+      "package_slug": "holiday_cookie_box",
+      "quantity": 1,
+      "status": "pending",
+      "notes": "For the party"
+    }
+  ],
+  "production_records": [
+    {
+      "event_slug": "holiday_baking_2024",
+      "recipe_slug": "classic_chocolate_chip_cookies",
+      "batches": 2,
+      "produced_at": "2024-12-14T10:00:00Z",
+      "actual_cost": 18.50,
+      "notes": "Double batch for extra gifts"
+    },
+    {
+      "event_slug": "holiday_baking_2024",
+      "recipe_slug": "fudgy_brownies",
+      "batches": 1,
+      "produced_at": "2024-12-14T14:00:00Z",
+      "actual_cost": 8.25,
+      "notes": "Single batch"
+    },
+    {
+      "event_slug": "holiday_baking_2024",
+      "recipe_slug": "snickerdoodles",
+      "batches": 1,
+      "produced_at": "2024-12-15T09:00:00Z",
+      "actual_cost": 6.50,
+      "notes": "Morning batch"
     }
   ]
 }

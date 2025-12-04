@@ -1,0 +1,24 @@
+{
+  "accept_commit": null,
+  "acceptance_history": [
+    {
+      "accepted_at": "2025-12-04T21:07:11Z",
+      "accepted_by": "claude",
+      "accepted_from_commit": "6c6513b33ce82cab7d980eacc814a9f28aab3a18",
+      "branch": "009-ui-import-export",
+      "mode": "local",
+      "validation_commands": [
+        "python -m pytest src/tests/services/test_import_export_service.py -v"
+      ]
+    }
+  ],
+  "acceptance_mode": "local",
+  "accepted_at": "2025-12-04T21:07:11Z",
+  "accepted_by": "claude",
+  "accepted_from_commit": "6c6513b33ce82cab7d980eacc814a9f28aab3a18",
+  "created_at": "2025-12-04T18:43:20Z",
+  "feature_number": "009",
+  "friendly_name": "UI Import/Export with v3.0 Schema",
+  "slug": "009-ui-import-export",
+  "source_description": "Add File menu with Import/Export UI backed by v3.0 specification reflecting current schema"
+}

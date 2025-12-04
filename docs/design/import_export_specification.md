@@ -1,17 +1,37 @@
 # Import/Export Specification for Bake Tracker
 
-**Version:** 2.0
-**Date:** 2025-11-08
-**Status:** Implemented and Working
+**Version:** 3.0
+**Date:** 2025-12-04
+**Status:** Current
+
+> **IMPORTANT**: This application only supports v3.0 format.
+> Files with other versions (including v2.0) will be rejected with a clear error message.
+
+## Changelog
+
+### v3.0 (2025-12-04)
+- **Breaking**: v2.0 compatibility removed - only v3.0 files accepted
+- **Added**: `version: "3.0"` header required in all export files
+- **Added**: `exported_at` timestamp with ISO 8601 format
+- **Added**: `finished_units` entity (replaces embedded recipe yield)
+- **Added**: `compositions` entity (replaces v2.0 `bundles`)
+- **Added**: `package_finished_goods` entity (explicit junction table)
+- **Added**: `production_records` entity (Feature 008)
+- **Added**: `status` field on event assignments (pending/assembled/delivered)
+- **Changed**: Import requires explicit mode selection: Merge or Replace
+- **Changed**: All entities use slug-based references for foreign keys
+- **Removed**: `bundles` entity (replaced by `compositions`)
+
+### v2.0 (2025-11-08)
+- See `docs/archive/import_export_specification_v2.md`
 
 ## Purpose
 
-This specification defines the working import/export format for the Bake Tracker application. The primary goals are:
+This specification defines the import/export format for the Bake Tracker application. The primary goals are:
 
-1. **Testing Efficiency**: Load comprehensive test data quickly for development
-2. **AI Generation**: Enable AI tools to generate bulk recipe and ingredient data
-3. **Data Augmentation**: Support AI-assisted expansion of the test dataset
-4. **Data Portability**: Backup and restore complete application state
+1. **Data Backup**: Allow users to backup and restore complete application state
+2. **Testing**: Load comprehensive test data for development and QA
+3. **Data Portability**: Enable data migration between installations
 
 ## Overview
 
@@ -23,29 +43,74 @@ This separation allows recipes to reference generic ingredients while tracking s
 
 ## JSON Structure
 
-The import/export format is a single JSON file containing multiple top-level arrays:
+The export format is a single JSON file with a required header and entity arrays:
 
 ```json
 {
+  "version": "3.0",
+  "exported_at": "2025-12-04T10:30:00Z",
+  "application": "bake-tracker",
+  "unit_conversions": [...],
   "ingredients": [...],
   "variants": [...],
   "purchases": [...],
   "pantry_items": [...],
-  "unit_conversions": [...],
   "recipes": [...],
+  "finished_units": [...],
   "finished_goods": [...],
-  "bundles": [...],
+  "compositions": [...],
   "packages": [...],
+  "package_finished_goods": [...],
   "recipients": [...],
-  "events": [...]
+  "events": [...],
+  "event_recipient_packages": [...],
+  "production_records": [...]
 }
 ```
 
-All arrays are optional, but order matters for referential integrity (see Import Order section).
+### Header Fields (Required)
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `version` | string | **Yes** | Must be "3.0" |
+| `exported_at` | string | **Yes** | ISO 8601 timestamp with 'Z' suffix |
+| `application` | string | **Yes** | Must be "bake-tracker" |
+
+All entity arrays are optional, but when present, they must follow the dependency order for successful import.
 
 ---
 
-## 1. Ingredients
+## Entity Definitions
+
+### 1. unit_conversions
+
+**Purpose**: Define ingredient-specific conversion factors between units.
+
+**Schema**:
+
+```json
+{
+  "ingredient_slug": "all_purpose_flour",
+  "from_unit": "lb",
+  "to_unit": "cup",
+  "factor": 3.6
+}
+```
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `ingredient_slug` | string | **Yes** | Reference to ingredient |
+| `from_unit` | string | **Yes** | Source unit |
+| `to_unit` | string | **Yes** | Target unit |
+| `factor` | decimal | **Yes** | Conversion multiplier (from_unit * factor = to_unit) |
+
+**Notes**:
+- Enables conversion between purchase units (lb) and recipe units (cup)
+- Ingredient-specific (flour vs sugar have different densities)
+
+---
+
+### 2. ingredients
 
 **Purpose**: Define generic ingredient types used in recipes.
 
@@ -58,45 +123,30 @@ All arrays are optional, but order matters for referential integrity (see Import
   "category": "Flour",
   "recipe_unit": "cup",
   "description": "Standard all-purpose wheat flour",
-  "notes": "Store in airtight container in cool, dry place",
-  "density_g_per_ml": 0.507
+  "density_g_per_ml": 0.507,
+  "notes": "Store in airtight container"
 }
 ```
 
-**Field Specifications**:
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `name` | string | **Yes** | Display name (max 200 chars) |
+| `slug` | string | **Yes** | Unique identifier (lowercase, underscores, max 100 chars) |
+| `category` | string | **Yes** | Category (see Appendix A) |
+| `recipe_unit` | string | **Yes** | Default unit for recipes |
+| `description` | string | No | Detailed description |
+| `density_g_per_ml` | decimal | No | Density for volume/weight conversion |
+| `notes` | string | No | User notes |
 
-| Field | Type | Required | Constraints | Notes |
-|-------|------|----------|-------------|-------|
-| `name` | string | **Yes** | Max 200 chars | Display name (e.g., "All-Purpose Flour") |
-| `slug` | string | **Yes** | Max 100 chars, lowercase, underscores | **Primary key** - must be unique |
-| `category` | string | **Yes** | Valid category | See Appendix A for valid categories |
-| `recipe_unit` | string | **Yes** | Valid unit | Default unit for recipes (cup, tsp, oz, etc.) |
-| `description` | string | No | Max 500 chars | Detailed description |
-| `notes` | string | No | Max 2000 chars | Storage instructions, substitutions |
-| `density_g_per_ml` | number | No | > 0 | Density for volume-to-weight conversion |
-
-**Important Notes**:
+**Notes**:
 - `slug` is the **primary identifier** used in all foreign key references
 - Use lowercase with underscores (e.g., `semi_sweet_chocolate_chips`)
-- Recipes reference ingredients by slug, not by name
-
-**Example**:
-
-```json
-{
-  "name": "Semi-Sweet Chocolate Chips",
-  "slug": "semi_sweet_chocolate_chips",
-  "category": "Chocolate/Candies",
-  "recipe_unit": "cup",
-  "description": "Semi-sweet chocolate chips for baking"
-}
-```
 
 ---
 
-## 2. Variants
+### 3. variants
 
-**Purpose**: Define specific brand products that can be purchased and tracked in inventory.
+**Purpose**: Define brand-specific products for purchase and inventory tracking.
 
 **Schema**:
 
@@ -104,770 +154,541 @@ All arrays are optional, but order matters for referential integrity (see Import
 {
   "ingredient_slug": "all_purpose_flour",
   "brand": "King Arthur",
-  "package_size": "25 lb bag",
+  "package_size": "5 lb bag",
   "package_type": "bag",
   "purchase_unit": "lb",
-  "purchase_quantity": 25.0,
-  "preferred": true,
-  "upc": "071012345678",
-  "supplier": "Costco",
-  "notes": "Premium quality, higher protein content"
+  "purchase_quantity": 5.0,
+  "upc_code": "071012000012",
+  "is_preferred": true,
+  "notes": "Premium quality flour"
 }
 ```
 
-**Field Specifications**:
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `ingredient_slug` | string | **Yes** | Reference to ingredient |
+| `brand` | string | **Yes** | Brand name (max 200 chars) |
+| `package_size` | string | No | Human-readable package size |
+| `package_type` | string | No | Package type (bag, box, jar, etc.) |
+| `purchase_unit` | string | **Yes** | Unit for purchasing |
+| `purchase_quantity` | decimal | **Yes** | Quantity per package |
+| `upc_code` | string | No | UPC barcode |
+| `is_preferred` | boolean | No | Preferred variant for shopping lists |
+| `notes` | string | No | User notes |
 
-| Field | Type | Required | Constraints | Notes |
-|-------|------|----------|-------------|-------|
-| `ingredient_slug` | string | **Yes** | Must reference existing ingredient | Foreign key to ingredients |
-| `brand` | string | **Yes** | Max 200 chars | Brand name (e.g., "King Arthur") |
-| `package_size` | string | No | Max 100 chars | Human-readable size (e.g., "25 lb bag") |
-| `package_type` | string | No | Valid type | bag, box, jar, bottle, can, etc. |
-| `purchase_unit` | string | **Yes** | Valid unit | Unit for purchasing (lb, oz, kg, etc.) |
-| `purchase_quantity` | number | **Yes** | > 0 | Quantity per package |
-| `preferred` | boolean | No | true/false | Mark as preferred brand (default: false) |
-| `upc` | string | No | Max 50 chars | UPC/barcode |
-| `supplier` | string | No | Max 200 chars | Where to buy (Costco, Amazon, etc.) |
-| `notes` | string | No | Max 2000 chars | Product-specific notes |
-
-**Important Notes**:
-- Primary key is the combination of `(ingredient_slug, brand)`
-- This allows multiple brands per ingredient
-- Purchases and pantry items reference variants by both fields
-
-**Example**:
-
-```json
-{
-  "ingredient_slug": "unsalted_butter",
-  "brand": "Kirkland",
-  "package_size": "4 sticks (1 lb)",
-  "package_type": "box",
-  "purchase_unit": "lb",
-  "purchase_quantity": 1.0,
-  "preferred": true,
-  "supplier": "Costco",
-  "notes": "Good quality, cheaper than name brands"
-}
-```
+**Notes**:
+- Primary key is composite: `(ingredient_slug, brand)`
+- Multiple brands per ingredient are supported
 
 ---
 
-## 3. Purchases
+### 4. purchases
 
-**Purpose**: Track historical purchases for price history and inventory reconciliation.
+**Purpose**: Track historical purchases for price history.
 
 **Schema**:
 
 ```json
 {
-  "variant_brand": "King Arthur",
   "ingredient_slug": "all_purpose_flour",
-  "purchased_at": "2024-10-15T10:30:00",
-  "unit_cost": 18.99,
-  "quantity_purchased": 1.0,
-  "total_cost": 18.99,
-  "supplier": "Costco",
+  "variant_brand": "King Arthur",
+  "purchase_date": "2025-11-15",
+  "quantity": 2,
+  "unit_price": 8.99,
+  "store": "Costco",
   "notes": "Stock up purchase"
 }
 ```
 
-**Field Specifications**:
-
-| Field | Type | Required | Constraints | Notes |
-|-------|------|----------|-------------|-------|
-| `variant_brand` | string | **Yes** | Must reference existing variant | Foreign key (with ingredient_slug) |
-| `ingredient_slug` | string | **Yes** | Must reference existing variant | Foreign key (with variant_brand) |
-| `purchased_at` | string | **Yes** | ISO 8601 format | Purchase timestamp (e.g., "2024-10-15T10:30:00") |
-| `unit_cost` | number | **Yes** | >= 0 | Cost per package |
-| `quantity_purchased` | number | **Yes** | > 0 | Number of packages purchased |
-| `total_cost` | number | **Yes** | >= 0 | unit_cost × quantity_purchased |
-| `supplier` | string | No | Max 200 chars | Where purchased |
-| `notes` | string | No | Max 2000 chars | Purchase notes |
-
-**Important Notes**:
-- Tracks price history over time for cost analysis
-- Supports FIFO inventory valuation
-- `purchased_at` can be just a date if time is unknown
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `ingredient_slug` | string | **Yes** | Reference to ingredient |
+| `variant_brand` | string | **Yes** | Reference to variant (with ingredient_slug) |
+| `purchase_date` | date | **Yes** | Date purchased (ISO 8601 date) |
+| `quantity` | integer | **Yes** | Number of packages |
+| `unit_price` | decimal | **Yes** | Price per package |
+| `store` | string | No | Store name |
+| `notes` | string | No | User notes |
 
 ---
 
-## 4. Pantry Items
+### 5. pantry_items
 
-**Purpose**: Current inventory of ingredients on hand.
+**Purpose**: Current inventory with FIFO lots.
 
 **Schema**:
 
 ```json
 {
+  "ingredient_slug": "all_purpose_flour",
   "variant_brand": "King Arthur",
-  "ingredient_slug": "all_purpose_flour",
-  "quantity": 1.5,
-  "purchase_date": "2024-10-15",
-  "location": "Main Pantry",
-  "notes": "Half bag remaining, opened 2024-11-01"
+  "quantity": 4.5,
+  "unit": "lb",
+  "acquisition_date": "2025-11-15",
+  "expiration_date": "2026-06-15",
+  "unit_cost": 1.80,
+  "notes": "From Costco bulk purchase"
 }
 ```
 
-**Field Specifications**:
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `ingredient_slug` | string | **Yes** | Reference to ingredient |
+| `variant_brand` | string | **Yes** | Reference to variant |
+| `quantity` | decimal | **Yes** | Current quantity |
+| `unit` | string | **Yes** | Unit of measure |
+| `acquisition_date` | date | **Yes** | Date acquired (for FIFO ordering) |
+| `expiration_date` | date | No | Expiration date |
+| `unit_cost` | decimal | No | Cost per unit |
+| `notes` | string | No | User notes |
 
-| Field | Type | Required | Constraints | Notes |
-|-------|------|----------|-------------|-------|
-| `variant_brand` | string | **Yes** | Must reference existing variant | Foreign key (with ingredient_slug) |
-| `ingredient_slug` | string | **Yes** | Must reference existing variant | Foreign key (with variant_brand) |
-| `quantity` | number | **Yes** | >= 0 | Quantity in purchase_unit from variant |
-| `purchase_date` | string | **Yes** | ISO 8601 date | For FIFO tracking (e.g., "2024-10-15") |
-| `location` | string | No | Max 200 chars | Storage location (Main Pantry, Freezer, etc.) |
-| `notes` | string | No | Max 2000 chars | Condition notes, expiration, etc. |
-
-**Important Notes**:
-- Each pantry item represents a specific purchase/batch
-- Multiple pantry items can exist for same variant (different purchase dates)
-- Supports FIFO consumption tracking
-- `quantity` is in the `purchase_unit` specified in the variant
+**Notes**:
+- Each pantry item represents a specific purchase/batch (FIFO lot)
+- Multiple pantry items can exist for same variant (different acquisition dates)
 
 ---
 
-## 5. Unit Conversions
+### 6. recipes
 
-**Purpose**: Define ingredient-specific conversion factors between units.
+**Purpose**: Recipe definitions with embedded ingredient list.
 
 **Schema**:
 
 ```json
 {
-  "ingredient_slug": "all_purpose_flour",
-  "from_unit": "lb",
-  "from_quantity": 1.0,
-  "to_unit": "cup",
-  "to_quantity": 3.6,
-  "notes": "Unsifted, spooned and leveled"
-}
-```
-
-**Field Specifications**:
-
-| Field | Type | Required | Constraints | Notes |
-|-------|------|----------|-------------|-------|
-| `ingredient_slug` | string | **Yes** | Must reference existing ingredient | Foreign key |
-| `from_unit` | string | **Yes** | Valid unit | Source unit |
-| `from_quantity` | number | **Yes** | > 0 | Source quantity |
-| `to_unit` | string | **Yes** | Valid unit | Target unit |
-| `to_quantity` | number | **Yes** | > 0 | Target quantity |
-| `notes` | string | No | Max 500 chars | Measurement method notes |
-
-**Important Notes**:
-- Enables conversion between purchase units (lb) and recipe units (cup)
-- Ingredient-specific (flour vs sugar have different densities)
-- System auto-creates reverse conversions
-
-**Example**:
-
-```json
-{
-  "ingredient_slug": "unsalted_butter",
-  "from_unit": "lb",
-  "from_quantity": 1.0,
-  "to_unit": "cup",
-  "to_quantity": 2.0,
-  "notes": "4 sticks = 1 lb = 2 cups"
-}
-```
-
----
-
-## 6. Recipes
-
-**Purpose**: Define baking recipes with ingredient lists.
-
-**Schema**:
-
-```json
-{
-  "name": "Classic Chocolate Chip Cookies",
+  "name": "Chocolate Chip Cookies",
+  "slug": "chocolate_chip_cookies",
   "category": "Cookies",
-  "source": "SG-Binder",
-  "yield_quantity": 48.0,
+  "description": "Classic chocolate chip cookies",
+  "instructions": "1. Cream butter and sugar...",
+  "prep_time_minutes": 15,
+  "cook_time_minutes": 12,
+  "yield_quantity": 24,
   "yield_unit": "cookies",
-  "yield_description": "2-inch cookies",
-  "estimated_time_minutes": 45,
-  "notes": "Family favorite recipe. Bake at 350°F for 10-12 minutes.",
+  "source": "Family recipe",
+  "notes": "Best when slightly underbaked",
   "ingredients": [
     {
       "ingredient_slug": "all_purpose_flour",
       "quantity": 2.25,
       "unit": "cup",
-      "notes": "Spoon and level, don't pack"
-    },
-    {
-      "ingredient_slug": "white_granulated_sugar",
-      "quantity": 0.75,
-      "unit": "cup"
+      "notes": "sifted"
     }
   ]
 }
 ```
 
-**Recipe Field Specifications**:
-
-| Field | Type | Required | Constraints | Notes |
-|-------|------|----------|-------------|-------|
-| `name` | string | **Yes** | Max 200 chars | Recipe name (must be unique) |
-| `category` | string | **Yes** | Valid category | See Appendix A for categories |
-| `source` | string | No | Max 500 chars | Recipe origin (cookbook, website, etc.) |
-| `yield_quantity` | number | **Yes** | > 0 | Amount produced |
-| `yield_unit` | string | **Yes** | Max 50 chars | cookies, cakes, servings, pieces, etc. |
-| `yield_description` | string | No | Max 200 chars | Size details (e.g., "2-inch cookies") |
-| `estimated_time_minutes` | integer | No | >= 0 | Total prep + bake time |
-| `notes` | string | No | Max 2000 chars | Instructions, tips, temperature |
-| `ingredients` | array | **Yes** | Min 1 item | Ingredient list |
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `name` | string | **Yes** | Recipe name (max 200 chars) |
+| `slug` | string | **Yes** | Unique identifier |
+| `category` | string | **Yes** | Category (Cookies, Cakes, etc.) |
+| `description` | string | No | Description |
+| `instructions` | text | No | Cooking instructions |
+| `prep_time_minutes` | integer | No | Prep time |
+| `cook_time_minutes` | integer | No | Cook time |
+| `yield_quantity` | decimal | No | Yield amount |
+| `yield_unit` | string | No | Yield unit |
+| `source` | string | No | Recipe source |
+| `notes` | string | No | User notes |
+| `ingredients` | array | **Yes** | Recipe ingredients (embedded) |
 
 **Recipe Ingredient Sub-Schema**:
 
-| Field | Type | Required | Constraints | Notes |
-|-------|------|----------|-------------|-------|
-| `ingredient_slug` | string | **Yes** | Must reference existing ingredient | Foreign key |
-| `quantity` | number | **Yes** | > 0 | Amount needed |
-| `unit` | string | **Yes** | Valid unit | Recipe measurement unit |
-| `notes` | string | No | Max 500 chars | Prep notes (sifted, melted, room temp, etc.) |
-
-**Important Notes**:
-- Recipes reference **generic ingredients** (by slug), not specific brands
-- This allows flexibility in choosing brands when baking
-- System can check if any variant of the ingredient is available
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `ingredient_slug` | string | **Yes** | Reference to ingredient |
+| `quantity` | decimal | **Yes** | Amount needed |
+| `unit` | string | **Yes** | Measurement unit |
+| `notes` | string | No | Prep notes (sifted, melted, etc.) |
 
 ---
 
-## 7. Finished Goods
+### 7. finished_units
 
-**Purpose**: Define products created from recipes for inventory tracking and gift planning.
+**Purpose**: Yield definitions for recipes (how many items per batch).
 
 **Schema**:
 
 ```json
 {
-  "name": "Chocolate Chip Cookie Dozen",
-  "recipe_name": "Classic Chocolate Chip Cookies",
+  "slug": "chocolate_chip_cookie",
+  "recipe_slug": "chocolate_chip_cookies",
+  "display_name": "Chocolate Chip Cookie",
+  "yield_mode": "discrete_count",
+  "items_per_batch": 24,
+  "item_unit": "cookie",
   "category": "Cookies",
-  "yield_mode": "DISCRETE_COUNT",
-  "items_per_batch": 48,
-  "item_unit": "cookies",
-  "notes": "Classic family recipe cookies"
+  "notes": "Standard size cookies"
 }
 ```
 
-**Field Specifications**:
-
-| Field | Type | Required | Constraints | Notes |
-|-------|------|----------|-------------|-------|
-| `name` | string | **Yes** | Max 200 chars | Finished good name (must be unique) |
-| `recipe_name` | string | **Yes** | Must reference existing recipe | Foreign key |
-| `category` | string | **Yes** | Valid category | Usually matches recipe category |
-| `yield_mode` | string | **Yes** | DISCRETE_COUNT or CONTINUOUS | How the recipe yields products |
-| `items_per_batch` | integer | Conditional | > 0 | Required if yield_mode=DISCRETE_COUNT |
-| `item_unit` | string | **Yes** | Max 50 chars | cookies, brownies, pieces, servings |
-| `notes` | string | No | Max 2000 chars | Product description |
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `slug` | string | **Yes** | Unique identifier |
+| `recipe_slug` | string | **Yes** | Reference to recipe |
+| `display_name` | string | **Yes** | Display name for the finished item |
+| `yield_mode` | string | **Yes** | "discrete_count" or "batch_portion" |
+| `items_per_batch` | integer | Conditional | Items per batch (if discrete_count) |
+| `item_unit` | string | Conditional | Unit name (if discrete_count) |
+| `batch_percentage` | decimal | Conditional | Portion of batch (if batch_portion) |
+| `category` | string | No | Category |
+| `notes` | string | No | User notes |
 
 **Yield Mode Values**:
-
-- **DISCRETE_COUNT**: Recipe produces countable items (cookies, brownies, pieces)
-  - Requires `items_per_batch` (e.g., 48 cookies per batch)
-  - Used for items that are individually packaged or counted
-
-- **CONTINUOUS**: Recipe produces bulk quantity (fudge by weight, dough, batter)
-  - `items_per_batch` not used
-  - Measured by weight or volume
-
-**Important Notes**:
-- **AI agents should create finished goods for all recipes that produce discrete items**
-- This enables gift planning and inventory tracking
-- One recipe can have multiple finished goods (different packaging sizes)
-
-**Examples**:
-
-```json
-// Discrete count example
-{
-  "name": "Brownie Square",
-  "recipe_name": "Fudgy Brownies",
-  "category": "Brownies",
-  "yield_mode": "DISCRETE_COUNT",
-  "items_per_batch": 16,
-  "item_unit": "brownies",
-  "notes": "2-inch square brownies"
-}
-
-// Continuous example (if needed)
-{
-  "name": "Chocolate Fudge",
-  "recipe_name": "Chocolate Walnut Fudge",
-  "category": "Candies",
-  "yield_mode": "CONTINUOUS",
-  "item_unit": "lb",
-  "notes": "Cut to desired size when serving"
-}
-```
+- **discrete_count**: Recipe produces countable items (cookies, truffles)
+- **batch_portion**: Recipe produces bulk quantity (cakes, fudge)
 
 ---
 
-## 8. Bundles
+### 8. finished_goods
 
-**Purpose**: Group finished goods into gift packages.
+**Purpose**: Composite finished products (assemblies containing finished units).
 
 **Schema**:
 
 ```json
 {
-  "name": "Cookie Assortment",
-  "finished_good_name": "Chocolate Chip Cookie Dozen",
-  "quantity": 12,
-  "notes": "One dozen chocolate chip cookies"
+  "display_name": "Holiday Cookie Box",
+  "slug": "holiday_cookie_box",
+  "category": "Gift Items",
+  "description": "Assorted holiday cookies",
+  "notes": "Mix of 3 cookie types"
 }
 ```
 
-**Field Specifications**:
-
-| Field | Type | Required | Constraints | Notes |
-|-------|------|----------|-------------|-------|
-| `name` | string | **Yes** | Max 200 chars | Bundle name (must be unique) |
-| `finished_good_name` | string | **Yes** | Must reference existing finished good | Foreign key |
-| `quantity` | number | **Yes** | > 0 | Number of items in bundle |
-| `notes` | string | No | Max 2000 chars | Bundle description |
-
-**Important Notes**:
-- Bundles are the smallest gift unit
-- Multiple bundles combine to make packages
-- Example: "Cookie Assortment" = 12 cookies
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `display_name` | string | **Yes** | Product name |
+| `slug` | string | **Yes** | Unique identifier |
+| `category` | string | No | Category |
+| `description` | string | No | Description |
+| `notes` | string | No | User notes |
 
 ---
 
-## 9. Packages
+### 9. compositions
 
-**Purpose**: Combine multiple bundles into complete gift boxes.
+**Purpose**: Links finished units (or sub-assemblies) to finished goods.
 
 **Schema**:
 
 ```json
 {
-  "name": "Holiday Cookie Box",
-  "description": "Assorted cookie gift box with variety",
-  "bundles": [
-    {
-      "bundle_name": "Cookie Assortment",
-      "quantity": 1.0
-    },
-    {
-      "bundle_name": "Snickerdoodle Bundle",
-      "quantity": 1.0
-    }
-  ]
+  "assembly_slug": "holiday_cookie_box",
+  "component_type": "finished_unit",
+  "component_slug": "chocolate_chip_cookie",
+  "component_quantity": 6,
+  "sort_order": 1,
+  "notes": "First layer"
 }
 ```
 
-**Field Specifications**:
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `assembly_slug` | string | **Yes** | Reference to finished good (parent) |
+| `component_type` | string | **Yes** | "finished_unit" or "finished_good" |
+| `component_slug` | string | **Yes** | Reference to component |
+| `component_quantity` | integer | **Yes** | Quantity of this component |
+| `sort_order` | integer | No | Display order (default 0) |
+| `notes` | string | No | Assembly notes |
 
-| Field | Type | Required | Constraints | Notes |
-|-------|------|----------|-------------|-------|
-| `name` | string | **Yes** | Max 200 chars | Package name (must be unique) |
-| `description` | string | No | Max 500 chars | Package description |
-| `bundles` | array | **Yes** | Min 1 item | List of bundles in package |
-
-**Package Bundle Sub-Schema**:
-
-| Field | Type | Required | Constraints | Notes |
-|-------|------|----------|-------------|-------|
-| `bundle_name` | string | **Yes** | Must reference existing bundle | Foreign key |
-| `quantity` | number | **Yes** | > 0 | Number of bundles included |
+**Notes**:
+- Replaces v2.0 "bundles" concept
+- Supports recursive assemblies (finished goods containing other finished goods)
 
 ---
 
-## 10. Recipients
+### 10. packages
 
-**Purpose**: Track gift recipients for event planning.
+**Purpose**: Gift package definitions.
 
 **Schema**:
 
 ```json
 {
-  "name": "Alice Johnson",
-  "household_name": "Johnson Family",
+  "name": "Holiday Gift Box - Large",
+  "slug": "holiday_gift_box_large",
+  "is_template": false,
+  "description": "Large gift box with assorted treats",
+  "notes": "For close family members"
+}
+```
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `name` | string | **Yes** | Package name |
+| `slug` | string | **Yes** | Unique identifier |
+| `is_template` | boolean | No | Whether this is a template |
+| `description` | string | No | Description |
+| `notes` | string | No | User notes |
+
+---
+
+### 11. package_finished_goods
+
+**Purpose**: Links finished goods to packages (package contents).
+
+**Schema**:
+
+```json
+{
+  "package_slug": "holiday_gift_box_large",
+  "finished_good_slug": "holiday_cookie_box",
+  "quantity": 1
+}
+```
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `package_slug` | string | **Yes** | Reference to package |
+| `finished_good_slug` | string | **Yes** | Reference to finished good |
+| `quantity` | integer | **Yes** | Quantity |
+
+---
+
+### 12. recipients
+
+**Purpose**: Gift recipients.
+
+**Schema**:
+
+```json
+{
+  "name": "Mom",
+  "household": "Parents",
   "address": "123 Main St, Anytown, USA",
-  "notes": "Loves chocolate chip cookies. Email: alice@example.com, Phone: 555-0101"
+  "notes": "Loves chocolate, allergic to nuts"
 }
 ```
 
-**Field Specifications**:
-
-| Field | Type | Required | Constraints | Notes |
-|-------|------|----------|-------------|-------|
-| `name` | string | **Yes** | Max 200 chars | Recipient name (must be unique) |
-| `household_name` | string | No | Max 200 chars | Family/household name |
-| `address` | string | No | Max 500 chars | Delivery address |
-| `notes` | string | No | Max 2000 chars | Preferences, dietary restrictions, contact info |
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `name` | string | **Yes** | Recipient name (unique) |
+| `household` | string | No | Household grouping |
+| `address` | string | No | Delivery address |
+| `notes` | string | No | User notes (preferences, allergies) |
 
 ---
 
-## 11. Events
+### 13. events
 
-**Purpose**: Plan seasonal baking events and track gift assignments.
+**Purpose**: Holiday/occasion events.
 
 **Schema**:
 
 ```json
 {
-  "name": "Holiday Baking 2024",
-  "year": 2024,
-  "event_date": "2024-12-15",
-  "notes": "Annual holiday gift baking",
-  "assignments": [
-    {
-      "recipient_name": "Alice Johnson",
-      "package_name": "Holiday Cookie Box",
-      "quantity": 1.0,
-      "notes": "Deliver by Dec 20"
-    }
-  ]
+  "name": "Christmas 2025",
+  "slug": "christmas_2025",
+  "event_date": "2025-12-25",
+  "year": 2025,
+  "notes": "Annual Christmas gift giving"
 }
 ```
 
-**Event Field Specifications**:
-
-| Field | Type | Required | Constraints | Notes |
-|-------|------|----------|-------------|-------|
-| `name` | string | **Yes** | Max 200 chars | Event name (must be unique per year) |
-| `year` | integer | **Yes** | >= 2000 | Event year |
-| `event_date` | string | No | ISO 8601 date | Target event date |
-| `notes` | string | No | Max 2000 chars | Event notes |
-| `assignments` | array | No | - | Gift assignments |
-
-**Event Assignment Sub-Schema**:
-
-| Field | Type | Required | Constraints | Notes |
-|-------|------|----------|-------------|-------|
-| `recipient_name` | string | **Yes** | Must reference existing recipient | Foreign key |
-| `package_name` | string | **Yes** | Must reference existing package | Foreign key |
-| `quantity` | number | **Yes** | > 0 | Number of packages |
-| `notes` | string | No | Max 500 chars | Delivery instructions, preferences |
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `name` | string | **Yes** | Event name |
+| `slug` | string | **Yes** | Unique identifier |
+| `event_date` | date | **Yes** | Event date (ISO 8601) |
+| `year` | integer | **Yes** | Event year |
+| `notes` | string | No | User notes |
 
 ---
 
-## Import Order and Dependencies
+### 14. event_recipient_packages
 
-**Critical**: Records must be imported in dependency order to maintain referential integrity.
+**Purpose**: Package assignments for events with production status.
 
-**Correct Import Order**:
+**Schema**:
 
-1. **Ingredients** (no dependencies)
-2. **Variants** (requires: ingredients)
-3. **Purchases** (requires: variants)
-4. **Pantry Items** (requires: variants)
-5. **Unit Conversions** (requires: ingredients)
-6. **Recipes** (requires: ingredients)
-7. **Finished Goods** (requires: recipes)
-8. **Bundles** (requires: finished_goods)
-9. **Packages** (requires: bundles)
-10. **Recipients** (no dependencies)
-11. **Events** (requires: recipients, packages)
+```json
+{
+  "event_slug": "christmas_2025",
+  "recipient_name": "Mom",
+  "package_slug": "holiday_gift_box_large",
+  "quantity": 1,
+  "status": "pending",
+  "delivered_to": null,
+  "notes": "Deliver by Dec 23"
+}
+```
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `event_slug` | string | **Yes** | Reference to event |
+| `recipient_name` | string | **Yes** | Reference to recipient |
+| `package_slug` | string | **Yes** | Reference to package |
+| `quantity` | integer | **Yes** | Number of packages |
+| `status` | string | No | "pending", "assembled", or "delivered" |
+| `delivered_to` | string | No | Delivery confirmation |
+| `notes` | string | No | User notes |
+
+**Status Values**:
+- **pending**: Not yet assembled (default)
+- **assembled**: Package assembled, ready for delivery
+- **delivered**: Package delivered to recipient
+
+---
+
+### 15. production_records
+
+**Purpose**: Batch production records with FIFO cost capture.
+
+**Schema**:
+
+```json
+{
+  "event_slug": "christmas_2025",
+  "recipe_slug": "chocolate_chip_cookies",
+  "batches": 2,
+  "produced_at": "2025-12-20T14:30:00Z",
+  "actual_cost": 12.50,
+  "notes": "Double batch for extra gifts"
+}
+```
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `event_slug` | string | **Yes** | Reference to event |
+| `recipe_slug` | string | **Yes** | Reference to recipe |
+| `batches` | integer | **Yes** | Number of batches produced |
+| `produced_at` | datetime | **Yes** | Production timestamp (ISO 8601 with 'Z') |
+| `actual_cost` | decimal | **Yes** | Actual FIFO cost at production time |
+| `notes` | string | No | User notes |
+
+---
+
+## Import Dependency Order
+
+**CRITICAL**: Entities must be imported in this order for referential integrity.
+
+1. `unit_conversions` - No dependencies
+2. `ingredients` - No dependencies
+3. `variants` - Requires: ingredients
+4. `purchases` - Requires: variants
+5. `pantry_items` - Requires: variants
+6. `recipes` - Requires: ingredients
+7. `finished_units` - Requires: recipes
+8. `finished_goods` - No direct dependencies
+9. `compositions` - Requires: finished_units, finished_goods
+10. `packages` - No direct dependencies
+11. `package_finished_goods` - Requires: packages, finished_goods
+12. `recipients` - No dependencies
+13. `events` - No direct dependencies
+14. `event_recipient_packages` - Requires: events, recipients, packages
+15. `production_records` - Requires: events, recipes
 
 **The import service processes arrays in this order automatically.**
 
 ---
 
-## Validation Rules
+## Import Modes
 
-### Required Foreign Key Validation
+### Merge Mode (Default)
 
-The import service validates all foreign key references:
+- Add new records that don't exist
+- Skip records that match existing data (by unique key)
+- Preserve all existing data
+- Report skipped count in summary
 
-- `variants.ingredient_slug` → must exist in `ingredients`
-- `purchases.ingredient_slug + variant_brand` → must exist in `variants`
-- `pantry_items.ingredient_slug + variant_brand` → must exist in `variants`
-- `unit_conversions.ingredient_slug` → must exist in `ingredients`
-- `recipes.ingredients[].ingredient_slug` → must exist in `ingredients`
-- `finished_goods.recipe_name` → must exist in `recipes`
-- `bundles.finished_good_name` → must exist in `finished_goods`
-- `packages.bundles[].bundle_name` → must exist in `bundles`
-- `events.assignments[].recipient_name` → must exist in `recipients`
-- `events.assignments[].package_name` → must exist in `packages`
+**Use case**: Adding new recipes without affecting existing data
 
-### Duplicate Handling
+### Replace Mode
 
-By default, the import service:
-- **Skips** existing ingredients/variants/recipes (by name/slug)
-- **Warns** about duplicates in the import report
-- **Allows** multiple purchases/pantry items (not duplicates)
+- Clear all existing data first
+- Import all records from file
+- **WARNING**: This deletes all existing data
+
+**Use case**: Restoring from backup, fresh installation
 
 ---
 
-## Usage Instructions
+## Validation Rules
 
-### Loading Test Data
+### Header Validation
 
-```bash
-# Load sample data
-python -m src.utils.load_test_data
+The import service first validates the header:
 
-# Load custom file
-python -m src.utils.load_test_data path/to/custom_data.json
-```
+1. `version` field must be present and equal to "3.0"
+2. If version is missing or not "3.0", import is rejected with error:
+   > "Unsupported file version: [version]. This application only supports v3.0 format."
 
-### Exporting Current Data
+### Foreign Key Validation
 
-```bash
-# Export to default location (test_data/exported_data.json)
-python -m src.utils.export_test_data
+All foreign key references are validated:
 
-# Export to custom location
-python -m src.utils.export_test_data path/to/output.json
-```
+- `variants.ingredient_slug` -> must exist in `ingredients`
+- `purchases.(ingredient_slug, variant_brand)` -> must exist in `variants`
+- `pantry_items.(ingredient_slug, variant_brand)` -> must exist in `variants`
+- `unit_conversions.ingredient_slug` -> must exist in `ingredients`
+- `recipes.ingredients[].ingredient_slug` -> must exist in `ingredients`
+- `finished_units.recipe_slug` -> must exist in `recipes`
+- `compositions.assembly_slug` -> must exist in `finished_goods`
+- `compositions.component_slug` -> must exist in `finished_units` or `finished_goods`
+- `package_finished_goods.package_slug` -> must exist in `packages`
+- `package_finished_goods.finished_good_slug` -> must exist in `finished_goods`
+- `event_recipient_packages.event_slug` -> must exist in `events`
+- `event_recipient_packages.recipient_name` -> must exist in `recipients`
+- `event_recipient_packages.package_slug` -> must exist in `packages`
+- `production_records.event_slug` -> must exist in `events`
+- `production_records.recipe_slug` -> must exist in `recipes`
+
+### Duplicate Handling (Merge Mode)
+
+By default in Merge mode:
+- Existing records are **skipped** (identified by unique key/slug)
+- Duplicate count is included in import summary
+- No error is raised for duplicates
+
+---
+
+## Error Messages
+
+All error messages are designed to be user-friendly (no stack traces):
+
+| Scenario | Message |
+|----------|---------|
+| Wrong version | "Unsupported file version: [X]. This application only supports v3.0 format. Please export a new backup from a current version." |
+| Invalid JSON | "The selected file is not valid JSON. Please select a valid backup file." |
+| Missing entity | "[Entity type] '[name]' not found. It may be missing from the import file or listed in the wrong order." |
+| File not readable | "Could not read file: [path]. Please check file permissions." |
+| Write error | "Could not save to: [path]. Please check if the location is writable." |
+
+---
+
+## Usage
+
+### Export via UI
+
+1. Click **File > Export Data...**
+2. Choose save location
+3. Default filename: `bake-tracker-backup-YYYY-MM-DD.json`
+
+### Import via UI
+
+1. Click **File > Import Data...**
+2. Select JSON file
+3. Choose mode: **Merge** or **Replace**
+4. If Replace: Confirm data deletion
+5. Review summary on completion
 
 ### Import Result Summary
 
 After import, you'll see a summary like:
 
 ```
-============================================================
-Import Summary
-============================================================
-Total Records: 150
-Successful:    145
-Skipped:       3
-Failed:        2
+Import Complete
 
-Errors:
-  - recipe: Chocolate Cake
-    Ingredient 'dutch_cocoa' not found in database
+ingredients: 12 imported, 2 skipped
+variants: 15 imported, 0 skipped
+recipes: 8 imported, 1 skipped
+finished_units: 8 imported, 0 skipped
+finished_goods: 5 imported, 0 skipped
+...
 
-Warnings:
-  - ingredient: All-Purpose Flour
-    Ingredient already exists. Skipped.
-============================================================
-```
-
----
-
-## Guidelines for AI Data Generation
-
-When AI agents generate data for this system:
-
-### 1. Create Complete Ingredient Sets
-
-For each ingredient, create:
-- The generic ingredient (with slug)
-- At least one variant (preferably 2-3 common brands)
-- Optional: unit conversions if commonly measured by volume
-
-**Example Set**:
-
-```json
-{
-  "ingredients": [
-    {
-      "name": "All-Purpose Flour",
-      "slug": "all_purpose_flour",
-      "category": "Flour",
-      "recipe_unit": "cup",
-      "density_g_per_ml": 0.507
-    }
-  ],
-  "variants": [
-    {
-      "ingredient_slug": "all_purpose_flour",
-      "brand": "King Arthur",
-      "package_size": "25 lb bag",
-      "purchase_unit": "lb",
-      "purchase_quantity": 25.0,
-      "preferred": true
-    },
-    {
-      "ingredient_slug": "all_purpose_flour",
-      "brand": "Gold Medal",
-      "package_size": "5 lb bag",
-      "purchase_unit": "lb",
-      "purchase_quantity": 5.0
-    }
-  ],
-  "unit_conversions": [
-    {
-      "ingredient_slug": "all_purpose_flour",
-      "from_unit": "lb",
-      "from_quantity": 1.0,
-      "to_unit": "cup",
-      "to_quantity": 3.6,
-      "notes": "Unsifted, spooned and leveled"
-    }
-  ]
-}
-```
-
-### 2. Create Realistic Recipes
-
-- Use only ingredients that exist in the ingredients array
-- Include 4-12 ingredients per recipe
-- Use realistic quantities and units
-- Include helpful notes (temperature, timing, techniques)
-- Vary yield quantities (12-72 items typical for cookies)
-
-### 3. Always Create Finished Goods for Discrete Recipes
-
-**This is critical for the gift planning system.**
-
-For every recipe that produces countable items (cookies, brownies, candies):
-
-```json
-{
-  "recipes": [
-    {
-      "name": "Snickerdoodles",
-      "category": "Cookies",
-      "yield_quantity": 36,
-      "yield_unit": "cookies",
-      // ... ingredients ...
-    }
-  ],
-  "finished_goods": [
-    {
-      "name": "Snickerdoodle Cookies",
-      "recipe_name": "Snickerdoodles",
-      "category": "Cookies",
-      "yield_mode": "DISCRETE_COUNT",
-      "items_per_batch": 36,
-      "item_unit": "cookies",
-      "notes": "Classic cinnamon sugar cookies"
-    }
-  ]
-}
-```
-
-### 4. Slug Naming Conventions
-
-**Important**: Use consistent slug naming:
-
-- Lowercase only
-- Use underscores for spaces
-- Be descriptive but concise
-- Examples:
-  - ✅ `semi_sweet_chocolate_chips`
-  - ✅ `unsalted_butter`
-  - ✅ `dark_brown_sugar`
-  - ❌ `chocolate` (too vague)
-  - ❌ `SemiSweet-Chips` (wrong case/separator)
-
-### 5. Recipe Variety
-
-Include diverse recipe types:
-- **Cookies**: Chocolate chip, sugar, oatmeal, peanut butter, snickerdoodles
-- **Brownies**: Fudgy, cakey, with nuts, swirled
-- **Bars**: Lemon bars, blondies, magic bars, rice crispy treats
-- **Candies**: Fudge, truffles, bark, brittles, caramels
-- **Cakes**: Pound cake, coffee cake, bundt cakes
-- **Other**: Biscotti, scones, muffins
-
-### 6. Optional Sections
-
-You can optionally include:
-- **Purchases**: Historical purchase data for price tracking
-- **Pantry Items**: Current inventory state
-- **Bundles/Packages**: Pre-defined gift combinations
-- **Recipients**: Common gift recipients
-- **Events**: Seasonal baking events
-
-These are useful for a more complete test dataset but not required.
-
----
-
-## Example: Complete Cookie Recipe
-
-Here's a complete example showing all related entities:
-
-```json
-{
-  "ingredients": [
-    {
-      "name": "All-Purpose Flour",
-      "slug": "all_purpose_flour",
-      "category": "Flour",
-      "recipe_unit": "cup",
-      "density_g_per_ml": 0.507
-    },
-    {
-      "name": "White Granulated Sugar",
-      "slug": "white_granulated_sugar",
-      "category": "Sugar",
-      "recipe_unit": "cup",
-      "density_g_per_ml": 0.845
-    }
-  ],
-  "variants": [
-    {
-      "ingredient_slug": "all_purpose_flour",
-      "brand": "King Arthur",
-      "package_size": "25 lb bag",
-      "purchase_unit": "lb",
-      "purchase_quantity": 25.0,
-      "preferred": true
-    },
-    {
-      "ingredient_slug": "white_granulated_sugar",
-      "brand": "Domino",
-      "package_size": "25 lb bag",
-      "purchase_unit": "lb",
-      "purchase_quantity": 25.0,
-      "preferred": true
-    }
-  ],
-  "unit_conversions": [
-    {
-      "ingredient_slug": "all_purpose_flour",
-      "from_unit": "lb",
-      "from_quantity": 1.0,
-      "to_unit": "cup",
-      "to_quantity": 3.6
-    },
-    {
-      "ingredient_slug": "white_granulated_sugar",
-      "from_unit": "lb",
-      "from_quantity": 1.0,
-      "to_unit": "cup",
-      "to_quantity": 2.25
-    }
-  ],
-  "recipes": [
-    {
-      "name": "Simple Sugar Cookies",
-      "category": "Cookies",
-      "source": "Family Recipe",
-      "yield_quantity": 24,
-      "yield_unit": "cookies",
-      "yield_description": "3-inch round cookies",
-      "estimated_time_minutes": 30,
-      "notes": "Roll to 1/4 inch thickness. Bake at 350°F for 8-10 minutes.",
-      "ingredients": [
-        {
-          "ingredient_slug": "all_purpose_flour",
-          "quantity": 2.5,
-          "unit": "cup"
-        },
-        {
-          "ingredient_slug": "white_granulated_sugar",
-          "quantity": 1.0,
-          "unit": "cup"
-        }
-      ]
-    }
-  ],
-  "finished_goods": [
-    {
-      "name": "Sugar Cookie",
-      "recipe_name": "Simple Sugar Cookies",
-      "category": "Cookies",
-      "yield_mode": "DISCRETE_COUNT",
-      "items_per_batch": 24,
-      "item_unit": "cookies",
-      "notes": "Classic cut-out sugar cookies"
-    }
-  ]
-}
+Total: 85 imported, 3 skipped, 0 errors
 ```
 
 ---
@@ -876,39 +697,17 @@ Here's a complete example showing all related entities:
 
 ### Ingredient Categories
 
-```python
-INGREDIENT_CATEGORIES = [
-    "Flour",
-    "Sugar",
-    "Dairy",
-    "Oils/Butters",
-    "Nuts",
-    "Spices",
-    "Chocolate/Candies",
-    "Cocoa Powders",
-    "Dried Fruits",
-    "Extracts",
-    "Syrups",
-    "Alcohol",
-    "Misc"
-]
+```
+Flour, Sugar, Dairy, Oils/Butters, Nuts, Spices,
+Chocolate/Candies, Cocoa Powders, Dried Fruits,
+Extracts, Syrups, Alcohol, Misc
 ```
 
 ### Recipe/Finished Good Categories
 
-```python
-RECIPE_CATEGORIES = [
-    "Cookies",
-    "Cakes",
-    "Candies",
-    "Bars",
-    "Brownies",
-    "Breads",
-    "Pastries",
-    "Pies",
-    "Tarts",
-    "Other"
-]
+```
+Cookies, Cakes, Candies, Bars, Brownies,
+Breads, Pastries, Pies, Tarts, Other
 ```
 
 ---
@@ -916,44 +715,168 @@ RECIPE_CATEGORIES = [
 ## Appendix B: Valid Units
 
 ### Weight Units
-```python
-["oz", "lb", "g", "kg"]
+```
+oz, lb, g, kg
 ```
 
 ### Volume Units
-```python
-["tsp", "tbsp", "cup", "ml", "l", "fl oz", "pt", "qt", "gal"]
+```
+tsp, tbsp, cup, ml, l, fl oz, pt, qt, gal
 ```
 
 ### Count Units
-```python
-["each", "count", "piece", "dozen"]
+```
+each, count, piece, dozen
 ```
 
 ### Package Types
-```python
-["bag", "box", "jar", "bottle", "can", "packet", "container", "case"]
+```
+bag, box, jar, bottle, can, packet, container, case
 ```
 
 ---
 
-## Appendix C: Current Test Data
+## Appendix C: Complete Example
 
-The working test dataset is located at:
-- **File**: `test_data/sample_data.json`
-- **Contents**: 12 ingredients, 13 variants, 5 recipes, 5 finished goods, 5 bundles, 3 packages, 2 recipients, 1 event
-- **Use as reference**: This file demonstrates the complete working schema
+```json
+{
+  "version": "3.0",
+  "exported_at": "2025-12-04T10:30:00Z",
+  "application": "bake-tracker",
+  "ingredients": [
+    {
+      "name": "All-Purpose Flour",
+      "slug": "all_purpose_flour",
+      "category": "Flour",
+      "recipe_unit": "cup",
+      "density_g_per_ml": 0.507
+    },
+    {
+      "name": "Semi-Sweet Chocolate Chips",
+      "slug": "semi_sweet_chocolate_chips",
+      "category": "Chocolate/Candies",
+      "recipe_unit": "cup"
+    }
+  ],
+  "variants": [
+    {
+      "ingredient_slug": "all_purpose_flour",
+      "brand": "King Arthur",
+      "package_size": "5 lb bag",
+      "purchase_unit": "lb",
+      "purchase_quantity": 5.0,
+      "is_preferred": true
+    }
+  ],
+  "unit_conversions": [
+    {
+      "ingredient_slug": "all_purpose_flour",
+      "from_unit": "lb",
+      "to_unit": "cup",
+      "factor": 3.6
+    }
+  ],
+  "recipes": [
+    {
+      "name": "Classic Chocolate Chip Cookies",
+      "slug": "classic_chocolate_chip_cookies",
+      "category": "Cookies",
+      "yield_quantity": 48,
+      "yield_unit": "cookies",
+      "ingredients": [
+        {
+          "ingredient_slug": "all_purpose_flour",
+          "quantity": 2.25,
+          "unit": "cup"
+        },
+        {
+          "ingredient_slug": "semi_sweet_chocolate_chips",
+          "quantity": 2.0,
+          "unit": "cup"
+        }
+      ]
+    }
+  ],
+  "finished_units": [
+    {
+      "slug": "chocolate_chip_cookie",
+      "recipe_slug": "classic_chocolate_chip_cookies",
+      "display_name": "Chocolate Chip Cookie",
+      "yield_mode": "discrete_count",
+      "items_per_batch": 48,
+      "item_unit": "cookie",
+      "category": "Cookies"
+    }
+  ],
+  "finished_goods": [
+    {
+      "display_name": "Cookie Assortment Box",
+      "slug": "cookie_assortment_box",
+      "category": "Gift Items"
+    }
+  ],
+  "compositions": [
+    {
+      "assembly_slug": "cookie_assortment_box",
+      "component_type": "finished_unit",
+      "component_slug": "chocolate_chip_cookie",
+      "component_quantity": 12,
+      "sort_order": 1
+    }
+  ],
+  "packages": [
+    {
+      "name": "Standard Cookie Gift",
+      "slug": "standard_cookie_gift",
+      "is_template": true
+    }
+  ],
+  "package_finished_goods": [
+    {
+      "package_slug": "standard_cookie_gift",
+      "finished_good_slug": "cookie_assortment_box",
+      "quantity": 1
+    }
+  ],
+  "recipients": [
+    {
+      "name": "Mom",
+      "household": "Parents",
+      "notes": "Loves chocolate chip cookies"
+    }
+  ],
+  "events": [
+    {
+      "name": "Christmas 2025",
+      "slug": "christmas_2025",
+      "event_date": "2025-12-25",
+      "year": 2025
+    }
+  ],
+  "event_recipient_packages": [
+    {
+      "event_slug": "christmas_2025",
+      "recipient_name": "Mom",
+      "package_slug": "standard_cookie_gift",
+      "quantity": 1,
+      "status": "pending"
+    }
+  ],
+  "production_records": [
+    {
+      "event_slug": "christmas_2025",
+      "recipe_slug": "classic_chocolate_chip_cookies",
+      "batches": 2,
+      "produced_at": "2025-12-20T14:30:00Z",
+      "actual_cost": 15.75,
+      "notes": "Double batch for gifts"
+    }
+  ]
+}
+```
 
 ---
 
-**Document Status**: Implemented and Working
-**Version**: 2.0 - Updated to reflect Ingredient/Variant architecture
-**Last Updated**: 2025-11-08
-
-**Key Changes from v1.0**:
-- Ingredient/Variant separation (breaking change)
-- Slug-based foreign keys
-- Added Finished Goods, Bundles, Packages, Recipients, Events
-- Removed volume_equivalents (replaced by unit_conversions table)
-- Removed version/export_date metadata (simplified format)
-- Updated to match actual working implementation
+**Document Status**: Current
+**Version**: 3.0
+**Last Updated**: 2025-12-04
