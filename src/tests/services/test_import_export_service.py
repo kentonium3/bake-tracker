@@ -1,5 +1,5 @@
 """
-Unit tests for import_export_service.py - v3.0 export functions.
+Unit tests for import_export_service.py - v3.0 export and import functions.
 
 Tests cover:
 - ExportResult class with per-entity counts
@@ -8,6 +8,10 @@ Tests cover:
 - export_package_finished_goods_to_json()
 - export_production_records_to_json()
 - export_all_to_json() v3.0 format
+- ImportResult class with per-entity tracking and merge
+- import_all_from_json_v3() with mode support
+- Version validation (FR-018)
+- New entity import functions
 """
 
 import json
@@ -21,11 +25,14 @@ import pytest
 
 from src.services.import_export_service import (
     ExportResult,
+    ImportResult,
+    ImportVersionError,
     export_all_to_json,
     export_compositions_to_json,
     export_finished_units_to_json,
     export_package_finished_goods_to_json,
     export_production_records_to_json,
+    import_all_from_json_v3,
 )
 
 
@@ -419,3 +426,246 @@ class TestExportAllToJsonV3Format:
         assert result.success is False
         assert result.error is not None
         assert result.record_count == 0
+
+
+# ============================================================================
+# Import Function Tests
+# ============================================================================
+
+
+class TestImportResult:
+    """Tests for ImportResult class enhancements."""
+
+    def test_import_result_init(self):
+        """Test ImportResult initialization."""
+        result = ImportResult()
+        assert result.total_records == 0
+        assert result.successful == 0
+        assert result.skipped == 0
+        assert result.failed == 0
+        assert result.entity_counts == {}
+
+    def test_add_success_with_entity(self):
+        """Test add_success with entity type tracking."""
+        result = ImportResult()
+        result.add_success("ingredient")
+        result.add_success("ingredient")
+        result.add_success("recipe")
+
+        assert result.successful == 3
+        assert result.entity_counts["ingredient"]["imported"] == 2
+        assert result.entity_counts["recipe"]["imported"] == 1
+
+    def test_add_skip_tracks_entity(self):
+        """Test add_skip tracks entity counts."""
+        result = ImportResult()
+        result.add_skip("ingredient", "flour", "Already exists")
+
+        assert result.skipped == 1
+        assert result.entity_counts["ingredient"]["skipped"] == 1
+
+    def test_add_error_tracks_entity(self):
+        """Test add_error tracks entity counts."""
+        result = ImportResult()
+        result.add_error("ingredient", "bad_data", "Invalid format")
+
+        assert result.failed == 1
+        assert result.entity_counts["ingredient"]["errors"] == 1
+
+    def test_merge_combines_results(self):
+        """Test merge combines two ImportResults."""
+        result1 = ImportResult()
+        result1.add_success("ingredient")
+        result1.add_success("ingredient")
+
+        result2 = ImportResult()
+        result2.add_success("ingredient")
+        result2.add_skip("ingredient", "sugar", "Duplicate")
+
+        result1.merge(result2)
+
+        assert result1.successful == 3
+        assert result1.skipped == 1
+        assert result1.entity_counts["ingredient"]["imported"] == 3
+        assert result1.entity_counts["ingredient"]["skipped"] == 1
+
+    def test_get_summary_includes_entity_breakdown(self):
+        """Test get_summary shows per-entity breakdown."""
+        result = ImportResult()
+        result.add_success("ingredient")
+        result.add_success("ingredient")
+        result.add_skip("ingredient", "flour", "Duplicate")
+        result.add_success("recipe")
+
+        summary = result.get_summary()
+
+        assert "ingredient" in summary
+        assert "2 imported" in summary
+        assert "1 skipped" in summary
+        assert "recipe" in summary
+
+
+class TestImportVersionValidation:
+    """Tests for v3.0 version validation (FR-018)."""
+
+    def test_import_rejects_v2_format(self):
+        """Test import rejects v2.0 format files."""
+        v2_data = {
+            "version": "2.0",
+            "export_date": "2025-01-01T00:00:00Z",
+            "ingredients": [],
+        }
+
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
+            json.dump(v2_data, f)
+            temp_path = f.name
+
+        try:
+            with pytest.raises(ImportVersionError) as exc_info:
+                import_all_from_json_v3(temp_path)
+
+            assert "Unsupported file version: 2.0" in str(exc_info.value)
+            assert "v3.0 format" in str(exc_info.value)
+        finally:
+            os.unlink(temp_path)
+
+    def test_import_rejects_unknown_version(self):
+        """Test import rejects files with unknown/missing version."""
+        no_version_data = {
+            "ingredients": [],
+        }
+
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
+            json.dump(no_version_data, f)
+            temp_path = f.name
+
+        try:
+            with pytest.raises(ImportVersionError) as exc_info:
+                import_all_from_json_v3(temp_path)
+
+            assert "Unsupported file version: unknown" in str(exc_info.value)
+        finally:
+            os.unlink(temp_path)
+
+    def test_import_accepts_v3_format(self):
+        """Test import accepts v3.0 format files."""
+        v3_data = {
+            "version": "3.0",
+            "exported_at": "2025-12-04T00:00:00Z",
+            "application": "bake-tracker",
+            "ingredients": [],
+            "recipes": [],
+        }
+
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
+            json.dump(v3_data, f)
+            temp_path = f.name
+
+        try:
+            # Should not raise - may fail due to DB issues but not version error
+            result = import_all_from_json_v3(temp_path)
+            # If we get here without ImportVersionError, version check passed
+            assert result is not None
+        except ImportVersionError:
+            pytest.fail("Should not raise ImportVersionError for v3.0 format")
+        except Exception:
+            # Other errors (DB, etc.) are acceptable - we're testing version check
+            pass
+        finally:
+            os.unlink(temp_path)
+
+
+class TestImportModeValidation:
+    """Tests for import mode parameter validation."""
+
+    def test_invalid_mode_raises_error(self):
+        """Test invalid mode raises ValueError."""
+        v3_data = {"version": "3.0", "ingredients": []}
+
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
+            json.dump(v3_data, f)
+            temp_path = f.name
+
+        try:
+            with pytest.raises(ValueError) as exc_info:
+                import_all_from_json_v3(temp_path, mode="invalid")
+
+            assert "Invalid import mode" in str(exc_info.value)
+            assert "merge" in str(exc_info.value)
+            assert "replace" in str(exc_info.value)
+        finally:
+            os.unlink(temp_path)
+
+    def test_merge_mode_accepted(self):
+        """Test merge mode is accepted."""
+        v3_data = {"version": "3.0", "ingredients": []}
+
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
+            json.dump(v3_data, f)
+            temp_path = f.name
+
+        try:
+            # Should not raise ValueError for mode
+            result = import_all_from_json_v3(temp_path, mode="merge")
+            assert result is not None
+        except ValueError as e:
+            if "mode" in str(e).lower():
+                pytest.fail("Should accept 'merge' mode")
+        except Exception:
+            pass  # Other errors are acceptable
+        finally:
+            os.unlink(temp_path)
+
+    def test_replace_mode_accepted(self):
+        """Test replace mode is accepted."""
+        v3_data = {"version": "3.0", "ingredients": []}
+
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
+            json.dump(v3_data, f)
+            temp_path = f.name
+
+        try:
+            # Should not raise ValueError for mode
+            result = import_all_from_json_v3(temp_path, mode="replace")
+            assert result is not None
+        except ValueError as e:
+            if "mode" in str(e).lower():
+                pytest.fail("Should accept 'replace' mode")
+        except Exception:
+            pass  # Other errors are acceptable
+        finally:
+            os.unlink(temp_path)
+
+
+class TestImportUserFriendlyErrors:
+    """Tests for user-friendly error messages (SC-006)."""
+
+    def test_version_error_is_user_friendly(self):
+        """Test version error message is user-friendly."""
+        v2_data = {"version": "1.0", "ingredients": []}
+
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
+            json.dump(v2_data, f)
+            temp_path = f.name
+
+        try:
+            with pytest.raises(ImportVersionError) as exc_info:
+                import_all_from_json_v3(temp_path)
+
+            error_msg = str(exc_info.value)
+
+            # Should be user-friendly - no technical jargon
+            assert "stack" not in error_msg.lower()
+            assert "traceback" not in error_msg.lower()
+            assert "exception" not in error_msg.lower()
+
+            # Should provide helpful guidance
+            assert "export a new backup" in error_msg.lower()
+        finally:
+            os.unlink(temp_path)
+
+    def test_file_not_found_error(self):
+        """Test file not found returns ImportResult with error."""
+        result = import_all_from_json_v3("/nonexistent/path/data.json")
+
+        assert result.failed > 0 or len(result.errors) > 0

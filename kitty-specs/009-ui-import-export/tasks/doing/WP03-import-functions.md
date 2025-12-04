@@ -13,10 +13,10 @@ subtasks:
   - "T022"
 title: "Service Layer - Import Functions with Mode Support"
 phase: "Phase 2 - Service Layer"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "claude"
+shell_pid: "80980"
 review_status: ""
 reviewed_by: ""
 history:
@@ -319,3 +319,4 @@ history:
 ## Activity Log
 
 - 2025-12-04T00:00:00Z - system - lane=planned - Prompt created via /spec-kitty.tasks
+- 2025-12-04T20:11:58Z – claude – shell_pid=80980 – lane=doing – Started implementation
