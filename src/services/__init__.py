@@ -36,7 +36,7 @@ from . import (
     finished_good_service,
     package_service,  # Re-enabled Feature 006: Uses FinishedGood not Bundle
     recipient_service,
-    # event_service,  # DISABLED: Will be re-enabled in WP04
+    event_service,  # Re-enabled Feature 006: Uses FinishedGood not Bundle
 )
 
 # Migration services
@@ -110,6 +110,37 @@ from .package_service import (
     PackageFinishedGoodNotFoundError,
 )
 
+# Event services (Feature 006)
+from .event_service import (
+    create_event,
+    get_event_by_id,
+    get_event_by_name,
+    get_all_events,
+    get_events_by_year,
+    get_available_years,
+    update_event,
+    delete_event,
+    assign_package_to_recipient,
+    update_assignment,
+    remove_assignment,
+    get_event_assignments,
+    get_event_total_cost,
+    get_event_recipient_count,
+    get_event_package_count,
+    get_event_summary,
+    get_recipe_needs,
+    get_shopping_list,
+    clone_event,
+    get_recipient_history,
+    get_recipient_assignments_for_event,
+    # Exceptions
+    EventNotFoundError,
+    EventHasAssignmentsError,
+    AssignmentNotFoundError,
+    RecipientNotFoundError,
+    DuplicateAssignmentError,
+)
+
 # Composition services
 from .composition_service import (
     CompositionService,
@@ -152,7 +183,7 @@ __all__ = [
     "finished_good_service",
     "package_service",  # Re-enabled Feature 006
     "recipient_service",
-    # "event_service",  # Will be re-enabled in WP04
+    "event_service",  # Re-enabled Feature 006
     # Migration services
     "MigrationService",
     # FinishedUnit services
@@ -223,6 +254,32 @@ __all__ = [
     "InvalidFinishedGoodError",
     "DuplicatePackageNameError",
     "PackageFinishedGoodNotFoundError",
+    # Event services (Feature 006)
+    "create_event",
+    "get_event_by_id",
+    "get_event_by_name",
+    "get_all_events",
+    "get_events_by_year",
+    "get_available_years",
+    "update_event",
+    "delete_event",
+    "assign_package_to_recipient",
+    "update_assignment",
+    "remove_assignment",
+    "get_event_assignments",
+    "get_event_total_cost",
+    "get_event_recipient_count",
+    "get_event_package_count",
+    "get_event_summary",
+    "get_recipe_needs",
+    "get_shopping_list",
+    "clone_event",
+    "get_recipient_history",
+    "EventNotFoundError",
+    "EventHasAssignmentsError",
+    "AssignmentNotFoundError",
+    "RecipientNotFoundError",
+    "DuplicateAssignmentError",
     # Infrastructure - Exception hierarchy
     "ServiceError",
     "ServiceException",
