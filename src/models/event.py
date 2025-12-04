@@ -7,6 +7,7 @@ This module contains:
 """
 
 from datetime import datetime
+from decimal import Decimal
 
 from sqlalchemy import Column, String, Integer, Text, Date, DateTime, ForeignKey, Index
 from sqlalchemy.orm import relationship
@@ -61,21 +62,21 @@ class Event(BaseModel):
         """String representation of event."""
         return f"Event(id={self.id}, name='{self.name}', year={self.year})"
 
-    def get_total_cost(self) -> float:
+    def get_total_cost(self) -> Decimal:
         """
         Calculate total cost of all packages in this event.
 
+        Cost chains through: Event -> ERP -> Package -> FinishedGood for FIFO accuracy.
+
         Returns:
-            Total cost summed across all recipient-package assignments
+            Total cost as Decimal summed across all recipient-package assignments
         """
         if not self.event_recipient_packages:
-            return 0.0
+            return Decimal("0.00")
 
-        total_cost = 0.0
+        total_cost = Decimal("0.00")
         for erp in self.event_recipient_packages:
-            if erp.package:
-                package_cost = erp.package.calculate_cost()
-                total_cost += package_cost * erp.quantity
+            total_cost += erp.calculate_cost()
 
         return total_cost
 
@@ -124,7 +125,7 @@ class Event(BaseModel):
         result = super().to_dict(include_relationships)
 
         # Add calculated fields
-        result["total_cost"] = self.get_total_cost()
+        result["total_cost"] = float(self.get_total_cost())
         result["recipient_count"] = self.get_recipient_count()
         result["package_count"] = self.get_package_count()
 
@@ -187,17 +188,20 @@ class EventRecipientPackage(BaseModel):
             f"quantity={self.quantity})"
         )
 
-    def calculate_cost(self) -> float:
+    def calculate_cost(self) -> Decimal:
         """
         Calculate cost for this assignment.
 
+        Cost chains through: ERP -> Package -> FinishedGood for FIFO accuracy.
+
         Returns:
-            Package cost × quantity
+            Package cost (Decimal) multiplied by quantity
         """
         if not self.package:
-            return 0.0
+            return Decimal("0.00")
 
-        return self.package.calculate_cost() * self.quantity
+        package_cost = self.package.calculate_cost()
+        return package_cost * Decimal(str(self.quantity))
 
     def to_dict(self, include_relationships: bool = False) -> dict:
         """
@@ -212,7 +216,7 @@ class EventRecipientPackage(BaseModel):
         result = super().to_dict(include_relationships)
 
         # Add calculated cost
-        result["cost"] = self.calculate_cost()
+        result["cost"] = float(self.calculate_cost())
 
         if include_relationships:
             if self.recipient:

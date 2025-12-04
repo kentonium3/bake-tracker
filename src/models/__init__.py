@@ -23,7 +23,7 @@ from .finished_unit import FinishedUnit
 from .composition import Composition
 from .package import Package, PackageFinishedGood  # Re-enabled Feature 006: Uses FinishedGood not Bundle
 from .recipient import Recipient
-# from .event import Event, EventRecipientPackage  # DISABLED: References removed Package model
+from .event import Event, EventRecipientPackage  # Re-enabled Feature 006
 
 __all__ = [
     "Base",
@@ -53,6 +53,7 @@ __all__ = [
     "Package",
     "PackageFinishedGood",
     "Recipient",
-    # "Event",
-    # "EventRecipientPackage",
+    # Event models re-enabled in Feature 006
+    "Event",
+    "EventRecipientPackage",
 ]
