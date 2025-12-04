@@ -21,6 +21,11 @@ from src.models.variant import Variant
 from src.models.pantry_item import PantryItem
 from src.models.purchase import Purchase
 from src.models.unit_conversion import UnitConversion
+from src.models.finished_unit import FinishedUnit
+from src.models.finished_good import FinishedGood
+from src.models.composition import Composition
+from src.models.package import Package, PackageFinishedGood
+from src.models.production_record import ProductionRecord
 from src.utils.constants import APP_NAME, APP_VERSION
 
 
@@ -107,13 +112,25 @@ class ExportResult:
         self.record_count = record_count
         self.success = True
         self.error = None
+        self.entity_counts: Dict[str, int] = {}
+
+    def add_entity_count(self, entity_type: str, count: int):
+        """Add count for a specific entity type."""
+        self.entity_counts[entity_type] = count
 
     def get_summary(self) -> str:
         """Get a summary string of the export results."""
-        if self.success:
-            return f"Exported {self.record_count} records to {self.file_path}"
-        else:
+        if not self.success:
             return f"Export failed: {self.error}"
+
+        lines = [f"Exported {self.record_count} records to {self.file_path}"]
+
+        if self.entity_counts:
+            lines.append("")
+            for entity, count in self.entity_counts.items():
+                lines.append(f"  {entity}: {count}")
+
+        return "\n".join(lines)
 
 
 # ============================================================================
@@ -549,18 +566,182 @@ def export_events_to_json(file_path: str, include_all: bool = True) -> ExportRes
         return result
 
 
+# ============================================================================
+# v3.0 Export Functions - New Entities
+# ============================================================================
+
+
+def export_finished_units_to_json() -> List[Dict]:
+    """
+    Export FinishedUnit records for v3.0 format.
+
+    Returns:
+        List of dictionaries containing finished unit data
+    """
+    result = []
+    with session_scope() as session:
+        finished_units = (
+            session.query(FinishedUnit)
+            .options(joinedload(FinishedUnit.recipe))
+            .all()
+        )
+        for fu in finished_units:
+            fu_data = {
+                "slug": fu.slug,
+                "recipe_name": fu.recipe.name if fu.recipe else None,
+                "display_name": fu.display_name,
+                "yield_mode": fu.yield_mode.value if fu.yield_mode else None,
+            }
+
+            # Conditional fields based on yield mode
+            if fu.yield_mode and fu.yield_mode.value == "discrete_count":
+                if fu.items_per_batch is not None:
+                    fu_data["items_per_batch"] = fu.items_per_batch
+                if fu.item_unit:
+                    fu_data["item_unit"] = fu.item_unit
+            elif fu.yield_mode and fu.yield_mode.value == "batch_portion":
+                if fu.batch_percentage is not None:
+                    fu_data["batch_percentage"] = float(fu.batch_percentage)
+                if fu.portion_description:
+                    fu_data["portion_description"] = fu.portion_description
+
+            # Optional fields
+            if fu.category:
+                fu_data["category"] = fu.category
+            if fu.description:
+                fu_data["description"] = fu.description
+            if fu.production_notes:
+                fu_data["production_notes"] = fu.production_notes
+            if fu.notes:
+                fu_data["notes"] = fu.notes
+
+            result.append(fu_data)
+    return result
+
+
+def export_compositions_to_json() -> List[Dict]:
+    """
+    Export Composition records for v3.0 format.
+
+    Compositions link finished units/goods to finished good assemblies.
+
+    Returns:
+        List of dictionaries containing composition data
+    """
+    result = []
+    with session_scope() as session:
+        compositions = (
+            session.query(Composition)
+            .options(
+                joinedload(Composition.assembly),
+                joinedload(Composition.finished_unit_component),
+                joinedload(Composition.finished_good_component),
+            )
+            .all()
+        )
+        for comp in compositions:
+            comp_data = {
+                "finished_good_slug": comp.assembly.slug if comp.assembly else None,
+                "component_quantity": comp.component_quantity,
+                "sort_order": comp.sort_order,
+            }
+
+            # Polymorphic component reference
+            if comp.finished_unit_component:
+                comp_data["finished_unit_slug"] = comp.finished_unit_component.slug
+                comp_data["finished_good_component_slug"] = None
+            elif comp.finished_good_component:
+                comp_data["finished_unit_slug"] = None
+                comp_data["finished_good_component_slug"] = comp.finished_good_component.slug
+
+            # Optional fields
+            if comp.component_notes:
+                comp_data["notes"] = comp.component_notes
+
+            result.append(comp_data)
+    return result
+
+
+def export_package_finished_goods_to_json() -> List[Dict]:
+    """
+    Export PackageFinishedGood records for v3.0 format.
+
+    Links packages to finished goods with quantities.
+
+    Returns:
+        List of dictionaries containing package-finished good links
+    """
+    result = []
+    with session_scope() as session:
+        pfgs = (
+            session.query(PackageFinishedGood)
+            .options(
+                joinedload(PackageFinishedGood.package),
+                joinedload(PackageFinishedGood.finished_good),
+            )
+            .all()
+        )
+        for pfg in pfgs:
+            pfg_data = {
+                "package_name": pfg.package.name if pfg.package else None,
+                "finished_good_slug": pfg.finished_good.slug if pfg.finished_good else None,
+                "quantity": pfg.quantity,
+            }
+            result.append(pfg_data)
+    return result
+
+
+def export_production_records_to_json() -> List[Dict]:
+    """
+    Export ProductionRecord records for v3.0 format.
+
+    Production records track batch production with FIFO cost capture.
+
+    Returns:
+        List of dictionaries containing production record data
+    """
+    result = []
+    with session_scope() as session:
+        records = (
+            session.query(ProductionRecord)
+            .options(
+                joinedload(ProductionRecord.event),
+                joinedload(ProductionRecord.recipe),
+            )
+            .all()
+        )
+        for rec in records:
+            rec_data = {
+                "event_name": rec.event.name if rec.event else None,
+                "recipe_name": rec.recipe.name if rec.recipe else None,
+                "batches": rec.batches,
+                "produced_at": rec.produced_at.isoformat() + "Z" if rec.produced_at else None,
+                "actual_cost": float(rec.actual_cost) if rec.actual_cost else 0.0,
+            }
+
+            # Optional fields
+            if rec.notes:
+                rec_data["notes"] = rec.notes
+
+            result.append(rec_data)
+    return result
+
+
 def export_all_to_json(file_path: str) -> ExportResult:
     """
-    Export all data to a single JSON file.
+    Export all data to a single JSON file in v3.0 format.
 
-    Exports in dependency order: ingredients, recipes, finished goods,
-    bundles, packages, recipients, events (with assignments).
+    Exports in dependency order per data-model.md:
+    unit_conversions, ingredients, variants, purchases, pantry_items,
+    recipes, finished_units, finished_goods, compositions, packages,
+    package_finished_goods, recipients, events, event_recipient_packages,
+    production_records.
 
     Args:
         file_path: Path to output JSON file
 
     Returns:
-        ExportResult with export statistics
+        ExportResult with export statistics including per-entity counts
     """
     try:
         # Get all data - use session scope to eagerly load variants
@@ -572,28 +753,36 @@ def export_all_to_json(file_path: str) -> ExportResult:
                 _ = ing.variants  # Access to ensure loaded
 
         recipes = recipe_service.get_all_recipes()
-        finished_goods = finished_good_service.get_all_finished_goods()
-        bundles = finished_good_service.get_all_bundles()
         packages = package_service.get_all_packages()
         recipients = recipient_service.get_all_recipients()
         events = event_service.get_all_events()
 
-        # Build combined export data
+        # Get v3.0 entity exports
+        finished_units_data = export_finished_units_to_json()
+        compositions_data = export_compositions_to_json()
+        package_finished_goods_data = export_package_finished_goods_to_json()
+        production_records_data = export_production_records_to_json()
+
+        # Build combined export data - v3.0 format
         export_data = {
-            "version": "1.0",
-            "export_date": datetime.utcnow().isoformat() + "Z",
-            "source": f"{APP_NAME} v{APP_VERSION}",
+            "version": "3.0",
+            "exported_at": datetime.utcnow().isoformat() + "Z",
+            "application": "bake-tracker",
+            "unit_conversions": [],
             "ingredients": [],
             "variants": [],
-            "pantry_items": [],
             "purchases": [],
-            "unit_conversions": [],
+            "pantry_items": [],
             "recipes": [],
+            "finished_units": finished_units_data,
             "finished_goods": [],
-            "bundles": [],
+            "compositions": compositions_data,
             "packages": [],
+            "package_finished_goods": package_finished_goods_data,
             "recipients": [],
             "events": [],
+            "event_recipient_packages": [],
+            "production_records": production_records_data,
         }
 
         # Add ingredients (NEW SCHEMA: generic ingredient definitions)
@@ -775,54 +964,41 @@ def export_all_to_json(file_path: str) -> ExportResult:
 
             export_data["recipes"].append(recipe_data)
 
-        # Add finished goods
-        for fg in finished_goods:
-            fg_data = {
-                "name": fg.name,
-                "recipe_name": fg.recipe.name,
-                "yield_mode": fg.yield_mode.value,
-            }
+        # Add finished goods (v3.0: assembly-focused, slug-based)
+        with session_scope() as session:
+            finished_goods = (
+                session.query(FinishedGood)
+                .options(joinedload(FinishedGood.components))
+                .all()
+            )
+            for fg in finished_goods:
+                fg_data = {
+                    "slug": fg.slug,
+                    "display_name": fg.display_name,
+                    "assembly_type": fg.assembly_type.value if fg.assembly_type else None,
+                }
 
-            if fg.category:
-                fg_data["category"] = fg.category
-            if fg.yield_mode.value == "discrete_count":
-                fg_data["items_per_batch"] = fg.items_per_batch
-                fg_data["item_unit"] = fg.item_unit
-            elif fg.yield_mode.value == "batch_portion":
-                fg_data["batch_percentage"] = fg.batch_percentage
-                if fg.portion_description:
-                    fg_data["portion_description"] = fg.portion_description
-            if fg.notes:
-                fg_data["notes"] = fg.notes
+                if fg.description:
+                    fg_data["description"] = fg.description
+                if fg.packaging_instructions:
+                    fg_data["packaging_instructions"] = fg.packaging_instructions
+                if fg.notes:
+                    fg_data["notes"] = fg.notes
 
-            export_data["finished_goods"].append(fg_data)
+                export_data["finished_goods"].append(fg_data)
 
-        # Add bundles
-        for bundle in bundles:
-            bundle_data = {
-                "name": bundle.name,
-                "finished_good_name": bundle.finished_good.name,
-                "quantity": bundle.quantity,
-            }
-            if bundle.packaging_notes:
-                bundle_data["packaging_notes"] = bundle.packaging_notes
+        # NOTE: bundles removed in v3.0 - replaced by compositions (already populated above)
 
-            export_data["bundles"].append(bundle_data)
-
-        # Add packages
+        # Add packages (v3.0: no embedded bundles - use package_finished_goods)
         for package in packages:
-            package_data = {"name": package.name, "is_template": package.is_template, "bundles": []}
+            package_data = {
+                "name": package.name,
+                "is_template": package.is_template,
+            }
             if package.description:
                 package_data["description"] = package.description
             if package.notes:
                 package_data["notes"] = package.notes
-
-            for pb in package.package_bundles:
-                bundle_item = {
-                    "bundle_name": pb.bundle.name,
-                    "quantity": pb.quantity,
-                }
-                package_data["bundles"].append(bundle_item)
 
             export_data["packages"].append(package_data)
 
@@ -840,48 +1016,77 @@ def export_all_to_json(file_path: str) -> ExportResult:
 
             export_data["recipients"].append(recipient_data)
 
-        # Add events (with assignments)
+        # Add events (v3.0: no embedded assignments - use event_recipient_packages)
         for event in events:
             event_data = {
                 "name": event.name,
                 "event_date": event.event_date.isoformat(),
                 "year": event.year,
-                "assignments": [],
             }
             if event.notes:
                 event_data["notes"] = event.notes
 
+            export_data["events"].append(event_data)
+
+            # Populate event_recipient_packages separately (v3.0 format with status)
             for assignment in event.event_recipient_packages:
                 assignment_data = {
+                    "event_name": event.name,
                     "recipient_name": assignment.recipient.name,
                     "package_name": assignment.package.name,
                     "quantity": assignment.quantity,
+                    "status": assignment.status.value if assignment.status else "pending",
                 }
+                if assignment.delivered_to:
+                    assignment_data["delivered_to"] = assignment.delivered_to
                 if assignment.notes:
                     assignment_data["notes"] = assignment.notes
 
-                event_data["assignments"].append(assignment_data)
-
-            export_data["events"].append(event_data)
+                export_data["event_recipient_packages"].append(assignment_data)
 
         # Write to file
         with open(file_path, "w", encoding="utf-8") as f:
             json.dump(export_data, f, indent=2, ensure_ascii=False)
 
+        # Calculate total records and build entity counts
         total_records = (
-            len(ingredients)
+            len(export_data["unit_conversions"])
+            + len(export_data["ingredients"])
             + len(export_data["variants"])
-            + len(export_data["pantry_items"])
             + len(export_data["purchases"])
-            + len(export_data["unit_conversions"])
-            + len(recipes)
-            + len(finished_goods)
-            + len(bundles)
-            + len(packages)
-            + len(recipients)
-            + len(events)
+            + len(export_data["pantry_items"])
+            + len(export_data["recipes"])
+            + len(export_data["finished_units"])
+            + len(export_data["finished_goods"])
+            + len(export_data["compositions"])
+            + len(export_data["packages"])
+            + len(export_data["package_finished_goods"])
+            + len(export_data["recipients"])
+            + len(export_data["events"])
+            + len(export_data["event_recipient_packages"])
+            + len(export_data["production_records"])
         )
-        return ExportResult(file_path, total_records)
+
+        result = ExportResult(file_path, total_records)
+
+        # Add per-entity counts
+        result.add_entity_count("unit_conversions", len(export_data["unit_conversions"]))
+        result.add_entity_count("ingredients", len(export_data["ingredients"]))
+        result.add_entity_count("variants", len(export_data["variants"]))
+        result.add_entity_count("purchases", len(export_data["purchases"]))
+        result.add_entity_count("pantry_items", len(export_data["pantry_items"]))
+        result.add_entity_count("recipes", len(export_data["recipes"]))
+        result.add_entity_count("finished_units", len(export_data["finished_units"]))
+        result.add_entity_count("finished_goods", len(export_data["finished_goods"]))
+        result.add_entity_count("compositions", len(export_data["compositions"]))
+        result.add_entity_count("packages", len(export_data["packages"]))
+        result.add_entity_count("package_finished_goods", len(export_data["package_finished_goods"]))
+        result.add_entity_count("recipients", len(export_data["recipients"]))
+        result.add_entity_count("events", len(export_data["events"]))
+        result.add_entity_count("event_recipient_packages", len(export_data["event_recipient_packages"]))
+        result.add_entity_count("production_records", len(export_data["production_records"]))
+
+        return result
 
     except Exception as e:
         result = ExportResult(file_path, 0)

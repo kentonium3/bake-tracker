@@ -10,10 +10,10 @@ subtasks:
   - "T012"
 title: "Service Layer - Export Functions"
 phase: "Phase 2 - Service Layer"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "claude"
-shell_pid: "78003"
+shell_pid: "80857"
 review_status: ""
 reviewed_by: ""
 history:
@@ -230,3 +230,4 @@ history:
 
 - 2025-12-04T00:00:00Z - system - lane=planned - Prompt created via /spec-kitty.tasks
 - 2025-12-04T19:25:25Z – claude – shell_pid=78003 – lane=doing – Started implementation
+- 2025-12-04T20:11:34Z – claude – shell_pid=80857 – lane=for_review – Completed all export functions and tests - T006-T012 done
