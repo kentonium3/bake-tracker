@@ -1,7 +1,24 @@
 {
+  "accept_commit": null,
+  "acceptance_history": [
+    {
+      "accepted_at": "2025-12-04T03:41:02Z",
+      "accepted_by": "claude",
+      "accepted_from_commit": "10bd3a5e1b6f59ca646971dd4c4777fcc3f2a7a9",
+      "branch": "006-event-planning-restoration",
+      "mode": "pr",
+      "validation_commands": [
+        "python3 -m pytest src/tests/test_event_planning_workflow.py -v"
+      ]
+    }
+  ],
+  "acceptance_mode": "pr",
+  "accepted_at": "2025-12-04T03:41:02Z",
+  "accepted_by": "claude",
+  "accepted_from_commit": "10bd3a5e1b6f59ca646971dd4c4777fcc3f2a7a9",
+  "created_at": "2025-12-04T00:56:51Z",
   "feature_number": "006",
-  "slug": "006-event-planning-restoration",
   "friendly_name": "Event Planning Restoration",
-  "source_description": "Reimplement the gift planning subsystem (Bundle, Package, Event model chain) that was disabled during the Ingredient/Variant refactor, updated to work with the new architecture and FIFO-based costing from Feature 005.",
-  "created_at": "2025-12-04T00:56:51Z"
+  "slug": "006-event-planning-restoration",
+  "source_description": "Reimplement the gift planning subsystem (Bundle, Package, Event model chain) that was disabled during the Ingredient/Variant refactor, updated to work with the new architecture and FIFO-based costing from Feature 005."
 }
