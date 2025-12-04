@@ -13,12 +13,12 @@ subtasks:
   - "T032"
 title: "UI - Menu Bar and Dialogs"
 phase: "Phase 3 - UI Layer"
-lane: "for_review"
+lane: "done"
 assignee: ""
-agent: "claude"
-shell_pid: "83429"
-review_status: ""
-reviewed_by: ""
+agent: "claude-reviewer"
+shell_pid: "85463"
+review_status: "approved"
+reviewed_by: "claude-reviewer"
 history:
   - timestamp: "2025-12-04T00:00:00Z"
     lane: "planned"
@@ -393,3 +393,4 @@ history:
 - 2025-12-04T00:00:00Z - system - lane=planned - Prompt created via /spec-kitty.tasks
 - 2025-12-04T20:16:44Z – claude – shell_pid=82440 – lane=doing – Started implementation
 - 2025-12-04T20:28:24Z – claude – shell_pid=83429 – lane=for_review – Completed all UI tasks - T023-T032 done
+- 2025-12-04T20:56:05Z – claude-reviewer – shell_pid=85463 – lane=done – Code review APPROVED: Menu bar with File/Tools/Help, ImportDialog with mode selection, ExportDialog with save, Replace confirmation, _refresh_all_tabs, all syntax verified
