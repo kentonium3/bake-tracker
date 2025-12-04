@@ -15,10 +15,10 @@ subtasks:
   - "T034"
 title: "Event Service Implementation"
 phase: "Phase 2 - Services Layer"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "claude"
-shell_pid: "8297"
+shell_pid: "8953"
 review_status: ""
 reviewed_by: ""
 history:
@@ -393,3 +393,4 @@ history:
 
 - 2025-12-03 - system - lane=planned - Prompt created.
 - 2025-12-04T02:35:08Z – claude – shell_pid=8297 – lane=doing – Started implementation
+- 2025-12-04T02:38:35Z – claude – shell_pid=8953 – lane=for_review – Completed: EventService rewritten with FinishedGood support, recipe needs and shopping list implemented
