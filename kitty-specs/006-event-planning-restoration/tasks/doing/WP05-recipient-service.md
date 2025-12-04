@@ -10,10 +10,10 @@ subtasks:
   - "T041"
 title: "Recipient Service Verification"
 phase: "Phase 2 - Services Layer"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "claude"
+shell_pid: "9077"
 review_status: ""
 reviewed_by: ""
 history:
@@ -210,3 +210,4 @@ history:
 ## Activity Log
 
 - 2025-12-03 - system - lane=planned - Prompt created.
+- 2025-12-04T02:38:59Z – claude – shell_pid=9077 – lane=doing – Started verification
