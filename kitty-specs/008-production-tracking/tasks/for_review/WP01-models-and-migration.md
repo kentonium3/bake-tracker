@@ -9,7 +9,7 @@ subtasks:
   - "T006"
 title: "Models & Database Migration"
 phase: "Phase 1 - Foundation"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "claude"
 shell_pid: "58999"
@@ -287,3 +287,4 @@ CREATE INDEX IF NOT EXISTS idx_erp_status ON event_recipient_packages(status);
 
 - 2025-12-04T12:00:00Z - system - lane=planned - Prompt created via /spec-kitty.tasks
 - 2025-12-04T16:21:42Z – claude – shell_pid=58999 – lane=doing – Started implementation (retroactive recovery)
+- 2025-12-04T16:26:46Z – claude – shell_pid=58999 – lane=for_review – Implementation complete, ready for review (retroactive recovery)

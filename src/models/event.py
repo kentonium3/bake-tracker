@@ -9,8 +9,20 @@ This module contains:
 from datetime import datetime
 from decimal import Decimal
 
-from sqlalchemy import Column, String, Integer, Text, Date, DateTime, ForeignKey, Index
+from sqlalchemy import (
+    Column,
+    String,
+    Integer,
+    Text,
+    Date,
+    DateTime,
+    ForeignKey,
+    Index,
+    Enum as SQLEnum,
+)
 from sqlalchemy.orm import relationship
+
+from .package_status import PackageStatus
 
 from .base import BaseModel
 
@@ -46,6 +58,12 @@ class Event(BaseModel):
     # Relationships
     event_recipient_packages = relationship(
         "EventRecipientPackage", back_populates="event", cascade="all, delete-orphan", lazy="joined"
+    )
+    production_records = relationship(
+        "ProductionRecord",
+        back_populates="event",
+        cascade="all, delete-orphan",
+        lazy="selectin",
     )
 
     # Indexes
@@ -159,6 +177,12 @@ class EventRecipientPackage(BaseModel):
     quantity = Column(Integer, nullable=False, default=1)
     notes = Column(Text, nullable=True)
 
+    # Production status tracking
+    status = Column(
+        SQLEnum(PackageStatus), nullable=False, default=PackageStatus.PENDING
+    )
+    delivered_to = Column(String(500), nullable=True)
+
     # Relationships
     event = relationship("Event", back_populates="event_recipient_packages")
     recipient = relationship("Recipient")
@@ -169,6 +193,7 @@ class EventRecipientPackage(BaseModel):
         Index("idx_erp_event", "event_id"),
         Index("idx_erp_recipient", "recipient_id"),
         Index("idx_erp_package", "package_id"),
+        Index("idx_erp_status", "status"),
     )
 
     def __repr__(self) -> str:
@@ -208,6 +233,10 @@ class EventRecipientPackage(BaseModel):
 
         # Add calculated cost
         result["cost"] = float(self.calculate_cost())
+
+        # Add status as string value
+        if self.status:
+            result["status"] = self.status.value
 
         if include_relationships:
             if self.recipient:
