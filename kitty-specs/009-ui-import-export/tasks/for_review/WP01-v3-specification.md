@@ -8,10 +8,10 @@ subtasks:
   - "T005"
 title: "v3.0 Specification Document"
 phase: "Phase 1 - Foundation"
-lane: "planned"
+lane: "for_review"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "claude"
+shell_pid: "77910"
 review_status: ""
 reviewed_by: ""
 history:
@@ -179,3 +179,7 @@ history:
 ## Activity Log
 
 - 2025-12-04T00:00:00Z - system - lane=planned - Prompt created via /spec-kitty.tasks
+- 2025-12-04T19:21:16Z - claude - shell_pid=77233 - lane=doing - Started implementation
+- 2025-12-04T22:25:00Z - claude - shell_pid=77233 - lane=doing - Completed T001: Archived v2.0 spec to docs/archive/import_export_specification_v2.md
+- 2025-12-04T22:25:00Z - claude - shell_pid=77233 - lane=doing - Completed T002-T005: Created v3.0 spec at docs/design/import_export_specification.md with all 15 entities, dependency order, validation rules, examples
+- 2025-12-04T19:25:05Z – claude – shell_pid=77910 – lane=for_review – Ready for review - v3.0 spec complete
