@@ -15,19 +15,19 @@
 
 ---
 
-## Work Package WP01: Models & Database Migration (Priority: P0)
+## Work Package WP01: Models & Database Migration (Priority: P0) ✅ COMPLETE
 
 **Goal**: Create ProductionRecord model, PackageStatus enum, add status fields to EventRecipientPackage, and run database migration.
 **Independent Test**: Models import successfully, database tables exist with correct schema.
-**Prompt**: `tasks/planned/WP01-models-and-migration.md`
+**Prompt**: `tasks/done/WP01-models-and-migration.md`
 
 ### Included Subtasks
-- [ ] T001 [P] Create PackageStatus enum in `src/models/package_status.py`
-- [ ] T002 [P] Create ProductionRecord model in `src/models/production_record.py`
-- [ ] T003 Add status and delivered_to fields to EventRecipientPackage in `src/models/event.py`
-- [ ] T004 Add production_records relationship to Event model in `src/models/event.py`
-- [ ] T005 Update model exports in `src/models/__init__.py`
-- [ ] T006 Create and run database migration for new table and altered columns
+- [x] T001 [P] Create PackageStatus enum in `src/models/package_status.py`
+- [x] T002 [P] Create ProductionRecord model in `src/models/production_record.py`
+- [x] T003 Add status and delivered_to fields to EventRecipientPackage in `src/models/event.py`
+- [x] T004 Add production_records relationship to Event model in `src/models/event.py`
+- [x] T005 Update model exports in `src/models/__init__.py`
+- [x] T006 Create and run database migration for new table and altered columns
 
 ### Implementation Notes
 1. Create PackageStatus enum first (T001) - standalone, no dependencies
@@ -49,17 +49,17 @@
 
 ---
 
-## Work Package WP02: Core Production Recording Service (Priority: P1) MVP
+## Work Package WP02: Core Production Recording Service (Priority: P1) MVP ✅ COMPLETE
 
 **Goal**: Implement `record_production()` - the core function that records batches, consumes pantry via FIFO, and captures actual costs.
 **Independent Test**: Can record production for a recipe, verify pantry depleted, actual cost captured.
-**Prompt**: `tasks/planned/WP02-core-production-service.md`
+**Prompt**: `tasks/done/WP02-core-production-service.md`
 
 ### Included Subtasks
-- [ ] T007 Create custom exceptions (InsufficientInventoryError, etc.) in `src/services/production_service.py`
-- [ ] T008 Implement `record_production()` function with FIFO consumption
-- [ ] T009 Write tests for `record_production()` in `src/tests/services/test_production_service.py`
-- [ ] T010 Export production_service functions in `src/services/__init__.py`
+- [x] T007 Create custom exceptions (InsufficientInventoryError, etc.) in `src/services/production_service.py`
+- [x] T008 Implement `record_production()` function with FIFO consumption
+- [x] T009 Write tests for `record_production()` in `src/tests/services/test_production_service.py`
+- [x] T010 Export production_service functions in `src/services/__init__.py`
 
 ### Implementation Notes
 1. Create exceptions first (T007) - needed by function
@@ -83,17 +83,17 @@
 
 ---
 
-## Work Package WP03: Package Status Management (Priority: P2)
+## Work Package WP03: Package Status Management (Priority: P2) ✅ COMPLETE
 
 **Goal**: Implement package status transitions (pending -> assembled -> delivered) with validation.
 **Independent Test**: Can update package status, invalid transitions are blocked.
-**Prompt**: `tasks/planned/WP03-package-status-management.md`
+**Prompt**: `tasks/done/WP03-package-status-management.md`
 
 ### Included Subtasks
-- [ ] T011 Implement `update_package_status()` with transition validation in `src/services/production_service.py`
-- [ ] T012 Implement `can_assemble_package()` helper function
-- [ ] T013 Add InvalidStatusTransitionError and IncompleteProductionError exceptions
-- [ ] T014 Write tests for status management functions in `src/tests/services/test_production_service.py`
+- [x] T011 Implement `update_package_status()` with transition validation in `src/services/production_service.py`
+- [x] T012 Implement `can_assemble_package()` helper function
+- [x] T013 Add InvalidStatusTransitionError and IncompleteProductionError exceptions
+- [x] T014 Write tests for status management functions in `src/tests/services/test_production_service.py`
 
 ### Implementation Notes
 1. Add exceptions (T013) - needed by functions
@@ -113,17 +113,17 @@
 
 ---
 
-## Work Package WP04: Progress & Dashboard Services (Priority: P2-P3)
+## Work Package WP04: Progress & Dashboard Services (Priority: P2-P3) ✅ COMPLETE
 
 **Goal**: Implement progress tracking and dashboard summary functions for cost comparison.
 **Independent Test**: Can get production progress for event, dashboard shows all active events.
-**Prompt**: `tasks/planned/WP04-progress-and-dashboard.md`
+**Prompt**: `tasks/done/WP04-progress-and-dashboard.md`
 
 ### Included Subtasks
-- [ ] T015 [P] Implement `get_production_progress()` in `src/services/production_service.py`
-- [ ] T016 [P] Implement `get_dashboard_summary()` for multi-event overview
-- [ ] T017 [P] Implement `get_recipe_cost_breakdown()` for cost drill-down
-- [ ] T018 Write tests for progress/dashboard functions in `src/tests/services/test_production_service.py`
+- [x] T015 [P] Implement `get_production_progress()` in `src/services/production_service.py`
+- [x] T016 [P] Implement `get_dashboard_summary()` for multi-event overview
+- [x] T017 [P] Implement `get_recipe_cost_breakdown()` for cost drill-down
+- [x] T018 Write tests for progress/dashboard functions in `src/tests/services/test_production_service.py`
 
 ### Implementation Notes
 1. get_production_progress (T015):
