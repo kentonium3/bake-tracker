@@ -105,6 +105,7 @@ def init_database(engine: Optional[Engine] = None) -> None:
     # Import all models to ensure they're registered with Base
     # This is necessary for Base.metadata.create_all() to work
     from ..models import ingredient, recipe, inventory_snapshot, finished_good  # noqa: F401
+    from ..models import production_record  # noqa: F401  # Feature 008
 
     # Create all tables
     Base.metadata.create_all(engine)

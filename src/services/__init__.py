@@ -37,6 +37,7 @@ from . import (
     package_service,  # Re-enabled Feature 006: Uses FinishedGood not Bundle
     recipient_service,
     event_service,  # Re-enabled Feature 006: Uses FinishedGood not Bundle
+    production_service,  # Feature 008: Production tracking
 )
 
 # Migration services
@@ -108,6 +109,25 @@ from .package_service import (
     InvalidFinishedGoodError,
     DuplicatePackageNameError,
     PackageFinishedGoodNotFoundError,
+)
+
+# Production services (Feature 008)
+from .production_service import (
+    record_production,
+    get_production_records,
+    get_production_total,
+    can_assemble_package,
+    update_package_status,
+    get_production_progress,
+    get_dashboard_summary,
+    get_recipe_cost_breakdown,
+    # Exceptions
+    InsufficientInventoryError as ProductionInsufficientInventoryError,
+    RecipeNotFoundError as ProductionRecipeNotFoundError,
+    ProductionExceedsPlannedError,
+    InvalidStatusTransitionError,
+    IncompleteProductionError,
+    AssignmentNotFoundError as ProductionAssignmentNotFoundError,
 )
 
 # Event services (Feature 006)
@@ -314,6 +334,22 @@ __all__ = [
     "RecipientNotFound",
     "RecipientInUse",
     "RecipientHasAssignmentsError",
+    # Production services (Feature 008)
+    "production_service",
+    "record_production",
+    "get_production_records",
+    "get_production_total",
+    "can_assemble_package",
+    "update_package_status",
+    "get_production_progress",
+    "get_dashboard_summary",
+    "get_recipe_cost_breakdown",
+    "ProductionInsufficientInventoryError",
+    "ProductionRecipeNotFoundError",
+    "ProductionExceedsPlannedError",
+    "InvalidStatusTransitionError",
+    "IncompleteProductionError",
+    "ProductionAssignmentNotFoundError",
     # Infrastructure - Exception hierarchy
     "ServiceError",
     "ServiceException",
