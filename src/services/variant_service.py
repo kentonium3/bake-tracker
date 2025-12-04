@@ -36,8 +36,10 @@ Example Usage:
 
 from typing import Dict, Any, List, Optional
 from decimal import Decimal
+from math import ceil
 
 from ..models import Variant
+from .unit_converter import convert_any_units
 from .database import session_scope
 from .exceptions import (
     VariantNotFound,
@@ -490,3 +492,230 @@ def get_preferred_variant(ingredient_slug: str) -> Optional[Variant]:
             .filter_by(ingredient_id=ingredient.id, preferred=True)
             .first()
         )
+
+
+def _calculate_variant_cost(
+    variant: Variant,
+    shortfall: Decimal,
+    recipe_unit: str,
+    ingredient_name: str,
+) -> Dict[str, Any]:
+    """Calculate cost metrics for a variant given an ingredient shortfall.
+
+    This helper function computes all the cost and quantity metrics needed
+    for a shopping list recommendation.
+
+    Args:
+        variant: Variant model instance with purchases relationship loaded
+        shortfall: Amount needed in recipe units (e.g., 5 cups)
+        recipe_unit: Unit used in recipes (e.g., "cup", "oz")
+        ingredient_name: Name of ingredient for unit conversion lookups
+
+    Returns:
+        Dict containing:
+            - variant_id: Variant ID
+            - brand: Brand name
+            - package_size: Human-readable size (e.g., "25 lb bag")
+            - package_quantity: Numeric quantity per package
+            - purchase_unit: Unit purchased in
+            - cost_per_purchase_unit: Cost per purchase unit (e.g., $0.72/lb)
+            - cost_per_recipe_unit: Cost per recipe unit (e.g., $0.18/cup)
+            - min_packages: Minimum whole packages needed to cover shortfall
+            - total_cost: Total purchase cost for min_packages
+            - is_preferred: Whether this is the preferred variant
+            - cost_available: Whether cost data is available
+            - cost_message: Message if cost unavailable (e.g., "Cost unknown")
+            - conversion_error: True if unit conversion failed
+            - error_message: Conversion error message if applicable
+
+    Example:
+        >>> rec = _calculate_variant_cost(flour_variant, Decimal("5"), "cup", "All-Purpose Flour")
+        >>> rec['min_packages']
+        1
+        >>> rec['cost_per_recipe_unit']
+        Decimal('0.18')
+    """
+    result = {
+        "variant_id": variant.id,
+        "brand": variant.brand or "",
+        "package_size": variant.package_size or "",
+        "package_quantity": float(variant.purchase_quantity),
+        "purchase_unit": variant.purchase_unit,
+        "is_preferred": variant.preferred,
+        "cost_available": True,
+        "cost_message": "",
+        "conversion_error": False,
+        "error_message": "",
+        "cost_per_purchase_unit": None,
+        "cost_per_recipe_unit": None,
+        "min_packages": 0,
+        "total_cost": None,
+    }
+
+    # Get cost per purchase unit from most recent purchase
+    cost_per_purchase_unit = variant.get_current_cost_per_unit()
+
+    if cost_per_purchase_unit == 0 or cost_per_purchase_unit is None:
+        # No purchase history - can still recommend variant but no cost
+        result["cost_available"] = False
+        result["cost_message"] = "Cost unknown"
+        result["cost_per_purchase_unit"] = Decimal("0")
+    else:
+        result["cost_per_purchase_unit"] = Decimal(str(cost_per_purchase_unit))
+
+    # Convert shortfall from recipe_unit to purchase_unit
+    success, shortfall_in_purchase_units, msg = convert_any_units(
+        float(shortfall),
+        recipe_unit,
+        variant.purchase_unit,
+        ingredient_name,
+    )
+
+    if not success:
+        # Unit conversion failed
+        result["conversion_error"] = True
+        result["error_message"] = msg or "Unit conversion unavailable"
+        # Still return variant info but can't calculate packages/cost
+        return result
+
+    # Guard against division by zero
+    if variant.purchase_quantity <= 0:
+        result["conversion_error"] = True
+        result["error_message"] = "Invalid package quantity"
+        return result
+
+    # Calculate minimum packages (always round UP to cover shortfall)
+    min_packages = ceil(shortfall_in_purchase_units / variant.purchase_quantity)
+    result["min_packages"] = max(1, min_packages)  # At least 1 package
+
+    # Calculate total cost if cost data is available
+    if result["cost_available"]:
+        # Total cost = packages * quantity_per_package * cost_per_unit
+        actual_quantity = Decimal(str(result["min_packages"])) * Decimal(
+            str(variant.purchase_quantity)
+        )
+        result["total_cost"] = actual_quantity * result["cost_per_purchase_unit"]
+
+        # Calculate cost per recipe unit
+        # Need conversion factor: how many recipe_units per purchase_unit
+        success, conversion_factor, _ = convert_any_units(
+            1.0,
+            variant.purchase_unit,
+            recipe_unit,
+            ingredient_name,
+        )
+
+        if success and conversion_factor > 0:
+            result["cost_per_recipe_unit"] = result["cost_per_purchase_unit"] / Decimal(
+                str(conversion_factor)
+            )
+        else:
+            # Can't calculate cost per recipe unit but still have total cost
+            result["cost_per_recipe_unit"] = None
+
+    return result
+
+
+def get_variant_recommendation(
+    ingredient_slug: str,
+    shortfall: Decimal,
+    recipe_unit: str,
+) -> Dict[str, Any]:
+    """Get variant recommendation(s) for an ingredient shortfall.
+
+    This function determines which variant(s) to recommend for purchasing
+    to cover an ingredient shortfall. It handles three scenarios:
+    - Preferred variant exists: return that as the recommendation
+    - Multiple variants, none preferred: return all variants for user choice
+    - No variants configured: return status indicating this
+
+    Args:
+        ingredient_slug: Slug identifier for the ingredient
+        shortfall: Amount needed in recipe units
+        recipe_unit: Unit used in recipes (e.g., "cup", "oz")
+
+    Returns:
+        Dict containing:
+            - variant_status: 'preferred' | 'multiple' | 'none' | 'sufficient'
+            - variant_recommendation: Primary recommendation dict (or None)
+            - all_variants: List of all variant recommendations
+            - message: Optional status message
+
+    Raises:
+        IngredientNotFoundBySlug: If ingredient_slug doesn't exist
+
+    Example:
+        >>> rec = get_variant_recommendation("all_purpose_flour", Decimal("5"), "cup")
+        >>> rec['variant_status']
+        'preferred'
+        >>> rec['variant_recommendation']['brand']
+        'King Arthur'
+    """
+    # Handle zero or negative shortfall
+    if shortfall <= 0:
+        return {
+            "variant_status": "sufficient",
+            "variant_recommendation": None,
+            "all_variants": [],
+            "message": "Sufficient stock",
+        }
+
+    # Get ingredient (will raise IngredientNotFoundBySlug if not found)
+    try:
+        ingredient = get_ingredient(ingredient_slug)
+    except IngredientNotFoundBySlug:
+        return {
+            "variant_status": "none",
+            "variant_recommendation": None,
+            "all_variants": [],
+            "message": "Ingredient not found",
+        }
+
+    # Get all variants for ingredient
+    variants = get_variants_for_ingredient(ingredient_slug)
+
+    if not variants:
+        return {
+            "variant_status": "none",
+            "variant_recommendation": None,
+            "all_variants": [],
+            "message": "No variant configured",
+        }
+
+    # Calculate cost metrics for all variants
+    all_recommendations = []
+    for v in variants:
+        rec = _calculate_variant_cost(v, shortfall, recipe_unit, ingredient.name)
+        all_recommendations.append(rec)
+
+    # Sort by total_cost (cheapest first, None values at end)
+    def sort_key(r):
+        if r.get("total_cost") is None:
+            return (1, float("inf"))  # Put at end
+        return (0, float(r["total_cost"]))
+
+    all_recommendations.sort(key=sort_key)
+
+    # Check for preferred variant
+    preferred = get_preferred_variant(ingredient_slug)
+
+    if preferred:
+        # Find the recommendation for the preferred variant
+        preferred_rec = next(
+            (r for r in all_recommendations if r["variant_id"] == preferred.id),
+            None,
+        )
+        return {
+            "variant_status": "preferred",
+            "variant_recommendation": preferred_rec,
+            "all_variants": [preferred_rec] if preferred_rec else [],
+            "message": "",
+        }
+    else:
+        # Multiple variants, none preferred - return all for user choice
+        return {
+            "variant_status": "multiple",
+            "variant_recommendation": None,
+            "all_variants": all_recommendations,
+            "message": "",
+        }

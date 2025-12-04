@@ -15,17 +15,17 @@
 
 ---
 
-## Work Package WP01: VariantService Recommendation Engine (Priority: P0)
+## Work Package WP01: VariantService Recommendation Engine (Priority: P0) ✅ COMPLETE
 
 **Goal**: Implement the core variant recommendation logic in VariantService that calculates cost-per-unit, minimum packages, and total cost for ingredient shortfalls.
 **Independent Test**: Unit tests pass for `get_variant_recommendation()` with preferred, multiple, and no-variant scenarios.
-**Prompt**: `tasks/planned/WP01-variant-service-recommendations.md`
+**Prompt**: `tasks/done/WP01-variant-service-recommendations.md`
 
 ### Included Subtasks
-- [ ] T001 Implement `_calculate_variant_cost()` helper in `src/services/variant_service.py`
-- [ ] T002 Implement `get_variant_recommendation()` method in `src/services/variant_service.py`
-- [ ] T003 Handle edge cases: no variants, no purchase history (FR-003, FR-010)
-- [ ] T004 [P] Unit tests in `src/tests/test_variant_service.py`
+- [x] T001 Implement `_calculate_variant_cost()` helper in `src/services/variant_service.py`
+- [x] T002 Implement `get_variant_recommendation()` method in `src/services/variant_service.py`
+- [x] T003 Handle edge cases: no variants, no purchase history (FR-003, FR-010)
+- [x] T004 [P] Unit tests in `src/tests/services/test_variant_service.py` (15 tests pass)
 
 ### Implementation Notes
 1. `_calculate_variant_cost(variant, shortfall, recipe_unit)`:
