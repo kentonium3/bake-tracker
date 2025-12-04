@@ -16,7 +16,7 @@ subtasks:
 title: "Event Service Implementation"
 phase: "Phase 2 - Services Layer"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude"
 shell_pid: "8953"
 review_status: "approved"

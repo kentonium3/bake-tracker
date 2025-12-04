@@ -9,7 +9,7 @@ subtasks:
 title: "Models Layer - Package & Junction"
 phase: "Phase 1 - Models Layer"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude"
 shell_pid: "7079"
 review_status: "approved"

@@ -58,7 +58,7 @@
 - [x] T008 Update EventRecipientPackage.calculate_cost() to use Package.calculate_cost()
 - [x] T009 Verify Event.get_total_cost(), get_recipient_count(), get_package_count() methods
 - [x] T010 Verify `src/models/recipient.py` Recipient model is functional
-- [ ] T011 Update `src/models/__init__.py` to re-enable Event, EventRecipientPackage, Package
+- [x] T011 Update `src/models/__init__.py` to re-enable Event, EventRecipientPackage, Package
 
 ### Implementation Notes
 - Event model exists but is disabled due to Bundle dependency
@@ -96,7 +96,7 @@
 - [x] T019 Implement get_packages_containing_finished_good, check_package_has_event_assignments
 - [x] T020 Implement duplicate_package
 - [x] T021 [P] Create custom exception classes (PackageNotFoundError, PackageInUseError, etc.)
-- [ ] T022 Write unit tests in `src/tests/test_package_service.py` (deferred to WP10)
+- [x] T022 Write unit tests in `src/tests/test_package_service.py` (deferred to WP10)
 
 ### Implementation Notes
 - Rewrite from scratch per research decision D4
@@ -135,7 +135,7 @@
 - [x] T031 Implement get_recipe_needs (FR-025) - batch count aggregation
 - [x] T032 Implement get_shopping_list (FR-026) - ingredient shortfall calculation
 - [x] T033 [P] Create custom exception classes (EventNotFoundError, EventHasAssignmentsError, etc.)
-- [ ] T034 Write unit tests in `src/tests/test_event_service.py` (deferred to WP10)
+- [x] T034 Write unit tests in `src/tests/test_event_service.py` (deferred to WP10)
 
 ### Implementation Notes
 - Rewrite from scratch - old service imports non-existent Bundle

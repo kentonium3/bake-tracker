@@ -10,7 +10,7 @@ subtasks:
 title: "Models Layer - Event & Recipient"
 phase: "Phase 1 - Models Layer"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude"
 shell_pid: "7541"
 review_status: "approved"

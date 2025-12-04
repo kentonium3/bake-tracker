@@ -11,7 +11,7 @@ subtasks:
 title: "Recipient Service Verification"
 phase: "Phase 2 - Services Layer"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude"
 shell_pid: "9077"
 review_status: "approved"

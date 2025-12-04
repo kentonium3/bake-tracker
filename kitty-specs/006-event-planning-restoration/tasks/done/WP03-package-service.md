@@ -15,7 +15,7 @@ subtasks:
 title: "Package Service Implementation"
 phase: "Phase 2 - Services Layer"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude"
 shell_pid: "8192"
 review_status: "approved"

@@ -9,7 +9,7 @@ subtasks:
 title: "UI - Recipients Tab"
 phase: "Phase 3 - UI Layer"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude"
 shell_pid: "9077"
 review_status: "approved"
