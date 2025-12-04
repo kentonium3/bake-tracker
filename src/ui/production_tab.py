@@ -125,6 +125,10 @@ class ProductionTab(ctk.CTkFrame):
         card = ctk.CTkFrame(self.event_list_frame)
         card.pack(fill="x", pady=5, padx=5)
 
+        # Highlight complete events (T032)
+        if summary.get("is_complete"):
+            card.configure(border_color="green", border_width=2)
+
         # Event name and date
         name_label = ctk.CTkLabel(
             card,
@@ -145,28 +149,52 @@ class ProductionTab(ctk.CTkFrame):
         recipe_label = ctk.CTkLabel(card, text=recipe_text)
         recipe_label.pack(anchor="w", padx=10)
 
-        # Package progress
-        pkg_text = (
-            f"Packages: {summary['packages_delivered']} delivered, "
-            f"{summary['packages_assembled']} assembled, "
-            f"{summary['packages_pending']} pending"
+        # Package progress - handle no packages edge case (T031)
+        total_packages = (
+            summary.get("packages_delivered", 0)
+            + summary.get("packages_assembled", 0)
+            + summary.get("packages_pending", 0)
         )
-        pkg_label = ctk.CTkLabel(card, text=pkg_text, font=ctk.CTkFont(size=11))
-        pkg_label.pack(anchor="w", padx=10)
+
+        if total_packages == 0:
+            # No packages planned (T031)
+            no_pkg_label = ctk.CTkLabel(
+                card,
+                text="No packages planned",
+                text_color="gray",
+                font=ctk.CTkFont(size=11, slant="italic"),
+            )
+            no_pkg_label.pack(anchor="w", padx=10)
+        else:
+            pkg_text = (
+                f"Packages: {summary['packages_delivered']} delivered, "
+                f"{summary['packages_assembled']} assembled, "
+                f"{summary['packages_pending']} pending"
+            )
+            pkg_label = ctk.CTkLabel(card, text=pkg_text, font=ctk.CTkFont(size=11))
+            pkg_label.pack(anchor="w", padx=10)
 
         # Cost summary
-        actual = float(summary["actual_cost"])
-        planned = float(summary["planned_cost"])
+        actual = float(summary.get("actual_cost", 0))
+        planned = float(summary.get("planned_cost", 0))
         cost_text = f"Cost: ${actual:.2f} / ${planned:.2f} planned"
         cost_label = ctk.CTkLabel(card, text=cost_text, font=ctk.CTkFont(size=11))
         cost_label.pack(anchor="w", padx=10)
 
-        # Completion indicator
-        if summary["is_complete"]:
-            status_label = ctk.CTkLabel(card, text="COMPLETE", text_color="green")
+        # Completion indicator (T032)
+        if summary.get("is_complete"):
+            complete_frame = ctk.CTkFrame(card, fg_color="green", corner_radius=5)
+            complete_frame.pack(anchor="w", padx=10, pady=(5, 10))
+            status_label = ctk.CTkLabel(
+                complete_frame,
+                text=" COMPLETE ",
+                text_color="white",
+                font=ctk.CTkFont(weight="bold"),
+            )
+            status_label.pack(padx=5, pady=2)
         else:
             status_label = ctk.CTkLabel(card, text="In Progress", text_color="orange")
-        status_label.pack(anchor="w", padx=10, pady=(0, 10))
+            status_label.pack(anchor="w", padx=10, pady=(0, 10))
 
         # Make card clickable
         event_id = summary["event_id"]
@@ -274,7 +302,9 @@ class ProductionTab(ctk.CTkFrame):
         self.status_label.pack(pady=5)
 
     def _record_production(self, event_id: int):
-        """Handle production recording."""
+        """Handle production recording with confirmation dialog (T028)."""
+        from tkinter import messagebox
+
         try:
             recipe_name = self.recipe_var.get()
             recipe_id = self._recipe_id_map.get(recipe_name)
@@ -293,6 +323,23 @@ class ProductionTab(ctk.CTkFrame):
                     text="Batches must be greater than 0", text_color="red"
                 )
                 return
+
+            # Check for over-production (T029)
+            if not self._check_over_production(event_id, recipe_id, batches):
+                return  # User cancelled
+
+            # Show confirmation dialog (T028)
+            message = (
+                f"Record {batches} batch(es) of {recipe_name}?\n\n"
+                f"This will consume pantry inventory via FIFO.\n"
+                f"This action cannot be undone."
+            )
+            result = messagebox.askyesno(
+                "Confirm Production", message, icon="warning", parent=self
+            )
+
+            if not result:
+                return  # User cancelled
 
             # Call service
             record = production_service.record_production(
@@ -316,7 +363,79 @@ class ProductionTab(ctk.CTkFrame):
                 text="Please enter a valid number of batches", text_color="red"
             )
         except Exception as e:
+            self._handle_production_error(e)
             self.status_label.configure(text=f"Error: {str(e)}", text_color="red")
+
+    def _check_over_production(
+        self, event_id: int, recipe_id: int, new_batches: int
+    ) -> bool:
+        """Check if production would exceed planned amount (T029)."""
+        from tkinter import messagebox
+
+        try:
+            progress = production_service.get_production_progress(event_id)
+
+            for recipe in progress.get("recipes", []):
+                if recipe.get("recipe_id") == recipe_id:
+                    already_produced = recipe.get("batches_produced", 0)
+                    required = recipe.get("batches_required", 0)
+                    total_would_be = already_produced + new_batches
+
+                    if total_would_be > required:
+                        result = messagebox.askyesno(
+                            "Over-Production Warning",
+                            f"This will produce {total_would_be} batches total, "
+                            f"but only {required} are planned.\n\n"
+                            f"Continue anyway?",
+                            icon="warning",
+                            parent=self,
+                        )
+                        return result
+
+            return True  # No warning needed
+
+        except Exception:
+            return True  # Proceed on error (service will handle)
+
+    def _handle_production_error(self, error: Exception):
+        """Handle production errors with user-friendly messages (T030)."""
+        from tkinter import messagebox
+        from src.services.production_service import (
+            InsufficientInventoryError,
+            InvalidStatusTransitionError,
+            IncompleteProductionError,
+        )
+
+        if isinstance(error, InsufficientInventoryError):
+            messagebox.showerror(
+                "Insufficient Inventory",
+                f"Not enough {error.ingredient_slug} in pantry.\n\n"
+                f"Needed: {error.needed}\n"
+                f"Available: {error.available}\n\n"
+                f"Add more to the pantry or reduce batch count.",
+                parent=self,
+            )
+
+        elif isinstance(error, InvalidStatusTransitionError):
+            messagebox.showerror(
+                "Invalid Status Change",
+                f"Cannot change status from '{error.current.value}' "
+                f"to '{error.target.value}'.\n\n"
+                f"Packages must progress: pending -> assembled -> delivered",
+                parent=self,
+            )
+
+        elif isinstance(error, IncompleteProductionError):
+            missing_names = ", ".join(r["recipe_name"] for r in error.missing_recipes)
+            messagebox.showerror(
+                "Cannot Assemble Package",
+                f"Some recipes are not fully produced:\n{missing_names}\n\n"
+                f"Complete production before marking as assembled.",
+                parent=self,
+            )
+
+        else:
+            messagebox.showerror("Error", str(error), parent=self)
 
     def _create_recipe_progress_list(self, parent, recipes: List[dict]):
         """Display recipe progress list."""
