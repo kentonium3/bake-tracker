@@ -8,10 +8,10 @@ subtasks:
   - "T005"
 title: "Models Layer - Package & Junction"
 phase: "Phase 1 - Models Layer"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "claude"
-shell_pid: "6511"
+shell_pid: "7079"
 review_status: ""
 reviewed_by: ""
 history:
@@ -199,3 +199,4 @@ class PackageFinishedGood(BaseModel):
 
 - 2025-12-03 - system - lane=planned - Prompt created.
 - 2025-12-04T02:27:39Z – claude – shell_pid=6511 – lane=doing – Started implementation
+- 2025-12-04T02:29:55Z – claude – shell_pid=7079 – lane=for_review – Completed implementation: PackageFinishedGood model, Package.calculate_cost, get_item_count, get_total_quantity
