@@ -8,10 +8,10 @@ subtasks:
   - "T012"
 title: "Unit Converter Updates"
 phase: "Phase 2 - Service Layer"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "claude"
+shell_pid: "3015"
 review_status: ""
 reviewed_by: ""
 history:
@@ -319,3 +319,4 @@ history:
 ## Activity Log
 
 - 2025-12-04T00:00:00Z - system - lane=planned - Prompt created via /spec-kitty.tasks
+- 2025-12-05T03:09:47Z – claude – shell_pid=3015 – lane=doing – Starting implementation
