@@ -15,20 +15,20 @@
 
 ---
 
-## Work Package WP01: Model & Constants Changes (Priority: P0)
+## Work Package WP01: Model & Constants Changes (Priority: P0) ✅ COMPLETE
 
 **Goal**: Replace `density_g_per_ml` with 4-field density model and remove hardcoded fallback.
 **Independent Test**: Ingredient model can calculate density from 4 fields; constants no longer contain density data.
-**Prompt**: `tasks/planned/WP01-model-constants-changes.md`
+**Prompt**: `tasks/for_review/WP01-model-constants-changes.md`
 
 ### Included Subtasks
-- [ ] T001 Remove `density_g_per_ml` field from `src/models/ingredient.py`
-- [ ] T002 Add 4 density fields to `src/models/ingredient.py`
-- [ ] T003 Add `get_density_g_per_ml()` method to Ingredient model
-- [ ] T004 Add `format_density_display()` method to Ingredient model
-- [ ] T005 [P] Remove `INGREDIENT_DENSITIES` dict from `src/utils/constants.py`
-- [ ] T006 [P] Remove `get_ingredient_density()` function from `src/utils/constants.py`
-- [ ] T007 Add tests for `get_density_g_per_ml()` method in `src/tests/models/`
+- [x] T001 Remove `density_g_per_ml` field from `src/models/ingredient.py`
+- [x] T002 Add 4 density fields to `src/models/ingredient.py`
+- [x] T003 Add `get_density_g_per_ml()` method to Ingredient model
+- [x] T004 Add `format_density_display()` method to Ingredient model
+- [x] T005 [P] Remove `INGREDIENT_DENSITIES` dict from `src/utils/constants.py`
+- [x] T006 [P] Remove `get_ingredient_density()` function from `src/utils/constants.py`
+- [x] T007 Add tests for `get_density_g_per_ml()` method in `src/tests/models/`
 
 ### Implementation Notes
 1. Modify Ingredient model first (T001-T004)
@@ -49,18 +49,18 @@
 
 ---
 
-## Work Package WP02: Service Layer - Unit Converter (Priority: P0)
+## Work Package WP02: Service Layer - Unit Converter (Priority: P0) ✅ COMPLETE
 
 **Goal**: Update unit converter to use Ingredient object instead of hardcoded density lookup.
 **Independent Test**: Conversion functions accept Ingredient parameter and calculate correctly.
-**Prompt**: `tasks/planned/WP02-unit-converter-updates.md`
+**Prompt**: `tasks/for_review/WP02-unit-converter-updates.md`
 
 ### Included Subtasks
-- [ ] T008 Update `convert_volume_to_weight()` to accept `ingredient` parameter in `src/services/unit_converter.py`
-- [ ] T009 Update `convert_weight_to_volume()` to accept `ingredient` parameter
-- [ ] T010 Update `convert_any_units()` to accept `ingredient` parameter
-- [ ] T011 Remove import of `get_ingredient_density` from unit_converter.py
-- [ ] T012 Update unit converter tests in `src/tests/services/test_unit_converter.py`
+- [x] T008 Update `convert_volume_to_weight()` to accept `ingredient` parameter in `src/services/unit_converter.py`
+- [x] T009 Update `convert_weight_to_volume()` to accept `ingredient` parameter
+- [x] T010 Update `convert_any_units()` to accept `ingredient` parameter
+- [x] T011 Remove import of `get_ingredient_density` from unit_converter.py
+- [x] T012 Update unit converter tests in `src/tests/services/test_unit_converter.py`
 
 ### Implementation Notes
 1. Update function signatures to accept `ingredient: Ingredient = None`
@@ -81,18 +81,18 @@
 
 ---
 
-## Work Package WP03: Service Layer - Ingredient Service (Priority: P1) 🎯 MVP
+## Work Package WP03: Service Layer - Ingredient Service (Priority: P1) ✅ COMPLETE 🎯 MVP
 
 **Goal**: Add density validation and update CRUD operations for 4-field density.
 **Independent Test**: Can create/update ingredients with density; validation rejects partial input.
-**Prompt**: `tasks/planned/WP03-ingredient-service-updates.md`
+**Prompt**: `tasks/for_review/WP03-ingredient-service-updates.md`
 
 ### Included Subtasks
-- [ ] T013 Add `validate_density_fields()` function to `src/services/ingredient_service.py`
-- [ ] T014 Update `create_ingredient()` to accept/validate 4 density fields
-- [ ] T015 Update `update_ingredient()` to accept/validate 4 density fields
-- [ ] T016 Add tests for density validation in `src/tests/services/test_ingredient_service.py`
-- [ ] T017 Fix any broken tests referencing old density field
+- [x] T013 Add `validate_density_fields()` function to `src/services/ingredient_service.py`
+- [x] T014 Update `create_ingredient()` to accept/validate 4 density fields
+- [x] T015 Update `update_ingredient()` to accept/validate 4 density fields
+- [x] T016 Add tests for density validation in `src/tests/services/test_ingredient_service.py`
+- [x] T017 Fix any broken tests referencing old density field
 
 ### Implementation Notes
 1. Implement validation function first (all-or-nothing rule)
@@ -112,17 +112,17 @@
 
 ---
 
-## Work Package WP04: Import/Export Updates (Priority: P1)
+## Work Package WP04: Import/Export Updates (Priority: P1) ✅ COMPLETE
 
 **Goal**: Handle 4 density fields in JSON import/export; ignore legacy field.
 **Independent Test**: Export includes 4 density fields; import reads them correctly.
-**Prompt**: `tasks/planned/WP04-import-export-updates.md`
+**Prompt**: `tasks/for_review/WP04-import-export-updates.md`
 
 ### Included Subtasks
-- [ ] T018 Update `export_ingredients_to_json()` to include 4 density fields in `src/services/import_export_service.py`
-- [ ] T019 Update `import_ingredients_from_json()` to read 4 density fields
-- [ ] T020 Update `test_data/sample_data.json` with new density format
-- [ ] T021 Add import/export tests for density fields in `src/tests/services/test_import_export_service.py`
+- [x] T018 Update `export_ingredients_to_json()` to include 4 density fields in `src/services/import_export_service.py`
+- [x] T019 Update `import_ingredients_from_json()` to read 4 density fields
+- [x] T020 Update `test_data/sample_data.json` with new density format
+- [x] T021 Add import/export tests for density fields in `src/tests/services/test_import_export_service.py`
 
 ### Implementation Notes
 1. Add 4 density fields to ingredient export dict
@@ -144,17 +144,17 @@
 
 ---
 
-## Work Package WP05: UI - Density Input (Priority: P2)
+## Work Package WP05: UI - Density Input (Priority: P2) ✅ COMPLETE
 
 **Goal**: Add 4-field density input to ingredients tab and warning when conversion unavailable.
 **Independent Test**: Can enter density via UI; warning shown when recipe needs conversion but density missing.
-**Prompt**: `tasks/planned/WP05-ui-density-input.md`
+**Prompt**: `tasks/for_review/WP05-ui-density-input.md`
 
 ### Included Subtasks
-- [ ] T022 Create density input frame in `src/ui/ingredients_tab.py`
-- [ ] T023 Wire density fields to ingredient service layer
-- [ ] T024 Add density validation display in UI (error messages)
-- [ ] T025 Add "Edit Ingredient" warning in recipe UI when conversion fails
+- [x] T022 Create density input frame in `src/ui/ingredients_tab.py`
+- [x] T023 Wire density fields to ingredient service layer
+- [x] T024 Add density validation display in UI (error messages)
+- [ ] T025 Add "Edit Ingredient" warning in recipe UI when conversion fails *(DEFERRED - conversion errors already return actionable messages)*
 
 ### Implementation Notes
 1. Create 4-field layout: `[value] [unit ▼] = [value] [unit ▼]`
@@ -197,30 +197,30 @@ WP04 (Import/Export) ← depends only on WP01
 
 ## Subtask Index (Reference)
 
-| Subtask ID | Summary | Work Package | Priority | Parallel? |
-|------------|---------|--------------|----------|-----------|
-| T001 | Remove density_g_per_ml field | WP01 | P0 | No |
-| T002 | Add 4 density fields | WP01 | P0 | No |
-| T003 | Add get_density_g_per_ml() method | WP01 | P0 | No |
-| T004 | Add format_density_display() method | WP01 | P0 | No |
-| T005 | Remove INGREDIENT_DENSITIES dict | WP01 | P0 | Yes |
-| T006 | Remove get_ingredient_density() function | WP01 | P0 | Yes |
-| T007 | Add tests for get_density_g_per_ml() | WP01 | P0 | Yes |
-| T008 | Update convert_volume_to_weight() | WP02 | P0 | No |
-| T009 | Update convert_weight_to_volume() | WP02 | P0 | No |
-| T010 | Update convert_any_units() | WP02 | P0 | No |
-| T011 | Remove get_ingredient_density import | WP02 | P0 | No |
-| T012 | Update unit converter tests | WP02 | P0 | No |
-| T013 | Add validate_density_fields() | WP03 | P1 | No |
-| T014 | Update create_ingredient() | WP03 | P1 | No |
-| T015 | Update update_ingredient() | WP03 | P1 | No |
-| T016 | Add density validation tests | WP03 | P1 | Yes |
-| T017 | Fix broken tests | WP03 | P1 | Yes |
-| T018 | Update ingredient export | WP04 | P1 | Yes |
-| T019 | Update ingredient import | WP04 | P1 | Yes |
-| T020 | Update sample_data.json | WP04 | P1 | Yes |
-| T021 | Add import/export tests | WP04 | P1 | No |
-| T022 | Create density input frame | WP05 | P2 | No |
-| T023 | Wire density fields to service | WP05 | P2 | No |
-| T024 | Add UI validation display | WP05 | P2 | No |
-| T025 | Add "Edit Ingredient" warning | WP05 | P2 | No |
+| Subtask ID | Summary | Work Package | Priority | Status |
+|------------|---------|--------------|----------|--------|
+| T001 | Remove density_g_per_ml field | WP01 | P0 | ✅ |
+| T002 | Add 4 density fields | WP01 | P0 | ✅ |
+| T003 | Add get_density_g_per_ml() method | WP01 | P0 | ✅ |
+| T004 | Add format_density_display() method | WP01 | P0 | ✅ |
+| T005 | Remove INGREDIENT_DENSITIES dict | WP01 | P0 | ✅ |
+| T006 | Remove get_ingredient_density() function | WP01 | P0 | ✅ |
+| T007 | Add tests for get_density_g_per_ml() | WP01 | P0 | ✅ |
+| T008 | Update convert_volume_to_weight() | WP02 | P0 | ✅ |
+| T009 | Update convert_weight_to_volume() | WP02 | P0 | ✅ |
+| T010 | Update convert_any_units() | WP02 | P0 | ✅ |
+| T011 | Remove get_ingredient_density import | WP02 | P0 | ✅ |
+| T012 | Update unit converter tests | WP02 | P0 | ✅ |
+| T013 | Add validate_density_fields() | WP03 | P1 | ✅ |
+| T014 | Update create_ingredient() | WP03 | P1 | ✅ |
+| T015 | Update update_ingredient() | WP03 | P1 | ✅ |
+| T016 | Add density validation tests | WP03 | P1 | ✅ |
+| T017 | Fix broken tests | WP03 | P1 | ✅ |
+| T018 | Update ingredient export | WP04 | P1 | ✅ |
+| T019 | Update ingredient import | WP04 | P1 | ✅ |
+| T020 | Update sample_data.json | WP04 | P1 | ✅ |
+| T021 | Add import/export tests | WP04 | P1 | ✅ |
+| T022 | Create density input frame | WP05 | P2 | ✅ |
+| T023 | Wire density fields to service | WP05 | P2 | ✅ |
+| T024 | Add UI validation display | WP05 | P2 | ✅ |
+| T025 | Add "Edit Ingredient" warning | WP05 | P2 | DEFERRED |
