@@ -190,8 +190,8 @@ class PackageFinishedGood(BaseModel):
     quantity = Column(Integer, nullable=False, default=1)
 
     # Relationships
-    package = relationship("Package", back_populates="package_finished_goods")
-    finished_good = relationship("FinishedGood")
+    package = relationship("Package", back_populates="package_finished_goods", lazy="joined")
+    finished_good = relationship("FinishedGood", lazy="joined")
 
     # Indexes
     __table_args__ = (

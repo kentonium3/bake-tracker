@@ -89,6 +89,7 @@ class FinishedGood(BaseModel):
         foreign_keys="Composition.assembly_id",
         back_populates="assembly",
         cascade="all, delete-orphan",
+        lazy="joined",
     )
 
     # Table constraints

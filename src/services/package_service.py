@@ -85,19 +85,15 @@ class PackageFinishedGoodNotFoundError(Exception):
 
 
 def create_package(
-    name: str,
-    is_template: bool = False,
-    description: Optional[str] = None,
-    notes: Optional[str] = None,
+    package_data: dict,
+    finished_good_items: Optional[List[dict]] = None,
 ) -> Package:
     """
-    Create a new package.
+    Create a new package with optional finished goods.
 
     Args:
-        name: Package name (required)
-        is_template: Whether this is a template for reuse
-        description: Optional description
-        notes: Optional notes
+        package_data: Dictionary with package fields (name, is_template, description, notes)
+        finished_good_items: Optional list of dicts with finished_good_id and quantity
 
     Returns:
         Created Package instance
@@ -106,6 +102,7 @@ def create_package(
         ValidationError: If name is empty
         DatabaseError: If database operation fails
     """
+    name = package_data.get("name", "")
     if not name or not name.strip():
         raise ValidationError(["Package name is required"])
 
@@ -113,12 +110,23 @@ def create_package(
         with session_scope() as session:
             package = Package(
                 name=name.strip(),
-                description=description,
-                is_template=is_template,
-                notes=notes,
+                description=package_data.get("description"),
+                is_template=package_data.get("is_template", False),
+                notes=package_data.get("notes"),
             )
             session.add(package)
             session.flush()
+
+            # Add finished goods if provided
+            if finished_good_items:
+                for item in finished_good_items:
+                    pfg = PackageFinishedGood(
+                        package_id=package.id,
+                        finished_good_id=item["finished_good_id"],
+                        quantity=item.get("quantity", 1),
+                    )
+                    session.add(pfg)
+                session.flush()
 
             # Reload with relationships
             package = (
@@ -224,13 +232,18 @@ def get_all_packages(include_templates: bool = True) -> List[Package]:
         raise DatabaseError(f"Failed to get packages: {str(e)}")
 
 
-def update_package(package_id: int, **updates) -> Package:
+def update_package(
+    package_id: int,
+    package_data: dict,
+    finished_good_items: Optional[List[dict]] = None,
+) -> Package:
     """
     Update an existing package.
 
     Args:
         package_id: Package ID to update
-        **updates: Field updates (name, description, is_template, notes)
+        package_data: Dictionary with package fields (name, description, is_template, notes)
+        finished_good_items: Optional list of dicts with finished_good_id and quantity
 
     Returns:
         Updated Package instance
@@ -247,22 +260,39 @@ def update_package(package_id: int, **updates) -> Package:
                 raise PackageNotFoundError(package_id)
 
             # Update fields
-            if "name" in updates:
-                name = updates["name"]
+            if "name" in package_data:
+                name = package_data["name"]
                 if not name or not name.strip():
                     raise ValidationError(["Package name is required"])
                 package.name = name.strip()
 
-            if "description" in updates:
-                package.description = updates["description"]
+            if "description" in package_data:
+                package.description = package_data["description"]
 
-            if "is_template" in updates:
-                package.is_template = updates["is_template"]
+            if "is_template" in package_data:
+                package.is_template = package_data["is_template"]
 
-            if "notes" in updates:
-                package.notes = updates["notes"]
+            if "notes" in package_data:
+                package.notes = package_data["notes"]
 
             package.last_modified = datetime.utcnow()
+
+            # Update finished goods if provided
+            if finished_good_items is not None:
+                # Remove existing finished goods
+                session.query(PackageFinishedGood).filter(
+                    PackageFinishedGood.package_id == package_id
+                ).delete()
+
+                # Add new finished goods
+                for item in finished_good_items:
+                    pfg = PackageFinishedGood(
+                        package_id=package.id,
+                        finished_good_id=item["finished_good_id"],
+                        quantity=item.get("quantity", 1),
+                    )
+                    session.add(pfg)
+
             session.flush()
 
             # Reload with relationships

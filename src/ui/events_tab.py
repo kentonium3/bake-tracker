@@ -244,7 +244,7 @@ class EventsTab(ctk.CTkFrame):
         result = dialog.get_result()
         if result:
             try:
-                event_service.update_event(self.selected_event.id, result)
+                event_service.update_event(self.selected_event.id, **result)
                 show_success("Success", "Event updated successfully", parent=self)
                 self.refresh()
             except EventNotFoundError:

@@ -58,7 +58,7 @@ class FinishedGoodRow(ctk.CTkFrame):
         fg_names = []
         for fg in finished_goods:
             cost = fg.total_cost if fg.total_cost else Decimal("0.00")
-            fg_names.append(f"{fg.name} (${cost:.2f})")
+            fg_names.append(f"{fg.display_name} (${cost:.2f})")
 
         self.fg_combo = ctk.CTkComboBox(
             self,
@@ -112,7 +112,7 @@ class FinishedGoodRow(ctk.CTkFrame):
         # Find FinishedGood by name
         finished_good = None
         for fg in self.finished_goods:
-            if fg.name == fg_name:
+            if fg.display_name == fg_name:
                 finished_good = fg
                 break
 
@@ -173,7 +173,6 @@ class PackageFormDialog(ctk.CTkToplevel):
 
         # Center on parent
         self.transient(parent)
-        self.grab_set()
 
         # Configure grid
         self.grid_columnconfigure(0, weight=1)
@@ -196,6 +195,21 @@ class PackageFormDialog(ctk.CTkToplevel):
         else:
             # Add one empty FinishedGood row for new packages
             self._add_finished_good_row()
+
+        # Center dialog on parent and make visible
+        self.update_idletasks()
+        parent_x = parent.winfo_rootx()
+        parent_y = parent.winfo_rooty()
+        parent_width = parent.winfo_width()
+        parent_height = parent.winfo_height()
+        dialog_width = self.winfo_width()
+        dialog_height = self.winfo_height()
+        x = max(0, parent_x + (parent_width - dialog_width) // 2)
+        y = max(0, parent_y + (parent_height - dialog_height) // 2)
+        self.geometry(f"+{x}+{y}")
+        self.wait_visibility()
+        self.grab_set()
+        self.focus_force()
 
     def _create_form_fields(self, parent):
         """Create all form input fields."""

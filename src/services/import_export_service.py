@@ -2617,14 +2617,33 @@ def import_all_from_json_v3(file_path: str, mode: str = "merge") -> ImportResult
                                 result.add_skip("ingredient", slug, "Already exists")
                                 continue
 
+                        # Handle both legacy density_g_per_ml and new 4-field format
+                        density_args = {}
+                        if ing.get("density_volume_value") is not None:
+                            # New 4-field format
+                            density_args["density_volume_value"] = ing.get("density_volume_value")
+                            density_args["density_volume_unit"] = ing.get("density_volume_unit")
+                            density_args["density_weight_value"] = ing.get("density_weight_value")
+                            density_args["density_weight_unit"] = ing.get("density_weight_unit")
+                        elif ing.get("density_g_per_ml") is not None:
+                            # Legacy format - convert g/ml to 1 cup = X oz
+                            # 1 cup = 236.588 ml, 1 oz = 28.3495 g
+                            g_per_ml = ing.get("density_g_per_ml")
+                            g_per_cup = g_per_ml * 236.588
+                            oz_per_cup = g_per_cup / 28.3495
+                            density_args["density_volume_value"] = 1.0
+                            density_args["density_volume_unit"] = "cup"
+                            density_args["density_weight_value"] = round(oz_per_cup, 2)
+                            density_args["density_weight_unit"] = "oz"
+
                         ingredient = Ingredient(
                             name=ing.get("name"),
                             slug=slug,
                             category=ing.get("category"),
                             recipe_unit=ing.get("recipe_unit"),
                             description=ing.get("description"),
-                            density_g_per_ml=ing.get("density_g_per_ml"),
                             notes=ing.get("notes"),
+                            **density_args,
                         )
                         session.add(ingredient)
                         result.add_success("ingredient")

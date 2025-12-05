@@ -164,9 +164,9 @@ class RecipeIngredient(BaseModel):
     notes = Column(String(500), nullable=True)
 
     # Relationships
-    recipe = relationship("Recipe", back_populates="recipe_ingredients")
+    recipe = relationship("Recipe", back_populates="recipe_ingredients", lazy="joined")
     ingredient = relationship("IngredientLegacy", foreign_keys=[ingredient_id])  # LEGACY
-    ingredient_new = relationship("Ingredient", back_populates="recipe_ingredients")  # NEW
+    ingredient_new = relationship("Ingredient", back_populates="recipe_ingredients", lazy="joined")  # NEW
 
     # Indexes
     __table_args__ = (

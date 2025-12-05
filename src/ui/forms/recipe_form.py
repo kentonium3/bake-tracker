@@ -213,7 +213,6 @@ class RecipeFormDialog(ctk.CTkToplevel):
 
         # Center on parent
         self.transient(parent)
-        self.grab_set()
 
         # Configure grid
         self.grid_columnconfigure(0, weight=1)
@@ -233,6 +232,21 @@ class RecipeFormDialog(ctk.CTkToplevel):
         # Populate if editing
         if self.recipe:
             self._populate_form()
+
+        # Center dialog on parent and make visible
+        self.update_idletasks()
+        parent_x = parent.winfo_rootx()
+        parent_y = parent.winfo_rooty()
+        parent_width = parent.winfo_width()
+        parent_height = parent.winfo_height()
+        dialog_width = self.winfo_width()
+        dialog_height = self.winfo_height()
+        x = max(0, parent_x + (parent_width - dialog_width) // 2)
+        y = max(0, parent_y + (parent_height - dialog_height) // 2)
+        self.geometry(f"+{x}+{y}")
+        self.wait_visibility()
+        self.grab_set()
+        self.focus_force()
 
     def _create_form_fields(self, parent):
         """Create all form input fields."""

@@ -49,17 +49,16 @@ class FinishedUnitFormDialog(ctk.CTkToplevel):
         # Load available recipes
         try:
             self.available_recipes = recipe_service.get_all_recipes()
-        except Exception:
+        except Exception as e:
             self.available_recipes = []
 
         # Configure window
         self.title(title)
         self.geometry("600x700")
         self.resizable(False, False)
-
-        # Center on parent
+        
+        # Make dialog modal to parent
         self.transient(parent)
-        self.grab_set()
 
         # Configure grid
         self.grid_columnconfigure(0, weight=1)
@@ -86,6 +85,34 @@ class FinishedUnitFormDialog(ctk.CTkToplevel):
         # Mark initialization as complete
         self._initializing = False
 
+        # Center dialog on parent and make visible
+        self.update_idletasks()
+        
+        # Get parent position and size
+        parent_x = parent.winfo_rootx()
+        parent_y = parent.winfo_rooty()
+        parent_width = parent.winfo_width()
+        parent_height = parent.winfo_height()
+        
+        # Get dialog size
+        dialog_width = self.winfo_width()
+        dialog_height = self.winfo_height()
+        
+        # Calculate centered position
+        x = parent_x + (parent_width - dialog_width) // 2
+        y = parent_y + (parent_height - dialog_height) // 2
+        
+        # Ensure dialog is on screen
+        x = max(0, x)
+        y = max(0, y)
+        
+        self.geometry(f"+{x}+{y}")
+        
+        # Now make dialog modal - must wait for visibility first
+        self.wait_visibility()
+        self.grab_set()
+        self.focus_force()
+
     def _create_form_fields(self, parent):
         """Create all form input fields."""
         row = 0
@@ -95,7 +122,6 @@ class FinishedUnitFormDialog(ctk.CTkToplevel):
         name_label.grid(
             row=row, column=0, sticky="w", padx=PADDING_MEDIUM, pady=(PADDING_MEDIUM, 5)
         )
-
         self.name_entry = ctk.CTkEntry(
             parent, width=400, placeholder_text="e.g., Sugar Cookie, 9-inch Chocolate Cake"
         )
@@ -205,12 +231,7 @@ class FinishedUnitFormDialog(ctk.CTkToplevel):
             text_color="gray",
         )
         required_note.grid(
-            row=row,
-            column=0,
-            columnspan=2,
-            sticky="w",
-            padx=PADDING_MEDIUM,
-            pady=(PADDING_MEDIUM, 0),
+            row=row, column=0, columnspan=2, sticky="w", padx=PADDING_MEDIUM, pady=5
         )
 
     def _create_discrete_fields(self):
@@ -328,7 +349,7 @@ class FinishedUnitFormDialog(ctk.CTkToplevel):
         save_button = ctk.CTkButton(
             button_frame,
             text="Save",
-            command=self._save,
+            command=self._on_save,
             width=150,
         )
         save_button.grid(row=0, column=0, padx=PADDING_MEDIUM)
@@ -337,37 +358,36 @@ class FinishedUnitFormDialog(ctk.CTkToplevel):
         cancel_button = ctk.CTkButton(
             button_frame,
             text="Cancel",
-            command=self._cancel,
+            command=self._on_cancel,
             width=150,
             fg_color="gray",
-            hover_color="darkgray",
         )
         cancel_button.grid(row=0, column=1, padx=PADDING_MEDIUM)
 
     def _populate_form(self):
-        """Populate form fields with existing finished good data."""
+        """Populate form fields with existing finished unit data."""
         if not self.finished_unit:
             return
 
-        self.name_entry.insert(0, self.finished_unit.display_name)
+        # Name
+        self.name_entry.insert(0, self.finished_unit.display_name or "")
 
-        # Select recipe
-        for idx, recipe in enumerate(self.available_recipes):
-            if recipe.id == self.finished_unit.recipe_id:
-                self.recipe_combo.set(recipe.name)
-                break
+        # Recipe
+        if self.finished_unit.recipe:
+            self.recipe_combo.set(self.finished_unit.recipe.name)
 
+        # Category
         if self.finished_unit.category:
             self.category_combo.set(self.finished_unit.category)
 
-        # Set yield mode
-        yield_mode = self.finished_unit.yield_mode.value
+        # Yield mode and related fields
+        yield_mode = self.finished_unit.yield_mode.value if self.finished_unit.yield_mode else "discrete_count"
         self.yield_mode_var.set(yield_mode)
         self._on_yield_mode_change(yield_mode)
 
-        # Populate mode-specific fields
         if yield_mode == "discrete_count":
             if self.finished_unit.items_per_batch:
+                self.items_per_batch_entry.delete(0, "end")
                 self.items_per_batch_entry.insert(0, str(self.finished_unit.items_per_batch))
             if self.finished_unit.item_unit:
                 self.item_unit_entry.insert(0, self.finished_unit.item_unit)
@@ -377,130 +397,145 @@ class FinishedUnitFormDialog(ctk.CTkToplevel):
             if self.finished_unit.portion_description:
                 self.portion_description_entry.insert(0, self.finished_unit.portion_description)
 
+        # Notes
         if self.finished_unit.notes:
             self.notes_text.insert("1.0", self.finished_unit.notes)
 
-    def _validate_form(self) -> Optional[Dict[str, Any]]:
+    def _validate_form(self) -> bool:
         """
-        Validate form inputs and return data dictionary.
+        Validate form fields.
 
         Returns:
-            Dictionary of form data if valid, None otherwise
+            True if valid, False otherwise
         """
-        # Get values
+        # Check required fields
         name = self.name_entry.get().strip()
-        recipe_name = self.recipe_combo.get()
-        category = self.category_combo.get().strip() or None
-        yield_mode = self.yield_mode_var.get()
-        notes = self.notes_text.get("1.0", "end-1c").strip() or None
-
-        # Validate required fields
         if not name:
-            show_error("Validation Error", "Name is required", parent=self)
-            return None
+            show_error("Validation Error", "Name is required.", parent=self)
+            return False
 
         if len(name) > MAX_NAME_LENGTH:
             show_error(
                 "Validation Error",
-                f"Name must be {MAX_NAME_LENGTH} characters or less",
+                f"Name must be {MAX_NAME_LENGTH} characters or less.",
                 parent=self,
             )
-            return None
+            return False
 
-        # Find recipe ID
-        recipe_id = None
-        for recipe in self.available_recipes:
-            if recipe.name == recipe_name:
-                recipe_id = recipe.id
-                break
-
-        if not recipe_id:
-            show_error("Validation Error", "Please select a valid recipe", parent=self)
-            return None
-
-        if notes and len(notes) > MAX_NOTES_LENGTH:
-            show_error(
-                "Validation Error",
-                f"Notes must be {MAX_NOTES_LENGTH} characters or less",
-                parent=self,
-            )
-            return None
+        # Check recipe selection
+        recipe_name = self.recipe_combo.get()
+        if not recipe_name or recipe_name == "No recipes available":
+            show_error("Validation Error", "Please select a recipe.", parent=self)
+            return False
 
         # Validate mode-specific fields
-        items_per_batch = None
-        item_unit = None
-        batch_percentage = None
-        portion_description = None
+        yield_mode = self.yield_mode_var.get()
 
         if yield_mode == "discrete_count":
             items_str = self.items_per_batch_entry.get().strip()
-            item_unit = self.item_unit_entry.get().strip()
-
             if not items_str:
-                show_error("Validation Error", "Items per batch is required", parent=self)
-                return None
+                show_error(
+                    "Validation Error",
+                    "Items per batch is required for discrete items.",
+                    parent=self,
+                )
+                return False
+            try:
+                items = float(items_str)
+                if items <= 0:
+                    raise ValueError("Must be positive")
+            except ValueError:
+                show_error(
+                    "Validation Error",
+                    "Items per batch must be a positive number.",
+                    parent=self,
+                )
+                return False
 
+            item_unit = self.item_unit_entry.get().strip()
             if not item_unit:
-                show_error("Validation Error", "Item unit is required", parent=self)
-                return None
-
-            try:
-                items_per_batch = int(items_str)
-                if items_per_batch <= 0:
-                    show_error(
-                        "Validation Error", "Items per batch must be greater than zero", parent=self
-                    )
-                    return None
-            except ValueError:
                 show_error(
-                    "Validation Error", "Items per batch must be a valid number", parent=self
+                    "Validation Error",
+                    "Item unit is required for discrete items.",
+                    parent=self,
                 )
-                return None
-
-        else:  # batch_portion
+                return False
+        else:
             pct_str = self.batch_percentage_entry.get().strip()
-            portion_description = self.portion_description_entry.get().strip() or None
-
             if not pct_str:
-                show_error("Validation Error", "Batch percentage is required", parent=self)
-                return None
-
+                show_error(
+                    "Validation Error",
+                    "Batch percentage is required for batch portion items.",
+                    parent=self,
+                )
+                return False
             try:
-                batch_percentage = float(pct_str)
-                if batch_percentage <= 0:
-                    show_error(
-                        "Validation Error",
-                        "Batch percentage must be greater than zero",
-                        parent=self,
-                    )
-                    return None
+                pct = float(pct_str)
+                if pct <= 0 or pct > 100:
+                    raise ValueError("Must be between 0 and 100")
             except ValueError:
                 show_error(
-                    "Validation Error", "Batch percentage must be a valid number", parent=self
+                    "Validation Error",
+                    "Batch percentage must be a number between 0 and 100.",
+                    parent=self,
                 )
-                return None
+                return False
 
-        # Return validated data
-        return {
-            "display_name": name,
-            "recipe_id": recipe_id,
-            "category": category,
-            "yield_mode": yield_mode,
-            "items_per_batch": items_per_batch,
-            "item_unit": item_unit,
-            "batch_percentage": batch_percentage,
-            "portion_description": portion_description,
-            "notes": notes,
+        # Check notes length
+        notes = self.notes_text.get("1.0", "end-1c").strip()
+        if len(notes) > MAX_NOTES_LENGTH:
+            show_error(
+                "Validation Error",
+                f"Notes must be {MAX_NOTES_LENGTH} characters or less.",
+                parent=self,
+            )
+            return False
+
+        return True
+
+    def _on_save(self):
+        """Handle save button click."""
+        if not self._validate_form():
+            return
+
+        # Find selected recipe
+        recipe_name = self.recipe_combo.get()
+        selected_recipe = None
+        for recipe in self.available_recipes:
+            if recipe.name == recipe_name:
+                selected_recipe = recipe
+                break
+
+        if not selected_recipe:
+            show_error("Error", "Selected recipe not found.", parent=self)
+            return
+
+        # Build result dictionary
+        yield_mode = self.yield_mode_var.get()
+
+        self.result = {
+            "display_name": self.name_entry.get().strip(),
+            "recipe_id": selected_recipe.id,
+            "category": self.category_combo.get() or None,
+            "yield_mode": YieldMode(yield_mode),
+            "notes": self.notes_text.get("1.0", "end-1c").strip() or None,
         }
 
-    def _save(self):
-        """Handle save button click."""
-        data = self._validate_form()
-        if data:
-            self.result = data
-            self.destroy()
+        # Add mode-specific fields
+        if yield_mode == "discrete_count":
+            self.result["items_per_batch"] = float(self.items_per_batch_entry.get().strip())
+            self.result["item_unit"] = self.item_unit_entry.get().strip()
+            self.result["batch_percentage"] = None
+            self.result["portion_description"] = None
+        else:
+            self.result["batch_percentage"] = float(self.batch_percentage_entry.get().strip())
+            self.result["portion_description"] = self.portion_description_entry.get().strip() or None
+            self.result["items_per_batch"] = None
+            self.result["item_unit"] = None
 
-    def _cancel(self):
+        self.destroy()
+
+    def _on_cancel(self):
         """Handle cancel button click."""
         self.result = None
         self.destroy()
@@ -512,5 +547,7 @@ class FinishedUnitFormDialog(ctk.CTkToplevel):
         Returns:
             Dictionary of form data if saved, None if cancelled
         """
-        self.wait_window()
+        # Caller handles wait_window()
+        # self.wait_window() - caller handles this
+        # Debug removed
         return self.result

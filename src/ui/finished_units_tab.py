@@ -333,6 +333,7 @@ class FinishedUnitsTab(ctk.CTkFrame):
     def _add_finished_unit(self):
         """Show dialog to add a new finished unit."""
         dialog = FinishedUnitFormDialog(self, title="Add New Finished Unit")
+        self.wait_window(dialog)
         result = dialog.get_result()
 
         if result:

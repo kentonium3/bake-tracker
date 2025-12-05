@@ -78,11 +78,11 @@ class Composition(BaseModel):
     created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
 
     # Relationships
-    assembly = relationship("FinishedGood", foreign_keys=[assembly_id], back_populates="components")
+    assembly = relationship("FinishedGood", foreign_keys=[assembly_id], back_populates="components", lazy="joined")
 
-    finished_unit_component = relationship("FinishedUnit", foreign_keys=[finished_unit_id])
+    finished_unit_component = relationship("FinishedUnit", foreign_keys=[finished_unit_id], lazy="joined")
 
-    finished_good_component = relationship("FinishedGood", foreign_keys=[finished_good_id])
+    finished_good_component = relationship("FinishedGood", foreign_keys=[finished_good_id], lazy="joined")
 
     # Table constraints and indexes
     __table_args__ = (

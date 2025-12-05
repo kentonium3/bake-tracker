@@ -107,7 +107,7 @@ class FinishedUnit(BaseModel):
     updated_at = Column(DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     # Relationships
-    recipe = relationship("Recipe", back_populates="finished_units")
+    recipe = relationship("Recipe", back_populates="finished_units", lazy="joined")
 
     # Relationships for composition (will be added when Composition model is created)
     # components_in = relationship("Composition", foreign_keys="Composition.finished_unit_id",
