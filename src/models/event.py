@@ -185,8 +185,8 @@ class EventRecipientPackage(BaseModel):
 
     # Relationships
     event = relationship("Event", back_populates="event_recipient_packages")
-    recipient = relationship("Recipient")
-    package = relationship("Package")
+    recipient = relationship("Recipient", lazy="joined")
+    package = relationship("Package", lazy="joined")
 
     # Indexes
     __table_args__ = (

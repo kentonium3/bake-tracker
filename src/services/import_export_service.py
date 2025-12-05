@@ -2123,10 +2123,16 @@ def import_finished_units_from_json(
         try:
             slug = record.get("slug", "")
             display_name = record.get("display_name", "")
+            # Support both recipe_slug (v3.0) and recipe_name (legacy)
+            recipe_slug = record.get("recipe_slug", "")
             recipe_name = record.get("recipe_name", "")
 
-            if not slug or not display_name:
-                result.add_error("finished_unit", slug or "unknown", "Missing slug or display_name")
+            # Generate slug from display_name if not provided
+            if not slug and display_name:
+                slug = display_name.lower().replace(" ", "_").replace("-", "_")
+
+            if not display_name:
+                result.add_error("finished_unit", slug or "unknown", "Missing display_name")
                 continue
 
             # Check for duplicate
@@ -2136,10 +2142,26 @@ def import_finished_units_from_json(
                     result.add_skip("finished_unit", slug, "Already exists")
                     continue
 
-            # Resolve recipe reference
-            recipe = session.query(Recipe).filter_by(name=recipe_name).first()
+            # Resolve recipe reference - Recipe model doesn't have slug field,
+            # so convert recipe_slug to name format for lookup
+            recipe = None
+            if recipe_slug:
+                # Convert slug format (snake_case) to name format (Title Case)
+                recipe_name_from_slug = recipe_slug.replace("_", " ").title()
+                recipe = session.query(Recipe).filter_by(name=recipe_name_from_slug).first()
+                
+                # Also try exact slug as name (in case data uses names directly)
+                if not recipe:
+                    recipe = session.query(Recipe).filter(
+                        Recipe.name.ilike(f"%{recipe_slug.replace('_', '%')}%")
+                    ).first()
+            
+            if not recipe and recipe_name:
+                recipe = session.query(Recipe).filter_by(name=recipe_name).first()
+            
             if not recipe:
-                result.add_error("finished_unit", slug, f"Recipe not found: {recipe_name}")
+                lookup_key = recipe_slug or recipe_name or "unknown"
+                result.add_error("finished_unit", slug, f"Recipe not found: {lookup_key}")
                 continue
 
             # Create finished unit
@@ -2216,6 +2238,14 @@ def import_compositions_from_json(
 
             if finished_unit_slug:
                 fu = session.query(FinishedUnit).filter_by(slug=finished_unit_slug).first()
+                # Also try lookup via recipe_slug (slug might reference recipe, not finished_unit)
+                if not fu:
+                    from src.models.recipe import Recipe
+                    # Convert slug to recipe name format
+                    recipe_name = finished_unit_slug.replace("_", " ").title()
+                    recipe = session.query(Recipe).filter_by(name=recipe_name).first()
+                    if recipe:
+                        fu = session.query(FinishedUnit).filter_by(recipe_id=recipe.id).first()
                 if not fu:
                     result.add_error("composition", finished_good_slug, f"FinishedUnit not found: {finished_unit_slug}")
                     continue
@@ -2276,11 +2306,17 @@ def import_package_finished_goods_from_json(
     for record in data:
         try:
             package_name = record.get("package_name", "")
+            package_slug = record.get("package_slug", "")
             finished_good_slug = record.get("finished_good_slug", "")
             quantity = record.get("quantity", 1)
 
+            # Support both package_name and package_slug
+            if not package_name and package_slug:
+                # Convert slug to name format (snake_case to Title Case)
+                package_name = package_slug.replace("_", " ").title()
+
             if not package_name or not finished_good_slug:
-                result.add_error("package_finished_good", "unknown", "Missing package_name or finished_good_slug")
+                result.add_error("package_finished_good", "unknown", "Missing package_name/package_slug or finished_good_slug")
                 continue
 
             # Resolve package reference
@@ -2343,12 +2379,20 @@ def import_production_records_from_json(
     for record in data:
         try:
             event_name = record.get("event_name", "")
+            event_slug = record.get("event_slug", "")
             recipe_name = record.get("recipe_name", "")
+            recipe_slug = record.get("recipe_slug", "")
             batches = record.get("batches", 0)
             produced_at_str = record.get("produced_at", "")
 
+            # Support slug variants - convert to name format
+            if not event_name and event_slug:
+                event_name = event_slug.replace("_", " ").title()
+            if not recipe_name and recipe_slug:
+                recipe_name = recipe_slug.replace("_", " ").title()
+
             if not event_name or not recipe_name or not produced_at_str:
-                result.add_error("production_record", event_name or "unknown", "Missing event_name, recipe_name, or produced_at")
+                result.add_error("production_record", event_name or "unknown", "Missing event_name/slug, recipe_name/slug, or produced_at")
                 continue
 
             # Parse datetime
@@ -2423,12 +2467,20 @@ def import_event_recipient_packages_from_json(
     for record in data:
         try:
             event_name = record.get("event_name", "")
+            event_slug = record.get("event_slug", "")
             recipient_name = record.get("recipient_name", "")
             package_name = record.get("package_name", "")
+            package_slug = record.get("package_slug", "")
             quantity = record.get("quantity", 1)
 
+            # Support slug variants - convert to name format
+            if not event_name and event_slug:
+                event_name = event_slug.replace("_", " ").title()
+            if not package_name and package_slug:
+                package_name = package_slug.replace("_", " ").title()
+
             if not event_name or not recipient_name or not package_name:
-                result.add_error("event_recipient_package", "unknown", "Missing event_name, recipient_name, or package_name")
+                result.add_error("event_recipient_package", "unknown", "Missing event_name/slug, recipient_name, or package_name/slug")
                 continue
 
             # Resolve event reference
@@ -2495,22 +2547,22 @@ def import_all_from_json_v3(file_path: str, mode: str = "merge") -> ImportResult
     - "merge": Add new records, skip duplicates (default, safe for incremental backups)
     - "replace": Clear all existing data first, then import (full restore)
 
-    Imports in dependency order per data-model.md:
-    1. unit_conversions
-    2. ingredients
-    3. variants
-    4. purchases
-    5. pantry_items
-    6. recipes
-    7. finished_units
-    8. finished_goods
-    9. compositions
-    10. packages
-    11. package_finished_goods
-    12. recipients
-    13. events
-    14. event_recipient_packages
-    15. production_records
+    Imports in dependency order:
+    1. ingredients (no dependencies)
+    2. unit_conversions (depends on ingredients)
+    3. variants (depends on ingredients)
+    4. purchases (depends on variants)
+    5. pantry_items (depends on variants)
+    6. recipes (depends on ingredients)
+    7. finished_units (depends on recipes)
+    8. finished_goods (no dependencies)
+    9. compositions (depends on finished_goods)
+    10. packages (no dependencies)
+    11. package_finished_goods (depends on packages, finished_goods)
+    12. recipients (no dependencies)
+    13. events (no dependencies)
+    14. event_recipient_packages (depends on events, recipients, packages)
+    15. production_records (depends on finished_units)
 
     Args:
         file_path: Path to v3.0 format JSON file
@@ -2554,7 +2606,35 @@ def import_all_from_json_v3(file_path: str, mode: str = "merge") -> ImportResult
             # Note: For simplicity, we use existing import functions where possible
             # and the new v3.0 functions for new entities
 
-            # 1. Unit conversions
+            # 1. Ingredients (no dependencies)
+            if "ingredients" in data:
+                for ing in data["ingredients"]:
+                    try:
+                        slug = ing.get("slug", "")
+                        if skip_duplicates:
+                            existing = session.query(Ingredient).filter_by(slug=slug).first()
+                            if existing:
+                                result.add_skip("ingredient", slug, "Already exists")
+                                continue
+
+                        ingredient = Ingredient(
+                            name=ing.get("name"),
+                            slug=slug,
+                            category=ing.get("category"),
+                            recipe_unit=ing.get("recipe_unit"),
+                            description=ing.get("description"),
+                            density_g_per_ml=ing.get("density_g_per_ml"),
+                            notes=ing.get("notes"),
+                        )
+                        session.add(ingredient)
+                        result.add_success("ingredient")
+                    except Exception as e:
+                        result.add_error("ingredient", ing.get("slug", "unknown"), str(e))
+
+            # Flush to get IDs for foreign keys
+            session.flush()
+
+            # 2. Unit conversions (depends on ingredients)
             if "unit_conversions" in data:
                 for conv in data["unit_conversions"]:
                     try:
@@ -2619,7 +2699,7 @@ def import_all_from_json_v3(file_path: str, mode: str = "merge") -> ImportResult
             # Flush to get IDs for foreign keys
             session.flush()
 
-            # 3. Variants
+            # 3. Variants (depends on ingredients)
             if "variants" in data:
                 for var in data["variants"]:
                     try:
@@ -2660,10 +2740,76 @@ def import_all_from_json_v3(file_path: str, mode: str = "merge") -> ImportResult
             # 4-5. Purchases and pantry_items handled similarly...
             # (Simplified for brevity - would add full implementation)
 
-            # 6. Recipes (using existing service - simplified)
-            # (Full implementation would import recipes here)
+            # 6. Recipes (depends on ingredients)
+            if "recipes" in data:
+                from src.models.recipe import Recipe, RecipeIngredient
+                
+                for recipe_data in data["recipes"]:
+                    try:
+                        name = recipe_data.get("name", "")
+                        
+                        if skip_duplicates:
+                            existing = session.query(Recipe).filter_by(name=name).first()
+                            if existing:
+                                result.add_skip("recipe", name, "Already exists")
+                                continue
+                        
+                        # Validate ingredients exist before creating recipe
+                        recipe_ingredients_data = recipe_data.get("ingredients", [])
+                        validated_ingredients = []
+                        missing_ingredients = []
+                        
+                        for ri_data in recipe_ingredients_data:
+                            ing_slug = ri_data.get("ingredient_slug", "")
+                            ingredient = session.query(Ingredient).filter_by(slug=ing_slug).first()
+                            if ingredient:
+                                validated_ingredients.append({
+                                    "ingredient_new_id": ingredient.id,
+                                    "quantity": ri_data.get("quantity"),
+                                    "unit": ri_data.get("unit"),
+                                    "notes": ri_data.get("notes"),
+                                })
+                            else:
+                                missing_ingredients.append(ing_slug)
+                        
+                        if missing_ingredients:
+                            result.add_error("recipe", name, f"Missing ingredients: {', '.join(missing_ingredients)}")
+                            continue
+                        
+                        # Create recipe (Recipe model doesn't have slug field)
+                        recipe = Recipe(
+                            name=name,
+                            category=recipe_data.get("category"),
+                            source=recipe_data.get("source"),
+                            yield_quantity=recipe_data.get("yield_quantity"),
+                            yield_unit=recipe_data.get("yield_unit"),
+                            yield_description=recipe_data.get("yield_description"),
+                            estimated_time_minutes=recipe_data.get("estimated_time_minutes", 
+                                                                   recipe_data.get("prep_time_minutes", 0) + 
+                                                                   recipe_data.get("cook_time_minutes", 0)),
+                            notes=recipe_data.get("notes"),
+                        )
+                        session.add(recipe)
+                        session.flush()  # Get recipe ID
+                        
+                        # Create recipe ingredients
+                        for vi in validated_ingredients:
+                            ri = RecipeIngredient(
+                                recipe_id=recipe.id,
+                                ingredient_new_id=vi["ingredient_new_id"],
+                                quantity=vi["quantity"],
+                                unit=vi["unit"],
+                                notes=vi.get("notes"),
+                            )
+                            session.add(ri)
+                        
+                        result.add_success("recipe")
+                    except Exception as e:
+                        result.add_error("recipe", recipe_data.get("name", "unknown"), str(e))
+            
+            session.flush()
 
-            # 7. Finished units (new)
+            # 7. Finished units (depends on recipes)
             if "finished_units" in data:
                 fu_result = import_finished_units_from_json(
                     data["finished_units"], session, skip_duplicates
@@ -2788,6 +2934,10 @@ def import_all_from_json_v3(file_path: str, mode: str = "merge") -> ImportResult
                         from datetime import date
                         event_date_str = evt.get("event_date")
                         event_date = date.fromisoformat(event_date_str) if event_date_str else None
+                        
+                        # Extract year from event_date if not provided
+                        if not year and event_date:
+                            year = event_date.year
 
                         event = Event(
                             name=name,

@@ -450,7 +450,7 @@ class FinishedGoodDataTable(DataTable):
         )
 
         return [
-            row_data.name,
+            row_data.display_name,
             row_data.recipe.name if row_data.recipe else "N/A",
             row_data.category or "",
             type_display,
@@ -517,7 +517,7 @@ class BundleDataTable(DataTable):
             quantity_display = str(row_data.quantity)
 
         return [
-            row_data.name,
+            row_data.display_name,
             row_data.finished_good.name if row_data.finished_good else "N/A",
             quantity_display,
             f"${cost:.2f}",
