@@ -23,8 +23,7 @@ from src.services.exceptions import (
     DatabaseError,
 )
 from src.services import pantry_service, variant_service, purchase_service
-from src.services.unit_converter import convert_any_units
-from src.utils.constants import get_ingredient_density
+from src.services.unit_converter import convert_any_units, get_ingredient_density
 from src.utils.validators import validate_recipe_data
 
 

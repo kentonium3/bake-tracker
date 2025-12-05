@@ -286,14 +286,14 @@ history:
 
 ## Definition of Done Checklist
 
-- [ ] T001: `density_g_per_ml` field removed from Ingredient model
-- [ ] T002: 4 density fields added to Ingredient model
-- [ ] T003: `get_density_g_per_ml()` method implemented
-- [ ] T004: `format_density_display()` method implemented
-- [ ] T005: `INGREDIENT_DENSITIES` dict removed from constants.py
-- [ ] T006: `get_ingredient_density()` function removed from constants.py
-- [ ] T007: Tests pass for density calculation method
-- [ ] Docstrings updated for changed/new code
+- [x] T001: `density_g_per_ml` field removed from Ingredient model
+- [x] T002: 4 density fields added to Ingredient model
+- [x] T003: `get_density_g_per_ml()` method implemented
+- [x] T004: `format_density_display()` method implemented
+- [x] T005: `INGREDIENT_DENSITIES` dict removed from constants.py
+- [x] T006: `get_ingredient_density()` function removed from constants.py
+- [x] T007: Tests pass for density calculation method
+- [x] Docstrings updated for changed/new code
 
 ## Review Guidance
 
@@ -306,3 +306,4 @@ history:
 
 - 2025-12-04T00:00:00Z - system - lane=planned - Prompt created via /spec-kitty.tasks
 - 2025-12-05T03:02:53Z – claude – shell_pid=3015 – lane=doing – Started implementation
+- 2025-12-05T03:30:00Z – claude – shell_pid=3015 – lane=doing – Completed all subtasks T001-T007; all tests pass

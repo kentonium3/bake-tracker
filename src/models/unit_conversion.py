@@ -224,7 +224,9 @@ def create_standard_conversions(ingredient_id: int, ingredient_name: str, sessio
     Returns:
         List of created UnitConversion instances
     """
-    from src.utils.constants import get_ingredient_density
+    # DEPRECATED: get_ingredient_density removed in Feature 010.
+    # This function now returns empty list. WP02 will update to use Ingredient density.
+    from src.services.unit_converter import get_ingredient_density
 
     density_g_per_cup = get_ingredient_density(ingredient_name)
 

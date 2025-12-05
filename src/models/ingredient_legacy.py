@@ -144,10 +144,8 @@ class IngredientLegacy(BaseModel):
         if self.density_g_per_cup is not None and self.density_g_per_cup > 0:
             return self.density_g_per_cup
 
-        # Fallback to constants lookup
-        from src.utils.constants import get_ingredient_density
-
-        return get_ingredient_density(self.name)
+        # DEPRECATED: Fallback removed in Feature 010. Now returns 0.0 if not set.
+        return 0.0
 
     def has_density_data(self) -> bool:
         """

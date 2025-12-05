@@ -14,7 +14,13 @@ Conversion Strategy:
 """
 
 from typing import Optional, Tuple
-from src.utils.constants import get_ingredient_density
+
+
+# DEPRECATED: get_ingredient_density was removed in Feature 010.
+# This stub allows code to run until WP02 updates functions to use Ingredient objects.
+def get_ingredient_density(ingredient_name: str) -> float:
+    """Deprecated stub - always returns 0.0. WP02 will replace with Ingredient-based lookup."""
+    return 0.0
 
 
 # ============================================================================

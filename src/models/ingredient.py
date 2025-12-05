@@ -9,6 +9,7 @@ Example: "All-Purpose Flour" as an ingredient concept, separate from
 """
 
 from datetime import datetime
+from typing import Optional
 
 from sqlalchemy import Column, String, Text, DateTime, Float, JSON, Index
 from sqlalchemy.orm import relationship
@@ -37,8 +38,14 @@ class Ingredient(BaseModel):
         langual_terms: List of LanguaL facet codes for descriptive classification
         fdc_ids: List of USDA FDC IDs for nutrition data linkage
 
+        # User-friendly density specification (4-field model):
+        density_volume_value: Volume amount for density (e.g., 1.0)
+        density_volume_unit: Volume unit for density (e.g., "cup")
+        density_weight_value: Weight amount for density (e.g., 4.25)
+        density_weight_unit: Weight unit for density (e.g., "oz")
+        Example: "1 cup = 4.25 oz" stored as (1.0, "cup", 4.25, "oz")
+
         # Physical properties (future-ready, nullable):
-        density_g_per_ml: Density in grams per milliliter for volume-weight conversions
         moisture_pct: Moisture percentage for advanced baking calculations
         allergens: List of allergen codes (e.g., ["gluten", "tree_nut"])
 
@@ -66,8 +73,14 @@ class Ingredient(BaseModel):
     langual_terms = Column(JSON, nullable=True)  # Array of LanguaL facet codes
     fdc_ids = Column(JSON, nullable=True)  # Array of USDA FDC IDs
 
+    # User-friendly density specification (4-field model)
+    # Example: "1 cup = 4.25 oz" stored as (1.0, "cup", 4.25, "oz")
+    density_volume_value = Column(Float, nullable=True)
+    density_volume_unit = Column(String(20), nullable=True)
+    density_weight_value = Column(Float, nullable=True)
+    density_weight_unit = Column(String(20), nullable=True)
+
     # Physical properties (FUTURE READY - all nullable)
-    density_g_per_ml = Column(Float, nullable=True)  # For volume-weight conversions
     moisture_pct = Column(Float, nullable=True)  # For advanced calculations
     allergens = Column(JSON, nullable=True)  # Array of allergen codes
 
@@ -136,6 +149,53 @@ class Ingredient(BaseModel):
                 # Note: Raw quantity addition without unit conversion
                 total += pantry_item.quantity
         return total
+
+    def get_density_g_per_ml(self) -> Optional[float]:
+        """
+        Calculate density in g/ml from the 4-field specification.
+
+        Returns:
+            Density in grams per milliliter, or None if density not specified.
+        """
+        if not all([
+            self.density_volume_value,
+            self.density_volume_unit,
+            self.density_weight_value,
+            self.density_weight_unit
+        ]):
+            return None
+
+        # Local import to avoid circular dependency
+        from src.services.unit_converter import convert_standard_units
+
+        # Convert volume to ml
+        success, ml, _ = convert_standard_units(
+            self.density_volume_value,
+            self.density_volume_unit,
+            "ml"
+        )
+        if not success or ml <= 0:
+            return None
+
+        # Convert weight to grams
+        success, grams, _ = convert_standard_units(
+            self.density_weight_value,
+            self.density_weight_unit,
+            "g"
+        )
+        if not success or grams <= 0:
+            return None
+
+        return grams / ml
+
+    def format_density_display(self) -> str:
+        """Format density for UI display."""
+        if not self.get_density_g_per_ml():
+            return "Not set"
+        return (
+            f"{self.density_volume_value:g} {self.density_volume_unit} = "
+            f"{self.density_weight_value:g} {self.density_weight_unit}"
+        )
 
     def to_dict(self, include_relationships: bool = False) -> dict:
         """
