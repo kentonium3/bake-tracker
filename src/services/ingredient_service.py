@@ -32,7 +32,7 @@ Example Usage:
   'All-Purpose Flour'
 """
 
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List, Optional, Tuple
 
 from ..models import Ingredient
 from .database import session_scope
@@ -45,6 +45,62 @@ from .exceptions import (
 )
 from ..utils.slug_utils import create_slug
 from ..utils.validators import validate_ingredient_data
+from ..utils.constants import VOLUME_UNITS, WEIGHT_UNITS
+
+
+def validate_density_fields(
+    volume_value: Optional[float],
+    volume_unit: Optional[str],
+    weight_value: Optional[float],
+    weight_unit: Optional[str],
+) -> Tuple[bool, str]:
+    """
+    Validate density field group (all or nothing).
+
+    Args:
+        volume_value: Volume amount (e.g., 1.0)
+        volume_unit: Volume unit (e.g., "cup")
+        weight_value: Weight amount (e.g., 4.25)
+        weight_unit: Weight unit (e.g., "oz")
+
+    Returns:
+        Tuple of (is_valid, error_message)
+    """
+    # Normalize empty strings to None
+    fields = [
+        volume_value if volume_value not in (None, "", 0) else None,
+        volume_unit if volume_unit not in (None, "") else None,
+        weight_value if weight_value not in (None, "", 0) else None,
+        weight_unit if weight_unit not in (None, "") else None,
+    ]
+
+    filled_count = sum(1 for f in fields if f is not None)
+
+    # All empty is valid (no density)
+    if filled_count == 0:
+        return True, ""
+
+    # Partially filled is invalid
+    if filled_count < 4:
+        return False, "All density fields must be provided together"
+
+    # Validate positive values
+    if volume_value <= 0:
+        return False, "Volume value must be greater than zero"
+
+    if weight_value <= 0:
+        return False, "Weight value must be greater than zero"
+
+    # Validate unit types
+    volume_unit_lower = volume_unit.lower()
+    if volume_unit_lower not in [u.lower() for u in VOLUME_UNITS]:
+        return False, f"Invalid volume unit: {volume_unit}"
+
+    weight_unit_lower = weight_unit.lower()
+    if weight_unit_lower not in [u.lower() for u in WEIGHT_UNITS]:
+        return False, f"Invalid weight unit: {weight_unit}"
+
+    return True, ""
 
 
 def create_ingredient(ingredient_data: Dict[str, Any]) -> Ingredient:
@@ -57,7 +113,10 @@ def create_ingredient(ingredient_data: Dict[str, Any]) -> Ingredient:
         ingredient_data: Dictionary containing ingredient fields:
             - name (str, required): Ingredient name
             - category (str, required): Category classification
-            - density_g_per_ml (float, optional): For volume-weight conversions
+            - density_volume_value (float, optional): Volume amount for density
+            - density_volume_unit (str, optional): Volume unit for density
+            - density_weight_value (float, optional): Weight amount for density
+            - density_weight_unit (str, optional): Weight unit for density
             - foodon_id (str, optional): FoodOn taxonomy ID
             - fdc_id (str, optional): USDA FoodData Central ID
             - gtin (str, optional): Global Trade Item Number
@@ -75,7 +134,10 @@ def create_ingredient(ingredient_data: Dict[str, Any]) -> Ingredient:
         >>> data = {
         ...     "name": "All-Purpose Flour",
         ...     "category": "Flour",
-        ...     "density_g_per_ml": 0.507
+        ...     "density_volume_value": 1.0,
+        ...     "density_volume_unit": "cup",
+        ...     "density_weight_value": 4.25,
+        ...     "density_weight_unit": "oz"
         ... }
         >>> ingredient = create_ingredient(data)
         >>> ingredient.slug
@@ -87,6 +149,16 @@ def create_ingredient(ingredient_data: Dict[str, Any]) -> Ingredient:
     is_valid, errors = validate_ingredient_data(ingredient_data)
     if not is_valid:
         raise ServiceValidationError(errors)
+
+    # Validate density fields
+    density_valid, density_error = validate_density_fields(
+        ingredient_data.get("density_volume_value"),
+        ingredient_data.get("density_volume_unit"),
+        ingredient_data.get("density_weight_value"),
+        ingredient_data.get("density_weight_unit"),
+    )
+    if not density_valid:
+        raise ServiceValidationError(density_error)
 
     try:
         with session_scope() as session:
@@ -110,7 +182,10 @@ def create_ingredient(ingredient_data: Dict[str, Any]) -> Ingredient:
                 category=ingredient_data["category"],
                 recipe_unit=ingredient_data.get("recipe_unit"),
                 description=ingredient_data.get("description"),
-                density_g_per_ml=ingredient_data.get("density_g_per_ml"),
+                density_volume_value=ingredient_data.get("density_volume_value"),
+                density_volume_unit=ingredient_data.get("density_volume_unit"),
+                density_weight_value=ingredient_data.get("density_weight_value"),
+                density_weight_unit=ingredient_data.get("density_weight_unit"),
                 moisture_pct=ingredient_data.get("moisture_pct"),
                 foodon_id=ingredient_data.get("foodon_id"),
                 foodex2_code=foodex2_code,
@@ -213,7 +288,10 @@ def update_ingredient(slug: str, ingredient_data: Dict[str, Any]) -> Ingredient:
         ingredient_data: Dictionary with fields to update (partial update supported)
             - name (str, optional): New name
             - category (str, optional): New category
-            - density_g_per_ml (float, optional): New density
+            - density_volume_value (float, optional): Volume amount for density
+            - density_volume_unit (str, optional): Volume unit for density
+            - density_weight_value (float, optional): Weight amount for density
+            - density_weight_unit (str, optional): Weight unit for density
             - foodon_id, fdc_id, gtin, allergens, notes (optional): Industry standard fields
 
     Returns:
@@ -231,7 +309,10 @@ def update_ingredient(slug: str, ingredient_data: Dict[str, Any]) -> Ingredient:
     Example:
         >>> updated = update_ingredient("all_purpose_flour", {
         ...     "category": "Baking Essentials",
-        ...     "density_g_per_ml": 0.510
+        ...     "density_volume_value": 1.0,
+        ...     "density_volume_unit": "cup",
+        ...     "density_weight_value": 4.25,
+        ...     "density_weight_unit": "oz"
         ... })
         >>> updated.category
         'Baking Essentials'
@@ -241,6 +322,16 @@ def update_ingredient(slug: str, ingredient_data: Dict[str, Any]) -> Ingredient:
     # Prevent slug changes
     if "slug" in ingredient_data:
         raise ServiceValidationError("Slug cannot be changed after creation")
+
+    # Validate density fields if any are being updated
+    density_valid, density_error = validate_density_fields(
+        ingredient_data.get("density_volume_value"),
+        ingredient_data.get("density_volume_unit"),
+        ingredient_data.get("density_weight_value"),
+        ingredient_data.get("density_weight_unit"),
+    )
+    if not density_valid:
+        raise ServiceValidationError(density_error)
 
     try:
         with session_scope() as session:
@@ -465,7 +556,11 @@ def get_all_ingredients(
             "slug": ing.slug,
             "name": ing.name,
             "category": ing.category,
-            "density_g_per_ml": ing.density_g_per_ml,
+            "density_volume_value": ing.density_volume_value,
+            "density_volume_unit": ing.density_volume_unit,
+            "density_weight_value": ing.density_weight_value,
+            "density_weight_unit": ing.density_weight_unit,
+            "density_display": ing.format_density_display(),
             "notes": ing.notes,
         }
         for ing in ingredients
