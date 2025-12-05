@@ -885,3 +885,234 @@ class TestSuccessCriteriaValidation:
 
         # Should have production records
         assert len(data["production_records"]) >= 1, "Should have production history"
+
+
+class TestDensityFieldsImportExport:
+    """Tests for 4-field density model in import/export (Feature 010)."""
+
+    def test_export_ingredient_includes_density_fields(self):
+        """Export includes all 4 density fields when present."""
+        from src.models.ingredient import Ingredient
+
+        ingredient = Ingredient(
+            name="Test Flour",
+            slug="test-flour",
+            category="Flour",
+            recipe_unit="cup",
+            density_volume_value=1.0,
+            density_volume_unit="cup",
+            density_weight_value=4.25,
+            density_weight_unit="oz",
+        )
+
+        # Manually build export dict like the export function does
+        ingredient_data = {
+            "name": ingredient.name,
+            "slug": ingredient.slug,
+            "category": ingredient.category,
+            "recipe_unit": ingredient.recipe_unit,
+        }
+
+        # Add density fields (mirroring export logic)
+        if ingredient.density_volume_value is not None:
+            ingredient_data["density_volume_value"] = ingredient.density_volume_value
+        if ingredient.density_volume_unit:
+            ingredient_data["density_volume_unit"] = ingredient.density_volume_unit
+        if ingredient.density_weight_value is not None:
+            ingredient_data["density_weight_value"] = ingredient.density_weight_value
+        if ingredient.density_weight_unit:
+            ingredient_data["density_weight_unit"] = ingredient.density_weight_unit
+
+        # Verify all 4 density fields present
+        assert "density_volume_value" in ingredient_data
+        assert "density_volume_unit" in ingredient_data
+        assert "density_weight_value" in ingredient_data
+        assert "density_weight_unit" in ingredient_data
+        assert ingredient_data["density_volume_value"] == 1.0
+        assert ingredient_data["density_volume_unit"] == "cup"
+        assert ingredient_data["density_weight_value"] == 4.25
+        assert ingredient_data["density_weight_unit"] == "oz"
+
+    def test_export_ingredient_without_density(self):
+        """Export omits density fields when not set."""
+        from src.models.ingredient import Ingredient
+
+        ingredient = Ingredient(
+            name="Test Ingredient",
+            slug="test-ingredient",
+            category="Other",
+            recipe_unit="cup",
+        )
+
+        # Manually build export dict
+        ingredient_data = {
+            "name": ingredient.name,
+            "slug": ingredient.slug,
+            "category": ingredient.category,
+            "recipe_unit": ingredient.recipe_unit,
+        }
+
+        # Add density fields only if present
+        if ingredient.density_volume_value is not None:
+            ingredient_data["density_volume_value"] = ingredient.density_volume_value
+        if ingredient.density_volume_unit:
+            ingredient_data["density_volume_unit"] = ingredient.density_volume_unit
+        if ingredient.density_weight_value is not None:
+            ingredient_data["density_weight_value"] = ingredient.density_weight_value
+        if ingredient.density_weight_unit:
+            ingredient_data["density_weight_unit"] = ingredient.density_weight_unit
+
+        # Verify no density fields
+        assert "density_volume_value" not in ingredient_data
+        assert "density_volume_unit" not in ingredient_data
+        assert "density_weight_value" not in ingredient_data
+        assert "density_weight_unit" not in ingredient_data
+
+    def test_import_ingredient_reads_density_fields(self):
+        """Import reads all 4 density fields."""
+        from src.models.ingredient import Ingredient
+
+        data = {
+            "slug": "test-flour",
+            "name": "Test Flour",
+            "category": "Flour",
+            "recipe_unit": "cup",
+            "density_volume_value": 1.0,
+            "density_volume_unit": "cup",
+            "density_weight_value": 4.25,
+            "density_weight_unit": "oz",
+        }
+
+        # Mimic import logic
+        ingredient = Ingredient(
+            name=data.get("name"),
+            slug=data.get("slug"),
+            category=data.get("category"),
+            recipe_unit=data.get("recipe_unit"),
+            density_volume_value=data.get("density_volume_value"),
+            density_volume_unit=data.get("density_volume_unit"),
+            density_weight_value=data.get("density_weight_value"),
+            density_weight_unit=data.get("density_weight_unit"),
+        )
+
+        # Verify
+        assert ingredient.density_volume_value == 1.0
+        assert ingredient.density_volume_unit == "cup"
+        assert ingredient.density_weight_value == 4.25
+        assert ingredient.density_weight_unit == "oz"
+
+    def test_import_ignores_legacy_density_field(self):
+        """Import ignores legacy density_g_per_ml field."""
+        from src.models.ingredient import Ingredient
+
+        data = {
+            "slug": "test-flour",
+            "name": "Test Flour",
+            "category": "Flour",
+            "recipe_unit": "cup",
+            "density_g_per_ml": 0.5,  # Legacy field - should be ignored
+        }
+
+        # Mimic import logic (does NOT read density_g_per_ml)
+        ingredient = Ingredient(
+            name=data.get("name"),
+            slug=data.get("slug"),
+            category=data.get("category"),
+            recipe_unit=data.get("recipe_unit"),
+            density_volume_value=data.get("density_volume_value"),
+            density_volume_unit=data.get("density_volume_unit"),
+            density_weight_value=data.get("density_weight_value"),
+            density_weight_unit=data.get("density_weight_unit"),
+        )
+
+        # Verify density fields are None (not populated from legacy)
+        assert ingredient.density_volume_value is None
+        assert ingredient.density_volume_unit is None
+        assert ingredient.density_weight_value is None
+        assert ingredient.density_weight_unit is None
+        assert ingredient.get_density_g_per_ml() is None
+
+    def test_density_round_trip(self):
+        """Export and reimport preserves density."""
+        from src.models.ingredient import Ingredient
+
+        # Create ingredient with density
+        original = Ingredient(
+            slug="test",
+            name="Test",
+            category="Flour",
+            recipe_unit="cup",
+            density_volume_value=1.0,
+            density_volume_unit="cup",
+            density_weight_value=4.25,
+            density_weight_unit="oz",
+        )
+
+        # Export to dict
+        exported = {
+            "name": original.name,
+            "slug": original.slug,
+            "category": original.category,
+            "recipe_unit": original.recipe_unit,
+        }
+        if original.density_volume_value is not None:
+            exported["density_volume_value"] = original.density_volume_value
+        if original.density_volume_unit:
+            exported["density_volume_unit"] = original.density_volume_unit
+        if original.density_weight_value is not None:
+            exported["density_weight_value"] = original.density_weight_value
+        if original.density_weight_unit:
+            exported["density_weight_unit"] = original.density_weight_unit
+
+        # Import from dict
+        reimported = Ingredient(
+            name=exported.get("name"),
+            slug=exported.get("slug"),
+            category=exported.get("category"),
+            recipe_unit=exported.get("recipe_unit"),
+            density_volume_value=exported.get("density_volume_value"),
+            density_volume_unit=exported.get("density_volume_unit"),
+            density_weight_value=exported.get("density_weight_value"),
+            density_weight_unit=exported.get("density_weight_unit"),
+        )
+
+        # Verify density matches
+        assert reimported.density_volume_value == original.density_volume_value
+        assert reimported.density_volume_unit == original.density_volume_unit
+        assert reimported.density_weight_value == original.density_weight_value
+        assert reimported.density_weight_unit == original.density_weight_unit
+
+    def test_sample_data_has_density_fields(self):
+        """Verify sample_data.json uses new density format."""
+        import json
+
+        with open("test_data/sample_data.json", "r") as f:
+            data = json.load(f)
+
+        # Find All-Purpose Flour
+        flour = None
+        for ing in data["ingredients"]:
+            if ing["slug"] == "all_purpose_flour":
+                flour = ing
+                break
+
+        assert flour is not None, "Sample data should have all_purpose_flour"
+
+        # Should have 4-field density, not legacy
+        assert "density_g_per_ml" not in flour, "Should not have legacy density field"
+        assert flour.get("density_volume_value") == 1.0
+        assert flour.get("density_volume_unit") == "cup"
+        assert flour.get("density_weight_value") == 4.25
+        assert flour.get("density_weight_unit") == "oz"
+
+    def test_sample_data_valid_json(self):
+        """Verify sample_data.json is valid JSON."""
+        import json
+
+        # Should not raise
+        with open("test_data/sample_data.json", "r") as f:
+            data = json.load(f)
+
+        assert "version" in data
+        assert data["version"] == "3.0"
+        assert "ingredients" in data

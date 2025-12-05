@@ -845,8 +845,17 @@ def export_all_to_json(file_path: str) -> ExportResult:
                 ingredient_data["description"] = ingredient.description
             if ingredient.notes:
                 ingredient_data["notes"] = ingredient.notes
-            if ingredient.density_g_per_ml:
-                ingredient_data["density_g_per_ml"] = ingredient.density_g_per_ml
+
+            # Density fields (4-field model: volume_value, volume_unit, weight_value, weight_unit)
+            if ingredient.density_volume_value is not None:
+                ingredient_data["density_volume_value"] = ingredient.density_volume_value
+            if ingredient.density_volume_unit:
+                ingredient_data["density_volume_unit"] = ingredient.density_volume_unit
+            if ingredient.density_weight_value is not None:
+                ingredient_data["density_weight_value"] = ingredient.density_weight_value
+            if ingredient.density_weight_unit:
+                ingredient_data["density_weight_unit"] = ingredient.density_weight_unit
+
             if ingredient.moisture_pct:
                 ingredient_data["moisture_pct"] = ingredient.moisture_pct
             if ingredient.allergens:
@@ -2595,8 +2604,12 @@ def import_all_from_json_v3(file_path: str, mode: str = "merge") -> ImportResult
                             category=ing.get("category"),
                             recipe_unit=ing.get("recipe_unit"),
                             description=ing.get("description"),
-                            density_g_per_ml=ing.get("density_g_per_ml"),
                             notes=ing.get("notes"),
+                            # 4-field density model (ignore legacy density_g_per_ml)
+                            density_volume_value=ing.get("density_volume_value"),
+                            density_volume_unit=ing.get("density_volume_unit"),
+                            density_weight_value=ing.get("density_weight_value"),
+                            density_weight_unit=ing.get("density_weight_unit"),
                         )
                         session.add(ingredient)
                         result.add_success("ingredient")

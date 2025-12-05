@@ -66,7 +66,10 @@
       "recipe_unit": "cup",
       "description": "Standard all-purpose wheat flour",
       "notes": "Store in airtight container in cool, dry place",
-      "density_g_per_ml": 0.507
+      "density_volume_value": 1.0,
+      "density_volume_unit": "cup",
+      "density_weight_value": 4.25,
+      "density_weight_unit": "oz"
     },
     {
       "name": "White Granulated Sugar",
@@ -74,7 +77,10 @@
       "category": "Sugar",
       "recipe_unit": "cup",
       "description": "Standard white granulated cane sugar",
-      "density_g_per_ml": 0.845
+      "density_volume_value": 1.0,
+      "density_volume_unit": "cup",
+      "density_weight_value": 7.0,
+      "density_weight_unit": "oz"
     },
     {
       "name": "Brown Sugar",
@@ -82,7 +88,10 @@
       "category": "Sugar",
       "recipe_unit": "cup",
       "description": "Light or dark brown sugar (packed)",
-      "density_g_per_ml": 0.930
+      "density_volume_value": 1.0,
+      "density_volume_unit": "cup",
+      "density_weight_value": 7.75,
+      "density_weight_unit": "oz"
     },
     {
       "name": "Powdered Sugar",
@@ -90,7 +99,10 @@
       "category": "Sugar",
       "recipe_unit": "cup",
       "description": "Confectioners sugar / icing sugar",
-      "density_g_per_ml": 0.507
+      "density_volume_value": 1.0,
+      "density_volume_unit": "cup",
+      "density_weight_value": 4.25,
+      "density_weight_unit": "oz"
     },
     {
       "name": "Semi-Sweet Chocolate Chips",
@@ -105,7 +117,10 @@
       "category": "Oils/Butters",
       "recipe_unit": "cup",
       "description": "Unsalted dairy butter",
-      "density_g_per_ml": 0.959
+      "density_volume_value": 1.0,
+      "density_volume_unit": "cup",
+      "density_weight_value": 8.0,
+      "density_weight_unit": "oz"
     },
     {
       "name": "Cocoa Powder",
@@ -113,7 +128,10 @@
       "category": "Cocoa Powders",
       "recipe_unit": "cup",
       "description": "Dutch-processed cocoa powder",
-      "density_g_per_ml": 0.359
+      "density_volume_value": 1.0,
+      "density_volume_unit": "cup",
+      "density_weight_value": 3.0,
+      "density_weight_unit": "oz"
     },
     {
       "name": "Vanilla Extract",

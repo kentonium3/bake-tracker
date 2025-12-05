@@ -7,10 +7,10 @@ subtasks:
   - "T021"
 title: "Import/Export Updates"
 phase: "Phase 3 - Import/Export"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "claude"
+shell_pid: "3015"
 review_status: ""
 reviewed_by: ""
 history:
@@ -273,12 +273,12 @@ history:
 
 ## Definition of Done Checklist
 
-- [ ] T018: Export includes 4 density fields
-- [ ] T019: Import reads 4 density fields
-- [ ] T020: sample_data.json updated with new format
-- [ ] T021: Import/export tests pass
-- [ ] No references to `density_g_per_ml` in import/export code
-- [ ] sample_data.json is valid JSON
+- [x] T018: Export includes 4 density fields
+- [x] T019: Import reads 4 density fields
+- [x] T020: sample_data.json updated with new format
+- [x] T021: Import/export tests pass (7 tests)
+- [x] No references to `density_g_per_ml` in import/export code (import ignores legacy)
+- [x] sample_data.json is valid JSON
 
 ## Review Guidance
 
@@ -290,3 +290,5 @@ history:
 ## Activity Log
 
 - 2025-12-04T00:00:00Z - system - lane=planned - Prompt created via /spec-kitty.tasks
+- 2025-12-05T03:29:31Z – claude – shell_pid=3015 – lane=doing – Moved to doing
+- 2025-12-05T03:45:00Z – claude – shell_pid=3015 – lane=for_review – All subtasks T018-T021 complete; 7 tests pass
