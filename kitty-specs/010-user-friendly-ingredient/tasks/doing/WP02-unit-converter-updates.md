@@ -301,13 +301,13 @@ history:
 
 ## Definition of Done Checklist
 
-- [ ] T008: `convert_volume_to_weight()` accepts `ingredient` parameter
-- [ ] T009: `convert_weight_to_volume()` accepts `ingredient` parameter
-- [ ] T010: `convert_any_units()` accepts `ingredient` parameter
-- [ ] T011: No import of `get_ingredient_density` in unit_converter.py
-- [ ] T012: All unit converter tests pass
-- [ ] Error messages are user-friendly and actionable
-- [ ] Docstrings updated
+- [x] T008: `convert_volume_to_weight()` accepts `ingredient` parameter
+- [x] T009: `convert_weight_to_volume()` accepts `ingredient` parameter
+- [x] T010: `convert_any_units()` accepts `ingredient` parameter
+- [x] T011: No import of `get_ingredient_density` in unit_converter.py
+- [x] T012: All unit converter tests pass
+- [x] Error messages are user-friendly and actionable
+- [x] Docstrings updated
 
 ## Review Guidance
 
@@ -320,3 +320,4 @@ history:
 
 - 2025-12-04T00:00:00Z - system - lane=planned - Prompt created via /spec-kitty.tasks
 - 2025-12-05T03:09:47Z – claude – shell_pid=3015 – lane=doing – Starting implementation
+- 2025-12-05T03:45:00Z – claude – shell_pid=3015 – lane=doing – Completed all subtasks T008-T012; all 75 unit converter tests pass

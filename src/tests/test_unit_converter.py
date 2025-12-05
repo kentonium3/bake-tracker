@@ -547,3 +547,160 @@ class TestValidation:
         is_valid, error = validate_quantity(1e10)
         assert is_valid is False
         assert "large" in error.lower()
+
+
+# ============================================================================
+# Volume-Weight Conversion Tests (Feature 010 - Ingredient density)
+# ============================================================================
+
+
+from src.services.unit_converter import (
+    convert_volume_to_weight,
+    convert_weight_to_volume,
+    convert_any_units,
+)
+from src.models.ingredient import Ingredient
+
+
+class TestVolumeWeightConversions:
+    """Test volume-to-weight and weight-to-volume conversions using Ingredient density."""
+
+    def test_convert_volume_to_weight_with_ingredient(self):
+        """Test volume to weight conversion using ingredient density."""
+        ingredient = Ingredient(
+            name="All-Purpose Flour",
+            slug="all-purpose-flour",
+            category="Flour",
+            density_volume_value=1.0,
+            density_volume_unit="cup",
+            density_weight_value=120.0,
+            density_weight_unit="g",
+        )
+        success, weight, error = convert_volume_to_weight(
+            1.0, "cup", "g", ingredient=ingredient
+        )
+        assert success
+        assert abs(weight - 120.0) < 0.5  # Allow small rounding difference
+        assert error == ""
+
+    def test_convert_volume_to_weight_no_density(self):
+        """Test conversion fails gracefully when no density."""
+        ingredient = Ingredient(
+            name="Mystery Ingredient",
+            slug="mystery",
+            category="Other",
+        )
+        success, weight, error = convert_volume_to_weight(
+            1.0, "cup", "g", ingredient=ingredient
+        )
+        assert not success
+        assert "Density required" in error
+
+    def test_convert_volume_to_weight_with_override(self):
+        """Test density override still works."""
+        # 1 cup water = 236.588 ml, 1.0 g/ml -> 236.588 g
+        success, weight, error = convert_volume_to_weight(
+            1.0, "cup", "g", density_g_per_ml=1.0
+        )
+        assert success
+        assert abs(weight - 236.588) < 0.1
+
+    def test_convert_weight_to_volume_with_ingredient(self):
+        """Test weight to volume conversion using ingredient density."""
+        ingredient = Ingredient(
+            name="All-Purpose Flour",
+            slug="all-purpose-flour",
+            category="Flour",
+            density_volume_value=1.0,
+            density_volume_unit="cup",
+            density_weight_value=120.0,
+            density_weight_unit="g",
+        )
+        success, volume, error = convert_weight_to_volume(
+            120.0, "g", "cup", ingredient=ingredient
+        )
+        assert success
+        assert abs(volume - 1.0) < 0.05  # Allow small rounding difference
+        assert error == ""
+
+    def test_convert_weight_to_volume_no_density(self):
+        """Test conversion fails gracefully when no density."""
+        ingredient = Ingredient(
+            name="Mystery Ingredient",
+            slug="mystery",
+            category="Other",
+        )
+        success, volume, error = convert_weight_to_volume(
+            100.0, "g", "cup", ingredient=ingredient
+        )
+        assert not success
+        assert "Density required" in error
+
+    def test_convert_weight_to_volume_with_override(self):
+        """Test density override still works for weight to volume."""
+        # 100g at 1.0 g/ml = 100 ml
+        success, volume, error = convert_weight_to_volume(
+            100.0, "g", "ml", density_g_per_ml=1.0
+        )
+        assert success
+        assert abs(volume - 100.0) < 0.1
+
+    def test_convert_any_units_same_type(self):
+        """Test convert_any_units for same-type conversion."""
+        success, result, error = convert_any_units(1.0, "lb", "oz")
+        assert success
+        assert abs(result - 16.0) < 0.01
+        assert error == ""
+
+    def test_convert_any_units_volume_to_weight(self):
+        """Test convert_any_units for volume to weight with ingredient."""
+        ingredient = Ingredient(
+            name="Sugar",
+            slug="sugar",
+            category="Sugar",
+            density_volume_value=1.0,
+            density_volume_unit="cup",
+            density_weight_value=200.0,
+            density_weight_unit="g",
+        )
+        success, result, error = convert_any_units(
+            1.0, "cup", "g", ingredient=ingredient
+        )
+        assert success
+        assert abs(result - 200.0) < 1.0
+
+    def test_convert_any_units_weight_to_volume(self):
+        """Test convert_any_units for weight to volume with ingredient."""
+        ingredient = Ingredient(
+            name="Sugar",
+            slug="sugar",
+            category="Sugar",
+            density_volume_value=1.0,
+            density_volume_unit="cup",
+            density_weight_value=200.0,
+            density_weight_unit="g",
+        )
+        success, result, error = convert_any_units(
+            200.0, "g", "cup", ingredient=ingredient
+        )
+        assert success
+        assert abs(result - 1.0) < 0.05
+
+    def test_convert_any_units_no_ingredient_or_density(self):
+        """Test convert_any_units fails for cross-type without density."""
+        success, result, error = convert_any_units(1.0, "cup", "g")
+        assert not success
+        assert "required" in error.lower()
+
+    def test_error_message_includes_ingredient_name(self):
+        """Test that error message includes ingredient name for user guidance."""
+        ingredient = Ingredient(
+            name="Special Flour",
+            slug="special-flour",
+            category="Flour",
+        )
+        success, weight, error = convert_volume_to_weight(
+            1.0, "cup", "g", ingredient=ingredient
+        )
+        assert not success
+        assert "Special Flour" in error
