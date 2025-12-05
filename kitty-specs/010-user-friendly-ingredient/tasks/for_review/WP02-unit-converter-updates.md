@@ -8,7 +8,7 @@ subtasks:
   - "T012"
 title: "Unit Converter Updates"
 phase: "Phase 2 - Service Layer"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "claude"
 shell_pid: "3015"
@@ -321,3 +321,4 @@ history:
 - 2025-12-04T00:00:00Z - system - lane=planned - Prompt created via /spec-kitty.tasks
 - 2025-12-05T03:09:47Z – claude – shell_pid=3015 – lane=doing – Starting implementation
 - 2025-12-05T03:45:00Z – claude – shell_pid=3015 – lane=doing – Completed all subtasks T008-T012; all 75 unit converter tests pass
+- 2025-12-05T03:12:29Z – claude – shell_pid=3015 – lane=for_review – All subtasks T008-T012 complete, 75 tests pass
