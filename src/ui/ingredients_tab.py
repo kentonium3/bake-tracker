@@ -19,7 +19,7 @@ from src.services.exceptions import (
     VariantInUse,
     VariantNotFound,
 )
-from src.utils.constants import PADDING_MEDIUM, PADDING_LARGE
+from src.utils.constants import PADDING_MEDIUM, PADDING_LARGE, VOLUME_UNITS, WEIGHT_UNITS
 
 
 class IngredientsTab(ctk.CTkFrame):
@@ -419,7 +419,10 @@ class IngredientsTab(ctk.CTkFrame):
                 else {
                     "name": ingredient_obj.name,
                     "category": ingredient_obj.category,
-                    "density_g_per_ml": ingredient_obj.density_g_per_ml,
+                    "density_volume_value": ingredient_obj.density_volume_value,
+                    "density_volume_unit": ingredient_obj.density_volume_unit,
+                    "density_weight_value": ingredient_obj.density_weight_value,
+                    "density_weight_unit": ingredient_obj.density_weight_unit,
                 }
             )
 
@@ -613,12 +616,67 @@ class IngredientFormDialog(ctk.CTkToplevel):
         self.category_entry.grid(row=row, column=1, sticky="ew", padx=10, pady=5)
         row += 1
 
-        # Density field (optional)
-        ctk.CTkLabel(form_frame, text="Density (g/ml):").grid(
-            row=row, column=0, sticky="w", padx=10, pady=5
+        # Density section (4-field input)
+        ctk.CTkLabel(form_frame, text="Density (optional):").grid(
+            row=row, column=0, sticky="nw", padx=10, pady=5
         )
-        self.density_entry = ctk.CTkEntry(form_frame, placeholder_text="Optional, e.g., 0.48")
-        self.density_entry.grid(row=row, column=1, sticky="ew", padx=10, pady=5)
+
+        # Create density frame for 4-field layout
+        density_frame = ctk.CTkFrame(form_frame, fg_color="transparent")
+        density_frame.grid(row=row, column=1, sticky="ew", padx=10, pady=5)
+        row += 1
+
+        # Volume value entry
+        self.density_volume_value_entry = ctk.CTkEntry(
+            density_frame,
+            width=70,
+            placeholder_text="1.0",
+        )
+        self.density_volume_value_entry.grid(row=0, column=0, padx=(0, 5))
+
+        # Volume unit dropdown
+        self.density_volume_unit_var = ctk.StringVar(value="")
+        self.density_volume_unit_dropdown = ctk.CTkComboBox(
+            density_frame,
+            values=[""] + VOLUME_UNITS,
+            variable=self.density_volume_unit_var,
+            width=90,
+        )
+        self.density_volume_unit_dropdown.grid(row=0, column=1, padx=(0, 10))
+
+        # Equals label
+        ctk.CTkLabel(
+            density_frame,
+            text="=",
+            font=ctk.CTkFont(size=16, weight="bold"),
+        ).grid(row=0, column=2, padx=10)
+
+        # Weight value entry
+        self.density_weight_value_entry = ctk.CTkEntry(
+            density_frame,
+            width=70,
+            placeholder_text="4.25",
+        )
+        self.density_weight_value_entry.grid(row=0, column=3, padx=(10, 5))
+
+        # Weight unit dropdown
+        self.density_weight_unit_var = ctk.StringVar(value="")
+        self.density_weight_unit_dropdown = ctk.CTkComboBox(
+            density_frame,
+            values=[""] + WEIGHT_UNITS,
+            variable=self.density_weight_unit_var,
+            width=90,
+        )
+        self.density_weight_unit_dropdown.grid(row=0, column=4)
+
+        # Density error label (hidden by default)
+        self.density_error_label = ctk.CTkLabel(
+            form_frame,
+            text="",
+            font=ctk.CTkFont(size=11),
+            text_color="#F44336",  # Red
+        )
+        self.density_error_label.grid(row=row, column=0, columnspan=2, sticky="w", padx=10, pady=0)
         row += 1
 
         # Help text
@@ -626,7 +684,8 @@ class IngredientFormDialog(ctk.CTkToplevel):
             form_frame,
             text="* Required fields\n\n"
             "Density is used for volume-weight conversions.\n"
-            "Leave blank if not applicable.",
+            "Example: 1 cup = 4.25 oz (for flour)\n"
+            "Leave all density fields blank if not applicable.",
             text_color="gray",
             justify="left",
         )
@@ -661,16 +720,63 @@ class IngredientFormDialog(ctk.CTkToplevel):
         self.name_entry.insert(0, self.ingredient.get("name", ""))
         self.category_entry.insert(0, self.ingredient.get("category", ""))
 
-        density = self.ingredient.get("density_g_per_ml")
-        if density is not None:
-            self.density_entry.insert(0, str(density))
+        # Populate 4-field density
+        if self.ingredient.get("density_volume_value") is not None:
+            self.density_volume_value_entry.insert(
+                0, str(self.ingredient["density_volume_value"])
+            )
+        if self.ingredient.get("density_volume_unit"):
+            self.density_volume_unit_var.set(self.ingredient["density_volume_unit"])
+        if self.ingredient.get("density_weight_value") is not None:
+            self.density_weight_value_entry.insert(
+                0, str(self.ingredient["density_weight_value"])
+            )
+        if self.ingredient.get("density_weight_unit"):
+            self.density_weight_unit_var.set(self.ingredient["density_weight_unit"])
+
+    def _get_density_values(self):
+        """Get density values from form fields.
+
+        Returns:
+            Tuple of (volume_value, volume_unit, weight_value, weight_unit)
+        """
+        # Get volume value
+        volume_value_str = self.density_volume_value_entry.get().strip()
+        volume_value = float(volume_value_str) if volume_value_str else None
+
+        # Get volume unit
+        volume_unit = self.density_volume_unit_var.get()
+        volume_unit = volume_unit if volume_unit else None
+
+        # Get weight value
+        weight_value_str = self.density_weight_value_entry.get().strip()
+        weight_value = float(weight_value_str) if weight_value_str else None
+
+        # Get weight unit
+        weight_unit = self.density_weight_unit_var.get()
+        weight_unit = weight_unit if weight_unit else None
+
+        return volume_value, volume_unit, weight_value, weight_unit
+
+    def _validate_density_input(self):
+        """Validate density input fields.
+
+        Returns:
+            Tuple of (is_valid, error_message)
+        """
+        try:
+            volume_value, volume_unit, weight_value, weight_unit = self._get_density_values()
+        except ValueError:
+            return False, "Please enter valid numbers for density values"
+
+        from src.services.ingredient_service import validate_density_fields
+        return validate_density_fields(volume_value, volume_unit, weight_value, weight_unit)
 
     def _save(self):
         """Validate and save the form data."""
         # Get values
         name = self.name_entry.get().strip()
         category = self.category_entry.get().strip()
-        density_str = self.density_entry.get().strip()
 
         # Validate required fields
         if not name:
@@ -680,17 +786,21 @@ class IngredientFormDialog(ctk.CTkToplevel):
             messagebox.showerror("Validation Error", "Category is required")
             return
 
-        # Validate density if provided
-        density = None
-        if density_str:
-            try:
-                density = float(density_str)
-                if density < 0:
-                    messagebox.showerror("Validation Error", "Density must be non-negative")
-                    return
-            except ValueError:
-                messagebox.showerror("Validation Error", "Density must be a valid number")
-                return
+        # Validate density fields
+        is_valid, error = self._validate_density_input()
+        if not is_valid:
+            self.density_error_label.configure(text=error)
+            return
+
+        # Clear error on success
+        self.density_error_label.configure(text="")
+
+        # Get density values
+        try:
+            volume_value, volume_unit, weight_value, weight_unit = self._get_density_values()
+        except ValueError:
+            self.density_error_label.configure(text="Please enter valid numbers")
+            return
 
         # Build result dict
         result: Dict[str, Any] = {
@@ -698,8 +808,15 @@ class IngredientFormDialog(ctk.CTkToplevel):
             "category": category,
         }
 
-        if density is not None:
-            result["density_g_per_ml"] = density
+        # Add density fields if any are provided
+        if volume_value is not None:
+            result["density_volume_value"] = volume_value
+        if volume_unit:
+            result["density_volume_unit"] = volume_unit
+        if weight_value is not None:
+            result["density_weight_value"] = weight_value
+        if weight_unit:
+            result["density_weight_unit"] = weight_unit
 
         self.result = result
 
