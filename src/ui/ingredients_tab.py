@@ -290,10 +290,9 @@ class IngredientsTab(ctk.CTkFrame):
         # Ingredient info
         name_text = ingredient["name"]
         category_text = ingredient.get("category", "Uncategorized")
-        density = ingredient.get("density_g_per_ml")
-        density_text = f"{density:.3f} g/ml" if density else "No density"
+        density_text = ingredient.get("density_display", "Not set")
 
-        info_text = f"{name_text} | Category: {category_text} | {density_text}"
+        info_text = f"{name_text} | Category: {category_text} | Density: {density_text}"
 
         info_label = ctk.CTkLabel(
             row_frame,
@@ -523,7 +522,6 @@ class IngredientsTab(ctk.CTkFrame):
                 "slug": ingredient_obj.slug,
                 "name": ingredient_obj.name,
                 "category": ingredient_obj.category,
-                "density_g_per_ml": ingredient_obj.density_g_per_ml,
             }
 
             # Open variants dialog

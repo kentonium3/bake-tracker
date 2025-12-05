@@ -212,56 +212,18 @@ def convert_quantity(
 
 def create_standard_conversions(ingredient_id: int, ingredient_name: str, session) -> list:
     """
-    Create standard conversions for a ingredient based on ingredient name.
+    DEPRECATED: This function is no longer used.
 
-    Uses density data from constants to create volume-weight conversions.
+    As of Feature 010, density-based unit conversions are handled dynamically through
+    the Ingredient model's 4-field density specification and get_density_g_per_ml() method.
+    Use convert_any_units(ingredient=ingredient) for volume↔weight conversions instead.
 
     Args:
-        ingredient_id: Ingredient ID
-        ingredient_name: Ingredient name for density lookup
-        session: SQLAlchemy session
+        ingredient_id: Ingredient ID (unused)
+        ingredient_name: Ingredient name (unused)
+        session: SQLAlchemy session (unused)
 
     Returns:
-        List of created UnitConversion instances
+        Empty list (always)
     """
-    # DEPRECATED: get_ingredient_density removed in Feature 010.
-    # This function now returns empty list. WP02 will update to use Ingredient density.
-    from src.services.unit_converter import get_ingredient_density
-
-    density_g_per_cup = get_ingredient_density(ingredient_name)
-
-    if density_g_per_cup == 0:
-        # No standard density data available
-        return []
-
-    conversions = []
-
-    # Create cup ↔ g conversion
-    conversion_cup_g = UnitConversion(
-        ingredient_id=ingredient_id,
-        from_unit="cup",
-        from_quantity=1.0,
-        to_unit="g",
-        to_quantity=density_g_per_cup,
-        notes="Based on standard density data",
-    )
-    session.add(conversion_cup_g)
-    conversions.append(conversion_cup_g)
-
-    # Create lb ↔ cup conversion (via grams)
-    # 1 lb = 453.592 g
-    lb_to_g = 453.592
-    cups_per_lb = lb_to_g / density_g_per_cup
-
-    conversion_lb_cup = UnitConversion(
-        ingredient_id=ingredient_id,
-        from_unit="lb",
-        from_quantity=1.0,
-        to_unit="cup",
-        to_quantity=cups_per_lb,
-        notes="Calculated from density",
-    )
-    session.add(conversion_lb_cup)
-    conversions.append(conversion_lb_cup)
-
-    return conversions
+    return []

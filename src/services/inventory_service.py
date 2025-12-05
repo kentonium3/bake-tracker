@@ -59,7 +59,11 @@ def create_ingredient(data: Dict) -> Ingredient:
                 recipe_unit=data["recipe_unit"],
                 description=data.get("description"),
                 notes=data.get("notes"),
-                density_g_per_ml=data.get("density_g_per_ml"),
+                # 4-field density model (Feature 010)
+                density_volume_value=data.get("density_volume_value"),
+                density_volume_unit=data.get("density_volume_unit"),
+                density_weight_value=data.get("density_weight_value"),
+                density_weight_unit=data.get("density_weight_unit"),
                 moisture_pct=data.get("moisture_pct"),
                 allergens=data.get("allergens"),
                 foodon_id=data.get("foodon_id"),

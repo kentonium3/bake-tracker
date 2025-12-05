@@ -225,8 +225,8 @@ def export_ingredients_to_json(
             if ingredient.package_type:
                 ingredient_data["package_type"] = ingredient.package_type
 
-            if ingredient.density_g_per_cup:
-                ingredient_data["density_g_per_cup"] = ingredient.density_g_per_cup
+            # Note: density_g_per_cup removed in Feature 010 (4-field density model)
+            # Legacy v1.0 export does not include density; use v3.0 export for density data
 
             if ingredient.notes:
                 ingredient_data["notes"] = ingredient.notes

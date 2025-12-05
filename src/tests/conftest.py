@@ -50,9 +50,16 @@ def sample_ingredient(test_db):
     """Provide a sample ingredient for tests."""
     from src.services import ingredient_service
 
-    return ingredient_service.create_ingredient(
-        {"name": "Test Flour", "category": "Flour", "recipe_unit": "cup", "density_g_per_ml": 0.507}
-    )
+    return ingredient_service.create_ingredient({
+        "name": "Test Flour",
+        "category": "Flour",
+        "recipe_unit": "cup",
+        # 4-field density: 1 cup = 120g (approximately 0.507 g/ml)
+        "density_volume_value": 1.0,
+        "density_volume_unit": "cup",
+        "density_weight_value": 120.0,
+        "density_weight_unit": "g",
+    })
 
 
 @pytest.fixture(scope="function")

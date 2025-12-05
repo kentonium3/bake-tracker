@@ -23,7 +23,7 @@ from src.services.exceptions import (
     DatabaseError,
 )
 from src.services import pantry_service, variant_service, purchase_service
-from src.services.unit_converter import convert_any_units, get_ingredient_density
+from src.services.unit_converter import convert_any_units
 from src.utils.validators import validate_recipe_data
 
 
@@ -594,9 +594,6 @@ def calculate_actual_cost(recipe_id: int) -> Decimal:
                 if recipe_qty <= Decimal("0"):
                     continue
 
-                # Get density for unit conversion
-                density_g_per_cup = get_ingredient_density(ingredient.name)
-
                 # Determine target unit for FIFO consumption
                 # We'll use the ingredient's recipe_unit if set, otherwise fall back to pantry unit
                 target_unit = ingredient.recipe_unit or recipe_unit
@@ -607,8 +604,7 @@ def calculate_actual_cost(recipe_id: int) -> Decimal:
                         float(recipe_qty),
                         recipe_unit,
                         target_unit,
-                        ingredient_name=ingredient.name,
-                        density_override=density_g_per_cup if density_g_per_cup > 0 else None,
+                        ingredient=ingredient,
                     )
                     if not success:
                         raise ValidationError(
@@ -660,8 +656,7 @@ def calculate_actual_cost(recipe_id: int) -> Decimal:
                             float(shortfall),
                             target_unit,
                             purchase_unit,
-                            ingredient_name=ingredient.name,
-                            density_override=density_g_per_cup if density_g_per_cup > 0 else None,
+                            ingredient=ingredient,
                         )
                         if not success:
                             raise ValidationError(
@@ -780,9 +775,6 @@ def calculate_estimated_cost(recipe_id: int) -> Decimal:
                         f"no purchase history available"
                     )
 
-                # Get density for unit conversion
-                density_g_per_cup = get_ingredient_density(ingredient.name)
-
                 # Convert recipe quantity to purchase units
                 purchase_unit = preferred_variant.purchase_unit
                 if recipe_unit != purchase_unit:
@@ -790,8 +782,7 @@ def calculate_estimated_cost(recipe_id: int) -> Decimal:
                         float(recipe_qty),
                         recipe_unit,
                         purchase_unit,
-                        ingredient_name=ingredient.name,
-                        density_override=density_g_per_cup if density_g_per_cup > 0 else None,
+                        ingredient=ingredient,
                     )
                     if not success:
                         raise ValidationError(

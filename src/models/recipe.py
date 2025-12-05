@@ -209,24 +209,24 @@ class RecipeIngredient(BaseModel):
         Returns:
             Cost of this ingredient for the recipe
         """
-        if not self.ingredient:
+        ingredient = self.active_ingredient
+        if not ingredient:
             return 0.0
 
         # Import here to avoid circular import
         from src.services.unit_converter import convert_any_units
 
-        # Get ingredient density for cross-unit conversions
-        ingredient_density = (
-            self.ingredient.get_density() if hasattr(self.ingredient, "get_density") else 0.0
-        )
+        # Get purchase_unit - differs between legacy and new models
+        purchase_unit = getattr(ingredient, "purchase_unit", None)
+        if not purchase_unit:
+            return 0.0
 
-        # Convert recipe unit to purchase_unit
+        # Convert recipe unit to purchase_unit using new API
         success, quantity_in_purchase_units, error = convert_any_units(
             self.quantity,
             self.unit,
-            self.ingredient.purchase_unit,
-            ingredient_name=self.ingredient.name,
-            density_override=ingredient_density if ingredient_density > 0 else None,
+            purchase_unit,
+            ingredient=ingredient if hasattr(ingredient, "get_density_g_per_ml") else None,
         )
 
         if not success:
@@ -234,10 +234,14 @@ class RecipeIngredient(BaseModel):
             return 0.0
 
         # Calculate how many packages needed
-        packages_needed = quantity_in_purchase_units / self.ingredient.purchase_quantity
+        purchase_quantity = getattr(ingredient, "purchase_quantity", 1.0)
+        if purchase_quantity == 0:
+            return 0.0
+        packages_needed = quantity_in_purchase_units / purchase_quantity
 
         # Calculate cost
-        cost = packages_needed * self.ingredient.unit_cost
+        unit_cost = getattr(ingredient, "unit_cost", 0.0) or 0.0
+        cost = packages_needed * unit_cost
 
         return cost
 
@@ -251,24 +255,24 @@ class RecipeIngredient(BaseModel):
         Returns:
             Quantity in purchase units (not packages)
         """
-        if not self.ingredient:
+        ingredient = self.active_ingredient
+        if not ingredient:
             return 0.0
 
         # Import here to avoid circular import
         from src.services.unit_converter import convert_any_units
 
-        # Get ingredient density for cross-unit conversions
-        ingredient_density = (
-            self.ingredient.get_density() if hasattr(self.ingredient, "get_density") else 0.0
-        )
+        # Get purchase_unit - differs between legacy and new models
+        purchase_unit = getattr(ingredient, "purchase_unit", None)
+        if not purchase_unit:
+            return 0.0
 
-        # Convert recipe unit to purchase_unit
+        # Convert recipe unit to purchase_unit using new API
         success, quantity_in_purchase_units, error = convert_any_units(
             self.quantity,
             self.unit,
-            self.ingredient.purchase_unit,
-            ingredient_name=self.ingredient.name,
-            density_override=ingredient_density if ingredient_density > 0 else None,
+            purchase_unit,
+            ingredient=ingredient if hasattr(ingredient, "get_density_g_per_ml") else None,
         )
 
         if not success:

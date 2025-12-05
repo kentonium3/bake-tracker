@@ -19,7 +19,11 @@ def test_complete_inventory_workflow(test_db):
         "name": "All-Purpose Flour",
         "category": "Flour",
         "recipe_unit": "cup",
-        "density_g_per_ml": 0.4793,
+        # 4-field density: 1 cup = 113.4g (approximately 0.4793 g/ml, 4 cups/lb)
+        "density_volume_value": 1.0,
+        "density_volume_unit": "cup",
+        "density_weight_value": 113.4,
+        "density_weight_unit": "g",
     }
     ingredient = ingredient_service.create_ingredient(ingredient_data)
     assert ingredient.slug == "all_purpose_flour"
@@ -110,7 +114,11 @@ def test_pantry_items_filtering(test_db):
             "name": "Bread Flour",
             "category": "Flour",
             "recipe_unit": "cup",
-            "density_g_per_ml": 0.4793,  # 4 cups/lb
+            # 4-field density: 1 cup = 113.4g (approximately 0.4793 g/ml, 4 cups/lb)
+            "density_volume_value": 1.0,
+            "density_volume_unit": "cup",
+            "density_weight_value": 113.4,
+            "density_weight_unit": "g",
         }
     )
 

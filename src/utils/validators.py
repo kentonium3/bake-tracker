@@ -243,9 +243,15 @@ def validate_ingredient_data(data: dict) -> Tuple[bool, list]:  # noqa: C901
         if not is_valid:
             errors.append(error)
 
-    # Optional: Density (must be positive if provided)
-    if data.get("density_g_per_ml") is not None:
-        is_valid, error = validate_positive_number(data.get("density_g_per_ml"), "Density (g/mL)")
+    # Optional: 4-field density (all-or-nothing validation)
+    # Note: Full density validation is done in ingredient_service.validate_density_fields()
+    # Here we just do basic positive number checks if values are provided
+    if data.get("density_volume_value") is not None:
+        is_valid, error = validate_positive_number(data.get("density_volume_value"), "Density volume value")
+        if not is_valid:
+            errors.append(error)
+    if data.get("density_weight_value") is not None:
+        is_valid, error = validate_positive_number(data.get("density_weight_value"), "Density weight value")
         if not is_valid:
             errors.append(error)
 

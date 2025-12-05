@@ -19,7 +19,11 @@ def test_fifo_multiple_lots_partial_consumption(test_db):
             "name": "Rye Flour",
             "category": "Flour",
             "recipe_unit": "cup",
-            "density_g_per_ml": 0.4793,  # 4 cups/lb
+            # 4-field density: 1 cup = 113.4g (approximately 0.4793 g/ml, 4 cups/lb)
+            "density_volume_value": 1.0,
+            "density_volume_unit": "cup",
+            "density_weight_value": 113.4,
+            "density_weight_unit": "g",
         }
     )
 
@@ -84,7 +88,11 @@ def test_fifo_insufficient_inventory(test_db):
             "name": "Oat Flour",
             "category": "Flour",
             "recipe_unit": "cup",
-            "density_g_per_ml": 0.4793,  # 4 cups/lb
+            # 4-field density: 1 cup = 113.4g (approximately 0.4793 g/ml, 4 cups/lb)
+            "density_volume_value": 1.0,
+            "density_volume_unit": "cup",
+            "density_weight_value": 113.4,
+            "density_weight_unit": "g",
         }
     )
 
@@ -125,7 +133,11 @@ def test_fifo_exact_consumption(test_db):
             "name": "Almond Flour",
             "category": "Flour",
             "recipe_unit": "cup",
-            "density_g_per_ml": 0.4793,  # 4 cups/lb
+            # 4-field density: 1 cup = 113.4g (approximately 0.4793 g/ml, 4 cups/lb)
+            "density_volume_value": 1.0,
+            "density_volume_unit": "cup",
+            "density_weight_value": 113.4,
+            "density_weight_unit": "g",
         }
     )
 
@@ -163,7 +175,11 @@ def test_fifo_ordering_across_multiple_variants(test_db):
             "name": "Coconut Flour",
             "category": "Flour",
             "recipe_unit": "cup",
-            "density_g_per_ml": 0.4793,  # 4 cups/lb
+            # 4-field density: 1 cup = 113.4g (approximately 0.4793 g/ml, 4 cups/lb)
+            "density_volume_value": 1.0,
+            "density_volume_unit": "cup",
+            "density_weight_value": 113.4,
+            "density_weight_unit": "g",
         }
     )
 
@@ -206,7 +222,11 @@ def test_fifo_zero_quantity_lots_ignored(test_db):
             "name": "Buckwheat Flour",
             "category": "Flour",
             "recipe_unit": "cup",
-            "density_g_per_ml": 0.4793,  # 4 cups/lb
+            # 4-field density: 1 cup = 113.4g (approximately 0.4793 g/ml, 4 cups/lb)
+            "density_volume_value": 1.0,
+            "density_volume_unit": "cup",
+            "density_weight_value": 113.4,
+            "density_weight_unit": "g",
         }
     )
 

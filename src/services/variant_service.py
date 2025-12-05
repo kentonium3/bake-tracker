@@ -34,7 +34,10 @@ Example Usage:
   >>> set_preferred_variant(variant.id)
 """
 
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List, Optional, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from ..models import Ingredient
 from decimal import Decimal
 from math import ceil
 
@@ -496,7 +499,7 @@ def _calculate_variant_cost(
     variant: Variant,
     shortfall: Decimal,
     recipe_unit: str,
-    ingredient_name: str,
+    ingredient: "Ingredient",
 ) -> Dict[str, Any]:
     """Calculate cost metrics for a variant given an ingredient shortfall.
 
@@ -507,7 +510,7 @@ def _calculate_variant_cost(
         variant: Variant model instance with purchases relationship loaded
         shortfall: Amount needed in recipe units (e.g., 5 cups)
         recipe_unit: Unit used in recipes (e.g., "cup", "oz")
-        ingredient_name: Name of ingredient for unit conversion lookups
+        ingredient: Ingredient model instance for unit conversion
 
     Returns:
         Dict containing:
@@ -527,7 +530,7 @@ def _calculate_variant_cost(
             - error_message: Conversion error message if applicable
 
     Example:
-        >>> rec = _calculate_variant_cost(flour_variant, Decimal("5"), "cup", "All-Purpose Flour")
+        >>> rec = _calculate_variant_cost(flour_variant, Decimal("5"), "cup", flour_ingredient)
         >>> rec['min_packages']
         1
         >>> rec['cost_per_recipe_unit']
@@ -566,7 +569,7 @@ def _calculate_variant_cost(
         float(shortfall),
         recipe_unit,
         variant.purchase_unit,
-        ingredient_name,
+        ingredient=ingredient,
     )
 
     if not success:
@@ -600,7 +603,7 @@ def _calculate_variant_cost(
             1.0,
             variant.purchase_unit,
             recipe_unit,
-            ingredient_name,
+            ingredient=ingredient,
         )
 
         if success and conversion_factor > 0:
@@ -683,7 +686,7 @@ def get_variant_recommendation(
     # Calculate cost metrics for all variants
     all_recommendations = []
     for v in variants:
-        rec = _calculate_variant_cost(v, shortfall, recipe_unit, ingredient.name)
+        rec = _calculate_variant_cost(v, shortfall, recipe_unit, ingredient)
         all_recommendations.append(rec)
 
     # Sort by total_cost (cheapest first, None values at end)

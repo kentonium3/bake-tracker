@@ -670,10 +670,11 @@ class FinishedUnitService:
                 if not ingredient:
                     return None
 
-                # Calculate density for unit conversion
+                # Calculate density for unit conversion (using 4-field density model)
                 density_g_per_cup = None
-                if ingredient.density_g_per_ml:
-                    density_g_per_cup = ingredient.density_g_per_ml * 236.588
+                density_g_per_ml = ingredient.get_density_g_per_ml()
+                if density_g_per_ml:
+                    density_g_per_cup = density_g_per_ml * 236.588
 
                 # Get all pantry items for this ingredient, ordered by FIFO (oldest first)
                 pantry_items = (
@@ -701,8 +702,7 @@ class FinishedUnitService:
                         float(item_qty_decimal),
                         pantry_item.variant.purchase_unit,
                         ingredient.recipe_unit,
-                        ingredient_name=ingredient.name,
-                        density_override=density_g_per_cup,
+                        ingredient=ingredient,
                     )
 
                     if not success:
@@ -768,16 +768,11 @@ class FinishedUnitService:
                     return None
 
                 # Convert quantity_consumed back to purchase units for cost calculation
-                density_g_per_cup = None
-                if ingredient.density_g_per_ml:
-                    density_g_per_cup = ingredient.density_g_per_ml * 236.588
-
                 success, quantity_in_purchase_unit_float, error = convert_any_units(
                     float(quantity_consumed),
                     ingredient.recipe_unit,
                     pantry_item.variant.purchase_unit,
-                    ingredient_name=ingredient.name,
-                    density_override=density_g_per_cup,
+                    ingredient=ingredient,
                 )
 
                 if not success:

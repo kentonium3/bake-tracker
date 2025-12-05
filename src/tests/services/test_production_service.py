@@ -40,7 +40,11 @@ def setup_production_test_data(test_db):
             "name": "All Purpose Flour",
             "category": "Flour",
             "recipe_unit": "cup",
-            "density_g_per_ml": 0.507,
+            # 4-field density: 1 cup = 120g (~0.507 g/ml)
+            "density_volume_value": 1.0,
+            "density_volume_unit": "cup",
+            "density_weight_value": 120.0,
+            "density_weight_unit": "g",
         }
     )
 
@@ -79,7 +83,11 @@ def setup_production_test_data(test_db):
             "name": "Granulated Sugar",
             "category": "Sugar",
             "recipe_unit": "cup",
-            "density_g_per_ml": 0.85,
+            # 4-field density: 1 cup = 200g (~0.85 g/ml)
+            "density_volume_value": 1.0,
+            "density_volume_unit": "cup",
+            "density_weight_value": 200.0,
+            "density_weight_unit": "g",
         }
     )
 

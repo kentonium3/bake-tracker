@@ -78,7 +78,11 @@ def load_test_data_from_json(json_file_path: str) -> Dict[str, int]:
                 recipe_unit=ing_data.get("recipe_unit", "cup"),
                 description=ing_data.get("description"),
                 notes=ing_data.get("notes"),
-                density_g_per_ml=ing_data.get("density_g_per_ml"),
+                # 4-field density model
+                density_volume_value=ing_data.get("density_volume_value"),
+                density_volume_unit=ing_data.get("density_volume_unit"),
+                density_weight_value=ing_data.get("density_weight_value"),
+                density_weight_unit=ing_data.get("density_weight_unit"),
             )
             session.add(ingredient)
             session.flush()  # Get ID

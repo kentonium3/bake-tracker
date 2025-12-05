@@ -14,17 +14,21 @@ Key Features:
 
 Example Usage:
   >>> from src.services.ingredient_service import create_ingredient, get_ingredient
-  >>> from decimal import Decimal
   >>>
-  >>> # Create an ingredient
+  >>> # Create an ingredient with 4-field density (1 cup = 4.25 oz)
   >>> data = {
   ...     "name": "All-Purpose Flour",
   ...     "category": "Flour",
-  ...     "density_g_per_ml": 0.507
+  ...     "density_volume_value": 1.0,
+  ...     "density_volume_unit": "cup",
+  ...     "density_weight_value": 4.25,
+  ...     "density_weight_unit": "oz",
   ... }
   >>> ingredient = create_ingredient(data)
   >>> ingredient.slug
   'all_purpose_flour'
+  >>> ingredient.format_density_display()
+  '1 cup = 4.25 oz'
   >>>
   >>> # Retrieve it
   >>> flour = get_ingredient("all_purpose_flour")

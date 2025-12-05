@@ -38,8 +38,11 @@ def flour_ingredient(test_db):
             "name": "All-Purpose Flour",
             "category": "Flour",
             "recipe_unit": "cup",
-            # Density for flour: approximately 125g per cup
-            "density_g_per_ml": 0.529,  # g/ml, which is about 125g/cup
+            # 4-field density: 1 cup = 125g (approximately 0.529 g/ml)
+            "density_volume_value": 1.0,
+            "density_volume_unit": "cup",
+            "density_weight_value": 125.0,
+            "density_weight_unit": "g",
         }
     )
 
@@ -345,7 +348,7 @@ class TestEdgeCases:
             variant_without_purchases,
             Decimal("5"),
             "cup",
-            "All-Purpose Flour",
+            flour_ingredient,
         )
 
         assert rec["cost_available"] is False
@@ -432,7 +435,7 @@ class TestCalculateVariantCost:
             variant,
             Decimal("5"),
             "cup",
-            "All-Purpose Flour",
+            flour_ingredient,
         )
 
         # Check all expected fields exist
@@ -467,7 +470,7 @@ class TestCalculateVariantCost:
             preferred,
             Decimal("5"),
             "cup",
-            "All-Purpose Flour",
+            flour_ingredient,
         )
 
         if rec["cost_available"] and rec["total_cost"]:

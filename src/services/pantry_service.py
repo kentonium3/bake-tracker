@@ -269,10 +269,11 @@ def consume_fifo(
 
     ingredient = get_ingredient(ingredient_slug)  # Validate exists
 
-    # Calculate density in g/cup if available
+    # Calculate density in g/cup if available (using 4-field density model)
     density_g_per_cup = None
-    if ingredient.density_g_per_ml:
-        density_g_per_cup = ingredient.density_g_per_ml * 236.588  # Convert g/ml to g/cup
+    density_g_per_ml = ingredient.get_density_g_per_ml()
+    if density_g_per_ml:
+        density_g_per_cup = density_g_per_ml * 236.588  # Convert g/ml to g/cup
 
     try:
         with session_scope() as session:
@@ -305,8 +306,7 @@ def consume_fifo(
                     float(item_qty_decimal),
                     item.variant.purchase_unit,
                     ingredient.recipe_unit,
-                    ingredient_name=ingredient.name,
-                    density_override=density_g_per_cup,
+                    ingredient=ingredient,
                 )
                 if not success:
                     raise ValueError(f"Unit conversion failed: {error}")
@@ -320,8 +320,7 @@ def consume_fifo(
                     float(to_consume_in_recipe_unit),
                     ingredient.recipe_unit,
                     item.variant.purchase_unit,
-                    ingredient_name=ingredient.name,
-                    density_override=density_g_per_cup,
+                    ingredient=ingredient,
                 )
                 if not success:
                     raise ValueError(f"Unit conversion failed: {error}")

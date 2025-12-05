@@ -19,13 +19,6 @@ if TYPE_CHECKING:
     from src.models.ingredient import Ingredient
 
 
-# DEPRECATED: get_ingredient_density was removed in Feature 010.
-# Kept only for backward compatibility with code that still imports it.
-def get_ingredient_density(ingredient_name: str) -> float:
-    """Deprecated stub - always returns 0.0. Use Ingredient.get_density_g_per_ml() instead."""
-    return 0.0
-
-
 # ============================================================================
 # Standard Conversion Tables
 # ============================================================================

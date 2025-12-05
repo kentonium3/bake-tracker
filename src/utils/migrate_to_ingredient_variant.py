@@ -97,6 +97,8 @@ def migrate_ingredient_to_new_schema(
     """
 
     # 1. Create Ingredient (generic concept)
+    # Convert legacy density_g_per_cup to 4-field model (1 cup = X g)
+    has_density = legacy_ingredient.density_g_per_cup is not None and legacy_ingredient.density_g_per_cup > 0
     ingredient = Ingredient(
         name=legacy_ingredient.name,
         slug=legacy_ingredient.name.lower().replace(" ", "_").replace("-", "_"),
@@ -104,12 +106,11 @@ def migrate_ingredient_to_new_schema(
         recipe_unit="cup",  # Default, will be overridden if different
         description=None,
         notes=legacy_ingredient.notes,
-        # Populate density if available
-        density_g_per_ml=(
-            legacy_ingredient.density_g_per_cup / 236.588
-            if legacy_ingredient.density_g_per_cup
-            else None
-        ),
+        # 4-field density model (converted from legacy density_g_per_cup)
+        density_volume_value=1.0 if has_density else None,
+        density_volume_unit="cup" if has_density else None,
+        density_weight_value=legacy_ingredient.density_g_per_cup if has_density else None,
+        density_weight_unit="g" if has_density else None,
     )
     session.add(ingredient)
     session.flush()  # Get the ID

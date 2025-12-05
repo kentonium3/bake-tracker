@@ -32,7 +32,11 @@ def flour_ingredient(test_db):
             "name": "Test Flour",
             "category": "Flour",
             "recipe_unit": "cup",
-            "density_g_per_ml": 0.529,  # ~125g per cup
+            # 4-field density: 1 cup = 125g (~0.529 g/ml)
+            "density_volume_value": 1.0,
+            "density_volume_unit": "cup",
+            "density_weight_value": 125.0,
+            "density_weight_unit": "g",
         }
     )
 
@@ -45,7 +49,11 @@ def sugar_ingredient(test_db):
             "name": "Test Sugar",
             "category": "Sugar",
             "recipe_unit": "cup",
-            "density_g_per_ml": 0.85,  # ~200g per cup
+            # 4-field density: 1 cup = 200g (~0.85 g/ml)
+            "density_volume_value": 1.0,
+            "density_volume_unit": "cup",
+            "density_weight_value": 200.0,
+            "density_weight_unit": "g",
         }
     )
 

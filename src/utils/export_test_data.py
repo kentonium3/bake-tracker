@@ -75,8 +75,15 @@ def export_database_to_json(output_file: str) -> Dict[str, int]:
                 ing_data["description"] = ingredient.description
             if ingredient.notes:
                 ing_data["notes"] = ingredient.notes
-            if ingredient.density_g_per_ml:
-                ing_data["density_g_per_ml"] = ingredient.density_g_per_ml
+            # 4-field density model
+            if ingredient.density_volume_value is not None:
+                ing_data["density_volume_value"] = ingredient.density_volume_value
+            if ingredient.density_volume_unit:
+                ing_data["density_volume_unit"] = ingredient.density_volume_unit
+            if ingredient.density_weight_value is not None:
+                ing_data["density_weight_value"] = ingredient.density_weight_value
+            if ingredient.density_weight_unit:
+                ing_data["density_weight_unit"] = ingredient.density_weight_unit
 
             export_data["ingredients"].append(ing_data)
             counts["ingredients"] += 1
