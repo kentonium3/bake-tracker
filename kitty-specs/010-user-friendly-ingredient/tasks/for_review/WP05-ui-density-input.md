@@ -7,7 +7,7 @@ subtasks:
   - "T025"
 title: "UI - Density Input"
 phase: "Phase 4 - UI Layer"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "claude"
 shell_pid: "3015"
@@ -364,3 +364,4 @@ history:
 - 2025-12-04T00:00:00Z - system - lane=planned - Prompt created via /spec-kitty.tasks
 - 2025-12-05T03:35:35Z – claude – shell_pid=3015 – lane=doing – Moved to doing
 - 2025-12-05T04:00:00Z – claude – shell_pid=3015 – lane=for_review – T022-T024 complete; T025 deferred (see note)
+- 2025-12-05T03:39:34Z – claude – shell_pid=3015 – lane=for_review – Moved to for_review
