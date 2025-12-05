@@ -7,7 +7,7 @@ subtasks:
   - "T021"
 title: "Import/Export Updates"
 phase: "Phase 3 - Import/Export"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "claude"
 shell_pid: "3015"
@@ -292,3 +292,4 @@ history:
 - 2025-12-04T00:00:00Z - system - lane=planned - Prompt created via /spec-kitty.tasks
 - 2025-12-05T03:29:31Z – claude – shell_pid=3015 – lane=doing – Moved to doing
 - 2025-12-05T03:45:00Z – claude – shell_pid=3015 – lane=for_review – All subtasks T018-T021 complete; 7 tests pass
+- 2025-12-05T03:35:05Z – claude – shell_pid=3015 – lane=for_review – Moved to for_review
