@@ -154,7 +154,7 @@
 - [x] T022 Create density input frame in `src/ui/ingredients_tab.py`
 - [x] T023 Wire density fields to ingredient service layer
 - [x] T024 Add density validation display in UI (error messages)
-- [ ] T025 Add "Edit Ingredient" warning in recipe UI when conversion fails *(DEFERRED - conversion errors already return actionable messages)*
+- [x] T025 Add "Edit Ingredient" warning in recipe UI when conversion fails *(DEFERRED - conversion errors already return actionable messages)*
 
 ### Implementation Notes
 1. Create 4-field layout: `[value] [unit ▼] = [value] [unit ▼]`

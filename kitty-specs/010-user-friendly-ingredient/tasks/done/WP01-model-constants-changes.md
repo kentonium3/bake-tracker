@@ -11,7 +11,7 @@ subtasks:
 title: "Model & Constants Changes"
 phase: "Phase 1 - Foundation"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude-reviewer"
 shell_pid: "13066"
 review_status: "approved"

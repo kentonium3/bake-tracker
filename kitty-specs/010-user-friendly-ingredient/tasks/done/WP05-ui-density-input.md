@@ -8,7 +8,7 @@ subtasks:
 title: "UI - Density Input"
 phase: "Phase 4 - UI Layer"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude-reviewer"
 shell_pid: "14079"
 review_status: "approved"

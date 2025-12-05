@@ -9,7 +9,7 @@ subtasks:
 title: "Ingredient Service Updates"
 phase: "Phase 2 - Service Layer"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude-reviewer"
 shell_pid: "13715"
 review_status: "approved"

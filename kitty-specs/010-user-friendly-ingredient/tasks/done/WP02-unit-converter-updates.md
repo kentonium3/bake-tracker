@@ -9,7 +9,7 @@ subtasks:
 title: "Unit Converter Updates"
 phase: "Phase 2 - Service Layer"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude-reviewer"
 shell_pid: "13503"
 review_status: "approved"

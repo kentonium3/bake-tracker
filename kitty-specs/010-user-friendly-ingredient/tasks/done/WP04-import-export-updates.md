@@ -8,7 +8,7 @@ subtasks:
 title: "Import/Export Updates"
 phase: "Phase 3 - Import/Export"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude-reviewer"
 shell_pid: "13874"
 review_status: "approved"
