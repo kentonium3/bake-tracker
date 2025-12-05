@@ -10,7 +10,7 @@ subtasks:
   - "T007"
 title: "Model & Constants Changes"
 phase: "Phase 1 - Foundation"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "claude"
 shell_pid: "3015"
@@ -307,3 +307,4 @@ history:
 - 2025-12-04T00:00:00Z - system - lane=planned - Prompt created via /spec-kitty.tasks
 - 2025-12-05T03:02:53Z – claude – shell_pid=3015 – lane=doing – Started implementation
 - 2025-12-05T03:30:00Z – claude – shell_pid=3015 – lane=doing – Completed all subtasks T001-T007; all tests pass
+- 2025-12-05T03:09:32Z – claude – shell_pid=3015 – lane=for_review – All subtasks T001-T007 complete, tests pass
