@@ -20,15 +20,15 @@ class Purchase(BaseModel):
     """
     Purchase model representing individual purchase transactions.
 
-    Each record represents a single purchase event for a specific variant.
+    Each record represents a single purchase event for a specific product.
 
     Attributes:
-        variant_id: Foreign key to Variant
+        product_id: Foreign key to Product
         purchase_date: When the purchase was made
         unit_cost: Cost per purchase unit
         quantity_purchased: How many units were purchased
         total_cost: Total cost (quantity × unit_cost)
-        supplier: Where purchased (can differ from variant's default)
+        supplier: Where purchased (can differ from product's default)
         receipt_number: Optional receipt reference
         notes: Additional notes
         created_at: When this record was created
@@ -36,9 +36,9 @@ class Purchase(BaseModel):
 
     __tablename__ = "purchase_history"
 
-    # Foreign key to Variant
-    variant_id = Column(
-        Integer, ForeignKey("product_variants.id", ondelete="CASCADE"), nullable=False, index=True
+    # Foreign key to Product
+    product_id = Column(
+        Integer, ForeignKey("products.id", ondelete="CASCADE"), nullable=False, index=True
     )
 
     # Purchase details
@@ -56,11 +56,11 @@ class Purchase(BaseModel):
     created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
 
     # Relationships
-    variant = relationship("Variant", back_populates="purchases")
+    product = relationship("Product", back_populates="purchases")
 
     # Indexes for common queries
     __table_args__ = (
-        Index("idx_purchase_variant", "variant_id"),
+        Index("idx_purchase_product", "product_id"),
         Index("idx_purchase_date", "purchase_date"),
     )
 
@@ -68,7 +68,7 @@ class Purchase(BaseModel):
         """String representation of purchase."""
         return (
             f"Purchase(id={self.id}, "
-            f"variant_id={self.variant_id}, "
+            f"product_id={self.product_id}, "
             f"date={self.purchase_date}, "
             f"cost=${self.total_cost:.2f})"
         )
@@ -102,7 +102,7 @@ class Purchase(BaseModel):
         Convert purchase to dictionary.
 
         Args:
-            include_relationships: If True, include variant information
+            include_relationships: If True, include product information
 
         Returns:
             Dictionary representation
@@ -113,11 +113,11 @@ class Purchase(BaseModel):
         result["cost_per_unit"] = self.cost_per_unit
         result["is_recent"] = self.is_recent
 
-        if include_relationships and self.product_variant:
-            result["product_variant"] = {
-                "id": self.product_variant.id,
-                "display_name": self.product_variant.display_name,
-                "product_name": self.product_variant.product.name,
+        if include_relationships and self.product:
+            result["product"] = {
+                "id": self.product.id,
+                "display_name": self.product.display_name,
+                "ingredient_name": self.product.ingredient.display_name,
             }
 
         return result
@@ -126,12 +126,12 @@ class Purchase(BaseModel):
 # Module-level helper functions for price analysis
 
 
-def get_average_price(product_variant_id: int, days: int = 90, session=None) -> float:
+def get_average_price(product_id: int, days: int = 90, session=None) -> float:
     """
-    Get average purchase price for a variant over specified time period.
+    Get average purchase price for a product over specified time period.
 
     Args:
-        product_variant_id: ProductVariant ID
+        product_id: Product ID
         days: Number of days to look back (default: 90)
         session: SQLAlchemy session (if None, uses session_scope)
 
@@ -146,7 +146,7 @@ def get_average_price(product_variant_id: int, days: int = 90, session=None) -> 
         purchases = (
             session.query(Purchase)
             .filter(
-                Purchase.product_variant_id == product_variant_id,
+                Purchase.product_id == product_id,
                 Purchase.purchase_date >= cutoff_date,
             )
             .all()
@@ -156,7 +156,7 @@ def get_average_price(product_variant_id: int, days: int = 90, session=None) -> 
             purchases = (
                 sess.query(Purchase)
                 .filter(
-                    Purchase.product_variant_id == product_variant_id,
+                    Purchase.product_id == product_id,
                     Purchase.purchase_date >= cutoff_date,
                 )
                 .all()
@@ -169,12 +169,12 @@ def get_average_price(product_variant_id: int, days: int = 90, session=None) -> 
     return total_cost / len(purchases)
 
 
-def get_most_recent_price(product_variant_id: int, session=None) -> float:
+def get_most_recent_price(product_id: int, session=None) -> float:
     """
-    Get most recent purchase price for a variant.
+    Get most recent purchase price for a product.
 
     Args:
-        product_variant_id: ProductVariant ID
+        product_id: Product ID
         session: SQLAlchemy session (if None, uses session_scope)
 
     Returns:
@@ -185,7 +185,7 @@ def get_most_recent_price(product_variant_id: int, session=None) -> float:
     if session:
         purchase = (
             session.query(Purchase)
-            .filter(Purchase.product_variant_id == product_variant_id)
+            .filter(Purchase.product_id == product_id)
             .order_by(Purchase.purchase_date.desc())
             .first()
         )
@@ -193,7 +193,7 @@ def get_most_recent_price(product_variant_id: int, session=None) -> float:
         with session_scope() as sess:
             purchase = (
                 sess.query(Purchase)
-                .filter(Purchase.product_variant_id == product_variant_id)
+                .filter(Purchase.product_id == product_id)
                 .order_by(Purchase.purchase_date.desc())
                 .first()
             )
@@ -201,12 +201,12 @@ def get_most_recent_price(product_variant_id: int, session=None) -> float:
     return purchase.unit_cost if purchase else 0.0
 
 
-def get_price_trend(product_variant_id: int, days: int = 180, session=None) -> dict:
+def get_price_trend(product_id: int, days: int = 180, session=None) -> dict:
     """
-    Get price trend data for a variant.
+    Get price trend data for a product.
 
     Args:
-        product_variant_id: ProductVariant ID
+        product_id: Product ID
         days: Number of days to analyze (default: 180)
         session: SQLAlchemy session (if None, uses session_scope)
 
@@ -226,7 +226,7 @@ def get_price_trend(product_variant_id: int, days: int = 180, session=None) -> d
         purchases = (
             session.query(Purchase)
             .filter(
-                Purchase.product_variant_id == product_variant_id,
+                Purchase.product_id == product_id,
                 Purchase.purchase_date >= cutoff_date,
             )
             .order_by(Purchase.purchase_date)
@@ -237,7 +237,7 @@ def get_price_trend(product_variant_id: int, days: int = 180, session=None) -> d
             purchases = (
                 sess.query(Purchase)
                 .filter(
-                    Purchase.product_variant_id == product_variant_id,
+                    Purchase.product_id == product_id,
                     Purchase.purchase_date >= cutoff_date,
                 )
                 .order_by(Purchase.purchase_date)

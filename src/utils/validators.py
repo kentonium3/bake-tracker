@@ -393,12 +393,12 @@ def parse_int(value: any, default: int = 0) -> int:
         return default
 
 
-def validate_variant_data(data: dict, ingredient_slug: str) -> Tuple[bool, list]:
+def validate_product_data(data: dict, ingredient_slug: str) -> Tuple[bool, list]:
     """
-    Validate all fields for a variant (brand-specific product).
+    Validate all fields for a product (brand-specific version of ingredient).
 
     Args:
-        data: Dictionary containing variant fields
+        data: Dictionary containing product fields
         ingredient_slug: Slug of parent ingredient (for context)
 
     Returns:
@@ -414,7 +414,7 @@ def validate_variant_data(data: dict, ingredient_slug: str) -> Tuple[bool, list]
         - upc (str): Universal Product Code (12-14 digits)
         - gtin (str): Global Trade Item Number
         - supplier (str): Where to buy
-        - preferred (bool): Mark as preferred variant
+        - preferred (bool): Mark as preferred product
         - net_content_value (Decimal/float): Industry standard field
         - net_content_uom (str): Industry standard field
     """
@@ -476,3 +476,7 @@ def validate_variant_data(data: dict, ingredient_slug: str) -> Tuple[bool, list]
             errors.append(error)
 
     return len(errors) == 0, errors
+
+
+# Alias for backward compatibility
+validate_variant_data = validate_product_data

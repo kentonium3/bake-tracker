@@ -17,7 +17,7 @@ from src.services import package_service, recipient_service, event_service
 from src.services.exceptions import ValidationError
 from src.services.database import session_scope
 from src.models.ingredient import Ingredient
-from src.models.variant import Variant
+from src.models.product import Product
 from src.models.pantry_item import PantryItem
 from src.models.purchase import Purchase
 from src.models.unit_conversion import UnitConversion
@@ -212,7 +212,7 @@ def export_ingredients_to_json(
 
         for ingredient in ingredients:
             ingredient_data = {
-                "name": ingredient.name,
+                "name": ingredient.display_name,
                 "brand": ingredient.brand,
                 "category": ingredient.category,
                 "purchase_quantity": ingredient.purchase_quantity,
@@ -297,7 +297,7 @@ def export_recipes_to_json(
             recipe_data["ingredients"] = []
             for ri in recipe.recipe_ingredients:
                 ingredient_data = {
-                    "ingredient_name": ri.ingredient.name,
+                    "ingredient_name": ri.ingredient.display_name,
                     "quantity": ri.quantity,
                     "unit": ri.unit,
                 }
@@ -778,7 +778,7 @@ def export_all_to_json(file_path: str) -> ExportResult:
     Export all data to a single JSON file in v3.0 format.
 
     Exports in dependency order per data-model.md:
-    unit_conversions, ingredients, variants, purchases, pantry_items,
+    unit_conversions, ingredients, products, purchases, pantry_items,
     recipes, finished_units, finished_goods, compositions, packages,
     package_finished_goods, recipients, events, event_recipient_packages,
     production_records.
@@ -790,13 +790,13 @@ def export_all_to_json(file_path: str) -> ExportResult:
         ExportResult with export statistics including per-entity counts
     """
     try:
-        # Get all data - use session scope to eagerly load variants
+        # Get all data - use session scope to eagerly load products
         with session_scope() as session:
-            # Eagerly load variants to avoid detached instance errors
-            ingredients = session.query(Ingredient).options(joinedload(Ingredient.variants)).all()
+            # Eagerly load products to avoid detached instance errors
+            ingredients = session.query(Ingredient).options(joinedload(Ingredient.products)).all()
             # Make objects accessible outside session by accessing all lazy-loaded attributes
             for ing in ingredients:
-                _ = ing.variants  # Access to ensure loaded
+                _ = ing.products  # Access to ensure loaded
 
         recipes = recipe_service.get_all_recipes()
         packages = package_service.get_all_packages()
@@ -816,7 +816,7 @@ def export_all_to_json(file_path: str) -> ExportResult:
             "application": "bake-tracker",
             "unit_conversions": [],
             "ingredients": [],
-            "variants": [],
+            "products": [],
             "purchases": [],
             "pantry_items": [],
             "recipes": [],
@@ -834,7 +834,7 @@ def export_all_to_json(file_path: str) -> ExportResult:
         # Add ingredients (NEW SCHEMA: generic ingredient definitions)
         for ingredient in ingredients:
             ingredient_data = {
-                "name": ingredient.name,
+                "name": ingredient.display_name,
                 "slug": ingredient.slug,
                 "category": ingredient.category,
                 "recipe_unit": ingredient.recipe_unit,
@@ -871,9 +871,9 @@ def export_all_to_json(file_path: str) -> ExportResult:
 
             export_data["ingredients"].append(ingredient_data)
 
-        # Add variants (NEW SCHEMA: brand/package-specific versions)
+        # Add products (NEW SCHEMA: brand/package-specific versions)
         for ingredient in ingredients:
-            for variant in ingredient.variants:
+            for variant in ingredient.products:
                 variant_data = {
                     "ingredient_slug": ingredient.slug,
                     "purchase_unit": variant.purchase_unit,
@@ -912,11 +912,11 @@ def export_all_to_json(file_path: str) -> ExportResult:
                 if variant.notes:
                     variant_data["notes"] = variant.notes
 
-                export_data["variants"].append(variant_data)
+                export_data["products"].append(variant_data)
 
         # Add pantry items (actual inventory lots)
         with session_scope() as session:
-            pantry_items = session.query(PantryItem).join(Variant).join(Ingredient).all()
+            pantry_items = session.query(PantryItem).join(Product).join(Ingredient).all()
             for item in pantry_items:
                 pantry_data = {
                     "ingredient_slug": item.variant.ingredient.slug,
@@ -937,7 +937,7 @@ def export_all_to_json(file_path: str) -> ExportResult:
 
         # Add purchases (price history)
         with session_scope() as session:
-            purchases = session.query(Purchase).join(Variant).join(Ingredient).all()
+            purchases = session.query(Purchase).join(Product).join(Ingredient).all()
             for purchase in purchases:
                 purchase_data = {
                     "ingredient_slug": purchase.variant.ingredient.slug,
@@ -1007,7 +1007,7 @@ def export_all_to_json(file_path: str) -> ExportResult:
                     "ingredient_slug": (
                         ingredient.slug
                         if ingredient.slug
-                        else ingredient.name.lower().replace(" ", "_")
+                        else ingredient.display_name.lower().replace(" ", "_")
                     ),
                     "quantity": ri.quantity,
                     "unit": ri.unit,
@@ -1107,7 +1107,7 @@ def export_all_to_json(file_path: str) -> ExportResult:
         total_records = (
             len(export_data["unit_conversions"])
             + len(export_data["ingredients"])
-            + len(export_data["variants"])
+            + len(export_data["products"])
             + len(export_data["purchases"])
             + len(export_data["pantry_items"])
             + len(export_data["recipes"])
@@ -1127,7 +1127,7 @@ def export_all_to_json(file_path: str) -> ExportResult:
         # Add per-entity counts
         result.add_entity_count("unit_conversions", len(export_data["unit_conversions"]))
         result.add_entity_count("ingredients", len(export_data["ingredients"]))
-        result.add_entity_count("variants", len(export_data["variants"]))
+        result.add_entity_count("products", len(export_data["products"]))
         result.add_entity_count("purchases", len(export_data["purchases"]))
         result.add_entity_count("pantry_items", len(export_data["pantry_items"]))
         result.add_entity_count("recipes", len(export_data["recipes"]))
@@ -1183,29 +1183,34 @@ def import_ingredients_from_json(file_path: str, skip_duplicates: bool = True) -
         # Import each ingredient (NEW SCHEMA: generic ingredient definitions)
         for idx, ingredient_data in enumerate(ingredients_data):
             try:
-                name = ingredient_data.get("name", "")
+                # TD-001: Support both 'display_name' (new) and 'name' (legacy) field names
+                display_name = ingredient_data.get("display_name", "") or ingredient_data.get("name", "")
                 slug = ingredient_data.get("slug", "")
                 category = ingredient_data.get("category", "")
                 recipe_unit = ingredient_data.get("recipe_unit", "")
 
-                if not name:
-                    result.add_error("ingredient", f"Record {idx+1}", "Missing name")
+                if not display_name:
+                    result.add_error("ingredient", f"Record {idx+1}", "Missing display_name")
                     continue
 
                 if not category:
-                    result.add_error("ingredient", name, "Missing category")
+                    result.add_error("ingredient", display_name, "Missing category")
                     continue
 
                 if not recipe_unit:
-                    result.add_error("ingredient", name, "Missing recipe_unit")
+                    result.add_error("ingredient", display_name, "Missing recipe_unit")
                     continue
 
-                # Check for duplicate by name or slug
+                # Normalize field name for the model
+                if "name" in ingredient_data and "display_name" not in ingredient_data:
+                    ingredient_data["display_name"] = ingredient_data.pop("name")
+
+                # Check for duplicate by display_name or slug
                 if skip_duplicates:
-                    existing = inventory_service.get_all_ingredients(name_search=name)
+                    existing = inventory_service.get_all_ingredients(name_search=display_name)
                     for existing_ing in existing:
-                        if existing_ing.name == name:
-                            result.add_skip("ingredient", name, "Already exists")
+                        if existing_ing.display_name == display_name:
+                            result.add_skip("ingredient", display_name, "Already exists")
                             break
                     else:
                         # Not duplicate, create it
@@ -1217,9 +1222,9 @@ def import_ingredients_from_json(file_path: str, skip_duplicates: bool = True) -
                     result.add_success()
 
             except ValidationError as e:
-                result.add_error("ingredient", name, f"Validation error: {e}")
+                result.add_error("ingredient", display_name, f"Validation error: {e}")
             except Exception as e:
-                result.add_error("ingredient", name, str(e))
+                result.add_error("ingredient", display_name, str(e))
 
         return result
 
@@ -1231,13 +1236,13 @@ def import_ingredients_from_json(file_path: str, skip_duplicates: bool = True) -
         return result
 
 
-def import_variants_from_json(file_path: str, skip_duplicates: bool = True) -> ImportResult:
+def import_products_from_json(file_path: str, skip_duplicates: bool = True) -> ImportResult:
     """
-    Import variants from JSON file.
+    Import products from JSON file.
 
     Args:
         file_path: Path to JSON file
-        skip_duplicates: If True, skip variants that already exist (default)
+        skip_duplicates: If True, skip products that already exist (default)
 
     Returns:
         ImportResult with import statistics
@@ -1250,14 +1255,14 @@ def import_variants_from_json(file_path: str, skip_duplicates: bool = True) -> I
             data = json.load(f)
 
         # Validate structure
-        if "variants" not in data:
-            # No variants in file is OK, not an error
+        if "products" not in data:
+            # No products in file is OK, not an error
             return result
 
-        variants_data = data["variants"]
+        products_data = data["products"]
 
         # Import each variant
-        for idx, variant_data in enumerate(variants_data):
+        for idx, variant_data in enumerate(products_data):
             try:
                 ingredient_slug = variant_data.get("ingredient_slug", "")
                 brand = variant_data.get("brand", "")
@@ -1301,7 +1306,7 @@ def import_variants_from_json(file_path: str, skip_duplicates: bool = True) -> I
                     if skip_duplicates:
                         package_size = variant_data.get("package_size", "")
                         duplicate_found = False
-                        for existing_variant in ingredient_in_session.variants:
+                        for existing_variant in ingredient_in_session.products:
                             if (
                                 existing_variant.brand == brand
                                 and existing_variant.package_size == package_size
@@ -1309,7 +1314,7 @@ def import_variants_from_json(file_path: str, skip_duplicates: bool = True) -> I
                             ):
                                 result.add_skip(
                                     "variant",
-                                    f"{ingredient_in_session.name} - {brand or 'generic'}",
+                                    f"{ingredient_in_session.display_name} - {brand or 'generic'}",
                                     "Already exists",
                                 )
                                 duplicate_found = True
@@ -1318,7 +1323,7 @@ def import_variants_from_json(file_path: str, skip_duplicates: bool = True) -> I
                         if duplicate_found:
                             continue
 
-                    new_variant = Variant(
+                    new_variant = Product(
                         ingredient_id=ingredient.id,
                         purchase_unit=purchase_unit,
                         purchase_quantity=purchase_quantity,
@@ -2092,7 +2097,7 @@ def _clear_all_tables(session) -> None:
         Recipe,
         PantryItem,
         Purchase,
-        Variant,
+        Product,
         Ingredient,
         UnitConversion,
     ]
@@ -2385,7 +2390,7 @@ def import_production_records_from_json(
             batches = record.get("batches", 0)
             produced_at_str = record.get("produced_at", "")
 
-            # Support slug variants - convert to name format
+            # Support slug products - convert to name format
             if not event_name and event_slug:
                 event_name = event_slug.replace("_", " ").title()
             if not recipe_name and recipe_slug:
@@ -2473,7 +2478,7 @@ def import_event_recipient_packages_from_json(
             package_slug = record.get("package_slug", "")
             quantity = record.get("quantity", 1)
 
-            # Support slug variants - convert to name format
+            # Support slug products - convert to name format
             if not event_name and event_slug:
                 event_name = event_slug.replace("_", " ").title()
             if not package_name and package_slug:
@@ -2550,9 +2555,9 @@ def import_all_from_json_v3(file_path: str, mode: str = "merge") -> ImportResult
     Imports in dependency order:
     1. ingredients (no dependencies)
     2. unit_conversions (depends on ingredients)
-    3. variants (depends on ingredients)
-    4. purchases (depends on variants)
-    5. pantry_items (depends on variants)
+    3. products (depends on ingredients)
+    4. purchases (depends on products)
+    5. pantry_items (depends on products)
     6. recipes (depends on ingredients)
     7. finished_units (depends on recipes)
     8. finished_goods (no dependencies)
@@ -2636,8 +2641,9 @@ def import_all_from_json_v3(file_path: str, mode: str = "merge") -> ImportResult
                             density_args["density_weight_value"] = round(oz_per_cup, 2)
                             density_args["density_weight_unit"] = "oz"
 
+                        # TD-001: Support both 'display_name' (new) and 'name' (legacy)
                         ingredient = Ingredient(
-                            name=ing.get("name"),
+                            display_name=ing.get("display_name") or ing.get("name"),
                             slug=slug,
                             category=ing.get("category"),
                             recipe_unit=ing.get("recipe_unit"),
@@ -2718,9 +2724,9 @@ def import_all_from_json_v3(file_path: str, mode: str = "merge") -> ImportResult
             # Flush to get IDs for foreign keys
             session.flush()
 
-            # 3. Variants (depends on ingredients)
-            if "variants" in data:
-                for var in data["variants"]:
+            # 3. Products (depends on ingredients)
+            if "products" in data:
+                for var in data["products"]:
                     try:
                         ing_slug = var.get("ingredient_slug", "")
                         ingredient = session.query(Ingredient).filter_by(slug=ing_slug).first()
@@ -2730,7 +2736,7 @@ def import_all_from_json_v3(file_path: str, mode: str = "merge") -> ImportResult
 
                         brand = var.get("brand", "")
                         if skip_duplicates:
-                            existing = session.query(Variant).filter_by(
+                            existing = session.query(Product).filter_by(
                                 ingredient_id=ingredient.id,
                                 brand=brand,
                             ).first()
@@ -2738,7 +2744,7 @@ def import_all_from_json_v3(file_path: str, mode: str = "merge") -> ImportResult
                                 result.add_skip("variant", brand, "Already exists")
                                 continue
 
-                        variant = Variant(
+                        variant = Product(
                             ingredient_id=ingredient.id,
                             brand=brand,
                             package_size=var.get("package_size"),
@@ -2783,7 +2789,7 @@ def import_all_from_json_v3(file_path: str, mode: str = "merge") -> ImportResult
                             ingredient = session.query(Ingredient).filter_by(slug=ing_slug).first()
                             if ingredient:
                                 validated_ingredients.append({
-                                    "ingredient_new_id": ingredient.id,
+                                    "ingredient_id": ingredient.id,
                                     "quantity": ri_data.get("quantity"),
                                     "unit": ri_data.get("unit"),
                                     "notes": ri_data.get("notes"),
@@ -2815,7 +2821,7 @@ def import_all_from_json_v3(file_path: str, mode: str = "merge") -> ImportResult
                         for vi in validated_ingredients:
                             ri = RecipeIngredient(
                                 recipe_id=recipe.id,
-                                ingredient_new_id=vi["ingredient_new_id"],
+                                ingredient_id=vi["ingredient_id"],
                                 quantity=vi["quantity"],
                                 unit=vi["unit"],
                                 notes=vi.get("notes"),
@@ -3020,7 +3026,7 @@ def import_all_from_json(file_path: str, skip_duplicates: bool = True) -> Tuple[
 
     Imports in proper dependency order:
     1. Ingredients (no dependencies)
-    2. Variants (depend on ingredients)
+    2. Products (depend on ingredients)
     3. Recipes (depend on ingredients)
     4. Finished goods (depend on recipes)
     5. Bundles (depend on finished goods)
@@ -3055,16 +3061,16 @@ def import_all_from_json(file_path: str, skip_duplicates: bool = True) -> Tuple[
             ingredient_result = import_ingredients_from_json(tmp_path, skip_duplicates)
             Path(tmp_path).unlink()
 
-        # Import variants second (depends on ingredients)
+        # Import products second (depends on ingredients)
         variant_result = ImportResult()
-        if "variants" in data:
+        if "products" in data:
             with tempfile.NamedTemporaryFile(
                 mode="w", suffix=".json", delete=False, encoding="utf-8"
             ) as tmp:
-                json.dump({"variants": data["variants"]}, tmp)
+                json.dump({"products": data["products"]}, tmp)
                 tmp_path = tmp.name
 
-            variant_result = import_variants_from_json(tmp_path, skip_duplicates)
+            variant_result = import_products_from_json(tmp_path, skip_duplicates)
             Path(tmp_path).unlink()
 
         # Import recipes third

@@ -1,10 +1,10 @@
 """
-Variant model for specific purchasable versions of ingredients.
+Product model for specific purchasable versions of ingredients.
 
 This model represents a specific brand, package size, and supplier combination
-for an Ingredient. Multiple variants can exist for the same ingredient.
+for an Ingredient. Multiple products can exist for the same ingredient.
 
-Example: "King Arthur All-Purpose Flour 25 lb bag from Costco" is a variant
+Example: "King Arthur All-Purpose Flour 25 lb bag from Costco" is a product
          of the "All-Purpose Flour" ingredient.
 """
 
@@ -16,11 +16,11 @@ from sqlalchemy.orm import relationship
 from .base import BaseModel
 
 
-class Variant(BaseModel):
+class Product(BaseModel):
     """
-    Variant model representing specific purchasable versions of ingredients.
+    Product model representing specific purchasable versions of ingredients.
 
-    Each variant represents a specific combination of:
+    Each product represents a specific combination of:
     - Brand (e.g., "King Arthur", "Bob's Red Mill", "Generic")
     - Package size (e.g., "25 lb", "5 kg")
     - Package type (e.g., "bag", "box", "jar")
@@ -36,17 +36,17 @@ class Variant(BaseModel):
         upc_code: UPC/barcode for scanning (future use)
         supplier: Supplier/store name
         supplier_sku: Supplier's SKU/product code
-        preferred: Is this the preferred variant for this ingredient?
+        preferred: Is this the preferred product for this ingredient?
         notes: Additional notes
-        date_added: When variant was created
+        date_added: When product was created
         last_modified: Last modification timestamp
     """
 
-    __tablename__ = "product_variants"
+    __tablename__ = "products"
 
     # Foreign key to Ingredient
     ingredient_id = Column(
-        Integer, ForeignKey("products.id", ondelete="CASCADE"), nullable=False, index=True
+        Integer, ForeignKey("ingredients.id", ondelete="CASCADE"), nullable=False, index=True
     )
 
     # Brand and package information
@@ -91,31 +91,31 @@ class Variant(BaseModel):
     )
 
     # Relationships
-    ingredient = relationship("Ingredient", back_populates="variants")
+    ingredient = relationship("Ingredient", back_populates="products")
     purchases = relationship(
-        "Purchase", back_populates="variant", cascade="all, delete-orphan", lazy="select"
+        "Purchase", back_populates="product", cascade="all, delete-orphan", lazy="select"
     )
     pantry_items = relationship(
-        "PantryItem", back_populates="variant", cascade="all, delete-orphan", lazy="select"
+        "PantryItem", back_populates="product", cascade="all, delete-orphan", lazy="select"
     )
 
     # Indexes for common queries
     __table_args__ = (
-        Index("idx_variant_product", "ingredient_id"),
-        Index("idx_variant_brand", "brand"),
-        Index("idx_variant_upc", "upc_code"),
+        Index("idx_product_ingredient", "ingredient_id"),
+        Index("idx_product_brand", "brand"),
+        Index("idx_product_upc", "upc_code"),
     )
 
     def __repr__(self) -> str:
-        """String representation of variant."""
+        """String representation of product."""
         brand_str = f" {self.brand}" if self.brand else ""
         size_str = f" {self.package_size}" if self.package_size else ""
-        return f"Variant(id={self.id}, ingredient='{self.ingredient.name}'{brand_str}{size_str})"
+        return f"Product(id={self.id}, ingredient='{self.ingredient.display_name}'{brand_str}{size_str})"
 
     @property
     def display_name(self) -> str:
         """
-        Get display name for this variant.
+        Get display name for this product.
 
         Returns:
             Formatted display name (e.g., "King Arthur 25 lb bag")
@@ -129,13 +129,13 @@ class Variant(BaseModel):
             parts.append(self.package_type)
 
         if not parts:
-            return f"{self.ingredient.name} (generic)"
+            return f"{self.ingredient.display_name} (generic)"
 
         return " ".join(parts)
 
     def get_most_recent_purchase(self):
         """
-        Get the most recent purchase for this variant.
+        Get the most recent purchase for this product.
 
         Returns:
             Purchase instance or None if no purchases
@@ -180,7 +180,7 @@ class Variant(BaseModel):
 
     def get_total_pantry_quantity(self) -> float:
         """
-        Get total quantity for this variant across all pantry items.
+        Get total quantity for this product across all pantry items.
 
         Returns:
             Total quantity in purchase units
@@ -189,7 +189,7 @@ class Variant(BaseModel):
 
     def to_dict(self, include_relationships: bool = False) -> dict:
         """
-        Convert variant to dictionary.
+        Convert product to dictionary.
 
         Args:
             include_relationships: If True, include purchases and pantry items

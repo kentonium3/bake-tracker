@@ -38,15 +38,15 @@ from typing import Dict, Any, List, Optional
 from decimal import Decimal
 from datetime import date, timedelta
 
-from ..models import PantryItem, Variant
+from ..models import PantryItem, Product
 from .database import session_scope
 from .exceptions import (
-    VariantNotFound,
+    ProductNotFound,
     PantryItemNotFound,
     ValidationError as ServiceValidationError,
     DatabaseError,
 )
-from .variant_service import get_variant
+from .product_service import get_product
 from .ingredient_service import get_ingredient
 from sqlalchemy.orm import joinedload
 

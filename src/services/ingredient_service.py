@@ -32,7 +32,7 @@ Example Usage:
   >>>
   >>> # Retrieve it
   >>> flour = get_ingredient("all_purpose_flour")
-  >>> flour.name
+  >>> flour.display_name
   'All-Purpose Flour'
 """
 
@@ -276,12 +276,12 @@ def search_ingredients(
 
         # Apply filters
         if query:
-            q = q.filter(Ingredient.name.ilike(f"%{query}%"))
+            q = q.filter(Ingredient.display_name.ilike(f"%{query}%"))
         if category:
             q = q.filter(Ingredient.category == category)
 
         # Sort and limit
-        return q.order_by(Ingredient.name).limit(limit).all()
+        return q.order_by(Ingredient.display_name).limit(limit).all()
 
 
 def update_ingredient(slug: str, ingredient_data: Dict[str, Any]) -> Ingredient:
@@ -434,7 +434,7 @@ def check_ingredient_dependencies(slug: str) -> Dict[str, int]:
         {'recipes': 0, 'variants': 0, 'pantry_items': 0, 'unit_conversions': 0}
     """
     # Import models here to avoid circular dependencies
-    from ..models import Variant, PantryItem, UnitConversion, RecipeIngredient
+    from ..models import Product, PantryItem, UnitConversion, RecipeIngredient
 
     with session_scope() as session:
         # Verify ingredient exists
@@ -444,20 +444,20 @@ def check_ingredient_dependencies(slug: str) -> Dict[str, int]:
 
         ingredient_id = ingredient.id
 
-        variants_count = (
-            session.query(Variant).filter(Variant.ingredient_id == ingredient_id).count()
+        products_count = (
+            session.query(Product).filter(Product.ingredient_id == ingredient_id).count()
         )
 
         recipes_count = (
             session.query(RecipeIngredient)
-            .filter(RecipeIngredient.ingredient_new_id == ingredient_id)
+            .filter(RecipeIngredient.ingredient_id == ingredient_id)
             .count()
         )
 
         pantry_count = (
             session.query(PantryItem)
-            .join(Variant, PantryItem.variant_id == Variant.id)
-            .filter(Variant.ingredient_id == ingredient_id)
+            .join(Product, PantryItem.product_id == Product.id)
+            .filter(Product.ingredient_id == ingredient_id)
             .count()
         )
 
@@ -469,7 +469,7 @@ def check_ingredient_dependencies(slug: str) -> Dict[str, int]:
 
         return {
             "recipes": recipes_count,
-            "variants": variants_count,
+            "products": products_count,
             "pantry_items": pantry_count,
             "unit_conversions": conversions_count,
         }
@@ -510,17 +510,17 @@ def list_ingredients(
 
         # Apply sorting
         if sort_by == "name":
-            q = q.order_by(Ingredient.name)
+            q = q.order_by(Ingredient.display_name)
         elif sort_by == "category":
-            q = q.order_by(Ingredient.category, Ingredient.name)
+            q = q.order_by(Ingredient.category, Ingredient.display_name)
         elif sort_by == "created_at":
             # Assuming Ingredient has created_at field (from BaseModel)
             if hasattr(Ingredient, "created_at"):
                 q = q.order_by(Ingredient.created_at.desc())
             else:
-                q = q.order_by(Ingredient.name)  # Fallback
+                q = q.order_by(Ingredient.display_name)  # Fallback
         else:
-            q = q.order_by(Ingredient.name)  # Default
+            q = q.order_by(Ingredient.display_name)  # Default
 
         # Apply pagination
         q = q.offset(offset)
@@ -558,7 +558,7 @@ def get_all_ingredients(
         {
             "id": ing.id,
             "slug": ing.slug,
-            "name": ing.name,
+            "name": ing.display_name,
             "category": ing.category,
             "density_volume_value": ing.density_volume_value,
             "density_volume_unit": ing.density_volume_unit,

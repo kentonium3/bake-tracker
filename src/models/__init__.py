@@ -5,15 +5,14 @@ This package contains all SQLAlchemy ORM models for the application.
 """
 
 from .base import Base, BaseModel
-from .ingredient_legacy import IngredientLegacy  # LEGACY - for migration compatibility
-from .ingredient import Ingredient  # NEW refactored model
-from .variant import Variant  # NEW
-from .purchase import Purchase  # NEW
-from .pantry_item import PantryItem  # NEW
-from .unit_conversion import UnitConversion  # NEW
-from .ingredient_alias import IngredientAlias  # NEW supporting model
-from .ingredient_crosswalk import IngredientCrosswalk  # NEW supporting model
-from .variant_packaging import VariantPackaging  # NEW supporting model
+from .ingredient import Ingredient  # Refactored model
+from .product import Product  # Refactored from Variant
+from .purchase import Purchase
+from .pantry_item import PantryItem
+from .unit_conversion import UnitConversion
+from .ingredient_alias import IngredientAlias  # Supporting model
+from .ingredient_crosswalk import IngredientCrosswalk  # Supporting model
+from .variant_packaging import ProductPackaging, VariantPackaging  # Refactored model + alias
 from .recipe import Recipe, RecipeIngredient
 from .inventory_snapshot import InventorySnapshot, SnapshotIngredient
 from .finished_good import FinishedGood
@@ -34,18 +33,17 @@ from .production_record import ProductionRecord  # Feature 008
 __all__ = [
     "Base",
     "BaseModel",
-    # Legacy
-    "IngredientLegacy",
-    # New Ingredient/Variant/Pantry Models
+    # Core Models
     "Ingredient",
-    "Variant",
+    "Product",
     "Purchase",
     "PantryItem",
     "UnitConversion",
-    # New Supporting Models
+    # Supporting Models
     "IngredientAlias",
     "IngredientCrosswalk",
-    "VariantPackaging",
+    "ProductPackaging",
+    "VariantPackaging",  # Backward compatibility alias
     # Existing Models
     "Recipe",
     "RecipeIngredient",

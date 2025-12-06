@@ -126,14 +126,9 @@ class RecipeIngredient(BaseModel):
     This model represents an ingredient used in a recipe with specific
     quantity and unit requirements.
 
-    MIGRATION NOTE: During refactoring, both ingredient_id (old, FK to legacy table)
-    and ingredient_new_id (new, FK to refactored Ingredient) exist.
-    After migration, ingredient_id will be removed.
-
     Attributes:
         recipe_id: Foreign key to Recipe
-        ingredient_id: Foreign key to legacy Ingredient table (LEGACY - for migration only)
-        ingredient_new_id: Foreign key to new Ingredient (brand-agnostic reference)
+        ingredient_id: Foreign key to Ingredient (brand-agnostic reference)
         quantity: Amount needed (in ingredient's recipe_unit)
         unit: Unit of measurement (must match ingredient's recipe_unit)
         notes: Optional notes (e.g., "sifted", "melted")
@@ -143,17 +138,8 @@ class RecipeIngredient(BaseModel):
 
     # Foreign keys
     recipe_id = Column(Integer, ForeignKey("recipes.id", ondelete="CASCADE"), nullable=False)
-
-    # LEGACY: ingredient_id for backward compatibility during migration
-    # Points to old "ingredients" table
     ingredient_id = Column(
-        Integer, ForeignKey("ingredients.id", ondelete="RESTRICT"), nullable=True
-    )
-
-    # NEW: ingredient_new_id for brand-agnostic recipe ingredients
-    # Points to new "products" table (which stores Ingredient entities)
-    ingredient_new_id = Column(
-        Integer, ForeignKey("products.id", ondelete="RESTRICT"), nullable=True
+        Integer, ForeignKey("ingredients.id", ondelete="RESTRICT"), nullable=False
     )
 
     # Quantity information
@@ -165,82 +151,66 @@ class RecipeIngredient(BaseModel):
 
     # Relationships
     recipe = relationship("Recipe", back_populates="recipe_ingredients", lazy="joined")
-    ingredient = relationship("IngredientLegacy", foreign_keys=[ingredient_id])  # LEGACY
-    ingredient_new = relationship("Ingredient", back_populates="recipe_ingredients", lazy="joined")  # NEW
+    ingredient = relationship("Ingredient", back_populates="recipe_ingredients", lazy="joined")
 
     # Indexes
     __table_args__ = (
         Index("idx_recipe_ingredient_recipe", "recipe_id"),
         Index("idx_recipe_ingredient_ingredient", "ingredient_id"),
-        Index("idx_recipe_ingredient_ingredient_new", "ingredient_new_id"),
     )
 
     def __repr__(self) -> str:
         """String representation of recipe ingredient."""
-        # Show whichever FK is populated
-        ing_ref = (
-            f"ingredient_id={self.ingredient_id}"
-            if self.ingredient_id
-            else f"ingredient_new_id={self.ingredient_new_id}"
-        )
         return (
             f"RecipeIngredient(recipe_id={self.recipe_id}, "
-            f"{ing_ref}, "
+            f"ingredient_id={self.ingredient_id}, "
             f"quantity={self.quantity}, unit='{self.unit}')"
         )
-
-    @property
-    def active_ingredient(self):
-        """
-        Get the active ingredient reference (new preferred, legacy fallback).
-
-        Returns:
-            The new Ingredient if available, otherwise legacy Ingredient
-        """
-        return self.ingredient_new if self.ingredient_new else self.ingredient
 
     def calculate_cost(self) -> float:
         """
         Calculate cost of this ingredient in the recipe.
 
-        This method handles conversion from any recipe unit to the ingredient's
-        purchase units, supporting cross-unit conversions (volume↔weight) when needed.
+        Note: Cost calculation requires the ingredient to have an associated
+        preferred product with purchase history. Returns 0.0 if no cost data
+        is available.
 
         Returns:
             Cost of this ingredient for the recipe
         """
-        ingredient = self.active_ingredient
-        if not ingredient:
+        if not self.ingredient:
+            return 0.0
+
+        # Get preferred product for cost calculation
+        preferred_product = self.ingredient.get_preferred_product()
+        if not preferred_product:
             return 0.0
 
         # Import here to avoid circular import
         from src.services.unit_converter import convert_any_units
 
-        # Get purchase_unit - differs between legacy and new models
-        purchase_unit = getattr(ingredient, "purchase_unit", None)
+        purchase_unit = preferred_product.purchase_unit
         if not purchase_unit:
             return 0.0
 
-        # Convert recipe unit to purchase_unit using new API
+        # Convert recipe unit to purchase_unit
         success, quantity_in_purchase_units, error = convert_any_units(
             self.quantity,
             self.unit,
             purchase_unit,
-            ingredient=ingredient if hasattr(ingredient, "get_density_g_per_ml") else None,
+            ingredient=self.ingredient,
         )
 
         if not success:
-            # Conversion failed - cannot calculate cost
             return 0.0
 
         # Calculate how many packages needed
-        purchase_quantity = getattr(ingredient, "purchase_quantity", 1.0)
-        if purchase_quantity == 0:
+        if preferred_product.purchase_quantity == 0:
             return 0.0
-        packages_needed = quantity_in_purchase_units / purchase_quantity
+        packages_needed = quantity_in_purchase_units / preferred_product.purchase_quantity
 
         # Calculate cost
-        unit_cost = getattr(ingredient, "unit_cost", 0.0) or 0.0
+        unit_cost = preferred_product.get_current_cost_per_unit()
         cost = packages_needed * unit_cost
 
         return cost
@@ -255,28 +225,30 @@ class RecipeIngredient(BaseModel):
         Returns:
             Quantity in purchase units (not packages)
         """
-        ingredient = self.active_ingredient
-        if not ingredient:
+        if not self.ingredient:
+            return 0.0
+
+        # Get preferred product for unit information
+        preferred_product = self.ingredient.get_preferred_product()
+        if not preferred_product:
             return 0.0
 
         # Import here to avoid circular import
         from src.services.unit_converter import convert_any_units
 
-        # Get purchase_unit - differs between legacy and new models
-        purchase_unit = getattr(ingredient, "purchase_unit", None)
+        purchase_unit = preferred_product.purchase_unit
         if not purchase_unit:
             return 0.0
 
-        # Convert recipe unit to purchase_unit using new API
+        # Convert recipe unit to purchase_unit
         success, quantity_in_purchase_units, error = convert_any_units(
             self.quantity,
             self.unit,
             purchase_unit,
-            ingredient=ingredient if hasattr(ingredient, "get_density_g_per_ml") else None,
+            ingredient=self.ingredient,
         )
 
         if not success:
-            # Conversion failed
             return 0.0
 
         return quantity_in_purchase_units
@@ -291,8 +263,12 @@ class RecipeIngredient(BaseModel):
         if not self.ingredient:
             return 0.0
 
+        preferred_product = self.ingredient.get_preferred_product()
+        if not preferred_product or preferred_product.purchase_quantity == 0:
+            return 0.0
+
         quantity_in_purchase_units = self.get_purchase_unit_quantity()
-        return quantity_in_purchase_units / self.ingredient.purchase_quantity
+        return quantity_in_purchase_units / preferred_product.purchase_quantity
 
     def to_dict(self, include_relationships: bool = False) -> dict:
         """

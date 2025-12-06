@@ -4,14 +4,14 @@ This package contains all service modules that provide business logic
 and database operations for the application.
 
 Architecture:
-- Services: Stateless functions organized by domain (ingredient, variant, pantry, purchase)
+- Services: Stateless functions organized by domain (ingredient, product, pantry, purchase)
 - Transactions: Managed via session_scope() context manager
 - Exceptions: Consistent error handling via ServiceError hierarchy
 - Validation: Input validation before database operations
 
 Service Modules:
 - ingredient_service: Ingredient catalog CRUD operations
-- variant_service: Brand/package variant management
+- product_service: Brand/package product management
 - pantry_service: Inventory tracking with FIFO consumption
 - purchase_service: Price history tracking and trend analysis
 - recipe_service: Recipe management
@@ -38,7 +38,12 @@ from . import (
     recipient_service,
     event_service,  # Re-enabled Feature 006: Uses FinishedGood not Bundle
     production_service,  # Feature 008: Production tracking
+    product_service,  # TD-001: Refactored from variant_service
+    ingredient_service,
+    pantry_service,
+    purchase_service,
 )
+
 
 # Migration services
 from .migration_service import MigrationService
@@ -201,12 +206,12 @@ from .exceptions import (
     ServiceError,
     ServiceException,  # Legacy
     IngredientNotFoundBySlug,
-    VariantNotFound,
+    ProductNotFound,
     PantryItemNotFound,
     PurchaseNotFound,
     SlugAlreadyExists,
     IngredientInUse,
-    VariantInUse,
+    ProductInUse,
     ValidationError,
     DatabaseError,
 )
@@ -223,6 +228,10 @@ __all__ = [
     "package_service",  # Re-enabled Feature 006
     "recipient_service",
     "event_service",  # Re-enabled Feature 006
+    "product_service",  # TD-001: Refactored from variant_service
+    "ingredient_service",
+    "pantry_service",
+    "purchase_service",
     # Migration services
     "MigrationService",
     # FinishedUnit services
@@ -354,12 +363,12 @@ __all__ = [
     "ServiceError",
     "ServiceException",
     "IngredientNotFoundBySlug",
-    "VariantNotFound",
+    "ProductNotFound",
     "PantryItemNotFound",
     "PurchaseNotFound",
     "SlugAlreadyExists",
     "IngredientInUse",
-    "VariantInUse",
+    "ProductInUse",
     "ValidationError",
     "DatabaseError",
     # Infrastructure - Session management

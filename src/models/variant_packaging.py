@@ -1,7 +1,7 @@
 """
-VariantPackaging model for detailed packaging hierarchy information.
+ProductPackaging model for detailed packaging hierarchy information.
 
-This model stores packaging details for variants at different levels
+This model stores packaging details for products at different levels
 (each, inner, case, pallet) following GS1 standards.
 """
 
@@ -11,15 +11,15 @@ from sqlalchemy.orm import relationship
 from .base import BaseModel
 
 
-class VariantPackaging(BaseModel):
+class ProductPackaging(BaseModel):
     """
-    VariantPackaging model for packaging hierarchy and specifications.
+    ProductPackaging model for packaging hierarchy and specifications.
 
     Supports multi-level packaging (e.g., each → case → pallet) and
     GS1-compatible packaging data for future supply chain integration.
 
     Attributes:
-        variant_id: Foreign key to Variant
+        product_id: Foreign key to Product
         packaging_level: Level in hierarchy ("each", "inner", "case", "pallet")
         packaging_type_code: GS1 packaging type code (optional)
         packaging_material_code: GS1 packaging material code (optional)
@@ -28,11 +28,11 @@ class VariantPackaging(BaseModel):
         gross_weight_value_uom: JSON with gross weight value and unit of measure
     """
 
-    __tablename__ = "variant_packaging"
+    __tablename__ = "product_packaging"
 
-    # Foreign key to Variant
-    variant_id = Column(
-        Integer, ForeignKey("product_variants.id", ondelete="CASCADE"), nullable=False, index=True
+    # Foreign key to Product
+    product_id = Column(
+        Integer, ForeignKey("products.id", ondelete="CASCADE"), nullable=False, index=True
     )
 
     # Packaging hierarchy
@@ -52,11 +52,11 @@ class VariantPackaging(BaseModel):
     gross_weight_value_uom = Column(JSON, nullable=True)  # {"value": 15.5, "uom": "lb"}
 
     # Relationships
-    variant = relationship("Variant", backref="packaging_levels")
+    product = relationship("Product", backref="packaging_levels")
 
     # Indexes and constraints
     __table_args__ = (
-        Index("idx_packaging_variant", "variant_id"),
+        Index("idx_packaging_product", "product_id"),
         Index("idx_packaging_level", "packaging_level"),
         CheckConstraint(
             "packaging_level IN ('each', 'inner', 'case', 'pallet')",
@@ -66,21 +66,25 @@ class VariantPackaging(BaseModel):
 
     def __repr__(self) -> str:
         """String representation of packaging."""
-        return f"VariantPackaging(id={self.id}, variant_id={self.variant_id}, level='{self.packaging_level}')"
+        return f"ProductPackaging(id={self.id}, product_id={self.product_id}, level='{self.packaging_level}')"
 
     def to_dict(self, include_relationships: bool = False) -> dict:
         """
         Convert packaging to dictionary.
 
         Args:
-            include_relationships: If True, include variant info
+            include_relationships: If True, include product info
 
         Returns:
             Dictionary representation
         """
         result = super().to_dict(include_relationships)
 
-        if include_relationships and self.variant:
-            result["variant"] = {"id": self.variant.id, "display_name": self.variant.display_name}
+        if include_relationships and self.product:
+            result["product"] = {"id": self.product.id, "display_name": self.product.display_name}
 
         return result
+
+
+# Backward compatibility alias
+VariantPackaging = ProductPackaging

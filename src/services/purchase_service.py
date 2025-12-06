@@ -42,16 +42,16 @@ from decimal import Decimal
 from datetime import date, timedelta
 from statistics import linear_regression
 
-from ..models import Purchase, Variant
+from ..models import Purchase, Product
 from .database import session_scope
 from .ingredient_service import get_ingredient
 from .exceptions import (
     PurchaseNotFound,
-    VariantNotFound,
+    ProductNotFound,
     ValidationError as ServiceValidationError,
     DatabaseError,
 )
-from .variant_service import get_variant
+from .product_service import get_product
 
 
 # Price change alert thresholds (percentage)

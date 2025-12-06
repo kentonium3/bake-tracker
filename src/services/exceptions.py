@@ -7,12 +7,12 @@ Exception Hierarchy:
     ServiceException (base - legacy)
     ServiceError (base - new service layer)
     ├── IngredientNotFoundBySlug
-    ├── VariantNotFound
+    ├── ProductNotFound
     ├── PantryItemNotFound
     ├── PurchaseNotFound
     ├── SlugAlreadyExists
     ├── IngredientInUse
-    ├── VariantInUse
+    ├── ProductInUse
     ├── ValidationError
     └── DatabaseError
 """
@@ -112,20 +112,24 @@ class IngredientNotFoundBySlug(ServiceError):
         super().__init__(f"Ingredient '{slug}' not found")
 
 
-class VariantNotFound(ServiceError):
-    """Raised when variant cannot be found by ID.
+class ProductNotFound(ServiceError):
+    """Raised when product cannot be found by ID.
 
     Args:
-        variant_id: The variant ID that was not found
+        product_id: The product ID that was not found
 
     Example:
-        >>> raise VariantNotFound(123)
-        VariantNotFound: Variant with ID 123 not found
+        >>> raise ProductNotFound(123)
+        ProductNotFound: Product with ID 123 not found
     """
 
-    def __init__(self, variant_id: int):
-        self.variant_id = variant_id
-        super().__init__(f"Variant with ID {variant_id} not found")
+    def __init__(self, product_id: int):
+        self.product_id = product_id
+        super().__init__(f"Product with ID {product_id} not found")
+
+
+# Alias for backward compatibility
+VariantNotFound = ProductNotFound
 
 
 class PantryItemNotFound(ServiceError):
@@ -176,21 +180,21 @@ class SlugAlreadyExists(ServiceError):
         super().__init__(f"Ingredient with slug '{slug}' already exists")
 
 
-class VariantInUse(ServiceError):
-    """Raised when attempting to delete variant that has dependencies.
+class ProductInUse(ServiceError):
+    """Raised when attempting to delete product that has dependencies.
 
     Args:
-        variant_id: The variant ID being deleted
+        product_id: The product ID being deleted
         dependencies: Dictionary of dependency counts {entity_type: count}
 
     Example:
         >>> deps = {"pantry_items": 12, "purchases": 25}
-        >>> raise VariantInUse(123, deps)
-        VariantInUse: Cannot delete variant 123: used in 12 pantry_items, 25 purchases
+        >>> raise ProductInUse(123, deps)
+        ProductInUse: Cannot delete product 123: used in 12 pantry_items, 25 purchases
     """
 
-    def __init__(self, variant_id: int, dependencies: dict):
-        self.variant_id = variant_id
+    def __init__(self, product_id: int, dependencies: dict):
+        self.product_id = product_id
         self.dependencies = dependencies
 
         # Format dependency details
@@ -198,4 +202,8 @@ class VariantInUse(ServiceError):
             f"{count} {entity_type}" for entity_type, count in dependencies.items() if count > 0
         )
 
-        super().__init__(f"Cannot delete variant {variant_id}: used in {details}")
+        super().__init__(f"Cannot delete product {product_id}: used in {details}")
+
+
+# Alias for backward compatibility
+VariantInUse = ProductInUse

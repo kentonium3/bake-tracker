@@ -42,9 +42,9 @@ class UnitConversion(BaseModel):
 
     __tablename__ = "unit_conversions"
 
-    # Foreign key to Ingredient (NEW refactored model - "products" table)
+    # Foreign key to Ingredient
     ingredient_id = Column(
-        Integer, ForeignKey("products.id", ondelete="CASCADE"), nullable=False, index=True
+        Integer, ForeignKey("ingredients.id", ondelete="CASCADE"), nullable=False, index=True
     )
 
     # Conversion specification
@@ -123,7 +123,7 @@ class UnitConversion(BaseModel):
         result["conversion_factor"] = self.conversion_factor
 
         if include_relationships and self.ingredient:
-            result["ingredient"] = {"id": self.ingredient.id, "name": self.ingredient.name}
+            result["ingredient"] = {"id": self.ingredient.id, "display_name": self.ingredient.display_name}
 
         return result
 

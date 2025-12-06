@@ -22,7 +22,7 @@ from src.services.exceptions import (
     ValidationError,
     DatabaseError,
 )
-from src.services import pantry_service, variant_service, purchase_service
+from src.services import pantry_service, product_service, purchase_service
 from src.services.unit_converter import convert_any_units
 from src.utils.validators import validate_recipe_data
 
@@ -86,10 +86,9 @@ def create_recipe(recipe_data: Dict, ingredients_data: List[Dict] = None) -> Rec
                         raise IngredientNotFound(ing_data["ingredient_id"])
 
                     # Create recipe ingredient
-                    # Use ingredient_new_id (FK to products table) for new Ingredient model
                     recipe_ingredient = RecipeIngredient(
                         recipe_id=recipe.id,
-                        ingredient_new_id=ing_data["ingredient_id"],
+                        ingredient_id=ing_data["ingredient_id"],
                         quantity=ing_data["quantity"],
                         unit=ing_data["unit"],
                         notes=ing_data.get("notes"),
@@ -253,10 +252,9 @@ def update_recipe(  # noqa: C901
                     if not ingredient:
                         raise IngredientNotFound(ing_data["ingredient_id"])
 
-                    # Use ingredient_new_id (FK to products table) for new Ingredient model
                     recipe_ingredient = RecipeIngredient(
                         recipe_id=recipe.id,
-                        ingredient_new_id=ing_data["ingredient_id"],
+                        ingredient_id=ing_data["ingredient_id"],
                         quantity=ing_data["quantity"],
                         unit=ing_data["unit"],
                         notes=ing_data.get("notes"),
@@ -357,10 +355,9 @@ def add_ingredient_to_recipe(
             if not ingredient:
                 raise IngredientNotFound(ingredient_id)
 
-            # Create recipe ingredient using ingredient_new_id (FK to products table)
             recipe_ingredient = RecipeIngredient(
                 recipe_id=recipe_id,
-                ingredient_new_id=ingredient_id,
+                ingredient_id=ingredient_id,
                 quantity=quantity,
                 unit=unit,
                 notes=notes,

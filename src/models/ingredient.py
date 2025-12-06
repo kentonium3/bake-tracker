@@ -5,7 +5,7 @@ This model represents the "platonic ideal" of an ingredient - the generic
 concept without brand, package, or inventory specifics.
 
 Example: "All-Purpose Flour" as an ingredient concept, separate from
-         "King Arthur All-Purpose Flour 25 lb bag" (which is a Variant)
+         "King Arthur All-Purpose Flour 25 lb bag" (which is a Product)
 """
 
 from datetime import datetime
@@ -22,10 +22,10 @@ class Ingredient(BaseModel):
     Ingredient model representing generic ingredient definitions.
 
     This is the base catalog entry for an ingredient type. Multiple
-    Variants (brands, package sizes) can exist for each Ingredient.
+    Products (brands, package sizes) can exist for each Ingredient.
 
     Attributes:
-        name: Ingredient name (e.g., "All-Purpose Flour", "White Granulated Sugar")
+        display_name: Ingredient name (e.g., "All-Purpose Flour", "White Granulated Sugar")
         slug: URL-friendly identifier (e.g., "all_purpose_flour")
         category: Category (e.g., "Flour", "Sugar", "Dairy")
         recipe_unit: Unit used in recipes (e.g., "cup", "oz", "g")
@@ -53,10 +53,10 @@ class Ingredient(BaseModel):
         last_modified: Last modification timestamp
     """
 
-    __tablename__ = "products"
+    __tablename__ = "ingredients"
 
     # Basic information (REQUIRED NOW)
-    name = Column(String(200), nullable=False, unique=True, index=True)
+    display_name = Column(String(200), nullable=False, unique=True, index=True)
     slug = Column(
         String(200), nullable=True, unique=True, index=True
     )  # Will be required after migration
@@ -91,46 +91,46 @@ class Ingredient(BaseModel):
     )
 
     # Relationships
-    variants = relationship(
-        "Variant", back_populates="ingredient", cascade="all, delete-orphan", lazy="select"
+    products = relationship(
+        "Product", back_populates="ingredient", cascade="all, delete-orphan", lazy="select"
     )
     conversions = relationship(
         "UnitConversion", back_populates="ingredient", cascade="all, delete-orphan", lazy="select"
     )
     recipe_ingredients = relationship(
-        "RecipeIngredient", back_populates="ingredient_new", lazy="select"
+        "RecipeIngredient", back_populates="ingredient", lazy="select"
     )
 
     # Indexes for common queries
     __table_args__ = (
-        Index("idx_product_name", "name"),
-        Index("idx_product_category", "category"),
+        Index("idx_ingredient_display_name", "display_name"),
+        Index("idx_ingredient_category", "category"),
     )
 
     def __repr__(self) -> str:
         """String representation of ingredient."""
-        return f"Ingredient(id={self.id}, name='{self.name}', category='{self.category}')"
+        return f"Ingredient(id={self.id}, display_name='{self.display_name}', category='{self.category}')"
 
-    def get_preferred_variant(self):
+    def get_preferred_product(self):
         """
-        Get the preferred variant for this ingredient.
+        Get the preferred product for this ingredient.
 
         Returns:
-            Variant marked as preferred, or None if no preference set
+            Product marked as preferred, or None if no preference set
         """
-        for variant in self.variants:
-            if variant.preferred:
-                return variant
+        for product in self.products:
+            if product.preferred:
+                return product
         return None
 
-    def get_all_variants(self):
+    def get_all_products(self):
         """
-        Get all variants for this ingredient.
+        Get all products for this ingredient.
 
         Returns:
-            List of Variant instances
+            List of Product instances
         """
-        return self.variants
+        return self.products
 
     def get_total_pantry_quantity(self):
         """
@@ -144,8 +144,8 @@ class Ingredient(BaseModel):
             Raw total without unit conversion (deprecated)
         """
         total = 0.0
-        for variant in self.variants:
-            for pantry_item in variant.pantry_items:
+        for product in self.products:
+            for pantry_item in product.pantry_items:
                 # Note: Raw quantity addition without unit conversion
                 total += pantry_item.quantity
         return total
@@ -202,7 +202,7 @@ class Ingredient(BaseModel):
         Convert ingredient to dictionary.
 
         Args:
-            include_relationships: If True, include variants and conversions
+            include_relationships: If True, include products and conversions
 
         Returns:
             Dictionary representation
@@ -210,10 +210,10 @@ class Ingredient(BaseModel):
         result = super().to_dict(include_relationships)
 
         if include_relationships:
-            result["variants"] = [v.to_dict(False) for v in self.variants]
+            result["products"] = [p.to_dict(False) for p in self.products]
             result["conversions"] = [c.to_dict(False) for c in self.conversions]
-            result["preferred_variant_id"] = (
-                self.get_preferred_variant().id if self.get_preferred_variant() else None
+            result["preferred_product_id"] = (
+                self.get_preferred_product().id if self.get_preferred_product() else None
             )
 
         return result

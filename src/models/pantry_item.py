@@ -2,7 +2,7 @@
 PantryItem model for tracking actual inventory.
 
 This model represents physical items currently in the pantry, including:
-- What variant is on hand
+- What product is on hand
 - How much quantity
 - When purchased and when it expires
 - Where it's stored
@@ -21,15 +21,15 @@ class PantryItem(BaseModel):
     """
     PantryItem model representing actual inventory in the pantry.
 
-    Each record represents a specific instance of a product variant that's
-    currently on hand. Multiple items can exist for the same variant
+    Each record represents a specific instance of a product that's
+    currently on hand. Multiple items can exist for the same product
     (different purchase dates, locations, expiration dates, etc.).
 
     FIFO Consumption:
     Items are consumed in purchase_date order (oldest first).
 
     Attributes:
-        variant_id: Foreign key to Variant
+        product_id: Foreign key to Product
         quantity: Quantity on hand (in purchase units)
         unit_cost: Cost per unit at time of purchase (for FIFO costing)
         purchase_date: When this item was purchased
@@ -42,9 +42,9 @@ class PantryItem(BaseModel):
 
     __tablename__ = "pantry_items"
 
-    # Foreign key to Variant
-    variant_id = Column(
-        Integer, ForeignKey("product_variants.id", ondelete="CASCADE"), nullable=False, index=True
+    # Foreign key to Product
+    product_id = Column(
+        Integer, ForeignKey("products.id", ondelete="CASCADE"), nullable=False, index=True
     )
 
     # Inventory tracking
@@ -71,11 +71,11 @@ class PantryItem(BaseModel):
     )
 
     # Relationships
-    variant = relationship("Variant", back_populates="pantry_items")
+    product = relationship("Product", back_populates="pantry_items")
 
     # Indexes for common queries
     __table_args__ = (
-        Index("idx_pantry_variant", "variant_id"),
+        Index("idx_pantry_product", "product_id"),
         Index("idx_pantry_location", "location"),
         Index("idx_pantry_expiration", "expiration_date"),
         Index("idx_pantry_purchase", "purchase_date"),
@@ -85,7 +85,7 @@ class PantryItem(BaseModel):
         """String representation of pantry item."""
         return (
             f"PantryItem(id={self.id}, "
-            f"variant_id={self.variant_id}, "
+            f"product_id={self.product_id}, "
             f"quantity={self.quantity}, "
             f"location='{self.location}')"
         )
@@ -181,7 +181,7 @@ class PantryItem(BaseModel):
         Convert pantry item to dictionary.
 
         Args:
-            include_relationships: If True, include variant information
+            include_relationships: If True, include product information
 
         Returns:
             Dictionary representation
@@ -194,12 +194,12 @@ class PantryItem(BaseModel):
         result["days_until_expiration"] = self.days_until_expiration
         result["is_expiring_soon"] = self.is_expiring_soon()
 
-        if include_relationships and self.variant:
-            result["variant"] = {
-                "id": self.variant.id,
-                "display_name": self.variant.display_name,
-                "product_name": self.variant.product.name,
-                "product_id": self.variant.product.id,
+        if include_relationships and self.product:
+            result["product"] = {
+                "id": self.product.id,
+                "display_name": self.product.display_name,
+                "ingredient_name": self.product.ingredient.display_name,
+                "ingredient_id": self.product.ingredient.id,
             }
 
         return result
@@ -208,23 +208,23 @@ class PantryItem(BaseModel):
 # Module-level helper functions for FIFO operations
 
 
-def get_pantry_items_fifo(product_id: int, session) -> list:
+def get_pantry_items_fifo(ingredient_id: int, session) -> list:
     """
-    Get pantry items for a product ordered by purchase date (FIFO).
+    Get pantry items for an ingredient ordered by purchase date (FIFO).
 
     Args:
-        product_id: Product ID
+        ingredient_id: Ingredient ID
         session: SQLAlchemy session
 
     Returns:
         List of PantryItem instances ordered by purchase_date (oldest first)
     """
-    from src.models.variant import Variant
+    from src.models.product import Product
 
     items = (
         session.query(PantryItem)
-        .join(Variant)
-        .filter(Variant.product_id == product_id)
+        .join(Product)
+        .filter(Product.ingredient_id == ingredient_id)
         .filter(PantryItem.quantity > 0)
         .order_by(PantryItem.purchase_date.asc().nullslast())
         .all()
@@ -233,14 +233,14 @@ def get_pantry_items_fifo(product_id: int, session) -> list:
     return items
 
 
-def consume_fifo(product_id: int, quantity_needed: float, session) -> tuple:
+def consume_fifo(ingredient_id: int, quantity_needed: float, session) -> tuple:
     """
     Consume quantity from pantry using FIFO logic.
 
     Consumes from oldest items first, updating quantities.
 
     Args:
-        product_id: Product ID
+        ingredient_id: Ingredient ID
         quantity_needed: Amount to consume (in recipe units)
         session: SQLAlchemy session
 
@@ -249,7 +249,7 @@ def consume_fifo(product_id: int, quantity_needed: float, session) -> tuple:
         - total_consumed: Amount actually consumed
         - cost_breakdown: List of (item_id, quantity, cost) tuples
     """
-    items = get_pantry_items_fifo(product_id, session)
+    items = get_pantry_items_fifo(ingredient_id, session)
 
     total_consumed = 0.0
     cost_breakdown = []
@@ -267,13 +267,13 @@ def consume_fifo(product_id: int, quantity_needed: float, session) -> tuple:
         item.consume(consumed)
 
         # Calculate cost for this consumption
-        variant_cost = item.variant.get_current_cost_per_unit()
-        cost = consumed * variant_cost
+        product_cost = item.product.get_current_cost_per_unit()
+        cost = consumed * product_cost
 
         cost_breakdown.append(
             {
                 "item_id": item.id,
-                "variant_id": item.variant_id,
+                "product_id": item.product_id,
                 "quantity": consumed,
                 "cost": cost,
                 "purchase_date": item.purchase_date,
@@ -331,20 +331,20 @@ def get_expiring_soon(days: int = 30, session=None) -> list:
     return items
 
 
-def get_total_quantity_for_product(product_id: int, session) -> float:
+def get_total_quantity_for_ingredient(ingredient_id: int, session) -> float:
     """
-    Get total quantity for a product across all pantry items.
+    Get total quantity for an ingredient across all pantry items.
 
     Args:
-        product_id: Product ID
+        ingredient_id: Ingredient ID
         session: SQLAlchemy session
 
     Returns:
         Total quantity (in purchase units, needs conversion)
     """
-    from src.models.variant import Variant
+    from src.models.product import Product
 
-    items = session.query(PantryItem).join(Variant).filter(Variant.product_id == product_id).all()
+    items = session.query(PantryItem).join(Product).filter(Product.ingredient_id == ingredient_id).all()
 
     # TODO: Convert quantities to common unit (recipe_unit)
     # For now, just sum raw quantities
