@@ -51,7 +51,7 @@ def sample_ingredient(test_db):
     from src.services import ingredient_service
 
     return ingredient_service.create_ingredient({
-        "name": "Test Flour",
+        "display_name": "Test Flour",
         "category": "Flour",
         "recipe_unit": "cup",
         # 4-field density: 1 cup = 120g (approximately 0.507 g/ml)
@@ -63,12 +63,12 @@ def sample_ingredient(test_db):
 
 
 @pytest.fixture(scope="function")
-def sample_variant(test_db, sample_ingredient):
-    """Provide a sample variant for tests."""
-    from src.services import variant_service
+def sample_product(test_db, sample_ingredient):
+    """Provide a sample product for tests."""
+    from src.services import product_service
     from decimal import Decimal
 
-    return variant_service.create_variant(
+    return product_service.create_product(
         sample_ingredient.slug,
         {
             "brand": "Test Brand",

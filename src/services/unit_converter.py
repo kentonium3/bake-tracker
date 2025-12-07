@@ -226,7 +226,7 @@ def convert_volume_to_weight(
         density = ingredient.get_density_g_per_ml()
 
     if density is None or density <= 0:
-        ingredient_name = ingredient.name if ingredient else "unknown"
+        ingredient_name = ingredient.display_name if ingredient else "unknown"
         return (
             False,
             0.0,
@@ -275,7 +275,7 @@ def convert_weight_to_volume(
         density = ingredient.get_density_g_per_ml()
 
     if density is None or density <= 0:
-        ingredient_name = ingredient.name if ingredient else "unknown"
+        ingredient_name = ingredient.display_name if ingredient else "unknown"
         return (
             False,
             0.0,

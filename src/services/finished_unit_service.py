@@ -25,7 +25,7 @@ from sqlalchemy.orm import Session, selectinload
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
 from .database import get_db_session, session_scope
-from ..models import FinishedUnit, Recipe, Composition, PantryItem
+from ..models import FinishedUnit, Recipe, Composition, InventoryItem
 from ..models.finished_unit import YieldMode
 from .exceptions import ServiceError, ValidationError, DatabaseError
 
@@ -527,9 +527,9 @@ class FinishedUnitService:
     @staticmethod
     def calculate_unit_cost(finished_unit_id: int) -> Decimal:
         """
-        Calculate current unit cost based on recipe and pantry consumption using FIFO integration.
+        Calculate current unit cost based on recipe and inventory consumption using FIFO integration.
 
-        This method integrates with existing FIFO calculation patterns from pantry_service
+        This method integrates with existing FIFO calculation patterns from inventory_item_service
         to calculate costs based on the actual historical purchase costs of ingredients
         that would be consumed using FIFO logic.
 
@@ -585,7 +585,7 @@ class FinishedUnitService:
         Calculate unit cost using FIFO inventory cost patterns.
 
         Simulates FIFO consumption for each recipe ingredient to calculate
-        the actual cost based on historical purchase prices of pantry items
+        the actual cost based on historical purchase prices of inventory items
         that would be consumed.
 
         Args:
@@ -594,7 +594,7 @@ class FinishedUnitService:
         Returns:
             FIFO-based unit cost, or None if insufficient data
         """
-        from ..models import Recipe, RecipeIngredient, PantryItem, Purchase
+        from ..models import Recipe, RecipeIngredient, InventoryItem, Purchase
         from sqlalchemy.orm import selectinload
 
         if not unit.recipe or not unit.recipe.ingredients:
@@ -627,11 +627,11 @@ class FinishedUnitService:
                 if ingredient_cost is not None:
                     total_fifo_cost += ingredient_cost
                     logger.debug(
-                        f"FIFO cost for {ingredient.name} ({quantity_needed} {ingredient.recipe_unit}): {ingredient_cost}"
+                        f"FIFO cost for {ingredient.display_name} ({quantity_needed} {ingredient.recipe_unit}): {ingredient_cost}"
                     )
                 else:
                     # If any ingredient lacks FIFO cost data, return None
-                    logger.debug(f"No FIFO cost data available for ingredient: {ingredient.name}")
+                    logger.debug(f"No FIFO cost data available for ingredient: {ingredient.display_name}")
                     return None
 
             return total_fifo_cost
@@ -647,7 +647,7 @@ class FinishedUnitService:
         """
         Calculate FIFO cost for a specific ingredient quantity.
 
-        Simulates FIFO consumption to determine the cost of pantry items
+        Simulates FIFO consumption to determine the cost of inventory items
         that would be consumed to satisfy the quantity needed.
 
         Args:
@@ -657,7 +657,7 @@ class FinishedUnitService:
         Returns:
             FIFO cost for the quantity, or None if insufficient data
         """
-        from ..models import Ingredient, Variant, PantryItem, Purchase
+        from ..models import Ingredient, Product, InventoryItem, Purchase
         from ..services.unit_converter import convert_any_units
 
         try:
@@ -676,31 +676,31 @@ class FinishedUnitService:
                 if density_g_per_ml:
                     density_g_per_cup = density_g_per_ml * 236.588
 
-                # Get all pantry items for this ingredient, ordered by FIFO (oldest first)
-                pantry_items = (
-                    session.query(PantryItem)
-                    .join(Variant)
-                    .filter(Variant.ingredient_id == ingredient.id, PantryItem.quantity >= 0.001)
-                    .order_by(PantryItem.purchase_date.asc())
+                # Get all inventory items for this ingredient, ordered by FIFO (oldest first)
+                inventory_items = (
+                    session.query(InventoryItem)
+                    .join(Product)
+                    .filter(Product.ingredient_id == ingredient.id, InventoryItem.quantity >= 0.001)
+                    .order_by(InventoryItem.purchase_date.asc())
                     .all()
                 )
 
-                if not pantry_items:
+                if not inventory_items:
                     return None
 
                 total_cost = Decimal("0.0000")
                 remaining_needed = quantity_needed
 
                 # Simulate FIFO consumption to calculate cost
-                for pantry_item in pantry_items:
+                for inventory_item in inventory_items:
                     if remaining_needed <= Decimal("0.0"):
                         break
 
-                    # Convert pantry item quantity to ingredient recipe_unit
-                    item_qty_decimal = Decimal(str(pantry_item.quantity))
+                    # Convert inventory item quantity to ingredient recipe_unit
+                    item_qty_decimal = Decimal(str(inventory_item.quantity))
                     success, available_float, error = convert_any_units(
                         float(item_qty_decimal),
-                        pantry_item.variant.purchase_unit,
+                        inventory_item.product.purchase_unit,
                         ingredient.recipe_unit,
                         ingredient=ingredient,
                     )
@@ -711,9 +711,9 @@ class FinishedUnitService:
                     available = Decimal(str(available_float))
                     to_consume = min(available, remaining_needed)
 
-                    # Get purchase cost for this pantry item
-                    purchase_cost = FinishedUnitService._get_pantry_item_unit_cost(
-                        pantry_item, to_consume, ingredient
+                    # Get purchase cost for this inventory item
+                    purchase_cost = FinishedUnitService._get_inventory_item_unit_cost(
+                        inventory_item, to_consume, ingredient
                     )
 
                     if purchase_cost is not None:
@@ -734,14 +734,14 @@ class FinishedUnitService:
             return None
 
     @staticmethod
-    def _get_pantry_item_unit_cost(
-        pantry_item: PantryItem, quantity_consumed: Decimal, ingredient: "Ingredient"
+    def _get_inventory_item_unit_cost(
+        inventory_item: InventoryItem, quantity_consumed: Decimal, ingredient: "Ingredient"
     ) -> Optional[Decimal]:
         """
-        Get the unit cost for a pantry item based on purchase history.
+        Get the unit cost for an inventory item based on purchase history.
 
         Args:
-            pantry_item: PantryItem being consumed
+            inventory_item: InventoryItem being consumed
             quantity_consumed: Amount consumed in ingredient recipe_unit
             ingredient: Ingredient for unit conversion
 
@@ -753,12 +753,12 @@ class FinishedUnitService:
 
         try:
             with get_db_session() as session:
-                # Find the most recent purchase for this variant around the pantry item's purchase date
+                # Find the most recent purchase for this product around the inventory item's purchase date
                 purchase = (
                     session.query(Purchase)
                     .filter(
-                        Purchase.variant_id == pantry_item.variant_id,
-                        Purchase.purchase_date <= pantry_item.purchase_date,
+                        Purchase.product_id == inventory_item.product_id,
+                        Purchase.purchase_date <= inventory_item.purchase_date,
                     )
                     .order_by(Purchase.purchase_date.desc())
                     .first()
@@ -771,7 +771,7 @@ class FinishedUnitService:
                 success, quantity_in_purchase_unit_float, error = convert_any_units(
                     float(quantity_consumed),
                     ingredient.recipe_unit,
-                    pantry_item.variant.purchase_unit,
+                    inventory_item.product.purchase_unit,
                     ingredient=ingredient,
                 )
 
@@ -784,7 +784,7 @@ class FinishedUnitService:
                 return quantity_in_purchase_unit * unit_cost
 
         except Exception as e:
-            logger.warning(f"Error getting pantry item unit cost: {e}")
+            logger.warning(f"Error getting inventory item unit cost: {e}")
             return None
 
     # Query Operations
@@ -969,7 +969,7 @@ def check_availability(finished_unit_id: int, required_quantity: int) -> bool:
 
 
 def calculate_unit_cost(finished_unit_id: int) -> Decimal:
-    """Calculate current unit cost based on recipe and pantry consumption."""
+    """Calculate current unit cost based on recipe and inventory consumption."""
     return FinishedUnitService.calculate_unit_cost(finished_unit_id)
 
 

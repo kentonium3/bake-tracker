@@ -33,7 +33,7 @@ from src.models import (
 )
 from src.services.database import session_scope
 from src.services.exceptions import ValidationError, DatabaseError
-from src.services import pantry_service
+from src.services import inventory_item_service
 from src.services.event_service import EventNotFoundError
 
 
@@ -41,7 +41,7 @@ from src.services.event_service import EventNotFoundError
 
 
 class InsufficientInventoryError(Exception):
-    """Raised when pantry doesn't have enough ingredients for production."""
+    """Raised when inventory doesn't have enough ingredients for production."""
 
     def __init__(self, ingredient_slug: str, needed: Decimal, available: Decimal):
         self.ingredient_slug = ingredient_slug
@@ -118,7 +118,7 @@ def record_production(
     """
     Record batches of a recipe as produced for an event.
 
-    Consumes pantry inventory via FIFO and captures actual costs.
+    Consumes inventory via FIFO and captures actual costs.
 
     Args:
         event_id: Event to record production for
@@ -133,7 +133,7 @@ def record_production(
         ValidationError: If batches <= 0
         EventNotFoundError: If event doesn't exist
         RecipeNotFoundError: If recipe doesn't exist
-        InsufficientInventoryError: If pantry lacks ingredients
+        InsufficientInventoryError: If inventory lacks ingredients
     """
     # Validation
     if batches <= 0:
@@ -147,15 +147,12 @@ def record_production(
                 raise EventNotFoundError(event_id)
 
             # Verify recipe exists and load ingredients
-            # Load both ingredient relationships (legacy and new) to avoid detached session issues
+            # Load ingredient relationship to avoid detached session issues
             recipe = (
                 session.query(Recipe)
                 .options(
                     joinedload(Recipe.recipe_ingredients).joinedload(
                         RecipeIngredient.ingredient
-                    ),
-                    joinedload(Recipe.recipe_ingredients).joinedload(
-                        RecipeIngredient.ingredient_new
                     ),
                 )
                 .filter(Recipe.id == recipe_id)
@@ -168,8 +165,8 @@ def record_production(
             total_actual_cost = Decimal("0.0000")
 
             for ri in recipe.recipe_ingredients:
-                # Use active_ingredient property which handles legacy vs new FK
-                ingredient = ri.active_ingredient
+                # Get ingredient from recipe ingredient relationship
+                ingredient = ri.ingredient
                 if not ingredient:
                     continue
 
@@ -177,7 +174,7 @@ def record_production(
                 qty_needed = Decimal(str(ri.quantity)) * Decimal(str(batches))
 
                 # Consume via FIFO (actual consumption, not dry run)
-                result = pantry_service.consume_fifo(
+                result = inventory_item_service.consume_fifo(
                     ingredient_slug=ingredient.slug,
                     quantity_needed=qty_needed,
                     dry_run=False,

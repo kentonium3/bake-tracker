@@ -1,6 +1,6 @@
-"""Pantry Service - Inventory management with FIFO consumption.
+"""Inventory Item Service - Inventory management with FIFO consumption.
 
-This module provides business logic for managing pantry inventory including
+This module provides business logic for managing inventory items including
 lot tracking, FIFO (First In, First Out) consumption, expiration monitoring,
 and value calculation.
 
@@ -15,17 +15,16 @@ Key Features:
 - Inventory value calculation (when cost data available)
 
 Example Usage:
-      >>> from src.services.pantry_service import add_to_pantry, consume_fifo
+      >>> from src.services.inventory_item_service import add_to_inventory, consume_fifo
       >>> from decimal import Decimal
       >>> from datetime import date
       >>>
       >>> # Add inventory
-      >>> item = add_to_pantry(
-      ...     variant_id=123,
+      >>> item = add_to_inventory(
+      ...     product_id=123,
       ...     quantity=Decimal("25.0"),
-      ...     unit="lb",
       ...     purchase_date=date(2025, 1, 1),
-      ...     location="Main Pantry"
+      ...     location="Main Storage"
       ... )
       >>>
       >>> # Consume using FIFO
@@ -38,11 +37,11 @@ from typing import Dict, Any, List, Optional
 from decimal import Decimal
 from datetime import date, timedelta
 
-from ..models import PantryItem, Product
+from ..models import InventoryItem, Product
 from .database import session_scope
 from .exceptions import (
     ProductNotFound,
-    PantryItemNotFound,
+    InventoryItemNotFound,
     ValidationError as ServiceValidationError,
     DatabaseError,
 )
@@ -51,52 +50,52 @@ from .ingredient_service import get_ingredient
 from sqlalchemy.orm import joinedload
 
 
-def add_to_pantry(
-    variant_id: int,
+def add_to_inventory(
+    product_id: int,
     quantity: Decimal,
     purchase_date: date,
     expiration_date: Optional[date] = None,
     location: Optional[str] = None,
     notes: Optional[str] = None,
-) -> PantryItem:
-    """Add a new pantry item (lot) to inventory.
+) -> InventoryItem:
+    """Add a new inventory item (lot) to inventory.
 
-    This function adds a discrete lot of inventory to the pantry. Each lot
+    This function adds a discrete lot of inventory to the inventory. Each lot
     is tracked separately for FIFO consumption, expiration monitoring, and
     location management.
 
     Args:
-        variant_id: ID of product variant being added
+        product_id: ID of product being added
         quantity: Amount being added (must be > 0)
         purchase_date: Date this lot was purchased (for FIFO ordering)
         expiration_date: Optional expiration date (must be >= purchase_date)
-        location: Optional storage location (e.g., "Main Pantry", "Basement")
+        location: Optional storage location (e.g., "Main Storage", "Basement")
         notes: Optional user notes
 
     Returns:
-        PantryItem: Created pantry item with assigned ID
+        InventoryItem: Created inventory item with assigned ID
 
     Raises:
-        VariantNotFound: If variant_id doesn't exist
+        ProductNotFound: If product_id doesn't exist
         ValidationError: If quantity <= 0 or expiration_date < purchase_date
         DatabaseError: If database operation fails
 
     Example:
         >>> from decimal import Decimal
         >>> from datetime import date
-        >>> item = add_to_pantry(
-        ...     variant_id=123,
+        >>> item = add_to_inventory(
+        ...     product_id=123,
         ...     quantity=Decimal("25.0"),
         ...     unit="lb",
         ...     purchase_date=date(2025, 1, 15),
         ...     expiration_date=date(2026, 1, 15),
-        ...     location="Main Pantry"
+        ...     location="Main Storage"
         ... )
         >>> item.quantity
         Decimal('25.0')
     """
-    # Validate variant exists
-    variant = get_variant(variant_id)
+    # Validate product exists
+    product = get_product(product_id)
 
     # Validate quantity > 0
     if quantity <= 0:
@@ -108,8 +107,8 @@ def add_to_pantry(
 
     try:
         with session_scope() as session:
-            item = PantryItem(
-                variant_id=variant_id,
+            item = InventoryItem(
+                product_id=product_id,
                 quantity=float(quantity),  # Model uses Float, convert from Decimal
                 purchase_date=purchase_date,
                 expiration_date=expiration_date,
@@ -120,39 +119,39 @@ def add_to_pantry(
             session.flush()
             return item
 
-    except VariantNotFound:
+    except ProductNotFound:
         raise
     except ServiceValidationError:
         raise
     except Exception as e:
-        raise DatabaseError(f"Failed to add pantry item", original_error=e)
+        raise DatabaseError(f"Failed to add inventory item", original_error=e)
 
 
-def get_pantry_items(
+def get_inventory_items(
     ingredient_slug: Optional[str] = None,
-    variant_id: Optional[int] = None,
+    product_id: Optional[int] = None,
     location: Optional[str] = None,
     min_quantity: Optional[Decimal] = None,
-) -> List[PantryItem]:
-    """Retrieve pantry items with optional filtering.
+) -> List[InventoryItem]:
+    """Retrieve inventory items with optional filtering.
 
     This function supports flexible filtering for inventory queries. Items
     are returned ordered by purchase_date (oldest first) for FIFO visibility.
 
     Args:
         ingredient_slug: Optional ingredient filter (e.g., "all_purpose_flour")
-        variant_id: Optional variant filter (specific brand/package)
+        product_id: Optional product filter (specific brand/package)
         location: Optional location filter (exact match)
         min_quantity: Optional minimum quantity filter (excludes depleted lots)
 
     Returns:
-        List[PantryItem]: Matching pantry items, ordered by purchase_date ASC
+        List[InventoryItem]: Matching inventory items, ordered by purchase_date ASC
 
     Example:
-        >>> # Get all flour in main pantry with quantity > 0
-        >>> items = get_pantry_items(
+        >>> # Get all flour in main inventory with quantity > 0
+        >>> items = get_inventory_items(
         ...     ingredient_slug="all_purpose_flour",
-        ...     location="Main Pantry",
+        ...     location="Main Storage",
         ...     min_quantity=Decimal("0.001")
         ... )
         >>> len(items)
@@ -161,25 +160,25 @@ def get_pantry_items(
         True
     """
     with session_scope() as session:
-        q = session.query(PantryItem).options(
-            joinedload(PantryItem.variant).joinedload(Variant.ingredient)
+        q = session.query(InventoryItem).options(
+            joinedload(InventoryItem.product).joinedload(Product.ingredient)
         )
 
-        # Join Variant if filtering by ingredient_slug
+        # Join Product if filtering by ingredient_slug
         if ingredient_slug:
             ingredient = get_ingredient(ingredient_slug)
-            q = q.join(Variant).filter(Variant.ingredient_id == ingredient.id)
+            q = q.join(Product).filter(Product.ingredient_id == ingredient.id)
 
         # Apply other filters
-        if variant_id:
-            q = q.filter(PantryItem.variant_id == variant_id)
+        if product_id:
+            q = q.filter(InventoryItem.product_id == product_id)
         if location:
-            q = q.filter(PantryItem.location == location)
+            q = q.filter(InventoryItem.location == location)
         if min_quantity is not None:
-            q = q.filter(PantryItem.quantity >= float(min_quantity))
+            q = q.filter(InventoryItem.quantity >= float(min_quantity))
 
         # Order by purchase_date (FIFO order)
-        return q.order_by(PantryItem.purchase_date.asc()).all()
+        return q.order_by(InventoryItem.purchase_date.asc()).all()
 
 
 def get_total_quantity(ingredient_slug: str) -> Dict[str, Decimal]:
@@ -208,13 +207,13 @@ def get_total_quantity(ingredient_slug: str) -> Dict[str, Decimal]:
     """
     ingredient = get_ingredient(ingredient_slug)  # Validate exists
 
-    # Get all pantry items for this ingredient with quantity > 0
-    items = get_pantry_items(ingredient_slug=ingredient_slug, min_quantity=Decimal("0.001"))
+    # Get all inventory items for this ingredient with quantity > 0
+    items = get_inventory_items(ingredient_slug=ingredient_slug, min_quantity=Decimal("0.001"))
 
     # Group quantities by unit
     unit_totals = {}
     for item in items:
-        unit = item.variant.purchase_unit
+        unit = item.product.purchase_unit
         if unit:
             if unit not in unit_totals:
                 unit_totals[unit] = Decimal("0.0")
@@ -226,7 +225,7 @@ def get_total_quantity(ingredient_slug: str) -> Dict[str, Decimal]:
 def consume_fifo(
     ingredient_slug: str, quantity_needed: Decimal, dry_run: bool = False
 ) -> Dict[str, Any]:
-    """Consume pantry inventory using FIFO (First In, First Out) logic.
+    """Consume inventory inventory using FIFO (First In, First Out) logic.
 
     **CRITICAL FUNCTION**: This implements the core inventory consumption algorithm.
 
@@ -263,7 +262,7 @@ def consume_fifo(
         - Quantities maintained at 3 decimal precision
         - Unit conversion uses ingredient's unit_converter configuration
         - Empty lots (quantity=0) are kept for audit trail, not deleted
-        - When dry_run=True, pantry quantities are NOT modified (read-only)
+        - When dry_run=True, inventory quantities are NOT modified (read-only)
     """
     from ..services.unit_converter import convert_any_units
 
@@ -278,16 +277,16 @@ def consume_fifo(
     try:
         with session_scope() as session:
             # Get all lots ordered by purchase_date ASC (oldest first)
-            pantry_items = (
-                session.query(PantryItem)
-                .options(joinedload(PantryItem.variant).joinedload(Variant.ingredient))
-                .join(Variant)
+            inventory_items = (
+                session.query(InventoryItem)
+                .options(joinedload(InventoryItem.product).joinedload(Product.ingredient))
+                .join(Product)
                 .filter(
-                    Variant.ingredient_id == ingredient.id,
-                    PantryItem.quantity
+                    Product.ingredient_id == ingredient.id,
+                    InventoryItem.quantity
                     >= 0.001,  # Exclude negligible amounts from floating-point errors
                 )
-                .order_by(PantryItem.purchase_date.asc())
+                .order_by(InventoryItem.purchase_date.asc())
                 .all()
             )
 
@@ -296,7 +295,7 @@ def consume_fifo(
             breakdown = []
             remaining_needed = quantity_needed
 
-            for item in pantry_items:
+            for item in inventory_items:
                 if remaining_needed <= Decimal("0.0"):
                     break
 
@@ -304,7 +303,7 @@ def consume_fifo(
                 item_qty_decimal = Decimal(str(item.quantity))
                 success, available_float, error = convert_any_units(
                     float(item_qty_decimal),
-                    item.variant.purchase_unit,
+                    item.product.purchase_unit,
                     ingredient.recipe_unit,
                     ingredient=ingredient,
                 )
@@ -319,14 +318,14 @@ def consume_fifo(
                 success, to_consume_float, error = convert_any_units(
                     float(to_consume_in_recipe_unit),
                     ingredient.recipe_unit,
-                    item.variant.purchase_unit,
+                    item.product.purchase_unit,
                     ingredient=ingredient,
                 )
                 if not success:
                     raise ValueError(f"Unit conversion failed: {error}")
                 to_consume_in_lot_unit = Decimal(str(to_consume_float))
 
-                # Get unit cost from the pantry item (if available)
+                # Get unit cost from the inventory item (if available)
                 item_unit_cost = Decimal(str(item.unit_cost)) if item.unit_cost else Decimal("0.0")
 
                 # Calculate cost for this lot's consumption
@@ -348,11 +347,11 @@ def consume_fifo(
 
                 breakdown.append(
                     {
-                        "pantry_item_id": item.id,
-                        "variant_id": item.variant_id,
+                        "inventory_item_id": item.id,
+                        "product_id": item.product_id,
                         "lot_date": item.purchase_date,
                         "quantity_consumed": to_consume_in_lot_unit,
-                        "unit": item.variant.purchase_unit,
+                        "unit": item.product.purchase_unit,
                         "remaining_in_lot": remaining_in_lot,
                         "unit_cost": item_unit_cost,
                     }
@@ -380,8 +379,8 @@ def consume_fifo(
         )
 
 
-def get_expiring_soon(days: int = 14) -> List[PantryItem]:
-    """Get pantry items expiring within specified days.
+def get_expiring_soon(days: int = 14) -> List[InventoryItem]:
+    """Get inventory items expiring within specified days.
 
     This function identifies items needing to be used soon to prevent waste.
     Items without expiration dates are excluded.
@@ -390,7 +389,7 @@ def get_expiring_soon(days: int = 14) -> List[PantryItem]:
         days: Number of days to look ahead (default: 14)
 
     Returns:
-        List[PantryItem]: Items expiring within specified days,
+        List[InventoryItem]: Items expiring within specified days,
                          ordered by expiration_date (soonest first)
 
     Example:
@@ -403,44 +402,44 @@ def get_expiring_soon(days: int = 14) -> List[PantryItem]:
 
     with session_scope() as session:
         return (
-            session.query(PantryItem)
-            .options(joinedload(PantryItem.variant).joinedload(Variant.ingredient))
+            session.query(InventoryItem)
+            .options(joinedload(InventoryItem.product).joinedload(Product.ingredient))
             .filter(
-                PantryItem.expiration_date.isnot(None),
-                PantryItem.expiration_date <= cutoff_date,
-                PantryItem.quantity > 0,
+                InventoryItem.expiration_date.isnot(None),
+                InventoryItem.expiration_date <= cutoff_date,
+                InventoryItem.quantity > 0,
             )
-            .order_by(PantryItem.expiration_date.asc())
+            .order_by(InventoryItem.expiration_date.asc())
             .all()
         )
 
 
-def update_pantry_item(pantry_item_id: int, item_data: Dict[str, Any]) -> PantryItem:
-    """Update pantry item attributes.
+def update_inventory_item(inventory_item_id: int, item_data: Dict[str, Any]) -> InventoryItem:
+    """Update inventory item attributes.
 
     Allows updating quantity, expiration_date, location, and notes.
-    Immutable fields (variant_id, purchase_date) cannot be changed to maintain
+    Immutable fields (product_id, purchase_date) cannot be changed to maintain
     FIFO integrity and audit trail.
 
     Args:
-        pantry_item_id: Pantry item identifier
+        inventory_item_id: Inventory item identifier
         item_data: Dictionary with fields to update (partial update supported)
 
     Returns:
-        PantryItem: Updated pantry item
+        InventoryItem: Updated inventory item
 
     Raises:
-        PantryItemNotFound: If pantry_item_id doesn't exist
-        ValidationError: If attempting to change variant_id or purchase_date
+        InventoryItemNotFound: If inventory_item_id doesn't exist
+        ValidationError: If attempting to change product_id or purchase_date
         DatabaseError: If database operation fails
 
     Note:
-        variant_id and purchase_date are immutable to maintain FIFO order
+        product_id and purchase_date are immutable to maintain FIFO order
         and prevent orphaned references.
     """
     # Prevent changing immutable fields
-    if "variant_id" in item_data:
-        raise ServiceValidationError("Variant ID cannot be changed after creation")
+    if "product_id" in item_data:
+        raise ServiceValidationError("Product ID cannot be changed after creation")
     if "purchase_date" in item_data:
         raise ServiceValidationError("Purchase date cannot be changed after creation")
 
@@ -451,13 +450,13 @@ def update_pantry_item(pantry_item_id: int, item_data: Dict[str, Any]) -> Pantry
     try:
         with session_scope() as session:
             item = (
-                session.query(PantryItem)
-                .options(joinedload(PantryItem.variant).joinedload(Variant.ingredient))
-                .filter_by(id=pantry_item_id)
+                session.query(InventoryItem)
+                .options(joinedload(InventoryItem.product).joinedload(Product.ingredient))
+                .filter_by(id=inventory_item_id)
                 .first()
             )
             if not item:
-                raise PantryItemNotFound(pantry_item_id)
+                raise InventoryItemNotFound(inventory_item_id)
 
             # Update attributes
             for key, value in item_data.items():
@@ -469,28 +468,28 @@ def update_pantry_item(pantry_item_id: int, item_data: Dict[str, Any]) -> Pantry
 
             return item
 
-    except PantryItemNotFound:
+    except InventoryItemNotFound:
         raise
     except ServiceValidationError:
         raise
     except Exception as e:
-        raise DatabaseError(f"Failed to update pantry item {pantry_item_id}", original_error=e)
+        raise DatabaseError(f"Failed to update inventory item {inventory_item_id}", original_error=e)
 
 
-def delete_pantry_item(pantry_item_id: int) -> bool:
-    """Delete pantry item (lot).
+def delete_inventory_item(inventory_item_id: int) -> bool:
+    """Delete inventory item (lot).
 
-    Deletes a pantry item record. Typically used for cleaning up depleted lots
+    Deletes a inventory item record. Typically used for cleaning up depleted lots
     or removing erroneous entries.
 
     Args:
-        pantry_item_id: Pantry item identifier
+        inventory_item_id: Inventory item identifier
 
     Returns:
         bool: True if deletion successful
 
     Raises:
-        PantryItemNotFound: If pantry_item_id doesn't exist
+        InventoryItemNotFound: If inventory_item_id doesn't exist
         DatabaseError: If database operation fails
 
     Note:
@@ -499,23 +498,23 @@ def delete_pantry_item(pantry_item_id: int) -> bool:
     """
     try:
         with session_scope() as session:
-            item = session.query(PantryItem).filter_by(id=pantry_item_id).first()
+            item = session.query(InventoryItem).filter_by(id=inventory_item_id).first()
             if not item:
-                raise PantryItemNotFound(pantry_item_id)
+                raise InventoryItemNotFound(inventory_item_id)
 
             session.delete(item)
             return True
 
-    except PantryItemNotFound:
+    except InventoryItemNotFound:
         raise
     except Exception as e:
-        raise DatabaseError(f"Failed to delete pantry item {pantry_item_id}", original_error=e)
+        raise DatabaseError(f"Failed to delete inventory item {inventory_item_id}", original_error=e)
 
 
-def get_pantry_value() -> Decimal:
-    """Calculate total value of all pantry inventory.
+def get_inventory_value() -> Decimal:
+    """Calculate total value of all inventory inventory.
 
-    Calculates total monetary value of pantry by multiplying quantities by
+    Calculates total monetary value of inventory by multiplying quantities by
     unit costs from purchase history.
 
     Returns:
@@ -527,15 +526,15 @@ def get_pantry_value() -> Decimal:
         cost history tracking.
 
     Future Implementation:
-        - Join PantryItem with Purchase via variant_id
-        - Get most recent unit_cost for each variant
-        - Calculate: SUM(pantry_item.quantity * latest_purchase.unit_cost)
-        - Handle unit conversions if pantry unit != purchase unit
+        - Join InventoryItem with Purchase via product_id
+        - Get most recent unit_cost for each product
+        - Calculate: SUM(inventory_item.quantity * latest_purchase.unit_cost)
+        - Handle unit conversions if inventory unit != purchase unit
     """
     # TODO: Implement when Purchase model and purchase_service.py are ready
     # Future logic:
-    # 1. Query all PantryItem with quantity > 0
-    # 2. Join with Purchase to get latest unit_cost per variant
+    # 1. Query all InventoryItem with quantity > 0
+    # 2. Join with Purchase to get latest unit_cost per product
     # 3. Convert quantities to purchase unit if needed
     # 4. Calculate: SUM(quantity * unit_cost)
     return Decimal("0.0")

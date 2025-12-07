@@ -5,18 +5,26 @@ Tests cover:
 - Model creation and persistence
 - Relationships between models
 - Calculated properties
-- Cost calculations
-- Unit conversions
 - CRUD operations
+
+TD-001: Updated for new schema:
+- Ingredient: generic ingredient definitions (display_name, recipe_unit, density)
+- Product: branded products linked to ingredients
+- InventoryItem: inventory tracking
+- Purchase: price history
 """
 
 import pytest
 from datetime import datetime
+from decimal import Decimal
 
 from src.models import (
     Ingredient,
+    Product,
     Recipe,
     RecipeIngredient,
+    InventoryItem,
+    Purchase,
     InventorySnapshot,
     SnapshotIngredient,
 )
@@ -48,151 +56,213 @@ def db_session():
 
 
 class TestIngredientModel:
-    """Tests for Ingredient model."""
+    """Tests for Ingredient model (TD-001 schema)."""
 
     def test_create_ingredient(self, db_session):
-        """Test creating an ingredient."""
+        """Test creating an ingredient with new schema."""
         ingredient = Ingredient(
-            name="Flour",
-            brand="King Arthur",
+            display_name="All-Purpose Flour",
+            slug="all_purpose_flour",
             category="Flour",
-            purchase_unit="bag",
-            purchase_unit_size="50 lb",
             recipe_unit="cup",
-            conversion_factor=200.0,
-            quantity=2.5,
-            unit_cost=15.99,
+            description="Standard all-purpose flour",
             notes="Test notes",
         )
         db_session.add(ingredient)
         db_session.commit()
 
         assert ingredient.id is not None
-        assert ingredient.name == "Flour"
-        assert ingredient.quantity == 2.5
+        assert ingredient.display_name == "All-Purpose Flour"
+        assert ingredient.slug == "all_purpose_flour"
+        assert ingredient.category == "Flour"
+        assert ingredient.recipe_unit == "cup"
 
-    def test_ingredient_total_value(self, db_session):
-        """Test total value calculation."""
+    def test_ingredient_with_density(self, db_session):
+        """Test ingredient with density specification."""
         ingredient = Ingredient(
-            name="Sugar",
-            category="Sugar",
-            purchase_unit="bag",
-            recipe_unit="cup",
-            conversion_factor=20.0,
-            quantity=5.0,
-            unit_cost=10.00,
-        )
-        assert ingredient.total_value == 50.00
-
-    def test_ingredient_available_recipe_units(self, db_session):
-        """Test available recipe units calculation."""
-        ingredient = Ingredient(
-            name="Flour",
+            display_name="All-Purpose Flour",
+            slug="all_purpose_flour",
             category="Flour",
-            purchase_unit="bag",
             recipe_unit="cup",
-            conversion_factor=200.0,
-            quantity=2.0,
-            unit_cost=15.00,
-        )
-        assert ingredient.available_recipe_units == 400.0
-
-    def test_convert_to_recipe_units(self, db_session):
-        """Test conversion from purchase to recipe units."""
-        ingredient = Ingredient(
-            name="Flour",
-            category="Flour",
-            purchase_unit="bag",
-            recipe_unit="cup",
-            conversion_factor=200.0,
-            quantity=1.0,
-            unit_cost=15.00,
-        )
-        assert ingredient.convert_to_recipe_units(1.0) == 200.0
-        assert ingredient.convert_to_recipe_units(0.5) == 100.0
-
-    def test_convert_from_recipe_units(self, db_session):
-        """Test conversion from recipe to purchase units."""
-        ingredient = Ingredient(
-            name="Flour",
-            category="Flour",
-            purchase_unit="bag",
-            recipe_unit="cup",
-            conversion_factor=200.0,
-            quantity=1.0,
-            unit_cost=15.00,
-        )
-        assert ingredient.convert_from_recipe_units(200.0) == 1.0
-        assert ingredient.convert_from_recipe_units(100.0) == 0.5
-
-    def test_get_cost_per_recipe_unit(self, db_session):
-        """Test cost per recipe unit calculation."""
-        ingredient = Ingredient(
-            name="Flour",
-            category="Flour",
-            purchase_unit="bag",
-            recipe_unit="cup",
-            conversion_factor=200.0,
-            quantity=1.0,
-            unit_cost=20.00,
-        )
-        # $20 per bag / 200 cups per bag = $0.10 per cup
-        assert ingredient.get_cost_per_recipe_unit() == 0.10
-
-    def test_update_quantity(self, db_session):
-        """Test updating quantity."""
-        ingredient = Ingredient(
-            name="Flour",
-            category="Flour",
-            purchase_unit="bag",
-            recipe_unit="cup",
-            conversion_factor=200.0,
-            quantity=1.0,
-            unit_cost=15.00,
+            # 4-field density: 1 cup = 120g
+            density_volume_value=1.0,
+            density_volume_unit="cup",
+            density_weight_value=120.0,
+            density_weight_unit="g",
         )
         db_session.add(ingredient)
-        db_session.flush()  # Ensure default timestamp is set
-        old_updated = ingredient.last_updated
-        ingredient.update_quantity(2.5)
-        assert ingredient.quantity == 2.5
-        assert ingredient.last_updated >= old_updated
+        db_session.commit()
 
-    def test_adjust_quantity(self, db_session):
-        """Test adjusting quantity by delta."""
+        assert ingredient.density_volume_value == 1.0
+        assert ingredient.density_volume_unit == "cup"
+        assert ingredient.density_weight_value == 120.0
+        assert ingredient.density_weight_unit == "g"
+
+    def test_ingredient_get_density_g_per_ml(self, db_session):
+        """Test density calculation in g/ml."""
         ingredient = Ingredient(
-            name="Flour",
+            display_name="All-Purpose Flour",
+            slug="all_purpose_flour",
             category="Flour",
-            purchase_unit="bag",
             recipe_unit="cup",
-            conversion_factor=200.0,
-            quantity=5.0,
-            unit_cost=15.00,
+            # 1 cup = 120g, 1 cup = 236.588 ml
+            density_volume_value=1.0,
+            density_volume_unit="cup",
+            density_weight_value=120.0,
+            density_weight_unit="g",
         )
-        ingredient.adjust_quantity(-1.5)
-        assert ingredient.quantity == 3.5
+        db_session.add(ingredient)
+        db_session.commit()
 
-        ingredient.adjust_quantity(2.0)
-        assert ingredient.quantity == 5.5
+        density = ingredient.get_density_g_per_ml()
+        # 120g / 236.588ml = ~0.507 g/ml
+        assert density is not None
+        assert 0.5 < density < 0.52
+
+    def test_ingredient_without_density(self, db_session):
+        """Test ingredient without density returns None."""
+        ingredient = Ingredient(
+            display_name="Sugar",
+            slug="sugar",
+            category="Sugar",
+            recipe_unit="cup",
+        )
+        db_session.add(ingredient)
+        db_session.commit()
+
+        assert ingredient.get_density_g_per_ml() is None
 
     def test_ingredient_to_dict(self, db_session):
         """Test dictionary serialization."""
         ingredient = Ingredient(
-            name="Flour",
+            display_name="Flour",
+            slug="flour",
             category="Flour",
-            purchase_unit="bag",
             recipe_unit="cup",
-            conversion_factor=200.0,
-            quantity=2.0,
-            unit_cost=15.00,
         )
+        db_session.add(ingredient)
+        db_session.commit()
+
         data = ingredient.to_dict()
 
-        assert data["name"] == "Flour"
-        assert data["quantity"] == 2.0
-        assert "total_value" in data
-        assert "available_recipe_units" in data
-        assert data["total_value"] == 30.00
-        assert data["available_recipe_units"] == 400.0
+        assert data["display_name"] == "Flour"
+        assert data["slug"] == "flour"
+        assert data["category"] == "Flour"
+        assert data["recipe_unit"] == "cup"
+
+    def test_ingredient_slug_uniqueness(self, db_session):
+        """Test that slug must be unique."""
+        from sqlalchemy.exc import IntegrityError
+
+        ingredient1 = Ingredient(
+            display_name="Flour",
+            slug="flour",
+            category="Flour",
+            recipe_unit="cup",
+        )
+        db_session.add(ingredient1)
+        db_session.commit()
+
+        ingredient2 = Ingredient(
+            display_name="Another Flour",
+            slug="flour",  # Same slug
+            category="Flour",
+            recipe_unit="cup",
+        )
+        db_session.add(ingredient2)
+
+        with pytest.raises(IntegrityError):
+            db_session.commit()
+
+
+class TestProductModel:
+    """Tests for Product model."""
+
+    def test_create_product(self, db_session):
+        """Test creating a product linked to ingredient."""
+        # First create ingredient
+        ingredient = Ingredient(
+            display_name="Flour",
+            slug="flour",
+            category="Flour",
+            recipe_unit="cup",
+        )
+        db_session.add(ingredient)
+        db_session.flush()
+
+        # Create product (display_name is a computed property, not a column)
+        product = Product(
+            ingredient_id=ingredient.id,
+            brand="King Arthur",
+            package_size="5 lb bag",
+            purchase_unit="lb",
+            purchase_quantity=Decimal("5.0"),
+        )
+        db_session.add(product)
+        db_session.commit()
+
+        assert product.id is not None
+        assert product.brand == "King Arthur"
+        assert product.ingredient_id == ingredient.id
+        assert product.ingredient.display_name == "Flour"
+        # display_name is computed from brand + package_size
+        assert "King Arthur" in product.display_name
+
+    def test_product_preferred_flag(self, db_session):
+        """Test preferred product flag."""
+        ingredient = Ingredient(
+            display_name="Sugar",
+            slug="sugar",
+            category="Sugar",
+            recipe_unit="cup",
+        )
+        db_session.add(ingredient)
+        db_session.flush()
+
+        product = Product(
+            ingredient_id=ingredient.id,
+            brand="Domino",
+            package_size="5 lb bag",
+            purchase_unit="lb",
+            purchase_quantity=Decimal("5.0"),
+            preferred=True,
+        )
+        db_session.add(product)
+        db_session.commit()
+
+        assert product.preferred is True
+
+    def test_product_ingredient_relationship(self, db_session):
+        """Test product-ingredient relationship navigation."""
+        ingredient = Ingredient(
+            display_name="Flour",
+            slug="flour",
+            category="Flour",
+            recipe_unit="cup",
+        )
+        db_session.add(ingredient)
+        db_session.flush()
+
+        product1 = Product(
+            ingredient_id=ingredient.id,
+            brand="Brand A",
+            package_size="5 lb",
+            purchase_unit="lb",
+            purchase_quantity=Decimal("5.0"),
+        )
+        product2 = Product(
+            ingredient_id=ingredient.id,
+            brand="Brand B",
+            package_size="10 lb",
+            purchase_unit="lb",
+            purchase_quantity=Decimal("10.0"),
+        )
+        db_session.add_all([product1, product2])
+        db_session.commit()
+        db_session.refresh(ingredient)
+
+        # Ingredient can access its products
+        assert len(ingredient.products) == 2
 
 
 class TestRecipeModel:
@@ -217,16 +287,13 @@ class TestRecipeModel:
         assert recipe.yield_quantity == 48
 
     def test_recipe_with_ingredients(self, db_session):
-        """Test recipe with ingredients and cost calculation."""
+        """Test recipe with ingredients (TD-001 schema)."""
         # Create ingredient
         flour = Ingredient(
-            name="Flour",
+            display_name="Flour",
+            slug="flour",
             category="Flour",
-            purchase_unit="bag",
             recipe_unit="cup",
-            conversion_factor=200.0,
-            quantity=5.0,
-            unit_cost=20.00,  # $20 per bag, $0.10 per cup
         )
         db_session.add(flour)
         db_session.flush()
@@ -241,77 +308,19 @@ class TestRecipeModel:
         db_session.add(recipe)
         db_session.flush()
 
-        # Add ingredient to recipe
+        # Add ingredient to recipe (TD-001: use ingredient_id not ingredient_new_id)
         recipe_ingredient = RecipeIngredient(
             recipe_id=recipe.id,
             ingredient_id=flour.id,
-            quantity=2.0,  # 2 cups
+            quantity=2.0,
             unit="cup",
         )
         db_session.add(recipe_ingredient)
         db_session.commit()
 
-        # Refresh to load relationships
         db_session.refresh(recipe)
-
-        # Cost should be: 2 cups × $0.10/cup = $0.20
-        assert recipe.calculate_cost() == pytest.approx(0.20, rel=1e-6)
-
-    def test_recipe_cost_per_unit(self, db_session):
-        """Test cost per unit calculation."""
-        # Create ingredients
-        flour = Ingredient(
-            name="Flour",
-            category="Flour",
-            purchase_unit="bag",
-            recipe_unit="cup",
-            conversion_factor=100.0,
-            quantity=5.0,
-            unit_cost=10.00,  # $0.10 per cup
-        )
-        sugar = Ingredient(
-            name="Sugar",
-            category="Sugar",
-            purchase_unit="bag",
-            recipe_unit="cup",
-            conversion_factor=20.0,
-            quantity=3.0,
-            unit_cost=8.00,  # $0.40 per cup
-        )
-        db_session.add_all([flour, sugar])
-        db_session.flush()
-
-        # Create recipe
-        recipe = Recipe(
-            name="Cookies",
-            category="Cookies",
-            yield_quantity=48,
-            yield_unit="cookies",
-        )
-        db_session.add(recipe)
-        db_session.flush()
-
-        # Add ingredients: 2 cups flour + 1 cup sugar
-        db_session.add_all(
-            [
-                RecipeIngredient(
-                    recipe_id=recipe.id, ingredient_id=flour.id, quantity=2.0, unit="cup"
-                ),
-                RecipeIngredient(
-                    recipe_id=recipe.id, ingredient_id=sugar.id, quantity=1.0, unit="cup"
-                ),
-            ]
-        )
-        db_session.commit()
-        db_session.refresh(recipe)
-
-        # Total: (2 × $0.10) + (1 × $0.40) = $0.60
-        # Per unit: $0.60 / 48 = $0.0125
-        total_cost = recipe.calculate_cost()
-        cost_per_unit = recipe.get_cost_per_unit()
-
-        assert total_cost == pytest.approx(0.60, rel=1e-6)
-        assert cost_per_unit == pytest.approx(0.0125, rel=1e-6)
+        assert len(recipe.recipe_ingredients) == 1
+        assert recipe.recipe_ingredients[0].ingredient.display_name == "Flour"
 
     def test_recipe_to_dict(self, db_session):
         """Test recipe dictionary serialization."""
@@ -326,23 +335,19 @@ class TestRecipeModel:
 
         data = recipe.to_dict()
         assert data["name"] == "Test Recipe"
-        assert "total_cost" in data
-        assert "cost_per_unit" in data
+        assert data["category"] == "Cookies"
 
 
 class TestRecipeIngredientModel:
-    """Tests for RecipeIngredient model."""
+    """Tests for RecipeIngredient model (TD-001 schema)."""
 
     def test_create_recipe_ingredient(self, db_session):
         """Test creating recipe ingredient junction."""
         ingredient = Ingredient(
-            name="Flour",
+            display_name="Flour",
+            slug="flour",
             category="Flour",
-            purchase_unit="bag",
             recipe_unit="cup",
-            conversion_factor=200.0,
-            quantity=5.0,
-            unit_cost=20.00,
         )
         recipe = Recipe(
             name="Cookies",
@@ -366,23 +371,21 @@ class TestRecipeIngredientModel:
         assert recipe_ingredient.id is not None
         assert recipe_ingredient.quantity == 3.0
         assert recipe_ingredient.notes == "Sifted"
+        assert recipe_ingredient.ingredient.display_name == "Flour"
 
-    def test_recipe_ingredient_cost(self, db_session):
-        """Test recipe ingredient cost calculation."""
+    def test_recipe_ingredient_relationship(self, db_session):
+        """Test recipe ingredient navigates to both recipe and ingredient."""
         ingredient = Ingredient(
-            name="Flour",
-            category="Flour",
-            purchase_unit="bag",
+            display_name="Sugar",
+            slug="sugar",
+            category="Sugar",
             recipe_unit="cup",
-            conversion_factor=100.0,  # 100 cups per bag
-            quantity=5.0,
-            unit_cost=10.00,  # $10 per bag = $0.10 per cup
         )
         recipe = Recipe(
-            name="Cookies",
-            category="Cookies",
-            yield_quantity=24,
-            yield_unit="cookies",
+            name="Cake",
+            category="Cakes",
+            yield_quantity=12,
+            yield_unit="slices",
         )
         db_session.add_all([ingredient, recipe])
         db_session.flush()
@@ -390,48 +393,127 @@ class TestRecipeIngredientModel:
         recipe_ingredient = RecipeIngredient(
             recipe_id=recipe.id,
             ingredient_id=ingredient.id,
-            quantity=5.0,  # 5 cups
+            quantity=1.5,
             unit="cup",
         )
         db_session.add(recipe_ingredient)
         db_session.commit()
         db_session.refresh(recipe_ingredient)
 
-        # 5 cups × $0.10/cup = $0.50
-        assert recipe_ingredient.calculate_cost() == pytest.approx(0.50, rel=1e-6)
+        assert recipe_ingredient.recipe.name == "Cake"
+        assert recipe_ingredient.ingredient.display_name == "Sugar"
 
-    def test_get_purchase_unit_quantity(self, db_session):
-        """Test conversion to purchase units."""
+
+class TestInventoryItemModel:
+    """Tests for InventoryItem model (TD-001 schema)."""
+
+    def test_create_inventory_item(self, db_session):
+        """Test creating an inventory item with product_id."""
         ingredient = Ingredient(
-            name="Flour",
+            display_name="Flour",
+            slug="flour",
             category="Flour",
-            purchase_unit="bag",
             recipe_unit="cup",
-            conversion_factor=200.0,  # 200 cups per bag
-            quantity=5.0,
-            unit_cost=20.00,
         )
-        recipe = Recipe(
-            name="Cookies",
-            category="Cookies",
-            yield_quantity=24,
-            yield_unit="cookies",
-        )
-        db_session.add_all([ingredient, recipe])
+        db_session.add(ingredient)
         db_session.flush()
 
-        recipe_ingredient = RecipeIngredient(
-            recipe_id=recipe.id,
+        product = Product(
             ingredient_id=ingredient.id,
-            quantity=100.0,  # 100 cups
-            unit="cup",
+            brand="King Arthur",
+            package_size="5 lb",
+            purchase_unit="lb",
+            purchase_quantity=Decimal("5.0"),
         )
-        db_session.add(recipe_ingredient)
-        db_session.commit()
-        db_session.refresh(recipe_ingredient)
+        db_session.add(product)
+        db_session.flush()
 
-        # 100 cups / 200 cups per bag = 0.5 bags
-        assert recipe_ingredient.get_purchase_unit_quantity() == pytest.approx(0.5, rel=1e-6)
+        inventory_item = InventoryItem(
+            product_id=product.id,
+            quantity=5.0,
+            unit_cost=8.99,
+        )
+        db_session.add(inventory_item)
+        db_session.commit()
+
+        assert inventory_item.id is not None
+        assert inventory_item.product_id == product.id
+        assert inventory_item.quantity == 5.0
+
+    def test_inventory_item_navigates_to_product(self, db_session):
+        """Test inventory item can navigate to product and ingredient."""
+        ingredient = Ingredient(
+            display_name="Sugar",
+            slug="sugar",
+            category="Sugar",
+            recipe_unit="cup",
+        )
+        db_session.add(ingredient)
+        db_session.flush()
+
+        product = Product(
+            ingredient_id=ingredient.id,
+            brand="Domino",
+            package_size="5 lb",
+            purchase_unit="lb",
+            purchase_quantity=Decimal("5.0"),
+        )
+        db_session.add(product)
+        db_session.flush()
+
+        inventory_item = InventoryItem(
+            product_id=product.id,
+            quantity=3.5,
+        )
+        db_session.add(inventory_item)
+        db_session.commit()
+        db_session.refresh(inventory_item)
+
+        # Navigate through relationships
+        assert inventory_item.product.brand == "Domino"
+        assert inventory_item.product.ingredient.display_name == "Sugar"
+
+
+class TestPurchaseModel:
+    """Tests for Purchase model (TD-001 schema)."""
+
+    def test_create_purchase(self, db_session):
+        """Test creating a purchase with product_id."""
+        ingredient = Ingredient(
+            display_name="Butter",
+            slug="butter",
+            category="Dairy",
+            recipe_unit="tbsp",
+        )
+        db_session.add(ingredient)
+        db_session.flush()
+
+        product = Product(
+            ingredient_id=ingredient.id,
+            brand="Land O Lakes",
+            package_size="1 lb",
+            purchase_unit="lb",
+            purchase_quantity=Decimal("1.0"),
+        )
+        db_session.add(product)
+        db_session.flush()
+
+        from datetime import date
+
+        purchase = Purchase(
+            product_id=product.id,
+            purchase_date=date.today(),
+            quantity_purchased=2.0,
+            unit_cost=5.99,
+            total_cost=11.98,
+            supplier="Test Store",
+        )
+        db_session.add(purchase)
+        db_session.commit()
+
+        assert purchase.id is not None
+        assert purchase.product_id == product.id
+        assert purchase.unit_cost == 5.99
 
 
 class TestInventorySnapshotModel:
@@ -452,89 +534,11 @@ class TestInventorySnapshotModel:
 
     def test_snapshot_with_ingredients(self, db_session):
         """Test snapshot with ingredients."""
-        # Create ingredients
-        flour = Ingredient(
-            name="Flour",
-            category="Flour",
-            purchase_unit="bag",
-            recipe_unit="cup",
-            conversion_factor=200.0,
-            quantity=5.0,
-            unit_cost=20.00,
-        )
-        db_session.add(flour)
-        db_session.flush()
-
-        # Create snapshot
-        snapshot = InventorySnapshot(name="Test Snapshot")
-        db_session.add(snapshot)
-        db_session.flush()
-
-        # Add ingredient to snapshot
-        snap_ingredient = SnapshotIngredient(
-            snapshot_id=snapshot.id,
-            ingredient_id=flour.id,
-            quantity=3.0,
-        )
-        db_session.add(snap_ingredient)
-        db_session.commit()
-        db_session.refresh(snapshot)
-
-        assert len(snapshot.snapshot_ingredients) == 1
-        assert snapshot.snapshot_ingredients[0].quantity == 3.0
-
-    def test_snapshot_total_value(self, db_session):
-        """Test snapshot total value calculation."""
-        # Create ingredients
-        flour = Ingredient(
-            name="Flour",
-            category="Flour",
-            purchase_unit="bag",
-            recipe_unit="cup",
-            conversion_factor=200.0,
-            quantity=5.0,
-            unit_cost=10.00,
-        )
-        sugar = Ingredient(
-            name="Sugar",
-            category="Sugar",
-            purchase_unit="bag",
-            recipe_unit="cup",
-            conversion_factor=20.0,
-            quantity=3.0,
-            unit_cost=8.00,
-        )
-        db_session.add_all([flour, sugar])
-        db_session.flush()
-
-        # Create snapshot
-        snapshot = InventorySnapshot(name="Test Snapshot")
-        db_session.add(snapshot)
-        db_session.flush()
-
-        # Add ingredients to snapshot
-        db_session.add_all(
-            [
-                SnapshotIngredient(snapshot_id=snapshot.id, ingredient_id=flour.id, quantity=2.0),
-                SnapshotIngredient(snapshot_id=snapshot.id, ingredient_id=sugar.id, quantity=3.0),
-            ]
-        )
-        db_session.commit()
-        db_session.refresh(snapshot)
-
-        # Total: (2 × $10.00) + (3 × $8.00) = $44.00
-        assert snapshot.calculate_total_value() == pytest.approx(44.00, rel=1e-6)
-
-    def test_get_ingredient_quantity(self, db_session):
-        """Test getting specific ingredient quantity from snapshot."""
         ingredient = Ingredient(
-            name="Flour",
+            display_name="Flour",
+            slug="flour",
             category="Flour",
-            purchase_unit="bag",
             recipe_unit="cup",
-            conversion_factor=200.0,
-            quantity=5.0,
-            unit_cost=20.00,
         )
         db_session.add(ingredient)
         db_session.flush()
@@ -546,14 +550,14 @@ class TestInventorySnapshotModel:
         snap_ingredient = SnapshotIngredient(
             snapshot_id=snapshot.id,
             ingredient_id=ingredient.id,
-            quantity=2.5,
+            quantity=3.0,
         )
         db_session.add(snap_ingredient)
         db_session.commit()
         db_session.refresh(snapshot)
 
-        assert snapshot.get_ingredient_quantity(ingredient.id) == 2.5
-        assert snapshot.get_ingredient_quantity(999) == 0.0  # Non-existent ingredient
+        assert len(snapshot.snapshot_ingredients) == 1
+        assert snapshot.snapshot_ingredients[0].quantity == 3.0
 
 
 class TestModelRelationships:
@@ -562,13 +566,10 @@ class TestModelRelationships:
     def test_ingredient_to_recipe_relationship(self, db_session):
         """Test ingredient can access recipes that use it."""
         ingredient = Ingredient(
-            name="Flour",
+            display_name="Flour",
+            slug="flour",
             category="Flour",
-            purchase_unit="bag",
             recipe_unit="cup",
-            conversion_factor=200.0,
-            quantity=5.0,
-            unit_cost=20.00,
         )
         recipe = Recipe(
             name="Cookies",
@@ -595,13 +596,10 @@ class TestModelRelationships:
     def test_recipe_cascade_delete(self, db_session):
         """Test that deleting recipe cascades to recipe_ingredients."""
         ingredient = Ingredient(
-            name="Flour",
+            display_name="Flour",
+            slug="flour",
             category="Flour",
-            purchase_unit="bag",
             recipe_unit="cup",
-            conversion_factor=200.0,
-            quantity=5.0,
-            unit_cost=20.00,
         )
         recipe = Recipe(
             name="Cookies",
@@ -629,4 +627,69 @@ class TestModelRelationships:
 
         # RecipeIngredient should also be deleted
         remaining = db_session.query(RecipeIngredient).filter_by(recipe_id=recipe_id).count()
+        assert remaining == 0
+
+    def test_ingredient_to_products_relationship(self, db_session):
+        """Test ingredient can access its products (TD-001)."""
+        ingredient = Ingredient(
+            display_name="Flour",
+            slug="flour",
+            category="Flour",
+            recipe_unit="cup",
+        )
+        db_session.add(ingredient)
+        db_session.flush()
+
+        product1 = Product(
+            ingredient_id=ingredient.id,
+            brand="Brand A",
+            package_size="5 lb",
+            purchase_unit="lb",
+            purchase_quantity=Decimal("5.0"),
+        )
+        product2 = Product(
+            ingredient_id=ingredient.id,
+            brand="Brand B",
+            package_size="10 lb",
+            purchase_unit="lb",
+            purchase_quantity=Decimal("10.0"),
+        )
+        db_session.add_all([product1, product2])
+        db_session.commit()
+        db_session.refresh(ingredient)
+
+        assert len(ingredient.products) == 2
+        brands = [p.brand for p in ingredient.products]
+        assert "Brand A" in brands
+        assert "Brand B" in brands
+
+    def test_product_cascade_delete(self, db_session):
+        """Test that deleting ingredient cascades to products."""
+        ingredient = Ingredient(
+            display_name="Sugar",
+            slug="sugar",
+            category="Sugar",
+            recipe_unit="cup",
+        )
+        db_session.add(ingredient)
+        db_session.flush()
+
+        product = Product(
+            ingredient_id=ingredient.id,
+            brand="Domino",
+            package_size="5 lb",
+            purchase_unit="lb",
+            purchase_quantity=Decimal("5.0"),
+        )
+        db_session.add(product)
+        db_session.commit()
+
+        ingredient_id = ingredient.id
+
+        # Delete ingredient
+        db_session.delete(ingredient)
+        db_session.commit()
+
+        # Product should also be deleted (cascade)
+        remaining = db_session.query(Product).filter_by(ingredient_id=ingredient_id).count()
         assert remaining == 0

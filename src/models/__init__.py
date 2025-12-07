@@ -6,13 +6,13 @@ This package contains all SQLAlchemy ORM models for the application.
 
 from .base import Base, BaseModel
 from .ingredient import Ingredient  # Refactored model
-from .product import Product  # Refactored from Variant
+from .product import Product
 from .purchase import Purchase
-from .pantry_item import PantryItem
+from .inventory_item import InventoryItem
 from .unit_conversion import UnitConversion
 from .ingredient_alias import IngredientAlias  # Supporting model
 from .ingredient_crosswalk import IngredientCrosswalk  # Supporting model
-from .variant_packaging import ProductPackaging, VariantPackaging  # Refactored model + alias
+from .product_packaging import ProductPackaging
 from .recipe import Recipe, RecipeIngredient
 from .inventory_snapshot import InventorySnapshot, SnapshotIngredient
 from .finished_good import FinishedGood
@@ -37,13 +37,12 @@ __all__ = [
     "Ingredient",
     "Product",
     "Purchase",
-    "PantryItem",
+    "InventoryItem",
     "UnitConversion",
     # Supporting Models
     "IngredientAlias",
     "IngredientCrosswalk",
     "ProductPackaging",
-    "VariantPackaging",  # Backward compatibility alias
     # Existing Models
     "Recipe",
     "RecipeIngredient",

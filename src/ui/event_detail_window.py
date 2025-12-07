@@ -439,11 +439,11 @@ class EventDetailWindow(ctk.CTkToplevel):
             )
             label.grid(row=0, column=0, pady=20)
 
-    def _format_single_variant(self, rec, show_preferred=False, recipe_unit="unit"):
-        """Format columns for a single variant recommendation.
+    def _format_single_product(self, rec, show_preferred=False, recipe_unit="unit"):
+        """Format columns for a single product recommendation.
 
         Args:
-            rec: Variant recommendation dict
+            rec: Product recommendation dict
             show_preferred: Whether to show [preferred] indicator
             recipe_unit: Unit for cost display (e.g., "cup")
 
@@ -481,7 +481,7 @@ class EventDetailWindow(ctk.CTkToplevel):
         return (brand, package_size, cost_unit, est_cost)
 
     def _refresh_shopping_list(self):
-        """Refresh shopping list tab with variant recommendations (Feature 007)."""
+        """Refresh shopping list tab with product recommendations (Feature 007)."""
         # Clear existing
         for widget in self.shopping_list_frame.winfo_children():
             widget.destroy()
@@ -508,7 +508,7 @@ class EventDetailWindow(ctk.CTkToplevel):
             )
             title_label.grid(row=0, column=0, sticky="w", pady=(0, 15))
 
-            # Header (T008: Extended with variant columns)
+            # Header (T008: Extended with product columns)
             header_frame = ctk.CTkFrame(self.shopping_list_frame, fg_color=("gray85", "gray25"))
             header_frame.grid(row=1, column=0, sticky="ew", pady=(0, 5))
             header_frame.grid_columnconfigure((0, 1, 2, 3, 4, 5, 6, 7), weight=1)
@@ -518,7 +518,7 @@ class EventDetailWindow(ctk.CTkToplevel):
                 "Needed",
                 "On Hand",
                 "To Buy",
-                "Variant",
+                "Product",
                 "Package",
                 "Cost/Unit",
                 "Est. Cost",
@@ -539,22 +539,22 @@ class EventDetailWindow(ctk.CTkToplevel):
                 quantity_needed = float(item.get("quantity_needed", 0))
                 quantity_on_hand = float(item.get("quantity_on_hand", 0))
                 unit = item.get("unit", "")
-                variant_status = item.get("variant_status", "none")
+                product_status = item.get("product_status", "none")
 
                 # Format base columns
                 needed_str = f"{quantity_needed:.2f} {unit}"
                 on_hand_str = f"{quantity_on_hand:.2f} {unit}"
                 to_buy_str = f"{shortfall:.2f} {unit}"
 
-                # Handle different variant statuses (T009, T010, T011)
-                if variant_status == "multiple":
-                    # T009: Multiple variants - display as stacked rows
-                    all_variants = item.get("all_variants", [])
-                    if all_variants:
+                # Handle different product statuses (T009, T010, T011)
+                if product_status == "multiple":
+                    # T009: Multiple products - display as stacked rows
+                    all_products = item.get("all_products", [])
+                    if all_products:
                         # First row with ingredient info
-                        first_variant = all_variants[0]
-                        v_cols = self._format_single_variant(
-                            first_variant, show_preferred=False, recipe_unit=unit
+                        first_product = all_products[0]
+                        v_cols = self._format_single_product(
+                            first_product, show_preferred=False, recipe_unit=unit
                         )
                         self._create_shopping_row(
                             row,
@@ -566,32 +566,32 @@ class EventDetailWindow(ctk.CTkToplevel):
                         )
                         row += 1
 
-                        # Additional variant rows (blank ingredient columns)
-                        for variant in all_variants[1:]:
-                            v_cols = self._format_single_variant(
-                                variant, show_preferred=False, recipe_unit=unit
+                        # Additional product rows (blank ingredient columns)
+                        for product in all_products[1:]:
+                            v_cols = self._format_single_product(
+                                product, show_preferred=False, recipe_unit=unit
                             )
                             self._create_shopping_row(row, "", "", "", "", *v_cols, indent=True)
                             row += 1
                     else:
-                        # No variants available
+                        # No products available
                         self._create_shopping_row(
                             row,
                             ingredient_name,
                             needed_str,
                             on_hand_str,
                             to_buy_str,
-                            "No variant configured",
+                            "No product configured",
                             "",
                             "",
                             "",
                         )
                         row += 1
 
-                elif variant_status == "preferred":
-                    # T010: Show preferred variant with indicator
-                    rec = item.get("variant_recommendation")
-                    v_cols = self._format_single_variant(rec, show_preferred=True, recipe_unit=unit)
+                elif product_status == "preferred":
+                    # T010: Show preferred product with indicator
+                    rec = item.get("product_recommendation")
+                    v_cols = self._format_single_product(rec, show_preferred=True, recipe_unit=unit)
                     self._create_shopping_row(
                         row,
                         ingredient_name,
@@ -602,15 +602,15 @@ class EventDetailWindow(ctk.CTkToplevel):
                     )
                     row += 1
 
-                elif variant_status == "none":
-                    # T011: No variant configured fallback
+                elif product_status == "none":
+                    # T011: No product configured fallback
                     self._create_shopping_row(
                         row,
                         ingredient_name,
                         needed_str,
                         on_hand_str,
                         to_buy_str,
-                        "No variant configured",
+                        "No product configured",
                         "",
                         "",
                         "",
@@ -625,7 +625,7 @@ class EventDetailWindow(ctk.CTkToplevel):
                         needed_str,
                         on_hand_str,
                         to_buy_str,
-                        variant_status.capitalize(),
+                        product_status.capitalize(),
                         "",
                         "",
                         "",
@@ -647,7 +647,7 @@ class EventDetailWindow(ctk.CTkToplevel):
             # Note about total calculation
             note_label = ctk.CTkLabel(
                 total_frame,
-                text="* Total includes only items with a preferred variant selected",
+                text="* Total includes only items with a preferred product selected",
                 font=ctk.CTkFont(size=10, slant="italic"),
                 text_color="gray",
             )
@@ -668,7 +668,7 @@ class EventDetailWindow(ctk.CTkToplevel):
         needed,
         on_hand,
         to_buy,
-        variant,
+        product,
         package,
         cost_unit,
         est_cost,
@@ -682,11 +682,11 @@ class EventDetailWindow(ctk.CTkToplevel):
             needed: Quantity needed string
             on_hand: Quantity on hand string
             to_buy: Quantity to buy string
-            variant: Variant brand/status text
+            product: Product brand/status text
             package: Package size text
             cost_unit: Cost per unit text
             est_cost: Estimated total cost text
-            indent: Whether this is an indented sub-row (for multiple variants)
+            indent: Whether this is an indented sub-row (for multiple products)
         """
         # Different background for sub-rows to show grouping
         if indent:
@@ -705,7 +705,7 @@ class EventDetailWindow(ctk.CTkToplevel):
         ctk.CTkLabel(item_frame, text=needed).grid(row=0, column=1, padx=8, pady=5, sticky="w")
         ctk.CTkLabel(item_frame, text=on_hand).grid(row=0, column=2, padx=8, pady=5, sticky="w")
         ctk.CTkLabel(item_frame, text=to_buy).grid(row=0, column=3, padx=8, pady=5, sticky="w")
-        ctk.CTkLabel(item_frame, text=f"{indent_text}{variant}").grid(
+        ctk.CTkLabel(item_frame, text=f"{indent_text}{product}").grid(
             row=0, column=4, padx=8, pady=5, sticky="w"
         )
         ctk.CTkLabel(item_frame, text=package).grid(row=0, column=5, padx=8, pady=5, sticky="w")

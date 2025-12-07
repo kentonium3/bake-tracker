@@ -1,4 +1,4 @@
-"""Integration tests for ingredient -> variant -> pantry workflow.
+"""Integration tests for ingredient -> product -> inventory workflow.
 
 Tests the complete inventory management flow across multiple services.
 """
@@ -7,12 +7,12 @@ import pytest
 from decimal import Decimal
 from datetime import date, timedelta
 
-from src.services import ingredient_service, variant_service, pantry_service
-from src.services.exceptions import IngredientNotFoundBySlug, VariantNotFound, ValidationError
+from src.services import ingredient_service, product_service, inventory_item_service
+from src.services.exceptions import IngredientNotFoundBySlug, ProductNotFound, ValidationError
 
 
 def test_complete_inventory_workflow(test_db):
-    """Test: Create ingredient -> Create variant -> Add to pantry -> Query inventory."""
+    """Test: Create ingredient -> Create product -> Add to inventory -> Query inventory."""
 
     # 1. Create ingredient
     ingredient_data = {
@@ -27,88 +27,90 @@ def test_complete_inventory_workflow(test_db):
     }
     ingredient = ingredient_service.create_ingredient(ingredient_data)
     assert ingredient.slug == "all_purpose_flour"
-    assert ingredient.name == "All-Purpose Flour"
+    assert ingredient.display_name == "All-Purpose Flour"
     assert ingredient.recipe_unit == "cup"
 
-    # 2. Create variant
-    variant_data = {
+    # 2. Create product
+    product_data = {
         "brand": "King Arthur",
         "package_size": "25 lb bag",
         "purchase_unit": "lb",
         "purchase_quantity": Decimal("25.0"),
         "preferred": True,
     }
-    variant = variant_service.create_variant(ingredient.slug, variant_data)
-    assert variant.preferred is True
-    assert variant.brand == "King Arthur"
-    assert variant.ingredient_id == ingredient.id
+    product = product_service.create_product(ingredient.slug, product_data)
+    assert product.preferred is True
+    assert product.brand == "King Arthur"
+    assert product.ingredient_id == ingredient.id
 
-    # 3. Add to pantry
-    pantry_item = pantry_service.add_to_pantry(
-        variant_id=variant.id,
+    # 3. Add to inventory
+    inventory_item = inventory_item_service.add_to_inventory(
+        product_id=product.id,
         quantity=Decimal("25.0"),
         purchase_date=date.today(),
         expiration_date=date.today() + timedelta(days=365),
-        location="Main Pantry",
+        location="Main Storage",
     )
-    assert pantry_item.quantity == 25.0
-    assert pantry_item.variant_id == variant.id
-    assert pantry_item.location == "Main Pantry"
+    assert inventory_item.quantity == 25.0
+    assert inventory_item.product_id == product.id
+    assert inventory_item.location == "Main Storage"
 
-    # 4. Query total inventory (25 lb = 100 cups at 4 cups/lb)
-    total = pantry_service.get_total_quantity(ingredient.slug)
-    assert abs(total - Decimal("100.0")) < Decimal("0.01"), f"Expected 100.0 cups, got {total}"
+    # 4. Query total inventory by unit
+    totals = inventory_item_service.get_total_quantity(ingredient.slug)
+    # Returns dict grouped by unit - should have 25 lb
+    assert "lb" in totals, f"Expected 'lb' in totals, got {totals}"
+    assert abs(totals["lb"] - Decimal("25.0")) < Decimal("0.01"), f"Expected 25.0 lb, got {totals['lb']}"
 
-    # 5. Get preferred variant
-    preferred = variant_service.get_preferred_variant(ingredient.slug)
-    assert preferred.id == variant.id
+    # 5. Get preferred product
+    preferred = product_service.get_preferred_product(ingredient.slug)
+    assert preferred.id == product.id
     assert preferred.preferred is True
 
 
-def test_multiple_variants_preferred_toggle(test_db):
-    """Test: Create multiple variants -> Toggle preferred -> Verify atomicity."""
+def test_multiple_products_preferred_toggle(test_db):
+    """Test: Create multiple products -> Toggle preferred -> Verify atomicity."""
 
     # Create ingredient
     ingredient_data = {"name": "Granulated Sugar", "category": "Sugar", "recipe_unit": "cup"}
     ingredient = ingredient_service.create_ingredient(ingredient_data)
 
-    # Create variant 1 (preferred)
-    variant1_data = {
+    # Create product 1 (preferred)
+    product1_data = {
         "brand": "C&H",
         "package_size": "4 lb bag",
         "purchase_unit": "lb",
         "purchase_quantity": Decimal("4.0"),
         "preferred": True,
     }
-    variant1 = variant_service.create_variant(ingredient.slug, variant1_data)
-    assert variant1.preferred is True
+    product1 = product_service.create_product(ingredient.slug, product1_data)
+    assert product1.preferred is True
 
-    # Create variant 2 (not preferred initially)
-    variant2_data = {
+    # Create product 2 (not preferred initially)
+    product2_data = {
         "brand": "Domino",
         "package_size": "5 lb bag",
         "purchase_unit": "lb",
         "purchase_quantity": Decimal("5.0"),
         "preferred": False,
     }
-    variant2 = variant_service.create_variant(ingredient.slug, variant2_data)
-    assert variant2.preferred is False
+    product2 = product_service.create_product(ingredient.slug, product2_data)
+    assert product2.preferred is False
 
-    # Toggle preferred to variant 2
-    variant_service.set_preferred_variant(variant2.id)
+    # Toggle preferred to product 2
+    product_service.set_preferred_product(product2.id)
 
-    # Verify atomicity: only variant2 should be preferred
-    variants = variant_service.get_variants_for_ingredient(ingredient.slug)
-    preferred_count = sum(1 for v in variants if v.preferred)
+    # Verify atomicity: only product2 should be preferred
+    products = product_service.get_products_for_ingredient(ingredient.slug)
+    preferred_count = sum(1 for p in products if p.preferred)
     assert preferred_count == 1
-    assert variants[0].id == variant2.id  # Preferred first
-    assert variants[0].preferred is True
+    assert products[0].id == product2.id  # Preferred first
+    assert products[0].preferred is True
 
 
-def test_pantry_items_filtering(test_db):
-    """Test: Add multiple pantry items -> Filter by location and ingredient."""
+def test_inventory_items_filtering(test_db):
+    """Test: Add multiple inventory items -> Filter by location and ingredient."""
 
-    # Setup: Create ingredient and variant
+    # Setup: Create ingredient and product
     ingredient = ingredient_service.create_ingredient(
         {
             "name": "Bread Flour",
@@ -122,7 +124,7 @@ def test_pantry_items_filtering(test_db):
         }
     )
 
-    variant = variant_service.create_variant(
+    product = product_service.create_product(
         ingredient.slug,
         {
             "brand": "Bob's Red Mill",
@@ -132,44 +134,44 @@ def test_pantry_items_filtering(test_db):
         },
     )
 
-    # Add pantry items to different locations
-    item1 = pantry_service.add_to_pantry(
-        variant_id=variant.id,
+    # Add inventory items to different locations
+    item1 = inventory_item_service.add_to_inventory(
+        product_id=product.id,
         quantity=Decimal("5.0"),
         purchase_date=date.today() - timedelta(days=30),
-        location="Main Pantry",
+        location="Main Storage",
     )
 
-    item2 = pantry_service.add_to_pantry(
-        variant_id=variant.id,
+    item2 = inventory_item_service.add_to_inventory(
+        product_id=product.id,
         quantity=Decimal("10.0"),
         purchase_date=date.today() - timedelta(days=15),
         location="Basement",
     )
 
-    item3 = pantry_service.add_to_pantry(
-        variant_id=variant.id,
+    item3 = inventory_item_service.add_to_inventory(
+        product_id=product.id,
         quantity=Decimal("3.0"),
         purchase_date=date.today(),
-        location="Main Pantry",
+        location="Main Storage",
     )
 
     # Filter by location
-    main_pantry_items = pantry_service.get_pantry_items(
-        ingredient_slug=ingredient.slug, location="Main Pantry"
+    main_storage_items = inventory_item_service.get_inventory_items(
+        ingredient_slug=ingredient.slug, location="Main Storage"
     )
-    assert len(main_pantry_items) == 2
+    assert len(main_storage_items) == 2
 
-    basement_items = pantry_service.get_pantry_items(
+    basement_items = inventory_item_service.get_inventory_items(
         ingredient_slug=ingredient.slug, location="Basement"
     )
     assert len(basement_items) == 1
 
-    # Verify total quantity
-    total = pantry_service.get_total_quantity(ingredient.slug)
-    assert abs(total - Decimal("72.0")) < Decimal(
-        "0.01"
-    ), f"Expected 72.0 cups, got {total}"  # 18 lb = 72 cups at 4 cups/lb
+    # Verify total quantity by unit
+    totals = inventory_item_service.get_total_quantity(ingredient.slug)
+    # Returns dict grouped by unit - should have 18 lb total (5 + 10 + 3)
+    assert "lb" in totals, f"Expected 'lb' in totals, got {totals}"
+    assert abs(totals["lb"] - Decimal("18.0")) < Decimal("0.01"), f"Expected 18.0 lb, got {totals['lb']}"
 
 
 def test_expiring_items_detection(test_db):
@@ -180,7 +182,7 @@ def test_expiring_items_detection(test_db):
         {"name": "Yeast", "category": "Misc", "recipe_unit": "tsp"}
     )
 
-    variant = variant_service.create_variant(
+    product = product_service.create_product(
         ingredient.slug,
         {
             "brand": "Red Star",
@@ -191,45 +193,45 @@ def test_expiring_items_detection(test_db):
     )
 
     # Add item expiring in 7 days
-    expiring_soon = pantry_service.add_to_pantry(
-        variant_id=variant.id,
+    expiring_soon = inventory_item_service.add_to_inventory(
+        product_id=product.id,
         quantity=Decimal("2.0"),
         purchase_date=date.today() - timedelta(days=60),
         expiration_date=date.today() + timedelta(days=7),
     )
 
     # Add item expiring in 30 days
-    expiring_later = pantry_service.add_to_pantry(
-        variant_id=variant.id,
+    expiring_later = inventory_item_service.add_to_inventory(
+        product_id=product.id,
         quantity=Decimal("4.0"),
         purchase_date=date.today() - timedelta(days=30),
         expiration_date=date.today() + timedelta(days=30),
     )
 
     # Add item with no expiration
-    no_expiration = pantry_service.add_to_pantry(
-        variant_id=variant.id, quantity=Decimal("1.0"), purchase_date=date.today()
+    no_expiration = inventory_item_service.add_to_inventory(
+        product_id=product.id, quantity=Decimal("1.0"), purchase_date=date.today()
     )
 
     # Get items expiring within 14 days
-    expiring = pantry_service.get_expiring_soon(days=14)
+    expiring = inventory_item_service.get_expiring_soon(days=14)
     assert len(expiring) == 1
     assert expiring[0].id == expiring_soon.id
 
     # Get items expiring within 60 days
-    expiring_60 = pantry_service.get_expiring_soon(days=60)
+    expiring_60 = inventory_item_service.get_expiring_soon(days=60)
     assert len(expiring_60) == 2
 
 
-def test_ingredient_deletion_blocked_by_variants(test_db):
-    """Test: Create variant -> Attempt to delete ingredient -> Verify blocked."""
+def test_ingredient_deletion_blocked_by_products(test_db):
+    """Test: Create product -> Attempt to delete ingredient -> Verify blocked."""
 
-    # Create ingredient and variant
+    # Create ingredient and product
     ingredient = ingredient_service.create_ingredient(
         {"name": "Baking Powder", "category": "Misc", "recipe_unit": "tsp"}
     )
 
-    variant = variant_service.create_variant(
+    product = product_service.create_product(
         ingredient.slug,
         {"brand": "Rumford", "purchase_unit": "oz", "purchase_quantity": Decimal("8.0")},
     )

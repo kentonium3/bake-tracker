@@ -210,12 +210,13 @@ def validate_ingredient_data(data: dict) -> Tuple[bool, list]:  # noqa: C901
     """
     errors = []
 
-    # Required: Name
-    is_valid, error = validate_required_string(data.get("name"), "Name")
+    # Required: Display name (accepts both 'display_name' and 'name' for compatibility)
+    display_name = data.get("display_name") or data.get("name")
+    is_valid, error = validate_required_string(display_name, "Name")
     if not is_valid:
         errors.append(error)
     else:
-        is_valid, error = validate_string_length(data.get("name"), MAX_NAME_LENGTH, "Name")
+        is_valid, error = validate_string_length(display_name, MAX_NAME_LENGTH, "Name")
         if not is_valid:
             errors.append(error)
 
@@ -476,7 +477,3 @@ def validate_product_data(data: dict, ingredient_slug: str) -> Tuple[bool, list]
             errors.append(error)
 
     return len(errors) == 0, errors
-
-
-# Alias for backward compatibility
-validate_variant_data = validate_product_data

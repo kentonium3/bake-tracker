@@ -1,11 +1,13 @@
 """
-Inventory Service - Business logic for ingredient management.
+Ingredient CRUD Service - Business logic for ingredient management.
 
 This service provides CRUD operations for ingredients with:
 - Input validation
 - Search and filtering
-- Stock management
 - Dependency checking before deletion
+
+Note: Renamed from inventory_service.py for clarity. The name "inventory_service"
+was confusing since InventoryItem tracks actual stock.
 """
 
 from typing import List, Optional, Dict
@@ -52,9 +54,11 @@ def create_ingredient(data: Dict) -> Ingredient:
     try:
         with session_scope() as session:
             # Create ingredient (NEW SCHEMA: generic ingredient definition)
+            # Support both 'name' and 'display_name' for backward compatibility
+            display_name = data.get("display_name") or data.get("name")
             ingredient = Ingredient(
-                name=data["name"],
-                slug=data.get("slug", data["name"].lower().replace(" ", "_")),
+                display_name=display_name,
+                slug=data.get("slug", display_name.lower().replace(" ", "_")),
                 category=data["category"],
                 recipe_unit=data["recipe_unit"],
                 description=data.get("description"),
@@ -141,17 +145,17 @@ def get_all_ingredients(
             if name_search:
                 query = query.filter(
                     or_(
-                        Ingredient.name.ilike(f"%{name_search}%"),
+                        Ingredient.display_name.ilike(f"%{name_search}%"),
                         Ingredient.slug.ilike(f"%{name_search}%"),
                     )
                 )
 
-            # Note: low_stock_threshold filtering removed - quantity is now on PantryItem, not Ingredient
+            # Note: low_stock_threshold filtering removed - quantity is now on InventoryItem, not Ingredient
             # if low_stock_threshold is not None:
             #     query = query.filter(Ingredient.quantity <= low_stock_threshold)
 
-            # Order by name
-            query = query.order_by(Ingredient.name)
+            # Order by display_name
+            query = query.order_by(Ingredient.display_name)
 
             ingredients = query.all()
 

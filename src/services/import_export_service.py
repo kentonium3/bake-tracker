@@ -12,13 +12,14 @@ from pathlib import Path
 
 from sqlalchemy.orm import joinedload
 
-from src.services import inventory_service, recipe_service, finished_good_service
+from src.services import ingredient_crud_service
+from src.services import recipe_service, finished_good_service
 from src.services import package_service, recipient_service, event_service
 from src.services.exceptions import ValidationError
 from src.services.database import session_scope
 from src.models.ingredient import Ingredient
 from src.models.product import Product
-from src.models.pantry_item import PantryItem
+from src.models.inventory_item import InventoryItem
 from src.models.purchase import Purchase
 from src.models.unit_conversion import UnitConversion
 from src.models.finished_unit import FinishedUnit
@@ -200,7 +201,7 @@ def export_ingredients_to_json(
     """
     try:
         # Get ingredients
-        ingredients = inventory_service.get_all_ingredients(category=category_filter)
+        ingredients = ingredient_crud_service.get_all_ingredients(category=category_filter)
 
         # Build export data
         export_data = {
@@ -778,7 +779,7 @@ def export_all_to_json(file_path: str) -> ExportResult:
     Export all data to a single JSON file in v3.0 format.
 
     Exports in dependency order per data-model.md:
-    unit_conversions, ingredients, products, purchases, pantry_items,
+    unit_conversions, ingredients, products, purchases, inventory_items,
     recipes, finished_units, finished_goods, compositions, packages,
     package_finished_goods, recipients, events, event_recipient_packages,
     production_records.
@@ -818,7 +819,7 @@ def export_all_to_json(file_path: str) -> ExportResult:
             "ingredients": [],
             "products": [],
             "purchases": [],
-            "pantry_items": [],
+            "inventory_items": [],
             "recipes": [],
             "finished_units": finished_units_data,
             "finished_goods": [],
@@ -871,77 +872,77 @@ def export_all_to_json(file_path: str) -> ExportResult:
 
             export_data["ingredients"].append(ingredient_data)
 
-        # Add products (NEW SCHEMA: brand/package-specific versions)
+        # Add products (brand/package-specific versions)
         for ingredient in ingredients:
-            for variant in ingredient.products:
-                variant_data = {
+            for product in ingredient.products:
+                product_data = {
                     "ingredient_slug": ingredient.slug,
-                    "purchase_unit": variant.purchase_unit,
-                    "purchase_quantity": variant.purchase_quantity,
+                    "purchase_unit": product.purchase_unit,
+                    "purchase_quantity": product.purchase_quantity,
                 }
 
                 # Optional fields
-                if variant.brand:
-                    variant_data["brand"] = variant.brand
-                if variant.package_size:
-                    variant_data["package_size"] = variant.package_size
-                if variant.package_type:
-                    variant_data["package_type"] = variant.package_type
-                if variant.upc_code:
-                    variant_data["upc_code"] = variant.upc_code
-                if variant.supplier:
-                    variant_data["supplier"] = variant.supplier
-                if variant.supplier_sku:
-                    variant_data["supplier_sku"] = variant.supplier_sku
-                if variant.gtin:
-                    variant_data["gtin"] = variant.gtin
-                if variant.brand_owner:
-                    variant_data["brand_owner"] = variant.brand_owner
-                if variant.gpc_brick_code:
-                    variant_data["gpc_brick_code"] = variant.gpc_brick_code
-                if variant.net_content_value:
-                    variant_data["net_content_value"] = variant.net_content_value
-                if variant.net_content_uom:
-                    variant_data["net_content_uom"] = variant.net_content_uom
-                if variant.country_of_sale:
-                    variant_data["country_of_sale"] = variant.country_of_sale
-                if variant.off_id:
-                    variant_data["off_id"] = variant.off_id
-                if variant.preferred:
-                    variant_data["preferred"] = variant.preferred
-                if variant.notes:
-                    variant_data["notes"] = variant.notes
+                if product.brand:
+                    product_data["brand"] = product.brand
+                if product.package_size:
+                    product_data["package_size"] = product.package_size
+                if product.package_type:
+                    product_data["package_type"] = product.package_type
+                if product.upc_code:
+                    product_data["upc_code"] = product.upc_code
+                if product.supplier:
+                    product_data["supplier"] = product.supplier
+                if product.supplier_sku:
+                    product_data["supplier_sku"] = product.supplier_sku
+                if product.gtin:
+                    product_data["gtin"] = product.gtin
+                if product.brand_owner:
+                    product_data["brand_owner"] = product.brand_owner
+                if product.gpc_brick_code:
+                    product_data["gpc_brick_code"] = product.gpc_brick_code
+                if product.net_content_value:
+                    product_data["net_content_value"] = product.net_content_value
+                if product.net_content_uom:
+                    product_data["net_content_uom"] = product.net_content_uom
+                if product.country_of_sale:
+                    product_data["country_of_sale"] = product.country_of_sale
+                if product.off_id:
+                    product_data["off_id"] = product.off_id
+                if product.preferred:
+                    product_data["preferred"] = product.preferred
+                if product.notes:
+                    product_data["notes"] = product.notes
 
-                export_data["products"].append(variant_data)
+                export_data["products"].append(product_data)
 
-        # Add pantry items (actual inventory lots)
+        # Add inventory items (actual inventory lots)
         with session_scope() as session:
-            pantry_items = session.query(PantryItem).join(Product).join(Ingredient).all()
-            for item in pantry_items:
-                pantry_data = {
-                    "ingredient_slug": item.variant.ingredient.slug,
-                    "variant_brand": item.variant.brand or "",
+            inventory_items = session.query(InventoryItem).join(Product).join(Ingredient).all()
+            for item in inventory_items:
+                item_data = {
+                    "ingredient_slug": item.product.ingredient.slug,
+                    "product_brand": item.product.brand or "",
                     "quantity": item.quantity,
                     "purchase_date": item.purchase_date.isoformat() if item.purchase_date else None,
                 }
 
                 # Optional fields
                 if item.expiration_date:
-                    pantry_data["expiration_date"] = item.expiration_date.isoformat()
+                    item_data["expiration_date"] = item.expiration_date.isoformat()
                 if item.location:
-                    pantry_data["location"] = item.location
+                    item_data["location"] = item.location
                 if item.notes:
-                    pantry_data["notes"] = item.notes
+                    item_data["notes"] = item.notes
 
-                export_data["pantry_items"].append(pantry_data)
+                export_data["inventory_items"].append(item_data)
 
         # Add purchases (price history)
         with session_scope() as session:
             purchases = session.query(Purchase).join(Product).join(Ingredient).all()
             for purchase in purchases:
                 purchase_data = {
-                    "ingredient_slug": purchase.variant.ingredient.slug,
-                    "variant_brand": purchase.variant.brand or "",
+                    "ingredient_slug": purchase.product.ingredient.slug,
+                    "product_brand": purchase.product.brand or "",
                     "purchased_at": (
                         purchase.purchase_date.isoformat() if purchase.purchase_date else None
                     ),
@@ -996,12 +997,8 @@ def export_all_to_json(file_path: str) -> ExportResult:
 
             recipe_data["ingredients"] = []
             for ri in recipe.recipe_ingredients:
-                # Use ingredient_new if available (new schema), fallback to ingredient (old schema)
-                ingredient = (
-                    ri.ingredient_new
-                    if hasattr(ri, "ingredient_new") and ri.ingredient_new
-                    else ri.ingredient
-                )
+                # Get ingredient from the recipe ingredient relationship
+                ingredient = ri.ingredient
 
                 ingredient_data = {
                     "ingredient_slug": (
@@ -1109,7 +1106,7 @@ def export_all_to_json(file_path: str) -> ExportResult:
             + len(export_data["ingredients"])
             + len(export_data["products"])
             + len(export_data["purchases"])
-            + len(export_data["pantry_items"])
+            + len(export_data["inventory_items"])
             + len(export_data["recipes"])
             + len(export_data["finished_units"])
             + len(export_data["finished_goods"])
@@ -1129,7 +1126,7 @@ def export_all_to_json(file_path: str) -> ExportResult:
         result.add_entity_count("ingredients", len(export_data["ingredients"]))
         result.add_entity_count("products", len(export_data["products"]))
         result.add_entity_count("purchases", len(export_data["purchases"]))
-        result.add_entity_count("pantry_items", len(export_data["pantry_items"]))
+        result.add_entity_count("inventory_items", len(export_data["inventory_items"]))
         result.add_entity_count("recipes", len(export_data["recipes"]))
         result.add_entity_count("finished_units", len(export_data["finished_units"]))
         result.add_entity_count("finished_goods", len(export_data["finished_goods"]))
@@ -1207,18 +1204,18 @@ def import_ingredients_from_json(file_path: str, skip_duplicates: bool = True) -
 
                 # Check for duplicate by display_name or slug
                 if skip_duplicates:
-                    existing = inventory_service.get_all_ingredients(name_search=display_name)
+                    existing = ingredient_crud_service.get_all_ingredients(name_search=display_name)
                     for existing_ing in existing:
                         if existing_ing.display_name == display_name:
                             result.add_skip("ingredient", display_name, "Already exists")
                             break
                     else:
                         # Not duplicate, create it
-                        inventory_service.create_ingredient(ingredient_data)
+                        ingredient_crud_service.create_ingredient(ingredient_data)
                         result.add_success()
                 else:
                     # Create ingredient
-                    inventory_service.create_ingredient(ingredient_data)
+                    ingredient_crud_service.create_ingredient(ingredient_data)
                     result.add_success()
 
             except ValidationError as e:
@@ -1261,28 +1258,28 @@ def import_products_from_json(file_path: str, skip_duplicates: bool = True) -> I
 
         products_data = data["products"]
 
-        # Import each variant
-        for idx, variant_data in enumerate(products_data):
+        # Import each product
+        for idx, product_data in enumerate(products_data):
             try:
-                ingredient_slug = variant_data.get("ingredient_slug", "")
-                brand = variant_data.get("brand", "")
-                purchase_unit = variant_data.get("purchase_unit", "")
-                purchase_quantity = variant_data.get("purchase_quantity", 0)
+                ingredient_slug = product_data.get("ingredient_slug", "")
+                brand = product_data.get("brand", "")
+                purchase_unit = product_data.get("purchase_unit", "")
+                purchase_quantity = product_data.get("purchase_quantity", 0)
 
                 if not ingredient_slug:
-                    result.add_error("variant", f"Record {idx+1}", "Missing ingredient_slug")
+                    result.add_error("product", f"Record {idx+1}", "Missing ingredient_slug")
                     continue
 
                 if not purchase_unit:
-                    result.add_error("variant", f"Record {idx+1}", "Missing purchase_unit")
+                    result.add_error("product", f"Record {idx+1}", "Missing purchase_unit")
                     continue
 
                 if not purchase_quantity:
-                    result.add_error("variant", f"Record {idx+1}", "Missing purchase_quantity")
+                    result.add_error("product", f"Record {idx+1}", "Missing purchase_quantity")
                     continue
 
                 # Find the ingredient by slug
-                all_ingredients = inventory_service.get_all_ingredients()
+                all_ingredients = ingredient_crud_service.get_all_ingredients()
                 ingredient = None
                 for ing in all_ingredients:
                     if ing.slug == ingredient_slug:
@@ -1291,11 +1288,11 @@ def import_products_from_json(file_path: str, skip_duplicates: bool = True) -> I
 
                 if not ingredient:
                     result.add_error(
-                        "variant", f"Record {idx+1}", f"Ingredient not found: {ingredient_slug}"
+                        "product", f"Record {idx+1}", f"Ingredient not found: {ingredient_slug}"
                     )
                     continue
 
-                # Create variant with ingredient_id
+                # Create product with ingredient_id
                 with session_scope() as session:
                     # Re-fetch ingredient in this session
                     ingredient_in_session = (
@@ -1304,16 +1301,16 @@ def import_products_from_json(file_path: str, skip_duplicates: bool = True) -> I
 
                     # Check for duplicate within the session
                     if skip_duplicates:
-                        package_size = variant_data.get("package_size", "")
+                        package_size = product_data.get("package_size", "")
                         duplicate_found = False
-                        for existing_variant in ingredient_in_session.products:
+                        for existing_product in ingredient_in_session.products:
                             if (
-                                existing_variant.brand == brand
-                                and existing_variant.package_size == package_size
-                                and existing_variant.purchase_unit == purchase_unit
+                                existing_product.brand == brand
+                                and existing_product.package_size == package_size
+                                and existing_product.purchase_unit == purchase_unit
                             ):
                                 result.add_skip(
-                                    "variant",
+                                    "product",
                                     f"{ingredient_in_session.display_name} - {brand or 'generic'}",
                                     "Already exists",
                                 )
@@ -1323,35 +1320,35 @@ def import_products_from_json(file_path: str, skip_duplicates: bool = True) -> I
                         if duplicate_found:
                             continue
 
-                    new_variant = Product(
+                    new_product = Product(
                         ingredient_id=ingredient.id,
                         purchase_unit=purchase_unit,
                         purchase_quantity=purchase_quantity,
-                        brand=variant_data.get("brand"),
-                        package_size=variant_data.get("package_size"),
-                        package_type=variant_data.get("package_type"),
-                        upc_code=variant_data.get("upc_code"),
-                        supplier=variant_data.get("supplier"),
-                        supplier_sku=variant_data.get("supplier_sku"),
-                        gtin=variant_data.get("gtin"),
-                        brand_owner=variant_data.get("brand_owner"),
-                        gpc_brick_code=variant_data.get("gpc_brick_code"),
-                        net_content_value=variant_data.get("net_content_value"),
-                        net_content_uom=variant_data.get("net_content_uom"),
-                        country_of_sale=variant_data.get("country_of_sale"),
-                        off_id=variant_data.get("off_id"),
-                        preferred=variant_data.get("preferred", False),
-                        notes=variant_data.get("notes"),
+                        brand=product_data.get("brand"),
+                        package_size=product_data.get("package_size"),
+                        package_type=product_data.get("package_type"),
+                        upc_code=product_data.get("upc_code"),
+                        supplier=product_data.get("supplier"),
+                        supplier_sku=product_data.get("supplier_sku"),
+                        gtin=product_data.get("gtin"),
+                        brand_owner=product_data.get("brand_owner"),
+                        gpc_brick_code=product_data.get("gpc_brick_code"),
+                        net_content_value=product_data.get("net_content_value"),
+                        net_content_uom=product_data.get("net_content_uom"),
+                        country_of_sale=product_data.get("country_of_sale"),
+                        off_id=product_data.get("off_id"),
+                        preferred=product_data.get("preferred", False),
+                        notes=product_data.get("notes"),
                     )
-                    session.add(new_variant)
+                    session.add(new_product)
                     session.commit()
 
                 result.add_success()
 
             except ValidationError as e:
-                result.add_error("variant", f"Record {idx+1}", f"Validation error: {e}")
+                result.add_error("product", f"Record {idx+1}", f"Validation error: {e}")
             except Exception as e:
-                result.add_error("variant", f"Record {idx+1}", str(e))
+                result.add_error("product", f"Record {idx+1}", str(e))
 
         return result
 
@@ -1432,7 +1429,7 @@ def import_recipes_from_json(
                         ing_slug = ing_name.lower().replace(" ", "_") if ing_name else ""
 
                     # Find ingredient by slug
-                    all_ingredients = inventory_service.get_all_ingredients()
+                    all_ingredients = ingredient_crud_service.get_all_ingredients()
                     found = None
 
                     for ingredient in all_ingredients:
@@ -2095,7 +2092,7 @@ def _clear_all_tables(session) -> None:
         FinishedUnit,
         RecipeIngredient,
         Recipe,
-        PantryItem,
+        InventoryItem,
         Purchase,
         Product,
         Ingredient,
@@ -2557,7 +2554,7 @@ def import_all_from_json_v3(file_path: str, mode: str = "merge") -> ImportResult
     2. unit_conversions (depends on ingredients)
     3. products (depends on ingredients)
     4. purchases (depends on products)
-    5. pantry_items (depends on products)
+    5. inventory_items (depends on products)
     6. recipes (depends on ingredients)
     7. finished_units (depends on recipes)
     8. finished_goods (no dependencies)
@@ -2726,43 +2723,43 @@ def import_all_from_json_v3(file_path: str, mode: str = "merge") -> ImportResult
 
             # 3. Products (depends on ingredients)
             if "products" in data:
-                for var in data["products"]:
+                for prod_data in data["products"]:
                     try:
-                        ing_slug = var.get("ingredient_slug", "")
+                        ing_slug = prod_data.get("ingredient_slug", "")
                         ingredient = session.query(Ingredient).filter_by(slug=ing_slug).first()
                         if not ingredient:
-                            result.add_error("variant", var.get("brand", "unknown"), f"Ingredient not found: {ing_slug}")
+                            result.add_error("product", prod_data.get("brand", "unknown"), f"Ingredient not found: {ing_slug}")
                             continue
 
-                        brand = var.get("brand", "")
+                        brand = prod_data.get("brand", "")
                         if skip_duplicates:
                             existing = session.query(Product).filter_by(
                                 ingredient_id=ingredient.id,
                                 brand=brand,
                             ).first()
                             if existing:
-                                result.add_skip("variant", brand, "Already exists")
+                                result.add_skip("product", brand, "Already exists")
                                 continue
 
-                        variant = Product(
+                        product = Product(
                             ingredient_id=ingredient.id,
                             brand=brand,
-                            package_size=var.get("package_size"),
-                            package_type=var.get("package_type"),
-                            purchase_unit=var.get("purchase_unit"),
-                            purchase_quantity=var.get("purchase_quantity"),
-                            upc_code=var.get("upc_code"),
-                            preferred=var.get("is_preferred", var.get("preferred", False)),
-                            notes=var.get("notes"),
+                            package_size=prod_data.get("package_size"),
+                            package_type=prod_data.get("package_type"),
+                            purchase_unit=prod_data.get("purchase_unit"),
+                            purchase_quantity=prod_data.get("purchase_quantity"),
+                            upc_code=prod_data.get("upc_code"),
+                            preferred=prod_data.get("is_preferred", prod_data.get("preferred", False)),
+                            notes=prod_data.get("notes"),
                         )
-                        session.add(variant)
-                        result.add_success("variant")
+                        session.add(product)
+                        result.add_success("product")
                     except Exception as e:
-                        result.add_error("variant", var.get("brand", "unknown"), str(e))
+                        result.add_error("product", prod_data.get("brand", "unknown"), str(e))
 
             session.flush()
 
-            # 4-5. Purchases and pantry_items handled similarly...
+            # 4-5. Purchases and inventory_items handled similarly...
             # (Simplified for brevity - would add full implementation)
 
             # 6. Recipes (depends on ingredients)
@@ -3039,7 +3036,7 @@ def import_all_from_json(file_path: str, skip_duplicates: bool = True) -> Tuple[
         skip_duplicates: If True, skip duplicates (default)
 
     Returns:
-        Tuple of (ingredient_result, variant_result, recipe_result, finished_good_result,
+        Tuple of (ingredient_result, product_result, recipe_result, finished_good_result,
                  bundle_result, package_result, recipient_result, event_result)
     """
     import tempfile
@@ -3062,7 +3059,7 @@ def import_all_from_json(file_path: str, skip_duplicates: bool = True) -> Tuple[
             Path(tmp_path).unlink()
 
         # Import products second (depends on ingredients)
-        variant_result = ImportResult()
+        product_result = ImportResult()
         if "products" in data:
             with tempfile.NamedTemporaryFile(
                 mode="w", suffix=".json", delete=False, encoding="utf-8"
@@ -3070,7 +3067,7 @@ def import_all_from_json(file_path: str, skip_duplicates: bool = True) -> Tuple[
                 json.dump({"products": data["products"]}, tmp)
                 tmp_path = tmp.name
 
-            variant_result = import_products_from_json(tmp_path, skip_duplicates)
+            product_result = import_products_from_json(tmp_path, skip_duplicates)
             Path(tmp_path).unlink()
 
         # Import recipes third
@@ -3147,7 +3144,7 @@ def import_all_from_json(file_path: str, skip_duplicates: bool = True) -> Tuple[
 
         return (
             ingredient_result,
-            variant_result,
+            product_result,
             recipe_result,
             finished_good_result,
             bundle_result,
@@ -3158,7 +3155,7 @@ def import_all_from_json(file_path: str, skip_duplicates: bool = True) -> Tuple[
 
     except Exception as e:
         ingredient_result = ImportResult()
-        variant_result = ImportResult()
+        product_result = ImportResult()
         recipe_result = ImportResult()
         finished_good_result = ImportResult()
         bundle_result = ImportResult()
@@ -3168,7 +3165,7 @@ def import_all_from_json(file_path: str, skip_duplicates: bool = True) -> Tuple[
         ingredient_result.add_error("file", file_path, str(e))
         return (
             ingredient_result,
-            variant_result,
+            product_result,
             recipe_result,
             finished_good_result,
             bundle_result,

@@ -95,8 +95,8 @@ class Product(BaseModel):
     purchases = relationship(
         "Purchase", back_populates="product", cascade="all, delete-orphan", lazy="select"
     )
-    pantry_items = relationship(
-        "PantryItem", back_populates="product", cascade="all, delete-orphan", lazy="select"
+    inventory_items = relationship(
+        "InventoryItem", back_populates="product", cascade="all, delete-orphan", lazy="select"
     )
 
     # Indexes for common queries
@@ -178,21 +178,21 @@ class Product(BaseModel):
         recent = self.get_most_recent_purchase()
         return recent.unit_cost if recent else 0.0
 
-    def get_total_pantry_quantity(self) -> float:
+    def get_total_inventory_quantity(self) -> float:
         """
-        Get total quantity for this product across all pantry items.
+        Get total quantity for this product across all inventory items.
 
         Returns:
             Total quantity in purchase units
         """
-        return sum(item.quantity for item in self.pantry_items)
+        return sum(item.quantity for item in self.inventory_items)
 
     def to_dict(self, include_relationships: bool = False) -> dict:
         """
         Convert product to dictionary.
 
         Args:
-            include_relationships: If True, include purchases and pantry items
+            include_relationships: If True, include purchases and inventory items
 
         Returns:
             Dictionary representation
@@ -202,10 +202,10 @@ class Product(BaseModel):
         # Add calculated fields
         result["display_name"] = self.display_name
         result["current_cost"] = self.get_current_cost_per_unit()
-        result["total_pantry_quantity"] = self.get_total_pantry_quantity()
+        result["total_inventory_quantity"] = self.get_total_inventory_quantity()
 
         if include_relationships:
             result["purchases"] = [p.to_dict(False) for p in self.purchases]
-            result["pantry_items"] = [item.to_dict(False) for item in self.pantry_items]
+            result["inventory_items"] = [item.to_dict(False) for item in self.inventory_items]
 
         return result

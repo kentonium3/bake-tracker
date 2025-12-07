@@ -57,9 +57,9 @@ from sqlalchemy.orm import joinedload
 
 
 def create_product(ingredient_slug: str, product_data: Dict[str, Any]) -> Product:
-    """Create a new variant for an ingredient.
+    """Create a new product for an ingredient.
 
-    If preferred=True, this function will automatically set all other variants
+    If preferred=True, this function will automatically set all other products
     for this ingredient to preferred=False (atomic operation).
 
     Args:
@@ -72,12 +72,12 @@ def create_product(ingredient_slug: str, product_data: Dict[str, Any]) -> Produc
             - upc (str, optional): Universal Product Code
             - gtin (str, optional): Global Trade Item Number
             - supplier (str, optional): Where to buy
-            - preferred (bool, optional): Mark as preferred variant (default False)
+            - preferred (bool, optional): Mark as preferred product (default False)
             - net_content_value (Decimal, optional): Industry standard field
             - net_content_uom (str, optional): Industry standard field
 
     Returns:
-        Product: Created variant object with auto-calculated display_name
+        Product: Created product object with auto-calculated display_name
 
     Raises:
         IngredientNotFoundBySlug: If ingredient_slug doesn't exist
@@ -96,8 +96,8 @@ def create_product(ingredient_slug: str, product_data: Dict[str, Any]) -> Produc
         ...     "purchase_quantity": Decimal("25.0"),
         ...     "preferred": True
         ... }
-        >>> variant = create_variant("all_purpose_flour", data)
-        >>> variant.display_name
+        >>> product = create_product("all_purpose_flour", data)
+        >>> product.display_name
         'King Arthur - 25 lb bag'
         >>> product.preferred
         True
@@ -105,20 +105,20 @@ def create_product(ingredient_slug: str, product_data: Dict[str, Any]) -> Produc
     # Validate ingredient exists
     ingredient = get_ingredient(ingredient_slug)
 
-    # Validate variant data
+    # Validate product data
     is_valid, errors = validate_product_data(product_data, ingredient_slug)
     if not is_valid:
         raise ServiceValidationError(errors)
 
     try:
         with session_scope() as session:
-            # If preferred=True, clear all other variants for this ingredient
+            # If preferred=True, clear all other products for this ingredient
             if product_data.get("preferred", False):
                 session.query(Product).filter_by(ingredient_id=ingredient.id).update(
                     {"preferred": False}
                 )
 
-            # Create variant instance
+            # Create product instance
             product = Product(
                 ingredient_id=ingredient.id,
                 brand=product_data["brand"],
@@ -133,21 +133,21 @@ def create_product(ingredient_slug: str, product_data: Dict[str, Any]) -> Produc
                 net_content_uom=product_data.get("net_content_uom"),
             )
 
-            session.add(variant)
+            session.add(product)
             session.flush()  # Get ID before commit
 
-            return variant
+            return product
 
     except IngredientNotFoundBySlug:
         raise
     except ServiceValidationError:
         raise
     except Exception as e:
-        raise DatabaseError("Failed to create variant", original_error=e)
+        raise DatabaseError("Failed to create product", original_error=e)
 
 
 def get_product(product_id: int) -> Product:
-    """Retrieve variant by ID.
+    """Retrieve product by ID.
 
     Args:
         product_id: Product identifier
@@ -159,19 +159,19 @@ def get_product(product_id: int) -> Product:
         ProductNotFound: If product_id doesn't exist
 
     Example:
-        >>> variant = get_variant(123)
+        >>> product = get_product(123)
         >>> product.brand
         'King Arthur'
-        >>> product.ingredient.name
+        >>> product.ingredient.display_name
         'All-Purpose Flour'
     """
     with session_scope() as session:
-        variant = (
+        product = (
             session.query(Product)
             .options(
                 joinedload(Product.ingredient),
                 joinedload(Product.purchases),
-                joinedload(Product.pantry_items),
+                joinedload(Product.inventory_items),
             )
             .filter_by(id=product_id)
             .first()
@@ -180,26 +180,26 @@ def get_product(product_id: int) -> Product:
         if not product:
             raise ProductNotFound(product_id)
 
-        return variant
+        return product
 
 
 def get_products_for_ingredient(ingredient_slug: str) -> List[Product]:
-    """Retrieve all variants for an ingredient, sorted with preferred first.
+    """Retrieve all products for an ingredient, sorted with preferred first.
 
     Args:
         ingredient_slug: Ingredient identifier
 
     Returns:
-        List[Product]: All variants for ingredient, preferred variant first, then by brand
+        List[Product]: All products for ingredient, preferred product first, then by brand
 
     Raises:
         IngredientNotFoundBySlug: If ingredient_slug doesn't exist
 
     Example:
-        >>> variants = get_products_for_ingredient("all_purpose_flour")
-        >>> variants[0].preferred
+        >>> products = get_products_for_ingredient("all_purpose_flour")
+        >>> products[0].preferred
         True
-        >>> [v.brand for v in variants]
+        >>> [p.brand for p in products]
         ['King Arthur', "Bob's Red Mill", 'Store Brand']
     """
     # Validate ingredient exists
@@ -211,7 +211,7 @@ def get_products_for_ingredient(ingredient_slug: str) -> List[Product]:
             .options(
                 joinedload(Product.ingredient),
                 joinedload(Product.purchases),
-                joinedload(Product.pantry_items),
+                joinedload(Product.inventory_items),
             )
             .filter_by(ingredient_id=ingredient.id)
             .order_by(
@@ -223,34 +223,34 @@ def get_products_for_ingredient(ingredient_slug: str) -> List[Product]:
 
 
 def set_preferred_product(product_id: int) -> Product:
-    """Mark variant as preferred, clearing preferred flag on all other variants for same ingredient.
+    """Mark product as preferred, clearing preferred flag on all other products for same ingredient.
 
-    This function ensures atomicity: all variants for the ingredient are set to
-    preferred=False, then the specified variant is set to preferred=True, all
+    This function ensures atomicity: all products for the ingredient are set to
+    preferred=False, then the specified product is set to preferred=True, all
     within a single transaction.
 
     Args:
-        product_id: ID of variant to mark as preferred
+        product_id: ID of product to mark as preferred
 
     Returns:
-        Product: Updated variant with preferred=True
+        Product: Updated product with preferred=True
 
     Raises:
         ProductNotFound: If product_id doesn't exist
         DatabaseError: If database operation fails
 
     Note:
-        This function ensures only one variant per ingredient is marked preferred.
-        All other variants for the same ingredient will have preferred=False.
+        This function ensures only one product per ingredient is marked preferred.
+        All other products for the same ingredient will have preferred=False.
 
     Example:
-        >>> variant = set_preferred_variant(456)
+        >>> product = set_preferred_product(456)
         >>> product.preferred
         True
-        >>> # All other variants for this ingredient now have preferred=False
+        >>> # All other products for this ingredient now have preferred=False
     """
-    # Get variant to find ingredient_slug
-    variant = get_variant(product_id)
+    # Get product to find ingredient_id
+    product = get_product(product_id)
 
     try:
         with session_scope() as session:
@@ -259,13 +259,13 @@ def set_preferred_product(product_id: int) -> Product:
                 {"preferred": False}
             )
 
-            # Set this variant to preferred
+            # Set this product to preferred
             product_to_update = (
                 session.query(Product)
                 .options(
                     joinedload(Product.ingredient),
                     joinedload(Product.purchases),
-                    joinedload(Product.pantry_items),
+                    joinedload(Product.inventory_items),
                 )
                 .get(product_id)
             )
@@ -276,11 +276,11 @@ def set_preferred_product(product_id: int) -> Product:
     except ProductNotFound:
         raise
     except Exception as e:
-        raise DatabaseError(f"Failed to set preferred variant {product_id}", original_error=e)
+        raise DatabaseError(f"Failed to set preferred product {product_id}", original_error=e)
 
 
 def update_product(product_id: int, product_data: Dict[str, Any]) -> Product:
-    """Update variant attributes.
+    """Update product attributes.
 
     Args:
         product_id: Product identifier
@@ -294,7 +294,7 @@ def update_product(product_id: int, product_data: Dict[str, Any]) -> Product:
             - net_content_value, net_content_uom (optional): Industry fields
 
     Returns:
-        Product: Updated variant object
+        Product: Updated product object
 
     Raises:
         ProductNotFound: If product_id doesn't exist
@@ -303,10 +303,10 @@ def update_product(product_id: int, product_data: Dict[str, Any]) -> Product:
 
     Note:
         ingredient_slug (FK) cannot be changed after creation.
-        If updating preferred to True, use set_preferred_variant() instead for proper toggling.
+        If updating preferred to True, use set_preferred_product() instead for proper toggling.
 
     Example:
-        >>> updated = update_variant(123, {
+        >>> updated = update_product(123, {
         ...     "package_size": "50 lb bag",
         ...     "purchase_quantity": Decimal("50.0")
         ... })
@@ -315,17 +315,17 @@ def update_product(product_id: int, product_data: Dict[str, Any]) -> Product:
     """
     # Prevent ingredient_slug changes
     if "ingredient_id" in product_data:
-        raise ServiceValidationError("Ingredient cannot be changed after variant creation")
+        raise ServiceValidationError("Ingredient cannot be changed after product creation")
 
     try:
         with session_scope() as session:
-            # Get existing variant
-            variant = (
+            # Get existing product
+            product = (
                 session.query(Product)
                 .options(
                     joinedload(Product.ingredient),
                     joinedload(Product.purchases),
-                    joinedload(Product.pantry_items),
+                    joinedload(Product.inventory_items),
                 )
                 .filter_by(id=product_id)
                 .first()
@@ -335,21 +335,21 @@ def update_product(product_id: int, product_data: Dict[str, Any]) -> Product:
 
             # Update attributes
             for key, value in product_data.items():
-                if hasattr(variant, key):
-                    setattr(variant, key, value)
+                if hasattr(product, key):
+                    setattr(product, key, value)
 
-            return variant
+            return product
 
     except ProductNotFound:
         raise
     except ServiceValidationError:
         raise
     except Exception as e:
-        raise DatabaseError(f"Failed to update variant {product_id}", original_error=e)
+        raise DatabaseError(f"Failed to update product {product_id}", original_error=e)
 
 
 def delete_product(product_id: int) -> bool:
-    """Delete variant if not referenced by pantry items or purchases.
+    """Delete product if not referenced by inventory items or purchases.
 
     Args:
         product_id: Product identifier
@@ -359,17 +359,17 @@ def delete_product(product_id: int) -> bool:
 
     Raises:
         ProductNotFound: If product_id doesn't exist
-        ProductInUse: If variant has dependencies (pantry items, purchases)
+        ProductInUse: If product has dependencies (inventory items, purchases)
         DatabaseError: If database operation fails
 
     Example:
-        >>> delete_variant(789)
+        >>> delete_product(789)
         True
 
-        >>> delete_variant(123)  # Has pantry items
+        >>> delete_product(123)  # Has inventory items
         Traceback (most recent call last):
         ...
-        ProductInUse: Cannot delete variant 123: used in 12 pantry_items, 25 purchases
+        ProductInUse: Cannot delete product 123: used in 12 inventory_items, 25 purchases
     """
     # Check dependencies first
     deps = check_product_dependencies(product_id)
@@ -379,11 +379,11 @@ def delete_product(product_id: int) -> bool:
 
     try:
         with session_scope() as session:
-            variant = session.query(Product).filter_by(id=product_id).first()
+            product = session.query(Product).filter_by(id=product_id).first()
             if not product:
                 raise ProductNotFound(product_id)
 
-            session.delete(variant)
+            session.delete(product)
             return True
 
     except ProductNotFound:
@@ -391,19 +391,19 @@ def delete_product(product_id: int) -> bool:
     except ProductInUse:
         raise
     except Exception as e:
-        raise DatabaseError(f"Failed to delete variant {product_id}", original_error=e)
+        raise DatabaseError(f"Failed to delete product {product_id}", original_error=e)
 
 
 def check_product_dependencies(product_id: int) -> Dict[str, int]:
-    """Check if variant is referenced by other entities.
+    """Check if product is referenced by other entities.
 
     Args:
         product_id: Product identifier
 
     Returns:
         Dict[str, int]: Dependency counts
-            - "pantry_items": Number of pantry items using this variant
-            - "purchases": Number of purchase records for this variant
+            - "inventory_items": Number of inventory items using this product
+            - "purchases": Number of purchase records for this product
 
     Raises:
         ProductNotFound: If product_id doesn't exist
@@ -411,38 +411,38 @@ def check_product_dependencies(product_id: int) -> Dict[str, int]:
     Example:
         >>> deps = check_product_dependencies(123)
         >>> deps
-        {'pantry_items': 5, 'purchases': 12}
+        {'inventory_items': 5, 'purchases': 12}
     """
     # Import models here to avoid circular dependencies
-    # from ..models import PantryItem, Purchase
+    # from ..models import InventoryItem, Purchase
 
-    # Verify variant exists (validates product_id)
-    get_variant(product_id)
+    # Verify product exists (validates product_id)
+    get_product(product_id)
 
-    # TODO: Implement when PantryItem and Purchase models are connected
+    # TODO: Implement when InventoryItem and Purchase models are connected
     # with session_scope() as session:
-    #     pantry_count = session.query(PantryItem).filter_by(product_id=product_id).count()
+    #     inventory_count = session.query(InventoryItem).filter_by(product_id=product_id).count()
     #     purchase_count = session.query(Purchase).filter_by(product_id=product_id).count()
-    pantry_count = 0
+    inventory_count = 0
     purchase_count = 0
 
-    return {"pantry_items": pantry_count, "purchases": purchase_count}
+    return {"inventory_items": inventory_count, "purchases": purchase_count}
 
 
 def search_products_by_upc(upc: str) -> List[Product]:
-    """Search variants by UPC code (exact match).
+    """Search products by UPC code (exact match).
 
     Args:
         upc: Universal Product Code (12-14 digits)
 
     Returns:
-        List[Product]: Matching variants (may be multiple if same UPC across suppliers)
+        List[Product]: Matching products (may be multiple if same UPC across suppliers)
 
     Example:
-        >>> variants = search_variants_by_upc("012345678901")
-        >>> len(variants)
+        >>> products = search_products_by_upc("012345678901")
+        >>> len(products)
         2  # Same product from different suppliers
-        >>> [v.brand for v in variants]
+        >>> [p.brand for p in products]
         ['Costco Kirkland', 'Amazon Basics']
     """
     with session_scope() as session:
@@ -451,7 +451,7 @@ def search_products_by_upc(upc: str) -> List[Product]:
             .options(
                 joinedload(Product.ingredient),
                 joinedload(Product.purchases),
-                joinedload(Product.pantry_items),
+                joinedload(Product.inventory_items),
             )
             .filter_by(upc=upc)
             .all()
@@ -459,23 +459,23 @@ def search_products_by_upc(upc: str) -> List[Product]:
 
 
 def get_preferred_product(ingredient_slug: str) -> Optional[Product]:
-    """Get the preferred variant for an ingredient.
+    """Get the preferred product for an ingredient.
 
     Args:
         ingredient_slug: Ingredient identifier
 
     Returns:
-        Optional[Product]: Preferred variant, or None if no variant marked preferred
+        Optional[Product]: Preferred product, or None if no product marked preferred
 
     Raises:
         IngredientNotFoundBySlug: If ingredient_slug doesn't exist
 
     Example:
-        >>> preferred = get_preferred_variant("all_purpose_flour")
-        >>> preferred.brand if preferred else "No preferred variant set"
+        >>> preferred = get_preferred_product("all_purpose_flour")
+        >>> preferred.brand if preferred else "No preferred product set"
         'King Arthur'
 
-        >>> preferred = get_preferred_variant("new_ingredient")
+        >>> preferred = get_preferred_product("new_ingredient")
         >>> preferred is None
         True
     """
@@ -488,7 +488,7 @@ def get_preferred_product(ingredient_slug: str) -> Optional[Product]:
             .options(
                 joinedload(Product.ingredient),
                 joinedload(Product.purchases),
-                joinedload(Product.pantry_items),
+                joinedload(Product.inventory_items),
             )
             .filter_by(ingredient_id=ingredient.id, preferred=True)
             .first()
@@ -501,7 +501,7 @@ def _calculate_product_cost(
     recipe_unit: str,
     ingredient: "Ingredient",
 ) -> Dict[str, Any]:
-    """Calculate cost metrics for a variant given an ingredient shortfall.
+    """Calculate cost metrics for a product given an ingredient shortfall.
 
     This helper function computes all the cost and quantity metrics needed
     for a shopping list recommendation.
@@ -523,14 +523,14 @@ def _calculate_product_cost(
             - cost_per_recipe_unit: Cost per recipe unit (e.g., $0.18/cup)
             - min_packages: Minimum whole packages needed to cover shortfall
             - total_cost: Total purchase cost for min_packages
-            - is_preferred: Whether this is the preferred variant
+            - is_preferred: Whether this is the preferred product
             - cost_available: Whether cost data is available
             - cost_message: Message if cost unavailable (e.g., "Cost unknown")
             - conversion_error: True if unit conversion failed
             - error_message: Conversion error message if applicable
 
     Example:
-        >>> rec = _calculate_product_cost(flour_variant, Decimal("5"), "cup", flour_ingredient)
+        >>> rec = _calculate_product_cost(flour_product, Decimal("5"), "cup", flour_ingredient)
         >>> rec['min_packages']
         1
         >>> rec['cost_per_recipe_unit']
@@ -557,7 +557,7 @@ def _calculate_product_cost(
     cost_per_purchase_unit = product.get_current_cost_per_unit()
 
     if cost_per_purchase_unit == 0 or cost_per_purchase_unit is None:
-        # No purchase history - can still recommend variant but no cost
+        # No purchase history - can still recommend product but no cost
         result["cost_available"] = False
         result["cost_message"] = "Cost unknown"
         result["cost_per_purchase_unit"] = Decimal("0")
@@ -576,7 +576,7 @@ def _calculate_product_cost(
         # Unit conversion failed
         result["conversion_error"] = True
         result["error_message"] = msg or "Unit conversion unavailable"
-        # Still return variant info but can't calculate packages/cost
+        # Still return product info but can't calculate packages/cost
         return result
 
     # Guard against division by zero
@@ -622,13 +622,13 @@ def get_product_recommendation(
     shortfall: Decimal,
     recipe_unit: str,
 ) -> Dict[str, Any]:
-    """Get variant recommendation(s) for an ingredient shortfall.
+    """Get product recommendation(s) for an ingredient shortfall.
 
-    This function determines which variant(s) to recommend for purchasing
+    This function determines which product(s) to recommend for purchasing
     to cover an ingredient shortfall. It handles three scenarios:
-    - Preferred variant exists: return that as the recommendation
-    - Multiple variants, none preferred: return all variants for user choice
-    - No variants configured: return status indicating this
+    - Preferred product exists: return that as the recommendation
+    - Multiple products, none preferred: return all products for user choice
+    - No products configured: return status indicating this
 
     Args:
         ingredient_slug: Slug identifier for the ingredient
@@ -637,9 +637,9 @@ def get_product_recommendation(
 
     Returns:
         Dict containing:
-            - variant_status: 'preferred' | 'multiple' | 'none' | 'sufficient'
-            - variant_recommendation: Primary recommendation dict (or None)
-            - all_variants: List of all variant recommendations
+            - product_status: 'preferred' | 'multiple' | 'none' | 'sufficient'
+            - product_recommendation: Primary recommendation dict (or None)
+            - all_products: List of all product recommendations
             - message: Optional status message
 
     Raises:
@@ -647,17 +647,17 @@ def get_product_recommendation(
 
     Example:
         >>> rec = get_product_recommendation("all_purpose_flour", Decimal("5"), "cup")
-        >>> rec['variant_status']
+        >>> rec['product_status']
         'preferred'
-        >>> rec['variant_recommendation']['brand']
+        >>> rec['product_recommendation']['brand']
         'King Arthur'
     """
     # Handle zero or negative shortfall
     if shortfall <= 0:
         return {
-            "variant_status": "sufficient",
-            "variant_recommendation": None,
-            "all_variants": [],
+            "product_status": "sufficient",
+            "product_recommendation": None,
+            "all_products": [],
             "message": "Sufficient stock",
         }
 
@@ -666,27 +666,27 @@ def get_product_recommendation(
         ingredient = get_ingredient(ingredient_slug)
     except IngredientNotFoundBySlug:
         return {
-            "variant_status": "none",
-            "variant_recommendation": None,
-            "all_variants": [],
+            "product_status": "none",
+            "product_recommendation": None,
+            "all_products": [],
             "message": "Ingredient not found",
         }
 
-    # Get all variants for ingredient
-    variants = get_products_for_ingredient(ingredient_slug)
+    # Get all products for ingredient
+    products = get_products_for_ingredient(ingredient_slug)
 
-    if not variants:
+    if not products:
         return {
-            "variant_status": "none",
-            "variant_recommendation": None,
-            "all_variants": [],
-            "message": "No variant configured",
+            "product_status": "none",
+            "product_recommendation": None,
+            "all_products": [],
+            "message": "No product configured",
         }
 
-    # Calculate cost metrics for all variants
+    # Calculate cost metrics for all products
     all_recommendations = []
-    for v in variants:
-        rec = _calculate_product_cost(v, shortfall, recipe_unit, ingredient)
+    for p in products:
+        rec = _calculate_product_cost(p, shortfall, recipe_unit, ingredient)
         all_recommendations.append(rec)
 
     # Sort by total_cost (cheapest first, None values at end)
@@ -697,26 +697,26 @@ def get_product_recommendation(
 
     all_recommendations.sort(key=sort_key)
 
-    # Check for preferred variant
-    preferred = get_preferred_variant(ingredient_slug)
+    # Check for preferred product
+    preferred = get_preferred_product(ingredient_slug)
 
     if preferred:
-        # Find the recommendation for the preferred variant
+        # Find the recommendation for the preferred product
         preferred_rec = next(
             (r for r in all_recommendations if r["product_id"] == preferred.id),
             None,
         )
         return {
-            "variant_status": "preferred",
-            "variant_recommendation": preferred_rec,
-            "all_variants": [preferred_rec] if preferred_rec else [],
+            "product_status": "preferred",
+            "product_recommendation": preferred_rec,
+            "all_products": [preferred_rec] if preferred_rec else [],
             "message": "",
         }
     else:
-        # Multiple variants, none preferred - return all for user choice
+        # Multiple products, none preferred - return all for user choice
         return {
-            "variant_status": "multiple",
-            "variant_recommendation": None,
-            "all_variants": all_recommendations,
+            "product_status": "multiple",
+            "product_recommendation": None,
+            "all_products": all_recommendations,
             "message": "",
         }

@@ -866,7 +866,7 @@ def get_recipe_needs(event_id: int) -> List[Dict[str, Any]]:
 
 
 # ============================================================================
-# Shopping List (FR-026) - Extended for Feature 007 Variant Recommendations
+# Shopping List (FR-026) - Extended for Feature 007 Product Recommendations
 # ============================================================================
 
 
@@ -875,12 +875,12 @@ def _calculate_total_estimated_cost(items: List[Dict[str, Any]]) -> Decimal:
     Calculate total estimated cost for shopping list.
 
     Only includes items with:
-    - variant_status = 'preferred' (user has a clear recommendation)
-    - variant_recommendation is not None
-    - variant_recommendation has valid total_cost
+    - product_status = 'preferred' (user has a clear recommendation)
+    - product_recommendation is not None
+    - product_recommendation has valid total_cost
 
     Items with 'multiple' status are excluded (user hasn't chosen).
-    Items with 'none' status are excluded (no variant to price).
+    Items with 'none' status are excluded (no product to price).
     Items with 'sufficient' status are excluded (no purchase needed).
 
     Args:
@@ -891,8 +891,8 @@ def _calculate_total_estimated_cost(items: List[Dict[str, Any]]) -> Decimal:
     """
     total = Decimal("0.00")
     for item in items:
-        if item.get("variant_status") == "preferred":
-            rec = item.get("variant_recommendation")
+        if item.get("product_status") == "preferred":
+            rec = item.get("product_recommendation")
             if rec and rec.get("total_cost"):
                 total += Decimal(str(rec["total_cost"]))
     return total
@@ -900,18 +900,18 @@ def _calculate_total_estimated_cost(items: List[Dict[str, Any]]) -> Decimal:
 
 def get_shopping_list(event_id: int) -> Dict[str, Any]:
     """
-    Calculate ingredients needed with pantry comparison and variant recommendations.
+    Calculate ingredients needed with inventory comparison and product recommendations.
 
-    Feature 007 Extension: Each item with a shortfall includes variant
-    recommendation data (variant_status, variant_recommendation, all_variants).
+    Feature 007 Extension: Each item with a shortfall includes product
+    recommendation data (product_status, product_recommendation, all_products).
 
     Args:
         event_id: Event ID
 
     Returns:
         Dict with:
-        - items: List of shopping list items with variant data
-        - total_estimated_cost: Sum of preferred variant purchase costs
+        - items: List of shopping list items with product data
+        - total_estimated_cost: Sum of preferred product purchase costs
         - items_count: Total number of ingredients
         - items_with_shortfall: Count of items needing purchase
     """
@@ -963,22 +963,22 @@ def get_shopping_list(event_id: int) -> Dict[str, Any]:
                     ingredient_info[ing_id] = {
                         "name": ri.ingredient.display_name,
                         "unit": ri.unit,
-                        "slug": ri.ingredient.slug,  # Added for variant lookup
+                        "slug": ri.ingredient.slug,  # Added for product lookup
                     }
 
-            # Get on-hand quantities from pantry
+            # Get on-hand quantities from inventory
             # Import here to avoid circular imports
-            from src.services import pantry_service
-            from src.services.variant_service import get_variant_recommendation
+            from src.services import inventory_item_service
+            from src.services.product_service import get_product_recommendation
 
             items = []
             for ing_id, qty_needed in ingredient_totals.items():
                 info = ingredient_info[ing_id]
 
-                # Get on-hand quantity from pantry service
+                # Get on-hand quantity from inventory service
                 try:
                     qty_on_hand = Decimal(
-                        str(pantry_service.get_ingredient_quantity_on_hand(ing_id))
+                        str(inventory_item_service.get_ingredient_quantity_on_hand(ing_id))
                     )
                 except Exception:
                     qty_on_hand = Decimal("0")
@@ -995,21 +995,21 @@ def get_shopping_list(event_id: int) -> Dict[str, Any]:
                     "shortfall": shortfall,
                 }
 
-                # Feature 007: Add variant recommendations if shortfall > 0
+                # Feature 007: Add product recommendations if shortfall > 0
                 if shortfall > 0:
-                    variant_data = get_variant_recommendation(
+                    product_data = get_product_recommendation(
                         info["slug"],
                         shortfall,
                         info["unit"],
                     )
-                    item["variant_status"] = variant_data["variant_status"]
-                    item["variant_recommendation"] = variant_data.get("variant_recommendation")
-                    item["all_variants"] = variant_data.get("all_variants", [])
+                    item["product_status"] = product_data["product_status"]
+                    item["product_recommendation"] = product_data.get("product_recommendation")
+                    item["all_products"] = product_data.get("all_products", [])
                 else:
                     # No shortfall - sufficient stock
-                    item["variant_status"] = "sufficient"
-                    item["variant_recommendation"] = None
-                    item["all_variants"] = []
+                    item["product_status"] = "sufficient"
+                    item["product_recommendation"] = None
+                    item["all_products"] = []
 
                 items.append(item)
 

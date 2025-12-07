@@ -12,7 +12,7 @@ from typing import Optional
 from src.utils.constants import APP_NAME, APP_VERSION
 from src.ui.dashboard_tab import DashboardTab
 from src.ui.ingredients_tab import IngredientsTab
-from src.ui.pantry_tab import PantryTab
+from src.ui.inventory_tab import InventoryTab
 from src.ui.recipes_tab import RecipesTab
 from src.ui.finished_units_tab import FinishedUnitsTab
 
@@ -21,7 +21,6 @@ from src.ui.packages_tab import PackagesTab
 from src.ui.recipients_tab import RecipientsTab
 from src.ui.events_tab import EventsTab
 from src.ui.production_tab import ProductionTab
-from src.ui.migration_wizard import MigrationWizardDialog
 from src.ui.service_integration import check_service_integration_health
 
 
@@ -75,7 +74,6 @@ class MainWindow(ctk.CTk):
 
         # Tools menu
         tools_menu = tk.Menu(self.menu_bar, tearoff=0)
-        tools_menu.add_command(label="Migration Wizard...", command=self._show_migration_wizard)
         tools_menu.add_command(label="Service Health Check...", command=self._show_service_health_check)
         self.menu_bar.add_cascade(label="Tools", menu=tools_menu)
 
@@ -112,8 +110,9 @@ class MainWindow(ctk.CTk):
         self.ingredients_tab = IngredientsTab(ingredients_frame)
 
         # Initialize My Pantry tab (v0.4.0 architecture)
-        pantry_frame = self.tabview.tab("My Pantry")
-        self.pantry_tab = PantryTab(pantry_frame)
+        # Note: UI displays "My Pantry" for consumer-friendliness; internal uses InventoryTab
+        inventory_frame = self.tabview.tab("My Pantry")
+        self.inventory_tab = InventoryTab(inventory_frame)
 
         # Initialize Recipes tab
         recipes_frame = self.tabview.tab("Recipes")
@@ -223,33 +222,7 @@ class MainWindow(ctk.CTk):
         self.wait_window(dialog)
 
         if dialog.result:
-            self.update_status(f"Export completed successfully.")
-
-    def _show_migration_wizard(self):
-        """Show the migration wizard dialog."""
-        try:
-            wizard = MigrationWizardDialog(self)
-            self.wait_window(wizard)
-        except Exception as exc:
-            messagebox.showerror(
-                "Migration Wizard Error",
-                f"Unable to open the migration wizard:\n\n{exc}",
-                parent=self,
-            )
-            return
-
-        if getattr(wizard, "migration_executed", False):
-            try:
-                self.refresh_dashboard()
-                self.ingredients_tab.refresh()
-                self.pantry_tab.refresh()
-                self.update_status("Migration completed successfully. Data refreshed.")
-            except Exception as exc:
-                messagebox.showwarning(
-                    "Refresh Warning",
-                    f"Migration completed, but refreshing data failed:\n\n{exc}",
-                    parent=self,
-                )
+            self.update_status("Export completed successfully.")
 
     def _show_service_health_check(self):
         """Show service integration health status."""
@@ -311,9 +284,9 @@ class MainWindow(ctk.CTk):
         """Refresh the dashboard tab with current data."""
         self.dashboard_tab.refresh()
 
-    def refresh_pantry(self):
-        """Refresh the pantry tab with current data."""
-        self.pantry_tab.refresh()
+    def refresh_inventory(self):
+        """Refresh the inventory tab with current data."""
+        self.inventory_tab.refresh()
 
     def refresh_recipes(self):
         """Refresh the recipes tab with current data."""
@@ -345,7 +318,7 @@ class MainWindow(ctk.CTk):
         """Refresh all tabs after data import."""
         self.dashboard_tab.refresh()
         self.ingredients_tab.refresh()
-        self.pantry_tab.refresh()
+        self.inventory_tab.refresh()
         self.recipes_tab.refresh()
         self.finished_units_tab.refresh()
         self.packages_tab.refresh()
@@ -365,7 +338,7 @@ class MainWindow(ctk.CTk):
         except Exception:
             pass  # Tab doesn't exist or is disabled
 
-    def navigate_to_ingredient(self, ingredient_slug: str, variant_id: Optional[int] = None):
+    def navigate_to_ingredient(self, ingredient_slug: str, product_id: Optional[int] = None):
         """
         Navigate to My Ingredients tab with specific ingredient selected.
 
@@ -373,16 +346,16 @@ class MainWindow(ctk.CTk):
 
         Args:
             ingredient_slug: Slug of ingredient to select
-            variant_id: Optional variant ID to highlight
+            product_id: Optional product ID to highlight
         """
         # Switch to My Ingredients tab
         self.switch_to_tab("My Ingredients")
 
         # Tell ingredients tab to select the ingredient
         if hasattr(self.ingredients_tab, "select_ingredient"):
-            self.ingredients_tab.select_ingredient(ingredient_slug, variant_id)
+            self.ingredients_tab.select_ingredient(ingredient_slug, product_id)
 
-    def navigate_to_pantry(self, ingredient_slug: Optional[str] = None):
+    def navigate_to_inventory(self, ingredient_slug: Optional[str] = None):
         """
         Navigate to My Pantry tab, optionally filtered by ingredient.
 
@@ -391,9 +364,9 @@ class MainWindow(ctk.CTk):
         Args:
             ingredient_slug: Optional ingredient slug to filter by
         """
-        # Switch to My Pantry tab
+        # Switch to My Pantry tab (user-facing name)
         self.switch_to_tab("My Pantry")
 
-        # Tell pantry tab to filter by ingredient
-        if ingredient_slug and hasattr(self.pantry_tab, "filter_by_ingredient"):
-            self.pantry_tab.filter_by_ingredient(ingredient_slug)
+        # Tell inventory tab to filter by ingredient
+        if ingredient_slug and hasattr(self.inventory_tab, "filter_by_ingredient"):
+            self.inventory_tab.filter_by_ingredient(ingredient_slug)

@@ -6,7 +6,7 @@ Displays welcome message, quick stats, and phase information.
 
 import customtkinter as ctk
 
-from src.services import inventory_service, recipe_service, finished_good_service
+from src.services import ingredient_crud_service, recipe_service, finished_good_service
 from src.utils.constants import APP_NAME
 
 
@@ -264,7 +264,7 @@ class DashboardTab(ctk.CTkFrame):
             Number of ingredients in inventory
         """
         try:
-            return inventory_service.get_ingredient_count()
+            return ingredient_crud_service.get_ingredient_count()
         except Exception:
             return 0
 
@@ -288,7 +288,7 @@ class DashboardTab(ctk.CTkFrame):
             Total value of all ingredients
         """
         try:
-            return inventory_service.get_total_inventory_value()
+            return ingredient_crud_service.get_total_inventory_value()
         except Exception:
             return 0.0
 

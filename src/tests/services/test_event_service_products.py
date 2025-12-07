@@ -1,12 +1,12 @@
-"""Integration tests for event service shopping list with variant recommendations.
+"""Integration tests for event service shopping list with product recommendations.
 
-Tests for Feature 007: Variant-Aware Shopping List Recommendations
+Tests for Feature 007: Product-Aware Shopping List Recommendations
 
 Tests cover:
-- Shopping list items include variant data fields
+- Shopping list items include product data fields
 - Total estimated cost calculation
 - Existing fields preserved (FR-009)
-- Various variant_status scenarios
+- Various product_status scenarios
 """
 
 import pytest
@@ -15,7 +15,7 @@ from datetime import date
 
 from src.services.event_service import get_shopping_list
 from src.services import ingredient_service, recipe_service, event_service
-from src.services.variant_service import create_variant
+from src.services.product_service import create_product
 from src.models import Purchase
 
 
@@ -43,7 +43,7 @@ def flour_ingredient(test_db):
 
 @pytest.fixture
 def sugar_ingredient(test_db):
-    """Create a sugar ingredient with multiple variants (no preferred)."""
+    """Create a sugar ingredient with multiple products (no preferred)."""
     return ingredient_service.create_ingredient(
         {
             "name": "Test Sugar",
@@ -59,8 +59,8 @@ def sugar_ingredient(test_db):
 
 
 @pytest.fixture
-def no_variant_ingredient(test_db):
-    """Create an ingredient with no variants configured."""
+def no_product_ingredient(test_db):
+    """Create an ingredient with no products configured."""
     return ingredient_service.create_ingredient(
         {
             "name": "Special Spice",
@@ -71,9 +71,9 @@ def no_variant_ingredient(test_db):
 
 
 @pytest.fixture
-def flour_variant_preferred(test_db, flour_ingredient):
-    """Create a preferred flour variant with purchase history."""
-    variant = create_variant(
+def flour_product_preferred(test_db, flour_ingredient):
+    """Create a preferred flour product with purchase history."""
+    product = create_product(
         flour_ingredient.slug,
         {
             "brand": "King Arthur",
@@ -87,7 +87,7 @@ def flour_variant_preferred(test_db, flour_ingredient):
     # Add purchase history for cost data
     with test_db() as session:
         purchase = Purchase(
-            variant_id=variant.id,
+            product_id=product.id,
             purchase_date=date.today(),
             unit_cost=0.80,  # $0.80 per lb
             quantity_purchased=5.0,
@@ -96,13 +96,13 @@ def flour_variant_preferred(test_db, flour_ingredient):
         session.add(purchase)
         session.commit()
 
-    return variant
+    return product
 
 
 @pytest.fixture
-def sugar_variant_a(test_db, sugar_ingredient):
-    """Create a non-preferred sugar variant."""
-    variant = create_variant(
+def sugar_product_a(test_db, sugar_ingredient):
+    """Create a non-preferred sugar product."""
+    product = create_product(
         sugar_ingredient.slug,
         {
             "brand": "Domino",
@@ -115,7 +115,7 @@ def sugar_variant_a(test_db, sugar_ingredient):
 
     with test_db() as session:
         purchase = Purchase(
-            variant_id=variant.id,
+            product_id=product.id,
             purchase_date=date.today(),
             unit_cost=0.50,
             quantity_purchased=4.0,
@@ -124,13 +124,13 @@ def sugar_variant_a(test_db, sugar_ingredient):
         session.add(purchase)
         session.commit()
 
-    return variant
+    return product
 
 
 @pytest.fixture
-def sugar_variant_b(test_db, sugar_ingredient):
-    """Create another non-preferred sugar variant."""
-    variant = create_variant(
+def sugar_product_b(test_db, sugar_ingredient):
+    """Create another non-preferred sugar product."""
+    product = create_product(
         sugar_ingredient.slug,
         {
             "brand": "Store Brand",
@@ -143,7 +143,7 @@ def sugar_variant_b(test_db, sugar_ingredient):
 
     with test_db() as session:
         purchase = Purchase(
-            variant_id=variant.id,
+            product_id=product.id,
             purchase_date=date.today(),
             unit_cost=0.40,
             quantity_purchased=5.0,
@@ -152,12 +152,12 @@ def sugar_variant_b(test_db, sugar_ingredient):
         session.add(purchase)
         session.commit()
 
-    return variant
+    return product
 
 
 @pytest.fixture
-def simple_recipe(test_db, flour_ingredient, sugar_ingredient, no_variant_ingredient):
-    """Create a recipe that uses flour, sugar, and the no-variant ingredient."""
+def simple_recipe(test_db, flour_ingredient, sugar_ingredient, no_product_ingredient):
+    """Create a recipe that uses flour, sugar, and the no-product ingredient."""
     recipe = recipe_service.create_recipe(
         {
             "name": "Test Cookie Recipe",
@@ -189,7 +189,7 @@ def simple_recipe(test_db, flour_ingredient, sugar_ingredient, no_variant_ingred
     recipe_service.add_recipe_ingredient(
         recipe.id,
         {
-            "ingredient_id": no_variant_ingredient.id,
+            "ingredient_id": no_product_ingredient.id,
             "quantity": Decimal("1.0"),  # 1 tsp spice per batch
             "unit": "tsp",
         },
@@ -199,15 +199,15 @@ def simple_recipe(test_db, flour_ingredient, sugar_ingredient, no_variant_ingred
 
 
 # ============================================================================
-# Tests for shopping list variant recommendations
+# Tests for shopping list product recommendations
 # ============================================================================
 
 
-class TestShoppingListWithVariants:
-    """Integration tests for get_shopping_list() with variant data."""
+class TestShoppingListWithProducts:
+    """Integration tests for get_shopping_list() with product data."""
 
     def test_shopping_list_includes_new_fields(self, test_db):
-        """FR-009: Shopping list items include variant-related fields."""
+        """FR-009: Shopping list items include product-related fields."""
         # Create a minimal event
         event = event_service.create_event(
             name="Test Event",

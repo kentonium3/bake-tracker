@@ -31,9 +31,9 @@ from src.services.exceptions import (
     ValidationError,
     DatabaseError,
     IngredientNotFoundBySlug,
-    VariantNotFound,
+    ProductNotFound,
     SlugAlreadyExists,
-    VariantInUse,
+    ProductInUse,
 )
 
 # Service layer exceptions - use conditional imports for forward compatibility
@@ -335,18 +335,18 @@ class UIServiceIntegrator:
         if isinstance(exception, IngredientNotFoundBySlug):
             return f"{ctx_prefix}The specified ingredient could not be found."
 
-        if isinstance(exception, VariantNotFound):
+        if isinstance(exception, ProductNotFound):
             return (
-                f"{ctx_prefix}The ingredient variant could not be found. It may have been deleted."
+                f"{ctx_prefix}The product could not be found. It may have been deleted."
             )
 
         if isinstance(exception, SlugAlreadyExists):
             return f"{ctx_prefix}An ingredient with this name already exists. Please choose a different name."
 
-        if isinstance(exception, VariantInUse):
+        if isinstance(exception, ProductInUse):
             deps = getattr(exception, "dependencies", {})
             dep_list = ", ".join(f"{count} {entity}" for entity, count in deps.items() if count > 0)
-            return f"{ctx_prefix}Cannot delete this variant: it's being used in {dep_list}."
+            return f"{ctx_prefix}Cannot delete this product: it's being used in {dep_list}."
 
         # Handle legacy service exceptions
         if isinstance(exception, ServiceException) or isinstance(exception, ServiceError):

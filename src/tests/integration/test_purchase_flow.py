@@ -7,18 +7,18 @@ import pytest
 from decimal import Decimal
 from datetime import date, timedelta
 
-from src.services import ingredient_service, variant_service, purchase_service
+from src.services import ingredient_service, product_service, purchase_service
 
 
 def test_purchase_and_price_analysis(test_db):
     """Test: Record purchases -> Calculate averages -> Detect price changes."""
 
-    # Setup: Create ingredient and variant
+    # Setup: Create ingredient and product
     ingredient = ingredient_service.create_ingredient(
         {"name": "Whole Wheat Flour", "category": "Flour", "recipe_unit": "cup"}
     )
 
-    variant = variant_service.create_variant(
+    product = product_service.create_product(
         ingredient.slug,
         {
             "brand": "Bob's Red Mill",
@@ -34,7 +34,7 @@ def test_purchase_and_price_analysis(test_db):
 
     for i in range(6):
         purchase = purchase_service.record_purchase(
-            variant_id=variant.id,
+            product_id=product.id,
             quantity=Decimal("5.0"),
             total_cost=Decimal(f"{3.50 + i * 0.10:.2f}"),  # $3.50, $3.60, $3.70, ...
             purchase_date=base_date + timedelta(days=i * 15),
@@ -49,13 +49,13 @@ def test_purchase_and_price_analysis(test_db):
     assert purchases[-1].unit_cost == Decimal("0.80")  # $4.00 / 5 lb
 
     # 2. Calculate average price (60-day window)
-    avg_price = purchase_service.calculate_average_price(variant.id, days=60)
+    avg_price = purchase_service.calculate_average_price(product.id, days=60)
     assert avg_price is not None
     assert Decimal("0.70") <= avg_price <= Decimal("0.80")
 
     # 3. Record new purchase with significant price increase
     new_purchase = purchase_service.record_purchase(
-        variant_id=variant.id,
+        product_id=product.id,
         quantity=Decimal("5.0"),
         total_cost=Decimal("5.25"),  # $1.05/lb (~35% increase)
         purchase_date=date.today(),
@@ -66,7 +66,7 @@ def test_purchase_and_price_analysis(test_db):
 
     # 4. Detect price change alert
     alert = purchase_service.detect_price_change(
-        variant_id=variant.id, new_unit_cost=Decimal("1.05"), comparison_days=60
+        product_id=product.id, new_unit_cost=Decimal("1.05"), comparison_days=60
     )
 
     assert alert is not None
@@ -75,7 +75,7 @@ def test_purchase_and_price_analysis(test_db):
     assert "increased" in alert["message"].lower()
 
     # 5. Get price trend (linear regression)
-    trend = purchase_service.get_price_trend(variant.id, days=90)
+    trend = purchase_service.get_price_trend(product.id, days=90)
 
     assert trend["direction"] == "increasing"
     assert trend["data_points"] == 7  # 6 historical + 1 new
@@ -90,7 +90,7 @@ def test_purchase_history_filtering(test_db):
         {"name": "Brown Sugar", "category": "Sugar", "recipe_unit": "cup"}
     )
 
-    variant = variant_service.create_variant(
+    product = product_service.create_product(
         ingredient.slug,
         {
             "brand": "C&H",
@@ -102,7 +102,7 @@ def test_purchase_history_filtering(test_db):
 
     # Record purchases at different stores and dates
     purchase1 = purchase_service.record_purchase(
-        variant_id=variant.id,
+        product_id=product.id,
         quantity=Decimal("2.0"),
         total_cost=Decimal("3.99"),
         purchase_date=date(2025, 1, 1),
@@ -110,7 +110,7 @@ def test_purchase_history_filtering(test_db):
     )
 
     purchase2 = purchase_service.record_purchase(
-        variant_id=variant.id,
+        product_id=product.id,
         quantity=Decimal("2.0"),
         total_cost=Decimal("4.49"),
         purchase_date=date(2025, 1, 15),
@@ -118,7 +118,7 @@ def test_purchase_history_filtering(test_db):
     )
 
     purchase3 = purchase_service.record_purchase(
-        variant_id=variant.id,
+        product_id=product.id,
         quantity=Decimal("2.0"),
         total_cost=Decimal("3.89"),
         purchase_date=date(2025, 2, 1),
@@ -127,16 +127,16 @@ def test_purchase_history_filtering(test_db):
 
     # Filter by date range
     january_purchases = purchase_service.get_purchase_history(
-        variant_id=variant.id, start_date=date(2025, 1, 1), end_date=date(2025, 1, 31)
+        product_id=product.id, start_date=date(2025, 1, 1), end_date=date(2025, 1, 31)
     )
     assert len(january_purchases) == 2
 
     # Filter by store
-    costco_purchases = purchase_service.get_purchase_history(variant_id=variant.id, store="Costco")
+    costco_purchases = purchase_service.get_purchase_history(product_id=product.id, store="Costco")
     assert len(costco_purchases) == 2
 
     # Verify sorting (most recent first)
-    all_purchases = purchase_service.get_purchase_history(variant_id=variant.id)
+    all_purchases = purchase_service.get_purchase_history(product_id=product.id)
     assert all_purchases[0].purchase_date >= all_purchases[1].purchase_date
     assert all_purchases[1].purchase_date >= all_purchases[2].purchase_date
 
@@ -149,7 +149,7 @@ def test_price_trend_insufficient_data(test_db):
         {"name": "Vanilla Extract", "category": "Extracts", "recipe_unit": "tsp"}
     )
 
-    variant = variant_service.create_variant(
+    product = product_service.create_product(
         ingredient.slug,
         {
             "brand": "Nielsen-Massey",
@@ -161,14 +161,14 @@ def test_price_trend_insufficient_data(test_db):
 
     # Single purchase
     purchase_service.record_purchase(
-        variant_id=variant.id,
+        product_id=product.id,
         quantity=Decimal("4.0"),
         total_cost=Decimal("12.99"),
         purchase_date=date.today(),
     )
 
     # Get trend with insufficient data
-    trend = purchase_service.get_price_trend(variant.id, days=90)
+    trend = purchase_service.get_price_trend(product.id, days=90)
 
     assert trend["direction"] == "stable"
     assert trend["data_points"] == 1
@@ -184,7 +184,7 @@ def test_most_recent_purchase(test_db):
         {"name": "Honey", "category": "Syrups", "recipe_unit": "tbsp"}
     )
 
-    variant = variant_service.create_variant(
+    product = product_service.create_product(
         ingredient.slug,
         {
             "brand": "Local Beekeeper",
@@ -196,28 +196,28 @@ def test_most_recent_purchase(test_db):
 
     # Record purchases
     purchase1 = purchase_service.record_purchase(
-        variant_id=variant.id,
+        product_id=product.id,
         quantity=Decimal("16.0"),
         total_cost=Decimal("8.99"),
         purchase_date=date.today() - timedelta(days=60),
     )
 
     purchase2 = purchase_service.record_purchase(
-        variant_id=variant.id,
+        product_id=product.id,
         quantity=Decimal("16.0"),
         total_cost=Decimal("9.49"),
         purchase_date=date.today() - timedelta(days=30),
     )
 
     purchase3 = purchase_service.record_purchase(
-        variant_id=variant.id,
+        product_id=product.id,
         quantity=Decimal("16.0"),
         total_cost=Decimal("9.99"),
         purchase_date=date.today(),
     )
 
     # Get most recent
-    recent = purchase_service.get_most_recent_purchase(variant.id)
+    recent = purchase_service.get_most_recent_purchase(product.id)
 
     assert recent.id == purchase3.id
     assert recent.purchase_date == date.today()
@@ -225,14 +225,14 @@ def test_most_recent_purchase(test_db):
 
 
 def test_no_purchase_history_returns_none(test_db):
-    """Test: Variant with no purchases returns None for averages."""
+    """Test: Product with no purchases returns None for averages."""
 
     # Setup
     ingredient = ingredient_service.create_ingredient(
         {"name": "Cinnamon", "category": "Spices", "recipe_unit": "tsp"}
     )
 
-    variant = variant_service.create_variant(
+    product = product_service.create_product(
         ingredient.slug,
         {
             "brand": "McCormick",
@@ -243,8 +243,8 @@ def test_no_purchase_history_returns_none(test_db):
     )
 
     # No purchases yet
-    avg_price = purchase_service.calculate_average_price(variant.id, days=60)
+    avg_price = purchase_service.calculate_average_price(product.id, days=60)
     assert avg_price is None
 
-    most_recent = purchase_service.get_most_recent_purchase(variant.id)
+    most_recent = purchase_service.get_most_recent_purchase(product.id)
     assert most_recent is None

@@ -4,22 +4,22 @@ This package contains all service modules that provide business logic
 and database operations for the application.
 
 Architecture:
-- Services: Stateless functions organized by domain (ingredient, product, pantry, purchase)
+- Services: Stateless functions organized by domain (ingredient, product, inventory, purchase)
 - Transactions: Managed via session_scope() context manager
 - Exceptions: Consistent error handling via ServiceError hierarchy
 - Validation: Input validation before database operations
 
 Service Modules:
 - ingredient_service: Ingredient catalog CRUD operations
+- ingredient_crud_service: Ingredient catalog CRUD operations
 - product_service: Brand/package product management
-- pantry_service: Inventory tracking with FIFO consumption
+- inventory_item_service: Inventory tracking with FIFO consumption
 - purchase_service: Price history tracking and trend analysis
 - recipe_service: Recipe management
 - event_service: Event planning
 - finished_good_service: Finished good tracking
 - package_service: Package management
 - recipient_service: Recipient management
-- inventory_service: Inventory operations
 
 Infrastructure:
 - exceptions: Custom exception classes for service layer errors
@@ -30,7 +30,7 @@ Infrastructure:
 # Service modules
 from . import (
     database,
-    inventory_service,
+    ingredient_crud_service,
     recipe_service,
     unit_converter,
     finished_good_service,
@@ -38,12 +38,11 @@ from . import (
     recipient_service,
     event_service,  # Re-enabled Feature 006: Uses FinishedGood not Bundle
     production_service,  # Feature 008: Production tracking
-    product_service,  # TD-001: Refactored from variant_service
+    product_service,
     ingredient_service,
-    pantry_service,
+    inventory_item_service,
     purchase_service,
 )
-
 
 # Migration services
 from .migration_service import MigrationService
@@ -204,10 +203,10 @@ from .composition_service import (
 # Infrastructure exports for new service layer
 from .exceptions import (
     ServiceError,
-    ServiceException,  # Legacy
+    ServiceException,
     IngredientNotFoundBySlug,
     ProductNotFound,
-    PantryItemNotFound,
+    InventoryItemNotFound,
     PurchaseNotFound,
     SlugAlreadyExists,
     IngredientInUse,
@@ -221,16 +220,16 @@ from .database import session_scope
 __all__ = [
     # Service modules
     "database",
-    "inventory_service",
+    "ingredient_crud_service",
+    "inventory_item_service",
     "recipe_service",
     "unit_converter",
     "finished_good_service",
     "package_service",  # Re-enabled Feature 006
     "recipient_service",
     "event_service",  # Re-enabled Feature 006
-    "product_service",  # TD-001: Refactored from variant_service
+    "product_service",
     "ingredient_service",
-    "pantry_service",
     "purchase_service",
     # Migration services
     "MigrationService",
@@ -364,7 +363,7 @@ __all__ = [
     "ServiceException",
     "IngredientNotFoundBySlug",
     "ProductNotFound",
-    "PantryItemNotFound",
+    "InventoryItemNotFound",
     "PurchaseNotFound",
     "SlugAlreadyExists",
     "IngredientInUse",

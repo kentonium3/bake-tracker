@@ -132,12 +132,12 @@ class Ingredient(BaseModel):
         """
         return self.products
 
-    def get_total_pantry_quantity(self):
+    def get_total_inventory_quantity(self):
         """
-        Get total quantity across all pantry items for this ingredient.
+        Get total quantity across all inventory items for this ingredient.
 
         Note: This returns quantities in their original units and should not
-        be aggregated directly. Use pantry_service.get_total_quantity() for
+        be aggregated directly. Use inventory_item_service.get_total_quantity() for
         proper unit conversion and aggregation.
 
         Returns:
@@ -145,9 +145,9 @@ class Ingredient(BaseModel):
         """
         total = 0.0
         for product in self.products:
-            for pantry_item in product.pantry_items:
+            for inventory_item in product.inventory_items:
                 # Note: Raw quantity addition without unit conversion
-                total += pantry_item.quantity
+                total += inventory_item.quantity
         return total
 
     def get_density_g_per_ml(self) -> Optional[float]:

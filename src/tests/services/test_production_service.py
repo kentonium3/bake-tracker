@@ -31,7 +31,7 @@ from src.models import PackageStatus
 @pytest.fixture
 def setup_production_test_data(test_db):
     """Create test data for production tests."""
-    from src.services import ingredient_service, variant_service, pantry_service, recipe_service
+    from src.services import ingredient_service, product_service, inventory_item_service, recipe_service
     from src.services import event_service
 
     # Create ingredient: flour
@@ -48,8 +48,8 @@ def setup_production_test_data(test_db):
         }
     )
 
-    # Create variant for flour
-    flour_variant = variant_service.create_variant(
+    # Create product for flour
+    flour_product = product_service.create_product(
         flour.slug,
         {
             "brand": "King Arthur",
@@ -60,22 +60,22 @@ def setup_production_test_data(test_db):
         },
     )
 
-    # Add flour to pantry (two batches at different prices for FIFO test)
+    # Add flour to inventory (two batches at different prices for FIFO test)
     # First batch: older, $0.40 per cup
-    pantry_item_1 = pantry_service.add_to_pantry(
-        variant_id=flour_variant.id,
+    inventory_item_1 = inventory_item_service.add_to_inventory(
+        product_id=flour_product.id,
         quantity=Decimal("5.0"),
         purchase_date=date(2024, 1, 1),
     )
-    pantry_service.update_pantry_item(pantry_item_1.id, {"unit_cost": 0.40})
+    inventory_item_service.update_inventory_item(inventory_item_1.id, {"unit_cost": 0.40})
 
     # Second batch: newer, $0.60 per cup
-    pantry_item_2 = pantry_service.add_to_pantry(
-        variant_id=flour_variant.id,
+    inventory_item_2 = inventory_item_service.add_to_inventory(
+        product_id=flour_product.id,
         quantity=Decimal("10.0"),
         purchase_date=date(2024, 6, 1),
     )
-    pantry_service.update_pantry_item(pantry_item_2.id, {"unit_cost": 0.60})
+    inventory_item_service.update_inventory_item(inventory_item_2.id, {"unit_cost": 0.60})
 
     # Create ingredient: sugar
     sugar = ingredient_service.create_ingredient(
@@ -91,7 +91,7 @@ def setup_production_test_data(test_db):
         }
     )
 
-    sugar_variant = variant_service.create_variant(
+    sugar_product = product_service.create_product(
         sugar.slug,
         {
             "brand": "Domino",
@@ -102,12 +102,12 @@ def setup_production_test_data(test_db):
         },
     )
 
-    sugar_pantry = pantry_service.add_to_pantry(
-        variant_id=sugar_variant.id,
+    sugar_inventory = inventory_item_service.add_to_inventory(
+        product_id=sugar_product.id,
         quantity=Decimal("10.0"),
         purchase_date=date(2024, 3, 1),
     )
-    pantry_service.update_pantry_item(sugar_pantry.id, {"unit_cost": 0.30})
+    inventory_item_service.update_inventory_item(sugar_inventory.id, {"unit_cost": 0.30})
 
     # Create recipe using the service
     recipe = recipe_service.create_recipe(
@@ -133,8 +133,8 @@ def setup_production_test_data(test_db):
     return {
         "flour": flour,
         "sugar": sugar,
-        "flour_variant": flour_variant,
-        "sugar_variant": sugar_variant,
+        "flour_product": flour_product,
+        "sugar_product": sugar_product,
         "recipe": recipe,
         "event": event,
     }
@@ -147,17 +147,17 @@ class TestRecordProduction:
         """Test: Recording production consumes inventory and captures cost."""
         data = setup_production_test_data
 
-        # Verify pantry has cost data before testing production
-        from src.services import pantry_service
-        from src.models import PantryItem
+        # Verify inventory has cost data before testing production
+        from src.services import inventory_item_service
+        from src.models import InventoryItem
         session = test_db()
-        items = session.query(PantryItem).filter(PantryItem.variant_id == data["flour_variant"].id).order_by(PantryItem.purchase_date).all()
-        print(f"\nPantry items for flour before production:")
+        items = session.query(InventoryItem).filter(InventoryItem.product_id == data["flour_product"].id).order_by(InventoryItem.purchase_date).all()
+        print(f"\nInventory items for flour before production:")
         for item in items:
             print(f"  id={item.id}, qty={item.quantity}, unit_cost={item.unit_cost}, date={item.purchase_date}")
 
         # Test consume_fifo directly first
-        fifo_result = pantry_service.consume_fifo(
+        fifo_result = inventory_item_service.consume_fifo(
             ingredient_slug=data["flour"].slug,
             quantity_needed=Decimal("2.0"),
             dry_run=True,  # Just test, don't consume

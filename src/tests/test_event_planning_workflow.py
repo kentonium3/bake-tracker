@@ -124,9 +124,11 @@ def sample_package(test_db, sample_finished_good):
     from src.services import add_finished_good_to_package
 
     package = create_package(
-        name="Test Gift Package",
-        description="A test package",
-        is_template=False,
+        {
+            "name": "Test Gift Package",
+            "description": "A test package",
+            "is_template": False,
+        }
     )
 
     # Add finished good to package using service
@@ -192,9 +194,11 @@ class TestFullWorkflow:
         """
         # Step 1: Create package
         package = create_package(
-            name="Holiday Gift Box",
-            description="Deluxe cookie assortment",
-            is_template=False,
+            {
+                "name": "Holiday Gift Box",
+                "description": "Deluxe cookie assortment",
+                "is_template": False,
+            }
         )
         assert package is not None
         assert package.id is not None
@@ -354,7 +358,7 @@ class TestFIFOCostAccuracy:
         session.refresh(sample_finished_good)
 
         # Create package with odd quantity
-        package = create_package(name="Precision Test Package")
+        package = create_package({"name": "Precision Test Package"})
         pfg = PackageFinishedGood(
             package_id=package.id,
             finished_good_id=sample_finished_good.id,
@@ -498,8 +502,7 @@ class TestEdgeCases:
     def test_empty_package(self, test_db):
         """Test package with no finished goods."""
         package = create_package(
-            name="Empty Package",
-            description="No contents",
+            {"name": "Empty Package", "description": "No contents"}
         )
 
         # Cost should be 0
@@ -532,7 +535,7 @@ class TestEdgeCases:
         session.refresh(fg)
 
         # Create package with this FG
-        package = create_package(name="Null Cost Package")
+        package = create_package({"name": "Null Cost Package"})
         pfg = PackageFinishedGood(
             package_id=package.id,
             finished_good_id=fg.id,
@@ -588,7 +591,7 @@ class TestEdgeCases:
         """Test that validation errors are raised appropriately."""
         # Empty name should fail
         with pytest.raises(ValidationError):
-            create_package(name="")
+            create_package({"name": ""})
 
         with pytest.raises(ValidationError):
             create_recipient({"name": ""})

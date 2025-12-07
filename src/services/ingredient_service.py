@@ -180,9 +180,11 @@ def create_ingredient(ingredient_data: Dict[str, Any]) -> Ingredient:
             if foodex2_code is None:
                 foodex2_code = ingredient_data.get("gtin")
 
+            # TD-001: Support both 'name' and 'display_name' for compatibility
+            display_name = ingredient_data.get("display_name") or ingredient_data.get("name")
             ingredient = Ingredient(
                 slug=slug,
-                name=ingredient_data["name"],
+                display_name=display_name,
                 category=ingredient_data["category"],
                 recipe_unit=ingredient_data.get("recipe_unit"),
                 description=ingredient_data.get("description"),
@@ -211,10 +213,11 @@ def create_ingredient(ingredient_data: Dict[str, Any]) -> Ingredient:
         # Check if it's a duplicate name IntegrityError
         error_str = str(e).lower()
         if "unique constraint" in error_str or "duplicate" in error_str:
-            if "name" in error_str or "products.name" in error_str:
+            if "name" in error_str or "display_name" in error_str or "ingredients." in error_str:
+                display_name = ingredient_data.get("display_name") or ingredient_data.get("name")
                 raise ServiceValidationError(
                     [
-                        f"An ingredient named '{ingredient_data['name']}' already exists. "
+                        f"An ingredient named '{display_name}' already exists. "
                         f"Please use a different name or edit the existing ingredient."
                     ]
                 )
@@ -235,7 +238,7 @@ def get_ingredient(slug: str) -> Ingredient:
 
     Example:
         >>> ingredient = get_ingredient("all_purpose_flour")
-        >>> ingredient.name
+        >>> ingredient.display_name
         'All-Purpose Flour'
         >>> ingredient.category
         'Flour'
@@ -362,7 +365,7 @@ def update_ingredient(slug: str, ingredient_data: Dict[str, Any]) -> Ingredient:
 def delete_ingredient(slug: str) -> bool:
     """Delete ingredient if not referenced by other entities.
 
-    This function checks for dependencies (recipes, variants, pantry items)
+    This function checks for dependencies (recipes, products, inventory items)
     before deletion to prevent orphaned references.
 
     Args:
@@ -373,17 +376,17 @@ def delete_ingredient(slug: str) -> bool:
 
     Raises:
         IngredientNotFoundBySlug: If slug doesn't exist
-        IngredientInUse: If ingredient has dependencies (recipes, variants)
+        IngredientInUse: If ingredient has dependencies (recipes, products)
         DatabaseError: If database operation fails
 
     Example:
         >>> delete_ingredient("unused_ingredient")
         True
 
-        >>> delete_ingredient("all_purpose_flour")  # Has variants
+        >>> delete_ingredient("all_purpose_flour")  # Has products
         Traceback (most recent call last):
         ...
-        IngredientInUse: Cannot delete ingredient 'all_purpose_flour': used in 5 recipes, 3 variants
+        IngredientInUse: Cannot delete ingredient 'all_purpose_flour': used in 5 recipes, 3 products
     """
     # Check dependencies first
     deps = check_ingredient_dependencies(slug)
@@ -417,8 +420,8 @@ def check_ingredient_dependencies(slug: str) -> Dict[str, int]:
     Returns:
         Dict[str, int]: Dependency counts
             - "recipes": Number of recipes using this ingredient
-            - "variants": Number of variants for this ingredient
-            - "pantry_items": Number of pantry items (via variants)
+            - "products": Number of products for this ingredient
+            - "inventory_items": Number of inventory items (via products)
             - "unit_conversions": Number of custom unit conversions
 
     Raises:
@@ -427,14 +430,14 @@ def check_ingredient_dependencies(slug: str) -> Dict[str, int]:
     Example:
         >>> deps = check_ingredient_dependencies("all_purpose_flour")
         >>> deps
-        {'recipes': 5, 'variants': 3, 'pantry_items': 12, 'unit_conversions': 2}
+        {'recipes': 5, 'products': 3, 'inventory_items': 12, 'unit_conversions': 2}
 
         >>> deps = check_ingredient_dependencies("unused_ingredient")
         >>> deps
-        {'recipes': 0, 'variants': 0, 'pantry_items': 0, 'unit_conversions': 0}
+        {'recipes': 0, 'products': 0, 'inventory_items': 0, 'unit_conversions': 0}
     """
     # Import models here to avoid circular dependencies
-    from ..models import Product, PantryItem, UnitConversion, RecipeIngredient
+    from ..models import Product, InventoryItem, UnitConversion, RecipeIngredient
 
     with session_scope() as session:
         # Verify ingredient exists
@@ -454,9 +457,9 @@ def check_ingredient_dependencies(slug: str) -> Dict[str, int]:
             .count()
         )
 
-        pantry_count = (
-            session.query(PantryItem)
-            .join(Product, PantryItem.product_id == Product.id)
+        inventory_count = (
+            session.query(InventoryItem)
+            .join(Product, InventoryItem.product_id == Product.id)
             .filter(Product.ingredient_id == ingredient_id)
             .count()
         )
@@ -470,7 +473,7 @@ def check_ingredient_dependencies(slug: str) -> Dict[str, int]:
         return {
             "recipes": recipes_count,
             "products": products_count,
-            "pantry_items": pantry_count,
+            "inventory_items": inventory_count,
             "unit_conversions": conversions_count,
         }
 

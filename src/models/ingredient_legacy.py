@@ -20,7 +20,7 @@ class IngredientLegacy(BaseModel):
     """
     LEGACY Ingredient model for migration compatibility.
 
-    This model represents the old ingredient structure before the Ingredient/Variant refactoring.
+    This model represents the old ingredient structure before the Ingredient/Product refactoring.
     After migration is complete, this model and table will be removed.
 
     Attributes:

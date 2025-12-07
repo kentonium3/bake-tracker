@@ -84,7 +84,3 @@ class ProductPackaging(BaseModel):
             result["product"] = {"id": self.product.id, "display_name": self.product.display_name}
 
         return result
-
-
-# Backward compatibility alias
-VariantPackaging = ProductPackaging

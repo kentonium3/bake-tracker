@@ -8,7 +8,7 @@ Exception Hierarchy:
     ServiceError (base - new service layer)
     ├── IngredientNotFoundBySlug
     ├── ProductNotFound
-    ├── PantryItemNotFound
+    ├── InventoryItemNotFound
     ├── PurchaseNotFound
     ├── SlugAlreadyExists
     ├── IngredientInUse
@@ -93,7 +93,7 @@ class DatabaseError(ServiceException):
         super().__init__(f"Database error: {message}")
 
 
-# New Service Layer Exceptions (Ingredient/Variant/Pantry/Purchase Services)
+# New Service Layer Exceptions (Ingredient/Product/InventoryItem/Purchase Services)
 
 
 class IngredientNotFoundBySlug(ServiceError):
@@ -128,24 +128,22 @@ class ProductNotFound(ServiceError):
         super().__init__(f"Product with ID {product_id} not found")
 
 
-# Alias for backward compatibility
-VariantNotFound = ProductNotFound
 
 
-class PantryItemNotFound(ServiceError):
-    """Raised when pantry item cannot be found by ID.
+class InventoryItemNotFound(ServiceError):
+    """Raised when inventory item cannot be found by ID.
 
     Args:
-        pantry_item_id: The pantry item ID that was not found
+        inventory_item_id: The inventory item ID that was not found
 
     Example:
-        >>> raise PantryItemNotFound(456)
-        PantryItemNotFound: Pantry item with ID 456 not found
+        >>> raise InventoryItemNotFound(456)
+        InventoryItemNotFound: Inventory item with ID 456 not found
     """
 
-    def __init__(self, pantry_item_id: int):
-        self.pantry_item_id = pantry_item_id
-        super().__init__(f"Pantry item with ID {pantry_item_id} not found")
+    def __init__(self, inventory_item_id: int):
+        self.inventory_item_id = inventory_item_id
+        super().__init__(f"Inventory item with ID {inventory_item_id} not found")
 
 
 class PurchaseNotFound(ServiceError):
@@ -188,9 +186,9 @@ class ProductInUse(ServiceError):
         dependencies: Dictionary of dependency counts {entity_type: count}
 
     Example:
-        >>> deps = {"pantry_items": 12, "purchases": 25}
+        >>> deps = {"inventory_items": 12, "purchases": 25}
         >>> raise ProductInUse(123, deps)
-        ProductInUse: Cannot delete product 123: used in 12 pantry_items, 25 purchases
+        ProductInUse: Cannot delete product 123: used in 12 inventory_items, 25 purchases
     """
 
     def __init__(self, product_id: int, dependencies: dict):
@@ -203,7 +201,3 @@ class ProductInUse(ServiceError):
         )
 
         super().__init__(f"Cannot delete product {product_id}: used in {details}")
-
-
-# Alias for backward compatibility
-VariantInUse = ProductInUse

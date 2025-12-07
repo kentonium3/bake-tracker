@@ -16,8 +16,8 @@ from datetime import date
 from src.services import (
     recipe_service,
     ingredient_service,
-    variant_service,
-    pantry_service,
+    product_service,
+    inventory_item_service,
     purchase_service,
 )
 from src.services.exceptions import RecipeNotFound, IngredientNotFound, ValidationError
@@ -29,7 +29,7 @@ class TestCalculateActualCost:
 
     def test_calculate_actual_cost_uses_fifo_ordering(self, test_db):
         """Test: FIFO ordering - oldest inventory costs used first."""
-        # Setup: Create ingredient and variant
+        # Setup: Create ingredient and product
         ingredient = ingredient_service.create_ingredient(
             {
                 "name": "Test FIFO Flour",
@@ -38,23 +38,23 @@ class TestCalculateActualCost:
             }
         )
 
-        variant = variant_service.create_variant(
+        product = product_service.create_product(
             ingredient.slug,
             {"brand": "Test Brand", "purchase_unit": "cup", "purchase_quantity": Decimal("10.0")},
         )
 
         # Add two lots with different costs (older lot cheaper)
         # Lot 1: 2 cups at $0.10/cup (older - should be used)
-        lot1 = pantry_service.add_to_pantry(
-            variant_id=variant.id, quantity=Decimal("2.0"), purchase_date=date(2025, 1, 1)
+        lot1 = inventory_item_service.add_to_inventory(
+            product_id=product.id, quantity=Decimal("2.0"), purchase_date=date(2025, 1, 1)
         )
-        pantry_service.update_pantry_item(lot1.id, {"unit_cost": 0.10})
+        inventory_item_service.update_inventory_item(lot1.id, {"unit_cost": 0.10})
 
         # Lot 2: 2 cups at $0.12/cup (newer - should NOT be used if qty <= 2)
-        lot2 = pantry_service.add_to_pantry(
-            variant_id=variant.id, quantity=Decimal("2.0"), purchase_date=date(2025, 2, 1)
+        lot2 = inventory_item_service.add_to_inventory(
+            product_id=product.id, quantity=Decimal("2.0"), purchase_date=date(2025, 2, 1)
         )
-        pantry_service.update_pantry_item(lot2.id, {"unit_cost": 0.12})
+        inventory_item_service.update_inventory_item(lot2.id, {"unit_cost": 0.12})
 
         # Create recipe needing 2 cups
         recipe = recipe_service.create_recipe(
@@ -87,16 +87,16 @@ class TestCalculateActualCost:
             }
         )
 
-        variant = variant_service.create_variant(
+        product = product_service.create_product(
             ingredient.slug,
             {"brand": "Test Brand", "purchase_unit": "cup", "purchase_quantity": Decimal("10.0")},
         )
 
         initial_quantity = Decimal("5.0")
-        lot = pantry_service.add_to_pantry(
-            variant_id=variant.id, quantity=initial_quantity, purchase_date=date(2025, 1, 1)
+        lot = inventory_item_service.add_to_inventory(
+            product_id=product.id, quantity=initial_quantity, purchase_date=date(2025, 1, 1)
         )
-        pantry_service.update_pantry_item(lot.id, {"unit_cost": 0.10})
+        inventory_item_service.update_inventory_item(lot.id, {"unit_cost": 0.10})
 
         recipe = recipe_service.create_recipe(
             {
@@ -109,14 +109,14 @@ class TestCalculateActualCost:
         )
 
         # Capture pantry state before
-        items_before = pantry_service.get_pantry_items(ingredient_slug=ingredient.slug)
+        items_before = inventory_item_service.get_inventory_items(ingredient_slug=ingredient.slug)
         qty_before = Decimal(str(items_before[0].quantity))
 
         # Act
         recipe_service.calculate_actual_cost(recipe.id)
 
         # Assert: Pantry unchanged
-        items_after = pantry_service.get_pantry_items(ingredient_slug=ingredient.slug)
+        items_after = inventory_item_service.get_inventory_items(ingredient_slug=ingredient.slug)
         qty_after = Decimal(str(items_after[0].quantity))
 
         assert abs(qty_after - qty_before) < Decimal(
@@ -141,26 +141,26 @@ class TestCalculateActualCost:
             }
         )
 
-        # Create variants
-        flour_variant = variant_service.create_variant(
+        # Create products
+        flour_product = product_service.create_product(
             flour.slug,
             {"brand": "Test Brand", "purchase_unit": "cup", "purchase_quantity": Decimal("10.0")},
         )
-        sugar_variant = variant_service.create_variant(
+        sugar_product = product_service.create_product(
             sugar.slug,
             {"brand": "Test Brand", "purchase_unit": "cup", "purchase_quantity": Decimal("10.0")},
         )
 
         # Add pantry items
-        flour_lot = pantry_service.add_to_pantry(
-            variant_id=flour_variant.id, quantity=Decimal("5.0"), purchase_date=date(2025, 1, 1)
+        flour_lot = inventory_item_service.add_to_inventory(
+            product_id=flour_product.id, quantity=Decimal("5.0"), purchase_date=date(2025, 1, 1)
         )
-        pantry_service.update_pantry_item(flour_lot.id, {"unit_cost": 0.10})  # $0.10/cup
+        inventory_item_service.update_inventory_item(flour_lot.id, {"unit_cost": 0.10})  # $0.10/cup
 
-        sugar_lot = pantry_service.add_to_pantry(
-            variant_id=sugar_variant.id, quantity=Decimal("5.0"), purchase_date=date(2025, 1, 1)
+        sugar_lot = inventory_item_service.add_to_inventory(
+            product_id=sugar_product.id, quantity=Decimal("5.0"), purchase_date=date(2025, 1, 1)
         )
-        pantry_service.update_pantry_item(sugar_lot.id, {"unit_cost": 0.20})  # $0.20/cup
+        inventory_item_service.update_inventory_item(sugar_lot.id, {"unit_cost": 0.20})  # $0.20/cup
 
         # Create recipe with both ingredients
         recipe = recipe_service.create_recipe(
@@ -220,7 +220,7 @@ class TestCalculateActualCost:
             }
         )
 
-        variant = variant_service.create_variant(
+        product = product_service.create_product(
             ingredient.slug,
             {
                 "brand": "Test Brand",
@@ -229,17 +229,17 @@ class TestCalculateActualCost:
                 "is_preferred": True,
             },
         )
-        variant_service.set_preferred_variant(variant.id)
+        product_service.set_preferred_product(product.id)
 
         # Add only 2 cups to pantry at $0.10/cup
-        lot = pantry_service.add_to_pantry(
-            variant_id=variant.id, quantity=Decimal("2.0"), purchase_date=date(2025, 1, 1)
+        lot = inventory_item_service.add_to_inventory(
+            product_id=product.id, quantity=Decimal("2.0"), purchase_date=date(2025, 1, 1)
         )
-        pantry_service.update_pantry_item(lot.id, {"unit_cost": 0.10})
+        inventory_item_service.update_inventory_item(lot.id, {"unit_cost": 0.10})
 
         # Record a purchase for fallback pricing at $0.15/cup
         purchase_service.record_purchase(
-            variant_id=variant.id,
+            product_id=product.id,
             quantity=Decimal("10.0"),
             total_cost=Decimal("1.50"),  # $0.15/cup
             purchase_date=date(2025, 1, 15),
@@ -276,15 +276,15 @@ class TestCalculateActualCost:
             }
         )
 
-        variant = variant_service.create_variant(
+        product = product_service.create_product(
             ingredient.slug,
             {"brand": "Test Brand", "purchase_unit": "cup", "purchase_quantity": Decimal("10.0")},
         )
-        variant_service.set_preferred_variant(variant.id)
+        product_service.set_preferred_product(product.id)
 
         # Record purchase for fallback pricing (no pantry inventory)
         purchase_service.record_purchase(
-            variant_id=variant.id,
+            product_id=product.id,
             quantity=Decimal("10.0"),
             total_cost=Decimal("2.00"),  # $0.20/cup
             purchase_date=date(2025, 1, 15),
@@ -312,7 +312,7 @@ class TestCalculateActualCost:
 
     def test_calculate_actual_cost_raises_validation_error_no_purchase_history(self, test_db):
         """Test: Raises ValidationError when no purchase history for fallback."""
-        # Setup: Ingredient with variant but no purchase history and no pantry
+        # Setup: Ingredient with product but no purchase history and no pantry
         ingredient = ingredient_service.create_ingredient(
             {
                 "name": "No History Flour",
@@ -321,7 +321,7 @@ class TestCalculateActualCost:
             }
         )
 
-        variant = variant_service.create_variant(
+        product = product_service.create_product(
             ingredient.slug,
             {"brand": "Test Brand", "purchase_unit": "cup", "purchase_quantity": Decimal("10.0")},
         )
@@ -345,21 +345,21 @@ class TestCalculateActualCost:
         error_text = str(exc_info.value).lower().replace("; ", "")
         assert "purchase history" in error_text or "no purchase" in error_text
 
-    def test_calculate_actual_cost_raises_ingredient_not_found_no_variants(self, test_db):
-        """Test: Raises IngredientNotFound when ingredient has no variants."""
-        # Setup: Ingredient with NO variants
+    def test_calculate_actual_cost_raises_validation_error_no_products(self, test_db):
+        """Test: Raises ValidationError when ingredient has no products configured."""
+        # Setup: Ingredient with NO products
         ingredient = ingredient_service.create_ingredient(
             {
-                "name": "No Variants Flour",
+                "name": "No Products Flour",
                 "category": "Flour",
                 "recipe_unit": "cup",
             }
         )
 
-        # Create recipe with this ingredient (no variants, so shortfall can't be priced)
+        # Create recipe with this ingredient (no products, so shortfall can't be priced)
         recipe = recipe_service.create_recipe(
             {
-                "name": "No Variants Recipe",
+                "name": "No Products Recipe",
                 "category": "Cookies",
                 "yield_quantity": 1,
                 "yield_unit": "batch",
@@ -368,10 +368,10 @@ class TestCalculateActualCost:
         )
 
         # Act & Assert
-        with pytest.raises(IngredientNotFound) as exc_info:
+        with pytest.raises(ValidationError) as exc_info:
             recipe_service.calculate_actual_cost(recipe.id)
 
-        assert "no variants" in str(exc_info.value).lower()
+        assert "no products" in str(exc_info.value).lower()
 
     def test_calculate_actual_cost_decimal_precision(self, test_db):
         """Test: Decimal precision maintained in cost calculations."""
@@ -384,16 +384,16 @@ class TestCalculateActualCost:
             }
         )
 
-        variant = variant_service.create_variant(
+        product = product_service.create_product(
             ingredient.slug,
             {"brand": "Test Brand", "purchase_unit": "cup", "purchase_quantity": Decimal("10.0")},
         )
 
         # Add pantry with precise unit cost
-        lot = pantry_service.add_to_pantry(
-            variant_id=variant.id, quantity=Decimal("10.0"), purchase_date=date(2025, 1, 1)
+        lot = inventory_item_service.add_to_inventory(
+            product_id=product.id, quantity=Decimal("10.0"), purchase_date=date(2025, 1, 1)
         )
-        pantry_service.update_pantry_item(lot.id, {"unit_cost": 0.123})  # Precise value
+        inventory_item_service.update_inventory_item(lot.id, {"unit_cost": 0.123})  # Precise value
 
         # Create recipe
         recipe = recipe_service.create_recipe(
@@ -422,8 +422,8 @@ class TestCalculateActualCost:
 class TestCalculateEstimatedCost:
     """Tests for calculate_estimated_cost() method."""
 
-    def test_calculate_estimated_cost_uses_preferred_variant(self, test_db):
-        """Test: Uses preferred variant's price when available."""
+    def test_calculate_estimated_cost_uses_preferred_product(self, test_db):
+        """Test: Uses preferred product's price when available."""
         # Setup: Create ingredient
         ingredient = ingredient_service.create_ingredient(
             {
@@ -433,8 +433,8 @@ class TestCalculateEstimatedCost:
             }
         )
 
-        # Create two variants - one preferred, one not
-        variant1 = variant_service.create_variant(
+        # Create two products - one preferred, one not
+        product1 = product_service.create_product(
             ingredient.slug,
             {
                 "brand": "Cheap Brand",
@@ -443,7 +443,7 @@ class TestCalculateEstimatedCost:
                 "is_preferred": False,
             },
         )
-        variant2 = variant_service.create_variant(
+        product2 = product_service.create_product(
             ingredient.slug,
             {
                 "brand": "Preferred Brand",
@@ -452,17 +452,17 @@ class TestCalculateEstimatedCost:
                 "is_preferred": True,
             },
         )
-        variant_service.set_preferred_variant(variant2.id)
+        product_service.set_preferred_product(product2.id)
 
         # Record purchases with different prices
         purchase_service.record_purchase(
-            variant_id=variant1.id,
+            product_id=product1.id,
             quantity=Decimal("10.0"),
             total_cost=Decimal("0.50"),  # $0.05/cup
             purchase_date=date(2025, 1, 1),
         )
         purchase_service.record_purchase(
-            variant_id=variant2.id,
+            product_id=product2.id,
             quantity=Decimal("10.0"),
             total_cost=Decimal("1.00"),  # $0.10/cup (preferred)
             purchase_date=date(2025, 1, 1),
@@ -482,14 +482,14 @@ class TestCalculateEstimatedCost:
         # Act
         cost = recipe_service.calculate_estimated_cost(recipe.id)
 
-        # Assert: Should use preferred variant price (2 * $0.10 = $0.20)
+        # Assert: Should use preferred product price (2 * $0.10 = $0.20)
         expected_cost = Decimal("0.20")
         assert abs(cost - expected_cost) < Decimal(
             "0.01"
-        ), f"Expected ${expected_cost} (preferred variant), got ${cost}"
+        ), f"Expected ${expected_cost} (preferred product), got ${cost}"
 
-    def test_calculate_estimated_cost_falls_back_to_any_variant(self, test_db):
-        """Test: Falls back to any variant when no preferred set."""
+    def test_calculate_estimated_cost_falls_back_to_any_product(self, test_db):
+        """Test: Falls back to any product when no preferred set."""
         # Setup: Create ingredient
         ingredient = ingredient_service.create_ingredient(
             {
@@ -499,8 +499,8 @@ class TestCalculateEstimatedCost:
             }
         )
 
-        # Create variant WITHOUT setting it as preferred
-        variant = variant_service.create_variant(
+        # Create product WITHOUT setting it as preferred
+        product = product_service.create_product(
             ingredient.slug,
             {
                 "brand": "Only Brand",
@@ -512,7 +512,7 @@ class TestCalculateEstimatedCost:
 
         # Record purchase
         purchase_service.record_purchase(
-            variant_id=variant.id,
+            product_id=product.id,
             quantity=Decimal("10.0"),
             total_cost=Decimal("1.50"),  # $0.15/cup
             purchase_date=date(2025, 1, 1),
@@ -532,11 +532,11 @@ class TestCalculateEstimatedCost:
         # Act
         cost = recipe_service.calculate_estimated_cost(recipe.id)
 
-        # Assert: Should use the only available variant (3 * $0.15 = $0.45)
+        # Assert: Should use the only available product (3 * $0.15 = $0.45)
         expected_cost = Decimal("0.45")
         assert abs(cost - expected_cost) < Decimal(
             "0.01"
-        ), f"Expected ${expected_cost} (fallback variant), got ${cost}"
+        ), f"Expected ${expected_cost} (fallback product), got ${cost}"
 
     def test_calculate_estimated_cost_handles_multiple_ingredients(self, test_db):
         """Test: Multiple ingredients are summed correctly."""
@@ -556,8 +556,8 @@ class TestCalculateEstimatedCost:
             }
         )
 
-        # Create variants
-        flour_variant = variant_service.create_variant(
+        # Create products
+        flour_product = product_service.create_product(
             flour.slug,
             {
                 "brand": "Test Brand",
@@ -566,9 +566,9 @@ class TestCalculateEstimatedCost:
                 "is_preferred": True,
             },
         )
-        variant_service.set_preferred_variant(flour_variant.id)
+        product_service.set_preferred_product(flour_product.id)
 
-        sugar_variant = variant_service.create_variant(
+        sugar_product = product_service.create_product(
             sugar.slug,
             {
                 "brand": "Test Brand",
@@ -577,17 +577,17 @@ class TestCalculateEstimatedCost:
                 "is_preferred": True,
             },
         )
-        variant_service.set_preferred_variant(sugar_variant.id)
+        product_service.set_preferred_product(sugar_product.id)
 
         # Record purchases
         purchase_service.record_purchase(
-            variant_id=flour_variant.id,
+            product_id=flour_product.id,
             quantity=Decimal("10.0"),
             total_cost=Decimal("1.00"),  # $0.10/cup
             purchase_date=date(2025, 1, 1),
         )
         purchase_service.record_purchase(
-            variant_id=sugar_variant.id,
+            product_id=sugar_product.id,
             quantity=Decimal("10.0"),
             total_cost=Decimal("2.00"),  # $0.20/cup
             purchase_date=date(2025, 1, 1),
@@ -617,7 +617,7 @@ class TestCalculateEstimatedCost:
         ), f"Expected ${expected_cost}, got ${cost}"
 
     def test_calculate_estimated_cost_ignores_pantry(self, test_db):
-        """Test: Pantry inventory is completely ignored - uses variant pricing."""
+        """Test: Pantry inventory is completely ignored - uses product pricing."""
         # Setup: Create ingredient
         ingredient = ingredient_service.create_ingredient(
             {
@@ -627,7 +627,7 @@ class TestCalculateEstimatedCost:
             }
         )
 
-        variant = variant_service.create_variant(
+        product = product_service.create_product(
             ingredient.slug,
             {
                 "brand": "Test Brand",
@@ -636,17 +636,17 @@ class TestCalculateEstimatedCost:
                 "is_preferred": True,
             },
         )
-        variant_service.set_preferred_variant(variant.id)
+        product_service.set_preferred_product(product.id)
 
         # Add pantry items at LOW price ($0.05/cup)
-        lot = pantry_service.add_to_pantry(
-            variant_id=variant.id, quantity=Decimal("10.0"), purchase_date=date(2025, 1, 1)
+        lot = inventory_item_service.add_to_inventory(
+            product_id=product.id, quantity=Decimal("10.0"), purchase_date=date(2025, 1, 1)
         )
-        pantry_service.update_pantry_item(lot.id, {"unit_cost": 0.05})  # Cheap pantry price
+        inventory_item_service.update_inventory_item(lot.id, {"unit_cost": 0.05})  # Cheap pantry price
 
         # Record purchase at HIGHER price ($0.20/cup) - this should be used
         purchase_service.record_purchase(
-            variant_id=variant.id,
+            product_id=product.id,
             quantity=Decimal("10.0"),
             total_cost=Decimal("2.00"),  # $0.20/cup
             purchase_date=date(2025, 1, 15),
@@ -699,7 +699,7 @@ class TestCalculateEstimatedCost:
 
     def test_calculate_estimated_cost_raises_validation_error_no_purchase(self, test_db):
         """Test: Raises ValidationError when no purchase history exists."""
-        # Setup: Ingredient with variant but no purchase history
+        # Setup: Ingredient with product but no purchase history
         ingredient = ingredient_service.create_ingredient(
             {
                 "name": "No Purchase Est Flour",
@@ -708,7 +708,7 @@ class TestCalculateEstimatedCost:
             }
         )
 
-        variant = variant_service.create_variant(
+        product = product_service.create_product(
             ingredient.slug,
             {"brand": "Test Brand", "purchase_unit": "cup", "purchase_quantity": Decimal("10.0")},
         )
@@ -733,21 +733,21 @@ class TestCalculateEstimatedCost:
         error_text = str(exc_info.value).lower().replace("; ", "")
         assert "purchase" in error_text and "history" in error_text
 
-    def test_calculate_estimated_cost_raises_ingredient_not_found_no_variants(self, test_db):
-        """Test: Raises IngredientNotFound when ingredient has no variants."""
-        # Setup: Ingredient with NO variants
+    def test_calculate_estimated_cost_raises_validation_error_no_products(self, test_db):
+        """Test: Raises ValidationError when ingredient has no products configured."""
+        # Setup: Ingredient with NO products
         ingredient = ingredient_service.create_ingredient(
             {
-                "name": "No Variants Est Flour",
+                "name": "No Products Est Flour",
                 "category": "Flour",
                 "recipe_unit": "cup",
             }
         )
 
-        # Create recipe with this ingredient (no variants)
+        # Create recipe with this ingredient (no products)
         recipe = recipe_service.create_recipe(
             {
-                "name": "No Variants Est Recipe",
+                "name": "No Products Est Recipe",
                 "category": "Cookies",
                 "yield_quantity": 1,
                 "yield_unit": "batch",
@@ -756,10 +756,10 @@ class TestCalculateEstimatedCost:
         )
 
         # Act & Assert
-        with pytest.raises(IngredientNotFound) as exc_info:
+        with pytest.raises(ValidationError) as exc_info:
             recipe_service.calculate_estimated_cost(recipe.id)
 
-        assert "no variants" in str(exc_info.value).lower()
+        assert "no products" in str(exc_info.value).lower()
 
 
 class TestPartialInventoryScenarios:
@@ -776,7 +776,7 @@ class TestPartialInventoryScenarios:
             }
         )
 
-        variant = variant_service.create_variant(
+        product = product_service.create_product(
             ingredient.slug,
             {
                 "brand": "Test Brand",
@@ -785,17 +785,17 @@ class TestPartialInventoryScenarios:
                 "is_preferred": True,
             },
         )
-        variant_service.set_preferred_variant(variant.id)
+        product_service.set_preferred_product(product.id)
 
         # Add 5 cups to pantry at $0.10/cup (more than needed)
-        lot = pantry_service.add_to_pantry(
-            variant_id=variant.id, quantity=Decimal("5.0"), purchase_date=date(2025, 1, 1)
+        lot = inventory_item_service.add_to_inventory(
+            product_id=product.id, quantity=Decimal("5.0"), purchase_date=date(2025, 1, 1)
         )
-        pantry_service.update_pantry_item(lot.id, {"unit_cost": 0.10})
+        inventory_item_service.update_inventory_item(lot.id, {"unit_cost": 0.10})
 
         # Record a purchase for fallback at HIGHER price - should NOT be used
         purchase_service.record_purchase(
-            variant_id=variant.id,
+            product_id=product.id,
             quantity=Decimal("10.0"),
             total_cost=Decimal("5.00"),  # $0.50/cup - expensive!
             purchase_date=date(2025, 1, 15),
@@ -850,8 +850,8 @@ class TestPartialInventoryScenarios:
             }
         )
 
-        # Create variants
-        flour_variant = variant_service.create_variant(
+        # Create products
+        flour_product = product_service.create_product(
             flour.slug,
             {
                 "brand": "Test Brand",
@@ -860,9 +860,9 @@ class TestPartialInventoryScenarios:
                 "is_preferred": True,
             },
         )
-        variant_service.set_preferred_variant(flour_variant.id)
+        product_service.set_preferred_product(flour_product.id)
 
-        sugar_variant = variant_service.create_variant(
+        sugar_product = product_service.create_product(
             sugar.slug,
             {
                 "brand": "Test Brand",
@@ -871,9 +871,9 @@ class TestPartialInventoryScenarios:
                 "is_preferred": True,
             },
         )
-        variant_service.set_preferred_variant(sugar_variant.id)
+        product_service.set_preferred_product(sugar_product.id)
 
-        butter_variant = variant_service.create_variant(
+        butter_product = product_service.create_product(
             butter.slug,
             {
                 "brand": "Test Brand",
@@ -882,38 +882,38 @@ class TestPartialInventoryScenarios:
                 "is_preferred": True,
             },
         )
-        variant_service.set_preferred_variant(butter_variant.id)
+        product_service.set_preferred_product(butter_product.id)
 
         # Add pantry items
         # Flour: 2 cups at $0.10/cup (partial coverage)
-        flour_lot = pantry_service.add_to_pantry(
-            variant_id=flour_variant.id, quantity=Decimal("2.0"), purchase_date=date(2025, 1, 1)
+        flour_lot = inventory_item_service.add_to_inventory(
+            product_id=flour_product.id, quantity=Decimal("2.0"), purchase_date=date(2025, 1, 1)
         )
-        pantry_service.update_pantry_item(flour_lot.id, {"unit_cost": 0.10})
+        inventory_item_service.update_inventory_item(flour_lot.id, {"unit_cost": 0.10})
 
         # Sugar: 5 cups at $0.20/cup (full coverage)
-        sugar_lot = pantry_service.add_to_pantry(
-            variant_id=sugar_variant.id, quantity=Decimal("5.0"), purchase_date=date(2025, 1, 1)
+        sugar_lot = inventory_item_service.add_to_inventory(
+            product_id=sugar_product.id, quantity=Decimal("5.0"), purchase_date=date(2025, 1, 1)
         )
-        pantry_service.update_pantry_item(sugar_lot.id, {"unit_cost": 0.20})
+        inventory_item_service.update_inventory_item(sugar_lot.id, {"unit_cost": 0.20})
 
         # Butter: NO pantry inventory (zero coverage)
 
         # Record purchases for fallback pricing
         purchase_service.record_purchase(
-            variant_id=flour_variant.id,
+            product_id=flour_product.id,
             quantity=Decimal("10.0"),
             total_cost=Decimal("1.50"),  # $0.15/cup
             purchase_date=date(2025, 1, 15),
         )
         purchase_service.record_purchase(
-            variant_id=sugar_variant.id,
+            product_id=sugar_product.id,
             quantity=Decimal("10.0"),
             total_cost=Decimal("3.00"),  # $0.30/cup (won't be used - full coverage)
             purchase_date=date(2025, 1, 15),
         )
         purchase_service.record_purchase(
-            variant_id=butter_variant.id,
+            product_id=butter_product.id,
             quantity=Decimal("10.0"),
             total_cost=Decimal("5.00"),  # $0.50/cup (100% fallback)
             purchase_date=date(2025, 1, 15),
@@ -958,7 +958,7 @@ class TestPartialInventoryScenarios:
             }
         )
 
-        variant = variant_service.create_variant(
+        product = product_service.create_product(
             ingredient.slug,
             {
                 "brand": "Test Brand",
@@ -967,17 +967,17 @@ class TestPartialInventoryScenarios:
                 "is_preferred": True,
             },
         )
-        variant_service.set_preferred_variant(variant.id)
+        product_service.set_preferred_product(product.id)
 
         # Add exactly 3 cups at $0.10/cup
-        lot = pantry_service.add_to_pantry(
-            variant_id=variant.id, quantity=Decimal("3.0"), purchase_date=date(2025, 1, 1)
+        lot = inventory_item_service.add_to_inventory(
+            product_id=product.id, quantity=Decimal("3.0"), purchase_date=date(2025, 1, 1)
         )
-        pantry_service.update_pantry_item(lot.id, {"unit_cost": 0.10})
+        inventory_item_service.update_inventory_item(lot.id, {"unit_cost": 0.10})
 
         # Record expensive fallback (should NOT be used)
         purchase_service.record_purchase(
-            variant_id=variant.id,
+            product_id=product.id,
             quantity=Decimal("10.0"),
             total_cost=Decimal("10.00"),  # $1.00/cup
             purchase_date=date(2025, 1, 15),
@@ -1014,7 +1014,7 @@ class TestPartialInventoryScenarios:
             }
         )
 
-        variant = variant_service.create_variant(
+        product = product_service.create_product(
             ingredient.slug,
             {
                 "brand": "Test Brand",
@@ -1023,17 +1023,17 @@ class TestPartialInventoryScenarios:
                 "is_preferred": True,
             },
         )
-        variant_service.set_preferred_variant(variant.id)
+        product_service.set_preferred_product(product.id)
 
         # Add 1.5 cups at $0.123/cup (precise value)
-        lot = pantry_service.add_to_pantry(
-            variant_id=variant.id, quantity=Decimal("1.5"), purchase_date=date(2025, 1, 1)
+        lot = inventory_item_service.add_to_inventory(
+            product_id=product.id, quantity=Decimal("1.5"), purchase_date=date(2025, 1, 1)
         )
-        pantry_service.update_pantry_item(lot.id, {"unit_cost": 0.123})
+        inventory_item_service.update_inventory_item(lot.id, {"unit_cost": 0.123})
 
         # Record fallback at $0.456/cup (precise value)
         purchase_service.record_purchase(
-            variant_id=variant.id,
+            product_id=product.id,
             quantity=Decimal("10.0"),
             total_cost=Decimal("4.56"),  # $0.456/cup
             purchase_date=date(2025, 1, 15),
@@ -1084,8 +1084,8 @@ class TestEdgeCases:
             }
         )
 
-        # Create variants
-        flour_variant = variant_service.create_variant(
+        # Create products
+        flour_product = product_service.create_product(
             flour.slug,
             {
                 "brand": "Test Brand",
@@ -1094,9 +1094,9 @@ class TestEdgeCases:
                 "is_preferred": True,
             },
         )
-        variant_service.set_preferred_variant(flour_variant.id)
+        product_service.set_preferred_product(flour_product.id)
 
-        sugar_variant = variant_service.create_variant(
+        sugar_product = product_service.create_product(
             sugar.slug,
             {
                 "brand": "Test Brand",
@@ -1105,17 +1105,17 @@ class TestEdgeCases:
                 "is_preferred": True,
             },
         )
-        variant_service.set_preferred_variant(sugar_variant.id)
+        product_service.set_preferred_product(sugar_product.id)
 
         # Add pantry
-        flour_lot = pantry_service.add_to_pantry(
-            variant_id=flour_variant.id, quantity=Decimal("5.0"), purchase_date=date(2025, 1, 1)
+        flour_lot = inventory_item_service.add_to_inventory(
+            product_id=flour_product.id, quantity=Decimal("5.0"), purchase_date=date(2025, 1, 1)
         )
-        pantry_service.update_pantry_item(flour_lot.id, {"unit_cost": 0.10})
+        inventory_item_service.update_inventory_item(flour_lot.id, {"unit_cost": 0.10})
 
         # Record purchase for sugar (in case fallback is needed)
         purchase_service.record_purchase(
-            variant_id=sugar_variant.id,
+            product_id=sugar_product.id,
             quantity=Decimal("10.0"),
             total_cost=Decimal("5.00"),  # $0.50/cup - should NOT be used
             purchase_date=date(2025, 1, 1),
@@ -1162,8 +1162,8 @@ class TestEdgeCases:
             }
         )
 
-        # Create variants
-        flour_variant = variant_service.create_variant(
+        # Create products
+        flour_product = product_service.create_product(
             flour.slug,
             {
                 "brand": "Test Brand",
@@ -1172,9 +1172,9 @@ class TestEdgeCases:
                 "is_preferred": True,
             },
         )
-        variant_service.set_preferred_variant(flour_variant.id)
+        product_service.set_preferred_product(flour_product.id)
 
-        sugar_variant = variant_service.create_variant(
+        sugar_product = product_service.create_product(
             sugar.slug,
             {
                 "brand": "Test Brand",
@@ -1183,17 +1183,17 @@ class TestEdgeCases:
                 "is_preferred": True,
             },
         )
-        variant_service.set_preferred_variant(sugar_variant.id)
+        product_service.set_preferred_product(sugar_product.id)
 
         # Record purchases
         purchase_service.record_purchase(
-            variant_id=flour_variant.id,
+            product_id=flour_product.id,
             quantity=Decimal("10.0"),
             total_cost=Decimal("1.00"),  # $0.10/cup
             purchase_date=date(2025, 1, 1),
         )
         purchase_service.record_purchase(
-            variant_id=sugar_variant.id,
+            product_id=sugar_product.id,
             quantity=Decimal("10.0"),
             total_cost=Decimal("5.00"),  # $0.50/cup - should NOT be used
             purchase_date=date(2025, 1, 1),
@@ -1224,7 +1224,7 @@ class TestEdgeCases:
 
     def test_error_message_includes_ingredient_name(self, test_db):
         """Test: Error messages include the ingredient name for user clarity."""
-        # Setup: Ingredient with no variants
+        # Setup: Ingredient with no products
         ingredient = ingredient_service.create_ingredient(
             {
                 "name": "Saffron Threads",  # Specific name to check in message
@@ -1244,16 +1244,16 @@ class TestEdgeCases:
         )
 
         # Act & Assert
-        with pytest.raises(IngredientNotFound) as exc_info:
+        with pytest.raises(ValidationError) as exc_info:
             recipe_service.calculate_actual_cost(recipe.id)
 
         error_message = str(exc_info.value)
         # The message should include the ingredient name
-        assert "saffron" in error_message.lower() or "no variants" in error_message.lower()
+        assert "saffron" in error_message.lower() or "no products" in error_message.lower()
 
     def test_error_message_for_no_purchase_history(self, test_db):
         """Test: ValidationError message mentions purchase history."""
-        # Setup: Ingredient with variant but no purchases
+        # Setup: Ingredient with product but no purchases
         ingredient = ingredient_service.create_ingredient(
             {
                 "name": "Rare Spice",
@@ -1262,7 +1262,7 @@ class TestEdgeCases:
             }
         )
 
-        variant = variant_service.create_variant(
+        product = product_service.create_product(
             ingredient.slug,
             {"brand": "Exotic Brand", "purchase_unit": "tsp", "purchase_quantity": Decimal("1.0")},
         )

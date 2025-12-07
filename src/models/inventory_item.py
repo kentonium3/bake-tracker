@@ -1,12 +1,14 @@
 """
-PantryItem model for tracking actual inventory.
+InventoryItem model for tracking actual inventory.
 
-This model represents physical items currently in the pantry, including:
+This model represents physical items currently in inventory, including:
 - What product is on hand
 - How much quantity
 - When purchased and when it expires
 - Where it's stored
 - FIFO tracking for consumption
+
+Note: Renamed from PantryItem to InventoryItem for consistent domain naming.
 """
 
 from datetime import date, datetime
@@ -17,9 +19,9 @@ from sqlalchemy.orm import relationship
 from .base import BaseModel
 
 
-class PantryItem(BaseModel):
+class InventoryItem(BaseModel):
     """
-    PantryItem model representing actual inventory in the pantry.
+    InventoryItem model representing actual inventory on hand.
 
     Each record represents a specific instance of a product that's
     currently on hand. Multiple items can exist for the same product
@@ -35,12 +37,12 @@ class PantryItem(BaseModel):
         purchase_date: When this item was purchased
         expiration_date: When it expires (if applicable)
         opened_date: When package was opened (if applicable)
-        location: Where stored (e.g., "Main Pantry", "Garage Shelf 2")
+        location: Where stored (e.g., "Main Storage", "Garage Shelf 2")
         notes: Additional notes
         last_updated: Last modification timestamp
     """
 
-    __tablename__ = "pantry_items"
+    __tablename__ = "inventory_items"
 
     # Foreign key to Product
     product_id = Column(
@@ -71,20 +73,20 @@ class PantryItem(BaseModel):
     )
 
     # Relationships
-    product = relationship("Product", back_populates="pantry_items")
+    product = relationship("Product", back_populates="inventory_items")
 
     # Indexes for common queries
     __table_args__ = (
-        Index("idx_pantry_product", "product_id"),
-        Index("idx_pantry_location", "location"),
-        Index("idx_pantry_expiration", "expiration_date"),
-        Index("idx_pantry_purchase", "purchase_date"),
+        Index("idx_inventory_product", "product_id"),
+        Index("idx_inventory_location", "location"),
+        Index("idx_inventory_expiration", "expiration_date"),
+        Index("idx_inventory_purchase", "purchase_date"),
     )
 
     def __repr__(self) -> str:
-        """String representation of pantry item."""
+        """String representation of inventory item."""
         return (
-            f"PantryItem(id={self.id}, "
+            f"InventoryItem(id={self.id}, "
             f"product_id={self.product_id}, "
             f"quantity={self.quantity}, "
             f"location='{self.location}')"
@@ -178,7 +180,7 @@ class PantryItem(BaseModel):
 
     def to_dict(self, include_relationships: bool = False) -> dict:
         """
-        Convert pantry item to dictionary.
+        Convert inventory item to dictionary.
 
         Args:
             include_relationships: If True, include product information
@@ -208,25 +210,25 @@ class PantryItem(BaseModel):
 # Module-level helper functions for FIFO operations
 
 
-def get_pantry_items_fifo(ingredient_id: int, session) -> list:
+def get_inventory_items_fifo(ingredient_id: int, session) -> list:
     """
-    Get pantry items for an ingredient ordered by purchase date (FIFO).
+    Get inventory items for an ingredient ordered by purchase date (FIFO).
 
     Args:
         ingredient_id: Ingredient ID
         session: SQLAlchemy session
 
     Returns:
-        List of PantryItem instances ordered by purchase_date (oldest first)
+        List of InventoryItem instances ordered by purchase_date (oldest first)
     """
     from src.models.product import Product
 
     items = (
-        session.query(PantryItem)
+        session.query(InventoryItem)
         .join(Product)
         .filter(Product.ingredient_id == ingredient_id)
-        .filter(PantryItem.quantity > 0)
-        .order_by(PantryItem.purchase_date.asc().nullslast())
+        .filter(InventoryItem.quantity > 0)
+        .order_by(InventoryItem.purchase_date.asc().nullslast())
         .all()
     )
 
@@ -235,7 +237,7 @@ def get_pantry_items_fifo(ingredient_id: int, session) -> list:
 
 def consume_fifo(ingredient_id: int, quantity_needed: float, session) -> tuple:
     """
-    Consume quantity from pantry using FIFO logic.
+    Consume quantity from inventory using FIFO logic.
 
     Consumes from oldest items first, updating quantities.
 
@@ -249,7 +251,7 @@ def consume_fifo(ingredient_id: int, quantity_needed: float, session) -> tuple:
         - total_consumed: Amount actually consumed
         - cost_breakdown: List of (item_id, quantity, cost) tuples
     """
-    items = get_pantry_items_fifo(ingredient_id, session)
+    items = get_inventory_items_fifo(ingredient_id, session)
 
     total_consumed = 0.0
     cost_breakdown = []
@@ -288,14 +290,14 @@ def consume_fifo(ingredient_id: int, quantity_needed: float, session) -> tuple:
 
 def get_expiring_soon(days: int = 30, session=None) -> list:
     """
-    Get all pantry items expiring within specified days.
+    Get all inventory items expiring within specified days.
 
     Args:
         days: Number of days to look ahead (default: 30)
         session: SQLAlchemy session (if None, uses session_scope)
 
     Returns:
-        List of PantryItem instances expiring soon
+        List of InventoryItem instances expiring soon
     """
     from datetime import timedelta
     from src.services.database import session_scope
@@ -304,27 +306,27 @@ def get_expiring_soon(days: int = 30, session=None) -> list:
 
     if session:
         items = (
-            session.query(PantryItem)
+            session.query(InventoryItem)
             .filter(
-                PantryItem.expiration_date.isnot(None),
-                PantryItem.expiration_date <= cutoff_date,
-                PantryItem.expiration_date >= date.today(),
-                PantryItem.quantity > 0,
+                InventoryItem.expiration_date.isnot(None),
+                InventoryItem.expiration_date <= cutoff_date,
+                InventoryItem.expiration_date >= date.today(),
+                InventoryItem.quantity > 0,
             )
-            .order_by(PantryItem.expiration_date.asc())
+            .order_by(InventoryItem.expiration_date.asc())
             .all()
         )
     else:
         with session_scope() as sess:
             items = (
-                sess.query(PantryItem)
+                sess.query(InventoryItem)
                 .filter(
-                    PantryItem.expiration_date.isnot(None),
-                    PantryItem.expiration_date <= cutoff_date,
-                    PantryItem.expiration_date >= date.today(),
-                    PantryItem.quantity > 0,
+                    InventoryItem.expiration_date.isnot(None),
+                    InventoryItem.expiration_date <= cutoff_date,
+                    InventoryItem.expiration_date >= date.today(),
+                    InventoryItem.quantity > 0,
                 )
-                .order_by(PantryItem.expiration_date.asc())
+                .order_by(InventoryItem.expiration_date.asc())
                 .all()
             )
 
@@ -333,7 +335,7 @@ def get_expiring_soon(days: int = 30, session=None) -> list:
 
 def get_total_quantity_for_ingredient(ingredient_id: int, session) -> float:
     """
-    Get total quantity for an ingredient across all pantry items.
+    Get total quantity for an ingredient across all inventory items.
 
     Args:
         ingredient_id: Ingredient ID
@@ -344,7 +346,7 @@ def get_total_quantity_for_ingredient(ingredient_id: int, session) -> float:
     """
     from src.models.product import Product
 
-    items = session.query(PantryItem).join(Product).filter(Product.ingredient_id == ingredient_id).all()
+    items = session.query(InventoryItem).join(Product).filter(Product.ingredient_id == ingredient_id).all()
 
     # TODO: Convert quantities to common unit (recipe_unit)
     # For now, just sum raw quantities

@@ -11,7 +11,7 @@ from decimal import Decimal
 
 from src.models.recipe import Recipe
 from src.models.ingredient import Ingredient
-from src.services import inventory_service
+from src.services import ingredient_crud_service
 from src.utils.constants import (
     RECIPE_CATEGORIES,
     ALL_UNITS,
@@ -202,7 +202,7 @@ class RecipeFormDialog(ctk.CTkToplevel):
 
         # Load available ingredients
         try:
-            self.available_ingredients = inventory_service.get_all_ingredients()
+            self.available_ingredients = ingredient_crud_service.get_all_ingredients()
         except Exception:
             self.available_ingredients = []
 

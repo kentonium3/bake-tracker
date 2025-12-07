@@ -7,7 +7,7 @@ All functions are stateless and use session_scope() for transaction management.
 
 Key Features:
 - Purchase record creation with auto-cost calculation
-- Price history tracking per variant
+- Price history tracking per product
 - Average price calculation (60-day rolling window)
 - Price change detection with configurable alert thresholds
 - Linear regression price trend analysis
@@ -20,7 +20,7 @@ Example Usage:
     >>>
     >>> # Record a purchase
     >>> purchase = record_purchase(
-    ...     variant_id=123,
+    ...     product_id=123,
     ...     quantity=Decimal("25.0"),
     ...     total_cost=Decimal("18.99"),
     ...     purchase_date=date(2025, 1, 15),
@@ -30,7 +30,7 @@ Example Usage:
     Decimal('0.76')
     >>>
     >>> # Analyze price trend
-    >>> trend = get_price_trend(variant_id=123, days=90)
+    >>> trend = get_price_trend(product_id=123, days=90)
     >>> trend["direction"]  # "increasing", "decreasing", or "stable"
     'increasing'
     >>> trend["slope_per_day"]
@@ -60,7 +60,7 @@ PRICE_ALERT_CRITICAL = Decimal("0.40")  # 40% change
 
 
 def record_purchase(
-    variant_id: int,
+    product_id: int,
     quantity: Decimal,
     total_cost: Decimal,
     purchase_date: date,
@@ -75,7 +75,7 @@ def record_purchase(
     precision.
 
     Args:
-        variant_id: ID of product variant purchased
+        product_id: ID of product purchased
         quantity: Quantity purchased (must be > 0)
         total_cost: Total amount paid (must be >= 0)
         purchase_date: Date of purchase
@@ -87,7 +87,7 @@ def record_purchase(
         Purchase: Created purchase record with calculated unit_cost
 
     Raises:
-        VariantNotFound: If variant_id doesn't exist
+        ProductNotFound: If product_id doesn't exist
         ValidationError: If quantity <= 0 or total_cost < 0
         DatabaseError: If database operation fails
 
@@ -95,7 +95,7 @@ def record_purchase(
         >>> from decimal import Decimal
         >>> from datetime import date
         >>> purchase = record_purchase(
-        ...     variant_id=123,
+        ...     product_id=123,
         ...     quantity=Decimal("25.0"),
         ...     total_cost=Decimal("18.99"),
         ...     purchase_date=date(2025, 1, 15),
@@ -107,8 +107,8 @@ def record_purchase(
         >>> purchase.quantity
         Decimal('25.0')
     """
-    # Validate variant exists
-    variant = get_variant(variant_id)
+    # Validate product exists
+    product = get_product(product_id)
 
     # Validate quantity > 0
     if quantity <= 0:
@@ -124,7 +124,7 @@ def record_purchase(
     try:
         with session_scope() as session:
             purchase = Purchase(
-                variant_id=variant_id,
+                product_id=product_id,
                 quantity_purchased=quantity,
                 total_cost=total_cost,
                 unit_cost=unit_cost,
@@ -139,7 +139,7 @@ def record_purchase(
 
             return purchase
 
-    except VariantNotFound:
+    except ProductNotFound:
         raise
     except ServiceValidationError:
         raise
@@ -154,14 +154,14 @@ def get_purchase(purchase_id: int) -> Purchase:
         purchase_id: Purchase identifier
 
     Returns:
-        Purchase: Purchase object with variant relationship eager-loaded
+        Purchase: Purchase object with product relationship eager-loaded
 
     Raises:
         PurchaseNotFound: If purchase_id doesn't exist
 
     Example:
         >>> purchase = get_purchase(456)
-        >>> purchase.variant.brand
+        >>> purchase.product.brand
         'King Arthur'
         >>> purchase.total_cost
         Decimal('18.99')
@@ -176,7 +176,7 @@ def get_purchase(purchase_id: int) -> Purchase:
 
 
 def get_purchase_history(
-    variant_id: Optional[int] = None,
+    product_id: Optional[int] = None,
     ingredient_slug: Optional[str] = None,
     start_date: Optional[date] = None,
     end_date: Optional[date] = None,
@@ -185,12 +185,12 @@ def get_purchase_history(
 ) -> List[Purchase]:
     """Retrieve purchase history with flexible filtering.
 
-    This function supports filtering by variant, ingredient, date range, and store.
+    This function supports filtering by product, ingredient, date range, and store.
     Results are ordered by purchase_date DESC (most recent first).
 
     Args:
-        variant_id: Optional filter for specific variant
-        ingredient_slug: Optional filter for all variants of ingredient
+        product_id: Optional filter for specific product
+        ingredient_slug: Optional filter for all products of ingredient
         start_date: Optional earliest purchase date (inclusive)
         end_date: Optional latest purchase date (inclusive)
         store: Optional store name filter (exact match)
@@ -215,14 +215,14 @@ def get_purchase_history(
     with session_scope() as session:
         q = session.query(Purchase)
 
-        # Join Variant if filtering by ingredient_slug
+        # Join Product if filtering by ingredient_slug
         if ingredient_slug:
             ingredient = get_ingredient(ingredient_slug)
-            q = q.join(Variant).filter(Variant.ingredient_id == ingredient.id)
+            q = q.join(Product).filter(Product.ingredient_id == ingredient.id)
 
         # Apply other filters
-        if variant_id:
-            q = q.filter(Purchase.variant_id == variant_id)
+        if product_id:
+            q = q.filter(Purchase.product_id == product_id)
         if start_date:
             q = q.filter(Purchase.purchase_date >= start_date)
         if end_date:
@@ -240,74 +240,74 @@ def get_purchase_history(
         return q.all()
 
 
-def get_most_recent_purchase(variant_id: int) -> Optional[Purchase]:
-    """Get the most recent purchase for a variant.
+def get_most_recent_purchase(product_id: int) -> Optional[Purchase]:
+    """Get the most recent purchase for a product.
 
     Args:
-        variant_id: Variant identifier
+        product_id: Product identifier
 
     Returns:
         Optional[Purchase]: Most recent purchase, or None if no purchases exist
 
     Raises:
-        VariantNotFound: If variant_id doesn't exist
+        ProductNotFound: If product_id doesn't exist
 
     Example:
         >>> recent = get_most_recent_purchase(123)
         >>> recent.purchase_date if recent else "No purchases yet"
         date(2025, 1, 15)
 
-        >>> recent = get_most_recent_purchase(456)  # New variant
+        >>> recent = get_most_recent_purchase(456)  # New product
         >>> recent is None
         True
     """
-    # Validate variant exists
-    get_variant(variant_id)
+    # Validate product exists
+    get_product(product_id)
 
     with session_scope() as session:
         return (
             session.query(Purchase)
-            .filter_by(variant_id=variant_id)
+            .filter_by(product_id=product_id)
             .order_by(Purchase.purchase_date.desc())
             .first()
         )
 
 
-def calculate_average_price(variant_id: int, days: int = 60) -> Optional[Decimal]:
+def calculate_average_price(product_id: int, days: int = 60) -> Optional[Decimal]:
     """Calculate average unit cost over specified time window.
 
     This function computes the mean unit_cost for all purchases within the
     specified number of days from today. Returns None if no purchases in window.
 
     Args:
-        variant_id: Variant identifier
+        product_id: Product identifier
         days: Number of days to look back (default: 60)
 
     Returns:
         Optional[Decimal]: Average unit cost, or None if no purchases in window
 
     Raises:
-        VariantNotFound: If variant_id doesn't exist
+        ProductNotFound: If product_id doesn't exist
 
     Example:
         >>> from decimal import Decimal
-        >>> avg = calculate_average_price(variant_id=123, days=60)
+        >>> avg = calculate_average_price(product_id=123, days=60)
         >>> avg
         Decimal('0.7234')
 
-        >>> avg = calculate_average_price(variant_id=456, days=30)
+        >>> avg = calculate_average_price(product_id=456, days=30)
         >>> avg is None  # No purchases in last 30 days
         True
     """
-    # Validate variant exists
-    get_variant(variant_id)
+    # Validate product exists
+    get_product(product_id)
 
     cutoff_date = date.today() - timedelta(days=days)
 
     with session_scope() as session:
         purchases = (
             session.query(Purchase)
-            .filter(Purchase.variant_id == variant_id, Purchase.purchase_date >= cutoff_date)
+            .filter(Purchase.product_id == product_id, Purchase.purchase_date >= cutoff_date)
             .all()
         )
 
@@ -321,7 +321,7 @@ def calculate_average_price(variant_id: int, days: int = 60) -> Optional[Decimal
 
 
 def detect_price_change(
-    variant_id: int, new_unit_cost: Decimal, comparison_days: int = 60
+    product_id: int, new_unit_cost: Decimal, comparison_days: int = 60
 ) -> Dict[str, Any]:
     """Detect significant price changes compared to historical average.
 
@@ -330,7 +330,7 @@ def detect_price_change(
     thresholds.
 
     Args:
-        variant_id: Variant identifier
+        product_id: Product identifier
         new_unit_cost: New unit cost to compare
         comparison_days: Days to use for average calculation (default: 60)
 
@@ -344,7 +344,7 @@ def detect_price_change(
             - "message" (str): Human-readable summary
 
     Raises:
-        VariantNotFound: If variant_id doesn't exist
+        ProductNotFound: If product_id doesn't exist
 
     Note:
         Alert levels:
@@ -355,7 +355,7 @@ def detect_price_change(
     Example:
         >>> from decimal import Decimal
         >>> result = detect_price_change(
-        ...     variant_id=123,
+        ...     product_id=123,
         ...     new_unit_cost=Decimal("0.95")
         ... )
         >>> result["alert_level"]
@@ -366,7 +366,7 @@ def detect_price_change(
         'Price increased by 31.5% (WARNING)'
     """
     # Get historical average
-    avg_price = calculate_average_price(variant_id, comparison_days)
+    avg_price = calculate_average_price(product_id, comparison_days)
 
     # No historical data
     if avg_price is None:
@@ -412,7 +412,7 @@ def detect_price_change(
     }
 
 
-def get_price_trend(variant_id: int, days: int = 90) -> Dict[str, Any]:
+def get_price_trend(product_id: int, days: int = 90) -> Dict[str, Any]:
     """Analyze price trend using linear regression.
 
     This function performs linear regression on purchase history to identify
@@ -420,7 +420,7 @@ def get_price_trend(variant_id: int, days: int = 90) -> Dict[str, Any]:
     categorizes the trend direction.
 
     Args:
-        variant_id: Variant identifier
+        product_id: Product identifier
         days: Number of days to analyze (default: 90)
 
     Returns:
@@ -433,7 +433,7 @@ def get_price_trend(variant_id: int, days: int = 90) -> Dict[str, Any]:
             - "message" (str): Human-readable summary
 
     Raises:
-        VariantNotFound: If variant_id doesn't exist
+        ProductNotFound: If product_id doesn't exist
 
     Note:
         - Requires at least 2 data points for regression
@@ -441,7 +441,7 @@ def get_price_trend(variant_id: int, days: int = 90) -> Dict[str, Any]:
         - Uses Python's statistics.linear_regression for calculation
 
     Example:
-        >>> trend = get_price_trend(variant_id=123, days=90)
+        >>> trend = get_price_trend(product_id=123, days=90)
         >>> trend["direction"]
         'increasing'
         >>> trend["slope_per_day"]
@@ -449,15 +449,15 @@ def get_price_trend(variant_id: int, days: int = 90) -> Dict[str, Any]:
         >>> trend["message"]
         'Price increasing at $0.012 per day over 90 days (5 purchases)'
     """
-    # Validate variant exists
-    get_variant(variant_id)
+    # Validate product exists
+    get_product(product_id)
 
     cutoff_date = date.today() - timedelta(days=days)
 
     with session_scope() as session:
         purchases = (
             session.query(Purchase)
-            .filter(Purchase.variant_id == variant_id, Purchase.purchase_date >= cutoff_date)
+            .filter(Purchase.product_id == product_id, Purchase.purchase_date >= cutoff_date)
             .order_by(Purchase.purchase_date.asc())
             .all()
         )

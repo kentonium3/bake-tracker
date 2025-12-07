@@ -18,7 +18,7 @@ class TestIngredientDensity:
     def test_get_density_g_per_ml_with_valid_fields(self):
         """Test density calculation with all fields set."""
         ingredient = Ingredient(
-            name="Test Flour",
+            display_name="Test Flour",
             slug="test-flour",
             category="Flour",
             density_volume_value=1.0,
@@ -35,7 +35,7 @@ class TestIngredientDensity:
     def test_get_density_g_per_ml_without_fields(self):
         """Test that missing density fields return None."""
         ingredient = Ingredient(
-            name="Test",
+            display_name="Test",
             slug="test",
             category="Flour",
         )
@@ -44,7 +44,7 @@ class TestIngredientDensity:
     def test_get_density_g_per_ml_partial_fields_volume_only(self):
         """Test that partial density fields (volume only) return None."""
         ingredient = Ingredient(
-            name="Test",
+            display_name="Test",
             slug="test",
             category="Flour",
             density_volume_value=1.0,
@@ -56,7 +56,7 @@ class TestIngredientDensity:
     def test_get_density_g_per_ml_partial_fields_weight_only(self):
         """Test that partial density fields (weight only) return None."""
         ingredient = Ingredient(
-            name="Test",
+            display_name="Test",
             slug="test",
             category="Flour",
             # volume fields missing
@@ -68,7 +68,7 @@ class TestIngredientDensity:
     def test_get_density_g_per_ml_partial_fields_missing_units(self):
         """Test that partial density fields (missing units) return None."""
         ingredient = Ingredient(
-            name="Test",
+            display_name="Test",
             slug="test",
             category="Flour",
             density_volume_value=1.0,
@@ -81,7 +81,7 @@ class TestIngredientDensity:
     def test_get_density_g_per_ml_with_grams_and_ml(self):
         """Test density calculation with grams and milliliters."""
         ingredient = Ingredient(
-            name="Water",
+            display_name="Water",
             slug="water",
             category="Liquid",
             density_volume_value=100.0,
@@ -97,7 +97,7 @@ class TestIngredientDensity:
     def test_get_density_g_per_ml_with_tablespoons(self):
         """Test density calculation with tablespoons."""
         ingredient = Ingredient(
-            name="Honey",
+            display_name="Honey",
             slug="honey",
             category="Sweetener",
             density_volume_value=1.0,
@@ -113,7 +113,7 @@ class TestIngredientDensity:
     def test_format_density_display(self):
         """Test user-friendly density formatting."""
         ingredient = Ingredient(
-            name="Test",
+            display_name="Test",
             slug="test",
             category="Flour",
             density_volume_value=1.0,
@@ -125,13 +125,13 @@ class TestIngredientDensity:
 
     def test_format_density_display_not_set(self):
         """Test format when density not set."""
-        ingredient = Ingredient(name="Test", slug="test", category="Flour")
+        ingredient = Ingredient(display_name="Test", slug="test", category="Flour")
         assert ingredient.format_density_display() == "Not set"
 
     def test_format_density_display_strips_trailing_zeros(self):
         """Test that format strips trailing zeros."""
         ingredient = Ingredient(
-            name="Test",
+            display_name="Test",
             slug="test",
             category="Flour",
             density_volume_value=1.0,  # Should display as "1"
@@ -144,7 +144,7 @@ class TestIngredientDensity:
     def test_format_density_display_partial_fields(self):
         """Test format when only some density fields set."""
         ingredient = Ingredient(
-            name="Test",
+            display_name="Test",
             slug="test",
             category="Flour",
             density_volume_value=1.0,

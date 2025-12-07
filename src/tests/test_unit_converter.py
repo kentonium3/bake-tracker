@@ -568,7 +568,7 @@ class TestVolumeWeightConversions:
     def test_convert_volume_to_weight_with_ingredient(self):
         """Test volume to weight conversion using ingredient density."""
         ingredient = Ingredient(
-            name="All-Purpose Flour",
+            display_name="All-Purpose Flour",
             slug="all-purpose-flour",
             category="Flour",
             density_volume_value=1.0,
@@ -586,7 +586,7 @@ class TestVolumeWeightConversions:
     def test_convert_volume_to_weight_no_density(self):
         """Test conversion fails gracefully when no density."""
         ingredient = Ingredient(
-            name="Mystery Ingredient",
+            display_name="Mystery Ingredient",
             slug="mystery",
             category="Other",
         )
@@ -608,7 +608,7 @@ class TestVolumeWeightConversions:
     def test_convert_weight_to_volume_with_ingredient(self):
         """Test weight to volume conversion using ingredient density."""
         ingredient = Ingredient(
-            name="All-Purpose Flour",
+            display_name="All-Purpose Flour",
             slug="all-purpose-flour",
             category="Flour",
             density_volume_value=1.0,
@@ -626,7 +626,7 @@ class TestVolumeWeightConversions:
     def test_convert_weight_to_volume_no_density(self):
         """Test conversion fails gracefully when no density."""
         ingredient = Ingredient(
-            name="Mystery Ingredient",
+            display_name="Mystery Ingredient",
             slug="mystery",
             category="Other",
         )
@@ -655,7 +655,7 @@ class TestVolumeWeightConversions:
     def test_convert_any_units_volume_to_weight(self):
         """Test convert_any_units for volume to weight with ingredient."""
         ingredient = Ingredient(
-            name="Sugar",
+            display_name="Sugar",
             slug="sugar",
             category="Sugar",
             density_volume_value=1.0,
@@ -672,7 +672,7 @@ class TestVolumeWeightConversions:
     def test_convert_any_units_weight_to_volume(self):
         """Test convert_any_units for weight to volume with ingredient."""
         ingredient = Ingredient(
-            name="Sugar",
+            display_name="Sugar",
             slug="sugar",
             category="Sugar",
             density_volume_value=1.0,
@@ -695,7 +695,7 @@ class TestVolumeWeightConversions:
     def test_error_message_includes_ingredient_name(self):
         """Test that error message includes ingredient name for user guidance."""
         ingredient = Ingredient(
-            name="Special Flour",
+            display_name="Special Flour",
             slug="special-flour",
             category="Flour",
         )

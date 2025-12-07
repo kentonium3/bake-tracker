@@ -713,7 +713,7 @@ class TestSampleDataIntegration:
         expected_entities = [
             "unit_conversions",
             "ingredients",
-            "variants",
+            "products",
             "purchases",
             "pantry_items",
             "recipes",
@@ -749,10 +749,10 @@ class TestSampleDataIntegration:
         event_slugs = {e["slug"] for e in data["events"]}
         recipient_names = {r["name"] for r in data["recipients"]}
 
-        # Verify variants reference valid ingredients
-        for variant in data["variants"]:
-            assert variant["ingredient_slug"] in ingredient_slugs, \
-                f"Variant references invalid ingredient: {variant['ingredient_slug']}"
+        # Verify products reference valid ingredients
+        for product in data["products"]:
+            assert product["ingredient_slug"] in ingredient_slugs, \
+                f"Product references invalid ingredient: {product['ingredient_slug']}"
 
         # Verify unit_conversions reference valid ingredients
         for conv in data["unit_conversions"]:
@@ -841,7 +841,7 @@ class TestSuccessCriteriaValidation:
         expected_entities = [
             "unit_conversions",
             "ingredients",
-            "variants",
+            "products",
             "purchases",
             "pantry_items",
             "recipes",
@@ -895,7 +895,7 @@ class TestDensityFieldsImportExport:
         from src.models.ingredient import Ingredient
 
         ingredient = Ingredient(
-            name="Test Flour",
+            display_name="Test Flour",
             slug="test-flour",
             category="Flour",
             recipe_unit="cup",
@@ -907,7 +907,7 @@ class TestDensityFieldsImportExport:
 
         # Manually build export dict like the export function does
         ingredient_data = {
-            "name": ingredient.name,
+            "name": ingredient.display_name,
             "slug": ingredient.slug,
             "category": ingredient.category,
             "recipe_unit": ingredient.recipe_unit,
@@ -938,7 +938,7 @@ class TestDensityFieldsImportExport:
         from src.models.ingredient import Ingredient
 
         ingredient = Ingredient(
-            name="Test Ingredient",
+            display_name="Test Ingredient",
             slug="test-ingredient",
             category="Other",
             recipe_unit="cup",
@@ -946,7 +946,7 @@ class TestDensityFieldsImportExport:
 
         # Manually build export dict
         ingredient_data = {
-            "name": ingredient.name,
+            "name": ingredient.display_name,
             "slug": ingredient.slug,
             "category": ingredient.category,
             "recipe_unit": ingredient.recipe_unit,
@@ -985,7 +985,7 @@ class TestDensityFieldsImportExport:
 
         # Mimic import logic
         ingredient = Ingredient(
-            name=data.get("name"),
+            display_name=data.get("name"),
             slug=data.get("slug"),
             category=data.get("category"),
             recipe_unit=data.get("recipe_unit"),
@@ -1015,7 +1015,7 @@ class TestDensityFieldsImportExport:
 
         # Mimic import logic (does NOT read density_g_per_ml)
         ingredient = Ingredient(
-            name=data.get("name"),
+            display_name=data.get("name"),
             slug=data.get("slug"),
             category=data.get("category"),
             recipe_unit=data.get("recipe_unit"),
@@ -1039,7 +1039,7 @@ class TestDensityFieldsImportExport:
         # Create ingredient with density
         original = Ingredient(
             slug="test",
-            name="Test",
+            display_name="Test",
             category="Flour",
             recipe_unit="cup",
             density_volume_value=1.0,
@@ -1050,7 +1050,7 @@ class TestDensityFieldsImportExport:
 
         # Export to dict
         exported = {
-            "name": original.name,
+            "name": original.display_name,
             "slug": original.slug,
             "category": original.category,
             "recipe_unit": original.recipe_unit,
@@ -1066,7 +1066,7 @@ class TestDensityFieldsImportExport:
 
         # Import from dict
         reimported = Ingredient(
-            name=exported.get("name"),
+            display_name=exported.get("name"),
             slug=exported.get("slug"),
             category=exported.get("category"),
             recipe_unit=exported.get("recipe_unit"),
