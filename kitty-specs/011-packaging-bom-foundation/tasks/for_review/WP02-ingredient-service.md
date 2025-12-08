@@ -11,7 +11,7 @@ subtasks:
   - "T019"
 title: "Ingredient Service Packaging Extensions"
 phase: "Phase 1 - Foundation"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "claude"
 shell_pid: "31961"
@@ -238,3 +238,4 @@ pytest src/tests -v --cov=src/services/ingredient_service
 
 - 2025-12-08T12:00:00Z - system - lane=planned - Prompt created via /spec-kitty.tasks
 - 2025-12-08T16:43:18Z – claude – shell_pid=31961 – lane=doing – Started implementation
+- 2025-12-08T16:52:18Z – claude – shell_pid=31961 – lane=for_review – Moved to for_review

@@ -36,6 +36,7 @@ Example Usage:
   'All-Purpose Flour'
 """
 
+import logging
 from typing import Dict, Any, List, Optional, Tuple
 
 from ..models import Ingredient
@@ -50,6 +51,20 @@ from .exceptions import (
 from ..utils.slug_utils import create_slug
 from ..utils.validators import validate_ingredient_data
 from ..utils.constants import VOLUME_UNITS, WEIGHT_UNITS
+
+# Configure logging
+logger = logging.getLogger(__name__)
+
+# Packaging categories (Feature 011 - FR-002)
+PACKAGING_CATEGORIES = [
+    "Bags",
+    "Boxes",
+    "Ribbon",
+    "Labels",
+    "Tissue Paper",
+    "Wrapping",
+    "Other Packaging",
+]
 
 
 def validate_density_fields(
@@ -182,12 +197,24 @@ def create_ingredient(ingredient_data: Dict[str, Any]) -> Ingredient:
 
             # TD-001: Support both 'name' and 'display_name' for compatibility
             display_name = ingredient_data.get("display_name") or ingredient_data.get("name")
+
+            # Feature 011: Handle is_packaging flag
+            is_packaging = ingredient_data.get("is_packaging", False)
+            category = ingredient_data["category"]
+
+            # Warn if is_packaging=True but category not in PACKAGING_CATEGORIES
+            if is_packaging and category not in PACKAGING_CATEGORIES:
+                logger.warning(
+                    f"Packaging ingredient '{display_name}' has non-standard category '{category}'"
+                )
+
             ingredient = Ingredient(
                 slug=slug,
                 display_name=display_name,
-                category=ingredient_data["category"],
+                category=category,
                 recipe_unit=ingredient_data.get("recipe_unit"),
                 description=ingredient_data.get("description"),
+                is_packaging=is_packaging,
                 density_volume_value=ingredient_data.get("density_volume_value"),
                 density_volume_unit=ingredient_data.get("density_volume_unit"),
                 density_weight_value=ingredient_data.get("density_weight_value"),
@@ -346,6 +373,23 @@ def update_ingredient(slug: str, ingredient_data: Dict[str, Any]) -> Ingredient:
             ingredient = session.query(Ingredient).filter_by(slug=slug).first()
             if not ingredient:
                 raise IngredientNotFoundBySlug(slug)
+
+            # Feature 011: Check if trying to unmark is_packaging on ingredient with products in compositions
+            new_is_packaging = ingredient_data.get("is_packaging")
+            if new_is_packaging is False and ingredient.is_packaging:
+                # Check if any products are used in packaging compositions
+                from ..models import Composition, Product
+
+                count = (
+                    session.query(Composition)
+                    .join(Product, Composition.packaging_product_id == Product.id)
+                    .filter(Product.ingredient_id == ingredient.id)
+                    .count()
+                )
+                if count > 0:
+                    raise ServiceValidationError(
+                        f"Cannot unmark packaging: ingredient has products used in {count} composition(s)"
+                    )
 
             # Update attributes
             for key, value in ingredient_data.items():
@@ -569,6 +613,88 @@ def get_all_ingredients(
             "density_weight_unit": ing.density_weight_unit,
             "density_display": ing.format_density_display(),
             "notes": ing.notes,
+            "is_packaging": ing.is_packaging,
         }
         for ing in ingredients
     ]
+
+
+# =============================================================================
+# Feature 011: Packaging Ingredient Functions
+# =============================================================================
+
+
+def get_packaging_ingredients() -> List[Ingredient]:
+    """Get all ingredients marked as packaging, sorted by category then display_name.
+
+    Returns:
+        List[Ingredient]: All packaging ingredients
+
+    Example:
+        >>> packaging = get_packaging_ingredients()
+        >>> [i.category for i in packaging]
+        ['Bags', 'Boxes', 'Ribbon']
+    """
+    with session_scope() as session:
+        return (
+            session.query(Ingredient)
+            .filter(Ingredient.is_packaging == True)
+            .order_by(Ingredient.category, Ingredient.display_name)
+            .all()
+        )
+
+
+def get_food_ingredients() -> List[Ingredient]:
+    """Get all ingredients that are NOT packaging, sorted by category then display_name.
+
+    Returns:
+        List[Ingredient]: All food (non-packaging) ingredients
+
+    Example:
+        >>> food = get_food_ingredients()
+        >>> all(not i.is_packaging for i in food)
+        True
+    """
+    with session_scope() as session:
+        return (
+            session.query(Ingredient)
+            .filter(Ingredient.is_packaging == False)
+            .order_by(Ingredient.category, Ingredient.display_name)
+            .all()
+        )
+
+
+def is_packaging_ingredient(ingredient_id: int) -> bool:
+    """Check if an ingredient is marked as packaging.
+
+    Args:
+        ingredient_id: ID of the ingredient to check
+
+    Returns:
+        bool: True if ingredient is packaging, False otherwise (including if not found)
+
+    Example:
+        >>> is_packaging_ingredient(123)  # Returns True if ingredient 123 is packaging
+        True
+    """
+    with session_scope() as session:
+        ingredient = session.get(Ingredient, ingredient_id)
+        return ingredient.is_packaging if ingredient else False
+
+
+def validate_packaging_category(category: str) -> bool:
+    """Check if category is a valid packaging category.
+
+    Args:
+        category: Category string to validate
+
+    Returns:
+        bool: True if category is in PACKAGING_CATEGORIES
+
+    Example:
+        >>> validate_packaging_category("Bags")
+        True
+        >>> validate_packaging_category("Flour")
+        False
+    """
+    return category in PACKAGING_CATEGORIES

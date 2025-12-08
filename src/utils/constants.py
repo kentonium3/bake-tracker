@@ -108,7 +108,8 @@ UNIT_TYPE_MAP: Dict[str, str] = {
 # Ingredient Categories
 # ============================================================================
 
-INGREDIENT_CATEGORIES: List[str] = [
+# Food ingredient categories
+FOOD_INGREDIENT_CATEGORIES: List[str] = [
     "Flour",
     "Sugar",
     "Dairy",
@@ -123,6 +124,20 @@ INGREDIENT_CATEGORIES: List[str] = [
     "Alcohol",
     "Misc",
 ]
+
+# Packaging ingredient categories (Feature 011)
+PACKAGING_INGREDIENT_CATEGORIES: List[str] = [
+    "Bags",
+    "Boxes",
+    "Ribbon",
+    "Labels",
+    "Tissue Paper",
+    "Wrapping",
+    "Other Packaging",
+]
+
+# All ingredient categories (food + packaging)
+INGREDIENT_CATEGORIES: List[str] = FOOD_INGREDIENT_CATEGORIES + PACKAGING_INGREDIENT_CATEGORIES
 
 # ============================================================================
 # Recipe Categories
