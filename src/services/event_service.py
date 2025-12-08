@@ -15,11 +15,12 @@ Architecture Note (Feature 006):
 """
 
 from typing import List, Optional, Dict, Any
+from dataclasses import dataclass
 from datetime import datetime, date
 from decimal import Decimal
 from math import ceil
 
-from sqlalchemy import and_  # noqa: F401 - used in complex queries
+from sqlalchemy import and_, func  # noqa: F401 - used in complex queries
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import joinedload
 
@@ -34,9 +35,42 @@ from src.models import (
     Composition,
     Recipe,
     RecipeIngredient,
+    Product,
+    InventoryItem,
 )
 from src.services.database import session_scope
 from src.services.exceptions import DatabaseError, ValidationError
+
+
+# ============================================================================
+# Feature 011: Packaging Data Classes
+# ============================================================================
+
+
+@dataclass
+class PackagingNeed:
+    """Represents packaging requirement for shopping list."""
+
+    product_id: int
+    product: Product
+    ingredient_name: str
+    product_display_name: str
+    total_needed: float
+    on_hand: float
+    to_buy: float
+    unit: str
+
+
+@dataclass
+class PackagingSource:
+    """Tracks where packaging need originated."""
+
+    source_type: str  # "finished_good" or "package"
+    source_id: int
+    source_name: str
+    quantity_per: float
+    source_count: int
+    total_for_source: float
 
 
 # ============================================================================
@@ -898,15 +932,18 @@ def _calculate_total_estimated_cost(items: List[Dict[str, Any]]) -> Decimal:
     return total
 
 
-def get_shopping_list(event_id: int) -> Dict[str, Any]:
+def get_shopping_list(event_id: int, include_packaging: bool = True) -> Dict[str, Any]:
     """
     Calculate ingredients needed with inventory comparison and product recommendations.
 
     Feature 007 Extension: Each item with a shortfall includes product
     recommendation data (product_status, product_recommendation, all_products).
 
+    Feature 011 Extension: Optionally includes packaging materials section.
+
     Args:
         event_id: Event ID
+        include_packaging: Whether to include packaging section (default True)
 
     Returns:
         Dict with:
@@ -914,18 +951,40 @@ def get_shopping_list(event_id: int) -> Dict[str, Any]:
         - total_estimated_cost: Sum of preferred product purchase costs
         - items_count: Total number of ingredients
         - items_with_shortfall: Count of items needing purchase
+        - packaging: List of packaging needs (if include_packaging=True and needs exist)
     """
     try:
         # Get recipe needs first
         recipe_needs = get_recipe_needs(event_id)
 
         if not recipe_needs:
-            return {
+            # No recipe needs, but may still have packaging needs
+            result = {
                 "items": [],
                 "total_estimated_cost": Decimal("0.00"),
                 "items_count": 0,
                 "items_with_shortfall": 0,
             }
+            # Feature 011: Add packaging section if requested
+            if include_packaging:
+                try:
+                    packaging_needs = get_event_packaging_needs(event_id)
+                    if packaging_needs:  # Only add if not empty
+                        result["packaging"] = [
+                            {
+                                "product_id": need.product_id,
+                                "ingredient_name": need.ingredient_name,
+                                "product_name": need.product_display_name,
+                                "total_needed": need.total_needed,
+                                "on_hand": need.on_hand,
+                                "to_buy": need.to_buy,
+                                "unit": need.unit,
+                            }
+                            for need in packaging_needs.values()
+                        ]
+                except EventNotFoundError:
+                    pass
+            return result
 
         with session_scope() as session:
             # Aggregate ingredient needs across all recipes
@@ -1019,12 +1078,35 @@ def get_shopping_list(event_id: int) -> Dict[str, Any]:
             # Calculate total estimated cost (T006)
             total_estimated_cost = _calculate_total_estimated_cost(items)
 
-            return {
+            result = {
                 "items": items,
                 "total_estimated_cost": total_estimated_cost,
                 "items_count": len(items),
                 "items_with_shortfall": sum(1 for i in items if i["shortfall"] > 0),
             }
+
+            # Feature 011: Add packaging section if requested
+            if include_packaging:
+                try:
+                    packaging_needs = get_event_packaging_needs(event_id)
+                    if packaging_needs:  # Only add if not empty
+                        result["packaging"] = [
+                            {
+                                "product_id": need.product_id,
+                                "ingredient_name": need.ingredient_name,
+                                "product_name": need.product_display_name,
+                                "total_needed": need.total_needed,
+                                "on_hand": need.on_hand,
+                                "to_buy": need.to_buy,
+                                "unit": need.unit,
+                            }
+                            for need in packaging_needs.values()
+                        ]
+                except EventNotFoundError:
+                    # Event exists (we already checked), so this shouldn't happen
+                    pass
+
+            return result
 
     except SQLAlchemyError as e:
         raise DatabaseError(f"Failed to generate shopping list: {str(e)}")
@@ -1110,6 +1192,248 @@ def clone_event(
         raise
     except SQLAlchemyError as e:
         raise DatabaseError(f"Failed to clone event: {str(e)}")
+
+
+# ============================================================================
+# Feature 011: Packaging Needs (FR-010 through FR-013)
+# ============================================================================
+
+
+def _get_packaging_on_hand(session, product_id: int) -> float:
+    """
+    Get current inventory quantity for a packaging product.
+
+    Args:
+        session: Database session
+        product_id: Product ID
+
+    Returns:
+        Total quantity on hand
+    """
+    total = (
+        session.query(func.sum(InventoryItem.quantity))
+        .filter(InventoryItem.product_id == product_id)
+        .scalar()
+    )
+    return float(total) if total else 0.0
+
+
+def _aggregate_packaging(session, event: Event) -> Dict[int, float]:
+    """
+    Aggregate packaging quantities for an event.
+
+    Traverses:
+    - Event -> ERP -> Package -> packaging_compositions (direct package packaging)
+    - Event -> ERP -> Package -> package_finished_goods -> FinishedGood -> components (FG-level packaging)
+
+    Args:
+        session: Database session
+        event: Event instance (with relationships loaded)
+
+    Returns:
+        Dict mapping product_id to total quantity needed
+    """
+    needs: Dict[int, float] = {}
+
+    for erp in event.event_recipient_packages:
+        package = erp.package
+        if not package:
+            continue
+
+        package_qty = erp.quantity or 1
+
+        # Package-level packaging (direct - from Package.packaging_compositions)
+        for comp in package.packaging_compositions:
+            if comp.packaging_product_id:
+                pid = comp.packaging_product_id
+                needs[pid] = needs.get(pid, 0.0) + (comp.component_quantity * package_qty)
+
+        # FinishedGood-level packaging (through package contents)
+        for pfg in package.package_finished_goods:
+            fg = pfg.finished_good
+            if not fg:
+                continue
+
+            fg_qty = pfg.quantity * package_qty
+
+            for comp in fg.components:
+                if comp.packaging_product_id:
+                    pid = comp.packaging_product_id
+                    needs[pid] = needs.get(pid, 0.0) + (comp.component_quantity * fg_qty)
+
+    return needs
+
+
+def get_event_packaging_needs(event_id: int) -> Dict[int, PackagingNeed]:
+    """
+    Calculate packaging material needs for an event.
+
+    Aggregates packaging from both Package-level and FinishedGood-level compositions,
+    calculates on-hand inventory, and determines quantities to buy.
+
+    Args:
+        event_id: Event ID
+
+    Returns:
+        Dict mapping product_id to PackagingNeed dataclass
+
+    Raises:
+        EventNotFoundError: If event not found
+        DatabaseError: If database operation fails
+    """
+    try:
+        with session_scope() as session:
+            # Load event with full traversal chain for packaging
+            event = (
+                session.query(Event)
+                .options(
+                    # Package-level packaging
+                    joinedload(Event.event_recipient_packages)
+                    .joinedload(EventRecipientPackage.package)
+                    .joinedload(Package.packaging_compositions)
+                    .joinedload(Composition.packaging_product),
+                    # FinishedGood-level packaging
+                    joinedload(Event.event_recipient_packages)
+                    .joinedload(EventRecipientPackage.package)
+                    .joinedload(Package.package_finished_goods)
+                    .joinedload(PackageFinishedGood.finished_good)
+                    .joinedload(FinishedGood.components)
+                    .joinedload(Composition.packaging_product),
+                )
+                .filter(Event.id == event_id)
+                .first()
+            )
+
+            if not event:
+                raise EventNotFoundError(event_id)
+
+            # Aggregate raw quantities
+            raw_needs = _aggregate_packaging(session, event)
+
+            # Build PackagingNeed objects with inventory lookup
+            needs: Dict[int, PackagingNeed] = {}
+            for product_id, total_needed in raw_needs.items():
+                product = session.get(Product, product_id)
+                if not product:
+                    continue
+
+                ingredient = product.ingredient
+                on_hand = _get_packaging_on_hand(session, product_id)
+                to_buy = max(0.0, total_needed - on_hand)
+
+                needs[product_id] = PackagingNeed(
+                    product_id=product_id,
+                    product=product,
+                    ingredient_name=ingredient.display_name if ingredient else "Unknown",
+                    product_display_name=product.display_name,
+                    total_needed=total_needed,
+                    on_hand=on_hand,
+                    to_buy=to_buy,
+                    unit=product.purchase_unit or "each",
+                )
+
+            return needs
+
+    except EventNotFoundError:
+        raise
+    except SQLAlchemyError as e:
+        raise DatabaseError(f"Failed to calculate packaging needs: {str(e)}")
+
+
+def get_event_packaging_breakdown(event_id: int) -> Dict[int, List[PackagingSource]]:
+    """
+    Get detailed breakdown of where packaging needs come from.
+
+    Args:
+        event_id: Event ID
+
+    Returns:
+        Dict mapping product_id to list of PackagingSource instances
+
+    Raises:
+        EventNotFoundError: If event not found
+        DatabaseError: If database operation fails
+    """
+    try:
+        with session_scope() as session:
+            # Load event with traversal chain
+            event = (
+                session.query(Event)
+                .options(
+                    joinedload(Event.event_recipient_packages)
+                    .joinedload(EventRecipientPackage.package)
+                    .joinedload(Package.packaging_compositions),
+                    joinedload(Event.event_recipient_packages)
+                    .joinedload(EventRecipientPackage.package)
+                    .joinedload(Package.package_finished_goods)
+                    .joinedload(PackageFinishedGood.finished_good)
+                    .joinedload(FinishedGood.components),
+                )
+                .filter(Event.id == event_id)
+                .first()
+            )
+
+            if not event:
+                raise EventNotFoundError(event_id)
+
+            breakdown: Dict[int, List[PackagingSource]] = {}
+
+            for erp in event.event_recipient_packages:
+                package = erp.package
+                if not package:
+                    continue
+
+                package_qty = erp.quantity or 1
+
+                # Package-level packaging
+                for comp in package.packaging_compositions:
+                    if comp.packaging_product_id:
+                        pid = comp.packaging_product_id
+                        if pid not in breakdown:
+                            breakdown[pid] = []
+
+                        breakdown[pid].append(
+                            PackagingSource(
+                                source_type="package",
+                                source_id=package.id,
+                                source_name=package.name,
+                                quantity_per=comp.component_quantity,
+                                source_count=package_qty,
+                                total_for_source=comp.component_quantity * package_qty,
+                            )
+                        )
+
+                # FinishedGood-level packaging
+                for pfg in package.package_finished_goods:
+                    fg = pfg.finished_good
+                    if not fg:
+                        continue
+
+                    fg_qty = pfg.quantity * package_qty
+
+                    for comp in fg.components:
+                        if comp.packaging_product_id:
+                            pid = comp.packaging_product_id
+                            if pid not in breakdown:
+                                breakdown[pid] = []
+
+                            breakdown[pid].append(
+                                PackagingSource(
+                                    source_type="finished_good",
+                                    source_id=fg.id,
+                                    source_name=fg.display_name,
+                                    quantity_per=comp.component_quantity,
+                                    source_count=fg_qty,
+                                    total_for_source=comp.component_quantity * fg_qty,
+                                )
+                            )
+
+            return breakdown
+
+    except EventNotFoundError:
+        raise
+    except SQLAlchemyError as e:
+        raise DatabaseError(f"Failed to get packaging breakdown: {str(e)}")
 
 
 # ============================================================================
