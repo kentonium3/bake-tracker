@@ -14,10 +14,10 @@ subtasks:
   - "T011"
 title: "Schema Updates & Model Changes"
 phase: "Phase 1 - Foundation"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "claude"
-shell_pid: "30126"
+shell_pid: "31772"
 review_status: ""
 reviewed_by: ""
 history:
@@ -277,3 +277,4 @@ pytest src/tests -v
 
 - 2025-12-08T12:00:00Z - system - lane=planned - Prompt created via /spec-kitty.tasks
 - 2025-12-08T16:28:57Z – claude – shell_pid=30126 – lane=doing – Started implementation
+- 2025-12-08T16:39:55Z – claude – shell_pid=31772 – lane=for_review – Completed implementation, all tests pass
