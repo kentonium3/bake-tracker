@@ -6,6 +6,10 @@ Provides a form for creating and updating package records with FinishedGood sele
 Updated for Feature 006 Event Planning Restoration:
 - Replaced Bundle references with FinishedGood
 - Uses finished_good_service.get_all_finished_goods()
+
+Updated for Feature 011 Packaging BOM Foundation:
+- Added packaging section to allow adding packaging materials to packages
+- Uses composition_service for packaging relationships
 """
 
 import customtkinter as ctk
@@ -13,7 +17,8 @@ from typing import Optional, Dict, Any, List
 from decimal import Decimal
 
 from src.models.package import Package
-from src.services import finished_good_service
+from src.services import finished_good_service, ingredient_service, product_service
+from src.services import composition_service
 from src.utils.constants import (
     MAX_NAME_LENGTH,
     MAX_NOTES_LENGTH,
@@ -133,6 +138,118 @@ class FinishedGoodRow(ctk.CTkFrame):
         }
 
 
+class PackagingRow(ctk.CTkFrame):
+    """Row widget for a single packaging material in the package (Feature 011)."""
+
+    def __init__(
+        self,
+        parent,
+        packaging_products: List,
+        remove_callback,
+        product_id: Optional[int] = None,
+        quantity: float = 1.0,
+    ):
+        """
+        Initialize Packaging row.
+
+        Args:
+            parent: Parent widget
+            packaging_products: List of available packaging products
+            remove_callback: Callback to remove this row
+            product_id: Selected Product ID (None for new row)
+            quantity: Packaging quantity (supports decimal)
+        """
+        super().__init__(parent, fg_color="transparent")
+
+        self.packaging_products = packaging_products
+        self.remove_callback = remove_callback
+
+        # Configure grid
+        self.grid_columnconfigure(0, weight=1)
+        self.grid_columnconfigure(1, weight=0)
+        self.grid_columnconfigure(2, weight=0)
+
+        # Product dropdown
+        product_names = []
+        for product in packaging_products:
+            ingredient_name = product.get("ingredient_name", "Unknown")
+            brand = product.get("brand", "")
+            package_size = product.get("package_size", "")
+            product_names.append(f"{ingredient_name} - {brand} ({package_size})")
+
+        self.product_combo = ctk.CTkComboBox(
+            self,
+            width=350,
+            values=product_names if product_names else ["No packaging products available"],
+            state="readonly" if product_names else "disabled",
+        )
+        if product_names:
+            # Set selected product if provided
+            if product_id:
+                for i, product in enumerate(packaging_products):
+                    if product.get("id") == product_id:
+                        self.product_combo.set(product_names[i])
+                        break
+            else:
+                self.product_combo.set(product_names[0])
+
+        self.product_combo.grid(row=0, column=0, sticky="ew", padx=(0, PADDING_MEDIUM))
+
+        # Quantity entry (supports decimal)
+        self.quantity_entry = ctk.CTkEntry(self, width=80, placeholder_text="Qty")
+        self.quantity_entry.insert(0, str(quantity))
+        self.quantity_entry.grid(row=0, column=1, padx=(0, PADDING_MEDIUM))
+
+        # Remove button
+        remove_button = ctk.CTkButton(
+            self,
+            text="X",
+            width=30,
+            command=lambda: remove_callback(self),
+            fg_color="darkred",
+            hover_color="red",
+        )
+        remove_button.grid(row=0, column=2)
+
+    def get_data(self) -> Optional[Dict[str, Any]]:
+        """
+        Get packaging data from this row.
+
+        Returns:
+            Dictionary with product_id and quantity, or None if invalid
+        """
+        product_display = self.product_combo.get()
+        if not product_display or product_display == "No packaging products available":
+            return None
+
+        # Find product by display name
+        product = None
+        for i, p in enumerate(self.packaging_products):
+            ingredient_name = p.get("ingredient_name", "Unknown")
+            brand = p.get("brand", "")
+            package_size = p.get("package_size", "")
+            expected_name = f"{ingredient_name} - {brand} ({package_size})"
+            if expected_name == product_display:
+                product = p
+                break
+
+        if not product:
+            return None
+
+        # Get quantity (supports decimal)
+        try:
+            quantity = float(self.quantity_entry.get().strip())
+            if quantity <= 0:
+                return None
+        except ValueError:
+            return None
+
+        return {
+            "product_id": product.get("id"),
+            "quantity": quantity,
+        }
+
+
 class PackageFormDialog(ctk.CTkToplevel):
     """
     Dialog for creating or editing a package.
@@ -159,6 +276,7 @@ class PackageFormDialog(ctk.CTkToplevel):
         self.package = package
         self.result = None
         self.finished_good_rows: List[FinishedGoodRow] = []
+        self.packaging_rows: List[PackagingRow] = []  # Feature 011
 
         # Load available FinishedGoods
         try:
@@ -166,9 +284,12 @@ class PackageFormDialog(ctk.CTkToplevel):
         except Exception:
             self.available_finished_goods = []
 
+        # Feature 011: Load available packaging products
+        self.available_packaging_products = self._load_packaging_products()
+
         # Configure window
         self.title(title)
-        self.geometry("700x700")
+        self.geometry("700x850")  # Increased height for packaging section
         self.resizable(False, False)
 
         # Center on parent
@@ -285,6 +406,42 @@ class PackageFormDialog(ctk.CTkToplevel):
         )
         row += 1
 
+        # Feature 011: Packaging section
+        pkg_label = ctk.CTkLabel(
+            parent,
+            text="📦 Packaging Materials",
+            font=ctk.CTkFont(size=14, weight="bold"),
+        )
+        pkg_label.grid(
+            row=row,
+            column=0,
+            columnspan=2,
+            sticky="w",
+            padx=PADDING_MEDIUM,
+            pady=(PADDING_LARGE, PADDING_MEDIUM),
+        )
+        row += 1
+
+        # Packaging list frame
+        self.packaging_frame = ctk.CTkFrame(parent, fg_color="transparent")
+        self.packaging_frame.grid(
+            row=row, column=0, columnspan=2, sticky="ew", padx=PADDING_MEDIUM, pady=5
+        )
+        self.packaging_frame.grid_columnconfigure(0, weight=1)
+        row += 1
+
+        # Add Packaging button
+        add_pkg_button = ctk.CTkButton(
+            parent,
+            text="+ Add Packaging",
+            command=self._add_packaging_row,
+            width=180,
+        )
+        add_pkg_button.grid(
+            row=row, column=0, columnspan=2, sticky="w", padx=PADDING_MEDIUM, pady=PADDING_MEDIUM
+        )
+        row += 1
+
         # Notes field (optional)
         notes_label = ctk.CTkLabel(parent, text="Notes:", anchor="w")
         notes_label.grid(row=row, column=0, sticky="nw", padx=PADDING_MEDIUM, pady=5)
@@ -342,6 +499,66 @@ class PackageFormDialog(ctk.CTkToplevel):
             for i, remaining_row in enumerate(self.finished_good_rows):
                 remaining_row.grid(row=i, column=0, sticky="ew", pady=2)
 
+    def _load_packaging_products(self) -> List[Dict[str, Any]]:
+        """
+        Load all available packaging products (Feature 011).
+
+        Returns:
+            List of dicts with product info for packaging ingredients
+        """
+        try:
+            # Get all packaging ingredients
+            packaging_ingredients = ingredient_service.get_packaging_ingredients()
+
+            # Get products for each packaging ingredient
+            products = []
+            for ingredient in packaging_ingredients:
+                ingredient_products = product_service.get_products_for_ingredient(ingredient.id)
+                for product in ingredient_products:
+                    products.append({
+                        "id": product.id,
+                        "ingredient_id": ingredient.id,
+                        "ingredient_name": ingredient.display_name,
+                        "brand": product.brand or "",
+                        "package_size": product.package_size or "",
+                    })
+            return products
+        except Exception:
+            return []
+
+    def _add_packaging_row(self, product_id: Optional[int] = None, quantity: float = 1.0):
+        """
+        Add a new Packaging row (Feature 011).
+
+        Args:
+            product_id: Optional Product ID to pre-select
+            quantity: Packaging quantity (supports decimal)
+        """
+        row = PackagingRow(
+            self.packaging_frame,
+            self.available_packaging_products,
+            self._remove_packaging_row,
+            product_id=product_id,
+            quantity=quantity,
+        )
+        row.grid(row=len(self.packaging_rows), column=0, sticky="ew", pady=2)
+        self.packaging_rows.append(row)
+
+    def _remove_packaging_row(self, row: PackagingRow):
+        """
+        Remove a Packaging row (Feature 011).
+
+        Args:
+            row: PackagingRow to remove
+        """
+        if row in self.packaging_rows:
+            self.packaging_rows.remove(row)
+            row.destroy()
+
+            # Re-grid remaining rows
+            for i, remaining_row in enumerate(self.packaging_rows):
+                remaining_row.grid(row=i, column=0, sticky="ew", pady=2)
+
     def _create_buttons(self):
         """Create dialog buttons."""
         button_frame = ctk.CTkFrame(self, fg_color="transparent")
@@ -389,6 +606,19 @@ class PackageFormDialog(ctk.CTkToplevel):
                 self._add_finished_good_row(
                     finished_good_id=pfg.finished_good_id, quantity=pfg.quantity
                 )
+
+        # Feature 011: Add Packaging rows from existing compositions
+        if self.package.id:
+            try:
+                packaging_comps = composition_service.get_package_packaging(self.package.id)
+                for comp in packaging_comps:
+                    if comp.packaging_product_id:
+                        self._add_packaging_row(
+                            product_id=comp.packaging_product_id,
+                            quantity=comp.component_quantity,
+                        )
+            except Exception:
+                pass  # No existing packaging or error loading
 
     def _save(self):
         """Validate and save the package data."""
@@ -461,6 +691,13 @@ class PackageFormDialog(ctk.CTkToplevel):
             )
             return None
 
+        # Feature 011: Collect Packaging items (optional)
+        packaging_items = []
+        for row in self.packaging_rows:
+            pkg_data = row.get_data()
+            if pkg_data:
+                packaging_items.append(pkg_data)
+
         # Return validated data
         return {
             "package_data": {
@@ -470,6 +707,7 @@ class PackageFormDialog(ctk.CTkToplevel):
                 "notes": notes if notes else None,
             },
             "finished_good_items": finished_good_items,
+            "packaging_items": packaging_items,  # Feature 011
         }
 
     def get_result(self) -> Optional[Dict[str, Any]]:

@@ -632,6 +632,73 @@ class EventDetailWindow(ctk.CTkToplevel):
                     )
                     row += 1
 
+            # Feature 011: Packaging section (if present)
+            packaging_data = shopping_data.get("packaging", [])
+            if packaging_data:
+                row += 1  # Add spacing
+
+                # Packaging section title
+                packaging_title = ctk.CTkLabel(
+                    self.shopping_list_frame,
+                    text="📦 Packaging Materials",
+                    font=ctk.CTkFont(size=16, weight="bold"),
+                )
+                packaging_title.grid(row=row, column=0, sticky="w", pady=(20, 10))
+                row += 1
+
+                # Packaging header
+                pkg_header_frame = ctk.CTkFrame(
+                    self.shopping_list_frame, fg_color=("gray85", "gray25")
+                )
+                pkg_header_frame.grid(row=row, column=0, sticky="ew", pady=(0, 5))
+                pkg_header_frame.grid_columnconfigure((0, 1, 2, 3, 4, 5), weight=1)
+
+                pkg_headers = ["Material", "Product", "Needed", "On Hand", "To Buy", "Unit"]
+                for col, header in enumerate(pkg_headers):
+                    ctk.CTkLabel(
+                        pkg_header_frame, text=header, font=ctk.CTkFont(weight="bold")
+                    ).grid(row=0, column=col, padx=8, pady=8)
+                row += 1
+
+                # Packaging items
+                for pkg_item in packaging_data:
+                    ingredient_name = pkg_item.get("ingredient_name", "Unknown")
+                    product_name = pkg_item.get("product_name", "")
+                    total_needed = pkg_item.get("total_needed", 0)
+                    on_hand = pkg_item.get("on_hand", 0)
+                    to_buy = pkg_item.get("to_buy", 0)
+                    unit = pkg_item.get("unit", "")
+
+                    pkg_row_frame = ctk.CTkFrame(self.shopping_list_frame, fg_color="transparent")
+                    pkg_row_frame.grid(row=row, column=0, sticky="ew", pady=1)
+                    pkg_row_frame.grid_columnconfigure((0, 1, 2, 3, 4, 5), weight=1)
+
+                    ctk.CTkLabel(pkg_row_frame, text=ingredient_name).grid(
+                        row=0, column=0, padx=8, pady=5, sticky="w"
+                    )
+                    ctk.CTkLabel(pkg_row_frame, text=product_name).grid(
+                        row=0, column=1, padx=8, pady=5, sticky="w"
+                    )
+                    ctk.CTkLabel(pkg_row_frame, text=f"{total_needed:.1f}").grid(
+                        row=0, column=2, padx=8, pady=5, sticky="w"
+                    )
+                    ctk.CTkLabel(pkg_row_frame, text=f"{on_hand:.1f}").grid(
+                        row=0, column=3, padx=8, pady=5, sticky="w"
+                    )
+
+                    # Highlight to_buy if > 0
+                    to_buy_text = f"{to_buy:.1f}"
+                    to_buy_color = "red" if to_buy > 0 else None
+                    to_buy_label = ctk.CTkLabel(pkg_row_frame, text=to_buy_text)
+                    if to_buy_color:
+                        to_buy_label.configure(text_color=to_buy_color)
+                    to_buy_label.grid(row=0, column=4, padx=8, pady=5, sticky="w")
+
+                    ctk.CTkLabel(pkg_row_frame, text=unit).grid(
+                        row=0, column=5, padx=8, pady=5, sticky="w"
+                    )
+                    row += 1
+
             # T012: Total estimated cost at bottom
             total_estimated_cost = shopping_data.get("total_estimated_cost", 0)
             total_frame = ctk.CTkFrame(self.shopping_list_frame, fg_color=("gray90", "gray20"))

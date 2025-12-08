@@ -19,7 +19,14 @@ from src.services.exceptions import (
     ProductInUse,
     ProductNotFound,
 )
-from src.utils.constants import PADDING_MEDIUM, PADDING_LARGE, VOLUME_UNITS, WEIGHT_UNITS
+from src.utils.constants import (
+    PADDING_MEDIUM,
+    PADDING_LARGE,
+    VOLUME_UNITS,
+    WEIGHT_UNITS,
+    FOOD_INGREDIENT_CATEGORIES,
+    PACKAGING_INGREDIENT_CATEGORIES,
+)
 
 
 class IngredientsTab(ctk.CTkFrame):
@@ -291,8 +298,11 @@ class IngredientsTab(ctk.CTkFrame):
         name_text = ingredient["name"]
         category_text = ingredient.get("category", "Uncategorized")
         density_text = ingredient.get("density_display", "Not set")
+        is_packaging = ingredient.get("is_packaging", False)
 
-        info_text = f"{name_text} | Category: {category_text} | Density: {density_text}"
+        # Feature 011: Show packaging indicator
+        type_indicator = "📦 " if is_packaging else ""
+        info_text = f"{type_indicator}{name_text} | Category: {category_text} | Density: {density_text}"
 
         info_label = ctk.CTkLabel(
             row_frame,
@@ -606,12 +616,32 @@ class IngredientFormDialog(ctk.CTkToplevel):
         self.name_entry.grid(row=row, column=1, sticky="ew", padx=10, pady=(10, 5))
         row += 1
 
-        # Category field (required)
+        # Feature 011: Is Packaging checkbox
+        ctk.CTkLabel(form_frame, text="Type:").grid(
+            row=row, column=0, sticky="w", padx=10, pady=5
+        )
+        self.is_packaging_var = ctk.BooleanVar(value=False)
+        self.is_packaging_checkbox = ctk.CTkCheckBox(
+            form_frame,
+            text="This is a packaging material (bags, boxes, ribbon, etc.)",
+            variable=self.is_packaging_var,
+            command=self._on_packaging_checkbox_change,
+        )
+        self.is_packaging_checkbox.grid(row=row, column=1, sticky="w", padx=10, pady=5)
+        row += 1
+
+        # Category field (required) - now a dropdown that changes based on is_packaging
         ctk.CTkLabel(form_frame, text="Category*:").grid(
             row=row, column=0, sticky="w", padx=10, pady=5
         )
-        self.category_entry = ctk.CTkEntry(form_frame, placeholder_text="e.g., Flour")
-        self.category_entry.grid(row=row, column=1, sticky="ew", padx=10, pady=5)
+        self.category_var = ctk.StringVar(value="")
+        self.category_dropdown = ctk.CTkComboBox(
+            form_frame,
+            values=FOOD_INGREDIENT_CATEGORIES,
+            variable=self.category_var,
+            width=250,
+        )
+        self.category_dropdown.grid(row=row, column=1, sticky="w", padx=10, pady=5)
         row += 1
 
         # Density section (4-field input)
@@ -710,13 +740,38 @@ class IngredientFormDialog(ctk.CTkToplevel):
         )
         save_button.grid(row=0, column=1)
 
+    def _on_packaging_checkbox_change(self):
+        """Handle packaging checkbox change - update category dropdown options."""
+        if self.is_packaging_var.get():
+            # Packaging ingredient - show packaging categories
+            self.category_dropdown.configure(values=PACKAGING_INGREDIENT_CATEGORIES)
+            # Clear current selection if it's not a packaging category
+            current = self.category_var.get()
+            if current and current not in PACKAGING_INGREDIENT_CATEGORIES:
+                self.category_var.set("")
+        else:
+            # Food ingredient - show food categories
+            self.category_dropdown.configure(values=FOOD_INGREDIENT_CATEGORIES)
+            # Clear current selection if it's not a food category
+            current = self.category_var.get()
+            if current and current not in FOOD_INGREDIENT_CATEGORIES:
+                self.category_var.set("")
+
     def _populate_form(self):
         """Populate form with existing ingredient data."""
         if not self.ingredient:
             return
 
         self.name_entry.insert(0, self.ingredient.get("name", ""))
-        self.category_entry.insert(0, self.ingredient.get("category", ""))
+
+        # Feature 011: Set is_packaging checkbox and update category dropdown
+        is_packaging = self.ingredient.get("is_packaging", False)
+        self.is_packaging_var.set(is_packaging)
+        self._on_packaging_checkbox_change()  # Update dropdown options
+
+        # Set category value
+        category = self.ingredient.get("category", "")
+        self.category_var.set(category)
 
         # Populate 4-field density
         if self.ingredient.get("density_volume_value") is not None:
@@ -774,7 +829,8 @@ class IngredientFormDialog(ctk.CTkToplevel):
         """Validate and save the form data."""
         # Get values
         name = self.name_entry.get().strip()
-        category = self.category_entry.get().strip()
+        category = self.category_var.get().strip()  # Now using dropdown
+        is_packaging = self.is_packaging_var.get()  # Feature 011
 
         # Validate required fields
         if not name:
@@ -804,6 +860,7 @@ class IngredientFormDialog(ctk.CTkToplevel):
         result: Dict[str, Any] = {
             "name": name,
             "category": category,
+            "is_packaging": is_packaging,  # Feature 011
         }
 
         # Add density fields if any are provided

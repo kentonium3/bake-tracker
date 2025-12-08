@@ -13,7 +13,7 @@ from typing import Optional
 from decimal import Decimal
 
 from src.models.package import Package
-from src.services import package_service
+from src.services import package_service, composition_service
 from src.services.package_service import PackageNotFoundError, PackageInUseError
 from src.utils.constants import (
     PADDING_MEDIUM,
@@ -225,7 +225,17 @@ class PackagesTab(ctk.CTkFrame):
             try:
                 package_data = result["package_data"]
                 finished_good_items = result["finished_good_items"]
-                package_service.create_package(package_data, finished_good_items)
+                packaging_items = result.get("packaging_items", [])  # Feature 011
+                new_package = package_service.create_package(package_data, finished_good_items)
+
+                # Feature 011: Add packaging compositions to the new package
+                for pkg_item in packaging_items:
+                    composition_service.add_packaging_to_package(
+                        package_id=new_package.id,
+                        packaging_product_id=pkg_item["product_id"],
+                        quantity=pkg_item["quantity"],
+                    )
+
                 show_success(
                     "Success", f"Package '{package_data['name']}' added successfully", parent=self
                 )
@@ -246,9 +256,30 @@ class PackagesTab(ctk.CTkFrame):
             try:
                 package_data = result["package_data"]
                 finished_good_items = result["finished_good_items"]
+                packaging_items = result.get("packaging_items", [])  # Feature 011
                 package_service.update_package(
                     self.selected_package.id, package_data, finished_good_items
                 )
+
+                # Feature 011: Update packaging compositions
+                # First, remove existing packaging compositions
+                try:
+                    existing_packaging = composition_service.get_package_packaging(
+                        self.selected_package.id
+                    )
+                    for comp in existing_packaging:
+                        composition_service.remove_composition(comp.id)
+                except Exception:
+                    pass  # No existing packaging to remove
+
+                # Then add new packaging compositions
+                for pkg_item in packaging_items:
+                    composition_service.add_packaging_to_package(
+                        package_id=self.selected_package.id,
+                        packaging_product_id=pkg_item["product_id"],
+                        quantity=pkg_item["quantity"],
+                    )
+
                 show_success("Success", "Package updated successfully", parent=self)
                 self.refresh()
             except PackageNotFoundError:
@@ -351,6 +382,40 @@ class PackagesTab(ctk.CTkFrame):
             ctk.CTkLabel(
                 scroll_frame,
                 text="  No finished goods",
+                font=ctk.CTkFont(size=12),
+                text_color="gray",
+            ).pack(anchor="w", pady=2)
+
+        # Feature 011: Packaging Materials
+        ctk.CTkLabel(
+            scroll_frame, text="📦 Packaging Materials:", font=ctk.CTkFont(weight="bold")
+        ).pack(anchor="w", pady=(10, 5))
+
+        try:
+            packaging_comps = composition_service.get_package_packaging(self.selected_package.id)
+            if packaging_comps:
+                for comp in packaging_comps:
+                    product = comp.packaging_product
+                    if product and product.ingredient:
+                        ing_name = product.ingredient.display_name
+                        brand = product.brand or ""
+                        qty = comp.component_quantity
+                        ctk.CTkLabel(
+                            scroll_frame,
+                            text=f"  - {ing_name} ({brand}) x {qty:.1f}",
+                            font=ctk.CTkFont(size=12),
+                        ).pack(anchor="w", pady=2)
+            else:
+                ctk.CTkLabel(
+                    scroll_frame,
+                    text="  No packaging materials",
+                    font=ctk.CTkFont(size=12),
+                    text_color="gray",
+                ).pack(anchor="w", pady=2)
+        except Exception:
+            ctk.CTkLabel(
+                scroll_frame,
+                text="  No packaging materials",
                 font=ctk.CTkFont(size=12),
                 text_color="gray",
             ).pack(anchor="w", pady=2)

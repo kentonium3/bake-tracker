@@ -285,6 +285,10 @@ class InventoryTab(ctk.CTkFrame):
 
         ingredient_name = getattr(ingredient_obj, "display_name", ingredient_slug)
 
+        # Feature 011: Check if packaging ingredient
+        is_packaging = getattr(ingredient_obj, "is_packaging", False) if ingredient_obj else False
+        type_indicator = "📦 " if is_packaging else ""
+
         # Calculate total quantity using new service function
         try:
             unit_totals = inventory_item_service.get_total_quantity(ingredient_slug)
@@ -317,10 +321,10 @@ class InventoryTab(ctk.CTkFrame):
         if warning_color:
             row_frame.configure(fg_color=warning_color)
 
-        # Ingredient name
+        # Ingredient name (with packaging indicator if applicable)
         name_label = ctk.CTkLabel(
             row_frame,
-            text=ingredient_name,
+            text=f"{type_indicator}{ingredient_name}",
             width=300,
             anchor="w",
         )
@@ -416,6 +420,10 @@ class InventoryTab(ctk.CTkFrame):
         ingredient_obj = getattr(product_obj, "ingredient", None) if product_obj else None
 
         ingredient_name = getattr(ingredient_obj, "display_name", "Unknown")
+
+        # Feature 011: Check if packaging ingredient
+        is_packaging = getattr(ingredient_obj, "is_packaging", False) if ingredient_obj else False
+        type_indicator = "📦 " if is_packaging else ""
         brand = getattr(product_obj, "brand", "Unknown") if product_obj else "Unknown"
         # Get package size info for product display (purchase_quantity = package size)
         package_size = getattr(product_obj, "purchase_quantity", None)
@@ -446,10 +454,10 @@ class InventoryTab(ctk.CTkFrame):
         if warning_color:
             row_frame.configure(fg_color=warning_color)
 
-        # Ingredient name
+        # Ingredient name (with packaging indicator if applicable)
         ing_label = ctk.CTkLabel(
             row_frame,
-            text=ingredient_name,
+            text=f"{type_indicator}{ingredient_name}",
             width=180,  # Match header width
             anchor="w",
         )
