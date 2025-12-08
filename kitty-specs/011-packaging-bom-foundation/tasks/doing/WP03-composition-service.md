@@ -13,9 +13,9 @@ subtasks:
   - "T029"
 title: "Composition Service Packaging Extensions"
 phase: "Phase 1 - Foundation"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
+agent: "system"
 shell_pid: ""
 review_status: ""
 reviewed_by: ""
@@ -325,3 +325,4 @@ pytest src/tests -v --cov=src/services/composition_service
 ## Activity Log
 
 - 2025-12-08T12:00:00Z - system - lane=planned - Prompt created via /spec-kitty.tasks
+- 2025-12-08T16:54:45Z – system – shell_pid= – lane=doing – Moved to doing

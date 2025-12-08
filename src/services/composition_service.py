@@ -27,7 +27,7 @@ from sqlalchemy.orm import Session, selectinload
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
 from .database import get_db_session, session_scope
-from ..models import Composition, FinishedGood, FinishedUnit
+from ..models import Composition, FinishedGood, FinishedUnit, Product, Package, Ingredient
 from .exceptions import ServiceError, ValidationError, DatabaseError
 
 logger = logging.getLogger(__name__)
@@ -120,6 +120,12 @@ class DuplicateCompositionError(ServiceError):
 
 class IntegrityViolationError(ServiceError):
     """Raised when operation would violate referential integrity."""
+
+    pass
+
+
+class NotPackagingProductError(ServiceError):
+    """Raised when product is not a packaging product."""
 
     pass
 
@@ -1335,6 +1341,340 @@ class CompositionService:
             logger.error(f"Database error generating assembly statistics: {e}")
             raise DatabaseError(f"Failed to generate assembly statistics: {e}")
 
+    # ==========================================================================
+    # Feature 011: Packaging Composition Operations
+    # ==========================================================================
+
+    @staticmethod
+    def _validate_packaging_product(session: Session, product_id: int) -> Product:
+        """
+        Validate that product exists and is a packaging product.
+
+        Args:
+            session: Database session
+            product_id: ID of the product to validate
+
+        Returns:
+            Product instance if valid
+
+        Raises:
+            ValidationError: If product not found
+            NotPackagingProductError: If product is not a packaging product
+        """
+        product = session.get(Product, product_id)
+        if not product:
+            raise ValidationError([f"Product with ID {product_id} not found"])
+
+        ingredient = session.get(Ingredient, product.ingredient_id)
+        if not ingredient or not ingredient.is_packaging:
+            raise NotPackagingProductError(
+                f"Product '{product.display_name}' is not a packaging product"
+            )
+
+        return product
+
+    @staticmethod
+    def add_packaging_to_assembly(
+        assembly_id: int,
+        packaging_product_id: int,
+        quantity: float = 1.0,
+        notes: Optional[str] = None,
+        sort_order: int = 0,
+    ) -> Composition:
+        """
+        Add packaging product to a FinishedGood assembly.
+
+        Args:
+            assembly_id: ID of the FinishedGood assembly
+            packaging_product_id: ID of the packaging product to add
+            quantity: Quantity of packaging (supports decimals)
+            notes: Optional notes for this packaging component
+            sort_order: Display order for components
+
+        Returns:
+            Created Composition instance
+
+        Raises:
+            ValidationError: If assembly not found or quantity invalid
+            NotPackagingProductError: If product is not a packaging product
+            DuplicateCompositionError: If packaging already exists in assembly
+        """
+        try:
+            if quantity <= 0:
+                raise ValidationError(["Quantity must be greater than 0"])
+
+            with session_scope() as session:
+                # Validate assembly exists
+                assembly = session.get(FinishedGood, assembly_id)
+                if not assembly:
+                    raise ValidationError([f"Assembly ID {assembly_id} not found"])
+
+                # Validate product is packaging
+                CompositionService._validate_packaging_product(session, packaging_product_id)
+
+                # Check for duplicate
+                existing = (
+                    session.query(Composition)
+                    .filter(
+                        Composition.assembly_id == assembly_id,
+                        Composition.packaging_product_id == packaging_product_id,
+                    )
+                    .first()
+                )
+                if existing:
+                    raise DuplicateCompositionError(
+                        f"Packaging product {packaging_product_id} already exists in assembly {assembly_id}"
+                    )
+
+                # Create composition
+                composition = Composition(
+                    assembly_id=assembly_id,
+                    package_id=None,
+                    finished_unit_id=None,
+                    finished_good_id=None,
+                    packaging_product_id=packaging_product_id,
+                    component_quantity=quantity,
+                    component_notes=notes,
+                    sort_order=sort_order,
+                )
+                session.add(composition)
+                session.flush()
+
+                logger.info(
+                    f"Added packaging product {packaging_product_id} to assembly {assembly_id}"
+                )
+                return composition
+
+        except SQLAlchemyError as e:
+            logger.error(f"Database error adding packaging to assembly: {e}")
+            raise DatabaseError(f"Failed to add packaging to assembly: {e}")
+
+    @staticmethod
+    def add_packaging_to_package(
+        package_id: int,
+        packaging_product_id: int,
+        quantity: float = 1.0,
+        notes: Optional[str] = None,
+        sort_order: int = 0,
+    ) -> Composition:
+        """
+        Add packaging product to a Package.
+
+        Args:
+            package_id: ID of the Package
+            packaging_product_id: ID of the packaging product to add
+            quantity: Quantity of packaging (supports decimals)
+            notes: Optional notes for this packaging component
+            sort_order: Display order for components
+
+        Returns:
+            Created Composition instance
+
+        Raises:
+            ValidationError: If package not found or quantity invalid
+            NotPackagingProductError: If product is not a packaging product
+            DuplicateCompositionError: If packaging already exists in package
+        """
+        try:
+            if quantity <= 0:
+                raise ValidationError(["Quantity must be greater than 0"])
+
+            with session_scope() as session:
+                # Validate package exists
+                package = session.get(Package, package_id)
+                if not package:
+                    raise ValidationError([f"Package ID {package_id} not found"])
+
+                # Validate product is packaging
+                CompositionService._validate_packaging_product(session, packaging_product_id)
+
+                # Check for duplicate
+                existing = (
+                    session.query(Composition)
+                    .filter(
+                        Composition.package_id == package_id,
+                        Composition.packaging_product_id == packaging_product_id,
+                    )
+                    .first()
+                )
+                if existing:
+                    raise DuplicateCompositionError(
+                        f"Packaging product {packaging_product_id} already exists in package {package_id}"
+                    )
+
+                # Create composition
+                composition = Composition(
+                    assembly_id=None,
+                    package_id=package_id,
+                    finished_unit_id=None,
+                    finished_good_id=None,
+                    packaging_product_id=packaging_product_id,
+                    component_quantity=quantity,
+                    component_notes=notes,
+                    sort_order=sort_order,
+                )
+                session.add(composition)
+                session.flush()
+
+                logger.info(
+                    f"Added packaging product {packaging_product_id} to package {package_id}"
+                )
+                return composition
+
+        except SQLAlchemyError as e:
+            logger.error(f"Database error adding packaging to package: {e}")
+            raise DatabaseError(f"Failed to add packaging to package: {e}")
+
+    @staticmethod
+    def get_assembly_packaging(assembly_id: int) -> List[Composition]:
+        """
+        Get all packaging compositions for a FinishedGood assembly.
+
+        Args:
+            assembly_id: ID of the FinishedGood assembly
+
+        Returns:
+            List of Composition instances with packaging products, sorted by sort_order
+        """
+        try:
+            with get_db_session() as session:
+                return (
+                    session.query(Composition)
+                    .options(selectinload(Composition.packaging_product))
+                    .filter(
+                        Composition.assembly_id == assembly_id,
+                        Composition.packaging_product_id.isnot(None),
+                    )
+                    .order_by(Composition.sort_order)
+                    .all()
+                )
+
+        except SQLAlchemyError as e:
+            logger.error(f"Database error getting assembly packaging: {e}")
+            raise DatabaseError(f"Failed to get assembly packaging: {e}")
+
+    @staticmethod
+    def get_package_packaging(package_id: int) -> List[Composition]:
+        """
+        Get all packaging compositions for a Package.
+
+        Args:
+            package_id: ID of the Package
+
+        Returns:
+            List of Composition instances with packaging products, sorted by sort_order
+        """
+        try:
+            with get_db_session() as session:
+                return (
+                    session.query(Composition)
+                    .options(selectinload(Composition.packaging_product))
+                    .filter(
+                        Composition.package_id == package_id,
+                        Composition.packaging_product_id.isnot(None),
+                    )
+                    .order_by(Composition.sort_order)
+                    .all()
+                )
+
+        except SQLAlchemyError as e:
+            logger.error(f"Database error getting package packaging: {e}")
+            raise DatabaseError(f"Failed to get package packaging: {e}")
+
+    @staticmethod
+    def update_packaging_quantity(composition_id: int, quantity: float) -> Composition:
+        """
+        Update quantity for a packaging composition.
+
+        Args:
+            composition_id: ID of the composition to update
+            quantity: New quantity (must be > 0, supports decimals)
+
+        Returns:
+            Updated Composition instance
+
+        Raises:
+            ValidationError: If quantity invalid or composition not found
+            ValidationError: If composition is not a packaging composition
+        """
+        try:
+            if quantity <= 0:
+                raise ValidationError(["Quantity must be greater than 0"])
+
+            with session_scope() as session:
+                composition = session.get(Composition, composition_id)
+                if not composition:
+                    raise ValidationError([f"Composition with ID {composition_id} not found"])
+
+                if composition.packaging_product_id is None:
+                    raise ValidationError(["This composition is not a packaging composition"])
+
+                composition.component_quantity = quantity
+                session.flush()
+
+                logger.info(
+                    f"Updated packaging composition {composition_id} quantity to {quantity}"
+                )
+                return composition
+
+        except SQLAlchemyError as e:
+            logger.error(f"Database error updating packaging quantity: {e}")
+            raise DatabaseError(f"Failed to update packaging quantity: {e}")
+
+    @staticmethod
+    def remove_packaging(composition_id: int) -> bool:
+        """
+        Remove a packaging composition.
+
+        Args:
+            composition_id: ID of the composition to remove
+
+        Returns:
+            True if removed, False if not found
+
+        Raises:
+            ValidationError: If composition is not a packaging composition
+        """
+        try:
+            with session_scope() as session:
+                composition = session.get(Composition, composition_id)
+                if not composition:
+                    return False
+
+                if composition.packaging_product_id is None:
+                    raise ValidationError(["This composition is not a packaging composition"])
+
+                session.delete(composition)
+                logger.info(f"Removed packaging composition {composition_id}")
+                return True
+
+        except SQLAlchemyError as e:
+            logger.error(f"Database error removing packaging: {e}")
+            raise DatabaseError(f"Failed to remove packaging: {e}")
+
+    @staticmethod
+    def get_packaging_product_usage_count(product_id: int) -> int:
+        """
+        Get count of compositions using a packaging product.
+
+        Args:
+            product_id: ID of the product to check
+
+        Returns:
+            Number of compositions using this product as packaging
+        """
+        try:
+            with get_db_session() as session:
+                return (
+                    session.query(Composition)
+                    .filter(Composition.packaging_product_id == product_id)
+                    .count()
+                )
+
+        except SQLAlchemyError as e:
+            logger.error(f"Database error counting packaging product usage: {e}")
+            raise DatabaseError(f"Failed to count packaging product usage: {e}")
+
     # Cache Management
 
     @staticmethod
@@ -1410,3 +1750,59 @@ def validate_no_circular_reference(assembly_id: int, new_component_id: int) -> b
 def flatten_assembly_components(assembly_id: int) -> List[dict]:
     """Get flattened list of all components at all hierarchy levels."""
     return CompositionService.flatten_assembly_components(assembly_id)
+
+
+# =============================================================================
+# Feature 011: Module-level convenience functions for packaging operations
+# =============================================================================
+
+
+def add_packaging_to_assembly(
+    assembly_id: int,
+    packaging_product_id: int,
+    quantity: float = 1.0,
+    notes: Optional[str] = None,
+    sort_order: int = 0,
+) -> Composition:
+    """Add packaging product to a FinishedGood assembly."""
+    return CompositionService.add_packaging_to_assembly(
+        assembly_id, packaging_product_id, quantity, notes, sort_order
+    )
+
+
+def add_packaging_to_package(
+    package_id: int,
+    packaging_product_id: int,
+    quantity: float = 1.0,
+    notes: Optional[str] = None,
+    sort_order: int = 0,
+) -> Composition:
+    """Add packaging product to a Package."""
+    return CompositionService.add_packaging_to_package(
+        package_id, packaging_product_id, quantity, notes, sort_order
+    )
+
+
+def get_assembly_packaging(assembly_id: int) -> List[Composition]:
+    """Get all packaging compositions for a FinishedGood assembly."""
+    return CompositionService.get_assembly_packaging(assembly_id)
+
+
+def get_package_packaging(package_id: int) -> List[Composition]:
+    """Get all packaging compositions for a Package."""
+    return CompositionService.get_package_packaging(package_id)
+
+
+def update_packaging_quantity(composition_id: int, quantity: float) -> Composition:
+    """Update quantity for a packaging composition."""
+    return CompositionService.update_packaging_quantity(composition_id, quantity)
+
+
+def remove_packaging(composition_id: int) -> bool:
+    """Remove a packaging composition."""
+    return CompositionService.remove_packaging(composition_id)
+
+
+def get_packaging_product_usage_count(product_id: int) -> int:
+    """Get count of compositions using a packaging product."""
+    return CompositionService.get_packaging_product_usage_count(product_id)
