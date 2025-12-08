@@ -17,6 +17,7 @@ from datetime import datetime
 from sqlalchemy import (
     Column,
     Integer,
+    Float,
     Text,
     DateTime,
     ForeignKey,
@@ -55,22 +56,27 @@ class Composition(BaseModel):
 
     __tablename__ = "compositions"
 
-    # Parent assembly reference
+    # Parent references (exactly one must be non-null: assembly_id XOR package_id)
     assembly_id = Column(
-        Integer, ForeignKey("finished_goods.id", ondelete="CASCADE"), nullable=False, index=True
+        Integer, ForeignKey("finished_goods.id", ondelete="CASCADE"), nullable=True, index=True
+    )
+    package_id = Column(
+        Integer, ForeignKey("packages.id", ondelete="CASCADE"), nullable=True, index=True
     )
 
     # Polymorphic component references (exactly one must be non-null)
     finished_unit_id = Column(
         Integer, ForeignKey("finished_units.id", ondelete="CASCADE"), nullable=True, index=True
     )
-
     finished_good_id = Column(
         Integer, ForeignKey("finished_goods.id", ondelete="CASCADE"), nullable=True, index=True
     )
+    packaging_product_id = Column(
+        Integer, ForeignKey("products.id", ondelete="RESTRICT"), nullable=True, index=True
+    )
 
     # Component attributes
-    component_quantity = Column(Integer, nullable=False, default=1)
+    component_quantity = Column(Float, nullable=False, default=1.0)
     component_notes = Column(Text, nullable=True)
     sort_order = Column(Integer, nullable=False, default=0)
 
@@ -79,22 +85,32 @@ class Composition(BaseModel):
 
     # Relationships
     assembly = relationship("FinishedGood", foreign_keys=[assembly_id], back_populates="components", lazy="joined")
+    package = relationship("Package", foreign_keys=[package_id], back_populates="packaging_compositions", lazy="joined")
 
     finished_unit_component = relationship("FinishedUnit", foreign_keys=[finished_unit_id], lazy="joined")
-
     finished_good_component = relationship("FinishedGood", foreign_keys=[finished_good_id], lazy="joined")
+    packaging_product = relationship("Product", foreign_keys=[packaging_product_id], lazy="joined")
 
     # Table constraints and indexes
     __table_args__ = (
         # Primary indexes
         Index("idx_composition_assembly", "assembly_id"),
+        Index("idx_composition_package", "package_id"),
         Index("idx_composition_finished_unit", "finished_unit_id"),
         Index("idx_composition_finished_good", "finished_good_id"),
+        Index("idx_composition_packaging_product", "packaging_product_id"),
         Index("idx_composition_sort_order", "assembly_id", "sort_order"),
-        # Polymorphic integrity constraint
+        # Parent XOR constraint: exactly one of assembly_id or package_id must be set
         CheckConstraint(
-            "((finished_unit_id IS NOT NULL) AND (finished_good_id IS NULL)) OR "
-            "((finished_unit_id IS NULL) AND (finished_good_id IS NOT NULL))",
+            "(assembly_id IS NOT NULL AND package_id IS NULL) OR "
+            "(assembly_id IS NULL AND package_id IS NOT NULL)",
+            name="ck_composition_exactly_one_parent",
+        ),
+        # Component XOR constraint: exactly one component type must be set (3-way)
+        CheckConstraint(
+            "(finished_unit_id IS NOT NULL AND finished_good_id IS NULL AND packaging_product_id IS NULL) OR "
+            "(finished_unit_id IS NULL AND finished_good_id IS NOT NULL AND packaging_product_id IS NULL) OR "
+            "(finished_unit_id IS NULL AND finished_good_id IS NULL AND packaging_product_id IS NOT NULL)",
             name="ck_composition_exactly_one_component",
         ),
         # Positive quantity constraint
@@ -108,14 +124,28 @@ class Composition(BaseModel):
         # Unique component within assembly (prevent duplicates)
         UniqueConstraint("assembly_id", "finished_unit_id", name="uq_composition_assembly_unit"),
         UniqueConstraint("assembly_id", "finished_good_id", name="uq_composition_assembly_good"),
+        UniqueConstraint("assembly_id", "packaging_product_id", name="uq_composition_assembly_packaging"),
+        UniqueConstraint("package_id", "packaging_product_id", name="uq_composition_package_packaging"),
     )
 
     def __repr__(self) -> str:
         """String representation of composition."""
-        component_type = "unit" if self.finished_unit_id else "assembly"
-        component_id = self.finished_unit_id or self.finished_good_id
+        if self.finished_unit_id:
+            component_type = "unit"
+            component_id = self.finished_unit_id
+        elif self.finished_good_id:
+            component_type = "assembly"
+            component_id = self.finished_good_id
+        elif self.packaging_product_id:
+            component_type = "packaging"
+            component_id = self.packaging_product_id
+        else:
+            component_type = "unknown"
+            component_id = None
+        parent_type = "assembly" if self.assembly_id else "package"
+        parent_id = self.assembly_id or self.package_id
         return (
-            f"Composition(id={self.id}, assembly_id={self.assembly_id}, "
+            f"Composition(id={self.id}, {parent_type}_id={parent_id}, "
             f"{component_type}={component_id}, qty={self.component_quantity})"
         )
 
@@ -125,12 +155,14 @@ class Composition(BaseModel):
         Get the type of component referenced.
 
         Returns:
-            "finished_unit" or "finished_good"
+            "finished_unit", "finished_good", "packaging_product", or "unknown"
         """
         if self.finished_unit_id is not None:
             return "finished_unit"
         elif self.finished_good_id is not None:
             return "finished_good"
+        elif self.packaging_product_id is not None:
+            return "packaging_product"
         else:
             return "unknown"
 
@@ -142,7 +174,7 @@ class Composition(BaseModel):
         Returns:
             Component ID or None if no valid component
         """
-        return self.finished_unit_id or self.finished_good_id
+        return self.finished_unit_id or self.finished_good_id or self.packaging_product_id
 
     @property
     def component_name(self) -> str:
@@ -156,6 +188,8 @@ class Composition(BaseModel):
             return self.finished_unit_component.display_name
         elif self.finished_good_component:
             return self.finished_good_component.display_name
+        elif self.packaging_product:
+            return self.packaging_product.display_name
         else:
             return "Unknown Component"
 
@@ -170,6 +204,9 @@ class Composition(BaseModel):
             return float(self.finished_unit_component.unit_cost or 0.0)
         elif self.finished_good_component:
             return float(self.finished_good_component.total_cost or 0.0)
+        elif self.packaging_product:
+            # Packaging products have purchase_price per unit
+            return float(self.packaging_product.purchase_price or 0.0)
         else:
             return 0.0
 
@@ -222,9 +259,24 @@ class Composition(BaseModel):
         """
         unit_specified = self.finished_unit_id is not None
         good_specified = self.finished_good_id is not None
+        packaging_specified = self.packaging_product_id is not None
+
+        # Exactly one should be true (3-way XOR)
+        count = sum([unit_specified, good_specified, packaging_specified])
+        return count == 1
+
+    def validate_parent_constraint(self) -> bool:
+        """
+        Validate that exactly one parent type is specified.
+
+        Returns:
+            True if constraint is satisfied
+        """
+        assembly_specified = self.assembly_id is not None
+        package_specified = self.package_id is not None
 
         # Exactly one should be true (XOR)
-        return unit_specified != good_specified
+        return assembly_specified != package_specified
 
     def validate_no_circular_reference(self) -> bool:
         """
@@ -264,6 +316,8 @@ class Composition(BaseModel):
                 result["finished_unit_component"] = self.finished_unit_component.to_dict()
             elif self.finished_good_component:
                 result["finished_good_component"] = self.finished_good_component.to_dict()
+            elif self.packaging_product:
+                result["packaging_product"] = self.packaging_product.to_dict()
 
         return result
 
@@ -324,6 +378,49 @@ class Composition(BaseModel):
             assembly_id=assembly_id,
             finished_unit_id=None,
             finished_good_id=finished_good_id,
+            component_quantity=quantity,
+            component_notes=notes,
+            sort_order=sort_order,
+        )
+
+    @classmethod
+    def create_packaging_composition(
+        cls,
+        packaging_product_id: int,
+        quantity: float = 1.0,
+        notes: str = None,
+        sort_order: int = 0,
+        assembly_id: int = None,
+        package_id: int = None,
+    ) -> "Composition":
+        """
+        Factory method to create composition with packaging product component.
+
+        Exactly one of assembly_id or package_id must be provided.
+
+        Args:
+            packaging_product_id: Component packaging Product ID
+            quantity: Quantity of packaging (supports decimals)
+            notes: Component-specific notes
+            sort_order: Display order
+            assembly_id: Parent FinishedGood ID (mutually exclusive with package_id)
+            package_id: Parent Package ID (mutually exclusive with assembly_id)
+
+        Returns:
+            New Composition instance
+
+        Raises:
+            ValueError: If both or neither of assembly_id/package_id provided
+        """
+        if (assembly_id is None) == (package_id is None):
+            raise ValueError("Exactly one of assembly_id or package_id must be provided")
+
+        return cls(
+            assembly_id=assembly_id,
+            package_id=package_id,
+            finished_unit_id=None,
+            finished_good_id=None,
+            packaging_product_id=packaging_product_id,
             component_quantity=quantity,
             component_notes=notes,
             sort_order=sort_order,

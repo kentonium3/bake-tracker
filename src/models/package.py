@@ -58,6 +58,14 @@ class Package(BaseModel):
         cascade="all, delete-orphan",
         lazy="selectin",
     )
+    # Packaging compositions (Feature 011) - packaging materials for this package
+    packaging_compositions = relationship(
+        "Composition",
+        foreign_keys="Composition.package_id",
+        back_populates="package",
+        cascade="all, delete-orphan",
+        lazy="selectin",
+    )
 
     # Indexes
     __table_args__ = (

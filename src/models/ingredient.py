@@ -11,7 +11,7 @@ Example: "All-Purpose Flour" as an ingredient concept, separate from
 from datetime import datetime
 from typing import Optional
 
-from sqlalchemy import Column, String, Text, DateTime, Float, JSON, Index
+from sqlalchemy import Column, String, Text, DateTime, Float, JSON, Index, Boolean
 from sqlalchemy.orm import relationship
 
 from .base import BaseModel
@@ -63,6 +63,9 @@ class Ingredient(BaseModel):
     category = Column(String(100), nullable=False, index=True)
     recipe_unit = Column(String(50), nullable=True)  # Unit used in recipes (e.g., "cup", "oz", "g")
 
+    # Packaging indicator (Feature 011)
+    is_packaging = Column(Boolean, nullable=False, default=False, index=True)
+
     # Additional information
     description = Column(Text, nullable=True)
     notes = Column(Text, nullable=True)
@@ -105,6 +108,7 @@ class Ingredient(BaseModel):
     __table_args__ = (
         Index("idx_ingredient_display_name", "display_name"),
         Index("idx_ingredient_category", "category"),
+        Index("idx_ingredient_is_packaging", "is_packaging"),
     )
 
     def __repr__(self) -> str:
