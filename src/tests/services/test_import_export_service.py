@@ -345,8 +345,8 @@ class TestExportAllToJsonV3Format:
             with open(temp_path, "r") as f:
                 data = json.load(f)
 
-            # Verify v3.0 header
-            assert data["version"] == "3.0"
+            # Verify v3.1 header (Feature 011: packaging support)
+            assert data["version"] == "3.1"
             assert "exported_at" in data
             assert data["application"] == "bake-tracker"
 
@@ -525,7 +525,7 @@ class TestImportVersionValidation:
                 import_all_from_json_v3(temp_path)
 
             assert "Unsupported file version: 2.0" in str(exc_info.value)
-            assert "v3.0 format" in str(exc_info.value)
+            assert "supports versions: 3.0, 3.1" in str(exc_info.value)
         finally:
             os.unlink(temp_path)
 

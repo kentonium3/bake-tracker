@@ -340,3 +340,155 @@ class TestPackagingBOMFlow:
         # Total bags: 2.0 per package * 6 packages = 12.0
         assert bag_product.id in needs
         assert needs[bag_product.id].total_needed == 12.0
+
+
+class TestPackagingImportExport:
+    """Integration tests for packaging data import/export (Feature 011 T046)."""
+
+    def test_export_import_preserves_packaging_ingredient(self, test_db):
+        """Export/import cycle preserves is_packaging flag on ingredients."""
+        import json
+        import tempfile
+        import os
+        from src.services.import_export_service import export_all_to_json, import_all_from_json_v3
+        from src.models import Ingredient
+        from src.models.base import Base
+        from sqlalchemy import create_engine
+        from sqlalchemy.orm import sessionmaker, scoped_session
+
+        # Create packaging ingredient
+        bag_ingredient = create_ingredient({
+            "name": "Export Test Bags",
+            "category": "Bags",
+            "recipe_unit": "each",
+            "is_packaging": True,
+        })
+
+        # Create food ingredient for comparison
+        flour_ingredient = create_ingredient({
+            "name": "Export Test Flour",
+            "category": "Flour",
+            "recipe_unit": "cup",
+            "is_packaging": False,
+        })
+
+        # Export to temp file
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
+            temp_path = f.name
+
+        try:
+            result = export_all_to_json(temp_path)
+            assert result.success
+
+            # Verify export file contains is_packaging field
+            with open(temp_path, "r") as f:
+                data = json.load(f)
+
+            # Check version is 3.1
+            assert data["version"] == "3.1"
+
+            # Find exported ingredients
+            exported_ingredients = {i["slug"]: i for i in data["ingredients"]}
+            assert bag_ingredient.slug in exported_ingredients
+            assert exported_ingredients[bag_ingredient.slug]["is_packaging"] is True
+
+            assert flour_ingredient.slug in exported_ingredients
+            assert exported_ingredients[flour_ingredient.slug]["is_packaging"] is False
+
+        finally:
+            if os.path.exists(temp_path):
+                os.unlink(temp_path)
+
+    def test_export_import_preserves_packaging_composition(self, test_db):
+        """Export/import cycle preserves packaging compositions."""
+        import json
+        import tempfile
+        import os
+        from src.services.import_export_service import export_all_to_json
+        from src.services.composition_service import add_packaging_to_assembly, add_packaging_to_package
+
+        # Create packaging ingredient and product
+        bag_ingredient = create_ingredient({
+            "name": "Composition Test Bags",
+            "category": "Bags",
+            "recipe_unit": "each",
+            "is_packaging": True,
+        })
+        bag_product = create_product(
+            bag_ingredient.slug,
+            {
+                "brand": "TestBrand",
+                "package_size": "50 ct",
+                "purchase_unit": "box",
+                "purchase_quantity": 50,
+            }
+        )
+
+        # Create FinishedGood with packaging
+        fg = FinishedGood(
+            slug="export-test-cookies",
+            display_name="Export Test Cookies",
+            assembly_type=AssemblyType.CUSTOM_ORDER,
+            inventory_count=0,
+        )
+        test_db.add(fg)
+        test_db.flush()
+
+        # Add packaging to FinishedGood
+        add_packaging_to_assembly(
+            assembly_id=fg.id,
+            packaging_product_id=bag_product.id,
+            quantity=2.5,
+        )
+
+        # Create Package with packaging
+        pkg = Package(
+            name="Export Test Package",
+        )
+        test_db.add(pkg)
+        test_db.flush()
+
+        # Add packaging to Package
+        add_packaging_to_package(
+            package_id=pkg.id,
+            packaging_product_id=bag_product.id,
+            quantity=1.5,
+        )
+
+        # Export to temp file
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
+            temp_path = f.name
+
+        try:
+            result = export_all_to_json(temp_path)
+            assert result.success
+
+            # Verify export file contains packaging compositions
+            with open(temp_path, "r") as f:
+                data = json.load(f)
+
+            compositions = data["compositions"]
+
+            # Find FG-level packaging composition
+            fg_packaging = [
+                c for c in compositions
+                if c.get("finished_good_slug") == fg.slug
+                and c.get("packaging_ingredient_slug") == bag_ingredient.slug
+            ]
+            assert len(fg_packaging) == 1
+            assert fg_packaging[0]["component_quantity"] == 2.5
+            assert fg_packaging[0]["package_name"] is None
+
+            # Find Package-level packaging composition
+            pkg_packaging = [
+                c for c in compositions
+                if c.get("package_name") == pkg.name
+                and c.get("packaging_ingredient_slug") == bag_ingredient.slug
+            ]
+            assert len(pkg_packaging) == 1
+            assert pkg_packaging[0]["component_quantity"] == 1.5
+            assert pkg_packaging[0]["finished_good_slug"] is None
+
+        finally:
+            if os.path.exists(temp_path):
+                os.unlink(temp_path)

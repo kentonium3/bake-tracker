@@ -671,6 +671,7 @@ def export_compositions_to_json() -> List[Dict]:
     Export Composition records for v3.0 format.
 
     Compositions link finished units/goods to finished good assemblies.
+    Feature 011: Also supports package_id and packaging_product_id for packaging compositions.
 
     Returns:
         List of dictionaries containing composition data
@@ -681,25 +682,54 @@ def export_compositions_to_json() -> List[Dict]:
             session.query(Composition)
             .options(
                 joinedload(Composition.assembly),
+                joinedload(Composition.package),  # Feature 011
                 joinedload(Composition.finished_unit_component),
                 joinedload(Composition.finished_good_component),
+                joinedload(Composition.packaging_product),  # Feature 011
             )
             .all()
         )
         for comp in compositions:
             comp_data = {
-                "finished_good_slug": comp.assembly.slug if comp.assembly else None,
-                "component_quantity": comp.component_quantity,
+                "component_quantity": float(comp.component_quantity),  # Ensure float
                 "sort_order": comp.sort_order,
             }
 
-            # Polymorphic component reference
+            # Parent reference - XOR: assembly_id OR package_id (Feature 011)
+            if comp.assembly:
+                comp_data["finished_good_slug"] = comp.assembly.slug
+                comp_data["package_name"] = None
+            elif comp.package:
+                comp_data["finished_good_slug"] = None
+                comp_data["package_name"] = comp.package.name
+            else:
+                comp_data["finished_good_slug"] = None
+                comp_data["package_name"] = None
+
+            # Component reference - XOR: finished_unit OR finished_good OR packaging_product (Feature 011)
             if comp.finished_unit_component:
                 comp_data["finished_unit_slug"] = comp.finished_unit_component.slug
                 comp_data["finished_good_component_slug"] = None
+                comp_data["packaging_product_id"] = None
             elif comp.finished_good_component:
                 comp_data["finished_unit_slug"] = None
                 comp_data["finished_good_component_slug"] = comp.finished_good_component.slug
+                comp_data["packaging_product_id"] = None
+            elif comp.packaging_product:
+                comp_data["finished_unit_slug"] = None
+                comp_data["finished_good_component_slug"] = None
+                # For packaging products, export ingredient_slug + brand for lookup
+                comp_data["packaging_product_id"] = comp.packaging_product_id
+                comp_data["packaging_ingredient_slug"] = (
+                    comp.packaging_product.ingredient.slug
+                    if comp.packaging_product.ingredient
+                    else None
+                )
+                comp_data["packaging_product_brand"] = comp.packaging_product.brand
+            else:
+                comp_data["finished_unit_slug"] = None
+                comp_data["finished_good_component_slug"] = None
+                comp_data["packaging_product_id"] = None
 
             # Optional fields
             if comp.component_notes:
@@ -810,9 +840,9 @@ def export_all_to_json(file_path: str) -> ExportResult:
         package_finished_goods_data = export_package_finished_goods_to_json()
         production_records_data = export_production_records_to_json()
 
-        # Build combined export data - v3.0 format
+        # Build combined export data - v3.1 format (Feature 011: packaging support)
         export_data = {
-            "version": "3.0",
+            "version": "3.1",
             "exported_at": datetime.utcnow().isoformat() + "Z",
             "application": "bake-tracker",
             "unit_conversions": [],
@@ -839,6 +869,7 @@ def export_all_to_json(file_path: str) -> ExportResult:
                 "slug": ingredient.slug,
                 "category": ingredient.category,
                 "recipe_unit": ingredient.recipe_unit,
+                "is_packaging": ingredient.is_packaging,  # Feature 011
             }
 
             # Optional fields
@@ -2200,7 +2231,9 @@ def import_compositions_from_json(
     data: List[Dict], session, skip_duplicates: bool = True
 ) -> ImportResult:
     """
-    Import Composition records from v3.0 format data.
+    Import Composition records from v3.0/v3.1 format data.
+
+    Feature 011: Supports package_id and packaging_product_id for packaging compositions.
 
     Args:
         data: List of composition dictionaries
@@ -2214,29 +2247,55 @@ def import_compositions_from_json(
 
     for record in data:
         try:
-            finished_good_slug = record.get("finished_good_slug", "")
+            finished_good_slug = record.get("finished_good_slug")
+            package_name = record.get("package_name")  # Feature 011
             finished_unit_slug = record.get("finished_unit_slug")
             finished_good_component_slug = record.get("finished_good_component_slug")
-            quantity = record.get("component_quantity", 1)
+            packaging_ingredient_slug = record.get("packaging_ingredient_slug")  # Feature 011
+            packaging_product_brand = record.get("packaging_product_brand")  # Feature 011
+            quantity = float(record.get("component_quantity", 1.0))  # Ensure float
 
-            if not finished_good_slug:
-                result.add_error("composition", "unknown", "Missing finished_good_slug")
+            # Validate quantity
+            if quantity <= 0:
+                result.add_error("composition", "unknown", "Quantity must be greater than 0")
                 continue
 
-            # Must have exactly one component type
-            if not finished_unit_slug and not finished_good_component_slug:
-                result.add_error("composition", finished_good_slug, "Missing component reference")
+            # Parent XOR validation: must have exactly one of assembly_id or package_id
+            if finished_good_slug and package_name:
+                result.add_error("composition", "unknown", "Composition must have exactly one parent (finished_good_slug or package_name)")
+                continue
+            if not finished_good_slug and not package_name:
+                result.add_error("composition", "unknown", "Composition must have exactly one parent (finished_good_slug or package_name)")
                 continue
 
-            # Resolve assembly reference
-            assembly = session.query(FinishedGood).filter_by(slug=finished_good_slug).first()
-            if not assembly:
-                result.add_error("composition", finished_good_slug, f"Assembly not found: {finished_good_slug}")
+            # Component XOR validation: must have exactly one component type
+            component_refs = [finished_unit_slug, finished_good_component_slug, packaging_ingredient_slug]
+            non_null_components = [x for x in component_refs if x is not None]
+            if len(non_null_components) != 1:
+                result.add_error("composition", finished_good_slug or package_name, "Composition must have exactly one component type")
                 continue
+
+            # Resolve parent reference
+            assembly_id = None
+            package_id = None
+
+            if finished_good_slug:
+                assembly = session.query(FinishedGood).filter_by(slug=finished_good_slug).first()
+                if not assembly:
+                    result.add_error("composition", finished_good_slug, f"Assembly not found: {finished_good_slug}")
+                    continue
+                assembly_id = assembly.id
+            else:
+                package = session.query(Package).filter_by(name=package_name).first()
+                if not package:
+                    result.add_error("composition", package_name, f"Package not found: {package_name}")
+                    continue
+                package_id = package.id
 
             # Resolve component reference
             finished_unit_id = None
             finished_good_id = None
+            packaging_product_id = None
 
             if finished_unit_slug:
                 fu = session.query(FinishedUnit).filter_by(slug=finished_unit_slug).first()
@@ -2249,32 +2308,53 @@ def import_compositions_from_json(
                     if recipe:
                         fu = session.query(FinishedUnit).filter_by(recipe_id=recipe.id).first()
                 if not fu:
-                    result.add_error("composition", finished_good_slug, f"FinishedUnit not found: {finished_unit_slug}")
+                    result.add_error("composition", finished_good_slug or package_name, f"FinishedUnit not found: {finished_unit_slug}")
                     continue
                 finished_unit_id = fu.id
-            else:
+            elif finished_good_component_slug:
                 fg = session.query(FinishedGood).filter_by(slug=finished_good_component_slug).first()
                 if not fg:
-                    result.add_error("composition", finished_good_slug, f"FinishedGood component not found: {finished_good_component_slug}")
+                    result.add_error("composition", finished_good_slug or package_name, f"FinishedGood component not found: {finished_good_component_slug}")
                     continue
                 finished_good_id = fg.id
+            elif packaging_ingredient_slug:
+                # Feature 011: Resolve packaging product by ingredient slug + brand
+                ingredient = session.query(Ingredient).filter_by(slug=packaging_ingredient_slug).first()
+                if not ingredient:
+                    result.add_error("composition", finished_good_slug or package_name, f"Packaging ingredient not found: {packaging_ingredient_slug}")
+                    continue
+                # Find product by ingredient and brand
+                product_query = session.query(Product).filter_by(ingredient_id=ingredient.id)
+                if packaging_product_brand:
+                    product_query = product_query.filter_by(brand=packaging_product_brand)
+                product = product_query.first()
+                if not product:
+                    result.add_error("composition", finished_good_slug or package_name, f"Packaging product not found for ingredient {packaging_ingredient_slug}")
+                    continue
+                packaging_product_id = product.id
 
             # Check for duplicate
             if skip_duplicates:
                 existing = session.query(Composition).filter_by(
-                    assembly_id=assembly.id,
+                    assembly_id=assembly_id,
+                    package_id=package_id,
                     finished_unit_id=finished_unit_id,
                     finished_good_id=finished_good_id,
+                    packaging_product_id=packaging_product_id,
                 ).first()
                 if existing:
-                    result.add_skip("composition", f"{finished_good_slug}->{finished_unit_slug or finished_good_component_slug}", "Already exists")
+                    parent_name = finished_good_slug or package_name
+                    component_name = finished_unit_slug or finished_good_component_slug or packaging_ingredient_slug
+                    result.add_skip("composition", f"{parent_name}->{component_name}", "Already exists")
                     continue
 
             # Create composition
             comp = Composition(
-                assembly_id=assembly.id,
+                assembly_id=assembly_id,
+                package_id=package_id,  # Feature 011
                 finished_unit_id=finished_unit_id,
                 finished_good_id=finished_good_id,
+                packaging_product_id=packaging_product_id,  # Feature 011
                 component_quantity=quantity,
                 sort_order=record.get("sort_order", 0),
                 component_notes=record.get("notes"),
@@ -2284,7 +2364,8 @@ def import_compositions_from_json(
             result.add_success("composition")
 
         except Exception as e:
-            result.add_error("composition", record.get("finished_good_slug", "unknown"), str(e))
+            parent_name = record.get("finished_good_slug") or record.get("package_name") or "unknown"
+            result.add_error("composition", parent_name, str(e))
 
     return result
 
@@ -2590,11 +2671,13 @@ def import_all_from_json_v3(file_path: str, mode: str = "merge") -> ImportResult
             data = json.load(f)
 
         # Version validation (FR-018)
+        # Feature 011: Support both 3.0 and 3.1 (3.1 adds packaging support)
         version = data.get("version", "unknown")
-        if version != "3.0":
+        supported_versions = ["3.0", "3.1"]
+        if version not in supported_versions:
             raise ImportVersionError(
                 f"Unsupported file version: {version}. "
-                "This application only supports v3.0 format. "
+                f"This application supports versions: {', '.join(supported_versions)}. "
                 "Please export a new backup from a current version."
             )
 
@@ -2639,6 +2722,7 @@ def import_all_from_json_v3(file_path: str, mode: str = "merge") -> ImportResult
                             density_args["density_weight_unit"] = "oz"
 
                         # TD-001: Support both 'display_name' (new) and 'name' (legacy)
+                        # Feature 011: is_packaging defaults to False for backward compatibility
                         ingredient = Ingredient(
                             display_name=ing.get("display_name") or ing.get("name"),
                             slug=slug,
@@ -2646,6 +2730,7 @@ def import_all_from_json_v3(file_path: str, mode: str = "merge") -> ImportResult
                             recipe_unit=ing.get("recipe_unit"),
                             description=ing.get("description"),
                             notes=ing.get("notes"),
+                            is_packaging=ing.get("is_packaging", False),  # Feature 011
                             **density_args,
                         )
                         session.add(ingredient)
