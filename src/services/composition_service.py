@@ -1732,6 +1732,16 @@ def get_composition_by_id(composition_id: int) -> Optional[Composition]:
     return CompositionService.get_composition_by_id(composition_id)
 
 
+def get_composition(composition_id: int) -> Optional[Composition]:
+    """Alias for get_composition_by_id (Feature 011 compatibility)."""
+    return CompositionService.get_composition_by_id(composition_id)
+
+
+def remove_composition(composition_id: int) -> bool:
+    """Remove a composition by ID (alias for remove_packaging for general use)."""
+    return CompositionService.remove_packaging(composition_id)
+
+
 def get_assembly_components(assembly_id: int, ordered: bool = True) -> List[Composition]:
     """Get all direct components of an assembly."""
     return CompositionService.get_assembly_components(assembly_id, ordered)

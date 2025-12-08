@@ -404,6 +404,7 @@ def check_product_dependencies(product_id: int) -> Dict[str, int]:
         Dict[str, int]: Dependency counts
             - "inventory_items": Number of inventory items using this product
             - "purchases": Number of purchase records for this product
+            - "packaging_compositions": Number of packaging compositions using this product
 
     Raises:
         ProductNotFound: If product_id doesn't exist
@@ -411,10 +412,9 @@ def check_product_dependencies(product_id: int) -> Dict[str, int]:
     Example:
         >>> deps = check_product_dependencies(123)
         >>> deps
-        {'inventory_items': 5, 'purchases': 12}
+        {'inventory_items': 5, 'purchases': 12, 'packaging_compositions': 3}
     """
-    # Import models here to avoid circular dependencies
-    # from ..models import InventoryItem, Purchase
+    from src.models import Composition
 
     # Verify product exists (validates product_id)
     get_product(product_id)
@@ -426,7 +426,17 @@ def check_product_dependencies(product_id: int) -> Dict[str, int]:
     inventory_count = 0
     purchase_count = 0
 
-    return {"inventory_items": inventory_count, "purchases": purchase_count}
+    # Feature 011: Check for packaging compositions using this product
+    with session_scope() as session:
+        packaging_count = session.query(Composition).filter(
+            Composition.packaging_product_id == product_id
+        ).count()
+
+    return {
+        "inventory_items": inventory_count,
+        "purchases": purchase_count,
+        "packaging_compositions": packaging_count,
+    }
 
 
 def search_products_by_upc(upc: str) -> List[Product]:

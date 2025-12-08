@@ -492,3 +492,338 @@ class TestPackagingImportExport:
         finally:
             if os.path.exists(temp_path):
                 os.unlink(temp_path)
+
+
+class TestPackagingEdgeCases:
+    """Edge case tests for packaging BOM (Feature 011 WP07)."""
+
+    def test_packaging_ingredient_without_products_allowed(self, test_db):
+        """T058: Packaging ingredient without products is allowed."""
+        # Create packaging ingredient with no products
+        ingredient = create_ingredient({
+            "name": "Empty Packaging Category",
+            "category": "Bags",
+            "recipe_unit": "each",
+            "is_packaging": True,
+        })
+
+        # Should not raise
+        assert ingredient.is_packaging is True
+
+        # Should appear in packaging list
+        from src.services.ingredient_service import get_packaging_ingredients
+        packaging = get_packaging_ingredients()
+        assert any(i.id == ingredient.id for i in packaging)
+
+    def test_fractional_packaging_quantities(self, test_db):
+        """T059: Fractional quantities like 0.5 work correctly."""
+        # Create packaging product
+        ribbon_ingredient = create_ingredient({
+            "name": "Fractional Test Ribbon",
+            "category": "Ribbon",
+            "recipe_unit": "each",  # Use valid unit
+            "is_packaging": True,
+        })
+        ribbon_product = create_product(
+            ribbon_ingredient.slug,
+            {
+                "brand": "TestBrand",
+                "package_size": "10 yd",
+                "purchase_unit": "package",  # Use valid unit
+                "purchase_quantity": 10,
+            }
+        )
+
+        # Create FinishedGood
+        fg = FinishedGood(
+            slug="fractional-test-cookies",
+            display_name="Fractional Test Cookies",
+            assembly_type=AssemblyType.CUSTOM_ORDER,
+            inventory_count=0,
+        )
+        test_db.add(fg)
+        test_db.flush()
+
+        # Add packaging with fractional quantity
+        composition = add_packaging_to_assembly(
+            assembly_id=fg.id,
+            packaging_product_id=ribbon_product.id,
+            quantity=0.5,
+        )
+        assert composition.component_quantity == 0.5
+
+        # Update to another fractional quantity
+        from src.services.composition_service import update_packaging_quantity
+        update_packaging_quantity(composition.id, 1.5)
+
+        # Verify updated
+        from src.services.composition_service import get_composition
+        updated = get_composition(composition.id)
+        assert updated.component_quantity == 1.5
+
+    def test_same_packaging_in_fg_and_package_aggregates_correctly(self, test_db):
+        """T060: Same packaging in FG and Package aggregates correctly."""
+        # Create packaging product (ribbon)
+        ribbon_ingredient = create_ingredient({
+            "name": "Aggregation Test Ribbon",
+            "category": "Ribbon",
+            "recipe_unit": "each",
+            "is_packaging": True,
+        })
+        ribbon_product = create_product(
+            ribbon_ingredient.slug,
+            {
+                "brand": "TestBrand",
+                "package_size": "10 yd",
+                "purchase_unit": "package",  # Use valid unit
+                "purchase_quantity": 1,
+            }
+        )
+
+        # Create FinishedGood with 2 ribbons
+        fg = FinishedGood(
+            slug="aggregation-test-cookies",
+            display_name="Aggregation Test Cookies",
+            assembly_type=AssemblyType.CUSTOM_ORDER,
+            inventory_count=0,
+        )
+        test_db.add(fg)
+        test_db.flush()
+
+        add_packaging_to_assembly(
+            assembly_id=fg.id,
+            packaging_product_id=ribbon_product.id,
+            quantity=2.0,
+        )
+
+        # Create Package with 1 ribbon (outer)
+        package = Package(
+            name="Aggregation Test Package",
+        )
+        test_db.add(package)
+        test_db.flush()
+
+        add_packaging_to_package(
+            package_id=package.id,
+            packaging_product_id=ribbon_product.id,
+            quantity=1.0,
+        )
+
+        # Package contains the FG
+        pfg = PackageFinishedGood(
+            package_id=package.id,
+            finished_good_id=fg.id,
+            quantity=1,
+        )
+        test_db.add(pfg)
+        test_db.flush()
+
+        # Create event with 3 of this package
+        event = create_event(
+            name="Aggregation Test Event",
+            event_date=date(2024, 12, 1),
+            year=2024,
+        )
+
+        recipient = Recipient(name="Test Recipient")
+        test_db.add(recipient)
+        test_db.flush()
+
+        assign_package_to_recipient(
+            event_id=event.id,
+            recipient_id=recipient.id,
+            package_id=package.id,
+            quantity=3,
+        )
+
+        # Calculate packaging needs
+        needs = get_event_packaging_needs(event.id)
+
+        # FG: 2 * 1 * 3 = 6, Package: 1 * 3 = 3, Total: 9
+        assert ribbon_product.id in needs
+        assert needs[ribbon_product.id].total_needed == 9.0
+
+    def test_package_delete_cascades_packaging_compositions(self, test_db):
+        """T061: Compositions deleted when Package deleted."""
+        from src.services import package_service
+
+        # Create packaging product
+        bag_ingredient = create_ingredient({
+            "name": "Cascade Test Bags",
+            "category": "Bags",
+            "recipe_unit": "each",
+            "is_packaging": True,
+        })
+        bag_product = create_product(
+            bag_ingredient.slug,
+            {
+                "brand": "TestBrand",
+                "package_size": "50 ct",
+                "purchase_unit": "box",
+                "purchase_quantity": 50,
+            }
+        )
+
+        # Create Package with packaging
+        package = Package(
+            name="Cascade Test Package",
+        )
+        test_db.add(package)
+        test_db.flush()
+
+        composition = add_packaging_to_package(
+            package_id=package.id,
+            packaging_product_id=bag_product.id,
+            quantity=1.0,
+        )
+        comp_id = composition.id
+
+        # Verify composition exists
+        from src.services.composition_service import get_composition
+        assert get_composition(comp_id) is not None
+
+        # Delete package
+        package_service.delete_package(package.id)
+
+        # Verify composition deleted
+        assert get_composition(comp_id) is None
+
+    def test_finished_good_delete_cascades_packaging_compositions(self, test_db):
+        """T062: Compositions deleted when FinishedGood deleted."""
+        from src.services.finished_good_service import FinishedGoodService
+
+        # Create packaging product
+        box_ingredient = create_ingredient({
+            "name": "FG Cascade Test Boxes",
+            "category": "Boxes",
+            "recipe_unit": "each",
+            "is_packaging": True,
+        })
+        box_product = create_product(
+            box_ingredient.slug,
+            {
+                "brand": "TestBrand",
+                "package_size": "12 ct",
+                "purchase_unit": "box",  # Use valid unit
+                "purchase_quantity": 12,
+            }
+        )
+
+        # Create FinishedGood with packaging
+        fg = FinishedGood(
+            slug="fg-cascade-test",
+            display_name="FG Cascade Test",
+            assembly_type=AssemblyType.CUSTOM_ORDER,
+            inventory_count=0,
+        )
+        test_db.add(fg)
+        test_db.flush()
+
+        composition = add_packaging_to_assembly(
+            assembly_id=fg.id,
+            packaging_product_id=box_product.id,
+            quantity=1.0,
+        )
+        comp_id = composition.id
+
+        # Verify composition exists
+        from src.services.composition_service import get_composition
+        assert get_composition(comp_id) is not None
+
+        # Delete FinishedGood using class method
+        FinishedGoodService.delete_finished_good(fg.id)
+
+        # Verify composition deleted
+        assert get_composition(comp_id) is None
+
+    def test_delete_packaging_product_in_use_blocked(self, test_db):
+        """T056: Delete blocked with clear message when product in use."""
+        from src.services import product_service
+        from src.services.exceptions import ProductInUse
+
+        # Create packaging product
+        bag_ingredient = create_ingredient({
+            "name": "Delete Block Test Bags",
+            "category": "Bags",
+            "recipe_unit": "each",
+            "is_packaging": True,
+        })
+        bag_product = create_product(
+            bag_ingredient.slug,
+            {
+                "brand": "TestBrand",
+                "package_size": "50 ct",
+                "purchase_unit": "box",
+                "purchase_quantity": 50,
+            }
+        )
+
+        # Create Package and add packaging composition
+        package = Package(
+            name="Delete Block Test Package",
+        )
+        test_db.add(package)
+        test_db.flush()
+
+        add_packaging_to_package(
+            package_id=package.id,
+            packaging_product_id=bag_product.id,
+            quantity=1.0,
+        )
+
+        # Try to delete product - should be blocked
+        with pytest.raises(ProductInUse) as exc_info:
+            product_service.delete_product(bag_product.id)
+
+        # Verify error message includes packaging composition count
+        error = exc_info.value
+        assert error.product_id == bag_product.id
+        assert error.dependencies.get("packaging_compositions", 0) >= 1
+
+    def test_sqlite_restrict_fk_prevents_deletion(self, test_db):
+        """T063: Verify SQLite RESTRICT FK behavior."""
+        from sqlalchemy.exc import IntegrityError
+        from src.models import Product
+
+        # Create packaging product
+        ribbon_ingredient = create_ingredient({
+            "name": "RESTRICT Test Ribbon",
+            "category": "Ribbon",
+            "recipe_unit": "each",
+            "is_packaging": True,
+        })
+        ribbon_product = create_product(
+            ribbon_ingredient.slug,
+            {
+                "brand": "TestBrand",
+                "package_size": "10 yd",
+                "purchase_unit": "package",
+                "purchase_quantity": 10,
+            }
+        )
+
+        # Create FinishedGood with packaging composition
+        fg = FinishedGood(
+            slug="restrict-test-cookies",
+            display_name="RESTRICT Test Cookies",
+            assembly_type=AssemblyType.CUSTOM_ORDER,
+            inventory_count=0,
+        )
+        test_db.add(fg)
+        test_db.flush()
+
+        # Add packaging composition referencing the product
+        add_packaging_to_assembly(
+            assembly_id=fg.id,
+            packaging_product_id=ribbon_product.id,
+            quantity=1.0,
+        )
+
+        # Try direct deletion bypassing service (to test FK constraint)
+        # Note: This tests that the database-level RESTRICT constraint works
+        product = test_db.query(Product).filter_by(id=ribbon_product.id).first()
+        test_db.delete(product)
+
+        # SQLite with foreign_keys=ON should raise IntegrityError on flush
+        with pytest.raises(IntegrityError):
+            test_db.flush()
