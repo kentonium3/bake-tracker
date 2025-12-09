@@ -1,0 +1,7 @@
+id,type,location,description,accessed,reliability
+S1,Code,src/models/recipe.py,Recipe and RecipeIngredient model definitions,2025-12-09,HIGH
+S2,Code,src/models/composition.py,Composition junction model with constraints,2025-12-09,HIGH
+S3,Code,src/services/recipe_service.py,Recipe service CRUD and cost calculations,2025-12-09,HIGH
+S4,Code,src/services/import_export_service.py,Import/export service for recipes,2025-12-09,HIGH
+S5,User Input,Planning interrogation,User answers to planning questions,2025-12-09,HIGH
+S6,Document,kitty-specs/012-nested-recipes/spec.md,Feature specification,2025-12-09,HIGH
