@@ -9,10 +9,10 @@ subtasks:
   - "T027"
 title: "Service Layer - Cost & Aggregation"
 phase: "Phase 2 - Core Features"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "claude"
-shell_pid: "90571"
+shell_pid: "91798"
 review_status: ""
 reviewed_by: ""
 history:
@@ -640,3 +640,4 @@ def test_calculate_cost_missing_prices():
 
 - 2025-12-09T00:00:00Z – system – lane=planned – Prompt created.
 - 2025-12-09T13:41:48Z – claude – shell_pid=90571 – lane=doing – Started implementation
+- 2025-12-09T13:53:03Z – claude – shell_pid=91798 – lane=for_review – Completed implementation - 14 new tests, all 537 pass
