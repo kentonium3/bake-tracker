@@ -23,7 +23,7 @@ As a baker, I want to record when I make batches of a recipe so the system deduc
 
 2. **Given** a recipe with nested sub-recipes (e.g., "Decorated Sugar Cookies" using "Royal Icing"), **When** the user records 1 batch, **Then** ingredients from all recipe levels are aggregated and deducted via FIFO.
 
-3. **Given** a recipe with packaging materials defined in its BOM (e.g., parchment paper per batch), **When** the user records production, **Then** packaging materials are also deducted from InventoryItem.
+3. **Given** a recipe exists with ingredients in inventory, **When** the user records batch production, **Then** only recipe ingredients are deducted (packaging materials are not consumed during batch production; they are consumed during assembly).
 
 4. **Given** insufficient inventory for an ingredient, **When** the user attempts to record production, **Then** the operation fails with a clear error listing what's missing (ingredient, needed quantity, available quantity).
 
@@ -119,20 +119,20 @@ As a baker, I want to export and import my production history so I can back up m
 - What happens when actual yield is 0? (Should be allowed - production failed but ingredients still consumed)
 - What happens when actual yield exceeds expected? (Should be allowed - yield variance is tracked)
 - What happens with unit conversion during consumption? (Use existing unit_converter service, fail with clear error if conversion impossible)
-- What happens if packaging product has no inventory? (Fail with clear error like ingredients)
+- What happens if packaging product has no inventory during assembly? (Fail with clear error like other components)
 - What happens with concurrent production attempts? (Transaction isolation should prevent race conditions)
 
 ## Requirements *(mandatory)*
 
 ### Functional Requirements
 
-- **FR-001**: System MUST record batch production with recipe_id, num_batches, actual_yield, produced_at timestamp, and optional notes
+- **FR-001**: System MUST record batch production with recipe_id, finished_unit_id, num_batches, actual_yield, produced_at timestamp, and optional notes
 - **FR-002**: System MUST deduct ingredient quantities from InventoryItem using FIFO consumption when recording batch production
-- **FR-003**: System MUST increment FinishedUnit.inventory_count by actual_yield when recording batch production
+- **FR-003**: System MUST increment FinishedUnit.inventory_count by actual_yield when recording batch production (FinishedUnit must be specified by caller; a recipe may have multiple FinishedUnits)
 - **FR-004**: System MUST persist consumption ledger entries recording which specific InventoryItems were consumed and their cost-at-time-of-consumption
 - **FR-005**: System MUST calculate and store per-unit cost based on actual yield (total_ingredient_cost / actual_yield)
 - **FR-006**: System MUST support nested recipes by using RecipeService.get_aggregated_ingredients() to collect ingredients from all levels
-- **FR-007**: System MUST deduct packaging materials from InventoryItem when Composition BOM includes packaging products
+- **FR-007**: System MUST deduct packaging materials from InventoryItem when assembling FinishedGoods (packaging is defined in Composition BOM; not applicable to batch production)
 - **FR-008**: System MUST provide check_can_produce(recipe_id, num_batches) returning structured availability response
 - **FR-009**: System MUST record assembly runs with finished_good_id, quantity, assembled_at timestamp, and optional notes
 - **FR-010**: System MUST decrement FinishedUnit.inventory_count when assembling (deducting components)
@@ -145,7 +145,7 @@ As a baker, I want to export and import my production history so I can back up m
 
 ### Key Entities
 
-- **ProductionRun**: Records a batch production event. Attributes: recipe_id, num_batches, expected_yield, actual_yield, produced_at, notes, total_ingredient_cost, per_unit_cost
+- **ProductionRun**: Records a batch production event. Attributes: recipe_id, finished_unit_id, num_batches, expected_yield, actual_yield, produced_at, notes, total_ingredient_cost, per_unit_cost
 - **ProductionConsumption**: Junction table recording which InventoryItems were consumed for a ProductionRun. Attributes: production_run_id, inventory_item_id, quantity_consumed, unit, cost_at_consumption
 - **AssemblyRun**: Records an assembly event. Attributes: finished_good_id, quantity_assembled, assembled_at, notes, total_component_cost
 - **AssemblyConsumption**: Junction table recording components/packaging consumed for an AssemblyRun. Attributes: assembly_run_id, component_type, component_id, quantity_consumed, cost_at_consumption
@@ -170,6 +170,7 @@ As a baker, I want to export and import my production history so I can back up m
 - InventoryItemService.consume_fifo() exists and supports dry_run mode for availability checking
 - FinishedUnit and FinishedGood models have inventory_count fields with proper constraints
 - Existing ProductionRecord model (event-based) will be preserved; new ProductionRun model is separate for general production tracking
+- Production and consumption ledger records are retained indefinitely (no automatic cleanup needed for single-user prototype)
 
 ## Out of Scope
 
@@ -196,6 +197,14 @@ As a baker, I want to export and import my production history so I can back up m
 - Transaction safety: all deductions in single transaction (rollback on failure)
 - Availability check should return structured response: {can_produce: bool, missing: [{ingredient, needed, have}]}
 - Per-unit cost calculation: total_consumed_cost / actual_yield (not expected_yield)
+
+## Clarifications
+
+### Session 2025-12-09
+
+- Q: When recording batch production for a recipe, how should the system determine which FinishedUnit to increment? → A: User must specify which FinishedUnit when recording production (relationship is 1:N - a recipe can have multiple FinishedUnits, but each FinishedUnit traces to one recipe)
+- Q: For batch production, where should packaging materials be defined in the data model? → A: Packaging is only relevant for assembly, not batch production
+- Q: Should production/consumption ledger records be retained indefinitely, or should there be a retention policy? → A: Retain indefinitely (no automatic cleanup) - sufficient for single user prototype
 
 ## Reference Documents
 
