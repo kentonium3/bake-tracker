@@ -10,7 +10,7 @@ subtasks:
 title: "Service Layer - Component CRUD"
 phase: "Phase 1 - Foundation"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude-reviewer"
 shell_pid: "98749"
 review_status: ""

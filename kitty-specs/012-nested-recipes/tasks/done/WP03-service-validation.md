@@ -12,7 +12,7 @@ subtasks:
 title: "Service Layer - Validation"
 phase: "Phase 1 - Foundation"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude-reviewer"
 shell_pid: "98861"
 review_status: ""

@@ -10,7 +10,7 @@ subtasks:
 title: "Service Layer - Cost & Aggregation"
 phase: "Phase 2 - Core Features"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude-reviewer"
 shell_pid: "98957"
 review_status: ""

@@ -11,7 +11,7 @@ subtasks:
 title: "Schema & Model"
 phase: "Phase 1 - Foundation"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude-reviewer"
 shell_pid: "98384"
 review_status: ""

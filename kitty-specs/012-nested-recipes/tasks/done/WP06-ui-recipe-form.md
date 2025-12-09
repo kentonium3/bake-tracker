@@ -13,7 +13,7 @@ subtasks:
 title: "UI - Recipe Form"
 phase: "Phase 3 - UI Integration"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude-reviewer"
 shell_pid: "99211"
 review_status: ""

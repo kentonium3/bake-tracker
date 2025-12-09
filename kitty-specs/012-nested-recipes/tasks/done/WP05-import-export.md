@@ -10,7 +10,7 @@ subtasks:
 title: "Import/Export Support"
 phase: "Phase 2 - Core Features"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude-reviewer"
 shell_pid: "99106"
 review_status: ""
