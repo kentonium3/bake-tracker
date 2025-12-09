@@ -120,3 +120,4 @@ This project uses spec-kitty for feature development. The workflow is AUTHORITAT
 - **Ingredients vs Products**: Recipes reference generic Ingredients; Inventory holds specific Products (brands/packages). This enables recipe sharing and brand flexibility.
 - **Slug-based FKs**: Use slugs instead of display names for foreign keys (enables future localization)
 - **UUID support**: BaseModel includes UUID for future distributed/multi-user scenarios
+- **Nested Recipes**: Recipes can include other recipes as components via RecipeComponent junction table. Maximum 3 levels of nesting. Circular references are prevented at validation time. Shopping lists aggregate ingredients from all levels.
