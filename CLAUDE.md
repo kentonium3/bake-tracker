@@ -117,6 +117,6 @@ This project uses spec-kitty for feature development. The workflow is AUTHORITAT
 
 ## Key Design Decisions
 
-- **Ingredients vs Variants**: Recipes reference generic Ingredients; Pantry holds specific Variants (brands). This enables recipe sharing and brand flexibility.
+- **Ingredients vs Products**: Recipes reference generic Ingredients; Inventory holds specific Products (brands/packages). This enables recipe sharing and brand flexibility.
 - **Slug-based FKs**: Use slugs instead of display names for foreign keys (enables future localization)
 - **UUID support**: BaseModel includes UUID for future distributed/multi-user scenarios
