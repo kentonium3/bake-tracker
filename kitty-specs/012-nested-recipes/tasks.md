@@ -19,13 +19,13 @@
 **Prompt**: `tasks/planned/WP01-schema-model.md`
 
 ### Included Subtasks
-- [ ] T001 Create RecipeComponent class in `src/models/recipe.py`
-- [ ] T002 Add database constraints (quantity > 0, no self-reference, unique combo)
-- [ ] T003 Add indexes for recipe_id, component_recipe_id, sort_order
-- [ ] T004 Add `recipe_components` relationship to Recipe model
-- [ ] T005 Add `used_in_recipes` relationship to Recipe model
-- [ ] T006 Export RecipeComponent from `src/models/__init__.py`
-- [ ] T007 Verify schema auto-creates correctly (run app or test)
+- [X] T001 Create RecipeComponent class in `src/models/recipe.py`
+- [X] T002 Add database constraints (quantity > 0, no self-reference, unique combo)
+- [X] T003 Add indexes for recipe_id, component_recipe_id, sort_order
+- [X] T004 Add `recipe_components` relationship to Recipe model
+- [X] T005 Add `used_in_recipes` relationship to Recipe model
+- [X] T006 Export RecipeComponent from `src/models/__init__.py`
+- [X] T007 Verify schema auto-creates correctly (run app or test)
 
 ### Implementation Notes
 - Follow RecipeIngredient pattern in same file
@@ -52,12 +52,12 @@
 **Prompt**: `tasks/planned/WP02-service-crud.md`
 
 ### Included Subtasks
-- [ ] T008 Implement `add_recipe_component()` function
-- [ ] T009 Implement `remove_recipe_component()` function
-- [ ] T010 Implement `update_recipe_component()` function
-- [ ] T011 Implement `get_recipe_components()` function
-- [ ] T012 Implement `get_recipes_using_component()` function
-- [ ] T013 [P] Add unit tests for all CRUD operations
+- [X] T008 Implement `add_recipe_component()` function
+- [X] T009 Implement `remove_recipe_component()` function
+- [X] T010 Implement `update_recipe_component()` function
+- [X] T011 Implement `get_recipe_components()` function
+- [X] T012 Implement `get_recipes_using_component()` function
+- [X] T013 [P] Add unit tests for all CRUD operations
 
 ### Implementation Notes
 - Follow existing `add_ingredient_to_recipe` pattern
@@ -84,14 +84,14 @@
 **Prompt**: `tasks/planned/WP03-service-validation.md`
 
 ### Included Subtasks
-- [ ] T014 Implement `_would_create_cycle()` helper function
-- [ ] T015 Implement `_get_recipe_depth()` helper function
-- [ ] T016 Implement `_would_exceed_depth()` helper function
-- [ ] T017 Integrate validation into `add_recipe_component()`
-- [ ] T018 Modify `delete_recipe()` to check for component usage
-- [ ] T019 [P] Add unit tests for circular reference detection
-- [ ] T020 [P] Add unit tests for depth limit enforcement
-- [ ] T021 [P] Add unit tests for deletion protection
+- [X] T014 Implement `_would_create_cycle()` helper function
+- [X] T015 Implement `_get_recipe_depth()` helper function
+- [X] T016 Implement `_would_exceed_depth()` helper function
+- [X] T017 Integrate validation into `add_recipe_component()`
+- [X] T018 Modify `delete_recipe()` to check for component usage
+- [X] T019 [P] Add unit tests for circular reference detection
+- [X] T020 [P] Add unit tests for depth limit enforcement
+- [X] T021 [P] Add unit tests for deletion protection
 
 ### Implementation Notes
 - Cycle detection: BFS/DFS traversal of component tree
@@ -118,12 +118,12 @@
 **Prompt**: `tasks/planned/WP04-service-cost-aggregation.md`
 
 ### Included Subtasks
-- [ ] T022 Implement `get_aggregated_ingredients()` function
-- [ ] T023 Implement `calculate_total_cost_with_components()` function
-- [ ] T024 Modify `Recipe.calculate_cost()` to include components (or keep separate)
-- [ ] T025 Modify `get_recipe_with_costs()` to include component breakdown
-- [ ] T026 [P] Add unit tests for ingredient aggregation
-- [ ] T027 [P] Add unit tests for cost calculation with 1, 2, 3 level hierarchies
+- [X] T022 Implement `get_aggregated_ingredients()` function
+- [X] T023 Implement `calculate_total_cost_with_components()` function
+- [X] T024 Modify `Recipe.calculate_cost()` to include components (or keep separate)
+- [X] T025 Modify `get_recipe_with_costs()` to include component breakdown
+- [X] T026 [P] Add unit tests for ingredient aggregation
+- [X] T027 [P] Add unit tests for cost calculation with 1, 2, 3 level hierarchies
 
 ### Implementation Notes
 - Aggregation: Group by (ingredient_id, unit), sum quantities
@@ -150,12 +150,12 @@
 **Prompt**: `tasks/planned/WP05-import-export.md`
 
 ### Included Subtasks
-- [ ] T028 Modify `export_recipes_to_json()` to include components array
-- [ ] T029 Modify `export_all_to_json()` to include components in recipe export
-- [ ] T030 Modify `import_recipes_from_json()` to process components
-- [ ] T031 Handle missing component recipes gracefully (warn, skip)
-- [ ] T032 [P] Add unit tests for export with components
-- [ ] T033 [P] Add unit tests for import with/without existing components
+- [X] T028 Modify `export_recipes_to_json()` to include components array
+- [X] T029 Modify `export_all_to_json()` to include components in recipe export
+- [X] T030 Modify `import_recipes_from_json()` to process components
+- [X] T031 Handle missing component recipes gracefully (warn, skip)
+- [X] T032 [P] Add unit tests for export with components
+- [X] T033 [P] Add unit tests for import with/without existing components
 
 ### Implementation Notes
 - Export format per data-model.md: `{ "recipe_name": str, "quantity": float, "notes": str }`
@@ -182,15 +182,15 @@
 **Prompt**: `tasks/planned/WP06-ui-recipe-form.md`
 
 ### Included Subtasks
-- [ ] T034 Add "Sub-Recipes" section label and frame in recipe form
-- [ ] T035 Add recipe selection dropdown (filtered to exclude self + parents)
-- [ ] T036 Add quantity input field (batch multiplier)
-- [ ] T037 Add "Add Sub-Recipe" button with click handler
-- [ ] T038 Display existing sub-recipes in list format
-- [ ] T039 Add remove button for each sub-recipe row
-- [ ] T040 Add cost summary section showing component costs
-- [ ] T041 Wire form to service layer for save/load
-- [ ] T042 Handle validation errors (circular ref, depth) with user-friendly messages
+- [X] T034 Add "Sub-Recipes" section label and frame in recipe form
+- [X] T035 Add recipe selection dropdown (filtered to exclude self + parents)
+- [X] T036 Add quantity input field (batch multiplier)
+- [X] T037 Add "Add Sub-Recipe" button with click handler
+- [X] T038 Display existing sub-recipes in list format
+- [X] T039 Add remove button for each sub-recipe row
+- [X] T040 Add cost summary section showing component costs
+- [X] T041 Wire form to service layer for save/load
+- [X] T042 Handle validation errors (circular ref, depth) with user-friendly messages
 
 ### Implementation Notes
 - Follow existing ingredients section pattern
@@ -219,12 +219,12 @@
 **Prompt**: `tasks/planned/WP07-integration-polish.md`
 
 ### Included Subtasks
-- [ ] T043 Run full test suite, fix any regressions
-- [ ] T044 Validate quickstart.md testing checklist
-- [ ] T045 Test 3-level nesting end-to-end
-- [ ] T046 Test import/export round-trip
-- [ ] T047 Verify backward compatibility (recipes without components)
-- [ ] T048 Update any affected documentation
+- [X] T043 Run full test suite, fix any regressions
+- [X] T044 Validate quickstart.md testing checklist
+- [X] T045 Test 3-level nesting end-to-end
+- [X] T046 Test import/export round-trip
+- [X] T047 Verify backward compatibility (recipes without components)
+- [X] T048 Update any affected documentation
 
 ### Implementation Notes
 - Use quickstart.md checklist as acceptance test
