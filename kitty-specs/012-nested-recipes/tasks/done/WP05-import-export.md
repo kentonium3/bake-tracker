@@ -9,10 +9,10 @@ subtasks:
   - "T033"
 title: "Import/Export Support"
 phase: "Phase 2 - Core Features"
-lane: "for_review"
+lane: "done"
 assignee: ""
-agent: "claude"
-shell_pid: "93394"
+agent: "claude-reviewer"
+shell_pid: "99106"
 review_status: ""
 reviewed_by: ""
 history:
@@ -523,3 +523,4 @@ def test_import_export_roundtrip(tmp_path, clean_db):
 - 2025-12-09T00:00:00Z – system – lane=planned – Prompt created.
 - 2025-12-09T13:53:26Z – claude – shell_pid=91930 – lane=doing – Started implementation
 - 2025-12-09T14:01:30Z – claude – shell_pid=93394 – lane=for_review – Completed implementation - 7 new tests, all 544 pass
+- 2025-12-09T17:58:36Z – claude-reviewer – shell_pid=99106 – lane=done – Code review: APPROVED - Export/import with components, two-pass import, 7 tests
