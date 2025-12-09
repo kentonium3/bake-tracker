@@ -292,3 +292,114 @@ class TestValidatePackagingCategory:
         assert validate_packaging_category("Sugar") is False
         assert validate_packaging_category("") is False
         assert validate_packaging_category("bags") is False  # Case sensitive
+
+
+class TestUpdateIngredientPackagingProtection:
+    """Tests for update_ingredient is_packaging change protection (T014/T019)."""
+
+    def test_update_ingredient_blocks_unmarking_packaging_with_compositions(self, test_db):
+        """Cannot unmark is_packaging when products are used in compositions.
+
+        Scenario:
+        1. Create packaging ingredient with is_packaging=True
+        2. Create a product for that ingredient
+        3. Add product to a composition (as packaging)
+        4. Try to update ingredient to is_packaging=False
+        5. Should raise ValidationError with "Cannot unmark packaging" message
+        """
+        from src.services.product_service import create_product
+        from src.services.composition_service import add_packaging_to_assembly
+        from src.services.exceptions import ValidationError
+        from src.models import FinishedGood
+        from src.models.assembly_type import AssemblyType
+
+        # Step 1: Create packaging ingredient
+        ingredient = create_ingredient({
+            "name": "Test Protection Bags",
+            "category": "Bags",
+            "recipe_unit": "each",
+            "is_packaging": True,
+        })
+        assert ingredient.is_packaging is True
+
+        # Step 2: Create a product for the packaging ingredient
+        product = create_product(
+            ingredient.slug,
+            {
+                "brand": "TestBrand",
+                "package_size": "100 ct",
+                "purchase_unit": "box",
+                "purchase_quantity": 100,
+            }
+        )
+        assert product.ingredient_id == ingredient.id
+
+        # Step 3: Create a FinishedGood and add packaging composition
+        finished_good = FinishedGood(
+            slug="test-protection-fg",
+            display_name="Test Protection FG",
+            assembly_type=AssemblyType.CUSTOM_ORDER,
+            inventory_count=0,
+        )
+        test_db.add(finished_good)
+        test_db.flush()
+
+        # Add the packaging product to the FinishedGood composition
+        composition = add_packaging_to_assembly(
+            assembly_id=finished_good.id,
+            packaging_product_id=product.id,
+            quantity=1.0,
+        )
+        assert composition is not None
+
+        # Step 4 & 5: Try to unmark is_packaging - should fail
+        with pytest.raises(ValidationError) as exc_info:
+            update_ingredient(ingredient.slug, {"is_packaging": False})
+
+        # Verify error message contains expected text
+        error_str = str(exc_info.value)
+        assert "Cannot unmark packaging" in error_str
+        assert "composition" in error_str.lower()
+
+    def test_update_ingredient_allows_unmarking_packaging_without_compositions(self, test_db):
+        """Can unmark is_packaging when no products are in compositions."""
+        # Create packaging ingredient with no products/compositions
+        ingredient = create_ingredient({
+            "name": "Test Unused Bags",
+            "category": "Bags",
+            "recipe_unit": "each",
+            "is_packaging": True,
+        })
+        assert ingredient.is_packaging is True
+
+        # Should be able to unmark since no compositions reference it
+        updated = update_ingredient(ingredient.slug, {"is_packaging": False})
+        assert updated.is_packaging is False
+
+    def test_update_ingredient_allows_unmarking_packaging_product_without_compositions(self, test_db):
+        """Can unmark is_packaging when product exists but not in compositions."""
+        from src.services.product_service import create_product
+
+        # Create packaging ingredient
+        ingredient = create_ingredient({
+            "name": "Test Lonely Bags",
+            "category": "Bags",
+            "recipe_unit": "each",
+            "is_packaging": True,
+        })
+
+        # Create product but don't add to any composition
+        product = create_product(
+            ingredient.slug,
+            {
+                "brand": "TestBrand",
+                "package_size": "50 ct",
+                "purchase_unit": "box",
+                "purchase_quantity": 50,
+            }
+        )
+        assert product is not None
+
+        # Should be able to unmark since no compositions reference the product
+        updated = update_ingredient(ingredient.slug, {"is_packaging": False})
+        assert updated.is_packaging is False

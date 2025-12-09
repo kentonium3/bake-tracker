@@ -388,7 +388,7 @@ def update_ingredient(slug: str, ingredient_data: Dict[str, Any]) -> Ingredient:
                 )
                 if count > 0:
                     raise ServiceValidationError(
-                        f"Cannot unmark packaging: ingredient has products used in {count} composition(s)"
+                        [f"Cannot unmark packaging: ingredient has products used in {count} composition(s)"]
                     )
 
             # Update attributes

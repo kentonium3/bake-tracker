@@ -11,10 +11,10 @@ subtasks:
   - "T019"
 title: "Ingredient Service Packaging Extensions"
 phase: "Phase 1 - Foundation"
-lane: "planned"
+lane: "doing"
 assignee: ""
 agent: "claude-opus-4-5"
-shell_pid: "$$"
+shell_pid: "72031"
 review_status: "has_feedback"
 reviewed_by: "claude-opus-4-5"
 history:
@@ -259,3 +259,4 @@ pytest src/tests -v --cov=src/services/ingredient_service
 - 2025-12-08T16:52:18Z – claude – shell_pid=31961 – lane=for_review – Moved to for_review
 - 2025-12-08T21:30:00Z – claude-opus-4-5 – shell_pid=review – lane=planned – Code review: Needs changes - missing test for update_ingredient is_packaging protection (T019 requirement). Implementation is correct but test coverage gap.
 - 2025-12-09T11:16:08Z – claude-opus-4-5 – shell_pid=$$ – lane=planned – Code review: Needs test for update_ingredient is_packaging protection
+- 2025-12-09T11:32:52Z – claude-opus-4-5 – shell_pid=72031 – lane=doing – Addressing review feedback: Adding missing test for update_ingredient protection
