@@ -226,8 +226,9 @@ class RecipesTab(ctk.CTkFrame):
 
         if result:
             try:
-                # Extract ingredients from result
+                # Extract ingredients and pending components from result
                 ingredients = result.pop("ingredients", [])
+                pending_components = result.pop("pending_components", [])
 
                 # Map prep_time to estimated_time_minutes
                 if "prep_time" in result:
@@ -238,6 +239,18 @@ class RecipesTab(ctk.CTkFrame):
                     result,
                     ingredients,
                 )
+
+                # Add pending sub-recipe components
+                for comp in pending_components:
+                    try:
+                        recipe_service.add_recipe_component(
+                            new_recipe.id,
+                            comp["recipe_id"],
+                            quantity=comp["quantity"],
+                        )
+                    except Exception:
+                        # Silently skip component errors (already handled in form validation)
+                        pass
 
                 show_success(
                     "Success",
@@ -281,6 +294,8 @@ class RecipesTab(ctk.CTkFrame):
             try:
                 # Extract ingredients from result
                 ingredients = result.pop("ingredients", [])
+                # Remove pending_components (edits save components directly in form)
+                result.pop("pending_components", [])
 
                 # Map prep_time to estimated_time_minutes
                 if "prep_time" in result:

@@ -9,9 +9,9 @@ import customtkinter as ctk
 from typing import Optional, Dict, Any, List
 from decimal import Decimal
 
-from src.models.recipe import Recipe
+from src.models.recipe import Recipe, RecipeComponent
 from src.models.ingredient import Ingredient
-from src.services import ingredient_crud_service
+from src.services import ingredient_crud_service, recipe_service
 from src.utils.constants import (
     RECIPE_CATEGORIES,
     ALL_UNITS,
@@ -200,6 +200,10 @@ class RecipeFormDialog(ctk.CTkToplevel):
         self.result = None
         self.ingredient_rows: List[RecipeIngredientRow] = []
 
+        # Sub-recipe tracking
+        self.current_components: List[RecipeComponent] = []  # For existing recipe
+        self.pending_components: List[Dict] = []  # For new recipe
+
         # Load available ingredients
         try:
             self.available_ingredients = ingredient_crud_service.get_all_ingredients()
@@ -383,6 +387,115 @@ class RecipeFormDialog(ctk.CTkToplevel):
         add_ingredient_button.grid(row=row, column=0, columnspan=2, padx=PADDING_MEDIUM, pady=5)
         row += 1
 
+        # Sub-Recipes Section (T034)
+        subrecipes_label = ctk.CTkLabel(
+            parent,
+            text="Sub-Recipes",
+            font=ctk.CTkFont(size=14, weight="bold"),
+        )
+        subrecipes_label.grid(
+            row=row,
+            column=0,
+            columnspan=2,
+            sticky="w",
+            padx=PADDING_MEDIUM,
+            pady=(PADDING_LARGE, PADDING_MEDIUM),
+        )
+        row += 1
+
+        # Sub-recipe selection frame (T035, T036, T037)
+        subrecipe_select_frame = ctk.CTkFrame(parent, fg_color="transparent")
+        subrecipe_select_frame.grid(
+            row=row, column=0, columnspan=2, sticky="ew", padx=PADDING_MEDIUM, pady=5
+        )
+        row += 1
+
+        # Recipe dropdown (T035)
+        self.subrecipe_dropdown = ctk.CTkComboBox(
+            subrecipe_select_frame,
+            values=self._get_available_recipes(),
+            width=300,
+            state="readonly",
+        )
+        self.subrecipe_dropdown.pack(side="left", padx=(0, PADDING_MEDIUM))
+
+        # Quantity entry (T036)
+        self.subrecipe_qty_entry = ctk.CTkEntry(
+            subrecipe_select_frame,
+            width=60,
+            placeholder_text="1.0",
+        )
+        self.subrecipe_qty_entry.insert(0, "1.0")
+        self.subrecipe_qty_entry.pack(side="left", padx=(0, 5))
+
+        # Batches label
+        batches_label = ctk.CTkLabel(subrecipe_select_frame, text="batches")
+        batches_label.pack(side="left", padx=(0, PADDING_MEDIUM))
+
+        # Add button (T037)
+        add_subrecipe_btn = ctk.CTkButton(
+            subrecipe_select_frame,
+            text="Add",
+            width=60,
+            command=self._on_add_subrecipe,
+        )
+        add_subrecipe_btn.pack(side="left")
+
+        # Sub-recipe list frame (T038)
+        self.subrecipes_list_frame = ctk.CTkFrame(parent, fg_color="transparent")
+        self.subrecipes_list_frame.grid(
+            row=row, column=0, columnspan=2, sticky="ew", padx=PADDING_MEDIUM, pady=5
+        )
+        self.subrecipes_list_frame.grid_columnconfigure(0, weight=1)
+        row += 1
+
+        # Cost summary section (T040)
+        cost_label = ctk.CTkLabel(
+            parent,
+            text="Cost Summary",
+            font=ctk.CTkFont(size=14, weight="bold"),
+        )
+        cost_label.grid(
+            row=row,
+            column=0,
+            columnspan=2,
+            sticky="w",
+            padx=PADDING_MEDIUM,
+            pady=(PADDING_LARGE, PADDING_MEDIUM),
+        )
+        row += 1
+
+        # Cost summary frame
+        self.cost_frame = ctk.CTkFrame(parent, fg_color="transparent")
+        self.cost_frame.grid(
+            row=row, column=0, columnspan=2, sticky="ew", padx=PADDING_MEDIUM, pady=5
+        )
+        row += 1
+
+        # Cost labels
+        self.direct_cost_label = ctk.CTkLabel(
+            self.cost_frame, text="Direct ingredients: $0.00", anchor="w"
+        )
+        self.direct_cost_label.pack(fill="x", padx=PADDING_MEDIUM)
+
+        self.component_cost_label = ctk.CTkLabel(
+            self.cost_frame, text="Sub-recipes: $0.00", anchor="w"
+        )
+        self.component_cost_label.pack(fill="x", padx=PADDING_MEDIUM)
+
+        self.total_cost_label = ctk.CTkLabel(
+            self.cost_frame,
+            text="Total: $0.00",
+            font=ctk.CTkFont(weight="bold"),
+            anchor="w",
+        )
+        self.total_cost_label.pack(fill="x", padx=PADDING_MEDIUM, pady=(5, 0))
+
+        self.per_unit_cost_label = ctk.CTkLabel(
+            self.cost_frame, text="Per unit: $0.00", anchor="w"
+        )
+        self.per_unit_cost_label.pack(fill="x", padx=PADDING_MEDIUM)
+
         # Notes (optional)
         notes_label = ctk.CTkLabel(parent, text="Notes:", anchor="w")
         notes_label.grid(row=row, column=0, sticky="nw", padx=PADDING_MEDIUM, pady=5)
@@ -406,6 +519,240 @@ class RecipeFormDialog(ctk.CTkToplevel):
             padx=PADDING_MEDIUM,
             pady=(PADDING_MEDIUM, 0),
         )
+
+    # Sub-recipe helper methods (T035-T042)
+
+    def _get_available_recipes(self) -> List[str]:
+        """Get recipes that can be added as components (T035)."""
+        try:
+            all_recipes = recipe_service.get_all_recipes()
+        except Exception:
+            return []
+
+        # Filter out current recipe and existing components
+        current_id = self.recipe.id if self.recipe else None
+        existing_ids = set()
+
+        # Get IDs of existing components
+        for comp in self.current_components:
+            existing_ids.add(comp.component_recipe_id)
+        for comp in self.pending_components:
+            existing_ids.add(comp["recipe_id"])
+
+        available = []
+        for recipe in all_recipes:
+            if recipe.id == current_id:
+                continue
+            if recipe.id in existing_ids:
+                continue
+            available.append(recipe.name)
+
+        return sorted(available)
+
+    def _on_add_subrecipe(self):
+        """Handle adding a sub-recipe (T037)."""
+        recipe_name = self.subrecipe_dropdown.get()
+        if not recipe_name:
+            show_error("Selection Required", "Please select a recipe to add.", parent=self)
+            return
+
+        # Validate quantity
+        try:
+            quantity = float(self.subrecipe_qty_entry.get())
+        except ValueError:
+            show_error("Invalid Quantity", "Quantity must be a valid number.", parent=self)
+            return
+
+        if quantity <= 0:
+            show_error("Invalid Quantity", "Quantity must be greater than 0.", parent=self)
+            return
+
+        # Find recipe by name
+        try:
+            component_recipe = recipe_service.get_recipe_by_name(recipe_name)
+        except Exception:
+            component_recipe = None
+
+        if not component_recipe:
+            show_error("Recipe Not Found", f"Recipe '{recipe_name}' not found.", parent=self)
+            return
+
+        # If editing existing recipe, add via service
+        if self.recipe and self.recipe.id:
+            try:
+                recipe_service.add_recipe_component(
+                    self.recipe.id,
+                    component_recipe.id,
+                    quantity=quantity,
+                )
+                # Reload components
+                self.current_components = recipe_service.get_recipe_components(self.recipe.id)
+            except Exception as e:
+                error_msg = str(e)
+                # User-friendly messages (T042)
+                if "circular reference" in error_msg.lower():
+                    show_error(
+                        "Cannot Add Recipe",
+                        f"Cannot add '{recipe_name}'.\n\n"
+                        "This would create a circular reference "
+                        "(recipes cannot contain each other).",
+                        parent=self,
+                    )
+                elif "depth" in error_msg.lower():
+                    show_error(
+                        "Cannot Add Recipe",
+                        f"Cannot add '{recipe_name}'.\n\n"
+                        "This would exceed the maximum nesting depth of 3 levels.",
+                        parent=self,
+                    )
+                elif "already" in error_msg.lower():
+                    show_error(
+                        "Already Added",
+                        f"'{recipe_name}' is already a component of this recipe.",
+                        parent=self,
+                    )
+                else:
+                    show_error("Error", error_msg, parent=self)
+                return
+        else:
+            # For new recipe, add to pending list
+            self.pending_components.append(
+                {
+                    "recipe_id": component_recipe.id,
+                    "recipe_name": recipe_name,
+                    "quantity": quantity,
+                }
+            )
+
+        # Refresh display
+        self._refresh_subrecipes_display()
+        self._update_cost_summary()
+
+        # Reset inputs
+        self.subrecipe_dropdown.set("")
+        self.subrecipe_qty_entry.delete(0, "end")
+        self.subrecipe_qty_entry.insert(0, "1.0")
+
+    def _refresh_subrecipes_display(self):
+        """Refresh the sub-recipes list display (T038)."""
+        # Clear existing rows
+        for widget in self.subrecipes_list_frame.winfo_children():
+            widget.destroy()
+
+        # Combine current and pending components
+        components = []
+        for comp in self.current_components:
+            components.append(
+                {
+                    "type": "saved",
+                    "recipe_id": comp.component_recipe_id,
+                    "recipe_name": comp.component_recipe.name,
+                    "quantity": comp.quantity,
+                }
+            )
+        for comp in self.pending_components:
+            components.append(
+                {
+                    "type": "pending",
+                    "recipe_id": comp["recipe_id"],
+                    "recipe_name": comp["recipe_name"],
+                    "quantity": comp["quantity"],
+                }
+            )
+
+        # Add rows for each component
+        for idx, comp in enumerate(components):
+            self._add_subrecipe_row(idx, comp)
+
+        # Update dropdown options
+        self.subrecipe_dropdown.configure(values=self._get_available_recipes())
+
+    def _add_subrecipe_row(self, idx: int, component: Dict):
+        """Add a row for a sub-recipe component (T038, T039)."""
+        row_frame = ctk.CTkFrame(self.subrecipes_list_frame, fg_color="transparent")
+        row_frame.grid(row=idx, column=0, sticky="ew", pady=2)
+        row_frame.grid_columnconfigure(0, weight=1)
+
+        # Calculate cost if saved
+        cost = 0.0
+        if component["type"] == "saved" and self.recipe:
+            try:
+                cost_info = recipe_service.calculate_total_cost_with_components(
+                    component["recipe_id"]
+                )
+                cost = cost_info.get("total_cost", 0) * component["quantity"]
+            except Exception:
+                pass
+
+        # Name and quantity label
+        name_text = f"• {component['recipe_name']} ({component['quantity']}x)"
+        name_label = ctk.CTkLabel(row_frame, text=name_text, anchor="w")
+        name_label.grid(row=0, column=0, sticky="w", padx=5)
+
+        # Cost label
+        cost_label = ctk.CTkLabel(row_frame, text=f"${cost:.2f}", width=70, anchor="e")
+        cost_label.grid(row=0, column=1, padx=5)
+
+        # Remove button (T039)
+        comp_recipe_id = component["recipe_id"]
+        remove_btn = ctk.CTkButton(
+            row_frame,
+            text="Remove",
+            width=60,
+            fg_color="darkred",
+            hover_color="red",
+            command=lambda rid=comp_recipe_id: self._on_remove_component(rid),
+        )
+        remove_btn.grid(row=0, column=2, padx=5)
+
+    def _on_remove_component(self, component_recipe_id: int):
+        """Handle removing a sub-recipe (T039)."""
+        if self.recipe and self.recipe.id:
+            try:
+                recipe_service.remove_recipe_component(self.recipe.id, component_recipe_id)
+                # Reload components
+                self.current_components = recipe_service.get_recipe_components(self.recipe.id)
+            except Exception as e:
+                show_error("Error", str(e), parent=self)
+                return
+        else:
+            # Remove from pending
+            self.pending_components = [
+                c for c in self.pending_components if c["recipe_id"] != component_recipe_id
+            ]
+
+        # Refresh
+        self._refresh_subrecipes_display()
+        self._update_cost_summary()
+
+    def _update_cost_summary(self):
+        """Update the cost summary display (T040)."""
+        if not self.recipe or not self.recipe.id:
+            # Can't calculate costs for unsaved recipe
+            self.direct_cost_label.configure(text="Direct ingredients: --")
+            self.component_cost_label.configure(text="Sub-recipes: --")
+            self.total_cost_label.configure(text="Total: --")
+            self.per_unit_cost_label.configure(text="Per unit: --")
+            return
+
+        try:
+            cost_info = recipe_service.calculate_total_cost_with_components(self.recipe.id)
+
+            direct_cost = cost_info.get("direct_ingredient_cost", 0)
+            component_cost = cost_info.get("total_component_cost", 0)
+            total_cost = cost_info.get("total_cost", 0)
+            per_unit = cost_info.get("cost_per_unit", 0)
+
+            self.direct_cost_label.configure(text=f"Direct ingredients: ${direct_cost:.2f}")
+            self.component_cost_label.configure(text=f"Sub-recipes: ${component_cost:.2f}")
+            self.total_cost_label.configure(text=f"Total: ${total_cost:.2f}")
+            self.per_unit_cost_label.configure(text=f"Per unit: ${per_unit:.2f}")
+        except Exception:
+            # Silently handle errors
+            self.direct_cost_label.configure(text="Direct ingredients: $0.00")
+            self.component_cost_label.configure(text="Sub-recipes: $0.00")
+            self.total_cost_label.configure(text="Total: $0.00")
+            self.per_unit_cost_label.configure(text="Per unit: $0.00")
 
     def _create_buttons(self):
         """Create dialog buttons."""
@@ -503,6 +850,14 @@ class RecipeFormDialog(ctk.CTkToplevel):
                 unit=recipe_ingredient.unit,
             )
 
+        # Recipe components (T041)
+        try:
+            self.current_components = recipe_service.get_recipe_components(self.recipe.id)
+            self._refresh_subrecipes_display()
+            self._update_cost_summary()
+        except Exception:
+            pass
+
     def _validate_form(self) -> Optional[Dict[str, Any]]:
         """
         Validate form inputs and return data dictionary.
@@ -593,7 +948,7 @@ class RecipeFormDialog(ctk.CTkToplevel):
             if not confirmed:
                 return None
 
-        # Return validated data
+        # Return validated data (T041 - include pending components)
         return {
             "name": name,
             "category": category,
@@ -602,6 +957,7 @@ class RecipeFormDialog(ctk.CTkToplevel):
             "prep_time": prep_time,
             "notes": notes,
             "ingredients": ingredients,
+            "pending_components": self.pending_components,  # For new recipes
         }
 
     def _save(self):

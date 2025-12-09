@@ -12,10 +12,10 @@ subtasks:
   - "T042"
 title: "UI - Recipe Form"
 phase: "Phase 3 - UI Integration"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "claude"
+shell_pid: "93565"
 review_status: ""
 reviewed_by: ""
 history:
@@ -609,3 +609,4 @@ def _on_add_subrecipe(self):
 ## Activity Log
 
 - 2025-12-09T00:00:00Z – system – lane=planned – Prompt created.
+- 2025-12-09T14:02:12Z – claude – shell_pid=93565 – lane=doing – Started implementation
