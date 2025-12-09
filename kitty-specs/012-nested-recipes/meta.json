@@ -1,0 +1,7 @@
+{
+  "feature_number": "012",
+  "slug": "012-nested-recipes",
+  "friendly_name": "Nested Recipes",
+  "source_description": "Add hierarchical recipe support where parent recipes can include other recipes as components with batch multiplier quantities, recursive cost calculation, shopping list aggregation, and circular reference prevention. Maximum 3 levels of nesting.",
+  "created_at": "2025-12-09T12:30:19Z"
+}
