@@ -11,10 +11,10 @@ subtasks:
   - "T021"
 title: "Service Layer - Validation"
 phase: "Phase 1 - Foundation"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "claude"
-shell_pid: "89783"
+shell_pid: "90381"
 review_status: ""
 reviewed_by: ""
 history:
@@ -547,3 +547,4 @@ def test_delete_parent_cascades_components():
 
 - 2025-12-09T00:00:00Z – system – lane=planned – Prompt created.
 - 2025-12-09T13:34:19Z – claude – shell_pid=89783 – lane=doing – Started implementation
+- 2025-12-09T13:38:24Z – claude – shell_pid=90381 – lane=for_review – Completed implementation - 13 new tests, all 524 pass
