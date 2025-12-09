@@ -1,7 +1,24 @@
 {
+  "accept_commit": null,
+  "acceptance_history": [
+    {
+      "accepted_at": "2025-12-09T18:10:29Z",
+      "accepted_by": "claude",
+      "accepted_from_commit": "823b4d3658c237cf489409a6e87463526a122b28",
+      "branch": "012-nested-recipes",
+      "mode": "local",
+      "validation_commands": [
+        "pytest src/tests -v"
+      ]
+    }
+  ],
+  "acceptance_mode": "local",
+  "accepted_at": "2025-12-09T18:10:29Z",
+  "accepted_by": "claude",
+  "accepted_from_commit": "823b4d3658c237cf489409a6e87463526a122b28",
+  "created_at": "2025-12-09T12:30:19Z",
   "feature_number": "012",
-  "slug": "012-nested-recipes",
   "friendly_name": "Nested Recipes",
-  "source_description": "Add hierarchical recipe support where parent recipes can include other recipes as components with batch multiplier quantities, recursive cost calculation, shopping list aggregation, and circular reference prevention. Maximum 3 levels of nesting.",
-  "created_at": "2025-12-09T12:30:19Z"
+  "slug": "012-nested-recipes",
+  "source_description": "Add hierarchical recipe support where parent recipes can include other recipes as components with batch multiplier quantities, recursive cost calculation, shopping list aggregation, and circular reference prevention. Maximum 3 levels of nesting."
 }
