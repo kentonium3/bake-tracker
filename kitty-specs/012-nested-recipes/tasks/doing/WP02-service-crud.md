@@ -9,10 +9,10 @@ subtasks:
   - "T013"
 title: "Service Layer - Component CRUD"
 phase: "Phase 1 - Foundation"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "claude"
+shell_pid: "88867"
 review_status: ""
 reviewed_by: ""
 history:
@@ -567,3 +567,4 @@ def test_get_recipes_using_component():
 ## Activity Log
 
 - 2025-12-09T00:00:00Z – system – lane=planned – Prompt created.
+- 2025-12-09T13:28:28Z – claude – shell_pid=88867 – lane=doing – Started implementation
