@@ -13,7 +13,7 @@ subtasks:
 title: "UI Integration"
 phase: "Phase 2 - User Stories"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude-opus-4-5"
 shell_pid: "review"
 review_status: "approved without changes"

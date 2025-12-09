@@ -15,7 +15,7 @@ subtasks:
 title: "Schema Updates & Model Changes"
 phase: "Phase 1 - Foundation"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude"
 shell_pid: "44283"
 review_status: ""

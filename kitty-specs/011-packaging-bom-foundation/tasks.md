@@ -19,17 +19,17 @@
 **Prompt**: `tasks/planned/WP01-schema-model-updates.md`
 
 ### Included Subtasks
-- [ ] T001 Add `is_packaging` boolean column to Ingredient model in `src/models/ingredient.py`
-- [ ] T002 Add `package_id` FK column to Composition model in `src/models/composition.py`
-- [ ] T003 Add `packaging_product_id` FK column to Composition model
-- [ ] T004 Change `component_quantity` from Integer to Float in Composition model
-- [ ] T005 Update CheckConstraint for parent XOR (assembly_id OR package_id)
-- [ ] T006 Update CheckConstraint for component XOR (3-way: finished_unit_id, finished_good_id, packaging_product_id)
-- [ ] T007 Add new indexes and unique constraints for packaging columns
-- [ ] T008 Add `packaging_product` relationship to Composition model
-- [ ] T009 Add `package` relationship to Composition model
-- [ ] T010 Add `packaging_compositions` back-reference to Package model in `src/models/package.py`
-- [ ] T011 Update `src/models/__init__.py` to ensure proper import order
+- [x] T001 Add `is_packaging` boolean column to Ingredient model in `src/models/ingredient.py`
+- [x] T002 Add `package_id` FK column to Composition model in `src/models/composition.py`
+- [x] T003 Add `packaging_product_id` FK column to Composition model
+- [x] T004 Change `component_quantity` from Integer to Float in Composition model
+- [x] T005 Update CheckConstraint for parent XOR (assembly_id OR package_id)
+- [x] T006 Update CheckConstraint for component XOR (3-way: finished_unit_id, finished_good_id, packaging_product_id)
+- [x] T007 Add new indexes and unique constraints for packaging columns
+- [x] T008 Add `packaging_product` relationship to Composition model
+- [x] T009 Add `package` relationship to Composition model
+- [x] T010 Add `packaging_compositions` back-reference to Package model in `src/models/package.py`
+- [x] T011 Update `src/models/__init__.py` to ensure proper import order
 
 ### Implementation Notes
 1. Backup existing data with export before testing
@@ -55,14 +55,14 @@
 **Prompt**: `tasks/planned/WP02-ingredient-service.md`
 
 ### Included Subtasks
-- [ ] T012 Add `PACKAGING_CATEGORIES` constant list to `src/services/ingredient_service.py`
-- [ ] T013 Update `create_ingredient()` to accept `is_packaging` parameter
-- [ ] T014 Update `update_ingredient()` to support `is_packaging` flag changes with protection
-- [ ] T015 [P] Implement `get_packaging_ingredients()` method
-- [ ] T016 [P] Implement `get_food_ingredients()` method
-- [ ] T017 [P] Implement `is_packaging_ingredient(ingredient_id)` helper
-- [ ] T018 [P] Implement `validate_packaging_category(category)` helper
-- [ ] T019 Add unit tests for all new methods in `src/tests/test_services.py`
+- [x] T012 Add `PACKAGING_CATEGORIES` constant list to `src/services/ingredient_service.py`
+- [x] T013 Update `create_ingredient()` to accept `is_packaging` parameter
+- [x] T014 Update `update_ingredient()` to support `is_packaging` flag changes with protection
+- [x] T015 [P] Implement `get_packaging_ingredients()` method
+- [x] T016 [P] Implement `get_food_ingredients()` method
+- [x] T017 [P] Implement `is_packaging_ingredient(ingredient_id)` helper
+- [x] T018 [P] Implement `validate_packaging_category(category)` helper
+- [x] T019 Add unit tests for all new methods in `src/tests/test_services.py`
 
 ### Implementation Notes
 - Follow existing service patterns in ingredient_service.py
@@ -87,16 +87,16 @@
 **Prompt**: `tasks/planned/WP03-composition-service.md`
 
 ### Included Subtasks
-- [ ] T020 Update `create_composition()` to accept `package_id` and `packaging_product_id` parameters
-- [ ] T021 Implement `add_packaging_to_assembly()` method
-- [ ] T022 Implement `add_packaging_to_package()` method
-- [ ] T023 [P] Implement `get_assembly_packaging(assembly_id)` method
-- [ ] T024 [P] Implement `get_package_packaging(package_id)` method
-- [ ] T025 Implement `update_packaging_quantity(composition_id, quantity)` method
-- [ ] T026 Implement `remove_packaging(composition_id)` method
-- [ ] T027 Add validation: verify product is packaging before adding to composition
-- [ ] T028 Add validation: block deletion of products referenced in compositions (catch IntegrityError)
-- [ ] T029 Add unit tests for all new methods
+- [x] T020 Update `create_composition()` to accept `package_id` and `packaging_product_id` parameters
+- [x] T021 Implement `add_packaging_to_assembly()` method
+- [x] T022 Implement `add_packaging_to_package()` method
+- [x] T023 [P] Implement `get_assembly_packaging(assembly_id)` method
+- [x] T024 [P] Implement `get_package_packaging(package_id)` method
+- [x] T025 Implement `update_packaging_quantity(composition_id, quantity)` method
+- [x] T026 Implement `remove_packaging(composition_id)` method
+- [x] T027 Add validation: verify product is packaging before adding to composition
+- [x] T028 Add validation: block deletion of products referenced in compositions (catch IntegrityError)
+- [x] T029 Add unit tests for all new methods
 
 ### Implementation Notes
 - Use existing factory methods pattern from Composition model as reference
@@ -122,15 +122,15 @@
 **Prompt**: `tasks/planned/WP04-shopping-list-packaging.md`
 
 ### Included Subtasks
-- [ ] T030 Add `PackagingNeed` dataclass to `src/services/event_service.py`
-- [ ] T031 Add `PackagingSource` dataclass (optional detailed breakdown)
-- [ ] T032 Implement `get_event_packaging_needs(event_id)` method
-- [ ] T033 Implement `_aggregate_packaging(event_id)` internal helper
-- [ ] T034 Implement `_get_packaging_on_hand(product_id)` inventory lookup helper
-- [ ] T035 Update `get_event_shopping_list()` to include `packaging` section in return dict
-- [ ] T036 [P] Implement `get_event_packaging_breakdown(event_id)` for detailed sourcing (optional)
-- [ ] T037 Add unit tests for packaging aggregation logic
-- [ ] T038 Add integration test: event with FG and Package packaging aggregates correctly
+- [x] T030 Add `PackagingNeed` dataclass to `src/services/event_service.py`
+- [x] T031 Add `PackagingSource` dataclass (optional detailed breakdown)
+- [x] T032 Implement `get_event_packaging_needs(event_id)` method
+- [x] T033 Implement `_aggregate_packaging(event_id)` internal helper
+- [x] T034 Implement `_get_packaging_on_hand(product_id)` inventory lookup helper
+- [x] T035 Update `get_event_shopping_list()` to include `packaging` section in return dict
+- [x] T036 [P] Implement `get_event_packaging_breakdown(event_id)` for detailed sourcing (optional)
+- [x] T037 Add unit tests for packaging aggregation logic
+- [x] T038 Add integration test: event with FG and Package packaging aggregates correctly
 
 ### Implementation Notes
 - Traverse: Event -> ERP -> Package -> packaging_compositions
@@ -156,14 +156,14 @@
 **Prompt**: `tasks/planned/WP05-import-export-packaging.md`
 
 ### Included Subtasks
-- [ ] T039 Update ingredient export to include `is_packaging` field
-- [ ] T040 Update ingredient import to handle `is_packaging` (default False if missing)
-- [ ] T041 Update composition export to include `package_id` and `packaging_product_id`
-- [ ] T042 Update composition import to handle new fields (null defaults)
-- [ ] T043 Update composition import to handle Float `component_quantity`
-- [ ] T044 Add validation during import: reject invalid parent/component combinations
-- [ ] T045 Increment `format_version` in export metadata to "2.0"
-- [ ] T046 Add integration test: full export/import cycle preserves packaging data
+- [x] T039 Update ingredient export to include `is_packaging` field
+- [x] T040 Update ingredient import to handle `is_packaging` (default False if missing)
+- [x] T041 Update composition export to include `package_id` and `packaging_product_id`
+- [x] T042 Update composition import to handle new fields (null defaults)
+- [x] T043 Update composition import to handle Float `component_quantity`
+- [x] T044 Add validation during import: reject invalid parent/component combinations
+- [x] T045 Increment `format_version` in export metadata to "2.0"
+- [x] T046 Add integration test: full export/import cycle preserves packaging data
 
 ### Implementation Notes
 - Follow existing import/export patterns
@@ -188,15 +188,15 @@
 **Prompt**: `tasks/planned/WP06-ui-integration.md`
 
 ### Included Subtasks
-- [ ] T047 Update Ingredients tab to show is_packaging indicator/column
-- [ ] T048 Update ingredient create/edit dialog with is_packaging checkbox
-- [ ] T049 Add packaging category dropdown when is_packaging=True
-- [ ] T050 Add "Packaging" section to FinishedGood assembly dialog
-- [ ] T051 Implement packaging product selector (filter to is_packaging=True products)
-- [ ] T052 Implement quantity input (support decimals) for packaging
-- [ ] T053 Add "Packaging" section to Package dialog
-- [ ] T054 Update shopping list display to show separate "Packaging" section
-- [ ] T055 [P] Add visual distinction for packaging in My Pantry view
+- [x] T047 Update Ingredients tab to show is_packaging indicator/column
+- [x] T048 Update ingredient create/edit dialog with is_packaging checkbox
+- [x] T049 Add packaging category dropdown when is_packaging=True
+- [x] T050 Add "Packaging" section to FinishedGood assembly dialog
+- [x] T051 Implement packaging product selector (filter to is_packaging=True products)
+- [x] T052 Implement quantity input (support decimals) for packaging
+- [x] T053 Add "Packaging" section to Package dialog
+- [x] T054 Update shopping list display to show separate "Packaging" section
+- [x] T055 [P] Add visual distinction for packaging in My Pantry view
 
 ### Implementation Notes
 - Reuse existing composition editing patterns
@@ -222,14 +222,14 @@
 **Prompt**: `tasks/planned/WP07-validation-edge-cases.md`
 
 ### Included Subtasks
-- [ ] T056 Implement user-friendly error when trying to delete packaging product in use
-- [ ] T057 Test: shopping list with no packaging shows only ingredients (no empty section)
-- [ ] T058 Test: packaging ingredient with no products is allowed
-- [ ] T059 Test: fractional quantities (0.5, 1.5) work correctly
-- [ ] T060 Test: same packaging product used in FG and Package aggregates correctly
-- [ ] T061 Test: cascade delete of Package removes its packaging compositions
-- [ ] T062 Test: cascade delete of FinishedGood removes its packaging compositions
-- [ ] T063 Verify RESTRICT on packaging_product_id FK works with SQLite
+- [x] T056 Implement user-friendly error when trying to delete packaging product in use
+- [x] T057 Test: shopping list with no packaging shows only ingredients (no empty section)
+- [x] T058 Test: packaging ingredient with no products is allowed
+- [x] T059 Test: fractional quantities (0.5, 1.5) work correctly
+- [x] T060 Test: same packaging product used in FG and Package aggregates correctly
+- [x] T061 Test: cascade delete of Package removes its packaging compositions
+- [x] T062 Test: cascade delete of FinishedGood removes its packaging compositions
+- [x] T063 Verify RESTRICT on packaging_product_id FK works with SQLite
 
 ### Implementation Notes
 - Focus on edge cases identified in spec

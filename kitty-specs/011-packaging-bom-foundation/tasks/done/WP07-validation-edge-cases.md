@@ -12,7 +12,7 @@ subtasks:
 title: "Validation & Edge Cases"
 phase: "Phase 3 - Polish"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude-opus-4-5"
 shell_pid: "review"
 review_status: "approved without changes"
