@@ -525,14 +525,43 @@ def get_recipe_with_costs(recipe_id: int) -> Dict:
                     }
                 )
 
-            total_cost = recipe.calculate_cost()
-            cost_per_unit = recipe.get_cost_per_unit()
+            # Calculate direct ingredient cost
+            direct_ingredient_cost = recipe.calculate_cost()
+
+            # Build component cost breakdown
+            component_costs = []
+            total_component_cost = 0.0
+
+            for comp in recipe.recipe_components:
+                # Get component recipe cost recursively
+                comp_total_cost = _calculate_recipe_cost_recursive(
+                    comp.component_recipe_id, session
+                )["total_cost"]
+
+                comp_cost = comp.quantity * comp_total_cost
+
+                component_costs.append({
+                    "component_recipe": comp.component_recipe,
+                    "quantity": comp.quantity,
+                    "notes": comp.notes,
+                    "unit_cost": comp_total_cost,
+                    "total_cost": comp_cost,
+                })
+
+                total_component_cost += comp_cost
+
+            # Calculate totals including components
+            total_cost = direct_ingredient_cost + total_component_cost
+            cost_per_unit = total_cost / recipe.yield_quantity if recipe.yield_quantity > 0 else 0.0
 
             return {
                 "recipe": recipe,
                 "total_cost": total_cost,
                 "cost_per_unit": cost_per_unit,
                 "ingredients": ingredient_costs,
+                "components": component_costs,
+                "direct_ingredient_cost": direct_ingredient_cost,
+                "total_component_cost": total_component_cost,
             }
 
     except RecipeNotFound:
@@ -1349,3 +1378,234 @@ def get_recipes_using_component(component_recipe_id: int) -> List[Recipe]:
         raise
     except SQLAlchemyError as e:
         raise DatabaseError(f"Failed to get recipes using component {component_recipe_id}", e)
+
+
+# ============================================================================
+# Recipe Component Cost & Aggregation (Nested Recipes)
+# ============================================================================
+
+
+def get_aggregated_ingredients(
+    recipe_id: int,
+    multiplier: float = 1.0,
+) -> List[Dict]:
+    """
+    Get all ingredients from a recipe and all sub-recipes with aggregated quantities.
+
+    Args:
+        recipe_id: Recipe ID
+        multiplier: Scale factor for all quantities (default: 1.0)
+
+    Returns:
+        List of aggregated ingredients with structure:
+        [
+            {
+                "ingredient": Ingredient instance,
+                "ingredient_id": int,
+                "ingredient_name": str,
+                "total_quantity": float,
+                "unit": str,
+                "sources": [{"recipe_name": str, "quantity": float}, ...]
+            },
+            ...
+        ]
+
+    Raises:
+        RecipeNotFound: If recipe doesn't exist
+    """
+    try:
+        with session_scope() as session:
+            recipe = session.query(Recipe).filter_by(id=recipe_id).first()
+            if not recipe:
+                raise RecipeNotFound(recipe_id)
+
+            # Dictionary to aggregate: key = (ingredient_id, unit)
+            aggregated = {}
+
+            def collect_ingredients(r_id: int, mult: float, visited: set = None):
+                """Recursively collect ingredients from recipe and components."""
+                if visited is None:
+                    visited = set()
+
+                if r_id in visited:
+                    return  # Prevent infinite loop (shouldn't happen with validation)
+
+                visited.add(r_id)
+
+                # Get recipe
+                r = session.query(Recipe).filter_by(id=r_id).first()
+                if not r:
+                    return
+
+                # Collect direct ingredients
+                for ri in r.recipe_ingredients:
+                    key = (ri.ingredient_id, ri.unit)
+                    qty = ri.quantity * mult
+
+                    if key not in aggregated:
+                        aggregated[key] = {
+                            "ingredient": ri.ingredient,
+                            "ingredient_id": ri.ingredient_id,
+                            "ingredient_name": ri.ingredient.display_name if ri.ingredient else "Unknown",
+                            "total_quantity": 0.0,
+                            "unit": ri.unit,
+                            "sources": [],
+                        }
+
+                    aggregated[key]["total_quantity"] += qty
+                    aggregated[key]["sources"].append({
+                        "recipe_name": r.name,
+                        "quantity": qty,
+                    })
+
+                # Collect from components
+                components = (
+                    session.query(RecipeComponent)
+                    .filter_by(recipe_id=r_id)
+                    .all()
+                )
+
+                for comp in components:
+                    component_mult = mult * comp.quantity
+                    collect_ingredients(comp.component_recipe_id, component_mult, visited.copy())
+
+            # Start collection
+            collect_ingredients(recipe_id, multiplier)
+
+            # Convert to list and sort by ingredient name
+            result = sorted(aggregated.values(), key=lambda x: x["ingredient_name"])
+
+            return result
+
+    except RecipeNotFound:
+        raise
+    except SQLAlchemyError as e:
+        raise DatabaseError(f"Failed to aggregate ingredients for recipe {recipe_id}", e)
+
+
+def _calculate_recipe_cost_recursive(recipe_id: int, session, visited: set = None) -> Dict:
+    """
+    Internal helper for recursive cost calculation.
+
+    Args:
+        recipe_id: Recipe ID
+        session: Database session
+        visited: Set of visited recipe IDs (cycle protection)
+
+    Returns:
+        {"total_cost": float}
+    """
+    if visited is None:
+        visited = set()
+
+    if recipe_id in visited:
+        return {"total_cost": 0.0}  # Prevent infinite loop
+
+    visited.add(recipe_id)
+
+    recipe = session.query(Recipe).filter_by(id=recipe_id).first()
+    if not recipe:
+        return {"total_cost": 0.0}
+
+    # Direct ingredient cost
+    direct_cost = 0.0
+    for ri in recipe.recipe_ingredients:
+        direct_cost += ri.calculate_cost()
+
+    # Component costs
+    component_cost = 0.0
+    components = session.query(RecipeComponent).filter_by(recipe_id=recipe_id).all()
+
+    for comp in components:
+        comp_result = _calculate_recipe_cost_recursive(comp.component_recipe_id, session, visited.copy())
+        component_cost += comp.quantity * comp_result["total_cost"]
+
+    return {"total_cost": direct_cost + component_cost}
+
+
+def calculate_total_cost_with_components(recipe_id: int) -> Dict:
+    """
+    Calculate total recipe cost including all sub-recipe costs.
+
+    Args:
+        recipe_id: Recipe ID
+
+    Returns:
+        Cost breakdown:
+        {
+            "recipe_id": int,
+            "recipe_name": str,
+            "direct_ingredient_cost": float,
+            "component_costs": [
+                {
+                    "component_recipe_id": int,
+                    "component_recipe_name": str,
+                    "quantity": float,
+                    "unit_cost": float,
+                    "total_cost": float
+                },
+                ...
+            ],
+            "total_component_cost": float,
+            "total_cost": float,
+            "cost_per_unit": float,
+        }
+
+    Raises:
+        RecipeNotFound: If recipe doesn't exist
+    """
+    try:
+        with session_scope() as session:
+            recipe = session.query(Recipe).filter_by(id=recipe_id).first()
+            if not recipe:
+                raise RecipeNotFound(recipe_id)
+
+            # Calculate direct ingredient cost
+            direct_cost = 0.0
+            for ri in recipe.recipe_ingredients:
+                direct_cost += ri.calculate_cost()
+
+            # Calculate component costs
+            component_costs = []
+            total_component_cost = 0.0
+
+            components = (
+                session.query(RecipeComponent)
+                .filter_by(recipe_id=recipe_id)
+                .order_by(RecipeComponent.sort_order)
+                .all()
+            )
+
+            for comp in components:
+                # Recursive call to get component's total cost
+                comp_result = _calculate_recipe_cost_recursive(comp.component_recipe_id, session)
+                unit_cost = comp_result["total_cost"]
+                comp_total = unit_cost * comp.quantity
+
+                component_costs.append({
+                    "component_recipe_id": comp.component_recipe_id,
+                    "component_recipe_name": comp.component_recipe.name if comp.component_recipe else "Unknown",
+                    "quantity": comp.quantity,
+                    "unit_cost": unit_cost,
+                    "total_cost": comp_total,
+                })
+
+                total_component_cost += comp_total
+
+            total_cost = direct_cost + total_component_cost
+            cost_per_unit = total_cost / recipe.yield_quantity if recipe.yield_quantity > 0 else 0.0
+
+            return {
+                "recipe_id": recipe_id,
+                "recipe_name": recipe.name,
+                "direct_ingredient_cost": direct_cost,
+                "component_costs": component_costs,
+                "total_component_cost": total_component_cost,
+                "total_cost": total_cost,
+                "cost_per_unit": cost_per_unit,
+            }
+
+    except RecipeNotFound:
+        raise
+    except SQLAlchemyError as e:
+        raise DatabaseError(f"Failed to calculate cost for recipe {recipe_id}", e)

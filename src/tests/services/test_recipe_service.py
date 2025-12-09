@@ -2253,3 +2253,381 @@ class TestDeletionProtection:
         error_msg = str(exc_info.value)
         assert "Multi Parent 1" in error_msg
         assert "Multi Parent 2" in error_msg
+
+
+# ============================================================================
+# Recipe Component Cost & Aggregation Tests (Feature 012: WP04)
+# ============================================================================
+
+
+class TestGetAggregatedIngredients:
+    """Tests for get_aggregated_ingredients() (T022, T026)."""
+
+    def test_get_aggregated_ingredients_single_recipe(self, test_db):
+        """Aggregation of recipe with no components."""
+        # Create ingredients
+        flour = ingredient_service.create_ingredient(
+            {"name": "Aggreg Flour", "category": "Flour", "recipe_unit": "cup"}
+        )
+        sugar = ingredient_service.create_ingredient(
+            {"name": "Aggreg Sugar", "category": "Sugar", "recipe_unit": "cup"}
+        )
+
+        # Create recipe with ingredients
+        recipe = recipe_service.create_recipe(
+            {
+                "name": "Aggreg Simple Recipe",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            },
+            [
+                {"ingredient_id": flour.id, "quantity": 2.0, "unit": "cup"},
+                {"ingredient_id": sugar.id, "quantity": 1.0, "unit": "cup"},
+            ],
+        )
+
+        result = recipe_service.get_aggregated_ingredients(recipe.id)
+
+        assert len(result) == 2
+        flour_item = next(i for i in result if "Flour" in i["ingredient_name"])
+        assert flour_item["total_quantity"] == 2.0
+        assert flour_item["unit"] == "cup"
+
+    def test_get_aggregated_ingredients_with_component(self, test_db):
+        """Aggregation includes component ingredients."""
+        # Create ingredients
+        flour = ingredient_service.create_ingredient(
+            {"name": "Comp Flour", "category": "Flour", "recipe_unit": "cup"}
+        )
+        butter = ingredient_service.create_ingredient(
+            {"name": "Comp Butter", "category": "Dairy", "recipe_unit": "cup"}
+        )
+
+        # Create child recipe with butter
+        child = recipe_service.create_recipe(
+            {
+                "name": "Comp Child Recipe",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            },
+            [{"ingredient_id": butter.id, "quantity": 0.5, "unit": "cup"}],
+        )
+
+        # Create parent recipe with flour
+        parent = recipe_service.create_recipe(
+            {
+                "name": "Comp Parent Recipe",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            },
+            [{"ingredient_id": flour.id, "quantity": 2.0, "unit": "cup"}],
+        )
+
+        # Add child as component with quantity 2.0
+        recipe_service.add_recipe_component(parent.id, child.id, quantity=2.0)
+
+        result = recipe_service.get_aggregated_ingredients(parent.id)
+
+        # Should have Flour (2 cups) and Butter (0.5 * 2 = 1 cup)
+        assert len(result) == 2
+        butter_item = next(i for i in result if "Butter" in i["ingredient_name"])
+        assert butter_item["total_quantity"] == 1.0  # 0.5 * 2
+
+    def test_get_aggregated_ingredients_same_ingredient_combined(self, test_db):
+        """Same ingredient from parent and child should combine."""
+        flour = ingredient_service.create_ingredient(
+            {"name": "Combine Flour", "category": "Flour", "recipe_unit": "cup"}
+        )
+
+        # Create child with 1 cup flour
+        child = recipe_service.create_recipe(
+            {
+                "name": "Combine Child",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            },
+            [{"ingredient_id": flour.id, "quantity": 1.0, "unit": "cup"}],
+        )
+
+        # Create parent with 2 cups flour
+        parent = recipe_service.create_recipe(
+            {
+                "name": "Combine Parent",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            },
+            [{"ingredient_id": flour.id, "quantity": 2.0, "unit": "cup"}],
+        )
+
+        recipe_service.add_recipe_component(parent.id, child.id, quantity=1.0)
+
+        result = recipe_service.get_aggregated_ingredients(parent.id)
+
+        # Should have Flour 3 cups (2 + 1)
+        assert len(result) == 1
+        flour_item = result[0]
+        assert flour_item["total_quantity"] == 3.0
+        assert len(flour_item["sources"]) == 2
+
+    def test_get_aggregated_ingredients_3_levels(self, test_db):
+        """Aggregation works across 3 levels."""
+        salt = ingredient_service.create_ingredient(
+            {"name": "Three Level Salt", "category": "Spices", "recipe_unit": "tsp"}
+        )
+        butter = ingredient_service.create_ingredient(
+            {"name": "Three Level Butter", "category": "Dairy", "recipe_unit": "cup"}
+        )
+        flour = ingredient_service.create_ingredient(
+            {"name": "Three Level Flour", "category": "Flour", "recipe_unit": "cup"}
+        )
+
+        grandchild = recipe_service.create_recipe(
+            {
+                "name": "Three Level Grandchild",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            },
+            [{"ingredient_id": salt.id, "quantity": 1.0, "unit": "tsp"}],
+        )
+        child = recipe_service.create_recipe(
+            {
+                "name": "Three Level Child",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            },
+            [{"ingredient_id": butter.id, "quantity": 1.0, "unit": "cup"}],
+        )
+        parent = recipe_service.create_recipe(
+            {
+                "name": "Three Level Parent",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            },
+            [{"ingredient_id": flour.id, "quantity": 2.0, "unit": "cup"}],
+        )
+
+        recipe_service.add_recipe_component(child.id, grandchild.id, quantity=2.0)
+        recipe_service.add_recipe_component(parent.id, child.id, quantity=3.0)
+
+        result = recipe_service.get_aggregated_ingredients(parent.id)
+
+        # Flour: 2 cups (direct)
+        # Butter: 1 * 3 = 3 cups
+        # Salt: 1 * 2 * 3 = 6 tsp
+        salt_item = next(i for i in result if "Salt" in i["ingredient_name"])
+        assert salt_item["total_quantity"] == 6.0
+
+    def test_get_aggregated_ingredients_with_multiplier(self, test_db):
+        """Multiplier scales all quantities."""
+        flour = ingredient_service.create_ingredient(
+            {"name": "Mult Flour", "category": "Flour", "recipe_unit": "cup"}
+        )
+
+        recipe = recipe_service.create_recipe(
+            {
+                "name": "Mult Recipe",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            },
+            [{"ingredient_id": flour.id, "quantity": 2.0, "unit": "cup"}],
+        )
+
+        result = recipe_service.get_aggregated_ingredients(recipe.id, multiplier=2.0)
+
+        flour_item = result[0]
+        assert flour_item["total_quantity"] == 4.0  # 2 * 2
+
+    def test_get_aggregated_ingredients_empty_recipe(self, test_db):
+        """Recipe with no ingredients returns empty list."""
+        recipe = recipe_service.create_recipe(
+            {
+                "name": "Empty Aggreg Recipe",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            },
+            [],
+        )
+
+        result = recipe_service.get_aggregated_ingredients(recipe.id)
+
+        assert len(result) == 0
+
+
+class TestCalculateTotalCostWithComponents:
+    """Tests for calculate_total_cost_with_components() (T023, T027)."""
+
+    def test_calculate_cost_single_recipe_no_components(self, test_db):
+        """Cost of recipe with no components equals direct ingredient cost."""
+        recipe = recipe_service.create_recipe(
+            {
+                "name": "Single Cost Recipe",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            },
+            [],  # No ingredients - cost will be 0
+        )
+
+        result = recipe_service.calculate_total_cost_with_components(recipe.id)
+
+        assert result["direct_ingredient_cost"] == 0.0
+        assert result["total_component_cost"] == 0.0
+        assert result["total_cost"] == 0.0
+        assert result["recipe_name"] == "Single Cost Recipe"
+
+    def test_calculate_cost_with_component(self, test_db):
+        """Cost includes component cost × quantity."""
+        child = recipe_service.create_recipe(
+            {
+                "name": "Cost Child",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            },
+            [],
+        )
+        parent = recipe_service.create_recipe(
+            {
+                "name": "Cost Parent",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            },
+            [],
+        )
+
+        recipe_service.add_recipe_component(parent.id, child.id, quantity=2.0)
+
+        result = recipe_service.calculate_total_cost_with_components(parent.id)
+
+        assert result["direct_ingredient_cost"] == 0.0
+        assert result["total_component_cost"] == 0.0  # Child has no ingredients
+        assert result["total_cost"] == 0.0
+        assert len(result["component_costs"]) == 1
+        assert result["component_costs"][0]["quantity"] == 2.0
+
+    def test_calculate_cost_structure(self, test_db):
+        """Verify cost breakdown structure is correct."""
+        parent = recipe_service.create_recipe(
+            {
+                "name": "Structure Parent",
+                "category": "Cookies",
+                "yield_quantity": 12,
+                "yield_unit": "cookies",
+            },
+            [],
+        )
+        child = recipe_service.create_recipe(
+            {
+                "name": "Structure Child",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            },
+            [],
+        )
+        recipe_service.add_recipe_component(parent.id, child.id, quantity=2.0)
+
+        result = recipe_service.calculate_total_cost_with_components(parent.id)
+
+        # Verify all required fields exist
+        assert "recipe_id" in result
+        assert "recipe_name" in result
+        assert "direct_ingredient_cost" in result
+        assert "component_costs" in result
+        assert "total_component_cost" in result
+        assert "total_cost" in result
+        assert "cost_per_unit" in result
+
+        # Verify component cost structure
+        assert len(result["component_costs"]) == 1
+        comp = result["component_costs"][0]
+        assert "component_recipe_id" in comp
+        assert "component_recipe_name" in comp
+        assert "quantity" in comp
+        assert "unit_cost" in comp
+        assert "total_cost" in comp
+
+    def test_calculate_cost_per_unit(self, test_db):
+        """Cost per unit is total / yield."""
+        recipe = recipe_service.create_recipe(
+            {
+                "name": "Per Unit Recipe",
+                "category": "Cookies",
+                "yield_quantity": 24,
+                "yield_unit": "cookies",
+            },
+            [],
+        )
+
+        result = recipe_service.calculate_total_cost_with_components(recipe.id)
+
+        # With 0 cost, per unit is 0
+        assert result["cost_per_unit"] == 0.0
+
+    def test_calculate_cost_nonexistent_recipe(self, test_db):
+        """Nonexistent recipe raises RecipeNotFound."""
+        with pytest.raises(RecipeNotFound):
+            recipe_service.calculate_total_cost_with_components(99999)
+
+
+class TestGetRecipeWithCostsComponents:
+    """Tests for get_recipe_with_costs() with components (T025)."""
+
+    def test_get_recipe_with_costs_includes_components(self, test_db):
+        """Verify get_recipe_with_costs returns component info."""
+        parent = recipe_service.create_recipe(
+            {
+                "name": "With Costs Parent",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            },
+            [],
+        )
+        child = recipe_service.create_recipe(
+            {
+                "name": "With Costs Child",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            },
+            [],
+        )
+        recipe_service.add_recipe_component(parent.id, child.id, quantity=2.0)
+
+        result = recipe_service.get_recipe_with_costs(parent.id)
+
+        assert "components" in result
+        assert "direct_ingredient_cost" in result
+        assert "total_component_cost" in result
+        assert len(result["components"]) == 1
+        assert result["components"][0]["quantity"] == 2.0
+
+    def test_get_recipe_with_costs_no_components(self, test_db):
+        """Recipe without components has empty components list."""
+        recipe = recipe_service.create_recipe(
+            {
+                "name": "No Comp Costs",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            },
+            [],
+        )
+
+        result = recipe_service.get_recipe_with_costs(recipe.id)
+
+        assert "components" in result
+        assert len(result["components"]) == 0
+        assert result["total_component_cost"] == 0.0
