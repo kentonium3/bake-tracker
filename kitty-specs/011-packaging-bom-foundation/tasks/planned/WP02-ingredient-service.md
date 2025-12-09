@@ -11,12 +11,12 @@ subtasks:
   - "T019"
 title: "Ingredient Service Packaging Extensions"
 phase: "Phase 1 - Foundation"
-lane: "for_review"
+lane: "planned"
 assignee: ""
-agent: "claude"
-shell_pid: "31961"
-review_status: ""
-reviewed_by: ""
+agent: "claude-opus-4-5"
+shell_pid: "$$"
+review_status: "has_feedback"
+reviewed_by: "claude-opus-4-5"
 history:
   - timestamp: "2025-12-08T12:00:00Z"
     lane: "planned"
@@ -24,6 +24,24 @@ history:
     shell_pid: ""
     action: "Prompt generated via /spec-kitty.tasks"
 ---
+
+## Review Feedback
+
+**Status**: :x: **Needs Changes**
+
+**Key Issues**:
+1. **Missing test for T014 (update_ingredient protection)** - The code in `update_ingredient()` correctly checks if an ingredient's `is_packaging` can be changed from True to False (preventing this when products are used in compositions). However, there is no test coverage for this protection behavior. T019 explicitly requires: "Test update_ingredient is_packaging change protection".
+
+**What Was Done Well**:
+- `PACKAGING_CATEGORIES` constant defined correctly with all 7 categories
+- `create_ingredient()` properly handles `is_packaging` flag with default=False and warning logging for non-standard categories
+- `get_packaging_ingredients()`, `get_food_ingredients()`, `is_packaging_ingredient()`, and `validate_packaging_category()` all work correctly and have test coverage
+- All existing tests pass (485 tests, 12 skipped)
+- Implementation follows service patterns and matches contract specification
+
+**Action Items** (must complete before re-review):
+- [ ] Add test `test_update_ingredient_blocks_unmarking_packaging_with_compositions()` to `src/tests/services/test_ingredient_service.py`
+- [ ] Test should: create packaging ingredient, create product, add to composition, then verify `update_ingredient(slug, {"is_packaging": False})` raises `ValidationError` with "Cannot unmark packaging" message
 
 # Work Package Prompt: WP02 - Ingredient Service Packaging Extensions
 
@@ -239,3 +257,5 @@ pytest src/tests -v --cov=src/services/ingredient_service
 - 2025-12-08T12:00:00Z - system - lane=planned - Prompt created via /spec-kitty.tasks
 - 2025-12-08T16:43:18Z – claude – shell_pid=31961 – lane=doing – Started implementation
 - 2025-12-08T16:52:18Z – claude – shell_pid=31961 – lane=for_review – Moved to for_review
+- 2025-12-08T21:30:00Z – claude-opus-4-5 – shell_pid=review – lane=planned – Code review: Needs changes - missing test for update_ingredient is_packaging protection (T019 requirement). Implementation is correct but test coverage gap.
+- 2025-12-09T11:16:08Z – claude-opus-4-5 – shell_pid=$$ – lane=planned – Code review: Needs test for update_ingredient is_packaging protection
