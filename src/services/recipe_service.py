@@ -14,7 +14,9 @@ from typing import List, Optional, Dict
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import joinedload
 
-from src.models import Recipe, RecipeIngredient, Ingredient
+from sqlalchemy import func
+
+from src.models import Recipe, RecipeIngredient, RecipeComponent, Ingredient
 from src.services.database import session_scope
 from src.services.exceptions import (
     RecipeNotFound,
@@ -896,3 +898,276 @@ def get_recipe_category_list() -> List[str]:
 
     except SQLAlchemyError as e:
         raise DatabaseError("Failed to retrieve recipe category list", e)
+
+
+# ============================================================================
+# Recipe Component Management (Nested Recipes / Sub-Recipes)
+# ============================================================================
+
+
+def add_recipe_component(
+    recipe_id: int,
+    component_recipe_id: int,
+    quantity: float = 1.0,
+    notes: str = None,
+    sort_order: int = None,
+) -> RecipeComponent:
+    """
+    Add a recipe as a component of another recipe.
+
+    Args:
+        recipe_id: Parent recipe ID
+        component_recipe_id: Child recipe ID to add as component
+        quantity: Batch multiplier (default: 1.0)
+        notes: Optional notes for this component
+        sort_order: Display order (default: append to end)
+
+    Returns:
+        Created RecipeComponent instance
+
+    Raises:
+        RecipeNotFound: If parent or component recipe doesn't exist
+        ValidationError: If quantity <= 0 or component already exists
+    """
+    if quantity <= 0:
+        raise ValidationError(["Batch quantity must be greater than 0"])
+
+    try:
+        with session_scope() as session:
+            # Verify parent recipe exists
+            recipe = session.query(Recipe).filter_by(id=recipe_id).first()
+            if not recipe:
+                raise RecipeNotFound(recipe_id)
+
+            # Verify component recipe exists
+            component = session.query(Recipe).filter_by(id=component_recipe_id).first()
+            if not component:
+                raise RecipeNotFound(component_recipe_id)
+
+            # Check if already a component
+            existing = (
+                session.query(RecipeComponent)
+                .filter_by(recipe_id=recipe_id, component_recipe_id=component_recipe_id)
+                .first()
+            )
+            if existing:
+                raise ValidationError([f"'{component.name}' is already a component of this recipe"])
+
+            # Determine sort_order if not provided
+            if sort_order is None:
+                max_order = (
+                    session.query(func.max(RecipeComponent.sort_order))
+                    .filter_by(recipe_id=recipe_id)
+                    .scalar()
+                )
+                sort_order = (max_order or 0) + 1
+
+            # Create component
+            recipe_component = RecipeComponent(
+                recipe_id=recipe_id,
+                component_recipe_id=component_recipe_id,
+                quantity=quantity,
+                notes=notes,
+                sort_order=sort_order,
+            )
+
+            session.add(recipe_component)
+            session.flush()
+            session.refresh(recipe_component)
+
+            # Eager load relationships
+            _ = recipe_component.recipe
+            _ = recipe_component.component_recipe
+
+            return recipe_component
+
+    except (RecipeNotFound, ValidationError):
+        raise
+    except SQLAlchemyError as e:
+        raise DatabaseError("Failed to add recipe component", e)
+
+
+def remove_recipe_component(recipe_id: int, component_recipe_id: int) -> bool:
+    """
+    Remove a component recipe from a parent recipe.
+
+    Args:
+        recipe_id: Parent recipe ID
+        component_recipe_id: Component recipe ID to remove
+
+    Returns:
+        True if removed, False if component not found
+
+    Raises:
+        RecipeNotFound: If parent recipe doesn't exist
+    """
+    try:
+        with session_scope() as session:
+            # Verify parent recipe exists
+            recipe = session.query(Recipe).filter_by(id=recipe_id).first()
+            if not recipe:
+                raise RecipeNotFound(recipe_id)
+
+            # Delete component
+            deleted = (
+                session.query(RecipeComponent)
+                .filter_by(recipe_id=recipe_id, component_recipe_id=component_recipe_id)
+                .delete()
+            )
+
+            return deleted > 0
+
+    except RecipeNotFound:
+        raise
+    except SQLAlchemyError as e:
+        raise DatabaseError("Failed to remove recipe component", e)
+
+
+def update_recipe_component(
+    recipe_id: int,
+    component_recipe_id: int,
+    quantity: float = None,
+    notes: str = None,
+    sort_order: int = None,
+) -> RecipeComponent:
+    """
+    Update quantity or notes for an existing recipe component.
+
+    Args:
+        recipe_id: Parent recipe ID
+        component_recipe_id: Component recipe ID
+        quantity: New batch multiplier (if provided)
+        notes: New notes (if provided, use empty string to clear)
+        sort_order: New display order (if provided)
+
+    Returns:
+        Updated RecipeComponent instance
+
+    Raises:
+        RecipeNotFound: If parent recipe doesn't exist
+        ValidationError: If component not found or quantity <= 0
+    """
+    if quantity is not None and quantity <= 0:
+        raise ValidationError(["Batch quantity must be greater than 0"])
+
+    try:
+        with session_scope() as session:
+            # Verify parent recipe exists
+            recipe = session.query(Recipe).filter_by(id=recipe_id).first()
+            if not recipe:
+                raise RecipeNotFound(recipe_id)
+
+            # Find component
+            component = (
+                session.query(RecipeComponent)
+                .filter_by(recipe_id=recipe_id, component_recipe_id=component_recipe_id)
+                .first()
+            )
+            if not component:
+                raise ValidationError(["Component recipe not found in this recipe"])
+
+            # Update fields if provided
+            if quantity is not None:
+                component.quantity = quantity
+            if notes is not None:
+                component.notes = notes if notes else None
+            if sort_order is not None:
+                component.sort_order = sort_order
+
+            session.flush()
+            session.refresh(component)
+
+            # Eager load relationships
+            _ = component.recipe
+            _ = component.component_recipe
+
+            return component
+
+    except (RecipeNotFound, ValidationError):
+        raise
+    except SQLAlchemyError as e:
+        raise DatabaseError("Failed to update recipe component", e)
+
+
+def get_recipe_components(recipe_id: int) -> List[RecipeComponent]:
+    """
+    Get all component recipes for a recipe.
+
+    Args:
+        recipe_id: Recipe ID
+
+    Returns:
+        List of RecipeComponent instances, ordered by sort_order
+
+    Raises:
+        RecipeNotFound: If recipe doesn't exist
+    """
+    try:
+        with session_scope() as session:
+            # Verify recipe exists
+            recipe = session.query(Recipe).filter_by(id=recipe_id).first()
+            if not recipe:
+                raise RecipeNotFound(recipe_id)
+
+            # Get components ordered by sort_order
+            components = (
+                session.query(RecipeComponent)
+                .filter_by(recipe_id=recipe_id)
+                .order_by(RecipeComponent.sort_order)
+                .all()
+            )
+
+            # Eager load relationships
+            for comp in components:
+                _ = comp.recipe
+                _ = comp.component_recipe
+
+            return components
+
+    except RecipeNotFound:
+        raise
+    except SQLAlchemyError as e:
+        raise DatabaseError(f"Failed to get recipe components for {recipe_id}", e)
+
+
+def get_recipes_using_component(component_recipe_id: int) -> List[Recipe]:
+    """
+    Get all recipes that use a given recipe as a component.
+
+    Args:
+        component_recipe_id: Recipe ID to check
+
+    Returns:
+        List of Recipe instances that use this as a component
+
+    Raises:
+        RecipeNotFound: If recipe doesn't exist
+    """
+    try:
+        with session_scope() as session:
+            # Verify recipe exists
+            recipe = session.query(Recipe).filter_by(id=component_recipe_id).first()
+            if not recipe:
+                raise RecipeNotFound(component_recipe_id)
+
+            # Find parent recipes
+            parent_recipes = (
+                session.query(Recipe)
+                .join(RecipeComponent, Recipe.id == RecipeComponent.recipe_id)
+                .filter(RecipeComponent.component_recipe_id == component_recipe_id)
+                .order_by(Recipe.name)
+                .all()
+            )
+
+            # Eager load relationships
+            for r in parent_recipes:
+                _ = r.recipe_ingredients
+                for ri in r.recipe_ingredients:
+                    _ = ri.ingredient
+
+            return parent_recipes
+
+    except RecipeNotFound:
+        raise
+    except SQLAlchemyError as e:
+        raise DatabaseError(f"Failed to get recipes using component {component_recipe_id}", e)

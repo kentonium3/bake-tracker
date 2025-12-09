@@ -1284,3 +1284,547 @@ class TestEdgeCases:
         error_message = str(exc_info.value).lower().replace("; ", "")
         # The message should mention purchase history
         assert "purchase" in error_message and "history" in error_message
+
+
+# ============================================================================
+# Recipe Component CRUD Tests (Feature 012: Nested Recipes)
+# ============================================================================
+
+
+class TestAddRecipeComponent:
+    """Tests for add_recipe_component() method."""
+
+    def test_add_recipe_component_success(self, test_db):
+        """Test adding a component to a recipe."""
+        # Create two recipes
+        parent = recipe_service.create_recipe(
+            {
+                "name": "Parent Recipe",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            }
+        )
+        child = recipe_service.create_recipe(
+            {
+                "name": "Child Recipe",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            }
+        )
+
+        # Add child as component
+        component = recipe_service.add_recipe_component(
+            parent.id, child.id, quantity=2.0, notes="Double batch"
+        )
+
+        assert component.recipe_id == parent.id
+        assert component.component_recipe_id == child.id
+        assert component.quantity == 2.0
+        assert component.notes == "Double batch"
+        assert component.component_recipe.name == "Child Recipe"
+
+    def test_add_recipe_component_default_quantity(self, test_db):
+        """Test that default quantity is 1.0."""
+        parent = recipe_service.create_recipe(
+            {
+                "name": "Default Qty Parent",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            }
+        )
+        child = recipe_service.create_recipe(
+            {
+                "name": "Default Qty Child",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            }
+        )
+
+        component = recipe_service.add_recipe_component(parent.id, child.id)
+
+        assert component.quantity == 1.0
+
+    def test_add_recipe_component_fractional_quantity(self, test_db):
+        """Test adding a component with fractional quantity (0.5 batch)."""
+        parent = recipe_service.create_recipe(
+            {
+                "name": "Fractional Parent",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            }
+        )
+        child = recipe_service.create_recipe(
+            {
+                "name": "Fractional Child",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            }
+        )
+
+        component = recipe_service.add_recipe_component(parent.id, child.id, quantity=0.5)
+
+        assert component.quantity == 0.5
+
+    def test_add_recipe_component_invalid_quantity_zero(self, test_db):
+        """Test that quantity = 0 raises ValidationError."""
+        parent = recipe_service.create_recipe(
+            {
+                "name": "Zero Qty Parent",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            }
+        )
+        child = recipe_service.create_recipe(
+            {
+                "name": "Zero Qty Child",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            }
+        )
+
+        with pytest.raises(ValidationError):
+            recipe_service.add_recipe_component(parent.id, child.id, quantity=0)
+
+    def test_add_recipe_component_invalid_quantity_negative(self, test_db):
+        """Test that negative quantity raises ValidationError."""
+        parent = recipe_service.create_recipe(
+            {
+                "name": "Neg Qty Parent",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            }
+        )
+        child = recipe_service.create_recipe(
+            {
+                "name": "Neg Qty Child",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            }
+        )
+
+        with pytest.raises(ValidationError):
+            recipe_service.add_recipe_component(parent.id, child.id, quantity=-1.0)
+
+    def test_add_recipe_component_duplicate_raises_error(self, test_db):
+        """Test that adding same component twice raises ValidationError."""
+        parent = recipe_service.create_recipe(
+            {
+                "name": "Duplicate Parent",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            }
+        )
+        child = recipe_service.create_recipe(
+            {
+                "name": "Duplicate Child",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            }
+        )
+
+        # First add succeeds
+        recipe_service.add_recipe_component(parent.id, child.id)
+
+        # Second add raises error
+        with pytest.raises(ValidationError) as exc_info:
+            recipe_service.add_recipe_component(parent.id, child.id)
+
+        assert "already a component" in str(exc_info.value).lower()
+
+    def test_add_recipe_component_nonexistent_parent(self, test_db):
+        """Test that nonexistent parent recipe raises RecipeNotFound."""
+        child = recipe_service.create_recipe(
+            {
+                "name": "Orphan Child",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            }
+        )
+
+        with pytest.raises(RecipeNotFound):
+            recipe_service.add_recipe_component(99999, child.id)
+
+    def test_add_recipe_component_nonexistent_component(self, test_db):
+        """Test that nonexistent component recipe raises RecipeNotFound."""
+        parent = recipe_service.create_recipe(
+            {
+                "name": "Missing Child Parent",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            }
+        )
+
+        with pytest.raises(RecipeNotFound):
+            recipe_service.add_recipe_component(parent.id, 99999)
+
+    def test_add_recipe_component_auto_sort_order(self, test_db):
+        """Test that sort_order auto-increments when not provided."""
+        parent = recipe_service.create_recipe(
+            {
+                "name": "Sort Order Parent",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            }
+        )
+        child1 = recipe_service.create_recipe(
+            {
+                "name": "Sort Child 1",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            }
+        )
+        child2 = recipe_service.create_recipe(
+            {
+                "name": "Sort Child 2",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            }
+        )
+
+        comp1 = recipe_service.add_recipe_component(parent.id, child1.id)
+        comp2 = recipe_service.add_recipe_component(parent.id, child2.id)
+
+        assert comp1.sort_order == 1
+        assert comp2.sort_order == 2
+
+
+class TestRemoveRecipeComponent:
+    """Tests for remove_recipe_component() method."""
+
+    def test_remove_recipe_component_success(self, test_db):
+        """Test removing a component."""
+        parent = recipe_service.create_recipe(
+            {
+                "name": "Remove Parent",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            }
+        )
+        child = recipe_service.create_recipe(
+            {
+                "name": "Remove Child",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            }
+        )
+        recipe_service.add_recipe_component(parent.id, child.id)
+
+        result = recipe_service.remove_recipe_component(parent.id, child.id)
+
+        assert result is True
+
+        # Verify removed
+        components = recipe_service.get_recipe_components(parent.id)
+        assert len(components) == 0
+
+    def test_remove_recipe_component_not_found(self, test_db):
+        """Test removing nonexistent component returns False."""
+        parent = recipe_service.create_recipe(
+            {
+                "name": "Remove NotFound Parent",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            }
+        )
+        child = recipe_service.create_recipe(
+            {
+                "name": "Remove NotFound Child",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            }
+        )
+
+        # Try to remove a component that was never added
+        result = recipe_service.remove_recipe_component(parent.id, child.id)
+
+        assert result is False
+
+    def test_remove_recipe_component_nonexistent_parent(self, test_db):
+        """Test that nonexistent parent raises RecipeNotFound."""
+        child = recipe_service.create_recipe(
+            {
+                "name": "Remove Orphan Child",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            }
+        )
+
+        with pytest.raises(RecipeNotFound):
+            recipe_service.remove_recipe_component(99999, child.id)
+
+
+class TestUpdateRecipeComponent:
+    """Tests for update_recipe_component() method."""
+
+    def test_update_recipe_component_quantity(self, test_db):
+        """Test updating component quantity."""
+        parent = recipe_service.create_recipe(
+            {
+                "name": "Update Qty Parent",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            }
+        )
+        child = recipe_service.create_recipe(
+            {
+                "name": "Update Qty Child",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            }
+        )
+        recipe_service.add_recipe_component(parent.id, child.id, quantity=1.0)
+
+        updated = recipe_service.update_recipe_component(parent.id, child.id, quantity=3.0)
+
+        assert updated.quantity == 3.0
+
+    def test_update_recipe_component_notes(self, test_db):
+        """Test updating component notes."""
+        parent = recipe_service.create_recipe(
+            {
+                "name": "Update Notes Parent",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            }
+        )
+        child = recipe_service.create_recipe(
+            {
+                "name": "Update Notes Child",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            }
+        )
+        recipe_service.add_recipe_component(parent.id, child.id, notes="Original")
+
+        updated = recipe_service.update_recipe_component(parent.id, child.id, notes="Updated note")
+
+        assert updated.notes == "Updated note"
+
+    def test_update_recipe_component_clear_notes(self, test_db):
+        """Test clearing component notes with empty string."""
+        parent = recipe_service.create_recipe(
+            {
+                "name": "Clear Notes Parent",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            }
+        )
+        child = recipe_service.create_recipe(
+            {
+                "name": "Clear Notes Child",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            }
+        )
+        recipe_service.add_recipe_component(parent.id, child.id, notes="To be cleared")
+
+        updated = recipe_service.update_recipe_component(parent.id, child.id, notes="")
+
+        assert updated.notes is None
+
+    def test_update_recipe_component_invalid_quantity(self, test_db):
+        """Test that invalid quantity raises ValidationError."""
+        parent = recipe_service.create_recipe(
+            {
+                "name": "Invalid Update Parent",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            }
+        )
+        child = recipe_service.create_recipe(
+            {
+                "name": "Invalid Update Child",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            }
+        )
+        recipe_service.add_recipe_component(parent.id, child.id)
+
+        with pytest.raises(ValidationError):
+            recipe_service.update_recipe_component(parent.id, child.id, quantity=0)
+
+    def test_update_recipe_component_not_found(self, test_db):
+        """Test updating nonexistent component raises ValidationError."""
+        parent = recipe_service.create_recipe(
+            {
+                "name": "Update NotFound Parent",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            }
+        )
+        child = recipe_service.create_recipe(
+            {
+                "name": "Update NotFound Child",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            }
+        )
+
+        with pytest.raises(ValidationError) as exc_info:
+            recipe_service.update_recipe_component(parent.id, child.id, quantity=2.0)
+
+        assert "not found" in str(exc_info.value).lower()
+
+
+class TestGetRecipeComponents:
+    """Tests for get_recipe_components() method."""
+
+    def test_get_recipe_components_ordered(self, test_db):
+        """Test components returned in sort_order."""
+        parent = recipe_service.create_recipe(
+            {
+                "name": "Get Components Parent",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            }
+        )
+        child1 = recipe_service.create_recipe(
+            {
+                "name": "Get Child 1",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            }
+        )
+        child2 = recipe_service.create_recipe(
+            {
+                "name": "Get Child 2",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            }
+        )
+        child3 = recipe_service.create_recipe(
+            {
+                "name": "Get Child 3",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            }
+        )
+
+        # Add in non-sequential order
+        recipe_service.add_recipe_component(parent.id, child3.id, sort_order=3)
+        recipe_service.add_recipe_component(parent.id, child1.id, sort_order=1)
+        recipe_service.add_recipe_component(parent.id, child2.id, sort_order=2)
+
+        components = recipe_service.get_recipe_components(parent.id)
+
+        assert len(components) == 3
+        assert components[0].component_recipe_id == child1.id
+        assert components[1].component_recipe_id == child2.id
+        assert components[2].component_recipe_id == child3.id
+
+    def test_get_recipe_components_empty(self, test_db):
+        """Test recipe with no components returns empty list."""
+        recipe = recipe_service.create_recipe(
+            {
+                "name": "No Components Recipe",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            }
+        )
+
+        components = recipe_service.get_recipe_components(recipe.id)
+
+        assert len(components) == 0
+
+    def test_get_recipe_components_nonexistent_recipe(self, test_db):
+        """Test that nonexistent recipe raises RecipeNotFound."""
+        with pytest.raises(RecipeNotFound):
+            recipe_service.get_recipe_components(99999)
+
+
+class TestGetRecipesUsingComponent:
+    """Tests for get_recipes_using_component() method."""
+
+    def test_get_recipes_using_component(self, test_db):
+        """Test finding recipes that use a component."""
+        parent1 = recipe_service.create_recipe(
+            {
+                "name": "Using Parent 1",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            }
+        )
+        parent2 = recipe_service.create_recipe(
+            {
+                "name": "Using Parent 2",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            }
+        )
+        shared_child = recipe_service.create_recipe(
+            {
+                "name": "Shared Child Recipe",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            }
+        )
+
+        recipe_service.add_recipe_component(parent1.id, shared_child.id)
+        recipe_service.add_recipe_component(parent2.id, shared_child.id)
+
+        parents = recipe_service.get_recipes_using_component(shared_child.id)
+
+        assert len(parents) == 2
+        parent_ids = [p.id for p in parents]
+        assert parent1.id in parent_ids
+        assert parent2.id in parent_ids
+
+    def test_get_recipes_using_component_none(self, test_db):
+        """Test recipe not used as component returns empty list."""
+        recipe = recipe_service.create_recipe(
+            {
+                "name": "Unused Recipe",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            }
+        )
+
+        parents = recipe_service.get_recipes_using_component(recipe.id)
+
+        assert len(parents) == 0
+
+    def test_get_recipes_using_component_nonexistent(self, test_db):
+        """Test that nonexistent recipe raises RecipeNotFound."""
+        with pytest.raises(RecipeNotFound):
+            recipe_service.get_recipes_using_component(99999)
