@@ -11,11 +11,11 @@ subtasks:
   - "T019"
 title: "Ingredient Service Packaging Extensions"
 phase: "Phase 1 - Foundation"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "claude-opus-4-5"
-shell_pid: "72031"
-review_status: "has_feedback"
+shell_pid: "73233"
+review_status: "acknowledged"
 reviewed_by: "claude-opus-4-5"
 history:
   - timestamp: "2025-12-08T12:00:00Z"
@@ -40,8 +40,8 @@ history:
 - Implementation follows service patterns and matches contract specification
 
 **Action Items** (must complete before re-review):
-- [ ] Add test `test_update_ingredient_blocks_unmarking_packaging_with_compositions()` to `src/tests/services/test_ingredient_service.py`
-- [ ] Test should: create packaging ingredient, create product, add to composition, then verify `update_ingredient(slug, {"is_packaging": False})` raises `ValidationError` with "Cannot unmark packaging" message
+- [x] Add test `test_update_ingredient_blocks_unmarking_packaging_with_compositions()` to `src/tests/services/test_ingredient_service.py`
+- [x] Test should: create packaging ingredient, create product, add to composition, then verify `update_ingredient(slug, {"is_packaging": False})` raises `ValidationError` with "Cannot unmark packaging" message
 
 # Work Package Prompt: WP02 - Ingredient Service Packaging Extensions
 
@@ -260,3 +260,5 @@ pytest src/tests -v --cov=src/services/ingredient_service
 - 2025-12-08T21:30:00Z – claude-opus-4-5 – shell_pid=review – lane=planned – Code review: Needs changes - missing test for update_ingredient is_packaging protection (T019 requirement). Implementation is correct but test coverage gap.
 - 2025-12-09T11:16:08Z – claude-opus-4-5 – shell_pid=$$ – lane=planned – Code review: Needs test for update_ingredient is_packaging protection
 - 2025-12-09T11:32:52Z – claude-opus-4-5 – shell_pid=72031 – lane=doing – Addressing review feedback: Adding missing test for update_ingredient protection
+- 2025-12-09T11:40:00Z – claude-opus-4-5 – shell_pid=72031 – lane=doing – Addressed feedback: Added TestUpdateIngredientPackagingProtection class with 3 tests (blocks unmarking with compositions, allows without compositions, allows with product but no compositions). Also fixed ValidationError constructor call in service to pass list instead of string. All 488 tests pass.
+- 2025-12-09T11:38:56Z – claude-opus-4-5 – shell_pid=73233 – lane=for_review – Addressed review feedback: Added 3 tests for update_ingredient protection. All 488 tests pass.
