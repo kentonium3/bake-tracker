@@ -1828,3 +1828,428 @@ class TestGetRecipesUsingComponent:
         """Test that nonexistent recipe raises RecipeNotFound."""
         with pytest.raises(RecipeNotFound):
             recipe_service.get_recipes_using_component(99999)
+
+
+# ============================================================================
+# Recipe Component Validation Tests (Feature 012: WP03)
+# ============================================================================
+
+
+class TestCircularReferenceDetection:
+    """Tests for circular reference detection (T014, T017, T019)."""
+
+    def test_add_component_self_reference_blocked(self, test_db):
+        """Recipe cannot include itself as a component."""
+        recipe = recipe_service.create_recipe(
+            {
+                "name": "Self Reference Recipe",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            }
+        )
+
+        with pytest.raises(ValidationError) as exc_info:
+            recipe_service.add_recipe_component(recipe.id, recipe.id)
+
+        assert "circular reference" in str(exc_info.value).lower()
+
+    def test_add_component_direct_cycle_blocked(self, test_db):
+        """A→B, then B→A should be blocked."""
+        recipe_a = recipe_service.create_recipe(
+            {
+                "name": "Cycle Recipe A",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            }
+        )
+        recipe_b = recipe_service.create_recipe(
+            {
+                "name": "Cycle Recipe B",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            }
+        )
+
+        # A includes B - OK
+        recipe_service.add_recipe_component(recipe_a.id, recipe_b.id)
+
+        # B includes A - should fail (creates cycle)
+        with pytest.raises(ValidationError) as exc_info:
+            recipe_service.add_recipe_component(recipe_b.id, recipe_a.id)
+
+        assert "circular reference" in str(exc_info.value).lower()
+
+    def test_add_component_indirect_cycle_blocked(self, test_db):
+        """A→B→C, then C→A should be blocked."""
+        recipe_a = recipe_service.create_recipe(
+            {
+                "name": "Indirect A",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            }
+        )
+        recipe_b = recipe_service.create_recipe(
+            {
+                "name": "Indirect B",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            }
+        )
+        recipe_c = recipe_service.create_recipe(
+            {
+                "name": "Indirect C",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            }
+        )
+
+        # Build chain: A→B→C
+        recipe_service.add_recipe_component(recipe_a.id, recipe_b.id)
+        recipe_service.add_recipe_component(recipe_b.id, recipe_c.id)
+
+        # C→A should fail (creates cycle through chain)
+        with pytest.raises(ValidationError) as exc_info:
+            recipe_service.add_recipe_component(recipe_c.id, recipe_a.id)
+
+        assert "circular reference" in str(exc_info.value).lower()
+
+    def test_add_component_no_false_positive(self, test_db):
+        """Non-circular hierarchies should work (diamond pattern)."""
+        recipe_a = recipe_service.create_recipe(
+            {
+                "name": "Diamond Top",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            }
+        )
+        recipe_b = recipe_service.create_recipe(
+            {
+                "name": "Diamond Left",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            }
+        )
+        recipe_c = recipe_service.create_recipe(
+            {
+                "name": "Diamond Right",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            }
+        )
+
+        # A→B, A→C (diamond top) - should work
+        recipe_service.add_recipe_component(recipe_a.id, recipe_b.id)
+        recipe_service.add_recipe_component(recipe_a.id, recipe_c.id)
+
+        # Verify both added
+        components = recipe_service.get_recipe_components(recipe_a.id)
+        assert len(components) == 2
+
+
+class TestDepthLimitEnforcement:
+    """Tests for depth limit enforcement (T015, T016, T020)."""
+
+    def test_add_component_depth_3_allowed(self, test_db):
+        """3-level nesting should be allowed."""
+        recipe_a = recipe_service.create_recipe(
+            {
+                "name": "Depth Level 1",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            }
+        )
+        recipe_b = recipe_service.create_recipe(
+            {
+                "name": "Depth Level 2",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            }
+        )
+        recipe_c = recipe_service.create_recipe(
+            {
+                "name": "Depth Level 3",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            }
+        )
+
+        # A→B→C (3 levels)
+        recipe_service.add_recipe_component(recipe_a.id, recipe_b.id)
+        recipe_service.add_recipe_component(recipe_b.id, recipe_c.id)
+
+        # Verify structure
+        assert len(recipe_service.get_recipe_components(recipe_a.id)) == 1
+        assert len(recipe_service.get_recipe_components(recipe_b.id)) == 1
+
+    def test_add_component_depth_4_blocked(self, test_db):
+        """4-level nesting should be blocked."""
+        recipe_a = recipe_service.create_recipe(
+            {
+                "name": "Too Deep 1",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            }
+        )
+        recipe_b = recipe_service.create_recipe(
+            {
+                "name": "Too Deep 2",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            }
+        )
+        recipe_c = recipe_service.create_recipe(
+            {
+                "name": "Too Deep 3",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            }
+        )
+        recipe_d = recipe_service.create_recipe(
+            {
+                "name": "Too Deep 4",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            }
+        )
+
+        # Build 3-level: A→B→C
+        recipe_service.add_recipe_component(recipe_a.id, recipe_b.id)
+        recipe_service.add_recipe_component(recipe_b.id, recipe_c.id)
+
+        # Try to add D under C (would make 4 levels)
+        with pytest.raises(ValidationError) as exc_info:
+            recipe_service.add_recipe_component(recipe_c.id, recipe_d.id)
+
+        assert "depth" in str(exc_info.value).lower()
+
+    def test_add_component_depth_with_subtree(self, test_db):
+        """Adding a recipe with its own subtree should count total depth."""
+        recipe_a = recipe_service.create_recipe(
+            {
+                "name": "Subtree Parent",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            }
+        )
+        recipe_b = recipe_service.create_recipe(
+            {
+                "name": "Subtree Child",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            }
+        )
+        recipe_d = recipe_service.create_recipe(
+            {
+                "name": "Subtree Grandchild",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            }
+        )
+
+        # B→D (2-level subtree)
+        recipe_service.add_recipe_component(recipe_b.id, recipe_d.id)
+
+        # A already at level 1, B's subtree is 2 levels = total 3 (OK)
+        recipe_service.add_recipe_component(recipe_a.id, recipe_b.id)
+
+        # Verify structure created successfully
+        assert len(recipe_service.get_recipe_components(recipe_a.id)) == 1
+        assert len(recipe_service.get_recipe_components(recipe_b.id)) == 1
+
+    def test_add_component_multiple_children_same_level(self, test_db):
+        """Multiple children at same level should work (width not depth)."""
+        parent = recipe_service.create_recipe(
+            {
+                "name": "Wide Parent",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            }
+        )
+        child1 = recipe_service.create_recipe(
+            {
+                "name": "Wide Child 1",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            }
+        )
+        child2 = recipe_service.create_recipe(
+            {
+                "name": "Wide Child 2",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            }
+        )
+        child3 = recipe_service.create_recipe(
+            {
+                "name": "Wide Child 3",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            }
+        )
+
+        # Parent with 3 children (depth = 2, width = 3)
+        recipe_service.add_recipe_component(parent.id, child1.id)
+        recipe_service.add_recipe_component(parent.id, child2.id)
+        recipe_service.add_recipe_component(parent.id, child3.id)
+
+        components = recipe_service.get_recipe_components(parent.id)
+        assert len(components) == 3
+
+
+class TestDeletionProtection:
+    """Tests for deletion protection (T018, T021)."""
+
+    def test_delete_recipe_used_as_component_blocked(self, test_db):
+        """Cannot delete a recipe that is used as a component."""
+        recipe_parent = recipe_service.create_recipe(
+            {
+                "name": "Delete Protect Parent",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            }
+        )
+        recipe_child = recipe_service.create_recipe(
+            {
+                "name": "Delete Protect Child",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            }
+        )
+
+        recipe_service.add_recipe_component(recipe_parent.id, recipe_child.id)
+
+        with pytest.raises(ValidationError) as exc_info:
+            recipe_service.delete_recipe(recipe_child.id)
+
+        assert "used as component" in str(exc_info.value).lower()
+        assert recipe_parent.name in str(exc_info.value)
+
+    def test_delete_recipe_after_removing_component(self, test_db):
+        """Can delete recipe after removing it from all parents."""
+        recipe_parent = recipe_service.create_recipe(
+            {
+                "name": "Cleanup Parent",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            }
+        )
+        recipe_child = recipe_service.create_recipe(
+            {
+                "name": "Cleanup Child",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            }
+        )
+
+        recipe_service.add_recipe_component(recipe_parent.id, recipe_child.id)
+        recipe_service.remove_recipe_component(recipe_parent.id, recipe_child.id)
+
+        # Now deletion should work
+        result = recipe_service.delete_recipe(recipe_child.id)
+        assert result is True
+
+    def test_delete_recipe_with_no_parents(self, test_db):
+        """Recipe not used as component can be deleted."""
+        recipe = recipe_service.create_recipe(
+            {
+                "name": "Standalone Delete",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            }
+        )
+
+        result = recipe_service.delete_recipe(recipe.id)
+        assert result is True
+
+    def test_delete_parent_cascades_components(self, test_db):
+        """Deleting parent recipe removes component relationships."""
+        recipe_parent = recipe_service.create_recipe(
+            {
+                "name": "Cascade Parent",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            }
+        )
+        recipe_child = recipe_service.create_recipe(
+            {
+                "name": "Cascade Child",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            }
+        )
+
+        recipe_service.add_recipe_component(recipe_parent.id, recipe_child.id)
+
+        # Delete parent
+        recipe_service.delete_recipe(recipe_parent.id)
+
+        # Child should now be deletable
+        result = recipe_service.delete_recipe(recipe_child.id)
+        assert result is True
+
+    def test_delete_recipe_used_by_multiple_parents(self, test_db):
+        """Error message shows all parent recipes using the component."""
+        parent1 = recipe_service.create_recipe(
+            {
+                "name": "Multi Parent 1",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            }
+        )
+        parent2 = recipe_service.create_recipe(
+            {
+                "name": "Multi Parent 2",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            }
+        )
+        shared_child = recipe_service.create_recipe(
+            {
+                "name": "Multi Shared Child",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            }
+        )
+
+        recipe_service.add_recipe_component(parent1.id, shared_child.id)
+        recipe_service.add_recipe_component(parent2.id, shared_child.id)
+
+        with pytest.raises(ValidationError) as exc_info:
+            recipe_service.delete_recipe(shared_child.id)
+
+        error_msg = str(exc_info.value)
+        assert "Multi Parent 1" in error_msg
+        assert "Multi Parent 2" in error_msg

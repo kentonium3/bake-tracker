@@ -293,6 +293,7 @@ def delete_recipe(recipe_id: int) -> bool:
 
     Raises:
         RecipeNotFound: If recipe doesn't exist
+        ValidationError: If recipe is used as a component in other recipes
         DatabaseError: If database operation fails
     """
     try:
@@ -302,12 +303,30 @@ def delete_recipe(recipe_id: int) -> bool:
             if not recipe:
                 raise RecipeNotFound(recipe_id)
 
-            # Delete recipe (cascade will remove recipe_ingredients)
+            # Check if recipe is used as a component in other recipes
+            parent_components = (
+                session.query(RecipeComponent)
+                .filter_by(component_recipe_id=recipe_id)
+                .all()
+            )
+
+            if parent_components:
+                parent_names = []
+                for comp in parent_components:
+                    parent_recipe = session.query(Recipe).filter_by(id=comp.recipe_id).first()
+                    if parent_recipe:
+                        parent_names.append(parent_recipe.name)
+
+                raise ValidationError(
+                    [f"Cannot delete '{recipe.name}': used as component in: {', '.join(parent_names)}"]
+                )
+
+            # Delete recipe (cascade will remove recipe_ingredients and recipe_components)
             session.delete(recipe)
 
             return True
 
-    except RecipeNotFound:
+    except (RecipeNotFound, ValidationError):
         raise
     except SQLAlchemyError as e:
         raise DatabaseError(f"Failed to delete recipe {recipe_id}", e)
@@ -905,6 +924,153 @@ def get_recipe_category_list() -> List[str]:
 # ============================================================================
 
 
+# Maximum allowed nesting depth for sub-recipes
+MAX_RECIPE_NESTING_DEPTH = 3
+
+
+def _would_create_cycle(parent_id: int, component_id: int, session) -> bool:
+    """
+    Check if adding component_id as child of parent_id would create a cycle.
+
+    Traverses the component tree starting from component_id to see if
+    parent_id is reachable (which would mean adding this edge creates a cycle).
+
+    Args:
+        parent_id: The recipe that would become the parent
+        component_id: The recipe to add as a component
+        session: Database session
+
+    Returns:
+        True if adding this component would create a circular reference
+    """
+    # Self-reference check
+    if parent_id == component_id:
+        return True
+
+    # BFS to find if parent_id is reachable from component_id
+    visited = set()
+    to_visit = [component_id]
+
+    while to_visit:
+        current = to_visit.pop(0)
+
+        if current == parent_id:
+            return True  # Found a path back to parent = cycle
+
+        if current in visited:
+            continue
+
+        visited.add(current)
+
+        # Get all components of current recipe
+        components = (
+            session.query(RecipeComponent.component_recipe_id)
+            .filter_by(recipe_id=current)
+            .all()
+        )
+
+        for (comp_id,) in components:
+            if comp_id not in visited:
+                to_visit.append(comp_id)
+
+    return False
+
+
+def _get_recipe_depth(recipe_id: int, session, _visited: set = None) -> int:
+    """
+    Get the maximum depth of a recipe's component hierarchy.
+
+    Args:
+        recipe_id: Recipe to check
+        session: Database session
+        _visited: Set of already visited recipe IDs (for cycle protection)
+
+    Returns:
+        Depth: 1 = no components, 2 = has components, 3 = has nested components
+    """
+    if _visited is None:
+        _visited = set()
+
+    # Cycle protection (shouldn't happen with valid data, but be safe)
+    if recipe_id in _visited:
+        return 0
+
+    _visited.add(recipe_id)
+
+    # Get components
+    components = (
+        session.query(RecipeComponent.component_recipe_id)
+        .filter_by(recipe_id=recipe_id)
+        .all()
+    )
+
+    if not components:
+        return 1  # Leaf recipe
+
+    max_child_depth = 0
+    for (comp_id,) in components:
+        child_depth = _get_recipe_depth(comp_id, session, _visited.copy())
+        max_child_depth = max(max_child_depth, child_depth)
+
+    return 1 + max_child_depth
+
+
+def _would_exceed_depth(parent_id: int, component_id: int, session, max_depth: int = MAX_RECIPE_NESTING_DEPTH) -> bool:
+    """
+    Check if adding component would exceed maximum nesting depth.
+
+    The depth calculation considers:
+    - Where the parent recipe sits in its own hierarchy (could already be nested)
+    - The depth of the component's subtree
+
+    Args:
+        parent_id: The recipe that would become the parent
+        component_id: The recipe to add as a component
+        session: Database session
+        max_depth: Maximum allowed depth (default: 3)
+
+    Returns:
+        True if adding this component would exceed the depth limit
+    """
+    # Get depth of component's subtree
+    component_depth = _get_recipe_depth(component_id, session)
+
+    # Check all paths where parent appears and calculate resulting depth
+    # We need to find the deepest position of parent_id in any hierarchy
+    def get_max_ancestor_depth(recipe_id: int, visited: set = None) -> int:
+        """Find how deep this recipe is as a component in other recipes."""
+        if visited is None:
+            visited = set()
+
+        if recipe_id in visited:
+            return 0
+
+        visited.add(recipe_id)
+
+        # Find recipes that use this as a component
+        parents = (
+            session.query(RecipeComponent.recipe_id)
+            .filter_by(component_recipe_id=recipe_id)
+            .all()
+        )
+
+        if not parents:
+            return 1  # Top-level recipe
+
+        max_depth_above = 0
+        for (pid,) in parents:
+            depth_above = get_max_ancestor_depth(pid, visited.copy())
+            max_depth_above = max(max_depth_above, depth_above)
+
+        return 1 + max_depth_above
+
+    # Parent's position in hierarchy + component's subtree depth
+    parent_position = get_max_ancestor_depth(parent_id)
+    total_depth = parent_position + component_depth
+
+    return total_depth > max_depth
+
+
 def add_recipe_component(
     recipe_id: int,
     component_recipe_id: int,
@@ -952,6 +1118,18 @@ def add_recipe_component(
             )
             if existing:
                 raise ValidationError([f"'{component.name}' is already a component of this recipe"])
+
+            # Check for circular reference
+            if _would_create_cycle(recipe_id, component_recipe_id, session):
+                raise ValidationError(
+                    [f"Cannot add '{component.name}' as component: would create circular reference"]
+                )
+
+            # Check depth limit
+            if _would_exceed_depth(recipe_id, component_recipe_id, session):
+                raise ValidationError(
+                    [f"Cannot add '{component.name}': would exceed maximum nesting depth of {MAX_RECIPE_NESTING_DEPTH} levels"]
+                )
 
             # Determine sort_order if not provided
             if sort_order is None:
