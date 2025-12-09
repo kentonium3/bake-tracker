@@ -13,7 +13,7 @@ from .unit_conversion import UnitConversion
 from .ingredient_alias import IngredientAlias  # Supporting model
 from .ingredient_crosswalk import IngredientCrosswalk  # Supporting model
 from .product_packaging import ProductPackaging
-from .recipe import Recipe, RecipeIngredient
+from .recipe import Recipe, RecipeIngredient, RecipeComponent
 from .inventory_snapshot import InventorySnapshot, SnapshotIngredient
 from .finished_good import FinishedGood
 from .assembly_type import AssemblyType
@@ -46,6 +46,7 @@ __all__ = [
     # Existing Models
     "Recipe",
     "RecipeIngredient",
+    "RecipeComponent",
     "InventorySnapshot",
     "SnapshotIngredient",
     "FinishedGood",

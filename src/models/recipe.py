@@ -4,11 +4,23 @@ Recipe models for baking recipes.
 This module contains:
 - Recipe: Main recipe model with metadata
 - RecipeIngredient: Junction table linking recipes to ingredients
+- RecipeComponent: Junction table linking parent recipes to child (component) recipes
 """
 
 from datetime import datetime
 
-from sqlalchemy import Column, String, Float, Integer, Text, DateTime, ForeignKey, Index
+from sqlalchemy import (
+    Column,
+    String,
+    Float,
+    Integer,
+    Text,
+    DateTime,
+    ForeignKey,
+    Index,
+    CheckConstraint,
+    UniqueConstraint,
+)
 from sqlalchemy.orm import relationship
 
 from .base import BaseModel
@@ -62,6 +74,21 @@ class Recipe(BaseModel):
     )
 
     finished_units = relationship("FinishedUnit", back_populates="recipe")
+
+    # Recipe component relationships (nested recipes / sub-recipes)
+    recipe_components = relationship(
+        "RecipeComponent",
+        foreign_keys="RecipeComponent.recipe_id",
+        back_populates="recipe",
+        cascade="all, delete-orphan",
+        lazy="joined",
+    )
+    used_in_recipes = relationship(
+        "RecipeComponent",
+        foreign_keys="RecipeComponent.component_recipe_id",
+        back_populates="component_recipe",
+        lazy="select",  # Only load when accessed
+    )
 
     # Indexes
     __table_args__ = (
@@ -285,5 +312,96 @@ class RecipeIngredient(BaseModel):
         # Add calculated fields
         result["cost"] = self.calculate_cost()
         result["purchase_unit_quantity"] = self.get_purchase_unit_quantity()
+
+        return result
+
+
+class RecipeComponent(BaseModel):
+    """
+    Junction table linking parent recipes to child (component) recipes.
+
+    This model enables hierarchical recipe structures where a recipe can contain
+    other recipes as components (e.g., "Frosted Layer Cake" includes "Chocolate Cake",
+    "Vanilla Cake", and "Buttercream Frosting" recipes).
+
+    Attributes:
+        recipe_id: Foreign key to parent Recipe (the recipe containing sub-recipes)
+        component_recipe_id: Foreign key to child Recipe (the sub-recipe being included)
+        quantity: Batch multiplier (e.g., 2.0 = 2 batches of the sub-recipe)
+        notes: Optional notes for this component usage (e.g., "prepare day before")
+        sort_order: Display order within parent recipe
+    """
+
+    __tablename__ = "recipe_components"
+
+    # Foreign keys
+    recipe_id = Column(
+        Integer, ForeignKey("recipes.id", ondelete="CASCADE"), nullable=False
+    )
+    component_recipe_id = Column(
+        Integer, ForeignKey("recipes.id", ondelete="RESTRICT"), nullable=False
+    )
+
+    # Component attributes
+    quantity = Column(Float, nullable=False, default=1.0)
+    notes = Column(String(500), nullable=True)
+    sort_order = Column(Integer, nullable=False, default=0)
+
+    # Relationships
+    recipe = relationship(
+        "Recipe",
+        foreign_keys=[recipe_id],
+        back_populates="recipe_components",
+        lazy="joined",
+    )
+    component_recipe = relationship(
+        "Recipe",
+        foreign_keys=[component_recipe_id],
+        back_populates="used_in_recipes",
+        lazy="joined",
+    )
+
+    # Constraints and indexes
+    __table_args__ = (
+        # Constraints
+        CheckConstraint("quantity > 0", name="ck_recipe_component_quantity_positive"),
+        CheckConstraint(
+            "recipe_id != component_recipe_id",
+            name="ck_recipe_component_no_self_reference",
+        ),
+        UniqueConstraint(
+            "recipe_id",
+            "component_recipe_id",
+            name="uq_recipe_component_recipe_component",
+        ),
+        # Indexes
+        Index("idx_recipe_component_recipe", "recipe_id"),
+        Index("idx_recipe_component_component", "component_recipe_id"),
+        Index("idx_recipe_component_sort", "recipe_id", "sort_order"),
+    )
+
+    def __repr__(self) -> str:
+        """String representation of recipe component."""
+        return (
+            f"RecipeComponent(recipe_id={self.recipe_id}, "
+            f"component_recipe_id={self.component_recipe_id}, "
+            f"quantity={self.quantity})"
+        )
+
+    def to_dict(self, include_relationships: bool = False) -> dict:
+        """
+        Convert recipe component to dictionary.
+
+        Args:
+            include_relationships: If True, include component recipe details
+
+        Returns:
+            Dictionary representation
+        """
+        result = super().to_dict(include_relationships)
+
+        # Add component recipe name if available
+        if self.component_recipe:
+            result["component_recipe_name"] = self.component_recipe.name
 
         return result
