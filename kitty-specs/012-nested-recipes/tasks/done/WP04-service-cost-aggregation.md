@@ -9,10 +9,10 @@ subtasks:
   - "T027"
 title: "Service Layer - Cost & Aggregation"
 phase: "Phase 2 - Core Features"
-lane: "for_review"
+lane: "done"
 assignee: ""
-agent: "claude"
-shell_pid: "91798"
+agent: "claude-reviewer"
+shell_pid: "98957"
 review_status: ""
 reviewed_by: ""
 history:
@@ -641,3 +641,4 @@ def test_calculate_cost_missing_prices():
 - 2025-12-09T00:00:00Z – system – lane=planned – Prompt created.
 - 2025-12-09T13:41:48Z – claude – shell_pid=90571 – lane=doing – Started implementation
 - 2025-12-09T13:53:03Z – claude – shell_pid=91798 – lane=for_review – Completed implementation - 14 new tests, all 537 pass
+- 2025-12-09T17:55:30Z – claude-reviewer – shell_pid=98957 – lane=done – Code review: APPROVED - Cost calculation and ingredient aggregation implemented with tests
