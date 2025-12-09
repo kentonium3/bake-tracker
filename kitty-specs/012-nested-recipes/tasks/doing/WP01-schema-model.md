@@ -10,10 +10,10 @@ subtasks:
   - "T007"
 title: "Schema & Model"
 phase: "Phase 1 - Foundation"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "claude"
+shell_pid: "87946"
 review_status: ""
 reviewed_by: ""
 history:
@@ -279,3 +279,4 @@ CREATE TABLE recipe_components (
 ## Activity Log
 
 - 2025-12-09T00:00:00Z – system – lane=planned – Prompt created.
+- 2025-12-09T13:20:03Z – claude – shell_pid=87946 – lane=doing – Started implementation
