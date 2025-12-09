@@ -27,6 +27,7 @@ from src.models.finished_good import FinishedGood
 from src.models.composition import Composition
 from src.models.package import Package, PackageFinishedGood
 from src.models.production_record import ProductionRecord
+from src.models.recipe import Recipe, RecipeComponent
 from src.utils.constants import APP_NAME, APP_VERSION
 
 
@@ -82,6 +83,17 @@ class ImportResult:
                 "record_name": record_name,
                 "error_type": "import_error",
                 "message": error,
+            }
+        )
+
+    def add_warning(self, record_type: str, record_name: str, message: str):
+        """Record a warning (non-fatal issue during import)."""
+        self.warnings.append(
+            {
+                "record_type": record_type,
+                "record_name": record_name,
+                "warning_type": "warning",
+                "message": message,
             }
         )
 
@@ -303,14 +315,26 @@ def export_recipes_to_json(
                     "unit": ri.unit,
                 }
 
-                # Include brand for disambiguation
-                if ri.ingredient.brand:
+                # Include brand for disambiguation (brand moved to Product in TD-001)
+                if hasattr(ri.ingredient, 'brand') and ri.ingredient.brand:
                     ingredient_data["ingredient_brand"] = ri.ingredient.brand
 
                 if ri.notes:
                     ingredient_data["notes"] = ri.notes
 
                 recipe_data["ingredients"].append(ingredient_data)
+
+            # Add recipe components (sub-recipes)
+            recipe_data["components"] = []
+            for comp in recipe.recipe_components:
+                component_data = {
+                    "recipe_name": comp.component_recipe.name if comp.component_recipe else None,
+                    "quantity": comp.quantity,
+                }
+                if comp.notes:
+                    component_data["notes"] = comp.notes
+
+                recipe_data["components"].append(component_data)
 
             export_data["recipes"].append(recipe_data)
 
@@ -1045,6 +1069,18 @@ def export_all_to_json(file_path: str) -> ExportResult:
 
                 recipe_data["ingredients"].append(ingredient_data)
 
+            # Add recipe components (sub-recipes)
+            recipe_data["components"] = []
+            for comp in recipe.recipe_components:
+                component_data = {
+                    "recipe_name": comp.component_recipe.name if comp.component_recipe else None,
+                    "quantity": comp.quantity,
+                }
+                if comp.notes:
+                    component_data["notes"] = comp.notes
+
+                recipe_data["components"].append(component_data)
+
             export_data["recipes"].append(recipe_data)
 
         # Add finished goods (v3.0: assembly-focused, slug-based)
@@ -1419,7 +1455,10 @@ def import_recipes_from_json(
 
         recipes_data = data["recipes"]
 
-        # Import each recipe
+        # Track imported recipes for component linking (second pass)
+        imported_recipes = {}  # name -> Recipe
+
+        # First pass: Import recipes (without components)
         for idx, recipe_data in enumerate(recipes_data):
             try:
                 name = recipe_data.get("name", "")
@@ -1513,13 +1552,91 @@ def import_recipes_from_json(
                 if "notes" in recipe_data:
                     recipe_base_data["notes"] = recipe_data["notes"]
 
-                recipe_service.create_recipe(recipe_base_data, validated_ingredients)
+                created_recipe = recipe_service.create_recipe(recipe_base_data, validated_ingredients)
                 result.add_success()
+
+                # Track imported recipe for component linking
+                if created_recipe:
+                    imported_recipes[name] = created_recipe
 
             except ValidationError as e:
                 result.add_error("recipe", name, f"Validation error: {e}")
             except Exception as e:
                 result.add_error("recipe", name, str(e))
+
+        # Second pass: Link recipe components
+        for recipe_data in recipes_data:
+            recipe_name = recipe_data.get("name")
+            components_data = recipe_data.get("components", [])
+
+            if not components_data:
+                continue
+
+            # Find the parent recipe (from imported or existing)
+            parent_recipe = imported_recipes.get(recipe_name)
+            if not parent_recipe:
+                # Try to find existing recipe by name
+                try:
+                    with session_scope() as session:
+                        parent_recipe = session.query(Recipe).filter_by(name=recipe_name).first()
+                        if parent_recipe:
+                            # Detach from session for later use
+                            session.expunge(parent_recipe)
+                except Exception:
+                    pass
+
+            if not parent_recipe:
+                continue
+
+            # Link each component
+            for comp_data in components_data:
+                component_name = comp_data.get("recipe_name")
+                quantity = comp_data.get("quantity", 1.0)
+                notes = comp_data.get("notes")
+
+                if not component_name:
+                    continue
+
+                # Find component recipe (from imported or existing)
+                component_recipe = imported_recipes.get(component_name)
+                if not component_recipe:
+                    try:
+                        with session_scope() as session:
+                            component_recipe = session.query(Recipe).filter_by(name=component_name).first()
+                            if component_recipe:
+                                session.expunge(component_recipe)
+                    except Exception:
+                        pass
+
+                if not component_recipe:
+                    result.add_warning(
+                        "recipe_component",
+                        f"{recipe_name} -> {component_name}",
+                        f"Component recipe '{component_name}' not found, skipping"
+                    )
+                    continue
+
+                # Add component relationship
+                try:
+                    recipe_service.add_recipe_component(
+                        parent_recipe.id,
+                        component_recipe.id,
+                        quantity=quantity,
+                        notes=notes
+                    )
+                except ValidationError as e:
+                    # Handle duplicates or validation issues gracefully
+                    result.add_warning(
+                        "recipe_component",
+                        f"{recipe_name} -> {component_name}",
+                        str(e)
+                    )
+                except Exception as e:
+                    result.add_warning(
+                        "recipe_component",
+                        f"{recipe_name} -> {component_name}",
+                        f"Failed to link: {str(e)}"
+                    )
 
         return result
 

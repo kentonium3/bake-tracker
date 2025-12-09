@@ -1116,3 +1116,357 @@ class TestDensityFieldsImportExport:
         assert "version" in data
         assert data["version"] == "3.0"
         assert "ingredients" in data
+
+
+# ============================================================================
+# Recipe Component Import/Export Tests (Feature 012)
+# ============================================================================
+
+
+class TestRecipeComponentExport:
+    """Tests for exporting recipe components (T032)."""
+
+    def test_export_recipe_with_components(self, test_db, tmp_path):
+        """Export includes component relationships."""
+        from src.services import ingredient_service, recipe_service
+        from src.services.import_export_service import export_recipes_to_json
+
+        # Create ingredient
+        flour = ingredient_service.create_ingredient(
+            {"name": "Export Flour", "category": "Flour", "recipe_unit": "cup"}
+        )
+
+        # Create child recipe
+        child = recipe_service.create_recipe(
+            {
+                "name": "Export Child Recipe",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            },
+            [{"ingredient_id": flour.id, "quantity": 1.0, "unit": "cup"}],
+        )
+
+        # Create parent recipe
+        parent = recipe_service.create_recipe(
+            {
+                "name": "Export Parent Recipe",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            },
+            [{"ingredient_id": flour.id, "quantity": 2.0, "unit": "cup"}],
+        )
+
+        # Add child as component
+        recipe_service.add_recipe_component(parent.id, child.id, quantity=2.0, notes="Test note")
+
+        # Export
+        export_file = tmp_path / "export.json"
+        result = export_recipes_to_json(str(export_file))
+
+        assert result.success
+
+        # Read and verify
+        with open(export_file) as f:
+            data = json.load(f)
+
+        parent_data = next(r for r in data["recipes"] if r["name"] == "Export Parent Recipe")
+        assert "components" in parent_data
+        assert len(parent_data["components"]) == 1
+        assert parent_data["components"][0]["recipe_name"] == "Export Child Recipe"
+        assert parent_data["components"][0]["quantity"] == 2.0
+        assert parent_data["components"][0]["notes"] == "Test note"
+
+    def test_export_recipe_without_components(self, test_db, tmp_path):
+        """Recipe without components has empty components array."""
+        from src.services import ingredient_service, recipe_service
+        from src.services.import_export_service import export_recipes_to_json
+
+        flour = ingredient_service.create_ingredient(
+            {"name": "Simple Flour", "category": "Flour", "recipe_unit": "cup"}
+        )
+
+        recipe = recipe_service.create_recipe(
+            {
+                "name": "Simple Recipe No Components",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            },
+            [{"ingredient_id": flour.id, "quantity": 1.0, "unit": "cup"}],
+        )
+
+        export_file = tmp_path / "export.json"
+        result = export_recipes_to_json(str(export_file))
+
+        with open(export_file) as f:
+            data = json.load(f)
+
+        recipe_data = next(r for r in data["recipes"] if r["name"] == "Simple Recipe No Components")
+        assert "components" in recipe_data
+        assert len(recipe_data["components"]) == 0
+
+    def test_export_all_includes_components(self, test_db, tmp_path):
+        """Full export includes component relationships."""
+        from src.services import ingredient_service, recipe_service
+        from src.services.import_export_service import export_all_to_json
+
+        flour = ingredient_service.create_ingredient(
+            {"name": "Full Export Flour", "category": "Flour", "recipe_unit": "cup"}
+        )
+
+        child = recipe_service.create_recipe(
+            {
+                "name": "Full Export Child",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            },
+            [{"ingredient_id": flour.id, "quantity": 1.0, "unit": "cup"}],
+        )
+
+        parent = recipe_service.create_recipe(
+            {
+                "name": "Full Export Parent",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            },
+            [{"ingredient_id": flour.id, "quantity": 2.0, "unit": "cup"}],
+        )
+
+        recipe_service.add_recipe_component(parent.id, child.id, quantity=1.5)
+
+        export_file = tmp_path / "full_export.json"
+        result = export_all_to_json(str(export_file))
+
+        with open(export_file) as f:
+            data = json.load(f)
+
+        parent_data = next(r for r in data["recipes"] if r["name"] == "Full Export Parent")
+        assert len(parent_data["components"]) == 1
+        assert parent_data["components"][0]["recipe_name"] == "Full Export Child"
+        assert parent_data["components"][0]["quantity"] == 1.5
+
+
+class TestRecipeComponentImport:
+    """Tests for importing recipe components (T033)."""
+
+    def test_import_recipe_with_components(self, test_db, tmp_path):
+        """Import creates component relationships."""
+        from src.services import ingredient_service, recipe_service
+        from src.services.import_export_service import import_recipes_from_json
+
+        # Create ingredient for recipes
+        flour = ingredient_service.create_ingredient(
+            {"name": "Import Flour", "category": "Flour", "recipe_unit": "cup"}
+        )
+
+        # Create export data with component relationship
+        export_data = {
+            "version": "1.0",
+            "recipes": [
+                {
+                    "name": "Import Child Recipe",
+                    "category": "Cookies",
+                    "yield_quantity": 1,
+                    "yield_unit": "batch",
+                    "ingredients": [
+                        {"ingredient_slug": "import_flour", "quantity": 1.0, "unit": "cup"}
+                    ],
+                    "components": [],
+                },
+                {
+                    "name": "Import Parent Recipe",
+                    "category": "Cookies",
+                    "yield_quantity": 1,
+                    "yield_unit": "batch",
+                    "ingredients": [
+                        {"ingredient_slug": "import_flour", "quantity": 2.0, "unit": "cup"}
+                    ],
+                    "components": [
+                        {"recipe_name": "Import Child Recipe", "quantity": 2.0, "notes": "Test import"}
+                    ],
+                },
+            ],
+        }
+
+        import_file = tmp_path / "import.json"
+        with open(import_file, "w") as f:
+            json.dump(export_data, f)
+
+        result = import_recipes_from_json(str(import_file))
+
+        # Should succeed
+        assert result.successful >= 2
+
+        # Verify relationship created
+        parent = recipe_service.get_recipe_by_name("Import Parent Recipe")
+        components = recipe_service.get_recipe_components(parent.id)
+        assert len(components) == 1
+        assert components[0].quantity == 2.0
+        assert components[0].notes == "Test import"
+        assert components[0].component_recipe.name == "Import Child Recipe"
+
+    def test_import_component_missing_recipe(self, test_db, tmp_path):
+        """Import warns when component recipe doesn't exist."""
+        from src.services import ingredient_service
+        from src.services.import_export_service import import_recipes_from_json
+
+        flour = ingredient_service.create_ingredient(
+            {"name": "Missing Comp Flour", "category": "Flour", "recipe_unit": "cup"}
+        )
+
+        export_data = {
+            "version": "1.0",
+            "recipes": [
+                {
+                    "name": "Missing Comp Parent",
+                    "category": "Cookies",
+                    "yield_quantity": 1,
+                    "yield_unit": "batch",
+                    "ingredients": [
+                        {"ingredient_slug": "missing_comp_flour", "quantity": 1.0, "unit": "cup"}
+                    ],
+                    "components": [{"recipe_name": "Nonexistent Recipe", "quantity": 1.0}],
+                }
+            ],
+        }
+
+        import_file = tmp_path / "import.json"
+        with open(import_file, "w") as f:
+            json.dump(export_data, f)
+
+        result = import_recipes_from_json(str(import_file))
+
+        # Should succeed overall (recipe imported)
+        assert result.successful >= 1
+        # Should have warning about missing component
+        assert len(result.warnings) > 0
+        warning_str = str(result.warnings)
+        assert "Nonexistent Recipe" in warning_str
+
+    def test_import_links_existing_recipe(self, test_db, tmp_path):
+        """Import links to existing recipe if component already exists."""
+        from src.services import ingredient_service, recipe_service
+        from src.services.import_export_service import import_recipes_from_json
+
+        flour = ingredient_service.create_ingredient(
+            {"name": "Existing Link Flour", "category": "Flour", "recipe_unit": "cup"}
+        )
+
+        # Pre-create child recipe
+        child = recipe_service.create_recipe(
+            {
+                "name": "Existing Child",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            },
+            [{"ingredient_id": flour.id, "quantity": 1.0, "unit": "cup"}],
+        )
+
+        # Import parent that references existing child
+        export_data = {
+            "version": "1.0",
+            "recipes": [
+                {
+                    "name": "New Parent Linking",
+                    "category": "Cookies",
+                    "yield_quantity": 1,
+                    "yield_unit": "batch",
+                    "ingredients": [
+                        {"ingredient_slug": "existing_link_flour", "quantity": 2.0, "unit": "cup"}
+                    ],
+                    "components": [{"recipe_name": "Existing Child", "quantity": 1.0}],
+                }
+            ],
+        }
+
+        import_file = tmp_path / "import.json"
+        with open(import_file, "w") as f:
+            json.dump(export_data, f)
+
+        result = import_recipes_from_json(str(import_file))
+
+        assert result.successful >= 1
+
+        parent = recipe_service.get_recipe_by_name("New Parent Linking")
+        components = recipe_service.get_recipe_components(parent.id)
+        assert len(components) == 1
+        assert components[0].component_recipe_id == child.id
+
+    def test_import_export_roundtrip(self, test_db, tmp_path):
+        """Export then import preserves all component relationships."""
+        from src.services import ingredient_service, recipe_service
+        from src.services.import_export_service import (
+            export_recipes_to_json,
+            import_recipes_from_json,
+        )
+
+        # Create hierarchy
+        flour = ingredient_service.create_ingredient(
+            {"name": "Roundtrip Flour", "category": "Flour", "recipe_unit": "cup"}
+        )
+
+        grandchild = recipe_service.create_recipe(
+            {
+                "name": "Roundtrip Grandchild",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            },
+            [{"ingredient_id": flour.id, "quantity": 0.5, "unit": "cup"}],
+        )
+
+        child = recipe_service.create_recipe(
+            {
+                "name": "Roundtrip Child",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            },
+            [{"ingredient_id": flour.id, "quantity": 1.0, "unit": "cup"}],
+        )
+
+        parent = recipe_service.create_recipe(
+            {
+                "name": "Roundtrip Parent",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+            },
+            [{"ingredient_id": flour.id, "quantity": 2.0, "unit": "cup"}],
+        )
+
+        recipe_service.add_recipe_component(child.id, grandchild.id, quantity=1.0)
+        recipe_service.add_recipe_component(parent.id, child.id, quantity=2.0, notes="Double batch")
+
+        # Export
+        export_file = tmp_path / "roundtrip.json"
+        export_result = export_recipes_to_json(str(export_file))
+        assert export_result.success
+
+        # Delete all recipes
+        recipe_service.delete_recipe(parent.id)
+        recipe_service.delete_recipe(child.id)
+        recipe_service.delete_recipe(grandchild.id)
+
+        # Import
+        import_result = import_recipes_from_json(str(export_file))
+        assert import_result.successful >= 3
+
+        # Verify hierarchy restored
+        imported_parent = recipe_service.get_recipe_by_name("Roundtrip Parent")
+        parent_components = recipe_service.get_recipe_components(imported_parent.id)
+        assert len(parent_components) == 1
+        assert parent_components[0].component_recipe.name == "Roundtrip Child"
+        assert parent_components[0].quantity == 2.0
+        assert parent_components[0].notes == "Double batch"
+
+        child_components = recipe_service.get_recipe_components(
+            parent_components[0].component_recipe_id
+        )
+        assert len(child_components) == 1
+        assert child_components[0].component_recipe.name == "Roundtrip Grandchild"

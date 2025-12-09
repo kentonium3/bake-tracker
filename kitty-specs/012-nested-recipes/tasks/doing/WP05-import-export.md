@@ -9,10 +9,10 @@ subtasks:
   - "T033"
 title: "Import/Export Support"
 phase: "Phase 2 - Core Features"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "claude"
+shell_pid: "91930"
 review_status: ""
 reviewed_by: ""
 history:
@@ -521,3 +521,4 @@ def test_import_export_roundtrip(tmp_path, clean_db):
 ## Activity Log
 
 - 2025-12-09T00:00:00Z – system – lane=planned – Prompt created.
+- 2025-12-09T13:53:26Z – claude – shell_pid=91930 – lane=doing – Started implementation

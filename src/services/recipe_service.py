@@ -196,10 +196,48 @@ def get_all_recipes(
                 for ri in recipe.recipe_ingredients:
                     _ = ri.ingredient
 
+                # Also load recipe_components and their component_recipe
+                _ = recipe.recipe_components
+                for comp in recipe.recipe_components:
+                    _ = comp.component_recipe
+
             return recipes
 
     except SQLAlchemyError as e:
         raise DatabaseError("Failed to retrieve recipes", e)
+
+
+def get_recipe_by_name(name: str) -> Optional[Recipe]:
+    """
+    Retrieve a recipe by its exact name.
+
+    Args:
+        name: Exact recipe name
+
+    Returns:
+        Recipe instance if found, None otherwise
+
+    Raises:
+        DatabaseError: If database operation fails
+    """
+    try:
+        with session_scope() as session:
+            recipe = session.query(Recipe).filter_by(name=name).first()
+
+            if recipe:
+                # Eagerly load relationships
+                _ = recipe.recipe_ingredients
+                for ri in recipe.recipe_ingredients:
+                    _ = ri.ingredient
+
+                _ = recipe.recipe_components
+                for comp in recipe.recipe_components:
+                    _ = comp.component_recipe
+
+            return recipe
+
+    except SQLAlchemyError as e:
+        raise DatabaseError(f"Failed to retrieve recipe by name: {name}", e)
 
 
 def update_recipe(  # noqa: C901
