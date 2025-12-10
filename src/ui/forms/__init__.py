@@ -17,6 +17,10 @@ from .recipient_form import RecipientFormDialog
 from .event_form import EventFormDialog
 from .assignment_form import AssignmentFormDialog
 
+# Feature 014 - Production & Assembly Recording UI
+from .record_production_dialog import RecordProductionDialog
+from .finished_unit_detail import FinishedUnitDetailDialog
+
 __all__ = [
     "IngredientFormDialog",
     "RecipeFormDialog",
@@ -26,4 +30,7 @@ __all__ = [
     "RecipientFormDialog",
     "EventFormDialog",
     "AssignmentFormDialog",
+    # Feature 014 - Production & Assembly Recording UI
+    "RecordProductionDialog",
+    "FinishedUnitDetailDialog",
 ]
