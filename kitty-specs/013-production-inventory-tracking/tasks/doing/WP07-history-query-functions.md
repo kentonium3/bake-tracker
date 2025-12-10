@@ -8,10 +8,10 @@ subtasks:
   - "T040"
 title: "History & Query Functions"
 phase: "Phase 4 - History"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "claude"
+shell_pid: "15592"
 review_status: ""
 reviewed_by: ""
 history:
@@ -289,3 +289,4 @@ def test_get_assembly_run_with_consumptions(assembly_run_with_consumptions):
 ## Activity Log
 
 - 2025-12-09T17:30:00Z - system - lane=planned - Prompt created.
+- 2025-12-10T03:49:08Z – claude – shell_pid=15592 – lane=doing – Implementation complete - get_production_history, get_assembly_history and related query functions
