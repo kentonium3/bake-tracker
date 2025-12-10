@@ -10,9 +10,9 @@ subtasks:
   - "T048"
 title: "Production Dashboard Tab"
 phase: "Phase 4 - Dashboard"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
+agent: "system"
 shell_pid: ""
 review_status: ""
 reviewed_by: ""
@@ -360,3 +360,4 @@ def refresh(self):
 ## Activity Log
 
 - 2025-12-10T00:00:00Z - system - lane=planned - Prompt created.
+- 2025-12-10T15:12:04Z – system – shell_pid= – lane=doing – Moved to doing

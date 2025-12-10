@@ -20,7 +20,7 @@ from src.ui.finished_units_tab import FinishedUnitsTab
 from src.ui.packages_tab import PackagesTab
 from src.ui.recipients_tab import RecipientsTab
 from src.ui.events_tab import EventsTab
-from src.ui.production_tab import ProductionTab
+from src.ui.production_dashboard_tab import ProductionDashboardTab
 from src.ui.service_integration import check_service_integration_health
 
 
@@ -136,9 +136,9 @@ class MainWindow(ctk.CTk):
         events_frame = self.tabview.tab("Events")
         self.events_tab = EventsTab(events_frame)
 
-        # Initialize Production tab (Feature 008)
+        # Initialize Production Dashboard tab (Feature 014)
         production_frame = self.tabview.tab("Production")
-        self.production_tab = ProductionTab(production_frame)
+        self.production_tab = ProductionDashboardTab(production_frame)
 
         # Add placeholders for future tabs
         self._add_placeholder_tab("Reports", "Phase 4: Coming Soon")
