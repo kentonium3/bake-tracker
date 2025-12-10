@@ -7,7 +7,7 @@ subtasks:
   - "T004"
 title: "Production Run Models"
 phase: "Phase 1 - Foundation"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "claude"
 shell_pid: "15592"
@@ -170,3 +170,4 @@ class ProductionRun(BaseModel):
 
 - 2025-12-09T17:30:00Z - system - lane=planned - Prompt created.
 - 2025-12-10T03:47:12Z – claude – shell_pid=15592 – lane=doing – Implementation complete - ProductionRun and ProductionConsumption models created
+- 2025-12-10T03:47:40Z – claude – shell_pid=15592 – lane=for_review – Ready for review - models tested via batch_production_service tests
