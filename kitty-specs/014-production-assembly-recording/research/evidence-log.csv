@@ -1,0 +1,11 @@
+id,date,category,finding,source,impact,status
+E001,2025-12-10,UI Pattern,All dialogs use CTkToplevel with modal setup pattern,src/ui/forms/finished_unit_form.py,High - defines dialog architecture,Verified
+E002,2025-12-10,UI Pattern,UIServiceIntegrator provides consistent error handling for all service calls,src/ui/service_integration.py,High - defines service call pattern,Verified
+E003,2025-12-10,UI Pattern,DataTable base class supports subclassing with _get_row_values override,src/ui/widgets/data_table.py,Medium - defines history table approach,Verified
+E004,2025-12-10,Service API,check_can_produce returns structured availability with missing list,src/services/batch_production_service.py,High - defines availability display data,Verified
+E005,2025-12-10,Service API,check_can_assemble returns structured availability with component types,src/services/assembly_service.py,High - defines availability display data,Verified
+E006,2025-12-10,Service API,record_batch_production handles FIFO consumption atomically,src/services/batch_production_service.py,High - core functionality dependency,Verified
+E007,2025-12-10,Service API,get_production_history supports finished_unit_id filter and pagination,src/services/batch_production_service.py,Medium - defines history query pattern,Verified
+E008,2025-12-10,Existing Code,production_tab.py has event-based structure different from new requirements,src/ui/production_tab.py,Medium - confirms need for replacement,Verified
+E009,2025-12-10,UI Constants,PADDING_MEDIUM=5 PADDING_LARGE=10 COLOR_SUCCESS=green COLOR_ERROR=red,src/utils/constants.py,Low - styling consistency,Verified
+E010,2025-12-10,UI Pattern,Forms use show_error from widgets.dialogs for validation feedback,src/ui/widgets/dialogs.py,Medium - defines validation UX,Verified

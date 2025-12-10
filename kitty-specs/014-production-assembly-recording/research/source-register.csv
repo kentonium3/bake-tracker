@@ -1,0 +1,13 @@
+id,source_type,path_or_url,description,accessed_date,reliability
+S001,codebase,src/ui/forms/finished_unit_form.py,Reference dialog form implementation,2025-12-10,High
+S002,codebase,src/ui/forms/finished_good_form.py,Reference dialog form implementation,2025-12-10,High
+S003,codebase,src/ui/service_integration.py,Service integration layer with error handling,2025-12-10,High
+S004,codebase,src/ui/widgets/data_table.py,Base data table widget,2025-12-10,High
+S005,codebase,src/ui/widgets/dialogs.py,Dialog utility functions,2025-12-10,High
+S006,codebase,src/ui/production_tab.py,Existing production tab to be replaced,2025-12-10,High
+S007,codebase,src/ui/finished_units_tab.py,Reference tab implementation,2025-12-10,High
+S008,codebase,src/services/batch_production_service.py,Production service API,2025-12-10,High
+S009,codebase,src/services/assembly_service.py,Assembly service API,2025-12-10,High
+S010,codebase,src/utils/constants.py,UI constants and colors,2025-12-10,High
+S011,specification,kitty-specs/014-production-assembly-recording/spec.md,Feature specification,2025-12-10,High
+S012,constitution,.kittify/memory/constitution.md,Project constitution and principles,2025-12-10,High
