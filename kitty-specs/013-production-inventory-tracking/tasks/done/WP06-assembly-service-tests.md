@@ -11,10 +11,10 @@ subtasks:
   - "T035"
 title: "Assembly Service - Tests"
 phase: "Phase 3 - Assembly"
-lane: "for_review"
+lane: "done"
 assignee: ""
-agent: "claude"
-shell_pid: "15592"
+agent: "claude-reviewer"
+shell_pid: "17214"
 review_status: ""
 reviewed_by: ""
 history:
@@ -314,3 +314,4 @@ def test_record_assembly_fg_not_found():
 - 2025-12-09T17:30:00Z - system - lane=planned - Prompt created.
 - 2025-12-10T03:48:55Z – claude – shell_pid=15592 – lane=doing – Implementation complete - 25 tests for assembly_service
 - 2025-12-10T03:48:55Z – claude – shell_pid=15592 – lane=for_review – Ready for review - all 25 tests passing
+- 2025-12-10T03:54:06Z – claude-reviewer – shell_pid=17214 – lane=done – Review approved: 25 tests covering happy path, errors, edge cases
