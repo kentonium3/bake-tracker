@@ -7,7 +7,7 @@ subtasks:
   - "T008"
 title: "Assembly Run Models"
 phase: "Phase 1 - Foundation"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "claude"
 shell_pid: "15592"
@@ -157,3 +157,4 @@ Create the SQLAlchemy models for assembly tracking:
 
 - 2025-12-09T17:30:00Z - system - lane=planned - Prompt created.
 - 2025-12-10T03:47:51Z – claude – shell_pid=15592 – lane=doing – Implementation complete - Assembly models created
+- 2025-12-10T03:47:52Z – claude – shell_pid=15592 – lane=for_review – Ready for review - AssemblyRun, AssemblyFinishedUnitConsumption, AssemblyPackagingConsumption models
