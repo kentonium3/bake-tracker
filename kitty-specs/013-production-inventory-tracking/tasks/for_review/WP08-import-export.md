@@ -8,7 +8,7 @@ subtasks:
   - "T045"
 title: "Import/Export"
 phase: "Phase 4 - History"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "claude"
 shell_pid: "15592"
@@ -345,3 +345,4 @@ def test_import_validates_references(db_session):
 
 - 2025-12-09T17:30:00Z - system - lane=planned - Prompt created.
 - 2025-12-10T03:49:18Z – claude – shell_pid=15592 – lane=doing – Implementation complete - export/import functions with UUID-based duplicate detection
+- 2025-12-10T03:49:18Z – claude – shell_pid=15592 – lane=for_review – Ready for review - round-trip data integrity tests passing
