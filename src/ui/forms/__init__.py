@@ -20,6 +20,8 @@ from .assignment_form import AssignmentFormDialog
 # Feature 014 - Production & Assembly Recording UI
 from .record_production_dialog import RecordProductionDialog
 from .finished_unit_detail import FinishedUnitDetailDialog
+from .record_assembly_dialog import RecordAssemblyDialog
+from .finished_good_detail import FinishedGoodDetailDialog
 
 __all__ = [
     "IngredientFormDialog",
@@ -33,4 +35,6 @@ __all__ = [
     # Feature 014 - Production & Assembly Recording UI
     "RecordProductionDialog",
     "FinishedUnitDetailDialog",
+    "RecordAssemblyDialog",
+    "FinishedGoodDetailDialog",
 ]

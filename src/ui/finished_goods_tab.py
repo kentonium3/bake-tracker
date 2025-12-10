@@ -345,7 +345,7 @@ class FinishedGoodsTab(ctk.CTkFrame):
                 self._update_status("Failed to delete finished good", error=True)
 
     def _view_details(self):
-        """Show detailed information about the selected finished good."""
+        """Open the FinishedGood detail dialog for the selected item."""
         if not self.selected_finished_good:
             return
 
@@ -353,56 +353,22 @@ class FinishedGoodsTab(ctk.CTkFrame):
             # Get finished good with relationships
             fg = finished_good_service.get_finished_good(self.selected_finished_good.id)
 
-            # Build details message
-            details = []
-            details.append(f"Finished Good: {fg.name}")
-            details.append(f"Recipe: {fg.recipe.name}")
-
-            if fg.category:
-                details.append(f"Category: {fg.category}")
-
-            details.append("")
-            details.append(f"Yield Mode: {fg.yield_mode.value.replace('_', ' ').title()}")
-
-            if fg.yield_mode.value == "discrete_count":
-                details.append(f"Items per Batch: {fg.items_per_batch}")
-                details.append(f"Item Unit: {fg.item_unit}")
-            else:
-                details.append(f"Batch Percentage: {fg.batch_percentage}%")
-                if fg.portion_description:
-                    details.append(f"Portion: {fg.portion_description}")
-
-            details.append("")
-            details.append("Cost Information:")
-            cost_per_item = fg.get_cost_per_item()
-            details.append(f"  Cost per Item: ${cost_per_item:.4f}")
-
-            # Recipe cost breakdown
-            recipe_cost = fg.recipe.calculate_cost()
-            details.append(f"  Recipe Total Cost: ${recipe_cost:.2f}")
-
-            # Batch calculation example
-            details.append("")
-            details.append("Batch Planning:")
-            if fg.yield_mode.value == "discrete_count":
-                details.append(
-                    f"  Example: Need 50 items → {fg.calculate_batches_needed(50):.2f} batches"
+            if not fg:
+                show_error(
+                    "Error",
+                    "Finished good not found.",
+                    parent=self,
                 )
-            else:
-                details.append(
-                    f"  Example: Need 2 items → {fg.calculate_batches_needed(2):.2f} batches"
-                )
+                return
 
-            if fg.notes:
-                details.append("")
-                details.append("Notes:")
-                details.append(f"  {fg.notes}")
+            from src.ui.forms.finished_good_detail import FinishedGoodDetailDialog
 
-            show_info(
-                f"Finished Good Details: {fg.name}",
-                "\n".join(details),
-                parent=self,
+            dialog = FinishedGoodDetailDialog(
+                self,
+                fg,
+                on_inventory_changed=self.refresh,
             )
+            self.wait_window(dialog)
 
         except Exception as e:
             show_error(
