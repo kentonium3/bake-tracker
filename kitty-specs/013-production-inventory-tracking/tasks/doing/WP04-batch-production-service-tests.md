@@ -12,10 +12,10 @@ subtasks:
   - "T022"
 title: "Batch Production Service - Tests"
 phase: "Phase 2 - Core Services"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "claude"
+shell_pid: "15592"
 review_status: ""
 reviewed_by: ""
 history:
@@ -355,3 +355,4 @@ def test_record_batch_production_mismatch_error(recipe_cookies, inventory_flour,
 ## Activity Log
 
 - 2025-12-09T17:30:00Z - system - lane=planned - Prompt created.
+- 2025-12-10T03:48:19Z – claude – shell_pid=15592 – lane=doing – Implementation complete - 26 tests for batch_production_service
