@@ -7,7 +7,7 @@ subtasks:
   - "T004"
 title: "Core Reusable Widgets"
 phase: "Phase 1 - Foundational Widgets"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "claude"
 shell_pid: "45064"
@@ -283,3 +283,4 @@ root.mainloop()
 
 - 2025-12-10T00:00:00Z - system - lane=planned - Prompt created.
 - 2025-12-10T06:49:10Z – claude – shell_pid=45064 – lane=doing – Started implementation of Core Reusable Widgets
+- 2025-12-10T06:55:42Z – claude – shell_pid=45064 – lane=for_review – Completed implementation - T001, T002, T003, T004 all done
