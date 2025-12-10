@@ -232,22 +232,21 @@ def record_batch_production(
         total_ingredient_cost = Decimal("0.0000")
         consumption_records = []
 
-        # Consume ingredients via FIFO
-        # Note: consume_fifo uses its own session_scope, so it commits independently
+        # Consume ingredients via FIFO - ALL within this same session for atomicity
         for item in aggregated:
             ingredient = item["ingredient"]
             ingredient_slug = ingredient.slug
             quantity_needed = Decimal(str(item["total_quantity"]))
             unit = item["unit"]
 
-            # Perform actual FIFO consumption
+            # Perform actual FIFO consumption - pass session for atomic transaction
             result = inventory_item_service.consume_fifo(
-                ingredient_slug, quantity_needed, dry_run=False
+                ingredient_slug, quantity_needed, dry_run=False, session=session
             )
 
             if not result["satisfied"]:
                 # This shouldn't happen if check_can_produce was called first,
-                # but handle it gracefully
+                # but handle it gracefully - rollback happens automatically
                 raise InsufficientInventoryError(
                     ingredient_slug,
                     quantity_needed,
@@ -269,11 +268,7 @@ def record_batch_production(
                 }
             )
 
-        # Re-query the FinishedUnit to ensure we have a fresh instance
-        # (consume_fifo uses its own session which may have caused issues)
-        finished_unit = session.query(FinishedUnit).filter_by(id=finished_unit_id).first()
-
-        # Increment FinishedUnit inventory
+        # Increment FinishedUnit inventory (same session, atomic with consumption)
         finished_unit.inventory_count += actual_yield
 
         # Calculate per-unit cost (handle division by zero)

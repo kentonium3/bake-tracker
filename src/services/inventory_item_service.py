@@ -223,7 +223,10 @@ def get_total_quantity(ingredient_slug: str) -> Dict[str, Decimal]:
 
 
 def consume_fifo(
-    ingredient_slug: str, quantity_needed: Decimal, dry_run: bool = False
+    ingredient_slug: str,
+    quantity_needed: Decimal,
+    dry_run: bool = False,
+    session=None,
 ) -> Dict[str, Any]:
     """Consume inventory inventory using FIFO (First In, First Out) logic.
 
@@ -244,6 +247,9 @@ def consume_fifo(
         dry_run: If True, simulate consumption without modifying database.
                  Returns cost data for recipe costing calculations.
                  If False (default), actually consume inventory.
+        session: Optional database session. If provided, the caller owns the
+                 transaction and this function will NOT commit. If None,
+                 this function manages its own transaction via session_scope().
 
     Returns:
         Dict[str, Any]: Consumption result with keys:
@@ -263,6 +269,7 @@ def consume_fifo(
         - Unit conversion uses ingredient's unit_converter configuration
         - Empty lots (quantity=0) are kept for audit trail, not deleted
         - When dry_run=True, inventory quantities are NOT modified (read-only)
+        - When session is provided, caller is responsible for commit/rollback
     """
     from ..services.unit_converter import convert_any_units
 
@@ -274,105 +281,114 @@ def consume_fifo(
     if density_g_per_ml:
         density_g_per_cup = density_g_per_ml * 236.588  # Convert g/ml to g/cup
 
-    try:
-        with session_scope() as session:
-            # Get all lots ordered by purchase_date ASC (oldest first)
-            inventory_items = (
-                session.query(InventoryItem)
-                .options(joinedload(InventoryItem.product).joinedload(Product.ingredient))
-                .join(Product)
-                .filter(
-                    Product.ingredient_id == ingredient.id,
-                    InventoryItem.quantity
-                    >= 0.001,  # Exclude negligible amounts from floating-point errors
-                )
-                .order_by(InventoryItem.purchase_date.asc())
-                .all()
+    def _do_consume(sess):
+        """Inner function that performs the actual FIFO consumption logic."""
+        # Get all lots ordered by purchase_date ASC (oldest first)
+        inventory_items = (
+            sess.query(InventoryItem)
+            .options(joinedload(InventoryItem.product).joinedload(Product.ingredient))
+            .join(Product)
+            .filter(
+                Product.ingredient_id == ingredient.id,
+                InventoryItem.quantity
+                >= 0.001,  # Exclude negligible amounts from floating-point errors
+            )
+            .order_by(InventoryItem.purchase_date.asc())
+            .all()
+        )
+
+        consumed = Decimal("0.0")
+        total_cost = Decimal("0.0")
+        breakdown = []
+        remaining_needed = quantity_needed
+
+        for item in inventory_items:
+            if remaining_needed <= Decimal("0.0"):
+                break
+
+            # Convert lot quantity to ingredient recipe_unit
+            item_qty_decimal = Decimal(str(item.quantity))
+            success, available_float, error = convert_any_units(
+                float(item_qty_decimal),
+                item.product.purchase_unit,
+                ingredient.recipe_unit,
+                ingredient=ingredient,
+            )
+            if not success:
+                raise ValueError(f"Unit conversion failed: {error}")
+            available = Decimal(str(available_float))
+
+            # Consume up to available amount
+            to_consume_in_recipe_unit = min(available, remaining_needed)
+
+            # Convert back to lot's unit for deduction
+            success, to_consume_float, error = convert_any_units(
+                float(to_consume_in_recipe_unit),
+                ingredient.recipe_unit,
+                item.product.purchase_unit,
+                ingredient=ingredient,
+            )
+            if not success:
+                raise ValueError(f"Unit conversion failed: {error}")
+            to_consume_in_lot_unit = Decimal(str(to_consume_float))
+
+            # Get unit cost from the inventory item (if available)
+            item_unit_cost = Decimal(str(item.unit_cost)) if item.unit_cost else Decimal("0.0")
+
+            # Calculate cost for this lot's consumption
+            lot_cost = to_consume_in_lot_unit * item_unit_cost
+            total_cost += lot_cost
+
+            # Update lot quantity only if NOT dry_run
+            if not dry_run:
+                item.quantity -= float(to_consume_in_lot_unit)
+
+            consumed += to_consume_in_recipe_unit
+            remaining_needed -= to_consume_in_recipe_unit
+
+            # Calculate remaining_in_lot (for dry_run, simulate the deduction)
+            if dry_run:
+                remaining_in_lot = item_qty_decimal - to_consume_in_lot_unit
+            else:
+                remaining_in_lot = Decimal(str(item.quantity))
+
+            breakdown.append(
+                {
+                    "inventory_item_id": item.id,
+                    "product_id": item.product_id,
+                    "lot_date": item.purchase_date,
+                    "quantity_consumed": to_consume_in_lot_unit,
+                    "unit": item.product.purchase_unit,
+                    "remaining_in_lot": remaining_in_lot,
+                    "unit_cost": item_unit_cost,
+                }
             )
 
-            consumed = Decimal("0.0")
-            total_cost = Decimal("0.0")
-            breakdown = []
-            remaining_needed = quantity_needed
+            # Only flush to database if NOT dry_run and we own the session
+            if not dry_run:
+                sess.flush()  # Persist update within transaction
 
-            for item in inventory_items:
-                if remaining_needed <= Decimal("0.0"):
-                    break
+        # Calculate results
+        shortfall = max(Decimal("0.0"), remaining_needed)
+        satisfied = shortfall == Decimal("0.0")
 
-                # Convert lot quantity to ingredient recipe_unit
-                item_qty_decimal = Decimal(str(item.quantity))
-                success, available_float, error = convert_any_units(
-                    float(item_qty_decimal),
-                    item.product.purchase_unit,
-                    ingredient.recipe_unit,
-                    ingredient=ingredient,
-                )
-                if not success:
-                    raise ValueError(f"Unit conversion failed: {error}")
-                available = Decimal(str(available_float))
+        return {
+            "consumed": consumed,
+            "breakdown": breakdown,
+            "shortfall": shortfall,
+            "satisfied": satisfied,
+            "total_cost": total_cost,
+        }
 
-                # Consume up to available amount
-                to_consume_in_recipe_unit = min(available, remaining_needed)
-
-                # Convert back to lot's unit for deduction
-                success, to_consume_float, error = convert_any_units(
-                    float(to_consume_in_recipe_unit),
-                    ingredient.recipe_unit,
-                    item.product.purchase_unit,
-                    ingredient=ingredient,
-                )
-                if not success:
-                    raise ValueError(f"Unit conversion failed: {error}")
-                to_consume_in_lot_unit = Decimal(str(to_consume_float))
-
-                # Get unit cost from the inventory item (if available)
-                item_unit_cost = Decimal(str(item.unit_cost)) if item.unit_cost else Decimal("0.0")
-
-                # Calculate cost for this lot's consumption
-                lot_cost = to_consume_in_lot_unit * item_unit_cost
-                total_cost += lot_cost
-
-                # Update lot quantity only if NOT dry_run
-                if not dry_run:
-                    item.quantity -= float(to_consume_in_lot_unit)
-
-                consumed += to_consume_in_recipe_unit
-                remaining_needed -= to_consume_in_recipe_unit
-
-                # Calculate remaining_in_lot (for dry_run, simulate the deduction)
-                if dry_run:
-                    remaining_in_lot = item_qty_decimal - to_consume_in_lot_unit
-                else:
-                    remaining_in_lot = Decimal(str(item.quantity))
-
-                breakdown.append(
-                    {
-                        "inventory_item_id": item.id,
-                        "product_id": item.product_id,
-                        "lot_date": item.purchase_date,
-                        "quantity_consumed": to_consume_in_lot_unit,
-                        "unit": item.product.purchase_unit,
-                        "remaining_in_lot": remaining_in_lot,
-                        "unit_cost": item_unit_cost,
-                    }
-                )
-
-                # Only flush to database if NOT dry_run
-                if not dry_run:
-                    session.flush()  # Persist update within transaction
-
-            # Calculate results
-            shortfall = max(Decimal("0.0"), remaining_needed)
-            satisfied = shortfall == Decimal("0.0")
-
-            return {
-                "consumed": consumed,
-                "breakdown": breakdown,
-                "shortfall": shortfall,
-                "satisfied": satisfied,
-                "total_cost": total_cost,
-            }
-
+    # Execute with provided session or create new one
+    try:
+        if session is not None:
+            # Caller owns the transaction - don't commit
+            return _do_consume(session)
+        else:
+            # Standalone call - own transaction
+            with session_scope() as sess:
+                return _do_consume(sess)
     except Exception as e:
         raise DatabaseError(
             f"Failed to consume FIFO for ingredient '{ingredient_slug}'", original_error=e

@@ -1,7 +1,7 @@
 # Feature Roadmap
 
 **Created:** 2025-12-03
-**Last Updated:** 2025-12-08
+**Last Updated:** 2025-12-10
 **Workflow:** Spec-Kitty driven development
 
 ---
@@ -21,14 +21,15 @@
 | 009 | UI Import/Export | MERGED | File menu import/export dialogs. 7 bug fixes applied 2025-12-04. |
 | 010 | User-Friendly Density Input | MERGED | 4-field density model. 8 post-merge bugs fixed 2025-12-05. |
 | TD-001 | Schema Cleanup | MERGED | Variant→Product, PantryItem→InventoryItem, dual FK fix, display_name. |
+| 011 | Packaging & BOM Foundation | MERGED | Packaging materials in Composition, `is_packaging` flag on Ingredient. |
+| 012 | Nested Recipes | MERGED | RecipeComponent model, recursive cost calculation, ingredient aggregation. |
+| 013 | Production & Inventory Tracking | MERGED | BatchProductionService, AssemblyService, FIFO consumption ledgers. 51 tests. Bug fixes 2025-12-10: transaction atomicity, timestamp consistency, packaging validation. |
 
 ---
 
 ## In Progress
 
-| # | Name | Priority | Description |
-|---|------|----------|-------------|
-| 011 | Packaging & BOM Foundation | HIGH | Packaging materials, extend Composition for packaging consumption |
+*No features currently in progress.*
 
 ---
 
@@ -36,8 +37,6 @@
 
 | # | Name | Priority | Dependencies |
 |---|------|----------|--------------|
-| 012 | Nested Recipes | HIGH | 011 |
-| 013 | Production & Inventory Tracking | HIGH | 012 |
 | 014 | Production UI | HIGH | 013 |
 | 015 | Reporting Enhancements | LOW | - |
 | 016 | Packaging & Distribution | LOW | - |
@@ -46,13 +45,13 @@
 
 ## Implementation Order
 
-**Current:** Feature 011 (Packaging & BOM Foundation) - in progress via spec-kitty
+**Current:** Ready for Feature 014 (Production UI)
 
 1. ~~**TD-001** - Clean foundation before adding new entities~~ ✅ COMPLETE
-2. **Feature 011** - Packaging materials, extend Composition for packaging ← IN PROGRESS
-3. **Feature 012** - Nested recipes (sub-recipes as recipe components)
-4. **Feature 013** - BATCH entity, production services, consumption recording
-5. **Feature 014** - Production UI, completes Feature 004's missing assembly UI
+2. ~~**Feature 011** - Packaging materials, extend Composition for packaging~~ ✅ COMPLETE
+3. ~~**Feature 012** - Nested recipes (sub-recipes as recipe components)~~ ✅ COMPLETE
+4. ~~**Feature 013** - BatchProductionService, AssemblyService, consumption ledgers~~ ✅ COMPLETE
+5. **Feature 014** - Production UI, completes Feature 004's missing assembly UI ← NEXT
 6. **Feature 015/016** - Based on user feedback
 
 ---
@@ -120,3 +119,5 @@ Part B: Ingredient.name → Ingredient.display_name ✅
 - 2025-12-06: Workflow gap analysis; TD-001 started; Features 011-015 defined
 - 2025-12-07: TD-001 complete; full terminology cleanup (Variant→Product, Pantry→Inventory)
 - 2025-12-08: Feature 011 in progress; Feature 012 (Nested Recipes) inserted; features renumbered 012→013, 013→014, 014→015, 015→016
+- 2025-12-09: Features 011, 012, 013 complete. Full service layer for production tracking now in place (BatchProductionService, AssemblyService with 51 tests, 91% coverage). Ready for Feature 014 (Production UI).
+- 2025-12-10: Feature 013 bug fixes from independent code review: (1) Transaction atomicity - FIFO consumption now uses caller's session for atomic rollback, (2) Timestamp consistency - standardized to naive UTC, (3) Packaging validation - `is_packaging` flag check added, (4) Rollback tests added to both services. Known limitation documented: nested FinishedGood consumption lacks ledger entries (see docs/known_limitations.md).

@@ -936,3 +936,145 @@ class TestImportProductionHistory:
         assert reimp_run["actual_yield"] == original_run["actual_yield"]
         assert reimp_run["total_ingredient_cost"] == original_run["total_ingredient_cost"]
         assert reimp_run["notes"] == original_run["notes"]
+
+
+# =============================================================================
+# Transaction Atomicity Tests (Bug Fix Verification)
+# =============================================================================
+
+
+class TestTransactionAtomicity:
+    """Tests verifying that record_batch_production is fully atomic.
+
+    These tests verify the fix for the Constitution Principle II violation
+    where FIFO consumption was committing independently of production records.
+    """
+
+    def test_record_batch_production_rolls_back_inventory_on_later_failure(
+        self,
+        test_db,
+        recipe_with_ingredients_and_inventory,
+        finished_unit_cookies,
+        inventory_flour,
+        inventory_sugar,
+    ):
+        """Verify inventory is restored if production fails after initial consumption.
+
+        This test validates that the atomic transaction fix works correctly:
+        if any part of record_batch_production fails, ALL changes (including
+        FIFO inventory decrements) are rolled back.
+        """
+        recipe = recipe_with_ingredients_and_inventory
+        recipe_id = recipe.id
+        fu_id = finished_unit_cookies.id
+
+        # Record initial inventory quantities
+        with session_scope() as session:
+            flour_inv = session.query(InventoryItem).filter_by(id=inventory_flour.id).first()
+            sugar_inv = session.query(InventoryItem).filter_by(id=inventory_sugar.id).first()
+            fu = session.query(FinishedUnit).filter_by(id=fu_id).first()
+
+            initial_flour_qty = flour_inv.quantity
+            initial_sugar_qty = sugar_inv.quantity
+            initial_fu_count = fu.inventory_count
+
+        # Attempt production that will fail due to insufficient inventory
+        # (requesting more than available)
+        with pytest.raises(InsufficientInventoryError):
+            batch_production_service.record_batch_production(
+                recipe_id=recipe_id,
+                finished_unit_id=fu_id,
+                num_batches=100,  # Way more than available inventory
+                actual_yield=4800,
+            )
+
+        # Verify ALL inventory quantities are unchanged (rollback worked)
+        with session_scope() as session:
+            flour_inv = session.query(InventoryItem).filter_by(id=inventory_flour.id).first()
+            sugar_inv = session.query(InventoryItem).filter_by(id=inventory_sugar.id).first()
+            fu = session.query(FinishedUnit).filter_by(id=fu_id).first()
+
+            # Critical assertions: inventory should be EXACTLY as before
+            assert flour_inv.quantity == initial_flour_qty, (
+                f"Flour inventory was modified but should have rolled back. "
+                f"Expected {initial_flour_qty}, got {flour_inv.quantity}"
+            )
+            assert sugar_inv.quantity == initial_sugar_qty, (
+                f"Sugar inventory was modified but should have rolled back. "
+                f"Expected {initial_sugar_qty}, got {sugar_inv.quantity}"
+            )
+            assert fu.inventory_count == initial_fu_count, (
+                f"FinishedUnit count was modified but should have rolled back. "
+                f"Expected {initial_fu_count}, got {fu.inventory_count}"
+            )
+
+        # Verify no ProductionRun was created
+        with session_scope() as session:
+            runs = session.query(ProductionRun).filter_by(recipe_id=recipe_id).all()
+            assert len(runs) == 0, "ProductionRun should not exist after failed production"
+
+        # Verify no ProductionConsumption records exist
+        with session_scope() as session:
+            consumptions = session.query(ProductionConsumption).all()
+            assert len(consumptions) == 0, "No consumption records should exist after rollback"
+
+    def test_successful_production_commits_atomically(
+        self,
+        test_db,
+        recipe_with_ingredients_and_inventory,
+        finished_unit_cookies,
+        inventory_flour,
+        inventory_sugar,
+    ):
+        """Verify successful production commits all changes together.
+
+        This test verifies that when production succeeds, inventory decrements
+        AND production records are committed in a single atomic transaction.
+        """
+        recipe = recipe_with_ingredients_and_inventory
+        recipe_id = recipe.id
+        fu_id = finished_unit_cookies.id
+
+        # Record initial quantities
+        with session_scope() as session:
+            flour_inv = session.query(InventoryItem).filter_by(id=inventory_flour.id).first()
+            sugar_inv = session.query(InventoryItem).filter_by(id=inventory_sugar.id).first()
+            fu = session.query(FinishedUnit).filter_by(id=fu_id).first()
+
+            initial_flour_qty = flour_inv.quantity
+            initial_sugar_qty = sugar_inv.quantity
+            initial_fu_count = fu.inventory_count
+
+        # Perform successful production (1 batch = 2 cups flour, 1 cup sugar)
+        result = batch_production_service.record_batch_production(
+            recipe_id=recipe_id,
+            finished_unit_id=fu_id,
+            num_batches=1,
+            actual_yield=48,
+        )
+
+        # Verify all changes were committed together
+        with session_scope() as session:
+            flour_inv = session.query(InventoryItem).filter_by(id=inventory_flour.id).first()
+            sugar_inv = session.query(InventoryItem).filter_by(id=inventory_sugar.id).first()
+            fu = session.query(FinishedUnit).filter_by(id=fu_id).first()
+
+            # Inventory should be decremented
+            assert flour_inv.quantity < initial_flour_qty, "Flour should be consumed"
+            assert sugar_inv.quantity < initial_sugar_qty, "Sugar should be consumed"
+
+            # FinishedUnit should be incremented
+            assert fu.inventory_count == initial_fu_count + 48, "FinishedUnit should be incremented"
+
+        # Verify ProductionRun exists
+        with session_scope() as session:
+            run = session.query(ProductionRun).filter_by(id=result["production_run_id"]).first()
+            assert run is not None, "ProductionRun should exist"
+            assert run.actual_yield == 48
+
+        # Verify consumption records exist
+        with session_scope() as session:
+            consumptions = session.query(ProductionConsumption).filter_by(
+                production_run_id=result["production_run_id"]
+            ).all()
+            assert len(consumptions) == 2, "Should have 2 consumption records (flour + sugar)"

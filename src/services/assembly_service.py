@@ -18,7 +18,7 @@ Feature 013: Production & Inventory Tracking
 
 from typing import Dict, Any, List, Optional
 from decimal import Decimal
-from datetime import datetime, timezone
+from datetime import datetime
 
 from sqlalchemy.orm import joinedload
 
@@ -292,6 +292,8 @@ def record_assembly(
 
             elif comp.finished_good_id:
                 # FinishedGood component (nested assembly) - decrement inventory_count
+                # KNOWN LIMITATION: No consumption ledger entry is created for nested FGs.
+                # See docs/known_limitations.md for details and future enhancement plan.
                 nested_fg = session.query(FinishedGood).filter_by(id=comp.finished_good_id).first()
                 if nested_fg:
                     needed = int(comp.component_quantity * quantity)
@@ -307,18 +309,25 @@ def record_assembly(
                     nested_fg.inventory_count -= needed
                     total_component_cost += cost
 
-                    # Track as FU consumption (can expand to separate tracking later)
-                    # Note: For now we don't create consumption records for nested FGs
-
             elif comp.packaging_product_id:
-                # Packaging product - consume via FIFO
+                # Packaging product - consume via FIFO (same session for atomicity)
                 product = session.query(Product).filter_by(id=comp.packaging_product_id).first()
                 if product and product.ingredient:
-                    ingredient_slug = product.ingredient.slug
+                    ingredient = product.ingredient
+
+                    # Validate that the ingredient is marked as packaging material
+                    if not getattr(ingredient, 'is_packaging', False):
+                        raise ValueError(
+                            f"Product '{product.display_name}' ({ingredient.display_name}) "
+                            f"is not marked as packaging material"
+                        )
+
+                    ingredient_slug = ingredient.slug
                     needed = Decimal(str(comp.component_quantity * quantity))
 
+                    # Pass session for atomic transaction
                     result = inventory_item_service.consume_fifo(
-                        ingredient_slug, needed, dry_run=False
+                        ingredient_slug, needed, dry_run=False, session=session
                     )
                     if not result["satisfied"]:
                         raise InsufficientPackagingError(
@@ -335,11 +344,7 @@ def record_assembly(
                         }
                     )
 
-        # Re-query the FinishedGood to ensure we have a fresh instance
-        # (consume_fifo uses its own session which may have caused issues)
-        finished_good = session.query(FinishedGood).filter_by(id=finished_good_id).first()
-
-        # Increment FinishedGood inventory
+        # Increment FinishedGood inventory (same session, atomic with consumption)
         finished_good.inventory_count += quantity
 
         # Calculate per-unit cost
@@ -349,7 +354,7 @@ def record_assembly(
         assembly_run = AssemblyRun(
             finished_good_id=finished_good_id,
             quantity_assembled=quantity,
-            assembled_at=assembled_at or datetime.now(timezone.utc),
+            assembled_at=assembled_at or datetime.utcnow(),
             notes=notes,
             total_component_cost=total_component_cost,
             per_unit_cost=per_unit_cost,

@@ -728,3 +728,137 @@ class TestImportAssemblyHistory:
         assert reimp_run["quantity_assembled"] == original_run["quantity_assembled"]
         assert reimp_run["total_component_cost"] == original_run["total_component_cost"]
         assert reimp_run["notes"] == original_run["notes"]
+
+
+# =============================================================================
+# Transaction Atomicity Tests (Bug Fix Verification)
+# =============================================================================
+
+
+class TestAssemblyTransactionAtomicity:
+    """Tests verifying that record_assembly is fully atomic.
+
+    These tests verify the fix for the Constitution Principle II violation
+    where FIFO consumption for packaging was committing independently.
+    """
+
+    def test_record_assembly_rolls_back_all_inventory_on_failure(
+        self, test_db, assembly_ready, finished_unit_cookie, inventory_cellophane
+    ):
+        """Verify all inventory is restored if assembly fails.
+
+        This test validates that the atomic transaction fix works correctly:
+        if any part of record_assembly fails, ALL changes (including
+        FIFO packaging consumption and FU decrements) are rolled back.
+        """
+        fg = assembly_ready
+        fg_id = fg.id
+        fu_id = finished_unit_cookie.id
+        cellophane_id = inventory_cellophane.id
+
+        # Record initial inventory quantities
+        with session_scope() as session:
+            fu = session.query(FinishedUnit).filter_by(id=fu_id).first()
+            cellophane = session.query(InventoryItem).filter_by(id=cellophane_id).first()
+            finished_good = session.query(FinishedGood).filter_by(id=fg_id).first()
+
+            initial_fu_count = fu.inventory_count
+            initial_cellophane_qty = cellophane.quantity
+            initial_fg_count = finished_good.inventory_count
+
+        # Attempt assembly that will fail due to insufficient inventory
+        with pytest.raises(InsufficientFinishedUnitError):
+            assembly_service.record_assembly(
+                finished_good_id=fg_id,
+                quantity=1000,  # Way more than available
+            )
+
+        # Verify ALL inventory quantities are unchanged (rollback worked)
+        with session_scope() as session:
+            fu = session.query(FinishedUnit).filter_by(id=fu_id).first()
+            cellophane = session.query(InventoryItem).filter_by(id=cellophane_id).first()
+            finished_good = session.query(FinishedGood).filter_by(id=fg_id).first()
+
+            # Critical assertions: inventory should be EXACTLY as before
+            assert fu.inventory_count == initial_fu_count, (
+                f"FinishedUnit inventory was modified but should have rolled back. "
+                f"Expected {initial_fu_count}, got {fu.inventory_count}"
+            )
+            assert cellophane.quantity == initial_cellophane_qty, (
+                f"Packaging inventory was modified but should have rolled back. "
+                f"Expected {initial_cellophane_qty}, got {cellophane.quantity}"
+            )
+            assert finished_good.inventory_count == initial_fg_count, (
+                f"FinishedGood inventory was modified but should have rolled back. "
+                f"Expected {initial_fg_count}, got {finished_good.inventory_count}"
+            )
+
+        # Verify no AssemblyRun was created
+        with session_scope() as session:
+            runs = session.query(AssemblyRun).filter_by(finished_good_id=fg_id).all()
+            assert len(runs) == 0, "AssemblyRun should not exist after failed assembly"
+
+    def test_successful_assembly_commits_atomically(
+        self, test_db, assembly_ready, finished_unit_cookie, inventory_cellophane
+    ):
+        """Verify successful assembly commits all changes together.
+
+        This test verifies that when assembly succeeds, FU decrements,
+        packaging consumption, FG increments, AND assembly records
+        are all committed in a single atomic transaction.
+        """
+        fg = assembly_ready
+        fg_id = fg.id
+        fu_id = finished_unit_cookie.id
+        cellophane_id = inventory_cellophane.id
+
+        # Record initial quantities
+        with session_scope() as session:
+            fu = session.query(FinishedUnit).filter_by(id=fu_id).first()
+            cellophane = session.query(InventoryItem).filter_by(id=cellophane_id).first()
+            finished_good = session.query(FinishedGood).filter_by(id=fg_id).first()
+
+            initial_fu_count = fu.inventory_count
+            initial_cellophane_qty = cellophane.quantity
+            initial_fg_count = finished_good.inventory_count
+
+        # Perform successful assembly
+        result = assembly_service.record_assembly(
+            finished_good_id=fg_id,
+            quantity=2,
+        )
+
+        # Verify all changes were committed together
+        with session_scope() as session:
+            fu = session.query(FinishedUnit).filter_by(id=fu_id).first()
+            cellophane = session.query(InventoryItem).filter_by(id=cellophane_id).first()
+            finished_good = session.query(FinishedGood).filter_by(id=fg_id).first()
+
+            # FinishedUnit should be decremented
+            assert fu.inventory_count < initial_fu_count, "FinishedUnit should be consumed"
+
+            # Packaging should be consumed
+            assert cellophane.quantity < initial_cellophane_qty, "Packaging should be consumed"
+
+            # FinishedGood should be incremented
+            assert finished_good.inventory_count == initial_fg_count + 2, (
+                "FinishedGood should be incremented"
+            )
+
+        # Verify AssemblyRun exists with correct data
+        with session_scope() as session:
+            run = session.query(AssemblyRun).filter_by(id=result["assembly_run_id"]).first()
+            assert run is not None, "AssemblyRun should exist"
+            assert run.quantity_assembled == 2
+
+        # Verify consumption ledger records exist
+        with session_scope() as session:
+            fu_consumptions = session.query(AssemblyFinishedUnitConsumption).filter_by(
+                assembly_run_id=result["assembly_run_id"]
+            ).all()
+            pkg_consumptions = session.query(AssemblyPackagingConsumption).filter_by(
+                assembly_run_id=result["assembly_run_id"]
+            ).all()
+            # Should have FU consumption record and packaging consumption record
+            assert len(fu_consumptions) >= 1, "Should have FU consumption records"
+            assert len(pkg_consumptions) >= 1, "Should have packaging consumption records"
