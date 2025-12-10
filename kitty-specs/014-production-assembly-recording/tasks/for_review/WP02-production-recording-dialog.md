@@ -9,7 +9,7 @@ subtasks:
   - "T010"
 title: "Production Recording Dialog"
 phase: "Phase 2 - Production Recording"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "claude"
 shell_pid: "45064"
@@ -466,3 +466,4 @@ def _update_confirm_button(self):
 
 - 2025-12-10T00:00:00Z - system - lane=planned - Prompt created.
 - 2025-12-10T06:56:10Z – claude – shell_pid=45064 – lane=doing – Started implementation of Production Recording Dialog
+- 2025-12-10T06:58:37Z – claude – shell_pid=45064 – lane=for_review – Completed implementation - T005-T010 all done
