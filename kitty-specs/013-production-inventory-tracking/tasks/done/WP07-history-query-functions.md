@@ -8,10 +8,10 @@ subtasks:
   - "T040"
 title: "History & Query Functions"
 phase: "Phase 4 - History"
-lane: "for_review"
+lane: "done"
 assignee: ""
-agent: "claude"
-shell_pid: "15592"
+agent: "claude-reviewer"
+shell_pid: "17214"
 review_status: ""
 reviewed_by: ""
 history:
@@ -291,3 +291,4 @@ def test_get_assembly_run_with_consumptions(assembly_run_with_consumptions):
 - 2025-12-09T17:30:00Z - system - lane=planned - Prompt created.
 - 2025-12-10T03:49:08Z – claude – shell_pid=15592 – lane=doing – Implementation complete - get_production_history, get_assembly_history and related query functions
 - 2025-12-10T03:49:08Z – claude – shell_pid=15592 – lane=for_review – Ready for review - history queries with filtering, pagination, eager loading
+- 2025-12-10T03:54:06Z – claude-reviewer – shell_pid=17214 – lane=done – Review approved: get_production_history, get_assembly_history with filters and pagination
