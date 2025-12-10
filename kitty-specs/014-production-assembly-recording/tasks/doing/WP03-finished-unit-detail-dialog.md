@@ -10,10 +10,10 @@ subtasks:
   - "T017"
 title: "FinishedUnit Detail Dialog"
 phase: "Phase 2 - Production Recording"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "claude"
+shell_pid: "45064"
 review_status: ""
 reviewed_by: ""
 history:
@@ -442,3 +442,4 @@ def _show_detail_dialog(self):
 ## Activity Log
 
 - 2025-12-10T00:00:00Z - system - lane=planned - Prompt created.
+- 2025-12-10T06:59:02Z – claude – shell_pid=45064 – lane=doing – Started implementation of FinishedUnit Detail Dialog
