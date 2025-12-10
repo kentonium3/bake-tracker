@@ -9,9 +9,9 @@ subtasks:
   - "T028"
 title: "Assembly Recording Dialog"
 phase: "Phase 3 - Assembly Recording"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
+agent: "system"
 shell_pid: ""
 review_status: ""
 reviewed_by: ""
@@ -306,3 +306,4 @@ def _get_quantity(self) -> int:
 ## Activity Log
 
 - 2025-12-10T00:00:00Z - system - lane=planned - Prompt created.
+- 2025-12-10T07:14:00Z – system – shell_pid= – lane=doing – Moved to doing
