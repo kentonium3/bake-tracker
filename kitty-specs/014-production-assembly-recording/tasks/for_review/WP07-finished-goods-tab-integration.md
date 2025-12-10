@@ -8,7 +8,7 @@ subtasks:
   - "T041"
 title: "FinishedGoods Tab Integration"
 phase: "Phase 3 - Assembly Recording"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "system"
 shell_pid: ""
@@ -164,3 +164,4 @@ class FinishedGoodsTab(ctk.CTkFrame):
 
 - 2025-12-10T00:00:00Z - system - lane=planned - Prompt created.
 - 2025-12-10T07:17:40Z – system – shell_pid= – lane=doing – Moved to doing
+- 2025-12-10T15:11:36Z – system – shell_pid= – lane=for_review – Moved to for_review
