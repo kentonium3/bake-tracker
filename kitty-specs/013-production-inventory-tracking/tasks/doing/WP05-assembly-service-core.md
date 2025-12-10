@@ -8,10 +8,10 @@ subtasks:
   - "T027"
 title: "Assembly Service - Core"
 phase: "Phase 3 - Assembly"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "claude"
+shell_pid: "15592"
 review_status: ""
 reviewed_by: ""
 history:
@@ -329,3 +329,4 @@ class InsufficientPackagingError(Exception):
 ## Activity Log
 
 - 2025-12-09T17:30:00Z - system - lane=planned - Prompt created.
+- 2025-12-10T03:48:41Z – claude – shell_pid=15592 – lane=doing – Implementation complete - assembly_service with check_can_assemble, record_assembly
