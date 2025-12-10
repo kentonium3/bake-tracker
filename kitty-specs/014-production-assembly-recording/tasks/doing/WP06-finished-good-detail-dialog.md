@@ -11,9 +11,9 @@ subtasks:
   - "T036"
 title: "FinishedGood Detail Dialog"
 phase: "Phase 3 - Assembly Recording"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
+agent: "system"
 shell_pid: ""
 review_status: ""
 reviewed_by: ""
@@ -353,3 +353,4 @@ Same pattern as WP03 - callback passed in constructor, called after assembly suc
 ## Activity Log
 
 - 2025-12-10T00:00:00Z - system - lane=planned - Prompt created.
+- 2025-12-10T07:15:51Z – system – shell_pid= – lane=doing – Moved to doing
