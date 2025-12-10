@@ -22,10 +22,10 @@
 **Prompt**: `tasks/planned/WP01-core-reusable-widgets.md`
 
 ### Included Subtasks
-- [ ] T001 Create AvailabilityDisplay widget in `src/ui/widgets/availability_display.py`
-- [ ] T002 [P] Create ProductionHistoryTable in `src/ui/widgets/production_history_table.py`
-- [ ] T003 [P] Create AssemblyHistoryTable in `src/ui/widgets/assembly_history_table.py`
-- [ ] T004 Update `src/ui/widgets/__init__.py` with new exports
+- [x] T001 Create AvailabilityDisplay widget in `src/ui/widgets/availability_display.py`
+- [x] T002 [P] Create ProductionHistoryTable in `src/ui/widgets/production_history_table.py`
+- [x] T003 [P] Create AssemblyHistoryTable in `src/ui/widgets/assembly_history_table.py`
+- [x] T004 Update `src/ui/widgets/__init__.py` with new exports
 
 ### Implementation Notes
 1. AvailabilityDisplay: CTkFrame with scrollable list, color-coded status items
@@ -52,12 +52,12 @@
 **Prompt**: `tasks/planned/WP02-production-recording-dialog.md`
 
 ### Included Subtasks
-- [ ] T005 Create RecordProductionDialog in `src/ui/forms/record_production_dialog.py`
-- [ ] T006 Implement dialog layout (batch count, yield, notes, availability display)
-- [ ] T007 Implement availability check on dialog open
-- [ ] T008 Implement "Refresh Availability" button handler
-- [ ] T009 Implement Confirm button with service integration
-- [ ] T010 Add validation (batch count >= 1, yield >= 0)
+- [x] T005 Create RecordProductionDialog in `src/ui/forms/record_production_dialog.py`
+- [x] T006 Implement dialog layout (batch count, yield, notes, availability display)
+- [x] T007 Implement availability check on dialog open
+- [x] T008 Implement "Refresh Availability" button handler
+- [x] T009 Implement Confirm button with service integration
+- [x] T010 Add validation (batch count >= 1, yield >= 0)
 
 ### Implementation Notes
 1. Follow CTkToplevel modal pattern from existing forms
@@ -85,13 +85,13 @@
 **Prompt**: `tasks/planned/WP03-finished-unit-detail-dialog.md`
 
 ### Included Subtasks
-- [ ] T011 Create FinishedUnitDetailDialog in `src/ui/forms/finished_unit_detail.py`
-- [ ] T012 Implement header section (name, category)
-- [ ] T013 Implement info section (recipe link, inventory count, unit cost)
-- [ ] T014 Integrate ProductionHistoryTable widget
-- [ ] T015 Implement "Record Production" button opening RecordProductionDialog
-- [ ] T016 Implement inventory refresh after successful recording
-- [ ] T017 Add `on_inventory_changed` callback support
+- [x] T011 Create FinishedUnitDetailDialog in `src/ui/forms/finished_unit_detail.py`
+- [x] T012 Implement header section (name, category)
+- [x] T013 Implement info section (recipe link, inventory count, unit cost)
+- [x] T014 Integrate ProductionHistoryTable widget
+- [x] T015 Implement "Record Production" button opening RecordProductionDialog
+- [x] T016 Implement inventory refresh after successful recording
+- [x] T017 Add `on_inventory_changed` callback support
 
 ### Implementation Notes
 1. Follow modal pattern with sections: header, info, history, actions
@@ -119,11 +119,11 @@
 **Prompt**: `tasks/planned/WP04-finished-units-tab-integration.md`
 
 ### Included Subtasks
-- [ ] T018 Add "View Details" button to FinishedUnitsTab action bar
-- [ ] T019 Implement `_show_detail_dialog()` method
-- [ ] T020 Wire double-click handler to show detail dialog
-- [ ] T021 Pass `on_inventory_changed` callback to refresh list
-- [ ] T022 Update `src/ui/forms/__init__.py` with new dialog exports
+- [x] T018 Add "View Details" button to FinishedUnitsTab action bar
+- [x] T019 Implement `_show_detail_dialog()` method
+- [x] T020 Wire double-click handler to show detail dialog
+- [x] T021 Pass `on_inventory_changed` callback to refresh list
+- [x] T022 Update `src/ui/forms/__init__.py` with new dialog exports
 
 ### Implementation Notes
 1. Add button alongside existing Edit/Delete buttons
@@ -149,12 +149,12 @@
 **Prompt**: `tasks/planned/WP05-assembly-recording-dialog.md`
 
 ### Included Subtasks
-- [ ] T023 Create RecordAssemblyDialog in `src/ui/forms/record_assembly_dialog.py`
-- [ ] T024 Implement dialog layout (quantity, notes, availability display)
-- [ ] T025 Implement availability check on dialog open
-- [ ] T026 Implement "Refresh Availability" button handler
-- [ ] T027 Implement Confirm button with service integration
-- [ ] T028 Add validation (quantity >= 1)
+- [x] T023 Create RecordAssemblyDialog in `src/ui/forms/record_assembly_dialog.py`
+- [x] T024 Implement dialog layout (quantity, notes, availability display)
+- [x] T025 Implement availability check on dialog open
+- [x] T026 Implement "Refresh Availability" button handler
+- [x] T027 Implement Confirm button with service integration
+- [x] T028 Add validation (quantity >= 1)
 
 ### Implementation Notes
 1. Similar structure to RecordProductionDialog
@@ -179,14 +179,14 @@
 **Prompt**: `tasks/planned/WP06-finished-good-detail-dialog.md`
 
 ### Included Subtasks
-- [ ] T029 Create FinishedGoodDetailDialog in `src/ui/forms/finished_good_detail.py`
-- [ ] T030 Implement header section (name)
-- [ ] T031 Implement info section (inventory count, total cost)
-- [ ] T032 Implement composition display section
-- [ ] T033 Integrate AssemblyHistoryTable widget
-- [ ] T034 Implement "Record Assembly" button opening RecordAssemblyDialog
-- [ ] T035 Implement inventory refresh after successful assembly
-- [ ] T036 Add `on_inventory_changed` callback support
+- [x] T029 Create FinishedGoodDetailDialog in `src/ui/forms/finished_good_detail.py`
+- [x] T030 Implement header section (name)
+- [x] T031 Implement info section (inventory count, total cost)
+- [x] T032 Implement composition display section
+- [x] T033 Integrate AssemblyHistoryTable widget
+- [x] T034 Implement "Record Assembly" button opening RecordAssemblyDialog
+- [x] T035 Implement inventory refresh after successful assembly
+- [x] T036 Add `on_inventory_changed` callback support
 
 ### Implementation Notes
 1. Composition section: List FU components with quantities
@@ -212,11 +212,11 @@
 **Prompt**: `tasks/planned/WP07-finished-goods-tab-integration.md`
 
 ### Included Subtasks
-- [ ] T037 Add "View Details" button to FinishedGoodsTab action bar
-- [ ] T038 Implement `_show_detail_dialog()` method
-- [ ] T039 Wire double-click handler to show detail dialog
-- [ ] T040 Pass `on_inventory_changed` callback to refresh list
-- [ ] T041 Update `src/ui/forms/__init__.py` with assembly dialog exports
+- [x] T037 Add "View Details" button to FinishedGoodsTab action bar
+- [x] T038 Implement `_show_detail_dialog()` method
+- [x] T039 Wire double-click handler to show detail dialog
+- [x] T040 Pass `on_inventory_changed` callback to refresh list
+- [x] T041 Update `src/ui/forms/__init__.py` with assembly dialog exports
 
 ### Implementation Notes
 1. Mirror pattern from WP04 (FinishedUnitsTab integration)
@@ -240,13 +240,13 @@
 **Prompt**: `tasks/planned/WP08-production-dashboard-tab.md`
 
 ### Included Subtasks
-- [ ] T042 Create ProductionDashboardTab in `src/ui/production_dashboard_tab.py`
-- [ ] T043 Implement CTkTabview with Production/Assembly sub-tabs
-- [ ] T044 Implement recent production runs table (30 days)
-- [ ] T045 Implement recent assembly runs table (30 days)
-- [ ] T046 Add navigation links to FinishedUnits/FinishedGoods tabs
-- [ ] T047 Update main_window.py to use new tab
-- [ ] T048 Mark old production_tab.py as deprecated
+- [x] T042 Create ProductionDashboardTab in `src/ui/production_dashboard_tab.py`
+- [x] T043 Implement CTkTabview with Production/Assembly sub-tabs
+- [x] T044 Implement recent production runs table (30 days)
+- [x] T045 Implement recent assembly runs table (30 days)
+- [x] T046 Add navigation links to FinishedUnits/FinishedGoods tabs
+- [x] T047 Update main_window.py to use new tab
+- [x] T048 Mark old production_tab.py as deprecated
 
 ### Implementation Notes
 1. Use CTkTabview for sub-tab organization
