@@ -9,7 +9,7 @@ subtasks:
 title: "Import/Export"
 phase: "Phase 4 - History"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude-reviewer"
 shell_pid: "17214"
 review_status: ""

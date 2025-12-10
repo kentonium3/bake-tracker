@@ -22,10 +22,10 @@
 **Prompt**: `tasks/planned/WP01-production-run-models.md`
 
 ### Included Subtasks
-- [ ] T001 [P] Create ProductionRun model in `src/models/production_run.py`
-- [ ] T002 [P] Create ProductionConsumption model in `src/models/production_consumption.py`
-- [ ] T003 Update `src/models/__init__.py` to export new models
-- [ ] T004 Add `production_runs` relationship to Recipe model
+- [X] T001 [P] Create ProductionRun model in `src/models/production_run.py`
+- [X] T002 [P] Create ProductionConsumption model in `src/models/production_consumption.py`
+- [X] T003 Update `src/models/__init__.py` to export new models
+- [X] T004 Add `production_runs` relationship to Recipe model
 
 ### Implementation Notes
 - Follow BaseModel pattern from `src/models/base.py`
@@ -51,10 +51,10 @@
 **Prompt**: `tasks/planned/WP02-assembly-run-models.md`
 
 ### Included Subtasks
-- [ ] T005 [P] Create AssemblyRun model in `src/models/assembly_run.py`
-- [ ] T006 [P] Create AssemblyFinishedUnitConsumption model in `src/models/assembly_finished_unit_consumption.py`
-- [ ] T007 [P] Create AssemblyPackagingConsumption model in `src/models/assembly_packaging_consumption.py`
-- [ ] T008 Update `src/models/__init__.py` to export new assembly models
+- [X] T005 [P] Create AssemblyRun model in `src/models/assembly_run.py`
+- [X] T006 [P] Create AssemblyFinishedUnitConsumption model in `src/models/assembly_finished_unit_consumption.py`
+- [X] T007 [P] Create AssemblyPackagingConsumption model in `src/models/assembly_packaging_consumption.py`
+- [X] T008 Update `src/models/__init__.py` to export new assembly models
 
 ### Implementation Notes
 - Follow BaseModel pattern
@@ -80,11 +80,11 @@
 **Prompt**: `tasks/planned/WP03-batch-production-service-core.md`
 
 ### Included Subtasks
-- [ ] T009 Create `src/services/batch_production_service.py` with module structure
-- [ ] T010 Implement `check_can_produce(recipe_id, num_batches)` using dry_run FIFO
-- [ ] T011 Implement `record_batch_production()` with full transaction logic
-- [ ] T012 Add custom exceptions (InsufficientInventoryError, RecipeNotFoundError, etc.)
-- [ ] T013 Update `src/services/__init__.py` to export new service
+- [X] T009 Create `src/services/batch_production_service.py` with module structure
+- [X] T010 Implement `check_can_produce(recipe_id, num_batches)` using dry_run FIFO
+- [X] T011 Implement `record_batch_production()` with full transaction logic
+- [X] T012 Add custom exceptions (InsufficientInventoryError, RecipeNotFoundError, etc.)
+- [X] T013 Update `src/services/__init__.py` to export new service
 
 ### Implementation Notes
 - Use `recipe_service.get_aggregated_ingredients()` for nested recipe support
@@ -112,15 +112,15 @@
 **Prompt**: `tasks/planned/WP04-batch-production-service-tests.md`
 
 ### Included Subtasks
-- [ ] T014 Create test file `src/tests/test_batch_production_service.py`
-- [ ] T015 [P] Test `check_can_produce()` - sufficient inventory scenario
-- [ ] T016 [P] Test `check_can_produce()` - insufficient inventory scenario
-- [ ] T017 [P] Test `check_can_produce()` - nested recipe scenario
-- [ ] T018 [P] Test `record_batch_production()` - happy path
-- [ ] T019 [P] Test `record_batch_production()` - actual_yield = 0 (failed batch)
-- [ ] T020 [P] Test `record_batch_production()` - yield exceeds expected
-- [ ] T021 [P] Test `record_batch_production()` - insufficient inventory rollback
-- [ ] T022 [P] Test `record_batch_production()` - FinishedUnit-Recipe mismatch
+- [X] T014 Create test file `src/tests/test_batch_production_service.py`
+- [X] T015 [P] Test `check_can_produce()` - sufficient inventory scenario
+- [X] T016 [P] Test `check_can_produce()` - insufficient inventory scenario
+- [X] T017 [P] Test `check_can_produce()` - nested recipe scenario
+- [X] T018 [P] Test `record_batch_production()` - happy path
+- [X] T019 [P] Test `record_batch_production()` - actual_yield = 0 (failed batch)
+- [X] T020 [P] Test `record_batch_production()` - yield exceeds expected
+- [X] T021 [P] Test `record_batch_production()` - insufficient inventory rollback
+- [X] T022 [P] Test `record_batch_production()` - FinishedUnit-Recipe mismatch
 
 ### Implementation Notes
 - Create fixtures for Recipe, FinishedUnit, Ingredient, Product, InventoryItem
@@ -147,11 +147,11 @@
 **Prompt**: `tasks/planned/WP05-assembly-service-core.md`
 
 ### Included Subtasks
-- [ ] T023 Create `src/services/assembly_service.py` with module structure
-- [ ] T024 Implement `check_can_assemble(finished_good_id, quantity)`
-- [ ] T025 Implement `record_assembly()` with full transaction logic
-- [ ] T026 Add custom exceptions (InsufficientFinishedUnitError, InsufficientPackagingError, etc.)
-- [ ] T027 Update `src/services/__init__.py` to export assembly service
+- [X] T023 Create `src/services/assembly_service.py` with module structure
+- [X] T024 Implement `check_can_assemble(finished_good_id, quantity)`
+- [X] T025 Implement `record_assembly()` with full transaction logic
+- [X] T026 Add custom exceptions (InsufficientFinishedUnitError, InsufficientPackagingError, etc.)
+- [X] T027 Update `src/services/__init__.py` to export assembly service
 
 ### Implementation Notes
 - Query Composition model for FinishedGood's components (finished_units and packaging)
@@ -180,14 +180,14 @@
 **Prompt**: `tasks/planned/WP06-assembly-service-tests.md`
 
 ### Included Subtasks
-- [ ] T028 Create test file `src/tests/test_assembly_service.py`
-- [ ] T029 [P] Test `check_can_assemble()` - sufficient components
-- [ ] T030 [P] Test `check_can_assemble()` - insufficient FinishedUnit
-- [ ] T031 [P] Test `check_can_assemble()` - insufficient packaging
-- [ ] T032 [P] Test `record_assembly()` - happy path
-- [ ] T033 [P] Test `record_assembly()` - nested FinishedGood components
-- [ ] T034 [P] Test `record_assembly()` - insufficient inventory rollback
-- [ ] T035 [P] Test `record_assembly()` - FinishedGood not found
+- [X] T028 Create test file `src/tests/test_assembly_service.py`
+- [X] T029 [P] Test `check_can_assemble()` - sufficient components
+- [X] T030 [P] Test `check_can_assemble()` - insufficient FinishedUnit
+- [X] T031 [P] Test `check_can_assemble()` - insufficient packaging
+- [X] T032 [P] Test `record_assembly()` - happy path
+- [X] T033 [P] Test `record_assembly()` - nested FinishedGood components
+- [X] T034 [P] Test `record_assembly()` - insufficient inventory rollback
+- [X] T035 [P] Test `record_assembly()` - FinishedGood not found
 
 ### Implementation Notes
 - Create fixtures for FinishedGood, FinishedUnit, Composition, packaging Products
@@ -214,11 +214,11 @@
 **Prompt**: `tasks/planned/WP07-history-query-functions.md`
 
 ### Included Subtasks
-- [ ] T036 [P] Implement `get_production_history()` in batch_production_service.py
-- [ ] T037 [P] Implement `get_production_run()` in batch_production_service.py
-- [ ] T038 [P] Implement `get_assembly_history()` in assembly_service.py
-- [ ] T039 [P] Implement `get_assembly_run()` in assembly_service.py
-- [ ] T040 Add tests for history query functions
+- [X] T036 [P] Implement `get_production_history()` in batch_production_service.py
+- [X] T037 [P] Implement `get_production_run()` in batch_production_service.py
+- [X] T038 [P] Implement `get_assembly_history()` in assembly_service.py
+- [X] T039 [P] Implement `get_assembly_run()` in assembly_service.py
+- [X] T040 Add tests for history query functions
 
 ### Implementation Notes
 - Support filtering by recipe_id, finished_unit_id, date range
@@ -244,11 +244,11 @@
 **Prompt**: `tasks/planned/WP08-import-export.md`
 
 ### Included Subtasks
-- [ ] T041 [P] Implement `export_production_history()` serialization
-- [ ] T042 [P] Implement `import_production_history()` deserialization
-- [ ] T043 [P] Implement `export_assembly_history()` serialization
-- [ ] T044 [P] Implement `import_assembly_history()` deserialization
-- [ ] T045 Add tests for import/export round-trip integrity
+- [X] T041 [P] Implement `export_production_history()` serialization
+- [X] T042 [P] Implement `import_production_history()` deserialization
+- [X] T043 [P] Implement `export_assembly_history()` serialization
+- [X] T044 [P] Implement `import_assembly_history()` deserialization
+- [X] T045 Add tests for import/export round-trip integrity
 
 ### Implementation Notes
 - Export format: JSON with all consumption ledger details

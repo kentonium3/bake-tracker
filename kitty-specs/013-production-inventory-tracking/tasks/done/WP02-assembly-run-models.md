@@ -8,7 +8,7 @@ subtasks:
 title: "Assembly Run Models"
 phase: "Phase 1 - Foundation"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude-reviewer"
 shell_pid: "17130"
 review_status: ""

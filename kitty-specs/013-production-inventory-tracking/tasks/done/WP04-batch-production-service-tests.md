@@ -13,7 +13,7 @@ subtasks:
 title: "Batch Production Service - Tests"
 phase: "Phase 2 - Core Services"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude-reviewer"
 shell_pid: "17130"
 review_status: ""

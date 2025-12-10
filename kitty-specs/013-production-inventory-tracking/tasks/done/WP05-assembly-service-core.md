@@ -9,7 +9,7 @@ subtasks:
 title: "Assembly Service - Core"
 phase: "Phase 3 - Assembly"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude-reviewer"
 shell_pid: "17214"
 review_status: ""
