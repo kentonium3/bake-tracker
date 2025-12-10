@@ -1,7 +1,21 @@
 {
+  "accept_commit": null,
+  "acceptance_history": [
+    {
+      "accepted_at": "2025-12-10T04:02:05Z",
+      "accepted_by": "claude",
+      "accepted_from_commit": "d6b1fea06e0fdc7c2068ef07ef7e8e08de884549",
+      "branch": "013-production-inventory-tracking",
+      "mode": "local"
+    }
+  ],
+  "acceptance_mode": "local",
+  "accepted_at": "2025-12-10T04:02:05Z",
+  "accepted_by": "claude",
+  "accepted_from_commit": "d6b1fea06e0fdc7c2068ef07ef7e8e08de884549",
+  "created_at": "2025-12-09T18:36:39Z",
   "feature_number": "013",
-  "slug": "013-production-inventory-tracking",
   "friendly_name": "Production & Inventory Tracking",
-  "source_description": "Add production tracking entities and services to record batch production and assembly runs with FIFO consumption, yield-based costing, and full audit trail",
-  "created_at": "2025-12-09T18:36:39Z"
+  "slug": "013-production-inventory-tracking",
+  "source_description": "Add production tracking entities and services to record batch production and assembly runs with FIFO consumption, yield-based costing, and full audit trail"
 }
