@@ -1,4 +1,10 @@
 """
+DEPRECATED: This module has been replaced by production_dashboard_tab.py
+as part of Feature 014 (Production & Assembly Recording UI).
+
+This file is retained for reference only and will be removed in a future version.
+
+Original description:
 Production Tab - Dashboard for production tracking.
 
 Provides:

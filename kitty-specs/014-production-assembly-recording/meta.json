@@ -1,0 +1,24 @@
+{
+  "accept_commit": null,
+  "acceptance_history": [
+    {
+      "accepted_at": "2025-12-10T15:39:33Z",
+      "accepted_by": "claude",
+      "accepted_from_commit": "3f8f8365a1f0655137fc5d577bba3b04bd504228",
+      "branch": "014-production-assembly-recording",
+      "mode": "local",
+      "validation_commands": [
+        "pytest src/tests -v"
+      ]
+    }
+  ],
+  "acceptance_mode": "local",
+  "accepted_at": "2025-12-10T15:39:33Z",
+  "accepted_by": "claude",
+  "accepted_from_commit": "3f8f8365a1f0655137fc5d577bba3b04bd504228",
+  "created_at": "2025-12-10T05:43:31Z",
+  "feature_number": "014",
+  "friendly_name": "Production & Assembly Recording UI",
+  "slug": "014-production-assembly-recording",
+  "source_description": "Add UI components for recording batch production and assembly operations, including FinishedUnit detail view updates, new FinishedGood detail view, recording dialogs with availability checks, and a Production Dashboard tab"
+}

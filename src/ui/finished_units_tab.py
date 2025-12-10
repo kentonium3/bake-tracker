@@ -460,12 +460,12 @@ class FinishedUnitsTab(ctk.CTkFrame):
                 self._update_status(StatusMessages.FAILED_TO_DELETE, error=True)
 
     def _view_details(self):
-        """Show detailed information about the selected finished good."""
+        """Open the FinishedUnit detail dialog for the selected unit."""
         if not self._validate_selected_unit():
             return
 
         try:
-            # Get finished good with relationships using service integrator
+            # Get finished unit with relationships using service integrator
             fg = self.service_integrator.execute_service_operation(
                 operation_name="Load Finished Unit Details",
                 operation_type=OperationType.READ,
@@ -479,56 +479,15 @@ class FinishedUnitsTab(ctk.CTkFrame):
             if not fg:
                 return
 
-            # Build details message
-            details = []
-            details.append(f"Finished Unit: {fg.display_name}")
-            details.append(f"Recipe: {fg.recipe.name}")
+            # Open detail dialog with callback for inventory refresh
+            from src.ui.forms.finished_unit_detail import FinishedUnitDetailDialog
 
-            if fg.category:
-                details.append(f"Category: {fg.category}")
-
-            details.append("")
-            details.append(f"Yield Mode: {fg.yield_mode.value.replace('_', ' ').title()}")
-
-            if fg.yield_mode.value == "discrete_count":
-                details.append(f"Items per Batch: {fg.items_per_batch}")
-                details.append(f"Item Unit: {fg.item_unit}")
-            else:
-                details.append(f"Batch Percentage: {fg.batch_percentage}%")
-                if fg.portion_description:
-                    details.append(f"Portion: {fg.portion_description}")
-
-            details.append("")
-            details.append("Cost Information:")
-            cost_per_item = fg.calculate_recipe_cost_per_item()
-            details.append(f"  Cost per Item: ${cost_per_item:.4f}")
-
-            # Recipe cost breakdown
-            recipe_cost = fg.recipe.calculate_cost()
-            details.append(f"  Recipe Total Cost: ${recipe_cost:.2f}")
-
-            # Batch calculation example
-            details.append("")
-            details.append("Batch Planning:")
-            if fg.yield_mode.value == "discrete_count":
-                details.append(
-                    f"  Example: Need 50 items → {fg.calculate_batches_needed(50):.2f} batches"
-                )
-            else:
-                details.append(
-                    f"  Example: Need 2 items → {fg.calculate_batches_needed(2):.2f} batches"
-                )
-
-            if fg.notes:
-                details.append("")
-                details.append("Notes:")
-                details.append(f"  {fg.notes}")
-
-            show_info(
-                f"Finished Unit Details: {fg.display_name}",
-                "\n".join(details),
-                parent=self,
+            dialog = FinishedUnitDetailDialog(
+                self,
+                fg,
+                on_inventory_changed=self.refresh,
             )
+            self.wait_window(dialog)
 
         except Exception as e:
             # Error already handled by service integrator
