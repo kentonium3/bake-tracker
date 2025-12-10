@@ -8,7 +8,7 @@ subtasks:
   - "T022"
 title: "FinishedUnits Tab Integration"
 phase: "Phase 2 - Production Recording"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "claude"
 shell_pid: "45064"
@@ -256,3 +256,4 @@ def _update_button_states(self):
 
 - 2025-12-10T00:00:00Z - system - lane=planned - Prompt created.
 - 2025-12-10T07:01:05Z – claude – shell_pid=45064 – lane=doing – Started implementation of FinishedUnits Tab Integration
+- 2025-12-10T07:13:16Z – claude – shell_pid=45064 – lane=for_review – Moved to for_review
