@@ -200,6 +200,38 @@ from .composition_service import (
     IntegrityViolationError,
 )
 
+# Batch Production Service (Feature 013)
+from .batch_production_service import (
+    check_can_produce,
+    record_batch_production,
+    get_production_history,
+    get_production_run,
+    export_production_history,
+    import_production_history,
+    # Exceptions
+    RecipeNotFoundError as BatchRecipeNotFoundError,
+    FinishedUnitNotFoundError as BatchFinishedUnitNotFoundError,
+    FinishedUnitRecipeMismatchError,
+    InsufficientInventoryError as BatchInsufficientInventoryError,
+    ProductionRunNotFoundError,
+)
+
+# Assembly Service (Feature 013)
+from .assembly_service import (
+    check_can_assemble,
+    record_assembly,
+    get_assembly_history,
+    get_assembly_run,
+    export_assembly_history,
+    import_assembly_history,
+    # Exceptions
+    FinishedGoodNotFoundError as AssemblyFinishedGoodNotFoundError,
+    InsufficientFinishedUnitError,
+    InsufficientFinishedGoodError,
+    InsufficientPackagingError,
+    AssemblyRunNotFoundError,
+)
+
 # Infrastructure exports for new service layer
 from .exceptions import (
     ServiceError,
@@ -372,4 +404,28 @@ __all__ = [
     "DatabaseError",
     # Infrastructure - Session management
     "session_scope",
+    # Batch Production Service (Feature 013)
+    "check_can_produce",
+    "record_batch_production",
+    "get_production_history",
+    "get_production_run",
+    "export_production_history",
+    "import_production_history",
+    "BatchRecipeNotFoundError",
+    "BatchFinishedUnitNotFoundError",
+    "FinishedUnitRecipeMismatchError",
+    "BatchInsufficientInventoryError",
+    "ProductionRunNotFoundError",
+    # Assembly Service (Feature 013)
+    "check_can_assemble",
+    "record_assembly",
+    "get_assembly_history",
+    "get_assembly_run",
+    "export_assembly_history",
+    "import_assembly_history",
+    "AssemblyFinishedGoodNotFoundError",
+    "InsufficientFinishedUnitError",
+    "InsufficientFinishedGoodError",
+    "InsufficientPackagingError",
+    "AssemblyRunNotFoundError",
 ]

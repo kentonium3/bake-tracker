@@ -75,6 +75,9 @@ class Recipe(BaseModel):
 
     finished_units = relationship("FinishedUnit", back_populates="recipe")
 
+    # Production tracking (Feature 013)
+    production_runs = relationship("ProductionRun", back_populates="recipe")
+
     # Recipe component relationships (nested recipes / sub-recipes)
     recipe_components = relationship(
         "RecipeComponent",

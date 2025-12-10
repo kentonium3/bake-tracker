@@ -92,6 +92,9 @@ class FinishedGood(BaseModel):
         lazy="joined",
     )
 
+    # Assembly tracking (Feature 013)
+    assembly_runs = relationship("AssemblyRun", back_populates="finished_good")
+
     # Table constraints
     __table_args__ = (
         Index("idx_finished_good_slug", "slug"),

@@ -29,6 +29,11 @@ from .recipient import Recipient
 from .event import Event, EventRecipientPackage  # Re-enabled Feature 006
 from .package_status import PackageStatus  # Feature 008
 from .production_record import ProductionRecord  # Feature 008
+from .production_run import ProductionRun  # Feature 013
+from .production_consumption import ProductionConsumption  # Feature 013
+from .assembly_run import AssemblyRun  # Feature 013
+from .assembly_finished_unit_consumption import AssemblyFinishedUnitConsumption  # Feature 013
+from .assembly_packaging_consumption import AssemblyPackagingConsumption  # Feature 013
 
 __all__ = [
     "Base",
@@ -63,4 +68,10 @@ __all__ = [
     # Production tracking Feature 008
     "PackageStatus",
     "ProductionRecord",
+    # Production tracking Feature 013
+    "ProductionRun",
+    "ProductionConsumption",
+    "AssemblyRun",
+    "AssemblyFinishedUnitConsumption",
+    "AssemblyPackagingConsumption",
 ]

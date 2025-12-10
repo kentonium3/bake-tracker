@@ -145,6 +145,11 @@ As a baker, I want to export and import my production history so I can back up m
 
 ### Key Entities
 
+> **Planning Refinement**: The schema below reflects initial specification. Planning phase refined
+> this to use ingredient-level consumption ledger (not lot-level) and separate
+> AssemblyFinishedUnitConsumption/AssemblyPackagingConsumption tables. See `plan.md`
+> and `data-model.md` for authoritative schema.
+
 - **ProductionRun**: Records a batch production event. Attributes: recipe_id, finished_unit_id, num_batches, expected_yield, actual_yield, produced_at, notes, total_ingredient_cost, per_unit_cost
 - **ProductionConsumption**: Junction table recording which InventoryItems were consumed for a ProductionRun. Attributes: production_run_id, inventory_item_id, quantity_consumed, unit, cost_at_consumption
 - **AssemblyRun**: Records an assembly event. Attributes: finished_good_id, quantity_assembled, assembled_at, notes, total_component_cost
@@ -162,6 +167,10 @@ As a baker, I want to export and import my production history so I can back up m
 - **SC-006**: All production/assembly operations are atomic - either fully complete or fully rolled back
 - **SC-007**: Import/export preserves 100% of production history data including consumption ledger details
 - **SC-008**: Service layer achieves >70% test coverage with tests for happy path, edge cases, and error conditions
+
+### Acceptance Criteria - Manual Validation
+
+- **AC-PERF**: Production recording completes in < 2 seconds (manual validation with typical recipe of 10-15 ingredients)
 
 ## Assumptions
 

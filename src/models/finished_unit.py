@@ -109,6 +109,9 @@ class FinishedUnit(BaseModel):
     # Relationships
     recipe = relationship("Recipe", back_populates="finished_units", lazy="joined")
 
+    # Production tracking (Feature 013)
+    production_runs = relationship("ProductionRun", back_populates="finished_unit")
+
     # Relationships for composition (will be added when Composition model is created)
     # components_in = relationship("Composition", foreign_keys="Composition.finished_unit_id",
     #                            back_populates="finished_unit_component")
