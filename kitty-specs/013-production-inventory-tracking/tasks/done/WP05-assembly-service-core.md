@@ -8,10 +8,10 @@ subtasks:
   - "T027"
 title: "Assembly Service - Core"
 phase: "Phase 3 - Assembly"
-lane: "for_review"
+lane: "done"
 assignee: ""
-agent: "claude"
-shell_pid: "15592"
+agent: "claude-reviewer"
+shell_pid: "17214"
 review_status: ""
 reviewed_by: ""
 history:
@@ -331,3 +331,4 @@ class InsufficientPackagingError(Exception):
 - 2025-12-09T17:30:00Z - system - lane=planned - Prompt created.
 - 2025-12-10T03:48:41Z – claude – shell_pid=15592 – lane=doing – Implementation complete - assembly_service with check_can_assemble, record_assembly
 - 2025-12-10T03:48:42Z – claude – shell_pid=15592 – lane=for_review – Ready for review - 88.66% test coverage
+- 2025-12-10T03:54:05Z – claude-reviewer – shell_pid=17214 – lane=done – Review approved: check_can_assemble, record_assembly with FU and packaging consumption - 88.66% coverage
