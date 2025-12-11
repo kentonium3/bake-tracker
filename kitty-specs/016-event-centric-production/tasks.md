@@ -122,10 +122,10 @@
 **Prompt**: `tasks/planned/WP04-service-layer-progress-calculation.md`
 
 ### Included Subtasks
-- [ ] T021 Implement `EventService.get_production_progress()` with aggregate query
-- [ ] T022 [P] Implement `EventService.get_assembly_progress()` with aggregate query
-- [ ] T023 Implement `EventService.get_event_overall_progress()` summary method
-- [ ] T024 Write unit tests for progress calculation in `src/tests/services/test_event_service_progress.py`
+- [X] T021 Implement `EventService.get_production_progress()` with aggregate query
+- [X] T022 [P] Implement `EventService.get_assembly_progress()` with aggregate query
+- [X] T023 Implement `EventService.get_event_overall_progress()` summary method
+- [X] T024 Write unit tests for progress calculation in `src/tests/services/test_event_service_progress.py`
 
 ### Implementation Notes
 1. Progress query: JOIN targets with runs, aggregate by recipe/finished_good

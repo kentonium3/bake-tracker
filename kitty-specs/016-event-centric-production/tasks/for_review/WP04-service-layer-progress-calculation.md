@@ -7,7 +7,7 @@ subtasks:
   - "T024"
 title: "Service Layer - Progress Calculation"
 phase: "Phase 3 - Progress & Fulfillment"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "claude"
 shell_pid: "85015"
@@ -372,3 +372,4 @@ pytest src/tests/services/test_event_service_progress.py -v
     - TestAssemblyProgress: 6 tests (0%, 50%, 100%, 125%, event filtering, empty)
     - TestOverallProgress: 4 tests (no targets, production counts, package counts, mixed)
   - All 17 tests pass
+- 2025-12-11T04:08:08Z – claude – shell_pid=85015 – lane=for_review – Moved to for_review
