@@ -182,14 +182,14 @@
 **Prompt**: `tasks/planned/WP06-import-export.md`
 
 ### Included Subtasks
-- [ ] T028 Add `EventProductionTarget` to export in `src/services/import_export_service.py`
-- [ ] T029 [P] Add `EventAssemblyTarget` to export in `src/services/import_export_service.py`
-- [ ] T030 Add `event_name` field to ProductionRun export
-- [ ] T031 [P] Add `event_name` field to AssemblyRun export
-- [ ] T032 Add `fulfillment_status` field to EventRecipientPackage export
-- [ ] T033 Implement import for new entities (resolve event_name to event_id)
-- [ ] T034 Handle null event_name in import (standalone production)
-- [ ] T035 Write import/export tests in `src/tests/integration/test_import_export_016.py`
+- [X] T028 Add `EventProductionTarget` to export in `src/services/import_export_service.py`
+- [X] T029 [P] Add `EventAssemblyTarget` to export in `src/services/import_export_service.py`
+- [X] T030 Add `event_name` field to ProductionRun export
+- [X] T031 [P] Add `event_name` field to AssemblyRun export
+- [X] T032 Add `fulfillment_status` field to EventRecipientPackage export
+- [X] T033 Implement import for new entities (resolve event_name to event_id)
+- [X] T034 Handle null event_name in import (standalone production)
+- [X] T035 Write import/export tests in `src/tests/integration/test_import_export_016.py`
 
 ### Implementation Notes
 1. Export order: Targets after Events, Runs after Targets

@@ -11,7 +11,7 @@ subtasks:
   - "T035"
 title: "Import/Export"
 phase: "Phase 4 - Import/Export"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "system"
 shell_pid: ""
@@ -354,3 +354,15 @@ pytest src/tests/integration/test_import_export_016.py -v
 
 - 2025-12-10T00:00:00Z - system - lane=planned - Prompt created.
 - 2025-12-11T04:11:39Z – system – shell_pid= – lane=doing – Moved to doing
+- 2025-12-11T04:45:00Z – claude – shell_pid=85015 – lane=doing – Completed all subtasks:
+  - T028: Added EventProductionTarget export with event_name, recipe_name
+  - T029: Added EventAssemblyTarget export with event_name, finished_good_slug
+  - T030: Added event_name field to ProductionRun export
+  - T031: Added event_name field to AssemblyRun export
+  - T032: Added fulfillment_status to EventRecipientPackage export
+  - T033: Implemented import functions for all new entities
+  - T034: Handled null event_name for standalone production/assembly
+  - T035: Created test_import_export_016.py with 10 integration tests
+  - Bumped export format to v3.2
+  - All 10 tests pass
+- 2025-12-11T04:18:27Z – system – shell_pid= – lane=for_review – Moved to for_review
