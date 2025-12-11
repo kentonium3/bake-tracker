@@ -407,26 +407,30 @@ class TestRecordBatchProduction:
     ):
         """Insufficient inventory: entire operation rolls back."""
         recipe = recipe_with_ingredients_and_inventory
+        # Save IDs and values before the service call - fixture objects may become
+        # detached after the service call due to session rollback
+        recipe_id = recipe.id
+        fu_id = finished_unit_cookies.id
         initial_fu_count = finished_unit_cookies.inventory_count
 
         with pytest.raises(InsufficientInventoryError):
             batch_production_service.record_batch_production(
-                recipe_id=recipe.id,
-                finished_unit_id=finished_unit_cookies.id,
+                recipe_id=recipe_id,
+                finished_unit_id=fu_id,
                 num_batches=100,  # Way more than available
                 actual_yield=4800,
             )
 
         # Verify no state changed - FinishedUnit count unchanged
         with session_scope() as session:
-            fu = session.query(FinishedUnit).filter_by(id=finished_unit_cookies.id).first()
+            fu = session.query(FinishedUnit).filter_by(id=fu_id).first()
             assert fu.inventory_count == initial_fu_count
 
         # No ProductionRun created
         with session_scope() as session:
             runs = (
                 session.query(ProductionRun)
-                .filter_by(recipe_id=recipe.id)
+                .filter_by(recipe_id=recipe_id)
                 .all()
             )
             assert len(runs) == 0

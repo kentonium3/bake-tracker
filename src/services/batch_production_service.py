@@ -245,7 +245,8 @@ def record_batch_production(
             expected_yield = num_batches  # Fallback if not configured
 
         # Get aggregated ingredients (handles nested recipes)
-        aggregated = get_aggregated_ingredients(recipe_id, multiplier=num_batches)
+        # Pass session to maintain transactional atomicity
+        aggregated = get_aggregated_ingredients(recipe_id, multiplier=num_batches, session=session)
 
         # Track consumption data
         total_ingredient_cost = Decimal("0.0000")
