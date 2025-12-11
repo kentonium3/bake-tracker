@@ -24,12 +24,15 @@
 | 011 | Packaging & BOM Foundation | MERGED | Packaging materials in Composition, `is_packaging` flag on Ingredient. |
 | 012 | Nested Recipes | MERGED | RecipeComponent model, recursive cost calculation, ingredient aggregation. |
 | 013 | Production & Inventory Tracking | MERGED | BatchProductionService, AssemblyService, FIFO consumption ledgers. 51 tests. Bug fixes 2025-12-10: transaction atomicity, timestamp consistency, packaging validation. |
+| 014 | Production & Assembly Recording UI | MERGED | Record Production/Assembly dialogs, Summary tab integration. |
 
 ---
 
 ## In Progress
 
-*No features currently in progress.*
+| # | Name | Status | Notes |
+|---|------|--------|-------|
+| 016 | Event-Centric Production Model | IN PROGRESS | Linking production to events, progress tracking, fulfillment workflow. |
 
 ---
 
@@ -37,22 +40,22 @@
 
 | # | Name | Priority | Dependencies |
 |---|------|----------|--------------|
-| 014 | Production UI | HIGH | 013 |
 | 015 | Reporting Enhancements | LOW | - |
-| 016 | Packaging & Distribution | LOW | - |
+| 017 | Future TBD | LOW | - |
 
 ---
 
 ## Implementation Order
 
-**Current:** Ready for Feature 014 (Production UI)
+**Current:** Feature 016 in progress
 
 1. ~~**TD-001** - Clean foundation before adding new entities~~ ✅ COMPLETE
 2. ~~**Feature 011** - Packaging materials, extend Composition for packaging~~ ✅ COMPLETE
 3. ~~**Feature 012** - Nested recipes (sub-recipes as recipe components)~~ ✅ COMPLETE
 4. ~~**Feature 013** - BatchProductionService, AssemblyService, consumption ledgers~~ ✅ COMPLETE
-5. **Feature 014** - Production UI, completes Feature 004's missing assembly UI ← NEXT
-6. **Feature 015/016** - Based on user feedback
+5. ~~**Feature 014** - Production UI, completes Feature 004's missing assembly UI~~ ✅ COMPLETE
+6. **Feature 016** - Event-centric production model, progress tracking ← IN PROGRESS
+7. **Feature 015** - Reporting enhancements (based on user feedback)
 
 ---
 
@@ -74,6 +77,25 @@
 - Same pattern as Composition (polymorphic components)
 - Shopping list aggregation must traverse recipe hierarchy
 - Cost calculation must sum sub-recipe costs
+
+### Feature 016: Event-Centric Production Model
+
+**Rationale:** User needs to plan production specifically for events (Christmas 2025, Easter bake sale) and track progress toward completion. This requires linking production and assembly runs to events and providing explicit targets.
+
+**Scope:**
+- Add `event_id` FK to ProductionRun and AssemblyRun (nullable for standalone production)
+- New EventProductionTarget and EventAssemblyTarget tables for explicit per-event targets
+- Progress calculation (produced/assembled vs target) with percentage display
+- FulfillmentStatus enum on EventRecipientPackage with sequential workflow (pending→ready→delivered)
+- UI: Event selector dropdown in Record Production/Assembly dialogs
+- UI: Targets tab in Event Detail window with progress bars
+- UI: Fulfillment status column in package assignments with dropdown
+- Import/export support for new entities and fields
+
+**Technical Notes:**
+- Service layer methods accept optional event_id
+- Progress aggregates runs where event_id matches target's event
+- Sequential workflow enforced at service layer
 
 ---
 
@@ -121,3 +143,5 @@ Part B: Ingredient.name → Ingredient.display_name ✅
 - 2025-12-08: Feature 011 in progress; Feature 012 (Nested Recipes) inserted; features renumbered 012→013, 013→014, 014→015, 015→016
 - 2025-12-09: Features 011, 012, 013 complete. Full service layer for production tracking now in place (BatchProductionService, AssemblyService with 51 tests, 91% coverage). Ready for Feature 014 (Production UI).
 - 2025-12-10: Feature 013 bug fixes from independent code review: (1) Transaction atomicity - FIFO consumption now uses caller's session for atomic rollback, (2) Timestamp consistency - standardized to naive UTC, (3) Packaging validation - `is_packaging` flag check added, (4) Rollback tests added to both services. Known limitation documented: nested FinishedGood consumption lacks ledger entries (see docs/known_limitations.md).
+- 2025-12-10: Feature 014 (Production & Assembly Recording UI) complete and merged.
+- 2025-12-11: Feature 016 (Event-Centric Production Model) in progress - WP01-WP09 complete, WP10 (documentation) in progress.

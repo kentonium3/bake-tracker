@@ -121,3 +121,4 @@ This project uses spec-kitty for feature development. The workflow is AUTHORITAT
 - **Slug-based FKs**: Use slugs instead of display names for foreign keys (enables future localization)
 - **UUID support**: BaseModel includes UUID for future distributed/multi-user scenarios
 - **Nested Recipes**: Recipes can include other recipes as components via RecipeComponent junction table. Maximum 3 levels of nesting. Circular references are prevented at validation time. Shopping lists aggregate ingredients from all levels.
+- **Event-Centric Production Model**: ProductionRun and AssemblyRun link to Events via optional `event_id` FK. This enables: (1) tracking which production is for which event, (2) explicit production targets per event via EventProductionTarget/EventAssemblyTarget, (3) progress tracking (produced vs target), (4) package fulfillment status workflow (pending/ready/delivered). See `docs/design/schema_v0.6_design.md`.

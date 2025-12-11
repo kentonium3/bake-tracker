@@ -315,11 +315,11 @@
 **Prompt**: `tasks/planned/WP10-documentation-validation.md`
 
 ### Included Subtasks
-- [ ] T054 Update CLAUDE.md with event-centric model description
-- [ ] T055 Update `docs/feature_roadmap.md` to mark Feature 016 complete
-- [ ] T056 Perform export/import migration dry-run test
-- [ ] T057 Verify all acceptance criteria from spec.md
-- [ ] T058 Final manual testing walkthrough
+- [X] T054 Update CLAUDE.md with event-centric model description
+- [X] T055 Update `docs/feature_roadmap.md` to mark Feature 016 complete
+- [X] T056 Perform export/import migration dry-run test
+- [X] T057 Verify all acceptance criteria from spec.md
+- [X] T058 Final manual testing walkthrough
 
 ### Implementation Notes
 1. CLAUDE.md: Add to Key Design Decisions section about event-production linkage
