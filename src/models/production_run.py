@@ -53,6 +53,13 @@ class ProductionRun(BaseModel):
     finished_unit_id = Column(
         Integer, ForeignKey("finished_units.id", ondelete="RESTRICT"), nullable=False
     )
+    # Feature 016: Optional event linkage for progress tracking
+    event_id = Column(
+        Integer,
+        ForeignKey("events.id", ondelete="RESTRICT"),
+        nullable=True,
+        index=True,
+    )
 
     # Production data
     num_batches = Column(Integer, nullable=False)
@@ -75,6 +82,8 @@ class ProductionRun(BaseModel):
         back_populates="production_run",
         cascade="all, delete-orphan",
     )
+    # Feature 016: Event relationship
+    event = relationship("Event", back_populates="production_runs")
 
     # Constraints and indexes
     __table_args__ = (
@@ -82,6 +91,7 @@ class ProductionRun(BaseModel):
         Index("idx_production_run_recipe", "recipe_id"),
         Index("idx_production_run_finished_unit", "finished_unit_id"),
         Index("idx_production_run_produced_at", "produced_at"),
+        Index("idx_production_run_event", "event_id"),
         # Constraints
         CheckConstraint("num_batches > 0", name="ck_production_run_batches_positive"),
         CheckConstraint(
@@ -128,11 +138,16 @@ class ProductionRun(BaseModel):
         if self.per_unit_cost is not None:
             result["per_unit_cost"] = str(self.per_unit_cost)
 
+        # Feature 016: Always include event_id
+        result["event_id"] = self.event_id
+
         # Add convenience fields when including relationships
         if include_relationships:
             if self.recipe:
                 result["recipe_name"] = self.recipe.name
             if self.finished_unit:
                 result["finished_unit_name"] = self.finished_unit.display_name
+            # Feature 016: Include event_name
+            result["event_name"] = self.event.name if self.event else None
 
         return result

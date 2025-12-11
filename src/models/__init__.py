@@ -26,7 +26,13 @@ from .package import (
     PackageFinishedGood,
 )  # Re-enabled Feature 006: Uses FinishedGood not Bundle
 from .recipient import Recipient
-from .event import Event, EventRecipientPackage  # Re-enabled Feature 006
+from .event import (
+    Event,
+    EventRecipientPackage,
+    FulfillmentStatus,
+    EventProductionTarget,
+    EventAssemblyTarget,
+)  # Re-enabled Feature 006, extended Feature 016
 from .package_status import PackageStatus  # Feature 008
 from .production_record import ProductionRecord  # Feature 008
 from .production_run import ProductionRun  # Feature 013
@@ -62,9 +68,12 @@ __all__ = [
     "Package",
     "PackageFinishedGood",
     "Recipient",
-    # Event models re-enabled in Feature 006
+    # Event models re-enabled in Feature 006, extended Feature 016
     "Event",
     "EventRecipientPackage",
+    "FulfillmentStatus",
+    "EventProductionTarget",
+    "EventAssemblyTarget",
     # Production tracking Feature 008
     "PackageStatus",
     "ProductionRecord",

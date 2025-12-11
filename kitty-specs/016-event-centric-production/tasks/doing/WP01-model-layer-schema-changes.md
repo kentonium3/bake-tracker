@@ -336,3 +336,14 @@ history:
 
 - 2025-12-10T00:00:00Z - system - lane=planned - Prompt created.
 - 2025-12-11T02:42:44Z – claude – shell_pid=78906 – lane=doing – Started implementation of model layer schema changes
+- 2025-12-11T03:15:00Z – claude – shell_pid=78906 – lane=doing – Completed all subtasks:
+  - T001: Added FulfillmentStatus enum (pending/ready/delivered)
+  - T002: Added EventProductionTarget model with unique constraint
+  - T003: Added EventAssemblyTarget model with unique constraint
+  - T004: Added event_id FK to ProductionRun (nullable, RESTRICT)
+  - T005: Added event_id FK to AssemblyRun (nullable, RESTRICT)
+  - T006: Added fulfillment_status column to EventRecipientPackage
+  - T007: Added Event relationships (production_runs, assembly_runs, production_targets, assembly_targets)
+  - T008: Updated __init__.py exports
+  - T009: Updated to_dict() methods in ProductionRun and AssemblyRun
+  - Verified: All models import successfully, database creates with new schema, 275 tests pass
