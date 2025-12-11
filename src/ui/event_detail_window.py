@@ -11,10 +11,11 @@ Provides comprehensive interface for:
 import customtkinter as ctk
 from typing import Optional
 
-from src.models.event import Event, EventRecipientPackage
+from src.models.event import Event, EventRecipientPackage, FulfillmentStatus
 from src.services import event_service, recipe_service
 from src.services.finished_good_service import get_all_finished_goods
 from src.services.event_service import AssignmentNotFoundError
+from typing import List
 from src.utils.constants import (
     PADDING_MEDIUM,
     PADDING_LARGE,
@@ -645,10 +646,10 @@ class EventDetailWindow(ctk.CTkToplevel):
                 label.grid(row=0, column=0, pady=50)
                 return
 
-            # Header
+            # Header - Feature 016: Added Status column
             header_frame = ctk.CTkFrame(self.assignments_frame, fg_color=("gray85", "gray25"))
             header_frame.grid(row=0, column=0, sticky="ew", pady=(0, 5))
-            header_frame.grid_columnconfigure((0, 1, 2, 3), weight=1)
+            header_frame.grid_columnconfigure((0, 1, 2, 3, 4), weight=1)
 
             ctk.CTkLabel(header_frame, text="Recipient", font=ctk.CTkFont(weight="bold")).grid(
                 row=0, column=0, padx=10, pady=8
@@ -662,6 +663,9 @@ class EventDetailWindow(ctk.CTkToplevel):
             ctk.CTkLabel(header_frame, text="Cost", font=ctk.CTkFont(weight="bold")).grid(
                 row=0, column=3, padx=10, pady=8
             )
+            ctk.CTkLabel(header_frame, text="Status", font=ctk.CTkFont(weight="bold")).grid(
+                row=0, column=4, padx=10, pady=8
+            )
 
             # Rows
             for idx, assignment in enumerate(assignments, start=1):
@@ -669,9 +673,15 @@ class EventDetailWindow(ctk.CTkToplevel):
                 package_name = assignment.package.name if assignment.package else "Unknown"
                 cost = assignment.calculate_cost()
 
+                # Feature 016: Check if delivered for styling
+                is_delivered = (
+                    assignment.fulfillment_status == FulfillmentStatus.DELIVERED
+                )
+                text_color = "gray" if is_delivered else None
+
                 row_frame = ctk.CTkFrame(self.assignments_frame, fg_color="transparent")
                 row_frame.grid(row=idx, column=0, sticky="ew", pady=2)
-                row_frame.grid_columnconfigure((0, 1, 2, 3), weight=1)
+                row_frame.grid_columnconfigure((0, 1, 2, 3, 4), weight=1)
 
                 # Make row clickable
                 def make_click_handler(asgn):
@@ -679,21 +689,24 @@ class EventDetailWindow(ctk.CTkToplevel):
 
                 row_frame.bind("<Button-1>", make_click_handler(assignment))
 
-                recipient_label = ctk.CTkLabel(row_frame, text=recipient_name)
+                recipient_label = ctk.CTkLabel(row_frame, text=recipient_name, text_color=text_color)
                 recipient_label.grid(row=0, column=0, padx=10, pady=5, sticky="w")
                 recipient_label.bind("<Button-1>", make_click_handler(assignment))
 
-                package_label = ctk.CTkLabel(row_frame, text=package_name)
+                package_label = ctk.CTkLabel(row_frame, text=package_name, text_color=text_color)
                 package_label.grid(row=0, column=1, padx=10, pady=5, sticky="w")
                 package_label.bind("<Button-1>", make_click_handler(assignment))
 
-                qty_label = ctk.CTkLabel(row_frame, text=str(assignment.quantity))
+                qty_label = ctk.CTkLabel(row_frame, text=str(assignment.quantity), text_color=text_color)
                 qty_label.grid(row=0, column=2, padx=10, pady=5, sticky="w")
                 qty_label.bind("<Button-1>", make_click_handler(assignment))
 
-                cost_label = ctk.CTkLabel(row_frame, text=f"${cost:.2f}")
+                cost_label = ctk.CTkLabel(row_frame, text=f"${cost:.2f}", text_color=text_color)
                 cost_label.grid(row=0, column=3, padx=10, pady=5, sticky="w")
                 cost_label.bind("<Button-1>", make_click_handler(assignment))
+
+                # Feature 016: Add fulfillment status control
+                self._create_fulfillment_status_control(row_frame, assignment, 4)
 
         except Exception as e:
             label = ctk.CTkLabel(
@@ -708,6 +721,86 @@ class EventDetailWindow(ctk.CTkToplevel):
         self.selected_assignment = assignment
         self.edit_assignment_button.configure(state="normal")
         self.delete_assignment_button.configure(state="normal")
+
+    def _get_valid_next_statuses(self, current_status: FulfillmentStatus) -> List[FulfillmentStatus]:
+        """Get valid next statuses for sequential workflow (Feature 016).
+
+        Args:
+            current_status: Current fulfillment status
+
+        Returns:
+            List of valid next statuses (empty if terminal)
+        """
+        transitions = {
+            FulfillmentStatus.PENDING: [FulfillmentStatus.READY],
+            FulfillmentStatus.READY: [FulfillmentStatus.DELIVERED],
+            FulfillmentStatus.DELIVERED: [],  # Terminal state
+        }
+        return transitions.get(current_status, [])
+
+    def _create_fulfillment_status_control(
+        self, parent, assignment: EventRecipientPackage, column: int
+    ):
+        """Create the fulfillment status control for an assignment row (Feature 016).
+
+        Args:
+            parent: Parent widget (row frame)
+            assignment: The EventRecipientPackage
+            column: Grid column to place the control
+        """
+        current_status = assignment.fulfillment_status or FulfillmentStatus.PENDING
+        valid_next = self._get_valid_next_statuses(current_status)
+
+        if current_status == FulfillmentStatus.DELIVERED:
+            # Terminal state - show checkmark with green styling
+            label = ctk.CTkLabel(
+                parent,
+                text="✓ Delivered",
+                text_color="green",
+                font=ctk.CTkFont(weight="bold"),
+            )
+            label.grid(row=0, column=column, padx=10, pady=5, sticky="w")
+        elif not valid_next:
+            # No valid transitions (shouldn't happen for non-delivered)
+            label = ctk.CTkLabel(parent, text=current_status.value.capitalize())
+            label.grid(row=0, column=column, padx=10, pady=5, sticky="w")
+        else:
+            # Show dropdown with current + valid next statuses
+            options = [current_status.value.capitalize()] + [
+                s.value.capitalize() for s in valid_next
+            ]
+            var = ctk.StringVar(value=current_status.value.capitalize())
+
+            def on_change(value, asgn=assignment):
+                self._on_fulfillment_status_change(asgn, value)
+
+            dropdown = ctk.CTkOptionMenu(
+                parent,
+                variable=var,
+                values=options,
+                width=100,
+                command=on_change,
+            )
+            dropdown.grid(row=0, column=column, padx=10, pady=5, sticky="w")
+
+    def _on_fulfillment_status_change(self, assignment: EventRecipientPackage, new_status_str: str):
+        """Handle fulfillment status change from dropdown (Feature 016).
+
+        Args:
+            assignment: The EventRecipientPackage being updated
+            new_status_str: New status string (e.g., "Ready", "Delivered")
+        """
+        try:
+            new_status = FulfillmentStatus(new_status_str.lower())
+            event_service.update_fulfillment_status(assignment.id, new_status)
+            self._refresh_assignments()
+        except ValueError as e:
+            show_error(
+                "Invalid Transition",
+                f"Cannot change status: {str(e)}",
+                parent=self,
+            )
+            self._refresh_assignments()  # Refresh to reset dropdown to valid state
 
     def _refresh_recipe_needs(self):
         """Refresh recipe needs tab."""

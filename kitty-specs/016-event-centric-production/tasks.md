@@ -284,10 +284,10 @@
 **Prompt**: `tasks/planned/WP09-ui-fulfillment-status.md`
 
 ### Included Subtasks
-- [ ] T050 Add fulfillment status column to package assignments in `src/ui/event_detail_window.py`
-- [ ] T051 Implement status dropdown with sequential transition enforcement
-- [ ] T052 Style delivered status differently (green checkmark or disabled)
-- [ ] T053 Manual UI testing checklist
+- [X] T050 Add fulfillment status column to package assignments in `src/ui/event_detail_window.py`
+- [X] T051 Implement status dropdown with sequential transition enforcement
+- [X] T052 Style delivered status differently (green checkmark or disabled)
+- [X] T053 Manual UI testing checklist
 
 ### Implementation Notes
 1. Status column between Quantity and Actions
