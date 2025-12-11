@@ -11,9 +11,9 @@ subtasks:
   - "T035"
 title: "Import/Export"
 phase: "Phase 4 - Import/Export"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
+agent: "system"
 shell_pid: ""
 review_status: ""
 reviewed_by: ""
@@ -353,3 +353,4 @@ pytest src/tests/integration/test_import_export_016.py -v
 ## Activity Log
 
 - 2025-12-10T00:00:00Z - system - lane=planned - Prompt created.
+- 2025-12-11T04:11:39Z – system – shell_pid= – lane=doing – Moved to doing

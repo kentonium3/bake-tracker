@@ -27,6 +27,9 @@ from src.models.finished_good import FinishedGood
 from src.models.composition import Composition
 from src.models.package import Package, PackageFinishedGood
 from src.models.production_record import ProductionRecord
+from src.models.production_run import ProductionRun
+from src.models.assembly_run import AssemblyRun
+from src.models.event import EventProductionTarget, EventAssemblyTarget, FulfillmentStatus
 from src.models.recipe import Recipe, RecipeComponent
 from src.utils.constants import APP_NAME, APP_VERSION
 
@@ -828,6 +831,145 @@ def export_production_records_to_json() -> List[Dict]:
     return result
 
 
+def export_production_runs_to_json() -> List[Dict]:
+    """
+    Export ProductionRun records for Feature 016.
+
+    Production runs track batch production with event attribution.
+
+    Returns:
+        List of dictionaries containing production run data
+    """
+    result = []
+    with session_scope() as session:
+        runs = (
+            session.query(ProductionRun)
+            .options(
+                joinedload(ProductionRun.event),
+                joinedload(ProductionRun.recipe),
+            )
+            .all()
+        )
+        for run in runs:
+            run_data = {
+                "event_name": run.event.name if run.event else None,
+                "recipe_name": run.recipe.name if run.recipe else None,
+                "num_batches": run.num_batches,
+                "actual_yield": run.actual_yield,
+                "produced_at": run.produced_at.isoformat() + "Z" if run.produced_at else None,
+            }
+
+            # Optional fields
+            if run.notes:
+                run_data["notes"] = run.notes
+
+            result.append(run_data)
+    return result
+
+
+def export_assembly_runs_to_json() -> List[Dict]:
+    """
+    Export AssemblyRun records for Feature 016.
+
+    Assembly runs track finished good assembly with event attribution.
+
+    Returns:
+        List of dictionaries containing assembly run data
+    """
+    result = []
+    with session_scope() as session:
+        runs = (
+            session.query(AssemblyRun)
+            .options(
+                joinedload(AssemblyRun.event),
+                joinedload(AssemblyRun.finished_good),
+            )
+            .all()
+        )
+        for run in runs:
+            run_data = {
+                "event_name": run.event.name if run.event else None,
+                "finished_good_slug": run.finished_good.slug if run.finished_good else None,
+                "quantity_assembled": run.quantity_assembled,
+                "assembled_at": run.assembled_at.isoformat() + "Z" if run.assembled_at else None,
+            }
+
+            # Optional fields
+            if run.notes:
+                run_data["notes"] = run.notes
+
+            result.append(run_data)
+    return result
+
+
+def export_event_production_targets_to_json() -> List[Dict]:
+    """
+    Export EventProductionTarget records for Feature 016.
+
+    Production targets track batch production goals per event.
+
+    Returns:
+        List of dictionaries containing production target data
+    """
+    result = []
+    with session_scope() as session:
+        targets = (
+            session.query(EventProductionTarget)
+            .options(
+                joinedload(EventProductionTarget.event),
+                joinedload(EventProductionTarget.recipe),
+            )
+            .all()
+        )
+        for target in targets:
+            target_data = {
+                "event_name": target.event.name if target.event else None,
+                "recipe_name": target.recipe.name if target.recipe else None,
+                "target_batches": target.target_batches,
+            }
+
+            # Optional fields
+            if target.notes:
+                target_data["notes"] = target.notes
+
+            result.append(target_data)
+    return result
+
+
+def export_event_assembly_targets_to_json() -> List[Dict]:
+    """
+    Export EventAssemblyTarget records for Feature 016.
+
+    Assembly targets track finished good assembly goals per event.
+
+    Returns:
+        List of dictionaries containing assembly target data
+    """
+    result = []
+    with session_scope() as session:
+        targets = (
+            session.query(EventAssemblyTarget)
+            .options(
+                joinedload(EventAssemblyTarget.event),
+                joinedload(EventAssemblyTarget.finished_good),
+            )
+            .all()
+        )
+        for target in targets:
+            target_data = {
+                "event_name": target.event.name if target.event else None,
+                "finished_good_slug": target.finished_good.slug if target.finished_good else None,
+                "target_quantity": target.target_quantity,
+            }
+
+            # Optional fields
+            if target.notes:
+                target_data["notes"] = target.notes
+
+            result.append(target_data)
+    return result
+
+
 def export_all_to_json(file_path: str) -> ExportResult:
     """
     Export all data to a single JSON file in v3.0 format.
@@ -864,9 +1006,15 @@ def export_all_to_json(file_path: str) -> ExportResult:
         package_finished_goods_data = export_package_finished_goods_to_json()
         production_records_data = export_production_records_to_json()
 
-        # Build combined export data - v3.1 format (Feature 011: packaging support)
+        # Feature 016: Production and assembly runs with event attribution
+        production_runs_data = export_production_runs_to_json()
+        assembly_runs_data = export_assembly_runs_to_json()
+        event_production_targets_data = export_event_production_targets_to_json()
+        event_assembly_targets_data = export_event_assembly_targets_to_json()
+
+        # Build combined export data - v3.2 format (Feature 016: event-centric production)
         export_data = {
-            "version": "3.1",
+            "version": "3.2",
             "exported_at": datetime.utcnow().isoformat() + "Z",
             "application": "bake-tracker",
             "unit_conversions": [],
@@ -883,7 +1031,11 @@ def export_all_to_json(file_path: str) -> ExportResult:
             "recipients": [],
             "events": [],
             "event_recipient_packages": [],
+            "event_production_targets": event_production_targets_data,
+            "event_assembly_targets": event_assembly_targets_data,
             "production_records": production_records_data,
+            "production_runs": production_runs_data,
+            "assembly_runs": assembly_runs_data,
         }
 
         # Add ingredients (NEW SCHEMA: generic ingredient definitions)
@@ -1147,7 +1299,7 @@ def export_all_to_json(file_path: str) -> ExportResult:
 
             export_data["events"].append(event_data)
 
-            # Populate event_recipient_packages separately (v3.0 format with status)
+            # Populate event_recipient_packages separately (v3.2 format with both status fields)
             for assignment in event.event_recipient_packages:
                 assignment_data = {
                     "event_name": event.name,
@@ -1155,6 +1307,7 @@ def export_all_to_json(file_path: str) -> ExportResult:
                     "package_name": assignment.package.name,
                     "quantity": assignment.quantity,
                     "status": assignment.status.value if assignment.status else "pending",
+                    "fulfillment_status": assignment.fulfillment_status,  # Feature 016
                 }
                 if assignment.delivered_to:
                     assignment_data["delivered_to"] = assignment.delivered_to
@@ -1183,7 +1336,11 @@ def export_all_to_json(file_path: str) -> ExportResult:
             + len(export_data["recipients"])
             + len(export_data["events"])
             + len(export_data["event_recipient_packages"])
+            + len(export_data["event_production_targets"])
+            + len(export_data["event_assembly_targets"])
             + len(export_data["production_records"])
+            + len(export_data["production_runs"])
+            + len(export_data["assembly_runs"])
         )
 
         result = ExportResult(file_path, total_records)
@@ -1203,7 +1360,11 @@ def export_all_to_json(file_path: str) -> ExportResult:
         result.add_entity_count("recipients", len(export_data["recipients"]))
         result.add_entity_count("events", len(export_data["events"]))
         result.add_entity_count("event_recipient_packages", len(export_data["event_recipient_packages"]))
+        result.add_entity_count("event_production_targets", len(export_data["event_production_targets"]))
+        result.add_entity_count("event_assembly_targets", len(export_data["event_assembly_targets"]))
         result.add_entity_count("production_records", len(export_data["production_records"]))
+        result.add_entity_count("production_runs", len(export_data["production_runs"]))
+        result.add_entity_count("assembly_runs", len(export_data["assembly_runs"]))
 
         return result
 
@@ -2719,6 +2880,13 @@ def import_event_recipient_packages_from_json(
             except ValueError:
                 status = PackageStatus.PENDING
 
+            # Feature 016: Parse fulfillment_status
+            fulfillment_str = record.get("fulfillment_status", "pending")
+            try:
+                fulfillment_status = FulfillmentStatus(fulfillment_str)
+            except ValueError:
+                fulfillment_status = FulfillmentStatus.PENDING
+
             # Create assignment
             erp = EventRecipientPackage(
                 event_id=event.id,
@@ -2726,6 +2894,7 @@ def import_event_recipient_packages_from_json(
                 package_id=package.id,
                 quantity=quantity,
                 status=status,
+                fulfillment_status=fulfillment_status.value,  # Feature 016
                 delivered_to=record.get("delivered_to"),
                 notes=record.get("notes"),
             )
@@ -2735,6 +2904,284 @@ def import_event_recipient_packages_from_json(
 
         except Exception as e:
             result.add_error("event_recipient_package", record.get("event_name", "unknown"), str(e))
+
+    return result
+
+
+def import_event_production_targets_from_json(
+    data: List[Dict], session, skip_duplicates: bool = True
+) -> ImportResult:
+    """
+    Import EventProductionTarget records from v3.2 format data.
+
+    Args:
+        data: List of event-production-target dictionaries
+        session: SQLAlchemy session
+        skip_duplicates: If True, skip records that already exist
+
+    Returns:
+        ImportResult with import statistics
+    """
+    from src.models.event import Event
+
+    result = ImportResult()
+
+    for record in data:
+        try:
+            event_name = record.get("event_name", "")
+            recipe_name = record.get("recipe_name", "")
+            target_batches = record.get("target_batches", 0)
+
+            if not event_name or not recipe_name:
+                result.add_error("event_production_target", "unknown", "Missing event_name or recipe_name")
+                continue
+
+            # Resolve event reference
+            event = session.query(Event).filter_by(name=event_name).first()
+            if not event:
+                result.add_error("event_production_target", event_name, f"Event not found: {event_name}")
+                continue
+
+            # Resolve recipe reference
+            recipe = session.query(Recipe).filter_by(name=recipe_name).first()
+            if not recipe:
+                result.add_error("event_production_target", event_name, f"Recipe not found: {recipe_name}")
+                continue
+
+            # Check for duplicate
+            if skip_duplicates:
+                existing = session.query(EventProductionTarget).filter_by(
+                    event_id=event.id,
+                    recipe_id=recipe.id,
+                ).first()
+                if existing:
+                    result.add_skip("event_production_target", f"{event_name}/{recipe_name}", "Already exists")
+                    continue
+
+            # Create target
+            target = EventProductionTarget(
+                event_id=event.id,
+                recipe_id=recipe.id,
+                target_batches=target_batches,
+                notes=record.get("notes"),
+            )
+
+            session.add(target)
+            result.add_success("event_production_target")
+
+        except Exception as e:
+            result.add_error("event_production_target", record.get("event_name", "unknown"), str(e))
+
+    return result
+
+
+def import_event_assembly_targets_from_json(
+    data: List[Dict], session, skip_duplicates: bool = True
+) -> ImportResult:
+    """
+    Import EventAssemblyTarget records from v3.2 format data.
+
+    Args:
+        data: List of event-assembly-target dictionaries
+        session: SQLAlchemy session
+        skip_duplicates: If True, skip records that already exist
+
+    Returns:
+        ImportResult with import statistics
+    """
+    from src.models.event import Event
+
+    result = ImportResult()
+
+    for record in data:
+        try:
+            event_name = record.get("event_name", "")
+            finished_good_slug = record.get("finished_good_slug", "")
+            target_quantity = record.get("target_quantity", 0)
+
+            if not event_name or not finished_good_slug:
+                result.add_error("event_assembly_target", "unknown", "Missing event_name or finished_good_slug")
+                continue
+
+            # Resolve event reference
+            event = session.query(Event).filter_by(name=event_name).first()
+            if not event:
+                result.add_error("event_assembly_target", event_name, f"Event not found: {event_name}")
+                continue
+
+            # Resolve finished good reference
+            finished_good = session.query(FinishedGood).filter_by(slug=finished_good_slug).first()
+            if not finished_good:
+                result.add_error("event_assembly_target", event_name, f"Finished good not found: {finished_good_slug}")
+                continue
+
+            # Check for duplicate
+            if skip_duplicates:
+                existing = session.query(EventAssemblyTarget).filter_by(
+                    event_id=event.id,
+                    finished_good_id=finished_good.id,
+                ).first()
+                if existing:
+                    result.add_skip("event_assembly_target", f"{event_name}/{finished_good_slug}", "Already exists")
+                    continue
+
+            # Create target
+            target = EventAssemblyTarget(
+                event_id=event.id,
+                finished_good_id=finished_good.id,
+                target_quantity=target_quantity,
+                notes=record.get("notes"),
+            )
+
+            session.add(target)
+            result.add_success("event_assembly_target")
+
+        except Exception as e:
+            result.add_error("event_assembly_target", record.get("event_name", "unknown"), str(e))
+
+    return result
+
+
+def import_production_runs_from_json(
+    data: List[Dict], session, skip_duplicates: bool = True
+) -> ImportResult:
+    """
+    Import ProductionRun records from v3.2 format data.
+
+    Args:
+        data: List of production-run dictionaries
+        session: SQLAlchemy session
+        skip_duplicates: If True, skip records that already exist
+
+    Returns:
+        ImportResult with import statistics
+    """
+    from src.models.event import Event
+    from datetime import datetime
+
+    result = ImportResult()
+
+    for record in data:
+        try:
+            event_name = record.get("event_name")  # Can be None for standalone
+            recipe_name = record.get("recipe_name", "")
+            num_batches = record.get("num_batches", 0)
+            actual_yield = record.get("actual_yield", 0)
+            produced_at_str = record.get("produced_at")
+
+            if not recipe_name:
+                result.add_error("production_run", "unknown", "Missing recipe_name")
+                continue
+
+            # Resolve event reference (optional - can be None for standalone)
+            event_id = None
+            if event_name:
+                event = session.query(Event).filter_by(name=event_name).first()
+                if not event:
+                    result.add_error("production_run", event_name, f"Event not found: {event_name}")
+                    continue
+                event_id = event.id
+
+            # Resolve recipe reference
+            recipe = session.query(Recipe).filter_by(name=recipe_name).first()
+            if not recipe:
+                result.add_error("production_run", recipe_name, f"Recipe not found: {recipe_name}")
+                continue
+
+            # Parse produced_at timestamp
+            produced_at = None
+            if produced_at_str:
+                try:
+                    produced_at = datetime.fromisoformat(produced_at_str.replace("Z", "+00:00"))
+                except ValueError:
+                    produced_at = datetime.utcnow()
+
+            # Create production run
+            run = ProductionRun(
+                event_id=event_id,
+                recipe_id=recipe.id,
+                num_batches=num_batches,
+                actual_yield=actual_yield,
+                produced_at=produced_at,
+                notes=record.get("notes"),
+            )
+
+            session.add(run)
+            result.add_success("production_run")
+
+        except Exception as e:
+            result.add_error("production_run", record.get("recipe_name", "unknown"), str(e))
+
+    return result
+
+
+def import_assembly_runs_from_json(
+    data: List[Dict], session, skip_duplicates: bool = True
+) -> ImportResult:
+    """
+    Import AssemblyRun records from v3.2 format data.
+
+    Args:
+        data: List of assembly-run dictionaries
+        session: SQLAlchemy session
+        skip_duplicates: If True, skip records that already exist
+
+    Returns:
+        ImportResult with import statistics
+    """
+    from src.models.event import Event
+    from datetime import datetime
+
+    result = ImportResult()
+
+    for record in data:
+        try:
+            event_name = record.get("event_name")  # Can be None for standalone
+            finished_good_slug = record.get("finished_good_slug", "")
+            quantity_assembled = record.get("quantity_assembled", 0)
+            assembled_at_str = record.get("assembled_at")
+
+            if not finished_good_slug:
+                result.add_error("assembly_run", "unknown", "Missing finished_good_slug")
+                continue
+
+            # Resolve event reference (optional - can be None for standalone)
+            event_id = None
+            if event_name:
+                event = session.query(Event).filter_by(name=event_name).first()
+                if not event:
+                    result.add_error("assembly_run", event_name, f"Event not found: {event_name}")
+                    continue
+                event_id = event.id
+
+            # Resolve finished good reference
+            finished_good = session.query(FinishedGood).filter_by(slug=finished_good_slug).first()
+            if not finished_good:
+                result.add_error("assembly_run", finished_good_slug, f"Finished good not found: {finished_good_slug}")
+                continue
+
+            # Parse assembled_at timestamp
+            assembled_at = None
+            if assembled_at_str:
+                try:
+                    assembled_at = datetime.fromisoformat(assembled_at_str.replace("Z", "+00:00"))
+                except ValueError:
+                    assembled_at = datetime.utcnow()
+
+            # Create assembly run
+            run = AssemblyRun(
+                event_id=event_id,
+                finished_good_id=finished_good.id,
+                quantity_assembled=quantity_assembled,
+                assembled_at=assembled_at,
+                notes=record.get("notes"),
+            )
+
+            session.add(run)
+            result.add_success("assembly_run")
+
+        except Exception as e:
+            result.add_error("assembly_run", record.get("finished_good_slug", "unknown"), str(e))
 
     return result
 
@@ -3191,6 +3638,42 @@ def import_all_from_json_v3(file_path: str, mode: str = "merge") -> ImportResult
                     data["production_records"], session, skip_duplicates
                 )
                 result.merge(pr_result)
+
+            session.flush()
+
+            # 16. Event production targets (Feature 016)
+            if "event_production_targets" in data:
+                ept_result = import_event_production_targets_from_json(
+                    data["event_production_targets"], session, skip_duplicates
+                )
+                result.merge(ept_result)
+
+            session.flush()
+
+            # 17. Event assembly targets (Feature 016)
+            if "event_assembly_targets" in data:
+                eat_result = import_event_assembly_targets_from_json(
+                    data["event_assembly_targets"], session, skip_duplicates
+                )
+                result.merge(eat_result)
+
+            session.flush()
+
+            # 18. Production runs (Feature 016)
+            if "production_runs" in data:
+                pr_run_result = import_production_runs_from_json(
+                    data["production_runs"], session, skip_duplicates
+                )
+                result.merge(pr_run_result)
+
+            session.flush()
+
+            # 19. Assembly runs (Feature 016)
+            if "assembly_runs" in data:
+                ar_result = import_assembly_runs_from_json(
+                    data["assembly_runs"], session, skip_duplicates
+                )
+                result.merge(ar_result)
 
             # Commit transaction
             session.commit()
