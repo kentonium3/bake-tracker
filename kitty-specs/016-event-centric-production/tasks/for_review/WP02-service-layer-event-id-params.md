@@ -7,10 +7,10 @@ subtasks:
   - "T013"
 title: "Service Layer - Event ID Parameters"
 phase: "Phase 2 - Service Layer"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "claude"
-shell_pid: "80123"
+shell_pid: "83960"
 review_status: ""
 reviewed_by: ""
 history:
@@ -276,3 +276,4 @@ pytest src/tests/services/test_assembly_service.py -v
     - test_record_assembly_invalid_event_id (passes)
   - All 6 event_id tests pass
   - Note: 5 pre-existing failing tests unrelated to WP02 (exist on main branch)
+- 2025-12-11T03:57:31Z – claude – shell_pid=83960 – lane=for_review – Ready for review - all subtasks T010-T013 complete, 6 event_id tests pass
