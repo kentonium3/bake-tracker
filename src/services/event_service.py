@@ -27,6 +27,8 @@ from sqlalchemy.orm import joinedload
 from src.models import (
     Event,
     EventRecipientPackage,
+    EventProductionTarget,
+    EventAssemblyTarget,
     Recipient,
     Package,
     PackageFinishedGood,
@@ -1477,3 +1479,224 @@ def get_recipient_history(recipient_id: int) -> List[Dict[str, Any]]:
 
     except SQLAlchemyError as e:
         raise DatabaseError(f"Failed to get recipient history: {str(e)}")
+
+
+# ============================================================================
+# Feature 016: Production/Assembly Target CRUD
+# ============================================================================
+
+
+def set_production_target(
+    event_id: int,
+    recipe_id: int,
+    target_batches: int,
+    notes: Optional[str] = None,
+) -> EventProductionTarget:
+    """
+    Create or update production target for a recipe in an event.
+
+    Uses upsert pattern: if target already exists, updates it; otherwise creates new.
+
+    Args:
+        event_id: Event ID
+        recipe_id: Recipe ID
+        target_batches: Number of batches to produce (must be > 0)
+        notes: Optional notes
+
+    Returns:
+        EventProductionTarget instance (created or updated)
+
+    Raises:
+        ValueError: If target_batches is not positive
+        DatabaseError: If database operation fails
+    """
+    if target_batches <= 0:
+        raise ValueError("target_batches must be positive")
+
+    try:
+        with session_scope() as session:
+            # Check if target already exists
+            existing = (
+                session.query(EventProductionTarget)
+                .filter_by(event_id=event_id, recipe_id=recipe_id)
+                .first()
+            )
+
+            if existing:
+                existing.target_batches = target_batches
+                existing.notes = notes
+                session.flush()
+                return existing
+            else:
+                target = EventProductionTarget(
+                    event_id=event_id,
+                    recipe_id=recipe_id,
+                    target_batches=target_batches,
+                    notes=notes,
+                )
+                session.add(target)
+                session.flush()
+                return target
+
+    except SQLAlchemyError as e:
+        raise DatabaseError(f"Failed to set production target: {str(e)}")
+
+
+def set_assembly_target(
+    event_id: int,
+    finished_good_id: int,
+    target_quantity: int,
+    notes: Optional[str] = None,
+) -> EventAssemblyTarget:
+    """
+    Create or update assembly target for a finished good in an event.
+
+    Uses upsert pattern: if target already exists, updates it; otherwise creates new.
+
+    Args:
+        event_id: Event ID
+        finished_good_id: FinishedGood ID
+        target_quantity: Number of units to assemble (must be > 0)
+        notes: Optional notes
+
+    Returns:
+        EventAssemblyTarget instance (created or updated)
+
+    Raises:
+        ValueError: If target_quantity is not positive
+        DatabaseError: If database operation fails
+    """
+    if target_quantity <= 0:
+        raise ValueError("target_quantity must be positive")
+
+    try:
+        with session_scope() as session:
+            # Check if target already exists
+            existing = (
+                session.query(EventAssemblyTarget)
+                .filter_by(event_id=event_id, finished_good_id=finished_good_id)
+                .first()
+            )
+
+            if existing:
+                existing.target_quantity = target_quantity
+                existing.notes = notes
+                session.flush()
+                return existing
+            else:
+                target = EventAssemblyTarget(
+                    event_id=event_id,
+                    finished_good_id=finished_good_id,
+                    target_quantity=target_quantity,
+                    notes=notes,
+                )
+                session.add(target)
+                session.flush()
+                return target
+
+    except SQLAlchemyError as e:
+        raise DatabaseError(f"Failed to set assembly target: {str(e)}")
+
+
+def get_production_targets(event_id: int) -> List[EventProductionTarget]:
+    """
+    Get all production targets for an event.
+
+    Eager loads recipe relationship to avoid N+1 queries.
+
+    Args:
+        event_id: Event ID
+
+    Returns:
+        List of EventProductionTarget instances with recipe data
+    """
+    try:
+        with session_scope() as session:
+            return (
+                session.query(EventProductionTarget)
+                .options(joinedload(EventProductionTarget.recipe))
+                .filter_by(event_id=event_id)
+                .all()
+            )
+
+    except SQLAlchemyError as e:
+        raise DatabaseError(f"Failed to get production targets: {str(e)}")
+
+
+def get_assembly_targets(event_id: int) -> List[EventAssemblyTarget]:
+    """
+    Get all assembly targets for an event.
+
+    Eager loads finished_good relationship to avoid N+1 queries.
+
+    Args:
+        event_id: Event ID
+
+    Returns:
+        List of EventAssemblyTarget instances with finished_good data
+    """
+    try:
+        with session_scope() as session:
+            return (
+                session.query(EventAssemblyTarget)
+                .options(joinedload(EventAssemblyTarget.finished_good))
+                .filter_by(event_id=event_id)
+                .all()
+            )
+
+    except SQLAlchemyError as e:
+        raise DatabaseError(f"Failed to get assembly targets: {str(e)}")
+
+
+def delete_production_target(event_id: int, recipe_id: int) -> bool:
+    """
+    Remove a production target from an event.
+
+    Args:
+        event_id: Event ID
+        recipe_id: Recipe ID
+
+    Returns:
+        True if target was deleted, False if not found
+    """
+    try:
+        with session_scope() as session:
+            target = (
+                session.query(EventProductionTarget)
+                .filter_by(event_id=event_id, recipe_id=recipe_id)
+                .first()
+            )
+            if target:
+                session.delete(target)
+                return True
+            return False
+
+    except SQLAlchemyError as e:
+        raise DatabaseError(f"Failed to delete production target: {str(e)}")
+
+
+def delete_assembly_target(event_id: int, finished_good_id: int) -> bool:
+    """
+    Remove an assembly target from an event.
+
+    Args:
+        event_id: Event ID
+        finished_good_id: FinishedGood ID
+
+    Returns:
+        True if target was deleted, False if not found
+    """
+    try:
+        with session_scope() as session:
+            target = (
+                session.query(EventAssemblyTarget)
+                .filter_by(event_id=event_id, finished_good_id=finished_good_id)
+                .first()
+            )
+            if target:
+                session.delete(target)
+                return True
+            return False
+
+    except SQLAlchemyError as e:
+        raise DatabaseError(f"Failed to delete assembly target: {str(e)}")

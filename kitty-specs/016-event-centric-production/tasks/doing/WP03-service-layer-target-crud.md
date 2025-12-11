@@ -10,10 +10,10 @@ subtasks:
   - "T020"
 title: "Service Layer - Target CRUD"
 phase: "Phase 2 - Service Layer"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "claude"
+shell_pid: "84069"
 review_status: ""
 reviewed_by: ""
 history:
@@ -379,3 +379,19 @@ pytest src/tests/services/test_event_service_targets.py -v
 ## Activity Log
 
 - 2025-12-10T00:00:00Z - system - lane=planned - Prompt created.
+- 2025-12-11T03:57:45Z – claude – shell_pid=84069 – lane=doing – Started implementation - event target CRUD service
+- 2025-12-11T04:15:00Z – claude – shell_pid=84069 – lane=doing – Completed all subtasks:
+  - T014: Implemented set_production_target() with upsert pattern
+  - T015: Implemented set_assembly_target() with upsert pattern
+  - T016: Implemented get_production_targets() with eager loading
+  - T017: Implemented get_assembly_targets() with eager loading
+  - T018: Implemented delete_production_target() returning bool
+  - T019: Implemented delete_assembly_target() returning bool
+  - T020: Created test_event_service_targets.py with 16 tests:
+    - TestSetProductionTarget: 3 tests (create, update, validation)
+    - TestGetProductionTargets: 3 tests (all, empty, eager load)
+    - TestDeleteProductionTarget: 2 tests (found, not found)
+    - TestSetAssemblyTarget: 3 tests (create, update, validation)
+    - TestGetAssemblyTargets: 3 tests (all, empty, eager load)
+    - TestDeleteAssemblyTarget: 2 tests (found, not found)
+  - All 16 tests pass

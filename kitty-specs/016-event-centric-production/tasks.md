@@ -59,10 +59,10 @@
 **Prompt**: `tasks/planned/WP02-service-layer-event-id-params.md`
 
 ### Included Subtasks
-- [ ] T010 Update `BatchProductionService.record_batch_production()` to accept optional `event_id` parameter
-- [ ] T011 Update `AssemblyService.record_assembly()` to accept optional `event_id` parameter
-- [ ] T012 Write unit tests for record_batch_production with event_id in `src/tests/services/test_batch_production_service.py`
-- [ ] T013 Write unit tests for record_assembly with event_id in `src/tests/services/test_assembly_service.py`
+- [X] T010 Update `BatchProductionService.record_batch_production()` to accept optional `event_id` parameter
+- [X] T011 Update `AssemblyService.record_assembly()` to accept optional `event_id` parameter
+- [X] T012 Write unit tests for record_batch_production with event_id in `src/tests/services/test_batch_production_service.py`
+- [X] T013 Write unit tests for record_assembly with event_id in `src/tests/services/test_assembly_service.py`
 
 ### Implementation Notes
 1. Add `event_id: Optional[int] = None` as final parameter (backward compatible)
@@ -89,13 +89,13 @@
 **Prompt**: `tasks/planned/WP03-service-layer-target-crud.md`
 
 ### Included Subtasks
-- [ ] T014 Implement `EventService.set_production_target()` with create/update logic
-- [ ] T015 [P] Implement `EventService.set_assembly_target()` with create/update logic
-- [ ] T016 Implement `EventService.get_production_targets()` with eager loading
-- [ ] T017 [P] Implement `EventService.get_assembly_targets()` with eager loading
-- [ ] T018 Implement `EventService.delete_production_target()`
-- [ ] T019 [P] Implement `EventService.delete_assembly_target()`
-- [ ] T020 Write unit tests for target CRUD in `src/tests/services/test_event_service_targets.py`
+- [X] T014 Implement `EventService.set_production_target()` with create/update logic
+- [X] T015 [P] Implement `EventService.set_assembly_target()` with create/update logic
+- [X] T016 Implement `EventService.get_production_targets()` with eager loading
+- [X] T017 [P] Implement `EventService.get_assembly_targets()` with eager loading
+- [X] T018 Implement `EventService.delete_production_target()`
+- [X] T019 [P] Implement `EventService.delete_assembly_target()`
+- [X] T020 Write unit tests for target CRUD in `src/tests/services/test_event_service_targets.py`
 
 ### Implementation Notes
 1. set_* methods use upsert pattern: query for existing, update if found, create if not
