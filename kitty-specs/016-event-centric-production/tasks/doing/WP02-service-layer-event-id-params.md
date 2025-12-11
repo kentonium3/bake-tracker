@@ -7,10 +7,10 @@ subtasks:
   - "T013"
 title: "Service Layer - Event ID Parameters"
 phase: "Phase 2 - Service Layer"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "claude"
+shell_pid: "80123"
 review_status: ""
 reviewed_by: ""
 history:
@@ -252,3 +252,4 @@ pytest src/tests/services/test_assembly_service.py -v
 ## Activity Log
 
 - 2025-12-10T00:00:00Z - system - lane=planned - Prompt created.
+- 2025-12-11T02:49:35Z – claude – shell_pid=80123 – lane=doing – Started implementation - adding event_id params to services
