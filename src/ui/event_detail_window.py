@@ -11,9 +11,11 @@ Provides comprehensive interface for:
 import customtkinter as ctk
 from typing import Optional
 
-from src.models.event import Event, EventRecipientPackage
-from src.services import event_service
+from src.models.event import Event, EventRecipientPackage, FulfillmentStatus
+from src.services import event_service, recipe_service
+from src.services.finished_good_service import get_all_finished_goods
 from src.services.event_service import AssignmentNotFoundError
+from typing import List
 from src.utils.constants import (
     PADDING_MEDIUM,
     PADDING_LARGE,
@@ -103,12 +105,14 @@ class EventDetailWindow(ctk.CTkToplevel):
 
         # Add tabs
         self.tabview.add("Assignments")
+        self.tabview.add("Targets")  # Feature 016: Production/Assembly progress
         self.tabview.add("Recipe Needs")
         self.tabview.add("Shopping List")
         self.tabview.add("Summary")
 
         # Create tab contents
         self._create_assignments_tab()
+        self._create_targets_tab()  # Feature 016
         self._create_recipe_needs_tab()
         self._create_shopping_list_tab()
         self._create_summary_tab()
@@ -155,6 +159,332 @@ class EventDetailWindow(ctk.CTkToplevel):
         self.assignments_frame = ctk.CTkScrollableFrame(tab_frame, height=450)
         self.assignments_frame.grid(row=1, column=0, sticky="nsew")
         self.assignments_frame.grid_columnconfigure(0, weight=1)
+
+    def _create_targets_tab(self):
+        """Create targets tab for production/assembly progress (Feature 016)."""
+        tab_frame = self.tabview.tab("Targets")
+        tab_frame.grid_columnconfigure(0, weight=1)
+        tab_frame.grid_rowconfigure(0, weight=1)
+
+        # Main scrollable frame for targets
+        self.targets_frame = ctk.CTkScrollableFrame(tab_frame)
+        self.targets_frame.pack(fill="both", expand=True, padx=10, pady=10)
+        self.targets_frame.grid_columnconfigure(0, weight=1)
+
+        # Production Targets section
+        self._create_production_targets_section()
+
+        # Separator
+        separator = ctk.CTkFrame(self.targets_frame, height=2, fg_color="gray50")
+        separator.pack(fill="x", pady=15)
+
+        # Assembly Targets section
+        self._create_assembly_targets_section()
+
+    def _create_production_targets_section(self):
+        """Create the Production Targets section with header and list."""
+        # Header frame with title and Add button
+        header_frame = ctk.CTkFrame(self.targets_frame, fg_color="transparent")
+        header_frame.pack(fill="x", pady=(0, 5))
+
+        header_label = ctk.CTkLabel(
+            header_frame,
+            text="Production Targets",
+            font=ctk.CTkFont(size=16, weight="bold"),
+        )
+        header_label.pack(side="left", padx=5)
+
+        add_btn = ctk.CTkButton(
+            header_frame,
+            text="+ Add Target",
+            width=100,
+            command=self._on_add_production_target,
+        )
+        add_btn.pack(side="right", padx=5)
+
+        # Container for production target rows
+        self.production_targets_container = ctk.CTkFrame(
+            self.targets_frame, fg_color="transparent"
+        )
+        self.production_targets_container.pack(fill="x", pady=5)
+
+    def _create_assembly_targets_section(self):
+        """Create the Assembly Targets section with header and list."""
+        # Header frame with title and Add button
+        header_frame = ctk.CTkFrame(self.targets_frame, fg_color="transparent")
+        header_frame.pack(fill="x", pady=(0, 5))
+
+        header_label = ctk.CTkLabel(
+            header_frame,
+            text="Assembly Targets",
+            font=ctk.CTkFont(size=16, weight="bold"),
+        )
+        header_label.pack(side="left", padx=5)
+
+        add_btn = ctk.CTkButton(
+            header_frame,
+            text="+ Add Target",
+            width=100,
+            command=self._on_add_assembly_target,
+        )
+        add_btn.pack(side="right", padx=5)
+
+        # Container for assembly target rows
+        self.assembly_targets_container = ctk.CTkFrame(
+            self.targets_frame, fg_color="transparent"
+        )
+        self.assembly_targets_container.pack(fill="x", pady=5)
+
+    def _create_progress_row(
+        self,
+        parent,
+        name: str,
+        produced: int,
+        target: int,
+        target_id: int,
+        is_production: bool = True,
+    ):
+        """Create a single progress row for a target.
+
+        Args:
+            parent: Parent widget
+            name: Recipe or FinishedGood name
+            produced: Number produced/assembled
+            target: Target number
+            target_id: ID of the target record (recipe_id or finished_good_id)
+            is_production: True for production targets, False for assembly
+        """
+        row = ctk.CTkFrame(parent, fg_color=("gray90", "gray20"))
+        row.pack(fill="x", pady=2, padx=5)
+
+        # Name label
+        name_label = ctk.CTkLabel(row, text=name, width=200, anchor="w")
+        name_label.pack(side="left", padx=10, pady=8)
+
+        # Progress bar
+        progress_pct = produced / target if target > 0 else 0
+        progress_bar = ctk.CTkProgressBar(row, width=150)
+        progress_bar.set(min(progress_pct, 1.0))  # Cap at 1.0 for display
+        progress_bar.pack(side="left", padx=10)
+
+        # Progress text (can show > 100%)
+        pct_display = int(progress_pct * 100)
+        text = f"{produced}/{target} ({pct_display}%)"
+        text_label = ctk.CTkLabel(row, text=text, width=100)
+        text_label.pack(side="left", padx=10)
+
+        # Complete indicator
+        if produced >= target:
+            check = ctk.CTkLabel(row, text="✓", text_color="green", font=ctk.CTkFont(size=16))
+            check.pack(side="left", padx=5)
+
+        # Delete button
+        def on_delete():
+            if is_production:
+                self._on_delete_production_target(target_id)
+            else:
+                self._on_delete_assembly_target(target_id)
+
+        del_btn = ctk.CTkButton(
+            row,
+            text="Del",
+            width=50,
+            fg_color="darkred",
+            hover_color="red",
+            command=on_delete,
+        )
+        del_btn.pack(side="right", padx=5, pady=5)
+
+        # Edit button
+        def on_edit():
+            if is_production:
+                self._on_edit_production_target(target_id, target)
+            else:
+                self._on_edit_assembly_target(target_id, target)
+
+        edit_btn = ctk.CTkButton(row, text="Edit", width=50, command=on_edit)
+        edit_btn.pack(side="right", padx=5, pady=5)
+
+        return row
+
+    def _on_add_production_target(self):
+        """Handle Add Production Target button click."""
+        dialog = AddProductionTargetDialog(self, event_id=self.event.id)
+        self.wait_window(dialog)
+
+        result = dialog.get_result()
+        if result:
+            try:
+                event_service.set_production_target(
+                    event_id=self.event.id,
+                    recipe_id=result["recipe_id"],
+                    target_batches=result["target_batches"],
+                    notes=result.get("notes"),
+                )
+                show_success("Success", "Production target added", parent=self)
+                self._refresh_targets()
+            except Exception as e:
+                show_error("Error", f"Failed to add target: {str(e)}", parent=self)
+
+    def _on_add_assembly_target(self):
+        """Handle Add Assembly Target button click."""
+        dialog = AddAssemblyTargetDialog(self, event_id=self.event.id)
+        self.wait_window(dialog)
+
+        result = dialog.get_result()
+        if result:
+            try:
+                event_service.set_assembly_target(
+                    event_id=self.event.id,
+                    finished_good_id=result["finished_good_id"],
+                    target_quantity=result["target_quantity"],
+                    notes=result.get("notes"),
+                )
+                show_success("Success", "Assembly target added", parent=self)
+                self._refresh_targets()
+            except Exception as e:
+                show_error("Error", f"Failed to add target: {str(e)}", parent=self)
+
+    def _on_edit_production_target(self, recipe_id: int, current_target: int):
+        """Handle edit production target."""
+        dialog = EditTargetDialog(
+            self,
+            title="Edit Production Target",
+            current_value=current_target,
+            label="Target Batches:",
+        )
+        self.wait_window(dialog)
+
+        result = dialog.get_result()
+        if result is not None:
+            try:
+                event_service.set_production_target(
+                    event_id=self.event.id,
+                    recipe_id=recipe_id,
+                    target_batches=result,
+                )
+                show_success("Success", "Production target updated", parent=self)
+                self._refresh_targets()
+            except Exception as e:
+                show_error("Error", f"Failed to update target: {str(e)}", parent=self)
+
+    def _on_edit_assembly_target(self, finished_good_id: int, current_target: int):
+        """Handle edit assembly target."""
+        dialog = EditTargetDialog(
+            self,
+            title="Edit Assembly Target",
+            current_value=current_target,
+            label="Target Quantity:",
+        )
+        self.wait_window(dialog)
+
+        result = dialog.get_result()
+        if result is not None:
+            try:
+                event_service.set_assembly_target(
+                    event_id=self.event.id,
+                    finished_good_id=finished_good_id,
+                    target_quantity=result,
+                )
+                show_success("Success", "Assembly target updated", parent=self)
+                self._refresh_targets()
+            except Exception as e:
+                show_error("Error", f"Failed to update target: {str(e)}", parent=self)
+
+    def _on_delete_production_target(self, recipe_id: int):
+        """Handle delete production target."""
+        if not show_confirmation(
+            "Confirm Delete",
+            "Delete this production target?",
+            parent=self,
+        ):
+            return
+
+        try:
+            event_service.delete_production_target(self.event.id, recipe_id)
+            show_success("Success", "Production target deleted", parent=self)
+            self._refresh_targets()
+        except Exception as e:
+            show_error("Error", f"Failed to delete target: {str(e)}", parent=self)
+
+    def _on_delete_assembly_target(self, finished_good_id: int):
+        """Handle delete assembly target."""
+        if not show_confirmation(
+            "Confirm Delete",
+            "Delete this assembly target?",
+            parent=self,
+        ):
+            return
+
+        try:
+            event_service.delete_assembly_target(self.event.id, finished_good_id)
+            show_success("Success", "Assembly target deleted", parent=self)
+            self._refresh_targets()
+        except Exception as e:
+            show_error("Error", f"Failed to delete target: {str(e)}", parent=self)
+
+    def _refresh_targets(self):
+        """Refresh the targets tab with current progress data."""
+        # Clear production targets
+        for widget in self.production_targets_container.winfo_children():
+            widget.destroy()
+
+        # Clear assembly targets
+        for widget in self.assembly_targets_container.winfo_children():
+            widget.destroy()
+
+        try:
+            # Get production progress
+            prod_progress = event_service.get_production_progress(self.event.id)
+
+            if not prod_progress:
+                empty_label = ctk.CTkLabel(
+                    self.production_targets_container,
+                    text="No production targets set. Click '+ Add Target' to create one.",
+                    text_color="gray",
+                    font=ctk.CTkFont(slant="italic"),
+                )
+                empty_label.pack(pady=10)
+            else:
+                for p in prod_progress:
+                    self._create_progress_row(
+                        self.production_targets_container,
+                        name=p["recipe_name"],
+                        produced=p["produced_batches"],
+                        target=p["target_batches"],
+                        target_id=p["recipe_id"],
+                        is_production=True,
+                    )
+
+            # Get assembly progress
+            asm_progress = event_service.get_assembly_progress(self.event.id)
+
+            if not asm_progress:
+                empty_label = ctk.CTkLabel(
+                    self.assembly_targets_container,
+                    text="No assembly targets set. Click '+ Add Target' to create one.",
+                    text_color="gray",
+                    font=ctk.CTkFont(slant="italic"),
+                )
+                empty_label.pack(pady=10)
+            else:
+                for a in asm_progress:
+                    self._create_progress_row(
+                        self.assembly_targets_container,
+                        name=a["finished_good_name"],
+                        produced=a["assembled_quantity"],
+                        target=a["target_quantity"],
+                        target_id=a["finished_good_id"],
+                        is_production=False,
+                    )
+
+        except Exception as e:
+            error_label = ctk.CTkLabel(
+                self.production_targets_container,
+                text=f"Error loading targets: {str(e)}",
+                text_color="red",
+            )
+            error_label.pack(pady=10)
 
     def _create_recipe_needs_tab(self):
         """Create recipe needs tab."""
@@ -291,6 +621,7 @@ class EventDetailWindow(ctk.CTkToplevel):
     def refresh(self):
         """Refresh all tab contents."""
         self._refresh_assignments()
+        self._refresh_targets()  # Feature 016
         self._refresh_recipe_needs()
         self._refresh_shopping_list()
         self._refresh_summary()
@@ -315,10 +646,10 @@ class EventDetailWindow(ctk.CTkToplevel):
                 label.grid(row=0, column=0, pady=50)
                 return
 
-            # Header
+            # Header - Feature 016: Added Status column
             header_frame = ctk.CTkFrame(self.assignments_frame, fg_color=("gray85", "gray25"))
             header_frame.grid(row=0, column=0, sticky="ew", pady=(0, 5))
-            header_frame.grid_columnconfigure((0, 1, 2, 3), weight=1)
+            header_frame.grid_columnconfigure((0, 1, 2, 3, 4), weight=1)
 
             ctk.CTkLabel(header_frame, text="Recipient", font=ctk.CTkFont(weight="bold")).grid(
                 row=0, column=0, padx=10, pady=8
@@ -332,6 +663,9 @@ class EventDetailWindow(ctk.CTkToplevel):
             ctk.CTkLabel(header_frame, text="Cost", font=ctk.CTkFont(weight="bold")).grid(
                 row=0, column=3, padx=10, pady=8
             )
+            ctk.CTkLabel(header_frame, text="Status", font=ctk.CTkFont(weight="bold")).grid(
+                row=0, column=4, padx=10, pady=8
+            )
 
             # Rows
             for idx, assignment in enumerate(assignments, start=1):
@@ -339,9 +673,15 @@ class EventDetailWindow(ctk.CTkToplevel):
                 package_name = assignment.package.name if assignment.package else "Unknown"
                 cost = assignment.calculate_cost()
 
+                # Feature 016: Check if delivered for styling
+                is_delivered = (
+                    assignment.fulfillment_status == FulfillmentStatus.DELIVERED
+                )
+                text_color = "gray" if is_delivered else None
+
                 row_frame = ctk.CTkFrame(self.assignments_frame, fg_color="transparent")
                 row_frame.grid(row=idx, column=0, sticky="ew", pady=2)
-                row_frame.grid_columnconfigure((0, 1, 2, 3), weight=1)
+                row_frame.grid_columnconfigure((0, 1, 2, 3, 4), weight=1)
 
                 # Make row clickable
                 def make_click_handler(asgn):
@@ -349,21 +689,24 @@ class EventDetailWindow(ctk.CTkToplevel):
 
                 row_frame.bind("<Button-1>", make_click_handler(assignment))
 
-                recipient_label = ctk.CTkLabel(row_frame, text=recipient_name)
+                recipient_label = ctk.CTkLabel(row_frame, text=recipient_name, text_color=text_color)
                 recipient_label.grid(row=0, column=0, padx=10, pady=5, sticky="w")
                 recipient_label.bind("<Button-1>", make_click_handler(assignment))
 
-                package_label = ctk.CTkLabel(row_frame, text=package_name)
+                package_label = ctk.CTkLabel(row_frame, text=package_name, text_color=text_color)
                 package_label.grid(row=0, column=1, padx=10, pady=5, sticky="w")
                 package_label.bind("<Button-1>", make_click_handler(assignment))
 
-                qty_label = ctk.CTkLabel(row_frame, text=str(assignment.quantity))
+                qty_label = ctk.CTkLabel(row_frame, text=str(assignment.quantity), text_color=text_color)
                 qty_label.grid(row=0, column=2, padx=10, pady=5, sticky="w")
                 qty_label.bind("<Button-1>", make_click_handler(assignment))
 
-                cost_label = ctk.CTkLabel(row_frame, text=f"${cost:.2f}")
+                cost_label = ctk.CTkLabel(row_frame, text=f"${cost:.2f}", text_color=text_color)
                 cost_label.grid(row=0, column=3, padx=10, pady=5, sticky="w")
                 cost_label.bind("<Button-1>", make_click_handler(assignment))
+
+                # Feature 016: Add fulfillment status control
+                self._create_fulfillment_status_control(row_frame, assignment, 4)
 
         except Exception as e:
             label = ctk.CTkLabel(
@@ -378,6 +721,86 @@ class EventDetailWindow(ctk.CTkToplevel):
         self.selected_assignment = assignment
         self.edit_assignment_button.configure(state="normal")
         self.delete_assignment_button.configure(state="normal")
+
+    def _get_valid_next_statuses(self, current_status: FulfillmentStatus) -> List[FulfillmentStatus]:
+        """Get valid next statuses for sequential workflow (Feature 016).
+
+        Args:
+            current_status: Current fulfillment status
+
+        Returns:
+            List of valid next statuses (empty if terminal)
+        """
+        transitions = {
+            FulfillmentStatus.PENDING: [FulfillmentStatus.READY],
+            FulfillmentStatus.READY: [FulfillmentStatus.DELIVERED],
+            FulfillmentStatus.DELIVERED: [],  # Terminal state
+        }
+        return transitions.get(current_status, [])
+
+    def _create_fulfillment_status_control(
+        self, parent, assignment: EventRecipientPackage, column: int
+    ):
+        """Create the fulfillment status control for an assignment row (Feature 016).
+
+        Args:
+            parent: Parent widget (row frame)
+            assignment: The EventRecipientPackage
+            column: Grid column to place the control
+        """
+        current_status = assignment.fulfillment_status or FulfillmentStatus.PENDING
+        valid_next = self._get_valid_next_statuses(current_status)
+
+        if current_status == FulfillmentStatus.DELIVERED:
+            # Terminal state - show checkmark with green styling
+            label = ctk.CTkLabel(
+                parent,
+                text="✓ Delivered",
+                text_color="green",
+                font=ctk.CTkFont(weight="bold"),
+            )
+            label.grid(row=0, column=column, padx=10, pady=5, sticky="w")
+        elif not valid_next:
+            # No valid transitions (shouldn't happen for non-delivered)
+            label = ctk.CTkLabel(parent, text=current_status.value.capitalize())
+            label.grid(row=0, column=column, padx=10, pady=5, sticky="w")
+        else:
+            # Show dropdown with current + valid next statuses
+            options = [current_status.value.capitalize()] + [
+                s.value.capitalize() for s in valid_next
+            ]
+            var = ctk.StringVar(value=current_status.value.capitalize())
+
+            def on_change(value, asgn=assignment):
+                self._on_fulfillment_status_change(asgn, value)
+
+            dropdown = ctk.CTkOptionMenu(
+                parent,
+                variable=var,
+                values=options,
+                width=100,
+                command=on_change,
+            )
+            dropdown.grid(row=0, column=column, padx=10, pady=5, sticky="w")
+
+    def _on_fulfillment_status_change(self, assignment: EventRecipientPackage, new_status_str: str):
+        """Handle fulfillment status change from dropdown (Feature 016).
+
+        Args:
+            assignment: The EventRecipientPackage being updated
+            new_status_str: New status string (e.g., "Ready", "Delivered")
+        """
+        try:
+            new_status = FulfillmentStatus(new_status_str.lower())
+            event_service.update_fulfillment_status(assignment.id, new_status)
+            self._refresh_assignments()
+        except ValueError as e:
+            show_error(
+                "Invalid Transition",
+                f"Cannot change status: {str(e)}",
+                parent=self,
+            )
+            self._refresh_assignments()  # Refresh to reset dropdown to valid state
 
     def _refresh_recipe_needs(self):
         """Refresh recipe needs tab."""
@@ -837,3 +1260,316 @@ class EventDetailWindow(ctk.CTkToplevel):
                 self.summary_frame, text=f"Error loading summary: {str(e)}", text_color="red"
             )
             label.grid(row=0, column=0, pady=20)
+
+
+# Feature 016: Dialog classes for target management
+
+
+class AddProductionTargetDialog(ctk.CTkToplevel):
+    """Dialog for adding a production target."""
+
+    def __init__(self, parent, event_id: int):
+        super().__init__(parent)
+
+        self.event_id = event_id
+        self.result = None
+
+        self.title("Add Production Target")
+        self.geometry("400x300")
+        self.resizable(False, False)
+
+        self.transient(parent)
+        self.grab_set()
+
+        # Load recipes
+        self.recipes = recipe_service.get_all_recipes()
+
+        # Get existing targets to exclude
+        existing_targets = event_service.get_production_targets(event_id)
+        existing_recipe_ids = {t.recipe_id for t in existing_targets}
+
+        # Filter out already-targeted recipes
+        self.available_recipes = [r for r in self.recipes if r.id not in existing_recipe_ids]
+
+        self._create_widgets()
+        self._center_on_parent()
+
+    def _center_on_parent(self):
+        """Center the dialog on its parent."""
+        self.update_idletasks()
+        parent = self.master
+        x = parent.winfo_rootx() + (parent.winfo_width() - self.winfo_width()) // 2
+        y = parent.winfo_rooty() + (parent.winfo_height() - self.winfo_height()) // 2
+        self.geometry(f"+{max(0, x)}+{max(0, y)}")
+
+    def _create_widgets(self):
+        """Create dialog widgets."""
+        # Recipe selection
+        ctk.CTkLabel(self, text="Recipe:").pack(pady=(20, 5), padx=20, anchor="w")
+
+        if not self.available_recipes:
+            ctk.CTkLabel(
+                self,
+                text="All recipes already have targets for this event.",
+                text_color="gray",
+            ).pack(pady=5, padx=20)
+            self.recipe_var = None
+        else:
+            recipe_names = [r.name for r in self.available_recipes]
+            self.recipe_var = ctk.StringVar(value=recipe_names[0] if recipe_names else "")
+            self.recipe_dropdown = ctk.CTkOptionMenu(
+                self,
+                variable=self.recipe_var,
+                values=recipe_names,
+                width=300,
+            )
+            self.recipe_dropdown.pack(pady=5, padx=20)
+
+        # Target batches
+        ctk.CTkLabel(self, text="Target Batches:").pack(pady=(15, 5), padx=20, anchor="w")
+        self.target_entry = ctk.CTkEntry(self, width=100)
+        self.target_entry.insert(0, "1")
+        self.target_entry.pack(pady=5, padx=20, anchor="w")
+
+        # Notes
+        ctk.CTkLabel(self, text="Notes (optional):").pack(pady=(15, 5), padx=20, anchor="w")
+        self.notes_entry = ctk.CTkEntry(self, width=300)
+        self.notes_entry.pack(pady=5, padx=20)
+
+        # Buttons
+        button_frame = ctk.CTkFrame(self, fg_color="transparent")
+        button_frame.pack(pady=20)
+
+        save_btn = ctk.CTkButton(
+            button_frame,
+            text="Save",
+            command=self._on_save,
+            state="normal" if self.recipe_var else "disabled",
+        )
+        save_btn.pack(side="left", padx=10)
+
+        cancel_btn = ctk.CTkButton(button_frame, text="Cancel", command=self.destroy)
+        cancel_btn.pack(side="left", padx=10)
+
+    def _on_save(self):
+        """Handle save button click."""
+        if not self.recipe_var:
+            return
+
+        try:
+            target_batches = int(self.target_entry.get())
+            if target_batches < 1:
+                raise ValueError("Target must be at least 1")
+        except ValueError as e:
+            show_error("Invalid Input", str(e), parent=self)
+            return
+
+        # Find selected recipe
+        selected_name = self.recipe_var.get()
+        recipe_id = None
+        for r in self.available_recipes:
+            if r.name == selected_name:
+                recipe_id = r.id
+                break
+
+        if not recipe_id:
+            show_error("Error", "Recipe not found", parent=self)
+            return
+
+        notes = self.notes_entry.get().strip() or None
+
+        self.result = {
+            "recipe_id": recipe_id,
+            "target_batches": target_batches,
+            "notes": notes,
+        }
+        self.destroy()
+
+    def get_result(self):
+        """Return the dialog result."""
+        return self.result
+
+
+class AddAssemblyTargetDialog(ctk.CTkToplevel):
+    """Dialog for adding an assembly target."""
+
+    def __init__(self, parent, event_id: int):
+        super().__init__(parent)
+
+        self.event_id = event_id
+        self.result = None
+
+        self.title("Add Assembly Target")
+        self.geometry("400x300")
+        self.resizable(False, False)
+
+        self.transient(parent)
+        self.grab_set()
+
+        # Load finished goods
+        self.finished_goods = get_all_finished_goods()
+
+        # Get existing targets to exclude
+        existing_targets = event_service.get_assembly_targets(event_id)
+        existing_fg_ids = {t.finished_good_id for t in existing_targets}
+
+        # Filter out already-targeted finished goods
+        self.available_fgs = [fg for fg in self.finished_goods if fg.id not in existing_fg_ids]
+
+        self._create_widgets()
+        self._center_on_parent()
+
+    def _center_on_parent(self):
+        """Center the dialog on its parent."""
+        self.update_idletasks()
+        parent = self.master
+        x = parent.winfo_rootx() + (parent.winfo_width() - self.winfo_width()) // 2
+        y = parent.winfo_rooty() + (parent.winfo_height() - self.winfo_height()) // 2
+        self.geometry(f"+{max(0, x)}+{max(0, y)}")
+
+    def _create_widgets(self):
+        """Create dialog widgets."""
+        # Finished Good selection
+        ctk.CTkLabel(self, text="Finished Good:").pack(pady=(20, 5), padx=20, anchor="w")
+
+        if not self.available_fgs:
+            ctk.CTkLabel(
+                self,
+                text="All finished goods already have targets for this event.",
+                text_color="gray",
+            ).pack(pady=5, padx=20)
+            self.fg_var = None
+        else:
+            fg_names = [fg.display_name for fg in self.available_fgs]
+            self.fg_var = ctk.StringVar(value=fg_names[0] if fg_names else "")
+            self.fg_dropdown = ctk.CTkOptionMenu(
+                self,
+                variable=self.fg_var,
+                values=fg_names,
+                width=300,
+            )
+            self.fg_dropdown.pack(pady=5, padx=20)
+
+        # Target quantity
+        ctk.CTkLabel(self, text="Target Quantity:").pack(pady=(15, 5), padx=20, anchor="w")
+        self.target_entry = ctk.CTkEntry(self, width=100)
+        self.target_entry.insert(0, "1")
+        self.target_entry.pack(pady=5, padx=20, anchor="w")
+
+        # Notes
+        ctk.CTkLabel(self, text="Notes (optional):").pack(pady=(15, 5), padx=20, anchor="w")
+        self.notes_entry = ctk.CTkEntry(self, width=300)
+        self.notes_entry.pack(pady=5, padx=20)
+
+        # Buttons
+        button_frame = ctk.CTkFrame(self, fg_color="transparent")
+        button_frame.pack(pady=20)
+
+        save_btn = ctk.CTkButton(
+            button_frame,
+            text="Save",
+            command=self._on_save,
+            state="normal" if self.fg_var else "disabled",
+        )
+        save_btn.pack(side="left", padx=10)
+
+        cancel_btn = ctk.CTkButton(button_frame, text="Cancel", command=self.destroy)
+        cancel_btn.pack(side="left", padx=10)
+
+    def _on_save(self):
+        """Handle save button click."""
+        if not self.fg_var:
+            return
+
+        try:
+            target_quantity = int(self.target_entry.get())
+            if target_quantity < 1:
+                raise ValueError("Target must be at least 1")
+        except ValueError as e:
+            show_error("Invalid Input", str(e), parent=self)
+            return
+
+        # Find selected finished good
+        selected_name = self.fg_var.get()
+        fg_id = None
+        for fg in self.available_fgs:
+            if fg.display_name == selected_name:
+                fg_id = fg.id
+                break
+
+        if not fg_id:
+            show_error("Error", "Finished good not found", parent=self)
+            return
+
+        notes = self.notes_entry.get().strip() or None
+
+        self.result = {
+            "finished_good_id": fg_id,
+            "target_quantity": target_quantity,
+            "notes": notes,
+        }
+        self.destroy()
+
+    def get_result(self):
+        """Return the dialog result."""
+        return self.result
+
+
+class EditTargetDialog(ctk.CTkToplevel):
+    """Simple dialog for editing a target value."""
+
+    def __init__(self, parent, title: str, current_value: int, label: str):
+        super().__init__(parent)
+
+        self.result = None
+
+        self.title(title)
+        self.geometry("300x150")
+        self.resizable(False, False)
+
+        self.transient(parent)
+        self.grab_set()
+
+        self._create_widgets(label, current_value)
+        self._center_on_parent()
+
+    def _center_on_parent(self):
+        """Center the dialog on its parent."""
+        self.update_idletasks()
+        parent = self.master
+        x = parent.winfo_rootx() + (parent.winfo_width() - self.winfo_width()) // 2
+        y = parent.winfo_rooty() + (parent.winfo_height() - self.winfo_height()) // 2
+        self.geometry(f"+{max(0, x)}+{max(0, y)}")
+
+    def _create_widgets(self, label: str, current_value: int):
+        """Create dialog widgets."""
+        ctk.CTkLabel(self, text=label).pack(pady=(20, 5), padx=20, anchor="w")
+
+        self.value_entry = ctk.CTkEntry(self, width=100)
+        self.value_entry.insert(0, str(current_value))
+        self.value_entry.pack(pady=5, padx=20, anchor="w")
+
+        # Buttons
+        button_frame = ctk.CTkFrame(self, fg_color="transparent")
+        button_frame.pack(pady=20)
+
+        save_btn = ctk.CTkButton(button_frame, text="Save", command=self._on_save)
+        save_btn.pack(side="left", padx=10)
+
+        cancel_btn = ctk.CTkButton(button_frame, text="Cancel", command=self.destroy)
+        cancel_btn.pack(side="left", padx=10)
+
+    def _on_save(self):
+        """Handle save button click."""
+        try:
+            value = int(self.value_entry.get())
+            if value < 1:
+                raise ValueError("Value must be at least 1")
+            self.result = value
+            self.destroy()
+        except ValueError as e:
+            show_error("Invalid Input", str(e), parent=self)
+
+    def get_result(self):
+        """Return the dialog result."""
+        return self.result

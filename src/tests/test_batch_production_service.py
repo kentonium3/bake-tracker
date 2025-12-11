@@ -407,26 +407,30 @@ class TestRecordBatchProduction:
     ):
         """Insufficient inventory: entire operation rolls back."""
         recipe = recipe_with_ingredients_and_inventory
+        # Save IDs and values before the service call - fixture objects may become
+        # detached after the service call due to session rollback
+        recipe_id = recipe.id
+        fu_id = finished_unit_cookies.id
         initial_fu_count = finished_unit_cookies.inventory_count
 
         with pytest.raises(InsufficientInventoryError):
             batch_production_service.record_batch_production(
-                recipe_id=recipe.id,
-                finished_unit_id=finished_unit_cookies.id,
+                recipe_id=recipe_id,
+                finished_unit_id=fu_id,
                 num_batches=100,  # Way more than available
                 actual_yield=4800,
             )
 
         # Verify no state changed - FinishedUnit count unchanged
         with session_scope() as session:
-            fu = session.query(FinishedUnit).filter_by(id=finished_unit_cookies.id).first()
+            fu = session.query(FinishedUnit).filter_by(id=fu_id).first()
             assert fu.inventory_count == initial_fu_count
 
         # No ProductionRun created
         with session_scope() as session:
             runs = (
                 session.query(ProductionRun)
-                .filter_by(recipe_id=recipe.id)
+                .filter_by(recipe_id=recipe_id)
                 .all()
             )
             assert len(runs) == 0
@@ -1078,3 +1082,103 @@ class TestTransactionAtomicity:
                 production_run_id=result["production_run_id"]
             ).all()
             assert len(consumptions) == 2, "Should have 2 consumption records (flour + sugar)"
+
+
+# =============================================================================
+# Tests for Event ID Parameter (Feature 016)
+# =============================================================================
+
+
+class TestRecordBatchProductionEventId:
+    """Tests for event_id parameter in record_batch_production().
+
+    Feature 016: Event-Centric Production Model
+    """
+
+    @pytest.fixture
+    def event_christmas(self, test_db):
+        """Create a Christmas 2024 event."""
+        from src.models import Event
+        from datetime import date
+
+        session = test_db()
+        event = Event(
+            name="Christmas 2024",
+            event_date=date(2024, 12, 25),
+            year=2024,
+        )
+        session.add(event)
+        session.commit()
+        return event
+
+    def test_record_production_with_event_id(
+        self,
+        recipe_with_ingredients_and_inventory,
+        finished_unit_cookies,
+        inventory_flour,
+        inventory_sugar,
+        event_christmas,
+    ):
+        """Production run links to event when event_id provided."""
+        recipe = recipe_with_ingredients_and_inventory
+
+        result = batch_production_service.record_batch_production(
+            recipe_id=recipe.id,
+            finished_unit_id=finished_unit_cookies.id,
+            num_batches=1,
+            actual_yield=48,
+            event_id=event_christmas.id,
+        )
+
+        assert result["event_id"] == event_christmas.id
+
+        # Verify in database
+        with session_scope() as session:
+            pr = session.query(ProductionRun).filter_by(id=result["production_run_id"]).first()
+            assert pr.event_id == event_christmas.id
+
+    def test_record_production_without_event_id(
+        self,
+        recipe_with_ingredients_and_inventory,
+        finished_unit_cookies,
+        inventory_flour,
+        inventory_sugar,
+    ):
+        """Production run has null event_id when not provided (backward compatible)."""
+        recipe = recipe_with_ingredients_and_inventory
+
+        result = batch_production_service.record_batch_production(
+            recipe_id=recipe.id,
+            finished_unit_id=finished_unit_cookies.id,
+            num_batches=1,
+            actual_yield=48,
+        )
+
+        assert result["event_id"] is None
+
+        # Verify in database
+        with session_scope() as session:
+            pr = session.query(ProductionRun).filter_by(id=result["production_run_id"]).first()
+            assert pr.event_id is None
+
+    def test_record_production_invalid_event_id(
+        self,
+        recipe_with_ingredients_and_inventory,
+        finished_unit_cookies,
+        inventory_flour,
+        inventory_sugar,
+    ):
+        """ValueError raised for non-existent event_id."""
+        from src.services.batch_production_service import EventNotFoundError
+
+        recipe = recipe_with_ingredients_and_inventory
+
+        with pytest.raises(EventNotFoundError) as exc_info:
+            batch_production_service.record_batch_production(
+                recipe_id=recipe.id,
+                finished_unit_id=finished_unit_cookies.id,
+                num_batches=1,
+                actual_yield=48,
+                event_id=99999,
+            )
+        assert exc_info.value.event_id == 99999

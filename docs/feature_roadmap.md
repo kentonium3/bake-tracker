@@ -26,6 +26,7 @@
 | 013 | Production & Inventory Tracking | MERGED | BatchProductionService, AssemblyService, FIFO consumption ledgers. 51 tests. Bug fixes 2025-12-10. |
 | 014 | Production UI | MERGED | Record Production/Assembly dialogs, availability checking, FinishedUnits/FinishedGoods tabs with production actions. |
 | 015 | *(skipped)* | - | Spec-kitty assigned 016 due to aborted prior 015 attempt |
+| 016 | Event-Centric Production Model | MERGED | Event-production linkage, targets, progress tracking, fulfillment workflow. 65+ service tests. |
 
 ---
 
@@ -33,9 +34,9 @@
 
 | # | Name | Priority | Status |
 |---|------|----------|--------|
-| 016 | Event-Centric Production Model | **CRITICAL** | ACCEPTANCE PENDING |
+| BUGFIX | Session Management Remediation | **CRITICAL** | Specification complete, implementation pending |
 
-**Note:** Feature 016 implementation complete. Awaiting `/spec-kitty.accept` and `/spec-kitty.merge`.
+**Note:** Critical bug fix identified during Feature 016 code review. Will be implemented via direct bugfix branch.
 
 ---
 
@@ -43,58 +44,56 @@
 
 | # | Name | Priority | Dependencies | Status |
 |---|------|----------|--------------|--------|
-| 017 | Reporting & Event Planning | MEDIUM | 016 | **BLOCKED** |
-| 018 | Event Production Dashboard | MEDIUM | 016 | **BLOCKED** |
+| 017 | Reporting & Event Planning | MEDIUM | BUGFIX | Ready after bugfix |
+| 018 | Event Production Dashboard | MEDIUM | 017 | - |
 | 019 | Packaging & Distribution | LOW | - | - |
 
 ---
 
 ## Implementation Order
 
-**Current:** Feature 016 (Event-Centric Production Model) - ACCEPTANCE PENDING
+**Current:** Session Management Bugfix
 
 1. ~~**TD-001** - Clean foundation before adding new entities~~ ✅ COMPLETE
 2. ~~**Feature 011** - Packaging materials, extend Composition for packaging~~ ✅ COMPLETE
 3. ~~**Feature 012** - Nested recipes (sub-recipes as recipe components)~~ ✅ COMPLETE
 4. ~~**Feature 013** - BatchProductionService, AssemblyService, consumption ledgers~~ ✅ COMPLETE
 5. ~~**Feature 014** - Production UI, Record Production/Assembly dialogs~~ ✅ COMPLETE
-6. **Feature 016** - Event-Centric Production Model ← **ACCEPTANCE PENDING**
-7. **BUGFIX** - Session Management Remediation (critical foundation fix post-016)
-8. **Feature 017/018** - Reporting and Event Dashboard (blocked on 016)
-9. **Feature 019** - Packaging & Distribution
+6. ~~**Feature 016** - Event-Centric Production Model~~ ✅ COMPLETE
+7. **BUGFIX** - Session Management Remediation ← **IN PROGRESS**
+8. **Feature 017** - Reporting and Event Planning
+9. **Feature 018** - Event Production Dashboard
+10. **Feature 019** - Packaging & Distribution
 
 ---
 
 ## Feature Descriptions
 
-### Feature 016: Event-Centric Production Model (CRITICAL)
+### Feature 016: Event-Centric Production Model
 
-**Status:** Implementation complete, acceptance pending
+**Status:** COMPLETE ✅ (Merged 2025-12-11)
 
-**Problem:** The current architecture conflates three distinct concerns:
-1. **Definition** - What IS a Cookie Gift Box? (FinishedGood + Composition) ✅ Works
-2. **Inventory** - How many EXIST globally? (inventory_count) ✅ Works
-3. **Commitment** - How many are FOR Christmas 2025? ❌ **MISSING**
+**Problem Solved:** The architecture previously conflated three distinct concerns:
+1. **Definition** - What IS a Cookie Gift Box? (FinishedGood + Composition) ✅
+2. **Inventory** - How many EXIST globally? (inventory_count) ✅
+3. **Commitment** - How many are FOR Christmas 2025? ✅ **NOW WORKS**
 
-ProductionRun and AssemblyRun have no `event_id` FK. When a user records "made 2 batches of cookies," the system cannot link that production to a specific event. This breaks:
-- Event progress tracking ("Am I on track for Christmas?")
-- Planned vs actual reporting
-- Multi-event planning (Christmas + Easter prep overlap)
-
-**Scope (Schema v0.6):**
-- Add `event_id` (nullable FK) to ProductionRun and AssemblyRun
+**Delivered (Schema v0.6):**
+- Added `event_id` (nullable FK) to ProductionRun and AssemblyRun
 - New `EventProductionTarget` table (event_id, recipe_id, target_batches)
 - New `EventAssemblyTarget` table (event_id, finished_good_id, target_quantity)
-- Add `fulfillment_status` ENUM to EventRecipientPackage (pending/ready/delivered)
+- Added `fulfillment_status` ENUM to EventRecipientPackage (pending/ready/delivered)
 - Service methods for target management and progress calculation
-- UI: Event selector in Record Production/Assembly dialogs, Targets tab in Event detail
+- UI: Event selector in Record Production/Assembly dialogs
+- UI: Targets tab in Event detail with progress bars
+- UI: Fulfillment status column with sequential workflow
 
 **Design Document:** `docs/design/schema_v0.6_design.md`
 **Spec-Kitty Artifacts:** `kitty-specs/016-event-centric-production/`
 
 ---
 
-### BUGFIX: Session Management Remediation (Post-016)
+### BUGFIX: Session Management Remediation
 
 **Status:** Specification complete, implementation pending
 
@@ -109,13 +108,13 @@ ProductionRun and AssemblyRun have no `event_id` FK. When a user records "made 2
 
 **Specification:** `docs/design/session_management_remediation_spec.md`
 
-**Note:** This is a bug fix, not a feature. Will be implemented via direct bugfix branch after Feature 016 merge.
+**Note:** This is a bug fix, not a feature. Will be implemented via direct bugfix branch.
 
 ---
 
-### Feature 017: Reporting & Event Planning (BLOCKED on 016)
+### Feature 017: Reporting & Event Planning
 
-**Rationale:** Cannot implement accurate event reporting without event-production linkage from Feature 016.
+**Rationale:** With event-production linkage complete (Feature 016), accurate event reporting is now possible.
 
 **Planned Scope:**
 - Shopping list CSV export
@@ -126,9 +125,9 @@ ProductionRun and AssemblyRun have no `event_id` FK. When a user records "made 2
 
 ---
 
-### Feature 018: Event Production Dashboard (BLOCKED on 016)
+### Feature 018: Event Production Dashboard
 
-**Rationale:** Requires event progress tracking from Feature 016.
+**Rationale:** Builds on Feature 016's event progress tracking.
 
 **Planned Scope:**
 - "Where do I stand for Christmas 2025?" view
@@ -156,7 +155,8 @@ ProductionRun and AssemblyRun have no `event_id` FK. When a user records "made 2
 ## Key Decisions
 
 ### 2025-12-11
-- **Session Management Bug:** Code review revealed critical nested session_scope issue. Created remediation spec. Will be fixed via bugfix branch after Feature 016 merge.
+- **Feature 016 Complete:** Event-Centric Production Model merged. 10 work packages, 65+ service tests.
+- **Session Management Bug:** Code review revealed critical nested session_scope issue. Created remediation spec. Will be fixed via bugfix branch.
 - **Feature Numbering:** Confirmed Feature 015 was skipped (aborted prior attempt). Feature 016 is Event-Centric Production Model. Renumbered subsequent features (017, 018, 019).
 
 ### 2025-12-10
@@ -194,4 +194,4 @@ Part B: Ingredient.name → Ingredient.display_name ✅
 - 2025-12-08: Feature 011 in progress; Feature 012 (Nested Recipes) inserted; features renumbered
 - 2025-12-09: Features 011, 012, 013 complete. Full service layer for production tracking.
 - 2025-12-10: Feature 013 bug fixes. Feature 014 complete. Feature 016 created for Event-Centric Production Model.
-- 2025-12-11: Feature 016 implementation complete, acceptance pending. Session management bug discovered during code review; remediation spec created. Feature 015 confirmed skipped. Features renumbered: 017 (Reporting), 018 (Dashboard), 019 (Packaging).
+- 2025-12-11: Feature 016 implementation complete and merged. Session management bug discovered during code review; remediation spec created. Feature 015 confirmed skipped. Features renumbered: 017 (Reporting), 018 (Dashboard), 019 (Packaging).

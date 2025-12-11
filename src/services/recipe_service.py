@@ -1426,6 +1426,7 @@ def get_recipes_using_component(component_recipe_id: int) -> List[Recipe]:
 def get_aggregated_ingredients(
     recipe_id: int,
     multiplier: float = 1.0,
+    session=None,
 ) -> List[Dict]:
     """
     Get all ingredients from a recipe and all sub-recipes with aggregated quantities.
@@ -1433,6 +1434,9 @@ def get_aggregated_ingredients(
     Args:
         recipe_id: Recipe ID
         multiplier: Scale factor for all quantities (default: 1.0)
+        session: Optional database session. If provided, uses this session instead
+                 of creating a new one. This is important for maintaining transactional
+                 atomicity when called from within another session_scope block.
 
     Returns:
         List of aggregated ingredients with structure:
@@ -1451,74 +1455,96 @@ def get_aggregated_ingredients(
     Raises:
         RecipeNotFound: If recipe doesn't exist
     """
+    # If session is provided, use it directly; otherwise use session_scope
+    if session is not None:
+        return _get_aggregated_ingredients_impl(recipe_id, multiplier, session)
+
     try:
         with session_scope() as session:
-            recipe = session.query(Recipe).filter_by(id=recipe_id).first()
-            if not recipe:
-                raise RecipeNotFound(recipe_id)
-
-            # Dictionary to aggregate: key = (ingredient_id, unit)
-            aggregated = {}
-
-            def collect_ingredients(r_id: int, mult: float, visited: set = None):
-                """Recursively collect ingredients from recipe and components."""
-                if visited is None:
-                    visited = set()
-
-                if r_id in visited:
-                    return  # Prevent infinite loop (shouldn't happen with validation)
-
-                visited.add(r_id)
-
-                # Get recipe
-                r = session.query(Recipe).filter_by(id=r_id).first()
-                if not r:
-                    return
-
-                # Collect direct ingredients
-                for ri in r.recipe_ingredients:
-                    key = (ri.ingredient_id, ri.unit)
-                    qty = ri.quantity * mult
-
-                    if key not in aggregated:
-                        aggregated[key] = {
-                            "ingredient": ri.ingredient,
-                            "ingredient_id": ri.ingredient_id,
-                            "ingredient_name": ri.ingredient.display_name if ri.ingredient else "Unknown",
-                            "total_quantity": 0.0,
-                            "unit": ri.unit,
-                            "sources": [],
-                        }
-
-                    aggregated[key]["total_quantity"] += qty
-                    aggregated[key]["sources"].append({
-                        "recipe_name": r.name,
-                        "quantity": qty,
-                    })
-
-                # Collect from components
-                components = (
-                    session.query(RecipeComponent)
-                    .filter_by(recipe_id=r_id)
-                    .all()
-                )
-
-                for comp in components:
-                    component_mult = mult * comp.quantity
-                    collect_ingredients(comp.component_recipe_id, component_mult, visited.copy())
-
-            # Start collection
-            collect_ingredients(recipe_id, multiplier)
-
-            # Convert to list and sort by ingredient name
-            result = sorted(aggregated.values(), key=lambda x: x["ingredient_name"])
-
-            return result
-
+            return _get_aggregated_ingredients_impl(recipe_id, multiplier, session)
     except RecipeNotFound:
         raise
     except SQLAlchemyError as e:
         raise DatabaseError(f"Failed to aggregate ingredients for recipe {recipe_id}", e)
+
+
+def _get_aggregated_ingredients_impl(
+    recipe_id: int,
+    multiplier: float,
+    session,
+) -> List[Dict]:
+    """
+    Internal implementation of get_aggregated_ingredients.
+
+    Args:
+        recipe_id: Recipe ID
+        multiplier: Scale factor for all quantities
+        session: Database session (required)
+
+    Returns:
+        List of aggregated ingredients
+    """
+    recipe = session.query(Recipe).filter_by(id=recipe_id).first()
+    if not recipe:
+        raise RecipeNotFound(recipe_id)
+
+    # Dictionary to aggregate: key = (ingredient_id, unit)
+    aggregated = {}
+
+    def collect_ingredients(r_id: int, mult: float, visited: set = None):
+        """Recursively collect ingredients from recipe and components."""
+        if visited is None:
+            visited = set()
+
+        if r_id in visited:
+            return  # Prevent infinite loop (shouldn't happen with validation)
+
+        visited.add(r_id)
+
+        # Get recipe
+        r = session.query(Recipe).filter_by(id=r_id).first()
+        if not r:
+            return
+
+        # Collect direct ingredients
+        for ri in r.recipe_ingredients:
+            key = (ri.ingredient_id, ri.unit)
+            qty = ri.quantity * mult
+
+            if key not in aggregated:
+                aggregated[key] = {
+                    "ingredient": ri.ingredient,
+                    "ingredient_id": ri.ingredient_id,
+                    "ingredient_name": ri.ingredient.display_name if ri.ingredient else "Unknown",
+                    "total_quantity": 0.0,
+                    "unit": ri.unit,
+                    "sources": [],
+                }
+
+            aggregated[key]["total_quantity"] += qty
+            aggregated[key]["sources"].append({
+                "recipe_name": r.name,
+                "quantity": qty,
+            })
+
+        # Collect from components
+        components = (
+            session.query(RecipeComponent)
+            .filter_by(recipe_id=r_id)
+            .all()
+        )
+
+        for comp in components:
+            component_mult = mult * comp.quantity
+            collect_ingredients(comp.component_recipe_id, component_mult, visited.copy())
+
+    # Start collection
+    collect_ingredients(recipe_id, multiplier)
+
+    # Convert to list and sort by ingredient name
+    result = sorted(aggregated.values(), key=lambda x: x["ingredient_name"])
+
+    return result
 
 
 def _calculate_recipe_cost_recursive(recipe_id: int, session, visited: set = None) -> Dict:

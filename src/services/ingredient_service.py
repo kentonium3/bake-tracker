@@ -251,11 +251,14 @@ def create_ingredient(ingredient_data: Dict[str, Any]) -> Ingredient:
         raise DatabaseError(f"Failed to create ingredient", original_error=e)
 
 
-def get_ingredient(slug: str) -> Ingredient:
+def get_ingredient(slug: str, session=None) -> Ingredient:
     """Retrieve ingredient by slug.
 
     Args:
         slug: Unique ingredient identifier (e.g., "all_purpose_flour")
+        session: Optional database session. If provided, uses this session instead
+                 of creating a new one. This is important for maintaining transactional
+                 atomicity when called from within another session_scope block.
 
     Returns:
         Ingredient: Ingredient object with relationships eager-loaded
@@ -270,6 +273,12 @@ def get_ingredient(slug: str) -> Ingredient:
         >>> ingredient.category
         'Flour'
     """
+    if session is not None:
+        ingredient = session.query(Ingredient).filter_by(slug=slug).first()
+        if not ingredient:
+            raise IngredientNotFoundBySlug(slug)
+        return ingredient
+
     with session_scope() as session:
         ingredient = session.query(Ingredient).filter_by(slug=slug).first()
 

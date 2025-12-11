@@ -384,8 +384,8 @@ class TestPackagingImportExport:
             with open(temp_path, "r") as f:
                 data = json.load(f)
 
-            # Check version is 3.1
-            assert data["version"] == "3.1"
+            # Check version is 3.2 (Feature 016 added event-production linkage)
+            assert data["version"] == "3.2"
 
             # Find exported ingredients
             exported_ingredients = {i["slug"]: i for i in data["ingredients"]}

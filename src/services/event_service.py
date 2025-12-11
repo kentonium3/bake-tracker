@@ -27,6 +27,11 @@ from sqlalchemy.orm import joinedload
 from src.models import (
     Event,
     EventRecipientPackage,
+    EventProductionTarget,
+    EventAssemblyTarget,
+    FulfillmentStatus,
+    ProductionRun,
+    AssemblyRun,
     Recipient,
     Package,
     PackageFinishedGood,
@@ -1477,3 +1482,581 @@ def get_recipient_history(recipient_id: int) -> List[Dict[str, Any]]:
 
     except SQLAlchemyError as e:
         raise DatabaseError(f"Failed to get recipient history: {str(e)}")
+
+
+# ============================================================================
+# Feature 016: Production/Assembly Target CRUD
+# ============================================================================
+
+
+def set_production_target(
+    event_id: int,
+    recipe_id: int,
+    target_batches: int,
+    notes: Optional[str] = None,
+) -> EventProductionTarget:
+    """
+    Create or update production target for a recipe in an event.
+
+    Uses upsert pattern: if target already exists, updates it; otherwise creates new.
+
+    Args:
+        event_id: Event ID
+        recipe_id: Recipe ID
+        target_batches: Number of batches to produce (must be > 0)
+        notes: Optional notes
+
+    Returns:
+        EventProductionTarget instance (created or updated)
+
+    Raises:
+        ValueError: If target_batches is not positive
+        DatabaseError: If database operation fails
+    """
+    if target_batches <= 0:
+        raise ValueError("target_batches must be positive")
+
+    try:
+        with session_scope() as session:
+            # Check if target already exists
+            existing = (
+                session.query(EventProductionTarget)
+                .filter_by(event_id=event_id, recipe_id=recipe_id)
+                .first()
+            )
+
+            if existing:
+                existing.target_batches = target_batches
+                existing.notes = notes
+                session.flush()
+                return existing
+            else:
+                target = EventProductionTarget(
+                    event_id=event_id,
+                    recipe_id=recipe_id,
+                    target_batches=target_batches,
+                    notes=notes,
+                )
+                session.add(target)
+                session.flush()
+                return target
+
+    except SQLAlchemyError as e:
+        raise DatabaseError(f"Failed to set production target: {str(e)}")
+
+
+def set_assembly_target(
+    event_id: int,
+    finished_good_id: int,
+    target_quantity: int,
+    notes: Optional[str] = None,
+) -> EventAssemblyTarget:
+    """
+    Create or update assembly target for a finished good in an event.
+
+    Uses upsert pattern: if target already exists, updates it; otherwise creates new.
+
+    Args:
+        event_id: Event ID
+        finished_good_id: FinishedGood ID
+        target_quantity: Number of units to assemble (must be > 0)
+        notes: Optional notes
+
+    Returns:
+        EventAssemblyTarget instance (created or updated)
+
+    Raises:
+        ValueError: If target_quantity is not positive
+        DatabaseError: If database operation fails
+    """
+    if target_quantity <= 0:
+        raise ValueError("target_quantity must be positive")
+
+    try:
+        with session_scope() as session:
+            # Check if target already exists
+            existing = (
+                session.query(EventAssemblyTarget)
+                .filter_by(event_id=event_id, finished_good_id=finished_good_id)
+                .first()
+            )
+
+            if existing:
+                existing.target_quantity = target_quantity
+                existing.notes = notes
+                session.flush()
+                return existing
+            else:
+                target = EventAssemblyTarget(
+                    event_id=event_id,
+                    finished_good_id=finished_good_id,
+                    target_quantity=target_quantity,
+                    notes=notes,
+                )
+                session.add(target)
+                session.flush()
+                return target
+
+    except SQLAlchemyError as e:
+        raise DatabaseError(f"Failed to set assembly target: {str(e)}")
+
+
+def get_production_targets(event_id: int) -> List[EventProductionTarget]:
+    """
+    Get all production targets for an event.
+
+    Eager loads recipe relationship to avoid N+1 queries.
+
+    Args:
+        event_id: Event ID
+
+    Returns:
+        List of EventProductionTarget instances with recipe data
+    """
+    try:
+        with session_scope() as session:
+            return (
+                session.query(EventProductionTarget)
+                .options(joinedload(EventProductionTarget.recipe))
+                .filter_by(event_id=event_id)
+                .all()
+            )
+
+    except SQLAlchemyError as e:
+        raise DatabaseError(f"Failed to get production targets: {str(e)}")
+
+
+def get_assembly_targets(event_id: int) -> List[EventAssemblyTarget]:
+    """
+    Get all assembly targets for an event.
+
+    Eager loads finished_good relationship to avoid N+1 queries.
+
+    Args:
+        event_id: Event ID
+
+    Returns:
+        List of EventAssemblyTarget instances with finished_good data
+    """
+    try:
+        with session_scope() as session:
+            return (
+                session.query(EventAssemblyTarget)
+                .options(joinedload(EventAssemblyTarget.finished_good))
+                .filter_by(event_id=event_id)
+                .all()
+            )
+
+    except SQLAlchemyError as e:
+        raise DatabaseError(f"Failed to get assembly targets: {str(e)}")
+
+
+def delete_production_target(event_id: int, recipe_id: int) -> bool:
+    """
+    Remove a production target from an event.
+
+    Args:
+        event_id: Event ID
+        recipe_id: Recipe ID
+
+    Returns:
+        True if target was deleted, False if not found
+    """
+    try:
+        with session_scope() as session:
+            target = (
+                session.query(EventProductionTarget)
+                .filter_by(event_id=event_id, recipe_id=recipe_id)
+                .first()
+            )
+            if target:
+                session.delete(target)
+                return True
+            return False
+
+    except SQLAlchemyError as e:
+        raise DatabaseError(f"Failed to delete production target: {str(e)}")
+
+
+def delete_assembly_target(event_id: int, finished_good_id: int) -> bool:
+    """
+    Remove an assembly target from an event.
+
+    Args:
+        event_id: Event ID
+        finished_good_id: FinishedGood ID
+
+    Returns:
+        True if target was deleted, False if not found
+    """
+    try:
+        with session_scope() as session:
+            target = (
+                session.query(EventAssemblyTarget)
+                .filter_by(event_id=event_id, finished_good_id=finished_good_id)
+                .first()
+            )
+            if target:
+                session.delete(target)
+                return True
+            return False
+
+    except SQLAlchemyError as e:
+        raise DatabaseError(f"Failed to delete assembly target: {str(e)}")
+
+
+# ============================================================================
+# Feature 016: Progress Calculation
+# ============================================================================
+
+
+def get_production_progress(event_id: int) -> List[Dict[str, Any]]:
+    """
+    Get production progress for all targets in an event.
+
+    Calculates how many batches have been produced for each target recipe,
+    only counting production runs that are linked to this specific event.
+
+    Args:
+        event_id: Event ID
+
+    Returns:
+        List of dicts with:
+        - recipe: Recipe instance
+        - recipe_name: str
+        - target_batches: int
+        - produced_batches: int
+        - produced_yield: int
+        - progress_pct: float (can exceed 100%)
+        - is_complete: bool
+    """
+    try:
+        with session_scope() as session:
+            # Get all targets for this event
+            targets = (
+                session.query(EventProductionTarget)
+                .options(joinedload(EventProductionTarget.recipe))
+                .filter_by(event_id=event_id)
+                .all()
+            )
+
+            results = []
+            for target in targets:
+                # Sum production runs for this recipe and event
+                produced = (
+                    session.query(
+                        func.coalesce(func.sum(ProductionRun.num_batches), 0),
+                        func.coalesce(func.sum(ProductionRun.actual_yield), 0),
+                    )
+                    .filter(
+                        ProductionRun.recipe_id == target.recipe_id,
+                        ProductionRun.event_id == event_id,
+                    )
+                    .first()
+                )
+
+                produced_batches = int(produced[0]) if produced[0] else 0
+                produced_yield = int(produced[1]) if produced[1] else 0
+                progress_pct = (produced_batches / target.target_batches) * 100
+
+                results.append(
+                    {
+                        "recipe": target.recipe,
+                        "recipe_name": target.recipe.name,
+                        "target_batches": target.target_batches,
+                        "produced_batches": produced_batches,
+                        "produced_yield": produced_yield,
+                        "progress_pct": progress_pct,
+                        "is_complete": produced_batches >= target.target_batches,
+                    }
+                )
+
+            return results
+
+    except SQLAlchemyError as e:
+        raise DatabaseError(f"Failed to get production progress: {str(e)}")
+
+
+def get_assembly_progress(event_id: int) -> List[Dict[str, Any]]:
+    """
+    Get assembly progress for all targets in an event.
+
+    Calculates how many units have been assembled for each target finished good,
+    only counting assembly runs that are linked to this specific event.
+
+    Args:
+        event_id: Event ID
+
+    Returns:
+        List of dicts with:
+        - finished_good: FinishedGood instance
+        - finished_good_name: str
+        - target_quantity: int
+        - assembled_quantity: int
+        - progress_pct: float (can exceed 100%)
+        - is_complete: bool
+    """
+    try:
+        with session_scope() as session:
+            # Get all targets for this event
+            targets = (
+                session.query(EventAssemblyTarget)
+                .options(joinedload(EventAssemblyTarget.finished_good))
+                .filter_by(event_id=event_id)
+                .all()
+            )
+
+            results = []
+            for target in targets:
+                # Sum assembly runs for this finished good and event
+                assembled = (
+                    session.query(
+                        func.coalesce(func.sum(AssemblyRun.quantity_assembled), 0)
+                    )
+                    .filter(
+                        AssemblyRun.finished_good_id == target.finished_good_id,
+                        AssemblyRun.event_id == event_id,
+                    )
+                    .scalar()
+                )
+
+                assembled_qty = int(assembled) if assembled else 0
+                progress_pct = (assembled_qty / target.target_quantity) * 100
+
+                results.append(
+                    {
+                        "finished_good": target.finished_good,
+                        "finished_good_name": target.finished_good.display_name,
+                        "target_quantity": target.target_quantity,
+                        "assembled_quantity": assembled_qty,
+                        "progress_pct": progress_pct,
+                        "is_complete": assembled_qty >= target.target_quantity,
+                    }
+                )
+
+            return results
+
+    except SQLAlchemyError as e:
+        raise DatabaseError(f"Failed to get assembly progress: {str(e)}")
+
+
+def get_event_overall_progress(event_id: int) -> Dict[str, Any]:
+    """
+    Get overall progress summary for an event.
+
+    Aggregates production progress, assembly progress, and package fulfillment
+    status into a single summary.
+
+    Args:
+        event_id: Event ID
+
+    Returns:
+        Dict with:
+        - production_targets_count: int
+        - production_complete_count: int
+        - production_complete: bool
+        - assembly_targets_count: int
+        - assembly_complete_count: int
+        - assembly_complete: bool
+        - packages_pending: int
+        - packages_ready: int
+        - packages_delivered: int
+        - packages_total: int
+    """
+    try:
+        with session_scope() as session:
+            # Get production progress (reuse function, but we're in same session context)
+            prod_targets = (
+                session.query(EventProductionTarget)
+                .filter_by(event_id=event_id)
+                .all()
+            )
+            prod_complete = 0
+            for target in prod_targets:
+                produced = (
+                    session.query(func.coalesce(func.sum(ProductionRun.num_batches), 0))
+                    .filter(
+                        ProductionRun.recipe_id == target.recipe_id,
+                        ProductionRun.event_id == event_id,
+                    )
+                    .scalar()
+                )
+                if produced and int(produced) >= target.target_batches:
+                    prod_complete += 1
+
+            # Get assembly progress
+            asm_targets = (
+                session.query(EventAssemblyTarget)
+                .filter_by(event_id=event_id)
+                .all()
+            )
+            asm_complete = 0
+            for target in asm_targets:
+                assembled = (
+                    session.query(
+                        func.coalesce(func.sum(AssemblyRun.quantity_assembled), 0)
+                    )
+                    .filter(
+                        AssemblyRun.finished_good_id == target.finished_good_id,
+                        AssemblyRun.event_id == event_id,
+                    )
+                    .scalar()
+                )
+                if assembled and int(assembled) >= target.target_quantity:
+                    asm_complete += 1
+
+            # Get package counts by status
+            packages = (
+                session.query(EventRecipientPackage)
+                .filter_by(event_id=event_id)
+                .all()
+            )
+
+            pending = sum(
+                1
+                for p in packages
+                if p.fulfillment_status == FulfillmentStatus.PENDING.value
+            )
+            ready = sum(
+                1
+                for p in packages
+                if p.fulfillment_status == FulfillmentStatus.READY.value
+            )
+            delivered = sum(
+                1
+                for p in packages
+                if p.fulfillment_status == FulfillmentStatus.DELIVERED.value
+            )
+
+            return {
+                "production_targets_count": len(prod_targets),
+                "production_complete_count": prod_complete,
+                "production_complete": len(prod_targets) == 0
+                or prod_complete == len(prod_targets),
+                "assembly_targets_count": len(asm_targets),
+                "assembly_complete_count": asm_complete,
+                "assembly_complete": len(asm_targets) == 0
+                or asm_complete == len(asm_targets),
+                "packages_pending": pending,
+                "packages_ready": ready,
+                "packages_delivered": delivered,
+                "packages_total": len(packages),
+            }
+
+    except SQLAlchemyError as e:
+        raise DatabaseError(f"Failed to get event overall progress: {str(e)}")
+
+
+# ============================================================================
+# Feature 016: Fulfillment Status Management
+# ============================================================================
+
+
+def update_fulfillment_status(
+    event_recipient_package_id: int,
+    new_status: FulfillmentStatus,
+) -> EventRecipientPackage:
+    """
+    Update package fulfillment status with sequential workflow enforcement.
+
+    Valid transitions:
+      pending -> ready
+      ready -> delivered
+
+    Args:
+        event_recipient_package_id: Package assignment ID
+        new_status: New status to transition to
+
+    Returns:
+        Updated EventRecipientPackage instance
+
+    Raises:
+        ValueError: If package not found or transition is invalid
+        DatabaseError: If database operation fails
+    """
+    # Define valid transitions
+    valid_transitions = {
+        FulfillmentStatus.PENDING: [FulfillmentStatus.READY],
+        FulfillmentStatus.READY: [FulfillmentStatus.DELIVERED],
+        FulfillmentStatus.DELIVERED: [],
+    }
+
+    try:
+        with session_scope() as session:
+            package = (
+                session.query(EventRecipientPackage)
+                .filter_by(id=event_recipient_package_id)
+                .first()
+            )
+
+            if not package:
+                raise ValueError(
+                    f"Package with id {event_recipient_package_id} not found"
+                )
+
+            current_status = FulfillmentStatus(package.fulfillment_status)
+
+            if new_status not in valid_transitions[current_status]:
+                allowed = [s.value for s in valid_transitions[current_status]]
+                raise ValueError(
+                    f"Invalid transition: {current_status.value} -> {new_status.value}. "
+                    f"Allowed: {allowed}"
+                )
+
+            package.fulfillment_status = new_status.value
+            session.flush()
+
+            # Reload with relationships
+            package = (
+                session.query(EventRecipientPackage)
+                .options(
+                    joinedload(EventRecipientPackage.recipient),
+                    joinedload(EventRecipientPackage.package),
+                )
+                .filter(EventRecipientPackage.id == event_recipient_package_id)
+                .one()
+            )
+            return package
+
+    except ValueError:
+        raise
+    except SQLAlchemyError as e:
+        raise DatabaseError(f"Failed to update fulfillment status: {str(e)}")
+
+
+def get_packages_by_status(
+    event_id: int,
+    status: Optional[FulfillmentStatus] = None,
+) -> List[EventRecipientPackage]:
+    """
+    Get packages filtered by fulfillment status (or all if None).
+
+    Eager loads recipient and package relationships for UI display.
+
+    Args:
+        event_id: Event ID
+        status: Optional status to filter by (None returns all)
+
+    Returns:
+        List of EventRecipientPackage instances
+    """
+    try:
+        with session_scope() as session:
+            query = (
+                session.query(EventRecipientPackage)
+                .options(
+                    joinedload(EventRecipientPackage.recipient),
+                    joinedload(EventRecipientPackage.package),
+                )
+                .filter_by(event_id=event_id)
+            )
+
+            if status is not None:
+                query = query.filter(
+                    EventRecipientPackage.fulfillment_status == status.value
+                )
+
+            return query.all()
+
+    except SQLAlchemyError as e:
+        raise DatabaseError(f"Failed to get packages by status: {str(e)}")

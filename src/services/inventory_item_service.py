@@ -273,16 +273,17 @@ def consume_fifo(
     """
     from ..services.unit_converter import convert_any_units
 
-    ingredient = get_ingredient(ingredient_slug)  # Validate exists
-
-    # Calculate density in g/cup if available (using 4-field density model)
-    density_g_per_cup = None
-    density_g_per_ml = ingredient.get_density_g_per_ml()
-    if density_g_per_ml:
-        density_g_per_cup = density_g_per_ml * 236.588  # Convert g/ml to g/cup
-
     def _do_consume(sess):
         """Inner function that performs the actual FIFO consumption logic."""
+        # Validate ingredient exists using the provided session
+        ingredient = get_ingredient(ingredient_slug, session=sess)
+
+        # Calculate density in g/cup if available (using 4-field density model)
+        density_g_per_cup = None
+        density_g_per_ml = ingredient.get_density_g_per_ml()
+        if density_g_per_ml:
+            density_g_per_cup = density_g_per_ml * 236.588  # Convert g/ml to g/cup
+
         # Get all lots ordered by purchase_date ASC (oldest first)
         inventory_items = (
             sess.query(InventoryItem)

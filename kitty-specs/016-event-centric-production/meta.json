@@ -1,0 +1,24 @@
+{
+  "accept_commit": null,
+  "acceptance_history": [
+    {
+      "accepted_at": "2025-12-11T21:14:02Z",
+      "accepted_by": "claude",
+      "accepted_from_commit": "d5fcaadda5026bb44eba5f94cbeafd9c1046051c",
+      "branch": "016-event-centric-production",
+      "mode": "local",
+      "validation_commands": [
+        "pytest src/tests -v"
+      ]
+    }
+  ],
+  "acceptance_mode": "local",
+  "accepted_at": "2025-12-11T21:14:02Z",
+  "accepted_by": "claude",
+  "accepted_from_commit": "d5fcaadda5026bb44eba5f94cbeafd9c1046051c",
+  "created_at": "2025-12-10T19:32:18Z",
+  "feature_number": "016",
+  "friendly_name": "Event-Centric Production Model",
+  "slug": "016-event-centric-production",
+  "source_description": "Add event_id FK to ProductionRun and AssemblyRun, create EventProductionTarget and EventAssemblyTarget tables, add fulfillment_status to EventRecipientPackage, with service methods for target management and progress calculation"
+}

@@ -47,6 +47,13 @@ class AssemblyRun(BaseModel):
     finished_good_id = Column(
         Integer, ForeignKey("finished_goods.id", ondelete="RESTRICT"), nullable=False
     )
+    # Feature 016: Optional event linkage for progress tracking
+    event_id = Column(
+        Integer,
+        ForeignKey("events.id", ondelete="RESTRICT"),
+        nullable=True,
+        index=True,
+    )
 
     # Assembly data
     quantity_assembled = Column(Integer, nullable=False)
@@ -71,12 +78,15 @@ class AssemblyRun(BaseModel):
         back_populates="assembly_run",
         cascade="all, delete-orphan",
     )
+    # Feature 016: Event relationship
+    event = relationship("Event", back_populates="assembly_runs")
 
     # Constraints and indexes
     __table_args__ = (
         # Indexes
         Index("idx_assembly_run_finished_good", "finished_good_id"),
         Index("idx_assembly_run_assembled_at", "assembled_at"),
+        Index("idx_assembly_run_event", "event_id"),
         # Constraints
         CheckConstraint(
             "quantity_assembled > 0", name="ck_assembly_run_quantity_positive"
@@ -119,9 +129,14 @@ class AssemblyRun(BaseModel):
         if self.per_unit_cost is not None:
             result["per_unit_cost"] = str(self.per_unit_cost)
 
+        # Feature 016: Always include event_id
+        result["event_id"] = self.event_id
+
         # Add convenience fields when including relationships
         if include_relationships:
             if self.finished_good:
                 result["finished_good_name"] = self.finished_good.display_name
+            # Feature 016: Include event_name
+            result["event_name"] = self.event.name if self.event else None
 
         return result
