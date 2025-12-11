@@ -10,13 +10,15 @@ Provides a modal dialog for recording batch production with:
 """
 
 import customtkinter as ctk
-from typing import Optional, Dict, Any
+from datetime import datetime
+from typing import Optional, Dict, Any, List
 
 from src.models.finished_unit import FinishedUnit
+from src.models.event import Event
 from src.ui.widgets.availability_display import AvailabilityDisplay
 from src.ui.widgets.dialogs import show_error, show_confirmation
 from src.ui.service_integration import get_ui_service_integrator, OperationType
-from src.services import batch_production_service
+from src.services import batch_production_service, event_service
 from src.utils.constants import PADDING_MEDIUM, PADDING_LARGE
 
 
@@ -44,6 +46,9 @@ class RecordProductionDialog(ctk.CTkToplevel):
         self._initializing = True
         self._last_expected = 0
         self.service_integrator = get_ui_service_integrator()
+
+        # Feature 016: Load events for event selector
+        self.events: List[Event] = self._load_events()
 
         self._setup_window()
         self._create_widgets()
@@ -122,6 +127,23 @@ class RecordProductionDialog(ctk.CTkToplevel):
         recipe_label = ctk.CTkLabel(self, text=f"Recipe: {recipe_name}")
         recipe_label.grid(
             row=row, column=0, columnspan=2, pady=(0, PADDING_MEDIUM)
+        )
+        row += 1
+
+        # Feature 016: Event selector
+        ctk.CTkLabel(self, text="Event (optional):").grid(
+            row=row, column=0, sticky="e", padx=PADDING_MEDIUM, pady=PADDING_MEDIUM
+        )
+        event_options = ["(None - standalone)"] + [e.name for e in self.events]
+        self.event_var = ctk.StringVar(value=event_options[0])
+        self.event_dropdown = ctk.CTkOptionMenu(
+            self,
+            variable=self.event_var,
+            values=event_options,
+            width=250,
+        )
+        self.event_dropdown.grid(
+            row=row, column=1, sticky="w", padx=PADDING_MEDIUM, pady=PADDING_MEDIUM
         )
         row += 1
 
@@ -260,11 +282,17 @@ class RecordProductionDialog(ctk.CTkToplevel):
         batch_count = self._get_batch_count()
         actual_yield = self._get_actual_yield()
         notes = self.notes_textbox.get("1.0", "end-1c").strip() or None
+        event_id = self._get_selected_event_id()  # Feature 016
 
         # Confirmation dialog
         expected = self._calculate_expected_yield(batch_count)
+        event_info = ""
+        if event_id:
+            selected_event = self.event_var.get()
+            event_info = f"Event: {selected_event}\n"
         message = (
             f"Record {batch_count} batch(es) of {self.finished_unit.display_name}?\n\n"
+            f"{event_info}"
             f"Expected yield: {expected}\n"
             f"Actual yield: {actual_yield}\n\n"
             f"This will consume ingredients from inventory.\n"
@@ -282,6 +310,7 @@ class RecordProductionDialog(ctk.CTkToplevel):
                 num_batches=batch_count,
                 actual_yield=actual_yield,
                 notes=notes,
+                event_id=event_id,  # Feature 016
             ),
             parent_widget=self,
             success_message=f"Recorded {batch_count} batch(es) - {actual_yield} units produced",
@@ -297,6 +326,7 @@ class RecordProductionDialog(ctk.CTkToplevel):
                 "num_batches": batch_count,
                 "actual_yield": actual_yield,
                 "notes": notes,
+                "event_id": event_id,  # Feature 016
                 "production_run_id": result.get("production_run_id"),
             }
             self.destroy()
@@ -396,3 +426,24 @@ class RecordProductionDialog(ctk.CTkToplevel):
             self.confirm_btn.configure(state="normal")
         else:
             self.confirm_btn.configure(state="disabled")
+
+    def _load_events(self) -> List[Event]:
+        """Load events sorted by date (nearest upcoming first)."""
+        try:
+            events = event_service.get_all_events()
+            # Sort by event_date ascending; events without date go to end
+            events.sort(key=lambda e: e.event_date or datetime.max.date())
+            return events
+        except Exception:
+            # If event loading fails, return empty list
+            return []
+
+    def _get_selected_event_id(self) -> Optional[int]:
+        """Get the event_id for the selected event, or None for standalone."""
+        selected = self.event_var.get()
+        if selected == "(None - standalone)":
+            return None
+        for event in self.events:
+            if event.name == selected:
+                return event.id
+        return None

@@ -8,9 +8,9 @@ subtasks:
   - "T040"
 title: "UI - Event Selectors"
 phase: "Phase 5 - UI Event Selectors"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
+agent: "system"
 shell_pid: ""
 review_status: ""
 reviewed_by: ""
@@ -263,3 +263,4 @@ SELECT id, finished_good_id, event_id FROM assembly_run ORDER BY id DESC LIMIT 5
 ## Activity Log
 
 - 2025-12-10T00:00:00Z - system - lane=planned - Prompt created.
+- 2025-12-11T04:19:09Z – system – shell_pid= – lane=doing – Moved to doing

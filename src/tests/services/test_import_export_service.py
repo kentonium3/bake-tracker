@@ -345,8 +345,8 @@ class TestExportAllToJsonV3Format:
             with open(temp_path, "r") as f:
                 data = json.load(f)
 
-            # Verify v3.1 header (Feature 011: packaging support)
-            assert data["version"] == "3.1"
+            # Verify v3.2 header (Feature 016: event-centric production)
+            assert data["version"] == "3.2"
             assert "exported_at" in data
             assert data["application"] == "bake-tracker"
 
