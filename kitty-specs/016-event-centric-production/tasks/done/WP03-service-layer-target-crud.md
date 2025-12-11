@@ -11,7 +11,7 @@ subtasks:
 title: "Service Layer - Target CRUD"
 phase: "Phase 2 - Service Layer"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude"
 shell_pid: "84929"
 review_status: ""

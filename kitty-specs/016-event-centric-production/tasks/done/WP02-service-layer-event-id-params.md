@@ -8,7 +8,7 @@ subtasks:
 title: "Service Layer - Event ID Parameters"
 phase: "Phase 2 - Service Layer"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude"
 shell_pid: "83960"
 review_status: ""

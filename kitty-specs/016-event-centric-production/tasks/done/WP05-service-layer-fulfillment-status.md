@@ -7,9 +7,9 @@ subtasks:
 title: "Service Layer - Fulfillment Status"
 phase: "Phase 3 - Progress & Fulfillment"
 lane: "done"
-assignee: ""
-agent: "system"
-shell_pid: ""
+assignee: "claude"
+agent: "claude"
+shell_pid: "85015"
 review_status: ""
 reviewed_by: ""
 history:

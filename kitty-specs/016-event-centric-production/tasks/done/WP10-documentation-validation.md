@@ -9,9 +9,9 @@ subtasks:
 title: "Documentation & Validation"
 phase: "Phase 8 - Documentation & Final"
 lane: "done"
-assignee: ""
-agent: "system"
-shell_pid: ""
+assignee: "claude"
+agent: "claude"
+shell_pid: "94644"
 review_status: ""
 reviewed_by: ""
 history:

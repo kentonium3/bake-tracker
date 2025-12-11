@@ -8,7 +8,7 @@ subtasks:
 title: "UI - Fulfillment Status"
 phase: "Phase 7 - UI Fulfillment Status"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude"
 shell_pid: "94644"
 review_status: ""

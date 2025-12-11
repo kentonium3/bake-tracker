@@ -12,9 +12,9 @@ subtasks:
 title: "Import/Export"
 phase: "Phase 4 - Import/Export"
 lane: "done"
-assignee: ""
-agent: "system"
-shell_pid: ""
+assignee: "claude"
+agent: "claude"
+shell_pid: "85015"
 review_status: ""
 reviewed_by: ""
 history:

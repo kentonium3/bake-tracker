@@ -9,9 +9,9 @@ subtasks:
 title: "UI - Event Selectors"
 phase: "Phase 5 - UI Event Selectors"
 lane: "done"
-assignee: ""
-agent: "system"
-shell_pid: ""
+assignee: "claude"
+agent: "claude"
+shell_pid: "94501"
 review_status: ""
 reviewed_by: ""
 history:

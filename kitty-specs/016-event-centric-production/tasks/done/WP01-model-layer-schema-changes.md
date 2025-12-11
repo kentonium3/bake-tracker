@@ -13,7 +13,7 @@ subtasks:
 title: "Model Layer - Schema Changes"
 phase: "Phase 1 - Model Layer"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude-reviewer"
 shell_pid: "83064"
 review_status: ""

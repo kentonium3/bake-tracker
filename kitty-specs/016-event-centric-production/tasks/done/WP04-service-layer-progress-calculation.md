@@ -8,7 +8,7 @@ subtasks:
 title: "Service Layer - Progress Calculation"
 phase: "Phase 3 - Progress & Fulfillment"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude"
 shell_pid: "85015"
 review_status: ""

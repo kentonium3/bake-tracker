@@ -13,7 +13,7 @@ subtasks:
 title: "UI - Targets Tab"
 phase: "Phase 6 - UI Targets Tab"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude"
 shell_pid: "94501"
 review_status: ""
