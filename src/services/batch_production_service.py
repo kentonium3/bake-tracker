@@ -21,7 +21,7 @@ from datetime import datetime
 
 from sqlalchemy.orm import joinedload
 
-from src.models import ProductionRun, ProductionConsumption, Recipe, FinishedUnit
+from src.models import ProductionRun, ProductionConsumption, Recipe, FinishedUnit, Event
 from src.services.database import session_scope
 from src.services import inventory_item_service
 from src.services.recipe_service import get_aggregated_ingredients
@@ -72,6 +72,14 @@ class InsufficientInventoryError(Exception):
         super().__init__(
             f"Insufficient {ingredient_slug}: need {needed} {unit}, have {available} {unit}"
         )
+
+
+class EventNotFoundError(Exception):
+    """Raised when an event cannot be found."""
+
+    def __init__(self, event_id: int):
+        self.event_id = event_id
+        super().__init__(f"Event with ID {event_id} not found")
 
 
 # =============================================================================
@@ -167,6 +175,7 @@ def record_batch_production(
     *,
     produced_at: Optional[datetime] = None,
     notes: Optional[str] = None,
+    event_id: Optional[int] = None,
     session=None,
 ) -> Dict[str, Any]:
     """
@@ -174,10 +183,11 @@ def record_batch_production(
 
     This function atomically:
     1. Validates recipe and finished unit
-    2. Consumes ingredients from inventory via FIFO
-    3. Increments FinishedUnit.inventory_count by actual_yield
-    4. Creates ProductionRun and ProductionConsumption records
-    5. Calculates per-unit cost based on actual yield
+    2. Validates event if provided (Feature 016)
+    3. Consumes ingredients from inventory via FIFO
+    4. Increments FinishedUnit.inventory_count by actual_yield
+    5. Creates ProductionRun and ProductionConsumption records
+    6. Calculates per-unit cost based on actual yield
 
     Args:
         recipe_id: ID of the recipe being produced
@@ -186,6 +196,7 @@ def record_batch_production(
         actual_yield: Actual number of units produced (can be 0 for failed batches)
         produced_at: Optional production timestamp (defaults to now)
         notes: Optional production notes
+        event_id: Optional event ID to link production to (Feature 016)
         session: Optional database session (uses session_scope if not provided)
 
     Returns:
@@ -199,12 +210,14 @@ def record_batch_production(
             - "total_ingredient_cost": Decimal
             - "per_unit_cost": Decimal
             - "consumptions": List[Dict] - consumption ledger details
+            - "event_id": Optional[int] - linked event ID (Feature 016)
 
     Raises:
         RecipeNotFoundError: If recipe doesn't exist
         FinishedUnitNotFoundError: If finished unit doesn't exist
         FinishedUnitRecipeMismatchError: If finished unit doesn't belong to recipe
         InsufficientInventoryError: If ingredient inventory is insufficient
+        EventNotFoundError: If event_id is provided but event doesn't exist
     """
     with session_scope() as session:
         # Validate recipe exists
@@ -218,6 +231,12 @@ def record_batch_production(
             raise FinishedUnitNotFoundError(finished_unit_id)
         if finished_unit.recipe_id != recipe_id:
             raise FinishedUnitRecipeMismatchError(finished_unit_id, recipe_id)
+
+        # Feature 016: Validate event exists if event_id provided
+        if event_id is not None:
+            event = session.query(Event).filter_by(id=event_id).first()
+            if not event:
+                raise EventNotFoundError(event_id)
 
         # Calculate expected yield based on finished unit configuration
         if finished_unit.items_per_batch:
@@ -288,6 +307,7 @@ def record_batch_production(
             notes=notes,
             total_ingredient_cost=total_ingredient_cost,
             per_unit_cost=per_unit_cost,
+            event_id=event_id,  # Feature 016
         )
         session.add(production_run)
         session.flush()  # Get the ID
@@ -315,6 +335,7 @@ def record_batch_production(
             "total_ingredient_cost": total_ingredient_cost,
             "per_unit_cost": per_unit_cost,
             "consumptions": consumption_records,
+            "event_id": event_id,  # Feature 016
         }
 
 

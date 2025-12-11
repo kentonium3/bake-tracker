@@ -19,6 +19,7 @@ from src.models import (
     AssemblyRun,
     AssemblyFinishedUnitConsumption,
     AssemblyPackagingConsumption,
+    Event,
 )
 # Import AssemblyRun for direct queries in roundtrip tests - already imported above
 from src.models.finished_unit import YieldMode
@@ -29,6 +30,7 @@ from src.services.assembly_service import (
     InsufficientFinishedUnitError,
     InsufficientPackagingError,
     AssemblyRunNotFoundError,
+    EventNotFoundError,
 )
 from src.services.database import session_scope
 
@@ -862,3 +864,77 @@ class TestAssemblyTransactionAtomicity:
             # Should have FU consumption record and packaging consumption record
             assert len(fu_consumptions) >= 1, "Should have FU consumption records"
             assert len(pkg_consumptions) >= 1, "Should have packaging consumption records"
+
+
+# =============================================================================
+# Tests for Event ID Parameter (Feature 016)
+# =============================================================================
+
+
+class TestRecordAssemblyEventId:
+    """Tests for record_assembly() with event_id parameter (Feature 016)."""
+
+    @pytest.fixture
+    def event_christmas(self, test_db):
+        """Create a Christmas 2024 event for testing."""
+        from datetime import date
+        session = test_db()
+        event = Event(
+            name="Christmas 2024",
+            event_date=date(2024, 12, 25),
+            year=2024,
+        )
+        session.add(event)
+        session.commit()
+        return event
+
+    def test_record_assembly_with_event_id(
+        self, assembly_ready, finished_unit_cookie, inventory_cellophane, event_christmas
+    ):
+        """Assembly run links to event when event_id provided."""
+        fg = assembly_ready
+        result = assembly_service.record_assembly(
+            finished_good_id=fg.id,
+            quantity=2,
+            event_id=event_christmas.id,
+        )
+
+        # Verify result includes event_id
+        assert result["event_id"] == event_christmas.id
+
+        # Verify database record has event_id
+        with session_scope() as session:
+            run = session.query(AssemblyRun).filter_by(id=result["assembly_run_id"]).first()
+            assert run.event_id == event_christmas.id
+
+    def test_record_assembly_without_event_id(
+        self, assembly_ready, finished_unit_cookie, inventory_cellophane
+    ):
+        """Assembly run has null event_id when not provided (backward compatible)."""
+        fg = assembly_ready
+        result = assembly_service.record_assembly(
+            finished_good_id=fg.id,
+            quantity=2,
+        )
+
+        # Verify result includes null event_id
+        assert result["event_id"] is None
+
+        # Verify database record has null event_id
+        with session_scope() as session:
+            run = session.query(AssemblyRun).filter_by(id=result["assembly_run_id"]).first()
+            assert run.event_id is None
+
+    def test_record_assembly_invalid_event_id(
+        self, assembly_ready, finished_unit_cookie, inventory_cellophane
+    ):
+        """ValueError raised for non-existent event_id."""
+        fg = assembly_ready
+        with pytest.raises(EventNotFoundError) as exc_info:
+            assembly_service.record_assembly(
+                finished_good_id=fg.id,
+                quantity=2,
+                event_id=99999,  # Non-existent event
+            )
+
+        assert exc_info.value.event_id == 99999

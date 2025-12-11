@@ -30,6 +30,7 @@ from src.models import (
     FinishedUnit,
     Composition,
     Product,
+    Event,
 )
 from src.services.database import session_scope
 from src.services import inventory_item_service
@@ -82,6 +83,14 @@ class InsufficientPackagingError(Exception):
         super().__init__(
             f"Insufficient packaging product {product_id}: need {needed}, have {available}"
         )
+
+
+class EventNotFoundError(Exception):
+    """Raised when an event cannot be found."""
+
+    def __init__(self, event_id: int):
+        self.event_id = event_id
+        super().__init__(f"Event with ID {event_id} not found")
 
 
 # =============================================================================
@@ -208,6 +217,7 @@ def record_assembly(
     *,
     assembled_at: Optional[datetime] = None,
     notes: Optional[str] = None,
+    event_id: Optional[int] = None,
     session=None,
 ) -> Dict[str, Any]:
     """
@@ -215,17 +225,19 @@ def record_assembly(
 
     This function atomically:
     1. Validates FinishedGood exists
-    2. Decrements FinishedUnit.inventory_count for FU components
-    3. Decrements FinishedGood.inventory_count for nested FG components
-    4. Consumes packaging via FIFO
-    5. Increments the target FinishedGood.inventory_count
-    6. Creates AssemblyRun and consumption ledger records
+    2. Validates event exists if provided (Feature 016)
+    3. Decrements FinishedUnit.inventory_count for FU components
+    4. Decrements FinishedGood.inventory_count for nested FG components
+    5. Consumes packaging via FIFO
+    6. Increments the target FinishedGood.inventory_count
+    7. Creates AssemblyRun and consumption ledger records
 
     Args:
         finished_good_id: ID of the FinishedGood being assembled
         quantity: Number of FinishedGoods to assemble
         assembled_at: Optional assembly timestamp (defaults to now)
         notes: Optional assembly notes
+        event_id: Optional event ID to link assembly to (Feature 016)
         session: Optional database session (uses session_scope if not provided)
 
     Returns:
@@ -237,18 +249,26 @@ def record_assembly(
             - "per_unit_cost": Decimal
             - "finished_unit_consumptions": List[Dict]
             - "packaging_consumptions": List[Dict]
+            - "event_id": Optional[int] - linked event ID (Feature 016)
 
     Raises:
         FinishedGoodNotFoundError: If finished good doesn't exist
         InsufficientFinishedUnitError: If FU inventory is insufficient
         InsufficientFinishedGoodError: If nested FG inventory is insufficient
         InsufficientPackagingError: If packaging inventory is insufficient
+        EventNotFoundError: If event_id is provided but event doesn't exist
     """
     with session_scope() as session:
         # Validate FinishedGood exists
         finished_good = session.query(FinishedGood).filter_by(id=finished_good_id).first()
         if not finished_good:
             raise FinishedGoodNotFoundError(finished_good_id)
+
+        # Feature 016: Validate event exists if event_id provided
+        if event_id is not None:
+            event = session.query(Event).filter_by(id=event_id).first()
+            if not event:
+                raise EventNotFoundError(event_id)
 
         # Query Composition for this FinishedGood's components
         compositions = (
@@ -358,6 +378,7 @@ def record_assembly(
             notes=notes,
             total_component_cost=total_component_cost,
             per_unit_cost=per_unit_cost,
+            event_id=event_id,  # Feature 016
         )
         session.add(assembly_run)
         session.flush()  # Get the ID
@@ -393,6 +414,7 @@ def record_assembly(
             "per_unit_cost": per_unit_cost,
             "finished_unit_consumptions": fu_consumptions,
             "packaging_consumptions": pkg_consumptions,
+            "event_id": event_id,  # Feature 016
         }
 
 

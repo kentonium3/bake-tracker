@@ -253,3 +253,26 @@ pytest src/tests/services/test_assembly_service.py -v
 
 - 2025-12-10T00:00:00Z - system - lane=planned - Prompt created.
 - 2025-12-11T02:49:35Z – claude – shell_pid=80123 – lane=doing – Started implementation - adding event_id params to services
+- 2025-12-11T03:45:00Z – claude – shell_pid=80123 – lane=doing – Completed all subtasks:
+  - T010: Added event_id parameter to BatchProductionService.record_batch_production()
+    - Added EventNotFoundError exception
+    - Added Event import
+    - Added optional event_id parameter with validation
+    - Added event_id to ProductionRun creation
+    - Added event_id to return value
+  - T011: Added event_id parameter to AssemblyService.record_assembly()
+    - Added EventNotFoundError exception
+    - Added Event import
+    - Added optional event_id parameter with validation
+    - Added event_id to AssemblyRun creation
+    - Added event_id to return value
+  - T012: Added TestRecordBatchProductionEventId test class with 3 tests:
+    - test_record_production_with_event_id (passes)
+    - test_record_production_without_event_id (passes)
+    - test_record_production_invalid_event_id (passes)
+  - T013: Added TestRecordAssemblyEventId test class with 3 tests:
+    - test_record_assembly_with_event_id (passes)
+    - test_record_assembly_without_event_id (passes)
+    - test_record_assembly_invalid_event_id (passes)
+  - All 6 event_id tests pass
+  - Note: 5 pre-existing failing tests unrelated to WP02 (exist on main branch)

@@ -22,15 +22,15 @@
 **Prompt**: `tasks/planned/WP01-model-layer-schema-changes.md`
 
 ### Included Subtasks
-- [ ] T001 Add `FulfillmentStatus` enum to `src/models/event.py`
-- [ ] T002 [P] Add `EventProductionTarget` model to `src/models/event.py` with unique constraint on (event_id, recipe_id)
-- [ ] T003 [P] Add `EventAssemblyTarget` model to `src/models/event.py` with unique constraint on (event_id, finished_good_id)
-- [ ] T004 Add `event_id` FK column to `src/models/production_run.py` (nullable, RESTRICT on delete)
-- [ ] T005 [P] Add `event_id` FK column to `src/models/assembly_run.py` (nullable, RESTRICT on delete)
-- [ ] T006 Add `fulfillment_status` column to `EventRecipientPackage` in `src/models/event.py`
-- [ ] T007 Add relationships to `Event` model: `production_runs`, `assembly_runs`, `production_targets`, `assembly_targets`
-- [ ] T008 Update `src/models/__init__.py` to export new classes: `FulfillmentStatus`, `EventProductionTarget`, `EventAssemblyTarget`
-- [ ] T009 Update `to_dict()` methods in ProductionRun and AssemblyRun to include event_id/event_name
+- [X] T001 Add `FulfillmentStatus` enum to `src/models/event.py`
+- [X] T002 [P] Add `EventProductionTarget` model to `src/models/event.py` with unique constraint on (event_id, recipe_id)
+- [X] T003 [P] Add `EventAssemblyTarget` model to `src/models/event.py` with unique constraint on (event_id, finished_good_id)
+- [X] T004 Add `event_id` FK column to `src/models/production_run.py` (nullable, RESTRICT on delete)
+- [X] T005 [P] Add `event_id` FK column to `src/models/assembly_run.py` (nullable, RESTRICT on delete)
+- [X] T006 Add `fulfillment_status` column to `EventRecipientPackage` in `src/models/event.py`
+- [X] T007 Add relationships to `Event` model: `production_runs`, `assembly_runs`, `production_targets`, `assembly_targets`
+- [X] T008 Update `src/models/__init__.py` to export new classes: `FulfillmentStatus`, `EventProductionTarget`, `EventAssemblyTarget`
+- [X] T009 Update `to_dict()` methods in ProductionRun and AssemblyRun to include event_id/event_name
 
 ### Implementation Notes
 1. Add FulfillmentStatus enum first (T001) as EventRecipientPackage depends on it
