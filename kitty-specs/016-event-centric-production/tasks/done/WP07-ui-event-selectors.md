@@ -8,7 +8,7 @@ subtasks:
   - "T040"
 title: "UI - Event Selectors"
 phase: "Phase 5 - UI Event Selectors"
-lane: "for_review"
+lane: "done"
 assignee: ""
 agent: "system"
 shell_pid: ""
@@ -265,3 +265,4 @@ SELECT id, finished_good_id, event_id FROM assembly_run ORDER BY id DESC LIMIT 5
 - 2025-12-10T00:00:00Z - system - lane=planned - Prompt created.
 - 2025-12-11T04:19:09Z – system – shell_pid= – lane=doing – Moved to doing
 - 2025-12-11T17:20:21Z – system – shell_pid= – lane=for_review – Moved to for_review
+- 2025-12-11T17:51:26Z – system – shell_pid= – lane=done – Code review approved - event selectors in both dialogs, syntax verified
