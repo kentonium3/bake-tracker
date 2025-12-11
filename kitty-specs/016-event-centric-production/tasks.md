@@ -216,11 +216,11 @@
 **Prompt**: `tasks/planned/WP07-ui-event-selectors.md`
 
 ### Included Subtasks
-- [ ] T036 Add event selector dropdown to `src/ui/forms/record_production_dialog.py`
-- [ ] T037 [P] Add event selector dropdown to `src/ui/forms/record_assembly_dialog.py`
-- [ ] T038 Implement event list loading sorted by event_date ascending
-- [ ] T039 Pass selected event_id to service methods on confirm
-- [ ] T040 Manual UI testing checklist
+- [X] T036 Add event selector dropdown to `src/ui/forms/record_production_dialog.py`
+- [X] T037 [P] Add event selector dropdown to `src/ui/forms/record_assembly_dialog.py`
+- [X] T038 Implement event list loading sorted by event_date ascending
+- [X] T039 Pass selected event_id to service methods on confirm
+- [X] T040 Manual UI testing checklist
 
 ### Implementation Notes
 1. Dropdown options: "(None - standalone)" + events sorted by event_date ascending
