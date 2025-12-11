@@ -247,15 +247,15 @@
 **Prompt**: `tasks/planned/WP08-ui-targets-tab.md`
 
 ### Included Subtasks
-- [ ] T041 Add "Targets" tab to `src/ui/event_detail_window.py` (after Assignments)
-- [ ] T042 Create Production Targets section with scrollable list
-- [ ] T043 [P] Create Assembly Targets section with scrollable list
-- [ ] T044 Implement progress display: CTkProgressBar + text label (e.g., "2/4 (50%)")
-- [ ] T045 Add "Add Production Target" dialog
-- [ ] T046 [P] Add "Add Assembly Target" dialog
-- [ ] T047 Implement edit/delete functionality for targets
-- [ ] T048 Implement refresh to update progress after production
-- [ ] T049 Manual UI testing checklist
+- [X] T041 Add "Targets" tab to `src/ui/event_detail_window.py` (after Assignments)
+- [X] T042 Create Production Targets section with scrollable list
+- [X] T043 [P] Create Assembly Targets section with scrollable list
+- [X] T044 Implement progress display: CTkProgressBar + text label (e.g., "2/4 (50%)")
+- [X] T045 Add "Add Production Target" dialog
+- [X] T046 [P] Add "Add Assembly Target" dialog
+- [X] T047 Implement edit/delete functionality for targets
+- [X] T048 Implement refresh to update progress after production
+- [X] T049 Manual UI testing checklist
 
 ### Implementation Notes
 1. Insert Targets tab after Assignments (index 1)

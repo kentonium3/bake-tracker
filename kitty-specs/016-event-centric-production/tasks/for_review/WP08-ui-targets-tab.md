@@ -12,10 +12,10 @@ subtasks:
   - "T049"
 title: "UI - Targets Tab"
 phase: "Phase 6 - UI Targets Tab"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "claude"
-shell_pid: "93900"
+shell_pid: "94501"
 review_status: ""
 reviewed_by: ""
 history:
@@ -424,3 +424,4 @@ history:
 
 - 2025-12-10T00:00:00Z - system - lane=planned - Prompt created.
 - 2025-12-11T17:29:25Z – claude – shell_pid=93900 – lane=doing – Started implementation of UI Targets Tab
+- 2025-12-11T17:32:17Z – claude – shell_pid=94501 – lane=for_review – Ready for review - all subtasks implemented
