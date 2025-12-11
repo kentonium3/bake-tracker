@@ -1945,3 +1945,118 @@ def get_event_overall_progress(event_id: int) -> Dict[str, Any]:
 
     except SQLAlchemyError as e:
         raise DatabaseError(f"Failed to get event overall progress: {str(e)}")
+
+
+# ============================================================================
+# Feature 016: Fulfillment Status Management
+# ============================================================================
+
+
+def update_fulfillment_status(
+    event_recipient_package_id: int,
+    new_status: FulfillmentStatus,
+) -> EventRecipientPackage:
+    """
+    Update package fulfillment status with sequential workflow enforcement.
+
+    Valid transitions:
+      pending -> ready
+      ready -> delivered
+
+    Args:
+        event_recipient_package_id: Package assignment ID
+        new_status: New status to transition to
+
+    Returns:
+        Updated EventRecipientPackage instance
+
+    Raises:
+        ValueError: If package not found or transition is invalid
+        DatabaseError: If database operation fails
+    """
+    # Define valid transitions
+    valid_transitions = {
+        FulfillmentStatus.PENDING: [FulfillmentStatus.READY],
+        FulfillmentStatus.READY: [FulfillmentStatus.DELIVERED],
+        FulfillmentStatus.DELIVERED: [],
+    }
+
+    try:
+        with session_scope() as session:
+            package = (
+                session.query(EventRecipientPackage)
+                .filter_by(id=event_recipient_package_id)
+                .first()
+            )
+
+            if not package:
+                raise ValueError(
+                    f"Package with id {event_recipient_package_id} not found"
+                )
+
+            current_status = FulfillmentStatus(package.fulfillment_status)
+
+            if new_status not in valid_transitions[current_status]:
+                allowed = [s.value for s in valid_transitions[current_status]]
+                raise ValueError(
+                    f"Invalid transition: {current_status.value} -> {new_status.value}. "
+                    f"Allowed: {allowed}"
+                )
+
+            package.fulfillment_status = new_status.value
+            session.flush()
+
+            # Reload with relationships
+            package = (
+                session.query(EventRecipientPackage)
+                .options(
+                    joinedload(EventRecipientPackage.recipient),
+                    joinedload(EventRecipientPackage.package),
+                )
+                .filter(EventRecipientPackage.id == event_recipient_package_id)
+                .one()
+            )
+            return package
+
+    except ValueError:
+        raise
+    except SQLAlchemyError as e:
+        raise DatabaseError(f"Failed to update fulfillment status: {str(e)}")
+
+
+def get_packages_by_status(
+    event_id: int,
+    status: Optional[FulfillmentStatus] = None,
+) -> List[EventRecipientPackage]:
+    """
+    Get packages filtered by fulfillment status (or all if None).
+
+    Eager loads recipient and package relationships for UI display.
+
+    Args:
+        event_id: Event ID
+        status: Optional status to filter by (None returns all)
+
+    Returns:
+        List of EventRecipientPackage instances
+    """
+    try:
+        with session_scope() as session:
+            query = (
+                session.query(EventRecipientPackage)
+                .options(
+                    joinedload(EventRecipientPackage.recipient),
+                    joinedload(EventRecipientPackage.package),
+                )
+                .filter_by(event_id=event_id)
+            )
+
+            if status is not None:
+                query = query.filter(
+                    EventRecipientPackage.fulfillment_status == status.value
+                )
+
+            return query.all()
+
+    except SQLAlchemyError as e:
+        raise DatabaseError(f"Failed to get packages by status: {str(e)}")

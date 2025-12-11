@@ -6,9 +6,9 @@ subtasks:
   - "T027"
 title: "Service Layer - Fulfillment Status"
 phase: "Phase 3 - Progress & Fulfillment"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
+agent: "system"
 shell_pid: ""
 review_status: ""
 reviewed_by: ""
@@ -276,3 +276,11 @@ pytest src/tests/services/test_event_service_fulfillment.py -v
 ## Activity Log
 
 - 2025-12-10T00:00:00Z - system - lane=planned - Prompt created.
+- 2025-12-11T04:08:37Z – system – shell_pid= – lane=doing – Moved to doing
+- 2025-12-11T04:15:00Z – claude – shell_pid=85015 – lane=doing – Completed all subtasks:
+  - T025: Implemented update_fulfillment_status() with transition validation
+  - T026: Implemented get_packages_by_status() with eager loading
+  - T027: Created test_event_service_fulfillment.py with 12 tests:
+    - TestFulfillmentStatusTransitions: 6 tests (pending->ready, ready->delivered, skip, terminal, backwards, not found)
+    - TestGetPackagesByStatus: 6 tests (filter pending, ready, delivered, all, empty, eager load)
+  - All 12 tests pass
