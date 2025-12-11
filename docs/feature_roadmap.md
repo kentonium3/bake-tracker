@@ -32,11 +32,7 @@
 
 ## In Progress
 
-| # | Name | Priority | Status |
-|---|------|----------|--------|
-| BUGFIX | Session Management Remediation | **CRITICAL** | Specification complete, implementation pending |
-
-**Note:** Critical bug fix identified during Feature 016 code review. Will be implemented via direct bugfix branch.
+*No features currently in progress.*
 
 ---
 
@@ -44,7 +40,7 @@
 
 | # | Name | Priority | Dependencies | Status |
 |---|------|----------|--------------|--------|
-| 017 | Reporting & Event Planning | MEDIUM | BUGFIX | Ready after bugfix |
+| 017 | Reporting & Event Planning | MEDIUM | - | Ready |
 | 018 | Event Production Dashboard | MEDIUM | 017 | - |
 | 019 | Packaging & Distribution | LOW | - | - |
 
@@ -52,7 +48,7 @@
 
 ## Implementation Order
 
-**Current:** Session Management Bugfix
+**Current:** Ready for new features
 
 1. ~~**TD-001** - Clean foundation before adding new entities~~ ✅ COMPLETE
 2. ~~**Feature 011** - Packaging materials, extend Composition for packaging~~ ✅ COMPLETE
@@ -60,7 +56,7 @@
 4. ~~**Feature 013** - BatchProductionService, AssemblyService, consumption ledgers~~ ✅ COMPLETE
 5. ~~**Feature 014** - Production UI, Record Production/Assembly dialogs~~ ✅ COMPLETE
 6. ~~**Feature 016** - Event-Centric Production Model~~ ✅ COMPLETE
-7. **BUGFIX** - Session Management Remediation ← **IN PROGRESS**
+7. ~~**BUGFIX** - Session Management Remediation~~ ✅ COMPLETE
 8. **Feature 017** - Reporting and Event Planning
 9. **Feature 018** - Event Production Dashboard
 10. **Feature 019** - Packaging & Distribution
@@ -95,20 +91,17 @@
 
 ### BUGFIX: Session Management Remediation
 
-**Status:** Specification complete, implementation pending
+**Status:** COMPLETE ✅ (2025-12-11)
 
-**Problem:** Code review during Feature 016 revealed critical architectural flaw: nested `session_scope()` calls cause SQLAlchemy objects to become detached, resulting in silent data loss.
+**Problem Solved:** Code review during Feature 016 revealed critical architectural flaw: nested `session_scope()` calls cause SQLAlchemy objects to become detached, resulting in silent data loss.
 
-**Impact:** 5 test failures were caused by this issue in `batch_production_service.py`. The same pattern exists unfixed in `assembly_service.py`.
-
-**Scope:**
-- Fix `assembly_service.py` to pass session through call chain (same fix as batch_production)
-- Fix `check_can_produce()` and `check_can_assemble()` to use session parameter
-- Add rollback tests for multi-step operations
+**Delivered:**
+- Fixed `assembly_service.py` to pass session through call chain
+- Fixed `check_can_produce()` and `check_can_assemble()` to use session parameter
+- Rollback tests already existed (TestTransactionAtomicity, TestAssemblyTransactionAtomicity)
+- All 680 tests pass
 
 **Specification:** `docs/design/session_management_remediation_spec.md`
-
-**Note:** This is a bug fix, not a feature. Will be implemented via direct bugfix branch.
 
 ---
 

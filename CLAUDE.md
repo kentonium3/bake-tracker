@@ -166,11 +166,15 @@ def inner_function(..., session=None):
 
 ### Functions That Accept Session Parameter
 
-These functions have been updated to accept an optional `session` parameter:
+These functions have been updated to accept an optional `session` parameter and correctly use it:
 - `recipe_service.get_aggregated_ingredients()`
 - `ingredient_service.get_ingredient()`
 - `inventory_item_service.consume_fifo()` (always had it)
+- `batch_production_service.check_can_produce()` - fixed 2025-12-11
+- `batch_production_service.record_batch_production()` - already correct
+- `assembly_service.check_can_assemble()` - fixed 2025-12-11
+- `assembly_service.record_assembly()` - fixed 2025-12-11
 
 ### Reference
 
-See `docs/design/session_management_remediation_spec.md` for full technical details and the remediation plan.
+See `docs/design/session_management_remediation_spec.md` for full technical details.

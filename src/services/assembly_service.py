@@ -131,79 +131,92 @@ def check_can_assemble(
     Raises:
         FinishedGoodNotFoundError: If finished good doesn't exist
     """
+    # Use provided session or create a new one
+    if session is not None:
+        return _check_can_assemble_impl(finished_good_id, quantity, session)
     with session_scope() as session:
-        # Validate FinishedGood exists
-        finished_good = session.query(FinishedGood).filter_by(id=finished_good_id).first()
-        if not finished_good:
-            raise FinishedGoodNotFoundError(finished_good_id)
+        return _check_can_assemble_impl(finished_good_id, quantity, session)
 
-        # Query Composition for this FinishedGood's components
-        compositions = (
-            session.query(Composition)
-            .filter(Composition.assembly_id == finished_good_id)
-            .all()
-        )
 
-        missing = []
+def _check_can_assemble_impl(
+    finished_good_id: int,
+    quantity: int,
+    session,
+) -> Dict[str, Any]:
+    """Implementation of check_can_assemble that uses provided session."""
+    # Validate FinishedGood exists
+    finished_good = session.query(FinishedGood).filter_by(id=finished_good_id).first()
+    if not finished_good:
+        raise FinishedGoodNotFoundError(finished_good_id)
 
-        for comp in compositions:
-            if comp.finished_unit_id:
-                # FinishedUnit component
-                fu = session.query(FinishedUnit).filter_by(id=comp.finished_unit_id).first()
-                if fu:
-                    needed = int(comp.component_quantity * quantity)
-                    if fu.inventory_count < needed:
-                        missing.append(
-                            {
-                                "component_type": "finished_unit",
-                                "component_id": fu.id,
-                                "component_name": fu.display_name,
-                                "needed": needed,
-                                "available": fu.inventory_count,
-                            }
-                        )
+    # Query Composition for this FinishedGood's components
+    compositions = (
+        session.query(Composition)
+        .filter(Composition.assembly_id == finished_good_id)
+        .all()
+    )
 
-            elif comp.finished_good_id:
-                # FinishedGood component (nested assembly)
-                nested_fg = session.query(FinishedGood).filter_by(id=comp.finished_good_id).first()
-                if nested_fg:
-                    needed = int(comp.component_quantity * quantity)
-                    if nested_fg.inventory_count < needed:
-                        missing.append(
-                            {
-                                "component_type": "finished_good",
-                                "component_id": nested_fg.id,
-                                "component_name": nested_fg.display_name,
-                                "needed": needed,
-                                "available": nested_fg.inventory_count,
-                            }
-                        )
+    missing = []
 
-            elif comp.packaging_product_id:
-                # Packaging product - check via consume_fifo dry_run
-                product = session.query(Product).filter_by(id=comp.packaging_product_id).first()
-                if product and product.ingredient:
-                    ingredient_slug = product.ingredient.slug
-                    needed = Decimal(str(comp.component_quantity * quantity))
-                    result = inventory_item_service.consume_fifo(
-                        ingredient_slug, needed, dry_run=True
+    for comp in compositions:
+        if comp.finished_unit_id:
+            # FinishedUnit component
+            fu = session.query(FinishedUnit).filter_by(id=comp.finished_unit_id).first()
+            if fu:
+                needed = int(comp.component_quantity * quantity)
+                if fu.inventory_count < needed:
+                    missing.append(
+                        {
+                            "component_type": "finished_unit",
+                            "component_id": fu.id,
+                            "component_name": fu.display_name,
+                            "needed": needed,
+                            "available": fu.inventory_count,
+                        }
                     )
-                    if not result["satisfied"]:
-                        missing.append(
-                            {
-                                "component_type": "packaging",
-                                "component_id": product.id,
-                                "component_name": product.display_name,
-                                "needed": needed,
-                                "available": result["consumed"],
-                                "unit": product.ingredient.recipe_unit,
-                            }
-                        )
 
-        return {
-            "can_assemble": len(missing) == 0,
-            "missing": missing,
-        }
+        elif comp.finished_good_id:
+            # FinishedGood component (nested assembly)
+            nested_fg = session.query(FinishedGood).filter_by(id=comp.finished_good_id).first()
+            if nested_fg:
+                needed = int(comp.component_quantity * quantity)
+                if nested_fg.inventory_count < needed:
+                    missing.append(
+                        {
+                            "component_type": "finished_good",
+                            "component_id": nested_fg.id,
+                            "component_name": nested_fg.display_name,
+                            "needed": needed,
+                            "available": nested_fg.inventory_count,
+                        }
+                    )
+
+        elif comp.packaging_product_id:
+            # Packaging product - check via consume_fifo dry_run
+            # Pass session to maintain transactional consistency
+            product = session.query(Product).filter_by(id=comp.packaging_product_id).first()
+            if product and product.ingredient:
+                ingredient_slug = product.ingredient.slug
+                needed = Decimal(str(comp.component_quantity * quantity))
+                result = inventory_item_service.consume_fifo(
+                    ingredient_slug, needed, dry_run=True, session=session
+                )
+                if not result["satisfied"]:
+                    missing.append(
+                        {
+                            "component_type": "packaging",
+                            "component_id": product.id,
+                            "component_name": product.display_name,
+                            "needed": needed,
+                            "available": result["consumed"],
+                            "unit": product.ingredient.recipe_unit,
+                        }
+                    )
+
+    return {
+        "can_assemble": len(missing) == 0,
+        "missing": missing,
+    }
 
 
 # =============================================================================
@@ -258,164 +271,183 @@ def record_assembly(
         InsufficientPackagingError: If packaging inventory is insufficient
         EventNotFoundError: If event_id is provided but event doesn't exist
     """
+    # Use provided session or create a new one
+    if session is not None:
+        return _record_assembly_impl(
+            finished_good_id, quantity, assembled_at, notes, event_id, session
+        )
     with session_scope() as session:
-        # Validate FinishedGood exists
-        finished_good = session.query(FinishedGood).filter_by(id=finished_good_id).first()
-        if not finished_good:
-            raise FinishedGoodNotFoundError(finished_good_id)
-
-        # Feature 016: Validate event exists if event_id provided
-        if event_id is not None:
-            event = session.query(Event).filter_by(id=event_id).first()
-            if not event:
-                raise EventNotFoundError(event_id)
-
-        # Query Composition for this FinishedGood's components
-        compositions = (
-            session.query(Composition)
-            .filter(Composition.assembly_id == finished_good_id)
-            .all()
+        return _record_assembly_impl(
+            finished_good_id, quantity, assembled_at, notes, event_id, session
         )
 
-        # Track consumption data
-        total_component_cost = Decimal("0.0000")
-        fu_consumptions = []
-        pkg_consumptions = []
 
-        # Process each component
-        for comp in compositions:
-            if comp.finished_unit_id:
-                # FinishedUnit component - decrement inventory_count
-                fu = session.query(FinishedUnit).filter_by(id=comp.finished_unit_id).first()
-                if fu:
-                    needed = int(comp.component_quantity * quantity)
-                    if fu.inventory_count < needed:
-                        raise InsufficientFinishedUnitError(
-                            fu.id, needed, fu.inventory_count
-                        )
+def _record_assembly_impl(
+    finished_good_id: int,
+    quantity: int,
+    assembled_at: Optional[datetime],
+    notes: Optional[str],
+    event_id: Optional[int],
+    session,
+) -> Dict[str, Any]:
+    """Implementation of record_assembly that uses provided session."""
+    # Validate FinishedGood exists
+    finished_good = session.query(FinishedGood).filter_by(id=finished_good_id).first()
+    if not finished_good:
+        raise FinishedGoodNotFoundError(finished_good_id)
 
-                    # Capture cost before decrementing
-                    unit_cost = fu.unit_cost or Decimal("0.0000")
-                    cost = unit_cost * Decimal(str(needed))
+    # Feature 016: Validate event exists if event_id provided
+    if event_id is not None:
+        event = session.query(Event).filter_by(id=event_id).first()
+        if not event:
+            raise EventNotFoundError(event_id)
 
-                    fu.inventory_count -= needed
-                    total_component_cost += cost
+    # Query Composition for this FinishedGood's components
+    compositions = (
+        session.query(Composition)
+        .filter(Composition.assembly_id == finished_good_id)
+        .all()
+    )
 
-                    fu_consumptions.append(
-                        {
-                            "finished_unit_id": fu.id,
-                            "quantity_consumed": needed,
-                            "unit_cost_at_consumption": unit_cost,
-                            "total_cost": cost,
-                        }
+    # Track consumption data
+    total_component_cost = Decimal("0.0000")
+    fu_consumptions = []
+    pkg_consumptions = []
+
+    # Process each component
+    for comp in compositions:
+        if comp.finished_unit_id:
+            # FinishedUnit component - decrement inventory_count
+            fu = session.query(FinishedUnit).filter_by(id=comp.finished_unit_id).first()
+            if fu:
+                needed = int(comp.component_quantity * quantity)
+                if fu.inventory_count < needed:
+                    raise InsufficientFinishedUnitError(
+                        fu.id, needed, fu.inventory_count
                     )
 
-            elif comp.finished_good_id:
-                # FinishedGood component (nested assembly) - decrement inventory_count
-                # KNOWN LIMITATION: No consumption ledger entry is created for nested FGs.
-                # See docs/known_limitations.md for details and future enhancement plan.
-                nested_fg = session.query(FinishedGood).filter_by(id=comp.finished_good_id).first()
-                if nested_fg:
-                    needed = int(comp.component_quantity * quantity)
-                    if nested_fg.inventory_count < needed:
-                        raise InsufficientFinishedGoodError(
-                            nested_fg.id, needed, nested_fg.inventory_count
-                        )
+                # Capture cost before decrementing
+                unit_cost = fu.unit_cost or Decimal("0.0000")
+                cost = unit_cost * Decimal(str(needed))
 
-                    # Capture cost (FinishedGood uses total_cost as unit cost)
-                    unit_cost = nested_fg.total_cost or Decimal("0.0000")
-                    cost = unit_cost * Decimal(str(needed))
+                fu.inventory_count -= needed
+                total_component_cost += cost
 
-                    nested_fg.inventory_count -= needed
-                    total_component_cost += cost
+                fu_consumptions.append(
+                    {
+                        "finished_unit_id": fu.id,
+                        "quantity_consumed": needed,
+                        "unit_cost_at_consumption": unit_cost,
+                        "total_cost": cost,
+                    }
+                )
 
-            elif comp.packaging_product_id:
-                # Packaging product - consume via FIFO (same session for atomicity)
-                product = session.query(Product).filter_by(id=comp.packaging_product_id).first()
-                if product and product.ingredient:
-                    ingredient = product.ingredient
-
-                    # Validate that the ingredient is marked as packaging material
-                    if not getattr(ingredient, 'is_packaging', False):
-                        raise ValueError(
-                            f"Product '{product.display_name}' ({ingredient.display_name}) "
-                            f"is not marked as packaging material"
-                        )
-
-                    ingredient_slug = ingredient.slug
-                    needed = Decimal(str(comp.component_quantity * quantity))
-
-                    # Pass session for atomic transaction
-                    result = inventory_item_service.consume_fifo(
-                        ingredient_slug, needed, dry_run=False, session=session
-                    )
-                    if not result["satisfied"]:
-                        raise InsufficientPackagingError(
-                            product.id, needed, result["consumed"]
-                        )
-
-                    total_component_cost += result["total_cost"]
-                    pkg_consumptions.append(
-                        {
-                            "product_id": product.id,
-                            "quantity_consumed": needed,
-                            "unit": product.ingredient.recipe_unit,
-                            "total_cost": result["total_cost"],
-                        }
+        elif comp.finished_good_id:
+            # FinishedGood component (nested assembly) - decrement inventory_count
+            # KNOWN LIMITATION: No consumption ledger entry is created for nested FGs.
+            # See docs/known_limitations.md for details and future enhancement plan.
+            nested_fg = session.query(FinishedGood).filter_by(id=comp.finished_good_id).first()
+            if nested_fg:
+                needed = int(comp.component_quantity * quantity)
+                if nested_fg.inventory_count < needed:
+                    raise InsufficientFinishedGoodError(
+                        nested_fg.id, needed, nested_fg.inventory_count
                     )
 
-        # Increment FinishedGood inventory (same session, atomic with consumption)
-        finished_good.inventory_count += quantity
+                # Capture cost (FinishedGood uses total_cost as unit cost)
+                unit_cost = nested_fg.total_cost or Decimal("0.0000")
+                cost = unit_cost * Decimal(str(needed))
 
-        # Calculate per-unit cost
-        per_unit_cost = total_component_cost / Decimal(str(quantity)) if quantity > 0 else Decimal("0.0000")
+                nested_fg.inventory_count -= needed
+                total_component_cost += cost
 
-        # Create AssemblyRun record
-        assembly_run = AssemblyRun(
-            finished_good_id=finished_good_id,
-            quantity_assembled=quantity,
-            assembled_at=assembled_at or datetime.utcnow(),
-            notes=notes,
-            total_component_cost=total_component_cost,
-            per_unit_cost=per_unit_cost,
-            event_id=event_id,  # Feature 016
+        elif comp.packaging_product_id:
+            # Packaging product - consume via FIFO (same session for atomicity)
+            product = session.query(Product).filter_by(id=comp.packaging_product_id).first()
+            if product and product.ingredient:
+                ingredient = product.ingredient
+
+                # Validate that the ingredient is marked as packaging material
+                if not getattr(ingredient, 'is_packaging', False):
+                    raise ValueError(
+                        f"Product '{product.display_name}' ({ingredient.display_name}) "
+                        f"is not marked as packaging material"
+                    )
+
+                ingredient_slug = ingredient.slug
+                needed = Decimal(str(comp.component_quantity * quantity))
+
+                # Pass session for atomic transaction
+                result = inventory_item_service.consume_fifo(
+                    ingredient_slug, needed, dry_run=False, session=session
+                )
+                if not result["satisfied"]:
+                    raise InsufficientPackagingError(
+                        product.id, needed, result["consumed"]
+                    )
+
+                total_component_cost += result["total_cost"]
+                pkg_consumptions.append(
+                    {
+                        "product_id": product.id,
+                        "quantity_consumed": needed,
+                        "unit": product.ingredient.recipe_unit,
+                        "total_cost": result["total_cost"],
+                    }
+                )
+
+    # Increment FinishedGood inventory (same session, atomic with consumption)
+    finished_good.inventory_count += quantity
+
+    # Calculate per-unit cost
+    per_unit_cost = total_component_cost / Decimal(str(quantity)) if quantity > 0 else Decimal("0.0000")
+
+    # Create AssemblyRun record
+    assembly_run = AssemblyRun(
+        finished_good_id=finished_good_id,
+        quantity_assembled=quantity,
+        assembled_at=assembled_at or datetime.utcnow(),
+        notes=notes,
+        total_component_cost=total_component_cost,
+        per_unit_cost=per_unit_cost,
+        event_id=event_id,  # Feature 016
+    )
+    session.add(assembly_run)
+    session.flush()  # Get the ID
+
+    # Create consumption ledger records
+    for fu_data in fu_consumptions:
+        consumption = AssemblyFinishedUnitConsumption(
+            assembly_run_id=assembly_run.id,
+            finished_unit_id=fu_data["finished_unit_id"],
+            quantity_consumed=fu_data["quantity_consumed"],
+            unit_cost_at_consumption=fu_data["unit_cost_at_consumption"],
+            total_cost=fu_data["total_cost"],
         )
-        session.add(assembly_run)
-        session.flush()  # Get the ID
+        session.add(consumption)
 
-        # Create consumption ledger records
-        for fu_data in fu_consumptions:
-            consumption = AssemblyFinishedUnitConsumption(
-                assembly_run_id=assembly_run.id,
-                finished_unit_id=fu_data["finished_unit_id"],
-                quantity_consumed=fu_data["quantity_consumed"],
-                unit_cost_at_consumption=fu_data["unit_cost_at_consumption"],
-                total_cost=fu_data["total_cost"],
-            )
-            session.add(consumption)
+    for pkg_data in pkg_consumptions:
+        consumption = AssemblyPackagingConsumption(
+            assembly_run_id=assembly_run.id,
+            product_id=pkg_data["product_id"],
+            quantity_consumed=pkg_data["quantity_consumed"],
+            unit=pkg_data["unit"],
+            total_cost=pkg_data["total_cost"],
+        )
+        session.add(consumption)
 
-        for pkg_data in pkg_consumptions:
-            consumption = AssemblyPackagingConsumption(
-                assembly_run_id=assembly_run.id,
-                product_id=pkg_data["product_id"],
-                quantity_consumed=pkg_data["quantity_consumed"],
-                unit=pkg_data["unit"],
-                total_cost=pkg_data["total_cost"],
-            )
-            session.add(consumption)
+    # Commit happens automatically via session_scope
 
-        # Commit happens automatically via session_scope
-
-        return {
-            "assembly_run_id": assembly_run.id,
-            "finished_good_id": finished_good_id,
-            "quantity_assembled": quantity,
-            "total_component_cost": total_component_cost,
-            "per_unit_cost": per_unit_cost,
-            "finished_unit_consumptions": fu_consumptions,
-            "packaging_consumptions": pkg_consumptions,
-            "event_id": event_id,  # Feature 016
-        }
+    return {
+        "assembly_run_id": assembly_run.id,
+        "finished_good_id": finished_good_id,
+        "quantity_assembled": quantity,
+        "total_component_cost": total_component_cost,
+        "per_unit_cost": per_unit_cost,
+        "finished_unit_consumptions": fu_consumptions,
+        "packaging_consumptions": pkg_consumptions,
+        "event_id": event_id,  # Feature 016
+    }
 
 
 # =============================================================================

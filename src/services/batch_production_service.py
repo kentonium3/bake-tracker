@@ -118,48 +118,61 @@ def check_can_produce(
     Raises:
         RecipeNotFoundError: If recipe doesn't exist
     """
+    # Use provided session or create a new one
+    if session is not None:
+        return _check_can_produce_impl(recipe_id, num_batches, session)
     with session_scope() as session:
-        # Validate recipe exists
-        recipe = session.query(Recipe).filter_by(id=recipe_id).first()
-        if not recipe:
-            raise RecipeNotFoundError(recipe_id)
+        return _check_can_produce_impl(recipe_id, num_batches, session)
 
-        # Get aggregated ingredients (handles nested recipes)
-        try:
-            aggregated = get_aggregated_ingredients(recipe_id, multiplier=num_batches)
-        except Exception as e:
-            raise RecipeNotFoundError(recipe_id) from e
 
-        missing = []
+def _check_can_produce_impl(
+    recipe_id: int,
+    num_batches: int,
+    session,
+) -> Dict[str, Any]:
+    """Implementation of check_can_produce that uses provided session."""
+    # Validate recipe exists
+    recipe = session.query(Recipe).filter_by(id=recipe_id).first()
+    if not recipe:
+        raise RecipeNotFoundError(recipe_id)
 
-        for item in aggregated:
-            ingredient = item["ingredient"]
-            ingredient_slug = ingredient.slug
-            ingredient_name = ingredient.display_name
-            quantity_needed = Decimal(str(item["total_quantity"]))
-            unit = item["unit"]
+    # Get aggregated ingredients (handles nested recipes)
+    # Pass session to maintain transactional consistency
+    try:
+        aggregated = get_aggregated_ingredients(recipe_id, multiplier=num_batches, session=session)
+    except Exception as e:
+        raise RecipeNotFoundError(recipe_id) from e
 
-            # Perform dry-run FIFO check
-            result = inventory_item_service.consume_fifo(
-                ingredient_slug, quantity_needed, dry_run=True
+    missing = []
+
+    for item in aggregated:
+        ingredient = item["ingredient"]
+        ingredient_slug = ingredient.slug
+        ingredient_name = ingredient.display_name
+        quantity_needed = Decimal(str(item["total_quantity"]))
+        unit = item["unit"]
+
+        # Perform dry-run FIFO check - pass session for consistency
+        result = inventory_item_service.consume_fifo(
+            ingredient_slug, quantity_needed, dry_run=True, session=session
+        )
+
+        if not result["satisfied"]:
+            available = result["consumed"]
+            missing.append(
+                {
+                    "ingredient_slug": ingredient_slug,
+                    "ingredient_name": ingredient_name,
+                    "needed": quantity_needed,
+                    "available": available,
+                    "unit": unit,
+                }
             )
 
-            if not result["satisfied"]:
-                available = result["consumed"]
-                missing.append(
-                    {
-                        "ingredient_slug": ingredient_slug,
-                        "ingredient_name": ingredient_name,
-                        "needed": quantity_needed,
-                        "available": available,
-                        "unit": unit,
-                    }
-                )
-
-        return {
-            "can_produce": len(missing) == 0,
-            "missing": missing,
-        }
+    return {
+        "can_produce": len(missing) == 0,
+        "missing": missing,
+    }
 
 
 # =============================================================================
