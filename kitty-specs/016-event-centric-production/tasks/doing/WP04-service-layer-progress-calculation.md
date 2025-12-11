@@ -7,10 +7,10 @@ subtasks:
   - "T024"
 title: "Service Layer - Progress Calculation"
 phase: "Phase 3 - Progress & Fulfillment"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "claude"
+shell_pid: "85015"
 review_status: ""
 reviewed_by: ""
 history:
@@ -362,3 +362,13 @@ pytest src/tests/services/test_event_service_progress.py -v
 ## Activity Log
 
 - 2025-12-10T00:00:00Z - system - lane=planned - Prompt created.
+- 2025-12-11T04:03:42Z – claude – shell_pid=85015 – lane=doing – Started implementation - progress calculation service
+- 2025-12-11T04:30:00Z – claude – shell_pid=85015 – lane=doing – Completed all subtasks:
+  - T021: Implemented get_production_progress() with aggregate queries
+  - T022: Implemented get_assembly_progress() with aggregate queries
+  - T023: Implemented get_event_overall_progress() combining all metrics
+  - T024: Created test_event_service_progress.py with 17 tests:
+    - TestProductionProgress: 7 tests (0%, 50%, 100%, 125%, event filtering, empty, multiple)
+    - TestAssemblyProgress: 6 tests (0%, 50%, 100%, 125%, event filtering, empty)
+    - TestOverallProgress: 4 tests (no targets, production counts, package counts, mixed)
+  - All 17 tests pass

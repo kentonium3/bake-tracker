@@ -29,6 +29,9 @@ from src.models import (
     EventRecipientPackage,
     EventProductionTarget,
     EventAssemblyTarget,
+    FulfillmentStatus,
+    ProductionRun,
+    AssemblyRun,
     Recipient,
     Package,
     PackageFinishedGood,
@@ -1700,3 +1703,245 @@ def delete_assembly_target(event_id: int, finished_good_id: int) -> bool:
 
     except SQLAlchemyError as e:
         raise DatabaseError(f"Failed to delete assembly target: {str(e)}")
+
+
+# ============================================================================
+# Feature 016: Progress Calculation
+# ============================================================================
+
+
+def get_production_progress(event_id: int) -> List[Dict[str, Any]]:
+    """
+    Get production progress for all targets in an event.
+
+    Calculates how many batches have been produced for each target recipe,
+    only counting production runs that are linked to this specific event.
+
+    Args:
+        event_id: Event ID
+
+    Returns:
+        List of dicts with:
+        - recipe: Recipe instance
+        - recipe_name: str
+        - target_batches: int
+        - produced_batches: int
+        - produced_yield: int
+        - progress_pct: float (can exceed 100%)
+        - is_complete: bool
+    """
+    try:
+        with session_scope() as session:
+            # Get all targets for this event
+            targets = (
+                session.query(EventProductionTarget)
+                .options(joinedload(EventProductionTarget.recipe))
+                .filter_by(event_id=event_id)
+                .all()
+            )
+
+            results = []
+            for target in targets:
+                # Sum production runs for this recipe and event
+                produced = (
+                    session.query(
+                        func.coalesce(func.sum(ProductionRun.num_batches), 0),
+                        func.coalesce(func.sum(ProductionRun.actual_yield), 0),
+                    )
+                    .filter(
+                        ProductionRun.recipe_id == target.recipe_id,
+                        ProductionRun.event_id == event_id,
+                    )
+                    .first()
+                )
+
+                produced_batches = int(produced[0]) if produced[0] else 0
+                produced_yield = int(produced[1]) if produced[1] else 0
+                progress_pct = (produced_batches / target.target_batches) * 100
+
+                results.append(
+                    {
+                        "recipe": target.recipe,
+                        "recipe_name": target.recipe.name,
+                        "target_batches": target.target_batches,
+                        "produced_batches": produced_batches,
+                        "produced_yield": produced_yield,
+                        "progress_pct": progress_pct,
+                        "is_complete": produced_batches >= target.target_batches,
+                    }
+                )
+
+            return results
+
+    except SQLAlchemyError as e:
+        raise DatabaseError(f"Failed to get production progress: {str(e)}")
+
+
+def get_assembly_progress(event_id: int) -> List[Dict[str, Any]]:
+    """
+    Get assembly progress for all targets in an event.
+
+    Calculates how many units have been assembled for each target finished good,
+    only counting assembly runs that are linked to this specific event.
+
+    Args:
+        event_id: Event ID
+
+    Returns:
+        List of dicts with:
+        - finished_good: FinishedGood instance
+        - finished_good_name: str
+        - target_quantity: int
+        - assembled_quantity: int
+        - progress_pct: float (can exceed 100%)
+        - is_complete: bool
+    """
+    try:
+        with session_scope() as session:
+            # Get all targets for this event
+            targets = (
+                session.query(EventAssemblyTarget)
+                .options(joinedload(EventAssemblyTarget.finished_good))
+                .filter_by(event_id=event_id)
+                .all()
+            )
+
+            results = []
+            for target in targets:
+                # Sum assembly runs for this finished good and event
+                assembled = (
+                    session.query(
+                        func.coalesce(func.sum(AssemblyRun.quantity_assembled), 0)
+                    )
+                    .filter(
+                        AssemblyRun.finished_good_id == target.finished_good_id,
+                        AssemblyRun.event_id == event_id,
+                    )
+                    .scalar()
+                )
+
+                assembled_qty = int(assembled) if assembled else 0
+                progress_pct = (assembled_qty / target.target_quantity) * 100
+
+                results.append(
+                    {
+                        "finished_good": target.finished_good,
+                        "finished_good_name": target.finished_good.display_name,
+                        "target_quantity": target.target_quantity,
+                        "assembled_quantity": assembled_qty,
+                        "progress_pct": progress_pct,
+                        "is_complete": assembled_qty >= target.target_quantity,
+                    }
+                )
+
+            return results
+
+    except SQLAlchemyError as e:
+        raise DatabaseError(f"Failed to get assembly progress: {str(e)}")
+
+
+def get_event_overall_progress(event_id: int) -> Dict[str, Any]:
+    """
+    Get overall progress summary for an event.
+
+    Aggregates production progress, assembly progress, and package fulfillment
+    status into a single summary.
+
+    Args:
+        event_id: Event ID
+
+    Returns:
+        Dict with:
+        - production_targets_count: int
+        - production_complete_count: int
+        - production_complete: bool
+        - assembly_targets_count: int
+        - assembly_complete_count: int
+        - assembly_complete: bool
+        - packages_pending: int
+        - packages_ready: int
+        - packages_delivered: int
+        - packages_total: int
+    """
+    try:
+        with session_scope() as session:
+            # Get production progress (reuse function, but we're in same session context)
+            prod_targets = (
+                session.query(EventProductionTarget)
+                .filter_by(event_id=event_id)
+                .all()
+            )
+            prod_complete = 0
+            for target in prod_targets:
+                produced = (
+                    session.query(func.coalesce(func.sum(ProductionRun.num_batches), 0))
+                    .filter(
+                        ProductionRun.recipe_id == target.recipe_id,
+                        ProductionRun.event_id == event_id,
+                    )
+                    .scalar()
+                )
+                if produced and int(produced) >= target.target_batches:
+                    prod_complete += 1
+
+            # Get assembly progress
+            asm_targets = (
+                session.query(EventAssemblyTarget)
+                .filter_by(event_id=event_id)
+                .all()
+            )
+            asm_complete = 0
+            for target in asm_targets:
+                assembled = (
+                    session.query(
+                        func.coalesce(func.sum(AssemblyRun.quantity_assembled), 0)
+                    )
+                    .filter(
+                        AssemblyRun.finished_good_id == target.finished_good_id,
+                        AssemblyRun.event_id == event_id,
+                    )
+                    .scalar()
+                )
+                if assembled and int(assembled) >= target.target_quantity:
+                    asm_complete += 1
+
+            # Get package counts by status
+            packages = (
+                session.query(EventRecipientPackage)
+                .filter_by(event_id=event_id)
+                .all()
+            )
+
+            pending = sum(
+                1
+                for p in packages
+                if p.fulfillment_status == FulfillmentStatus.PENDING.value
+            )
+            ready = sum(
+                1
+                for p in packages
+                if p.fulfillment_status == FulfillmentStatus.READY.value
+            )
+            delivered = sum(
+                1
+                for p in packages
+                if p.fulfillment_status == FulfillmentStatus.DELIVERED.value
+            )
+
+            return {
+                "production_targets_count": len(prod_targets),
+                "production_complete_count": prod_complete,
+                "production_complete": len(prod_targets) == 0
+                or prod_complete == len(prod_targets),
+                "assembly_targets_count": len(asm_targets),
+                "assembly_complete_count": asm_complete,
+                "assembly_complete": len(asm_targets) == 0
+                or asm_complete == len(asm_targets),
+                "packages_pending": pending,
+                "packages_ready": ready,
+                "packages_delivered": delivered,
+                "packages_total": len(packages),
+            }
+
+    except SQLAlchemyError as e:
+        raise DatabaseError(f"Failed to get event overall progress: {str(e)}")
