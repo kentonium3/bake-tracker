@@ -11,7 +11,7 @@ subtasks:
   - "T035"
 title: "Import/Export"
 phase: "Phase 4 - Import/Export"
-lane: "for_review"
+lane: "done"
 assignee: ""
 agent: "system"
 shell_pid: ""
@@ -366,3 +366,4 @@ pytest src/tests/integration/test_import_export_016.py -v
   - Bumped export format to v3.2
   - All 10 tests pass
 - 2025-12-11T04:18:27Z – system – shell_pid= – lane=for_review – Moved to for_review
+- 2025-12-11T17:50:50Z – system – shell_pid= – lane=done – Code review approved - 10 import/export tests pass
