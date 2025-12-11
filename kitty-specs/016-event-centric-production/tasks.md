@@ -153,9 +153,9 @@
 **Prompt**: `tasks/planned/WP05-service-layer-fulfillment-status.md`
 
 ### Included Subtasks
-- [ ] T025 Implement `EventService.update_fulfillment_status()` with transition validation
-- [ ] T026 Implement `EventService.get_packages_by_status()` with optional status filter
-- [ ] T027 Write unit tests for fulfillment status in `src/tests/services/test_event_service_fulfillment.py`
+- [X] T025 Implement `EventService.update_fulfillment_status()` with transition validation
+- [X] T026 Implement `EventService.get_packages_by_status()` with optional status filter
+- [X] T027 Write unit tests for fulfillment status in `src/tests/services/test_event_service_fulfillment.py`
 
 ### Implementation Notes
 1. Valid transitions: pending→ready, ready→delivered
