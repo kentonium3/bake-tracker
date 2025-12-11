@@ -401,6 +401,49 @@ Enable comprehensive planning for seasonal baking events with recipient-package 
 - **Manual UI Testing:** CustomTkinter difficult to automate
 - **Coverage Goal:** >70% for services layer
 
+## Session Management (CRITICAL)
+
+### The Nested Session Problem
+
+**CRITICAL BUG PATTERN:** When a service function uses `session_scope()` and calls another service that also uses `session_scope()`, objects from the outer scope become **detached** and modifications are silently lost.
+
+This issue was discovered during Feature 016 development and caused 5 test failures where `FinishedUnit.inventory_count` modifications were not persisting.
+
+### Root Cause
+
+When the inner `session_scope()` exits and calls `session.close()`:
+1. All objects in the session's identity map are cleared
+2. Objects queried in the outer scope are no longer tracked by any session
+3. Modifications to these detached objects are silently ignored on commit
+
+### Required Pattern
+
+Service functions that may be called from other services MUST accept an optional `session` parameter:
+
+```python
+def service_function(..., session=None):
+    """Service function that accepts optional session."""
+    if session is not None:
+        return _service_function_impl(..., session)
+    with session_scope() as session:
+        return _service_function_impl(..., session)
+```
+
+When calling other services within a transaction, ALWAYS pass the session:
+
+```python
+def multi_step_operation(...):
+    with session_scope() as session:
+        obj = session.query(Model).first()
+        # CORRECT: Pass session to maintain object tracking
+        helper_function(..., session=session)
+        obj.field = new_value  # Persists correctly
+```
+
+### Reference
+
+See `docs/design/session_management_remediation_spec.md` for full details.
+
 ## Future Enhancements
 
 - **Plugin System:** Allow custom reports/exporters
@@ -411,4 +454,4 @@ Enable comprehensive planning for seasonal baking events with recipient-package 
 ---
 
 **Document Status:** Living document, updated as architecture evolves
-**Last Updated:** 2025-11-07 (v0.4.0 Ingredient/Variant refactoring - Models implementation complete)
+**Last Updated:** 2025-12-11 (Added Session Management section - critical fix for nested session_scope issues)

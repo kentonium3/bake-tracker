@@ -1,13 +1,27 @@
 # Import/Export Specification for Bake Tracker
 
-**Version:** 3.0
-**Date:** 2025-12-04
+**Version:** 3.2
+**Date:** 2025-12-11
 **Status:** Current
 
-> **IMPORTANT**: This application only supports v3.0 format.
-> Files with other versions (including v2.0) will be rejected with a clear error message.
+> **NOTE**: This specification documents the export format. The actual version in code is 3.2
+> (Feature 016 added event-production linkage). Files with unsupported versions will be rejected.
+
+> **TERMINOLOGY UPDATE (TD-001)**: The codebase uses "products" and "inventory_items" terminology.
+> The export format retains "variants" and "pantry_items" keys for backward compatibility with
+> existing data files. See section on entity key mapping below.
 
 ## Changelog
+
+### v3.2 (2025-12-11 - Feature 016)
+- **Added**: `event_production_targets` entity for event production planning
+- **Added**: `event_assembly_targets` entity for event assembly planning
+- **Added**: `event_id` field on ProductionRun and AssemblyRun records
+- **Added**: `fulfillment_status` field on EventRecipientPackage (pending/ready/delivered)
+- **Changed**: Export uses "products" key (aliased from internal Product model)
+
+### v3.1 (2025-12-08 - Feature 014)
+- **Added**: Production and assembly run export with event linkage support
 
 ### v3.0 (2025-12-04)
 - **Breaking**: v2.0 compatibility removed - only v3.0 files accepted
@@ -878,5 +892,5 @@ bag, box, jar, bottle, can, packet, container, case
 ---
 
 **Document Status**: Current
-**Version**: 3.0
-**Last Updated**: 2025-12-04
+**Version**: 3.2
+**Last Updated**: 2025-12-11

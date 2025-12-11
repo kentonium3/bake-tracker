@@ -1,205 +1,164 @@
 # Current Development Priorities
 
-**Last Updated:** 2025-12-01
+**Last Updated:** 2025-12-10
 **Active Branch:** `main`
-**Target Version:** 0.5.0
+**Target Version:** 0.6.0
 
 ---
 
 ## High-Level Status
 
 **Completed:**
-- ✅ Phase 1: Foundation (MVP) - Ingredients, Recipes, Unit Conversions
-- ✅ Phase 2: Finished Goods & Bundles (original architecture)
-- ✅ Phase 3b: Event Planning (Events, Recipients, Packages) - *now disabled*
-- ✅ Import/Export Specification v2.0 (Ingredient/Variant architecture)
-- ✅ Test Data Conversion Tool (v1.0 → v2.0 format)
-- ✅ Phase 4: Complete Ingredient/Variant Refactor (Features 002 + 003)
-- ✅ Feature 004: FinishedUnit Model Refactoring (two-tier hierarchy)
+- ✅ Phase 1-4: Foundation, Finished Goods, Event Planning, Ingredient/Product Architecture
+- ✅ Features 001-014: Full service and UI layer for production tracking
+- ✅ TD-001: Schema cleanup (Variant→Product, PantryItem→InventoryItem)
+- ✅ Nested Recipes: RecipeComponent model with recursive cost/ingredient aggregation
+- ✅ Production Tracking: BatchProductionService, AssemblyService, FIFO consumption ledgers
+- ✅ Production UI: Record Production/Assembly dialogs with availability checking
 
 **Current Focus:**
-- 🔄 Recipe FIFO cost integration
-- 🔄 Event/Package architecture restoration
+- 🔄 **Feature 015: Event-Centric Production Model** (CRITICAL STRUCTURAL FIX)
 
-**Next Up:**
-- Phase 5: Production Tracking
-- Phase 6: Reporting & Polish
-
----
-
-## Phase 4: Ingredient/Variant Refactor - ✅ COMPLETE
-
-### ✅ Completed (All Items)
-
-**Models & Schema:**
-- Renamed Product → Ingredient
-- Renamed ProductVariant → Variant
-- Renamed PurchaseHistory → Purchase
-- Added industry standard fields (FoodOn, FDC, GTIN, allergens - all nullable)
-- Created supporting models (IngredientAlias, IngredientCrosswalk, VariantPackaging)
-- Added UUID support to BaseModel
-- Dual FK support in RecipeIngredient (legacy + new)
-
-**Service Layer** (Feature 002 - Complete):
-```
-✅ IngredientService - 469 lines, catalog CRUD with slug-based lookup
-✅ VariantService - 469 lines, brand/package management with preferred variant
-✅ PantryService - 502 lines, FIFO consumption algorithm
-✅ PurchaseService - 541 lines, price history with linear regression
-```
-
-**UI Layer** (Feature 003 - Complete):
-```
-✅ ingredients_tab.py - 1387 lines, ingredient catalog management
-✅ pantry_tab.py - 1442 lines, inventory display with FIFO interface
-✅ migration_wizard.py - Migration UI with dry-run preview
-```
-
-**Infrastructure:**
-- ✅ Service exceptions hierarchy (ServiceError, NotFound, Validation, DatabaseError)
-- ✅ session_scope() context manager for transaction management
-- ✅ Slug generation utility with Unicode normalization
-- ✅ Input validation utilities for ingredient and variant data
-
-**Testing:**
-- ✅ 16/16 integration tests passing (100%)
-- ✅ test_inventory_flow.py - Complete ingredient→variant→pantry workflow
-- ✅ test_fifo_scenarios.py - FIFO consumption edge cases
-- ✅ test_purchase_flow.py - Purchase tracking and price analysis
+**Blocked (Pending Feature 015):**
+- ⏸️ Feature 016: Reporting & Event Planning
+- ⏸️ Feature 017: Event Production Dashboard
 
 ---
 
-## Feature 004: FinishedUnit Model Refactoring - ✅ COMPLETE
+## ⚠️ CRITICAL: Event-Production Linkage Gap
 
-**Merged to main:** Commit `d8017e4` (2025-11-20)
+### The Problem
 
-**Models Created:**
-- ✅ FinishedUnit - Individual consumable items (renamed from original FinishedGood)
-- ✅ FinishedGood - Assembled packages with component tracking
-- ✅ Composition - Junction model for hierarchical assemblies
-- ✅ AssemblyType - Assembly categorization enum
+The v0.5 schema correctly models:
+- **Definition:** What IS a Cookie Gift Box? ✅
+- **Inventory:** How many Cookie Gift Boxes EXIST? ✅
 
-**Services Created:**
-- ✅ finished_unit_service.py - 36KB, unit CRUD and inventory
-- ✅ finished_good_service.py - 58KB, assembly management
-- ✅ composition_service.py - 54KB, hierarchy traversal
-- ✅ ui_compatibility_service.py - 19KB, transition support
+But **cannot answer:**
+- **Commitment:** How many are FOR Christmas 2025? ❌
+- **Progress:** Am I on track to fulfill this event? ❌
+- **Attribution:** Which production runs were for which event? ❌
 
-**UI Updates:**
-- ✅ finished_units_tab.py - 27KB, unit management
-- ✅ finished_goods_tab.py - 15KB, updated for new model
-- ✅ finished_unit_form.py - 18KB
-- ✅ finished_good_form.py - 18KB
+### Root Cause
 
----
+`ProductionRun` and `AssemblyRun` have no `event_id` foreign key. Production is recorded but "orphaned" from events.
 
-## ⚠️ Event/Package Models (Disabled)
+### Impact
 
-During Feature 004 refactoring, the following models were disabled due to cascading dependencies:
+- Event summary reports cannot show accurate "planned vs actual"
+- Production dashboards cannot show event-specific progress  
+- Package fulfillment status is not tracked
+- Multi-event planning is impossible
 
-| Model | Status | Reason |
-|-------|--------|--------|
-| Bundle | **Removed** | Replaced by Composition model |
-| Package, PackageBundle | **Disabled** | Depended on Bundle |
-| Event, EventRecipientPackage | **Disabled** | Depended on Package |
+### Resolution: Feature 015
 
-**Impact:**
-- Events tab (`events_tab.py`) - May be non-functional
-- Packages tab (`packages_tab.py`) - May be non-functional
-- Bundles tab (`bundles_tab.py`) - Deprecated
-
-**Resolution:** Requires new feature to restore or redesign event planning architecture using the new FinishedGood/Composition model.
+**Schema v0.6 Design:** `docs/design/schema_v0.6_design.md`
 
 ---
 
-## Immediate Next Steps (Priority Order)
+## Feature 015: Event-Centric Production Model
 
-### 1. Recipe FIFO Cost Integration
-Update RecipeService to use the new pantry architecture:
-- Use ingredient_service instead of direct Ingredient queries
-- Implement FIFO cost calculation using pantry_service.consume_fifo()
-- Update recipe cost calculation to use variant pricing
+### Scope
 
-### 2. Event/Package Architecture Restoration
-Design and implement event planning using new models:
-- Determine if Package concept maps to FinishedGood assemblies
-- Update or replace EventService for new architecture
-- Restore or redesign Events tab functionality
+**Schema Changes:**
+- [ ] Add `event_id` (nullable FK) to ProductionRun
+- [ ] Add `event_id` (nullable FK) to AssemblyRun
+- [ ] New table: `EventProductionTarget` (event_id, recipe_id, target_batches)
+- [ ] New table: `EventAssemblyTarget` (event_id, finished_good_id, target_quantity)
+- [ ] Add `fulfillment_status` to EventRecipientPackage (pending/ready/delivered)
 
-### 3. Phase 5: Production Tracking
-- Batch production workflow
-- Yield tracking and variance analysis
-- Production scheduling
+**Service Changes:**
+- [ ] Update `record_batch_production()` with optional event_id param
+- [ ] Update `record_assembly()` with optional event_id param
+- [ ] Add target management methods to EventService
+- [ ] Add progress calculation methods to EventService
+- [ ] Add fulfillment status methods to EventService
 
----
+**UI Changes:**
+- [ ] Add event selector to Record Production dialog
+- [ ] Add event selector to Record Assembly dialog
+- [ ] Add Targets tab to Event Detail window
+- [ ] Add progress display (produced vs target)
+- [ ] Add fulfillment status to package assignments view
 
-## Success Criteria for Phase 4 - ✅ ACHIEVED
+**Migration:**
+- [ ] Existing ProductionRun/AssemblyRun get null event_id
+- [ ] Existing EventRecipientPackage get 'pending' status
 
-**Must Have:**
-- ✅ Ingredient/Variant separation working (models & services complete)
-- ✅ Multiple brands/sources per ingredient (VariantService complete)
-- ✅ Preferred variant logic (atomic toggle implemented)
-- ✅ FIFO costing accurate (consume_fifo() tested with 6 scenarios)
-- ✅ Pantry lot tracking (PantryItem with purchase_date, location)
-- ✅ My Ingredients tab (1387 lines)
-- ✅ My Pantry tab (1442 lines)
-- ⏳ Migration from v0.3.0 preserves all data (script ready, execution pending)
+### Implementation Checklist
 
-**Testing Checklist:**
-- ✅ Create ingredient with 2+ variants (VariantService tests)
-- ✅ Add pantry items with different purchase dates (PantryService tests)
-- ✅ Calculate cost - verify FIFO order (test_fifo_scenarios.py)
-- ✅ My Ingredients tab CRUD operations
-- ✅ My Pantry tab FIFO consumption interface
-- [ ] Create recipe using ingredient (not variant) - integration pending
-- [ ] Generate shopping list - variant recommendations - integration pending
+See `docs/design/schema_v0.6_design.md` Section 9 for complete checklist.
 
 ---
 
-## Known Issues
+## Next Steps (After Feature 015)
 
-**Event/Package Disabled:**
-- Models commented out in `src/models/__init__.py`
-- Services may fail if Event/Package features are accessed
-- Requires architectural decision on restoration approach
+### Feature 016: Reporting & Event Planning
+- Shopping list CSV export
+- Event summary reports (planned vs actual)
+- Cost analysis views
+- Recipient history reports
+- Dashboard enhancements
 
-**Feature 004 Task Files:**
-- Some task files remain in non-done lanes despite merge
-- Acknowledged as complete; gaps treated as bugs if discovered
+### Feature 017: Event Production Dashboard
+- "Where do I stand for Christmas 2025?" view
+- Progress bars per recipe/finished good
+- Fulfillment status tracking
+
+---
+
+## Recent Completions
+
+### Feature 014: Production UI (2025-12-10)
+- Record Production dialog with availability checking
+- Record Assembly dialog with component availability
+- Integration with FinishedUnits and FinishedGoods tabs
+- Production actions in context menus
+
+### Feature 013: Production & Inventory Tracking (2025-12-09)
+- BatchProductionService with FIFO consumption
+- AssemblyService with component consumption
+- 51 tests, 91% coverage
+- Bug fixes: transaction atomicity, timestamp consistency, packaging validation
+
+### Feature 012: Nested Recipes (2025-12-09)
+- RecipeComponent junction table
+- Recursive cost calculation
+- Recursive ingredient aggregation
+- Maximum 3 levels of nesting
+
+### Feature 011: Packaging & BOM Foundation (2025-12-08)
+- `is_packaging` flag on Ingredient
+- Packaging materials in Composition
+- BOM patterns established
 
 ---
 
 ## Key Design Documents
 
-**For Implementation:**
-- `docs/schema_v0.4_design.md` - Phase 4 schema design
-- `docs/ingredient_industry_standards.md` - External standard fields
-- `docs/import_export_specification.md` - Data format (v2.0)
-
-**For Context:**
-- `docs/development_status.md` - Complete project history
-- `docs/architecture.md` - System architecture
-- `kitty-specs/004-finishedunit-model-refactoring/` - Feature 004 design docs
+| Document | Purpose |
+|----------|---------|
+| `docs/design/schema_v0.6_design.md` | Feature 015 schema design |
+| `docs/design/schema_v0.5_design.md` | Current production schema |
+| `docs/feature_roadmap.md` | Feature sequencing and dependencies |
+| `docs/workflow-refactoring-spec.md` | Production flow architecture |
+| `docs/known_limitations.md` | Documented gaps and constraints |
 
 ---
 
 ## Quick Reference Commands
 
-**Run Tests:**
 ```bash
-cd bake-tracker
-source venv/bin/activate  # macOS/Linux
-pytest src/tests/ -v
-```
+# Run all tests
+pytest src/tests -v
 
-**Import Test Data:**
-```bash
-PYTHONPATH=. python -m src.utils.load_test_data examples/test_data_v2.json
-```
+# Run with coverage
+pytest src/tests -v --cov=src
 
-**Run Application:**
-```bash
+# Run application
 python src/main.py
+
+# Import/Export
+python -m src.utils.load_test_data examples/test_data_v2.json
 ```
 
 ---
@@ -208,9 +167,9 @@ python src/main.py
 
 | Feature | Status | Notes |
 |---------|--------|-------|
-| 001 | Abandoned | Scope inappropriate for local app |
-| 002 | ✅ Complete | Service layer, clean state |
-| 003 | ✅ Complete | Phase 4 UI, clean state |
-| 004 | ✅ Complete | FinishedUnit refactoring, merged |
+| 001-014 | ✅ Complete | Foundation through Production UI |
+| 015 | 🔄 Planning | Event-Centric Production Model |
+| 016-017 | ⏸️ Blocked | Pending Feature 015 |
+| 018 | Planned | Packaging & Distribution |
 
-**Ready for new features via `/spec-kitty.specify`**
+**Ready for Feature 015 via `/spec-kitty.specify`**

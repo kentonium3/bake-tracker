@@ -121,3 +121,56 @@ This project uses spec-kitty for feature development. The workflow is AUTHORITAT
 - **Slug-based FKs**: Use slugs instead of display names for foreign keys (enables future localization)
 - **UUID support**: BaseModel includes UUID for future distributed/multi-user scenarios
 - **Nested Recipes**: Recipes can include other recipes as components via RecipeComponent junction table. Maximum 3 levels of nesting. Circular references are prevented at validation time. Shopping lists aggregate ingredients from all levels.
+- **Event-Centric Production Model**: ProductionRun and AssemblyRun link to Events via optional `event_id` FK. This enables: (1) tracking which production is for which event, (2) explicit production targets per event via EventProductionTarget/EventAssemblyTarget, (3) progress tracking (produced vs target), (4) package fulfillment status workflow (pending/ready/delivered). See `docs/design/schema_v0.6_design.md`.
+
+## Session Management (CRITICAL - Read Before Modifying Services)
+
+**Problem:** Nested `session_scope()` calls cause SQLAlchemy objects to become detached, resulting in silent data loss where modifications are not persisted.
+
+### The Anti-Pattern (DO NOT DO THIS)
+
+```python
+def outer_function():
+    with session_scope() as session:
+        obj = session.query(Model).first()
+        inner_function()  # If this uses session_scope(), obj becomes detached!
+        obj.field = value  # THIS CHANGE IS SILENTLY LOST
+```
+
+### The Correct Pattern
+
+```python
+def outer_function():
+    with session_scope() as session:
+        obj = session.query(Model).first()
+        inner_function(session=session)  # Pass session to maintain tracking
+        obj.field = value  # This change persists correctly
+
+def inner_function(..., session=None):
+    """Accept optional session parameter."""
+    if session is not None:
+        return _inner_function_impl(..., session)
+    with session_scope() as session:
+        return _inner_function_impl(..., session)
+```
+
+### Rules for Service Functions
+
+1. **Multi-step operations MUST share a session** - If a function queries an object, calls other services, then modifies the object, all operations must use the same session.
+
+2. **Service functions that may be called from other services MUST accept `session=None`** - This allows callers to pass their session for transactional atomicity.
+
+3. **When calling another service function within a transaction, ALWAYS pass the session** - Even if the called function works without it, passing the session ensures objects remain tracked.
+
+4. **Never return ORM objects from `session_scope()` if they'll be modified later** - Objects become detached when the scope exits. Return IDs or DTOs instead, or keep operations within the same session.
+
+### Functions That Accept Session Parameter
+
+These functions have been updated to accept an optional `session` parameter:
+- `recipe_service.get_aggregated_ingredients()`
+- `ingredient_service.get_ingredient()`
+- `inventory_item_service.consume_fifo()` (always had it)
+
+### Reference
+
+See `docs/design/session_management_remediation_spec.md` for full technical details and the remediation plan.

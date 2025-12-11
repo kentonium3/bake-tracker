@@ -1,6 +1,46 @@
 📐 Production and Inventory Refactoring Specification
 Status: Early User Testing Phase (Desktop) Constitutional Goal: Assess existing architecture against Principles III (Future-Proof Schema) and VII (Pragmatic Aspiration). Identify gaps to prepare for the Near-Term Evolution (Web Migration) phase. UI/UX Directive: The architectural terms (e.g., BOM, FG Assembly) MUST remain in the service/data layers. The UI layer will use user-centric language (e.g., "My Pantry," "Making a Batch," "Creating Gift Packages").
 
+---
+
+## ⚠️ CRITICAL GAP IDENTIFIED: Event-Production Linkage (2025-12-10)
+
+### The Structural Flaw
+
+The v0.5 architecture correctly models **definition** and **inventory** but fails to model **commitment**:
+
+| Concern | Question | Status |
+|---------|----------|--------|
+| Definition | What IS a Cookie Gift Box? | ✅ FinishedGood + Composition |
+| Inventory | How many EXIST globally? | ✅ inventory_count |
+| Commitment | How many are FOR Christmas 2025? | ❌ **MISSING** |
+
+### Root Cause
+
+`ProductionRun` and `AssemblyRun` tables have no `event_id` foreign key. When a user records "made 2 batches of cookies," the system cannot attribute that production to a specific event.
+
+### Consequences
+
+1. **No Event Progress Tracking** - Cannot answer "Am I on track to fulfill Christmas 2025?"
+2. **No Planned vs Actual** - Event reports lack accurate production data
+3. **No Multi-Event Planning** - Cannot distinguish Christmas vs Easter production
+4. **No Fulfillment Workflow** - Package assignments lack status (pending/ready/delivered)
+
+### Resolution: Feature 015 (Event-Centric Production Model)
+
+**Schema Changes (v0.6):**
+- Add `event_id` (nullable FK) to ProductionRun and AssemblyRun
+- New `EventProductionTarget` table for explicit production targets
+- New `EventAssemblyTarget` table for explicit assembly targets
+- Add `fulfillment_status` to EventRecipientPackage
+
+**Impact on Diagram Below:**
+The conceptual flow diagram needs an additional layer showing Event → Production attribution and Target → Progress tracking.
+
+**Design Document:** `docs/design/schema_v0.6_design.md`
+
+---
+
 1. 🌐 Conceptual Flow Diagram (Mermaid Graph)
 This graph illustrates the desired operational flow, emphasizing how inventory moves between stock types and how packaging materials are consumed.
 
