@@ -12,10 +12,10 @@ subtasks:
   - "T009"
 title: "Model Layer - Schema Changes"
 phase: "Phase 1 - Model Layer"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "claude"
-shell_pid: "78906"
+shell_pid: "80005"
 review_status: ""
 reviewed_by: ""
 history:
@@ -347,3 +347,4 @@ history:
   - T008: Updated __init__.py exports
   - T009: Updated to_dict() methods in ProductionRun and AssemblyRun
   - Verified: All models import successfully, database creates with new schema, 275 tests pass
+- 2025-12-11T02:49:13Z – claude – shell_pid=80005 – lane=for_review – Ready for review - all subtasks complete, 275 tests pass
