@@ -10,10 +10,10 @@ subtasks:
   - "T020"
 title: "Service Layer - Target CRUD"
 phase: "Phase 2 - Service Layer"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "claude"
-shell_pid: "84069"
+shell_pid: "84929"
 review_status: ""
 reviewed_by: ""
 history:
@@ -395,3 +395,4 @@ pytest src/tests/services/test_event_service_targets.py -v
     - TestGetAssemblyTargets: 3 tests (all, empty, eager load)
     - TestDeleteAssemblyTarget: 2 tests (found, not found)
   - All 16 tests pass
+- 2025-12-11T04:03:27Z – claude – shell_pid=84929 – lane=for_review – Ready for review - all subtasks T014-T020 complete, 16 tests pass
