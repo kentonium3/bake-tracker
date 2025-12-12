@@ -369,9 +369,7 @@ class TestProductionProgress:
 class TestAssemblyProgress:
     """Tests for get_assembly_progress() function."""
 
-    def test_progress_zero_percent(
-        self, test_db, event_christmas, finished_good_gift_box
-    ):
+    def test_progress_zero_percent(self, test_db, event_christmas, finished_good_gift_box):
         """0% when no assembly recorded for target."""
         event_service.set_assembly_target(
             event_id=event_christmas.id,
@@ -386,9 +384,7 @@ class TestAssemblyProgress:
         assert result[0]["progress_pct"] == 0.0
         assert result[0]["is_complete"] is False
 
-    def test_progress_fifty_percent(
-        self, test_db, event_christmas, finished_good_gift_box
-    ):
+    def test_progress_fifty_percent(self, test_db, event_christmas, finished_good_gift_box):
         """50% when half of target assembled."""
         event_service.set_assembly_target(
             event_id=event_christmas.id,
@@ -415,9 +411,7 @@ class TestAssemblyProgress:
         assert result[0]["progress_pct"] == 50.0
         assert result[0]["is_complete"] is False
 
-    def test_progress_one_hundred_percent(
-        self, test_db, event_christmas, finished_good_gift_box
-    ):
+    def test_progress_one_hundred_percent(self, test_db, event_christmas, finished_good_gift_box):
         """100% when target exactly met."""
         event_service.set_assembly_target(
             event_id=event_christmas.id,
@@ -444,9 +438,7 @@ class TestAssemblyProgress:
         assert result[0]["progress_pct"] == 100.0
         assert result[0]["is_complete"] is True
 
-    def test_progress_over_hundred_percent(
-        self, test_db, event_christmas, finished_good_gift_box
-    ):
+    def test_progress_over_hundred_percent(self, test_db, event_christmas, finished_good_gift_box):
         """150% when over-assembled."""
         event_service.set_assembly_target(
             event_id=event_christmas.id,
@@ -583,9 +575,7 @@ class TestOverallProgress:
         assert result["production_complete_count"] == 1
         assert result["production_complete"] is False
 
-    def test_package_counts_by_status(
-        self, test_db, event_christmas, recipient, package
-    ):
+    def test_package_counts_by_status(self, test_db, event_christmas, recipient, package):
         """Correctly counts packages by fulfillment status."""
         with session_scope() as session:
             # Create 3 packages with different statuses
@@ -701,3 +691,227 @@ class TestOverallProgress:
         assert result["packages_ready"] == 0
         assert result["packages_delivered"] == 0
         assert result["packages_total"] == 2
+
+
+# =============================================================================
+# Tests for get_events_with_progress() - Feature 018
+# =============================================================================
+
+
+class TestGetEventsWithProgress:
+    """Tests for get_events_with_progress() - Feature 018."""
+
+    def test_returns_empty_list_when_no_events(self, test_db):
+        """Should return empty list when no events exist."""
+        result = event_service.get_events_with_progress()
+        assert result == []
+
+    def test_active_future_filter_excludes_past_events(self, test_db):
+        """Default filter should only return today's and future events."""
+        from datetime import timedelta
+
+        today = date.today()
+        session = test_db()
+
+        # Create past, today, and future events
+        past_event = Event(
+            name="Past Event",
+            event_date=today - timedelta(days=30),
+            year=today.year,
+        )
+        today_event = Event(
+            name="Today Event",
+            event_date=today,
+            year=today.year,
+        )
+        future_event = Event(
+            name="Future Event",
+            event_date=today + timedelta(days=30),
+            year=today.year,
+        )
+        session.add_all([past_event, today_event, future_event])
+        session.commit()
+
+        result = event_service.get_events_with_progress(filter_type="active_future")
+
+        # Should only include today and future events
+        assert len(result) == 2
+        event_names = [e["event_name"] for e in result]
+        assert "Past Event" not in event_names
+        assert "Today Event" in event_names
+        assert "Future Event" in event_names
+
+    def test_past_filter_returns_only_past_events(self, test_db):
+        """Past filter should only return events before today."""
+        from datetime import timedelta
+
+        today = date.today()
+        session = test_db()
+
+        past_event = Event(
+            name="Past Event",
+            event_date=today - timedelta(days=30),
+            year=today.year,
+        )
+        future_event = Event(
+            name="Future Event",
+            event_date=today + timedelta(days=30),
+            year=today.year,
+        )
+        session.add_all([past_event, future_event])
+        session.commit()
+
+        result = event_service.get_events_with_progress(filter_type="past")
+
+        assert len(result) == 1
+        assert result[0]["event_name"] == "Past Event"
+
+    def test_all_filter_returns_all_events(self, test_db):
+        """All filter should return all events regardless of date."""
+        from datetime import timedelta
+
+        today = date.today()
+        session = test_db()
+
+        past_event = Event(
+            name="Past Event",
+            event_date=today - timedelta(days=30),
+            year=today.year,
+        )
+        future_event = Event(
+            name="Future Event",
+            event_date=today + timedelta(days=30),
+            year=today.year,
+        )
+        session.add_all([past_event, future_event])
+        session.commit()
+
+        result = event_service.get_events_with_progress(filter_type="all")
+
+        assert len(result) == 2
+
+    def test_date_range_filter(self, test_db):
+        """Date range should filter events within bounds."""
+        session = test_db()
+
+        # Create events in different months
+        dec_event = Event(
+            name="December Event",
+            event_date=date(2025, 12, 15),
+            year=2025,
+        )
+        jan_event = Event(
+            name="January Event",
+            event_date=date(2026, 1, 15),
+            year=2026,
+        )
+        session.add_all([dec_event, jan_event])
+        session.commit()
+
+        result = event_service.get_events_with_progress(
+            filter_type="all",
+            date_from=date(2025, 12, 1),
+            date_to=date(2025, 12, 31),
+        )
+
+        assert len(result) == 1
+        assert result[0]["event_name"] == "December Event"
+
+    def test_returns_progress_data_structure(self, test_db, event_christmas):
+        """Should return correct data structure with progress."""
+        result = event_service.get_events_with_progress(filter_type="all")
+
+        assert len(result) >= 1
+        event_data = result[0]
+
+        # Check required keys
+        assert "event_id" in event_data
+        assert "event_name" in event_data
+        assert "event_date" in event_data
+        assert "production_progress" in event_data
+        assert "assembly_progress" in event_data
+        assert "overall_progress" in event_data
+
+        # Check types
+        assert isinstance(event_data["production_progress"], list)
+        assert isinstance(event_data["assembly_progress"], list)
+        assert isinstance(event_data["overall_progress"], dict)
+
+    def test_events_ordered_by_date_then_name(self, test_db):
+        """Should return events sorted by date ascending, then name."""
+        session = test_db()
+
+        # Create events with same date but different names
+        event_b = Event(
+            name="B Event",
+            event_date=date(2025, 12, 25),
+            year=2025,
+        )
+        event_a = Event(
+            name="A Event",
+            event_date=date(2025, 12, 25),
+            year=2025,
+        )
+        event_earlier = Event(
+            name="Earlier Event",
+            event_date=date(2025, 12, 20),
+            year=2025,
+        )
+        session.add_all([event_b, event_a, event_earlier])
+        session.commit()
+
+        result = event_service.get_events_with_progress(filter_type="all")
+
+        assert len(result) == 3
+        # First should be the earlier date
+        assert result[0]["event_name"] == "Earlier Event"
+        # Same date, alphabetical order
+        assert result[1]["event_name"] == "A Event"
+        assert result[2]["event_name"] == "B Event"
+
+    def test_includes_progress_data_for_event_with_targets(
+        self, test_db, event_christmas, recipe_cookies
+    ):
+        """Should include production progress for events with targets."""
+        event_service.set_production_target(
+            event_id=event_christmas.id,
+            recipe_id=recipe_cookies.id,
+            target_batches=4,
+        )
+
+        result = event_service.get_events_with_progress(filter_type="all")
+
+        # Find our event
+        event_data = next((e for e in result if e["event_id"] == event_christmas.id), None)
+        assert event_data is not None
+
+        # Should have production progress with our target
+        assert len(event_data["production_progress"]) == 1
+        assert event_data["production_progress"][0]["target_batches"] == 4
+
+    def test_default_filter_is_active_future(self, test_db):
+        """Should use active_future as default when no filter specified."""
+        from datetime import timedelta
+
+        today = date.today()
+        session = test_db()
+
+        past_event = Event(
+            name="Past Event",
+            event_date=today - timedelta(days=30),
+            year=today.year,
+        )
+        future_event = Event(
+            name="Future Event",
+            event_date=today + timedelta(days=30),
+            year=today.year,
+        )
+        session.add_all([past_event, future_event])
+        session.commit()
+
+        # Call without specifying filter_type
+        result = event_service.get_events_with_progress()
+
+        # Should only return future event (default is active_future)
+        assert len(result) == 1
+        assert result[0]["event_name"] == "Future Event"

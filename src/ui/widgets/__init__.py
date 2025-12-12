@@ -15,6 +15,7 @@ from src.ui.widgets.data_table import (
     RecipientDataTable,
     EventDataTable,
 )
+from src.ui.widgets.event_card import EventCard
 
 __all__ = [
     # Base widget
@@ -23,6 +24,8 @@ __all__ = [
     "AvailabilityDisplay",
     "ProductionHistoryTable",
     "AssemblyHistoryTable",
+    # Feature 018 widgets
+    "EventCard",
     # Existing data tables
     "IngredientDataTable",
     "RecipeDataTable",

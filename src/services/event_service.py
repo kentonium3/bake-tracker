@@ -1180,9 +1180,7 @@ def export_shopping_list_csv(event_id: int, file_path: str) -> bool:
             # Packaging section if present
             if shopping_data.get("packaging"):
                 writer.writerow([])  # Blank row
-                writer.writerow(
-                    ["--- Packaging Materials ---", "", "", "", "", "", ""]
-                )
+                writer.writerow(["--- Packaging Materials ---", "", "", "", "", "", ""])
                 for pkg in shopping_data["packaging"]:
                     writer.writerow(
                         [
@@ -1834,12 +1832,8 @@ def get_production_progress(event_id: int) -> List[Dict[str, Any]]:
             production_totals = (
                 session.query(
                     ProductionRun.recipe_id,
-                    func.coalesce(func.sum(ProductionRun.num_batches), 0).label(
-                        "total_batches"
-                    ),
-                    func.coalesce(func.sum(ProductionRun.actual_yield), 0).label(
-                        "total_yield"
-                    ),
+                    func.coalesce(func.sum(ProductionRun.num_batches), 0).label("total_batches"),
+                    func.coalesce(func.sum(ProductionRun.actual_yield), 0).label("total_yield"),
                 )
                 .filter(ProductionRun.event_id == event_id)
                 .group_by(ProductionRun.recipe_id)
@@ -1926,8 +1920,7 @@ def get_assembly_progress(event_id: int) -> List[Dict[str, Any]]:
 
             # Build lookup dict: finished_good_id -> total_assembled
             assembly_by_fg = {
-                row.finished_good_id: int(row.total_assembled)
-                for row in assembly_totals
+                row.finished_good_id: int(row.total_assembled) for row in assembly_totals
             }
 
             # Merge targets with assembly totals
@@ -1979,11 +1972,7 @@ def get_event_overall_progress(event_id: int) -> Dict[str, Any]:
     try:
         with session_scope() as session:
             # Get production progress (reuse function, but we're in same session context)
-            prod_targets = (
-                session.query(EventProductionTarget)
-                .filter_by(event_id=event_id)
-                .all()
-            )
+            prod_targets = session.query(EventProductionTarget).filter_by(event_id=event_id).all()
             prod_complete = 0
             for target in prod_targets:
                 produced = (
@@ -1998,17 +1987,11 @@ def get_event_overall_progress(event_id: int) -> Dict[str, Any]:
                     prod_complete += 1
 
             # Get assembly progress
-            asm_targets = (
-                session.query(EventAssemblyTarget)
-                .filter_by(event_id=event_id)
-                .all()
-            )
+            asm_targets = session.query(EventAssemblyTarget).filter_by(event_id=event_id).all()
             asm_complete = 0
             for target in asm_targets:
                 assembled = (
-                    session.query(
-                        func.coalesce(func.sum(AssemblyRun.quantity_assembled), 0)
-                    )
+                    session.query(func.coalesce(func.sum(AssemblyRun.quantity_assembled), 0))
                     .filter(
                         AssemblyRun.finished_good_id == target.finished_good_id,
                         AssemblyRun.event_id == event_id,
@@ -2019,37 +2002,25 @@ def get_event_overall_progress(event_id: int) -> Dict[str, Any]:
                     asm_complete += 1
 
             # Get package counts by status
-            packages = (
-                session.query(EventRecipientPackage)
-                .filter_by(event_id=event_id)
-                .all()
-            )
+            packages = session.query(EventRecipientPackage).filter_by(event_id=event_id).all()
 
             pending = sum(
-                1
-                for p in packages
-                if p.fulfillment_status == FulfillmentStatus.PENDING.value
+                1 for p in packages if p.fulfillment_status == FulfillmentStatus.PENDING.value
             )
             ready = sum(
-                1
-                for p in packages
-                if p.fulfillment_status == FulfillmentStatus.READY.value
+                1 for p in packages if p.fulfillment_status == FulfillmentStatus.READY.value
             )
             delivered = sum(
-                1
-                for p in packages
-                if p.fulfillment_status == FulfillmentStatus.DELIVERED.value
+                1 for p in packages if p.fulfillment_status == FulfillmentStatus.DELIVERED.value
             )
 
             return {
                 "production_targets_count": len(prod_targets),
                 "production_complete_count": prod_complete,
-                "production_complete": len(prod_targets) == 0
-                or prod_complete == len(prod_targets),
+                "production_complete": len(prod_targets) == 0 or prod_complete == len(prod_targets),
                 "assembly_targets_count": len(asm_targets),
                 "assembly_complete_count": asm_complete,
-                "assembly_complete": len(asm_targets) == 0
-                or asm_complete == len(asm_targets),
+                "assembly_complete": len(asm_targets) == 0 or asm_complete == len(asm_targets),
                 "packages_pending": pending,
                 "packages_ready": ready,
                 "packages_delivered": delivered,
@@ -2058,6 +2029,83 @@ def get_event_overall_progress(event_id: int) -> Dict[str, Any]:
 
     except SQLAlchemyError as e:
         raise DatabaseError(f"Failed to get event overall progress: {str(e)}")
+
+
+# ============================================================================
+# Feature 018: Batch Event Progress
+# ============================================================================
+
+
+def get_events_with_progress(
+    filter_type: str = "active_future",
+    date_from: date = None,
+    date_to: date = None,
+) -> List[Dict[str, Any]]:
+    """
+    Get all events matching filter with their progress summaries.
+
+    Args:
+        filter_type: One of "active_future" (default), "past", "all"
+        date_from: Optional start date for date range filter
+        date_to: Optional end date for date range filter
+
+    Returns:
+        List of dicts with:
+        - event_id: int
+        - event_name: str
+        - event_date: date
+        - production_progress: list (from get_production_progress)
+        - assembly_progress: list (from get_assembly_progress)
+        - overall_progress: dict (from get_event_overall_progress)
+    """
+    try:
+        with session_scope() as session:
+            today = date.today()
+
+            # Build base query
+            query = session.query(Event)
+
+            # Apply filter based on filter_type
+            if filter_type == "active_future":
+                query = query.filter(Event.event_date >= today)
+            elif filter_type == "past":
+                query = query.filter(Event.event_date < today)
+            # "all" - no date filter
+
+            # Apply date range if provided
+            if date_from:
+                query = query.filter(Event.event_date >= date_from)
+            if date_to:
+                query = query.filter(Event.event_date <= date_to)
+
+            # Order by date ascending, then name
+            query = query.order_by(Event.event_date.asc(), Event.name.asc())
+
+            events = query.all()
+
+            # Build result list - capture primitive data before session closes
+            results = []
+            for event in events:
+                results.append(
+                    {
+                        "event_id": event.id,
+                        "event_name": event.name,
+                        "event_date": event.event_date,
+                    }
+                )
+
+        # Now fetch progress for each event (outside session)
+        # Each progress function manages its own session per CLAUDE.md pattern
+        for event_data in results:
+            event_id = event_data["event_id"]
+            event_data["production_progress"] = get_production_progress(event_id)
+            event_data["assembly_progress"] = get_assembly_progress(event_id)
+            event_data["overall_progress"] = get_event_overall_progress(event_id)
+
+        return results
+
+    except SQLAlchemyError as e:
+        raise DatabaseError(f"Failed to get events with progress: {str(e)}")
 
 
 def get_event_cost_analysis(event_id: int) -> Dict[str, Any]:
@@ -2107,9 +2155,7 @@ def get_event_cost_analysis(event_id: int) -> Dict[str, Any]:
                 }
                 for name, count, cost in prod_costs
             ]
-            total_production_cost = sum(
-                p["total_cost"] for p in production_costs
-            ) or Decimal("0")
+            total_production_cost = sum(p["total_cost"] for p in production_costs) or Decimal("0")
 
             # Get assembly costs grouped by finished good
             # Note: AssemblyRun uses total_component_cost field
@@ -2117,9 +2163,9 @@ def get_event_cost_analysis(event_id: int) -> Dict[str, Any]:
                 session.query(
                     FinishedGood.display_name,
                     func.count(AssemblyRun.id).label("run_count"),
-                    func.coalesce(
-                        func.sum(AssemblyRun.total_component_cost), Decimal("0")
-                    ).label("total_cost"),
+                    func.coalesce(func.sum(AssemblyRun.total_component_cost), Decimal("0")).label(
+                        "total_cost"
+                    ),
                 )
                 .join(AssemblyRun, AssemblyRun.finished_good_id == FinishedGood.id)
                 .filter(AssemblyRun.event_id == event_id)
@@ -2135,9 +2181,7 @@ def get_event_cost_analysis(event_id: int) -> Dict[str, Any]:
                 }
                 for name, count, cost in asm_costs
             ]
-            total_assembly_cost = sum(
-                a["total_cost"] for a in assembly_costs
-            ) or Decimal("0")
+            total_assembly_cost = sum(a["total_cost"] for a in assembly_costs) or Decimal("0")
 
             # Grand total
             grand_total = total_production_cost + total_assembly_cost
@@ -2206,9 +2250,7 @@ def update_fulfillment_status(
             )
 
             if not package:
-                raise ValueError(
-                    f"Package with id {event_recipient_package_id} not found"
-                )
+                raise ValueError(f"Package with id {event_recipient_package_id} not found")
 
             current_status = FulfillmentStatus(package.fulfillment_status)
 
@@ -2268,9 +2310,7 @@ def get_packages_by_status(
             )
 
             if status is not None:
-                query = query.filter(
-                    EventRecipientPackage.fulfillment_status == status.value
-                )
+                query = query.filter(EventRecipientPackage.fulfillment_status == status.value)
 
             return query.all()
 

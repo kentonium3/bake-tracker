@@ -174,6 +174,14 @@ EVENT_STATUSES: List[str] = [
 # UI Constants
 # ============================================================================
 
+# Progress status colors (Feature 018)
+STATUS_COLORS = {
+    "not_started": "#808080",  # Gray - 0% progress
+    "in_progress": "#FFA500",  # Orange/Amber - 1-99% progress
+    "complete": "#28A745",  # Green - 100% progress
+    "exceeded": "#20B2AA",  # Light green/teal - >100% progress
+}
+
 # Window sizing
 DEFAULT_WINDOW_WIDTH = 1200
 DEFAULT_WINDOW_HEIGHT = 800
