@@ -9,6 +9,8 @@ Provides comprehensive interface for:
 """
 
 import customtkinter as ctk
+import re
+from tkinter import filedialog, messagebox
 from typing import Optional
 
 from src.models.event import Event, EventRecipientPackage, FulfillmentStatus
@@ -501,21 +503,93 @@ class EventDetailWindow(ctk.CTkToplevel):
         """Create shopping list tab."""
         tab_frame = self.tabview.tab("Shopping List")
         tab_frame.grid_columnconfigure(0, weight=1)
-        tab_frame.grid_rowconfigure(1, weight=1)
+        tab_frame.grid_rowconfigure(2, weight=1)
 
-        # Instructions
+        # Header frame with title and export button (Feature 017)
+        header_frame = ctk.CTkFrame(tab_frame, fg_color="transparent")
+        header_frame.grid(row=0, column=0, sticky="ew", pady=(0, PADDING_MEDIUM))
+        header_frame.grid_columnconfigure(0, weight=1)
+
+        # Instructions (left side)
         instructions = ctk.CTkLabel(
-            tab_frame,
+            header_frame,
             text="Shopping list compares what you need for this event vs current inventory on hand.",
             font=ctk.CTkFont(size=12, slant="italic"),
             text_color="gray",
         )
-        instructions.grid(row=0, column=0, sticky="w", pady=(0, PADDING_MEDIUM))
+        instructions.grid(row=0, column=0, sticky="w")
+
+        # Export CSV button (right side) - Feature 017
+        self.export_csv_button = ctk.CTkButton(
+            header_frame,
+            text="Export CSV",
+            command=self._export_shopping_list_csv,
+            width=100,
+        )
+        self.export_csv_button.grid(row=0, column=1, sticky="e", padx=PADDING_MEDIUM)
 
         # Shopping list display (scrollable)
         self.shopping_list_frame = ctk.CTkScrollableFrame(tab_frame)
-        self.shopping_list_frame.grid(row=1, column=0, sticky="nsew", pady=PADDING_MEDIUM)
+        self.shopping_list_frame.grid(row=2, column=0, sticky="nsew", pady=PADDING_MEDIUM)
         self.shopping_list_frame.grid_columnconfigure(0, weight=1)
+
+    # =========================================================================
+    # Feature 017: CSV Export Methods
+    # =========================================================================
+
+    def _get_default_csv_filename(self) -> str:
+        """Generate default CSV filename from event name.
+
+        Returns:
+            Filename like 'christmas-cookies-2024-shopping-list.csv'
+        """
+        # Convert event name to slug: lowercase, replace non-alphanumeric with hyphens
+        slug = re.sub(r"[^a-zA-Z0-9]+", "-", self.event.name.lower()).strip("-")
+        return f"{slug}-shopping-list.csv"
+
+    def _export_shopping_list_csv(self):
+        """Handle CSV export button click (Feature 017 - T016-T019)."""
+        # T017: Show file save dialog with default filename
+        default_filename = self._get_default_csv_filename()
+        file_path = filedialog.asksaveasfilename(
+            parent=self,
+            title="Export Shopping List",
+            defaultextension=".csv",
+            initialfile=default_filename,
+            filetypes=[("CSV files", "*.csv"), ("All files", "*.*")],
+        )
+
+        # User cancelled
+        if not file_path:
+            return
+
+        # T018: Call export service method
+        try:
+            success = event_service.export_shopping_list_csv(self.event.id, file_path)
+            if success:
+                # T019: Show success notification
+                messagebox.showinfo(
+                    "Export Successful",
+                    f"Shopping list exported to:\n{file_path}",
+                    parent=self,
+                )
+        except IOError as e:
+            # T019: Show error notification
+            messagebox.showerror(
+                "Export Failed",
+                f"Could not write file:\n{str(e)}",
+                parent=self,
+            )
+        except Exception as e:
+            messagebox.showerror(
+                "Export Failed",
+                f"An error occurred:\n{str(e)}",
+                parent=self,
+            )
+
+    # =========================================================================
+    # End Feature 017 CSV Export
+    # =========================================================================
 
     def _create_summary_tab(self):
         """Create summary tab."""

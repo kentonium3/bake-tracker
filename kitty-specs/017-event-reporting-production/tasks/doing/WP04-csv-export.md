@@ -7,9 +7,9 @@ subtasks:
   - "T019"
 title: "Shopping List CSV Export"
 phase: "Phase 4 - CSV Export"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
+agent: "system"
 shell_pid: ""
 review_status: ""
 reviewed_by: ""
@@ -256,3 +256,4 @@ history:
 ## Activity Log
 
 - 2025-12-11T00:00:00Z - system - lane=planned - Prompt created.
+- 2025-12-12T03:30:19Z – system – shell_pid= – lane=doing – Moved to doing

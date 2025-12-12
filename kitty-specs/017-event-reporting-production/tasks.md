@@ -115,10 +115,10 @@
 **Prompt**: `tasks/planned/WP04-csv-export.md`
 
 ### Included Subtasks
-- [ ] T016 Add "Export CSV" button to Shopping tab in `src/ui/event_detail_window.py`
-- [ ] T017 Implement file save dialog with default filename in `src/ui/event_detail_window.py`
-- [ ] T018 Call export service method and handle errors in `src/ui/event_detail_window.py`
-- [ ] T019 Show success/failure notification in `src/ui/event_detail_window.py`
+- [x] T016 Add "Export CSV" button to Shopping tab in `src/ui/event_detail_window.py`
+- [x] T017 Implement file save dialog with default filename in `src/ui/event_detail_window.py`
+- [x] T018 Call export service method and handle errors in `src/ui/event_detail_window.py`
+- [x] T019 Show success/failure notification in `src/ui/event_detail_window.py`
 
 ### Implementation Notes
 1. Button placement: Near top of Shopping tab, after "Shopping List for [Event]" header
