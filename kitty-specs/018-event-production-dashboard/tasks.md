@@ -22,9 +22,9 @@
 **Prompt**: `tasks/planned/WP01-service-layer-foundation.md`
 
 ### Included Subtasks
-- [ ] T001 Add STATUS_COLORS dict to `src/utils/constants.py`
-- [ ] T002 Implement `get_events_with_progress()` in `src/services/event_service.py`
-- [ ] T003 Add tests for `get_events_with_progress()` in `src/tests/test_event_service.py`
+- [x] T001 Add STATUS_COLORS dict to `src/utils/constants.py`
+- [x] T002 Implement `get_events_with_progress()` in `src/services/event_service.py`
+- [x] T003 Add tests for `get_events_with_progress()` in `src/tests/test_event_service.py`
 
 ### Implementation Notes
 1. Add color constants first (T001) - enables UI work to start
@@ -49,12 +49,12 @@
 **Prompt**: `tasks/planned/WP02-event-card-widget.md`
 
 ### Included Subtasks
-- [ ] T004 [P] Create EventCard class skeleton in `src/ui/widgets/event_card.py`
-- [ ] T005 Implement collapsed view (header row with event name, date, overall progress bar, fulfillment counts)
-- [ ] T006 Implement expanded view (individual production/assembly target progress bars)
-- [ ] T007 Implement `toggle_expanded()` using pack_forget/pack pattern
-- [ ] T008 [P] Implement color-coded progress bars using STATUS_COLORS
-- [ ] T009 Implement quick action button row with callbacks
+- [x] T004 [P] Create EventCard class skeleton in `src/ui/widgets/event_card.py`
+- [x] T005 Implement collapsed view (header row with event name, date, overall progress bar, fulfillment counts)
+- [x] T006 Implement expanded view (individual production/assembly target progress bars)
+- [x] T007 Implement `toggle_expanded()` using pack_forget/pack pattern
+- [x] T008 [P] Implement color-coded progress bars using STATUS_COLORS
+- [x] T009 Implement quick action button row with callbacks
 
 ### Implementation Notes
 1. Create class skeleton with `__init__` accepting `event_data` dict and `callbacks` dict (T004)
@@ -84,13 +84,13 @@
 **Prompt**: `tasks/planned/WP03-dashboard-tab-enhancement.md`
 
 ### Included Subtasks
-- [ ] T010 Add filter controls frame (dropdown for Active/Future, Past, All + date pickers)
-- [ ] T011 Create scrollable CTkScrollableFrame container for EventCard widgets
-- [ ] T012 Implement `_rebuild_event_cards()` method to fetch and display events
-- [ ] T013 Wire filter change handlers to rebuild cards
-- [ ] T014 Wire quick action callbacks to existing dialogs (RecordProductionDialog, RecordAssemblyDialog)
-- [ ] T015 Handle edge cases: no events, no targets, empty filter results
-- [ ] T016 Add "Create Event" button to dashboard header
+- [x] T010 Add filter controls frame (dropdown for Active/Future, Past, All + date pickers)
+- [x] T011 Create scrollable CTkScrollableFrame container for EventCard widgets
+- [x] T012 Implement `_rebuild_event_cards()` method to fetch and display events
+- [x] T013 Wire filter change handlers to rebuild cards
+- [x] T014 Wire quick action callbacks to existing dialogs (RecordProductionDialog, RecordAssemblyDialog)
+- [x] T015 Handle edge cases: no events, no targets, empty filter results
+- [x] T016 Add "Create Event" button to dashboard header
 
 ### Implementation Notes
 1. Replace existing `_create_event_progress_section()` with new filter controls (T010)
@@ -122,12 +122,12 @@
 **Prompt**: `tasks/planned/WP04-integration-validation.md`
 
 ### Included Subtasks
-- [ ] T017 Verify Production Dashboard is first/default tab on app launch
-- [ ] T018 Test all 4 status indicator states (Not Started, In Progress, Complete, Exceeded)
-- [ ] T019 Test filter behavior (default Active & Future, Past, All, date range)
-- [ ] T020 Test quick action integration (Record Production, Record Assembly, Shopping List, Event Detail)
-- [ ] T021 Validate performance (dashboard loads within 2 seconds for typical usage)
-- [ ] T022 Run full regression on existing functionality
+- [x] T017 Verify Production Dashboard is first/default tab on app launch
+- [x] T018 Test all 4 status indicator states (Not Started, In Progress, Complete, Exceeded)
+- [x] T019 Test filter behavior (default Active & Future, Past, All, date range)
+- [x] T020 Test quick action integration (Record Production, Record Assembly, Shopping List, Event Detail)
+- [x] T021 Validate performance (dashboard loads within 2 seconds for typical usage)
+- [x] T022 Run full regression on existing functionality
 
 ### Implementation Notes
 1. Launch app and verify tab selection (T017)

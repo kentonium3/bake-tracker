@@ -11,7 +11,7 @@ subtasks:
 title: "Dashboard Tab Enhancement"
 phase: "Phase 2 - UI Integration"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude-reviewer"
 shell_pid: "64498"
 review_status: ""

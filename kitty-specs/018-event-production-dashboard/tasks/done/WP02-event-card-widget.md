@@ -10,7 +10,7 @@ subtasks:
 title: "EventCard Widget"
 phase: "Phase 2 - UI Components"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude-reviewer"
 shell_pid: "64318"
 review_status: ""
