@@ -9,10 +9,10 @@ subtasks:
   - "T009"
 title: "EventCard Widget"
 phase: "Phase 2 - UI Components"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "claude"
-shell_pid: "60624"
+shell_pid: "60705"
 review_status: ""
 reviewed_by: ""
 history:
@@ -679,3 +679,4 @@ if __name__ == "__main__":
 
 - 2025-12-12T00:00:00Z – system – lane=planned – Prompt created.
 - 2025-12-12T20:50:04Z – claude – shell_pid=60624 – lane=doing – Started implementation
+- 2025-12-12T20:50:14Z – claude – shell_pid=60705 – lane=for_review – Implementation complete: EventCard widget
