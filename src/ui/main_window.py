@@ -88,8 +88,10 @@ class MainWindow(ctk.CTk):
         self.tabview = ctk.CTkTabview(self, corner_radius=10)
         self.tabview.grid(row=1, column=0, padx=10, pady=(0, 10), sticky="nsew")
 
-        # Add tabs (v0.4.0 architecture - Inventory tab removed, replaced with My Ingredients + My Pantry)
-        self.tabview.add("Dashboard")
+        # Add tabs - Production first for immediate visibility (Feature 017)
+        # "Dashboard" renamed to "Summary" (Feature 017)
+        self.tabview.add("Production")
+        self.tabview.add("Summary")
         self.tabview.add("My Ingredients")
         self.tabview.add("My Pantry")
         self.tabview.add("Recipes")
@@ -98,12 +100,15 @@ class MainWindow(ctk.CTk):
         self.tabview.add("Packages")
         self.tabview.add("Recipients")
         self.tabview.add("Events")
-        self.tabview.add("Production")
         self.tabview.add("Reports")
 
-        # Initialize Dashboard tab
-        dashboard_frame = self.tabview.tab("Dashboard")
-        self.dashboard_tab = DashboardTab(dashboard_frame)
+        # Initialize Production Dashboard tab first (Feature 017 - default tab)
+        production_frame = self.tabview.tab("Production")
+        self.production_tab = ProductionDashboardTab(production_frame)
+
+        # Initialize Summary tab (renamed from Dashboard - Feature 017)
+        summary_frame = self.tabview.tab("Summary")
+        self.dashboard_tab = DashboardTab(summary_frame)
 
         # Initialize My Ingredients tab (v0.4.0 architecture)
         ingredients_frame = self.tabview.tab("My Ingredients")
@@ -136,15 +141,13 @@ class MainWindow(ctk.CTk):
         events_frame = self.tabview.tab("Events")
         self.events_tab = EventsTab(events_frame)
 
-        # Initialize Production Dashboard tab (Feature 014)
-        production_frame = self.tabview.tab("Production")
-        self.production_tab = ProductionDashboardTab(production_frame)
+        # Production tab already initialized at top (Feature 017 - first tab)
 
         # Add placeholders for future tabs
         self._add_placeholder_tab("Reports", "Phase 4: Coming Soon")
 
-        # Set default tab
-        self.tabview.set("Dashboard")
+        # Set default tab - Production is now default (Feature 017)
+        self.tabview.set("Production")
 
         # Add tab change callback to refresh dashboard when selected
         self.tabview.configure(command=self._on_tab_change)
@@ -275,13 +278,13 @@ class MainWindow(ctk.CTk):
     def _on_tab_change(self):
         """Handle tab change event - refresh certain tabs when selected."""
         current_tab = self.tabview.get()
-        if current_tab == "Dashboard":
+        if current_tab == "Summary":  # Renamed from "Dashboard" (Feature 017)
             self.dashboard_tab.refresh()
         elif current_tab == "Production":
             self.production_tab.refresh()
 
     def refresh_dashboard(self):
-        """Refresh the dashboard tab with current data."""
+        """Refresh the summary tab (formerly dashboard) with current data."""
         self.dashboard_tab.refresh()
 
     def refresh_inventory(self):

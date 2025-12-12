@@ -54,10 +54,10 @@
 **Prompt**: `tasks/planned/WP02-dashboard-restructuring.md`
 
 ### Included Subtasks
-- [ ] T007 Reorder tabs in `src/ui/main_window.py` (Production first)
-- [ ] T008 Rename "Dashboard" tab to "Summary" in `src/ui/main_window.py`
-- [ ] T009 Update default tab selection to Production in `src/ui/main_window.py`
-- [ ] T010 Update `_on_tab_change` callback for renamed tab in `src/ui/main_window.py`
+- [x] T007 Reorder tabs in `src/ui/main_window.py` (Production first)
+- [x] T008 Rename "Dashboard" tab to "Summary" in `src/ui/main_window.py`
+- [x] T009 Update default tab selection to Production in `src/ui/main_window.py`
+- [x] T010 Update `_on_tab_change` callback for renamed tab in `src/ui/main_window.py`
 
 ### Implementation Notes
 1. Tab order change: Move `self.tabview.add("Production")` before `self.tabview.add("Dashboard")`

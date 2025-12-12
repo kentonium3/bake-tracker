@@ -7,7 +7,7 @@ subtasks:
   - "T010"
 title: "Dashboard Restructuring"
 phase: "Phase 2 - Dashboard Restructuring"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "system"
 shell_pid: ""
@@ -250,3 +250,4 @@ grep -r "Dashboard" src/ui/ --include="*.py"
 
 - 2025-12-11T00:00:00Z - system - lane=planned - Prompt created.
 - 2025-12-12T03:04:33Z – system – shell_pid= – lane=doing – Moved to doing
+- 2025-12-12T03:08:14Z – system – shell_pid= – lane=for_review – Moved to for_review
