@@ -1806,7 +1806,7 @@ def get_production_progress(event_id: int) -> List[Dict[str, Any]]:
 
     Returns:
         List of dicts with:
-        - recipe: Recipe instance
+        - recipe_id: int
         - recipe_name: str
         - target_batches: int
         - produced_batches: int
@@ -1856,7 +1856,7 @@ def get_production_progress(event_id: int) -> List[Dict[str, Any]]:
 
                 results.append(
                     {
-                        "recipe": target.recipe,
+                        "recipe_id": target.recipe_id,
                         "recipe_name": target.recipe.name,
                         "target_batches": target.target_batches,
                         "produced_batches": produced_batches,
@@ -1884,7 +1884,7 @@ def get_assembly_progress(event_id: int) -> List[Dict[str, Any]]:
 
     Returns:
         List of dicts with:
-        - finished_good: FinishedGood instance
+        - finished_good_id: int
         - finished_good_name: str
         - target_quantity: int
         - assembled_quantity: int
@@ -1931,7 +1931,7 @@ def get_assembly_progress(event_id: int) -> List[Dict[str, Any]]:
 
                 results.append(
                     {
-                        "finished_good": target.finished_good,
+                        "finished_good_id": target.finished_good_id,
                         "finished_good_name": target.finished_good.display_name,
                         "target_quantity": target.target_quantity,
                         "assembled_quantity": assembled_qty,

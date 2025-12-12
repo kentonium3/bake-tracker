@@ -9,6 +9,7 @@ Feature 017 - Event Progress tracking added
 Feature 018 - Multi-Event Production Dashboard (replaces single-event selector)
 """
 
+import logging
 import customtkinter as ctk
 from datetime import datetime, timedelta
 from tkinter import messagebox
@@ -19,6 +20,8 @@ from src.ui.widgets.event_card import EventCard
 from src.ui.service_integration import get_ui_service_integrator, OperationType
 from src.services import batch_production_service, assembly_service, event_service
 from src.utils.constants import PADDING_MEDIUM, PADDING_LARGE
+
+logger = logging.getLogger(__name__)
 
 
 class ProductionDashboardTab(ctk.CTkFrame):
@@ -267,7 +270,7 @@ class ProductionDashboardTab(ctk.CTkFrame):
                 date_to=date_to,
             )
         except Exception as e:
-            print(f"Error loading events: {e}")
+            logger.error(f"Error loading events: {e}", exc_info=True)
             self._show_error_message(str(e))
             return
 
@@ -322,6 +325,14 @@ class ProductionDashboardTab(ctk.CTkFrame):
             messagebox.showwarning(
                 "Invalid Date",
                 "To date must be in YYYY-MM-DD format",
+            )
+            return
+
+        # Validate date range order
+        if date_from and date_to and date_from > date_to:
+            messagebox.showwarning(
+                "Invalid Date Range",
+                "From date must be before or equal to To date",
             )
             return
 
