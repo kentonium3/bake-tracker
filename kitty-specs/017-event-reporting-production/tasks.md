@@ -83,11 +83,11 @@
 **Prompt**: `tasks/planned/WP03-production-dashboard-progress.md`
 
 ### Included Subtasks
-- [ ] T011 Add event selector dropdown to `src/ui/production_dashboard_tab.py`
-- [ ] T012 Add production progress section with progress bars in `src/ui/production_dashboard_tab.py`
-- [ ] T013 Add assembly progress section with progress bars in `src/ui/production_dashboard_tab.py`
-- [ ] T014 Handle "no targets" case with message and link in `src/ui/production_dashboard_tab.py`
-- [ ] T015 Add navigation link to Event Detail for target management in `src/ui/production_dashboard_tab.py`
+- [x] T011 Add event selector dropdown to `src/ui/production_dashboard_tab.py`
+- [x] T012 Add production progress section with progress bars in `src/ui/production_dashboard_tab.py`
+- [x] T013 Add assembly progress section with progress bars in `src/ui/production_dashboard_tab.py`
+- [x] T014 Handle "no targets" case with message and link in `src/ui/production_dashboard_tab.py`
+- [x] T015 Add navigation link to Event Detail for target management in `src/ui/production_dashboard_tab.py`
 
 ### Implementation Notes
 1. Event selector: CTkComboBox populated from `get_all_events()`
