@@ -145,10 +145,10 @@
 **Prompt**: `tasks/planned/WP05-event-summary-enhancement.md`
 
 ### Included Subtasks
-- [ ] T020 Add planned vs actual production section to Summary tab in `src/ui/event_detail_window.py`
-- [ ] T021 Add planned vs actual assembly section to Summary tab in `src/ui/event_detail_window.py`
-- [ ] T022 Add package fulfillment status counts in `src/ui/event_detail_window.py`
-- [ ] T023 Add cost variance display (estimated vs actual) in `src/ui/event_detail_window.py`
+- [x] T020 Add planned vs actual production section to Summary tab in `src/ui/event_detail_window.py`
+- [x] T021 Add planned vs actual assembly section to Summary tab in `src/ui/event_detail_window.py`
+- [x] T022 Add package fulfillment status counts in `src/ui/event_detail_window.py`
+- [x] T023 Add cost variance display (estimated vs actual) in `src/ui/event_detail_window.py`
 
 ### Implementation Notes
 1. Production section: Table with columns [Recipe, Target, Actual, %]

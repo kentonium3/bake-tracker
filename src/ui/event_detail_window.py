@@ -1277,63 +1277,416 @@ class EventDetailWindow(ctk.CTkToplevel):
         ctk.CTkLabel(item_frame, text=est_cost).grid(row=0, column=7, padx=8, pady=5, sticky="w")
 
     def _refresh_summary(self):
-        """Refresh summary tab."""
+        """Refresh summary tab with comprehensive event reporting (Feature 017)."""
         # Clear existing
         for widget in self.summary_frame.winfo_children():
             widget.destroy()
 
         try:
-            # Event info
+            # Event info header
             ctk.CTkLabel(
-                self.summary_frame, text="Event Summary", font=ctk.CTkFont(size=18, weight="bold")
-            ).grid(row=0, column=0, sticky="w", pady=(0, 20))
+                self.summary_frame,
+                text="Event Summary",
+                font=ctk.CTkFont(size=18, weight="bold"),
+            ).pack(anchor="w", pady=(0, 10))
 
             # Get fresh event data
             event = event_service.get_event_by_id(self.event.id)
 
             recipient_count = event.get_recipient_count()
             package_count = event.get_package_count()
-            total_cost = event.get_total_cost()
+            estimated_cost = event.get_total_cost()
 
-            # Summary details
+            # Basic info section
             info_frame = ctk.CTkFrame(self.summary_frame, fg_color=("gray90", "gray20"))
-            info_frame.grid(row=1, column=0, sticky="ew", pady=10)
-            info_frame.grid_columnconfigure(0, weight=1)
+            info_frame.pack(fill="x", pady=(0, 10))
+
+            info_row = ctk.CTkFrame(info_frame, fg_color="transparent")
+            info_row.pack(fill="x", padx=15, pady=10)
 
             ctk.CTkLabel(
-                info_frame, text=f"Recipients: {recipient_count}", font=ctk.CTkFont(size=14)
-            ).grid(row=0, column=0, sticky="w", padx=20, pady=5)
+                info_row,
+                text=f"Recipients: {recipient_count}",
+                font=ctk.CTkFont(size=14),
+            ).pack(side="left", padx=10)
 
             ctk.CTkLabel(
-                info_frame, text=f"Total Packages: {package_count}", font=ctk.CTkFont(size=14)
-            ).grid(row=1, column=0, sticky="w", padx=20, pady=5)
+                info_row,
+                text=f"Total Packages: {package_count}",
+                font=ctk.CTkFont(size=14),
+            ).pack(side="left", padx=10)
 
             ctk.CTkLabel(
-                info_frame,
-                text=f"Estimated Total Cost: ${total_cost:.2f}",
+                info_row,
+                text=f"Estimated Cost: ${estimated_cost:.2f}",
                 font=ctk.CTkFont(size=14, weight="bold"),
-            ).grid(row=2, column=0, sticky="w", padx=20, pady=(5, 15))
+            ).pack(side="left", padx=10)
 
-            # Notes
+            # Feature 017: T022 - Package fulfillment status counts
+            self._create_summary_fulfillment_section()
+
+            # Feature 017: T020 - Production planned vs actual
+            self._create_summary_production_section()
+
+            # Feature 017: T021 - Assembly planned vs actual
+            self._create_summary_assembly_section()
+
+            # Feature 017: T023 - Cost variance display
+            self._create_summary_cost_section()
+
+            # Notes section
             if event.notes:
-                ctk.CTkLabel(
-                    self.summary_frame, text="Notes:", font=ctk.CTkFont(size=14, weight="bold")
-                ).grid(row=2, column=0, sticky="w", pady=(20, 5))
+                notes_frame = ctk.CTkFrame(self.summary_frame, fg_color="transparent")
+                notes_frame.pack(fill="x", pady=10)
 
-                notes_label = ctk.CTkLabel(
-                    self.summary_frame,
+                ctk.CTkLabel(
+                    notes_frame,
+                    text="Notes:",
+                    font=ctk.CTkFont(size=14, weight="bold"),
+                ).pack(anchor="w")
+
+                ctk.CTkLabel(
+                    notes_frame,
                     text=event.notes,
                     font=ctk.CTkFont(size=12),
                     wraplength=900,
                     justify="left",
-                )
-                notes_label.grid(row=3, column=0, sticky="w", pady=(0, 10))
+                ).pack(anchor="w", pady=(5, 0))
 
         except Exception as e:
             label = ctk.CTkLabel(
-                self.summary_frame, text=f"Error loading summary: {str(e)}", text_color="red"
+                self.summary_frame,
+                text=f"Error loading summary: {str(e)}",
+                text_color="red",
             )
-            label.grid(row=0, column=0, pady=20)
+            label.pack(pady=20)
+
+    # =========================================================================
+    # Feature 017: Summary Enhancement Sections (T020-T023)
+    # =========================================================================
+
+    def _create_summary_fulfillment_section(self):
+        """Create package fulfillment status section (T022)."""
+        section_frame = ctk.CTkFrame(self.summary_frame, fg_color=("gray90", "gray20"))
+        section_frame.pack(fill="x", pady=5)
+
+        # Header
+        ctk.CTkLabel(
+            section_frame,
+            text="Package Fulfillment Status",
+            font=ctk.CTkFont(size=14, weight="bold"),
+        ).pack(anchor="w", padx=15, pady=(10, 5))
+
+        try:
+            # Get overall progress which includes package counts
+            progress = event_service.get_event_overall_progress(self.event.id)
+
+            # Create status row
+            counts_frame = ctk.CTkFrame(section_frame, fg_color="transparent")
+            counts_frame.pack(fill="x", padx=15, pady=(0, 10))
+
+            # Pending - light orange
+            pending_label = ctk.CTkLabel(
+                counts_frame,
+                text=f"  Pending: {progress.get('packages_pending', 0)}  ",
+                fg_color="#D4A574",
+                text_color="black",
+                corner_radius=5,
+            )
+            pending_label.pack(side="left", padx=5)
+
+            # Ready - light green
+            ready_label = ctk.CTkLabel(
+                counts_frame,
+                text=f"  Ready: {progress.get('packages_ready', 0)}  ",
+                fg_color="#90EE90",
+                text_color="black",
+                corner_radius=5,
+            )
+            ready_label.pack(side="left", padx=5)
+
+            # Delivered - light blue
+            delivered_label = ctk.CTkLabel(
+                counts_frame,
+                text=f"  Delivered: {progress.get('packages_delivered', 0)}  ",
+                fg_color="#87CEEB",
+                text_color="black",
+                corner_radius=5,
+            )
+            delivered_label.pack(side="left", padx=5)
+
+            # Total
+            ctk.CTkLabel(
+                counts_frame,
+                text=f"Total: {progress.get('packages_total', 0)}",
+                font=ctk.CTkFont(size=12),
+            ).pack(side="left", padx=15)
+
+        except Exception as e:
+            ctk.CTkLabel(
+                section_frame,
+                text=f"Could not load fulfillment data: {e}",
+                text_color="red",
+            ).pack(padx=15, pady=5)
+
+    def _create_summary_production_section(self):
+        """Create production planned vs actual section (T020)."""
+        section_frame = ctk.CTkFrame(self.summary_frame, fg_color=("gray90", "gray20"))
+        section_frame.pack(fill="x", pady=5)
+
+        # Header
+        ctk.CTkLabel(
+            section_frame,
+            text="Production Summary (Planned vs Actual)",
+            font=ctk.CTkFont(size=14, weight="bold"),
+        ).pack(anchor="w", padx=15, pady=(10, 5))
+
+        try:
+            progress = event_service.get_production_progress(self.event.id)
+
+            if not progress:
+                ctk.CTkLabel(
+                    section_frame,
+                    text="No production targets set for this event",
+                    text_color="gray",
+                    font=ctk.CTkFont(slant="italic"),
+                ).pack(padx=15, pady=10)
+                return
+
+            # Table header
+            header_frame = ctk.CTkFrame(section_frame, fg_color="transparent")
+            header_frame.pack(fill="x", padx=15)
+
+            for col, width in [("Recipe", 200), ("Target", 80), ("Actual", 80), ("%", 80)]:
+                ctk.CTkLabel(
+                    header_frame,
+                    text=col,
+                    width=width,
+                    font=ctk.CTkFont(weight="bold"),
+                    anchor="w",
+                ).pack(side="left")
+
+            # Data rows
+            for item in progress:
+                row_frame = ctk.CTkFrame(section_frame, fg_color="transparent")
+                row_frame.pack(fill="x", padx=15)
+
+                pct = item["progress_pct"]
+                pct_text = f"{pct:.0f}%"
+                pct_color = "green" if pct >= 100 else None
+
+                ctk.CTkLabel(
+                    row_frame,
+                    text=item["recipe_name"],
+                    width=200,
+                    anchor="w",
+                ).pack(side="left")
+                ctk.CTkLabel(
+                    row_frame,
+                    text=str(item["target_batches"]),
+                    width=80,
+                    anchor="w",
+                ).pack(side="left")
+                ctk.CTkLabel(
+                    row_frame,
+                    text=str(item["produced_batches"]),
+                    width=80,
+                    anchor="w",
+                ).pack(side="left")
+                ctk.CTkLabel(
+                    row_frame,
+                    text=pct_text,
+                    width=80,
+                    text_color=pct_color,
+                    anchor="w",
+                ).pack(side="left")
+
+            # Add padding at bottom
+            ctk.CTkFrame(section_frame, height=5, fg_color="transparent").pack()
+
+        except Exception as e:
+            ctk.CTkLabel(
+                section_frame,
+                text=f"Could not load production data: {e}",
+                text_color="red",
+            ).pack(padx=15, pady=5)
+
+    def _create_summary_assembly_section(self):
+        """Create assembly planned vs actual section (T021)."""
+        section_frame = ctk.CTkFrame(self.summary_frame, fg_color=("gray90", "gray20"))
+        section_frame.pack(fill="x", pady=5)
+
+        # Header
+        ctk.CTkLabel(
+            section_frame,
+            text="Assembly Summary (Planned vs Actual)",
+            font=ctk.CTkFont(size=14, weight="bold"),
+        ).pack(anchor="w", padx=15, pady=(10, 5))
+
+        try:
+            progress = event_service.get_assembly_progress(self.event.id)
+
+            if not progress:
+                ctk.CTkLabel(
+                    section_frame,
+                    text="No assembly targets set for this event",
+                    text_color="gray",
+                    font=ctk.CTkFont(slant="italic"),
+                ).pack(padx=15, pady=10)
+                return
+
+            # Table header
+            header_frame = ctk.CTkFrame(section_frame, fg_color="transparent")
+            header_frame.pack(fill="x", padx=15)
+
+            for col, width in [("Finished Good", 200), ("Target", 80), ("Actual", 80), ("%", 80)]:
+                ctk.CTkLabel(
+                    header_frame,
+                    text=col,
+                    width=width,
+                    font=ctk.CTkFont(weight="bold"),
+                    anchor="w",
+                ).pack(side="left")
+
+            # Data rows
+            for item in progress:
+                row_frame = ctk.CTkFrame(section_frame, fg_color="transparent")
+                row_frame.pack(fill="x", padx=15)
+
+                pct = item["progress_pct"]
+                pct_text = f"{pct:.0f}%"
+                pct_color = "green" if pct >= 100 else None
+
+                ctk.CTkLabel(
+                    row_frame,
+                    text=item["finished_good_name"],
+                    width=200,
+                    anchor="w",
+                ).pack(side="left")
+                ctk.CTkLabel(
+                    row_frame,
+                    text=str(item["target_quantity"]),
+                    width=80,
+                    anchor="w",
+                ).pack(side="left")
+                ctk.CTkLabel(
+                    row_frame,
+                    text=str(item["assembled_quantity"]),
+                    width=80,
+                    anchor="w",
+                ).pack(side="left")
+                ctk.CTkLabel(
+                    row_frame,
+                    text=pct_text,
+                    width=80,
+                    text_color=pct_color,
+                    anchor="w",
+                ).pack(side="left")
+
+            # Add padding at bottom
+            ctk.CTkFrame(section_frame, height=5, fg_color="transparent").pack()
+
+        except Exception as e:
+            ctk.CTkLabel(
+                section_frame,
+                text=f"Could not load assembly data: {e}",
+                text_color="red",
+            ).pack(padx=15, pady=5)
+
+    def _create_summary_cost_section(self):
+        """Create cost variance section (T023)."""
+        section_frame = ctk.CTkFrame(self.summary_frame, fg_color=("gray90", "gray20"))
+        section_frame.pack(fill="x", pady=5)
+
+        # Header
+        ctk.CTkLabel(
+            section_frame,
+            text="Cost Analysis",
+            font=ctk.CTkFont(size=14, weight="bold"),
+        ).pack(anchor="w", padx=15, pady=(10, 5))
+
+        try:
+            costs = event_service.get_event_cost_analysis(self.event.id)
+
+            # Cost summary row
+            cost_row = ctk.CTkFrame(section_frame, fg_color="transparent")
+            cost_row.pack(fill="x", padx=15, pady=5)
+
+            # Estimated cost
+            ctk.CTkLabel(
+                cost_row,
+                text=f"Estimated: ${costs.get('estimated_cost', 0):.2f}",
+                font=ctk.CTkFont(size=12),
+            ).pack(side="left", padx=10)
+
+            # Actual cost
+            ctk.CTkLabel(
+                cost_row,
+                text=f"Actual: ${costs.get('grand_total', 0):.2f}",
+                font=ctk.CTkFont(size=12),
+            ).pack(side="left", padx=10)
+
+            # Variance (positive = under budget, negative = over budget)
+            variance = costs.get("variance", 0)
+            variance_sign = "+" if variance >= 0 else ""
+            variance_color = "green" if variance >= 0 else "red"
+
+            ctk.CTkLabel(
+                cost_row,
+                text=f"Variance: {variance_sign}${variance:.2f}",
+                font=ctk.CTkFont(size=12, weight="bold"),
+                text_color=variance_color,
+            ).pack(side="left", padx=10)
+
+            # Breakdown section (if data available)
+            prod_costs = costs.get("production_costs", [])
+            asm_costs = costs.get("assembly_costs", [])
+
+            if prod_costs or asm_costs:
+                breakdown_frame = ctk.CTkFrame(section_frame, fg_color="transparent")
+                breakdown_frame.pack(fill="x", padx=15, pady=(5, 10))
+
+                # Production costs breakdown
+                if prod_costs:
+                    ctk.CTkLabel(
+                        breakdown_frame,
+                        text="Production Costs by Recipe:",
+                        font=ctk.CTkFont(size=11, weight="bold"),
+                    ).pack(anchor="w")
+
+                    for item in prod_costs:
+                        text = f"  {item['recipe_name']}: ${item['total_cost']:.2f} ({item['run_count']} runs)"
+                        ctk.CTkLabel(breakdown_frame, text=text).pack(anchor="w")
+
+                # Assembly costs breakdown
+                if asm_costs:
+                    ctk.CTkLabel(
+                        breakdown_frame,
+                        text="Assembly Costs by Finished Good:",
+                        font=ctk.CTkFont(size=11, weight="bold"),
+                    ).pack(anchor="w", pady=(5, 0))
+
+                    for item in asm_costs:
+                        text = f"  {item['finished_good_name']}: ${item['total_cost']:.2f} ({item['run_count']} runs)"
+                        ctk.CTkLabel(breakdown_frame, text=text).pack(anchor="w")
+            else:
+                ctk.CTkLabel(
+                    section_frame,
+                    text="No production or assembly costs recorded yet",
+                    text_color="gray",
+                    font=ctk.CTkFont(slant="italic"),
+                ).pack(padx=15, pady=(0, 10))
+
+        except Exception as e:
+            ctk.CTkLabel(
+                section_frame,
+                text=f"Could not load cost data: {e}",
+                text_color="red",
+            ).pack(padx=15, pady=5)
+
+    # =========================================================================
+    # End Feature 017 Summary Enhancement
+    # =========================================================================
 
 
 # Feature 016: Dialog classes for target management

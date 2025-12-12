@@ -7,9 +7,9 @@ subtasks:
   - "T023"
 title: "Event Summary Enhancement"
 phase: "Phase 5 - Event Summary Enhancement"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
+agent: "system"
 shell_pid: ""
 review_status: ""
 reviewed_by: ""
@@ -402,3 +402,4 @@ history:
 ## Activity Log
 
 - 2025-12-11T00:00:00Z - system - lane=planned - Prompt created.
+- 2025-12-12T03:40:50Z – system – shell_pid= – lane=doing – Moved to doing
