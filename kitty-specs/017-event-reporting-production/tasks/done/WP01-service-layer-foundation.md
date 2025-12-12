@@ -10,7 +10,7 @@ subtasks:
 title: "Service Layer Foundation"
 phase: "Phase 1 - Service Layer"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude"
 shell_pid: "30686"
 review_status: "approved without changes"

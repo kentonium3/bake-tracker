@@ -8,9 +8,9 @@ subtasks:
 title: "Dashboard Restructuring"
 phase: "Phase 2 - Dashboard Restructuring"
 lane: "done"
-assignee: ""
-agent: "system"
-shell_pid: ""
+assignee: "claude"
+agent: "claude"
+shell_pid: "30686"
 review_status: "approved without changes"
 reviewed_by: "claude-reviewer"
 history:

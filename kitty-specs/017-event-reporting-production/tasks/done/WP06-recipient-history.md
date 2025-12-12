@@ -7,9 +7,9 @@ subtasks:
 title: "Recipient History"
 phase: "Phase 6 - Recipient History"
 lane: "done"
-assignee: ""
-agent: "system"
-shell_pid: ""
+assignee: "claude"
+agent: "claude"
+shell_pid: "30686"
 review_status: "approved without changes"
 reviewed_by: "claude-reviewer"
 history:

@@ -9,9 +9,9 @@ subtasks:
 title: "Production Dashboard Event Progress"
 phase: "Phase 3 - Production Dashboard Enhancement"
 lane: "done"
-assignee: ""
-agent: "system"
-shell_pid: ""
+assignee: "claude"
+agent: "claude"
+shell_pid: "30686"
 review_status: "approved without changes"
 reviewed_by: "claude-reviewer"
 history:
