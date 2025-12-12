@@ -573,6 +573,14 @@ class EventDetailWindow(ctk.CTkToplevel):
                     f"Shopping list exported to:\n{file_path}",
                     parent=self,
                 )
+            else:
+                # Nothing to export - show informational message
+                messagebox.showinfo(
+                    "Nothing to Export",
+                    "The shopping list is empty. There are no ingredients or packaging "
+                    "materials to export for this event.",
+                    parent=self,
+                )
         except IOError as e:
             # T019: Show error notification
             messagebox.showerror(

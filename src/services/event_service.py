@@ -1127,18 +1127,18 @@ def export_shopping_list_csv(event_id: int, file_path: str) -> bool:
         file_path: Destination file path
 
     Returns:
-        True if successful
+        True if export was successful and file was written.
+        False if there was nothing to export (empty shopping list).
 
     Raises:
-        EventNotFoundError: If event not found
         IOError: If file write fails
     """
     # Get shopping list data
     shopping_data = get_shopping_list(event_id, include_packaging=True)
 
     if not shopping_data["items"] and not shopping_data.get("packaging"):
-        # Nothing to export - still return True (empty export is valid)
-        return True
+        # Nothing to export - return False so UI can show appropriate message
+        return False
 
     try:
         with open(file_path, "w", newline="", encoding="utf-8-sig") as csvfile:
@@ -1818,7 +1818,7 @@ def get_production_progress(event_id: int) -> List[Dict[str, Any]]:
     """
     try:
         with session_scope() as session:
-            # Get all targets for this event
+            # Get all targets for this event with recipes eager-loaded
             targets = (
                 session.query(EventProductionTarget)
                 .options(joinedload(EventProductionTarget.recipe))
@@ -1826,23 +1826,38 @@ def get_production_progress(event_id: int) -> List[Dict[str, Any]]:
                 .all()
             )
 
+            if not targets:
+                return []
+
+            # Get all production totals in a single GROUP BY query
+            # This avoids N+1 queries by fetching all production sums at once
+            production_totals = (
+                session.query(
+                    ProductionRun.recipe_id,
+                    func.coalesce(func.sum(ProductionRun.num_batches), 0).label(
+                        "total_batches"
+                    ),
+                    func.coalesce(func.sum(ProductionRun.actual_yield), 0).label(
+                        "total_yield"
+                    ),
+                )
+                .filter(ProductionRun.event_id == event_id)
+                .group_by(ProductionRun.recipe_id)
+                .all()
+            )
+
+            # Build lookup dict: recipe_id -> (total_batches, total_yield)
+            production_by_recipe = {
+                row.recipe_id: (int(row.total_batches), int(row.total_yield))
+                for row in production_totals
+            }
+
+            # Merge targets with production totals
             results = []
             for target in targets:
-                # Sum production runs for this recipe and event
-                produced = (
-                    session.query(
-                        func.coalesce(func.sum(ProductionRun.num_batches), 0),
-                        func.coalesce(func.sum(ProductionRun.actual_yield), 0),
-                    )
-                    .filter(
-                        ProductionRun.recipe_id == target.recipe_id,
-                        ProductionRun.event_id == event_id,
-                    )
-                    .first()
+                produced_batches, produced_yield = production_by_recipe.get(
+                    target.recipe_id, (0, 0)
                 )
-
-                produced_batches = int(produced[0]) if produced[0] else 0
-                produced_yield = int(produced[1]) if produced[1] else 0
                 progress_pct = (produced_batches / target.target_batches) * 100
 
                 results.append(
@@ -1884,7 +1899,7 @@ def get_assembly_progress(event_id: int) -> List[Dict[str, Any]]:
     """
     try:
         with session_scope() as session:
-            # Get all targets for this event
+            # Get all targets for this event with finished goods eager-loaded
             targets = (
                 session.query(EventAssemblyTarget)
                 .options(joinedload(EventAssemblyTarget.finished_good))
@@ -1892,21 +1907,33 @@ def get_assembly_progress(event_id: int) -> List[Dict[str, Any]]:
                 .all()
             )
 
+            if not targets:
+                return []
+
+            # Get all assembly totals in a single GROUP BY query
+            # This avoids N+1 queries by fetching all assembly sums at once
+            assembly_totals = (
+                session.query(
+                    AssemblyRun.finished_good_id,
+                    func.coalesce(func.sum(AssemblyRun.quantity_assembled), 0).label(
+                        "total_assembled"
+                    ),
+                )
+                .filter(AssemblyRun.event_id == event_id)
+                .group_by(AssemblyRun.finished_good_id)
+                .all()
+            )
+
+            # Build lookup dict: finished_good_id -> total_assembled
+            assembly_by_fg = {
+                row.finished_good_id: int(row.total_assembled)
+                for row in assembly_totals
+            }
+
+            # Merge targets with assembly totals
             results = []
             for target in targets:
-                # Sum assembly runs for this finished good and event
-                assembled = (
-                    session.query(
-                        func.coalesce(func.sum(AssemblyRun.quantity_assembled), 0)
-                    )
-                    .filter(
-                        AssemblyRun.finished_good_id == target.finished_good_id,
-                        AssemblyRun.event_id == event_id,
-                    )
-                    .scalar()
-                )
-
-                assembled_qty = int(assembled) if assembled else 0
+                assembled_qty = assembly_by_fg.get(target.finished_good_id, 0)
                 progress_pct = (assembled_qty / target.target_quantity) * 100
 
                 results.append(
@@ -2037,8 +2064,9 @@ def get_event_cost_analysis(event_id: int) -> Dict[str, Any]:
     """
     Get cost breakdown for an event.
 
-    Calculates actual costs from ProductionRun.total_cost and AssemblyRun.total_cost,
-    which are derived from cost_at_time in consumption records.
+    Calculates actual costs from ProductionRun.total_ingredient_cost and
+    AssemblyRun.total_component_cost, which are derived from cost_at_time
+    in consumption records.
 
     Args:
         event_id: Event ID
@@ -2051,7 +2079,7 @@ def get_event_cost_analysis(event_id: int) -> Dict[str, Any]:
         - total_assembly_cost: Decimal
         - grand_total: Decimal
         - estimated_cost: Decimal (from shopping list)
-        - variance: Decimal (estimated - actual)
+        - variance: Decimal (estimated - actual, positive = under budget)
     """
     try:
         with session_scope() as session:

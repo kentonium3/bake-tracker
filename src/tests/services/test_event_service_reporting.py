@@ -13,7 +13,7 @@ Tests for:
 import csv
 import os
 import tempfile
-from datetime import date, datetime, UTC
+from datetime import date, datetime, timezone
 from decimal import Decimal
 
 import pytest
@@ -148,7 +148,7 @@ def event_with_production_runs(test_db, test_event, test_recipe, test_finished_u
         num_batches=2,
         expected_yield=96,
         actual_yield=96,
-        produced_at=datetime.now(UTC),
+        produced_at=datetime.now(timezone.utc),
         total_ingredient_cost=Decimal("25.00"),
         per_unit_cost=Decimal("0.26"),
     )
@@ -161,7 +161,7 @@ def event_with_production_runs(test_db, test_event, test_recipe, test_finished_u
         num_batches=1,
         expected_yield=48,
         actual_yield=48,
-        produced_at=datetime.now(UTC),
+        produced_at=datetime.now(timezone.utc),
         total_ingredient_cost=Decimal("12.50"),
         per_unit_cost=Decimal("0.26"),
     )
@@ -185,7 +185,7 @@ def event_with_assembly_runs(
         finished_good_id=test_finished_good.id,
         event_id=event.id,
         quantity_assembled=5,
-        assembled_at=datetime.now(UTC),
+        assembled_at=datetime.now(timezone.utc),
         total_component_cost=Decimal("8.00"),
         per_unit_cost=Decimal("1.60"),
     )
@@ -234,7 +234,7 @@ class TestExportShoppingListCSV:
     """Tests for export_shopping_list_csv()."""
 
     def test_export_shopping_list_csv_empty_event(self, test_db, test_event):
-        """Test CSV export for event with no shopping list items."""
+        """Test CSV export for event with no shopping list items returns False."""
         with tempfile.NamedTemporaryFile(
             mode="w", suffix=".csv", delete=False
         ) as f:
@@ -242,23 +242,27 @@ class TestExportShoppingListCSV:
 
         try:
             result = event_service.export_shopping_list_csv(test_event.id, temp_path)
-            assert result is True
+            # Empty shopping list returns False (nothing to export)
+            assert result is False
         finally:
             if os.path.exists(temp_path):
                 os.unlink(temp_path)
 
-    def test_export_shopping_list_csv_creates_file(self, test_db, test_event):
-        """Test that CSV export creates a file."""
+    def test_export_shopping_list_csv_empty_returns_false(self, test_db, test_event):
+        """Test that CSV export returns False for empty shopping list (no file created)."""
         with tempfile.NamedTemporaryFile(
             mode="w", suffix=".csv", delete=False
         ) as f:
             temp_path = f.name
+        # Delete the temp file so we can verify no new file is created
+        os.unlink(temp_path)
 
         try:
             result = event_service.export_shopping_list_csv(test_event.id, temp_path)
-            assert result is True
-            # File should exist (even if empty shopping list)
-            assert os.path.exists(temp_path)
+            # Empty shopping list returns False
+            assert result is False
+            # File should NOT be created for empty export
+            assert not os.path.exists(temp_path)
         finally:
             if os.path.exists(temp_path):
                 os.unlink(temp_path)
@@ -317,34 +321,34 @@ class TestExportShoppingListCSV:
     def test_export_shopping_list_csv_io_error(self, test_db, test_event):
         """Test that IO errors are raised properly when file cannot be written."""
         # Note: This test only raises IOError if there's actual content to write.
-        # For an empty shopping list, the function returns True without attempting write.
+        # For an empty shopping list, the function returns False without attempting write.
         # For a comprehensive IO error test, we'd need to mock the shopping list
         # or create a more complex setup with package ingredients.
-        # For now, test the success case for empty events.
+        # For now, test the empty case returns False.
         with tempfile.NamedTemporaryFile(
             mode="w", suffix=".csv", delete=False
         ) as f:
             temp_path = f.name
 
         try:
-            # Empty event exports successfully
+            # Empty event returns False (nothing to export)
             result = event_service.export_shopping_list_csv(test_event.id, temp_path)
-            assert result is True
+            assert result is False
         finally:
             if os.path.exists(temp_path):
                 os.unlink(temp_path)
 
     def test_export_shopping_list_csv_nonexistent_event(self, test_db):
-        """Test export with nonexistent event ID."""
+        """Test export with nonexistent event ID returns False."""
         with tempfile.NamedTemporaryFile(
             mode="w", suffix=".csv", delete=False
         ) as f:
             temp_path = f.name
 
         try:
-            # Should still succeed (empty shopping list for nonexistent event)
+            # Nonexistent event has empty shopping list -> returns False
             result = event_service.export_shopping_list_csv(99999, temp_path)
-            assert result is True
+            assert result is False
         finally:
             if os.path.exists(temp_path):
                 os.unlink(temp_path)
