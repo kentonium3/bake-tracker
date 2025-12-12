@@ -22,12 +22,12 @@
 **Prompt**: `tasks/planned/WP01-service-layer-foundation.md`
 
 ### Included Subtasks
-- [ ] T001 Add `export_shopping_list_csv(event_id, file_path)` to `src/services/event_service.py`
-- [ ] T002 [P] Add `get_event_cost_analysis(event_id)` to `src/services/event_service.py`
-- [ ] T003 [P] Enhance `get_recipient_history()` to include fulfillment_status in `src/services/event_service.py`
-- [ ] T004 [P] Add unit tests for `export_shopping_list_csv()` in `src/tests/test_event_service.py`
-- [ ] T005 [P] Add unit tests for `get_event_cost_analysis()` in `src/tests/test_event_service.py`
-- [ ] T006 [P] Add unit tests for enhanced `get_recipient_history()` in `src/tests/test_event_service.py`
+- [x] T001 Add `export_shopping_list_csv(event_id, file_path)` to `src/services/event_service.py`
+- [x] T002 [P] Add `get_event_cost_analysis(event_id)` to `src/services/event_service.py`
+- [x] T003 [P] Enhance `get_recipient_history()` to include fulfillment_status in `src/services/event_service.py`
+- [x] T004 [P] Add unit tests for `export_shopping_list_csv()` in `src/tests/services/test_event_service_reporting.py`
+- [x] T005 [P] Add unit tests for `get_event_cost_analysis()` in `src/tests/services/test_event_service_reporting.py`
+- [x] T006 [P] Add unit tests for enhanced `get_recipient_history()` in `src/tests/services/test_event_service_reporting.py`
 
 ### Implementation Notes
 1. `export_shopping_list_csv()`: Use Python's csv module; call existing `get_shopping_list()` and format output

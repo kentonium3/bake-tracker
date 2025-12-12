@@ -9,7 +9,7 @@ subtasks:
   - "T006"
 title: "Service Layer Foundation"
 phase: "Phase 1 - Service Layer"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "claude"
 shell_pid: "30686"
@@ -481,3 +481,4 @@ pytest src/tests -v
 
 - 2025-12-11T00:00:00Z - system - lane=planned - Prompt created.
 - 2025-12-11T22:27:00Z – claude – shell_pid=30686 – lane=doing – Started implementation
+- 2025-12-12T03:03:51Z – claude – shell_pid=30686 – lane=for_review – Moved to for_review
