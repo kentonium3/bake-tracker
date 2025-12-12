@@ -1,0 +1,9 @@
+id,source_type,reference,title,accessed_date,reliability,notes
+S001,codebase,src/ui/main_window.py,Main Window Implementation,2025-12-11,high,Primary source for tab structure
+S002,codebase,src/ui/production_dashboard_tab.py,Production Dashboard Tab,2025-12-11,high,Current production dashboard implementation
+S003,codebase,src/ui/dashboard_tab.py,Dashboard Tab,2025-12-11,high,Current summary dashboard to be renamed
+S004,codebase,src/services/event_service.py,Event Service,2025-12-11,high,Core service with existing methods
+S005,spec,kitty-specs/017-event-reporting-production/spec.md,Feature 017 Specification,2025-12-11,high,Requirements definition
+S006,design,docs/design/schema_v0.6_design.md,Schema v0.6 Design,2025-12-11,high,Event-centric production model schema
+S007,spec,kitty-specs/016-event-centric-production/spec.md,Feature 016 Specification,2025-12-11,high,Prior feature context
+S008,codebase,.kittify/memory/constitution.md,Project Constitution,2025-12-11,high,Governance and principles

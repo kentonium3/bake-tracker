@@ -2,13 +2,16 @@
 Recipients tab for the Seasonal Baking Tracker.
 
 Provides full CRUD interface for managing gift package recipients.
+
+Feature 017 - Added package history view.
 """
 
 import customtkinter as ctk
+from datetime import date
 from typing import Optional
 
 from src.models.recipient import Recipient
-from src.services import recipient_service
+from src.services import recipient_service, event_service
 from src.services.recipient_service import RecipientNotFound, RecipientInUse
 from src.utils.constants import (
     PADDING_MEDIUM,
@@ -113,6 +116,16 @@ class RecipientsTab(ctk.CTkFrame):
         )
         self.delete_button.grid(row=0, column=2, padx=PADDING_MEDIUM)
 
+        # Feature 017: View History button
+        self.history_button = ctk.CTkButton(
+            button_frame,
+            text="📋 View History",
+            command=self._view_history,
+            width=130,
+            state="disabled",
+        )
+        self.history_button.grid(row=0, column=3, padx=PADDING_MEDIUM)
+
         # Refresh button
         refresh_button = ctk.CTkButton(
             button_frame,
@@ -120,7 +133,7 @@ class RecipientsTab(ctk.CTkFrame):
             command=self.refresh,
             width=120,
         )
-        refresh_button.grid(row=0, column=3, padx=PADDING_MEDIUM)
+        refresh_button.grid(row=0, column=4, padx=PADDING_MEDIUM)
 
     def _create_data_table(self):
         """Create the data table for displaying recipients."""
@@ -180,6 +193,7 @@ class RecipientsTab(ctk.CTkFrame):
         has_selection = recipient is not None
         self.edit_button.configure(state="normal" if has_selection else "disabled")
         self.delete_button.configure(state="normal" if has_selection else "disabled")
+        self.history_button.configure(state="normal" if has_selection else "disabled")
 
     def _on_row_double_click(self, recipient: Recipient):
         """
@@ -281,3 +295,267 @@ class RecipientsTab(ctk.CTkFrame):
             self.status_label.configure(text=message, text_color="red")
         else:
             self.status_label.configure(text=message)
+
+    # =========================================================================
+    # Feature 017: Recipient History
+    # =========================================================================
+
+    def _view_history(self):
+        """Open dialog to view selected recipient's package history (Feature 017)."""
+        if not self.selected_recipient:
+            return
+
+        dialog = RecipientHistoryDialog(self, self.selected_recipient)
+        self.wait_window(dialog)
+
+
+# Feature 017: Dialog for viewing recipient package history
+
+
+class RecipientHistoryDialog(ctk.CTkToplevel):
+    """
+    Dialog for viewing a recipient's package history across all events.
+
+    Feature 017 - WP06 (T024-T026)
+    """
+
+    def __init__(self, parent, recipient: Recipient):
+        """
+        Initialize the recipient history dialog.
+
+        Args:
+            parent: Parent window
+            recipient: Recipient to show history for
+        """
+        super().__init__(parent)
+
+        self.recipient = recipient
+
+        # Configure window
+        self.title(f"Package History - {recipient.name}")
+        self.geometry("700x500")
+        self.resizable(True, True)
+
+        # Center on parent
+        self.transient(parent)
+
+        # Configure grid
+        self.grid_columnconfigure(0, weight=1)
+        self.grid_rowconfigure(1, weight=1)
+
+        # Create header
+        self._create_header()
+
+        # Create history display
+        self._create_history_display()
+
+        # Create close button
+        self._create_buttons()
+
+        # Load history data
+        self._load_history()
+
+        # Center dialog on parent
+        self.update_idletasks()
+        parent_x = parent.winfo_rootx()
+        parent_y = parent.winfo_rooty()
+        parent_width = parent.winfo_width()
+        parent_height = parent.winfo_height()
+        dialog_width = self.winfo_width()
+        dialog_height = self.winfo_height()
+        x = max(0, parent_x + (parent_width - dialog_width) // 2)
+        y = max(0, parent_y + (parent_height - dialog_height) // 2)
+        self.geometry(f"+{x}+{y}")
+        self.wait_visibility()
+        self.grab_set()
+        self.focus_force()
+
+    def _create_header(self):
+        """Create the header section."""
+        header_frame = ctk.CTkFrame(self, fg_color="transparent")
+        header_frame.grid(
+            row=0, column=0, sticky="ew", padx=PADDING_LARGE, pady=PADDING_LARGE
+        )
+
+        ctk.CTkLabel(
+            header_frame,
+            text=f"Package History for {self.recipient.name}",
+            font=ctk.CTkFont(size=18, weight="bold"),
+        ).pack(anchor="w")
+
+        if self.recipient.household_name:
+            ctk.CTkLabel(
+                header_frame,
+                text=f"Household: {self.recipient.household_name}",
+                font=ctk.CTkFont(size=12),
+                text_color="gray",
+            ).pack(anchor="w")
+
+    def _create_history_display(self):
+        """Create the scrollable history display area."""
+        self.history_frame = ctk.CTkScrollableFrame(self)
+        self.history_frame.grid(
+            row=1,
+            column=0,
+            sticky="nsew",
+            padx=PADDING_LARGE,
+            pady=(0, PADDING_MEDIUM),
+        )
+        self.history_frame.grid_columnconfigure(0, weight=1)
+
+    def _create_buttons(self):
+        """Create dialog buttons."""
+        button_frame = ctk.CTkFrame(self, fg_color="transparent")
+        button_frame.grid(
+            row=2, column=0, sticky="ew", padx=PADDING_LARGE, pady=PADDING_LARGE
+        )
+        button_frame.grid_columnconfigure(0, weight=1)
+
+        close_button = ctk.CTkButton(
+            button_frame,
+            text="Close",
+            command=self.destroy,
+            width=150,
+        )
+        close_button.grid(row=0, column=0)
+
+    def _load_history(self):
+        """Load and display recipient's package history (T025)."""
+        try:
+            history = event_service.get_recipient_history(self.recipient.id)
+        except Exception as e:
+            ctk.CTkLabel(
+                self.history_frame,
+                text=f"Error loading history: {e}",
+                text_color="red",
+            ).pack(pady=20)
+            return
+
+        if not history:
+            ctk.CTkLabel(
+                self.history_frame,
+                text="No package history for this recipient",
+                text_color="gray",
+                font=ctk.CTkFont(size=14, slant="italic"),
+            ).pack(pady=50)
+            return
+
+        # T026: Sort by event date descending (service should already sort, but ensure)
+        history.sort(
+            key=lambda r: r["event"].event_date if r.get("event") else date.min,
+            reverse=True,
+        )
+
+        # Create table header
+        header_frame = ctk.CTkFrame(self.history_frame, fg_color=("gray85", "gray25"))
+        header_frame.pack(fill="x", pady=(0, 5))
+
+        columns = [
+            ("Event", 150),
+            ("Date", 100),
+            ("Package", 150),
+            ("Qty", 50),
+            ("Status", 100),
+        ]
+
+        for col_name, width in columns:
+            ctk.CTkLabel(
+                header_frame,
+                text=col_name,
+                width=width,
+                font=ctk.CTkFont(weight="bold"),
+                anchor="w",
+            ).pack(side="left", padx=5, pady=8)
+
+        # Data rows
+        for record in history:
+            self._create_history_row(record)
+
+        # Summary at bottom
+        self._create_summary(history)
+
+    def _create_history_row(self, record: dict):
+        """Create a single history row (T025)."""
+        row_frame = ctk.CTkFrame(self.history_frame, fg_color="transparent")
+        row_frame.pack(fill="x", pady=1)
+
+        # Event name
+        event_name = record["event"].name if record.get("event") else "Unknown"
+        ctk.CTkLabel(
+            row_frame, text=event_name, width=150, anchor="w"
+        ).pack(side="left", padx=5)
+
+        # Event date
+        event_date_str = ""
+        if record.get("event") and record["event"].event_date:
+            event_date_str = record["event"].event_date.strftime("%Y-%m-%d")
+        ctk.CTkLabel(
+            row_frame, text=event_date_str, width=100, anchor="w"
+        ).pack(side="left", padx=5)
+
+        # Package name
+        package_name = record["package"].name if record.get("package") else "Unknown"
+        ctk.CTkLabel(
+            row_frame, text=package_name, width=150, anchor="w"
+        ).pack(side="left", padx=5)
+
+        # Quantity
+        ctk.CTkLabel(
+            row_frame, text=str(record.get("quantity", 1)), width=50, anchor="w"
+        ).pack(side="left", padx=5)
+
+        # Status with color coding
+        status = record.get("fulfillment_status", "pending") or "pending"
+        status_colors = {
+            "pending": ("#D4A574", "black"),  # Orange
+            "ready": ("#90EE90", "black"),  # Green
+            "delivered": ("#87CEEB", "black"),  # Blue
+        }
+        bg_color, text_color = status_colors.get(status, (None, None))
+
+        status_label = ctk.CTkLabel(
+            row_frame,
+            text=f"  {status.capitalize()}  ",
+            width=100,
+            anchor="w",
+        )
+        if bg_color:
+            status_label.configure(
+                fg_color=bg_color, text_color=text_color, corner_radius=3
+            )
+        status_label.pack(side="left", padx=5)
+
+    def _create_summary(self, history: list):
+        """Create summary section at the bottom."""
+        summary_frame = ctk.CTkFrame(self.history_frame, fg_color=("gray90", "gray20"))
+        summary_frame.pack(fill="x", pady=(15, 0))
+
+        # Count events and packages
+        event_ids = set(r["event"].id for r in history if r.get("event"))
+        total_packages = sum(r.get("quantity", 1) for r in history)
+
+        # Count by status
+        status_counts = {"pending": 0, "ready": 0, "delivered": 0}
+        for r in history:
+            status = r.get("fulfillment_status", "pending") or "pending"
+            if status in status_counts:
+                status_counts[status] += r.get("quantity", 1)
+
+        ctk.CTkLabel(
+            summary_frame,
+            text=f"Total: {total_packages} package(s) across {len(event_ids)} event(s)",
+            font=ctk.CTkFont(size=12, weight="bold"),
+        ).pack(anchor="w", padx=10, pady=(10, 5))
+
+        # Status breakdown
+        status_text = (
+            f"Pending: {status_counts['pending']} | "
+            f"Ready: {status_counts['ready']} | "
+            f"Delivered: {status_counts['delivered']}"
+        )
+        ctk.CTkLabel(
+            summary_frame,
+            text=status_text,
+            font=ctk.CTkFont(size=11),
+            text_color="gray",
+        ).pack(anchor="w", padx=10, pady=(0, 10))

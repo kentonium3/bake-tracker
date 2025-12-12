@@ -1,0 +1,9 @@
+id,date,source_type,source_ref,finding,decision_ref,notes
+E001,2025-12-11,code_review,src/ui/main_window.py:85-148,Tab order defined in _create_tabs() method. Default set at line 147.,D1,Current order has Dashboard first
+E002,2025-12-11,code_review,src/ui/production_dashboard_tab.py,ProductionDashboardTab already has sub-tabs for Production/Assembly runs,D1,Good foundation to build on
+E003,2025-12-11,code_review,src/services/event_service.py:1713-1777,get_production_progress() returns target vs produced with percentage,D2,Ready to use for dashboard
+E004,2025-12-11,code_review,src/services/event_service.py:1780-1840,get_assembly_progress() returns target vs assembled with percentage,D2,Ready to use for dashboard
+E005,2025-12-11,code_review,src/services/event_service.py:940-1117,get_shopping_list() returns complete data including product recommendations,D3,Has all data needed for CSV
+E006,2025-12-11,code_review,src/services/event_service.py:1449-1484,get_recipient_history() exists but missing fulfillment_status,D4,Minor enhancement needed
+E007,2025-12-11,spec_review,kitty-specs/017-event-reporting-production/spec.md,21 functional requirements defined,N/A,Guides implementation scope
+E008,2025-12-11,code_review,src/models/__init__.py,FulfillmentStatus enum already exists (Feature 016),D4,Can use for recipient history
