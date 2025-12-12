@@ -6,12 +6,12 @@ subtasks:
   - "T026"
 title: "Recipient History"
 phase: "Phase 6 - Recipient History"
-lane: "for_review"
+lane: "done"
 assignee: ""
 agent: "system"
 shell_pid: ""
-review_status: ""
-reviewed_by: ""
+review_status: "approved without changes"
+reviewed_by: "claude-reviewer"
 history:
   - timestamp: "2025-12-11T00:00:00Z"
     lane: "planned"
@@ -287,3 +287,4 @@ ORDER BY r.name, e.event_date DESC;
 - 2025-12-11T00:00:00Z - system - lane=planned - Prompt created.
 - 2025-12-12T04:00:51Z – system – shell_pid= – lane=doing – Moved to doing
 - 2025-12-12T04:04:32Z – system – shell_pid= – lane=for_review – Moved to for_review
+- 2025-12-12T04:12:25Z – system – shell_pid= – lane=done – Code review approved: Recipient history dialog with status badges and summary
