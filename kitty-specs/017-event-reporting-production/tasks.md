@@ -175,9 +175,9 @@
 **Prompt**: `tasks/planned/WP06-recipient-history.md`
 
 ### Included Subtasks
-- [ ] T024 Add history section to recipient detail view in `src/ui/recipients_tab.py`
-- [ ] T025 Display events, packages, quantities, fulfillment status in `src/ui/recipients_tab.py`
-- [ ] T026 Sort history by event date descending in `src/ui/recipients_tab.py`
+- [x] T024 Add history section to recipient detail view in `src/ui/recipients_tab.py`
+- [x] T025 Display events, packages, quantities, fulfillment status in `src/ui/recipients_tab.py`
+- [x] T026 Sort history by event date descending in `src/ui/recipients_tab.py`
 
 ### Implementation Notes
 1. Find or create recipient detail section in RecipientsTab
