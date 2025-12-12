@@ -22,34 +22,6 @@
             }
           },
           {
-            "id": "5b87ff74dcc244c1",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "user_stories.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "user_stories"
-            }
-          },
-          {
-            "id": "729f7378c67614a2",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "Spec-kitty errors.md",
-                "mode": "source",
-                "source": false
-              },
-              "icon": "lucide-file",
-              "title": "Spec-kitty errors"
-            }
-          },
-          {
             "id": "eda01dd0769858f1",
             "type": "leaf",
             "state": {
@@ -62,9 +34,21 @@
               "icon": "lucide-file",
               "title": "spec-kitty_abandon_feature_steps"
             }
+          },
+          {
+            "id": "4967b60f5eb3c35d",
+            "type": "leaf",
+            "state": {
+              "type": "release-notes",
+              "state": {
+                "currentVersion": "1.10.6"
+              },
+              "icon": "lucide-book-up",
+              "title": "Release Notes 1.10.6"
+            }
           }
         ],
-        "currentTab": 3
+        "currentTab": 2
       }
     ],
     "direction": "vertical"
@@ -212,10 +196,17 @@
       "bases:Create new base": false
     }
   },
-  "active": "94556ee432ef29b0",
+  "active": "4967b60f5eb3c35d",
   "lastOpenFiles": [
-    "bake-tracker reorg.md",
+    "user_testing/master_test_plan.md",
     "spec-kitty_abandon_feature_steps.md",
+    "archive/bake-tracker reorg.md",
+    "design/web_migration_notes.md",
+    "archive/AUDIT_SUMMARY_2025-11-16.md",
+    "archive/REORGANIZATION_SUMMARY.md",
+    "ui_migration_guide.md",
+    "cursor_review_fixes.md",
+    "bake-tracker reorg.md",
     "REORGANIZATION_SUMMARY.md",
     "FEATURE_004_EXTRACTION_PLAN.md",
     "AUDIT_SUMMARY_2025-11-16.md",
@@ -237,21 +228,14 @@
     "user_testing/images/Screenshot 2025-11-12 135450.jpg",
     "user_testing/images/Screenshot 2025-11-12 135050.jpg",
     "user_testing/images/Screenshot 2025-11-12 012106.png",
-    "user_testing/master_test_plan.md",
     "user_testing/images",
     "user_testing",
     "test_report_feature_003.md",
-    "fix_summary.md",
-    "design/cons_inv_design_feedback.md",
-    "design/consumption_inventory_design.md",
     "design",
     "user_testing/images/Screenshot 2025-11-12 134700.jpg",
-    "user_testing/MASTER_TEST_PLAN.md",
     "Pasted image 20251112012631.png",
     "Screenshot 2025-11-12 012106.png",
-    "user_guide.md",
     "user_testing/images/variant_list_2025-11-12 010658.jpg",
-    "__bake-tracker-vault.md",
     "__bake-tracker-vault"
   ]
 }
