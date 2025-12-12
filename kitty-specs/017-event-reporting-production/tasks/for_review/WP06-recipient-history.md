@@ -6,7 +6,7 @@ subtasks:
   - "T026"
 title: "Recipient History"
 phase: "Phase 6 - Recipient History"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "system"
 shell_pid: ""
@@ -286,3 +286,4 @@ ORDER BY r.name, e.event_date DESC;
 
 - 2025-12-11T00:00:00Z - system - lane=planned - Prompt created.
 - 2025-12-12T04:00:51Z – system – shell_pid= – lane=doing – Moved to doing
+- 2025-12-12T04:04:32Z – system – shell_pid= – lane=for_review – Moved to for_review
