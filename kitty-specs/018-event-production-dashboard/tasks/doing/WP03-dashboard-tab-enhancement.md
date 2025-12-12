@@ -10,10 +10,10 @@ subtasks:
   - "T016"
 title: "Dashboard Tab Enhancement"
 phase: "Phase 2 - UI Integration"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "claude"
+shell_pid: "60768"
 review_status: ""
 reviewed_by: ""
 history:
@@ -644,3 +644,4 @@ Manual testing:
 ## Activity Log
 
 - 2025-12-12T00:00:00Z – system – lane=planned – Prompt created.
+- 2025-12-12T20:50:22Z – claude – shell_pid=60768 – lane=doing – Started implementation
