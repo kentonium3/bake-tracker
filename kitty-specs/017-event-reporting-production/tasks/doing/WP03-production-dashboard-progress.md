@@ -8,9 +8,9 @@ subtasks:
   - "T015"
 title: "Production Dashboard Event Progress"
 phase: "Phase 3 - Production Dashboard Enhancement"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
+agent: "system"
 shell_pid: ""
 review_status: ""
 reviewed_by: ""
@@ -434,3 +434,4 @@ history:
 ## Activity Log
 
 - 2025-12-11T00:00:00Z - system - lane=planned - Prompt created.
+- 2025-12-12T03:16:55Z – system – shell_pid= – lane=doing – Moved to doing
