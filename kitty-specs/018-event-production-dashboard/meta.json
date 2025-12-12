@@ -1,7 +1,26 @@
 {
+  "accept_commit": null,
+  "acceptance_history": [
+    {
+      "accepted_at": "2025-12-12T21:56:28Z",
+      "accepted_by": "claude",
+      "accepted_from_commit": "9155b938f4e740e4a520c11e40e1d1f356d01a29",
+      "branch": "018-event-production-dashboard",
+      "mode": "local",
+      "validation_commands": [
+        "pytest src/tests -v",
+        "black --check src/",
+        "flake8 src/ --max-line-length=100"
+      ]
+    }
+  ],
+  "acceptance_mode": "local",
+  "accepted_at": "2025-12-12T21:56:28Z",
+  "accepted_by": "claude",
+  "accepted_from_commit": "9155b938f4e740e4a520c11e40e1d1f356d01a29",
+  "created_at": "2025-12-12T17:59:37Z",
   "feature_number": "018",
-  "slug": "018-event-production-dashboard",
   "friendly_name": "Event Production Dashboard",
-  "source_description": "Event Production Dashboard - Mission control view showing production status at a glance",
-  "created_at": "2025-12-12T17:59:37Z"
+  "slug": "018-event-production-dashboard",
+  "source_description": "Event Production Dashboard - Mission control view showing production status at a glance"
 }
