@@ -47,7 +47,7 @@ class RecipeIngredientRow(ctk.CTkFrame):
             remove_callback: Callback to remove this row
             ingredient_id: Selected ingredient ID (None for new row)
             quantity: Ingredient quantity
-            unit: Unit of measurement (None to use ingredient's default recipe_unit)
+            unit: Unit of measurement (defaults to "cup" if None)
         """
         super().__init__(parent)
 
@@ -118,11 +118,11 @@ class RecipeIngredientRow(ctk.CTkFrame):
         if not self.ingredients:
             return None
 
-        # Get selected ingredient by name
+        # Get selected ingredient by display_name
         selected_name = self.ingredient_combo.get()
         ingredient = None
         for ing in self.ingredients:
-            if ing.name == selected_name:
+            if ing.display_name == selected_name:
                 ingredient = ing
                 break
 
@@ -146,24 +146,28 @@ class RecipeIngredientRow(ctk.CTkFrame):
         from src.services.unit_converter import get_unit_type
 
         recipe_unit_type = get_unit_type(unit)
-        purchase_unit_type = get_unit_type(ingredient.purchase_unit)
 
-        # Check if cross-type conversion is needed (volume↔weight)
-        if recipe_unit_type != purchase_unit_type:
-            if (recipe_unit_type == "volume" and purchase_unit_type == "weight") or (
-                recipe_unit_type == "weight" and purchase_unit_type == "volume"
-            ):
-                # Density is required for volume↔weight conversion
-                if not ingredient.has_density_data():
-                    from src.ui.widgets.dialogs import show_error
+        # Get purchase_unit from preferred product (if available)
+        preferred_product = ingredient.get_preferred_product()
+        if preferred_product and hasattr(preferred_product, "purchase_unit"):
+            purchase_unit_type = get_unit_type(preferred_product.purchase_unit)
 
-                    show_error(
-                        "Density Required",
-                        f"'{ingredient.display_name}' requires density data for {recipe_unit_type}↔{purchase_unit_type} conversion.\n\n"
-                        f"Please edit the ingredient and add density (g/cup) before using it with {unit} in recipes.",
-                        parent=self.winfo_toplevel(),
-                    )
-                    return None
+            # Check if cross-type conversion is needed (volume↔weight)
+            if recipe_unit_type != purchase_unit_type:
+                if (recipe_unit_type == "volume" and purchase_unit_type == "weight") or (
+                    recipe_unit_type == "weight" and purchase_unit_type == "volume"
+                ):
+                    # Density is required for volume↔weight conversion
+                    if ingredient.get_density_g_per_ml() is None:
+                        from src.ui.widgets.dialogs import show_error
+
+                        show_error(
+                            "Density Required",
+                            f"'{ingredient.display_name}' requires density data for {recipe_unit_type}↔{purchase_unit_type} conversion.\n\n"
+                            f"Please edit the ingredient and add density before using it with {unit} in recipes.",
+                            parent=self.winfo_toplevel(),
+                        )
+                        return None
 
         return {
             "ingredient_id": ingredient.id,

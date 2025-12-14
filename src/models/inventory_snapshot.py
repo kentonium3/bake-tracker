@@ -58,15 +58,16 @@ class InventorySnapshot(BaseModel):
         """
         Calculate total inventory value at snapshot time.
 
+        Note: Value calculation requires Product cost data. Since Ingredient
+        no longer has unit_cost (it's on Product), this returns sum of
+        individual snapshot ingredient values.
+
         Returns:
             Total value of all ingredients in the snapshot
         """
         total_value = 0.0
         for snapshot_ingredient in self.snapshot_ingredients:
-            ingredient = snapshot_ingredient.ingredient
-            if ingredient:
-                value = snapshot_ingredient.quantity * ingredient.unit_cost
-                total_value += value
+            total_value += snapshot_ingredient.calculate_value()
         return total_value
 
     def get_ingredient_quantity(self, ingredient_id: int) -> float:
@@ -151,25 +152,32 @@ class SnapshotIngredient(BaseModel):
         """
         Calculate value of this ingredient in the snapshot.
 
-        Uses current ingredient unit_cost (cost at snapshot time not stored).
+        Note: Since Ingredient no longer has unit_cost (cost is on Product),
+        this attempts to get cost from the preferred product. Returns 0.0
+        if no preferred product or no cost data available.
 
         Returns:
-            Value (quantity × unit_cost)
+            Value (quantity × unit_cost from preferred product), or 0.0
         """
         if not self.ingredient:
             return 0.0
-        return self.quantity * self.ingredient.unit_cost
+        preferred = self.ingredient.get_preferred_product()
+        if preferred and hasattr(preferred, "unit_cost") and preferred.unit_cost:
+            return self.quantity * preferred.unit_cost
+        return 0.0
 
     def get_recipe_unit_quantity(self) -> float:
         """
-        Convert quantity to recipe units.
+        Get quantity (no conversion - deprecated).
+
+        Note: The concept of 'recipe_unit' per ingredient was removed in v3.3.
+        Recipes now specify their own units via RecipeIngredient.unit.
+        This method returns the raw quantity for backward compatibility.
 
         Returns:
-            Quantity in recipe units
+            Raw quantity (no conversion applied)
         """
-        if not self.ingredient:
-            return 0.0
-        return self.ingredient.convert_to_recipe_units(self.quantity)
+        return self.quantity
 
     def to_dict(self, include_relationships: bool = False) -> dict:
         """

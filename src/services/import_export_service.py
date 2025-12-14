@@ -2254,7 +2254,7 @@ def import_all_from_json_v3(file_path: str, mode: str = "merge") -> ImportResult
                             density_args["density_weight_unit"] = ing.get("density_weight_unit")
 
                         ingredient = Ingredient(
-                            display_name=ing.get("display_name"),
+                            display_name=ing.get("name", ing.get("display_name")),
                             slug=slug,
                             category=ing.get("category"),
                             description=ing.get("description"),
@@ -2308,8 +2308,96 @@ def import_all_from_json_v3(file_path: str, mode: str = "merge") -> ImportResult
 
             session.flush()
 
-            # 4-5. Purchases and inventory_items handled similarly...
-            # (Simplified for brevity - would add full implementation)
+            # 4. Inventory Items (depends on products)
+            if "inventory_items" in data:
+                from src.models.inventory_item import InventoryItem
+                from datetime import datetime as dt
+
+                for item_data in data["inventory_items"]:
+                    try:
+                        ing_slug = item_data.get("ingredient_slug", "")
+                        product_brand = item_data.get("product_brand", "")
+
+                        # Find product by ingredient slug + brand
+                        ingredient = session.query(Ingredient).filter_by(slug=ing_slug).first()
+                        if not ingredient:
+                            result.add_error("inventory_item", f"{ing_slug}/{product_brand}", f"Ingredient not found: {ing_slug}")
+                            continue
+
+                        product = session.query(Product).filter_by(
+                            ingredient_id=ingredient.id,
+                            brand=product_brand
+                        ).first()
+                        if not product:
+                            result.add_error("inventory_item", f"{ing_slug}/{product_brand}", f"Product not found: {product_brand}")
+                            continue
+
+                        # Parse dates
+                        purchase_date = None
+                        if item_data.get("purchase_date"):
+                            purchase_date = dt.fromisoformat(item_data["purchase_date"].replace("Z", "+00:00"))
+
+                        expiration_date = None
+                        if item_data.get("expiration_date"):
+                            expiration_date = dt.fromisoformat(item_data["expiration_date"].replace("Z", "+00:00"))
+
+                        inventory_item = InventoryItem(
+                            product_id=product.id,
+                            quantity=item_data.get("quantity", 0),
+                            purchase_date=purchase_date,
+                            expiration_date=expiration_date,
+                            location=item_data.get("location"),
+                            notes=item_data.get("notes"),
+                        )
+                        session.add(inventory_item)
+                        result.add_success("inventory_item")
+                    except Exception as e:
+                        result.add_error("inventory_item", item_data.get("ingredient_slug", "unknown"), str(e))
+
+            # 5. Purchases (depends on products)
+            if "purchases" in data:
+                from src.models.purchase import Purchase
+                from datetime import datetime as dt
+
+                for purch_data in data["purchases"]:
+                    try:
+                        ing_slug = purch_data.get("ingredient_slug", "")
+                        product_brand = purch_data.get("product_brand", "")
+
+                        # Find product by ingredient slug + brand
+                        ingredient = session.query(Ingredient).filter_by(slug=ing_slug).first()
+                        if not ingredient:
+                            result.add_error("purchase", f"{ing_slug}/{product_brand}", f"Ingredient not found: {ing_slug}")
+                            continue
+
+                        product = session.query(Product).filter_by(
+                            ingredient_id=ingredient.id,
+                            brand=product_brand
+                        ).first()
+                        if not product:
+                            result.add_error("purchase", f"{ing_slug}/{product_brand}", f"Product not found: {product_brand}")
+                            continue
+
+                        # Parse purchase date
+                        purchase_date = None
+                        if purch_data.get("purchased_at"):
+                            purchase_date = dt.fromisoformat(purch_data["purchased_at"].replace("Z", "+00:00"))
+
+                        purchase = Purchase(
+                            product_id=product.id,
+                            purchase_date=purchase_date,
+                            quantity_purchased=purch_data.get("quantity_purchased", 0),
+                            unit_cost=purch_data.get("unit_cost", 0),
+                            total_cost=purch_data.get("total_cost", 0),
+                            supplier=purch_data.get("supplier"),
+                            notes=purch_data.get("notes"),
+                        )
+                        session.add(purchase)
+                        result.add_success("purchase")
+                    except Exception as e:
+                        result.add_error("purchase", purch_data.get("ingredient_slug", "unknown"), str(e))
+
+            session.flush()
 
             # 6. Recipes (depends on ingredients)
             if "recipes" in data:
