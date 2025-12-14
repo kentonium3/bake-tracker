@@ -12,9 +12,9 @@ subtasks:
 title: "Data Files, Documentation & UI Cleanup"
 phase: "Phase 4 - Finalization"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude-opus-4-5-20251101"
-shell_pid: ""
+shell_pid: "25000"
 review_status: "has_feedback"
 reviewed_by: "claude-opus-4-5-20251101"
 history:

@@ -12,7 +12,7 @@ subtasks:
 title: "Service Layer Cleanup"
 phase: "Phase 2 - Service Updates"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude"
 shell_pid: "23019"
 review_status: ""

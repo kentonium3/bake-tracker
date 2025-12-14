@@ -10,7 +10,7 @@ subtasks:
 title: "Import/Export v3.3 Update"
 phase: "Phase 2 - Service Updates"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude"
 shell_pid: "22254"
 review_status: ""

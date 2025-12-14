@@ -8,7 +8,7 @@ subtasks:
 title: "Model & Schema Deletion"
 phase: "Phase 1 - Model Changes"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude"
 shell_pid: "21650"
 review_status: ""
