@@ -7,7 +7,7 @@ subtasks:
   - "T004"
 title: "Model & Schema Deletion"
 phase: "Phase 1 - Model Changes"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "claude"
 shell_pid: "21650"
@@ -119,3 +119,4 @@ history:
 
 - 2025-12-14T12:00:00Z – system – lane=planned – Prompt created.
 - 2025-12-14T07:35:14Z – claude – shell_pid=21650 – lane=doing – Started implementation
+- 2025-12-14T19:51:14Z – claude – shell_pid=21650 – lane=for_review – Implementation complete, ready for review
