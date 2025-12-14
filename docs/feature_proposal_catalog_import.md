@@ -313,14 +313,13 @@ python -m src.utils.import_catalog catalog.json --verbose
 
 ## File Format
 
-### Unified Format (existing v3.2 - unchanged)
+### Unified Format (v3.3)
 
 ```json
 {
-  "version": "3.2",
+  "version": "3.3",
   "exported_at": "2025-12-13T10:30:00Z",
   "application": "bake-tracker",
-  "unit_conversions": [...],
   "ingredients": [...],
   "products": [...],
   "purchases": [...],
@@ -349,7 +348,6 @@ python -m src.utils.import_catalog catalog.json --verbose
   "catalog_version": "1.0",
   "ingredients": [...],
   "products": [...],
-  "unit_conversions": [...],
   "recipes": [...]
 }
 ```
@@ -357,7 +355,7 @@ python -m src.utils.import_catalog catalog.json --verbose
 ### Format Detection
 
 Import utilities detect format and route appropriately:
-- If `version: "3.2"` present → unified import (existing behavior)
+- If `version: "3.3"` present → unified import (existing behavior)
 - If `catalog_version` present → catalog import rules
 
 ---

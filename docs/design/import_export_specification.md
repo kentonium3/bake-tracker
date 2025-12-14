@@ -583,21 +583,20 @@ All entity arrays are optional, but when present, they must follow the dependenc
 
 **CRITICAL**: Entities must be imported in this order for referential integrity.
 
-1. `unit_conversions` - No dependencies
-2. `ingredients` - No dependencies
-3. `products` - Requires: ingredients
-4. `purchases` - Requires: products
-5. `inventory_items` - Requires: products
-6. `recipes` - Requires: ingredients
-7. `finished_units` - Requires: recipes
-8. `finished_goods` - No direct dependencies
-9. `compositions` - Requires: finished_units, finished_goods
-10. `packages` - No direct dependencies
-11. `package_finished_goods` - Requires: packages, finished_goods
-12. `recipients` - No dependencies
-13. `events` - No direct dependencies
-14. `event_recipient_packages` - Requires: events, recipients, packages
-15. `production_records` - Requires: events, recipes
+1. `ingredients` - No dependencies
+2. `products` - Requires: ingredients
+3. `purchases` - Requires: products
+4. `inventory_items` - Requires: products
+5. `recipes` - Requires: ingredients
+6. `finished_units` - Requires: recipes
+7. `finished_goods` - No direct dependencies
+8. `compositions` - Requires: finished_units, finished_goods
+9. `packages` - No direct dependencies
+10. `package_finished_goods` - Requires: packages, finished_goods
+11. `recipients` - No dependencies
+12. `events` - No direct dependencies
+13. `event_recipient_packages` - Requires: events, recipients, packages
+14. `production_records` - Requires: events, recipes
 
 **The import service processes arrays in this order automatically.**
 
@@ -641,7 +640,6 @@ All foreign key references are validated:
 - `products.ingredient_slug` -> must exist in `ingredients`
 - `purchases.(ingredient_slug, product_brand)` -> must exist in `products`
 - `inventory_items.(ingredient_slug, product_brand)` -> must exist in `products`
-- `unit_conversions.ingredient_slug` -> must exist in `ingredients`
 - `recipes.ingredients[].ingredient_slug` -> must exist in `ingredients`
 - `finished_units.recipe_slug` -> must exist in `recipes`
 - `compositions.assembly_slug` -> must exist in `finished_goods`
@@ -785,14 +783,6 @@ bag, box, jar, bottle, can, packet, container, case
       "purchase_unit": "lb",
       "purchase_quantity": 5.0,
       "is_preferred": true
-    }
-  ],
-  "unit_conversions": [
-    {
-      "ingredient_slug": "all_purpose_flour",
-      "from_unit": "lb",
-      "to_unit": "cup",
-      "factor": 3.6
     }
   ],
   "recipes": [
