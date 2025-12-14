@@ -34,11 +34,9 @@ from src.services.assembly_service import (
 )
 from src.services.database import session_scope
 
-
 # =============================================================================
 # Fixtures
 # =============================================================================
-
 
 @pytest.fixture
 def recipe_cookies(test_db):
@@ -53,7 +51,6 @@ def recipe_cookies(test_db):
     session.add(recipe)
     session.commit()
     return recipe
-
 
 @pytest.fixture
 def finished_unit_cookie(test_db, recipe_cookies):
@@ -73,7 +70,6 @@ def finished_unit_cookie(test_db, recipe_cookies):
     session.commit()
     return fu
 
-
 @pytest.fixture
 def ingredient_cellophane(test_db):
     """Create cellophane bag ingredient (packaging material)."""
@@ -82,13 +78,11 @@ def ingredient_cellophane(test_db):
         display_name="Cellophane Bags",
         slug="cellophane-bags",
         category="Packaging",
-        recipe_unit="bag",
         is_packaging=True,
     )
     session.add(ingredient)
     session.commit()
     return ingredient
-
 
 @pytest.fixture
 def product_cellophane(test_db, ingredient_cellophane):
@@ -106,7 +100,6 @@ def product_cellophane(test_db, ingredient_cellophane):
     session.commit()
     return product
 
-
 @pytest.fixture
 def inventory_cellophane(test_db, product_cellophane):
     """Create cellophane bag inventory with 50 bags."""
@@ -120,7 +113,6 @@ def inventory_cellophane(test_db, product_cellophane):
     session.add(inv)
     session.commit()
     return inv
-
 
 @pytest.fixture
 def finished_good_gift_bag(test_db, finished_unit_cookie, product_cellophane):
@@ -156,7 +148,6 @@ def finished_good_gift_bag(test_db, finished_unit_cookie, product_cellophane):
     session.commit()
     return fg
 
-
 @pytest.fixture
 def assembly_ready(
     finished_good_gift_bag, finished_unit_cookie, inventory_cellophane
@@ -164,11 +155,9 @@ def assembly_ready(
     """Complete assembly setup with all required inventory in place."""
     return finished_good_gift_bag
 
-
 # =============================================================================
 # Tests for check_can_assemble
 # =============================================================================
-
 
 class TestCheckCanAssemble:
     """Tests for check_can_assemble() function."""
@@ -240,11 +229,9 @@ class TestCheckCanAssemble:
             )
         assert exc_info.value.finished_good_id == 99999
 
-
 # =============================================================================
 # Tests for record_assembly
 # =============================================================================
-
 
 class TestRecordAssembly:
     """Tests for record_assembly() function."""
@@ -444,11 +431,9 @@ class TestRecordAssembly:
             assert len(fu_consumptions) == 1
             assert fu_consumptions[0].quantity_consumed == 12  # 12 cookies per bag
 
-
 # =============================================================================
 # Tests for History Query Functions
 # =============================================================================
-
 
 class TestGetAssemblyHistory:
     """Tests for get_assembly_history() function."""
@@ -569,7 +554,6 @@ class TestGetAssemblyHistory:
         result = assembly_service.get_assembly_history(limit=2, offset=1)
         assert len(result) == 2
 
-
 class TestGetAssemblyRun:
     """Tests for get_assembly_run() function."""
 
@@ -602,11 +586,9 @@ class TestGetAssemblyRun:
             assembly_service.get_assembly_run(99999)
         assert exc_info.value.assembly_run_id == 99999
 
-
 # =============================================================================
 # Tests for Import/Export Functions
 # =============================================================================
-
 
 class TestExportAssemblyHistory:
     """Tests for export_assembly_history() function."""
@@ -640,7 +622,6 @@ class TestExportAssemblyHistory:
         assert run["notes"] == "Export test"
         assert len(run["finished_unit_consumptions"]) == 1
         assert len(run["packaging_consumptions"]) == 1
-
 
 class TestImportAssemblyHistory:
     """Tests for import_assembly_history() function."""
@@ -731,11 +712,9 @@ class TestImportAssemblyHistory:
         assert reimp_run["total_component_cost"] == original_run["total_component_cost"]
         assert reimp_run["notes"] == original_run["notes"]
 
-
 # =============================================================================
 # Transaction Atomicity Tests (Bug Fix Verification)
 # =============================================================================
-
 
 class TestAssemblyTransactionAtomicity:
     """Tests verifying that record_assembly is fully atomic.
@@ -865,11 +844,9 @@ class TestAssemblyTransactionAtomicity:
             assert len(fu_consumptions) >= 1, "Should have FU consumption records"
             assert len(pkg_consumptions) >= 1, "Should have packaging consumption records"
 
-
 # =============================================================================
 # Tests for Event ID Parameter (Feature 016)
 # =============================================================================
-
 
 class TestRecordAssemblyEventId:
     """Tests for record_assembly() with event_id parameter (Feature 016)."""

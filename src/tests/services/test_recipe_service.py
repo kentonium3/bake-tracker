@@ -18,11 +18,10 @@ from src.services import (
     ingredient_service,
     product_service,
     inventory_item_service,
-    purchase_service,
+    purchase_service
 )
 from src.services.exceptions import RecipeNotFound, IngredientNotFound, ValidationError
 from src.models import Recipe, RecipeIngredient
-
 
 class TestCalculateActualCost:
     """Tests for calculate_actual_cost() method."""
@@ -33,14 +32,13 @@ class TestCalculateActualCost:
         ingredient = ingredient_service.create_ingredient(
             {
                 "name": "Test FIFO Flour",
-                "category": "Flour",
-                "recipe_unit": "cup",
+                "category": "Flour"
             }
         )
 
         product = product_service.create_product(
             ingredient.slug,
-            {"brand": "Test Brand", "purchase_unit": "cup", "purchase_quantity": Decimal("10.0")},
+            {"brand": "Test Brand", "purchase_unit": "cup", "purchase_quantity": Decimal("10.0")}
         )
 
         # Add two lots with different costs (older lot cheaper)
@@ -62,9 +60,9 @@ class TestCalculateActualCost:
                 "name": "FIFO Test Recipe",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             },
-            [{"ingredient_id": ingredient.id, "quantity": 2.0, "unit": "cup"}],
+            [{"ingredient_id": ingredient.id, "quantity": 2.0, "unit": "cup"}]
         )
 
         # Act
@@ -82,14 +80,13 @@ class TestCalculateActualCost:
         ingredient = ingredient_service.create_ingredient(
             {
                 "name": "Test Pantry Unchanged",
-                "category": "Flour",
-                "recipe_unit": "cup",
+                "category": "Flour"
             }
         )
 
         product = product_service.create_product(
             ingredient.slug,
-            {"brand": "Test Brand", "purchase_unit": "cup", "purchase_quantity": Decimal("10.0")},
+            {"brand": "Test Brand", "purchase_unit": "cup", "purchase_quantity": Decimal("10.0")}
         )
 
         initial_quantity = Decimal("5.0")
@@ -103,9 +100,9 @@ class TestCalculateActualCost:
                 "name": "Pantry Test Recipe",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             },
-            [{"ingredient_id": ingredient.id, "quantity": 3.0, "unit": "cup"}],
+            [{"ingredient_id": ingredient.id, "quantity": 3.0, "unit": "cup"}]
         )
 
         # Capture pantry state before
@@ -129,26 +126,24 @@ class TestCalculateActualCost:
         flour = ingredient_service.create_ingredient(
             {
                 "name": "Multi Test Flour",
-                "category": "Flour",
-                "recipe_unit": "cup",
+                "category": "Flour"
             }
         )
         sugar = ingredient_service.create_ingredient(
             {
                 "name": "Multi Test Sugar",
-                "category": "Sugar",
-                "recipe_unit": "cup",
+                "category": "Sugar"
             }
         )
 
         # Create products
         flour_product = product_service.create_product(
             flour.slug,
-            {"brand": "Test Brand", "purchase_unit": "cup", "purchase_quantity": Decimal("10.0")},
+            {"brand": "Test Brand", "purchase_unit": "cup", "purchase_quantity": Decimal("10.0")}
         )
         sugar_product = product_service.create_product(
             sugar.slug,
-            {"brand": "Test Brand", "purchase_unit": "cup", "purchase_quantity": Decimal("10.0")},
+            {"brand": "Test Brand", "purchase_unit": "cup", "purchase_quantity": Decimal("10.0")}
         )
 
         # Add pantry items
@@ -168,12 +163,12 @@ class TestCalculateActualCost:
                 "name": "Multi Ingredient Recipe",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             },
             [
                 {"ingredient_id": flour.id, "quantity": 2.0, "unit": "cup"},  # 2 * $0.10 = $0.20
                 {"ingredient_id": sugar.id, "quantity": 1.0, "unit": "cup"},  # 1 * $0.20 = $0.20
-            ],
+            ]
         )
 
         # Act
@@ -193,7 +188,7 @@ class TestCalculateActualCost:
                 "name": "Empty Recipe",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             },
             [],  # No ingredients
         )
@@ -215,8 +210,7 @@ class TestCalculateActualCost:
         ingredient = ingredient_service.create_ingredient(
             {
                 "name": "Shortfall Test Flour",
-                "category": "Flour",
-                "recipe_unit": "cup",
+                "category": "Flour"
             }
         )
 
@@ -226,8 +220,8 @@ class TestCalculateActualCost:
                 "brand": "Test Brand",
                 "purchase_unit": "cup",
                 "purchase_quantity": Decimal("10.0"),
-                "is_preferred": True,
-            },
+                "is_preferred": True
+            }
         )
         product_service.set_preferred_product(product.id)
 
@@ -242,7 +236,7 @@ class TestCalculateActualCost:
             product_id=product.id,
             quantity=Decimal("10.0"),
             total_cost=Decimal("1.50"),  # $0.15/cup
-            purchase_date=date(2025, 1, 15),
+            purchase_date=date(2025, 1, 15)
         )
 
         # Create recipe needing 3 cups (1 cup shortfall)
@@ -251,9 +245,9 @@ class TestCalculateActualCost:
                 "name": "Shortfall Recipe",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             },
-            [{"ingredient_id": ingredient.id, "quantity": 3.0, "unit": "cup"}],
+            [{"ingredient_id": ingredient.id, "quantity": 3.0, "unit": "cup"}]
         )
 
         # Act
@@ -271,14 +265,13 @@ class TestCalculateActualCost:
         ingredient = ingredient_service.create_ingredient(
             {
                 "name": "No Pantry Flour",
-                "category": "Flour",
-                "recipe_unit": "cup",
+                "category": "Flour"
             }
         )
 
         product = product_service.create_product(
             ingredient.slug,
-            {"brand": "Test Brand", "purchase_unit": "cup", "purchase_quantity": Decimal("10.0")},
+            {"brand": "Test Brand", "purchase_unit": "cup", "purchase_quantity": Decimal("10.0")}
         )
         product_service.set_preferred_product(product.id)
 
@@ -287,7 +280,7 @@ class TestCalculateActualCost:
             product_id=product.id,
             quantity=Decimal("10.0"),
             total_cost=Decimal("2.00"),  # $0.20/cup
-            purchase_date=date(2025, 1, 15),
+            purchase_date=date(2025, 1, 15)
         )
 
         # Create recipe needing 3 cups
@@ -296,9 +289,9 @@ class TestCalculateActualCost:
                 "name": "No Pantry Recipe",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             },
-            [{"ingredient_id": ingredient.id, "quantity": 3.0, "unit": "cup"}],
+            [{"ingredient_id": ingredient.id, "quantity": 3.0, "unit": "cup"}]
         )
 
         # Act
@@ -316,14 +309,13 @@ class TestCalculateActualCost:
         ingredient = ingredient_service.create_ingredient(
             {
                 "name": "No History Flour",
-                "category": "Flour",
-                "recipe_unit": "cup",
+                "category": "Flour"
             }
         )
 
         product = product_service.create_product(
             ingredient.slug,
-            {"brand": "Test Brand", "purchase_unit": "cup", "purchase_quantity": Decimal("10.0")},
+            {"brand": "Test Brand", "purchase_unit": "cup", "purchase_quantity": Decimal("10.0")}
         )
 
         # Create recipe (no pantry = shortfall, but no purchase history for fallback)
@@ -332,9 +324,9 @@ class TestCalculateActualCost:
                 "name": "No History Recipe",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             },
-            [{"ingredient_id": ingredient.id, "quantity": 2.0, "unit": "cup"}],
+            [{"ingredient_id": ingredient.id, "quantity": 2.0, "unit": "cup"}]
         )
 
         # Act & Assert
@@ -351,8 +343,7 @@ class TestCalculateActualCost:
         ingredient = ingredient_service.create_ingredient(
             {
                 "name": "No Products Flour",
-                "category": "Flour",
-                "recipe_unit": "cup",
+                "category": "Flour"
             }
         )
 
@@ -362,9 +353,9 @@ class TestCalculateActualCost:
                 "name": "No Products Recipe",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             },
-            [{"ingredient_id": ingredient.id, "quantity": 2.0, "unit": "cup"}],
+            [{"ingredient_id": ingredient.id, "quantity": 2.0, "unit": "cup"}]
         )
 
         # Act & Assert
@@ -379,14 +370,13 @@ class TestCalculateActualCost:
         ingredient = ingredient_service.create_ingredient(
             {
                 "name": "Precision Test Flour",
-                "category": "Flour",
-                "recipe_unit": "cup",
+                "category": "Flour"
             }
         )
 
         product = product_service.create_product(
             ingredient.slug,
-            {"brand": "Test Brand", "purchase_unit": "cup", "purchase_quantity": Decimal("10.0")},
+            {"brand": "Test Brand", "purchase_unit": "cup", "purchase_quantity": Decimal("10.0")}
         )
 
         # Add pantry with precise unit cost
@@ -401,9 +391,9 @@ class TestCalculateActualCost:
                 "name": "Precision Recipe",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             },
-            [{"ingredient_id": ingredient.id, "quantity": 3.0, "unit": "cup"}],
+            [{"ingredient_id": ingredient.id, "quantity": 3.0, "unit": "cup"}]
         )
 
         # Act
@@ -418,7 +408,6 @@ class TestCalculateActualCost:
             "0.001"
         ), f"Expected ${expected_cost}, got ${cost}"
 
-
 class TestCalculateEstimatedCost:
     """Tests for calculate_estimated_cost() method."""
 
@@ -428,8 +417,7 @@ class TestCalculateEstimatedCost:
         ingredient = ingredient_service.create_ingredient(
             {
                 "name": "Estimated Test Flour",
-                "category": "Flour",
-                "recipe_unit": "cup",
+                "category": "Flour"
             }
         )
 
@@ -440,8 +428,8 @@ class TestCalculateEstimatedCost:
                 "brand": "Cheap Brand",
                 "purchase_unit": "cup",
                 "purchase_quantity": Decimal("10.0"),
-                "is_preferred": False,
-            },
+                "is_preferred": False
+            }
         )
         product2 = product_service.create_product(
             ingredient.slug,
@@ -449,8 +437,8 @@ class TestCalculateEstimatedCost:
                 "brand": "Preferred Brand",
                 "purchase_unit": "cup",
                 "purchase_quantity": Decimal("10.0"),
-                "is_preferred": True,
-            },
+                "is_preferred": True
+            }
         )
         product_service.set_preferred_product(product2.id)
 
@@ -459,13 +447,13 @@ class TestCalculateEstimatedCost:
             product_id=product1.id,
             quantity=Decimal("10.0"),
             total_cost=Decimal("0.50"),  # $0.05/cup
-            purchase_date=date(2025, 1, 1),
+            purchase_date=date(2025, 1, 1)
         )
         purchase_service.record_purchase(
             product_id=product2.id,
             quantity=Decimal("10.0"),
             total_cost=Decimal("1.00"),  # $0.10/cup (preferred)
-            purchase_date=date(2025, 1, 1),
+            purchase_date=date(2025, 1, 1)
         )
 
         # Create recipe needing 2 cups
@@ -474,9 +462,9 @@ class TestCalculateEstimatedCost:
                 "name": "Preferred Test Recipe",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             },
-            [{"ingredient_id": ingredient.id, "quantity": 2.0, "unit": "cup"}],
+            [{"ingredient_id": ingredient.id, "quantity": 2.0, "unit": "cup"}]
         )
 
         # Act
@@ -494,8 +482,7 @@ class TestCalculateEstimatedCost:
         ingredient = ingredient_service.create_ingredient(
             {
                 "name": "Fallback Test Flour",
-                "category": "Flour",
-                "recipe_unit": "cup",
+                "category": "Flour"
             }
         )
 
@@ -507,7 +494,7 @@ class TestCalculateEstimatedCost:
                 "purchase_unit": "cup",
                 "purchase_quantity": Decimal("10.0"),
                 "is_preferred": False,  # Not preferred
-            },
+            }
         )
 
         # Record purchase
@@ -515,7 +502,7 @@ class TestCalculateEstimatedCost:
             product_id=product.id,
             quantity=Decimal("10.0"),
             total_cost=Decimal("1.50"),  # $0.15/cup
-            purchase_date=date(2025, 1, 1),
+            purchase_date=date(2025, 1, 1)
         )
 
         # Create recipe
@@ -524,9 +511,9 @@ class TestCalculateEstimatedCost:
                 "name": "Fallback Recipe",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             },
-            [{"ingredient_id": ingredient.id, "quantity": 3.0, "unit": "cup"}],
+            [{"ingredient_id": ingredient.id, "quantity": 3.0, "unit": "cup"}]
         )
 
         # Act
@@ -544,15 +531,13 @@ class TestCalculateEstimatedCost:
         flour = ingredient_service.create_ingredient(
             {
                 "name": "Est Multi Flour",
-                "category": "Flour",
-                "recipe_unit": "cup",
+                "category": "Flour"
             }
         )
         sugar = ingredient_service.create_ingredient(
             {
                 "name": "Est Multi Sugar",
-                "category": "Sugar",
-                "recipe_unit": "cup",
+                "category": "Sugar"
             }
         )
 
@@ -563,8 +548,8 @@ class TestCalculateEstimatedCost:
                 "brand": "Test Brand",
                 "purchase_unit": "cup",
                 "purchase_quantity": Decimal("10.0"),
-                "is_preferred": True,
-            },
+                "is_preferred": True
+            }
         )
         product_service.set_preferred_product(flour_product.id)
 
@@ -574,8 +559,8 @@ class TestCalculateEstimatedCost:
                 "brand": "Test Brand",
                 "purchase_unit": "cup",
                 "purchase_quantity": Decimal("10.0"),
-                "is_preferred": True,
-            },
+                "is_preferred": True
+            }
         )
         product_service.set_preferred_product(sugar_product.id)
 
@@ -584,13 +569,13 @@ class TestCalculateEstimatedCost:
             product_id=flour_product.id,
             quantity=Decimal("10.0"),
             total_cost=Decimal("1.00"),  # $0.10/cup
-            purchase_date=date(2025, 1, 1),
+            purchase_date=date(2025, 1, 1)
         )
         purchase_service.record_purchase(
             product_id=sugar_product.id,
             quantity=Decimal("10.0"),
             total_cost=Decimal("2.00"),  # $0.20/cup
-            purchase_date=date(2025, 1, 1),
+            purchase_date=date(2025, 1, 1)
         )
 
         # Create recipe with both ingredients
@@ -599,12 +584,12 @@ class TestCalculateEstimatedCost:
                 "name": "Est Multi Recipe",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             },
             [
                 {"ingredient_id": flour.id, "quantity": 2.0, "unit": "cup"},  # 2 * $0.10 = $0.20
                 {"ingredient_id": sugar.id, "quantity": 1.0, "unit": "cup"},  # 1 * $0.20 = $0.20
-            ],
+            ]
         )
 
         # Act
@@ -622,8 +607,7 @@ class TestCalculateEstimatedCost:
         ingredient = ingredient_service.create_ingredient(
             {
                 "name": "Ignore Pantry Flour",
-                "category": "Flour",
-                "recipe_unit": "cup",
+                "category": "Flour"
             }
         )
 
@@ -633,8 +617,8 @@ class TestCalculateEstimatedCost:
                 "brand": "Test Brand",
                 "purchase_unit": "cup",
                 "purchase_quantity": Decimal("10.0"),
-                "is_preferred": True,
-            },
+                "is_preferred": True
+            }
         )
         product_service.set_preferred_product(product.id)
 
@@ -649,7 +633,7 @@ class TestCalculateEstimatedCost:
             product_id=product.id,
             quantity=Decimal("10.0"),
             total_cost=Decimal("2.00"),  # $0.20/cup
-            purchase_date=date(2025, 1, 15),
+            purchase_date=date(2025, 1, 15)
         )
 
         # Create recipe
@@ -658,9 +642,9 @@ class TestCalculateEstimatedCost:
                 "name": "Ignore Pantry Recipe",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             },
-            [{"ingredient_id": ingredient.id, "quantity": 2.0, "unit": "cup"}],
+            [{"ingredient_id": ingredient.id, "quantity": 2.0, "unit": "cup"}]
         )
 
         # Act
@@ -681,7 +665,7 @@ class TestCalculateEstimatedCost:
                 "name": "Empty Est Recipe",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             },
             [],  # No ingredients
         )
@@ -703,14 +687,13 @@ class TestCalculateEstimatedCost:
         ingredient = ingredient_service.create_ingredient(
             {
                 "name": "No Purchase Est Flour",
-                "category": "Flour",
-                "recipe_unit": "cup",
+                "category": "Flour"
             }
         )
 
         product = product_service.create_product(
             ingredient.slug,
-            {"brand": "Test Brand", "purchase_unit": "cup", "purchase_quantity": Decimal("10.0")},
+            {"brand": "Test Brand", "purchase_unit": "cup", "purchase_quantity": Decimal("10.0")}
         )
 
         # Create recipe (no purchase history for fallback)
@@ -719,9 +702,9 @@ class TestCalculateEstimatedCost:
                 "name": "No Purchase Est Recipe",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             },
-            [{"ingredient_id": ingredient.id, "quantity": 2.0, "unit": "cup"}],
+            [{"ingredient_id": ingredient.id, "quantity": 2.0, "unit": "cup"}]
         )
 
         # Act & Assert
@@ -739,8 +722,7 @@ class TestCalculateEstimatedCost:
         ingredient = ingredient_service.create_ingredient(
             {
                 "name": "No Products Est Flour",
-                "category": "Flour",
-                "recipe_unit": "cup",
+                "category": "Flour"
             }
         )
 
@@ -750,9 +732,9 @@ class TestCalculateEstimatedCost:
                 "name": "No Products Est Recipe",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             },
-            [{"ingredient_id": ingredient.id, "quantity": 2.0, "unit": "cup"}],
+            [{"ingredient_id": ingredient.id, "quantity": 2.0, "unit": "cup"}]
         )
 
         # Act & Assert
@@ -760,7 +742,6 @@ class TestCalculateEstimatedCost:
             recipe_service.calculate_estimated_cost(recipe.id)
 
         assert "no products" in str(exc_info.value).lower()
-
 
 class TestPartialInventoryScenarios:
     """Tests for partial inventory blended costing scenarios (WP04)."""
@@ -771,8 +752,7 @@ class TestPartialInventoryScenarios:
         ingredient = ingredient_service.create_ingredient(
             {
                 "name": "Full Coverage Flour",
-                "category": "Flour",
-                "recipe_unit": "cup",
+                "category": "Flour"
             }
         )
 
@@ -782,8 +762,8 @@ class TestPartialInventoryScenarios:
                 "brand": "Test Brand",
                 "purchase_unit": "cup",
                 "purchase_quantity": Decimal("10.0"),
-                "is_preferred": True,
-            },
+                "is_preferred": True
+            }
         )
         product_service.set_preferred_product(product.id)
 
@@ -798,7 +778,7 @@ class TestPartialInventoryScenarios:
             product_id=product.id,
             quantity=Decimal("10.0"),
             total_cost=Decimal("5.00"),  # $0.50/cup - expensive!
-            purchase_date=date(2025, 1, 15),
+            purchase_date=date(2025, 1, 15)
         )
 
         # Create recipe needing 2 cups (pantry has 5)
@@ -807,9 +787,9 @@ class TestPartialInventoryScenarios:
                 "name": "Full Coverage Recipe",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             },
-            [{"ingredient_id": ingredient.id, "quantity": 2.0, "unit": "cup"}],
+            [{"ingredient_id": ingredient.id, "quantity": 2.0, "unit": "cup"}]
         )
 
         # Act
@@ -831,22 +811,19 @@ class TestPartialInventoryScenarios:
         flour = ingredient_service.create_ingredient(
             {
                 "name": "Mixed Flour",
-                "category": "Flour",
-                "recipe_unit": "cup",
+                "category": "Flour"
             }
         )
         sugar = ingredient_service.create_ingredient(
             {
                 "name": "Mixed Sugar",
-                "category": "Sugar",
-                "recipe_unit": "cup",
+                "category": "Sugar"
             }
         )
         butter = ingredient_service.create_ingredient(
             {
                 "name": "Mixed Butter",
-                "category": "Dairy",
-                "recipe_unit": "cup",
+                "category": "Dairy"
             }
         )
 
@@ -857,8 +834,8 @@ class TestPartialInventoryScenarios:
                 "brand": "Test Brand",
                 "purchase_unit": "cup",
                 "purchase_quantity": Decimal("10.0"),
-                "is_preferred": True,
-            },
+                "is_preferred": True
+            }
         )
         product_service.set_preferred_product(flour_product.id)
 
@@ -868,8 +845,8 @@ class TestPartialInventoryScenarios:
                 "brand": "Test Brand",
                 "purchase_unit": "cup",
                 "purchase_quantity": Decimal("10.0"),
-                "is_preferred": True,
-            },
+                "is_preferred": True
+            }
         )
         product_service.set_preferred_product(sugar_product.id)
 
@@ -879,8 +856,8 @@ class TestPartialInventoryScenarios:
                 "brand": "Test Brand",
                 "purchase_unit": "cup",
                 "purchase_quantity": Decimal("10.0"),
-                "is_preferred": True,
-            },
+                "is_preferred": True
+            }
         )
         product_service.set_preferred_product(butter_product.id)
 
@@ -904,19 +881,19 @@ class TestPartialInventoryScenarios:
             product_id=flour_product.id,
             quantity=Decimal("10.0"),
             total_cost=Decimal("1.50"),  # $0.15/cup
-            purchase_date=date(2025, 1, 15),
+            purchase_date=date(2025, 1, 15)
         )
         purchase_service.record_purchase(
             product_id=sugar_product.id,
             quantity=Decimal("10.0"),
             total_cost=Decimal("3.00"),  # $0.30/cup (won't be used - full coverage)
-            purchase_date=date(2025, 1, 15),
+            purchase_date=date(2025, 1, 15)
         )
         purchase_service.record_purchase(
             product_id=butter_product.id,
             quantity=Decimal("10.0"),
             total_cost=Decimal("5.00"),  # $0.50/cup (100% fallback)
-            purchase_date=date(2025, 1, 15),
+            purchase_date=date(2025, 1, 15)
         )
 
         # Create recipe with all three ingredients
@@ -925,13 +902,13 @@ class TestPartialInventoryScenarios:
                 "name": "Mixed Coverage Recipe",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             },
             [
                 {"ingredient_id": flour.id, "quantity": 3.0, "unit": "cup"},  # 2 FIFO + 1 fallback
                 {"ingredient_id": sugar.id, "quantity": 1.0, "unit": "cup"},  # 1 FIFO only
                 {"ingredient_id": butter.id, "quantity": 2.0, "unit": "cup"},  # 2 fallback only
-            ],
+            ]
         )
 
         # Act
@@ -953,8 +930,7 @@ class TestPartialInventoryScenarios:
         ingredient = ingredient_service.create_ingredient(
             {
                 "name": "Exact Coverage Flour",
-                "category": "Flour",
-                "recipe_unit": "cup",
+                "category": "Flour"
             }
         )
 
@@ -964,8 +940,8 @@ class TestPartialInventoryScenarios:
                 "brand": "Test Brand",
                 "purchase_unit": "cup",
                 "purchase_quantity": Decimal("10.0"),
-                "is_preferred": True,
-            },
+                "is_preferred": True
+            }
         )
         product_service.set_preferred_product(product.id)
 
@@ -980,7 +956,7 @@ class TestPartialInventoryScenarios:
             product_id=product.id,
             quantity=Decimal("10.0"),
             total_cost=Decimal("10.00"),  # $1.00/cup
-            purchase_date=date(2025, 1, 15),
+            purchase_date=date(2025, 1, 15)
         )
 
         # Create recipe needing exactly 3 cups
@@ -989,9 +965,9 @@ class TestPartialInventoryScenarios:
                 "name": "Exact Coverage Recipe",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             },
-            [{"ingredient_id": ingredient.id, "quantity": 3.0, "unit": "cup"}],
+            [{"ingredient_id": ingredient.id, "quantity": 3.0, "unit": "cup"}]
         )
 
         # Act
@@ -1009,8 +985,7 @@ class TestPartialInventoryScenarios:
         ingredient = ingredient_service.create_ingredient(
             {
                 "name": "Precision Blend Flour",
-                "category": "Flour",
-                "recipe_unit": "cup",
+                "category": "Flour"
             }
         )
 
@@ -1020,8 +995,8 @@ class TestPartialInventoryScenarios:
                 "brand": "Test Brand",
                 "purchase_unit": "cup",
                 "purchase_quantity": Decimal("10.0"),
-                "is_preferred": True,
-            },
+                "is_preferred": True
+            }
         )
         product_service.set_preferred_product(product.id)
 
@@ -1036,7 +1011,7 @@ class TestPartialInventoryScenarios:
             product_id=product.id,
             quantity=Decimal("10.0"),
             total_cost=Decimal("4.56"),  # $0.456/cup
-            purchase_date=date(2025, 1, 15),
+            purchase_date=date(2025, 1, 15)
         )
 
         # Create recipe needing 2.5 cups (1 cup shortfall)
@@ -1045,9 +1020,9 @@ class TestPartialInventoryScenarios:
                 "name": "Precision Recipe",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             },
-            [{"ingredient_id": ingredient.id, "quantity": 2.5, "unit": "cup"}],
+            [{"ingredient_id": ingredient.id, "quantity": 2.5, "unit": "cup"}]
         )
 
         # Act
@@ -1062,7 +1037,6 @@ class TestPartialInventoryScenarios:
         # Verify result is Decimal type
         assert isinstance(cost, Decimal), f"Expected Decimal, got {type(cost)}"
 
-
 class TestEdgeCases:
     """Tests for edge cases and validation (WP05)."""
 
@@ -1072,15 +1046,13 @@ class TestEdgeCases:
         flour = ingredient_service.create_ingredient(
             {
                 "name": "Zero Qty Flour",
-                "category": "Flour",
-                "recipe_unit": "cup",
+                "category": "Flour"
             }
         )
         sugar = ingredient_service.create_ingredient(
             {
                 "name": "Zero Qty Sugar",
-                "category": "Sugar",
-                "recipe_unit": "cup",
+                "category": "Sugar"
             }
         )
 
@@ -1091,8 +1063,8 @@ class TestEdgeCases:
                 "brand": "Test Brand",
                 "purchase_unit": "cup",
                 "purchase_quantity": Decimal("10.0"),
-                "is_preferred": True,
-            },
+                "is_preferred": True
+            }
         )
         product_service.set_preferred_product(flour_product.id)
 
@@ -1102,8 +1074,8 @@ class TestEdgeCases:
                 "brand": "Test Brand",
                 "purchase_unit": "cup",
                 "purchase_quantity": Decimal("10.0"),
-                "is_preferred": True,
-            },
+                "is_preferred": True
+            }
         )
         product_service.set_preferred_product(sugar_product.id)
 
@@ -1118,7 +1090,7 @@ class TestEdgeCases:
             product_id=sugar_product.id,
             quantity=Decimal("10.0"),
             total_cost=Decimal("5.00"),  # $0.50/cup - should NOT be used
-            purchase_date=date(2025, 1, 1),
+            purchase_date=date(2025, 1, 1)
         )
 
         # Create recipe with flour (2 cups) and sugar (0 cups - zero quantity)
@@ -1127,12 +1099,12 @@ class TestEdgeCases:
                 "name": "Zero Qty Recipe",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             },
             [
                 {"ingredient_id": flour.id, "quantity": 2.0, "unit": "cup"},
                 {"ingredient_id": sugar.id, "quantity": 0.0, "unit": "cup"},  # Zero!
-            ],
+            ]
         )
 
         # Act
@@ -1150,15 +1122,13 @@ class TestEdgeCases:
         flour = ingredient_service.create_ingredient(
             {
                 "name": "Est Zero Flour",
-                "category": "Flour",
-                "recipe_unit": "cup",
+                "category": "Flour"
             }
         )
         sugar = ingredient_service.create_ingredient(
             {
                 "name": "Est Zero Sugar",
-                "category": "Sugar",
-                "recipe_unit": "cup",
+                "category": "Sugar"
             }
         )
 
@@ -1169,8 +1139,8 @@ class TestEdgeCases:
                 "brand": "Test Brand",
                 "purchase_unit": "cup",
                 "purchase_quantity": Decimal("10.0"),
-                "is_preferred": True,
-            },
+                "is_preferred": True
+            }
         )
         product_service.set_preferred_product(flour_product.id)
 
@@ -1180,8 +1150,8 @@ class TestEdgeCases:
                 "brand": "Test Brand",
                 "purchase_unit": "cup",
                 "purchase_quantity": Decimal("10.0"),
-                "is_preferred": True,
-            },
+                "is_preferred": True
+            }
         )
         product_service.set_preferred_product(sugar_product.id)
 
@@ -1190,13 +1160,13 @@ class TestEdgeCases:
             product_id=flour_product.id,
             quantity=Decimal("10.0"),
             total_cost=Decimal("1.00"),  # $0.10/cup
-            purchase_date=date(2025, 1, 1),
+            purchase_date=date(2025, 1, 1)
         )
         purchase_service.record_purchase(
             product_id=sugar_product.id,
             quantity=Decimal("10.0"),
             total_cost=Decimal("5.00"),  # $0.50/cup - should NOT be used
-            purchase_date=date(2025, 1, 1),
+            purchase_date=date(2025, 1, 1)
         )
 
         # Create recipe with flour (2 cups) and sugar (0 cups)
@@ -1205,12 +1175,12 @@ class TestEdgeCases:
                 "name": "Est Zero Qty Recipe",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             },
             [
                 {"ingredient_id": flour.id, "quantity": 2.0, "unit": "cup"},
                 {"ingredient_id": sugar.id, "quantity": 0.0, "unit": "cup"},  # Zero!
-            ],
+            ]
         )
 
         # Act
@@ -1228,8 +1198,7 @@ class TestEdgeCases:
         ingredient = ingredient_service.create_ingredient(
             {
                 "name": "Saffron Threads",  # Specific name to check in message
-                "category": "Spices",
-                "recipe_unit": "tsp",
+                "category": "Spices"
             }
         )
 
@@ -1238,9 +1207,9 @@ class TestEdgeCases:
                 "name": "Error Message Recipe",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             },
-            [{"ingredient_id": ingredient.id, "quantity": 1.0, "unit": "tsp"}],
+            [{"ingredient_id": ingredient.id, "quantity": 1.0, "unit": "tsp"}]
         )
 
         # Act & Assert
@@ -1257,14 +1226,13 @@ class TestEdgeCases:
         ingredient = ingredient_service.create_ingredient(
             {
                 "name": "Rare Spice",
-                "category": "Spices",
-                "recipe_unit": "tsp",
+                "category": "Spices"
             }
         )
 
         product = product_service.create_product(
             ingredient.slug,
-            {"brand": "Exotic Brand", "purchase_unit": "tsp", "purchase_quantity": Decimal("1.0")},
+            {"brand": "Exotic Brand", "purchase_unit": "tsp", "purchase_quantity": Decimal("1.0")}
         )
 
         recipe = recipe_service.create_recipe(
@@ -1272,9 +1240,9 @@ class TestEdgeCases:
                 "name": "No Purchase Recipe",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             },
-            [{"ingredient_id": ingredient.id, "quantity": 1.0, "unit": "tsp"}],
+            [{"ingredient_id": ingredient.id, "quantity": 1.0, "unit": "tsp"}]
         )
 
         # Act & Assert
@@ -1285,11 +1253,9 @@ class TestEdgeCases:
         # The message should mention purchase history
         assert "purchase" in error_message and "history" in error_message
 
-
 # ============================================================================
 # Recipe Component CRUD Tests (Feature 012: Nested Recipes)
 # ============================================================================
-
 
 class TestAddRecipeComponent:
     """Tests for add_recipe_component() method."""
@@ -1302,7 +1268,7 @@ class TestAddRecipeComponent:
                 "name": "Parent Recipe",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             }
         )
         child = recipe_service.create_recipe(
@@ -1310,7 +1276,7 @@ class TestAddRecipeComponent:
                 "name": "Child Recipe",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             }
         )
 
@@ -1332,7 +1298,7 @@ class TestAddRecipeComponent:
                 "name": "Default Qty Parent",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             }
         )
         child = recipe_service.create_recipe(
@@ -1340,7 +1306,7 @@ class TestAddRecipeComponent:
                 "name": "Default Qty Child",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             }
         )
 
@@ -1355,7 +1321,7 @@ class TestAddRecipeComponent:
                 "name": "Fractional Parent",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             }
         )
         child = recipe_service.create_recipe(
@@ -1363,7 +1329,7 @@ class TestAddRecipeComponent:
                 "name": "Fractional Child",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             }
         )
 
@@ -1378,7 +1344,7 @@ class TestAddRecipeComponent:
                 "name": "Zero Qty Parent",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             }
         )
         child = recipe_service.create_recipe(
@@ -1386,7 +1352,7 @@ class TestAddRecipeComponent:
                 "name": "Zero Qty Child",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             }
         )
 
@@ -1400,7 +1366,7 @@ class TestAddRecipeComponent:
                 "name": "Neg Qty Parent",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             }
         )
         child = recipe_service.create_recipe(
@@ -1408,7 +1374,7 @@ class TestAddRecipeComponent:
                 "name": "Neg Qty Child",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             }
         )
 
@@ -1422,7 +1388,7 @@ class TestAddRecipeComponent:
                 "name": "Duplicate Parent",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             }
         )
         child = recipe_service.create_recipe(
@@ -1430,7 +1396,7 @@ class TestAddRecipeComponent:
                 "name": "Duplicate Child",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             }
         )
 
@@ -1450,7 +1416,7 @@ class TestAddRecipeComponent:
                 "name": "Orphan Child",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             }
         )
 
@@ -1464,7 +1430,7 @@ class TestAddRecipeComponent:
                 "name": "Missing Child Parent",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             }
         )
 
@@ -1478,7 +1444,7 @@ class TestAddRecipeComponent:
                 "name": "Sort Order Parent",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             }
         )
         child1 = recipe_service.create_recipe(
@@ -1486,7 +1452,7 @@ class TestAddRecipeComponent:
                 "name": "Sort Child 1",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             }
         )
         child2 = recipe_service.create_recipe(
@@ -1494,7 +1460,7 @@ class TestAddRecipeComponent:
                 "name": "Sort Child 2",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             }
         )
 
@@ -1503,7 +1469,6 @@ class TestAddRecipeComponent:
 
         assert comp1.sort_order == 1
         assert comp2.sort_order == 2
-
 
 class TestRemoveRecipeComponent:
     """Tests for remove_recipe_component() method."""
@@ -1515,7 +1480,7 @@ class TestRemoveRecipeComponent:
                 "name": "Remove Parent",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             }
         )
         child = recipe_service.create_recipe(
@@ -1523,7 +1488,7 @@ class TestRemoveRecipeComponent:
                 "name": "Remove Child",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             }
         )
         recipe_service.add_recipe_component(parent.id, child.id)
@@ -1543,7 +1508,7 @@ class TestRemoveRecipeComponent:
                 "name": "Remove NotFound Parent",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             }
         )
         child = recipe_service.create_recipe(
@@ -1551,7 +1516,7 @@ class TestRemoveRecipeComponent:
                 "name": "Remove NotFound Child",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             }
         )
 
@@ -1567,13 +1532,12 @@ class TestRemoveRecipeComponent:
                 "name": "Remove Orphan Child",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             }
         )
 
         with pytest.raises(RecipeNotFound):
             recipe_service.remove_recipe_component(99999, child.id)
-
 
 class TestUpdateRecipeComponent:
     """Tests for update_recipe_component() method."""
@@ -1585,7 +1549,7 @@ class TestUpdateRecipeComponent:
                 "name": "Update Qty Parent",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             }
         )
         child = recipe_service.create_recipe(
@@ -1593,7 +1557,7 @@ class TestUpdateRecipeComponent:
                 "name": "Update Qty Child",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             }
         )
         recipe_service.add_recipe_component(parent.id, child.id, quantity=1.0)
@@ -1609,7 +1573,7 @@ class TestUpdateRecipeComponent:
                 "name": "Update Notes Parent",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             }
         )
         child = recipe_service.create_recipe(
@@ -1617,7 +1581,7 @@ class TestUpdateRecipeComponent:
                 "name": "Update Notes Child",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             }
         )
         recipe_service.add_recipe_component(parent.id, child.id, notes="Original")
@@ -1633,7 +1597,7 @@ class TestUpdateRecipeComponent:
                 "name": "Clear Notes Parent",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             }
         )
         child = recipe_service.create_recipe(
@@ -1641,7 +1605,7 @@ class TestUpdateRecipeComponent:
                 "name": "Clear Notes Child",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             }
         )
         recipe_service.add_recipe_component(parent.id, child.id, notes="To be cleared")
@@ -1657,7 +1621,7 @@ class TestUpdateRecipeComponent:
                 "name": "Invalid Update Parent",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             }
         )
         child = recipe_service.create_recipe(
@@ -1665,7 +1629,7 @@ class TestUpdateRecipeComponent:
                 "name": "Invalid Update Child",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             }
         )
         recipe_service.add_recipe_component(parent.id, child.id)
@@ -1680,7 +1644,7 @@ class TestUpdateRecipeComponent:
                 "name": "Update NotFound Parent",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             }
         )
         child = recipe_service.create_recipe(
@@ -1688,7 +1652,7 @@ class TestUpdateRecipeComponent:
                 "name": "Update NotFound Child",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             }
         )
 
@@ -1696,7 +1660,6 @@ class TestUpdateRecipeComponent:
             recipe_service.update_recipe_component(parent.id, child.id, quantity=2.0)
 
         assert "not found" in str(exc_info.value).lower()
-
 
 class TestGetRecipeComponents:
     """Tests for get_recipe_components() method."""
@@ -1708,7 +1671,7 @@ class TestGetRecipeComponents:
                 "name": "Get Components Parent",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             }
         )
         child1 = recipe_service.create_recipe(
@@ -1716,7 +1679,7 @@ class TestGetRecipeComponents:
                 "name": "Get Child 1",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             }
         )
         child2 = recipe_service.create_recipe(
@@ -1724,7 +1687,7 @@ class TestGetRecipeComponents:
                 "name": "Get Child 2",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             }
         )
         child3 = recipe_service.create_recipe(
@@ -1732,7 +1695,7 @@ class TestGetRecipeComponents:
                 "name": "Get Child 3",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             }
         )
 
@@ -1755,7 +1718,7 @@ class TestGetRecipeComponents:
                 "name": "No Components Recipe",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             }
         )
 
@@ -1768,7 +1731,6 @@ class TestGetRecipeComponents:
         with pytest.raises(RecipeNotFound):
             recipe_service.get_recipe_components(99999)
 
-
 class TestGetRecipesUsingComponent:
     """Tests for get_recipes_using_component() method."""
 
@@ -1779,7 +1741,7 @@ class TestGetRecipesUsingComponent:
                 "name": "Using Parent 1",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             }
         )
         parent2 = recipe_service.create_recipe(
@@ -1787,7 +1749,7 @@ class TestGetRecipesUsingComponent:
                 "name": "Using Parent 2",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             }
         )
         shared_child = recipe_service.create_recipe(
@@ -1795,7 +1757,7 @@ class TestGetRecipesUsingComponent:
                 "name": "Shared Child Recipe",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             }
         )
 
@@ -1816,7 +1778,7 @@ class TestGetRecipesUsingComponent:
                 "name": "Unused Recipe",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             }
         )
 
@@ -1829,11 +1791,9 @@ class TestGetRecipesUsingComponent:
         with pytest.raises(RecipeNotFound):
             recipe_service.get_recipes_using_component(99999)
 
-
 # ============================================================================
 # Recipe Component Validation Tests (Feature 012: WP03)
 # ============================================================================
-
 
 class TestCircularReferenceDetection:
     """Tests for circular reference detection (T014, T017, T019)."""
@@ -1845,7 +1805,7 @@ class TestCircularReferenceDetection:
                 "name": "Self Reference Recipe",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             }
         )
 
@@ -1861,7 +1821,7 @@ class TestCircularReferenceDetection:
                 "name": "Cycle Recipe A",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             }
         )
         recipe_b = recipe_service.create_recipe(
@@ -1869,7 +1829,7 @@ class TestCircularReferenceDetection:
                 "name": "Cycle Recipe B",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             }
         )
 
@@ -1889,7 +1849,7 @@ class TestCircularReferenceDetection:
                 "name": "Indirect A",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             }
         )
         recipe_b = recipe_service.create_recipe(
@@ -1897,7 +1857,7 @@ class TestCircularReferenceDetection:
                 "name": "Indirect B",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             }
         )
         recipe_c = recipe_service.create_recipe(
@@ -1905,7 +1865,7 @@ class TestCircularReferenceDetection:
                 "name": "Indirect C",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             }
         )
 
@@ -1926,7 +1886,7 @@ class TestCircularReferenceDetection:
                 "name": "Diamond Top",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             }
         )
         recipe_b = recipe_service.create_recipe(
@@ -1934,7 +1894,7 @@ class TestCircularReferenceDetection:
                 "name": "Diamond Left",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             }
         )
         recipe_c = recipe_service.create_recipe(
@@ -1942,7 +1902,7 @@ class TestCircularReferenceDetection:
                 "name": "Diamond Right",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             }
         )
 
@@ -1954,7 +1914,6 @@ class TestCircularReferenceDetection:
         components = recipe_service.get_recipe_components(recipe_a.id)
         assert len(components) == 2
 
-
 class TestDepthLimitEnforcement:
     """Tests for depth limit enforcement (T015, T016, T020)."""
 
@@ -1965,7 +1924,7 @@ class TestDepthLimitEnforcement:
                 "name": "Depth Level 1",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             }
         )
         recipe_b = recipe_service.create_recipe(
@@ -1973,7 +1932,7 @@ class TestDepthLimitEnforcement:
                 "name": "Depth Level 2",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             }
         )
         recipe_c = recipe_service.create_recipe(
@@ -1981,7 +1940,7 @@ class TestDepthLimitEnforcement:
                 "name": "Depth Level 3",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             }
         )
 
@@ -2000,7 +1959,7 @@ class TestDepthLimitEnforcement:
                 "name": "Too Deep 1",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             }
         )
         recipe_b = recipe_service.create_recipe(
@@ -2008,7 +1967,7 @@ class TestDepthLimitEnforcement:
                 "name": "Too Deep 2",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             }
         )
         recipe_c = recipe_service.create_recipe(
@@ -2016,7 +1975,7 @@ class TestDepthLimitEnforcement:
                 "name": "Too Deep 3",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             }
         )
         recipe_d = recipe_service.create_recipe(
@@ -2024,7 +1983,7 @@ class TestDepthLimitEnforcement:
                 "name": "Too Deep 4",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             }
         )
 
@@ -2045,7 +2004,7 @@ class TestDepthLimitEnforcement:
                 "name": "Subtree Parent",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             }
         )
         recipe_b = recipe_service.create_recipe(
@@ -2053,7 +2012,7 @@ class TestDepthLimitEnforcement:
                 "name": "Subtree Child",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             }
         )
         recipe_d = recipe_service.create_recipe(
@@ -2061,7 +2020,7 @@ class TestDepthLimitEnforcement:
                 "name": "Subtree Grandchild",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             }
         )
 
@@ -2082,7 +2041,7 @@ class TestDepthLimitEnforcement:
                 "name": "Wide Parent",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             }
         )
         child1 = recipe_service.create_recipe(
@@ -2090,7 +2049,7 @@ class TestDepthLimitEnforcement:
                 "name": "Wide Child 1",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             }
         )
         child2 = recipe_service.create_recipe(
@@ -2098,7 +2057,7 @@ class TestDepthLimitEnforcement:
                 "name": "Wide Child 2",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             }
         )
         child3 = recipe_service.create_recipe(
@@ -2106,7 +2065,7 @@ class TestDepthLimitEnforcement:
                 "name": "Wide Child 3",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             }
         )
 
@@ -2118,7 +2077,6 @@ class TestDepthLimitEnforcement:
         components = recipe_service.get_recipe_components(parent.id)
         assert len(components) == 3
 
-
 class TestDeletionProtection:
     """Tests for deletion protection (T018, T021)."""
 
@@ -2129,7 +2087,7 @@ class TestDeletionProtection:
                 "name": "Delete Protect Parent",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             }
         )
         recipe_child = recipe_service.create_recipe(
@@ -2137,7 +2095,7 @@ class TestDeletionProtection:
                 "name": "Delete Protect Child",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             }
         )
 
@@ -2156,7 +2114,7 @@ class TestDeletionProtection:
                 "name": "Cleanup Parent",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             }
         )
         recipe_child = recipe_service.create_recipe(
@@ -2164,7 +2122,7 @@ class TestDeletionProtection:
                 "name": "Cleanup Child",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             }
         )
 
@@ -2182,7 +2140,7 @@ class TestDeletionProtection:
                 "name": "Standalone Delete",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             }
         )
 
@@ -2196,7 +2154,7 @@ class TestDeletionProtection:
                 "name": "Cascade Parent",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             }
         )
         recipe_child = recipe_service.create_recipe(
@@ -2204,7 +2162,7 @@ class TestDeletionProtection:
                 "name": "Cascade Child",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             }
         )
 
@@ -2224,7 +2182,7 @@ class TestDeletionProtection:
                 "name": "Multi Parent 1",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             }
         )
         parent2 = recipe_service.create_recipe(
@@ -2232,7 +2190,7 @@ class TestDeletionProtection:
                 "name": "Multi Parent 2",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             }
         )
         shared_child = recipe_service.create_recipe(
@@ -2240,7 +2198,7 @@ class TestDeletionProtection:
                 "name": "Multi Shared Child",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             }
         )
 
@@ -2254,11 +2212,9 @@ class TestDeletionProtection:
         assert "Multi Parent 1" in error_msg
         assert "Multi Parent 2" in error_msg
 
-
 # ============================================================================
 # Recipe Component Cost & Aggregation Tests (Feature 012: WP04)
 # ============================================================================
-
 
 class TestGetAggregatedIngredients:
     """Tests for get_aggregated_ingredients() (T022, T026)."""
@@ -2267,10 +2223,10 @@ class TestGetAggregatedIngredients:
         """Aggregation of recipe with no components."""
         # Create ingredients
         flour = ingredient_service.create_ingredient(
-            {"name": "Aggreg Flour", "category": "Flour", "recipe_unit": "cup"}
+            {"name": "Aggreg Flour", "category": "Flour"}
         )
         sugar = ingredient_service.create_ingredient(
-            {"name": "Aggreg Sugar", "category": "Sugar", "recipe_unit": "cup"}
+            {"name": "Aggreg Sugar", "category": "Sugar"}
         )
 
         # Create recipe with ingredients
@@ -2279,12 +2235,12 @@ class TestGetAggregatedIngredients:
                 "name": "Aggreg Simple Recipe",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             },
             [
                 {"ingredient_id": flour.id, "quantity": 2.0, "unit": "cup"},
                 {"ingredient_id": sugar.id, "quantity": 1.0, "unit": "cup"},
-            ],
+            ]
         )
 
         result = recipe_service.get_aggregated_ingredients(recipe.id)
@@ -2298,10 +2254,10 @@ class TestGetAggregatedIngredients:
         """Aggregation includes component ingredients."""
         # Create ingredients
         flour = ingredient_service.create_ingredient(
-            {"name": "Comp Flour", "category": "Flour", "recipe_unit": "cup"}
+            {"name": "Comp Flour", "category": "Flour"}
         )
         butter = ingredient_service.create_ingredient(
-            {"name": "Comp Butter", "category": "Dairy", "recipe_unit": "cup"}
+            {"name": "Comp Butter", "category": "Dairy"}
         )
 
         # Create child recipe with butter
@@ -2310,9 +2266,9 @@ class TestGetAggregatedIngredients:
                 "name": "Comp Child Recipe",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             },
-            [{"ingredient_id": butter.id, "quantity": 0.5, "unit": "cup"}],
+            [{"ingredient_id": butter.id, "quantity": 0.5, "unit": "cup"}]
         )
 
         # Create parent recipe with flour
@@ -2321,9 +2277,9 @@ class TestGetAggregatedIngredients:
                 "name": "Comp Parent Recipe",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             },
-            [{"ingredient_id": flour.id, "quantity": 2.0, "unit": "cup"}],
+            [{"ingredient_id": flour.id, "quantity": 2.0, "unit": "cup"}]
         )
 
         # Add child as component with quantity 2.0
@@ -2339,7 +2295,7 @@ class TestGetAggregatedIngredients:
     def test_get_aggregated_ingredients_same_ingredient_combined(self, test_db):
         """Same ingredient from parent and child should combine."""
         flour = ingredient_service.create_ingredient(
-            {"name": "Combine Flour", "category": "Flour", "recipe_unit": "cup"}
+            {"name": "Combine Flour", "category": "Flour"}
         )
 
         # Create child with 1 cup flour
@@ -2348,9 +2304,9 @@ class TestGetAggregatedIngredients:
                 "name": "Combine Child",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             },
-            [{"ingredient_id": flour.id, "quantity": 1.0, "unit": "cup"}],
+            [{"ingredient_id": flour.id, "quantity": 1.0, "unit": "cup"}]
         )
 
         # Create parent with 2 cups flour
@@ -2359,9 +2315,9 @@ class TestGetAggregatedIngredients:
                 "name": "Combine Parent",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             },
-            [{"ingredient_id": flour.id, "quantity": 2.0, "unit": "cup"}],
+            [{"ingredient_id": flour.id, "quantity": 2.0, "unit": "cup"}]
         )
 
         recipe_service.add_recipe_component(parent.id, child.id, quantity=1.0)
@@ -2377,13 +2333,13 @@ class TestGetAggregatedIngredients:
     def test_get_aggregated_ingredients_3_levels(self, test_db):
         """Aggregation works across 3 levels."""
         salt = ingredient_service.create_ingredient(
-            {"name": "Three Level Salt", "category": "Spices", "recipe_unit": "tsp"}
+            {"name": "Three Level Salt", "category": "Spices"}
         )
         butter = ingredient_service.create_ingredient(
-            {"name": "Three Level Butter", "category": "Dairy", "recipe_unit": "cup"}
+            {"name": "Three Level Butter", "category": "Dairy"}
         )
         flour = ingredient_service.create_ingredient(
-            {"name": "Three Level Flour", "category": "Flour", "recipe_unit": "cup"}
+            {"name": "Three Level Flour", "category": "Flour"}
         )
 
         grandchild = recipe_service.create_recipe(
@@ -2391,27 +2347,27 @@ class TestGetAggregatedIngredients:
                 "name": "Three Level Grandchild",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             },
-            [{"ingredient_id": salt.id, "quantity": 1.0, "unit": "tsp"}],
+            [{"ingredient_id": salt.id, "quantity": 1.0, "unit": "tsp"}]
         )
         child = recipe_service.create_recipe(
             {
                 "name": "Three Level Child",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             },
-            [{"ingredient_id": butter.id, "quantity": 1.0, "unit": "cup"}],
+            [{"ingredient_id": butter.id, "quantity": 1.0, "unit": "cup"}]
         )
         parent = recipe_service.create_recipe(
             {
                 "name": "Three Level Parent",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             },
-            [{"ingredient_id": flour.id, "quantity": 2.0, "unit": "cup"}],
+            [{"ingredient_id": flour.id, "quantity": 2.0, "unit": "cup"}]
         )
 
         recipe_service.add_recipe_component(child.id, grandchild.id, quantity=2.0)
@@ -2428,7 +2384,7 @@ class TestGetAggregatedIngredients:
     def test_get_aggregated_ingredients_with_multiplier(self, test_db):
         """Multiplier scales all quantities."""
         flour = ingredient_service.create_ingredient(
-            {"name": "Mult Flour", "category": "Flour", "recipe_unit": "cup"}
+            {"name": "Mult Flour", "category": "Flour"}
         )
 
         recipe = recipe_service.create_recipe(
@@ -2436,9 +2392,9 @@ class TestGetAggregatedIngredients:
                 "name": "Mult Recipe",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             },
-            [{"ingredient_id": flour.id, "quantity": 2.0, "unit": "cup"}],
+            [{"ingredient_id": flour.id, "quantity": 2.0, "unit": "cup"}]
         )
 
         result = recipe_service.get_aggregated_ingredients(recipe.id, multiplier=2.0)
@@ -2453,15 +2409,14 @@ class TestGetAggregatedIngredients:
                 "name": "Empty Aggreg Recipe",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             },
-            [],
+            []
         )
 
         result = recipe_service.get_aggregated_ingredients(recipe.id)
 
         assert len(result) == 0
-
 
 class TestCalculateTotalCostWithComponents:
     """Tests for calculate_total_cost_with_components() (T023, T027)."""
@@ -2473,7 +2428,7 @@ class TestCalculateTotalCostWithComponents:
                 "name": "Single Cost Recipe",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             },
             [],  # No ingredients - cost will be 0
         )
@@ -2492,18 +2447,18 @@ class TestCalculateTotalCostWithComponents:
                 "name": "Cost Child",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             },
-            [],
+            []
         )
         parent = recipe_service.create_recipe(
             {
                 "name": "Cost Parent",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             },
-            [],
+            []
         )
 
         recipe_service.add_recipe_component(parent.id, child.id, quantity=2.0)
@@ -2523,18 +2478,18 @@ class TestCalculateTotalCostWithComponents:
                 "name": "Structure Parent",
                 "category": "Cookies",
                 "yield_quantity": 12,
-                "yield_unit": "cookies",
+                "yield_unit": "cookies"
             },
-            [],
+            []
         )
         child = recipe_service.create_recipe(
             {
                 "name": "Structure Child",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             },
-            [],
+            []
         )
         recipe_service.add_recipe_component(parent.id, child.id, quantity=2.0)
 
@@ -2565,9 +2520,9 @@ class TestCalculateTotalCostWithComponents:
                 "name": "Per Unit Recipe",
                 "category": "Cookies",
                 "yield_quantity": 24,
-                "yield_unit": "cookies",
+                "yield_unit": "cookies"
             },
-            [],
+            []
         )
 
         result = recipe_service.calculate_total_cost_with_components(recipe.id)
@@ -2580,7 +2535,6 @@ class TestCalculateTotalCostWithComponents:
         with pytest.raises(RecipeNotFound):
             recipe_service.calculate_total_cost_with_components(99999)
 
-
 class TestGetRecipeWithCostsComponents:
     """Tests for get_recipe_with_costs() with components (T025)."""
 
@@ -2591,18 +2545,18 @@ class TestGetRecipeWithCostsComponents:
                 "name": "With Costs Parent",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             },
-            [],
+            []
         )
         child = recipe_service.create_recipe(
             {
                 "name": "With Costs Child",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             },
-            [],
+            []
         )
         recipe_service.add_recipe_component(parent.id, child.id, quantity=2.0)
 
@@ -2621,9 +2575,9 @@ class TestGetRecipeWithCostsComponents:
                 "name": "No Comp Costs",
                 "category": "Cookies",
                 "yield_quantity": 1,
-                "yield_unit": "batch",
+                "yield_unit": "batch"
             },
-            [],
+            []
         )
 
         result = recipe_service.get_recipe_with_costs(recipe.id)

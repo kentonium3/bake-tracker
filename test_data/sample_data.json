@@ -1,68 +1,11 @@
 {
-  "version": "3.2",
+  "version": "3.3",
   "exported_at": "2025-12-04T00:00:00Z",
   "application": "bake-tracker",
-  "unit_conversions": [
-    {
-      "ingredient_slug": "all_purpose_flour",
-      "from_unit": "lb",
-      "to_unit": "cup",
-      "from_quantity": 3.6
-    },
-    {
-      "ingredient_slug": "white_granulated_sugar",
-      "from_unit": "lb",
-      "to_unit": "cup",
-      "from_quantity": 2.25
-    },
-    {
-      "ingredient_slug": "semi_sweet_chocolate_chips",
-      "from_unit": "oz",
-      "to_unit": "cup",
-      "from_quantity": 0.167
-    },
-    {
-      "ingredient_slug": "unsalted_butter",
-      "from_unit": "lb",
-      "to_unit": "cup",
-      "from_quantity": 2.0
-    },
-    {
-      "ingredient_slug": "brown_sugar",
-      "from_unit": "lb",
-      "to_unit": "cup",
-      "from_quantity": 2.25
-    },
-    {
-      "ingredient_slug": "powdered_sugar",
-      "from_unit": "lb",
-      "to_unit": "cup",
-      "from_quantity": 3.75
-    },
-    {
-      "ingredient_slug": "cocoa_powder",
-      "from_unit": "oz",
-      "to_unit": "cup",
-      "from_quantity": 0.25
-    },
-    {
-      "ingredient_slug": "pecans",
-      "from_unit": "lb",
-      "to_unit": "cup",
-      "from_quantity": 4.0
-    },
-    {
-      "ingredient_slug": "walnuts",
-      "from_unit": "lb",
-      "to_unit": "cup",
-      "from_quantity": 4.0
-    }
-  ],
   "ingredients": [
     {
       "slug": "all_purpose_flour",
       "category": "Flour",
-      "recipe_unit": "cup",
       "description": "Standard all-purpose wheat flour",
       "notes": "Store in airtight container in cool, dry place",
       "density_volume_value": 1.0,
@@ -74,7 +17,6 @@
     {
       "slug": "white_granulated_sugar",
       "category": "Sugar",
-      "recipe_unit": "cup",
       "description": "Standard white granulated cane sugar",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
@@ -85,7 +27,6 @@
     {
       "slug": "brown_sugar",
       "category": "Sugar",
-      "recipe_unit": "cup",
       "description": "Light or dark brown sugar (packed)",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
@@ -96,7 +37,6 @@
     {
       "slug": "powdered_sugar",
       "category": "Sugar",
-      "recipe_unit": "cup",
       "description": "Confectioners sugar / icing sugar",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
@@ -107,14 +47,12 @@
     {
       "slug": "semi_sweet_chocolate_chips",
       "category": "Chocolate/Candies",
-      "recipe_unit": "cup",
       "description": "Semi-sweet chocolate chips for baking",
       "display_name": "Semi-Sweet Chocolate Chips"
     },
     {
       "slug": "unsalted_butter",
       "category": "Oils/Butters",
-      "recipe_unit": "cup",
       "description": "Unsalted dairy butter",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
@@ -125,7 +63,6 @@
     {
       "slug": "cocoa_powder",
       "category": "Cocoa Powders",
-      "recipe_unit": "cup",
       "description": "Dutch-processed cocoa powder",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
@@ -136,35 +73,30 @@
     {
       "slug": "vanilla_extract",
       "category": "Extracts",
-      "recipe_unit": "tsp",
       "description": "Pure vanilla extract",
       "display_name": "Vanilla Extract"
     },
     {
       "slug": "baking_soda",
       "category": "Misc",
-      "recipe_unit": "tsp",
       "description": "Sodium bicarbonate leavening agent",
       "display_name": "Baking Soda"
     },
     {
       "slug": "salt",
       "category": "Misc",
-      "recipe_unit": "tsp",
       "description": "Fine table salt or sea salt",
       "display_name": "Salt"
     },
     {
       "slug": "pecans",
       "category": "Nuts",
-      "recipe_unit": "cup",
       "description": "Chopped or whole pecans",
       "display_name": "Pecans"
     },
     {
       "slug": "walnuts",
       "category": "Nuts",
-      "recipe_unit": "cup",
       "description": "Chopped walnuts",
       "display_name": "Walnuts"
     }

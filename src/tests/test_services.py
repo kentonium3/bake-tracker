@@ -25,11 +25,9 @@ from src.services.exceptions import (
 )
 from src.services import database
 
-
 # ============================================================================
 # Fixtures
 # ============================================================================
-
 
 @pytest.fixture(scope="function")
 def db_session():
@@ -66,14 +64,12 @@ def db_session():
     session.close()
     database.get_session = original_get_session
 
-
 @pytest.fixture
 def sample_ingredient_data():
     """Sample valid ingredient data (TD-001 schema)."""
     return {
         "display_name": "All-Purpose Flour",
         "category": "Flour",
-        "recipe_unit": "cup",
         # 4-field density model
         "density_volume_value": 1.0,
         "density_volume_unit": "cup",
@@ -81,7 +77,6 @@ def sample_ingredient_data():
         "density_weight_unit": "g",
         "notes": "Test ingredient",
     }
-
 
 @pytest.fixture
 def sample_recipe_data():
@@ -97,11 +92,9 @@ def sample_recipe_data():
         "notes": "Test notes",
     }
 
-
 # ============================================================================
 # Inventory Service Tests
 # ============================================================================
-
 
 class TestInventoryServiceCRUD:
     """Test inventory service CRUD operations."""
@@ -113,7 +106,6 @@ class TestInventoryServiceCRUD:
         assert ingredient.id is not None
         assert ingredient.display_name == "All-Purpose Flour"
         assert ingredient.category == "Flour"
-        assert ingredient.recipe_unit == "cup"
         assert ingredient.density_volume_value == 1.0
         assert ingredient.density_weight_value == 120.0
 
@@ -122,7 +114,6 @@ class TestInventoryServiceCRUD:
         invalid_data = {
             "display_name": "",  # Invalid: empty name
             "category": "Test",
-            "recipe_unit": "cup",
         }
 
         with pytest.raises(ValidationError):
@@ -247,7 +238,6 @@ class TestInventoryServiceCRUD:
         result = ingredient_crud_service.delete_ingredient(ingredient.id, force=True)
         assert result is True
 
-
 @pytest.mark.skip(reason="TD-001: Stock management moved to PantryItem, not Ingredient")
 class TestInventoryServiceStockManagement:
     """Test stock management functions - OBSOLETE.
@@ -275,7 +265,6 @@ class TestInventoryServiceStockManagement:
     def test_adjust_quantity_would_be_negative(self, db_session, sample_ingredient_data):
         """Test adjustment that would result in negative quantity - OBSOLETE."""
         pass
-
 
 class TestInventoryServiceUtilities:
     """Test inventory service utility functions."""
@@ -309,11 +298,9 @@ class TestInventoryServiceUtilities:
         """Test calculating total inventory value - OBSOLETE."""
         pass
 
-
 # ============================================================================
 # Recipe Service Tests
 # ============================================================================
-
 
 class TestRecipeServiceCRUD:
     """Test recipe service CRUD operations."""
@@ -497,7 +484,6 @@ class TestRecipeServiceCRUD:
         with pytest.raises(RecipeNotFound):
             recipe_service.get_recipe(created.id)
 
-
 class TestRecipeIngredientManagement:
     """Test recipe ingredient management functions."""
 
@@ -527,7 +513,6 @@ class TestRecipeIngredientManagement:
 
         assert result is True
 
-
 @pytest.mark.skip(reason="TD-001: Cost calculation requires Product/PantryItem with price data")
 class TestRecipeCostCalculations:
     """Test recipe cost calculation functions - NEEDS PRODUCT/PANTRY DATA.
@@ -544,7 +529,6 @@ class TestRecipeCostCalculations:
     def test_get_recipe_with_costs(self, db_session, sample_recipe_data, sample_ingredient_data):
         """Test getting recipe with cost breakdown - NEEDS PRODUCT/PANTRY DATA."""
         pass
-
 
 class TestRecipeServiceUtilities:
     """Test recipe service utility functions."""

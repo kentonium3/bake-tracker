@@ -8,7 +8,7 @@ Tests cover:
 - CRUD operations
 
 TD-001: Updated for new schema:
-- Ingredient: generic ingredient definitions (display_name, recipe_unit, density)
+- Ingredient: generic ingredient definitions (display_name, density)
 - Product: branded products linked to ingredients
 - InventoryItem: inventory tracking
 - Purchase: price history
@@ -26,10 +26,9 @@ from src.models import (
     InventoryItem,
     Purchase,
     InventorySnapshot,
-    SnapshotIngredient,
+    SnapshotIngredient
 )
 from src.services.database import get_session, init_database, get_engine
-
 
 @pytest.fixture(scope="function")
 def db_session():
@@ -54,7 +53,6 @@ def db_session():
 
     session.close()
 
-
 class TestIngredientModel:
     """Tests for Ingredient model (TD-001 schema)."""
 
@@ -64,9 +62,8 @@ class TestIngredientModel:
             display_name="All-Purpose Flour",
             slug="all_purpose_flour",
             category="Flour",
-            recipe_unit="cup",
             description="Standard all-purpose flour",
-            notes="Test notes",
+            notes="Test notes"
         )
         db_session.add(ingredient)
         db_session.commit()
@@ -75,20 +72,17 @@ class TestIngredientModel:
         assert ingredient.display_name == "All-Purpose Flour"
         assert ingredient.slug == "all_purpose_flour"
         assert ingredient.category == "Flour"
-        assert ingredient.recipe_unit == "cup"
-
     def test_ingredient_with_density(self, db_session):
         """Test ingredient with density specification."""
         ingredient = Ingredient(
             display_name="All-Purpose Flour",
             slug="all_purpose_flour",
             category="Flour",
-            recipe_unit="cup",
             # 4-field density: 1 cup = 120g
             density_volume_value=1.0,
             density_volume_unit="cup",
             density_weight_value=120.0,
-            density_weight_unit="g",
+            density_weight_unit="g"
         )
         db_session.add(ingredient)
         db_session.commit()
@@ -104,12 +98,11 @@ class TestIngredientModel:
             display_name="All-Purpose Flour",
             slug="all_purpose_flour",
             category="Flour",
-            recipe_unit="cup",
             # 1 cup = 120g, 1 cup = 236.588 ml
             density_volume_value=1.0,
             density_volume_unit="cup",
             density_weight_value=120.0,
-            density_weight_unit="g",
+            density_weight_unit="g"
         )
         db_session.add(ingredient)
         db_session.commit()
@@ -124,8 +117,7 @@ class TestIngredientModel:
         ingredient = Ingredient(
             display_name="Sugar",
             slug="sugar",
-            category="Sugar",
-            recipe_unit="cup",
+            category="Sugar"
         )
         db_session.add(ingredient)
         db_session.commit()
@@ -137,8 +129,7 @@ class TestIngredientModel:
         ingredient = Ingredient(
             display_name="Flour",
             slug="flour",
-            category="Flour",
-            recipe_unit="cup",
+            category="Flour"
         )
         db_session.add(ingredient)
         db_session.commit()
@@ -148,8 +139,6 @@ class TestIngredientModel:
         assert data["display_name"] == "Flour"
         assert data["slug"] == "flour"
         assert data["category"] == "Flour"
-        assert data["recipe_unit"] == "cup"
-
     def test_ingredient_slug_uniqueness(self, db_session):
         """Test that slug must be unique."""
         from sqlalchemy.exc import IntegrityError
@@ -157,8 +146,7 @@ class TestIngredientModel:
         ingredient1 = Ingredient(
             display_name="Flour",
             slug="flour",
-            category="Flour",
-            recipe_unit="cup",
+            category="Flour"
         )
         db_session.add(ingredient1)
         db_session.commit()
@@ -166,14 +154,12 @@ class TestIngredientModel:
         ingredient2 = Ingredient(
             display_name="Another Flour",
             slug="flour",  # Same slug
-            category="Flour",
-            recipe_unit="cup",
+            category="Flour"
         )
         db_session.add(ingredient2)
 
         with pytest.raises(IntegrityError):
             db_session.commit()
-
 
 class TestProductModel:
     """Tests for Product model."""
@@ -184,8 +170,7 @@ class TestProductModel:
         ingredient = Ingredient(
             display_name="Flour",
             slug="flour",
-            category="Flour",
-            recipe_unit="cup",
+            category="Flour"
         )
         db_session.add(ingredient)
         db_session.flush()
@@ -196,7 +181,7 @@ class TestProductModel:
             brand="King Arthur",
             package_size="5 lb bag",
             purchase_unit="lb",
-            purchase_quantity=Decimal("5.0"),
+            purchase_quantity=Decimal("5.0")
         )
         db_session.add(product)
         db_session.commit()
@@ -213,8 +198,7 @@ class TestProductModel:
         ingredient = Ingredient(
             display_name="Sugar",
             slug="sugar",
-            category="Sugar",
-            recipe_unit="cup",
+            category="Sugar"
         )
         db_session.add(ingredient)
         db_session.flush()
@@ -225,7 +209,7 @@ class TestProductModel:
             package_size="5 lb bag",
             purchase_unit="lb",
             purchase_quantity=Decimal("5.0"),
-            preferred=True,
+            preferred=True
         )
         db_session.add(product)
         db_session.commit()
@@ -237,8 +221,7 @@ class TestProductModel:
         ingredient = Ingredient(
             display_name="Flour",
             slug="flour",
-            category="Flour",
-            recipe_unit="cup",
+            category="Flour"
         )
         db_session.add(ingredient)
         db_session.flush()
@@ -248,14 +231,14 @@ class TestProductModel:
             brand="Brand A",
             package_size="5 lb",
             purchase_unit="lb",
-            purchase_quantity=Decimal("5.0"),
+            purchase_quantity=Decimal("5.0")
         )
         product2 = Product(
             ingredient_id=ingredient.id,
             brand="Brand B",
             package_size="10 lb",
             purchase_unit="lb",
-            purchase_quantity=Decimal("10.0"),
+            purchase_quantity=Decimal("10.0")
         )
         db_session.add_all([product1, product2])
         db_session.commit()
@@ -263,7 +246,6 @@ class TestProductModel:
 
         # Ingredient can access its products
         assert len(ingredient.products) == 2
-
 
 class TestRecipeModel:
     """Tests for Recipe model."""
@@ -277,7 +259,7 @@ class TestRecipeModel:
             yield_quantity=48,
             yield_unit="cookies",
             yield_description="2-inch cookies",
-            estimated_time_minutes=45,
+            estimated_time_minutes=45
         )
         db_session.add(recipe)
         db_session.commit()
@@ -292,8 +274,7 @@ class TestRecipeModel:
         flour = Ingredient(
             display_name="Flour",
             slug="flour",
-            category="Flour",
-            recipe_unit="cup",
+            category="Flour"
         )
         db_session.add(flour)
         db_session.flush()
@@ -303,7 +284,7 @@ class TestRecipeModel:
             name="Cookies",
             category="Cookies",
             yield_quantity=24,
-            yield_unit="cookies",
+            yield_unit="cookies"
         )
         db_session.add(recipe)
         db_session.flush()
@@ -313,7 +294,7 @@ class TestRecipeModel:
             recipe_id=recipe.id,
             ingredient_id=flour.id,
             quantity=2.0,
-            unit="cup",
+            unit="cup"
         )
         db_session.add(recipe_ingredient)
         db_session.commit()
@@ -328,7 +309,7 @@ class TestRecipeModel:
             name="Test Recipe",
             category="Cookies",
             yield_quantity=24,
-            yield_unit="cookies",
+            yield_unit="cookies"
         )
         db_session.add(recipe)
         db_session.commit()
@@ -336,7 +317,6 @@ class TestRecipeModel:
         data = recipe.to_dict()
         assert data["name"] == "Test Recipe"
         assert data["category"] == "Cookies"
-
 
 class TestRecipeIngredientModel:
     """Tests for RecipeIngredient model (TD-001 schema)."""
@@ -346,14 +326,13 @@ class TestRecipeIngredientModel:
         ingredient = Ingredient(
             display_name="Flour",
             slug="flour",
-            category="Flour",
-            recipe_unit="cup",
+            category="Flour"
         )
         recipe = Recipe(
             name="Cookies",
             category="Cookies",
             yield_quantity=24,
-            yield_unit="cookies",
+            yield_unit="cookies"
         )
         db_session.add_all([ingredient, recipe])
         db_session.flush()
@@ -363,7 +342,7 @@ class TestRecipeIngredientModel:
             ingredient_id=ingredient.id,
             quantity=3.0,
             unit="cup",
-            notes="Sifted",
+            notes="Sifted"
         )
         db_session.add(recipe_ingredient)
         db_session.commit()
@@ -378,14 +357,13 @@ class TestRecipeIngredientModel:
         ingredient = Ingredient(
             display_name="Sugar",
             slug="sugar",
-            category="Sugar",
-            recipe_unit="cup",
+            category="Sugar"
         )
         recipe = Recipe(
             name="Cake",
             category="Cakes",
             yield_quantity=12,
-            yield_unit="slices",
+            yield_unit="slices"
         )
         db_session.add_all([ingredient, recipe])
         db_session.flush()
@@ -394,7 +372,7 @@ class TestRecipeIngredientModel:
             recipe_id=recipe.id,
             ingredient_id=ingredient.id,
             quantity=1.5,
-            unit="cup",
+            unit="cup"
         )
         db_session.add(recipe_ingredient)
         db_session.commit()
@@ -402,7 +380,6 @@ class TestRecipeIngredientModel:
 
         assert recipe_ingredient.recipe.name == "Cake"
         assert recipe_ingredient.ingredient.display_name == "Sugar"
-
 
 class TestInventoryItemModel:
     """Tests for InventoryItem model (TD-001 schema)."""
@@ -412,8 +389,7 @@ class TestInventoryItemModel:
         ingredient = Ingredient(
             display_name="Flour",
             slug="flour",
-            category="Flour",
-            recipe_unit="cup",
+            category="Flour"
         )
         db_session.add(ingredient)
         db_session.flush()
@@ -423,7 +399,7 @@ class TestInventoryItemModel:
             brand="King Arthur",
             package_size="5 lb",
             purchase_unit="lb",
-            purchase_quantity=Decimal("5.0"),
+            purchase_quantity=Decimal("5.0")
         )
         db_session.add(product)
         db_session.flush()
@@ -431,7 +407,7 @@ class TestInventoryItemModel:
         inventory_item = InventoryItem(
             product_id=product.id,
             quantity=5.0,
-            unit_cost=8.99,
+            unit_cost=8.99
         )
         db_session.add(inventory_item)
         db_session.commit()
@@ -445,8 +421,7 @@ class TestInventoryItemModel:
         ingredient = Ingredient(
             display_name="Sugar",
             slug="sugar",
-            category="Sugar",
-            recipe_unit="cup",
+            category="Sugar"
         )
         db_session.add(ingredient)
         db_session.flush()
@@ -456,14 +431,14 @@ class TestInventoryItemModel:
             brand="Domino",
             package_size="5 lb",
             purchase_unit="lb",
-            purchase_quantity=Decimal("5.0"),
+            purchase_quantity=Decimal("5.0")
         )
         db_session.add(product)
         db_session.flush()
 
         inventory_item = InventoryItem(
             product_id=product.id,
-            quantity=3.5,
+            quantity=3.5
         )
         db_session.add(inventory_item)
         db_session.commit()
@@ -473,7 +448,6 @@ class TestInventoryItemModel:
         assert inventory_item.product.brand == "Domino"
         assert inventory_item.product.ingredient.display_name == "Sugar"
 
-
 class TestPurchaseModel:
     """Tests for Purchase model (TD-001 schema)."""
 
@@ -482,8 +456,7 @@ class TestPurchaseModel:
         ingredient = Ingredient(
             display_name="Butter",
             slug="butter",
-            category="Dairy",
-            recipe_unit="tbsp",
+            category="Dairy"
         )
         db_session.add(ingredient)
         db_session.flush()
@@ -493,7 +466,7 @@ class TestPurchaseModel:
             brand="Land O Lakes",
             package_size="1 lb",
             purchase_unit="lb",
-            purchase_quantity=Decimal("1.0"),
+            purchase_quantity=Decimal("1.0")
         )
         db_session.add(product)
         db_session.flush()
@@ -506,7 +479,7 @@ class TestPurchaseModel:
             quantity_purchased=2.0,
             unit_cost=5.99,
             total_cost=11.98,
-            supplier="Test Store",
+            supplier="Test Store"
         )
         db_session.add(purchase)
         db_session.commit()
@@ -515,7 +488,6 @@ class TestPurchaseModel:
         assert purchase.product_id == product.id
         assert purchase.unit_cost == 5.99
 
-
 class TestInventorySnapshotModel:
     """Tests for InventorySnapshot model."""
 
@@ -523,7 +495,7 @@ class TestInventorySnapshotModel:
         """Test creating an inventory snapshot."""
         snapshot = InventorySnapshot(
             name="Pre-Christmas 2025",
-            description="Test snapshot",
+            description="Test snapshot"
         )
         db_session.add(snapshot)
         db_session.commit()
@@ -537,8 +509,7 @@ class TestInventorySnapshotModel:
         ingredient = Ingredient(
             display_name="Flour",
             slug="flour",
-            category="Flour",
-            recipe_unit="cup",
+            category="Flour"
         )
         db_session.add(ingredient)
         db_session.flush()
@@ -550,7 +521,7 @@ class TestInventorySnapshotModel:
         snap_ingredient = SnapshotIngredient(
             snapshot_id=snapshot.id,
             ingredient_id=ingredient.id,
-            quantity=3.0,
+            quantity=3.0
         )
         db_session.add(snap_ingredient)
         db_session.commit()
@@ -558,7 +529,6 @@ class TestInventorySnapshotModel:
 
         assert len(snapshot.snapshot_ingredients) == 1
         assert snapshot.snapshot_ingredients[0].quantity == 3.0
-
 
 class TestModelRelationships:
     """Tests for relationships between models."""
@@ -568,14 +538,13 @@ class TestModelRelationships:
         ingredient = Ingredient(
             display_name="Flour",
             slug="flour",
-            category="Flour",
-            recipe_unit="cup",
+            category="Flour"
         )
         recipe = Recipe(
             name="Cookies",
             category="Cookies",
             yield_quantity=24,
-            yield_unit="cookies",
+            yield_unit="cookies"
         )
         db_session.add_all([ingredient, recipe])
         db_session.flush()
@@ -584,7 +553,7 @@ class TestModelRelationships:
             recipe_id=recipe.id,
             ingredient_id=ingredient.id,
             quantity=2.0,
-            unit="cup",
+            unit="cup"
         )
         db_session.add(recipe_ingredient)
         db_session.commit()
@@ -598,14 +567,13 @@ class TestModelRelationships:
         ingredient = Ingredient(
             display_name="Flour",
             slug="flour",
-            category="Flour",
-            recipe_unit="cup",
+            category="Flour"
         )
         recipe = Recipe(
             name="Cookies",
             category="Cookies",
             yield_quantity=24,
-            yield_unit="cookies",
+            yield_unit="cookies"
         )
         db_session.add_all([ingredient, recipe])
         db_session.flush()
@@ -614,7 +582,7 @@ class TestModelRelationships:
             recipe_id=recipe.id,
             ingredient_id=ingredient.id,
             quantity=2.0,
-            unit="cup",
+            unit="cup"
         )
         db_session.add(recipe_ingredient)
         db_session.commit()
@@ -634,8 +602,7 @@ class TestModelRelationships:
         ingredient = Ingredient(
             display_name="Flour",
             slug="flour",
-            category="Flour",
-            recipe_unit="cup",
+            category="Flour"
         )
         db_session.add(ingredient)
         db_session.flush()
@@ -645,14 +612,14 @@ class TestModelRelationships:
             brand="Brand A",
             package_size="5 lb",
             purchase_unit="lb",
-            purchase_quantity=Decimal("5.0"),
+            purchase_quantity=Decimal("5.0")
         )
         product2 = Product(
             ingredient_id=ingredient.id,
             brand="Brand B",
             package_size="10 lb",
             purchase_unit="lb",
-            purchase_quantity=Decimal("10.0"),
+            purchase_quantity=Decimal("10.0")
         )
         db_session.add_all([product1, product2])
         db_session.commit()
@@ -668,8 +635,7 @@ class TestModelRelationships:
         ingredient = Ingredient(
             display_name="Sugar",
             slug="sugar",
-            category="Sugar",
-            recipe_unit="cup",
+            category="Sugar"
         )
         db_session.add(ingredient)
         db_session.flush()
@@ -679,7 +645,7 @@ class TestModelRelationships:
             brand="Domino",
             package_size="5 lb",
             purchase_unit="lb",
-            purchase_quantity=Decimal("5.0"),
+            purchase_quantity=Decimal("5.0")
         )
         db_session.add(product)
         db_session.commit()

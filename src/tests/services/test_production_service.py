@@ -27,7 +27,6 @@ from src.services.event_service import EventNotFoundError
 from src.services.exceptions import ValidationError
 from src.models import PackageStatus
 
-
 @pytest.fixture
 def setup_production_test_data(test_db):
     """Create test data for production tests."""
@@ -39,7 +38,6 @@ def setup_production_test_data(test_db):
         {
             "name": "All Purpose Flour",
             "category": "Flour",
-            "recipe_unit": "cup",
             # 4-field density: 1 cup = 120g (~0.507 g/ml)
             "density_volume_value": 1.0,
             "density_volume_unit": "cup",
@@ -82,7 +80,6 @@ def setup_production_test_data(test_db):
         {
             "name": "Granulated Sugar",
             "category": "Sugar",
-            "recipe_unit": "cup",
             # 4-field density: 1 cup = 200g (~0.85 g/ml)
             "density_volume_value": 1.0,
             "density_volume_unit": "cup",
@@ -139,7 +136,6 @@ def setup_production_test_data(test_db):
         "event": event,
     }
 
-
 class TestRecordProduction:
     """Tests for record_production() function."""
 
@@ -160,6 +156,7 @@ class TestRecordProduction:
         fifo_result = inventory_item_service.consume_fifo(
             ingredient_slug=data["flour"].slug,
             quantity_needed=Decimal("2.0"),
+            target_unit="cup",
             dry_run=True,  # Just test, don't consume
         )
         print(f"\nFIFO result (dry run): satisfied={fifo_result['satisfied']}, total_cost={fifo_result['total_cost']}")
@@ -264,7 +261,6 @@ class TestRecordProduction:
 
         assert "all_purpose_flour" in exc_info.value.ingredient_slug
 
-
 class TestGetProductionRecords:
     """Tests for get_production_records() function."""
 
@@ -289,7 +285,6 @@ class TestGetProductionRecords:
         records = get_production_records(data["event"].id)
 
         assert len(records) == 2
-
 
 class TestGetProductionTotal:
     """Tests for get_production_total() function."""
@@ -319,11 +314,9 @@ class TestGetProductionTotal:
         # Total: $1.10 + $2.40 = $3.50
         assert result["total_actual_cost"] == Decimal("3.50")
 
-
 # ============================================================================
 # Fixtures for Package Status Tests
 # ============================================================================
-
 
 @pytest.fixture
 def setup_package_status_test_data(test_db, setup_production_test_data):
@@ -434,11 +427,9 @@ def setup_package_status_test_data(test_db, setup_production_test_data):
         "assignment": erp,
     }
 
-
 # ============================================================================
 # Package Status Management Tests
 # ============================================================================
-
 
 class TestCanAssemblePackage:
     """Tests for can_assemble_package() function."""
@@ -476,7 +467,6 @@ class TestCanAssemblePackage:
         """Test: Raises AssignmentNotFoundError for invalid ID."""
         with pytest.raises(AssignmentNotFoundError):
             can_assemble_package(99999)
-
 
 class TestUpdatePackageStatus:
     """Tests for update_package_status() function."""
@@ -583,11 +573,9 @@ class TestUpdatePackageStatus:
         with pytest.raises(AssignmentNotFoundError):
             update_package_status(99999, PackageStatus.ASSEMBLED)
 
-
 # ============================================================================
 # Progress & Dashboard Tests
 # ============================================================================
-
 
 class TestGetProductionProgress:
     """Tests for get_production_progress() function."""
@@ -667,7 +655,6 @@ class TestGetProductionProgress:
         with pytest.raises(EventNotFoundError):
             get_production_progress(99999)
 
-
 class TestGetDashboardSummary:
     """Tests for get_dashboard_summary() function."""
 
@@ -687,7 +674,6 @@ class TestGetDashboardSummary:
         )
         assert event_summary is not None
         assert event_summary["packages_total"] >= 1
-
 
 class TestGetRecipeCostBreakdown:
     """Tests for get_recipe_cost_breakdown() function."""

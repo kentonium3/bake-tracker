@@ -9,7 +9,6 @@ from datetime import date, timedelta
 
 from src.services import ingredient_service, product_service, inventory_item_service
 
-
 def test_fifo_multiple_lots_partial_consumption(test_db):
     """Test: Multiple lots → Partial consumption → Verify oldest consumed first."""
 
@@ -18,12 +17,11 @@ def test_fifo_multiple_lots_partial_consumption(test_db):
         {
             "name": "Rye Flour",
             "category": "Flour",
-            "recipe_unit": "cup",
             # 4-field density: 1 cup = 113.4g (approximately 0.4793 g/ml, 4 cups/lb)
             "density_volume_value": 1.0,
             "density_volume_unit": "cup",
             "density_weight_value": 113.4,
-            "density_weight_unit": "g",
+            "density_weight_unit": "g"
         }
     )
 
@@ -33,8 +31,8 @@ def test_fifo_multiple_lots_partial_consumption(test_db):
             "brand": "Bob's Red Mill",
             "package_size": "5 lb bag",
             "purchase_unit": "lb",
-            "purchase_quantity": Decimal("5.0"),
-        },
+            "purchase_quantity": Decimal("5.0")
+        }
     )
 
     # Add lot 1: 10.0 lb on 2025-01-01 (oldest)
@@ -53,7 +51,7 @@ def test_fifo_multiple_lots_partial_consumption(test_db):
     )
 
     # Consume 48 cups (12 lb, should deplete lot 1, partially consume lot 2)
-    result = inventory_item_service.consume_fifo(ingredient.slug, Decimal("48.0"))
+    result = inventory_item_service.consume_fifo(ingredient.slug, Decimal("48.0"), "cup")
 
     assert abs(result["consumed"] - Decimal("48.0")) < Decimal(
         "0.001"
@@ -78,7 +76,6 @@ def test_fifo_multiple_lots_partial_consumption(test_db):
         "0.001"
     ), f"Expected 13.0, got {result["breakdown"][1]["remaining_in_lot"]}"
 
-
 def test_fifo_insufficient_inventory(test_db):
     """Test: Consume more than available → Verify shortfall calculation."""
 
@@ -87,18 +84,17 @@ def test_fifo_insufficient_inventory(test_db):
         {
             "name": "Oat Flour",
             "category": "Flour",
-            "recipe_unit": "cup",
             # 4-field density: 1 cup = 113.4g (approximately 0.4793 g/ml, 4 cups/lb)
             "density_volume_value": 1.0,
             "density_volume_unit": "cup",
             "density_weight_value": 113.4,
-            "density_weight_unit": "g",
+            "density_weight_unit": "g"
         }
     )
 
     product = product_service.create_product(
         ingredient.slug,
-        {"brand": "Bob's Red Mill", "purchase_unit": "lb", "purchase_quantity": Decimal("5.0")},
+        {"brand": "Bob's Red Mill", "purchase_unit": "lb", "purchase_quantity": Decimal("5.0")}
     )
 
     # Add lot: 10.0 lb (40 cups at 4 cups/lb)
@@ -107,7 +103,7 @@ def test_fifo_insufficient_inventory(test_db):
     )
 
     # Attempt to consume 60 cups (need 15 lb, only have 10 lb)
-    result = inventory_item_service.consume_fifo(ingredient.slug, Decimal("60.0"))
+    result = inventory_item_service.consume_fifo(ingredient.slug, Decimal("60.0"), "cup")
 
     assert abs(result["consumed"] - Decimal("40.0")) < Decimal(
         "0.001"
@@ -123,7 +119,6 @@ def test_fifo_insufficient_inventory(test_db):
         "0.001"
     ), f"Expected 0.0, got {result["breakdown"][0]["remaining_in_lot"]}"
 
-
 def test_fifo_exact_consumption(test_db):
     """Test: Consume exactly available quantity."""
 
@@ -132,18 +127,17 @@ def test_fifo_exact_consumption(test_db):
         {
             "name": "Almond Flour",
             "category": "Flour",
-            "recipe_unit": "cup",
             # 4-field density: 1 cup = 113.4g (approximately 0.4793 g/ml, 4 cups/lb)
             "density_volume_value": 1.0,
             "density_volume_unit": "cup",
             "density_weight_value": 113.4,
-            "density_weight_unit": "g",
+            "density_weight_unit": "g"
         }
     )
 
     product = product_service.create_product(
         ingredient.slug,
-        {"brand": "Blue Diamond", "purchase_unit": "lb", "purchase_quantity": Decimal("3.0")},
+        {"brand": "Blue Diamond", "purchase_unit": "lb", "purchase_quantity": Decimal("3.0")}
     )
 
     # Add lot: 5.0 lb (20 cups at 4 cups/lb)
@@ -152,7 +146,7 @@ def test_fifo_exact_consumption(test_db):
     )
 
     # Consume exactly 20 cups
-    result = inventory_item_service.consume_fifo(ingredient.slug, Decimal("20.0"))
+    result = inventory_item_service.consume_fifo(ingredient.slug, Decimal("20.0"), "cup")
 
     # Allow for floating point precision loss in unit conversions (0.1% tolerance)
     assert abs(result["consumed"] - Decimal("20.0")) < Decimal(
@@ -167,7 +161,6 @@ def test_fifo_exact_consumption(test_db):
         "0.01"
     ), f"Expected ~0.0, got {result['breakdown'][0]['remaining_in_lot']}"
 
-
 def test_fifo_ordering_across_multiple_products(test_db):
     """Test: Multiple products → FIFO consumes oldest across all products."""
 
@@ -176,25 +169,24 @@ def test_fifo_ordering_across_multiple_products(test_db):
         {
             "name": "Coconut Flour",
             "category": "Flour",
-            "recipe_unit": "cup",
             # 4-field density: 1 cup = 113.4g (approximately 0.4793 g/ml, 4 cups/lb)
             "density_volume_value": 1.0,
             "density_volume_unit": "cup",
             "density_weight_value": 113.4,
-            "density_weight_unit": "g",
+            "density_weight_unit": "g"
         }
     )
 
     # Create product 1
     product1 = product_service.create_product(
         ingredient.slug,
-        {"brand": "Bob's Red Mill", "purchase_unit": "lb", "purchase_quantity": Decimal("1.0")},
+        {"brand": "Bob's Red Mill", "purchase_unit": "lb", "purchase_quantity": Decimal("1.0")}
     )
 
     # Create product 2
     product2 = product_service.create_product(
         ingredient.slug,
-        {"brand": "Anthony's", "purchase_unit": "lb", "purchase_quantity": Decimal("2.0")},
+        {"brand": "Anthony's", "purchase_unit": "lb", "purchase_quantity": Decimal("2.0")}
     )
 
     # Add lot from product 1 (older)
@@ -208,12 +200,11 @@ def test_fifo_ordering_across_multiple_products(test_db):
     )
 
     # Consume 4 cups (1 lb) - should come from product 1 (older)
-    result = inventory_item_service.consume_fifo(ingredient.slug, Decimal("4.0"))
+    result = inventory_item_service.consume_fifo(ingredient.slug, Decimal("4.0"), "cup")
 
     assert result["satisfied"] is True
     assert len(result["breakdown"]) == 1
     assert result["breakdown"][0]["product_id"] == product1.id
-
 
 def test_fifo_zero_quantity_lots_ignored(test_db):
     """Test: Depleted lots (quantity=0) are skipped during FIFO."""
@@ -223,18 +214,17 @@ def test_fifo_zero_quantity_lots_ignored(test_db):
         {
             "name": "Buckwheat Flour",
             "category": "Flour",
-            "recipe_unit": "cup",
             # 4-field density: 1 cup = 113.4g (approximately 0.4793 g/ml, 4 cups/lb)
             "density_volume_value": 1.0,
             "density_volume_unit": "cup",
             "density_weight_value": 113.4,
-            "density_weight_unit": "g",
+            "density_weight_unit": "g"
         }
     )
 
     product = product_service.create_product(
         ingredient.slug,
-        {"brand": "Arrowhead Mills", "purchase_unit": "lb", "purchase_quantity": Decimal("2.0")},
+        {"brand": "Arrowhead Mills", "purchase_unit": "lb", "purchase_quantity": Decimal("2.0")}
     )
 
     # Add lot 1 (will deplete)
@@ -248,17 +238,16 @@ def test_fifo_zero_quantity_lots_ignored(test_db):
     )
 
     # First consumption: deplete lot 1
-    result1 = inventory_item_service.consume_fifo(ingredient.slug, Decimal("8.0"))
+    result1 = inventory_item_service.consume_fifo(ingredient.slug, Decimal("8.0"), "cup")
     assert result1["consumed"] == Decimal("8.0")
 
     # Second consumption: should skip depleted lot 1, consume from lot 2
-    result2 = inventory_item_service.consume_fifo(ingredient.slug, Decimal("4.0"))
+    result2 = inventory_item_service.consume_fifo(ingredient.slug, Decimal("4.0"), "cup")
 
     assert result2["consumed"] == Decimal("4.0")
     assert result2["satisfied"] is True
     assert len(result2["breakdown"]) == 1
     assert result2["breakdown"][0]["inventory_item_id"] == lot2.id
-
 
 def test_fifo_precision(test_db):
     """Test: FIFO calculations maintain decimal precision (no rounding errors)."""
@@ -267,14 +256,13 @@ def test_fifo_precision(test_db):
     ingredient = ingredient_service.create_ingredient(
         {
             "name": "Teff Flour",
-            "category": "Flour",
-            "recipe_unit": "oz",  # Changed to match purchase_unit for precision test
+            "category": "Flour",  # Changed to match purchase_unit for precision test
         }
     )
 
     product = product_service.create_product(
         ingredient.slug,
-        {"brand": "Bob's Red Mill", "purchase_unit": "oz", "purchase_quantity": Decimal("24.0")},
+        {"brand": "Bob's Red Mill", "purchase_unit": "oz", "purchase_quantity": Decimal("24.0")}
     )
 
     # Add lot: 17.3 oz
@@ -283,7 +271,7 @@ def test_fifo_precision(test_db):
     )
 
     # Consume fractional amount: 5.75 oz
-    result = inventory_item_service.consume_fifo(ingredient.slug, Decimal("5.75"))
+    result = inventory_item_service.consume_fifo(ingredient.slug, Decimal("5.75"), "oz")
 
     # Verify precision maintained
     assert abs(result["consumed"] - Decimal("5.75")) < Decimal(

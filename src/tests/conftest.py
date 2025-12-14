@@ -53,7 +53,6 @@ def sample_ingredient(test_db):
     return ingredient_service.create_ingredient({
         "display_name": "Test Flour",
         "category": "Flour",
-        "recipe_unit": "cup",
         # 4-field density: 1 cup = 120g (approximately 0.507 g/ml)
         "density_volume_value": 1.0,
         "density_volume_unit": "cup",

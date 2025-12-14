@@ -18,9 +18,8 @@ from src.services.ingredient_service import (
     get_food_ingredients,
     is_packaging_ingredient,
     validate_packaging_category,
-    PACKAGING_CATEGORIES,
+    PACKAGING_CATEGORIES
 )
-
 
 class TestValidateDensityFields:
     """Tests for density field validation."""
@@ -129,11 +128,9 @@ class TestValidateDensityFields:
         assert is_valid
         assert error == ""
 
-
 # =============================================================================
 # Feature 011: Packaging Ingredient Tests
 # =============================================================================
-
 
 class TestPackagingCategories:
     """Tests for PACKAGING_CATEGORIES constant."""
@@ -152,7 +149,6 @@ class TestPackagingCategories:
         """PACKAGING_CATEGORIES has 7 items."""
         assert len(PACKAGING_CATEGORIES) == 7
 
-
 class TestCreatePackagingIngredient:
     """Tests for creating ingredients with is_packaging flag."""
 
@@ -161,8 +157,7 @@ class TestCreatePackagingIngredient:
         ingredient = create_ingredient({
             "name": "Test Cellophane Bags",
             "category": "Bags",
-            "recipe_unit": "each",
-            "is_packaging": True,
+            "is_packaging": True
         })
         assert ingredient.is_packaging is True
         assert ingredient.category == "Bags"
@@ -172,8 +167,7 @@ class TestCreatePackagingIngredient:
         ingredient = create_ingredient({
             "name": "Test All-Purpose Flour",
             "category": "Flour",
-            "recipe_unit": "cup",
-            "is_packaging": False,
+            "is_packaging": False
         })
         assert ingredient.is_packaging is False
 
@@ -181,11 +175,9 @@ class TestCreatePackagingIngredient:
         """Create ingredient without is_packaging defaults to False."""
         ingredient = create_ingredient({
             "name": "Test Sugar",
-            "category": "Sugar",
-            "recipe_unit": "cup",
+            "category": "Sugar"
         })
         assert ingredient.is_packaging is False
-
 
 class TestGetPackagingIngredients:
     """Tests for get_packaging_ingredients() filtering."""
@@ -193,9 +185,9 @@ class TestGetPackagingIngredients:
     def test_get_packaging_ingredients_returns_only_packaging(self, test_db):
         """get_packaging_ingredients returns only is_packaging=True."""
         # Create mix of packaging and food ingredients
-        create_ingredient({"name": "Test Bags", "category": "Bags", "recipe_unit": "each", "is_packaging": True})
-        create_ingredient({"name": "Test Boxes", "category": "Boxes", "recipe_unit": "each", "is_packaging": True})
-        create_ingredient({"name": "Test Flour", "category": "Flour", "recipe_unit": "cup", "is_packaging": False})
+        create_ingredient({"name": "Test Bags", "category": "Bags", "is_packaging": True})
+        create_ingredient({"name": "Test Boxes", "category": "Boxes", "is_packaging": True})
+        create_ingredient({"name": "Test Flour", "category": "Flour", "is_packaging": False})
 
         results = get_packaging_ingredients()
 
@@ -207,9 +199,9 @@ class TestGetPackagingIngredients:
 
     def test_get_packaging_ingredients_sorted_by_category_then_name(self, test_db):
         """get_packaging_ingredients returns sorted results."""
-        create_ingredient({"name": "Test Z Ribbon", "category": "Ribbon", "recipe_unit": "each", "is_packaging": True})
-        create_ingredient({"name": "Test A Bags", "category": "Bags", "recipe_unit": "each", "is_packaging": True})
-        create_ingredient({"name": "Test B Bags", "category": "Bags", "recipe_unit": "each", "is_packaging": True})
+        create_ingredient({"name": "Test Z Ribbon", "category": "Ribbon", "is_packaging": True})
+        create_ingredient({"name": "Test A Bags", "category": "Bags", "is_packaging": True})
+        create_ingredient({"name": "Test B Bags", "category": "Bags", "is_packaging": True})
 
         results = get_packaging_ingredients()
 
@@ -222,20 +214,19 @@ class TestGetPackagingIngredients:
     def test_get_packaging_ingredients_empty_when_no_packaging(self, test_db):
         """get_packaging_ingredients returns empty list when no packaging."""
         # Only create food ingredients
-        create_ingredient({"name": "Test Flour", "category": "Flour", "recipe_unit": "cup", "is_packaging": False})
+        create_ingredient({"name": "Test Flour", "category": "Flour", "is_packaging": False})
 
         results = get_packaging_ingredients()
         assert len(results) == 0
-
 
 class TestGetFoodIngredients:
     """Tests for get_food_ingredients() filtering."""
 
     def test_get_food_ingredients_returns_only_food(self, test_db):
         """get_food_ingredients returns only is_packaging=False."""
-        create_ingredient({"name": "Test Bags", "category": "Bags", "recipe_unit": "each", "is_packaging": True})
-        create_ingredient({"name": "Test Flour", "category": "Flour", "recipe_unit": "cup", "is_packaging": False})
-        create_ingredient({"name": "Test Sugar", "category": "Sugar", "recipe_unit": "cup", "is_packaging": False})
+        create_ingredient({"name": "Test Bags", "category": "Bags", "is_packaging": True})
+        create_ingredient({"name": "Test Flour", "category": "Flour", "is_packaging": False})
+        create_ingredient({"name": "Test Sugar", "category": "Sugar", "is_packaging": False})
 
         results = get_food_ingredients()
 
@@ -243,7 +234,6 @@ class TestGetFoodIngredients:
         assert all(not i.is_packaging for i in results)
         assert any(i.display_name == "Test Flour" for i in results)
         assert any(i.display_name == "Test Sugar" for i in results)
-
 
 class TestIsPackagingIngredient:
     """Tests for is_packaging_ingredient() helper."""
@@ -253,8 +243,7 @@ class TestIsPackagingIngredient:
         ingredient = create_ingredient({
             "name": "Test Bags",
             "category": "Bags",
-            "recipe_unit": "each",
-            "is_packaging": True,
+            "is_packaging": True
         })
         assert is_packaging_ingredient(ingredient.id) is True
 
@@ -263,15 +252,13 @@ class TestIsPackagingIngredient:
         ingredient = create_ingredient({
             "name": "Test Flour",
             "category": "Flour",
-            "recipe_unit": "cup",
-            "is_packaging": False,
+            "is_packaging": False
         })
         assert is_packaging_ingredient(ingredient.id) is False
 
     def test_is_packaging_ingredient_returns_false_for_nonexistent(self, test_db):
         """is_packaging_ingredient returns False for non-existent ID."""
         assert is_packaging_ingredient(999999) is False
-
 
 class TestValidatePackagingCategory:
     """Tests for validate_packaging_category() helper."""
@@ -292,7 +279,6 @@ class TestValidatePackagingCategory:
         assert validate_packaging_category("Sugar") is False
         assert validate_packaging_category("") is False
         assert validate_packaging_category("bags") is False  # Case sensitive
-
 
 class TestUpdateIngredientPackagingProtection:
     """Tests for update_ingredient is_packaging change protection (T014/T019)."""
@@ -317,8 +303,7 @@ class TestUpdateIngredientPackagingProtection:
         ingredient = create_ingredient({
             "name": "Test Protection Bags",
             "category": "Bags",
-            "recipe_unit": "each",
-            "is_packaging": True,
+            "is_packaging": True
         })
         assert ingredient.is_packaging is True
 
@@ -329,7 +314,7 @@ class TestUpdateIngredientPackagingProtection:
                 "brand": "TestBrand",
                 "package_size": "100 ct",
                 "purchase_unit": "box",
-                "purchase_quantity": 100,
+                "purchase_quantity": 100
             }
         )
         assert product.ingredient_id == ingredient.id
@@ -339,7 +324,7 @@ class TestUpdateIngredientPackagingProtection:
             slug="test-protection-fg",
             display_name="Test Protection FG",
             assembly_type=AssemblyType.CUSTOM_ORDER,
-            inventory_count=0,
+            inventory_count=0
         )
         test_db.add(finished_good)
         test_db.flush()
@@ -348,7 +333,7 @@ class TestUpdateIngredientPackagingProtection:
         composition = add_packaging_to_assembly(
             assembly_id=finished_good.id,
             packaging_product_id=product.id,
-            quantity=1.0,
+            quantity=1.0
         )
         assert composition is not None
 
@@ -367,8 +352,7 @@ class TestUpdateIngredientPackagingProtection:
         ingredient = create_ingredient({
             "name": "Test Unused Bags",
             "category": "Bags",
-            "recipe_unit": "each",
-            "is_packaging": True,
+            "is_packaging": True
         })
         assert ingredient.is_packaging is True
 
@@ -384,8 +368,7 @@ class TestUpdateIngredientPackagingProtection:
         ingredient = create_ingredient({
             "name": "Test Lonely Bags",
             "category": "Bags",
-            "recipe_unit": "each",
-            "is_packaging": True,
+            "is_packaging": True
         })
 
         # Create product but don't add to any composition
@@ -395,7 +378,7 @@ class TestUpdateIngredientPackagingProtection:
                 "brand": "TestBrand",
                 "package_size": "50 ct",
                 "purchase_unit": "box",
-                "purchase_quantity": 50,
+                "purchase_quantity": 50
             }
         )
         assert product is not None

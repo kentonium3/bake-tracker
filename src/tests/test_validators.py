@@ -19,7 +19,6 @@ from src.utils.constants import (
     MAX_QUANTITY,
 )
 
-
 class TestStringValidation:
     """Test string validation functions."""
 
@@ -63,7 +62,6 @@ class TestStringValidation:
         is_valid, error = validators.validate_string_length("A" * 101, 100, "Test Field")
         assert is_valid is False
         assert "100" in error
-
 
 class TestNumericValidation:
     """Test numeric validation functions."""
@@ -137,7 +135,6 @@ class TestNumericValidation:
         is_valid, error = validators.validate_number_range(11, 0, 10, "Test Field")
         assert is_valid is False
 
-
 class TestUnitValidation:
     """Test unit validation functions."""
 
@@ -177,7 +174,6 @@ class TestUnitValidation:
         is_valid, error = validators.validate_unit("", "Test Unit")
         assert is_valid is False
 
-
 class TestCategoryValidation:
     """Test category validation functions."""
 
@@ -206,7 +202,6 @@ class TestCategoryValidation:
         is_valid, error = validators.validate_recipe_category("InvalidCategory", "Category")
         assert is_valid is False
 
-
 class TestIngredientValidation:
     """Test complete ingredient data validation."""
 
@@ -218,7 +213,6 @@ class TestIngredientValidation:
             "category": "Flour",
             "purchase_unit": "bag",
             "purchase_unit_size": "50 lb",
-            "recipe_unit": "cup",
             "conversion_factor": 200.0,
             "quantity": 2.5,
             "unit_cost": 15.99,
@@ -262,7 +256,6 @@ class TestIngredientValidation:
     def test_validate_ingredient_data_invalid_unit(self):
         """Test ingredient validation with invalid purchase_unit - OBSOLETE."""
         pass
-
 
 class TestRecipeValidation:
     """Test complete recipe data validation."""
@@ -314,7 +307,6 @@ class TestRecipeValidation:
         data["estimated_time_minutes"] = -10
         is_valid, errors = validators.validate_recipe_data(data)
         assert is_valid is False
-
 
 class TestUtilityFunctions:
     """Test utility functions."""

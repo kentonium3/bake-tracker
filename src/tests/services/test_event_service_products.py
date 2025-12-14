@@ -18,11 +18,9 @@ from src.services import ingredient_service, recipe_service, event_service
 from src.services.product_service import create_product
 from src.models import Purchase
 
-
 # ============================================================================
 # Fixtures
 # ============================================================================
-
 
 @pytest.fixture
 def flour_ingredient(test_db):
@@ -31,7 +29,6 @@ def flour_ingredient(test_db):
         {
             "name": "Test Flour",
             "category": "Flour",
-            "recipe_unit": "cup",
             # 4-field density: 1 cup = 125g (~0.529 g/ml)
             "density_volume_value": 1.0,
             "density_volume_unit": "cup",
@@ -40,7 +37,6 @@ def flour_ingredient(test_db):
         }
     )
 
-
 @pytest.fixture
 def sugar_ingredient(test_db):
     """Create a sugar ingredient with multiple products (no preferred)."""
@@ -48,7 +44,6 @@ def sugar_ingredient(test_db):
         {
             "name": "Test Sugar",
             "category": "Sugar",
-            "recipe_unit": "cup",
             # 4-field density: 1 cup = 200g (~0.85 g/ml)
             "density_volume_value": 1.0,
             "density_volume_unit": "cup",
@@ -57,7 +52,6 @@ def sugar_ingredient(test_db):
         }
     )
 
-
 @pytest.fixture
 def no_product_ingredient(test_db):
     """Create an ingredient with no products configured."""
@@ -65,10 +59,8 @@ def no_product_ingredient(test_db):
         {
             "name": "Special Spice",
             "category": "Spices",
-            "recipe_unit": "tsp",
         }
     )
-
 
 @pytest.fixture
 def flour_product_preferred(test_db, flour_ingredient):
@@ -98,7 +90,6 @@ def flour_product_preferred(test_db, flour_ingredient):
 
     return product
 
-
 @pytest.fixture
 def sugar_product_a(test_db, sugar_ingredient):
     """Create a non-preferred sugar product."""
@@ -126,7 +117,6 @@ def sugar_product_a(test_db, sugar_ingredient):
 
     return product
 
-
 @pytest.fixture
 def sugar_product_b(test_db, sugar_ingredient):
     """Create another non-preferred sugar product."""
@@ -153,7 +143,6 @@ def sugar_product_b(test_db, sugar_ingredient):
         session.commit()
 
     return product
-
 
 @pytest.fixture
 def simple_recipe(test_db, flour_ingredient, sugar_ingredient, no_product_ingredient):
@@ -197,11 +186,9 @@ def simple_recipe(test_db, flour_ingredient, sugar_ingredient, no_product_ingred
 
     return recipe
 
-
 # ============================================================================
 # Tests for shopping list product recommendations
 # ============================================================================
-
 
 class TestShoppingListWithProducts:
     """Integration tests for get_shopping_list() with product data."""
@@ -257,7 +244,6 @@ class TestShoppingListWithProducts:
             "items_count": 0,
             "items_with_shortfall": 0,
         }
-
 
 class TestTotalEstimatedCostCalculation:
     """Tests for total_estimated_cost calculation."""

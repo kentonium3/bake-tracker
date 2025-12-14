@@ -17,11 +17,11 @@ from src.services.event_service import (
     create_event,
     get_event_packaging_needs,
     get_shopping_list,
-    assign_package_to_recipient,
+    assign_package_to_recipient
 )
 from src.services.composition_service import (
     add_packaging_to_assembly,
-    add_packaging_to_package,
+    add_packaging_to_package
 )
 from src.services.ingredient_service import create_ingredient
 from src.services.product_service import create_product
@@ -34,10 +34,9 @@ from src.models import (
     InventoryItem,
     Recipe,
     RecipeIngredient,
-    Composition,
+    Composition
 )
 from src.models.assembly_type import AssemblyType
-
 
 class TestPackagingBOMFlow:
     """End-to-end test of packaging BOM functionality."""
@@ -59,22 +58,19 @@ class TestPackagingBOMFlow:
         bag_ingredient = create_ingredient({
             "name": "Cellophane Bags 4x6",
             "category": "Bags",
-            "recipe_unit": "each",
-            "is_packaging": True,
+            "is_packaging": True
         })
 
         box_ingredient = create_ingredient({
             "name": "Gift Box Medium",
             "category": "Boxes",
-            "recipe_unit": "each",
-            "is_packaging": True,
+            "is_packaging": True
         })
 
         ribbon_ingredient = create_ingredient({
             "name": "Satin Ribbon",
             "category": "Ribbon",
-            "recipe_unit": "each",
-            "is_packaging": True,
+            "is_packaging": True
         })
 
         # Create packaging products
@@ -84,7 +80,7 @@ class TestPackagingBOMFlow:
                 "brand": "ClearBags",
                 "package_size": "100 ct",
                 "purchase_unit": "box",
-                "purchase_quantity": 100,
+                "purchase_quantity": 100
             }
         )
 
@@ -94,7 +90,7 @@ class TestPackagingBOMFlow:
                 "brand": "Nashville Wraps",
                 "package_size": "12 ct",
                 "purchase_unit": "each",
-                "purchase_quantity": 12,
+                "purchase_quantity": 12
             }
         )
 
@@ -104,7 +100,7 @@ class TestPackagingBOMFlow:
                 "brand": "Offray",
                 "package_size": "10 yard spool",
                 "purchase_unit": "each",
-                "purchase_quantity": 1,
+                "purchase_quantity": 1
             }
         )
 
@@ -114,7 +110,7 @@ class TestPackagingBOMFlow:
             display_name="Chocolate Chip Cookie Dozen",
             description="12 delicious cookies",
             assembly_type=AssemblyType.CUSTOM_ORDER,
-            inventory_count=0,
+            inventory_count=0
         )
         test_db.add(cookie_fg)
         test_db.flush()
@@ -123,13 +119,13 @@ class TestPackagingBOMFlow:
         add_packaging_to_assembly(
             assembly_id=cookie_fg.id,
             packaging_product_id=bag_product.id,
-            quantity=1.0,
+            quantity=1.0
         )
 
         # 3. Create a Package (Holiday Gift Box)
         gift_package = Package(
             name="Holiday Cookie Box",
-            description="A festive gift box of cookies",
+            description="A festive gift box of cookies"
         )
         test_db.add(gift_package)
         test_db.flush()
@@ -138,7 +134,7 @@ class TestPackagingBOMFlow:
         add_packaging_to_package(
             package_id=gift_package.id,
             packaging_product_id=box_product.id,
-            quantity=1.0,
+            quantity=1.0
         )
         add_packaging_to_package(
             package_id=gift_package.id,
@@ -159,11 +155,11 @@ class TestPackagingBOMFlow:
         event = create_event(
             name="Christmas 2024",
             event_date=date(2024, 12, 25),
-            year=2024,
+            year=2024
         )
 
         recipient = Recipient(
-            name="Test Family",
+            name="Test Family"
         )
         test_db.add(recipient)
         test_db.flush()
@@ -173,7 +169,7 @@ class TestPackagingBOMFlow:
             event_id=event.id,
             recipient_id=recipient.id,
             package_id=gift_package.id,
-            quantity=3,
+            quantity=3
         )
 
         # 6. Generate shopping list and verify packaging
@@ -210,14 +206,14 @@ class TestPackagingBOMFlow:
         # Add 4 bags to inventory (need 6, so to_buy should be 2)
         bag_inv = InventoryItem(
             product_id=bag_product.id,
-            quantity=4.0,
+            quantity=4.0
         )
         test_db.add(bag_inv)
 
         # Add 5 boxes to inventory (need 3, so to_buy should be 0)
         box_inv = InventoryItem(
             product_id=box_product.id,
-            quantity=5.0,
+            quantity=5.0
         )
         test_db.add(box_inv)
         test_db.flush()
@@ -245,7 +241,7 @@ class TestPackagingBOMFlow:
         # Create a simple package with no packaging
         package = Package(
             name="Plain Package",
-            description="No packaging needed",
+            description="No packaging needed"
         )
         test_db.add(package)
         test_db.flush()
@@ -254,11 +250,11 @@ class TestPackagingBOMFlow:
         event = create_event(
             name="Simple Event",
             event_date=date(2024, 12, 1),
-            year=2024,
+            year=2024
         )
 
         recipient = Recipient(
-            name="Test Person",
+            name="Test Person"
         )
         test_db.add(recipient)
         test_db.flush()
@@ -268,7 +264,7 @@ class TestPackagingBOMFlow:
             event_id=event.id,
             recipient_id=recipient.id,
             package_id=package.id,
-            quantity=1,
+            quantity=1
         )
 
         # Get shopping list
@@ -283,8 +279,7 @@ class TestPackagingBOMFlow:
         bag_ingredient = create_ingredient({
             "name": "Test Bags",
             "category": "Bags",
-            "recipe_unit": "each",
-            "is_packaging": True,
+            "is_packaging": True
         })
         bag_product = create_product(
             bag_ingredient.slug,
@@ -292,14 +287,14 @@ class TestPackagingBOMFlow:
                 "brand": "TestBrand",
                 "package_size": "50 ct",
                 "purchase_unit": "box",
-                "purchase_quantity": 50,
+                "purchase_quantity": 50
             }
         )
 
         # Create package with packaging
         package = Package(
             name="Test Package",
-            description="Test package",
+            description="Test package"
         )
         test_db.add(package)
         test_db.flush()
@@ -307,20 +302,20 @@ class TestPackagingBOMFlow:
         add_packaging_to_package(
             package_id=package.id,
             packaging_product_id=bag_product.id,
-            quantity=2.0,
+            quantity=2.0
         )
 
         # Create event
         event = create_event(
             name="Multi-Recipient Event",
             event_date=date(2024, 12, 1),
-            year=2024,
+            year=2024
         )
 
         # Create multiple recipients
         for i in range(3):
             recipient = Recipient(
-                name=f"Recipient {i+1}",
+                name=f"Recipient {i+1}"
             )
             test_db.add(recipient)
             test_db.flush()
@@ -341,7 +336,6 @@ class TestPackagingBOMFlow:
         assert bag_product.id in needs
         assert needs[bag_product.id].total_needed == 12.0
 
-
 class TestPackagingImportExport:
     """Integration tests for packaging data import/export (Feature 011 T046)."""
 
@@ -360,16 +354,14 @@ class TestPackagingImportExport:
         bag_ingredient = create_ingredient({
             "name": "Export Test Bags",
             "category": "Bags",
-            "recipe_unit": "each",
-            "is_packaging": True,
+            "is_packaging": True
         })
 
         # Create food ingredient for comparison
         flour_ingredient = create_ingredient({
             "name": "Export Test Flour",
             "category": "Flour",
-            "recipe_unit": "cup",
-            "is_packaging": False,
+            "is_packaging": False
         })
 
         # Export to temp file
@@ -384,8 +376,8 @@ class TestPackagingImportExport:
             with open(temp_path, "r") as f:
                 data = json.load(f)
 
-            # Check version is 3.2 (Feature 016 added event-production linkage)
-            assert data["version"] == "3.2"
+            # Check version is 3.3 (Feature 019 removed unit_conversions)
+            assert data["version"] == "3.3"
 
             # Find exported ingredients
             exported_ingredients = {i["slug"]: i for i in data["ingredients"]}
@@ -411,8 +403,7 @@ class TestPackagingImportExport:
         bag_ingredient = create_ingredient({
             "name": "Composition Test Bags",
             "category": "Bags",
-            "recipe_unit": "each",
-            "is_packaging": True,
+            "is_packaging": True
         })
         bag_product = create_product(
             bag_ingredient.slug,
@@ -420,7 +411,7 @@ class TestPackagingImportExport:
                 "brand": "TestBrand",
                 "package_size": "50 ct",
                 "purchase_unit": "box",
-                "purchase_quantity": 50,
+                "purchase_quantity": 50
             }
         )
 
@@ -429,7 +420,7 @@ class TestPackagingImportExport:
             slug="export-test-cookies",
             display_name="Export Test Cookies",
             assembly_type=AssemblyType.CUSTOM_ORDER,
-            inventory_count=0,
+            inventory_count=0
         )
         test_db.add(fg)
         test_db.flush()
@@ -438,12 +429,12 @@ class TestPackagingImportExport:
         add_packaging_to_assembly(
             assembly_id=fg.id,
             packaging_product_id=bag_product.id,
-            quantity=2.5,
+            quantity=2.5
         )
 
         # Create Package with packaging
         pkg = Package(
-            name="Export Test Package",
+            name="Export Test Package"
         )
         test_db.add(pkg)
         test_db.flush()
@@ -452,7 +443,7 @@ class TestPackagingImportExport:
         add_packaging_to_package(
             package_id=pkg.id,
             packaging_product_id=bag_product.id,
-            quantity=1.5,
+            quantity=1.5
         )
 
         # Export to temp file
@@ -493,7 +484,6 @@ class TestPackagingImportExport:
             if os.path.exists(temp_path):
                 os.unlink(temp_path)
 
-
 class TestPackagingEdgeCases:
     """Edge case tests for packaging BOM (Feature 011 WP07)."""
 
@@ -503,8 +493,7 @@ class TestPackagingEdgeCases:
         ingredient = create_ingredient({
             "name": "Empty Packaging Category",
             "category": "Bags",
-            "recipe_unit": "each",
-            "is_packaging": True,
+            "is_packaging": True
         })
 
         # Should not raise
@@ -520,9 +509,8 @@ class TestPackagingEdgeCases:
         # Create packaging product
         ribbon_ingredient = create_ingredient({
             "name": "Fractional Test Ribbon",
-            "category": "Ribbon",
-            "recipe_unit": "each",  # Use valid unit
-            "is_packaging": True,
+            "category": "Ribbon",  # Use valid unit
+            "is_packaging": True
         })
         ribbon_product = create_product(
             ribbon_ingredient.slug,
@@ -530,7 +518,7 @@ class TestPackagingEdgeCases:
                 "brand": "TestBrand",
                 "package_size": "10 yd",
                 "purchase_unit": "package",  # Use valid unit
-                "purchase_quantity": 10,
+                "purchase_quantity": 10
             }
         )
 
@@ -539,7 +527,7 @@ class TestPackagingEdgeCases:
             slug="fractional-test-cookies",
             display_name="Fractional Test Cookies",
             assembly_type=AssemblyType.CUSTOM_ORDER,
-            inventory_count=0,
+            inventory_count=0
         )
         test_db.add(fg)
         test_db.flush()
@@ -548,7 +536,7 @@ class TestPackagingEdgeCases:
         composition = add_packaging_to_assembly(
             assembly_id=fg.id,
             packaging_product_id=ribbon_product.id,
-            quantity=0.5,
+            quantity=0.5
         )
         assert composition.component_quantity == 0.5
 
@@ -567,8 +555,7 @@ class TestPackagingEdgeCases:
         ribbon_ingredient = create_ingredient({
             "name": "Aggregation Test Ribbon",
             "category": "Ribbon",
-            "recipe_unit": "each",
-            "is_packaging": True,
+            "is_packaging": True
         })
         ribbon_product = create_product(
             ribbon_ingredient.slug,
@@ -576,7 +563,7 @@ class TestPackagingEdgeCases:
                 "brand": "TestBrand",
                 "package_size": "10 yd",
                 "purchase_unit": "package",  # Use valid unit
-                "purchase_quantity": 1,
+                "purchase_quantity": 1
             }
         )
 
@@ -585,7 +572,7 @@ class TestPackagingEdgeCases:
             slug="aggregation-test-cookies",
             display_name="Aggregation Test Cookies",
             assembly_type=AssemblyType.CUSTOM_ORDER,
-            inventory_count=0,
+            inventory_count=0
         )
         test_db.add(fg)
         test_db.flush()
@@ -593,12 +580,12 @@ class TestPackagingEdgeCases:
         add_packaging_to_assembly(
             assembly_id=fg.id,
             packaging_product_id=ribbon_product.id,
-            quantity=2.0,
+            quantity=2.0
         )
 
         # Create Package with 1 ribbon (outer)
         package = Package(
-            name="Aggregation Test Package",
+            name="Aggregation Test Package"
         )
         test_db.add(package)
         test_db.flush()
@@ -606,14 +593,14 @@ class TestPackagingEdgeCases:
         add_packaging_to_package(
             package_id=package.id,
             packaging_product_id=ribbon_product.id,
-            quantity=1.0,
+            quantity=1.0
         )
 
         # Package contains the FG
         pfg = PackageFinishedGood(
             package_id=package.id,
             finished_good_id=fg.id,
-            quantity=1,
+            quantity=1
         )
         test_db.add(pfg)
         test_db.flush()
@@ -622,7 +609,7 @@ class TestPackagingEdgeCases:
         event = create_event(
             name="Aggregation Test Event",
             event_date=date(2024, 12, 1),
-            year=2024,
+            year=2024
         )
 
         recipient = Recipient(name="Test Recipient")
@@ -633,7 +620,7 @@ class TestPackagingEdgeCases:
             event_id=event.id,
             recipient_id=recipient.id,
             package_id=package.id,
-            quantity=3,
+            quantity=3
         )
 
         # Calculate packaging needs
@@ -651,8 +638,7 @@ class TestPackagingEdgeCases:
         bag_ingredient = create_ingredient({
             "name": "Cascade Test Bags",
             "category": "Bags",
-            "recipe_unit": "each",
-            "is_packaging": True,
+            "is_packaging": True
         })
         bag_product = create_product(
             bag_ingredient.slug,
@@ -660,13 +646,13 @@ class TestPackagingEdgeCases:
                 "brand": "TestBrand",
                 "package_size": "50 ct",
                 "purchase_unit": "box",
-                "purchase_quantity": 50,
+                "purchase_quantity": 50
             }
         )
 
         # Create Package with packaging
         package = Package(
-            name="Cascade Test Package",
+            name="Cascade Test Package"
         )
         test_db.add(package)
         test_db.flush()
@@ -674,7 +660,7 @@ class TestPackagingEdgeCases:
         composition = add_packaging_to_package(
             package_id=package.id,
             packaging_product_id=bag_product.id,
-            quantity=1.0,
+            quantity=1.0
         )
         comp_id = composition.id
 
@@ -696,8 +682,7 @@ class TestPackagingEdgeCases:
         box_ingredient = create_ingredient({
             "name": "FG Cascade Test Boxes",
             "category": "Boxes",
-            "recipe_unit": "each",
-            "is_packaging": True,
+            "is_packaging": True
         })
         box_product = create_product(
             box_ingredient.slug,
@@ -705,7 +690,7 @@ class TestPackagingEdgeCases:
                 "brand": "TestBrand",
                 "package_size": "12 ct",
                 "purchase_unit": "box",  # Use valid unit
-                "purchase_quantity": 12,
+                "purchase_quantity": 12
             }
         )
 
@@ -714,7 +699,7 @@ class TestPackagingEdgeCases:
             slug="fg-cascade-test",
             display_name="FG Cascade Test",
             assembly_type=AssemblyType.CUSTOM_ORDER,
-            inventory_count=0,
+            inventory_count=0
         )
         test_db.add(fg)
         test_db.flush()
@@ -722,7 +707,7 @@ class TestPackagingEdgeCases:
         composition = add_packaging_to_assembly(
             assembly_id=fg.id,
             packaging_product_id=box_product.id,
-            quantity=1.0,
+            quantity=1.0
         )
         comp_id = composition.id
 
@@ -745,8 +730,7 @@ class TestPackagingEdgeCases:
         bag_ingredient = create_ingredient({
             "name": "Delete Block Test Bags",
             "category": "Bags",
-            "recipe_unit": "each",
-            "is_packaging": True,
+            "is_packaging": True
         })
         bag_product = create_product(
             bag_ingredient.slug,
@@ -754,13 +738,13 @@ class TestPackagingEdgeCases:
                 "brand": "TestBrand",
                 "package_size": "50 ct",
                 "purchase_unit": "box",
-                "purchase_quantity": 50,
+                "purchase_quantity": 50
             }
         )
 
         # Create Package and add packaging composition
         package = Package(
-            name="Delete Block Test Package",
+            name="Delete Block Test Package"
         )
         test_db.add(package)
         test_db.flush()
@@ -768,7 +752,7 @@ class TestPackagingEdgeCases:
         add_packaging_to_package(
             package_id=package.id,
             packaging_product_id=bag_product.id,
-            quantity=1.0,
+            quantity=1.0
         )
 
         # Try to delete product - should be blocked
@@ -789,8 +773,7 @@ class TestPackagingEdgeCases:
         ribbon_ingredient = create_ingredient({
             "name": "RESTRICT Test Ribbon",
             "category": "Ribbon",
-            "recipe_unit": "each",
-            "is_packaging": True,
+            "is_packaging": True
         })
         ribbon_product = create_product(
             ribbon_ingredient.slug,
@@ -798,7 +781,7 @@ class TestPackagingEdgeCases:
                 "brand": "TestBrand",
                 "package_size": "10 yd",
                 "purchase_unit": "package",
-                "purchase_quantity": 10,
+                "purchase_quantity": 10
             }
         )
 
@@ -807,7 +790,7 @@ class TestPackagingEdgeCases:
             slug="restrict-test-cookies",
             display_name="RESTRICT Test Cookies",
             assembly_type=AssemblyType.CUSTOM_ORDER,
-            inventory_count=0,
+            inventory_count=0
         )
         test_db.add(fg)
         test_db.flush()
@@ -816,7 +799,7 @@ class TestPackagingEdgeCases:
         add_packaging_to_assembly(
             assembly_id=fg.id,
             packaging_product_id=ribbon_product.id,
-            quantity=1.0,
+            quantity=1.0
         )
 
         # Try direct deletion bypassing service (to test FK constraint)

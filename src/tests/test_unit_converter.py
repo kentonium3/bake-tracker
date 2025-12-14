@@ -28,14 +28,12 @@ from src.services.unit_converter import (
     format_cost,
     # Validation
     validate_conversion_factor,
-    validate_quantity,
+    validate_quantity
 )
-
 
 # ============================================================================
 # Unit Type Detection Tests
 # ============================================================================
-
 
 class TestUnitTypeDetection:
     """Test unit type detection and compatibility checking."""
@@ -119,11 +117,9 @@ class TestUnitTypeDetection:
         assert units_compatible("invalid", "cup") is False
         assert units_compatible("bag", "box") is False
 
-
 # ============================================================================
 # Standard Weight Conversion Tests
 # ============================================================================
-
 
 class TestWeightConversions:
     """Test standard weight unit conversions."""
@@ -173,11 +169,9 @@ class TestWeightConversions:
         assert success2 is True
         assert result1 == pytest.approx(result2, rel=1e-6)
 
-
 # ============================================================================
 # Standard Volume Conversion Tests
 # ============================================================================
-
 
 class TestVolumeConversions:
     """Test standard volume unit conversions."""
@@ -225,11 +219,9 @@ class TestVolumeConversions:
         assert success is True
         assert result == pytest.approx(1000.0, rel=1e-6)
 
-
 # ============================================================================
 # Count Conversion Tests
 # ============================================================================
-
 
 class TestCountConversions:
     """Test count unit conversions."""
@@ -253,11 +245,9 @@ class TestCountConversions:
         assert success is True
         assert result == pytest.approx(10.0, rel=1e-6)
 
-
 # ============================================================================
 # Conversion Error Handling Tests
 # ============================================================================
-
 
 class TestConversionErrors:
     """Test error handling in standard conversions."""
@@ -290,11 +280,9 @@ class TestConversionErrors:
         assert result == 5.0
         assert error == ""
 
-
 # ============================================================================
 # Format Conversion Tests
 # ============================================================================
-
 
 class TestFormatConversion:
     """Test conversion formatting for display."""
@@ -316,11 +304,9 @@ class TestFormatConversion:
         result = format_conversion(10, "oz", "cup")
         assert "Error" in result
 
-
 # ============================================================================
 # Ingredient Conversion Tests
 # ============================================================================
-
 
 class TestIngredientConversions:
     """Test ingredient-specific unit conversions."""
@@ -354,11 +340,9 @@ class TestIngredientConversions:
         assert "1 bag" in result
         assert "22.5 cup" in result
 
-
 # ============================================================================
 # Cost Calculation Tests
 # ============================================================================
-
 
 class TestCostCalculations:
     """Test cost calculation utilities."""
@@ -451,11 +435,9 @@ class TestCostCalculations:
         assert success is False
         assert "positive" in error.lower()
 
-
 # ============================================================================
 # Format Cost Tests
 # ============================================================================
-
 
 class TestFormatCost:
     """Test cost formatting utilities."""
@@ -485,11 +467,9 @@ class TestFormatCost:
         result = format_cost(1234.56)
         assert result == "$1234.56"
 
-
 # ============================================================================
 # Validation Tests
 # ============================================================================
-
 
 class TestValidation:
     """Test validation helper functions."""
@@ -548,19 +528,16 @@ class TestValidation:
         assert is_valid is False
         assert "large" in error.lower()
 
-
 # ============================================================================
 # Volume-Weight Conversion Tests (Feature 010 - Ingredient density)
 # ============================================================================
 
-
 from src.services.unit_converter import (
     convert_volume_to_weight,
     convert_weight_to_volume,
-    convert_any_units,
+    convert_any_units
 )
 from src.models.ingredient import Ingredient
-
 
 class TestVolumeWeightConversions:
     """Test volume-to-weight and weight-to-volume conversions using Ingredient density."""
@@ -574,7 +551,7 @@ class TestVolumeWeightConversions:
             density_volume_value=1.0,
             density_volume_unit="cup",
             density_weight_value=120.0,
-            density_weight_unit="g",
+            density_weight_unit="g"
         )
         success, weight, error = convert_volume_to_weight(
             1.0, "cup", "g", ingredient=ingredient
@@ -588,7 +565,7 @@ class TestVolumeWeightConversions:
         ingredient = Ingredient(
             display_name="Mystery Ingredient",
             slug="mystery",
-            category="Other",
+            category="Other"
         )
         success, weight, error = convert_volume_to_weight(
             1.0, "cup", "g", ingredient=ingredient
@@ -614,7 +591,7 @@ class TestVolumeWeightConversions:
             density_volume_value=1.0,
             density_volume_unit="cup",
             density_weight_value=120.0,
-            density_weight_unit="g",
+            density_weight_unit="g"
         )
         success, volume, error = convert_weight_to_volume(
             120.0, "g", "cup", ingredient=ingredient
@@ -628,7 +605,7 @@ class TestVolumeWeightConversions:
         ingredient = Ingredient(
             display_name="Mystery Ingredient",
             slug="mystery",
-            category="Other",
+            category="Other"
         )
         success, volume, error = convert_weight_to_volume(
             100.0, "g", "cup", ingredient=ingredient
@@ -661,7 +638,7 @@ class TestVolumeWeightConversions:
             density_volume_value=1.0,
             density_volume_unit="cup",
             density_weight_value=200.0,
-            density_weight_unit="g",
+            density_weight_unit="g"
         )
         success, result, error = convert_any_units(
             1.0, "cup", "g", ingredient=ingredient
@@ -678,7 +655,7 @@ class TestVolumeWeightConversions:
             density_volume_value=1.0,
             density_volume_unit="cup",
             density_weight_value=200.0,
-            density_weight_unit="g",
+            density_weight_unit="g"
         )
         success, result, error = convert_any_units(
             200.0, "g", "cup", ingredient=ingredient
@@ -697,7 +674,7 @@ class TestVolumeWeightConversions:
         ingredient = Ingredient(
             display_name="Special Flour",
             slug="special-flour",
-            category="Flour",
+            category="Flour"
         )
         success, weight, error = convert_volume_to_weight(
             1.0, "cup", "g", ingredient=ingredient

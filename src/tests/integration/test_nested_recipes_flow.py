@@ -18,16 +18,13 @@ from src.services import recipe_service, import_export_service, ingredient_servi
 from src.services.exceptions import ValidationError
 from src.models import Recipe, RecipeIngredient, RecipeComponent
 
-
 @pytest.fixture
 def test_ingredient(test_db):
     """Create a test ingredient with pricing."""
     return ingredient_service.create_ingredient({
         "name": "Flour",
         "category": "Flour",
-        "recipe_unit": "cup",
     })
-
 
 @pytest.fixture
 def test_ingredient_sugar(test_db):
@@ -35,9 +32,7 @@ def test_ingredient_sugar(test_db):
     return ingredient_service.create_ingredient({
         "name": "Sugar",
         "category": "Sugar",
-        "recipe_unit": "cup",
     })
-
 
 @pytest.fixture
 def test_ingredient_butter(test_db):
@@ -45,9 +40,7 @@ def test_ingredient_butter(test_db):
     return ingredient_service.create_ingredient({
         "name": "Butter",
         "category": "Dairy",
-        "recipe_unit": "cup",
     })
-
 
 @pytest.fixture
 def test_ingredient_milk(test_db):
@@ -55,14 +48,11 @@ def test_ingredient_milk(test_db):
     return ingredient_service.create_ingredient({
         "name": "Milk",
         "category": "Dairy",
-        "recipe_unit": "cup",
     })
-
 
 # =============================================================================
 # T044: Quickstart Checklist Tests
 # =============================================================================
-
 
 class TestQuickstartChecklist:
     """Tests that validate the quickstart.md testing checklist."""
@@ -237,11 +227,9 @@ class TestQuickstartChecklist:
         deleted = recipe_service.get_recipe_by_name("Recipe B")
         assert deleted is None
 
-
 # =============================================================================
 # T045: 3-Level Nesting End-to-End Tests
 # =============================================================================
-
 
 class TestThreeLevelNesting:
     """Tests for 3-level nesting functionality."""
@@ -369,11 +357,9 @@ class TestThreeLevelNesting:
         assert butter_entry["total_quantity"] == 2.0  # 1 * 2
         assert milk_entry["total_quantity"] == 2.0  # direct
 
-
 # =============================================================================
 # T046: Import/Export Round-Trip Tests
 # =============================================================================
-
 
 class TestImportExportRoundTrip:
     """Tests for import/export functionality with recipe components."""
@@ -475,11 +461,9 @@ class TestImportExportRoundTrip:
         finally:
             os.unlink(export_file)
 
-
 # =============================================================================
 # T047: Backward Compatibility Tests
 # =============================================================================
-
 
 class TestBackwardCompatibility:
     """Tests to ensure existing recipes without components still work."""
@@ -582,11 +566,9 @@ class TestBackwardCompatibility:
         assert "Flour" in ingredient_names
         assert "Sugar" in ingredient_names
 
-
 # =============================================================================
 # Additional Edge Case Tests
 # =============================================================================
-
 
 class TestEdgeCases:
     """Additional edge case tests for robustness."""

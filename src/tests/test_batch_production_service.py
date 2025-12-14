@@ -30,11 +30,9 @@ from src.services.batch_production_service import (
 )
 from src.services.database import session_scope
 
-
 # =============================================================================
 # Fixtures
 # =============================================================================
-
 
 @pytest.fixture
 def ingredient_flour(test_db):
@@ -44,7 +42,6 @@ def ingredient_flour(test_db):
         display_name="All-Purpose Flour",
         slug="flour",
         category="Flour",
-        recipe_unit="cup",
         # Density for unit conversion
         density_volume_value=1.0,
         density_volume_unit="cup",
@@ -55,7 +52,6 @@ def ingredient_flour(test_db):
     session.commit()
     return ingredient
 
-
 @pytest.fixture
 def ingredient_sugar(test_db):
     """Create sugar ingredient."""
@@ -64,7 +60,6 @@ def ingredient_sugar(test_db):
         display_name="Granulated Sugar",
         slug="sugar",
         category="Sugar",
-        recipe_unit="cup",
         density_volume_value=1.0,
         density_volume_unit="cup",
         density_weight_value=200.0,
@@ -73,7 +68,6 @@ def ingredient_sugar(test_db):
     session.add(ingredient)
     session.commit()
     return ingredient
-
 
 @pytest.fixture
 def product_flour(test_db, ingredient_flour):
@@ -91,7 +85,6 @@ def product_flour(test_db, ingredient_flour):
     session.commit()
     return product
 
-
 @pytest.fixture
 def product_sugar(test_db, ingredient_sugar):
     """Create sugar product."""
@@ -108,7 +101,6 @@ def product_sugar(test_db, ingredient_sugar):
     session.commit()
     return product
 
-
 @pytest.fixture
 def inventory_flour(test_db, product_flour):
     """Create flour inventory with 10 cups."""
@@ -123,7 +115,6 @@ def inventory_flour(test_db, product_flour):
     session.commit()
     return inv
 
-
 @pytest.fixture
 def inventory_sugar(test_db, product_sugar):
     """Create sugar inventory with 5 cups."""
@@ -137,7 +128,6 @@ def inventory_sugar(test_db, product_sugar):
     session.add(inv)
     session.commit()
     return inv
-
 
 @pytest.fixture
 def recipe_cookies(test_db, ingredient_flour, ingredient_sugar):
@@ -173,7 +163,6 @@ def recipe_cookies(test_db, ingredient_flour, ingredient_sugar):
     session.commit()
     return recipe
 
-
 @pytest.fixture
 def finished_unit_cookies(test_db, recipe_cookies):
     """Create FinishedUnit for cookies (48 per batch)."""
@@ -192,7 +181,6 @@ def finished_unit_cookies(test_db, recipe_cookies):
     session.commit()
     return fu
 
-
 @pytest.fixture
 def recipe_with_ingredients_and_inventory(
     recipe_cookies, inventory_flour, inventory_sugar
@@ -200,11 +188,9 @@ def recipe_with_ingredients_and_inventory(
     """Complete recipe with all required inventory in place."""
     return recipe_cookies
 
-
 # =============================================================================
 # Tests for check_can_produce
 # =============================================================================
-
 
 class TestCheckCanProduce:
     """Tests for check_can_produce() function."""
@@ -272,11 +258,9 @@ class TestCheckCanProduce:
         # With 0 batches, 0 ingredients needed, should be True
         assert result["can_produce"] is True
 
-
 # =============================================================================
 # Tests for record_batch_production
 # =============================================================================
-
 
 class TestRecordBatchProduction:
     """Tests for record_batch_production() function."""
@@ -560,11 +544,9 @@ class TestRecordBatchProduction:
             # Allow small precision difference
             assert abs(pr.per_unit_cost - expected_per_unit) < Decimal("0.0001")
 
-
 # =============================================================================
 # Tests for History Query Functions
 # =============================================================================
-
 
 class TestGetProductionHistory:
     """Tests for get_production_history() function."""
@@ -721,7 +703,6 @@ class TestGetProductionHistory:
         result = batch_production_service.get_production_history(limit=2, offset=1)
         assert len(result) == 2
 
-
 class TestGetProductionRun:
     """Tests for get_production_run() function."""
 
@@ -761,11 +742,9 @@ class TestGetProductionRun:
             batch_production_service.get_production_run(99999)
         assert exc_info.value.production_run_id == 99999
 
-
 # =============================================================================
 # Tests for Import/Export Functions
 # =============================================================================
-
 
 class TestExportProductionHistory:
     """Tests for export_production_history() function."""
@@ -806,7 +785,6 @@ class TestExportProductionHistory:
         assert run["actual_yield"] == 48
         assert run["notes"] == "Export test"
         assert len(run["consumptions"]) == 2  # flour and sugar
-
 
 class TestImportProductionHistory:
     """Tests for import_production_history() function."""
@@ -941,11 +919,9 @@ class TestImportProductionHistory:
         assert reimp_run["total_ingredient_cost"] == original_run["total_ingredient_cost"]
         assert reimp_run["notes"] == original_run["notes"]
 
-
 # =============================================================================
 # Transaction Atomicity Tests (Bug Fix Verification)
 # =============================================================================
-
 
 class TestTransactionAtomicity:
     """Tests verifying that record_batch_production is fully atomic.
@@ -1083,11 +1059,9 @@ class TestTransactionAtomicity:
             ).all()
             assert len(consumptions) == 2, "Should have 2 consumption records (flour + sugar)"
 
-
 # =============================================================================
 # Tests for Event ID Parameter (Feature 016)
 # =============================================================================
-
 
 class TestRecordBatchProductionEventId:
     """Tests for event_id parameter in record_batch_production().

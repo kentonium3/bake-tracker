@@ -38,11 +38,9 @@ from src.models import (
 )
 from src.models.assembly_type import AssemblyType
 
-
 # =============================================================================
 # Test Fixtures
 # =============================================================================
-
 
 @pytest.fixture
 def packaging_ingredient(test_db):
@@ -50,10 +48,8 @@ def packaging_ingredient(test_db):
     return create_ingredient({
         "name": "Test Cellophane Bags",
         "category": "Bags",
-        "recipe_unit": "each",
         "is_packaging": True,
     })
-
 
 @pytest.fixture
 def packaging_ingredient_2(test_db):
@@ -61,10 +57,8 @@ def packaging_ingredient_2(test_db):
     return create_ingredient({
         "name": "Test Gift Boxes",
         "category": "Boxes",
-        "recipe_unit": "each",
         "is_packaging": True,
     })
-
 
 @pytest.fixture
 def packaging_product(test_db, packaging_ingredient):
@@ -79,7 +73,6 @@ def packaging_product(test_db, packaging_ingredient):
         }
     )
 
-
 @pytest.fixture
 def packaging_product_2(test_db, packaging_ingredient_2):
     """Create a second packaging product for tests."""
@@ -92,7 +85,6 @@ def packaging_product_2(test_db, packaging_ingredient_2):
             "purchase_quantity": 6,
         }
     )
-
 
 @pytest.fixture
 def finished_good(test_db):
@@ -108,7 +100,6 @@ def finished_good(test_db):
     test_db.flush()
     return fg
 
-
 @pytest.fixture
 def package(test_db):
     """Create a package for tests."""
@@ -120,7 +111,6 @@ def package(test_db):
     test_db.flush()
     return pkg
 
-
 @pytest.fixture
 def recipient(test_db):
     """Create a recipient for tests."""
@@ -131,7 +121,6 @@ def recipient(test_db):
     test_db.flush()
     return rec
 
-
 @pytest.fixture
 def event(test_db):
     """Create an event for tests."""
@@ -141,11 +130,9 @@ def event(test_db):
         year=2024,
     )
 
-
 # =============================================================================
 # Test: get_event_packaging_needs
 # =============================================================================
-
 
 class TestGetEventPackagingNeeds:
     """Tests for get_event_packaging_needs() functionality."""
@@ -379,11 +366,9 @@ class TestGetEventPackagingNeeds:
         assert need.on_hand == 20.0
         assert need.to_buy == 0.0  # Never negative
 
-
 # =============================================================================
 # Test: get_shopping_list with packaging
 # =============================================================================
-
 
 class TestGetShoppingListPackaging:
     """Tests for get_shopping_list() packaging integration."""
@@ -445,11 +430,9 @@ class TestGetShoppingListPackaging:
 
         assert "packaging" not in result
 
-
 # =============================================================================
 # Test: get_event_packaging_breakdown
 # =============================================================================
-
 
 class TestGetEventPackagingBreakdown:
     """Tests for get_event_packaging_breakdown() functionality."""

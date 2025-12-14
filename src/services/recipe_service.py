@@ -745,10 +745,10 @@ def calculate_actual_cost(recipe_id: int) -> Decimal:
 
                     # Convert shortfall to purchase units if needed
                     purchase_unit = preferred_product.purchase_unit
-                    if target_unit != purchase_unit:
+                    if recipe_unit != purchase_unit:
                         success, shortfall_float, error = convert_any_units(
                             float(shortfall),
-                            target_unit,
+                            recipe_unit,
                             purchase_unit,
                             ingredient=ingredient,
                         )

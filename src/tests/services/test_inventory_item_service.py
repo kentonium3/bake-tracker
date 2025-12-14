@@ -14,7 +14,6 @@ from datetime import date
 
 from src.services import ingredient_service, product_service, inventory_item_service, purchase_service
 
-
 class TestConsumeFifoDryRun:
     """Tests for consume_fifo() dry_run parameter."""
 
@@ -24,14 +23,13 @@ class TestConsumeFifoDryRun:
         ingredient = ingredient_service.create_ingredient(
             {
                 "name": "Test Flour DR",
-                "category": "Flour",
-                "recipe_unit": "lb",  # Same as purchase_unit for simplicity
+                "category": "Flour",  # Same as purchase_unit for simplicity
             }
         )
 
         product = product_service.create_product(
             ingredient.slug,
-            {"brand": "Test Brand", "purchase_unit": "lb", "purchase_quantity": Decimal("5.0")},
+            {"brand": "Test Brand", "purchase_unit": "lb", "purchase_quantity": Decimal("5.0")}
         )
 
         # Add inventory item with known quantity
@@ -41,7 +39,7 @@ class TestConsumeFifoDryRun:
         )
 
         # Act: Call consume_fifo with dry_run=True
-        result = inventory_item_service.consume_fifo(ingredient.slug, Decimal("3.0"), dry_run=True)
+        result = inventory_item_service.consume_fifo(ingredient.slug, Decimal("3.0"), "lb", dry_run=True)
 
         # Assert: Quantity unchanged
         items = inventory_item_service.get_inventory_items(ingredient_slug=ingredient.slug)
@@ -60,14 +58,13 @@ class TestConsumeFifoDryRun:
         ingredient = ingredient_service.create_ingredient(
             {
                 "name": "Test Flour Cost",
-                "category": "Flour",
-                "recipe_unit": "lb",
+                "category": "Flour"
             }
         )
 
         product = product_service.create_product(
             ingredient.slug,
-            {"brand": "Test Brand", "purchase_unit": "lb", "purchase_quantity": Decimal("5.0")},
+            {"brand": "Test Brand", "purchase_unit": "lb", "purchase_quantity": Decimal("5.0")}
         )
 
         # Add two inventory items with different unit costs
@@ -86,7 +83,7 @@ class TestConsumeFifoDryRun:
 
         # Act: Consume 7 lb (5 from lot1 @ $2, 2 from lot2 @ $3)
         # Expected cost: (5 * $2.00) + (2 * $3.00) = $10.00 + $6.00 = $16.00
-        result = inventory_item_service.consume_fifo(ingredient.slug, Decimal("7.0"), dry_run=True)
+        result = inventory_item_service.consume_fifo(ingredient.slug, Decimal("7.0"), "lb", dry_run=True)
 
         # Assert: Cost is correct
         expected_cost = Decimal("16.00")
@@ -100,14 +97,13 @@ class TestConsumeFifoDryRun:
         ingredient = ingredient_service.create_ingredient(
             {
                 "name": "Test Flour Breakdown",
-                "category": "Flour",
-                "recipe_unit": "lb",
+                "category": "Flour"
             }
         )
 
         product = product_service.create_product(
             ingredient.slug,
-            {"brand": "Test Brand", "purchase_unit": "lb", "purchase_quantity": Decimal("5.0")},
+            {"brand": "Test Brand", "purchase_unit": "lb", "purchase_quantity": Decimal("5.0")}
         )
 
         # Add inventory item with unit_cost
@@ -117,7 +113,7 @@ class TestConsumeFifoDryRun:
         inventory_item_service.update_inventory_item(lot.id, {"unit_cost": 2.50})
 
         # Act
-        result = inventory_item_service.consume_fifo(ingredient.slug, Decimal("3.0"), dry_run=True)
+        result = inventory_item_service.consume_fifo(ingredient.slug, Decimal("3.0"), "lb", dry_run=True)
 
         # Assert: Breakdown items have unit_cost
         assert len(result["breakdown"]) >= 1
@@ -133,14 +129,13 @@ class TestConsumeFifoDryRun:
         ingredient = ingredient_service.create_ingredient(
             {
                 "name": "Test Flour Default",
-                "category": "Flour",
-                "recipe_unit": "lb",
+                "category": "Flour"
             }
         )
 
         product = product_service.create_product(
             ingredient.slug,
-            {"brand": "Test Brand", "purchase_unit": "lb", "purchase_quantity": Decimal("5.0")},
+            {"brand": "Test Brand", "purchase_unit": "lb", "purchase_quantity": Decimal("5.0")}
         )
 
         initial_quantity = Decimal("10.0")
@@ -153,6 +148,7 @@ class TestConsumeFifoDryRun:
         result = inventory_item_service.consume_fifo(
             ingredient.slug,
             consume_amount,
+            "lb",  # target_unit
             # dry_run defaults to False
         )
 
@@ -170,14 +166,13 @@ class TestConsumeFifoDryRun:
         ingredient = ingredient_service.create_ingredient(
             {
                 "name": "Test Flour FIFO Order",
-                "category": "Flour",
-                "recipe_unit": "lb",
+                "category": "Flour"
             }
         )
 
         product = product_service.create_product(
             ingredient.slug,
-            {"brand": "Test Brand", "purchase_unit": "lb", "purchase_quantity": Decimal("5.0")},
+            {"brand": "Test Brand", "purchase_unit": "lb", "purchase_quantity": Decimal("5.0")}
         )
 
         # Add lots in non-chronological order but with explicit dates
@@ -194,7 +189,7 @@ class TestConsumeFifoDryRun:
         inventory_item_service.update_inventory_item(lot1.id, {"unit_cost": 2.00})
 
         # Act: Consume 3 lb (should come from lot1, the older one)
-        result = inventory_item_service.consume_fifo(ingredient.slug, Decimal("3.0"), dry_run=True)
+        result = inventory_item_service.consume_fifo(ingredient.slug, Decimal("3.0"), "lb", dry_run=True)
 
         # Assert: Consumption came from older lot (lot1)
         assert len(result["breakdown"]) == 1
@@ -211,14 +206,13 @@ class TestConsumeFifoDryRun:
         ingredient = ingredient_service.create_ingredient(
             {
                 "name": "Test Flour No Cost",
-                "category": "Flour",
-                "recipe_unit": "lb",
+                "category": "Flour"
             }
         )
 
         product = product_service.create_product(
             ingredient.slug,
-            {"brand": "Test Brand", "purchase_unit": "lb", "purchase_quantity": Decimal("5.0")},
+            {"brand": "Test Brand", "purchase_unit": "lb", "purchase_quantity": Decimal("5.0")}
         )
 
         # Add inventory item WITHOUT setting unit_cost
@@ -227,7 +221,7 @@ class TestConsumeFifoDryRun:
         )
 
         # Act
-        result = inventory_item_service.consume_fifo(ingredient.slug, Decimal("3.0"), dry_run=True)
+        result = inventory_item_service.consume_fifo(ingredient.slug, Decimal("3.0"), "lb", dry_run=True)
 
         # Assert: total_cost should be 0 (no unit_cost set)
         assert result["total_cost"] == Decimal(
@@ -240,14 +234,13 @@ class TestConsumeFifoDryRun:
         ingredient = ingredient_service.create_ingredient(
             {
                 "name": "Test Flour Partial",
-                "category": "Flour",
-                "recipe_unit": "lb",
+                "category": "Flour"
             }
         )
 
         product = product_service.create_product(
             ingredient.slug,
-            {"brand": "Test Brand", "purchase_unit": "lb", "purchase_quantity": Decimal("5.0")},
+            {"brand": "Test Brand", "purchase_unit": "lb", "purchase_quantity": Decimal("5.0")}
         )
 
         # Add inventory item: 10 lb at $2.50/lb
@@ -257,7 +250,7 @@ class TestConsumeFifoDryRun:
         inventory_item_service.update_inventory_item(lot.id, {"unit_cost": 2.50})
 
         # Act: Consume 4 lb (partial - should cost 4 * $2.50 = $10.00)
-        result = inventory_item_service.consume_fifo(ingredient.slug, Decimal("4.0"), dry_run=True)
+        result = inventory_item_service.consume_fifo(ingredient.slug, Decimal("4.0"), "lb", dry_run=True)
 
         # Assert
         expected_cost = Decimal("10.00")
@@ -276,14 +269,13 @@ class TestConsumeFifoDryRun:
         ingredient = ingredient_service.create_ingredient(
             {
                 "name": "Test Flour Shortfall",
-                "category": "Flour",
-                "recipe_unit": "lb",
+                "category": "Flour"
             }
         )
 
         product = product_service.create_product(
             ingredient.slug,
-            {"brand": "Test Brand", "purchase_unit": "lb", "purchase_quantity": Decimal("5.0")},
+            {"brand": "Test Brand", "purchase_unit": "lb", "purchase_quantity": Decimal("5.0")}
         )
 
         # Add only 5 lb at $2.00/lb
@@ -293,7 +285,7 @@ class TestConsumeFifoDryRun:
         inventory_item_service.update_inventory_item(lot.id, {"unit_cost": 2.00})
 
         # Act: Try to consume 8 lb (more than available)
-        result = inventory_item_service.consume_fifo(ingredient.slug, Decimal("8.0"), dry_run=True)
+        result = inventory_item_service.consume_fifo(ingredient.slug, Decimal("8.0"), "lb", dry_run=True)
 
         # Assert
         assert result["satisfied"] is False

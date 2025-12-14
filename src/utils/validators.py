@@ -225,11 +225,6 @@ def validate_ingredient_data(data: dict) -> Tuple[bool, list]:  # noqa: C901
     if not is_valid:
         errors.append(error)
 
-    # Required: Recipe unit
-    is_valid, error = validate_unit(data.get("recipe_unit", ""), "Recipe Unit")
-    if not is_valid:
-        errors.append(error)
-
     # Optional: Slug (will be auto-generated if not provided)
     if data.get("slug"):
         is_valid, error = validate_string_length(data.get("slug"), MAX_NAME_LENGTH, "Slug")

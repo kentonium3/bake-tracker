@@ -32,11 +32,9 @@ from src.services.product_service import create_product
 from src.models import FinishedGood, Package, Composition, Ingredient
 from src.models.assembly_type import AssemblyType
 
-
 # =============================================================================
 # Test Fixtures
 # =============================================================================
-
 
 @pytest.fixture
 def packaging_ingredient(test_db):
@@ -44,10 +42,8 @@ def packaging_ingredient(test_db):
     return create_ingredient({
         "name": "Test Cellophane Bags",
         "category": "Bags",
-        "recipe_unit": "each",
         "is_packaging": True,
     })
-
 
 @pytest.fixture
 def food_ingredient(test_db):
@@ -55,10 +51,8 @@ def food_ingredient(test_db):
     return create_ingredient({
         "name": "Test All-Purpose Flour",
         "category": "Flour",
-        "recipe_unit": "cup",
         "is_packaging": False,
     })
-
 
 @pytest.fixture
 def packaging_product(test_db, packaging_ingredient):
@@ -73,7 +67,6 @@ def packaging_product(test_db, packaging_ingredient):
         }
     )
 
-
 @pytest.fixture
 def food_product(test_db, food_ingredient):
     """Create a food product for tests."""
@@ -86,7 +79,6 @@ def food_product(test_db, food_ingredient):
             "purchase_quantity": 5,
         }
     )
-
 
 @pytest.fixture
 def finished_good(test_db):
@@ -102,7 +94,6 @@ def finished_good(test_db):
     test_db.flush()
     return fg
 
-
 @pytest.fixture
 def package(test_db):
     """Create a package for tests."""
@@ -114,11 +105,9 @@ def package(test_db):
     test_db.flush()
     return pkg
 
-
 # =============================================================================
 # Test: add_packaging_to_assembly
 # =============================================================================
-
 
 class TestAddPackagingToAssembly:
     """Tests for add_packaging_to_assembly() functionality."""
@@ -217,11 +206,9 @@ class TestAddPackagingToAssembly:
             )
         assert "already exists" in str(excinfo.value)
 
-
 # =============================================================================
 # Test: add_packaging_to_package
 # =============================================================================
-
 
 class TestAddPackagingToPackage:
     """Tests for add_packaging_to_package() functionality."""
@@ -273,11 +260,9 @@ class TestAddPackagingToPackage:
                 quantity=2.0,
             )
 
-
 # =============================================================================
 # Test: get_assembly_packaging / get_package_packaging
 # =============================================================================
-
 
 class TestGetPackaging:
     """Tests for packaging retrieval methods."""
@@ -324,13 +309,11 @@ class TestGetPackaging:
         ing1 = create_ingredient({
             "name": "Test Ribbon",
             "category": "Ribbon",
-            "recipe_unit": "each",
             "is_packaging": True,
         })
         ing2 = create_ingredient({
             "name": "Test Labels",
             "category": "Labels",
-            "recipe_unit": "each",
             "is_packaging": True,
         })
 
@@ -373,11 +356,9 @@ class TestGetPackaging:
         assert results[0].sort_order == 5
         assert results[1].sort_order == 10
 
-
 # =============================================================================
 # Test: update_packaging_quantity
 # =============================================================================
-
 
 class TestUpdatePackagingQuantity:
     """Tests for update_packaging_quantity() functionality."""
@@ -429,11 +410,9 @@ class TestUpdatePackagingQuantity:
         with pytest.raises(ValidationError):
             update_packaging_quantity(999999, 1.0)
 
-
 # =============================================================================
 # Test: remove_packaging
 # =============================================================================
-
 
 class TestRemovePackaging:
     """Tests for remove_packaging() functionality."""
@@ -459,11 +438,9 @@ class TestRemovePackaging:
         result = remove_packaging(999999)
         assert result is False
 
-
 # =============================================================================
 # Test: get_packaging_product_usage_count
 # =============================================================================
-
 
 class TestGetPackagingProductUsageCount:
     """Tests for get_packaging_product_usage_count() functionality."""
