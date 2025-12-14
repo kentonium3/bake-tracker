@@ -28,7 +28,6 @@ class Ingredient(BaseModel):
         display_name: Ingredient name (e.g., "All-Purpose Flour", "White Granulated Sugar")
         slug: URL-friendly identifier (e.g., "all_purpose_flour")
         category: Category (e.g., "Flour", "Sugar", "Dairy")
-        recipe_unit: Unit used in recipes (e.g., "cup", "oz", "g")
         description: Optional detailed description
         notes: Additional notes
 
@@ -61,7 +60,6 @@ class Ingredient(BaseModel):
         String(200), nullable=True, unique=True, index=True
     )  # Will be required after migration
     category = Column(String(100), nullable=False, index=True)
-    recipe_unit = Column(String(50), nullable=True)  # Unit used in recipes (e.g., "cup", "oz", "g")
 
     # Packaging indicator (Feature 011)
     is_packaging = Column(Boolean, nullable=False, default=False, index=True)
@@ -96,9 +94,6 @@ class Ingredient(BaseModel):
     # Relationships
     products = relationship(
         "Product", back_populates="ingredient", cascade="all, delete-orphan", lazy="select"
-    )
-    conversions = relationship(
-        "UnitConversion", back_populates="ingredient", cascade="all, delete-orphan", lazy="select"
     )
     recipe_ingredients = relationship(
         "RecipeIngredient", back_populates="ingredient", lazy="select"
@@ -206,7 +201,7 @@ class Ingredient(BaseModel):
         Convert ingredient to dictionary.
 
         Args:
-            include_relationships: If True, include products and conversions
+            include_relationships: If True, include products
 
         Returns:
             Dictionary representation
@@ -215,7 +210,6 @@ class Ingredient(BaseModel):
 
         if include_relationships:
             result["products"] = [p.to_dict(False) for p in self.products]
-            result["conversions"] = [c.to_dict(False) for c in self.conversions]
             result["preferred_product_id"] = (
                 self.get_preferred_product().id if self.get_preferred_product() else None
             )

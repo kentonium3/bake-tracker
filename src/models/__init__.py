@@ -9,7 +9,6 @@ from .ingredient import Ingredient  # Refactored model
 from .product import Product
 from .purchase import Purchase
 from .inventory_item import InventoryItem
-from .unit_conversion import UnitConversion
 from .ingredient_alias import IngredientAlias  # Supporting model
 from .ingredient_crosswalk import IngredientCrosswalk  # Supporting model
 from .product_packaging import ProductPackaging
@@ -49,7 +48,6 @@ __all__ = [
     "Product",
     "Purchase",
     "InventoryItem",
-    "UnitConversion",
     # Supporting Models
     "IngredientAlias",
     "IngredientCrosswalk",
