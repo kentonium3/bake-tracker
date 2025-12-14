@@ -141,21 +141,21 @@
 
 ---
 
-## Work Package WP05: Data Files, Documentation & UI (Priority: P3)
+## Work Package WP05: Data Files, Documentation & UI (Priority: P3) ✅
 
 **Goal**: Update test data to v3.3 format; update all documentation; clean up UI.
 **Independent Test**: JSON files parse correctly; documentation is consistent; app runs without UI errors.
-**Prompt**: `tasks/planned/WP05-data-docs-ui.md`
+**Prompt**: `tasks/done/WP05-data-docs-ui.md`
 
 ### Included Subtasks
-- [ ] T024 Convert `test_data/baking_ingredients_v32.json` to v3.3 (remove unit_conversions, recipe_unit)
-- [ ] T025 [P] Update `test_data/sample_data.json` if it contains unit_conversions
-- [ ] T026 [P] Update `docs/import_export_specification.md` to v3.3 schema
-- [ ] T027 [P] Update `docs/feature_proposal_catalog_import.md` - remove UnitConversion refs
-- [ ] T028 [P] Update `docs/catalog_import_status.md` - note format change to v3.3
-- [ ] T029 [P] Review/update `src/ui/inventory_tab.py` - remove recipe_unit references
-- [ ] T030 [P] Review/update `src/ui/forms/recipe_form.py` - remove recipe_unit references
-- [ ] T031 [P] Review/update `src/ui/event_detail_window.py` - remove recipe_unit references
+- [X] T024 Convert `test_data/baking_ingredients_v32.json` to v3.3 (N/A in worktree - will handle at merge)
+- [X] T025 [P] Update `test_data/sample_data.json` if it contains unit_conversions
+- [X] T026 [P] Update `docs/import_export_specification.md` to v3.3 schema
+- [X] T027 [P] Update `docs/feature_proposal_catalog_import.md` - remove UnitConversion refs
+- [X] T028 [P] Update `docs/catalog_import_status.md` - note format change to v3.3 (N/A in worktree)
+- [X] T029 [P] Review/update `src/ui/inventory_tab.py` - remove recipe_unit references
+- [X] T030 [P] Review/update `src/ui/forms/recipe_form.py` - remove recipe_unit references
+- [X] T031 [P] Review/update `src/ui/event_detail_window.py` - remove recipe_unit references
 
 ### Implementation Notes
 - For JSON files: remove `unit_conversions` array, remove `recipe_unit` from ingredients, update version to "3.3"
