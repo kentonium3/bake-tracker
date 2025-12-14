@@ -1,0 +1,7 @@
+{
+  "feature_number": "019",
+  "slug": "019-unit-conversion-simplification",
+  "friendly_name": "Unit Conversion Simplification",
+  "source_description": "Remove redundant unit conversion mechanisms (recipe_unit column and UnitConversion table) - keep 4-field density as canonical source for all conversions",
+  "created_at": "2025-12-14T07:11:45Z"
+}
