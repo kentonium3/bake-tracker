@@ -1,15 +1,14 @@
 <!--
 Sync Impact Report:
-- Version change: 1.0.0 → 1.1.0
-- Modified principles: N/A
-- Added sections: Principle VII (Pragmatic Aspiration)
+- Version change: 1.1.0 → 1.2.0
+- Modified principles: VI (Migration Safety → Schema Change Strategy)
+- Added sections: N/A
 - Removed sections: N/A
+- Rationale: For single-user desktop app, export/reset/import cycle replaces migration scripts
 - Templates requiring updates:
-  ✅ plan-template.md - Constitution Check section needs phase-specific questions
-  ⏳ web_migration_notes.md - new document to be created
+  ✅ plan-template.md - Remove migration-related checks for desktop phase
 - Follow-up TODOs:
-  - Update plan-template.md Constitution Check section
-  - Create /docs/web_migration_notes.md
+  - Update Feature 019 spec if it references migration requirements
 -->
 
 # Bake Tracker Constitution
@@ -76,17 +75,24 @@ Sync Impact Report:
 
 **Rationale:** Layered architecture enables independent testing, easier refactoring, and potential future UI alternatives (web, mobile). Violations create tight coupling and make the codebase unmaintainable.
 
-### VI. Migration Safety & Validation
+### VI. Schema Change Strategy (Desktop Phase)
 
-**Database migrations must be reversible and thoroughly validated before execution.**
+**For single-user desktop apps, database migrations are unnecessary complexity.**
 
-- Migration scripts MUST support dry-run mode for preview
-- Dry-run MUST be executed and reviewed before actual migration
-- Migration MUST preserve all data with validation queries
-- Rollback plan MUST be documented before migration
-- Schema changes MUST be backward-compatible during transition periods
+**Desktop Phase (Current):**
+- Schema changes handled via export → reset → import cycle
+- Export ALL data to JSON before schema change
+- Delete database, update models, recreate empty database
+- Programmatically transform JSON to match new schema if needed
+- Import transformed data to restored database
+- No migration scripts required or maintained
 
-**Rationale:** The database contains the user's planning data for important holiday events. Data loss or corruption is unacceptable. Gradual migration strategies (dual foreign keys, parallel models) provide safety nets during major refactors.
+**Web Phase (Future):**
+- Re-evaluate migration strategy when multi-user is implemented
+- Consider Alembic or similar migration tooling
+- Document migration requirements in web phase constitution amendment
+
+**Rationale:** For a single-user desktop application with robust import/export capability, the export/reset/import cycle is simpler, more reliable, and eliminates an entire category of migration-related bugs. Migration tooling becomes necessary only when multiple users have independent databases that must be upgraded in place.
 
 ### VII. Pragmatic Aspiration
 
@@ -308,4 +314,4 @@ When making architectural choices, ask:
 - Conflicts between constitution and existing code MUST be resolved in favor of constitution
 - Runtime guidance for AI agents found in `.kittify/AGENTS.md`
 
-**Version**: 1.1.0 | **Ratified**: 2025-11-08 | **Last Amended**: 2025-11-08
+**Version**: 1.2.0 | **Ratified**: 2025-11-08 | **Last Amended**: 2025-12-14

@@ -34,7 +34,7 @@
 
 ## In Progress
 
-**USER TESTING PHASE** - Pausing feature development for real-world testing of Features 016-018 (Event-Centric Production, Reporting, Dashboard). Feedback will drive bug fixes and refinements before continuing.
+**Feature 019: Unit Conversion Simplification** - Removing redundant `Ingredient.recipe_unit` and `UnitConversion` table. The 4-field density model (Feature 010) makes these vestigial.
 
 ---
 
@@ -42,13 +42,14 @@
 
 | # | Name | Priority | Dependencies | Status |
 |---|------|----------|--------------|--------|
-| 019 | Packaging & Distribution | LOW | User testing complete | Blocked |
+| 019 | Unit Conversion Simplification | HIGH | Constitution v1.2.0 | In Progress |
+| 020 | Packaging & Distribution | LOW | User testing complete | Blocked |
 
 ---
 
 ## Implementation Order
 
-**Current:** User Testing Phase
+**Current:** Feature 019 - Unit Conversion Simplification
 
 1. ~~**TD-001** - Clean foundation before adding new entities~~ ✅ COMPLETE
 2. ~~**Feature 011** - Packaging materials, extend Composition for packaging~~ ✅ COMPLETE
@@ -59,7 +60,8 @@
 7. ~~**BUGFIX** - Session Management Remediation~~ ✅ COMPLETE
 8. ~~**Feature 017** - Reporting and Event Planning~~ ✅ COMPLETE
 9. ~~**Feature 018** - Event Production Dashboard~~ ✅ COMPLETE
-10. **Feature 019** - Packaging & Distribution ← NEXT
+10. **Feature 019** - Unit Conversion Simplification ← CURRENT
+11. **Feature 020** - Packaging & Distribution
 
 ---
 
@@ -154,7 +156,34 @@
 
 ---
 
+### Feature 019: Unit Conversion Simplification
+
+**Status:** In Progress
+
+**Problem:** Redundant unit conversion mechanisms:
+- `Ingredient.recipe_unit` - vestigial field; recipes declare their own units in RecipeIngredient
+- `UnitConversion` table - values derivable from 4-field density on Ingredient
+
+**Solution:** Remove both. The 4-field density model (Feature 010) is the canonical source.
+
+**Scope:**
+- Delete `Ingredient.recipe_unit` column
+- Delete `UnitConversion` model and table
+- Update import/export spec v3.2 → v3.3
+- Update catalog import proposal
+- Convert test data files
+
+**Specification:** `docs/feature_019_unit_simplification.md`
+
+---
+
 ## Key Decisions
+
+### 2025-12-14
+- **Constitution v1.2.0:** Updated Principle VI from "Migration Safety" to "Schema Change Strategy (Desktop Phase)". For single-user desktop app, export/reset/import cycle replaces migration scripts.
+- **Feature 019 Defined:** Unit Conversion Simplification - remove redundant `recipe_unit` and `UnitConversion` table.
+- **Feature Renumbering:** Packaging & Distribution moved to Feature 020.
+- **Catalog Import Impact:** Feature proposal at `docs/feature_proposal_catalog_import.md` requires update to remove UnitConversion references.
 
 ### 2025-12-12
 - **Feature 018 Complete:** Event Production Dashboard merged. Mission control view, progress visualization, fulfillment tracking.
@@ -202,3 +231,4 @@ Part B: Ingredient.name → Ingredient.display_name ✅
 - 2025-12-10: Feature 013 bug fixes. Feature 014 complete. Feature 016 created for Event-Centric Production Model.
 - 2025-12-11: Feature 016 implementation complete and merged. Session management bug discovered during code review; remediation spec created. Feature 015 confirmed skipped. Features renumbered: 017 (Reporting), 018 (Dashboard), 019 (Packaging).
 - 2025-12-12: Feature 017 (Reporting & Event Planning) complete and merged. Feature 018 (Event Production Dashboard) complete and merged. Entered user testing phase.
+- 2025-12-14: Constitution v1.2.0 (schema change strategy). Feature 019 (Unit Conversion Simplification) defined. Packaging & Distribution moved to Feature 020.
