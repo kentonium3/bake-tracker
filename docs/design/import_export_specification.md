@@ -1,15 +1,10 @@
 # Import/Export Specification for Bake Tracker
 
 **Version:** 3.2
-**Date:** 2025-12-11
 **Status:** Current
 
-> **NOTE**: This specification documents the export format. The actual version in code is 3.2
-> (Feature 016 added event-production linkage). Files with unsupported versions will be rejected.
-
-> **TERMINOLOGY UPDATE (TD-001)**: The codebase uses "products" and "inventory_items" terminology.
-> The export format retains "variants" and "pantry_items" keys for backward compatibility with
-> existing data files. See section on entity key mapping below.
+> **NOTE**: This application only accepts v3.2 format files. Older format versions (3.0, 3.1)
+> are no longer supported. Export your data using the current version before importing.
 
 ## Changelog
 
@@ -61,14 +56,14 @@ The export format is a single JSON file with a required header and entity arrays
 
 ```json
 {
-  "version": "3.0",
+  "version": "3.2",
   "exported_at": "2025-12-04T10:30:00Z",
   "application": "bake-tracker",
   "unit_conversions": [...],
   "ingredients": [...],
-  "variants": [...],
+  "products": [...],
   "purchases": [...],
-  "pantry_items": [...],
+  "inventory_items": [...],
   "recipes": [...],
   "finished_units": [...],
   "finished_goods": [...],
@@ -78,7 +73,11 @@ The export format is a single JSON file with a required header and entity arrays
   "recipients": [...],
   "events": [...],
   "event_recipient_packages": [...],
-  "production_records": [...]
+  "event_production_targets": [...],
+  "event_assembly_targets": [...],
+  "production_records": [...],
+  "production_runs": [...],
+  "assembly_runs": [...]
 }
 ```
 
@@ -86,7 +85,7 @@ The export format is a single JSON file with a required header and entity arrays
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| `version` | string | **Yes** | Must be "3.0" |
+| `version` | string | **Yes** | Must be "3.2" |
 | `exported_at` | string | **Yes** | ISO 8601 timestamp with 'Z' suffix |
 | `application` | string | **Yes** | Must be "bake-tracker" |
 
@@ -288,6 +287,13 @@ All entity arrays are optional, but when present, they must follow the dependenc
       "unit": "cup",
       "notes": "sifted"
     }
+  ],
+  "components": [
+    {
+      "recipe_name": "Vanilla Extract Base",
+      "quantity": 1.0,
+      "notes": "Use homemade if available"
+    }
   ]
 }
 ```
@@ -306,6 +312,7 @@ All entity arrays are optional, but when present, they must follow the dependenc
 | `source` | string | No | Recipe source |
 | `notes` | string | No | User notes |
 | `ingredients` | array | **Yes** | Recipe ingredients (embedded) |
+| `components` | array | No | Sub-recipes used in this recipe (nested recipes) |
 
 **Recipe Ingredient Sub-Schema**:
 
@@ -315,6 +322,20 @@ All entity arrays are optional, but when present, they must follow the dependenc
 | `quantity` | decimal | **Yes** | Amount needed |
 | `unit` | string | **Yes** | Measurement unit |
 | `notes` | string | No | Prep notes (sifted, melted, etc.) |
+
+**Recipe Component Sub-Schema** (nested recipes):
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `recipe_name` | string | **Yes** | Name of the component recipe |
+| `quantity` | decimal | **Yes** | Batch multiplier (must be > 0) |
+| `notes` | string | No | Usage notes for this component |
+
+**Recipe Component Validation Rules**:
+- Component recipes must exist in the same import file or already exist in the database
+- Circular references are rejected (Recipe A cannot contain Recipe B if B contains A)
+- Maximum nesting depth: 3 levels
+- A recipe cannot be added as a component of itself
 
 ---
 

@@ -467,12 +467,12 @@ class TestImportFulfillmentStatus:
         """Import creates ERP with correct fulfillment_status."""
         session = test_db()
 
-        # Create import data
+        # Create import data (v3.2 format uses slugs)
         data = [
             {
-                "event_name": "Christmas 2024",
+                "event_slug": "christmas_2024",
                 "recipient_name": "Aunt Mary",
-                "package_name": "Holiday Gift Box",
+                "package_slug": "holiday_gift_box",
                 "quantity": 1,
                 "status": "pending",
                 "fulfillment_status": "ready",

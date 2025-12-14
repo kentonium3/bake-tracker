@@ -79,7 +79,7 @@ class RecipeIngredientRow(ctk.CTkFrame):
         self.unit_combo.grid(row=0, column=1, padx=PADDING_MEDIUM, pady=5, sticky="ew")
 
         # Ingredient dropdown (no unit suffix)
-        ingredient_names = [i.name for i in ingredients]
+        ingredient_names = [i.display_name for i in ingredients]
         self.ingredient_combo = ctk.CTkComboBox(
             self,
             values=ingredient_names if ingredient_names else ["No ingredients available"],
@@ -159,7 +159,7 @@ class RecipeIngredientRow(ctk.CTkFrame):
 
                     show_error(
                         "Density Required",
-                        f"'{ingredient.name}' requires density data for {recipe_unit_type}↔{purchase_unit_type} conversion.\n\n"
+                        f"'{ingredient.display_name}' requires density data for {recipe_unit_type}↔{purchase_unit_type} conversion.\n\n"
                         f"Please edit the ingredient and add density (g/cup) before using it with {unit} in recipes.",
                         parent=self.winfo_toplevel(),
                     )

@@ -1,7 +1,7 @@
 # Feature Roadmap
 
 **Created:** 2025-12-03
-**Last Updated:** 2025-12-11
+**Last Updated:** 2025-12-12
 **Workflow:** Spec-Kitty driven development
 
 ---
@@ -27,12 +27,14 @@
 | 014 | Production UI | MERGED | Record Production/Assembly dialogs, availability checking, FinishedUnits/FinishedGoods tabs with production actions. |
 | 015 | *(skipped)* | - | Spec-kitty assigned 016 due to aborted prior 015 attempt |
 | 016 | Event-Centric Production Model | MERGED | Event-production linkage, targets, progress tracking, fulfillment workflow. 65+ service tests. |
+| 017 | Reporting & Event Planning | MERGED | CSV exports, event reports, cost analysis, recipient history, dashboard enhancements. |
+| 018 | Event Production Dashboard | MERGED | Mission control view, progress visualization, fulfillment tracking, quick actions. |
 
 ---
 
 ## In Progress
 
-*No features currently in progress.*
+**USER TESTING PHASE** - Pausing feature development for real-world testing of Features 016-018 (Event-Centric Production, Reporting, Dashboard). Feedback will drive bug fixes and refinements before continuing.
 
 ---
 
@@ -40,15 +42,13 @@
 
 | # | Name | Priority | Dependencies | Status |
 |---|------|----------|--------------|--------|
-| 017 | Reporting & Event Planning | MEDIUM | - | Ready |
-| 018 | Event Production Dashboard | MEDIUM | 017 | - |
-| 019 | Packaging & Distribution | LOW | - | - |
+| 019 | Packaging & Distribution | LOW | User testing complete | Blocked |
 
 ---
 
 ## Implementation Order
 
-**Current:** Ready for new features
+**Current:** User Testing Phase
 
 1. ~~**TD-001** - Clean foundation before adding new entities~~ ✅ COMPLETE
 2. ~~**Feature 011** - Packaging materials, extend Composition for packaging~~ ✅ COMPLETE
@@ -57,13 +57,30 @@
 5. ~~**Feature 014** - Production UI, Record Production/Assembly dialogs~~ ✅ COMPLETE
 6. ~~**Feature 016** - Event-Centric Production Model~~ ✅ COMPLETE
 7. ~~**BUGFIX** - Session Management Remediation~~ ✅ COMPLETE
-8. **Feature 017** - Reporting and Event Planning
-9. **Feature 018** - Event Production Dashboard
-10. **Feature 019** - Packaging & Distribution
+8. ~~**Feature 017** - Reporting and Event Planning~~ ✅ COMPLETE
+9. ~~**Feature 018** - Event Production Dashboard~~ ✅ COMPLETE
+10. **Feature 019** - Packaging & Distribution ← NEXT
 
 ---
 
 ## Feature Descriptions
+
+### Feature 017: Reporting & Event Planning
+
+**Status:** COMPLETE ✅ (Merged 2025-12-12)
+
+**Rationale:** With event-production linkage complete (Feature 016), accurate event reporting is now possible.
+
+**Delivered:**
+- Shopping list CSV export
+- Event summary reports (planned vs actual)
+- Cost analysis views
+- Recipient history reports
+- Dashboard enhancements
+
+**Spec-Kitty Artifacts:** `kitty-specs/017-reporting-event-planning/`
+
+---
 
 ### Feature 016: Event-Centric Production Model
 
@@ -105,28 +122,20 @@
 
 ---
 
-### Feature 017: Reporting & Event Planning
-
-**Rationale:** With event-production linkage complete (Feature 016), accurate event reporting is now possible.
-
-**Planned Scope:**
-- Shopping list CSV export
-- Event summary reports (planned vs actual)
-- Cost analysis views
-- Recipient history reports
-- Dashboard enhancements
-
----
-
 ### Feature 018: Event Production Dashboard
 
-**Rationale:** Builds on Feature 016's event progress tracking.
+**Status:** COMPLETE ✅ (Merged 2025-12-12)
 
-**Planned Scope:**
-- "Where do I stand for Christmas 2025?" view
+**Rationale:** Builds on Feature 016's event progress tracking to provide a comprehensive "mission control" view.
+
+**Delivered:**
+- "Where do I stand for Christmas 2025?" consolidated view
 - Progress bars per recipe/finished good
-- Fulfillment status tracking
-- Multi-event overview
+- Fulfillment status tracking with visual indicators
+- Multi-event overview (compare progress across events)
+- Quick actions (jump to record production, view shopping list)
+
+**Spec-Kitty Artifacts:** `kitty-specs/018-event-production-dashboard/`
 
 ---
 
@@ -146,6 +155,10 @@
 ---
 
 ## Key Decisions
+
+### 2025-12-12
+- **Feature 018 Complete:** Event Production Dashboard merged. Mission control view, progress visualization, fulfillment tracking.
+- **Feature 017 Complete:** Reporting & Event Planning merged. CSV exports, event reports, cost analysis, recipient history, dashboard enhancements.
 
 ### 2025-12-11
 - **Feature 016 Complete:** Event-Centric Production Model merged. 10 work packages, 65+ service tests.
@@ -188,3 +201,4 @@ Part B: Ingredient.name → Ingredient.display_name ✅
 - 2025-12-09: Features 011, 012, 013 complete. Full service layer for production tracking.
 - 2025-12-10: Feature 013 bug fixes. Feature 014 complete. Feature 016 created for Event-Centric Production Model.
 - 2025-12-11: Feature 016 implementation complete and merged. Session management bug discovered during code review; remediation spec created. Feature 015 confirmed skipped. Features renumbered: 017 (Reporting), 018 (Dashboard), 019 (Packaging).
+- 2025-12-12: Feature 017 (Reporting & Event Planning) complete and merged. Feature 018 (Event Production Dashboard) complete and merged. Entered user testing phase.

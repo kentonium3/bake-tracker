@@ -218,7 +218,7 @@ class FinishedGoodsTab(ctk.CTkFrame):
         self.details_button.configure(state="normal" if has_selection else "disabled")
 
         if finished_good:
-            self._update_status(f"Selected: {finished_good.name}")
+            self._update_status(f"Selected: {finished_good.display_name}")
         else:
             self._update_status("Ready")
 
@@ -311,7 +311,7 @@ class FinishedGoodsTab(ctk.CTkFrame):
         # Confirm deletion
         confirmed = show_confirmation(
             "Confirm Deletion",
-            f"Are you sure you want to delete '{self.selected_finished_good.name}'?\n\n"
+            f"Are you sure you want to delete '{self.selected_finished_good.display_name}'?\n\n"
             "This will remove the finished good.\n"
             "This action cannot be undone.",
             parent=self,
@@ -322,7 +322,7 @@ class FinishedGoodsTab(ctk.CTkFrame):
                 finished_good_service.delete_finished_good(self.selected_finished_good.id)
                 show_success(
                     "Success",
-                    f"Finished good '{self.selected_finished_good.name}' deleted successfully",
+                    f"Finished good '{self.selected_finished_good.display_name}' deleted successfully",
                     parent=self,
                 )
                 self.selected_finished_good = None

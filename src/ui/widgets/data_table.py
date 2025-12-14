@@ -518,7 +518,7 @@ class BundleDataTable(DataTable):
 
         return [
             row_data.display_name,
-            row_data.finished_good.name if row_data.finished_good else "N/A",
+            row_data.finished_good.display_name if row_data.finished_good else "N/A",
             quantity_display,
             f"${cost:.2f}",
         ]

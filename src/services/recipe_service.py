@@ -106,6 +106,12 @@ def create_recipe(recipe_data: Dict, ingredients_data: List[Dict] = None) -> Rec
             _ = recipe.recipe_ingredients
             for ri in recipe.recipe_ingredients:
                 _ = ri.ingredient
+                # Load products for cost calculation (get_preferred_product())
+                if ri.ingredient:
+                    _ = ri.ingredient.products
+                    # Also load purchases for cost calculation (get_current_cost_per_unit())
+                    for product in ri.ingredient.products:
+                        _ = product.purchases
 
             return recipe
 
@@ -141,6 +147,12 @@ def get_recipe(recipe_id: int, include_costs: bool = False) -> Recipe:
             _ = recipe.recipe_ingredients
             for ri in recipe.recipe_ingredients:
                 _ = ri.ingredient
+                # Load products for cost calculation (get_preferred_product())
+                if ri.ingredient:
+                    _ = ri.ingredient.products
+                    # Also load purchases for cost calculation (get_current_cost_per_unit())
+                    for product in ri.ingredient.products:
+                        _ = product.purchases
 
             return recipe
 
@@ -195,6 +207,12 @@ def get_all_recipes(
                 _ = recipe.recipe_ingredients
                 for ri in recipe.recipe_ingredients:
                     _ = ri.ingredient
+                    # Load products for cost calculation (get_preferred_product())
+                    if ri.ingredient:
+                        _ = ri.ingredient.products
+                        # Also load purchases for cost calculation (get_current_cost_per_unit())
+                        for product in ri.ingredient.products:
+                            _ = product.purchases
 
                 # Also load recipe_components and their component_recipe
                 _ = recipe.recipe_components
@@ -229,6 +247,12 @@ def get_recipe_by_name(name: str) -> Optional[Recipe]:
                 _ = recipe.recipe_ingredients
                 for ri in recipe.recipe_ingredients:
                     _ = ri.ingredient
+                    # Load products for cost calculation (get_preferred_product())
+                    if ri.ingredient:
+                        _ = ri.ingredient.products
+                        # Also load purchases for cost calculation (get_current_cost_per_unit())
+                        for product in ri.ingredient.products:
+                            _ = product.purchases
 
                 _ = recipe.recipe_components
                 for comp in recipe.recipe_components:
@@ -310,6 +334,12 @@ def update_recipe(  # noqa: C901
             _ = recipe.recipe_ingredients
             for ri in recipe.recipe_ingredients:
                 _ = ri.ingredient
+                # Load products for cost calculation (get_preferred_product())
+                if ri.ingredient:
+                    _ = ri.ingredient.products
+                    # Also load purchases for cost calculation (get_current_cost_per_unit())
+                    for product in ri.ingredient.products:
+                        _ = product.purchases
 
             return recipe
 

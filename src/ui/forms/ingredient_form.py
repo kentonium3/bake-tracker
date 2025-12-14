@@ -374,7 +374,7 @@ class IngredientFormDialog(ctk.CTkToplevel):
         if not self.ingredient:
             return
 
-        self.name_entry.insert(0, self.ingredient.name)
+        self.name_entry.insert(0, self.ingredient.display_name)
         if self.ingredient.brand:
             self.brand_entry.insert(0, self.ingredient.brand)
         self.category_combo.set(self.ingredient.category)

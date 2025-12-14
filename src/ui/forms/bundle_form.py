@@ -116,7 +116,7 @@ class BundleFormDialog(ctk.CTkToplevel):
         fg_label = ctk.CTkLabel(parent, text="Finished Good*:", anchor="w")
         fg_label.grid(row=row, column=0, sticky="w", padx=PADDING_MEDIUM, pady=5)
 
-        fg_names = [fg.name for fg in self.available_finished_goods]
+        fg_names = [fg.display_name for fg in self.available_finished_goods]
         self.finished_good_combo = ctk.CTkComboBox(
             parent,
             width=400,
@@ -207,7 +207,7 @@ class BundleFormDialog(ctk.CTkToplevel):
         # Select finished good
         for idx, fg in enumerate(self.available_finished_goods):
             if fg.id == self.bundle.finished_good_id:
-                self.finished_good_combo.set(fg.name)
+                self.finished_good_combo.set(fg.display_name)
                 break
 
         self.quantity_entry.insert(0, str(self.bundle.quantity))

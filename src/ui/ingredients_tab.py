@@ -426,7 +426,7 @@ class IngredientsTab(ctk.CTkFrame):
                 ingredient_obj.to_dict()
                 if hasattr(ingredient_obj, "to_dict")
                 else {
-                    "name": ingredient_obj.name,
+                    "name": ingredient_obj.display_name,
                     "category": ingredient_obj.category,
                     "density_volume_value": ingredient_obj.density_volume_value,
                     "density_volume_unit": ingredient_obj.density_volume_unit,
@@ -479,7 +479,7 @@ class IngredientsTab(ctk.CTkFrame):
         try:
             # Get ingredient name for confirmation
             ingredient = ingredient_service.get_ingredient(self.selected_ingredient_slug)
-            name = ingredient.name  # Fixed: access attribute not dict key
+            name = ingredient.display_name  # Fixed: Ingredient uses display_name not name
 
             # Confirm deletion
             result = messagebox.askyesno(

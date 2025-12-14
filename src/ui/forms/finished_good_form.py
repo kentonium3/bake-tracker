@@ -376,7 +376,7 @@ class FinishedUnitFormDialog(ctk.CTkToplevel):
         if not self.finished_good:
             return
 
-        self.name_entry.insert(0, self.finished_good.name)
+        self.name_entry.insert(0, self.finished_good.display_name)
 
         # Select recipe
         for idx, recipe in enumerate(self.available_recipes):

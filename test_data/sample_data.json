@@ -1,5 +1,5 @@
 {
-  "version": "3.0",
+  "version": "3.2",
   "exported_at": "2025-12-04T00:00:00Z",
   "application": "bake-tracker",
   "unit_conversions": [
@@ -7,55 +7,55 @@
       "ingredient_slug": "all_purpose_flour",
       "from_unit": "lb",
       "to_unit": "cup",
-      "factor": 3.6
+      "from_quantity": 3.6
     },
     {
       "ingredient_slug": "white_granulated_sugar",
       "from_unit": "lb",
       "to_unit": "cup",
-      "factor": 2.25
+      "from_quantity": 2.25
     },
     {
       "ingredient_slug": "semi_sweet_chocolate_chips",
       "from_unit": "oz",
       "to_unit": "cup",
-      "factor": 0.167
+      "from_quantity": 0.167
     },
     {
       "ingredient_slug": "unsalted_butter",
       "from_unit": "lb",
       "to_unit": "cup",
-      "factor": 2.0
+      "from_quantity": 2.0
     },
     {
       "ingredient_slug": "brown_sugar",
       "from_unit": "lb",
       "to_unit": "cup",
-      "factor": 2.25
+      "from_quantity": 2.25
     },
     {
       "ingredient_slug": "powdered_sugar",
       "from_unit": "lb",
       "to_unit": "cup",
-      "factor": 3.75
+      "from_quantity": 3.75
     },
     {
       "ingredient_slug": "cocoa_powder",
       "from_unit": "oz",
       "to_unit": "cup",
-      "factor": 0.25
+      "from_quantity": 0.25
     },
     {
       "ingredient_slug": "pecans",
       "from_unit": "lb",
       "to_unit": "cup",
-      "factor": 4.0
+      "from_quantity": 4.0
     },
     {
       "ingredient_slug": "walnuts",
       "from_unit": "lb",
       "to_unit": "cup",
-      "factor": 4.0
+      "from_quantity": 4.0
     }
   ],
   "ingredients": [
@@ -341,7 +341,7 @@
       "store": "Costco"
     }
   ],
-  "pantry_items": [
+  "inventory_items": [
     {
       "ingredient_slug": "all_purpose_flour",
       "variant_brand": "King Arthur",
@@ -690,6 +690,60 @@
           "unit": "tsp"
         }
       ]
+    },
+    {
+      "name": "Vanilla Buttercream Frosting",
+      "slug": "vanilla_buttercream_frosting",
+      "category": "Frostings",
+      "source": "SG-Binder",
+      "yield_quantity": 2.0,
+      "yield_unit": "cups",
+      "prep_time_minutes": 10,
+      "cook_time_minutes": 0,
+      "notes": "Base frosting recipe for various baked goods",
+      "ingredients": [
+        {
+          "ingredient_slug": "unsalted_butter",
+          "quantity": 0.5,
+          "unit": "cup",
+          "notes": "Softened to room temperature"
+        },
+        {
+          "ingredient_slug": "powdered_sugar",
+          "quantity": 2.0,
+          "unit": "cup",
+          "notes": "Sifted"
+        },
+        {
+          "ingredient_slug": "vanilla_extract",
+          "quantity": 1.0,
+          "unit": "tsp"
+        }
+      ]
+    },
+    {
+      "name": "Frosted Brownies",
+      "slug": "frosted_brownies",
+      "category": "Brownies",
+      "source": "SG-Binder",
+      "yield_quantity": 16.0,
+      "yield_unit": "brownies",
+      "prep_time_minutes": 25,
+      "cook_time_minutes": 35,
+      "notes": "Fudgy brownies with vanilla buttercream - demonstrates nested recipes",
+      "ingredients": [],
+      "components": [
+        {
+          "recipe_name": "Fudgy Brownies",
+          "quantity": 1.0,
+          "notes": "Base brownie layer"
+        },
+        {
+          "recipe_name": "Vanilla Buttercream Frosting",
+          "quantity": 0.5,
+          "notes": "Half batch for topping"
+        }
+      ]
     }
   ],
   "finished_units": [
@@ -700,7 +754,8 @@
       "items_per_batch": 48,
       "item_unit": "cookie",
       "category": "Cookies",
-      "notes": "Recipe makes 48 cookies, package as dozens"
+      "notes": "Recipe makes 48 cookies, package as dozens",
+      "slug": "chocolate_chip_cookie"
     },
     {
       "recipe_slug": "fudgy_brownies",
@@ -709,7 +764,8 @@
       "items_per_batch": 16,
       "item_unit": "brownie",
       "category": "Brownies",
-      "notes": "2-inch squares from 9x9 pan"
+      "notes": "2-inch squares from 9x9 pan",
+      "slug": "brownie_square"
     },
     {
       "recipe_slug": "pecan_sandies",
@@ -718,7 +774,8 @@
       "items_per_batch": 36,
       "item_unit": "cookie",
       "category": "Cookies",
-      "notes": "Buttery shortbread cookies"
+      "notes": "Buttery shortbread cookies",
+      "slug": "pecan_sandy"
     },
     {
       "recipe_slug": "chocolate_walnut_fudge",
@@ -727,7 +784,8 @@
       "items_per_batch": 64,
       "item_unit": "piece",
       "category": "Candies",
-      "notes": "1-inch squares"
+      "notes": "1-inch squares",
+      "slug": "fudge_piece"
     },
     {
       "recipe_slug": "snickerdoodles",
@@ -736,7 +794,8 @@
       "items_per_batch": 36,
       "item_unit": "cookie",
       "category": "Cookies",
-      "notes": "Classic cinnamon sugar cookies"
+      "notes": "Classic cinnamon sugar cookies",
+      "slug": "snickerdoodle"
     }
   ],
   "finished_goods": [
@@ -913,7 +972,8 @@
       "package_slug": "holiday_cookie_box",
       "quantity": 1,
       "status": "pending",
-      "notes": "Deliver by Dec 20"
+      "notes": "Deliver by Dec 20",
+      "fulfillment_status": "pending"
     },
     {
       "event_slug": "holiday_baking_2024",
@@ -921,7 +981,8 @@
       "package_slug": "deluxe_dessert_package",
       "quantity": 1,
       "status": "pending",
-      "notes": "Prefers variety, less sweet items"
+      "notes": "Prefers variety, less sweet items",
+      "fulfillment_status": "pending"
     },
     {
       "event_slug": "holiday_baking_2024",
@@ -929,7 +990,8 @@
       "package_slug": "holiday_cookie_box",
       "quantity": 1,
       "status": "pending",
-      "notes": "No nuts - cookie box is safe"
+      "notes": "No nuts - cookie box is safe",
+      "fulfillment_status": "pending"
     },
     {
       "event_slug": "holiday_baking_2024",
@@ -937,7 +999,8 @@
       "package_slug": "cookie_lovers_box",
       "quantity": 1,
       "status": "pending",
-      "notes": "Loves variety"
+      "notes": "Loves variety",
+      "fulfillment_status": "pending"
     },
     {
       "event_slug": "new_year_2025",
@@ -945,9 +1008,12 @@
       "package_slug": "holiday_cookie_box",
       "quantity": 1,
       "status": "pending",
-      "notes": "For the party"
+      "notes": "For the party",
+      "fulfillment_status": "pending"
     }
   ],
+  "event_production_targets": [],
+  "event_assembly_targets": [],
   "production_records": [
     {
       "event_slug": "holiday_baking_2024",
@@ -973,5 +1039,7 @@
       "actual_cost": 6.5,
       "notes": "Morning batch"
     }
-  ]
+  ],
+  "production_runs": [],
+  "assembly_runs": []
 }

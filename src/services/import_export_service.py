@@ -443,7 +443,7 @@ def export_bundles_to_json(file_path: str, include_all: bool = True) -> ExportRe
         for bundle in bundles:
             bundle_data = {
                 "name": bundle.name,
-                "finished_good_name": bundle.finished_good.name,
+                "finished_good_name": bundle.finished_good.display_name,
                 "quantity": bundle.quantity,
             }
 
@@ -1376,992 +1376,17 @@ def export_all_to_json(file_path: str) -> ExportResult:
 
 
 # ============================================================================
-# Import Functions
+# v3.2 Import Functions
 # ============================================================================
-
-
-def import_ingredients_from_json(file_path: str, skip_duplicates: bool = True) -> ImportResult:
-    """
-    Import ingredients from JSON file.
-
-    Args:
-        file_path: Path to JSON file
-        skip_duplicates: If True, skip ingredients that already exist (default)
-
-    Returns:
-        ImportResult with import statistics
-    """
-    result = ImportResult()
-
-    try:
-        # Read file
-        with open(file_path, "r", encoding="utf-8") as f:
-            data = json.load(f)
-
-        # Validate structure
-        if "ingredients" not in data:
-            result.add_error("file", file_path, "Missing 'ingredients' key in JSON")
-            return result
-
-        ingredients_data = data["ingredients"]
-
-        # Import each ingredient (NEW SCHEMA: generic ingredient definitions)
-        for idx, ingredient_data in enumerate(ingredients_data):
-            try:
-                # TD-001: Support both 'display_name' (new) and 'name' (legacy) field names
-                display_name = ingredient_data.get("display_name", "") or ingredient_data.get("name", "")
-                slug = ingredient_data.get("slug", "")
-                category = ingredient_data.get("category", "")
-                recipe_unit = ingredient_data.get("recipe_unit", "")
-
-                if not display_name:
-                    result.add_error("ingredient", f"Record {idx+1}", "Missing display_name")
-                    continue
-
-                if not category:
-                    result.add_error("ingredient", display_name, "Missing category")
-                    continue
-
-                if not recipe_unit:
-                    result.add_error("ingredient", display_name, "Missing recipe_unit")
-                    continue
-
-                # Normalize field name for the model
-                if "name" in ingredient_data and "display_name" not in ingredient_data:
-                    ingredient_data["display_name"] = ingredient_data.pop("name")
-
-                # Check for duplicate by display_name or slug
-                if skip_duplicates:
-                    existing = ingredient_crud_service.get_all_ingredients(name_search=display_name)
-                    for existing_ing in existing:
-                        if existing_ing.display_name == display_name:
-                            result.add_skip("ingredient", display_name, "Already exists")
-                            break
-                    else:
-                        # Not duplicate, create it
-                        ingredient_crud_service.create_ingredient(ingredient_data)
-                        result.add_success()
-                else:
-                    # Create ingredient
-                    ingredient_crud_service.create_ingredient(ingredient_data)
-                    result.add_success()
-
-            except ValidationError as e:
-                result.add_error("ingredient", display_name, f"Validation error: {e}")
-            except Exception as e:
-                result.add_error("ingredient", display_name, str(e))
-
-        return result
-
-    except json.JSONDecodeError as e:
-        result.add_error("file", file_path, f"Invalid JSON: {e}")
-        return result
-    except Exception as e:
-        result.add_error("file", file_path, f"Failed to read file: {e}")
-        return result
-
-
-def import_products_from_json(file_path: str, skip_duplicates: bool = True) -> ImportResult:
-    """
-    Import products from JSON file.
-
-    Args:
-        file_path: Path to JSON file
-        skip_duplicates: If True, skip products that already exist (default)
-
-    Returns:
-        ImportResult with import statistics
-    """
-    result = ImportResult()
-
-    try:
-        # Read file
-        with open(file_path, "r", encoding="utf-8") as f:
-            data = json.load(f)
-
-        # Validate structure
-        if "products" not in data:
-            # No products in file is OK, not an error
-            return result
-
-        products_data = data["products"]
-
-        # Import each product
-        for idx, product_data in enumerate(products_data):
-            try:
-                ingredient_slug = product_data.get("ingredient_slug", "")
-                brand = product_data.get("brand", "")
-                purchase_unit = product_data.get("purchase_unit", "")
-                purchase_quantity = product_data.get("purchase_quantity", 0)
-
-                if not ingredient_slug:
-                    result.add_error("product", f"Record {idx+1}", "Missing ingredient_slug")
-                    continue
-
-                if not purchase_unit:
-                    result.add_error("product", f"Record {idx+1}", "Missing purchase_unit")
-                    continue
-
-                if not purchase_quantity:
-                    result.add_error("product", f"Record {idx+1}", "Missing purchase_quantity")
-                    continue
-
-                # Find the ingredient by slug
-                all_ingredients = ingredient_crud_service.get_all_ingredients()
-                ingredient = None
-                for ing in all_ingredients:
-                    if ing.slug == ingredient_slug:
-                        ingredient = ing
-                        break
-
-                if not ingredient:
-                    result.add_error(
-                        "product", f"Record {idx+1}", f"Ingredient not found: {ingredient_slug}"
-                    )
-                    continue
-
-                # Create product with ingredient_id
-                with session_scope() as session:
-                    # Re-fetch ingredient in this session
-                    ingredient_in_session = (
-                        session.query(Ingredient).filter(Ingredient.id == ingredient.id).first()
-                    )
-
-                    # Check for duplicate within the session
-                    if skip_duplicates:
-                        package_size = product_data.get("package_size", "")
-                        duplicate_found = False
-                        for existing_product in ingredient_in_session.products:
-                            if (
-                                existing_product.brand == brand
-                                and existing_product.package_size == package_size
-                                and existing_product.purchase_unit == purchase_unit
-                            ):
-                                result.add_skip(
-                                    "product",
-                                    f"{ingredient_in_session.display_name} - {brand or 'generic'}",
-                                    "Already exists",
-                                )
-                                duplicate_found = True
-                                break
-
-                        if duplicate_found:
-                            continue
-
-                    new_product = Product(
-                        ingredient_id=ingredient.id,
-                        purchase_unit=purchase_unit,
-                        purchase_quantity=purchase_quantity,
-                        brand=product_data.get("brand"),
-                        package_size=product_data.get("package_size"),
-                        package_type=product_data.get("package_type"),
-                        upc_code=product_data.get("upc_code"),
-                        supplier=product_data.get("supplier"),
-                        supplier_sku=product_data.get("supplier_sku"),
-                        gtin=product_data.get("gtin"),
-                        brand_owner=product_data.get("brand_owner"),
-                        gpc_brick_code=product_data.get("gpc_brick_code"),
-                        net_content_value=product_data.get("net_content_value"),
-                        net_content_uom=product_data.get("net_content_uom"),
-                        country_of_sale=product_data.get("country_of_sale"),
-                        off_id=product_data.get("off_id"),
-                        preferred=product_data.get("preferred", False),
-                        notes=product_data.get("notes"),
-                    )
-                    session.add(new_product)
-                    session.commit()
-
-                result.add_success()
-
-            except ValidationError as e:
-                result.add_error("product", f"Record {idx+1}", f"Validation error: {e}")
-            except Exception as e:
-                result.add_error("product", f"Record {idx+1}", str(e))
-
-        return result
-
-    except json.JSONDecodeError as e:
-        result.add_error("file", file_path, f"Invalid JSON: {e}")
-        return result
-    except Exception as e:
-        result.add_error("file", file_path, f"Failed to read file: {e}")
-        return result
-
-
-def import_recipes_from_json(
-    file_path: str, skip_duplicates: bool = True, skip_missing_ingredients: bool = True
-) -> ImportResult:
-    """
-    Import recipes from JSON file.
-
-    Args:
-        file_path: Path to JSON file
-        skip_duplicates: If True, skip recipes that already exist (default)
-        skip_missing_ingredients: If True, skip recipes with missing ingredients (default)
-
-    Returns:
-        ImportResult with import statistics
-    """
-    result = ImportResult()
-
-    try:
-        # Read file
-        with open(file_path, "r", encoding="utf-8") as f:
-            data = json.load(f)
-
-        # Validate structure
-        if "recipes" not in data:
-            result.add_error("file", file_path, "Missing 'recipes' key in JSON")
-            return result
-
-        recipes_data = data["recipes"]
-
-        # Track imported recipes for component linking (second pass)
-        imported_recipes = {}  # name -> Recipe
-
-        # First pass: Import recipes (without components)
-        for idx, recipe_data in enumerate(recipes_data):
-            try:
-                name = recipe_data.get("name", "")
-
-                if not name:
-                    result.add_error("recipe", f"Record {idx+1}", "Missing name")
-                    continue
-
-                # Check for duplicate
-                if skip_duplicates:
-                    existing = recipe_service.get_all_recipes(name_search=name)
-                    duplicate_found = False
-                    for existing_recipe in existing:
-                        if existing_recipe.name == name:
-                            result.add_skip("recipe", name, "Already exists")
-                            duplicate_found = True
-                            break
-                    if duplicate_found:
-                        continue
-
-                # Validate ingredients exist
-                recipe_ingredients = recipe_data.get("ingredients", [])
-                if not recipe_ingredients:
-                    result.add_error("recipe", name, "No ingredients specified")
-                    continue
-
-                # Check each ingredient exists
-                missing_ingredients = []
-                validated_ingredients = []
-
-                for ri_data in recipe_ingredients:
-                    # NEW SCHEMA: Use ingredient_slug
-                    ing_slug = ri_data.get("ingredient_slug", "")
-
-                    # Fallback to old schema for backwards compatibility
-                    if not ing_slug:
-                        ing_name = ri_data.get("ingredient_name", "")
-                        ing_slug = ing_name.lower().replace(" ", "_") if ing_name else ""
-
-                    # Find ingredient by slug
-                    all_ingredients = ingredient_crud_service.get_all_ingredients()
-                    found = None
-
-                    for ingredient in all_ingredients:
-                        if ingredient.slug == ing_slug:
-                            found = ingredient
-                            break
-
-                    if not found:
-                        missing_ingredients.append(ing_slug)
-                    else:
-                        # Build validated ingredient data
-                        validated_ingredients.append(
-                            {
-                                "ingredient_id": found.id,
-                                "quantity": ri_data.get("quantity"),
-                                "unit": ri_data.get("unit"),
-                                "notes": ri_data.get("notes"),
-                            }
-                        )
-
-                if missing_ingredients:
-                    if skip_missing_ingredients:
-                        result.add_skip(
-                            "recipe", name, f"Missing ingredients: {', '.join(missing_ingredients)}"
-                        )
-                        continue
-                    else:
-                        result.add_error(
-                            "recipe", name, f"Missing ingredients: {', '.join(missing_ingredients)}"
-                        )
-                        continue
-
-                # Create recipe
-                recipe_base_data = {
-                    "name": recipe_data["name"],
-                    "category": recipe_data["category"],
-                    "yield_quantity": recipe_data["yield_quantity"],
-                    "yield_unit": recipe_data["yield_unit"],
-                }
-
-                # Optional fields
-                if "source" in recipe_data:
-                    recipe_base_data["source"] = recipe_data["source"]
-                if "yield_description" in recipe_data:
-                    recipe_base_data["yield_description"] = recipe_data["yield_description"]
-                if "estimated_time_minutes" in recipe_data:
-                    recipe_base_data["estimated_time_minutes"] = recipe_data[
-                        "estimated_time_minutes"
-                    ]
-                if "notes" in recipe_data:
-                    recipe_base_data["notes"] = recipe_data["notes"]
-
-                created_recipe = recipe_service.create_recipe(recipe_base_data, validated_ingredients)
-                result.add_success()
-
-                # Track imported recipe for component linking
-                if created_recipe:
-                    imported_recipes[name] = created_recipe
-
-            except ValidationError as e:
-                result.add_error("recipe", name, f"Validation error: {e}")
-            except Exception as e:
-                result.add_error("recipe", name, str(e))
-
-        # Second pass: Link recipe components
-        for recipe_data in recipes_data:
-            recipe_name = recipe_data.get("name")
-            components_data = recipe_data.get("components", [])
-
-            if not components_data:
-                continue
-
-            # Find the parent recipe (from imported or existing)
-            parent_recipe = imported_recipes.get(recipe_name)
-            if not parent_recipe:
-                # Try to find existing recipe by name
-                try:
-                    with session_scope() as session:
-                        parent_recipe = session.query(Recipe).filter_by(name=recipe_name).first()
-                        if parent_recipe:
-                            # Detach from session for later use
-                            session.expunge(parent_recipe)
-                except Exception:
-                    pass
-
-            if not parent_recipe:
-                continue
-
-            # Link each component
-            for comp_data in components_data:
-                component_name = comp_data.get("recipe_name")
-                quantity = comp_data.get("quantity", 1.0)
-                notes = comp_data.get("notes")
-
-                if not component_name:
-                    continue
-
-                # Find component recipe (from imported or existing)
-                component_recipe = imported_recipes.get(component_name)
-                if not component_recipe:
-                    try:
-                        with session_scope() as session:
-                            component_recipe = session.query(Recipe).filter_by(name=component_name).first()
-                            if component_recipe:
-                                session.expunge(component_recipe)
-                    except Exception:
-                        pass
-
-                if not component_recipe:
-                    result.add_warning(
-                        "recipe_component",
-                        f"{recipe_name} -> {component_name}",
-                        f"Component recipe '{component_name}' not found, skipping"
-                    )
-                    continue
-
-                # Add component relationship
-                try:
-                    recipe_service.add_recipe_component(
-                        parent_recipe.id,
-                        component_recipe.id,
-                        quantity=quantity,
-                        notes=notes
-                    )
-                except ValidationError as e:
-                    # Handle duplicates or validation issues gracefully
-                    result.add_warning(
-                        "recipe_component",
-                        f"{recipe_name} -> {component_name}",
-                        str(e)
-                    )
-                except Exception as e:
-                    result.add_warning(
-                        "recipe_component",
-                        f"{recipe_name} -> {component_name}",
-                        f"Failed to link: {str(e)}"
-                    )
-
-        return result
-
-    except json.JSONDecodeError as e:
-        result.add_error("file", file_path, f"Invalid JSON: {e}")
-        return result
-    except Exception as e:
-        result.add_error("file", file_path, f"Failed to read file: {e}")
-        return result
-
-
-def import_finished_goods_from_json(
-    file_path: str, skip_duplicates: bool = True, skip_missing_recipes: bool = True
-) -> ImportResult:
-    """
-    Import finished goods from JSON file.
-
-    Args:
-        file_path: Path to JSON file
-        skip_duplicates: If True, skip finished goods that already exist (default)
-        skip_missing_recipes: If True, skip finished goods with missing recipes (default)
-
-    Returns:
-        ImportResult with import statistics
-    """
-    result = ImportResult()
-
-    try:
-        # Read file
-        with open(file_path, "r", encoding="utf-8") as f:
-            data = json.load(f)
-
-        # Validate structure
-        if "finished_goods" not in data:
-            result.add_error("file", file_path, "Missing 'finished_goods' key in JSON")
-            return result
-
-        finished_goods_data = data["finished_goods"]
-
-        # Import each finished good
-        for idx, fg_data in enumerate(finished_goods_data):
-            try:
-                name = fg_data.get("name", "")
-
-                if not name:
-                    result.add_error("finished_good", f"Record {idx+1}", "Missing name")
-                    continue
-
-                # Check for duplicate
-                if skip_duplicates:
-                    existing = finished_good_service.get_all_finished_goods(name_search=name)
-                    duplicate_found = False
-                    for existing_fg in existing:
-                        if existing_fg.name == name:
-                            result.add_skip("finished_good", name, "Already exists")
-                            duplicate_found = True
-                            break
-                    if duplicate_found:
-                        continue
-
-                # Find recipe
-                recipe_name = fg_data.get("recipe_name", "")
-                if not recipe_name:
-                    result.add_error("finished_good", name, "Missing recipe_name")
-                    continue
-
-                recipes = recipe_service.get_all_recipes(name_search=recipe_name)
-                recipe = None
-                for r in recipes:
-                    if r.name == recipe_name:
-                        recipe = r
-                        break
-
-                if not recipe:
-                    if skip_missing_recipes:
-                        result.add_skip("finished_good", name, f"Recipe not found: {recipe_name}")
-                        continue
-                    else:
-                        result.add_error("finished_good", name, f"Recipe not found: {recipe_name}")
-                        continue
-
-                # Build finished good data
-                fg_create_data = {
-                    "name": name,
-                    "recipe_id": recipe.id,
-                    "yield_mode": fg_data.get("yield_mode", "discrete_count"),
-                }
-
-                # Optional fields
-                if "category" in fg_data:
-                    fg_create_data["category"] = fg_data["category"]
-                if "items_per_batch" in fg_data:
-                    fg_create_data["items_per_batch"] = fg_data["items_per_batch"]
-                if "item_unit" in fg_data:
-                    fg_create_data["item_unit"] = fg_data["item_unit"]
-                if "batch_percentage" in fg_data:
-                    fg_create_data["batch_percentage"] = fg_data["batch_percentage"]
-                if "portion_description" in fg_data:
-                    fg_create_data["portion_description"] = fg_data["portion_description"]
-                if "notes" in fg_data:
-                    fg_create_data["notes"] = fg_data["notes"]
-
-                # Create finished good
-                finished_good_service.create_finished_good(fg_create_data)
-                result.add_success()
-
-            except ValidationError as e:
-                result.add_error("finished_good", name, f"Validation error: {e}")
-            except Exception as e:
-                result.add_error("finished_good", name, str(e))
-
-        return result
-
-    except json.JSONDecodeError as e:
-        result.add_error("file", file_path, f"Invalid JSON: {e}")
-        return result
-    except Exception as e:
-        result.add_error("file", file_path, f"Failed to read file: {e}")
-        return result
-
-
-def import_bundles_from_json(
-    file_path: str, skip_duplicates: bool = True, skip_missing_finished_goods: bool = True
-) -> ImportResult:
-    """
-    Import bundles from JSON file.
-
-    Args:
-        file_path: Path to JSON file
-        skip_duplicates: If True, skip bundles that already exist (default)
-        skip_missing_finished_goods: If True, skip bundles with missing finished goods (default)
-
-    Returns:
-        ImportResult with import statistics
-    """
-    result = ImportResult()
-
-    try:
-        # Read file
-        with open(file_path, "r", encoding="utf-8") as f:
-            data = json.load(f)
-
-        # Validate structure
-        if "bundles" not in data:
-            result.add_error("file", file_path, "Missing 'bundles' key in JSON")
-            return result
-
-        bundles_data = data["bundles"]
-
-        # Import each bundle
-        for idx, bundle_data in enumerate(bundles_data):
-            try:
-                name = bundle_data.get("name", "")
-
-                if not name:
-                    result.add_error("bundle", f"Record {idx+1}", "Missing name")
-                    continue
-
-                # Check for duplicate
-                if skip_duplicates:
-                    existing = finished_good_service.get_all_bundles(name_search=name)
-                    duplicate_found = False
-                    for existing_bundle in existing:
-                        if existing_bundle.name == name:
-                            result.add_skip("bundle", name, "Already exists")
-                            duplicate_found = True
-                            break
-                    if duplicate_found:
-                        continue
-
-                # Find finished good
-                fg_name = bundle_data.get("finished_good_name", "")
-                if not fg_name:
-                    result.add_error("bundle", name, "Missing finished_good_name")
-                    continue
-
-                finished_goods = finished_good_service.get_all_finished_goods(name_search=fg_name)
-                finished_good = None
-                for fg in finished_goods:
-                    if fg.name == fg_name:
-                        finished_good = fg
-                        break
-
-                if not finished_good:
-                    if skip_missing_finished_goods:
-                        result.add_skip("bundle", name, f"Finished good not found: {fg_name}")
-                        continue
-                    else:
-                        result.add_error("bundle", name, f"Finished good not found: {fg_name}")
-                        continue
-
-                # Build bundle data
-                bundle_create_data = {
-                    "name": name,
-                    "finished_good_id": finished_good.id,
-                    "quantity": bundle_data.get("quantity", 1),
-                }
-
-                # Optional fields
-                if "packaging_notes" in bundle_data:
-                    bundle_create_data["packaging_notes"] = bundle_data["packaging_notes"]
-
-                # Create bundle
-                finished_good_service.create_bundle(bundle_create_data)
-                result.add_success()
-
-            except ValidationError as e:
-                result.add_error("bundle", name, f"Validation error: {e}")
-            except Exception as e:
-                result.add_error("bundle", name, str(e))
-
-        return result
-
-    except json.JSONDecodeError as e:
-        result.add_error("file", file_path, f"Invalid JSON: {e}")
-        return result
-    except Exception as e:
-        result.add_error("file", file_path, f"Failed to read file: {e}")
-        return result
-
-
-def import_packages_from_json(
-    file_path: str, skip_duplicates: bool = True, skip_missing_bundles: bool = True
-) -> ImportResult:
-    """
-    Import packages from JSON file.
-
-    Args:
-        file_path: Path to JSON file
-        skip_duplicates: If True, skip packages that already exist (default)
-        skip_missing_bundles: If True, skip packages with missing bundles (default)
-
-    Returns:
-        ImportResult with import statistics
-    """
-    result = ImportResult()
-
-    try:
-        # Read file
-        with open(file_path, "r", encoding="utf-8") as f:
-            data = json.load(f)
-
-        # Validate structure
-        if "packages" not in data:
-            result.add_error("file", file_path, "Missing 'packages' key in JSON")
-            return result
-
-        packages_data = data["packages"]
-
-        # Import each package
-        for idx, package_data in enumerate(packages_data):
-            try:
-                name = package_data.get("name", "")
-
-                if not name:
-                    result.add_error("package", f"Record {idx+1}", "Missing name")
-                    continue
-
-                # Check for duplicate
-                if skip_duplicates:
-                    existing = package_service.get_all_packages(name_search=name)
-                    duplicate_found = False
-                    for existing_package in existing:
-                        if existing_package.name == name:
-                            result.add_skip("package", name, "Already exists")
-                            duplicate_found = True
-                            break
-                    if duplicate_found:
-                        continue
-
-                # Build package data
-                package_create_data = {
-                    "name": name,
-                    "is_template": package_data.get("is_template", False),
-                }
-
-                # Optional fields
-                if "description" in package_data:
-                    package_create_data["description"] = package_data["description"]
-
-                if "notes" in package_data:
-                    package_create_data["notes"] = package_data["notes"]
-
-                # Build bundle items
-                bundle_items = []
-                bundles_data = package_data.get("bundles", [])
-
-                for bundle_item_data in bundles_data:
-                    bundle_name = bundle_item_data.get("bundle_name", "")
-                    if not bundle_name:
-                        result.add_error("package", name, "Bundle item missing bundle_name")
-                        continue
-
-                    # Find bundle
-                    bundles = finished_good_service.get_all_bundles(name_search=bundle_name)
-                    bundle = None
-                    for b in bundles:
-                        if b.name == bundle_name:
-                            bundle = b
-                            break
-
-                    if not bundle:
-                        if skip_missing_bundles:
-                            result.add_skip("package", name, f"Bundle not found: {bundle_name}")
-                            continue
-                        else:
-                            result.add_error("package", name, f"Bundle not found: {bundle_name}")
-                            continue
-
-                    bundle_items.append(
-                        {
-                            "bundle_id": bundle.id,
-                            "quantity": bundle_item_data.get("quantity", 1),
-                        }
-                    )
-
-                # Only create if we have bundle items
-                if not bundle_items:
-                    result.add_skip("package", name, "No valid bundles found")
-                    continue
-
-                # Create package
-                package_service.create_package(package_create_data, bundle_items)
-                result.add_success()
-
-            except ValidationError as e:
-                result.add_error("package", name, f"Validation error: {e}")
-            except Exception as e:
-                result.add_error("package", name, str(e))
-
-        return result
-
-    except json.JSONDecodeError as e:
-        result.add_error("file", file_path, f"Invalid JSON: {e}")
-        return result
-    except Exception as e:
-        result.add_error("file", file_path, f"Failed to read file: {e}")
-        return result
-
-
-def import_recipients_from_json(file_path: str, skip_duplicates: bool = True) -> ImportResult:
-    """
-    Import recipients from JSON file.
-
-    Args:
-        file_path: Path to JSON file
-        skip_duplicates: If True, skip recipients that already exist (default)
-
-    Returns:
-        ImportResult with import statistics
-    """
-    result = ImportResult()
-
-    try:
-        # Read file
-        with open(file_path, "r", encoding="utf-8") as f:
-            data = json.load(f)
-
-        # Validate structure
-        if "recipients" not in data:
-            result.add_error("file", file_path, "Missing 'recipients' key in JSON")
-            return result
-
-        recipients_data = data["recipients"]
-
-        # Import each recipient
-        for idx, recipient_data in enumerate(recipients_data):
-            try:
-                name = recipient_data.get("name", "")
-
-                if not name:
-                    result.add_error("recipient", f"Record {idx+1}", "Missing name")
-                    continue
-
-                # Check for duplicate
-                if skip_duplicates:
-                    existing = recipient_service.get_all_recipients(name_search=name)
-                    duplicate_found = False
-                    for existing_recipient in existing:
-                        if existing_recipient.name == name:
-                            result.add_skip("recipient", name, "Already exists")
-                            duplicate_found = True
-                            break
-                    if duplicate_found:
-                        continue
-
-                # Build recipient data
-                recipient_create_data = {
-                    "name": name,
-                }
-
-                # Optional fields
-                if "household_name" in recipient_data:
-                    recipient_create_data["household_name"] = recipient_data["household_name"]
-
-                if "address" in recipient_data:
-                    recipient_create_data["address"] = recipient_data["address"]
-
-                if "notes" in recipient_data:
-                    recipient_create_data["notes"] = recipient_data["notes"]
-
-                # Create recipient
-                recipient_service.create_recipient(recipient_create_data)
-                result.add_success()
-
-            except ValidationError as e:
-                result.add_error("recipient", name, f"Validation error: {e}")
-            except Exception as e:
-                result.add_error("recipient", name, str(e))
-
-        return result
-
-    except json.JSONDecodeError as e:
-        result.add_error("file", file_path, f"Invalid JSON: {e}")
-        return result
-    except Exception as e:
-        result.add_error("file", file_path, f"Failed to read file: {e}")
-        return result
-
-
-def import_events_from_json(
-    file_path: str, skip_duplicates: bool = True, skip_missing_refs: bool = True
-) -> ImportResult:
-    """
-    Import events from JSON file.
-
-    Includes event details and recipient-package assignments.
-
-    Args:
-        file_path: Path to JSON file
-        skip_duplicates: If True, skip events that already exist (default)
-        skip_missing_refs: If True, skip assignments with missing recipients/packages (default)
-
-    Returns:
-        ImportResult with import statistics
-    """
-    result = ImportResult()
-
-    try:
-        # Read file
-        with open(file_path, "r", encoding="utf-8") as f:
-            data = json.load(f)
-
-        # Validate structure
-        if "events" not in data:
-            result.add_error("file", file_path, "Missing 'events' key in JSON")
-            return result
-
-        events_data = data["events"]
-
-        # Import each event
-        for idx, event_data in enumerate(events_data):
-            try:
-                name = event_data.get("name", "")
-
-                if not name:
-                    result.add_error("event", f"Record {idx+1}", "Missing name")
-                    continue
-
-                # Check for duplicate
-                if skip_duplicates:
-                    year = event_data.get("year")
-                    if year:
-                        existing = event_service.get_all_events(year=year)
-                        duplicate_found = False
-                        for existing_event in existing:
-                            if existing_event.name == name:
-                                result.add_skip("event", name, "Already exists")
-                                duplicate_found = True
-                                break
-                        if duplicate_found:
-                            continue
-
-                # Build event data
-                from datetime import date
-
-                event_date_str = event_data.get("event_date")
-                event_date = date.fromisoformat(event_date_str) if event_date_str else None
-
-                event_create_data = {
-                    "name": name,
-                    "event_date": event_date,
-                    "year": event_data.get("year"),
-                }
-
-                # Optional fields
-                if "notes" in event_data:
-                    event_create_data["notes"] = event_data["notes"]
-
-                # Create event
-                event = event_service.create_event(event_create_data)
-                result.add_success()
-
-                # Import assignments
-                assignments_data = event_data.get("assignments", [])
-                for assignment_data in assignments_data:
-                    try:
-                        recipient_name = assignment_data.get("recipient_name", "")
-                        package_name = assignment_data.get("package_name", "")
-
-                        if not recipient_name or not package_name:
-                            continue
-
-                        # Find recipient
-                        recipients = recipient_service.get_all_recipients(
-                            name_search=recipient_name
-                        )
-                        recipient = None
-                        for r in recipients:
-                            if r.name == recipient_name:
-                                recipient = r
-                                break
-
-                        if not recipient:
-                            if not skip_missing_refs:
-                                result.add_error(
-                                    "event", name, f"Recipient not found: {recipient_name}"
-                                )
-                            continue
-
-                        # Find package
-                        packages = package_service.get_all_packages(name_search=package_name)
-                        package = None
-                        for p in packages:
-                            if p.name == package_name:
-                                package = p
-                                break
-
-                        if not package:
-                            if not skip_missing_refs:
-                                result.add_error(
-                                    "event", name, f"Package not found: {package_name}"
-                                )
-                            continue
-
-                        # Create assignment
-                        assignment_create_data = {
-                            "quantity": assignment_data.get("quantity", 1),
-                        }
-
-                        if "notes" in assignment_data:
-                            assignment_create_data["notes"] = assignment_data["notes"]
-
-                        event_service.assign_package_to_recipient(
-                            event.id, recipient.id, package.id, **assignment_create_data
-                        )
-
-                    except Exception as e:
-                        # Don't fail entire event for assignment errors
-                        pass
-
-            except ValidationError as e:
-                result.add_error("event", name, f"Validation error: {e}")
-            except Exception as e:
-                result.add_error("event", name, str(e))
-
-        return result
-
-    except json.JSONDecodeError as e:
-        result.add_error("file", file_path, f"Invalid JSON: {e}")
-        return result
-    except Exception as e:
-        result.add_error("file", file_path, f"Failed to read file: {e}")
-        return result
+# Note: Legacy individual entity import functions (import_ingredients_from_json,
+# import_recipes_from_json, etc.) have been removed. Use import_all_from_json_v3()
+# for all imports - it accepts only v3.2 format files.
+
+
+# Placeholder to maintain structure - legacy functions removed
+def _legacy_import_removed():
+    """Legacy individual import functions removed - use import_all_from_json_v3() instead."""
+    raise NotImplementedError("Legacy import functions removed. Use import_all_from_json_v3()")
 
 
 # ============================================================================
@@ -2434,16 +1459,18 @@ def import_finished_units_from_json(
         try:
             slug = record.get("slug", "")
             display_name = record.get("display_name", "")
-            # Support both recipe_slug (v3.0) and recipe_name (legacy)
             recipe_slug = record.get("recipe_slug", "")
-            recipe_name = record.get("recipe_name", "")
 
-            # Generate slug from display_name if not provided
-            if not slug and display_name:
-                slug = display_name.lower().replace(" ", "_").replace("-", "_")
+            if not slug:
+                result.add_error("finished_unit", "unknown", "Missing slug")
+                continue
 
             if not display_name:
-                result.add_error("finished_unit", slug or "unknown", "Missing display_name")
+                result.add_error("finished_unit", slug, "Missing display_name")
+                continue
+
+            if not recipe_slug:
+                result.add_error("finished_unit", slug, "Missing recipe_slug")
                 continue
 
             # Check for duplicate
@@ -2455,24 +1482,11 @@ def import_finished_units_from_json(
 
             # Resolve recipe reference - Recipe model doesn't have slug field,
             # so convert recipe_slug to name format for lookup
-            recipe = None
-            if recipe_slug:
-                # Convert slug format (snake_case) to name format (Title Case)
-                recipe_name_from_slug = recipe_slug.replace("_", " ").title()
-                recipe = session.query(Recipe).filter_by(name=recipe_name_from_slug).first()
-                
-                # Also try exact slug as name (in case data uses names directly)
-                if not recipe:
-                    recipe = session.query(Recipe).filter(
-                        Recipe.name.ilike(f"%{recipe_slug.replace('_', '%')}%")
-                    ).first()
-            
-            if not recipe and recipe_name:
-                recipe = session.query(Recipe).filter_by(name=recipe_name).first()
-            
+            recipe_name_from_slug = recipe_slug.replace("_", " ").title()
+            recipe = session.query(Recipe).filter_by(name=recipe_name_from_slug).first()
+
             if not recipe:
-                lookup_key = recipe_slug or recipe_name or "unknown"
-                result.add_error("finished_unit", slug, f"Recipe not found: {lookup_key}")
+                result.add_error("finished_unit", slug, f"Recipe not found: {recipe_slug}")
                 continue
 
             # Create finished unit
@@ -2666,24 +1680,20 @@ def import_package_finished_goods_from_json(
 
     for record in data:
         try:
-            package_name = record.get("package_name", "")
             package_slug = record.get("package_slug", "")
             finished_good_slug = record.get("finished_good_slug", "")
             quantity = record.get("quantity", 1)
 
-            # Support both package_name and package_slug
-            if not package_name and package_slug:
-                # Convert slug to name format (snake_case to Title Case)
-                package_name = package_slug.replace("_", " ").title()
-
-            if not package_name or not finished_good_slug:
-                result.add_error("package_finished_good", "unknown", "Missing package_name/package_slug or finished_good_slug")
+            if not package_slug or not finished_good_slug:
+                result.add_error("package_finished_good", "unknown", "Missing package_slug or finished_good_slug")
                 continue
 
-            # Resolve package reference
+            # Resolve package reference - Package model doesn't have slug field,
+            # so convert package_slug to name format for lookup
+            package_name = package_slug.replace("_", " ").title()
             package = session.query(Package).filter_by(name=package_name).first()
             if not package:
-                result.add_error("package_finished_good", package_name, f"Package not found: {package_name}")
+                result.add_error("package_finished_good", package_slug, f"Package not found: {package_slug}")
                 continue
 
             # Resolve finished good reference
@@ -2827,39 +1837,35 @@ def import_event_recipient_packages_from_json(
 
     for record in data:
         try:
-            event_name = record.get("event_name", "")
             event_slug = record.get("event_slug", "")
             recipient_name = record.get("recipient_name", "")
-            package_name = record.get("package_name", "")
             package_slug = record.get("package_slug", "")
             quantity = record.get("quantity", 1)
 
-            # Support slug products - convert to name format
-            if not event_name and event_slug:
-                event_name = event_slug.replace("_", " ").title()
-            if not package_name and package_slug:
-                package_name = package_slug.replace("_", " ").title()
-
-            if not event_name or not recipient_name or not package_name:
-                result.add_error("event_recipient_package", "unknown", "Missing event_name/slug, recipient_name, or package_name/slug")
+            if not event_slug or not recipient_name or not package_slug:
+                result.add_error("event_recipient_package", "unknown", "Missing event_slug, recipient_name, or package_slug")
                 continue
 
-            # Resolve event reference
+            # Resolve event reference - Event model doesn't have slug field,
+            # so convert event_slug to name format for lookup
+            event_name = event_slug.replace("_", " ").title()
             event = session.query(Event).filter_by(name=event_name).first()
             if not event:
-                result.add_error("event_recipient_package", event_name, f"Event not found: {event_name}")
+                result.add_error("event_recipient_package", event_slug, f"Event not found: {event_slug}")
                 continue
 
-            # Resolve recipient reference
+            # Resolve recipient reference (uses name directly)
             recipient = session.query(Recipient).filter_by(name=recipient_name).first()
             if not recipient:
-                result.add_error("event_recipient_package", event_name, f"Recipient not found: {recipient_name}")
+                result.add_error("event_recipient_package", event_slug, f"Recipient not found: {recipient_name}")
                 continue
 
-            # Resolve package reference
+            # Resolve package reference - Package model doesn't have slug field,
+            # so convert package_slug to name format for lookup
+            package_name = package_slug.replace("_", " ").title()
             package = session.query(Package).filter_by(name=package_name).first()
             if not package:
-                result.add_error("event_recipient_package", event_name, f"Package not found: {package_name}")
+                result.add_error("event_recipient_package", event_slug, f"Package not found: {package_slug}")
                 continue
 
             # Check for duplicate
@@ -3234,14 +2240,12 @@ def import_all_from_json_v3(file_path: str, mode: str = "merge") -> ImportResult
         with open(file_path, "r", encoding="utf-8") as f:
             data = json.load(f)
 
-        # Version validation (FR-018)
-        # Feature 011: Support both 3.0 and 3.1 (3.1 adds packaging support)
+        # Version validation - v3.2 only (no backward compatibility)
         version = data.get("version", "unknown")
-        supported_versions = ["3.0", "3.1"]
-        if version not in supported_versions:
+        if version != "3.2":
             raise ImportVersionError(
                 f"Unsupported file version: {version}. "
-                f"This application supports versions: {', '.join(supported_versions)}. "
+                "This application requires v3.2 format. "
                 "Please export a new backup from a current version."
             )
 
@@ -3266,29 +2270,16 @@ def import_all_from_json_v3(file_path: str, mode: str = "merge") -> ImportResult
                                 result.add_skip("ingredient", slug, "Already exists")
                                 continue
 
-                        # Handle both legacy density_g_per_ml and new 4-field format
+                        # Density fields (4-field format only - v3.2)
                         density_args = {}
                         if ing.get("density_volume_value") is not None:
-                            # New 4-field format
                             density_args["density_volume_value"] = ing.get("density_volume_value")
                             density_args["density_volume_unit"] = ing.get("density_volume_unit")
                             density_args["density_weight_value"] = ing.get("density_weight_value")
                             density_args["density_weight_unit"] = ing.get("density_weight_unit")
-                        elif ing.get("density_g_per_ml") is not None:
-                            # Legacy format - convert g/ml to 1 cup = X oz
-                            # 1 cup = 236.588 ml, 1 oz = 28.3495 g
-                            g_per_ml = ing.get("density_g_per_ml")
-                            g_per_cup = g_per_ml * 236.588
-                            oz_per_cup = g_per_cup / 28.3495
-                            density_args["density_volume_value"] = 1.0
-                            density_args["density_volume_unit"] = "cup"
-                            density_args["density_weight_value"] = round(oz_per_cup, 2)
-                            density_args["density_weight_unit"] = "oz"
 
-                        # TD-001: Support both 'display_name' (new) and 'name' (legacy)
-                        # Feature 011: is_packaging defaults to False for backward compatibility
                         ingredient = Ingredient(
-                            display_name=ing.get("display_name") or ing.get("name"),
+                            display_name=ing.get("display_name"),
                             slug=slug,
                             category=ing.get("category"),
                             recipe_unit=ing.get("recipe_unit"),
@@ -3328,7 +2319,7 @@ def import_all_from_json_v3(file_path: str, mode: str = "merge") -> ImportResult
                         uc = UnitConversion(
                             ingredient_id=ingredient.id,
                             from_unit=conv.get("from_unit"),
-                            from_quantity=conv.get("from_quantity", conv.get("factor", 1.0)),
+                            from_quantity=conv.get("from_quantity", 1.0),
                             to_unit=conv.get("to_unit"),
                             to_quantity=1.0,
                             notes=conv.get("notes"),
@@ -3338,36 +2329,6 @@ def import_all_from_json_v3(file_path: str, mode: str = "merge") -> ImportResult
                     except Exception as e:
                         result.add_error("unit_conversion", conv.get("ingredient_slug", "unknown"), str(e))
 
-            # 2. Ingredients
-            if "ingredients" in data:
-                for ing in data["ingredients"]:
-                    try:
-                        slug = ing.get("slug", "")
-                        if skip_duplicates:
-                            existing = session.query(Ingredient).filter_by(slug=slug).first()
-                            if existing:
-                                result.add_skip("ingredient", slug, "Already exists")
-                                continue
-
-                        ingredient = Ingredient(
-                            name=ing.get("name"),
-                            slug=slug,
-                            category=ing.get("category"),
-                            recipe_unit=ing.get("recipe_unit"),
-                            description=ing.get("description"),
-                            notes=ing.get("notes"),
-                            # 4-field density model (ignore legacy density_g_per_ml)
-                            density_volume_value=ing.get("density_volume_value"),
-                            density_volume_unit=ing.get("density_volume_unit"),
-                            density_weight_value=ing.get("density_weight_value"),
-                            density_weight_unit=ing.get("density_weight_unit"),
-                        )
-                        session.add(ingredient)
-                        result.add_success("ingredient")
-                    except Exception as e:
-                        result.add_error("ingredient", ing.get("slug", "unknown"), str(e))
-
-            # Flush to get IDs for foreign keys
             session.flush()
 
             # 3. Products (depends on ingredients)
@@ -3478,6 +2439,105 @@ def import_all_from_json_v3(file_path: str, mode: str = "merge") -> ImportResult
                     except Exception as e:
                         result.add_error("recipe", recipe_data.get("name", "unknown"), str(e))
             
+            session.flush()
+
+            # 6.5 Recipe components (depends on all recipes being created)
+            # Import validation functions from recipe_service
+            from src.services.recipe_service import (
+                _would_create_cycle,
+                _would_exceed_depth,
+                MAX_RECIPE_NESTING_DEPTH,
+            )
+
+            for recipe_data in data.get("recipes", []):
+                recipe_name = recipe_data.get("name", "")
+                components = recipe_data.get("components", [])
+
+                if not components:
+                    continue
+
+                # Find the parent recipe we created earlier
+                parent_recipe = session.query(Recipe).filter_by(name=recipe_name).first()
+                if not parent_recipe:
+                    # Recipe creation failed earlier, skip components
+                    continue
+
+                for comp_data in components:
+                    try:
+                        component_recipe_name = comp_data.get("recipe_name")
+                        quantity = float(comp_data.get("quantity", 1.0))
+                        notes = comp_data.get("notes")
+
+                        # Validate quantity
+                        if quantity <= 0:
+                            result.add_error(
+                                "recipe_component",
+                                f"{recipe_name}->{component_recipe_name}",
+                                "Quantity must be greater than 0",
+                            )
+                            continue
+
+                        # Resolve component recipe by name
+                        component_recipe = session.query(Recipe).filter_by(
+                            name=component_recipe_name
+                        ).first()
+                        if not component_recipe:
+                            result.add_error(
+                                "recipe_component",
+                                f"{recipe_name}->{component_recipe_name}",
+                                f"Component recipe not found: {component_recipe_name}",
+                            )
+                            continue
+
+                        # Check for duplicate
+                        if skip_duplicates:
+                            existing = session.query(RecipeComponent).filter_by(
+                                recipe_id=parent_recipe.id,
+                                component_recipe_id=component_recipe.id,
+                            ).first()
+                            if existing:
+                                result.add_skip(
+                                    "recipe_component",
+                                    f"{recipe_name}->{component_recipe_name}",
+                                    "Already exists",
+                                )
+                                continue
+
+                        # Check for circular reference
+                        if _would_create_cycle(parent_recipe.id, component_recipe.id, session):
+                            result.add_error(
+                                "recipe_component",
+                                f"{recipe_name}->{component_recipe_name}",
+                                "Would create circular reference",
+                            )
+                            continue
+
+                        # Check depth limit
+                        if _would_exceed_depth(parent_recipe.id, component_recipe.id, session):
+                            result.add_error(
+                                "recipe_component",
+                                f"{recipe_name}->{component_recipe_name}",
+                                f"Would exceed maximum nesting depth of {MAX_RECIPE_NESTING_DEPTH}",
+                            )
+                            continue
+
+                        # Create recipe component
+                        comp = RecipeComponent(
+                            recipe_id=parent_recipe.id,
+                            component_recipe_id=component_recipe.id,
+                            quantity=quantity,
+                            notes=notes,
+                        )
+                        session.add(comp)
+                        result.add_success("recipe_component")
+
+                    except Exception as e:
+                        result.add_error(
+                            "recipe_component",
+                            f"{recipe_name}->{comp_data.get('recipe_name', 'unknown')}",
+                            str(e),
+                        )
+
             session.flush()
 
             # 7. Finished units (depends on recipes)
@@ -3686,175 +2746,3 @@ def import_all_from_json_v3(file_path: str, mode: str = "merge") -> ImportResult
     return result
 
 
-# ============================================================================
-# Legacy Import Functions (v1.0/v2.0 format - deprecated)
-# ============================================================================
-
-
-def import_all_from_json(file_path: str, skip_duplicates: bool = True) -> Tuple[
-    ImportResult,
-    ImportResult,
-    ImportResult,
-    ImportResult,
-    ImportResult,
-    ImportResult,
-    ImportResult,
-    ImportResult,
-]:
-    """
-    Import all data from a single JSON file (legacy v1.0/v2.0 format).
-
-    DEPRECATED: Use import_all_from_json_v3() for v3.0 format files.
-
-    Imports in proper dependency order:
-    1. Ingredients (no dependencies)
-    2. Products (depend on ingredients)
-    3. Recipes (depend on ingredients)
-    4. Finished goods (depend on recipes)
-    5. Bundles (depend on finished goods)
-    6. Packages (depend on bundles)
-    7. Recipients (no dependencies)
-    8. Events with assignments (depend on recipients and packages)
-
-    Args:
-        file_path: Path to JSON file
-        skip_duplicates: If True, skip duplicates (default)
-
-    Returns:
-        Tuple of (ingredient_result, product_result, recipe_result, finished_good_result,
-                 bundle_result, package_result, recipient_result, event_result)
-    """
-    import tempfile
-
-    try:
-        # Read file
-        with open(file_path, "r", encoding="utf-8") as f:
-            data = json.load(f)
-
-        # Import ingredients first
-        ingredient_result = ImportResult()
-        if "ingredients" in data:
-            with tempfile.NamedTemporaryFile(
-                mode="w", suffix=".json", delete=False, encoding="utf-8"
-            ) as tmp:
-                json.dump({"ingredients": data["ingredients"]}, tmp)
-                tmp_path = tmp.name
-
-            ingredient_result = import_ingredients_from_json(tmp_path, skip_duplicates)
-            Path(tmp_path).unlink()
-
-        # Import products second (depends on ingredients)
-        product_result = ImportResult()
-        if "products" in data:
-            with tempfile.NamedTemporaryFile(
-                mode="w", suffix=".json", delete=False, encoding="utf-8"
-            ) as tmp:
-                json.dump({"products": data["products"]}, tmp)
-                tmp_path = tmp.name
-
-            product_result = import_products_from_json(tmp_path, skip_duplicates)
-            Path(tmp_path).unlink()
-
-        # Import recipes third
-        recipe_result = ImportResult()
-        if "recipes" in data:
-            with tempfile.NamedTemporaryFile(
-                mode="w", suffix=".json", delete=False, encoding="utf-8"
-            ) as tmp:
-                json.dump({"recipes": data["recipes"]}, tmp)
-                tmp_path = tmp.name
-
-            recipe_result = import_recipes_from_json(tmp_path, skip_duplicates)
-            Path(tmp_path).unlink()
-
-        # Import finished goods third
-        finished_good_result = ImportResult()
-        if "finished_goods" in data:
-            with tempfile.NamedTemporaryFile(
-                mode="w", suffix=".json", delete=False, encoding="utf-8"
-            ) as tmp:
-                json.dump({"finished_goods": data["finished_goods"]}, tmp)
-                tmp_path = tmp.name
-
-            finished_good_result = import_finished_goods_from_json(tmp_path, skip_duplicates)
-            Path(tmp_path).unlink()
-
-        # Import bundles fourth
-        bundle_result = ImportResult()
-        if "bundles" in data:
-            with tempfile.NamedTemporaryFile(
-                mode="w", suffix=".json", delete=False, encoding="utf-8"
-            ) as tmp:
-                json.dump({"bundles": data["bundles"]}, tmp)
-                tmp_path = tmp.name
-
-            bundle_result = import_bundles_from_json(tmp_path, skip_duplicates)
-            Path(tmp_path).unlink()
-
-        # Import packages fifth
-        package_result = ImportResult()
-        if "packages" in data:
-            with tempfile.NamedTemporaryFile(
-                mode="w", suffix=".json", delete=False, encoding="utf-8"
-            ) as tmp:
-                json.dump({"packages": data["packages"]}, tmp)
-                tmp_path = tmp.name
-
-            package_result = import_packages_from_json(tmp_path, skip_duplicates)
-            Path(tmp_path).unlink()
-
-        # Import recipients sixth (no dependencies)
-        recipient_result = ImportResult()
-        if "recipients" in data:
-            with tempfile.NamedTemporaryFile(
-                mode="w", suffix=".json", delete=False, encoding="utf-8"
-            ) as tmp:
-                json.dump({"recipients": data["recipients"]}, tmp)
-                tmp_path = tmp.name
-
-            recipient_result = import_recipients_from_json(tmp_path, skip_duplicates)
-            Path(tmp_path).unlink()
-
-        # Import events seventh (with assignments)
-        event_result = ImportResult()
-        if "events" in data:
-            with tempfile.NamedTemporaryFile(
-                mode="w", suffix=".json", delete=False, encoding="utf-8"
-            ) as tmp:
-                json.dump({"events": data["events"]}, tmp)
-                tmp_path = tmp.name
-
-            event_result = import_events_from_json(tmp_path, skip_duplicates)
-            Path(tmp_path).unlink()
-
-        return (
-            ingredient_result,
-            product_result,
-            recipe_result,
-            finished_good_result,
-            bundle_result,
-            package_result,
-            recipient_result,
-            event_result,
-        )
-
-    except Exception as e:
-        ingredient_result = ImportResult()
-        product_result = ImportResult()
-        recipe_result = ImportResult()
-        finished_good_result = ImportResult()
-        bundle_result = ImportResult()
-        package_result = ImportResult()
-        recipient_result = ImportResult()
-        event_result = ImportResult()
-        ingredient_result.add_error("file", file_path, str(e))
-        return (
-            ingredient_result,
-            product_result,
-            recipe_result,
-            finished_good_result,
-            bundle_result,
-            package_result,
-            recipient_result,
-            event_result,
-        )

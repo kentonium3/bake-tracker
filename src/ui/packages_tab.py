@@ -365,7 +365,7 @@ class PackagesTab(ctk.CTkFrame):
 
         if self.selected_package.package_finished_goods:
             for pfg in self.selected_package.package_finished_goods:
-                fg_name = pfg.finished_good.name if pfg.finished_good else "Unknown"
+                fg_name = pfg.finished_good.display_name if pfg.finished_good else "Unknown"
                 fg_cost = (
                     pfg.finished_good.total_cost
                     if pfg.finished_good and pfg.finished_good.total_cost

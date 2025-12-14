@@ -434,15 +434,12 @@ class TestImportExportRoundTrip:
         recipe_service.add_recipe_component(child.id, grandchild.id, quantity=1.0)
         recipe_service.add_recipe_component(parent.id, child.id, quantity=2.0, notes="Double batch")
 
-        # Record original cost
-        original_cost = recipe_service.calculate_total_cost_with_components(parent.id)
-
-        # Export
+        # Export all to v3.2 format
         with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
             export_file = f.name
 
         try:
-            export_result = import_export_service.export_recipes_to_json(export_file)
+            export_result = import_export_service.export_all_to_json(export_file)
             assert export_result.success
 
             # Delete the recipes
@@ -455,9 +452,9 @@ class TestImportExportRoundTrip:
             # Verify deleted
             assert recipe_service.get_recipe_by_name("Parent Export") is None
 
-            # Re-import
-            import_result = import_export_service.import_recipes_from_json(export_file)
-            assert import_result.successful
+            # Re-import using v3 importer with merge mode
+            import_result = import_export_service.import_all_from_json_v3(export_file, mode="merge")
+            assert import_result.successful > 0
 
             # Verify hierarchy restored
             imported_parent = recipe_service.get_recipe_by_name("Parent Export")
@@ -543,8 +540,8 @@ class TestBackwardCompatibility:
             export_file = f.name
 
         try:
-            # Export
-            export_result = import_export_service.export_recipes_to_json(export_file)
+            # Export all to v3.2 format
+            export_result = import_export_service.export_all_to_json(export_file)
             assert export_result.success
 
             # Verify export has empty components array
@@ -555,10 +552,10 @@ class TestBackwardCompatibility:
             assert "components" in recipe_data
             assert len(recipe_data["components"]) == 0
 
-            # Delete and reimport
+            # Delete and reimport using v3 importer
             recipe_service.delete_recipe(recipe.id)
-            import_result = import_export_service.import_recipes_from_json(export_file)
-            assert import_result.successful
+            import_result = import_export_service.import_all_from_json_v3(export_file, mode="merge")
+            assert import_result.successful > 0
 
             # Verify restored
             restored = recipe_service.get_recipe_by_name("Export Test Simple")

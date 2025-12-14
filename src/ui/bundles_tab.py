@@ -329,7 +329,7 @@ class BundlesTab(ctk.CTkFrame):
             # Build details message
             details = []
             details.append(f"Bundle: {bundle.name}")
-            details.append(f"Finished Good: {bundle.finished_good.name}")
+            details.append(f"Finished Good: {bundle.finished_good.display_name}")
             details.append(f"Quantity: {bundle.quantity} items")
 
             details.append("")

@@ -384,7 +384,7 @@ class RecipesTab(ctk.CTkFrame):
             details.append("Ingredients:")
 
             for ing in recipe_data["ingredients"]:
-                ing_name = ing["ingredient"].name
+                ing_name = ing["ingredient"].display_name
                 ing_qty = ing["quantity"]
                 ing_unit = ing["unit"]
                 ing_cost = ing["cost"]

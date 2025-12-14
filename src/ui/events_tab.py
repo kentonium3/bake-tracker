@@ -227,7 +227,7 @@ class EventsTab(ctk.CTkFrame):
         result = dialog.get_result()
         if result:
             try:
-                event_service.create_event(result)
+                event_service.create_event(**result)
                 show_success("Success", f"Event '{result['name']}' added successfully", parent=self)
                 self.refresh()
             except Exception as e:
