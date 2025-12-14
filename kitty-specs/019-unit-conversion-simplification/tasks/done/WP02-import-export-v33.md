@@ -9,7 +9,7 @@ subtasks:
   - "T010"
 title: "Import/Export v3.3 Update"
 phase: "Phase 2 - Service Updates"
-lane: "for_review"
+lane: "done"
 assignee: ""
 agent: "claude"
 shell_pid: "22254"
@@ -159,3 +159,4 @@ history:
 - 2025-12-14T12:00:00Z – system – lane=planned – Prompt created.
 - 2025-12-14T07:38:23Z – claude – shell_pid=22254 – lane=doing – Moved to doing
 - 2025-12-14T19:51:27Z – claude – shell_pid=22254 – lane=for_review – Implementation complete, ready for review
+- 2025-12-14T19:52:56Z – claude – shell_pid=22254 – lane=done – Code review APPROVED: v3.3 format, UnitConversion removed, recipe_unit removed
