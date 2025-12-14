@@ -9,10 +9,10 @@ subtasks:
   - "T010"
 title: "Import/Export v3.3 Update"
 phase: "Phase 2 - Service Updates"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "claude"
+shell_pid: "22254"
 review_status: ""
 reviewed_by: ""
 history:
@@ -157,3 +157,4 @@ history:
 ## Activity Log
 
 - 2025-12-14T12:00:00Z – system – lane=planned – Prompt created.
+- 2025-12-14T07:38:23Z – claude – shell_pid=22254 – lane=doing – Moved to doing

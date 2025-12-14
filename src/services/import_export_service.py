@@ -21,7 +21,6 @@ from src.models.ingredient import Ingredient
 from src.models.product import Product
 from src.models.inventory_item import InventoryItem
 from src.models.purchase import Purchase
-from src.models.unit_conversion import UnitConversion
 from src.models.finished_unit import FinishedUnit
 from src.models.finished_good import FinishedGood
 from src.models.composition import Composition
@@ -972,10 +971,10 @@ def export_event_assembly_targets_to_json() -> List[Dict]:
 
 def export_all_to_json(file_path: str) -> ExportResult:
     """
-    Export all data to a single JSON file in v3.0 format.
+    Export all data to a single JSON file in v3.3 format.
 
     Exports in dependency order per data-model.md:
-    unit_conversions, ingredients, products, purchases, inventory_items,
+    ingredients, products, purchases, inventory_items,
     recipes, finished_units, finished_goods, compositions, packages,
     package_finished_goods, recipients, events, event_recipient_packages,
     production_records.
@@ -1012,12 +1011,11 @@ def export_all_to_json(file_path: str) -> ExportResult:
         event_production_targets_data = export_event_production_targets_to_json()
         event_assembly_targets_data = export_event_assembly_targets_to_json()
 
-        # Build combined export data - v3.2 format (Feature 016: event-centric production)
+        # Build combined export data - v3.3 format (Feature 019: unit conversion simplification)
         export_data = {
-            "version": "3.2",
+            "version": "3.3",
             "exported_at": datetime.utcnow().isoformat() + "Z",
             "application": "bake-tracker",
-            "unit_conversions": [],
             "ingredients": [],
             "products": [],
             "purchases": [],
@@ -1044,7 +1042,6 @@ def export_all_to_json(file_path: str) -> ExportResult:
                 "name": ingredient.display_name,
                 "slug": ingredient.slug,
                 "category": ingredient.category,
-                "recipe_unit": ingredient.recipe_unit,
                 "is_packaging": ingredient.is_packaging,  # Feature 011
             }
 
@@ -1165,24 +1162,6 @@ def export_all_to_json(file_path: str) -> ExportResult:
                     purchase_data["notes"] = purchase.notes
 
                 export_data["purchases"].append(purchase_data)
-
-        # Add unit conversions
-        with session_scope() as session:
-            conversions = session.query(UnitConversion).join(Ingredient).all()
-            for conv in conversions:
-                conv_data = {
-                    "ingredient_slug": conv.ingredient.slug,
-                    "from_unit": conv.from_unit,
-                    "from_quantity": float(conv.from_quantity),
-                    "to_unit": conv.to_unit,
-                    "to_quantity": float(conv.to_quantity),
-                }
-
-                # Optional fields
-                if conv.notes:
-                    conv_data["notes"] = conv.notes
-
-                export_data["unit_conversions"].append(conv_data)
 
         # Add recipes
         for recipe in recipes:
@@ -1322,8 +1301,7 @@ def export_all_to_json(file_path: str) -> ExportResult:
 
         # Calculate total records and build entity counts
         total_records = (
-            len(export_data["unit_conversions"])
-            + len(export_data["ingredients"])
+            len(export_data["ingredients"])
             + len(export_data["products"])
             + len(export_data["purchases"])
             + len(export_data["inventory_items"])
@@ -1346,7 +1324,6 @@ def export_all_to_json(file_path: str) -> ExportResult:
         result = ExportResult(file_path, total_records)
 
         # Add per-entity counts
-        result.add_entity_count("unit_conversions", len(export_data["unit_conversions"]))
         result.add_entity_count("ingredients", len(export_data["ingredients"]))
         result.add_entity_count("products", len(export_data["products"]))
         result.add_entity_count("purchases", len(export_data["purchases"]))
@@ -1430,7 +1407,6 @@ def _clear_all_tables(session) -> None:
         Purchase,
         Product,
         Ingredient,
-        UnitConversion,
     ]
 
     for table in tables_to_clear:
@@ -2194,7 +2170,7 @@ def import_assembly_runs_from_json(
 
 def import_all_from_json_v3(file_path: str, mode: str = "merge") -> ImportResult:
     """
-    Import all data from a v3.0 format JSON file.
+    Import all data from a v3.3 format JSON file.
 
     Supports two import modes:
     - "merge": Add new records, skip duplicates (default, safe for incremental backups)
@@ -2202,30 +2178,29 @@ def import_all_from_json_v3(file_path: str, mode: str = "merge") -> ImportResult
 
     Imports in dependency order:
     1. ingredients (no dependencies)
-    2. unit_conversions (depends on ingredients)
-    3. products (depends on ingredients)
-    4. purchases (depends on products)
-    5. inventory_items (depends on products)
-    6. recipes (depends on ingredients)
-    7. finished_units (depends on recipes)
-    8. finished_goods (no dependencies)
-    9. compositions (depends on finished_goods)
-    10. packages (no dependencies)
-    11. package_finished_goods (depends on packages, finished_goods)
-    12. recipients (no dependencies)
-    13. events (no dependencies)
-    14. event_recipient_packages (depends on events, recipients, packages)
-    15. production_records (depends on finished_units)
+    2. products (depends on ingredients)
+    3. purchases (depends on products)
+    4. inventory_items (depends on products)
+    5. recipes (depends on ingredients)
+    6. finished_units (depends on recipes)
+    7. finished_goods (no dependencies)
+    8. compositions (depends on finished_goods)
+    9. packages (no dependencies)
+    10. package_finished_goods (depends on packages, finished_goods)
+    11. recipients (no dependencies)
+    12. events (no dependencies)
+    13. event_recipient_packages (depends on events, recipients, packages)
+    14. production_records (depends on finished_units)
 
     Args:
-        file_path: Path to v3.0 format JSON file
+        file_path: Path to v3.3 format JSON file
         mode: Import mode - "merge" (default) or "replace"
 
     Returns:
         ImportResult with detailed per-entity statistics
 
     Raises:
-        ImportVersionError: If file version is not 3.0
+        ImportVersionError: If file version is not 3.3
         ValueError: If mode is not "merge" or "replace"
     """
     # Validate mode
@@ -2240,12 +2215,12 @@ def import_all_from_json_v3(file_path: str, mode: str = "merge") -> ImportResult
         with open(file_path, "r", encoding="utf-8") as f:
             data = json.load(f)
 
-        # Version validation - v3.2 only (no backward compatibility)
+        # Version validation - v3.3 only (no backward compatibility)
         version = data.get("version", "unknown")
-        if version != "3.2":
+        if version != "3.3":
             raise ImportVersionError(
                 f"Unsupported file version: {version}. "
-                "This application requires v3.2 format. "
+                "This application requires v3.3 format. "
                 "Please export a new backup from a current version."
             )
 
@@ -2270,7 +2245,7 @@ def import_all_from_json_v3(file_path: str, mode: str = "merge") -> ImportResult
                                 result.add_skip("ingredient", slug, "Already exists")
                                 continue
 
-                        # Density fields (4-field format only - v3.2)
+                        # Density fields (4-field format only - v3.3)
                         density_args = {}
                         if ing.get("density_volume_value") is not None:
                             density_args["density_volume_value"] = ing.get("density_volume_value")
@@ -2282,7 +2257,6 @@ def import_all_from_json_v3(file_path: str, mode: str = "merge") -> ImportResult
                             display_name=ing.get("display_name"),
                             slug=slug,
                             category=ing.get("category"),
-                            recipe_unit=ing.get("recipe_unit"),
                             description=ing.get("description"),
                             notes=ing.get("notes"),
                             is_packaging=ing.get("is_packaging", False),  # Feature 011
@@ -2296,42 +2270,7 @@ def import_all_from_json_v3(file_path: str, mode: str = "merge") -> ImportResult
             # Flush to get IDs for foreign keys
             session.flush()
 
-            # 2. Unit conversions (depends on ingredients)
-            if "unit_conversions" in data:
-                for conv in data["unit_conversions"]:
-                    try:
-                        ing_slug = conv.get("ingredient_slug", "")
-                        ingredient = session.query(Ingredient).filter_by(slug=ing_slug).first()
-                        if not ingredient:
-                            result.add_error("unit_conversion", ing_slug, f"Ingredient not found: {ing_slug}")
-                            continue
-
-                        if skip_duplicates:
-                            existing = session.query(UnitConversion).filter_by(
-                                ingredient_id=ingredient.id,
-                                from_unit=conv.get("from_unit"),
-                                to_unit=conv.get("to_unit"),
-                            ).first()
-                            if existing:
-                                result.add_skip("unit_conversion", ing_slug, "Already exists")
-                                continue
-
-                        uc = UnitConversion(
-                            ingredient_id=ingredient.id,
-                            from_unit=conv.get("from_unit"),
-                            from_quantity=conv.get("from_quantity", 1.0),
-                            to_unit=conv.get("to_unit"),
-                            to_quantity=1.0,
-                            notes=conv.get("notes"),
-                        )
-                        session.add(uc)
-                        result.add_success("unit_conversion")
-                    except Exception as e:
-                        result.add_error("unit_conversion", conv.get("ingredient_slug", "unknown"), str(e))
-
-            session.flush()
-
-            # 3. Products (depends on ingredients)
+            # 2. Products (depends on ingredients)
             if "products" in data:
                 for prod_data in data["products"]:
                     try:
