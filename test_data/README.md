@@ -1,10 +1,10 @@
 # Test Data System
 
-This directory contains JSON test data for the Ingredient/Variant architecture.
+This directory contains JSON test data for the Ingredient/Product architecture.
 
 ## Files
 
-- **sample_data.json** - Comprehensive test dataset with 12 ingredients, 13 variants, 5 recipes, and complete event planning data
+- **sample_data.json** - Comprehensive test dataset with 12 ingredients, 13 products, 5 recipes, and complete event planning data
 - **exported_data.json** - Exported database snapshot (auto-generated, not tracked in git)
 
 ## Usage
@@ -44,7 +44,7 @@ Workflow for organically building a robust test dataset:
    ```
 
 2. **Run the application and manually add data**
-   - Add new ingredients/variants through the UI
+   - Add new ingredients/products through the UI
    - Create recipes
    - Record purchases
    - Update inventory
@@ -61,7 +61,7 @@ Workflow for organically building a robust test dataset:
 
 ## JSON Structure
 
-The JSON format matches the new Ingredient/Variant architecture:
+The JSON format matches the new Ingredient/Product architecture:
 
 ```json
 {
@@ -74,7 +74,7 @@ The JSON format matches the new Ingredient/Variant architecture:
       "density_g_per_ml": 0.507
     }
   ],
-  "variants": [
+  "products": [
     {
       "ingredient_slug": "all_purpose_flour",
       "brand": "King Arthur",
@@ -87,17 +87,17 @@ The JSON format matches the new Ingredient/Variant architecture:
   "purchases": [
     {
       "ingredient_slug": "all_purpose_flour",
-      "variant_brand": "King Arthur",
+      "product_brand": "King Arthur",
       "purchased_at": "2024-10-15T00:00:00",
       "unit_cost": 18.99,
       "quantity_purchased": 1.0,
       "total_cost": 18.99
     }
   ],
-  "pantry_items": [
+  "inventory_items": [
     {
       "ingredient_slug": "all_purpose_flour",
-      "variant_brand": "King Arthur",
+      "product_brand": "King Arthur",
       "quantity": 1.5,
       "purchase_date": "2024-10-15",
       "location": "Main Pantry"
@@ -137,11 +137,11 @@ The JSON format matches the new Ingredient/Variant architecture:
 
 ## Key Features
 
-- **Slug-based FK resolution** - Ingredients referenced by slug, variants by (slug, brand)
-- **FIFO tracking** - Pantry items include purchase dates for FIFO consumption
+- **Slug-based FK resolution** - Ingredients referenced by slug, products by (slug, brand)
+- **FIFO tracking** - Inventory items include purchase dates for FIFO consumption
 - **Price history** - Purchase records track unit cost over time
-- **Preferred variants** - Mark preferred brands for shopping recommendations
-- **Complete dependency chain** - Ingredients → Variants → Purchases/Pantry → Recipes → Finished Goods → Bundles → Packages → Events
+- **Preferred products** - Mark preferred brands for shopping recommendations
+- **Complete dependency chain** - Ingredients → Products → Purchases/Inventory → Recipes → Finished Goods → Bundles → Packages → Events
 
 ## Testing
 
@@ -152,11 +152,11 @@ python test_ingredient_variant.py
 ```
 
 This validates:
-- Ingredient/Variant separation
+- Ingredient/Product separation
 - Multiple brands per ingredient
 - FIFO inventory tracking
 - Price history with trend analysis
-- Recipes reference generic ingredients (not variants)
-- Preferred variant logic
+- Recipes reference generic ingredients (not products)
+- Preferred product logic
 - Aggregate inventory calculations
 - Multiple recipes with diverse ingredients

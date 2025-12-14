@@ -63,7 +63,7 @@ The Seasonal Baking Tracker is a desktop application built with Python and Custo
 ┌────────────────────────┴─────────────────────────────────────────────┐
 │                       Business Logic Layer                            │
 │  ┌──────────┐ ┌────────┐ ┌────────────┐ ┌────────┐ ┌──────────────┐ │
-│  │Ingredient│ │Variant │ │  Pantry    │ │Purchase│ │    Recipe    │ │
+│  │Ingredient│ │Product │ │  Pantry    │ │Purchase│ │    Recipe    │ │
 │  │ Service  │ │Service │ │  Service   │ │Service │ │   Service    │ │
 │  └──────────┘ └────────┘ └────────────┘ └────────┘ └──────────────┘ │
 │  ┌────────────┐ ┌────────┐ ┌───────────┐ ┌─────────────────────────┐│
@@ -83,7 +83,7 @@ The Seasonal Baking Tracker is a desktop application built with Python and Custo
 │  └────┬─────┘ └──────┘ └──────────┘ └──────┘ └──────┘ └─────────┘  │
 │       │                                                               │
 │  ┌────┴──────┬──────────┬──────────────┬───────────────┐            │
-│  │  Variant  │ Purchase │  PantryItem  │ UnitConversion│            │
+│  │  Product  │ Purchase │ InventoryItem│ UnitConversion│            │
 │  │   Model   │  Model   │    Model     │     Model     │            │
 │  └───────────┴──────────┴──────────────┴───────────────┘            │
 │  ┌──────┐  ┌───────────────────┐                                    │
@@ -126,21 +126,21 @@ The Seasonal Baking Tracker is a desktop application built with Python and Custo
 
 ### Core Entities
 
-#### Inventory Management (Ingredient/Variant Architecture)
+#### Inventory Management (Ingredient/Product Architecture)
 - **Ingredient** - Generic ingredient definitions (e.g., "All-Purpose Flour")
   - Brand-agnostic, represents the "platonic ideal" of an ingredient
   - Stores recipe unit and category
   - Supports industry standard identifiers (FoodOn, FDC, FoodEx2, LanguaL)
-- **Variant** - Specific brand/package versions (e.g., "King Arthur 25 lb bag")
+- **Product** - Specific brand/package versions (e.g., "King Arthur 25 lb bag")
   - Links to parent Ingredient
   - Stores brand, package size, UPC/GTIN, supplier information
-  - Preferred variant flag for shopping recommendations
+  - Preferred product flag for shopping recommendations
 - **Purchase** - Price history tracking for trend analysis
-  - Links to Variant
+  - Links to Product
   - Tracks purchase date, quantity, unit cost, supplier
   - Enables price trend calculations and alerts
-- **PantryItem** - Actual inventory with FIFO support
-  - Links to Variant
+- **InventoryItem** - Actual inventory with FIFO support
+  - Links to Product
   - Tracks quantity, purchase date, expiration date, location
   - FIFO consumption for accurate cost calculations
 - **UnitConversion** - Ingredient-specific conversion factors
@@ -158,18 +158,18 @@ The Seasonal Baking Tracker is a desktop application built with Python and Custo
 
 ### Key Relationships
 
-#### Ingredient/Variant Hierarchy
+#### Ingredient/Product Hierarchy
 ```
 Ingredient (generic)
-├─ Variant (brand-specific)
+├─ Product (brand-specific)
 │  ├─ Purchase (price history)
-│  └─ PantryItem (actual inventory)
+│  └─ InventoryItem (actual inventory)
 └─ UnitConversion (conversion factors)
 
 Ingredient ←→ Recipe (many-to-many via RecipeIngredient)
-  - Recipes reference generic Ingredients, not specific Variants
+  - Recipes reference generic Ingredients, not specific Products
   - Enables brand-agnostic recipes
-  - Cost calculation uses FIFO from pantry or preferred variant
+  - Cost calculation uses FIFO from pantry or preferred product
 ```
 
 #### Recipe & Event Planning
@@ -182,7 +182,7 @@ Event ←→ Recipient ←→ Package (via EventRecipientPackage junction)
 
 **Migration Note:** RecipeIngredient currently has dual foreign keys (`ingredient_id` for legacy, `ingredient_new_id` for refactored architecture) to support gradual migration.
 
-## Ingredient/Variant Architecture (v0.4.0 Refactor)
+## Ingredient/Product Architecture (v0.4.0 Refactor)
 
 ### Design Philosophy
 The inventory system follows a **"future-proof schema, present-simple implementation"** approach:
@@ -201,21 +201,21 @@ Represents the platonic ideal of an ingredient, independent of brand or package:
 - **Industry Standards:** Supports FoodOn, FDC, FoodEx2, LanguaL identifiers
 - **Physical Properties:** Density, moisture percentage, allergen information
 
-#### Variant (Specific Product)
+#### Product (Specific Purchasable Item)
 Represents a specific purchasable version with brand and package details:
 - **Purpose:** Track specific brands, packages, and suppliers
 - **Example:** "King Arthur All-Purpose Flour, 25 lb bag"
-- **Preferred Flag:** Mark preferred variants for shopping recommendations
+- **Preferred Flag:** Mark preferred products for shopping recommendations
 - **UPC/GTIN:** Barcode support for future mobile scanning
 - **Industry Standards:** GS1 GTIN, GPC brick codes, brand owner tracking
 - **Calculated Properties:**
   - `display_name` - Formatted display (brand + package)
   - `get_most_recent_purchase()` - Latest purchase for current price
   - `get_average_price(days)` - Price averaging over time period
-  - `get_total_pantry_quantity()` - Aggregate across all pantry items
+  - `get_total_inventory_quantity()` - Aggregate across all inventory items
 
 #### Purchase (Price History)
-Tracks all purchase transactions for a variant:
+Tracks all purchase transactions for a product:
 - **Purpose:** Price trend analysis and cost forecasting
 - **Benefits:**
   - Identify price increases/decreases
@@ -223,7 +223,7 @@ Tracks all purchase transactions for a variant:
   - Support future price alerts
   - Audit trail for expense tracking
 
-#### PantryItem (Actual Inventory)
+#### InventoryItem (Actual Inventory)
 Represents physical inventory with FIFO support:
 - **Purpose:** Track what's actually on the shelf
 - **FIFO Consumption:** Oldest items consumed first (matches physical flow)
@@ -233,7 +233,7 @@ Represents physical inventory with FIFO support:
 
 ### Key Design Decisions
 
-1. **Recipes Reference Ingredients, Not Variants**
+1. **Recipes Reference Ingredients, Not Products**
    - Recipes say "2 cups All-Purpose Flour" (generic)
    - Not tied to specific brand
    - User can switch brands without updating recipes
@@ -246,7 +246,7 @@ Represents physical inventory with FIFO support:
    - Industry standard approach
 
 3. **Separate Product Management and Pantry Tabs**
-   - "My Ingredients" tab: Manage catalog, variants, conversions
+   - "My Ingredients" tab: Manage catalog, products, conversions
    - "My Pantry" tab: View/manage actual inventory
    - Cleaner separation of planning vs. execution
    - Reduces cognitive load
@@ -323,11 +323,11 @@ def calculate_recipe_cost_fifo(recipe_id):
         # Sum costs from each lot consumed
         total_cost += sum(item["cost"] for item in cost_breakdown)
 
-        # Fallback: If insufficient inventory, estimate using preferred variant
+        # Fallback: If insufficient inventory, estimate using preferred product
         if consumed < quantity_needed:
             remaining = quantity_needed - consumed
-            preferred_variant = get_preferred_variant(ingredient_id)
-            fallback_cost = remaining * preferred_variant.get_current_cost_per_unit()
+            preferred_product = get_preferred_product(ingredient_id)
+            fallback_cost = remaining * preferred_product.get_current_cost_per_unit()
             total_cost += fallback_cost
 
     return total_cost

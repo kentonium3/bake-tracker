@@ -157,7 +157,7 @@ All entity arrays are optional, but when present, they must follow the dependenc
 
 ---
 
-### 3. variants
+### 3. products
 
 **Purpose**: Define brand-specific products for purchase and inventory tracking.
 
@@ -186,7 +186,7 @@ All entity arrays are optional, but when present, they must follow the dependenc
 | `purchase_unit` | string | **Yes** | Unit for purchasing |
 | `purchase_quantity` | decimal | **Yes** | Quantity per package |
 | `upc_code` | string | No | UPC barcode |
-| `is_preferred` | boolean | No | Preferred variant for shopping lists |
+| `is_preferred` | boolean | No | Preferred product for shopping lists |
 | `notes` | string | No | User notes |
 
 **Notes**:
@@ -216,7 +216,7 @@ All entity arrays are optional, but when present, they must follow the dependenc
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
 | `ingredient_slug` | string | **Yes** | Reference to ingredient |
-| `variant_brand` | string | **Yes** | Reference to variant (with ingredient_slug) |
+| `variant_brand` | string | **Yes** | Reference to product (with ingredient_slug) |
 | `purchase_date` | date | **Yes** | Date purchased (ISO 8601 date) |
 | `quantity` | integer | **Yes** | Number of packages |
 | `unit_price` | decimal | **Yes** | Price per package |
@@ -225,7 +225,7 @@ All entity arrays are optional, but when present, they must follow the dependenc
 
 ---
 
-### 5. pantry_items
+### 5. inventory_items
 
 **Purpose**: Current inventory with FIFO lots.
 
@@ -247,7 +247,7 @@ All entity arrays are optional, but when present, they must follow the dependenc
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
 | `ingredient_slug` | string | **Yes** | Reference to ingredient |
-| `variant_brand` | string | **Yes** | Reference to variant |
+| `variant_brand` | string | **Yes** | Reference to product |
 | `quantity` | decimal | **Yes** | Current quantity |
 | `unit` | string | **Yes** | Unit of measure |
 | `acquisition_date` | date | **Yes** | Date acquired (for FIFO ordering) |
@@ -256,8 +256,8 @@ All entity arrays are optional, but when present, they must follow the dependenc
 | `notes` | string | No | User notes |
 
 **Notes**:
-- Each pantry item represents a specific purchase/batch (FIFO lot)
-- Multiple pantry items can exist for same variant (different acquisition dates)
+- Each inventory item represents a specific purchase/batch (FIFO lot)
+- Multiple inventory items can exist for same product (different acquisition dates)
 
 ---
 
@@ -601,9 +601,9 @@ All entity arrays are optional, but when present, they must follow the dependenc
 
 1. `unit_conversions` - No dependencies
 2. `ingredients` - No dependencies
-3. `variants` - Requires: ingredients
-4. `purchases` - Requires: variants
-5. `pantry_items` - Requires: variants
+3. `products` - Requires: ingredients
+4. `purchases` - Requires: products
+5. `inventory_items` - Requires: products
 6. `recipes` - Requires: ingredients
 7. `finished_units` - Requires: recipes
 8. `finished_goods` - No direct dependencies
@@ -654,9 +654,9 @@ The import service first validates the header:
 
 All foreign key references are validated:
 
-- `variants.ingredient_slug` -> must exist in `ingredients`
-- `purchases.(ingredient_slug, variant_brand)` -> must exist in `variants`
-- `pantry_items.(ingredient_slug, variant_brand)` -> must exist in `variants`
+- `products.ingredient_slug` -> must exist in `ingredients`
+- `purchases.(ingredient_slug, product_brand)` -> must exist in `products`
+- `inventory_items.(ingredient_slug, product_brand)` -> must exist in `products`
 - `unit_conversions.ingredient_slug` -> must exist in `ingredients`
 - `recipes.ingredients[].ingredient_slug` -> must exist in `ingredients`
 - `finished_units.recipe_slug` -> must exist in `recipes`
@@ -717,7 +717,7 @@ After import, you'll see a summary like:
 Import Complete
 
 ingredients: 12 imported, 2 skipped
-variants: 15 imported, 0 skipped
+products: 15 imported, 0 skipped
 recipes: 8 imported, 1 skipped
 finished_units: 8 imported, 0 skipped
 finished_goods: 5 imported, 0 skipped
