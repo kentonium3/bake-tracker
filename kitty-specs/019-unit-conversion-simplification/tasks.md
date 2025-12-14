@@ -15,17 +15,17 @@
 
 ---
 
-## Work Package WP01: Model & Schema Deletion (Priority: P0) 🎯 MVP
+## Work Package WP01: Model & Schema Deletion (Priority: P0) ✅
 
 **Goal**: Delete UnitConversion model and remove recipe_unit column from Ingredient.
 **Independent Test**: Application starts without import errors; `from src.models import *` succeeds.
-**Prompt**: `tasks/planned/WP01-model-schema-deletion.md`
+**Prompt**: `tasks/done/WP01-model-schema-deletion.md`
 
 ### Included Subtasks
-- [ ] T001 Delete `src/models/unit_conversion.py` entirely
-- [ ] T002 Update `src/models/__init__.py` - remove UnitConversion import and `__all__` export
-- [ ] T003 Update `src/models/ingredient.py` - remove `recipe_unit` column definition
-- [ ] T004 Update `src/models/ingredient.py` - remove `conversions` relationship
+- [X] T001 Delete `src/models/unit_conversion.py` entirely
+- [X] T002 Update `src/models/__init__.py` - remove UnitConversion import and `__all__` export
+- [X] T003 Update `src/models/ingredient.py` - remove `recipe_unit` column definition
+- [X] T004 Update `src/models/ingredient.py` - remove `conversions` relationship
 
 ### Implementation Notes
 - Delete unit_conversion.py first
@@ -45,19 +45,19 @@
 
 ---
 
-## Work Package WP02: Import/Export v3.3 Update (Priority: P0)
+## Work Package WP02: Import/Export v3.3 Update (Priority: P0) ✅
 
 **Goal**: Update import/export service to v3.3 format without unit_conversions.
 **Independent Test**: Export produces JSON without `unit_conversions` array; import rejects v3.2 files.
-**Prompt**: `tasks/planned/WP02-import-export-v33.md`
+**Prompt**: `tasks/done/WP02-import-export-v33.md`
 
 ### Included Subtasks
-- [ ] T005 Update `src/services/import_export_service.py` - remove `from src.models.unit_conversion import UnitConversion`
-- [ ] T006 Remove unit_conversions export logic (~lines 1020, 1185, 1325, 1349)
-- [ ] T007 Remove unit_conversions import logic (~lines 2300-2330)
-- [ ] T008 Update version constant from "3.2" to "3.3" (~line 2245)
-- [ ] T009 Remove `recipe_unit` from ingredient export fields
-- [ ] T010 Remove `recipe_unit` from ingredient import handling
+- [X] T005 Update `src/services/import_export_service.py` - remove `from src.models.unit_conversion import UnitConversion`
+- [X] T006 Remove unit_conversions export logic (~lines 1020, 1185, 1325, 1349)
+- [X] T007 Remove unit_conversions import logic (~lines 2300-2330)
+- [X] T008 Update version constant from "3.2" to "3.3" (~line 2245)
+- [X] T009 Remove `recipe_unit` from ingredient export fields
+- [X] T010 Remove `recipe_unit` from ingredient import handling
 
 ### Implementation Notes
 - Start by removing the import statement for UnitConversion
@@ -76,21 +76,21 @@
 
 ---
 
-## Work Package WP03: Service Layer Cleanup (Priority: P1)
+## Work Package WP03: Service Layer Cleanup (Priority: P1) ✅
 
 **Goal**: Remove all recipe_unit and UnitConversion references from service layer.
 **Independent Test**: All services import cleanly; no undefined attribute errors.
-**Prompt**: `tasks/planned/WP03-service-layer-cleanup.md`
+**Prompt**: `tasks/done/WP03-service-layer-cleanup.md`
 
 ### Included Subtasks
-- [ ] T011 Update `src/services/unit_converter.py` - rename `recipe_unit` param to `target_unit` in `format_ingredient_conversion()`
-- [ ] T012 Update `src/services/ingredient_service.py` - remove UnitConversion references
-- [ ] T013 [P] Review/update `src/services/recipe_service.py` - remove recipe_unit references
-- [ ] T014 [P] Review/update `src/services/product_service.py` - remove recipe_unit references
-- [ ] T015 [P] Review/update `src/services/inventory_item_service.py` - remove recipe_unit references
-- [ ] T016 [P] Review/update `src/services/ingredient_crud_service.py` - remove recipe_unit references
-- [ ] T017 [P] Review/update `src/services/finished_unit_service.py` - remove recipe_unit references
-- [ ] T018 [P] Review/update `src/services/assembly_service.py` - remove recipe_unit references
+- [X] T011 Update `src/services/unit_converter.py` - rename `recipe_unit` param to `target_unit` in `format_ingredient_conversion()`
+- [X] T012 Update `src/services/ingredient_service.py` - remove UnitConversion references
+- [X] T013 [P] Review/update `src/services/recipe_service.py` - remove recipe_unit references
+- [X] T014 [P] Review/update `src/services/product_service.py` - remove recipe_unit references
+- [X] T015 [P] Review/update `src/services/inventory_item_service.py` - remove recipe_unit references
+- [X] T016 [P] Review/update `src/services/ingredient_crud_service.py` - remove recipe_unit references
+- [X] T017 [P] Review/update `src/services/finished_unit_service.py` - remove recipe_unit references
+- [X] T018 [P] Review/update `src/services/assembly_service.py` - remove recipe_unit references
 
 ### Implementation Notes
 - For each file, grep for `recipe_unit` and assess usage
@@ -109,18 +109,18 @@
 
 ---
 
-## Work Package WP04: Test Updates & Validation (Priority: P2)
+## Work Package WP04: Test Updates & Validation (Priority: P2) ✅
 
 **Goal**: Update tests for model changes; add conversion accuracy tests.
 **Independent Test**: `pytest src/tests -v` passes; coverage >70% on affected services.
-**Prompt**: `tasks/planned/WP04-test-updates.md`
+**Prompt**: `tasks/done/WP04-test-updates.md`
 
 ### Included Subtasks
-- [ ] T019 Remove/update tests in `src/tests/test_models.py` for UnitConversion
-- [ ] T020 [P] Update ingredient-related tests - remove recipe_unit expectations
-- [ ] T021 [P] Add/verify unit tests for `convert_any_units()` accuracy in `src/tests/test_unit_converter.py`
-- [ ] T022 [P] Update import/export tests for v3.3 format in `src/tests/services/test_import_export_service.py`
-- [ ] T023 Add test for v3.2 import rejection
+- [X] T019 Remove/update tests in `src/tests/test_models.py` for UnitConversion
+- [X] T020 [P] Update ingredient-related tests - remove recipe_unit expectations
+- [X] T021 [P] Add/verify unit tests for `convert_any_units()` accuracy in `src/tests/test_unit_converter.py`
+- [X] T022 [P] Update import/export tests for v3.3 format in `src/tests/services/test_import_export_service.py`
+- [X] T023 Add test for v3.2 import rejection
 
 ### Implementation Notes
 - Grep test files for `UnitConversion` and `recipe_unit`
