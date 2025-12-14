@@ -13,16 +13,49 @@ title: "Data Files, Documentation & UI Cleanup"
 phase: "Phase 4 - Finalization"
 lane: "planned"
 assignee: ""
-agent: ""
+agent: "claude-opus-4-5-20251101"
 shell_pid: ""
-review_status: ""
-reviewed_by: ""
+review_status: "has_feedback"
+reviewed_by: "claude-opus-4-5-20251101"
 history:
   - timestamp: "2025-12-14T12:00:00Z"
     lane: "planned"
     agent: "system"
     shell_pid: ""
     action: "Prompt generated via /spec-kitty.tasks"
+---
+
+## Review Feedback
+
+**Status**: ❌ **Needs Changes**
+
+**Key Issues**:
+1. `docs/design/import_export_specification.md` has stale `unit_conversions` references:
+   - Line 586: In import dependency order list (should be removed)
+   - Line 644: In referential integrity rules (should be removed)
+   - Lines 790-797: In sample JSON example (should be removed)
+
+2. `docs/feature_proposal_catalog_import.md` still has `unit_conversions` examples:
+   - Lines 323 and 352: JSON examples include `unit_conversions` array
+
+**What Was Done Well**:
+- ✅ `sample_data.json` correctly updated to v3.3 with no `unit_conversions`
+- ✅ `import_export_specification.md` header, changelog, and entity definitions correctly updated
+- ✅ `inventory_tab.py` UI display fixed for multi-unit totals
+- ✅ All 706 tests pass (12 expected skips)
+- ✅ `recipe_unit` references in UI are valid variable/parameter names (not `Ingredient.recipe_unit`)
+
+**Action Items** (must complete before re-review):
+- [ ] Remove `unit_conversions` from import dependency order in `import_export_specification.md`
+- [ ] Remove `unit_conversions` from referential integrity rules in `import_export_specification.md`
+- [ ] Remove `unit_conversions` from sample JSON in `import_export_specification.md`
+- [ ] Update `feature_proposal_catalog_import.md` to remove `unit_conversions` from examples
+
+**Notes**:
+- `baking_ingredients_v32.json` doesn't exist in worktree (only in main repo) - will be handled at merge
+- `catalog_import_status.md` doesn't exist in worktree - out of scope
+- Archive files with `unit_conversions` are acceptable (they're archived historical content)
+
 ---
 
 # Work Package Prompt: WP05 – Data Files, Documentation & UI Cleanup
@@ -191,3 +224,5 @@ history:
 ## Activity Log
 
 - 2025-12-14T12:00:00Z – system – lane=planned – Prompt created.
+- 2025-12-14T08:16:44Z – system – shell_pid= – lane=for_review – Moving to for_review for code review
+- 2025-12-14T08:22:00Z – claude-opus-4-5-20251101 – lane=planned – Code review: NEEDS CHANGES. Found stale unit_conversions references in import_export_specification.md (lines 586, 644, 790-797) and feature_proposal_catalog_import.md (lines 323, 352). Tests pass (706/706). See Review Feedback section for action items.
