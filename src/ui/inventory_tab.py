@@ -1192,9 +1192,11 @@ class ConsumeIngredientDialog(ctk.CTkToplevel):
             self.ingredients = []
             for ing in all_ingredients:
                 try:
-                    total = inventory_item_service.get_total_quantity(ing["slug"])
-                    if total > 0:
-                        ing["total_quantity"] = total
+                    totals = inventory_item_service.get_total_quantity(ing["slug"])
+                    if totals:  # Dict with at least one unit
+                        # Format as "X unit, Y unit2" for display
+                        parts = [f"{float(qty):.2f} {unit}" for unit, qty in totals.items()]
+                        ing["total_quantity_display"] = ", ".join(parts)
                         self.ingredients.append(ing)
                 except Exception:
                     continue
@@ -1225,7 +1227,7 @@ class ConsumeIngredientDialog(ctk.CTkToplevel):
         ing_label.grid(row=row, column=0, padx=10, pady=10, sticky="w")
 
         ingredient_names = [
-            f"{ing['name']} (Available: {ing['total_quantity']} {ing.get('recipe_unit', '')})"
+            f"{ing['name']} (Available: {ing.get('total_quantity_display', 'N/A')})"
             for ing in self.ingredients
         ]
         self.ingredient_var = ctk.StringVar(

@@ -1,12 +1,17 @@
 # Import/Export Specification for Bake Tracker
 
-**Version:** 3.2
+**Version:** 3.3
 **Status:** Current
 
-> **NOTE**: This application only accepts v3.2 format files. Older format versions (3.0, 3.1)
+> **NOTE**: This application only accepts v3.3 format files. Older format versions
 > are no longer supported. Export your data using the current version before importing.
 
 ## Changelog
+
+### v3.3 (2025-12-14 - Feature 019)
+- **Removed**: `unit_conversions` entity - no longer needed
+- **Removed**: `recipe_unit` field from ingredients - unit conversion uses 4-field density model
+- **Changed**: Unit conversion now uses ingredient density fields (density_volume_value, density_volume_unit, density_weight_value, density_weight_unit)
 
 ### v3.2 (2025-12-11 - Feature 016)
 - **Added**: `event_production_targets` entity for event production planning
@@ -56,10 +61,9 @@ The export format is a single JSON file with a required header and entity arrays
 
 ```json
 {
-  "version": "3.2",
+  "version": "3.3",
   "exported_at": "2025-12-04T10:30:00Z",
   "application": "bake-tracker",
-  "unit_conversions": [...],
   "ingredients": [...],
   "products": [...],
   "purchases": [...],
@@ -85,7 +89,7 @@ The export format is a single JSON file with a required header and entity arrays
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| `version` | string | **Yes** | Must be "3.2" |
+| `version` | string | **Yes** | Must be "3.3" |
 | `exported_at` | string | **Yes** | ISO 8601 timestamp with 'Z' suffix |
 | `application` | string | **Yes** | Must be "bake-tracker" |
 
@@ -95,35 +99,7 @@ All entity arrays are optional, but when present, they must follow the dependenc
 
 ## Entity Definitions
 
-### 1. unit_conversions
-
-**Purpose**: Define ingredient-specific conversion factors between units.
-
-**Schema**:
-
-```json
-{
-  "ingredient_slug": "all_purpose_flour",
-  "from_unit": "lb",
-  "to_unit": "cup",
-  "factor": 3.6
-}
-```
-
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `ingredient_slug` | string | **Yes** | Reference to ingredient |
-| `from_unit` | string | **Yes** | Source unit |
-| `to_unit` | string | **Yes** | Target unit |
-| `factor` | decimal | **Yes** | Conversion multiplier (from_unit * factor = to_unit) |
-
-**Notes**:
-- Enables conversion between purchase units (lb) and recipe units (cup)
-- Ingredient-specific (flour vs sugar have different densities)
-
----
-
-### 2. ingredients
+### 1. ingredients
 
 **Purpose**: Define generic ingredient types used in recipes.
 
@@ -134,10 +110,13 @@ All entity arrays are optional, but when present, they must follow the dependenc
   "name": "All-Purpose Flour",
   "slug": "all_purpose_flour",
   "category": "Flour",
-  "recipe_unit": "cup",
   "description": "Standard all-purpose wheat flour",
-  "density_g_per_ml": 0.507,
-  "notes": "Store in airtight container"
+  "density_volume_value": 1.0,
+  "density_volume_unit": "cup",
+  "density_weight_value": 4.25,
+  "density_weight_unit": "oz",
+  "notes": "Store in airtight container",
+  "is_packaging": false
 }
 ```
 
@@ -146,18 +125,23 @@ All entity arrays are optional, but when present, they must follow the dependenc
 | `name` | string | **Yes** | Display name (max 200 chars) |
 | `slug` | string | **Yes** | Unique identifier (lowercase, underscores, max 100 chars) |
 | `category` | string | **Yes** | Category (see Appendix A) |
-| `recipe_unit` | string | **Yes** | Default unit for recipes |
 | `description` | string | No | Detailed description |
-| `density_g_per_ml` | decimal | No | Density for volume/weight conversion |
+| `density_volume_value` | decimal | No | Volume amount for density conversion |
+| `density_volume_unit` | string | No | Volume unit (cup, ml, tbsp, tsp, l) |
+| `density_weight_value` | decimal | No | Weight amount for density conversion |
+| `density_weight_unit` | string | No | Weight unit (oz, g, lb, kg) |
 | `notes` | string | No | User notes |
+| `is_packaging` | boolean | No | True if packaging material, false for food |
 
 **Notes**:
 - `slug` is the **primary identifier** used in all foreign key references
 - Use lowercase with underscores (e.g., `semi_sweet_chocolate_chips`)
+- Density fields must be all-or-nothing (all 4 or none)
+- Density enables volume ↔ weight conversion (e.g., "1 cup = 4.25 oz")
 
 ---
 
-### 3. products
+### 2. products
 
 **Purpose**: Define brand-specific products for purchase and inventory tracking.
 
@@ -195,7 +179,7 @@ All entity arrays are optional, but when present, they must follow the dependenc
 
 ---
 
-### 4. purchases
+### 3. purchases
 
 **Purpose**: Track historical purchases for price history.
 
@@ -225,7 +209,7 @@ All entity arrays are optional, but when present, they must follow the dependenc
 
 ---
 
-### 5. inventory_items
+### 4. inventory_items
 
 **Purpose**: Current inventory with FIFO lots.
 
@@ -261,7 +245,7 @@ All entity arrays are optional, but when present, they must follow the dependenc
 
 ---
 
-### 6. recipes
+### 5. recipes
 
 **Purpose**: Recipe definitions with embedded ingredient list.
 
@@ -339,7 +323,7 @@ All entity arrays are optional, but when present, they must follow the dependenc
 
 ---
 
-### 7. finished_units
+### 6. finished_units
 
 **Purpose**: Yield definitions for recipes (how many items per batch).
 
@@ -376,7 +360,7 @@ All entity arrays are optional, but when present, they must follow the dependenc
 
 ---
 
-### 8. finished_goods
+### 7. finished_goods
 
 **Purpose**: Composite finished products (assemblies containing finished units).
 
@@ -402,7 +386,7 @@ All entity arrays are optional, but when present, they must follow the dependenc
 
 ---
 
-### 9. compositions
+### 8. compositions
 
 **Purpose**: Links finished units (or sub-assemblies) to finished goods.
 
@@ -434,7 +418,7 @@ All entity arrays are optional, but when present, they must follow the dependenc
 
 ---
 
-### 10. packages
+### 9. packages
 
 **Purpose**: Gift package definitions.
 
@@ -460,7 +444,7 @@ All entity arrays are optional, but when present, they must follow the dependenc
 
 ---
 
-### 11. package_finished_goods
+### 10. package_finished_goods
 
 **Purpose**: Links finished goods to packages (package contents).
 
@@ -482,7 +466,7 @@ All entity arrays are optional, but when present, they must follow the dependenc
 
 ---
 
-### 12. recipients
+### 11. recipients
 
 **Purpose**: Gift recipients.
 
@@ -506,7 +490,7 @@ All entity arrays are optional, but when present, they must follow the dependenc
 
 ---
 
-### 13. events
+### 12. events
 
 **Purpose**: Holiday/occasion events.
 
@@ -532,7 +516,7 @@ All entity arrays are optional, but when present, they must follow the dependenc
 
 ---
 
-### 14. event_recipient_packages
+### 13. event_recipient_packages
 
 **Purpose**: Package assignments for events with production status.
 
@@ -567,7 +551,7 @@ All entity arrays are optional, but when present, they must follow the dependenc
 
 ---
 
-### 15. production_records
+### 14. production_records
 
 **Purpose**: Batch production records with FIFO cost capture.
 
