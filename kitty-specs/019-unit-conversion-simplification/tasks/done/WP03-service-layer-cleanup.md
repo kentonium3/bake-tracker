@@ -11,7 +11,7 @@ subtasks:
   - "T018"
 title: "Service Layer Cleanup"
 phase: "Phase 2 - Service Updates"
-lane: "for_review"
+lane: "done"
 assignee: ""
 agent: "claude"
 shell_pid: "23019"
@@ -178,3 +178,4 @@ history:
 - 2025-12-14T12:00:00Z – system – lane=planned – Prompt created.
 - 2025-12-14T07:42:19Z – claude – shell_pid=23019 – lane=doing – Moved to doing
 - 2025-12-14T19:51:32Z – claude – shell_pid=23019 – lane=for_review – Implementation complete, ready for review
+- 2025-12-14T19:53:13Z – claude – shell_pid=23019 – lane=done – Code review APPROVED: UnitConversion removed from services, consume_fifo uses target_unit
