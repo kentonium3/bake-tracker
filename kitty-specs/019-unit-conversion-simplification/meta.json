@@ -1,7 +1,24 @@
 {
+  "accept_commit": null,
+  "acceptance_history": [
+    {
+      "accepted_at": "2025-12-14T19:59:24Z",
+      "accepted_by": "claude",
+      "accepted_from_commit": "a0aec1e46bf80fc0a134cd5843e0536f34395d86",
+      "branch": "019-unit-conversion-simplification",
+      "mode": "local",
+      "validation_commands": [
+        "pytest src/tests -v"
+      ]
+    }
+  ],
+  "acceptance_mode": "local",
+  "accepted_at": "2025-12-14T19:59:24Z",
+  "accepted_by": "claude",
+  "accepted_from_commit": "a0aec1e46bf80fc0a134cd5843e0536f34395d86",
+  "created_at": "2025-12-14T07:11:45Z",
   "feature_number": "019",
-  "slug": "019-unit-conversion-simplification",
   "friendly_name": "Unit Conversion Simplification",
-  "source_description": "Remove redundant unit conversion mechanisms (recipe_unit column and UnitConversion table) - keep 4-field density as canonical source for all conversions",
-  "created_at": "2025-12-14T07:11:45Z"
+  "slug": "019-unit-conversion-simplification",
+  "source_description": "Remove redundant unit conversion mechanisms (recipe_unit column and UnitConversion table) - keep 4-field density as canonical source for all conversions"
 }
