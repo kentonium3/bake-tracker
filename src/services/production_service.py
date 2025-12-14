@@ -177,6 +177,7 @@ def record_production(
                 result = inventory_item_service.consume_fifo(
                     ingredient_slug=ingredient.slug,
                     quantity_needed=qty_needed,
+                    target_unit=ri.unit,
                     dry_run=False,
                 )
 

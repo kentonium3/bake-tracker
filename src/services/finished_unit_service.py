@@ -618,16 +618,18 @@ class FinishedUnitService:
 
                 # Calculate quantity needed for this finished unit
                 quantity_needed = recipe_ingredient.quantity * batches_needed
+                # Use the recipe ingredient's unit (from RecipeIngredient.unit)
+                target_unit = recipe_ingredient.unit
 
                 # Get FIFO cost for this ingredient quantity
                 ingredient_cost = FinishedUnitService._get_ingredient_fifo_cost(
-                    ingredient.slug, quantity_needed
+                    ingredient.slug, quantity_needed, target_unit
                 )
 
                 if ingredient_cost is not None:
                     total_fifo_cost += ingredient_cost
                     logger.debug(
-                        f"FIFO cost for {ingredient.display_name} ({quantity_needed} {ingredient.recipe_unit}): {ingredient_cost}"
+                        f"FIFO cost for {ingredient.display_name} ({quantity_needed} {target_unit}): {ingredient_cost}"
                     )
                 else:
                     # If any ingredient lacks FIFO cost data, return None
@@ -642,7 +644,7 @@ class FinishedUnitService:
 
     @staticmethod
     def _get_ingredient_fifo_cost(
-        ingredient_slug: str, quantity_needed: Decimal
+        ingredient_slug: str, quantity_needed: Decimal, target_unit: str
     ) -> Optional[Decimal]:
         """
         Calculate FIFO cost for a specific ingredient quantity.
@@ -652,7 +654,8 @@ class FinishedUnitService:
 
         Args:
             ingredient_slug: Ingredient identifier
-            quantity_needed: Amount needed in ingredient's recipe_unit
+            quantity_needed: Amount needed in the target_unit
+            target_unit: The unit that quantity_needed is expressed in
 
         Returns:
             FIFO cost for the quantity, or None if insufficient data
@@ -696,12 +699,12 @@ class FinishedUnitService:
                     if remaining_needed <= Decimal("0.0"):
                         break
 
-                    # Convert inventory item quantity to ingredient recipe_unit
+                    # Convert inventory item quantity to target_unit
                     item_qty_decimal = Decimal(str(inventory_item.quantity))
                     success, available_float, error = convert_any_units(
                         float(item_qty_decimal),
                         inventory_item.product.purchase_unit,
-                        ingredient.recipe_unit,
+                        target_unit,
                         ingredient=ingredient,
                     )
 
@@ -713,7 +716,7 @@ class FinishedUnitService:
 
                     # Get purchase cost for this inventory item
                     purchase_cost = FinishedUnitService._get_inventory_item_unit_cost(
-                        inventory_item, to_consume, ingredient
+                        inventory_item, to_consume, target_unit, ingredient
                     )
 
                     if purchase_cost is not None:
@@ -735,14 +738,15 @@ class FinishedUnitService:
 
     @staticmethod
     def _get_inventory_item_unit_cost(
-        inventory_item: InventoryItem, quantity_consumed: Decimal, ingredient: "Ingredient"
+        inventory_item: InventoryItem, quantity_consumed: Decimal, target_unit: str, ingredient: "Ingredient"
     ) -> Optional[Decimal]:
         """
         Get the unit cost for an inventory item based on purchase history.
 
         Args:
             inventory_item: InventoryItem being consumed
-            quantity_consumed: Amount consumed in ingredient recipe_unit
+            quantity_consumed: Amount consumed in target_unit
+            target_unit: The unit that quantity_consumed is expressed in
             ingredient: Ingredient for unit conversion
 
         Returns:
@@ -770,7 +774,7 @@ class FinishedUnitService:
                 # Convert quantity_consumed back to purchase units for cost calculation
                 success, quantity_in_purchase_unit_float, error = convert_any_units(
                     float(quantity_consumed),
-                    ingredient.recipe_unit,
+                    target_unit,
                     inventory_item.product.purchase_unit,
                     ingredient=ingredient,
                 )

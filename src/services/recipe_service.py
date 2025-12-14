@@ -708,30 +708,10 @@ def calculate_actual_cost(recipe_id: int) -> Decimal:
                 if recipe_qty <= Decimal("0"):
                     continue
 
-                # Determine target unit for FIFO consumption
-                # We'll use the ingredient's recipe_unit if set, otherwise fall back to inventory unit
-                target_unit = ingredient.recipe_unit or recipe_unit
-
-                # Convert recipe quantity to target unit if needed
-                if recipe_unit != target_unit:
-                    success, converted_float, error = convert_any_units(
-                        float(recipe_qty),
-                        recipe_unit,
-                        target_unit,
-                        ingredient=ingredient,
-                    )
-                    if not success:
-                        raise ValidationError(
-                            [f"Cannot convert units for '{ingredient.display_name}': {error}. "
-                             f"Density data may be required for {recipe_unit} to {target_unit} conversion."]
-                        )
-                    converted_qty = Decimal(str(converted_float))
-                else:
-                    converted_qty = recipe_qty
-
                 # Call consume_fifo with dry_run=True to get FIFO cost without modifying inventory
+                # consume_fifo handles unit conversion from purchase_unit to recipe_unit
                 fifo_result = inventory_item_service.consume_fifo(
-                    ingredient.slug, converted_qty, dry_run=True
+                    ingredient.slug, recipe_qty, recipe_unit, dry_run=True
                 )
 
                 # Get FIFO cost from inventory consumption

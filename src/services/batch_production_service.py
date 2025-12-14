@@ -154,7 +154,7 @@ def _check_can_produce_impl(
 
         # Perform dry-run FIFO check - pass session for consistency
         result = inventory_item_service.consume_fifo(
-            ingredient_slug, quantity_needed, dry_run=True, session=session
+            ingredient_slug, quantity_needed, unit, dry_run=True, session=session
         )
 
         if not result["satisfied"]:
@@ -274,7 +274,7 @@ def record_batch_production(
 
             # Perform actual FIFO consumption - pass session for atomic transaction
             result = inventory_item_service.consume_fifo(
-                ingredient_slug, quantity_needed, dry_run=False, session=session
+                ingredient_slug, quantity_needed, unit, dry_run=False, session=session
             )
 
             if not result["satisfied"]:

@@ -212,7 +212,6 @@ def create_ingredient(ingredient_data: Dict[str, Any]) -> Ingredient:
                 slug=slug,
                 display_name=display_name,
                 category=category,
-                recipe_unit=ingredient_data.get("recipe_unit"),
                 description=ingredient_data.get("description"),
                 is_packaging=is_packaging,
                 density_volume_value=ingredient_data.get("density_volume_value"),
@@ -475,7 +474,6 @@ def check_ingredient_dependencies(slug: str) -> Dict[str, int]:
             - "recipes": Number of recipes using this ingredient
             - "products": Number of products for this ingredient
             - "inventory_items": Number of inventory items (via products)
-            - "unit_conversions": Number of custom unit conversions
 
     Raises:
         IngredientNotFoundBySlug: If slug doesn't exist
@@ -483,14 +481,14 @@ def check_ingredient_dependencies(slug: str) -> Dict[str, int]:
     Example:
         >>> deps = check_ingredient_dependencies("all_purpose_flour")
         >>> deps
-        {'recipes': 5, 'products': 3, 'inventory_items': 12, 'unit_conversions': 2}
+        {'recipes': 5, 'products': 3, 'inventory_items': 12}
 
         >>> deps = check_ingredient_dependencies("unused_ingredient")
         >>> deps
-        {'recipes': 0, 'products': 0, 'inventory_items': 0, 'unit_conversions': 0}
+        {'recipes': 0, 'products': 0, 'inventory_items': 0}
     """
     # Import models here to avoid circular dependencies
-    from ..models import Product, InventoryItem, UnitConversion, RecipeIngredient
+    from ..models import Product, InventoryItem, RecipeIngredient
 
     with session_scope() as session:
         # Verify ingredient exists
@@ -517,17 +515,10 @@ def check_ingredient_dependencies(slug: str) -> Dict[str, int]:
             .count()
         )
 
-        conversions_count = (
-            session.query(UnitConversion)
-            .filter(UnitConversion.ingredient_id == ingredient_id)
-            .count()
-        )
-
         return {
             "recipes": recipes_count,
             "products": products_count,
             "inventory_items": inventory_count,
-            "unit_conversions": conversions_count,
         }
 
 

@@ -225,6 +225,7 @@ def get_total_quantity(ingredient_slug: str) -> Dict[str, Decimal]:
 def consume_fifo(
     ingredient_slug: str,
     quantity_needed: Decimal,
+    target_unit: str,
     dry_run: bool = False,
     session=None,
 ) -> Dict[str, Any]:
@@ -235,7 +236,7 @@ def consume_fifo(
     Algorithm:
         1. Query all lots for ingredient ordered by purchase_date ASC (oldest first)
         2. Iterate through lots, consuming from each until quantity_needed satisfied
-        3. Convert between lot units and ingredient recipe_unit as needed
+        3. Convert between lot units and target_unit as needed
         4. Update lot quantities atomically within single transaction (unless dry_run)
         5. Track consumption breakdown for audit trail
         6. Calculate shortfall if insufficient inventory
@@ -243,7 +244,8 @@ def consume_fifo(
 
     Args:
         ingredient_slug: Ingredient to consume from
-        quantity_needed: Amount to consume in ingredient's recipe_unit
+        quantity_needed: Amount to consume in the target_unit
+        target_unit: The unit that quantity_needed is expressed in (from recipe)
         dry_run: If True, simulate consumption without modifying database.
                  Returns cost data for recipe costing calculations.
                  If False (default), actually consume inventory.
@@ -253,7 +255,7 @@ def consume_fifo(
 
     Returns:
         Dict[str, Any]: Consumption result with keys:
-            - "consumed" (Decimal): Amount actually consumed in recipe_unit
+            - "consumed" (Decimal): Amount actually consumed in target_unit
             - "breakdown" (List[Dict]): Per-lot consumption details including unit_cost
             - "shortfall" (Decimal): Amount not available (0.0 if satisfied)
             - "satisfied" (bool): True if quantity_needed fully consumed
@@ -266,7 +268,7 @@ def consume_fifo(
     Note:
         - All updates occur within single transaction (atomic) unless dry_run=True
         - Quantities maintained at 3 decimal precision
-        - Unit conversion uses ingredient's unit_converter configuration
+        - Unit conversion uses ingredient's density for cross-type conversions
         - Empty lots (quantity=0) are kept for audit trail, not deleted
         - When dry_run=True, inventory quantities are NOT modified (read-only)
         - When session is provided, caller is responsible for commit/rollback
@@ -307,12 +309,12 @@ def consume_fifo(
             if remaining_needed <= Decimal("0.0"):
                 break
 
-            # Convert lot quantity to ingredient recipe_unit
+            # Convert lot quantity to target_unit
             item_qty_decimal = Decimal(str(item.quantity))
             success, available_float, error = convert_any_units(
                 float(item_qty_decimal),
                 item.product.purchase_unit,
-                ingredient.recipe_unit,
+                target_unit,
                 ingredient=ingredient,
             )
             if not success:
@@ -320,12 +322,12 @@ def consume_fifo(
             available = Decimal(str(available_float))
 
             # Consume up to available amount
-            to_consume_in_recipe_unit = min(available, remaining_needed)
+            to_consume_in_target_unit = min(available, remaining_needed)
 
             # Convert back to lot's unit for deduction
             success, to_consume_float, error = convert_any_units(
-                float(to_consume_in_recipe_unit),
-                ingredient.recipe_unit,
+                float(to_consume_in_target_unit),
+                target_unit,
                 item.product.purchase_unit,
                 ingredient=ingredient,
             )
@@ -344,8 +346,8 @@ def consume_fifo(
             if not dry_run:
                 item.quantity -= float(to_consume_in_lot_unit)
 
-            consumed += to_consume_in_recipe_unit
-            remaining_needed -= to_consume_in_recipe_unit
+            consumed += to_consume_in_target_unit
+            remaining_needed -= to_consume_in_target_unit
 
             # Calculate remaining_in_lot (for dry_run, simulate the deduction)
             if dry_run:

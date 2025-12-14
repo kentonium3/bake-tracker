@@ -392,7 +392,7 @@ def convert_to_recipe_units(purchase_quantity: float, conversion_factor: float) 
 def format_ingredient_conversion(
     conversion_factor: float,
     purchase_unit: str,
-    recipe_unit: str,
+    target_unit: str,
     precision: int = 2,
 ) -> str:
     """
@@ -401,13 +401,13 @@ def format_ingredient_conversion(
     Args:
         conversion_factor: Conversion factor value
         purchase_unit: Purchase unit name
-        recipe_unit: Recipe unit name
+        target_unit: Target unit name
         precision: Decimal places
 
     Returns:
         Formatted string (e.g., "1 bag = 200.00 cups")
     """
-    return f"1 {purchase_unit} = {conversion_factor:.{precision}f} {recipe_unit}"
+    return f"1 {purchase_unit} = {conversion_factor:.{precision}f} {target_unit}"
 
 
 # ============================================================================

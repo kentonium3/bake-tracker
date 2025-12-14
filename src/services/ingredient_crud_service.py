@@ -60,7 +60,6 @@ def create_ingredient(data: Dict) -> Ingredient:
                 display_name=display_name,
                 slug=data.get("slug", display_name.lower().replace(" ", "_")),
                 category=data["category"],
-                recipe_unit=data["recipe_unit"],
                 description=data.get("description"),
                 notes=data.get("notes"),
                 # 4-field density model (Feature 010)

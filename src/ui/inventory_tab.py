@@ -1343,7 +1343,16 @@ class ConsumeIngredientDialog(ctk.CTkToplevel):
 
         # Call service to get FIFO preview (dry run)
         try:
-            result = inventory_item_service.consume_fifo(ingredient["slug"], quantity)
+            # Get the target unit from the preferred product's purchase_unit
+            preferred = product_service.get_preferred_product(ingredient["slug"])
+            if preferred:
+                target_unit = preferred.purchase_unit or "unit"
+            else:
+                # Fall back to first product's purchase_unit
+                products = product_service.get_products_for_ingredient(ingredient["slug"])
+                target_unit = products[0].purchase_unit if products else "unit"
+
+            result = inventory_item_service.consume_fifo(ingredient["slug"], quantity, target_unit)
             self.preview_data = result
 
             # Build preview message
@@ -1351,9 +1360,9 @@ class ConsumeIngredientDialog(ctk.CTkToplevel):
             preview_message += "=" * 60 + "\n\n"
 
             if result["satisfied"]:
-                preview_message += f"✓ Requested: {quantity} {ingredient.get('recipe_unit', '')}\n"
+                preview_message += f"✓ Requested: {quantity} {target_unit}\n"
                 preview_message += (
-                    f"✓ Will consume: {result['consumed']} {ingredient.get('recipe_unit', '')}\n"
+                    f"✓ Will consume: {result['consumed']} {target_unit}\n"
                 )
                 preview_message += "✓ Status: SATISFIED\n\n"
 
@@ -1371,12 +1380,12 @@ class ConsumeIngredientDialog(ctk.CTkToplevel):
 
             else:
                 # Insufficient inventory
-                preview_message += f"⚠ Requested: {quantity} {ingredient.get('recipe_unit', '')}\n"
+                preview_message += f"⚠ Requested: {quantity} {target_unit}\n"
                 preview_message += (
-                    f"⚠ Available: {result['consumed']} {ingredient.get('recipe_unit', '')}\n"
+                    f"⚠ Available: {result['consumed']} {target_unit}\n"
                 )
                 preview_message += (
-                    f"⚠ Shortfall: {result['shortfall']} {ingredient.get('recipe_unit', '')}\n"
+                    f"⚠ Shortfall: {result['shortfall']} {target_unit}\n"
                 )
                 preview_message += "⚠ Status: INSUFFICIENT INVENTORY\n\n"
 
