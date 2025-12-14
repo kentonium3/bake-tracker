@@ -193,6 +193,7 @@ class SnapshotIngredient(BaseModel):
 
         # Add calculated fields
         result["value"] = self.calculate_value()
-        result["recipe_unit_quantity"] = self.get_recipe_unit_quantity()
+        # Note: quantity is already included from base to_dict()
+        # The legacy recipe_unit_quantity field was removed in v3.3
 
         return result

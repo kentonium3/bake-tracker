@@ -3,7 +3,7 @@ Unit tests for the unit conversion system.
 
 Tests cover:
 - Standard unit conversions (weight, volume, count)
-- Ingredient unit conversions
+- Density-based cross-type conversions (volume↔weight)
 - Cost calculations
 - Edge cases and error handling
 """
@@ -17,17 +17,10 @@ from src.services.unit_converter import (
     # Standard conversions
     convert_standard_units,
     format_conversion,
-    # Ingredient conversions
-    convert_to_purchase_units,
-    convert_to_recipe_units,
-    format_ingredient_conversion,
     # Cost calculations
-    calculate_ingredient_cost,
-    calculate_cost_per_recipe_unit,
     calculate_cost_per_yield_unit,
     format_cost,
     # Validation
-    validate_conversion_factor,
     validate_quantity
 )
 
@@ -305,114 +298,11 @@ class TestFormatConversion:
         assert "Error" in result
 
 # ============================================================================
-# Ingredient Conversion Tests
-# ============================================================================
-
-class TestIngredientConversions:
-    """Test ingredient-specific unit conversions."""
-
-    def test_convert_to_recipe_units(self):
-        """Test conversion to recipe units."""
-        # 1 bag = 200 cups, so 2.5 bags = 500 cups
-        result = convert_to_recipe_units(2.5, 200.0)
-        assert result == pytest.approx(500.0, rel=1e-6)
-
-    def test_convert_to_purchase_units(self):
-        """Test conversion to purchase units."""
-        # 1 bag = 200 cups, so 50 cups = 0.25 bags
-        result = convert_to_purchase_units(50.0, 200.0)
-        assert result == pytest.approx(0.25, rel=1e-6)
-
-    def test_convert_zero_factor(self):
-        """Test conversion with zero factor."""
-        result = convert_to_purchase_units(100.0, 0.0)
-        assert result == 0.0
-
-    def test_format_ingredient_conversion(self):
-        """Test ingredient conversion formatting."""
-        result = format_ingredient_conversion(200.0, "bag", "cup")
-        assert "1 bag" in result
-        assert "200.00 cup" in result
-
-    def test_format_ingredient_conversion_precision(self):
-        """Test ingredient conversion formatting with custom precision."""
-        result = format_ingredient_conversion(22.5, "bag", "cup", precision=1)
-        assert "1 bag" in result
-        assert "22.5 cup" in result
-
-# ============================================================================
 # Cost Calculation Tests
 # ============================================================================
 
 class TestCostCalculations:
     """Test cost calculation utilities."""
-
-    def test_calculate_ingredient_cost(self):
-        """Test ingredient cost calculation."""
-        # $20 per bag, 200 cups per bag, need 3 cups
-        # Cost per cup = $20 / 200 = $0.10
-        # Total cost = $0.10 × 3 = $0.30
-        success, cost, error = calculate_ingredient_cost(20.0, 200.0, 3.0)
-        assert success is True
-        assert error == ""
-        assert cost == pytest.approx(0.30, rel=1e-6)
-
-    def test_calculate_ingredient_cost_large_quantity(self):
-        """Test ingredient cost with larger quantity."""
-        # $15 per bag, 50 cups per bag, need 100 cups
-        # Cost per cup = $15 / 50 = $0.30
-        # Total cost = $0.30 × 100 = $30.00
-        success, cost, error = calculate_ingredient_cost(15.0, 50.0, 100.0)
-        assert success is True
-        assert cost == pytest.approx(30.0, rel=1e-6)
-
-    def test_calculate_ingredient_cost_zero_quantity(self):
-        """Test ingredient cost with zero quantity."""
-        success, cost, error = calculate_ingredient_cost(10.0, 100.0, 0.0)
-        assert success is True
-        assert cost == 0.0
-
-    def test_calculate_ingredient_cost_negative_unit_cost(self):
-        """Test error with negative unit cost."""
-        success, cost, error = calculate_ingredient_cost(-10.0, 100.0, 5.0)
-        assert success is False
-        assert cost == 0.0
-        assert "negative" in error.lower()
-
-    def test_calculate_ingredient_cost_zero_factor(self):
-        """Test error with zero conversion factor."""
-        success, cost, error = calculate_ingredient_cost(10.0, 0.0, 5.0)
-        assert success is False
-        assert cost == 0.0
-        assert "positive" in error.lower()
-
-    def test_calculate_ingredient_cost_negative_quantity(self):
-        """Test error with negative quantity."""
-        success, cost, error = calculate_ingredient_cost(10.0, 100.0, -5.0)
-        assert success is False
-        assert cost == 0.0
-        assert "negative" in error.lower()
-
-    def test_calculate_cost_per_recipe_unit(self):
-        """Test cost per recipe unit calculation."""
-        # $20 per bag, 200 cups per bag
-        # Cost per cup = $20 / 200 = $0.10
-        success, cost, error = calculate_cost_per_recipe_unit(20.0, 200.0)
-        assert success is True
-        assert error == ""
-        assert cost == pytest.approx(0.10, rel=1e-6)
-
-    def test_calculate_cost_per_recipe_unit_errors(self):
-        """Test cost per recipe unit error handling."""
-        # Negative unit cost
-        success, _, error = calculate_cost_per_recipe_unit(-10.0, 100.0)
-        assert success is False
-        assert "negative" in error.lower()
-
-        # Zero conversion factor
-        success, _, error = calculate_cost_per_recipe_unit(10.0, 0.0)
-        assert success is False
-        assert "positive" in error.lower()
 
     def test_calculate_cost_per_yield_unit(self):
         """Test cost per yield unit calculation."""
@@ -473,30 +363,6 @@ class TestFormatCost:
 
 class TestValidation:
     """Test validation helper functions."""
-
-    def test_validate_conversion_factor_valid(self):
-        """Test valid conversion factor."""
-        is_valid, error = validate_conversion_factor(100.0)
-        assert is_valid is True
-        assert error == ""
-
-    def test_validate_conversion_factor_zero(self):
-        """Test zero conversion factor."""
-        is_valid, error = validate_conversion_factor(0.0)
-        assert is_valid is False
-        assert "positive" in error.lower()
-
-    def test_validate_conversion_factor_negative(self):
-        """Test negative conversion factor."""
-        is_valid, error = validate_conversion_factor(-10.0)
-        assert is_valid is False
-        assert "positive" in error.lower()
-
-    def test_validate_conversion_factor_too_large(self):
-        """Test unreasonably large conversion factor."""
-        is_valid, error = validate_conversion_factor(1e7)
-        assert is_valid is False
-        assert "large" in error.lower()
 
     def test_validate_quantity_valid(self):
         """Test valid quantity."""

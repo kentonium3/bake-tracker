@@ -2,15 +2,15 @@
 Unit conversion system for the Seasonal Baking Tracker.
 
 This module provides:
-- Standard unit conversions (weight, volume)
-- Ingredient-specific unit conversions using conversion factors
+- Standard unit conversions (weight, volume, count)
+- Density-based cross-type conversions (volume↔weight)
 - Cost calculation utilities
 - Conversion display helpers
 
 Conversion Strategy:
 - Weight units convert through grams (base unit)
 - Volume units convert through milliliters (base unit)
-- Ingredient custom units use stored conversion_factor
+- Volume↔weight conversions use ingredient density (4-field model)
 """
 
 from typing import Optional, Tuple, TYPE_CHECKING
@@ -354,124 +354,8 @@ def convert_any_units(
 
 
 # ============================================================================
-# Ingredient Unit Conversions
-# ============================================================================
-
-
-def convert_to_purchase_units(recipe_quantity: float, conversion_factor: float) -> float:
-    """
-    Convert from recipe units to purchase units.
-
-    Args:
-        recipe_quantity: Quantity in recipe units
-        conversion_factor: Ingredient's conversion factor (purchase to recipe)
-
-    Returns:
-        Quantity in purchase units
-    """
-    if conversion_factor == 0:
-        return 0.0
-
-    return recipe_quantity / conversion_factor
-
-
-def convert_to_recipe_units(purchase_quantity: float, conversion_factor: float) -> float:
-    """
-    Convert from purchase units to recipe units.
-
-    Args:
-        purchase_quantity: Quantity in purchase units
-        conversion_factor: Ingredient's conversion factor (purchase to recipe)
-
-    Returns:
-        Quantity in recipe units
-    """
-    return purchase_quantity * conversion_factor
-
-
-def format_ingredient_conversion(
-    conversion_factor: float,
-    purchase_unit: str,
-    target_unit: str,
-    precision: int = 2,
-) -> str:
-    """
-    Format an ingredient's conversion factor for display.
-
-    Args:
-        conversion_factor: Conversion factor value
-        purchase_unit: Purchase unit name
-        target_unit: Target unit name
-        precision: Decimal places
-
-    Returns:
-        Formatted string (e.g., "1 bag = 200.00 cups")
-    """
-    return f"1 {purchase_unit} = {conversion_factor:.{precision}f} {target_unit}"
-
-
-# ============================================================================
 # Cost Calculation Utilities
 # ============================================================================
-
-
-def calculate_ingredient_cost(
-    unit_cost: float, conversion_factor: float, recipe_quantity: float
-) -> Tuple[bool, float, str]:
-    """
-    Calculate the cost of an ingredient used in a recipe.
-
-    Formula: cost = (unit_cost / conversion_factor) × recipe_quantity
-
-    Args:
-        unit_cost: Cost per purchase unit
-        conversion_factor: Purchase to recipe conversion factor
-        recipe_quantity: Quantity needed in recipe units
-
-    Returns:
-        Tuple of (success, cost, error_message)
-    """
-    # Validate inputs
-    if unit_cost < 0:
-        return False, 0.0, "Unit cost cannot be negative"
-
-    if conversion_factor <= 0:
-        return False, 0.0, "Conversion factor must be positive"
-
-    if recipe_quantity < 0:
-        return False, 0.0, "Recipe quantity cannot be negative"
-
-    # Calculate cost per recipe unit
-    cost_per_recipe_unit = unit_cost / conversion_factor
-
-    # Calculate total cost
-    total_cost = cost_per_recipe_unit * recipe_quantity
-
-    return True, total_cost, ""
-
-
-def calculate_cost_per_recipe_unit(
-    unit_cost: float, conversion_factor: float
-) -> Tuple[bool, float, str]:
-    """
-    Calculate the cost per recipe unit for an ingredient.
-
-    Args:
-        unit_cost: Cost per purchase unit
-        conversion_factor: Purchase to recipe conversion factor
-
-    Returns:
-        Tuple of (success, cost_per_recipe_unit, error_message)
-    """
-    if unit_cost < 0:
-        return False, 0.0, "Unit cost cannot be negative"
-
-    if conversion_factor <= 0:
-        return False, 0.0, "Conversion factor must be positive"
-
-    cost_per_recipe_unit = unit_cost / conversion_factor
-
-    return True, cost_per_recipe_unit, ""
 
 
 def calculate_cost_per_yield_unit(
@@ -516,25 +400,6 @@ def format_cost(amount: float, currency_symbol: str = "$", precision: int = 2) -
 # ============================================================================
 # Validation Helpers
 # ============================================================================
-
-
-def validate_conversion_factor(conversion_factor: float) -> Tuple[bool, str]:
-    """
-    Validate a conversion factor value.
-
-    Args:
-        conversion_factor: Value to validate
-
-    Returns:
-        Tuple of (is_valid, error_message)
-    """
-    if conversion_factor <= 0:
-        return False, "Conversion factor must be positive"
-
-    if conversion_factor > 1e6:
-        return False, "Conversion factor is unreasonably large"
-
-    return True, ""
 
 
 def validate_quantity(quantity: float, allow_zero: bool = True) -> Tuple[bool, str]:
