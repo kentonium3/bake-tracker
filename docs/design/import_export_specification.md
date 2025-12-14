@@ -44,9 +44,9 @@ This specification defines the import/export format for the Bake Tracker applica
 
 ## Overview
 
-The Bake Tracker uses an **Ingredient/Variant architecture** that separates:
+The Bake Tracker uses an **Ingredient/Product architecture** that separates:
 - **Generic Ingredients** (e.g., "All-Purpose Flour") - used in recipes
-- **Brand Variants** (e.g., "King Arthur All-Purpose Flour") - purchased and tracked in inventory
+- **Brand Products** (e.g., "King Arthur All-Purpose Flour") - purchased and tracked in inventory
 
 This separation allows recipes to reference generic ingredients while tracking specific brands in inventory.
 
@@ -204,7 +204,7 @@ All entity arrays are optional, but when present, they must follow the dependenc
 ```json
 {
   "ingredient_slug": "all_purpose_flour",
-  "variant_brand": "King Arthur",
+  "product_brand": "King Arthur",
   "purchase_date": "2025-11-15",
   "quantity": 2,
   "unit_price": 8.99,
@@ -216,7 +216,7 @@ All entity arrays are optional, but when present, they must follow the dependenc
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
 | `ingredient_slug` | string | **Yes** | Reference to ingredient |
-| `variant_brand` | string | **Yes** | Reference to product (with ingredient_slug) |
+| `product_brand` | string | **Yes** | Reference to product (with ingredient_slug) |
 | `purchase_date` | date | **Yes** | Date purchased (ISO 8601 date) |
 | `quantity` | integer | **Yes** | Number of packages |
 | `unit_price` | decimal | **Yes** | Price per package |
@@ -234,7 +234,7 @@ All entity arrays are optional, but when present, they must follow the dependenc
 ```json
 {
   "ingredient_slug": "all_purpose_flour",
-  "variant_brand": "King Arthur",
+  "product_brand": "King Arthur",
   "quantity": 4.5,
   "unit": "lb",
   "acquisition_date": "2025-11-15",
@@ -247,7 +247,7 @@ All entity arrays are optional, but when present, they must follow the dependenc
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
 | `ingredient_slug` | string | **Yes** | Reference to ingredient |
-| `variant_brand` | string | **Yes** | Reference to product |
+| `product_brand` | string | **Yes** | Reference to product |
 | `quantity` | decimal | **Yes** | Current quantity |
 | `unit` | string | **Yes** | Unit of measure |
 | `acquisition_date` | date | **Yes** | Date acquired (for FIFO ordering) |
@@ -793,7 +793,7 @@ bag, box, jar, bottle, can, packet, container, case
       "recipe_unit": "cup"
     }
   ],
-  "variants": [
+  "products": [
     {
       "ingredient_slug": "all_purpose_flour",
       "brand": "King Arthur",

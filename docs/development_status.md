@@ -1,7 +1,7 @@
 # Seasonal Baking Tracker - Development Status
 
 **Last Updated:** 2025-11-09
-**Current Phase:** Phase 4 In Progress (Ingredient/Variant Refactor)
+**Current Phase:** Phase 4 In Progress (Ingredient/Product Refactor)
 **Application Version:** 0.3.0 (stable) | 0.4.0-dev (in development)
 **Active Branch:** `main`
 
@@ -402,7 +402,7 @@ src/
 
 ---
 
-### Phase 4: Ingredient/Variant Refactor 🚧 IN PROGRESS
+### Phase 4: Ingredient/Product Refactor 🚧 IN PROGRESS
 
 **Status:** Service Layer Complete (Nov 9, 2025) - UI Implementation Next
 **Branch:** `main`
@@ -413,8 +413,8 @@ src/
 **Schema Redesign:**
 - ✅ Separated conflated Ingredient model into distinct entities:
   - `Ingredient` - Generic ingredient concept (e.g., "All-Purpose Flour")
-  - `Variant` - Specific brand/package (e.g., "King Arthur 25 lb bag")
-  - `PantryItem` - Current inventory lots with FIFO tracking
+  - `Product` - Specific brand/package (e.g., "King Arthur 25 lb bag")
+  - `InventoryItem` - Current inventory lots with FIFO tracking
   - `Purchase` - Price history for cost trending
 - ✅ Added industry standard fields (all nullable for future use):
   - FoodOn IDs, USDA FDC IDs, GTIN/UPC, LanguaL facets, FoodEx2 codes
@@ -423,20 +423,20 @@ src/
 - ✅ Supporting models created:
   - `IngredientAlias` - Synonyms and multilingual names
   - `IngredientCrosswalk` - External system ID mappings
-  - `VariantPackaging` - GS1-compatible packaging hierarchy
+  - `ProductPackaging` - GS1-compatible packaging hierarchy
 
 **Migration Support:**
 - ✅ RecipeIngredient updated with dual FK support (legacy + new)
-- ✅ Full migration script created (`migrate_to_ingredient_variant.py`)
+- ✅ Full migration script created (`migrate_to_ingredient_product.py`)
   - UUID population
-  - Legacy Ingredient → Ingredient + Variant + PantryItem conversion
+  - Legacy Ingredient → Ingredient + Product + InventoryItem conversion
   - RecipeIngredient FK updates
   - Dry-run and validation support
 
 **Import/Export v2.0 (Nov 8, 2025):**
 - ✅ Updated import/export specification to v2.0
-  - Reflects Ingredient/Variant architecture
-  - Separate ingredients and variants arrays
+  - Reflects Ingredient/Product architecture
+  - Separate ingredients and products arrays
   - Slug-based foreign keys throughout
   - Complete field specifications for all 11 entity types
   - AI generation guidelines for bulk data creation
@@ -448,7 +448,7 @@ src/
   - Handles name mapping (e.g., "Vanilla Extract" → "Pure Vanilla Extract")
 - ✅ Working v2.0 test data created (`examples/test_data_v2.json`)
   - 83 ingredients with proper slugs
-  - 83 variants (brand-specific products)
+  - 83 products (brand-specific items)
   - 20 recipes from actual recipe scans
   - 15 finished goods
   - 12 unit conversions
@@ -470,15 +470,15 @@ src/
   - create_ingredient(), get_ingredient(), search_ingredients()
   - update_ingredient(), delete_ingredient() with dependency checking
   - list_ingredients() with category filtering
-- ✅ **VariantService** - Brand/package management
-  - create_variant(), get_variant(), get_variants_for_ingredient()
-  - set_preferred_variant() with atomic toggle (only one preferred per ingredient)
-  - update_variant(), delete_variant() with dependency checking
-  - search_variants_by_upc(), get_preferred_variant()
-- ✅ **PantryService** - Inventory tracking with FIFO consumption
-  - add_to_pantry() with purchase date and location tracking
-  - get_pantry_items() with filtering by ingredient, location, min_quantity
-  - get_total_quantity() aggregating across all variants and locations
+- ✅ **ProductService** - Brand/package management
+  - create_product(), get_product(), get_products_for_ingredient()
+  - set_preferred_product() with atomic toggle (only one preferred per ingredient)
+  - update_product(), delete_product() with dependency checking
+  - search_products_by_upc(), get_preferred_product()
+- ✅ **InventoryItemService** - Inventory tracking with FIFO consumption
+  - add_to_inventory() with purchase date and location tracking
+  - get_inventory_items() with filtering by ingredient, location, min_quantity
+  - get_total_quantity() aggregating across all products and locations
   - **consume_fifo()** - Core FIFO algorithm with unit conversion
   - get_expiring_soon() for waste prevention
   - update_pantry_item(), delete_pantry_item()
@@ -493,7 +493,7 @@ src/
   - Service exceptions hierarchy (ServiceError, NotFound, Validation, DatabaseError)
   - session_scope() context manager for transaction management
   - Slug generation with Unicode normalization and uniqueness checking
-  - Input validation utilities for ingredient and variant data
+  - Input validation utilities for ingredient and product data
 - ✅ **Integration Tests:**
   - 16/16 tests passing (100%)
   - test_inventory_flow.py - Complete workflow (6 tests)
@@ -508,20 +508,20 @@ src/
 
 **Business Logic Integration:**
 - [ ] Update RecipeService - FIFO cost calculations
-- [ ] Update EventService - Variant-aware shopping lists
+- [ ] Update EventService - Product-aware shopping lists
 - [ ] Multi-brand recommendations in shopping lists
 
 **Business Logic:**
 - [ ] FIFO cost calculation integration with RecipeService
-- [ ] Multi-brand support (preferred variant logic)
+- [ ] Multi-brand support (preferred product logic)
 - [ ] Price trend analysis
-- [ ] Shopping list variant recommendations
+- [ ] Shopping list product recommendations
 
 **User Interface:**
 - [ ] "My Ingredients" tab (catalog management)
-- [ ] "My Pantry" tab (inventory tracking by variant)
-- [ ] Updated recipe ingredient selector (ingredients, not variants)
-- [ ] Shopping list with variant recommendations
+- [ ] "My Inventory" tab (inventory tracking by product)
+- [ ] Updated recipe ingredient selector (ingredients, not products)
+- [ ] Shopping list with product recommendations
 
 **Testing:**
 - [ ] Run migration on test data
@@ -534,17 +534,17 @@ src/
 src/
 ├── models/
 │   ├── ingredient.py (renamed from product.py, spec fields added)
-│   ├── variant.py (renamed from product_variant.py, spec fields added)
+│   ├── product.py (renamed from product_variant.py, spec fields added)
 │   ├── purchase.py (renamed from purchase_history.py)
 │   ├── pantry_item.py (updated with lot_or_batch)
 │   ├── ingredient_alias.py (new)
 │   ├── ingredient_crosswalk.py (new)
-│   ├── variant_packaging.py (new)
+│   ├── product_packaging.py (new)
 │   ├── base.py (UUID support added)
 │   └── recipe.py (dual FK support)
 ├── services/
 │   ├── ingredient_service.py (new - Feature 002)
-│   ├── variant_service.py (new - Feature 002)
+│   ├── product_service.py (new - Feature 002)
 │   ├── pantry_service.py (new - Feature 002)
 │   ├── purchase_service.py (new - Feature 002)
 │   ├── exceptions.py (updated with new exception types)
@@ -552,8 +552,8 @@ src/
 │   └── __init__.py (updated exports)
 ├── utils/
 │   ├── slug_utils.py (new - slug generation)
-│   ├── validators.py (updated for ingredient/variant validation)
-│   └── migrate_to_ingredient_variant.py (new)
+│   ├── validators.py (updated for ingredient/product validation)
+│   └── migrate_to_ingredient_product.py (new)
 ├── tests/
 │   ├── conftest.py (test fixtures)
 │   └── integration/
@@ -936,7 +936,7 @@ tests/         # Unit and integration tests
   - Added packaging as planned feature with detailed task breakdown
   - Prioritized for user testing preparation
 - **v4.0** (2025-11-09) - Phase 4 Service Layer Implementation (Feature 002) Complete:
-  - All 4 core services implemented and tested (Ingredient, Variant, Pantry, Purchase)
+  - All 4 core services implemented and tested (Ingredient, Product, Inventory, Purchase)
   - Infrastructure components created (exceptions, session_scope, slug generation, validation)
   - 16/16 integration tests passing (100% test coverage)
   - Spec-Kitty workflow completed (6 work packages, 75 tasks)

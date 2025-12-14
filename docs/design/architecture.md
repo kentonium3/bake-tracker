@@ -281,8 +281,8 @@ Ingredients are purchased in bulk units (e.g., 50 lb bags) but recipes call for 
 
 ### Solution (Refactored Architecture)
 
-#### Variant Purchase/Package Information
-Each Variant stores:
+#### Product Purchase/Package Information
+Each Product stores:
 - `purchase_unit` - Unit purchased in (e.g., "bag")
 - `purchase_quantity` - Quantity in package (e.g., 25)
 - Package size details (net_content_value, net_content_uom for industry specs)

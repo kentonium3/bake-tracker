@@ -21,24 +21,24 @@ A desktop application for managing holiday baking inventory, recipes, and gift p
 - Support for ingredient aliases and crosswalks to external taxonomies
 - Unit types: oz, lb, g, kg, tsp, tbsp, cup, ml, l, count/each
 
-**Variants** (v0.4.0 - Brand/Package Specific Products)
+**Products** (v0.4.0 - Brand/Package Specific Items)
 - Links to parent Ingredient (generic concept)
 - Brand, package size, UPC/GTIN barcode
 - Purchase unit type and quantity (e.g., "bag", 25 lb)
 - Supplier/source information
-- Preferred variant flag (for shopping recommendations)
-- Calculated properties: display_name, total_pantry_quantity, average_price
+- Preferred product flag (for shopping recommendations)
+- Calculated properties: display_name, total_inventory_quantity, average_price
 
-**Pantry Items** (v0.4.0 - Actual Inventory with FIFO Support)
-- Links to Variant (specific brand/package)
-- Quantity in variant's purchase_unit
+**Inventory Items** (v0.4.0 - Actual Inventory with FIFO Support)
+- Links to Product (specific brand/package)
+- Quantity in product's purchase_unit
 - Purchase date (for FIFO consumption), expiration date
 - Storage location (e.g., "Main Pantry", "Basement")
 - Notes field
 - Supports lot/batch tracking via separate records
 
 **Purchase History** (v0.4.0 - Price Tracking)
-- Links to Variant
+- Links to Product
 - Purchase date, quantity purchased, unit cost, supplier
 - Total cost calculation
 - Enables price trend analysis and cost forecasting
@@ -54,7 +54,7 @@ A desktop application for managing holiday baking inventory, recipes, and gift p
 
 **Inventory Snapshots** (Updated for Materials)
 - Snapshot date, description
-- Copy of all ingredient quantities at snapshot time (aggregated by ingredient across variants)
+- Copy of all ingredient quantities at snapshot time (aggregated by ingredient across products)
 - Copy of all material quantities at snapshot time
 - References which events use this snapshot
 - Auto-create on first event planning for a period
@@ -62,11 +62,11 @@ A desktop application for managing holiday baking inventory, recipes, and gift p
 **Recipes** (Updated for Auto-Creation of Finished Goods)
 - Unique identifier, name, category, source, date added, last modified, estimated time
 - Ingredient list with quantities and units (supports both imperial and metric)
-- References generic Ingredients (not specific Variants) for brand flexibility
+- References generic Ingredients (not specific Products) for brand flexibility
 - Yield specification (quantity, unit, and description of finished goods)
 - **Discrete yield flag**: When set, automatically creates corresponding Finished Good record
 - Notes field
-- Calculated cost based on FIFO pantry consumption or preferred variant pricing
+- Calculated cost based on FIFO pantry consumption or preferred product pricing
 
 **Finished Goods** (Updated - Auto-Created or Manual)
 - Can be auto-created from recipe with discrete yield, or manually created
@@ -107,15 +107,15 @@ A desktop application for managing holiday baking inventory, recipes, and gift p
 
 ### 1.2 Functional Requirements
 
-**FR1: Inventory Management** (Updated for Ingredient/Variant/Pantry Architecture)
+**FR1: Inventory Management** (Updated for Ingredient/Product/Inventory Architecture)
 - **Ingredient Catalog**: Manage generic ingredients (brand-agnostic)
   - Add/edit/delete ingredients with category, recipe unit, density
-  - Manage variants for each ingredient (brand, package, UPC, supplier)
-  - Mark preferred variant per ingredient for shopping recommendations
+  - Manage products for each ingredient (brand, package, UPC, supplier)
+  - Mark preferred product per ingredient for shopping recommendations
   - Search across ingredient names, categories, aliases
-- **Pantry Management**: Track actual inventory by variant
-  - Add pantry items with variant, purchase date, expiration, location
-  - Display inventory aggregated by ingredient or detailed by variant/lot
+- **Inventory Management**: Track actual inventory by product
+  - Add inventory items with product, purchase date, expiration, location
+  - Display inventory aggregated by ingredient or detailed by product/lot
   - FIFO consumption algorithm for cost accuracy
   - Expiration alerts and location tracking
 - **Materials Management**: Track packaging/assembly supplies
@@ -124,7 +124,7 @@ A desktop application for managing holiday baking inventory, recipes, and gift p
   - Search and filter by category, name
   - Calculate total materials inventory value
 - **Inventory Snapshots**: Create point-in-time snapshots
-  - Capture ingredient quantities (aggregated across all variants/pantry items)
+  - Capture ingredient quantities (aggregated across all products/inventory items)
   - Capture material quantities
   - Associate with events for planning
 - Edit quantities with undo (last 8 edits)
@@ -139,14 +139,14 @@ A desktop application for managing holiday baking inventory, recipes, and gift p
 
 **FR3: Recipe Management** (Updated for Auto-Creation of Finished Goods)
 - CRUD operations for recipes
-- Link generic ingredients (not specific variants) with quantities and units
+- Link generic ingredients (not specific products) with quantities and units
 - **Discrete yield flag**: When enabled, automatically creates/updates linked Finished Good record
   - Finished good name matches recipe name
   - Finished good updates when recipe yield changes
   - Optional: user can override finished good name
-- Automatic unit conversion for cost calculation using FIFO or preferred variant
+- Automatic unit conversion for cost calculation using FIFO or preferred product
 - Display yield information (quantity, unit, description)
-- Calculate and display recipe cost (FIFO from pantry, fallback to preferred variant)
+- Calculate and display recipe cost (FIFO from pantry, fallback to preferred product)
 - Filter/search by category, name, ingredients
 - Show all recipes using a specific ingredient
 - Display estimated time and source
@@ -309,7 +309,7 @@ bake-tracker/
 │   │   ├── __init__.py
 │   │   ├── base.py            # SQLAlchemy base with UUID support
 │   │   ├── ingredient.py      # Generic ingredient catalog (v0.4.0)
-│   │   ├── variant.py         # Brand/package specific products (v0.4.0)
+│   │   ├── product.py         # Brand/package specific items (v0.4.0)
 │   │   ├── pantry_item.py     # Actual inventory with FIFO (v0.4.0)
 │   │   ├── purchase.py        # Price history tracking (v0.4.0)
 │   │   ├── material.py        # Packaging/assembly supplies (new)
@@ -326,7 +326,7 @@ bake-tracker/
 │   │   ├── database.py        # DB connection, session_scope()
 │   │   ├── exceptions.py      # Service exception hierarchy (v0.4.0)
 │   │   ├── ingredient_service.py  # Ingredient catalog CRUD (v0.4.0)
-│   │   ├── variant_service.py     # Variant management (v0.4.0)
+│   │   ├── product_service.py     # Product management (v0.4.0)
 │   │   ├── pantry_service.py      # Pantry & FIFO consumption (v0.4.0)
 │   │   ├── purchase_service.py    # Purchase history & trends (v0.4.0)
 │   │   ├── material_service.py    # Materials management (new)
@@ -344,7 +344,7 @@ bake-tracker/
 │   │   ├── main_window.py         # Main app window
 │   │   ├── dashboard_tab.py
 │   │   ├── ingredients_tab.py     # Generic ingredient catalog (v0.4.0)
-│   │   ├── pantry_tab.py          # Actual inventory by variant (v0.4.0)
+│   │   ├── inventory_tab.py       # Actual inventory by product (v0.4.0)
 │   │   ├── materials_tab.py       # Materials management (new)
 │   │   ├── recipe_tab.py
 │   │   ├── finished_goods_tab.py  # With production checkoff (updated)
@@ -363,7 +363,7 @@ bake-tracker/
 │   │   ├── config.py              # App configuration
 │   │   ├── validators.py          # Input validation
 │   │   ├── slug_generator.py      # Slug generation (v0.4.0)
-│   │   ├── migrate_to_ingredient_variant.py  # Migration script (v0.4.0)
+│   │   ├── migrate_to_ingredient_product.py  # Migration script (v0.4.0)
 │   │   └── constants.py           # Unit types, categories
 │   └── tests/
 │       ├── __init__.py
@@ -384,7 +384,7 @@ bake-tracker/
 │   ├── user_guide.md              # User documentation
 │   ├── user_stories.md            # Latest user stories (new)
 │   ├── schema_v0.3.md             # Legacy schema
-│   ├── schema_v0.4_design.md      # Ingredient/Variant refactor design
+│   ├── schema_v0.4_design.md      # Ingredient/Product refactor design
 │   ├── ingredient_industry_standards.md  # External standards reference
 │   ├── import_export_specification.md    # Data format v2.0
 │   ├── packaging_options.md       # Materials/packaging reference
@@ -481,9 +481,9 @@ bake-tracker/
 - Shopping list generation
 - Basic reports
 
-### Phase 4: Ingredient/Variant Refactor - 🔄 IN PROGRESS
-- ✅ Models refactored (Ingredient, Variant, PantryItem, Purchase)
-- ✅ Service layer implemented (Ingredient, Variant, Pantry, Purchase services)
+### Phase 4: Ingredient/Product Refactor - 🔄 IN PROGRESS
+- ✅ Models refactored (Ingredient, Product, InventoryItem, Purchase)
+- ✅ Service layer implemented (Ingredient, Product, Inventory, Purchase services)
 - ✅ FIFO consumption algorithm
 - ✅ Price trend analysis
 - ⏳ UI updates (My Ingredients, My Pantry tabs)
@@ -542,7 +542,7 @@ bake-tracker/
 **Challenge:** Multiple events may overlap temporally but need independent planning.
 
 **Solution:**
-- Snapshots capture **ingredient quantities** at a point in time (aggregated across all variants and pantry items)
+- Snapshots capture **ingredient quantities** at a point in time (aggregated across all products and inventory items)
 - Snapshots capture **material quantities** at a point in time
 - Events reference a snapshot for planning (not live inventory)
 - Actual consumption during production updates live inventory (pantry items via FIFO for ingredients, direct quantity updates for materials)
@@ -553,7 +553,7 @@ bake-tracker/
 ### 5.3 Cost Calculation Hierarchy (Updated for Materials)
 
 ```
-Ingredient (unit cost via FIFO or preferred variant)
+Ingredient (unit cost via FIFO or preferred product)
   ↓ (used in)
 Recipe (calculated cost = sum of ingredient costs)
   ↓ (produces)
@@ -571,20 +571,20 @@ Event (total cost = sum of recipient package costs = ingredients + materials)
 ```
 
 **Key Changes:**
-- Ingredients use FIFO costing from pantry or fallback to preferred variant pricing
+- Ingredients use FIFO costing from pantry or fallback to preferred product pricing
 - Materials added at bundle level (not recipes)
 - Bundle cost now includes both finished goods AND materials
 - Event cost aggregates all ingredient costs + all material costs
 
-### 5.4 Database Relationships (Updated for Ingredient/Variant Architecture & Materials)
+### 5.4 Database Relationships (Updated for Ingredient/Product Architecture & Materials)
 
-**Ingredient/Variant/Pantry Architecture (v0.4.0):**
-- **Ingredient** → **Variant**: One-to-many (generic ingredient has multiple brand/package versions)
-- **Variant** → **PantryItem**: One-to-many (variant can have multiple lot entries)
-- **Variant** → **Purchase**: One-to-many (variant has purchase price history)
+**Ingredient/Product/Inventory Architecture (v0.4.0):**
+- **Ingredient** → **Product**: One-to-many (generic ingredient has multiple brand/package versions)
+- **Product** → **InventoryItem**: One-to-many (product can have multiple lot entries)
+- **Product** → **Purchase**: One-to-many (product has purchase price history)
 - **Ingredient** ↔ **Recipes**: Many-to-many (RecipeIngredient junction with quantity/unit)
-  - Recipes reference generic Ingredients, not specific Variants
-  - Cost calculation at runtime uses FIFO from pantry or preferred variant
+  - Recipes reference generic Ingredients, not specific Products
+  - Cost calculation at runtime uses FIFO from pantry or preferred product
 
 **Materials Architecture (New):**
 - **Material** (standalone entity, similar to legacy Ingredient model)
@@ -643,10 +643,10 @@ Event (total cost = sum of recipient package costs = ingredients + materials)
 - Reports show event summary
 
 **Phase 4 Success:** 🔄 IN PROGRESS
-- ✅ Ingredient/Variant separation working (models & services)
+- ✅ Ingredient/Product separation working (models & services)
 - ✅ FIFO costing accurate and tested
 - ✅ Multiple brands/sources per ingredient supported
-- ✅ Preferred variant logic implemented
+- ✅ Preferred product logic implemented
 - ⏳ UI migration to new architecture
 - ⏳ Data migration from v0.3.0 preserves all data
 - ⏳ Cost calculations match v0.3.0
@@ -696,12 +696,12 @@ Event (total cost = sum of recipient package costs = ingredients + materials)
 
 ## 8. User Workflows (Primary Use Cases) (Updated 2025-11-10)
 
-### Workflow 1: Annual Inventory Update (Updated for Ingredient/Variant/Materials)
+### Workflow 1: Annual Inventory Update (Updated for Ingredient/Product/Materials)
 1. Open **My Ingredients** tab
 2. Review ingredient catalog, add new ingredients as needed
-3. Open **My Pantry** tab
-4. Review pantry inventory (actual stock by variant/lot)
-5. Adjust quantities for pantry items (uses FIFO)
+3. Open **My Inventory** tab
+4. Review inventory (actual stock by product/lot)
+5. Adjust quantities for inventory items (uses FIFO)
 6. Open **Materials** tab
 7. Review materials inventory (cellophane bags, ribbon, boxes, etc.)
 8. Adjust material quantities
@@ -714,7 +714,7 @@ Event (total cost = sum of recipient package costs = ingredients + materials)
 4. Add ingredients with quantities and units (select generic ingredients, not specific brands)
 5. Specify yield (e.g., "24 cookies")
 6. **Enable "Discrete Yield" flag** (User Story 1)
-7. View calculated cost (FIFO from pantry or preferred variant)
+7. View calculated cost (FIFO from pantry or preferred product)
 8. Save recipe → System automatically creates matching Finished Good
 9. Finished Good appears in Finished Goods tab with recipe name
 
@@ -808,7 +808,7 @@ Event (total cost = sum of recipient package costs = ingredients + materials)
 - **v1.0** (2024) - Initial draft based on user stories
 - **v1.1** (2024) - Updated with technical decisions: CustomTkinter, unit conversion strategy, inventory snapshots, clarified requirements based on user Q&A
 - **v1.2** (2025-11-10) - Major update incorporating:
-  - Ingredient/Variant/Pantry architecture (v0.4.0 refactor)
+  - Ingredient/Product/Inventory architecture (v0.4.0 refactor)
   - Materials tracking system (User Story 6)
   - Auto-creation of finished goods (User Story 1)
   - Consolidated event summary (User Story 2)
@@ -820,5 +820,5 @@ Event (total cost = sum of recipient package costs = ingredients + materials)
 
 **Document Status:** Living document, updated as requirements evolve
 
-**Current Phase:** Phase 4 (Ingredient/Variant Refactor) in progress
+**Current Phase:** Phase 4 (Ingredient/Product Refactor) in progress
 **Next Phase:** Phase 5 (Materials & Enhanced Production Tracking)
