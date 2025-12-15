@@ -1,7 +1,25 @@
 {
+  "accept_commit": null,
+  "acceptance_history": [
+    {
+      "accepted_at": "2025-12-15T04:10:48Z",
+      "accepted_by": "claude",
+      "accepted_from_commit": "d884979217893013ffa13e34758060aed10be169",
+      "branch": "020-enhanced-catalog-import",
+      "mode": "local",
+      "validation_commands": [
+        "pytest src/tests/test_catalog_import_service.py -v",
+        "pytest src/tests -v"
+      ]
+    }
+  ],
+  "acceptance_mode": "local",
+  "accepted_at": "2025-12-15T04:10:48Z",
+  "accepted_by": "claude",
+  "accepted_from_commit": "d884979217893013ffa13e34758060aed10be169",
+  "created_at": "2025-12-14T21:10:26Z",
   "feature_number": "020",
-  "slug": "020-enhanced-catalog-import",
   "friendly_name": "Enhanced Catalog Import",
-  "source_description": "Feature 020: Enhanced Data Import - Separate catalog import pathway for ingredients, products, and recipes with ADD_ONLY and AUGMENT modes",
-  "created_at": "2025-12-14T21:10:26Z"
+  "slug": "020-enhanced-catalog-import",
+  "source_description": "Feature 020: Enhanced Data Import - Separate catalog import pathway for ingredients, products, and recipes with ADD_ONLY and AUGMENT modes"
 }
