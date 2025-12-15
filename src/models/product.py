@@ -31,8 +31,8 @@ class Product(BaseModel):
         brand: Brand name
         package_size: Size description (e.g., "25 lb", "5 kg")
         package_type: Package type (bag, box, jar, bottle, etc.)
-        purchase_unit: Unit purchased in (bag, lb, oz, etc.)
-        purchase_quantity: Quantity per package
+        package_unit: Unit the package contains (bag, lb, oz, etc.)
+        package_unit_quantity: Quantity per package in package_unit
         upc_code: UPC/barcode for scanning (future use)
         supplier: Supplier/store name
         supplier_sku: Supplier's SKU/product code
@@ -54,9 +54,9 @@ class Product(BaseModel):
     package_size = Column(String(100), nullable=True)  # e.g., "25 lb", "5 kg"
     package_type = Column(String(50), nullable=True)  # bag, box, jar, bottle, etc.
 
-    # Purchase information
-    purchase_unit = Column(String(50), nullable=False)  # Unit purchased in
-    purchase_quantity = Column(Float, nullable=False)  # Quantity per package
+    # Package contents information (renamed from purchase_unit/purchase_quantity in v3.4)
+    package_unit = Column(String(50), nullable=False)  # Unit the package contains
+    package_unit_quantity = Column(Float, nullable=False)  # Quantity per package
 
     # Identification codes (for future use)
     upc_code = Column(

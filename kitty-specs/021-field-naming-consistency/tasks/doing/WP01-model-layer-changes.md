@@ -116,3 +116,4 @@ history:
 
 - 2025-12-15T00:00:00Z - system - lane=planned - Prompt created.
 - 2025-12-15T17:07:10Z – claude – shell_pid=83880 – lane=doing – Started implementation
+- 2025-12-15T17:10:00Z – claude – shell_pid=83880 – lane=doing – Completed: Renamed purchase_unit to package_unit, purchase_quantity to package_unit_quantity, updated docstrings
