@@ -147,7 +147,7 @@ Include 3 cookie recipes using those ingredients.
 
 ### "Missing required field"
 - **Cause**: Required field is null or missing
-- **Solution**: Check that name, category, purchase_quantity, purchase_unit, quantity, unit_cost are all present
+- **Solution**: Check that name, category, package_unit_quantity, package_unit, quantity, unit_cost are all present
 
 ## Sample Data Sets
 

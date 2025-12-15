@@ -15,9 +15,9 @@ subtasks:
   - "T048"
 title: "Documentation and Sample Data"
 phase: "Phase 3 - Validation"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
+agent: "system"
 shell_pid: ""
 review_status: ""
 reviewed_by: ""
@@ -223,3 +223,4 @@ history:
 ## Activity Log
 
 - 2025-12-15T00:00:00Z - system - lane=planned - Prompt created.
+- 2025-12-15T17:41:27Z – system – shell_pid= – lane=doing – Moved to doing

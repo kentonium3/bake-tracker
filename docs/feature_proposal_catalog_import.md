@@ -199,7 +199,7 @@ python -m src.utils.import_catalog density_data.json --entity=ingredients --mode
 **Augmentable Fields:**
 - `upc_code`
 - `package_size`, `package_type`
-- `purchase_unit`, `purchase_quantity` (only if currently null)
+- `package_unit`, `package_unit_quantity` (only if currently null)
 
 **Rationale:** Products link ingredients to purchasable items. Reference integrity to Purchases and InventoryItems must be preserved. UPC data is valuable for future barcode scanning and API integrations.
 

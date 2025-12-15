@@ -7,8 +7,8 @@
       "name": "All-Purpose Flour",
       "brand": "King Arthur",
       "category": "Flour",
-      "purchase_quantity": 25.0,
-      "purchase_unit": "lb",
+      "package_unit_quantity": 25.0,
+      "package_unit": "lb",
       "quantity": 2.0,
       "unit_cost": 18.99,
       "package_type": "bag",
@@ -18,8 +18,8 @@
       "name": "",
       "brand": "Some Brand",
       "category": "Sugar",
-      "purchase_quantity": 5.0,
-      "purchase_unit": "lb",
+      "package_unit_quantity": 5.0,
+      "package_unit": "lb",
       "quantity": 1.0,
       "unit_cost": 10.00,
       "notes": "ERROR: Missing name (required field)"
@@ -28,8 +28,8 @@
       "name": "Invalid Category Ingredient",
       "brand": "Test",
       "category": "NotAValidCategory",
-      "purchase_quantity": 1.0,
-      "purchase_unit": "lb",
+      "package_unit_quantity": 1.0,
+      "package_unit": "lb",
       "quantity": 1.0,
       "unit_cost": 5.00,
       "notes": "ERROR: Invalid category"
@@ -38,18 +38,18 @@
       "name": "Invalid Unit",
       "brand": "Test",
       "category": "Flour",
-      "purchase_quantity": 10.0,
-      "purchase_unit": "invalidunit",
+      "package_unit_quantity": 10.0,
+      "package_unit": "invalidunit",
       "quantity": 1.0,
       "unit_cost": 12.00,
-      "notes": "ERROR: Invalid purchase_unit"
+      "notes": "ERROR: Invalid package_unit"
     },
     {
       "name": "Negative Quantity",
       "brand": "Test",
       "category": "Sugar",
-      "purchase_quantity": 5.0,
-      "purchase_unit": "lb",
+      "package_unit_quantity": 5.0,
+      "package_unit": "lb",
       "quantity": -1.0,
       "unit_cost": 8.00,
       "notes": "ERROR: Negative quantity (should be >= 0)"
@@ -58,11 +58,11 @@
       "name": "Zero Purchase Quantity",
       "brand": "Test",
       "category": "Dairy",
-      "purchase_quantity": 0.0,
-      "purchase_unit": "lb",
+      "package_unit_quantity": 0.0,
+      "package_unit": "lb",
       "quantity": 1.0,
       "unit_cost": 5.00,
-      "notes": "ERROR: Zero or negative purchase_quantity (should be > 0)"
+      "notes": "ERROR: Zero or negative package_unit_quantity (should be > 0)"
     },
     {
       "name": "Missing Required Field",
@@ -70,7 +70,7 @@
       "category": "Nuts",
       "quantity": 2.0,
       "unit_cost": 15.00,
-      "notes": "ERROR: Missing purchase_quantity and purchase_unit (required)"
+      "notes": "ERROR: Missing package_unit_quantity and package_unit (required)"
     }
   ],
   "recipes": [

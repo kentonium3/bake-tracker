@@ -591,8 +591,8 @@
     {
       "ingredient_slug": "all_purpose_flour",
       "brand": "King Arthur",
-      "purchase_unit": "lb",
-      "purchase_quantity": 12.0,
+      "package_unit": "lb",
+      "package_unit_quantity": 12.0,
       "package_type": "bag",
       "notes": "Unbleached, 12 lb bag from Costco Waltham MA",
       "preferred": true
@@ -600,8 +600,8 @@
     {
       "ingredient_slug": "white_granulated_sugar",
       "brand": "Kirkland Signature",
-      "purchase_unit": "lb",
-      "purchase_quantity": 10.0,
+      "package_unit": "lb",
+      "package_unit_quantity": 10.0,
       "package_type": "bag",
       "notes": "Organic from Costco Waltham MA",
       "preferred": true
@@ -609,24 +609,24 @@
     {
       "ingredient_slug": "light_brown_sugar",
       "brand": "Domino",
-      "purchase_unit": "lb",
-      "purchase_quantity": 2.0,
+      "package_unit": "lb",
+      "package_unit_quantity": 2.0,
       "package_type": "bag",
       "notes": "Firmly packed, Wegmans Burlington MA"
     },
     {
       "ingredient_slug": "powdered_sugar",
       "brand": "Domino",
-      "purchase_unit": "lb",
-      "purchase_quantity": 2.0,
+      "package_unit": "lb",
+      "package_unit_quantity": 2.0,
       "package_type": "bag",
       "notes": "Confectioners, Wegmans Burlington MA"
     },
     {
       "ingredient_slug": "unsalted_butter",
       "brand": "Kirkland Signature",
-      "purchase_unit": "lb",
-      "purchase_quantity": 4.0,
+      "package_unit": "lb",
+      "package_unit_quantity": 4.0,
       "package_type": "box",
       "notes": "16 sticks, Costco Waltham MA",
       "preferred": true
@@ -634,8 +634,8 @@
     {
       "ingredient_slug": "large_eggs",
       "brand": "Kirkland Signature",
-      "purchase_unit": "count",
-      "purchase_quantity": 24.0,
+      "package_unit": "count",
+      "package_unit_quantity": 24.0,
       "package_type": "carton",
       "notes": "Organic, Costco Waltham MA",
       "preferred": true
@@ -643,48 +643,48 @@
     {
       "ingredient_slug": "sour_cream",
       "brand": "Daisy",
-      "purchase_unit": "oz",
-      "purchase_quantity": 16.0,
+      "package_unit": "oz",
+      "package_unit_quantity": 16.0,
       "package_type": "container",
       "notes": "Wegmans Burlington MA"
     },
     {
       "ingredient_slug": "heavy_whipping_cream",
       "brand": "Organic Valley",
-      "purchase_unit": "oz",
-      "purchase_quantity": 16.0,
+      "package_unit": "oz",
+      "package_unit_quantity": 16.0,
       "package_type": "carton",
       "notes": "Wegmans Burlington MA"
     },
     {
       "ingredient_slug": "whole_milk",
       "brand": "Organic Valley",
-      "purchase_unit": "gal",
-      "purchase_quantity": 0.5,
+      "package_unit": "gal",
+      "package_unit_quantity": 0.5,
       "package_type": "carton",
       "notes": "Half gallon, Wegmans Burlington MA"
     },
     {
       "ingredient_slug": "evaporated_milk",
       "brand": "Nestl\u00e9 Carnation",
-      "purchase_unit": "oz",
-      "purchase_quantity": 12.0,
+      "package_unit": "oz",
+      "package_unit_quantity": 12.0,
       "package_type": "can",
       "notes": "Wegmans Burlington MA"
     },
     {
       "ingredient_slug": "semi_sweet_chocolate_chips",
       "brand": "Nestl\u00e9 Toll House",
-      "purchase_unit": "oz",
-      "purchase_quantity": 72.0,
+      "package_unit": "oz",
+      "package_unit_quantity": 72.0,
       "package_type": "bag",
       "notes": "4.5 lb bag, Costco Waltham MA"
     },
     {
       "ingredient_slug": "bittersweet_chocolate",
       "brand": "Ghirardelli",
-      "purchase_unit": "oz",
-      "purchase_quantity": 10.0,
+      "package_unit": "oz",
+      "package_unit_quantity": 10.0,
       "package_type": "bar",
       "notes": "60% cacao, Wegmans Burlington MA",
       "preferred": true
@@ -692,8 +692,8 @@
     {
       "ingredient_slug": "white_chocolate",
       "brand": "Ghirardelli",
-      "purchase_unit": "oz",
-      "purchase_quantity": 11.0,
+      "package_unit": "oz",
+      "package_unit_quantity": 11.0,
       "package_type": "bag",
       "notes": "Wegmans Burlington MA",
       "preferred": true
@@ -701,32 +701,32 @@
     {
       "ingredient_slug": "unsweetened_cocoa_powder",
       "brand": "Hershey's",
-      "purchase_unit": "oz",
-      "purchase_quantity": 8.0,
+      "package_unit": "oz",
+      "package_unit_quantity": 8.0,
       "package_type": "container",
       "notes": "Dutch process, Wegmans Burlington MA"
     },
     {
       "ingredient_slug": "baking_powder",
       "brand": "Clabber Girl",
-      "purchase_unit": "oz",
-      "purchase_quantity": 8.1,
+      "package_unit": "oz",
+      "package_unit_quantity": 8.1,
       "package_type": "can",
       "notes": "Double acting, Wegmans Burlington MA"
     },
     {
       "ingredient_slug": "baking_soda",
       "brand": "Arm & Hammer",
-      "purchase_unit": "oz",
-      "purchase_quantity": 16.0,
+      "package_unit": "oz",
+      "package_unit_quantity": 16.0,
       "package_type": "box",
       "notes": "Wegmans Burlington MA"
     },
     {
       "ingredient_slug": "pure_vanilla_extract",
       "brand": "Kirkland Signature",
-      "purchase_unit": "oz",
-      "purchase_quantity": 16.0,
+      "package_unit": "oz",
+      "package_unit_quantity": 16.0,
       "package_type": "bottle",
       "notes": "Madagascar vanilla, Costco Waltham MA",
       "preferred": true
@@ -734,24 +734,24 @@
     {
       "ingredient_slug": "orange_liqueur",
       "brand": "Cointreau",
-      "purchase_unit": "ml",
-      "purchase_quantity": 750.0,
+      "package_unit": "ml",
+      "package_unit_quantity": 750.0,
       "package_type": "bottle",
       "notes": "Triple sec, Total Wine Burlington MA"
     },
     {
       "ingredient_slug": "chocolate_liqueur",
       "brand": "Godiva",
-      "purchase_unit": "ml",
-      "purchase_quantity": 750.0,
+      "package_unit": "ml",
+      "package_unit_quantity": 750.0,
       "package_type": "bottle",
       "notes": "Total Wine Burlington MA"
     },
     {
       "ingredient_slug": "slivered_almonds",
       "brand": "Kirkland Signature",
-      "purchase_unit": "lb",
-      "purchase_quantity": 2.0,
+      "package_unit": "lb",
+      "package_unit_quantity": 2.0,
       "package_type": "bag",
       "notes": "Raw, unsalted, Costco Waltham MA",
       "preferred": true
@@ -759,8 +759,8 @@
     {
       "ingredient_slug": "pecan_halves",
       "brand": "Kirkland Signature",
-      "purchase_unit": "lb",
-      "purchase_quantity": 2.0,
+      "package_unit": "lb",
+      "package_unit_quantity": 2.0,
       "package_type": "bag",
       "notes": "Raw, Costco Waltham MA",
       "preferred": true
@@ -768,8 +768,8 @@
     {
       "ingredient_slug": "whole_almonds",
       "brand": "Kirkland Signature",
-      "purchase_unit": "lb",
-      "purchase_quantity": 3.0,
+      "package_unit": "lb",
+      "package_unit_quantity": 3.0,
       "package_type": "bag",
       "notes": "Roasted, unsalted, Costco Waltham MA",
       "preferred": true
@@ -777,128 +777,128 @@
     {
       "ingredient_slug": "raisins",
       "brand": "Sun-Maid",
-      "purchase_unit": "oz",
-      "purchase_quantity": 20.0,
+      "package_unit": "oz",
+      "package_unit_quantity": 20.0,
       "package_type": "bag",
       "notes": "Seedless, Wegmans Burlington MA"
     },
     {
       "ingredient_slug": "ground_cinnamon",
       "brand": "McCormick",
-      "purchase_unit": "oz",
-      "purchase_quantity": 7.12,
+      "package_unit": "oz",
+      "package_unit_quantity": 7.12,
       "package_type": "container",
       "notes": "Costco Waltham MA"
     },
     {
       "ingredient_slug": "ground_nutmeg",
       "brand": "McCormick",
-      "purchase_unit": "oz",
-      "purchase_quantity": 1.1,
+      "package_unit": "oz",
+      "package_unit_quantity": 1.1,
       "package_type": "jar",
       "notes": "Wegmans Burlington MA"
     },
     {
       "ingredient_slug": "ground_ginger",
       "brand": "McCormick",
-      "purchase_unit": "oz",
-      "purchase_quantity": 1.5,
+      "package_unit": "oz",
+      "package_unit_quantity": 1.5,
       "package_type": "jar",
       "notes": "Wegmans Burlington MA"
     },
     {
       "ingredient_slug": "ground_cloves",
       "brand": "McCormick",
-      "purchase_unit": "oz",
-      "purchase_quantity": 0.9,
+      "package_unit": "oz",
+      "package_unit_quantity": 0.9,
       "package_type": "jar",
       "notes": "Wegmans Burlington MA"
     },
     {
       "ingredient_slug": "ground_cardamom",
       "brand": "Simply Organic",
-      "purchase_unit": "oz",
-      "purchase_quantity": 2.82,
+      "package_unit": "oz",
+      "package_unit_quantity": 2.82,
       "package_type": "jar",
       "notes": "Expensive spice, Wegmans Burlington MA"
     },
     {
       "ingredient_slug": "ground_black_pepper",
       "brand": "McCormick",
-      "purchase_unit": "oz",
-      "purchase_quantity": 6.0,
+      "package_unit": "oz",
+      "package_unit_quantity": 6.0,
       "package_type": "container",
       "notes": "Costco Waltham MA"
     },
     {
       "ingredient_slug": "vegetable_oil",
       "brand": "Wesson",
-      "purchase_unit": "oz",
-      "purchase_quantity": 48.0,
+      "package_unit": "oz",
+      "package_unit_quantity": 48.0,
       "package_type": "bottle",
       "notes": "Wegmans Burlington MA"
     },
     {
       "ingredient_slug": "vegetable_shortening",
       "brand": "Crisco",
-      "purchase_unit": "oz",
-      "purchase_quantity": 48.0,
+      "package_unit": "oz",
+      "package_unit_quantity": 48.0,
       "package_type": "can",
       "notes": "Wegmans Burlington MA"
     },
     {
       "ingredient_slug": "unsulphured_molasses",
       "brand": "Grandma's",
-      "purchase_unit": "oz",
-      "purchase_quantity": 12.0,
+      "package_unit": "oz",
+      "package_unit_quantity": 12.0,
       "package_type": "bottle",
       "notes": "Original, Wegmans Burlington MA"
     },
     {
       "ingredient_slug": "pure_pumpkin_puree",
       "brand": "Libby's",
-      "purchase_unit": "oz",
-      "purchase_quantity": 15.0,
+      "package_unit": "oz",
+      "package_unit_quantity": 15.0,
       "package_type": "can",
       "notes": "100% pure, Wegmans Burlington MA"
     },
     {
       "ingredient_slug": "butterscotch_morsels",
       "brand": "Nestl\u00e9 Toll House",
-      "purchase_unit": "oz",
-      "purchase_quantity": 11.0,
+      "package_unit": "oz",
+      "package_unit_quantity": 11.0,
       "package_type": "bag",
       "notes": "Wegmans Burlington MA"
     },
     {
       "ingredient_slug": "kosher_salt",
       "brand": "Morton",
-      "purchase_unit": "oz",
-      "purchase_quantity": 48.0,
+      "package_unit": "oz",
+      "package_unit_quantity": 48.0,
       "package_type": "box",
       "notes": "Coarse, Wegmans Burlington MA"
     },
     {
       "ingredient_slug": "table_salt",
       "brand": "Morton",
-      "purchase_unit": "oz",
-      "purchase_quantity": 26.0,
+      "package_unit": "oz",
+      "package_unit_quantity": 26.0,
       "package_type": "container",
       "notes": "Iodized, Wegmans Burlington MA"
     },
     {
       "ingredient_slug": "dried_orange_peel",
       "brand": "Spice Islands",
-      "purchase_unit": "oz",
-      "purchase_quantity": 1.8,
+      "package_unit": "oz",
+      "package_unit_quantity": 1.8,
       "package_type": "jar",
       "notes": "Grated, Wegmans Burlington MA"
     },
     {
       "ingredient_slug": "cake_flour",
       "brand": "King Arthur",
-      "purchase_unit": "lb",
-      "purchase_quantity": 2.0,
+      "package_unit": "lb",
+      "package_unit_quantity": 2.0,
       "package_type": "box",
       "notes": "Wegmans Burlington MA",
       "preferred": true
@@ -906,40 +906,40 @@
     {
       "ingredient_slug": "colored_sugar",
       "brand": "Wilton",
-      "purchase_unit": "oz",
-      "purchase_quantity": 3.25,
+      "package_unit": "oz",
+      "package_unit_quantity": 3.25,
       "package_type": "jar",
       "notes": "Various colors, Wegmans Burlington MA"
     },
     {
       "ingredient_slug": "cream_cheese",
       "brand": "Philadelphia",
-      "purchase_unit": "oz",
-      "purchase_quantity": 8.0,
+      "package_unit": "oz",
+      "package_unit_quantity": 8.0,
       "package_type": "box",
       "notes": "Wegmans Burlington MA"
     },
     {
       "ingredient_slug": "crystallized_ginger",
       "brand": "Trader Joe's",
-      "purchase_unit": "oz",
-      "purchase_quantity": 3.5,
+      "package_unit": "oz",
+      "package_unit_quantity": 3.5,
       "package_type": "bag",
       "notes": "Trader Joe's"
     },
     {
       "ingredient_slug": "dried_culinary_lavender",
       "brand": "Penzeys",
-      "purchase_unit": "oz",
-      "purchase_quantity": 0.5,
+      "package_unit": "oz",
+      "package_unit_quantity": 0.5,
       "package_type": "jar",
       "notes": "Penzeys Spices"
     },
     {
       "ingredient_slug": "egg_yolks",
       "brand": "Kirkland Signature",
-      "purchase_unit": "count",
-      "purchase_quantity": 24.0,
+      "package_unit": "count",
+      "package_unit_quantity": 24.0,
       "package_type": "carton",
       "notes": "From Large Eggs, Costco Waltham MA",
       "preferred": true
@@ -947,32 +947,32 @@
     {
       "ingredient_slug": "english_toffee_bits",
       "brand": "Heath",
-      "purchase_unit": "oz",
-      "purchase_quantity": 8.0,
+      "package_unit": "oz",
+      "package_unit_quantity": 8.0,
       "package_type": "bag",
       "notes": "Wegmans Burlington MA"
     },
     {
       "ingredient_slug": "flaked_coconut",
       "brand": "Baker's",
-      "purchase_unit": "oz",
-      "purchase_quantity": 14.0,
+      "package_unit": "oz",
+      "package_unit_quantity": 14.0,
       "package_type": "bag",
       "notes": "Sweetened, Wegmans Burlington MA"
     },
     {
       "ingredient_slug": "golden_syrup",
       "brand": "Lyle's",
-      "purchase_unit": "oz",
-      "purchase_quantity": 11.0,
+      "package_unit": "oz",
+      "package_unit_quantity": 11.0,
       "package_type": "bottle",
       "notes": "Stop & Shop Bedford MA"
     },
     {
       "ingredient_slug": "honey",
       "brand": "Kirkland Signature",
-      "purchase_unit": "lb",
-      "purchase_quantity": 3.0,
+      "package_unit": "lb",
+      "package_unit_quantity": 3.0,
       "package_type": "bottle",
       "notes": "Raw honey, Costco Waltham MA",
       "preferred": true
@@ -980,88 +980,88 @@
     {
       "ingredient_slug": "instant_coffee_crystals",
       "brand": "Folgers",
-      "purchase_unit": "oz",
-      "purchase_quantity": 8.0,
+      "package_unit": "oz",
+      "package_unit_quantity": 8.0,
       "package_type": "jar",
       "notes": "Wegmans Burlington MA"
     },
     {
       "ingredient_slug": "lemon",
       "brand": "Fresh",
-      "purchase_unit": "lb",
-      "purchase_quantity": 1.0,
+      "package_unit": "lb",
+      "package_unit_quantity": 1.0,
       "package_type": "each",
       "notes": "Fresh produce, Wegmans Burlington MA"
     },
     {
       "ingredient_slug": "lemon_extract",
       "brand": "McCormick",
-      "purchase_unit": "oz",
-      "purchase_quantity": 1.0,
+      "package_unit": "oz",
+      "package_unit_quantity": 1.0,
       "package_type": "bottle",
       "notes": "Wegmans Burlington MA"
     },
     {
       "ingredient_slug": "lemon_oil",
       "brand": "Boyajian",
-      "purchase_unit": "oz",
-      "purchase_quantity": 1.0,
+      "package_unit": "oz",
+      "package_unit_quantity": 1.0,
       "package_type": "bottle",
       "notes": "Amazon"
     },
     {
       "ingredient_slug": "milk_chocolate_chips",
       "brand": "Nestl\u00e9 Toll House",
-      "purchase_unit": "oz",
-      "purchase_quantity": 11.5,
+      "package_unit": "oz",
+      "package_unit_quantity": 11.5,
       "package_type": "bag",
       "notes": "Wegmans Burlington MA"
     },
     {
       "ingredient_slug": "mincemeat",
       "brand": "None Such",
-      "purchase_unit": "oz",
-      "purchase_quantity": 27.0,
+      "package_unit": "oz",
+      "package_unit_quantity": 27.0,
       "package_type": "jar",
       "notes": "Stop & Shop Bedford MA"
     },
     {
       "ingredient_slug": "old_fashioned_rolled_oats",
       "brand": "Quaker",
-      "purchase_unit": "oz",
-      "purchase_quantity": 42.0,
+      "package_unit": "oz",
+      "package_unit_quantity": 42.0,
       "package_type": "container",
       "notes": "Wegmans Burlington MA"
     },
     {
       "ingredient_slug": "orange",
       "brand": "Fresh",
-      "purchase_unit": "lb",
-      "purchase_quantity": 1.0,
+      "package_unit": "lb",
+      "package_unit_quantity": 1.0,
       "package_type": "each",
       "notes": "Fresh produce, Wegmans Burlington MA"
     },
     {
       "ingredient_slug": "pastel_mint_chocolate_balls",
       "brand": "Andes",
-      "purchase_unit": "oz",
-      "purchase_quantity": 10.0,
+      "package_unit": "oz",
+      "package_unit_quantity": 10.0,
       "package_type": "bag",
       "notes": "Seasonal, Amazon"
     },
     {
       "ingredient_slug": "plain_yogurt",
       "brand": "Fage",
-      "purchase_unit": "oz",
-      "purchase_quantity": 32.0,
+      "package_unit": "oz",
+      "package_unit_quantity": 32.0,
       "package_type": "container",
       "notes": "Total 2%, Wegmans Burlington MA"
     },
     {
       "ingredient_slug": "unsalted_peanuts",
       "brand": "Kirkland Signature",
-      "purchase_unit": "lb",
-      "purchase_quantity": 2.5,
+      "package_unit": "lb",
+      "package_unit_quantity": 2.5,
       "package_type": "jar",
       "notes": "Dry roasted, Costco Waltham MA",
       "preferred": true
@@ -1069,24 +1069,24 @@
     {
       "ingredient_slug": "vanilla_bean",
       "brand": "McCormick",
-      "purchase_unit": "count",
-      "purchase_quantity": 1.0,
+      "package_unit": "count",
+      "package_unit_quantity": 1.0,
       "package_type": "package",
       "notes": "Madagascar, Wegmans Burlington MA"
     },
     {
       "ingredient_slug": "vanilla_caramels",
       "brand": "Kraft",
-      "purchase_unit": "oz",
-      "purchase_quantity": 14.0,
+      "package_unit": "oz",
+      "package_unit_quantity": 14.0,
       "package_type": "bag",
       "notes": "Wegmans Burlington MA"
     },
     {
       "ingredient_slug": "walnuts",
       "brand": "Kirkland Signature",
-      "purchase_unit": "lb",
-      "purchase_quantity": 3.0,
+      "package_unit": "lb",
+      "package_unit_quantity": 3.0,
       "package_type": "bag",
       "notes": "Halves and pieces, Costco Waltham MA",
       "preferred": true
@@ -1094,164 +1094,164 @@
     {
       "ingredient_slug": "poppy_seeds",
       "brand": "McCormick",
-      "purchase_unit": "oz",
-      "purchase_quantity": 1.5,
+      "package_unit": "oz",
+      "package_unit_quantity": 1.5,
       "package_type": "jar",
       "notes": "Wegmans Burlington MA"
     },
     {
       "ingredient_slug": "ground_mace",
       "brand": "McCormick",
-      "purchase_unit": "oz",
-      "purchase_quantity": 0.9,
+      "package_unit": "oz",
+      "package_unit_quantity": 0.9,
       "package_type": "jar",
       "notes": "Wegmans Burlington MA"
     },
     {
       "ingredient_slug": "apricot_halves",
       "brand": "Del Monte",
-      "purchase_unit": "oz",
-      "purchase_quantity": 15.0,
+      "package_unit": "oz",
+      "package_unit_quantity": 15.0,
       "package_type": "can",
       "notes": "In heavy syrup, Wegmans Burlington MA"
     },
     {
       "ingredient_slug": "irish_whiskey",
       "brand": "Jameson",
-      "purchase_unit": "ml",
-      "purchase_quantity": 750.0,
+      "package_unit": "ml",
+      "package_unit_quantity": 750.0,
       "package_type": "bottle",
       "notes": "Total Wine Burlington MA"
     },
     {
       "ingredient_slug": "mixed_candied_fruits",
       "brand": "Paradise",
-      "purchase_unit": "oz",
-      "purchase_quantity": 8.0,
+      "package_unit": "oz",
+      "package_unit_quantity": 8.0,
       "package_type": "container",
       "notes": "Wegmans Burlington MA"
     },
     {
       "ingredient_slug": "red_candied_cherries",
       "brand": "Paradise",
-      "purchase_unit": "oz",
-      "purchase_quantity": 8.0,
+      "package_unit": "oz",
+      "package_unit_quantity": 8.0,
       "package_type": "container",
       "notes": "Wegmans Burlington MA"
     },
     {
       "ingredient_slug": "green_candied_cherries",
       "brand": "Paradise",
-      "purchase_unit": "oz",
-      "purchase_quantity": 8.0,
+      "package_unit": "oz",
+      "package_unit_quantity": 8.0,
       "package_type": "container",
       "notes": "Wegmans Burlington MA"
     },
     {
       "ingredient_slug": "dates",
       "brand": "Sun-Maid",
-      "purchase_unit": "oz",
-      "purchase_quantity": 8.0,
+      "package_unit": "oz",
+      "package_unit_quantity": 8.0,
       "package_type": "package",
       "notes": "Pitted, chopped, Wegmans Burlington MA"
     },
     {
       "ingredient_slug": "currants",
       "brand": "Sun-Maid",
-      "purchase_unit": "oz",
-      "purchase_quantity": 10.0,
+      "package_unit": "oz",
+      "package_unit_quantity": 10.0,
       "package_type": "bag",
       "notes": "Zante currants, Wegmans Burlington MA"
     },
     {
       "ingredient_slug": "currant_jelly",
       "brand": "Crosse & Blackwell",
-      "purchase_unit": "oz",
-      "purchase_quantity": 12.0,
+      "package_unit": "oz",
+      "package_unit_quantity": 12.0,
       "package_type": "jar",
       "notes": "Stop & Shop Bedford MA"
     },
     {
       "ingredient_slug": "apple_juice",
       "brand": "Mott's",
-      "purchase_unit": "oz",
-      "purchase_quantity": 64.0,
+      "package_unit": "oz",
+      "package_unit_quantity": 64.0,
       "package_type": "bottle",
       "notes": "100% juice, Wegmans Burlington MA"
     },
     {
       "ingredient_slug": "candied_pineapple",
       "brand": "Paradise",
-      "purchase_unit": "oz",
-      "purchase_quantity": 8.0,
+      "package_unit": "oz",
+      "package_unit_quantity": 8.0,
       "package_type": "container",
       "notes": "Chopped, Wegmans Burlington MA"
     },
     {
       "ingredient_slug": "dark_brown_sugar",
       "brand": "Domino",
-      "purchase_unit": "lb",
-      "purchase_quantity": 2.0,
+      "package_unit": "lb",
+      "package_unit_quantity": 2.0,
       "package_type": "bag",
       "notes": "Wegmans Burlington MA"
     },
     {
       "ingredient_slug": "pecan_flour",
       "brand": "Schermer Pecans",
-      "purchase_unit": "lb",
-      "purchase_quantity": 1.0,
+      "package_unit": "lb",
+      "package_unit_quantity": 1.0,
       "package_type": "bag",
       "notes": "Specialty item, Amazon"
     },
     {
       "ingredient_slug": "white_nonpareils",
       "brand": "Wilton",
-      "purchase_unit": "oz",
-      "purchase_quantity": 3.5,
+      "package_unit": "oz",
+      "package_unit_quantity": 3.5,
       "package_type": "bottle",
       "notes": "Sprinkles, Wegmans Burlington MA"
     },
     {
       "ingredient_slug": "almond_flour",
       "brand": "Generic",
-      "purchase_unit": "cup",
-      "purchase_quantity": 1.0
+      "package_unit": "cup",
+      "package_unit_quantity": 1.0
     },
     {
       "ingredient_slug": "hot_water",
       "brand": "Generic",
-      "purchase_unit": "cup",
-      "purchase_quantity": 1.0
+      "package_unit": "cup",
+      "package_unit_quantity": 1.0
     },
     {
       "ingredient_slug": "lemon_juice",
       "brand": "Generic",
-      "purchase_unit": "cup",
-      "purchase_quantity": 1.0
+      "package_unit": "cup",
+      "package_unit_quantity": 1.0
     },
     {
       "ingredient_slug": "mincemeat_jar",
       "brand": "Generic",
-      "purchase_unit": "cup",
-      "purchase_quantity": 1.0
+      "package_unit": "cup",
+      "package_unit_quantity": 1.0
     },
     {
       "ingredient_slug": "orange_juice",
       "brand": "Generic",
-      "purchase_unit": "cup",
-      "purchase_quantity": 1.0
+      "package_unit": "cup",
+      "package_unit_quantity": 1.0
     },
     {
       "ingredient_slug": "sliced_almonds",
       "brand": "Generic",
-      "purchase_unit": "oz",
-      "purchase_quantity": 1.0
+      "package_unit": "oz",
+      "package_unit_quantity": 1.0
     },
     {
       "ingredient_slug": "water",
       "brand": "Generic",
-      "purchase_unit": "cup",
-      "purchase_quantity": 1.0
+      "package_unit": "cup",
+      "package_unit_quantity": 1.0
     }
   ],
   "unit_conversions": [

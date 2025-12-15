@@ -716,8 +716,8 @@ See [PACKAGING_OPTIONS.md](./PACKAGING_OPTIONS.md) for detailed technical option
 The application implements a comprehensive cost calculation system:
 
 ```
-Ingredient (unit_cost per purchase_unit)
-  ↓ [conversion_factor converts purchase_unit → recipe_unit]
+Ingredient (unit_cost per package_unit)
+  ↓ [conversion_factor converts package_unit → recipe_unit]
 RecipeIngredient (quantity in recipe_unit)
   ↓ [cost = (unit_cost / conversion_factor) × quantity]
 Recipe (total_cost = sum of ingredient costs)
@@ -741,7 +741,7 @@ All costs are calculated on-demand, ensuring changes to ingredient prices propag
 - Count: each, count, piece, dozen
 
 **Custom Conversions:**
-- Each ingredient defines `purchase_unit` → `recipe_unit` conversion
+- Each ingredient defines `package_unit` → `recipe_unit` conversion
 - Example: "1 bag (50 lb) = 200 cups" stored as `conversion_factor = 200.0`
 - Supports decimal quantities (e.g., 2.5 bags, 0.75 cups)
 

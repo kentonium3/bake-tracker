@@ -79,8 +79,8 @@ The JSON format matches the new Ingredient/Product architecture:
       "ingredient_slug": "all_purpose_flour",
       "brand": "King Arthur",
       "package_size": "25 lb bag",
-      "purchase_unit": "lb",
-      "purchase_quantity": 25.0,
+      "package_unit": "lb",
+      "package_unit_quantity": 25.0,
       "preferred": true
     }
   ],

@@ -57,7 +57,7 @@ Examples:
 - **Recipe UI form assumes old Ingredient API and mismatched field names**
   - File: `src/ui/forms/recipe_form.py`
   - Docstring still says unit can default to ingredient’s `recipe_unit`.
-  - Uses `ingredient.purchase_unit` (purchase unit belongs to `Product`, not `Ingredient`).
+  - Uses `ingredient.package_unit` (purchase unit belongs to `Product`, not `Ingredient`).
   - Uses `ingredient.has_density_data()` (not present on new `Ingredient`).
   - Compares `ing.name` to selected display text; new model uses `display_name`.
 
@@ -128,7 +128,7 @@ Prompt note aligns with this: the `baking_ingredients_v32.json` conversion needs
 
 - File: `src/services/inventory_item_service.py`
 - Signature: `consume_fifo(ingredient_slug, quantity_needed, target_unit, dry_run=False, session=None)`
-- Converts lot quantities from `purchase_unit` → `target_unit`, consumes, then converts back `target_unit` → `purchase_unit` for deduction.
+- Converts lot quantities from `package_unit` → `target_unit`, consumes, then converts back `target_unit` → `package_unit` for deduction.
 - Uses `convert_any_units(..., ingredient=ingredient)` so density is available for volume↔weight conversion.
 
 ### 4.2 Error handling is semantically off
@@ -174,6 +174,6 @@ Gaps / issues:
 - [ ] Convert `test_data/sample_data.json` to v3.3 in the worktree (or update tests/fixtures accordingly)
 - [ ] Sweep and update remaining references to removed concepts:
   - `InventorySnapshot` “recipe unit quantity” logic
-  - recipe form density validation logic (remove `purchase_unit`/`has_density_data` assumptions)
+  - recipe form density validation logic (remove `package_unit`/`has_density_data` assumptions)
   - any remaining legacy conversion-factor utilities and docs
 - [ ] Re-run full test suite and ensure Feature 019 doesn’t introduce new unrelated failures

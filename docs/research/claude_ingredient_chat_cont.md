@@ -245,8 +245,8 @@ All entity arrays are optional, but when present, they must follow the dependenc
   "brand": "King Arthur",
   "package_size": "5 lb bag",
   "package_type": "bag",
-  "purchase_unit": "lb",
-  "purchase_quantity": 5.0,
+  "package_unit": "lb",
+  "package_unit_quantity": 5.0,
   "upc_code": "071012000012",
   "is_preferred": true,
   "notes": "Premium quality flour"
@@ -259,8 +259,8 @@ All entity arrays are optional, but when present, they must follow the dependenc
 | `brand` | string | **Yes** | Brand name (max 200 chars) |
 | `package_size` | string | No | Human-readable package size |
 | `package_type` | string | No | Package type (bag, box, jar, etc.) |
-| `purchase_unit` | string | **Yes** | Unit for purchasing |
-| `purchase_quantity` | decimal | **Yes** | Quantity per package |
+| `package_unit` | string | **Yes** | Unit for purchasing |
+| `package_unit_quantity` | decimal | **Yes** | Quantity per package |
 | `upc_code` | string | No | UPC barcode |
 | `is_preferred` | boolean | No | Preferred product for shopping lists |
 | `notes` | string | No | User notes |

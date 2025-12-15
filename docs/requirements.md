@@ -31,7 +31,7 @@ A desktop application for managing holiday baking inventory, recipes, and gift p
 
 **Inventory Items** (v0.4.0 - Actual Inventory with FIFO Support)
 - Links to Product (specific brand/package)
-- Quantity in product's purchase_unit
+- Quantity in product's package_unit
 - Purchase date (for FIFO consumption), expiration date
 - Storage location (e.g., "Main Pantry", "Basement")
 - Notes field
@@ -528,7 +528,7 @@ bake-tracker/
 **Challenge:** Ingredients purchased in one unit (e.g., 50 lb bags) consumed in another (e.g., cups).
 
 **Solution:**
-- Each ingredient has `purchase_unit`, `recipe_unit`, and `conversion_factor`
+- Each ingredient has `package_unit`, `recipe_unit`, and `conversion_factor`
 - Example: Flour
   - Purchase unit: "bag" (50 lb)
   - Recipe unit: "cup"

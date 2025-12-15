@@ -38,14 +38,14 @@
     {
       "ingredient_slug": "catalog_test_flour",
       "brand": "Test Brand",
-      "purchase_unit": "lb",
-      "purchase_quantity": 5.0
+      "package_unit": "lb",
+      "package_unit_quantity": 5.0
     },
     {
       "ingredient_slug": "catalog_test_sugar",
       "brand": "Test Brand",
-      "purchase_unit": "lb",
-      "purchase_quantity": 4.0
+      "package_unit": "lb",
+      "package_unit_quantity": 4.0
     }
   ],
   "recipes": [

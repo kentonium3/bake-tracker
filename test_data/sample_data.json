@@ -107,8 +107,8 @@
       "brand": "King Arthur",
       "package_size": "25 lb bag",
       "package_type": "bag",
-      "purchase_unit": "lb",
-      "purchase_quantity": 25.0,
+      "package_unit": "lb",
+      "package_unit_quantity": 25.0,
       "is_preferred": true,
       "notes": "Premium quality, consistent results"
     },
@@ -117,8 +117,8 @@
       "brand": "Gold Medal",
       "package_size": "5 lb bag",
       "package_type": "bag",
-      "purchase_unit": "lb",
-      "purchase_quantity": 5.0,
+      "package_unit": "lb",
+      "package_unit_quantity": 5.0,
       "is_preferred": false,
       "notes": "Good budget option"
     },
@@ -127,8 +127,8 @@
       "brand": "Domino",
       "package_size": "25 lb bag",
       "package_type": "bag",
-      "purchase_unit": "lb",
-      "purchase_quantity": 25.0,
+      "package_unit": "lb",
+      "package_unit_quantity": 25.0,
       "is_preferred": true,
       "notes": "Best price per pound at Costco"
     },
@@ -137,8 +137,8 @@
       "brand": "Nestle Toll House",
       "package_size": "72 oz bag",
       "package_type": "bag",
-      "purchase_unit": "oz",
-      "purchase_quantity": 72.0,
+      "package_unit": "oz",
+      "package_unit_quantity": 72.0,
       "is_preferred": true,
       "notes": "Costco bulk bag"
     },
@@ -147,8 +147,8 @@
       "brand": "Kirkland",
       "package_size": "4 lb box",
       "package_type": "box",
-      "purchase_unit": "lb",
-      "purchase_quantity": 4.0,
+      "package_unit": "lb",
+      "package_unit_quantity": 4.0,
       "is_preferred": true,
       "notes": "Costco 4-pack"
     },
@@ -157,8 +157,8 @@
       "brand": "Domino",
       "package_size": "2 lb bag",
       "package_type": "bag",
-      "purchase_unit": "lb",
-      "purchase_quantity": 2.0,
+      "package_unit": "lb",
+      "package_unit_quantity": 2.0,
       "is_preferred": true,
       "notes": "Light brown sugar"
     },
@@ -167,8 +167,8 @@
       "brand": "C&H",
       "package_size": "2 lb bag",
       "package_type": "bag",
-      "purchase_unit": "lb",
-      "purchase_quantity": 2.0,
+      "package_unit": "lb",
+      "package_unit_quantity": 2.0,
       "is_preferred": true
     },
     {
@@ -176,8 +176,8 @@
       "brand": "Penzeys Dutch Process",
       "package_size": "8 oz jar",
       "package_type": "jar",
-      "purchase_unit": "oz",
-      "purchase_quantity": 8.0,
+      "package_unit": "oz",
+      "package_unit_quantity": 8.0,
       "is_preferred": true,
       "notes": "Premium dutch-processed cocoa"
     },
@@ -186,8 +186,8 @@
       "brand": "McCormick",
       "package_size": "16 oz bottle",
       "package_type": "bottle",
-      "purchase_unit": "oz",
-      "purchase_quantity": 16.0,
+      "package_unit": "oz",
+      "package_unit_quantity": 16.0,
       "is_preferred": true
     },
     {
@@ -195,8 +195,8 @@
       "brand": "Arm & Hammer",
       "package_size": "1 lb box",
       "package_type": "box",
-      "purchase_unit": "lb",
-      "purchase_quantity": 1.0,
+      "package_unit": "lb",
+      "package_unit_quantity": 1.0,
       "is_preferred": true
     },
     {
@@ -204,8 +204,8 @@
       "brand": "Morton",
       "package_size": "26 oz box",
       "package_type": "box",
-      "purchase_unit": "oz",
-      "purchase_quantity": 26.0,
+      "package_unit": "oz",
+      "package_unit_quantity": 26.0,
       "is_preferred": true
     },
     {
@@ -213,8 +213,8 @@
       "brand": "Costco",
       "package_size": "2 lb bag",
       "package_type": "bag",
-      "purchase_unit": "lb",
-      "purchase_quantity": 2.0,
+      "package_unit": "lb",
+      "package_unit_quantity": 2.0,
       "is_preferred": true,
       "notes": "Halves and pieces"
     },
@@ -223,8 +223,8 @@
       "brand": "Kirkland",
       "package_size": "3 lb bag",
       "package_type": "bag",
-      "purchase_unit": "lb",
-      "purchase_quantity": 3.0,
+      "package_unit": "lb",
+      "package_unit_quantity": 3.0,
       "is_preferred": true,
       "notes": "Halves and pieces"
     }

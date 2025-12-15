@@ -129,7 +129,7 @@ Overall the implementation is **solid and comprehensive**. The codebase demonstr
 
 **Strengths:**
 - `_calculate_variant_cost()` is well-structured with clear handling of edge cases
-- Guards against division by zero (`if variant.purchase_quantity <= 0`)
+- Guards against division by zero (`if variant.package_unit_quantity <= 0`)
 - Returns meaningful `cost_message` for no-data scenarios
 
 **Issues Found:**
