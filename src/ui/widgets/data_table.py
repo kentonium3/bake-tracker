@@ -276,16 +276,16 @@ class IngredientDataTable(DataTable):
             List of formatted values
         """
         # Format quantity with package information
-        total_qty = row_data.total_quantity_in_purchase_units
+        total_qty = row_data.total_quantity_in_package_units
 
         if row_data.package_type:
             # Use package type if available
             package_label = self._pluralize(row_data.package_type, row_data.quantity)
-            quantity_display = f"{row_data.quantity:.1f} {package_label} ({total_qty:.1f} {row_data.purchase_unit})"
+            quantity_display = f"{row_data.quantity:.1f} {package_label} ({total_qty:.1f} {row_data.package_unit})"
         else:
             # Use generic "packages" if no package type
             package_label = "package" if row_data.quantity == 1 else "packages"
-            quantity_display = f"{row_data.quantity:.1f} {package_label} ({total_qty:.1f} {row_data.purchase_unit})"
+            quantity_display = f"{row_data.quantity:.1f} {package_label} ({total_qty:.1f} {row_data.package_unit})"
 
         return [
             row_data.name,

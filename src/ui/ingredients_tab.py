@@ -1028,8 +1028,8 @@ class ProductsDialog(ctk.CTkToplevel):
                     else {
                         "id": product_obj.id,
                         "brand": product_obj.brand,
-                        "purchase_unit": product_obj.purchase_unit,
-                        "purchase_quantity": product_obj.purchase_quantity,
+                        "package_unit": product_obj.package_unit,
+                        "package_unit_quantity": product_obj.package_unit_quantity,
                         "package_size": getattr(product_obj, "package_size", None),
                         "upc_code": getattr(product_obj, "upc_code", None),
                         "gtin": getattr(product_obj, "gtin", None),
@@ -1038,8 +1038,8 @@ class ProductsDialog(ctk.CTkToplevel):
                 )
                 # Ensure expected keys exist
                 product_dict["brand"] = product_obj.brand
-                product_dict["purchase_unit"] = product_obj.purchase_unit
-                product_dict["purchase_quantity"] = product_obj.purchase_quantity
+                product_dict["package_unit"] = product_obj.package_unit
+                product_dict["package_unit_quantity"] = product_obj.package_unit_quantity
                 product_dict["package_size"] = getattr(product_obj, "package_size", None)
                 product_dict["upc_code"] = getattr(product_obj, "upc_code", None)
                 product_dict["gtin"] = getattr(product_obj, "gtin", None)
@@ -1130,17 +1130,17 @@ class ProductsDialog(ctk.CTkToplevel):
 
         # Product info - use cleaner display format
         brand = product.get("brand", "Generic")
-        purchase_qty = product.get("purchase_quantity") or 0
-        purchase_unit = product.get("purchase_unit", "")
-        package_size = product.get("package_size") or f"{purchase_qty} {purchase_unit}".strip()
+        package_qty = product.get("package_unit_quantity") or 0
+        package_unit = product.get("package_unit", "")
+        package_size = product.get("package_size") or f"{package_qty} {package_unit}".strip()
         supplier = product.get("supplier", "")
 
         # Build primary display name
         display_name = f"{brand}"
-        if package_size and package_size != f"{purchase_qty} {purchase_unit}":
+        if package_size and package_size != f"{package_qty} {package_unit}":
             display_name += f" - {package_size}"
-        elif purchase_qty and purchase_unit:
-            display_name += f" ({purchase_qty} {purchase_unit})"
+        elif package_qty and package_unit:
+            display_name += f" ({package_qty} {package_unit})"
 
         # Add supplier if available
         if supplier:
@@ -1236,8 +1236,8 @@ class ProductsDialog(ctk.CTkToplevel):
                 else {
                     "id": product_obj.id,
                     "brand": product_obj.brand,
-                    "purchase_quantity": product_obj.purchase_quantity,
-                    "purchase_unit": product_obj.purchase_unit,
+                    "package_unit_quantity": product_obj.package_unit_quantity,
+                    "package_unit": product_obj.package_unit,
                     "package_size": getattr(product_obj, "package_size", None),
                     "upc_code": getattr(product_obj, "upc_code", None),
                     "gtin": getattr(product_obj, "gtin", None),
@@ -1404,17 +1404,17 @@ class ProductFormDialog(ctk.CTkToplevel):
         self.purchase_qty_entry.grid(row=row, column=1, sticky="ew", padx=10, pady=5)
         row += 1
 
-        # Purchase Unit (required)
-        ctk.CTkLabel(form_frame, text="Purchase Unit*:").grid(
+        # Package Unit (required)
+        ctk.CTkLabel(form_frame, text="Package Unit*:").grid(
             row=row, column=0, sticky="w", padx=10, pady=5
         )
-        self.purchase_unit_var = ctk.StringVar(value="lb")
-        self.purchase_unit_dropdown = ctk.CTkOptionMenu(
+        self.package_unit_var = ctk.StringVar(value="lb")
+        self.package_unit_dropdown = ctk.CTkOptionMenu(
             form_frame,
             values=["lb", "oz", "g", "kg", "bag", "box", "count"],
-            variable=self.purchase_unit_var,
+            variable=self.package_unit_var,
         )
-        self.purchase_unit_dropdown.grid(row=row, column=1, sticky="ew", padx=10, pady=5)
+        self.package_unit_dropdown.grid(row=row, column=1, sticky="ew", padx=10, pady=5)
         row += 1
 
         # UPC/GTIN (optional)
@@ -1485,9 +1485,9 @@ class ProductFormDialog(ctk.CTkToplevel):
             return
 
         self.brand_entry.insert(0, self.product.get("brand", ""))
-        purchase_qty = self.product.get("purchase_quantity", "")
-        self.purchase_qty_entry.insert(0, str(purchase_qty) if purchase_qty is not None else "")
-        self.purchase_unit_var.set(self.product.get("purchase_unit", "lb"))
+        package_qty = self.product.get("package_unit_quantity", "")
+        self.purchase_qty_entry.insert(0, str(package_qty) if package_qty is not None else "")
+        self.package_unit_var.set(self.product.get("package_unit", "lb"))
         upc_value = (
             self.product.get("upc_code")
             or self.product.get("gtin")
@@ -1502,8 +1502,8 @@ class ProductFormDialog(ctk.CTkToplevel):
         """Validate and save form data."""
         # Get values
         brand = self.brand_entry.get().strip()
-        purchase_qty_str = self.purchase_qty_entry.get().strip()
-        purchase_unit = self.purchase_unit_var.get()
+        package_qty_str = self.purchase_qty_entry.get().strip()
+        package_unit = self.package_unit_var.get()
         upc = self.upc_entry.get().strip()
         supplier = self.supplier_entry.get().strip()
         preferred = self.preferred_var.get()
@@ -1513,14 +1513,14 @@ class ProductFormDialog(ctk.CTkToplevel):
             messagebox.showerror("Validation Error", "Brand is required")
             return
 
-        if not purchase_qty_str:
-            messagebox.showerror("Validation Error", "Purchase quantity is required")
+        if not package_qty_str:
+            messagebox.showerror("Validation Error", "Package quantity is required")
             return
 
         # Validate quantity
         try:
-            purchase_qty = float(purchase_qty_str)
-            if purchase_qty <= 0:
+            package_qty = float(package_qty_str)
+            if package_qty <= 0:
                 messagebox.showerror("Validation Error", "Quantity must be positive")
                 return
         except ValueError:
@@ -1530,12 +1530,12 @@ class ProductFormDialog(ctk.CTkToplevel):
         # Build result
         result: Dict[str, Any] = {
             "brand": brand,
-            "purchase_quantity": purchase_qty,
-            "purchase_unit": purchase_unit,
+            "package_unit_quantity": package_qty,
+            "package_unit": package_unit,
             "preferred": preferred,
         }
 
-        package_size = f"{purchase_qty:g} {purchase_unit}".strip()
+        package_size = f"{package_qty:g} {package_unit}".strip()
         if package_size:
             result["package_size"] = package_size
 

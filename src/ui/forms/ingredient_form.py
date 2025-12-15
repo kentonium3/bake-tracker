@@ -164,33 +164,33 @@ class IngredientFormDialog(ctk.CTkToplevel):
         self.package_type_combo.grid(row=row, column=1, sticky="ew", padx=PADDING_MEDIUM, pady=5)
         row += 1
 
-        # Purchase quantity (required)
-        purchase_qty_label = ctk.CTkLabel(parent, text="Quantity per Package*:", anchor="w")
-        purchase_qty_label.grid(row=row, column=0, sticky="w", padx=PADDING_MEDIUM, pady=5)
+        # Package quantity (required)
+        package_qty_label = ctk.CTkLabel(parent, text="Quantity per Package*:", anchor="w")
+        package_qty_label.grid(row=row, column=0, sticky="w", padx=PADDING_MEDIUM, pady=5)
 
-        self.purchase_quantity_entry = ctk.CTkEntry(
+        self.package_unit_quantity_entry = ctk.CTkEntry(
             parent,
             width=400,
             placeholder_text="e.g., 25 (how much in each package)",
         )
-        self.purchase_quantity_entry.grid(
+        self.package_unit_quantity_entry.grid(
             row=row, column=1, sticky="ew", padx=PADDING_MEDIUM, pady=5
         )
         row += 1
 
-        # Purchase unit (required)
-        purchase_unit_label = ctk.CTkLabel(parent, text="Purchase Unit*:", anchor="w")
-        purchase_unit_label.grid(row=row, column=0, sticky="w", padx=PADDING_MEDIUM, pady=5)
+        # Package unit (required)
+        package_unit_label = ctk.CTkLabel(parent, text="Package Unit*:", anchor="w")
+        package_unit_label.grid(row=row, column=0, sticky="w", padx=PADDING_MEDIUM, pady=5)
 
         standard_units = WEIGHT_UNITS + VOLUME_UNITS + COUNT_UNITS
-        self.purchase_unit_combo = ctk.CTkComboBox(
+        self.package_unit_combo = ctk.CTkComboBox(
             parent,
             width=400,
             values=standard_units,
             state="readonly",
         )
-        self.purchase_unit_combo.set("lb")  # Common default
-        self.purchase_unit_combo.grid(row=row, column=1, sticky="ew", padx=PADDING_MEDIUM, pady=5)
+        self.package_unit_combo.set("lb")  # Common default
+        self.package_unit_combo.grid(row=row, column=1, sticky="ew", padx=PADDING_MEDIUM, pady=5)
         row += 1
 
         # Volume/Weight Equivalency section
@@ -379,11 +379,11 @@ class IngredientFormDialog(ctk.CTkToplevel):
             self.brand_entry.insert(0, self.ingredient.brand)
         self.category_combo.set(self.ingredient.category)
 
-        # Purchase information
+        # Package information
         if self.ingredient.package_type:
             self.package_type_combo.set(self.ingredient.package_type)
-        self.purchase_quantity_entry.insert(0, str(self.ingredient.purchase_quantity))
-        self.purchase_unit_combo.set(self.ingredient.purchase_unit)
+        self.package_unit_quantity_entry.insert(0, str(self.ingredient.package_unit_quantity))
+        self.package_unit_combo.set(self.ingredient.package_unit)
 
         # Equivalency (convert density back to equivalency format)
         if self.ingredient.density_g_per_cup:
@@ -411,8 +411,8 @@ class IngredientFormDialog(ctk.CTkToplevel):
         brand = self.brand_entry.get().strip() or None
         category = self.category_combo.get()
         package_type = self.package_type_combo.get().strip() or None
-        purchase_quantity_str = self.purchase_quantity_entry.get().strip()
-        purchase_unit = self.purchase_unit_combo.get()
+        package_unit_quantity_str = self.package_unit_quantity_entry.get().strip()
+        package_unit = self.package_unit_combo.get()
 
         # Get equivalency values
         equiv_vol_qty_str = self.equiv_volume_qty_entry.get().strip()
@@ -453,10 +453,10 @@ class IngredientFormDialog(ctk.CTkToplevel):
             )
             return None
 
-        # Validate purchase quantity (required)
+        # Validate package quantity (required)
         try:
-            purchase_quantity = float(purchase_quantity_str)
-            if purchase_quantity <= 0:
+            package_unit_quantity = float(package_unit_quantity_str)
+            if package_unit_quantity <= 0:
                 show_error(
                     "Validation Error",
                     "Quantity per package must be greater than zero",
@@ -554,8 +554,8 @@ class IngredientFormDialog(ctk.CTkToplevel):
             "brand": brand,
             "category": category,
             "package_type": package_type,
-            "purchase_quantity": purchase_quantity,
-            "purchase_unit": purchase_unit,
+            "package_unit_quantity": package_unit_quantity,
+            "package_unit": package_unit,
             "density_g_per_cup": density_g_per_cup,
             "quantity": quantity,
             "unit_cost": unit_cost,

@@ -402,8 +402,8 @@ def validate_product_data(data: dict, ingredient_slug: str) -> Tuple[bool, list]
 
     Required fields:
         - brand (str): Brand name
-        - purchase_unit (str): Unit purchased in
-        - purchase_quantity (Decimal/float): Quantity in package (must be > 0)
+        - package_unit (str): Unit the package contains
+        - package_unit_quantity (Decimal/float): Quantity in package (must be > 0)
 
     Optional fields:
         - package_size (str): Human-readable size description
@@ -425,13 +425,13 @@ def validate_product_data(data: dict, ingredient_slug: str) -> Tuple[bool, list]
         if not is_valid:
             errors.append(error)
 
-    # Required: Purchase unit
-    is_valid, error = validate_unit(data.get("purchase_unit", ""), "Purchase Unit")
+    # Required: Package unit
+    is_valid, error = validate_unit(data.get("package_unit", ""), "Package Unit")
     if not is_valid:
         errors.append(error)
 
-    # Required: Purchase quantity (must be positive)
-    is_valid, error = validate_positive_number(data.get("purchase_quantity"), "Purchase Quantity")
+    # Required: Package quantity (must be positive)
+    is_valid, error = validate_positive_number(data.get("package_unit_quantity"), "Package Quantity")
     if not is_valid:
         errors.append(error)
 

@@ -425,9 +425,9 @@ class InventoryTab(ctk.CTkFrame):
         is_packaging = getattr(ingredient_obj, "is_packaging", False) if ingredient_obj else False
         type_indicator = "📦 " if is_packaging else ""
         brand = getattr(product_obj, "brand", "Unknown") if product_obj else "Unknown"
-        # Get package size info for product display (purchase_quantity = package size)
-        package_size = getattr(product_obj, "purchase_quantity", None)
-        inventory_unit = getattr(product_obj, "purchase_unit", "") or ""
+        # Get package size info for product display (package_unit_quantity = package size)
+        package_size = getattr(product_obj, "package_unit_quantity", None)
+        inventory_unit = getattr(product_obj, "package_unit", "") or ""
 
         # Create descriptive product name showing brand and package size
         if package_size and inventory_unit:
@@ -753,8 +753,8 @@ class InventoryTab(ctk.CTkFrame):
             "location": item.location,
             "notes": item.notes,
             "product_brand": getattr(product, "brand", None),
-            "product_purchase_quantity": getattr(product, "purchase_quantity", None),
-            "product_purchase_unit": getattr(product, "purchase_unit", None),
+            "product_package_unit_quantity": getattr(product, "package_unit_quantity", None),
+            "product_package_unit": getattr(product, "package_unit", None),
             "ingredient_name": getattr(ingredient, "display_name", None),
         }
 
@@ -940,8 +940,8 @@ class InventoryItemFormDialog(ctk.CTkToplevel):
                 {
                     "id": p.id,
                     "brand": p.brand,
-                    "purchase_quantity": p.purchase_quantity,
-                    "purchase_unit": p.purchase_unit,
+                    "package_unit_quantity": p.package_unit_quantity,
+                    "package_unit": p.package_unit,
                 }
                 for p in product_objects
             ]
@@ -960,8 +960,8 @@ class InventoryItemFormDialog(ctk.CTkToplevel):
     def _format_product_display(self, product: dict) -> str:
         """Format a product dictionary into a human-readable label."""
         brand = product.get("brand") or "Unknown"
-        quantity = product.get("purchase_quantity")
-        unit = product.get("purchase_unit") or ""
+        quantity = product.get("package_unit_quantity")
+        unit = product.get("package_unit") or ""
         if quantity:
             return f"{brand} - {quantity} {unit}".strip()
         return brand
@@ -1345,14 +1345,14 @@ class ConsumeIngredientDialog(ctk.CTkToplevel):
 
         # Call service to get FIFO preview (dry run)
         try:
-            # Get the target unit from the preferred product's purchase_unit
+            # Get the target unit from the preferred product's package_unit
             preferred = product_service.get_preferred_product(ingredient["slug"])
             if preferred:
-                target_unit = preferred.purchase_unit or "unit"
+                target_unit = preferred.package_unit or "unit"
             else:
-                # Fall back to first product's purchase_unit
+                # Fall back to first product's package_unit
                 products = product_service.get_products_for_ingredient(ingredient["slug"])
-                target_unit = products[0].purchase_unit if products else "unit"
+                target_unit = products[0].package_unit if products else "unit"
 
             result = inventory_item_service.consume_fifo(ingredient["slug"], quantity, target_unit)
             self.preview_data = result

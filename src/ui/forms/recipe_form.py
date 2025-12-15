@@ -147,15 +147,15 @@ class RecipeIngredientRow(ctk.CTkFrame):
 
         recipe_unit_type = get_unit_type(unit)
 
-        # Get purchase_unit from preferred product (if available)
+        # Get package_unit from preferred product (if available)
         preferred_product = ingredient.get_preferred_product()
-        if preferred_product and hasattr(preferred_product, "purchase_unit"):
-            purchase_unit_type = get_unit_type(preferred_product.purchase_unit)
+        if preferred_product and hasattr(preferred_product, "package_unit"):
+            package_unit_type = get_unit_type(preferred_product.package_unit)
 
             # Check if cross-type conversion is needed (volume↔weight)
-            if recipe_unit_type != purchase_unit_type:
-                if (recipe_unit_type == "volume" and purchase_unit_type == "weight") or (
-                    recipe_unit_type == "weight" and purchase_unit_type == "volume"
+            if recipe_unit_type != package_unit_type:
+                if (recipe_unit_type == "volume" and package_unit_type == "weight") or (
+                    recipe_unit_type == "weight" and package_unit_type == "volume"
                 ):
                     # Density is required for volume↔weight conversion
                     if ingredient.get_density_g_per_ml() is None:
@@ -163,7 +163,7 @@ class RecipeIngredientRow(ctk.CTkFrame):
 
                         show_error(
                             "Density Required",
-                            f"'{ingredient.display_name}' requires density data for {recipe_unit_type}↔{purchase_unit_type} conversion.\n\n"
+                            f"'{ingredient.display_name}' requires density data for {recipe_unit_type}↔{package_unit_type} conversion.\n\n"
                             f"Please edit the ingredient and add density before using it with {unit} in recipes.",
                             parent=self.winfo_toplevel(),
                         )
