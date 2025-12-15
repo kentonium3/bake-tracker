@@ -10,7 +10,7 @@ subtasks:
   - "T068"
 title: "Integration and Polish"
 phase: "Phase 3 - Interface"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "claude"
 shell_pid: "56445"
@@ -300,3 +300,4 @@ open htmlcov/index.html
 
 - 2025-12-14T12:00:00Z - system - lane=planned - Prompt created via /spec-kitty.tasks
 - 2025-12-15T03:08:47Z – claude – shell_pid=56445 – lane=doing – Started integration testing
+- 2025-12-15T03:13:57Z – claude – shell_pid=56445 – lane=for_review – Ready for review
