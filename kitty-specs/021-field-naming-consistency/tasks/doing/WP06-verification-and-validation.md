@@ -223,3 +223,9 @@ Map each success criterion from spec.md to verification:
 
 - 2025-12-15T00:00:00Z - system - lane=planned - Prompt created.
 - 2025-12-15T17:43:53Z – system – shell_pid= – lane=doing – Moved to doing
+- 2025-12-15T17:45:00Z – claude – Completed automated verification:
+  - T049: pytest 689 passed, 12 skipped (expected), 0 failed
+  - T052: grep validation clean for docs/, examples/, test_data/
+  - T057: pantry grep shows only acceptable matches (UI labels, history comments)
+  - SC-001 through SC-004, SC-006: PASS
+  - SC-005 (export/import cycle): PENDING manual verification
