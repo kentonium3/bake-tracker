@@ -12,10 +12,10 @@ subtasks:
   - "T012"
 title: "Service Layer Changes"
 phase: "Phase 2 - Core Logic"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "claude"
+shell_pid: "83880"
 review_status: ""
 reviewed_by: ""
 history:
@@ -217,3 +217,4 @@ history:
 ## Activity Log
 
 - 2025-12-15T00:00:00Z - system - lane=planned - Prompt created.
+- 2025-12-15T17:09:27Z – claude – shell_pid=83880 – lane=doing – Started implementation
