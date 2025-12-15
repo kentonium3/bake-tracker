@@ -564,6 +564,117 @@ class TestImportIngredients:
             )
             assert flour is not None
 
+    def test_import_ingredients_augment_mode_updates_null_fields(
+        self, cleanup_test_ingredients
+    ):
+        """Test that AUGMENT mode updates only null fields on existing records."""
+        # Pre-create ingredient with some null fields
+        with session_scope() as session:
+            existing = Ingredient(
+                slug="test_flour",
+                display_name="Test Flour",
+                category="Flour",
+                density_volume_value=None,  # NULL - should be updated
+                density_volume_unit=None,  # NULL - should be updated
+            )
+            session.add(existing)
+
+        # Import with AUGMENT mode, providing density values
+        data = [
+            {
+                "slug": "test_flour",
+                "display_name": "Test Flour",
+                "category": "Flour",
+                "density_volume_value": 0.55,
+                "density_volume_unit": "cup",
+            }
+        ]
+
+        result = import_ingredients(data, mode="augment")
+
+        # Verify augment count
+        assert result.entity_counts["ingredients"].augmented == 1
+        assert result.entity_counts["ingredients"].added == 0
+
+        # Verify database updated
+        with session_scope() as session:
+            flour = (
+                session.query(Ingredient)
+                .filter(Ingredient.slug == "test_flour")
+                .first()
+            )
+            assert flour.density_volume_value == 0.55
+            assert flour.density_volume_unit == "cup"
+
+    def test_import_ingredients_augment_mode_preserves_existing_values(
+        self, cleanup_test_ingredients
+    ):
+        """Test that AUGMENT mode does NOT overwrite non-null fields."""
+        # Pre-create ingredient with existing density value
+        with session_scope() as session:
+            existing = Ingredient(
+                slug="test_flour",
+                display_name="Test Flour",
+                category="Flour",
+                density_volume_value=0.50,  # NOT NULL - should be preserved
+                density_volume_unit="cup",  # NOT NULL - should be preserved
+            )
+            session.add(existing)
+
+        # Try to import with AUGMENT mode, providing different density
+        data = [
+            {
+                "slug": "test_flour",
+                "display_name": "Test Flour",
+                "category": "Flour",
+                "density_volume_value": 0.99,  # Different value
+                "density_volume_unit": "tablespoon",  # Different unit
+            }
+        ]
+
+        result = import_ingredients(data, mode="augment")
+
+        # Should skip since no null fields to update
+        assert result.entity_counts["ingredients"].skipped == 1
+        assert result.entity_counts["ingredients"].augmented == 0
+
+        # Verify original values preserved
+        with session_scope() as session:
+            flour = (
+                session.query(Ingredient)
+                .filter(Ingredient.slug == "test_flour")
+                .first()
+            )
+            assert flour.density_volume_value == 0.50  # Original value preserved
+            assert flour.density_volume_unit == "cup"  # Original value preserved
+
+    def test_import_ingredients_augment_mode_creates_new(self, cleanup_test_ingredients):
+        """Test that AUGMENT mode creates new records when slug doesn't exist."""
+        data = [
+            {
+                "slug": "test_flour",
+                "display_name": "Test Flour",
+                "category": "Flour",
+                "density_volume_value": 0.55,
+            }
+        ]
+
+        result = import_ingredients(data, mode="augment")
+
+        # Should add since record doesn't exist
+        assert result.entity_counts["ingredients"].added == 1
+        assert result.entity_counts["ingredients"].augmented == 0
+
+        # Verify created
+        with session_scope() as session:
+            flour = (
+                session.query(Ingredient)
+                .filter(Ingredient.slug == "test_flour")
+                .first()
+            )
+            assert flour is not None
+            assert flour.density_volume_value == 0.55
+
 
 # ============================================================================
 # Product Import Tests
@@ -862,6 +973,140 @@ class TestImportProducts:
             )
             assert product is not None
             assert product.brand == "Session Test Brand"
+
+    def test_import_products_augment_mode_updates_null_fields(
+        self, create_test_ingredient_for_products, cleanup_test_ingredients
+    ):
+        """Test that AUGMENT mode updates only null fields on existing products."""
+        # Pre-create product with null upc_code
+        with session_scope() as session:
+            ingredient = (
+                session.query(Ingredient)
+                .filter(Ingredient.slug == "product_test_flour")
+                .first()
+            )
+            existing = Product(
+                ingredient_id=ingredient.id,
+                brand="Test Brand",
+                purchase_unit="bag",
+                purchase_quantity=5.0,
+                upc_code=None,  # NULL - should be updated
+            )
+            session.add(existing)
+
+        # Import with AUGMENT mode
+        data = [
+            {
+                "ingredient_slug": "product_test_flour",
+                "brand": "Test Brand",
+                "upc_code": "123456789012",
+            }
+        ]
+
+        result = import_products(data, mode="augment")
+
+        # Verify augment count
+        assert result.entity_counts["products"].augmented == 1
+
+        # Verify database updated
+        with session_scope() as session:
+            ingredient = (
+                session.query(Ingredient)
+                .filter(Ingredient.slug == "product_test_flour")
+                .first()
+            )
+            product = (
+                session.query(Product)
+                .filter(Product.ingredient_id == ingredient.id)
+                .filter(Product.brand == "Test Brand")
+                .first()
+            )
+            assert product.upc_code == "123456789012"
+
+    def test_import_products_augment_mode_preserves_existing_values(
+        self, create_test_ingredient_for_products, cleanup_test_ingredients
+    ):
+        """Test that AUGMENT mode does NOT overwrite non-null fields."""
+        # Pre-create product with existing upc_code
+        with session_scope() as session:
+            ingredient = (
+                session.query(Ingredient)
+                .filter(Ingredient.slug == "product_test_flour")
+                .first()
+            )
+            existing = Product(
+                ingredient_id=ingredient.id,
+                brand="Test Brand",
+                purchase_unit="bag",
+                purchase_quantity=5.0,
+                upc_code="000000000000",  # NOT NULL - should be preserved
+            )
+            session.add(existing)
+
+        # Try to import with AUGMENT mode
+        data = [
+            {
+                "ingredient_slug": "product_test_flour",
+                "brand": "Test Brand",
+                "upc_code": "999999999999",  # Different value
+            }
+        ]
+
+        result = import_products(data, mode="augment")
+
+        # Should skip since no null fields to update
+        assert result.entity_counts["products"].skipped == 1
+
+        # Verify original value preserved
+        with session_scope() as session:
+            ingredient = (
+                session.query(Ingredient)
+                .filter(Ingredient.slug == "product_test_flour")
+                .first()
+            )
+            product = (
+                session.query(Product)
+                .filter(Product.ingredient_id == ingredient.id)
+                .filter(Product.brand == "Test Brand")
+                .first()
+            )
+            assert product.upc_code == "000000000000"  # Original value preserved
+
+    def test_import_products_augment_mode_creates_new(
+        self, create_test_ingredient_for_products, cleanup_test_ingredients
+    ):
+        """Test that AUGMENT mode creates new products when key doesn't exist."""
+        data = [
+            {
+                "ingredient_slug": "product_test_flour",
+                "brand": "New Brand",
+                "purchase_unit": "bag",
+                "purchase_quantity": 10.0,
+                "upc_code": "123456789012",
+            }
+        ]
+
+        result = import_products(data, mode="augment")
+
+        # Should add since record doesn't exist
+        assert result.entity_counts["products"].added == 1
+        assert result.entity_counts["products"].augmented == 0
+
+        # Verify created
+        with session_scope() as session:
+            ingredient = (
+                session.query(Ingredient)
+                .filter(Ingredient.slug == "product_test_flour")
+                .first()
+            )
+            product = (
+                session.query(Product)
+                .filter(Product.ingredient_id == ingredient.id)
+                .filter(Product.brand == "New Brand")
+                .first()
+            )
+            assert product is not None
+            assert product.upc_code == "123456789012"
 
 
 # ============================================================================

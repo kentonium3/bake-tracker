@@ -37,6 +37,48 @@ class ImportMode(str, Enum):
     AUGMENT = "augment"  # Update null fields on existing, add new
 
 
+# ============================================================================
+# Field Classification Constants for AUGMENT Mode
+# ============================================================================
+
+# Ingredient fields: Protected = never modified; Augmentable = updated only if current value is NULL
+INGREDIENT_PROTECTED_FIELDS = {"slug", "display_name", "id", "date_added", "category"}
+INGREDIENT_AUGMENTABLE_FIELDS = {
+    "density_volume_value",
+    "density_volume_unit",
+    "density_weight_value",
+    "density_weight_unit",
+    "foodon_id",
+    "fdc_ids",
+    "foodex2_code",
+    "langual_terms",
+    "allergens",
+    "description",
+    "is_packaging",
+}
+
+# Product fields: Protected = never modified; Augmentable = updated only if current value is NULL
+PRODUCT_PROTECTED_FIELDS = {"ingredient_id", "brand", "id", "date_added"}
+PRODUCT_AUGMENTABLE_FIELDS = {
+    "upc_code",
+    "package_size",
+    "package_type",
+    "purchase_unit",
+    "purchase_quantity",
+    "preferred",
+    "supplier",
+    "supplier_sku",
+    "notes",
+    "gtin",
+    "brand_owner",
+    "gpc_brick_code",
+    "net_content_value",
+    "net_content_uom",
+    "country_of_sale",
+    "off_id",
+}
+
+
 @dataclass
 class ImportError:
     """Structured error for import failures."""
@@ -310,10 +352,12 @@ def _import_ingredients_impl(
     result.dry_run = dry_run
     result.mode = mode
 
-    # Query existing slugs for duplicate detection
-    existing_slugs = {
-        row[0] for row in session.query(Ingredient.slug).filter(Ingredient.slug.isnot(None)).all()
+    # Query existing ingredients for duplicate detection and AUGMENT mode
+    existing_ingredients = {
+        row.slug: row
+        for row in session.query(Ingredient).filter(Ingredient.slug.isnot(None)).all()
     }
+    existing_slugs = set(existing_ingredients.keys())
 
     for item in data:
         # Extract identifier for error reporting
@@ -337,9 +381,19 @@ def _import_ingredients_impl(
             if mode == ImportMode.ADD_ONLY.value:
                 result.add_skip("ingredients", slug, "Already exists")
                 continue
-            # AUGMENT mode will be implemented in WP04
-            # For now, skip in add mode only
-            result.add_skip("ingredients", slug, "Already exists (augment mode pending WP04)")
+            # AUGMENT mode: update only null fields
+            existing_ingredient = existing_ingredients[slug]
+            updated_fields = []
+            for field in INGREDIENT_AUGMENTABLE_FIELDS:
+                if field in item and item[field] is not None:
+                    current_value = getattr(existing_ingredient, field, None)
+                    if current_value is None:
+                        setattr(existing_ingredient, field, item[field])
+                        updated_fields.append(field)
+            if updated_fields:
+                result.add_augment("ingredients", slug, updated_fields)
+            else:
+                result.add_skip("ingredients", slug, "No null fields to update")
             continue
 
         # Create new ingredient
@@ -364,8 +418,9 @@ def _import_ingredients_impl(
         session.add(ingredient)
         result.add_success("ingredients")
 
-        # Track slug to prevent duplicates within same import
+        # Track for duplicate detection within same import
         existing_slugs.add(slug)
+        existing_ingredients[slug] = ingredient
 
     # Handle dry-run: rollback instead of commit
     if dry_run:
@@ -467,12 +522,14 @@ def _import_products_impl(
         ).all()
     }
 
-    # Build existing products lookup for uniqueness check
+    # Build existing products lookup for uniqueness check and AUGMENT mode
     # Unique key is (ingredient_id, brand) where brand can be None
-    existing_products = {
-        (row.ingredient_id, row.brand)
-        for row in session.query(Product.ingredient_id, Product.brand).all()
-    }
+    existing_products_set = set()
+    existing_products_map = {}  # (ingredient_id, brand) -> Product
+    for row in session.query(Product).all():
+        key = (row.ingredient_id, row.brand)
+        existing_products_set.add(key)
+        existing_products_map[key] = row
 
     for item in data:
         # Extract fields for identification and validation
@@ -480,17 +537,29 @@ def _import_products_impl(
         brand = item.get("brand")  # Can be None
         identifier = f"{brand or 'Generic'} ({ingredient_slug})"
 
-        # Validate required fields
-        validation_error = _validate_product_data(item)
-        if validation_error:
-            result.add_error(
-                "products",
-                identifier,
-                "validation",
-                validation_error["message"],
-                validation_error["suggestion"],
-            )
-            continue
+        # Validate required fields (relaxed for AUGMENT mode on existing records)
+        if mode == ImportMode.ADD_ONLY.value:
+            validation_error = _validate_product_data(item)
+            if validation_error:
+                result.add_error(
+                    "products",
+                    identifier,
+                    "validation",
+                    validation_error["message"],
+                    validation_error["suggestion"],
+                )
+                continue
+        else:
+            # For AUGMENT mode, only ingredient_slug is required
+            if not ingredient_slug:
+                result.add_error(
+                    "products",
+                    identifier,
+                    "validation",
+                    "Missing required field: ingredient_slug",
+                    "Add 'ingredient_slug' field referencing an existing ingredient",
+                )
+                continue
 
         # FK validation: check ingredient exists
         ingredient_id = slug_to_id.get(ingredient_slug)
@@ -505,13 +574,38 @@ def _import_products_impl(
             continue
 
         # Check for existing product with same (ingredient_id, brand)
-        if (ingredient_id, brand) in existing_products:
+        product_key = (ingredient_id, brand)
+        if product_key in existing_products_set:
             if mode == ImportMode.ADD_ONLY.value:
                 result.add_skip("products", identifier, "Already exists")
                 continue
-            # AUGMENT mode will be implemented in WP04
-            result.add_skip("products", identifier, "Already exists (augment mode pending WP04)")
+            # AUGMENT mode: update only null fields
+            existing_product = existing_products_map[product_key]
+            updated_fields = []
+            for field in PRODUCT_AUGMENTABLE_FIELDS:
+                if field in item and item[field] is not None:
+                    current_value = getattr(existing_product, field, None)
+                    if current_value is None:
+                        setattr(existing_product, field, item[field])
+                        updated_fields.append(field)
+            if updated_fields:
+                result.add_augment("products", identifier, updated_fields)
+            else:
+                result.add_skip("products", identifier, "No null fields to update")
             continue
+
+        # For new products in AUGMENT mode, also require purchase_unit/quantity
+        if mode == ImportMode.AUGMENT.value:
+            validation_error = _validate_product_data(item)
+            if validation_error:
+                result.add_error(
+                    "products",
+                    identifier,
+                    "validation",
+                    validation_error["message"],
+                    validation_error["suggestion"],
+                )
+                continue
 
         # Create new product
         product = Product(
@@ -528,7 +622,8 @@ def _import_products_impl(
         result.add_success("products")
 
         # Track to prevent duplicates within same import
-        existing_products.add((ingredient_id, brand))
+        existing_products_set.add(product_key)
+        existing_products_map[product_key] = product
 
     # Handle dry-run: rollback instead of commit
     if dry_run:
