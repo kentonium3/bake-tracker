@@ -22,6 +22,7 @@ from src.ui.recipients_tab import RecipientsTab
 from src.ui.events_tab import EventsTab
 from src.ui.production_dashboard_tab import ProductionDashboardTab
 from src.ui.service_integration import check_service_integration_health
+from src.ui.catalog_import_dialog import CatalogImportDialog
 
 
 class MainWindow(ctk.CTk):
@@ -68,6 +69,8 @@ class MainWindow(ctk.CTk):
         file_menu = tk.Menu(self.menu_bar, tearoff=0)
         file_menu.add_command(label="Import Data...", command=self._show_import_dialog)
         file_menu.add_command(label="Export Data...", command=self._show_export_dialog)
+        file_menu.add_separator()
+        file_menu.add_command(label="Import Catalog...", command=self._show_catalog_import_dialog)
         file_menu.add_separator()
         file_menu.add_command(label="Exit", command=self._on_exit)
         self.menu_bar.add_cascade(label="File", menu=file_menu)
@@ -226,6 +229,24 @@ class MainWindow(ctk.CTk):
 
         if dialog.result:
             self.update_status("Export completed successfully.")
+
+    def _show_catalog_import_dialog(self):
+        """Show the catalog import dialog."""
+        dialog = CatalogImportDialog(self)
+        self.wait_window(dialog)
+
+        if dialog.result:
+            # Catalog import was successful - refresh affected tabs
+            self._refresh_catalog_tabs()
+            self.update_status("Catalog import completed. Data refreshed.")
+
+    def _refresh_catalog_tabs(self):
+        """Refresh tabs that may have been affected by catalog import."""
+        # Refresh tabs that display catalog data (ingredients, recipes, products)
+        self.ingredients_tab.refresh()
+        self.recipes_tab.refresh()
+        # Inventory tab may show products, refresh it too
+        self.inventory_tab.refresh()
 
     def _show_service_health_check(self):
         """Show service integration health status."""
