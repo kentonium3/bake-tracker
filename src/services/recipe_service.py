@@ -709,7 +709,7 @@ def calculate_actual_cost(recipe_id: int) -> Decimal:
                     continue
 
                 # Call consume_fifo with dry_run=True to get FIFO cost without modifying inventory
-                # consume_fifo handles unit conversion from purchase_unit to recipe_unit
+                # consume_fifo handles unit conversion from package_unit to recipe_unit
                 fifo_result = inventory_item_service.consume_fifo(
                     ingredient.slug, recipe_qty, recipe_unit, dry_run=True
                 )
@@ -743,26 +743,26 @@ def calculate_actual_cost(recipe_id: int) -> Decimal:
                              f"no purchase history available"]
                         )
 
-                    # Convert shortfall to purchase units if needed
-                    purchase_unit = preferred_product.purchase_unit
-                    if recipe_unit != purchase_unit:
+                    # Convert shortfall to package units if needed
+                    package_unit = preferred_product.package_unit
+                    if recipe_unit != package_unit:
                         success, shortfall_float, error = convert_any_units(
                             float(shortfall),
                             recipe_unit,
-                            purchase_unit,
+                            package_unit,
                             ingredient=ingredient,
                         )
                         if not success:
                             raise ValidationError(
                                 [f"Cannot convert shortfall units for '{ingredient.display_name}': {error}"]
                             )
-                        shortfall_in_purchase_unit = Decimal(str(shortfall_float))
+                        shortfall_in_package_unit = Decimal(str(shortfall_float))
                     else:
-                        shortfall_in_purchase_unit = shortfall
+                        shortfall_in_package_unit = shortfall
 
                     # Calculate fallback cost
                     unit_cost = Decimal(str(latest_purchase.unit_cost))
-                    fallback_cost = shortfall_in_purchase_unit * unit_cost
+                    fallback_cost = shortfall_in_package_unit * unit_cost
 
                 # Sum ingredient cost
                 ingredient_cost = fifo_cost + fallback_cost
@@ -867,19 +867,19 @@ def calculate_estimated_cost(recipe_id: int) -> Decimal:
                          f"no purchase history available"]
                     )
 
-                # Convert recipe quantity to purchase units
-                purchase_unit = preferred_product.purchase_unit
-                if recipe_unit != purchase_unit:
+                # Convert recipe quantity to package units
+                package_unit = preferred_product.package_unit
+                if recipe_unit != package_unit:
                     success, converted_float, error = convert_any_units(
                         float(recipe_qty),
                         recipe_unit,
-                        purchase_unit,
+                        package_unit,
                         ingredient=ingredient,
                     )
                     if not success:
                         raise ValidationError(
                             [f"Cannot convert units for '{ingredient.display_name}': {error}. "
-                             f"Density data may be required for {recipe_unit} to {purchase_unit} conversion."]
+                             f"Density data may be required for {recipe_unit} to {package_unit} conversion."]
                         )
                     converted_qty = Decimal(str(converted_float))
                 else:

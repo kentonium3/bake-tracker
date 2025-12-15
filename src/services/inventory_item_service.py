@@ -213,7 +213,7 @@ def get_total_quantity(ingredient_slug: str) -> Dict[str, Decimal]:
     # Group quantities by unit
     unit_totals = {}
     for item in items:
-        unit = item.product.purchase_unit
+        unit = item.product.package_unit
         if unit:
             if unit not in unit_totals:
                 unit_totals[unit] = Decimal("0.0")
@@ -313,7 +313,7 @@ def consume_fifo(
             item_qty_decimal = Decimal(str(item.quantity))
             success, available_float, error = convert_any_units(
                 float(item_qty_decimal),
-                item.product.purchase_unit,
+                item.product.package_unit,
                 target_unit,
                 ingredient=ingredient,
             )
@@ -328,7 +328,7 @@ def consume_fifo(
             success, to_consume_float, error = convert_any_units(
                 float(to_consume_in_target_unit),
                 target_unit,
-                item.product.purchase_unit,
+                item.product.package_unit,
                 ingredient=ingredient,
             )
             if not success:
@@ -361,7 +361,7 @@ def consume_fifo(
                     "product_id": item.product_id,
                     "lot_date": item.purchase_date,
                     "quantity_consumed": to_consume_in_lot_unit,
-                    "unit": item.product.purchase_unit,
+                    "unit": item.product.package_unit,
                     "remaining_in_lot": remaining_in_lot,
                     "unit_cost": item_unit_cost,
                 }

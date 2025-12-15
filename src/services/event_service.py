@@ -1417,7 +1417,7 @@ def get_event_packaging_needs(event_id: int) -> Dict[int, PackagingNeed]:
                     total_needed=total_needed,
                     on_hand=on_hand,
                     to_buy=to_buy,
-                    unit=product.purchase_unit or "each",
+                    unit=product.package_unit or "each",
                 )
 
             return needs

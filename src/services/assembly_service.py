@@ -198,8 +198,8 @@ def _check_can_assemble_impl(
             if product and product.ingredient:
                 ingredient_slug = product.ingredient.slug
                 needed = Decimal(str(comp.component_quantity * quantity))
-                # For packaging, target_unit is the product's purchase_unit
-                target_unit = product.purchase_unit
+                # For packaging, target_unit is the product's package_unit
+                target_unit = product.package_unit
                 result = inventory_item_service.consume_fifo(
                     ingredient_slug, needed, target_unit, dry_run=True, session=session
                 )
@@ -378,8 +378,8 @@ def _record_assembly_impl(
 
                 ingredient_slug = ingredient.slug
                 needed = Decimal(str(comp.component_quantity * quantity))
-                # For packaging, target_unit is the product's purchase_unit
-                target_unit = product.purchase_unit
+                # For packaging, target_unit is the product's package_unit
+                target_unit = product.package_unit
 
                 # Pass session for atomic transaction
                 result = inventory_item_service.consume_fifo(

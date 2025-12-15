@@ -22,8 +22,8 @@ Example Usage:
   >>> data = {
   ...     "brand": "King Arthur",
   ...     "package_size": "25 lb bag",
-  ...     "purchase_unit": "lb",
-  ...     "purchase_quantity": Decimal("25.0"),
+  ...     "package_unit": "lb",
+  ...     "package_unit_quantity": Decimal("25.0"),
   ...     "preferred": True
   ... }
   >>> product = create_product("all_purpose_flour", data)
@@ -67,8 +67,8 @@ def create_product(ingredient_slug: str, product_data: Dict[str, Any]) -> Produc
         product_data: Dictionary containing:
             - brand (str, required): Brand name
             - package_size (str, optional): Human-readable size
-            - purchase_unit (str, required): Unit purchased in
-            - purchase_quantity (Decimal, required): Quantity in package
+            - package_unit (str, required): Unit the package contains
+            - package_unit_quantity (Decimal, required): Quantity in package
             - upc (str, optional): Universal Product Code
             - gtin (str, optional): Global Trade Item Number
             - supplier (str, optional): Where to buy
@@ -92,8 +92,8 @@ def create_product(ingredient_slug: str, product_data: Dict[str, Any]) -> Produc
         >>> data = {
         ...     "brand": "King Arthur",
         ...     "package_size": "25 lb bag",
-        ...     "purchase_unit": "lb",
-        ...     "purchase_quantity": Decimal("25.0"),
+        ...     "package_unit": "lb",
+        ...     "package_unit_quantity": Decimal("25.0"),
         ...     "preferred": True
         ... }
         >>> product = create_product("all_purpose_flour", data)
@@ -123,8 +123,8 @@ def create_product(ingredient_slug: str, product_data: Dict[str, Any]) -> Produc
                 ingredient_id=ingredient.id,
                 brand=product_data["brand"],
                 package_size=product_data.get("package_size"),
-                purchase_unit=product_data["purchase_unit"],
-                purchase_quantity=product_data["purchase_quantity"],
+                package_unit=product_data["package_unit"],
+                package_unit_quantity=product_data["package_unit_quantity"],
                 upc_code=product_data.get("upc"),
                 gtin=product_data.get("gtin"),
                 supplier=product_data.get("supplier"),
@@ -287,8 +287,8 @@ def update_product(product_id: int, product_data: Dict[str, Any]) -> Product:
         product_data: Dictionary with fields to update (partial update supported)
             - brand (str, optional): New brand
             - package_size (str, optional): New package size
-            - purchase_unit (str, optional): New purchase unit
-            - purchase_quantity (Decimal, optional): New purchase quantity
+            - package_unit (str, optional): New package unit
+            - package_unit_quantity (Decimal, optional): New package quantity
             - upc, gtin, supplier (optional): Update identification/sourcing
             - preferred (bool, optional): Change preferred status
             - net_content_value, net_content_uom (optional): Industry fields
@@ -308,7 +308,7 @@ def update_product(product_id: int, product_data: Dict[str, Any]) -> Product:
     Example:
         >>> updated = update_product(123, {
         ...     "package_size": "50 lb bag",
-        ...     "purchase_quantity": Decimal("50.0")
+        ...     "package_unit_quantity": Decimal("50.0")
         ... })
         >>> updated.package_size
         '50 lb bag'
@@ -528,8 +528,8 @@ def _calculate_product_cost(
             - brand: Brand name
             - package_size: Human-readable size (e.g., "25 lb bag")
             - package_quantity: Numeric quantity per package
-            - purchase_unit: Unit purchased in
-            - cost_per_purchase_unit: Cost per purchase unit (e.g., $0.72/lb)
+            - package_unit: Unit the package contains
+            - cost_per_package_unit: Cost per package unit (e.g., $0.72/lb)
             - cost_per_recipe_unit: Cost per recipe unit (e.g., $0.18/cup)
             - min_packages: Minimum whole packages needed to cover shortfall
             - total_cost: Total purchase cost for min_packages
@@ -550,35 +550,35 @@ def _calculate_product_cost(
         "product_id": product.id,
         "brand": product.brand or "",
         "package_size": product.package_size or "",
-        "package_quantity": float(product.purchase_quantity),
-        "purchase_unit": product.purchase_unit,
+        "package_quantity": float(product.package_unit_quantity),
+        "package_unit": product.package_unit,
         "is_preferred": product.preferred,
         "cost_available": True,
         "cost_message": "",
         "conversion_error": False,
         "error_message": "",
-        "cost_per_purchase_unit": None,
+        "cost_per_package_unit": None,
         "cost_per_recipe_unit": None,
         "min_packages": 0,
         "total_cost": None,
     }
 
-    # Get cost per purchase unit from most recent purchase
-    cost_per_purchase_unit = product.get_current_cost_per_unit()
+    # Get cost per package unit from most recent purchase
+    cost_per_package_unit = product.get_current_cost_per_unit()
 
-    if cost_per_purchase_unit == 0 or cost_per_purchase_unit is None:
+    if cost_per_package_unit == 0 or cost_per_package_unit is None:
         # No purchase history - can still recommend product but no cost
         result["cost_available"] = False
         result["cost_message"] = "Cost unknown"
-        result["cost_per_purchase_unit"] = Decimal("0")
+        result["cost_per_package_unit"] = Decimal("0")
     else:
-        result["cost_per_purchase_unit"] = Decimal(str(cost_per_purchase_unit))
+        result["cost_per_package_unit"] = Decimal(str(cost_per_package_unit))
 
-    # Convert shortfall from recipe_unit to purchase_unit
-    success, shortfall_in_purchase_units, msg = convert_any_units(
+    # Convert shortfall from recipe_unit to package_unit
+    success, shortfall_in_package_units, msg = convert_any_units(
         float(shortfall),
         recipe_unit,
-        product.purchase_unit,
+        product.package_unit,
         ingredient=ingredient,
     )
 
@@ -590,34 +590,34 @@ def _calculate_product_cost(
         return result
 
     # Guard against division by zero
-    if product.purchase_quantity <= 0:
+    if product.package_unit_quantity <= 0:
         result["conversion_error"] = True
         result["error_message"] = "Invalid package quantity"
         return result
 
     # Calculate minimum packages (always round UP to cover shortfall)
-    min_packages = ceil(shortfall_in_purchase_units / product.purchase_quantity)
+    min_packages = ceil(shortfall_in_package_units / product.package_unit_quantity)
     result["min_packages"] = max(1, min_packages)  # At least 1 package
 
     # Calculate total cost if cost data is available
     if result["cost_available"]:
         # Total cost = packages * quantity_per_package * cost_per_unit
         actual_quantity = Decimal(str(result["min_packages"])) * Decimal(
-            str(product.purchase_quantity)
+            str(product.package_unit_quantity)
         )
-        result["total_cost"] = actual_quantity * result["cost_per_purchase_unit"]
+        result["total_cost"] = actual_quantity * result["cost_per_package_unit"]
 
         # Calculate cost per recipe unit
-        # Need conversion factor: how many recipe_units per purchase_unit
+        # Need conversion factor: how many recipe_units per package_unit
         success, conversion_factor, _ = convert_any_units(
             1.0,
-            product.purchase_unit,
+            product.package_unit,
             recipe_unit,
             ingredient=ingredient,
         )
 
         if success and conversion_factor > 0:
-            result["cost_per_recipe_unit"] = result["cost_per_purchase_unit"] / Decimal(
+            result["cost_per_recipe_unit"] = result["cost_per_package_unit"] / Decimal(
                 str(conversion_factor)
             )
         else:

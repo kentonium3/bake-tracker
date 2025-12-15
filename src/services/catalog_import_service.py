@@ -87,8 +87,8 @@ PRODUCT_AUGMENTABLE_FIELDS = {
     "upc_code",
     "package_size",
     "package_type",
-    "purchase_unit",
-    "purchase_quantity",
+    "package_unit",
+    "package_unit_quantity",
     "preferred",
     "supplier",
     "supplier_sku",
@@ -618,7 +618,7 @@ def _import_products_impl(
                 result.add_skip("products", identifier, "No null fields to update")
             continue
 
-        # For new products in AUGMENT mode, also require purchase_unit/quantity
+        # For new products in AUGMENT mode, also require package_unit/quantity
         if mode == ImportMode.AUGMENT.value:
             validation_error = _validate_product_data(item)
             if validation_error:
@@ -637,8 +637,8 @@ def _import_products_impl(
             brand=brand,
             package_size=item.get("package_size"),
             package_type=item.get("package_type"),
-            purchase_unit=item.get("purchase_unit"),
-            purchase_quantity=item.get("purchase_quantity"),
+            package_unit=item.get("package_unit"),
+            package_unit_quantity=item.get("package_unit_quantity"),
             upc_code=item.get("upc_code"),
             preferred=item.get("preferred", False),
         )
@@ -673,16 +673,16 @@ def _validate_product_data(item: Dict) -> Optional[Dict]:
             "suggestion": "Add 'ingredient_slug' field referencing an existing ingredient",
         }
 
-    if not item.get("purchase_unit"):
+    if not item.get("package_unit"):
         return {
-            "message": "Missing required field: purchase_unit",
-            "suggestion": "Add 'purchase_unit' field (e.g., 'bag', 'lb', 'oz')",
+            "message": "Missing required field: package_unit",
+            "suggestion": "Add 'package_unit' field (e.g., 'bag', 'lb', 'oz')",
         }
 
-    if item.get("purchase_quantity") is None:
+    if item.get("package_unit_quantity") is None:
         return {
-            "message": "Missing required field: purchase_quantity",
-            "suggestion": "Add 'purchase_quantity' field (e.g., 25, 5.0)",
+            "message": "Missing required field: package_unit_quantity",
+            "suggestion": "Add 'package_unit_quantity' field (e.g., 25, 5.0)",
         }
 
     return None

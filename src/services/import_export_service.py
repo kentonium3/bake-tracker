@@ -230,8 +230,8 @@ def export_ingredients_to_json(
                 "name": ingredient.display_name,
                 "brand": ingredient.brand,
                 "category": ingredient.category,
-                "purchase_quantity": ingredient.purchase_quantity,
-                "purchase_unit": ingredient.purchase_unit,
+                "package_unit_quantity": ingredient.package_unit_quantity,
+                "package_unit": ingredient.package_unit,
                 "quantity": ingredient.quantity,
                 "unit_cost": ingredient.unit_cost,
             }
@@ -1081,8 +1081,8 @@ def export_all_to_json(file_path: str) -> ExportResult:
             for product in ingredient.products:
                 product_data = {
                     "ingredient_slug": ingredient.slug,
-                    "purchase_unit": product.purchase_unit,
-                    "purchase_quantity": product.purchase_quantity,
+                    "package_unit": product.package_unit,
+                    "package_unit_quantity": product.package_unit_quantity,
                 }
 
                 # Optional fields
@@ -2295,8 +2295,8 @@ def import_all_from_json_v3(file_path: str, mode: str = "merge") -> ImportResult
                             brand=brand,
                             package_size=prod_data.get("package_size"),
                             package_type=prod_data.get("package_type"),
-                            purchase_unit=prod_data.get("purchase_unit"),
-                            purchase_quantity=prod_data.get("purchase_quantity"),
+                            package_unit=prod_data.get("package_unit"),
+                            package_unit_quantity=prod_data.get("package_unit_quantity"),
                             upc_code=prod_data.get("upc_code"),
                             preferred=prod_data.get("is_preferred", prod_data.get("preferred", False)),
                             notes=prod_data.get("notes"),

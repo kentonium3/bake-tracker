@@ -703,7 +703,7 @@ class FinishedUnitService:
                     item_qty_decimal = Decimal(str(inventory_item.quantity))
                     success, available_float, error = convert_any_units(
                         float(item_qty_decimal),
-                        inventory_item.product.purchase_unit,
+                        inventory_item.product.package_unit,
                         target_unit,
                         ingredient=ingredient,
                     )
@@ -771,21 +771,21 @@ class FinishedUnitService:
                 if not purchase:
                     return None
 
-                # Convert quantity_consumed back to purchase units for cost calculation
-                success, quantity_in_purchase_unit_float, error = convert_any_units(
+                # Convert quantity_consumed back to package units for cost calculation
+                success, quantity_in_package_unit_float, error = convert_any_units(
                     float(quantity_consumed),
                     target_unit,
-                    inventory_item.product.purchase_unit,
+                    inventory_item.product.package_unit,
                     ingredient=ingredient,
                 )
 
                 if not success:
                     return None
 
-                quantity_in_purchase_unit = Decimal(str(quantity_in_purchase_unit_float))
+                quantity_in_package_unit = Decimal(str(quantity_in_package_unit_float))
                 unit_cost = Decimal(str(purchase.unit_cost))
 
-                return quantity_in_purchase_unit * unit_cost
+                return quantity_in_package_unit * unit_cost
 
         except Exception as e:
             logger.warning(f"Error getting inventory item unit cost: {e}")
