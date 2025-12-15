@@ -8,7 +8,7 @@ subtasks:
   - "T057"
 title: "Verification and Validation"
 phase: "Phase 4 - Final Validation"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "system"
 shell_pid: ""
@@ -229,3 +229,4 @@ Map each success criterion from spec.md to verification:
   - T057: pantry grep shows only acceptable matches (UI labels, history comments)
   - SC-001 through SC-004, SC-006: PASS
   - SC-005 (export/import cycle): PENDING manual verification
+- 2025-12-15T17:47:26Z – system – shell_pid= – lane=for_review – Moved to for_review
