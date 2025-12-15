@@ -58,63 +58,80 @@ def sample_ingredient_data():
     ]
 
 
+def _cleanup_test_data(session):
+    """Helper to cleanup test data."""
+    test_slugs = [
+        "test_flour",
+        "test_sugar",
+        "test_butter",
+        "existing_flour",
+        "new_ingredient_1",
+        "new_ingredient_2",
+        "invalid_ingredient",
+        "product_test_flour",
+        "product_test_sugar",
+        "recipe_test_flour",
+        "recipe_test_sugar",
+        "recipe_test_butter",
+        # Include catalog_test_* patterns for E2E and integration tests
+        "catalog_test_flour",
+        "catalog_test_sugar",
+        "catalog_test_butter",
+        "catalog_test_eggs",
+        "catalog_test_vanilla",
+        "catalog_test_1",
+        "catalog_test_2",
+        "catalog_test_3",
+        "catalog_test_4",
+        "catalog_test_5",
+    ]
+    test_recipe_names = [
+        "Test Chocolate Chip Cookies",
+        "Test Sugar Cookies",
+        "Test Vanilla Cake",
+        "Test Chocolate Cake",
+        "Test Frosting",
+        "Test Composite Recipe",
+        "Recipe A",
+        "Recipe B",
+        "Recipe C",
+        "Catalog Test Cookies",
+    ]
+    # Delete recipe components first
+    session.query(RecipeComponent).filter(
+        RecipeComponent.recipe_id.in_(
+            session.query(Recipe.id).filter(Recipe.name.in_(test_recipe_names))
+        )
+    ).delete(synchronize_session=False)
+    # Delete recipe ingredients
+    session.query(RecipeIngredient).filter(
+        RecipeIngredient.recipe_id.in_(
+            session.query(Recipe.id).filter(Recipe.name.in_(test_recipe_names))
+        )
+    ).delete(synchronize_session=False)
+    # Delete recipes
+    session.query(Recipe).filter(Recipe.name.in_(test_recipe_names)).delete(
+        synchronize_session=False
+    )
+    # Delete products
+    session.query(Product).filter(
+        Product.ingredient_id.in_(
+            session.query(Ingredient.id).filter(Ingredient.slug.in_(test_slugs))
+        )
+    ).delete(synchronize_session=False)
+    # Delete ingredients
+    session.query(Ingredient).filter(Ingredient.slug.in_(test_slugs)).delete(
+        synchronize_session=False
+    )
+
+
 @pytest.fixture
 def cleanup_test_ingredients():
     """Cleanup test ingredients and recipes after each test."""
     yield
     # Cleanup after test
     with session_scope() as session:
-        test_slugs = [
-            "test_flour",
-            "test_sugar",
-            "test_butter",
-            "existing_flour",
-            "new_ingredient_1",
-            "new_ingredient_2",
-            "invalid_ingredient",
-            "product_test_flour",
-            "product_test_sugar",
-            "recipe_test_flour",
-            "recipe_test_sugar",
-            "recipe_test_butter",
-        ]
-        test_recipe_names = [
-            "Test Chocolate Chip Cookies",
-            "Test Sugar Cookies",
-            "Test Vanilla Cake",
-            "Test Chocolate Cake",
-            "Test Frosting",
-            "Test Composite Recipe",
-            "Recipe A",
-            "Recipe B",
-            "Recipe C",
-        ]
-        # Delete recipe components first
-        session.query(RecipeComponent).filter(
-            RecipeComponent.recipe_id.in_(
-                session.query(Recipe.id).filter(Recipe.name.in_(test_recipe_names))
-            )
-        ).delete(synchronize_session=False)
-        # Delete recipe ingredients
-        session.query(RecipeIngredient).filter(
-            RecipeIngredient.recipe_id.in_(
-                session.query(Recipe.id).filter(Recipe.name.in_(test_recipe_names))
-            )
-        ).delete(synchronize_session=False)
-        # Delete recipes
-        session.query(Recipe).filter(Recipe.name.in_(test_recipe_names)).delete(
-            synchronize_session=False
-        )
-        # Delete products
-        session.query(Product).filter(
-            Product.ingredient_id.in_(
-                session.query(Ingredient.id).filter(Ingredient.slug.in_(test_slugs))
-            )
-        ).delete(synchronize_session=False)
-        # Delete ingredients
-        session.query(Ingredient).filter(Ingredient.slug.in_(test_slugs)).delete(
-            synchronize_session=False
-        )
+        _cleanup_test_data(session)
 
 
 @pytest.fixture

@@ -124,10 +124,10 @@ Full example with all entity types:
 
 ## Common Tasks
 
-### Import 160-ingredient catalog
+### Import sample catalog
 
 ```bash
-python -m src.utils.import_catalog test_data/baking_ingredients_v33.json --verbose
+python -m src.utils.import_catalog test_data/sample_catalog.json --verbose
 ```
 
 ### Add density data to existing ingredients
