@@ -15,10 +15,10 @@ subtasks:
   - "T061"
 title: "UI Dialog"
 phase: "Phase 3 - Interface"
-lane: "for_review"
+lane: "done"
 assignee: ""
-agent: "claude"
-shell_pid: "56445"
+agent: "claude-reviewer"
+shell_pid: "63528"
 review_status: ""
 reviewed_by: ""
 history:
@@ -619,3 +619,4 @@ if result.errors:
 - 2025-12-14T12:00:00Z - system - lane=planned - Prompt created via /spec-kitty.tasks
 - 2025-12-15T03:05:59Z – claude – shell_pid=56445 – lane=doing – Started implementation
 - 2025-12-15T03:08:13Z – claude – shell_pid=56445 – lane=for_review – Ready for review
+- 2025-12-15T03:25:19Z – claude-reviewer – shell_pid=63528 – lane=done – Code review: APPROVED - UI dialog with file picker, mode selection, AUGMENT/recipe mutual exclusion
