@@ -77,8 +77,8 @@ def product_flour(test_db, ingredient_flour):
         ingredient_id=ingredient_flour.id,
         brand="Gold Medal",
         package_size="5 lb bag",
-        purchase_unit="cup",
-        purchase_quantity=20.0,
+        package_unit="cup",
+        package_unit_quantity=20.0,
         preferred=True,
     )
     session.add(product)
@@ -93,8 +93,8 @@ def product_sugar(test_db, ingredient_sugar):
         ingredient_id=ingredient_sugar.id,
         brand="Domino",
         package_size="4 lb bag",
-        purchase_unit="cup",
-        purchase_quantity=8.0,
+        package_unit="cup",
+        package_unit_quantity=8.0,
         preferred=True,
     )
     session.add(product)

@@ -23,13 +23,13 @@ class TestConsumeFifoDryRun:
         ingredient = ingredient_service.create_ingredient(
             {
                 "name": "Test Flour DR",
-                "category": "Flour",  # Same as purchase_unit for simplicity
+                "category": "Flour",  # Same as package_unit for simplicity
             }
         )
 
         product = product_service.create_product(
             ingredient.slug,
-            {"brand": "Test Brand", "purchase_unit": "lb", "purchase_quantity": Decimal("5.0")}
+            {"brand": "Test Brand", "package_unit": "lb", "package_unit_quantity": Decimal("5.0")}
         )
 
         # Add inventory item with known quantity
@@ -64,7 +64,7 @@ class TestConsumeFifoDryRun:
 
         product = product_service.create_product(
             ingredient.slug,
-            {"brand": "Test Brand", "purchase_unit": "lb", "purchase_quantity": Decimal("5.0")}
+            {"brand": "Test Brand", "package_unit": "lb", "package_unit_quantity": Decimal("5.0")}
         )
 
         # Add two inventory items with different unit costs
@@ -103,7 +103,7 @@ class TestConsumeFifoDryRun:
 
         product = product_service.create_product(
             ingredient.slug,
-            {"brand": "Test Brand", "purchase_unit": "lb", "purchase_quantity": Decimal("5.0")}
+            {"brand": "Test Brand", "package_unit": "lb", "package_unit_quantity": Decimal("5.0")}
         )
 
         # Add inventory item with unit_cost
@@ -135,7 +135,7 @@ class TestConsumeFifoDryRun:
 
         product = product_service.create_product(
             ingredient.slug,
-            {"brand": "Test Brand", "purchase_unit": "lb", "purchase_quantity": Decimal("5.0")}
+            {"brand": "Test Brand", "package_unit": "lb", "package_unit_quantity": Decimal("5.0")}
         )
 
         initial_quantity = Decimal("10.0")
@@ -172,7 +172,7 @@ class TestConsumeFifoDryRun:
 
         product = product_service.create_product(
             ingredient.slug,
-            {"brand": "Test Brand", "purchase_unit": "lb", "purchase_quantity": Decimal("5.0")}
+            {"brand": "Test Brand", "package_unit": "lb", "package_unit_quantity": Decimal("5.0")}
         )
 
         # Add lots in non-chronological order but with explicit dates
@@ -212,7 +212,7 @@ class TestConsumeFifoDryRun:
 
         product = product_service.create_product(
             ingredient.slug,
-            {"brand": "Test Brand", "purchase_unit": "lb", "purchase_quantity": Decimal("5.0")}
+            {"brand": "Test Brand", "package_unit": "lb", "package_unit_quantity": Decimal("5.0")}
         )
 
         # Add inventory item WITHOUT setting unit_cost
@@ -240,7 +240,7 @@ class TestConsumeFifoDryRun:
 
         product = product_service.create_product(
             ingredient.slug,
-            {"brand": "Test Brand", "purchase_unit": "lb", "purchase_quantity": Decimal("5.0")}
+            {"brand": "Test Brand", "package_unit": "lb", "package_unit_quantity": Decimal("5.0")}
         )
 
         # Add inventory item: 10 lb at $2.50/lb
@@ -275,7 +275,7 @@ class TestConsumeFifoDryRun:
 
         product = product_service.create_product(
             ingredient.slug,
-            {"brand": "Test Brand", "purchase_unit": "lb", "purchase_quantity": Decimal("5.0")}
+            {"brand": "Test Brand", "package_unit": "lb", "package_unit_quantity": Decimal("5.0")}
         )
 
         # Add only 5 lb at $2.00/lb

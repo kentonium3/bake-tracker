@@ -175,7 +175,7 @@ class TestInventoryServiceCRUD:
         assert len(flour_results) >= 1
         assert "Flour" in flour_results[0].display_name
 
-    @pytest.mark.skip(reason="TD-001: quantity moved to PantryItem, not Ingredient")
+    @pytest.mark.skip(reason="TD-001: quantity moved to InventoryItem (formerly PantryItem), not Ingredient")
     def test_get_low_stock_ingredients(self, db_session, sample_ingredient_data):
         """Test filtering by low stock threshold - OBSOLETE."""
         pass
@@ -238,11 +238,11 @@ class TestInventoryServiceCRUD:
         result = ingredient_crud_service.delete_ingredient(ingredient.id, force=True)
         assert result is True
 
-@pytest.mark.skip(reason="TD-001: Stock management moved to PantryItem, not Ingredient")
+@pytest.mark.skip(reason="TD-001: Stock management moved to InventoryItem (formerly PantryItem), not Ingredient")
 class TestInventoryServiceStockManagement:
     """Test stock management functions - OBSOLETE.
 
-    TD-001 schema change: quantity tracking moved from Ingredient to PantryItem.
+    TD-001 schema change: quantity tracking moved from Ingredient to InventoryItem.
     These tests are skipped as the underlying functionality no longer exists.
     """
 
@@ -293,7 +293,7 @@ class TestInventoryServiceUtilities:
         assert "Flour" in categories
         assert "Sugar" in categories
 
-    @pytest.mark.skip(reason="TD-001: Inventory value calculation moved to PantryItem")
+    @pytest.mark.skip(reason="TD-001: Inventory value calculation moved to InventoryItem (formerly PantryItem)")
     def test_get_total_inventory_value(self, db_session, sample_ingredient_data):
         """Test calculating total inventory value - OBSOLETE."""
         pass
@@ -513,11 +513,11 @@ class TestRecipeIngredientManagement:
 
         assert result is True
 
-@pytest.mark.skip(reason="TD-001: Cost calculation requires Product/PantryItem with price data")
+@pytest.mark.skip(reason="TD-001: Cost calculation requires Product/InventoryItem with price data")
 class TestRecipeCostCalculations:
-    """Test recipe cost calculation functions - NEEDS PRODUCT/PANTRY DATA.
+    """Test recipe cost calculation functions - NEEDS PRODUCT/INVENTORY DATA.
 
-    TD-001 schema change: costs are now tracked on PantryItem (with unit_cost),
+    TD-001 schema change: costs are now tracked on InventoryItem (with unit_cost),
     not on Ingredient. These tests need to be rewritten to use the new schema.
     """
 
@@ -525,9 +525,9 @@ class TestRecipeCostCalculations:
         """Test calculating recipe cost - OBSOLETE."""
         pass
 
-    @pytest.mark.skip(reason="TD-001: Cost calculation requires Product/PantryItem with price data")
+    @pytest.mark.skip(reason="TD-001: Cost calculation requires Product/InventoryItem with price data")
     def test_get_recipe_with_costs(self, db_session, sample_recipe_data, sample_ingredient_data):
-        """Test getting recipe with cost breakdown - NEEDS PRODUCT/PANTRY DATA."""
+        """Test getting recipe with cost breakdown - NEEDS PRODUCT/INVENTORY DATA."""
         pass
 
 class TestRecipeServiceUtilities:

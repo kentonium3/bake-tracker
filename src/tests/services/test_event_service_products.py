@@ -70,8 +70,8 @@ def flour_product_preferred(test_db, flour_ingredient):
         {
             "brand": "King Arthur",
             "package_size": "5 lb bag",
-            "purchase_unit": "lb",
-            "purchase_quantity": Decimal("5.0"),
+            "package_unit": "lb",
+            "package_unit_quantity": Decimal("5.0"),
             "preferred": True,
         },
     )
@@ -98,8 +98,8 @@ def sugar_product_a(test_db, sugar_ingredient):
         {
             "brand": "Domino",
             "package_size": "4 lb bag",
-            "purchase_unit": "lb",
-            "purchase_quantity": Decimal("4.0"),
+            "package_unit": "lb",
+            "package_unit_quantity": Decimal("4.0"),
             "preferred": False,
         },
     )
@@ -125,8 +125,8 @@ def sugar_product_b(test_db, sugar_ingredient):
         {
             "brand": "Store Brand",
             "package_size": "5 lb bag",
-            "purchase_unit": "lb",
-            "purchase_quantity": Decimal("5.0"),
+            "package_unit": "lb",
+            "package_unit_quantity": Decimal("5.0"),
             "preferred": False,
         },
     )

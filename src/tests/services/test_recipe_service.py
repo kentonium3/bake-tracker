@@ -2,7 +2,7 @@
 
 Tests cover:
 - FIFO ordering verification (oldest inventory consumed first)
-- Read-only behavior (pantry unchanged after cost calculation)
+- Read-only behavior (inventory unchanged after cost calculation)
 - Multiple ingredients summation
 - Unit conversion (volume <-> weight)
 - Error handling (RecipeNotFound, IngredientNotFound, ValidationError)
@@ -38,7 +38,7 @@ class TestCalculateActualCost:
 
         product = product_service.create_product(
             ingredient.slug,
-            {"brand": "Test Brand", "purchase_unit": "cup", "purchase_quantity": Decimal("10.0")}
+            {"brand": "Test Brand", "package_unit": "cup", "package_unit_quantity": Decimal("10.0")}
         )
 
         # Add two lots with different costs (older lot cheaper)
@@ -74,19 +74,19 @@ class TestCalculateActualCost:
             "0.01"
         ), f"Expected ${expected_cost}, got ${cost}. FIFO should use oldest lot at $0.10/cup"
 
-    def test_calculate_actual_cost_does_not_modify_pantry(self, test_db):
-        """Test: Pantry quantities remain unchanged after cost calculation."""
+    def test_calculate_actual_cost_does_not_modify_inventory(self, test_db):
+        """Test: Inventory quantities remain unchanged after cost calculation."""
         # Setup
         ingredient = ingredient_service.create_ingredient(
             {
-                "name": "Test Pantry Unchanged",
+                "name": "Test Inventory Unchanged",
                 "category": "Flour"
             }
         )
 
         product = product_service.create_product(
             ingredient.slug,
-            {"brand": "Test Brand", "purchase_unit": "cup", "purchase_quantity": Decimal("10.0")}
+            {"brand": "Test Brand", "package_unit": "cup", "package_unit_quantity": Decimal("10.0")}
         )
 
         initial_quantity = Decimal("5.0")
@@ -97,7 +97,7 @@ class TestCalculateActualCost:
 
         recipe = recipe_service.create_recipe(
             {
-                "name": "Pantry Test Recipe",
+                "name": "Inventory Test Recipe",
                 "category": "Cookies",
                 "yield_quantity": 1,
                 "yield_unit": "batch"
@@ -105,20 +105,20 @@ class TestCalculateActualCost:
             [{"ingredient_id": ingredient.id, "quantity": 3.0, "unit": "cup"}]
         )
 
-        # Capture pantry state before
+        # Capture inventory state before
         items_before = inventory_item_service.get_inventory_items(ingredient_slug=ingredient.slug)
         qty_before = Decimal(str(items_before[0].quantity))
 
         # Act
         recipe_service.calculate_actual_cost(recipe.id)
 
-        # Assert: Pantry unchanged
+        # Assert: Inventory unchanged
         items_after = inventory_item_service.get_inventory_items(ingredient_slug=ingredient.slug)
         qty_after = Decimal(str(items_after[0].quantity))
 
         assert abs(qty_after - qty_before) < Decimal(
             "0.001"
-        ), f"Pantry quantity changed from {qty_before} to {qty_after}. Should be read-only."
+        ), f"Inventory quantity changed from {qty_before} to {qty_after}. Should be read-only."
 
     def test_calculate_actual_cost_handles_multiple_ingredients(self, test_db):
         """Test: Multiple ingredients are summed correctly."""
@@ -139,14 +139,14 @@ class TestCalculateActualCost:
         # Create products
         flour_product = product_service.create_product(
             flour.slug,
-            {"brand": "Test Brand", "purchase_unit": "cup", "purchase_quantity": Decimal("10.0")}
+            {"brand": "Test Brand", "package_unit": "cup", "package_unit_quantity": Decimal("10.0")}
         )
         sugar_product = product_service.create_product(
             sugar.slug,
-            {"brand": "Test Brand", "purchase_unit": "cup", "purchase_quantity": Decimal("10.0")}
+            {"brand": "Test Brand", "package_unit": "cup", "package_unit_quantity": Decimal("10.0")}
         )
 
-        # Add pantry items
+        # Add inventory items
         flour_lot = inventory_item_service.add_to_inventory(
             product_id=flour_product.id, quantity=Decimal("5.0"), purchase_date=date(2025, 1, 1)
         )
@@ -205,7 +205,7 @@ class TestCalculateActualCost:
             recipe_service.calculate_actual_cost(99999)  # Non-existent ID
 
     def test_calculate_actual_cost_with_shortfall_uses_fallback(self, test_db):
-        """Test: When pantry insufficient, uses fallback pricing for shortfall."""
+        """Test: When inventory insufficient, uses fallback pricing for shortfall."""
         # Setup
         ingredient = ingredient_service.create_ingredient(
             {
@@ -218,14 +218,14 @@ class TestCalculateActualCost:
             ingredient.slug,
             {
                 "brand": "Test Brand",
-                "purchase_unit": "cup",
-                "purchase_quantity": Decimal("10.0"),
+                "package_unit": "cup",
+                "package_unit_quantity": Decimal("10.0"),
                 "is_preferred": True
             }
         )
         product_service.set_preferred_product(product.id)
 
-        # Add only 2 cups to pantry at $0.10/cup
+        # Add only 2 cups to inventory at $0.10/cup
         lot = inventory_item_service.add_to_inventory(
             product_id=product.id, quantity=Decimal("2.0"), purchase_date=date(2025, 1, 1)
         )
@@ -259,23 +259,23 @@ class TestCalculateActualCost:
             "0.01"
         ), f"Expected ${expected_cost} (FIFO + fallback), got ${cost}"
 
-    def test_calculate_actual_cost_no_pantry_uses_all_fallback(self, test_db):
-        """Test: Empty pantry uses 100% fallback pricing."""
+    def test_calculate_actual_cost_no_inventory_uses_all_fallback(self, test_db):
+        """Test: Empty inventory uses 100% fallback pricing."""
         # Setup
         ingredient = ingredient_service.create_ingredient(
             {
-                "name": "No Pantry Flour",
+                "name": "No Inventory Flour",
                 "category": "Flour"
             }
         )
 
         product = product_service.create_product(
             ingredient.slug,
-            {"brand": "Test Brand", "purchase_unit": "cup", "purchase_quantity": Decimal("10.0")}
+            {"brand": "Test Brand", "package_unit": "cup", "package_unit_quantity": Decimal("10.0")}
         )
         product_service.set_preferred_product(product.id)
 
-        # Record purchase for fallback pricing (no pantry inventory)
+        # Record purchase for fallback pricing (no inventory items)
         purchase_service.record_purchase(
             product_id=product.id,
             quantity=Decimal("10.0"),
@@ -286,7 +286,7 @@ class TestCalculateActualCost:
         # Create recipe needing 3 cups
         recipe = recipe_service.create_recipe(
             {
-                "name": "No Pantry Recipe",
+                "name": "No Inventory Recipe",
                 "category": "Cookies",
                 "yield_quantity": 1,
                 "yield_unit": "batch"
@@ -305,7 +305,7 @@ class TestCalculateActualCost:
 
     def test_calculate_actual_cost_raises_validation_error_no_purchase_history(self, test_db):
         """Test: Raises ValidationError when no purchase history for fallback."""
-        # Setup: Ingredient with product but no purchase history and no pantry
+        # Setup: Ingredient with product but no purchase history and no inventory
         ingredient = ingredient_service.create_ingredient(
             {
                 "name": "No History Flour",
@@ -315,10 +315,10 @@ class TestCalculateActualCost:
 
         product = product_service.create_product(
             ingredient.slug,
-            {"brand": "Test Brand", "purchase_unit": "cup", "purchase_quantity": Decimal("10.0")}
+            {"brand": "Test Brand", "package_unit": "cup", "package_unit_quantity": Decimal("10.0")}
         )
 
-        # Create recipe (no pantry = shortfall, but no purchase history for fallback)
+        # Create recipe (no inventory = shortfall, but no purchase history for fallback)
         recipe = recipe_service.create_recipe(
             {
                 "name": "No History Recipe",
@@ -376,10 +376,10 @@ class TestCalculateActualCost:
 
         product = product_service.create_product(
             ingredient.slug,
-            {"brand": "Test Brand", "purchase_unit": "cup", "purchase_quantity": Decimal("10.0")}
+            {"brand": "Test Brand", "package_unit": "cup", "package_unit_quantity": Decimal("10.0")}
         )
 
-        # Add pantry with precise unit cost
+        # Add inventory with precise unit cost
         lot = inventory_item_service.add_to_inventory(
             product_id=product.id, quantity=Decimal("10.0"), purchase_date=date(2025, 1, 1)
         )
@@ -426,8 +426,8 @@ class TestCalculateEstimatedCost:
             ingredient.slug,
             {
                 "brand": "Cheap Brand",
-                "purchase_unit": "cup",
-                "purchase_quantity": Decimal("10.0"),
+                "package_unit": "cup",
+                "package_unit_quantity": Decimal("10.0"),
                 "is_preferred": False
             }
         )
@@ -435,8 +435,8 @@ class TestCalculateEstimatedCost:
             ingredient.slug,
             {
                 "brand": "Preferred Brand",
-                "purchase_unit": "cup",
-                "purchase_quantity": Decimal("10.0"),
+                "package_unit": "cup",
+                "package_unit_quantity": Decimal("10.0"),
                 "is_preferred": True
             }
         )
@@ -491,8 +491,8 @@ class TestCalculateEstimatedCost:
             ingredient.slug,
             {
                 "brand": "Only Brand",
-                "purchase_unit": "cup",
-                "purchase_quantity": Decimal("10.0"),
+                "package_unit": "cup",
+                "package_unit_quantity": Decimal("10.0"),
                 "is_preferred": False,  # Not preferred
             }
         )
@@ -546,8 +546,8 @@ class TestCalculateEstimatedCost:
             flour.slug,
             {
                 "brand": "Test Brand",
-                "purchase_unit": "cup",
-                "purchase_quantity": Decimal("10.0"),
+                "package_unit": "cup",
+                "package_unit_quantity": Decimal("10.0"),
                 "is_preferred": True
             }
         )
@@ -557,8 +557,8 @@ class TestCalculateEstimatedCost:
             sugar.slug,
             {
                 "brand": "Test Brand",
-                "purchase_unit": "cup",
-                "purchase_quantity": Decimal("10.0"),
+                "package_unit": "cup",
+                "package_unit_quantity": Decimal("10.0"),
                 "is_preferred": True
             }
         )
@@ -601,12 +601,12 @@ class TestCalculateEstimatedCost:
             "0.01"
         ), f"Expected ${expected_cost}, got ${cost}"
 
-    def test_calculate_estimated_cost_ignores_pantry(self, test_db):
-        """Test: Pantry inventory is completely ignored - uses product pricing."""
+    def test_calculate_estimated_cost_ignores_inventory(self, test_db):
+        """Test: Inventory items are completely ignored - uses product pricing."""
         # Setup: Create ingredient
         ingredient = ingredient_service.create_ingredient(
             {
-                "name": "Ignore Pantry Flour",
+                "name": "Ignore Inventory Flour",
                 "category": "Flour"
             }
         )
@@ -615,18 +615,18 @@ class TestCalculateEstimatedCost:
             ingredient.slug,
             {
                 "brand": "Test Brand",
-                "purchase_unit": "cup",
-                "purchase_quantity": Decimal("10.0"),
+                "package_unit": "cup",
+                "package_unit_quantity": Decimal("10.0"),
                 "is_preferred": True
             }
         )
         product_service.set_preferred_product(product.id)
 
-        # Add pantry items at LOW price ($0.05/cup)
+        # Add inventory items at LOW price ($0.05/cup)
         lot = inventory_item_service.add_to_inventory(
             product_id=product.id, quantity=Decimal("10.0"), purchase_date=date(2025, 1, 1)
         )
-        inventory_item_service.update_inventory_item(lot.id, {"unit_cost": 0.05})  # Cheap pantry price
+        inventory_item_service.update_inventory_item(lot.id, {"unit_cost": 0.05})  # Cheap inventory price
 
         # Record purchase at HIGHER price ($0.20/cup) - this should be used
         purchase_service.record_purchase(
@@ -639,7 +639,7 @@ class TestCalculateEstimatedCost:
         # Create recipe
         recipe = recipe_service.create_recipe(
             {
-                "name": "Ignore Pantry Recipe",
+                "name": "Ignore Inventory Recipe",
                 "category": "Cookies",
                 "yield_quantity": 1,
                 "yield_unit": "batch"
@@ -650,12 +650,12 @@ class TestCalculateEstimatedCost:
         # Act
         estimated_cost = recipe_service.calculate_estimated_cost(recipe.id)
 
-        # Assert: Should use purchase price ($0.20/cup), NOT pantry price ($0.05/cup)
+        # Assert: Should use purchase price ($0.20/cup), NOT inventory price ($0.05/cup)
         # 2 cups * $0.20 = $0.40
         expected_cost = Decimal("0.40")
         assert abs(estimated_cost - expected_cost) < Decimal(
             "0.01"
-        ), f"Expected ${expected_cost} (purchase price, not pantry), got ${estimated_cost}"
+        ), f"Expected ${expected_cost} (purchase price, not inventory), got ${estimated_cost}"
 
     def test_calculate_estimated_cost_empty_recipe_returns_zero(self, test_db):
         """Test: Empty recipe (no ingredients) returns $0.00."""
@@ -693,7 +693,7 @@ class TestCalculateEstimatedCost:
 
         product = product_service.create_product(
             ingredient.slug,
-            {"brand": "Test Brand", "purchase_unit": "cup", "purchase_quantity": Decimal("10.0")}
+            {"brand": "Test Brand", "package_unit": "cup", "package_unit_quantity": Decimal("10.0")}
         )
 
         # Create recipe (no purchase history for fallback)
@@ -747,7 +747,7 @@ class TestPartialInventoryScenarios:
     """Tests for partial inventory blended costing scenarios (WP04)."""
 
     def test_partial_inventory_full_coverage_no_fallback(self, test_db):
-        """Test: When pantry has more than needed, uses only FIFO costs (no fallback)."""
+        """Test: When inventory has more than needed, uses only FIFO costs (no fallback)."""
         # Setup
         ingredient = ingredient_service.create_ingredient(
             {
@@ -760,14 +760,14 @@ class TestPartialInventoryScenarios:
             ingredient.slug,
             {
                 "brand": "Test Brand",
-                "purchase_unit": "cup",
-                "purchase_quantity": Decimal("10.0"),
+                "package_unit": "cup",
+                "package_unit_quantity": Decimal("10.0"),
                 "is_preferred": True
             }
         )
         product_service.set_preferred_product(product.id)
 
-        # Add 5 cups to pantry at $0.10/cup (more than needed)
+        # Add 5 cups to inventory at $0.10/cup (more than needed)
         lot = inventory_item_service.add_to_inventory(
             product_id=product.id, quantity=Decimal("5.0"), purchase_date=date(2025, 1, 1)
         )
@@ -781,7 +781,7 @@ class TestPartialInventoryScenarios:
             purchase_date=date(2025, 1, 15)
         )
 
-        # Create recipe needing 2 cups (pantry has 5)
+        # Create recipe needing 2 cups (inventory has 5)
         recipe = recipe_service.create_recipe(
             {
                 "name": "Full Coverage Recipe",
@@ -832,8 +832,8 @@ class TestPartialInventoryScenarios:
             flour.slug,
             {
                 "brand": "Test Brand",
-                "purchase_unit": "cup",
-                "purchase_quantity": Decimal("10.0"),
+                "package_unit": "cup",
+                "package_unit_quantity": Decimal("10.0"),
                 "is_preferred": True
             }
         )
@@ -843,8 +843,8 @@ class TestPartialInventoryScenarios:
             sugar.slug,
             {
                 "brand": "Test Brand",
-                "purchase_unit": "cup",
-                "purchase_quantity": Decimal("10.0"),
+                "package_unit": "cup",
+                "package_unit_quantity": Decimal("10.0"),
                 "is_preferred": True
             }
         )
@@ -854,14 +854,14 @@ class TestPartialInventoryScenarios:
             butter.slug,
             {
                 "brand": "Test Brand",
-                "purchase_unit": "cup",
-                "purchase_quantity": Decimal("10.0"),
+                "package_unit": "cup",
+                "package_unit_quantity": Decimal("10.0"),
                 "is_preferred": True
             }
         )
         product_service.set_preferred_product(butter_product.id)
 
-        # Add pantry items
+        # Add inventory items
         # Flour: 2 cups at $0.10/cup (partial coverage)
         flour_lot = inventory_item_service.add_to_inventory(
             product_id=flour_product.id, quantity=Decimal("2.0"), purchase_date=date(2025, 1, 1)
@@ -874,7 +874,7 @@ class TestPartialInventoryScenarios:
         )
         inventory_item_service.update_inventory_item(sugar_lot.id, {"unit_cost": 0.20})
 
-        # Butter: NO pantry inventory (zero coverage)
+        # Butter: NO inventory items (zero coverage)
 
         # Record purchases for fallback pricing
         purchase_service.record_purchase(
@@ -925,7 +925,7 @@ class TestPartialInventoryScenarios:
         ), f"Expected ${expected_cost} (mixed coverage), got ${cost}"
 
     def test_partial_inventory_exact_coverage_boundary(self, test_db):
-        """Test: Boundary condition - pantry has exactly what's needed (no shortfall)."""
+        """Test: Boundary condition - inventory has exactly what's needed (no shortfall)."""
         # Setup
         ingredient = ingredient_service.create_ingredient(
             {
@@ -938,8 +938,8 @@ class TestPartialInventoryScenarios:
             ingredient.slug,
             {
                 "brand": "Test Brand",
-                "purchase_unit": "cup",
-                "purchase_quantity": Decimal("10.0"),
+                "package_unit": "cup",
+                "package_unit_quantity": Decimal("10.0"),
                 "is_preferred": True
             }
         )
@@ -993,8 +993,8 @@ class TestPartialInventoryScenarios:
             ingredient.slug,
             {
                 "brand": "Test Brand",
-                "purchase_unit": "cup",
-                "purchase_quantity": Decimal("10.0"),
+                "package_unit": "cup",
+                "package_unit_quantity": Decimal("10.0"),
                 "is_preferred": True
             }
         )
@@ -1061,8 +1061,8 @@ class TestEdgeCases:
             flour.slug,
             {
                 "brand": "Test Brand",
-                "purchase_unit": "cup",
-                "purchase_quantity": Decimal("10.0"),
+                "package_unit": "cup",
+                "package_unit_quantity": Decimal("10.0"),
                 "is_preferred": True
             }
         )
@@ -1072,14 +1072,14 @@ class TestEdgeCases:
             sugar.slug,
             {
                 "brand": "Test Brand",
-                "purchase_unit": "cup",
-                "purchase_quantity": Decimal("10.0"),
+                "package_unit": "cup",
+                "package_unit_quantity": Decimal("10.0"),
                 "is_preferred": True
             }
         )
         product_service.set_preferred_product(sugar_product.id)
 
-        # Add pantry
+        # Add inventory
         flour_lot = inventory_item_service.add_to_inventory(
             product_id=flour_product.id, quantity=Decimal("5.0"), purchase_date=date(2025, 1, 1)
         )
@@ -1137,8 +1137,8 @@ class TestEdgeCases:
             flour.slug,
             {
                 "brand": "Test Brand",
-                "purchase_unit": "cup",
-                "purchase_quantity": Decimal("10.0"),
+                "package_unit": "cup",
+                "package_unit_quantity": Decimal("10.0"),
                 "is_preferred": True
             }
         )
@@ -1148,8 +1148,8 @@ class TestEdgeCases:
             sugar.slug,
             {
                 "brand": "Test Brand",
-                "purchase_unit": "cup",
-                "purchase_quantity": Decimal("10.0"),
+                "package_unit": "cup",
+                "package_unit_quantity": Decimal("10.0"),
                 "is_preferred": True
             }
         )
@@ -1232,7 +1232,7 @@ class TestEdgeCases:
 
         product = product_service.create_product(
             ingredient.slug,
-            {"brand": "Exotic Brand", "purchase_unit": "tsp", "purchase_quantity": Decimal("1.0")}
+            {"brand": "Exotic Brand", "package_unit": "tsp", "package_unit_quantity": Decimal("1.0")}
         )
 
         recipe = recipe_service.create_recipe(

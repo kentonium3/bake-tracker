@@ -219,7 +219,7 @@ class RecipeIngredient(BaseModel):
         # Import here to avoid circular import
         from src.services.unit_converter import convert_any_units
 
-        purchase_unit = preferred_product.purchase_unit
+        purchase_unit = preferred_product.package_unit
         if not purchase_unit:
             return 0.0
 
@@ -235,9 +235,9 @@ class RecipeIngredient(BaseModel):
             return 0.0
 
         # Calculate how many packages needed
-        if preferred_product.purchase_quantity == 0:
+        if preferred_product.package_unit_quantity == 0:
             return 0.0
-        packages_needed = quantity_in_purchase_units / preferred_product.purchase_quantity
+        packages_needed = quantity_in_purchase_units / preferred_product.package_unit_quantity
 
         # Calculate cost
         unit_cost = preferred_product.get_current_cost_per_unit()
@@ -266,7 +266,7 @@ class RecipeIngredient(BaseModel):
         # Import here to avoid circular import
         from src.services.unit_converter import convert_any_units
 
-        purchase_unit = preferred_product.purchase_unit
+        purchase_unit = preferred_product.package_unit
         if not purchase_unit:
             return 0.0
 
@@ -294,11 +294,11 @@ class RecipeIngredient(BaseModel):
             return 0.0
 
         preferred_product = self.ingredient.get_preferred_product()
-        if not preferred_product or preferred_product.purchase_quantity == 0:
+        if not preferred_product or preferred_product.package_unit_quantity == 0:
             return 0.0
 
         quantity_in_purchase_units = self.get_purchase_unit_quantity()
-        return quantity_in_purchase_units / preferred_product.purchase_quantity
+        return quantity_in_purchase_units / preferred_product.package_unit_quantity
 
     def to_dict(self, include_relationships: bool = False) -> dict:
         """

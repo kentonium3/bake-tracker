@@ -51,8 +51,8 @@ def flour_product_preferred(test_db, flour_ingredient):
         {
             "brand": "King Arthur",
             "package_size": "25 lb bag",
-            "purchase_unit": "lb",
-            "purchase_quantity": Decimal("25.0"),
+            "package_unit": "lb",
+            "package_unit_quantity": Decimal("25.0"),
             "preferred": True
         }
     )
@@ -79,8 +79,8 @@ def flour_product_generic(test_db, flour_ingredient):
         {
             "brand": "Store Brand",
             "package_size": "5 lb bag",
-            "purchase_unit": "lb",
-            "purchase_quantity": Decimal("5.0"),
+            "package_unit": "lb",
+            "package_unit_quantity": Decimal("5.0"),
             "preferred": False
         }
     )
@@ -107,8 +107,8 @@ def flour_product_no_purchases(test_db, flour_ingredient):
         {
             "brand": "New Brand",
             "package_size": "10 lb bag",
-            "purchase_unit": "lb",
-            "purchase_quantity": Decimal("10.0"),
+            "package_unit": "lb",
+            "package_unit_quantity": Decimal("10.0"),
             "preferred": False
         }
     )
@@ -169,7 +169,7 @@ class TestProductRecommendationPreferred:
 
         rec = result["product_recommendation"]
         assert rec["cost_available"] is True
-        assert rec["cost_per_purchase_unit"] == Decimal("0.72")
+        assert rec["cost_per_package_unit"] == Decimal("0.72")
         assert rec["total_cost"] is not None
 
 # ============================================================================
@@ -376,8 +376,8 @@ class TestEdgeCases:
             {
                 "brand": "Test",
                 "package_size": "1 lb",
-                "purchase_unit": "lb",
-                "purchase_quantity": Decimal("1.0")
+                "package_unit": "lb",
+                "package_unit_quantity": Decimal("1.0")
             }
         )
 
@@ -421,8 +421,8 @@ class TestCalculateProductCost:
             "brand",
             "package_size",
             "package_quantity",
-            "purchase_unit",
-            "cost_per_purchase_unit",
+            "package_unit",
+            "cost_per_package_unit",
             "cost_per_recipe_unit",
             "min_packages",
             "total_cost",
@@ -451,10 +451,10 @@ class TestCalculateProductCost:
         )
 
         if rec["cost_available"] and rec["total_cost"]:
-            # total_cost = min_packages * purchase_quantity * cost_per_purchase_unit
+            # total_cost = min_packages * package_unit_quantity * cost_per_package_unit
             expected = (
                 Decimal(str(rec["min_packages"]))
                 * Decimal(str(rec["package_quantity"]))
-                * rec["cost_per_purchase_unit"]
+                * rec["cost_per_package_unit"]
             )
             assert rec["total_cost"] == expected

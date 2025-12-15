@@ -62,8 +62,8 @@ def packaging_product(test_db, packaging_ingredient):
         {
             "brand": "Amazon Basics",
             "package_size": "100ct",
-            "purchase_unit": "box",
-            "purchase_quantity": 100,
+            "package_unit": "box",
+            "package_unit_quantity": 100,
         }
     )
 
@@ -75,8 +75,8 @@ def food_product(test_db, food_ingredient):
         {
             "brand": "King Arthur",
             "package_size": "5 lb",
-            "purchase_unit": "lb",
-            "purchase_quantity": 5,
+            "package_unit": "lb",
+            "package_unit_quantity": 5,
         }
     )
 
@@ -322,8 +322,8 @@ class TestGetPackaging:
             {
                 "brand": "Test Brand",
                 "package_size": "1 roll",
-                "purchase_unit": "each",
-                "purchase_quantity": 1,
+                "package_unit": "each",
+                "package_unit_quantity": 1,
             }
         )
         prod2 = create_product(
@@ -331,8 +331,8 @@ class TestGetPackaging:
             {
                 "brand": "Test Brand",
                 "package_size": "50 ct",
-                "purchase_unit": "box",
-                "purchase_quantity": 50,
+                "package_unit": "box",
+                "package_unit_quantity": 50,
             }
         )
 

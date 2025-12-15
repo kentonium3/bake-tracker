@@ -52,8 +52,8 @@ def setup_production_test_data(test_db):
         {
             "brand": "King Arthur",
             "package_size": "5 lb bag",
-            "purchase_unit": "cup",
-            "purchase_quantity": Decimal("20.0"),
+            "package_unit": "cup",
+            "package_unit_quantity": Decimal("20.0"),
             "preferred": True,
         },
     )
@@ -93,8 +93,8 @@ def setup_production_test_data(test_db):
         {
             "brand": "Domino",
             "package_size": "4 lb bag",
-            "purchase_unit": "cup",
-            "purchase_quantity": Decimal("8.0"),
+            "package_unit": "cup",
+            "package_unit_quantity": Decimal("8.0"),
             "preferred": True,
         },
     )
@@ -252,7 +252,7 @@ class TestRecordProduction:
             record_production(event_id=data["event"].id, recipe_id=99999, batches=1)
 
     def test_record_production_insufficient_inventory(self, test_db, setup_production_test_data):
-        """Test: Insufficient pantry raises InsufficientInventoryError."""
+        """Test: Insufficient inventory raises InsufficientInventoryError."""
         data = setup_production_test_data
 
         # Try to produce 100 batches (needs 200 cups flour, but only have 15)

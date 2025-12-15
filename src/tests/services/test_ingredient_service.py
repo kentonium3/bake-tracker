@@ -313,8 +313,8 @@ class TestUpdateIngredientPackagingProtection:
             {
                 "brand": "TestBrand",
                 "package_size": "100 ct",
-                "purchase_unit": "box",
-                "purchase_quantity": 100
+                "package_unit": "box",
+                "package_unit_quantity": 100
             }
         )
         assert product.ingredient_id == ingredient.id
@@ -377,8 +377,8 @@ class TestUpdateIngredientPackagingProtection:
             {
                 "brand": "TestBrand",
                 "package_size": "50 ct",
-                "purchase_unit": "box",
-                "purchase_quantity": 50
+                "package_unit": "box",
+                "package_unit_quantity": 50
             }
         )
         assert product is not None

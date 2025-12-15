@@ -92,8 +92,8 @@ def product_cellophane(test_db, ingredient_cellophane):
         ingredient_id=ingredient_cellophane.id,
         brand="Clear Bags",
         package_size="100 count",
-        purchase_unit="bag",
-        purchase_quantity=100.0,
+        package_unit="bag",
+        package_unit_quantity=100.0,
         preferred=True,
     )
     session.add(product)

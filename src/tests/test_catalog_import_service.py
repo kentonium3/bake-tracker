@@ -143,15 +143,15 @@ def sample_product_data():
             "brand": "King Arthur",
             "package_size": "5 lb",
             "package_type": "bag",
-            "purchase_unit": "bag",
-            "purchase_quantity": 5.0,
+            "package_unit": "bag",
+            "package_unit_quantity": 5.0,
         },
         {
             "ingredient_slug": "product_test_flour",
             "brand": "Bob's Red Mill",
             "package_size": "2 lb",
-            "purchase_unit": "bag",
-            "purchase_quantity": 2.0,
+            "package_unit": "bag",
+            "package_unit_quantity": 2.0,
         },
     ]
 
@@ -748,8 +748,8 @@ class TestImportProducts:
             {
                 "ingredient_slug": "nonexistent_ingredient",
                 "brand": "Test Brand",
-                "purchase_unit": "bag",
-                "purchase_quantity": 5.0,
+                "package_unit": "bag",
+                "package_unit_quantity": 5.0,
             }
         ]
 
@@ -776,8 +776,8 @@ class TestImportProducts:
             {
                 "ingredient_slug": "product_test_flour",
                 "brand": "Existing Brand",
-                "purchase_unit": "bag",
-                "purchase_quantity": 5.0,
+                "package_unit": "bag",
+                "package_unit_quantity": 5.0,
             }
         ]
         result1 = import_products(data, mode="add")
@@ -797,8 +797,8 @@ class TestImportProducts:
             {
                 "ingredient_slug": "product_test_flour",
                 "brand": None,  # Generic product
-                "purchase_unit": "lb",
-                "purchase_quantity": 1.0,
+                "package_unit": "lb",
+                "package_unit_quantity": 1.0,
             }
         ]
 
@@ -817,59 +817,59 @@ class TestImportProducts:
             {
                 "ingredient_slug": "product_test_flour",
                 "brand": "Brand A",
-                "purchase_unit": "bag",
-                "purchase_quantity": 5.0,
+                "package_unit": "bag",
+                "package_unit_quantity": 5.0,
             },
             {
                 "ingredient_slug": "product_test_flour",
                 "brand": "Brand B",
-                "purchase_unit": "bag",
-                "purchase_quantity": 5.0,
+                "package_unit": "bag",
+                "package_unit_quantity": 5.0,
             },
             {
                 "ingredient_slug": "product_test_flour",
                 "brand": None,  # Generic
-                "purchase_unit": "lb",
-                "purchase_quantity": 1.0,
+                "package_unit": "lb",
+                "package_unit_quantity": 1.0,
             },
         ]
 
         result = import_products(data, mode="add")
         assert result.entity_counts["products"].added == 3
 
-    def test_import_products_validation_missing_purchase_unit(
+    def test_import_products_validation_missing_package_unit(
         self, create_test_ingredient_for_products, cleanup_test_ingredients
     ):
-        """Test that missing purchase_unit triggers validation error."""
+        """Test that missing package_unit triggers validation error."""
         data = [
             {
                 "ingredient_slug": "product_test_flour",
                 "brand": "Test Brand",
-                "purchase_quantity": 5.0,
-                # Missing purchase_unit
+                "package_unit_quantity": 5.0,
+                # Missing package_unit
             }
         ]
 
         result = import_products(data, mode="add")
         assert result.entity_counts["products"].failed == 1
-        assert "purchase_unit" in result.errors[0].message.lower()
+        assert "package_unit" in result.errors[0].message.lower()
 
-    def test_import_products_validation_missing_purchase_quantity(
+    def test_import_products_validation_missing_package_unit_quantity(
         self, create_test_ingredient_for_products, cleanup_test_ingredients
     ):
-        """Test that missing purchase_quantity triggers validation error."""
+        """Test that missing package_unit_quantity triggers validation error."""
         data = [
             {
                 "ingredient_slug": "product_test_flour",
                 "brand": "Test Brand",
-                "purchase_unit": "bag",
-                # Missing purchase_quantity
+                "package_unit": "bag",
+                # Missing package_unit_quantity
             }
         ]
 
         result = import_products(data, mode="add")
         assert result.entity_counts["products"].failed == 1
-        assert "purchase_quantity" in result.errors[0].message.lower()
+        assert "package_unit_quantity" in result.errors[0].message.lower()
 
     def test_import_products_partial_success(
         self, create_test_ingredient_for_products, cleanup_test_ingredients
@@ -879,20 +879,20 @@ class TestImportProducts:
             {
                 "ingredient_slug": "product_test_flour",
                 "brand": "Valid Brand",
-                "purchase_unit": "bag",
-                "purchase_quantity": 5.0,
+                "package_unit": "bag",
+                "package_unit_quantity": 5.0,
             },
             {
                 # Missing ingredient_slug - will fail
                 "brand": "Invalid Brand",
-                "purchase_unit": "bag",
-                "purchase_quantity": 5.0,
+                "package_unit": "bag",
+                "package_unit_quantity": 5.0,
             },
             {
                 "ingredient_slug": "product_test_flour",
                 "brand": "Another Valid Brand",
-                "purchase_unit": "bag",
-                "purchase_quantity": 2.0,
+                "package_unit": "bag",
+                "package_unit_quantity": 2.0,
             },
         ]
 
@@ -936,8 +936,8 @@ class TestImportProducts:
                 "brand": "Full Featured Brand",
                 "package_size": "25 lb",
                 "package_type": "bag",
-                "purchase_unit": "bag",
-                "purchase_quantity": 25.0,
+                "package_unit": "bag",
+                "package_unit_quantity": 25.0,
                 "upc_code": "123456789012",
                 "preferred": True,
             }
@@ -971,8 +971,8 @@ class TestImportProducts:
             {
                 "ingredient_slug": "product_test_flour",
                 "brand": "Session Test Brand",
-                "purchase_unit": "bag",
-                "purchase_quantity": 5.0,
+                "package_unit": "bag",
+                "package_unit_quantity": 5.0,
             }
         ]
 
@@ -1008,8 +1008,8 @@ class TestImportProducts:
             existing = Product(
                 ingredient_id=ingredient.id,
                 brand="Test Brand",
-                purchase_unit="bag",
-                purchase_quantity=5.0,
+                package_unit="bag",
+                package_unit_quantity=5.0,
                 upc_code=None,  # NULL - should be updated
             )
             session.add(existing)
@@ -1057,8 +1057,8 @@ class TestImportProducts:
             existing = Product(
                 ingredient_id=ingredient.id,
                 brand="Test Brand",
-                purchase_unit="bag",
-                purchase_quantity=5.0,
+                package_unit="bag",
+                package_unit_quantity=5.0,
                 upc_code="000000000000",  # NOT NULL - should be preserved
             )
             session.add(existing)
@@ -1100,8 +1100,8 @@ class TestImportProducts:
             {
                 "ingredient_slug": "product_test_flour",
                 "brand": "New Brand",
-                "purchase_unit": "bag",
-                "purchase_quantity": 10.0,
+                "package_unit": "bag",
+                "package_unit_quantity": 10.0,
                 "upc_code": "123456789012",
             }
         ]
@@ -1615,8 +1615,8 @@ class TestImportCatalog:
                 {
                     "ingredient_slug": "test_flour",
                     "brand": "Test Brand",
-                    "purchase_unit": "bag",
-                    "purchase_quantity": 5.0,
+                    "package_unit": "bag",
+                    "package_unit_quantity": 5.0,
                 }
             ],
         }
@@ -1719,8 +1719,8 @@ class TestImportCatalog:
                     # This will fail - references non-existent ingredient
                     "ingredient_slug": "nonexistent_ingredient",
                     "brand": "Bad Brand",
-                    "purchase_unit": "bag",
-                    "purchase_quantity": 5.0,
+                    "package_unit": "bag",
+                    "package_unit_quantity": 5.0,
                 }
             ],
         }
@@ -1765,8 +1765,8 @@ class TestImportCatalog:
                 {
                     "ingredient_slug": "test_flour",
                     "brand": "Test Brand",
-                    "purchase_unit": "bag",
-                    "purchase_quantity": 5.0,
+                    "package_unit": "bag",
+                    "package_unit_quantity": 5.0,
                 }
             ],
         }
@@ -2017,8 +2017,8 @@ class TestCLI:
                     # This will fail - references non-existent ingredient
                     "ingredient_slug": "nonexistent_ingredient",
                     "brand": "Bad Brand",
-                    "purchase_unit": "bag",
-                    "purchase_quantity": 5.0,
+                    "package_unit": "bag",
+                    "package_unit_quantity": 5.0,
                 }
             ],
         }
@@ -2053,8 +2053,8 @@ class TestCLI:
                 {
                     "ingredient_slug": "test_flour",
                     "brand": "Test Brand",
-                    "purchase_unit": "bag",
-                    "purchase_quantity": 5.0,
+                    "package_unit": "bag",
+                    "package_unit_quantity": 5.0,
                 }
             ],
         }

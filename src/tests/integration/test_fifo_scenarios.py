@@ -30,8 +30,8 @@ def test_fifo_multiple_lots_partial_consumption(test_db):
         {
             "brand": "Bob's Red Mill",
             "package_size": "5 lb bag",
-            "purchase_unit": "lb",
-            "purchase_quantity": Decimal("5.0")
+            "package_unit": "lb",
+            "package_unit_quantity": Decimal("5.0")
         }
     )
 
@@ -94,7 +94,7 @@ def test_fifo_insufficient_inventory(test_db):
 
     product = product_service.create_product(
         ingredient.slug,
-        {"brand": "Bob's Red Mill", "purchase_unit": "lb", "purchase_quantity": Decimal("5.0")}
+        {"brand": "Bob's Red Mill", "package_unit": "lb", "package_unit_quantity": Decimal("5.0")}
     )
 
     # Add lot: 10.0 lb (40 cups at 4 cups/lb)
@@ -137,7 +137,7 @@ def test_fifo_exact_consumption(test_db):
 
     product = product_service.create_product(
         ingredient.slug,
-        {"brand": "Blue Diamond", "purchase_unit": "lb", "purchase_quantity": Decimal("3.0")}
+        {"brand": "Blue Diamond", "package_unit": "lb", "package_unit_quantity": Decimal("3.0")}
     )
 
     # Add lot: 5.0 lb (20 cups at 4 cups/lb)
@@ -180,13 +180,13 @@ def test_fifo_ordering_across_multiple_products(test_db):
     # Create product 1
     product1 = product_service.create_product(
         ingredient.slug,
-        {"brand": "Bob's Red Mill", "purchase_unit": "lb", "purchase_quantity": Decimal("1.0")}
+        {"brand": "Bob's Red Mill", "package_unit": "lb", "package_unit_quantity": Decimal("1.0")}
     )
 
     # Create product 2
     product2 = product_service.create_product(
         ingredient.slug,
-        {"brand": "Anthony's", "purchase_unit": "lb", "purchase_quantity": Decimal("2.0")}
+        {"brand": "Anthony's", "package_unit": "lb", "package_unit_quantity": Decimal("2.0")}
     )
 
     # Add lot from product 1 (older)
@@ -224,7 +224,7 @@ def test_fifo_zero_quantity_lots_ignored(test_db):
 
     product = product_service.create_product(
         ingredient.slug,
-        {"brand": "Arrowhead Mills", "purchase_unit": "lb", "purchase_quantity": Decimal("2.0")}
+        {"brand": "Arrowhead Mills", "package_unit": "lb", "package_unit_quantity": Decimal("2.0")}
     )
 
     # Add lot 1 (will deplete)
@@ -256,13 +256,13 @@ def test_fifo_precision(test_db):
     ingredient = ingredient_service.create_ingredient(
         {
             "name": "Teff Flour",
-            "category": "Flour",  # Changed to match purchase_unit for precision test
+            "category": "Flour",  # Changed to match package_unit for precision test
         }
     )
 
     product = product_service.create_product(
         ingredient.slug,
-        {"brand": "Bob's Red Mill", "purchase_unit": "oz", "purchase_quantity": Decimal("24.0")}
+        {"brand": "Bob's Red Mill", "package_unit": "oz", "package_unit_quantity": Decimal("24.0")}
     )
 
     # Add lot: 17.3 oz

@@ -180,8 +180,8 @@ class TestProductModel:
             ingredient_id=ingredient.id,
             brand="King Arthur",
             package_size="5 lb bag",
-            purchase_unit="lb",
-            purchase_quantity=Decimal("5.0")
+            package_unit="lb",
+            package_unit_quantity=Decimal("5.0")
         )
         db_session.add(product)
         db_session.commit()
@@ -207,8 +207,8 @@ class TestProductModel:
             ingredient_id=ingredient.id,
             brand="Domino",
             package_size="5 lb bag",
-            purchase_unit="lb",
-            purchase_quantity=Decimal("5.0"),
+            package_unit="lb",
+            package_unit_quantity=Decimal("5.0"),
             preferred=True
         )
         db_session.add(product)
@@ -230,15 +230,15 @@ class TestProductModel:
             ingredient_id=ingredient.id,
             brand="Brand A",
             package_size="5 lb",
-            purchase_unit="lb",
-            purchase_quantity=Decimal("5.0")
+            package_unit="lb",
+            package_unit_quantity=Decimal("5.0")
         )
         product2 = Product(
             ingredient_id=ingredient.id,
             brand="Brand B",
             package_size="10 lb",
-            purchase_unit="lb",
-            purchase_quantity=Decimal("10.0")
+            package_unit="lb",
+            package_unit_quantity=Decimal("10.0")
         )
         db_session.add_all([product1, product2])
         db_session.commit()
@@ -398,8 +398,8 @@ class TestInventoryItemModel:
             ingredient_id=ingredient.id,
             brand="King Arthur",
             package_size="5 lb",
-            purchase_unit="lb",
-            purchase_quantity=Decimal("5.0")
+            package_unit="lb",
+            package_unit_quantity=Decimal("5.0")
         )
         db_session.add(product)
         db_session.flush()
@@ -430,8 +430,8 @@ class TestInventoryItemModel:
             ingredient_id=ingredient.id,
             brand="Domino",
             package_size="5 lb",
-            purchase_unit="lb",
-            purchase_quantity=Decimal("5.0")
+            package_unit="lb",
+            package_unit_quantity=Decimal("5.0")
         )
         db_session.add(product)
         db_session.flush()
@@ -465,8 +465,8 @@ class TestPurchaseModel:
             ingredient_id=ingredient.id,
             brand="Land O Lakes",
             package_size="1 lb",
-            purchase_unit="lb",
-            purchase_quantity=Decimal("1.0")
+            package_unit="lb",
+            package_unit_quantity=Decimal("1.0")
         )
         db_session.add(product)
         db_session.flush()
@@ -611,15 +611,15 @@ class TestModelRelationships:
             ingredient_id=ingredient.id,
             brand="Brand A",
             package_size="5 lb",
-            purchase_unit="lb",
-            purchase_quantity=Decimal("5.0")
+            package_unit="lb",
+            package_unit_quantity=Decimal("5.0")
         )
         product2 = Product(
             ingredient_id=ingredient.id,
             brand="Brand B",
             package_size="10 lb",
-            purchase_unit="lb",
-            purchase_quantity=Decimal("10.0")
+            package_unit="lb",
+            package_unit_quantity=Decimal("10.0")
         )
         db_session.add_all([product1, product2])
         db_session.commit()
@@ -644,8 +644,8 @@ class TestModelRelationships:
             ingredient_id=ingredient.id,
             brand="Domino",
             package_size="5 lb",
-            purchase_unit="lb",
-            purchase_quantity=Decimal("5.0")
+            package_unit="lb",
+            package_unit_quantity=Decimal("5.0")
         )
         db_session.add(product)
         db_session.commit()

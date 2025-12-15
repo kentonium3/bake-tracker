@@ -72,8 +72,8 @@ def sample_product(test_db, sample_ingredient):
         {
             "brand": "Test Brand",
             "package_size": "5 lb bag",
-            "purchase_unit": "lb",
-            "purchase_quantity": Decimal("5.0"),
+            "package_unit": "lb",
+            "package_unit_quantity": Decimal("5.0"),
             "preferred": True,
         },
     )

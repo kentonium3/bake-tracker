@@ -79,8 +79,8 @@ class TestPackagingBOMFlow:
             {
                 "brand": "ClearBags",
                 "package_size": "100 ct",
-                "purchase_unit": "box",
-                "purchase_quantity": 100
+                "package_unit": "box",
+                "package_unit_quantity": 100
             }
         )
 
@@ -89,8 +89,8 @@ class TestPackagingBOMFlow:
             {
                 "brand": "Nashville Wraps",
                 "package_size": "12 ct",
-                "purchase_unit": "each",
-                "purchase_quantity": 12
+                "package_unit": "each",
+                "package_unit_quantity": 12
             }
         )
 
@@ -99,8 +99,8 @@ class TestPackagingBOMFlow:
             {
                 "brand": "Offray",
                 "package_size": "10 yard spool",
-                "purchase_unit": "each",
-                "purchase_quantity": 1
+                "package_unit": "each",
+                "package_unit_quantity": 1
             }
         )
 
@@ -286,8 +286,8 @@ class TestPackagingBOMFlow:
             {
                 "brand": "TestBrand",
                 "package_size": "50 ct",
-                "purchase_unit": "box",
-                "purchase_quantity": 50
+                "package_unit": "box",
+                "package_unit_quantity": 50
             }
         )
 
@@ -410,8 +410,8 @@ class TestPackagingImportExport:
             {
                 "brand": "TestBrand",
                 "package_size": "50 ct",
-                "purchase_unit": "box",
-                "purchase_quantity": 50
+                "package_unit": "box",
+                "package_unit_quantity": 50
             }
         )
 
@@ -517,8 +517,8 @@ class TestPackagingEdgeCases:
             {
                 "brand": "TestBrand",
                 "package_size": "10 yd",
-                "purchase_unit": "package",  # Use valid unit
-                "purchase_quantity": 10
+                "package_unit": "package",  # Use valid unit
+                "package_unit_quantity": 10
             }
         )
 
@@ -562,8 +562,8 @@ class TestPackagingEdgeCases:
             {
                 "brand": "TestBrand",
                 "package_size": "10 yd",
-                "purchase_unit": "package",  # Use valid unit
-                "purchase_quantity": 1
+                "package_unit": "package",  # Use valid unit
+                "package_unit_quantity": 1
             }
         )
 
@@ -645,8 +645,8 @@ class TestPackagingEdgeCases:
             {
                 "brand": "TestBrand",
                 "package_size": "50 ct",
-                "purchase_unit": "box",
-                "purchase_quantity": 50
+                "package_unit": "box",
+                "package_unit_quantity": 50
             }
         )
 
@@ -689,8 +689,8 @@ class TestPackagingEdgeCases:
             {
                 "brand": "TestBrand",
                 "package_size": "12 ct",
-                "purchase_unit": "box",  # Use valid unit
-                "purchase_quantity": 12
+                "package_unit": "box",  # Use valid unit
+                "package_unit_quantity": 12
             }
         )
 
@@ -737,8 +737,8 @@ class TestPackagingEdgeCases:
             {
                 "brand": "TestBrand",
                 "package_size": "50 ct",
-                "purchase_unit": "box",
-                "purchase_quantity": 50
+                "package_unit": "box",
+                "package_unit_quantity": 50
             }
         )
 
@@ -780,8 +780,8 @@ class TestPackagingEdgeCases:
             {
                 "brand": "TestBrand",
                 "package_size": "10 yd",
-                "purchase_unit": "package",
-                "purchase_quantity": 10
+                "package_unit": "package",
+                "package_unit_quantity": 10
             }
         )
 

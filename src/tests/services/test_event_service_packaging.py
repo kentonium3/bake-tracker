@@ -68,8 +68,8 @@ def packaging_product(test_db, packaging_ingredient):
         {
             "brand": "Amazon Basics",
             "package_size": "100ct",
-            "purchase_unit": "box",
-            "purchase_quantity": 100,
+            "package_unit": "box",
+            "package_unit_quantity": 100,
         }
     )
 
@@ -81,8 +81,8 @@ def packaging_product_2(test_db, packaging_ingredient_2):
         {
             "brand": "Kraft",
             "package_size": "6 pack",
-            "purchase_unit": "each",
-            "purchase_quantity": 6,
+            "package_unit": "each",
+            "package_unit_quantity": 6,
         }
     )
 

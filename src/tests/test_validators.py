@@ -211,7 +211,7 @@ class TestIngredientValidation:
             "name": "All-Purpose Flour",
             "brand": "King Arthur",
             "category": "Flour",
-            "purchase_unit": "bag",
+            "package_unit": "bag",
             "purchase_unit_size": "50 lb",
             "conversion_factor": 200.0,
             "quantity": 2.5,
@@ -242,7 +242,7 @@ class TestIngredientValidation:
         assert is_valid is False
         assert any("category" in e.lower() for e in errors)
 
-    @pytest.mark.skip(reason="TD-001: quantity moved to PantryItem, not Ingredient")
+    @pytest.mark.skip(reason="TD-001: quantity moved to InventoryItem (formerly PantryItem), not Ingredient")
     def test_validate_ingredient_data_negative_quantity(self):
         """Test ingredient validation with negative quantity - OBSOLETE."""
         pass
@@ -252,9 +252,9 @@ class TestIngredientValidation:
         """Test ingredient validation with zero conversion factor - OBSOLETE."""
         pass
 
-    @pytest.mark.skip(reason="TD-001: purchase_unit moved to Product, not Ingredient")
+    @pytest.mark.skip(reason="TD-001: package_unit (formerly purchase_unit) moved to Product, not Ingredient")
     def test_validate_ingredient_data_invalid_unit(self):
-        """Test ingredient validation with invalid purchase_unit - OBSOLETE."""
+        """Test ingredient validation with invalid package_unit - OBSOLETE."""
         pass
 
 class TestRecipeValidation:

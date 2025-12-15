@@ -22,8 +22,8 @@ def test_purchase_and_price_analysis(test_db):
         {
             "brand": "Bob's Red Mill",
             "package_size": "5 lb bag",
-            "purchase_unit": "lb",
-            "purchase_quantity": Decimal("5.0")
+            "package_unit": "lb",
+            "package_unit_quantity": Decimal("5.0")
         }
     )
 
@@ -93,8 +93,8 @@ def test_purchase_history_filtering(test_db):
         {
             "brand": "C&H",
             "package_size": "2 lb bag",
-            "purchase_unit": "lb",
-            "purchase_quantity": Decimal("2.0")
+            "package_unit": "lb",
+            "package_unit_quantity": Decimal("2.0")
         }
     )
 
@@ -151,8 +151,8 @@ def test_price_trend_insufficient_data(test_db):
         {
             "brand": "Nielsen-Massey",
             "package_size": "4 oz bottle",
-            "purchase_unit": "oz",
-            "purchase_quantity": Decimal("4.0")
+            "package_unit": "oz",
+            "package_unit_quantity": Decimal("4.0")
         }
     )
 
@@ -185,8 +185,8 @@ def test_most_recent_purchase(test_db):
         {
             "brand": "Local Beekeeper",
             "package_size": "16 oz jar",
-            "purchase_unit": "oz",
-            "purchase_quantity": Decimal("16.0")
+            "package_unit": "oz",
+            "package_unit_quantity": Decimal("16.0")
         }
     )
 
@@ -232,8 +232,8 @@ def test_no_purchase_history_returns_none(test_db):
         {
             "brand": "McCormick",
             "package_size": "2.37 oz bottle",
-            "purchase_unit": "oz",
-            "purchase_quantity": Decimal("2.37")
+            "package_unit": "oz",
+            "package_unit_quantity": Decimal("2.37")
         }
     )
 

@@ -30,8 +30,8 @@ def test_complete_inventory_workflow(test_db):
     product_data = {
         "brand": "King Arthur",
         "package_size": "25 lb bag",
-        "purchase_unit": "lb",
-        "purchase_quantity": Decimal("25.0"),
+        "package_unit": "lb",
+        "package_unit_quantity": Decimal("25.0"),
         "preferred": True
     }
     product = product_service.create_product(ingredient.slug, product_data)
@@ -73,8 +73,8 @@ def test_multiple_products_preferred_toggle(test_db):
     product1_data = {
         "brand": "C&H",
         "package_size": "4 lb bag",
-        "purchase_unit": "lb",
-        "purchase_quantity": Decimal("4.0"),
+        "package_unit": "lb",
+        "package_unit_quantity": Decimal("4.0"),
         "preferred": True
     }
     product1 = product_service.create_product(ingredient.slug, product1_data)
@@ -84,8 +84,8 @@ def test_multiple_products_preferred_toggle(test_db):
     product2_data = {
         "brand": "Domino",
         "package_size": "5 lb bag",
-        "purchase_unit": "lb",
-        "purchase_quantity": Decimal("5.0"),
+        "package_unit": "lb",
+        "package_unit_quantity": Decimal("5.0"),
         "preferred": False
     }
     product2 = product_service.create_product(ingredient.slug, product2_data)
@@ -122,8 +122,8 @@ def test_inventory_items_filtering(test_db):
         {
             "brand": "Bob's Red Mill",
             "package_size": "5 lb bag",
-            "purchase_unit": "lb",
-            "purchase_quantity": Decimal("5.0")
+            "package_unit": "lb",
+            "package_unit_quantity": Decimal("5.0")
         }
     )
 
@@ -179,8 +179,8 @@ def test_expiring_items_detection(test_db):
         {
             "brand": "Red Star",
             "package_size": "4 oz jar",
-            "purchase_unit": "oz",
-            "purchase_quantity": Decimal("4.0")
+            "package_unit": "oz",
+            "package_unit_quantity": Decimal("4.0")
         }
     )
 
@@ -224,7 +224,7 @@ def test_ingredient_deletion_blocked_by_products(test_db):
 
     product = product_service.create_product(
         ingredient.slug,
-        {"brand": "Rumford", "purchase_unit": "oz", "purchase_quantity": Decimal("8.0")}
+        {"brand": "Rumford", "package_unit": "oz", "package_unit_quantity": Decimal("8.0")}
     )
 
     # Attempt to delete ingredient should fail
