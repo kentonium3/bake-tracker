@@ -12,7 +12,7 @@ subtasks:
   - "T021"
 title: "Recipe Import with FK Validation"
 phase: "Phase 1 - Foundation"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "claude"
 shell_pid: "56445"
@@ -343,3 +343,4 @@ pytest src/tests/test_catalog_import_service.py -k "recipe" -v
 
 - 2025-12-14T12:00:00Z - system - lane=planned - Prompt created via /spec-kitty.tasks
 - 2025-12-15T02:51:28Z – claude – shell_pid=56445 – lane=doing – Started implementation
+- 2025-12-15T02:54:26Z – claude – shell_pid=56445 – lane=for_review – Ready for review
