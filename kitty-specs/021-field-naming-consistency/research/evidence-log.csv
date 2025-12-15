@@ -1,0 +1,6 @@
+id,date,source_type,source_ref,finding,impact,notes
+1,2025-12-15,codebase,"src/models/product.py:58-59","purchase_unit and purchase_quantity fields defined",high,"Primary change location"
+2,2025-12-15,codebase,"grep: 35 files","35 files reference purchase_unit or purchase_quantity",high,"Full scope of rename"
+3,2025-12-15,codebase,"src/models/inventory_item.py","InventoryItem model already correctly named",none,"No PantryItem rename needed"
+4,2025-12-15,documentation,"docs/design/import_export_specification.md","Spec v3.3 still uses purchase_unit/purchase_quantity",medium,"Needs update to v3.4"
+5,2025-12-15,codebase,"examples/","~10 JSON files use old field names",medium,"Sample data needs updating"

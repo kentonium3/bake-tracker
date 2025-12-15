@@ -1,0 +1,6 @@
+id,source_name,source_type,url_or_path,accessed_date,notes
+1,Product Model,codebase,src/models/product.py,2025-12-15,Primary model with fields to rename
+2,Import/Export Spec,documentation,docs/design/import_export_specification.md,2025-12-15,Current v3.3 spec
+3,Constitution,documentation,.kittify/memory/constitution.md,2025-12-15,v1.2.0 schema change strategy
+4,Sample Data,codebase,examples/,2025-12-15,JSON files needing field updates
+5,Feature Spec,documentation,kitty-specs/021-field-naming-consistency/spec.md,2025-12-15,Requirements source
