@@ -15,7 +15,7 @@ subtasks:
   - "T061"
 title: "UI Dialog"
 phase: "Phase 3 - Interface"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "claude"
 shell_pid: "56445"
@@ -618,3 +618,4 @@ if result.errors:
 
 - 2025-12-14T12:00:00Z - system - lane=planned - Prompt created via /spec-kitty.tasks
 - 2025-12-15T03:05:59Z – claude – shell_pid=56445 – lane=doing – Started implementation
+- 2025-12-15T03:08:13Z – claude – shell_pid=56445 – lane=for_review – Ready for review
