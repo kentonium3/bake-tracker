@@ -13,7 +13,7 @@ subtasks:
 title: "Coordinator and Dry-Run"
 phase: "Phase 2 - Features"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude-reviewer"
 shell_pid: "63528"
 review_status: ""
