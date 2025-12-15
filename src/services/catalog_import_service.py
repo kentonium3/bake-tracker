@@ -22,6 +22,7 @@ from sqlalchemy.orm import Session
 from src.services.database import session_scope
 from src.models.ingredient import Ingredient
 from src.models.product import Product
+from src.models.recipe import Recipe, RecipeIngredient, RecipeComponent
 
 
 # ============================================================================
@@ -564,5 +565,342 @@ def _validate_product_data(item: Dict) -> Optional[Dict]:
             "message": "Missing required field: purchase_quantity",
             "suggestion": "Add 'purchase_quantity' field (e.g., 25, 5.0)",
         }
+
+    return None
+
+
+# ============================================================================
+# Recipe Import Functions
+# ============================================================================
+
+
+def import_recipes(
+    data: List[Dict],
+    mode: str = "add",
+    dry_run: bool = False,
+    session: Optional[Session] = None,
+) -> CatalogImportResult:
+    """
+    Import recipes from parsed data.
+
+    Validates ingredient_slug and recipe_name FK references.
+    Detects circular recipe references.
+    AUGMENT mode is not supported for recipes - raises error if requested.
+
+    Args:
+        data: List of recipe dictionaries from catalog file
+        mode: Must be "add" (AUGMENT not supported for recipes)
+        dry_run: If True, validate and preview without committing
+        session: Optional SQLAlchemy session for transactional composition
+
+    Returns:
+        CatalogImportResult with counts and any errors
+    """
+    if session is not None:
+        return _import_recipes_impl(data, mode, dry_run, session)
+    with session_scope() as sess:
+        return _import_recipes_impl(data, mode, dry_run, sess)
+
+
+def _import_recipes_impl(
+    data: List[Dict],
+    mode: str,
+    dry_run: bool,
+    session: Session,
+) -> CatalogImportResult:
+    """Internal implementation of recipe import."""
+    result = CatalogImportResult()
+    result.dry_run = dry_run
+    result.mode = mode
+
+    # AUGMENT mode not supported for recipes
+    if mode == ImportMode.AUGMENT.value:
+        result.add_error(
+            "recipes",
+            "all",
+            "mode_not_supported",
+            "AUGMENT mode is not supported for recipes",
+            "Use ADD_ONLY (--mode=add) for recipe import",
+        )
+        return result
+
+    # Early exit if no data
+    if not data:
+        return result
+
+    # Check for circular references before any imports
+    cycle = _detect_cycles(data)
+    if cycle:
+        result.add_error(
+            "recipes",
+            cycle[0],
+            "circular_reference",
+            f"Circular reference detected: {' -> '.join(cycle)}",
+            "Remove circular dependency to import",
+        )
+        return result
+
+    # Build ingredient slug -> id lookup for FK validation
+    slug_to_id = {
+        row.slug: row.id
+        for row in session.query(Ingredient.slug, Ingredient.id).filter(
+            Ingredient.slug.isnot(None)
+        ).all()
+    }
+
+    # Build recipe name -> (id, yield_quantity, yield_unit) lookup for collision detection and FK
+    existing_recipes = {
+        row.name: {"id": row.id, "yield_quantity": row.yield_quantity, "yield_unit": row.yield_unit}
+        for row in session.query(
+            Recipe.name, Recipe.id, Recipe.yield_quantity, Recipe.yield_unit
+        ).all()
+    }
+
+    # Track newly created recipes for component FK resolution within the same import
+    new_recipe_ids = {}  # name -> id
+
+    for item in data:
+        recipe_name = item.get("name", "")
+        identifier = recipe_name or "unknown"
+
+        # Validate required fields
+        validation_error = _validate_recipe_data(item)
+        if validation_error:
+            result.add_error(
+                "recipes",
+                identifier,
+                "validation",
+                validation_error["message"],
+                validation_error["suggestion"],
+            )
+            continue
+
+        # Check for name collision with existing recipe
+        if recipe_name in existing_recipes:
+            existing = existing_recipes[recipe_name]
+            import_yield_qty = item.get("yield_quantity", 0)
+            import_yield_unit = item.get("yield_unit", "")
+            result.add_error(
+                "recipes",
+                recipe_name,
+                "collision",
+                f"Recipe '{recipe_name}' already exists. "
+                f"Existing: yields {existing['yield_quantity']} {existing['yield_unit']}. "
+                f"Import: yields {import_yield_qty} {import_yield_unit}.",
+                "Delete existing recipe or rename import",
+            )
+            continue
+
+        # Validate ingredient FKs
+        recipe_ingredients_data = item.get("ingredients", [])
+        missing_ingredients = []
+        for ri in recipe_ingredients_data:
+            ing_slug = ri.get("ingredient_slug", "")
+            if ing_slug not in slug_to_id:
+                missing_ingredients.append(ing_slug)
+
+        if missing_ingredients:
+            result.add_error(
+                "recipes",
+                recipe_name,
+                "fk_missing",
+                f"Missing ingredients: {', '.join(missing_ingredients)}",
+                "Import these ingredients first or remove from recipe",
+            )
+            continue
+
+        # Validate component recipe FKs
+        recipe_components_data = item.get("components", [])
+        missing_components = []
+        for rc in recipe_components_data:
+            component_name = rc.get("recipe_name", "")
+            # Component must exist in DB or have been created earlier in this import
+            if component_name not in existing_recipes and component_name not in new_recipe_ids:
+                missing_components.append(component_name)
+
+        if missing_components:
+            result.add_error(
+                "recipes",
+                recipe_name,
+                "fk_missing",
+                f"Missing component recipes: {', '.join(missing_components)}",
+                "Import component recipes first or remove from components",
+            )
+            continue
+
+        # Create the recipe
+        recipe = Recipe(
+            name=recipe_name,
+            category=item.get("category"),
+            source=item.get("source"),
+            yield_quantity=item.get("yield_quantity"),
+            yield_unit=item.get("yield_unit"),
+            yield_description=item.get("yield_description"),
+            estimated_time_minutes=item.get("estimated_time_minutes"),
+            notes=item.get("notes"),
+        )
+        session.add(recipe)
+        session.flush()  # Get the recipe ID for FK references
+
+        # Create RecipeIngredients
+        for ri in recipe_ingredients_data:
+            ing_slug = ri.get("ingredient_slug", "")
+            ingredient_id = slug_to_id.get(ing_slug)
+            recipe_ingredient = RecipeIngredient(
+                recipe_id=recipe.id,
+                ingredient_id=ingredient_id,
+                quantity=ri.get("quantity"),
+                unit=ri.get("unit"),
+                notes=ri.get("notes"),
+            )
+            session.add(recipe_ingredient)
+
+        # Create RecipeComponents
+        for idx, rc in enumerate(recipe_components_data):
+            component_name = rc.get("recipe_name", "")
+            # Resolve component recipe ID
+            if component_name in existing_recipes:
+                component_recipe_id = existing_recipes[component_name]["id"]
+            else:
+                component_recipe_id = new_recipe_ids.get(component_name)
+
+            recipe_component = RecipeComponent(
+                recipe_id=recipe.id,
+                component_recipe_id=component_recipe_id,
+                quantity=rc.get("quantity", 1.0),
+                notes=rc.get("notes"),
+                sort_order=idx,
+            )
+            session.add(recipe_component)
+
+        result.add_success("recipes")
+
+        # Track new recipe for component FK resolution
+        new_recipe_ids[recipe_name] = recipe.id
+        existing_recipes[recipe_name] = {
+            "id": recipe.id,
+            "yield_quantity": recipe.yield_quantity,
+            "yield_unit": recipe.yield_unit,
+        }
+
+    # Handle dry-run: rollback instead of commit
+    if dry_run:
+        session.rollback()
+
+    return result
+
+
+def _detect_cycles(recipes_data: List[Dict]) -> Optional[List[str]]:
+    """
+    Detect circular recipe references.
+
+    Args:
+        recipes_data: List of recipe dictionaries to analyze
+
+    Returns:
+        List of recipe names forming a cycle, or None if no cycle
+    """
+    # Build directed graph of recipe -> component relationships
+    graph = {}
+    for r in recipes_data:
+        name = r.get("name", "")
+        components = [c.get("recipe_name", "") for c in r.get("components", [])]
+        graph[name] = components
+
+    visited = set()
+    rec_stack = set()  # Current recursion stack
+    path = []
+
+    def dfs(node):
+        if node in rec_stack:
+            # Found a cycle, reconstruct path
+            cycle_start = path.index(node)
+            return path[cycle_start:] + [node]
+        if node in visited:
+            return None
+
+        visited.add(node)
+        rec_stack.add(node)
+        path.append(node)
+
+        for neighbor in graph.get(node, []):
+            if neighbor in graph:  # Only follow edges to recipes in import
+                cycle = dfs(neighbor)
+                if cycle:
+                    return cycle
+
+        path.pop()
+        rec_stack.remove(node)
+        return None
+
+    for recipe_name in graph:
+        if recipe_name not in visited:
+            cycle = dfs(recipe_name)
+            if cycle:
+                return cycle
+
+    return None
+
+
+def _validate_recipe_data(item: Dict) -> Optional[Dict]:
+    """
+    Validate recipe data before creation.
+
+    Args:
+        item: Recipe dictionary from catalog file
+
+    Returns:
+        None if valid, or dict with 'message' and 'suggestion' keys if invalid
+    """
+    # Check required fields
+    if not item.get("name"):
+        return {
+            "message": "Missing required field: name",
+            "suggestion": "Add 'name' field to recipe data (e.g., 'Chocolate Chip Cookies')",
+        }
+
+    if not item.get("category"):
+        return {
+            "message": "Missing required field: category",
+            "suggestion": "Add 'category' field to recipe data (e.g., 'Cookies', 'Cakes')",
+        }
+
+    if item.get("yield_quantity") is None:
+        return {
+            "message": "Missing required field: yield_quantity",
+            "suggestion": "Add 'yield_quantity' field (e.g., 24, 12)",
+        }
+
+    if not item.get("yield_unit"):
+        return {
+            "message": "Missing required field: yield_unit",
+            "suggestion": "Add 'yield_unit' field (e.g., 'cookies', 'servings')",
+        }
+
+    # Validate ingredients have required fields
+    for idx, ing in enumerate(item.get("ingredients", [])):
+        if not ing.get("ingredient_slug"):
+            return {
+                "message": f"Ingredient {idx + 1}: Missing 'ingredient_slug'",
+                "suggestion": "Each ingredient must have an 'ingredient_slug' field",
+            }
+        if ing.get("quantity") is None:
+            return {
+                "message": f"Ingredient {idx + 1}: Missing 'quantity'",
+                "suggestion": "Each ingredient must have a 'quantity' field",
+            }
+        if not ing.get("unit"):
+            return {
+                "message": f"Ingredient {idx + 1}: Missing 'unit'",
+                "suggestion": "Each ingredient must have a 'unit' field",
+            }
+
+    # Validate components have required fields
+    for idx, comp in enumerate(item.get("components", [])):
+        if not comp.get("recipe_name"):
+            return {
+                "message": f"Component {idx + 1}: Missing 'recipe_name'",
+                "suggestion": "Each component must have a 'recipe_name' field",
+            }
 
     return None

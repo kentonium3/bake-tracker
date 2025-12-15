@@ -12,10 +12,12 @@ from src.services.catalog_import_service import (
     ImportMode,
     import_ingredients,
     import_products,
+    import_recipes,
 )
 from src.services.database import session_scope
 from src.models.ingredient import Ingredient
 from src.models.product import Product
+from src.models.recipe import Recipe, RecipeIngredient, RecipeComponent
 
 
 # ============================================================================
@@ -55,7 +57,7 @@ def sample_ingredient_data():
 
 @pytest.fixture
 def cleanup_test_ingredients():
-    """Cleanup test ingredients after each test."""
+    """Cleanup test ingredients and recipes after each test."""
     yield
     # Cleanup after test
     with session_scope() as session:
@@ -69,13 +71,44 @@ def cleanup_test_ingredients():
             "invalid_ingredient",
             "product_test_flour",
             "product_test_sugar",
+            "recipe_test_flour",
+            "recipe_test_sugar",
+            "recipe_test_butter",
         ]
-        # Delete products first due to FK constraint
+        test_recipe_names = [
+            "Test Chocolate Chip Cookies",
+            "Test Sugar Cookies",
+            "Test Vanilla Cake",
+            "Test Chocolate Cake",
+            "Test Frosting",
+            "Test Composite Recipe",
+            "Recipe A",
+            "Recipe B",
+            "Recipe C",
+        ]
+        # Delete recipe components first
+        session.query(RecipeComponent).filter(
+            RecipeComponent.recipe_id.in_(
+                session.query(Recipe.id).filter(Recipe.name.in_(test_recipe_names))
+            )
+        ).delete(synchronize_session=False)
+        # Delete recipe ingredients
+        session.query(RecipeIngredient).filter(
+            RecipeIngredient.recipe_id.in_(
+                session.query(Recipe.id).filter(Recipe.name.in_(test_recipe_names))
+            )
+        ).delete(synchronize_session=False)
+        # Delete recipes
+        session.query(Recipe).filter(Recipe.name.in_(test_recipe_names)).delete(
+            synchronize_session=False
+        )
+        # Delete products
         session.query(Product).filter(
             Product.ingredient_id.in_(
                 session.query(Ingredient.id).filter(Ingredient.slug.in_(test_slugs))
             )
         ).delete(synchronize_session=False)
+        # Delete ingredients
         session.query(Ingredient).filter(Ingredient.slug.in_(test_slugs)).delete(
             synchronize_session=False
         )
@@ -829,3 +862,386 @@ class TestImportProducts:
             )
             assert product is not None
             assert product.brand == "Session Test Brand"
+
+
+# ============================================================================
+# Recipe Import Tests
+# ============================================================================
+
+
+@pytest.fixture
+def create_test_ingredients_for_recipes():
+    """Create test ingredients for recipe import tests."""
+    with session_scope() as session:
+        flour = Ingredient(
+            slug="recipe_test_flour",
+            display_name="Recipe Test Flour",
+            category="Flour",
+        )
+        sugar = Ingredient(
+            slug="recipe_test_sugar",
+            display_name="Recipe Test Sugar",
+            category="Sugar",
+        )
+        butter = Ingredient(
+            slug="recipe_test_butter",
+            display_name="Recipe Test Butter",
+            category="Dairy",
+        )
+        session.add_all([flour, sugar, butter])
+    yield
+
+
+class TestImportRecipes:
+    """Tests for import_recipes function."""
+
+    def test_import_recipes_add_mode_creates_new(
+        self, create_test_ingredients_for_recipes, cleanup_test_ingredients
+    ):
+        """Test that new recipes are created correctly with all relationships."""
+        data = [
+            {
+                "name": "Test Chocolate Chip Cookies",
+                "category": "Cookies",
+                "yield_quantity": 24,
+                "yield_unit": "cookies",
+                "ingredients": [
+                    {"ingredient_slug": "recipe_test_flour", "quantity": 2.0, "unit": "cup"},
+                    {"ingredient_slug": "recipe_test_sugar", "quantity": 1.0, "unit": "cup"},
+                    {"ingredient_slug": "recipe_test_butter", "quantity": 0.5, "unit": "cup"},
+                ],
+            }
+        ]
+
+        result = import_recipes(data, mode="add")
+
+        # Verify counts
+        assert result.entity_counts["recipes"].added == 1
+        assert result.entity_counts["recipes"].failed == 0
+        assert result.has_errors is False
+
+        # Verify recipe exists with correct relationships
+        with session_scope() as session:
+            recipe = (
+                session.query(Recipe)
+                .filter(Recipe.name == "Test Chocolate Chip Cookies")
+                .first()
+            )
+            assert recipe is not None
+            assert recipe.category == "Cookies"
+            assert recipe.yield_quantity == 24
+            assert recipe.yield_unit == "cookies"
+            assert len(recipe.recipe_ingredients) == 3
+
+    def test_import_recipes_fk_validation_fails_on_missing_ingredient(
+        self, cleanup_test_ingredients
+    ):
+        """Test that FK validation fails with actionable error when ingredient not found."""
+        data = [
+            {
+                "name": "Test Sugar Cookies",
+                "category": "Cookies",
+                "yield_quantity": 12,
+                "yield_unit": "cookies",
+                "ingredients": [
+                    {"ingredient_slug": "missing_vanilla", "quantity": 1.0, "unit": "tsp"},
+                ],
+            }
+        ]
+
+        result = import_recipes(data, mode="add")
+
+        # Verify counts
+        assert result.entity_counts["recipes"].added == 0
+        assert result.entity_counts["recipes"].failed == 1
+        assert result.has_errors is True
+
+        # Verify error message format
+        assert len(result.errors) == 1
+        error = result.errors[0]
+        assert error.error_type == "fk_missing"
+        assert "missing_vanilla" in error.message
+        assert "Import these ingredients first" in error.suggestion
+
+    def test_import_recipes_collision_with_detailed_error(
+        self, create_test_ingredients_for_recipes, cleanup_test_ingredients
+    ):
+        """Test that collision error includes detailed info about both recipes."""
+        # Pre-create recipe with name "Test Chocolate Cake"
+        with session_scope() as session:
+            existing = Recipe(
+                name="Test Chocolate Cake",
+                category="Cakes",
+                yield_quantity=12,
+                yield_unit="servings",
+            )
+            session.add(existing)
+
+        # Try to import with same name but different yield
+        data = [
+            {
+                "name": "Test Chocolate Cake",
+                "category": "Cakes",
+                "yield_quantity": 24,
+                "yield_unit": "pieces",
+                "ingredients": [],
+            }
+        ]
+
+        result = import_recipes(data, mode="add")
+
+        # Verify counts
+        assert result.entity_counts["recipes"].failed == 1
+        assert result.has_errors is True
+
+        # Verify collision error includes both yield infos
+        error = result.errors[0]
+        assert error.error_type == "collision"
+        assert "12" in error.message and "servings" in error.message  # Existing
+        assert "24" in error.message and "pieces" in error.message  # Import
+
+    def test_import_recipes_circular_detection(self, cleanup_test_ingredients):
+        """Test that circular references are detected."""
+        # Create A -> B -> C -> A circular reference
+        data = [
+            {
+                "name": "Recipe A",
+                "category": "Test",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+                "ingredients": [],
+                "components": [{"recipe_name": "Recipe B"}],
+            },
+            {
+                "name": "Recipe B",
+                "category": "Test",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+                "ingredients": [],
+                "components": [{"recipe_name": "Recipe C"}],
+            },
+            {
+                "name": "Recipe C",
+                "category": "Test",
+                "yield_quantity": 1,
+                "yield_unit": "batch",
+                "ingredients": [],
+                "components": [{"recipe_name": "Recipe A"}],
+            },
+        ]
+
+        result = import_recipes(data, mode="add")
+
+        # Should fail with circular reference error
+        assert result.has_errors is True
+        assert len(result.errors) == 1
+        error = result.errors[0]
+        assert error.error_type == "circular_reference"
+        assert "Circular reference detected" in error.message
+        # Cycle path should be included
+        assert "Recipe A" in error.message or "Recipe B" in error.message or "Recipe C" in error.message
+
+    def test_import_recipes_with_components(
+        self, create_test_ingredients_for_recipes, cleanup_test_ingredients
+    ):
+        """Test importing recipe with component recipes in correct order."""
+        # Import frosting first, then cake that uses it
+        data = [
+            {
+                "name": "Test Frosting",
+                "category": "Frostings",
+                "yield_quantity": 2,
+                "yield_unit": "cups",
+                "ingredients": [
+                    {"ingredient_slug": "recipe_test_butter", "quantity": 0.5, "unit": "cup"},
+                    {"ingredient_slug": "recipe_test_sugar", "quantity": 2.0, "unit": "cup"},
+                ],
+            },
+            {
+                "name": "Test Vanilla Cake",
+                "category": "Cakes",
+                "yield_quantity": 12,
+                "yield_unit": "servings",
+                "ingredients": [
+                    {"ingredient_slug": "recipe_test_flour", "quantity": 3.0, "unit": "cup"},
+                    {"ingredient_slug": "recipe_test_sugar", "quantity": 1.5, "unit": "cup"},
+                ],
+                "components": [
+                    {"recipe_name": "Test Frosting", "quantity": 1.0},
+                ],
+            },
+        ]
+
+        result = import_recipes(data, mode="add")
+
+        # Both should be created
+        assert result.entity_counts["recipes"].added == 2
+        assert result.has_errors is False
+
+        # Verify component relationship
+        with session_scope() as session:
+            cake = session.query(Recipe).filter(Recipe.name == "Test Vanilla Cake").first()
+            assert cake is not None
+            assert len(cake.recipe_components) == 1
+            assert cake.recipe_components[0].component_recipe.name == "Test Frosting"
+
+    def test_import_recipes_augment_mode_rejected(self, cleanup_test_ingredients):
+        """Test that AUGMENT mode returns error for recipes."""
+        data = [
+            {
+                "name": "Test Sugar Cookies",
+                "category": "Cookies",
+                "yield_quantity": 12,
+                "yield_unit": "cookies",
+                "ingredients": [],
+            }
+        ]
+
+        result = import_recipes(data, mode="augment")
+
+        # Should fail with mode not supported error
+        assert result.has_errors is True
+        error = result.errors[0]
+        assert error.error_type == "mode_not_supported"
+        assert "AUGMENT mode is not supported for recipes" in error.message
+
+    def test_import_recipes_validation_missing_name(self, cleanup_test_ingredients):
+        """Test that missing name triggers validation error."""
+        data = [
+            {
+                "category": "Cookies",
+                "yield_quantity": 12,
+                "yield_unit": "cookies",
+                "ingredients": [],
+            }
+        ]
+
+        result = import_recipes(data, mode="add")
+
+        assert result.entity_counts["recipes"].failed == 1
+        assert "name" in result.errors[0].message.lower()
+
+    def test_import_recipes_validation_missing_yield(self, cleanup_test_ingredients):
+        """Test that missing yield fields trigger validation error."""
+        data = [
+            {
+                "name": "Test Cookies",
+                "category": "Cookies",
+                "ingredients": [],
+            }
+        ]
+
+        result = import_recipes(data, mode="add")
+
+        assert result.entity_counts["recipes"].failed == 1
+        assert "yield" in result.errors[0].message.lower()
+
+    def test_import_recipes_partial_success(
+        self, create_test_ingredients_for_recipes, cleanup_test_ingredients
+    ):
+        """Test that valid recipes are imported even when some fail."""
+        data = [
+            {
+                "name": "Test Chocolate Chip Cookies",
+                "category": "Cookies",
+                "yield_quantity": 24,
+                "yield_unit": "cookies",
+                "ingredients": [
+                    {"ingredient_slug": "recipe_test_flour", "quantity": 2.0, "unit": "cup"},
+                ],
+            },
+            {
+                "name": "Invalid Recipe",
+                "category": "Cookies",
+                "yield_quantity": 12,
+                "yield_unit": "cookies",
+                "ingredients": [
+                    {"ingredient_slug": "nonexistent_ingredient", "quantity": 1.0, "unit": "cup"},
+                ],
+            },
+            {
+                "name": "Test Sugar Cookies",
+                "category": "Cookies",
+                "yield_quantity": 18,
+                "yield_unit": "cookies",
+                "ingredients": [
+                    {"ingredient_slug": "recipe_test_sugar", "quantity": 1.0, "unit": "cup"},
+                ],
+            },
+        ]
+
+        result = import_recipes(data, mode="add")
+
+        # 2 added, 1 failed
+        assert result.entity_counts["recipes"].added == 2
+        assert result.entity_counts["recipes"].failed == 1
+
+    def test_import_recipes_dry_run_no_commit(
+        self, create_test_ingredients_for_recipes, cleanup_test_ingredients
+    ):
+        """Test that dry_run does not commit changes to database."""
+        data = [
+            {
+                "name": "Test Chocolate Chip Cookies",
+                "category": "Cookies",
+                "yield_quantity": 24,
+                "yield_unit": "cookies",
+                "ingredients": [
+                    {"ingredient_slug": "recipe_test_flour", "quantity": 2.0, "unit": "cup"},
+                ],
+            }
+        ]
+
+        result = import_recipes(data, mode="add", dry_run=True)
+
+        assert result.entity_counts["recipes"].added == 1
+        assert result.dry_run is True
+
+        # But nothing should be in the database
+        with session_scope() as session:
+            recipe = (
+                session.query(Recipe)
+                .filter(Recipe.name == "Test Chocolate Chip Cookies")
+                .first()
+            )
+            assert recipe is None
+
+    def test_import_recipes_with_optional_fields(
+        self, create_test_ingredients_for_recipes, cleanup_test_ingredients
+    ):
+        """Test import with all optional fields populated."""
+        data = [
+            {
+                "name": "Test Chocolate Chip Cookies",
+                "category": "Cookies",
+                "source": "Grandma's Recipe Box",
+                "yield_quantity": 24,
+                "yield_unit": "cookies",
+                "yield_description": "2-inch cookies",
+                "estimated_time_minutes": 45,
+                "notes": "Chill dough for best results",
+                "ingredients": [
+                    {
+                        "ingredient_slug": "recipe_test_flour",
+                        "quantity": 2.0,
+                        "unit": "cup",
+                        "notes": "sifted",
+                    },
+                ],
+            }
+        ]
+
+        result = import_recipes(data, mode="add")
+        assert result.entity_counts["recipes"].added == 1
+
+        with session_scope() as session:
+            recipe = (
+                session.query(Recipe)
+                .filter(Recipe.name == "Test Chocolate Chip Cookies")
+                .first()
+            )
+            assert recipe.source == "Grandma's Recipe Box"
+            assert recipe.yield_description == "2-inch cookies"
+            assert recipe.estimated_time_minutes == 45
+            assert recipe.notes == "Chill dough for best results"
+            assert recipe.recipe_ingredients[0].notes == "sifted"
