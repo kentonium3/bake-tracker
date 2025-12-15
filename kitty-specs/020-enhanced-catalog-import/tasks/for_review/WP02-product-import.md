@@ -8,7 +8,7 @@ subtasks:
   - "T012"
 title: "Product Import"
 phase: "Phase 1 - Foundation"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "claude"
 shell_pid: "56445"
@@ -225,3 +225,4 @@ pytest src/tests/test_catalog_import_service.py::test_import_products_fk_validat
 
 - 2025-12-14T12:00:00Z - system - lane=planned - Prompt created via /spec-kitty.tasks
 - 2025-12-15T02:48:40Z – claude – shell_pid=56445 – lane=doing – Started implementation
+- 2025-12-15T02:51:01Z – claude – shell_pid=56445 – lane=for_review – Ready for review
