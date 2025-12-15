@@ -18,13 +18,13 @@
 **Prompt**: `tasks/planned/WP01-service-foundation-ingredient-import.md`
 
 ### Included Subtasks
-- [ ] T001 Create `src/services/catalog_import_service.py` with module docstring and imports
-- [ ] T002 Implement `CatalogImportResult` class with per-entity tracking
-- [ ] T003 Implement `import_ingredients()` function with ADD_ONLY mode
-- [ ] T004 Implement inline FK/unique validation for ingredients
-- [ ] T005 Create `src/tests/test_catalog_import_service.py` with ingredient tests
-- [ ] T006 [P] Test: `test_import_ingredients_add_mode` - new ingredients created
-- [ ] T007 [P] Test: `test_import_ingredients_skip_existing` - existing slugs skipped
+- [X] T001 Create `src/services/catalog_import_service.py` with module docstring and imports
+- [X] T002 Implement `CatalogImportResult` class with per-entity tracking
+- [X] T003 Implement `import_ingredients()` function with ADD_ONLY mode
+- [X] T004 Implement inline FK/unique validation for ingredients
+- [X] T005 Create `src/tests/test_catalog_import_service.py` with ingredient tests
+- [X] T006 [P] Test: `test_import_ingredients_add_mode` - new ingredients created
+- [X] T007 [P] Test: `test_import_ingredients_skip_existing` - existing slugs skipped
 
 ### Implementation Notes
 1. Follow `ImportResult` pattern from `import_export_service.py`
@@ -50,11 +50,11 @@
 **Prompt**: `tasks/planned/WP02-product-import.md`
 
 ### Included Subtasks
-- [ ] T008 Implement `import_products()` function with ADD_ONLY mode
-- [ ] T009 Implement ingredient_slug FK validation (lookup by slug)
-- [ ] T010 Handle composite unique key: (ingredient_id, brand)
-- [ ] T011 [P] Test: `test_import_products_add_mode` - new products created
-- [ ] T012 [P] Test: `test_import_products_fk_validation` - missing ingredient fails
+- [X] T008 Implement `import_products()` function with ADD_ONLY mode
+- [X] T009 Implement ingredient_slug FK validation (lookup by slug)
+- [X] T010 Handle composite unique key: (ingredient_id, brand)
+- [X] T011 [P] Test: `test_import_products_add_mode` - new products created
+- [X] T012 [P] Test: `test_import_products_fk_validation` - missing ingredient fails
 
 ### Implementation Notes
 1. Lookup ingredient by slug before creating product
@@ -79,15 +79,15 @@
 **Prompt**: `tasks/planned/WP03-recipe-import.md`
 
 ### Included Subtasks
-- [ ] T013 Implement `import_recipes()` function with ADD_ONLY mode
-- [ ] T014 Implement ingredient_slug FK validation for RecipeIngredient
-- [ ] T015 Implement recipe_name FK validation for RecipeComponent
-- [ ] T016 Implement circular reference detection for nested recipes
-- [ ] T017 Implement name collision detection with detailed error message
-- [ ] T018 [P] Test: `test_import_recipes_add_mode` - new recipes created
-- [ ] T019 [P] Test: `test_import_recipes_fk_validation` - missing ingredient fails
-- [ ] T020 [P] Test: `test_import_recipes_collision` - existing name rejected with detail
-- [ ] T021 Test: `test_import_recipes_circular_detection` - circular refs detected
+- [X] T013 Implement `import_recipes()` function with ADD_ONLY mode
+- [X] T014 Implement ingredient_slug FK validation for RecipeIngredient
+- [X] T015 Implement recipe_name FK validation for RecipeComponent
+- [X] T016 Implement circular reference detection for nested recipes
+- [X] T017 Implement name collision detection with detailed error message
+- [X] T018 [P] Test: `test_import_recipes_add_mode` - new recipes created
+- [X] T019 [P] Test: `test_import_recipes_fk_validation` - missing ingredient fails
+- [X] T020 [P] Test: `test_import_recipes_collision` - existing name rejected with detail
+- [X] T021 Test: `test_import_recipes_circular_detection` - circular refs detected
 
 ### Implementation Notes
 1. Unique key for recipes: `name` (not slug - matches model)
@@ -113,15 +113,15 @@
 **Prompt**: `tasks/planned/WP04-augment-mode.md`
 
 ### Included Subtasks
-- [ ] T022 Add mode parameter to `import_ingredients()` with AUGMENT logic
-- [ ] T023 Implement protected vs augmentable field handling for ingredients
-- [ ] T024 Add mode parameter to `import_products()` with AUGMENT logic
-- [ ] T025 Implement protected vs augmentable field handling for products
-- [ ] T026 Add AUGMENT rejection to `import_recipes()` with clear error
-- [ ] T027 [P] Test: `test_import_ingredients_augment_mode` - null fields updated
-- [ ] T028 [P] Test: `test_import_ingredients_augment_preserves_existing` - non-null unchanged
-- [ ] T029 [P] Test: `test_import_products_augment_mode`
-- [ ] T030 Test: `test_import_recipes_augment_rejected` - AUGMENT mode returns error
+- [X] T022 Add mode parameter to `import_ingredients()` with AUGMENT logic
+- [X] T023 Implement protected vs augmentable field handling for ingredients
+- [X] T024 Add mode parameter to `import_products()` with AUGMENT logic
+- [X] T025 Implement protected vs augmentable field handling for products
+- [X] T026 Add AUGMENT rejection to `import_recipes()` with clear error
+- [X] T027 [P] Test: `test_import_ingredients_augment_mode` - null fields updated
+- [X] T028 [P] Test: `test_import_ingredients_augment_preserves_existing` - non-null unchanged
+- [X] T029 [P] Test: `test_import_products_augment_mode`
+- [X] T030 Test: `test_import_recipes_augment_rejected` - AUGMENT mode returns error
 
 ### Implementation Notes
 1. Protected ingredient fields: `slug`, `display_name`
@@ -148,15 +148,15 @@
 **Prompt**: `tasks/planned/WP05-coordinator-and-dry-run.md`
 
 ### Included Subtasks
-- [ ] T031 Implement `validate_catalog_file()` with format detection
-- [ ] T032 Implement `import_catalog()` coordinator function
-- [ ] T033 Process entities in dependency order: ingredients -> products -> recipes
-- [ ] T034 Implement entity filter parameter (process only specified types)
-- [ ] T035 Implement dry-run mode: validate all, rollback changes
-- [ ] T036 [P] Test: `test_validate_catalog_file_format_detection`
-- [ ] T037 [P] Test: `test_import_catalog_dependency_order`
-- [ ] T038 Test: `test_dry_run_no_commit` - database unchanged after dry-run
-- [ ] T039 Test: `test_partial_success` - valid records committed, failures reported
+- [X] T031 Implement `validate_catalog_file()` with format detection
+- [X] T032 Implement `import_catalog()` coordinator function
+- [X] T033 Process entities in dependency order: ingredients -> products -> recipes
+- [X] T034 Implement entity filter parameter (process only specified types)
+- [X] T035 Implement dry-run mode: validate all, rollback changes
+- [X] T036 [P] Test: `test_validate_catalog_file_format_detection`
+- [X] T037 [P] Test: `test_import_catalog_dependency_order`
+- [X] T038 Test: `test_dry_run_no_commit` - database unchanged after dry-run
+- [X] T039 Test: `test_partial_success` - valid records committed, failures reported
 
 ### Implementation Notes
 1. Format detection: `catalog_version` -> catalog import, `version: "3.x"` -> error with guidance
@@ -182,16 +182,16 @@
 **Prompt**: `tasks/planned/WP06-cli-implementation.md`
 
 ### Included Subtasks
-- [ ] T040 Create `src/utils/import_catalog.py` with argparse setup
-- [ ] T041 Implement --mode flag (add/augment)
-- [ ] T042 Implement --entity flag (ingredients/products/recipes, repeatable)
-- [ ] T043 Implement --dry-run flag
-- [ ] T044 Implement --verbose flag for detailed output
-- [ ] T045 Implement exit codes: 0=success, 1=partial, 2=failure, 3=invalid args
-- [ ] T046 Format and print CatalogImportResult summary
-- [ ] T047 [P] Test: `test_cli_add_mode` - full CLI flow
-- [ ] T048 [P] Test: `test_cli_dry_run` - preview output
-- [ ] T049 Test: `test_cli_verbose` - detailed output
+- [X] T040 Create `src/utils/import_catalog.py` with argparse setup
+- [X] T041 Implement --mode flag (add/augment)
+- [X] T042 Implement --entity flag (ingredients/products/recipes, repeatable)
+- [X] T043 Implement --dry-run flag
+- [X] T044 Implement --verbose flag for detailed output
+- [X] T045 Implement exit codes: 0=success, 1=partial, 2=failure, 3=invalid args
+- [X] T046 Format and print CatalogImportResult summary
+- [X] T047 [P] Test: `test_cli_add_mode` - full CLI flow
+- [X] T048 [P] Test: `test_cli_dry_run` - preview output
+- [X] T049 Test: `test_cli_verbose` - detailed output
 
 ### Implementation Notes
 1. Follow pattern from `import_export_cli.py`
@@ -217,18 +217,18 @@
 **Prompt**: `tasks/planned/WP07-ui-dialog.md`
 
 ### Included Subtasks
-- [ ] T050 Create `src/ui/catalog_import_dialog.py` based on ImportDialog pattern
-- [ ] T051 Implement file picker filtered to .json
-- [ ] T052 Implement mode radio buttons (Add Only / Augment)
-- [ ] T053 Implement entity checkboxes (Ingredients / Products / Recipes)
-- [ ] T054 Disable Augment radio when Recipes checkbox selected
-- [ ] T055 Implement dry-run checkbox with "Preview..." button label
-- [ ] T056 Implement import execution and progress indication
-- [ ] T057 Create results summary dialog with counts per entity
-- [ ] T058 Add expandable Details section for errors
-- [ ] T059 Modify `src/ui/main_window.py` to add "Import Catalog..." menu item
-- [ ] T060 Wire menu item to open CatalogImportDialog
-- [ ] T061 Refresh affected tabs after successful import
+- [X] T050 Create `src/ui/catalog_import_dialog.py` based on ImportDialog pattern
+- [X] T051 Implement file picker filtered to .json
+- [X] T052 Implement mode radio buttons (Add Only / Augment)
+- [X] T053 Implement entity checkboxes (Ingredients / Products / Recipes)
+- [X] T054 Disable Augment radio when Recipes checkbox selected
+- [X] T055 Implement dry-run checkbox with "Preview..." button label
+- [X] T056 Implement import execution and progress indication
+- [X] T057 Create results summary dialog with counts per entity
+- [X] T058 Add expandable Details section for errors
+- [X] T059 Modify `src/ui/main_window.py` to add "Import Catalog..." menu item
+- [X] T060 Wire menu item to open CatalogImportDialog
+- [X] T061 Refresh affected tabs after successful import
 
 ### Implementation Notes
 1. Follow `ImportDialog` class structure from `import_export_dialog.py`
@@ -254,13 +254,13 @@
 **Prompt**: `tasks/planned/WP08-integration-and-polish.md`
 
 ### Included Subtasks
-- [ ] T062 End-to-end test: Import 160-ingredient catalog via CLI
-- [ ] T063 End-to-end test: Import via UI
-- [ ] T064 Verify SC-010: Import completes in under 30 seconds
-- [ ] T065 Review and refine error message wording
-- [ ] T066 Verify existing unified import/export unchanged (SC-006)
-- [ ] T067 Update quickstart.md with final verified commands
-- [ ] T068 Run test coverage report, ensure >70% on service layer
+- [X] T062 End-to-end test: Import 160-ingredient catalog via CLI
+- [X] T063 End-to-end test: Import via UI
+- [X] T064 Verify SC-010: Import completes in under 30 seconds
+- [X] T065 Review and refine error message wording
+- [X] T066 Verify existing unified import/export unchanged (SC-006)
+- [X] T067 Update quickstart.md with final verified commands
+- [X] T068 Run test coverage report, ensure >70% on service layer
 
 ### Implementation Notes
 1. Use `test_data/baking_ingredients_v33.json` for 160-ingredient test
