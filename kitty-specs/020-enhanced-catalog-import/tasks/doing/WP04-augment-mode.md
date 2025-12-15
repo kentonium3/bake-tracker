@@ -12,10 +12,10 @@ subtasks:
   - "T030"
 title: "AUGMENT Mode"
 phase: "Phase 2 - Features"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "claude"
+shell_pid: "56445"
 review_status: ""
 reviewed_by: ""
 history:
@@ -296,3 +296,4 @@ pytest src/tests/test_catalog_import_service.py -k "augment" -v
 ## Activity Log
 
 - 2025-12-14T12:00:00Z - system - lane=planned - Prompt created via /spec-kitty.tasks
+- 2025-12-15T02:54:46Z – claude – shell_pid=56445 – lane=doing – Started implementation
