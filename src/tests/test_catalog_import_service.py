@@ -1788,3 +1788,280 @@ class TestImportCatalog:
         with pytest.raises(CatalogImportError) as exc_info:
             import_catalog("/nonexistent", entities=["invalid_type"])
         assert "Invalid entity types" in str(exc_info.value)
+
+
+# ============================================================================
+# CLI Tests
+# ============================================================================
+
+
+class TestCLI:
+    """Tests for the import_catalog CLI."""
+
+    def test_cli_add_mode(self, cleanup_test_ingredients):
+        """[T047] Test full CLI flow in add mode."""
+        from src.utils.import_catalog import main, EXIT_SUCCESS
+
+        # Create temp catalog file
+        catalog_data = {
+            "catalog_version": "1.0",
+            "ingredients": [
+                {
+                    "slug": "test_flour",
+                    "display_name": "Test Flour",
+                    "category": "Flour",
+                },
+                {
+                    "slug": "test_sugar",
+                    "display_name": "Test Sugar",
+                    "category": "Sugar",
+                },
+            ],
+        }
+
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
+            json.dump(catalog_data, f)
+            temp_path = f.name
+
+        try:
+            # Run CLI
+            exit_code = main([temp_path, "--mode=add"])
+
+            # Verify exit code
+            assert exit_code == EXIT_SUCCESS
+
+            # Verify records in database
+            with session_scope() as session:
+                flour = (
+                    session.query(Ingredient)
+                    .filter(Ingredient.slug == "test_flour")
+                    .first()
+                )
+                sugar = (
+                    session.query(Ingredient)
+                    .filter(Ingredient.slug == "test_sugar")
+                    .first()
+                )
+                assert flour is not None
+                assert sugar is not None
+        finally:
+            os.unlink(temp_path)
+
+    def test_cli_dry_run(self, cleanup_test_ingredients):
+        """[T048] Test CLI dry-run produces output but no changes."""
+        from src.utils.import_catalog import main, EXIT_SUCCESS
+        import io
+        import sys
+
+        # Create temp catalog file
+        catalog_data = {
+            "catalog_version": "1.0",
+            "ingredients": [
+                {
+                    "slug": "test_flour",
+                    "display_name": "Test Flour",
+                    "category": "Flour",
+                },
+            ],
+        }
+
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
+            json.dump(catalog_data, f)
+            temp_path = f.name
+
+        try:
+            # Capture stdout
+            captured_output = io.StringIO()
+            old_stdout = sys.stdout
+            sys.stdout = captured_output
+
+            try:
+                # Run CLI with --dry-run
+                exit_code = main([temp_path, "--dry-run"])
+            finally:
+                sys.stdout = old_stdout
+
+            output = captured_output.getvalue()
+
+            # Verify exit code
+            assert exit_code == EXIT_SUCCESS
+
+            # Verify dry-run header appears
+            assert "DRY RUN" in output
+
+            # Verify output shows adds
+            assert "1 added" in output or "Added:" in output
+
+            # Verify database unchanged
+            with session_scope() as session:
+                flour = (
+                    session.query(Ingredient)
+                    .filter(Ingredient.slug == "test_flour")
+                    .first()
+                )
+                assert flour is None  # Should NOT exist because dry-run
+        finally:
+            os.unlink(temp_path)
+
+    def test_cli_verbose(self, cleanup_test_ingredients):
+        """[T049] Test verbose mode shows details."""
+        from src.utils.import_catalog import main
+        import io
+        import sys
+
+        # Pre-create an ingredient to trigger a skip
+        with session_scope() as session:
+            existing = Ingredient(
+                slug="test_flour",
+                display_name="Existing Flour",
+                category="Flour",
+            )
+            session.add(existing)
+
+        # Create temp catalog file with mix of new/existing
+        catalog_data = {
+            "catalog_version": "1.0",
+            "ingredients": [
+                {
+                    "slug": "test_flour",  # Will be skipped (already exists)
+                    "display_name": "Test Flour",
+                    "category": "Flour",
+                },
+                {
+                    "slug": "test_sugar",  # Will be added
+                    "display_name": "Test Sugar",
+                    "category": "Sugar",
+                },
+            ],
+        }
+
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
+            json.dump(catalog_data, f)
+            temp_path = f.name
+
+        try:
+            # Capture stdout
+            captured_output = io.StringIO()
+            old_stdout = sys.stdout
+            sys.stdout = captured_output
+
+            try:
+                # Run CLI with --verbose
+                exit_code = main([temp_path, "--verbose"])
+            finally:
+                sys.stdout = old_stdout
+
+            output = captured_output.getvalue()
+
+            # Verify we got some output
+            assert len(output) > 0
+
+            # Verbose should show skip details
+            assert "Skipped" in output or "skipped" in output
+
+        finally:
+            os.unlink(temp_path)
+
+    def test_cli_file_not_found(self):
+        """Test CLI returns EXIT_INVALID_ARGS for non-existent file."""
+        from src.utils.import_catalog import main, EXIT_INVALID_ARGS
+        import io
+        import sys
+
+        # Capture stderr
+        captured_err = io.StringIO()
+        old_stderr = sys.stderr
+        sys.stderr = captured_err
+
+        try:
+            exit_code = main(["/nonexistent/catalog.json"])
+        finally:
+            sys.stderr = old_stderr
+
+        assert exit_code == EXIT_INVALID_ARGS
+        assert "not found" in captured_err.getvalue().lower() or "Error" in captured_err.getvalue()
+
+    def test_cli_partial_failure(self, cleanup_test_ingredients):
+        """Test CLI returns EXIT_PARTIAL when some records fail."""
+        from src.utils.import_catalog import main, EXIT_PARTIAL
+
+        # Create temp catalog file with valid ingredient and invalid product
+        catalog_data = {
+            "catalog_version": "1.0",
+            "ingredients": [
+                {
+                    "slug": "test_flour",
+                    "display_name": "Test Flour",
+                    "category": "Flour",
+                },
+            ],
+            "products": [
+                {
+                    # This will fail - references non-existent ingredient
+                    "ingredient_slug": "nonexistent_ingredient",
+                    "brand": "Bad Brand",
+                    "purchase_unit": "bag",
+                    "purchase_quantity": 5.0,
+                }
+            ],
+        }
+
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
+            json.dump(catalog_data, f)
+            temp_path = f.name
+
+        try:
+            exit_code = main([temp_path])
+
+            # Should return partial because ingredient succeeded but product failed
+            assert exit_code == EXIT_PARTIAL
+        finally:
+            os.unlink(temp_path)
+
+    def test_cli_entity_filter(self, cleanup_test_ingredients):
+        """Test CLI --entity flag filters entities."""
+        from src.utils.import_catalog import main, EXIT_SUCCESS
+
+        # Create temp catalog file
+        catalog_data = {
+            "catalog_version": "1.0",
+            "ingredients": [
+                {
+                    "slug": "test_flour",
+                    "display_name": "Test Flour",
+                    "category": "Flour",
+                },
+            ],
+            "products": [
+                {
+                    "ingredient_slug": "test_flour",
+                    "brand": "Test Brand",
+                    "purchase_unit": "bag",
+                    "purchase_quantity": 5.0,
+                }
+            ],
+        }
+
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
+            json.dump(catalog_data, f)
+            temp_path = f.name
+
+        try:
+            # Import only ingredients
+            exit_code = main([temp_path, "--entity=ingredients"])
+            assert exit_code == EXIT_SUCCESS
+
+            # Verify only ingredients imported
+            with session_scope() as session:
+                flour = (
+                    session.query(Ingredient)
+                    .filter(Ingredient.slug == "test_flour")
+                    .first()
+                )
+                assert flour is not None
+
+                # Products should NOT exist (not imported)
+                products = session.query(Product).filter(Product.ingredient_id == flour.id).all()
+                assert len(products) == 0
+        finally:
+            os.unlink(temp_path)
