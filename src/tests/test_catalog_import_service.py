@@ -11,9 +11,11 @@ from src.services.catalog_import_service import (
     CatalogImportResult,
     ImportMode,
     import_ingredients,
+    import_products,
 )
 from src.services.database import session_scope
 from src.models.ingredient import Ingredient
+from src.models.product import Product
 
 
 # ============================================================================
@@ -65,10 +67,54 @@ def cleanup_test_ingredients():
             "new_ingredient_1",
             "new_ingredient_2",
             "invalid_ingredient",
+            "product_test_flour",
+            "product_test_sugar",
         ]
+        # Delete products first due to FK constraint
+        session.query(Product).filter(
+            Product.ingredient_id.in_(
+                session.query(Ingredient.id).filter(Ingredient.slug.in_(test_slugs))
+            )
+        ).delete(synchronize_session=False)
         session.query(Ingredient).filter(Ingredient.slug.in_(test_slugs)).delete(
             synchronize_session=False
         )
+
+
+@pytest.fixture
+def sample_product_data():
+    """Sample product data for testing (requires existing ingredient)."""
+    return [
+        {
+            "ingredient_slug": "product_test_flour",
+            "brand": "King Arthur",
+            "package_size": "5 lb",
+            "package_type": "bag",
+            "purchase_unit": "bag",
+            "purchase_quantity": 5.0,
+        },
+        {
+            "ingredient_slug": "product_test_flour",
+            "brand": "Bob's Red Mill",
+            "package_size": "2 lb",
+            "purchase_unit": "bag",
+            "purchase_quantity": 2.0,
+        },
+    ]
+
+
+@pytest.fixture
+def create_test_ingredient_for_products():
+    """Create a test ingredient for product import tests."""
+    with session_scope() as session:
+        ingredient = Ingredient(
+            slug="product_test_flour",
+            display_name="Product Test Flour",
+            category="Flour",
+        )
+        session.add(ingredient)
+    yield
+    # Cleanup handled by cleanup_test_ingredients
 
 
 # ============================================================================
@@ -484,3 +530,302 @@ class TestImportIngredients:
                 .first()
             )
             assert flour is not None
+
+
+# ============================================================================
+# Product Import Tests
+# ============================================================================
+
+
+class TestImportProducts:
+    """Tests for import_products function."""
+
+    def test_import_products_add_mode_creates_new(
+        self,
+        sample_product_data,
+        create_test_ingredient_for_products,
+        cleanup_test_ingredients,
+    ):
+        """Test that new products are created correctly with valid FK."""
+        result = import_products(sample_product_data, mode="add")
+
+        # Verify counts
+        assert result.entity_counts["products"].added == 2
+        assert result.entity_counts["products"].skipped == 0
+        assert result.entity_counts["products"].failed == 0
+        assert result.has_errors is False
+
+        # Verify products exist in database with correct ingredient_id
+        with session_scope() as session:
+            ingredient = (
+                session.query(Ingredient)
+                .filter(Ingredient.slug == "product_test_flour")
+                .first()
+            )
+            assert ingredient is not None
+
+            products = (
+                session.query(Product)
+                .filter(Product.ingredient_id == ingredient.id)
+                .all()
+            )
+            assert len(products) == 2
+
+            # Verify product details
+            brands = {p.brand for p in products}
+            assert "King Arthur" in brands
+            assert "Bob's Red Mill" in brands
+
+    def test_import_products_fk_validation_fails_on_missing_ingredient(
+        self, cleanup_test_ingredients
+    ):
+        """Test that FK validation fails with actionable error when ingredient not found."""
+        data = [
+            {
+                "ingredient_slug": "nonexistent_ingredient",
+                "brand": "Test Brand",
+                "purchase_unit": "bag",
+                "purchase_quantity": 5.0,
+            }
+        ]
+
+        result = import_products(data, mode="add")
+
+        # Verify counts
+        assert result.entity_counts["products"].added == 0
+        assert result.entity_counts["products"].failed == 1
+        assert result.has_errors is True
+
+        # Verify error message format
+        assert len(result.errors) == 1
+        error = result.errors[0]
+        assert error.error_type == "fk_missing"
+        assert "nonexistent_ingredient" in error.message
+        assert "Import the ingredient first" in error.suggestion
+
+    def test_import_products_skip_existing(
+        self, create_test_ingredient_for_products, cleanup_test_ingredients
+    ):
+        """Test that existing products are skipped in ADD_ONLY mode."""
+        # First import creates the product
+        data = [
+            {
+                "ingredient_slug": "product_test_flour",
+                "brand": "Existing Brand",
+                "purchase_unit": "bag",
+                "purchase_quantity": 5.0,
+            }
+        ]
+        result1 = import_products(data, mode="add")
+        assert result1.entity_counts["products"].added == 1
+
+        # Second import should skip
+        result2 = import_products(data, mode="add")
+        assert result2.entity_counts["products"].added == 0
+        assert result2.entity_counts["products"].skipped == 1
+        assert "Already exists" in result2.warnings[0]
+
+    def test_import_products_null_brand_is_valid_unique_key(
+        self, create_test_ingredient_for_products, cleanup_test_ingredients
+    ):
+        """Test that null brand is handled correctly as a valid unique key."""
+        data = [
+            {
+                "ingredient_slug": "product_test_flour",
+                "brand": None,  # Generic product
+                "purchase_unit": "lb",
+                "purchase_quantity": 1.0,
+            }
+        ]
+
+        result = import_products(data, mode="add")
+        assert result.entity_counts["products"].added == 1
+
+        # Try to import again with null brand - should skip
+        result2 = import_products(data, mode="add")
+        assert result2.entity_counts["products"].skipped == 1
+
+    def test_import_products_different_brands_same_ingredient(
+        self, create_test_ingredient_for_products, cleanup_test_ingredients
+    ):
+        """Test that different brands for same ingredient are separate products."""
+        data = [
+            {
+                "ingredient_slug": "product_test_flour",
+                "brand": "Brand A",
+                "purchase_unit": "bag",
+                "purchase_quantity": 5.0,
+            },
+            {
+                "ingredient_slug": "product_test_flour",
+                "brand": "Brand B",
+                "purchase_unit": "bag",
+                "purchase_quantity": 5.0,
+            },
+            {
+                "ingredient_slug": "product_test_flour",
+                "brand": None,  # Generic
+                "purchase_unit": "lb",
+                "purchase_quantity": 1.0,
+            },
+        ]
+
+        result = import_products(data, mode="add")
+        assert result.entity_counts["products"].added == 3
+
+    def test_import_products_validation_missing_purchase_unit(
+        self, create_test_ingredient_for_products, cleanup_test_ingredients
+    ):
+        """Test that missing purchase_unit triggers validation error."""
+        data = [
+            {
+                "ingredient_slug": "product_test_flour",
+                "brand": "Test Brand",
+                "purchase_quantity": 5.0,
+                # Missing purchase_unit
+            }
+        ]
+
+        result = import_products(data, mode="add")
+        assert result.entity_counts["products"].failed == 1
+        assert "purchase_unit" in result.errors[0].message.lower()
+
+    def test_import_products_validation_missing_purchase_quantity(
+        self, create_test_ingredient_for_products, cleanup_test_ingredients
+    ):
+        """Test that missing purchase_quantity triggers validation error."""
+        data = [
+            {
+                "ingredient_slug": "product_test_flour",
+                "brand": "Test Brand",
+                "purchase_unit": "bag",
+                # Missing purchase_quantity
+            }
+        ]
+
+        result = import_products(data, mode="add")
+        assert result.entity_counts["products"].failed == 1
+        assert "purchase_quantity" in result.errors[0].message.lower()
+
+    def test_import_products_partial_success(
+        self, create_test_ingredient_for_products, cleanup_test_ingredients
+    ):
+        """Test that valid products are imported even when some fail."""
+        data = [
+            {
+                "ingredient_slug": "product_test_flour",
+                "brand": "Valid Brand",
+                "purchase_unit": "bag",
+                "purchase_quantity": 5.0,
+            },
+            {
+                # Missing ingredient_slug - will fail
+                "brand": "Invalid Brand",
+                "purchase_unit": "bag",
+                "purchase_quantity": 5.0,
+            },
+            {
+                "ingredient_slug": "product_test_flour",
+                "brand": "Another Valid Brand",
+                "purchase_unit": "bag",
+                "purchase_quantity": 2.0,
+            },
+        ]
+
+        result = import_products(data, mode="add")
+        assert result.entity_counts["products"].added == 2
+        assert result.entity_counts["products"].failed == 1
+
+    def test_import_products_dry_run_no_commit(
+        self,
+        sample_product_data,
+        create_test_ingredient_for_products,
+        cleanup_test_ingredients,
+    ):
+        """Test that dry_run does not commit changes to database."""
+        result = import_products(sample_product_data, mode="add", dry_run=True)
+
+        assert result.entity_counts["products"].added == 2
+        assert result.dry_run is True
+
+        # But nothing should be in the database
+        with session_scope() as session:
+            ingredient = (
+                session.query(Ingredient)
+                .filter(Ingredient.slug == "product_test_flour")
+                .first()
+            )
+            products = (
+                session.query(Product)
+                .filter(Product.ingredient_id == ingredient.id)
+                .all()
+            )
+            assert len(products) == 0
+
+    def test_import_products_with_optional_fields(
+        self, create_test_ingredient_for_products, cleanup_test_ingredients
+    ):
+        """Test import with all optional fields populated."""
+        data = [
+            {
+                "ingredient_slug": "product_test_flour",
+                "brand": "Full Featured Brand",
+                "package_size": "25 lb",
+                "package_type": "bag",
+                "purchase_unit": "bag",
+                "purchase_quantity": 25.0,
+                "upc_code": "123456789012",
+                "preferred": True,
+            }
+        ]
+
+        result = import_products(data, mode="add")
+        assert result.entity_counts["products"].added == 1
+
+        with session_scope() as session:
+            ingredient = (
+                session.query(Ingredient)
+                .filter(Ingredient.slug == "product_test_flour")
+                .first()
+            )
+            product = (
+                session.query(Product)
+                .filter(Product.ingredient_id == ingredient.id)
+                .first()
+            )
+            assert product.brand == "Full Featured Brand"
+            assert product.package_size == "25 lb"
+            assert product.package_type == "bag"
+            assert product.upc_code == "123456789012"
+            assert product.preferred is True
+
+    def test_import_products_with_session_parameter(
+        self, create_test_ingredient_for_products, cleanup_test_ingredients
+    ):
+        """Test that session parameter works for transactional composition."""
+        data = [
+            {
+                "ingredient_slug": "product_test_flour",
+                "brand": "Session Test Brand",
+                "purchase_unit": "bag",
+                "purchase_quantity": 5.0,
+            }
+        ]
+
+        with session_scope() as session:
+            result = import_products(data, mode="add", session=session)
+            assert result.entity_counts["products"].added == 1
+
+            # Within the same session, we can query the new product
+            ingredient = (
+                session.query(Ingredient)
+                .filter(Ingredient.slug == "product_test_flour")
+                .first()
+            )
+            product = (
+                session.query(Product)
+                .filter(Product.ingredient_id == ingredient.id)
+                .first()
+            )
+            assert product is not None
+            assert product.brand == "Session Test Brand"

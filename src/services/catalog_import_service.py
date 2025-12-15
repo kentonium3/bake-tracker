@@ -21,6 +21,7 @@ from sqlalchemy.orm import Session
 
 from src.services.database import session_scope
 from src.models.ingredient import Ingredient
+from src.models.product import Product
 
 
 # ============================================================================
@@ -408,6 +409,160 @@ def _validate_ingredient_data(item: Dict) -> Optional[Dict]:
         return {
             "message": "Invalid slug: must be non-empty string",
             "suggestion": "Provide a valid slug identifier (e.g., 'brown_sugar')",
+        }
+
+    return None
+
+
+# ============================================================================
+# Product Import Functions
+# ============================================================================
+
+
+def import_products(
+    data: List[Dict],
+    mode: str = "add",
+    dry_run: bool = False,
+    session: Optional[Session] = None,
+) -> CatalogImportResult:
+    """
+    Import products from parsed data.
+
+    Validates ingredient_slug FK references before creating products.
+    Independently callable for future integrations (UPC databases).
+    Uses the session=None pattern for transactional composition.
+
+    Args:
+        data: List of product dictionaries from catalog file
+        mode: "add" (ADD_ONLY) or "augment" (AUGMENT mode)
+        dry_run: If True, validate and preview without committing
+        session: Optional SQLAlchemy session for transactional composition
+
+    Returns:
+        CatalogImportResult with counts and any errors
+    """
+    if session is not None:
+        return _import_products_impl(data, mode, dry_run, session)
+    with session_scope() as sess:
+        return _import_products_impl(data, mode, dry_run, sess)
+
+
+def _import_products_impl(
+    data: List[Dict],
+    mode: str,
+    dry_run: bool,
+    session: Session,
+) -> CatalogImportResult:
+    """Internal implementation of product import."""
+    result = CatalogImportResult()
+    result.dry_run = dry_run
+    result.mode = mode
+
+    # Build ingredient slug -> id lookup for FK validation
+    slug_to_id = {
+        row.slug: row.id
+        for row in session.query(Ingredient.slug, Ingredient.id).filter(
+            Ingredient.slug.isnot(None)
+        ).all()
+    }
+
+    # Build existing products lookup for uniqueness check
+    # Unique key is (ingredient_id, brand) where brand can be None
+    existing_products = {
+        (row.ingredient_id, row.brand)
+        for row in session.query(Product.ingredient_id, Product.brand).all()
+    }
+
+    for item in data:
+        # Extract fields for identification and validation
+        ingredient_slug = item.get("ingredient_slug", "")
+        brand = item.get("brand")  # Can be None
+        identifier = f"{brand or 'Generic'} ({ingredient_slug})"
+
+        # Validate required fields
+        validation_error = _validate_product_data(item)
+        if validation_error:
+            result.add_error(
+                "products",
+                identifier,
+                "validation",
+                validation_error["message"],
+                validation_error["suggestion"],
+            )
+            continue
+
+        # FK validation: check ingredient exists
+        ingredient_id = slug_to_id.get(ingredient_slug)
+        if ingredient_id is None:
+            result.add_error(
+                "products",
+                identifier,
+                "fk_missing",
+                f"Ingredient '{ingredient_slug}' not found",
+                "Import the ingredient first or check the slug spelling",
+            )
+            continue
+
+        # Check for existing product with same (ingredient_id, brand)
+        if (ingredient_id, brand) in existing_products:
+            if mode == ImportMode.ADD_ONLY.value:
+                result.add_skip("products", identifier, "Already exists")
+                continue
+            # AUGMENT mode will be implemented in WP04
+            result.add_skip("products", identifier, "Already exists (augment mode pending WP04)")
+            continue
+
+        # Create new product
+        product = Product(
+            ingredient_id=ingredient_id,
+            brand=brand,
+            package_size=item.get("package_size"),
+            package_type=item.get("package_type"),
+            purchase_unit=item.get("purchase_unit"),
+            purchase_quantity=item.get("purchase_quantity"),
+            upc_code=item.get("upc_code"),
+            preferred=item.get("preferred", False),
+        )
+        session.add(product)
+        result.add_success("products")
+
+        # Track to prevent duplicates within same import
+        existing_products.add((ingredient_id, brand))
+
+    # Handle dry-run: rollback instead of commit
+    if dry_run:
+        session.rollback()
+
+    return result
+
+
+def _validate_product_data(item: Dict) -> Optional[Dict]:
+    """
+    Validate product data before creation.
+
+    Args:
+        item: Product dictionary from catalog file
+
+    Returns:
+        None if valid, or dict with 'message' and 'suggestion' keys if invalid
+    """
+    # Check required fields
+    if not item.get("ingredient_slug"):
+        return {
+            "message": "Missing required field: ingredient_slug",
+            "suggestion": "Add 'ingredient_slug' field referencing an existing ingredient",
+        }
+
+    if not item.get("purchase_unit"):
+        return {
+            "message": "Missing required field: purchase_unit",
+            "suggestion": "Add 'purchase_unit' field (e.g., 'bag', 'lb', 'oz')",
+        }
+
+    if item.get("purchase_quantity") is None:
+        return {
+            "message": "Missing required field: purchase_quantity",
+            "suggestion": "Add 'purchase_quantity' field (e.g., 25, 5.0)",
         }
 
     return None
