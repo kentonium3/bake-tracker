@@ -9,10 +9,13 @@ import pytest
 from src.services import catalog_import_service
 from src.services.catalog_import_service import (
     CatalogImportResult,
+    CatalogImportError,
     ImportMode,
     import_ingredients,
     import_products,
     import_recipes,
+    import_catalog,
+    validate_catalog_file,
 )
 from src.services.database import session_scope
 from src.models.ingredient import Ingredient
@@ -1490,3 +1493,298 @@ class TestImportRecipes:
             assert recipe.estimated_time_minutes == 45
             assert recipe.notes == "Chill dough for best results"
             assert recipe.recipe_ingredients[0].notes == "sifted"
+
+
+# ============================================================================
+# Coordinator and Dry-Run Tests
+# ============================================================================
+
+
+import json
+import tempfile
+import os
+
+
+class TestValidateCatalogFile:
+    """Tests for validate_catalog_file function."""
+
+    def test_valid_catalog_file(self):
+        """Test that valid catalog file is accepted."""
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
+            json.dump({"catalog_version": "1.0", "ingredients": []}, f)
+            temp_path = f.name
+
+        try:
+            data = validate_catalog_file(temp_path)
+            assert data["catalog_version"] == "1.0"
+        finally:
+            os.unlink(temp_path)
+
+    def test_file_not_found(self):
+        """Test that FileNotFoundError raised for missing file."""
+        with pytest.raises(FileNotFoundError):
+            validate_catalog_file("/nonexistent/path/file.json")
+
+    def test_invalid_json(self):
+        """Test that invalid JSON raises CatalogImportError."""
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
+            f.write("{ invalid json }")
+            temp_path = f.name
+
+        try:
+            with pytest.raises(CatalogImportError) as exc_info:
+                validate_catalog_file(temp_path)
+            assert "Invalid JSON" in str(exc_info.value)
+        finally:
+            os.unlink(temp_path)
+
+    def test_unified_import_format_rejected(self):
+        """Test that unified import format (v3.x) raises helpful error."""
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
+            json.dump({"version": "3.3", "data": {}}, f)
+            temp_path = f.name
+
+        try:
+            with pytest.raises(CatalogImportError) as exc_info:
+                validate_catalog_file(temp_path)
+            assert "unified import" in str(exc_info.value).lower()
+            assert "Import Data" in str(exc_info.value)
+        finally:
+            os.unlink(temp_path)
+
+    def test_unrecognized_format_rejected(self):
+        """Test that file without version markers is rejected."""
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
+            json.dump({"random": "data"}, f)
+            temp_path = f.name
+
+        try:
+            with pytest.raises(CatalogImportError) as exc_info:
+                validate_catalog_file(temp_path)
+            assert "Unrecognized" in str(exc_info.value)
+        finally:
+            os.unlink(temp_path)
+
+    def test_unsupported_catalog_version(self):
+        """Test that unsupported catalog version is rejected."""
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
+            json.dump({"catalog_version": "2.0"}, f)
+            temp_path = f.name
+
+        try:
+            with pytest.raises(CatalogImportError) as exc_info:
+                validate_catalog_file(temp_path)
+            assert "Unsupported catalog version" in str(exc_info.value)
+        finally:
+            os.unlink(temp_path)
+
+
+class TestImportCatalog:
+    """Tests for import_catalog coordinator function."""
+
+    def test_import_catalog_dependency_order(self, cleanup_test_ingredients):
+        """Test that entities are processed in correct dependency order."""
+        # Create catalog with product that references ingredient in same file
+        catalog_data = {
+            "catalog_version": "1.0",
+            "ingredients": [
+                {
+                    "slug": "test_flour",
+                    "display_name": "Test Flour",
+                    "category": "Flour",
+                }
+            ],
+            "products": [
+                {
+                    "ingredient_slug": "test_flour",
+                    "brand": "Test Brand",
+                    "purchase_unit": "bag",
+                    "purchase_quantity": 5.0,
+                }
+            ],
+        }
+
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
+            json.dump(catalog_data, f)
+            temp_path = f.name
+
+        try:
+            result = import_catalog(temp_path, mode="add")
+
+            # Both should be created because ingredients processed first
+            assert result.entity_counts["ingredients"].added == 1
+            assert result.entity_counts["products"].added == 1
+            assert result.has_errors is False
+
+            # Verify in database
+            with session_scope() as session:
+                ingredient = (
+                    session.query(Ingredient)
+                    .filter(Ingredient.slug == "test_flour")
+                    .first()
+                )
+                assert ingredient is not None
+                product = (
+                    session.query(Product)
+                    .filter(Product.ingredient_id == ingredient.id)
+                    .first()
+                )
+                assert product is not None
+        finally:
+            os.unlink(temp_path)
+
+    def test_dry_run_no_commit(self, cleanup_test_ingredients):
+        """Test that dry_run makes no database changes."""
+        # Get initial counts
+        with session_scope() as session:
+            initial_count = session.query(Ingredient).filter(
+                Ingredient.slug.like("catalog_test_%")
+            ).count()
+
+        # Create catalog with multiple ingredients
+        catalog_data = {
+            "catalog_version": "1.0",
+            "ingredients": [
+                {"slug": "catalog_test_1", "display_name": "Catalog Test 1", "category": "Test"},
+                {"slug": "catalog_test_2", "display_name": "Catalog Test 2", "category": "Test"},
+                {"slug": "catalog_test_3", "display_name": "Catalog Test 3", "category": "Test"},
+                {"slug": "catalog_test_4", "display_name": "Catalog Test 4", "category": "Test"},
+                {"slug": "catalog_test_5", "display_name": "Catalog Test 5", "category": "Test"},
+            ],
+        }
+
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
+            json.dump(catalog_data, f)
+            temp_path = f.name
+
+        try:
+            # Dry run - should show 5 added but not commit
+            result = import_catalog(temp_path, mode="add", dry_run=True)
+            assert result.entity_counts["ingredients"].added == 5
+            assert result.dry_run is True
+
+            # Verify nothing in database
+            with session_scope() as session:
+                count = session.query(Ingredient).filter(
+                    Ingredient.slug.like("catalog_test_%")
+                ).count()
+                assert count == initial_count  # No change
+
+            # Actual import - should commit
+            result = import_catalog(temp_path, mode="add", dry_run=False)
+            assert result.entity_counts["ingredients"].added == 5
+
+            # Verify in database
+            with session_scope() as session:
+                count = session.query(Ingredient).filter(
+                    Ingredient.slug.like("catalog_test_%")
+                ).count()
+                assert count == initial_count + 5
+
+            # Cleanup for test fixture
+            with session_scope() as session:
+                session.query(Ingredient).filter(
+                    Ingredient.slug.like("catalog_test_%")
+                ).delete(synchronize_session=False)
+        finally:
+            os.unlink(temp_path)
+
+    def test_partial_success(self, cleanup_test_ingredients):
+        """Test that valid records are committed even when some fail."""
+        catalog_data = {
+            "catalog_version": "1.0",
+            "ingredients": [
+                {"slug": "test_flour", "display_name": "Test Flour", "category": "Flour"},
+                {"slug": "test_sugar", "display_name": "Test Sugar", "category": "Sugar"},
+            ],
+            "products": [
+                {
+                    # This will fail - references non-existent ingredient
+                    "ingredient_slug": "nonexistent_ingredient",
+                    "brand": "Bad Brand",
+                    "purchase_unit": "bag",
+                    "purchase_quantity": 5.0,
+                }
+            ],
+        }
+
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
+            json.dump(catalog_data, f)
+            temp_path = f.name
+
+        try:
+            result = import_catalog(temp_path, mode="add")
+
+            # Ingredients should succeed, product should fail
+            assert result.entity_counts["ingredients"].added == 2
+            assert result.entity_counts["products"].failed == 1
+            assert result.has_errors is True
+
+            # Verify ingredients in database
+            with session_scope() as session:
+                flour = (
+                    session.query(Ingredient)
+                    .filter(Ingredient.slug == "test_flour")
+                    .first()
+                )
+                sugar = (
+                    session.query(Ingredient)
+                    .filter(Ingredient.slug == "test_sugar")
+                    .first()
+                )
+                assert flour is not None
+                assert sugar is not None
+        finally:
+            os.unlink(temp_path)
+
+    def test_entity_filter(self, cleanup_test_ingredients):
+        """Test that entity filter limits which entities are imported."""
+        catalog_data = {
+            "catalog_version": "1.0",
+            "ingredients": [
+                {"slug": "test_flour", "display_name": "Test Flour", "category": "Flour"},
+            ],
+            "products": [
+                {
+                    "ingredient_slug": "test_flour",
+                    "brand": "Test Brand",
+                    "purchase_unit": "bag",
+                    "purchase_quantity": 5.0,
+                }
+            ],
+        }
+
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
+            json.dump(catalog_data, f)
+            temp_path = f.name
+
+        try:
+            # Import only ingredients
+            result = import_catalog(temp_path, mode="add", entities=["ingredients"])
+
+            assert result.entity_counts["ingredients"].added == 1
+            assert result.entity_counts["products"].added == 0  # Not imported
+
+            # Product should fail now because ingredient wasn't imported in products-only run
+            # But since we already imported ingredients, let's verify products weren't touched
+            with session_scope() as session:
+                ingredient = (
+                    session.query(Ingredient)
+                    .filter(Ingredient.slug == "test_flour")
+                    .first()
+                )
+                assert ingredient is not None
+                products = (
+                    session.query(Product)
+                    .filter(Product.ingredient_id == ingredient.id)
+                    .all()
+                )
+                assert len(products) == 0  # Products not imported
+        finally:
+            os.unlink(temp_path)
+
+    def test_invalid_entity_filter(self):
+        """Test that invalid entity types raise error."""
+        with pytest.raises(CatalogImportError) as exc_info:
+            import_catalog("/nonexistent", entities=["invalid_type"])
+        assert "Invalid entity types" in str(exc_info.value)

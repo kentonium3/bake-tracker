@@ -6,13 +6,18 @@ affecting transactional user data. This is separate from the unified
 import/export service to support catalog-specific workflows.
 
 Usage:
-    from src.services.catalog_import_service import import_ingredients
+    from src.services.catalog_import_service import import_catalog, validate_catalog_file
 
-    # Import ingredients from parsed catalog data
-    result = import_ingredients(ingredient_data, mode="add")
+    # Validate and import from catalog file
+    result = import_catalog("catalog.json", mode="add", dry_run=True)
     print(result.get_summary())
+
+    # Or import specific entities
+    result = import_catalog("catalog.json", entities=["ingredients", "products"])
 """
 
+import json
+from pathlib import Path
 from typing import Dict, List, Optional
 from dataclasses import dataclass, field
 from enum import Enum
@@ -23,6 +28,25 @@ from src.services.database import session_scope
 from src.models.ingredient import Ingredient
 from src.models.product import Product
 from src.models.recipe import Recipe, RecipeIngredient, RecipeComponent
+
+
+# ============================================================================
+# Exceptions
+# ============================================================================
+
+
+class CatalogImportError(Exception):
+    """Raised when catalog import fails due to file/format issues."""
+
+    pass
+
+
+# ============================================================================
+# Constants
+# ============================================================================
+
+# Valid entity types for import
+VALID_ENTITIES = {"ingredients", "products", "recipes"}
 
 
 # ============================================================================
@@ -999,3 +1023,144 @@ def _validate_recipe_data(item: Dict) -> Optional[Dict]:
             }
 
     return None
+
+
+# ============================================================================
+# File Validation and Coordinator Functions
+# ============================================================================
+
+
+def validate_catalog_file(file_path: str) -> Dict:
+    """
+    Load and validate a catalog file.
+
+    Detects file format and ensures it's the catalog format (not unified import).
+
+    Args:
+        file_path: Path to the JSON catalog file
+
+    Returns:
+        Parsed catalog data dictionary
+
+    Raises:
+        FileNotFoundError: If file doesn't exist
+        CatalogImportError: If format invalid or wrong type
+    """
+    path = Path(file_path)
+    if not path.exists():
+        raise FileNotFoundError(f"File not found: {file_path}")
+
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+    except json.JSONDecodeError as e:
+        raise CatalogImportError(f"Invalid JSON: {e}")
+
+    # Format detection
+    if "catalog_version" in data:
+        if data["catalog_version"] != "1.0":
+            raise CatalogImportError(
+                f"Unsupported catalog version: {data['catalog_version']}. Expected 1.0"
+            )
+        return data
+    elif "version" in data:
+        # This is a unified import file, not a catalog file
+        raise CatalogImportError(
+            "This appears to be a unified import file (v3.x format). "
+            "Use 'Import Data...' instead of 'Import Catalog...'"
+        )
+    else:
+        raise CatalogImportError(
+            "Unrecognized file format. Expected 'catalog_version' field."
+        )
+
+
+def import_catalog(
+    file_path: str,
+    mode: str = "add",
+    entities: Optional[List[str]] = None,
+    dry_run: bool = False,
+    session: Optional[Session] = None,
+) -> CatalogImportResult:
+    """
+    Import catalog from file.
+
+    Main entry point for catalog import. Validates file format, then
+    imports entities in dependency order (ingredients -> products -> recipes).
+
+    Args:
+        file_path: Path to the JSON catalog file
+        mode: "add" (ADD_ONLY) or "augment" (AUGMENT mode)
+        entities: Optional list of entity types to import (default: all)
+        dry_run: If True, validate and preview without committing
+        session: Optional SQLAlchemy session for transactional composition
+
+    Returns:
+        CatalogImportResult with combined counts from all entity types
+
+    Raises:
+        FileNotFoundError: If file doesn't exist
+        CatalogImportError: If format invalid or entity list invalid
+    """
+    # Validate entity list if provided
+    if entities:
+        invalid = set(entities) - VALID_ENTITIES
+        if invalid:
+            raise CatalogImportError(f"Invalid entity types: {invalid}")
+
+    # Load and validate file format
+    data = validate_catalog_file(file_path)
+
+    if session is not None:
+        return _import_catalog_impl(data, mode, entities, dry_run, session)
+    with session_scope() as sess:
+        result = _import_catalog_impl(data, mode, entities, dry_run, sess)
+        if dry_run:
+            sess.rollback()
+        return result
+
+
+def _import_catalog_impl(
+    data: Dict,
+    mode: str,
+    entities: Optional[List[str]],
+    dry_run: bool,
+    session: Session,
+) -> CatalogImportResult:
+    """
+    Internal implementation of catalog import.
+
+    Processes entities in dependency order to ensure FK references exist.
+    """
+    result = CatalogImportResult()
+    result.dry_run = dry_run
+    result.mode = mode
+
+    # Dependency order: ingredients first, then products, then recipes
+    # This ensures FK references exist when needed
+
+    # Import ingredients
+    if entities is None or "ingredients" in entities:
+        if "ingredients" in data:
+            ing_result = import_ingredients(
+                data["ingredients"], mode, dry_run=False, session=session
+            )
+            result.merge(ing_result)
+
+    # Import products (depends on ingredients)
+    if entities is None or "products" in entities:
+        if "products" in data:
+            prod_result = import_products(
+                data["products"], mode, dry_run=False, session=session
+            )
+            result.merge(prod_result)
+
+    # Import recipes (depends on ingredients)
+    if entities is None or "recipes" in entities:
+        if "recipes" in data:
+            recipe_result = import_recipes(
+                data["recipes"], mode, dry_run=False, session=session
+            )
+            result.merge(recipe_result)
+
+    return result
