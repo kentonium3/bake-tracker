@@ -232,160 +232,152 @@
   "purchases": [
     {
       "ingredient_slug": "all_purpose_flour",
-      "variant_brand": "King Arthur",
-      "purchase_date": "2024-10-15",
-      "quantity": 1,
-      "unit_price": 18.99,
-      "store": "Costco",
+      "product_brand": "King Arthur",
+      "purchased_at": "2024-10-15T00:00:00Z",
+      "quantity_purchased": 1,
+      "unit_cost": 18.99,
+      "total_cost": 18.99,
+      "supplier": "Costco",
       "notes": "Stock up purchase"
     },
     {
       "ingredient_slug": "all_purpose_flour",
-      "variant_brand": "King Arthur",
-      "purchase_date": "2024-11-05",
-      "quantity": 2,
-      "unit_price": 19.99,
-      "store": "Costco",
+      "product_brand": "King Arthur",
+      "purchased_at": "2024-11-05T00:00:00Z",
+      "quantity_purchased": 2,
+      "unit_cost": 19.99,
+      "total_cost": 39.98,
+      "supplier": "Costco",
       "notes": "Price increase from last time"
     },
     {
       "ingredient_slug": "white_granulated_sugar",
-      "variant_brand": "Domino",
-      "purchase_date": "2024-10-15",
-      "quantity": 1,
-      "unit_price": 16.99,
-      "store": "Costco"
+      "product_brand": "Domino",
+      "purchased_at": "2024-10-15T00:00:00Z",
+      "quantity_purchased": 1,
+      "unit_cost": 16.99,
+      "total_cost": 16.99,
+      "supplier": "Costco"
     },
     {
       "ingredient_slug": "semi_sweet_chocolate_chips",
-      "variant_brand": "Nestle Toll House",
-      "purchase_date": "2024-10-20",
-      "quantity": 1,
-      "unit_price": 12.99,
-      "store": "Costco"
+      "product_brand": "Nestle Toll House",
+      "purchased_at": "2024-10-20T00:00:00Z",
+      "quantity_purchased": 1,
+      "unit_cost": 12.99,
+      "total_cost": 12.99,
+      "supplier": "Costco"
     },
     {
       "ingredient_slug": "unsalted_butter",
-      "variant_brand": "Kirkland",
-      "purchase_date": "2024-11-01",
-      "quantity": 2,
-      "unit_price": 14.99,
-      "store": "Costco"
+      "product_brand": "Kirkland",
+      "purchased_at": "2024-11-01T00:00:00Z",
+      "quantity_purchased": 2,
+      "unit_cost": 14.99,
+      "total_cost": 29.98,
+      "supplier": "Costco"
     }
   ],
   "inventory_items": [
     {
       "ingredient_slug": "all_purpose_flour",
-      "variant_brand": "King Arthur",
+      "product_brand": "King Arthur",
       "quantity": 1.5,
-      "unit": "lb",
-      "acquisition_date": "2024-10-15",
-      "unit_cost": 0.76,
+      "purchase_date": "2024-10-15",
+      "location": "Pantry",
       "notes": "Opened bag from October purchase"
     },
     {
       "ingredient_slug": "all_purpose_flour",
-      "variant_brand": "King Arthur",
+      "product_brand": "King Arthur",
       "quantity": 2.0,
-      "unit": "lb",
-      "acquisition_date": "2024-11-05",
-      "unit_cost": 0.8,
+      "purchase_date": "2024-11-05",
+      "location": "Pantry",
       "notes": "Unopened from November purchase"
     },
     {
       "ingredient_slug": "white_granulated_sugar",
-      "variant_brand": "Domino",
+      "product_brand": "Domino",
       "quantity": 0.75,
-      "unit": "lb",
-      "acquisition_date": "2024-10-15",
-      "unit_cost": 0.68,
+      "purchase_date": "2024-10-15",
+      "location": "Pantry",
       "notes": "Opened bag, about 3/4 remaining"
     },
     {
       "ingredient_slug": "semi_sweet_chocolate_chips",
-      "variant_brand": "Nestle Toll House",
+      "product_brand": "Nestle Toll House",
       "quantity": 36.0,
-      "unit": "oz",
-      "acquisition_date": "2024-10-20",
-      "unit_cost": 0.18,
+      "purchase_date": "2024-10-20",
+      "location": "Pantry",
       "notes": "Half bag remaining"
     },
     {
       "ingredient_slug": "unsalted_butter",
-      "variant_brand": "Kirkland",
+      "product_brand": "Kirkland",
       "quantity": 1.5,
-      "unit": "lb",
-      "acquisition_date": "2024-11-01",
-      "unit_cost": 3.75,
+      "purchase_date": "2024-11-01",
+      "location": "Refrigerator",
       "notes": "6 sticks remaining (1.5 lb)"
     },
     {
       "ingredient_slug": "brown_sugar",
-      "variant_brand": "Domino",
+      "product_brand": "Domino",
       "quantity": 1.0,
-      "unit": "lb",
-      "acquisition_date": "2024-10-20",
-      "unit_cost": 2.5,
+      "purchase_date": "2024-10-20",
+      "location": "Pantry",
       "notes": "Opened bag"
     },
     {
       "ingredient_slug": "powdered_sugar",
-      "variant_brand": "C&H",
+      "product_brand": "C&H",
       "quantity": 1.5,
-      "unit": "lb",
-      "acquisition_date": "2024-10-20",
-      "unit_cost": 1.5
+      "purchase_date": "2024-10-20",
+      "location": "Pantry"
     },
     {
       "ingredient_slug": "cocoa_powder",
-      "variant_brand": "Penzeys Dutch Process",
+      "product_brand": "Penzeys Dutch Process",
       "quantity": 4.0,
-      "unit": "oz",
-      "acquisition_date": "2024-09-15",
-      "unit_cost": 1.12,
+      "purchase_date": "2024-09-15",
+      "location": "Pantry",
       "notes": "Half jar remaining"
     },
     {
       "ingredient_slug": "vanilla_extract",
-      "variant_brand": "McCormick",
+      "product_brand": "McCormick",
       "quantity": 12.0,
-      "unit": "oz",
-      "acquisition_date": "2024-08-01",
-      "unit_cost": 0.94,
+      "purchase_date": "2024-08-01",
+      "location": "Pantry",
       "notes": "About 3/4 full"
     },
     {
       "ingredient_slug": "baking_soda",
-      "variant_brand": "Arm & Hammer",
+      "product_brand": "Arm & Hammer",
       "quantity": 0.5,
-      "unit": "lb",
-      "acquisition_date": "2024-06-01",
-      "unit_cost": 2.0
+      "purchase_date": "2024-06-01",
+      "location": "Pantry"
     },
     {
       "ingredient_slug": "salt",
-      "variant_brand": "Morton",
+      "product_brand": "Morton",
       "quantity": 20.8,
-      "unit": "oz",
-      "acquisition_date": "2024-05-01",
-      "unit_cost": 0.08
+      "purchase_date": "2024-05-01",
+      "location": "Pantry"
     },
     {
       "ingredient_slug": "pecans",
-      "variant_brand": "Costco",
+      "product_brand": "Costco",
       "quantity": 1.25,
-      "unit": "lb",
-      "acquisition_date": "2024-10-25",
-      "unit_cost": 6.0,
+      "purchase_date": "2024-10-25",
+      "location": "Freezer",
       "notes": "Store in freezer to keep fresh"
     },
     {
       "ingredient_slug": "walnuts",
-      "variant_brand": "Kirkland",
+      "product_brand": "Kirkland",
       "quantity": 2.0,
-      "unit": "lb",
-      "acquisition_date": "2024-10-25",
-      "unit_cost": 4.0,
+      "purchase_date": "2024-10-25",
+      "location": "Freezer",
       "notes": "Unopened bag in freezer"
     }
   ],

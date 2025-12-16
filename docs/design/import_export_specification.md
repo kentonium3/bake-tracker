@@ -1,12 +1,17 @@
 # Import/Export Specification for Bake Tracker
 
-**Version:** 3.3
+**Version:** 3.4
 **Status:** Current
 
-> **NOTE**: This application only accepts v3.3 format files. Older format versions
+> **NOTE**: This application only accepts v3.4 format files. Older format versions
 > are no longer supported. Export your data using the current version before importing.
 
 ## Changelog
+
+### v3.4 (2025-12-16)
+- **Fixed**: `purchases` field names corrected to match code: `purchased_at`, `quantity_purchased`, `unit_cost`, `total_cost`, `supplier`
+- **Fixed**: `inventory_items` field names corrected to match code: `purchase_date` (was `acquisition_date`), `location` added, removed unused `unit` and `unit_cost`
+- **Fixed**: Documentation version references updated to 3.4
 
 ### v3.3 (2025-12-14 - Feature 019)
 - **Removed**: `unit_conversions` entity - no longer needed
@@ -61,7 +66,7 @@ The export format is a single JSON file with a required header and entity arrays
 
 ```json
 {
-  "version": "3.3",
+  "version": "3.4",
   "exported_at": "2025-12-04T10:30:00Z",
   "application": "bake-tracker",
   "ingredients": [...],
@@ -89,7 +94,7 @@ The export format is a single JSON file with a required header and entity arrays
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| `version` | string | **Yes** | Must be "3.3" |
+| `version` | string | **Yes** | Must be "3.4" |
 | `exported_at` | string | **Yes** | ISO 8601 timestamp with 'Z' suffix |
 | `application` | string | **Yes** | Must be "bake-tracker" |
 
@@ -189,10 +194,11 @@ All entity arrays are optional, but when present, they must follow the dependenc
 {
   "ingredient_slug": "all_purpose_flour",
   "product_brand": "King Arthur",
-  "purchase_date": "2025-11-15",
-  "quantity": 2,
-  "unit_price": 8.99,
-  "store": "Costco",
+  "purchased_at": "2025-11-15T00:00:00Z",
+  "quantity_purchased": 2,
+  "unit_cost": 8.99,
+  "total_cost": 17.98,
+  "supplier": "Costco",
   "notes": "Stock up purchase"
 }
 ```
@@ -201,10 +207,11 @@ All entity arrays are optional, but when present, they must follow the dependenc
 |-------|------|----------|-------------|
 | `ingredient_slug` | string | **Yes** | Reference to ingredient |
 | `product_brand` | string | **Yes** | Reference to product (with ingredient_slug) |
-| `purchase_date` | date | **Yes** | Date purchased (ISO 8601 date) |
-| `quantity` | integer | **Yes** | Number of packages |
-| `unit_price` | decimal | **Yes** | Price per package |
-| `store` | string | No | Store name |
+| `purchased_at` | datetime | **Yes** | Date purchased (ISO 8601 with 'Z' suffix) |
+| `quantity_purchased` | integer | **Yes** | Number of packages |
+| `unit_cost` | decimal | **Yes** | Price per package |
+| `total_cost` | decimal | No | Total purchase cost |
+| `supplier` | string | No | Store/supplier name |
 | `notes` | string | No | User notes |
 
 ---
@@ -220,10 +227,9 @@ All entity arrays are optional, but when present, they must follow the dependenc
   "ingredient_slug": "all_purpose_flour",
   "product_brand": "King Arthur",
   "quantity": 4.5,
-  "unit": "lb",
-  "acquisition_date": "2025-11-15",
+  "purchase_date": "2025-11-15",
   "expiration_date": "2026-06-15",
-  "unit_cost": 1.80,
+  "location": "Pantry",
   "notes": "From Costco bulk purchase"
 }
 ```
@@ -232,16 +238,16 @@ All entity arrays are optional, but when present, they must follow the dependenc
 |-------|------|----------|-------------|
 | `ingredient_slug` | string | **Yes** | Reference to ingredient |
 | `product_brand` | string | **Yes** | Reference to product |
-| `quantity` | decimal | **Yes** | Current quantity |
-| `unit` | string | **Yes** | Unit of measure |
-| `acquisition_date` | date | **Yes** | Date acquired (for FIFO ordering) |
+| `quantity` | decimal | **Yes** | Current quantity (in product's package units) |
+| `purchase_date` | date | No | Date acquired (for FIFO ordering) |
 | `expiration_date` | date | No | Expiration date |
-| `unit_cost` | decimal | No | Cost per unit |
+| `location` | string | No | Storage location (e.g., "Pantry", "Freezer") |
 | `notes` | string | No | User notes |
 
 **Notes**:
 - Each inventory item represents a specific purchase/batch (FIFO lot)
-- Multiple inventory items can exist for same product (different acquisition dates)
+- Multiple inventory items can exist for same product (different purchase dates)
+- Quantity is tracked in the product's `package_unit` (e.g., lb, oz)
 
 ---
 
@@ -629,9 +635,9 @@ All entity arrays are optional, but when present, they must follow the dependenc
 
 The import service first validates the header:
 
-1. `version` field must be present and equal to "3.0"
-2. If version is missing or not "3.0", import is rejected with error:
-   > "Unsupported file version: [version]. This application only supports v3.0 format."
+1. `version` field must be present and equal to "3.4"
+2. If version is missing or not "3.4", import is rejected with error:
+   > "Unsupported file version: [version]. This application only supports v3.4 format."
 
 ### Foreign Key Validation
 
@@ -757,7 +763,7 @@ bag, box, jar, bottle, can, packet, container, case
 
 ```json
 {
-  "version": "3.0",
+  "version": "3.4",
   "exported_at": "2025-12-04T10:30:00Z",
   "application": "bake-tracker",
   "ingredients": [
@@ -887,5 +893,5 @@ bag, box, jar, bottle, can, packet, container, case
 ---
 
 **Document Status**: Current
-**Version**: 3.2
-**Last Updated**: 2025-12-11
+**Version**: 3.4
+**Last Updated**: 2025-12-16

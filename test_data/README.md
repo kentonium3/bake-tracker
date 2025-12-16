@@ -2,9 +2,28 @@
 
 This directory contains JSON test data for the Ingredient/Product architecture.
 
+## Directory Structure
+
+```
+test_data/
+  README.md                    # This file
+  sample_data.json             # Main v3.4 test dataset
+  sample_catalog.json          # Catalog format test data
+  baking_ingredients_v32.json  # Large ingredient dataset
+  *.csv                        # CSV lookup/development files
+  examples/                    # Simple import examples (v3.4 format)
+    simple_ingredients.json    # Basic ingredients + products
+    simple_recipes.json        # Simple cookie recipes
+    combined_import.json       # Combined import example
+    test_errors.json           # Validation error testing
+  archive/                     # Archived old-format files
+    test_data_v2*.json         # Old v2.0 format files (for reference)
+```
+
 ## Files
 
-- **sample_data.json** - Comprehensive test dataset with 12 ingredients, 13 products, 5 recipes, and complete event planning data
+- **sample_data.json** - Comprehensive v3.4 test dataset with ingredients, products, inventory, recipes, and event planning data
+- **sample_catalog.json** - Catalog format test data
 - **exported_data.json** - Exported database snapshot (auto-generated, not tracked in git)
 
 ## Usage
@@ -61,17 +80,22 @@ Workflow for organically building a robust test dataset:
 
 ## JSON Structure
 
-The JSON format matches the new Ingredient/Product architecture:
+The JSON format matches v3.3+ of the import/export specification. See `docs/design/import_export_specification.md` for full details.
 
 ```json
 {
+  "version": "3.3",
+  "exported_at": "2025-12-04T00:00:00Z",
+  "application": "bake-tracker",
   "ingredients": [
     {
       "name": "All-Purpose Flour",
       "slug": "all_purpose_flour",
       "category": "Flour",
-      "recipe_unit": "cup",
-      "density_g_per_ml": 0.507
+      "density_volume_value": 1.0,
+      "density_volume_unit": "cup",
+      "density_weight_value": 4.25,
+      "density_weight_unit": "oz"
     }
   ],
   "products": [
@@ -81,17 +105,18 @@ The JSON format matches the new Ingredient/Product architecture:
       "package_size": "25 lb bag",
       "package_unit": "lb",
       "package_unit_quantity": 25.0,
-      "preferred": true
+      "is_preferred": true
     }
   ],
   "purchases": [
     {
       "ingredient_slug": "all_purpose_flour",
       "product_brand": "King Arthur",
-      "purchased_at": "2024-10-15T00:00:00",
+      "purchased_at": "2024-10-15T00:00:00Z",
+      "quantity_purchased": 1,
       "unit_cost": 18.99,
-      "quantity_purchased": 1.0,
-      "total_cost": 18.99
+      "total_cost": 18.99,
+      "supplier": "Costco"
     }
   ],
   "inventory_items": [
@@ -103,18 +128,10 @@ The JSON format matches the new Ingredient/Product architecture:
       "location": "Main Pantry"
     }
   ],
-  "unit_conversions": [
-    {
-      "ingredient_slug": "all_purpose_flour",
-      "from_unit": "lb",
-      "from_quantity": 1.0,
-      "to_unit": "cup",
-      "to_quantity": 3.6
-    }
-  ],
   "recipes": [
     {
       "name": "Classic Chocolate Chip Cookies",
+      "slug": "classic_chocolate_chip_cookies",
       "category": "Cookies",
       "yield_quantity": 48.0,
       "yield_unit": "cookies",
@@ -127,8 +144,9 @@ The JSON format matches the new Ingredient/Product architecture:
       ]
     }
   ],
+  "finished_units": [...],
   "finished_goods": [...],
-  "bundles": [...],
+  "compositions": [...],
   "packages": [...],
   "recipients": [...],
   "events": [...]
