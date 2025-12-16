@@ -1,7 +1,7 @@
 # Feature Roadmap
 
 **Created:** 2025-12-03
-**Last Updated:** 2025-12-12
+**Last Updated:** 2025-12-16
 **Workflow:** Spec-Kitty driven development
 
 ---
@@ -30,12 +30,14 @@
 | 017 | Reporting & Event Planning | MERGED | CSV exports, event reports, cost analysis, recipient history, dashboard enhancements. |
 | 018 | Event Production Dashboard | MERGED | Mission control view, progress visualization, fulfillment tracking, quick actions. |
 | 019 | Unit Conversion Simplification | MERGED | Removed redundant `recipe_unit` and `UnitConversion` table. 4-field density is canonical. |
+| 020 | Enhanced Data Import | MERGED | Separate catalog import from transactional data. ADD_ONLY and AUGMENT modes. |
+| 021 | Field Naming Consistency | MERGED | purchase_unit→package_unit, purchase_quantity→package_unit_quantity, pantry→inventory cleanup. |
 
 ---
 
 ## In Progress
 
-**Feature 020: Enhanced Data Import** - Separate catalog import (Ingredients, Products, Recipes) from transactional data import. ADD_ONLY and AUGMENT modes for safe catalog expansion without affecting user data.
+**Feature 023: Unit Reference Table & UI Constraints** - Database-backed unit management with UI enforcement.
 
 ---
 
@@ -43,15 +45,14 @@
 
 | # | Name | Priority | Dependencies | Status |
 |---|------|----------|--------------|--------|
-| 020 | Enhanced Data Import | HIGH | Feature 019 complete | In Progress |
-| 021 | Field Naming Consistency | HIGH | Feature 020 complete | Planned |
-| 022 | Packaging & Distribution | LOW | User testing complete | Blocked |
+| 023 | Unit Reference Table & UI Constraints | HIGH | TD-002, TD-003 complete | In Progress |
+| 024 | Packaging & Distribution | LOW | User testing complete | Blocked |
 
 ---
 
 ## Implementation Order
 
-**Current:** Feature 020 - Enhanced Data Import
+**Current:** Feature 023 - Unit Reference Table & UI Constraints
 
 1. ~~**TD-001** - Clean foundation before adding new entities~~ ✅ COMPLETE
 2. ~~**Feature 011** - Packaging materials, extend Composition for packaging~~ ✅ COMPLETE
@@ -63,13 +64,87 @@
 8. ~~**Feature 017** - Reporting and Event Planning~~ ✅ COMPLETE
 9. ~~**Feature 018** - Event Production Dashboard~~ ✅ COMPLETE
 10. ~~**Feature 019** - Unit Conversion Simplification~~ ✅ COMPLETE
-11. **Feature 020** - Enhanced Data Import ← CURRENT
-12. **Feature 021** - Field Naming Consistency
-13. **Feature 022** - Packaging & Distribution
+11. ~~**Feature 020** - Enhanced Data Import~~ ✅ COMPLETE
+12. ~~**Feature 021** - Field Naming Consistency~~ ✅ COMPLETE
+13. ~~**TD-002** - Unit Standardization~~ ✅ COMPLETE
+14. ~~**TD-003** - Catalog Import Test Schema Mismatch~~ ✅ COMPLETE
+15. **Feature 023** - Unit Reference Table & UI Constraints ← CURRENT
+16. **Feature 024** - Packaging & Distribution
 
 ---
 
 ## Feature Descriptions
+
+### Feature 023: Unit Reference Table & UI Constraints
+
+**Status:** In Progress
+
+**Problem:** Units are stored as free-form strings with application-level validation only. While TD-002 added import validation, the UI still allows arbitrary unit entry. This creates risk of:
+- Typos entering the database
+- Inconsistent unit representations
+- No structured path to UN/CEFACT code adoption
+
+**Solution:** Database-backed unit reference table with UI enforcement.
+
+**Scope:**
+- Create `units` reference table with columns: `code`, `name`, `symbol`, `category`, `uncefact_code` (nullable)
+- Seed table with valid units from `src/utils/constants.py`
+- Update UI unit inputs to use dropdowns/comboboxes populated from the units table
+- Add application-level validation against the reference table
+- Maintain backward compatibility with existing data
+
+**Reference Documents:**
+- `docs/design/unit_codes_reference.md` - UN/CEFACT standard reference
+- `docs/research/unit_handling_analysis_report.md` - Current state analysis
+- `docs/technical-debt/TD-002_unit_standardization.md` - Prerequisite work
+
+**Non-Scope:**
+- Full UN/CEFACT code migration (future - codes stored but not enforced)
+- Unit conversion logic changes
+- Import format changes (already uses standard units per TD-002)
+
+---
+
+### Feature 020: Enhanced Data Import
+
+**Status:** COMPLETE ✅ (Merged 2025-12-16)
+
+**Problem:** Current unified import conflates two fundamentally different data types:
+- **Catalog Data** (Ingredients, Products, Recipes) - slowly changing reference data
+- **Transactional Data** (Purchases, Inventory, Events) - user-specific activity
+
+This prevents safe catalog expansion without risking user data.
+
+**Solution:** Separate import pathways with explicit modes:
+- `ADD_ONLY` - Create new records, skip existing (default)
+- `AUGMENT` - Update NULL fields on existing records (ingredients/products only)
+
+**Delivered:**
+- New `import_catalog` CLI command
+- Catalog-specific JSON format (v1.0)
+- FK validation before import
+- Dry-run preview mode
+- Preserved existing unified import/export for development workflow
+
+**Specification:** `docs/enhanced_data_import.md`
+
+---
+
+### Feature 021: Field Naming Consistency
+
+**Status:** COMPLETE ✅ (Merged 2025-12-16)
+
+**Problem:** Two naming inconsistencies created confusion:
+1. **Purchase vs Package:** `purchase_unit` and `purchase_quantity` on Product describe package characteristics, not purchase transactions.
+2. **Pantry remnants:** "Pantry" terminology should have been fully replaced by "Inventory" but remnants remained.
+
+**Delivered:**
+- Renamed `purchase_unit` → `package_unit`
+- Renamed `purchase_quantity` → `package_unit_quantity`
+- Replaced all "pantry" occurrences with "inventory"
+- Updated schema, models, services, UI, import/export, docs, tests
+
+---
 
 ### Feature 017: Reporting & Event Planning
 
@@ -181,51 +256,7 @@
 
 ---
 
-### Feature 020: Enhanced Data Import
-
-**Status:** In Progress
-
-**Problem:** Current unified import conflates two fundamentally different data types:
-- **Catalog Data** (Ingredients, Products, Recipes) - slowly changing reference data
-- **Transactional Data** (Purchases, Inventory, Events) - user-specific activity
-
-This prevents safe catalog expansion without risking user data.
-
-**Solution:** Separate import pathways with explicit modes:
-- `ADD_ONLY` - Create new records, skip existing (default)
-- `AUGMENT` - Update NULL fields on existing records (ingredients/products only)
-
-**Scope:**
-- New `import_catalog` CLI command
-- Catalog-specific JSON format (v1.0)
-- FK validation before import
-- Dry-run preview mode
-- Preserve existing unified import/export for development workflow
-
-**Specification:** `docs/enhanced_data_import.md`
-
----
-
-### Feature 021: Field Naming Consistency
-
-**Status:** Planned
-
-**Problem:** Two naming inconsistencies create confusion:
-1. **Purchase vs Package:** `purchase_unit` and `purchase_quantity` on Product describe package characteristics, not purchase transactions.
-2. **Pantry remnants:** "Pantry" terminology should have been fully replaced by "Inventory" but remnants remain.
-
-**Scope:**
-- Rename `purchase_unit` → `package_unit`
-- Rename `purchase_quantity` → `package_unit_quantity`
-- Replace all "pantry" occurrences with "inventory"
-- Schema, models, services, UI, import/export, docs, tests
-- Migration script with dry-run support
-
-**Non-Scope:** Functional changes (purely renaming)
-
----
-
-### Feature 022: Packaging & Distribution
+### Feature 024: Packaging & Distribution
 
 **Status:** Blocked (awaiting user testing completion)
 
@@ -234,6 +265,14 @@ This prevents safe catalog expansion without risking user data.
 ---
 
 ## Key Decisions
+
+### 2025-12-16
+- **Feature 020 Complete:** Enhanced Data Import merged. Separate catalog import from transactional data.
+- **Feature 021 Complete:** Field Naming Consistency merged. purchase_unit→package_unit, pantry→inventory.
+- **TD-002 Complete:** Unit Standardization - import validation, sample data fixes, audit script.
+- **TD-003 Complete:** Fixed test_catalog_import_service.py schema mismatch (19 tests).
+- **Feature 023 Defined:** Unit Reference Table & UI Constraints - database-backed unit management.
+- **Renumbering:** Packaging & Distribution moved to Feature 024.
 
 ### 2025-12-14
 - **Feature 019 Complete:** Unit Conversion Simplification merged. Removed `recipe_unit` and `UnitConversion` table.
@@ -276,6 +315,22 @@ This prevents safe catalog expansion without risking user data.
 Part A: Variant → Product, fix dual FK ✅
 Part B: Ingredient.name → Ingredient.display_name ✅
 
+### TD-002: Unit Standardization
+**Status:** COMPLETE ✅
+**Prompt:** docs/technical-debt/TD-002_unit_standardization.md
+
+- Fixed sample_data.json (vanilla extract oz → fl oz)
+- Added import validation for all unit fields
+- Created audit_units.py script
+- All tests passing
+
+### TD-003: Catalog Import Test Schema Mismatch
+**Status:** COMPLETE ✅
+**Prompt:** docs/technical-debt/TD-003_catalog_import_test_schema_mismatch.md
+
+- Fixed 19 test failures in test_catalog_import_service.py
+- Updated purchase_unit → package_unit field references
+
 ---
 
 ## Document History
@@ -291,3 +346,4 @@ Part B: Ingredient.name → Ingredient.display_name ✅
 - 2025-12-11: Feature 016 implementation complete and merged. Session management bug discovered during code review; remediation spec created. Feature 015 confirmed skipped. Features renumbered: 017 (Reporting), 018 (Dashboard), 019 (Packaging).
 - 2025-12-12: Feature 017 (Reporting & Event Planning) complete and merged. Feature 018 (Event Production Dashboard) complete and merged. Entered user testing phase.
 - 2025-12-14: Constitution v1.2.0 (schema change strategy). Feature 019 (Unit Conversion Simplification) complete and merged. Feature 020 (Enhanced Data Import) defined. Packaging & Distribution moved to Feature 021.
+- 2025-12-16: Features 020, 021 complete and merged. TD-002, TD-003 complete. Feature 023 (Unit Reference Table & UI Constraints) defined. Packaging & Distribution moved to Feature 024.
