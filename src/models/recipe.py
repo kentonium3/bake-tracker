@@ -219,15 +219,15 @@ class RecipeIngredient(BaseModel):
         # Import here to avoid circular import
         from src.services.unit_converter import convert_any_units
 
-        purchase_unit = preferred_product.package_unit
-        if not purchase_unit:
+        package_unit = preferred_product.package_unit
+        if not package_unit:
             return 0.0
 
-        # Convert recipe unit to purchase_unit
-        success, quantity_in_purchase_units, error = convert_any_units(
+        # Convert recipe unit to package_unit
+        success, quantity_in_package_units, error = convert_any_units(
             self.quantity,
             self.unit,
-            purchase_unit,
+            package_unit,
             ingredient=self.ingredient,
         )
 
@@ -237,7 +237,7 @@ class RecipeIngredient(BaseModel):
         # Calculate how many packages needed
         if preferred_product.package_unit_quantity == 0:
             return 0.0
-        packages_needed = quantity_in_purchase_units / preferred_product.package_unit_quantity
+        packages_needed = quantity_in_package_units / preferred_product.package_unit_quantity
 
         # Calculate cost
         unit_cost = preferred_product.get_current_cost_per_unit()
@@ -245,15 +245,15 @@ class RecipeIngredient(BaseModel):
 
         return cost
 
-    def get_purchase_unit_quantity(self) -> float:
+    def get_package_unit_quantity(self) -> float:
         """
-        Calculate how many purchase units (in standard units) are needed.
+        Calculate how many package units (in standard units) are needed.
 
-        This method handles conversion from any recipe unit to purchase units,
+        This method handles conversion from any recipe unit to package units,
         supporting cross-unit conversions (volume↔weight) when needed.
 
         Returns:
-            Quantity in purchase units (not packages)
+            Quantity in package units (not packages)
         """
         if not self.ingredient:
             return 0.0
@@ -266,22 +266,22 @@ class RecipeIngredient(BaseModel):
         # Import here to avoid circular import
         from src.services.unit_converter import convert_any_units
 
-        purchase_unit = preferred_product.package_unit
-        if not purchase_unit:
+        package_unit = preferred_product.package_unit
+        if not package_unit:
             return 0.0
 
-        # Convert recipe unit to purchase_unit
-        success, quantity_in_purchase_units, error = convert_any_units(
+        # Convert recipe unit to package_unit
+        success, quantity_in_package_units, error = convert_any_units(
             self.quantity,
             self.unit,
-            purchase_unit,
+            package_unit,
             ingredient=self.ingredient,
         )
 
         if not success:
             return 0.0
 
-        return quantity_in_purchase_units
+        return quantity_in_package_units
 
     def get_packages_needed(self) -> float:
         """
@@ -297,8 +297,8 @@ class RecipeIngredient(BaseModel):
         if not preferred_product or preferred_product.package_unit_quantity == 0:
             return 0.0
 
-        quantity_in_purchase_units = self.get_purchase_unit_quantity()
-        return quantity_in_purchase_units / preferred_product.package_unit_quantity
+        quantity_in_package_units = self.get_package_unit_quantity()
+        return quantity_in_package_units / preferred_product.package_unit_quantity
 
     def to_dict(self, include_relationships: bool = False) -> dict:
         """
@@ -314,7 +314,7 @@ class RecipeIngredient(BaseModel):
 
         # Add calculated fields
         result["cost"] = self.calculate_cost()
-        result["purchase_unit_quantity"] = self.get_purchase_unit_quantity()
+        result["package_unit_quantity"] = self.get_package_unit_quantity()
 
         return result
 

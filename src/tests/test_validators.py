@@ -212,7 +212,7 @@ class TestIngredientValidation:
             "brand": "King Arthur",
             "category": "Flour",
             "package_unit": "bag",
-            "purchase_unit_size": "50 lb",
+            "package_unit_size": "50 lb",
             "conversion_factor": 200.0,
             "quantity": 2.5,
             "unit_cost": 15.99,

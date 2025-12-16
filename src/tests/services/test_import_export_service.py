@@ -339,8 +339,8 @@ class TestExportAllToJsonV3Format:
             with open(temp_path, "r") as f:
                 data = json.load(f)
 
-            # Verify v3.2 header (Feature 016: event-centric production)
-            assert data["version"] == "3.3"
+            # Verify v3.4 header (Feature 021: field naming consistency)
+            assert data["version"] == "3.4"
             assert "exported_at" in data
             assert data["application"] == "bake-tracker"
 
@@ -497,7 +497,7 @@ class TestImportResult:
         assert "recipe" in summary
 
 class TestImportVersionValidation:
-    """Tests for v3.3 version validation."""
+    """Tests for v3.4 version validation."""
 
     def test_import_rejects_v2_format(self):
         """Test import rejects v2.0 format files."""
@@ -516,7 +516,7 @@ class TestImportVersionValidation:
                 import_all_from_json_v3(temp_path)
 
             assert "Unsupported file version: 2.0" in str(exc_info.value)
-            assert "requires v3.3 format" in str(exc_info.value)
+            assert "requires v3.4 format" in str(exc_info.value)
         finally:
             os.unlink(temp_path)
 
@@ -538,10 +538,10 @@ class TestImportVersionValidation:
         finally:
             os.unlink(temp_path)
 
-    def test_import_accepts_v3_2_format(self):
-        """Test import accepts v3.2 format files."""
+    def test_import_accepts_v3_4_format(self):
+        """Test import accepts v3.4 format files."""
         v3_data = {
-            "version": "3.3",
+            "version": "3.4",
             "exported_at": "2025-12-04T00:00:00Z",
             "application": "bake-tracker",
             "ingredients": [],
@@ -558,7 +558,7 @@ class TestImportVersionValidation:
             # If we get here without ImportVersionError, version check passed
             assert result is not None
         except ImportVersionError:
-            pytest.fail("Should not raise ImportVersionError for v3.2 format")
+            pytest.fail("Should not raise ImportVersionError for v3.4 format")
         except Exception:
             # Other errors (DB, etc.) are acceptable - we're testing version check
             pass
@@ -570,7 +570,7 @@ class TestImportModeValidation:
 
     def test_invalid_mode_raises_error(self):
         """Test invalid mode raises ValueError."""
-        v3_data = {"version": "3.3", "ingredients": []}
+        v3_data = {"version": "3.4", "ingredients": []}
 
         with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
             json.dump(v3_data, f)
@@ -683,14 +683,14 @@ class TestSampleDataIntegration:
 
         assert data is not None
         assert "version" in data
-        assert data["version"] == "3.3"
+        assert data["version"] == "3.4"
 
     def test_sample_data_has_v3_header(self):
-        """Verify sample data has proper v3.2 header."""
+        """Verify sample data has proper v3.4 header."""
         with open(SAMPLE_DATA_PATH, "r") as f:
             data = json.load(f)
 
-        assert data.get("version") == "3.3"
+        assert data.get("version") == "3.4"
         assert "exported_at" in data
         assert "application" in data
         assert data.get("application") == "bake-tracker"
@@ -1080,7 +1080,7 @@ class TestDensityFieldsImportExport:
             data = json.load(f)
 
         assert "version" in data
-        assert data["version"] == "3.3"
+        assert data["version"] == "3.4"
         assert "ingredients" in data
 
 # ============================================================================
@@ -1278,9 +1278,9 @@ class TestRecipeComponentImport:
         """Import errors gracefully when component recipe doesn't exist."""
         from src.services.import_export_service import import_all_from_json_v3
 
-        # Create a minimal v3.2 import file with missing component reference
+        # Create a minimal v3.4 import file with missing component reference
         import_data = {
-            "version": "3.3",
+            "version": "3.4",
             "app_name": "Test",
             "app_version": "1.0.0",
             "exported_at": "2024-01-01T00:00:00Z",
@@ -1367,7 +1367,7 @@ class TestRecipeComponentImport:
 
         # Create import data that tries to make B contain A (circular!)
         import_data = {
-            "version": "3.3",
+            "version": "3.4",
             "app_name": "Test",
             "app_version": "1.0.0",
             "exported_at": "2024-01-01T00:00:00Z",

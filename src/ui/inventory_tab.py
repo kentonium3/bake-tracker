@@ -72,14 +72,14 @@ class InventoryTab(ctk.CTkFrame):
 
         title = ctk.CTkLabel(
             header_frame,
-            text="Inventory Management",
+            text="My Pantry",
             font=ctk.CTkFont(size=24, weight="bold"),
         )
         title.grid(row=0, column=0, padx=10, pady=10, sticky="w")
 
         subtitle = ctk.CTkLabel(
             header_frame,
-            text="View and manage your inventory with lot tracking and FIFO visibility",
+            text="View and manage your pantry with lot tracking and FIFO visibility",
             font=ctk.CTkFont(size=12),
         )
         subtitle.grid(row=1, column=0, padx=10, pady=(0, 10), sticky="w")

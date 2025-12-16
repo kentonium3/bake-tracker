@@ -971,7 +971,7 @@ def export_event_assembly_targets_to_json() -> List[Dict]:
 
 def export_all_to_json(file_path: str) -> ExportResult:
     """
-    Export all data to a single JSON file in v3.3 format.
+    Export all data to a single JSON file in v3.4 format.
 
     Exports in dependency order per data-model.md:
     ingredients, products, purchases, inventory_items,
@@ -1011,9 +1011,9 @@ def export_all_to_json(file_path: str) -> ExportResult:
         event_production_targets_data = export_event_production_targets_to_json()
         event_assembly_targets_data = export_event_assembly_targets_to_json()
 
-        # Build combined export data - v3.3 format (Feature 019: unit conversion simplification)
+        # Build combined export data - v3.4 format (Feature 021: field naming consistency)
         export_data = {
-            "version": "3.3",
+            "version": "3.4",
             "exported_at": datetime.utcnow().isoformat() + "Z",
             "application": "bake-tracker",
             "ingredients": [],
@@ -2170,7 +2170,7 @@ def import_assembly_runs_from_json(
 
 def import_all_from_json_v3(file_path: str, mode: str = "merge") -> ImportResult:
     """
-    Import all data from a v3.3 format JSON file.
+    Import all data from a v3.4 format JSON file.
 
     Supports two import modes:
     - "merge": Add new records, skip duplicates (default, safe for incremental backups)
@@ -2193,14 +2193,14 @@ def import_all_from_json_v3(file_path: str, mode: str = "merge") -> ImportResult
     14. production_records (depends on finished_units)
 
     Args:
-        file_path: Path to v3.3 format JSON file
+        file_path: Path to v3.4 format JSON file
         mode: Import mode - "merge" (default) or "replace"
 
     Returns:
         ImportResult with detailed per-entity statistics
 
     Raises:
-        ImportVersionError: If file version is not 3.3
+        ImportVersionError: If file version is not 3.4
         ValueError: If mode is not "merge" or "replace"
     """
     # Validate mode
@@ -2215,12 +2215,12 @@ def import_all_from_json_v3(file_path: str, mode: str = "merge") -> ImportResult
         with open(file_path, "r", encoding="utf-8") as f:
             data = json.load(f)
 
-        # Version validation - v3.3 only (no backward compatibility)
+        # Version validation - v3.4 only (no backward compatibility)
         version = data.get("version", "unknown")
-        if version != "3.3":
+        if version != "3.4":
             raise ImportVersionError(
                 f"Unsupported file version: {version}. "
-                "This application requires v3.3 format. "
+                "This application requires v3.4 format. "
                 "Please export a new backup from a current version."
             )
 
