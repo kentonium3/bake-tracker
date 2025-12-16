@@ -1055,20 +1055,20 @@ class TestDensityFieldsImportExport:
         with open("test_data/sample_data.json", "r") as f:
             data = json.load(f)
 
-        # Find All-Purpose Flour
+        # Find All-Purpose Wheat Flour (standardized slug)
         flour = None
         for ing in data["ingredients"]:
-            if ing["slug"] == "all_purpose_flour":
+            if ing["slug"] == "all_purpose_wheat_flour":
                 flour = ing
                 break
 
-        assert flour is not None, "Sample data should have all_purpose_flour"
+        assert flour is not None, "Sample data should have all_purpose_wheat_flour"
 
         # Should have 4-field density, not legacy
         assert "density_g_per_ml" not in flour, "Should not have legacy density field"
         assert flour.get("density_volume_value") == 1.0
         assert flour.get("density_volume_unit") == "cup"
-        assert flour.get("density_weight_value") == 4.25
+        assert flour.get("density_weight_value") == 4.42
         assert flour.get("density_weight_unit") == "oz"
 
     def test_sample_data_valid_json(self):

@@ -23,7 +23,7 @@ class CatalogImportDialog(ctk.CTkToplevel):
         """Initialize the catalog import dialog."""
         super().__init__(parent)
         self.title("Import Catalog")
-        self.geometry("550x550")
+        self.geometry("550x620")
         self.resizable(False, False)
 
         self.result = None
