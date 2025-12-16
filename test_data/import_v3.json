@@ -1,0 +1,711 @@
+{
+  "version": "3.5",
+  "exported_at": "2025-12-16T00:00:00Z",
+  "application": "bake-tracker",
+  "ingredients": [
+    {
+      "slug": "all_purpose_wheat_flour",
+      "category": "Flours & Meals",
+      "description": "All-purpose wheat flour",
+      "display_name": "All-purpose   Wheat   Flour",
+      "density_volume_value": 1.0,
+      "density_volume_unit": "cup",
+      "density_weight_value": 4.42,
+      "density_weight_unit": "oz"
+    },
+    {
+      "slug": "bread_flour",
+      "category": "Flours & Meals",
+      "description": "Bread flour",
+      "display_name": "Bread   Flour",
+      "density_volume_value": 1.0,
+      "density_volume_unit": "cup",
+      "density_weight_value": 4.67,
+      "density_weight_unit": "oz"
+    },
+    {
+      "slug": "cake_flour",
+      "category": "Flours & Meals",
+      "description": "Cake flour",
+      "display_name": "Cake   Flour",
+      "density_volume_value": 1.0,
+      "density_volume_unit": "cup",
+      "density_weight_value": 3.51,
+      "density_weight_unit": "oz"
+    },
+    {
+      "slug": "whole_wheat_flour",
+      "category": "Flours & Meals",
+      "description": "Whole wheat flour",
+      "display_name": "Whole   Wheat   Flour",
+      "density_volume_value": 1.0,
+      "density_volume_unit": "cup",
+      "density_weight_value": 4.59,
+      "density_weight_unit": "oz"
+    },
+    {
+      "slug": "almond_flour",
+      "category": "Flours & Meals",
+      "description": "Almond flour",
+      "display_name": "Almond   Flour",
+      "density_volume_value": 1.0,
+      "density_volume_unit": "cup",
+      "density_weight_value": 3.76,
+      "density_weight_unit": "oz"
+    },
+    {
+      "slug": "oat_flour",
+      "category": "Flours & Meals",
+      "description": "Oat flour",
+      "display_name": "Oat   Flour",
+      "density_volume_value": 1.0,
+      "density_volume_unit": "cup",
+      "density_weight_value": 4.17,
+      "density_weight_unit": "oz"
+    },
+    {
+      "slug": "cornstarch",
+      "category": "Flours & Meals",
+      "description": "Cornstarch",
+      "display_name": "Cornstarch",
+      "density_volume_value": 1.0,
+      "density_volume_unit": "cup",
+      "density_weight_value": 4.51,
+      "density_weight_unit": "oz"
+    },
+    {
+      "slug": "sugar_granulated",
+      "category": "Sugars & Sweeteners",
+      "description": "Sugar, granulated",
+      "display_name": "Sugar,   Granulated",
+      "density_volume_value": 1.0,
+      "density_volume_unit": "cup",
+      "density_weight_value": 7.09,
+      "density_weight_unit": "oz"
+    },
+    {
+      "slug": "sugar_brown_light",
+      "category": "Sugars & Sweeteners",
+      "description": "Sugar, brown light",
+      "display_name": "Sugar,   Brown   Light",
+      "density_volume_value": 1.0,
+      "density_volume_unit": "cup",
+      "density_weight_value": 7.76,
+      "density_weight_unit": "oz"
+    },
+    {
+      "slug": "sugar_brown_dark",
+      "category": "Sugars & Sweeteners",
+      "description": "Sugar, brown dark",
+      "display_name": "Sugar,   Brown   Dark",
+      "density_volume_value": 1.0,
+      "density_volume_unit": "cup",
+      "density_weight_value": 8.1,
+      "density_weight_unit": "oz"
+    },
+    {
+      "slug": "sugar_powdered",
+      "category": "Sugars & Sweeteners",
+      "description": "Sugar, powdered",
+      "display_name": "Sugar,   Powdered",
+      "density_volume_value": 1.0,
+      "density_volume_unit": "cup",
+      "density_weight_value": 4.17,
+      "density_weight_unit": "oz"
+    },
+    {
+      "slug": "sugar_sanding",
+      "category": "Sugars & Sweeteners",
+      "description": "Sugar, sanding",
+      "display_name": "Sugar,   Sanding"
+    },
+    {
+      "slug": "honey",
+      "category": "Sugars & Sweeteners",
+      "description": "Honey",
+      "display_name": "Honey",
+      "density_volume_value": 1.0,
+      "density_volume_unit": "cup",
+      "density_weight_value": 11.85,
+      "density_weight_unit": "oz"
+    },
+    {
+      "slug": "maple_syrup",
+      "category": "Sugars & Sweeteners",
+      "description": "Maple syrup",
+      "display_name": "Maple   Syrup",
+      "density_volume_value": 1.0,
+      "density_volume_unit": "cup",
+      "density_weight_value": 11.1,
+      "density_weight_unit": "oz"
+    },
+    {
+      "slug": "butter_unsalted",
+      "category": "Fats & Oils",
+      "description": "Butter, unsalted",
+      "display_name": "Butter,   Unsalted",
+      "density_volume_value": 1.0,
+      "density_volume_unit": "cup",
+      "density_weight_value": 8.01,
+      "density_weight_unit": "oz"
+    },
+    {
+      "slug": "butter_salted",
+      "category": "Fats & Oils",
+      "description": "Butter, salted",
+      "display_name": "Butter,   Salted",
+      "density_volume_value": 1.0,
+      "density_volume_unit": "cup",
+      "density_weight_value": 8.01,
+      "density_weight_unit": "oz"
+    },
+    {
+      "slug": "shortening",
+      "category": "Fats & Oils",
+      "description": "Shortening",
+      "display_name": "Shortening",
+      "density_volume_value": 1.0,
+      "density_volume_unit": "cup",
+      "density_weight_value": 7.68,
+      "density_weight_unit": "oz"
+    },
+    {
+      "slug": "oil_vegetable",
+      "category": "Fats & Oils",
+      "description": "Oil, vegetable",
+      "display_name": "Oil,   Vegetable",
+      "density_volume_value": 1.0,
+      "density_volume_unit": "cup",
+      "density_weight_value": 7.68,
+      "density_weight_unit": "oz"
+    },
+    {
+      "slug": "oil_coconut",
+      "category": "Fats & Oils",
+      "description": "Oil, coconut",
+      "display_name": "Oil,   Coconut",
+      "density_volume_value": 1.0,
+      "density_volume_unit": "cup",
+      "density_weight_value": 7.68,
+      "density_weight_unit": "oz"
+    },
+    {
+      "slug": "milk_whole",
+      "category": "Dairy & Eggs",
+      "description": "Milk, whole",
+      "display_name": "Milk,   Whole",
+      "density_volume_value": 1.0,
+      "density_volume_unit": "cup",
+      "density_weight_value": 8.6,
+      "density_weight_unit": "oz"
+    },
+    {
+      "slug": "milk_buttermilk",
+      "category": "Dairy & Eggs",
+      "description": "Milk, buttermilk",
+      "display_name": "Milk,   Buttermilk",
+      "density_volume_value": 1.0,
+      "density_volume_unit": "cup",
+      "density_weight_value": 8.6,
+      "density_weight_unit": "oz"
+    },
+    {
+      "slug": "cream_heavy",
+      "category": "Dairy & Eggs",
+      "description": "Cream, heavy",
+      "display_name": "Cream,   Heavy",
+      "density_volume_value": 1.0,
+      "density_volume_unit": "cup",
+      "density_weight_value": 8.35,
+      "density_weight_unit": "oz"
+    },
+    {
+      "slug": "eggs_whole",
+      "category": "Dairy & Eggs",
+      "description": "Eggs, whole",
+      "display_name": "Eggs,   Whole"
+    },
+    {
+      "slug": "egg_whites",
+      "category": "Dairy & Eggs",
+      "description": "Egg whites",
+      "display_name": "Egg   Whites"
+    },
+    {
+      "slug": "egg_yolks",
+      "category": "Dairy & Eggs",
+      "description": "Egg yolks",
+      "display_name": "Egg   Yolks"
+    },
+    {
+      "slug": "baking_soda",
+      "category": "Leaveners",
+      "description": "Baking soda",
+      "display_name": "Baking   Soda"
+    },
+    {
+      "slug": "baking_powder",
+      "category": "Leaveners",
+      "description": "Baking powder",
+      "display_name": "Baking   Powder"
+    },
+    {
+      "slug": "yeast_active_dry",
+      "category": "Leaveners",
+      "description": "Yeast, active dry",
+      "display_name": "Yeast,   Active   Dry"
+    },
+    {
+      "slug": "yeast_instant",
+      "category": "Leaveners",
+      "description": "Yeast, instant",
+      "display_name": "Yeast,   Instant"
+    },
+    {
+      "slug": "chocolate_chips_semi_sweet",
+      "category": "Chocolate & Cocoa",
+      "description": "Chocolate chips, semi-sweet",
+      "display_name": "Chocolate   chips,   semi-sweet"
+    },
+    {
+      "slug": "chocolate_chips_milk",
+      "category": "Chocolate & Cocoa",
+      "description": "Chocolate chips, milk",
+      "display_name": "Chocolate   chips,   Milk"
+    },
+    {
+      "slug": "chocolate_chips_white",
+      "category": "Chocolate & Cocoa",
+      "description": "Chocolate chips, white",
+      "display_name": "Chocolate   chips,   White"
+    },
+    {
+      "slug": "chocolate_baking_unsweetened",
+      "category": "Chocolate & Cocoa",
+      "description": "Chocolate, baking unsweetened",
+      "display_name": "Chocolate,   Baking   Unsweetened"
+    },
+    {
+      "slug": "cocoa_powder_natural",
+      "category": "Chocolate & Cocoa",
+      "description": "Cocoa powder, natural",
+      "display_name": "Cocoa   powder,   Natural",
+      "density_volume_value": 1.0,
+      "density_volume_unit": "cup",
+      "density_weight_value": 4.17,
+      "density_weight_unit": "oz"
+    },
+    {
+      "slug": "cocoa_powder_dutch_processed",
+      "category": "Chocolate & Cocoa",
+      "description": "Cocoa powder, dutch-processed",
+      "display_name": "Cocoa   powder,   dutch-processed",
+      "density_volume_value": 1.0,
+      "density_volume_unit": "cup",
+      "density_weight_value": 3.76,
+      "density_weight_unit": "oz"
+    },
+    {
+      "slug": "sprinkles_rainbow",
+      "category": "Candies & Decorations",
+      "description": "Sprinkles, rainbow",
+      "display_name": "Sprinkles,   Rainbow"
+    },
+    {
+      "slug": "sprinkles_chocolate",
+      "category": "Candies & Decorations",
+      "description": "Sprinkles, chocolate",
+      "display_name": "Sprinkles,   Chocolate"
+    },
+    {
+      "slug": "nonpareils",
+      "category": "Candies & Decorations",
+      "description": "Nonpareils",
+      "display_name": "Nonpareils"
+    },
+    {
+      "slug": "candy_canes",
+      "category": "Candies & Decorations",
+      "description": "Candy canes",
+      "display_name": "Candy   Canes"
+    },
+    {
+      "slug": "hard_candy_assorted",
+      "category": "Candies & Decorations",
+      "description": "Hard candy, assorted",
+      "display_name": "Hard   candy,   Assorted"
+    },
+    {
+      "slug": "gumdrops",
+      "category": "Candies & Decorations",
+      "description": "Gumdrops",
+      "display_name": "Gumdrops"
+    },
+    {
+      "slug": "marshmallows",
+      "category": "Candies & Decorations",
+      "description": "Marshmallows",
+      "display_name": "Marshmallows"
+    },
+    {
+      "slug": "walnuts",
+      "category": "Nuts & Seeds",
+      "description": "Nuts, walnuts",
+      "display_name": "Nuts,   Walnuts"
+    },
+    {
+      "slug": "pecans",
+      "category": "Nuts & Seeds",
+      "description": "Nuts, pecans",
+      "display_name": "Nuts,   Pecans"
+    },
+    {
+      "slug": "almonds_sliced",
+      "category": "Nuts & Seeds",
+      "description": "Nuts, almonds sliced",
+      "display_name": "Nuts,   Almonds   Sliced"
+    },
+    {
+      "slug": "peanuts",
+      "category": "Nuts & Seeds",
+      "description": "Peanuts",
+      "display_name": "Peanuts"
+    },
+    {
+      "slug": "vanilla_extract",
+      "category": "Spices & Flavorings",
+      "description": "Vanilla extract",
+      "display_name": "Vanilla   Extract"
+    },
+    {
+      "slug": "almond_extract",
+      "category": "Spices & Flavorings",
+      "description": "Almond extract",
+      "display_name": "Almond   Extract"
+    },
+    {
+      "slug": "cinnamon_ground",
+      "category": "Spices & Flavorings",
+      "description": "Cinnamon, ground",
+      "display_name": "Cinnamon,   Ground"
+    },
+    {
+      "slug": "nutmeg_ground",
+      "category": "Spices & Flavorings",
+      "description": "Nutmeg, ground",
+      "display_name": "Nutmeg,   Ground"
+    },
+    {
+      "slug": "ginger_ground",
+      "category": "Spices & Flavorings",
+      "description": "Ginger, ground",
+      "display_name": "Ginger,   Ground"
+    },
+    {
+      "slug": "salt_fine",
+      "category": "Additives & Thickeners",
+      "description": "Salt, fine",
+      "display_name": "Salt,   Fine"
+    },
+    {
+      "slug": "salt_kosher",
+      "category": "Additives & Thickeners",
+      "description": "Salt, kosher",
+      "display_name": "Salt,   Kosher"
+    },
+    {
+      "slug": "gelatin_powder",
+      "category": "Additives & Thickeners",
+      "description": "Gelatin powder",
+      "display_name": "Gelatin   Powder"
+    },
+    {
+      "slug": "food_coloring_liquid",
+      "category": "Additives & Thickeners",
+      "description": "Food coloring, liquid",
+      "display_name": "Food   coloring,   Liquid"
+    },
+    {
+      "slug": "food_coloring_gel",
+      "category": "Additives & Thickeners",
+      "description": "Food coloring, gel",
+      "display_name": "Food   coloring,   Gel"
+    },
+    {
+      "slug": "water",
+      "category": "Liquids",
+      "description": "Water",
+      "display_name": "Water",
+      "density_volume_value": 1.0,
+      "density_volume_unit": "cup",
+      "density_weight_value": 8.35,
+      "density_weight_unit": "oz"
+    },
+    {
+      "slug": "orange_zest",
+      "category": "Fruits",
+      "description": "Orange zest",
+      "display_name": "Orange   Zest"
+    },
+    {
+      "slug": "lemon_zest",
+      "category": "Fruits",
+      "description": "Lemon zest",
+      "display_name": "Lemon   Zest"
+    },
+    {
+      "slug": "raisins",
+      "category": "Fruits",
+      "description": "Raisins",
+      "display_name": "Raisins"
+    },
+    {
+      "slug": "cranberries_dried",
+      "category": "Fruits",
+      "description": "Cranberries, dried",
+      "display_name": "Cranberries,   Dried"
+    }
+  ],
+  "products": [
+    {
+      "ingredient_slug": "butter_salted",
+      "brand": "Costco",
+      "package_size": "1 lb",
+      "package_type": "",
+      "package_unit": "lb",
+      "package_unit_quantity": 1.0,
+      "is_preferred": true,
+      "notes": "1 lb"
+    },
+    {
+      "ingredient_slug": "butter_unsalted",
+      "brand": "Costco",
+      "package_size": "1 lb",
+      "package_type": "",
+      "package_unit": "lb",
+      "package_unit_quantity": 1.0,
+      "is_preferred": true,
+      "notes": "1 lb"
+    },
+    {
+      "ingredient_slug": "butter_salted",
+      "brand": "Kerry",
+      "package_size": "16 oz",
+      "package_type": "",
+      "package_unit": "oz",
+      "package_unit_quantity": 16.0,
+      "is_preferred": false,
+      "notes": "16 oz"
+    },
+    {
+      "ingredient_slug": "shortening",
+      "brand": "Crisco",
+      "package_size": "16 tbsp",
+      "package_type": "",
+      "package_unit": "tbsp",
+      "package_unit_quantity": 16.0,
+      "is_preferred": true,
+      "notes": "16 TBS"
+    },
+    {
+      "ingredient_slug": "butter_unsalted",
+      "brand": "Crisco",
+      "package_size": "16 tbsp",
+      "package_type": "",
+      "package_unit": "tbsp",
+      "package_unit_quantity": 16.0,
+      "is_preferred": false,
+      "notes": "16 TBS"
+    },
+    {
+      "ingredient_slug": "olive_oil",
+      "brand": "Bertolli",
+      "package_size": "3 l",
+      "package_type": "",
+      "package_unit": "l",
+      "package_unit_quantity": 3.0,
+      "is_preferred": true,
+      "notes": "3 liter"
+    },
+    {
+      "ingredient_slug": "canola_oil",
+      "brand": "Wegman's",
+      "package_size": "32 oz",
+      "package_type": "",
+      "package_unit": "oz",
+      "package_unit_quantity": 32.0,
+      "is_preferred": true,
+      "notes": "32 oz"
+    },
+    {
+      "ingredient_slug": "lard",
+      "brand": "Morrell",
+      "package_size": "16 oz",
+      "package_type": "",
+      "package_unit": "oz",
+      "package_unit_quantity": 16.0,
+      "is_preferred": true,
+      "notes": "16 oz"
+    },
+    {
+      "ingredient_slug": "all_purpose_wheat_flour",
+      "brand": "King Arthur",
+      "package_size": "25 lb",
+      "package_type": "",
+      "package_unit": "lb",
+      "package_unit_quantity": 25.0,
+      "is_preferred": true,
+      "notes": "25 lb"
+    },
+    {
+      "ingredient_slug": "bread_flour",
+      "brand": "Wegman's",
+      "package_size": "5 lb",
+      "package_type": "",
+      "package_unit": "lb",
+      "package_unit_quantity": 5.0,
+      "is_preferred": true,
+      "notes": "5 lbs"
+    },
+    {
+      "ingredient_slug": "cake_flour",
+      "brand": "Wegman's",
+      "package_size": "2 lb",
+      "package_type": "",
+      "package_unit": "lb",
+      "package_unit_quantity": 2.0,
+      "is_preferred": true,
+      "notes": "2 lb"
+    },
+    {
+      "ingredient_slug": "almond_flour",
+      "brand": "King Arthur",
+      "package_size": "2 lb",
+      "package_type": "",
+      "package_unit": "lb",
+      "package_unit_quantity": 2.0,
+      "is_preferred": true,
+      "notes": "2 lb"
+    },
+    {
+      "ingredient_slug": "sugar_granulated",
+      "brand": "Domino",
+      "package_size": "25 lb",
+      "package_type": "",
+      "package_unit": "lb",
+      "package_unit_quantity": 25.0,
+      "is_preferred": true,
+      "notes": "25 lb"
+    },
+    {
+      "ingredient_slug": "sugar_brown_light",
+      "brand": "Domino",
+      "package_size": "2 lb",
+      "package_type": "",
+      "package_unit": "lb",
+      "package_unit_quantity": 2.0,
+      "is_preferred": true,
+      "notes": "2 lbs"
+    },
+    {
+      "ingredient_slug": "sugar_brown_dark",
+      "brand": "Domino",
+      "package_size": "2 lb",
+      "package_type": "",
+      "package_unit": "lb",
+      "package_unit_quantity": 2.0,
+      "is_preferred": true,
+      "notes": "2 lb"
+    },
+    {
+      "ingredient_slug": "pecans",
+      "brand": "Costco",
+      "package_size": "1 lb",
+      "package_type": "",
+      "package_unit": "lb",
+      "package_unit_quantity": 1.0,
+      "is_preferred": true,
+      "notes": "1 lb"
+    },
+    {
+      "ingredient_slug": "walnuts",
+      "brand": "Costco",
+      "package_size": "3 lb",
+      "package_type": "",
+      "package_unit": "lb",
+      "package_unit_quantity": 3.0,
+      "is_preferred": true,
+      "notes": "3 lb"
+    },
+    {
+      "ingredient_slug": "maple_syrup",
+      "brand": "Costco",
+      "package_size": "32 oz",
+      "package_type": "",
+      "package_unit": "oz",
+      "package_unit_quantity": 32.0,
+      "is_preferred": true,
+      "notes": "32 oz"
+    },
+    {
+      "ingredient_slug": "honey",
+      "brand": "Costco",
+      "package_size": "48 oz",
+      "package_type": "",
+      "package_unit": "oz",
+      "package_unit_quantity": 48.0,
+      "is_preferred": true,
+      "notes": "48 oz"
+    },
+    {
+      "ingredient_slug": "baking_soda",
+      "brand": "Arm & Hammer",
+      "package_size": "1 lb",
+      "package_type": "",
+      "package_unit": "lb",
+      "package_unit_quantity": 1.0,
+      "is_preferred": true,
+      "notes": "1 lb"
+    },
+    {
+      "ingredient_slug": "baking_powder",
+      "brand": "Clabber Girl",
+      "package_size": "10 oz",
+      "package_type": "",
+      "package_unit": "oz",
+      "package_unit_quantity": 10.0,
+      "is_preferred": true,
+      "notes": "10 oz"
+    },
+    {
+      "ingredient_slug": "yeast_active_dry",
+      "brand": "Fleischmann's",
+      "package_size": "8 oz",
+      "package_type": "",
+      "package_unit": "oz",
+      "package_unit_quantity": 8.0,
+      "is_preferred": true,
+      "notes": "8 oz"
+    },
+    {
+      "ingredient_slug": "raisins",
+      "brand": "Sun Maid",
+      "package_size": "1.5 lb",
+      "package_type": "",
+      "package_unit": "lb",
+      "package_unit_quantity": 1.5,
+      "is_preferred": true,
+      "notes": "1.5 lb"
+    },
+    {
+      "ingredient_slug": "maple_syrup",
+      "brand": "Wegman's",
+      "package_size": "1 jug",
+      "package_type": "",
+      "package_unit": "jug",
+      "package_unit_quantity": 1.0,
+      "is_preferred": false,
+      "notes": "Jugs"
+    }
+  ]
+}
