@@ -2129,6 +2129,18 @@
       "name": "Pecans",
       "category": "Nuts & Seeds",
       "description": "Pecans (generic - see pecans_halves, pecans_chopped for specific)"
+    },
+    {
+      "slug": "olive_oil",
+      "name": "Olive Oil",
+      "category": "Fats & Oils",
+      "description": "Olive oil (alias for oil_olive)"
+    },
+    {
+      "slug": "canola_oil",
+      "name": "Canola Oil",
+      "category": "Fats & Oils",
+      "description": "Canola oil (alias for oil_canola)"
     }
   ],
   "products": []
