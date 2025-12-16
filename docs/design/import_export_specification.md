@@ -721,9 +721,9 @@ Total: 85 imported, 3 skipped, 0 errors
 ### Ingredient Categories
 
 ```
-Flour, Sugar, Dairy, Oils/Butters, Nuts, Spices,
-Chocolate/Candies, Cocoa Powders, Dried Fruits,
-Extracts, Syrups, Alcohol, Misc
+Flours & Meals, Sugars & Sweeteners, Fats & Oils, Dairy & Eggs,
+Leaveners, Chocolate & Cocoa, Candies & Decorations, Nuts & Seeds,
+Spices & Flavorings, Additives & Thickeners, Liquids, Fruits, Misc
 ```
 
 ### Recipe/Finished Good Categories
