@@ -4,106 +4,106 @@
   "application": "bake-tracker",
   "ingredients": [
     {
-      "slug": "all_purpose_flour",
-      "category": "Flour",
-      "description": "Standard all-purpose wheat flour",
-      "notes": "Store in airtight container in cool, dry place",
+      "slug": "all_purpose_wheat_flour",
+      "category": "Flours & Meals",
+      "description": "All-purpose wheat flour",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
-      "density_weight_value": 4.25,
+      "density_weight_value": 4.42,
       "density_weight_unit": "oz",
-      "display_name": "All-Purpose Flour"
+      "name": "All-purpose Wheat Flour",
+      "notes": "Store in airtight container in cool, dry place"
     },
     {
-      "slug": "white_granulated_sugar",
-      "category": "Sugar",
-      "description": "Standard white granulated cane sugar",
+      "slug": "sugar_granulated",
+      "category": "Sugars & Sweeteners",
+      "description": "Sugar, granulated",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
-      "density_weight_value": 7.0,
+      "density_weight_value": 7.09,
       "density_weight_unit": "oz",
-      "display_name": "White Granulated Sugar"
+      "name": "Sugar, Granulated"
     },
     {
-      "slug": "brown_sugar",
-      "category": "Sugar",
-      "description": "Light or dark brown sugar (packed)",
+      "slug": "sugar_brown_light",
+      "category": "Sugars & Sweeteners",
+      "description": "Sugar, brown light",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
-      "density_weight_value": 7.75,
+      "density_weight_value": 7.76,
       "density_weight_unit": "oz",
-      "display_name": "Brown Sugar"
+      "name": "Sugar, Brown Light"
     },
     {
-      "slug": "powdered_sugar",
-      "category": "Sugar",
-      "description": "Confectioners sugar / icing sugar",
+      "slug": "sugar_powdered",
+      "category": "Sugars & Sweeteners",
+      "description": "Sugar, powdered",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
-      "density_weight_value": 4.25,
+      "density_weight_value": 4.17,
       "density_weight_unit": "oz",
-      "display_name": "Powdered Sugar"
+      "name": "Sugar, Powdered"
     },
     {
-      "slug": "semi_sweet_chocolate_chips",
-      "category": "Chocolate/Candies",
-      "description": "Semi-sweet chocolate chips for baking",
-      "display_name": "Semi-Sweet Chocolate Chips"
+      "slug": "chocolate_chips_semi_sweet",
+      "category": "Chocolate & Cocoa",
+      "description": "Chocolate chips, semi-sweet",
+      "name": "Chocolate chips, semi-sweet"
     },
     {
-      "slug": "unsalted_butter",
-      "category": "Oils/Butters",
-      "description": "Unsalted dairy butter",
+      "slug": "butter_unsalted",
+      "category": "Fats & Oils",
+      "description": "Butter, unsalted",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
-      "density_weight_value": 8.0,
+      "density_weight_value": 8.01,
       "density_weight_unit": "oz",
-      "display_name": "Unsalted Butter"
+      "name": "Butter, Unsalted"
     },
     {
-      "slug": "cocoa_powder",
-      "category": "Cocoa Powders",
-      "description": "Dutch-processed cocoa powder",
+      "slug": "cocoa_powder_dutch_processed",
+      "category": "Chocolate & Cocoa",
+      "description": "Cocoa powder, dutch-processed",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
-      "density_weight_value": 3.0,
+      "density_weight_value": 3.76,
       "density_weight_unit": "oz",
-      "display_name": "Cocoa Powder"
+      "name": "Cocoa powder, dutch-processed"
     },
     {
       "slug": "vanilla_extract",
-      "category": "Extracts",
-      "description": "Pure vanilla extract",
-      "display_name": "Vanilla Extract"
+      "category": "Spices & Flavorings",
+      "description": "Vanilla extract",
+      "name": "Vanilla Extract"
     },
     {
       "slug": "baking_soda",
-      "category": "Misc",
-      "description": "Sodium bicarbonate leavening agent",
-      "display_name": "Baking Soda"
+      "category": "Leaveners",
+      "description": "Baking soda",
+      "name": "Baking Soda"
     },
     {
-      "slug": "salt",
-      "category": "Misc",
-      "description": "Fine table salt or sea salt",
-      "display_name": "Salt"
+      "slug": "salt_fine",
+      "category": "Additives & Thickeners",
+      "description": "Salt, fine",
+      "name": "Salt, Fine"
     },
     {
       "slug": "pecans",
-      "category": "Nuts",
-      "description": "Chopped or whole pecans",
-      "display_name": "Pecans"
+      "category": "Nuts & Seeds",
+      "description": "Nuts, pecans",
+      "name": "Nuts, Pecans"
     },
     {
       "slug": "walnuts",
-      "category": "Nuts",
-      "description": "Chopped walnuts",
-      "display_name": "Walnuts"
+      "category": "Nuts & Seeds",
+      "description": "Nuts, walnuts",
+      "name": "Nuts, Walnuts"
     }
   ],
   "products": [
     {
-      "ingredient_slug": "all_purpose_flour",
+      "ingredient_slug": "all_purpose_wheat_flour",
       "brand": "King Arthur",
       "package_size": "25 lb bag",
       "package_type": "bag",
@@ -113,7 +113,7 @@
       "notes": "Premium quality, consistent results"
     },
     {
-      "ingredient_slug": "all_purpose_flour",
+      "ingredient_slug": "all_purpose_wheat_flour",
       "brand": "Gold Medal",
       "package_size": "5 lb bag",
       "package_type": "bag",
@@ -123,7 +123,7 @@
       "notes": "Good budget option"
     },
     {
-      "ingredient_slug": "white_granulated_sugar",
+      "ingredient_slug": "sugar_granulated",
       "brand": "Domino",
       "package_size": "25 lb bag",
       "package_type": "bag",
@@ -133,7 +133,7 @@
       "notes": "Best price per pound at Costco"
     },
     {
-      "ingredient_slug": "semi_sweet_chocolate_chips",
+      "ingredient_slug": "chocolate_chips_semi_sweet",
       "brand": "Nestle Toll House",
       "package_size": "72 oz bag",
       "package_type": "bag",
@@ -143,7 +143,7 @@
       "notes": "Costco bulk bag"
     },
     {
-      "ingredient_slug": "unsalted_butter",
+      "ingredient_slug": "butter_unsalted",
       "brand": "Kirkland",
       "package_size": "4 lb box",
       "package_type": "box",
@@ -153,7 +153,7 @@
       "notes": "Costco 4-pack"
     },
     {
-      "ingredient_slug": "brown_sugar",
+      "ingredient_slug": "sugar_brown_light",
       "brand": "Domino",
       "package_size": "2 lb bag",
       "package_type": "bag",
@@ -163,7 +163,7 @@
       "notes": "Light brown sugar"
     },
     {
-      "ingredient_slug": "powdered_sugar",
+      "ingredient_slug": "sugar_powdered",
       "brand": "C&H",
       "package_size": "2 lb bag",
       "package_type": "bag",
@@ -172,7 +172,7 @@
       "is_preferred": true
     },
     {
-      "ingredient_slug": "cocoa_powder",
+      "ingredient_slug": "cocoa_powder_dutch_processed",
       "brand": "Penzeys Dutch Process",
       "package_size": "8 oz jar",
       "package_type": "jar",
@@ -200,7 +200,7 @@
       "is_preferred": true
     },
     {
-      "ingredient_slug": "salt",
+      "ingredient_slug": "salt_fine",
       "brand": "Morton",
       "package_size": "26 oz box",
       "package_type": "box",
@@ -231,7 +231,7 @@
   ],
   "purchases": [
     {
-      "ingredient_slug": "all_purpose_flour",
+      "ingredient_slug": "all_purpose_wheat_flour",
       "product_brand": "King Arthur",
       "purchased_at": "2024-10-15T00:00:00Z",
       "quantity_purchased": 1,
@@ -241,7 +241,7 @@
       "notes": "Stock up purchase"
     },
     {
-      "ingredient_slug": "all_purpose_flour",
+      "ingredient_slug": "all_purpose_wheat_flour",
       "product_brand": "King Arthur",
       "purchased_at": "2024-11-05T00:00:00Z",
       "quantity_purchased": 2,
@@ -251,7 +251,7 @@
       "notes": "Price increase from last time"
     },
     {
-      "ingredient_slug": "white_granulated_sugar",
+      "ingredient_slug": "sugar_granulated",
       "product_brand": "Domino",
       "purchased_at": "2024-10-15T00:00:00Z",
       "quantity_purchased": 1,
@@ -260,7 +260,7 @@
       "supplier": "Costco"
     },
     {
-      "ingredient_slug": "semi_sweet_chocolate_chips",
+      "ingredient_slug": "chocolate_chips_semi_sweet",
       "product_brand": "Nestle Toll House",
       "purchased_at": "2024-10-20T00:00:00Z",
       "quantity_purchased": 1,
@@ -269,7 +269,7 @@
       "supplier": "Costco"
     },
     {
-      "ingredient_slug": "unsalted_butter",
+      "ingredient_slug": "butter_unsalted",
       "product_brand": "Kirkland",
       "purchased_at": "2024-11-01T00:00:00Z",
       "quantity_purchased": 2,
@@ -280,7 +280,7 @@
   ],
   "inventory_items": [
     {
-      "ingredient_slug": "all_purpose_flour",
+      "ingredient_slug": "all_purpose_wheat_flour",
       "product_brand": "King Arthur",
       "quantity": 1.5,
       "purchase_date": "2024-10-15",
@@ -288,7 +288,7 @@
       "notes": "Opened bag from October purchase"
     },
     {
-      "ingredient_slug": "all_purpose_flour",
+      "ingredient_slug": "all_purpose_wheat_flour",
       "product_brand": "King Arthur",
       "quantity": 2.0,
       "purchase_date": "2024-11-05",
@@ -296,7 +296,7 @@
       "notes": "Unopened from November purchase"
     },
     {
-      "ingredient_slug": "white_granulated_sugar",
+      "ingredient_slug": "sugar_granulated",
       "product_brand": "Domino",
       "quantity": 0.75,
       "purchase_date": "2024-10-15",
@@ -304,7 +304,7 @@
       "notes": "Opened bag, about 3/4 remaining"
     },
     {
-      "ingredient_slug": "semi_sweet_chocolate_chips",
+      "ingredient_slug": "chocolate_chips_semi_sweet",
       "product_brand": "Nestle Toll House",
       "quantity": 36.0,
       "purchase_date": "2024-10-20",
@@ -312,7 +312,7 @@
       "notes": "Half bag remaining"
     },
     {
-      "ingredient_slug": "unsalted_butter",
+      "ingredient_slug": "butter_unsalted",
       "product_brand": "Kirkland",
       "quantity": 1.5,
       "purchase_date": "2024-11-01",
@@ -320,7 +320,7 @@
       "notes": "6 sticks remaining (1.5 lb)"
     },
     {
-      "ingredient_slug": "brown_sugar",
+      "ingredient_slug": "sugar_brown_light",
       "product_brand": "Domino",
       "quantity": 1.0,
       "purchase_date": "2024-10-20",
@@ -328,14 +328,14 @@
       "notes": "Opened bag"
     },
     {
-      "ingredient_slug": "powdered_sugar",
+      "ingredient_slug": "sugar_powdered",
       "product_brand": "C&H",
       "quantity": 1.5,
       "purchase_date": "2024-10-20",
       "location": "Pantry"
     },
     {
-      "ingredient_slug": "cocoa_powder",
+      "ingredient_slug": "cocoa_powder_dutch_processed",
       "product_brand": "Penzeys Dutch Process",
       "quantity": 4.0,
       "purchase_date": "2024-09-15",
@@ -358,7 +358,7 @@
       "location": "Pantry"
     },
     {
-      "ingredient_slug": "salt",
+      "ingredient_slug": "salt_fine",
       "product_brand": "Morton",
       "quantity": 20.8,
       "purchase_date": "2024-05-01",
@@ -394,29 +394,29 @@
       "notes": "Family favorite recipe",
       "ingredients": [
         {
-          "ingredient_slug": "all_purpose_flour",
+          "ingredient_slug": "all_purpose_wheat_flour",
           "quantity": 2.25,
           "unit": "cup",
           "notes": "Spoon and level, don't pack"
         },
         {
-          "ingredient_slug": "white_granulated_sugar",
+          "ingredient_slug": "sugar_granulated",
           "quantity": 0.75,
           "unit": "cup"
         },
         {
-          "ingredient_slug": "brown_sugar",
+          "ingredient_slug": "sugar_brown_light",
           "quantity": 0.75,
           "unit": "cup",
           "notes": "Packed"
         },
         {
-          "ingredient_slug": "semi_sweet_chocolate_chips",
+          "ingredient_slug": "chocolate_chips_semi_sweet",
           "quantity": 2.0,
           "unit": "cup"
         },
         {
-          "ingredient_slug": "unsalted_butter",
+          "ingredient_slug": "butter_unsalted",
           "quantity": 1.0,
           "unit": "cup",
           "notes": "Softened to room temperature"
@@ -432,7 +432,7 @@
           "unit": "tsp"
         },
         {
-          "ingredient_slug": "salt",
+          "ingredient_slug": "salt_fine",
           "quantity": 1.0,
           "unit": "tsp"
         }
@@ -450,23 +450,23 @@
       "notes": "Dense and fudgy, not cakey",
       "ingredients": [
         {
-          "ingredient_slug": "unsalted_butter",
+          "ingredient_slug": "butter_unsalted",
           "quantity": 0.75,
           "unit": "cup",
           "notes": "Melted"
         },
         {
-          "ingredient_slug": "white_granulated_sugar",
+          "ingredient_slug": "sugar_granulated",
           "quantity": 1.5,
           "unit": "cup"
         },
         {
-          "ingredient_slug": "cocoa_powder",
+          "ingredient_slug": "cocoa_powder_dutch_processed",
           "quantity": 0.75,
           "unit": "cup"
         },
         {
-          "ingredient_slug": "all_purpose_flour",
+          "ingredient_slug": "all_purpose_wheat_flour",
           "quantity": 0.75,
           "unit": "cup"
         },
@@ -476,7 +476,7 @@
           "unit": "tsp"
         },
         {
-          "ingredient_slug": "salt",
+          "ingredient_slug": "salt_fine",
           "quantity": 0.5,
           "unit": "tsp"
         }
@@ -494,18 +494,18 @@
       "notes": "Buttery shortbread-style cookies",
       "ingredients": [
         {
-          "ingredient_slug": "unsalted_butter",
+          "ingredient_slug": "butter_unsalted",
           "quantity": 1.0,
           "unit": "cup",
           "notes": "Softened"
         },
         {
-          "ingredient_slug": "powdered_sugar",
+          "ingredient_slug": "sugar_powdered",
           "quantity": 0.5,
           "unit": "cup"
         },
         {
-          "ingredient_slug": "all_purpose_flour",
+          "ingredient_slug": "all_purpose_wheat_flour",
           "quantity": 2.0,
           "unit": "cup"
         },
@@ -521,7 +521,7 @@
           "unit": "tsp"
         },
         {
-          "ingredient_slug": "salt",
+          "ingredient_slug": "salt_fine",
           "quantity": 0.25,
           "unit": "tsp"
         }
@@ -539,17 +539,17 @@
       "notes": "Includes 2 hours cooling time",
       "ingredients": [
         {
-          "ingredient_slug": "white_granulated_sugar",
+          "ingredient_slug": "sugar_granulated",
           "quantity": 3.0,
           "unit": "cup"
         },
         {
-          "ingredient_slug": "unsalted_butter",
+          "ingredient_slug": "butter_unsalted",
           "quantity": 0.75,
           "unit": "cup"
         },
         {
-          "ingredient_slug": "cocoa_powder",
+          "ingredient_slug": "cocoa_powder_dutch_processed",
           "quantity": 0.5,
           "unit": "cup"
         },
@@ -565,7 +565,7 @@
           "unit": "tsp"
         },
         {
-          "ingredient_slug": "salt",
+          "ingredient_slug": "salt_fine",
           "quantity": 0.5,
           "unit": "tsp"
         }
@@ -583,17 +583,17 @@
       "notes": "Classic cinnamon sugar cookies",
       "ingredients": [
         {
-          "ingredient_slug": "all_purpose_flour",
+          "ingredient_slug": "all_purpose_wheat_flour",
           "quantity": 2.75,
           "unit": "cup"
         },
         {
-          "ingredient_slug": "white_granulated_sugar",
+          "ingredient_slug": "sugar_granulated",
           "quantity": 1.5,
           "unit": "cup"
         },
         {
-          "ingredient_slug": "unsalted_butter",
+          "ingredient_slug": "butter_unsalted",
           "quantity": 1.0,
           "unit": "cup",
           "notes": "Softened"
@@ -609,7 +609,7 @@
           "unit": "tsp"
         },
         {
-          "ingredient_slug": "salt",
+          "ingredient_slug": "salt_fine",
           "quantity": 0.5,
           "unit": "tsp"
         }
@@ -627,13 +627,13 @@
       "notes": "Base frosting recipe for various baked goods",
       "ingredients": [
         {
-          "ingredient_slug": "unsalted_butter",
+          "ingredient_slug": "butter_unsalted",
           "quantity": 0.5,
           "unit": "cup",
           "notes": "Softened to room temperature"
         },
         {
-          "ingredient_slug": "powdered_sugar",
+          "ingredient_slug": "sugar_powdered",
           "quantity": 2.0,
           "unit": "cup",
           "notes": "Sifted"
