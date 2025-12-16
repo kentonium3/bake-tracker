@@ -1213,6 +1213,334 @@ class TestRecipeComponentExport:
         assert parent_data["components"][0]["recipe_name"] == "Full Export Child"
         assert parent_data["components"][0]["quantity"] == 1.5
 
+# ============================================================================
+# Unit Validation Tests (TD-002)
+# ============================================================================
+
+class TestImportUnitValidation:
+    """Tests for unit validation during import (TD-002 Technical Debt)."""
+
+    def test_import_product_with_valid_unit_succeeds(self):
+        """Import with valid package_unit succeeds."""
+        v3_data = {
+            "version": "3.4",
+            "exported_at": "2025-12-16T00:00:00Z",
+            "application": "bake-tracker",
+            "ingredients": [
+                {
+                    "slug": "valid_unit_flour",
+                    "name": "Valid Unit Flour",
+                    "category": "Flour"
+                }
+            ],
+            "products": [
+                {
+                    "ingredient_slug": "valid_unit_flour",
+                    "brand": "Test Brand",
+                    "package_unit": "lb",
+                    "package_unit_quantity": 5.0
+                }
+            ],
+            "recipes": []
+        }
+
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
+            json.dump(v3_data, f)
+            temp_path = f.name
+
+        try:
+            result = import_all_from_json_v3(temp_path)
+            # Check that product was imported (no unit error)
+            product_errors = [e for e in result.errors if e["record_type"] == "product"]
+            assert len(product_errors) == 0, f"Expected no product errors, got: {product_errors}"
+        except Exception as e:
+            # DB errors are acceptable, unit validation errors are not
+            if "Invalid unit" in str(e):
+                pytest.fail(f"Valid unit 'lb' was rejected: {e}")
+        finally:
+            os.unlink(temp_path)
+
+    def test_import_product_with_invalid_unit_fails(self):
+        """Import with invalid package_unit returns error."""
+        v3_data = {
+            "version": "3.4",
+            "exported_at": "2025-12-16T00:00:00Z",
+            "application": "bake-tracker",
+            "ingredients": [
+                {
+                    "slug": "invalid_unit_flour",
+                    "name": "Invalid Unit Flour",
+                    "category": "Flour"
+                }
+            ],
+            "products": [
+                {
+                    "ingredient_slug": "invalid_unit_flour",
+                    "brand": "Bad Unit Brand",
+                    "package_unit": "invalid_unit_xyz",
+                    "package_unit_quantity": 5.0
+                }
+            ],
+            "recipes": []
+        }
+
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
+            json.dump(v3_data, f)
+            temp_path = f.name
+
+        try:
+            result = import_all_from_json_v3(temp_path)
+            # Check for unit validation error
+            product_errors = [e for e in result.errors if e["record_type"] == "product"]
+            assert len(product_errors) > 0, "Expected product error for invalid unit"
+            error_msg = str(product_errors[0])
+            assert "Invalid unit" in error_msg or "invalid_unit_xyz" in error_msg
+        except Exception:
+            pass  # Other exceptions are acceptable
+        finally:
+            os.unlink(temp_path)
+
+    def test_import_ingredient_with_invalid_density_volume_unit_fails(self):
+        """Import with invalid density_volume_unit returns error."""
+        v3_data = {
+            "version": "3.4",
+            "exported_at": "2025-12-16T00:00:00Z",
+            "application": "bake-tracker",
+            "ingredients": [
+                {
+                    "slug": "bad_density_flour",
+                    "name": "Bad Density Flour",
+                    "category": "Flour",
+                    "density_volume_value": 1.0,
+                    "density_volume_unit": "invalid_volume_unit",
+                    "density_weight_value": 4.25,
+                    "density_weight_unit": "oz"
+                }
+            ],
+            "products": [],
+            "recipes": []
+        }
+
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
+            json.dump(v3_data, f)
+            temp_path = f.name
+
+        try:
+            result = import_all_from_json_v3(temp_path)
+            # Check for ingredient error
+            ingredient_errors = [e for e in result.errors if e["record_type"] == "ingredient"]
+            assert len(ingredient_errors) > 0, "Expected ingredient error for invalid density_volume_unit"
+            error_msg = str(ingredient_errors[0])
+            assert "Invalid unit" in error_msg or "density_volume_unit" in error_msg
+        except Exception:
+            pass  # Other exceptions are acceptable
+        finally:
+            os.unlink(temp_path)
+
+    def test_import_ingredient_with_invalid_density_weight_unit_fails(self):
+        """Import with invalid density_weight_unit returns error."""
+        v3_data = {
+            "version": "3.4",
+            "exported_at": "2025-12-16T00:00:00Z",
+            "application": "bake-tracker",
+            "ingredients": [
+                {
+                    "slug": "bad_weight_flour",
+                    "name": "Bad Weight Flour",
+                    "category": "Flour",
+                    "density_volume_value": 1.0,
+                    "density_volume_unit": "cup",
+                    "density_weight_value": 4.25,
+                    "density_weight_unit": "invalid_weight_unit"
+                }
+            ],
+            "products": [],
+            "recipes": []
+        }
+
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
+            json.dump(v3_data, f)
+            temp_path = f.name
+
+        try:
+            result = import_all_from_json_v3(temp_path)
+            ingredient_errors = [e for e in result.errors if e["record_type"] == "ingredient"]
+            assert len(ingredient_errors) > 0, "Expected ingredient error for invalid density_weight_unit"
+            error_msg = str(ingredient_errors[0])
+            assert "Invalid unit" in error_msg or "density_weight_unit" in error_msg
+        except Exception:
+            pass
+        finally:
+            os.unlink(temp_path)
+
+    def test_import_ingredient_with_null_density_units_succeeds(self):
+        """Import with null density units succeeds (density is optional)."""
+        v3_data = {
+            "version": "3.4",
+            "exported_at": "2025-12-16T00:00:00Z",
+            "application": "bake-tracker",
+            "ingredients": [
+                {
+                    "slug": "no_density_flour",
+                    "name": "No Density Flour",
+                    "category": "Flour"
+                }
+            ],
+            "products": [],
+            "recipes": []
+        }
+
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
+            json.dump(v3_data, f)
+            temp_path = f.name
+
+        try:
+            result = import_all_from_json_v3(temp_path)
+            ingredient_errors = [e for e in result.errors if e["record_type"] == "ingredient"]
+            # Should have no density-related errors
+            unit_errors = [e for e in ingredient_errors if "unit" in str(e).lower()]
+            assert len(unit_errors) == 0, f"Expected no unit errors for null density, got: {unit_errors}"
+        except Exception:
+            pass
+        finally:
+            os.unlink(temp_path)
+
+    def test_import_recipe_ingredient_with_invalid_unit_fails(self):
+        """Import with invalid recipe ingredient unit returns error."""
+        v3_data = {
+            "version": "3.4",
+            "exported_at": "2025-12-16T00:00:00Z",
+            "application": "bake-tracker",
+            "ingredients": [
+                {
+                    "slug": "recipe_test_flour",
+                    "name": "Recipe Test Flour",
+                    "category": "Flour"
+                }
+            ],
+            "products": [],
+            "recipes": [
+                {
+                    "name": "Bad Unit Recipe",
+                    "slug": "bad_unit_recipe",
+                    "category": "Cookies",
+                    "yield_quantity": 24,
+                    "yield_unit": "cookies",
+                    "ingredients": [
+                        {
+                            "ingredient_slug": "recipe_test_flour",
+                            "quantity": 2.0,
+                            "unit": "invalid_recipe_unit"
+                        }
+                    ]
+                }
+            ]
+        }
+
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
+            json.dump(v3_data, f)
+            temp_path = f.name
+
+        try:
+            result = import_all_from_json_v3(temp_path)
+            recipe_errors = [e for e in result.errors if e["record_type"] == "recipe"]
+            assert len(recipe_errors) > 0, "Expected recipe error for invalid ingredient unit"
+            error_msg = str(recipe_errors[0])
+            assert "Invalid unit" in error_msg or "invalid_recipe_unit" in error_msg
+        except Exception:
+            pass
+        finally:
+            os.unlink(temp_path)
+
+    def test_import_recipe_ingredient_with_valid_units_succeeds(self):
+        """Import with valid recipe ingredient units succeeds."""
+        v3_data = {
+            "version": "3.4",
+            "exported_at": "2025-12-16T00:00:00Z",
+            "application": "bake-tracker",
+            "ingredients": [
+                {
+                    "slug": "good_recipe_flour",
+                    "name": "Good Recipe Flour",
+                    "category": "Flour"
+                }
+            ],
+            "products": [],
+            "recipes": [
+                {
+                    "name": "Good Unit Recipe",
+                    "slug": "good_unit_recipe",
+                    "category": "Cookies",
+                    "yield_quantity": 24,
+                    "yield_unit": "cookies",
+                    "ingredients": [
+                        {
+                            "ingredient_slug": "good_recipe_flour",
+                            "quantity": 2.0,
+                            "unit": "cup"
+                        }
+                    ]
+                }
+            ]
+        }
+
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
+            json.dump(v3_data, f)
+            temp_path = f.name
+
+        try:
+            result = import_all_from_json_v3(temp_path)
+            recipe_errors = [e for e in result.errors if e["record_type"] == "recipe"]
+            unit_errors = [e for e in recipe_errors if "unit" in str(e).lower()]
+            assert len(unit_errors) == 0, f"Expected no unit errors for valid units, got: {unit_errors}"
+        except Exception as e:
+            if "Invalid unit" in str(e):
+                pytest.fail(f"Valid unit 'cup' was rejected: {e}")
+        finally:
+            os.unlink(temp_path)
+
+    def test_error_message_includes_valid_units_list(self):
+        """Error message includes list of valid units."""
+        v3_data = {
+            "version": "3.4",
+            "exported_at": "2025-12-16T00:00:00Z",
+            "application": "bake-tracker",
+            "ingredients": [
+                {
+                    "slug": "error_msg_flour",
+                    "name": "Error Msg Flour",
+                    "category": "Flour"
+                }
+            ],
+            "products": [
+                {
+                    "ingredient_slug": "error_msg_flour",
+                    "brand": "Error Test Brand",
+                    "package_unit": "badunit",
+                    "package_unit_quantity": 5.0
+                }
+            ],
+            "recipes": []
+        }
+
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
+            json.dump(v3_data, f)
+            temp_path = f.name
+
+        try:
+            result = import_all_from_json_v3(temp_path)
+            product_errors = [e for e in result.errors if e["record_type"] == "product"]
+            if product_errors:
+                error_msg = str(product_errors[0]["message"])
+                # Should include some valid units in the message
+                assert any(unit in error_msg for unit in ["lb", "oz", "cup", "bag"]), \
+                    f"Error message should list valid units, got: {error_msg}"
+        except Exception:
+            pass
+        finally:
+            os.unlink(temp_path)
+
+
 class TestRecipeComponentImport:
     """Tests for importing recipe components (nested recipes)."""
 

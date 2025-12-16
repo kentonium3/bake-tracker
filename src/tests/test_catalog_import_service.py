@@ -126,8 +126,12 @@ def _cleanup_test_data(session):
 
 
 @pytest.fixture
-def cleanup_test_ingredients():
-    """Cleanup test ingredients and recipes after each test."""
+def cleanup_test_ingredients(test_db):
+    """Cleanup test ingredients and recipes after each test.
+
+    Note: This fixture depends on test_db to ensure tests run against
+    an in-memory database with the correct schema (package_unit, not purchase_unit).
+    """
     yield
     # Cleanup after test
     with session_scope() as session:
@@ -157,8 +161,11 @@ def sample_product_data():
 
 
 @pytest.fixture
-def create_test_ingredient_for_products():
-    """Create a test ingredient for product import tests."""
+def create_test_ingredient_for_products(test_db):
+    """Create a test ingredient for product import tests.
+
+    Note: Depends on test_db to ensure correct schema is used.
+    """
     with session_scope() as session:
         ingredient = Ingredient(
             slug="product_test_flour",
@@ -1135,8 +1142,11 @@ class TestImportProducts:
 
 
 @pytest.fixture
-def create_test_ingredients_for_recipes():
-    """Create test ingredients for recipe import tests."""
+def create_test_ingredients_for_recipes(test_db):
+    """Create test ingredients for recipe import tests.
+
+    Note: Depends on test_db to ensure correct schema is used.
+    """
     with session_scope() as session:
         flour = Ingredient(
             slug="recipe_test_flour",

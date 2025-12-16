@@ -184,9 +184,9 @@
     {
       "ingredient_slug": "vanilla_extract",
       "brand": "McCormick",
-      "package_size": "16 oz bottle",
+      "package_size": "16 fl oz bottle",
       "package_type": "bottle",
-      "package_unit": "oz",
+      "package_unit": "fl oz",
       "package_unit_quantity": 16.0,
       "is_preferred": true
     },

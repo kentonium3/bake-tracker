@@ -30,7 +30,7 @@ from src.models.production_run import ProductionRun
 from src.models.assembly_run import AssemblyRun
 from src.models.event import EventProductionTarget, EventAssemblyTarget, FulfillmentStatus
 from src.models.recipe import Recipe, RecipeComponent
-from src.utils.constants import APP_NAME, APP_VERSION
+from src.utils.constants import APP_NAME, APP_VERSION, ALL_UNITS, WEIGHT_UNITS, VOLUME_UNITS, COUNT_UNITS
 
 
 # ============================================================================
@@ -192,6 +192,64 @@ class ExportResult:
                 lines.append(f"  {entity}: {count}")
 
         return "\n".join(lines)
+
+
+# ============================================================================
+# Unit Validation Helpers
+# ============================================================================
+
+
+def _validate_unit(unit: str, valid_units: List[str], entity: str, field: str) -> Optional[str]:
+    """
+    Validate a unit value against a list of valid units.
+
+    Args:
+        unit: The unit value to validate
+        valid_units: List of valid unit values
+        entity: Entity name for error message (e.g., "product", "ingredient")
+        field: Field name for error message (e.g., "package_unit")
+
+    Returns:
+        Error message string if invalid, None if valid
+    """
+    if unit is None:
+        return None  # Allow None for optional fields
+
+    unit_lower = unit.lower()
+    valid_lower = [u.lower() for u in valid_units]
+
+    if unit_lower not in valid_lower:
+        valid_list = ", ".join(sorted(valid_units))
+        return f"Invalid unit '{unit}' for {entity}.{field}. Valid units: {valid_list}"
+
+    return None
+
+
+def _validate_package_unit(unit: str, entity_name: str) -> Optional[str]:
+    """Validate package_unit field (accepts any unit type)."""
+    return _validate_unit(unit, ALL_UNITS, entity_name, "package_unit")
+
+
+def _validate_density_volume_unit(unit: str, entity_name: str) -> Optional[str]:
+    """Validate density_volume_unit field (must be volume unit if provided)."""
+    if unit is None:
+        return None
+    return _validate_unit(unit, VOLUME_UNITS, entity_name, "density_volume_unit")
+
+
+def _validate_density_weight_unit(unit: str, entity_name: str) -> Optional[str]:
+    """Validate density_weight_unit field (must be weight unit if provided)."""
+    if unit is None:
+        return None
+    return _validate_unit(unit, WEIGHT_UNITS, entity_name, "density_weight_unit")
+
+
+def _validate_recipe_ingredient_unit(unit: str, recipe_name: str, ingredient_slug: str) -> Optional[str]:
+    """Validate recipe ingredient unit field (weight, volume, or count)."""
+    valid_units = WEIGHT_UNITS + VOLUME_UNITS + COUNT_UNITS
+    if unit is None:
+        return f"Missing unit for recipe '{recipe_name}' ingredient '{ingredient_slug}'"
+    return _validate_unit(unit, valid_units, f"recipe '{recipe_name}'", f"ingredient '{ingredient_slug}' unit")
 
 
 # ============================================================================
@@ -2248,10 +2306,24 @@ def import_all_from_json_v3(file_path: str, mode: str = "merge") -> ImportResult
                         # Density fields (4-field format only - v3.3)
                         density_args = {}
                         if ing.get("density_volume_value") is not None:
+                            # Validate density units before adding
+                            vol_unit = ing.get("density_volume_unit")
+                            wgt_unit = ing.get("density_weight_unit")
+
+                            vol_error = _validate_density_volume_unit(vol_unit, slug)
+                            if vol_error:
+                                result.add_error("ingredient", slug, vol_error)
+                                continue
+
+                            wgt_error = _validate_density_weight_unit(wgt_unit, slug)
+                            if wgt_error:
+                                result.add_error("ingredient", slug, wgt_error)
+                                continue
+
                             density_args["density_volume_value"] = ing.get("density_volume_value")
-                            density_args["density_volume_unit"] = ing.get("density_volume_unit")
+                            density_args["density_volume_unit"] = vol_unit
                             density_args["density_weight_value"] = ing.get("density_weight_value")
-                            density_args["density_weight_unit"] = ing.get("density_weight_unit")
+                            density_args["density_weight_unit"] = wgt_unit
 
                         ingredient = Ingredient(
                             display_name=ing.get("name", ing.get("display_name")),
@@ -2290,12 +2362,19 @@ def import_all_from_json_v3(file_path: str, mode: str = "merge") -> ImportResult
                                 result.add_skip("product", brand, "Already exists")
                                 continue
 
+                        # Validate package_unit
+                        package_unit = prod_data.get("package_unit")
+                        unit_error = _validate_package_unit(package_unit, f"{ing_slug}/{brand}")
+                        if unit_error:
+                            result.add_error("product", brand, unit_error)
+                            continue
+
                         product = Product(
                             ingredient_id=ingredient.id,
                             brand=brand,
                             package_size=prod_data.get("package_size"),
                             package_type=prod_data.get("package_type"),
-                            package_unit=prod_data.get("package_unit"),
+                            package_unit=package_unit,
                             package_unit_quantity=prod_data.get("package_unit_quantity"),
                             upc_code=prod_data.get("upc_code"),
                             preferred=prod_data.get("is_preferred", prod_data.get("preferred", False)),
@@ -2417,22 +2496,34 @@ def import_all_from_json_v3(file_path: str, mode: str = "merge") -> ImportResult
                         recipe_ingredients_data = recipe_data.get("ingredients", [])
                         validated_ingredients = []
                         missing_ingredients = []
-                        
+                        invalid_units = []
+
                         for ri_data in recipe_ingredients_data:
                             ing_slug = ri_data.get("ingredient_slug", "")
                             ingredient = session.query(Ingredient).filter_by(slug=ing_slug).first()
                             if ingredient:
-                                validated_ingredients.append({
-                                    "ingredient_id": ingredient.id,
-                                    "quantity": ri_data.get("quantity"),
-                                    "unit": ri_data.get("unit"),
-                                    "notes": ri_data.get("notes"),
-                                })
+                                # Validate unit
+                                unit = ri_data.get("unit")
+                                unit_error = _validate_recipe_ingredient_unit(unit, name, ing_slug)
+                                if unit_error:
+                                    invalid_units.append(unit_error)
+                                else:
+                                    validated_ingredients.append({
+                                        "ingredient_id": ingredient.id,
+                                        "quantity": ri_data.get("quantity"),
+                                        "unit": unit,
+                                        "notes": ri_data.get("notes"),
+                                    })
                             else:
                                 missing_ingredients.append(ing_slug)
-                        
+
                         if missing_ingredients:
                             result.add_error("recipe", name, f"Missing ingredients: {', '.join(missing_ingredients)}")
+                            continue
+
+                        if invalid_units:
+                            for err in invalid_units:
+                                result.add_error("recipe", name, err)
                             continue
                         
                         # Create recipe (Recipe model doesn't have slug field)
