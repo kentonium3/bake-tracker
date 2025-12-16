@@ -26,9 +26,9 @@ Note: Model layer (`InventoryItem`) and service layer (`inventory_item_service.p
 **Prompt**: `tasks/planned/WP01-model-layer-changes.md`
 
 ### Included Subtasks
-- [ ] T001 Rename `purchase_unit` column to `package_unit` in `src/models/product.py`
-- [ ] T002 Rename `purchase_quantity` column to `package_unit_quantity` in `src/models/product.py`
-- [ ] T003 Update Product model docstrings and comments to reflect new field names
+- [x] T001 Rename `purchase_unit` column to `package_unit` in `src/models/product.py`
+- [x] T002 Rename `purchase_quantity` column to `package_unit_quantity` in `src/models/product.py`
+- [x] T003 Update Product model docstrings and comments to reflect new field names
 
 ### Implementation Notes
 - This is the foundational change; all other work packages depend on it.
@@ -55,15 +55,15 @@ Note: Model layer (`InventoryItem`) and service layer (`inventory_item_service.p
 **Prompt**: `tasks/planned/WP02-service-layer-changes.md`
 
 ### Included Subtasks
-- [ ] T004 [P] Update `src/services/product_service.py` field references
-- [ ] T005 [P] Update `src/services/import_export_service.py` export logic (lines ~233-234, ~1084-1085)
-- [ ] T006 [P] Update `src/services/import_export_service.py` import logic (lines ~2298-2299)
-- [ ] T007 [P] Update `src/services/recipe_service.py` field references
-- [ ] T008 [P] Update `src/services/inventory_item_service.py` field references
-- [ ] T009 [P] Update `src/services/finished_unit_service.py` field references
-- [ ] T010 [P] Update `src/services/event_service.py` field references
-- [ ] T011 [P] Update `src/services/catalog_import_service.py` field references
-- [ ] T012 [P] Update `src/services/assembly_service.py` field references
+- [x] T004 [P] Update `src/services/product_service.py` field references
+- [x] T005 [P] Update `src/services/import_export_service.py` export logic (lines ~233-234, ~1084-1085)
+- [x] T006 [P] Update `src/services/import_export_service.py` import logic (lines ~2298-2299)
+- [x] T007 [P] Update `src/services/recipe_service.py` field references
+- [x] T008 [P] Update `src/services/inventory_item_service.py` field references
+- [x] T009 [P] Update `src/services/finished_unit_service.py` field references
+- [x] T010 [P] Update `src/services/event_service.py` field references
+- [x] T011 [P] Update `src/services/catalog_import_service.py` field references
+- [x] T012 [P] Update `src/services/assembly_service.py` field references
 
 ### Implementation Notes
 - Use find-and-replace: `purchase_unit` -> `package_unit`, `purchase_quantity` -> `package_unit_quantity`
@@ -89,12 +89,12 @@ Note: Model layer (`InventoryItem`) and service layer (`inventory_item_service.p
 **Prompt**: `tasks/planned/WP03-ui-layer-changes.md`
 
 ### Included Subtasks
-- [ ] T013 [P] Update `src/ui/inventory_tab.py` variable names
-- [ ] T014 [P] Update `src/ui/ingredients_tab.py` variable names
-- [ ] T015 [P] Update `src/ui/forms/recipe_form.py` field references
-- [ ] T016 [P] Update `src/ui/forms/ingredient_form.py` field references
-- [ ] T017 [P] Update `src/ui/widgets/data_table.py` field references
-- [ ] T018 [P] Update `src/utils/validators.py` field references
+- [x] T013 [P] Update `src/ui/inventory_tab.py` variable names
+- [x] T014 [P] Update `src/ui/ingredients_tab.py` variable names
+- [x] T015 [P] Update `src/ui/forms/recipe_form.py` field references
+- [x] T016 [P] Update `src/ui/forms/ingredient_form.py` field references
+- [x] T017 [P] Update `src/ui/widgets/data_table.py` field references
+- [x] T018 [P] Update `src/utils/validators.py` field references
 
 ### Implementation Notes
 - **CRITICAL**: Only rename INTERNAL variable names and field references.
@@ -128,30 +128,30 @@ Note: Model layer (`InventoryItem`) and service layer (`inventory_item_service.p
 ### Included Subtasks
 
 #### Part A: purchase_* -> package_* field references
-- [ ] T019 [P] Update `src/tests/conftest.py` test fixtures
-- [ ] T020 [P] Update `src/tests/test_models.py`
-- [ ] T021 [P] Update `src/tests/test_validators.py`
-- [ ] T022 [P] Update `src/tests/test_catalog_import_service.py`
-- [ ] T023 [P] Update `src/tests/test_batch_production_service.py`
-- [ ] T024 [P] Update `src/tests/test_assembly_service.py`
-- [ ] T025 [P] Update `src/tests/services/test_recipe_service.py`
-- [ ] T026 [P] Update `src/tests/services/test_production_service.py`
-- [ ] T027 [P] Update `src/tests/services/test_product_recommendation_service.py`
-- [ ] T028 [P] Update `src/tests/services/test_inventory_item_service.py`
-- [ ] T029 [P] Update `src/tests/services/test_ingredient_service.py`
-- [ ] T030 [P] Update `src/tests/services/test_event_service_products.py`
-- [ ] T031 [P] Update `src/tests/services/test_event_service_packaging.py`
-- [ ] T032 [P] Update `src/tests/services/test_composition_service.py`
-- [ ] T033 [P] Update `src/tests/integration/test_purchase_flow.py`
-- [ ] T034 [P] Update `src/tests/integration/test_packaging_flow.py`
-- [ ] T035 [P] Update `src/tests/integration/test_inventory_flow.py`
-- [ ] T036 [P] Update `src/tests/integration/test_fifo_scenarios.py`
+- [x] T019 [P] Update `src/tests/conftest.py` test fixtures
+- [x] T020 [P] Update `src/tests/test_models.py`
+- [x] T021 [P] Update `src/tests/test_validators.py`
+- [x] T022 [P] Update `src/tests/test_catalog_import_service.py`
+- [x] T023 [P] Update `src/tests/test_batch_production_service.py`
+- [x] T024 [P] Update `src/tests/test_assembly_service.py`
+- [x] T025 [P] Update `src/tests/services/test_recipe_service.py`
+- [x] T026 [P] Update `src/tests/services/test_production_service.py`
+- [x] T027 [P] Update `src/tests/services/test_product_recommendation_service.py`
+- [x] T028 [P] Update `src/tests/services/test_inventory_item_service.py`
+- [x] T029 [P] Update `src/tests/services/test_ingredient_service.py`
+- [x] T030 [P] Update `src/tests/services/test_event_service_products.py`
+- [x] T031 [P] Update `src/tests/services/test_event_service_packaging.py`
+- [x] T032 [P] Update `src/tests/services/test_composition_service.py`
+- [x] T033 [P] Update `src/tests/integration/test_purchase_flow.py`
+- [x] T034 [P] Update `src/tests/integration/test_packaging_flow.py`
+- [x] T035 [P] Update `src/tests/integration/test_inventory_flow.py`
+- [x] T036 [P] Update `src/tests/integration/test_fifo_scenarios.py`
 
 #### Part B: pantry -> inventory terminology in tests
-- [ ] T053 [P] Rename `pantry` -> `inventory` in `src/tests/services/test_recipe_service.py` (~30 occurrences: function names, variables, docstrings)
-- [ ] T054 [P] Rename `pantry` -> `inventory` in `src/tests/services/test_production_service.py` (~1 occurrence)
-- [ ] T055 [P] Rename `pantry` -> `inventory` in `src/tests/test_validators.py` (skip reason - preserve historical context)
-- [ ] T056 [P] Rename `pantry` -> `inventory` in `src/tests/test_services.py` (~6 occurrences in skip reasons - preserve historical context)
+- [x] T053 [P] Rename `pantry` -> `inventory` in `src/tests/services/test_recipe_service.py` (~30 occurrences: function names, variables, docstrings)
+- [x] T054 [P] Rename `pantry` -> `inventory` in `src/tests/services/test_production_service.py` (~1 occurrence)
+- [x] T055 [P] Rename `pantry` -> `inventory` in `src/tests/test_validators.py` (skip reason - preserve historical context)
+- [x] T056 [P] Rename `pantry` -> `inventory` in `src/tests/test_services.py` (~6 occurrences in skip reasons - preserve historical context)
 
 ### Implementation Notes
 
@@ -187,18 +187,18 @@ Note: Model layer (`InventoryItem`) and service layer (`inventory_item_service.p
 **Prompt**: `tasks/planned/WP05-documentation-and-sample-data.md`
 
 ### Included Subtasks
-- [ ] T037 Update `docs/design/import_export_specification.md` to v3.4 with changelog entry
-- [ ] T038 [P] Update `examples/import/README.md`
-- [ ] T039 [P] Update `examples/import/ai_generated_sample.json`
-- [ ] T040 [P] Update `examples/import/combined_import.json`
-- [ ] T041 [P] Update `examples/import/simple_ingredients.json`
-- [ ] T042 [P] Update `examples/import/test_errors.json`
-- [ ] T043 [P] Update `examples/test_data.json`
-- [ ] T044 [P] Update `examples/test_data_v2.json`
-- [ ] T045 [P] Update `examples/test_data_v2_original.json`
-- [ ] T046 [P] Update `test_data/sample_catalog.json`
-- [ ] T047 [P] Update `test_data/sample_data.json`
-- [ ] T048 [P] Update `test_data/README.md`
+- [x] T037 Update `docs/design/import_export_specification.md` to v3.4 with changelog entry
+- [x] T038 [P] Update `examples/import/README.md`
+- [x] T039 [P] Update `examples/import/ai_generated_sample.json`
+- [x] T040 [P] Update `examples/import/combined_import.json`
+- [x] T041 [P] Update `examples/import/simple_ingredients.json`
+- [x] T042 [P] Update `examples/import/test_errors.json`
+- [x] T043 [P] Update `examples/test_data.json`
+- [x] T044 [P] Update `examples/test_data_v2.json`
+- [x] T045 [P] Update `examples/test_data_v2_original.json`
+- [x] T046 [P] Update `test_data/sample_catalog.json`
+- [x] T047 [P] Update `test_data/sample_data.json`
+- [x] T048 [P] Update `test_data/README.md`
 
 ### Implementation Notes
 - **Import/Export Spec**: Bump version from 3.3 to 3.4, add changelog entry documenting field renames.
@@ -224,11 +224,11 @@ Note: Model layer (`InventoryItem`) and service layer (`inventory_item_service.p
 **Prompt**: `tasks/planned/WP06-verification-and-validation.md`
 
 ### Included Subtasks
-- [ ] T049 Run full test suite (`pytest src/tests -v`) and verify 100% pass rate
-- [ ] T050 Verify export/import cycle preserves data integrity (per quickstart.md checklist)
-- [ ] T051 Verify UI "Pantry" labels are preserved (manual inspection)
-- [ ] T052 Run grep validation for zero `purchase_unit`/`purchase_quantity` matches in Python code
-- [ ] T057 Run grep validation for `pantry` - verify only acceptable matches remain (UI strings, historical skip reasons)
+- [x] T049 Run full test suite (`pytest src/tests -v`) and verify 100% pass rate
+- [x] T050 Verify export/import cycle preserves data integrity (per quickstart.md checklist)
+- [x] T051 Verify UI "Pantry" labels are preserved (manual inspection)
+- [x] T052 Run grep validation for zero `purchase_unit`/`purchase_quantity` matches in Python code
+- [x] T057 Run grep validation for `pantry` - verify only acceptable matches remain (UI strings, historical skip reasons)
 
 ### Implementation Notes
 - Follow the verification checklist in `quickstart.md`.
