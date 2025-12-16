@@ -1,7 +1,24 @@
 {
+  "accept_commit": null,
+  "acceptance_history": [
+    {
+      "accepted_at": "2025-12-16T11:04:36Z",
+      "accepted_by": "claude",
+      "accepted_from_commit": "7d52fe73c8396a381fdbb8fbf954ba63201035cd",
+      "branch": "021-field-naming-consistency",
+      "mode": "local",
+      "validation_commands": [
+        "python3 -m pytest src/tests -v --ignore=src/tests/test_catalog_import_service.py"
+      ]
+    }
+  ],
+  "acceptance_mode": "local",
+  "accepted_at": "2025-12-16T11:04:36Z",
+  "accepted_by": "claude",
+  "accepted_from_commit": "7d52fe73c8396a381fdbb8fbf954ba63201035cd",
+  "created_at": "2025-12-15T06:52:58Z",
   "feature_number": "021",
-  "slug": "021-field-naming-consistency",
   "friendly_name": "Field Naming Consistency Refactor",
-  "source_description": "Feature 021: Field Naming Consistency Refactor - Rename purchase_unit to package_unit, purchase_quantity to package_unit_quantity on Product model. Standardize internal pantry references to inventory across database, models, services, tests, and UI code while preserving user-facing Pantry labels. Update import/export spec to v3.4. Use export/reset/import workflow per Constitution v1.2.0.",
-  "created_at": "2025-12-15T06:52:58Z"
+  "slug": "021-field-naming-consistency",
+  "source_description": "Feature 021: Field Naming Consistency Refactor - Rename purchase_unit to package_unit, purchase_quantity to package_unit_quantity on Product model. Standardize internal pantry references to inventory across database, models, services, tests, and UI code while preserving user-facing Pantry labels. Update import/export spec to v3.4. Use export/reset/import workflow per Constitution v1.2.0."
 }
