@@ -1,0 +1,8 @@
+evidence_id,date,source_id,finding,relevance,decision_supported
+E-001,2025-12-16,S-001,"BaseModel pattern provides id, uuid, created_at, updated_at fields",High,RQ-1 Unit model structure
+E-002,2025-12-16,S-002,"init_database() creates tables on startup, idempotent pattern",High,RQ-2 Seeding approach
+E-003,2025-12-16,S-003,"CTkComboBox with state=readonly used for category dropdown",High,RQ-3 UI component selection
+E-004,2025-12-16,S-003,"Volume and weight unit filtering already exists in ingredient form",High,RQ-4 Context filtering
+E-005,2025-12-16,S-004,"TD-002 completed unit standardization across codebase",High,RQ-5 No migration needed
+E-006,2025-12-16,S-005,"27 units defined across WEIGHT_UNITS, VOLUME_UNITS, COUNT_UNITS, PACKAGE_UNITS",High,Seed data source
+E-007,2025-12-16,S-005,"UNIT_TYPE_MAP provides category mapping for all units",Medium,Category assignment

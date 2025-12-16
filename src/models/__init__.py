@@ -39,6 +39,7 @@ from .production_consumption import ProductionConsumption  # Feature 013
 from .assembly_run import AssemblyRun  # Feature 013
 from .assembly_finished_unit_consumption import AssemblyFinishedUnitConsumption  # Feature 013
 from .assembly_packaging_consumption import AssemblyPackagingConsumption  # Feature 013
+from .unit import Unit  # Feature 022
 
 __all__ = [
     "Base",
@@ -81,4 +82,6 @@ __all__ = [
     "AssemblyRun",
     "AssemblyFinishedUnitConsumption",
     "AssemblyPackagingConsumption",
+    # Unit reference table Feature 022
+    "Unit",
 ]

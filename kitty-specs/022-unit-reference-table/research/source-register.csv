@@ -1,0 +1,8 @@
+source_id,type,location,description,accessed_date
+S-001,code,src/models/base.py,BaseModel class with common fields and methods,2025-12-16
+S-002,code,src/services/database.py,Database initialization and session management,2025-12-16
+S-003,code,src/ui/forms/ingredient_form.py,Ingredient form with existing dropdown patterns,2025-12-16
+S-004,doc,docs/technical-debt/TD-002_unit_standardization.md,Completed unit standardization tech debt,2025-12-16
+S-005,code,src/utils/constants.py,Unit definitions and type mappings,2025-12-16
+S-006,spec,kitty-specs/022-unit-reference-table/spec.md,Feature specification with requirements,2025-12-16
+S-007,doc,.kittify/memory/constitution.md,Project constitution and principles,2025-12-16

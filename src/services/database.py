@@ -20,9 +20,45 @@ from sqlalchemy.pool import StaticPool
 
 from ..utils.config import get_config
 from ..models.base import Base
+from ..utils.constants import WEIGHT_UNITS, VOLUME_UNITS, COUNT_UNITS, PACKAGE_UNITS
 
 # Configure logging
 logger = logging.getLogger(__name__)
+
+# Unit metadata for seeding - maps code to (display_name, symbol, un_cefact_code)
+UNIT_METADATA = {
+    # Weight units
+    "oz": ("ounce", "oz", "ONZ"),
+    "lb": ("pound", "lb", "LBR"),
+    "g": ("gram", "g", "GRM"),
+    "kg": ("kilogram", "kg", "KGM"),
+    # Volume units
+    "tsp": ("teaspoon", "tsp", None),
+    "tbsp": ("tablespoon", "tbsp", None),
+    "cup": ("cup", "cup", None),
+    "ml": ("milliliter", "ml", "MLT"),
+    "l": ("liter", "l", "LTR"),
+    "fl oz": ("fluid ounce", "fl oz", "OZA"),
+    "pt": ("pint", "pt", "PTI"),
+    "qt": ("quart", "qt", "QTI"),
+    "gal": ("gallon", "gal", "GLL"),
+    # Count units
+    "each": ("each", "ea", "EA"),
+    "count": ("count", "ct", None),
+    "piece": ("piece", "pc", "PCE"),
+    "dozen": ("dozen", "dz", "DZN"),
+    # Package units
+    "bag": ("bag", "bag", "BG"),
+    "box": ("box", "box", "BX"),
+    "bar": ("bar", "bar", None),
+    "bottle": ("bottle", "bottle", "BO"),
+    "can": ("can", "can", "CA"),
+    "jar": ("jar", "jar", "JR"),
+    "packet": ("packet", "packet", "PA"),
+    "container": ("container", "container", None),
+    "package": ("package", "pkg", "PK"),
+    "case": ("case", "case", "CS"),
+}
 
 # Global engine and session factory
 _engine: Optional[Engine] = None
@@ -87,6 +123,79 @@ def create_database_engine(database_url: Optional[str] = None, echo: bool = Fals
     return engine
 
 
+def seed_units() -> None:
+    """
+    Seed the units reference table with standard units.
+
+    This function is idempotent - it only seeds if the units table is empty.
+    Units are sourced from constants.py with additional metadata for UI display.
+    """
+    # Import Unit model locally to avoid circular imports
+    from ..models.unit import Unit
+
+    with session_scope() as session:
+        # Check if units already exist (idempotent)
+        existing_count = session.query(Unit).count()
+        if existing_count > 0:
+            logger.debug(f"Units table already has {existing_count} units, skipping seed")
+            return
+
+        logger.info("Seeding units reference table")
+
+        units_to_add = []
+
+        # Seed weight units
+        for sort_order, code in enumerate(WEIGHT_UNITS):
+            display_name, symbol, un_cefact_code = UNIT_METADATA.get(code, (code, code, None))
+            units_to_add.append(Unit(
+                code=code,
+                display_name=display_name,
+                symbol=symbol,
+                category="weight",
+                un_cefact_code=un_cefact_code,
+                sort_order=sort_order,
+            ))
+
+        # Seed volume units
+        for sort_order, code in enumerate(VOLUME_UNITS):
+            display_name, symbol, un_cefact_code = UNIT_METADATA.get(code, (code, code, None))
+            units_to_add.append(Unit(
+                code=code,
+                display_name=display_name,
+                symbol=symbol,
+                category="volume",
+                un_cefact_code=un_cefact_code,
+                sort_order=sort_order,
+            ))
+
+        # Seed count units
+        for sort_order, code in enumerate(COUNT_UNITS):
+            display_name, symbol, un_cefact_code = UNIT_METADATA.get(code, (code, code, None))
+            units_to_add.append(Unit(
+                code=code,
+                display_name=display_name,
+                symbol=symbol,
+                category="count",
+                un_cefact_code=un_cefact_code,
+                sort_order=sort_order,
+            ))
+
+        # Seed package units
+        for sort_order, code in enumerate(PACKAGE_UNITS):
+            display_name, symbol, un_cefact_code = UNIT_METADATA.get(code, (code, code, None))
+            units_to_add.append(Unit(
+                code=code,
+                display_name=display_name,
+                symbol=symbol,
+                category="package",
+                un_cefact_code=un_cefact_code,
+                sort_order=sort_order,
+            ))
+
+        session.add_all(units_to_add)
+        logger.info(f"Seeded {len(units_to_add)} units to reference table")
+
+
 def init_database(engine: Optional[Engine] = None) -> None:
     """
     Initialize the database by creating all tables.
@@ -106,11 +215,16 @@ def init_database(engine: Optional[Engine] = None) -> None:
     # This is necessary for Base.metadata.create_all() to work
     from ..models import ingredient, recipe, inventory_snapshot, finished_good  # noqa: F401
     from ..models import production_record  # noqa: F401  # Feature 008
+    from ..models import unit  # noqa: F401  # Feature 022
 
     # Create all tables
     Base.metadata.create_all(engine)
 
     logger.info("Database tables initialized successfully")
+
+    # Seed reference data
+    logger.info("Seeding unit reference table")
+    seed_units()
 
 
 def get_engine(force_recreate: bool = False) -> Engine:

@@ -9,6 +9,7 @@ import customtkinter as ctk
 from typing import Optional, Dict, Any
 
 from src.models.ingredient import Ingredient
+from src.services.unit_service import get_units_by_category
 from src.utils.constants import (
     INGREDIENT_CATEGORIES,
     ALL_UNITS,
@@ -243,8 +244,8 @@ class IngredientFormDialog(ctk.CTkToplevel):
         )
         self.equiv_volume_qty_entry.grid(row=0, column=0, padx=(0, 5))
 
-        # Volume unit dropdown
-        volume_units = ["cup", "tbsp", "tsp", "fl oz", "ml", "L"]
+        # Volume unit dropdown - populated from unit reference table
+        volume_units = [u.code for u in get_units_by_category("volume")]
         self.equiv_volume_unit_combo = ctk.CTkComboBox(
             equiv_frame,
             width=100,
@@ -266,8 +267,8 @@ class IngredientFormDialog(ctk.CTkToplevel):
         )
         self.equiv_weight_qty_entry.grid(row=0, column=3, padx=(10, 5))
 
-        # Weight unit dropdown
-        weight_units = ["g", "kg", "oz", "lb"]
+        # Weight unit dropdown - populated from unit reference table
+        weight_units = [u.code for u in get_units_by_category("weight")]
         self.equiv_weight_unit_combo = ctk.CTkComboBox(
             equiv_frame,
             width=100,

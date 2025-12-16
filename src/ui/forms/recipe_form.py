@@ -12,6 +12,7 @@ from decimal import Decimal
 from src.models.recipe import Recipe, RecipeComponent
 from src.models.ingredient import Ingredient
 from src.services import ingredient_crud_service, recipe_service
+from src.services.unit_service import get_units_for_dropdown
 from src.utils.constants import (
     RECIPE_CATEGORIES,
     ALL_UNITS,
@@ -65,17 +66,19 @@ class RecipeIngredientRow(ctk.CTkFrame):
         self.quantity_entry.insert(0, str(quantity))
         self.quantity_entry.grid(row=0, column=0, padx=(0, PADDING_MEDIUM), pady=5)
 
-        # Unit dropdown - shows all recipe units
-        available_units = WEIGHT_UNITS + VOLUME_UNITS + COUNT_UNITS
+        # Unit dropdown - shows measurement units (weight, volume, count) from DB
+        # No package units - recipes use measurements, not packaging
+        available_units = get_units_for_dropdown(["weight", "volume", "count"])
+        self._last_valid_unit = unit if unit else "cup"
         self.unit_combo = ctk.CTkComboBox(
             self,
             values=available_units,
             state="readonly",
             width=100,
+            command=self._on_unit_selected,
         )
         # Set unit: use provided unit or default to "cup"
-        default_unit = unit if unit else "cup"
-        self.unit_combo.set(default_unit)
+        self.unit_combo.set(self._last_valid_unit)
         self.unit_combo.grid(row=0, column=1, padx=PADDING_MEDIUM, pady=5, sticky="ew")
 
         # Ingredient dropdown (no unit suffix)
@@ -131,7 +134,7 @@ class RecipeIngredientRow(ctk.CTkFrame):
 
         # Get selected unit from dropdown
         unit = self.unit_combo.get()
-        if not unit:
+        if not unit or unit.startswith("--"):
             return None
 
         # Get quantity
@@ -174,6 +177,15 @@ class RecipeIngredientRow(ctk.CTkFrame):
             "quantity": quantity,
             "unit": unit,
         }
+
+    def _on_unit_selected(self, selected_value: str):
+        """Handle unit selection, preventing category headers from being selected."""
+        if selected_value.startswith("--"):
+            # Revert to last valid selection
+            self.unit_combo.set(self._last_valid_unit)
+        else:
+            # Update last valid selection
+            self._last_valid_unit = selected_value
 
 
 class RecipeFormDialog(ctk.CTkToplevel):

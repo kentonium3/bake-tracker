@@ -10,6 +10,7 @@ from typing import Optional, List, Dict, Any
 from tkinter import messagebox
 
 from src.services import ingredient_service, product_service
+from src.services.unit_service import get_units_for_dropdown
 from src.services.exceptions import (
     IngredientInUse,
     IngredientNotFoundBySlug,
@@ -1408,13 +1409,17 @@ class ProductFormDialog(ctk.CTkToplevel):
         ctk.CTkLabel(form_frame, text="Package Unit*:").grid(
             row=row, column=0, sticky="w", padx=10, pady=5
         )
-        self.package_unit_var = ctk.StringVar(value="lb")
-        self.package_unit_dropdown = ctk.CTkOptionMenu(
+        # Get all units grouped by category from the reference table
+        unit_values = get_units_for_dropdown(["weight", "volume", "count", "package"])
+        self._last_valid_unit = "lb"  # Track last valid selection
+        self.package_unit_combo = ctk.CTkComboBox(
             form_frame,
-            values=["lb", "oz", "g", "kg", "bag", "box", "count"],
-            variable=self.package_unit_var,
+            values=unit_values,
+            state="readonly",
+            command=self._on_unit_selected,
         )
-        self.package_unit_dropdown.grid(row=row, column=1, sticky="ew", padx=10, pady=5)
+        self.package_unit_combo.set("lb")  # Default value
+        self.package_unit_combo.grid(row=row, column=1, sticky="ew", padx=10, pady=5)
         row += 1
 
         # UPC/GTIN (optional)
@@ -1479,6 +1484,15 @@ class ProductFormDialog(ctk.CTkToplevel):
         )
         save_button.grid(row=0, column=1)
 
+    def _on_unit_selected(self, selected_value: str):
+        """Handle unit selection, rejecting category headers."""
+        if selected_value.startswith("--"):
+            # Category header selected - revert to last valid unit
+            self.package_unit_combo.set(self._last_valid_unit)
+        else:
+            # Valid unit selected - update last valid
+            self._last_valid_unit = selected_value
+
     def _populate_form(self):
         """Populate form with existing product data."""
         if not self.product:
@@ -1487,7 +1501,10 @@ class ProductFormDialog(ctk.CTkToplevel):
         self.brand_entry.insert(0, self.product.get("brand", ""))
         package_qty = self.product.get("package_unit_quantity", "")
         self.purchase_qty_entry.insert(0, str(package_qty) if package_qty is not None else "")
-        self.package_unit_var.set(self.product.get("package_unit", "lb"))
+        # Set the unit in the combo box and track as last valid
+        current_unit = self.product.get("package_unit", "lb")
+        self.package_unit_combo.set(current_unit)
+        self._last_valid_unit = current_unit
         upc_value = (
             self.product.get("upc_code")
             or self.product.get("gtin")
@@ -1503,7 +1520,7 @@ class ProductFormDialog(ctk.CTkToplevel):
         # Get values
         brand = self.brand_entry.get().strip()
         package_qty_str = self.purchase_qty_entry.get().strip()
-        package_unit = self.package_unit_var.get()
+        package_unit = self.package_unit_combo.get()
         upc = self.upc_entry.get().strip()
         supplier = self.supplier_entry.get().strip()
         preferred = self.preferred_var.get()
@@ -1515,6 +1532,11 @@ class ProductFormDialog(ctk.CTkToplevel):
 
         if not package_qty_str:
             messagebox.showerror("Validation Error", "Package quantity is required")
+            return
+
+        # Validate package unit (reject category headers)
+        if not package_unit or package_unit.startswith("--"):
+            messagebox.showerror("Validation Error", "Please select a valid unit")
             return
 
         # Validate quantity
