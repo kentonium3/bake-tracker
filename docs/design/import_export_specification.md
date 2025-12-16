@@ -112,7 +112,7 @@ All entity arrays are optional, but when present, they must follow the dependenc
 
 ```json
 {
-  "name": "All-Purpose Flour",
+  "display_name": "All-Purpose Flour",
   "slug": "all_purpose_flour",
   "category": "Flour",
   "description": "Standard all-purpose wheat flour",
@@ -127,7 +127,7 @@ All entity arrays are optional, but when present, they must follow the dependenc
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| `name` | string | **Yes** | Display name (max 200 chars) |
+| `display_name` | string | **Yes** | Display name (max 200 chars) |
 | `slug` | string | **Yes** | Unique identifier (lowercase, underscores, max 100 chars) |
 | `category` | string | **Yes** | Category (see Appendix A) |
 | `description` | string | No | Detailed description |
@@ -768,14 +768,14 @@ bag, box, jar, bottle, can, packet, container, case
   "application": "bake-tracker",
   "ingredients": [
     {
-      "name": "All-Purpose Flour",
+      "display_name": "All-Purpose Flour",
       "slug": "all_purpose_flour",
       "category": "Flour",
       "recipe_unit": "cup",
       "density_g_per_ml": 0.507
     },
     {
-      "name": "Semi-Sweet Chocolate Chips",
+      "display_name": "Semi-Sweet Chocolate Chips",
       "slug": "semi_sweet_chocolate_chips",
       "category": "Chocolate/Candies",
       "recipe_unit": "cup"

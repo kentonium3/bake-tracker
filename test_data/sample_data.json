@@ -11,8 +11,8 @@
       "density_volume_unit": "cup",
       "density_weight_value": 4.42,
       "density_weight_unit": "oz",
-      "name": "All-purpose Wheat Flour",
-      "notes": "Store in airtight container in cool, dry place"
+      "notes": "Store in airtight container in cool, dry place",
+      "display_name": "All-purpose Wheat Flour"
     },
     {
       "slug": "sugar_granulated",
@@ -22,7 +22,7 @@
       "density_volume_unit": "cup",
       "density_weight_value": 7.09,
       "density_weight_unit": "oz",
-      "name": "Sugar, Granulated"
+      "display_name": "Sugar, Granulated"
     },
     {
       "slug": "sugar_brown_light",
@@ -32,7 +32,7 @@
       "density_volume_unit": "cup",
       "density_weight_value": 7.76,
       "density_weight_unit": "oz",
-      "name": "Sugar, Brown Light"
+      "display_name": "Sugar, Brown Light"
     },
     {
       "slug": "sugar_powdered",
@@ -42,13 +42,13 @@
       "density_volume_unit": "cup",
       "density_weight_value": 4.17,
       "density_weight_unit": "oz",
-      "name": "Sugar, Powdered"
+      "display_name": "Sugar, Powdered"
     },
     {
       "slug": "chocolate_chips_semi_sweet",
       "category": "Chocolate & Cocoa",
       "description": "Chocolate chips, semi-sweet",
-      "name": "Chocolate chips, semi-sweet"
+      "display_name": "Chocolate chips, semi-sweet"
     },
     {
       "slug": "butter_unsalted",
@@ -58,7 +58,7 @@
       "density_volume_unit": "cup",
       "density_weight_value": 8.01,
       "density_weight_unit": "oz",
-      "name": "Butter, Unsalted"
+      "display_name": "Butter, Unsalted"
     },
     {
       "slug": "cocoa_powder_dutch_processed",
@@ -68,37 +68,37 @@
       "density_volume_unit": "cup",
       "density_weight_value": 3.76,
       "density_weight_unit": "oz",
-      "name": "Cocoa powder, dutch-processed"
+      "display_name": "Cocoa powder, dutch-processed"
     },
     {
       "slug": "vanilla_extract",
       "category": "Spices & Flavorings",
       "description": "Vanilla extract",
-      "name": "Vanilla Extract"
+      "display_name": "Vanilla Extract"
     },
     {
       "slug": "baking_soda",
       "category": "Leaveners",
       "description": "Baking soda",
-      "name": "Baking Soda"
+      "display_name": "Baking Soda"
     },
     {
       "slug": "salt_fine",
       "category": "Additives & Thickeners",
       "description": "Salt, fine",
-      "name": "Salt, Fine"
+      "display_name": "Salt, Fine"
     },
     {
       "slug": "pecans",
       "category": "Nuts & Seeds",
       "description": "Nuts, pecans",
-      "name": "Nuts, Pecans"
+      "display_name": "Nuts, Pecans"
     },
     {
       "slug": "walnuts",
       "category": "Nuts & Seeds",
       "description": "Nuts, walnuts",
-      "name": "Nuts, Walnuts"
+      "display_name": "Nuts, Walnuts"
     }
   ],
   "products": [

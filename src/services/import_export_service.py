@@ -285,7 +285,7 @@ def export_ingredients_to_json(
 
         for ingredient in ingredients:
             ingredient_data = {
-                "name": ingredient.display_name,
+                "display_name": ingredient.display_name,
                 "brand": ingredient.brand,
                 "category": ingredient.category,
                 "package_unit_quantity": ingredient.package_unit_quantity,
@@ -1097,7 +1097,7 @@ def export_all_to_json(file_path: str) -> ExportResult:
         # Add ingredients (NEW SCHEMA: generic ingredient definitions)
         for ingredient in ingredients:
             ingredient_data = {
-                "name": ingredient.display_name,
+                "display_name": ingredient.display_name,
                 "slug": ingredient.slug,
                 "category": ingredient.category,
                 "is_packaging": ingredient.is_packaging,  # Feature 011
@@ -2326,7 +2326,7 @@ def import_all_from_json_v3(file_path: str, mode: str = "merge") -> ImportResult
                             density_args["density_weight_unit"] = wgt_unit
 
                         ingredient = Ingredient(
-                            display_name=ing.get("name", ing.get("display_name")),
+                            display_name=ing.get("display_name"),
                             slug=slug,
                             category=ing.get("category"),
                             description=ing.get("description"),
@@ -2687,7 +2687,7 @@ def import_all_from_json_v3(file_path: str, mode: str = "merge") -> ImportResult
 
                         fg = FinishedGood(
                             slug=slug,
-                            display_name=fg_data.get("display_name", fg_data.get("name", "")),
+                            display_name=fg_data.get("display_name"),
                             assembly_type=assembly_type,
                             description=fg_data.get("description"),
                             packaging_instructions=fg_data.get("packaging_instructions"),
