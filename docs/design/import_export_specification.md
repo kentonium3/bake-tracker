@@ -1,17 +1,12 @@
 # Import/Export Specification for Bake Tracker
 
-**Version:** 3.4
+**Version:** 3.3
 **Status:** Current
 
-> **NOTE**: This application only accepts v3.4 format files. Older format versions
+> **NOTE**: This application only accepts v3.3 format files. Older format versions
 > are no longer supported. Export your data using the current version before importing.
 
 ## Changelog
-
-### v3.4 (2025-12-15 - Feature 021)
-- **Changed**: Product field `purchase_unit` renamed to `package_unit`
-- **Changed**: Product field `purchase_quantity` renamed to `package_unit_quantity`
-- **Note**: These changes align JSON field names with internal model attribute names for consistency
 
 ### v3.3 (2025-12-14 - Feature 019)
 - **Removed**: `unit_conversions` entity - no longer needed
@@ -66,7 +61,7 @@ The export format is a single JSON file with a required header and entity arrays
 
 ```json
 {
-  "version": "3.4",
+  "version": "3.3",
   "exported_at": "2025-12-04T10:30:00Z",
   "application": "bake-tracker",
   "ingredients": [...],
@@ -94,7 +89,7 @@ The export format is a single JSON file with a required header and entity arrays
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| `version` | string | **Yes** | Must be "3.4" |
+| `version` | string | **Yes** | Must be "3.3" |
 | `exported_at` | string | **Yes** | ISO 8601 timestamp with 'Z' suffix |
 | `application` | string | **Yes** | Must be "bake-tracker" |
 
@@ -172,8 +167,8 @@ All entity arrays are optional, but when present, they must follow the dependenc
 | `brand` | string | **Yes** | Brand name (max 200 chars) |
 | `package_size` | string | No | Human-readable package size |
 | `package_type` | string | No | Package type (bag, box, jar, etc.) |
-| `package_unit` | string | **Yes** | Unit for package contents |
-| `package_unit_quantity` | decimal | **Yes** | Quantity per package |
+| `package_unit` | string | **Yes** | Unit of measure for package contents |
+| `package_unit_quantity` | decimal | **Yes** | Amount in package (e.g., 25 for a 25 lb bag) |
 | `upc_code` | string | No | UPC barcode |
 | `is_preferred` | boolean | No | Preferred product for shopping lists |
 | `notes` | string | No | User notes |

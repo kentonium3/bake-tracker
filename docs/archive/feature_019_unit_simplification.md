@@ -119,7 +119,7 @@ With the 4-field density model, both `recipe_unit` and `UnitConversion` are vest
 
 ## Out of Scope
 
-- Changes to Product model (package_unit, package_unit_quantity stay)
+- Changes to Product model (purchase_unit, purchase_quantity stay)
 - Changes to RecipeIngredient model (unit stays - it's the recipe's declared unit)
 - Standard conversion tables (oz↔lb, cup↔tbsp) - these remain
 - Density input UI (Feature 010 already complete)

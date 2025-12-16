@@ -63,7 +63,7 @@ The Seasonal Baking Tracker is a desktop application built with Python and Custo
 ┌────────────────────────┴─────────────────────────────────────────────┐
 │                       Business Logic Layer                            │
 │  ┌──────────┐ ┌────────┐ ┌────────────┐ ┌────────┐ ┌──────────────┐ │
-│  │Ingredient│ │Product │ │  Pantry    │ │Purchase│ │    Recipe    │ │
+│  │Ingredient│ │Product │ │ Inventory  │ │Purchase│ │    Recipe    │ │
 │  │ Service  │ │Service │ │  Service   │ │Service │ │   Service    │ │
 │  └──────────┘ └────────┘ └────────────┘ └────────┘ └──────────────┘ │
 │  ┌────────────┐ ┌────────┐ ┌───────────┐ ┌─────────────────────────┐│
@@ -169,7 +169,7 @@ Ingredient (generic)
 Ingredient ←→ Recipe (many-to-many via RecipeIngredient)
   - Recipes reference generic Ingredients, not specific Products
   - Enables brand-agnostic recipes
-  - Cost calculation uses FIFO from pantry or preferred product
+  - Cost calculation uses FIFO from inventory or preferred product
 ```
 
 #### Recipe & Event Planning
@@ -237,7 +237,7 @@ Represents physical inventory with FIFO support:
    - Recipes say "2 cups All-Purpose Flour" (generic)
    - Not tied to specific brand
    - User can switch brands without updating recipes
-   - Cost calculation adapts based on actual pantry contents
+   - Cost calculation adapts based on actual inventory contents
 
 2. **FIFO Costing Matches Physical Reality**
    - Consume oldest inventory first
@@ -245,9 +245,9 @@ Represents physical inventory with FIFO support:
    - Natural extension to lot/batch tracking
    - Industry standard approach
 
-3. **Separate Product Management and Pantry Tabs**
+3. **Separate Product Management and Inventory Tabs**
    - "My Ingredients" tab: Manage catalog, products, conversions
-   - "My Pantry" tab: View/manage actual inventory
+   - "My Inventory" tab: View/manage actual inventory
    - Cleaner separation of planning vs. execution
    - Reduces cognitive load
 

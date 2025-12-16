@@ -29,12 +29,13 @@
 | 016 | Event-Centric Production Model | MERGED | Event-production linkage, targets, progress tracking, fulfillment workflow. 65+ service tests. |
 | 017 | Reporting & Event Planning | MERGED | CSV exports, event reports, cost analysis, recipient history, dashboard enhancements. |
 | 018 | Event Production Dashboard | MERGED | Mission control view, progress visualization, fulfillment tracking, quick actions. |
+| 019 | Unit Conversion Simplification | MERGED | Removed redundant `recipe_unit` and `UnitConversion` table. 4-field density is canonical. |
 
 ---
 
 ## In Progress
 
-**Feature 019: Unit Conversion Simplification** - Removing redundant `Ingredient.recipe_unit` and `UnitConversion` table. The 4-field density model (Feature 010) makes these vestigial.
+**Feature 020: Enhanced Data Import** - Separate catalog import (Ingredients, Products, Recipes) from transactional data import. ADD_ONLY and AUGMENT modes for safe catalog expansion without affecting user data.
 
 ---
 
@@ -42,14 +43,15 @@
 
 | # | Name | Priority | Dependencies | Status |
 |---|------|----------|--------------|--------|
-| 019 | Unit Conversion Simplification | HIGH | Constitution v1.2.0 | In Progress |
-| 020 | Packaging & Distribution | LOW | User testing complete | Blocked |
+| 020 | Enhanced Data Import | HIGH | Feature 019 complete | In Progress |
+| 021 | Field Naming Consistency | HIGH | Feature 020 complete | Planned |
+| 022 | Packaging & Distribution | LOW | User testing complete | Blocked |
 
 ---
 
 ## Implementation Order
 
-**Current:** Feature 019 - Unit Conversion Simplification
+**Current:** Feature 020 - Enhanced Data Import
 
 1. ~~**TD-001** - Clean foundation before adding new entities~~ ✅ COMPLETE
 2. ~~**Feature 011** - Packaging materials, extend Composition for packaging~~ ✅ COMPLETE
@@ -60,8 +62,10 @@
 7. ~~**BUGFIX** - Session Management Remediation~~ ✅ COMPLETE
 8. ~~**Feature 017** - Reporting and Event Planning~~ ✅ COMPLETE
 9. ~~**Feature 018** - Event Production Dashboard~~ ✅ COMPLETE
-10. **Feature 019** - Unit Conversion Simplification ← CURRENT
-11. **Feature 020** - Packaging & Distribution
+10. ~~**Feature 019** - Unit Conversion Simplification~~ ✅ COMPLETE
+11. **Feature 020** - Enhanced Data Import ← CURRENT
+12. **Feature 021** - Field Naming Consistency
+13. **Feature 022** - Packaging & Distribution
 
 ---
 
@@ -158,7 +162,7 @@
 
 ### Feature 019: Unit Conversion Simplification
 
-**Status:** In Progress
+**Status:** COMPLETE ✅ (Merged 2025-12-14)
 
 **Problem:** Redundant unit conversion mechanisms:
 - `Ingredient.recipe_unit` - vestigial field; recipes declare their own units in RecipeIngredient
@@ -166,24 +170,79 @@
 
 **Solution:** Remove both. The 4-field density model (Feature 010) is the canonical source.
 
-**Scope:**
-- Delete `Ingredient.recipe_unit` column
-- Delete `UnitConversion` model and table
-- Update import/export spec v3.2 → v3.3
-- Update catalog import proposal
-- Convert test data files
+**Delivered:**
+- Deleted `Ingredient.recipe_unit` column
+- Deleted `UnitConversion` model and table
+- Updated import/export spec v3.2 → v3.3
+- Converted test data files
+- Constitution v1.2.0: Schema changes via export/reset/import (no migration scripts)
 
 **Specification:** `docs/feature_019_unit_simplification.md`
+
+---
+
+### Feature 020: Enhanced Data Import
+
+**Status:** In Progress
+
+**Problem:** Current unified import conflates two fundamentally different data types:
+- **Catalog Data** (Ingredients, Products, Recipes) - slowly changing reference data
+- **Transactional Data** (Purchases, Inventory, Events) - user-specific activity
+
+This prevents safe catalog expansion without risking user data.
+
+**Solution:** Separate import pathways with explicit modes:
+- `ADD_ONLY` - Create new records, skip existing (default)
+- `AUGMENT` - Update NULL fields on existing records (ingredients/products only)
+
+**Scope:**
+- New `import_catalog` CLI command
+- Catalog-specific JSON format (v1.0)
+- FK validation before import
+- Dry-run preview mode
+- Preserve existing unified import/export for development workflow
+
+**Specification:** `docs/enhanced_data_import.md`
+
+---
+
+### Feature 021: Field Naming Consistency
+
+**Status:** Planned
+
+**Problem:** Two naming inconsistencies create confusion:
+1. **Purchase vs Package:** `purchase_unit` and `purchase_quantity` on Product describe package characteristics, not purchase transactions.
+2. **Pantry remnants:** "Pantry" terminology should have been fully replaced by "Inventory" but remnants remain.
+
+**Scope:**
+- Rename `purchase_unit` → `package_unit`
+- Rename `purchase_quantity` → `package_unit_quantity`
+- Replace all "pantry" occurrences with "inventory"
+- Schema, models, services, UI, import/export, docs, tests
+- Migration script with dry-run support
+
+**Non-Scope:** Functional changes (purely renaming)
+
+---
+
+### Feature 022: Packaging & Distribution
+
+**Status:** Blocked (awaiting user testing completion)
+
+**Scope:** PyInstaller executable, Inno Setup installer, Windows distribution.
 
 ---
 
 ## Key Decisions
 
 ### 2025-12-14
-- **Constitution v1.2.0:** Updated Principle VI from "Migration Safety" to "Schema Change Strategy (Desktop Phase)". For single-user desktop app, export/reset/import cycle replaces migration scripts.
-- **Feature 019 Defined:** Unit Conversion Simplification - remove redundant `recipe_unit` and `UnitConversion` table.
-- **Feature Renumbering:** Packaging & Distribution moved to Feature 020.
-- **Catalog Import Impact:** Feature proposal at `docs/feature_proposal_catalog_import.md` requires update to remove UnitConversion references.
+- **Feature 019 Complete:** Unit Conversion Simplification merged. Removed `recipe_unit` and `UnitConversion` table.
+- **Feature 020 Defined:** Enhanced Data Import - separate catalog from transactional data import.
+- **Renumbering:** Packaging & Distribution moved to Feature 021.
+
+### 2025-12-15
+- **Feature 021 Defined:** Field Naming Consistency - fix purchase_unit/purchase_quantity and remaining pantry references.
+- **Renumbering:** Packaging & Distribution moved to Feature 022.
 
 ### 2025-12-12
 - **Feature 018 Complete:** Event Production Dashboard merged. Mission control view, progress visualization, fulfillment tracking.
@@ -231,4 +290,4 @@ Part B: Ingredient.name → Ingredient.display_name ✅
 - 2025-12-10: Feature 013 bug fixes. Feature 014 complete. Feature 016 created for Event-Centric Production Model.
 - 2025-12-11: Feature 016 implementation complete and merged. Session management bug discovered during code review; remediation spec created. Feature 015 confirmed skipped. Features renumbered: 017 (Reporting), 018 (Dashboard), 019 (Packaging).
 - 2025-12-12: Feature 017 (Reporting & Event Planning) complete and merged. Feature 018 (Event Production Dashboard) complete and merged. Entered user testing phase.
-- 2025-12-14: Constitution v1.2.0 (schema change strategy). Feature 019 (Unit Conversion Simplification) defined. Packaging & Distribution moved to Feature 020.
+- 2025-12-14: Constitution v1.2.0 (schema change strategy). Feature 019 (Unit Conversion Simplification) complete and merged. Feature 020 (Enhanced Data Import) defined. Packaging & Distribution moved to Feature 021.
