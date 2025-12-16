@@ -16,16 +16,16 @@ subtasks:
 title: "Documentation and Sample Data"
 phase: "Phase 3 - Validation"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "system"
-shell_pid: ""
+shell_pid: "automated"
 review_status: "approved without changes"
 reviewed_by: "claude-reviewer"
 history:
   - timestamp: "2025-12-15T00:00:00Z"
     lane: "planned"
     agent: "system"
-    shell_pid: ""
+    shell_pid: "automated"
     action: "Prompt generated via /spec-kitty.tasks"
 ---
 

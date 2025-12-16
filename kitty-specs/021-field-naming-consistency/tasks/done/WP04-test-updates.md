@@ -26,7 +26,7 @@ subtasks:
 title: "Test Updates"
 phase: "Phase 3 - Validation"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude"
 shell_pid: "83880"
 review_status: "approved without changes"
@@ -35,7 +35,7 @@ history:
   - timestamp: "2025-12-15T00:00:00Z"
     lane: "planned"
     agent: "system"
-    shell_pid: ""
+    shell_pid: "automated"
     action: "Prompt generated via /spec-kitty.tasks"
 ---
 

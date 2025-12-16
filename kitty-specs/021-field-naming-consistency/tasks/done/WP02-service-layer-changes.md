@@ -13,7 +13,7 @@ subtasks:
 title: "Service Layer Changes"
 phase: "Phase 2 - Core Logic"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude"
 shell_pid: "83880"
 review_status: "approved without changes"
@@ -22,7 +22,7 @@ history:
   - timestamp: "2025-12-15T00:00:00Z"
     lane: "planned"
     agent: "system"
-    shell_pid: ""
+    shell_pid: "automated"
     action: "Prompt generated via /spec-kitty.tasks"
 ---
 
