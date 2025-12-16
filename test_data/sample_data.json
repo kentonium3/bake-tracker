@@ -724,31 +724,31 @@
   ],
   "finished_goods": [
     {
-      "name": "Cookie Assortment Box",
+      "display_name": "Cookie Assortment Box",
       "slug": "cookie_assortment_box",
       "category": "Gift Items",
       "description": "Assorted cookies including chocolate chip and snickerdoodles"
     },
     {
-      "name": "Brownie Box",
+      "display_name": "Brownie Box",
       "slug": "brownie_box",
       "category": "Gift Items",
       "description": "Eight fudgy brownies"
     },
     {
-      "name": "Pecan Sandy Box",
+      "display_name": "Pecan Sandy Box",
       "slug": "pecan_sandy_box",
       "category": "Gift Items",
       "description": "One dozen pecan sandies"
     },
     {
-      "name": "Fudge Box",
+      "display_name": "Fudge Box",
       "slug": "fudge_box",
       "category": "Gift Items",
       "description": "16 pieces of chocolate walnut fudge"
     },
     {
-      "name": "Snickerdoodle Box",
+      "display_name": "Snickerdoodle Box",
       "slug": "snickerdoodle_box",
       "category": "Gift Items",
       "description": "One dozen snickerdoodles"
