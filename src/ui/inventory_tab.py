@@ -160,10 +160,18 @@ class InventoryTab(ctk.CTkFrame):
 
     def _create_item_list(self):
         """Create scrollable list for displaying inventory items."""
-        # Scrollable frame directly in self (no intermediate container)
-        # Let it expand to fill available space
-        self.scrollable_frame = ctk.CTkScrollableFrame(self)
-        self.scrollable_frame.grid(row=2, column=0, padx=5, pady=5, sticky="nsew")
+        # Container to ensure proper expansion
+        list_container = ctk.CTkFrame(self)
+        list_container.grid(row=2, column=0, padx=5, pady=5, sticky="nsew")
+        list_container.grid_columnconfigure(0, weight=1)
+        list_container.grid_rowconfigure(0, weight=1)
+
+        # Scrollable frame with minimum height, expands with container
+        self.scrollable_frame = ctk.CTkScrollableFrame(
+            list_container,
+            height=400,  # Minimum height
+        )
+        self.scrollable_frame.pack(fill="both", expand=True)
         self.scrollable_frame.grid_columnconfigure(0, weight=1)
 
     def refresh(self):
