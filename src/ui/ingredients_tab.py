@@ -55,6 +55,7 @@ class IngredientsTab(ctk.CTkFrame):
         self.selected_ingredient_slug: Optional[str] = None
         self.ingredients: List[dict] = []
         self.selection_var = ctk.StringVar(value="")
+        self._data_loaded = False  # Lazy loading flag
 
         # Configure grid
         self.grid_columnconfigure(0, weight=1)
@@ -71,8 +72,8 @@ class IngredientsTab(ctk.CTkFrame):
         self._create_ingredient_list()
         self._create_status_bar()
 
-        # Load initial data
-        self.refresh()
+        # Show initial state (deferred loading for faster startup)
+        self._show_initial_state()
 
         # Grid the frame
         self.grid(row=0, column=0, sticky="nsew", padx=10, pady=10)
@@ -304,6 +305,20 @@ class IngredientsTab(ctk.CTkFrame):
         except DatabaseError as e:
             messagebox.showerror("Database Error", f"Failed to load ingredients: {e}")
             self.update_status("Error loading ingredients")
+
+    def _show_initial_state(self):
+        """Show initial state prompting user to load data."""
+        for widget in self.list_frame.winfo_children():
+            if widget != self.empty_label:
+                widget.destroy()
+        initial_label = ctk.CTkLabel(
+            self.list_frame,
+            text="Click 'Refresh' to load ingredients.",
+            font=ctk.CTkFont(size=14),
+            text_color="gray",
+        )
+        initial_label.grid(row=0, column=0, padx=20, pady=30)
+        self.update_status("Ready")
 
     def _update_ingredient_display(self):
         """Update the displayed list of ingredients based on current filters."""

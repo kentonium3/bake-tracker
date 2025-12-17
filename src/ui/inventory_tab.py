@@ -45,6 +45,7 @@ class InventoryTab(ctk.CTkFrame):
         self.inventory_items = []  # All inventory items
         self.filtered_items = []  # Items after filtering
         self.view_mode = "detail"  # "aggregate" or "detail"
+        self._data_loaded = False  # Lazy loading flag
 
         # Configure grid
         self.grid_columnconfigure(0, weight=1)
@@ -60,8 +61,8 @@ class InventoryTab(ctk.CTkFrame):
         # Grid the frame
         self.grid(row=0, column=0, sticky="nsew", padx=10, pady=10)
 
-        # Initial load
-        self.refresh()
+        # Show initial "click refresh" message instead of auto-loading
+        self._show_initial_state()
 
     def _create_header(self):
         """Create the header with title."""
@@ -251,6 +252,18 @@ class InventoryTab(ctk.CTkFrame):
             self._display_aggregate_view()
         else:
             self._display_detail_view()
+
+    def _show_initial_state(self):
+        """Show initial state prompting user to load data."""
+        for widget in self.scrollable_frame.winfo_children():
+            widget.destroy()
+        initial_label = ctk.CTkLabel(
+            self.scrollable_frame,
+            text="Click 'Refresh' to load inventory data.",
+            font=ctk.CTkFont(size=16),
+            text_color="gray",
+        )
+        initial_label.grid(row=0, column=0, padx=20, pady=50)
 
     def _show_empty_state(self):
         """Show empty state message."""
