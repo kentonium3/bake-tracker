@@ -349,9 +349,25 @@ class IngredientsTab(ctk.CTkFrame):
             self.selection_var.set("")
             self._disable_selection_buttons()
 
+        # Limit rows to prevent UI freeze with large datasets
+        MAX_DISPLAY_ROWS = 100
+        display_ingredients = filtered_ingredients[:MAX_DISPLAY_ROWS]
+
         # Display ingredients
-        for idx, ingredient in enumerate(filtered_ingredients):
+        for idx, ingredient in enumerate(display_ingredients):
             self._create_ingredient_row(idx, ingredient)
+
+        # Show truncation warning if needed
+        if len(filtered_ingredients) > MAX_DISPLAY_ROWS:
+            warning_frame = ctk.CTkFrame(self.list_frame)
+            warning_frame.grid(row=MAX_DISPLAY_ROWS, column=0, pady=10, sticky="ew")
+            warning_label = ctk.CTkLabel(
+                warning_frame,
+                text=f"Showing {MAX_DISPLAY_ROWS} of {len(filtered_ingredients)} ingredients. Use search to find specific items.",
+                text_color="orange",
+                font=ctk.CTkFont(size=12, weight="bold"),
+            )
+            warning_label.grid(row=0, column=0, padx=10, pady=5)
 
     def _create_ingredient_row(self, row_idx: int, ingredient: dict):
         """Create a compact row displaying ingredient information in columns."""
