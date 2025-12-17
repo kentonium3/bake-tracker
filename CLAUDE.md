@@ -89,25 +89,51 @@ Features follow a documentation-first workflow:
 6. `/spec-kitty.accept` - Full acceptance checks
 7. `/spec-kitty.merge` - Merge and cleanup
 
-## Parallel Development with Gemini CLI
+## Multi-Agent Orchestration
 
-This project has Gemini CLI configured for parallel development. Use the `gemini-parallel-dev` agent when you identify independent tasks that can run concurrently.
+This project uses multi-agent orchestration with **Claude Code as the lead agent**. Gemini CLI is available as a teammate agent for parallel work.
 
-**Good candidates for parallel execution:**
+### Lead Agent Responsibilities (Claude Code)
+
+As lead agent, Claude Code:
+- Initiates features via `/spec-kitty.specify` to generate spec, branch, and worktree
+- Shares feature slug with teammate agents for coordinated work
+- Owns the gated workflow progression: Specify → Plan → Tasks → Implement → Review → Accept → Merge
+- Delegates parallelizable implementation tasks to Gemini
+- Maintains overall feature coherence and integration
+
+### Workflow Stages
+
+1. **Specification Phase:** Lead agent creates feature foundation using spec-kitty commands
+2. **Planning & Research:** Run `/spec-kitty.plan` and `/spec-kitty.research` to produce artifacts
+3. **Task Decomposition:** `/spec-kitty.tasks` generates work packages in planned queue
+4. **Parallel Implementation:** Delegate independent tasks to Gemini via `gemini-parallel-dev` agent
+5. **Review & Integration:** Lead agent reviews completed work and manages merge
+
+### Delegating to Gemini CLI
+
+Use the `gemini-parallel-dev` agent for tasks that:
+- Are independent and won't conflict with your current work
+- Operate on different files or modules
+- Can proceed without blocking each other
+
+**Good candidates:**
 - Running tests while implementing features
 - Generating documentation while refactoring code
-- Creating boilerplate for a new module while finishing another
 - Implementing independent features in separate parts of the codebase
+- Research tasks that inform later implementation
 
 **Gemini CLI capabilities:**
 - Can run spec-kitty commands (`/spec-kitty.*`)
 - Has access to the full codebase
 - Can perform research, code generation, and file operations
 
-**When to delegate to Gemini:**
-- Tasks that are independent and won't conflict with your current work
-- Tasks that operate on different files or modules
-- Work that can proceed without blocking each other
+### Coordination Best Practices
+
+- **Enforce file boundaries:** Specify which files each agent modifies to prevent conflicts
+- **Mark safe-to-parallelize tasks:** Clearly identify tasks that can run concurrently
+- **Use official lane-movement scripts:** Never manually move files between task lanes
+- **Refresh context after plan updates:** Re-read artifacts when plans change
 
 ## Agent Rules
 
