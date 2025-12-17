@@ -185,19 +185,30 @@ class IngredientsTab(ctk.CTkFrame):
 
     def _create_ingredient_list(self):
         """Create the scrollable list for displaying ingredients."""
-        # Create scrollable frame with explicit minimum width
-        self.list_frame = ctk.CTkScrollableFrame(
-            self,
-            label_text="Ingredient Catalog",
-            width=700,  # Minimum width to prevent truncation
-        )
-        self.list_frame.grid(
+        # Container for header + scrollable content
+        list_container = ctk.CTkFrame(self)
+        list_container.grid(
             row=3,
             column=0,
             sticky="nsew",
             padx=PADDING_LARGE,
             pady=PADDING_MEDIUM,
         )
+        list_container.grid_columnconfigure(0, weight=1)
+        list_container.grid_rowconfigure(1, weight=1)
+
+        # Column header frame (fixed, doesn't scroll)
+        self.header_frame = ctk.CTkFrame(list_container, fg_color=("gray85", "gray20"))
+        self.header_frame.grid(row=0, column=0, sticky="ew")
+        self._create_column_headers()
+
+        # Create scrollable frame for data rows
+        self.list_frame = ctk.CTkScrollableFrame(
+            list_container,
+            width=800,
+            height=400,  # Explicit height for better scroll behavior
+        )
+        self.list_frame.grid(row=1, column=0, sticky="nsew")
         self.list_frame.grid_columnconfigure(0, weight=1)
 
         # Empty state label (shown when no ingredients)
@@ -206,6 +217,55 @@ class IngredientsTab(ctk.CTkFrame):
             text="No ingredients found. Click 'Add Ingredient' to get started.",
             text_color="gray",
         )
+
+    def _create_column_headers(self):
+        """Create sortable column headers."""
+        # Track current sort state
+        self.sort_column = "name"
+        self.sort_ascending = True
+
+        # Column definitions: (text, width, sort_key)
+        self.columns = [
+            ("", 30, None),  # Radio button column
+            ("Category", 180, "category"),
+            ("Name", 280, "name"),
+            ("Density", 150, "density_display"),
+        ]
+
+        for col_idx, (text, width, sort_key) in enumerate(self.columns):
+            if sort_key:
+                # Clickable header for sorting
+                btn = ctk.CTkButton(
+                    self.header_frame,
+                    text=text,
+                    width=width,
+                    height=28,
+                    fg_color="transparent",
+                    text_color=("gray10", "gray90"),
+                    hover_color=("gray75", "gray30"),
+                    anchor="w",
+                    command=lambda sk=sort_key: self._on_header_click(sk),
+                )
+                btn.grid(row=0, column=col_idx, padx=1, pady=2, sticky="w")
+            else:
+                # Non-sortable column (radio button)
+                lbl = ctk.CTkLabel(
+                    self.header_frame,
+                    text=text,
+                    width=width,
+                    height=28,
+                    anchor="w",
+                )
+                lbl.grid(row=0, column=col_idx, padx=1, pady=2, sticky="w")
+
+    def _on_header_click(self, sort_key: str):
+        """Handle column header click for sorting."""
+        if self.sort_column == sort_key:
+            self.sort_ascending = not self.sort_ascending
+        else:
+            self.sort_column = sort_key
+            self.sort_ascending = True
+        self._update_ingredient_display()
 
     def _create_status_bar(self):
         """Create status bar for displaying messages."""
@@ -279,41 +339,67 @@ class IngredientsTab(ctk.CTkFrame):
             self._create_ingredient_row(idx, ingredient)
 
     def _create_ingredient_row(self, row_idx: int, ingredient: dict):
-        """Create a row displaying ingredient information."""
-        # Create frame for row
-        row_frame = ctk.CTkFrame(self.list_frame)
-        row_frame.grid(row=row_idx, column=0, sticky="ew", pady=2)
-        row_frame.grid_columnconfigure(1, weight=1)
+        """Create a compact row displaying ingredient information in columns."""
+        # Create frame for row with minimal padding
+        row_frame = ctk.CTkFrame(self.list_frame, height=28)
+        row_frame.grid(row=row_idx, column=0, sticky="ew", pady=1)
+        row_frame.grid_propagate(False)  # Enforce fixed height
 
-        # Selection radio button
+        # Get data
+        name_text = ingredient["name"]
+        category_text = ingredient.get("category", "Uncategorized")
+        density_text = ingredient.get("density_display", "—")
+        is_packaging = ingredient.get("is_packaging", False)
+        type_indicator = "📦 " if is_packaging else ""
+
+        # Column 0: Radio button (width 30)
         radio = ctk.CTkRadioButton(
             row_frame,
             text="",
             variable=self.selection_var,
             value=ingredient["slug"],
+            width=20,
+            height=20,
             command=lambda slug=ingredient["slug"]: self._on_ingredient_select(slug),
         )
-        radio.grid(row=0, column=0, padx=(PADDING_MEDIUM, 5), pady=PADDING_MEDIUM)
+        radio.grid(row=0, column=0, padx=(5, 2), pady=3)
 
-        # Ingredient info
-        name_text = ingredient["name"]
-        category_text = ingredient.get("category", "Uncategorized")
-        density_text = ingredient.get("density_display", "Not set")
-        is_packaging = ingredient.get("is_packaging", False)
-
-        # Feature 011: Show packaging indicator
-        type_indicator = "📦 " if is_packaging else ""
-        info_text = f"{type_indicator}{name_text} | Category: {category_text} | Density: {density_text}"
-
-        info_label = ctk.CTkLabel(
+        # Column 1: Category (width 180)
+        cat_label = ctk.CTkLabel(
             row_frame,
-            text=info_text,
+            text=category_text,
+            width=180,
+            height=22,
             anchor="w",
+            font=ctk.CTkFont(size=12),
         )
-        info_label.grid(row=0, column=1, sticky="ew", padx=PADDING_MEDIUM, pady=PADDING_MEDIUM)
+        cat_label.grid(row=0, column=1, padx=2, pady=3, sticky="w")
+
+        # Column 2: Name (width 280)
+        name_label = ctk.CTkLabel(
+            row_frame,
+            text=f"{type_indicator}{name_text}",
+            width=280,
+            height=22,
+            anchor="w",
+            font=ctk.CTkFont(size=12),
+        )
+        name_label.grid(row=0, column=2, padx=2, pady=3, sticky="w")
+
+        # Column 3: Density (width 150)
+        density_label = ctk.CTkLabel(
+            row_frame,
+            text=density_text if density_text != "Not set" else "—",
+            width=150,
+            height=22,
+            anchor="w",
+            font=ctk.CTkFont(size=12),
+            text_color="gray" if density_text in ("—", "Not set") else None,
+        )
+        density_label.grid(row=0, column=3, padx=2, pady=3, sticky="w")
 
     def _apply_filters(self, ingredients: List[dict]) -> List[dict]:
-        """Apply search and category filters to ingredient list."""
+        """Apply search, category filters, and sorting to ingredient list."""
         filtered = ingredients
 
         # Apply search filter
@@ -325,6 +411,15 @@ class IngredientsTab(ctk.CTkFrame):
         category = self.category_var.get()
         if category and category != "All Categories":
             filtered = [ing for ing in filtered if ing.get("category") == category]
+
+        # Sort by selected column
+        sort_key = getattr(self, "sort_column", "name")
+        ascending = getattr(self, "sort_ascending", True)
+        filtered = sorted(
+            filtered,
+            key=lambda x: (x.get(sort_key) or "").lower() if isinstance(x.get(sort_key), str) else str(x.get(sort_key, "")),
+            reverse=not ascending,
+        )
 
         return filtered
 

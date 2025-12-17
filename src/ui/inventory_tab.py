@@ -45,7 +45,6 @@ class InventoryTab(ctk.CTkFrame):
         self.inventory_items = []  # All inventory items
         self.filtered_items = []  # Items after filtering
         self.view_mode = "detail"  # "aggregate" or "detail"
-        self.selected_location = "All Locations"
 
         # Configure grid
         self.grid_columnconfigure(0, weight=1)
@@ -88,31 +87,35 @@ class InventoryTab(ctk.CTkFrame):
         """Create control buttons and filters."""
         controls_frame = ctk.CTkFrame(self)
         controls_frame.grid(row=1, column=0, padx=10, pady=10, sticky="ew")
-        controls_frame.grid_columnconfigure(4, weight=1)
+        controls_frame.grid_columnconfigure(6, weight=1)
 
-        # Add Inventory Item button
-        add_button = ctk.CTkButton(
+        # Row 0: Search and filters
+        # Search entry
+        self.search_entry = ctk.CTkEntry(
             controls_frame,
-            text="Add Inventory Item",
-            command=self._add_inventory_item,
-            width=150,
+            placeholder_text="Search by ingredient or brand...",
+            width=250,
         )
-        add_button.grid(row=0, column=0, padx=5, pady=5)
+        self.search_entry.grid(row=0, column=0, padx=5, pady=5)
+        self.search_entry.bind("<KeyRelease>", self._on_search)
 
-        # Consume Ingredient button
-        consume_button = ctk.CTkButton(
+        # Category filter
+        cat_label = ctk.CTkLabel(controls_frame, text="Category:")
+        cat_label.grid(row=0, column=1, padx=(15, 5), pady=5)
+
+        self.category_var = ctk.StringVar(value="All Categories")
+        self.category_dropdown = ctk.CTkOptionMenu(
             controls_frame,
-            text="Consume Ingredient",
-            command=self._consume_ingredient,
-            width=150,
-            fg_color="darkorange",
-            hover_color="orange",
+            variable=self.category_var,
+            values=["All Categories"],
+            command=self._on_category_change,
+            width=180,
         )
-        consume_button.grid(row=1, column=0, padx=5, pady=5)
+        self.category_dropdown.grid(row=0, column=2, padx=5, pady=5)
 
         # View mode toggle
-        view_label = ctk.CTkLabel(controls_frame, text="View Mode:")
-        view_label.grid(row=0, column=1, padx=(20, 5), pady=5)
+        view_label = ctk.CTkLabel(controls_frame, text="View:")
+        view_label.grid(row=0, column=3, padx=(15, 5), pady=5)
 
         self.view_mode_var = ctk.StringVar(value="Detail")
         view_mode_dropdown = ctk.CTkOptionMenu(
@@ -120,32 +123,39 @@ class InventoryTab(ctk.CTkFrame):
             variable=self.view_mode_var,
             values=["Detail", "Aggregate"],
             command=self._on_view_mode_change,
-            width=120,
+            width=100,
         )
-        view_mode_dropdown.grid(row=0, column=2, padx=5, pady=5)
-
-        # Location filter
-        location_label = ctk.CTkLabel(controls_frame, text="Location:")
-        location_label.grid(row=0, column=3, padx=(20, 5), pady=5)
-
-        self.location_var = ctk.StringVar(value="All Locations")
-        self.location_dropdown = ctk.CTkOptionMenu(
-            controls_frame,
-            variable=self.location_var,
-            values=["All Locations"],
-            command=self._on_location_change,
-            width=150,
-        )
-        self.location_dropdown.grid(row=0, column=4, padx=5, pady=5, sticky="w")
+        view_mode_dropdown.grid(row=0, column=4, padx=5, pady=5)
 
         # Refresh button
         refresh_button = ctk.CTkButton(
             controls_frame,
             text="Refresh",
             command=self.refresh,
-            width=100,
+            width=80,
         )
-        refresh_button.grid(row=0, column=5, padx=5, pady=5, sticky="e")
+        refresh_button.grid(row=0, column=5, padx=5, pady=5)
+
+        # Row 1: Action buttons
+        # Add Inventory Item button
+        add_button = ctk.CTkButton(
+            controls_frame,
+            text="Add Inventory Item",
+            command=self._add_inventory_item,
+            width=140,
+        )
+        add_button.grid(row=1, column=0, padx=5, pady=5, sticky="w")
+
+        # Record Usage button (FIFO consumption)
+        consume_button = ctk.CTkButton(
+            controls_frame,
+            text="Record Usage",
+            command=self._consume_ingredient,
+            width=120,
+            fg_color="darkorange",
+            hover_color="orange",
+        )
+        consume_button.grid(row=1, column=1, padx=5, pady=5, sticky="w")
 
     def _create_item_list(self):
         """Create scrollable list for displaying inventory items."""
@@ -166,16 +176,16 @@ class InventoryTab(ctk.CTkFrame):
             # Get all inventory items from service (returns InventoryItem instances)
             self.inventory_items = inventory_item_service.get_inventory_items()
 
-            # Update location dropdown with unique locations
-            locations = sorted(
-                {
-                    str(item.location)
-                    for item in self.inventory_items
-                    if getattr(item, "location", None)
-                }
-            )
-            location_list = ["All Locations"] + locations
-            self.location_dropdown.configure(values=location_list)
+            # Update category dropdown with unique ingredient categories
+            categories = set()
+            for item in self.inventory_items:
+                product = getattr(item, "product", None)
+                ingredient = getattr(product, "ingredient", None) if product else None
+                category = getattr(ingredient, "category", None) if ingredient else None
+                if category:
+                    categories.add(category)
+            category_list = ["All Categories"] + sorted(categories)
+            self.category_dropdown.configure(values=category_list)
 
             # Apply filters
             self._apply_filters()
@@ -188,19 +198,44 @@ class InventoryTab(ctk.CTkFrame):
             )
 
     def _apply_filters(self):
-        """Apply location filter and update display."""
-        # Filter by location
-        if self.selected_location == "All Locations":
-            self.filtered_items = list(self.inventory_items)
-        else:
-            self.filtered_items = [
-                item
-                for item in self.inventory_items
-                if (item.location or "") == self.selected_location
-            ]
+        """Apply search and category filters and update display."""
+        self.filtered_items = list(self.inventory_items)
+
+        # Apply search filter
+        search_text = self.search_entry.get().lower().strip()
+        if search_text:
+            filtered = []
+            for item in self.filtered_items:
+                product = getattr(item, "product", None)
+                ingredient = getattr(product, "ingredient", None) if product else None
+                ingredient_name = getattr(ingredient, "display_name", "") or ""
+                brand = getattr(product, "brand", "") or ""
+                if search_text in ingredient_name.lower() or search_text in brand.lower():
+                    filtered.append(item)
+            self.filtered_items = filtered
+
+        # Apply category filter
+        selected_category = self.category_var.get()
+        if selected_category and selected_category != "All Categories":
+            filtered = []
+            for item in self.filtered_items:
+                product = getattr(item, "product", None)
+                ingredient = getattr(product, "ingredient", None) if product else None
+                category = getattr(ingredient, "category", None) if ingredient else None
+                if category == selected_category:
+                    filtered.append(item)
+            self.filtered_items = filtered
 
         # Update display based on view mode
         self._update_display()
+
+    def _on_search(self, event=None):
+        """Handle search text change."""
+        self._apply_filters()
+
+    def _on_category_change(self, value: str):
+        """Handle category filter change."""
+        self._apply_filters()
 
     def _update_display(self):
         """Update the display based on current view mode."""
@@ -393,11 +428,10 @@ class InventoryTab(ctk.CTkFrame):
         headers = [
             ("Ingredient", 0, 180),
             ("Product", 1, 200),
-            ("Quantity", 2, 120),  # Wider quantity column
+            ("Quantity", 2, 150),  # Wider for "X pkg (Y unit)" format
             ("Purchase Date", 3, 110),
             ("Expiration", 4, 110),
-            ("Location", 5, 120),
-            ("Actions", 6, 180),
+            ("Actions", 5, 160),
         ]
 
         for text, col, width in headers:
@@ -472,21 +506,30 @@ class InventoryTab(ctk.CTkFrame):
         )
         product_label.grid(row=0, column=1, padx=3, pady=3, sticky="w")
 
-        # Quantity - improved formatting
-        qty_value = getattr(item, "quantity", 0)
-        if isinstance(qty_value, (int, float)) and qty_value != 0:
-            # Format numbers nicely - remove trailing zeros
-            if qty_value == int(qty_value):
-                qty_text = str(int(qty_value))
-            else:
-                qty_text = f"{qty_value:.1f}"
+        # Quantity - show as "X pkg (Y unit)" format
+        qty_value = getattr(item, "quantity", 0) or 0
+
+        # Format total quantity
+        if qty_value == int(qty_value):
+            qty_total = str(int(qty_value))
         else:
-            qty_text = "0"
+            qty_total = f"{qty_value:.1f}"
+
+        # Calculate packages if package size is known
+        if package_size and package_size > 0:
+            packages = qty_value / float(package_size)
+            if packages == int(packages):
+                pkg_text = str(int(packages))
+            else:
+                pkg_text = f"{packages:.1f}"
+            qty_display = f"{pkg_text} pkg ({qty_total} {inventory_unit})".strip()
+        else:
+            qty_display = f"{qty_total} {inventory_unit}".strip()
 
         qty_label = ctk.CTkLabel(
             row_frame,
-            text=f"{qty_text} {inventory_unit}".strip(),
-            width=120,  # Wider to match header
+            text=qty_display,
+            width=150,  # Wider for new format
             anchor="w",
             font=ctk.CTkFont(weight="bold"),  # Make quantity more prominent
         )
@@ -512,18 +555,9 @@ class InventoryTab(ctk.CTkFrame):
         )
         exp_label.grid(row=0, column=4, padx=3, pady=3, sticky="w")
 
-        # Location
-        location_label = ctk.CTkLabel(
-            row_frame,
-            text=getattr(item, "location", "N/A"),
-            width=120,  # Match header width
-            anchor="w",
-        )
-        location_label.grid(row=0, column=5, padx=3, pady=3, sticky="w")
-
         # Actions
         actions_frame = ctk.CTkFrame(row_frame)
-        actions_frame.grid(row=0, column=6, padx=3, pady=3)
+        actions_frame.grid(row=0, column=5, padx=3, pady=3)
 
         edit_btn = ctk.CTkButton(
             actions_frame,
@@ -567,11 +601,6 @@ class InventoryTab(ctk.CTkFrame):
         """Handle view mode change."""
         self.view_mode = value.lower()
         self._update_display()
-
-    def _on_location_change(self, value: str):
-        """Handle location filter change."""
-        self.selected_location = value
-        self._apply_filters()
 
     def _view_ingredient_details(self, ingredient_slug: str):
         """Switch to detail view filtered to specific ingredient."""
@@ -620,8 +649,9 @@ class InventoryTab(ctk.CTkFrame):
 
         self.view_mode = "detail"
         self.view_mode_var.set("Detail")
-        self.selected_location = "All Locations"
-        self.location_var.set("All Locations")
+        # Clear filters to show the specific ingredient
+        self.search_entry.delete(0, "end")
+        self.category_var.set("All Categories")
 
         self.filtered_items = [
             item
