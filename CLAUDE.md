@@ -89,6 +89,26 @@ Features follow a documentation-first workflow:
 6. `/spec-kitty.accept` - Full acceptance checks
 7. `/spec-kitty.merge` - Merge and cleanup
 
+## Parallel Development with Gemini CLI
+
+This project has Gemini CLI configured for parallel development. Use the `gemini-parallel-dev` agent when you identify independent tasks that can run concurrently.
+
+**Good candidates for parallel execution:**
+- Running tests while implementing features
+- Generating documentation while refactoring code
+- Creating boilerplate for a new module while finishing another
+- Implementing independent features in separate parts of the codebase
+
+**Gemini CLI capabilities:**
+- Can run spec-kitty commands (`/spec-kitty.*`)
+- Has access to the full codebase
+- Can perform research, code generation, and file operations
+
+**When to delegate to Gemini:**
+- Tasks that are independent and won't conflict with your current work
+- Tasks that operate on different files or modules
+- Work that can proceed without blocking each other
+
 ## Agent Rules
 
 - **Paths**: Always use exact paths relative to project root or absolute paths
