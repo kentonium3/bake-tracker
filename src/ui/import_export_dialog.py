@@ -366,9 +366,11 @@ class ImportDialog(ctk.CTkToplevel):
                 parent=self,
             )
         finally:
-            self.status_label.configure(text="")
-            self.import_btn.configure(state="normal")
-            self.config(cursor="")
+            # Only update widgets if dialog still exists (not destroyed after success)
+            if self.winfo_exists():
+                self.status_label.configure(text="")
+                self.import_btn.configure(state="normal")
+                self.config(cursor="")
 
     def _format_error(self, e: Exception) -> str:
         """Convert exception to user-friendly message."""
@@ -529,9 +531,11 @@ class ExportDialog(ctk.CTkToplevel):
                 parent=self,
             )
         finally:
-            self.status_label.configure(text="")
-            self.export_btn.configure(state="normal")
-            self.config(cursor="")
+            # Only update widgets if dialog still exists (not destroyed after success)
+            if self.winfo_exists():
+                self.status_label.configure(text="")
+                self.export_btn.configure(state="normal")
+                self.config(cursor="")
 
     def _format_error(self, e: Exception) -> str:
         """Convert exception to user-friendly message."""
