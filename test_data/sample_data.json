@@ -1,546 +1,160 @@
 {
   "version": "3.4",
-  "exported_at": "2025-12-04T00:00:00Z",
+  "exported_at": "2025-12-17T00:00:00Z",
   "application": "bake-tracker",
-  "ingredients": [
-    {
-      "slug": "all_purpose_wheat_flour",
-      "category": "Flours & Meals",
-      "description": "All-purpose wheat flour",
-      "density_volume_value": 1.0,
-      "density_volume_unit": "cup",
-      "density_weight_value": 4.42,
-      "density_weight_unit": "oz",
-      "notes": "Store in airtight container in cool, dry place",
-      "display_name": "All-purpose Wheat Flour"
-    },
-    {
-      "slug": "sugar_granulated",
-      "category": "Sugars & Sweeteners",
-      "description": "Sugar, granulated",
-      "density_volume_value": 1.0,
-      "density_volume_unit": "cup",
-      "density_weight_value": 7.09,
-      "density_weight_unit": "oz",
-      "display_name": "Sugar, Granulated"
-    },
-    {
-      "slug": "sugar_brown_light",
-      "category": "Sugars & Sweeteners",
-      "description": "Sugar, brown light",
-      "density_volume_value": 1.0,
-      "density_volume_unit": "cup",
-      "density_weight_value": 7.76,
-      "density_weight_unit": "oz",
-      "display_name": "Sugar, Brown Light"
-    },
-    {
-      "slug": "sugar_powdered",
-      "category": "Sugars & Sweeteners",
-      "description": "Sugar, powdered",
-      "density_volume_value": 1.0,
-      "density_volume_unit": "cup",
-      "density_weight_value": 4.17,
-      "density_weight_unit": "oz",
-      "display_name": "Sugar, Powdered"
-    },
-    {
-      "slug": "chocolate_chips_semi_sweet",
-      "category": "Chocolate & Cocoa",
-      "description": "Chocolate chips, semi-sweet",
-      "display_name": "Chocolate chips, semi-sweet"
-    },
-    {
-      "slug": "butter_unsalted",
-      "category": "Fats & Oils",
-      "description": "Butter, unsalted",
-      "density_volume_value": 1.0,
-      "density_volume_unit": "cup",
-      "density_weight_value": 8.01,
-      "density_weight_unit": "oz",
-      "display_name": "Butter, Unsalted"
-    },
-    {
-      "slug": "cocoa_powder_dutch_processed",
-      "category": "Chocolate & Cocoa",
-      "description": "Cocoa powder, dutch-processed",
-      "density_volume_value": 1.0,
-      "density_volume_unit": "cup",
-      "density_weight_value": 3.76,
-      "density_weight_unit": "oz",
-      "display_name": "Cocoa powder, dutch-processed"
-    },
-    {
-      "slug": "vanilla_extract",
-      "category": "Spices & Flavorings",
-      "description": "Vanilla extract",
-      "display_name": "Vanilla Extract"
-    },
-    {
-      "slug": "baking_soda",
-      "category": "Leaveners",
-      "description": "Baking soda",
-      "display_name": "Baking Soda"
-    },
-    {
-      "slug": "salt_fine",
-      "category": "Additives & Thickeners",
-      "description": "Salt, fine",
-      "display_name": "Salt, Fine"
-    },
-    {
-      "slug": "pecans",
-      "category": "Nuts & Seeds",
-      "description": "Nuts, pecans",
-      "display_name": "Nuts, Pecans"
-    },
-    {
-      "slug": "walnuts",
-      "category": "Nuts & Seeds",
-      "description": "Nuts, walnuts",
-      "display_name": "Nuts, Walnuts"
-    }
-  ],
-  "products": [
-    {
-      "ingredient_slug": "all_purpose_wheat_flour",
-      "brand": "King Arthur",
-      "package_size": "25 lb bag",
-      "package_type": "bag",
-      "package_unit": "lb",
-      "package_unit_quantity": 25.0,
-      "is_preferred": true,
-      "notes": "Premium quality, consistent results"
-    },
-    {
-      "ingredient_slug": "all_purpose_wheat_flour",
-      "brand": "Gold Medal",
-      "package_size": "5 lb bag",
-      "package_type": "bag",
-      "package_unit": "lb",
-      "package_unit_quantity": 5.0,
-      "is_preferred": false,
-      "notes": "Good budget option"
-    },
-    {
-      "ingredient_slug": "sugar_granulated",
-      "brand": "Domino",
-      "package_size": "25 lb bag",
-      "package_type": "bag",
-      "package_unit": "lb",
-      "package_unit_quantity": 25.0,
-      "is_preferred": true,
-      "notes": "Best price per pound at Costco"
-    },
-    {
-      "ingredient_slug": "chocolate_chips_semi_sweet",
-      "brand": "Nestle Toll House",
-      "package_size": "72 oz bag",
-      "package_type": "bag",
-      "package_unit": "oz",
-      "package_unit_quantity": 72.0,
-      "is_preferred": true,
-      "notes": "Costco bulk bag"
-    },
-    {
-      "ingredient_slug": "butter_unsalted",
-      "brand": "Kirkland",
-      "package_size": "4 lb box",
-      "package_type": "box",
-      "package_unit": "lb",
-      "package_unit_quantity": 4.0,
-      "is_preferred": true,
-      "notes": "Costco 4-pack"
-    },
-    {
-      "ingredient_slug": "sugar_brown_light",
-      "brand": "Domino",
-      "package_size": "2 lb bag",
-      "package_type": "bag",
-      "package_unit": "lb",
-      "package_unit_quantity": 2.0,
-      "is_preferred": true,
-      "notes": "Light brown sugar"
-    },
-    {
-      "ingredient_slug": "sugar_powdered",
-      "brand": "C&H",
-      "package_size": "2 lb bag",
-      "package_type": "bag",
-      "package_unit": "lb",
-      "package_unit_quantity": 2.0,
-      "is_preferred": true
-    },
-    {
-      "ingredient_slug": "cocoa_powder_dutch_processed",
-      "brand": "Penzeys Dutch Process",
-      "package_size": "8 oz jar",
-      "package_type": "jar",
-      "package_unit": "oz",
-      "package_unit_quantity": 8.0,
-      "is_preferred": true,
-      "notes": "Premium dutch-processed cocoa"
-    },
-    {
-      "ingredient_slug": "vanilla_extract",
-      "brand": "McCormick",
-      "package_size": "16 fl oz bottle",
-      "package_type": "bottle",
-      "package_unit": "fl oz",
-      "package_unit_quantity": 16.0,
-      "is_preferred": true
-    },
-    {
-      "ingredient_slug": "baking_soda",
-      "brand": "Arm & Hammer",
-      "package_size": "1 lb box",
-      "package_type": "box",
-      "package_unit": "lb",
-      "package_unit_quantity": 1.0,
-      "is_preferred": true
-    },
-    {
-      "ingredient_slug": "salt_fine",
-      "brand": "Morton",
-      "package_size": "26 oz box",
-      "package_type": "box",
-      "package_unit": "oz",
-      "package_unit_quantity": 26.0,
-      "is_preferred": true
-    },
-    {
-      "ingredient_slug": "pecans",
-      "brand": "Costco",
-      "package_size": "2 lb bag",
-      "package_type": "bag",
-      "package_unit": "lb",
-      "package_unit_quantity": 2.0,
-      "is_preferred": true,
-      "notes": "Halves and pieces"
-    },
-    {
-      "ingredient_slug": "walnuts",
-      "brand": "Kirkland",
-      "package_size": "3 lb bag",
-      "package_type": "bag",
-      "package_unit": "lb",
-      "package_unit_quantity": 3.0,
-      "is_preferred": true,
-      "notes": "Halves and pieces"
-    }
-  ],
-  "purchases": [
-    {
-      "ingredient_slug": "all_purpose_wheat_flour",
-      "product_brand": "King Arthur",
-      "purchased_at": "2024-10-15T00:00:00Z",
-      "quantity_purchased": 1,
-      "unit_cost": 18.99,
-      "total_cost": 18.99,
-      "supplier": "Costco",
-      "notes": "Stock up purchase"
-    },
-    {
-      "ingredient_slug": "all_purpose_wheat_flour",
-      "product_brand": "King Arthur",
-      "purchased_at": "2024-11-05T00:00:00Z",
-      "quantity_purchased": 2,
-      "unit_cost": 19.99,
-      "total_cost": 39.98,
-      "supplier": "Costco",
-      "notes": "Price increase from last time"
-    },
-    {
-      "ingredient_slug": "sugar_granulated",
-      "product_brand": "Domino",
-      "purchased_at": "2024-10-15T00:00:00Z",
-      "quantity_purchased": 1,
-      "unit_cost": 16.99,
-      "total_cost": 16.99,
-      "supplier": "Costco"
-    },
-    {
-      "ingredient_slug": "chocolate_chips_semi_sweet",
-      "product_brand": "Nestle Toll House",
-      "purchased_at": "2024-10-20T00:00:00Z",
-      "quantity_purchased": 1,
-      "unit_cost": 12.99,
-      "total_cost": 12.99,
-      "supplier": "Costco"
-    },
-    {
-      "ingredient_slug": "butter_unsalted",
-      "product_brand": "Kirkland",
-      "purchased_at": "2024-11-01T00:00:00Z",
-      "quantity_purchased": 2,
-      "unit_cost": 14.99,
-      "total_cost": 29.98,
-      "supplier": "Costco"
-    }
-  ],
-  "inventory_items": [
-    {
-      "ingredient_slug": "all_purpose_wheat_flour",
-      "product_brand": "King Arthur",
-      "quantity": 1.5,
-      "purchase_date": "2024-10-15",
-      "location": "Pantry",
-      "notes": "Opened bag from October purchase"
-    },
-    {
-      "ingredient_slug": "all_purpose_wheat_flour",
-      "product_brand": "King Arthur",
-      "quantity": 2.0,
-      "purchase_date": "2024-11-05",
-      "location": "Pantry",
-      "notes": "Unopened from November purchase"
-    },
-    {
-      "ingredient_slug": "sugar_granulated",
-      "product_brand": "Domino",
-      "quantity": 0.75,
-      "purchase_date": "2024-10-15",
-      "location": "Pantry",
-      "notes": "Opened bag, about 3/4 remaining"
-    },
-    {
-      "ingredient_slug": "chocolate_chips_semi_sweet",
-      "product_brand": "Nestle Toll House",
-      "quantity": 36.0,
-      "purchase_date": "2024-10-20",
-      "location": "Pantry",
-      "notes": "Half bag remaining"
-    },
-    {
-      "ingredient_slug": "butter_unsalted",
-      "product_brand": "Kirkland",
-      "quantity": 1.5,
-      "purchase_date": "2024-11-01",
-      "location": "Refrigerator",
-      "notes": "6 sticks remaining (1.5 lb)"
-    },
-    {
-      "ingredient_slug": "sugar_brown_light",
-      "product_brand": "Domino",
-      "quantity": 1.0,
-      "purchase_date": "2024-10-20",
-      "location": "Pantry",
-      "notes": "Opened bag"
-    },
-    {
-      "ingredient_slug": "sugar_powdered",
-      "product_brand": "C&H",
-      "quantity": 1.5,
-      "purchase_date": "2024-10-20",
-      "location": "Pantry"
-    },
-    {
-      "ingredient_slug": "cocoa_powder_dutch_processed",
-      "product_brand": "Penzeys Dutch Process",
-      "quantity": 4.0,
-      "purchase_date": "2024-09-15",
-      "location": "Pantry",
-      "notes": "Half jar remaining"
-    },
-    {
-      "ingredient_slug": "vanilla_extract",
-      "product_brand": "McCormick",
-      "quantity": 12.0,
-      "purchase_date": "2024-08-01",
-      "location": "Pantry",
-      "notes": "About 3/4 full"
-    },
-    {
-      "ingredient_slug": "baking_soda",
-      "product_brand": "Arm & Hammer",
-      "quantity": 0.5,
-      "purchase_date": "2024-06-01",
-      "location": "Pantry"
-    },
-    {
-      "ingredient_slug": "salt_fine",
-      "product_brand": "Morton",
-      "quantity": 20.8,
-      "purchase_date": "2024-05-01",
-      "location": "Pantry"
-    },
-    {
-      "ingredient_slug": "pecans",
-      "product_brand": "Costco",
-      "quantity": 1.25,
-      "purchase_date": "2024-10-25",
-      "location": "Freezer",
-      "notes": "Store in freezer to keep fresh"
-    },
-    {
-      "ingredient_slug": "walnuts",
-      "product_brand": "Kirkland",
-      "quantity": 2.0,
-      "purchase_date": "2024-10-25",
-      "location": "Freezer",
-      "notes": "Unopened bag in freezer"
-    }
-  ],
   "recipes": [
     {
-      "name": "Classic Chocolate Chip Cookies",
-      "slug": "classic_chocolate_chip_cookies",
+      "name": "Almond Biscotti",
+      "slug": "almond_biscotti",
       "category": "Cookies",
-      "source": "SG-Binder",
-      "yield_quantity": 48.0,
-      "yield_unit": "cookies",
-      "prep_time_minutes": 20,
-      "cook_time_minutes": 12,
-      "notes": "Family favorite recipe",
+      "yield_quantity": 30.0,
+      "yield_unit": "slices",
+      "source": "Holiday Cooking 1982",
+      "prep_time_minutes": 30,
+      "cook_time_minutes": 68,
+      "notes": "Beat butter until softened. Add 1 cup flour, sugar, eggs, baking powder, vanilla; beat till combined. Stir in remaining flour and nuts. Divide in half. Shape into 9-inch logs, 2 inches wide. Place 4 inches apart on ungreased sheet. Bake 325\u00b0F for 1 hour. Cool 1 hour. Cut diagonally into \u00bd-inch slices. Lay cut side down. Bake 325\u00b0F 8 minutes, turn, bake 8-10 minutes more till dry and crisp. Cool. Optional: melt chocolate with shortening, drizzle over cookies.",
       "ingredients": [
         {
-          "ingredient_slug": "all_purpose_wheat_flour",
-          "quantity": 2.25,
-          "unit": "cup",
-          "notes": "Spoon and level, don't pack"
-        },
-        {
-          "ingredient_slug": "sugar_granulated",
-          "quantity": 0.75,
+          "ingredient_slug": "butter_unsalted",
+          "quantity": 0.5,
           "unit": "cup"
         },
         {
-          "ingredient_slug": "sugar_brown_light",
-          "quantity": 0.75,
-          "unit": "cup",
-          "notes": "Packed"
+          "ingredient_slug": "all_purpose_wheat_flour",
+          "quantity": 2.0,
+          "unit": "cup"
+        },
+        {
+          "ingredient_slug": "sugar_granulated",
+          "quantity": 0.67,
+          "unit": "cup"
+        },
+        {
+          "ingredient_slug": "eggs_whole",
+          "quantity": 2.0,
+          "unit": "whole"
+        },
+        {
+          "ingredient_slug": "baking_powder",
+          "quantity": 2.0,
+          "unit": "tsp"
+        },
+        {
+          "ingredient_slug": "vanilla_extract",
+          "quantity": 1.0,
+          "unit": "tsp"
+        },
+        {
+          "ingredient_slug": "almonds_slivered",
+          "quantity": 1.5,
+          "unit": "cup"
         },
         {
           "ingredient_slug": "chocolate_chips_semi_sweet",
-          "quantity": 2.0,
+          "quantity": 1.0,
           "unit": "cup"
         },
         {
-          "ingredient_slug": "butter_unsalted",
-          "quantity": 1.0,
-          "unit": "cup",
-          "notes": "Softened to room temperature"
-        },
-        {
-          "ingredient_slug": "vanilla_extract",
+          "ingredient_slug": "shortening",
           "quantity": 2.0,
-          "unit": "tsp"
-        },
-        {
-          "ingredient_slug": "baking_soda",
-          "quantity": 1.0,
-          "unit": "tsp"
-        },
-        {
-          "ingredient_slug": "salt_fine",
-          "quantity": 1.0,
-          "unit": "tsp"
+          "unit": "tbsp"
         }
       ]
     },
     {
-      "name": "Fudgy Brownies",
-      "slug": "fudgy_brownies",
-      "category": "Brownies",
-      "source": "SG-Binder",
+      "name": "Butterscotch Pumpkin Cake",
+      "slug": "butterscotch_pumpkin_cake",
+      "category": "Cakes",
       "yield_quantity": 16.0,
-      "yield_unit": "brownies",
-      "prep_time_minutes": 15,
-      "cook_time_minutes": 35,
-      "notes": "Dense and fudgy, not cakey",
+      "yield_unit": "servings",
+      "source": "NESTL\u00c9 TOLL HOUSE",
+      "prep_time_minutes": 19,
+      "cook_time_minutes": 39,
+      "notes": "Preheat 350\u00b0F. Grease bundt pan. Microwave 1 cup butterscotch morsels MEDIUM HIGH 70% 1 min; stir till melted. Cool. Mix flour, sugar, baking powder, cinnamon, salt, nutmeg. Whisk melted morsels, pumpkin, oil, eggs, vanilla. Stir in flour. Pour into pan. Bake 40-50 min till pick clean. Cool 30 min, remove from pan. Dust with powdered sugar. Sauce: heat 1/3 cup evaporated milk to boil, remove. Add remaining morsels, stir smooth. Return to heat, bring to boil. Cool.",
       "ingredients": [
         {
-          "ingredient_slug": "butter_unsalted",
-          "quantity": 0.75,
+          "ingredient_slug": "butterscotch_chips",
+          "quantity": 1.33,
           "unit": "cup",
-          "notes": "Melted"
-        },
-        {
-          "ingredient_slug": "sugar_granulated",
-          "quantity": 1.5,
-          "unit": "cup"
-        },
-        {
-          "ingredient_slug": "cocoa_powder_dutch_processed",
-          "quantity": 0.75,
-          "unit": "cup"
+          "notes": "divided"
         },
         {
           "ingredient_slug": "all_purpose_wheat_flour",
-          "quantity": 0.75,
+          "quantity": 2.0,
           "unit": "cup"
         },
         {
-          "ingredient_slug": "vanilla_extract",
-          "quantity": 2.0,
+          "ingredient_slug": "sugar_granulated",
+          "quantity": 1.75,
+          "unit": "cup"
+        },
+        {
+          "ingredient_slug": "baking_powder",
+          "quantity": 1.0,
+          "unit": "tbsp"
+        },
+        {
+          "ingredient_slug": "cinnamon_ground",
+          "quantity": 1.5,
           "unit": "tsp"
         },
         {
           "ingredient_slug": "salt_fine",
+          "quantity": 1.0,
+          "unit": "tsp"
+        },
+        {
+          "ingredient_slug": "nutmeg_ground",
           "quantity": 0.5,
           "unit": "tsp"
-        }
-      ]
-    },
-    {
-      "name": "Pecan Sandies",
-      "slug": "pecan_sandies",
-      "category": "Cookies",
-      "source": "SG-Binder",
-      "yield_quantity": 36.0,
-      "yield_unit": "cookies",
-      "prep_time_minutes": 15,
-      "cook_time_minutes": 18,
-      "notes": "Buttery shortbread-style cookies",
-      "ingredients": [
+        },
         {
-          "ingredient_slug": "butter_unsalted",
+          "ingredient_slug": "pumpkin_puree",
           "quantity": 1.0,
-          "unit": "cup",
-          "notes": "Softened"
+          "unit": "cup"
+        },
+        {
+          "ingredient_slug": "oil_vegetable",
+          "quantity": 0.5,
+          "unit": "cup"
+        },
+        {
+          "ingredient_slug": "eggs_whole",
+          "quantity": 3.0,
+          "unit": "whole"
+        },
+        {
+          "ingredient_slug": "vanilla_extract",
+          "quantity": 1.0,
+          "unit": "tsp"
         },
         {
           "ingredient_slug": "sugar_powdered",
-          "quantity": 0.5,
+          "quantity": 3.0,
+          "unit": "tbsp",
+          "notes": "optional"
+        },
+        {
+          "ingredient_slug": "milk_evaporated",
+          "quantity": 0.33,
           "unit": "cup"
-        },
-        {
-          "ingredient_slug": "all_purpose_wheat_flour",
-          "quantity": 2.0,
-          "unit": "cup"
-        },
-        {
-          "ingredient_slug": "pecans",
-          "quantity": 1.0,
-          "unit": "cup",
-          "notes": "Finely chopped"
-        },
-        {
-          "ingredient_slug": "vanilla_extract",
-          "quantity": 1.0,
-          "unit": "tsp"
-        },
-        {
-          "ingredient_slug": "salt_fine",
-          "quantity": 0.25,
-          "unit": "tsp"
         }
       ]
     },
     {
-      "name": "Chocolate Walnut Fudge",
-      "slug": "chocolate_walnut_fudge",
+      "name": "Chocolate Truffle Croquembouche",
+      "slug": "chocolate_truffle_croquembouche",
       "category": "Candies",
-      "source": "SG-Binder",
-      "yield_quantity": 64.0,
-      "yield_unit": "pieces",
+      "yield_quantity": 76.0,
+      "yield_unit": "truffles",
+      "source": "Magazine",
       "prep_time_minutes": 30,
-      "cook_time_minutes": 10,
-      "notes": "Includes 2 hours cooling time",
+      "cook_time_minutes": 270,
+      "notes": "Boil cream and butter. Add 2.5 lb chocolate; whisk smooth. Whisk in sour cream, liqueur, orange peel. Pour into 9x13 dish, refrigerate 1 hr. Line 4 sheets: 2 with powdered sugar, 2 with cocoa. Scoop truffles onto sheets. Freeze 10 min. Roll in coating, then hands. Freeze 15 min. Melt white chocolate to 115\u00b0F. Dip sugar truffles, refrigerate 1 hr. Repeat for double coat. Melt 1.5 lb bittersweet to 115\u00b0F. Wave spoon over white truffles making zigzags. Repeat process for remaining truffles. Assemble on cone with toothpicks in spiral.",
       "ingredients": [
         {
-          "ingredient_slug": "sugar_granulated",
-          "quantity": 3.0,
+          "ingredient_slug": "cream_heavy",
+          "quantity": 1.125,
           "unit": "cup"
         },
         {
@@ -549,15 +163,64 @@
           "unit": "cup"
         },
         {
-          "ingredient_slug": "cocoa_powder_dutch_processed",
+          "ingredient_slug": "chocolate_chips_bittersweet",
+          "quantity": 4.0,
+          "unit": "lb",
+          "notes": "2.5 lb + 1.5 lb"
+        },
+        {
+          "ingredient_slug": "sour_cream",
+          "quantity": 0.75,
+          "unit": "cup"
+        },
+        {
+          "ingredient_slug": "liqueur_orange",
+          "quantity": 6.0,
+          "unit": "tbsp"
+        },
+        {
+          "ingredient_slug": "orange_zest",
+          "quantity": 1.5,
+          "unit": "tbsp"
+        },
+        {
+          "ingredient_slug": "sugar_powdered",
+          "quantity": 1.5,
+          "unit": "cup"
+        },
+        {
+          "ingredient_slug": "cocoa_powder_natural",
+          "quantity": 1.5,
+          "unit": "cup"
+        },
+        {
+          "ingredient_slug": "chocolate_chips_white",
+          "quantity": 1.75,
+          "unit": "lb"
+        }
+      ]
+    },
+    {
+      "name": "Gingerbread Chai Cookies",
+      "slug": "gingerbread_chai_cookies",
+      "category": "Cookies",
+      "yield_quantity": 9.0,
+      "yield_unit": "cookies",
+      "source": "Magazine",
+      "prep_time_minutes": 15,
+      "cook_time_minutes": 31,
+      "notes": "Preheat 350\u00b0F. Beat butter, 2/3 cup sugar, vanilla till fluffy 2-3 min. Beat in egg, molasses. Whisk flour, cardamom (1/2 cup), cinnamon (2.5 tbsp), ginger (6 tsp total), cloves (2 tsp), pepper (2 tsp), baking soda, salt. Add to butter on low. Beat on medium 2 min. Roll dough 1/2 inch thick. Scoop into 2-inch balls. Roll in 1 cup sugar. Place 2.5 inches apart. Bake 15-16 min till cracked. Cool on pans.",
+      "ingredients": [
+        {
+          "ingredient_slug": "butter_unsalted",
           "quantity": 0.5,
           "unit": "cup"
         },
         {
-          "ingredient_slug": "walnuts",
-          "quantity": 1.5,
+          "ingredient_slug": "sugar_granulated",
+          "quantity": 1.67,
           "unit": "cup",
-          "notes": "Chopped"
+          "notes": "divided"
         },
         {
           "ingredient_slug": "vanilla_extract",
@@ -565,42 +228,43 @@
           "unit": "tsp"
         },
         {
-          "ingredient_slug": "salt_fine",
-          "quantity": 0.5,
-          "unit": "tsp"
-        }
-      ]
-    },
-    {
-      "name": "Snickerdoodles",
-      "slug": "snickerdoodles",
-      "category": "Cookies",
-      "source": "SG-Binder",
-      "yield_quantity": 36.0,
-      "yield_unit": "cookies",
-      "prep_time_minutes": 15,
-      "cook_time_minutes": 10,
-      "notes": "Classic cinnamon sugar cookies",
-      "ingredients": [
+          "ingredient_slug": "eggs_whole",
+          "quantity": 1.0,
+          "unit": "whole"
+        },
+        {
+          "ingredient_slug": "molasses_light",
+          "quantity": 0.25,
+          "unit": "cup"
+        },
         {
           "ingredient_slug": "all_purpose_wheat_flour",
           "quantity": 2.75,
           "unit": "cup"
         },
         {
-          "ingredient_slug": "sugar_granulated",
-          "quantity": 1.5,
+          "ingredient_slug": "cardamom_ground",
+          "quantity": 0.5,
           "unit": "cup"
         },
         {
-          "ingredient_slug": "butter_unsalted",
-          "quantity": 1.0,
-          "unit": "cup",
-          "notes": "Softened"
+          "ingredient_slug": "cinnamon_ground",
+          "quantity": 2.5,
+          "unit": "tbsp"
         },
         {
-          "ingredient_slug": "vanilla_extract",
-          "quantity": 1.0,
+          "ingredient_slug": "ginger_ground",
+          "quantity": 6.0,
+          "unit": "tsp"
+        },
+        {
+          "ingredient_slug": "cloves_ground",
+          "quantity": 2.0,
+          "unit": "tsp"
+        },
+        {
+          "ingredient_slug": "salt_fine",
+          "quantity": 2.0,
           "unit": "tsp"
         },
         {
@@ -609,361 +273,1169 @@
           "unit": "tsp"
         },
         {
-          "ingredient_slug": "salt_fine",
+          "ingredient_slug": "salt_kosher",
           "quantity": 0.5,
           "unit": "tsp"
         }
       ]
     },
     {
-      "name": "Vanilla Buttercream Frosting",
-      "slug": "vanilla_buttercream_frosting",
-      "category": "Frostings",
-      "source": "SG-Binder",
-      "yield_quantity": 2.0,
-      "yield_unit": "cups",
-      "prep_time_minutes": 10,
-      "cook_time_minutes": 0,
-      "notes": "Base frosting recipe for various baked goods",
+      "name": "Jumbles",
+      "slug": "jumbles",
+      "category": "Cookies",
+      "yield_quantity": 36.0,
+      "yield_unit": "cookies",
+      "source": "Christmas Cookies 2006",
+      "prep_time_minutes": 14,
+      "cook_time_minutes": 28,
+      "notes": "Line sheet with parchment. Preheat 350\u00b0F. Mix flour, baking soda, salt. Beat butter 30 sec. Beat in sugars. Beat in eggs, vanilla. Beat in flour as much as possible. Stir in remaining flour. Stir in nuts, raisins, chocolate. Drop 1/4 cup dough 3 inches apart. Bake 12-15 min till golden and set. Stand 5 min. Transfer to rack; cool. Store in refrigerator up to 3 days or freeze up to 3 months.",
       "ingredients": [
         {
-          "ingredient_slug": "butter_unsalted",
-          "quantity": 0.5,
-          "unit": "cup",
-          "notes": "Softened to room temperature"
+          "ingredient_slug": "all_purpose_wheat_flour",
+          "quantity": 2.25,
+          "unit": "cup"
         },
         {
-          "ingredient_slug": "sugar_powdered",
+          "ingredient_slug": "baking_soda",
           "quantity": 2.0,
+          "unit": "tsp"
+        },
+        {
+          "ingredient_slug": "salt_fine",
+          "quantity": 0.5,
+          "unit": "tsp"
+        },
+        {
+          "ingredient_slug": "butter_unsalted",
+          "quantity": 1.25,
+          "unit": "cup"
+        },
+        {
+          "ingredient_slug": "sugar_granulated",
+          "quantity": 1.0,
+          "unit": "cup"
+        },
+        {
+          "ingredient_slug": "sugar_brown_light",
+          "quantity": 0.67,
+          "unit": "cup"
+        },
+        {
+          "ingredient_slug": "eggs_whole",
+          "quantity": 2.0,
+          "unit": "whole"
+        },
+        {
+          "ingredient_slug": "vanilla_extract",
+          "quantity": 1.5,
+          "unit": "tsp"
+        },
+        {
+          "ingredient_slug": "almonds_whole",
+          "quantity": 1.25,
           "unit": "cup",
-          "notes": "Sifted"
+          "notes": "toasted, chopped"
+        },
+        {
+          "ingredient_slug": "pecans_halves",
+          "quantity": 1.5,
+          "unit": "cup"
+        },
+        {
+          "ingredient_slug": "raisins",
+          "quantity": 2.0,
+          "unit": "cup"
+        },
+        {
+          "ingredient_slug": "chocolate_chips_semi_sweet",
+          "quantity": 2.0,
+          "unit": "cup"
+        }
+      ]
+    },
+    {
+      "name": "Sour Cream-Chocolate Bundt Cake",
+      "slug": "sour_creamchocolate_bundt_cake",
+      "category": "Cakes",
+      "yield_quantity": 16.0,
+      "yield_unit": "servings",
+      "source": "Williams-Sonoma",
+      "prep_time_minutes": 30,
+      "cook_time_minutes": 70,
+      "notes": "Room temp ingredients. Preheat 325\u00b0F. Grease flour bundt pan. Sift flour, cocoa, baking powder, baking soda, salt twice. Beat butter smooth 30-45 sec. Add 1.5 cups sugar on low. Beat medium-high till fluffy 3-5 min. Add eggs gradually till thick 1-2 min. Beat in vanilla. Fold in flour in 3 additions alternating with sour cream, beginning and ending with flour. Fold in 6 oz melted chocolate. Pour into pan. Bake 1 hour till pick clean. Cool 10 min. Glaze: heat 1 cup sugar, 1/2 cup milk till dissolved. Stir in 1 tbsp liqueur. Invert cake. Brush with glaze. Dust with powdered sugar. Serve with whipped cream.",
+      "ingredients": [
+        {
+          "ingredient_slug": "all_purpose_wheat_flour",
+          "quantity": 2.25,
+          "unit": "cup"
+        },
+        {
+          "ingredient_slug": "cocoa_powder_natural",
+          "quantity": 1.0,
+          "unit": "cup"
+        },
+        {
+          "ingredient_slug": "baking_powder",
+          "quantity": 2.0,
+          "unit": "tsp"
+        },
+        {
+          "ingredient_slug": "baking_soda",
+          "quantity": 0.75,
+          "unit": "tsp"
+        },
+        {
+          "ingredient_slug": "salt_fine",
+          "quantity": 0.25,
+          "unit": "tsp"
+        },
+        {
+          "ingredient_slug": "butter_unsalted",
+          "quantity": 1.0,
+          "unit": "cup"
+        },
+        {
+          "ingredient_slug": "sugar_granulated",
+          "quantity": 2.5,
+          "unit": "cup",
+          "notes": "divided"
+        },
+        {
+          "ingredient_slug": "eggs_whole",
+          "quantity": 4.0,
+          "unit": "whole"
         },
         {
           "ingredient_slug": "vanilla_extract",
           "quantity": 1.0,
           "unit": "tsp"
-        }
-      ]
-    },
-    {
-      "name": "Frosted Brownies",
-      "slug": "frosted_brownies",
-      "category": "Brownies",
-      "source": "SG-Binder",
-      "yield_quantity": 16.0,
-      "yield_unit": "brownies",
-      "prep_time_minutes": 25,
-      "cook_time_minutes": 35,
-      "notes": "Fudgy brownies with vanilla buttercream - demonstrates nested recipes",
-      "ingredients": [],
-      "components": [
-        {
-          "recipe_name": "Fudgy Brownies",
-          "quantity": 1.0,
-          "notes": "Base brownie layer"
         },
         {
-          "recipe_name": "Vanilla Buttercream Frosting",
+          "ingredient_slug": "sour_cream",
+          "quantity": 1.5,
+          "unit": "cup"
+        },
+        {
+          "ingredient_slug": "chocolate_chips_bittersweet",
+          "quantity": 6.0,
+          "unit": "oz"
+        },
+        {
+          "ingredient_slug": "milk_whole",
           "quantity": 0.5,
-          "notes": "Half batch for topping"
+          "unit": "cup"
+        },
+        {
+          "ingredient_slug": "liqueur_chocolate",
+          "quantity": 1.0,
+          "unit": "tbsp"
+        },
+        {
+          "ingredient_slug": "sugar_powdered",
+          "quantity": 0.25,
+          "unit": "cup"
+        },
+        {
+          "ingredient_slug": "cream_heavy",
+          "quantity": 1.0,
+          "unit": "cup",
+          "notes": "whipped"
+        }
+      ]
+    },
+    {
+      "name": "Almond Flour Brownies",
+      "slug": "almond_flour_brownies",
+      "category": "Brownies",
+      "yield_quantity": 12.0,
+      "yield_unit": "brownies",
+      "source": "King Arthur Baking (print)",
+      "prep_time_minutes": 16,
+      "cook_time_minutes": 32,
+      "notes": "Follow KA instructions; bake until set with a few moist crumbs.",
+      "ingredients": [
+        {
+          "ingredient_slug": "butter_unsalted",
+          "quantity": 5.0,
+          "unit": "tbsp"
+        },
+        {
+          "ingredient_slug": "sugar_granulated",
+          "quantity": 1.75,
+          "unit": "cup"
+        },
+        {
+          "ingredient_slug": "salt_kosher",
+          "quantity": 0.5,
+          "unit": "tsp"
+        },
+        {
+          "ingredient_slug": "vanilla_extract",
+          "quantity": 1.0,
+          "unit": "tsp"
+        },
+        {
+          "ingredient_slug": "cocoa_powder_natural",
+          "quantity": 0.75,
+          "unit": "cup"
+        },
+        {
+          "ingredient_slug": "almond_flour",
+          "quantity": 0.75,
+          "unit": "cup"
+        },
+        {
+          "ingredient_slug": "baking_powder",
+          "quantity": 1.0,
+          "unit": "tsp"
+        },
+        {
+          "ingredient_slug": "eggs_whole",
+          "quantity": 3.0,
+          "unit": "whole"
+        }
+      ]
+    },
+    {
+      "name": "Toasted Almond Sabl\u00e9s",
+      "slug": "toasted_almond_sabls",
+      "category": "Cookies",
+      "yield_quantity": 22.0,
+      "yield_unit": "cookies",
+      "source": "Bake from Scratch (print)",
+      "prep_time_minutes": 30,
+      "cook_time_minutes": 90,
+      "notes": "Toast sliced almonds; roll to 1/2-inch; chill dough for clean cuts.",
+      "ingredients": [
+        {
+          "ingredient_slug": "almonds_sliced",
+          "quantity": 0.33,
+          "unit": "cup"
+        },
+        {
+          "ingredient_slug": "all_purpose_wheat_flour",
+          "quantity": 2.0,
+          "unit": "cup"
+        },
+        {
+          "ingredient_slug": "butter_unsalted",
+          "quantity": 7.0,
+          "unit": "oz"
+        },
+        {
+          "ingredient_slug": "sugar_powdered",
+          "quantity": 0.33,
+          "unit": "cup"
+        },
+        {
+          "ingredient_slug": "sugar_granulated",
+          "quantity": 1.25,
+          "unit": "cup",
+          "notes": "divided"
+        },
+        {
+          "ingredient_slug": "salt_kosher",
+          "quantity": 1.0,
+          "unit": "tsp"
+        },
+        {
+          "ingredient_slug": "vanilla_bean",
+          "quantity": 1.0,
+          "unit": "each",
+          "notes": "seeds scraped"
+        },
+        {
+          "ingredient_slug": "egg_yolks",
+          "quantity": 1.0,
+          "unit": "whole"
+        }
+      ]
+    },
+    {
+      "name": "Gluten-Free Almond Flour Shortbread Cookies",
+      "slug": "glutenfree_almond_flour_shortbread_cookies",
+      "category": "Cookies",
+      "yield_quantity": 15.0,
+      "yield_unit": "cookies",
+      "source": "King Arthur Baking (print)",
+      "prep_time_minutes": 10,
+      "cook_time_minutes": 20,
+      "notes": "Combine; scoop 1\" balls; flatten with fork; bake 8\u201310 min.",
+      "ingredients": [
+        {
+          "ingredient_slug": "almond_flour",
+          "quantity": 1.0,
+          "unit": "cup"
+        },
+        {
+          "ingredient_slug": "butter_unsalted",
+          "quantity": 3.0,
+          "unit": "tbsp",
+          "notes": "softened"
+        },
+        {
+          "ingredient_slug": "sugar_powdered",
+          "quantity": 3.0,
+          "unit": "tbsp"
+        },
+        {
+          "ingredient_slug": "salt_kosher",
+          "quantity": 0.125,
+          "unit": "tsp"
+        },
+        {
+          "ingredient_slug": "vanilla_extract",
+          "quantity": 0.5,
+          "unit": "tsp"
+        }
+      ]
+    },
+    {
+      "name": "Candy-Bar Fudge",
+      "slug": "candybar_fudge",
+      "category": "Fudge",
+      "yield_quantity": 64.0,
+      "yield_unit": "pieces",
+      "source": "Holiday Cooking Magazine (1992)",
+      "prep_time_minutes": 20,
+      "cook_time_minutes": 40,
+      "notes": "Microwave or stovetop method; fold peanuts and caramels before topping with semisweet chocolate.",
+      "ingredients": [
+        {
+          "ingredient_slug": "butter_unsalted",
+          "quantity": 0.5,
+          "unit": "cup"
+        },
+        {
+          "ingredient_slug": "cocoa_powder_natural",
+          "quantity": 0.33,
+          "unit": "cup"
+        },
+        {
+          "ingredient_slug": "sugar_brown_light",
+          "quantity": 0.25,
+          "unit": "cup",
+          "notes": "firmly packed"
+        },
+        {
+          "ingredient_slug": "milk_whole",
+          "quantity": 0.25,
+          "unit": "cup"
+        },
+        {
+          "ingredient_slug": "sugar_powdered",
+          "quantity": 3.5,
+          "unit": "cup",
+          "notes": "sifted"
+        },
+        {
+          "ingredient_slug": "vanilla_extract",
+          "quantity": 1.0,
+          "unit": "tsp"
+        },
+        {
+          "ingredient_slug": "caramel_bits",
+          "quantity": 30.0,
+          "unit": "each",
+          "notes": "unwrapped"
+        },
+        {
+          "ingredient_slug": "water",
+          "quantity": 1.0,
+          "unit": "tbsp"
+        },
+        {
+          "ingredient_slug": "peanuts",
+          "quantity": 2.0,
+          "unit": "cup",
+          "notes": "roasted unsalted"
+        },
+        {
+          "ingredient_slug": "chocolate_chips_semi_sweet",
+          "quantity": 1.0,
+          "unit": "cup"
+        }
+      ]
+    },
+    {
+      "name": "Lavender-Lemon Cake with Honey Glaze",
+      "slug": "lavenderlemon_cake_with_honey_glaze",
+      "category": "Cake",
+      "yield_quantity": 16.0,
+      "yield_unit": "servings",
+      "source": "Flo Braker, The Simple Art of Perfect Baking (scan)",
+      "prep_time_minutes": 30,
+      "cook_time_minutes": 90,
+      "notes": "Non-discrete finished good per rule.",
+      "ingredients": [
+        {
+          "ingredient_slug": "cake_flour",
+          "quantity": 3.0,
+          "unit": "cup"
+        },
+        {
+          "ingredient_slug": "baking_powder",
+          "quantity": 1.5,
+          "unit": "tsp"
+        },
+        {
+          "ingredient_slug": "baking_soda",
+          "quantity": 1.0,
+          "unit": "tsp"
+        },
+        {
+          "ingredient_slug": "salt_kosher",
+          "quantity": 0.25,
+          "unit": "tsp"
+        },
+        {
+          "ingredient_slug": "butter_unsalted",
+          "quantity": 16.0,
+          "unit": "tbsp"
+        },
+        {
+          "ingredient_slug": "sugar_granulated",
+          "quantity": 1.5,
+          "unit": "cup"
+        },
+        {
+          "ingredient_slug": "lavender_culinary",
+          "quantity": 1.0,
+          "unit": "tbsp"
+        },
+        {
+          "ingredient_slug": "eggs_whole",
+          "quantity": 4.0,
+          "unit": "whole"
+        },
+        {
+          "ingredient_slug": "lemon_extract",
+          "quantity": 0.5,
+          "unit": "tsp"
+        },
+        {
+          "ingredient_slug": "vanilla_extract",
+          "quantity": 0.5,
+          "unit": "tsp"
+        },
+        {
+          "ingredient_slug": "yogurt_plain",
+          "quantity": 1.0,
+          "unit": "cup"
+        },
+        {
+          "ingredient_slug": "lemon_whole",
+          "quantity": 1.0,
+          "unit": "each",
+          "notes": "finely grated zest, about 1 tbsp"
+        },
+        {
+          "ingredient_slug": "honey",
+          "quantity": 2.0,
+          "unit": "tbsp"
+        },
+        {
+          "ingredient_slug": "sugar_powdered",
+          "quantity": 0.5,
+          "unit": "cup",
+          "notes": "sifted for glaze"
+        },
+        {
+          "ingredient_slug": "lemon_juice",
+          "quantity": 1.0,
+          "unit": "tbsp"
+        }
+      ]
+    },
+    {
+      "name": "Mini Mincemeat Pies",
+      "slug": "mini_mincemeat_pies",
+      "category": "Pies",
+      "yield_quantity": 18.0,
+      "yield_unit": "pies",
+      "source": "Holiday Tea Party spread (scan)",
+      "prep_time_minutes": 30,
+      "cook_time_minutes": 60,
+      "ingredients": [
+        {
+          "ingredient_slug": "all_purpose_wheat_flour",
+          "quantity": 1.25,
+          "unit": "cup"
+        },
+        {
+          "ingredient_slug": "sugar_powdered",
+          "quantity": 10.0,
+          "unit": "tbsp",
+          "notes": "divided"
+        },
+        {
+          "ingredient_slug": "orange_whole",
+          "quantity": 0.75,
+          "unit": "tsp",
+          "notes": "finely grated peel, divided"
+        },
+        {
+          "ingredient_slug": "salt_kosher",
+          "quantity": 0.25,
+          "unit": "tsp"
+        },
+        {
+          "ingredient_slug": "butter_unsalted",
+          "quantity": 0.5,
+          "unit": "cup",
+          "notes": "cold, cut in 1/2-inch pieces"
+        },
+        {
+          "ingredient_slug": "egg_yolks",
+          "quantity": 1.0,
+          "unit": "whole"
+        },
+        {
+          "ingredient_slug": "orange_juice",
+          "quantity": 2.0,
+          "unit": "tbsp",
+          "notes": "plus more if needed"
+        },
+        {
+          "ingredient_slug": "raisins",
+          "quantity": 0.75,
+          "unit": "cup"
+        },
+        {
+          "ingredient_slug": "candied_ginger",
+          "quantity": 3.0,
+          "unit": "tbsp",
+          "notes": "minced"
+        },
+        {
+          "ingredient_slug": "cinnamon_ground",
+          "quantity": 0.25,
+          "unit": "tsp"
+        },
+        {
+          "ingredient_slug": "eggs_whole",
+          "quantity": 1.0,
+          "unit": "whole",
+          "notes": "for glaze, beaten"
+        }
+      ]
+    },
+    {
+      "name": "Anzac Cookies",
+      "slug": "anzac_cookies",
+      "category": "Cookies",
+      "yield_quantity": 30.0,
+      "yield_unit": "cookies",
+      "source": "Christmas Cookies 2006 (scan)",
+      "prep_time_minutes": 15,
+      "cook_time_minutes": 30,
+      "ingredients": [
+        {
+          "ingredient_slug": "all_purpose_wheat_flour",
+          "quantity": 2.0,
+          "unit": "cup"
+        },
+        {
+          "ingredient_slug": "sugar_granulated",
+          "quantity": 2.0,
+          "unit": "cup"
+        },
+        {
+          "ingredient_slug": "oats_rolled",
+          "quantity": 2.0,
+          "unit": "cup"
+        },
+        {
+          "ingredient_slug": "coconut_shredded_sweetened",
+          "quantity": 2.0,
+          "unit": "cup"
+        },
+        {
+          "ingredient_slug": "walnuts",
+          "quantity": 2.0,
+          "unit": "cup"
+        },
+        {
+          "ingredient_slug": "salt_kosher",
+          "quantity": 0.5,
+          "unit": "tsp"
+        },
+        {
+          "ingredient_slug": "butter_unsalted",
+          "quantity": 1.0,
+          "unit": "cup"
+        },
+        {
+          "ingredient_slug": "golden_syrup",
+          "quantity": 0.33,
+          "unit": "cup"
+        },
+        {
+          "ingredient_slug": "water",
+          "quantity": 0.25,
+          "unit": "cup"
+        },
+        {
+          "ingredient_slug": "baking_soda",
+          "quantity": 2.0,
+          "unit": "tsp"
+        }
+      ]
+    },
+    {
+      "name": "Mocha-Toffee Truffles",
+      "slug": "mochatoffee_truffles",
+      "category": "Cookies",
+      "yield_quantity": 30.0,
+      "yield_unit": "truffles",
+      "source": "Scan",
+      "prep_time_minutes": 13,
+      "cook_time_minutes": 27,
+      "ingredients": [
+        {
+          "ingredient_slug": "butter_unsalted",
+          "quantity": 0.5,
+          "unit": "cup"
+        },
+        {
+          "ingredient_slug": "chocolate_chips_semi_sweet",
+          "quantity": 0.5,
+          "unit": "cup"
+        },
+        {
+          "ingredient_slug": "instant_coffee_granules",
+          "quantity": 1.0,
+          "unit": "tbsp"
+        },
+        {
+          "ingredient_slug": "sugar_granulated",
+          "quantity": 0.5,
+          "unit": "cup"
+        },
+        {
+          "ingredient_slug": "sugar_brown_light",
+          "quantity": 0.75,
+          "unit": "cup"
+        },
+        {
+          "ingredient_slug": "eggs_whole",
+          "quantity": 2.0,
+          "unit": "whole"
+        },
+        {
+          "ingredient_slug": "vanilla_extract",
+          "quantity": 2.0,
+          "unit": "tsp"
+        },
+        {
+          "ingredient_slug": "all_purpose_wheat_flour",
+          "quantity": 2.0,
+          "unit": "cup"
+        },
+        {
+          "ingredient_slug": "cocoa_powder_natural",
+          "quantity": 0.5,
+          "unit": "cup"
+        },
+        {
+          "ingredient_slug": "baking_powder",
+          "quantity": 0.5,
+          "unit": "tsp"
+        },
+        {
+          "ingredient_slug": "salt_kosher",
+          "quantity": 0.5,
+          "unit": "tsp"
+        },
+        {
+          "ingredient_slug": "toffee_bits",
+          "quantity": 1.0,
+          "unit": "pkg",
+          "notes": "4.5 oz package"
+        },
+        {
+          "ingredient_slug": "chocolate_chips_milk",
+          "quantity": 4.0,
+          "unit": "oz",
+          "notes": "melted for optional drizzle"
+        }
+      ]
+    },
+    {
+      "name": "Holiday Blossoms",
+      "slug": "holiday_blossoms",
+      "category": "Cookies",
+      "yield_quantity": 24.0,
+      "yield_unit": "cookies",
+      "source": "Scan",
+      "prep_time_minutes": 30,
+      "cook_time_minutes": 60,
+      "ingredients": [
+        {
+          "ingredient_slug": "butter_unsalted",
+          "quantity": 0.5,
+          "unit": "cup",
+          "notes": "softened"
+        },
+        {
+          "ingredient_slug": "cream_cheese",
+          "quantity": 3.0,
+          "unit": "oz",
+          "notes": "softened"
+        },
+        {
+          "ingredient_slug": "sugar_powdered",
+          "quantity": 1.5,
+          "unit": "cup",
+          "notes": "sifted"
+        },
+        {
+          "ingredient_slug": "baking_powder",
+          "quantity": 0.5,
+          "unit": "tsp"
+        },
+        {
+          "ingredient_slug": "salt_kosher",
+          "quantity": 0.25,
+          "unit": "tsp"
+        },
+        {
+          "ingredient_slug": "eggs_whole",
+          "quantity": 1.0,
+          "unit": "whole"
+        },
+        {
+          "ingredient_slug": "vanilla_extract",
+          "quantity": 0.5,
+          "unit": "tsp"
+        },
+        {
+          "ingredient_slug": "all_purpose_wheat_flour",
+          "quantity": 2.25,
+          "unit": "cup"
+        },
+        {
+          "ingredient_slug": "sugar_sanding",
+          "quantity": 1.0,
+          "unit": "tbsp"
+        },
+        {
+          "ingredient_slug": "peppermints",
+          "quantity": 24.0,
+          "unit": "each",
+          "notes": "one candy in center of each cookie"
+        }
+      ]
+    },
+    {
+      "name": "Individual Orange and Poppy Seed Pound Cake",
+      "slug": "individual_orange_and_poppy_seed_pound_cake",
+      "category": "Cakes",
+      "yield_quantity": 4,
+      "yield_unit": "cakes",
+      "source": "Magazine recipe",
+      "prep_time_minutes": 25,
+      "cook_time_minutes": 50,
+      "notes": "Preheat oven to 350\u00b0F. Butter and flour four 5\u00bex3\u00bcx1\u215e-inch loaf pans. Sift flour, baking powder and salt into medium bowl. Using electric mixer, beat sugar and unsalted butter in large bowl until light and fluffy. Add eggs 1 at a time, beating well after each addition. Beat in orange juice, grated orange peel and vanilla extract (batter may look curdled). Beat in flour mixture. Fold in poppy seeds. Divide batter equally among prepared pans (about 1\u00bd cups each). Place pans in oven. Bake until tester inserted in center comes out clean, about 55 minutes. Transfer pans to racks. Cool cakes in pans 10 minutes. Turn cakes out onto wire racks and cool completely.",
+      "ingredients": [
+        {
+          "ingredient_slug": "all_purpose_wheat_flour",
+          "quantity": 2.0,
+          "unit": "cup"
+        },
+        {
+          "ingredient_slug": "baking_powder",
+          "quantity": 1.0,
+          "unit": "tsp"
+        },
+        {
+          "ingredient_slug": "salt_fine",
+          "quantity": 0.5,
+          "unit": "tsp"
+        },
+        {
+          "ingredient_slug": "sugar_granulated",
+          "quantity": 1.75,
+          "unit": "cup"
+        },
+        {
+          "ingredient_slug": "butter_unsalted",
+          "quantity": 1.25,
+          "unit": "cup",
+          "notes": "2.5 sticks, room temperature"
+        },
+        {
+          "ingredient_slug": "eggs_whole",
+          "quantity": 5.0,
+          "unit": "whole"
+        },
+        {
+          "ingredient_slug": "orange_whole",
+          "quantity": 0.5,
+          "unit": "cup",
+          "notes": "juice from fresh oranges"
+        },
+        {
+          "ingredient_slug": "orange_whole",
+          "quantity": 1.0,
+          "unit": "tbsp",
+          "notes": "grated peel"
+        },
+        {
+          "ingredient_slug": "vanilla_extract",
+          "quantity": 1.0,
+          "unit": "tsp"
+        },
+        {
+          "ingredient_slug": "poppy_seeds",
+          "quantity": 0.25,
+          "unit": "cup"
+        }
+      ]
+    },
+    {
+      "name": "Lemon Bliss Cake",
+      "slug": "lemon_bliss_cake",
+      "category": "Cakes",
+      "yield_quantity": 1,
+      "yield_unit": "cake",
+      "source": "King Arthur Baking - 2017 Recipe of the Year",
+      "prep_time_minutes": 26,
+      "cook_time_minutes": 54,
+      "notes": "Preheat oven to 350\u00b0F. Beat butter, sugar, and salt until combined, then fluffy and lightened in color. Add eggs one at a time, beating well after each addition. Scrape sides and bottom once all eggs added, beat briefly to re-combine. Measure flour by gently spooning into cup, then sweeping off excess. Whisk baking powder into flour. Add flour mixture to batter in three parts alternately with milk, starting and ending with flour. Batter may look slightly curdled when you add milk - that's OK; it'll smooth out as you add flour. Mix until well combined; batter will look a bit rough, but shouldn't have large lumps. Stir in grated lemon rind or lemon oil. Thoroughly grease 10-12 cup Bundt pan. Spoon batter into prepared pan, leveling and smoothing top with spatula. Bake 45-60 minutes, until cake tester or toothpick comes out clean. Pan with dark interior will bake more quickly; start checking at 40 minutes. While cake bakes, make glaze by stirring together lemon juice and sugar. Microwave or heat over burner briefly, stirring to dissolve sugar. Don't cook lemon juice; microwave until very warm, but not uncomfortably hot - less than 1 minute. Remove cake from oven, carefully run knife between cake and pan all around edge. Place pan upside down on serving plate. Let cool 15 minutes before removing pan. Poke holes in warm cake with toothpick. Brush glaze over warm cake. Cool completely before serving.",
+      "ingredients": [
+        {
+          "ingredient_slug": "butter_unsalted",
+          "quantity": 16.0,
+          "unit": "tbsp",
+          "notes": "room temperature, at least 65\u00b0F"
+        },
+        {
+          "ingredient_slug": "sugar_granulated",
+          "quantity": 2.75,
+          "unit": "cup",
+          "notes": "2 cups for cake, 0.75 cup for glaze"
+        },
+        {
+          "ingredient_slug": "salt_fine",
+          "quantity": 1.0,
+          "unit": "tsp"
+        },
+        {
+          "ingredient_slug": "eggs_whole",
+          "quantity": 4.0,
+          "unit": "whole",
+          "notes": "room temperature"
+        },
+        {
+          "ingredient_slug": "baking_powder",
+          "quantity": 2.0,
+          "unit": "tsp"
+        },
+        {
+          "ingredient_slug": "all_purpose_wheat_flour",
+          "quantity": 3.0,
+          "unit": "cup"
+        },
+        {
+          "ingredient_slug": "milk_whole",
+          "quantity": 1.0,
+          "unit": "cup",
+          "notes": "room temperature"
+        },
+        {
+          "ingredient_slug": "lemon_whole",
+          "quantity": 2.0,
+          "unit": "whole",
+          "notes": "finely grated rind, or 0.75 tsp lemon oil"
+        },
+        {
+          "ingredient_slug": "lemon_whole",
+          "quantity": 0.33,
+          "unit": "cup",
+          "notes": "freshly squeezed juice for glaze, about 1.5 lemons"
+        }
+      ]
+    },
+    {
+      "name": "Noel Bell Fruit Cake",
+      "slug": "noel_bell_fruit_cake",
+      "category": "Cakes",
+      "yield_quantity": 1,
+      "yield_unit": "loaf",
+      "source": "Cake Baker's Art",
+      "prep_time_minutes": 30,
+      "cook_time_minutes": 110,
+      "notes": "Grease a loaf pan, 9x5x3. Sift flour, baking powder, cinnamon, mace, and cloves onto wax paper. Cream butter or margarine with brown sugar until fluffy; light in a large bowl; beat in eggs, one at a time; stir in apricots and whiskey. Stir in flour mixture until blended, then raisins, mixed fruits, pecans, and cherries. Spoon into prepared pan; spread top even. Bake in slow oven (300\u00b0) 2 hours, or until a wooden pick inserted in center comes out clean. Cool completely in pan on a wire rack. Loosen cooled cake around the edges with a knife; turn out onto rack.",
+      "ingredients": [
+        {
+          "ingredient_slug": "all_purpose_wheat_flour",
+          "quantity": 2.0,
+          "unit": "cup",
+          "notes": "sifted"
+        },
+        {
+          "ingredient_slug": "baking_powder",
+          "quantity": 1.0,
+          "unit": "tsp"
+        },
+        {
+          "ingredient_slug": "cinnamon_ground",
+          "quantity": 1.0,
+          "unit": "tsp"
+        },
+        {
+          "ingredient_slug": "mace_ground",
+          "quantity": 1.0,
+          "unit": "tsp"
+        },
+        {
+          "ingredient_slug": "cloves_ground",
+          "quantity": 0.5,
+          "unit": "tsp"
+        },
+        {
+          "ingredient_slug": "butter_unsalted",
+          "quantity": 0.75,
+          "unit": "cup",
+          "notes": "1.5 sticks"
+        },
+        {
+          "ingredient_slug": "sugar_brown_light",
+          "quantity": 0.75,
+          "unit": "cup",
+          "notes": "firmly packed"
+        },
+        {
+          "ingredient_slug": "eggs_whole",
+          "quantity": 2.0,
+          "unit": "whole"
+        },
+        {
+          "ingredient_slug": "apricots_dried",
+          "quantity": 1.0,
+          "unit": "cup",
+          "notes": "drained and chopped, from 1 lb can"
+        },
+        {
+          "ingredient_slug": "whiskey_irish",
+          "quantity": 0.5,
+          "unit": "cup"
+        },
+        {
+          "ingredient_slug": "raisins",
+          "quantity": 2.0,
+          "unit": "cup",
+          "notes": "seedless"
+        },
+        {
+          "ingredient_slug": "candied_citrus_peel",
+          "quantity": 1.0,
+          "unit": "cup",
+          "notes": "8 oz container chopped"
+        },
+        {
+          "ingredient_slug": "pecans_halves",
+          "quantity": 1.5,
+          "unit": "cup",
+          "notes": "chopped"
+        },
+        {
+          "ingredient_slug": "candied_cherries",
+          "quantity": 1.0,
+          "unit": "cup",
+          "notes": "8 oz container, halved"
+        },
+        {
+          "ingredient_slug": "candied_cherries",
+          "quantity": 0.5,
+          "unit": "cup",
+          "notes": "4 oz container, halved"
+        }
+      ]
+    },
+    {
+      "name": "Marble Fruit Cake",
+      "slug": "marble_fruit_cake",
+      "category": "Cakes",
+      "yield_quantity": 1,
+      "yield_unit": "cake",
+      "source": "Cake Baker's Art",
+      "prep_time_minutes": 30,
+      "cook_time_minutes": 95,
+      "notes": "Sift flour, baking powder, salt, baking soda, cinnamon, ginger, nutmeg, and cloves onto wax paper. Cream butter or margarine with brown sugar until fluffy in a large bowl; beat in eggs, one at a time; stir in currant jelly and apple juice. Stir in flour mixture until blended, then candied fruits, dates, walnuts, and currants. Spoon half of batter into a greased 9-inch tube pan. Combine granulated sugar, lemon rind, and lemon sections; spoon over batter in pan. Top with remaining batter. Bake in slow oven (300\u00b0) for 1\u00be hours, or until a long thin skewer inserted near center comes out clean. Cool completely in pan on a wire rack. Loosen around edge with a knife; turn out onto rack.",
+      "ingredients": [
+        {
+          "ingredient_slug": "all_purpose_wheat_flour",
+          "quantity": 3.0,
+          "unit": "cup",
+          "notes": "sifted"
+        },
+        {
+          "ingredient_slug": "baking_powder",
+          "quantity": 2.0,
+          "unit": "tsp"
+        },
+        {
+          "ingredient_slug": "salt_fine",
+          "quantity": 1.0,
+          "unit": "tsp"
+        },
+        {
+          "ingredient_slug": "baking_soda",
+          "quantity": 0.5,
+          "unit": "tsp"
+        },
+        {
+          "ingredient_slug": "cinnamon_ground",
+          "quantity": 0.5,
+          "unit": "tsp"
+        },
+        {
+          "ingredient_slug": "ginger_ground",
+          "quantity": 0.25,
+          "unit": "tsp"
+        },
+        {
+          "ingredient_slug": "nutmeg_ground",
+          "quantity": 0.25,
+          "unit": "tsp"
+        },
+        {
+          "ingredient_slug": "cloves_ground",
+          "quantity": 0.125,
+          "unit": "tsp"
+        },
+        {
+          "ingredient_slug": "dates_pitted",
+          "quantity": 0.5,
+          "unit": "cup",
+          "notes": "chopped"
+        },
+        {
+          "ingredient_slug": "walnuts",
+          "quantity": 0.5,
+          "unit": "cup",
+          "notes": "chopped"
+        },
+        {
+          "ingredient_slug": "currants_dried",
+          "quantity": 0.5,
+          "unit": "cup"
+        },
+        {
+          "ingredient_slug": "butter_unsalted",
+          "quantity": 1.0,
+          "unit": "cup",
+          "notes": "2 sticks"
+        },
+        {
+          "ingredient_slug": "sugar_brown_dark",
+          "quantity": 0.5,
+          "unit": "cup",
+          "notes": "firmly packed"
+        },
+        {
+          "ingredient_slug": "eggs_whole",
+          "quantity": 4.0,
+          "unit": "whole"
+        },
+        {
+          "ingredient_slug": "honey",
+          "quantity": 0.75,
+          "unit": "cup"
+        },
+        {
+          "ingredient_slug": "apple_juice",
+          "quantity": 0.25,
+          "unit": "cup"
+        },
+        {
+          "ingredient_slug": "candied_citrus_peel",
+          "quantity": 0.5,
+          "unit": "cup",
+          "notes": "4 oz chopped"
+        },
+        {
+          "ingredient_slug": "candied_citrus_peel",
+          "quantity": 0.5,
+          "unit": "cup",
+          "notes": "4 oz chopped"
+        },
+        {
+          "ingredient_slug": "sugar_granulated",
+          "quantity": 0.75,
+          "unit": "cup"
+        },
+        {
+          "ingredient_slug": "lemon_whole",
+          "quantity": 2.0,
+          "unit": "tsp",
+          "notes": "grated rind"
+        },
+        {
+          "ingredient_slug": "lemon_whole",
+          "quantity": 0.25,
+          "unit": "cup",
+          "notes": "diced pared fresh sections"
+        }
+      ]
+    },
+    {
+      "name": "Pecan Shortbread Christmas Trees",
+      "slug": "pecan_shortbread_christmas_trees",
+      "category": "Cookies",
+      "yield_quantity": 18,
+      "yield_unit": "cookies",
+      "source": "Bake from Scratch magazine",
+      "prep_time_minutes": 30,
+      "cook_time_minutes": 135,
+      "notes": "In bowl of stand mixer fitted with paddle attachment, beat butter, confectioners' sugar, and salt at medium speed until light and creamy, 2 to 3 minutes, stopping to scrape sides of bowl. Beat in vanilla. In medium bowl, whisk together flours. With mixer on low speed, add flour mixture to butter mixture in two additions, beating just until combined after each addition. Turn out dough, and shape into a disk. Wrap in plastic wrap, and refrigerate until firm, about 2 hours, or up to overnight. Preheat oven to 325\u00b0F (170\u00b0C). Line baking sheets with parchment paper. On lightly floured surface, roll dough to \u00bd-inch thickness. Using 4-inch tree-shaped cutter, cut dough, rerolling scraps as necessary. Place 1\u00bd inches apart on prepared pans. Bake until edges are lightly browned, 20 to 25 minutes, rotating pans halfway through baking. Let cool on pans 10 minutes. Remove from pans, and let cool completely on wire racks. Spoon melted white chocolate into piping bag, and cut very small opening in tip. Pipe onto cookies to resemble garland; immediately garnish with nonpareils, if desired. Let stand until chocolate is set, about 1 hour. Store in airtight container up to 5 days.",
+      "ingredients": [
+        {
+          "ingredient_slug": "butter_unsalted",
+          "quantity": 1.5,
+          "unit": "cup",
+          "notes": "3 sticks, softened"
+        },
+        {
+          "ingredient_slug": "sugar_powdered",
+          "quantity": 1.0,
+          "unit": "cup"
+        },
+        {
+          "ingredient_slug": "salt_kosher",
+          "quantity": 2.0,
+          "unit": "tsp"
+        },
+        {
+          "ingredient_slug": "vanilla_extract",
+          "quantity": 2.0,
+          "unit": "tsp"
+        },
+        {
+          "ingredient_slug": "all_purpose_wheat_flour",
+          "quantity": 3.25,
+          "unit": "cup"
+        },
+        {
+          "ingredient_slug": "pecans_chopped",
+          "quantity": 0.25,
+          "unit": "cup"
+        },
+        {
+          "ingredient_slug": "chocolate_chips_white",
+          "quantity": 3.0,
+          "unit": "oz",
+          "notes": "chopped, melted"
+        },
+        {
+          "ingredient_slug": "sugar_sanding",
+          "quantity": 1.0,
+          "unit": "tbsp",
+          "notes": "optional garnish"
         }
       ]
     }
-  ],
-  "finished_units": [
-    {
-      "recipe_slug": "classic_chocolate_chip_cookies",
-      "display_name": "Chocolate Chip Cookie",
-      "yield_mode": "discrete_count",
-      "items_per_batch": 48,
-      "item_unit": "cookie",
-      "category": "Cookies",
-      "notes": "Recipe makes 48 cookies, package as dozens",
-      "slug": "chocolate_chip_cookie"
-    },
-    {
-      "recipe_slug": "fudgy_brownies",
-      "display_name": "Brownie Square",
-      "yield_mode": "discrete_count",
-      "items_per_batch": 16,
-      "item_unit": "brownie",
-      "category": "Brownies",
-      "notes": "2-inch squares from 9x9 pan",
-      "slug": "brownie_square"
-    },
-    {
-      "recipe_slug": "pecan_sandies",
-      "display_name": "Pecan Sandy",
-      "yield_mode": "discrete_count",
-      "items_per_batch": 36,
-      "item_unit": "cookie",
-      "category": "Cookies",
-      "notes": "Buttery shortbread cookies",
-      "slug": "pecan_sandy"
-    },
-    {
-      "recipe_slug": "chocolate_walnut_fudge",
-      "display_name": "Fudge Piece",
-      "yield_mode": "discrete_count",
-      "items_per_batch": 64,
-      "item_unit": "piece",
-      "category": "Candies",
-      "notes": "1-inch squares",
-      "slug": "fudge_piece"
-    },
-    {
-      "recipe_slug": "snickerdoodles",
-      "display_name": "Snickerdoodle",
-      "yield_mode": "discrete_count",
-      "items_per_batch": 36,
-      "item_unit": "cookie",
-      "category": "Cookies",
-      "notes": "Classic cinnamon sugar cookies",
-      "slug": "snickerdoodle"
-    }
-  ],
-  "finished_goods": [
-    {
-      "display_name": "Cookie Assortment Box",
-      "slug": "cookie_assortment_box",
-      "category": "Gift Items",
-      "description": "Assorted cookies including chocolate chip and snickerdoodles"
-    },
-    {
-      "display_name": "Brownie Box",
-      "slug": "brownie_box",
-      "category": "Gift Items",
-      "description": "Eight fudgy brownies"
-    },
-    {
-      "display_name": "Pecan Sandy Box",
-      "slug": "pecan_sandy_box",
-      "category": "Gift Items",
-      "description": "One dozen pecan sandies"
-    },
-    {
-      "display_name": "Fudge Box",
-      "slug": "fudge_box",
-      "category": "Gift Items",
-      "description": "16 pieces of chocolate walnut fudge"
-    },
-    {
-      "display_name": "Snickerdoodle Box",
-      "slug": "snickerdoodle_box",
-      "category": "Gift Items",
-      "description": "One dozen snickerdoodles"
-    }
-  ],
-  "compositions": [
-    {
-      "finished_good_slug": "cookie_assortment_box",
-      "finished_unit_slug": "classic_chocolate_chip_cookies",
-      "component_quantity": 12,
-      "notes": "One dozen chocolate chip cookies"
-    },
-    {
-      "finished_good_slug": "brownie_box",
-      "finished_unit_slug": "fudgy_brownies",
-      "component_quantity": 8,
-      "notes": "Eight fudgy brownies"
-    },
-    {
-      "finished_good_slug": "pecan_sandy_box",
-      "finished_unit_slug": "pecan_sandies",
-      "component_quantity": 12,
-      "notes": "One dozen pecan sandies"
-    },
-    {
-      "finished_good_slug": "fudge_box",
-      "finished_unit_slug": "chocolate_walnut_fudge",
-      "component_quantity": 16,
-      "notes": "16 pieces of chocolate walnut fudge"
-    },
-    {
-      "finished_good_slug": "snickerdoodle_box",
-      "finished_unit_slug": "snickerdoodles",
-      "component_quantity": 12,
-      "notes": "One dozen snickerdoodles"
-    }
-  ],
-  "packages": [
-    {
-      "name": "Holiday Cookie Box",
-      "slug": "holiday_cookie_box",
-      "is_template": false,
-      "description": "Assorted cookie gift box with variety"
-    },
-    {
-      "name": "Deluxe Dessert Package",
-      "slug": "deluxe_dessert_package",
-      "is_template": false,
-      "description": "Premium assortment with cookies, brownies, and fudge"
-    },
-    {
-      "name": "Cookie Lovers Box",
-      "slug": "cookie_lovers_box",
-      "is_template": false,
-      "description": "Three varieties of cookies"
-    }
-  ],
-  "package_finished_goods": [
-    {
-      "package_slug": "holiday_cookie_box",
-      "finished_good_slug": "cookie_assortment_box",
-      "quantity": 1
-    },
-    {
-      "package_slug": "holiday_cookie_box",
-      "finished_good_slug": "snickerdoodle_box",
-      "quantity": 1
-    },
-    {
-      "package_slug": "deluxe_dessert_package",
-      "finished_good_slug": "cookie_assortment_box",
-      "quantity": 1
-    },
-    {
-      "package_slug": "deluxe_dessert_package",
-      "finished_good_slug": "brownie_box",
-      "quantity": 1
-    },
-    {
-      "package_slug": "deluxe_dessert_package",
-      "finished_good_slug": "fudge_box",
-      "quantity": 1
-    },
-    {
-      "package_slug": "cookie_lovers_box",
-      "finished_good_slug": "cookie_assortment_box",
-      "quantity": 1
-    },
-    {
-      "package_slug": "cookie_lovers_box",
-      "finished_good_slug": "pecan_sandy_box",
-      "quantity": 1
-    },
-    {
-      "package_slug": "cookie_lovers_box",
-      "finished_good_slug": "snickerdoodle_box",
-      "quantity": 1
-    }
-  ],
-  "recipients": [
-    {
-      "name": "Alice Johnson",
-      "household": "Johnson Family",
-      "address": "123 Main St, Anytown, USA",
-      "notes": "Loves chocolate chip cookies. Email: alice@example.com, Phone: 555-0101"
-    },
-    {
-      "name": "Bob Smith",
-      "household": "Smith Family",
-      "notes": "Prefers less sweet items. Email: bob@example.com, Phone: 555-0102"
-    },
-    {
-      "name": "Carol Davis",
-      "household": "Davis Family",
-      "address": "456 Oak Ave, Somewhere, USA",
-      "notes": "Allergic to nuts, give cookie-only boxes"
-    },
-    {
-      "name": "David Wilson",
-      "household": "Wilson Family",
-      "address": "789 Pine Rd, Elsewhere, USA",
-      "notes": "Loves variety packs"
-    }
-  ],
-  "events": [
-    {
-      "name": "Holiday Baking 2024",
-      "slug": "holiday_baking_2024",
-      "event_date": "2024-12-15",
-      "description": "Annual holiday gift baking",
-      "notes": "Main baking day December 15"
-    },
-    {
-      "name": "New Year 2025",
-      "slug": "new_year_2025",
-      "event_date": "2025-01-01",
-      "description": "New Year celebrations",
-      "notes": "Small batch for neighborhood party"
-    }
-  ],
-  "event_recipient_packages": [
-    {
-      "event_slug": "holiday_baking_2024",
-      "recipient_name": "Alice Johnson",
-      "package_slug": "holiday_cookie_box",
-      "quantity": 1,
-      "status": "pending",
-      "notes": "Deliver by Dec 20",
-      "fulfillment_status": "pending"
-    },
-    {
-      "event_slug": "holiday_baking_2024",
-      "recipient_name": "Bob Smith",
-      "package_slug": "deluxe_dessert_package",
-      "quantity": 1,
-      "status": "pending",
-      "notes": "Prefers variety, less sweet items",
-      "fulfillment_status": "pending"
-    },
-    {
-      "event_slug": "holiday_baking_2024",
-      "recipient_name": "Carol Davis",
-      "package_slug": "holiday_cookie_box",
-      "quantity": 1,
-      "status": "pending",
-      "notes": "No nuts - cookie box is safe",
-      "fulfillment_status": "pending"
-    },
-    {
-      "event_slug": "holiday_baking_2024",
-      "recipient_name": "David Wilson",
-      "package_slug": "cookie_lovers_box",
-      "quantity": 1,
-      "status": "pending",
-      "notes": "Loves variety",
-      "fulfillment_status": "pending"
-    },
-    {
-      "event_slug": "new_year_2025",
-      "recipient_name": "Alice Johnson",
-      "package_slug": "holiday_cookie_box",
-      "quantity": 1,
-      "status": "pending",
-      "notes": "For the party",
-      "fulfillment_status": "pending"
-    }
-  ],
-  "event_production_targets": [],
-  "event_assembly_targets": [],
-  "production_records": [
-    {
-      "event_slug": "holiday_baking_2024",
-      "recipe_slug": "classic_chocolate_chip_cookies",
-      "batches": 2,
-      "produced_at": "2024-12-14T10:00:00Z",
-      "actual_cost": 18.5,
-      "notes": "Double batch for extra gifts"
-    },
-    {
-      "event_slug": "holiday_baking_2024",
-      "recipe_slug": "fudgy_brownies",
-      "batches": 1,
-      "produced_at": "2024-12-14T14:00:00Z",
-      "actual_cost": 8.25,
-      "notes": "Single batch"
-    },
-    {
-      "event_slug": "holiday_baking_2024",
-      "recipe_slug": "snickerdoodles",
-      "batches": 1,
-      "produced_at": "2024-12-15T09:00:00Z",
-      "actual_cost": 6.5,
-      "notes": "Morning batch"
-    }
-  ],
-  "production_runs": [],
-  "assembly_runs": []
+  ]
 }

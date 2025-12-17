@@ -1,0 +1,3396 @@
+[
+  {
+    "category": "Oils/Butters",
+    "product": "Salted Butter",
+    "brand": "Costco",
+    "current_slug": "salted_butter",
+    "status": "MAPPED",
+    "suggestions": []
+  },
+  {
+    "category": "Oils/Butters",
+    "product": "Unsalted Butter",
+    "brand": "Costco",
+    "current_slug": "unsalted_butter",
+    "status": "MAPPED",
+    "suggestions": []
+  },
+  {
+    "category": "Oils/Butters",
+    "product": "Kerry Butter",
+    "brand": "Kerry",
+    "current_slug": "salted_butter",
+    "status": "MAPPED",
+    "suggestions": []
+  },
+  {
+    "category": "Oils/Butters",
+    "product": "Crisco White",
+    "brand": "Crisco",
+    "current_slug": "vegetable_shortening",
+    "status": "MAPPED",
+    "suggestions": []
+  },
+  {
+    "category": "Oils/Butters",
+    "product": "Crisco Butter",
+    "brand": "Crisco",
+    "current_slug": "unsalted_butter",
+    "status": "MAPPED",
+    "suggestions": []
+  },
+  {
+    "category": "Oils/Butters",
+    "product": "Olive Oil Bertolli EVOO",
+    "brand": "Bertolli",
+    "current_slug": "olive_oil",
+    "status": "MAPPED",
+    "suggestions": []
+  },
+  {
+    "category": "Oils/Butters",
+    "product": "Canola Oil",
+    "brand": "Wegman's",
+    "current_slug": "canola_oil",
+    "status": "MAPPED",
+    "suggestions": []
+  },
+  {
+    "category": "Oils/Butters",
+    "product": "Lard",
+    "brand": "Morrell",
+    "current_slug": "lard",
+    "status": "MAPPED",
+    "suggestions": []
+  },
+  {
+    "category": "Flour",
+    "product": "All Purpose",
+    "brand": "King Arthur",
+    "package": "25 lb",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "all_purpose_wheat_flour",
+        "name": "all-purpose wheat flour",
+        "score": 2
+      }
+    ]
+  },
+  {
+    "category": "Flour",
+    "product": "Bread",
+    "brand": "Wegman's",
+    "package": "5 lb",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "bread_flour",
+        "name": "bread flour",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Flour",
+    "product": "Cake",
+    "brand": "Wegman's",
+    "package": "2 lb",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "cake_flour",
+        "name": "cake flour",
+        "score": 1
+      },
+      {
+        "slug": "yeast_fresh",
+        "name": "yeast, fresh",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Flour",
+    "product": "Self Rising",
+    "brand": "Wegman's",
+    "package": "5 lb",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "self_rising_flour",
+        "name": "self-rising flour",
+        "score": 2
+      }
+    ]
+  },
+  {
+    "category": "Flour",
+    "product": "Whole Wheat",
+    "brand": "King Arthur",
+    "package": "5 lb",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "whole_wheat_flour",
+        "name": "whole wheat flour",
+        "score": 2
+      },
+      {
+        "slug": "white_whole_wheat_flour",
+        "name": "white whole wheat flour",
+        "score": 2
+      },
+      {
+        "slug": "milk_whole",
+        "name": "milk, whole",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Flour",
+    "product": "Almond Flour",
+    "brand": "King Arthur",
+    "package": "2 lb",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "almond_flour",
+        "name": "almond flour",
+        "score": 2
+      },
+      {
+        "slug": "all_purpose_wheat_flour",
+        "name": "all-purpose wheat flour",
+        "score": 1
+      },
+      {
+        "slug": "bread_flour",
+        "name": "bread flour",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Flour",
+    "product": "Pastry Flour",
+    "brand": "King Arthur",
+    "package": "5 lb",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "pastry_flour",
+        "name": "pastry flour",
+        "score": 2
+      },
+      {
+        "slug": "all_purpose_wheat_flour",
+        "name": "all-purpose wheat flour",
+        "score": 1
+      },
+      {
+        "slug": "bread_flour",
+        "name": "bread flour",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Flour",
+    "product": "Lilly White Soft Wheat Flour",
+    "brand": "Lilly",
+    "package": "5 lb",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "cake_flour",
+        "name": "cake flour",
+        "score": 3
+      },
+      {
+        "slug": "white_whole_wheat_flour",
+        "name": "white whole wheat flour",
+        "score": 3
+      },
+      {
+        "slug": "all_purpose_wheat_flour",
+        "name": "all-purpose wheat flour",
+        "score": 2
+      }
+    ]
+  },
+  {
+    "category": "Flour",
+    "product": "Coconut Flour",
+    "brand": "Wegman's",
+    "package": "5 lb",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "coconut_flour",
+        "name": "coconut flour",
+        "score": 2
+      },
+      {
+        "slug": "all_purpose_wheat_flour",
+        "name": "all-purpose wheat flour",
+        "score": 1
+      },
+      {
+        "slug": "bread_flour",
+        "name": "bread flour",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Flour",
+    "product": "Red Mill Gluten Free All Purpose",
+    "brand": "Red Mill",
+    "package": "2 lb",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "gluten_free_flour_blend",
+        "name": "gluten-free flour blend",
+        "score": 2
+      },
+      {
+        "slug": "all_purpose_wheat_flour",
+        "name": "all-purpose wheat flour",
+        "score": 2
+      },
+      {
+        "slug": "licorice_red",
+        "name": "licorice, red",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Flour",
+    "product": "HoneyMain Graham cracker crumbs",
+    "brand": "HoneyMain",
+    "package": "13.5 oz",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": []
+  },
+  {
+    "category": "Sugar",
+    "product": "White Sugar",
+    "brand": "Domino",
+    "package": "25 lb",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "sugar_granulated",
+        "name": "sugar, granulated",
+        "score": 2
+      },
+      {
+        "slug": "sugar_superfine",
+        "name": "sugar, superfine",
+        "score": 1
+      },
+      {
+        "slug": "sugar_brown_light",
+        "name": "sugar, brown light",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Sugar",
+    "product": "White Sugar",
+    "brand": "Domino",
+    "package": "4 lb",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "sugar_granulated",
+        "name": "sugar, granulated",
+        "score": 2
+      },
+      {
+        "slug": "sugar_superfine",
+        "name": "sugar, superfine",
+        "score": 1
+      },
+      {
+        "slug": "sugar_brown_light",
+        "name": "sugar, brown light",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Sugar",
+    "product": "Light Brown Sugar",
+    "brand": "Domino",
+    "package": "2 lb",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "sugar_brown_light",
+        "name": "sugar, brown light",
+        "score": 3
+      },
+      {
+        "slug": "sugar_brown_dark",
+        "name": "sugar, brown dark",
+        "score": 2
+      },
+      {
+        "slug": "sugar_granulated",
+        "name": "sugar, granulated",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Sugar",
+    "product": "Dark Brown Sugar",
+    "brand": "Domino",
+    "package": "2 lb",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "sugar_brown_dark",
+        "name": "sugar, brown dark",
+        "score": 3
+      },
+      {
+        "slug": "sugar_brown_light",
+        "name": "sugar, brown light",
+        "score": 2
+      },
+      {
+        "slug": "rice_flour_brown",
+        "name": "rice flour, brown",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Sugar",
+    "product": "SuperFine",
+    "brand": "Domino",
+    "package": "12 oz",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "sugar_superfine",
+        "name": "sugar, superfine",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Sugar",
+    "product": "Confectioner's Sugar",
+    "brand": "Domino",
+    "package": "7 lb",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "sugar_granulated",
+        "name": "sugar, granulated",
+        "score": 1
+      },
+      {
+        "slug": "sugar_superfine",
+        "name": "sugar, superfine",
+        "score": 1
+      },
+      {
+        "slug": "sugar_brown_light",
+        "name": "sugar, brown light",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Sugar",
+    "product": "Swerve",
+    "brand": "Swerve",
+    "package": "12 oz",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": []
+  },
+  {
+    "category": "Sugar",
+    "product": "Turbinado",
+    "brand": "Sugar in the Raw",
+    "package": "4 lb",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "turbinado_sugar",
+        "name": "turbinado sugar",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Sugar",
+    "product": "Pantry Sugar",
+    "brand": "Pantry",
+    "package": "1 lb",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "sugar_granulated",
+        "name": "sugar, granulated",
+        "score": 1
+      },
+      {
+        "slug": "sugar_superfine",
+        "name": "sugar, superfine",
+        "score": 1
+      },
+      {
+        "slug": "sugar_brown_light",
+        "name": "sugar, brown light",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Grains",
+    "product": "Oats Old Fashioned",
+    "brand": "Quaker",
+    "package": "10 lb",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "oats_rolled",
+        "name": "oats, rolled",
+        "score": 3
+      },
+      {
+        "slug": "oats_quick",
+        "name": "oats, quick",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Grains",
+    "product": "Oats Quick",
+    "brand": "Quaker",
+    "package": "1.5 lb",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "oats_quick",
+        "name": "oats, quick",
+        "score": 2
+      },
+      {
+        "slug": "oats_rolled",
+        "name": "oats, rolled",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Grains",
+    "product": "Rice Crispy Treat Cereal",
+    "brand": "Kellog's",
+    "package": "12 oz",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "rice_cereal_crisp",
+        "name": "rice cereal, crisp",
+        "score": 3
+      },
+      {
+        "slug": "rice_flour_white",
+        "name": "rice flour, white",
+        "score": 1
+      },
+      {
+        "slug": "rice_flour_brown",
+        "name": "rice flour, brown",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Grains",
+    "product": "Grape Nuts Cereal",
+    "brand": "Grape Nuts",
+    "package": "29 oz",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "rice_cereal_crisp",
+        "name": "rice cereal, crisp",
+        "score": 1
+      },
+      {
+        "slug": "macadamia_nuts",
+        "name": "macadamia nuts",
+        "score": 1
+      },
+      {
+        "slug": "brazil_nuts",
+        "name": "brazil nuts",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Nuts/Seeds",
+    "product": "Pecans",
+    "brand": "Costco",
+    "package": "1 lb",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "pecans_halves",
+        "name": "pecans, halves",
+        "score": 1
+      },
+      {
+        "slug": "pecans_chopped",
+        "name": "pecans, chopped",
+        "score": 1
+      },
+      {
+        "slug": "pecans",
+        "name": "pecans",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Nuts/Seeds",
+    "product": "Walnuts",
+    "brand": "Costco",
+    "package": "3 lb",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "walnuts_halves",
+        "name": "walnuts, halves",
+        "score": 1
+      },
+      {
+        "slug": "walnuts_chopped",
+        "name": "walnuts, chopped",
+        "score": 1
+      },
+      {
+        "slug": "walnuts",
+        "name": "walnuts",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Nuts/Seeds",
+    "product": "Almonds",
+    "brand": "Costco",
+    "package": "1 lb",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "almond_flour",
+        "name": "almond flour",
+        "score": 1
+      },
+      {
+        "slug": "almonds_whole",
+        "name": "almonds, whole",
+        "score": 1
+      },
+      {
+        "slug": "almonds_sliced",
+        "name": "almonds, sliced",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Nuts/Seeds",
+    "product": "Pepitas",
+    "brand": "Trader Joe's",
+    "package": "12 oz",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "pumpkin_seeds",
+        "name": "pumpkin seeds",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Nuts/Seeds",
+    "product": "Pistachios",
+    "brand": "Trader Joe's",
+    "package": "8 oz",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "pistachios",
+        "name": "pistachios",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Nuts/Seeds",
+    "product": "Flax Seeds",
+    "brand": "Bob's Red Mill",
+    "package": "16 oz",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "sunflower_seeds",
+        "name": "sunflower seeds",
+        "score": 1
+      },
+      {
+        "slug": "pumpkin_seeds",
+        "name": "pumpkin seeds",
+        "score": 1
+      },
+      {
+        "slug": "sesame_seeds",
+        "name": "sesame seeds",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Nuts/Seeds",
+    "product": "Poppy Seeds",
+    "brand": "Frontier",
+    "package": "8 oz",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "poppy_seeds",
+        "name": "poppy seeds",
+        "score": 2
+      },
+      {
+        "slug": "sunflower_seeds",
+        "name": "sunflower seeds",
+        "score": 1
+      },
+      {
+        "slug": "pumpkin_seeds",
+        "name": "pumpkin seeds",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Nuts/Seeds",
+    "product": "Chia Seeds",
+    "brand": "Trader Joe's",
+    "package": "12 oz",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "chia_seeds",
+        "name": "chia seeds",
+        "score": 2
+      },
+      {
+        "slug": "sunflower_seeds",
+        "name": "sunflower seeds",
+        "score": 1
+      },
+      {
+        "slug": "pumpkin_seeds",
+        "name": "pumpkin seeds",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Nuts/Seeds",
+    "product": "Hazelnuts",
+    "brand": "Trader Joe's",
+    "package": "1 lb",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "hazelnuts",
+        "name": "hazelnuts",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Nuts/Seeds",
+    "product": "Macadamia Nuts",
+    "brand": "Trader Joe's",
+    "package": "6 oz",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "macadamia_nuts",
+        "name": "macadamia nuts",
+        "score": 2
+      },
+      {
+        "slug": "brazil_nuts",
+        "name": "brazil nuts",
+        "score": 1
+      },
+      {
+        "slug": "pine_nuts",
+        "name": "pine nuts",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Nuts/Seeds",
+    "product": "Pine Nuts",
+    "brand": "Trader Joe's",
+    "package": "8 oz",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "pine_nuts",
+        "name": "pine nuts",
+        "score": 2
+      },
+      {
+        "slug": "macadamia_nuts",
+        "name": "macadamia nuts",
+        "score": 1
+      },
+      {
+        "slug": "brazil_nuts",
+        "name": "brazil nuts",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Nuts/Seeds",
+    "product": "Cashews",
+    "brand": "Trader Joe's",
+    "package": "1 lb",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "cashews",
+        "name": "cashews",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Nuts/Seeds",
+    "product": "Brazil Nuts",
+    "brand": "Trader Joe's",
+    "package": "1 lb",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "brazil_nuts",
+        "name": "brazil nuts",
+        "score": 2
+      },
+      {
+        "slug": "macadamia_nuts",
+        "name": "macadamia nuts",
+        "score": 1
+      },
+      {
+        "slug": "pine_nuts",
+        "name": "pine nuts",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Chocolate/Candies",
+    "product": "Baker's sweetened",
+    "brand": "Baker's",
+    "package": "4 oz",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "ammonium_bicarbonate",
+        "name": "ammonium bicarbonate",
+        "score": 1
+      },
+      {
+        "slug": "milk_condensed_sweetened",
+        "name": "milk, condensed sweetened",
+        "score": 1
+      },
+      {
+        "slug": "coconut_shredded_sweetened",
+        "name": "coconut, shredded sweetened",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Chocolate/Candies",
+    "product": "Baker's Unsweetened",
+    "brand": "Baker's",
+    "package": "4 oz",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "chocolate_baking_unsweetened",
+        "name": "chocolate, baking unsweetened",
+        "score": 1
+      },
+      {
+        "slug": "applesauce_unsweetened",
+        "name": "applesauce, unsweetened",
+        "score": 1
+      },
+      {
+        "slug": "coconut_shredded_unsweetened",
+        "name": "coconut, shredded unsweetened",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Chocolate/Candies",
+    "product": "Cadbury Mini Snowball",
+    "brand": "Cadbury",
+    "package": "9 oz",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "mini_chocolate_chips_semi_sweet",
+        "name": "mini chocolate chips, semi-sweet",
+        "score": 1
+      },
+      {
+        "slug": "mini_marshmallows",
+        "name": "mini marshmallows",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Chocolate/Candies",
+    "product": "Callebaut Callets",
+    "brand": "Callebaut",
+    "package": "22 lb",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": []
+  },
+  {
+    "category": "Chocolate/Candies",
+    "product": "Callebaut Ruby Callets",
+    "brand": "Callebaut",
+    "package": "5.5 lb",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": []
+  },
+  {
+    "category": "Chocolate/Candies",
+    "product": "Caramels",
+    "brand": "Caramels",
+    "package": "11 oz",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": []
+  },
+  {
+    "category": "Chocolate/Candies",
+    "product": "Ghiradelli Milk Chips",
+    "brand": "Ghiradelli",
+    "package": "11.5 oz",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "chocolate_chips_milk",
+        "name": "chocolate chips, milk",
+        "score": 2
+      },
+      {
+        "slug": "milk_whole",
+        "name": "milk, whole",
+        "score": 1
+      },
+      {
+        "slug": "milk_2",
+        "name": "milk, 2%",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Chocolate/Candies",
+    "product": "Guittard Cr\u00e8me Francaise White Chocolate Disks",
+    "brand": "Guittard",
+    "package": "6.6 lb",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "chocolate_chips_white",
+        "name": "chocolate chips, white",
+        "score": 2
+      },
+      {
+        "slug": "chocolate_couverture_white",
+        "name": "chocolate, couverture white",
+        "score": 2
+      },
+      {
+        "slug": "creme_fraiche",
+        "name": "creme fraiche",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Chocolate/Candies",
+    "product": "Guittard Extra Dark Chips",
+    "brand": "Guittard",
+    "package": "11.5 oz",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "chocolate_chips_bittersweet",
+        "name": "chocolate chips, bittersweet",
+        "score": 2
+      },
+      {
+        "slug": "sugar_brown_dark",
+        "name": "sugar, brown dark",
+        "score": 1
+      },
+      {
+        "slug": "corn_syrup_dark",
+        "name": "corn syrup, dark",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Chocolate/Candies",
+    "product": "Guittard Green Mit Baking Chips",
+    "brand": "Guittard",
+    "package": "12 oz",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "baking_soda",
+        "name": "baking soda",
+        "score": 1
+      },
+      {
+        "slug": "baking_powder",
+        "name": "baking powder",
+        "score": 1
+      },
+      {
+        "slug": "chocolate_baking_unsweetened",
+        "name": "chocolate, baking unsweetened",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Chocolate/Candies",
+    "product": "Guittard Milk Chocolate Disks",
+    "brand": "Guittard",
+    "package": "12 oz",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "chocolate_chips_milk",
+        "name": "chocolate chips, milk",
+        "score": 2
+      },
+      {
+        "slug": "chocolate_baking_milk",
+        "name": "chocolate, baking milk",
+        "score": 2
+      },
+      {
+        "slug": "chocolate_couverture_milk",
+        "name": "chocolate, couverture milk",
+        "score": 2
+      }
+    ]
+  },
+  {
+    "category": "Chocolate/Candies",
+    "product": "Heathbar Toffee Bits",
+    "brand": "Heathbar",
+    "package": "8 oz",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "toffee_bits",
+        "name": "toffee bits",
+        "score": 2
+      },
+      {
+        "slug": "caramel_bits",
+        "name": "caramel bits",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Chocolate/Candies",
+    "product": "Hershey's Cinnamon Chips",
+    "brand": "Hershey's",
+    "package": "10 oz",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "chocolate_chips_semi_sweet",
+        "name": "chocolate chips, semi-sweet",
+        "score": 1
+      },
+      {
+        "slug": "chocolate_chips_bittersweet",
+        "name": "chocolate chips, bittersweet",
+        "score": 1
+      },
+      {
+        "slug": "chocolate_chips_milk",
+        "name": "chocolate chips, milk",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Chocolate/Candies",
+    "product": "Hershey's Kisses Milk",
+    "brand": "Hershey's",
+    "package": "10 oz",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "milk_whole",
+        "name": "milk, whole",
+        "score": 1
+      },
+      {
+        "slug": "milk_2",
+        "name": "milk, 2%",
+        "score": 1
+      },
+      {
+        "slug": "milk_skim",
+        "name": "milk, skim",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Chocolate/Candies",
+    "product": "Hershey's Sea Salt Caramel Chips",
+    "brand": "Hershey's",
+    "package": "10 oz",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "sea_salt_flaky",
+        "name": "sea salt, flaky",
+        "score": 2
+      },
+      {
+        "slug": "salt_fine",
+        "name": "salt, fine",
+        "score": 1
+      },
+      {
+        "slug": "salt_kosher",
+        "name": "salt, kosher",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Chocolate/Candies",
+    "product": "Hershey's Special Dark Chips",
+    "brand": "Hershey's",
+    "package": "12 oz",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "chocolate_chips_bittersweet",
+        "name": "chocolate chips, bittersweet",
+        "score": 2
+      },
+      {
+        "slug": "sugar_brown_dark",
+        "name": "sugar, brown dark",
+        "score": 1
+      },
+      {
+        "slug": "corn_syrup_dark",
+        "name": "corn syrup, dark",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Chocolate/Candies",
+    "product": "Hershey's Special Dark Kisses",
+    "brand": "Hershey's",
+    "package": "11 oz",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "sugar_brown_dark",
+        "name": "sugar, brown dark",
+        "score": 1
+      },
+      {
+        "slug": "corn_syrup_dark",
+        "name": "corn syrup, dark",
+        "score": 1
+      },
+      {
+        "slug": "molasses_dark",
+        "name": "molasses, dark",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Chocolate/Candies",
+    "product": "M&M Almonds",
+    "brand": "M&M",
+    "package": "10 oz",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "almond_flour",
+        "name": "almond flour",
+        "score": 1
+      },
+      {
+        "slug": "almonds_whole",
+        "name": "almonds, whole",
+        "score": 1
+      },
+      {
+        "slug": "almonds_sliced",
+        "name": "almonds, sliced",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Chocolate/Candies",
+    "product": "M&M Baking Bits",
+    "brand": "M&M",
+    "package": "11 oz",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "baking_soda",
+        "name": "baking soda",
+        "score": 1
+      },
+      {
+        "slug": "baking_powder",
+        "name": "baking powder",
+        "score": 1
+      },
+      {
+        "slug": "chocolate_baking_unsweetened",
+        "name": "chocolate, baking unsweetened",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Chocolate/Candies",
+    "product": "M&M Plain",
+    "brand": "M&M",
+    "package": "12 oz",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "all_purpose_wheat_flour",
+        "name": "all-purpose wheat flour",
+        "score": 1
+      },
+      {
+        "slug": "yogurt_plain",
+        "name": "yogurt, plain",
+        "score": 1
+      },
+      {
+        "slug": "greek_yogurt_plain",
+        "name": "greek yogurt, plain",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Chocolate/Candies",
+    "product": "Nestle Allergan Free",
+    "brand": "Nestle",
+    "package": "10 oz",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "gluten_free_flour_blend",
+        "name": "gluten-free flour blend",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Chocolate/Candies",
+    "product": "Nestle Milk Chips",
+    "brand": "Nestle",
+    "package": "23 oz",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "chocolate_chips_milk",
+        "name": "chocolate chips, milk",
+        "score": 2
+      },
+      {
+        "slug": "milk_whole",
+        "name": "milk, whole",
+        "score": 1
+      },
+      {
+        "slug": "milk_2",
+        "name": "milk, 2%",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Chocolate/Candies",
+    "product": "Nestle Milk Chips",
+    "brand": "Nestle",
+    "package": "11 oz",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "chocolate_chips_milk",
+        "name": "chocolate chips, milk",
+        "score": 2
+      },
+      {
+        "slug": "milk_whole",
+        "name": "milk, whole",
+        "score": 1
+      },
+      {
+        "slug": "milk_2",
+        "name": "milk, 2%",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Chocolate/Candies",
+    "product": "Nestle Butterscotch Chips",
+    "brand": "Nestle",
+    "package": "11 oz",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "butterscotch_chips",
+        "name": "butterscotch chips",
+        "score": 2
+      },
+      {
+        "slug": "chocolate_chips_semi_sweet",
+        "name": "chocolate chips, semi-sweet",
+        "score": 1
+      },
+      {
+        "slug": "chocolate_chips_bittersweet",
+        "name": "chocolate chips, bittersweet",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Chocolate/Candies",
+    "product": "Nestle Dark Chocolate Chips",
+    "brand": "Nestle",
+    "package": "10 oz",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "chocolate_chips_bittersweet",
+        "name": "chocolate chips, bittersweet",
+        "score": 3
+      },
+      {
+        "slug": "chocolate_chips_semi_sweet",
+        "name": "chocolate chips, semi-sweet",
+        "score": 2
+      },
+      {
+        "slug": "chocolate_chips_milk",
+        "name": "chocolate chips, milk",
+        "score": 2
+      }
+    ]
+  },
+  {
+    "category": "Chocolate/Candies",
+    "product": "Nestle Espresso Chips",
+    "brand": "Nestle",
+    "package": "10 oz",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "espresso_powder",
+        "name": "espresso powder",
+        "score": 1
+      },
+      {
+        "slug": "chocolate_chips_semi_sweet",
+        "name": "chocolate chips, semi-sweet",
+        "score": 1
+      },
+      {
+        "slug": "chocolate_chips_bittersweet",
+        "name": "chocolate chips, bittersweet",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Chocolate/Candies",
+    "product": "Nestle Mini Chips",
+    "brand": "Nestle",
+    "package": "12 oz",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "mini_chocolate_chips_semi_sweet",
+        "name": "mini chocolate chips, semi-sweet",
+        "score": 2
+      },
+      {
+        "slug": "mini_marshmallows",
+        "name": "mini marshmallows",
+        "score": 1
+      },
+      {
+        "slug": "chocolate_chips_semi_sweet",
+        "name": "chocolate chips, semi-sweet",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Chocolate/Candies",
+    "product": "Nestle Peppermint Chips",
+    "brand": "Nestle",
+    "package": "9 oz",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "peppermint_extract",
+        "name": "peppermint extract",
+        "score": 1
+      },
+      {
+        "slug": "candy_canes",
+        "name": "candy canes",
+        "score": 1
+      },
+      {
+        "slug": "chocolate_chips_semi_sweet",
+        "name": "chocolate chips, semi-sweet",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Chocolate/Candies",
+    "product": "Nestle White Chocolate",
+    "brand": "Nestle",
+    "package": "10 oz",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "chocolate_chips_white",
+        "name": "chocolate chips, white",
+        "score": 2
+      },
+      {
+        "slug": "chocolate_couverture_white",
+        "name": "chocolate, couverture white",
+        "score": 2
+      },
+      {
+        "slug": "white_whole_wheat_flour",
+        "name": "white whole wheat flour",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Chocolate/Candies",
+    "product": "Reeses Mini Cups",
+    "brand": "Reeses",
+    "package": "10 oz",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "mini_chocolate_chips_semi_sweet",
+        "name": "mini chocolate chips, semi-sweet",
+        "score": 1
+      },
+      {
+        "slug": "mini_marshmallows",
+        "name": "mini marshmallows",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Chocolate/Candies",
+    "product": "Semisweet Chocolate Chips",
+    "brand": "Costco",
+    "package": "12 oz",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "chocolate_chips_semi_sweet",
+        "name": "chocolate chips, semi-sweet",
+        "score": 2
+      },
+      {
+        "slug": "chocolate_chips_bittersweet",
+        "name": "chocolate chips, bittersweet",
+        "score": 2
+      },
+      {
+        "slug": "chocolate_chips_milk",
+        "name": "chocolate chips, milk",
+        "score": 2
+      }
+    ]
+  },
+  {
+    "category": "Chocolate/Candies",
+    "product": "Swiss Miss Hot Chocolate",
+    "brand": "Swiss Miss",
+    "package": "34.5 oz",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "chocolate_chips_semi_sweet",
+        "name": "chocolate chips, semi-sweet",
+        "score": 1
+      },
+      {
+        "slug": "chocolate_chips_bittersweet",
+        "name": "chocolate chips, bittersweet",
+        "score": 1
+      },
+      {
+        "slug": "chocolate_chips_milk",
+        "name": "chocolate chips, milk",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Chocolate/Candies",
+    "product": "Toblerone",
+    "brand": "Toblerone",
+    "package": "12.5 oz",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": []
+  },
+  {
+    "category": "Baking Essentials",
+    "product": "Salt Diamond Kosher",
+    "brand": "Diamond",
+    "package": "3 lb",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "salt_kosher",
+        "name": "salt, kosher",
+        "score": 2
+      },
+      {
+        "slug": "salt_fine",
+        "name": "salt, fine",
+        "score": 1
+      },
+      {
+        "slug": "sea_salt_flaky",
+        "name": "sea salt, flaky",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Baking Essentials",
+    "product": "Salt Table",
+    "brand": "Morton",
+    "package": "26 oz",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "salt_fine",
+        "name": "salt, fine",
+        "score": 2
+      },
+      {
+        "slug": "salt_kosher",
+        "name": "salt, kosher",
+        "score": 1
+      },
+      {
+        "slug": "sea_salt_flaky",
+        "name": "sea salt, flaky",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Baking Essentials",
+    "product": "Salt Flakey",
+    "brand": "Maldon",
+    "package": "125 g",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "salt_fine",
+        "name": "salt, fine",
+        "score": 1
+      },
+      {
+        "slug": "salt_kosher",
+        "name": "salt, kosher",
+        "score": 1
+      },
+      {
+        "slug": "sea_salt_flaky",
+        "name": "sea salt, flaky",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Baking Essentials",
+    "product": "Salt Course",
+    "brand": "Morton",
+    "package": "3 lb",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "salt_fine",
+        "name": "salt, fine",
+        "score": 1
+      },
+      {
+        "slug": "salt_kosher",
+        "name": "salt, kosher",
+        "score": 1
+      },
+      {
+        "slug": "sea_salt_flaky",
+        "name": "sea salt, flaky",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Baking Essentials",
+    "product": "Vanilla extract Mexican",
+    "brand": "Nielsen-Massey",
+    "package": "8 fl oz",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "vanilla_extract",
+        "name": "vanilla extract",
+        "score": 2
+      },
+      {
+        "slug": "almond_extract",
+        "name": "almond extract",
+        "score": 1
+      },
+      {
+        "slug": "lemon_extract",
+        "name": "lemon extract",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Baking Essentials",
+    "product": "Vanilla extract Madagascar",
+    "brand": "Nielsen-Massey",
+    "package": "8 fl oz",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "vanilla_extract",
+        "name": "vanilla extract",
+        "score": 2
+      },
+      {
+        "slug": "almond_extract",
+        "name": "almond extract",
+        "score": 1
+      },
+      {
+        "slug": "lemon_extract",
+        "name": "lemon extract",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Baking Essentials",
+    "product": "Vanilla Bean Paste",
+    "brand": "Nielsen-Massey",
+    "package": "16 oz",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "vanilla_paste",
+        "name": "vanilla paste",
+        "score": 3
+      },
+      {
+        "slug": "vanilla_bean",
+        "name": "vanilla bean",
+        "score": 2
+      },
+      {
+        "slug": "tahini",
+        "name": "tahini",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Baking Essentials",
+    "product": "Vanilla Beans",
+    "brand": "Nielsen-Massey",
+    "package": "5 g",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "jelly_beans",
+        "name": "jelly beans",
+        "score": 1
+      },
+      {
+        "slug": "vanilla_extract",
+        "name": "vanilla extract",
+        "score": 1
+      },
+      {
+        "slug": "vanilla_bean",
+        "name": "vanilla bean",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Baking Essentials",
+    "product": "Vanilla Beans",
+    "brand": "Heilala",
+    "package": "5 g",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "jelly_beans",
+        "name": "jelly beans",
+        "score": 1
+      },
+      {
+        "slug": "vanilla_extract",
+        "name": "vanilla extract",
+        "score": 1
+      },
+      {
+        "slug": "vanilla_bean",
+        "name": "vanilla bean",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Baking Essentials",
+    "product": "Cocoa Powder Hershey\u2019s",
+    "brand": "Hershey's",
+    "package": "226 g",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "cocoa_powder_natural",
+        "name": "cocoa powder, natural",
+        "score": 2
+      },
+      {
+        "slug": "cocoa_powder_dutch_processed",
+        "name": "cocoa powder, dutch-processed",
+        "score": 2
+      },
+      {
+        "slug": "cocoa_powder_black",
+        "name": "cocoa powder, black",
+        "score": 2
+      }
+    ]
+  },
+  {
+    "category": "Baking Essentials",
+    "product": "Cocoa Powder Rodelle",
+    "brand": "Rodelle",
+    "package": "448 g",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "cocoa_powder_natural",
+        "name": "cocoa powder, natural",
+        "score": 2
+      },
+      {
+        "slug": "cocoa_powder_dutch_processed",
+        "name": "cocoa powder, dutch-processed",
+        "score": 2
+      },
+      {
+        "slug": "cocoa_powder_black",
+        "name": "cocoa powder, black",
+        "score": 2
+      }
+    ]
+  },
+  {
+    "category": "Baking Essentials",
+    "product": "Meringue Powder",
+    "brand": "Wilton",
+    "package": "16 oz",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "arrowroot_starch",
+        "name": "arrowroot starch",
+        "score": 1
+      },
+      {
+        "slug": "milk_powder_nonfat",
+        "name": "milk powder, nonfat",
+        "score": 1
+      },
+      {
+        "slug": "milk_powder_whole",
+        "name": "milk powder, whole",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Baking Essentials",
+    "product": "Corn Starch",
+    "brand": "Argo",
+    "package": "16 oz",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "cornstarch",
+        "name": "cornstarch",
+        "score": 1
+      },
+      {
+        "slug": "corn_syrup_light",
+        "name": "corn syrup, light",
+        "score": 1
+      },
+      {
+        "slug": "corn_syrup_dark",
+        "name": "corn syrup, dark",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Baking Essentials",
+    "product": "Maple Syrup",
+    "brand": "Costco",
+    "package": "32 oz",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "maple_syrup",
+        "name": "maple syrup",
+        "score": 2
+      },
+      {
+        "slug": "maple_extract",
+        "name": "maple extract",
+        "score": 1
+      },
+      {
+        "slug": "agave_syrup",
+        "name": "agave syrup",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Baking Essentials",
+    "product": "Honey",
+    "brand": "Costco",
+    "package": "48 oz",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "honey",
+        "name": "honey",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Baking Essentials",
+    "product": "Corn Syrup",
+    "brand": "Karo",
+    "package": "16 oz",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "corn_syrup_light",
+        "name": "corn syrup, light",
+        "score": 2
+      },
+      {
+        "slug": "corn_syrup_dark",
+        "name": "corn syrup, dark",
+        "score": 2
+      },
+      {
+        "slug": "cornstarch",
+        "name": "cornstarch",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Baking Essentials",
+    "product": "Gelatin",
+    "brand": "Knox",
+    "package": "1 oz",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "gelatin_powder",
+        "name": "gelatin powder",
+        "score": 1
+      },
+      {
+        "slug": "gelatin_sheets",
+        "name": "gelatin sheets",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Baking Essentials",
+    "product": "Pectin",
+    "brand": "Ball",
+    "package": "1.75 oz",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "pectin",
+        "name": "pectin",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Baking Essentials",
+    "product": "Almond Flavor",
+    "brand": "McCormick",
+    "package": "1 oz",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "almond_flour",
+        "name": "almond flour",
+        "score": 1
+      },
+      {
+        "slug": "almond_meal",
+        "name": "almond meal",
+        "score": 1
+      },
+      {
+        "slug": "almond_butter",
+        "name": "almond butter",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Baking Essentials",
+    "product": "Pistachio Flavor",
+    "brand": "McCormick",
+    "package": "1 oz",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": []
+  },
+  {
+    "category": "Baking Essentials",
+    "product": "Chocolate Flavor",
+    "brand": "McCormick",
+    "package": "1 oz",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "chocolate_chips_semi_sweet",
+        "name": "chocolate chips, semi-sweet",
+        "score": 1
+      },
+      {
+        "slug": "chocolate_chips_bittersweet",
+        "name": "chocolate chips, bittersweet",
+        "score": 1
+      },
+      {
+        "slug": "chocolate_chips_milk",
+        "name": "chocolate chips, milk",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Baking Essentials",
+    "product": "Orange Flavor",
+    "brand": "McCormick",
+    "package": "1 oz",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "orange_extract",
+        "name": "orange extract",
+        "score": 1
+      },
+      {
+        "slug": "orange_zest",
+        "name": "orange zest",
+        "score": 1
+      },
+      {
+        "slug": "orange_juice",
+        "name": "orange juice",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Baking Essentials",
+    "product": "Lemon Flavor",
+    "brand": "McCormick",
+    "package": "1 oz",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "lemon_extract",
+        "name": "lemon extract",
+        "score": 1
+      },
+      {
+        "slug": "lemon_zest",
+        "name": "lemon zest",
+        "score": 1
+      },
+      {
+        "slug": "lemon_juice",
+        "name": "lemon juice",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Spices/Flavorings",
+    "product": "Cinnamon",
+    "brand": "Cinnamon",
+    "package": "",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "cinnamon_ground",
+        "name": "cinnamon, ground",
+        "score": 1
+      },
+      {
+        "slug": "cinnamon_sticks",
+        "name": "cinnamon sticks",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Spices/Flavorings",
+    "product": "Nutmeg",
+    "brand": "Nutmeg",
+    "package": "",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "nutmeg_ground",
+        "name": "nutmeg, ground",
+        "score": 1
+      },
+      {
+        "slug": "nutmeg_whole",
+        "name": "nutmeg, whole",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Spices/Flavorings",
+    "product": "Ginger",
+    "brand": "Ginger",
+    "package": "",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "ginger_ground",
+        "name": "ginger, ground",
+        "score": 1
+      },
+      {
+        "slug": "ginger_fresh",
+        "name": "ginger, fresh",
+        "score": 1
+      },
+      {
+        "slug": "candied_ginger",
+        "name": "candied ginger",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Spices/Flavorings",
+    "product": "Cloves",
+    "brand": "Cloves",
+    "package": "",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "cloves_ground",
+        "name": "cloves, ground",
+        "score": 1
+      },
+      {
+        "slug": "cloves_whole",
+        "name": "cloves, whole",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Spices/Flavorings",
+    "product": "Cardamom",
+    "brand": "Cardamom",
+    "package": "",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "cardamom_ground",
+        "name": "cardamom, ground",
+        "score": 1
+      },
+      {
+        "slug": "cardamom_pods",
+        "name": "cardamom pods",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Spices/Flavorings",
+    "product": "Allspice",
+    "brand": "Allspice",
+    "package": "",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "allspice_ground",
+        "name": "allspice, ground",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Spices/Flavorings",
+    "product": "Star Anise",
+    "brand": "Star Anise",
+    "package": "",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "star_anise",
+        "name": "star anise",
+        "score": 2
+      },
+      {
+        "slug": "anise_seed",
+        "name": "anise seed",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Spices/Flavorings",
+    "product": "Fennel",
+    "brand": "Fennel",
+    "package": "",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": []
+  },
+  {
+    "category": "Spices/Flavorings",
+    "product": "Rosemary",
+    "brand": "Rosemary",
+    "package": "",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": []
+  },
+  {
+    "category": "Spices/Flavorings",
+    "product": "Thyme",
+    "brand": "Thyme",
+    "package": "",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": []
+  },
+  {
+    "category": "Spices/Flavorings",
+    "product": "Oregano",
+    "brand": "Oregano",
+    "package": "",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": []
+  },
+  {
+    "category": "Spices/Flavorings",
+    "product": "Basil",
+    "brand": "Basil",
+    "package": "",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": []
+  },
+  {
+    "category": "Spices/Flavorings",
+    "product": "Marjoram",
+    "brand": "Marjoram",
+    "package": "",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": []
+  },
+  {
+    "category": "Spices/Flavorings",
+    "product": "Sage",
+    "brand": "Sage",
+    "package": "",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": []
+  },
+  {
+    "category": "Spices/Flavorings",
+    "product": "Bay Leaves",
+    "brand": "Bay Leaves",
+    "package": "",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": []
+  },
+  {
+    "category": "Spices/Flavorings",
+    "product": "Curry Powder",
+    "brand": "Curry Powder",
+    "package": "",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "arrowroot_starch",
+        "name": "arrowroot starch",
+        "score": 1
+      },
+      {
+        "slug": "milk_powder_nonfat",
+        "name": "milk powder, nonfat",
+        "score": 1
+      },
+      {
+        "slug": "milk_powder_whole",
+        "name": "milk powder, whole",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Spices/Flavorings",
+    "product": "Mustard Powder",
+    "brand": "Mustard Powder",
+    "package": "",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "arrowroot_starch",
+        "name": "arrowroot starch",
+        "score": 1
+      },
+      {
+        "slug": "milk_powder_nonfat",
+        "name": "milk powder, nonfat",
+        "score": 1
+      },
+      {
+        "slug": "milk_powder_whole",
+        "name": "milk powder, whole",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Spices/Flavorings",
+    "product": "Garlic Powder",
+    "brand": "Garlic Powder",
+    "package": "",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "arrowroot_starch",
+        "name": "arrowroot starch",
+        "score": 1
+      },
+      {
+        "slug": "milk_powder_nonfat",
+        "name": "milk powder, nonfat",
+        "score": 1
+      },
+      {
+        "slug": "milk_powder_whole",
+        "name": "milk powder, whole",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Spices/Flavorings",
+    "product": "Onion Powder",
+    "brand": "Onion Powder",
+    "package": "",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "arrowroot_starch",
+        "name": "arrowroot starch",
+        "score": 1
+      },
+      {
+        "slug": "milk_powder_nonfat",
+        "name": "milk powder, nonfat",
+        "score": 1
+      },
+      {
+        "slug": "milk_powder_whole",
+        "name": "milk powder, whole",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Spices/Flavorings",
+    "product": "Black Pepper",
+    "brand": "Black Pepper",
+    "package": "",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "cocoa_powder_black",
+        "name": "cocoa powder, black",
+        "score": 1
+      },
+      {
+        "slug": "licorice_black",
+        "name": "licorice, black",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Spices/Flavorings",
+    "product": "White Pepper",
+    "brand": "White Pepper",
+    "package": "",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "white_whole_wheat_flour",
+        "name": "white whole wheat flour",
+        "score": 1
+      },
+      {
+        "slug": "rice_flour_white",
+        "name": "rice flour, white",
+        "score": 1
+      },
+      {
+        "slug": "sugar_granulated",
+        "name": "sugar, granulated",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Spices/Flavorings",
+    "product": "Paprika",
+    "brand": "Paprika",
+    "package": "",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": []
+  },
+  {
+    "category": "Spices/Flavorings",
+    "product": "Caynne Pepper",
+    "brand": "Caynne Pepper",
+    "package": "",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": []
+  },
+  {
+    "category": "Leaveners",
+    "product": "Baking Soda",
+    "brand": "Arm & Hammer",
+    "package": "1 lb",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "baking_soda",
+        "name": "baking soda",
+        "score": 2
+      },
+      {
+        "slug": "baking_powder",
+        "name": "baking powder",
+        "score": 1
+      },
+      {
+        "slug": "chocolate_baking_unsweetened",
+        "name": "chocolate, baking unsweetened",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Leaveners",
+    "product": "Baking Powder",
+    "brand": "Clabber Girl",
+    "package": "10 oz",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "baking_powder",
+        "name": "baking powder",
+        "score": 2
+      },
+      {
+        "slug": "arrowroot_starch",
+        "name": "arrowroot starch",
+        "score": 1
+      },
+      {
+        "slug": "milk_powder_nonfat",
+        "name": "milk powder, nonfat",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Leaveners",
+    "product": "Cream of Tarter",
+    "brand": "McCormick",
+    "package": "8 oz",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "cream_cheese",
+        "name": "cream cheese",
+        "score": 1
+      },
+      {
+        "slug": "sour_cream",
+        "name": "sour cream",
+        "score": 1
+      },
+      {
+        "slug": "cream_heavy",
+        "name": "cream, heavy",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Leaveners",
+    "product": "Yeast Rapid Rise",
+    "brand": "Fleischmann's",
+    "package": "8 oz",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "yeast_active_dry",
+        "name": "yeast, active dry",
+        "score": 1
+      },
+      {
+        "slug": "yeast_instant",
+        "name": "yeast, instant",
+        "score": 1
+      },
+      {
+        "slug": "yeast_fresh",
+        "name": "yeast, fresh",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Leaveners",
+    "product": "Yeast Active Dry",
+    "brand": "Fleischmann's",
+    "package": "8 oz",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "yeast_active_dry",
+        "name": "yeast, active dry",
+        "score": 3
+      },
+      {
+        "slug": "yeast_instant",
+        "name": "yeast, instant",
+        "score": 1
+      },
+      {
+        "slug": "yeast_fresh",
+        "name": "yeast, fresh",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Dry Fruit",
+    "product": "Raisins",
+    "brand": "Sun Maid",
+    "package": "1.5 lb",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "raisins",
+        "name": "raisins",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Dry Fruit",
+    "product": "Craisins",
+    "brand": "Ocean Spray",
+    "package": "5 oz",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": []
+  },
+  {
+    "category": "Dry Fruit",
+    "product": "Cherries Dried",
+    "brand": "Costco",
+    "package": "6 oz",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "cherries_dried",
+        "name": "cherries, dried",
+        "score": 2
+      },
+      {
+        "slug": "cherries_fresh",
+        "name": "cherries, fresh",
+        "score": 1
+      },
+      {
+        "slug": "cherries_maraschino",
+        "name": "cherries, maraschino",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Dry Fruit",
+    "product": "Dates",
+    "brand": "Costco",
+    "package": "12 oz",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "dates_pitted",
+        "name": "dates, pitted",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Dry Fruit",
+    "product": "Prunes",
+    "brand": "Sun Sweet",
+    "package": "18 oz",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": []
+  },
+  {
+    "category": "Dry Fruit",
+    "product": "Apricots",
+    "brand": "Costco",
+    "package": "6 oz",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "apricots_dried",
+        "name": "apricots, dried",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Dry Fruit",
+    "product": "Figs",
+    "brand": "Costco",
+    "package": "8 oz",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "figs_dried",
+        "name": "figs, dried",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Dry Fruit",
+    "product": "Shredded Coconut",
+    "brand": "Wegman's",
+    "package": "14 oz",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "coconut_shredded_sweetened",
+        "name": "coconut, shredded sweetened",
+        "score": 2
+      },
+      {
+        "slug": "coconut_shredded_unsweetened",
+        "name": "coconut, shredded unsweetened",
+        "score": 2
+      },
+      {
+        "slug": "coconut_flour",
+        "name": "coconut flour",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Dry Fruit",
+    "product": "Currants",
+    "brand": "Sun Maid",
+    "package": "10 oz",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "currants_dried",
+        "name": "currants, dried",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Condiments/Misc",
+    "product": "Peanut Butter Jiffy Creamy",
+    "brand": "Jiffy",
+    "package": "40 oz",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "peanut_butter_smooth",
+        "name": "peanut butter, smooth",
+        "score": 2
+      },
+      {
+        "slug": "peanut_butter_crunchy",
+        "name": "peanut butter, crunchy",
+        "score": 2
+      },
+      {
+        "slug": "butter_unsalted",
+        "name": "butter, unsalted",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Condiments/Misc",
+    "product": "Peanut Butter Jiffy Crunchy",
+    "brand": "Jiffy",
+    "package": "16 oz",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "peanut_butter_crunchy",
+        "name": "peanut butter, crunchy",
+        "score": 3
+      },
+      {
+        "slug": "peanut_butter_smooth",
+        "name": "peanut butter, smooth",
+        "score": 2
+      },
+      {
+        "slug": "butter_unsalted",
+        "name": "butter, unsalted",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Condiments/Misc",
+    "product": "Jelly Welch's Concord Grape",
+    "brand": "Welch's",
+    "package": "30 oz",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "jelly_beans",
+        "name": "jelly beans",
+        "score": 1
+      },
+      {
+        "slug": "grape_juice",
+        "name": "grape juice",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Condiments/Misc",
+    "product": "Nutella",
+    "brand": "Nutella",
+    "package": "26 oz",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": []
+  },
+  {
+    "category": "Condiments/Misc",
+    "product": "Nocciolata Hazelnut Spread",
+    "brand": "Nocciolata",
+    "package": "9 oz",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "hazelnut_flour",
+        "name": "hazelnut flour",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Condiments/Misc",
+    "product": "Crushed Pineapple Crushed",
+    "brand": "Dole",
+    "package": "8 oz",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "pineapple_crushed",
+        "name": "pineapple, crushed",
+        "score": 2
+      },
+      {
+        "slug": "pineapple_dried",
+        "name": "pineapple, dried",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Liquor",
+    "product": "Tia Maria",
+    "brand": "Tia Maria",
+    "package": "",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": []
+  },
+  {
+    "category": "Liquor",
+    "product": "Kahlua",
+    "brand": "Kahlua",
+    "package": "",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": []
+  },
+  {
+    "category": "Liquor",
+    "product": "Rum Dark",
+    "brand": "Kraken",
+    "package": "",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "sugar_brown_dark",
+        "name": "sugar, brown dark",
+        "score": 1
+      },
+      {
+        "slug": "corn_syrup_dark",
+        "name": "corn syrup, dark",
+        "score": 1
+      },
+      {
+        "slug": "molasses_dark",
+        "name": "molasses, dark",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Liquor",
+    "product": "Rum Light",
+    "brand": "Baccardi",
+    "package": "",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "sugar_brown_light",
+        "name": "sugar, brown light",
+        "score": 1
+      },
+      {
+        "slug": "corn_syrup_light",
+        "name": "corn syrup, light",
+        "score": 1
+      },
+      {
+        "slug": "molasses_light",
+        "name": "molasses, light",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Liquor",
+    "product": "Bourbon",
+    "brand": "Evan Williams",
+    "package": "",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "bourbon",
+        "name": "bourbon",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Liquor",
+    "product": "Brandy",
+    "brand": "The Christian Brothers",
+    "package": "",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "brandy",
+        "name": "brandy",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Liquor",
+    "product": "Grand Marnier",
+    "brand": "Grand Marnier",
+    "package": "",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": []
+  },
+  {
+    "category": "Liquor",
+    "product": "Cointreau",
+    "brand": "Cointreau",
+    "package": "",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": []
+  },
+  {
+    "category": "Liquor",
+    "product": "Chambord",
+    "brand": "Chambord",
+    "package": "",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": []
+  },
+  {
+    "category": "Liquor",
+    "product": "Amaretto",
+    "brand": "Disaronno",
+    "package": "",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "amaretto",
+        "name": "amaretto",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Liquor",
+    "product": "Frangelico",
+    "brand": "Frangelico",
+    "package": "",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": []
+  },
+  {
+    "category": "Liquor",
+    "product": "Cassis",
+    "brand": "Gabriel Brudier",
+    "package": "",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": []
+  },
+  {
+    "category": "Liquor",
+    "product": "Triple Sec",
+    "brand": "Leroux",
+    "package": "",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": []
+  },
+  {
+    "category": "Liquor",
+    "product": "Irish Whiskey",
+    "brand": "Jamison",
+    "package": "",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": []
+  },
+  {
+    "category": "Liquor",
+    "product": "Kaluaha",
+    "brand": "Kahlua",
+    "package": "",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": []
+  },
+  {
+    "category": "Liquor",
+    "product": "Bourbon",
+    "brand": "Maker's Mark",
+    "package": "",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "bourbon",
+        "name": "bourbon",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Syrups",
+    "product": "Karo Light Corn Syrup",
+    "brand": "Karo",
+    "package": "16 oz",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "corn_syrup_light",
+        "name": "corn syrup, light",
+        "score": 3
+      },
+      {
+        "slug": "corn_syrup_dark",
+        "name": "corn syrup, dark",
+        "score": 2
+      },
+      {
+        "slug": "cornstarch",
+        "name": "cornstarch",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Syrups",
+    "product": "Karo Dark Corn Syrup",
+    "brand": "Karo",
+    "package": "16 oz",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "corn_syrup_dark",
+        "name": "corn syrup, dark",
+        "score": 3
+      },
+      {
+        "slug": "corn_syrup_light",
+        "name": "corn syrup, light",
+        "score": 2
+      },
+      {
+        "slug": "sugar_brown_dark",
+        "name": "sugar, brown dark",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Syrups",
+    "product": "Wegman's Clover Honey",
+    "brand": "Wegman's",
+    "package": "24 oz",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "honey",
+        "name": "honey",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Syrups",
+    "product": "Golden Syrup",
+    "brand": "",
+    "package": "11 oz",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "golden_syrup",
+        "name": "golden syrup",
+        "score": 2
+      },
+      {
+        "slug": "maple_syrup",
+        "name": "maple syrup",
+        "score": 1
+      },
+      {
+        "slug": "agave_syrup",
+        "name": "agave syrup",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Syrups",
+    "product": "Black Strap Molasses",
+    "brand": "Black Strap",
+    "package": "15 oz",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "molasses_light",
+        "name": "molasses, light",
+        "score": 1
+      },
+      {
+        "slug": "molasses_dark",
+        "name": "molasses, dark",
+        "score": 1
+      },
+      {
+        "slug": "molasses_blackstrap",
+        "name": "molasses, blackstrap",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Syrups",
+    "product": "Grandma's Molasses",
+    "brand": "Grandma's",
+    "package": "12 oz",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "molasses_light",
+        "name": "molasses, light",
+        "score": 1
+      },
+      {
+        "slug": "molasses_dark",
+        "name": "molasses, dark",
+        "score": 1
+      },
+      {
+        "slug": "molasses_blackstrap",
+        "name": "molasses, blackstrap",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Syrups",
+    "product": "Grandma's Molasses Robust",
+    "brand": "Grandma's",
+    "package": "12 oz",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "molasses_light",
+        "name": "molasses, light",
+        "score": 1
+      },
+      {
+        "slug": "molasses_dark",
+        "name": "molasses, dark",
+        "score": 1
+      },
+      {
+        "slug": "molasses_blackstrap",
+        "name": "molasses, blackstrap",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Syrups",
+    "product": "Dave's Coffee Syrup",
+    "brand": "Dave's",
+    "package": "16 oz",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "maple_syrup",
+        "name": "maple syrup",
+        "score": 1
+      },
+      {
+        "slug": "agave_syrup",
+        "name": "agave syrup",
+        "score": 1
+      },
+      {
+        "slug": "corn_syrup_light",
+        "name": "corn syrup, light",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Syrups",
+    "product": "Maple Syrup",
+    "brand": "Wegman's",
+    "package": "1 jug",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "maple_syrup",
+        "name": "maple syrup",
+        "score": 2
+      },
+      {
+        "slug": "maple_extract",
+        "name": "maple extract",
+        "score": 1
+      },
+      {
+        "slug": "agave_syrup",
+        "name": "agave syrup",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Cocoa Powders",
+    "product": "Guittar Cocoa Rouge",
+    "brand": "Guittar",
+    "package": "8 oz",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "cocoa_powder_natural",
+        "name": "cocoa powder, natural",
+        "score": 1
+      },
+      {
+        "slug": "cocoa_powder_dutch_processed",
+        "name": "cocoa powder, dutch-processed",
+        "score": 1
+      },
+      {
+        "slug": "cocoa_powder_black",
+        "name": "cocoa powder, black",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Cocoa Powders",
+    "product": "Penzys Natural High Fat Cocoa",
+    "brand": "Penzys",
+    "package": "8 oz",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "cocoa_powder_natural",
+        "name": "cocoa powder, natural",
+        "score": 2
+      },
+      {
+        "slug": "cocoa_powder_dutch_processed",
+        "name": "cocoa powder, dutch-processed",
+        "score": 1
+      },
+      {
+        "slug": "cocoa_powder_black",
+        "name": "cocoa powder, black",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Cocoa Powders",
+    "product": "Penzys Dutch Processed Cocoa",
+    "brand": "Penzys",
+    "package": "12 oz",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "cocoa_powder_dutch_processed",
+        "name": "cocoa powder, dutch-processed",
+        "score": 3
+      },
+      {
+        "slug": "cocoa_powder_natural",
+        "name": "cocoa powder, natural",
+        "score": 1
+      },
+      {
+        "slug": "cocoa_powder_black",
+        "name": "cocoa powder, black",
+        "score": 1
+      }
+    ]
+  },
+  {
+    "category": "Cocoa Powders",
+    "product": "King Arthur Black Cocoa",
+    "brand": "",
+    "package": "",
+    "current_slug": "#N/A",
+    "status": "NEEDS_MAPPING",
+    "suggestions": [
+      {
+        "slug": "cocoa_powder_black",
+        "name": "cocoa powder, black",
+        "score": 2
+      },
+      {
+        "slug": "cocoa_powder_natural",
+        "name": "cocoa powder, natural",
+        "score": 1
+      },
+      {
+        "slug": "cocoa_powder_dutch_processed",
+        "name": "cocoa powder, dutch-processed",
+        "score": 1
+      }
+    ]
+  }
+]
