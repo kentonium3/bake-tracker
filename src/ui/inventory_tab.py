@@ -58,7 +58,11 @@ class InventoryTab(ctk.CTkFrame):
         self._create_controls()
         self._create_item_list()
 
-        # Grid the frame
+        # Configure parent to expand
+        parent.grid_columnconfigure(0, weight=1)
+        parent.grid_rowconfigure(0, weight=1)
+
+        # Grid the frame to fill parent
         self.grid(row=0, column=0, sticky="nsew", padx=10, pady=10)
 
         # Show initial "click refresh" message instead of auto-loading
