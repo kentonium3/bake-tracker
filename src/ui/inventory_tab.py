@@ -278,9 +278,26 @@ class InventoryTab(ctk.CTkFrame):
         # Create header
         self._create_aggregate_header()
 
+        # Limit rows to prevent UI freeze (aggregate view has expensive per-row DB queries)
+        MAX_DISPLAY_ROWS = 50
+        sorted_groups = sorted(ingredient_groups.items())
+        display_groups = sorted_groups[:MAX_DISPLAY_ROWS]
+
         # Display each ingredient group
-        for idx, (ingredient_slug, items) in enumerate(sorted(ingredient_groups.items())):
+        for idx, (ingredient_slug, items) in enumerate(display_groups):
             self._create_aggregate_row(idx + 1, ingredient_slug, items)
+
+        # Show truncation warning if needed
+        if len(sorted_groups) > MAX_DISPLAY_ROWS:
+            warning_frame = ctk.CTkFrame(self.scrollable_frame)
+            warning_frame.grid(row=MAX_DISPLAY_ROWS + 1, column=0, padx=5, pady=10, sticky="ew")
+            warning_label = ctk.CTkLabel(
+                warning_frame,
+                text=f"Showing {MAX_DISPLAY_ROWS} of {len(sorted_groups)} ingredients. Use filters to narrow results.",
+                text_color="orange",
+                font=ctk.CTkFont(size=12, weight="bold"),
+            )
+            warning_label.grid(row=0, column=0, padx=10, pady=5)
 
     def _create_aggregate_header(self):
         """Create header for aggregate view."""
@@ -415,9 +432,25 @@ class InventoryTab(ctk.CTkFrame):
             key=lambda x: getattr(x, "purchase_date", None) or date.today(),
         )
 
+        # Limit rows to prevent UI freeze with large datasets
+        MAX_DISPLAY_ROWS = 100
+        display_items = sorted_items[:MAX_DISPLAY_ROWS]
+
         # Display each item
-        for idx, item in enumerate(sorted_items):
+        for idx, item in enumerate(display_items):
             self._create_detail_row(idx + 1, item)
+
+        # Show truncation warning if needed
+        if len(sorted_items) > MAX_DISPLAY_ROWS:
+            warning_frame = ctk.CTkFrame(self.scrollable_frame)
+            warning_frame.grid(row=MAX_DISPLAY_ROWS + 1, column=0, padx=5, pady=10, sticky="ew")
+            warning_label = ctk.CTkLabel(
+                warning_frame,
+                text=f"Showing {MAX_DISPLAY_ROWS} of {len(sorted_items)} items. Use search or filters to narrow results.",
+                text_color="orange",
+                font=ctk.CTkFont(size=12, weight="bold"),
+            )
+            warning_label.grid(row=0, column=0, padx=10, pady=5)
 
     def _create_detail_header(self):
         """Create header for detail view."""
