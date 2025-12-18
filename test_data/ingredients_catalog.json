@@ -1,7 +1,7 @@
 {
-  "catalog_version": "1.0",
-  "generated_at": "2025-12-16T21:19:41Z",
-  "description": "Standardized baking ingredients catalogue v3 - comprehensive reference",
+  "catalog_version": "1.1-aug-v3",
+  "generated_at": "2025-12-17T22:45:00Z",
+  "description": "Standardized baking ingredients catalogue augmented v3 - Full Product Coverage",
   "ingredients": [
     {
       "slug": "00_flour",
@@ -218,6 +218,15 @@
       "display_name": "Bananas"
     },
     {
+      "slug": "biscoff_spread",
+      "category": "Other / Misc",
+      "display_name": "Speculoos Cookie Butter",
+      "description": "Creamy cookie spread made from speculoos cookies (aka Biscoff spread)",
+      "foodon_id": null,
+      "usda_fdc_id": "2468307",
+      "gpc_brick": "10000147"
+    },
+    {
       "slug": "blueberries",
       "category": "Fruits",
       "description": "Blueberries",
@@ -415,13 +424,13 @@
       "slug": "cherries_candied_green",
       "category": "Chocolate & Candies",
       "display_name": "Cherries, candied green",
-      "description": "Green glac\u00e9 cherries for fruitcake"
+      "description": "Green glacé cherries for fruitcake"
     },
     {
       "slug": "cherries_candied_red",
       "category": "Chocolate & Candies",
       "display_name": "Cherries, candied red",
-      "description": "Red glac\u00e9 cherries for fruitcake"
+      "description": "Red glacé cherries for fruitcake"
     },
     {
       "slug": "cherries_dried",
@@ -508,6 +517,15 @@
       "display_name": "Chocolate, cocoa nibs"
     },
     {
+      "slug": "chocolate_couverture",
+      "category": "Chocolate & Cocoa",
+      "display_name": "Couverture Chocolate",
+      "description": "High-quality chocolate with minimum 31% cocoa butter",
+      "foodon_id": "FOODON_03301045",
+      "usda_fdc_id": "170271",
+      "gpc_brick": "10000047"
+    },
+    {
       "slug": "chocolate_couverture_dark",
       "category": "Chocolate & Cocoa",
       "description": "Chocolate, couverture dark (aka couverture)",
@@ -532,6 +550,24 @@
       "display_name": "Chocolate-covered candies, assorted"
     },
     {
+      "slug": "chocolate_mint_chips",
+      "category": "Chocolate & Cocoa",
+      "display_name": "Mint chocolate baking chips",
+      "description": "Mint flavored chocolate chips (aka peppermint chips)",
+      "foodon_id": null,
+      "usda_fdc_id": "170274",
+      "gpc_brick": "10000047"
+    },
+    {
+      "slug": "chocolate_ruby_callets",
+      "category": "Chocolate & Cocoa",
+      "display_name": "Ruby chocolate callets",
+      "description": "Ruby cocoa bean chocolate in callet/disk form",
+      "foodon_id": "FOODON_03310815",
+      "usda_fdc_id": null,
+      "gpc_brick": "10000047"
+    },
+    {
       "slug": "chocolate_syrup",
       "category": "Chocolate & Cocoa",
       "description": "Chocolate syrup",
@@ -540,6 +576,15 @@
       "density_weight_value": 10.85,
       "density_weight_unit": "oz",
       "display_name": "Chocolate syrup"
+    },
+    {
+      "slug": "cinnamon_chips",
+      "category": "Chocolate & Cocoa",
+      "display_name": "Cinnamon baking chips",
+      "description": "Cinnamon-flavored confectionery chips",
+      "foodon_id": null,
+      "usda_fdc_id": null,
+      "gpc_brick": "10000047"
     },
     {
       "slug": "cinnamon_ground",
@@ -794,7 +839,7 @@
     {
       "slug": "creme_fraiche",
       "category": "Dairy & Eggs",
-      "description": "Creme fraiche (aka cr\u00e8me fra\u00eeche)",
+      "description": "Creme fraiche (aka crème fraîche)",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 8.35,
@@ -804,8 +849,11 @@
     {
       "slug": "currants_dried",
       "category": "Fruits",
-      "description": "Currants, dried",
-      "display_name": "Currants, dried"
+      "description": "Dried Zante currants (aka Black Corinth raisins)",
+      "display_name": "Currants, dried",
+      "foodon_id": "FOODON_00003426",
+      "usda_fdc_id": "1102830",
+      "gpc_brick": "10000204"
     },
     {
       "slug": "dates_pitted",
@@ -911,7 +959,7 @@
       "slug": "fruit_candied_mixed",
       "category": "Chocolate & Candies",
       "display_name": "Fruit, candied mixed",
-      "description": "Mixed candied fruit for fruitcake (aka glac\u00e9 fruit)"
+      "description": "Mixed candied fruit for fruitcake (aka glacé fruit)"
     },
     {
       "slug": "gelatin_powder",
@@ -972,6 +1020,15 @@
       "density_weight_value": 11.68,
       "density_weight_unit": "oz",
       "display_name": "Golden syrup"
+    },
+    {
+      "slug": "graham_cracker_crumbs",
+      "category": "Flours & Meals",
+      "display_name": "Graham cracker crumbs",
+      "description": "Finely ground graham crackers for crusts and bases",
+      "foodon_id": "FOODON_03301725",
+      "usda_fdc_id": "170170",
+      "gpc_brick": "10000037"
     },
     {
       "slug": "granola",
@@ -1162,10 +1219,37 @@
       "display_name": "Lime zest"
     },
     {
+      "slug": "liqueur_blackcurrant",
+      "category": "Liquids",
+      "display_name": "Creme de Cassis",
+      "description": "Blackcurrant liqueur (aka Cassis)",
+      "foodon_id": "FOODON_03315615",
+      "usda_fdc_id": null,
+      "gpc_brick": "10000236"
+    },
+    {
       "slug": "liqueur_chocolate",
       "category": "Liquids",
       "display_name": "Liqueur, chocolate",
-      "description": "Chocolate-flavored liqueur (aka cr\u00e8me de cacao)"
+      "description": "Chocolate-flavored liqueur (aka crème de cacao)"
+    },
+    {
+      "slug": "liqueur_coffee",
+      "category": "Liquids",
+      "display_name": "Coffee Liqueur",
+      "description": "Coffee-flavored liqueur (aka Kahlua|Tia Maria)",
+      "foodon_id": "FOODON_03302061",
+      "usda_fdc_id": null,
+      "gpc_brick": "10000236"
+    },
+    {
+      "slug": "liqueur_hazelnut",
+      "category": "Liquids",
+      "display_name": "Hazelnut Liqueur",
+      "description": "Hazelnut-flavored liqueur (aka Frangelico)",
+      "foodon_id": null,
+      "usda_fdc_id": null,
+      "gpc_brick": "10000236"
     },
     {
       "slug": "liqueur_orange",
@@ -1174,10 +1258,22 @@
       "description": "Orange-flavored liqueur (aka Grand Marnier|Cointreau|triple sec)"
     },
     {
+      "slug": "liqueur_raspberry",
+      "category": "Liquids",
+      "display_name": "Raspberry Liqueur",
+      "description": "Raspberry-flavored liqueur (aka Chambord)",
+      "foodon_id": null,
+      "usda_fdc_id": null,
+      "gpc_brick": "10000236"
+    },
+    {
       "slug": "macadamia_nuts",
       "category": "Nuts & Seeds",
-      "description": "Macadamia nuts",
-      "display_name": "Macadamia nuts"
+      "description": "Raw or roasted macadamia nut kernels",
+      "display_name": "Macadamia nuts",
+      "foodon_id": "FOODON_03306646",
+      "usda_fdc_id": "170588",
+      "gpc_brick": "10000100"
     },
     {
       "slug": "mace_ground",
@@ -1466,6 +1562,15 @@
       "display_name": "Nonpareils"
     },
     {
+      "slug": "nutella",
+      "category": "Other / Misc",
+      "display_name": "Hazelnut Cocoa Spread",
+      "description": "Sweetened hazelnut cocoa spread (aka Nutella)",
+      "foodon_id": "FOODON_03309858",
+      "usda_fdc_id": "2262031",
+      "gpc_brick": "10000147"
+    },
+    {
       "slug": "nutmeg_ground",
       "category": "Spices & Flavorings",
       "description": "Nutmeg, ground (aka ground nutmeg)",
@@ -1650,6 +1755,15 @@
       "display_name": "Peanuts"
     },
     {
+      "slug": "pears_dried",
+      "category": "Fruits",
+      "display_name": "Pears, dried",
+      "description": "Dehydrated pear slices or pieces",
+      "foodon_id": "FOODON_03301292",
+      "usda_fdc_id": "168159",
+      "gpc_brick": "10000204"
+    },
+    {
       "slug": "pecan_flour",
       "category": "Flours & Meals",
       "display_name": "Pecan flour",
@@ -1686,6 +1800,15 @@
       "description": "Ground black pepper"
     },
     {
+      "slug": "peppermint_bark",
+      "category": "Chocolate & Cocoa",
+      "display_name": "Peppermint bark",
+      "description": "Layered white and dark chocolate with crushed peppermint",
+      "foodon_id": null,
+      "usda_fdc_id": null,
+      "gpc_brick": "10000047"
+    },
+    {
       "slug": "peppermint_extract",
       "category": "Spices & Flavorings",
       "description": "Peppermint extract (aka mint extract)",
@@ -1707,13 +1830,22 @@
       "slug": "pineapple_candied",
       "category": "Chocolate & Candies",
       "display_name": "Pineapple, candied",
-      "description": "Candied pineapple pieces (aka glac\u00e9 pineapple)"
+      "description": "Candied pineapple pieces (aka glacé pineapple)"
     },
     {
       "slug": "pineapple_crushed",
       "category": "Fruits",
       "description": "Pineapple, crushed (aka crushed pineapple)",
       "display_name": "Pineapple, crushed"
+    },
+    {
+      "slug": "pineapple_crushed_canned",
+      "category": "Fruits",
+      "display_name": "Pineapple, crushed canned",
+      "description": "Canned crushed pineapple in juice or syrup",
+      "foodon_id": "FOODON_03301549",
+      "usda_fdc_id": "169131",
+      "gpc_brick": "10000203"
     },
     {
       "slug": "pineapple_dried",
@@ -1724,14 +1856,20 @@
     {
       "slug": "pistachios",
       "category": "Nuts & Seeds",
-      "description": "Pistachios",
-      "display_name": "Pistachios"
+      "description": "Shelled pistachio kernels",
+      "display_name": "Pistachios",
+      "foodon_id": "FOODON_03301241",
+      "usda_fdc_id": "170184",
+      "gpc_brick": "10000100"
     },
     {
       "slug": "poppy_seeds",
       "category": "Nuts & Seeds",
-      "description": "Poppy seeds",
-      "display_name": "Poppy seeds"
+      "description": "Whole culinary poppy seeds",
+      "display_name": "Poppy seeds",
+      "foodon_id": "FOODON_03301138",
+      "usda_fdc_id": "171426",
+      "gpc_brick": "10000632"
     },
     {
       "slug": "potato_starch",
@@ -1876,6 +2014,15 @@
       "category": "Candies & Decorations",
       "description": "Sanding sugar (aka decorating sugar)",
       "display_name": "Sanding sugar"
+    },
+    {
+      "slug": "schnapps_peach",
+      "category": "Liquids",
+      "display_name": "Peach Schnapps",
+      "description": "Clear peach-flavored liqueur",
+      "foodon_id": null,
+      "usda_fdc_id": null,
+      "gpc_brick": "10000236"
     },
     {
       "slug": "sea_salt_flaky",
@@ -2064,6 +2211,15 @@
       "display_name": "Sweet potato puree"
     },
     {
+      "slug": "swerve_sweetener",
+      "category": "Sugars & Sweeteners",
+      "display_name": "Swerve sweetener",
+      "description": "Zero-calorie sugar substitute (erythritol blend)",
+      "foodon_id": "FOODON_03316132",
+      "usda_fdc_id": "2345532",
+      "gpc_brick": "10000045"
+    },
+    {
       "slug": "tahini",
       "category": "Fats & Oils",
       "description": "Tahini (aka sesame paste)",
@@ -2101,9 +2257,12 @@
     },
     {
       "slug": "toffee_bits",
-      "category": "Candies & Decorations",
-      "description": "Toffee bits",
-      "display_name": "Toffee bits"
+      "category": "Chocolate & Cocoa",
+      "description": "Crunchy almond toffee pieces (aka Heath bits)",
+      "display_name": "Toffee bits",
+      "foodon_id": "FOODON_03310245",
+      "usda_fdc_id": "168832",
+      "gpc_brick": "10000047"
     },
     {
       "slug": "turbinado_sugar",
@@ -2132,6 +2291,15 @@
       "category": "Spices & Flavorings",
       "description": "Vanilla paste (aka vanilla bean paste)",
       "display_name": "Vanilla paste"
+    },
+    {
+      "slug": "vanilla_sugar",
+      "category": "Sugars & Sweeteners",
+      "display_name": "Vanilla sugar",
+      "description": "Granulated sugar infused with vanilla bean",
+      "foodon_id": "FOODON_03303649",
+      "usda_fdc_id": null,
+      "gpc_brick": "10000045"
     },
     {
       "slug": "vinegar_apple_cider",
