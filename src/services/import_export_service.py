@@ -30,7 +30,7 @@ from src.models.production_run import ProductionRun
 from src.models.assembly_run import AssemblyRun
 from src.models.event import EventProductionTarget, EventAssemblyTarget, FulfillmentStatus
 from src.models.recipe import Recipe, RecipeComponent
-from src.utils.constants import APP_NAME, APP_VERSION, ALL_UNITS, WEIGHT_UNITS, VOLUME_UNITS, COUNT_UNITS
+from src.utils.constants import APP_NAME, APP_VERSION, ALL_UNITS, MEASUREMENT_UNITS, WEIGHT_UNITS, VOLUME_UNITS, COUNT_UNITS
 
 
 # ============================================================================
@@ -226,8 +226,8 @@ def _validate_unit(unit: str, valid_units: List[str], entity: str, field: str) -
 
 
 def _validate_package_unit(unit: str, entity_name: str) -> Optional[str]:
-    """Validate package_unit field (accepts any unit type)."""
-    return _validate_unit(unit, ALL_UNITS, entity_name, "package_unit")
+    """Validate package_unit field (measurement units only: weight, volume, count)."""
+    return _validate_unit(unit, MEASUREMENT_UNITS, entity_name, "package_unit")
 
 
 def _validate_density_volume_unit(unit: str, entity_name: str) -> Optional[str]:

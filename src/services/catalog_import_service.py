@@ -1056,23 +1056,19 @@ def validate_catalog_file(file_path: str) -> Dict:
     except json.JSONDecodeError as e:
         raise CatalogImportError(f"Invalid JSON: {e}")
 
-    # Format detection
-    if "catalog_version" in data:
-        if data["catalog_version"] != "1.0":
-            raise CatalogImportError(
-                f"Unsupported catalog version: {data['catalog_version']}. Expected 1.0"
-            )
-        return data
-    elif "version" in data:
-        # This is a unified import file, not a catalog file
+    # Version validation - unified versioning scheme (v3.4+)
+    if "version" not in data:
         raise CatalogImportError(
-            "This appears to be a unified import file (v3.x format). "
-            "Use 'Import Data...' instead of 'Import Catalog...'"
+            "Missing 'version' field. Expected version 3.x format."
         )
-    else:
+
+    version = data["version"]
+    if not version.startswith("3."):
         raise CatalogImportError(
-            "Unrecognized file format. Expected 'catalog_version' field."
+            f"Unsupported version: {version}. Expected 3.x (e.g., '3.4')"
         )
+
+    return data
 
 
 def import_catalog(

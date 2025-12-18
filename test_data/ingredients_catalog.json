@@ -1,7 +1,8 @@
 {
-  "catalog_version": "1.1-aug-v3",
-  "generated_at": "2025-12-17T22:45:00Z",
-  "description": "Standardized baking ingredients catalogue augmented v3 - Full Product Coverage",
+  "version": "3.4",
+  "exported_at": "2025-12-18T00:00:00Z",
+  "application": "bake-tracker",
+  "description": "Standardized baking ingredients catalogue - Full Product Coverage",
   "ingredients": [
     {
       "slug": "00_flour",
@@ -218,9 +219,21 @@
       "display_name": "Bananas"
     },
     {
+      "slug": "basil_dried",
+      "category": "Spices & Flavorings",
+      "display_name": "Basil, dried",
+      "description": "Dried basil leaves"
+    },
+    {
+      "slug": "bay_leaves",
+      "category": "Spices & Flavorings",
+      "display_name": "Bay leaves",
+      "description": "Dried bay leaves (aka laurel leaves)"
+    },
+    {
       "slug": "biscoff_spread",
       "category": "Other / Misc",
-      "display_name": "Speculoos Cookie Butter",
+      "display_name": "Speculoos cookie butter",
       "description": "Creamy cookie spread made from speculoos cookies (aka Biscoff spread)",
       "foodon_id": null,
       "usda_fdc_id": "2468307",
@@ -374,7 +387,7 @@
       "slug": "canola_oil",
       "category": "Fats & Oils",
       "description": "Canola oil (alias for oil_canola)",
-      "display_name": "Canola Oil"
+      "display_name": "Canola oil"
     },
     {
       "slug": "caramel_bits",
@@ -391,6 +404,12 @@
       "density_weight_value": 10.85,
       "density_weight_unit": "oz",
       "display_name": "Caramel sauce"
+    },
+    {
+      "slug": "caramels",
+      "category": "Candies & Decorations",
+      "display_name": "Caramels",
+      "description": "Soft caramel candies for baking"
     },
     {
       "slug": "cardamom_ground",
@@ -411,6 +430,12 @@
       "display_name": "Cashews"
     },
     {
+      "slug": "cayenne_pepper",
+      "category": "Spices & Flavorings",
+      "display_name": "Cayenne pepper",
+      "description": "Ground cayenne pepper (aka red pepper)"
+    },
+    {
       "slug": "cheddar_cheese",
       "category": "Dairy & Eggs",
       "description": "Cheddar cheese",
@@ -424,13 +449,13 @@
       "slug": "cherries_candied_green",
       "category": "Chocolate & Candies",
       "display_name": "Cherries, candied green",
-      "description": "Green glacé cherries for fruitcake"
+      "description": "Green glac\u00e9 cherries for fruitcake"
     },
     {
       "slug": "cherries_candied_red",
       "category": "Chocolate & Candies",
       "display_name": "Cherries, candied red",
-      "description": "Red glacé cherries for fruitcake"
+      "description": "Red glac\u00e9 cherries for fruitcake"
     },
     {
       "slug": "cherries_dried",
@@ -519,7 +544,7 @@
     {
       "slug": "chocolate_couverture",
       "category": "Chocolate & Cocoa",
-      "display_name": "Couverture Chocolate",
+      "display_name": "Couverture chocolate",
       "description": "High-quality chocolate with minimum 31% cocoa butter",
       "foodon_id": "FOODON_03301045",
       "usda_fdc_id": "170271",
@@ -536,6 +561,12 @@
       "category": "Chocolate & Cocoa",
       "description": "Chocolate, couverture milk",
       "display_name": "Chocolate, couverture milk"
+    },
+    {
+      "slug": "chocolate_couverture_ruby",
+      "category": "Chocolate & Cocoa",
+      "display_name": "Chocolate couverture, ruby",
+      "description": "Ruby chocolate couverture (aka ruby callets|pink chocolate)"
     },
     {
       "slug": "chocolate_couverture_white",
@@ -839,12 +870,12 @@
     {
       "slug": "creme_fraiche",
       "category": "Dairy & Eggs",
-      "description": "Creme fraiche (aka crème fraîche)",
+      "description": "Creme fraiche (aka cr\u00e8me fra\u00eeche)",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 8.35,
       "density_weight_unit": "oz",
-      "display_name": "Creme fraiche"
+      "display_name": "Cr\u00e8me fra\u00eeche"
     },
     {
       "slug": "currants_dried",
@@ -914,6 +945,12 @@
       "description": "Highly concentrated instant coffee for baking"
     },
     {
+      "slug": "fennel_seeds",
+      "category": "Spices & Flavorings",
+      "display_name": "Fennel seeds",
+      "description": "Whole fennel seeds"
+    },
+    {
       "slug": "figs_dried",
       "category": "Fruits",
       "description": "Figs, dried",
@@ -959,7 +996,7 @@
       "slug": "fruit_candied_mixed",
       "category": "Chocolate & Candies",
       "display_name": "Fruit, candied mixed",
-      "description": "Mixed candied fruit for fruitcake (aka glacé fruit)"
+      "description": "Mixed candied fruit for fruitcake (aka glac\u00e9 fruit)"
     },
     {
       "slug": "gelatin_powder",
@@ -1221,7 +1258,7 @@
     {
       "slug": "liqueur_blackcurrant",
       "category": "Liquids",
-      "display_name": "Creme de Cassis",
+      "display_name": "Cr\u00e8me de cassis",
       "description": "Blackcurrant liqueur (aka Cassis)",
       "foodon_id": "FOODON_03315615",
       "usda_fdc_id": null,
@@ -1231,7 +1268,7 @@
       "slug": "liqueur_chocolate",
       "category": "Liquids",
       "display_name": "Liqueur, chocolate",
-      "description": "Chocolate-flavored liqueur (aka crème de cacao)"
+      "description": "Chocolate-flavored liqueur (aka cr\u00e8me de cacao)"
     },
     {
       "slug": "liqueur_coffee",
@@ -1346,6 +1383,12 @@
       "density_weight_value": 8.01,
       "density_weight_unit": "oz",
       "display_name": "Margarine"
+    },
+    {
+      "slug": "marjoram_dried",
+      "category": "Spices & Flavorings",
+      "display_name": "Marjoram, dried",
+      "description": "Dried marjoram leaves"
     },
     {
       "slug": "marshmallows",
@@ -1564,7 +1607,7 @@
     {
       "slug": "nutella",
       "category": "Other / Misc",
-      "display_name": "Hazelnut Cocoa Spread",
+      "display_name": "Hazelnut cocoa spread",
       "description": "Sweetened hazelnut cocoa spread (aka Nutella)",
       "foodon_id": "FOODON_03309858",
       "usda_fdc_id": "2262031",
@@ -1678,7 +1721,7 @@
       "slug": "olive_oil",
       "category": "Fats & Oils",
       "description": "Olive oil (alias for oil_olive)",
-      "display_name": "Olive Oil"
+      "display_name": "Olive oil"
     },
     {
       "slug": "orange_extract",
@@ -1707,6 +1750,18 @@
       "category": "Spices & Flavorings",
       "description": "Orange zest",
       "display_name": "Orange zest"
+    },
+    {
+      "slug": "oregano_dried",
+      "category": "Spices & Flavorings",
+      "display_name": "Oregano, dried",
+      "description": "Dried oregano leaves"
+    },
+    {
+      "slug": "paprika",
+      "category": "Spices & Flavorings",
+      "display_name": "Paprika",
+      "description": "Ground paprika (aka sweet paprika)"
     },
     {
       "slug": "parmesan_cheese",
@@ -1830,7 +1885,7 @@
       "slug": "pineapple_candied",
       "category": "Chocolate & Candies",
       "display_name": "Pineapple, candied",
-      "description": "Candied pineapple pieces (aka glacé pineapple)"
+      "description": "Candied pineapple pieces (aka glac\u00e9 pineapple)"
     },
     {
       "slug": "pineapple_crushed",
@@ -1852,6 +1907,12 @@
       "category": "Fruits",
       "description": "Pineapple, dried",
       "display_name": "Pineapple, dried"
+    },
+    {
+      "slug": "pistachio_extract",
+      "category": "Spices & Flavorings",
+      "display_name": "Pistachio extract",
+      "description": "Pistachio extract/flavor for baking"
     },
     {
       "slug": "pistachios",
@@ -1892,6 +1953,12 @@
       "category": "Other / Misc",
       "description": "Pretzels",
       "display_name": "Pretzels"
+    },
+    {
+      "slug": "prunes",
+      "category": "Fruits",
+      "display_name": "Prunes",
+      "description": "Prunes (aka dried plums)"
     },
     {
       "slug": "pumpkin_pie_spice",
@@ -1966,6 +2033,12 @@
       "description": "Soft Italian whey cheese"
     },
     {
+      "slug": "rosemary_dried",
+      "category": "Spices & Flavorings",
+      "display_name": "Rosemary, dried",
+      "description": "Dried rosemary leaves"
+    },
+    {
       "slug": "royal_icing_mix",
       "category": "Additives & Thickeners",
       "description": "Royal icing mix",
@@ -1996,6 +2069,12 @@
       "density_weight_value": 4.17,
       "density_weight_unit": "oz",
       "display_name": "Rye flour"
+    },
+    {
+      "slug": "sage_dried",
+      "category": "Spices & Flavorings",
+      "display_name": "Sage, dried",
+      "description": "Dried sage leaves (aka rubbed sage)"
     },
     {
       "slug": "salt_fine",
@@ -2254,6 +2333,18 @@
       "category": "Spices & Flavorings",
       "description": "Tea, matcha powder (aka matcha)",
       "display_name": "Tea, matcha powder"
+    },
+    {
+      "slug": "thyme_dried",
+      "category": "Spices & Flavorings",
+      "display_name": "Thyme, dried",
+      "description": "Dried thyme leaves"
+    },
+    {
+      "slug": "toblerone",
+      "category": "Chocolate & Cocoa",
+      "display_name": "Toblerone chocolate",
+      "description": "Toblerone Swiss milk chocolate with honey and almond nougat"
     },
     {
       "slug": "toffee_bits",

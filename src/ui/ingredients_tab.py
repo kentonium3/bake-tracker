@@ -25,6 +25,7 @@ from src.utils.constants import (
     PADDING_LARGE,
     VOLUME_UNITS,
     WEIGHT_UNITS,
+    PACKAGE_TYPES,
     FOOD_INGREDIENT_CATEGORIES,
     PACKAGING_INGREDIENT_CATEGORIES,
 )
@@ -1531,12 +1532,12 @@ class ProductFormDialog(ctk.CTkToplevel):
         self.purchase_qty_entry.grid(row=row, column=1, sticky="ew", padx=10, pady=5)
         row += 1
 
-        # Package Unit (required)
+        # Package Unit (required) - measurement units only
         ctk.CTkLabel(form_frame, text="Package Unit*:").grid(
             row=row, column=0, sticky="w", padx=10, pady=5
         )
-        # Get all units grouped by category from the reference table
-        unit_values = get_units_for_dropdown(["weight", "volume", "count", "package"])
+        # Get measurement units only (weight, volume, count) - not container types
+        unit_values = get_units_for_dropdown(["weight", "volume", "count"])
         self._last_valid_unit = "lb"  # Track last valid selection
         self.package_unit_combo = ctk.CTkComboBox(
             form_frame,
@@ -1546,6 +1547,20 @@ class ProductFormDialog(ctk.CTkToplevel):
         )
         self.package_unit_combo.set("lb")  # Default value
         self.package_unit_combo.grid(row=row, column=1, sticky="ew", padx=10, pady=5)
+        row += 1
+
+        # Package Type (optional) - container type
+        ctk.CTkLabel(form_frame, text="Package Type:").grid(
+            row=row, column=0, sticky="w", padx=10, pady=5
+        )
+        package_type_values = [""] + PACKAGE_TYPES  # Empty string for "none"
+        self.package_type_combo = ctk.CTkComboBox(
+            form_frame,
+            values=package_type_values,
+            state="readonly",
+        )
+        self.package_type_combo.set("")  # Optional, no default
+        self.package_type_combo.grid(row=row, column=1, sticky="ew", padx=10, pady=5)
         row += 1
 
         # UPC/GTIN (optional)
@@ -1631,6 +1646,9 @@ class ProductFormDialog(ctk.CTkToplevel):
         current_unit = self.product.get("package_unit", "lb")
         self.package_unit_combo.set(current_unit)
         self._last_valid_unit = current_unit
+        # Set package type if present
+        package_type = self.product.get("package_type", "")
+        self.package_type_combo.set(package_type or "")
         upc_value = (
             self.product.get("upc_code")
             or self.product.get("gtin")
@@ -1647,6 +1665,7 @@ class ProductFormDialog(ctk.CTkToplevel):
         brand = self.brand_entry.get().strip()
         package_qty_str = self.purchase_qty_entry.get().strip()
         package_unit = self.package_unit_combo.get()
+        package_type = self.package_type_combo.get().strip() or None
         upc = self.upc_entry.get().strip()
         supplier = self.supplier_entry.get().strip()
         preferred = self.preferred_var.get()
@@ -1680,6 +1699,7 @@ class ProductFormDialog(ctk.CTkToplevel):
             "brand": brand,
             "package_unit_quantity": package_qty,
             "package_unit": package_unit,
+            "package_type": package_type,
             "preferred": preferred,
         }
 

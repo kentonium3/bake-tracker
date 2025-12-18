@@ -47,17 +47,27 @@ UNIT_METADATA = {
     "count": ("count", "ct", None),
     "piece": ("piece", "pc", "PCE"),
     "dozen": ("dozen", "dz", "DZN"),
-    # Package units
+    # Package/container types
     "bag": ("bag", "bag", "BG"),
-    "box": ("box", "box", "BX"),
     "bar": ("bar", "bar", None),
     "bottle": ("bottle", "bottle", "BO"),
+    "box": ("box", "box", "BX"),
     "can": ("can", "can", "CA"),
-    "jar": ("jar", "jar", "JR"),
-    "packet": ("packet", "packet", "PA"),
-    "container": ("container", "container", None),
-    "package": ("package", "pkg", "PK"),
+    "carton": ("carton", "carton", "CT"),
     "case": ("case", "case", "CS"),
+    "clamshell": ("clamshell", "clamshell", None),
+    "container": ("container", "container", None),
+    "jar": ("jar", "jar", "JR"),
+    "package": ("package", "pkg", "PK"),
+    "packet": ("packet", "packet", "PA"),
+    "pouch": ("pouch", "pouch", "PO"),
+    "roll": ("roll", "roll", "RL"),
+    "sachet": ("sachet", "sachet", None),
+    "sheet": ("sheet", "sheet", "ST"),
+    "stick": ("stick", "stick", None),
+    "tub": ("tub", "tub", "TB"),
+    "tube": ("tube", "tube", "TU"),
+    "wrapper": ("wrapper", "wrapper", None),
 }
 
 # Global engine and session factory

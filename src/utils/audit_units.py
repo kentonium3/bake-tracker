@@ -21,20 +21,20 @@ from typing import List, Dict, Tuple, Optional
 from sqlalchemy import text, inspect
 
 from src.services.database import get_engine, init_database
-from src.utils.constants import ALL_UNITS, WEIGHT_UNITS, VOLUME_UNITS, COUNT_UNITS, PACKAGE_UNITS
+from src.utils.constants import ALL_UNITS, MEASUREMENT_UNITS, WEIGHT_UNITS, VOLUME_UNITS, COUNT_UNITS, PACKAGE_UNITS
 
 
 # Audit configuration: (table_name, column_name, valid_units, alternate_column)
 # valid_units=None means use ALL_UNITS
 # alternate_column is checked if primary column doesn't exist (for schema migrations)
 AUDIT_CONFIG: List[Tuple[str, str, Optional[List[str]], Optional[str]]] = [
-    ("products", "package_unit", None, "purchase_unit"),  # ALL_UNITS, fallback to old name
+    ("products", "package_unit", MEASUREMENT_UNITS, "purchase_unit"),  # Measurement units only
     ("ingredients", "density_volume_unit", VOLUME_UNITS, None),
     ("ingredients", "density_weight_unit", WEIGHT_UNITS, None),
-    ("recipe_ingredients", "unit", WEIGHT_UNITS + VOLUME_UNITS + COUNT_UNITS, None),
+    ("recipe_ingredients", "unit", MEASUREMENT_UNITS, None),  # Measurement units only
     ("recipes", "yield_unit", None, None),  # ALL_UNITS - yield_unit is more flexible
     ("finished_units", "item_unit", None, None),  # ALL_UNITS - item_unit is descriptive
-    ("production_consumptions", "unit", WEIGHT_UNITS + VOLUME_UNITS + COUNT_UNITS, None),
+    ("production_consumptions", "unit", MEASUREMENT_UNITS, None),  # Measurement units only
     ("assembly_packaging_consumptions", "unit", ALL_UNITS, None),
 ]
 

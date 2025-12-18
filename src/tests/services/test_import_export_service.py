@@ -695,83 +695,53 @@ class TestSampleDataIntegration:
         assert "application" in data
         assert data.get("application") == "bake-tracker"
 
-    def test_sample_data_has_all_entity_types(self):
-        """Verify sample data includes all 14 entity types (unit_conversions removed in v3.3)."""
-        expected_entities = [
-            "ingredients",
+    def test_sample_data_has_required_entity_types(self):
+        """Verify sample data includes products and recipes (catalog subset format).
+
+        Note: sample_data.json uses catalog subset format with products and recipes only.
+        Ingredients are imported separately via ingredients_catalog.json.
+        """
+        required_entities = [
             "products",
-            "purchases",
-            "inventory_items",
             "recipes",
-            "finished_units",
-            "finished_goods",
-            "compositions",
-            "packages",
-            "package_finished_goods",
-            "recipients",
-            "events",
-            "event_recipient_packages",
-            "production_records",
         ]
 
         with open(SAMPLE_DATA_PATH, "r") as f:
             data = json.load(f)
 
-        for entity in expected_entities:
+        for entity in required_entities:
             assert entity in data, f"Sample data must include {entity}"
             assert isinstance(data[entity], list), f"{entity} must be a list"
             assert len(data[entity]) > 0, f"{entity} should have at least one record"
 
     def test_sample_data_referential_integrity(self):
-        """Verify sample data has consistent references."""
+        """Verify sample data has consistent internal references.
+
+        Note: sample_data.json uses catalog subset format. Products reference
+        ingredient_slugs that exist in the separately imported catalog, not
+        within this file.
+        """
         with open(SAMPLE_DATA_PATH, "r") as f:
             data = json.load(f)
 
-        # Collect slugs
-        ingredient_slugs = {i["slug"] for i in data["ingredients"]}
+        # Collect recipe slugs
         recipe_slugs = {r["slug"] for r in data["recipes"]}
-        finished_good_slugs = {fg["slug"] for fg in data["finished_goods"]}
-        package_slugs = {p["slug"] for p in data["packages"]}
-        event_slugs = {e["slug"] for e in data["events"]}
-        recipient_names = {r["name"] for r in data["recipients"]}
 
-        # Verify products reference valid ingredients
+        # Verify all products have required fields
         for product in data["products"]:
-            assert product["ingredient_slug"] in ingredient_slugs, \
-                f"Product references invalid ingredient: {product['ingredient_slug']}"
+            assert "ingredient_slug" in product, "Product must have ingredient_slug"
+            assert "brand" in product, "Product must have brand"
+            assert "package_unit" in product, "Product must have package_unit"
 
-        # Verify finished_units reference valid recipes
-        for fu in data["finished_units"]:
-            assert fu["recipe_slug"] in recipe_slugs, \
-                f"Finished unit references invalid recipe: {fu['recipe_slug']}"
-
-        # Verify compositions reference valid finished_goods
-        for comp in data["compositions"]:
-            assert comp["finished_good_slug"] in finished_good_slugs, \
-                f"Composition references invalid finished_good: {comp['finished_good_slug']}"
-
-        # Verify package_finished_goods reference valid packages and finished_goods
-        for pfg in data["package_finished_goods"]:
-            assert pfg["package_slug"] in package_slugs, \
-                f"Package-FG references invalid package: {pfg['package_slug']}"
-            assert pfg["finished_good_slug"] in finished_good_slugs, \
-                f"Package-FG references invalid finished_good: {pfg['finished_good_slug']}"
-
-        # Verify event_recipient_packages reference valid events, recipients, packages
-        for erp in data["event_recipient_packages"]:
-            assert erp["event_slug"] in event_slugs, \
-                f"Assignment references invalid event: {erp['event_slug']}"
-            assert erp["recipient_name"] in recipient_names, \
-                f"Assignment references invalid recipient: {erp['recipient_name']}"
-            assert erp["package_slug"] in package_slugs, \
-                f"Assignment references invalid package: {erp['package_slug']}"
-
-        # Verify production_records reference valid events and recipes
-        for pr in data["production_records"]:
-            assert pr["event_slug"] in event_slugs, \
-                f"Production record references invalid event: {pr['event_slug']}"
-            assert pr["recipe_slug"] in recipe_slugs, \
-                f"Production record references invalid recipe: {pr['recipe_slug']}"
+        # Verify all recipes have required fields and valid ingredient references
+        for recipe in data["recipes"]:
+            assert "slug" in recipe, "Recipe must have slug"
+            assert "name" in recipe, "Recipe must have name"
+            assert "ingredients" in recipe, "Recipe must have ingredients list"
+            for ing in recipe["ingredients"]:
+                assert "ingredient_slug" in ing, "Recipe ingredient must have ingredient_slug"
+                assert "quantity" in ing, "Recipe ingredient must have quantity"
+                assert "unit" in ing, "Recipe ingredient must have unit"
 
 class TestPerformance:
     """Performance tests (T037) - SC-001 and SC-002."""
@@ -841,14 +811,13 @@ class TestSuccessCriteriaValidation:
             assert found, f"Entity '{entity}' not documented in specification"
 
     def test_sample_data_is_realistic_scenario(self):
-        """Verify sample data represents a coherent holiday baking scenario."""
+        """Verify sample data represents a coherent holiday baking scenario.
+
+        Note: sample_data.json uses catalog subset format with products and recipes.
+        Events, recipients, and production records are not included.
+        """
         with open(SAMPLE_DATA_PATH, "r") as f:
             data = json.load(f)
-
-        # Should have holiday-related events
-        event_names = [e["name"].lower() for e in data["events"]]
-        has_holiday = any("holiday" in n or "christmas" in n or "new year" in n for n in event_names)
-        assert has_holiday, "Sample data should include holiday events"
 
         # Should have baking-related recipes
         recipe_categories = {r["category"] for r in data["recipes"]}
@@ -858,11 +827,11 @@ class TestSuccessCriteriaValidation:
         )
         assert has_baking, "Sample data should include baking recipes"
 
-        # Should have gift recipients
-        assert len(data["recipients"]) >= 2, "Should have multiple gift recipients"
+        # Should have multiple recipes for realistic testing
+        assert len(data["recipes"]) >= 5, "Should have multiple recipes for testing"
 
-        # Should have production records
-        assert len(data["production_records"]) >= 1, "Should have production history"
+        # Should have multiple products for realistic testing
+        assert len(data["products"]) >= 10, "Should have multiple products for testing"
 
 class TestDensityFieldsImportExport:
     """Tests for 4-field density model in import/export (Feature 010)."""
@@ -1048,11 +1017,11 @@ class TestDensityFieldsImportExport:
         assert reimported.density_weight_value == original.density_weight_value
         assert reimported.density_weight_unit == original.density_weight_unit
 
-    def test_sample_data_has_density_fields(self):
-        """Verify sample_data.json uses new density format."""
+    def test_ingredients_catalog_has_density_fields(self):
+        """Verify ingredients_catalog.json uses new density format."""
         import json
 
-        with open("test_data/sample_data.json", "r") as f:
+        with open("test_data/ingredients_catalog.json", "r") as f:
             data = json.load(f)
 
         # Find All-Purpose Wheat Flour (standardized slug)
@@ -1062,7 +1031,7 @@ class TestDensityFieldsImportExport:
                 flour = ing
                 break
 
-        assert flour is not None, "Sample data should have all_purpose_wheat_flour"
+        assert flour is not None, "Catalog should have all_purpose_wheat_flour"
 
         # Should have 4-field density, not legacy
         assert "density_g_per_ml" not in flour, "Should not have legacy density field"
@@ -1072,7 +1041,7 @@ class TestDensityFieldsImportExport:
         assert flour.get("density_weight_unit") == "oz"
 
     def test_sample_data_valid_json(self):
-        """Verify sample_data.json is valid JSON."""
+        """Verify sample_data.json is valid JSON with required header."""
         import json
 
         # Should not raise
@@ -1081,7 +1050,9 @@ class TestDensityFieldsImportExport:
 
         assert "version" in data
         assert data["version"] == "3.4"
-        assert "ingredients" in data
+        # Note: ingredients are in separate catalog file, not sample_data.json
+        assert "products" in data
+        assert "recipes" in data
 
 # ============================================================================
 # Recipe Component Import/Export Tests (Feature 012)

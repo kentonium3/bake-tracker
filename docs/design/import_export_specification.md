@@ -608,6 +608,68 @@ All entity arrays are optional, but when present, they must follow the dependenc
 
 ---
 
+## Catalog Import (Subset Format)
+
+The **catalog import** is a streamlined import path for adding ingredients, products, and recipes without affecting transactional data (purchases, inventory, events, etc.). This is useful for expanding the ingredient catalog from external sources.
+
+### Catalog Import JSON Structure
+
+```json
+{
+  "version": "3.4",
+  "exported_at": "2025-12-18T00:00:00Z",
+  "application": "bake-tracker",
+  "description": "Optional description of the catalog",
+  "ingredients": [...],
+  "products": [...],
+  "recipes": [...]
+}
+```
+
+### Catalog Import Header Fields
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `version` | string | **Yes** | Must be "3.4" |
+| `exported_at` | string | No | ISO 8601 timestamp |
+| `application` | string | No | Should be "bake-tracker" |
+| `description` | string | No | Human-readable description |
+
+### Supported Entities
+
+Only these entities are supported in catalog import:
+
+| Entity | Description |
+|--------|-------------|
+| `ingredients` | Generic ingredient definitions |
+| `products` | Brand-specific products |
+| `recipes` | Recipe definitions with ingredients |
+
+### Catalog Import Modes
+
+| Mode | Behavior |
+|------|----------|
+| **ADD_ONLY** | Create new records, skip existing (by slug) |
+| **AUGMENT** | Create new records, update null fields on existing |
+
+**AUGMENT mode field behavior:**
+- **Protected fields** (never modified): `slug`, `display_name`, `id`, `date_added`, `category`
+- **Augmentable fields** (updated only if current value is NULL): density fields, FoodOn ID, descriptions, notes
+
+### Catalog Import Usage
+
+```python
+from src.services.catalog_import_service import import_catalog
+
+# Add new ingredients only
+result = import_catalog("catalog.json", mode="add", dry_run=False)
+
+# Add new + fill in missing data on existing
+result = import_catalog("catalog.json", mode="augment", dry_run=False)
+```
+
+---
+
 ## Import Modes
 
 ### Merge Mode (Default)

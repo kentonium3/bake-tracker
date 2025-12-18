@@ -52,22 +52,37 @@ COUNT_UNITS: List[str] = [
     "dozen",  # Dozen
 ]
 
-# Custom/packaging units (for purchase units)
-PACKAGE_UNITS: List[str] = [
+# Measurement units only (for package_unit on products)
+MEASUREMENT_UNITS: List[str] = WEIGHT_UNITS + VOLUME_UNITS + COUNT_UNITS
+
+# Package/container types (for package_type field, not units)
+# Note: "cup" is NOT included - it's a volume unit
+PACKAGE_TYPES: List[str] = [
     "bag",
-    "box",
     "bar",
     "bottle",
+    "box",
     "can",
+    "carton",
+    "clamshell",
+    "container",
     "jar",
     "packet",
-    "container",
-    "package",
-    "case",
+    "pouch",
+    "roll",
+    "sachet",
+    "sheet",
+    "stick",
+    "tub",
+    "tube",
+    "wrapper",
 ]
 
-# All valid units combined
-ALL_UNITS: List[str] = WEIGHT_UNITS + VOLUME_UNITS + COUNT_UNITS + PACKAGE_UNITS
+# Legacy: PACKAGE_UNITS alias for backwards compatibility
+PACKAGE_UNITS: List[str] = PACKAGE_TYPES
+
+# All valid units combined (includes legacy container types for backwards compatibility)
+ALL_UNITS: List[str] = WEIGHT_UNITS + VOLUME_UNITS + COUNT_UNITS + PACKAGE_TYPES
 
 # Unit type mappings for validation
 UNIT_TYPE_MAP: Dict[str, str] = {

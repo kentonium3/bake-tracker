@@ -51,8 +51,8 @@ def test_db():
 class TestUnitSeeding:
     """Tests for unit seeding functionality (Feature 022)."""
 
-    def test_fresh_database_has_27_units(self, test_db):
-        """Test that seed_units() creates exactly 27 units."""
+    def test_fresh_database_has_35_units(self, test_db):
+        """Test that seed_units() creates exactly 35 units."""
         # Verify database starts empty
         session = test_db()
         assert session.query(Unit).count() == 0
@@ -61,15 +61,15 @@ class TestUnitSeeding:
         # Seed units
         seed_units()
 
-        # Verify 27 units created
+        # Verify 35 units created (4 weight + 9 volume + 4 count + 18 package)
         session = test_db()
         count = session.query(Unit).count()
         session.close()
 
-        assert count == 27
+        assert count == 35
 
     def test_units_distributed_by_category(self, test_db):
-        """Test units are distributed correctly: 4 weight, 9 volume, 4 count, 10 package."""
+        """Test units are distributed correctly: 4 weight, 9 volume, 4 count, 18 package."""
         seed_units()
 
         session = test_db()
@@ -82,7 +82,7 @@ class TestUnitSeeding:
         assert weight_count == 4, f"Expected 4 weight units, got {weight_count}"
         assert volume_count == 9, f"Expected 9 volume units, got {volume_count}"
         assert count_count == 4, f"Expected 4 count units, got {count_count}"
-        assert package_count == 10, f"Expected 10 package units, got {package_count}"
+        assert package_count == 18, f"Expected 18 package units, got {package_count}"
 
     def test_seeding_is_idempotent(self, test_db):
         """Test that running seed_units() twice doesn't create duplicates."""
@@ -100,8 +100,8 @@ class TestUnitSeeding:
         second_count = session.query(Unit).count()
         session.close()
 
-        assert first_count == 27
-        assert second_count == 27, "Duplicate seeding created extra units"
+        assert first_count == 35
+        assert second_count == 35, "Duplicate seeding created extra units"
 
     def test_all_weight_units_present(self, test_db):
         """Test all weight unit codes from constants are seeded."""
