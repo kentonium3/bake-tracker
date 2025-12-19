@@ -5,10 +5,10 @@ subtasks:
   - "T006"
 title: "Service Layer - product_service Updates"
 phase: "Phase 2 - Service Changes"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "claude"
-shell_pid: "28455"
+shell_pid: "28930"
 review_status: ""
 reviewed_by: ""
 history:
@@ -179,3 +179,4 @@ if product_name is not None:
 
 - 2025-12-19T00:00:00Z - system - lane=planned - Prompt created via /spec-kitty.tasks
 - 2025-12-19T16:48:13Z – claude – shell_pid=28455 – lane=doing – Started implementation
+- 2025-12-19T16:49:29Z – claude – shell_pid=28930 – lane=for_review – Service updates complete - ready for review
