@@ -23,10 +23,10 @@
 **Prompt**: `tasks/planned/WP01-model-product-name-column.md`
 
 ### Included Subtasks
-- [ ] T001 Add `product_name` column (VARCHAR 200, nullable) to `src/models/product.py` after `brand`
-- [ ] T002 Add UniqueConstraint for `(ingredient_id, brand, product_name, package_size, package_unit)` in `__table_args__`
-- [ ] T003 Update `display_name` property to include `product_name` after brand (format: "Brand ProductName Size")
-- [ ] T004 Add empty string to NULL normalization in model `__init__` or validator
+- [x] T001 Add `product_name` column (VARCHAR 200, nullable) to `src/models/product.py` after `brand`
+- [x] T002 Add UniqueConstraint for `(ingredient_id, brand, product_name, package_size, package_unit)` in `__table_args__`
+- [x] T003 Update `display_name` property to include `product_name` after brand (format: "Brand ProductName Size")
+- [x] T004 Add empty string to NULL normalization in model `__init__` or validator
 
 ### Implementation Notes
 1. Column position: after `brand`, before `package_size`
@@ -53,8 +53,8 @@
 **Prompt**: `tasks/planned/WP02-service-product-updates.md`
 
 ### Included Subtasks
-- [ ] T005 Update `create_product()` in `src/services/product_service.py` to accept `product_name` parameter
-- [ ] T006 Update `update_product()` in `src/services/product_service.py` to accept `product_name` parameter
+- [x] T005 Update `create_product()` in `src/services/product_service.py` to accept `product_name` parameter
+- [x] T006 Update `update_product()` in `src/services/product_service.py` to accept `product_name` parameter
 
 ### Implementation Notes
 1. Both methods need optional `product_name: Optional[str] = None` parameter
@@ -80,9 +80,9 @@
 **Prompt**: `tasks/planned/WP03-service-import-export.md`
 
 ### Included Subtasks
-- [ ] T007 Add `product_name` to product export in `src/services/import_export_service.py` (around line 1148)
-- [ ] T008 Update import duplicate check to include `product_name` in lookup (around line 2357)
-- [ ] T009 Handle backward compatibility: default missing `product_name` to NULL on import
+- [x] T007 Add `product_name` to product export in `src/services/import_export_service.py` (around line 1148)
+- [x] T008 Update import duplicate check to include `product_name` in lookup (around line 2357)
+- [x] T009 Handle backward compatibility: default missing `product_name` to NULL on import
 
 ### Implementation Notes
 1. Export: Add optional field pattern like other nullable fields (lines 1147-1176)
@@ -108,10 +108,10 @@
 **Prompt**: `tasks/planned/WP04-ui-product-form.md`
 
 ### Included Subtasks
-- [ ] T010 Add "Product Name" entry field after Brand field in `ProductFormDialog._create_form()` at `src/ui/ingredients_tab.py`
-- [ ] T011 Update `_populate_form()` to load existing product_name value
-- [ ] T012 Update `_save()` to include product_name in result dict
-- [ ] T013 Add 200-character limit validation and update help text
+- [x] T010 Add "Product Name" entry field after Brand field in `ProductFormDialog._create_form()` at `src/ui/ingredients_tab.py`
+- [x] T011 Update `_populate_form()` to load existing product_name value
+- [x] T012 Update `_save()` to include product_name in result dict
+- [x] T013 Add 200-character limit validation and update help text
 
 ### Implementation Notes
 1. Field placement: After Brand (row after line 1525), before Purchase Quantity
