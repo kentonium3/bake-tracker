@@ -32,12 +32,13 @@
 | 019 | Unit Conversion Simplification | MERGED | Removed redundant `recipe_unit` and `UnitConversion` table. 4-field density is canonical. |
 | 020 | Enhanced Data Import | MERGED | Separate catalog import from transactional data. ADD_ONLY and AUGMENT modes. |
 | 021 | Field Naming Consistency | MERGED | purchase_unit→package_unit, purchase_quantity→package_unit_quantity, pantry→inventory cleanup. |
+| 022 | Unit Reference Table & UI Constraints | MERGED | Database-backed unit management with UI enforcement. |
 
 ---
 
 ## In Progress
 
-**Feature 023: Unit Reference Table & UI Constraints** - Database-backed unit management with UI enforcement.
+**Feature 023: Product Name Differentiation** - Add product_name field to distinguish product variants.
 
 ---
 
@@ -45,14 +46,14 @@
 
 | # | Name | Priority | Dependencies | Status |
 |---|------|----------|--------------|--------|
-| 023 | Unit Reference Table & UI Constraints | HIGH | TD-002, TD-003 complete | In Progress |
+| 023 | Product Name Differentiation | HIGH | Feature 022 complete | In Progress |
 | 024 | Packaging & Distribution | LOW | User testing complete | Blocked |
 
 ---
 
 ## Implementation Order
 
-**Current:** Feature 023 - Unit Reference Table & UI Constraints
+**Current:** Feature 023 - Product Name Differentiation
 
 1. ~~**TD-001** - Clean foundation before adding new entities~~ ✅ COMPLETE
 2. ~~**Feature 011** - Packaging materials, extend Composition for packaging~~ ✅ COMPLETE
@@ -68,40 +69,69 @@
 12. ~~**Feature 021** - Field Naming Consistency~~ ✅ COMPLETE
 13. ~~**TD-002** - Unit Standardization~~ ✅ COMPLETE
 14. ~~**TD-003** - Catalog Import Test Schema Mismatch~~ ✅ COMPLETE
-15. **Feature 023** - Unit Reference Table & UI Constraints ← CURRENT
-16. **Feature 024** - Packaging & Distribution
+15. ~~**Feature 022** - Unit Reference Table & UI Constraints~~ ✅ COMPLETE
+16. **Feature 023** - Product Name Differentiation ← CURRENT
+17. **Feature 024** - Packaging & Distribution
 
 ---
 
 ## Feature Descriptions
 
-### Feature 023: Unit Reference Table & UI Constraints
+### Feature 022: Unit Reference Table & UI Constraints
 
-**Status:** In Progress
+**Status:** COMPLETE ✅
 
-**Problem:** Units are stored as free-form strings with application-level validation only. While TD-002 added import validation, the UI still allows arbitrary unit entry. This creates risk of:
-- Typos entering the database
-- Inconsistent unit representations
-- No structured path to UN/CEFACT code adoption
+**Problem:** Units were stored as free-form strings with application-level validation only. While TD-002 added import validation, the UI still allowed arbitrary unit entry.
 
 **Solution:** Database-backed unit reference table with UI enforcement.
 
-**Scope:**
-- Create `units` reference table with columns: `code`, `name`, `symbol`, `category`, `uncefact_code` (nullable)
-- Seed table with valid units from `src/utils/constants.py`
-- Update UI unit inputs to use dropdowns/comboboxes populated from the units table
-- Add application-level validation against the reference table
-- Maintain backward compatibility with existing data
+**Delivered:**
+- Created `units` reference table with columns: `code`, `name`, `symbol`, `category`, `uncefact_code` (nullable)
+- Seeded table with valid units from `src/utils/constants.py`
+- Updated UI unit inputs to use dropdowns/comboboxes populated from units table
+- Added application-level validation against reference table
+- Maintained backward compatibility with existing data
 
 **Reference Documents:**
 - `docs/design/unit_codes_reference.md` - UN/CEFACT standard reference
 - `docs/research/unit_handling_analysis_report.md` - Current state analysis
 - `docs/technical-debt/TD-002_unit_standardization.md` - Prerequisite work
 
-**Non-Scope:**
-- Full UN/CEFACT code migration (future - codes stored but not enforced)
-- Unit conversion logic changes
-- Import format changes (already uses standard units per TD-002)
+---
+
+### Feature 023: Product Name Differentiation
+
+**Status:** In Progress
+
+**Problem:** Current unique constraint `(ingredient_id, brand, package_size, package_unit)` cannot distinguish product variants with identical packaging:
+- Lindt 3.5oz bars at different cacao percentages (70% vs 85%)
+- Sugar-free vs regular versions of same product
+- Dairy variants (whole milk vs 2% vs skim)
+
+**Solution:** Add `product_name` field for human-readable product differentiation.
+
+**Scope:**
+- Add `product_name VARCHAR(200) NULL` column to Product table
+- Update unique constraint to include product_name: `(ingredient_id, brand, product_name, package_size, package_unit)`
+- Maintain backward compatibility (nullable for existing products)
+- Enable AI-assisted backfilling of product names
+- Support mobile barcode scanning workflow for web phase
+
+**Web Phase Alignment:**
+This change directly enables critical mobile inventory management:
+- GTIN lookup returns complete product info including readable product_name
+- Mobile app displays clear differentiation: "Ghirardelli 60% Cacao 3.5oz bar"
+- User confirms or edits before adding to inventory
+- Reduces manual data entry friction (adoption blocker)
+
+**Migration Strategy:** Export/reset/import cycle (Constitution VI)
+
+**Complexity Justification:**
+- **Future-Proof Schema:** Aligns with GS1 industry practices; enables barcode workflow
+- **User-Centric Design:** Clear product identification; critical for mobile UX
+- **Pragmatic Aspiration:** Desktop nullable/optional; Web critical for adoption
+
+---
 
 ---
 
@@ -266,6 +296,11 @@ This prevents safe catalog expansion without risking user data.
 
 ## Key Decisions
 
+### 2025-12-19
+- **Feature 022 Status Corrected:** Unit Reference Table & UI Constraints confirmed complete (previously mismarked as planned).
+- **Feature 023 Defined:** Product Name Differentiation - add product_name field to distinguish variants (e.g., "70% Cacao" vs "85% Cacao"). Critical for mobile barcode scanning in web phase. Schema amendment follows Constitution principles.
+- **Renumbering:** Packaging & Distribution remains Feature 024.
+spec
 ### 2025-12-16
 - **Feature 020 Complete:** Enhanced Data Import merged. Separate catalog import from transactional data.
 - **Feature 021 Complete:** Field Naming Consistency merged. purchase_unit→package_unit, pantry→inventory.

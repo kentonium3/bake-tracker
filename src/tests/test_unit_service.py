@@ -61,10 +61,10 @@ def test_db():
 class TestGetAllUnits:
     """Tests for get_all_units() function."""
 
-    def test_returns_27_units(self, test_db):
-        """Test that get_all_units returns all 27 units."""
+    def test_returns_35_units(self, test_db):
+        """Test that get_all_units returns all 35 units."""
         units = get_all_units()
-        assert len(units) == 27
+        assert len(units) == 35
 
     def test_returns_unit_objects(self, test_db):
         """Test that get_all_units returns Unit objects."""
@@ -95,7 +95,7 @@ class TestGetAllUnits:
         """Test that get_all_units accepts and uses session parameter."""
         session = test_db()
         units = get_all_units(session=session)
-        assert len(units) == 27
+        assert len(units) == 35
         session.close()
 
 
@@ -117,10 +117,10 @@ class TestGetUnitsByCategory:
         units = get_units_by_category("count")
         assert len(units) == 4
 
-    def test_package_category_returns_10_units(self, test_db):
-        """Test that package category has 10 units."""
+    def test_package_category_returns_18_units(self, test_db):
+        """Test that package category has 18 units."""
         units = get_units_by_category("package")
-        assert len(units) == 10
+        assert len(units) == 18
 
     def test_all_returned_units_have_correct_category(self, test_db):
         """Test that all returned units have the requested category."""
@@ -185,8 +185,8 @@ class TestGetUnitsForDropdown:
     def test_all_categories_dropdown(self, test_db):
         """Test dropdown with all categories."""
         result = get_units_for_dropdown(["weight", "volume", "count", "package"])
-        # 4 headers + 27 units = 31 items
-        assert len(result) == 31
+        # 4 headers + 35 units = 39 items
+        assert len(result) == 39
 
     def test_returns_strings_not_objects(self, test_db):
         """Test that dropdown returns strings, not Unit objects."""

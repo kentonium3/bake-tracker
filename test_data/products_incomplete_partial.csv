@@ -1,0 +1,230 @@
+brand,ingredient_slug,package_size,package_unit,package_type,product_quantity,Comment
+Allspice,allspice_ground,,jar,,,delete
+Argo,cornstarch,16,oz,box,,
+Arm & Hammer,baking_soda,1,lb,box,,
+Baccardi,rum,750,ml,bottle,,
+Baker's,chocolate_baking_semi_sweet,4,oz,box,,
+Baker's,chocolate_baking_unsweetened,4,oz,box,,
+Ball,pectin,,oz,,,
+Basil,basil_dried,,jar,,,delete
+Bay Leaves,bay_leaves,,jar,,,delete
+Bertolli,olive_oil,3,l,bottle,,
+Black Pepper,pepper_black_ground,,jar,,,fix
+Black Strap,molasses_blackstrap,15,fl oz,bottle,,delete
+Bob's Red Mill,chia_seeds,12,oz,bag,,delete
+Cadbury,chocolate_chips_white,,oz,,,delete
+Callebaut,chocolate_couverture_dark,,lb,,,
+Callebaut,chocolate_couverture_ruby,,lb,,,
+Caramels,caramels,,oz,,,fix
+Cardamom,cardamom_ground,,jar,,,delete
+Caynne Pepper,cayenne_pepper,,jar,,,delete
+Chambord,liqueur_raspberry,,bottle,,,
+Cinnamon,cinnamon_ground,,jar,,,delete
+Clabber Girl,baking_powder,230,g,can,,delete
+Cloves,cloves_ground,,jar,,,delete
+Cointreau,liqueur_orange,,bottle,,,
+Costco,butter_salted,1,lb,box,,
+Costco,butter_unsalted,1,lb,box,,
+Costco,pecans,,lb,bag,,
+Costco,walnuts,3,lb,bag,,
+Costco,almonds_whole,,lb,bag,,
+Costco,chocolate_chips_semi_sweet,,oz,,,delete
+Costco,maple_syrup,,bottle,,,
+Costco,honey,,oz,,,delete
+Costco,cherries_dried,,oz,,,delete
+Costco,dates_pitted,,oz,,,delete
+Costco,apricots_dried,,oz,,,delete
+Costco,figs_dried,,oz,,,delete
+Costco,vanilla_extract,16,fl oz,bottle,,new
+Crisco,shortening,,tbsp,container,,
+Crisco,butter_unsalted,16,tbsp,container,,delete
+Curry Powder,agar_agar_powder,,jar,,,delete
+Dave's,agave_syrup,,oz,,,delete
+Diamond,salt_kosher,3,lb,box, ,
+Disaronno,amaretto,,bottle,,,
+Dole,pineapple_crushed,,oz,,,delete
+Domino,sugar_granulated,,lb,,,
+Domino,sugar_granulated,,lb,,,
+Domino,sugar_brown_light,,lb,,,
+Domino,sugar_brown_dark,,lb,,,
+Domino,sugar_superfine,,oz,,,
+Domino,sugar_powdered,4,lb,bag,,
+Evan Williams,bourbon,,bottle,,,
+Fennel,fennel_seeds,,jar,,,delete
+Flavor Organics,orange_extract,2,fl oz,bottle,,new
+Flavor Organics,coffee_extract,2,fl oz,bottle,,new
+Flavor Organics,chocolate_extract,2,fl oz,bottle,,new
+Fleischmann's,yeast_instant,,oz,,,
+Fleischmann's,yeast_active_dry,,oz,,,
+Frangelico,liqueur_hazelnut,,bottle,,,
+Frontier,poppy_seeds,,oz,,,delete
+Gabriel Brudier,liqueur_blackcurrant,,bottle,,,
+Garlic Powder,agar_agar_powder,,jar,,,delete
+Ghiradelli,chocolate_chips_milk,,oz,,,
+Ginger,ginger_ground,,jar,,,delete
+Grand Marnier,liqueur_orange,,bottle,,,
+Grandma's,molasses_light,16,oz,bottle,,
+Grandma's,molasses_dark,16,oz,bottle,,
+Grape Nuts,brazil_nuts,,oz,,,delete
+Guittar,chocolate_cocoa_nibs,,oz,,,
+Guittard,chocolate_chips_white,,lb,,,
+Guittard,chocolate_chips_bittersweet,,oz,,,
+Guittard,mint_chocolate_candies,,oz,,,
+Guittard,chocolate_chips_milk,,oz,,,
+Heathbar,toffee_bits,,oz,,,
+Heilala,vanilla_bean,2,each,container,,new
+Heilala,vanilla_extract,500,ml,bottle,,new
+Heilala,vanilla_paste,65,g,bottle,,new
+Heilala,vanilla_powder,25,g,jar,,new
+Heilala,vanilla_powder_with_extract,5,oz,jar,,new
+Heilala,vanilla_extract_oak_aged,50,ml,bottle,,new
+Heilala,vanilla_extract_spiced,50,ml,bottle,,new
+Hershey's,cinnamon_chips,,oz,,,
+Hershey's,chocolate_chips_milk,,oz,,,delete
+Hershey's,caramel_bits,,oz,,,delete
+Hershey's,chocolate_chips_bittersweet,,oz,,,delete
+Hershey's,chocolate_chips_bittersweet,,oz,,,delete
+Hershey's,cocoa_powder,,oz,,,
+Hershey's,cocoa_powder_black,,g,,,
+HoneyMain,graham_cracker_crumbs,,oz,,,delete
+HoneyMaid,graham_cracker_crumbs,,oz,,,new
+Jamison,whiskey_irish,,bottle,,,
+Jiffy,peanut_butter_smooth,,oz,,,delete
+Jiffy,peanut_butter_crunchy,,oz,,,delete
+Kahlua,liqueur_coffee,,bottle,,,
+Kahlua,liqueur_coffee,,bottle,,,
+Karo,corn_syrup_light,16,fl oz,bottle,,
+Karo,corn_syrup_light,16,fl oz,bottle,,
+Karo,corn_syrup_dark,16,fl oz,bottle,,
+Kellog's,rice_cereal_crisp,,oz,,,delete
+Kerry,butter_salted,1,oz,package,0,
+Kerry,butter_unsalted,1,oz,package,,
+King Arthur,all_purpose_wheat_flour,25,lb,bag,,
+King Arthur,white_whole_wheat_flour,,lb,,,
+King Arthur,almond_flour,,lb,,,
+King Arthur,pastry_flour,,lb,,,
+King Arthur,bread_flour,5,lb,bag,,
+King Arthur,cake_flour,2,lb,bag,,
+King Arthur,self_rising_flour,5,lb,bag,,
+Knox,gelatin_powder,,oz,,,
+Kraken,rum,,bottle,,,
+Leroux,liqueur_orange,,bottle,,,delete
+Lilly,cake_flour,,lb,,,
+Lyle’s,golden_syrup,16,oz,bottle,,
+M&M,almond_flour,,oz,,,delete
+M&M,caramel_bits,,oz,,,delete
+M&M,all_purpose_wheat_flour,,oz,,,delete
+Maker's Mark,bourbon,,bottle,,,delete
+Maldon,sea_salt_flaky,,g,,,
+Marjoram,marjoram_dried,,jar,,,delete
+McCormick,almond_extract,2,fl oz,bottle,,
+McCormick,pistachio_extract,2,fl oz,bottle,,delete
+McCormick,pistachio_extract,2,fl oz,bottle,,delete
+McCormick,orange_extract,1,fl oz,bottle,,
+McCormick,lemon_extract,2,fl oz,bottle,2,
+McCormick,cream_of_tartar,,oz,,,
+McCormick,chocolate_extract,2,fl oz,bottle,,new
+McCormick,peppermint_extract,2,fl oz,bottle,,new
+McCormick,peppermint_extract,1,fl oz,bottle,,new
+McCormick,maple_extract,2,fl oz,bottle,,new
+McCormick,maple_extract,1,fl oz,bottle,,new
+McCormick,mint_extract,1,fl oz,bottle,,new
+McCormick,coconut_extract,2,fl oz,bottle,,new
+McCormick,rum_extract,1,fl oz,bottle,,new
+McCormick,raspberry_extract,1,fl oz,bottle,,new
+Morrell,lard,,oz,,,
+Morton,salt_fine,,oz,,,
+Morton,salt_kosher,,lb,,,
+Mustard Powder,agar_agar_powder,,jar,,,delete
+Nestle,chocolate_chips_semi_sweet,,oz,,,
+Nestle,chocolate_chips_milk,,oz,,,
+Nestle,chocolate_chips_milk,,oz,,,
+Nestle,butterscotch_chips,11,oz,bag,,
+Nestle,chocolate_chips_bittersweet,,oz,,,
+Nestle,chocolate_chips_semi_sweet,72,oz,bag,0.5,
+Nestle,mini_chocolate_chips_semi_sweet,,oz,,,
+Nestle,chocolate_mint_chips,,oz,,,
+Nestle,chocolate_chips_white,,oz,,,
+Nielsen-Massey,vanilla_extract,,fl oz,,,delete
+Nielsen-Massey,vanilla_extract,,fl oz,,,delete
+Nielsen-Massey,vanilla_paste,,oz,,,delete
+Nielsen-Massey,vanilla_bean,,g,,,delete
+Nocciolata,hazelnut_spread,,oz,,,new
+Nutella,nutella,,oz,,,
+Nutmeg,nutmeg_ground,,jar,,,delete
+Ocean Spray,cranberries_dried,,oz,,,
+Onion Powder,agar_agar_powder,,jar,,,delete
+Oregano,oregano_dried,,jar,,,delete
+Pantry,sugar_granulated,,lb,,,delete
+Paprika,paprika,,jar,,,delete
+Penzys,cocoa_powder_natural,12.8,oz,bag,,new
+Penzys,cocoa_powder_dutch_processed,12.8,oz,bag,,new
+Penzys,orange_extract,2,fl oz,bottle,,new
+Penzys,almond_extract,2,fl oz,bottle,,new
+Penzys,vanilla_extract_mexican,8,fl oz,bottle,,new
+Penzys,vanilla_bean,3,each,container,2,new
+Penzys,cinnamon_ground_ceylon,4.8,oz,bag,,new
+Penzys,allspice_ground,1,oz,jar,,new
+Penzys,ginger_ground,1.9,oz,jar,1.25,new
+Penzys,nutmeg_ground_east_india,2.2,oz,jar,0.15,new
+Penzys,nutmeg_ground_east_india,1,oz,jar,,new
+Penzys,nutmeg_ground_west_india,2.4,oz,jar,,new
+Penzys,chinese_five_spice,0.9,oz,jar,,new
+Penzys,allspice_whole,0.6,oz,jar,,new
+Penzys,mace_ground,0.9,oz,jar,,new
+Penzys,cloves_whole,1.5,oz,jar,,new
+Penzys,cardamom_ground,2.4,oz,jar,,new
+Penzys,sesame_seeds_india_black,1,oz,jar,,new
+Penzys,sesame_seeds_india_black,2.2,oz,jar,0.1,new
+Penzys,sesame_seeds_white,2.2,oz,jar,0.5,new
+Penzys,lavender,0.4,oz,jar,0.75,new
+Penzys,poppy_seeds_blue,15.6,oz,bag,0.33,new
+Penzys,cream_of_tartar,1.8,oz,jar,,new
+Penzys,mulling_spices,2.6,oz,bag,0.5,new
+Penzys,vanilla_sugar,3.4,oz,jar,,new
+Penzys,cinnamon_sticks_indonesia,4,oz,bag,2,new
+Penzys,nutmeg_whole,4,oz,bag,0.8,new
+Penzys,pepper_black_ground_tellicherry,2.2,oz,jar,0.75,new
+Quaker,oats_rolled,,lb,,,
+Quaker,oats_quick,,lb,,,delete
+Red Mill,gluten_free_flour_blend,,lb,,,
+Reeses,chocolate_chips_milk,,oz,,,delete
+Rodelle,cocoa_powder_black,,g,,,
+Rosemary,rosemary_dried,,jar,,,delete
+Rumford,baking_powder,230,g,can,,
+Sage,sage_dried,,jar,,,delete
+Star Anise,star_anise,,jar,,,delete
+Sugar in the Raw,turbinado_sugar,,lb,,,
+Sun Maid,raisins,13,oz,container,,
+Sun Maid,currants_dried,8,oz,bag,,
+Sun Sweet,prunes,,oz,,,delete
+Swerve,swerve_sweetener,,oz,,,delete
+Swiss Miss,toblerone,,oz,,,delete
+The Christian Brothers,brandy,,bottle,,,delete
+Thyme,thyme_dried,,jar,,,delete
+Tia Maria,liqueur_coffee,,bottle,,,delete
+Toblerone,toblerone,,oz,,,
+Trader Joe's,pumpkin_seeds,,oz,,,delete
+Trader Joe's,pistachios,,oz,,,
+Trader Joe's,chia_seeds,,oz,,,delete
+Trader Joe's,hazelnuts,,lb,,,
+Trader Joe's,macadamia_nuts,,oz,,,
+Trader Joe's,pine_nuts,,oz,,,
+Trader Joe's,cashews,,lb,,,
+Trader Joe's,brazil_nuts,,lb,,,delete
+U.S.,sugar_powdered,7,lb,bag,,
+Wegman's,canola_oil,1,qt,bottle,,
+Wegman's,bread_flour,5,lb,bag,,
+Wegman's,cake_flour,2,lb,bag,,
+Wegman's,self_rising_flour,5,lb,bag,,
+Wegman's,coconut_flour,16,oz,bag,,delete
+Wegman's,coconut_shredded_sweetened,16,oz,bag,,
+Wegman's,honey,16,oz,bottle,,
+Wegman's,maple_syrup,32,fl oz,bottle,,
+Wegman's,cornstarch,1,lb,box,,
+Wegman's,sugar_brown_light,2,lb,bag,,
+Wegman’s,raisins,3,lb,bag,,
+Welch's,grape_juice,64,oz,bottle,,delete
+White Pepper,candy_melts_white,,jar,,,delete
+Wilton,agar_agar_powder,,oz,,,delete
+truvia,stevia_sweetener,24,oz,bag,,new

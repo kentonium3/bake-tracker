@@ -406,6 +406,50 @@ CustomTkinter → SQLAlchemy → SQLite → Local Files
 
 ---
 
+## Web Phase Enhancements
+
+### Automated Ingredient Density Enrichment
+
+**Feature:** Background service to lookup and populate missing density values for ingredients
+
+**Desktop Approach:**
+- Manual batch export of ingredients missing density factors
+- Upload to AI tool for research and data fill
+- Import completed density data back to app
+- **Rationale:** Desktop phase avoids network dependencies and infrastructure complexity
+
+**Web Phase Implementation:**
+- **Service:** Background task queue (Celery, Bull, or cloud native)
+- **Data Sources:** 
+  - USDA FoodData Central API (free, 1000 req/hr, portions with gram equivalents)
+  - Edamam/FatSecret/Spoonacular (commercial, better coverage)
+  - Custom density database from desktop phase accumulated data
+- **Confidence Scoring:**
+  - High: Direct API match with verified source
+  - Medium: Calculated from similar foods or nutritional data
+  - Low: Estimated from food category averages
+  - Store confidence level with density data for user transparency
+- **User Control:**
+  - Admin-initiated batch processing
+  - Review queue for low-confidence matches
+  - User can override auto-populated values
+  - Audit trail for data provenance
+
+**Architecture Benefits:**
+- Cloud infrastructure supports async processing
+- Multiple users = better ROI on API costs
+- Learned density patterns improve over time
+- Failed lookups don't block user workflow
+
+**Implementation Priority:** Medium (after core multi-user features stable)
+
+**Estimated Effort:** 2-3 weeks
+- Background task infrastructure: 1 week
+- API integration and confidence scoring: 1 week  
+- Admin UI and review queue: 1 week
+
+---
+
 ## Open Questions
 
 **To be answered during desktop development:**

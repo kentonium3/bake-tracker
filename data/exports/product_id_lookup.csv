@@ -1,0 +1,16 @@
+product_id,ingredient_slug,brand,package_size,package_unit,package_unit_quantity
+3,all_purpose_wheat_flour,Gold Medal,5 lb bag,lb,5.0
+2,all_purpose_wheat_flour,King Arthur,25 lb bag,lb,25.0
+8,baking_soda,Arm & Hammer,1 lb box,lb,1.0
+7,butter_unsalted,Kirkland,4 lb box,lb,4.0
+9,chocolate_chips_semi_sweet,Nestle Toll House,72 oz bag,oz,72.0
+10,cocoa_powder_dutch_processed,Penzeys Dutch Process,8 oz jar,oz,8.0
+14,pecans,Costco,2 lb bag,lb,2.0
+12,salt_fine,Morton,26 oz box,oz,26.0
+5,sugar_brown_light,Domino,2 lb bag,lb,2.0
+4,sugar_granulated,Domino,25 lb bag,lb,25.0
+6,sugar_powdered,C&H,2 lb bag,lb,2.0
+15,valid_unit_flour,Test Brand,1 lb,lb,1.0
+1,valid_unit_flour,Test Brand,5 lb,lb,5.0
+11,vanilla_extract,McCormick,16 fl oz bottle,fl oz,16.0
+13,walnuts,Kirkland,3 lb bag,lb,3.0

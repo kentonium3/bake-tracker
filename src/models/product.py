@@ -10,7 +10,7 @@ Example: "King Arthur All-Purpose Flour 25 lb bag from Costco" is a product
 
 from datetime import datetime
 
-from sqlalchemy import Column, Integer, String, Float, Text, DateTime, Boolean, ForeignKey, Index
+from sqlalchemy import Column, Integer, String, Float, Text, DateTime, Boolean, ForeignKey, Index, UniqueConstraint
 from sqlalchemy.orm import relationship
 
 from .base import BaseModel
@@ -99,11 +99,16 @@ class Product(BaseModel):
         "InventoryItem", back_populates="product", cascade="all, delete-orphan", lazy="select"
     )
 
-    # Indexes for common queries
+    # Indexes and constraints
     __table_args__ = (
         Index("idx_product_ingredient", "ingredient_id"),
         Index("idx_product_brand", "brand"),
         Index("idx_product_upc", "upc_code"),
+        # Prevent duplicate products: same ingredient + brand + size + unit
+        UniqueConstraint(
+            "ingredient_id", "brand", "package_size", "package_unit",
+            name="uq_product_ingredient_brand_size_unit"
+        ),
     )
 
     def __repr__(self) -> str:
