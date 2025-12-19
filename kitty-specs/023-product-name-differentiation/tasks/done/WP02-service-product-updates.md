@@ -6,7 +6,7 @@ subtasks:
 title: "Service Layer - product_service Updates"
 phase: "Phase 2 - Service Changes"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude-reviewer"
 shell_pid: "30652"
 review_status: "approved without changes"

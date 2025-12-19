@@ -8,7 +8,7 @@ subtasks:
 title: "UI Layer - ProductFormDialog Updates"
 phase: "Phase 3 - UI Changes"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude-reviewer"
 shell_pid: "30994"
 review_status: "approved without changes"

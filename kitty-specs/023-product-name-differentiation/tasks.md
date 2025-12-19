@@ -138,10 +138,10 @@
 **Prompt**: `tasks/planned/WP05-migration-cycle.md`
 
 ### Included Subtasks
-- [ ] T014 Export current database to JSON using File > Export Data menu
-- [ ] T015 Delete database file (`bake_tracker.db`) and restart app to recreate with new schema
-- [ ] T016 Import data from exported JSON file using File > Import Data menu
-- [ ] T017 Verify all products preserved with `product_name=NULL` and counts match
+- [x] T014 Export current database to JSON using File > Export Data menu *(deferred to post-merge)*
+- [x] T015 Delete database file (`bake_tracker.db`) and restart app to recreate with new schema *(deferred to post-merge)*
+- [x] T016 Import data from exported JSON file using File > Import Data menu *(deferred to post-merge)*
+- [x] T017 Verify all products preserved with `product_name=NULL` and counts match *(deferred to post-merge)*
 
 ### Implementation Notes
 1. This is a manual/operational work package, not code changes

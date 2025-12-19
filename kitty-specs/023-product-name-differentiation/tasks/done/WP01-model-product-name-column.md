@@ -8,7 +8,7 @@ subtasks:
 title: "Model Layer - Add product_name Column"
 phase: "Phase 1 - Model Changes"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude-reviewer"
 shell_pid: "30408"
 review_status: "approved without changes"

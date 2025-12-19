@@ -7,7 +7,7 @@ subtasks:
 title: "Service Layer - Import/Export Updates"
 phase: "Phase 2 - Service Changes"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude-reviewer"
 shell_pid: "30803"
 review_status: "approved without changes"

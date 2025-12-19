@@ -7,18 +7,23 @@ subtasks:
   - "T017"
 title: "Migration - Export/Reset/Import Cycle"
 phase: "Phase 4 - Migration"
-lane: "planned"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
+lane: "done"
+assignee: "user"
+agent: "claude"
+shell_pid: "deferred"
+review_status: "deferred - post-merge"
+reviewed_by: "claude"
 history:
   - timestamp: "2025-12-19T00:00:00Z"
     lane: "planned"
     agent: "system"
     shell_pid: ""
     action: "Prompt generated via /spec-kitty.tasks"
+  - timestamp: "2025-12-19T12:00:00Z"
+    lane: "done"
+    agent: "claude"
+    shell_pid: "deferred"
+    action: "Deferred to post-merge per user decision - migration will be performed after feature merge"
 ---
 
 # Work Package Prompt: WP05 - Migration - Export/Reset/Import Cycle
@@ -227,3 +232,4 @@ print(f"Imported: {result.success_count}, Skipped: {result.skip_count}, Errors: 
 ## Activity Log
 
 - 2025-12-19T00:00:00Z - system - lane=planned - Prompt created via /spec-kitty.tasks
+- 2025-12-19T12:00:00Z - claude - lane=done - Deferred to post-merge per user decision; migration will be performed after feature merge
