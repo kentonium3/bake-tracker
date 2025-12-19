@@ -1,0 +1,9 @@
+finding_id,date,category,finding,source_ref,impact,decision
+E001,2025-12-19,Data Model,Product model has no product_name column,src/models/product.py,High,Add product_name column as VARCHAR(200) nullable
+E002,2025-12-19,Data Model,No unique constraint on Product table,src/models/product.py:103-107,Medium,Add unique constraint on (ingredient_id brand product_name package_size package_unit)
+E003,2025-12-19,Data Model,brand column is VARCHAR(200) nullable,src/models/product.py:53,Low,Match pattern for product_name
+E004,2025-12-19,Import/Export,Products exported with brand as optional field,src/services/import_export_service.py:1147-1148,Medium,Follow same pattern for product_name
+E005,2025-12-19,Import/Export,Product lookup uses (ingredient_id brand) tuple,src/services/import_export_service.py:2357-2360,High,Extend lookup to include product_name
+E006,2025-12-19,UI,ProductFormDialog creates form at lines 1499-1606,src/ui/ingredients_tab.py:1499,High,Add product_name field after brand field
+E007,2025-12-19,Display,display_name property builds from brand package_size package_type,src/models/product.py:115-134,High,Insert product_name after brand in display format
+E008,2025-12-19,Architecture,Other models use UniqueConstraint pattern,src/models/recipe.py:375,Low,Follow same pattern for Product
