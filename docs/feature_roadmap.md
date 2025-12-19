@@ -1,7 +1,7 @@
 # Feature Roadmap
 
 **Created:** 2025-12-03
-**Last Updated:** 2025-12-16
+**Last Updated:** 2025-12-19
 **Workflow:** Spec-Kitty driven development
 
 ---
@@ -33,12 +33,13 @@
 | 020 | Enhanced Data Import | MERGED | Separate catalog import from transactional data. ADD_ONLY and AUGMENT modes. |
 | 021 | Field Naming Consistency | MERGED | purchase_unit→package_unit, purchase_quantity→package_unit_quantity, pantry→inventory cleanup. |
 | 022 | Unit Reference Table & UI Constraints | MERGED | Database-backed unit management with UI enforcement. |
+| 023 | Product Name Differentiation | MERGED | Added product_name field, updated import/export for dependent entities, fixed 20 test failures. |
 
 ---
 
 ## In Progress
 
-**Feature 023: Product Name Differentiation** - Add product_name field to distinguish product variants.
+*No features currently in progress.*
 
 ---
 
@@ -46,14 +47,13 @@
 
 | # | Name | Priority | Dependencies | Status |
 |---|------|----------|--------------|--------|
-| 023 | Product Name Differentiation | HIGH | Feature 022 complete | In Progress |
 | 024 | Packaging & Distribution | LOW | User testing complete | Blocked |
 
 ---
 
 ## Implementation Order
 
-**Current:** Feature 023 - Product Name Differentiation
+**Current:** None - awaiting user testing
 
 1. ~~**TD-001** - Clean foundation before adding new entities~~ ✅ COMPLETE
 2. ~~**Feature 011** - Packaging materials, extend Composition for packaging~~ ✅ COMPLETE
@@ -70,7 +70,7 @@
 13. ~~**TD-002** - Unit Standardization~~ ✅ COMPLETE
 14. ~~**TD-003** - Catalog Import Test Schema Mismatch~~ ✅ COMPLETE
 15. ~~**Feature 022** - Unit Reference Table & UI Constraints~~ ✅ COMPLETE
-16. **Feature 023** - Product Name Differentiation ← CURRENT
+16. ~~**Feature 023** - Product Name Differentiation~~ ✅ COMPLETE
 17. **Feature 024** - Packaging & Distribution
 
 ---
@@ -101,7 +101,7 @@
 
 ### Feature 023: Product Name Differentiation
 
-**Status:** In Progress
+**Status:** COMPLETE ✅ (Merged 2025-12-19)
 
 **Problem:** Current unique constraint `(ingredient_id, brand, package_size, package_unit)` cannot distinguish product variants with identical packaging:
 - Lindt 3.5oz bars at different cacao percentages (70% vs 85%)
@@ -297,10 +297,12 @@ This prevents safe catalog expansion without risking user data.
 ## Key Decisions
 
 ### 2025-12-19
+- **Feature 023 Complete:** Product Name Differentiation merged. Added `product_name` field to Product table for variant distinction.
+- **Database Reset:** DB deleted for fresh import with updated schema and data (ingredients_catalog.json, sample_data.json).
 - **Feature 022 Status Corrected:** Unit Reference Table & UI Constraints confirmed complete (previously mismarked as planned).
 - **Feature 023 Defined:** Product Name Differentiation - add product_name field to distinguish variants (e.g., "70% Cacao" vs "85% Cacao"). Critical for mobile barcode scanning in web phase. Schema amendment follows Constitution principles.
 - **Renumbering:** Packaging & Distribution remains Feature 024.
-spec
+
 ### 2025-12-16
 - **Feature 020 Complete:** Enhanced Data Import merged. Separate catalog import from transactional data.
 - **Feature 021 Complete:** Field Naming Consistency merged. purchase_unit→package_unit, pantry→inventory.
@@ -382,3 +384,4 @@ Part B: Ingredient.name → Ingredient.display_name ✅
 - 2025-12-12: Feature 017 (Reporting & Event Planning) complete and merged. Feature 018 (Event Production Dashboard) complete and merged. Entered user testing phase.
 - 2025-12-14: Constitution v1.2.0 (schema change strategy). Feature 019 (Unit Conversion Simplification) complete and merged. Feature 020 (Enhanced Data Import) defined. Packaging & Distribution moved to Feature 021.
 - 2025-12-16: Features 020, 021 complete and merged. TD-002, TD-003 complete. Feature 023 (Unit Reference Table & UI Constraints) defined. Packaging & Distribution moved to Feature 024.
+- 2025-12-19: Feature 023 (Product Name Differentiation) complete and merged. Database reset for fresh import with updated schema.

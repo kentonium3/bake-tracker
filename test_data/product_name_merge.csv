@@ -1,0 +1,53 @@
+brand,ingredient_slug,product_name,gtin,confidence,source_notes
+Costco,vanilla_extract,Pure Vanilla Extract,096619329113,HIGH,Amazon/Costco verified - Kirkland Signature brand
+Flavor Organics,orange_extract,Organic Orange Extract,030684963223,MEDIUM,Multiple UPCs found (packaging variants); using earlier listing
+Flavor Organics,coffee_extract,Organic Coffee Extract,0065117000110,HIGH,Kroger confirmed UPC
+Flavor Organics,chocolate_extract,Organic Chocolate Extract,651170001092,HIGH,Walmart confirmed UPC
+Heilala,vanilla_bean,Premium Vanilla Beans 2-Pack,,LOW,Boutique brand - GTIN not found in search
+Heilala,vanilla_extract,Pure Vanilla Extract,,LOW,Multiple sizes exist - need specific 500ml GTIN
+Heilala,vanilla_paste,Pure Vanilla Bean Paste,,LOW,Multiple sizes exist - need specific 65g GTIN
+Heilala,vanilla_powder,Vanilla Powder,,LOW,Specialty product - GTIN not readily available
+Heilala,vanilla_powder_with_extract,Vanilla Powder with Extract,,LOW,Specialty product - GTIN not readily available
+McCormick,almond_extract,Pure Almond Extract,052100037868,HIGH,Multiple retailer confirmation
+McCormick,orange_extract,Pure Orange Extract,052100070780,HIGH,Multiple retailer confirmation
+McCormick,lemon_extract,Pure Lemon Extract,052100070964,HIGH,Multiple retailer confirmation
+McCormick,peppermint_extract,Pure Peppermint Extract,052100070797,HIGH,Multiple retailer confirmation
+Penzeys,vanilla_extract,Single Strength Vanilla Extract,,LOW,Specialty brand - GTIN not found via standard retail channels
+Nielsen-Massey,vanilla_extract,Madagascar Bourbon Pure Vanilla Extract,,LOW,Premium brand - GTIN not readily found
+Nielsen-Massey,vanilla_extract,Pure Vanilla Extract,,LOW,Premium brand - GTIN not readily found
+Nielsen-Massey,almond_extract,Pure Almond Extract,,LOW,Premium brand - GTIN not readily found
+Nielsen-Massey,lemon_extract,Pure Lemon Extract,,LOW,Premium brand - GTIN not readily found
+Nielsen-Massey,orange_extract,Pure Orange Extract,,LOW,Premium brand - GTIN not readily found
+Nielsen-Massey,peppermint_extract,Pure Peppermint Extract,,LOW,Premium brand - GTIN not readily found
+McCormick,cinnamon_ground,Ground Cinnamon,052100004389,HIGH,Multiple retailer confirmation
+McCormick,ginger_ground,Ground Ginger,052100002491,HIGH,Multiple retailer references
+McCormick,nutmeg_ground,Ground Nutmeg,052100002569,HIGH,Multiple retailer confirmation
+Penzeys,allspice_ground,Ground Allspice,,LOW,Specialty brand - GTIN not found via standard retail channels
+Penzeys,anise_seed,Anise Seed,,LOW,Specialty brand - GTIN not found via standard retail channels
+Penzeys,cardamom_ground,Ground Cardamom,,LOW,Specialty brand - GTIN not found via standard retail channels
+Penzeys,cinnamon_ground_ceylon,Ground Cinnamon (Vietnam Extra Fancy),,LOW,Specialty brand - GTIN not found via standard retail channels
+Penzeys,cloves_whole,Ground Cloves,,LOW,Specialty brand - GTIN not found via standard retail channels
+Penzeys,ginger_ground,Ground Ginger,,LOW,Specialty brand - GTIN not found via standard retail channels
+Penzeys,nutmeg_ground,Ground Nutmeg,,LOW,Specialty brand - GTIN not found via standard retail channels
+Ghirardelli,chocolate_chips_bittersweet,60% Cacao Bittersweet Chocolate Premium Baking Chips,747599612749,HIGH,Multiple retailer confirmation
+Ghirardelli,chocolate_chips_semisweet,Semi-Sweet Chocolate Premium Baking Chips,747599640155,HIGH,Multiple retailer confirmation
+Ghirardelli,chocolate_chips_milk,Milk Chocolate Premium Baking Chips,747599640124,HIGH,Multiple retailer confirmation
+Domino,sugar_granulated,Premium Pure Cane Granulated Sugar 4 lb,049200045503,HIGH,Multiple retailer confirmation
+Domino,sugar_granulated,Premium Pure Cane Granulated Sugar 10 lb,049200047545,HIGH,Multiple retailer confirmation
+Bob's Red Mill,flour_almond,Super-Fine Almond Flour,039978053817,HIGH,Multiple retailer confirmation
+Argo,cornstarch,100% Pure Corn Starch,761720071045,HIGH,Amazon + multiple retailers confirmed
+Bob's Red Mill,almond_flour,Super-Fine Almond Flour,039978053817,HIGH,Multiple retailers confirmed - blanched almonds
+Bob's Red Mill,whole_wheat_flour,100% Stone Ground Whole Wheat Flour,039978053305,HIGH,Kroger confirmed
+Crisco,shortening,All-Vegetable Shortening Baking Sticks,051500251881,HIGH,20 oz package with 3 sticks - multiple retailers
+Fleischmann's,yeast_active_dry,Active Dry Yeast,040100009280,HIGH,3-packet strip 0.75 oz total - user provided UPC
+Fleischmann's,yeast_instant,RapidRise Instant Yeast,040100009299,HIGH,3-packet strip 0.75 oz total
+Grandma's,molasses_dark,Robust Unsulphured Molasses,072400711169,HIGH,12 oz confirmed - Amazon/Fairway/ShopRite
+Grandma's,molasses_light,Original Unsulphured Molasses,072400711244,HIGH,12 oz confirmed - multiple retailers
+Karo,corn_syrup_dark,Dark Corn Syrup,761720050101,HIGH,16 oz confirmed - Fairway/Hy-Vee
+Karo,corn_syrup_light,Light Corn Syrup with Real Vanilla,761720051108,HIGH,16 oz confirmed - Target/Walmart/Kroger
+King Arthur,all_purpose_wheat_flour,Unbleached All-Purpose Flour,071012010615,HIGH,3 lb confirmed via Barcode Spider
+Knox,gelatin_powder,Original Unflavored Gelatin,043000048675,HIGH,1 oz (4 packets) - multiple retailers
+Lyle’s,golden_syrup,Golden Syrup,073449287005,HIGH,16 oz confirmed - Kroger/Fairway/multiple retailers
+Morrell,lard,Snow Cap Lard,070100070623,HIGH,16 oz (1 lb) - multiple sources confirmed
+Rumford,baking_powder,Baking Powder,041617002254,HIGH,230g (8.1 oz) - Walmart/multiple retailers
+Wegman's,cornstarch,100% Pure Corn Starch,077890900239,HIGH,16 oz (1 lb) - multiple sources confirmed

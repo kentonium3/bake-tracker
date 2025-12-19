@@ -18,9 +18,10 @@ from src.services.import_export_service import ImportVersionError
 
 def _get_logs_dir() -> Path:
     """Get the logs directory, creating it if needed."""
-    # Use the app's data directory (same location as database)
-    app_data_dir = Path.home() / "Documents" / "BakeTracker"
-    logs_dir = app_data_dir / "logs"
+    # TEMPORARY: Use project directory for user testing
+    # TODO: Make log path configurable. Production path should be relative,
+    #   not absolute (Path.home() based). Current test path is relative to project.
+    logs_dir = Path(__file__).parent.parent.parent / "docs" / "user_testing"
     logs_dir.mkdir(parents=True, exist_ok=True)
     return logs_dir
 

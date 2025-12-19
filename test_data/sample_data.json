@@ -32,7 +32,7 @@
         {
           "ingredient_slug": "eggs_whole",
           "quantity": 2.0,
-          "unit": "whole"
+          "unit": "each"
         },
         {
           "ingredient_slug": "baking_powder",
@@ -121,7 +121,7 @@
         {
           "ingredient_slug": "eggs_whole",
           "quantity": 3.0,
-          "unit": "whole"
+          "unit": "each"
         },
         {
           "ingredient_slug": "vanilla_extract",
@@ -230,7 +230,7 @@
         {
           "ingredient_slug": "eggs_whole",
           "quantity": 1.0,
-          "unit": "whole"
+          "unit": "each"
         },
         {
           "ingredient_slug": "molasses_light",
@@ -323,7 +323,7 @@
         {
           "ingredient_slug": "eggs_whole",
           "quantity": 2.0,
-          "unit": "whole"
+          "unit": "each"
         },
         {
           "ingredient_slug": "vanilla_extract",
@@ -403,7 +403,7 @@
         {
           "ingredient_slug": "eggs_whole",
           "quantity": 4.0,
-          "unit": "whole"
+          "unit": "each"
         },
         {
           "ingredient_slug": "vanilla_extract",
@@ -492,7 +492,7 @@
         {
           "ingredient_slug": "eggs_whole",
           "quantity": 3.0,
-          "unit": "whole"
+          "unit": "each"
         }
       ]
     },
@@ -547,7 +547,7 @@
         {
           "ingredient_slug": "egg_yolks",
           "quantity": 1.0,
-          "unit": "whole"
+          "unit": "each"
         }
       ]
     },
@@ -706,7 +706,7 @@
         {
           "ingredient_slug": "eggs_whole",
           "quantity": 4.0,
-          "unit": "whole"
+          "unit": "each"
         },
         {
           "ingredient_slug": "lemon_extract",
@@ -788,7 +788,7 @@
         {
           "ingredient_slug": "egg_yolks",
           "quantity": 1.0,
-          "unit": "whole"
+          "unit": "each"
         },
         {
           "ingredient_slug": "orange_juice",
@@ -815,7 +815,7 @@
         {
           "ingredient_slug": "eggs_whole",
           "quantity": 1.0,
-          "unit": "whole",
+          "unit": "each",
           "notes": "for glaze, beaten"
         }
       ]
@@ -920,7 +920,7 @@
         {
           "ingredient_slug": "eggs_whole",
           "quantity": 2.0,
-          "unit": "whole"
+          "unit": "each"
         },
         {
           "ingredient_slug": "vanilla_extract",
@@ -949,9 +949,9 @@
         },
         {
           "ingredient_slug": "toffee_bits",
-          "quantity": 1.0,
-          "unit": "pkg",
-          "notes": "4.5 oz package"
+          "quantity": 4.5,
+          "unit": "oz",
+          "notes": "1 package"
         },
         {
           "ingredient_slug": "chocolate_chips_milk",
@@ -1002,7 +1002,7 @@
         {
           "ingredient_slug": "eggs_whole",
           "quantity": 1.0,
-          "unit": "whole"
+          "unit": "each"
         },
         {
           "ingredient_slug": "vanilla_extract",
@@ -1067,7 +1067,7 @@
         {
           "ingredient_slug": "eggs_whole",
           "quantity": 5.0,
-          "unit": "whole"
+          "unit": "each"
         },
         {
           "ingredient_slug": "orange_whole",
@@ -1124,7 +1124,7 @@
         {
           "ingredient_slug": "eggs_whole",
           "quantity": 4.0,
-          "unit": "whole",
+          "unit": "each",
           "notes": "room temperature"
         },
         {
@@ -1146,7 +1146,7 @@
         {
           "ingredient_slug": "lemon_whole",
           "quantity": 2.0,
-          "unit": "whole",
+          "unit": "each",
           "notes": "finely grated rind, or 0.75 tsp lemon oil"
         },
         {
@@ -1209,7 +1209,7 @@
         {
           "ingredient_slug": "eggs_whole",
           "quantity": 2.0,
-          "unit": "whole"
+          "unit": "each"
         },
         {
           "ingredient_slug": "apricots_dried",
@@ -1338,7 +1338,7 @@
         {
           "ingredient_slug": "eggs_whole",
           "quantity": 4.0,
-          "unit": "whole"
+          "unit": "each"
         },
         {
           "ingredient_slug": "honey",
@@ -1464,12 +1464,6 @@
       "package_unit_quantity": 16.0
     },
     {
-      "ingredient_slug": "butter_unsalted",
-      "brand": "Crisco",
-      "package_unit": "tbsp",
-      "package_unit_quantity": 16.0
-    },
-    {
       "ingredient_slug": "olive_oil",
       "brand": "Bertolli",
       "package_unit": "l",
@@ -1536,22 +1530,10 @@
       "package_unit_quantity": 5.0
     },
     {
-      "ingredient_slug": "coconut_flour",
-      "brand": "Wegman's",
-      "package_unit": "lb",
-      "package_unit_quantity": 5.0
-    },
-    {
       "ingredient_slug": "gluten_free_flour_blend",
       "brand": "Red Mill",
       "package_unit": "lb",
       "package_unit_quantity": 2.0
-    },
-    {
-      "ingredient_slug": "graham_cracker_crumbs",
-      "brand": "HoneyMain",
-      "package_unit": "oz",
-      "package_unit_quantity": 13.5
     },
     {
       "ingredient_slug": "sugar_granulated",
@@ -1590,46 +1572,16 @@
       "package_unit_quantity": 7.0
     },
     {
-      "ingredient_slug": "swerve_sweetener",
-      "brand": "Swerve",
-      "package_unit": "oz",
-      "package_unit_quantity": 12.0
-    },
-    {
       "ingredient_slug": "turbinado_sugar",
       "brand": "Sugar in the Raw",
       "package_unit": "lb",
       "package_unit_quantity": 4.0
     },
     {
-      "ingredient_slug": "sugar_granulated",
-      "brand": "Pantry",
-      "package_unit": "lb",
-      "package_unit_quantity": 1.0
-    },
-    {
       "ingredient_slug": "oats_rolled",
       "brand": "Quaker",
       "package_unit": "lb",
       "package_unit_quantity": 10.0
-    },
-    {
-      "ingredient_slug": "oats_quick",
-      "brand": "Quaker",
-      "package_unit": "lb",
-      "package_unit_quantity": 1.5
-    },
-    {
-      "ingredient_slug": "rice_cereal_crisp",
-      "brand": "Kellog's",
-      "package_unit": "oz",
-      "package_unit_quantity": 12.0
-    },
-    {
-      "ingredient_slug": "brazil_nuts",
-      "brand": "Grape Nuts",
-      "package_unit": "oz",
-      "package_unit_quantity": 29.0
     },
     {
       "ingredient_slug": "pecans",
@@ -1650,34 +1602,10 @@
       "package_unit_quantity": 1.0
     },
     {
-      "ingredient_slug": "pumpkin_seeds",
-      "brand": "Trader Joe's",
-      "package_unit": "oz",
-      "package_unit_quantity": 12.0
-    },
-    {
       "ingredient_slug": "pistachios",
       "brand": "Trader Joe's",
       "package_unit": "oz",
       "package_unit_quantity": 8.0
-    },
-    {
-      "ingredient_slug": "chia_seeds",
-      "brand": "Bob's Red Mill",
-      "package_unit": "oz",
-      "package_unit_quantity": 16.0
-    },
-    {
-      "ingredient_slug": "poppy_seeds",
-      "brand": "Frontier",
-      "package_unit": "oz",
-      "package_unit_quantity": 8.0
-    },
-    {
-      "ingredient_slug": "chia_seeds",
-      "brand": "Trader Joe's",
-      "package_unit": "oz",
-      "package_unit_quantity": 12.0
     },
     {
       "ingredient_slug": "hazelnuts",
@@ -1704,12 +1632,6 @@
       "package_unit_quantity": 1.0
     },
     {
-      "ingredient_slug": "brazil_nuts",
-      "brand": "Trader Joe's",
-      "package_unit": "lb",
-      "package_unit_quantity": 1.0
-    },
-    {
       "ingredient_slug": "chocolate_baking_semi_sweet",
       "brand": "Baker's",
       "package_unit": "oz",
@@ -1720,12 +1642,6 @@
       "brand": "Baker's",
       "package_unit": "oz",
       "package_unit_quantity": 4.0
-    },
-    {
-      "ingredient_slug": "chocolate_chips_white",
-      "brand": "Cadbury",
-      "package_unit": "oz",
-      "package_unit_quantity": 9.0
     },
     {
       "ingredient_slug": "chocolate_couverture_dark",
@@ -1788,48 +1704,6 @@
       "package_unit_quantity": 10.0
     },
     {
-      "ingredient_slug": "chocolate_chips_milk",
-      "brand": "Hershey's",
-      "package_unit": "oz",
-      "package_unit_quantity": 10.0
-    },
-    {
-      "ingredient_slug": "caramel_bits",
-      "brand": "Hershey's",
-      "package_unit": "oz",
-      "package_unit_quantity": 10.0
-    },
-    {
-      "ingredient_slug": "chocolate_chips_bittersweet",
-      "brand": "Hershey's",
-      "package_unit": "oz",
-      "package_unit_quantity": 12.0
-    },
-    {
-      "ingredient_slug": "chocolate_chips_bittersweet",
-      "brand": "Hershey's",
-      "package_unit": "oz",
-      "package_unit_quantity": 11.0
-    },
-    {
-      "ingredient_slug": "almond_flour",
-      "brand": "M&M",
-      "package_unit": "oz",
-      "package_unit_quantity": 10.0
-    },
-    {
-      "ingredient_slug": "caramel_bits",
-      "brand": "M&M",
-      "package_unit": "oz",
-      "package_unit_quantity": 11.0
-    },
-    {
-      "ingredient_slug": "all_purpose_wheat_flour",
-      "brand": "M&M",
-      "package_unit": "oz",
-      "package_unit_quantity": 12.0
-    },
-    {
       "ingredient_slug": "chocolate_chips_semi_sweet",
       "brand": "Nestle",
       "package_unit": "oz",
@@ -1884,24 +1758,6 @@
       "package_unit_quantity": 10.0
     },
     {
-      "ingredient_slug": "chocolate_chips_milk",
-      "brand": "Reeses",
-      "package_unit": "oz",
-      "package_unit_quantity": 10.0
-    },
-    {
-      "ingredient_slug": "chocolate_chips_semi_sweet",
-      "brand": "Costco",
-      "package_unit": "oz",
-      "package_unit_quantity": 12.0
-    },
-    {
-      "ingredient_slug": "toblerone",
-      "brand": "Swiss Miss",
-      "package_unit": "oz",
-      "package_unit_quantity": 34.5
-    },
-    {
       "ingredient_slug": "toblerone",
       "brand": "Toblerone",
       "package_unit": "oz",
@@ -1932,30 +1788,6 @@
       "package_unit_quantity": 3.0
     },
     {
-      "ingredient_slug": "vanilla_extract",
-      "brand": "Nielsen-Massey",
-      "package_unit": "fl oz",
-      "package_unit_quantity": 8.0
-    },
-    {
-      "ingredient_slug": "vanilla_extract",
-      "brand": "Nielsen-Massey",
-      "package_unit": "fl oz",
-      "package_unit_quantity": 8.0
-    },
-    {
-      "ingredient_slug": "vanilla_paste",
-      "brand": "Nielsen-Massey",
-      "package_unit": "oz",
-      "package_unit_quantity": 16.0
-    },
-    {
-      "ingredient_slug": "vanilla_bean",
-      "brand": "Nielsen-Massey",
-      "package_unit": "g",
-      "package_unit_quantity": 5.0
-    },
-    {
       "ingredient_slug": "vanilla_bean",
       "brand": "Heilala",
       "package_unit": "g",
@@ -1974,12 +1806,6 @@
       "package_unit_quantity": 448.0
     },
     {
-      "ingredient_slug": "agar_agar_powder",
-      "brand": "Wilton",
-      "package_unit": "oz",
-      "package_unit_quantity": 16.0
-    },
-    {
       "ingredient_slug": "cornstarch",
       "brand": "Argo",
       "package_unit": "oz",
@@ -1991,12 +1817,6 @@
       "package_unit": "ml",
       "package_unit_quantity": 1.0,
       "package_type": "bottle"
-    },
-    {
-      "ingredient_slug": "honey",
-      "brand": "Costco",
-      "package_unit": "oz",
-      "package_unit_quantity": 48.0
     },
     {
       "ingredient_slug": "corn_syrup_light",
@@ -2023,18 +1843,6 @@
       "package_unit_quantity": 1.0
     },
     {
-      "ingredient_slug": "pistachio_extract",
-      "brand": "McCormick",
-      "package_unit": "oz",
-      "package_unit_quantity": 1.0
-    },
-    {
-      "ingredient_slug": "pistachio_extract",
-      "brand": "McCormick",
-      "package_unit": "oz",
-      "package_unit_quantity": 1.0
-    },
-    {
       "ingredient_slug": "orange_extract",
       "brand": "McCormick",
       "package_unit": "oz",
@@ -2047,141 +1855,10 @@
       "package_unit_quantity": 1.0
     },
     {
-      "ingredient_slug": "cinnamon_ground",
-      "brand": "Cinnamon",
-      "package_unit": "oz",
-      "package_type": "jar"
-    },
-    {
-      "ingredient_slug": "nutmeg_ground",
-      "brand": "Nutmeg",
-      "package_unit": "oz",
-      "package_type": "jar"
-    },
-    {
-      "ingredient_slug": "ginger_ground",
-      "brand": "Ginger",
-      "package_unit": "oz",
-      "package_type": "jar"
-    },
-    {
-      "ingredient_slug": "cloves_ground",
-      "brand": "Cloves",
-      "package_unit": "oz",
-      "package_type": "jar"
-    },
-    {
-      "ingredient_slug": "cardamom_ground",
-      "brand": "Cardamom",
-      "package_unit": "oz",
-      "package_type": "jar"
-    },
-    {
-      "ingredient_slug": "allspice_ground",
-      "brand": "Allspice",
-      "package_unit": "oz",
-      "package_type": "jar"
-    },
-    {
-      "ingredient_slug": "star_anise",
-      "brand": "Star Anise",
-      "package_unit": "oz",
-      "package_type": "jar"
-    },
-    {
-      "ingredient_slug": "fennel_seeds",
-      "brand": "Fennel",
-      "package_unit": "oz",
-      "package_type": "jar"
-    },
-    {
-      "ingredient_slug": "rosemary_dried",
-      "brand": "Rosemary",
-      "package_unit": "oz",
-      "package_type": "jar"
-    },
-    {
-      "ingredient_slug": "thyme_dried",
-      "brand": "Thyme",
-      "package_unit": "oz",
-      "package_type": "jar"
-    },
-    {
-      "ingredient_slug": "oregano_dried",
-      "brand": "Oregano",
-      "package_unit": "oz",
-      "package_type": "jar"
-    },
-    {
-      "ingredient_slug": "basil_dried",
-      "brand": "Basil",
-      "package_unit": "oz",
-      "package_type": "jar"
-    },
-    {
-      "ingredient_slug": "marjoram_dried",
-      "brand": "Marjoram",
-      "package_unit": "oz",
-      "package_type": "jar"
-    },
-    {
-      "ingredient_slug": "sage_dried",
-      "brand": "Sage",
-      "package_unit": "oz",
-      "package_type": "jar"
-    },
-    {
-      "ingredient_slug": "bay_leaves",
-      "brand": "Bay Leaves",
-      "package_unit": "oz",
-      "package_type": "jar"
-    },
-    {
-      "ingredient_slug": "agar_agar_powder",
-      "brand": "Curry Powder",
-      "package_unit": "oz",
-      "package_type": "jar"
-    },
-    {
-      "ingredient_slug": "agar_agar_powder",
-      "brand": "Mustard Powder",
-      "package_unit": "oz",
-      "package_type": "jar"
-    },
-    {
-      "ingredient_slug": "agar_agar_powder",
-      "brand": "Garlic Powder",
-      "package_unit": "oz",
-      "package_type": "jar"
-    },
-    {
-      "ingredient_slug": "agar_agar_powder",
-      "brand": "Onion Powder",
-      "package_unit": "oz",
-      "package_type": "jar"
-    },
-    {
       "ingredient_slug": "pepper_black_ground",
       "brand": "Black Pepper",
       "package_unit": "oz",
-      "package_type": "jar"
-    },
-    {
-      "ingredient_slug": "candy_melts_white",
-      "brand": "White Pepper",
-      "package_unit": "oz",
-      "package_type": "jar"
-    },
-    {
-      "ingredient_slug": "paprika",
-      "brand": "Paprika",
-      "package_unit": "oz",
-      "package_type": "jar"
-    },
-    {
-      "ingredient_slug": "cayenne_pepper",
-      "brand": "Caynne Pepper",
-      "package_unit": "oz",
+      "package_unit_quantity": 2.0,
       "package_type": "jar"
     },
     {
@@ -2189,12 +1866,6 @@
       "brand": "Arm & Hammer",
       "package_unit": "lb",
       "package_unit_quantity": 1.0
-    },
-    {
-      "ingredient_slug": "baking_powder",
-      "brand": "Clabber Girl",
-      "package_unit": "oz",
-      "package_unit_quantity": 10.0
     },
     {
       "ingredient_slug": "cream_of_tartar",
@@ -2227,36 +1898,6 @@
       "package_unit_quantity": 5.0
     },
     {
-      "ingredient_slug": "cherries_dried",
-      "brand": "Costco",
-      "package_unit": "oz",
-      "package_unit_quantity": 6.0
-    },
-    {
-      "ingredient_slug": "dates_pitted",
-      "brand": "Costco",
-      "package_unit": "oz",
-      "package_unit_quantity": 12.0
-    },
-    {
-      "ingredient_slug": "prunes",
-      "brand": "Sun Sweet",
-      "package_unit": "oz",
-      "package_unit_quantity": 18.0
-    },
-    {
-      "ingredient_slug": "apricots_dried",
-      "brand": "Costco",
-      "package_unit": "oz",
-      "package_unit_quantity": 6.0
-    },
-    {
-      "ingredient_slug": "figs_dried",
-      "brand": "Costco",
-      "package_unit": "oz",
-      "package_unit_quantity": 8.0
-    },
-    {
       "ingredient_slug": "coconut_shredded_sweetened",
       "brand": "Wegman's",
       "package_unit": "oz",
@@ -2267,24 +1908,6 @@
       "brand": "Sun Maid",
       "package_unit": "oz",
       "package_unit_quantity": 10.0
-    },
-    {
-      "ingredient_slug": "peanut_butter_smooth",
-      "brand": "Jiffy",
-      "package_unit": "oz",
-      "package_unit_quantity": 40.0
-    },
-    {
-      "ingredient_slug": "peanut_butter_crunchy",
-      "brand": "Jiffy",
-      "package_unit": "oz",
-      "package_unit_quantity": 16.0
-    },
-    {
-      "ingredient_slug": "grape_juice",
-      "brand": "Welch's",
-      "package_unit": "oz",
-      "package_unit_quantity": 30.0
     },
     {
       "ingredient_slug": "nutella",
@@ -2299,105 +1922,87 @@
       "package_unit_quantity": 9.0
     },
     {
-      "ingredient_slug": "pineapple_crushed",
-      "brand": "Dole",
-      "package_unit": "oz",
-      "package_unit_quantity": 8.0
-    },
-    {
-      "ingredient_slug": "liqueur_coffee",
-      "brand": "Tia Maria",
-      "package_unit": "ml",
-      "package_type": "bottle"
-    },
-    {
       "ingredient_slug": "liqueur_coffee",
       "brand": "Kahlua",
       "package_unit": "ml",
+      "package_unit_quantity": 750.0,
       "package_type": "bottle"
     },
     {
       "ingredient_slug": "rum",
       "brand": "Kraken",
       "package_unit": "ml",
+      "package_unit_quantity": 750.0,
       "package_type": "bottle"
     },
     {
       "ingredient_slug": "rum",
       "brand": "Baccardi",
       "package_unit": "ml",
+      "package_unit_quantity": 750.0,
       "package_type": "bottle"
     },
     {
       "ingredient_slug": "bourbon",
       "brand": "Evan Williams",
       "package_unit": "ml",
-      "package_type": "bottle"
-    },
-    {
-      "ingredient_slug": "brandy",
-      "brand": "The Christian Brothers",
-      "package_unit": "ml",
+      "package_unit_quantity": 750.0,
       "package_type": "bottle"
     },
     {
       "ingredient_slug": "liqueur_orange",
       "brand": "Grand Marnier",
       "package_unit": "ml",
+      "package_unit_quantity": 750.0,
       "package_type": "bottle"
     },
     {
       "ingredient_slug": "liqueur_orange",
       "brand": "Cointreau",
       "package_unit": "ml",
+      "package_unit_quantity": 750.0,
       "package_type": "bottle"
     },
     {
       "ingredient_slug": "liqueur_raspberry",
       "brand": "Chambord",
       "package_unit": "ml",
+      "package_unit_quantity": 750.0,
       "package_type": "bottle"
     },
     {
       "ingredient_slug": "amaretto",
       "brand": "Disaronno",
       "package_unit": "ml",
+      "package_unit_quantity": 750.0,
       "package_type": "bottle"
     },
     {
       "ingredient_slug": "liqueur_hazelnut",
       "brand": "Frangelico",
       "package_unit": "ml",
+      "package_unit_quantity": 750.0,
       "package_type": "bottle"
     },
     {
       "ingredient_slug": "liqueur_blackcurrant",
       "brand": "Gabriel Brudier",
       "package_unit": "ml",
-      "package_type": "bottle"
-    },
-    {
-      "ingredient_slug": "liqueur_orange",
-      "brand": "Leroux",
-      "package_unit": "ml",
+      "package_unit_quantity": 750.0,
       "package_type": "bottle"
     },
     {
       "ingredient_slug": "whiskey_irish",
       "brand": "Jamison",
       "package_unit": "ml",
+      "package_unit_quantity": 750.0,
       "package_type": "bottle"
     },
     {
       "ingredient_slug": "liqueur_coffee",
       "brand": "Kahlua",
       "package_unit": "ml",
-      "package_type": "bottle"
-    },
-    {
-      "ingredient_slug": "bourbon",
-      "brand": "Maker's Mark",
-      "package_unit": "ml",
+      "package_unit_quantity": 750.0,
       "package_type": "bottle"
     },
     {
@@ -2425,12 +2030,6 @@
       "brand": "Unknown"
     },
     {
-      "ingredient_slug": "molasses_blackstrap",
-      "brand": "Black Strap",
-      "package_unit": "oz",
-      "package_unit_quantity": 15.0
-    },
-    {
       "ingredient_slug": "molasses_light",
       "brand": "Grandma's",
       "package_unit": "oz",
@@ -2441,12 +2040,6 @@
       "brand": "Grandma's",
       "package_unit": "oz",
       "package_unit_quantity": 12.0
-    },
-    {
-      "ingredient_slug": "agave_syrup",
-      "brand": "Dave's",
-      "package_unit": "oz",
-      "package_unit_quantity": 16.0
     },
     {
       "ingredient_slug": "maple_syrup",
@@ -2476,6 +2069,7 @@
     {
       "ingredient_slug": "cocoa_powder_black",
       "package_unit": "oz",
+      "package_unit_quantity": 8.0,
       "package_type": "jar",
       "brand": "Unknown"
     }
