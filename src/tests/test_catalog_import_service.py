@@ -1538,12 +1538,12 @@ class TestValidateCatalogFile:
     def test_valid_catalog_file(self):
         """Test that valid catalog file is accepted."""
         with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
-            json.dump({"catalog_version": "1.0", "ingredients": []}, f)
+            json.dump({"version": "3.4", "ingredients": []}, f)
             temp_path = f.name
 
         try:
             data = validate_catalog_file(temp_path)
-            assert data["catalog_version"] == "1.0"
+            assert data["version"] == "3.4"
         finally:
             os.unlink(temp_path)
 
@@ -1565,22 +1565,22 @@ class TestValidateCatalogFile:
         finally:
             os.unlink(temp_path)
 
-    def test_unified_import_format_rejected(self):
-        """Test that unified import format (v3.x) raises helpful error."""
+    def test_version_2x_rejected(self):
+        """Test that version 2.x format raises error (only 3.x supported)."""
         with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
-            json.dump({"version": "3.3", "data": {}}, f)
+            json.dump({"version": "2.0", "data": {}}, f)
             temp_path = f.name
 
         try:
             with pytest.raises(CatalogImportError) as exc_info:
                 validate_catalog_file(temp_path)
-            assert "unified import" in str(exc_info.value).lower()
-            assert "Import Data" in str(exc_info.value)
+            assert "Unsupported version" in str(exc_info.value)
+            assert "3.x" in str(exc_info.value)
         finally:
             os.unlink(temp_path)
 
-    def test_unrecognized_format_rejected(self):
-        """Test that file without version markers is rejected."""
+    def test_missing_version_rejected(self):
+        """Test that file without version field is rejected."""
         with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
             json.dump({"random": "data"}, f)
             temp_path = f.name
@@ -1588,20 +1588,20 @@ class TestValidateCatalogFile:
         try:
             with pytest.raises(CatalogImportError) as exc_info:
                 validate_catalog_file(temp_path)
-            assert "Unrecognized" in str(exc_info.value)
+            assert "Missing 'version'" in str(exc_info.value)
         finally:
             os.unlink(temp_path)
 
-    def test_unsupported_catalog_version(self):
-        """Test that unsupported catalog version is rejected."""
+    def test_unsupported_version_rejected(self):
+        """Test that unsupported version is rejected."""
         with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
-            json.dump({"catalog_version": "2.0"}, f)
+            json.dump({"version": "4.0"}, f)
             temp_path = f.name
 
         try:
             with pytest.raises(CatalogImportError) as exc_info:
                 validate_catalog_file(temp_path)
-            assert "Unsupported catalog version" in str(exc_info.value)
+            assert "Unsupported version" in str(exc_info.value)
         finally:
             os.unlink(temp_path)
 
@@ -1613,7 +1613,7 @@ class TestImportCatalog:
         """Test that entities are processed in correct dependency order."""
         # Create catalog with product that references ingredient in same file
         catalog_data = {
-            "catalog_version": "1.0",
+            "version": "3.4",
             "ingredients": [
                 {
                     "slug": "test_flour",
@@ -1670,7 +1670,7 @@ class TestImportCatalog:
 
         # Create catalog with multiple ingredients
         catalog_data = {
-            "catalog_version": "1.0",
+            "version": "3.4",
             "ingredients": [
                 {"slug": "catalog_test_1", "display_name": "Catalog Test 1", "category": "Test"},
                 {"slug": "catalog_test_2", "display_name": "Catalog Test 2", "category": "Test"},
@@ -1719,7 +1719,7 @@ class TestImportCatalog:
     def test_partial_success(self, cleanup_test_ingredients):
         """Test that valid records are committed even when some fail."""
         catalog_data = {
-            "catalog_version": "1.0",
+            "version": "3.4",
             "ingredients": [
                 {"slug": "test_flour", "display_name": "Test Flour", "category": "Flour"},
                 {"slug": "test_sugar", "display_name": "Test Sugar", "category": "Sugar"},
@@ -1767,7 +1767,7 @@ class TestImportCatalog:
     def test_entity_filter(self, cleanup_test_ingredients):
         """Test that entity filter limits which entities are imported."""
         catalog_data = {
-            "catalog_version": "1.0",
+            "version": "3.4",
             "ingredients": [
                 {"slug": "test_flour", "display_name": "Test Flour", "category": "Flour"},
             ],
@@ -1831,7 +1831,7 @@ class TestCLI:
 
         # Create temp catalog file
         catalog_data = {
-            "catalog_version": "1.0",
+            "version": "3.4",
             "ingredients": [
                 {
                     "slug": "test_flour",
@@ -1882,7 +1882,7 @@ class TestCLI:
 
         # Create temp catalog file
         catalog_data = {
-            "catalog_version": "1.0",
+            "version": "3.4",
             "ingredients": [
                 {
                     "slug": "test_flour",
@@ -1947,7 +1947,7 @@ class TestCLI:
 
         # Create temp catalog file with mix of new/existing
         catalog_data = {
-            "catalog_version": "1.0",
+            "version": "3.4",
             "ingredients": [
                 {
                     "slug": "test_flour",  # Will be skipped (already exists)
@@ -2014,7 +2014,7 @@ class TestCLI:
 
         # Create temp catalog file with valid ingredient and invalid product
         catalog_data = {
-            "catalog_version": "1.0",
+            "version": "3.4",
             "ingredients": [
                 {
                     "slug": "test_flour",
@@ -2051,7 +2051,7 @@ class TestCLI:
 
         # Create temp catalog file
         catalog_data = {
-            "catalog_version": "1.0",
+            "version": "3.4",
             "ingredients": [
                 {
                     "slug": "test_flour",
