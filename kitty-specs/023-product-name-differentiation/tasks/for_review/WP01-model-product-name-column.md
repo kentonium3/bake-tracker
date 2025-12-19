@@ -7,10 +7,10 @@ subtasks:
   - "T004"
 title: "Model Layer - Add product_name Column"
 phase: "Phase 1 - Model Changes"
-lane: "planned"
+lane: "for_review"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "claude"
+shell_pid: "28330"
 review_status: ""
 reviewed_by: ""
 history:
@@ -214,3 +214,5 @@ def _normalize_product_name(self, key, value):
 ## Activity Log
 
 - 2025-12-19T00:00:00Z - system - lane=planned - Prompt created via /spec-kitty.tasks
+- 2025-12-19T16:45:01Z – claude – shell_pid=27965 – lane=doing – Started implementation
+- 2025-12-19T16:47:54Z – claude – shell_pid=28330 – lane=for_review – Model changes complete - ready for review
