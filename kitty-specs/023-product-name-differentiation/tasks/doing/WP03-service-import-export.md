@@ -6,10 +6,10 @@ subtasks:
   - "T009"
 title: "Service Layer - Import/Export Updates"
 phase: "Phase 2 - Service Changes"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "claude"
+shell_pid: "29027"
 review_status: ""
 reviewed_by: ""
 history:
@@ -196,3 +196,4 @@ product = Product(
 ## Activity Log
 
 - 2025-12-19T00:00:00Z - system - lane=planned - Prompt created via /spec-kitty.tasks
+- 2025-12-19T16:49:45Z – claude – shell_pid=29027 – lane=doing – Started implementation

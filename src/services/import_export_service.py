@@ -1146,6 +1146,8 @@ def export_all_to_json(file_path: str) -> ExportResult:
                 # Optional fields
                 if product.brand:
                     product_data["brand"] = product.brand
+                if product.product_name:
+                    product_data["product_name"] = product.product_name
                 if product.package_size:
                     product_data["package_size"] = product.package_size
                 if product.package_type:
@@ -2353,10 +2355,13 @@ def import_all_from_json_v3(file_path: str, mode: str = "merge") -> ImportResult
                             continue
 
                         brand = prod_data.get("brand", "")
+                        # product_name may be None if not in export (backward compat)
+                        product_name = prod_data.get("product_name")
                         if skip_duplicates:
                             existing = session.query(Product).filter_by(
                                 ingredient_id=ingredient.id,
                                 brand=brand,
+                                product_name=product_name,
                             ).first()
                             if existing:
                                 result.add_skip("product", brand, "Already exists")
@@ -2372,6 +2377,7 @@ def import_all_from_json_v3(file_path: str, mode: str = "merge") -> ImportResult
                         product = Product(
                             ingredient_id=ingredient.id,
                             brand=brand,
+                            product_name=product_name,  # None if not in old exports (backward compat)
                             package_size=prod_data.get("package_size"),
                             package_type=prod_data.get("package_type"),
                             package_unit=package_unit,
