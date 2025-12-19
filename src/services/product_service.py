@@ -66,6 +66,7 @@ def create_product(ingredient_slug: str, product_data: Dict[str, Any]) -> Produc
         ingredient_slug: Slug of parent ingredient
         product_data: Dictionary containing:
             - brand (str, required): Brand name
+            - product_name (str, optional): Variant name (e.g., "70% Cacao", "Extra Virgin")
             - package_size (str, optional): Human-readable size
             - package_unit (str, required): Unit the package contains
             - package_unit_quantity (Decimal, required): Quantity in package
@@ -118,10 +119,16 @@ def create_product(ingredient_slug: str, product_data: Dict[str, Any]) -> Produc
                     {"preferred": False}
                 )
 
+            # Normalize empty product_name to None
+            product_name = product_data.get("product_name")
+            if product_name == "":
+                product_name = None
+
             # Create product instance
             product = Product(
                 ingredient_id=ingredient.id,
                 brand=product_data["brand"],
+                product_name=product_name,
                 package_size=product_data.get("package_size"),
                 package_unit=product_data["package_unit"],
                 package_unit_quantity=product_data["package_unit_quantity"],
@@ -286,6 +293,7 @@ def update_product(product_id: int, product_data: Dict[str, Any]) -> Product:
         product_id: Product identifier
         product_data: Dictionary with fields to update (partial update supported)
             - brand (str, optional): New brand
+            - product_name (str, optional): Variant name (e.g., "70% Cacao", "Extra Virgin")
             - package_size (str, optional): New package size
             - package_unit (str, optional): New package unit
             - package_unit_quantity (Decimal, optional): New package quantity
@@ -332,6 +340,11 @@ def update_product(product_id: int, product_data: Dict[str, Any]) -> Product:
             )
             if not product:
                 raise ProductNotFound(product_id)
+
+            # Normalize empty product_name to None
+            if "product_name" in product_data:
+                if product_data["product_name"] == "":
+                    product_data["product_name"] = None
 
             # Update attributes
             for key, value in product_data.items():
