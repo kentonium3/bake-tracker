@@ -517,7 +517,7 @@ class TestPackagingEdgeCases:
             {
                 "brand": "TestBrand",
                 "package_size": "10 yd",
-                "package_unit": "package",  # Use valid unit
+                "package_unit": "each",  # Use valid unit from count category
                 "package_unit_quantity": 10
             }
         )
@@ -562,7 +562,7 @@ class TestPackagingEdgeCases:
             {
                 "brand": "TestBrand",
                 "package_size": "10 yd",
-                "package_unit": "package",  # Use valid unit
+                "package_unit": "each",  # Use valid unit from count category
                 "package_unit_quantity": 1
             }
         )
@@ -780,7 +780,7 @@ class TestPackagingEdgeCases:
             {
                 "brand": "TestBrand",
                 "package_size": "10 yd",
-                "package_unit": "package",
+                "package_unit": "each",  # Use valid unit from count category
                 "package_unit_quantity": 10
             }
         )

@@ -1146,6 +1146,8 @@ def export_all_to_json(file_path: str) -> ExportResult:
                 # Optional fields
                 if product.brand:
                     product_data["brand"] = product.brand
+                if product.product_name:
+                    product_data["product_name"] = product.product_name
                 if product.package_size:
                     product_data["package_size"] = product.package_size
                 if product.package_type:
@@ -1188,6 +1190,14 @@ def export_all_to_json(file_path: str) -> ExportResult:
                     "purchase_date": item.purchase_date.isoformat() if item.purchase_date else None,
                 }
 
+                # Product identification fields (for unique lookup during import)
+                if item.product.product_name:
+                    item_data["product_name"] = item.product.product_name
+                if item.product.package_size:
+                    item_data["package_size"] = item.product.package_size
+                if item.product.package_unit:
+                    item_data["package_unit"] = item.product.package_unit
+
                 # Optional fields
                 if item.expiration_date:
                     item_data["expiration_date"] = item.expiration_date.isoformat()
@@ -1212,6 +1222,14 @@ def export_all_to_json(file_path: str) -> ExportResult:
                     "unit_cost": float(purchase.unit_cost) if purchase.unit_cost else 0.0,
                     "total_cost": float(purchase.total_cost) if purchase.total_cost else 0.0,
                 }
+
+                # Product identification fields (for unique lookup during import)
+                if purchase.product.product_name:
+                    purchase_data["product_name"] = purchase.product.product_name
+                if purchase.product.package_size:
+                    purchase_data["package_size"] = purchase.product.package_size
+                if purchase.product.package_unit:
+                    purchase_data["package_unit"] = purchase.product.package_unit
 
                 # Optional fields
                 if purchase.supplier:
@@ -2353,17 +2371,24 @@ def import_all_from_json_v3(file_path: str, mode: str = "merge") -> ImportResult
                             continue
 
                         brand = prod_data.get("brand", "")
+                        # product_name may be None if not in export (backward compat)
+                        product_name = prod_data.get("product_name")
+                        package_size = prod_data.get("package_size")
+                        package_unit = prod_data.get("package_unit")
                         if skip_duplicates:
+                            # Match all 5 fields in UniqueConstraint uq_product_variant
                             existing = session.query(Product).filter_by(
                                 ingredient_id=ingredient.id,
                                 brand=brand,
+                                product_name=product_name,
+                                package_size=package_size,
+                                package_unit=package_unit,
                             ).first()
                             if existing:
                                 result.add_skip("product", brand, "Already exists")
                                 continue
 
                         # Validate package_unit
-                        package_unit = prod_data.get("package_unit")
                         unit_error = _validate_package_unit(package_unit, f"{ing_slug}/{brand}")
                         if unit_error:
                             result.add_error("product", brand, unit_error)
@@ -2372,6 +2397,7 @@ def import_all_from_json_v3(file_path: str, mode: str = "merge") -> ImportResult
                         product = Product(
                             ingredient_id=ingredient.id,
                             brand=brand,
+                            product_name=product_name,  # None if not in old exports (backward compat)
                             package_size=prod_data.get("package_size"),
                             package_type=prod_data.get("package_type"),
                             package_unit=package_unit,
@@ -2396,20 +2422,47 @@ def import_all_from_json_v3(file_path: str, mode: str = "merge") -> ImportResult
                     try:
                         ing_slug = item_data.get("ingredient_slug", "")
                         product_brand = item_data.get("product_brand", "")
+                        # Product identification fields (may be missing in old exports)
+                        product_name = item_data.get("product_name")
+                        package_size = item_data.get("package_size")
+                        package_unit = item_data.get("package_unit")
 
-                        # Find product by ingredient slug + brand
+                        # Find ingredient
                         ingredient = session.query(Ingredient).filter_by(slug=ing_slug).first()
                         if not ingredient:
                             result.add_error("inventory_item", f"{ing_slug}/{product_brand}", f"Ingredient not found: {ing_slug}")
                             continue
 
-                        product = session.query(Product).filter_by(
-                            ingredient_id=ingredient.id,
-                            brand=product_brand
-                        ).first()
-                        if not product:
+                        # Build product filter with all available identification fields
+                        product_filter = {
+                            "ingredient_id": ingredient.id,
+                            "brand": product_brand,
+                        }
+                        # Add additional fields if present in export (v3.5+ format)
+                        if product_name is not None:
+                            product_filter["product_name"] = product_name
+                        if package_size is not None:
+                            product_filter["package_size"] = package_size
+                        if package_unit is not None:
+                            product_filter["package_unit"] = package_unit
+
+                        # Query for matching products
+                        matching_products = session.query(Product).filter_by(**product_filter).all()
+
+                        if len(matching_products) == 0:
                             result.add_error("inventory_item", f"{ing_slug}/{product_brand}", f"Product not found: {product_brand}")
                             continue
+                        elif len(matching_products) > 1:
+                            # Ambiguous match - multiple products with same brand (old export format)
+                            result.add_error(
+                                "inventory_item",
+                                f"{ing_slug}/{product_brand}",
+                                f"Ambiguous product match: {len(matching_products)} products found with brand '{product_brand}'. "
+                                f"Export file may be from older version without product_name field."
+                            )
+                            continue
+
+                        product = matching_products[0]
 
                         # Parse dates
                         purchase_date = None
@@ -2442,20 +2495,47 @@ def import_all_from_json_v3(file_path: str, mode: str = "merge") -> ImportResult
                     try:
                         ing_slug = purch_data.get("ingredient_slug", "")
                         product_brand = purch_data.get("product_brand", "")
+                        # Product identification fields (may be missing in old exports)
+                        product_name = purch_data.get("product_name")
+                        package_size = purch_data.get("package_size")
+                        package_unit = purch_data.get("package_unit")
 
-                        # Find product by ingredient slug + brand
+                        # Find ingredient
                         ingredient = session.query(Ingredient).filter_by(slug=ing_slug).first()
                         if not ingredient:
                             result.add_error("purchase", f"{ing_slug}/{product_brand}", f"Ingredient not found: {ing_slug}")
                             continue
 
-                        product = session.query(Product).filter_by(
-                            ingredient_id=ingredient.id,
-                            brand=product_brand
-                        ).first()
-                        if not product:
+                        # Build product filter with all available identification fields
+                        product_filter = {
+                            "ingredient_id": ingredient.id,
+                            "brand": product_brand,
+                        }
+                        # Add additional fields if present in export (v3.5+ format)
+                        if product_name is not None:
+                            product_filter["product_name"] = product_name
+                        if package_size is not None:
+                            product_filter["package_size"] = package_size
+                        if package_unit is not None:
+                            product_filter["package_unit"] = package_unit
+
+                        # Query for matching products
+                        matching_products = session.query(Product).filter_by(**product_filter).all()
+
+                        if len(matching_products) == 0:
                             result.add_error("purchase", f"{ing_slug}/{product_brand}", f"Product not found: {product_brand}")
                             continue
+                        elif len(matching_products) > 1:
+                            # Ambiguous match - multiple products with same brand (old export format)
+                            result.add_error(
+                                "purchase",
+                                f"{ing_slug}/{product_brand}",
+                                f"Ambiguous product match: {len(matching_products)} products found with brand '{product_brand}'. "
+                                f"Export file may be from older version without product_name field."
+                            )
+                            continue
+
+                        product = matching_products[0]
 
                         # Parse purchase date
                         purchase_date = None

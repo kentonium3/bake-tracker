@@ -1524,6 +1524,16 @@ class ProductFormDialog(ctk.CTkToplevel):
         self.brand_entry.grid(row=row, column=1, sticky="ew", padx=10, pady=5)
         row += 1
 
+        # Product Name (optional - for variants like flavors or formulations)
+        ctk.CTkLabel(form_frame, text="Product Name:").grid(
+            row=row, column=0, sticky="w", padx=10, pady=5
+        )
+        self.product_name_entry = ctk.CTkEntry(
+            form_frame, placeholder_text="e.g., 70% Cacao, Extra Virgin"
+        )
+        self.product_name_entry.grid(row=row, column=1, sticky="ew", padx=10, pady=5)
+        row += 1
+
         # Purchase Quantity (required)
         ctk.CTkLabel(form_frame, text="Purchase Quantity*:").grid(
             row=row, column=0, sticky="w", padx=10, pady=5
@@ -1596,8 +1606,9 @@ class ProductFormDialog(ctk.CTkToplevel):
         help_label = ctk.CTkLabel(
             form_frame,
             text="* Required fields\n\n"
+            "Product Name: Use for variants like flavors or formulations\n"
+            "(e.g., '70% Cacao', 'Extra Virgin', 'Unsweetened').\n\n"
             "Package size is calculated from quantity + unit.\n"
-            "Example: 25 lb → '25 lb bag'\n"
             "Preferred products are used by default in shopping lists.",
             text_color="gray",
             justify="left",
@@ -1640,6 +1651,8 @@ class ProductFormDialog(ctk.CTkToplevel):
             return
 
         self.brand_entry.insert(0, self.product.get("brand", ""))
+        # product_name may be None from database, convert to empty string for display
+        self.product_name_entry.insert(0, self.product.get("product_name", "") or "")
         package_qty = self.product.get("package_unit_quantity", "")
         self.purchase_qty_entry.insert(0, str(package_qty) if package_qty is not None else "")
         # Set the unit in the combo box and track as last valid
@@ -1663,6 +1676,7 @@ class ProductFormDialog(ctk.CTkToplevel):
         """Validate and save form data."""
         # Get values
         brand = self.brand_entry.get().strip()
+        product_name = self.product_name_entry.get().strip()
         package_qty_str = self.purchase_qty_entry.get().strip()
         package_unit = self.package_unit_combo.get()
         package_type = self.package_type_combo.get().strip() or None
@@ -1673,6 +1687,13 @@ class ProductFormDialog(ctk.CTkToplevel):
         # Validate required
         if not brand:
             messagebox.showerror("Validation Error", "Brand is required")
+            return
+
+        # Validate product_name length (T013)
+        if len(product_name) > 200:
+            messagebox.showerror(
+                "Validation Error", "Product Name must be 200 characters or less."
+            )
             return
 
         if not package_qty_str:
@@ -1694,9 +1715,10 @@ class ProductFormDialog(ctk.CTkToplevel):
             messagebox.showerror("Validation Error", "Quantity must be a valid number")
             return
 
-        # Build result
+        # Build result - convert empty product_name to None for consistency
         result: Dict[str, Any] = {
             "brand": brand,
+            "product_name": product_name if product_name else None,
             "package_unit_quantity": package_qty,
             "package_unit": package_unit,
             "package_type": package_type,

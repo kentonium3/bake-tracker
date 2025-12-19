@@ -1,0 +1,7 @@
+source_id,type,location,description,accessed_date
+S001,code,src/models/product.py,Product model definition,2025-12-19
+S002,code,src/services/import_export_service.py,Import/export service for data portability,2025-12-19
+S003,code,src/ui/ingredients_tab.py,UI components including ProductFormDialog,2025-12-19
+S004,code,src/models/recipe.py,Recipe model with UniqueConstraint example,2025-12-19
+S005,doc,.kittify/memory/constitution.md,Project constitution with schema change strategy,2025-12-19
+S006,spec,kitty-specs/023-product-name-differentiation/spec.md,Feature specification with clarifications,2025-12-19

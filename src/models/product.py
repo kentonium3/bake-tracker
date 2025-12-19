@@ -11,7 +11,7 @@ Example: "King Arthur All-Purpose Flour 25 lb bag from Costco" is a product
 from datetime import datetime
 
 from sqlalchemy import Column, Integer, String, Float, Text, DateTime, Boolean, ForeignKey, Index, UniqueConstraint
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, validates
 
 from .base import BaseModel
 
@@ -29,6 +29,7 @@ class Product(BaseModel):
     Attributes:
         ingredient_id: Foreign key to Ingredient
         brand: Brand name
+        product_name: Variant name (e.g., "70% Cacao", "Extra Virgin", "Original Recipe")
         package_size: Size description (e.g., "25 lb", "5 kg")
         package_type: Package type (bag, box, jar, bottle, etc.)
         package_unit: Unit the package contains (bag, lb, oz, etc.)
@@ -51,6 +52,9 @@ class Product(BaseModel):
 
     # Brand and package information
     brand = Column(String(200), nullable=True, index=True)
+    # Variant name to differentiate products with same brand/packaging
+    # (e.g., "70% Cacao", "Extra Virgin", "Original Recipe", "Unsweetened")
+    product_name = Column(String(200), nullable=True)
     package_size = Column(String(100), nullable=True)  # e.g., "25 lb", "5 kg"
     package_type = Column(String(50), nullable=True)  # bag, box, jar, bottle, etc.
 
@@ -104,12 +108,20 @@ class Product(BaseModel):
         Index("idx_product_ingredient", "ingredient_id"),
         Index("idx_product_brand", "brand"),
         Index("idx_product_upc", "upc_code"),
-        # Prevent duplicate products: same ingredient + brand + size + unit
+        # Unique constraint to prevent duplicate product variants
+        # Note: SQLite treats NULL as distinct, so multiple products with NULL product_name are allowed
         UniqueConstraint(
-            "ingredient_id", "brand", "package_size", "package_unit",
-            name="uq_product_ingredient_brand_size_unit"
+            "ingredient_id", "brand", "product_name", "package_size", "package_unit",
+            name="uq_product_variant"
         ),
     )
+
+    @validates("product_name")
+    def _normalize_product_name(self, key, value):
+        """Normalize empty strings to None for consistency with unique constraint."""
+        if value == "":
+            return None
+        return value
 
     def __repr__(self) -> str:
         """String representation of product."""
@@ -123,11 +135,14 @@ class Product(BaseModel):
         Get display name for this product.
 
         Returns:
-            Formatted display name (e.g., "King Arthur 25 lb bag")
+            Formatted display name (e.g., "Lindt 70% Cacao 3.5 oz bar")
+            Format: "Brand ProductName Size Type"
         """
         parts = []
         if self.brand:
             parts.append(self.brand)
+        if self.product_name:
+            parts.append(self.product_name)
         if self.package_size:
             parts.append(self.package_size)
         if self.package_type:
