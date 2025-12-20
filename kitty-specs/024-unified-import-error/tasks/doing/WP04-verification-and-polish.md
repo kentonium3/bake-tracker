@@ -5,10 +5,10 @@ subtasks:
   - "T009"
 title: "Verification and Polish"
 phase: "Phase 4 - Unified Import Path Verification"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "claude"
+shell_pid: "76337"
 review_status: ""
 reviewed_by: ""
 history:
@@ -202,3 +202,4 @@ This work package completes the feature. After verification:
 ## Activity Log
 
 - 2025-12-19T00:00:00Z - system - lane=planned - Prompt created.
+- 2025-12-20T04:52:20Z – claude – shell_pid=76337 – lane=doing – Started verification
