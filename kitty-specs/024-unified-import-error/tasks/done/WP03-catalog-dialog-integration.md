@@ -8,7 +8,7 @@ subtasks:
 title: "Catalog Dialog - ImportResultsDialog Integration"
 phase: "Phase 3 - Catalog Import Dialog Refactoring"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude-reviewer"
 shell_pid: "77979"
 review_status: ""

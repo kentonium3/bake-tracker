@@ -6,7 +6,7 @@ subtasks:
 title: "Verification and Polish"
 phase: "Phase 4 - Unified Import Path Verification"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude-reviewer"
 shell_pid: "78101"
 review_status: ""

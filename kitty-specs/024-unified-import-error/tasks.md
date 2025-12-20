@@ -23,7 +23,7 @@
 **User Stories**: US4 (Display Error Suggestions)
 
 ### Included Subtasks
-- [ ] T001 Update `get_detailed_report()` error formatting to include suggestions in `src/services/catalog_import_service.py`
+- [x] T001 Update `get_detailed_report()` error formatting to include suggestions in `src/services/catalog_import_service.py`
 
 ### Implementation Notes
 1. Locate `get_detailed_report()` method in `CatalogImportResult` class
@@ -54,8 +54,8 @@
 **User Stories**: US3 (Log Catalog Import Results)
 
 ### Included Subtasks
-- [ ] T002 Update `_write_import_log()` return value to relative path in `src/ui/import_export_dialog.py`
-- [ ] T003 [P] Add try/except fallback for path conversion edge cases
+- [x] T002 Update `_write_import_log()` return value to relative path in `src/ui/import_export_dialog.py`
+- [x] T003 [P] Add try/except fallback for path conversion edge cases
 
 ### Implementation Notes
 1. After writing log file, convert absolute path to relative:
@@ -88,10 +88,10 @@
 **User Stories**: US1 (View All Errors), US2 (Copy Errors), US3 (Log Results), US5 (Maintain Compatibility)
 
 ### Included Subtasks
-- [ ] T004 Add imports for `ImportResultsDialog` and `_write_import_log` from `import_export_dialog`
-- [ ] T005 Replace `_show_results()` method with `ImportResultsDialog` usage
-- [ ] T006 Remove `_show_errors()` method (no longer needed)
-- [ ] T007 Handle dry-run mode with "DRY RUN" indicator prefix
+- [x] T004 Add imports for `ImportResultsDialog` and `_write_import_log` from `import_export_dialog`
+- [x] T005 Replace `_show_results()` method with `ImportResultsDialog` usage
+- [x] T006 Remove `_show_errors()` method (no longer needed)
+- [x] T007 Handle dry-run mode with "DRY RUN" indicator prefix
 
 ### Implementation Notes
 1. Add import at top of `src/ui/catalog_import_dialog.py`:
@@ -128,8 +128,8 @@
 **User Stories**: US5 (Maintain Unified Import Compatibility)
 
 ### Included Subtasks
-- [ ] T008 Verify unified import path still works with relative path change
-- [ ] T009 Run manual test scenarios per spec (many errors, copy, suggestions, log paths, dry-run)
+- [x] T008 Verify unified import path still works with relative path change
+- [x] T009 Run manual test scenarios per spec (many errors, copy, suggestions, log paths, dry-run)
 
 ### Implementation Notes
 1. **Unified Import Verification**:

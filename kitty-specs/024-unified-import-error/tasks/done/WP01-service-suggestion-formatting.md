@@ -5,7 +5,7 @@ subtasks:
 title: "Service Layer - Suggestion Formatting"
 phase: "Phase 1 - Service Layer Enhancement"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude-reviewer"
 shell_pid: "77654"
 review_status: ""
