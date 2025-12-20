@@ -1,0 +1,24 @@
+{
+  "accept_commit": null,
+  "acceptance_history": [
+    {
+      "accepted_at": "2025-12-20T05:47:08Z",
+      "accepted_by": "claude",
+      "accepted_from_commit": "155e65aaf8961097b222fde73342a607bfd8dc39",
+      "branch": "024-unified-import-error",
+      "mode": "local",
+      "validation_commands": [
+        "python3 -m pytest src/tests -v"
+      ]
+    }
+  ],
+  "acceptance_mode": "local",
+  "accepted_at": "2025-12-20T05:47:08Z",
+  "accepted_by": "claude",
+  "accepted_from_commit": "155e65aaf8961097b222fde73342a607bfd8dc39",
+  "created_at": "2025-12-20T04:08:16Z",
+  "feature_number": "024",
+  "friendly_name": "Unified Import Error Handling",
+  "slug": "024-unified-import-error",
+  "source_description": "Standardize error display and logging across Unified Import and Catalog Import systems. Replace CatalogImportDialog messageboxes with ImportResultsDialog pattern, add log file writing to catalog imports, display suggestion field from ImportError dataclass, show relative paths for log locations."
+}

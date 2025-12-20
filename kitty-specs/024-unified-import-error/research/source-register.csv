@@ -1,0 +1,9 @@
+id,type,title,location,accessed,notes
+S1,code,ImportResultsDialog class,src/ui/import_export_dialog.py:52-166,2025-12-19,Scrollable results dialog with copy button
+S2,code,_write_import_log function,src/ui/import_export_dialog.py:29-49,2025-12-19,Existing log writing for unified import
+S3,code,CatalogImportDialog class,src/ui/catalog_import_dialog.py:19-333,2025-12-19,Current catalog import dialog with messageboxes
+S4,code,ImportError dataclass,src/services/catalog_import_service.py:106-114,2025-12-19,Structured error with suggestion field
+S5,code,CatalogImportResult class,src/services/catalog_import_service.py:132-333,2025-12-19,Catalog import result aggregation
+S6,doc,Feature spec,kitty-specs/024-unified-import-error/spec.md,2025-12-19,Primary requirements source
+S7,doc,Design document,docs/design/F024_unified_import_error_handling.md,2025-12-19,Technical design and implementation plan (in main repo)
+S8,doc,Architecture research,docs/research/import_error_handling_architecture.md,2025-12-19,Code analysis and gap identification (in main repo)

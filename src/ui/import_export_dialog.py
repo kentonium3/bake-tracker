@@ -29,8 +29,13 @@ def _get_logs_dir() -> Path:
 def _write_import_log(file_path: str, result, summary_text: str) -> str:
     """Write import results to a log file.
 
+    Args:
+        file_path: Source file that was imported
+        result: ImportResult or CatalogImportResult
+        summary_text: Formatted summary text
+
     Returns:
-        Path to the created log file.
+        Relative path to the created log file (for display in UI).
     """
     logs_dir = _get_logs_dir()
     timestamp = datetime.now().strftime("%Y-%m-%d_%H%M%S")
@@ -46,7 +51,11 @@ def _write_import_log(file_path: str, result, summary_text: str) -> str:
         f.write(summary_text)
         f.write("\n")
 
-    return str(log_file)
+    # Return relative path for display
+    try:
+        return str(log_file.relative_to(Path.cwd()))
+    except ValueError:
+        return str(log_file)  # Fallback to absolute if not relative
 
 
 class ImportResultsDialog(ctk.CTkToplevel):
