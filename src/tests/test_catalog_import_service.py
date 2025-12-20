@@ -1022,10 +1022,13 @@ class TestImportProducts:
             session.add(existing)
 
         # Import with AUGMENT mode
+        # Must include package_unit_quantity and package_unit for matching
         data = [
             {
                 "ingredient_slug": "product_test_flour",
                 "brand": "Test Brand",
+                "package_unit": "bag",
+                "package_unit_quantity": 5.0,
                 "upc_code": "123456789012",
             }
         ]
@@ -1071,10 +1074,13 @@ class TestImportProducts:
             session.add(existing)
 
         # Try to import with AUGMENT mode
+        # Must include package_unit_quantity and package_unit for matching
         data = [
             {
                 "ingredient_slug": "product_test_flour",
                 "brand": "Test Brand",
+                "package_unit": "bag",
+                "package_unit_quantity": 5.0,
                 "upc_code": "999999999999",  # Different value
             }
         ]

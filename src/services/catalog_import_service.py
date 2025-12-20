@@ -536,7 +536,12 @@ def _import_products_impl(
     dry_run: bool,
     session: Session,
 ) -> CatalogImportResult:
-    """Internal implementation of product import."""
+    """Internal implementation of product import.
+
+    Product matching uses (ingredient_id, brand, package_unit_quantity, package_unit)
+    to identify existing products. If multiple products match (ambiguous), the import
+    skips that item to avoid updating the wrong record.
+    """
     result = CatalogImportResult()
     result.dry_run = dry_run
     result.mode = mode
@@ -550,19 +555,21 @@ def _import_products_impl(
     }
 
     # Build existing products lookup for uniqueness check and AUGMENT mode
-    # Unique key is (ingredient_id, brand) where brand can be None
-    existing_products_set = set()
-    existing_products_map = {}  # (ingredient_id, brand) -> Product
+    # Key: (ingredient_id, brand, package_unit_quantity, package_unit)
+    # Value: List of matching products (to detect ambiguity)
+    from collections import defaultdict
+    existing_products_map = defaultdict(list)
     for row in session.query(Product).all():
-        key = (row.ingredient_id, row.brand)
-        existing_products_set.add(key)
-        existing_products_map[key] = row
+        key = (row.ingredient_id, row.brand, row.package_unit_quantity, row.package_unit)
+        existing_products_map[key].append(row)
 
     for item in data:
         # Extract fields for identification and validation
         ingredient_slug = item.get("ingredient_slug", "")
         brand = item.get("brand")  # Can be None
-        identifier = f"{brand or 'Generic'} ({ingredient_slug})"
+        package_unit_quantity = item.get("package_unit_quantity")
+        package_unit = item.get("package_unit")
+        identifier = f"{brand or 'Generic'} ({ingredient_slug}) {package_unit_quantity} {package_unit}"
 
         # Validate required fields (relaxed for AUGMENT mode on existing records)
         if mode == ImportMode.ADD_ONLY.value:
@@ -577,7 +584,7 @@ def _import_products_impl(
                 )
                 continue
         else:
-            # For AUGMENT mode, only ingredient_slug is required
+            # For AUGMENT mode, need ingredient_slug plus package info for matching
             if not ingredient_slug:
                 result.add_error(
                     "products",
@@ -585,6 +592,15 @@ def _import_products_impl(
                     "validation",
                     "Missing required field: ingredient_slug",
                     "Add 'ingredient_slug' field referencing an existing ingredient",
+                )
+                continue
+            if package_unit_quantity is None or not package_unit:
+                result.add_error(
+                    "products",
+                    identifier,
+                    "validation",
+                    "Missing package_unit_quantity or package_unit for matching",
+                    "Add package_unit_quantity and package_unit to identify the product",
                 )
                 continue
 
@@ -600,14 +616,26 @@ def _import_products_impl(
             )
             continue
 
-        # Check for existing product with same (ingredient_id, brand)
-        product_key = (ingredient_id, brand)
-        if product_key in existing_products_set:
+        # Build matching key
+        product_key = (ingredient_id, brand, package_unit_quantity, package_unit)
+        matching_products = existing_products_map.get(product_key, [])
+
+        if len(matching_products) > 1:
+            # Ambiguous: multiple products match the key - skip to avoid wrong update
+            result.add_skip(
+                "products",
+                identifier,
+                f"Ambiguous: {len(matching_products)} products match this key"
+            )
+            continue
+
+        if len(matching_products) == 1:
+            # Exactly one match
             if mode == ImportMode.ADD_ONLY.value:
                 result.add_skip("products", identifier, "Already exists")
                 continue
             # AUGMENT mode: update only null fields
-            existing_product = existing_products_map[product_key]
+            existing_product = matching_products[0]
             updated_fields = []
             for field in PRODUCT_AUGMENTABLE_FIELDS:
                 if field in item and item[field] is not None:
@@ -621,36 +649,37 @@ def _import_products_impl(
                 result.add_skip("products", identifier, "No null fields to update")
             continue
 
-        # For new products in AUGMENT mode, also require package_unit/quantity
-        if mode == ImportMode.AUGMENT.value:
-            validation_error = _validate_product_data(item)
-            if validation_error:
-                result.add_error(
-                    "products",
-                    identifier,
-                    "validation",
-                    validation_error["message"],
-                    validation_error["suggestion"],
-                )
-                continue
+        # No match found - create new product
+        # For new products, require full validation
+        validation_error = _validate_product_data(item)
+        if validation_error:
+            result.add_error(
+                "products",
+                identifier,
+                "validation",
+                validation_error["message"],
+                validation_error["suggestion"],
+            )
+            continue
 
         # Create new product
         product = Product(
             ingredient_id=ingredient_id,
             brand=brand,
+            product_name=item.get("product_name"),
             package_size=item.get("package_size"),
             package_type=item.get("package_type"),
-            package_unit=item.get("package_unit"),
-            package_unit_quantity=item.get("package_unit_quantity"),
+            package_unit=package_unit,
+            package_unit_quantity=package_unit_quantity,
             upc_code=item.get("upc_code"),
+            gtin=item.get("gtin"),
             preferred=item.get("preferred", False),
         )
         session.add(product)
         result.add_success("products")
 
         # Track to prevent duplicates within same import
-        existing_products_set.add(product_key)
-        existing_products_map[product_key] = product
+        existing_products_map[product_key].append(product)
 
     # Handle dry-run: rollback instead of commit
     if dry_run:
