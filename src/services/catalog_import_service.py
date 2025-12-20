@@ -84,6 +84,7 @@ INGREDIENT_AUGMENTABLE_FIELDS = {
 # Product fields: Protected = never modified; Augmentable = updated only if current value is NULL
 PRODUCT_PROTECTED_FIELDS = {"ingredient_id", "brand", "id", "date_added"}
 PRODUCT_AUGMENTABLE_FIELDS = {
+    "product_name",
     "upc_code",
     "package_size",
     "package_type",
