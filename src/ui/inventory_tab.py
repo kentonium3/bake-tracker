@@ -490,8 +490,8 @@ class InventoryTab(ctk.CTkFrame):
         header_frame.grid_columnconfigure(1, weight=1)
 
         headers = [
-            ("Product", 0, 180),
-            ("Description", 1, 220),
+            ("Brand", 0, 180),
+            ("Product", 1, 220),
             ("Quantity", 2, 140),
             ("Purchase Date", 3, 100),
             ("Expiration", 4, 100),
