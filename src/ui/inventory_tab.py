@@ -491,7 +491,7 @@ class InventoryTab(ctk.CTkFrame):
 
         headers = [
             ("Brand", 0, 180),
-            ("Product", 1, 220),
+            ("Product", 1, 330),  # 50% wider for longer descriptions
             ("Quantity", 2, 140),
             ("Purchase Date", 3, 100),
             ("Expiration", 4, 100),
@@ -504,6 +504,7 @@ class InventoryTab(ctk.CTkFrame):
                 text=text,
                 font=ctk.CTkFont(weight="bold"),
                 width=width,
+                anchor="w",  # Left justify header text
             )
             label.grid(row=0, column=col, padx=3, pady=3, sticky="w")
 
@@ -583,11 +584,11 @@ class InventoryTab(ctk.CTkFrame):
         )
         product_label.grid(row=0, column=0, padx=3, pady=3, sticky="w")
 
-        # Column 1: Description (product name + package info)
+        # Column 1: Product (product name + package info)
         desc_label = ctk.CTkLabel(
             row_frame,
-            text=self._truncate_text(description, 28),
-            width=220,
+            text=self._truncate_text(description, 42),  # More chars for wider column
+            width=330,
             anchor="w",
         )
         desc_label.grid(row=0, column=1, padx=3, pady=3, sticky="w")
