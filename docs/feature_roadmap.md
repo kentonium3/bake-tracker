@@ -47,8 +47,8 @@
 
 | # | Name | Priority | Dependencies | Status |
 |---|------|----------|--------------|--------|
-| 025 | Unified Import Error Handling | HIGH | None | Ready |
-| 024 | Packaging & Distribution | LOW | User testing complete | Blocked |
+| 024 | Unified Import Error Handling | HIGH | None | Ready |
+| 025 | Packaging & Distribution | LOW | User testing complete | Blocked |
 
 ---
 
@@ -287,7 +287,33 @@ This prevents safe catalog expansion without risking user data.
 
 ---
 
-### Feature 024: Packaging & Distribution
+### Feature 024: Unified Import Error Handling
+
+**Status:** Ready for Implementation
+
+**Problem:** Import error handling is inconsistent between unified import and catalog import:
+- **Unified Import:** Scrollable dialog with copy-to-clipboard, log files written to `docs/user_testing/`
+- **Catalog Import:** Basic messageboxes, errors truncated to 5, no logging, rich `suggestion` field not displayed
+
+**Solution:** Standardize error display across both import systems:
+- Use `ImportResultsDialog` for all imports (scrollable, copyable)
+- Write log files for catalog imports (matching unified import format)
+- Display structured error suggestions when available
+- Show relative paths (not absolute) for log file locations
+
+**Delivered:**
+- Catalog import uses `ImportResultsDialog` instead of messageboxes
+- All errors displayed (not truncated to 5)
+- Log files written to `docs/user_testing/import_YYYY-MM-DD_HHMMSS.log`
+- Error suggestions displayed clearly in dialog and logs
+- Relative paths shown in UI (not absolute)
+- Consistent user experience across import types
+
+**Specification:** `docs/design/F024_unified_import_error_handling.md`
+
+---
+
+### Feature 025: Packaging & Distribution
 
 **Status:** Blocked (awaiting user testing completion)
 
@@ -301,8 +327,8 @@ This prevents safe catalog expansion without risking user data.
 - **Feature 023 Complete:** Product Name Differentiation merged. Added `product_name` field to Product table for variant distinction.
 - **Database Reset:** DB deleted for fresh import with updated schema and data (ingredients_catalog.json, sample_data.json).
 - **Feature 022 Status Corrected:** Unit Reference Table & UI Constraints confirmed complete (previously mismarked as planned).
-- **Feature 023 Defined:** Product Name Differentiation - add product_name field to distinguish variants (e.g., "70% Cacao" vs "85% Cacao"). Critical for mobile barcode scanning in web phase. Schema amendment follows Constitution principles.
-- **Renumbering:** Packaging & Distribution remains Feature 024.
+- **Feature 024 Defined:** Unified Import Error Handling - standardize error display/logging across unified and catalog imports. Use `ImportResultsDialog` everywhere, write logs for catalog imports, display error suggestions, show relative paths.
+- **Feature Renumbering:** Unified Import Error Handling = Feature 024 (ready), Packaging & Distribution = Feature 025 (blocked).
 
 ### 2025-12-16
 - **Feature 020 Complete:** Enhanced Data Import merged. Separate catalog import from transactional data.
@@ -385,4 +411,4 @@ Part B: Ingredient.name → Ingredient.display_name ✅
 - 2025-12-12: Feature 017 (Reporting & Event Planning) complete and merged. Feature 018 (Event Production Dashboard) complete and merged. Entered user testing phase.
 - 2025-12-14: Constitution v1.2.0 (schema change strategy). Feature 019 (Unit Conversion Simplification) complete and merged. Feature 020 (Enhanced Data Import) defined. Packaging & Distribution moved to Feature 021.
 - 2025-12-16: Features 020, 021 complete and merged. TD-002, TD-003 complete. Feature 023 (Unit Reference Table & UI Constraints) defined. Packaging & Distribution moved to Feature 024.
-- 2025-12-19: Feature 023 (Product Name Differentiation) complete and merged. Database reset for fresh import with updated schema.
+- 2025-12-19: Feature 023 (Product Name Differentiation) complete and merged. Database reset for fresh import with updated schema. Feature 024 (Unified Import Error Handling) defined. Feature renumbering: 024 = Unified Import Error Handling (ready), 025 = Packaging & Distribution (blocked).
