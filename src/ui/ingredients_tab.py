@@ -710,7 +710,7 @@ class IngredientFormDialog(ctk.CTkToplevel):
 
         # Configure window
         self.title(title)
-        self.geometry("500x500")
+        self.geometry("550x580")
         self.resizable(False, False)
 
         # Center on parent
@@ -736,12 +736,30 @@ class IngredientFormDialog(ctk.CTkToplevel):
 
         row = 0
 
-        # Name field (required)
-        ctk.CTkLabel(form_frame, text="Name*:").grid(
-            row=row, column=0, sticky="w", padx=10, pady=(10, 5)
-        )
-        self.name_entry = ctk.CTkEntry(form_frame, placeholder_text="e.g., All-Purpose Flour")
-        self.name_entry.grid(row=row, column=1, sticky="ew", padx=10, pady=(10, 5))
+        # Name field - editable when adding, read-only when editing
+        # (Name is tied to slug which is used as FK, so editing is not supported)
+        if self.ingredient:
+            # Editing mode - show name as read-only label
+            ctk.CTkLabel(form_frame, text="Name:").grid(
+                row=row, column=0, sticky="w", padx=10, pady=(10, 5)
+            )
+            # Get name from either 'name' or 'display_name' key
+            ingredient_name = self.ingredient.get("name") or self.ingredient.get("display_name", "")
+            self.name_label = ctk.CTkLabel(
+                form_frame,
+                text=ingredient_name,
+                font=ctk.CTkFont(size=14, weight="bold"),
+                anchor="w",
+            )
+            self.name_label.grid(row=row, column=1, sticky="ew", padx=10, pady=(10, 5))
+            self.name_entry = None  # No entry when editing
+        else:
+            # Add mode - editable entry
+            ctk.CTkLabel(form_frame, text="Name*:").grid(
+                row=row, column=0, sticky="w", padx=10, pady=(10, 5)
+            )
+            self.name_entry = ctk.CTkEntry(form_frame, placeholder_text="e.g., All-Purpose Flour")
+            self.name_entry.grid(row=row, column=1, sticky="ew", padx=10, pady=(10, 5))
         row += 1
 
         # Feature 011: Is Packaging checkbox
@@ -890,7 +908,7 @@ class IngredientFormDialog(ctk.CTkToplevel):
         if not self.ingredient:
             return
 
-        self.name_entry.insert(0, self.ingredient.get("name", ""))
+        # Name is shown as read-only label in edit mode (set during _create_form)
 
         # Feature 011: Set is_packaging checkbox and update category dropdown
         is_packaging = self.ingredient.get("is_packaging", False)
@@ -955,15 +973,21 @@ class IngredientFormDialog(ctk.CTkToplevel):
 
     def _save(self):
         """Validate and save the form data."""
-        # Get values
-        name = self.name_entry.get().strip()
+        # Get values - name is only editable when adding (not editing)
+        if self.name_entry:
+            # Add mode - get name from entry
+            name = self.name_entry.get().strip()
+            if not name:
+                messagebox.showerror("Validation Error", "Name is required")
+                return
+        else:
+            # Edit mode - name is read-only, use existing name
+            name = self.ingredient.get("name") or self.ingredient.get("display_name", "")
+
         category = self.category_var.get().strip()  # Now using dropdown
         is_packaging = self.is_packaging_var.get()  # Feature 011
 
         # Validate required fields
-        if not name:
-            messagebox.showerror("Validation Error", "Name is required")
-            return
         if not category:
             messagebox.showerror("Validation Error", "Category is required")
             return

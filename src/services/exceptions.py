@@ -53,13 +53,38 @@ class RecipeNotFound(ServiceException):
 
 
 class IngredientInUse(ServiceException):
-    """Raised when attempting to delete an ingredient that is used in recipes."""
+    """Raised when attempting to delete an ingredient that has dependencies."""
 
-    def __init__(self, ingredient_id: int, recipe_count: int):
-        self.ingredient_id = ingredient_id
-        self.recipe_count = recipe_count
+    def __init__(self, identifier, deps):
+        """
+        Initialize IngredientInUse exception.
+
+        Args:
+            identifier: Ingredient identifier (slug string or id int)
+            deps: Either an int (recipe count for legacy) or dict with dependency counts
+                  e.g., {'recipes': 5, 'products': 3, 'inventory_items': 12}
+        """
+        self.identifier = identifier
+
+        # Support both old (int) and new (dict) signatures
+        if isinstance(deps, dict):
+            self.deps = deps
+            # Build descriptive message from all dependencies
+            parts = []
+            if deps.get("recipes", 0) > 0:
+                parts.append(f"{deps['recipes']} recipe(s)")
+            if deps.get("products", 0) > 0:
+                parts.append(f"{deps['products']} product(s)")
+            if deps.get("inventory_items", 0) > 0:
+                parts.append(f"{deps['inventory_items']} inventory item(s)")
+            deps_msg = ", ".join(parts) if parts else "related records"
+        else:
+            # Legacy: deps is just recipe_count (int)
+            self.deps = {"recipes": deps}
+            deps_msg = f"{deps} recipe(s)"
+
         super().__init__(
-            f"Cannot delete ingredient {ingredient_id}: used in {recipe_count} recipe(s)"
+            f"Cannot delete ingredient '{identifier}': used in {deps_msg}"
         )
 
 

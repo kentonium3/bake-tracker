@@ -220,8 +220,8 @@ class TestInventoryServiceCRUD:
         with pytest.raises(IngredientInUse) as exc_info:
             ingredient_crud_service.delete_ingredient(ingredient.id)
 
-        assert exc_info.value.ingredient_id == ingredient.id
-        assert exc_info.value.recipe_count >= 1
+        assert exc_info.value.identifier == ingredient.id
+        assert exc_info.value.deps.get("recipes", 0) >= 1
 
     def test_delete_ingredient_in_use_force(
         self, db_session, sample_ingredient_data, sample_recipe_data
