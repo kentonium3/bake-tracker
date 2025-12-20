@@ -1,0 +1,162 @@
+product_id,brand,ingredient_slug,product_name,gtin,package_unit_quantity,package_unit,package_type,product_quantity,Comment
+,Argo,cornstarch,100% Pure Corn Starch,761720071045,16,oz,box,,
+8,Arm & Hammer,baking_soda,Pure Baking Soda,33200011101,1,lb,box,,
+,Baccardi,rum,,,750,ml,bottle,,
+,Baker's,chocolate_baking_semi_sweet,,,4,oz,box,,
+,Baker's,chocolate_baking_unsweetened,,,4,oz,box,,
+,Ball,pectin,,,4.7,oz,container,,
+,Bertolli,olive_oil,,,3,l,bottle,,
+,Bob's Red Mill,gluten_free_flour_blend,,,22,oz,bag,,
+,Brach’s,caramels,,,14,oz,bag,,
+,Cadbury,covered_candy_milk_chocolate,,3400005675,9,oz,bag,,
+,Callebaut,chocolate_couverture_dark,,,10,kg,bag,,
+,Callebaut,chocolate_couverture_ruby,,,2.5,kg,bag,,
+,Chambord,liqueur_raspberry,,,,fl oz,bottle,,
+,Cointreau,liqueur_orange,,,,fl oz,bottle,,
+,Costco,butter_salted,,,1,lb,box,,
+,Costco,butter_unsalted,,,1,lb,box,,
+14,Costco,pecans,,,2,lb,bag,,
+,Costco,walnuts,,,3,lb,bag,,
+,Costco,almonds_whole,,,2,lb,bag,,
+,Costco,maple_syrup,,,1,qt,jug,,
+,Costco,vanilla_extract,Pure Vanilla Extract,96619329113,16,fl oz,bottle,,new
+,Crisco,shortening,All-Vegetable Shortening Baking Sticks,51500251881,16,oz,container,,
+,deZaan,cocoa_powder_black,,718444190707,1,kg,bag,,new
+,Diamond,salt_kosher,Crystal Kosher Salt,43000011126,3,lb,box, ,
+,Disaronno,amaretto,,,,fl oz,bottle,,
+4,Domino,sugar_granulated,Premium Pure Cane Granulated Sugar 4 lb,49200045503,4,lb,bag,,
+5,Domino,sugar_brown_light,,,2,lb,bag,,
+,Domino,sugar_brown_dark,,,2,lb,bag,,
+,Domino,sugar_superfine,,,12,oz,bottle,,
+,Domino,sugar_powdered,,,4,lb,bag,,
+,Evan Williams,bourbon,,,,fl oz,bottle,,
+,Flavor Organics,orange_extract,Organic Orange Extract,30684963223,2,fl oz,bottle,,new
+,Flavor Organics,coffee_extract,Organic Coffee Extract,65117000110,2,fl oz,bottle,,new
+,Flavor Organics,chocolate_extract,Organic Chocolate Extract,651170001092,2,fl oz,bottle,,new
+,Fleischmann's,yeast_instant,RapidRise Instant Yeast,40100009299,21,g,packet,,
+,Fleischmann's,yeast_active_dry,Active Dry Yeast,40100009280,21,g,packet,,
+,Frangelico,liqueur_hazelnut,,,,fl oz,bottle,,
+,Gabriel Brudier,liqueur_blackcurrant,,,,fl oz,bottle,,
+,Grand Marnier,liqueur_orange,,,,fl oz,bottle,,
+,Grandma's,molasses_light,Original Unsulphured Molasses,72400711244,16,oz,bottle,,
+,Grandma's,molasses_dark,Robust Unsulphured Molasses,72400711169,16,oz,bottle,,
+,Guittard,chocolate_chips_white,,,3,kg,bag,,
+,Guittard,chocolate_chips_bittersweet,,,,g,bag,,
+,Guittard,mint_chocolate_candies,,,,g,bag,,
+,Guittard,chocolate_chips_milk,,,340,g,bag,,
+,Heathbar,toffee_bits,,3400006152,8,oz,bag,1.2,
+,Heilala,vanilla_bean,Premium Vanilla Beans 2-Pack,,2,each,container,,
+,Heilala,vanilla_extract,Pure Vanilla Extract,,500,ml,bottle,,new
+,Heilala,vanilla_paste,Pure Vanilla Bean Paste,,65,g,bottle,,new
+,Heilala,vanilla_powder,Vanilla Powder,,25,g,jar,,new
+,Heilala,vanilla_powder_with_extract,Vanilla Powder with Extract,,5,oz,jar,,new
+,Heilala,vanilla_extract_oak_aged,,,50,ml,bottle,,new
+,Heilala,vanilla_extract_spiced,,,50,ml,bottle,,new
+,Hershey's,cinnamon_chips,,3400014670,10,oz,bag,,
+,Hershey's,drops_special_dark,,3400012088,11,oz,bag,,
+,Hershey's,chips_special_dark,,3400014680,12,oz,bag,,
+,Hershey's,cocoa_powder,,3400005200,10,oz,container,,
+,HoneyMaid,graham_cracker_crumbs,,,14.4,oz,box,,new
+,Jamison,whiskey_irish,,,,fl oz,bottle,,
+,Kahlua,liqueur_coffee,,,,fl oz,bottle,,
+,Kahlua,liqueur_coffee,,,,fl oz,bottle,,
+,Karo,corn_syrup_light,Light Corn Syrup with Real Vanilla,761720051108,16,fl oz,bottle,,
+,Karo,corn_syrup_light,Light Corn Syrup with Real Vanilla,761720051108,16,fl oz,bottle,,
+,Karo,corn_syrup_dark,Dark Corn Syrup,761720050101,16,fl oz,bottle,,
+,Kerry,butter_salted,,,1,oz,package,0,
+,Kerry,butter_unsalted,,,1,oz,package,,
+,King Arthur,all_purpose_wheat_flour,Unbleached All-Purpose Flour,71012010615,25,lb,bag,,
+,King Arthur,white_whole_wheat_flour,,,5,lb,bag,,
+,King Arthur,flour_almond,,,16,oz,bag,,
+,King Arthur,pastry_flour,,,3,lb,bag,,
+,King Arthur,bread_flour,,,5,lb,bag,,
+,King Arthur,cake_flour,,,2,lb,bag,,
+,King Arthur,self_rising_flour,,,5,lb,bag,,
+,King Arthur,cocoa_powder_black,,,14,oz,bag,,
+,Knox,gelatin_powder,Original Unflavored Gelatin,43000048675,1,oz,box,,
+,Kraken,rum,,,,fl oz,bottle,,
+,Lilly,cake_flour,,,5,lb,bag,,
+,Lyle’s,golden_syrup,Golden Syrup,73449287005,16,oz,bottle,,
+,Maldon,sea_salt_flaky,,4797200000,240,g,box,,
+,Mars,covered_candy_milk_chocolate,,4000024906,12.6,oz,bag,,
+,McCormick,almond_extract,Pure Almond Extract,52100037868,2,fl oz,bottle,,
+,McCormick,orange_extract,Pure Orange Extract,52100070780,1,fl oz,bottle,,
+,McCormick,lemon_extract,Pure Lemon Extract,52100070964,2,fl oz,bottle,2,
+,McCormick,cream_of_tartar,,,1.5,oz,bottle,,
+,McCormick,chocolate_extract,,,2,fl oz,bottle,,new
+,McCormick,peppermint_extract,Pure Peppermint Extract,52100070797,2,fl oz,bottle,,new
+,McCormick,peppermint_extract,Pure Peppermint Extract,52100070797,1,fl oz,bottle,,new
+,McCormick,maple_extract,,,2,fl oz,bottle,,new
+,McCormick,maple_extract,,,1,fl oz,bottle,,new
+,McCormick,mint_extract,,,1,fl oz,bottle,,new
+,McCormick,coconut_extract,,,2,fl oz,bottle,,new
+,McCormick,rum_extract,,,1,fl oz,bottle,,new
+,McCormick,raspberry_extract,,,1,fl oz,bottle,,new
+,Morrell,lard,Snow Cap Lard,70100070623,16,oz,box,,
+,Morton,salt_fine,,,26,oz,container,,
+,Morton,salt_kosher,,,3,lb,box,,
+,Nestle,chocolate_chips_semi_sweet,,2800098612,10,oz,bag,,
+,Nestle,chocolate_chips_milk,,2800021760,11.5,oz,bag,,
+,Nestle,chocolate_chips_milk,,2800021760,11.5,oz,bag,,
+,Nestle,butterscotch_chips,,2800021730,11,oz,bag,,
+,Nestle,chocolate_chips_bittersweet,,,,oz,bag,,
+,Nestle,chocolate_chips_semi_sweet,,,72,oz,bag,0.5,
+,Nestle,chocolate_chips_semi_sweet_allergen_free,,2800049618,10,oz,bag,0.5,
+,Nestle,mini_chocolate_chips_semi_sweet,,,,oz,bag,,
+,Nestle,chocolate_mint_chips,,,,oz,bag,,
+,Nestle,chocolate_chips_white,,2800021010,12,oz,bag,,
+,Nestle,chocolate_chips_espresso,,2800071465,9,oz,bag,,new
+,Nutella,nutella,,,26.5,oz,jar,,
+,Ocean Spray,cranberries_dried,,,5,oz,bag,,
+,Penzeys,cocoa_powder_natural,,,12.8,oz,bag,,
+,Penzeys,cocoa_powder_dutch_processed,,,12.8,oz,bag,,
+,Penzeys,orange_extract,,,2,fl oz,bottle,,new
+,Penzeys,almond_extract,,,2,fl oz,bottle,,new
+,Penzeys,vanilla_extract_mexican,,,8,fl oz,bottle,,new
+,Penzeys,vanilla_bean,,,3,each,container,2,new
+,Penzeys,cinnamon_ground_ceylon,Ground Cinnamon (Vietnam Extra Fancy),,4.8,oz,bag,,new
+,Penzeys,allspice_ground,Ground Allspice,,1,oz,jar,,new
+,Penzeys,ginger_ground,Ground Ginger,,1.9,oz,jar,1.25,new
+,Penzeys,nutmeg_ground_east_india,,,2.2,oz,jar,0.15,new
+,Penzeys,nutmeg_ground_east_india,,,1,oz,jar,,new
+,Penzeys,nutmeg_ground_west_india,,,2.4,oz,jar,,new
+,Penzeys,chinese_five_spice,,,0.9,oz,jar,,new
+,Penzeys,allspice_whole,,,0.6,oz,jar,,new
+,Penzeys,mace_ground,,,0.9,oz,jar,,new
+,Penzeys,cloves_whole,Ground Cloves,,1.5,oz,jar,,new
+,Penzeys,cardamom_ground,Ground Cardamom,,2.4,oz,jar,,new
+,Penzeys,sesame_seeds_india_black,,,1,oz,jar,,new
+,Penzeys,sesame_seeds_india_black,,,2.2,oz,jar,0.1,new
+,Penzeys,sesame_seeds_white,,,2.2,oz,jar,0.5,new
+,Penzeys,lavender,,,0.4,oz,jar,0.75,new
+,Penzeys,poppy_seeds_blue,,,15.6,oz,bag,0.33,new
+,Penzeys,cream_of_tartar,,,1.8,oz,jar,,new
+,Penzeys,mulling_spices,,,2.6,oz,bag,0.5,new
+,Penzeys,vanilla_sugar,,,3.4,oz,jar,,new
+,Penzeys,cinnamon_sticks_indonesia,,,4,oz,bag,2,new
+,Penzeys,nutmeg_whole,,,4,oz,bag,0.8,new
+,Penzeys,pepper_black_ground_tellicherry,,,2.2,oz,jar,0.75,new
+,Quaker,oats_rolled,,,18,oz,container,,
+,Rumford,baking_powder,Baking Powder,41617002254,230,g,can,,
+,Sugar in the Raw,turbinado_sugar,,,2,lb,bag,,
+,Sun Maid,raisins,,,13,oz,container,,
+,Sun Maid,currants_dried,,,8,oz,bag,,
+,Toblerone,toblerone,,702200400,1,lb,box,,
+,Trader Joe's,pistachios,,,,oz,,,
+,Trader Joe's,hazelnuts,,,,lb,,,
+,Trader Joe's,macadamia_nuts,,,,oz,,,
+,Trader Joe's,pine_nuts,,,,oz,,,
+,Trader Joe's,cashews,,,,lb,,,
+,truvia,stevia_sweetener,,,24,oz,bag,,new
+,U.S.,sugar_powdered,,,7,lb,bag,,
+,Wegman's,canola_oil,,,1,qt,bottle,,
+,Wegman's,bread_flour,,,5,lb,bag,,
+,Wegman's,cake_flour,,,2,lb,bag,,
+,Wegman's,self_rising_flour,,,5,lb,bag,,
+,Wegman's,coconut_shredded_sweetened,,,16,oz,bag,,
+,Wegman's,honey,,,16,oz,bottle,,
+,Wegman's,maple_syrup,,,32,fl oz,bottle,,
+,Wegman's,cornstarch,100% Pure Corn Starch,77890900239,1,lb,box,,
+,Wegman's,sugar_brown_light,,,2,lb,bag,,
+,Wegman’s,raisins,,,3,lb,bag,,
+,Wincrest,cocoa_powder_black,,,1,lb,container,,new
