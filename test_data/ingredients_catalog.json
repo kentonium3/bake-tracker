@@ -47,6 +47,15 @@
       "display_name": "Allspice, ground"
     },
     {
+      "slug": "allspice_whole",
+      "display_name": "Allspice, whole",
+      "category": "spices",
+      "density_volume_value": 1.0,
+      "density_volume_unit": "cup",
+      "density_weight_value": 100.0,
+      "density_weight_unit": "g"
+    },
+    {
       "slug": "almond_butter",
       "category": "Fats & Oils",
       "description": "Almond butter",
@@ -512,6 +521,24 @@
       "display_name": "Chocolate chips, bittersweet"
     },
     {
+      "slug": "chocolate_chips_dark",
+      "display_name": "Chocolate chips, dark",
+      "category": "baking_chocolate",
+      "density_volume_value": 1.0,
+      "density_volume_unit": "cup",
+      "density_weight_value": 168.0,
+      "density_weight_unit": "g"
+    },
+    {
+      "slug": "chocolate_chips_espresso",
+      "display_name": "Chocolate chips, espresso",
+      "category": "baking_chocolate",
+      "density_volume_value": 1.0,
+      "density_volume_unit": "cup",
+      "density_weight_value": 168.0,
+      "density_weight_unit": "g"
+    },
+    {
       "slug": "chocolate_chips_milk",
       "category": "Chocolate & Cocoa",
       "description": "Chocolate chips, milk (aka milk chocolate chips)",
@@ -524,6 +551,15 @@
       "display_name": "Chocolate chips, semi-sweet"
     },
     {
+      "slug": "chocolate_chips_semi_sweet_allergen_free",
+      "display_name": "Chocolate chips, semi-sweet, allergen-free",
+      "category": "baking_chocolate",
+      "density_volume_value": 1.0,
+      "density_volume_unit": "cup",
+      "density_weight_value": 168.0,
+      "density_weight_unit": "g"
+    },
+    {
       "slug": "chocolate_chips_white",
       "category": "Chocolate & Cocoa",
       "description": "Chocolate chips, white (aka white chocolate chips)",
@@ -534,6 +570,15 @@
       "category": "Chocolate & Cocoa",
       "description": "Chocolate chunks, semi-sweet (aka chocolate chunks)",
       "display_name": "Chocolate chunks, semi-sweet"
+    },
+    {
+      "slug": "chocolate_coating_milk",
+      "display_name": "Chocolate coating, milk chocolate",
+      "category": "baking_chocolate",
+      "density_volume_value": 1.0,
+      "density_volume_unit": "cup",
+      "density_weight_value": 170.0,
+      "density_weight_unit": "g"
     },
     {
       "slug": "chocolate_cocoa_nibs",
@@ -581,6 +626,15 @@
       "display_name": "Chocolate-covered candies, assorted"
     },
     {
+      "slug": "chocolate_kisses_dark",
+      "display_name": "Chocolate, kisses, dark",
+      "category": "baking_chocolate",
+      "density_volume_value": 1.0,
+      "density_volume_unit": "cup",
+      "density_weight_value": 168.0,
+      "density_weight_unit": "g"
+    },
+    {
       "slug": "chocolate_mint_chips",
       "category": "Chocolate & Cocoa",
       "display_name": "Mint chocolate baking chips",
@@ -624,10 +678,28 @@
       "display_name": "Cinnamon, ground"
     },
     {
+      "slug": "cinnamon_ground_ceylon",
+      "display_name": "Cinnamon, ground, Ceylon",
+      "category": "spices",
+      "density_volume_value": 1.0,
+      "density_volume_unit": "cup",
+      "density_weight_value": 112.0,
+      "density_weight_unit": "g"
+    },
+    {
       "slug": "cinnamon_sticks",
       "category": "Spices & Flavorings",
       "description": "Cinnamon sticks",
       "display_name": "Cinnamon sticks"
+    },
+    {
+      "slug": "cinnamon_sticks_indonesian",
+      "display_name": "Cinnamon sticks, Indonesian",
+      "category": "spices",
+      "density_volume_value": 1.0,
+      "density_volume_unit": "cup",
+      "density_weight_value": 80.0,
+      "density_weight_unit": "g"
     },
     {
       "slug": "cloves_ground",
@@ -676,6 +748,15 @@
       "density_weight_value": 4.17,
       "density_weight_unit": "oz",
       "display_name": "Cocoa powder, natural"
+    },
+    {
+      "slug": "cocoa_powder_natural",
+      "display_name": "Cocoa, dry powder, unsweetened",
+      "category": "baking_chocolate",
+      "density_volume_value": 1.0,
+      "density_volume_unit": "cup",
+      "density_weight_value": 86.0,
+      "density_weight_unit": "g"
     },
     {
       "slug": "coconut_flakes",
@@ -945,6 +1026,78 @@
       "description": "Highly concentrated instant coffee for baking"
     },
     {
+      "slug": "extract_chocolate",
+      "display_name": "Extract, chocolate",
+      "category": "extracts_flavorings",
+      "density_volume_value": 1.0,
+      "density_volume_unit": "cup",
+      "density_weight_value": 208.0,
+      "density_weight_unit": "g"
+    },
+    {
+      "slug": "extract_coconut",
+      "display_name": "Extract, coconut",
+      "category": "extracts_flavorings",
+      "density_volume_value": 1.0,
+      "density_volume_unit": "cup",
+      "density_weight_value": 208.0,
+      "density_weight_unit": "g"
+    },
+    {
+      "slug": "extract_coffee",
+      "display_name": "Extract, coffee",
+      "category": "extracts_flavorings",
+      "density_volume_value": 1.0,
+      "density_volume_unit": "cup",
+      "density_weight_value": 208.0,
+      "density_weight_unit": "g"
+    },
+    {
+      "slug": "extract_mint",
+      "display_name": "Extract, mint",
+      "category": "extracts_flavorings",
+      "density_volume_value": 1.0,
+      "density_volume_unit": "cup",
+      "density_weight_value": 208.0,
+      "density_weight_unit": "g"
+    },
+    {
+      "slug": "extract_raspberry",
+      "display_name": "Extract, raspberry",
+      "category": "extracts_flavorings",
+      "density_volume_value": 1.0,
+      "density_volume_unit": "cup",
+      "density_weight_value": 208.0,
+      "density_weight_unit": "g"
+    },
+    {
+      "slug": "extract_vanilla_mexican",
+      "display_name": "Extract, vanilla, Mexican",
+      "category": "extracts_flavorings",
+      "density_volume_value": 1.0,
+      "density_volume_unit": "cup",
+      "density_weight_value": 208.0,
+      "density_weight_unit": "g"
+    },
+    {
+      "slug": "extract_vanilla_oak_aged",
+      "display_name": "Extract, vanilla, oak-aged",
+      "category": "extracts_flavorings",
+      "density_volume_value": 1.0,
+      "density_volume_unit": "cup",
+      "density_weight_value": 208.0,
+      "density_weight_unit": "g"
+    },
+    {
+      "slug": "extract_vanilla_spiced",
+      "display_name": "Extract, vanilla, spiced",
+      "category": "extracts_flavorings",
+      "density_volume_value": 1.0,
+      "density_volume_unit": "cup",
+      "density_weight_value": 208.0,
+      "density_weight_unit": "g"
+    },
+    {
       "slug": "fennel_seeds",
       "category": "Spices & Flavorings",
       "display_name": "Fennel seeds",
@@ -967,6 +1120,15 @@
       "category": "Nuts & Seeds",
       "description": "Flaxseed, whole",
       "display_name": "Flaxseed, whole"
+    },
+    {
+      "slug": "flour_almond",
+      "display_name": "Flour, almond",
+      "category": "flour",
+      "density_volume_value": 1.0,
+      "density_volume_unit": "cup",
+      "density_weight_value": 96.0,
+      "density_weight_unit": "g"
     },
     {
       "slug": "fondant",
@@ -1192,6 +1354,15 @@
       "category": "Spices & Flavorings",
       "display_name": "Lavender, culinary",
       "description": "Dried culinary lavender buds for baking"
+    },
+    {
+      "slug": "lavender_culinary",
+      "display_name": "Lavender, culinary",
+      "category": "spices",
+      "density_volume_value": 1.0,
+      "density_volume_unit": "cup",
+      "density_weight_value": 48.0,
+      "density_weight_unit": "g"
     },
     {
       "slug": "lemon_extract",
@@ -1620,6 +1791,24 @@
       "display_name": "Nutmeg, ground"
     },
     {
+      "slug": "nutmeg_ground_east_indian",
+      "display_name": "Nutmeg, ground, East Indian",
+      "category": "spices",
+      "density_volume_value": 1.0,
+      "density_volume_unit": "cup",
+      "density_weight_value": 112.0,
+      "density_weight_unit": "g"
+    },
+    {
+      "slug": "nutmeg_ground_west_indian",
+      "display_name": "Nutmeg, ground, West Indian",
+      "category": "spices",
+      "density_volume_value": 1.0,
+      "density_volume_unit": "cup",
+      "density_weight_value": 112.0,
+      "density_weight_unit": "g"
+    },
+    {
       "slug": "nutmeg_whole",
       "category": "Spices & Flavorings",
       "description": "Nutmeg, whole",
@@ -1855,6 +2044,15 @@
       "description": "Ground black pepper"
     },
     {
+      "slug": "pepper_black_tellicherry",
+      "display_name": "Pepper, black, Tellicherry",
+      "category": "spices",
+      "density_volume_value": 1.0,
+      "density_volume_unit": "cup",
+      "density_weight_value": 112.0,
+      "density_weight_unit": "g"
+    },
+    {
       "slug": "peppermint_bark",
       "category": "Chocolate & Cocoa",
       "display_name": "Peppermint bark",
@@ -1931,6 +2129,15 @@
       "foodon_id": "FOODON_03301138",
       "usda_fdc_id": "171426",
       "gpc_brick": "10000632"
+    },
+    {
+      "slug": "poppy_seeds_blue",
+      "display_name": "Poppy seeds, blue",
+      "category": "spices",
+      "density_volume_value": 1.0,
+      "density_volume_unit": "cup",
+      "density_weight_value": 138.0,
+      "density_weight_unit": "g"
     },
     {
       "slug": "potato_starch",
@@ -2136,6 +2343,24 @@
       "display_name": "Sesame seeds"
     },
     {
+      "slug": "sesame_seeds_black",
+      "display_name": "Sesame seeds, black",
+      "category": "spices",
+      "density_volume_value": 1.0,
+      "density_volume_unit": "cup",
+      "density_weight_value": 144.0,
+      "density_weight_unit": "g"
+    },
+    {
+      "slug": "sesame_seeds_white",
+      "display_name": "Sesame seeds, white",
+      "category": "spices",
+      "density_volume_value": 1.0,
+      "density_volume_unit": "cup",
+      "density_weight_value": 144.0,
+      "density_weight_unit": "g"
+    },
+    {
       "slug": "shortening",
       "category": "Fats & Oils",
       "description": "Shortening (aka vegetable shortening)",
@@ -2190,6 +2415,24 @@
       "density_weight_value": 4.17,
       "density_weight_unit": "oz",
       "display_name": "Spelt flour"
+    },
+    {
+      "slug": "spice_blend_chinese_five_spice",
+      "display_name": "Spice blend, Chinese five spice",
+      "category": "spices",
+      "density_volume_value": 1.0,
+      "density_volume_unit": "cup",
+      "density_weight_value": 100.0,
+      "density_weight_unit": "g"
+    },
+    {
+      "slug": "spice_blend_mulling",
+      "display_name": "Spice blend, mulling spices",
+      "category": "spices",
+      "density_volume_value": 1.0,
+      "density_volume_unit": "cup",
+      "density_weight_value": 90.0,
+      "density_weight_unit": "g"
     },
     {
       "slug": "sprinkles_chocolate",
@@ -2290,6 +2533,15 @@
       "display_name": "Sweet potato puree"
     },
     {
+      "slug": "sweetener_stevia",
+      "display_name": "Sweetener, stevia",
+      "category": "sugar_sweeteners",
+      "density_volume_value": 1.0,
+      "density_volume_unit": "cup",
+      "density_weight_value": 192.0,
+      "density_weight_unit": "g"
+    },
+    {
       "slug": "swerve_sweetener",
       "category": "Sugars & Sweeteners",
       "display_name": "Swerve sweetener",
@@ -2382,6 +2634,24 @@
       "category": "Spices & Flavorings",
       "description": "Vanilla paste (aka vanilla bean paste)",
       "display_name": "Vanilla paste"
+    },
+    {
+      "slug": "vanilla_powder_extract_blend",
+      "display_name": "Vanilla powder, extract blend",
+      "category": "extracts_flavorings",
+      "density_volume_value": 1.0,
+      "density_volume_unit": "cup",
+      "density_weight_value": 120.0,
+      "density_weight_unit": "g"
+    },
+    {
+      "slug": "vanilla_powder_pure",
+      "display_name": "Vanilla powder, pure",
+      "category": "extracts_flavorings",
+      "density_volume_value": 1.0,
+      "density_volume_unit": "cup",
+      "density_weight_value": 112.0,
+      "density_weight_unit": "g"
     },
     {
       "slug": "vanilla_sugar",
