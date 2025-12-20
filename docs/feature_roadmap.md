@@ -47,6 +47,7 @@
 
 | # | Name | Priority | Dependencies | Status |
 |---|------|----------|--------------|--------|
+| 025 | Unified Import Error Handling | HIGH | None | Ready |
 | 024 | Packaging & Distribution | LOW | User testing complete | Blocked |
 
 ---
