@@ -14,6 +14,7 @@ from src.services.catalog_import_service import (
     CatalogImportError,
     CatalogImportResult,
 )
+from src.ui.import_export_dialog import ImportResultsDialog, _write_import_log
 
 
 class CatalogImportDialog(ctk.CTkToplevel):
@@ -276,58 +277,30 @@ class CatalogImportDialog(ctk.CTkToplevel):
             self.config(cursor="")
 
     def _show_results(self, result: CatalogImportResult):
-        """Show import results in a message dialog."""
+        """Show import results in scrollable dialog with logging."""
+        # Build summary text using the enhanced get_detailed_report()
+        summary_text = result.get_detailed_report()
+
+        # Prepend dry-run indicator if applicable
+        if result.dry_run:
+            summary_text = "DRY RUN - No changes made\n\n" + summary_text
+
+        # Write log file and get relative path for display
+        log_path = _write_import_log(self.file_path, result, summary_text)
+
+        # Determine dialog title
         title = "Preview Complete" if result.dry_run else "Import Complete"
 
-        # Build summary
-        lines = []
-        for entity_type, counts in result.entity_counts.items():
-            parts = []
-            if counts.added > 0:
-                parts.append(f"{counts.added} added")
-            if counts.augmented > 0:
-                parts.append(f"{counts.augmented} augmented")
-            if counts.skipped > 0:
-                parts.append(f"{counts.skipped} skipped")
-            if counts.failed > 0:
-                parts.append(f"{counts.failed} failed")
-            if parts:
-                lines.append(f"{entity_type.title()}: {', '.join(parts)}")
-
-        summary = "\n".join(lines) if lines else "No records processed."
-
-        if result.dry_run:
-            summary = "DRY RUN - No changes made\n\n" + summary
-
-        # Show main summary
-        messagebox.showinfo(title, summary, parent=self)
-
-        # Show errors if any
-        if result.errors:
-            self._show_errors(result.errors)
-
-        # Close dialog on successful import (not dry-run)
-        if not result.dry_run and not result.has_errors:
-            self.result = result
-            self.destroy()
-        elif not result.dry_run and result.total_added > 0:
-            # Partial success - still close but set result
-            self.result = result
-            self.destroy()
-
-    def _show_errors(self, errors):
-        """Show error details in a warning dialog."""
-        error_lines = []
-        for i, err in enumerate(errors[:5]):
-            error_lines.append(
-                f"- {err.entity_type}: {err.identifier}\n"
-                f"  {err.message}"
-            )
-        if len(errors) > 5:
-            error_lines.append(f"\n... and {len(errors) - 5} more errors")
-
-        messagebox.showwarning(
-            f"Import Errors ({len(errors)} total)",
-            "\n".join(error_lines),
-            parent=self,
+        # Show results in scrollable dialog
+        results_dialog = ImportResultsDialog(
+            self.master,  # Use main window as parent, not this dialog
+            title=title,
+            summary_text=summary_text,
+            log_path=log_path,
         )
+        results_dialog.wait_window()
+
+        # Close catalog import dialog on successful import (not dry-run)
+        if not result.dry_run:
+            self.result = result
+            self.destroy()
