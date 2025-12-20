@@ -286,7 +286,8 @@ class CatalogImportResult:
             for error in self.errors[:10]:  # Limit to first 10
                 lines.append(f"  - {error.entity_type}: {error.identifier}")
                 lines.append(f"    {error.message}")
-                lines.append(f"    Suggestion: {error.suggestion}")
+                if error.suggestion:  # Only show suggestion if non-empty
+                    lines.append(f"    Suggestion: {error.suggestion}")
             if len(self.errors) > 10:
                 lines.append(f"  ... and {len(self.errors) - 10} more errors")
 
@@ -313,7 +314,8 @@ class CatalogImportResult:
             for error in self.errors:
                 lines.append(f"  - [{error.error_type}] {error.entity_type}: {error.identifier}")
                 lines.append(f"    Message: {error.message}")
-                lines.append(f"    Suggestion: {error.suggestion}")
+                if error.suggestion:  # Only show suggestion if non-empty
+                    lines.append(f"    Suggestion: {error.suggestion}")
 
         # Full warning list
         if len(self.warnings) > 10:
