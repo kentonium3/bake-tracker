@@ -5,10 +5,10 @@ subtasks:
   - "T003"
 title: "Log Writing - Relative Path Support"
 phase: "Phase 2 - Log Writing Generalization"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "claude"
-shell_pid: "75369"
+shell_pid: "75874"
 review_status: ""
 reviewed_by: ""
 history:
@@ -162,3 +162,4 @@ history:
 
 - 2025-12-19T00:00:00Z - system - lane=planned - Prompt created.
 - 2025-12-20T04:47:55Z – claude – shell_pid=75369 – lane=doing – Started implementation
+- 2025-12-20T04:50:14Z – claude – shell_pid=75874 – lane=for_review – Ready for review - T002, T003 complete
