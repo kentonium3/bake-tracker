@@ -534,15 +534,20 @@ class InventoryTab(ctk.CTkFrame):
         product_display = f"{type_indicator}{brand}"
 
         # Description column: Product name + package info
+        # Falls back to ingredient name in brackets if product_name is empty
         product_name = getattr(product_obj, "product_name", None) or ""
+        ingredient_name = getattr(ingredient_obj, "display_name", "") if ingredient_obj else ""
         package_qty = getattr(product_obj, "package_unit_quantity", None)
         package_unit = getattr(product_obj, "package_unit", "") or ""
         package_type = getattr(product_obj, "package_type", None) or ""
 
-        # Build description: "Product Name - 25 lb bag" or "25 lb bag"
+        # Build description: "Product Name - 25 lb bag" or "[Ingredient] - 25 lb bag"
         desc_parts = []
         if product_name:
             desc_parts.append(product_name)
+        elif ingredient_name:
+            # Fallback: show ingredient name in brackets to indicate it's not a product name
+            desc_parts.append(f"[{ingredient_name}]")
         if package_qty and package_unit:
             size_str = f"{package_qty:g} {package_unit}"
             if package_type:
