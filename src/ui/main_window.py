@@ -316,6 +316,11 @@ class MainWindow(ctk.CTk):
             if not getattr(self.inventory_tab, '_data_loaded', False):
                 self.inventory_tab._data_loaded = True
                 self.after(10, self.inventory_tab.refresh)
+        elif current_tab == "Recipes":
+            # Lazy load recipes on first visit
+            if not getattr(self.recipes_tab, '_data_loaded', False):
+                self.recipes_tab._data_loaded = True
+                self.after(10, self.recipes_tab.refresh)
 
     def refresh_dashboard(self):
         """Refresh the summary tab (formerly dashboard) with current data."""
