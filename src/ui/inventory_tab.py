@@ -487,14 +487,14 @@ class InventoryTab(ctk.CTkFrame):
         """Create header for detail view."""
         header_frame = ctk.CTkFrame(self.scrollable_frame)
         header_frame.grid(row=0, column=0, padx=2, pady=2, sticky="ew")
-        header_frame.grid_columnconfigure(2, weight=1)
+        header_frame.grid_columnconfigure(1, weight=1)
 
         headers = [
-            ("Ingredient", 0, 180),
-            ("Product", 1, 200),
-            ("Quantity", 2, 150),  # Wider for "X pkg (Y unit)" format
-            ("Purchase Date", 3, 110),
-            ("Expiration", 4, 110),
+            ("Product", 0, 180),
+            ("Description", 1, 220),
+            ("Quantity", 2, 140),
+            ("Purchase Date", 3, 100),
+            ("Expiration", 4, 100),
             ("Actions", 5, 160),
         ]
 
@@ -507,31 +507,48 @@ class InventoryTab(ctk.CTkFrame):
             )
             label.grid(row=0, column=col, padx=3, pady=3, sticky="w")
 
+    def _truncate_text(self, text: str, max_chars: int = 25) -> str:
+        """Truncate text and add ellipsis if too long."""
+        if not text:
+            return ""
+        if len(text) <= max_chars:
+            return text
+        return text[: max_chars - 1] + "..."
+
     def _create_detail_row(self, row_idx: int, item: dict):
         """Create a row for individual inventory item."""
         row_frame = ctk.CTkFrame(self.scrollable_frame)
-        row_frame.grid(row=row_idx, column=0, padx=2, pady=1, sticky="ew")  # Denser spacing
-        row_frame.grid_columnconfigure(2, weight=1)
+        row_frame.grid(row=row_idx, column=0, padx=2, pady=1, sticky="ew")
+        row_frame.grid_columnconfigure(1, weight=1)
 
         # Get ingredient and product info
         product_obj = getattr(item, "product", None)
         ingredient_obj = getattr(product_obj, "ingredient", None) if product_obj else None
 
-        ingredient_name = getattr(ingredient_obj, "display_name", "Unknown")
-
         # Feature 011: Check if packaging ingredient
         is_packaging = getattr(ingredient_obj, "is_packaging", False) if ingredient_obj else False
         type_indicator = "📦 " if is_packaging else ""
-        brand = getattr(product_obj, "brand", "Unknown") if product_obj else "Unknown"
-        # Get package size info for product display (package_unit_quantity = package size)
-        package_size = getattr(product_obj, "package_unit_quantity", None)
-        inventory_unit = getattr(product_obj, "package_unit", "") or ""
 
-        # Create descriptive product name showing brand and package size
-        if package_size and inventory_unit:
-            product_name = f"{brand} ({package_size} {inventory_unit} package)".strip()
-        else:
-            product_name = brand
+        # Product column: Brand name
+        brand = getattr(product_obj, "brand", "Unknown") if product_obj else "Unknown"
+        product_display = f"{type_indicator}{brand}"
+
+        # Description column: Product name + package info
+        product_name = getattr(product_obj, "product_name", None) or ""
+        package_qty = getattr(product_obj, "package_unit_quantity", None)
+        package_unit = getattr(product_obj, "package_unit", "") or ""
+        package_type = getattr(product_obj, "package_type", None) or ""
+
+        # Build description: "Product Name - 25 lb bag" or "25 lb bag"
+        desc_parts = []
+        if product_name:
+            desc_parts.append(product_name)
+        if package_qty and package_unit:
+            size_str = f"{package_qty:g} {package_unit}"
+            if package_type:
+                size_str += f" {package_type}"
+            desc_parts.append(size_str)
+        description = " - ".join(desc_parts) if desc_parts else "N/A"
 
         # Check expiration status
         expiration_date = getattr(item, "expiration_date", None)
@@ -544,7 +561,7 @@ class InventoryTab(ctk.CTkFrame):
 
             if days_until_expiry < 0:
                 warning_color = "#8B0000"  # Dark red for expired
-                expiration_text = f"EXPIRED ({expiration_text})"
+                expiration_text = f"EXPIRED"
             elif days_until_expiry <= 14:
                 warning_color = "#DAA520"  # Goldenrod for expiring soon
                 expiration_text = f"⚠️ {expiration_text}"
@@ -552,25 +569,25 @@ class InventoryTab(ctk.CTkFrame):
         if warning_color:
             row_frame.configure(fg_color=warning_color)
 
-        # Ingredient name (with packaging indicator if applicable)
-        ing_label = ctk.CTkLabel(
-            row_frame,
-            text=f"{type_indicator}{ingredient_name}",
-            width=180,  # Match header width
-            anchor="w",
-        )
-        ing_label.grid(row=0, column=0, padx=3, pady=3, sticky="w")
-
-        # Product
+        # Column 0: Product (brand)
         product_label = ctk.CTkLabel(
             row_frame,
-            text=product_name,
-            width=200,  # Match header width
+            text=self._truncate_text(product_display, 22),
+            width=180,
             anchor="w",
         )
-        product_label.grid(row=0, column=1, padx=3, pady=3, sticky="w")
+        product_label.grid(row=0, column=0, padx=3, pady=3, sticky="w")
 
-        # Quantity - show as "X pkg (Y unit)" format
+        # Column 1: Description (product name + package info)
+        desc_label = ctk.CTkLabel(
+            row_frame,
+            text=self._truncate_text(description, 28),
+            width=220,
+            anchor="w",
+        )
+        desc_label.grid(row=0, column=1, padx=3, pady=3, sticky="w")
+
+        # Column 2: Quantity - show as "X pkg (Y unit)" format
         qty_value = getattr(item, "quantity", 0) or 0
 
         # Format total quantity
@@ -580,46 +597,46 @@ class InventoryTab(ctk.CTkFrame):
             qty_total = f"{qty_value:.1f}"
 
         # Calculate packages if package size is known
-        if package_size and package_size > 0:
-            packages = qty_value / float(package_size)
+        if package_qty and package_qty > 0:
+            packages = qty_value / float(package_qty)
             if packages == int(packages):
                 pkg_text = str(int(packages))
             else:
                 pkg_text = f"{packages:.1f}"
-            qty_display = f"{pkg_text} pkg ({qty_total} {inventory_unit})".strip()
+            qty_display = f"{pkg_text} pkg ({qty_total} {package_unit})"
         else:
-            qty_display = f"{qty_total} {inventory_unit}".strip()
+            qty_display = f"{qty_total} {package_unit}".strip()
 
         qty_label = ctk.CTkLabel(
             row_frame,
             text=qty_display,
-            width=150,  # Wider for new format
+            width=140,
             anchor="w",
-            font=ctk.CTkFont(weight="bold"),  # Make quantity more prominent
+            font=ctk.CTkFont(weight="bold"),
         )
         qty_label.grid(row=0, column=2, padx=3, pady=3, sticky="w")
 
-        # Purchase date
+        # Column 3: Purchase date
         purchase_date = getattr(item, "purchase_date", None)
         purchase_str = purchase_date.strftime("%Y-%m-%d") if purchase_date else "N/A"
         purchase_label = ctk.CTkLabel(
             row_frame,
             text=purchase_str,
-            width=110,  # Match header width
+            width=100,
             anchor="w",
         )
         purchase_label.grid(row=0, column=3, padx=3, pady=3, sticky="w")
 
-        # Expiration date
+        # Column 4: Expiration date
         exp_label = ctk.CTkLabel(
             row_frame,
             text=expiration_text,
-            width=110,  # Match header width
+            width=100,
             anchor="w",
         )
         exp_label.grid(row=0, column=4, padx=3, pady=3, sticky="w")
 
-        # Actions
+        # Column 5: Actions
         actions_frame = ctk.CTkFrame(row_frame)
         actions_frame.grid(row=0, column=5, padx=3, pady=3)
 
@@ -628,7 +645,7 @@ class InventoryTab(ctk.CTkFrame):
             actions_frame,
             text="Edit",
             command=lambda id=item_id: self._edit_inventory_item(id),
-            width=80,
+            width=70,
         )
         edit_btn.grid(row=0, column=0, padx=2)
 
@@ -636,7 +653,7 @@ class InventoryTab(ctk.CTkFrame):
             actions_frame,
             text="Delete",
             command=lambda id=item_id: self._delete_inventory_item(id),
-            width=80,
+            width=70,
             fg_color="darkred",
             hover_color="red",
         )
