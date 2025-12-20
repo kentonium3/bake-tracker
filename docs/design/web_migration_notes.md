@@ -52,6 +52,46 @@ Track all architectural decisions with their web migration implications.
 
 ## Architecture Decisions
 
+### [2025-12-20] Inventory Management via API for Multiple Input Modes
+
+**Context:** Desktop app uses manual UI for inventory entry. Web version needs to support multiple inventory input methods beyond just UI forms.
+
+**Desktop Choice:** Direct UI input only - CustomTkinter forms for adding inventory items manually
+
+**Web Migration Impact:**
+- **Cost:** Medium
+- **Changes Needed:**
+  - Implement REST API endpoints for inventory management (CRUD operations)
+  - Support multiple input modes:
+    - Manual UI entry (web forms)
+    - Mobile barcode scanning workflow (GTIN lookup → confirm/edit → add to inventory)
+    - Bulk CSV import (purchase data from retailers)
+    - Future: Receipt photo OCR, smart home integrations
+  - API design should be input-agnostic:
+    - `POST /api/inventory` - Create inventory item
+    - `GET /api/inventory` - List user's inventory
+    - `PUT /api/inventory/{id}` - Update inventory item
+    - `DELETE /api/inventory/{id}` - Remove inventory item
+  - Mobile barcode workflow needs:
+    - `GET /api/products/lookup?gtin={barcode}` - Product lookup by GTIN
+    - Return product details for user confirmation
+    - Allow editing product_name, package_size before creating inventory
+- **Risks:**
+  - API security critical (ensure user can only access their own inventory)
+  - Concurrent updates from multiple devices/input methods
+  - Barcode lookup failures need graceful degradation (manual entry fallback)
+- **Alternatives Considered:**
+  - Keep UI-only approach → Rejected (limits mobile/automation use cases)
+  - Separate APIs per input mode → Rejected (increases complexity, harder to maintain)
+
+**Status:** ⚠️ Needs migration work (API layer + mobile workflow design)
+
+**Related Features:**
+- Feature 023 (Product Name Differentiation) enables GTIN → readable product identification for mobile
+- Background density enrichment service (documented above) complements inventory API
+
+---
+
 ### [2025-11-08] Service Layer Separation
 
 **Context:** Need testable business logic independent of UI framework
