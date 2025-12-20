@@ -73,11 +73,11 @@ class IngredientsTab(ctk.CTkFrame):
         self._create_ingredient_list()
         self._create_status_bar()
 
-        # Show initial state (deferred loading for faster startup)
-        self._show_initial_state()
-
         # Grid the frame
         self.grid(row=0, column=0, sticky="nsew", padx=10, pady=10)
+
+        # Show initial state - data will be loaded when tab is selected
+        self._show_initial_state()
 
     def _create_title(self):
         """Create the title label."""
@@ -308,18 +308,18 @@ class IngredientsTab(ctk.CTkFrame):
             self.update_status("Error loading ingredients")
 
     def _show_initial_state(self):
-        """Show initial state prompting user to load data."""
+        """Show initial state - data loads automatically when tab is selected."""
         for widget in self.list_frame.winfo_children():
             if widget != self.empty_label:
                 widget.destroy()
         initial_label = ctk.CTkLabel(
             self.list_frame,
-            text="Click 'Refresh' to load ingredients.",
+            text="Loading ingredients...",
             font=ctk.CTkFont(size=14),
             text_color="gray",
         )
         initial_label.grid(row=0, column=0, padx=20, pady=30)
-        self.update_status("Ready")
+        self.update_status("Loading...")
 
     def _update_ingredient_display(self):
         """Update the displayed list of ingredients based on current filters."""

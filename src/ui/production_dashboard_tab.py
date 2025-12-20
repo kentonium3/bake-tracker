@@ -47,9 +47,11 @@ class ProductionDashboardTab(ctk.CTkFrame):
 
         self.service_integrator = get_ui_service_integrator()
         self._event_cards = []  # Feature 018: Track EventCard widgets
+        self._data_loaded = False  # Lazy loading flag
 
         self._setup_ui()
-        self.refresh()
+        # Data will be loaded when tab is first selected (lazy loading)
+        # self.refresh()
 
         # Grid the frame
         self.grid(row=0, column=0, sticky="nsew", padx=10, pady=10)

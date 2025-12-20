@@ -65,7 +65,7 @@ class InventoryTab(ctk.CTkFrame):
         # Grid the frame to fill parent
         self.grid(row=0, column=0, sticky="nsew", padx=10, pady=10)
 
-        # Show initial "click refresh" message instead of auto-loading
+        # Show loading message - data will be loaded when tab is selected
         self._show_initial_state()
 
     def _create_header(self):
@@ -260,16 +260,17 @@ class InventoryTab(ctk.CTkFrame):
         else:
             self._display_detail_view()
 
-        # Force scroll region recalculation
-        self.scrollable_frame.update_idletasks()
+        # Note: Removed update_idletasks() call - it blocks the UI thread
+        # and causes freezing with many widgets. CustomTkinter handles
+        # scroll region updates automatically.
 
     def _show_initial_state(self):
-        """Show initial state prompting user to load data."""
+        """Show initial state - data loads automatically when tab is selected."""
         for widget in self.scrollable_frame.winfo_children():
             widget.destroy()
         initial_label = ctk.CTkLabel(
             self.scrollable_frame,
-            text="Click 'Refresh' to load inventory data.",
+            text="Loading inventory...",
             font=ctk.CTkFont(size=16),
             text_color="gray",
         )
@@ -301,8 +302,9 @@ class InventoryTab(ctk.CTkFrame):
         # Create header
         self._create_aggregate_header()
 
-        # Limit rows to prevent UI freeze (aggregate view has expensive per-row DB queries)
-        MAX_DISPLAY_ROWS = 50
+        # Limit rows to prevent UI freeze
+        # CustomTkinter is slow with many widgets - keep this low
+        MAX_DISPLAY_ROWS = 25
         sorted_groups = sorted(ingredient_groups.items())
         display_groups = sorted_groups[:MAX_DISPLAY_ROWS]
 
@@ -351,12 +353,11 @@ class InventoryTab(ctk.CTkFrame):
         row_frame.grid(row=row_idx, column=0, padx=5, pady=2, sticky="ew")
         row_frame.grid_columnconfigure(1, weight=1)
 
-        # Get ingredient info
+        # Get ingredient info from already-loaded items (no DB query needed)
         ingredient_obj = None
-        try:
-            ingredient_obj = ingredient_service.get_ingredient(ingredient_slug)
-        except Exception:
-            ingredient_obj = None
+        if items:
+            product = getattr(items[0], "product", None)
+            ingredient_obj = getattr(product, "ingredient", None) if product else None
 
         ingredient_name = getattr(ingredient_obj, "display_name", ingredient_slug)
 
@@ -364,24 +365,30 @@ class InventoryTab(ctk.CTkFrame):
         is_packaging = getattr(ingredient_obj, "is_packaging", False) if ingredient_obj else False
         type_indicator = "📦 " if is_packaging else ""
 
-        # Calculate total quantity using new service function
-        try:
-            unit_totals = inventory_item_service.get_total_quantity(ingredient_slug)
-            if unit_totals:
-                # Format as "25 lb + 3 cup" style display
-                qty_parts = []
-                for unit, total in unit_totals.items():
-                    if total > 0:
-                        if total == int(total):
-                            qty_parts.append(f"{int(total)} {unit}")
-                        else:
-                            qty_parts.append(f"{total:.1f} {unit}")
+        # Calculate total quantity from already-loaded items (no DB query needed)
+        from decimal import Decimal
+        unit_totals = {}
+        for item in items:
+            product = getattr(item, "product", None)
+            unit = getattr(product, "package_unit", None) if product else None
+            qty = getattr(item, "quantity", 0) or 0
+            if unit and qty > 0:
+                if unit not in unit_totals:
+                    unit_totals[unit] = Decimal("0.0")
+                unit_totals[unit] += Decimal(str(qty))
 
-                qty_display = " + ".join(qty_parts) if qty_parts else "0"
-            else:
-                qty_display = "0"
-        except Exception:
-            qty_display = "N/A"
+        if unit_totals:
+            # Format as "25 lb + 3 cup" style display
+            qty_parts = []
+            for unit, total in unit_totals.items():
+                if total > 0:
+                    if total == int(total):
+                        qty_parts.append(f"{int(total)} {unit}")
+                    else:
+                        qty_parts.append(f"{float(total):.1f} {unit}")
+            qty_display = " + ".join(qty_parts) if qty_parts else "0"
+        else:
+            qty_display = "0"
 
         # Get lot count and oldest purchase date
         lot_count = len(items)
@@ -456,7 +463,8 @@ class InventoryTab(ctk.CTkFrame):
         )
 
         # Limit rows to prevent UI freeze with large datasets
-        MAX_DISPLAY_ROWS = 100
+        # CustomTkinter is slow with many widgets - keep this low
+        MAX_DISPLAY_ROWS = 25
         display_items = sorted_items[:MAX_DISPLAY_ROWS]
 
         # Display each item
@@ -615,10 +623,11 @@ class InventoryTab(ctk.CTkFrame):
         actions_frame = ctk.CTkFrame(row_frame)
         actions_frame.grid(row=0, column=5, padx=3, pady=3)
 
+        item_id = getattr(item, "id", None)
         edit_btn = ctk.CTkButton(
             actions_frame,
             text="Edit",
-            command=lambda: self._edit_inventory_item(item["id"]),
+            command=lambda id=item_id: self._edit_inventory_item(id),
             width=80,
         )
         edit_btn.grid(row=0, column=0, padx=2)
@@ -626,7 +635,7 @@ class InventoryTab(ctk.CTkFrame):
         delete_btn = ctk.CTkButton(
             actions_frame,
             text="Delete",
-            command=lambda: self._delete_inventory_item(item["id"]),
+            command=lambda id=item_id: self._delete_inventory_item(id),
             width=80,
             fg_color="darkred",
             hover_color="red",

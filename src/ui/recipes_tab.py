@@ -65,8 +65,8 @@ class RecipesTab(ctk.CTkFrame):
         self._create_data_table()
         self._create_status_bar()
 
-        # Load initial data
-        self.refresh()
+        # Data will be loaded when tab is first selected (lazy loading)
+        # self.refresh()
 
         # Grid the frame
         self.grid(row=0, column=0, sticky="nsew", padx=10, pady=10)

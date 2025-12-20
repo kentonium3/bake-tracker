@@ -297,12 +297,25 @@ class MainWindow(ctk.CTk):
         )
 
     def _on_tab_change(self):
-        """Handle tab change event - refresh certain tabs when selected."""
+        """Handle tab change event - lazy load data when tabs are first selected."""
         current_tab = self.tabview.get()
         if current_tab == "Summary":  # Renamed from "Dashboard" (Feature 017)
             self.dashboard_tab.refresh()
         elif current_tab == "Production":
-            self.production_tab.refresh()
+            # Lazy load production on first visit
+            if not getattr(self.production_tab, '_data_loaded', False):
+                self.production_tab._data_loaded = True
+                self.after(10, self.production_tab.refresh)
+        elif current_tab == "My Ingredients":
+            # Lazy load ingredients on first visit
+            if not getattr(self.ingredients_tab, '_data_loaded', False):
+                self.ingredients_tab._data_loaded = True
+                self.after(10, self.ingredients_tab.refresh)
+        elif current_tab == "My Pantry":
+            # Lazy load inventory on first visit
+            if not getattr(self.inventory_tab, '_data_loaded', False):
+                self.inventory_tab._data_loaded = True
+                self.after(10, self.inventory_tab.refresh)
 
     def refresh_dashboard(self):
         """Refresh the summary tab (formerly dashboard) with current data."""
