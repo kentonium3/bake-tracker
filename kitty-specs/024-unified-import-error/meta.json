@@ -1,0 +1,7 @@
+{
+  "feature_number": "024",
+  "slug": "024-unified-import-error",
+  "friendly_name": "Unified Import Error Handling",
+  "source_description": "Standardize error display and logging across Unified Import and Catalog Import systems. Replace CatalogImportDialog messageboxes with ImportResultsDialog pattern, add log file writing to catalog imports, display suggestion field from ImportError dataclass, show relative paths for log locations.",
+  "created_at": "2025-12-20T04:08:16Z"
+}

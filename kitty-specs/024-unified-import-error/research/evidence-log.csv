@@ -1,0 +1,7 @@
+id,date,source,finding,relevance,decision_link
+E1,2025-12-19,src/ui/import_export_dialog.py:52-166,ImportResultsDialog has scrolling copy-to-clipboard and log path display,High - can reuse for catalog import,Reuse ImportResultsDialog
+E2,2025-12-19,docs/design/F024_unified_import_error_handling.md,Design doc recommends Option A - generalize _write_import_log in place,High - design decision,Log function placement
+E3,2025-12-19,kitty-specs/024-unified-import-error/spec.md FR-007,Requirement for relative path display in dialog,High - explicit requirement,Display relative paths
+E4,2025-12-19,docs/design/F024_unified_import_error_handling.md Section 3,Suggestion display format with clear visual separation,Medium - UX guidance,Suggestion formatting
+E5,2025-12-19,kitty-specs/024-unified-import-error/spec.md Out of Scope,Error structure unification explicitly deferred,High - scope boundary,Defer unification
+E6,2025-12-19,src/ui/import_export_dialog.py:19-26,_get_logs_dir() returns docs/user_testing path,High - existing behavior,Log directory
