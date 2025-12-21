@@ -9,7 +9,7 @@ subtasks:
   - "T029"
 title: "Assignment Dialog"
 phase: "Phase 4 - UI Assignment"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "system"
 shell_pid: ""
@@ -178,3 +178,4 @@ Manual testing checklist:
 
 - 2025-12-21T12:00:00Z - system - lane=planned - Prompt created.
 - 2025-12-21T22:07:18Z – system – shell_pid= – lane=doing – Moved to doing
+- 2025-12-21T22:15:38Z – system – shell_pid= – lane=for_review – Moved to for_review
