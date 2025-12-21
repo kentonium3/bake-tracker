@@ -12,10 +12,10 @@ subtasks:
   - "T013"
 title: "Packaging Service Core"
 phase: "Phase 2 - Service Layer"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "claude"
+shell_pid: "94728"
 review_status: ""
 reviewed_by: ""
 history:
@@ -255,3 +255,4 @@ Required tests:
 ## Activity Log
 
 - 2025-12-21T12:00:00Z - system - lane=planned - Prompt created.
+- 2025-12-21T21:43:05Z – claude – shell_pid=94728 – lane=doing – Started implementation of packaging service core
