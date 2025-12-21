@@ -13,7 +13,6 @@ from tkinter import filedialog, messagebox
 import customtkinter as ctk
 
 from src.services import import_export_service
-from src.services.import_export_service import ImportVersionError
 
 
 def _get_logs_dir() -> Path:
@@ -355,13 +354,6 @@ class ImportDialog(ctk.CTkToplevel):
             results_dialog.wait_window()
             self.destroy()
 
-        except ImportVersionError as e:
-            # User-friendly version error
-            messagebox.showerror(
-                "Unsupported File Version",
-                str(e),
-                parent=self,
-            )
         except FileNotFoundError:
             messagebox.showerror(
                 "File Not Found",

@@ -1066,7 +1066,7 @@ def validate_catalog_file(file_path: str) -> Dict:
     """
     Load and validate a catalog file.
 
-    Detects file format and ensures it's the catalog format (not unified import).
+    Detects file format and ensures it's valid JSON for catalog import.
 
     Args:
         file_path: Path to the JSON catalog file
@@ -1076,7 +1076,12 @@ def validate_catalog_file(file_path: str) -> Dict:
 
     Raises:
         FileNotFoundError: If file doesn't exist
-        CatalogImportError: If format invalid or wrong type
+        CatalogImportError: If JSON is invalid
+
+    Note:
+        The 'version' field is optional and informational only. Import validation
+        relies on required field presence, FK resolution, and SQLAlchemy model
+        validation. This allows imports to work across minor format changes.
     """
     path = Path(file_path)
     if not path.exists():
@@ -1088,17 +1093,8 @@ def validate_catalog_file(file_path: str) -> Dict:
     except json.JSONDecodeError as e:
         raise CatalogImportError(f"Invalid JSON: {e}")
 
-    # Version validation - unified versioning scheme (v3.4+)
-    if "version" not in data:
-        raise CatalogImportError(
-            "Missing 'version' field. Expected version 3.x format."
-        )
-
-    version = data["version"]
-    if not version.startswith("3."):
-        raise CatalogImportError(
-            f"Unsupported version: {version}. Expected 3.x (e.g., '3.4')"
-        )
+    # Version field is informational only - no validation
+    # Actual compatibility is determined by field presence and FK resolution
 
     return data
 

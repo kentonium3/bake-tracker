@@ -2276,8 +2276,13 @@ def import_all_from_json_v3(file_path: str, mode: str = "merge") -> ImportResult
         ImportResult with detailed per-entity statistics
 
     Raises:
-        ImportVersionError: If file version is not 3.4
         ValueError: If mode is not "merge" or "replace"
+
+    Note:
+        The 'version' field in the import file is optional and informational only.
+        Import validation relies on required field presence, FK resolution, and
+        SQLAlchemy model validation. This allows imports to work across minor
+        format changes without requiring version bumps.
     """
     # Validate mode
     if mode not in ("merge", "replace"):
@@ -2291,14 +2296,8 @@ def import_all_from_json_v3(file_path: str, mode: str = "merge") -> ImportResult
         with open(file_path, "r", encoding="utf-8") as f:
             data = json.load(f)
 
-        # Version validation - v3.4 only (no backward compatibility)
-        version = data.get("version", "unknown")
-        if version != "3.4":
-            raise ImportVersionError(
-                f"Unsupported file version: {version}. "
-                "This application requires v3.4 format. "
-                "Please export a new backup from a current version."
-            )
+        # Version field is informational only - no validation
+        # Actual compatibility is determined by field presence and FK resolution
 
         # Use single transaction for atomicity
         with session_scope() as session:
@@ -2936,8 +2935,6 @@ def import_all_from_json_v3(file_path: str, mode: str = "merge") -> ImportResult
             # Commit transaction
             session.commit()
 
-    except ImportVersionError:
-        raise  # Re-raise version errors
     except Exception as e:
         result.add_error("file", file_path, str(e))
 

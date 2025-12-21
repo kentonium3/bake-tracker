@@ -1571,43 +1571,30 @@ class TestValidateCatalogFile:
         finally:
             os.unlink(temp_path)
 
-    def test_version_2x_rejected(self):
-        """Test that version 2.x format raises error (only 3.x supported)."""
+    def test_version_field_is_informational_only(self):
+        """Test that any version value is accepted (version is informational only)."""
+        for version in ["1.0", "2.0", "3.4", "3.5", "4.0", "99.99"]:
+            with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
+                json.dump({"version": version, "ingredients": []}, f)
+                temp_path = f.name
+
+            try:
+                # Should not raise - version is informational only
+                data = validate_catalog_file(temp_path)
+                assert data["version"] == version
+            finally:
+                os.unlink(temp_path)
+
+    def test_missing_version_accepted(self):
+        """Test that file without version field is accepted."""
         with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
-            json.dump({"version": "2.0", "data": {}}, f)
+            json.dump({"ingredients": [], "products": []}, f)
             temp_path = f.name
 
         try:
-            with pytest.raises(CatalogImportError) as exc_info:
-                validate_catalog_file(temp_path)
-            assert "Unsupported version" in str(exc_info.value)
-            assert "3.x" in str(exc_info.value)
-        finally:
-            os.unlink(temp_path)
-
-    def test_missing_version_rejected(self):
-        """Test that file without version field is rejected."""
-        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
-            json.dump({"random": "data"}, f)
-            temp_path = f.name
-
-        try:
-            with pytest.raises(CatalogImportError) as exc_info:
-                validate_catalog_file(temp_path)
-            assert "Missing 'version'" in str(exc_info.value)
-        finally:
-            os.unlink(temp_path)
-
-    def test_unsupported_version_rejected(self):
-        """Test that unsupported version is rejected."""
-        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
-            json.dump({"version": "4.0"}, f)
-            temp_path = f.name
-
-        try:
-            with pytest.raises(CatalogImportError) as exc_info:
-                validate_catalog_file(temp_path)
-            assert "Unsupported version" in str(exc_info.value)
+            # Should not raise - version is optional
+            data = validate_catalog_file(temp_path)
+            assert "version" not in data  # No version in file, that's OK
         finally:
             os.unlink(temp_path)
 
