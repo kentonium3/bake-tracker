@@ -58,46 +58,88 @@ class ImportResult:
             self._ensure_entity(entity_type)
             self.entity_counts[entity_type]["imported"] += 1
 
-    def add_skip(self, record_type: str, record_name: str, reason: str):
-        """Record a skipped record."""
+    def add_skip(
+        self,
+        record_type: str,
+        record_name: str,
+        reason: str,
+        suggestion: str = None,
+    ):
+        """Record a skipped record.
+
+        Args:
+            record_type: Type of record (e.g., "ingredients", "recipes")
+            record_name: Identifier for the record
+            reason: Why the record was skipped
+            suggestion: Optional actionable suggestion
+        """
         self.skipped += 1
         self.total_records += 1
         self._ensure_entity(record_type)
         self.entity_counts[record_type]["skipped"] += 1
-        self.warnings.append(
-            {
-                "record_type": record_type,
-                "record_name": record_name,
-                "warning_type": "skipped",
-                "message": reason,
-            }
-        )
+        warning_entry = {
+            "record_type": record_type,
+            "record_name": record_name,
+            "warning_type": "skipped",
+            "message": reason,
+        }
+        if suggestion:
+            warning_entry["suggestion"] = suggestion
+        self.warnings.append(warning_entry)
 
-    def add_error(self, record_type: str, record_name: str, error: str):
-        """Record a failed import."""
+    def add_error(
+        self,
+        record_type: str,
+        record_name: str,
+        error: str,
+        suggestion: str = None,
+    ):
+        """Record a failed import.
+
+        Args:
+            record_type: Type of record (e.g., "ingredients", "recipes")
+            record_name: Identifier for the record
+            error: Error message describing what went wrong
+            suggestion: Optional actionable suggestion for fixing the error
+        """
         self.failed += 1
         self.total_records += 1
         self._ensure_entity(record_type)
         self.entity_counts[record_type]["errors"] += 1
-        self.errors.append(
-            {
-                "record_type": record_type,
-                "record_name": record_name,
-                "error_type": "import_error",
-                "message": error,
-            }
-        )
+        error_entry = {
+            "record_type": record_type,
+            "record_name": record_name,
+            "error_type": "import_error",
+            "message": error,
+        }
+        if suggestion:
+            error_entry["suggestion"] = suggestion
+        self.errors.append(error_entry)
 
-    def add_warning(self, record_type: str, record_name: str, message: str):
-        """Record a warning (non-fatal issue during import)."""
-        self.warnings.append(
-            {
-                "record_type": record_type,
-                "record_name": record_name,
-                "warning_type": "warning",
-                "message": message,
-            }
-        )
+    def add_warning(
+        self,
+        record_type: str,
+        record_name: str,
+        message: str,
+        suggestion: str = None,
+    ):
+        """Record a warning (non-fatal issue during import).
+
+        Args:
+            record_type: Type of record (e.g., "ingredients", "recipes")
+            record_name: Identifier for the record
+            message: Warning message
+            suggestion: Optional actionable suggestion
+        """
+        warning_entry = {
+            "record_type": record_type,
+            "record_name": record_name,
+            "warning_type": "warning",
+            "message": message,
+        }
+        if suggestion:
+            warning_entry["suggestion"] = suggestion
+        self.warnings.append(warning_entry)
 
     def _ensure_entity(self, entity_type: str):
         """Ensure entity type exists in entity_counts."""
@@ -152,14 +194,18 @@ class ImportResult:
             for error in self.errors:
                 lines.append(f"  - {error['record_type']}: {error['record_name']}")
                 lines.append(f"    {error['message']}")
+                if error.get("suggestion"):
+                    lines.append(f"    Suggestion: {error['suggestion']}")
 
         if self.warnings and len(self.warnings) <= 10:
             lines.append("\nWarnings:")
             for warning in self.warnings:
                 lines.append(f"  - {warning['record_type']}: {warning['record_name']}")
                 lines.append(f"    {warning['message']}")
+                if warning.get("suggestion"):
+                    lines.append(f"    Suggestion: {warning['suggestion']}")
         elif self.warnings:
-            lines.append(f"\n{len(self.warnings)} warnings (use detailed report for full list)")
+            lines.append(f"\n{len(self.warnings)} warnings (see log file for full list)")
 
         lines.append("=" * 60)
         return "\n".join(lines)
@@ -2366,7 +2412,12 @@ def import_all_from_json_v3(file_path: str, mode: str = "merge") -> ImportResult
                         ing_slug = prod_data.get("ingredient_slug", "")
                         ingredient = session.query(Ingredient).filter_by(slug=ing_slug).first()
                         if not ingredient:
-                            result.add_error("product", prod_data.get("brand", "unknown"), f"Ingredient not found: {ing_slug}")
+                            result.add_error(
+                                "product",
+                                prod_data.get("brand", "unknown"),
+                                f"Ingredient not found: {ing_slug}",
+                                suggestion=f"Add ingredient '{ing_slug}' to the catalog first.",
+                            )
                             continue
 
                         brand = prod_data.get("brand", "")
@@ -2429,7 +2480,12 @@ def import_all_from_json_v3(file_path: str, mode: str = "merge") -> ImportResult
                         # Find ingredient
                         ingredient = session.query(Ingredient).filter_by(slug=ing_slug).first()
                         if not ingredient:
-                            result.add_error("inventory_item", f"{ing_slug}/{product_brand}", f"Ingredient not found: {ing_slug}")
+                            result.add_error(
+                                "inventory_item",
+                                f"{ing_slug}/{product_brand}",
+                                f"Ingredient not found: {ing_slug}",
+                                suggestion="Import ingredients and products before inventory items.",
+                            )
                             continue
 
                         # Build product filter with all available identification fields
@@ -2449,7 +2505,12 @@ def import_all_from_json_v3(file_path: str, mode: str = "merge") -> ImportResult
                         matching_products = session.query(Product).filter_by(**product_filter).all()
 
                         if len(matching_products) == 0:
-                            result.add_error("inventory_item", f"{ing_slug}/{product_brand}", f"Product not found: {product_brand}")
+                            result.add_error(
+                                "inventory_item",
+                                f"{ing_slug}/{product_brand}",
+                                f"Product not found: {product_brand}",
+                                suggestion=f"Add product '{product_brand}' for ingredient '{ing_slug}' first.",
+                            )
                             continue
                         elif len(matching_products) > 1:
                             # Ambiguous match - multiple products with same brand (old export format)
@@ -2457,7 +2518,8 @@ def import_all_from_json_v3(file_path: str, mode: str = "merge") -> ImportResult
                                 "inventory_item",
                                 f"{ing_slug}/{product_brand}",
                                 f"Ambiguous product match: {len(matching_products)} products found with brand '{product_brand}'. "
-                                f"Export file may be from older version without product_name field."
+                                f"Export file may be from older version without product_name field.",
+                                suggestion="Re-export data using latest version to include product_name field.",
                             )
                             continue
 
@@ -2502,7 +2564,12 @@ def import_all_from_json_v3(file_path: str, mode: str = "merge") -> ImportResult
                         # Find ingredient
                         ingredient = session.query(Ingredient).filter_by(slug=ing_slug).first()
                         if not ingredient:
-                            result.add_error("purchase", f"{ing_slug}/{product_brand}", f"Ingredient not found: {ing_slug}")
+                            result.add_error(
+                                "purchase",
+                                f"{ing_slug}/{product_brand}",
+                                f"Ingredient not found: {ing_slug}",
+                                suggestion="Import ingredients and products before purchases.",
+                            )
                             continue
 
                         # Build product filter with all available identification fields
@@ -2522,7 +2589,12 @@ def import_all_from_json_v3(file_path: str, mode: str = "merge") -> ImportResult
                         matching_products = session.query(Product).filter_by(**product_filter).all()
 
                         if len(matching_products) == 0:
-                            result.add_error("purchase", f"{ing_slug}/{product_brand}", f"Product not found: {product_brand}")
+                            result.add_error(
+                                "purchase",
+                                f"{ing_slug}/{product_brand}",
+                                f"Product not found: {product_brand}",
+                                suggestion=f"Add product '{product_brand}' for ingredient '{ing_slug}' first.",
+                            )
                             continue
                         elif len(matching_products) > 1:
                             # Ambiguous match - multiple products with same brand (old export format)
@@ -2530,7 +2602,8 @@ def import_all_from_json_v3(file_path: str, mode: str = "merge") -> ImportResult
                                 "purchase",
                                 f"{ing_slug}/{product_brand}",
                                 f"Ambiguous product match: {len(matching_products)} products found with brand '{product_brand}'. "
-                                f"Export file may be from older version without product_name field."
+                                f"Export file may be from older version without product_name field.",
+                                suggestion="Re-export data using latest version to include product_name field.",
                             )
                             continue
 
@@ -2597,7 +2670,12 @@ def import_all_from_json_v3(file_path: str, mode: str = "merge") -> ImportResult
                                 missing_ingredients.append(ing_slug)
 
                         if missing_ingredients:
-                            result.add_error("recipe", name, f"Missing ingredients: {', '.join(missing_ingredients)}")
+                            result.add_error(
+                                "recipe",
+                                name,
+                                f"Missing ingredients: {', '.join(missing_ingredients)}",
+                                suggestion="Import ingredients first, or add missing ingredients to the ingredients catalog.",
+                            )
                             continue
 
                         if invalid_units:

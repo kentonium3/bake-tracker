@@ -1,6 +1,6 @@
 {
   "version": "3.4",
-  "exported_at": "2025-12-21T04:26:23.219037Z",
+  "exported_at": "2025-12-21T20:50:13.921655Z",
   "application": "bake-tracker",
   "ingredients": [
     {
@@ -667,8 +667,7 @@
       "slug": "chocolate_couverture",
       "category": "Chocolate & Cocoa",
       "is_packaging": false,
-      "description": "High-quality chocolate with minimum 31% cocoa butter",
-      "foodon_id": "FOODON_03301045"
+      "description": "High-quality chocolate with minimum 31% cocoa butter"
     },
     {
       "display_name": "Chocolate, couverture dark",
@@ -727,8 +726,7 @@
       "slug": "chocolate_ruby_callets",
       "category": "Chocolate & Cocoa",
       "is_packaging": false,
-      "description": "Ruby cocoa bean chocolate in callet/disk form",
-      "foodon_id": "FOODON_03310815"
+      "description": "Ruby cocoa bean chocolate in callet/disk form"
     },
     {
       "display_name": "Chocolate syrup",
@@ -1065,8 +1063,7 @@
       "slug": "currants_dried",
       "category": "Fruits",
       "is_packaging": false,
-      "description": "Dried Zante currants (aka Black Corinth raisins)",
-      "foodon_id": "FOODON_00003426"
+      "description": "Dried Zante currants (aka Black Corinth raisins)"
     },
     {
       "display_name": "Dates, pitted",
@@ -1361,8 +1358,7 @@
       "slug": "graham_cracker_crumbs",
       "category": "Flours & Meals",
       "is_packaging": false,
-      "description": "Finely ground graham crackers for crusts and bases",
-      "foodon_id": "FOODON_03301725"
+      "description": "Finely ground graham crackers for crusts and bases"
     },
     {
       "display_name": "Granola",
@@ -1583,8 +1579,7 @@
       "slug": "liqueur_blackcurrant",
       "category": "Liquids",
       "is_packaging": false,
-      "description": "Blackcurrant liqueur (aka Cassis)",
-      "foodon_id": "FOODON_03315615"
+      "description": "Blackcurrant liqueur (aka Cassis)"
     },
     {
       "display_name": "Liqueur, chocolate",
@@ -1598,8 +1593,7 @@
       "slug": "liqueur_coffee",
       "category": "Liquids",
       "is_packaging": false,
-      "description": "Coffee-flavored liqueur (aka Kahlua|Tia Maria)",
-      "foodon_id": "FOODON_03302061"
+      "description": "Coffee-flavored liqueur (aka Kahlua|Tia Maria)"
     },
     {
       "display_name": "Hazelnut Liqueur",
@@ -1627,8 +1621,7 @@
       "slug": "macadamia_nuts",
       "category": "Nuts & Seeds",
       "is_packaging": false,
-      "description": "Raw or roasted macadamia nut kernels",
-      "foodon_id": "FOODON_03306646"
+      "description": "Raw or roasted macadamia nut kernels"
     },
     {
       "display_name": "Mace, ground",
@@ -1963,8 +1956,7 @@
       "slug": "nutella",
       "category": "Other / Misc",
       "is_packaging": false,
-      "description": "Sweetened hazelnut cocoa spread (aka Nutella)",
-      "foodon_id": "FOODON_03309858"
+      "description": "Sweetened hazelnut cocoa spread (aka Nutella)"
     },
     {
       "display_name": "Nutmeg, ground",
@@ -2211,8 +2203,7 @@
       "slug": "pears_dried",
       "category": "Fruits",
       "is_packaging": false,
-      "description": "Dehydrated pear slices or pieces",
-      "foodon_id": "FOODON_03301292"
+      "description": "Dehydrated pear slices or pieces"
     },
     {
       "display_name": "Pecan flour",
@@ -2313,8 +2304,7 @@
       "slug": "pineapple_crushed_canned",
       "category": "Fruits",
       "is_packaging": false,
-      "description": "Canned crushed pineapple in juice or syrup",
-      "foodon_id": "FOODON_03301549"
+      "description": "Canned crushed pineapple in juice or syrup"
     },
     {
       "display_name": "Pineapple, dried",
@@ -2335,16 +2325,14 @@
       "slug": "pistachios",
       "category": "Nuts & Seeds",
       "is_packaging": false,
-      "description": "Shelled pistachio kernels",
-      "foodon_id": "FOODON_03301241"
+      "description": "Shelled pistachio kernels"
     },
     {
       "display_name": "Poppy seeds",
       "slug": "poppy_seeds",
       "category": "Nuts & Seeds",
       "is_packaging": false,
-      "description": "Whole culinary poppy seeds",
-      "foodon_id": "FOODON_03301138"
+      "description": "Whole culinary poppy seeds"
     },
     {
       "display_name": "Poppy seeds, blue",
@@ -2812,8 +2800,7 @@
       "slug": "swerve_sweetener",
       "category": "Sugars & Sweeteners",
       "is_packaging": false,
-      "description": "Zero-calorie sugar substitute (erythritol blend)",
-      "foodon_id": "FOODON_03316132"
+      "description": "Zero-calorie sugar substitute (erythritol blend)"
     },
     {
       "display_name": "Tahini",
@@ -2874,8 +2861,7 @@
       "slug": "toffee_bits",
       "category": "Chocolate & Cocoa",
       "is_packaging": false,
-      "description": "Crunchy almond toffee pieces (aka Heath bits)",
-      "foodon_id": "FOODON_03310245"
+      "description": "Crunchy almond toffee pieces (aka Heath bits)"
     },
     {
       "display_name": "Turbinado sugar",
@@ -2934,8 +2920,7 @@
       "slug": "vanilla_sugar",
       "category": "Sugars & Sweeteners",
       "is_packaging": false,
-      "description": "Granulated sugar infused with vanilla bean",
-      "foodon_id": "FOODON_03303649"
+      "description": "Granulated sugar infused with vanilla bean"
     },
     {
       "display_name": "Vinegar, apple cider",
@@ -3089,8 +3074,7 @@
       "package_unit_quantity": 25.0,
       "brand": "King Arthur",
       "product_name": "Unbleached All-Purpose Flour",
-      "package_type": "bag",
-      "gtin": "71012010615"
+      "package_type": "bag"
     },
     {
       "ingredient_slug": "allspice_ground",
@@ -3113,8 +3097,7 @@
       "package_unit_quantity": 2.0,
       "brand": "McCormick",
       "product_name": "Pure Almond Extract",
-      "package_type": "bottle",
-      "gtin": "52100037868"
+      "package_type": "bottle"
     },
     {
       "ingredient_slug": "almond_extract",
@@ -3136,8 +3119,7 @@
       "package_unit_quantity": 750.0,
       "brand": "Disaronno",
       "product_name": "Disaronno Originale",
-      "package_type": "bottle",
-      "gtin": "5003701450"
+      "package_type": "bottle"
     },
     {
       "ingredient_slug": "baking_powder",
@@ -3145,8 +3127,7 @@
       "package_unit_quantity": 230.0,
       "brand": "Rumford",
       "product_name": "Baking Powder",
-      "package_type": "can",
-      "gtin": "41617002254"
+      "package_type": "can"
     },
     {
       "ingredient_slug": "baking_soda",
@@ -3154,16 +3135,14 @@
       "package_unit_quantity": 1.0,
       "brand": "Arm & Hammer",
       "product_name": "Pure Baking Soda",
-      "package_type": "box",
-      "gtin": "33200011101"
+      "package_type": "box"
     },
     {
       "ingredient_slug": "bourbon",
       "package_unit": "l",
       "package_unit_quantity": 1.0,
       "brand": "Evan Williams",
-      "package_type": "bottle",
-      "gtin": "9674902124"
+      "package_type": "bottle"
     },
     {
       "ingredient_slug": "bread_flour",
@@ -3171,8 +3150,7 @@
       "package_unit_quantity": 5.0,
       "brand": "King Arthur",
       "product_name": "Bread Flour",
-      "package_type": "bag",
-      "gtin": "071012041053"
+      "package_type": "bag"
     },
     {
       "ingredient_slug": "bread_flour",
@@ -3187,8 +3165,7 @@
       "package_unit_quantity": 1.0,
       "brand": "Costco",
       "product_name": "Kirkland Signature Salted Sweet Cream Butter",
-      "package_type": "box",
-      "gtin": "096619384884"
+      "package_type": "box"
     },
     {
       "ingredient_slug": "butter_salted",
@@ -3203,8 +3180,7 @@
       "package_unit_quantity": 1.0,
       "brand": "Costco",
       "product_name": "Kirkland Signature Unsalted Sweet Cream Butter",
-      "package_type": "box",
-      "gtin": "096619414000"
+      "package_type": "box"
     },
     {
       "ingredient_slug": "butter_unsalted",
@@ -3219,8 +3195,7 @@
       "package_unit_quantity": 11.0,
       "brand": "Nestle",
       "product_name": "NESTLÉ® TOLL HOUSE® Butterscotch Artificially Flavored Morsels",
-      "package_type": "bag",
-      "gtin": "2800021730"
+      "package_type": "bag"
     },
     {
       "ingredient_slug": "cake_flour",
@@ -3228,8 +3203,7 @@
       "package_unit_quantity": 2.0,
       "brand": "King Arthur",
       "product_name": "Unbleached Cake Flour Blend",
-      "package_type": "bag",
-      "gtin": "071012000043"
+      "package_type": "bag"
     },
     {
       "ingredient_slug": "cake_flour",
@@ -3257,8 +3231,7 @@
       "package_unit": "oz",
       "package_unit_quantity": 14.0,
       "brand": "Brach’s",
-      "package_type": "bag",
-      "gtin": "11300049228"
+      "package_type": "bag"
     },
     {
       "ingredient_slug": "cardamom_ground",
@@ -3281,8 +3254,7 @@
       "package_unit_quantity": 4.0,
       "brand": "Baker's",
       "product_name": "Premium Semi-Sweet Chocolate Baking Bar",
-      "package_type": "box",
-      "gtin": "043000054024"
+      "package_type": "box"
     },
     {
       "ingredient_slug": "chocolate_baking_unsweetened",
@@ -3290,16 +3262,14 @@
       "package_unit_quantity": 4.0,
       "brand": "Baker's",
       "product_name": "Premium Unsweetened Chocolate Baking Bar",
-      "package_type": "box",
-      "gtin": "043000054017"
+      "package_type": "box"
     },
     {
       "ingredient_slug": "chocolate_chips_bittersweet",
       "package_unit": "g",
       "package_unit_quantity": 12.0,
       "brand": "Guittard",
-      "package_type": "bag",
-      "gtin": "7181802100"
+      "package_type": "bag"
     },
     {
       "ingredient_slug": "chocolate_chips_bittersweet",
@@ -3314,16 +3284,14 @@
       "package_unit_quantity": 12.0,
       "brand": "Hershey's",
       "product_name": "HERSHEY'S SPECIAL DARK Mildly Sweet Chocolate Baking Chips",
-      "package_type": "bag",
-      "gtin": "3400014680"
+      "package_type": "bag"
     },
     {
       "ingredient_slug": "chocolate_chips_espresso",
       "package_unit": "oz",
       "package_unit_quantity": 9.0,
       "brand": "Nestle",
-      "package_type": "bag",
-      "gtin": "2800071465"
+      "package_type": "bag"
     },
     {
       "ingredient_slug": "chocolate_chips_milk",
@@ -3338,8 +3306,7 @@
       "package_unit_quantity": 11.5,
       "brand": "Nestle",
       "product_name": "NESTLÉ® TOLL HOUSE® Milk Chocolate Morsels",
-      "package_type": "bag",
-      "gtin": "2800021760"
+      "package_type": "bag"
     },
     {
       "ingredient_slug": "chocolate_chips_semi_sweet",
@@ -3347,8 +3314,7 @@
       "package_unit_quantity": 10.0,
       "brand": "Nestle",
       "product_name": "NESTLÉ® TOLL HOUSE® Semi-Sweet Chocolate Morsels",
-      "package_type": "bag",
-      "gtin": "2800098612"
+      "package_type": "bag"
     },
     {
       "ingredient_slug": "chocolate_chips_semi_sweet",
@@ -3363,8 +3329,7 @@
       "package_unit_quantity": 10.0,
       "brand": "Nestle",
       "product_name": "NESTLÉ® TOLL HOUSE® Organic Allergen Free Semi-Sweet Morsels",
-      "package_type": "bag",
-      "gtin": "2800049618"
+      "package_type": "bag"
     },
     {
       "ingredient_slug": "chocolate_chips_white",
@@ -3379,24 +3344,21 @@
       "package_unit_quantity": 12.0,
       "brand": "Nestle",
       "product_name": "NESTLÉ® TOLL HOUSE® Premier White Morsels",
-      "package_type": "bag",
-      "gtin": "2800021010"
+      "package_type": "bag"
     },
     {
       "ingredient_slug": "chocolate_coating_milk",
       "package_unit": "oz",
       "package_unit_quantity": 9.0,
       "brand": "Cadbury",
-      "package_type": "bag",
-      "gtin": "3400005675"
+      "package_type": "bag"
     },
     {
       "ingredient_slug": "chocolate_coating_milk",
       "package_unit": "oz",
       "package_unit_quantity": 12.6,
       "brand": "Mars",
-      "package_type": "bag",
-      "gtin": "4000024906"
+      "package_type": "bag"
     },
     {
       "ingredient_slug": "chocolate_couverture_dark",
@@ -3418,8 +3380,7 @@
       "package_unit_quantity": 11.0,
       "brand": "Hershey's",
       "product_name": "HERSHEY'S KISSES SPECIAL DARK Mildly Sweet Chocolate Candy",
-      "package_type": "bag",
-      "gtin": "3400012088"
+      "package_type": "bag"
     },
     {
       "ingredient_slug": "cinnamon_chips",
@@ -3427,8 +3388,7 @@
       "package_unit_quantity": 10.0,
       "brand": "Hershey's",
       "product_name": "HERSHEY'S Cinnamon Baking Chips",
-      "package_type": "bag",
-      "gtin": "3400014670"
+      "package_type": "bag"
     },
     {
       "ingredient_slug": "cinnamon_ground_ceylon",
@@ -3458,8 +3418,7 @@
       "package_unit": "kg",
       "package_unit_quantity": 1.0,
       "brand": "deZaan",
-      "package_type": "bag",
-      "gtin": "718444190707"
+      "package_type": "bag"
     },
     {
       "ingredient_slug": "cocoa_powder_black",
@@ -3489,8 +3448,7 @@
       "package_unit_quantity": 10.0,
       "brand": "Hershey's",
       "product_name": "Natural Unsweetened Cocoa",
-      "package_type": "container",
-      "gtin": "3400005200"
+      "package_type": "container"
     },
     {
       "ingredient_slug": "cocoa_powder_natural",
@@ -3512,8 +3470,7 @@
       "package_unit_quantity": 16.0,
       "brand": "Karo",
       "product_name": "Dark Corn Syrup",
-      "package_type": "bottle",
-      "gtin": "761720050101"
+      "package_type": "bottle"
     },
     {
       "ingredient_slug": "corn_syrup_light",
@@ -3521,8 +3478,7 @@
       "package_unit_quantity": 16.0,
       "brand": "Karo",
       "product_name": "Light Corn Syrup with Real Vanilla",
-      "package_type": "bottle",
-      "gtin": "761720051108"
+      "package_type": "bottle"
     },
     {
       "ingredient_slug": "cornstarch",
@@ -3530,8 +3486,7 @@
       "package_unit_quantity": 16.0,
       "brand": "Argo",
       "product_name": "100% Pure Corn Starch",
-      "package_type": "box",
-      "gtin": "761720071045"
+      "package_type": "box"
     },
     {
       "ingredient_slug": "cornstarch",
@@ -3539,8 +3494,7 @@
       "package_unit_quantity": 1.0,
       "brand": "Wegman's",
       "product_name": "100% Pure Corn Starch",
-      "package_type": "box",
-      "gtin": "77890900239"
+      "package_type": "box"
     },
     {
       "ingredient_slug": "cranberries_dried",
@@ -3555,8 +3509,7 @@
       "package_unit_quantity": 1.5,
       "brand": "McCormick",
       "product_name": "Cream of Tartar",
-      "package_type": "bottle",
-      "gtin": "052100002361"
+      "package_type": "bottle"
     },
     {
       "ingredient_slug": "cream_of_tartar",
@@ -3578,8 +3531,7 @@
       "package_unit_quantity": 2.0,
       "brand": "Flavor Organics",
       "product_name": "Organic Chocolate Extract",
-      "package_type": "bottle",
-      "gtin": "651170001092"
+      "package_type": "bottle"
     },
     {
       "ingredient_slug": "extract_chocolate",
@@ -3601,8 +3553,7 @@
       "package_unit_quantity": 2.0,
       "brand": "Flavor Organics",
       "product_name": "Organic Coffee Extract",
-      "package_type": "bottle",
-      "gtin": "65117000110"
+      "package_type": "bottle"
     },
     {
       "ingredient_slug": "extract_mint",
@@ -3645,8 +3596,7 @@
       "package_unit_quantity": 16.0,
       "brand": "King Arthur",
       "product_name": "Almond Flour",
-      "package_type": "bag",
-      "gtin": "071012107018"
+      "package_type": "bag"
     },
     {
       "ingredient_slug": "gelatin_powder",
@@ -3654,8 +3604,7 @@
       "package_unit_quantity": 1.0,
       "brand": "Knox",
       "product_name": "Original Unflavored Gelatin",
-      "package_type": "box",
-      "gtin": "43000048675"
+      "package_type": "box"
     },
     {
       "ingredient_slug": "ginger_ground",
@@ -3671,8 +3620,7 @@
       "package_unit_quantity": 22.0,
       "brand": "Bob's Red Mill",
       "product_name": "Gluten Free 1-to-1 Baking Flour",
-      "package_type": "bag",
-      "gtin": "039978034530"
+      "package_type": "bag"
     },
     {
       "ingredient_slug": "golden_syrup",
@@ -3680,8 +3628,7 @@
       "package_unit_quantity": 16.0,
       "brand": "Lyle’s",
       "product_name": "Golden Syrup",
-      "package_type": "bottle",
-      "gtin": "73449287005"
+      "package_type": "bottle"
     },
     {
       "ingredient_slug": "graham_cracker_crumbs",
@@ -3710,8 +3657,7 @@
       "package_unit_quantity": 16.0,
       "brand": "Morrell",
       "product_name": "Snow Cap Lard",
-      "package_type": "box",
-      "gtin": "70100070623"
+      "package_type": "box"
     },
     {
       "ingredient_slug": "lavender_culinary",
@@ -3726,8 +3672,7 @@
       "package_unit_quantity": 2.0,
       "brand": "McCormick",
       "product_name": "Pure Lemon Extract",
-      "package_type": "bottle",
-      "gtin": "52100070964"
+      "package_type": "bottle"
     },
     {
       "ingredient_slug": "liqueur_blackcurrant",
@@ -3741,8 +3686,7 @@
       "package_unit": "ml",
       "package_unit_quantity": 750.0,
       "brand": "Francesca",
-      "package_type": "bottle",
-      "gtin": "8800401648"
+      "package_type": "bottle"
     },
     {
       "ingredient_slug": "liqueur_orange",
@@ -3750,8 +3694,7 @@
       "package_unit_quantity": 750.0,
       "brand": "Cointreau",
       "product_name": "Cointreau l'Unique",
-      "package_type": "bottle",
-      "gtin": "87236565107"
+      "package_type": "bottle"
     },
     {
       "ingredient_slug": "liqueur_orange",
@@ -3759,8 +3702,7 @@
       "package_unit_quantity": 750.0,
       "brand": "Grand Marnier",
       "product_name": "Grand Marnier Cordon Rouge",
-      "package_type": "bottle",
-      "gtin": "8811093103"
+      "package_type": "bottle"
     },
     {
       "ingredient_slug": "liqueur_raspberry",
@@ -3768,8 +3710,7 @@
       "package_unit_quantity": 375.0,
       "brand": "Chambord",
       "product_name": "Chambord Black Raspberry Liqueur",
-      "package_type": "bottle",
-      "gtin": "833003452"
+      "package_type": "bottle"
     },
     {
       "ingredient_slug": "macadamia_nuts",
@@ -3793,13 +3734,6 @@
       "package_type": "bottle"
     },
     {
-      "ingredient_slug": "maple_extract",
-      "package_unit": "fl oz",
-      "package_unit_quantity": 1.0,
-      "brand": "McCormick",
-      "package_type": "bottle"
-    },
-    {
       "ingredient_slug": "maple_syrup",
       "package_unit": "qt",
       "package_unit_quantity": 1.0,
@@ -3819,8 +3753,7 @@
       "package_unit_quantity": 10.0,
       "brand": "Nestle",
       "product_name": "Toll House Mini Semi-Sweet Chocolate Morsels",
-      "package_type": "bag",
-      "gtin": "028000986124"
+      "package_type": "bag"
     },
     {
       "ingredient_slug": "mint_chocolate_candies",
@@ -3835,8 +3768,7 @@
       "package_unit_quantity": 16.0,
       "brand": "Grandma's",
       "product_name": "Robust Unsulphured Molasses",
-      "package_type": "bottle",
-      "gtin": "72400711169"
+      "package_type": "bottle"
     },
     {
       "ingredient_slug": "molasses_light",
@@ -3844,8 +3776,7 @@
       "package_unit_quantity": 16.0,
       "brand": "Grandma's",
       "product_name": "Original Unsulphured Molasses",
-      "package_type": "bottle",
-      "gtin": "72400711244"
+      "package_type": "bottle"
     },
     {
       "ingredient_slug": "nutella",
@@ -3858,13 +3789,6 @@
       "ingredient_slug": "nutmeg_ground_east_indian",
       "package_unit": "oz",
       "package_unit_quantity": 2.2,
-      "brand": "Penzeys",
-      "package_type": "jar"
-    },
-    {
-      "ingredient_slug": "nutmeg_ground_east_indian",
-      "package_unit": "oz",
-      "package_unit_quantity": 1.0,
       "brand": "Penzeys",
       "package_type": "jar"
     },
@@ -3896,8 +3820,7 @@
       "package_unit_quantity": 3.0,
       "brand": "Bertolli",
       "product_name": "Extra Virgin Olive Oil",
-      "package_type": "bottle",
-      "gtin": "041757701010"
+      "package_type": "bottle"
     },
     {
       "ingredient_slug": "orange_extract",
@@ -3905,8 +3828,7 @@
       "package_unit_quantity": 2.0,
       "brand": "Flavor Organics",
       "product_name": "Organic Orange Extract",
-      "package_type": "bottle",
-      "gtin": "30684963223"
+      "package_type": "bottle"
     },
     {
       "ingredient_slug": "orange_extract",
@@ -3914,8 +3836,7 @@
       "package_unit_quantity": 1.0,
       "brand": "McCormick",
       "product_name": "Pure Orange Extract",
-      "package_type": "bottle",
-      "gtin": "52100070780"
+      "package_type": "bottle"
     },
     {
       "ingredient_slug": "orange_extract",
@@ -3945,8 +3866,7 @@
       "package_unit_quantity": 4.7,
       "brand": "Ball",
       "product_name": "RealFruit Classic Pectin",
-      "package_type": "container",
-      "gtin": "014400722110"
+      "package_type": "container"
     },
     {
       "ingredient_slug": "pepper_black_tellicherry",
@@ -3959,15 +3879,6 @@
       "ingredient_slug": "peppermint_extract",
       "package_unit": "fl oz",
       "package_unit_quantity": 2.0,
-      "brand": "McCormick",
-      "product_name": "Pure Peppermint Extract",
-      "package_type": "bottle",
-      "gtin": "52100070797"
-    },
-    {
-      "ingredient_slug": "peppermint_extract",
-      "package_unit": "fl oz",
-      "package_unit_quantity": 1.0,
       "brand": "McCormick",
       "product_name": "Pure Peppermint Extract",
       "package_type": "bottle"
@@ -4020,8 +3931,7 @@
       "package_unit_quantity": 1.75,
       "brand": "Kraken",
       "product_name": "Kraken Black Spiced Rum",
-      "package_type": "bottle",
-      "gtin": "1153801301"
+      "package_type": "bottle"
     },
     {
       "ingredient_slug": "rum_extract",
@@ -4043,8 +3953,7 @@
       "package_unit_quantity": 3.0,
       "brand": "Diamond",
       "product_name": "Crystal Kosher Salt",
-      "package_type": "box",
-      "gtin": "43000011126"
+      "package_type": "box"
     },
     {
       "ingredient_slug": "salt_kosher",
@@ -4058,8 +3967,7 @@
       "package_unit": "g",
       "package_unit_quantity": 240.0,
       "brand": "Maldon",
-      "package_type": "box",
-      "gtin": "4797200000"
+      "package_type": "box"
     },
     {
       "ingredient_slug": "self_rising_flour",
@@ -4067,8 +3975,7 @@
       "package_unit_quantity": 5.0,
       "brand": "King Arthur",
       "product_name": "Unbleached Self-Rising Flour",
-      "package_type": "bag",
-      "gtin": "071012013302"
+      "package_type": "bag"
     },
     {
       "ingredient_slug": "self_rising_flour",
@@ -4085,13 +3992,6 @@
       "package_type": "jar"
     },
     {
-      "ingredient_slug": "sesame_seeds_black",
-      "package_unit": "oz",
-      "package_unit_quantity": 2.2,
-      "brand": "Penzeys",
-      "package_type": "jar"
-    },
-    {
       "ingredient_slug": "sesame_seeds_white",
       "package_unit": "oz",
       "package_unit_quantity": 2.2,
@@ -4104,8 +4004,7 @@
       "package_unit_quantity": 16.0,
       "brand": "Crisco",
       "product_name": "All-Vegetable Shortening Baking Sticks",
-      "package_type": "container",
-      "gtin": "51500251881"
+      "package_type": "container"
     },
     {
       "ingredient_slug": "spice_blend_chinese_five_spice",
@@ -4127,8 +4026,7 @@
       "package_unit_quantity": 2.0,
       "brand": "Domino",
       "product_name": "Premium Pure Cane Dark Brown Sugar",
-      "package_type": "bag",
-      "gtin": "049200057910"
+      "package_type": "bag"
     },
     {
       "ingredient_slug": "sugar_brown_light",
@@ -4136,8 +4034,7 @@
       "package_unit_quantity": 2.0,
       "brand": "Domino",
       "product_name": "Premium Pure Cane Light Brown Sugar",
-      "package_type": "bag",
-      "gtin": "049200057803"
+      "package_type": "bag"
     },
     {
       "ingredient_slug": "sugar_brown_light",
@@ -4152,8 +4049,7 @@
       "package_unit_quantity": 4.0,
       "brand": "Domino",
       "product_name": "Premium Pure Cane Granulated Sugar 4 lb",
-      "package_type": "bag",
-      "gtin": "49200045503"
+      "package_type": "bag"
     },
     {
       "ingredient_slug": "sugar_powdered",
@@ -4161,8 +4057,7 @@
       "package_unit_quantity": 4.0,
       "brand": "Domino",
       "product_name": "Confectioners Sugar 10-X Powdered",
-      "package_type": "bag",
-      "gtin": "049200906002"
+      "package_type": "bag"
     },
     {
       "ingredient_slug": "sugar_powdered",
@@ -4177,8 +4072,7 @@
       "package_unit_quantity": 12.0,
       "brand": "Domino",
       "product_name": "Quick Dissolve Superfine Sugar",
-      "package_type": "bottle",
-      "gtin": "049200902936"
+      "package_type": "bottle"
     },
     {
       "ingredient_slug": "sweetener_stevia",
@@ -4192,8 +4086,7 @@
       "package_unit": "lb",
       "package_unit_quantity": 1.0,
       "brand": "Toblerone",
-      "package_type": "box",
-      "gtin": "702200400"
+      "package_type": "box"
     },
     {
       "ingredient_slug": "toffee_bits",
@@ -4201,8 +4094,7 @@
       "package_unit_quantity": 8.0,
       "brand": "Heathbar",
       "product_name": "HEATH BITS O' BRICKLE English Toffee Bits",
-      "package_type": "bag",
-      "gtin": "3400006152"
+      "package_type": "bag"
     },
     {
       "ingredient_slug": "turbinado_sugar",
@@ -4232,8 +4124,7 @@
       "package_unit_quantity": 16.0,
       "brand": "Costco",
       "product_name": "Pure Vanilla Extract",
-      "package_type": "bottle",
-      "gtin": "96619329113"
+      "package_type": "bottle"
     },
     {
       "ingredient_slug": "vanilla_extract",
@@ -4286,8 +4177,7 @@
       "package_unit": "fl oz",
       "package_unit_quantity": 750.0,
       "brand": "Jamison",
-      "package_type": "bottle",
-      "gtin": "8043250017"
+      "package_type": "bottle"
     },
     {
       "ingredient_slug": "white_whole_wheat_flour",
@@ -4295,8 +4185,7 @@
       "package_unit_quantity": 5.0,
       "brand": "King Arthur",
       "product_name": "White Whole Wheat Flour",
-      "package_type": "bag",
-      "gtin": "071012055555"
+      "package_type": "bag"
     },
     {
       "ingredient_slug": "yeast_active_dry",
@@ -4304,8 +4193,7 @@
       "package_unit_quantity": 21.0,
       "brand": "Fleischmann's",
       "product_name": "Active Dry Yeast",
-      "package_type": "packet",
-      "gtin": "40100009280"
+      "package_type": "packet"
     },
     {
       "ingredient_slug": "yeast_instant",
@@ -4313,12 +4201,1490 @@
       "package_unit_quantity": 21.0,
       "brand": "Fleischmann's",
       "product_name": "RapidRise Instant Yeast",
-      "package_type": "packet",
-      "gtin": "40100009299"
+      "package_type": "packet"
     }
   ],
   "purchases": [],
-  "inventory_items": [],
+  "inventory_items": [
+    {
+      "ingredient_slug": "cornstarch",
+      "product_brand": "Argo",
+      "quantity": 16.0,
+      "purchase_date": "2025-12-21",
+      "product_name": "100% Pure Corn Starch",
+      "package_unit": "oz",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "baking_soda",
+      "product_brand": "Arm & Hammer",
+      "quantity": 1.0,
+      "purchase_date": "2025-12-21",
+      "product_name": "Pure Baking Soda",
+      "package_unit": "lb",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "rum",
+      "product_brand": "Baccardi",
+      "quantity": 750.0,
+      "purchase_date": "2025-12-21",
+      "package_unit": "ml",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "chocolate_baking_semi_sweet",
+      "product_brand": "Baker's",
+      "quantity": 4.0,
+      "purchase_date": "2025-12-21",
+      "product_name": "Premium Semi-Sweet Chocolate Baking Bar",
+      "package_unit": "oz",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "chocolate_baking_unsweetened",
+      "product_brand": "Baker's",
+      "quantity": 4.0,
+      "purchase_date": "2025-12-21",
+      "product_name": "Premium Unsweetened Chocolate Baking Bar",
+      "package_unit": "oz",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "pectin",
+      "product_brand": "Ball",
+      "quantity": 4.7,
+      "purchase_date": "2025-12-21",
+      "product_name": "RealFruit Classic Pectin",
+      "package_unit": "oz",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "olive_oil",
+      "product_brand": "Bertolli",
+      "quantity": 3.0,
+      "purchase_date": "2025-12-21",
+      "product_name": "Extra Virgin Olive Oil",
+      "package_unit": "l",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "gluten_free_flour_blend",
+      "product_brand": "Bob's Red Mill",
+      "quantity": 22.0,
+      "purchase_date": "2025-12-21",
+      "product_name": "Gluten Free 1-to-1 Baking Flour",
+      "package_unit": "oz",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "caramels",
+      "product_brand": "Brach’s",
+      "quantity": 14.0,
+      "purchase_date": "2025-12-21",
+      "package_unit": "oz",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "chocolate_coating_milk",
+      "product_brand": "Cadbury",
+      "quantity": 9.0,
+      "purchase_date": "2025-12-21",
+      "package_unit": "oz",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "chocolate_couverture_dark",
+      "product_brand": "Callebaut",
+      "quantity": 10.0,
+      "purchase_date": "2025-12-21",
+      "package_unit": "kg",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "chocolate_couverture_ruby",
+      "product_brand": "Callebaut",
+      "quantity": 2.5,
+      "purchase_date": "2025-12-21",
+      "package_unit": "kg",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "liqueur_raspberry",
+      "product_brand": "Chambord",
+      "quantity": 375.0,
+      "purchase_date": "2025-12-21",
+      "product_name": "Chambord Black Raspberry Liqueur",
+      "package_unit": "ml",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "liqueur_orange",
+      "product_brand": "Cointreau",
+      "quantity": 750.0,
+      "purchase_date": "2025-12-21",
+      "product_name": "Cointreau l'Unique",
+      "package_unit": "ml",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "butter_salted",
+      "product_brand": "Costco",
+      "quantity": 1.0,
+      "purchase_date": "2025-12-21",
+      "product_name": "Kirkland Signature Salted Sweet Cream Butter",
+      "package_unit": "lb",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "butter_unsalted",
+      "product_brand": "Costco",
+      "quantity": 1.0,
+      "purchase_date": "2025-12-21",
+      "product_name": "Kirkland Signature Unsalted Sweet Cream Butter",
+      "package_unit": "lb",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "pecans",
+      "product_brand": "Costco",
+      "quantity": 2.0,
+      "purchase_date": "2025-12-21",
+      "package_unit": "lb",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "walnuts",
+      "product_brand": "Costco",
+      "quantity": 3.0,
+      "purchase_date": "2025-12-21",
+      "package_unit": "lb",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "almonds_whole",
+      "product_brand": "Costco",
+      "quantity": 2.0,
+      "purchase_date": "2025-12-21",
+      "package_unit": "lb",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "maple_syrup",
+      "product_brand": "Costco",
+      "quantity": 1.0,
+      "purchase_date": "2025-12-21",
+      "package_unit": "qt",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "vanilla_extract",
+      "product_brand": "Costco",
+      "quantity": 16.0,
+      "purchase_date": "2025-12-21",
+      "product_name": "Pure Vanilla Extract",
+      "package_unit": "fl oz",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "shortening",
+      "product_brand": "Crisco",
+      "quantity": 16.0,
+      "purchase_date": "2025-12-21",
+      "product_name": "All-Vegetable Shortening Baking Sticks",
+      "package_unit": "oz",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "cocoa_powder_black",
+      "product_brand": "deZaan",
+      "quantity": 1.0,
+      "purchase_date": "2025-12-21",
+      "package_unit": "kg",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "salt_kosher",
+      "product_brand": "Diamond",
+      "quantity": 3.0,
+      "purchase_date": "2025-12-21",
+      "product_name": "Crystal Kosher Salt",
+      "package_unit": "lb",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "amaretto",
+      "product_brand": "Disaronno",
+      "quantity": 750.0,
+      "purchase_date": "2025-12-21",
+      "product_name": "Disaronno Originale",
+      "package_unit": "ml",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "sugar_granulated",
+      "product_brand": "Domino",
+      "quantity": 4.0,
+      "purchase_date": "2025-12-21",
+      "product_name": "Premium Pure Cane Granulated Sugar 4 lb",
+      "package_unit": "lb",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "sugar_brown_light",
+      "product_brand": "Domino",
+      "quantity": 2.0,
+      "purchase_date": "2025-12-21",
+      "product_name": "Premium Pure Cane Light Brown Sugar",
+      "package_unit": "lb",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "sugar_brown_dark",
+      "product_brand": "Domino",
+      "quantity": 2.0,
+      "purchase_date": "2025-12-21",
+      "product_name": "Premium Pure Cane Dark Brown Sugar",
+      "package_unit": "lb",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "sugar_superfine",
+      "product_brand": "Domino",
+      "quantity": 12.0,
+      "purchase_date": "2025-12-21",
+      "product_name": "Quick Dissolve Superfine Sugar",
+      "package_unit": "oz",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "sugar_powdered",
+      "product_brand": "Domino",
+      "quantity": 4.0,
+      "purchase_date": "2025-12-21",
+      "product_name": "Confectioners Sugar 10-X Powdered",
+      "package_unit": "lb",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "bourbon",
+      "product_brand": "Evan Williams",
+      "quantity": 1.0,
+      "purchase_date": "2025-12-21",
+      "package_unit": "l",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "orange_extract",
+      "product_brand": "Flavor Organics",
+      "quantity": 2.0,
+      "purchase_date": "2025-12-21",
+      "product_name": "Organic Orange Extract",
+      "package_unit": "fl oz",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "extract_coffee",
+      "product_brand": "Flavor Organics",
+      "quantity": 2.0,
+      "purchase_date": "2025-12-21",
+      "product_name": "Organic Coffee Extract",
+      "package_unit": "fl oz",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "extract_chocolate",
+      "product_brand": "Flavor Organics",
+      "quantity": 2.0,
+      "purchase_date": "2025-12-21",
+      "product_name": "Organic Chocolate Extract",
+      "package_unit": "fl oz",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "yeast_instant",
+      "product_brand": "Fleischmann's",
+      "quantity": 21.0,
+      "purchase_date": "2025-12-21",
+      "product_name": "RapidRise Instant Yeast",
+      "package_unit": "g",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "yeast_active_dry",
+      "product_brand": "Fleischmann's",
+      "quantity": 21.0,
+      "purchase_date": "2025-12-21",
+      "product_name": "Active Dry Yeast",
+      "package_unit": "g",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "liqueur_hazelnut",
+      "product_brand": "Francesca",
+      "quantity": 750.0,
+      "purchase_date": "2025-12-21",
+      "package_unit": "ml",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "liqueur_blackcurrant",
+      "product_brand": "Gabriel Brudier",
+      "quantity": 750.0,
+      "purchase_date": "2025-12-21",
+      "package_unit": "fl oz",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "liqueur_orange",
+      "product_brand": "Grand Marnier",
+      "quantity": 750.0,
+      "purchase_date": "2025-12-21",
+      "product_name": "Grand Marnier Cordon Rouge",
+      "package_unit": "ml",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "molasses_light",
+      "product_brand": "Grandma's",
+      "quantity": 16.0,
+      "purchase_date": "2025-12-21",
+      "product_name": "Original Unsulphured Molasses",
+      "package_unit": "oz",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "molasses_dark",
+      "product_brand": "Grandma's",
+      "quantity": 16.0,
+      "purchase_date": "2025-12-21",
+      "product_name": "Robust Unsulphured Molasses",
+      "package_unit": "oz",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "chocolate_chips_white",
+      "product_brand": "Guittard",
+      "quantity": 3.0,
+      "purchase_date": "2025-12-21",
+      "package_unit": "kg",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "chocolate_chips_bittersweet",
+      "product_brand": "Guittard",
+      "quantity": 12.0,
+      "purchase_date": "2025-12-21",
+      "package_unit": "g",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "mint_chocolate_candies",
+      "product_brand": "Guittard",
+      "quantity": 12.0,
+      "purchase_date": "2025-12-21",
+      "package_unit": "g",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "chocolate_chips_milk",
+      "product_brand": "Guittard",
+      "quantity": 340.0,
+      "purchase_date": "2025-12-21",
+      "package_unit": "g",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "toffee_bits",
+      "product_brand": "Heathbar",
+      "quantity": 8.0,
+      "purchase_date": "2025-12-21",
+      "product_name": "HEATH BITS O' BRICKLE English Toffee Bits",
+      "package_unit": "oz",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "toffee_bits",
+      "product_brand": "Heathbar",
+      "quantity": 1.6,
+      "purchase_date": "2025-12-21",
+      "product_name": "HEATH BITS O' BRICKLE English Toffee Bits",
+      "package_unit": "oz",
+      "location": "pantry",
+      "notes": "Initial inventory - partial package (20%)"
+    },
+    {
+      "ingredient_slug": "vanilla_bean",
+      "product_brand": "Heilala",
+      "quantity": 2.0,
+      "purchase_date": "2025-12-21",
+      "product_name": "Premium Vanilla Beans 2-Pack",
+      "package_unit": "each",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "vanilla_extract",
+      "product_brand": "Heilala",
+      "quantity": 500.0,
+      "purchase_date": "2025-12-21",
+      "product_name": "Pure Vanilla Extract",
+      "package_unit": "ml",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "vanilla_paste",
+      "product_brand": "Heilala",
+      "quantity": 65.0,
+      "purchase_date": "2025-12-21",
+      "product_name": "Pure Vanilla Bean Paste",
+      "package_unit": "g",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "vanilla_powder_pure",
+      "product_brand": "Heilala",
+      "quantity": 25.0,
+      "purchase_date": "2025-12-21",
+      "product_name": "Vanilla Powder",
+      "package_unit": "g",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "vanilla_powder_extract_blend",
+      "product_brand": "Heilala",
+      "quantity": 5.0,
+      "purchase_date": "2025-12-21",
+      "product_name": "Vanilla Powder with Extract",
+      "package_unit": "oz",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "extract_vanilla_oak_aged",
+      "product_brand": "Heilala",
+      "quantity": 50.0,
+      "purchase_date": "2025-12-21",
+      "package_unit": "ml",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "extract_vanilla_spiced",
+      "product_brand": "Heilala",
+      "quantity": 50.0,
+      "purchase_date": "2025-12-21",
+      "package_unit": "ml",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "cinnamon_chips",
+      "product_brand": "Hershey's",
+      "quantity": 10.0,
+      "purchase_date": "2025-12-21",
+      "product_name": "HERSHEY'S Cinnamon Baking Chips",
+      "package_unit": "oz",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "chocolate_kisses_dark",
+      "product_brand": "Hershey's",
+      "quantity": 11.0,
+      "purchase_date": "2025-12-21",
+      "product_name": "HERSHEY'S KISSES SPECIAL DARK Mildly Sweet Chocolate Candy",
+      "package_unit": "oz",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "chocolate_chips_dark",
+      "product_brand": "Hershey's",
+      "quantity": 12.0,
+      "purchase_date": "2025-12-21",
+      "product_name": "HERSHEY'S SPECIAL DARK Mildly Sweet Chocolate Baking Chips",
+      "package_unit": "oz",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "cocoa_powder_natural",
+      "product_brand": "Hershey's",
+      "quantity": 10.0,
+      "purchase_date": "2025-12-21",
+      "product_name": "Natural Unsweetened Cocoa",
+      "package_unit": "oz",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "graham_cracker_crumbs",
+      "product_brand": "HoneyMaid",
+      "quantity": 14.4,
+      "purchase_date": "2025-12-21",
+      "package_unit": "oz",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "whiskey_irish",
+      "product_brand": "Jamison",
+      "quantity": 750.0,
+      "purchase_date": "2025-12-21",
+      "package_unit": "fl oz",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "corn_syrup_light",
+      "product_brand": "Karo",
+      "quantity": 16.0,
+      "purchase_date": "2025-12-21",
+      "product_name": "Light Corn Syrup with Real Vanilla",
+      "package_unit": "fl oz",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "corn_syrup_dark",
+      "product_brand": "Karo",
+      "quantity": 16.0,
+      "purchase_date": "2025-12-21",
+      "product_name": "Dark Corn Syrup",
+      "package_unit": "fl oz",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "butter_unsalted",
+      "product_brand": "Kerry",
+      "quantity": 1.0,
+      "purchase_date": "2025-12-21",
+      "package_unit": "oz",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "all_purpose_wheat_flour",
+      "product_brand": "King Arthur",
+      "quantity": 25.0,
+      "purchase_date": "2025-12-21",
+      "product_name": "Unbleached All-Purpose Flour",
+      "package_unit": "lb",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "white_whole_wheat_flour",
+      "product_brand": "King Arthur",
+      "quantity": 5.0,
+      "purchase_date": "2025-12-21",
+      "product_name": "White Whole Wheat Flour",
+      "package_unit": "lb",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "flour_almond",
+      "product_brand": "King Arthur",
+      "quantity": 16.0,
+      "purchase_date": "2025-12-21",
+      "product_name": "Almond Flour",
+      "package_unit": "oz",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "pastry_flour",
+      "product_brand": "King Arthur",
+      "quantity": 3.0,
+      "purchase_date": "2025-12-21",
+      "product_name": "King Arthur Pastry Flour",
+      "package_unit": "lb",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "bread_flour",
+      "product_brand": "King Arthur",
+      "quantity": 5.0,
+      "purchase_date": "2025-12-21",
+      "product_name": "Bread Flour",
+      "package_unit": "lb",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "cake_flour",
+      "product_brand": "King Arthur",
+      "quantity": 2.0,
+      "purchase_date": "2025-12-21",
+      "product_name": "Unbleached Cake Flour Blend",
+      "package_unit": "lb",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "self_rising_flour",
+      "product_brand": "King Arthur",
+      "quantity": 5.0,
+      "purchase_date": "2025-12-21",
+      "product_name": "Unbleached Self-Rising Flour",
+      "package_unit": "lb",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "cocoa_powder_black",
+      "product_brand": "King Arthur",
+      "quantity": 14.0,
+      "purchase_date": "2025-12-21",
+      "product_name": "King Arthur Black Cocoa",
+      "package_unit": "oz",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "gelatin_powder",
+      "product_brand": "Knox",
+      "quantity": 1.0,
+      "purchase_date": "2025-12-21",
+      "product_name": "Original Unflavored Gelatin",
+      "package_unit": "oz",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "rum",
+      "product_brand": "Kraken",
+      "quantity": 1.75,
+      "purchase_date": "2025-12-21",
+      "product_name": "Kraken Black Spiced Rum",
+      "package_unit": "l",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "cake_flour",
+      "product_brand": "Lilly",
+      "quantity": 5.0,
+      "purchase_date": "2025-12-21",
+      "package_unit": "lb",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "golden_syrup",
+      "product_brand": "Lyle’s",
+      "quantity": 16.0,
+      "purchase_date": "2025-12-21",
+      "product_name": "Golden Syrup",
+      "package_unit": "oz",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "sea_salt_flaky",
+      "product_brand": "Maldon",
+      "quantity": 240.0,
+      "purchase_date": "2025-12-21",
+      "package_unit": "g",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "chocolate_coating_milk",
+      "product_brand": "Mars",
+      "quantity": 12.6,
+      "purchase_date": "2025-12-21",
+      "package_unit": "oz",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "almond_extract",
+      "product_brand": "McCormick",
+      "quantity": 2.0,
+      "purchase_date": "2025-12-21",
+      "product_name": "Pure Almond Extract",
+      "package_unit": "fl oz",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "orange_extract",
+      "product_brand": "McCormick",
+      "quantity": 1.0,
+      "purchase_date": "2025-12-21",
+      "product_name": "Pure Orange Extract",
+      "package_unit": "fl oz",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "lemon_extract",
+      "product_brand": "McCormick",
+      "quantity": 2.0,
+      "purchase_date": "2025-12-21",
+      "product_name": "Pure Lemon Extract",
+      "package_unit": "fl oz",
+      "location": "pantry",
+      "notes": "Initial inventory - full package (1/2)"
+    },
+    {
+      "ingredient_slug": "lemon_extract",
+      "product_brand": "McCormick",
+      "quantity": 2.0,
+      "purchase_date": "2025-12-21",
+      "product_name": "Pure Lemon Extract",
+      "package_unit": "fl oz",
+      "location": "pantry",
+      "notes": "Initial inventory - full package (2/2)"
+    },
+    {
+      "ingredient_slug": "cream_of_tartar",
+      "product_brand": "McCormick",
+      "quantity": 1.5,
+      "purchase_date": "2025-12-21",
+      "product_name": "Cream of Tartar",
+      "package_unit": "oz",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "extract_chocolate",
+      "product_brand": "McCormick",
+      "quantity": 2.0,
+      "purchase_date": "2025-12-21",
+      "package_unit": "fl oz",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "peppermint_extract",
+      "product_brand": "McCormick",
+      "quantity": 2.0,
+      "purchase_date": "2025-12-21",
+      "product_name": "Pure Peppermint Extract",
+      "package_unit": "fl oz",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "maple_extract",
+      "product_brand": "McCormick",
+      "quantity": 2.0,
+      "purchase_date": "2025-12-21",
+      "package_unit": "fl oz",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "extract_mint",
+      "product_brand": "McCormick",
+      "quantity": 1.0,
+      "purchase_date": "2025-12-21",
+      "package_unit": "fl oz",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "extract_coconut",
+      "product_brand": "McCormick",
+      "quantity": 2.0,
+      "purchase_date": "2025-12-21",
+      "package_unit": "fl oz",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "rum_extract",
+      "product_brand": "McCormick",
+      "quantity": 1.0,
+      "purchase_date": "2025-12-21",
+      "package_unit": "fl oz",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "extract_raspberry",
+      "product_brand": "McCormick",
+      "quantity": 1.0,
+      "purchase_date": "2025-12-21",
+      "package_unit": "fl oz",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "lard",
+      "product_brand": "Morrell",
+      "quantity": 16.0,
+      "purchase_date": "2025-12-21",
+      "product_name": "Snow Cap Lard",
+      "package_unit": "oz",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "salt_fine",
+      "product_brand": "Morton",
+      "quantity": 26.0,
+      "purchase_date": "2025-12-21",
+      "package_unit": "oz",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "salt_kosher",
+      "product_brand": "Morton",
+      "quantity": 3.0,
+      "purchase_date": "2025-12-21",
+      "package_unit": "lb",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "chocolate_chips_semi_sweet",
+      "product_brand": "Nestle",
+      "quantity": 10.0,
+      "purchase_date": "2025-12-21",
+      "product_name": "NESTLÉ® TOLL HOUSE® Semi-Sweet Chocolate Morsels",
+      "package_unit": "oz",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "chocolate_chips_milk",
+      "product_brand": "Nestle",
+      "quantity": 11.5,
+      "purchase_date": "2025-12-21",
+      "product_name": "NESTLÉ® TOLL HOUSE® Milk Chocolate Morsels",
+      "package_unit": "oz",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "butterscotch_chips",
+      "product_brand": "Nestle",
+      "quantity": 11.0,
+      "purchase_date": "2025-12-21",
+      "product_name": "NESTLÉ® TOLL HOUSE® Butterscotch Artificially Flavored Morsels",
+      "package_unit": "oz",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "chocolate_chips_bittersweet",
+      "product_brand": "Nestle",
+      "quantity": 10.0,
+      "purchase_date": "2025-12-21",
+      "package_unit": "oz",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "chocolate_chips_semi_sweet",
+      "product_brand": "Nestle",
+      "quantity": 36.0,
+      "purchase_date": "2025-12-21",
+      "package_unit": "oz",
+      "location": "pantry",
+      "notes": "Initial inventory - partial package (50%)"
+    },
+    {
+      "ingredient_slug": "chocolate_chips_semi_sweet_allergen_free",
+      "product_brand": "Nestle",
+      "quantity": 5.0,
+      "purchase_date": "2025-12-21",
+      "product_name": "NESTLÉ® TOLL HOUSE® Organic Allergen Free Semi-Sweet Morsels",
+      "package_unit": "oz",
+      "location": "pantry",
+      "notes": "Initial inventory - partial package (50%)"
+    },
+    {
+      "ingredient_slug": "mini_chocolate_chips_semi_sweet",
+      "product_brand": "Nestle",
+      "quantity": 10.0,
+      "purchase_date": "2025-12-21",
+      "product_name": "Toll House Mini Semi-Sweet Chocolate Morsels",
+      "package_unit": "oz",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "chocolate_chips_white",
+      "product_brand": "Nestle",
+      "quantity": 12.0,
+      "purchase_date": "2025-12-21",
+      "product_name": "NESTLÉ® TOLL HOUSE® Premier White Morsels",
+      "package_unit": "oz",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "chocolate_chips_espresso",
+      "product_brand": "Nestle",
+      "quantity": 9.0,
+      "purchase_date": "2025-12-21",
+      "package_unit": "oz",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "nutella",
+      "product_brand": "Nutella",
+      "quantity": 26.5,
+      "purchase_date": "2025-12-21",
+      "package_unit": "oz",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "cranberries_dried",
+      "product_brand": "Ocean Spray",
+      "quantity": 5.0,
+      "purchase_date": "2025-12-21",
+      "package_unit": "oz",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "cocoa_powder_natural",
+      "product_brand": "Penzeys",
+      "quantity": 12.8,
+      "purchase_date": "2025-12-21",
+      "package_unit": "oz",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "cocoa_powder_dutch_processed",
+      "product_brand": "Penzeys",
+      "quantity": 12.8,
+      "purchase_date": "2025-12-21",
+      "package_unit": "oz",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "orange_extract",
+      "product_brand": "Penzeys",
+      "quantity": 2.0,
+      "purchase_date": "2025-12-21",
+      "package_unit": "fl oz",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "almond_extract",
+      "product_brand": "Penzeys",
+      "quantity": 2.0,
+      "purchase_date": "2025-12-21",
+      "package_unit": "fl oz",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "extract_vanilla_mexican",
+      "product_brand": "Penzeys",
+      "quantity": 8.0,
+      "purchase_date": "2025-12-21",
+      "package_unit": "fl oz",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "vanilla_bean",
+      "product_brand": "Penzeys",
+      "quantity": 3.0,
+      "purchase_date": "2025-12-21",
+      "package_unit": "each",
+      "location": "pantry",
+      "notes": "Initial inventory - full package (1/2)"
+    },
+    {
+      "ingredient_slug": "vanilla_bean",
+      "product_brand": "Penzeys",
+      "quantity": 3.0,
+      "purchase_date": "2025-12-21",
+      "package_unit": "each",
+      "location": "pantry",
+      "notes": "Initial inventory - full package (2/2)"
+    },
+    {
+      "ingredient_slug": "cinnamon_ground_ceylon",
+      "product_brand": "Penzeys",
+      "quantity": 4.8,
+      "purchase_date": "2025-12-21",
+      "product_name": "Ground Cinnamon (Vietnam Extra Fancy)",
+      "package_unit": "oz",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "allspice_ground",
+      "product_brand": "Penzeys",
+      "quantity": 1.0,
+      "purchase_date": "2025-12-21",
+      "product_name": "Ground Allspice",
+      "package_unit": "oz",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "ginger_ground",
+      "product_brand": "Penzeys",
+      "quantity": 1.9,
+      "purchase_date": "2025-12-21",
+      "product_name": "Ground Ginger",
+      "package_unit": "oz",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "ginger_ground",
+      "product_brand": "Penzeys",
+      "quantity": 0.47,
+      "purchase_date": "2025-12-21",
+      "product_name": "Ground Ginger",
+      "package_unit": "oz",
+      "location": "pantry",
+      "notes": "Initial inventory - partial package (25%)"
+    },
+    {
+      "ingredient_slug": "nutmeg_ground_east_indian",
+      "product_brand": "Penzeys",
+      "quantity": 0.33,
+      "purchase_date": "2025-12-21",
+      "package_unit": "oz",
+      "location": "pantry",
+      "notes": "Initial inventory - partial package (15%)"
+    },
+    {
+      "ingredient_slug": "nutmeg_ground_west_indian",
+      "product_brand": "Penzeys",
+      "quantity": 2.4,
+      "purchase_date": "2025-12-21",
+      "package_unit": "oz",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "spice_blend_chinese_five_spice",
+      "product_brand": "Penzeys",
+      "quantity": 0.9,
+      "purchase_date": "2025-12-21",
+      "package_unit": "oz",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "allspice_whole",
+      "product_brand": "Penzeys",
+      "quantity": 0.6,
+      "purchase_date": "2025-12-21",
+      "package_unit": "oz",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "mace_ground",
+      "product_brand": "Penzeys",
+      "quantity": 0.9,
+      "purchase_date": "2025-12-21",
+      "package_unit": "oz",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "cloves_whole",
+      "product_brand": "Penzeys",
+      "quantity": 1.5,
+      "purchase_date": "2025-12-21",
+      "product_name": "Ground Cloves",
+      "package_unit": "oz",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "cardamom_ground",
+      "product_brand": "Penzeys",
+      "quantity": 2.4,
+      "purchase_date": "2025-12-21",
+      "product_name": "Ground Cardamom",
+      "package_unit": "oz",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "sesame_seeds_black",
+      "product_brand": "Penzeys",
+      "quantity": 1.0,
+      "purchase_date": "2025-12-21",
+      "package_unit": "oz",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "sesame_seeds_white",
+      "product_brand": "Penzeys",
+      "quantity": 1.1,
+      "purchase_date": "2025-12-21",
+      "package_unit": "oz",
+      "location": "pantry",
+      "notes": "Initial inventory - partial package (50%)"
+    },
+    {
+      "ingredient_slug": "lavender_culinary",
+      "product_brand": "Penzeys",
+      "quantity": 0.3,
+      "purchase_date": "2025-12-21",
+      "package_unit": "oz",
+      "location": "pantry",
+      "notes": "Initial inventory - partial package (75%)"
+    },
+    {
+      "ingredient_slug": "poppy_seeds_blue",
+      "product_brand": "Penzeys",
+      "quantity": 5.15,
+      "purchase_date": "2025-12-21",
+      "package_unit": "oz",
+      "location": "pantry",
+      "notes": "Initial inventory - partial package (33%)"
+    },
+    {
+      "ingredient_slug": "cream_of_tartar",
+      "product_brand": "Penzeys",
+      "quantity": 1.8,
+      "purchase_date": "2025-12-21",
+      "package_unit": "oz",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "spice_blend_mulling",
+      "product_brand": "Penzeys",
+      "quantity": 1.3,
+      "purchase_date": "2025-12-21",
+      "package_unit": "oz",
+      "location": "pantry",
+      "notes": "Initial inventory - partial package (50%)"
+    },
+    {
+      "ingredient_slug": "vanilla_sugar",
+      "product_brand": "Penzeys",
+      "quantity": 3.4,
+      "purchase_date": "2025-12-21",
+      "package_unit": "oz",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "cinnamon_sticks_indonesian",
+      "product_brand": "Penzeys",
+      "quantity": 4.0,
+      "purchase_date": "2025-12-21",
+      "package_unit": "oz",
+      "location": "pantry",
+      "notes": "Initial inventory - full package (1/2)"
+    },
+    {
+      "ingredient_slug": "cinnamon_sticks_indonesian",
+      "product_brand": "Penzeys",
+      "quantity": 4.0,
+      "purchase_date": "2025-12-21",
+      "package_unit": "oz",
+      "location": "pantry",
+      "notes": "Initial inventory - full package (2/2)"
+    },
+    {
+      "ingredient_slug": "nutmeg_whole",
+      "product_brand": "Penzeys",
+      "quantity": 3.2,
+      "purchase_date": "2025-12-21",
+      "package_unit": "oz",
+      "location": "pantry",
+      "notes": "Initial inventory - partial package (80%)"
+    },
+    {
+      "ingredient_slug": "pepper_black_tellicherry",
+      "product_brand": "Penzeys",
+      "quantity": 1.65,
+      "purchase_date": "2025-12-21",
+      "package_unit": "oz",
+      "location": "pantry",
+      "notes": "Initial inventory - partial package (75%)"
+    },
+    {
+      "ingredient_slug": "oats_rolled",
+      "product_brand": "Quaker",
+      "quantity": 18.0,
+      "purchase_date": "2025-12-21",
+      "product_name": "Quaker® Oats Old Fashioned",
+      "package_unit": "oz",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "baking_powder",
+      "product_brand": "Rumford",
+      "quantity": 230.0,
+      "purchase_date": "2025-12-21",
+      "product_name": "Baking Powder",
+      "package_unit": "g",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "turbinado_sugar",
+      "product_brand": "Sugar in the Raw",
+      "quantity": 2.0,
+      "purchase_date": "2025-12-21",
+      "package_unit": "lb",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "raisins",
+      "product_brand": "Sun Maid",
+      "quantity": 13.0,
+      "purchase_date": "2025-12-21",
+      "package_unit": "oz",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "currants_dried",
+      "product_brand": "Sun Maid",
+      "quantity": 8.0,
+      "purchase_date": "2025-12-21",
+      "package_unit": "oz",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "toblerone",
+      "product_brand": "Toblerone",
+      "quantity": 1.0,
+      "purchase_date": "2025-12-21",
+      "package_unit": "lb",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "pistachios",
+      "product_brand": "Trader Joe's",
+      "quantity": 1.0,
+      "purchase_date": "2025-12-21",
+      "package_unit": "oz",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "hazelnuts",
+      "product_brand": "Trader Joe's",
+      "quantity": 16.0,
+      "purchase_date": "2025-12-21",
+      "package_unit": "lb",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "macadamia_nuts",
+      "product_brand": "Trader Joe's",
+      "quantity": 8.0,
+      "purchase_date": "2025-12-21",
+      "package_unit": "oz",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "pine_nuts",
+      "product_brand": "Trader Joe's",
+      "quantity": 8.0,
+      "purchase_date": "2025-12-21",
+      "package_unit": "oz",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "cashews",
+      "product_brand": "Trader Joe's",
+      "quantity": 16.0,
+      "purchase_date": "2025-12-21",
+      "package_unit": "lb",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "sweetener_stevia",
+      "product_brand": "truvia",
+      "quantity": 24.0,
+      "purchase_date": "2025-12-21",
+      "package_unit": "oz",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "sugar_powdered",
+      "product_brand": "U.S.",
+      "quantity": 7.0,
+      "purchase_date": "2025-12-21",
+      "package_unit": "lb",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "canola_oil",
+      "product_brand": "Wegman's",
+      "quantity": 1.0,
+      "purchase_date": "2025-12-21",
+      "package_unit": "qt",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "bread_flour",
+      "product_brand": "Wegman's",
+      "quantity": 5.0,
+      "purchase_date": "2025-12-21",
+      "package_unit": "lb",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "cake_flour",
+      "product_brand": "Wegman's",
+      "quantity": 2.0,
+      "purchase_date": "2025-12-21",
+      "package_unit": "lb",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "self_rising_flour",
+      "product_brand": "Wegman's",
+      "quantity": 5.0,
+      "purchase_date": "2025-12-21",
+      "package_unit": "lb",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "coconut_shredded_sweetened",
+      "product_brand": "Wegman's",
+      "quantity": 16.0,
+      "purchase_date": "2025-12-21",
+      "package_unit": "oz",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "honey",
+      "product_brand": "Wegman's",
+      "quantity": 16.0,
+      "purchase_date": "2025-12-21",
+      "package_unit": "oz",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "maple_syrup",
+      "product_brand": "Wegman's",
+      "quantity": 32.0,
+      "purchase_date": "2025-12-21",
+      "package_unit": "fl oz",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "cornstarch",
+      "product_brand": "Wegman's",
+      "quantity": 1.0,
+      "purchase_date": "2025-12-21",
+      "product_name": "100% Pure Corn Starch",
+      "package_unit": "lb",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "sugar_brown_light",
+      "product_brand": "Wegman's",
+      "quantity": 2.0,
+      "purchase_date": "2025-12-21",
+      "package_unit": "lb",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "raisins",
+      "product_brand": "Wegman’s",
+      "quantity": 3.0,
+      "purchase_date": "2025-12-21",
+      "package_unit": "lb",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    },
+    {
+      "ingredient_slug": "cocoa_powder_black",
+      "product_brand": "Wincrest",
+      "quantity": 1.0,
+      "purchase_date": "2025-12-21",
+      "package_unit": "lb",
+      "location": "pantry",
+      "notes": "Initial inventory - full package"
+    }
+  ],
   "recipes": [
     {
       "name": "Almond Biscotti",
