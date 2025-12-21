@@ -11,7 +11,7 @@ from typing import Optional, Callable
 from src.models.finished_good import FinishedGood
 from src.ui.widgets.assembly_history_table import AssemblyHistoryTable
 from src.ui.service_integration import get_ui_service_integrator, OperationType
-from src.services import assembly_service, finished_good_service
+from src.services import assembly_service, finished_good_service, packaging_service
 from src.utils.constants import PADDING_MEDIUM, PADDING_LARGE
 
 
@@ -105,9 +105,7 @@ class FinishedGoodDetailDialog(ctk.CTkToplevel):
     def _create_header(self):
         """Create the header section with name."""
         header_frame = ctk.CTkFrame(self, fg_color="transparent")
-        header_frame.grid(
-            row=0, column=0, sticky="ew", padx=PADDING_LARGE, pady=PADDING_LARGE
-        )
+        header_frame.grid(row=0, column=0, sticky="ew", padx=PADDING_LARGE, pady=PADDING_LARGE)
 
         name_label = ctk.CTkLabel(
             header_frame,
@@ -119,9 +117,7 @@ class FinishedGoodDetailDialog(ctk.CTkToplevel):
     def _create_info_section(self):
         """Create the info section with inventory and cost."""
         info_frame = ctk.CTkFrame(self)
-        info_frame.grid(
-            row=1, column=0, sticky="ew", padx=PADDING_LARGE, pady=PADDING_MEDIUM
-        )
+        info_frame.grid(row=1, column=0, sticky="ew", padx=PADDING_LARGE, pady=PADDING_MEDIUM)
         info_frame.grid_columnconfigure(1, weight=1)
 
         row = 0
@@ -168,9 +164,7 @@ class FinishedGoodDetailDialog(ctk.CTkToplevel):
 
         # Composition frame (scrollable for many components)
         comp_frame = ctk.CTkScrollableFrame(self, height=120)
-        comp_frame.grid(
-            row=3, column=0, sticky="ew", padx=PADDING_LARGE, pady=PADDING_MEDIUM
-        )
+        comp_frame.grid(row=3, column=0, sticky="ew", padx=PADDING_LARGE, pady=PADDING_MEDIUM)
 
         # Load and display components
         self._populate_composition(comp_frame)
@@ -200,13 +194,103 @@ class FinishedGoodDetailDialog(ctk.CTkToplevel):
             elif comp.finished_good_id and comp.finished_good:
                 name = f"[FG] {comp.finished_good.display_name}"
             elif comp.packaging_product_id and comp.packaging_product:
-                name = f"[Pkg] {comp.packaging_product.display_name}"
+                # Feature 026: Handle generic packaging with assignment status
+                if comp.is_generic:
+                    product_name = comp.packaging_product.product_name or "Unknown"
+                    name = f"[Pkg] {product_name} (Generic)"
+                else:
+                    name = f"[Pkg] {comp.packaging_product.display_name}"
             else:
                 name = "Unknown component"
 
             qty = comp.component_quantity or 0
 
             ctk.CTkLabel(row_frame, text=f"  {qty}x {name}").pack(side="left")
+
+            # Feature 026: Show assignment status and button for generic packaging
+            if comp.is_generic and comp.packaging_product_id:
+                self._add_assignment_indicator(row_frame, comp)
+
+    def _add_assignment_indicator(self, parent_frame, composition):
+        """
+        Add assignment status indicator and button for generic compositions.
+
+        Feature 026: Deferred Packaging Decisions
+
+        Args:
+            parent_frame: The row frame to add widgets to
+            composition: The Composition object with is_generic=True
+        """
+        try:
+            is_assigned = packaging_service.is_fully_assigned(composition.id)
+
+            if is_assigned:
+                # Show green checkmark for assigned
+                status_label = ctk.CTkLabel(
+                    parent_frame,
+                    text=" Assigned",
+                    text_color="#00AA00",
+                    font=ctk.CTkFont(size=11),
+                )
+                status_label.pack(side="left", padx=(10, 0))
+            else:
+                # Show orange "Pending" with assign button
+                status_label = ctk.CTkLabel(
+                    parent_frame,
+                    text=" Pending",
+                    text_color="#CC7700",
+                    font=ctk.CTkFont(size=11),
+                )
+                status_label.pack(side="left", padx=(10, 0))
+
+                # Assign button
+                assign_btn = ctk.CTkButton(
+                    parent_frame,
+                    text="Assign",
+                    width=60,
+                    height=24,
+                    font=ctk.CTkFont(size=11),
+                    command=lambda c=composition: self._open_assignment_dialog(c),
+                )
+                assign_btn.pack(side="left", padx=(5, 0))
+        except Exception:
+            # If error checking status, show unknown
+            pass
+
+    def _open_assignment_dialog(self, composition):
+        """
+        Open the packaging assignment dialog for a generic composition.
+
+        Feature 026: Deferred Packaging Decisions
+
+        Args:
+            composition: The Composition object to assign materials to
+        """
+        from src.ui.packaging_assignment_dialog import PackagingAssignmentDialog
+
+        def on_assignment_complete():
+            # Refresh the dialog to update assignment status
+            self._refresh_composition_display()
+
+        dialog = PackagingAssignmentDialog(
+            self,
+            composition_id=composition.id,
+            on_complete_callback=on_assignment_complete,
+        )
+        self.wait_window(dialog)
+
+    def _refresh_composition_display(self):
+        """Refresh the composition display after assignment changes."""
+        # Find and clear the composition frame
+        for widget in self.winfo_children():
+            # Look for the scrollable frame that contains compositions
+            if isinstance(widget, ctk.CTkScrollableFrame):
+                # Clear all children except the header
+                for child in widget.winfo_children():
+                    child.destroy()
+                # Repopulate
+                self._populate_composition(widget)
+                break
 
     def _create_history_section(self):
         """Create the assembly history section."""
@@ -237,9 +321,7 @@ class FinishedGoodDetailDialog(ctk.CTkToplevel):
     def _create_buttons(self):
         """Create the button row."""
         button_frame = ctk.CTkFrame(self, fg_color="transparent")
-        button_frame.grid(
-            row=6, column=0, sticky="ew", padx=PADDING_LARGE, pady=PADDING_LARGE
-        )
+        button_frame.grid(row=6, column=0, sticky="ew", padx=PADDING_LARGE, pady=PADDING_LARGE)
 
         # Record Assembly button
         self.record_btn = ctk.CTkButton(
@@ -340,8 +422,6 @@ class FinishedGoodDetailDialog(ctk.CTkToplevel):
 
     def _update_info_display(self):
         """Update the info section with current data."""
-        self.inventory_label.configure(
-            text=str(self.finished_good.inventory_count or 0)
-        )
+        self.inventory_label.configure(text=str(self.finished_good.inventory_count or 0))
         cost = self.finished_good.total_cost or 0
         self.cost_label.configure(text=f"${cost:.2f}")

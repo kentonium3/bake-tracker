@@ -9,9 +9,9 @@ subtasks:
   - "T029"
 title: "Assignment Dialog"
 phase: "Phase 4 - UI Assignment"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
+agent: "system"
 shell_pid: ""
 review_status: ""
 reviewed_by: ""
@@ -177,3 +177,4 @@ Manual testing checklist:
 ## Activity Log
 
 - 2025-12-21T12:00:00Z - system - lane=planned - Prompt created.
+- 2025-12-21T22:07:18Z – system – shell_pid= – lane=doing – Moved to doing

@@ -57,31 +57,37 @@ from src.models.assembly_type import AssemblyType
 @pytest.fixture
 def packaging_ingredient(test_db):
     """Create a packaging ingredient for tests."""
-    return create_ingredient({
-        "name": "Cellophane Bags 6x10",
-        "category": "Bags",
-        "is_packaging": True,
-    })
+    return create_ingredient(
+        {
+            "name": "Cellophane Bags 6x10",
+            "category": "Bags",
+            "is_packaging": True,
+        }
+    )
 
 
 @pytest.fixture
 def packaging_ingredient_2(test_db):
     """Create a second packaging ingredient for tests."""
-    return create_ingredient({
-        "name": "Gift Boxes Medium",
-        "category": "Boxes",
-        "is_packaging": True,
-    })
+    return create_ingredient(
+        {
+            "name": "Gift Boxes Medium",
+            "category": "Boxes",
+            "is_packaging": True,
+        }
+    )
 
 
 @pytest.fixture
 def food_ingredient(test_db):
     """Create a food ingredient (not packaging) for tests."""
-    return create_ingredient({
-        "name": "All-Purpose Flour",
-        "category": "Flour",
-        "is_packaging": False,
-    })
+    return create_ingredient(
+        {
+            "name": "All-Purpose Flour",
+            "category": "Flour",
+            "is_packaging": False,
+        }
+    )
 
 
 @pytest.fixture
@@ -95,7 +101,7 @@ def packaging_product_a(test_db, packaging_ingredient):
             "package_unit": "box",
             "package_unit_quantity": 100,
             "product_name": "Cellophane Bags 6x10",
-        }
+        },
     )
     return product
 
@@ -111,7 +117,7 @@ def packaging_product_b(test_db, packaging_ingredient):
             "package_unit": "box",
             "package_unit_quantity": 50,
             "product_name": "Cellophane Bags 6x10",
-        }
+        },
     )
     return product
 
@@ -128,7 +134,7 @@ def packaging_product_box(test_db, packaging_ingredient_2):
             "package_unit_quantity": 25,
             "purchase_price": 1.50,
             "product_name": "Gift Boxes Medium",
-        }
+        },
     )
     return product
 
@@ -143,6 +149,7 @@ def inventory_a(test_db, packaging_product_a):
     )
     # Set unit cost after creation (not a parameter of add_to_inventory)
     from src.models import InventoryItem
+
     test_db.query(InventoryItem).filter_by(id=item.id).update({"unit_cost": 0.10})
     test_db.flush()
     # Refresh to get updated value
@@ -159,6 +166,7 @@ def inventory_b(test_db, packaging_product_b):
     )
     # Set unit cost after creation
     from src.models import InventoryItem
+
     test_db.query(InventoryItem).filter_by(id=item.id).update({"unit_cost": 0.15})
     test_db.flush()
     return test_db.query(InventoryItem).filter_by(id=item.id).first()
@@ -235,17 +243,13 @@ class TestGetGenericProducts:
         # Should still include the product_name since product A has inventory
         assert "Cellophane Bags 6x10" in result
 
-    def test_returns_empty_when_no_inventory(
-        self, test_db, packaging_product_a
-    ):
+    def test_returns_empty_when_no_inventory(self, test_db, packaging_product_a):
         """Returns empty list when no products have inventory."""
         result = get_generic_products(session=test_db)
 
         assert result == []
 
-    def test_excludes_non_packaging_products(
-        self, test_db, food_ingredient
-    ):
+    def test_excludes_non_packaging_products(self, test_db, food_ingredient):
         """Only includes products linked to packaging ingredients."""
         # Create food product with inventory
         product = create_product(
@@ -256,7 +260,7 @@ class TestGetGenericProducts:
                 "package_unit": "lb",
                 "package_unit_quantity": 5,
                 "product_name": "All-Purpose Flour",
-            }
+            },
         )
 
         add_to_inventory(
@@ -271,8 +275,7 @@ class TestGetGenericProducts:
         assert "All-Purpose Flour" not in result
 
     def test_returns_sorted_list(
-        self, test_db, packaging_product_a, packaging_product_box,
-        inventory_a
+        self, test_db, packaging_product_a, packaging_product_box, inventory_a
     ):
         """Returns product names in alphabetical order."""
         # Add inventory for box product
@@ -339,6 +342,73 @@ class TestGetGenericInventorySummary:
 
 
 # =============================================================================
+# Tests: get_available_inventory_items()
+# =============================================================================
+
+
+class TestGetAvailableInventoryItems:
+    """Tests for get_available_inventory_items() function."""
+
+    def test_returns_individual_inventory_items(
+        self, test_db, packaging_product_a, packaging_product_b, inventory_a, inventory_b
+    ):
+        """Returns individual inventory items (not aggregated by product)."""
+        from src.services.packaging_service import get_available_inventory_items
+
+        result = get_available_inventory_items("Cellophane Bags 6x10", session=test_db)
+
+        assert len(result) == 2
+        # Each item should have inventory_item_id, not just product_id
+        for item in result:
+            assert "inventory_item_id" in item
+            assert "product_id" in item
+            assert "brand" in item
+            assert "available" in item
+            assert "unit_cost" in item
+
+    def test_returns_inventory_item_ids(self, test_db, packaging_product_a, inventory_a):
+        """Returns actual inventory_item_id for assignment purposes."""
+        from src.services.packaging_service import get_available_inventory_items
+
+        result = get_available_inventory_items("Cellophane Bags 6x10", session=test_db)
+
+        assert len(result) == 1
+        assert result[0]["inventory_item_id"] == inventory_a.id
+        assert result[0]["available"] == 50.0
+        assert result[0]["unit_cost"] == 0.10
+
+    def test_raises_when_product_not_found(self, test_db):
+        """Raises GenericProductNotFoundError for unknown product_name."""
+        from src.services.packaging_service import get_available_inventory_items
+
+        with pytest.raises(GenericProductNotFoundError):
+            get_available_inventory_items("Nonexistent Product", session=test_db)
+
+    def test_excludes_zero_quantity_items(self, test_db, packaging_product_a):
+        """Excludes inventory items with zero quantity."""
+        from src.services.packaging_service import get_available_inventory_items
+
+        # Add inventory with positive quantity, then update to zero
+        item = add_to_inventory(
+            product_id=packaging_product_a.id,
+            quantity=Decimal("10"),
+            purchase_date=date(2025, 1, 1),
+        )
+        test_db.query(InventoryItem).filter_by(id=item.id).update(
+            {
+                "unit_cost": 0.10,
+                "quantity": 0,  # Set to zero after creation
+            }
+        )
+        test_db.flush()
+
+        result = get_available_inventory_items("Cellophane Bags 6x10", session=test_db)
+
+        # Should return empty list since only item has zero quantity
+        assert len(result) == 0
+
+
+# =============================================================================
 # Tests: get_estimated_cost()
 # =============================================================================
 
@@ -360,9 +430,7 @@ class TestGetEstimatedCost:
 
         assert result == 1.19
 
-    def test_single_product_uses_its_price(
-        self, test_db, packaging_product_a, inventory_a
-    ):
+    def test_single_product_uses_its_price(self, test_db, packaging_product_a, inventory_a):
         """Uses product price when only one product has inventory."""
         # Product A: $0.10 each, 10 units = $1.00
         result = get_estimated_cost("Cellophane Bags 6x10", 10, session=test_db)
@@ -374,9 +442,7 @@ class TestGetEstimatedCost:
         with pytest.raises(GenericProductNotFoundError):
             get_estimated_cost("Nonexistent Product", 10, session=test_db)
 
-    def test_zero_quantity_returns_zero(
-        self, test_db, packaging_product_a, inventory_a
-    ):
+    def test_zero_quantity_returns_zero(self, test_db, packaging_product_a, inventory_a):
         """Returns 0.0 when quantity is 0."""
         result = get_estimated_cost("Cellophane Bags 6x10", 0, session=test_db)
 
@@ -400,9 +466,7 @@ class TestGetEstimatedCost:
 class TestAssignMaterials:
     """Tests for assign_materials() function."""
 
-    def test_successful_assignment(
-        self, test_db, generic_composition, inventory_a, inventory_b
-    ):
+    def test_successful_assignment(self, test_db, generic_composition, inventory_a, inventory_b):
         """Creates assignment records when validation passes."""
         assignments = [
             {"inventory_item_id": inventory_a.id, "quantity": 15},
@@ -414,9 +478,11 @@ class TestAssignMaterials:
         assert result is True
 
         # Verify records created
-        records = test_db.query(CompositionAssignment).filter_by(
-            composition_id=generic_composition.id
-        ).all()
+        records = (
+            test_db.query(CompositionAssignment)
+            .filter_by(composition_id=generic_composition.id)
+            .all()
+        )
         assert len(records) == 2
 
     def test_validates_quantity_sum_equals_required(
@@ -431,9 +497,7 @@ class TestAssignMaterials:
 
         assert "must equal" in str(exc.value)
 
-    def test_validates_inventory_availability(
-        self, test_db, generic_composition, inventory_a
-    ):
+    def test_validates_inventory_availability(self, test_db, generic_composition, inventory_a):
         """Raises error when assigning more than available."""
         # Inventory A has 50, trying to assign 100
         assignments = [{"inventory_item_id": inventory_a.id, "quantity": 100}]
@@ -463,9 +527,7 @@ class TestAssignMaterials:
         assert "Cellophane Bags 6x10" in str(exc.value)
         assert "Gift Boxes Medium" in str(exc.value)
 
-    def test_raises_for_non_generic_composition(
-        self, test_db, specific_composition, inventory_a
-    ):
+    def test_raises_for_non_generic_composition(self, test_db, specific_composition, inventory_a):
         """Raises error for non-generic composition."""
         assignments = [{"inventory_item_id": inventory_a.id, "quantity": 10}]
 
@@ -487,20 +549,22 @@ class TestAssignMaterials:
         assign_materials(
             generic_composition.id,
             [{"inventory_item_id": inventory_a.id, "quantity": 20}],
-            session=test_db
+            session=test_db,
         )
 
         # Re-assign with different inventory
         assign_materials(
             generic_composition.id,
             [{"inventory_item_id": inventory_b.id, "quantity": 20}],
-            session=test_db
+            session=test_db,
         )
 
         # Should only have new assignment
-        records = test_db.query(CompositionAssignment).filter_by(
-            composition_id=generic_composition.id
-        ).all()
+        records = (
+            test_db.query(CompositionAssignment)
+            .filter_by(composition_id=generic_composition.id)
+            .all()
+        )
         assert len(records) == 1
         assert records[0].inventory_item_id == inventory_b.id
 
@@ -513,9 +577,7 @@ class TestAssignMaterials:
 class TestClearAssignments:
     """Tests for clear_assignments() function."""
 
-    def test_clears_all_assignments(
-        self, test_db, generic_composition, inventory_a, inventory_b
-    ):
+    def test_clears_all_assignments(self, test_db, generic_composition, inventory_a, inventory_b):
         """Removes all assignment records for a composition."""
         # Create assignments
         assign_materials(
@@ -524,7 +586,7 @@ class TestClearAssignments:
                 {"inventory_item_id": inventory_a.id, "quantity": 15},
                 {"inventory_item_id": inventory_b.id, "quantity": 5},
             ],
-            session=test_db
+            session=test_db,
         )
 
         count = clear_assignments(generic_composition.id, session=test_db)
@@ -532,14 +594,14 @@ class TestClearAssignments:
         assert count == 2
 
         # Verify cleared
-        records = test_db.query(CompositionAssignment).filter_by(
-            composition_id=generic_composition.id
-        ).all()
+        records = (
+            test_db.query(CompositionAssignment)
+            .filter_by(composition_id=generic_composition.id)
+            .all()
+        )
         assert len(records) == 0
 
-    def test_returns_zero_when_no_assignments(
-        self, test_db, generic_composition
-    ):
+    def test_returns_zero_when_no_assignments(self, test_db, generic_composition):
         """Returns 0 when no assignments exist."""
         count = clear_assignments(generic_composition.id, session=test_db)
 
@@ -569,7 +631,7 @@ class TestGetAssignments:
                 {"inventory_item_id": inventory_a.id, "quantity": 15},
                 {"inventory_item_id": inventory_b.id, "quantity": 5},
             ],
-            session=test_db
+            session=test_db,
         )
 
         result = get_assignments(generic_composition.id, session=test_db)
@@ -585,9 +647,7 @@ class TestGetAssignments:
             assert "unit_cost" in assignment
             assert "total_cost" in assignment
 
-    def test_returns_empty_when_no_assignments(
-        self, test_db, generic_composition
-    ):
+    def test_returns_empty_when_no_assignments(self, test_db, generic_composition):
         """Returns empty list when no assignments exist."""
         result = get_assignments(generic_composition.id, session=test_db)
 
@@ -607,30 +667,26 @@ class TestGetAssignments:
 class TestIsFullyAssigned:
     """Tests for is_fully_assigned() function."""
 
-    def test_returns_true_when_fully_assigned(
-        self, test_db, generic_composition, inventory_a
-    ):
+    def test_returns_true_when_fully_assigned(self, test_db, generic_composition, inventory_a):
         """Returns True when assignments sum to required quantity."""
         assign_materials(
             generic_composition.id,
             [{"inventory_item_id": inventory_a.id, "quantity": 20}],
-            session=test_db
+            session=test_db,
         )
 
         result = is_fully_assigned(generic_composition.id, session=test_db)
 
         assert result is True
 
-    def test_returns_false_when_partially_assigned(
-        self, test_db, generic_composition, inventory_a
-    ):
+    def test_returns_false_when_partially_assigned(self, test_db, generic_composition, inventory_a):
         """Returns False when assignments don't meet required quantity."""
         # Manually create partial assignment (bypass validation)
         assignment = CompositionAssignment(
             composition_id=generic_composition.id,
             inventory_item_id=inventory_a.id,
             quantity_assigned=10.0,  # Only 10 of 20 required
-            assigned_at=datetime.utcnow()
+            assigned_at=datetime.utcnow(),
         )
         test_db.add(assignment)
         test_db.flush()
@@ -639,17 +695,13 @@ class TestIsFullyAssigned:
 
         assert result is False
 
-    def test_returns_false_when_no_assignments(
-        self, test_db, generic_composition
-    ):
+    def test_returns_false_when_no_assignments(self, test_db, generic_composition):
         """Returns False when no assignments exist."""
         result = is_fully_assigned(generic_composition.id, session=test_db)
 
         assert result is False
 
-    def test_returns_true_for_non_generic(
-        self, test_db, specific_composition
-    ):
+    def test_returns_true_for_non_generic(self, test_db, specific_composition):
         """Returns True for non-generic compositions (always assigned)."""
         result = is_fully_assigned(specific_composition.id, session=test_db)
 
@@ -669,9 +721,7 @@ class TestIsFullyAssigned:
 class TestGetPendingRequirements:
     """Tests for get_pending_requirements() function."""
 
-    def test_finds_unassigned_compositions(
-        self, test_db, generic_composition
-    ):
+    def test_finds_unassigned_compositions(self, test_db, generic_composition):
         """Returns compositions with is_generic=True and no assignments."""
         result = get_pending_requirements(session=test_db)
 
@@ -681,30 +731,26 @@ class TestGetPendingRequirements:
         assert result[0]["assigned_quantity"] == 0
         assert result[0]["remaining"] == 20.0
 
-    def test_excludes_fully_assigned(
-        self, test_db, generic_composition, inventory_a
-    ):
+    def test_excludes_fully_assigned(self, test_db, generic_composition, inventory_a):
         """Excludes compositions that are fully assigned."""
         assign_materials(
             generic_composition.id,
             [{"inventory_item_id": inventory_a.id, "quantity": 20}],
-            session=test_db
+            session=test_db,
         )
 
         result = get_pending_requirements(session=test_db)
 
         assert len(result) == 0
 
-    def test_includes_partially_assigned(
-        self, test_db, generic_composition, inventory_a
-    ):
+    def test_includes_partially_assigned(self, test_db, generic_composition, inventory_a):
         """Includes compositions that are only partially assigned."""
         # Manually create partial assignment
         assignment = CompositionAssignment(
             composition_id=generic_composition.id,
             inventory_item_id=inventory_a.id,
             quantity_assigned=10.0,
-            assigned_at=datetime.utcnow()
+            assigned_at=datetime.utcnow(),
         )
         test_db.add(assignment)
         test_db.flush()
@@ -715,17 +761,13 @@ class TestGetPendingRequirements:
         assert result[0]["assigned_quantity"] == 10.0
         assert result[0]["remaining"] == 10.0
 
-    def test_excludes_non_generic(
-        self, test_db, specific_composition
-    ):
+    def test_excludes_non_generic(self, test_db, specific_composition):
         """Excludes non-generic compositions."""
         result = get_pending_requirements(session=test_db)
 
         assert len(result) == 0
 
-    def test_filters_by_assembly_id(
-        self, test_db, generic_composition, finished_good
-    ):
+    def test_filters_by_assembly_id(self, test_db, generic_composition, finished_good):
         """Filters by assembly_id when provided."""
         result = get_pending_requirements(assembly_id=finished_good.id, session=test_db)
 
@@ -745,9 +787,7 @@ class TestGetPendingRequirements:
 class TestGetAssignmentSummary:
     """Tests for get_assignment_summary() function."""
 
-    def test_returns_summary_for_unassigned(
-        self, test_db, generic_composition
-    ):
+    def test_returns_summary_for_unassigned(self, test_db, generic_composition):
         """Returns correct summary when no assignments exist."""
         result = get_assignment_summary(generic_composition.id, session=test_db)
 
@@ -757,14 +797,12 @@ class TestGetAssignmentSummary:
         assert result["remaining"] == 20.0
         assert result["is_complete"] is False
 
-    def test_returns_summary_for_fully_assigned(
-        self, test_db, generic_composition, inventory_a
-    ):
+    def test_returns_summary_for_fully_assigned(self, test_db, generic_composition, inventory_a):
         """Returns correct summary when fully assigned."""
         assign_materials(
             generic_composition.id,
             [{"inventory_item_id": inventory_a.id, "quantity": 20}],
-            session=test_db
+            session=test_db,
         )
 
         result = get_assignment_summary(generic_composition.id, session=test_db)
@@ -775,9 +813,7 @@ class TestGetAssignmentSummary:
         assert result["remaining"] == 0
         assert result["is_complete"] is True
 
-    def test_returns_summary_for_non_generic(
-        self, test_db, specific_composition
-    ):
+    def test_returns_summary_for_non_generic(self, test_db, specific_composition):
         """Returns correct summary for non-generic composition."""
         result = get_assignment_summary(specific_composition.id, session=test_db)
 
@@ -807,26 +843,22 @@ class TestGetActualCost:
             generic_composition.id,
             [
                 {"inventory_item_id": inventory_a.id, "quantity": 15},  # 15 * 0.10 = 1.50
-                {"inventory_item_id": inventory_b.id, "quantity": 5},   # 5 * 0.15 = 0.75
+                {"inventory_item_id": inventory_b.id, "quantity": 5},  # 5 * 0.15 = 0.75
             ],
-            session=test_db
+            session=test_db,
         )
 
         result = get_actual_cost(generic_composition.id, session=test_db)
 
         assert result == 2.25
 
-    def test_returns_zero_when_no_assignments(
-        self, test_db, generic_composition
-    ):
+    def test_returns_zero_when_no_assignments(self, test_db, generic_composition):
         """Returns 0.0 when no assignments exist."""
         result = get_actual_cost(generic_composition.id, session=test_db)
 
         assert result == 0.0
 
-    def test_uses_product_cost_for_non_generic(
-        self, test_db, specific_composition
-    ):
+    def test_uses_product_cost_for_non_generic(self, test_db, specific_composition):
         """Uses product price for non-generic compositions."""
         result = get_actual_cost(specific_composition.id, session=test_db)
 
