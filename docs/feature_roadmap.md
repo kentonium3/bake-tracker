@@ -40,7 +40,9 @@
 
 ## In Progress
 
-*No features currently in progress.*
+| # | Name | Status | Dependencies |
+|---|------|--------|-------------|
+| 025 | Production Loss Tracking | Planning | Feature 013, 014, 016 |
 
 ---
 
@@ -48,13 +50,14 @@
 
 | # | Name | Priority | Dependencies | Status |
 |---|------|----------|--------------|--------|
-| 025 | Packaging & Distribution | LOW | User testing complete | Blocked |
+| 026 | Deferred Packaging Decisions | HIGH | User testing feedback | Ready |
+| 027 | Packaging & Distribution | LOW | User testing complete | Blocked |
 
 ---
 
 ## Implementation Order
 
-**Current:** None - awaiting user testing
+**Current:** Feature 025 - Production Loss Tracking (Planning phase)
 
 1. ~~**TD-001** - Clean foundation before adding new entities~~ ✅ COMPLETE
 2. ~~**Feature 011** - Packaging materials, extend Composition for packaging~~ ✅ COMPLETE
@@ -73,7 +76,9 @@
 15. ~~**Feature 022** - Unit Reference Table & UI Constraints~~ ✅ COMPLETE
 16. ~~**Feature 023** - Product Name Differentiation~~ ✅ COMPLETE
 17. ~~**Feature 024** - Unified Import Error Handling~~ ✅ COMPLETE
-18. **Feature 025** - Packaging & Distribution
+18. **Feature 025** - Production Loss Tracking
+19. **Feature 026** - *(reserved)*
+20. **Feature 027** - Packaging & Distribution
 
 ---
 
@@ -314,7 +319,67 @@ This prevents safe catalog expansion without risking user data.
 
 ---
 
-### Feature 025: Packaging & Distribution
+### Feature 026: Deferred Packaging Decisions
+
+**Status:** READY 📋
+
+**Problem:** When planning events, food decisions precede packaging aesthetic decisions. Current system forces premature commitment to specific packaging designs (e.g., snowflake vs holly bags) when only generic requirements are known (e.g., need 6" cellophane bags).
+
+**Solution:** Allow planning with generic packaging products, deferring specific material selection until later in the workflow:
+- Event planning: Select generic packaging product (e.g., "Cellophane Bags 6x10")
+- System shows: Available inventory across variants, estimated cost (average price)
+- Decision timing: Anytime from planning through assembly (assembly forces decision)
+- Material assignment: Quick assign interface or full assignment screen
+- Cost updates: Estimated (generic) → Actual (assigned)
+
+**Delivered:**
+- Radio button UI: "Specific material" vs "Generic product" selection
+- EventPackagingRequirement and EventPackagingAssignment tables
+- Production dashboard indicator for pending packaging decisions
+- Assembly definition screen with material assignment interface
+- Assembly progress enforcement with "Record Anyway" bypass option
+- Shopping list shows generic products until materials assigned
+- Dynamic cost estimates (average for generic, actual for assigned)
+
+**Edge Cases Covered:**
+- Change of plans during assembly (boxes → bags)
+- Insufficient inventory at assignment time
+- Multiple refinement stages
+- Shopping before final assignment
+- Backfill scenarios for fast-moving kitchen
+
+**User Validation:** All acceptance criteria validated with primary stakeholder (Marianne). Covers all discussed real-world scenarios.
+
+**Design Document:** `docs/design/F026-deferred-packaging-decisions.md`
+
+---
+
+### Feature 025: Production Loss Tracking
+
+**Status:** DESIGN 📋
+
+**Problem:** Baked goods production involves real-world failures (burnt, broken, contaminated, dropped). Current system cannot distinguish between successful production and losses, preventing cost accounting for waste and analytics on loss trends.
+
+**Solution:** Add explicit production loss tracking with:
+- Loss quantity and category (burnt/broken/contaminated/dropped/wrong_ingredients/other)
+- Production status enum (COMPLETE/PARTIAL_LOSS/TOTAL_LOSS)
+- Yield balance constraint: actual_yield + loss_quantity = expected_yield
+- Separate ProductionLoss table for detailed loss records and analytics
+- UI auto-calculates loss quantity from expected vs actual yield
+- Cost breakdown showing good units vs lost units
+
+**Delivered:**
+- Schema: production_status, loss_quantity, loss_notes on ProductionRun
+- New ProductionLoss model with loss_category, costs, notes
+- Service layer: record_production() accepts loss parameters
+- UI: RecordProductionDialog shows loss details section, cost breakdown
+- Reporting: Loss summaries by category, recipe loss rates, waste cost analysis
+
+**Design Document:** `docs/design/F025_production_loss_tracking.md`
+
+---
+
+### Feature 027: Packaging & Distribution
 
 **Status:** Blocked (awaiting user testing completion)
 
@@ -323,6 +388,11 @@ This prevents safe catalog expansion without risking user data.
 ---
 
 ## Key Decisions
+
+### 2025-12-21
+- **Feature 026 Defined:** Deferred Packaging Decisions - validated user story for staged packaging selection workflow. Allows generic packaging requirements at planning time with deferred material assignment. All acceptance criteria validated with Marianne.
+- **Feature 025 Status:** Production Loss Tracking remains in design phase.
+- **Feature Numbering:** 025 = Production Loss Tracking (design), 026 = Deferred Packaging Decisions (ready), 027 = Packaging & Distribution (blocked).
 
 ### 2025-12-20
 - **Feature 024 Complete:** Unified Import Error Handling merged. Standardized error display/logging across unified and catalog imports.
@@ -419,3 +489,4 @@ Part B: Ingredient.name → Ingredient.display_name ✅
 - 2025-12-16: Features 020, 021 complete and merged. TD-002, TD-003 complete. Feature 023 (Unit Reference Table & UI Constraints) defined. Packaging & Distribution moved to Feature 024.
 - 2025-12-19: Feature 023 (Product Name Differentiation) complete and merged. Database reset for fresh import with updated schema. Feature 024 (Unified Import Error Handling) defined. Feature renumbering: 024 = Unified Import Error Handling (ready), 025 = Packaging & Distribution (blocked).
 - 2025-12-20: Feature 024 (Unified Import Error Handling) complete and merged. Added 30 missing ingredients with USDA naming standards. Database reset and complete catalog import (ingredients + products). Web migration notes updated for API-based inventory management.
+- 2025-12-21: Feature 025 (Production Loss Tracking) defined. Design document created. Features renumbered: 025 = Production Loss Tracking (design), 026 = reserved, 027 = Packaging & Distribution (blocked).
