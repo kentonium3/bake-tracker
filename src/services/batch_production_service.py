@@ -15,13 +15,23 @@ The service integrates with:
 Feature 013: Production & Inventory Tracking
 """
 
+from contextlib import nullcontext
 from typing import Dict, Any, List, Optional
 from decimal import Decimal
 from datetime import datetime
 
 from sqlalchemy.orm import joinedload
 
-from src.models import ProductionRun, ProductionConsumption, Recipe, FinishedUnit, Event
+from src.models import (
+    ProductionRun,
+    ProductionConsumption,
+    ProductionLoss,
+    Recipe,
+    FinishedUnit,
+    Event,
+    ProductionStatus,
+    LossCategory,
+)
 from src.services.database import session_scope
 from src.services import inventory_item_service
 from src.services.recipe_service import get_aggregated_ingredients
@@ -80,6 +90,20 @@ class EventNotFoundError(Exception):
     def __init__(self, event_id: int):
         self.event_id = event_id
         super().__init__(f"Event with ID {event_id} not found")
+
+
+class ActualYieldExceedsExpectedError(Exception):
+    """Raised when actual yield exceeds expected yield.
+
+    Feature 025: Production Loss Tracking
+    """
+
+    def __init__(self, actual_yield: int, expected_yield: int):
+        self.actual_yield = actual_yield
+        self.expected_yield = expected_yield
+        super().__init__(
+            f"Actual yield ({actual_yield}) cannot exceed expected yield ({expected_yield})"
+        )
 
 
 # =============================================================================
@@ -189,6 +213,8 @@ def record_batch_production(
     produced_at: Optional[datetime] = None,
     notes: Optional[str] = None,
     event_id: Optional[int] = None,
+    loss_category: Optional[LossCategory] = None,
+    loss_notes: Optional[str] = None,
     session=None,
 ) -> Dict[str, Any]:
     """
@@ -197,10 +223,12 @@ def record_batch_production(
     This function atomically:
     1. Validates recipe and finished unit
     2. Validates event if provided (Feature 016)
-    3. Consumes ingredients from inventory via FIFO
-    4. Increments FinishedUnit.inventory_count by actual_yield
-    5. Creates ProductionRun and ProductionConsumption records
-    6. Calculates per-unit cost based on actual yield
+    3. Validates actual_yield <= expected_yield (Feature 025)
+    4. Consumes ingredients from inventory via FIFO
+    5. Increments FinishedUnit.inventory_count by actual_yield
+    6. Creates ProductionRun and ProductionConsumption records
+    7. Creates ProductionLoss record if loss_quantity > 0 (Feature 025)
+    8. Calculates per-unit cost based on actual yield
 
     Args:
         recipe_id: ID of the recipe being produced
@@ -210,6 +238,8 @@ def record_batch_production(
         produced_at: Optional production timestamp (defaults to now)
         notes: Optional production notes
         event_id: Optional event ID to link production to (Feature 016)
+        loss_category: Optional loss category enum (Feature 025, defaults to OTHER if loss exists)
+        loss_notes: Optional notes about the loss (Feature 025)
         session: Optional database session (uses session_scope if not provided)
 
     Returns:
@@ -224,6 +254,10 @@ def record_batch_production(
             - "per_unit_cost": Decimal
             - "consumptions": List[Dict] - consumption ledger details
             - "event_id": Optional[int] - linked event ID (Feature 016)
+            - "production_status": str - COMPLETE, PARTIAL_LOSS, or TOTAL_LOSS (Feature 025)
+            - "loss_quantity": int - expected_yield - actual_yield (Feature 025)
+            - "loss_record_id": Optional[int] - ID of ProductionLoss record if created (Feature 025)
+            - "total_loss_cost": str - cost of lost units (Feature 025)
 
     Raises:
         RecipeNotFoundError: If recipe doesn't exist
@@ -231,8 +265,11 @@ def record_batch_production(
         FinishedUnitRecipeMismatchError: If finished unit doesn't belong to recipe
         InsufficientInventoryError: If ingredient inventory is insufficient
         EventNotFoundError: If event_id is provided but event doesn't exist
+        ActualYieldExceedsExpectedError: If actual_yield > expected_yield (Feature 025)
     """
-    with session_scope() as session:
+    # Honor passed session per CLAUDE.md session management pattern
+    cm = nullcontext(session) if session is not None else session_scope()
+    with cm as session:
         # Validate recipe exists
         recipe = session.query(Recipe).filter_by(id=recipe_id).first()
         if not recipe:
@@ -256,6 +293,20 @@ def record_batch_production(
             expected_yield = num_batches * finished_unit.items_per_batch
         else:
             expected_yield = num_batches  # Fallback if not configured
+
+        # Feature 025: Validate actual_yield <= expected_yield (fail fast)
+        if actual_yield > expected_yield:
+            raise ActualYieldExceedsExpectedError(actual_yield, expected_yield)
+
+        # Feature 025: Calculate loss quantity and determine production status
+        loss_quantity = expected_yield - actual_yield
+
+        if loss_quantity == 0:
+            production_status = ProductionStatus.COMPLETE
+        elif actual_yield == 0:
+            production_status = ProductionStatus.TOTAL_LOSS
+        else:
+            production_status = ProductionStatus.PARTIAL_LOSS
 
         # Get aggregated ingredients (handles nested recipes)
         # Pass session to maintain transactional atomicity
@@ -310,7 +361,7 @@ def record_batch_production(
         else:
             per_unit_cost = Decimal("0.0000")
 
-        # Create ProductionRun record
+        # Create ProductionRun record (Feature 025: include status and loss fields)
         production_run = ProductionRun(
             recipe_id=recipe_id,
             finished_unit_id=finished_unit_id,
@@ -322,9 +373,29 @@ def record_batch_production(
             total_ingredient_cost=total_ingredient_cost,
             per_unit_cost=per_unit_cost,
             event_id=event_id,  # Feature 016
+            production_status=production_status.value,  # Feature 025
+            loss_quantity=loss_quantity,  # Feature 025
         )
         session.add(production_run)
         session.flush()  # Get the ID
+
+        # Feature 025: Create ProductionLoss record if there are losses
+        loss_record_id = None
+        total_loss_cost = Decimal("0.0000")
+        if loss_quantity > 0:
+            total_loss_cost = loss_quantity * per_unit_cost
+            loss_record = ProductionLoss(
+                production_run_id=production_run.id,
+                finished_unit_id=finished_unit_id,
+                loss_category=(loss_category or LossCategory.OTHER).value,
+                loss_quantity=loss_quantity,
+                per_unit_cost=per_unit_cost,
+                total_loss_cost=total_loss_cost,
+                notes=loss_notes,
+            )
+            session.add(loss_record)
+            session.flush()
+            loss_record_id = loss_record.id
 
         # Create ProductionConsumption records
         for consumption_data in consumption_records:
@@ -350,6 +421,10 @@ def record_batch_production(
             "per_unit_cost": per_unit_cost,
             "consumptions": consumption_records,
             "event_id": event_id,  # Feature 016
+            "production_status": production_status.value,  # Feature 025
+            "loss_quantity": loss_quantity,  # Feature 025
+            "loss_record_id": loss_record_id,  # Feature 025
+            "total_loss_cost": str(total_loss_cost),  # Feature 025
         }
 
 
@@ -380,6 +455,7 @@ def get_production_history(
     limit: int = 100,
     offset: int = 0,
     include_consumptions: bool = False,
+    include_losses: bool = False,
     session=None,
 ) -> List[Dict[str, Any]]:
     """
@@ -393,6 +469,7 @@ def get_production_history(
         limit: Maximum number of results (default 100)
         offset: Number of results to skip (for pagination)
         include_consumptions: If True, include consumption ledger details
+        include_losses: If True, include ProductionLoss records (Feature 025)
         session: Optional database session
 
     Returns:
@@ -418,19 +495,23 @@ def get_production_history(
         )
         if include_consumptions:
             query = query.options(joinedload(ProductionRun.consumptions))
+        # Feature 025: Eager load losses relationship
+        if include_losses:
+            query = query.options(joinedload(ProductionRun.losses))
 
         # Order and paginate
         query = query.order_by(ProductionRun.produced_at.desc())
         query = query.offset(offset).limit(limit)
 
         runs = query.all()
-        return [_production_run_to_dict(run, include_consumptions) for run in runs]
+        return [_production_run_to_dict(run, include_consumptions, include_losses) for run in runs]
 
 
 def get_production_run(
     production_run_id: int,
     *,
     include_consumptions: bool = True,
+    include_losses: bool = False,
     session=None,
 ) -> Dict[str, Any]:
     """
@@ -439,6 +520,7 @@ def get_production_run(
     Args:
         production_run_id: ID of the production run
         include_consumptions: If True, include consumption ledger details
+        include_losses: If True, include ProductionLoss records (Feature 025)
         session: Optional database session
 
     Returns:
@@ -458,16 +540,21 @@ def get_production_run(
         )
         if include_consumptions:
             query = query.options(joinedload(ProductionRun.consumptions))
+        # Feature 025: Eager load losses relationship
+        if include_losses:
+            query = query.options(joinedload(ProductionRun.losses))
 
         run = query.first()
         if not run:
             raise ProductionRunNotFoundError(production_run_id)
 
-        return _production_run_to_dict(run, include_consumptions)
+        return _production_run_to_dict(run, include_consumptions, include_losses)
 
 
 def _production_run_to_dict(
-    run: ProductionRun, include_consumptions: bool = False
+    run: ProductionRun,
+    include_consumptions: bool = False,
+    include_losses: bool = False,
 ) -> Dict[str, Any]:
     """Convert a ProductionRun to a dictionary representation."""
     result = {
@@ -482,6 +569,9 @@ def _production_run_to_dict(
         "notes": run.notes,
         "total_ingredient_cost": str(run.total_ingredient_cost),
         "per_unit_cost": str(run.per_unit_cost),
+        # Feature 025: Always include loss tracking fields
+        "production_status": run.production_status,
+        "loss_quantity": run.loss_quantity,
     }
 
     # Add relationship data
@@ -514,6 +604,21 @@ def _production_run_to_dict(
             for c in run.consumptions
         ]
 
+    # Feature 025: Include losses when requested
+    if include_losses and run.losses:
+        result["losses"] = [
+            {
+                "id": loss.id,
+                "uuid": str(loss.uuid) if loss.uuid else None,
+                "loss_category": loss.loss_category,
+                "loss_quantity": loss.loss_quantity,
+                "per_unit_cost": str(loss.per_unit_cost),
+                "total_loss_cost": str(loss.total_loss_cost),
+                "notes": loss.notes,
+            }
+            for loss in run.losses
+        ]
+
     return result
 
 
@@ -535,6 +640,8 @@ def export_production_history(
     Uses slugs/names instead of IDs for portability.
     Decimal values are serialized as strings to preserve precision.
 
+    Feature 025: v1.1 schema includes production_status, loss_quantity, and losses array.
+
     Args:
         recipe_id: Optional filter by recipe ID
         start_date: Optional filter by minimum produced_at
@@ -544,11 +651,13 @@ def export_production_history(
     Returns:
         Dict with version, exported_at timestamp, and production_runs list
     """
+    # Feature 025: Include losses in export
     runs = get_production_history(
         recipe_id=recipe_id,
         start_date=start_date,
         end_date=end_date,
         include_consumptions=True,
+        include_losses=True,  # Feature 025
         limit=10000,  # Export all matching
     )
 
@@ -565,6 +674,9 @@ def export_production_history(
             "notes": run.get("notes"),
             "total_ingredient_cost": run["total_ingredient_cost"],
             "per_unit_cost": run["per_unit_cost"],
+            # Feature 025: Add loss tracking fields
+            "production_status": run.get("production_status", "complete"),
+            "loss_quantity": run.get("loss_quantity", 0),
             "consumptions": [
                 {
                     "uuid": c.get("uuid"),
@@ -575,11 +687,23 @@ def export_production_history(
                 }
                 for c in run.get("consumptions", [])
             ],
+            # Feature 025: Add losses array
+            "losses": [
+                {
+                    "uuid": loss.get("uuid"),
+                    "loss_category": loss["loss_category"],
+                    "loss_quantity": loss["loss_quantity"],
+                    "per_unit_cost": loss["per_unit_cost"],
+                    "total_loss_cost": loss["total_loss_cost"],
+                    "notes": loss.get("notes"),
+                }
+                for loss in run.get("losses", [])
+            ],
         }
         exported_runs.append(exported_run)
 
     return {
-        "version": "1.0",
+        "version": "1.1",  # Feature 025: Updated from 1.0
         "exported_at": datetime.utcnow().isoformat(),
         "production_runs": exported_runs,
     }
@@ -597,6 +721,8 @@ def import_production_history(
     Resolves references by name/slug. Validates all foreign keys exist.
     Uses UUIDs for duplicate detection.
 
+    Feature 025: Handles both v1.0 (no loss data) and v1.1 (with loss data) schemas.
+
     Args:
         data: Dict with production_runs to import
         skip_duplicates: If True, skip existing UUIDs; if False, report as error
@@ -608,6 +734,15 @@ def import_production_history(
     imported = 0
     skipped = 0
     errors = []
+
+    # Feature 025: Detect version and transform v1.0 data to v1.1 format
+    version = data.get("version", "1.0")
+    if version == "1.0":
+        for run_data in data.get("production_runs", []):
+            # Add default loss fields for v1.0 data
+            run_data.setdefault("production_status", "complete")
+            run_data.setdefault("loss_quantity", 0)
+            run_data.setdefault("losses", [])
 
     with session_scope() as session:
         for run_data in data.get("production_runs", []):
@@ -643,7 +778,7 @@ def import_production_history(
                     errors.append(f"FinishedUnit not found: {fu_slug}")
                     continue
 
-                # Create ProductionRun
+                # Create ProductionRun (Feature 025: include loss tracking fields)
                 run = ProductionRun(
                     uuid=run_uuid,
                     recipe_id=recipe.id,
@@ -655,6 +790,9 @@ def import_production_history(
                     notes=run_data.get("notes"),
                     total_ingredient_cost=Decimal(run_data["total_ingredient_cost"]),
                     per_unit_cost=Decimal(run_data["per_unit_cost"]),
+                    # Feature 025: Add loss tracking fields
+                    production_status=run_data.get("production_status", "complete"),
+                    loss_quantity=run_data.get("loss_quantity", 0),
                 )
                 session.add(run)
                 session.flush()  # Get ID
@@ -670,6 +808,20 @@ def import_production_history(
                         total_cost=Decimal(c_data["total_cost"]),
                     )
                     session.add(consumption)
+
+                # Feature 025: Create ProductionLoss records
+                for loss_data in run_data.get("losses", []):
+                    loss = ProductionLoss(
+                        uuid=loss_data.get("uuid"),
+                        production_run_id=run.id,
+                        finished_unit_id=finished_unit.id,
+                        loss_category=loss_data["loss_category"],
+                        loss_quantity=loss_data["loss_quantity"],
+                        per_unit_cost=Decimal(loss_data["per_unit_cost"]),
+                        total_loss_cost=Decimal(loss_data["total_loss_cost"]),
+                        notes=loss_data.get("notes"),
+                    )
+                    session.add(loss)
 
                 imported += 1
 

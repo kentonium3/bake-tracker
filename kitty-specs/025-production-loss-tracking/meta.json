@@ -1,0 +1,40 @@
+{
+  "accept_commit": null,
+  "acceptance_history": [
+    {
+      "accepted_at": "2025-12-21T19:53:53Z",
+      "accepted_by": "claude",
+      "accepted_from_commit": "e315c52e6124f55a1b2b21b9988dfc72b243eb92",
+      "branch": "025-production-loss-tracking",
+      "mode": "local",
+      "validation_commands": [
+        "pytest src/tests -v"
+      ]
+    }
+  ],
+  "acceptance_mode": "local",
+  "accepted_at": "2025-12-21T19:53:53Z",
+  "accepted_by": "claude",
+  "accepted_from_commit": "e315c52e6124f55a1b2b21b9988dfc72b243eb92",
+  "created_at": "2025-12-21T15:43:53Z",
+  "feature_number": "025",
+  "friendly_name": "Production Loss Tracking",
+  "merge_history": [
+    {
+      "merge_commit": "58a5dd7a3574c32e8ab0e7933b0f616179a06ab6",
+      "merged_at": "2025-12-21T19:59:27Z",
+      "merged_by": "Kent Gale",
+      "pushed": true,
+      "strategy": "squash",
+      "target": "main"
+    }
+  ],
+  "merged_at": "2025-12-21T19:59:27Z",
+  "merged_by": "Kent Gale",
+  "merged_commit": "58a5dd7a3574c32e8ab0e7933b0f616179a06ab6",
+  "merged_into": "main",
+  "merged_push": true,
+  "merged_strategy": "squash",
+  "slug": "025-production-loss-tracking",
+  "source_description": "Track production losses (burnt, broken, contaminated) with cost accounting and reporting"
+}

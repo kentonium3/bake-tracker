@@ -2,6 +2,9 @@
 Production history table widget for displaying production run history.
 
 Subclass of DataTable specialized for production run data display.
+
+Feature 025: Added Loss and Status columns with visual indicators for
+production loss tracking.
 """
 
 from datetime import datetime
@@ -11,11 +14,30 @@ from typing import Any, List, Optional, Callable
 from src.ui.widgets.data_table import DataTable
 
 
+# Feature 025: Status display mapping with visual indicators
+# Using text prefixes for accessibility (not color-only)
+STATUS_DISPLAY = {
+    "complete": ("Complete", "complete"),
+    "partial_loss": ("! Partial Loss", "partial_loss"),
+    "total_loss": ("!! Total Loss", "total_loss"),
+}
+
+# Feature 025: Color definitions for status styling
+STATUS_COLORS = {
+    "complete": "#28A745",     # Green - success
+    "partial_loss": "#FFC107", # Amber/orange - warning
+    "total_loss": "#DC3545",   # Red - error
+}
+
+
 class ProductionHistoryTable(DataTable):
     """
     Specialized data table for displaying production run history.
 
-    Columns: Date, Batches, Yield, Cost
+    Columns: Date, Batches, Yield, Cost, Loss, Status
+
+    Feature 025: Added Loss and Status columns with visual indicators
+    to display production loss tracking information.
     """
 
     COLUMNS = [
@@ -23,6 +45,8 @@ class ProductionHistoryTable(DataTable):
         ("Batches", 70),
         ("Yield", 100),
         ("Cost", 90),
+        ("Loss", 60),      # Feature 025: Loss quantity column
+        ("Status", 110),   # Feature 025: Production status column
     ]
 
     def __init__(
@@ -49,6 +73,37 @@ class ProductionHistoryTable(DataTable):
             height=height,
         )
 
+    def _create_row(self, row_index: int, row_data: Any):
+        """
+        Create a data row with status-based visual indicators.
+
+        Feature 025: T028 - Override base class to apply color styling
+        to the Status column based on production_status value.
+
+        Args:
+            row_index: Index of the row
+            row_data: Data for the row (production run dict)
+        """
+        # Call base class to create the row
+        super()._create_row(row_index, row_data)
+
+        # Apply status-based color styling to the Status column (last column, index 5)
+        if row_index < len(self.row_widgets):
+            _, row_widgets_list = self.row_widgets[row_index]
+
+            # Get status from row data
+            if isinstance(row_data, dict):
+                production_status = row_data.get("production_status", "complete")
+            else:
+                production_status = getattr(row_data, "production_status", "complete")
+
+            # Apply color to Status column (index 5)
+            status_column_index = 5
+            if status_column_index < len(row_widgets_list):
+                status_color = self._get_status_color(production_status)
+                status_label = row_widgets_list[status_column_index]
+                status_label.configure(text_color=status_color)
+
     def _get_row_values(self, row_data: Any) -> List[str]:
         """
         Extract production run-specific row values.
@@ -58,6 +113,8 @@ class ProductionHistoryTable(DataTable):
 
         Returns:
             List of formatted values for each column
+
+        Feature 025: Added Loss and Status columns.
         """
         # Handle dict format from service
         if isinstance(row_data, dict):
@@ -69,6 +126,10 @@ class ProductionHistoryTable(DataTable):
                     row_data.get("expected_yield", 0),
                 ),
                 self._format_currency(row_data.get("total_ingredient_cost", "0")),
+                # Feature 025: Loss column
+                self._format_loss(row_data.get("loss_quantity", 0)),
+                # Feature 025: Status column
+                self._format_status(row_data.get("production_status", "complete")),
             ]
 
         # Handle object format (fallback)
@@ -80,6 +141,10 @@ class ProductionHistoryTable(DataTable):
                 getattr(row_data, "expected_yield", 0),
             ),
             self._format_currency(getattr(row_data, "total_ingredient_cost", "0")),
+            # Feature 025: Loss column
+            self._format_loss(getattr(row_data, "loss_quantity", 0)),
+            # Feature 025: Status column
+            self._format_status(getattr(row_data, "production_status", "complete")),
         ]
 
     def _format_date(self, date_value: Any) -> str:
@@ -149,3 +214,62 @@ class ProductionHistoryTable(DataTable):
 
         except (ValueError, TypeError):
             return "$0.00"
+
+    # =========================================================================
+    # Feature 025: Loss tracking formatting methods
+    # =========================================================================
+
+    def _format_loss(self, loss_quantity: Any) -> str:
+        """
+        Format loss quantity for display.
+
+        Feature 025: T026, T029 - Shows loss quantity or "-" for no loss.
+
+        Args:
+            loss_quantity: Loss quantity value (int, float, or None)
+
+        Returns:
+            Formatted string: number if > 0, "-" otherwise
+        """
+        try:
+            qty = int(loss_quantity) if loss_quantity else 0
+            return str(qty) if qty > 0 else "-"
+        except (ValueError, TypeError):
+            return "-"
+
+    def _format_status(self, production_status: Any) -> str:
+        """
+        Format production status for display.
+
+        Feature 025: T027 - Shows human-readable status with accessibility prefix.
+
+        Args:
+            production_status: Status value (string enum: complete, partial_loss, total_loss)
+
+        Returns:
+            Formatted display string with accessibility prefix
+        """
+        if not production_status:
+            return "Complete"
+
+        status_key = str(production_status).lower()
+        display_text, _ = STATUS_DISPLAY.get(status_key, ("Unknown", "unknown"))
+        return display_text
+
+    def _get_status_color(self, production_status: Any) -> str:
+        """
+        Get the color for a production status.
+
+        Feature 025: T028 - Returns color code for visual indicators.
+
+        Args:
+            production_status: Status value (string enum)
+
+        Returns:
+            Hex color code for the status
+        """
+        if not production_status:
+            return STATUS_COLORS["complete"]
+
+        status_key = str(production_status).lower()
+        return STATUS_COLORS.get(status_key, STATUS_COLORS["complete"])

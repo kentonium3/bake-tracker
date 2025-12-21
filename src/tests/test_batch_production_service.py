@@ -18,6 +18,8 @@ from src.models import (
     ProductionRun,
     ProductionConsumption,
     RecipeComponent,
+    ProductionLoss,
+    LossCategory,
 )
 from src.models.finished_unit import YieldMode
 from src.services import batch_production_service
@@ -27,6 +29,7 @@ from src.services.batch_production_service import (
     FinishedUnitRecipeMismatchError,
     InsufficientInventoryError,
     ProductionRunNotFoundError,
+    ActualYieldExceedsExpectedError,
 )
 from src.services.database import session_scope
 
@@ -362,25 +365,23 @@ class TestRecordBatchProduction:
         inventory_flour,
         inventory_sugar,
     ):
-        """Yield exceeds expected: allowed and tracked."""
+        """Yield exceeds expected: Feature 025 raises error (fail fast)."""
+        from src.services.batch_production_service import ActualYieldExceedsExpectedError
+
         recipe = recipe_with_ingredients_and_inventory
 
-        result = batch_production_service.record_batch_production(
-            recipe_id=recipe.id,
-            finished_unit_id=finished_unit_cookies.id,
-            num_batches=1,
-            actual_yield=60,  # Expected 48
-        )
+        with pytest.raises(ActualYieldExceedsExpectedError) as exc_info:
+            batch_production_service.record_batch_production(
+                recipe_id=recipe.id,
+                finished_unit_id=finished_unit_cookies.id,
+                num_batches=1,
+                actual_yield=60,  # Expected 48, exceeds = error
+            )
 
-        assert result["actual_yield"] == 60
-        assert result["expected_yield"] == 48
-
-        # Per unit cost should be lower since we got more items
-        # total_cost / 60 < total_cost / 48
-        with session_scope() as session:
-            pr = session.query(ProductionRun).filter_by(id=result["production_run_id"]).first()
-            assert pr.actual_yield == 60
-            assert pr.expected_yield == 48
+        # Verify error details
+        assert exc_info.value.actual_yield == 60
+        assert exc_info.value.expected_yield == 48
+        assert "cannot exceed" in str(exc_info.value)
 
     def test_rollback_on_insufficient_inventory(
         self,
@@ -534,11 +535,11 @@ class TestRecordBatchProduction:
             recipe_id=recipe.id,
             finished_unit_id=finished_unit_cookies.id,
             num_batches=1,
-            actual_yield=50,
+            actual_yield=40,  # Must be <= expected_yield (48) per Feature 025
         )
 
         # Verify per_unit_cost = total_cost / actual_yield
-        expected_per_unit = result["total_ingredient_cost"] / Decimal("50")
+        expected_per_unit = result["total_ingredient_cost"] / Decimal("40")
         with session_scope() as session:
             pr = session.query(ProductionRun).filter_by(id=result["production_run_id"]).first()
             # Allow small precision difference
@@ -752,7 +753,7 @@ class TestExportProductionHistory:
     def test_empty_export(self, test_db):
         """Empty database returns empty production_runs list."""
         result = batch_production_service.export_production_history()
-        assert result["version"] == "1.0"
+        assert result["version"] == "1.1"  # Feature 025: Updated from 1.0
         assert "exported_at" in result
         assert result["production_runs"] == []
 
@@ -895,8 +896,9 @@ class TestImportProductionHistory:
         assert len(exported["production_runs"]) == 1
         original_run = exported["production_runs"][0]
 
-        # Clear production runs
+        # Clear production runs (including losses - F025 uses passive_deletes)
         with session_scope() as session:
+            session.query(ProductionLoss).delete()
             session.query(ProductionConsumption).delete()
             session.query(ProductionRun).delete()
 
@@ -1156,3 +1158,578 @@ class TestRecordBatchProductionEventId:
                 event_id=99999,
             )
         assert exc_info.value.event_id == 99999
+
+
+# =============================================================================
+# Feature 025: Production Loss Tracking Tests
+# =============================================================================
+
+
+class TestProductionLossTracking:
+    """Tests for Feature 025 - Production Loss Tracking."""
+
+    # -------------------------------------------------------------------------
+    # T034: Test complete production (no loss)
+    # -------------------------------------------------------------------------
+
+    def test_record_production_complete_no_loss(
+        self,
+        recipe_with_ingredients_and_inventory,
+        finished_unit_cookies,
+        inventory_flour,
+        inventory_sugar,
+    ):
+        """Test that production with actual = expected results in COMPLETE status."""
+        recipe = recipe_with_ingredients_and_inventory
+        expected_yield = finished_unit_cookies.items_per_batch  # 48
+
+        result = batch_production_service.record_batch_production(
+            recipe_id=recipe.id,
+            finished_unit_id=finished_unit_cookies.id,
+            num_batches=1,
+            actual_yield=expected_yield,
+        )
+
+        # Verify service result
+        assert result["production_status"] == "complete"
+        assert result["loss_quantity"] == 0
+        assert result["loss_record_id"] is None
+        assert result["total_loss_cost"] == "0.0000"
+
+        # Verify no ProductionLoss created
+        with session_scope() as session:
+            losses = (
+                session.query(ProductionLoss)
+                .filter_by(production_run_id=result["production_run_id"])
+                .all()
+            )
+            assert len(losses) == 0
+
+    # -------------------------------------------------------------------------
+    # T035: Test partial loss recording
+    # -------------------------------------------------------------------------
+
+    def test_record_production_partial_loss(
+        self,
+        recipe_with_ingredients_and_inventory,
+        finished_unit_cookies,
+        inventory_flour,
+        inventory_sugar,
+    ):
+        """Test that production with actual < expected results in PARTIAL_LOSS."""
+        recipe = recipe_with_ingredients_and_inventory
+        expected_yield = finished_unit_cookies.items_per_batch  # 48
+        loss_qty = 5
+        actual_yield = expected_yield - loss_qty  # 43
+
+        result = batch_production_service.record_batch_production(
+            recipe_id=recipe.id,
+            finished_unit_id=finished_unit_cookies.id,
+            num_batches=1,
+            actual_yield=actual_yield,
+            loss_category=LossCategory.BURNT,
+        )
+
+        # Verify service result
+        assert result["production_status"] == "partial_loss"
+        assert result["loss_quantity"] == loss_qty
+        assert result["loss_record_id"] is not None
+
+        # Verify ProductionLoss created with correct data
+        with session_scope() as session:
+            loss = session.query(ProductionLoss).get(result["loss_record_id"])
+            assert loss is not None
+            assert loss.loss_category == "burnt"
+            assert loss.loss_quantity == loss_qty
+            assert loss.production_run_id == result["production_run_id"]
+
+    # -------------------------------------------------------------------------
+    # T036: Test total loss recording
+    # -------------------------------------------------------------------------
+
+    def test_record_production_total_loss(
+        self,
+        recipe_with_ingredients_and_inventory,
+        finished_unit_cookies,
+        inventory_flour,
+        inventory_sugar,
+    ):
+        """Test that production with actual = 0 results in TOTAL_LOSS."""
+        recipe = recipe_with_ingredients_and_inventory
+        expected_yield = finished_unit_cookies.items_per_batch  # 48
+
+        # Get initial inventory count
+        initial_inventory = finished_unit_cookies.inventory_count
+
+        result = batch_production_service.record_batch_production(
+            recipe_id=recipe.id,
+            finished_unit_id=finished_unit_cookies.id,
+            num_batches=1,
+            actual_yield=0,  # Total loss
+            loss_category=LossCategory.CONTAMINATED,
+        )
+
+        # Verify service result
+        assert result["production_status"] == "total_loss"
+        assert result["loss_quantity"] == expected_yield
+        assert result["actual_yield"] == 0
+        assert result["loss_record_id"] is not None
+
+        # Verify inventory NOT increased (only actual_yield=0 added)
+        with session_scope() as session:
+            fu = session.query(FinishedUnit).get(finished_unit_cookies.id)
+            # inventory should only increase by actual_yield (0)
+            assert fu.inventory_count == initial_inventory
+
+    # -------------------------------------------------------------------------
+    # T037: Test yield validation (actual > expected)
+    # -------------------------------------------------------------------------
+
+    def test_record_production_rejects_excess_yield(
+        self,
+        recipe_with_ingredients_and_inventory,
+        finished_unit_cookies,
+        inventory_flour,
+        inventory_sugar,
+    ):
+        """Test that actual > expected raises ActualYieldExceedsExpectedError."""
+        recipe = recipe_with_ingredients_and_inventory
+        expected_yield = finished_unit_cookies.items_per_batch  # 48
+
+        with pytest.raises(ActualYieldExceedsExpectedError) as exc_info:
+            batch_production_service.record_batch_production(
+                recipe_id=recipe.id,
+                finished_unit_id=finished_unit_cookies.id,
+                num_batches=1,
+                actual_yield=expected_yield + 10,  # 58, exceeds expected
+            )
+
+        assert exc_info.value.actual_yield == expected_yield + 10
+        assert exc_info.value.expected_yield == expected_yield
+        assert "cannot exceed expected yield" in str(exc_info.value).lower()
+
+    # -------------------------------------------------------------------------
+    # T038: Test loss with all categories
+    # -------------------------------------------------------------------------
+
+    @pytest.mark.parametrize(
+        "category",
+        [
+            LossCategory.BURNT,
+            LossCategory.BROKEN,
+            LossCategory.CONTAMINATED,
+            LossCategory.DROPPED,
+            LossCategory.WRONG_INGREDIENTS,
+            LossCategory.OTHER,
+        ],
+    )
+    def test_record_production_loss_categories(
+        self,
+        recipe_with_ingredients_and_inventory,
+        finished_unit_cookies,
+        inventory_flour,
+        inventory_sugar,
+        category,
+    ):
+        """Test that all loss categories can be recorded correctly."""
+        recipe = recipe_with_ingredients_and_inventory
+        expected_yield = finished_unit_cookies.items_per_batch  # 48
+
+        result = batch_production_service.record_batch_production(
+            recipe_id=recipe.id,
+            finished_unit_id=finished_unit_cookies.id,
+            num_batches=1,
+            actual_yield=expected_yield - 1,  # 1 unit lost
+            loss_category=category,
+        )
+
+        with session_scope() as session:
+            loss = session.query(ProductionLoss).get(result["loss_record_id"])
+            assert loss is not None
+            assert loss.loss_category == category.value
+
+    def test_record_production_loss_default_category(
+        self,
+        recipe_with_ingredients_and_inventory,
+        finished_unit_cookies,
+        inventory_flour,
+        inventory_sugar,
+    ):
+        """Test that loss without category defaults to OTHER."""
+        recipe = recipe_with_ingredients_and_inventory
+        expected_yield = finished_unit_cookies.items_per_batch
+
+        result = batch_production_service.record_batch_production(
+            recipe_id=recipe.id,
+            finished_unit_id=finished_unit_cookies.id,
+            num_batches=1,
+            actual_yield=expected_yield - 2,
+            # No loss_category provided
+        )
+
+        with session_scope() as session:
+            loss = session.query(ProductionLoss).get(result["loss_record_id"])
+            assert loss is not None
+            assert loss.loss_category == "other"
+
+    # -------------------------------------------------------------------------
+    # T039: Test loss with notes
+    # -------------------------------------------------------------------------
+
+    def test_record_production_loss_notes(
+        self,
+        recipe_with_ingredients_and_inventory,
+        finished_unit_cookies,
+        inventory_flour,
+        inventory_sugar,
+    ):
+        """Test that loss notes are stored correctly."""
+        recipe = recipe_with_ingredients_and_inventory
+        expected_yield = finished_unit_cookies.items_per_batch
+        notes = "Oven temperature was too high - check thermostat calibration"
+
+        result = batch_production_service.record_batch_production(
+            recipe_id=recipe.id,
+            finished_unit_id=finished_unit_cookies.id,
+            num_batches=1,
+            actual_yield=expected_yield - 3,
+            loss_category=LossCategory.BURNT,
+            loss_notes=notes,
+        )
+
+        with session_scope() as session:
+            loss = session.query(ProductionLoss).get(result["loss_record_id"])
+            assert loss is not None
+            assert loss.notes == notes
+
+    def test_record_production_loss_no_notes(
+        self,
+        recipe_with_ingredients_and_inventory,
+        finished_unit_cookies,
+        inventory_flour,
+        inventory_sugar,
+    ):
+        """Test that loss without notes stores None."""
+        recipe = recipe_with_ingredients_and_inventory
+        expected_yield = finished_unit_cookies.items_per_batch
+
+        result = batch_production_service.record_batch_production(
+            recipe_id=recipe.id,
+            finished_unit_id=finished_unit_cookies.id,
+            num_batches=1,
+            actual_yield=expected_yield - 1,
+            loss_category=LossCategory.OTHER,
+            # No loss_notes provided
+        )
+
+        with session_scope() as session:
+            loss = session.query(ProductionLoss).get(result["loss_record_id"])
+            assert loss is not None
+            assert loss.notes is None
+
+    # -------------------------------------------------------------------------
+    # T040: Test cost calculations
+    # -------------------------------------------------------------------------
+
+    def test_record_production_loss_cost_calculation(
+        self,
+        recipe_with_ingredients_and_inventory,
+        finished_unit_cookies,
+        inventory_flour,
+        inventory_sugar,
+    ):
+        """Test that loss cost equals loss_quantity * per_unit_cost."""
+        recipe = recipe_with_ingredients_and_inventory
+        expected_yield = finished_unit_cookies.items_per_batch
+        loss_quantity = 5
+
+        result = batch_production_service.record_batch_production(
+            recipe_id=recipe.id,
+            finished_unit_id=finished_unit_cookies.id,
+            num_batches=1,
+            actual_yield=expected_yield - loss_quantity,
+            loss_category=LossCategory.BROKEN,
+        )
+
+        with session_scope() as session:
+            loss = session.query(ProductionLoss).get(result["loss_record_id"])
+            assert loss is not None
+            # per_unit_cost and total_loss_cost should be positive
+            assert loss.per_unit_cost > 0
+            assert loss.total_loss_cost > 0
+            # total_loss_cost should be loss_quantity * per_unit_cost
+            # (allowing for minor decimal precision differences)
+            expected_loss_cost = loss_quantity * loss.per_unit_cost
+            assert abs(loss.total_loss_cost - expected_loss_cost) < Decimal("0.01")
+
+    def test_record_production_loss_cost_in_return(
+        self,
+        recipe_with_ingredients_and_inventory,
+        finished_unit_cookies,
+        inventory_flour,
+        inventory_sugar,
+    ):
+        """Test that total_loss_cost is returned in service result."""
+        recipe = recipe_with_ingredients_and_inventory
+        expected_yield = finished_unit_cookies.items_per_batch
+        loss_quantity = 10
+
+        result = batch_production_service.record_batch_production(
+            recipe_id=recipe.id,
+            finished_unit_id=finished_unit_cookies.id,
+            num_batches=1,
+            actual_yield=expected_yield - loss_quantity,
+            loss_category=LossCategory.DROPPED,
+        )
+
+        # Verify total_loss_cost is in result
+        assert "total_loss_cost" in result
+        # It should be loss_quantity * per_unit_cost
+        per_unit_cost = result["per_unit_cost"]
+        expected_loss_cost = Decimal(str(loss_quantity)) * per_unit_cost
+        assert Decimal(result["total_loss_cost"]) == expected_loss_cost
+
+    # -------------------------------------------------------------------------
+    # T041: Test ProductionLoss model
+    # -------------------------------------------------------------------------
+
+    def test_production_loss_model_creation(
+        self,
+        recipe_with_ingredients_and_inventory,
+        finished_unit_cookies,
+        inventory_flour,
+        inventory_sugar,
+    ):
+        """Test ProductionLoss model can be created directly."""
+        recipe = recipe_with_ingredients_and_inventory
+
+        # First create a production run
+        result = batch_production_service.record_batch_production(
+            recipe_id=recipe.id,
+            finished_unit_id=finished_unit_cookies.id,
+            num_batches=1,
+            actual_yield=40,  # 8 units lost
+            loss_category=LossCategory.BURNT,
+        )
+
+        # Verify the loss record was created with UUID
+        with session_scope() as session:
+            loss = session.query(ProductionLoss).get(result["loss_record_id"])
+            assert loss is not None
+            assert loss.id is not None
+            assert loss.uuid is not None  # BaseModel provides UUID
+
+    def test_production_loss_relationship_to_run(
+        self,
+        recipe_with_ingredients_and_inventory,
+        finished_unit_cookies,
+        inventory_flour,
+        inventory_sugar,
+    ):
+        """Test ProductionLoss relationship to ProductionRun."""
+        recipe = recipe_with_ingredients_and_inventory
+
+        result = batch_production_service.record_batch_production(
+            recipe_id=recipe.id,
+            finished_unit_id=finished_unit_cookies.id,
+            num_batches=1,
+            actual_yield=44,  # 4 units lost
+            loss_category=LossCategory.BROKEN,
+        )
+
+        with session_scope() as session:
+            run = session.query(ProductionRun).get(result["production_run_id"])
+            assert len(run.losses) == 1
+            assert run.losses[0].production_run_id == run.id
+
+    def test_production_loss_relationship_to_finished_unit(
+        self,
+        recipe_with_ingredients_and_inventory,
+        finished_unit_cookies,
+        inventory_flour,
+        inventory_sugar,
+    ):
+        """Test ProductionLoss relationship to FinishedUnit."""
+        recipe = recipe_with_ingredients_and_inventory
+
+        result = batch_production_service.record_batch_production(
+            recipe_id=recipe.id,
+            finished_unit_id=finished_unit_cookies.id,
+            num_batches=1,
+            actual_yield=45,  # 3 units lost
+            loss_category=LossCategory.OTHER,
+        )
+
+        with session_scope() as session:
+            loss = session.query(ProductionLoss).get(result["loss_record_id"])
+            assert loss.finished_unit_id == finished_unit_cookies.id
+
+
+# =============================================================================
+# Feature 025: Export/Import v1.1 Tests
+# =============================================================================
+
+
+class TestExportImportV11:
+    """Tests for Feature 025 - Export/Import v1.1 schema with loss tracking."""
+
+    def test_export_includes_loss_fields(
+        self,
+        recipe_with_ingredients_and_inventory,
+        finished_unit_cookies,
+        inventory_flour,
+        inventory_sugar,
+    ):
+        """Test export includes production_status, loss_quantity, and losses."""
+        recipe = recipe_with_ingredients_and_inventory
+
+        # Create production with loss
+        batch_production_service.record_batch_production(
+            recipe_id=recipe.id,
+            finished_unit_id=finished_unit_cookies.id,
+            num_batches=1,
+            actual_yield=40,
+            loss_category=LossCategory.BURNT,
+            loss_notes="Test loss",
+        )
+
+        exported = batch_production_service.export_production_history()
+
+        assert exported["version"] == "1.1"
+        assert len(exported["production_runs"]) == 1
+
+        run = exported["production_runs"][0]
+        assert "production_status" in run
+        assert run["production_status"] == "partial_loss"
+        assert "loss_quantity" in run
+        assert run["loss_quantity"] == 8  # 48 - 40
+        assert "losses" in run
+        assert len(run["losses"]) == 1
+        assert run["losses"][0]["loss_category"] == "burnt"
+        assert run["losses"][0]["notes"] == "Test loss"
+
+    def test_import_v10_data_adds_defaults(self, test_db, recipe_cookies, finished_unit_cookies):
+        """Test import of v1.0 data adds default loss fields."""
+        data = {
+            "version": "1.0",
+            "production_runs": [
+                {
+                    "uuid": "test-v10-uuid",
+                    "recipe_name": recipe_cookies.name,
+                    "finished_unit_slug": finished_unit_cookies.slug,
+                    "num_batches": 1,
+                    "expected_yield": 48,
+                    "actual_yield": 48,
+                    "produced_at": "2024-06-15T10:00:00",
+                    "notes": None,
+                    "total_ingredient_cost": "5.00",
+                    "per_unit_cost": "0.1042",
+                    "consumptions": [],
+                    # No production_status, loss_quantity, or losses
+                }
+            ],
+        }
+
+        result = batch_production_service.import_production_history(data)
+        assert result["imported"] == 1
+        assert result["errors"] == []
+
+        # Verify defaults applied
+        with session_scope() as session:
+            run = session.query(ProductionRun).filter_by(uuid="test-v10-uuid").first()
+            assert run is not None
+            assert run.production_status == "complete"
+            assert run.loss_quantity == 0
+            assert len(run.losses) == 0
+
+    def test_import_v11_data_with_losses(self, test_db, recipe_cookies, finished_unit_cookies):
+        """Test import of v1.1 data creates ProductionLoss records."""
+        data = {
+            "version": "1.1",
+            "production_runs": [
+                {
+                    "uuid": "test-v11-uuid",
+                    "recipe_name": recipe_cookies.name,
+                    "finished_unit_slug": finished_unit_cookies.slug,
+                    "num_batches": 1,
+                    "expected_yield": 48,
+                    "actual_yield": 40,
+                    "produced_at": "2024-06-15T10:00:00",
+                    "notes": None,
+                    "total_ingredient_cost": "5.00",
+                    "per_unit_cost": "0.125",
+                    "production_status": "partial_loss",
+                    "loss_quantity": 8,
+                    "consumptions": [],
+                    "losses": [
+                        {
+                            "uuid": "loss-uuid-001",
+                            "loss_category": "burnt",
+                            "loss_quantity": 8,
+                            "per_unit_cost": "0.125",
+                            "total_loss_cost": "1.00",
+                            "notes": "Imported loss",
+                        }
+                    ],
+                }
+            ],
+        }
+
+        result = batch_production_service.import_production_history(data)
+        assert result["imported"] == 1
+        assert result["errors"] == []
+
+        # Verify ProductionLoss created
+        with session_scope() as session:
+            run = session.query(ProductionRun).filter_by(uuid="test-v11-uuid").first()
+            assert run is not None
+            assert run.production_status == "partial_loss"
+            assert run.loss_quantity == 8
+            assert len(run.losses) == 1
+            assert run.losses[0].loss_category == "burnt"
+            assert run.losses[0].notes == "Imported loss"
+
+    def test_export_import_roundtrip_with_losses(
+        self,
+        recipe_with_ingredients_and_inventory,
+        finished_unit_cookies,
+        inventory_flour,
+        inventory_sugar,
+    ):
+        """Test roundtrip preserves loss data."""
+        recipe = recipe_with_ingredients_and_inventory
+
+        # Create production with loss
+        batch_production_service.record_batch_production(
+            recipe_id=recipe.id,
+            finished_unit_id=finished_unit_cookies.id,
+            num_batches=1,
+            actual_yield=35,
+            loss_category=LossCategory.CONTAMINATED,
+            loss_notes="Roundtrip loss test",
+        )
+
+        # Export
+        exported = batch_production_service.export_production_history()
+        original_run = exported["production_runs"][0]
+        original_loss = original_run["losses"][0]
+
+        # Clear
+        with session_scope() as session:
+            session.query(ProductionLoss).delete()
+            session.query(ProductionConsumption).delete()
+            session.query(ProductionRun).delete()
+
+        # Import
+        result = batch_production_service.import_production_history(exported)
+        assert result["imported"] == 1
+
+        # Verify
+        reimported = batch_production_service.export_production_history()
+        reimp_run = reimported["production_runs"][0]
+
+        assert reimp_run["production_status"] == original_run["production_status"]
+        assert reimp_run["loss_quantity"] == original_run["loss_quantity"]
+        assert len(reimp_run["losses"]) == 1
+        assert reimp_run["losses"][0]["loss_category"] == original_loss["loss_category"]
+        assert reimp_run["losses"][0]["notes"] == original_loss["notes"]

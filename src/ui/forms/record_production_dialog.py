@@ -4,6 +4,7 @@ Record Production dialog for recording batch production of FinishedUnits.
 Provides a modal dialog for recording batch production with:
 - Batch count input
 - Adjustable actual yield
+- Loss tracking with auto-expand (Feature 025)
 - Optional notes
 - Availability check display with refresh button
 - Service integration for recording production
@@ -11,10 +12,12 @@ Provides a modal dialog for recording batch production with:
 
 import customtkinter as ctk
 from datetime import datetime
+from decimal import Decimal
 from typing import Optional, Dict, Any, List
 
 from src.models.finished_unit import FinishedUnit
 from src.models.event import Event
+from src.models.enums import LossCategory
 from src.ui.widgets.availability_display import AvailabilityDisplay
 from src.ui.widgets.dialogs import show_error, show_confirmation
 from src.ui.service_integration import get_ui_service_integrator, OperationType
@@ -47,6 +50,10 @@ class RecordProductionDialog(ctk.CTkToplevel):
         self._last_expected = 0
         self.service_integrator = get_ui_service_integrator()
 
+        # Feature 025: Loss tracking state
+        self._loss_details_visible = False
+        self._estimated_per_unit_cost: Optional[Decimal] = None
+
         # Feature 016: Load events for event selector
         self.events: List[Event] = self._load_events()
 
@@ -69,13 +76,13 @@ class RecordProductionDialog(ctk.CTkToplevel):
     def _setup_window(self):
         """Configure the dialog window."""
         self.title(f"Record Production - {self.finished_unit.display_name}")
-        self.geometry("480x580")
-        self.minsize(450, 550)
+        self.geometry("520x700")  # Feature 025: Larger to accommodate loss section
+        self.minsize(500, 650)
         self.resizable(True, True)
 
         # Configure grid
         self.grid_columnconfigure(1, weight=1)
-        self.grid_rowconfigure(5, weight=1)  # Availability expands
+        self.grid_rowconfigure(8, weight=1)  # Availability expands (adjusted for loss rows)
 
     def _setup_modal(self):
         """Set up modal behavior."""
@@ -177,6 +184,23 @@ class RecordProductionDialog(ctk.CTkToplevel):
         self.yield_entry.grid(
             row=row, column=1, sticky="w", padx=PADDING_MEDIUM, pady=PADDING_MEDIUM
         )
+        # Feature 025: Bind yield change for loss calculation
+        self.yield_entry.bind("<KeyRelease>", self._on_yield_changed)
+        row += 1
+
+        # Feature 025: Loss quantity display (read-only)
+        ctk.CTkLabel(self, text="Loss Quantity:").grid(
+            row=row, column=0, sticky="e", padx=PADDING_MEDIUM
+        )
+        self.loss_quantity_label = ctk.CTkLabel(self, text="0")
+        self.loss_quantity_label.grid(
+            row=row, column=1, sticky="w", padx=PADDING_MEDIUM
+        )
+        row += 1
+
+        # Feature 025: Expandable loss details frame
+        self._loss_details_row = row
+        self._create_loss_details_frame()
         row += 1
 
         # Notes
@@ -284,17 +308,30 @@ class RecordProductionDialog(ctk.CTkToplevel):
         notes = self.notes_textbox.get("1.0", "end-1c").strip() or None
         event_id = self._get_selected_event_id()  # Feature 016
 
+        # Feature 025: Get loss tracking data
+        loss_qty = self._calculate_loss_quantity()
+        loss_category = self._get_loss_category() if loss_qty > 0 else None
+        loss_notes = self._get_loss_notes() if loss_qty > 0 else None
+
         # Confirmation dialog
         expected = self._calculate_expected_yield(batch_count)
         event_info = ""
         if event_id:
             selected_event = self.event_var.get()
             event_info = f"Event: {selected_event}\n"
+
+        # Feature 025: Include loss info in confirmation
+        loss_info = ""
+        if loss_qty > 0:
+            category_display = loss_category.value.replace("_", " ").title() if loss_category else "Other"
+            loss_info = f"Loss: {loss_qty} units ({category_display})\n"
+
         message = (
             f"Record {batch_count} batch(es) of {self.finished_unit.display_name}?\n\n"
             f"{event_info}"
             f"Expected yield: {expected}\n"
-            f"Actual yield: {actual_yield}\n\n"
+            f"Actual yield: {actual_yield}\n"
+            f"{loss_info}\n"
             f"This will consume ingredients from inventory.\n"
             f"This action cannot be undone."
         )
@@ -311,6 +348,8 @@ class RecordProductionDialog(ctk.CTkToplevel):
                 actual_yield=actual_yield,
                 notes=notes,
                 event_id=event_id,  # Feature 016
+                loss_category=loss_category,  # Feature 025
+                loss_notes=loss_notes,  # Feature 025
             ),
             parent_widget=self,
             success_message=f"Recorded {batch_count} batch(es) - {actual_yield} units produced",
@@ -328,6 +367,8 @@ class RecordProductionDialog(ctk.CTkToplevel):
                 "notes": notes,
                 "event_id": event_id,  # Feature 016
                 "production_run_id": result.get("production_run_id"),
+                "loss_quantity": loss_qty,  # Feature 025
+                "production_status": result.get("production_status"),  # Feature 025
             }
             self.destroy()
 
@@ -351,6 +392,16 @@ class RecordProductionDialog(ctk.CTkToplevel):
         if actual_yield < 0:
             show_error(
                 "Validation Error", "Actual yield cannot be negative.", parent=self
+            )
+            return False
+
+        # Feature 025: Validate actual yield <= expected yield
+        expected = self._calculate_expected_yield(batch_count)
+        if actual_yield > expected:
+            show_error(
+                "Validation Error",
+                f"Actual yield ({actual_yield}) cannot exceed expected yield ({expected}).",
+                parent=self,
             )
             return False
 
@@ -447,3 +498,133 @@ class RecordProductionDialog(ctk.CTkToplevel):
             if event.name == selected:
                 return event.id
         return None
+
+    # =========================================================================
+    # Feature 025: Loss Tracking Methods
+    # =========================================================================
+
+    def _create_loss_details_frame(self):
+        """Create the expandable loss details frame with category and notes."""
+        self.loss_details_frame = ctk.CTkFrame(self)
+
+        # Loss category dropdown
+        ctk.CTkLabel(self.loss_details_frame, text="Loss Category:").grid(
+            row=0, column=0, sticky="e", padx=PADDING_MEDIUM, pady=PADDING_MEDIUM
+        )
+        category_options = [cat.value.replace("_", " ").title() for cat in LossCategory]
+        self.loss_category_var = ctk.StringVar(value="Other")
+        self.loss_category_dropdown = ctk.CTkOptionMenu(
+            self.loss_details_frame,
+            variable=self.loss_category_var,
+            values=category_options,
+            width=200,
+        )
+        self.loss_category_dropdown.grid(
+            row=0, column=1, sticky="w", padx=PADDING_MEDIUM, pady=PADDING_MEDIUM
+        )
+
+        # Loss notes textbox
+        ctk.CTkLabel(self.loss_details_frame, text="Loss Notes:").grid(
+            row=1, column=0, sticky="ne", padx=PADDING_MEDIUM, pady=PADDING_MEDIUM
+        )
+        self.loss_notes_textbox = ctk.CTkTextbox(
+            self.loss_details_frame, height=60, width=300
+        )
+        self.loss_notes_textbox.grid(
+            row=1, column=1, sticky="ew", padx=PADDING_MEDIUM, pady=PADDING_MEDIUM
+        )
+
+        # Cost breakdown frame
+        self.cost_breakdown_frame = ctk.CTkFrame(
+            self.loss_details_frame, fg_color="transparent"
+        )
+        self.cost_breakdown_frame.grid(
+            row=2, column=0, columnspan=2, sticky="ew", padx=PADDING_MEDIUM, pady=PADDING_MEDIUM
+        )
+        self.good_units_cost_label = ctk.CTkLabel(
+            self.cost_breakdown_frame, text="", anchor="w"
+        )
+        self.good_units_cost_label.pack(anchor="w")
+        self.lost_units_cost_label = ctk.CTkLabel(
+            self.cost_breakdown_frame, text="", anchor="w", text_color="orange"
+        )
+        self.lost_units_cost_label.pack(anchor="w")
+        self.total_cost_label = ctk.CTkLabel(
+            self.cost_breakdown_frame, text="", anchor="w", font=ctk.CTkFont(weight="bold")
+        )
+        self.total_cost_label.pack(anchor="w")
+
+        # Initially hidden
+        self._loss_details_visible = False
+
+    def _toggle_loss_details(self, show: bool):
+        """Show or hide the loss details frame."""
+        if show and not self._loss_details_visible:
+            self.loss_details_frame.grid(
+                row=self._loss_details_row,
+                column=0,
+                columnspan=2,
+                sticky="ew",
+                padx=PADDING_MEDIUM,
+                pady=PADDING_MEDIUM,
+            )
+            self._loss_details_visible = True
+        elif not show and self._loss_details_visible:
+            self.loss_details_frame.grid_remove()
+            self._loss_details_visible = False
+
+    def _calculate_loss_quantity(self) -> int:
+        """Calculate loss quantity from expected vs actual yield."""
+        batch_count = self._get_batch_count()
+        expected = self._calculate_expected_yield(batch_count)
+        actual = self._get_actual_yield()
+        return max(0, expected - actual)
+
+    def _update_loss_quantity_display(self):
+        """Update the loss quantity label and auto-expand/collapse loss details."""
+        loss_qty = self._calculate_loss_quantity()
+        self.loss_quantity_label.configure(text=str(loss_qty))
+
+        # Auto-expand/collapse loss details
+        self._toggle_loss_details(loss_qty > 0)
+
+        # Update cost breakdown if we have cost data
+        if self._estimated_per_unit_cost and loss_qty > 0:
+            self._update_cost_breakdown(self._estimated_per_unit_cost)
+
+    def _update_cost_breakdown(self, per_unit_cost: Decimal):
+        """Update the cost breakdown display."""
+        actual = self._get_actual_yield()
+        loss = self._calculate_loss_quantity()
+        good_cost = actual * per_unit_cost
+        lost_cost = loss * per_unit_cost
+        total_cost = good_cost + lost_cost
+
+        self.good_units_cost_label.configure(
+            text=f"Good units ({actual}): ${good_cost:.2f}"
+        )
+        self.lost_units_cost_label.configure(
+            text=f"Lost units ({loss}): ${lost_cost:.2f}"
+        )
+        self.total_cost_label.configure(
+            text=f"Total batch cost: ${total_cost:.2f}"
+        )
+
+    def _on_yield_changed(self, event=None):
+        """Handle actual yield change for loss tracking."""
+        if self._initializing:
+            return
+        self._update_loss_quantity_display()
+
+    def _get_loss_category(self) -> LossCategory:
+        """Get the selected loss category as enum."""
+        selected = self.loss_category_var.get().lower().replace(" ", "_")
+        try:
+            return LossCategory(selected)
+        except ValueError:
+            return LossCategory.OTHER
+
+    def _get_loss_notes(self) -> Optional[str]:
+        """Get loss notes from textbox."""
+        notes = self.loss_notes_textbox.get("1.0", "end-1c").strip()
+        return notes if notes else None

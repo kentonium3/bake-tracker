@@ -1,0 +1,7 @@
+id,type,path_or_url,description,last_accessed
+S001,code,src/models/production_run.py,ProductionRun model definition,2025-12-21
+S002,code,src/services/batch_production_service.py,Batch production service with FIFO consumption,2025-12-21
+S003,code,src/ui/forms/record_production_dialog.py,Record Production dialog UI,2025-12-21
+S004,doc,.kittify/memory/constitution.md,Project constitution with principles,2025-12-21
+S005,doc,CLAUDE.md,Project instructions including session management,2025-12-21
+S006,spec,kitty-specs/025-production-loss-tracking/spec.md,Feature specification,2025-12-21

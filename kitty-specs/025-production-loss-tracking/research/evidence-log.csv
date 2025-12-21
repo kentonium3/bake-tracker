@@ -1,0 +1,6 @@
+id,date,source,finding,decision_impact,status
+E001,2025-12-21,src/models/production_run.py:27-154,ProductionRun has expected_yield and actual_yield but no loss tracking,Confirms need for production_status and loss_quantity fields,verified
+E002,2025-12-21,src/services/batch_production_service.py:183-353,record_batch_production validates actual_yield >= 0 but not <= expected,Need to add upper bound validation,verified
+E003,2025-12-21,src/ui/forms/record_production_dialog.py:25-450,Dialog has notes and event selector before availability display,Loss section inserts between notes and availability,verified
+E004,2025-12-21,.kittify/memory/constitution.md:78-95,Schema Change Strategy uses export/reset/import for desktop,No Alembic migrations needed,verified
+E005,2025-12-21,CLAUDE.md - Session Management,Nested session_scope causes detached objects,Must pass session parameter to inner calls,verified

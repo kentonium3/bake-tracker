@@ -12,6 +12,7 @@ from decimal import Decimal
 from sqlalchemy import (
     Column,
     Integer,
+    String,
     Text,
     DateTime,
     ForeignKey,
@@ -68,6 +69,10 @@ class ProductionRun(BaseModel):
     produced_at = Column(DateTime, nullable=False, default=datetime.utcnow)
     notes = Column(Text, nullable=True)
 
+    # Feature 025: Loss tracking fields
+    production_status = Column(String(20), nullable=False, default="complete")
+    loss_quantity = Column(Integer, nullable=False, default=0)
+
     # Cost data
     total_ingredient_cost = Column(
         Numeric(10, 4), nullable=False, default=Decimal("0.0000")
@@ -85,6 +90,16 @@ class ProductionRun(BaseModel):
     # Feature 016: Event relationship
     event = relationship("Event", back_populates="production_runs")
 
+    # Feature 025: Loss records relationship
+    # Note: Uses passive_deletes=True to let DB handle SET NULL on production_run_id
+    # when ProductionRun is deleted, preserving loss records for audit trail (FR-017)
+    losses = relationship(
+        "ProductionLoss",
+        back_populates="production_run",
+        cascade="save-update, merge",
+        passive_deletes=True,
+    )
+
     # Constraints and indexes
     __table_args__ = (
         # Indexes
@@ -92,6 +107,7 @@ class ProductionRun(BaseModel):
         Index("idx_production_run_finished_unit", "finished_unit_id"),
         Index("idx_production_run_produced_at", "produced_at"),
         Index("idx_production_run_event", "event_id"),
+        Index("idx_production_run_status", "production_status"),  # Feature 025
         # Constraints
         CheckConstraint("num_batches > 0", name="ck_production_run_batches_positive"),
         CheckConstraint(
@@ -106,6 +122,10 @@ class ProductionRun(BaseModel):
         ),
         CheckConstraint(
             "per_unit_cost >= 0", name="ck_production_run_per_unit_cost_non_negative"
+        ),
+        # Feature 025: Loss tracking constraints
+        CheckConstraint(
+            "loss_quantity >= 0", name="ck_production_run_loss_non_negative"
         ),
     )
 
@@ -140,6 +160,10 @@ class ProductionRun(BaseModel):
 
         # Feature 016: Always include event_id
         result["event_id"] = self.event_id
+
+        # Feature 025: Always include loss tracking fields
+        result["production_status"] = self.production_status
+        result["loss_quantity"] = self.loss_quantity
 
         # Add convenience fields when including relationships
         if include_relationships:
