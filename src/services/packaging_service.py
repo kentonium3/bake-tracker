@@ -26,7 +26,13 @@ from sqlalchemy.orm import Session
 from sqlalchemy import func
 
 from src.services.database import session_scope
-from src.models import Product, Ingredient, InventoryItem, Composition
+from src.models import (
+    Product,
+    Ingredient,
+    InventoryItem,
+    Composition,
+    CompositionAssignment,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -79,6 +85,16 @@ class InsufficientInventoryError(PackagingServiceError):
         )
 
 
+class ProductMismatchError(PackagingServiceError):
+    """Raised when assigned product doesn't match the generic requirement."""
+    def __init__(self, expected_name: str, actual_name: str):
+        self.expected_name = expected_name
+        self.actual_name = actual_name
+        super().__init__(
+            f"Product name mismatch: expected '{expected_name}', got '{actual_name}'"
+        )
+
+
 # =============================================================================
 # Generic Product Discovery
 # =============================================================================
@@ -86,7 +102,7 @@ class InsufficientInventoryError(PackagingServiceError):
 
 def get_generic_products(*, session: Optional[Session] = None) -> List[str]:
     """
-    Get distinct product_name values for packaging products.
+    Get distinct product_name values for packaging products with inventory.
 
     These represent the generic product types available for deferred selection.
 
@@ -99,12 +115,15 @@ def get_generic_products(*, session: Optional[Session] = None) -> List[str]:
     def _impl(s: Session) -> List[str]:
         # Query distinct product_name values from Products
         # that are linked to ingredients where is_packaging=True
+        # and have inventory > 0
         result = (
             s.query(Product.product_name)
             .join(Ingredient, Product.ingredient_id == Ingredient.id)
+            .join(InventoryItem, InventoryItem.product_id == Product.id)
             .filter(Ingredient.is_packaging == True)
             .filter(Product.product_name.isnot(None))
             .filter(Product.product_name != "")
+            .filter(InventoryItem.quantity > 0)
             .distinct()
             .order_by(Product.product_name)
             .all()
@@ -156,20 +175,21 @@ def get_generic_inventory_summary(
         total = Decimal("0")
 
         for product in products:
-            # Sum inventory for this product
-            # InventoryItem.remaining_quantity tracks current available
+            # Sum inventory for this product (quantity is the field, not remaining_quantity)
             available = (
-                s.query(func.coalesce(func.sum(InventoryItem.remaining_quantity), 0))
+                s.query(func.coalesce(func.sum(InventoryItem.quantity), 0))
                 .filter(InventoryItem.product_id == product.id)
+                .filter(InventoryItem.quantity > 0)
                 .scalar()
             ) or Decimal("0")
 
-            breakdown.append({
-                "brand": product.brand or "(No brand)",
-                "product_id": product.id,
-                "available": float(available),
-            })
-            total += available
+            if available > 0:
+                breakdown.append({
+                    "brand": product.brand or "(No brand)",
+                    "product_id": product.id,
+                    "available": float(available),
+                })
+                total += Decimal(str(available))
 
         return {
             "total": float(total),
@@ -196,7 +216,8 @@ def get_estimated_cost(
     """
     Calculate estimated cost for a generic packaging requirement.
 
-    Uses average price across all products with the matching product_name.
+    Uses weighted average price across all inventory items with matching product_name,
+    weighted by their current quantities.
 
     Args:
         product_name: The generic product type name
@@ -204,7 +225,7 @@ def get_estimated_cost(
         session: Optional database session
 
     Returns:
-        Estimated total cost (quantity * average unit price)
+        Estimated total cost (quantity * weighted average unit price)
 
     Raises:
         GenericProductNotFoundError: If no products match the product_name
@@ -222,18 +243,96 @@ def get_estimated_cost(
         if not products:
             raise GenericProductNotFoundError(product_name)
 
-        # Calculate average purchase price across all products
-        prices = [
-            float(p.purchase_price or Decimal("0"))
-            for p in products
-            if p.purchase_price is not None and p.purchase_price > 0
-        ]
+        # Calculate weighted average based on inventory items
+        total_inventory = Decimal("0")
+        weighted_sum = Decimal("0")
 
-        if not prices:
+        for product in products:
+            # Get inventory items for this product
+            inv_items = (
+                s.query(InventoryItem)
+                .filter(InventoryItem.product_id == product.id)
+                .filter(InventoryItem.quantity > 0)
+                .all()
+            )
+
+            for item in inv_items:
+                if item.unit_cost is not None and item.unit_cost > 0:
+                    qty_decimal = Decimal(str(item.quantity))
+                    price = Decimal(str(item.unit_cost))
+                    weighted_sum += qty_decimal * price
+                    total_inventory += qty_decimal
+
+        if total_inventory == 0:
+            # No inventory with valid costs - use product's current cost per unit
+            prices = []
+            for p in products:
+                cost = p.get_current_cost_per_unit()
+                if cost > 0:
+                    prices.append(Decimal(str(cost)))
+            if not prices:
+                return 0.0
+            avg_price = sum(prices) / len(prices)
+        else:
+            avg_price = weighted_sum / total_inventory
+
+        result = avg_price * Decimal(str(quantity))
+        return float(result.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP))
+
+    if session is not None:
+        return _impl(session)
+    with session_scope() as s:
+        return _impl(s)
+
+
+def get_actual_cost(
+    composition_id: int,
+    *,
+    session: Optional[Session] = None
+) -> float:
+    """
+    Calculate actual cost for a composition.
+
+    For generic compositions: sums the cost of all assigned inventory items.
+    For non-generic compositions: uses the product's current cost per unit.
+
+    Args:
+        composition_id: ID of the composition
+        session: Optional database session
+
+    Returns:
+        Total actual cost from assignments or product cost
+
+    Raises:
+        CompositionNotFoundError: If composition doesn't exist
+    """
+    def _impl(s: Session) -> float:
+        composition = s.query(Composition).filter_by(id=composition_id).first()
+        if not composition:
+            raise CompositionNotFoundError(composition_id)
+
+        # For non-generic compositions, use the product's current cost per unit
+        if not composition.is_generic:
+            if composition.packaging_product:
+                unit_cost = composition.packaging_product.get_current_cost_per_unit()
+                return float(unit_cost * composition.component_quantity)
             return 0.0
 
-        avg_price = sum(prices) / len(prices)
-        return round(avg_price * quantity, 2)
+        # Get all assignments and sum their costs
+        assignments = (
+            s.query(CompositionAssignment)
+            .filter_by(composition_id=composition_id)
+            .all()
+        )
+
+        total = Decimal("0")
+        for assignment in assignments:
+            if assignment.inventory_item:
+                unit_cost = Decimal(str(assignment.inventory_item.unit_cost or 0))
+                qty = Decimal(str(assignment.quantity_assigned))
+                total += unit_cost * qty
+
+        return float(total.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP))
 
     if session is not None:
         return _impl(session)
@@ -255,7 +354,11 @@ def assign_materials(
     """
     Create assignment records linking specific inventory to a generic requirement.
 
-    This is a stub implementation that will be fully implemented in WP02.
+    Validates that:
+    1. Composition exists and has is_generic=True
+    2. Sum of assigned quantities equals component_quantity
+    3. Each quantity doesn't exceed available inventory
+    4. All assigned products have matching product_name
 
     Args:
         composition_id: ID of the generic composition
@@ -270,9 +373,8 @@ def assign_materials(
         NotGenericCompositionError: If composition is not generic
         InvalidAssignmentError: If assignment validation fails
         InsufficientInventoryError: If inventory is insufficient
+        ProductMismatchError: If product_name doesn't match requirement
     """
-    # TODO: Full implementation in WP02
-    # This stub validates basic inputs and returns True
     def _impl(s: Session) -> bool:
         # Validate composition exists and is generic
         composition = s.query(Composition).filter_by(id=composition_id).first()
@@ -285,20 +387,164 @@ def assign_materials(
         if not assignments:
             raise InvalidAssignmentError("At least one assignment required")
 
+        # Get the template product's product_name
+        if not composition.packaging_product:
+            raise InvalidAssignmentError("Generic composition has no packaging product template")
+        expected_product_name = composition.packaging_product.product_name
+
+        # Validate each assignment
+        total_assigned = Decimal("0")
+        assignment_records = []
+
         for assignment in assignments:
             if 'inventory_item_id' not in assignment or 'quantity' not in assignment:
                 raise InvalidAssignmentError(
                     "Each assignment must have 'inventory_item_id' and 'quantity'"
                 )
-            if assignment['quantity'] <= 0:
+
+            inv_item_id = assignment['inventory_item_id']
+            qty = Decimal(str(assignment['quantity']))
+
+            if qty <= 0:
                 raise InvalidAssignmentError("Assignment quantity must be positive")
 
-        # TODO: Create CompositionAssignment records
-        # TODO: Validate total matches required quantity
-        # TODO: Validate inventory availability
+            # Get inventory item
+            inv_item = s.query(InventoryItem).filter_by(id=inv_item_id).first()
+            if not inv_item:
+                raise InvalidAssignmentError(f"Inventory item {inv_item_id} not found")
 
-        logger.info(f"Stub: Would assign materials to composition {composition_id}")
+            # Check product_name matches
+            if inv_item.product and inv_item.product.product_name != expected_product_name:
+                raise ProductMismatchError(
+                    expected_product_name,
+                    inv_item.product.product_name
+                )
+
+            # Check available quantity
+            available = Decimal(str(inv_item.quantity))
+            if qty > available:
+                raise InsufficientInventoryError(inv_item_id, float(qty), float(available))
+
+            total_assigned += qty
+            assignment_records.append({
+                'inventory_item': inv_item,
+                'quantity': qty
+            })
+
+        # Validate total matches required quantity
+        required = Decimal(str(composition.component_quantity))
+        if total_assigned != required:
+            raise InvalidAssignmentError(
+                f"Total assigned ({float(total_assigned)}) must equal "
+                f"required quantity ({float(required)})"
+            )
+
+        # Clear any existing assignments
+        s.query(CompositionAssignment).filter_by(composition_id=composition_id).delete()
+
+        # Create new assignment records
+        for record in assignment_records:
+            assignment = CompositionAssignment(
+                composition_id=composition_id,
+                inventory_item_id=record['inventory_item'].id,
+                quantity_assigned=float(record['quantity']),
+                assigned_at=datetime.utcnow()
+            )
+            s.add(assignment)
+
+        logger.info(
+            f"Assigned {len(assignment_records)} inventory items to composition {composition_id}"
+        )
         return True
+
+    if session is not None:
+        return _impl(session)
+    with session_scope() as s:
+        return _impl(s)
+
+
+def clear_assignments(
+    composition_id: int,
+    *,
+    session: Optional[Session] = None
+) -> int:
+    """
+    Clear all material assignments for a composition.
+
+    Args:
+        composition_id: ID of the composition
+        session: Optional database session
+
+    Returns:
+        Number of assignments deleted
+
+    Raises:
+        CompositionNotFoundError: If composition doesn't exist
+    """
+    def _impl(s: Session) -> int:
+        composition = s.query(Composition).filter_by(id=composition_id).first()
+        if not composition:
+            raise CompositionNotFoundError(composition_id)
+
+        count = (
+            s.query(CompositionAssignment)
+            .filter_by(composition_id=composition_id)
+            .delete()
+        )
+        logger.info(f"Cleared {count} assignments from composition {composition_id}")
+        return count
+
+    if session is not None:
+        return _impl(session)
+    with session_scope() as s:
+        return _impl(s)
+
+
+def get_assignments(
+    composition_id: int,
+    *,
+    session: Optional[Session] = None
+) -> List[Dict[str, Any]]:
+    """
+    Get all assignments for a composition.
+
+    Args:
+        composition_id: ID of the composition
+        session: Optional database session
+
+    Returns:
+        List of assignment dicts with inventory_item_id, quantity, and details
+
+    Raises:
+        CompositionNotFoundError: If composition doesn't exist
+    """
+    def _impl(s: Session) -> List[Dict[str, Any]]:
+        composition = s.query(Composition).filter_by(id=composition_id).first()
+        if not composition:
+            raise CompositionNotFoundError(composition_id)
+
+        assignments = (
+            s.query(CompositionAssignment)
+            .filter_by(composition_id=composition_id)
+            .all()
+        )
+
+        result = []
+        for a in assignments:
+            inv_item = a.inventory_item
+            product = inv_item.product if inv_item else None
+            result.append({
+                'assignment_id': a.id,
+                'inventory_item_id': a.inventory_item_id,
+                'quantity_assigned': a.quantity_assigned,
+                'assigned_at': a.assigned_at.isoformat() if a.assigned_at else None,
+                'product_id': product.id if product else None,
+                'brand': product.brand if product else None,
+                'unit_cost': float(inv_item.unit_cost or 0) if inv_item else 0,
+                'total_cost': a.total_cost,
+            })
+
+        return result
 
     if session is not None:
         return _impl(session)
@@ -313,34 +559,58 @@ def assign_materials(
 
 def get_pending_requirements(
     event_id: Optional[int] = None,
+    assembly_id: Optional[int] = None,
     *,
     session: Optional[Session] = None
-) -> List[Composition]:
+) -> List[Dict[str, Any]]:
     """
-    Find compositions where is_generic=True and no assignments exist.
+    Find compositions where is_generic=True and not fully assigned.
 
     Args:
-        event_id: Optional filter by event ID
+        event_id: Optional filter by event ID (via assembly/package relationships)
+        assembly_id: Optional filter by specific assembly ID
         session: Optional database session
 
     Returns:
-        List of Composition objects with pending generic requirements
+        List of dicts with composition details and assignment status
     """
-    def _impl(s: Session) -> List[Composition]:
+    def _impl(s: Session) -> List[Dict[str, Any]]:
         query = (
             s.query(Composition)
             .filter(Composition.is_generic == True)
             .filter(Composition.packaging_product_id.isnot(None))
         )
 
-        # TODO: Filter out compositions that have complete assignments
-        # This will require the CompositionAssignment table from WP01
+        if assembly_id is not None:
+            query = query.filter(Composition.assembly_id == assembly_id)
 
-        if event_id is not None:
-            # TODO: Filter by event - requires joining through assembly/package to event
-            pass
+        compositions = query.all()
 
-        return query.all()
+        result = []
+        for comp in compositions:
+            # Check if fully assigned
+            assigned_qty = (
+                s.query(func.coalesce(func.sum(CompositionAssignment.quantity_assigned), 0))
+                .filter(CompositionAssignment.composition_id == comp.id)
+                .scalar()
+            ) or 0
+
+            required_qty = comp.component_quantity
+            is_fully_assigned = float(assigned_qty) >= float(required_qty)
+
+            if not is_fully_assigned:
+                product = comp.packaging_product
+                result.append({
+                    'composition_id': comp.id,
+                    'assembly_id': comp.assembly_id,
+                    'package_id': comp.package_id,
+                    'product_name': product.product_name if product else None,
+                    'required_quantity': required_qty,
+                    'assigned_quantity': float(assigned_qty),
+                    'remaining': required_qty - float(assigned_qty),
+                })
+
+        return result
 
     if session is not None:
         return _impl(session)
@@ -375,11 +645,71 @@ def is_fully_assigned(
         if not composition.is_generic:
             return True
 
-        # TODO: Query CompositionAssignment table to sum assigned quantities
-        # Return True if sum >= component_quantity
+        # Sum assigned quantities
+        assigned_qty = (
+            s.query(func.coalesce(func.sum(CompositionAssignment.quantity_assigned), 0))
+            .filter(CompositionAssignment.composition_id == composition_id)
+            .scalar()
+        ) or 0
 
-        # Stub: Return False for generic compositions (no assignments yet)
-        return False
+        required_qty = composition.component_quantity
+        return float(assigned_qty) >= float(required_qty)
+
+    if session is not None:
+        return _impl(session)
+    with session_scope() as s:
+        return _impl(s)
+
+
+def get_assignment_summary(
+    composition_id: int,
+    *,
+    session: Optional[Session] = None
+) -> Dict[str, Any]:
+    """
+    Get a summary of assignment status for a composition.
+
+    Args:
+        composition_id: ID of the composition
+        session: Optional database session
+
+    Returns:
+        Dict with required, assigned, remaining, and is_complete fields
+
+    Raises:
+        CompositionNotFoundError: If composition doesn't exist
+    """
+    def _impl(s: Session) -> Dict[str, Any]:
+        composition = s.query(Composition).filter_by(id=composition_id).first()
+        if not composition:
+            raise CompositionNotFoundError(composition_id)
+
+        if not composition.is_generic:
+            return {
+                'is_generic': False,
+                'required': composition.component_quantity,
+                'assigned': composition.component_quantity,
+                'remaining': 0,
+                'is_complete': True,
+            }
+
+        assigned_qty = (
+            s.query(func.coalesce(func.sum(CompositionAssignment.quantity_assigned), 0))
+            .filter(CompositionAssignment.composition_id == composition_id)
+            .scalar()
+        ) or 0
+
+        required = composition.component_quantity
+        assigned = float(assigned_qty)
+        remaining = max(0, required - assigned)
+
+        return {
+            'is_generic': True,
+            'required': required,
+            'assigned': assigned,
+            'remaining': remaining,
+            'is_complete': assigned >= required,
+        }
 
     if session is not None:
         return _impl(session)
