@@ -20,6 +20,7 @@ from sqlalchemy import (
     Float,
     Text,
     DateTime,
+    Boolean,
     ForeignKey,
     Index,
     CheckConstraint,
@@ -79,6 +80,12 @@ class Composition(BaseModel):
     component_quantity = Column(Float, nullable=False, default=1.0)
     component_notes = Column(Text, nullable=True)
     sort_order = Column(Integer, nullable=False, default=0)
+
+    # Generic packaging flag (Feature 026)
+    # When True, packaging_product_id references a template product whose
+    # product_name defines the generic requirement (e.g., "gift box")
+    # Actual assignments are tracked in CompositionAssignment table
+    is_generic = Column(Boolean, nullable=False, default=False)
 
     # Timestamps
     created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
@@ -144,9 +151,10 @@ class Composition(BaseModel):
             component_id = None
         parent_type = "assembly" if self.assembly_id else "package"
         parent_id = self.assembly_id or self.package_id
+        generic_flag = ", generic=True" if self.is_generic else ""
         return (
             f"Composition(id={self.id}, {parent_type}_id={parent_id}, "
-            f"{component_type}={component_id}, qty={self.component_quantity})"
+            f"{component_type}={component_id}, qty={self.component_quantity}{generic_flag})"
         )
 
     @property

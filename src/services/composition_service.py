@@ -1380,6 +1380,7 @@ class CompositionService:
         quantity: float = 1.0,
         notes: Optional[str] = None,
         sort_order: int = 0,
+        is_generic: bool = False,
     ) -> Composition:
         """
         Add packaging product to a FinishedGood assembly.
@@ -1390,6 +1391,8 @@ class CompositionService:
             quantity: Quantity of packaging (supports decimals)
             notes: Optional notes for this packaging component
             sort_order: Display order for components
+            is_generic: If True, this is a generic packaging requirement
+                       that will be assigned specific materials later (Feature 026)
 
         Returns:
             Created Composition instance
@@ -1436,12 +1439,14 @@ class CompositionService:
                     component_quantity=quantity,
                     component_notes=notes,
                     sort_order=sort_order,
+                    is_generic=is_generic,
                 )
                 session.add(composition)
                 session.flush()
 
+                generic_label = " (generic)" if is_generic else ""
                 logger.info(
-                    f"Added packaging product {packaging_product_id} to assembly {assembly_id}"
+                    f"Added packaging product {packaging_product_id}{generic_label} to assembly {assembly_id}"
                 )
                 return composition
 
@@ -1456,6 +1461,7 @@ class CompositionService:
         quantity: float = 1.0,
         notes: Optional[str] = None,
         sort_order: int = 0,
+        is_generic: bool = False,
     ) -> Composition:
         """
         Add packaging product to a Package.
@@ -1466,6 +1472,8 @@ class CompositionService:
             quantity: Quantity of packaging (supports decimals)
             notes: Optional notes for this packaging component
             sort_order: Display order for components
+            is_generic: If True, this is a generic packaging requirement
+                       that will be assigned specific materials later (Feature 026)
 
         Returns:
             Created Composition instance
@@ -1512,12 +1520,14 @@ class CompositionService:
                     component_quantity=quantity,
                     component_notes=notes,
                     sort_order=sort_order,
+                    is_generic=is_generic,
                 )
                 session.add(composition)
                 session.flush()
 
+                generic_label = " (generic)" if is_generic else ""
                 logger.info(
-                    f"Added packaging product {packaging_product_id} to package {package_id}"
+                    f"Added packaging product {packaging_product_id}{generic_label} to package {package_id}"
                 )
                 return composition
 
@@ -1773,10 +1783,11 @@ def add_packaging_to_assembly(
     quantity: float = 1.0,
     notes: Optional[str] = None,
     sort_order: int = 0,
+    is_generic: bool = False,
 ) -> Composition:
     """Add packaging product to a FinishedGood assembly."""
     return CompositionService.add_packaging_to_assembly(
-        assembly_id, packaging_product_id, quantity, notes, sort_order
+        assembly_id, packaging_product_id, quantity, notes, sort_order, is_generic
     )
 
 
@@ -1786,10 +1797,11 @@ def add_packaging_to_package(
     quantity: float = 1.0,
     notes: Optional[str] = None,
     sort_order: int = 0,
+    is_generic: bool = False,
 ) -> Composition:
     """Add packaging product to a Package."""
     return CompositionService.add_packaging_to_package(
-        package_id, packaging_product_id, quantity, notes, sort_order
+        package_id, packaging_product_id, quantity, notes, sort_order, is_generic
     )
 
 

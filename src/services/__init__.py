@@ -224,12 +224,15 @@ from .assembly_service import (
     get_assembly_run,
     export_assembly_history,
     import_assembly_history,
+    # Feature 026: Packaging assignment validation
+    check_packaging_assigned,
     # Exceptions
     FinishedGoodNotFoundError as AssemblyFinishedGoodNotFoundError,
     InsufficientFinishedUnitError,
     InsufficientFinishedGoodError,
     InsufficientPackagingError,
     AssemblyRunNotFoundError,
+    UnassignedPackagingError,
 )
 
 # Infrastructure exports for new service layer
@@ -423,9 +426,12 @@ __all__ = [
     "get_assembly_run",
     "export_assembly_history",
     "import_assembly_history",
+    # Feature 026: Packaging assignment validation
+    "check_packaging_assigned",
     "AssemblyFinishedGoodNotFoundError",
     "InsufficientFinishedUnitError",
     "InsufficientFinishedGoodError",
     "InsufficientPackagingError",
     "AssemblyRunNotFoundError",
+    "UnassignedPackagingError",
 ]
