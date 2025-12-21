@@ -1,12 +1,18 @@
 # Import/Export Specification for Bake Tracker
 
-**Version:** 3.4
+**Version:** 3.5
 **Status:** Current
 
-> **NOTE**: This application only accepts v3.4 format files. Older format versions
+> **NOTE**: This application only accepts v3.5 format files. Older format versions
 > are no longer supported. Export your data using the current version before importing.
 
 ## Changelog
+
+### v3.5 (2025-12-19 - Feature 023)
+- **Added**: `product_name` field on products - enables product variant differentiation (e.g., "70% Cacao" vs "85% Cacao")
+- **Changed**: Product unique constraint now includes product_name: `(ingredient_slug, brand, product_name, package_size, package_unit)`
+- **Added**: Full schemas for `production_runs`, `assembly_runs`, `event_production_targets`, `event_assembly_targets` (previously undocumented)
+- **Note**: USDA FoodData Central naming conventions recommended for ingredient slugs (e.g., `extract_vanilla` not `vanilla_extract`)
 
 ### v3.4 (2025-12-16)
 - **Fixed**: `purchases` field names corrected to match code: `purchased_at`, `quantity_purchased`, `unit_cost`, `total_cost`, `supplier`
@@ -66,8 +72,8 @@ The export format is a single JSON file with a required header and entity arrays
 
 ```json
 {
-  "version": "3.4",
-  "exported_at": "2025-12-04T10:30:00Z",
+  "version": "3.5",
+  "exported_at": "2025-12-20T10:30:00Z",
   "application": "bake-tracker",
   "ingredients": [...],
   "products": [...],
@@ -94,7 +100,7 @@ The export format is a single JSON file with a required header and entity arrays
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| `version` | string | **Yes** | Must be "3.4" |
+| `version` | string | **Yes** | Must be "3.5" |
 | `exported_at` | string | **Yes** | ISO 8601 timestamp with 'Z' suffix |
 | `application` | string | **Yes** | Must be "bake-tracker" |
 
@@ -141,6 +147,7 @@ All entity arrays are optional, but when present, they must follow the dependenc
 **Notes**:
 - `slug` is the **primary identifier** used in all foreign key references
 - Use lowercase with underscores (e.g., `semi_sweet_chocolate_chips`)
+- **USDA FoodData Central naming conventions recommended**: Primary descriptor first (e.g., `extract_vanilla` not `vanilla_extract`, `chocolate_chips_dark` not `dark_chocolate_chips`)
 - Density fields must be all-or-nothing (all 4 or none)
 - Density enables volume ↔ weight conversion (e.g., "1 cup = 4.25 oz")
 
@@ -156,11 +163,13 @@ All entity arrays are optional, but when present, they must follow the dependenc
 {
   "ingredient_slug": "all_purpose_flour",
   "brand": "King Arthur",
+  "product_name": "Unbleached All-Purpose Flour",
   "package_size": "5 lb bag",
   "package_type": "bag",
   "package_unit": "lb",
   "package_unit_quantity": 5.0,
   "upc_code": "071012000012",
+  "gtin": "00071012000012",
   "is_preferred": true,
   "notes": "Premium quality flour"
 }
@@ -170,17 +179,21 @@ All entity arrays are optional, but when present, they must follow the dependenc
 |-------|------|----------|-------------|
 | `ingredient_slug` | string | **Yes** | Reference to ingredient |
 | `brand` | string | **Yes** | Brand name (max 200 chars) |
+| `product_name` | string | No | Product variant name (e.g., "70% Cacao", "Organic") - enables differentiation of products with same packaging |
 | `package_size` | string | No | Human-readable package size |
 | `package_type` | string | No | Package type (bag, box, jar, etc.) |
 | `package_unit` | string | **Yes** | Unit of measure for package contents |
 | `package_unit_quantity` | decimal | **Yes** | Amount in package (e.g., 25 for a 25 lb bag) |
-| `upc_code` | string | No | UPC barcode |
+| `upc_code` | string | No | UPC barcode (legacy field) |
+| `gtin` | string | No | GTIN barcode (GS1 standard, preferred) |
 | `is_preferred` | boolean | No | Preferred product for shopping lists |
 | `notes` | string | No | User notes |
 
 **Notes**:
-- Primary key is composite: `(ingredient_slug, brand)`
+- Primary key is composite: `(ingredient_slug, brand, product_name, package_unit_quantity, package_unit)`
+- `product_name` allows differentiation of variants (e.g., Lindt "70% Cacao" vs "85% Cacao" both in 3.5oz bars)
 - Multiple brands per ingredient are supported
+- `gtin` is preferred over `upc_code` for barcode scanning (supports mobile inventory workflow)
 
 ---
 
@@ -557,7 +570,139 @@ All entity arrays are optional, but when present, they must follow the dependenc
 
 ---
 
-### 14. production_records
+### 14. event_production_targets
+
+**Purpose**: Define production targets for recipes within an event.
+
+**Schema**:
+
+```json
+{
+  "event_slug": "christmas_2025",
+  "recipe_slug": "chocolate_chip_cookies",
+  "target_batches": 3,
+  "notes": "Need extra for unexpected guests"
+}
+```
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `event_slug` | string | **Yes** | Reference to event |
+| `recipe_slug` | string | **Yes** | Reference to recipe |
+| `target_batches` | integer | **Yes** | Target number of batches to produce |
+| `notes` | string | No | User notes |
+
+**Notes**:
+- Defines production goals for event planning
+- Used to track progress toward event completion
+- Primary key: `(event_slug, recipe_slug)`
+
+---
+
+### 15. event_assembly_targets
+
+**Purpose**: Define assembly targets for finished goods within an event.
+
+**Schema**:
+
+```json
+{
+  "event_slug": "christmas_2025",
+  "finished_good_slug": "holiday_cookie_box",
+  "target_quantity": 15,
+  "notes": "One per family plus extras"
+}
+```
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `event_slug` | string | **Yes** | Reference to event |
+| `finished_good_slug` | string | **Yes** | Reference to finished good |
+| `target_quantity` | integer | **Yes** | Target number of units to assemble |
+| `notes` | string | No | User notes |
+
+**Notes**:
+- Defines assembly goals for event planning
+- Used to track progress toward event completion
+- Primary key: `(event_slug, finished_good_slug)`
+
+---
+
+### 16. production_runs
+
+**Purpose**: Track individual recipe production runs with FIFO cost capture and event linkage.
+
+**Schema**:
+
+```json
+{
+  "recipe_slug": "chocolate_chip_cookies",
+  "event_slug": "christmas_2025",
+  "batches_produced": 2,
+  "units_produced": 96,
+  "produced_at": "2025-12-20T14:30:00Z",
+  "actual_cost": 12.50,
+  "notes": "Double batch for extra gifts"
+}
+```
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `recipe_slug` | string | **Yes** | Reference to recipe |
+| `event_slug` | string | No | Reference to event (nullable - can produce without event) |
+| `batches_produced` | integer | **Yes** | Number of batches produced |
+| `units_produced` | integer | **Yes** | Total units produced (batches × items_per_batch) |
+| `produced_at` | datetime | **Yes** | Production timestamp (ISO 8601 with 'Z') |
+| `actual_cost` | decimal | **Yes** | Actual FIFO cost at production time |
+| `notes` | string | No | User notes |
+
+**Notes**:
+- Captures actual production runs with FIFO cost
+- Links production to events for progress tracking
+- Multiple production runs can target same event
+- Replaces older `production_records` concept (both supported for backward compatibility)
+
+---
+
+### 17. assembly_runs
+
+**Purpose**: Track assembly of finished goods from finished units with cost capture and event linkage.
+
+**Schema**:
+
+```json
+{
+  "finished_good_slug": "holiday_cookie_box",
+  "event_slug": "christmas_2025",
+  "quantity_assembled": 15,
+  "assembled_at": "2025-12-22T10:00:00Z",
+  "actual_cost": 187.50,
+  "notes": "All boxes completed"
+}
+```
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `finished_good_slug` | string | **Yes** | Reference to finished good |
+| `event_slug` | string | No | Reference to event (nullable - can assemble without event) |
+| `quantity_assembled` | integer | **Yes** | Number of units assembled |
+| `assembled_at` | datetime | **Yes** | Assembly timestamp (ISO 8601 with 'Z') |
+| `actual_cost` | decimal | **Yes** | Actual cost based on consumed finished units |
+| `notes` | string | No | User notes |
+
+**Notes**:
+- Captures assembly of finished goods from finished units
+- Links assembly to events for progress tracking
+- Cost calculated from FIFO costs of consumed finished units
+- Multiple assembly runs can target same event
+
+---
+
+### 14. production_records (Legacy)
+
+**Purpose**: Track historical batch production records (v3.0-3.4 format, maintained for backward compatibility).
+
+**Note**: Newer exports use `production_runs` instead. Both are supported on import.
 
 **Purpose**: Batch production records with FIFO cost capture.
 
@@ -602,7 +747,11 @@ All entity arrays are optional, but when present, they must follow the dependenc
 11. `recipients` - No dependencies
 12. `events` - No direct dependencies
 13. `event_recipient_packages` - Requires: events, recipients, packages
-14. `production_records` - Requires: events, recipes
+14. `event_production_targets` - Requires: events, recipes
+15. `event_assembly_targets` - Requires: events, finished_goods
+16. `production_runs` - Requires: recipes, events (optional)
+17. `assembly_runs` - Requires: finished_goods, events (optional)
+18. `production_records` - Requires: events, recipes (legacy - use production_runs)
 
 **The import service processes arrays in this order automatically.**
 
@@ -616,8 +765,8 @@ The **catalog import** is a streamlined import path for adding ingredients, prod
 
 ```json
 {
-  "version": "3.4",
-  "exported_at": "2025-12-18T00:00:00Z",
+  "version": "3.5",
+  "exported_at": "2025-12-20T00:00:00Z",
   "application": "bake-tracker",
   "description": "Optional description of the catalog",
   "ingredients": [...],
@@ -630,7 +779,7 @@ The **catalog import** is a streamlined import path for adding ingredients, prod
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| `version` | string | **Yes** | Must be "3.4" |
+| `version` | string | **Yes** | Must be "3.5" |
 | `exported_at` | string | No | ISO 8601 timestamp |
 | `application` | string | No | Should be "bake-tracker" |
 | `description` | string | No | Human-readable description |
@@ -697,9 +846,9 @@ result = import_catalog("catalog.json", mode="augment", dry_run=False)
 
 The import service first validates the header:
 
-1. `version` field must be present and equal to "3.4"
-2. If version is missing or not "3.4", import is rejected with error:
-   > "Unsupported file version: [version]. This application only supports v3.4 format."
+1. `version` field must be present and equal to "3.5"
+2. If version is missing or not "3.5", import is rejected with error:
+   > "Unsupported file version: [version]. This application only supports v3.5 format."
 
 ### Foreign Key Validation
 
@@ -735,7 +884,7 @@ All error messages are designed to be user-friendly (no stack traces):
 
 | Scenario | Message |
 |----------|---------|
-| Wrong version | "Unsupported file version: [X]. This application only supports v3.0 format. Please export a new backup from a current version." |
+| Wrong version | "Unsupported file version: [X]. This application only supports v3.5 format. Please export a new backup from a current version." |
 | Invalid JSON | "The selected file is not valid JSON. Please select a valid backup file." |
 | Missing entity | "[Entity type] '[name]' not found. It may be missing from the import file or listed in the wrong order." |
 | File not readable | "Could not read file: [path]. Please check file permissions." |
@@ -825,31 +974,34 @@ bag, box, jar, bottle, can, packet, container, case
 
 ```json
 {
-  "version": "3.4",
-  "exported_at": "2025-12-04T10:30:00Z",
+  "version": "3.5",
+  "exported_at": "2025-12-20T10:30:00Z",
   "application": "bake-tracker",
   "ingredients": [
     {
       "display_name": "All-Purpose Flour",
       "slug": "all_purpose_flour",
       "category": "Flour",
-      "recipe_unit": "cup",
-      "density_g_per_ml": 0.507
+      "density_volume_value": 1.0,
+      "density_volume_unit": "cup",
+      "density_weight_value": 4.25,
+      "density_weight_unit": "oz"
     },
     {
       "display_name": "Semi-Sweet Chocolate Chips",
-      "slug": "semi_sweet_chocolate_chips",
-      "category": "Chocolate/Candies",
-      "recipe_unit": "cup"
+      "slug": "chocolate_chips_semi_sweet",
+      "category": "Chocolate & Cocoa"
     }
   ],
   "products": [
     {
       "ingredient_slug": "all_purpose_flour",
       "brand": "King Arthur",
+      "product_name": "Unbleached All-Purpose Flour",
       "package_size": "5 lb bag",
       "package_unit": "lb",
       "package_unit_quantity": 5.0,
+      "gtin": "00071012000012",
       "is_preferred": true
     }
   ],
@@ -867,7 +1019,7 @@ bag, box, jar, bottle, can, packet, container, case
           "unit": "cup"
         },
         {
-          "ingredient_slug": "semi_sweet_chocolate_chips",
+          "ingredient_slug": "chocolate_chips_semi_sweet",
           "quantity": 2.0,
           "unit": "cup"
         }
@@ -955,5 +1107,5 @@ bag, box, jar, bottle, can, packet, container, case
 ---
 
 **Document Status**: Current
-**Version**: 3.4
-**Last Updated**: 2025-12-16
+**Version**: 3.5
+**Last Updated**: 2025-12-20

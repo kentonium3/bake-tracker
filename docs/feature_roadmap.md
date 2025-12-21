@@ -1,7 +1,7 @@
 # Feature Roadmap
 
 **Created:** 2025-12-03
-**Last Updated:** 2025-12-19
+**Last Updated:** 2025-12-20
 **Workflow:** Spec-Kitty driven development
 
 ---
@@ -34,6 +34,7 @@
 | 021 | Field Naming Consistency | MERGED | purchase_unit→package_unit, purchase_quantity→package_unit_quantity, pantry→inventory cleanup. |
 | 022 | Unit Reference Table & UI Constraints | MERGED | Database-backed unit management with UI enforcement. |
 | 023 | Product Name Differentiation | MERGED | Added product_name field, updated import/export for dependent entities, fixed 20 test failures. |
+| 024 | Unified Import Error Handling | MERGED | Standardized error display/logging across unified and catalog imports. ImportResultsDialog for all imports, log files, error suggestions. |
 
 ---
 
@@ -47,7 +48,6 @@
 
 | # | Name | Priority | Dependencies | Status |
 |---|------|----------|--------------|--------|
-| 024 | Unified Import Error Handling | HIGH | None | Ready |
 | 025 | Packaging & Distribution | LOW | User testing complete | Blocked |
 
 ---
@@ -72,7 +72,8 @@
 14. ~~**TD-003** - Catalog Import Test Schema Mismatch~~ ✅ COMPLETE
 15. ~~**Feature 022** - Unit Reference Table & UI Constraints~~ ✅ COMPLETE
 16. ~~**Feature 023** - Product Name Differentiation~~ ✅ COMPLETE
-17. **Feature 024** - Packaging & Distribution
+17. ~~**Feature 024** - Unified Import Error Handling~~ ✅ COMPLETE
+18. **Feature 025** - Packaging & Distribution
 
 ---
 
@@ -289,9 +290,9 @@ This prevents safe catalog expansion without risking user data.
 
 ### Feature 024: Unified Import Error Handling
 
-**Status:** Ready for Implementation
+**Status:** COMPLETE ✅ (Merged 2025-12-20)
 
-**Problem:** Import error handling is inconsistent between unified import and catalog import:
+**Problem:** Import error handling was inconsistent between unified import and catalog import:
 - **Unified Import:** Scrollable dialog with copy-to-clipboard, log files written to `docs/user_testing/`
 - **Catalog Import:** Basic messageboxes, errors truncated to 5, no logging, rich `suggestion` field not displayed
 
@@ -322,6 +323,11 @@ This prevents safe catalog expansion without risking user data.
 ---
 
 ## Key Decisions
+
+### 2025-12-20
+- **Feature 024 Complete:** Unified Import Error Handling merged. Standardized error display/logging across unified and catalog imports.
+- **Data Cleanup:** Added 30 missing ingredients with industry-standard USDA naming. Updated product slugs for consistency. Database reset and fresh import with complete catalogs (ingredients + products).
+- **Web Migration Notes:** Documented API-based inventory management approach for web phase supporting multiple input modes (UI, mobile barcode, CSV import, future OCR/integrations).
 
 ### 2025-12-19
 - **Feature 023 Complete:** Product Name Differentiation merged. Added `product_name` field to Product table for variant distinction.
@@ -412,3 +418,4 @@ Part B: Ingredient.name → Ingredient.display_name ✅
 - 2025-12-14: Constitution v1.2.0 (schema change strategy). Feature 019 (Unit Conversion Simplification) complete and merged. Feature 020 (Enhanced Data Import) defined. Packaging & Distribution moved to Feature 021.
 - 2025-12-16: Features 020, 021 complete and merged. TD-002, TD-003 complete. Feature 023 (Unit Reference Table & UI Constraints) defined. Packaging & Distribution moved to Feature 024.
 - 2025-12-19: Feature 023 (Product Name Differentiation) complete and merged. Database reset for fresh import with updated schema. Feature 024 (Unified Import Error Handling) defined. Feature renumbering: 024 = Unified Import Error Handling (ready), 025 = Packaging & Distribution (blocked).
+- 2025-12-20: Feature 024 (Unified Import Error Handling) complete and merged. Added 30 missing ingredients with USDA naming standards. Database reset and complete catalog import (ingredients + products). Web migration notes updated for API-based inventory management.

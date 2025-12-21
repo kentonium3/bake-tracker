@@ -16,7 +16,7 @@ from sqlalchemy.orm import joinedload
 
 from sqlalchemy import func
 
-from src.models import Recipe, RecipeIngredient, RecipeComponent, Ingredient
+from src.models import Recipe, RecipeIngredient, RecipeComponent, Ingredient, ProductionRun, FinishedUnit
 from src.services.database import session_scope
 from src.services.exceptions import (
     RecipeNotFound,
@@ -166,6 +166,7 @@ def get_all_recipes(
     category: Optional[str] = None,
     name_search: Optional[str] = None,
     ingredient_id: Optional[int] = None,
+    include_archived: bool = False,
 ) -> List[Recipe]:
     """
     Retrieve all recipes with optional filtering.
@@ -174,6 +175,7 @@ def get_all_recipes(
         category: Filter by category (exact match)
         name_search: Filter by name (case-insensitive partial match)
         ingredient_id: Filter by recipes using specific ingredient
+        include_archived: If True, include archived recipes in the results.
 
     Returns:
         List of Recipe instances
@@ -185,7 +187,11 @@ def get_all_recipes(
         with session_scope() as session:
             query = session.query(Recipe)
 
-            # Apply filters
+            # Filter out archived recipes by default
+            if not include_archived:
+                query = query.filter(Recipe.is_archived == False)
+
+            # Apply other filters
             if category:
                 query = query.filter(Recipe.category == category)
 
@@ -351,18 +357,22 @@ def update_recipe(  # noqa: C901
 
 def delete_recipe(recipe_id: int) -> bool:
     """
-    Delete a recipe and its ingredients.
+    Deletes or archives a recipe.
+
+    - If the recipe is used as a component in other recipes, deletion is blocked.
+    - If the recipe has historical usage (production runs, finished units), it is archived (soft-deleted).
+    - If there are no dependencies, it is hard-deleted.
 
     Args:
-        recipe_id: Recipe ID
+        recipe_id: The ID of the recipe to delete or archive.
 
     Returns:
-        True if deleted successfully
+        True if the operation was successful.
 
     Raises:
-        RecipeNotFound: If recipe doesn't exist
-        ValidationError: If recipe is used as a component in other recipes
-        DatabaseError: If database operation fails
+        RecipeNotFound: If the recipe does not exist.
+        ValidationError: If the recipe cannot be deleted or archived due to being a component.
+        DatabaseError: For any other database-related errors.
     """
     try:
         with session_scope() as session:
@@ -371,7 +381,7 @@ def delete_recipe(recipe_id: int) -> bool:
             if not recipe:
                 raise RecipeNotFound(recipe_id)
 
-            # Check if recipe is used as a component in other recipes
+            # 1. Check if recipe is used as a component in other recipes (blocking condition)
             parent_components = (
                 session.query(RecipeComponent)
                 .filter_by(component_recipe_id=recipe_id)
@@ -379,26 +389,48 @@ def delete_recipe(recipe_id: int) -> bool:
             )
 
             if parent_components:
-                parent_names = []
-                for comp in parent_components:
-                    parent_recipe = session.query(Recipe).filter_by(id=comp.recipe_id).first()
-                    if parent_recipe:
-                        parent_names.append(parent_recipe.name)
-
+                parent_names = [comp.recipe.name for comp in parent_components if comp.recipe]
                 raise ValidationError(
-                    [f"Cannot delete '{recipe.name}': used as component in: {', '.join(parent_names)}"]
+                    f"Cannot delete '{recipe.name}': it is used as a component in: {', '.join(parent_names)}"
                 )
 
-            # Delete recipe (cascade will remove recipe_ingredients and recipe_components)
-            session.delete(recipe)
+            # 2. Check for historical dependencies
+            dependencies = check_recipe_dependencies(recipe_id, session)
+            has_history = any(dependencies.values())
 
-            return True
+            if has_history:
+                # Soft delete by archiving
+                recipe.is_archived = True
+                return True
+            else:
+                # Hard delete if no history
+                session.delete(recipe)
+                return True
 
     except (RecipeNotFound, ValidationError):
         raise
     except SQLAlchemyError as e:
-        raise DatabaseError(f"Failed to delete recipe {recipe_id}", e)
+        raise DatabaseError(f"Failed to delete or archive recipe {recipe_id}", e)
 
+
+def check_recipe_dependencies(recipe_id: int, session) -> Dict[str, int]:
+    """
+    Check for recipe dependencies in other parts of the system.
+
+    Args:
+        recipe_id: The ID of the recipe to check.
+        session: The SQLAlchemy session to use for querying.
+
+    Returns:
+        A dictionary with dependency counts.
+    """
+    from src.models import ProductionRun, FinishedUnit
+
+    dependencies = {
+        "production_runs": session.query(ProductionRun).filter_by(recipe_id=recipe_id).count(),
+        "finished_units": session.query(FinishedUnit).filter_by(recipe_id=recipe_id).count(),
+    }
+    return dependencies
 
 # ============================================================================
 # Recipe Ingredient Management

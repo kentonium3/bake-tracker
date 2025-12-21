@@ -25,6 +25,7 @@ from src.ui.widgets.dialogs import (
     show_success,
     show_info,
 )
+from src.services.exceptions import ValidationError
 from src.ui.forms.recipe_form import RecipeFormDialog
 
 
@@ -324,7 +325,7 @@ class RecipesTab(ctk.CTkFrame):
                 self._update_status("Failed to update recipe", error=True)
 
     def _delete_recipe(self):
-        """Delete the selected recipe after confirmation."""
+        """Delete or archive the selected recipe after confirmation."""
         if not self.selected_recipe:
             return
 
@@ -332,8 +333,7 @@ class RecipesTab(ctk.CTkFrame):
         confirmed = show_confirmation(
             "Confirm Deletion",
             f"Are you sure you want to delete '{self.selected_recipe.name}'?\n\n"
-            "This will remove the recipe and all its ingredient associations.\n"
-            "This action cannot be undone.",
+            "If the recipe has historical usage, it will be archived. Otherwise, it will be permanently deleted.",
             parent=self,
         )
 
@@ -342,16 +342,23 @@ class RecipesTab(ctk.CTkFrame):
                 recipe_service.delete_recipe(self.selected_recipe.id)
                 show_success(
                     "Success",
-                    f"Recipe '{self.selected_recipe.name}' deleted successfully",
+                    f"Recipe '{self.selected_recipe.name}' has been successfully processed.",
                     parent=self,
                 )
                 self.selected_recipe = None
                 self.refresh()
-                self._update_status("Recipe deleted", success=True)
+                self._update_status("Recipe processed successfully", success=True)
+            except ValidationError as e:
+                show_error(
+                    "Cannot Delete Recipe",
+                    str(e),
+                    parent=self,
+                )
+                self._update_status("Failed to delete recipe", error=True)
             except Exception as e:
                 show_error(
                     "Error",
-                    f"Failed to delete recipe: {str(e)}",
+                    f"An unexpected error occurred: {str(e)}",
                     parent=self,
                 )
                 self._update_status("Failed to delete recipe", error=True)

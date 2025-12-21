@@ -20,6 +20,7 @@ from sqlalchemy import (
     Index,
     CheckConstraint,
     UniqueConstraint,
+    Boolean,
 )
 from sqlalchemy.orm import relationship
 
@@ -39,6 +40,7 @@ class Recipe(BaseModel):
         yield_description: Description of yield (e.g., "2-inch cookies")
         estimated_time_minutes: Prep + bake time in minutes
         notes: Additional notes
+        is_archived: Whether the recipe is archived (soft delete)
         date_added: When recipe was added
         last_modified: Last modification timestamp
     """
@@ -58,6 +60,9 @@ class Recipe(BaseModel):
     # Time and notes
     estimated_time_minutes = Column(Integer, nullable=True)
     notes = Column(Text, nullable=True)
+
+    # Archival status (for soft delete)
+    is_archived = Column(Boolean, nullable=False, default=False, index=True)
 
     # Timestamps
     date_added = Column(DateTime, nullable=False, default=datetime.utcnow)
