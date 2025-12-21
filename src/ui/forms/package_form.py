@@ -10,6 +10,11 @@ Updated for Feature 006 Event Planning Restoration:
 Updated for Feature 011 Packaging BOM Foundation:
 - Added packaging section to allow adding packaging materials to packages
 - Uses composition_service for packaging relationships
+
+Updated for Feature 026 Deferred Packaging Decisions:
+- Added toggle for Specific material vs Generic product
+- Shows inventory summary for generic products
+- Displays estimated cost with "Estimated" label
 """
 
 import customtkinter as ctk
@@ -18,7 +23,7 @@ from decimal import Decimal
 
 from src.models.package import Package
 from src.services import finished_good_service, ingredient_service, product_service
-from src.services import composition_service
+from src.services import composition_service, packaging_service
 from src.utils.constants import (
     MAX_NAME_LENGTH,
     MAX_NOTES_LENGTH,
@@ -139,7 +144,15 @@ class FinishedGoodRow(ctk.CTkFrame):
 
 
 class PackagingRow(ctk.CTkFrame):
-    """Row widget for a single packaging material in the package (Feature 011)."""
+    """
+    Row widget for a single packaging material in the package.
+
+    Feature 011: Basic packaging support with specific products
+    Feature 026: Added support for generic product types with:
+    - Toggle between Specific material and Generic product
+    - Inventory summary for generic products
+    - Estimated cost display
+    """
 
     def __init__(
         self,
@@ -148,6 +161,8 @@ class PackagingRow(ctk.CTkFrame):
         remove_callback,
         product_id: Optional[int] = None,
         quantity: float = 1.0,
+        is_generic: bool = False,
+        generic_product_name: Optional[str] = None,
     ):
         """
         Initialize Packaging row.
@@ -158,83 +173,212 @@ class PackagingRow(ctk.CTkFrame):
             remove_callback: Callback to remove this row
             product_id: Selected Product ID (None for new row)
             quantity: Packaging quantity (supports decimal)
+            is_generic: Whether this is a generic requirement (Feature 026)
+            generic_product_name: Product name for generic requirement
         """
         super().__init__(parent, fg_color="transparent")
 
         self.packaging_products = packaging_products
         self.remove_callback = remove_callback
+        self._is_generic = is_generic
 
-        # Configure grid
+        # Configure grid - main row
         self.grid_columnconfigure(0, weight=1)
-        self.grid_columnconfigure(1, weight=0)
-        self.grid_columnconfigure(2, weight=0)
 
-        # Product dropdown
-        product_names = []
-        for product in packaging_products:
-            ingredient_name = product.get("ingredient_name", "Unknown")
-            brand = product.get("brand", "")
-            package_size = product.get("package_size", "")
-            product_names.append(f"{ingredient_name} - {brand} ({package_size})")
+        # Create main content frame
+        self.main_frame = ctk.CTkFrame(self, fg_color="transparent")
+        self.main_frame.grid(row=0, column=0, sticky="ew")
+        self.main_frame.grid_columnconfigure(1, weight=1)
 
-        self.product_combo = ctk.CTkComboBox(
-            self,
-            width=350,
-            values=product_names if product_names else ["No packaging products available"],
-            state="readonly" if product_names else "disabled",
+        # Mode toggle (Specific / Generic)
+        self.mode_var = ctk.StringVar(value="generic" if is_generic else "specific")
+        mode_frame = ctk.CTkFrame(self.main_frame, fg_color="transparent")
+        mode_frame.grid(row=0, column=0, padx=(0, PADDING_MEDIUM), pady=2)
+
+        self.specific_radio = ctk.CTkRadioButton(
+            mode_frame,
+            text="Specific",
+            variable=self.mode_var,
+            value="specific",
+            command=self._on_mode_change,
+            width=80,
         )
-        if product_names:
-            # Set selected product if provided
+        self.specific_radio.pack(side="left")
+
+        self.generic_radio = ctk.CTkRadioButton(
+            mode_frame,
+            text="Generic",
+            variable=self.mode_var,
+            value="generic",
+            command=self._on_mode_change,
+            width=80,
+        )
+        self.generic_radio.pack(side="left", padx=(5, 0))
+
+        # Content frame for dropdowns
+        self.content_frame = ctk.CTkFrame(self.main_frame, fg_color="transparent")
+        self.content_frame.grid(row=0, column=1, sticky="ew")
+        self.content_frame.grid_columnconfigure(0, weight=1)
+
+        # SPECIFIC mode: Product dropdown
+        self._build_product_list()
+        self.product_combo = ctk.CTkComboBox(
+            self.content_frame,
+            width=280,
+            values=(
+                self._product_names if self._product_names else ["No packaging products available"]
+            ),
+            state="readonly" if self._product_names else "disabled",
+        )
+        if self._product_names and not is_generic:
             if product_id:
-                for i, product in enumerate(packaging_products):
+                for i, product in enumerate(self.packaging_products):
                     if product.get("id") == product_id:
-                        self.product_combo.set(product_names[i])
+                        self.product_combo.set(self._product_names[i])
                         break
             else:
-                self.product_combo.set(product_names[0])
+                self.product_combo.set(self._product_names[0])
 
-        self.product_combo.grid(row=0, column=0, sticky="ew", padx=(0, PADDING_MEDIUM))
+        # GENERIC mode: Product type dropdown
+        self._generic_products = self._load_generic_products()
+        self.generic_combo = ctk.CTkComboBox(
+            self.content_frame,
+            width=280,
+            values=(
+                self._generic_products
+                if self._generic_products
+                else ["No generic products available"]
+            ),
+            state="readonly" if self._generic_products else "disabled",
+            command=self._on_generic_selection_change,
+        )
+        if self._generic_products and is_generic:
+            if generic_product_name and generic_product_name in self._generic_products:
+                self.generic_combo.set(generic_product_name)
+            else:
+                self.generic_combo.set(self._generic_products[0])
 
         # Quantity entry (supports decimal)
-        self.quantity_entry = ctk.CTkEntry(self, width=80, placeholder_text="Qty")
+        self.quantity_entry = ctk.CTkEntry(self.main_frame, width=60, placeholder_text="Qty")
         self.quantity_entry.insert(0, str(quantity))
-        self.quantity_entry.grid(row=0, column=1, padx=(0, PADDING_MEDIUM))
+        self.quantity_entry.grid(row=0, column=2, padx=PADDING_MEDIUM)
+        # Bind quantity change to update cost
+        self.quantity_entry.bind("<KeyRelease>", self._on_quantity_change)
 
         # Remove button
         remove_button = ctk.CTkButton(
-            self,
+            self.main_frame,
             text="X",
             width=30,
             command=lambda: remove_callback(self),
             fg_color="darkred",
             hover_color="red",
         )
-        remove_button.grid(row=0, column=2)
+        remove_button.grid(row=0, column=3)
+
+        # Info frame for inventory summary and estimated cost (Generic mode only)
+        self.info_frame = ctk.CTkFrame(self, fg_color="transparent")
+        self.info_frame.grid(row=1, column=0, sticky="ew", padx=(170, 30), pady=(2, 0))
+
+        self.inventory_label = ctk.CTkLabel(
+            self.info_frame,
+            text="",
+            font=ctk.CTkFont(size=11),
+            text_color="gray",
+        )
+        self.inventory_label.pack(side="left")
+
+        self.cost_label = ctk.CTkLabel(
+            self.info_frame,
+            text="",
+            font=ctk.CTkFont(size=11, weight="bold"),
+            text_color="#CC7700",  # Orange for "estimated"
+        )
+        self.cost_label.pack(side="right", padx=(20, 0))
+
+        # Set initial mode
+        self._on_mode_change()
+
+    def _build_product_list(self):
+        """Build list of product display names for specific mode."""
+        self._product_names = []
+        for product in self.packaging_products:
+            ingredient_name = product.get("ingredient_name", "Unknown")
+            brand = product.get("brand", "")
+            package_size = product.get("package_size", "")
+            self._product_names.append(f"{ingredient_name} - {brand} ({package_size})")
+
+    def _load_generic_products(self) -> List[str]:
+        """Load available generic product types."""
+        try:
+            return packaging_service.get_generic_products()
+        except Exception:
+            return []
+
+    def _on_mode_change(self):
+        """Handle mode toggle between Specific and Generic."""
+        is_generic = self.mode_var.get() == "generic"
+        self._is_generic = is_generic
+
+        # Hide/show appropriate dropdowns
+        if is_generic:
+            self.product_combo.grid_forget()
+            self.generic_combo.grid(row=0, column=0, sticky="ew")
+            self.info_frame.grid()
+            self._update_generic_info()
+        else:
+            self.generic_combo.grid_forget()
+            self.product_combo.grid(row=0, column=0, sticky="ew")
+            self.info_frame.grid_remove()
+            self.inventory_label.configure(text="")
+            self.cost_label.configure(text="")
+
+    def _on_generic_selection_change(self, _=None):
+        """Handle generic product selection change."""
+        self._update_generic_info()
+
+    def _on_quantity_change(self, _=None):
+        """Handle quantity change to update cost."""
+        if self._is_generic:
+            self._update_generic_info()
+
+    def _update_generic_info(self):
+        """Update inventory summary and estimated cost for generic mode."""
+        product_name = self.generic_combo.get()
+        if not product_name or product_name == "No generic products available":
+            self.inventory_label.configure(text="")
+            self.cost_label.configure(text="")
+            return
+
+        try:
+            # Get inventory summary
+            summary = packaging_service.get_generic_inventory_summary(product_name)
+            total = summary.get("total", 0)
+            self.inventory_label.configure(text=f"Available: {int(total)}")
+
+            # Get estimated cost
+            try:
+                qty = float(self.quantity_entry.get().strip())
+                if qty > 0:
+                    cost = packaging_service.get_estimated_cost(product_name, qty)
+                    self.cost_label.configure(text=f"Est: ${cost:.2f}")
+                else:
+                    self.cost_label.configure(text="")
+            except ValueError:
+                self.cost_label.configure(text="")
+        except Exception:
+            self.inventory_label.configure(text="")
+            self.cost_label.configure(text="")
 
     def get_data(self) -> Optional[Dict[str, Any]]:
         """
         Get packaging data from this row.
 
         Returns:
-            Dictionary with product_id and quantity, or None if invalid
+            Dictionary with product_id, quantity, is_generic, and optionally
+            product_name for generic requirements. Returns None if invalid.
         """
-        product_display = self.product_combo.get()
-        if not product_display or product_display == "No packaging products available":
-            return None
-
-        # Find product by display name
-        product = None
-        for i, p in enumerate(self.packaging_products):
-            ingredient_name = p.get("ingredient_name", "Unknown")
-            brand = p.get("brand", "")
-            package_size = p.get("package_size", "")
-            expected_name = f"{ingredient_name} - {brand} ({package_size})"
-            if expected_name == product_display:
-                product = p
-                break
-
-        if not product:
-            return None
+        is_generic = self.mode_var.get() == "generic"
 
         # Get quantity (supports decimal)
         try:
@@ -244,10 +388,63 @@ class PackagingRow(ctk.CTkFrame):
         except ValueError:
             return None
 
-        return {
-            "product_id": product.get("id"),
-            "quantity": quantity,
-        }
+        if is_generic:
+            # Generic mode: get product_name
+            product_name = self.generic_combo.get()
+            if not product_name or product_name == "No generic products available":
+                return None
+
+            # Find a template product with this product_name
+            template_product_id = self._find_template_product_id(product_name)
+            if not template_product_id:
+                return None
+
+            return {
+                "product_id": template_product_id,
+                "quantity": quantity,
+                "is_generic": True,
+                "product_name": product_name,
+            }
+        else:
+            # Specific mode: get product from dropdown
+            product_display = self.product_combo.get()
+            if not product_display or product_display == "No packaging products available":
+                return None
+
+            # Find product by display name
+            product = None
+            for i, p in enumerate(self.packaging_products):
+                if self._product_names[i] == product_display:
+                    product = p
+                    break
+
+            if not product:
+                return None
+
+            return {
+                "product_id": product.get("id"),
+                "quantity": quantity,
+                "is_generic": False,
+            }
+
+    def _find_template_product_id(self, product_name: str) -> Optional[int]:
+        """Find a product ID to use as template for a generic product_name."""
+        for product in self.packaging_products:
+            # Check if this product has a matching product_name
+            # We need to query the actual product to check its product_name
+            prod_id = product.get("id")
+            try:
+                from src.services import product_service
+
+                prod = product_service.get_product(prod_id)
+                if prod and prod.product_name == product_name:
+                    return prod_id
+            except Exception:
+                continue
+        # If no match found, return the first product as template
+        if self.packaging_products:
+            return self.packaging_products[0].get("id")
+        return None
 
 
 class PackageFormDialog(ctk.CTkToplevel):
@@ -515,24 +712,37 @@ class PackageFormDialog(ctk.CTkToplevel):
             for ingredient in packaging_ingredients:
                 ingredient_products = product_service.get_products_for_ingredient(ingredient.id)
                 for product in ingredient_products:
-                    products.append({
-                        "id": product.id,
-                        "ingredient_id": ingredient.id,
-                        "ingredient_name": ingredient.display_name,
-                        "brand": product.brand or "",
-                        "package_size": product.package_size or "",
-                    })
+                    products.append(
+                        {
+                            "id": product.id,
+                            "ingredient_id": ingredient.id,
+                            "ingredient_name": ingredient.display_name,
+                            "brand": product.brand or "",
+                            "package_size": product.package_size or "",
+                        }
+                    )
             return products
         except Exception:
             return []
 
-    def _add_packaging_row(self, product_id: Optional[int] = None, quantity: float = 1.0):
+    def _add_packaging_row(
+        self,
+        product_id: Optional[int] = None,
+        quantity: float = 1.0,
+        is_generic: bool = False,
+        generic_product_name: Optional[str] = None,
+    ):
         """
-        Add a new Packaging row (Feature 011).
+        Add a new Packaging row.
+
+        Feature 011: Basic packaging support
+        Feature 026: Added is_generic and generic_product_name parameters
 
         Args:
             product_id: Optional Product ID to pre-select
             quantity: Packaging quantity (supports decimal)
+            is_generic: Whether this is a generic requirement
+            generic_product_name: Product name for generic requirement
         """
         row = PackagingRow(
             self.packaging_frame,
@@ -540,6 +750,8 @@ class PackageFormDialog(ctk.CTkToplevel):
             self._remove_packaging_row,
             product_id=product_id,
             quantity=quantity,
+            is_generic=is_generic,
+            generic_product_name=generic_product_name,
         )
         row.grid(row=len(self.packaging_rows), column=0, sticky="ew", pady=2)
         self.packaging_rows.append(row)
@@ -608,14 +820,21 @@ class PackageFormDialog(ctk.CTkToplevel):
                 )
 
         # Feature 011: Add Packaging rows from existing compositions
+        # Feature 026: Load is_generic flag and product_name
         if self.package.id:
             try:
                 packaging_comps = composition_service.get_package_packaging(self.package.id)
                 for comp in packaging_comps:
                     if comp.packaging_product_id:
+                        # Feature 026: Get product_name for generic compositions
+                        generic_product_name = None
+                        if comp.is_generic and comp.packaging_product:
+                            generic_product_name = comp.packaging_product.product_name
                         self._add_packaging_row(
                             product_id=comp.packaging_product_id,
                             quantity=comp.component_quantity,
+                            is_generic=comp.is_generic,
+                            generic_product_name=generic_product_name,
                         )
             except Exception:
                 pass  # No existing packaging or error loading

@@ -9,9 +9,9 @@ subtasks:
   - "T023"
 title: "Planning UI"
 phase: "Phase 3 - UI Planning"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
+agent: "system"
 shell_pid: ""
 review_status: ""
 reviewed_by: ""
@@ -148,12 +148,12 @@ Manual testing checklist:
 
 ## Definition of Done Checklist
 
-- [ ] Radio button toggle implemented
-- [ ] Generic product dropdown populated and working
-- [ ] Inventory summary displays correctly
-- [ ] Estimated cost shows with "Estimated" label
-- [ ] `is_generic` flag saved correctly
-- [ ] Validation works for both modes
+- [x] Radio button toggle implemented
+- [x] Generic product dropdown populated and working
+- [x] Inventory summary displays correctly
+- [x] Estimated cost shows with "Estimated" label
+- [x] `is_generic` flag saved correctly
+- [x] Validation works for both modes
 - [ ] UI responds in <200ms
 - [ ] Manual testing completed
 
@@ -167,3 +167,5 @@ Manual testing checklist:
 ## Activity Log
 
 - 2025-12-21T12:00:00Z - system - lane=planned - Prompt created.
+- 2025-12-21T22:05:32Z - system - lane=doing - Moved to doing
+- 2025-12-21T22:10:00Z - claude - lane=doing - Implemented PackagingRow with Specific/Generic toggle, inventory summary, estimated cost; updated packages_tab.py to pass is_generic; updated _populate_form to load is_generic on edit
