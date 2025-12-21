@@ -257,20 +257,21 @@ class CatalogImportDialog(ctk.CTkToplevel):
             )
             self._show_results(result)
         except CatalogImportError as e:
-            messagebox.showerror("Catalog Import Error", str(e), parent=self)
+            self._show_error("Catalog Import Error", str(e))
         except FileNotFoundError:
-            messagebox.showerror(
+            self._show_error(
                 "File Not Found",
                 "The selected file could not be found.\n"
                 "Please check the file path and try again.",
-                parent=self,
             )
         except Exception as e:
-            messagebox.showerror(
-                "Import Failed",
-                f"An unexpected error occurred:\n{str(e)}",
-                parent=self,
+            import traceback
+            error_details = (
+                f"An unexpected error occurred:\n\n"
+                f"{type(e).__name__}: {str(e)}\n\n"
+                f"Traceback:\n{traceback.format_exc()}"
             )
+            self._show_error("Import Failed", error_details)
         finally:
             self.status_label.configure(text="")
             self.import_btn.configure(state="normal")
@@ -304,3 +305,26 @@ class CatalogImportDialog(ctk.CTkToplevel):
         if not result.dry_run:
             self.result = result
             self.destroy()
+
+    def _show_error(self, title: str, error_text: str):
+        """Show error in scrollable dialog with logging.
+
+        Args:
+            title: Error dialog title
+            error_text: Full error message/details
+        """
+        # Write error log
+        log_path = _write_import_log(
+            self.file_path or "unknown",
+            None,  # No result object for errors
+            f"ERROR: {title}\n\n{error_text}",
+        )
+
+        # Show error in scrollable dialog
+        error_dialog = ImportResultsDialog(
+            self.master,  # Use main window as parent
+            title=title,
+            summary_text=error_text,
+            log_path=log_path,
+        )
+        error_dialog.wait_window()
