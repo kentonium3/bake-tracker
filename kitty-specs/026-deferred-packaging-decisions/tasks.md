@@ -22,10 +22,10 @@
 **Prompt**: `/tasks/planned/WP01-schema-and-models.md`
 
 ### Included Subtasks
-- [ ] T001 Add `is_generic` column to Composition model in `src/models/composition.py`
-- [ ] T002 Create CompositionAssignment model in `src/models/composition_assignment.py`
-- [ ] T003 Update `src/models/__init__.py` exports
-- [ ] T004 Document schema migration steps in feature docs
+- [X] T001 Add `is_generic` column to Composition model in `src/models/composition.py`
+- [X] T002 Create CompositionAssignment model in `src/models/composition_assignment.py`
+- [X] T003 Update `src/models/__init__.py` exports
+- [X] T004 Document schema migration steps in feature docs
 
 ### Implementation Notes
 - Follow Constitution VI: export/reset/import cycle for schema changes
@@ -51,15 +51,15 @@
 **Prompt**: `/tasks/planned/WP02-packaging-service-core.md`
 
 ### Included Subtasks
-- [ ] T005 Create `src/services/packaging_service.py` with base structure
-- [ ] T006 Implement `get_generic_products()` - list available generic product types
-- [ ] T007 Implement `get_generic_inventory_summary(product_name)` - total + breakdown by brand
-- [ ] T008 Implement `get_estimated_cost(product_name, quantity)` - average price calculation
-- [ ] T009 Implement `create_generic_requirement()` - set up generic composition
-- [ ] T010 Implement `assign_materials()` - create assignment records with validation
-- [ ] T011 Implement `get_pending_requirements()` - find unassigned generics
-- [ ] T012 Implement `is_fully_assigned()` - check assignment status
-- [ ] T013 [P] Create `src/tests/services/test_packaging_service.py` with unit tests
+- [X] T005 Create `src/services/packaging_service.py` with base structure
+- [X] T006 Implement `get_generic_products()` - list available generic product types
+- [X] T007 Implement `get_generic_inventory_summary(product_name)` - total + breakdown by brand
+- [X] T008 Implement `get_estimated_cost(product_name, quantity)` - average price calculation
+- [X] T009 Implement `create_generic_requirement()` - set up generic composition
+- [X] T010 Implement `assign_materials()` - create assignment records with validation
+- [X] T011 Implement `get_pending_requirements()` - find unassigned generics
+- [X] T012 Implement `is_fully_assigned()` - check assignment status
+- [X] T013 [P] Create `src/tests/services/test_packaging_service.py` with unit tests
 
 ### Implementation Notes
 - Follow session management pattern: accept optional `session=None` parameter
@@ -85,10 +85,10 @@
 **Prompt**: `/tasks/planned/WP03-service-integration.md`
 
 ### Included Subtasks
-- [ ] T014 [P] Update `src/services/composition_service.py` - support `is_generic` flag in create/update
-- [ ] T015 [P] Update `src/services/assembly_service.py` - add `check_packaging_assigned()` validation
-- [ ] T016 [P] Update `src/services/shopping_list_service.py` - group generic packaging by `product_name`
-- [ ] T017 Add bypass flag support to assembly completion flow
+- [X] T014 [P] Update `src/services/composition_service.py` - support `is_generic` flag in create/update
+- [X] T015 [P] Update `src/services/assembly_service.py` - add `check_packaging_assigned()` validation
+- [X] T016 [P] Update `src/services/shopping_list_service.py` - group generic packaging by `product_name`
+- [X] T017 Add bypass flag support to assembly completion flow
 
 ### Implementation Notes
 - Composition service: add `is_generic` parameter to creation methods
@@ -115,12 +115,12 @@
 **Prompt**: `/tasks/planned/WP04-planning-ui.md`
 
 ### Included Subtasks
-- [ ] T018 Add radio button toggle in composition editor: "Specific material" / "Generic product"
-- [ ] T019 Create generic product dropdown (distinct `product_name` values from packaging products)
-- [ ] T020 Add inventory summary widget showing total and breakdown by brand
-- [ ] T021 Display estimated cost with "Estimated" label
-- [ ] T022 Persist `is_generic=True` when saving generic compositions
-- [ ] T023 Update UI validation logic for generic vs specific modes
+- [X] T018 Add radio button toggle in composition editor: "Specific material" / "Generic product"
+- [X] T019 Create generic product dropdown (distinct `product_name` values from packaging products)
+- [X] T020 Add inventory summary widget showing total and breakdown by brand
+- [X] T021 Display estimated cost with "Estimated" label
+- [X] T022 Persist `is_generic=True` when saving generic compositions
+- [X] T023 Update UI validation logic for generic vs specific modes
 
 ### Implementation Notes
 - Modify `src/ui/composition_editor.py` (or equivalent assembly/package editing screen)
@@ -146,12 +146,12 @@
 **Prompt**: `/tasks/planned/WP05-assignment-dialog.md`
 
 ### Included Subtasks
-- [ ] T024 Create `src/ui/packaging_assignment_dialog.py` - new dialog class
-- [ ] T025 Implement available products list with checkbox + quantity input for each
-- [ ] T026 Add running total display: "Assigned: X / Y needed"
-- [ ] T027 Implement validation before save (sum must equal requirement)
-- [ ] T028 Integrate dialog into assembly screen (trigger from pending indicator)
-- [ ] T029 Update cost display after assignment (switch from estimated to actual)
+- [X] T024 Create `src/ui/packaging_assignment_dialog.py` - new dialog class
+- [X] T025 Implement available products list with checkbox + quantity input for each
+- [X] T026 Add running total display: "Assigned: X / Y needed"
+- [X] T027 Implement validation before save (sum must equal requirement)
+- [X] T028 Integrate dialog into assembly screen (trigger from pending indicator)
+- [X] T029 Update cost display after assignment (switch from estimated to actual)
 
 ### Implementation Notes
 - Dialog shows only products matching the generic `product_name`
@@ -177,13 +177,13 @@
 **Prompt**: `/tasks/planned/WP06-dashboard-and-shopping-list.md`
 
 ### Included Subtasks
-- [ ] T030 [P] Add pending indicator icon to dashboard items with unassigned generic packaging
-- [ ] T031 [P] Make indicators clickable (navigate to assignment dialog)
-- [ ] T032 [P] Add tooltip: "Packaging needs selection"
-- [ ] T033 [P] Add filter option to show only pending items
-- [ ] T034 [P] Update shopping list generation to group by `product_name` for generics
-- [ ] T035 [P] Display generic items as "Cellophane Bags 6x10: 50 needed" format
-- [ ] T036 [P] Show estimated costs with "Estimated" label in shopping list
+- [X] T030 [P] Add pending indicator icon to dashboard items with unassigned generic packaging
+- [X] T031 [P] Make indicators clickable (navigate to assignment dialog)
+- [X] T032 [P] Add tooltip: "Packaging needs selection"
+- [X] T033 [P] Add filter option to show only pending items
+- [X] T034 [P] Update shopping list generation to group by `product_name` for generics
+- [X] T035 [P] Display generic items as "Cellophane Bags 6x10: 50 needed" format
+- [X] T036 [P] Show estimated costs with "Estimated" label in shopping list
 
 ### Implementation Notes
 - Dashboard indicators use warning icon (orange/yellow)
@@ -210,13 +210,13 @@
 **Prompt**: `/tasks/planned/WP07-assembly-enforcement.md`
 
 ### Included Subtasks
-- [ ] T037 Add check in assembly completion flow for unassigned generic packaging
-- [ ] T038 Create prompt dialog with three options:
+- [X] T037 Add check in assembly completion flow for unassigned generic packaging
+- [X] T038 Create prompt dialog with three options:
   - "Quick Assign" - open assignment dialog
   - "Assembly Details" - navigate to full assembly screen
   - "Record Assembly Anyway" - bypass with flag
-- [ ] T039 Flag event for reconciliation when bypass used
-- [ ] T040 Add visual indicator for bypassed assemblies needing reconciliation
+- [X] T039 Flag event for reconciliation when bypass used
+- [X] T040 Add visual indicator for bypassed assemblies needing reconciliation
 
 ### Implementation Notes
 - Prompt appears before final confirmation
@@ -242,10 +242,10 @@
 **Prompt**: `/tasks/planned/WP08-bom-modification.md`
 
 ### Included Subtasks
-- [ ] T041 Enable add/remove of packaging components in assembly definition
-- [ ] T042 Clear previous assignments when requirements change
-- [ ] T043 Recalculate costs and availability after changes
-- [ ] T044 Warn if changes affect other pending productions
+- [X] T041 Enable add/remove of packaging components in assembly definition
+- [X] T042 Clear previous assignments when requirements change
+- [X] T043 Recalculate costs and availability after changes
+- [X] T044 Warn if changes affect other pending productions
 
 ### Implementation Notes
 - Changing packaging requirement clears existing assignments (user must re-assign)
@@ -271,13 +271,13 @@
 **Prompt**: `/tasks/planned/WP09-testing-and-polish.md`
 
 ### Included Subtasks
-- [ ] T045 [P] Unit test coverage >80% for packaging_service
-- [ ] T046 [P] Integration tests for full workflow: plan with generic -> assign -> complete assembly
-- [ ] T047 [P] Edge case testing: shortage scenarios, re-assignment, bypass reconciliation
-- [ ] T048 Update import/export for new fields (`is_generic`, composition_assignments)
-- [ ] T049 User acceptance testing with primary user
-- [ ] T050 Update CLAUDE.md if needed
-- [ ] T051 Validate quickstart.md scenario works end-to-end
+- [X] T045 [P] Unit test coverage >80% for packaging_service
+- [X] T046 [P] Integration tests for full workflow: plan with generic -> assign -> complete assembly
+- [X] T047 [P] Edge case testing: shortage scenarios, re-assignment, bypass reconciliation
+- [X] T048 Update import/export for new fields (`is_generic`, composition_assignments)
+- [X] T049 User acceptance testing with primary user
+- [X] T050 Update CLAUDE.md if needed
+- [X] T051 Validate quickstart.md scenario works end-to-end
 
 ### Implementation Notes
 - Run full test suite before acceptance
