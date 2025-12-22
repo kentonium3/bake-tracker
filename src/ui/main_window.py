@@ -15,6 +15,7 @@ from src.ui.ingredients_tab import IngredientsTab
 from src.ui.inventory_tab import InventoryTab
 from src.ui.recipes_tab import RecipesTab
 from src.ui.finished_units_tab import FinishedUnitsTab
+from src.ui.products_tab import ProductsTab
 
 # BundlesTab removed - Bundle concept eliminated in Feature 006
 from src.ui.packages_tab import PackagesTab
@@ -97,6 +98,7 @@ class MainWindow(ctk.CTk):
         self.tabview.add("Summary")
         self.tabview.add("My Ingredients")
         self.tabview.add("My Pantry")
+        self.tabview.add("Products")  # Feature 027: Product catalog management
         self.tabview.add("Recipes")
         self.tabview.add("Finished Units")
         # Bundles tab removed - Bundle concept eliminated in Feature 006
@@ -121,6 +123,10 @@ class MainWindow(ctk.CTk):
         # Note: UI displays "My Pantry" for consumer-friendliness; internal uses InventoryTab
         inventory_frame = self.tabview.tab("My Pantry")
         self.inventory_tab = InventoryTab(inventory_frame)
+
+        # Initialize Products tab (Feature 027: Product catalog management)
+        products_frame = self.tabview.tab("Products")
+        self.products_tab = ProductsTab(products_frame)
 
         # Initialize Recipes tab
         recipes_frame = self.tabview.tab("Recipes")
@@ -244,6 +250,7 @@ class MainWindow(ctk.CTk):
         """Refresh tabs that may have been affected by catalog import."""
         # Refresh tabs that display catalog data (ingredients, recipes, products)
         self.ingredients_tab.refresh()
+        self.products_tab.refresh()  # Feature 027
         self.recipes_tab.refresh()
         # Inventory tab may show products, refresh it too
         self.inventory_tab.refresh()
@@ -316,6 +323,11 @@ class MainWindow(ctk.CTk):
             if not getattr(self.inventory_tab, '_data_loaded', False):
                 self.inventory_tab._data_loaded = True
                 self.after(10, self.inventory_tab.refresh)
+        elif current_tab == "Products":
+            # Lazy load products on first visit (Feature 027)
+            if not getattr(self.products_tab, '_data_loaded', False):
+                self.products_tab._data_loaded = True
+                self.after(10, self.products_tab.refresh)
         elif current_tab == "Recipes":
             # Lazy load recipes on first visit
             if not getattr(self.recipes_tab, '_data_loaded', False):
@@ -329,6 +341,10 @@ class MainWindow(ctk.CTk):
     def refresh_inventory(self):
         """Refresh the inventory tab with current data."""
         self.inventory_tab.refresh()
+
+    def refresh_products(self):
+        """Refresh the products tab with current data."""
+        self.products_tab.refresh()
 
     def refresh_recipes(self):
         """Refresh the recipes tab with current data."""
@@ -361,6 +377,7 @@ class MainWindow(ctk.CTk):
         self.dashboard_tab.refresh()
         self.ingredients_tab.refresh()
         self.inventory_tab.refresh()
+        self.products_tab.refresh()  # Feature 027
         self.recipes_tab.refresh()
         self.finished_units_tab.refresh()
         self.packages_tab.refresh()
