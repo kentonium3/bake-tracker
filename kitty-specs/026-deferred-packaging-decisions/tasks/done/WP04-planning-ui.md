@@ -9,7 +9,7 @@ subtasks:
   - "T023"
 title: "Planning UI"
 phase: "Phase 3 - UI Planning"
-lane: "for_review"
+lane: "done"
 assignee: ""
 agent: "system"
 shell_pid: ""
@@ -170,3 +170,4 @@ Manual testing checklist:
 - 2025-12-21T22:05:32Z - system - lane=doing - Moved to doing
 - 2025-12-21T22:10:00Z - claude - lane=doing - Implemented PackagingRow with Specific/Generic toggle, inventory summary, estimated cost; updated packages_tab.py to pass is_generic; updated _populate_form to load is_generic on edit
 - 2025-12-21T22:06:44Z – system – shell_pid= – lane=for_review – Moved to for_review
+- 2025-12-22T02:27:39Z – system – shell_pid= – lane=done – Approved
