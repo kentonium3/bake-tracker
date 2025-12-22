@@ -1380,6 +1380,7 @@ class CompositionService:
         quantity: float = 1.0,
         notes: Optional[str] = None,
         sort_order: int = 0,
+        is_generic: bool = False,
     ) -> Composition:
         """
         Add packaging product to a FinishedGood assembly.
@@ -1390,6 +1391,8 @@ class CompositionService:
             quantity: Quantity of packaging (supports decimals)
             notes: Optional notes for this packaging component
             sort_order: Display order for components
+            is_generic: If True, this is a generic packaging requirement
+                       that will be assigned specific materials later (Feature 026)
 
         Returns:
             Created Composition instance
@@ -1436,12 +1439,14 @@ class CompositionService:
                     component_quantity=quantity,
                     component_notes=notes,
                     sort_order=sort_order,
+                    is_generic=is_generic,
                 )
                 session.add(composition)
                 session.flush()
 
+                generic_label = " (generic)" if is_generic else ""
                 logger.info(
-                    f"Added packaging product {packaging_product_id} to assembly {assembly_id}"
+                    f"Added packaging product {packaging_product_id}{generic_label} to assembly {assembly_id}"
                 )
                 return composition
 
@@ -1456,6 +1461,7 @@ class CompositionService:
         quantity: float = 1.0,
         notes: Optional[str] = None,
         sort_order: int = 0,
+        is_generic: bool = False,
     ) -> Composition:
         """
         Add packaging product to a Package.
@@ -1466,6 +1472,8 @@ class CompositionService:
             quantity: Quantity of packaging (supports decimals)
             notes: Optional notes for this packaging component
             sort_order: Display order for components
+            is_generic: If True, this is a generic packaging requirement
+                       that will be assigned specific materials later (Feature 026)
 
         Returns:
             Created Composition instance
@@ -1512,12 +1520,14 @@ class CompositionService:
                     component_quantity=quantity,
                     component_notes=notes,
                     sort_order=sort_order,
+                    is_generic=is_generic,
                 )
                 session.add(composition)
                 session.flush()
 
+                generic_label = " (generic)" if is_generic else ""
                 logger.info(
-                    f"Added packaging product {packaging_product_id} to package {package_id}"
+                    f"Added packaging product {packaging_product_id}{generic_label} to package {package_id}"
                 )
                 return composition
 
@@ -1582,13 +1592,19 @@ class CompositionService:
             raise DatabaseError(f"Failed to get package packaging: {e}")
 
     @staticmethod
-    def update_packaging_quantity(composition_id: int, quantity: float) -> Composition:
+    def update_packaging_quantity(
+        composition_id: int, quantity: float, *, clear_assignments: bool = True
+    ) -> Composition:
         """
         Update quantity for a packaging composition.
+
+        Feature 026: Optionally clears material assignments when quantity changes.
 
         Args:
             composition_id: ID of the composition to update
             quantity: New quantity (must be > 0, supports decimals)
+            clear_assignments: If True and composition is generic with assignments,
+                             clear them (default True)
 
         Returns:
             Updated Composition instance
@@ -1597,6 +1613,9 @@ class CompositionService:
             ValidationError: If quantity invalid or composition not found
             ValidationError: If composition is not a packaging composition
         """
+        # Import here to avoid circular imports
+        from src.services import packaging_service
+
         try:
             if quantity <= 0:
                 raise ValidationError(["Quantity must be greater than 0"])
@@ -1608,6 +1627,22 @@ class CompositionService:
 
                 if composition.packaging_product_id is None:
                     raise ValidationError(["This composition is not a packaging composition"])
+
+                # Feature 026: Clear assignments if quantity changes and composition is generic
+                if clear_assignments and composition.is_generic:
+                    old_quantity = composition.component_quantity
+                    if old_quantity != quantity:
+                        try:
+                            cleared = packaging_service.clear_assignments(
+                                composition_id, session=session
+                            )
+                            if cleared > 0:
+                                logger.info(
+                                    f"Cleared {cleared} assignments for composition "
+                                    f"{composition_id} due to quantity change"
+                                )
+                        except Exception as e:
+                            logger.warning(f"Failed to clear assignments: {e}")
 
                 composition.component_quantity = quantity
                 session.flush()
@@ -1773,10 +1808,11 @@ def add_packaging_to_assembly(
     quantity: float = 1.0,
     notes: Optional[str] = None,
     sort_order: int = 0,
+    is_generic: bool = False,
 ) -> Composition:
     """Add packaging product to a FinishedGood assembly."""
     return CompositionService.add_packaging_to_assembly(
-        assembly_id, packaging_product_id, quantity, notes, sort_order
+        assembly_id, packaging_product_id, quantity, notes, sort_order, is_generic
     )
 
 
@@ -1786,10 +1822,11 @@ def add_packaging_to_package(
     quantity: float = 1.0,
     notes: Optional[str] = None,
     sort_order: int = 0,
+    is_generic: bool = False,
 ) -> Composition:
     """Add packaging product to a Package."""
     return CompositionService.add_packaging_to_package(
-        package_id, packaging_product_id, quantity, notes, sort_order
+        package_id, packaging_product_id, quantity, notes, sort_order, is_generic
     )
 
 
@@ -1803,9 +1840,17 @@ def get_package_packaging(package_id: int) -> List[Composition]:
     return CompositionService.get_package_packaging(package_id)
 
 
-def update_packaging_quantity(composition_id: int, quantity: float) -> Composition:
-    """Update quantity for a packaging composition."""
-    return CompositionService.update_packaging_quantity(composition_id, quantity)
+def update_packaging_quantity(
+    composition_id: int, quantity: float, *, clear_assignments: bool = True
+) -> Composition:
+    """
+    Update quantity for a packaging composition.
+
+    Feature 026: Optionally clears material assignments when quantity changes.
+    """
+    return CompositionService.update_packaging_quantity(
+        composition_id, quantity, clear_assignments=clear_assignments
+    )
 
 
 def remove_packaging(composition_id: int) -> bool:

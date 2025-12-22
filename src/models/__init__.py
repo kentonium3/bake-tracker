@@ -20,6 +20,7 @@ from .assembly_type import AssemblyType
 # Note: Bundle and YieldMode moved to legacy compatibility or removed in refactoring
 from .finished_unit import FinishedUnit
 from .composition import Composition
+from .composition_assignment import CompositionAssignment  # Feature 026
 from .package import (
     Package,
     PackageFinishedGood,
@@ -65,6 +66,7 @@ __all__ = [
     "AssemblyType",
     "FinishedUnit",
     "Composition",
+    "CompositionAssignment",  # Feature 026
     # Package re-enabled in Feature 006 (uses FinishedGood not Bundle)
     "Package",
     "PackageFinishedGood",

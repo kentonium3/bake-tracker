@@ -333,8 +333,10 @@ class TestPackagingBOMFlow:
 
         # Total packages: 1 + 2 + 3 = 6
         # Total bags: 2.0 per package * 6 packages = 12.0
-        assert bag_product.id in needs
-        assert needs[bag_product.id].total_needed == 12.0
+        # Feature 026: Keys are now "specific_{product_id}" for specific products
+        key = f"specific_{bag_product.id}"
+        assert key in needs
+        assert needs[key].total_needed == 12.0
 
 class TestPackagingImportExport:
     """Integration tests for packaging data import/export (Feature 011 T046)."""
@@ -484,6 +486,95 @@ class TestPackagingImportExport:
             if os.path.exists(temp_path):
                 os.unlink(temp_path)
 
+    def test_export_import_preserves_generic_packaging_with_assignments(self, test_db):
+        """Feature 026: Test round-trip export/import of generic packaging with assignments."""
+        import json
+        import tempfile
+        import os
+        from src.services.import_export_service import export_all_to_json
+
+        # Create packaging ingredient and product
+        bag_ingredient = create_ingredient({
+            "name": "Generic Export Test Bags",
+            "category": "Bags",
+            "is_packaging": True
+        })
+        bag_product = create_product(
+            bag_ingredient.slug,
+            {
+                "brand": "ExportBrand",
+                "package_size": "100 ct",
+                "package_unit": "each",
+                "package_unit_quantity": 100,
+                "purchase_price": Decimal("10.00"),
+                "product_name": "Generic Export Test Bags"
+            }
+        )
+
+        # Add inventory for assignment
+        inv = InventoryItem(
+            product_id=bag_product.id,
+            quantity=50,
+            unit_cost=0.10,
+            expiration_date=date(2025, 12, 31)
+        )
+        test_db.add(inv)
+        test_db.flush()
+
+        # Create FinishedGood with generic packaging
+        fg = FinishedGood(
+            slug="generic-export-test",
+            display_name="Generic Export Test",
+            assembly_type=AssemblyType.CUSTOM_ORDER,
+            inventory_count=0
+        )
+        test_db.add(fg)
+        test_db.flush()
+
+        # Add generic packaging
+        composition = add_packaging_to_assembly(
+            assembly_id=fg.id,
+            packaging_product_id=bag_product.id,
+            quantity=10.0,
+            is_generic=True
+        )
+
+        # Assign materials
+        from src.services.packaging_service import assign_materials
+        assign_materials(
+            composition_id=composition.id,
+            assignments=[{"inventory_item_id": inv.id, "quantity": 10}]
+        )
+
+        # Export to temp file
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
+            temp_path = f.name
+
+        try:
+            result = export_all_to_json(temp_path)
+            assert result.success
+
+            # Verify export contains is_generic and assignments
+            with open(temp_path, "r") as f:
+                data = json.load(f)
+
+            compositions = data["compositions"]
+            generic_comp = [
+                c for c in compositions
+                if c.get("finished_good_slug") == fg.slug
+                and c.get("is_generic") is True
+            ]
+            assert len(generic_comp) == 1
+            assert generic_comp[0]["is_generic"] is True
+            assert "assignments" in generic_comp[0]
+            assert len(generic_comp[0]["assignments"]) == 1
+            assert generic_comp[0]["assignments"][0]["quantity_assigned"] == 10.0
+
+        finally:
+            if os.path.exists(temp_path):
+                os.unlink(temp_path)
+
+
 class TestPackagingEdgeCases:
     """Edge case tests for packaging BOM (Feature 011 WP07)."""
 
@@ -627,8 +718,10 @@ class TestPackagingEdgeCases:
         needs = get_event_packaging_needs(event.id)
 
         # FG: 2 * 1 * 3 = 6, Package: 1 * 3 = 3, Total: 9
-        assert ribbon_product.id in needs
-        assert needs[ribbon_product.id].total_needed == 9.0
+        # Feature 026: Keys are now "specific_{product_id}" for specific products
+        key = f"specific_{ribbon_product.id}"
+        assert key in needs
+        assert needs[key].total_needed == 9.0
 
     def test_package_delete_cascades_packaging_compositions(self, test_db):
         """T061: Compositions deleted when Package deleted."""

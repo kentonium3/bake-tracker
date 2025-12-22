@@ -65,6 +65,10 @@ class PackagingNeed:
     on_hand: float
     to_buy: float
     unit: str
+    # Feature 026: Generic packaging support
+    is_generic: bool = False
+    generic_product_name: Optional[str] = None
+    estimated_cost: Optional[Decimal] = None
 
 
 @dataclass
@@ -972,6 +976,7 @@ def get_shopping_list(event_id: int, include_packaging: bool = True) -> Dict[str
                 "items_with_shortfall": 0,
             }
             # Feature 011: Add packaging section if requested
+            # Feature 026: Include generic packaging info
             if include_packaging:
                 try:
                     packaging_needs = get_event_packaging_needs(event_id)
@@ -985,6 +990,10 @@ def get_shopping_list(event_id: int, include_packaging: bool = True) -> Dict[str
                                 "on_hand": need.on_hand,
                                 "to_buy": need.to_buy,
                                 "unit": need.unit,
+                                # Feature 026: Generic packaging fields
+                                "is_generic": need.is_generic,
+                                "generic_product_name": need.generic_product_name,
+                                "estimated_cost": need.estimated_cost,
                             }
                             for need in packaging_needs.values()
                         ]
@@ -1092,6 +1101,7 @@ def get_shopping_list(event_id: int, include_packaging: bool = True) -> Dict[str
             }
 
             # Feature 011: Add packaging section if requested
+            # Feature 026: Include generic packaging info
             if include_packaging:
                 try:
                     packaging_needs = get_event_packaging_needs(event_id)
@@ -1105,6 +1115,10 @@ def get_shopping_list(event_id: int, include_packaging: bool = True) -> Dict[str
                                 "on_hand": need.on_hand,
                                 "to_buy": need.to_buy,
                                 "unit": need.unit,
+                                # Feature 026: Generic packaging fields
+                                "is_generic": need.is_generic,
+                                "generic_product_name": need.generic_product_name,
+                                "estimated_cost": need.estimated_cost,
                             }
                             for need in packaging_needs.values()
                         ]
@@ -1306,9 +1320,23 @@ def _get_packaging_on_hand(session, product_id: int) -> float:
     return float(total) if total else 0.0
 
 
-def _aggregate_packaging(session, event: Event) -> Dict[int, float]:
+@dataclass
+class _RawPackagingNeed:
+    """Internal structure for aggregating packaging needs."""
+
+    product_id: int
+    quantity: float
+    is_generic: bool
+    product_name: Optional[str]  # For generic compositions
+
+
+def _aggregate_packaging(
+    session, event: Event
+) -> tuple[Dict[int, float], Dict[str, float]]:
     """
     Aggregate packaging quantities for an event.
+
+    Feature 026: Now separates specific and generic packaging needs.
 
     Traverses:
     - Event -> ERP -> Package -> packaging_compositions (direct package packaging)
@@ -1319,9 +1347,12 @@ def _aggregate_packaging(session, event: Event) -> Dict[int, float]:
         event: Event instance (with relationships loaded)
 
     Returns:
-        Dict mapping product_id to total quantity needed
+        Tuple of:
+        - Dict mapping product_id to total quantity needed (specific items)
+        - Dict mapping product_name to total quantity needed (generic items)
     """
-    needs: Dict[int, float] = {}
+    specific_needs: Dict[int, float] = {}
+    generic_needs: Dict[str, float] = {}  # product_name -> quantity
 
     for erp in event.event_recipient_packages:
         package = erp.package
@@ -1333,8 +1364,20 @@ def _aggregate_packaging(session, event: Event) -> Dict[int, float]:
         # Package-level packaging (direct - from Package.packaging_compositions)
         for comp in package.packaging_compositions:
             if comp.packaging_product_id:
-                pid = comp.packaging_product_id
-                needs[pid] = needs.get(pid, 0.0) + (comp.component_quantity * package_qty)
+                qty = comp.component_quantity * package_qty
+                if comp.is_generic and comp.packaging_product:
+                    product_name = comp.packaging_product.product_name
+                    if product_name:
+                        generic_needs[product_name] = generic_needs.get(product_name, 0.0) + qty
+                    else:
+                        # Fallback if product_name not set
+                        specific_needs[comp.packaging_product_id] = (
+                            specific_needs.get(comp.packaging_product_id, 0.0) + qty
+                        )
+                else:
+                    specific_needs[comp.packaging_product_id] = (
+                        specific_needs.get(comp.packaging_product_id, 0.0) + qty
+                    )
 
         # FinishedGood-level packaging (through package contents)
         for pfg in package.package_finished_goods:
@@ -1346,29 +1389,74 @@ def _aggregate_packaging(session, event: Event) -> Dict[int, float]:
 
             for comp in fg.components:
                 if comp.packaging_product_id:
-                    pid = comp.packaging_product_id
-                    needs[pid] = needs.get(pid, 0.0) + (comp.component_quantity * fg_qty)
+                    qty = comp.component_quantity * fg_qty
+                    if comp.is_generic and comp.packaging_product:
+                        product_name = comp.packaging_product.product_name
+                        if product_name:
+                            generic_needs[product_name] = (
+                                generic_needs.get(product_name, 0.0) + qty
+                            )
+                        else:
+                            # Fallback if product_name not set
+                            specific_needs[comp.packaging_product_id] = (
+                                specific_needs.get(comp.packaging_product_id, 0.0) + qty
+                            )
+                    else:
+                        specific_needs[comp.packaging_product_id] = (
+                            specific_needs.get(comp.packaging_product_id, 0.0) + qty
+                        )
 
-    return needs
+    return specific_needs, generic_needs
 
 
-def get_event_packaging_needs(event_id: int) -> Dict[int, PackagingNeed]:
+def _get_generic_packaging_on_hand(session, product_name: str) -> float:
+    """
+    Get total on-hand quantity for all products with a given product_name.
+
+    Feature 026: Aggregates inventory across all products matching the generic type.
+
+    Args:
+        session: Database session
+        product_name: Generic product type name (e.g., "Cellophane Bags 6x10")
+
+    Returns:
+        Total quantity on hand across all matching products
+    """
+    # Find all products with this product_name
+    products = session.query(Product).filter(Product.product_name == product_name).all()
+
+    total_on_hand = 0.0
+    for product in products:
+        total_on_hand += _get_packaging_on_hand(session, product.id)
+
+    return total_on_hand
+
+
+def get_event_packaging_needs(event_id: int) -> Dict[str, PackagingNeed]:
     """
     Calculate packaging material needs for an event.
 
     Aggregates packaging from both Package-level and FinishedGood-level compositions,
     calculates on-hand inventory, and determines quantities to buy.
 
+    Feature 026: Now handles both specific and generic packaging needs.
+    - Specific items: keyed by "specific_{product_id}"
+    - Generic items: keyed by "generic_{product_name}"
+
     Args:
         event_id: Event ID
 
     Returns:
-        Dict mapping product_id to PackagingNeed dataclass
+        Dict mapping key to PackagingNeed dataclass
+        Keys are "specific_{product_id}" or "generic_{product_name}"
 
     Raises:
         EventNotFoundError: If event not found
         DatabaseError: If database operation fails
     """
+    # Import here to avoid circular imports
+    from src.services import packaging_service
+
     try:
         with session_scope() as session:
             # Load event with full traversal chain for packaging
@@ -1395,12 +1483,14 @@ def get_event_packaging_needs(event_id: int) -> Dict[int, PackagingNeed]:
             if not event:
                 raise EventNotFoundError(event_id)
 
-            # Aggregate raw quantities
-            raw_needs = _aggregate_packaging(session, event)
+            # Feature 026: Aggregate raw quantities (now returns tuple)
+            specific_needs, generic_needs = _aggregate_packaging(session, event)
 
-            # Build PackagingNeed objects with inventory lookup
-            needs: Dict[int, PackagingNeed] = {}
-            for product_id, total_needed in raw_needs.items():
+            # Build PackagingNeed objects
+            needs: Dict[str, PackagingNeed] = {}
+
+            # Process specific packaging needs
+            for product_id, total_needed in specific_needs.items():
                 product = session.get(Product, product_id)
                 if not product:
                     continue
@@ -1409,7 +1499,8 @@ def get_event_packaging_needs(event_id: int) -> Dict[int, PackagingNeed]:
                 on_hand = _get_packaging_on_hand(session, product_id)
                 to_buy = max(0.0, total_needed - on_hand)
 
-                needs[product_id] = PackagingNeed(
+                key = f"specific_{product_id}"
+                needs[key] = PackagingNeed(
                     product_id=product_id,
                     product=product,
                     ingredient_name=ingredient.display_name if ingredient else "Unknown",
@@ -1418,6 +1509,50 @@ def get_event_packaging_needs(event_id: int) -> Dict[int, PackagingNeed]:
                     on_hand=on_hand,
                     to_buy=to_buy,
                     unit=product.package_unit or "each",
+                    is_generic=False,
+                )
+
+            # Feature 026: Process generic packaging needs
+            for product_name, total_needed in generic_needs.items():
+                # Get on-hand across all products with this product_name
+                on_hand = _get_generic_packaging_on_hand(session, product_name)
+                to_buy = max(0.0, total_needed - on_hand)
+
+                # Get estimated cost from packaging service
+                try:
+                    estimated_cost = packaging_service.get_estimated_cost(
+                        product_name, float(total_needed), session=session
+                    )
+                except Exception:
+                    estimated_cost = None
+
+                # Get a sample product for ingredient/unit info
+                sample_product = (
+                    session.query(Product)
+                    .filter(Product.product_name == product_name)
+                    .first()
+                )
+
+                ingredient_name = "Unknown"
+                unit = "each"
+                if sample_product:
+                    if sample_product.ingredient:
+                        ingredient_name = sample_product.ingredient.display_name
+                    unit = sample_product.package_unit or "each"
+
+                key = f"generic_{product_name}"
+                needs[key] = PackagingNeed(
+                    product_id=sample_product.id if sample_product else 0,
+                    product=sample_product,
+                    ingredient_name=ingredient_name,
+                    product_display_name=product_name,  # Use generic name
+                    total_needed=total_needed,
+                    on_hand=on_hand,
+                    to_buy=to_buy,
+                    unit=unit,
+                    is_generic=True,
+                    generic_product_name=product_name,
+                    estimated_cost=estimated_cost,
                 )
 
             return needs

@@ -229,11 +229,13 @@ class PackagesTab(ctk.CTkFrame):
                 new_package = package_service.create_package(package_data, finished_good_items)
 
                 # Feature 011: Add packaging compositions to the new package
+                # Feature 026: Support for generic packaging requirements
                 for pkg_item in packaging_items:
                     composition_service.add_packaging_to_package(
                         package_id=new_package.id,
                         packaging_product_id=pkg_item["product_id"],
                         quantity=pkg_item["quantity"],
+                        is_generic=pkg_item.get("is_generic", False),
                     )
 
                 show_success(
@@ -273,11 +275,13 @@ class PackagesTab(ctk.CTkFrame):
                     pass  # No existing packaging to remove
 
                 # Then add new packaging compositions
+                # Feature 026: Support for generic packaging requirements
                 for pkg_item in packaging_items:
                     composition_service.add_packaging_to_package(
                         package_id=self.selected_package.id,
                         packaging_product_id=pkg_item["product_id"],
                         quantity=pkg_item["quantity"],
+                        is_generic=pkg_item.get("is_generic", False),
                     )
 
                 show_success("Success", "Package updated successfully", parent=self)

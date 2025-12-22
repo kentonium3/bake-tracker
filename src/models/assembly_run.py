@@ -10,6 +10,7 @@ from datetime import datetime
 from decimal import Decimal
 
 from sqlalchemy import (
+    Boolean,
     Column,
     Integer,
     Text,
@@ -65,6 +66,10 @@ class AssemblyRun(BaseModel):
         Numeric(10, 4), nullable=False, default=Decimal("0.0000")
     )
     per_unit_cost = Column(Numeric(10, 4), nullable=False, default=Decimal("0.0000"))
+
+    # Feature 026: Packaging bypass tracking
+    packaging_bypassed = Column(Boolean, nullable=False, default=False)
+    packaging_bypass_notes = Column(Text, nullable=True)
 
     # Relationships
     finished_good = relationship("FinishedGood", back_populates="assembly_runs")
@@ -131,6 +136,10 @@ class AssemblyRun(BaseModel):
 
         # Feature 016: Always include event_id
         result["event_id"] = self.event_id
+
+        # Feature 026: Always include bypass fields
+        result["packaging_bypassed"] = self.packaging_bypassed
+        result["packaging_bypass_notes"] = self.packaging_bypass_notes
 
         # Add convenience fields when including relationships
         if include_relationships:

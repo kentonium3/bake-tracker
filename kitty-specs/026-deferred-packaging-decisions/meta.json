@@ -1,0 +1,37 @@
+{
+  "accept_commit": null,
+  "acceptance_history": [
+    {
+      "accepted_at": "2025-12-22T02:56:01Z",
+      "accepted_by": "claude",
+      "accepted_from_commit": "9427c065ebfec75d0c8e87224fb539f199c9e1f2",
+      "branch": "026-deferred-packaging-decisions",
+      "mode": "local"
+    }
+  ],
+  "acceptance_mode": "local",
+  "accepted_at": "2025-12-22T02:56:01Z",
+  "accepted_by": "claude",
+  "accepted_from_commit": "9427c065ebfec75d0c8e87224fb539f199c9e1f2",
+  "created_at": "2025-12-21T21:02:07Z",
+  "feature_number": "026",
+  "friendly_name": "Deferred Packaging Decisions",
+  "merge_history": [
+    {
+      "merge_commit": "791cb5276b8f505f7b99658b348fd2a182a8822e",
+      "merged_at": "2025-12-22T02:58:56Z",
+      "merged_by": "Kent Gale",
+      "pushed": true,
+      "strategy": "merge",
+      "target": "main"
+    }
+  ],
+  "merged_at": "2025-12-22T02:58:56Z",
+  "merged_by": "Kent Gale",
+  "merged_commit": "791cb5276b8f505f7b99658b348fd2a182a8822e",
+  "merged_into": "main",
+  "merged_push": true,
+  "merged_strategy": "merge",
+  "slug": "026-deferred-packaging-decisions",
+  "source_description": "Enable bakers to plan events with generic packaging requirements, deferring specific design selection until assembly time while maintaining cost estimates and inventory awareness."
+}

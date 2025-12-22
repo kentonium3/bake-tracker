@@ -233,6 +233,8 @@ def record_assembly(
     assembled_at: Optional[datetime] = None,
     notes: Optional[str] = None,
     event_id: Optional[int] = None,
+    packaging_bypassed: bool = False,
+    packaging_bypass_notes: Optional[str] = None,
     session=None,
 ) -> Dict[str, Any]:
     """
@@ -253,6 +255,8 @@ def record_assembly(
         assembled_at: Optional assembly timestamp (defaults to now)
         notes: Optional assembly notes
         event_id: Optional event ID to link assembly to (Feature 016)
+        packaging_bypassed: If True, records that packaging assignment was bypassed (Feature 026)
+        packaging_bypass_notes: Notes about why packaging was bypassed (Feature 026)
         session: Optional database session (uses session_scope if not provided)
 
     Returns:
@@ -265,6 +269,7 @@ def record_assembly(
             - "finished_unit_consumptions": List[Dict]
             - "packaging_consumptions": List[Dict]
             - "event_id": Optional[int] - linked event ID (Feature 016)
+            - "packaging_bypassed": bool - packaging bypass flag (Feature 026)
 
     Raises:
         FinishedGoodNotFoundError: If finished good doesn't exist
@@ -276,11 +281,13 @@ def record_assembly(
     # Use provided session or create a new one
     if session is not None:
         return _record_assembly_impl(
-            finished_good_id, quantity, assembled_at, notes, event_id, session
+            finished_good_id, quantity, assembled_at, notes, event_id,
+            packaging_bypassed, packaging_bypass_notes, session
         )
     with session_scope() as session:
         return _record_assembly_impl(
-            finished_good_id, quantity, assembled_at, notes, event_id, session
+            finished_good_id, quantity, assembled_at, notes, event_id,
+            packaging_bypassed, packaging_bypass_notes, session
         )
 
 
@@ -290,6 +297,8 @@ def _record_assembly_impl(
     assembled_at: Optional[datetime],
     notes: Optional[str],
     event_id: Optional[int],
+    packaging_bypassed: bool,
+    packaging_bypass_notes: Optional[str],
     session,
 ) -> Dict[str, Any]:
     """Implementation of record_assembly that uses provided session."""
@@ -364,6 +373,10 @@ def _record_assembly_impl(
                 total_component_cost += cost
 
         elif comp.packaging_product_id:
+            # Skip packaging consumption if bypass flag is set (Feature 026)
+            if packaging_bypassed:
+                continue
+
             # Packaging product - consume via FIFO (same session for atomicity)
             product = session.query(Product).filter_by(id=comp.packaging_product_id).first()
             if product and product.ingredient:
@@ -415,6 +428,8 @@ def _record_assembly_impl(
         total_component_cost=total_component_cost,
         per_unit_cost=per_unit_cost,
         event_id=event_id,  # Feature 016
+        packaging_bypassed=packaging_bypassed,  # Feature 026
+        packaging_bypass_notes=packaging_bypass_notes,  # Feature 026
     )
     session.add(assembly_run)
     session.flush()  # Get the ID
@@ -451,6 +466,7 @@ def _record_assembly_impl(
         "finished_unit_consumptions": fu_consumptions,
         "packaging_consumptions": pkg_consumptions,
         "event_id": event_id,  # Feature 016
+        "packaging_bypassed": packaging_bypassed,  # Feature 026
     }
 
 
@@ -807,4 +823,99 @@ def import_assembly_history(
         "imported": imported,
         "skipped": skipped,
         "errors": errors,
+    }
+
+
+# =============================================================================
+# Feature 026: Packaging Assignment Validation
+# =============================================================================
+
+
+class UnassignedPackagingError(Exception):
+    """Raised when assembly has unassigned generic packaging requirements."""
+
+    def __init__(self, finished_good_id: int, unassigned_items: list):
+        self.finished_good_id = finished_good_id
+        self.unassigned_items = unassigned_items
+        super().__init__(
+            f"FinishedGood {finished_good_id} has {len(unassigned_items)} unassigned "
+            f"generic packaging requirements"
+        )
+
+
+def check_packaging_assigned(
+    finished_good_id: int,
+    *,
+    session=None,
+) -> Dict[str, Any]:
+    """
+    Check if all generic packaging requirements have been assigned.
+
+    This function queries compositions for the finished good where
+    is_generic=True and checks if each has complete material assignments.
+
+    Args:
+        finished_good_id: ID of the FinishedGood to check
+        session: Optional database session (uses session_scope if not provided)
+
+    Returns:
+        Dict with keys:
+            - "all_assigned" (bool): True if all generic packaging is assigned
+            - "unassigned" (List[Dict]): List of unassigned requirements with details:
+                - composition_id: int
+                - product_name: str (generic product type)
+                - required_quantity: float
+                - assigned_quantity: float (always 0 until assignment system implemented)
+
+    Raises:
+        FinishedGoodNotFoundError: If finished good doesn't exist
+    """
+    # Use provided session or create a new one
+    if session is not None:
+        return _check_packaging_assigned_impl(finished_good_id, session)
+    with session_scope() as session:
+        return _check_packaging_assigned_impl(finished_good_id, session)
+
+
+def _check_packaging_assigned_impl(
+    finished_good_id: int,
+    session,
+) -> Dict[str, Any]:
+    """Implementation of check_packaging_assigned that uses provided session."""
+    # Validate FinishedGood exists
+    finished_good = session.query(FinishedGood).filter_by(id=finished_good_id).first()
+    if not finished_good:
+        raise FinishedGoodNotFoundError(finished_good_id)
+
+    # Query Composition for generic packaging requirements
+    generic_compositions = (
+        session.query(Composition)
+        .filter(Composition.assembly_id == finished_good_id)
+        .filter(Composition.is_generic == True)
+        .filter(Composition.packaging_product_id.isnot(None))
+        .all()
+    )
+
+    unassigned = []
+
+    for comp in generic_compositions:
+        # Get product name for display
+        product = session.query(Product).filter_by(id=comp.packaging_product_id).first()
+        product_name = product.product_name if product else f"Product {comp.packaging_product_id}"
+
+        # TODO: Query CompositionAssignment to get assigned quantity
+        # For now, all generic compositions are considered unassigned
+        assigned_quantity = 0.0
+
+        if assigned_quantity < comp.component_quantity:
+            unassigned.append({
+                "composition_id": comp.id,
+                "product_name": product_name,
+                "required_quantity": comp.component_quantity,
+                "assigned_quantity": assigned_quantity,
+            })
+
+    return {
+        "all_assigned": len(unassigned) == 0,
+        "unassigned": unassigned,
     }

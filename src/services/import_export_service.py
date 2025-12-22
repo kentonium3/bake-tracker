@@ -24,6 +24,7 @@ from src.models.purchase import Purchase
 from src.models.finished_unit import FinishedUnit
 from src.models.finished_good import FinishedGood
 from src.models.composition import Composition
+from src.models.composition_assignment import CompositionAssignment
 from src.models.package import Package, PackageFinishedGood
 from src.models.production_record import ProductionRecord
 from src.models.production_run import ProductionRun
@@ -816,6 +817,7 @@ def export_compositions_to_json() -> List[Dict]:
                 joinedload(Composition.finished_unit_component),
                 joinedload(Composition.finished_good_component),
                 joinedload(Composition.packaging_product),  # Feature 011
+                joinedload(Composition.assignments),  # Feature 026
             )
             .all()
         )
@@ -860,6 +862,19 @@ def export_compositions_to_json() -> List[Dict]:
                 comp_data["finished_unit_slug"] = None
                 comp_data["finished_good_component_slug"] = None
                 comp_data["packaging_product_id"] = None
+
+            # Feature 026: is_generic flag for deferred packaging
+            comp_data["is_generic"] = comp.is_generic or False
+
+            # Feature 026: Export assignments for generic compositions
+            if comp.is_generic and comp.assignments:
+                comp_data["assignments"] = [
+                    {
+                        "inventory_item_id": a.inventory_item_id,
+                        "quantity_assigned": float(a.quantity_assigned),
+                    }
+                    for a in comp.assignments
+                ]
 
             # Optional fields
             if comp.component_notes:
@@ -1748,10 +1763,38 @@ def import_compositions_from_json(
                 component_quantity=quantity,
                 sort_order=record.get("sort_order", 0),
                 component_notes=record.get("notes"),
+                is_generic=record.get("is_generic", False),  # Feature 026
             )
 
             session.add(comp)
+            session.flush()  # Get composition ID for assignments
             result.add_success("composition")
+
+            # Feature 026: Import assignments for generic compositions
+            assignments_data = record.get("assignments", [])
+            if assignments_data and record.get("is_generic"):
+                for assign_record in assignments_data:
+                    inv_item_id = assign_record.get("inventory_item_id")
+                    qty = assign_record.get("quantity_assigned", 0)
+
+                    # Check if inventory item exists
+                    inv_item = session.query(InventoryItem).filter_by(id=inv_item_id).first()
+                    if not inv_item:
+                        # Warn but don't fail - inventory items may not exist in target DB
+                        result.add_warning(
+                            "composition_assignment",
+                            f"composition_{comp.id}",
+                            f"Inventory item {inv_item_id} not found - assignment skipped"
+                        )
+                        continue
+
+                    # Create assignment
+                    assignment = CompositionAssignment(
+                        composition_id=comp.id,
+                        inventory_item_id=inv_item_id,
+                        quantity_assigned=qty,
+                    )
+                    session.add(assignment)
 
         except Exception as e:
             parent_name = record.get("finished_good_slug") or record.get("package_name") or "unknown"
