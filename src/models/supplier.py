@@ -48,9 +48,8 @@ class Supplier(BaseModel):
     # Soft delete flag
     is_active = Column(Boolean, nullable=False, default=True)
 
-    # Relationships (will be set up when related models are updated)
-    # products = relationship("Product", back_populates="preferred_supplier")
-    # purchases = relationship("Purchase", back_populates="supplier")
+    # Relationships
+    purchases = relationship("Purchase", back_populates="supplier")
 
     # Table constraints and indexes
     __table_args__ = (
