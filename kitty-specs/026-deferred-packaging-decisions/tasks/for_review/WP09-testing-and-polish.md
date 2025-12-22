@@ -10,7 +10,7 @@ subtasks:
   - "T051"
 title: "Testing & Polish"
 phase: "Phase 9 - Testing & Polish"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "system"
 shell_pid: ""
@@ -212,3 +212,4 @@ pytest src/tests -v --cov=src --cov-report=html
 
 - 2025-12-21T12:00:00Z - system - lane=planned - Prompt created.
 - 2025-12-21T22:43:07Z – system – shell_pid= – lane=doing – Moved to doing
+- 2025-12-22T02:23:37Z – system – shell_pid= – lane=for_review – Moved to for_review
