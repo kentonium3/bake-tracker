@@ -43,6 +43,7 @@ from . import (
     inventory_item_service,
     purchase_service,
     supplier_service,  # Feature 027: Supplier management
+    product_catalog_service,  # Feature 027: Product catalog management
 )
 
 # Migration services
@@ -269,6 +270,7 @@ __all__ = [
     "ingredient_service",
     "purchase_service",
     "supplier_service",  # Feature 027
+    "product_catalog_service",  # Feature 027
     # Migration services
     "MigrationService",
     # FinishedUnit services

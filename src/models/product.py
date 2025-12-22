@@ -200,7 +200,7 @@ class Product(BaseModel):
         if not recent_purchases:
             return 0.0
 
-        total_cost = sum(p.unit_cost for p in recent_purchases)
+        total_cost = sum(float(p.unit_price) for p in recent_purchases)
         return total_cost / len(recent_purchases)
 
     def get_current_cost_per_unit(self) -> float:
@@ -208,10 +208,10 @@ class Product(BaseModel):
         Get current cost per purchase unit (most recent purchase).
 
         Returns:
-            Unit cost from most recent purchase, or 0.0 if no purchases
+            Unit price from most recent purchase, or 0.0 if no purchases
         """
         recent = self.get_most_recent_purchase()
-        return recent.unit_cost if recent else 0.0
+        return float(recent.unit_price) if recent else 0.0
 
     def get_total_inventory_quantity(self) -> float:
         """
