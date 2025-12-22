@@ -1138,6 +1138,7 @@ class EventDetailWindow(ctk.CTkToplevel):
                     row += 1
 
             # Feature 011: Packaging section (if present)
+            # Feature 026: Updated to show generic packaging with estimated costs
             packaging_data = shopping_data.get("packaging", [])
             if packaging_data:
                 row += 1  # Add spacing
@@ -1145,20 +1146,28 @@ class EventDetailWindow(ctk.CTkToplevel):
                 # Packaging section title
                 packaging_title = ctk.CTkLabel(
                     self.shopping_list_frame,
-                    text="📦 Packaging Materials",
+                    text="Packaging Materials",
                     font=ctk.CTkFont(size=16, weight="bold"),
                 )
                 packaging_title.grid(row=row, column=0, sticky="w", pady=(20, 10))
                 row += 1
 
-                # Packaging header
+                # Packaging header - Feature 026: Added Est. Cost column
                 pkg_header_frame = ctk.CTkFrame(
                     self.shopping_list_frame, fg_color=("gray85", "gray25")
                 )
                 pkg_header_frame.grid(row=row, column=0, sticky="ew", pady=(0, 5))
-                pkg_header_frame.grid_columnconfigure((0, 1, 2, 3, 4, 5), weight=1)
+                pkg_header_frame.grid_columnconfigure((0, 1, 2, 3, 4, 5, 6), weight=1)
 
-                pkg_headers = ["Material", "Product", "Needed", "On Hand", "To Buy", "Unit"]
+                pkg_headers = [
+                    "Material",
+                    "Product",
+                    "Needed",
+                    "On Hand",
+                    "To Buy",
+                    "Unit",
+                    "Est. Cost",
+                ]
                 for col, header in enumerate(pkg_headers):
                     ctk.CTkLabel(
                         pkg_header_frame, text=header, font=ctk.CTkFont(weight="bold")
@@ -1173,17 +1182,31 @@ class EventDetailWindow(ctk.CTkToplevel):
                     on_hand = pkg_item.get("on_hand", 0)
                     to_buy = pkg_item.get("to_buy", 0)
                     unit = pkg_item.get("unit", "")
+                    # Feature 026: Generic packaging fields
+                    is_generic = pkg_item.get("is_generic", False)
+                    estimated_cost = pkg_item.get("estimated_cost")
 
                     pkg_row_frame = ctk.CTkFrame(self.shopping_list_frame, fg_color="transparent")
                     pkg_row_frame.grid(row=row, column=0, sticky="ew", pady=1)
-                    pkg_row_frame.grid_columnconfigure((0, 1, 2, 3, 4, 5), weight=1)
+                    pkg_row_frame.grid_columnconfigure((0, 1, 2, 3, 4, 5, 6), weight=1)
 
                     ctk.CTkLabel(pkg_row_frame, text=ingredient_name).grid(
                         row=0, column=0, padx=8, pady=5, sticky="w"
                     )
-                    ctk.CTkLabel(pkg_row_frame, text=product_name).grid(
-                        row=0, column=1, padx=8, pady=5, sticky="w"
-                    )
+
+                    # Feature 026: For generic items, show product_name with indicator
+                    if is_generic:
+                        product_display = f"{product_name} (any)"
+                        product_color = "gray60"
+                    else:
+                        product_display = product_name
+                        product_color = None
+
+                    product_label = ctk.CTkLabel(pkg_row_frame, text=product_display)
+                    if product_color:
+                        product_label.configure(text_color=product_color)
+                    product_label.grid(row=0, column=1, padx=8, pady=5, sticky="w")
+
                     ctk.CTkLabel(pkg_row_frame, text=f"{total_needed:.1f}").grid(
                         row=0, column=2, padx=8, pady=5, sticky="w"
                     )
@@ -1202,6 +1225,17 @@ class EventDetailWindow(ctk.CTkToplevel):
                     ctk.CTkLabel(pkg_row_frame, text=unit).grid(
                         row=0, column=5, padx=8, pady=5, sticky="w"
                     )
+
+                    # Feature 026: Show estimated cost for generic items
+                    if is_generic and estimated_cost is not None:
+                        cost_text = f"~${float(estimated_cost):.2f}"
+                        cost_label = ctk.CTkLabel(
+                            pkg_row_frame, text=cost_text, text_color="gray60"
+                        )
+                    else:
+                        cost_label = ctk.CTkLabel(pkg_row_frame, text="-")
+                    cost_label.grid(row=0, column=6, padx=8, pady=5, sticky="w")
+
                     row += 1
 
             # T012: Total estimated cost at bottom

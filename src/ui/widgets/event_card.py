@@ -2,11 +2,13 @@
 EventCard widget for displaying event progress summary.
 
 Feature 018 - Event Production Dashboard
+Feature 026 - Added pending packaging indicator
 """
 
 import customtkinter as ctk
 from typing import Dict, Any, Callable, Optional
 
+from src.services import packaging_service
 from src.utils.constants import STATUS_COLORS, PADDING_MEDIUM, PADDING_LARGE
 
 
@@ -90,6 +92,10 @@ class EventCard(ctk.CTkFrame):
         event_date = self.event_data["event_date"]
         date_str = event_date.strftime("%b %d, %Y") if event_date else "No date"
         ctk.CTkLabel(row1, text=f" | {date_str}", text_color="gray60").pack(side="left")
+
+        # Feature 026: Pending packaging indicator
+        self._pending_indicator = None
+        self._create_pending_indicator(row1)
 
         # Row 2: Overall progress bar
         self._create_overall_progress_row()
@@ -183,6 +189,53 @@ class EventCard(ctk.CTkFrame):
         callback = self.callbacks.get("on_fulfillment_click")
         if callback:
             callback(self.event_data["event_id"], status)
+
+    def _create_pending_indicator(self, parent_frame):
+        """
+        Create pending packaging indicator if there are unassigned generic compositions.
+
+        Feature 026: Deferred Packaging Decisions
+
+        Args:
+            parent_frame: Parent frame to add indicator to
+        """
+        try:
+            event_id = self.event_data.get("event_id")
+            if not event_id:
+                return
+
+            # Check for pending generic packaging requirements
+            pending = packaging_service.get_pending_requirements(event_id=event_id)
+
+            if pending:
+                count = len(pending)
+                # Create warning indicator
+                self._pending_indicator = ctk.CTkButton(
+                    parent_frame,
+                    text=f"\u26a0 {count} pending",  # Warning symbol
+                    width=90,
+                    height=24,
+                    font=ctk.CTkFont(size=11),
+                    fg_color="#CC7700",
+                    hover_color="#AA5500",
+                    text_color="white",
+                    command=self._on_pending_click,
+                )
+                self._pending_indicator.pack(side="left", padx=(PADDING_MEDIUM, 0))
+        except Exception:
+            # Don't fail the card if pending check fails
+            pass
+
+    def _on_pending_click(self):
+        """Handle click on pending packaging indicator."""
+        callback = self.callbacks.get("on_pending_packaging")
+        if callback:
+            callback(self.event_data["event_id"])
+        else:
+            # Default: open event detail window
+            callback = self.callbacks.get("on_event_detail")
+            if callback:
+                callback(self.event_data["event_id"])
 
     def _create_expanded_view(self):
         """Create the expanded detail view."""

@@ -233,6 +233,8 @@ def record_assembly(
     assembled_at: Optional[datetime] = None,
     notes: Optional[str] = None,
     event_id: Optional[int] = None,
+    packaging_bypassed: bool = False,
+    packaging_bypass_notes: Optional[str] = None,
     session=None,
 ) -> Dict[str, Any]:
     """
@@ -253,6 +255,8 @@ def record_assembly(
         assembled_at: Optional assembly timestamp (defaults to now)
         notes: Optional assembly notes
         event_id: Optional event ID to link assembly to (Feature 016)
+        packaging_bypassed: If True, records that packaging assignment was bypassed (Feature 026)
+        packaging_bypass_notes: Notes about why packaging was bypassed (Feature 026)
         session: Optional database session (uses session_scope if not provided)
 
     Returns:
@@ -265,6 +269,7 @@ def record_assembly(
             - "finished_unit_consumptions": List[Dict]
             - "packaging_consumptions": List[Dict]
             - "event_id": Optional[int] - linked event ID (Feature 016)
+            - "packaging_bypassed": bool - packaging bypass flag (Feature 026)
 
     Raises:
         FinishedGoodNotFoundError: If finished good doesn't exist
@@ -276,11 +281,13 @@ def record_assembly(
     # Use provided session or create a new one
     if session is not None:
         return _record_assembly_impl(
-            finished_good_id, quantity, assembled_at, notes, event_id, session
+            finished_good_id, quantity, assembled_at, notes, event_id,
+            packaging_bypassed, packaging_bypass_notes, session
         )
     with session_scope() as session:
         return _record_assembly_impl(
-            finished_good_id, quantity, assembled_at, notes, event_id, session
+            finished_good_id, quantity, assembled_at, notes, event_id,
+            packaging_bypassed, packaging_bypass_notes, session
         )
 
 
@@ -290,6 +297,8 @@ def _record_assembly_impl(
     assembled_at: Optional[datetime],
     notes: Optional[str],
     event_id: Optional[int],
+    packaging_bypassed: bool,
+    packaging_bypass_notes: Optional[str],
     session,
 ) -> Dict[str, Any]:
     """Implementation of record_assembly that uses provided session."""
@@ -364,6 +373,10 @@ def _record_assembly_impl(
                 total_component_cost += cost
 
         elif comp.packaging_product_id:
+            # Skip packaging consumption if bypass flag is set (Feature 026)
+            if packaging_bypassed:
+                continue
+
             # Packaging product - consume via FIFO (same session for atomicity)
             product = session.query(Product).filter_by(id=comp.packaging_product_id).first()
             if product and product.ingredient:
@@ -415,6 +428,8 @@ def _record_assembly_impl(
         total_component_cost=total_component_cost,
         per_unit_cost=per_unit_cost,
         event_id=event_id,  # Feature 016
+        packaging_bypassed=packaging_bypassed,  # Feature 026
+        packaging_bypass_notes=packaging_bypass_notes,  # Feature 026
     )
     session.add(assembly_run)
     session.flush()  # Get the ID
@@ -451,6 +466,7 @@ def _record_assembly_impl(
         "finished_unit_consumptions": fu_consumptions,
         "packaging_consumptions": pkg_consumptions,
         "event_id": event_id,  # Feature 016
+        "packaging_bypassed": packaging_bypassed,  # Feature 026
     }
 
 

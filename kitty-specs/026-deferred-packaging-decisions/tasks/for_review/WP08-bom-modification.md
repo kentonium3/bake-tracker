@@ -7,9 +7,9 @@ subtasks:
   - "T044"
 title: "BOM Modification"
 phase: "Phase 8 - BOM Changes"
-lane: "planned"
+lane: "for_review"
 assignee: ""
-agent: ""
+agent: "system"
 shell_pid: ""
 review_status: ""
 reviewed_by: ""
@@ -147,3 +147,5 @@ Manual testing checklist:
 ## Activity Log
 
 - 2025-12-21T12:00:00Z - system - lane=planned - Prompt created.
+- 2025-12-21T22:39:12Z – system – shell_pid= – lane=doing – Moved to doing
+- 2025-12-21T22:41:26Z – system – shell_pid= – lane=for_review – Moved to for_review

@@ -170,11 +170,14 @@ class TestGetEventPackagingNeeds:
 
         needs = get_event_packaging_needs(event.id)
 
-        assert packaging_product.id in needs
-        need = needs[packaging_product.id]
+        # Feature 026: Keys are now "specific_{product_id}" for specific products
+        key = f"specific_{packaging_product.id}"
+        assert key in needs
+        need = needs[key]
         assert isinstance(need, PackagingNeed)
         assert need.total_needed == 6.0  # 2.0 per package * 3 packages
         assert need.product_id == packaging_product.id
+        assert need.is_generic is False
 
     def test_get_packaging_needs_from_finished_good_level(
         self, test_db, event, package, finished_good, recipient, packaging_product
@@ -208,10 +211,13 @@ class TestGetEventPackagingNeeds:
 
         needs = get_event_packaging_needs(event.id)
 
-        assert packaging_product.id in needs
-        need = needs[packaging_product.id]
+        # Feature 026: Keys are now "specific_{product_id}" for specific products
+        key = f"specific_{packaging_product.id}"
+        assert key in needs
+        need = needs[key]
         # 1.5 per FG * 2 FGs per package * 4 packages = 12.0
         assert need.total_needed == 12.0
+        assert need.is_generic is False
 
     def test_get_packaging_needs_aggregates_both_levels(
         self, test_db, event, package, finished_good, recipient, packaging_product
@@ -252,12 +258,15 @@ class TestGetEventPackagingNeeds:
 
         needs = get_event_packaging_needs(event.id)
 
-        assert packaging_product.id in needs
-        need = needs[packaging_product.id]
+        # Feature 026: Keys are now "specific_{product_id}" for specific products
+        key = f"specific_{packaging_product.id}"
+        assert key in needs
+        need = needs[key]
         # Package-level: 2.0 * 3 = 6.0
         # FG-level: 1.0 * 2 FGs * 3 packages = 6.0
         # Total: 12.0
         assert need.total_needed == 12.0
+        assert need.is_generic is False
 
     def test_get_packaging_needs_multiple_products(
         self,
@@ -293,9 +302,12 @@ class TestGetEventPackagingNeeds:
 
         needs = get_event_packaging_needs(event.id)
 
+        # Feature 026: Keys are now "specific_{product_id}" for specific products
         assert len(needs) == 2
-        assert needs[packaging_product.id].total_needed == 5.0
-        assert needs[packaging_product_2.id].total_needed == 10.0
+        key1 = f"specific_{packaging_product.id}"
+        key2 = f"specific_{packaging_product_2.id}"
+        assert needs[key1].total_needed == 5.0
+        assert needs[key2].total_needed == 10.0
 
     def test_get_packaging_needs_with_inventory(
         self, test_db, event, package, recipient, packaging_product
@@ -326,8 +338,10 @@ class TestGetEventPackagingNeeds:
 
         needs = get_event_packaging_needs(event.id)
 
-        assert packaging_product.id in needs
-        need = needs[packaging_product.id]
+        # Feature 026: Keys are now "specific_{product_id}" for specific products
+        key = f"specific_{packaging_product.id}"
+        assert key in needs
+        need = needs[key]
         assert need.total_needed == 10.0
         assert need.on_hand == 6.0
         assert need.to_buy == 4.0
@@ -361,7 +375,9 @@ class TestGetEventPackagingNeeds:
 
         needs = get_event_packaging_needs(event.id)
 
-        need = needs[packaging_product.id]
+        # Feature 026: Keys are now "specific_{product_id}" for specific products
+        key = f"specific_{packaging_product.id}"
+        need = needs[key]
         assert need.total_needed == 5.0
         assert need.on_hand == 20.0
         assert need.to_buy == 0.0  # Never negative
