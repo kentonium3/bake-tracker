@@ -7,9 +7,9 @@ subtasks:
   - "T004"
 title: "Schema & Models"
 phase: "Phase 1 - Foundation"
-lane: "planned"
+lane: "done"
 assignee: ""
-agent: ""
+agent: "system"
 shell_pid: ""
 review_status: ""
 reviewed_by: ""
@@ -142,3 +142,4 @@ history:
 ## Activity Log
 
 - 2025-12-21T12:00:00Z - system - lane=planned - Prompt created.
+- 2025-12-22T02:48:32Z – system – shell_pid= – lane=done – Approved
