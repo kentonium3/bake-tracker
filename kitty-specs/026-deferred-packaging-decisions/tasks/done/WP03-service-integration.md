@@ -8,9 +8,9 @@ subtasks:
 title: "Service Integration"
 phase: "Phase 2 - Service Layer"
 lane: "done"
-assignee: ""
-agent: "system"
-shell_pid: ""
+assignee: "gemini"
+agent: "gemini"
+shell_pid: "94728"
 review_status: ""
 reviewed_by: ""
 gemini_candidate: true

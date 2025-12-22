@@ -10,9 +10,9 @@ subtasks:
 title: "Planning UI"
 phase: "Phase 3 - UI Planning"
 lane: "done"
-assignee: ""
-agent: "system"
-shell_pid: ""
+assignee: "claude"
+agent: "claude"
+shell_pid: "94728"
 review_status: ""
 reviewed_by: ""
 history:

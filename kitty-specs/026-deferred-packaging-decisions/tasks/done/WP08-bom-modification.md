@@ -8,9 +8,9 @@ subtasks:
 title: "BOM Modification"
 phase: "Phase 8 - BOM Changes"
 lane: "done"
-assignee: ""
-agent: "system"
-shell_pid: ""
+assignee: "claude"
+agent: "claude"
+shell_pid: "94728"
 review_status: ""
 reviewed_by: ""
 history:

@@ -11,9 +11,9 @@ subtasks:
 title: "Dashboard & Shopping List"
 phase: "Phase 5 - UI Dashboard"
 lane: "done"
-assignee: ""
-agent: "system"
-shell_pid: ""
+assignee: "claude"
+agent: "claude"
+shell_pid: "94728"
 review_status: ""
 reviewed_by: ""
 gemini_candidate: true

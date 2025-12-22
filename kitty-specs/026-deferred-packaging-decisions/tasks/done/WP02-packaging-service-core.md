@@ -13,7 +13,7 @@ subtasks:
 title: "Packaging Service Core"
 phase: "Phase 2 - Service Layer"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude"
 shell_pid: "94728"
 review_status: ""

@@ -10,9 +10,9 @@ subtasks:
 title: "Assignment Dialog"
 phase: "Phase 4 - UI Assignment"
 lane: "done"
-assignee: ""
-agent: "system"
-shell_pid: ""
+assignee: "claude"
+agent: "claude"
+shell_pid: "94728"
 review_status: ""
 reviewed_by: ""
 history:
