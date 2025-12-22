@@ -12,7 +12,7 @@ subtasks:
   - "T015"
 title: "Purchase Model & Product Updates"
 phase: "Phase 1 - Schema & Models"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "claude"
 shell_pid: "50566"
@@ -289,3 +289,4 @@ pytest src/tests -v --tb=short
 
 - 2025-12-22T14:35:00Z – system – lane=planned – Prompt created via /spec-kitty.tasks
 - 2025-12-22T20:41:12Z – claude – shell_pid=50566 – lane=doing – Started implementation
+- 2025-12-22T20:50:26Z – claude – shell_pid=50566 – lane=for_review – Implementation complete: 41 model tests pass (WP01+WP02), service tests pending WP03/WP04
