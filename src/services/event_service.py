@@ -1521,7 +1521,7 @@ def get_event_packaging_needs(event_id: int) -> Dict[str, PackagingNeed]:
                 # Get estimated cost from packaging service
                 try:
                     estimated_cost = packaging_service.get_estimated_cost(
-                        product_name, int(total_needed), session=session
+                        product_name, float(total_needed), session=session
                     )
                 except Exception:
                     estimated_cost = None

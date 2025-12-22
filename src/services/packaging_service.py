@@ -33,6 +33,7 @@ from src.models import (
     Composition,
     CompositionAssignment,
 )
+from src.models.event import EventAssemblyTarget, EventRecipientPackage
 
 logger = logging.getLogger(__name__)
 
@@ -633,6 +634,29 @@ def get_pending_requirements(
 
         if assembly_id is not None:
             query = query.filter(Composition.assembly_id == assembly_id)
+
+        if event_id is not None:
+            # Get finished_good_ids from EventAssemblyTarget for this event
+            assembly_ids = (
+                s.query(EventAssemblyTarget.finished_good_id)
+                .filter(EventAssemblyTarget.event_id == event_id)
+                .subquery()
+            )
+            # Get package_ids from EventRecipientPackage for this event
+            package_ids = (
+                s.query(EventRecipientPackage.package_id)
+                .filter(EventRecipientPackage.event_id == event_id)
+                .distinct()
+                .subquery()
+            )
+            # Filter compositions that belong to this event
+            from sqlalchemy import or_
+            query = query.filter(
+                or_(
+                    Composition.assembly_id.in_(assembly_ids),
+                    Composition.package_id.in_(package_ids),
+                )
+            )
 
         compositions = query.all()
 
