@@ -10,7 +10,7 @@ subtasks:
   - "T036"
 title: "Dashboard & Shopping List"
 phase: "Phase 5 - UI Dashboard"
-lane: "for_review"
+lane: "done"
 assignee: ""
 agent: "system"
 shell_pid: ""
@@ -185,3 +185,4 @@ Manual testing checklist:
 - 2025-12-21T12:00:00Z - system - lane=planned - Prompt created.
 - 2025-12-21T22:17:21Z – system – shell_pid= – lane=doing – Moved to doing
 - 2025-12-21T22:33:34Z – system – shell_pid= – lane=for_review – Moved to for_review
+- 2025-12-22T02:27:57Z – system – shell_pid= – lane=done – Approved
