@@ -15,10 +15,10 @@ subtasks:
   - "T027"
 title: "Supplier Service"
 phase: "Phase 2 - Service Layer"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "claude"
+shell_pid: "50566"
 review_status: ""
 reviewed_by: ""
 history:
@@ -356,3 +356,4 @@ pytest src/tests/services/test_supplier_service.py -v --cov=src.services.supplie
 ## Activity Log
 
 - 2025-12-22T14:35:00Z – system – lane=planned – Prompt created via /spec-kitty.tasks
+- 2025-12-22T20:50:47Z – claude – shell_pid=50566 – lane=doing – Started implementation
