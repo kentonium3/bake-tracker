@@ -444,11 +444,9 @@ class ProductsTab(ctk.CTkFrame):
 
     def _open_product_detail(self, product_id: int):
         """Open product detail dialog."""
-        # For now, use AddProductDialog in edit mode
-        # WP07 will create a dedicated detail dialog with purchase history
-        from src.ui.forms.add_product_dialog import AddProductDialog
+        from src.ui.forms.product_detail_dialog import ProductDetailDialog
 
-        dialog = AddProductDialog(self, product_id=product_id)
+        dialog = ProductDetailDialog(self, product_id=product_id)
         self.wait_window(dialog)
 
         if dialog.result:
