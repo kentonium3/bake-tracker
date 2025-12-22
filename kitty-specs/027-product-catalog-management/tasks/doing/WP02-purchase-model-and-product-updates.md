@@ -12,10 +12,10 @@ subtasks:
   - "T015"
 title: "Purchase Model & Product Updates"
 phase: "Phase 1 - Schema & Models"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "claude"
+shell_pid: "50566"
 review_status: ""
 reviewed_by: ""
 history:
@@ -288,3 +288,4 @@ pytest src/tests -v --tb=short
 ## Activity Log
 
 - 2025-12-22T14:35:00Z – system – lane=planned – Prompt created via /spec-kitty.tasks
+- 2025-12-22T20:41:12Z – claude – shell_pid=50566 – lane=doing – Started implementation
