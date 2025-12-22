@@ -174,23 +174,36 @@ def get_config(environment: Optional[str] = None) -> Config:
     Get the global configuration instance.
 
     This function implements a singleton pattern for the configuration.
+    Once created, the singleton's environment cannot be changed by passing
+    a different environment argument - this prevents accidental database
+    switching mid-session.
 
     Args:
-        environment: Optional environment override. If None, uses existing
-                    instance or creates new production instance.
+        environment: Optional environment for initial creation. If None, uses
+                    BAKING_TRACKER_ENV or defaults to production. Ignored if
+                    singleton already exists.
 
     Returns:
         Config instance
     """
     global _config_instance
 
-    if environment is not None or _config_instance is None:
-        # Determine environment
+    if _config_instance is None:
+        # First call - create the singleton
         if environment is None:
             # Check environment variable, default to production
             environment = os.environ.get("BAKING_TRACKER_ENV", "production")
-
         _config_instance = Config(environment)
+    elif environment is not None and environment != _config_instance.environment:
+        # Singleton exists but caller requested different environment
+        # Log warning but don't replace singleton to prevent data loss
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.warning(
+            f"get_config() called with environment='{environment}' but singleton "
+            f"already exists with environment='{_config_instance.environment}'. "
+            f"Returning existing singleton to prevent database switching."
+        )
 
     return _config_instance
 
