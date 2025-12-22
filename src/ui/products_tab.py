@@ -418,12 +418,13 @@ class ProductsTab(ctk.CTkFrame):
 
     def _on_add_product(self):
         """Open dialog to add new product."""
-        # Placeholder - will be implemented in WP06
-        messagebox.showinfo(
-            "Add Product",
-            "Add Product dialog will be implemented in WP06.",
-            parent=self,
-        )
+        from src.ui.forms.add_product_dialog import AddProductDialog
+
+        dialog = AddProductDialog(self)
+        self.wait_window(dialog)
+
+        if dialog.result:
+            self._load_products()
 
     def _on_manage_suppliers(self):
         """Open supplier management dialog."""
@@ -443,14 +444,15 @@ class ProductsTab(ctk.CTkFrame):
 
     def _open_product_detail(self, product_id: int):
         """Open product detail dialog."""
-        # Placeholder - will be implemented in WP07
-        messagebox.showinfo(
-            "Product Detail",
-            f"Product detail dialog for ID {product_id} will be implemented in WP07.",
-            parent=self,
-        )
-        # After dialog closes, refresh the list
-        # self._load_products()
+        # For now, use AddProductDialog in edit mode
+        # WP07 will create a dedicated detail dialog with purchase history
+        from src.ui.forms.add_product_dialog import AddProductDialog
+
+        dialog = AddProductDialog(self, product_id=product_id)
+        self.wait_window(dialog)
+
+        if dialog.result:
+            self._load_products()
 
     def _on_right_click(self, event):
         """Handle right-click to show context menu."""
