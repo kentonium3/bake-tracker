@@ -1,0 +1,8 @@
+id,date,decision_id,finding,source_id,confidence,notes
+1,2025-12-22,D-001,New Supplier and Purchase entities required for price tracking,SRC-001,High,Design doc provides detailed schema
+2,2025-12-22,D-002,Product extensions (preferred_supplier_id is_hidden) follow existing patterns,SRC-002,High,Matches Product model structure
+3,2025-12-22,D-003,InventoryAddition must reference Purchase for FIFO costing integrity,SRC-001,High,Single source of truth for pricing
+4,2025-12-22,D-004,Session management pattern required per CLAUDE.md,SRC-003,High,Mandatory for service functions
+5,2025-12-22,D-005,Export/reset/import migration per Constitution VI,SRC-004,High,Desktop phase strategy
+6,2025-12-22,D-006,Products tab follows existing tab pattern,SRC-002,High,Consistent with codebase architecture
+7,2025-12-22,D-007,Supplier management inline reduces tab clutter,SRC-001,Medium,UX decision from design doc
