@@ -37,7 +37,9 @@ from typing import Dict, Any, List, Optional
 from decimal import Decimal
 from datetime import date, timedelta
 
-from ..models import InventoryItem, Product
+from sqlalchemy.orm import Session, joinedload
+
+from ..models import InventoryItem, Product, Purchase, Supplier
 from .database import session_scope
 from .exceptions import (
     ProductNotFound,
@@ -47,37 +49,46 @@ from .exceptions import (
 )
 from .product_service import get_product
 from .ingredient_service import get_ingredient
-from sqlalchemy.orm import joinedload
 
 
 def add_to_inventory(
     product_id: int,
     quantity: Decimal,
-    purchase_date: date,
+    supplier_id: int,
+    unit_price: Decimal,
+    purchase_date: Optional[date] = None,
     expiration_date: Optional[date] = None,
     location: Optional[str] = None,
     notes: Optional[str] = None,
+    session: Optional[Session] = None,
 ) -> InventoryItem:
-    """Add a new inventory item (lot) to inventory.
+    """Add a new inventory item (lot) to inventory with linked Purchase record.
 
-    This function adds a discrete lot of inventory to the inventory. Each lot
-    is tracked separately for FIFO consumption, expiration monitoring, and
-    location management.
+    This function creates an atomic transaction that:
+    1. Creates a Purchase record linking product, supplier, price, and date
+    2. Creates an InventoryItem with purchase_id set to the new Purchase
+    3. Sets InventoryItem.unit_cost from the purchase unit_price for FIFO costing
+
+    Feature 028: Purchase Tracking & Enhanced Costing
 
     Args:
         product_id: ID of product being added
         quantity: Amount being added (must be > 0)
-        purchase_date: Date this lot was purchased (for FIFO ordering)
+        supplier_id: ID of supplier where purchased (required)
+        unit_price: Price per unit at time of purchase (required, >= 0)
+        purchase_date: Date this lot was purchased (defaults to today)
         expiration_date: Optional expiration date (must be >= purchase_date)
         location: Optional storage location (e.g., "Main Storage", "Basement")
-        notes: Optional user notes
+        notes: Optional user notes (stored on InventoryItem, not Purchase)
+        session: Optional database session for transaction composability
 
     Returns:
-        InventoryItem: Created inventory item with assigned ID
+        InventoryItem: Created inventory item with assigned ID and purchase linkage
 
     Raises:
         ProductNotFound: If product_id doesn't exist
-        ValidationError: If quantity <= 0 or expiration_date < purchase_date
+        ValidationError: If supplier_id invalid, quantity <= 0, unit_price < 0,
+                        or expiration_date < purchase_date
         DatabaseError: If database operation fails
 
     Example:
@@ -86,38 +97,76 @@ def add_to_inventory(
         >>> item = add_to_inventory(
         ...     product_id=123,
         ...     quantity=Decimal("25.0"),
-        ...     unit="lb",
+        ...     supplier_id=1,
+        ...     unit_price=Decimal("8.99"),
         ...     purchase_date=date(2025, 1, 15),
         ...     expiration_date=date(2026, 1, 15),
         ...     location="Main Storage"
         ... )
-        >>> item.quantity
-        Decimal('25.0')
+        >>> item.purchase_id is not None
+        True
     """
-    # Validate product exists
-    product = get_product(product_id)
+    # Default purchase_date to today (FR-013)
+    actual_purchase_date = purchase_date or date.today()
 
     # Validate quantity > 0
     if quantity <= 0:
-        raise ServiceValidationError("Quantity must be positive")
+        raise ServiceValidationError(["Quantity must be positive"])
+
+    # Validate unit_price >= 0 (FR-008: negative prices rejected)
+    if unit_price < 0:
+        raise ServiceValidationError(["Unit price cannot be negative"])
 
     # Validate dates
-    if expiration_date and expiration_date < purchase_date:
-        raise ServiceValidationError("Expiration date cannot be before purchase date")
+    if expiration_date and expiration_date < actual_purchase_date:
+        raise ServiceValidationError(["Expiration date cannot be before purchase date"])
+
+    def _add_to_inventory_impl(sess: Session) -> InventoryItem:
+        """Implementation with provided session."""
+        # Validate product exists
+        product = sess.query(Product).filter(Product.id == product_id).first()
+        if not product:
+            raise ProductNotFound(product_id)
+
+        # Validate supplier exists
+        supplier = sess.query(Supplier).filter(Supplier.id == supplier_id).first()
+        if not supplier:
+            raise ServiceValidationError([f"Supplier with id {supplier_id} not found"])
+
+        # Create Purchase record FIRST (same session for atomicity)
+        purchase = Purchase(
+            product_id=product_id,
+            supplier_id=supplier_id,
+            purchase_date=actual_purchase_date,
+            unit_price=unit_price,
+            quantity_purchased=int(quantity),  # Purchase tracks package units
+            notes=None,  # Notes stored on InventoryItem per FR-014
+        )
+        sess.add(purchase)
+        sess.flush()  # Get purchase.id
+
+        # Create InventoryItem with purchase linkage
+        item = InventoryItem(
+            product_id=product_id,
+            quantity=float(quantity),  # Model uses Float
+            unit_cost=float(unit_price),  # For FIFO costing
+            purchase_id=purchase.id,  # Link to Purchase (FR-001)
+            purchase_date=actual_purchase_date,
+            expiration_date=expiration_date,
+            location=location,
+            notes=notes,  # User notes here (FR-014)
+        )
+        sess.add(item)
+        sess.flush()
+        return item
 
     try:
-        with session_scope() as session:
-            item = InventoryItem(
-                product_id=product_id,
-                quantity=float(quantity),  # Model uses Float, convert from Decimal
-                purchase_date=purchase_date,
-                expiration_date=expiration_date,
-                location=location,
-                notes=notes,
-            )
-            session.add(item)
-            session.flush()
-            return item
+        # Use provided session or create new one (session=None pattern per CLAUDE.md)
+        if session is not None:
+            return _add_to_inventory_impl(session)
+        else:
+            with session_scope() as sess:
+                return _add_to_inventory_impl(sess)
 
     except ProductNotFound:
         raise

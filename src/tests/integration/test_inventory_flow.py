@@ -7,10 +7,26 @@ import pytest
 from decimal import Decimal
 from datetime import date, timedelta
 
-from src.services import ingredient_service, product_service, inventory_item_service
+from src.services import ingredient_service, product_service, inventory_item_service, supplier_service
 from src.services.exceptions import IngredientNotFoundBySlug, ProductNotFound, ValidationError
 
-def test_complete_inventory_workflow(test_db):
+
+@pytest.fixture
+def test_supplier(test_db):
+    """Create a test supplier for F028 inventory tracking."""
+    result = supplier_service.create_supplier(
+        name="Test Supplier",
+        city="Boston",
+        state="MA",
+        zip_code="02101",
+    )
+    class SupplierObj:
+        def __init__(self, data):
+            self.id = data["id"]
+    return SupplierObj(result)
+
+
+def test_complete_inventory_workflow(test_db, test_supplier):
     """Test: Create ingredient -> Create product -> Add to inventory -> Query inventory."""
 
     # 1. Create ingredient
@@ -43,6 +59,8 @@ def test_complete_inventory_workflow(test_db):
     inventory_item = inventory_item_service.add_to_inventory(
         product_id=product.id,
         quantity=Decimal("25.0"),
+        supplier_id=test_supplier.id,
+        unit_price=Decimal("24.99"),
         purchase_date=date.today(),
         expiration_date=date.today() + timedelta(days=365),
         location="Main Storage"
@@ -101,7 +119,7 @@ def test_multiple_products_preferred_toggle(test_db):
     assert products[0].id == product2.id  # Preferred first
     assert products[0].preferred is True
 
-def test_inventory_items_filtering(test_db):
+def test_inventory_items_filtering(test_db, test_supplier):
     """Test: Add multiple inventory items -> Filter by location and ingredient."""
 
     # Setup: Create ingredient and product
@@ -131,6 +149,8 @@ def test_inventory_items_filtering(test_db):
     item1 = inventory_item_service.add_to_inventory(
         product_id=product.id,
         quantity=Decimal("5.0"),
+        supplier_id=test_supplier.id,
+        unit_price=Decimal("8.99"),
         purchase_date=date.today() - timedelta(days=30),
         location="Main Storage"
     )
@@ -138,6 +158,8 @@ def test_inventory_items_filtering(test_db):
     item2 = inventory_item_service.add_to_inventory(
         product_id=product.id,
         quantity=Decimal("10.0"),
+        supplier_id=test_supplier.id,
+        unit_price=Decimal("9.49"),
         purchase_date=date.today() - timedelta(days=15),
         location="Basement"
     )
@@ -145,6 +167,8 @@ def test_inventory_items_filtering(test_db):
     item3 = inventory_item_service.add_to_inventory(
         product_id=product.id,
         quantity=Decimal("3.0"),
+        supplier_id=test_supplier.id,
+        unit_price=Decimal("8.99"),
         purchase_date=date.today(),
         location="Main Storage"
     )
@@ -166,7 +190,7 @@ def test_inventory_items_filtering(test_db):
     assert "lb" in totals, f"Expected 'lb' in totals, got {totals}"
     assert abs(totals["lb"] - Decimal("18.0")) < Decimal("0.01"), f"Expected 18.0 lb, got {totals['lb']}"
 
-def test_expiring_items_detection(test_db):
+def test_expiring_items_detection(test_db, test_supplier):
     """Test: Add items with various expiration dates -> Get expiring soon."""
 
     # Setup
@@ -188,6 +212,8 @@ def test_expiring_items_detection(test_db):
     expiring_soon = inventory_item_service.add_to_inventory(
         product_id=product.id,
         quantity=Decimal("2.0"),
+        supplier_id=test_supplier.id,
+        unit_price=Decimal("5.99"),
         purchase_date=date.today() - timedelta(days=60),
         expiration_date=date.today() + timedelta(days=7)
     )
@@ -196,13 +222,19 @@ def test_expiring_items_detection(test_db):
     expiring_later = inventory_item_service.add_to_inventory(
         product_id=product.id,
         quantity=Decimal("4.0"),
+        supplier_id=test_supplier.id,
+        unit_price=Decimal("5.99"),
         purchase_date=date.today() - timedelta(days=30),
         expiration_date=date.today() + timedelta(days=30)
     )
 
     # Add item with no expiration
     no_expiration = inventory_item_service.add_to_inventory(
-        product_id=product.id, quantity=Decimal("1.0"), purchase_date=date.today()
+        product_id=product.id,
+        quantity=Decimal("1.0"),
+        supplier_id=test_supplier.id,
+        unit_price=Decimal("5.99"),
+        purchase_date=date.today()
     )
 
     # Get items expiring within 14 days

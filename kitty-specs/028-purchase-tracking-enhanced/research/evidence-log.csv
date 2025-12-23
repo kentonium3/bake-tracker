@@ -1,0 +1,9 @@
+id,date,finding,source,impact,notes
+1,2025-12-22,Purchase model exists with all required fields,src/models/purchase.py,High,F027 created complete schema
+2,2025-12-22,InventoryItem.purchase_id FK exists (nullable),src/models/inventory_item.py,High,Migration path available
+3,2025-12-22,InventoryItem.unit_cost field exists,src/models/inventory_item.py,High,FIFO can use existing field
+4,2025-12-22,supplier_service.get_active_suppliers() ready,src/services/supplier_service.py,Medium,Dropdown population solved
+5,2025-12-22,purchase_service uses store string not supplier_id,src/services/purchase_service.py,High,Needs update for FK pattern
+6,2025-12-22,inventory_item_service.add_to_inventory missing supplier/price params,src/services/inventory_item_service.py,High,Core integration point
+7,2025-12-22,InventoryItemFormDialog in inventory_tab.py,src/ui/inventory_tab.py,Medium,UI modification target identified
+8,2025-12-22,Unknown supplier created by F027 migration,docs/design/F027_product_catalog_management.md,Medium,Fallback supplier confirmed

@@ -453,6 +453,8 @@ class TestPurchaseModel:
 
     def test_create_purchase(self, db_session):
         """Test creating a purchase with product_id."""
+        from src.models import Supplier
+
         ingredient = Ingredient(
             display_name="Butter",
             slug="butter",
@@ -471,22 +473,32 @@ class TestPurchaseModel:
         db_session.add(product)
         db_session.flush()
 
+        supplier = Supplier(
+            name="Test Store",
+            city="Boston",
+            state="MA",
+            zip_code="02101"
+        )
+        db_session.add(supplier)
+        db_session.flush()
+
         from datetime import date
 
         purchase = Purchase(
             product_id=product.id,
+            supplier_id=supplier.id,
             purchase_date=date.today(),
-            quantity_purchased=2.0,
-            unit_cost=5.99,
-            total_cost=11.98,
-            supplier="Test Store"
+            quantity_purchased=2,
+            unit_price=Decimal("5.99"),
         )
         db_session.add(purchase)
         db_session.commit()
 
         assert purchase.id is not None
         assert purchase.product_id == product.id
-        assert purchase.unit_cost == 5.99
+        assert purchase.unit_price == Decimal("5.99")
+        assert purchase.unit_cost == Decimal("5.99")  # unit_cost is alias for unit_price
+        assert purchase.total_cost == Decimal("11.98")  # 2 * 5.99
 
 class TestInventorySnapshotModel:
     """Tests for InventorySnapshot model."""

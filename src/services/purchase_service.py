@@ -42,7 +42,9 @@ from decimal import Decimal
 from datetime import date, timedelta
 from statistics import linear_regression
 
-from ..models import Purchase, Product
+from sqlalchemy.orm import Session
+
+from ..models import Purchase, Product, Supplier
 from .database import session_scope
 from .ingredient_service import get_ingredient
 from .exceptions import (
@@ -118,20 +120,41 @@ def record_purchase(
     if total_cost < 0:
         raise ServiceValidationError("Total cost cannot be negative")
 
-    # Calculate unit cost
-    unit_cost = total_cost / quantity if quantity > 0 else Decimal("0.0")
+    # Calculate unit price from total cost and quantity
+    unit_price = total_cost / quantity if quantity > 0 else Decimal("0.0")
 
     try:
         with session_scope() as session:
+            # Find or create supplier from store name
+            store_name = store if store else "Unknown"
+            supplier = session.query(Supplier).filter(Supplier.name == store_name).first()
+            if not supplier:
+                # Create a minimal supplier record with required fields
+                supplier = Supplier(
+                    name=store_name,
+                    city="Unknown",
+                    state="XX",
+                    zip_code="00000",
+                )
+                session.add(supplier)
+                session.flush()
+            supplier_id = supplier.id
+
+            # Combine receipt_number into notes if provided
+            full_notes = notes
+            if receipt_number:
+                if full_notes:
+                    full_notes = f"Receipt: {receipt_number}; {full_notes}"
+                else:
+                    full_notes = f"Receipt: {receipt_number}"
+
             purchase = Purchase(
                 product_id=product_id,
-                quantity_purchased=quantity,
-                total_cost=total_cost,
-                unit_cost=unit_cost,
+                supplier_id=supplier_id,
                 purchase_date=purchase_date,
-                supplier=store,
-                receipt_number=receipt_number,
-                notes=notes,
+                unit_price=unit_price,
+                quantity_purchased=int(quantity),  # Model expects int
+                notes=full_notes,
             )
 
             session.add(purchase)
@@ -228,7 +251,7 @@ def get_purchase_history(
         if end_date:
             q = q.filter(Purchase.purchase_date <= end_date)
         if store:
-            q = q.filter(Purchase.supplier == store)
+            q = q.join(Supplier).filter(Supplier.name == store)
 
         # Order by date DESC (most recent first)
         q = q.order_by(Purchase.purchase_date.desc())
@@ -506,6 +529,132 @@ def get_price_trend(product_id: int, days: int = 90) -> Dict[str, Any]:
             "newest_date": purchases[-1].purchase_date,
             "message": message,
         }
+
+
+# =============================================================================
+# Price Suggestion Functions (Feature 028)
+# =============================================================================
+
+
+def get_last_price_at_supplier(
+    product_id: int,
+    supplier_id: int,
+    session: Optional[Session] = None,
+) -> Optional[Dict[str, Any]]:
+    """Get last purchase price for product at specific supplier.
+
+    Returns the most recent purchase record for a product at a specific supplier,
+    enabling price suggestion hints in the UI when users select a product/supplier
+    combination.
+
+    Args:
+        product_id: Product ID to look up
+        supplier_id: Supplier ID to filter by
+        session: Optional database session for transaction sharing
+
+    Returns:
+        Dict with unit_price (Decimal as str), purchase_date (ISO str), supplier_id
+        None if no purchase history at this supplier
+
+    Example:
+        >>> result = get_last_price_at_supplier(product_id=123, supplier_id=1)
+        >>> result
+        {"unit_price": "9.99", "purchase_date": "2025-01-15", "supplier_id": 1}
+
+        >>> result = get_last_price_at_supplier(product_id=456, supplier_id=2)
+        >>> result is None  # No history at this supplier
+        True
+    """
+    if session is not None:
+        return _get_last_price_at_supplier_impl(product_id, supplier_id, session)
+    with session_scope() as session:
+        return _get_last_price_at_supplier_impl(product_id, supplier_id, session)
+
+
+def _get_last_price_at_supplier_impl(
+    product_id: int,
+    supplier_id: int,
+    session: Session,
+) -> Optional[Dict[str, Any]]:
+    """Implementation for get_last_price_at_supplier."""
+    purchase = (
+        session.query(Purchase)
+        .filter(Purchase.product_id == product_id)
+        .filter(Purchase.supplier_id == supplier_id)
+        .order_by(Purchase.purchase_date.desc())
+        .first()
+    )
+
+    if not purchase:
+        return None
+
+    return {
+        "unit_price": str(purchase.unit_price),
+        "purchase_date": purchase.purchase_date.isoformat(),
+        "supplier_id": purchase.supplier_id,
+    }
+
+
+def get_last_price_any_supplier(
+    product_id: int,
+    session: Optional[Session] = None,
+) -> Optional[Dict[str, Any]]:
+    """Get last purchase price for product at any supplier.
+
+    Returns the most recent purchase record for a product regardless of supplier,
+    used as a fallback price suggestion when no history exists at the selected
+    supplier.
+
+    Args:
+        product_id: Product ID to look up
+        session: Optional database session for transaction sharing
+
+    Returns:
+        Dict with unit_price (Decimal as str), purchase_date (ISO str),
+        supplier_id, and supplier_name (for display in hint)
+        None if no purchase history exists
+
+    Example:
+        >>> result = get_last_price_any_supplier(product_id=123)
+        >>> result
+        {"unit_price": "9.99", "purchase_date": "2025-01-15",
+         "supplier_id": 1, "supplier_name": "Costco (Waltham, MA)"}
+
+        >>> result = get_last_price_any_supplier(product_id=456)
+        >>> result is None  # No purchase history
+        True
+    """
+    if session is not None:
+        return _get_last_price_any_supplier_impl(product_id, session)
+    with session_scope() as session:
+        return _get_last_price_any_supplier_impl(product_id, session)
+
+
+def _get_last_price_any_supplier_impl(
+    product_id: int,
+    session: Session,
+) -> Optional[Dict[str, Any]]:
+    """Implementation for get_last_price_any_supplier."""
+    purchase = (
+        session.query(Purchase)
+        .filter(Purchase.product_id == product_id)
+        .order_by(Purchase.purchase_date.desc())
+        .first()
+    )
+
+    if not purchase:
+        return None
+
+    # Get supplier name for display hint
+    supplier = session.query(Supplier).filter(Supplier.id == purchase.supplier_id).first()
+    supplier_name = supplier.display_name if supplier else "Unknown"
+
+    return {
+        "unit_price": str(purchase.unit_price),
+        "purchase_date": purchase.purchase_date.isoformat(),
+        "supplier_id": purchase.supplier_id,
+        "supplier_name": supplier_name,
+    }
 
 
 def delete_purchase(purchase_id: int) -> bool:

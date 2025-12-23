@@ -391,7 +391,7 @@ def delete_recipe(recipe_id: int) -> bool:
             if parent_components:
                 parent_names = [comp.recipe.name for comp in parent_components if comp.recipe]
                 raise ValidationError(
-                    f"Cannot delete '{recipe.name}': it is used as a component in: {', '.join(parent_names)}"
+                    [f"Cannot delete '{recipe.name}': it is used as a component in: {', '.join(parent_names)}"]
                 )
 
             # 2. Check for historical dependencies

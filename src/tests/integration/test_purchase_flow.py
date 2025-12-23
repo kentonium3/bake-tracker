@@ -217,7 +217,7 @@ def test_most_recent_purchase(test_db):
 
     assert recent.id == purchase3.id
     assert recent.purchase_date == date.today()
-    assert abs(recent.total_cost - 9.99) < 0.01  # Compare as float with tolerance
+    assert abs(float(recent.total_cost) - 9.99) < 0.01  # Compare as float with tolerance
 
 def test_no_purchase_history_returns_none(test_db):
     """Test: Product with no purchases returns None for averages."""

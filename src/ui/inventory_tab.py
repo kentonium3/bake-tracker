@@ -15,7 +15,8 @@ from tkinter import messagebox
 from datetime import date
 from typing import Optional, List, Dict, Any
 
-from src.services import inventory_item_service, ingredient_service, product_service
+from decimal import Decimal
+from src.services import inventory_item_service, ingredient_service, product_service, supplier_service, purchase_service
 from src.services.exceptions import (
     InventoryItemNotFound,
     ValidationError as ServiceValidationError,
@@ -758,10 +759,12 @@ class InventoryTab(ctk.CTkFrame):
             return
 
         try:
-            # Create inventory item via service
+            # Create inventory item via service (F028: includes supplier and price)
             inventory_item_service.add_to_inventory(
                 product_id=dialog.result["product_id"],
                 quantity=dialog.result["quantity"],
+                supplier_id=dialog.result["supplier_id"],  # F028
+                unit_price=dialog.result["unit_price"],  # F028
                 purchase_date=dialog.result["purchase_date"],
                 expiration_date=dialog.result.get("expiration_date"),
                 location=dialog.result.get("location"),
@@ -884,6 +887,8 @@ class InventoryItemFormDialog(ctk.CTkToplevel):
     Form fields:
     - Ingredient (dropdown)
     - Product (dropdown, filtered by ingredient)
+    - Supplier (dropdown, required for new items) - F028
+    - Price (entry with suggestion hint, required for new items) - F028
     - Quantity (required, > 0)
     - Purchase Date (required)
     - Expiration Date (optional, >= purchase_date)
@@ -903,7 +908,7 @@ class InventoryItemFormDialog(ctk.CTkToplevel):
         super().__init__(parent)
 
         self.title(title)
-        self.geometry("500x600")
+        self.geometry("500x700")  # Increased height for new fields
         self.resizable(False, False)
 
         # Make dialog modal
@@ -920,9 +925,11 @@ class InventoryItemFormDialog(ctk.CTkToplevel):
         self.result: Optional[Dict[str, Any]] = None
         self.ingredients: List[Dict[str, Any]] = []
         self.products: List[Dict[str, Any]] = []
+        self.suppliers: List[Dict[str, Any]] = []  # F028
 
         # Load data
         self._load_ingredients()
+        self._load_suppliers()  # F028
 
         # Create form
         self._create_form()
@@ -937,6 +944,14 @@ class InventoryItemFormDialog(ctk.CTkToplevel):
             self.ingredients = ingredient_service.get_all_ingredients()
         except Exception as e:
             messagebox.showerror("Error", f"Failed to load ingredients: {str(e)}", parent=self)
+            self.destroy()
+
+    def _load_suppliers(self):
+        """Load active suppliers from service (F028)."""
+        try:
+            self.suppliers = supplier_service.get_active_suppliers()
+        except Exception as e:
+            messagebox.showerror("Error", f"Failed to load suppliers: {str(e)}", parent=self)
             self.destroy()
 
     def _create_form(self):
@@ -980,6 +995,45 @@ class InventoryItemFormDialog(ctk.CTkToplevel):
         # Now that product_dropdown exists, we can safely call _on_ingredient_change
         if default_ingredient and not self.item:
             self._on_ingredient_change(default_ingredient)
+
+        # F028: Supplier dropdown (required for new items)
+        supplier_label = ctk.CTkLabel(self, text="Supplier:*")
+        supplier_label.grid(row=row, column=0, padx=10, pady=10, sticky="w")
+
+        supplier_names = [s["display_name"] for s in self.suppliers]
+        default_supplier = supplier_names[0] if supplier_names else ""
+        self.supplier_var = ctk.StringVar(value=default_supplier if not self.item else "")
+        self.supplier_dropdown = ctk.CTkOptionMenu(
+            self,
+            variable=self.supplier_var,
+            values=supplier_names if supplier_names else ["No suppliers"],
+            command=self._on_supplier_change,
+        )
+        self.supplier_dropdown.grid(row=row, column=1, padx=10, pady=10, sticky="ew")
+        row += 1
+
+        # F028: Price entry with suggestion hint
+        price_label = ctk.CTkLabel(self, text="Unit Price ($):*")
+        price_label.grid(row=row, column=0, padx=10, pady=(10, 0), sticky="w")
+
+        self.price_var = ctk.StringVar(value="")
+        self.price_entry = ctk.CTkEntry(self, textvariable=self.price_var, placeholder_text="0.00")
+        self.price_entry.grid(row=row, column=1, padx=10, pady=(10, 0), sticky="ew")
+        row += 1
+
+        # F028: Price hint label (shows last paid price)
+        self.price_hint_label = ctk.CTkLabel(
+            self,
+            text="",
+            font=("", 11),
+            text_color="gray",
+        )
+        self.price_hint_label.grid(row=row, column=1, padx=10, pady=(0, 10), sticky="w")
+        row += 1
+
+        # Trigger initial price hint if supplier is pre-selected
+        if default_supplier and not self.item:
+            self._on_supplier_change(default_supplier)
 
         # Quantity
         qty_label = ctk.CTkLabel(self, text="Quantity:*")
@@ -1083,6 +1137,63 @@ class InventoryItemFormDialog(ctk.CTkToplevel):
         if quantity:
             return f"{brand} - {quantity} {unit}".strip()
         return brand
+
+    def _get_selected_product_id(self) -> Optional[int]:
+        """Get product_id from current product dropdown selection (F028)."""
+        product_display = self.product_var.get().strip()
+        if not product_display or product_display in ["Select ingredient first", "No products available"]:
+            return None
+        product = next(
+            (p for p in self.products if self._format_product_display(p) == product_display),
+            None,
+        )
+        return product["id"] if product else None
+
+    def _get_selected_supplier_id(self) -> Optional[int]:
+        """Get supplier_id from current supplier dropdown selection (F028)."""
+        supplier_name = self.supplier_var.get().strip()
+        if not supplier_name or supplier_name == "No suppliers":
+            return None
+        supplier = next(
+            (s for s in self.suppliers if s["display_name"] == supplier_name),
+            None,
+        )
+        return supplier["id"] if supplier else None
+
+    def _on_supplier_change(self, selected_value: str):
+        """Handle supplier selection change - update price hint (F028)."""
+        product_id = self._get_selected_product_id()
+        supplier_id = self._get_selected_supplier_id()
+
+        if not product_id or not supplier_id:
+            self.price_hint_label.configure(text="")
+            return
+
+        try:
+            # Try supplier-specific price first
+            result = purchase_service.get_last_price_at_supplier(product_id, supplier_id)
+
+            if result:
+                # History at this supplier
+                price = result["unit_price"]
+                date_str = result["purchase_date"]
+                self.price_var.set(price)
+                self.price_hint_label.configure(text=f"(last paid: ${price} on {date_str})")
+            else:
+                # Fallback to any supplier
+                result = purchase_service.get_last_price_any_supplier(product_id)
+                if result:
+                    price = result["unit_price"]
+                    date_str = result["purchase_date"]
+                    supplier_name = result["supplier_name"]
+                    self.price_var.set(price)
+                    self.price_hint_label.configure(text=f"(last paid: ${price} at {supplier_name} on {date_str})")
+                else:
+                    # No history
+                    self.price_var.set("")
+                    self.price_hint_label.configure(text="(no purchase history)")
+        except Exception as e:
+            self.price_hint_label.configure(text="(error loading price)")
 
     def _populate_form(self):  # noqa: C901
         """Populate form with existing item data."""
@@ -1236,6 +1347,43 @@ class InventoryItemFormDialog(ctk.CTkToplevel):
                 return
             product_id = product["id"]
 
+        # F028: Validate supplier (required for new items)
+        supplier_id = None
+        if not is_editing:
+            supplier_id = self._get_selected_supplier_id()
+            if not supplier_id:
+                messagebox.showerror("Validation Error", "Please select a supplier", parent=self)
+                return
+
+        # F028: Validate and parse price (required for new items)
+        unit_price = None
+        if not is_editing:
+            price_str = self.price_var.get().strip()
+            if not price_str:
+                messagebox.showerror("Validation Error", "Unit price is required", parent=self)
+                return
+
+            try:
+                unit_price = Decimal(price_str)
+            except Exception:
+                messagebox.showerror("Validation Error", "Invalid price format", parent=self)
+                return
+
+            # F028 FR-008: Reject negative prices
+            if unit_price < 0:
+                messagebox.showerror("Validation Error", "Price cannot be negative", parent=self)
+                return
+
+            # F028 FR-007: Warn on zero price
+            if unit_price == Decimal("0"):
+                confirm = messagebox.askyesno(
+                    "Confirm Zero Price",
+                    "Price is $0.00. This may indicate a donation or free sample.\n\nProceed with zero price?",
+                    parent=self,
+                )
+                if not confirm:
+                    return
+
         # Build result
         self.result = {
             "quantity": quantity,
@@ -1243,6 +1391,8 @@ class InventoryItemFormDialog(ctk.CTkToplevel):
 
         if not is_editing:
             self.result["product_id"] = product_id
+            self.result["supplier_id"] = supplier_id  # F028
+            self.result["unit_price"] = unit_price  # F028
             self.result["purchase_date"] = purchase_date
 
         if expiration_date:

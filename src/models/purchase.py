@@ -110,6 +110,16 @@ class Purchase(BaseModel):
         """
         return self.unit_price * self.quantity_purchased
 
+    @property
+    def unit_cost(self) -> Decimal:
+        """
+        Alias for unit_price (for backwards compatibility).
+
+        Returns:
+            unit_price value
+        """
+        return self.unit_price
+
     def is_recent(self, days: int = 30) -> bool:
         """
         Check if purchase is recent.

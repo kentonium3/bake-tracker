@@ -645,11 +645,11 @@ class TestSampleDataIntegration:
         assert data["version"] == "3.5"  # Feature 027: suppliers and purchases with FK
 
     def test_sample_data_has_v3_header(self):
-        """Verify sample data has proper v3.4 header."""
+        """Verify sample data has proper v3.5 header (Feature 028)."""
         with open(SAMPLE_DATA_PATH, "r") as f:
             data = json.load(f)
 
-        assert data.get("version") == "3.4"
+        assert data.get("version") == "3.5"
         assert "exported_at" in data
         assert "application" in data
         assert data.get("application") == "bake-tracker"
@@ -683,8 +683,8 @@ class TestSampleDataIntegration:
         with open(SAMPLE_DATA_PATH, "r") as f:
             data = json.load(f)
 
-        # Collect recipe slugs
-        recipe_slugs = {r["slug"] for r in data["recipes"]}
+        # Collect recipe names (sample data uses name field, not slug)
+        recipe_names = {r["name"] for r in data["recipes"]}
 
         # Verify all products have required fields
         for product in data["products"]:
@@ -694,7 +694,6 @@ class TestSampleDataIntegration:
 
         # Verify all recipes have required fields and valid ingredient references
         for recipe in data["recipes"]:
-            assert "slug" in recipe, "Recipe must have slug"
             assert "name" in recipe, "Recipe must have name"
             assert "ingredients" in recipe, "Recipe must have ingredients list"
             for ing in recipe["ingredients"]:
