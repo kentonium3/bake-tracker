@@ -8,7 +8,7 @@ subtasks:
   - "T019"
 title: "Migration and Validation Scripts"
 phase: "Phase 3 - Migration"
-lane: "for_review"
+lane: "done"
 assignee: ""
 agent: "system"
 shell_pid: ""
@@ -574,3 +574,4 @@ pytest src/tests/services/test_f028_migration.py -v
 - 2025-12-22T00:00:00Z - system - lane=planned - Prompt created via /spec-kitty.tasks.
 - 2025-12-23T14:40:03Z – system – shell_pid= – lane=doing – Moved to doing
 - 2025-12-23T14:45:08Z – system – shell_pid= – lane=for_review – Moved to for_review
+- 2025-12-23T21:26:56Z – system – shell_pid= – lane=done – Moved to done
