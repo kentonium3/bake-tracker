@@ -31,7 +31,16 @@ from src.models import PackageStatus
 def setup_production_test_data(test_db):
     """Create test data for production tests."""
     from src.services import ingredient_service, product_service, inventory_item_service, recipe_service
-    from src.services import event_service
+    from src.services import event_service, supplier_service
+
+    # Create supplier for inventory
+    supplier_result = supplier_service.create_supplier(
+        name="Test Supplier",
+        city="Boston",
+        state="MA",
+        zip_code="02101",
+    )
+    supplier_id = supplier_result["id"]
 
     # Create ingredient: flour
     flour = ingredient_service.create_ingredient(
@@ -63,17 +72,19 @@ def setup_production_test_data(test_db):
     inventory_item_1 = inventory_item_service.add_to_inventory(
         product_id=flour_product.id,
         quantity=Decimal("5.0"),
+        supplier_id=supplier_id,
+        unit_price=Decimal("0.40"),
         purchase_date=date(2024, 1, 1),
     )
-    inventory_item_service.update_inventory_item(inventory_item_1.id, {"unit_cost": 0.40})
 
     # Second batch: newer, $0.60 per cup
     inventory_item_2 = inventory_item_service.add_to_inventory(
         product_id=flour_product.id,
         quantity=Decimal("10.0"),
+        supplier_id=supplier_id,
+        unit_price=Decimal("0.60"),
         purchase_date=date(2024, 6, 1),
     )
-    inventory_item_service.update_inventory_item(inventory_item_2.id, {"unit_cost": 0.60})
 
     # Create ingredient: sugar
     sugar = ingredient_service.create_ingredient(
@@ -102,9 +113,10 @@ def setup_production_test_data(test_db):
     sugar_inventory = inventory_item_service.add_to_inventory(
         product_id=sugar_product.id,
         quantity=Decimal("10.0"),
+        supplier_id=supplier_id,
+        unit_price=Decimal("0.30"),
         purchase_date=date(2024, 3, 1),
     )
-    inventory_item_service.update_inventory_item(sugar_inventory.id, {"unit_cost": 0.30})
 
     # Create recipe using the service
     recipe = recipe_service.create_recipe(

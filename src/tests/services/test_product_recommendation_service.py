@@ -29,6 +29,22 @@ from src.models import Purchase
 # ============================================================================
 
 @pytest.fixture
+def test_supplier(test_db):
+    """Create a test supplier for F028."""
+    from src.services import supplier_service
+    result = supplier_service.create_supplier(
+        name="Test Supplier",
+        city="Boston",
+        state="MA",
+        zip_code="02101",
+    )
+    class SupplierObj:
+        def __init__(self, data):
+            self.id = data["id"]
+    return SupplierObj(result)
+
+
+@pytest.fixture
 def flour_ingredient(test_db):
     """Create a flour ingredient with known density for unit conversion."""
     return ingredient_service.create_ingredient(
@@ -44,7 +60,7 @@ def flour_ingredient(test_db):
     )
 
 @pytest.fixture
-def flour_product_preferred(test_db, flour_ingredient):
+def flour_product_preferred(test_db, flour_ingredient, test_supplier):
     """Create a preferred flour product with purchase history."""
     product = create_product(
         flour_ingredient.slug,
@@ -61,10 +77,10 @@ def flour_product_preferred(test_db, flour_ingredient):
     with test_db() as session:
         purchase = Purchase(
             product_id=product.id,
+            supplier_id=test_supplier.id,
             purchase_date=date.today(),
-            unit_cost=0.72,  # $0.72 per lb
-            quantity_purchased=25.0,
-            total_cost=18.00
+            unit_price=Decimal("0.72"),  # $0.72 per lb
+            quantity_purchased=25,
         )
         session.add(purchase)
         session.commit()
@@ -72,7 +88,7 @@ def flour_product_preferred(test_db, flour_ingredient):
     return product
 
 @pytest.fixture
-def flour_product_generic(test_db, flour_ingredient):
+def flour_product_generic(test_db, flour_ingredient, test_supplier):
     """Create a non-preferred generic flour product."""
     product = create_product(
         flour_ingredient.slug,
@@ -89,10 +105,10 @@ def flour_product_generic(test_db, flour_ingredient):
     with test_db() as session:
         purchase = Purchase(
             product_id=product.id,
+            supplier_id=test_supplier.id,
             purchase_date=date.today(),
-            unit_cost=0.48,  # $0.48 per lb (cheaper)
-            quantity_purchased=5.0,
-            total_cost=2.40
+            unit_price=Decimal("0.48"),  # $0.48 per lb (cheaper)
+            quantity_purchased=5,
         )
         session.add(purchase)
         session.commit()

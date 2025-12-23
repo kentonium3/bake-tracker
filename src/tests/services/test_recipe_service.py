@@ -26,7 +26,7 @@ from src.models import Recipe, RecipeIngredient
 class TestCalculateActualCost:
     """Tests for calculate_actual_cost() method."""
 
-    def test_calculate_actual_cost_uses_fifo_ordering(self, test_db):
+    def test_calculate_actual_cost_uses_fifo_ordering(self, test_db, sample_supplier):
         """Test: FIFO ordering - oldest inventory costs used first."""
         # Setup: Create ingredient and product
         ingredient = ingredient_service.create_ingredient(
@@ -44,15 +44,17 @@ class TestCalculateActualCost:
         # Add two lots with different costs (older lot cheaper)
         # Lot 1: 2 cups at $0.10/cup (older - should be used)
         lot1 = inventory_item_service.add_to_inventory(
-            product_id=product.id, quantity=Decimal("2.0"), purchase_date=date(2025, 1, 1)
+            product_id=product.id, quantity=Decimal("2.0"),
+            supplier_id=sample_supplier.id, unit_price=Decimal("0.10"),
+            purchase_date=date(2025, 1, 1)
         )
-        inventory_item_service.update_inventory_item(lot1.id, {"unit_cost": 0.10})
 
         # Lot 2: 2 cups at $0.12/cup (newer - should NOT be used if qty <= 2)
         lot2 = inventory_item_service.add_to_inventory(
-            product_id=product.id, quantity=Decimal("2.0"), purchase_date=date(2025, 2, 1)
+            product_id=product.id, quantity=Decimal("2.0"),
+            supplier_id=sample_supplier.id, unit_price=Decimal("0.12"),
+            purchase_date=date(2025, 2, 1)
         )
-        inventory_item_service.update_inventory_item(lot2.id, {"unit_cost": 0.12})
 
         # Create recipe needing 2 cups
         recipe = recipe_service.create_recipe(
@@ -74,7 +76,7 @@ class TestCalculateActualCost:
             "0.01"
         ), f"Expected ${expected_cost}, got ${cost}. FIFO should use oldest lot at $0.10/cup"
 
-    def test_calculate_actual_cost_does_not_modify_inventory(self, test_db):
+    def test_calculate_actual_cost_does_not_modify_inventory(self, test_db, sample_supplier):
         """Test: Inventory quantities remain unchanged after cost calculation."""
         # Setup
         ingredient = ingredient_service.create_ingredient(
@@ -91,9 +93,10 @@ class TestCalculateActualCost:
 
         initial_quantity = Decimal("5.0")
         lot = inventory_item_service.add_to_inventory(
-            product_id=product.id, quantity=initial_quantity, purchase_date=date(2025, 1, 1)
+            product_id=product.id, quantity=initial_quantity,
+            supplier_id=sample_supplier.id, unit_price=Decimal("0.10"),
+            purchase_date=date(2025, 1, 1)
         )
-        inventory_item_service.update_inventory_item(lot.id, {"unit_cost": 0.10})
 
         recipe = recipe_service.create_recipe(
             {
@@ -120,7 +123,7 @@ class TestCalculateActualCost:
             "0.001"
         ), f"Inventory quantity changed from {qty_before} to {qty_after}. Should be read-only."
 
-    def test_calculate_actual_cost_handles_multiple_ingredients(self, test_db):
+    def test_calculate_actual_cost_handles_multiple_ingredients(self, test_db, sample_supplier):
         """Test: Multiple ingredients are summed correctly."""
         # Setup: Create two ingredients
         flour = ingredient_service.create_ingredient(
@@ -148,14 +151,16 @@ class TestCalculateActualCost:
 
         # Add inventory items
         flour_lot = inventory_item_service.add_to_inventory(
-            product_id=flour_product.id, quantity=Decimal("5.0"), purchase_date=date(2025, 1, 1)
+            product_id=flour_product.id, quantity=Decimal("5.0"),
+            supplier_id=sample_supplier.id, unit_price=Decimal("0.10"),
+            purchase_date=date(2025, 1, 1)
         )
-        inventory_item_service.update_inventory_item(flour_lot.id, {"unit_cost": 0.10})  # $0.10/cup
 
         sugar_lot = inventory_item_service.add_to_inventory(
-            product_id=sugar_product.id, quantity=Decimal("5.0"), purchase_date=date(2025, 1, 1)
+            product_id=sugar_product.id, quantity=Decimal("5.0"),
+            supplier_id=sample_supplier.id, unit_price=Decimal("0.20"),
+            purchase_date=date(2025, 1, 1)
         )
-        inventory_item_service.update_inventory_item(sugar_lot.id, {"unit_cost": 0.20})  # $0.20/cup
 
         # Create recipe with both ingredients
         recipe = recipe_service.create_recipe(
@@ -204,7 +209,7 @@ class TestCalculateActualCost:
         with pytest.raises(RecipeNotFound):
             recipe_service.calculate_actual_cost(99999)  # Non-existent ID
 
-    def test_calculate_actual_cost_with_shortfall_uses_fallback(self, test_db):
+    def test_calculate_actual_cost_with_shortfall_uses_fallback(self, test_db, sample_supplier):
         """Test: When inventory insufficient, uses fallback pricing for shortfall."""
         # Setup
         ingredient = ingredient_service.create_ingredient(
@@ -227,9 +232,10 @@ class TestCalculateActualCost:
 
         # Add only 2 cups to inventory at $0.10/cup
         lot = inventory_item_service.add_to_inventory(
-            product_id=product.id, quantity=Decimal("2.0"), purchase_date=date(2025, 1, 1)
+            product_id=product.id, quantity=Decimal("2.0"),
+            supplier_id=sample_supplier.id, unit_price=Decimal("0.10"),
+            purchase_date=date(2025, 1, 1)
         )
-        inventory_item_service.update_inventory_item(lot.id, {"unit_cost": 0.10})
 
         # Record a purchase for fallback pricing at $0.15/cup
         purchase_service.record_purchase(
@@ -364,7 +370,7 @@ class TestCalculateActualCost:
 
         assert "no products" in str(exc_info.value).lower()
 
-    def test_calculate_actual_cost_decimal_precision(self, test_db):
+    def test_calculate_actual_cost_decimal_precision(self, test_db, sample_supplier):
         """Test: Decimal precision maintained in cost calculations."""
         # Setup
         ingredient = ingredient_service.create_ingredient(
@@ -381,9 +387,10 @@ class TestCalculateActualCost:
 
         # Add inventory with precise unit cost
         lot = inventory_item_service.add_to_inventory(
-            product_id=product.id, quantity=Decimal("10.0"), purchase_date=date(2025, 1, 1)
+            product_id=product.id, quantity=Decimal("10.0"),
+            supplier_id=sample_supplier.id, unit_price=Decimal("0.123"),
+            purchase_date=date(2025, 1, 1)
         )
-        inventory_item_service.update_inventory_item(lot.id, {"unit_cost": 0.123})  # Precise value
 
         # Create recipe
         recipe = recipe_service.create_recipe(
@@ -601,7 +608,7 @@ class TestCalculateEstimatedCost:
             "0.01"
         ), f"Expected ${expected_cost}, got ${cost}"
 
-    def test_calculate_estimated_cost_ignores_inventory(self, test_db):
+    def test_calculate_estimated_cost_ignores_inventory(self, test_db, sample_supplier):
         """Test: Inventory items are completely ignored - uses product pricing."""
         # Setup: Create ingredient
         ingredient = ingredient_service.create_ingredient(
@@ -624,9 +631,10 @@ class TestCalculateEstimatedCost:
 
         # Add inventory items at LOW price ($0.05/cup)
         lot = inventory_item_service.add_to_inventory(
-            product_id=product.id, quantity=Decimal("10.0"), purchase_date=date(2025, 1, 1)
+            product_id=product.id, quantity=Decimal("10.0"),
+            supplier_id=sample_supplier.id, unit_price=Decimal("0.05"),
+            purchase_date=date(2025, 1, 1)
         )
-        inventory_item_service.update_inventory_item(lot.id, {"unit_cost": 0.05})  # Cheap inventory price
 
         # Record purchase at HIGHER price ($0.20/cup) - this should be used
         purchase_service.record_purchase(
@@ -746,7 +754,7 @@ class TestCalculateEstimatedCost:
 class TestPartialInventoryScenarios:
     """Tests for partial inventory blended costing scenarios (WP04)."""
 
-    def test_partial_inventory_full_coverage_no_fallback(self, test_db):
+    def test_partial_inventory_full_coverage_no_fallback(self, test_db, sample_supplier):
         """Test: When inventory has more than needed, uses only FIFO costs (no fallback)."""
         # Setup
         ingredient = ingredient_service.create_ingredient(
@@ -769,9 +777,10 @@ class TestPartialInventoryScenarios:
 
         # Add 5 cups to inventory at $0.10/cup (more than needed)
         lot = inventory_item_service.add_to_inventory(
-            product_id=product.id, quantity=Decimal("5.0"), purchase_date=date(2025, 1, 1)
+            product_id=product.id, quantity=Decimal("5.0"),
+            supplier_id=sample_supplier.id, unit_price=Decimal("0.10"),
+            purchase_date=date(2025, 1, 1)
         )
-        inventory_item_service.update_inventory_item(lot.id, {"unit_cost": 0.10})
 
         # Record a purchase for fallback at HIGHER price - should NOT be used
         purchase_service.record_purchase(
@@ -801,7 +810,7 @@ class TestPartialInventoryScenarios:
             "0.01"
         ), f"Expected ${expected_cost} (FIFO only, no fallback), got ${cost}"
 
-    def test_partial_inventory_multiple_ingredients_mixed_coverage(self, test_db):
+    def test_partial_inventory_multiple_ingredients_mixed_coverage(self, test_db, sample_supplier):
         """Test: Multiple ingredients with varying coverage levels costed correctly."""
         # Setup: Three ingredients with different coverage levels
         # Flour: partial coverage (2 of 3 cups)
@@ -864,15 +873,17 @@ class TestPartialInventoryScenarios:
         # Add inventory items
         # Flour: 2 cups at $0.10/cup (partial coverage)
         flour_lot = inventory_item_service.add_to_inventory(
-            product_id=flour_product.id, quantity=Decimal("2.0"), purchase_date=date(2025, 1, 1)
+            product_id=flour_product.id, quantity=Decimal("2.0"),
+            supplier_id=sample_supplier.id, unit_price=Decimal("0.10"),
+            purchase_date=date(2025, 1, 1)
         )
-        inventory_item_service.update_inventory_item(flour_lot.id, {"unit_cost": 0.10})
 
         # Sugar: 5 cups at $0.20/cup (full coverage)
         sugar_lot = inventory_item_service.add_to_inventory(
-            product_id=sugar_product.id, quantity=Decimal("5.0"), purchase_date=date(2025, 1, 1)
+            product_id=sugar_product.id, quantity=Decimal("5.0"),
+            supplier_id=sample_supplier.id, unit_price=Decimal("0.20"),
+            purchase_date=date(2025, 1, 1)
         )
-        inventory_item_service.update_inventory_item(sugar_lot.id, {"unit_cost": 0.20})
 
         # Butter: NO inventory items (zero coverage)
 
@@ -924,7 +935,7 @@ class TestPartialInventoryScenarios:
             "0.01"
         ), f"Expected ${expected_cost} (mixed coverage), got ${cost}"
 
-    def test_partial_inventory_exact_coverage_boundary(self, test_db):
+    def test_partial_inventory_exact_coverage_boundary(self, test_db, sample_supplier):
         """Test: Boundary condition - inventory has exactly what's needed (no shortfall)."""
         # Setup
         ingredient = ingredient_service.create_ingredient(
@@ -947,9 +958,10 @@ class TestPartialInventoryScenarios:
 
         # Add exactly 3 cups at $0.10/cup
         lot = inventory_item_service.add_to_inventory(
-            product_id=product.id, quantity=Decimal("3.0"), purchase_date=date(2025, 1, 1)
+            product_id=product.id, quantity=Decimal("3.0"),
+            supplier_id=sample_supplier.id, unit_price=Decimal("0.10"),
+            purchase_date=date(2025, 1, 1)
         )
-        inventory_item_service.update_inventory_item(lot.id, {"unit_cost": 0.10})
 
         # Record expensive fallback (should NOT be used)
         purchase_service.record_purchase(
@@ -979,7 +991,7 @@ class TestPartialInventoryScenarios:
             "0.01"
         ), f"Expected ${expected_cost} (exact coverage), got ${cost}"
 
-    def test_partial_inventory_decimal_precision_maintained(self, test_db):
+    def test_partial_inventory_decimal_precision_maintained(self, test_db, sample_supplier):
         """Test: Decimal precision maintained in blended cost calculations."""
         # Setup
         ingredient = ingredient_service.create_ingredient(
@@ -1002,9 +1014,10 @@ class TestPartialInventoryScenarios:
 
         # Add 1.5 cups at $0.123/cup (precise value)
         lot = inventory_item_service.add_to_inventory(
-            product_id=product.id, quantity=Decimal("1.5"), purchase_date=date(2025, 1, 1)
+            product_id=product.id, quantity=Decimal("1.5"),
+            supplier_id=sample_supplier.id, unit_price=Decimal("0.123"),
+            purchase_date=date(2025, 1, 1)
         )
-        inventory_item_service.update_inventory_item(lot.id, {"unit_cost": 0.123})
 
         # Record fallback at $0.456/cup (precise value)
         purchase_service.record_purchase(
@@ -1040,7 +1053,7 @@ class TestPartialInventoryScenarios:
 class TestEdgeCases:
     """Tests for edge cases and validation (WP05)."""
 
-    def test_calculate_actual_cost_skips_zero_quantity_ingredients(self, test_db):
+    def test_calculate_actual_cost_skips_zero_quantity_ingredients(self, test_db, sample_supplier):
         """Test: Zero quantity ingredients contribute $0 to total."""
         # Setup
         flour = ingredient_service.create_ingredient(
@@ -1081,9 +1094,10 @@ class TestEdgeCases:
 
         # Add inventory
         flour_lot = inventory_item_service.add_to_inventory(
-            product_id=flour_product.id, quantity=Decimal("5.0"), purchase_date=date(2025, 1, 1)
+            product_id=flour_product.id, quantity=Decimal("5.0"),
+            supplier_id=sample_supplier.id, unit_price=Decimal("0.10"),
+            purchase_date=date(2025, 1, 1)
         )
-        inventory_item_service.update_inventory_item(flour_lot.id, {"unit_cost": 0.10})
 
         # Record purchase for sugar (in case fallback is needed)
         purchase_service.record_purchase(
@@ -2104,7 +2118,7 @@ class TestDeletionProtection:
         with pytest.raises(ValidationError) as exc_info:
             recipe_service.delete_recipe(recipe_child.id)
 
-        assert "used as component" in str(exc_info.value).lower()
+        assert "used as a component" in str(exc_info.value).lower()
         assert recipe_parent.name in str(exc_info.value)
 
     def test_delete_recipe_after_removing_component(self, test_db):

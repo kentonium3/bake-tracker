@@ -55,6 +55,22 @@ from src.models.assembly_type import AssemblyType
 
 
 @pytest.fixture
+def test_supplier(test_db):
+    """Create a test supplier for F028 inventory tracking."""
+    from src.services import supplier_service
+    result = supplier_service.create_supplier(
+        name="Test Supplier",
+        city="Boston",
+        state="MA",
+        zip_code="02101",
+    )
+    class SupplierObj:
+        def __init__(self, data):
+            self.id = data["id"]
+    return SupplierObj(result)
+
+
+@pytest.fixture
 def packaging_ingredient(test_db):
     """Create a packaging ingredient for tests."""
     return create_ingredient(
@@ -140,36 +156,29 @@ def packaging_product_box(test_db, packaging_ingredient_2):
 
 
 @pytest.fixture
-def inventory_a(test_db, packaging_product_a):
+def inventory_a(test_db, packaging_product_a, test_supplier):
     """Create inventory for product A with unit cost $0.10."""
     item = add_to_inventory(
         product_id=packaging_product_a.id,
         quantity=Decimal("50"),
+        supplier_id=test_supplier.id,
+        unit_price=Decimal("0.10"),
         purchase_date=date(2025, 1, 1),
     )
-    # Set unit cost after creation (not a parameter of add_to_inventory)
-    from src.models import InventoryItem
-
-    test_db.query(InventoryItem).filter_by(id=item.id).update({"unit_cost": 0.10})
-    test_db.flush()
-    # Refresh to get updated value
-    return test_db.query(InventoryItem).filter_by(id=item.id).first()
+    return item
 
 
 @pytest.fixture
-def inventory_b(test_db, packaging_product_b):
+def inventory_b(test_db, packaging_product_b, test_supplier):
     """Create inventory for product B with unit cost $0.15."""
     item = add_to_inventory(
         product_id=packaging_product_b.id,
         quantity=Decimal("30"),
+        supplier_id=test_supplier.id,
+        unit_price=Decimal("0.15"),
         purchase_date=date(2025, 1, 15),
     )
-    # Set unit cost after creation
-    from src.models import InventoryItem
-
-    test_db.query(InventoryItem).filter_by(id=item.id).update({"unit_cost": 0.15})
-    test_db.flush()
-    return test_db.query(InventoryItem).filter_by(id=item.id).first()
+    return item
 
 
 @pytest.fixture
@@ -249,7 +258,7 @@ class TestGetGenericProducts:
 
         assert result == []
 
-    def test_excludes_non_packaging_products(self, test_db, food_ingredient):
+    def test_excludes_non_packaging_products(self, test_db, food_ingredient, test_supplier):
         """Only includes products linked to packaging ingredients."""
         # Create food product with inventory
         product = create_product(
@@ -266,6 +275,8 @@ class TestGetGenericProducts:
         add_to_inventory(
             product_id=product.id,
             quantity=Decimal("10"),
+            supplier_id=test_supplier.id,
+            unit_price=Decimal("5.99"),
             purchase_date=date(2025, 1, 1),
         )
 
@@ -275,13 +286,15 @@ class TestGetGenericProducts:
         assert "All-Purpose Flour" not in result
 
     def test_returns_sorted_list(
-        self, test_db, packaging_product_a, packaging_product_box, inventory_a
+        self, test_db, packaging_product_a, packaging_product_box, inventory_a, test_supplier
     ):
         """Returns product names in alphabetical order."""
         # Add inventory for box product
         add_to_inventory(
             product_id=packaging_product_box.id,
             quantity=Decimal("10"),
+            supplier_id=test_supplier.id,
+            unit_price=Decimal("0.50"),
             purchase_date=date(2025, 1, 1),
         )
 
@@ -384,7 +397,7 @@ class TestGetAvailableInventoryItems:
         with pytest.raises(GenericProductNotFoundError):
             get_available_inventory_items("Nonexistent Product", session=test_db)
 
-    def test_excludes_zero_quantity_items(self, test_db, packaging_product_a):
+    def test_excludes_zero_quantity_items(self, test_db, packaging_product_a, test_supplier):
         """Excludes inventory items with zero quantity."""
         from src.services.packaging_service import get_available_inventory_items
 
@@ -392,13 +405,12 @@ class TestGetAvailableInventoryItems:
         item = add_to_inventory(
             product_id=packaging_product_a.id,
             quantity=Decimal("10"),
+            supplier_id=test_supplier.id,
+            unit_price=Decimal("0.10"),
             purchase_date=date(2025, 1, 1),
         )
         test_db.query(InventoryItem).filter_by(id=item.id).update(
-            {
-                "unit_cost": 0.10,
-                "quantity": 0,  # Set to zero after creation
-            }
+            {"quantity": 0}  # Set to zero after creation
         )
         test_db.flush()
 
@@ -509,13 +521,15 @@ class TestAssignMaterials:
         assert exc.value.available == 50
 
     def test_validates_product_name_match(
-        self, test_db, generic_composition, packaging_product_box
+        self, test_db, generic_composition, packaging_product_box, test_supplier
     ):
         """Raises error when product_name doesn't match requirement."""
         # Add inventory for box (different product_name)
         box_inventory = add_to_inventory(
             product_id=packaging_product_box.id,
             quantity=Decimal("20"),
+            supplier_id=test_supplier.id,
+            unit_price=Decimal("0.50"),
             purchase_date=date(2025, 1, 1),
         )
 

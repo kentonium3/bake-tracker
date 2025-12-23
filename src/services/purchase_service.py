@@ -120,20 +120,41 @@ def record_purchase(
     if total_cost < 0:
         raise ServiceValidationError("Total cost cannot be negative")
 
-    # Calculate unit cost
-    unit_cost = total_cost / quantity if quantity > 0 else Decimal("0.0")
+    # Calculate unit price from total cost and quantity
+    unit_price = total_cost / quantity if quantity > 0 else Decimal("0.0")
 
     try:
         with session_scope() as session:
+            # Find or create supplier from store name
+            store_name = store if store else "Unknown"
+            supplier = session.query(Supplier).filter(Supplier.name == store_name).first()
+            if not supplier:
+                # Create a minimal supplier record with required fields
+                supplier = Supplier(
+                    name=store_name,
+                    city="Unknown",
+                    state="XX",
+                    zip_code="00000",
+                )
+                session.add(supplier)
+                session.flush()
+            supplier_id = supplier.id
+
+            # Combine receipt_number into notes if provided
+            full_notes = notes
+            if receipt_number:
+                if full_notes:
+                    full_notes = f"Receipt: {receipt_number}; {full_notes}"
+                else:
+                    full_notes = f"Receipt: {receipt_number}"
+
             purchase = Purchase(
                 product_id=product_id,
-                quantity_purchased=quantity,
-                total_cost=total_cost,
-                unit_cost=unit_cost,
+                supplier_id=supplier_id,
                 purchase_date=purchase_date,
-                supplier=store,
-                receipt_number=receipt_number,
-                notes=notes,
+                unit_price=unit_price,
+                quantity_purchased=int(quantity),  # Model expects int
+                notes=full_notes,
             )
 
             session.add(purchase)
@@ -230,7 +251,7 @@ def get_purchase_history(
         if end_date:
             q = q.filter(Purchase.purchase_date <= end_date)
         if store:
-            q = q.filter(Purchase.supplier == store)
+            q = q.join(Supplier).filter(Supplier.name == store)
 
         # Order by date DESC (most recent first)
         q = q.order_by(Purchase.purchase_date.desc())
