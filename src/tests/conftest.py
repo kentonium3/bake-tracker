@@ -46,6 +46,25 @@ def test_db():
 
 
 @pytest.fixture(scope="function")
+def sample_supplier(test_db):
+    """Provide a sample supplier for tests (F028)."""
+    from src.services import supplier_service
+
+    result = supplier_service.create_supplier(
+        name="Test Supplier",
+        city="Boston",
+        state="MA",
+        zip_code="02101",
+    )
+    # Return object with id attribute
+    class SupplierObj:
+        def __init__(self, data):
+            self.id = data["id"]
+            self.name = data["name"]
+    return SupplierObj(result)
+
+
+@pytest.fixture(scope="function")
 def sample_ingredient(test_db):
     """Provide a sample ingredient for tests."""
     from src.services import ingredient_service
