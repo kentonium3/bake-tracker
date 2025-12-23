@@ -226,3 +226,19 @@ class ProductInUse(ServiceError):
         )
 
         super().__init__(f"Cannot delete product {product_id}: used in {details}")
+
+
+class SupplierNotFoundError(ServiceError):
+    """Raised when a supplier cannot be found by ID.
+
+    Args:
+        supplier_id: The supplier ID that was not found
+
+    Example:
+        >>> raise SupplierNotFoundError(123)
+        SupplierNotFoundError: Supplier with ID 123 not found
+    """
+
+    def __init__(self, supplier_id: int):
+        self.supplier_id = supplier_id
+        super().__init__(f"Supplier with ID {supplier_id} not found")

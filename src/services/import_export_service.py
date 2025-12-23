@@ -21,6 +21,7 @@ from src.models.ingredient import Ingredient
 from src.models.product import Product
 from src.models.inventory_item import InventoryItem
 from src.models.purchase import Purchase
+from src.models.supplier import Supplier
 from src.models.finished_unit import FinishedUnit
 from src.models.finished_good import FinishedGood
 from src.models.composition import Composition
@@ -1130,11 +1131,12 @@ def export_all_to_json(file_path: str) -> ExportResult:
         event_production_targets_data = export_event_production_targets_to_json()
         event_assembly_targets_data = export_event_assembly_targets_to_json()
 
-        # Build combined export data - v3.4 format (Feature 021: field naming consistency)
+        # Build combined export data - v3.5 format (Feature 027: suppliers and purchases with FK)
         export_data = {
-            "version": "3.4",
+            "version": "3.5",
             "exported_at": datetime.utcnow().isoformat() + "Z",
             "application": "bake-tracker",
+            "suppliers": [],  # Feature 027: Suppliers before products (products reference suppliers)
             "ingredients": [],
             "products": [],
             "purchases": [],
@@ -1195,6 +1197,34 @@ def export_all_to_json(file_path: str) -> ExportResult:
 
             export_data["ingredients"].append(ingredient_data)
 
+        # Feature 027: Add suppliers (before products, which may reference them)
+        with session_scope() as session:
+            suppliers = session.query(Supplier).all()
+            for supplier in suppliers:
+                supplier_data = {
+                    "id": supplier.id,
+                    "uuid": supplier.uuid,
+                    "name": supplier.name,
+                    "city": supplier.city,
+                    "state": supplier.state,
+                    "zip_code": supplier.zip_code,
+                    "is_active": supplier.is_active,
+                }
+
+                # Optional fields
+                if supplier.street_address:
+                    supplier_data["street_address"] = supplier.street_address
+                if supplier.notes:
+                    supplier_data["notes"] = supplier.notes
+
+                # Timestamps
+                if supplier.created_at:
+                    supplier_data["created_at"] = supplier.created_at.isoformat()
+                if supplier.updated_at:
+                    supplier_data["updated_at"] = supplier.updated_at.isoformat()
+
+                export_data["suppliers"].append(supplier_data)
+
         # Add products (brand/package-specific versions)
         for ingredient in ingredients:
             for product in ingredient.products:
@@ -1238,6 +1268,12 @@ def export_all_to_json(file_path: str) -> ExportResult:
                 if product.notes:
                     product_data["notes"] = product.notes
 
+                # Feature 027: New fields
+                if product.preferred_supplier_id:
+                    product_data["preferred_supplier_id"] = product.preferred_supplier_id
+                # Always include is_hidden for round-trip (defaults to False)
+                product_data["is_hidden"] = product.is_hidden
+
                 export_data["products"].append(product_data)
 
         # Add inventory items (actual inventory lots)
@@ -1267,21 +1303,36 @@ def export_all_to_json(file_path: str) -> ExportResult:
                 if item.notes:
                     item_data["notes"] = item.notes
 
+                # Feature 027: purchase_id FK (may be None for old data)
+                if item.purchase_id:
+                    item_data["purchase_id"] = item.purchase_id
+
                 export_data["inventory_items"].append(item_data)
 
         # Add purchases (price history)
+        # Feature 027: Now uses supplier_id FK instead of supplier string
         with session_scope() as session:
-            purchases = session.query(Purchase).join(Product).join(Ingredient).all()
+            purchases = (
+                session.query(Purchase)
+                .join(Product)
+                .join(Ingredient)
+                .options(joinedload(Purchase.supplier))
+                .all()
+            )
             for purchase in purchases:
                 purchase_data = {
+                    "id": purchase.id,
+                    "uuid": purchase.uuid,
+                    "product_id": purchase.product_id,
+                    "supplier_id": purchase.supplier_id,
                     "ingredient_slug": purchase.product.ingredient.slug,
                     "product_brand": purchase.product.brand or "",
-                    "purchased_at": (
+                    "purchase_date": (
                         purchase.purchase_date.isoformat() if purchase.purchase_date else None
                     ),
                     "quantity_purchased": purchase.quantity_purchased,
-                    "unit_cost": float(purchase.unit_cost) if purchase.unit_cost else 0.0,
-                    "total_cost": float(purchase.total_cost) if purchase.total_cost else 0.0,
+                    # Use unit_price per the Purchase model (not unit_cost)
+                    "unit_price": str(purchase.unit_price) if purchase.unit_price else None,
                 }
 
                 # Product identification fields (for unique lookup during import)
@@ -1293,10 +1344,12 @@ def export_all_to_json(file_path: str) -> ExportResult:
                     purchase_data["package_unit"] = purchase.product.package_unit
 
                 # Optional fields
-                if purchase.supplier:
-                    purchase_data["supplier"] = purchase.supplier
                 if purchase.notes:
                     purchase_data["notes"] = purchase.notes
+
+                # Timestamps
+                if purchase.created_at:
+                    purchase_data["created_at"] = purchase.created_at.isoformat()
 
                 export_data["purchases"].append(purchase_data)
 
@@ -1438,7 +1491,8 @@ def export_all_to_json(file_path: str) -> ExportResult:
 
         # Calculate total records and build entity counts
         total_records = (
-            len(export_data["ingredients"])
+            len(export_data["suppliers"])  # Feature 027
+            + len(export_data["ingredients"])
             + len(export_data["products"])
             + len(export_data["purchases"])
             + len(export_data["inventory_items"])
@@ -1461,6 +1515,7 @@ def export_all_to_json(file_path: str) -> ExportResult:
         result = ExportResult(file_path, total_records)
 
         # Add per-entity counts
+        result.add_entity_count("suppliers", len(export_data["suppliers"]))  # Feature 027
         result.add_entity_count("ingredients", len(export_data["ingredients"]))
         result.add_entity_count("products", len(export_data["products"]))
         result.add_entity_count("purchases", len(export_data["purchases"]))
@@ -1528,6 +1583,8 @@ def _clear_all_tables(session) -> None:
     from src.models.recipient import Recipient
 
     # Tables in REVERSE dependency order to avoid FK violations
+    # Order: dependent tables cleared first, base tables cleared last
+    # Feature 027: Added Supplier (cleared after Products since Products reference Suppliers)
     tables_to_clear = [
         ProductionRecord,
         EventRecipientPackage,
@@ -1543,6 +1600,7 @@ def _clear_all_tables(session) -> None:
         InventoryItem,
         Purchase,
         Product,
+        Supplier,  # Feature 027: Products reference suppliers, purchases reference suppliers
         Ingredient,
     ]
 
@@ -2448,7 +2506,56 @@ def import_all_from_json_v3(file_path: str, mode: str = "merge") -> ImportResult
             # Flush to get IDs for foreign keys
             session.flush()
 
-            # 2. Products (depends on ingredients)
+            # 1.5 Feature 027: Suppliers (before products, which reference them)
+            if "suppliers" in data:
+                for supplier_data in data["suppliers"]:
+                    try:
+                        name = supplier_data.get("name", "")
+                        city = supplier_data.get("city", "")
+                        state = supplier_data.get("state", "")
+
+                        if not name or not city or not state:
+                            result.add_error(
+                                "supplier",
+                                name or "unknown",
+                                "Missing required fields: name, city, or state"
+                            )
+                            continue
+
+                        if skip_duplicates:
+                            # Check by name + city + state (unique supplier locations)
+                            existing = session.query(Supplier).filter_by(
+                                name=name,
+                                city=city,
+                                state=state,
+                            ).first()
+                            if existing:
+                                result.add_skip("supplier", f"{name} ({city}, {state})", "Already exists")
+                                continue
+
+                        supplier = Supplier(
+                            name=name,
+                            street_address=supplier_data.get("street_address"),
+                            city=city,
+                            state=state,
+                            zip_code=supplier_data.get("zip_code", ""),
+                            notes=supplier_data.get("notes"),
+                            is_active=supplier_data.get("is_active", True),
+                        )
+                        # Preserve original ID if provided (for FK consistency in replace mode)
+                        if supplier_data.get("id") and mode == "replace":
+                            supplier.id = supplier_data["id"]
+                        if supplier_data.get("uuid"):
+                            supplier.uuid = supplier_data["uuid"]
+
+                        session.add(supplier)
+                        result.add_success("supplier")
+                    except Exception as e:
+                        result.add_error("supplier", supplier_data.get("name", "unknown"), str(e))
+
+            session.flush()
+
+            # 2. Products (depends on ingredients and suppliers)
             if "products" in data:
                 for prod_data in data["products"]:
                     try:
@@ -2498,6 +2605,9 @@ def import_all_from_json_v3(file_path: str, mode: str = "merge") -> ImportResult
                             upc_code=prod_data.get("upc_code"),
                             preferred=prod_data.get("is_preferred", prod_data.get("preferred", False)),
                             notes=prod_data.get("notes"),
+                            # Feature 027: New fields
+                            preferred_supplier_id=prod_data.get("preferred_supplier_id"),
+                            is_hidden=prod_data.get("is_hidden", False),
                         )
                         session.add(product)
                         result.add_success("product")
@@ -2506,7 +2616,142 @@ def import_all_from_json_v3(file_path: str, mode: str = "merge") -> ImportResult
 
             session.flush()
 
-            # 4. Inventory Items (depends on products)
+            # 4. Purchases (depends on products AND suppliers)
+            # Feature 027: Must come BEFORE inventory_items (which may reference purchases)
+            # Updated to use supplier_id FK and unit_price
+            if "purchases" in data:
+                from decimal import Decimal
+                from datetime import datetime as dt
+
+                for purch_data in data["purchases"]:
+                    try:
+                        # Feature 027: Check for new format (supplier_id FK) vs old format
+                        if purch_data.get("supplier_id") is not None:
+                            # v3.5+ format: direct IDs
+                            product_id = purch_data.get("product_id")
+                            supplier_id = purch_data.get("supplier_id")
+
+                            # Validate product exists
+                            product = session.query(Product).filter_by(id=product_id).first()
+                            if not product:
+                                result.add_error(
+                                    "purchase",
+                                    f"product_id={product_id}",
+                                    f"Product not found: ID {product_id}",
+                                )
+                                continue
+
+                            # Validate supplier exists
+                            supplier = session.query(Supplier).filter_by(id=supplier_id).first()
+                            if not supplier:
+                                result.add_error(
+                                    "purchase",
+                                    f"supplier_id={supplier_id}",
+                                    f"Supplier not found: ID {supplier_id}",
+                                )
+                                continue
+                        else:
+                            # Old format: lookup by ingredient/brand
+                            ing_slug = purch_data.get("ingredient_slug", "")
+                            product_brand = purch_data.get("product_brand", "")
+                            product_name = purch_data.get("product_name")
+                            package_size = purch_data.get("package_size")
+                            package_unit = purch_data.get("package_unit")
+
+                            # Find ingredient
+                            ingredient = session.query(Ingredient).filter_by(slug=ing_slug).first()
+                            if not ingredient:
+                                result.add_error(
+                                    "purchase",
+                                    f"{ing_slug}/{product_brand}",
+                                    f"Ingredient not found: {ing_slug}",
+                                    suggestion="Import ingredients and products before purchases.",
+                                )
+                                continue
+
+                            # Build product filter
+                            product_filter = {"ingredient_id": ingredient.id, "brand": product_brand}
+                            if product_name is not None:
+                                product_filter["product_name"] = product_name
+                            if package_size is not None:
+                                product_filter["package_size"] = package_size
+                            if package_unit is not None:
+                                product_filter["package_unit"] = package_unit
+
+                            matching_products = session.query(Product).filter_by(**product_filter).all()
+
+                            if len(matching_products) == 0:
+                                result.add_error(
+                                    "purchase",
+                                    f"{ing_slug}/{product_brand}",
+                                    f"Product not found: {product_brand}",
+                                )
+                                continue
+                            elif len(matching_products) > 1:
+                                result.add_error(
+                                    "purchase",
+                                    f"{ing_slug}/{product_brand}",
+                                    f"Ambiguous product match: {len(matching_products)} products found",
+                                    suggestion="Re-export data using latest version.",
+                                )
+                                continue
+
+                            product_id = matching_products[0].id
+
+                            # Old format doesn't have supplier_id - skip this purchase
+                            # (legacy purchases without supplier_id cannot be imported)
+                            result.add_warning(
+                                "purchase",
+                                f"{ing_slug}/{product_brand}",
+                                "Legacy format without supplier_id - skipped",
+                                suggestion="Re-export data using latest version with supplier_id.",
+                            )
+                            continue
+
+                        # Parse purchase date (support both purchase_date and purchased_at keys)
+                        purchase_date = None
+                        date_str = purch_data.get("purchase_date") or purch_data.get("purchased_at")
+                        if date_str:
+                            try:
+                                # Handle both date and datetime formats
+                                if "T" in date_str:
+                                    purchase_date = dt.fromisoformat(date_str.replace("Z", "+00:00")).date()
+                                else:
+                                    from datetime import date as dt_date
+                                    purchase_date = dt_date.fromisoformat(date_str)
+                            except ValueError:
+                                result.add_warning(
+                                    "purchase",
+                                    f"product_id={product_id}",
+                                    f"Invalid date format: {date_str}",
+                                )
+
+                        # Parse unit_price (support both unit_price and unit_cost for backward compat)
+                        price_str = purch_data.get("unit_price") or purch_data.get("unit_cost")
+                        unit_price = Decimal(str(price_str)) if price_str else Decimal("0")
+
+                        purchase = Purchase(
+                            product_id=product_id,
+                            supplier_id=supplier_id,
+                            purchase_date=purchase_date,
+                            unit_price=unit_price,
+                            quantity_purchased=purch_data.get("quantity_purchased", 0),
+                            notes=purch_data.get("notes"),
+                        )
+                        # Preserve original ID if provided (for FK consistency in replace mode)
+                        if purch_data.get("id") and mode == "replace":
+                            purchase.id = purch_data["id"]
+                        if purch_data.get("uuid"):
+                            purchase.uuid = purch_data["uuid"]
+
+                        session.add(purchase)
+                        result.add_success("purchase")
+                    except Exception as e:
+                        result.add_error("purchase", purch_data.get("ingredient_slug", "unknown"), str(e))
+
+            session.flush()
+
+            # 5. Inventory Items (depends on products, may reference purchases)
             if "inventory_items" in data:
                 from src.models.inventory_item import InventoryItem
                 from datetime import datetime as dt
@@ -2584,92 +2829,13 @@ def import_all_from_json_v3(file_path: str, mode: str = "merge") -> ImportResult
                             expiration_date=expiration_date,
                             location=item_data.get("location"),
                             notes=item_data.get("notes"),
+                            # Feature 027: purchase_id FK (may be None for old data)
+                            purchase_id=item_data.get("purchase_id"),
                         )
                         session.add(inventory_item)
                         result.add_success("inventory_item")
                     except Exception as e:
                         result.add_error("inventory_item", item_data.get("ingredient_slug", "unknown"), str(e))
-
-            # 5. Purchases (depends on products)
-            if "purchases" in data:
-                from src.models.purchase import Purchase
-                from datetime import datetime as dt
-
-                for purch_data in data["purchases"]:
-                    try:
-                        ing_slug = purch_data.get("ingredient_slug", "")
-                        product_brand = purch_data.get("product_brand", "")
-                        # Product identification fields (may be missing in old exports)
-                        product_name = purch_data.get("product_name")
-                        package_size = purch_data.get("package_size")
-                        package_unit = purch_data.get("package_unit")
-
-                        # Find ingredient
-                        ingredient = session.query(Ingredient).filter_by(slug=ing_slug).first()
-                        if not ingredient:
-                            result.add_error(
-                                "purchase",
-                                f"{ing_slug}/{product_brand}",
-                                f"Ingredient not found: {ing_slug}",
-                                suggestion="Import ingredients and products before purchases.",
-                            )
-                            continue
-
-                        # Build product filter with all available identification fields
-                        product_filter = {
-                            "ingredient_id": ingredient.id,
-                            "brand": product_brand,
-                        }
-                        # Add additional fields if present in export (v3.5+ format)
-                        if product_name is not None:
-                            product_filter["product_name"] = product_name
-                        if package_size is not None:
-                            product_filter["package_size"] = package_size
-                        if package_unit is not None:
-                            product_filter["package_unit"] = package_unit
-
-                        # Query for matching products
-                        matching_products = session.query(Product).filter_by(**product_filter).all()
-
-                        if len(matching_products) == 0:
-                            result.add_error(
-                                "purchase",
-                                f"{ing_slug}/{product_brand}",
-                                f"Product not found: {product_brand}",
-                                suggestion=f"Add product '{product_brand}' for ingredient '{ing_slug}' first.",
-                            )
-                            continue
-                        elif len(matching_products) > 1:
-                            # Ambiguous match - multiple products with same brand (old export format)
-                            result.add_error(
-                                "purchase",
-                                f"{ing_slug}/{product_brand}",
-                                f"Ambiguous product match: {len(matching_products)} products found with brand '{product_brand}'. "
-                                f"Export file may be from older version without product_name field.",
-                                suggestion="Re-export data using latest version to include product_name field.",
-                            )
-                            continue
-
-                        product = matching_products[0]
-
-                        # Parse purchase date
-                        purchase_date = None
-                        if purch_data.get("purchased_at"):
-                            purchase_date = dt.fromisoformat(purch_data["purchased_at"].replace("Z", "+00:00"))
-
-                        purchase = Purchase(
-                            product_id=product.id,
-                            purchase_date=purchase_date,
-                            quantity_purchased=purch_data.get("quantity_purchased", 0),
-                            unit_cost=purch_data.get("unit_cost", 0),
-                            total_cost=purch_data.get("total_cost", 0),
-                            supplier=purch_data.get("supplier"),
-                            notes=purch_data.get("notes"),
-                        )
-                        session.add(purchase)
-                        result.add_success("purchase")
-                    except Exception as e:
-                        result.add_error("purchase", purch_data.get("ingredient_slug", "unknown"), str(e))
 
             session.flush()
 

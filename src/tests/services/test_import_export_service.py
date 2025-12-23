@@ -339,7 +339,7 @@ class TestExportAllToJsonV3Format:
                 data = json.load(f)
 
             # Verify v3.4 header (Feature 021: field naming consistency)
-            assert data["version"] == "3.4"
+            assert data["version"] == "3.5"  # Feature 027: suppliers and purchases with FK
             assert "exported_at" in data
             assert data["application"] == "bake-tracker"
 
@@ -642,7 +642,7 @@ class TestSampleDataIntegration:
 
         assert data is not None
         assert "version" in data
-        assert data["version"] == "3.4"
+        assert data["version"] == "3.5"  # Feature 027: suppliers and purchases with FK
 
     def test_sample_data_has_v3_header(self):
         """Verify sample data has proper v3.4 header."""
@@ -1008,7 +1008,7 @@ class TestDensityFieldsImportExport:
             data = json.load(f)
 
         assert "version" in data
-        assert data["version"] == "3.4"
+        assert data["version"] == "3.5"  # Feature 027: suppliers and purchases with FK
         # Note: ingredients are in separate catalog file, not sample_data.json
         assert "products" in data
         assert "recipes" in data

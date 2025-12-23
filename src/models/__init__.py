@@ -8,6 +8,7 @@ from .base import Base, BaseModel
 from .ingredient import Ingredient  # Refactored model
 from .product import Product
 from .purchase import Purchase
+from .supplier import Supplier  # Feature 027: Product Catalog Management
 from .inventory_item import InventoryItem
 from .ingredient_alias import IngredientAlias  # Supporting model
 from .ingredient_crosswalk import IngredientCrosswalk  # Supporting model
@@ -51,6 +52,7 @@ __all__ = [
     "Ingredient",
     "Product",
     "Purchase",
+    "Supplier",  # Feature 027
     "InventoryItem",
     # Supporting Models
     "IngredientAlias",

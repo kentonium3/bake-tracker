@@ -1,0 +1,6 @@
+source_id,type,title,location,accessed_date,reliability
+SRC-001,internal,F027 Design Document,docs/design/F027_product_catalog_management.md,2025-12-22,High
+SRC-002,internal,Existing Codebase Analysis,src/models/ and src/services/,2025-12-22,High
+SRC-003,internal,CLAUDE.md Session Management,CLAUDE.md,2025-12-22,High
+SRC-004,internal,Constitution v1.2.0,.kittify/memory/constitution.md,2025-12-22,High
+SRC-005,internal,Feature Specification,kitty-specs/027-product-catalog-management/spec.md,2025-12-22,High

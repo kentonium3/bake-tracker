@@ -10,7 +10,7 @@ Example: "King Arthur All-Purpose Flour 25 lb bag from Costco" is a product
 
 from datetime import datetime
 
-from sqlalchemy import Column, Integer, String, Float, Text, DateTime, Boolean, ForeignKey, Index, UniqueConstraint
+from sqlalchemy import Column, Integer, String, Float, Text, DateTime, Boolean, ForeignKey, Index, UniqueConstraint, CheckConstraint
 from sqlalchemy.orm import relationship, validates
 
 from .base import BaseModel
@@ -85,6 +85,15 @@ class Product(BaseModel):
     # Preference flag
     preferred = Column(Boolean, nullable=False, default=False)
 
+    # Feature 027: Supplier reference and visibility
+    preferred_supplier_id = Column(
+        Integer,
+        ForeignKey("suppliers.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True
+    )
+    is_hidden = Column(Boolean, nullable=False, default=False, index=True)
+
     # Additional information
     notes = Column(Text, nullable=True)
 
@@ -97,10 +106,13 @@ class Product(BaseModel):
     # Relationships
     ingredient = relationship("Ingredient", back_populates="products")
     purchases = relationship(
-        "Purchase", back_populates="product", cascade="all, delete-orphan", lazy="select"
+        "Purchase", back_populates="product", lazy="select"
     )
     inventory_items = relationship(
         "InventoryItem", back_populates="product", cascade="all, delete-orphan", lazy="select"
+    )
+    preferred_supplier = relationship(
+        "Supplier", foreign_keys=[preferred_supplier_id]
     )
 
     # Indexes and constraints
@@ -108,6 +120,9 @@ class Product(BaseModel):
         Index("idx_product_ingredient", "ingredient_id"),
         Index("idx_product_brand", "brand"),
         Index("idx_product_upc", "upc_code"),
+        # Feature 027: Indexes for new columns
+        Index("idx_product_preferred_supplier", "preferred_supplier_id"),
+        Index("idx_product_hidden", "is_hidden"),
         # Unique constraint to prevent duplicate product variants
         # Note: SQLite treats NULL as distinct, so multiple products with NULL product_name are allowed
         UniqueConstraint(
@@ -185,7 +200,7 @@ class Product(BaseModel):
         if not recent_purchases:
             return 0.0
 
-        total_cost = sum(p.unit_cost for p in recent_purchases)
+        total_cost = sum(float(p.unit_price) for p in recent_purchases)
         return total_cost / len(recent_purchases)
 
     def get_current_cost_per_unit(self) -> float:
@@ -193,10 +208,10 @@ class Product(BaseModel):
         Get current cost per purchase unit (most recent purchase).
 
         Returns:
-            Unit cost from most recent purchase, or 0.0 if no purchases
+            Unit price from most recent purchase, or 0.0 if no purchases
         """
         recent = self.get_most_recent_purchase()
-        return recent.unit_cost if recent else 0.0
+        return float(recent.unit_price) if recent else 0.0
 
     def get_total_inventory_quantity(self) -> float:
         """

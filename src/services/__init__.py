@@ -42,6 +42,8 @@ from . import (
     ingredient_service,
     inventory_item_service,
     purchase_service,
+    supplier_service,  # Feature 027: Supplier management
+    product_catalog_service,  # Feature 027: Product catalog management
 )
 
 # Migration services
@@ -248,6 +250,7 @@ from .exceptions import (
     ProductInUse,
     ValidationError,
     DatabaseError,
+    SupplierNotFoundError,  # Feature 027
 )
 
 from .database import session_scope
@@ -266,6 +269,8 @@ __all__ = [
     "product_service",
     "ingredient_service",
     "purchase_service",
+    "supplier_service",  # Feature 027
+    "product_catalog_service",  # Feature 027
     # Migration services
     "MigrationService",
     # FinishedUnit services
@@ -405,6 +410,7 @@ __all__ = [
     "ProductInUse",
     "ValidationError",
     "DatabaseError",
+    "SupplierNotFoundError",  # Feature 027
     # Infrastructure - Session management
     "session_scope",
     # Batch Production Service (Feature 013)

@@ -1,0 +1,37 @@
+{
+  "accept_commit": null,
+  "acceptance_history": [
+    {
+      "accepted_at": "2025-12-23T03:10:26Z",
+      "accepted_by": "claude",
+      "accepted_from_commit": "b464efdd7cfae08d1fa2307c26b399857f25bc24",
+      "branch": "027-product-catalog-management",
+      "mode": "local"
+    }
+  ],
+  "acceptance_mode": "local",
+  "accepted_at": "2025-12-23T03:10:26Z",
+  "accepted_by": "claude",
+  "accepted_from_commit": "b464efdd7cfae08d1fa2307c26b399857f25bc24",
+  "created_at": "2025-12-22T19:18:08Z",
+  "feature_number": "027",
+  "friendly_name": "Product Catalog Management",
+  "merge_history": [
+    {
+      "merge_commit": "9432f2f4986d4412d908f31d8d50c908ab3542f9",
+      "merged_at": "2025-12-23T03:12:28Z",
+      "merged_by": "Kent Gale",
+      "pushed": true,
+      "strategy": "merge",
+      "target": "main"
+    }
+  ],
+  "merged_at": "2025-12-23T03:12:28Z",
+  "merged_by": "Kent Gale",
+  "merged_commit": "9432f2f4986d4412d908f31d8d50c908ab3542f9",
+  "merged_into": "main",
+  "merged_push": true,
+  "merged_strategy": "merge",
+  "slug": "027-product-catalog-management",
+  "source_description": "Foundation feature for product catalog CRUD, supplier tracking, and purchase history"
+}

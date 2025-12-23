@@ -1,16 +1,20 @@
 """
-Purchase model for tracking ingredient purchase events and price history.
+Purchase model for tracking shopping transactions (Feature 027).
 
 This model records each purchase transaction, enabling:
-- Price trend analysis
-- Cost tracking over time
-- Receipt reference
-- Purchase frequency analysis
+- Price tracking over time
+- Supplier tracking for each purchase
+- FIFO cost calculations via linked InventoryItems
+- Purchase history per product
 """
 
 from datetime import date, datetime, timedelta
+from decimal import Decimal
 
-from sqlalchemy import Column, Integer, String, Float, Text, Date, DateTime, ForeignKey, Index
+from sqlalchemy import (
+    Column, Integer, String, Text, Date, DateTime, ForeignKey,
+    Index, CheckConstraint, Numeric
+)
 from sqlalchemy.orm import relationship
 
 from .base import BaseModel
@@ -18,72 +22,94 @@ from .base import BaseModel
 
 class Purchase(BaseModel):
     """
-    Purchase model representing individual purchase transactions.
+    Purchase model representing shopping transactions.
 
-    Each record represents a single purchase event for a specific product.
+    Each record represents a single purchase event: a product bought from
+    a supplier at a specific price on a specific date.
+
+    This model is IMMUTABLE after creation - no updated_at field.
 
     Attributes:
-        product_id: Foreign key to Product
+        product_id: Foreign key to Product (RESTRICT delete)
+        supplier_id: Foreign key to Supplier (RESTRICT delete)
         purchase_date: When the purchase was made
-        unit_cost: Cost per purchase unit
-        quantity_purchased: How many units were purchased
-        total_cost: Total cost (quantity × unit_cost)
-        supplier: Where purchased (can differ from product's default)
-        receipt_number: Optional receipt reference
-        notes: Additional notes
+        unit_price: Price per package unit (Numeric for precision)
+        quantity_purchased: Number of package units bought
+        notes: Optional notes (sale info, etc.)
         created_at: When this record was created
+
+    Relationships:
+        product: The Product that was purchased
+        supplier: The Supplier where it was purchased
+        inventory_items: InventoryItem records created from this purchase
     """
 
-    __tablename__ = "purchase_history"
+    __tablename__ = "purchases"
 
-    # Foreign key to Product
+    # Override BaseModel's updated_at - purchases are immutable
+    updated_at = None
+
+    # Foreign keys with RESTRICT delete behavior
     product_id = Column(
-        Integer, ForeignKey("products.id", ondelete="CASCADE"), nullable=False, index=True
+        Integer,
+        ForeignKey("products.id", ondelete="RESTRICT"),
+        nullable=False,
+        index=True
+    )
+    supplier_id = Column(
+        Integer,
+        ForeignKey("suppliers.id", ondelete="RESTRICT"),
+        nullable=False,
+        index=True
     )
 
     # Purchase details
     purchase_date = Column(Date, nullable=False, index=True)
-    unit_cost = Column(Float, nullable=False)  # Cost per purchase unit
-    quantity_purchased = Column(Float, nullable=False)  # Quantity purchased
-    total_cost = Column(Float, nullable=False)  # Total cost
-
-    # Purchase metadata
-    supplier = Column(String(200), nullable=True)  # Where purchased
-    receipt_number = Column(String(100), nullable=True)  # Receipt reference
+    unit_price = Column(Numeric(10, 4), nullable=False)  # Precise decimal for prices
+    quantity_purchased = Column(Integer, nullable=False)  # Number of units bought
     notes = Column(Text, nullable=True)
 
-    # Timestamp
+    # Timestamp (no updated_at - immutable)
     created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
 
     # Relationships
     product = relationship("Product", back_populates="purchases")
+    supplier = relationship("Supplier", back_populates="purchases")
+    inventory_items = relationship("InventoryItem", back_populates="purchase")
 
-    # Indexes for common queries
+    # Indexes and constraints
     __table_args__ = (
+        # Check constraints for data integrity
+        CheckConstraint("unit_price >= 0", name="ck_purchase_unit_price_non_negative"),
+        CheckConstraint("quantity_purchased > 0", name="ck_purchase_quantity_positive"),
+        # Indexes for common query patterns
         Index("idx_purchase_product", "product_id"),
+        Index("idx_purchase_supplier", "supplier_id"),
         Index("idx_purchase_date", "purchase_date"),
+        Index("idx_purchase_product_date", "product_id", "purchase_date"),
     )
 
     def __repr__(self) -> str:
         """String representation of purchase."""
+        price = float(self.unit_price) if self.unit_price else 0
         return (
             f"Purchase(id={self.id}, "
             f"product_id={self.product_id}, "
+            f"supplier_id={self.supplier_id}, "
             f"date={self.purchase_date}, "
-            f"cost=${self.total_cost:.2f})"
+            f"price=${price:.2f})"
         )
 
     @property
-    def cost_per_unit(self) -> float:
+    def total_cost(self) -> Decimal:
         """
-        Get cost per unit (same as unit_cost, provided for clarity).
+        Calculate total cost for this purchase.
 
         Returns:
-            Cost per purchase unit
+            unit_price * quantity_purchased
         """
-        return self.unit_cost
+        return self.unit_price * self.quantity_purchased
 
-    @property
     def is_recent(self, days: int = 30) -> bool:
         """
         Check if purchase is recent.
@@ -102,23 +128,34 @@ class Purchase(BaseModel):
         Convert purchase to dictionary.
 
         Args:
-            include_relationships: If True, include product information
+            include_relationships: If True, include product/supplier info
 
         Returns:
             Dictionary representation
         """
-        result = super().to_dict(include_relationships)
+        result = {
+            "id": self.id,
+            "uuid": self.uuid,
+            "product_id": self.product_id,
+            "supplier_id": self.supplier_id,
+            "purchase_date": self.purchase_date.isoformat() if self.purchase_date else None,
+            "unit_price": str(self.unit_price) if self.unit_price else None,
+            "quantity_purchased": self.quantity_purchased,
+            "notes": self.notes,
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+            "total_cost": str(self.total_cost) if self.unit_price else None,
+        }
 
-        # Add calculated fields
-        result["cost_per_unit"] = self.cost_per_unit
-        result["is_recent"] = self.is_recent
-
-        if include_relationships and self.product:
-            result["product"] = {
-                "id": self.product.id,
-                "display_name": self.product.display_name,
-                "ingredient_name": self.product.ingredient.display_name,
-            }
+        if include_relationships:
+            if self.product:
+                result["product"] = {
+                    "id": self.product.id,
+                    "display_name": self.product.display_name,
+                    "ingredient_name": self.product.ingredient.display_name,
+                }
+            if self.supplier:
+                result["supplier_name"] = self.supplier.name
+                result["supplier_location"] = self.supplier.location
 
         return result
 
@@ -136,7 +173,7 @@ def get_average_price(product_id: int, days: int = 90, session=None) -> float:
         session: SQLAlchemy session (if None, uses session_scope)
 
     Returns:
-        Average unit cost, or 0.0 if no purchases
+        Average unit price, or 0.0 if no purchases
     """
     from src.services.database import session_scope
 
@@ -165,8 +202,8 @@ def get_average_price(product_id: int, days: int = 90, session=None) -> float:
     if not purchases:
         return 0.0
 
-    total_cost = sum(p.unit_cost for p in purchases)
-    return total_cost / len(purchases)
+    total_price = sum(float(p.unit_price) for p in purchases)
+    return total_price / len(purchases)
 
 
 def get_most_recent_price(product_id: int, session=None) -> float:
@@ -178,7 +215,7 @@ def get_most_recent_price(product_id: int, session=None) -> float:
         session: SQLAlchemy session (if None, uses session_scope)
 
     Returns:
-        Most recent unit cost, or 0.0 if no purchases
+        Most recent unit price, or 0.0 if no purchases
     """
     from src.services.database import session_scope
 
@@ -198,7 +235,7 @@ def get_most_recent_price(product_id: int, session=None) -> float:
                 .first()
             )
 
-    return purchase.unit_cost if purchase else 0.0
+    return float(purchase.unit_price) if purchase else 0.0
 
 
 def get_price_trend(product_id: int, days: int = 180, session=None) -> dict:
@@ -247,16 +284,19 @@ def get_price_trend(product_id: int, days: int = 180, session=None) -> dict:
     if not purchases:
         return {"average": 0.0, "min": 0.0, "max": 0.0, "trend": "unknown", "percent_change": 0.0}
 
-    prices = [p.unit_cost for p in purchases]
+    prices = [float(p.unit_price) for p in purchases]
     average = sum(prices) / len(prices)
     min_price = min(prices)
     max_price = max(prices)
 
     # Calculate trend
     if len(purchases) >= 2:
-        oldest_price = purchases[0].unit_cost
-        newest_price = purchases[-1].unit_cost
-        percent_change = ((newest_price - oldest_price) / oldest_price) * 100
+        oldest_price = float(purchases[0].unit_price)
+        newest_price = float(purchases[-1].unit_price)
+        if oldest_price > 0:
+            percent_change = ((newest_price - oldest_price) / oldest_price) * 100
+        else:
+            percent_change = 0.0
 
         if percent_change > 5:
             trend = "increasing"

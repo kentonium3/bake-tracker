@@ -49,6 +49,14 @@ class InventoryItem(BaseModel):
         Integer, ForeignKey("products.id", ondelete="CASCADE"), nullable=False, index=True
     )
 
+    # Feature 027: Link to Purchase record
+    purchase_id = Column(
+        Integer,
+        ForeignKey("purchases.id", ondelete="RESTRICT"),
+        nullable=True,  # Nullable for migration transition
+        index=True
+    )
+
     # Inventory tracking
     quantity = Column(Float, nullable=False, default=0.0)  # Quantity on hand (qty_on_hand in spec)
     unit_cost = Column(Float, nullable=True)  # Cost per unit at time of purchase (for FIFO costing)
@@ -74,6 +82,7 @@ class InventoryItem(BaseModel):
 
     # Relationships
     product = relationship("Product", back_populates="inventory_items")
+    purchase = relationship("Purchase", back_populates="inventory_items")
 
     # Indexes for common queries
     __table_args__ = (
@@ -81,6 +90,8 @@ class InventoryItem(BaseModel):
         Index("idx_inventory_location", "location"),
         Index("idx_inventory_expiration", "expiration_date"),
         Index("idx_inventory_purchase", "purchase_date"),
+        # Feature 027: Index for purchase_id
+        Index("idx_inventory_purchase_id", "purchase_id"),
     )
 
     def __repr__(self) -> str:
