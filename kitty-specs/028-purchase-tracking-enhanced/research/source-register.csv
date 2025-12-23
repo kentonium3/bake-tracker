@@ -1,0 +1,11 @@
+id,source_type,path,description,accessed
+1,code,src/models/purchase.py,Purchase model definition,2025-12-22
+2,code,src/models/inventory_item.py,InventoryItem model with purchase_id FK,2025-12-22
+3,code,src/models/supplier.py,Supplier model definition,2025-12-22
+4,code,src/services/purchase_service.py,Purchase service (needs update),2025-12-22
+5,code,src/services/supplier_service.py,Supplier CRUD service,2025-12-22
+6,code,src/services/inventory_item_service.py,Inventory operations,2025-12-22
+7,code,src/ui/inventory_tab.py,Add Inventory dialog,2025-12-22
+8,design,docs/design/F027_product_catalog_management.md,F027 design doc with migration details,2025-12-22
+9,design,docs/design/F028_purchase_tracking_enhanced_costing.md,F028 original design doc,2025-12-22
+10,config,.kittify/memory/constitution.md,Project constitution,2025-12-22
