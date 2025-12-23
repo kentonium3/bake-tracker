@@ -7,7 +7,7 @@ subtasks:
   - "T007"
 title: "Inventory-Purchase Service Integration"
 phase: "Phase 1 - Service Layer"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "system"
 shell_pid: ""
@@ -387,3 +387,4 @@ pytest src/tests/services/test_inventory_item_service.py -v --cov=src/services/i
 
 - 2025-12-22T00:00:00Z - system - lane=planned - Prompt created via /spec-kitty.tasks.
 - 2025-12-23T14:24:24Z – system – shell_pid= – lane=doing – Moved to doing
+- 2025-12-23T14:33:51Z – system – shell_pid= – lane=for_review – Moved to for_review
