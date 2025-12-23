@@ -29,9 +29,9 @@
 **User Stories**: US2 (Price Suggestion) - Foundation
 
 ### Included Subtasks
-- [ ] T001 [P] Implement `get_last_price_at_supplier()` in `src/services/purchase_service.py`
-- [ ] T002 [P] Implement `get_last_price_any_supplier()` in `src/services/purchase_service.py`
-- [ ] T003 [P] Write unit tests for price suggestion functions in `src/tests/services/test_purchase_service.py`
+- [x] T001 [P] Implement `get_last_price_at_supplier()` in `src/services/purchase_service.py`
+- [x] T002 [P] Implement `get_last_price_any_supplier()` in `src/services/purchase_service.py`
+- [x] T003 [P] Write unit tests for price suggestion functions in `src/tests/services/test_purchase_service.py`
 
 ### Implementation Notes
 - Both functions follow session=None pattern per CLAUDE.md
@@ -58,10 +58,10 @@
 **User Stories**: US1 (Add Inventory with Supplier Selection) - Foundation
 
 ### Included Subtasks
-- [ ] T004 Update `add_to_inventory()` signature with `supplier_id` and `unit_price` params in `src/services/inventory_item_service.py`
-- [ ] T005 Implement atomic Purchase record creation within `add_to_inventory()`
-- [ ] T006 Set `InventoryItem.unit_cost` from `Purchase.unit_price` for FIFO
-- [ ] T007 [P] Write/update tests for `add_to_inventory()` in `src/tests/services/test_inventory_item_service.py`
+- [x] T004 Update `add_to_inventory()` signature with `supplier_id` and `unit_price` params in `src/services/inventory_item_service.py`
+- [x] T005 Implement atomic Purchase record creation within `add_to_inventory()`
+- [x] T006 Set `InventoryItem.unit_cost` from `Purchase.unit_price` for FIFO
+- [x] T007 [P] Write/update tests for `add_to_inventory()` in `src/tests/services/test_inventory_item_service.py`
 
 ### Implementation Notes
 - Single session transaction: create Purchase, then InventoryItem with purchase_id
@@ -88,13 +88,13 @@
 **User Stories**: US1 (Add Inventory with Supplier Selection), US2 (Price Suggestion from Purchase History)
 
 ### Included Subtasks
-- [ ] T008 Add Supplier dropdown populated from `get_active_suppliers()` in `src/ui/inventory_tab.py`
-- [ ] T009 Add Price entry field with decimal validation in `src/ui/inventory_tab.py`
-- [ ] T010 Add price hint label (dynamic update) in `src/ui/inventory_tab.py`
-- [ ] T011 Wire `on_supplier_change` callback to fetch/display price suggestions
-- [ ] T012 Implement zero-price confirmation warning dialog (FR-007)
-- [ ] T013 Implement negative price validation error (FR-008)
-- [ ] T014 Update dialog submission to call updated `add_to_inventory()` with new params
+- [x] T008 Add Supplier dropdown populated from `get_active_suppliers()` in `src/ui/inventory_tab.py`
+- [x] T009 Add Price entry field with decimal validation in `src/ui/inventory_tab.py`
+- [x] T010 Add price hint label (dynamic update) in `src/ui/inventory_tab.py`
+- [x] T011 Wire `on_supplier_change` callback to fetch/display price suggestions
+- [x] T012 Implement zero-price confirmation warning dialog (FR-007)
+- [x] T013 Implement negative price validation error (FR-008)
+- [x] T014 Update dialog submission to call updated `add_to_inventory()` with new params
 
 ### Implementation Notes
 - Supplier dropdown: sorted alphabetically by display_name
@@ -123,11 +123,11 @@
 **User Stories**: US5 (Data Migration from Existing Inventory)
 
 ### Included Subtasks
-- [ ] T015 Create `src/services/migration/f028_migration.py` script
-- [ ] T016 Implement find/create "Unknown" supplier logic in migration
-- [ ] T017 Implement InventoryItem to Purchase linking logic
-- [ ] T018 Create `src/services/migration/f028_validation.py` script
-- [ ] T019 [P] Write tests for migration scripts in `src/tests/services/test_f028_migration.py`
+- [x] T015 Create `src/services/migration/f028_migration.py` script
+- [x] T016 Implement find/create "Unknown" supplier logic in migration
+- [x] T017 Implement InventoryItem to Purchase linking logic
+- [x] T018 Create `src/services/migration/f028_validation.py` script
+- [x] T019 [P] Write tests for migration scripts in `src/tests/services/test_f028_migration.py`
 
 ### Implementation Notes
 - Migration steps:
@@ -160,11 +160,11 @@
 **User Stories**: US3 (Accurate FIFO Cost Calculation), US4 (Purchase History Query)
 
 ### Included Subtasks
-- [ ] T020 Verify FIFO in `consume_fifo()` uses `InventoryItem.unit_cost` (populated from Purchase)
-- [ ] T021 Add integration test for FIFO with purchase-linked inventory
-- [ ] T022 Verify purchase history query functions work correctly
-- [ ] T023 Run full test suite and verify all existing tests pass
-- [ ] T024 Update any broken tests due to signature changes
+- [x] T020 Verify FIFO in `consume_fifo()` uses `InventoryItem.unit_cost` (populated from Purchase)
+- [x] T021 Add integration test for FIFO with purchase-linked inventory
+- [x] T022 Verify purchase history query functions work correctly
+- [x] T023 Run full test suite and verify all existing tests pass
+- [x] T024 Update any broken tests due to signature changes
 
 ### Implementation Notes
 - FIFO should already work via InventoryItem.unit_cost (set in WP02)
