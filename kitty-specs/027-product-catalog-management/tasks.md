@@ -20,12 +20,12 @@
 **Prompt**: `tasks/planned/WP01-supplier-model.md`
 
 #### Included Subtasks
-- [ ] T001 Create `src/models/supplier.py` with Supplier class inheriting BaseModel
-- [ ] T002 Add all columns: name, street_address, city, state, zip_code, notes, is_active
-- [ ] T003 Add check constraints for state (uppercase, 2 chars)
-- [ ] T004 Add indexes: idx_supplier_name_city, idx_supplier_active
-- [ ] T005 Update `src/models/__init__.py` to export Supplier
-- [ ] T006 Write basic model tests in `src/tests/models/test_supplier_model.py`
+- [X] T001 Create `src/models/supplier.py` with Supplier class inheriting BaseModel
+- [X] T002 Add all columns: name, street_address, city, state, zip_code, notes, is_active
+- [X] T003 Add check constraints for state (uppercase, 2 chars)
+- [X] T004 Add indexes: idx_supplier_name_city, idx_supplier_active
+- [X] T005 Update `src/models/__init__.py` to export Supplier
+- [X] T006 Write basic model tests in `src/tests/models/test_supplier_model.py`
 
 #### Implementation Notes
 - Follow existing BaseModel pattern (includes id, uuid, created_at, updated_at)
@@ -47,15 +47,15 @@
 **Prompt**: `tasks/planned/WP02-purchase-model-and-product-updates.md`
 
 #### Included Subtasks
-- [ ] T007 Create `src/models/purchase.py` with Purchase class
-- [ ] T008 Add Purchase columns: product_id, supplier_id, purchase_date, unit_price, quantity_purchased, notes
-- [ ] T009 Add Purchase FK relationships with RESTRICT on delete
-- [ ] T010 Add Purchase indexes: product, supplier, date, product_date composite
-- [ ] T011 [P] Modify `src/models/product.py`: add preferred_supplier_id (FK, SET NULL), is_hidden
-- [ ] T012 [P] Modify `src/models/inventory_addition.py`: add purchase_id (FK, RESTRICT)
-- [ ] T013 Update `src/models/__init__.py` to export Purchase
-- [ ] T014 Write model tests in `src/tests/models/test_purchase_model.py`
-- [ ] T015 Update existing test fixtures to handle new columns
+- [X] T007 Create `src/models/purchase.py` with Purchase class
+- [X] T008 Add Purchase columns: product_id, supplier_id, purchase_date, unit_price, quantity_purchased, notes
+- [X] T009 Add Purchase FK relationships with RESTRICT on delete
+- [X] T010 Add Purchase indexes: product, supplier, date, product_date composite
+- [X] T011 [P] Modify `src/models/product.py`: add preferred_supplier_id (FK, SET NULL), is_hidden
+- [X] T012 [P] Modify `src/models/inventory_addition.py`: add purchase_id (FK, RESTRICT)
+- [X] T013 Update `src/models/__init__.py` to export Purchase
+- [X] T014 Write model tests in `src/tests/models/test_purchase_model.py`
+- [X] T015 Update existing test fixtures to handle new columns
 
 #### Implementation Notes
 - Purchase has no updated_at (immutable after creation per data-model.md)
@@ -84,18 +84,18 @@
 **Prompt**: `tasks/planned/WP03-supplier-service.md`
 
 #### Included Subtasks
-- [ ] T016 Create `src/services/supplier_service.py` with session pattern
-- [ ] T017 Implement `create_supplier(name, city, state, zip_code, ...)`
-- [ ] T018 Implement `get_supplier(supplier_id)` and `get_supplier_by_uuid(uuid)`
-- [ ] T019 Implement `get_all_suppliers(include_inactive=False)`
-- [ ] T020 Implement `get_active_suppliers()` for dropdowns
-- [ ] T021 Implement `update_supplier(supplier_id, **kwargs)`
-- [ ] T022 Implement `deactivate_supplier(supplier_id)` with cascade to products
-- [ ] T023 Implement `reactivate_supplier(supplier_id)`
-- [ ] T024 Implement `delete_supplier(supplier_id)` with dependency check
-- [ ] T025 Add SupplierNotFoundError to `src/services/exceptions.py`
-- [ ] T026 Update `src/services/__init__.py` to export supplier_service
-- [ ] T027 Write tests in `src/tests/services/test_supplier_service.py`
+- [X] T016 Create `src/services/supplier_service.py` with session pattern
+- [X] T017 Implement `create_supplier(name, city, state, zip_code, ...)`
+- [X] T018 Implement `get_supplier(supplier_id)` and `get_supplier_by_uuid(uuid)`
+- [X] T019 Implement `get_all_suppliers(include_inactive=False)`
+- [X] T020 Implement `get_active_suppliers()` for dropdowns
+- [X] T021 Implement `update_supplier(supplier_id, **kwargs)`
+- [X] T022 Implement `deactivate_supplier(supplier_id)` with cascade to products
+- [X] T023 Implement `reactivate_supplier(supplier_id)`
+- [X] T024 Implement `delete_supplier(supplier_id)` with dependency check
+- [X] T025 Add SupplierNotFoundError to `src/services/exceptions.py`
+- [X] T026 Update `src/services/__init__.py` to export supplier_service
+- [X] T027 Write tests in `src/tests/services/test_supplier_service.py`
 
 #### Implementation Notes
 - All functions MUST accept `session: Optional[Session] = None` per CLAUDE.md
@@ -117,17 +117,17 @@
 **Prompt**: `tasks/planned/WP04-product-catalog-service.md`
 
 #### Included Subtasks
-- [ ] T028 Create `src/services/product_catalog_service.py` with session pattern
-- [ ] T029 Implement `get_products(include_hidden=False, ingredient_id=None, category=None, supplier_id=None, search=None)`
-- [ ] T030 Implement `get_product_with_last_price(product_id)`
-- [ ] T031 Implement `create_product(product_name, ingredient_id, package_unit, package_quantity, ...)`
-- [ ] T032 Implement `update_product(product_id, **kwargs)`
-- [ ] T033 Implement `hide_product(product_id)` and `unhide_product(product_id)`
-- [ ] T034 Implement `delete_product(product_id)` with dependency check
-- [ ] T035 Implement `get_purchase_history(product_id)` sorted by date DESC
-- [ ] T036 Implement `create_purchase(product_id, supplier_id, purchase_date, unit_price, quantity)`
-- [ ] T037 Implement `get_products_by_category(category)` via ingredient join
-- [ ] T038 Write tests in `src/tests/services/test_product_catalog_service.py`
+- [X] T028 Create `src/services/product_catalog_service.py` with session pattern
+- [X] T029 Implement `get_products(include_hidden=False, ingredient_id=None, category=None, supplier_id=None, search=None)`
+- [X] T030 Implement `get_product_with_last_price(product_id)`
+- [X] T031 Implement `create_product(product_name, ingredient_id, package_unit, package_quantity, ...)`
+- [X] T032 Implement `update_product(product_id, **kwargs)`
+- [X] T033 Implement `hide_product(product_id)` and `unhide_product(product_id)`
+- [X] T034 Implement `delete_product(product_id)` with dependency check
+- [X] T035 Implement `get_purchase_history(product_id)` sorted by date DESC
+- [X] T036 Implement `create_purchase(product_id, supplier_id, purchase_date, unit_price, quantity)`
+- [X] T037 Implement `get_products_by_category(category)` via ingredient join
+- [X] T038 Write tests in `src/tests/services/test_product_catalog_service.py`
 
 #### Implementation Notes
 - All functions MUST accept `session: Optional[Session] = None`
@@ -156,16 +156,16 @@
 **Prompt**: `tasks/planned/WP05-products-tab-frame.md`
 
 #### Included Subtasks
-- [ ] T039 Create `src/ui/products_tab.py` extending CTkFrame
-- [ ] T040 Add toolbar: Add Product button, Manage Suppliers button
-- [ ] T041 Add filter controls: Ingredient dropdown, Category dropdown, Supplier dropdown
-- [ ] T042 Add search box with real-time filtering
-- [ ] T043 Add "Show Hidden" checkbox
-- [ ] T044 Create product grid (Treeview) with columns: Name, Ingredient, Category, Supplier, Last Price, Last Purchase
-- [ ] T045 Implement grid refresh from product_catalog_service
-- [ ] T046 Add double-click handler to open product detail
-- [ ] T047 Add context menu: Edit, Hide/Unhide, Delete
-- [ ] T048 Modify `src/ui/main_window.py` to add Products tab
+- [X] T039 Create `src/ui/products_tab.py` extending CTkFrame
+- [X] T040 Add toolbar: Add Product button, Manage Suppliers button
+- [X] T041 Add filter controls: Ingredient dropdown, Category dropdown, Supplier dropdown
+- [X] T042 Add search box with real-time filtering
+- [X] T043 Add "Show Hidden" checkbox
+- [X] T044 Create product grid (Treeview) with columns: Name, Ingredient, Category, Supplier, Last Price, Last Purchase
+- [X] T045 Implement grid refresh from product_catalog_service
+- [X] T046 Add double-click handler to open product detail
+- [X] T047 Add context menu: Edit, Hide/Unhide, Delete
+- [X] T048 Modify `src/ui/main_window.py` to add Products tab
 
 #### Implementation Notes
 - Follow existing tab patterns (inventory_tab.py, recipes_tab.py)
@@ -188,14 +188,14 @@
 **Prompt**: `tasks/planned/WP06-add-product-dialog.md`
 
 #### Included Subtasks
-- [ ] T049 Create `src/ui/forms/add_product_dialog.py` extending CTkToplevel
-- [ ] T050 Add form fields: product_name, ingredient dropdown, package_unit, package_quantity
-- [ ] T051 Add optional preferred_supplier dropdown (active suppliers only)
-- [ ] T052 Implement ingredient selection auto-populating category display
-- [ ] T053 Add validation: required fields, positive quantity
-- [ ] T054 Implement Save button calling product_catalog_service
-- [ ] T055 Implement Cancel button
-- [ ] T056 Support edit mode (pre-populate fields from existing product)
+- [X] T049 Create `src/ui/forms/add_product_dialog.py` extending CTkToplevel
+- [X] T050 Add form fields: product_name, ingredient dropdown, package_unit, package_quantity
+- [X] T051 Add optional preferred_supplier dropdown (active suppliers only)
+- [X] T052 Implement ingredient selection auto-populating category display
+- [X] T053 Add validation: required fields, positive quantity
+- [X] T054 Implement Save button calling product_catalog_service
+- [X] T055 Implement Cancel button
+- [X] T056 Support edit mode (pre-populate fields from existing product)
 
 #### Implementation Notes
 - Follow existing dialog patterns (add_inventory_dialog.py)
@@ -221,14 +221,14 @@
 **Prompt**: `tasks/planned/WP07-product-detail-dialog.md`
 
 #### Included Subtasks
-- [ ] T057 Create `src/ui/forms/product_detail_dialog.py` extending CTkToplevel
-- [ ] T058 Add product info section: name, ingredient, category, package info, preferred supplier
-- [ ] T059 Add Edit button opening AddProductDialog in edit mode
-- [ ] T060 Add Hide/Unhide button with state toggle
-- [ ] T061 Add Delete button with confirmation and dependency check
-- [ ] T062 Create purchase history grid (date, supplier, price, quantity)
-- [ ] T063 Show "No purchase history" message when empty
-- [ ] T064 Sort purchase history by date descending (newest first)
+- [X] T057 Create `src/ui/forms/product_detail_dialog.py` extending CTkToplevel
+- [X] T058 Add product info section: name, ingredient, category, package info, preferred supplier
+- [X] T059 Add Edit button opening AddProductDialog in edit mode
+- [X] T060 Add Hide/Unhide button with state toggle
+- [X] T061 Add Delete button with confirmation and dependency check
+- [X] T062 Create purchase history grid (date, supplier, price, quantity)
+- [X] T063 Show "No purchase history" message when empty
+- [X] T064 Sort purchase history by date descending (newest first)
 
 #### Implementation Notes
 - Purchase history from product_catalog_service.get_purchase_history()
@@ -255,15 +255,15 @@
 **Prompt**: `tasks/planned/WP08-import-export-updates.md`
 
 #### Included Subtasks
-- [ ] T065 Update `export_all_to_json_v3()` to include suppliers
-- [ ] T066 Update `export_all_to_json_v3()` to include purchases
-- [ ] T067 Update `export_all_to_json_v3()` to include new product fields (preferred_supplier_id, is_hidden)
-- [ ] T068 Update `export_all_to_json_v3()` to include new inventory_addition fields (purchase_id)
-- [ ] T069 Update `import_all_from_json_v3()` to handle suppliers
-- [ ] T070 Update `import_all_from_json_v3()` to handle purchases
-- [ ] T071 Update `import_all_from_json_v3()` to handle new product/inventory fields
-- [ ] T072 Ensure import order: suppliers → products → purchases → inventory_additions
-- [ ] T073 Write integration tests in `src/tests/integration/test_product_catalog.py`
+- [X] T065 Update `export_all_to_json_v3()` to include suppliers
+- [X] T066 Update `export_all_to_json_v3()` to include purchases
+- [X] T067 Update `export_all_to_json_v3()` to include new product fields (preferred_supplier_id, is_hidden)
+- [X] T068 Update `export_all_to_json_v3()` to include new inventory_addition fields (purchase_id)
+- [X] T069 Update `import_all_from_json_v3()` to handle suppliers
+- [X] T070 Update `import_all_from_json_v3()` to handle purchases
+- [X] T071 Update `import_all_from_json_v3()` to handle new product/inventory fields
+- [X] T072 Ensure import order: suppliers → products → purchases → inventory_additions
+- [X] T073 Write integration tests in `src/tests/integration/test_product_catalog.py`
 
 #### Implementation Notes
 - Import order critical for FK resolution
@@ -285,15 +285,15 @@
 **Prompt**: `tasks/planned/WP09-migration-transformation.md`
 
 #### Included Subtasks
-- [ ] T074 Create migration script `scripts/migrate_f027.py`
-- [ ] T075 Export current data to JSON backup
-- [ ] T076 Create "Unknown" supplier for historical data
-- [ ] T077 Transform inventory_additions: create Purchase records from price_paid
-- [ ] T078 Link inventory_additions to new Purchase records
-- [ ] T079 Add is_hidden=False to all products
-- [ ] T080 Validate transformation: count records, verify FK integrity
-- [ ] T081 Create rollback instructions in script comments
-- [ ] T082 Write migration validation tests
+- [X] T074 Create migration script `scripts/migrate_f027.py`
+- [X] T075 Export current data to JSON backup
+- [X] T076 Create "Unknown" supplier for historical data
+- [X] T077 Transform inventory_additions: create Purchase records from price_paid
+- [X] T078 Link inventory_additions to new Purchase records
+- [X] T079 Add is_hidden=False to all products
+- [X] T080 Validate transformation: count records, verify FK integrity
+- [X] T081 Create rollback instructions in script comments
+- [X] T082 Write migration validation tests
 
 #### Implementation Notes
 - Per Constitution VI: export → delete DB → recreate → import transformed
