@@ -36,6 +36,7 @@
 | 023 | Product Name Differentiation | MERGED | Added product_name field, updated import/export for dependent entities, fixed 20 test failures. |
 | 024 | Unified Import Error Handling | MERGED | Standardized error display/logging across unified and catalog imports. ImportResultsDialog for all imports, log files, error suggestions. |
 | 025 | Production Loss Tracking | MERGED | Loss quantity/category tracking, yield balance constraint, ProductionLoss table, UI auto-calculation, cost breakdown, waste analytics. |
+| 026 | Deferred Packaging Decisions | MERGED | Generic packaging at planning time, deferred material assignment, EventPackagingRequirement and EventPackagingAssignment tables, assembly definition with material assignment interface. |
 
 ---
 
@@ -49,8 +50,10 @@
 
 | # | Name | Priority | Dependencies | Status |
 |---|------|----------|--------------|--------|
-| 026 | Deferred Packaging Decisions | HIGH | User testing feedback | Ready |
-| 027 | Packaging & Distribution | LOW | User testing complete | Blocked |
+| 027 | Product Catalog Management | HIGH | Testing blocked | Ready |
+| 028 | Purchase Tracking & Enhanced Costing | HIGH | Feature 027 | Planned |
+| 029 | Streamlined Inventory Entry | HIGH | Features 027, 028 | Planned |
+| 030 | Packaging & Distribution | LOW | User testing complete | Blocked |
 
 ---
 
@@ -320,7 +323,7 @@ This prevents safe catalog expansion without risking user data.
 
 ### Feature 026: Deferred Packaging Decisions
 
-**Status:** READY 📋
+**Status:** COMPLETE ✅ (Merged 2025-12-22)
 
 **Problem:** When planning events, food decisions precede packaging aesthetic decisions. Current system forces premature commitment to specific packaging designs (e.g., snowflake vs holly bags) when only generic requirements are known (e.g., need 6" cellophane bags).
 
@@ -353,6 +356,56 @@ This prevents safe catalog expansion without risking user data.
 
 ---
 
+### Feature 027: Product Catalog Management
+
+**Status:** READY 📋
+
+**Problem:** Product and inventory management workflows have critical gaps blocking effective user testing. Cannot add products independently, forced ingredient-first entry blocks inventory addition, no price history tracking for FIFO costing, no product catalog maintenance tools.
+
+**Solution:** Three-feature implementation: (027) Product Catalog Management foundation with Products tab, CRUD operations, filtering, purchase history display; (028) Purchase Tracking & Enhanced Costing with Purchase entity, Supplier entity, price history; (029) Streamlined Inventory Entry with product-first workflow, inline creation, price suggestions.
+
+**Scope (Feature 027):**
+- New Products tab with grid view and filters (ingredient, category, supplier, search)
+- Product CRUD operations with referential integrity checks
+- Hide/unhide products (preserve history)
+- Product detail view with purchase history table
+- New Supplier table (name, city, state, zip)
+- New Purchase table (product, supplier, date, unit_price, quantity_purchased)
+- Product.preferred_supplier_id and Product.is_hidden fields
+- InventoryAddition.purchase_id replaces price_paid
+
+**User Impact:**
+- Enables "I just shopped at Costco with 20 items" workflow
+- Tracks price volatility ($300 → $600 chocolate chips example)
+- Supports supplier-based shopping list generation
+- Unblocks user testing with realistic inventory data
+
+**Migration Strategy:** Export/reset/import cycle creates "Unknown Supplier" for historical data, generates Purchase records from existing InventoryAddition.price_paid.
+
+**Design Document:** `docs/design/F027_product_catalog_management.md`
+
+---
+
+### Feature 028: Purchase Tracking & Enhanced Costing
+
+**Status:** PLANNED 📋
+
+**Dependencies:** Feature 027 (Product Catalog Management)
+
+**Scope:** Purchase entity implementation, price suggestion logic, FIFO cost calculation updates, inventory service modifications to create Purchase records.
+
+---
+
+### Feature 029: Streamlined Inventory Entry
+
+**Status:** PLANNED 📋
+
+**Dependencies:** Features 027, 028
+
+**Scope:** Product-first workflow redesign, inline product creation, type-ahead search, price auto-suggestion from last purchase, session-based supplier memory.
+
+---
+
 ### Feature 025: Production Loss Tracking
 
 **Status:** COMPLETE ✅ (Merged 2025-12-21)
@@ -382,7 +435,7 @@ This prevents safe catalog expansion without risking user data.
 
 ---
 
-### Feature 027: Packaging & Distribution
+### Feature 030: Packaging & Distribution
 
 **Status:** Blocked (awaiting user testing completion)
 
@@ -493,3 +546,4 @@ Part B: Ingredient.name → Ingredient.display_name ✅
 - 2025-12-19: Feature 023 (Product Name Differentiation) complete and merged. Database reset for fresh import with updated schema. Feature 024 (Unified Import Error Handling) defined. Feature renumbering: 024 = Unified Import Error Handling (ready), 025 = Packaging & Distribution (blocked).
 - 2025-12-20: Feature 024 (Unified Import Error Handling) complete and merged. Added 30 missing ingredients with USDA naming standards. Database reset and complete catalog import (ingredients + products). Web migration notes updated for API-based inventory management.
 - 2025-12-21: Feature 025 (Production Loss Tracking) defined. Design document created. Feature 025 implementation complete and merged. Features renumbered: 025 = Production Loss Tracking (complete), 026 = Deferred Packaging Decisions (ready), 027 = Packaging & Distribution (blocked).
+- 2025-12-22: Feature 026 (Deferred Packaging Decisions) assumed complete. Feature 027 (Product Catalog Management) defined with comprehensive specification. Three-feature product/inventory workflow sequence: 027 (Product Catalog Management - foundation), 028 (Purchase Tracking & Enhanced Costing - data model), 029 (Streamlined Inventory Entry - workflow). Features renumbered: 026 = Deferred Packaging Decisions (complete), 027 = Product Catalog Management (ready), 028/029 = Purchase/Inventory features (planned), 030 = Packaging & Distribution (blocked).
