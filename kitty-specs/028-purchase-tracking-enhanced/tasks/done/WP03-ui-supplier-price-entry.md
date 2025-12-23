@@ -10,7 +10,7 @@ subtasks:
   - "T014"
 title: "UI Supplier Dropdown and Price Entry"
 phase: "Phase 2 - UI Updates"
-lane: "for_review"
+lane: "done"
 assignee: ""
 agent: "system"
 shell_pid: ""
@@ -448,3 +448,4 @@ def _get_price_value(self) -> Optional[Decimal]:
 - 2025-12-22T00:00:00Z - system - lane=planned - Prompt created via /spec-kitty.tasks.
 - 2025-12-23T14:34:11Z – system – shell_pid= – lane=doing – Moved to doing
 - 2025-12-23T14:39:14Z – system – shell_pid= – lane=for_review – Moved to for_review
+- 2025-12-23T21:26:10Z – system – shell_pid= – lane=done – Moved to done
