@@ -1,7 +1,21 @@
 {
+  "accept_commit": null,
+  "acceptance_history": [
+    {
+      "accepted_at": "2025-12-23T03:10:26Z",
+      "accepted_by": "claude",
+      "accepted_from_commit": "b464efdd7cfae08d1fa2307c26b399857f25bc24",
+      "branch": "027-product-catalog-management",
+      "mode": "local"
+    }
+  ],
+  "acceptance_mode": "local",
+  "accepted_at": "2025-12-23T03:10:26Z",
+  "accepted_by": "claude",
+  "accepted_from_commit": "b464efdd7cfae08d1fa2307c26b399857f25bc24",
+  "created_at": "2025-12-22T19:18:08Z",
   "feature_number": "027",
-  "slug": "027-product-catalog-management",
   "friendly_name": "Product Catalog Management",
-  "source_description": "Foundation feature for product catalog CRUD, supplier tracking, and purchase history",
-  "created_at": "2025-12-22T19:18:08Z"
+  "slug": "027-product-catalog-management",
+  "source_description": "Foundation feature for product catalog CRUD, supplier tracking, and purchase history"
 }
