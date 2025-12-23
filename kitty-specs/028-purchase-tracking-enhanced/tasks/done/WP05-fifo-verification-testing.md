@@ -9,9 +9,9 @@ subtasks:
 title: "FIFO Verification and Final Testing"
 phase: "Phase 4 - Testing"
 lane: "done"
-assignee: ""
-agent: "system"
-shell_pid: ""
+assignee: "claude"
+agent: "claude"
+shell_pid: "reconciled"
 review_status: ""
 reviewed_by: ""
 history:

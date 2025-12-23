@@ -11,9 +11,9 @@ subtasks:
 title: "UI Supplier Dropdown and Price Entry"
 phase: "Phase 2 - UI Updates"
 lane: "done"
-assignee: ""
-agent: "system"
-shell_pid: ""
+assignee: "claude"
+agent: "claude"
+shell_pid: "reconciled"
 review_status: ""
 reviewed_by: ""
 history:

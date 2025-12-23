@@ -9,9 +9,9 @@ subtasks:
 title: "Migration and Validation Scripts"
 phase: "Phase 3 - Migration"
 lane: "done"
-assignee: ""
-agent: "system"
-shell_pid: ""
+assignee: "claude"
+agent: "claude"
+shell_pid: "reconciled"
 review_status: ""
 reviewed_by: ""
 history:

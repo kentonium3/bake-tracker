@@ -7,9 +7,9 @@ subtasks:
 title: "Price Suggestion Service Functions"
 phase: "Phase 1 - Service Layer"
 lane: "done"
-assignee: ""
-agent: "system"
-shell_pid: ""
+assignee: "claude"
+agent: "claude"
+shell_pid: "reconciled"
 review_status: ""
 reviewed_by: ""
 history:
