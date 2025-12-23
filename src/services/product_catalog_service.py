@@ -29,7 +29,7 @@ from decimal import Decimal
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 
-from src.models import Product, Purchase, Ingredient, InventoryItem
+from src.models import Product, Purchase, Ingredient, InventoryItem, Supplier
 from src.services.database import session_scope
 from src.services.exceptions import ProductNotFound
 
@@ -105,13 +105,28 @@ def _get_products_impl(
 
     products = query.order_by(Product.product_name).all()
 
-    # Enrich with last price
+    # Enrich with last price and relationship data
     result = []
     for p in products:
         data = p.to_dict()
         last_purchase = _get_last_purchase(p.id, session)
         data["last_price"] = str(last_purchase["unit_price"]) if last_purchase else None
         data["last_purchase_date"] = last_purchase["purchase_date"] if last_purchase else None
+
+        # Enrich with ingredient info
+        if p.ingredient:
+            data["ingredient_name"] = p.ingredient.display_name
+            data["category"] = p.ingredient.category
+        else:
+            data["ingredient_name"] = None
+            data["category"] = None
+
+        # Enrich with preferred supplier info
+        if p.preferred_supplier:
+            data["preferred_supplier_name"] = p.preferred_supplier.display_name
+        else:
+            data["preferred_supplier_name"] = None
+
         result.append(data)
     return result
 
@@ -151,6 +166,21 @@ def _get_product_with_last_price_impl(product_id: int, session: Session) -> Opti
     last_purchase = _get_last_purchase(product_id, session)
     data["last_price"] = str(last_purchase["unit_price"]) if last_purchase else None
     data["last_purchase_date"] = last_purchase["purchase_date"] if last_purchase else None
+
+    # Enrich with ingredient info
+    if product.ingredient:
+        data["ingredient_name"] = product.ingredient.display_name
+        data["category"] = product.ingredient.category
+    else:
+        data["ingredient_name"] = None
+        data["category"] = None
+
+    # Enrich with preferred supplier info
+    if product.preferred_supplier:
+        data["preferred_supplier_name"] = product.preferred_supplier.display_name
+    else:
+        data["preferred_supplier_name"] = None
+
     return data
 
 

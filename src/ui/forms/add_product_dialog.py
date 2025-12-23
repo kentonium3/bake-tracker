@@ -317,7 +317,7 @@ class AddProductDialog(ctk.CTkToplevel):
                     product_name=self.name_var.get().strip(),
                     brand=self.brand_var.get().strip() or None,
                     package_unit=self.unit_var.get().strip(),
-                    package_quantity=float(self.quantity_var.get()),
+                    package_unit_quantity=float(self.quantity_var.get()),
                     ingredient_id=ingredient["id"],
                     preferred_supplier_id=supplier_id,
                 )
@@ -332,7 +332,7 @@ class AddProductDialog(ctk.CTkToplevel):
                     product_name=self.name_var.get().strip(),
                     ingredient_id=ingredient["id"],
                     package_unit=self.unit_var.get().strip(),
-                    package_quantity=float(self.quantity_var.get()),
+                    package_unit_quantity=float(self.quantity_var.get()),
                     preferred_supplier_id=supplier_id,
                     brand=self.brand_var.get().strip() or None,
                 )

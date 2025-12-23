@@ -79,6 +79,11 @@ class Supplier(BaseModel):
         return f"{self.city}, {self.state}"
 
     @property
+    def display_name(self) -> str:
+        """Format name with location for display (e.g., 'Costco (Waltham, MA)')."""
+        return f"{self.name} ({self.city}, {self.state})"
+
+    @property
     def full_address(self) -> str:
         """Format full address for display."""
         if self.street_address:
@@ -99,6 +104,7 @@ class Supplier(BaseModel):
 
         # Add computed fields
         result["location"] = self.location
+        result["display_name"] = self.display_name
         result["full_address"] = self.full_address
 
         return result
