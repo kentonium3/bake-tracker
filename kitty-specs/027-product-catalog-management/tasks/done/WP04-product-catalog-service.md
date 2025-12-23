@@ -15,16 +15,16 @@ subtasks:
 title: "Product Catalog Service"
 phase: "Phase 2 - Service Layer"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "system"
-shell_pid: ""
+shell_pid: "50566"
 review_status: ""
 reviewed_by: ""
 history:
   - timestamp: "2025-12-22T14:35:00Z"
     lane: "planned"
     agent: "system"
-    shell_pid: ""
+    shell_pid: "50566"
     action: "Prompt generated via /spec-kitty.tasks"
 ---
 

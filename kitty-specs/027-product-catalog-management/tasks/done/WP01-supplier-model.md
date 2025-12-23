@@ -10,7 +10,7 @@ subtasks:
 title: "Supplier Model"
 phase: "Phase 1 - Schema & Models"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude"
 shell_pid: "50566"
 review_status: ""
@@ -19,7 +19,7 @@ history:
   - timestamp: "2025-12-22T14:35:00Z"
     lane: "planned"
     agent: "system"
-    shell_pid: ""
+    shell_pid: "50566"
     action: "Prompt generated via /spec-kitty.tasks"
 ---
 
