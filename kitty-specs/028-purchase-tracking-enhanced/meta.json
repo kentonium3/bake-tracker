@@ -1,7 +1,24 @@
 {
+  "accept_commit": null,
+  "acceptance_history": [
+    {
+      "accepted_at": "2025-12-23T21:32:39Z",
+      "accepted_by": "claude",
+      "accepted_from_commit": "d052523dd966def3ec9cc51e9928d60dce11a2a5",
+      "branch": "028-purchase-tracking-enhanced",
+      "mode": "local",
+      "validation_commands": [
+        "pytest src/tests -v (1067 passed, 12 skipped, 0 failed)"
+      ]
+    }
+  ],
+  "acceptance_mode": "local",
+  "accepted_at": "2025-12-23T21:32:39Z",
+  "accepted_by": "claude",
+  "accepted_from_commit": "d052523dd966def3ec9cc51e9928d60dce11a2a5",
+  "created_at": "2025-12-23T03:22:17Z",
   "feature_number": "028",
-  "slug": "028-purchase-tracking-enhanced",
   "friendly_name": "Purchase Tracking & Enhanced Costing",
-  "source_description": "Feature 028: Purchase Tracking & Enhanced Costing - Implement Purchase entity as first-class transaction record linking products to suppliers with temporal pricing context. Core changes: (1) Purchase table with product_id, supplier_id, purchase_date, unit_price, quantity_purchased, notes; (2) InventoryAddition.purchase_id FK replacing price_paid field; (3) New purchase_service.py with CRUD and price history queries; (4) Updated inventory_service.add_inventory() to create Purchase records; (5) FIFO cost calculation using Purchase.unit_price; (6) UI: Supplier dropdown in Add Inventory dialog with price suggestions.",
-  "created_at": "2025-12-23T03:22:17Z"
+  "slug": "028-purchase-tracking-enhanced",
+  "source_description": "Feature 028: Purchase Tracking & Enhanced Costing - Implement Purchase entity as first-class transaction record linking products to suppliers with temporal pricing context. Core changes: (1) Purchase table with product_id, supplier_id, purchase_date, unit_price, quantity_purchased, notes; (2) InventoryAddition.purchase_id FK replacing price_paid field; (3) New purchase_service.py with CRUD and price history queries; (4) Updated inventory_service.add_inventory() to create Purchase records; (5) FIFO cost calculation using Purchase.unit_price; (6) UI: Supplier dropdown in Add Inventory dialog with price suggestions."
 }
