@@ -130,7 +130,7 @@ def _run_migration_impl(session: Session, dry_run: bool) -> Tuple[int, int]:
             supplier_id=unknown_supplier.id,
             purchase_date=purchase_date_val,
             unit_price=unit_price,
-            quantity_purchased=int(item.quantity) if item.quantity else 1,
+            quantity_purchased=max(1, int(item.quantity)) if item.quantity else 1,
             notes=None,  # Notes stay on InventoryItem per FR-014
         )
         session.add(purchase)
