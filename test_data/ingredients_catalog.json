@@ -1,18 +1,18 @@
 {
-  "version": "3.4",
-  "exported_at": "2025-12-18T00:00:00Z",
+  "version": "3.5",
+  "exported_at": "2025-12-24T16:18:09.946884Z",
   "application": "bake-tracker",
   "description": "Standardized baking ingredients catalogue - Full Product Coverage",
   "ingredients": [
     {
       "slug": "00_flour",
-      "category": "Flours & Starches",
+      "category": "Flours & Meals",
       "description": "00 flour (aka double zero flour)",
+      "display_name": "00 flour",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 4.34,
-      "density_weight_unit": "oz",
-      "display_name": "00 flour"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "agar_agar_powder",
@@ -24,32 +24,33 @@
       "slug": "agave_syrup",
       "category": "Sugars & Sweeteners",
       "description": "Agave syrup (aka agave nectar)",
+      "display_name": "Agave syrup",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 11.27,
-      "density_weight_unit": "oz",
-      "display_name": "Agave syrup"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "all_purpose_wheat_flour",
-      "category": "Flours & Starches",
+      "category": "Flours & Meals",
       "description": "All-purpose wheat flour (aka AP flour|plain flour)",
+      "display_name": "All-purpose wheat flour",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 4.42,
-      "density_weight_unit": "oz",
-      "display_name": "All-purpose wheat flour"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "allspice_ground",
-      "category": "Spices & Extracts",
+      "category": "Spices & Flavorings",
       "description": "Allspice, ground",
       "display_name": "Allspice, ground"
     },
     {
       "slug": "allspice_whole",
+      "category": "spices",
+      "description": null,
       "display_name": "Allspice, whole",
-      "category": "Spices & Extracts",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 100.0,
@@ -59,41 +60,41 @@
       "slug": "almond_butter",
       "category": "Fats & Oils",
       "description": "Almond butter",
+      "display_name": "Almond butter",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 7.93,
-      "density_weight_unit": "oz",
-      "display_name": "Almond butter"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "almond_extract",
-      "category": "Spices & Extracts",
+      "category": "Spices & Flavorings",
       "description": "Almond extract",
       "display_name": "Almond extract"
     },
     {
       "slug": "almond_flour",
-      "category": "Flours & Starches",
+      "category": "Flours & Meals",
       "description": "Almond flour (aka ground almonds)",
+      "display_name": "Almond flour",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 3.76,
-      "density_weight_unit": "oz",
-      "display_name": "Almond flour"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "almond_meal",
-      "category": "Flours & Starches",
+      "category": "Flours & Meals",
       "description": "Almond meal",
+      "display_name": "Almond meal",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 4.17,
-      "density_weight_unit": "oz",
-      "display_name": "Almond meal"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "almond_paste",
-      "category": "Decorations & Candies",
+      "category": "Candies & Decorations",
       "description": "Almond paste",
       "display_name": "Almond paste"
     },
@@ -117,13 +118,13 @@
     },
     {
       "slug": "amaretto",
-      "category": "Liquids & Liquors",
+      "category": "Liquids",
       "description": "Amaretto",
+      "display_name": "Amaretto",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 7.93,
-      "density_weight_unit": "oz",
-      "display_name": "Amaretto"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "ammonium_bicarbonate",
@@ -133,63 +134,63 @@
     },
     {
       "slug": "anise_seed",
-      "category": "Spices & Extracts",
+      "category": "Spices & Flavorings",
       "description": "Anise seed",
       "display_name": "Anise seed"
     },
     {
       "slug": "apple_cider",
-      "category": "Liquids & Liquors",
+      "category": "Liquids",
       "description": "Apple cider",
+      "display_name": "Apple cider",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 8.35,
-      "density_weight_unit": "oz",
-      "display_name": "Apple cider"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "apple_juice",
-      "category": "Liquids & Liquors",
+      "category": "Liquids",
       "description": "Apple juice",
+      "display_name": "Apple juice",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 8.35,
-      "density_weight_unit": "oz",
-      "display_name": "Apple juice"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "apple_pie_spice",
-      "category": "Spices & Extracts",
+      "category": "Spices & Flavorings",
       "description": "Apple pie spice",
       "display_name": "Apple pie spice"
     },
     {
       "slug": "apples",
-      "category": "Fruits & Dried Fruits",
+      "category": "Fruits",
       "description": "Apples",
       "display_name": "Apples"
     },
     {
       "slug": "applesauce_unsweetened",
-      "category": "Fruits & Dried Fruits",
+      "category": "Fruits",
       "description": "Applesauce, unsweetened (aka unsweetened applesauce)",
       "display_name": "Applesauce, unsweetened"
     },
     {
       "slug": "apricots_dried",
-      "category": "Fruits & Dried Fruits",
+      "category": "Fruits",
       "description": "Apricots, dried",
       "display_name": "Apricots, dried"
     },
     {
       "slug": "arrowroot_starch",
-      "category": "Flours & Starches",
+      "category": "Flours & Meals",
       "description": "Arrowroot starch (aka arrowroot powder)",
+      "display_name": "Arrowroot starch",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 4.59,
-      "density_weight_unit": "oz",
-      "display_name": "Arrowroot starch"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "baking_powder",
@@ -211,68 +212,65 @@
     },
     {
       "slug": "baking_wafers_chocolate",
-      "category": "Chocolate & Cocoa",
+      "category": "Other / Misc",
       "description": "Baking wafers, chocolate",
       "display_name": "Baking wafers, chocolate"
     },
     {
       "slug": "baking_wafers_vanilla",
-      "category": "Decorations & Candies",
+      "category": "Other / Misc",
       "description": "Baking wafers, vanilla",
       "display_name": "Baking wafers, vanilla"
     },
     {
       "slug": "bananas",
-      "category": "Fruits & Dried Fruits",
+      "category": "Fruits",
       "description": "Bananas",
       "display_name": "Bananas"
     },
     {
       "slug": "basil_dried",
-      "category": "Spices & Extracts",
-      "display_name": "Basil, dried",
-      "description": "Dried basil leaves"
+      "category": "Spices & Flavorings",
+      "description": "Dried basil leaves",
+      "display_name": "Basil, dried"
     },
     {
       "slug": "bay_leaves",
-      "category": "Spices & Extracts",
-      "display_name": "Bay leaves",
-      "description": "Dried bay leaves (aka laurel leaves)"
+      "category": "Spices & Flavorings",
+      "description": "Dried bay leaves (aka laurel leaves)",
+      "display_name": "Bay leaves"
     },
     {
       "slug": "biscoff_spread",
-      "category": "Fats & Oils",
-      "display_name": "Speculoos cookie butter",
+      "category": "Other / Misc",
       "description": "Creamy cookie spread made from speculoos cookies (aka Biscoff spread)",
-      "foodon_id": null,
-      "usda_fdc_id": "2468307",
-      "gpc_brick": "10000147"
+      "display_name": "Speculoos cookie butter"
     },
     {
       "slug": "blueberries",
-      "category": "Fruits & Dried Fruits",
+      "category": "Fruits",
       "description": "Blueberries",
       "display_name": "Blueberries"
     },
     {
       "slug": "bourbon",
-      "category": "Liquids & Liquors",
+      "category": "Liquids",
       "description": "Bourbon",
+      "display_name": "Bourbon",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 7.93,
-      "density_weight_unit": "oz",
-      "display_name": "Bourbon"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "brandy",
-      "category": "Liquids & Liquors",
+      "category": "Liquids",
       "description": "Brandy",
+      "display_name": "Brandy",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 7.93,
-      "density_weight_unit": "oz",
-      "display_name": "Brandy"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "brazil_nuts",
@@ -282,113 +280,113 @@
     },
     {
       "slug": "bread_flour",
-      "category": "Flours & Starches",
+      "category": "Flours & Meals",
       "description": "Bread flour (aka high protein flour)",
+      "display_name": "Bread flour",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 4.67,
-      "density_weight_unit": "oz",
-      "display_name": "Bread flour"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "brown_rice_syrup",
       "category": "Sugars & Sweeteners",
       "description": "Brown rice syrup",
+      "display_name": "Brown rice syrup",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 11.68,
-      "density_weight_unit": "oz",
-      "display_name": "Brown rice syrup"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "buckwheat_flour",
-      "category": "Flours & Starches",
+      "category": "Flours & Meals",
       "description": "Buckwheat flour",
+      "display_name": "Buckwheat flour",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 4.17,
-      "density_weight_unit": "oz",
-      "display_name": "Buckwheat flour"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "butter_clarified",
       "category": "Fats & Oils",
       "description": "Butter, clarified (aka ghee)",
+      "display_name": "Butter, clarified",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 8.01,
-      "density_weight_unit": "oz",
-      "display_name": "Butter, clarified"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "butter_salted",
       "category": "Fats & Oils",
       "description": "Butter, salted (aka salted butter)",
+      "display_name": "Butter, salted",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 8.01,
-      "density_weight_unit": "oz",
-      "display_name": "Butter, salted"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "butter_unsalted",
       "category": "Fats & Oils",
       "description": "Butter, unsalted (aka unsalted butter)",
+      "display_name": "Butter, unsalted",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 8.01,
-      "density_weight_unit": "oz",
-      "display_name": "Butter, unsalted"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "butterscotch_chips",
-      "category": "Decorations & Candies",
+      "category": "Candies & Decorations",
       "description": "Butterscotch chips",
       "display_name": "Butterscotch chips"
     },
     {
       "slug": "cake_flour",
-      "category": "Flours & Starches",
+      "category": "Flours & Meals",
       "description": "Cake flour (aka soft wheat flour)",
+      "display_name": "Cake flour",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 3.51,
-      "density_weight_unit": "oz",
-      "display_name": "Cake flour"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "candied_cherries",
-      "category": "Decorations & Candies",
+      "category": "Candies & Decorations",
       "description": "Candied cherries",
       "display_name": "Candied cherries"
     },
     {
       "slug": "candied_citrus_peel",
-      "category": "Decorations & Candies",
+      "category": "Candies & Decorations",
       "description": "Candied citrus peel (aka mixed peel)",
       "display_name": "Candied citrus peel"
     },
     {
       "slug": "candied_ginger",
-      "category": "Decorations & Candies",
+      "category": "Candies & Decorations",
       "description": "Candied ginger",
       "display_name": "Candied ginger"
     },
     {
       "slug": "candy_canes",
-      "category": "Decorations & Candies",
+      "category": "Candies & Decorations",
       "description": "Candy canes (aka peppermint sticks)",
       "display_name": "Candy canes"
     },
     {
       "slug": "candy_melts_colored",
-      "category": "Decorations & Candies",
+      "category": "Candies & Decorations",
       "description": "Candy melts, colored",
       "display_name": "Candy melts, colored"
     },
     {
       "slug": "candy_melts_white",
-      "category": "Decorations & Candies",
+      "category": "Candies & Decorations",
       "description": "Candy melts, white",
       "display_name": "Candy melts, white"
     },
@@ -400,35 +398,35 @@
     },
     {
       "slug": "caramel_bits",
-      "category": "Decorations & Candies",
+      "category": "Candies & Decorations",
       "description": "Caramel bits",
       "display_name": "Caramel bits"
     },
     {
       "slug": "caramel_sauce",
-      "category": "Decorations & Candies",
+      "category": "Candies & Decorations",
       "description": "Caramel sauce",
+      "display_name": "Caramel sauce",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 10.85,
-      "density_weight_unit": "oz",
-      "display_name": "Caramel sauce"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "caramels",
-      "category": "Decorations & Candies",
-      "display_name": "Caramels",
-      "description": "Soft caramel candies for baking"
+      "category": "Candies & Decorations",
+      "description": "Soft caramel candies for baking",
+      "display_name": "Caramels"
     },
     {
       "slug": "cardamom_ground",
-      "category": "Spices & Extracts",
+      "category": "Spices & Flavorings",
       "description": "Cardamom, ground",
       "display_name": "Cardamom, ground"
     },
     {
       "slug": "cardamom_pods",
-      "category": "Spices & Extracts",
+      "category": "Spices & Flavorings",
       "description": "Cardamom pods",
       "display_name": "Cardamom pods"
     },
@@ -440,47 +438,47 @@
     },
     {
       "slug": "cayenne_pepper",
-      "category": "Spices & Extracts",
-      "display_name": "Cayenne pepper",
-      "description": "Ground cayenne pepper (aka red pepper)"
+      "category": "Spices & Flavorings",
+      "description": "Ground cayenne pepper (aka red pepper)",
+      "display_name": "Cayenne pepper"
     },
     {
       "slug": "cheddar_cheese",
       "category": "Dairy & Eggs",
       "description": "Cheddar cheese",
+      "display_name": "Cheddar cheese",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 8.35,
-      "density_weight_unit": "oz",
-      "display_name": "Cheddar cheese"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "cherries_candied_green",
-      "category": "Chocolate & Cocoa",
-      "display_name": "Cherries, candied green",
-      "description": "Green glac\u00e9 cherries for fruitcake"
+      "category": "Chocolate & Candies",
+      "description": "Green glac\u00e9 cherries for fruitcake",
+      "display_name": "Cherries, candied green"
     },
     {
       "slug": "cherries_candied_red",
-      "category": "Chocolate & Cocoa",
-      "display_name": "Cherries, candied red",
-      "description": "Red glac\u00e9 cherries for fruitcake"
+      "category": "Chocolate & Candies",
+      "description": "Red glac\u00e9 cherries for fruitcake",
+      "display_name": "Cherries, candied red"
     },
     {
       "slug": "cherries_dried",
-      "category": "Fruits & Dried Fruits",
+      "category": "Fruits",
       "description": "Cherries, dried",
       "display_name": "Cherries, dried"
     },
     {
       "slug": "cherries_fresh",
-      "category": "Fruits & Dried Fruits",
+      "category": "Fruits",
       "description": "Cherries, fresh",
       "display_name": "Cherries, fresh"
     },
     {
       "slug": "cherries_maraschino",
-      "category": "Fruits & Dried Fruits",
+      "category": "Fruits",
       "description": "Cherries, maraschino (aka maraschino cherries)",
       "display_name": "Cherries, maraschino"
     },
@@ -522,8 +520,9 @@
     },
     {
       "slug": "chocolate_chips_dark",
+      "category": "baking_chocolate",
+      "description": null,
       "display_name": "Chocolate chips, dark",
-      "category": "Chocolate & Cocoa",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 168.0,
@@ -531,8 +530,9 @@
     },
     {
       "slug": "chocolate_chips_espresso",
+      "category": "baking_chocolate",
+      "description": null,
       "display_name": "Chocolate chips, espresso",
-      "category": "Chocolate & Cocoa",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 168.0,
@@ -552,8 +552,9 @@
     },
     {
       "slug": "chocolate_chips_semi_sweet_allergen_free",
+      "category": "baking_chocolate",
+      "description": null,
       "display_name": "Chocolate chips, semi-sweet, allergen-free",
-      "category": "Chocolate & Cocoa",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 168.0,
@@ -573,8 +574,9 @@
     },
     {
       "slug": "chocolate_coating_milk",
+      "category": "baking_chocolate",
+      "description": null,
       "display_name": "Chocolate coating, milk chocolate",
-      "category": "Chocolate & Cocoa",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 170.0,
@@ -589,11 +591,8 @@
     {
       "slug": "chocolate_couverture",
       "category": "Chocolate & Cocoa",
-      "display_name": "Couverture chocolate",
       "description": "High-quality chocolate with minimum 31% cocoa butter",
-      "foodon_id": "FOODON_03301045",
-      "usda_fdc_id": "170271",
-      "gpc_brick": "10000047"
+      "display_name": "Couverture chocolate"
     },
     {
       "slug": "chocolate_couverture_dark",
@@ -610,8 +609,8 @@
     {
       "slug": "chocolate_couverture_ruby",
       "category": "Chocolate & Cocoa",
-      "display_name": "Chocolate couverture, ruby",
-      "description": "Ruby chocolate couverture (aka ruby callets|pink chocolate)"
+      "description": "Ruby chocolate couverture (aka ruby callets|pink chocolate)",
+      "display_name": "Chocolate couverture, ruby"
     },
     {
       "slug": "chocolate_couverture_white",
@@ -621,14 +620,15 @@
     },
     {
       "slug": "chocolate_covered_candies_assorted",
-      "category": "Decorations & Candies",
+      "category": "Candies & Decorations",
       "description": "Chocolate-covered candies, assorted",
       "display_name": "Chocolate-covered candies, assorted"
     },
     {
       "slug": "chocolate_kisses_dark",
+      "category": "baking_chocolate",
+      "description": null,
       "display_name": "Chocolate, kisses, dark",
-      "category": "Chocolate & Cocoa",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 168.0,
@@ -637,50 +637,42 @@
     {
       "slug": "chocolate_mint_chips",
       "category": "Chocolate & Cocoa",
-      "display_name": "Mint chocolate baking chips",
       "description": "Mint flavored chocolate chips (aka peppermint chips)",
-      "foodon_id": null,
-      "usda_fdc_id": "170274",
-      "gpc_brick": "10000047"
+      "display_name": "Mint chocolate baking chips"
     },
     {
       "slug": "chocolate_ruby_callets",
       "category": "Chocolate & Cocoa",
-      "display_name": "Ruby chocolate callets",
       "description": "Ruby cocoa bean chocolate in callet/disk form",
-      "foodon_id": "FOODON_03310815",
-      "usda_fdc_id": null,
-      "gpc_brick": "10000047"
+      "display_name": "Ruby chocolate callets"
     },
     {
       "slug": "chocolate_syrup",
       "category": "Chocolate & Cocoa",
       "description": "Chocolate syrup",
+      "display_name": "Chocolate syrup",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 10.85,
-      "density_weight_unit": "oz",
-      "display_name": "Chocolate syrup"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "cinnamon_chips",
       "category": "Chocolate & Cocoa",
-      "display_name": "Cinnamon baking chips",
       "description": "Cinnamon-flavored confectionery chips",
-      "foodon_id": null,
-      "usda_fdc_id": null,
-      "gpc_brick": "10000047"
+      "display_name": "Cinnamon baking chips"
     },
     {
       "slug": "cinnamon_ground",
-      "category": "Spices & Extracts",
+      "category": "Spices & Flavorings",
       "description": "Cinnamon, ground (aka ground cinnamon)",
       "display_name": "Cinnamon, ground"
     },
     {
       "slug": "cinnamon_ground_ceylon",
+      "category": "spices",
+      "description": null,
       "display_name": "Cinnamon, ground, Ceylon",
-      "category": "Spices & Extracts",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 112.0,
@@ -688,14 +680,15 @@
     },
     {
       "slug": "cinnamon_sticks",
-      "category": "Spices & Extracts",
+      "category": "Spices & Flavorings",
       "description": "Cinnamon sticks",
       "display_name": "Cinnamon sticks"
     },
     {
       "slug": "cinnamon_sticks_indonesian",
+      "category": "spices",
+      "description": null,
       "display_name": "Cinnamon sticks, Indonesian",
-      "category": "Spices & Extracts",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 80.0,
@@ -703,19 +696,19 @@
     },
     {
       "slug": "cloves_ground",
-      "category": "Spices & Extracts",
+      "category": "Spices & Flavorings",
       "description": "Cloves, ground (aka ground cloves)",
       "display_name": "Cloves, ground"
     },
     {
       "slug": "cloves_whole",
-      "category": "Spices & Extracts",
+      "category": "Spices & Flavorings",
       "description": "Cloves, whole",
       "display_name": "Cloves, whole"
     },
     {
       "slug": "cocoa_butter",
-      "category": "Fats & Oils",
+      "category": "Other / Misc",
       "description": "Cocoa butter",
       "display_name": "Cocoa butter"
     },
@@ -723,63 +716,63 @@
       "slug": "cocoa_powder_black",
       "category": "Chocolate & Cocoa",
       "description": "Cocoa powder, black (aka black cocoa)",
+      "display_name": "Cocoa powder, black",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 3.76,
-      "density_weight_unit": "oz",
-      "display_name": "Cocoa powder, black"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "cocoa_powder_dutch_processed",
       "category": "Chocolate & Cocoa",
       "description": "Cocoa powder, dutch-processed (aka dutch cocoa)",
+      "display_name": "Cocoa powder, dutch-processed",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 3.76,
-      "density_weight_unit": "oz",
-      "display_name": "Cocoa powder, dutch-processed"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "cocoa_powder_natural",
       "category": "Chocolate & Cocoa",
       "description": "Cocoa powder, natural (aka natural cocoa)",
+      "display_name": "Cocoa powder, natural",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 4.17,
-      "density_weight_unit": "oz",
-      "display_name": "Cocoa powder, natural"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "coconut_flakes",
-      "category": "Fruits & Dried Fruits",
+      "category": "Fruits",
       "description": "Coconut flakes (aka coconut chips)",
       "display_name": "Coconut flakes"
     },
     {
       "slug": "coconut_flour",
-      "category": "Flours & Starches",
+      "category": "Flours & Meals",
       "description": "Coconut flour",
+      "display_name": "Coconut flour",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 4.17,
-      "density_weight_unit": "oz",
-      "display_name": "Coconut flour"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "coconut_milk_canned",
-      "category": "Liquids & Liquors",
-      "display_name": "Coconut milk, canned",
-      "description": "Full-fat canned coconut milk"
+      "category": "Liquids",
+      "description": "Full-fat canned coconut milk",
+      "display_name": "Coconut milk, canned"
     },
     {
       "slug": "coconut_shredded_sweetened",
-      "category": "Fruits & Dried Fruits",
+      "category": "Fruits",
       "description": "Coconut, shredded sweetened (aka sweetened shredded coconut)",
       "display_name": "Coconut, shredded sweetened"
     },
     {
       "slug": "coconut_shredded_unsweetened",
-      "category": "Fruits & Dried Fruits",
+      "category": "Fruits",
       "description": "Coconut, shredded unsweetened (aka unsweetened shredded coconut)",
       "display_name": "Coconut, shredded unsweetened"
     },
@@ -787,21 +780,21 @@
       "slug": "coconut_sugar",
       "category": "Sugars & Sweeteners",
       "description": "Coconut sugar",
+      "display_name": "Coconut sugar",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 7.51,
-      "density_weight_unit": "oz",
-      "display_name": "Coconut sugar"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "coffee_brewed",
-      "category": "Liquids & Liquors",
+      "category": "Liquids",
       "description": "Coffee, brewed",
+      "display_name": "Coffee, brewed",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 8.35,
-      "density_weight_unit": "oz",
-      "display_name": "Coffee, brewed"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "cooking_spray",
@@ -811,13 +804,13 @@
     },
     {
       "slug": "coriander_ground",
-      "category": "Spices & Extracts",
+      "category": "Spices & Flavorings",
       "description": "Coriander, ground",
       "display_name": "Coriander, ground"
     },
     {
       "slug": "corn_flakes",
-      "category": "Additives & Thickeners",
+      "category": "Other / Misc",
       "description": "Corn flakes",
       "display_name": "Corn flakes"
     },
@@ -825,81 +818,81 @@
       "slug": "corn_syrup_dark",
       "category": "Sugars & Sweeteners",
       "description": "Corn syrup, dark (aka dark corn syrup)",
+      "display_name": "Corn syrup, dark",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 11.1,
-      "density_weight_unit": "oz",
-      "display_name": "Corn syrup, dark"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "corn_syrup_light",
       "category": "Sugars & Sweeteners",
       "description": "Corn syrup, light (aka light corn syrup)",
+      "display_name": "Corn syrup, light",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 11.1,
-      "density_weight_unit": "oz",
-      "display_name": "Corn syrup, light"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "cornmeal_coarse",
-      "category": "Flours & Starches",
+      "category": "Flours & Meals",
       "description": "Cornmeal, coarse (aka polenta (dry))",
+      "display_name": "Cornmeal, coarse",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 5.01,
-      "density_weight_unit": "oz",
-      "display_name": "Cornmeal, coarse"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "cornmeal_fine",
-      "category": "Flours & Starches",
+      "category": "Flours & Meals",
       "description": "Cornmeal, fine (aka fine cornmeal)",
+      "display_name": "Cornmeal, fine",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 5.01,
-      "density_weight_unit": "oz",
-      "display_name": "Cornmeal, fine"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "cornmeal_medium",
-      "category": "Flours & Starches",
+      "category": "Flours & Meals",
       "description": "Cornmeal, medium (aka medium cornmeal)",
+      "display_name": "Cornmeal, medium",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 5.01,
-      "density_weight_unit": "oz",
-      "display_name": "Cornmeal, medium"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "cornstarch",
-      "category": "Flours & Starches",
+      "category": "Flours & Meals",
       "description": "Cornstarch (aka corn flour (US))",
+      "display_name": "Cornstarch",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 4.51,
-      "density_weight_unit": "oz",
-      "display_name": "Cornstarch"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "cottage_cheese",
       "category": "Dairy & Eggs",
       "description": "Cottage cheese",
+      "display_name": "Cottage cheese",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 8.35,
-      "density_weight_unit": "oz",
-      "display_name": "Cottage cheese"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "cranberries",
-      "category": "Fruits & Dried Fruits",
+      "category": "Fruits",
       "description": "Cranberries",
       "display_name": "Cranberries"
     },
     {
       "slug": "cranberries_dried",
-      "category": "Fruits & Dried Fruits",
+      "category": "Fruits",
       "description": "Cranberries, dried",
       "display_name": "Cranberries, dried"
     },
@@ -907,31 +900,31 @@
       "slug": "cream_cheese",
       "category": "Fats & Oils",
       "description": "Cream cheese",
+      "display_name": "Cream cheese",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 8.35,
-      "density_weight_unit": "oz",
-      "display_name": "Cream cheese"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "cream_heavy",
       "category": "Dairy & Eggs",
       "description": "Cream, heavy (aka heavy whipping cream)",
+      "display_name": "Cream, heavy",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 8.35,
-      "density_weight_unit": "oz",
-      "display_name": "Cream, heavy"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "cream_light",
       "category": "Dairy & Eggs",
       "description": "Cream, light (aka half and half)",
+      "display_name": "Cream, light",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 8.35,
-      "density_weight_unit": "oz",
-      "display_name": "Cream, light"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "cream_of_tartar",
@@ -943,24 +936,21 @@
       "slug": "creme_fraiche",
       "category": "Dairy & Eggs",
       "description": "Creme fraiche (aka cr\u00e8me fra\u00eeche)",
+      "display_name": "Cr\u00e8me fra\u00eeche",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 8.35,
-      "density_weight_unit": "oz",
-      "display_name": "Cr\u00e8me fra\u00eeche"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "currants_dried",
-      "category": "Fruits & Dried Fruits",
+      "category": "Fruits",
       "description": "Dried Zante currants (aka Black Corinth raisins)",
-      "display_name": "Currants, dried",
-      "foodon_id": "FOODON_00003426",
-      "usda_fdc_id": "1102830",
-      "gpc_brick": "10000204"
+      "display_name": "Currants, dried"
     },
     {
       "slug": "dates_pitted",
-      "category": "Fruits & Dried Fruits",
+      "category": "Fruits",
       "description": "Dates, pitted",
       "display_name": "Dates, pitted"
     },
@@ -968,11 +958,11 @@
       "slug": "demerara_sugar",
       "category": "Sugars & Sweeteners",
       "description": "Demerara sugar",
+      "display_name": "Demerara sugar",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 7.51,
-      "density_weight_unit": "oz",
-      "display_name": "Demerara sugar"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "edible_glitter",
@@ -1006,20 +996,21 @@
     },
     {
       "slug": "espresso_powder",
-      "category": "Spices & Extracts",
+      "category": "Spices & Flavorings",
       "description": "Espresso powder (aka instant espresso powder)",
       "display_name": "Espresso powder"
     },
     {
       "slug": "espresso_powder_instant",
-      "category": "Spices & Extracts",
-      "display_name": "Espresso powder, instant",
-      "description": "Highly concentrated instant coffee for baking"
+      "category": "Spices & Flavorings",
+      "description": "Highly concentrated instant coffee for baking",
+      "display_name": "Espresso powder, instant"
     },
     {
       "slug": "extract_chocolate",
+      "category": "extracts_flavorings",
+      "description": null,
       "display_name": "Extract, chocolate",
-      "category": "Spices & Extracts",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 208.0,
@@ -1027,8 +1018,9 @@
     },
     {
       "slug": "extract_coconut",
+      "category": "extracts_flavorings",
+      "description": null,
       "display_name": "Extract, coconut",
-      "category": "Spices & Extracts",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 208.0,
@@ -1036,8 +1028,9 @@
     },
     {
       "slug": "extract_coffee",
+      "category": "extracts_flavorings",
+      "description": null,
       "display_name": "Extract, coffee",
-      "category": "Spices & Extracts",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 208.0,
@@ -1045,8 +1038,9 @@
     },
     {
       "slug": "extract_mint",
+      "category": "extracts_flavorings",
+      "description": null,
       "display_name": "Extract, mint",
-      "category": "Spices & Extracts",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 208.0,
@@ -1054,8 +1048,9 @@
     },
     {
       "slug": "extract_raspberry",
+      "category": "extracts_flavorings",
+      "description": null,
       "display_name": "Extract, raspberry",
-      "category": "Spices & Extracts",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 208.0,
@@ -1063,8 +1058,9 @@
     },
     {
       "slug": "extract_vanilla_mexican",
+      "category": "extracts_flavorings",
+      "description": null,
       "display_name": "Extract, vanilla, Mexican",
-      "category": "Spices & Extracts",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 208.0,
@@ -1072,8 +1068,9 @@
     },
     {
       "slug": "extract_vanilla_oak_aged",
+      "category": "extracts_flavorings",
+      "description": null,
       "display_name": "Extract, vanilla, oak-aged",
-      "category": "Spices & Extracts",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 208.0,
@@ -1081,8 +1078,9 @@
     },
     {
       "slug": "extract_vanilla_spiced",
+      "category": "extracts_flavorings",
+      "description": null,
       "display_name": "Extract, vanilla, spiced",
-      "category": "Spices & Extracts",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 208.0,
@@ -1090,13 +1088,13 @@
     },
     {
       "slug": "fennel_seeds",
-      "category": "Spices & Extracts",
-      "display_name": "Fennel seeds",
-      "description": "Whole fennel seeds"
+      "category": "Spices & Flavorings",
+      "description": "Whole fennel seeds",
+      "display_name": "Fennel seeds"
     },
     {
       "slug": "figs_dried",
-      "category": "Fruits & Dried Fruits",
+      "category": "Fruits",
       "description": "Figs, dried",
       "display_name": "Figs, dried"
     },
@@ -1114,8 +1112,9 @@
     },
     {
       "slug": "flour_almond",
+      "category": "flour",
+      "description": null,
       "display_name": "Flour, almond",
-      "category": "Flours & Starches",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 96.0,
@@ -1123,7 +1122,7 @@
     },
     {
       "slug": "fondant",
-      "category": "Decorations & Candies",
+      "category": "Candies & Decorations",
       "description": "Fondant (aka rolled fondant)",
       "display_name": "Fondant"
     },
@@ -1147,9 +1146,9 @@
     },
     {
       "slug": "fruit_candied_mixed",
-      "category": "Chocolate & Cocoa",
-      "display_name": "Fruit, candied mixed",
-      "description": "Mixed candied fruit for fruitcake (aka glac\u00e9 fruit)"
+      "category": "Chocolate & Candies",
+      "description": "Mixed candied fruit for fruitcake (aka glac\u00e9 fruit)",
+      "display_name": "Fruit, candied mixed"
     },
     {
       "slug": "gelatin_powder",
@@ -1165,80 +1164,77 @@
     },
     {
       "slug": "ginger_fresh",
-      "category": "Spices & Extracts",
+      "category": "Spices & Flavorings",
       "description": "Ginger, fresh",
       "display_name": "Ginger, fresh"
     },
     {
       "slug": "ginger_ground",
-      "category": "Spices & Extracts",
+      "category": "Spices & Flavorings",
       "description": "Ginger, ground (aka ground ginger)",
       "display_name": "Ginger, ground"
     },
     {
       "slug": "glaze_apricot",
-      "category": "Fruits & Dried Fruits",
-      "display_name": "Apricot glaze",
-      "description": "Strained apricot jam used as a fruit glaze"
+      "category": "Other / Misc",
+      "description": "Strained apricot jam used as a fruit glaze",
+      "display_name": "Apricot glaze"
     },
     {
       "slug": "glucose_syrup",
       "category": "Sugars & Sweeteners",
       "description": "Glucose syrup",
+      "display_name": "Glucose syrup",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 11.1,
-      "density_weight_unit": "oz",
-      "display_name": "Glucose syrup"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "gluten_free_flour_blend",
-      "category": "Flours & Starches",
+      "category": "Flours & Meals",
       "description": "Gluten-free flour blend (aka GF flour blend)",
+      "display_name": "Gluten-free flour blend",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 4.17,
-      "density_weight_unit": "oz",
-      "display_name": "Gluten-free flour blend"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "golden_syrup",
       "category": "Sugars & Sweeteners",
       "description": "Golden syrup",
+      "display_name": "Golden syrup",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 11.68,
-      "density_weight_unit": "oz",
-      "display_name": "Golden syrup"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "graham_cracker_crumbs",
-      "category": "Flours & Starches",
-      "display_name": "Graham cracker crumbs",
+      "category": "Flours & Meals",
       "description": "Finely ground graham crackers for crusts and bases",
-      "foodon_id": "FOODON_03301725",
-      "usda_fdc_id": "170170",
-      "gpc_brick": "10000037"
+      "display_name": "Graham cracker crumbs"
     },
     {
       "slug": "granola",
-      "category": "Additives & Thickeners",
+      "category": "Other / Misc",
       "description": "Granola",
       "display_name": "Granola"
     },
     {
       "slug": "grape_juice",
-      "category": "Liquids & Liquors",
+      "category": "Liquids",
       "description": "Grape juice",
+      "display_name": "Grape juice",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 8.35,
-      "density_weight_unit": "oz",
-      "display_name": "Grape juice"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "grapefruit_zest",
-      "category": "Spices & Extracts",
+      "category": "Spices & Flavorings",
       "description": "Grapefruit zest",
       "display_name": "Grapefruit zest"
     },
@@ -1246,11 +1242,11 @@
       "slug": "greek_yogurt_plain",
       "category": "Dairy & Eggs",
       "description": "Greek yogurt, plain",
+      "display_name": "Greek yogurt, plain",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 8.35,
-      "density_weight_unit": "oz",
-      "display_name": "Greek yogurt, plain"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "guar_gum",
@@ -1260,31 +1256,31 @@
     },
     {
       "slug": "gum_paste",
-      "category": "Decorations & Candies",
+      "category": "Candies & Decorations",
       "description": "Gum paste",
       "display_name": "Gum paste"
     },
     {
       "slug": "gumdrops",
-      "category": "Decorations & Candies",
+      "category": "Candies & Decorations",
       "description": "Gumdrops",
       "display_name": "Gumdrops"
     },
     {
       "slug": "hard_candy_assorted",
-      "category": "Decorations & Candies",
+      "category": "Candies & Decorations",
       "description": "Hard candy, assorted",
       "display_name": "Hard candy, assorted"
     },
     {
       "slug": "hazelnut_flour",
-      "category": "Flours & Starches",
+      "category": "Flours & Meals",
       "description": "Hazelnut flour",
+      "display_name": "Hazelnut flour",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 3.76,
-      "density_weight_unit": "oz",
-      "display_name": "Hazelnut flour"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "hazelnuts",
@@ -1296,15 +1292,15 @@
       "slug": "honey",
       "category": "Sugars & Sweeteners",
       "description": "Honey",
+      "display_name": "Honey",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 11.85,
-      "density_weight_unit": "oz",
-      "display_name": "Honey"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "instant_coffee_granules",
-      "category": "Spices & Extracts",
+      "category": "Spices & Flavorings",
       "description": "Instant coffee granules",
       "display_name": "Instant coffee granules"
     },
@@ -1312,212 +1308,193 @@
       "slug": "invert_sugar_syrup",
       "category": "Sugars & Sweeteners",
       "description": "Invert sugar syrup (aka trimoline)",
+      "display_name": "Invert sugar syrup",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 11.1,
-      "density_weight_unit": "oz",
-      "display_name": "Invert sugar syrup"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "jelly_beans",
-      "category": "Decorations & Candies",
+      "category": "Candies & Decorations",
       "description": "Jelly beans",
       "display_name": "Jelly beans"
     },
     {
       "slug": "jelly_currant",
-      "category": "Fruits & Dried Fruits",
-      "display_name": "Jelly, currant",
-      "description": "Red currant jelly"
+      "category": "Fruits",
+      "description": "Red currant jelly",
+      "display_name": "Jelly, currant"
     },
     {
       "slug": "lard",
       "category": "Fats & Oils",
       "description": "Lard",
+      "display_name": "Lard",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 7.68,
-      "density_weight_unit": "oz",
-      "display_name": "Lard"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "lavender_culinary",
-      "category": "Spices & Extracts",
-      "display_name": "Lavender, culinary",
+      "category": "Spices & Flavorings",
       "description": "Dried culinary lavender buds for baking",
-      "density_volume_value": 1.0,
-      "density_volume_unit": "cup",
-      "density_weight_value": 48.0,
-      "density_weight_unit": "g"
+      "display_name": "Lavender, culinary"
     },
     {
       "slug": "lemon_extract",
-      "category": "Spices & Extracts",
+      "category": "Spices & Flavorings",
       "description": "Lemon extract",
       "display_name": "Lemon extract"
     },
     {
       "slug": "lemon_juice",
-      "category": "Spices & Extracts",
+      "category": "Spices & Flavorings",
       "description": "Lemon juice",
+      "display_name": "Lemon juice",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 8.35,
-      "density_weight_unit": "oz",
-      "display_name": "Lemon juice"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "lemon_whole",
-      "category": "Fruits & Dried Fruits",
+      "category": "Fruits",
       "description": "Lemon, whole",
       "display_name": "Lemon, whole"
     },
     {
       "slug": "lemon_zest",
-      "category": "Spices & Extracts",
+      "category": "Spices & Flavorings",
       "description": "Lemon zest",
       "display_name": "Lemon zest"
     },
     {
       "slug": "licorice_black",
-      "category": "Decorations & Candies",
+      "category": "Candies & Decorations",
       "description": "Licorice, black",
       "display_name": "Licorice, black"
     },
     {
       "slug": "licorice_red",
-      "category": "Decorations & Candies",
+      "category": "Candies & Decorations",
       "description": "Licorice, red",
       "display_name": "Licorice, red"
     },
     {
       "slug": "lime_juice",
-      "category": "Spices & Extracts",
+      "category": "Spices & Flavorings",
       "description": "Lime juice",
+      "display_name": "Lime juice",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 8.35,
-      "density_weight_unit": "oz",
-      "display_name": "Lime juice"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "lime_whole",
-      "category": "Fruits & Dried Fruits",
+      "category": "Fruits",
       "description": "Lime, whole",
       "display_name": "Lime, whole"
     },
     {
       "slug": "lime_zest",
-      "category": "Spices & Extracts",
+      "category": "Spices & Flavorings",
       "description": "Lime zest",
       "display_name": "Lime zest"
     },
     {
       "slug": "liqueur_blackcurrant",
-      "category": "Liquids & Liquors",
-      "display_name": "Cr\u00e8me de cassis",
+      "category": "Liquids",
       "description": "Blackcurrant liqueur (aka Cassis)",
-      "foodon_id": "FOODON_03315615",
-      "usda_fdc_id": null,
-      "gpc_brick": "10000236"
+      "display_name": "Cr\u00e8me de cassis"
     },
     {
       "slug": "liqueur_chocolate",
-      "category": "Liquids & Liquors",
-      "display_name": "Liqueur, chocolate",
-      "description": "Chocolate-flavored liqueur (aka cr\u00e8me de cacao)"
+      "category": "Liquids",
+      "description": "Chocolate-flavored liqueur (aka cr\u00e8me de cacao)",
+      "display_name": "Liqueur, chocolate"
     },
     {
       "slug": "liqueur_coffee",
-      "category": "Liquids & Liquors",
-      "display_name": "Coffee Liqueur",
+      "category": "Liquids",
       "description": "Coffee-flavored liqueur (aka Kahlua|Tia Maria)",
-      "foodon_id": "FOODON_03302061",
-      "usda_fdc_id": null,
-      "gpc_brick": "10000236"
+      "display_name": "Coffee Liqueur"
     },
     {
       "slug": "liqueur_hazelnut",
-      "category": "Liquids & Liquors",
-      "display_name": "Hazelnut Liqueur",
+      "category": "Liquids",
       "description": "Hazelnut-flavored liqueur (aka Frangelico)",
-      "foodon_id": null,
-      "usda_fdc_id": null,
-      "gpc_brick": "10000236"
+      "display_name": "Hazelnut Liqueur"
     },
     {
       "slug": "liqueur_orange",
-      "category": "Liquids & Liquors",
-      "display_name": "Liqueur, orange",
-      "description": "Orange-flavored liqueur (aka Grand Marnier|Cointreau|triple sec)"
+      "category": "Liquids",
+      "description": "Orange-flavored liqueur (aka Grand Marnier|Cointreau|triple sec)",
+      "display_name": "Liqueur, orange"
     },
     {
       "slug": "liqueur_raspberry",
-      "category": "Liquids & Liquors",
-      "display_name": "Raspberry Liqueur",
+      "category": "Liquids",
       "description": "Raspberry-flavored liqueur (aka Chambord)",
-      "foodon_id": null,
-      "usda_fdc_id": null,
-      "gpc_brick": "10000236"
+      "display_name": "Raspberry Liqueur"
     },
     {
       "slug": "macadamia_nuts",
       "category": "Nuts & Seeds",
       "description": "Raw or roasted macadamia nut kernels",
-      "display_name": "Macadamia nuts",
-      "foodon_id": "FOODON_03306646",
-      "usda_fdc_id": "170588",
-      "gpc_brick": "10000100"
+      "display_name": "Macadamia nuts"
     },
     {
       "slug": "mace_ground",
-      "category": "Spices & Extracts",
+      "category": "Spices & Flavorings",
       "description": "Mace, ground",
       "display_name": "Mace, ground"
     },
     {
       "slug": "malt_powder",
-      "category": "Additives & Thickeners",
-      "display_name": "Malt powder",
-      "description": "Diastatic or non-diastatic malt for bread/cookies"
+      "category": "Other / Misc",
+      "description": "Diastatic or non-diastatic malt for bread/cookies",
+      "display_name": "Malt powder"
     },
     {
       "slug": "malt_syrup",
       "category": "Sugars & Sweeteners",
       "description": "Malt syrup (aka barley malt syrup)",
+      "display_name": "Malt syrup",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 11.1,
-      "density_weight_unit": "oz",
-      "display_name": "Malt syrup"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "malted_milk_balls",
-      "category": "Decorations & Candies",
+      "category": "Other / Misc",
       "description": "Malted milk balls",
       "display_name": "Malted milk balls"
     },
     {
       "slug": "mandms_peanut",
-      "category": "Decorations & Candies",
+      "category": "Candies & Decorations",
       "description": "M&M's, peanut",
       "display_name": "M&M's, peanut"
     },
     {
       "slug": "mandms_plain_chocolate",
-      "category": "Decorations & Candies",
+      "category": "Candies & Decorations",
       "description": "M&M's, plain chocolate",
       "display_name": "M&M's, plain chocolate"
     },
     {
       "slug": "mango_dried",
-      "category": "Fruits & Dried Fruits",
+      "category": "Fruits",
       "description": "Mango, dried",
       "display_name": "Mango, dried"
     },
     {
       "slug": "maple_extract",
-      "category": "Spices & Extracts",
+      "category": "Spices & Flavorings",
       "description": "Maple extract",
       "display_name": "Maple extract"
     },
@@ -1525,37 +1502,37 @@
       "slug": "maple_syrup",
       "category": "Sugars & Sweeteners",
       "description": "Maple syrup",
+      "display_name": "Maple syrup",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 11.1,
-      "density_weight_unit": "oz",
-      "display_name": "Maple syrup"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "margarine",
       "category": "Fats & Oils",
       "description": "Margarine",
+      "display_name": "Margarine",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 8.01,
-      "density_weight_unit": "oz",
-      "display_name": "Margarine"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "marjoram_dried",
-      "category": "Spices & Extracts",
-      "display_name": "Marjoram, dried",
-      "description": "Dried marjoram leaves"
+      "category": "Spices & Flavorings",
+      "description": "Dried marjoram leaves",
+      "display_name": "Marjoram, dried"
     },
     {
       "slug": "marshmallows",
-      "category": "Decorations & Candies",
+      "category": "Candies & Decorations",
       "description": "Marshmallows",
       "display_name": "Marshmallows"
     },
     {
       "slug": "marzipan",
-      "category": "Decorations & Candies",
+      "category": "Candies & Decorations",
       "description": "Marzipan (aka almond paste (for decorating))",
       "display_name": "Marzipan"
     },
@@ -1563,139 +1540,139 @@
       "slug": "mascarpone",
       "category": "Dairy & Eggs",
       "description": "Mascarpone",
+      "display_name": "Mascarpone",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 8.35,
-      "density_weight_unit": "oz",
-      "display_name": "Mascarpone"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "mascarpone_cheese",
-      "category": "Dairy & Eggs",
-      "display_name": "Mascarpone cheese",
-      "description": "Italian cream cheese used in tiramisu and frostings"
+      "category": "Dairy",
+      "description": "Italian cream cheese used in tiramisu and frostings",
+      "display_name": "Mascarpone cheese"
     },
     {
       "slug": "matcha_powder",
-      "category": "Spices & Extracts",
-      "display_name": "Matcha powder",
-      "description": "Finely ground green tea powder"
+      "category": "Spices & Flavorings",
+      "description": "Finely ground green tea powder",
+      "display_name": "Matcha powder"
     },
     {
       "slug": "milk_2",
       "category": "Dairy & Eggs",
       "description": "Milk, 2%",
+      "display_name": "Milk, 2%",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 8.6,
-      "density_weight_unit": "oz",
-      "display_name": "Milk, 2%"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "milk_alternative_almond",
-      "category": "Liquids & Liquors",
+      "category": "Liquids",
       "description": "Milk alternative, almond (aka almond milk)",
+      "display_name": "Milk alternative, almond",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 8.35,
-      "density_weight_unit": "oz",
-      "display_name": "Milk alternative, almond"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "milk_alternative_oat",
-      "category": "Liquids & Liquors",
+      "category": "Liquids",
       "description": "Milk alternative, oat (aka oat milk)",
+      "display_name": "Milk alternative, oat",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 8.35,
-      "density_weight_unit": "oz",
-      "display_name": "Milk alternative, oat"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "milk_alternative_soy",
-      "category": "Liquids & Liquors",
+      "category": "Liquids",
       "description": "Milk alternative, soy (aka soy milk)",
+      "display_name": "Milk alternative, soy",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 8.35,
-      "density_weight_unit": "oz",
-      "display_name": "Milk alternative, soy"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "milk_buttermilk",
       "category": "Dairy & Eggs",
       "description": "Milk, buttermilk (aka buttermilk)",
+      "display_name": "Milk, buttermilk",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 8.6,
-      "density_weight_unit": "oz",
-      "display_name": "Milk, buttermilk"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "milk_condensed_sweetened",
       "category": "Dairy & Eggs",
       "description": "Milk, condensed sweetened (aka sweetened condensed milk)",
+      "display_name": "Milk, condensed sweetened",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 10.85,
-      "density_weight_unit": "oz",
-      "display_name": "Milk, condensed sweetened"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "milk_evaporated",
       "category": "Dairy & Eggs",
       "description": "Milk, evaporated (aka evaporated milk)",
+      "display_name": "Milk, evaporated",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 9.18,
-      "density_weight_unit": "oz",
-      "display_name": "Milk, evaporated"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "milk_powder_nonfat",
       "category": "Dairy & Eggs",
       "description": "Milk powder, nonfat (aka nonfat dry milk)",
+      "display_name": "Milk powder, nonfat",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 4.17,
-      "density_weight_unit": "oz",
-      "display_name": "Milk powder, nonfat"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "milk_powder_whole",
       "category": "Dairy & Eggs",
       "description": "Milk powder, whole (aka whole milk powder)",
+      "display_name": "Milk powder, whole",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 4.17,
-      "density_weight_unit": "oz",
-      "display_name": "Milk powder, whole"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "milk_skim",
       "category": "Dairy & Eggs",
       "description": "Milk, skim",
+      "display_name": "Milk, skim",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 8.6,
-      "density_weight_unit": "oz",
-      "display_name": "Milk, skim"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "milk_whole",
       "category": "Dairy & Eggs",
       "description": "Milk, whole (aka whole milk)",
+      "display_name": "Milk, whole",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 8.6,
-      "density_weight_unit": "oz",
-      "display_name": "Milk, whole"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "mincemeat",
-      "category": "Fruits & Dried Fruits",
-      "display_name": "Mincemeat",
-      "description": "Jarred mincemeat pie filling"
+      "category": "Fruits",
+      "description": "Jarred mincemeat pie filling",
+      "display_name": "Mincemeat"
     },
     {
       "slug": "mini_chocolate_chips_semi_sweet",
@@ -1705,81 +1682,79 @@
     },
     {
       "slug": "mini_marshmallows",
-      "category": "Decorations & Candies",
+      "category": "Candies & Decorations",
       "description": "Mini marshmallows",
       "display_name": "Mini marshmallows"
     },
     {
       "slug": "mint_chocolate_candies",
-      "category": "Chocolate & Cocoa",
-      "display_name": "Mint chocolate candies",
-      "description": "Pastel mint chocolate balls (aka Andes mints|mint melts)"
+      "category": "Chocolate & Candies",
+      "description": "Pastel mint chocolate balls (aka Andes mints|mint melts)",
+      "display_name": "Mint chocolate candies"
     },
     {
       "slug": "molasses_blackstrap",
       "category": "Sugars & Sweeteners",
       "description": "Molasses, blackstrap (aka blackstrap)",
+      "display_name": "Molasses, blackstrap",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 12.52,
-      "density_weight_unit": "oz",
-      "display_name": "Molasses, blackstrap"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "molasses_dark",
       "category": "Sugars & Sweeteners",
       "description": "Molasses, dark (aka dark molasses)",
+      "display_name": "Molasses, dark",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 12.1,
-      "density_weight_unit": "oz",
-      "display_name": "Molasses, dark"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "molasses_light",
       "category": "Sugars & Sweeteners",
       "description": "Molasses, light (aka light molasses)",
+      "display_name": "Molasses, light",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 11.68,
-      "density_weight_unit": "oz",
-      "display_name": "Molasses, light"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "muscovado_sugar",
       "category": "Sugars & Sweeteners",
       "description": "Muscovado sugar",
+      "display_name": "Muscovado sugar",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 7.93,
-      "density_weight_unit": "oz",
-      "display_name": "Muscovado sugar"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "nonpareils",
-      "category": "Decorations & Candies",
+      "category": "Candies & Decorations",
       "description": "Nonpareils",
       "display_name": "Nonpareils"
     },
     {
       "slug": "nutella",
-      "category": "Fats & Oils",
-      "display_name": "Hazelnut cocoa spread",
+      "category": "Other / Misc",
       "description": "Sweetened hazelnut cocoa spread (aka Nutella)",
-      "foodon_id": "FOODON_03309858",
-      "usda_fdc_id": "2262031",
-      "gpc_brick": "10000147"
+      "display_name": "Hazelnut cocoa spread"
     },
     {
       "slug": "nutmeg_ground",
-      "category": "Spices & Extracts",
+      "category": "Spices & Flavorings",
       "description": "Nutmeg, ground (aka ground nutmeg)",
       "display_name": "Nutmeg, ground"
     },
     {
       "slug": "nutmeg_ground_east_indian",
+      "category": "spices",
+      "description": null,
       "display_name": "Nutmeg, ground, East Indian",
-      "category": "Spices & Extracts",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 112.0,
@@ -1787,8 +1762,9 @@
     },
     {
       "slug": "nutmeg_ground_west_indian",
+      "category": "spices",
+      "description": null,
       "display_name": "Nutmeg, ground, West Indian",
-      "category": "Spices & Extracts",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 112.0,
@@ -1796,29 +1772,29 @@
     },
     {
       "slug": "nutmeg_whole",
-      "category": "Spices & Extracts",
+      "category": "Spices & Flavorings",
       "description": "Nutmeg, whole",
       "display_name": "Nutmeg, whole"
     },
     {
       "slug": "oat_flour",
-      "category": "Flours & Starches",
+      "category": "Flours & Meals",
       "description": "Oat flour",
+      "display_name": "Oat flour",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 4.17,
-      "density_weight_unit": "oz",
-      "display_name": "Oat flour"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "oats_quick",
-      "category": "Flours & Starches",
+      "category": "Other / Misc",
       "description": "Oats, quick (aka quick oats)",
       "display_name": "Oats, quick"
     },
     {
       "slug": "oats_rolled",
-      "category": "Flours & Starches",
+      "category": "Other / Misc",
       "description": "Oats, rolled (aka old fashioned oats)",
       "display_name": "Oats, rolled"
     },
@@ -1826,71 +1802,71 @@
       "slug": "oil_avocado",
       "category": "Fats & Oils",
       "description": "Oil, avocado (aka avocado oil)",
+      "display_name": "Oil, avocado",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 7.59,
-      "density_weight_unit": "oz",
-      "display_name": "Oil, avocado"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "oil_canola",
       "category": "Fats & Oils",
       "description": "Oil, canola (aka canola oil)",
+      "display_name": "Oil, canola",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 7.68,
-      "density_weight_unit": "oz",
-      "display_name": "Oil, canola"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "oil_coconut",
       "category": "Fats & Oils",
       "description": "Oil, coconut (aka coconut oil)",
+      "display_name": "Oil, coconut",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 7.68,
-      "density_weight_unit": "oz",
-      "display_name": "Oil, coconut"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "oil_grapeseed",
       "category": "Fats & Oils",
       "description": "Oil, grapeseed (aka grapeseed oil)",
+      "display_name": "Oil, grapeseed",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 7.68,
-      "density_weight_unit": "oz",
-      "display_name": "Oil, grapeseed"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "oil_olive",
       "category": "Fats & Oils",
       "description": "Oil, olive (aka olive oil)",
+      "display_name": "Oil, olive",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 7.59,
-      "density_weight_unit": "oz",
-      "display_name": "Oil, olive"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "oil_sunflower",
       "category": "Fats & Oils",
       "description": "Oil, sunflower (aka sunflower oil)",
+      "display_name": "Oil, sunflower",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 7.68,
-      "density_weight_unit": "oz",
-      "display_name": "Oil, sunflower"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "oil_vegetable",
       "category": "Fats & Oils",
       "description": "Oil, vegetable (aka neutral oil)",
+      "display_name": "Oil, vegetable",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 7.68,
-      "density_weight_unit": "oz",
-      "display_name": "Oil, vegetable"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "olive_oil",
@@ -1900,83 +1876,83 @@
     },
     {
       "slug": "orange_extract",
-      "category": "Spices & Extracts",
+      "category": "Spices & Flavorings",
       "description": "Orange extract",
       "display_name": "Orange extract"
     },
     {
       "slug": "orange_juice",
-      "category": "Spices & Extracts",
+      "category": "Spices & Flavorings",
       "description": "Orange juice",
+      "display_name": "Orange juice",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 8.35,
-      "density_weight_unit": "oz",
-      "display_name": "Orange juice"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "orange_whole",
-      "category": "Fruits & Dried Fruits",
+      "category": "Fruits",
       "description": "Orange, whole",
       "display_name": "Orange, whole"
     },
     {
       "slug": "orange_zest",
-      "category": "Spices & Extracts",
+      "category": "Spices & Flavorings",
       "description": "Orange zest",
       "display_name": "Orange zest"
     },
     {
       "slug": "oregano_dried",
-      "category": "Spices & Extracts",
-      "display_name": "Oregano, dried",
-      "description": "Dried oregano leaves"
+      "category": "Spices & Flavorings",
+      "description": "Dried oregano leaves",
+      "display_name": "Oregano, dried"
     },
     {
       "slug": "paprika",
-      "category": "Spices & Extracts",
-      "display_name": "Paprika",
-      "description": "Ground paprika (aka sweet paprika)"
+      "category": "Spices & Flavorings",
+      "description": "Ground paprika (aka sweet paprika)",
+      "display_name": "Paprika"
     },
     {
       "slug": "parmesan_cheese",
       "category": "Dairy & Eggs",
       "description": "Parmesan cheese (aka parmigiano reggiano)",
+      "display_name": "Parmesan cheese",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 8.35,
-      "density_weight_unit": "oz",
-      "display_name": "Parmesan cheese"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "pastry_flour",
-      "category": "Flours & Starches",
+      "category": "Flours & Meals",
       "description": "Pastry flour",
+      "display_name": "Pastry flour",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 3.76,
-      "density_weight_unit": "oz",
-      "display_name": "Pastry flour"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "peanut_butter_crunchy",
       "category": "Fats & Oils",
       "description": "Peanut butter, crunchy (aka crunchy peanut butter)",
+      "display_name": "Peanut butter, crunchy",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 7.93,
-      "density_weight_unit": "oz",
-      "display_name": "Peanut butter, crunchy"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "peanut_butter_smooth",
       "category": "Fats & Oils",
       "description": "Peanut butter, smooth (aka smooth peanut butter)",
+      "display_name": "Peanut butter, smooth",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 7.93,
-      "density_weight_unit": "oz",
-      "display_name": "Peanut butter, smooth"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "peanuts",
@@ -1986,18 +1962,15 @@
     },
     {
       "slug": "pears_dried",
-      "category": "Fruits & Dried Fruits",
-      "display_name": "Pears, dried",
+      "category": "Fruits",
       "description": "Dehydrated pear slices or pieces",
-      "foodon_id": "FOODON_03301292",
-      "usda_fdc_id": "168159",
-      "gpc_brick": "10000204"
+      "display_name": "Pears, dried"
     },
     {
       "slug": "pecan_flour",
-      "category": "Flours & Starches",
-      "display_name": "Pecan flour",
-      "description": "Finely ground pecans (aka pecan meal)"
+      "category": "Flours & Meals",
+      "description": "Finely ground pecans (aka pecan meal)",
+      "display_name": "Pecan flour"
     },
     {
       "slug": "pecans",
@@ -2025,14 +1998,15 @@
     },
     {
       "slug": "pepper_black_ground",
-      "category": "Spices & Extracts",
-      "display_name": "Pepper, black ground",
-      "description": "Ground black pepper"
+      "category": "Spices & Flavorings",
+      "description": "Ground black pepper",
+      "display_name": "Pepper, black ground"
     },
     {
       "slug": "pepper_black_tellicherry",
+      "category": "spices",
+      "description": null,
       "display_name": "Pepper, black, Tellicherry",
-      "category": "Spices & Extracts",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 112.0,
@@ -2041,21 +2015,18 @@
     {
       "slug": "peppermint_bark",
       "category": "Chocolate & Cocoa",
-      "display_name": "Peppermint bark",
       "description": "Layered white and dark chocolate with crushed peppermint",
-      "foodon_id": null,
-      "usda_fdc_id": null,
-      "gpc_brick": "10000047"
+      "display_name": "Peppermint bark"
     },
     {
       "slug": "peppermint_extract",
-      "category": "Spices & Extracts",
+      "category": "Spices & Flavorings",
       "description": "Peppermint extract (aka mint extract)",
       "display_name": "Peppermint extract"
     },
     {
       "slug": "peppermints",
-      "category": "Decorations & Candies",
+      "category": "Candies & Decorations",
       "description": "Peppermints (aka starlight mints)",
       "display_name": "Peppermints"
     },
@@ -2067,59 +2038,51 @@
     },
     {
       "slug": "pineapple_candied",
-      "category": "Chocolate & Cocoa",
-      "display_name": "Pineapple, candied",
-      "description": "Candied pineapple pieces (aka glac\u00e9 pineapple)"
+      "category": "Chocolate & Candies",
+      "description": "Candied pineapple pieces (aka glac\u00e9 pineapple)",
+      "display_name": "Pineapple, candied"
     },
     {
       "slug": "pineapple_crushed",
-      "category": "Fruits & Dried Fruits",
+      "category": "Fruits",
       "description": "Pineapple, crushed (aka crushed pineapple)",
       "display_name": "Pineapple, crushed"
     },
     {
       "slug": "pineapple_crushed_canned",
-      "category": "Fruits & Dried Fruits",
-      "display_name": "Pineapple, crushed canned",
+      "category": "Fruits",
       "description": "Canned crushed pineapple in juice or syrup",
-      "foodon_id": "FOODON_03301549",
-      "usda_fdc_id": "169131",
-      "gpc_brick": "10000203"
+      "display_name": "Pineapple, crushed canned"
     },
     {
       "slug": "pineapple_dried",
-      "category": "Fruits & Dried Fruits",
+      "category": "Fruits",
       "description": "Pineapple, dried",
       "display_name": "Pineapple, dried"
     },
     {
       "slug": "pistachio_extract",
-      "category": "Spices & Extracts",
-      "display_name": "Pistachio extract",
-      "description": "Pistachio extract/flavor for baking"
+      "category": "Spices & Flavorings",
+      "description": "Pistachio extract/flavor for baking",
+      "display_name": "Pistachio extract"
     },
     {
       "slug": "pistachios",
       "category": "Nuts & Seeds",
       "description": "Shelled pistachio kernels",
-      "display_name": "Pistachios",
-      "foodon_id": "FOODON_03301241",
-      "usda_fdc_id": "170184",
-      "gpc_brick": "10000100"
+      "display_name": "Pistachios"
     },
     {
       "slug": "poppy_seeds",
       "category": "Nuts & Seeds",
       "description": "Whole culinary poppy seeds",
-      "display_name": "Poppy seeds",
-      "foodon_id": "FOODON_03301138",
-      "usda_fdc_id": "171426",
-      "gpc_brick": "10000632"
+      "display_name": "Poppy seeds"
     },
     {
       "slug": "poppy_seeds_blue",
+      "category": "spices",
+      "description": null,
       "display_name": "Poppy seeds, blue",
-      "category": "Spices & Extracts",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 138.0,
@@ -2127,41 +2090,41 @@
     },
     {
       "slug": "potato_starch",
-      "category": "Flours & Starches",
+      "category": "Flours & Meals",
       "description": "Potato starch",
+      "display_name": "Potato starch",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 5.84,
-      "density_weight_unit": "oz",
-      "display_name": "Potato starch"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "powdered_milk_malted",
-      "category": "Dairy & Eggs",
+      "category": "Other / Misc",
       "description": "Powdered milk, malted (aka malted milk powder)",
       "display_name": "Powdered milk, malted"
     },
     {
       "slug": "pretzels",
-      "category": "Decorations & Candies",
+      "category": "Other / Misc",
       "description": "Pretzels",
       "display_name": "Pretzels"
     },
     {
       "slug": "prunes",
-      "category": "Fruits & Dried Fruits",
-      "display_name": "Prunes",
-      "description": "Prunes (aka dried plums)"
+      "category": "Fruits",
+      "description": "Prunes (aka dried plums)",
+      "display_name": "Prunes"
     },
     {
       "slug": "pumpkin_pie_spice",
-      "category": "Spices & Extracts",
+      "category": "Spices & Flavorings",
       "description": "Pumpkin pie spice",
       "display_name": "Pumpkin pie spice"
     },
     {
       "slug": "pumpkin_puree",
-      "category": "Fruits & Dried Fruits",
+      "category": "Fruits",
       "description": "Pumpkin puree (aka canned pumpkin)",
       "display_name": "Pumpkin puree"
     },
@@ -2173,63 +2136,63 @@
     },
     {
       "slug": "raisins",
-      "category": "Fruits & Dried Fruits",
+      "category": "Fruits",
       "description": "Raisins",
       "display_name": "Raisins"
     },
     {
       "slug": "raspberries",
-      "category": "Fruits & Dried Fruits",
+      "category": "Fruits",
       "description": "Raspberries",
       "display_name": "Raspberries"
     },
     {
       "slug": "rice_cereal_crisp",
-      "category": "Additives & Thickeners",
+      "category": "Other / Misc",
       "description": "Rice cereal, crisp (aka crispy rice cereal)",
       "display_name": "Rice cereal, crisp"
     },
     {
       "slug": "rice_flour_brown",
-      "category": "Flours & Starches",
+      "category": "Flours & Meals",
       "description": "Rice flour, brown",
+      "display_name": "Rice flour, brown",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 4.59,
-      "density_weight_unit": "oz",
-      "display_name": "Rice flour, brown"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "rice_flour_white",
-      "category": "Flours & Starches",
+      "category": "Flours & Meals",
       "description": "Rice flour, white",
+      "display_name": "Rice flour, white",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 4.59,
-      "density_weight_unit": "oz",
-      "display_name": "Rice flour, white"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "ricotta",
       "category": "Dairy & Eggs",
       "description": "Ricotta",
+      "display_name": "Ricotta",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 8.35,
-      "density_weight_unit": "oz",
-      "display_name": "Ricotta"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "ricotta_cheese",
-      "category": "Dairy & Eggs",
-      "display_name": "Ricotta cheese",
-      "description": "Soft Italian whey cheese"
+      "category": "Dairy",
+      "description": "Soft Italian whey cheese",
+      "display_name": "Ricotta cheese"
     },
     {
       "slug": "rosemary_dried",
-      "category": "Spices & Extracts",
-      "display_name": "Rosemary, dried",
-      "description": "Dried rosemary leaves"
+      "category": "Spices & Flavorings",
+      "description": "Dried rosemary leaves",
+      "display_name": "Rosemary, dried"
     },
     {
       "slug": "royal_icing_mix",
@@ -2239,35 +2202,35 @@
     },
     {
       "slug": "rum",
-      "category": "Liquids & Liquors",
+      "category": "Liquids",
       "description": "Rum",
+      "display_name": "Rum",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 7.93,
-      "density_weight_unit": "oz",
-      "display_name": "Rum"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "rum_extract",
-      "category": "Spices & Extracts",
+      "category": "Spices & Flavorings",
       "description": "Rum extract",
       "display_name": "Rum extract"
     },
     {
       "slug": "rye_flour",
-      "category": "Flours & Starches",
+      "category": "Flours & Meals",
       "description": "Rye flour",
+      "display_name": "Rye flour",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 4.17,
-      "density_weight_unit": "oz",
-      "display_name": "Rye flour"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "sage_dried",
-      "category": "Spices & Extracts",
-      "display_name": "Sage, dried",
-      "description": "Dried sage leaves (aka rubbed sage)"
+      "category": "Spices & Flavorings",
+      "description": "Dried sage leaves (aka rubbed sage)",
+      "display_name": "Sage, dried"
     },
     {
       "slug": "salt_fine",
@@ -2283,18 +2246,15 @@
     },
     {
       "slug": "sanding_sugar",
-      "category": "Decorations & Candies",
+      "category": "Candies & Decorations",
       "description": "Sanding sugar (aka decorating sugar)",
       "display_name": "Sanding sugar"
     },
     {
       "slug": "schnapps_peach",
-      "category": "Liquids & Liquors",
-      "display_name": "Peach Schnapps",
+      "category": "Liquids",
       "description": "Clear peach-flavored liqueur",
-      "foodon_id": null,
-      "usda_fdc_id": null,
-      "gpc_brick": "10000236"
+      "display_name": "Peach Schnapps"
     },
     {
       "slug": "sea_salt_flaky",
@@ -2304,23 +2264,23 @@
     },
     {
       "slug": "self_rising_flour",
-      "category": "Flours & Starches",
+      "category": "Flours & Meals",
       "description": "Self-rising flour (aka self raising flour)",
+      "display_name": "Self-rising flour",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 4.42,
-      "density_weight_unit": "oz",
-      "display_name": "Self-rising flour"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "semolina_flour",
-      "category": "Flours & Starches",
+      "category": "Flours & Meals",
       "description": "Semolina flour (aka semolina)",
+      "display_name": "Semolina flour",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 5.01,
-      "density_weight_unit": "oz",
-      "display_name": "Semolina flour"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "sesame_seeds",
@@ -2330,8 +2290,9 @@
     },
     {
       "slug": "sesame_seeds_black",
+      "category": "spices",
+      "description": null,
       "display_name": "Sesame seeds, black",
-      "category": "Spices & Extracts",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 144.0,
@@ -2339,8 +2300,9 @@
     },
     {
       "slug": "sesame_seeds_white",
+      "category": "spices",
+      "description": null,
       "display_name": "Sesame seeds, white",
-      "category": "Spices & Extracts",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 144.0,
@@ -2350,41 +2312,41 @@
       "slug": "shortening",
       "category": "Fats & Oils",
       "description": "Shortening (aka vegetable shortening)",
+      "display_name": "Shortening",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 7.68,
-      "density_weight_unit": "oz",
-      "display_name": "Shortening"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "simple_syrup",
       "category": "Sugars & Sweeteners",
       "description": "Simple syrup (aka 1:1 syrup)",
+      "display_name": "Simple syrup",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 8.35,
-      "density_weight_unit": "oz",
-      "display_name": "Simple syrup"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "sorghum_flour",
-      "category": "Flours & Starches",
+      "category": "Flours & Meals",
       "description": "Sorghum flour",
+      "display_name": "Sorghum flour",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 4.59,
-      "density_weight_unit": "oz",
-      "display_name": "Sorghum flour"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "sour_cream",
       "category": "Fats & Oils",
       "description": "Sour cream",
+      "display_name": "Sour cream",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 8.35,
-      "density_weight_unit": "oz",
-      "display_name": "Sour cream"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "sourdough_starter",
@@ -2394,18 +2356,19 @@
     },
     {
       "slug": "spelt_flour",
-      "category": "Flours & Starches",
+      "category": "Flours & Meals",
       "description": "Spelt flour",
+      "display_name": "Spelt flour",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 4.17,
-      "density_weight_unit": "oz",
-      "display_name": "Spelt flour"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "spice_blend_chinese_five_spice",
+      "category": "spices",
+      "description": null,
       "display_name": "Spice blend, Chinese five spice",
-      "category": "Spices & Extracts",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 100.0,
@@ -2413,8 +2376,9 @@
     },
     {
       "slug": "spice_blend_mulling",
+      "category": "spices",
+      "description": null,
       "display_name": "Spice blend, mulling spices",
-      "category": "Spices & Extracts",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 90.0,
@@ -2422,25 +2386,25 @@
     },
     {
       "slug": "sprinkles_chocolate",
-      "category": "Decorations & Candies",
+      "category": "Candies & Decorations",
       "description": "Sprinkles, chocolate (aka chocolate jimmies)",
       "display_name": "Sprinkles, chocolate"
     },
     {
       "slug": "sprinkles_rainbow",
-      "category": "Decorations & Candies",
+      "category": "Candies & Decorations",
       "description": "Sprinkles, rainbow (aka jimmies)",
       "display_name": "Sprinkles, rainbow"
     },
     {
       "slug": "star_anise",
-      "category": "Spices & Extracts",
+      "category": "Spices & Flavorings",
       "description": "Star anise",
       "display_name": "Star anise"
     },
     {
       "slug": "strawberries",
-      "category": "Fruits & Dried Fruits",
+      "category": "Fruits",
       "description": "Strawberries",
       "display_name": "Strawberries"
     },
@@ -2448,31 +2412,31 @@
       "slug": "sugar_brown_dark",
       "category": "Sugars & Sweeteners",
       "description": "Sugar, brown dark (aka dark brown sugar)",
+      "display_name": "Sugar, brown dark",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 8.1,
-      "density_weight_unit": "oz",
-      "display_name": "Sugar, brown dark"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "sugar_brown_light",
       "category": "Sugars & Sweeteners",
       "description": "Sugar, brown light (aka light brown sugar)",
+      "display_name": "Sugar, brown light",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 7.76,
-      "density_weight_unit": "oz",
-      "display_name": "Sugar, brown light"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "sugar_granulated",
       "category": "Sugars & Sweeteners",
       "description": "Sugar, granulated (aka white sugar)",
+      "display_name": "Sugar, granulated",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 7.09,
-      "density_weight_unit": "oz",
-      "display_name": "Sugar, granulated"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "sugar_pearl",
@@ -2484,11 +2448,11 @@
       "slug": "sugar_powdered",
       "category": "Sugars & Sweeteners",
       "description": "Sugar, powdered (aka confectioners sugar|icing sugar)",
+      "display_name": "Sugar, powdered",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 4.17,
-      "density_weight_unit": "oz",
-      "display_name": "Sugar, powdered"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "sugar_sanding",
@@ -2500,11 +2464,11 @@
       "slug": "sugar_superfine",
       "category": "Sugars & Sweeteners",
       "description": "Sugar, superfine (aka caster sugar)",
+      "display_name": "Sugar, superfine",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 7.51,
-      "density_weight_unit": "oz",
-      "display_name": "Sugar, superfine"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "sunflower_seeds",
@@ -2514,14 +2478,15 @@
     },
     {
       "slug": "sweet_potato_puree",
-      "category": "Fruits & Dried Fruits",
+      "category": "Fruits",
       "description": "Sweet potato puree",
       "display_name": "Sweet potato puree"
     },
     {
       "slug": "sweetener_stevia",
+      "category": "sugar_sweeteners",
+      "description": null,
       "display_name": "Sweetener, stevia",
-      "category": "Sugars & Sweeteners",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 192.0,
@@ -2530,101 +2495,96 @@
     {
       "slug": "swerve_sweetener",
       "category": "Sugars & Sweeteners",
-      "display_name": "Swerve sweetener",
       "description": "Zero-calorie sugar substitute (erythritol blend)",
-      "foodon_id": "FOODON_03316132",
-      "usda_fdc_id": "2345532",
-      "gpc_brick": "10000045"
+      "display_name": "Swerve sweetener"
     },
     {
       "slug": "tahini",
       "category": "Fats & Oils",
       "description": "Tahini (aka sesame paste)",
+      "display_name": "Tahini",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 7.93,
-      "density_weight_unit": "oz",
-      "display_name": "Tahini"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "tapioca_starch",
-      "category": "Flours & Starches",
+      "category": "Flours & Meals",
       "description": "Tapioca starch (aka tapioca flour)",
+      "display_name": "Tapioca starch",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 4.67,
-      "density_weight_unit": "oz",
-      "display_name": "Tapioca starch"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "tea_brewed",
-      "category": "Liquids & Liquors",
+      "category": "Liquids",
       "description": "Tea, brewed",
+      "display_name": "Tea, brewed",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 8.35,
-      "density_weight_unit": "oz",
-      "display_name": "Tea, brewed"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "tea_matcha_powder",
-      "category": "Spices & Extracts",
+      "category": "Spices & Flavorings",
       "description": "Tea, matcha powder (aka matcha)",
       "display_name": "Tea, matcha powder"
     },
     {
       "slug": "thyme_dried",
-      "category": "Spices & Extracts",
-      "display_name": "Thyme, dried",
-      "description": "Dried thyme leaves"
+      "category": "Spices & Flavorings",
+      "description": "Dried thyme leaves",
+      "display_name": "Thyme, dried"
     },
     {
       "slug": "toblerone",
       "category": "Chocolate & Cocoa",
-      "display_name": "Toblerone chocolate",
-      "description": "Toblerone Swiss milk chocolate with honey and almond nougat"
+      "description": "Toblerone Swiss milk chocolate with honey and almond nougat",
+      "display_name": "Toblerone chocolate"
     },
     {
       "slug": "toffee_bits",
       "category": "Chocolate & Cocoa",
       "description": "Crunchy almond toffee pieces (aka Heath bits)",
-      "display_name": "Toffee bits",
-      "foodon_id": "FOODON_03310245",
-      "usda_fdc_id": "168832",
-      "gpc_brick": "10000047"
+      "display_name": "Toffee bits"
     },
     {
       "slug": "turbinado_sugar",
       "category": "Sugars & Sweeteners",
       "description": "Turbinado sugar (aka raw sugar)",
+      "display_name": "Turbinado sugar",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 7.51,
-      "density_weight_unit": "oz",
-      "display_name": "Turbinado sugar"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "vanilla_bean",
-      "category": "Spices & Extracts",
+      "category": "Spices & Flavorings",
       "description": "Vanilla bean",
       "display_name": "Vanilla bean"
     },
     {
       "slug": "vanilla_extract",
-      "category": "Spices & Extracts",
+      "category": "Spices & Flavorings",
       "description": "Vanilla extract (aka vanilla)",
       "display_name": "Vanilla extract"
     },
     {
       "slug": "vanilla_paste",
-      "category": "Spices & Extracts",
+      "category": "Spices & Flavorings",
       "description": "Vanilla paste (aka vanilla bean paste)",
       "display_name": "Vanilla paste"
     },
     {
       "slug": "vanilla_powder_extract_blend",
+      "category": "extracts_flavorings",
+      "description": null,
       "display_name": "Vanilla powder, extract blend",
-      "category": "Spices & Extracts",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 120.0,
@@ -2632,8 +2592,9 @@
     },
     {
       "slug": "vanilla_powder_pure",
+      "category": "extracts_flavorings",
+      "description": null,
       "display_name": "Vanilla powder, pure",
-      "category": "Spices & Extracts",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 112.0,
@@ -2642,51 +2603,48 @@
     {
       "slug": "vanilla_sugar",
       "category": "Sugars & Sweeteners",
-      "display_name": "Vanilla sugar",
       "description": "Granulated sugar infused with vanilla bean",
-      "foodon_id": "FOODON_03303649",
-      "usda_fdc_id": null,
-      "gpc_brick": "10000045"
+      "display_name": "Vanilla sugar"
     },
     {
       "slug": "vinegar_apple_cider",
-      "category": "Liquids & Liquors",
+      "category": "Liquids",
       "description": "Vinegar, apple cider (aka apple cider vinegar)",
+      "display_name": "Vinegar, apple cider",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 8.35,
-      "density_weight_unit": "oz",
-      "display_name": "Vinegar, apple cider"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "vinegar_white",
-      "category": "Liquids & Liquors",
+      "category": "Liquids",
       "description": "Vinegar, white (aka white vinegar)",
+      "display_name": "Vinegar, white",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 8.35,
-      "density_weight_unit": "oz",
-      "display_name": "Vinegar, white"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "vital_wheat_gluten",
-      "category": "Flours & Starches",
+      "category": "Flours & Meals",
       "description": "Vital wheat gluten (aka gluten flour)",
+      "display_name": "Vital wheat gluten",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 4.17,
-      "density_weight_unit": "oz",
-      "display_name": "Vital wheat gluten"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "vodka",
-      "category": "Liquids & Liquors",
+      "category": "Liquids",
       "description": "Vodka",
+      "display_name": "Vodka",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 7.93,
-      "density_weight_unit": "oz",
-      "display_name": "Vodka"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "walnuts",
@@ -2708,39 +2666,39 @@
     },
     {
       "slug": "water",
-      "category": "Liquids & Liquors",
+      "category": "Liquids",
       "description": "Water",
+      "display_name": "Water",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 8.35,
-      "density_weight_unit": "oz",
-      "display_name": "Water"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "whiskey_irish",
-      "category": "Liquids & Liquors",
-      "display_name": "Whiskey, Irish",
-      "description": "Irish whiskey for baking"
+      "category": "Liquids",
+      "description": "Irish whiskey for baking",
+      "display_name": "Whiskey, Irish"
     },
     {
       "slug": "white_whole_wheat_flour",
-      "category": "Flours & Starches",
+      "category": "Flours & Meals",
       "description": "White whole wheat flour",
+      "display_name": "White whole wheat flour",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 4.59,
-      "density_weight_unit": "oz",
-      "display_name": "White whole wheat flour"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "whole_wheat_flour",
-      "category": "Flours & Starches",
+      "category": "Flours & Meals",
       "description": "Whole wheat flour (aka wholemeal flour)",
+      "display_name": "Whole wheat flour",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 4.59,
-      "density_weight_unit": "oz",
-      "display_name": "Whole wheat flour"
+      "density_weight_unit": "oz"
     },
     {
       "slug": "xanthan_gum",
@@ -2770,11 +2728,11 @@
       "slug": "yogurt_plain",
       "category": "Dairy & Eggs",
       "description": "Yogurt, plain (aka plain yogurt)",
+      "display_name": "Yogurt, plain",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 8.35,
-      "density_weight_unit": "oz",
-      "display_name": "Yogurt, plain"
+      "density_weight_unit": "oz"
     }
   ]
 }

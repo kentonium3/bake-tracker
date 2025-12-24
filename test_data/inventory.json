@@ -1,0 +1,3124 @@
+{
+  "version": "3.5",
+  "export_date": "2025-12-24",
+  "description": "Inventory export for pricing update. Add unit_price to purchases and unit_cost to inventory_items.",
+  "suppliers": [
+    {
+      "id": 1,
+      "name": "Unknown",
+      "city": "Unknown",
+      "state": "XX",
+      "zip_code": "00000",
+      "street_address": null,
+      "notes": "Default supplier for migrated inventory additions (F028)",
+      "is_active": true
+    }
+  ],
+  "ingredients": [],
+  "products": [],
+  "purchases": [
+    {
+      "id": 1,
+      "product_id": 56,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 16,
+      "notes": null
+    },
+    {
+      "id": 2,
+      "product_id": 9,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 1,
+      "notes": null
+    },
+    {
+      "id": 3,
+      "product_id": 115,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 750,
+      "notes": null
+    },
+    {
+      "id": 4,
+      "product_id": 25,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 4,
+      "notes": null
+    },
+    {
+      "id": 5,
+      "product_id": 26,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 4,
+      "notes": null
+    },
+    {
+      "id": 6,
+      "product_id": 107,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 4,
+      "notes": null
+    },
+    {
+      "id": 7,
+      "product_id": 101,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 3,
+      "notes": null
+    },
+    {
+      "id": 8,
+      "product_id": 74,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 22,
+      "notes": null
+    },
+    {
+      "id": 9,
+      "product_id": 22,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 14,
+      "notes": null
+    },
+    {
+      "id": 10,
+      "product_id": 38,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 9,
+      "notes": null
+    },
+    {
+      "id": 11,
+      "product_id": 40,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 10,
+      "notes": null
+    },
+    {
+      "id": 12,
+      "product_id": 41,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 2,
+      "notes": null
+    },
+    {
+      "id": 13,
+      "product_id": 86,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 375,
+      "notes": null
+    },
+    {
+      "id": 14,
+      "product_id": 84,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 750,
+      "notes": null
+    },
+    {
+      "id": 15,
+      "product_id": 13,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 1,
+      "notes": null
+    },
+    {
+      "id": 16,
+      "product_id": 15,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 1,
+      "notes": null
+    },
+    {
+      "id": 17,
+      "product_id": 106,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 2,
+      "notes": null
+    },
+    {
+      "id": 18,
+      "product_id": 148,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 3,
+      "notes": null
+    },
+    {
+      "id": 19,
+      "product_id": 6,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 2,
+      "notes": null
+    },
+    {
+      "id": 20,
+      "product_id": 90,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 1,
+      "notes": null
+    },
+    {
+      "id": 21,
+      "product_id": 142,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 16,
+      "notes": null
+    },
+    {
+      "id": 22,
+      "product_id": 126,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 16,
+      "notes": null
+    },
+    {
+      "id": 23,
+      "product_id": 47,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 1,
+      "notes": null
+    },
+    {
+      "id": 24,
+      "product_id": 119,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 3,
+      "notes": null
+    },
+    {
+      "id": 25,
+      "product_id": 7,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 750,
+      "notes": null
+    },
+    {
+      "id": 26,
+      "product_id": 132,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 4,
+      "notes": null
+    },
+    {
+      "id": 27,
+      "product_id": 130,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 2,
+      "notes": null
+    },
+    {
+      "id": 28,
+      "product_id": 129,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 2,
+      "notes": null
+    },
+    {
+      "id": 29,
+      "product_id": 135,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 12,
+      "notes": null
+    },
+    {
+      "id": 30,
+      "product_id": 133,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 4,
+      "notes": null
+    },
+    {
+      "id": 31,
+      "product_id": 10,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 1,
+      "notes": null
+    },
+    {
+      "id": 32,
+      "product_id": 102,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 2,
+      "notes": null
+    },
+    {
+      "id": 33,
+      "product_id": 65,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 2,
+      "notes": null
+    },
+    {
+      "id": 34,
+      "product_id": 62,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 2,
+      "notes": null
+    },
+    {
+      "id": 35,
+      "product_id": 152,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 21,
+      "notes": null
+    },
+    {
+      "id": 36,
+      "product_id": 151,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 21,
+      "notes": null
+    },
+    {
+      "id": 37,
+      "product_id": 83,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 750,
+      "notes": null
+    },
+    {
+      "id": 38,
+      "product_id": 82,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 750,
+      "notes": null
+    },
+    {
+      "id": 39,
+      "product_id": 85,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 750,
+      "notes": null
+    },
+    {
+      "id": 40,
+      "product_id": 95,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 16,
+      "notes": null
+    },
+    {
+      "id": 41,
+      "product_id": 94,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 16,
+      "notes": null
+    },
+    {
+      "id": 42,
+      "product_id": 36,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 3,
+      "notes": null
+    },
+    {
+      "id": 43,
+      "product_id": 27,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 12,
+      "notes": null
+    },
+    {
+      "id": 44,
+      "product_id": 93,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 12,
+      "notes": null
+    },
+    {
+      "id": 45,
+      "product_id": 31,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 340,
+      "notes": null
+    },
+    {
+      "id": 46,
+      "product_id": 138,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 8,
+      "notes": null
+    },
+    {
+      "id": 47,
+      "product_id": 138,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 1,
+      "notes": null
+    },
+    {
+      "id": 48,
+      "product_id": 140,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 2,
+      "notes": null
+    },
+    {
+      "id": 49,
+      "product_id": 143,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 500,
+      "notes": null
+    },
+    {
+      "id": 50,
+      "product_id": 144,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 65,
+      "notes": null
+    },
+    {
+      "id": 51,
+      "product_id": 146,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 25,
+      "notes": null
+    },
+    {
+      "id": 52,
+      "product_id": 145,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 5,
+      "notes": null
+    },
+    {
+      "id": 53,
+      "product_id": 69,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 50,
+      "notes": null
+    },
+    {
+      "id": 54,
+      "product_id": 70,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 50,
+      "notes": null
+    },
+    {
+      "id": 55,
+      "product_id": 43,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 10,
+      "notes": null
+    },
+    {
+      "id": 56,
+      "product_id": 42,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 11,
+      "notes": null
+    },
+    {
+      "id": 57,
+      "product_id": 29,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 12,
+      "notes": null
+    },
+    {
+      "id": 58,
+      "product_id": 51,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 10,
+      "notes": null
+    },
+    {
+      "id": 59,
+      "product_id": 76,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 14,
+      "notes": null
+    },
+    {
+      "id": 60,
+      "product_id": 149,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 750,
+      "notes": null
+    },
+    {
+      "id": 61,
+      "product_id": 55,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 16,
+      "notes": null
+    },
+    {
+      "id": 62,
+      "product_id": 54,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 16,
+      "notes": null
+    },
+    {
+      "id": 63,
+      "product_id": 16,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 1,
+      "notes": null
+    },
+    {
+      "id": 64,
+      "product_id": 1,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 25,
+      "notes": null
+    },
+    {
+      "id": 65,
+      "product_id": 150,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 5,
+      "notes": null
+    },
+    {
+      "id": 66,
+      "product_id": 71,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 16,
+      "notes": null
+    },
+    {
+      "id": 67,
+      "product_id": 105,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 3,
+      "notes": null
+    },
+    {
+      "id": 68,
+      "product_id": 11,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 5,
+      "notes": null
+    },
+    {
+      "id": 69,
+      "product_id": 18,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 2,
+      "notes": null
+    },
+    {
+      "id": 70,
+      "product_id": 122,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 5,
+      "notes": null
+    },
+    {
+      "id": 71,
+      "product_id": 48,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 14,
+      "notes": null
+    },
+    {
+      "id": 72,
+      "product_id": 72,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 1,
+      "notes": null
+    },
+    {
+      "id": 73,
+      "product_id": 116,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 1,
+      "notes": null
+    },
+    {
+      "id": 74,
+      "product_id": 19,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 5,
+      "notes": null
+    },
+    {
+      "id": 75,
+      "product_id": 75,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 16,
+      "notes": null
+    },
+    {
+      "id": 76,
+      "product_id": 121,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 240,
+      "notes": null
+    },
+    {
+      "id": 77,
+      "product_id": 39,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 12,
+      "notes": null
+    },
+    {
+      "id": 78,
+      "product_id": 4,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 2,
+      "notes": null
+    },
+    {
+      "id": 79,
+      "product_id": 103,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 1,
+      "notes": null
+    },
+    {
+      "id": 80,
+      "product_id": 81,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 2,
+      "notes": null
+    },
+    {
+      "id": 81,
+      "product_id": 81,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 2,
+      "notes": null
+    },
+    {
+      "id": 82,
+      "product_id": 59,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 1,
+      "notes": null
+    },
+    {
+      "id": 83,
+      "product_id": 63,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 2,
+      "notes": null
+    },
+    {
+      "id": 84,
+      "product_id": 109,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 2,
+      "notes": null
+    },
+    {
+      "id": 85,
+      "product_id": 89,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 2,
+      "notes": null
+    },
+    {
+      "id": 86,
+      "product_id": 66,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 1,
+      "notes": null
+    },
+    {
+      "id": 87,
+      "product_id": 64,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 2,
+      "notes": null
+    },
+    {
+      "id": 88,
+      "product_id": 117,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 1,
+      "notes": null
+    },
+    {
+      "id": 89,
+      "product_id": 67,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 1,
+      "notes": null
+    },
+    {
+      "id": 90,
+      "product_id": 79,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 16,
+      "notes": null
+    },
+    {
+      "id": 91,
+      "product_id": 118,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 26,
+      "notes": null
+    },
+    {
+      "id": 92,
+      "product_id": 120,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 3,
+      "notes": null
+    },
+    {
+      "id": 93,
+      "product_id": 33,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 10,
+      "notes": null
+    },
+    {
+      "id": 94,
+      "product_id": 32,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 11,
+      "notes": null
+    },
+    {
+      "id": 95,
+      "product_id": 17,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 11,
+      "notes": null
+    },
+    {
+      "id": 96,
+      "product_id": 28,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 10,
+      "notes": null
+    },
+    {
+      "id": 97,
+      "product_id": 35,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 5,
+      "notes": null
+    },
+    {
+      "id": 98,
+      "product_id": 92,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 10,
+      "notes": null
+    },
+    {
+      "id": 99,
+      "product_id": 37,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 12,
+      "notes": null
+    },
+    {
+      "id": 100,
+      "product_id": 30,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 9,
+      "notes": null
+    },
+    {
+      "id": 101,
+      "product_id": 96,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 26,
+      "notes": null
+    },
+    {
+      "id": 102,
+      "product_id": 58,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 5,
+      "notes": null
+    },
+    {
+      "id": 103,
+      "product_id": 52,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 12,
+      "notes": null
+    },
+    {
+      "id": 104,
+      "product_id": 50,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 12,
+      "notes": null
+    },
+    {
+      "id": 105,
+      "product_id": 104,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 2,
+      "notes": null
+    },
+    {
+      "id": 106,
+      "product_id": 5,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 2,
+      "notes": null
+    },
+    {
+      "id": 107,
+      "product_id": 68,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 8,
+      "notes": null
+    },
+    {
+      "id": 108,
+      "product_id": 141,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 3,
+      "notes": null
+    },
+    {
+      "id": 109,
+      "product_id": 141,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 3,
+      "notes": null
+    },
+    {
+      "id": 110,
+      "product_id": 44,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 4,
+      "notes": null
+    },
+    {
+      "id": 111,
+      "product_id": 2,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 1,
+      "notes": null
+    },
+    {
+      "id": 112,
+      "product_id": 73,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 1,
+      "notes": null
+    },
+    {
+      "id": 113,
+      "product_id": 73,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 1,
+      "notes": null
+    },
+    {
+      "id": 114,
+      "product_id": 97,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 1,
+      "notes": null
+    },
+    {
+      "id": 115,
+      "product_id": 98,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 2,
+      "notes": null
+    },
+    {
+      "id": 116,
+      "product_id": 127,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 1,
+      "notes": null
+    },
+    {
+      "id": 117,
+      "product_id": 3,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 1,
+      "notes": null
+    },
+    {
+      "id": 118,
+      "product_id": 88,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 1,
+      "notes": null
+    },
+    {
+      "id": 119,
+      "product_id": 46,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 1,
+      "notes": null
+    },
+    {
+      "id": 120,
+      "product_id": 23,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 2,
+      "notes": null
+    },
+    {
+      "id": 121,
+      "product_id": 124,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 1,
+      "notes": null
+    },
+    {
+      "id": 122,
+      "product_id": 125,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 1,
+      "notes": null
+    },
+    {
+      "id": 123,
+      "product_id": 80,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 1,
+      "notes": null
+    },
+    {
+      "id": 124,
+      "product_id": 112,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 5,
+      "notes": null
+    },
+    {
+      "id": 125,
+      "product_id": 60,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 1,
+      "notes": null
+    },
+    {
+      "id": 126,
+      "product_id": 128,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 1,
+      "notes": null
+    },
+    {
+      "id": 127,
+      "product_id": 147,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 3,
+      "notes": null
+    },
+    {
+      "id": 128,
+      "product_id": 45,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 4,
+      "notes": null
+    },
+    {
+      "id": 129,
+      "product_id": 45,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 4,
+      "notes": null
+    },
+    {
+      "id": 130,
+      "product_id": 99,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 3,
+      "notes": null
+    },
+    {
+      "id": 131,
+      "product_id": 108,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 1,
+      "notes": null
+    },
+    {
+      "id": 132,
+      "product_id": 100,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 18,
+      "notes": null
+    },
+    {
+      "id": 133,
+      "product_id": 8,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 230,
+      "notes": null
+    },
+    {
+      "id": 134,
+      "product_id": 139,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 2,
+      "notes": null
+    },
+    {
+      "id": 135,
+      "product_id": 113,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 13,
+      "notes": null
+    },
+    {
+      "id": 136,
+      "product_id": 61,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 8,
+      "notes": null
+    },
+    {
+      "id": 137,
+      "product_id": 137,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 1,
+      "notes": null
+    },
+    {
+      "id": 138,
+      "product_id": 111,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 1,
+      "notes": null
+    },
+    {
+      "id": 139,
+      "product_id": 77,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 16,
+      "notes": null
+    },
+    {
+      "id": 140,
+      "product_id": 87,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 8,
+      "notes": null
+    },
+    {
+      "id": 141,
+      "product_id": 110,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 8,
+      "notes": null
+    },
+    {
+      "id": 142,
+      "product_id": 24,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 16,
+      "notes": null
+    },
+    {
+      "id": 143,
+      "product_id": 136,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 24,
+      "notes": null
+    },
+    {
+      "id": 144,
+      "product_id": 134,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 7,
+      "notes": null
+    },
+    {
+      "id": 145,
+      "product_id": 21,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 1,
+      "notes": null
+    },
+    {
+      "id": 146,
+      "product_id": 12,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 5,
+      "notes": null
+    },
+    {
+      "id": 147,
+      "product_id": 20,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 2,
+      "notes": null
+    },
+    {
+      "id": 148,
+      "product_id": 123,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 5,
+      "notes": null
+    },
+    {
+      "id": 149,
+      "product_id": 53,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 16,
+      "notes": null
+    },
+    {
+      "id": 150,
+      "product_id": 78,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 16,
+      "notes": null
+    },
+    {
+      "id": 151,
+      "product_id": 91,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 32,
+      "notes": null
+    },
+    {
+      "id": 152,
+      "product_id": 57,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 1,
+      "notes": null
+    },
+    {
+      "id": 153,
+      "product_id": 131,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 2,
+      "notes": null
+    },
+    {
+      "id": 154,
+      "product_id": 114,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 3,
+      "notes": null
+    },
+    {
+      "id": 155,
+      "product_id": 49,
+      "supplier_id": 1,
+      "purchase_date": "2025-12-21",
+      "unit_price": "0.0000",
+      "quantity_purchased": 1,
+      "notes": null
+    }
+  ],
+  "inventory_items": [
+    {
+      "id": 1,
+      "product_id": 56,
+      "quantity": 16.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 1
+    },
+    {
+      "id": 2,
+      "product_id": 9,
+      "quantity": 1.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 2
+    },
+    {
+      "id": 3,
+      "product_id": 115,
+      "quantity": 750.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 3
+    },
+    {
+      "id": 4,
+      "product_id": 25,
+      "quantity": 4.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 4
+    },
+    {
+      "id": 5,
+      "product_id": 26,
+      "quantity": 4.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 5
+    },
+    {
+      "id": 6,
+      "product_id": 107,
+      "quantity": 4.7,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 6
+    },
+    {
+      "id": 7,
+      "product_id": 101,
+      "quantity": 3.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 7
+    },
+    {
+      "id": 8,
+      "product_id": 74,
+      "quantity": 22.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 8
+    },
+    {
+      "id": 9,
+      "product_id": 22,
+      "quantity": 14.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 9
+    },
+    {
+      "id": 10,
+      "product_id": 38,
+      "quantity": 9.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 10
+    },
+    {
+      "id": 11,
+      "product_id": 40,
+      "quantity": 10.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 11
+    },
+    {
+      "id": 12,
+      "product_id": 41,
+      "quantity": 2.5,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 12
+    },
+    {
+      "id": 13,
+      "product_id": 86,
+      "quantity": 375.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 13
+    },
+    {
+      "id": 14,
+      "product_id": 84,
+      "quantity": 750.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 14
+    },
+    {
+      "id": 15,
+      "product_id": 13,
+      "quantity": 1.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 15
+    },
+    {
+      "id": 16,
+      "product_id": 15,
+      "quantity": 1.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 16
+    },
+    {
+      "id": 17,
+      "product_id": 106,
+      "quantity": 2.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 17
+    },
+    {
+      "id": 18,
+      "product_id": 148,
+      "quantity": 3.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 18
+    },
+    {
+      "id": 19,
+      "product_id": 6,
+      "quantity": 2.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 19
+    },
+    {
+      "id": 20,
+      "product_id": 90,
+      "quantity": 1.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 20
+    },
+    {
+      "id": 21,
+      "product_id": 142,
+      "quantity": 16.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 21
+    },
+    {
+      "id": 22,
+      "product_id": 126,
+      "quantity": 16.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 22
+    },
+    {
+      "id": 23,
+      "product_id": 47,
+      "quantity": 1.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 23
+    },
+    {
+      "id": 24,
+      "product_id": 119,
+      "quantity": 3.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 24
+    },
+    {
+      "id": 25,
+      "product_id": 7,
+      "quantity": 750.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 25
+    },
+    {
+      "id": 26,
+      "product_id": 132,
+      "quantity": 4.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 26
+    },
+    {
+      "id": 27,
+      "product_id": 130,
+      "quantity": 2.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 27
+    },
+    {
+      "id": 28,
+      "product_id": 129,
+      "quantity": 2.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 28
+    },
+    {
+      "id": 29,
+      "product_id": 135,
+      "quantity": 12.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 29
+    },
+    {
+      "id": 30,
+      "product_id": 133,
+      "quantity": 4.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 30
+    },
+    {
+      "id": 31,
+      "product_id": 10,
+      "quantity": 1.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 31
+    },
+    {
+      "id": 32,
+      "product_id": 102,
+      "quantity": 2.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 32
+    },
+    {
+      "id": 33,
+      "product_id": 65,
+      "quantity": 2.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 33
+    },
+    {
+      "id": 34,
+      "product_id": 62,
+      "quantity": 2.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 34
+    },
+    {
+      "id": 35,
+      "product_id": 152,
+      "quantity": 21.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 35
+    },
+    {
+      "id": 36,
+      "product_id": 151,
+      "quantity": 21.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 36
+    },
+    {
+      "id": 37,
+      "product_id": 83,
+      "quantity": 750.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 37
+    },
+    {
+      "id": 38,
+      "product_id": 82,
+      "quantity": 750.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 38
+    },
+    {
+      "id": 39,
+      "product_id": 85,
+      "quantity": 750.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 39
+    },
+    {
+      "id": 40,
+      "product_id": 95,
+      "quantity": 16.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 40
+    },
+    {
+      "id": 41,
+      "product_id": 94,
+      "quantity": 16.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 41
+    },
+    {
+      "id": 42,
+      "product_id": 36,
+      "quantity": 3.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 42
+    },
+    {
+      "id": 43,
+      "product_id": 27,
+      "quantity": 12.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 43
+    },
+    {
+      "id": 44,
+      "product_id": 93,
+      "quantity": 12.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 44
+    },
+    {
+      "id": 45,
+      "product_id": 31,
+      "quantity": 340.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 45
+    },
+    {
+      "id": 46,
+      "product_id": 138,
+      "quantity": 8.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 46
+    },
+    {
+      "id": 47,
+      "product_id": 138,
+      "quantity": 1.6,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - partial package (20%)",
+      "purchase_id": 47
+    },
+    {
+      "id": 48,
+      "product_id": 140,
+      "quantity": 2.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 48
+    },
+    {
+      "id": 49,
+      "product_id": 143,
+      "quantity": 500.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 49
+    },
+    {
+      "id": 50,
+      "product_id": 144,
+      "quantity": 65.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 50
+    },
+    {
+      "id": 51,
+      "product_id": 146,
+      "quantity": 25.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 51
+    },
+    {
+      "id": 52,
+      "product_id": 145,
+      "quantity": 5.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 52
+    },
+    {
+      "id": 53,
+      "product_id": 69,
+      "quantity": 50.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 53
+    },
+    {
+      "id": 54,
+      "product_id": 70,
+      "quantity": 50.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 54
+    },
+    {
+      "id": 55,
+      "product_id": 43,
+      "quantity": 10.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 55
+    },
+    {
+      "id": 56,
+      "product_id": 42,
+      "quantity": 11.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 56
+    },
+    {
+      "id": 57,
+      "product_id": 29,
+      "quantity": 12.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 57
+    },
+    {
+      "id": 58,
+      "product_id": 51,
+      "quantity": 10.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 58
+    },
+    {
+      "id": 59,
+      "product_id": 76,
+      "quantity": 14.4,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 59
+    },
+    {
+      "id": 60,
+      "product_id": 149,
+      "quantity": 750.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 60
+    },
+    {
+      "id": 61,
+      "product_id": 55,
+      "quantity": 16.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 61
+    },
+    {
+      "id": 62,
+      "product_id": 54,
+      "quantity": 16.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 62
+    },
+    {
+      "id": 63,
+      "product_id": 16,
+      "quantity": 1.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 63
+    },
+    {
+      "id": 64,
+      "product_id": 1,
+      "quantity": 25.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 64
+    },
+    {
+      "id": 65,
+      "product_id": 150,
+      "quantity": 5.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 65
+    },
+    {
+      "id": 66,
+      "product_id": 71,
+      "quantity": 16.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 66
+    },
+    {
+      "id": 67,
+      "product_id": 105,
+      "quantity": 3.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 67
+    },
+    {
+      "id": 68,
+      "product_id": 11,
+      "quantity": 5.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 68
+    },
+    {
+      "id": 69,
+      "product_id": 18,
+      "quantity": 2.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 69
+    },
+    {
+      "id": 70,
+      "product_id": 122,
+      "quantity": 5.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 70
+    },
+    {
+      "id": 71,
+      "product_id": 48,
+      "quantity": 14.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 71
+    },
+    {
+      "id": 72,
+      "product_id": 72,
+      "quantity": 1.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 72
+    },
+    {
+      "id": 73,
+      "product_id": 116,
+      "quantity": 1.75,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 73
+    },
+    {
+      "id": 74,
+      "product_id": 19,
+      "quantity": 5.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 74
+    },
+    {
+      "id": 75,
+      "product_id": 75,
+      "quantity": 16.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 75
+    },
+    {
+      "id": 76,
+      "product_id": 121,
+      "quantity": 240.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 76
+    },
+    {
+      "id": 77,
+      "product_id": 39,
+      "quantity": 12.6,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 77
+    },
+    {
+      "id": 78,
+      "product_id": 4,
+      "quantity": 2.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 78
+    },
+    {
+      "id": 79,
+      "product_id": 103,
+      "quantity": 1.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 79
+    },
+    {
+      "id": 80,
+      "product_id": 81,
+      "quantity": 2.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package (1/2)",
+      "purchase_id": 80
+    },
+    {
+      "id": 81,
+      "product_id": 81,
+      "quantity": 2.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package (2/2)",
+      "purchase_id": 81
+    },
+    {
+      "id": 82,
+      "product_id": 59,
+      "quantity": 1.5,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 82
+    },
+    {
+      "id": 83,
+      "product_id": 63,
+      "quantity": 2.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 83
+    },
+    {
+      "id": 84,
+      "product_id": 109,
+      "quantity": 2.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 84
+    },
+    {
+      "id": 85,
+      "product_id": 89,
+      "quantity": 2.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 85
+    },
+    {
+      "id": 86,
+      "product_id": 66,
+      "quantity": 1.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 86
+    },
+    {
+      "id": 87,
+      "product_id": 64,
+      "quantity": 2.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 87
+    },
+    {
+      "id": 88,
+      "product_id": 117,
+      "quantity": 1.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 88
+    },
+    {
+      "id": 89,
+      "product_id": 67,
+      "quantity": 1.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 89
+    },
+    {
+      "id": 90,
+      "product_id": 79,
+      "quantity": 16.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 90
+    },
+    {
+      "id": 91,
+      "product_id": 118,
+      "quantity": 26.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 91
+    },
+    {
+      "id": 92,
+      "product_id": 120,
+      "quantity": 3.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 92
+    },
+    {
+      "id": 93,
+      "product_id": 33,
+      "quantity": 10.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 93
+    },
+    {
+      "id": 94,
+      "product_id": 32,
+      "quantity": 11.5,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 94
+    },
+    {
+      "id": 95,
+      "product_id": 17,
+      "quantity": 11.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 95
+    },
+    {
+      "id": 96,
+      "product_id": 28,
+      "quantity": 10.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 96
+    },
+    {
+      "id": 97,
+      "product_id": 35,
+      "quantity": 5.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - partial package (50%)",
+      "purchase_id": 97
+    },
+    {
+      "id": 98,
+      "product_id": 92,
+      "quantity": 10.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 98
+    },
+    {
+      "id": 99,
+      "product_id": 37,
+      "quantity": 12.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 99
+    },
+    {
+      "id": 100,
+      "product_id": 30,
+      "quantity": 9.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 100
+    },
+    {
+      "id": 101,
+      "product_id": 96,
+      "quantity": 26.5,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 101
+    },
+    {
+      "id": 102,
+      "product_id": 58,
+      "quantity": 5.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 102
+    },
+    {
+      "id": 103,
+      "product_id": 52,
+      "quantity": 12.8,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 103
+    },
+    {
+      "id": 104,
+      "product_id": 50,
+      "quantity": 12.8,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 104
+    },
+    {
+      "id": 105,
+      "product_id": 104,
+      "quantity": 2.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 105
+    },
+    {
+      "id": 106,
+      "product_id": 5,
+      "quantity": 2.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 106
+    },
+    {
+      "id": 107,
+      "product_id": 68,
+      "quantity": 8.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 107
+    },
+    {
+      "id": 108,
+      "product_id": 141,
+      "quantity": 3.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package (1/2)",
+      "purchase_id": 108
+    },
+    {
+      "id": 109,
+      "product_id": 141,
+      "quantity": 3.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package (2/2)",
+      "purchase_id": 109
+    },
+    {
+      "id": 110,
+      "product_id": 44,
+      "quantity": 4.8,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 110
+    },
+    {
+      "id": 111,
+      "product_id": 2,
+      "quantity": 1.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 111
+    },
+    {
+      "id": 112,
+      "product_id": 73,
+      "quantity": 1.9,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 112
+    },
+    {
+      "id": 113,
+      "product_id": 73,
+      "quantity": 0.47,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - partial package (25%)",
+      "purchase_id": 113
+    },
+    {
+      "id": 114,
+      "product_id": 97,
+      "quantity": 0.33,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - partial package (15%)",
+      "purchase_id": 114
+    },
+    {
+      "id": 115,
+      "product_id": 98,
+      "quantity": 2.4,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 115
+    },
+    {
+      "id": 116,
+      "product_id": 127,
+      "quantity": 0.9,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 116
+    },
+    {
+      "id": 117,
+      "product_id": 3,
+      "quantity": 0.6,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 117
+    },
+    {
+      "id": 118,
+      "product_id": 88,
+      "quantity": 0.9,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 118
+    },
+    {
+      "id": 119,
+      "product_id": 46,
+      "quantity": 1.5,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 119
+    },
+    {
+      "id": 120,
+      "product_id": 23,
+      "quantity": 2.4,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 120
+    },
+    {
+      "id": 121,
+      "product_id": 124,
+      "quantity": 1.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 121
+    },
+    {
+      "id": 122,
+      "product_id": 125,
+      "quantity": 1.1,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - partial package (50%)",
+      "purchase_id": 122
+    },
+    {
+      "id": 123,
+      "product_id": 80,
+      "quantity": 0.3,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - partial package (75%)",
+      "purchase_id": 123
+    },
+    {
+      "id": 124,
+      "product_id": 112,
+      "quantity": 5.15,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - partial package (33%)",
+      "purchase_id": 124
+    },
+    {
+      "id": 125,
+      "product_id": 60,
+      "quantity": 1.8,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 125
+    },
+    {
+      "id": 126,
+      "product_id": 128,
+      "quantity": 1.3,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - partial package (50%)",
+      "purchase_id": 126
+    },
+    {
+      "id": 127,
+      "product_id": 147,
+      "quantity": 3.4,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 127
+    },
+    {
+      "id": 128,
+      "product_id": 45,
+      "quantity": 4.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package (1/2)",
+      "purchase_id": 128
+    },
+    {
+      "id": 129,
+      "product_id": 45,
+      "quantity": 4.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package (2/2)",
+      "purchase_id": 129
+    },
+    {
+      "id": 130,
+      "product_id": 99,
+      "quantity": 3.2,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - partial package (80%)",
+      "purchase_id": 130
+    },
+    {
+      "id": 131,
+      "product_id": 108,
+      "quantity": 1.65,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - partial package (75%)",
+      "purchase_id": 131
+    },
+    {
+      "id": 132,
+      "product_id": 100,
+      "quantity": 18.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 132
+    },
+    {
+      "id": 133,
+      "product_id": 8,
+      "quantity": 230.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 133
+    },
+    {
+      "id": 134,
+      "product_id": 139,
+      "quantity": 2.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 134
+    },
+    {
+      "id": 135,
+      "product_id": 113,
+      "quantity": 13.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 135
+    },
+    {
+      "id": 136,
+      "product_id": 61,
+      "quantity": 8.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 136
+    },
+    {
+      "id": 137,
+      "product_id": 137,
+      "quantity": 1.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 137
+    },
+    {
+      "id": 138,
+      "product_id": 111,
+      "quantity": 1.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 138
+    },
+    {
+      "id": 139,
+      "product_id": 77,
+      "quantity": 16.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 139
+    },
+    {
+      "id": 140,
+      "product_id": 87,
+      "quantity": 8.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 140
+    },
+    {
+      "id": 141,
+      "product_id": 110,
+      "quantity": 8.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 141
+    },
+    {
+      "id": 142,
+      "product_id": 24,
+      "quantity": 16.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 142
+    },
+    {
+      "id": 143,
+      "product_id": 136,
+      "quantity": 24.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 143
+    },
+    {
+      "id": 144,
+      "product_id": 134,
+      "quantity": 7.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 144
+    },
+    {
+      "id": 145,
+      "product_id": 21,
+      "quantity": 1.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 145
+    },
+    {
+      "id": 146,
+      "product_id": 12,
+      "quantity": 5.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 146
+    },
+    {
+      "id": 147,
+      "product_id": 20,
+      "quantity": 2.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 147
+    },
+    {
+      "id": 148,
+      "product_id": 123,
+      "quantity": 5.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 148
+    },
+    {
+      "id": 149,
+      "product_id": 53,
+      "quantity": 16.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 149
+    },
+    {
+      "id": 150,
+      "product_id": 78,
+      "quantity": 16.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 150
+    },
+    {
+      "id": 151,
+      "product_id": 91,
+      "quantity": 32.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 151
+    },
+    {
+      "id": 152,
+      "product_id": 57,
+      "quantity": 1.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 152
+    },
+    {
+      "id": 153,
+      "product_id": 131,
+      "quantity": 2.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 153
+    },
+    {
+      "id": 154,
+      "product_id": 114,
+      "quantity": 3.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 154
+    },
+    {
+      "id": 155,
+      "product_id": 49,
+      "quantity": 1.0,
+      "unit_cost": 0.0,
+      "purchase_date": "2025-12-21",
+      "expiration_date": null,
+      "location": "pantry",
+      "notes": "Initial inventory - full package",
+      "purchase_id": 155
+    }
+  ],
+  "recipes": []
+}
