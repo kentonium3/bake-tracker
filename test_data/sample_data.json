@@ -20,7 +20,7 @@
     {
       "display_name": "00 flour",
       "slug": "00_flour",
-      "category": "Flours & Meals",
+      "category": "Flours & Starches",
       "is_packaging": false,
       "description": "00 flour (aka double zero flour)",
       "density_volume_value": 1.0,
@@ -49,7 +49,7 @@
     {
       "display_name": "All-purpose wheat flour",
       "slug": "all_purpose_wheat_flour",
-      "category": "Flours & Meals",
+      "category": "Flours & Starches",
       "is_packaging": false,
       "description": "All-purpose wheat flour (aka AP flour|plain flour)",
       "density_volume_value": 1.0,
@@ -60,14 +60,14 @@
     {
       "display_name": "Allspice, ground",
       "slug": "allspice_ground",
-      "category": "Spices & Flavorings",
+      "category": "Spices & Extracts",
       "is_packaging": false,
       "description": "Allspice, ground"
     },
     {
       "display_name": "Allspice, whole",
       "slug": "allspice_whole",
-      "category": "spices",
+      "category": "Spices & Extracts",
       "is_packaging": false,
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
@@ -88,14 +88,14 @@
     {
       "display_name": "Almond extract",
       "slug": "almond_extract",
-      "category": "Spices & Flavorings",
+      "category": "Spices & Extracts",
       "is_packaging": false,
       "description": "Almond extract"
     },
     {
       "display_name": "Almond flour",
       "slug": "almond_flour",
-      "category": "Flours & Meals",
+      "category": "Flours & Starches",
       "is_packaging": false,
       "description": "Almond flour (aka ground almonds)",
       "density_volume_value": 1.0,
@@ -106,7 +106,7 @@
     {
       "display_name": "Almond meal",
       "slug": "almond_meal",
-      "category": "Flours & Meals",
+      "category": "Flours & Starches",
       "is_packaging": false,
       "description": "Almond meal",
       "density_volume_value": 1.0,
@@ -117,27 +117,13 @@
     {
       "display_name": "Almond paste",
       "slug": "almond_paste",
-      "category": "Candies & Decorations",
+      "category": "Decorations & Candies",
       "is_packaging": false,
       "description": "Almond paste"
     },
     {
-      "display_name": "Almonds, sliced",
-      "slug": "almonds_sliced",
-      "category": "Nuts & Seeds",
-      "is_packaging": false,
-      "description": "Almonds, sliced (aka sliced almonds)"
-    },
-    {
-      "display_name": "Almonds, slivered",
-      "slug": "almonds_slivered",
-      "category": "Nuts & Seeds",
-      "is_packaging": false,
-      "description": "Almonds, slivered"
-    },
-    {
-      "display_name": "Almonds, whole",
-      "slug": "almonds_whole",
+      "display_name": "Almonds",
+      "slug": "almonds",
       "category": "Nuts & Seeds",
       "is_packaging": false,
       "description": "Almonds, whole"
@@ -145,7 +131,7 @@
     {
       "display_name": "Amaretto",
       "slug": "amaretto",
-      "category": "Liquids",
+      "category": "Liquids & Liquors",
       "is_packaging": false,
       "description": "Amaretto",
       "density_volume_value": 1.0,
@@ -163,14 +149,14 @@
     {
       "display_name": "Anise seed",
       "slug": "anise_seed",
-      "category": "Spices & Flavorings",
+      "category": "Spices & Extracts",
       "is_packaging": false,
       "description": "Anise seed"
     },
     {
       "display_name": "Apple cider",
       "slug": "apple_cider",
-      "category": "Liquids",
+      "category": "Liquids & Liquors",
       "is_packaging": false,
       "description": "Apple cider",
       "density_volume_value": 1.0,
@@ -181,7 +167,7 @@
     {
       "display_name": "Apple juice",
       "slug": "apple_juice",
-      "category": "Liquids",
+      "category": "Liquids & Liquors",
       "is_packaging": false,
       "description": "Apple juice",
       "density_volume_value": 1.0,
@@ -192,35 +178,35 @@
     {
       "display_name": "Apple pie spice",
       "slug": "apple_pie_spice",
-      "category": "Spices & Flavorings",
+      "category": "Spices & Extracts",
       "is_packaging": false,
       "description": "Apple pie spice"
     },
     {
       "display_name": "Apples",
       "slug": "apples",
-      "category": "Fruits",
+      "category": "Fruits & Dried Fruits",
       "is_packaging": false,
       "description": "Apples"
     },
     {
       "display_name": "Applesauce, unsweetened",
       "slug": "applesauce_unsweetened",
-      "category": "Fruits",
+      "category": "Fruits & Dried Fruits",
       "is_packaging": false,
       "description": "Applesauce, unsweetened (aka unsweetened applesauce)"
     },
     {
       "display_name": "Apricots, dried",
       "slug": "apricots_dried",
-      "category": "Fruits",
+      "category": "Fruits & Dried Fruits",
       "is_packaging": false,
       "description": "Apricots, dried"
     },
     {
       "display_name": "Arrowroot starch",
       "slug": "arrowroot_starch",
-      "category": "Flours & Meals",
+      "category": "Flours & Starches",
       "is_packaging": false,
       "description": "Arrowroot starch (aka arrowroot powder)",
       "density_volume_value": 1.0,
@@ -252,56 +238,56 @@
     {
       "display_name": "Baking wafers, chocolate",
       "slug": "baking_wafers_chocolate",
-      "category": "Other / Misc",
+      "category": "Chocolate & Cocoa",
       "is_packaging": false,
       "description": "Baking wafers, chocolate"
     },
     {
       "display_name": "Baking wafers, vanilla",
       "slug": "baking_wafers_vanilla",
-      "category": "Other / Misc",
+      "category": "Decorations & Candies",
       "is_packaging": false,
       "description": "Baking wafers, vanilla"
     },
     {
       "display_name": "Bananas",
       "slug": "bananas",
-      "category": "Fruits",
+      "category": "Fruits & Dried Fruits",
       "is_packaging": false,
       "description": "Bananas"
     },
     {
       "display_name": "Basil, dried",
       "slug": "basil_dried",
-      "category": "Spices & Flavorings",
+      "category": "Spices & Extracts",
       "is_packaging": false,
       "description": "Dried basil leaves"
     },
     {
       "display_name": "Bay leaves",
       "slug": "bay_leaves",
-      "category": "Spices & Flavorings",
+      "category": "Spices & Extracts",
       "is_packaging": false,
       "description": "Dried bay leaves (aka laurel leaves)"
     },
     {
       "display_name": "Speculoos cookie butter",
       "slug": "biscoff_spread",
-      "category": "Other / Misc",
+      "category": "Fats & Oils",
       "is_packaging": false,
       "description": "Creamy cookie spread made from speculoos cookies (aka Biscoff spread)"
     },
     {
       "display_name": "Blueberries",
       "slug": "blueberries",
-      "category": "Fruits",
+      "category": "Fruits & Dried Fruits",
       "is_packaging": false,
       "description": "Blueberries"
     },
     {
       "display_name": "Bourbon",
       "slug": "bourbon",
-      "category": "Liquids",
+      "category": "Liquids & Liquors",
       "is_packaging": false,
       "description": "Bourbon",
       "density_volume_value": 1.0,
@@ -312,7 +298,7 @@
     {
       "display_name": "Brandy",
       "slug": "brandy",
-      "category": "Liquids",
+      "category": "Liquids & Liquors",
       "is_packaging": false,
       "description": "Brandy",
       "density_volume_value": 1.0,
@@ -330,7 +316,7 @@
     {
       "display_name": "Bread flour",
       "slug": "bread_flour",
-      "category": "Flours & Meals",
+      "category": "Flours & Starches",
       "is_packaging": false,
       "description": "Bread flour (aka high protein flour)",
       "density_volume_value": 1.0,
@@ -352,7 +338,7 @@
     {
       "display_name": "Buckwheat flour",
       "slug": "buckwheat_flour",
-      "category": "Flours & Meals",
+      "category": "Flours & Starches",
       "is_packaging": false,
       "description": "Buckwheat flour",
       "density_volume_value": 1.0,
@@ -396,14 +382,14 @@
     {
       "display_name": "Butterscotch chips",
       "slug": "butterscotch_chips",
-      "category": "Candies & Decorations",
+      "category": "Decorations & Candies",
       "is_packaging": false,
       "description": "Butterscotch chips"
     },
     {
       "display_name": "Cake flour",
       "slug": "cake_flour",
-      "category": "Flours & Meals",
+      "category": "Flours & Starches",
       "is_packaging": false,
       "description": "Cake flour (aka soft wheat flour)",
       "density_volume_value": 1.0,
@@ -414,63 +400,56 @@
     {
       "display_name": "Candied cherries",
       "slug": "candied_cherries",
-      "category": "Candies & Decorations",
+      "category": "Decorations & Candies",
       "is_packaging": false,
       "description": "Candied cherries"
     },
     {
       "display_name": "Candied citrus peel",
       "slug": "candied_citrus_peel",
-      "category": "Candies & Decorations",
+      "category": "Decorations & Candies",
       "is_packaging": false,
       "description": "Candied citrus peel (aka mixed peel)"
     },
     {
       "display_name": "Candied ginger",
       "slug": "candied_ginger",
-      "category": "Candies & Decorations",
+      "category": "Decorations & Candies",
       "is_packaging": false,
       "description": "Candied ginger"
     },
     {
       "display_name": "Candy canes",
       "slug": "candy_canes",
-      "category": "Candies & Decorations",
+      "category": "Decorations & Candies",
       "is_packaging": false,
       "description": "Candy canes (aka peppermint sticks)"
     },
     {
       "display_name": "Candy melts, colored",
       "slug": "candy_melts_colored",
-      "category": "Candies & Decorations",
+      "category": "Decorations & Candies",
       "is_packaging": false,
       "description": "Candy melts, colored"
     },
     {
       "display_name": "Candy melts, white",
       "slug": "candy_melts_white",
-      "category": "Candies & Decorations",
+      "category": "Decorations & Candies",
       "is_packaging": false,
       "description": "Candy melts, white"
     },
     {
-      "display_name": "Canola oil",
-      "slug": "canola_oil",
-      "category": "Fats & Oils",
-      "is_packaging": false,
-      "description": "Canola oil (alias for oil_canola)"
-    },
-    {
       "display_name": "Caramel bits",
       "slug": "caramel_bits",
-      "category": "Candies & Decorations",
+      "category": "Decorations & Candies",
       "is_packaging": false,
       "description": "Caramel bits"
     },
     {
       "display_name": "Caramel sauce",
       "slug": "caramel_sauce",
-      "category": "Candies & Decorations",
+      "category": "Decorations & Candies",
       "is_packaging": false,
       "description": "Caramel sauce",
       "density_volume_value": 1.0,
@@ -481,21 +460,21 @@
     {
       "display_name": "Caramels",
       "slug": "caramels",
-      "category": "Candies & Decorations",
+      "category": "Decorations & Candies",
       "is_packaging": false,
       "description": "Soft caramel candies for baking"
     },
     {
       "display_name": "Cardamom, ground",
       "slug": "cardamom_ground",
-      "category": "Spices & Flavorings",
+      "category": "Spices & Extracts",
       "is_packaging": false,
       "description": "Cardamom, ground"
     },
     {
       "display_name": "Cardamom pods",
       "slug": "cardamom_pods",
-      "category": "Spices & Flavorings",
+      "category": "Spices & Extracts",
       "is_packaging": false,
       "description": "Cardamom pods"
     },
@@ -509,7 +488,7 @@
     {
       "display_name": "Cayenne pepper",
       "slug": "cayenne_pepper",
-      "category": "Spices & Flavorings",
+      "category": "Spices & Extracts",
       "is_packaging": false,
       "description": "Ground cayenne pepper (aka red pepper)"
     },
@@ -525,37 +504,23 @@
       "density_weight_unit": "oz"
     },
     {
-      "display_name": "Cherries, candied green",
-      "slug": "cherries_candied_green",
-      "category": "Chocolate & Candies",
-      "is_packaging": false,
-      "description": "Green glacé cherries for fruitcake"
-    },
-    {
-      "display_name": "Cherries, candied red",
-      "slug": "cherries_candied_red",
-      "category": "Chocolate & Candies",
-      "is_packaging": false,
-      "description": "Red glacé cherries for fruitcake"
-    },
-    {
       "display_name": "Cherries, dried",
       "slug": "cherries_dried",
-      "category": "Fruits",
+      "category": "Fruits & Dried Fruits",
       "is_packaging": false,
       "description": "Cherries, dried"
     },
     {
       "display_name": "Cherries, fresh",
       "slug": "cherries_fresh",
-      "category": "Fruits",
+      "category": "Fruits & Dried Fruits",
       "is_packaging": false,
       "description": "Cherries, fresh"
     },
     {
       "display_name": "Cherries, maraschino",
       "slug": "cherries_maraschino",
-      "category": "Fruits",
+      "category": "Fruits & Dried Fruits",
       "is_packaging": false,
       "description": "Cherries, maraschino (aka maraschino cherries)"
     },
@@ -604,7 +569,7 @@
     {
       "display_name": "Chocolate chips, dark",
       "slug": "chocolate_chips_dark",
-      "category": "baking_chocolate",
+      "category": "Chocolate & Cocoa",
       "is_packaging": false,
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
@@ -614,7 +579,7 @@
     {
       "display_name": "Chocolate chips, espresso",
       "slug": "chocolate_chips_espresso",
-      "category": "baking_chocolate",
+      "category": "Chocolate & Cocoa",
       "is_packaging": false,
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
@@ -638,7 +603,7 @@
     {
       "display_name": "Chocolate chips, semi-sweet, allergen-free",
       "slug": "chocolate_chips_semi_sweet_allergen_free",
-      "category": "baking_chocolate",
+      "category": "Chocolate & Cocoa",
       "is_packaging": false,
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
@@ -662,7 +627,7 @@
     {
       "display_name": "Chocolate coating, milk chocolate",
       "slug": "chocolate_coating_milk",
-      "category": "baking_chocolate",
+      "category": "Chocolate & Cocoa",
       "is_packaging": false,
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
@@ -714,14 +679,14 @@
     {
       "display_name": "Chocolate-covered candies, assorted",
       "slug": "chocolate_covered_candies_assorted",
-      "category": "Candies & Decorations",
+      "category": "Decorations & Candies",
       "is_packaging": false,
       "description": "Chocolate-covered candies, assorted"
     },
     {
       "display_name": "Chocolate, kisses, dark",
       "slug": "chocolate_kisses_dark",
-      "category": "baking_chocolate",
+      "category": "Chocolate & Cocoa",
       "is_packaging": false,
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
@@ -763,55 +728,35 @@
     {
       "display_name": "Cinnamon, ground",
       "slug": "cinnamon_ground",
-      "category": "Spices & Flavorings",
+      "category": "Spices & Extracts",
       "is_packaging": false,
       "description": "Cinnamon, ground (aka ground cinnamon)"
     },
     {
-      "display_name": "Cinnamon, ground, Ceylon",
-      "slug": "cinnamon_ground_ceylon",
-      "category": "spices",
-      "is_packaging": false,
-      "density_volume_value": 1.0,
-      "density_volume_unit": "cup",
-      "density_weight_value": 112.0,
-      "density_weight_unit": "g"
-    },
-    {
       "display_name": "Cinnamon sticks",
       "slug": "cinnamon_sticks",
-      "category": "Spices & Flavorings",
+      "category": "Spices & Extracts",
       "is_packaging": false,
       "description": "Cinnamon sticks"
     },
     {
-      "display_name": "Cinnamon sticks, Indonesian",
-      "slug": "cinnamon_sticks_indonesian",
-      "category": "spices",
-      "is_packaging": false,
-      "density_volume_value": 1.0,
-      "density_volume_unit": "cup",
-      "density_weight_value": 80.0,
-      "density_weight_unit": "g"
-    },
-    {
       "display_name": "Cloves, ground",
       "slug": "cloves_ground",
-      "category": "Spices & Flavorings",
+      "category": "Spices & Extracts",
       "is_packaging": false,
       "description": "Cloves, ground (aka ground cloves)"
     },
     {
       "display_name": "Cloves, whole",
       "slug": "cloves_whole",
-      "category": "Spices & Flavorings",
+      "category": "Spices & Extracts",
       "is_packaging": false,
       "description": "Cloves, whole"
     },
     {
       "display_name": "Cocoa butter",
       "slug": "cocoa_butter",
-      "category": "Other / Misc",
+      "category": "Fats & Oils",
       "is_packaging": false,
       "description": "Cocoa butter"
     },
@@ -851,14 +796,14 @@
     {
       "display_name": "Coconut flakes",
       "slug": "coconut_flakes",
-      "category": "Fruits",
+      "category": "Fruits & Dried Fruits",
       "is_packaging": false,
       "description": "Coconut flakes (aka coconut chips)"
     },
     {
       "display_name": "Coconut flour",
       "slug": "coconut_flour",
-      "category": "Flours & Meals",
+      "category": "Flours & Starches",
       "is_packaging": false,
       "description": "Coconut flour",
       "density_volume_value": 1.0,
@@ -869,21 +814,21 @@
     {
       "display_name": "Coconut milk, canned",
       "slug": "coconut_milk_canned",
-      "category": "Liquids",
+      "category": "Liquids & Liquors",
       "is_packaging": false,
       "description": "Full-fat canned coconut milk"
     },
     {
       "display_name": "Coconut, shredded sweetened",
       "slug": "coconut_shredded_sweetened",
-      "category": "Fruits",
+      "category": "Fruits & Dried Fruits",
       "is_packaging": false,
       "description": "Coconut, shredded sweetened (aka sweetened shredded coconut)"
     },
     {
       "display_name": "Coconut, shredded unsweetened",
       "slug": "coconut_shredded_unsweetened",
-      "category": "Fruits",
+      "category": "Fruits & Dried Fruits",
       "is_packaging": false,
       "description": "Coconut, shredded unsweetened (aka unsweetened shredded coconut)"
     },
@@ -901,7 +846,7 @@
     {
       "display_name": "Coffee, brewed",
       "slug": "coffee_brewed",
-      "category": "Liquids",
+      "category": "Liquids & Liquors",
       "is_packaging": false,
       "description": "Coffee, brewed",
       "density_volume_value": 1.0,
@@ -919,14 +864,14 @@
     {
       "display_name": "Coriander, ground",
       "slug": "coriander_ground",
-      "category": "Spices & Flavorings",
+      "category": "Spices & Extracts",
       "is_packaging": false,
       "description": "Coriander, ground"
     },
     {
       "display_name": "Corn flakes",
       "slug": "corn_flakes",
-      "category": "Other / Misc",
+      "category": "Additives & Thickeners",
       "is_packaging": false,
       "description": "Corn flakes"
     },
@@ -953,31 +898,9 @@
       "density_weight_unit": "oz"
     },
     {
-      "display_name": "Cornmeal, coarse",
-      "slug": "cornmeal_coarse",
-      "category": "Flours & Meals",
-      "is_packaging": false,
-      "description": "Cornmeal, coarse (aka polenta (dry))",
-      "density_volume_value": 1.0,
-      "density_volume_unit": "cup",
-      "density_weight_value": 5.01,
-      "density_weight_unit": "oz"
-    },
-    {
-      "display_name": "Cornmeal, fine",
-      "slug": "cornmeal_fine",
-      "category": "Flours & Meals",
-      "is_packaging": false,
-      "description": "Cornmeal, fine (aka fine cornmeal)",
-      "density_volume_value": 1.0,
-      "density_volume_unit": "cup",
-      "density_weight_value": 5.01,
-      "density_weight_unit": "oz"
-    },
-    {
-      "display_name": "Cornmeal, medium",
-      "slug": "cornmeal_medium",
-      "category": "Flours & Meals",
+      "display_name": "Cornmeal",
+      "slug": "cornmeal",
+      "category": "Flours & Starches",
       "is_packaging": false,
       "description": "Cornmeal, medium (aka medium cornmeal)",
       "density_volume_value": 1.0,
@@ -988,7 +911,7 @@
     {
       "display_name": "Cornstarch",
       "slug": "cornstarch",
-      "category": "Flours & Meals",
+      "category": "Flours & Starches",
       "is_packaging": false,
       "description": "Cornstarch (aka corn flour (US))",
       "density_volume_value": 1.0,
@@ -1010,14 +933,14 @@
     {
       "display_name": "Cranberries",
       "slug": "cranberries",
-      "category": "Fruits",
+      "category": "Fruits & Dried Fruits",
       "is_packaging": false,
       "description": "Cranberries"
     },
     {
       "display_name": "Cranberries, dried",
       "slug": "cranberries_dried",
-      "category": "Fruits",
+      "category": "Fruits & Dried Fruits",
       "is_packaging": false,
       "description": "Cranberries, dried"
     },
@@ -1062,11 +985,11 @@
       "description": "Cream of tartar (aka potassium bitartrate)"
     },
     {
-      "display_name": "Crème fraîche",
+      "display_name": "Cr\u00e8me fra\u00eeche",
       "slug": "creme_fraiche",
       "category": "Dairy & Eggs",
       "is_packaging": false,
-      "description": "Creme fraiche (aka crème fraîche)",
+      "description": "Creme fraiche (aka cr\u00e8me fra\u00eeche)",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 8.35,
@@ -1075,14 +998,14 @@
     {
       "display_name": "Currants, dried",
       "slug": "currants_dried",
-      "category": "Fruits",
+      "category": "Fruits & Dried Fruits",
       "is_packaging": false,
       "description": "Dried Zante currants (aka Black Corinth raisins)"
     },
     {
       "display_name": "Dates, pitted",
       "slug": "dates_pitted",
-      "category": "Fruits",
+      "category": "Fruits & Dried Fruits",
       "is_packaging": false,
       "description": "Dates, pitted"
     },
@@ -1135,21 +1058,14 @@
     {
       "display_name": "Espresso powder",
       "slug": "espresso_powder",
-      "category": "Spices & Flavorings",
+      "category": "Spices & Extracts",
       "is_packaging": false,
       "description": "Espresso powder (aka instant espresso powder)"
     },
     {
-      "display_name": "Espresso powder, instant",
-      "slug": "espresso_powder_instant",
-      "category": "Spices & Flavorings",
-      "is_packaging": false,
-      "description": "Highly concentrated instant coffee for baking"
-    },
-    {
       "display_name": "Extract, chocolate",
       "slug": "extract_chocolate",
-      "category": "extracts_flavorings",
+      "category": "Spices & Extracts",
       "is_packaging": false,
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
@@ -1159,7 +1075,7 @@
     {
       "display_name": "Extract, coconut",
       "slug": "extract_coconut",
-      "category": "extracts_flavorings",
+      "category": "Spices & Extracts",
       "is_packaging": false,
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
@@ -1169,7 +1085,7 @@
     {
       "display_name": "Extract, coffee",
       "slug": "extract_coffee",
-      "category": "extracts_flavorings",
+      "category": "Spices & Extracts",
       "is_packaging": false,
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
@@ -1179,7 +1095,7 @@
     {
       "display_name": "Extract, mint",
       "slug": "extract_mint",
-      "category": "extracts_flavorings",
+      "category": "Spices & Extracts",
       "is_packaging": false,
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
@@ -1189,7 +1105,7 @@
     {
       "display_name": "Extract, raspberry",
       "slug": "extract_raspberry",
-      "category": "extracts_flavorings",
+      "category": "Spices & Extracts",
       "is_packaging": false,
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
@@ -1199,7 +1115,7 @@
     {
       "display_name": "Extract, vanilla, Mexican",
       "slug": "extract_vanilla_mexican",
-      "category": "extracts_flavorings",
+      "category": "Spices & Extracts",
       "is_packaging": false,
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
@@ -1209,7 +1125,7 @@
     {
       "display_name": "Extract, vanilla, oak-aged",
       "slug": "extract_vanilla_oak_aged",
-      "category": "extracts_flavorings",
+      "category": "Spices & Extracts",
       "is_packaging": false,
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
@@ -1219,7 +1135,7 @@
     {
       "display_name": "Extract, vanilla, spiced",
       "slug": "extract_vanilla_spiced",
-      "category": "extracts_flavorings",
+      "category": "Spices & Extracts",
       "is_packaging": false,
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
@@ -1229,14 +1145,14 @@
     {
       "display_name": "Fennel seeds",
       "slug": "fennel_seeds",
-      "category": "Spices & Flavorings",
+      "category": "Spices & Extracts",
       "is_packaging": false,
       "description": "Whole fennel seeds"
     },
     {
       "display_name": "Figs, dried",
       "slug": "figs_dried",
-      "category": "Fruits",
+      "category": "Fruits & Dried Fruits",
       "is_packaging": false,
       "description": "Figs, dried"
     },
@@ -1257,7 +1173,7 @@
     {
       "display_name": "Flour, almond",
       "slug": "flour_almond",
-      "category": "flour",
+      "category": "Flours & Starches",
       "is_packaging": false,
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
@@ -1267,37 +1183,23 @@
     {
       "display_name": "Fondant",
       "slug": "fondant",
-      "category": "Candies & Decorations",
+      "category": "Decorations & Candies",
       "is_packaging": false,
       "description": "Fondant (aka rolled fondant)"
     },
     {
-      "display_name": "Food coloring, gel",
-      "slug": "food_coloring_gel",
+      "display_name": "Food Coloring",
+      "slug": "food_coloring",
       "category": "Additives & Thickeners",
       "is_packaging": false,
       "description": "Food coloring, gel"
     },
     {
-      "display_name": "Food coloring, liquid",
-      "slug": "food_coloring_liquid",
-      "category": "Additives & Thickeners",
-      "is_packaging": false,
-      "description": "Food coloring, liquid"
-    },
-    {
-      "display_name": "Food coloring, powder",
-      "slug": "food_coloring_powder",
-      "category": "Additives & Thickeners",
-      "is_packaging": false,
-      "description": "Food coloring, powder"
-    },
-    {
       "display_name": "Fruit, candied mixed",
       "slug": "fruit_candied_mixed",
-      "category": "Chocolate & Candies",
+      "category": "Chocolate & Cocoa",
       "is_packaging": false,
-      "description": "Mixed candied fruit for fruitcake (aka glacé fruit)"
+      "description": "Mixed candied fruit for fruitcake (aka glac\u00e9 fruit)"
     },
     {
       "display_name": "Gelatin powder",
@@ -1316,21 +1218,21 @@
     {
       "display_name": "Ginger, fresh",
       "slug": "ginger_fresh",
-      "category": "Spices & Flavorings",
+      "category": "Spices & Extracts",
       "is_packaging": false,
       "description": "Ginger, fresh"
     },
     {
       "display_name": "Ginger, ground",
       "slug": "ginger_ground",
-      "category": "Spices & Flavorings",
+      "category": "Spices & Extracts",
       "is_packaging": false,
       "description": "Ginger, ground (aka ground ginger)"
     },
     {
       "display_name": "Apricot glaze",
       "slug": "glaze_apricot",
-      "category": "Other / Misc",
+      "category": "Fruits & Dried Fruits",
       "is_packaging": false,
       "description": "Strained apricot jam used as a fruit glaze"
     },
@@ -1348,7 +1250,7 @@
     {
       "display_name": "Gluten-free flour blend",
       "slug": "gluten_free_flour_blend",
-      "category": "Flours & Meals",
+      "category": "Flours & Starches",
       "is_packaging": false,
       "description": "Gluten-free flour blend (aka GF flour blend)",
       "density_volume_value": 1.0,
@@ -1370,21 +1272,21 @@
     {
       "display_name": "Graham cracker crumbs",
       "slug": "graham_cracker_crumbs",
-      "category": "Flours & Meals",
+      "category": "Flours & Starches",
       "is_packaging": false,
       "description": "Finely ground graham crackers for crusts and bases"
     },
     {
       "display_name": "Granola",
       "slug": "granola",
-      "category": "Other / Misc",
+      "category": "Additives & Thickeners",
       "is_packaging": false,
       "description": "Granola"
     },
     {
       "display_name": "Grape juice",
       "slug": "grape_juice",
-      "category": "Liquids",
+      "category": "Liquids & Liquors",
       "is_packaging": false,
       "description": "Grape juice",
       "density_volume_value": 1.0,
@@ -1395,7 +1297,7 @@
     {
       "display_name": "Grapefruit zest",
       "slug": "grapefruit_zest",
-      "category": "Spices & Flavorings",
+      "category": "Spices & Extracts",
       "is_packaging": false,
       "description": "Grapefruit zest"
     },
@@ -1420,28 +1322,28 @@
     {
       "display_name": "Gum paste",
       "slug": "gum_paste",
-      "category": "Candies & Decorations",
+      "category": "Decorations & Candies",
       "is_packaging": false,
       "description": "Gum paste"
     },
     {
       "display_name": "Gumdrops",
       "slug": "gumdrops",
-      "category": "Candies & Decorations",
+      "category": "Decorations & Candies",
       "is_packaging": false,
       "description": "Gumdrops"
     },
     {
       "display_name": "Hard candy, assorted",
       "slug": "hard_candy_assorted",
-      "category": "Candies & Decorations",
+      "category": "Decorations & Candies",
       "is_packaging": false,
       "description": "Hard candy, assorted"
     },
     {
       "display_name": "Hazelnut flour",
       "slug": "hazelnut_flour",
-      "category": "Flours & Meals",
+      "category": "Flours & Starches",
       "is_packaging": false,
       "description": "Hazelnut flour",
       "density_volume_value": 1.0,
@@ -1470,7 +1372,7 @@
     {
       "display_name": "Instant coffee granules",
       "slug": "instant_coffee_granules",
-      "category": "Spices & Flavorings",
+      "category": "Spices & Extracts",
       "is_packaging": false,
       "description": "Instant coffee granules"
     },
@@ -1488,14 +1390,14 @@
     {
       "display_name": "Jelly beans",
       "slug": "jelly_beans",
-      "category": "Candies & Decorations",
+      "category": "Decorations & Candies",
       "is_packaging": false,
       "description": "Jelly beans"
     },
     {
       "display_name": "Jelly, currant",
       "slug": "jelly_currant",
-      "category": "Fruits",
+      "category": "Fruits & Dried Fruits",
       "is_packaging": false,
       "description": "Red currant jelly"
     },
@@ -1513,21 +1415,21 @@
     {
       "display_name": "Lavender, culinary",
       "slug": "lavender_culinary",
-      "category": "Spices & Flavorings",
+      "category": "Spices & Extracts",
       "is_packaging": false,
       "description": "Dried culinary lavender buds for baking"
     },
     {
       "display_name": "Lemon extract",
       "slug": "lemon_extract",
-      "category": "Spices & Flavorings",
+      "category": "Spices & Extracts",
       "is_packaging": false,
       "description": "Lemon extract"
     },
     {
       "display_name": "Lemon juice",
       "slug": "lemon_juice",
-      "category": "Spices & Flavorings",
+      "category": "Spices & Extracts",
       "is_packaging": false,
       "description": "Lemon juice",
       "density_volume_value": 1.0,
@@ -1538,35 +1440,35 @@
     {
       "display_name": "Lemon, whole",
       "slug": "lemon_whole",
-      "category": "Fruits",
+      "category": "Fruits & Dried Fruits",
       "is_packaging": false,
       "description": "Lemon, whole"
     },
     {
       "display_name": "Lemon zest",
       "slug": "lemon_zest",
-      "category": "Spices & Flavorings",
+      "category": "Spices & Extracts",
       "is_packaging": false,
       "description": "Lemon zest"
     },
     {
       "display_name": "Licorice, black",
       "slug": "licorice_black",
-      "category": "Candies & Decorations",
+      "category": "Decorations & Candies",
       "is_packaging": false,
       "description": "Licorice, black"
     },
     {
       "display_name": "Licorice, red",
       "slug": "licorice_red",
-      "category": "Candies & Decorations",
+      "category": "Decorations & Candies",
       "is_packaging": false,
       "description": "Licorice, red"
     },
     {
       "display_name": "Lime juice",
       "slug": "lime_juice",
-      "category": "Spices & Flavorings",
+      "category": "Spices & Extracts",
       "is_packaging": false,
       "description": "Lime juice",
       "density_volume_value": 1.0,
@@ -1577,56 +1479,56 @@
     {
       "display_name": "Lime, whole",
       "slug": "lime_whole",
-      "category": "Fruits",
+      "category": "Fruits & Dried Fruits",
       "is_packaging": false,
       "description": "Lime, whole"
     },
     {
       "display_name": "Lime zest",
       "slug": "lime_zest",
-      "category": "Spices & Flavorings",
+      "category": "Spices & Extracts",
       "is_packaging": false,
       "description": "Lime zest"
     },
     {
-      "display_name": "Crème de cassis",
+      "display_name": "Cr\u00e8me de cassis",
       "slug": "liqueur_blackcurrant",
-      "category": "Liquids",
+      "category": "Liquids & Liquors",
       "is_packaging": false,
       "description": "Blackcurrant liqueur (aka Cassis)"
     },
     {
       "display_name": "Liqueur, chocolate",
       "slug": "liqueur_chocolate",
-      "category": "Liquids",
+      "category": "Liquids & Liquors",
       "is_packaging": false,
-      "description": "Chocolate-flavored liqueur (aka crème de cacao)"
+      "description": "Chocolate-flavored liqueur (aka cr\u00e8me de cacao)"
     },
     {
       "display_name": "Coffee Liqueur",
       "slug": "liqueur_coffee",
-      "category": "Liquids",
+      "category": "Liquids & Liquors",
       "is_packaging": false,
       "description": "Coffee-flavored liqueur (aka Kahlua|Tia Maria)"
     },
     {
       "display_name": "Hazelnut Liqueur",
       "slug": "liqueur_hazelnut",
-      "category": "Liquids",
+      "category": "Liquids & Liquors",
       "is_packaging": false,
       "description": "Hazelnut-flavored liqueur (aka Frangelico)"
     },
     {
       "display_name": "Liqueur, orange",
       "slug": "liqueur_orange",
-      "category": "Liquids",
+      "category": "Liquids & Liquors",
       "is_packaging": false,
       "description": "Orange-flavored liqueur (aka Grand Marnier|Cointreau|triple sec)"
     },
     {
       "display_name": "Raspberry Liqueur",
       "slug": "liqueur_raspberry",
-      "category": "Liquids",
+      "category": "Liquids & Liquors",
       "is_packaging": false,
       "description": "Raspberry-flavored liqueur (aka Chambord)"
     },
@@ -1640,14 +1542,14 @@
     {
       "display_name": "Mace, ground",
       "slug": "mace_ground",
-      "category": "Spices & Flavorings",
+      "category": "Spices & Extracts",
       "is_packaging": false,
       "description": "Mace, ground"
     },
     {
       "display_name": "Malt powder",
       "slug": "malt_powder",
-      "category": "Other / Misc",
+      "category": "Additives & Thickeners",
       "is_packaging": false,
       "description": "Diastatic or non-diastatic malt for bread/cookies"
     },
@@ -1665,35 +1567,35 @@
     {
       "display_name": "Malted milk balls",
       "slug": "malted_milk_balls",
-      "category": "Other / Misc",
+      "category": "Decorations & Candies",
       "is_packaging": false,
       "description": "Malted milk balls"
     },
     {
       "display_name": "M&M's, peanut",
       "slug": "mandms_peanut",
-      "category": "Candies & Decorations",
+      "category": "Decorations & Candies",
       "is_packaging": false,
       "description": "M&M's, peanut"
     },
     {
       "display_name": "M&M's, plain chocolate",
       "slug": "mandms_plain_chocolate",
-      "category": "Candies & Decorations",
+      "category": "Decorations & Candies",
       "is_packaging": false,
       "description": "M&M's, plain chocolate"
     },
     {
       "display_name": "Mango, dried",
       "slug": "mango_dried",
-      "category": "Fruits",
+      "category": "Fruits & Dried Fruits",
       "is_packaging": false,
       "description": "Mango, dried"
     },
     {
       "display_name": "Maple extract",
       "slug": "maple_extract",
-      "category": "Spices & Flavorings",
+      "category": "Spices & Extracts",
       "is_packaging": false,
       "description": "Maple extract"
     },
@@ -1722,21 +1624,21 @@
     {
       "display_name": "Marjoram, dried",
       "slug": "marjoram_dried",
-      "category": "Spices & Flavorings",
+      "category": "Spices & Extracts",
       "is_packaging": false,
       "description": "Dried marjoram leaves"
     },
     {
       "display_name": "Marshmallows",
       "slug": "marshmallows",
-      "category": "Candies & Decorations",
+      "category": "Decorations & Candies",
       "is_packaging": false,
       "description": "Marshmallows"
     },
     {
       "display_name": "Marzipan",
       "slug": "marzipan",
-      "category": "Candies & Decorations",
+      "category": "Decorations & Candies",
       "is_packaging": false,
       "description": "Marzipan (aka almond paste (for decorating))"
     },
@@ -1754,14 +1656,14 @@
     {
       "display_name": "Mascarpone cheese",
       "slug": "mascarpone_cheese",
-      "category": "Dairy",
+      "category": "Dairy & Eggs",
       "is_packaging": false,
       "description": "Italian cream cheese used in tiramisu and frostings"
     },
     {
       "display_name": "Matcha powder",
       "slug": "matcha_powder",
-      "category": "Spices & Flavorings",
+      "category": "Spices & Extracts",
       "is_packaging": false,
       "description": "Finely ground green tea powder"
     },
@@ -1779,7 +1681,7 @@
     {
       "display_name": "Milk alternative, almond",
       "slug": "milk_alternative_almond",
-      "category": "Liquids",
+      "category": "Liquids & Liquors",
       "is_packaging": false,
       "description": "Milk alternative, almond (aka almond milk)",
       "density_volume_value": 1.0,
@@ -1790,7 +1692,7 @@
     {
       "display_name": "Milk alternative, oat",
       "slug": "milk_alternative_oat",
-      "category": "Liquids",
+      "category": "Liquids & Liquors",
       "is_packaging": false,
       "description": "Milk alternative, oat (aka oat milk)",
       "density_volume_value": 1.0,
@@ -1801,7 +1703,7 @@
     {
       "display_name": "Milk alternative, soy",
       "slug": "milk_alternative_soy",
-      "category": "Liquids",
+      "category": "Liquids & Liquors",
       "is_packaging": false,
       "description": "Milk alternative, soy (aka soy milk)",
       "density_volume_value": 1.0,
@@ -1889,7 +1791,7 @@
     {
       "display_name": "Mincemeat",
       "slug": "mincemeat",
-      "category": "Fruits",
+      "category": "Fruits & Dried Fruits",
       "is_packaging": false,
       "description": "Jarred mincemeat pie filling"
     },
@@ -1903,14 +1805,14 @@
     {
       "display_name": "Mini marshmallows",
       "slug": "mini_marshmallows",
-      "category": "Candies & Decorations",
+      "category": "Decorations & Candies",
       "is_packaging": false,
       "description": "Mini marshmallows"
     },
     {
       "display_name": "Mint chocolate candies",
       "slug": "mint_chocolate_candies",
-      "category": "Chocolate & Candies",
+      "category": "Chocolate & Cocoa",
       "is_packaging": false,
       "description": "Pastel mint chocolate balls (aka Andes mints|mint melts)"
     },
@@ -1961,28 +1863,28 @@
     {
       "display_name": "Nonpareils",
       "slug": "nonpareils",
-      "category": "Candies & Decorations",
+      "category": "Decorations & Candies",
       "is_packaging": false,
       "description": "Nonpareils"
     },
     {
       "display_name": "Hazelnut cocoa spread",
       "slug": "nutella",
-      "category": "Other / Misc",
+      "category": "Fats & Oils",
       "is_packaging": false,
       "description": "Sweetened hazelnut cocoa spread (aka Nutella)"
     },
     {
       "display_name": "Nutmeg, ground",
       "slug": "nutmeg_ground",
-      "category": "Spices & Flavorings",
+      "category": "Spices & Extracts",
       "is_packaging": false,
       "description": "Nutmeg, ground (aka ground nutmeg)"
     },
     {
       "display_name": "Nutmeg, ground, East Indian",
       "slug": "nutmeg_ground_east_indian",
-      "category": "spices",
+      "category": "Spices & Extracts",
       "is_packaging": false,
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
@@ -1992,7 +1894,7 @@
     {
       "display_name": "Nutmeg, ground, West Indian",
       "slug": "nutmeg_ground_west_indian",
-      "category": "spices",
+      "category": "Spices & Extracts",
       "is_packaging": false,
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
@@ -2002,14 +1904,14 @@
     {
       "display_name": "Nutmeg, whole",
       "slug": "nutmeg_whole",
-      "category": "Spices & Flavorings",
+      "category": "Spices & Extracts",
       "is_packaging": false,
       "description": "Nutmeg, whole"
     },
     {
       "display_name": "Oat flour",
       "slug": "oat_flour",
-      "category": "Flours & Meals",
+      "category": "Flours & Starches",
       "is_packaging": false,
       "description": "Oat flour",
       "density_volume_value": 1.0,
@@ -2020,14 +1922,14 @@
     {
       "display_name": "Oats, quick",
       "slug": "oats_quick",
-      "category": "Other / Misc",
+      "category": "Flours & Starches",
       "is_packaging": false,
       "description": "Oats, quick (aka quick oats)"
     },
     {
       "display_name": "Oats, rolled",
       "slug": "oats_rolled",
-      "category": "Other / Misc",
+      "category": "Flours & Starches",
       "is_packaging": false,
       "description": "Oats, rolled (aka old fashioned oats)"
     },
@@ -2109,23 +2011,16 @@
       "density_weight_unit": "oz"
     },
     {
-      "display_name": "Olive oil",
-      "slug": "olive_oil",
-      "category": "Fats & Oils",
-      "is_packaging": false,
-      "description": "Olive oil (alias for oil_olive)"
-    },
-    {
       "display_name": "Orange extract",
       "slug": "orange_extract",
-      "category": "Spices & Flavorings",
+      "category": "Spices & Extracts",
       "is_packaging": false,
       "description": "Orange extract"
     },
     {
       "display_name": "Orange juice",
       "slug": "orange_juice",
-      "category": "Spices & Flavorings",
+      "category": "Spices & Extracts",
       "is_packaging": false,
       "description": "Orange juice",
       "density_volume_value": 1.0,
@@ -2136,28 +2031,28 @@
     {
       "display_name": "Orange, whole",
       "slug": "orange_whole",
-      "category": "Fruits",
+      "category": "Fruits & Dried Fruits",
       "is_packaging": false,
       "description": "Orange, whole"
     },
     {
       "display_name": "Orange zest",
       "slug": "orange_zest",
-      "category": "Spices & Flavorings",
+      "category": "Spices & Extracts",
       "is_packaging": false,
       "description": "Orange zest"
     },
     {
       "display_name": "Oregano, dried",
       "slug": "oregano_dried",
-      "category": "Spices & Flavorings",
+      "category": "Spices & Extracts",
       "is_packaging": false,
       "description": "Dried oregano leaves"
     },
     {
       "display_name": "Paprika",
       "slug": "paprika",
-      "category": "Spices & Flavorings",
+      "category": "Spices & Extracts",
       "is_packaging": false,
       "description": "Ground paprika (aka sweet paprika)"
     },
@@ -2175,7 +2070,7 @@
     {
       "display_name": "Pastry flour",
       "slug": "pastry_flour",
-      "category": "Flours & Meals",
+      "category": "Flours & Starches",
       "is_packaging": false,
       "description": "Pastry flour",
       "density_volume_value": 1.0,
@@ -2215,14 +2110,14 @@
     {
       "display_name": "Pears, dried",
       "slug": "pears_dried",
-      "category": "Fruits",
+      "category": "Fruits & Dried Fruits",
       "is_packaging": false,
       "description": "Dehydrated pear slices or pieces"
     },
     {
       "display_name": "Pecan flour",
       "slug": "pecan_flour",
-      "category": "Flours & Meals",
+      "category": "Flours & Starches",
       "is_packaging": false,
       "description": "Finely ground pecans (aka pecan meal)"
     },
@@ -2234,20 +2129,6 @@
       "description": "Pecans (generic - see pecans_halves, pecans_chopped for specific)"
     },
     {
-      "display_name": "Pecans, chopped",
-      "slug": "pecans_chopped",
-      "category": "Nuts & Seeds",
-      "is_packaging": false,
-      "description": "Pecans, chopped (aka chopped pecans)"
-    },
-    {
-      "display_name": "Pecans, halves",
-      "slug": "pecans_halves",
-      "category": "Nuts & Seeds",
-      "is_packaging": false,
-      "description": "Pecans, halves (aka pecan halves)"
-    },
-    {
       "display_name": "Pectin",
       "slug": "pectin",
       "category": "Additives & Thickeners",
@@ -2257,19 +2138,9 @@
     {
       "display_name": "Pepper, black ground",
       "slug": "pepper_black_ground",
-      "category": "Spices & Flavorings",
+      "category": "Spices & Extracts",
       "is_packaging": false,
       "description": "Ground black pepper"
-    },
-    {
-      "display_name": "Pepper, black, Tellicherry",
-      "slug": "pepper_black_tellicherry",
-      "category": "spices",
-      "is_packaging": false,
-      "density_volume_value": 1.0,
-      "density_volume_unit": "cup",
-      "density_weight_value": 112.0,
-      "density_weight_unit": "g"
     },
     {
       "display_name": "Peppermint bark",
@@ -2281,14 +2152,14 @@
     {
       "display_name": "Peppermint extract",
       "slug": "peppermint_extract",
-      "category": "Spices & Flavorings",
+      "category": "Spices & Extracts",
       "is_packaging": false,
       "description": "Peppermint extract (aka mint extract)"
     },
     {
       "display_name": "Peppermints",
       "slug": "peppermints",
-      "category": "Candies & Decorations",
+      "category": "Decorations & Candies",
       "is_packaging": false,
       "description": "Peppermints (aka starlight mints)"
     },
@@ -2302,35 +2173,35 @@
     {
       "display_name": "Pineapple, candied",
       "slug": "pineapple_candied",
-      "category": "Chocolate & Candies",
+      "category": "Chocolate & Cocoa",
       "is_packaging": false,
-      "description": "Candied pineapple pieces (aka glacé pineapple)"
+      "description": "Candied pineapple pieces (aka glac\u00e9 pineapple)"
     },
     {
       "display_name": "Pineapple, crushed",
       "slug": "pineapple_crushed",
-      "category": "Fruits",
+      "category": "Fruits & Dried Fruits",
       "is_packaging": false,
       "description": "Pineapple, crushed (aka crushed pineapple)"
     },
     {
       "display_name": "Pineapple, crushed canned",
       "slug": "pineapple_crushed_canned",
-      "category": "Fruits",
+      "category": "Fruits & Dried Fruits",
       "is_packaging": false,
       "description": "Canned crushed pineapple in juice or syrup"
     },
     {
       "display_name": "Pineapple, dried",
       "slug": "pineapple_dried",
-      "category": "Fruits",
+      "category": "Fruits & Dried Fruits",
       "is_packaging": false,
       "description": "Pineapple, dried"
     },
     {
       "display_name": "Pistachio extract",
       "slug": "pistachio_extract",
-      "category": "Spices & Flavorings",
+      "category": "Spices & Extracts",
       "is_packaging": false,
       "description": "Pistachio extract/flavor for baking"
     },
@@ -2351,7 +2222,7 @@
     {
       "display_name": "Poppy seeds, blue",
       "slug": "poppy_seeds_blue",
-      "category": "spices",
+      "category": "Spices & Extracts",
       "is_packaging": false,
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
@@ -2361,7 +2232,7 @@
     {
       "display_name": "Potato starch",
       "slug": "potato_starch",
-      "category": "Flours & Meals",
+      "category": "Flours & Starches",
       "is_packaging": false,
       "description": "Potato starch",
       "density_volume_value": 1.0,
@@ -2372,35 +2243,35 @@
     {
       "display_name": "Powdered milk, malted",
       "slug": "powdered_milk_malted",
-      "category": "Other / Misc",
+      "category": "Dairy & Eggs",
       "is_packaging": false,
       "description": "Powdered milk, malted (aka malted milk powder)"
     },
     {
       "display_name": "Pretzels",
       "slug": "pretzels",
-      "category": "Other / Misc",
+      "category": "Decorations & Candies",
       "is_packaging": false,
       "description": "Pretzels"
     },
     {
       "display_name": "Prunes",
       "slug": "prunes",
-      "category": "Fruits",
+      "category": "Fruits & Dried Fruits",
       "is_packaging": false,
       "description": "Prunes (aka dried plums)"
     },
     {
       "display_name": "Pumpkin pie spice",
       "slug": "pumpkin_pie_spice",
-      "category": "Spices & Flavorings",
+      "category": "Spices & Extracts",
       "is_packaging": false,
       "description": "Pumpkin pie spice"
     },
     {
       "display_name": "Pumpkin puree",
       "slug": "pumpkin_puree",
-      "category": "Fruits",
+      "category": "Fruits & Dried Fruits",
       "is_packaging": false,
       "description": "Pumpkin puree (aka canned pumpkin)"
     },
@@ -2414,28 +2285,28 @@
     {
       "display_name": "Raisins",
       "slug": "raisins",
-      "category": "Fruits",
+      "category": "Fruits & Dried Fruits",
       "is_packaging": false,
       "description": "Raisins"
     },
     {
       "display_name": "Raspberries",
       "slug": "raspberries",
-      "category": "Fruits",
+      "category": "Fruits & Dried Fruits",
       "is_packaging": false,
       "description": "Raspberries"
     },
     {
       "display_name": "Rice cereal, crisp",
       "slug": "rice_cereal_crisp",
-      "category": "Other / Misc",
+      "category": "Additives & Thickeners",
       "is_packaging": false,
       "description": "Rice cereal, crisp (aka crispy rice cereal)"
     },
     {
       "display_name": "Rice flour, brown",
       "slug": "rice_flour_brown",
-      "category": "Flours & Meals",
+      "category": "Flours & Starches",
       "is_packaging": false,
       "description": "Rice flour, brown",
       "density_volume_value": 1.0,
@@ -2446,7 +2317,7 @@
     {
       "display_name": "Rice flour, white",
       "slug": "rice_flour_white",
-      "category": "Flours & Meals",
+      "category": "Flours & Starches",
       "is_packaging": false,
       "description": "Rice flour, white",
       "density_volume_value": 1.0,
@@ -2468,14 +2339,14 @@
     {
       "display_name": "Ricotta cheese",
       "slug": "ricotta_cheese",
-      "category": "Dairy",
+      "category": "Dairy & Eggs",
       "is_packaging": false,
       "description": "Soft Italian whey cheese"
     },
     {
       "display_name": "Rosemary, dried",
       "slug": "rosemary_dried",
-      "category": "Spices & Flavorings",
+      "category": "Spices & Extracts",
       "is_packaging": false,
       "description": "Dried rosemary leaves"
     },
@@ -2489,7 +2360,7 @@
     {
       "display_name": "Rum",
       "slug": "rum",
-      "category": "Liquids",
+      "category": "Liquids & Liquors",
       "is_packaging": false,
       "description": "Rum",
       "density_volume_value": 1.0,
@@ -2500,14 +2371,14 @@
     {
       "display_name": "Rum extract",
       "slug": "rum_extract",
-      "category": "Spices & Flavorings",
+      "category": "Spices & Extracts",
       "is_packaging": false,
       "description": "Rum extract"
     },
     {
       "display_name": "Rye flour",
       "slug": "rye_flour",
-      "category": "Flours & Meals",
+      "category": "Flours & Starches",
       "is_packaging": false,
       "description": "Rye flour",
       "density_volume_value": 1.0,
@@ -2518,7 +2389,7 @@
     {
       "display_name": "Sage, dried",
       "slug": "sage_dried",
-      "category": "Spices & Flavorings",
+      "category": "Spices & Extracts",
       "is_packaging": false,
       "description": "Dried sage leaves (aka rubbed sage)"
     },
@@ -2539,14 +2410,14 @@
     {
       "display_name": "Sanding sugar",
       "slug": "sanding_sugar",
-      "category": "Candies & Decorations",
+      "category": "Decorations & Candies",
       "is_packaging": false,
       "description": "Sanding sugar (aka decorating sugar)"
     },
     {
       "display_name": "Peach Schnapps",
       "slug": "schnapps_peach",
-      "category": "Liquids",
+      "category": "Liquids & Liquors",
       "is_packaging": false,
       "description": "Clear peach-flavored liqueur"
     },
@@ -2560,7 +2431,7 @@
     {
       "display_name": "Self-rising flour",
       "slug": "self_rising_flour",
-      "category": "Flours & Meals",
+      "category": "Flours & Starches",
       "is_packaging": false,
       "description": "Self-rising flour (aka self raising flour)",
       "density_volume_value": 1.0,
@@ -2571,7 +2442,7 @@
     {
       "display_name": "Semolina flour",
       "slug": "semolina_flour",
-      "category": "Flours & Meals",
+      "category": "Flours & Starches",
       "is_packaging": false,
       "description": "Semolina flour (aka semolina)",
       "density_volume_value": 1.0,
@@ -2585,26 +2456,6 @@
       "category": "Nuts & Seeds",
       "is_packaging": false,
       "description": "Sesame seeds"
-    },
-    {
-      "display_name": "Sesame seeds, black",
-      "slug": "sesame_seeds_black",
-      "category": "spices",
-      "is_packaging": false,
-      "density_volume_value": 1.0,
-      "density_volume_unit": "cup",
-      "density_weight_value": 144.0,
-      "density_weight_unit": "g"
-    },
-    {
-      "display_name": "Sesame seeds, white",
-      "slug": "sesame_seeds_white",
-      "category": "spices",
-      "is_packaging": false,
-      "density_volume_value": 1.0,
-      "density_volume_unit": "cup",
-      "density_weight_value": 144.0,
-      "density_weight_unit": "g"
     },
     {
       "display_name": "Shortening",
@@ -2631,7 +2482,7 @@
     {
       "display_name": "Sorghum flour",
       "slug": "sorghum_flour",
-      "category": "Flours & Meals",
+      "category": "Flours & Starches",
       "is_packaging": false,
       "description": "Sorghum flour",
       "density_volume_value": 1.0,
@@ -2660,7 +2511,7 @@
     {
       "display_name": "Spelt flour",
       "slug": "spelt_flour",
-      "category": "Flours & Meals",
+      "category": "Flours & Starches",
       "is_packaging": false,
       "description": "Spelt flour",
       "density_volume_value": 1.0,
@@ -2671,7 +2522,7 @@
     {
       "display_name": "Spice blend, Chinese five spice",
       "slug": "spice_blend_chinese_five_spice",
-      "category": "spices",
+      "category": "Spices & Extracts",
       "is_packaging": false,
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
@@ -2681,7 +2532,7 @@
     {
       "display_name": "Spice blend, mulling spices",
       "slug": "spice_blend_mulling",
-      "category": "spices",
+      "category": "Spices & Extracts",
       "is_packaging": false,
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
@@ -2691,28 +2542,28 @@
     {
       "display_name": "Sprinkles, chocolate",
       "slug": "sprinkles_chocolate",
-      "category": "Candies & Decorations",
+      "category": "Decorations & Candies",
       "is_packaging": false,
       "description": "Sprinkles, chocolate (aka chocolate jimmies)"
     },
     {
       "display_name": "Sprinkles, rainbow",
       "slug": "sprinkles_rainbow",
-      "category": "Candies & Decorations",
+      "category": "Decorations & Candies",
       "is_packaging": false,
       "description": "Sprinkles, rainbow (aka jimmies)"
     },
     {
       "display_name": "Star anise",
       "slug": "star_anise",
-      "category": "Spices & Flavorings",
+      "category": "Spices & Extracts",
       "is_packaging": false,
       "description": "Star anise"
     },
     {
       "display_name": "Strawberries",
       "slug": "strawberries",
-      "category": "Fruits",
+      "category": "Fruits & Dried Fruits",
       "is_packaging": false,
       "description": "Strawberries"
     },
@@ -2795,14 +2646,14 @@
     {
       "display_name": "Sweet potato puree",
       "slug": "sweet_potato_puree",
-      "category": "Fruits",
+      "category": "Fruits & Dried Fruits",
       "is_packaging": false,
       "description": "Sweet potato puree"
     },
     {
       "display_name": "Sweetener, stevia",
       "slug": "sweetener_stevia",
-      "category": "sugar_sweeteners",
+      "category": "Sugars & Sweeteners",
       "is_packaging": false,
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
@@ -2830,7 +2681,7 @@
     {
       "display_name": "Tapioca starch",
       "slug": "tapioca_starch",
-      "category": "Flours & Meals",
+      "category": "Flours & Starches",
       "is_packaging": false,
       "description": "Tapioca starch (aka tapioca flour)",
       "density_volume_value": 1.0,
@@ -2841,7 +2692,7 @@
     {
       "display_name": "Tea, brewed",
       "slug": "tea_brewed",
-      "category": "Liquids",
+      "category": "Liquids & Liquors",
       "is_packaging": false,
       "description": "Tea, brewed",
       "density_volume_value": 1.0,
@@ -2852,14 +2703,14 @@
     {
       "display_name": "Tea, matcha powder",
       "slug": "tea_matcha_powder",
-      "category": "Spices & Flavorings",
+      "category": "Spices & Extracts",
       "is_packaging": false,
       "description": "Tea, matcha powder (aka matcha)"
     },
     {
       "display_name": "Thyme, dried",
       "slug": "thyme_dried",
-      "category": "Spices & Flavorings",
+      "category": "Spices & Extracts",
       "is_packaging": false,
       "description": "Dried thyme leaves"
     },
@@ -2891,28 +2742,28 @@
     {
       "display_name": "Vanilla bean",
       "slug": "vanilla_bean",
-      "category": "Spices & Flavorings",
+      "category": "Spices & Extracts",
       "is_packaging": false,
       "description": "Vanilla bean"
     },
     {
       "display_name": "Vanilla extract",
       "slug": "vanilla_extract",
-      "category": "Spices & Flavorings",
+      "category": "Spices & Extracts",
       "is_packaging": false,
       "description": "Vanilla extract (aka vanilla)"
     },
     {
       "display_name": "Vanilla paste",
       "slug": "vanilla_paste",
-      "category": "Spices & Flavorings",
+      "category": "Spices & Extracts",
       "is_packaging": false,
       "description": "Vanilla paste (aka vanilla bean paste)"
     },
     {
       "display_name": "Vanilla powder, extract blend",
       "slug": "vanilla_powder_extract_blend",
-      "category": "extracts_flavorings",
+      "category": "Spices & Extracts",
       "is_packaging": false,
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
@@ -2922,7 +2773,7 @@
     {
       "display_name": "Vanilla powder, pure",
       "slug": "vanilla_powder_pure",
-      "category": "extracts_flavorings",
+      "category": "Spices & Extracts",
       "is_packaging": false,
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
@@ -2939,7 +2790,7 @@
     {
       "display_name": "Vinegar, apple cider",
       "slug": "vinegar_apple_cider",
-      "category": "Liquids",
+      "category": "Liquids & Liquors",
       "is_packaging": false,
       "description": "Vinegar, apple cider (aka apple cider vinegar)",
       "density_volume_value": 1.0,
@@ -2950,7 +2801,7 @@
     {
       "display_name": "Vinegar, white",
       "slug": "vinegar_white",
-      "category": "Liquids",
+      "category": "Liquids & Liquors",
       "is_packaging": false,
       "description": "Vinegar, white (aka white vinegar)",
       "density_volume_value": 1.0,
@@ -2961,7 +2812,7 @@
     {
       "display_name": "Vital wheat gluten",
       "slug": "vital_wheat_gluten",
-      "category": "Flours & Meals",
+      "category": "Flours & Starches",
       "is_packaging": false,
       "description": "Vital wheat gluten (aka gluten flour)",
       "density_volume_value": 1.0,
@@ -2972,7 +2823,7 @@
     {
       "display_name": "Vodka",
       "slug": "vodka",
-      "category": "Liquids",
+      "category": "Liquids & Liquors",
       "is_packaging": false,
       "description": "Vodka",
       "density_volume_value": 1.0,
@@ -3004,7 +2855,7 @@
     {
       "display_name": "Water",
       "slug": "water",
-      "category": "Liquids",
+      "category": "Liquids & Liquors",
       "is_packaging": false,
       "description": "Water",
       "density_volume_value": 1.0,
@@ -3015,14 +2866,14 @@
     {
       "display_name": "Whiskey, Irish",
       "slug": "whiskey_irish",
-      "category": "Liquids",
+      "category": "Liquids & Liquors",
       "is_packaging": false,
       "description": "Irish whiskey for baking"
     },
     {
       "display_name": "White whole wheat flour",
       "slug": "white_whole_wheat_flour",
-      "category": "Flours & Meals",
+      "category": "Flours & Starches",
       "is_packaging": false,
       "description": "White whole wheat flour",
       "density_volume_value": 1.0,
@@ -3033,7 +2884,7 @@
     {
       "display_name": "Whole wheat flour",
       "slug": "whole_wheat_flour",
-      "category": "Flours & Meals",
+      "category": "Flours & Starches",
       "is_packaging": false,
       "description": "Whole wheat flour (aka wholemeal flour)",
       "density_volume_value": 1.0,
@@ -3126,7 +2977,7 @@
       "is_hidden": false
     },
     {
-      "ingredient_slug": "almonds_whole",
+      "ingredient_slug": "almonds",
       "package_unit": "lb",
       "package_unit_quantity": 2.0,
       "brand": "Costco",
@@ -3224,7 +3075,7 @@
       "package_unit": "oz",
       "package_unit_quantity": 11.0,
       "brand": "Nestle",
-      "product_name": "NESTLÉ® TOLL HOUSE® Butterscotch Artificially Flavored Morsels",
+      "product_name": "NESTL\u00c9\u00ae TOLL HOUSE\u00ae Butterscotch Artificially Flavored Morsels",
       "package_type": "bag",
       "is_hidden": false
     },
@@ -3254,7 +3105,7 @@
       "is_hidden": false
     },
     {
-      "ingredient_slug": "canola_oil",
+      "ingredient_slug": "oil_canola",
       "package_unit": "qt",
       "package_unit_quantity": 1.0,
       "brand": "Wegman's",
@@ -3265,7 +3116,7 @@
       "ingredient_slug": "caramels",
       "package_unit": "oz",
       "package_unit_quantity": 14.0,
-      "brand": "Brach’s",
+      "brand": "Brach\u2019s",
       "package_type": "bag",
       "is_hidden": false
     },
@@ -3350,7 +3201,7 @@
       "package_unit": "oz",
       "package_unit_quantity": 11.5,
       "brand": "Nestle",
-      "product_name": "NESTLÉ® TOLL HOUSE® Milk Chocolate Morsels",
+      "product_name": "NESTL\u00c9\u00ae TOLL HOUSE\u00ae Milk Chocolate Morsels",
       "package_type": "bag",
       "is_hidden": false
     },
@@ -3359,7 +3210,7 @@
       "package_unit": "oz",
       "package_unit_quantity": 10.0,
       "brand": "Nestle",
-      "product_name": "NESTLÉ® TOLL HOUSE® Semi-Sweet Chocolate Morsels",
+      "product_name": "NESTL\u00c9\u00ae TOLL HOUSE\u00ae Semi-Sweet Chocolate Morsels",
       "package_type": "bag",
       "is_hidden": false
     },
@@ -3376,7 +3227,7 @@
       "package_unit": "oz",
       "package_unit_quantity": 10.0,
       "brand": "Nestle",
-      "product_name": "NESTLÉ® TOLL HOUSE® Organic Allergen Free Semi-Sweet Morsels",
+      "product_name": "NESTL\u00c9\u00ae TOLL HOUSE\u00ae Organic Allergen Free Semi-Sweet Morsels",
       "package_type": "bag",
       "is_hidden": false
     },
@@ -3393,7 +3244,7 @@
       "package_unit": "oz",
       "package_unit_quantity": 12.0,
       "brand": "Nestle",
-      "product_name": "NESTLÉ® TOLL HOUSE® Premier White Morsels",
+      "product_name": "NESTL\u00c9\u00ae TOLL HOUSE\u00ae Premier White Morsels",
       "package_type": "bag",
       "is_hidden": false
     },
@@ -3448,7 +3299,7 @@
       "is_hidden": false
     },
     {
-      "ingredient_slug": "cinnamon_ground_ceylon",
+      "ingredient_slug": "cinnamon_ground",
       "package_unit": "oz",
       "package_unit_quantity": 4.8,
       "brand": "Penzeys",
@@ -3457,7 +3308,7 @@
       "is_hidden": false
     },
     {
-      "ingredient_slug": "cinnamon_sticks_indonesian",
+      "ingredient_slug": "cinnamon_sticks",
       "package_unit": "oz",
       "package_unit_quantity": 4.0,
       "brand": "Penzeys",
@@ -3714,7 +3565,7 @@
       "ingredient_slug": "golden_syrup",
       "package_unit": "oz",
       "package_unit_quantity": 16.0,
-      "brand": "Lyle’s",
+      "brand": "Lyle\u2019s",
       "product_name": "Golden Syrup",
       "package_type": "bottle",
       "is_hidden": false
@@ -3924,12 +3775,12 @@
       "package_unit": "oz",
       "package_unit_quantity": 18.0,
       "brand": "Quaker",
-      "product_name": "Quaker® Oats Old Fashioned",
+      "product_name": "Quaker\u00ae Oats Old Fashioned",
       "package_type": "container",
       "is_hidden": false
     },
     {
-      "ingredient_slug": "olive_oil",
+      "ingredient_slug": "oil_olive",
       "package_unit": "l",
       "package_unit_quantity": 3.0,
       "brand": "Bertolli",
@@ -3990,7 +3841,7 @@
       "is_hidden": false
     },
     {
-      "ingredient_slug": "pepper_black_tellicherry",
+      "ingredient_slug": "pepper_black_ground",
       "package_unit": "oz",
       "package_unit_quantity": 2.2,
       "brand": "Penzeys",
@@ -4042,7 +3893,7 @@
       "ingredient_slug": "raisins",
       "package_unit": "lb",
       "package_unit_quantity": 3.0,
-      "brand": "Wegman’s",
+      "brand": "Wegman\u2019s",
       "package_type": "bag",
       "is_hidden": false
     },
@@ -4122,7 +3973,7 @@
       "is_hidden": false
     },
     {
-      "ingredient_slug": "sesame_seeds_black",
+      "ingredient_slug": "sesame_seeds",
       "package_unit": "oz",
       "package_unit_quantity": 1.0,
       "brand": "Penzeys",
@@ -4130,7 +3981,7 @@
       "is_hidden": false
     },
     {
-      "ingredient_slug": "sesame_seeds_white",
+      "ingredient_slug": "sesame_seeds",
       "package_unit": "oz",
       "package_unit_quantity": 2.2,
       "brand": "Penzeys",
@@ -4488,7 +4339,7 @@
       "product_id": 22,
       "supplier_id": 1,
       "ingredient_slug": "caramels",
-      "product_brand": "Brach’s",
+      "product_brand": "Brach\u2019s",
       "purchase_date": "2025-12-21",
       "quantity_purchased": 14,
       "unit_price": null,
@@ -5390,7 +5241,7 @@
       "product_id": 75,
       "supplier_id": 1,
       "ingredient_slug": "golden_syrup",
-      "product_brand": "Lyle’s",
+      "product_brand": "Lyle\u2019s",
       "purchase_date": "2025-12-21",
       "quantity_purchased": 16,
       "unit_price": null,
@@ -5636,7 +5487,7 @@
       "purchase_date": "2025-12-21",
       "quantity_purchased": 10,
       "unit_price": null,
-      "product_name": "NESTLÉ® TOLL HOUSE® Semi-Sweet Chocolate Morsels",
+      "product_name": "NESTL\u00c9\u00ae TOLL HOUSE\u00ae Semi-Sweet Chocolate Morsels",
       "package_unit": "oz",
       "created_at": "2025-12-24T12:41:31.331670"
     },
@@ -5650,7 +5501,7 @@
       "purchase_date": "2025-12-21",
       "quantity_purchased": 11,
       "unit_price": null,
-      "product_name": "NESTLÉ® TOLL HOUSE® Milk Chocolate Morsels",
+      "product_name": "NESTL\u00c9\u00ae TOLL HOUSE\u00ae Milk Chocolate Morsels",
       "package_unit": "oz",
       "created_at": "2025-12-24T12:41:31.333070"
     },
@@ -5664,7 +5515,7 @@
       "purchase_date": "2025-12-21",
       "quantity_purchased": 11,
       "unit_price": null,
-      "product_name": "NESTLÉ® TOLL HOUSE® Butterscotch Artificially Flavored Morsels",
+      "product_name": "NESTL\u00c9\u00ae TOLL HOUSE\u00ae Butterscotch Artificially Flavored Morsels",
       "package_unit": "oz",
       "created_at": "2025-12-24T12:41:31.334112"
     },
@@ -5691,7 +5542,7 @@
       "purchase_date": "2025-12-21",
       "quantity_purchased": 5,
       "unit_price": null,
-      "product_name": "NESTLÉ® TOLL HOUSE® Organic Allergen Free Semi-Sweet Morsels",
+      "product_name": "NESTL\u00c9\u00ae TOLL HOUSE\u00ae Organic Allergen Free Semi-Sweet Morsels",
       "package_unit": "oz",
       "created_at": "2025-12-24T12:41:31.336144"
     },
@@ -5719,7 +5570,7 @@
       "purchase_date": "2025-12-21",
       "quantity_purchased": 12,
       "unit_price": null,
-      "product_name": "NESTLÉ® TOLL HOUSE® Premier White Morsels",
+      "product_name": "NESTL\u00c9\u00ae TOLL HOUSE\u00ae Premier White Morsels",
       "package_unit": "oz",
       "created_at": "2025-12-24T12:41:31.338530"
     },
@@ -6155,7 +6006,7 @@
       "purchase_date": "2025-12-21",
       "quantity_purchased": 18,
       "unit_price": null,
-      "product_name": "Quaker® Oats Old Fashioned",
+      "product_name": "Quaker\u00ae Oats Old Fashioned",
       "package_unit": "oz",
       "created_at": "2025-12-24T12:41:31.383328"
     },
@@ -6440,7 +6291,7 @@
       "product_id": 114,
       "supplier_id": 1,
       "ingredient_slug": "raisins",
-      "product_brand": "Wegman’s",
+      "product_brand": "Wegman\u2019s",
       "purchase_date": "2025-12-21",
       "quantity_purchased": 3,
       "unit_price": null,
@@ -6551,7 +6402,7 @@
     },
     {
       "ingredient_slug": "caramels",
-      "product_brand": "Brach’s",
+      "product_brand": "Brach\u2019s",
       "quantity": 14.0,
       "purchase_date": "2025-12-21",
       "package_unit": "oz",
@@ -7255,7 +7106,7 @@
     },
     {
       "ingredient_slug": "golden_syrup",
-      "product_brand": "Lyle’s",
+      "product_brand": "Lyle\u2019s",
       "quantity": 16.0,
       "purchase_date": "2025-12-21",
       "product_name": "Golden Syrup",
@@ -7446,7 +7297,7 @@
       "product_brand": "Nestle",
       "quantity": 10.0,
       "purchase_date": "2025-12-21",
-      "product_name": "NESTLÉ® TOLL HOUSE® Semi-Sweet Chocolate Morsels",
+      "product_name": "NESTL\u00c9\u00ae TOLL HOUSE\u00ae Semi-Sweet Chocolate Morsels",
       "package_unit": "oz",
       "location": "pantry",
       "notes": "Initial inventory - full package",
@@ -7457,7 +7308,7 @@
       "product_brand": "Nestle",
       "quantity": 11.5,
       "purchase_date": "2025-12-21",
-      "product_name": "NESTLÉ® TOLL HOUSE® Milk Chocolate Morsels",
+      "product_name": "NESTL\u00c9\u00ae TOLL HOUSE\u00ae Milk Chocolate Morsels",
       "package_unit": "oz",
       "location": "pantry",
       "notes": "Initial inventory - full package",
@@ -7468,7 +7319,7 @@
       "product_brand": "Nestle",
       "quantity": 11.0,
       "purchase_date": "2025-12-21",
-      "product_name": "NESTLÉ® TOLL HOUSE® Butterscotch Artificially Flavored Morsels",
+      "product_name": "NESTL\u00c9\u00ae TOLL HOUSE\u00ae Butterscotch Artificially Flavored Morsels",
       "package_unit": "oz",
       "location": "pantry",
       "notes": "Initial inventory - full package",
@@ -7489,7 +7340,7 @@
       "product_brand": "Nestle",
       "quantity": 5.0,
       "purchase_date": "2025-12-21",
-      "product_name": "NESTLÉ® TOLL HOUSE® Organic Allergen Free Semi-Sweet Morsels",
+      "product_name": "NESTL\u00c9\u00ae TOLL HOUSE\u00ae Organic Allergen Free Semi-Sweet Morsels",
       "package_unit": "oz",
       "location": "pantry",
       "notes": "Initial inventory - partial package (50%)",
@@ -7511,7 +7362,7 @@
       "product_brand": "Nestle",
       "quantity": 12.0,
       "purchase_date": "2025-12-21",
-      "product_name": "NESTLÉ® TOLL HOUSE® Premier White Morsels",
+      "product_name": "NESTL\u00c9\u00ae TOLL HOUSE\u00ae Premier White Morsels",
       "package_unit": "oz",
       "location": "pantry",
       "notes": "Initial inventory - full package",
@@ -7848,7 +7699,7 @@
       "product_brand": "Quaker",
       "quantity": 18.0,
       "purchase_date": "2025-12-21",
-      "product_name": "Quaker® Oats Old Fashioned",
+      "product_name": "Quaker\u00ae Oats Old Fashioned",
       "package_unit": "oz",
       "location": "pantry",
       "notes": "Initial inventory - full package",
@@ -8068,7 +7919,7 @@
     },
     {
       "ingredient_slug": "raisins",
-      "product_brand": "Wegman’s",
+      "product_brand": "Wegman\u2019s",
       "quantity": 3.0,
       "purchase_date": "2025-12-21",
       "package_unit": "lb",
@@ -8094,7 +7945,7 @@
       "yield_quantity": 30.0,
       "yield_unit": "slices",
       "source": "Holiday Cooking 1982",
-      "notes": "Beat butter until softened. Add 1 cup flour, sugar, eggs, baking powder, vanilla; beat till combined. Stir in remaining flour and nuts. Divide in half. Shape into 9-inch logs, 2 inches wide. Place 4 inches apart on ungreased sheet. Bake 325°F for 1 hour. Cool 1 hour. Cut diagonally into ½-inch slices. Lay cut side down. Bake 325°F 8 minutes, turn, bake 8-10 minutes more till dry and crisp. Cool. Optional: melt chocolate with shortening, drizzle over cookies.",
+      "notes": "Beat butter until softened. Add 1 cup flour, sugar, eggs, baking powder, vanilla; beat till combined. Stir in remaining flour and nuts. Divide in half. Shape into 9-inch logs, 2 inches wide. Place 4 inches apart on ungreased sheet. Bake 325\u00b0F for 1 hour. Cool 1 hour. Cut diagonally into \u00bd-inch slices. Lay cut side down. Bake 325\u00b0F 8 minutes, turn, bake 8-10 minutes more till dry and crisp. Cool. Optional: melt chocolate with shortening, drizzle over cookies.",
       "ingredients": [
         {
           "ingredient_slug": "butter_unsalted",
@@ -8260,8 +8111,8 @@
       "category": "Cakes",
       "yield_quantity": 16.0,
       "yield_unit": "servings",
-      "source": "NESTLÉ TOLL HOUSE",
-      "notes": "Preheat 350°F. Grease bundt pan. Microwave 1 cup butterscotch morsels MEDIUM HIGH 70% 1 min; stir till melted. Cool. Mix flour, sugar, baking powder, cinnamon, salt, nutmeg. Whisk melted morsels, pumpkin, oil, eggs, vanilla. Stir in flour. Pour into pan. Bake 40-50 min till pick clean. Cool 30 min, remove from pan. Dust with powdered sugar. Sauce: heat 1/3 cup evaporated milk to boil, remove. Add remaining morsels, stir smooth. Return to heat, bring to boil. Cool.",
+      "source": "NESTL\u00c9 TOLL HOUSE",
+      "notes": "Preheat 350\u00b0F. Grease bundt pan. Microwave 1 cup butterscotch morsels MEDIUM HIGH 70% 1 min; stir till melted. Cool. Mix flour, sugar, baking powder, cinnamon, salt, nutmeg. Whisk melted morsels, pumpkin, oil, eggs, vanilla. Stir in flour. Pour into pan. Bake 40-50 min till pick clean. Cool 30 min, remove from pan. Dust with powdered sugar. Sauce: heat 1/3 cup evaporated milk to boil, remove. Add remaining morsels, stir smooth. Return to heat, bring to boil. Cool.",
       "ingredients": [
         {
           "ingredient_slug": "butterscotch_chips",
@@ -8404,7 +8255,7 @@
       "yield_quantity": 76.0,
       "yield_unit": "truffles",
       "source": "Magazine",
-      "notes": "Boil cream and butter. Add 2.5 lb chocolate; whisk smooth. Whisk in sour cream, liqueur, orange peel. Pour into 9x13 dish, refrigerate 1 hr. Line 4 sheets: 2 with powdered sugar, 2 with cocoa. Scoop truffles onto sheets. Freeze 10 min. Roll in coating, then hands. Freeze 15 min. Melt white chocolate to 115°F. Dip sugar truffles, refrigerate 1 hr. Repeat for double coat. Melt 1.5 lb bittersweet to 115°F. Wave spoon over white truffles making zigzags. Repeat process for remaining truffles. Assemble on cone with toothpicks in spiral.",
+      "notes": "Boil cream and butter. Add 2.5 lb chocolate; whisk smooth. Whisk in sour cream, liqueur, orange peel. Pour into 9x13 dish, refrigerate 1 hr. Line 4 sheets: 2 with powdered sugar, 2 with cocoa. Scoop truffles onto sheets. Freeze 10 min. Roll in coating, then hands. Freeze 15 min. Melt white chocolate to 115\u00b0F. Dip sugar truffles, refrigerate 1 hr. Repeat for double coat. Melt 1.5 lb bittersweet to 115\u00b0F. Wave spoon over white truffles making zigzags. Repeat process for remaining truffles. Assemble on cone with toothpicks in spiral.",
       "ingredients": [
         {
           "ingredient_slug": "cream_heavy",
@@ -8461,7 +8312,7 @@
       "yield_quantity": 9.0,
       "yield_unit": "cookies",
       "source": "Magazine",
-      "notes": "Preheat 350°F. Beat butter, 2/3 cup sugar, vanilla till fluffy 2-3 min. Beat in egg, molasses. Whisk flour, cardamom (1/2 cup), cinnamon (2.5 tbsp), ginger (6 tsp total), cloves (2 tsp), pepper (2 tsp), baking soda, salt. Add to butter on low. Beat on medium 2 min. Roll dough 1/2 inch thick. Scoop into 2-inch balls. Roll in 1 cup sugar. Place 2.5 inches apart. Bake 15-16 min till cracked. Cool on pans.",
+      "notes": "Preheat 350\u00b0F. Beat butter, 2/3 cup sugar, vanilla till fluffy 2-3 min. Beat in egg, molasses. Whisk flour, cardamom (1/2 cup), cinnamon (2.5 tbsp), ginger (6 tsp total), cloves (2 tsp), pepper (2 tsp), baking soda, salt. Add to butter on low. Beat on medium 2 min. Roll dough 1/2 inch thick. Scoop into 2-inch balls. Roll in 1 cup sugar. Place 2.5 inches apart. Bake 15-16 min till cracked. Cool on pans.",
       "ingredients": [
         {
           "ingredient_slug": "butter_unsalted",
@@ -8538,7 +8389,7 @@
       "yield_quantity": 15.0,
       "yield_unit": "cookies",
       "source": "King Arthur Baking (print)",
-      "notes": "Combine; scoop 1\" balls; flatten with fork; bake 8–10 min.",
+      "notes": "Combine; scoop 1\" balls; flatten with fork; bake 8\u201310 min.",
       "ingredients": [
         {
           "ingredient_slug": "almond_flour",
@@ -8639,7 +8490,7 @@
       "yield_quantity": 4.0,
       "yield_unit": "cakes",
       "source": "Magazine recipe",
-      "notes": "Preheat oven to 350°F. Butter and flour four 5¾x3¼x1⅞-inch loaf pans. Sift flour, baking powder and salt into medium bowl. Using electric mixer, beat sugar and unsalted butter in large bowl until light and fluffy. Add eggs 1 at a time, beating well after each addition. Beat in orange juice, grated orange peel and vanilla extract (batter may look curdled). Beat in flour mixture. Fold in poppy seeds. Divide batter equally among prepared pans (about 1½ cups each). Place pans in oven. Bake until tester inserted in center comes out clean, about 55 minutes. Transfer pans to racks. Cool cakes in pans 10 minutes. Turn cakes out onto wire racks and cool completely.",
+      "notes": "Preheat oven to 350\u00b0F. Butter and flour four 5\u00bex3\u00bcx1\u215e-inch loaf pans. Sift flour, baking powder and salt into medium bowl. Using electric mixer, beat sugar and unsalted butter in large bowl until light and fluffy. Add eggs 1 at a time, beating well after each addition. Beat in orange juice, grated orange peel and vanilla extract (batter may look curdled). Beat in flour mixture. Fold in poppy seeds. Divide batter equally among prepared pans (about 1\u00bd cups each). Place pans in oven. Bake until tester inserted in center comes out clean, about 55 minutes. Transfer pans to racks. Cool cakes in pans 10 minutes. Turn cakes out onto wire racks and cool completely.",
       "ingredients": [
         {
           "ingredient_slug": "all_purpose_wheat_flour",
@@ -8703,7 +8554,7 @@
       "yield_quantity": 36.0,
       "yield_unit": "cookies",
       "source": "Christmas Cookies 2006",
-      "notes": "Line sheet with parchment. Preheat 350°F. Mix flour, baking soda, salt. Beat butter 30 sec. Beat in sugars. Beat in eggs, vanilla. Beat in flour as much as possible. Stir in remaining flour. Stir in nuts, raisins, chocolate. Drop 1/4 cup dough 3 inches apart. Bake 12-15 min till golden and set. Stand 5 min. Transfer to rack; cool. Store in refrigerator up to 3 days or freeze up to 3 months.",
+      "notes": "Line sheet with parchment. Preheat 350\u00b0F. Mix flour, baking soda, salt. Beat butter 30 sec. Beat in sugars. Beat in eggs, vanilla. Beat in flour as much as possible. Stir in remaining flour. Stir in nuts, raisins, chocolate. Drop 1/4 cup dough 3 inches apart. Bake 12-15 min till golden and set. Stand 5 min. Transfer to rack; cool. Store in refrigerator up to 3 days or freeze up to 3 months.",
       "ingredients": [
         {
           "ingredient_slug": "all_purpose_wheat_flour",
@@ -8863,13 +8714,13 @@
       "yield_quantity": 1.0,
       "yield_unit": "cake",
       "source": "King Arthur Baking - 2017 Recipe of the Year",
-      "notes": "Preheat oven to 350°F. Beat butter, sugar, and salt until combined, then fluffy and lightened in color. Add eggs one at a time, beating well after each addition. Scrape sides and bottom once all eggs added, beat briefly to re-combine. Measure flour by gently spooning into cup, then sweeping off excess. Whisk baking powder into flour. Add flour mixture to batter in three parts alternately with milk, starting and ending with flour. Batter may look slightly curdled when you add milk - that's OK; it'll smooth out as you add flour. Mix until well combined; batter will look a bit rough, but shouldn't have large lumps. Stir in grated lemon rind or lemon oil. Thoroughly grease 10-12 cup Bundt pan. Spoon batter into prepared pan, leveling and smoothing top with spatula. Bake 45-60 minutes, until cake tester or toothpick comes out clean. Pan with dark interior will bake more quickly; start checking at 40 minutes. While cake bakes, make glaze by stirring together lemon juice and sugar. Microwave or heat over burner briefly, stirring to dissolve sugar. Don't cook lemon juice; microwave until very warm, but not uncomfortably hot - less than 1 minute. Remove cake from oven, carefully run knife between cake and pan all around edge. Place pan upside down on serving plate. Let cool 15 minutes before removing pan. Poke holes in warm cake with toothpick. Brush glaze over warm cake. Cool completely before serving.",
+      "notes": "Preheat oven to 350\u00b0F. Beat butter, sugar, and salt until combined, then fluffy and lightened in color. Add eggs one at a time, beating well after each addition. Scrape sides and bottom once all eggs added, beat briefly to re-combine. Measure flour by gently spooning into cup, then sweeping off excess. Whisk baking powder into flour. Add flour mixture to batter in three parts alternately with milk, starting and ending with flour. Batter may look slightly curdled when you add milk - that's OK; it'll smooth out as you add flour. Mix until well combined; batter will look a bit rough, but shouldn't have large lumps. Stir in grated lemon rind or lemon oil. Thoroughly grease 10-12 cup Bundt pan. Spoon batter into prepared pan, leveling and smoothing top with spatula. Bake 45-60 minutes, until cake tester or toothpick comes out clean. Pan with dark interior will bake more quickly; start checking at 40 minutes. While cake bakes, make glaze by stirring together lemon juice and sugar. Microwave or heat over burner briefly, stirring to dissolve sugar. Don't cook lemon juice; microwave until very warm, but not uncomfortably hot - less than 1 minute. Remove cake from oven, carefully run knife between cake and pan all around edge. Place pan upside down on serving plate. Let cool 15 minutes before removing pan. Poke holes in warm cake with toothpick. Brush glaze over warm cake. Cool completely before serving.",
       "ingredients": [
         {
           "ingredient_slug": "butter_unsalted",
           "quantity": 16.0,
           "unit": "tbsp",
-          "notes": "room temperature, at least 65°F"
+          "notes": "room temperature, at least 65\u00b0F"
         },
         {
           "ingredient_slug": "sugar_granulated",
@@ -8925,7 +8776,7 @@
       "yield_quantity": 1.0,
       "yield_unit": "cake",
       "source": "Cake Baker's Art",
-      "notes": "Sift flour, baking powder, salt, baking soda, cinnamon, ginger, nutmeg, and cloves onto wax paper. Cream butter or margarine with brown sugar until fluffy in a large bowl; beat in eggs, one at a time; stir in currant jelly and apple juice. Stir in flour mixture until blended, then candied fruits, dates, walnuts, and currants. Spoon half of batter into a greased 9-inch tube pan. Combine granulated sugar, lemon rind, and lemon sections; spoon over batter in pan. Top with remaining batter. Bake in slow oven (300°) for 1¾ hours, or until a long thin skewer inserted near center comes out clean. Cool completely in pan on a wire rack. Loosen around edge with a knife; turn out onto rack.",
+      "notes": "Sift flour, baking powder, salt, baking soda, cinnamon, ginger, nutmeg, and cloves onto wax paper. Cream butter or margarine with brown sugar until fluffy in a large bowl; beat in eggs, one at a time; stir in currant jelly and apple juice. Stir in flour mixture until blended, then candied fruits, dates, walnuts, and currants. Spoon half of batter into a greased 9-inch tube pan. Combine granulated sugar, lemon rind, and lemon sections; spoon over batter in pan. Top with remaining batter. Bake in slow oven (300\u00b0) for 1\u00be hours, or until a long thin skewer inserted near center comes out clean. Cool completely in pan on a wire rack. Loosen around edge with a knife; turn out onto rack.",
       "ingredients": [
         {
           "ingredient_slug": "all_purpose_wheat_flour",
@@ -9198,7 +9049,7 @@
       "yield_quantity": 1.0,
       "yield_unit": "loaf",
       "source": "Cake Baker's Art",
-      "notes": "Grease a loaf pan, 9x5x3. Sift flour, baking powder, cinnamon, mace, and cloves onto wax paper. Cream butter or margarine with brown sugar until fluffy; light in a large bowl; beat in eggs, one at a time; stir in apricots and whiskey. Stir in flour mixture until blended, then raisins, mixed fruits, pecans, and cherries. Spoon into prepared pan; spread top even. Bake in slow oven (300°) 2 hours, or until a wooden pick inserted in center comes out clean. Cool completely in pan on a wire rack. Loosen cooled cake around the edges with a knife; turn out onto rack.",
+      "notes": "Grease a loaf pan, 9x5x3. Sift flour, baking powder, cinnamon, mace, and cloves onto wax paper. Cream butter or margarine with brown sugar until fluffy; light in a large bowl; beat in eggs, one at a time; stir in apricots and whiskey. Stir in flour mixture until blended, then raisins, mixed fruits, pecans, and cherries. Spoon into prepared pan; spread top even. Bake in slow oven (300\u00b0) 2 hours, or until a wooden pick inserted in center comes out clean. Cool completely in pan on a wire rack. Loosen cooled cake around the edges with a knife; turn out onto rack.",
       "ingredients": [
         {
           "ingredient_slug": "all_purpose_wheat_flour",
@@ -9293,7 +9144,7 @@
       "yield_quantity": 18.0,
       "yield_unit": "cookies",
       "source": "Bake from Scratch magazine",
-      "notes": "In bowl of stand mixer fitted with paddle attachment, beat butter, confectioners' sugar, and salt at medium speed until light and creamy, 2 to 3 minutes, stopping to scrape sides of bowl. Beat in vanilla. In medium bowl, whisk together flours. With mixer on low speed, add flour mixture to butter mixture in two additions, beating just until combined after each addition. Turn out dough, and shape into a disk. Wrap in plastic wrap, and refrigerate until firm, about 2 hours, or up to overnight. Preheat oven to 325°F (170°C). Line baking sheets with parchment paper. On lightly floured surface, roll dough to ½-inch thickness. Using 4-inch tree-shaped cutter, cut dough, rerolling scraps as necessary. Place 1½ inches apart on prepared pans. Bake until edges are lightly browned, 20 to 25 minutes, rotating pans halfway through baking. Let cool on pans 10 minutes. Remove from pans, and let cool completely on wire racks. Spoon melted white chocolate into piping bag, and cut very small opening in tip. Pipe onto cookies to resemble garland; immediately garnish with nonpareils, if desired. Let stand until chocolate is set, about 1 hour. Store in airtight container up to 5 days.",
+      "notes": "In bowl of stand mixer fitted with paddle attachment, beat butter, confectioners' sugar, and salt at medium speed until light and creamy, 2 to 3 minutes, stopping to scrape sides of bowl. Beat in vanilla. In medium bowl, whisk together flours. With mixer on low speed, add flour mixture to butter mixture in two additions, beating just until combined after each addition. Turn out dough, and shape into a disk. Wrap in plastic wrap, and refrigerate until firm, about 2 hours, or up to overnight. Preheat oven to 325\u00b0F (170\u00b0C). Line baking sheets with parchment paper. On lightly floured surface, roll dough to \u00bd-inch thickness. Using 4-inch tree-shaped cutter, cut dough, rerolling scraps as necessary. Place 1\u00bd inches apart on prepared pans. Bake until edges are lightly browned, 20 to 25 minutes, rotating pans halfway through baking. Let cool on pans 10 minutes. Remove from pans, and let cool completely on wire racks. Spoon melted white chocolate into piping bag, and cut very small opening in tip. Pipe onto cookies to resemble garland; immediately garnish with nonpareils, if desired. Let stand until chocolate is set, about 1 hour. Store in airtight container up to 5 days.",
       "ingredients": [
         {
           "ingredient_slug": "butter_unsalted",
@@ -9347,7 +9198,7 @@
       "yield_quantity": 16.0,
       "yield_unit": "servings",
       "source": "Williams-Sonoma",
-      "notes": "Room temp ingredients. Preheat 325°F. Grease flour bundt pan. Sift flour, cocoa, baking powder, baking soda, salt twice. Beat butter smooth 30-45 sec. Add 1.5 cups sugar on low. Beat medium-high till fluffy 3-5 min. Add eggs gradually till thick 1-2 min. Beat in vanilla. Fold in flour in 3 additions alternating with sour cream, beginning and ending with flour. Fold in 6 oz melted chocolate. Pour into pan. Bake 1 hour till pick clean. Cool 10 min. Glaze: heat 1 cup sugar, 1/2 cup milk till dissolved. Stir in 1 tbsp liqueur. Invert cake. Brush with glaze. Dust with powdered sugar. Serve with whipped cream.",
+      "notes": "Room temp ingredients. Preheat 325\u00b0F. Grease flour bundt pan. Sift flour, cocoa, baking powder, baking soda, salt twice. Beat butter smooth 30-45 sec. Add 1.5 cups sugar on low. Beat medium-high till fluffy 3-5 min. Add eggs gradually till thick 1-2 min. Beat in vanilla. Fold in flour in 3 additions alternating with sour cream, beginning and ending with flour. Fold in 6 oz melted chocolate. Pour into pan. Bake 1 hour till pick clean. Cool 10 min. Glaze: heat 1 cup sugar, 1/2 cup milk till dissolved. Stir in 1 tbsp liqueur. Invert cake. Brush with glaze. Dust with powdered sugar. Serve with whipped cream.",
       "ingredients": [
         {
           "ingredient_slug": "all_purpose_wheat_flour",
@@ -9430,7 +9281,7 @@
       "components": []
     },
     {
-      "name": "Toasted Almond Sablés",
+      "name": "Toasted Almond Sabl\u00e9s",
       "category": "Cookies",
       "yield_quantity": 22.0,
       "yield_unit": "cookies",

@@ -42,7 +42,7 @@
       "package_type": "bottle"
     },
     {
-      "ingredient_slug": "almonds_whole",
+      "ingredient_slug": "almonds",
       "brand": "Costco",
       "package_unit": "lb",
       "package_unit_quantity": 2.0,
@@ -155,7 +155,7 @@
       "package_type": "bag"
     },
     {
-      "ingredient_slug": "canola_oil",
+      "ingredient_slug": "oil_canola",
       "brand": "Wegman's",
       "package_unit": "qt",
       "package_unit_quantity": 1.0,
@@ -326,7 +326,7 @@
       "package_type": "bag"
     },
     {
-      "ingredient_slug": "cinnamon_ground_ceylon",
+      "ingredient_slug": "cinnamon_ground",
       "brand": "Penzeys",
       "package_unit": "oz",
       "package_unit_quantity": 4.8,
@@ -334,7 +334,7 @@
       "package_type": "bag"
     },
     {
-      "ingredient_slug": "cinnamon_sticks_indonesian",
+      "ingredient_slug": "cinnamon_sticks",
       "brand": "Penzeys",
       "package_unit": "oz",
       "package_unit_quantity": 4.0,
@@ -750,7 +750,7 @@
       "package_type": "container"
     },
     {
-      "ingredient_slug": "olive_oil",
+      "ingredient_slug": "oil_olive",
       "brand": "Bertolli",
       "package_unit": "l",
       "package_unit_quantity": 3.0,
@@ -804,7 +804,7 @@
       "package_type": "container"
     },
     {
-      "ingredient_slug": "pepper_black_tellicherry",
+      "ingredient_slug": "pepper_black_ground",
       "brand": "Penzeys",
       "package_unit": "oz",
       "package_unit_quantity": 2.2,
@@ -920,14 +920,14 @@
       "package_type": "bag"
     },
     {
-      "ingredient_slug": "sesame_seeds_black",
+      "ingredient_slug": "sesame_seeds",
       "brand": "Penzeys",
       "package_unit": "oz",
       "package_unit_quantity": 1.0,
       "package_type": "jar"
     },
     {
-      "ingredient_slug": "sesame_seeds_white",
+      "ingredient_slug": "sesame_seeds",
       "brand": "Penzeys",
       "package_unit": "oz",
       "package_unit_quantity": 2.2,
