@@ -10,7 +10,7 @@ subtasks:
   - "T018"
 title: "Recency Query Service Methods"
 phase: "Phase 0 - Foundation"
-lane: "for_review"
+lane: "done"
 assignee: ""
 agent: "claude"
 shell_pid: "33920"
@@ -355,3 +355,4 @@ All recency-related tests must pass.
 - 2025-12-24T23:15:00Z – system – lane=planned – Prompt created.
 - 2025-12-25T04:58:12Z – claude – shell_pid=33920 – lane=doing – Started implementation
 - 2025-12-25T05:05:42Z – claude – shell_pid=33920 – lane=for_review – All tests pass. Recency logic implemented.
+- 2025-12-25T06:39:56Z – claude – shell_pid=33920 – lane=done – Moved to done
