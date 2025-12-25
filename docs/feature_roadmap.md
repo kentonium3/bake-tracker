@@ -1,7 +1,7 @@
 # Feature Roadmap
 
 **Created:** 2025-12-03
-**Last Updated:** 2025-12-20
+**Last Updated:** 2025-12-24
 **Workflow:** Spec-Kitty driven development
 
 ---
@@ -37,6 +37,8 @@
 | 024 | Unified Import Error Handling | MERGED | Standardized error display/logging across unified and catalog imports. ImportResultsDialog for all imports, log files, error suggestions. |
 | 025 | Production Loss Tracking | MERGED | Loss quantity/category tracking, yield balance constraint, ProductionLoss table, UI auto-calculation, cost breakdown, waste analytics. |
 | 026 | Deferred Packaging Decisions | MERGED | Generic packaging at planning time, deferred material assignment, EventPackagingRequirement and EventPackagingAssignment tables, assembly definition with material assignment interface. |
+| 027 | Product Catalog Management | MERGED | Products tab with CRUD operations, filtering, purchase history. Supplier entity, preferred_supplier on Product, is_hidden flag. |
+| 028 | Purchase Tracking & Enhanced Costing | MERGED | Purchase entity, price history queries, FIFO using Purchase.unit_price, InventoryAddition.purchase_id FK, supplier dropdown in Add Inventory dialog. |
 
 ---
 
@@ -50,10 +52,9 @@
 
 | # | Name | Priority | Dependencies | Status |
 |---|------|----------|--------------|--------|
-| 027 | Product Catalog Management | HIGH | Testing blocked | Ready |
-| 028 | Purchase Tracking & Enhanced Costing | HIGH | Feature 027 | Planned |
-| 029 | Streamlined Inventory Entry | HIGH | Features 027, 028 | Planned |
-| 030 | Packaging & Distribution | LOW | User testing complete | Blocked |
+| 029 | Streamlined Inventory Entry | HIGH | Features 027, 028 | Ready |
+| 030 | Enhanced Export/Import System | HIGH | Features 027, 028 | Ready |
+| 031 | Packaging & Distribution | LOW | User testing complete | Blocked |
 
 ---
 
@@ -79,32 +80,289 @@
 16. ~~**Feature 023** - Product Name Differentiation~~ ✅ COMPLETE
 17. ~~**Feature 024** - Unified Import Error Handling~~ ✅ COMPLETE
 18. ~~**Feature 025** - Production Loss Tracking~~ ✅ COMPLETE
-19. **Feature 026** - Deferred Packaging Decisions
-20. **Feature 027** - Packaging & Distribution
+19. ~~**Feature 026** - Deferred Packaging Decisions~~ ✅ COMPLETE
+20. ~~**Feature 027** - Product Catalog Management~~ ✅ COMPLETE
+21. ~~**Feature 028** - Purchase Tracking & Enhanced Costing~~ ✅ COMPLETE
+22. **Feature 029** - Streamlined Inventory Entry
+23. **Feature 030** - Enhanced Export/Import System
+24. **Feature 031** - Packaging & Distribution
 
 ---
 
 ## Feature Descriptions
 
-### Feature 022: Unit Reference Table & UI Constraints
+### Feature 030: Enhanced Export/Import System
 
-**Status:** COMPLETE ✅
+**Status:** READY 📋
 
-**Problem:** Units were stored as free-form strings with application-level validation only. While TD-002 added import validation, the UI still allowed arbitrary unit entry.
+**Dependencies:** Features 027 (Product Catalog Management), 028 (Purchase Tracking & Enhanced Costing)
 
-**Solution:** Database-backed unit reference table with UI enforcement.
+**Problem:** Current export/import system has critical gaps blocking AI-assisted data augmentation and efficient test data management. Monolithic exports difficult to process, no AI-friendly formats for UPC enrichment, no FK resolution strategy, missing entities force manual creation loops, no validation feedback before import failures.
+
+**Solution:** Coordinated export/import system with denormalized views for AI augmentation and interactive FK resolution for missing entities.
+
+**Scope:**
+
+**Export Capabilities:**
+1. **Coordinated Normalized Exports** (complete DB rebuild):
+   - Export manifest with metadata, checksums, dependencies, import order
+   - Individual entity files with FK resolution fields (id + slug/name)
+   - ZIP archive option
+   - Configurable output directory
+
+2. **Denormalized View Exports** (AI augmentation):
+   - `view_products.json` - Products with ingredient/supplier context
+   - `view_inventory.json` - Inventory with product/purchase context
+   - `view_purchases.json` - Purchases with product/supplier context
+   - Standard persistent filenames (working files for export → edit → import cycle)
+
+**Import Capabilities:**
+1. **Import Normalized Files** (standard restore):
+   - Manifest validation, checksum verification
+   - FK resolution via slug/name when IDs differ
+   - Modes: `merge` (update existing, add new) or `skip_existing` (only new)
+   - Dry-run mode (CLI only)
+
+2. **Import Denormalized Views** (AI augmentation):
+   - Auto-detect file type, extract normalized updates from context
+   - Apply updates to appropriate tables only
+   - Preserve referential integrity
+
+3. **Interactive FK Resolution**:
+   - **CLI:** Fail-fast default, `--interactive` flag for resolution
+   - **UI:** Interactive resolution wizard (default)
+   - Options: Create entity, map to existing, skip record
+   - Entity types: Suppliers, Ingredients, Products
+   - Dependency chain handling (Ingredient before Product)
+   - Referential integrity validation
+
+4. **Skip-on-Error Mode**:
+   - `--skip-on-error` flag: Skip records with FK errors, import valid ones
+   - Log skipped records to `import_skipped_{timestamp}.json`
+   - Report: X imported, Y skipped
+
+**User Impact:**
+- **AI augmentation workflow enabled:** Export products → AI fills UPC codes → Import with merge
+- **New supplier workflow:** AI generates purchases from "Wilson's Farm" → Interactive resolution creates supplier → Purchases imported
+- **Test data management:** Coordinated exports enable safe schema migrations
+- **Error recovery:** Skip-on-error logs problematic records for later correction
+
+**Key Features:**
+- Standard filenames for denormalized views (not timestamped)
+- FK resolution via slug/name (portable across environments)
+- Interactive entity creation during import (Suppliers, Ingredients, Products)
+- Validation before database writes
+- Round-trip guarantee: export → import → verify identical
+
+**Design Document:** `docs/design/F031_enhanced_export_import.md`
+
+**Estimated Effort:** 16-20 hours
+
+---
+
+### Feature 029: Streamlined Inventory Entry
+
+**Status:** READY 📋
+
+**Dependencies:** Features 027 (Product Catalog Management), 028 (Purchase Tracking & Enhanced Costing)
+
+**Problem:** Current inventory entry workflow creates significant friction for the primary use case: adding 20+ items after a shopping trip. Too many clicks (4-5 dropdown selections per item), long ingredient list (hundreds of items), no session memory (must select "Costco" 20 times), product creation breaks flow (modal switching), no price recall ("What did I pay last time?").
+
+**Solution:** Transform inventory entry from tedious data entry into intelligent, flow-optimized experience using enhanced ingredient-first workflow with type-ahead, recency ranking, session memory, and inline product creation.
+
+**Scope:**
+- Type-ahead filtering on Category/Ingredient/Product dropdowns (1-2 char thresholds, contains matching)
+- Recency intelligence: Recent/frequent items marked with ⭐ and sorted to top (last 30 days OR 3+ uses in 90 days)
+- Session memory: Last supplier/category pre-selected (persists until app restart)
+- Inline product creation: Collapsible accordion form within dialog (no modal switching)
+- Smart defaults: Package unit by category (Baking→lb, Chocolate→oz)
+- Enhanced price display: Inline hint "(last paid: $X.XX on MM/DD)" with fallback to different supplier
+- Validation warnings: >$100 price, decimal quantities for count units
+- Tab/Enter/Escape navigation
+
+**User Impact:**
+- Reduces 15-20 minutes data entry to 5 minutes target
+- "I just shopped at Costco with 20 items" → efficient bulk entry workflow
+- Eliminates repetitive selections (supplier remembered across items)
+- Reduces cognitive load (recent items appear first, type-ahead reduces scrolling)
+
+**Design Document:** `docs/design/F029_streamlined_inventory_entry.md`
+
+---
+
+### Feature 031: Packaging & Distribution
+
+**Status:** Blocked (awaiting user testing completion)
+
+**Scope:** PyInstaller executable, Inno Setup installer, Windows distribution.
+
+---
+
+### Feature 026: Deferred Packaging Decisions
+
+**Status:** COMPLETE ✅ (Merged 2025-12-22)
+
+**Problem:** When planning events, food decisions precede packaging aesthetic decisions. Current system forces premature commitment to specific packaging designs (e.g., snowflake vs holly bags) when only generic requirements are known (e.g., need 6" cellophane bags).
+
+**Solution:** Allow planning with generic packaging products, deferring specific material selection until later in the workflow:
+- Event planning: Select generic packaging product (e.g., "Cellophane Bags 6x10")
+- System shows: Available inventory across variants, estimated cost (average price)
+- Decision timing: Anytime from planning through assembly (assembly forces decision)
+- Material assignment: Quick assign interface or full assignment screen
+- Cost updates: Estimated (generic) → Actual (assigned)
 
 **Delivered:**
-- Created `units` reference table with columns: `code`, `name`, `symbol`, `category`, `uncefact_code` (nullable)
-- Seeded table with valid units from `src/utils/constants.py`
-- Updated UI unit inputs to use dropdowns/comboboxes populated from units table
-- Added application-level validation against reference table
-- Maintained backward compatibility with existing data
+- Radio button UI: "Specific material" vs "Generic product" selection
+- EventPackagingRequirement and EventPackagingAssignment tables
+- Production dashboard indicator for pending packaging decisions
+- Assembly definition screen with material assignment interface
+- Assembly progress enforcement with "Record Anyway" bypass option
+- Shopping list shows generic products until materials assigned
+- Dynamic cost estimates (average for generic, actual for assigned)
 
-**Reference Documents:**
-- `docs/design/unit_codes_reference.md` - UN/CEFACT standard reference
-- `docs/research/unit_handling_analysis_report.md` - Current state analysis
-- `docs/technical-debt/TD-002_unit_standardization.md` - Prerequisite work
+**Edge Cases Covered:**
+- Change of plans during assembly (boxes → bags)
+- Insufficient inventory at assignment time
+- Multiple refinement stages
+- Shopping before final assignment
+- Backfill scenarios for fast-moving kitchen
+
+**User Validation:** All acceptance criteria validated with primary stakeholder (Marianne). Covers all discussed real-world scenarios.
+
+**Design Document:** `docs/design/F026-deferred-packaging-decisions.md`
+
+---
+
+### Feature 027: Product Catalog Management
+
+**Status:** COMPLETE ✅ (Merged 2025-12-24)
+
+**Problem:** Product and inventory management workflows had critical gaps blocking effective user testing. Cannot add products independently, forced ingredient-first entry blocks inventory addition, no price history tracking for FIFO costing, no product catalog maintenance tools.
+
+**Solution:** Three-feature implementation: (027) Product Catalog Management foundation with Products tab, CRUD operations, filtering, purchase history display; (028) Purchase Tracking & Enhanced Costing with Purchase entity, Supplier entity, price history; (029) Streamlined Inventory Entry with enhanced workflow, type-ahead, inline creation, price suggestions.
+
+**Scope (Feature 027):**
+- New Products tab with grid view and filters (ingredient, category, supplier, search)
+- Product CRUD operations with referential integrity checks
+- Hide/unhide products (preserve history)
+- Product detail view with purchase history table
+- New Supplier table (name, street_address, city, state, zip, notes, is_active)
+- Product.preferred_supplier_id and Product.is_hidden fields
+- Foundation for Purchase entity (Feature 028)
+
+**Delivered:**
+- Products tab with comprehensive filtering (ingredient, category, supplier, show hidden checkbox)
+- Product detail view shows all fields, purchase history, Hide/Delete actions
+- Add Product form with validation, preferred supplier selection
+- Supplier CRUD operations (create, list, deactivate)
+- Referential integrity: Cannot delete product if purchases/inventory exist (offer Hide instead)
+- Search products by name (case-insensitive, partial match, combines with filters)
+
+**User Impact:**
+- Enables "I just shopped at Costco with 20 items" workflow (unblocked from ingredient-first constraint)
+- Tracks supplier relationships (preferred supplier per product)
+- Provides foundation for purchase tracking (Feature 028)
+- Unblocks user testing with realistic product catalog
+
+**Migration Strategy:** Export/reset/import cycle. No Purchase records yet (Feature 028).
+
+**Design Document:** `docs/design/F027_product_catalog_management.md`
+
+---
+
+### Feature 028: Purchase Tracking & Enhanced Costing
+
+**Status:** COMPLETE ✅ (Merged 2025-12-24)
+
+**Problem:** No purchase history or supplier tracking, static price data without context, FIFO limited by lack of transaction records, price volatility invisible ($300 → $600 chocolate chips example).
+
+**Solution:** Purchase entity as first-class transaction record linking products to suppliers with temporal pricing context. FIFO cost calculation updated to use Purchase.unit_price.
+
+**Delivered:**
+- New Purchase table (product_id, supplier_id, purchase_date, unit_price, quantity_purchased, notes)
+- InventoryAddition.purchase_id FK (replaces price_paid field)
+- New `purchase_service.py` with query-only operations (get, history, price suggestions)
+- `inventory_service.add_inventory()` creates Purchase records inline (transaction owner)
+- Purchase history queries (by product, supplier, date range)
+- Price suggestion queries (last paid at supplier, fallback to any supplier)
+- FIFO cost calculation uses Purchase.unit_price via InventoryAddition.purchase relationship
+- Add Inventory dialog: Supplier dropdown (alphabetically sorted)
+- Price field pre-fills from last purchase at selected supplier
+- Price hint: "(last paid: $X.XX on MM/DD)" or "(last paid: $X.XX at [Supplier] on MM/DD)" for fallback
+- Validation: Warn if price >$100, allow $0.00 with confirmation
+
+**Migration:**
+- Export/reset/import cycle
+- One Purchase per existing InventoryAddition
+- purchase_date = addition.addition_date
+- supplier_id = 1 ("Unknown Supplier" created in F027 migration)
+- unit_price = addition.price_paid
+- quantity_purchased = addition.quantity
+- Accept imperfect historical data (all purchases assigned to Unknown Supplier)
+
+**User Impact:**
+- Tracks "What did I pay for chocolate chips last time?" ($300 → $450 → $600 trend visible)
+- Enables supplier-based purchasing decisions ("Costco is cheaper for bulk chocolate")
+- Provides accurate FIFO costing (purchase transaction context, not static price)
+- Price suggestions reduce data entry friction
+- Supplier selection in Add Inventory dialog
+
+**Design Document:** `docs/design/F028_purchase_tracking_enhanced_costing.md`
+
+---
+
+### Feature 025: Production Loss Tracking
+
+**Status:** COMPLETE ✅ (Merged 2025-12-21)
+
+**Problem:** Baked goods production involves real-world failures (burnt, broken, contaminated, dropped). Current system cannot distinguish between successful production and losses, preventing cost accounting for waste and analytics on loss trends. Lost batches must be remade to fulfill event requirements - no workflow to loop back to production for replacement batches.
+
+**Solution:** Add explicit production loss tracking with:
+- Loss quantity and category (burnt/broken/contaminated/dropped/wrong_ingredients/other)
+- Production status enum (COMPLETE/PARTIAL_LOSS/TOTAL_LOSS)
+- Yield balance constraint: actual_yield + loss_quantity = expected_yield
+- Separate ProductionLoss table for detailed loss records and analytics
+- UI auto-calculates loss quantity from expected vs actual yield
+- Cost breakdown showing good units vs lost units
+- Remake workflow: Event Production Dashboard shows shortfall, user initiates replacement batches
+
+**Delivered:**
+- Schema: production_status, loss_quantity, loss_notes on ProductionRun
+- New ProductionLoss model with loss_category, per_unit_cost, total_loss_cost, notes
+- Service layer: record_production() accepts loss parameters with yield balance validation
+- UI: RecordProductionDialog expandable loss details section (auto-expands when loss detected)
+- UI: ProductionHistoryTable shows loss quantity and status columns with color coding
+- Reporting: Loss summaries by category, recipe loss rates, waste cost analysis
+- Migration: Export/reset/import cycle, historical data defaulted to COMPLETE/0 loss
+
+**Design Document:** `docs/design/F025_production_loss_tracking.md`
+**Spec-Kitty Artifacts:** `kitty-specs/025-production-loss-tracking/`
+
+---
+
+### Feature 024: Unified Import Error Handling
+
+**Status:** COMPLETE ✅ (Merged 2025-12-20)
+
+**Problem:** Import error handling was inconsistent between unified import and catalog import:
+- **Unified Import:** Scrollable dialog with copy-to-clipboard, log files written to `docs/user_testing/`
+- **Catalog Import:** Basic messageboxes, errors truncated to 5, no logging, rich `suggestion` field not displayed
+
+**Solution:** Standardize error display across both import systems:
+- Use `ImportResultsDialog` for all imports (scrollable, copyable)
+- Write log files for catalog imports (matching unified import format)
+- Display structured error suggestions when available
+- Show relative paths (not absolute) for log file locations
+
+**Delivered:**
+- Catalog import uses `ImportResultsDialog` instead of messageboxes
+- All errors displayed (not truncated to 5)
+- Log files written to `docs/user_testing/import_YYYY-MM-DD_HHMMSS.log`
+- Error suggestions displayed clearly in dialog and logs
+- Relative paths shown in UI (not absolute)
+- Consistent user experience across import types
+
+**Specification:** `docs/design/F024_unified_import_error_handling.md`
 
 ---
 
@@ -142,6 +400,42 @@ This change directly enables critical mobile inventory management:
 
 ---
 
+### Feature 022: Unit Reference Table & UI Constraints
+
+**Status:** COMPLETE ✅
+
+**Problem:** Units were stored as free-form strings with application-level validation only. While TD-002 added import validation, the UI still allowed arbitrary unit entry.
+
+**Solution:** Database-backed unit reference table with UI enforcement.
+
+**Delivered:**
+- Created `units` reference table with columns: `code`, `name`, `symbol`, `category`, `uncefact_code` (nullable)
+- Seeded table with valid units from `src/utils/constants.py`
+- Updated UI unit inputs to use dropdowns/comboboxes populated from units table
+- Added application-level validation against reference table
+- Maintained backward compatibility with existing data
+
+**Reference Documents:**
+- `docs/design/unit_codes_reference.md` - UN/CEFACT standard reference
+- `docs/research/unit_handling_analysis_report.md` - Current state analysis
+- `docs/technical-debt/TD-002_unit_standardization.md` - Prerequisite work
+
+---
+
+### Feature 021: Field Naming Consistency
+
+**Status:** COMPLETE ✅ (Merged 2025-12-16)
+
+**Problem:** Two naming inconsistencies created confusion:
+1. **Purchase vs Package:** `purchase_unit` and `purchase_quantity` on Product describe package characteristics, not purchase transactions.
+2. **Pantry remnants:** "Pantry" terminology should have been fully replaced by "Inventory" but remnants remained.
+
+**Delivered:**
+- Renamed `purchase_unit` → `package_unit`
+- Renamed `purchase_quantity` → `package_unit_quantity`
+- Replaced all "pantry" occurrences with "inventory"
+- Updated schema, models, services, UI, import/export, docs, tests
+
 ---
 
 ### Feature 020: Enhanced Data Import
@@ -169,19 +463,41 @@ This prevents safe catalog expansion without risking user data.
 
 ---
 
-### Feature 021: Field Naming Consistency
+### Feature 019: Unit Conversion Simplification
 
-**Status:** COMPLETE ✅ (Merged 2025-12-16)
+**Status:** COMPLETE ✅ (Merged 2025-12-14)
 
-**Problem:** Two naming inconsistencies created confusion:
-1. **Purchase vs Package:** `purchase_unit` and `purchase_quantity` on Product describe package characteristics, not purchase transactions.
-2. **Pantry remnants:** "Pantry" terminology should have been fully replaced by "Inventory" but remnants remained.
+**Problem:** Redundant unit conversion mechanisms:
+- `Ingredient.recipe_unit` - vestigial field; recipes declare their own units in RecipeIngredient
+- `UnitConversion` table - values derivable from 4-field density on Ingredient
+
+**Solution:** Remove both. The 4-field density model (Feature 010) is the canonical source.
 
 **Delivered:**
-- Renamed `purchase_unit` → `package_unit`
-- Renamed `purchase_quantity` → `package_unit_quantity`
-- Replaced all "pantry" occurrences with "inventory"
-- Updated schema, models, services, UI, import/export, docs, tests
+- Deleted `Ingredient.recipe_unit` column
+- Deleted `UnitConversion` model and table
+- Updated import/export spec v3.2 → v3.3
+- Converted test data files
+- Constitution v1.2.0: Schema changes via export/reset/import (no migration scripts)
+
+**Specification:** `docs/feature_019_unit_simplification.md`
+
+---
+
+### Feature 018: Event Production Dashboard
+
+**Status:** COMPLETE ✅ (Merged 2025-12-12)
+
+**Rationale:** Builds on Feature 016's event progress tracking to provide a comprehensive "mission control" view.
+
+**Delivered:**
+- "Where do I stand for Christmas 2025?" consolidated view
+- Progress bars per recipe/finished good
+- Fulfillment status tracking with visual indicators
+- Multi-event overview (compare progress across events)
+- Quick actions (jump to record production, view shopping list)
+
+**Spec-Kitty Artifacts:** `kitty-specs/018-event-production-dashboard/`
 
 ---
 
@@ -242,23 +558,6 @@ This prevents safe catalog expansion without risking user data.
 
 ---
 
-### Feature 018: Event Production Dashboard
-
-**Status:** COMPLETE ✅ (Merged 2025-12-12)
-
-**Rationale:** Builds on Feature 016's event progress tracking to provide a comprehensive "mission control" view.
-
-**Delivered:**
-- "Where do I stand for Christmas 2025?" consolidated view
-- Progress bars per recipe/finished good
-- Fulfillment status tracking with visual indicators
-- Multi-event overview (compare progress across events)
-- Quick actions (jump to record production, view shopping list)
-
-**Spec-Kitty Artifacts:** `kitty-specs/018-event-production-dashboard/`
-
----
-
 ### Feature 012: Nested Recipes
 
 **Status:** COMPLETE ✅
@@ -274,176 +573,16 @@ This prevents safe catalog expansion without risking user data.
 
 ---
 
-### Feature 019: Unit Conversion Simplification
-
-**Status:** COMPLETE ✅ (Merged 2025-12-14)
-
-**Problem:** Redundant unit conversion mechanisms:
-- `Ingredient.recipe_unit` - vestigial field; recipes declare their own units in RecipeIngredient
-- `UnitConversion` table - values derivable from 4-field density on Ingredient
-
-**Solution:** Remove both. The 4-field density model (Feature 010) is the canonical source.
-
-**Delivered:**
-- Deleted `Ingredient.recipe_unit` column
-- Deleted `UnitConversion` model and table
-- Updated import/export spec v3.2 → v3.3
-- Converted test data files
-- Constitution v1.2.0: Schema changes via export/reset/import (no migration scripts)
-
-**Specification:** `docs/feature_019_unit_simplification.md`
-
----
-
-### Feature 024: Unified Import Error Handling
-
-**Status:** COMPLETE ✅ (Merged 2025-12-20)
-
-**Problem:** Import error handling was inconsistent between unified import and catalog import:
-- **Unified Import:** Scrollable dialog with copy-to-clipboard, log files written to `docs/user_testing/`
-- **Catalog Import:** Basic messageboxes, errors truncated to 5, no logging, rich `suggestion` field not displayed
-
-**Solution:** Standardize error display across both import systems:
-- Use `ImportResultsDialog` for all imports (scrollable, copyable)
-- Write log files for catalog imports (matching unified import format)
-- Display structured error suggestions when available
-- Show relative paths (not absolute) for log file locations
-
-**Delivered:**
-- Catalog import uses `ImportResultsDialog` instead of messageboxes
-- All errors displayed (not truncated to 5)
-- Log files written to `docs/user_testing/import_YYYY-MM-DD_HHMMSS.log`
-- Error suggestions displayed clearly in dialog and logs
-- Relative paths shown in UI (not absolute)
-- Consistent user experience across import types
-
-**Specification:** `docs/design/F024_unified_import_error_handling.md`
-
----
-
-### Feature 026: Deferred Packaging Decisions
-
-**Status:** COMPLETE ✅ (Merged 2025-12-22)
-
-**Problem:** When planning events, food decisions precede packaging aesthetic decisions. Current system forces premature commitment to specific packaging designs (e.g., snowflake vs holly bags) when only generic requirements are known (e.g., need 6" cellophane bags).
-
-**Solution:** Allow planning with generic packaging products, deferring specific material selection until later in the workflow:
-- Event planning: Select generic packaging product (e.g., "Cellophane Bags 6x10")
-- System shows: Available inventory across variants, estimated cost (average price)
-- Decision timing: Anytime from planning through assembly (assembly forces decision)
-- Material assignment: Quick assign interface or full assignment screen
-- Cost updates: Estimated (generic) → Actual (assigned)
-
-**Delivered:**
-- Radio button UI: "Specific material" vs "Generic product" selection
-- EventPackagingRequirement and EventPackagingAssignment tables
-- Production dashboard indicator for pending packaging decisions
-- Assembly definition screen with material assignment interface
-- Assembly progress enforcement with "Record Anyway" bypass option
-- Shopping list shows generic products until materials assigned
-- Dynamic cost estimates (average for generic, actual for assigned)
-
-**Edge Cases Covered:**
-- Change of plans during assembly (boxes → bags)
-- Insufficient inventory at assignment time
-- Multiple refinement stages
-- Shopping before final assignment
-- Backfill scenarios for fast-moving kitchen
-
-**User Validation:** All acceptance criteria validated with primary stakeholder (Marianne). Covers all discussed real-world scenarios.
-
-**Design Document:** `docs/design/F026-deferred-packaging-decisions.md`
-
----
-
-### Feature 027: Product Catalog Management
-
-**Status:** READY 📋
-
-**Problem:** Product and inventory management workflows have critical gaps blocking effective user testing. Cannot add products independently, forced ingredient-first entry blocks inventory addition, no price history tracking for FIFO costing, no product catalog maintenance tools.
-
-**Solution:** Three-feature implementation: (027) Product Catalog Management foundation with Products tab, CRUD operations, filtering, purchase history display; (028) Purchase Tracking & Enhanced Costing with Purchase entity, Supplier entity, price history; (029) Streamlined Inventory Entry with product-first workflow, inline creation, price suggestions.
-
-**Scope (Feature 027):**
-- New Products tab with grid view and filters (ingredient, category, supplier, search)
-- Product CRUD operations with referential integrity checks
-- Hide/unhide products (preserve history)
-- Product detail view with purchase history table
-- New Supplier table (name, city, state, zip)
-- New Purchase table (product, supplier, date, unit_price, quantity_purchased)
-- Product.preferred_supplier_id and Product.is_hidden fields
-- InventoryAddition.purchase_id replaces price_paid
-
-**User Impact:**
-- Enables "I just shopped at Costco with 20 items" workflow
-- Tracks price volatility ($300 → $600 chocolate chips example)
-- Supports supplier-based shopping list generation
-- Unblocks user testing with realistic inventory data
-
-**Migration Strategy:** Export/reset/import cycle creates "Unknown Supplier" for historical data, generates Purchase records from existing InventoryAddition.price_paid.
-
-**Design Document:** `docs/design/F027_product_catalog_management.md`
-
----
-
-### Feature 028: Purchase Tracking & Enhanced Costing
-
-**Status:** PLANNED 📋
-
-**Dependencies:** Feature 027 (Product Catalog Management)
-
-**Scope:** Purchase entity implementation, price suggestion logic, FIFO cost calculation updates, inventory service modifications to create Purchase records.
-
----
-
-### Feature 029: Streamlined Inventory Entry
-
-**Status:** PLANNED 📋
-
-**Dependencies:** Features 027, 028
-
-**Scope:** Product-first workflow redesign, inline product creation, type-ahead search, price auto-suggestion from last purchase, session-based supplier memory.
-
----
-
-### Feature 025: Production Loss Tracking
-
-**Status:** COMPLETE ✅ (Merged 2025-12-21)
-
-**Problem:** Baked goods production involves real-world failures (burnt, broken, contaminated, dropped). Current system cannot distinguish between successful production and losses, preventing cost accounting for waste and analytics on loss trends. Lost batches must be remade to fulfill event requirements - no workflow to loop back to production for replacement batches.
-
-**Solution:** Add explicit production loss tracking with:
-- Loss quantity and category (burnt/broken/contaminated/dropped/wrong_ingredients/other)
-- Production status enum (COMPLETE/PARTIAL_LOSS/TOTAL_LOSS)
-- Yield balance constraint: actual_yield + loss_quantity = expected_yield
-- Separate ProductionLoss table for detailed loss records and analytics
-- UI auto-calculates loss quantity from expected vs actual yield
-- Cost breakdown showing good units vs lost units
-- Remake workflow: Event Production Dashboard shows shortfall, user initiates replacement batches
-
-**Delivered:**
-- Schema: production_status, loss_quantity, loss_notes on ProductionRun
-- New ProductionLoss model with loss_category, per_unit_cost, total_loss_cost, notes
-- Service layer: record_production() accepts loss parameters with yield balance validation
-- UI: RecordProductionDialog expandable loss details section (auto-expands when loss detected)
-- UI: ProductionHistoryTable shows loss quantity and status columns with color coding
-- Reporting: Loss summaries by category, recipe loss rates, waste cost analysis
-- Migration: Export/reset/import cycle, historical data defaulted to COMPLETE/0 loss
-
-**Design Document:** `docs/design/F025_production_loss_tracking.md`
-**Spec-Kitty Artifacts:** `kitty-specs/025-production-loss-tracking/`
-
----
-
-### Feature 030: Packaging & Distribution
-
-**Status:** Blocked (awaiting user testing completion)
-
-**Scope:** PyInstaller executable, Inno Setup installer, Windows distribution.
-
----
-
 ## Key Decisions
+
+### 2025-12-24
+- **Feature Renumbering:** Enhanced Export/Import System moved from F031 to F030. Packaging & Distribution moved from F030 to F031.
+- **Feature 030 Defined:** Enhanced Export/Import System specification complete. Coordinated export/import with denormalized views for AI augmentation, interactive FK resolution, skip-on-error mode.
+- **Feature 026 Complete:** Deferred Packaging Decisions merged. Generic packaging at planning time, deferred material assignment, EventPackagingRequirement and EventPackagingAssignment tables, assembly definition with material assignment interface.
+- **Feature 027 Complete:** Product Catalog Management merged. Products tab with CRUD operations, filtering, purchase history display, Supplier entity, preferred_supplier on Product, is_hidden flag.
+- **Feature 028 Complete:** Purchase Tracking & Enhanced Costing merged. Purchase entity, price history queries, FIFO using Purchase.unit_price, InventoryAddition.purchase_id FK, supplier dropdown in Add Inventory dialog, price suggestions.
+- **Feature 029 Ready:** Streamlined Inventory Entry specification complete. Enhanced ingredient-first workflow with type-ahead, recency ranking, session memory, inline product creation.
+- **Three-Feature Product/Inventory Sequence Complete:** F027 (foundation) + F028 (data model) + F029 (workflow) addresses complete "I just shopped at Costco with 20 items" use case. F027 & F028 merged, F029 ready for implementation.
 
 ### 2025-12-21
 - **Feature 025 Complete:** Production Loss Tracking merged. Tracks burnt/broken/contaminated/dropped losses, yield balance constraint, ProductionLoss table for analytics, UI auto-calculation, expandable loss details section, cost breakdown, waste reporting.
@@ -547,3 +686,4 @@ Part B: Ingredient.name → Ingredient.display_name ✅
 - 2025-12-20: Feature 024 (Unified Import Error Handling) complete and merged. Added 30 missing ingredients with USDA naming standards. Database reset and complete catalog import (ingredients + products). Web migration notes updated for API-based inventory management.
 - 2025-12-21: Feature 025 (Production Loss Tracking) defined. Design document created. Feature 025 implementation complete and merged. Features renumbered: 025 = Production Loss Tracking (complete), 026 = Deferred Packaging Decisions (ready), 027 = Packaging & Distribution (blocked).
 - 2025-12-22: Feature 026 (Deferred Packaging Decisions) assumed complete. Feature 027 (Product Catalog Management) defined with comprehensive specification. Three-feature product/inventory workflow sequence: 027 (Product Catalog Management - foundation), 028 (Purchase Tracking & Enhanced Costing - data model), 029 (Streamlined Inventory Entry - workflow). Features renumbered: 026 = Deferred Packaging Decisions (complete), 027 = Product Catalog Management (ready), 028/029 = Purchase/Inventory features (planned), 030 = Packaging & Distribution (blocked).
+- 2025-12-24: Features 026, 027, 028 complete and merged. Feature 030 (Enhanced Export/Import System) defined with comprehensive specification. Feature renumbering: Enhanced Export/Import moved from F031 to F030, Packaging & Distribution moved from F030 to F031. F029 (Streamlined Inventory Entry) ready, F030 (Enhanced Export/Import) ready.
