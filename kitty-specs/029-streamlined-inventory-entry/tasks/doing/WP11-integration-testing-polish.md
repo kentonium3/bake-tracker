@@ -12,10 +12,10 @@ subtasks:
   - "T083"
 title: "Integration Testing & Polish"
 phase: "Phase 4 - Polish"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "claude"
+shell_pid: "33920"
 review_status: ""
 reviewed_by: ""
 history:
@@ -342,3 +342,4 @@ pytest src/tests -v --cov=src
 ## Activity Log
 
 - 2025-12-24T23:15:00Z – system – lane=planned – Prompt created.
+- 2025-12-25T05:41:56Z – claude – shell_pid=33920 – lane=doing – Starting integration testing and polish

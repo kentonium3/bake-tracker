@@ -28,14 +28,19 @@ from src.ui.widgets.dropdown_builders import (
 class MockProduct:
     """Mock Product model."""
 
-    # Class-level attribute to allow order_by(Product.name)
-    name = "name"
+    # Class-level attribute to allow order_by(Product.brand)
+    brand = "brand"
 
     def __init__(self, id: int, name: str, ingredient_id: int, is_hidden: bool = False):
         self.id = id
-        self.name = name
+        self._name = name
         self.ingredient_id = ingredient_id
         self.is_hidden = is_hidden
+
+    @property
+    def display_name(self) -> str:
+        """Return display name for the product."""
+        return self._name
 
 
 class MockIngredient:

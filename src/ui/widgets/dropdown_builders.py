@@ -66,7 +66,7 @@ def build_product_dropdown_values(
     products = (
         session.query(Product)
         .filter_by(ingredient_id=ingredient_id, is_hidden=False)
-        .order_by(Product.name)
+        .order_by(Product.brand)
         .all()
     )
 
@@ -82,9 +82,9 @@ def build_product_dropdown_values(
 
     for product in products:
         if product.id in recent_ids:
-            recent_products.append(f"{STAR_PREFIX}{product.name}")
+            recent_products.append(f"{STAR_PREFIX}{product.display_name}")
         else:
-            other_products.append(product.name)
+            other_products.append(product.display_name)
 
     # Build final list
     values = []
