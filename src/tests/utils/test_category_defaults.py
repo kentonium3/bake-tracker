@@ -18,51 +18,70 @@ from src.utils.category_defaults import (
 
 
 class TestKnownCategories:
-    """Tests for known category defaults."""
+    """Tests for known category defaults.
 
-    def test_baking_defaults_to_lb(self):
-        """Baking ingredients (flour, sugar) should default to lb."""
-        assert get_default_unit_for_category("Baking") == "lb"
+    Categories match INGREDIENT_CATEGORIES from constants.py.
+    """
 
-    def test_chocolate_defaults_to_oz(self):
-        """Chocolate (chips, bars) should default to oz."""
-        assert get_default_unit_for_category("Chocolate") == "oz"
+    def test_flour_defaults_to_lb(self):
+        """Flour should default to lb (bulk purchases)."""
+        assert get_default_unit_for_category("Flour") == "lb"
+
+    def test_sugar_defaults_to_lb(self):
+        """Sugar should default to lb."""
+        assert get_default_unit_for_category("Sugar") == "lb"
 
     def test_dairy_defaults_to_lb(self):
-        """Dairy (butter) should default to lb."""
+        """Dairy (butter, cheese) should default to lb."""
         assert get_default_unit_for_category("Dairy") == "lb"
 
-    def test_spices_defaults_to_oz(self):
-        """Spices should default to oz (small quantities)."""
-        assert get_default_unit_for_category("Spices") == "oz"
-
-    def test_liquids_defaults_to_fl_oz(self):
-        """Liquids (extracts) should default to fl oz."""
-        assert get_default_unit_for_category("Liquids") == "fl oz"
+    def test_oils_butters_defaults_to_fl_oz(self):
+        """Oils/Butters should default to fl oz."""
+        assert get_default_unit_for_category("Oils/Butters") == "fl oz"
 
     def test_nuts_defaults_to_lb(self):
         """Nuts should default to lb."""
         assert get_default_unit_for_category("Nuts") == "lb"
 
-    def test_fruits_defaults_to_lb(self):
-        """Fruits (dried) should default to lb."""
-        assert get_default_unit_for_category("Fruits") == "lb"
+    def test_spices_defaults_to_oz(self):
+        """Spices should default to oz (small quantities)."""
+        assert get_default_unit_for_category("Spices") == "oz"
 
-    def test_sweeteners_defaults_to_lb(self):
-        """Sweeteners (honey, syrups) should default to lb."""
-        assert get_default_unit_for_category("Sweeteners") == "lb"
+    def test_chocolate_candies_defaults_to_oz(self):
+        """Chocolate/Candies (chips, bars) should default to oz."""
+        assert get_default_unit_for_category("Chocolate/Candies") == "oz"
 
-    def test_leavening_defaults_to_oz(self):
-        """Leavening (baking powder) should default to oz."""
-        assert get_default_unit_for_category("Leavening") == "oz"
+    def test_cocoa_powders_defaults_to_oz(self):
+        """Cocoa Powders should default to oz."""
+        assert get_default_unit_for_category("Cocoa Powders") == "oz"
 
-    def test_oils_defaults_to_fl_oz(self):
-        """Oils should default to fl oz."""
-        assert get_default_unit_for_category("Oils") == "fl oz"
+    def test_dried_fruits_defaults_to_lb(self):
+        """Dried Fruits should default to lb."""
+        assert get_default_unit_for_category("Dried Fruits") == "lb"
 
-    def test_grains_defaults_to_lb(self):
-        """Grains (oats) should default to lb."""
-        assert get_default_unit_for_category("Grains") == "lb"
+    def test_extracts_defaults_to_fl_oz(self):
+        """Extracts should default to fl oz."""
+        assert get_default_unit_for_category("Extracts") == "fl oz"
+
+    def test_syrups_defaults_to_fl_oz(self):
+        """Syrups should default to fl oz."""
+        assert get_default_unit_for_category("Syrups") == "fl oz"
+
+    def test_alcohol_defaults_to_fl_oz(self):
+        """Alcohol should default to fl oz."""
+        assert get_default_unit_for_category("Alcohol") == "fl oz"
+
+    def test_misc_defaults_to_lb(self):
+        """Misc should default to lb."""
+        assert get_default_unit_for_category("Misc") == "lb"
+
+    def test_bags_defaults_to_count(self):
+        """Bags (packaging) should default to count."""
+        assert get_default_unit_for_category("Bags") == "count"
+
+    def test_boxes_defaults_to_count(self):
+        """Boxes (packaging) should default to count."""
+        assert get_default_unit_for_category("Boxes") == "count"
 
 
 class TestUnknownCategories:
@@ -96,8 +115,8 @@ class TestMappingIntegrity:
             assert isinstance(unit, str), f"Category {category} unit is not string"
 
     def test_mapping_has_expected_count(self):
-        """Mapping should have 11 categories."""
-        assert len(CATEGORY_DEFAULT_UNITS) == 11
+        """Mapping should have 20 categories (13 food + 7 packaging)."""
+        assert len(CATEGORY_DEFAULT_UNITS) == 20
 
 
 class MockIngredient:
@@ -110,14 +129,14 @@ class MockIngredient:
 class TestIngredientWrapper:
     """Tests for the ingredient wrapper function."""
 
-    def test_ingredient_wrapper_baking(self):
-        """Wrapper should work with Baking category ingredient."""
-        ingredient = MockIngredient("Baking")
+    def test_ingredient_wrapper_flour(self):
+        """Wrapper should work with Flour category ingredient."""
+        ingredient = MockIngredient("Flour")
         assert get_default_unit_for_ingredient(ingredient) == "lb"
 
-    def test_ingredient_wrapper_chocolate(self):
-        """Wrapper should work with Chocolate category ingredient."""
-        ingredient = MockIngredient("Chocolate")
+    def test_ingredient_wrapper_chocolate_candies(self):
+        """Wrapper should work with Chocolate/Candies category ingredient."""
+        ingredient = MockIngredient("Chocolate/Candies")
         assert get_default_unit_for_ingredient(ingredient) == "oz"
 
     def test_ingredient_wrapper_unknown(self):
@@ -125,7 +144,7 @@ class TestIngredientWrapper:
         ingredient = MockIngredient("Unknown")
         assert get_default_unit_for_ingredient(ingredient) == "lb"
 
-    def test_ingredient_wrapper_liquids(self):
-        """Wrapper should work with Liquids category ingredient."""
-        ingredient = MockIngredient("Liquids")
+    def test_ingredient_wrapper_extracts(self):
+        """Wrapper should work with Extracts category ingredient."""
+        ingredient = MockIngredient("Extracts")
         assert get_default_unit_for_ingredient(ingredient) == "fl oz"

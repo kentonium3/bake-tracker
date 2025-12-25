@@ -19,20 +19,31 @@ from typing import Dict
 
 
 # Category-to-unit mapping based on typical baking supply package sizes
-# Key: Category name (must match database category values exactly)
+# Key: Category name (must match INGREDIENT_CATEGORIES from constants.py exactly)
 # Value: Default package unit string
 CATEGORY_DEFAULT_UNITS: Dict[str, str] = {
-    "Baking": "lb",  # Flour, sugar - sold by weight
-    "Chocolate": "oz",  # Chips, bars - smaller quantities
-    "Dairy": "lb",  # Butter - by weight
-    "Spices": "oz",  # Small quantities
-    "Liquids": "fl oz",  # Extracts, oils by volume
+    # Food ingredient categories
+    "Flour": "lb",  # Flour - sold by weight in bulk
+    "Sugar": "lb",  # Sugar - sold by weight
+    "Dairy": "lb",  # Butter, cheese - by weight
+    "Oils/Butters": "fl oz",  # Oils, melted butters by volume
     "Nuts": "lb",  # Sold by weight
-    "Fruits": "lb",  # Dried fruits by weight
-    "Sweeteners": "lb",  # Honey, syrups by weight
-    "Leavening": "oz",  # Baking powder/soda - small quantities
-    "Oils": "fl oz",  # By volume
-    "Grains": "lb",  # Oats, specialty flours
+    "Spices": "oz",  # Small quantities
+    "Chocolate/Candies": "oz",  # Chips, bars - smaller quantities
+    "Cocoa Powders": "oz",  # Small quantities by weight
+    "Dried Fruits": "lb",  # By weight
+    "Extracts": "fl oz",  # By volume
+    "Syrups": "fl oz",  # By volume
+    "Alcohol": "fl oz",  # By volume
+    "Misc": "lb",  # Default for miscellaneous
+    # Packaging categories (less common, default to count)
+    "Bags": "count",
+    "Boxes": "count",
+    "Ribbon": "count",
+    "Labels": "count",
+    "Tissue Paper": "count",
+    "Wrapping": "count",
+    "Other Packaging": "count",
 }
 
 
