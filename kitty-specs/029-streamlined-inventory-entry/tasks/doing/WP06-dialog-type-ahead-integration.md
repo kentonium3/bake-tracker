@@ -10,10 +10,10 @@ subtasks:
   - "T040"
 title: "AddInventoryDialog - Type-Ahead Integration"
 phase: "Phase 2 - Core Integration"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "claude"
+shell_pid: "33920"
 review_status: ""
 reviewed_by: ""
 history:
@@ -272,3 +272,4 @@ Manual testing required for UI integration:
 ## Activity Log
 
 - 2025-12-24T23:15:00Z – system – lane=planned – Prompt created.
+- 2025-12-25T05:14:18Z – claude – shell_pid=33920 – lane=doing – Starting implementation (WP07 delegated to Gemini)

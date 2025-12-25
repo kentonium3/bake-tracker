@@ -22,6 +22,18 @@ from src.services.exceptions import (
     ValidationError as ServiceValidationError,
     DatabaseError,
 )
+from src.database import session_scope
+from src.models import Ingredient
+from src.utils.constants import INGREDIENT_CATEGORIES
+from src.ui.session_state import get_session_state
+from src.ui.widgets.type_ahead_combobox import TypeAheadComboBox
+from src.ui.widgets.dropdown_builders import (
+    build_ingredient_dropdown_values,
+    build_product_dropdown_values,
+    strip_star_prefix,
+    is_separator,
+    is_create_new_option,
+)
 
 
 class InventoryTab(ctk.CTkFrame):
@@ -926,6 +938,7 @@ class InventoryItemFormDialog(ctk.CTkToplevel):
         self.ingredients: List[Dict[str, Any]] = []
         self.products: List[Dict[str, Any]] = []
         self.suppliers: List[Dict[str, Any]] = []  # F028
+        self.session_state = get_session_state()  # F029: Session memory
 
         # Load data
         self._load_ingredients()
@@ -997,11 +1010,29 @@ class InventoryItemFormDialog(ctk.CTkToplevel):
             self._on_ingredient_change(default_ingredient)
 
         # F028: Supplier dropdown (required for new items)
+        # F029: Pre-select from session memory with star indicator
         supplier_label = ctk.CTkLabel(self, text="Supplier:*")
         supplier_label.grid(row=row, column=0, padx=10, pady=10, sticky="w")
 
         supplier_names = [s["display_name"] for s in self.suppliers]
-        default_supplier = supplier_names[0] if supplier_names else ""
+
+        # F029: Check session state for last supplier
+        default_supplier = ""
+        self._session_supplier_display = None  # Track session-selected supplier for star
+        if not self.item and supplier_names:
+            last_supplier_id = self.session_state.get_last_supplier_id()
+            if last_supplier_id:
+                # Find supplier with matching ID
+                for s in self.suppliers:
+                    if s["id"] == last_supplier_id:
+                        # Pre-select with star indicator
+                        default_supplier = self._format_supplier_with_star(s["display_name"])
+                        self._session_supplier_display = s["display_name"]
+                        break
+            # Fall back to first supplier if no session match
+            if not default_supplier:
+                default_supplier = supplier_names[0]
+
         self.supplier_var = ctk.StringVar(value=default_supplier if not self.item else "")
         self.supplier_dropdown = ctk.CTkOptionMenu(
             self,
@@ -1138,6 +1169,16 @@ class InventoryItemFormDialog(ctk.CTkToplevel):
             return f"{brand} - {quantity} {unit}".strip()
         return brand
 
+    def _format_supplier_with_star(self, display_name: str) -> str:
+        """Format supplier display name with star indicator for session memory (F029)."""
+        return f"* {display_name}"
+
+    def _strip_star_from_supplier(self, display_name: str) -> str:
+        """Remove star indicator from supplier display name (F029)."""
+        if display_name.startswith("* "):
+            return display_name[2:]
+        return display_name
+
     def _get_selected_product_id(self) -> Optional[int]:
         """Get product_id from current product dropdown selection (F028)."""
         product_display = self.product_var.get().strip()
@@ -1150,10 +1191,12 @@ class InventoryItemFormDialog(ctk.CTkToplevel):
         return product["id"] if product else None
 
     def _get_selected_supplier_id(self) -> Optional[int]:
-        """Get supplier_id from current supplier dropdown selection (F028)."""
+        """Get supplier_id from current supplier dropdown selection (F028, F029)."""
         supplier_name = self.supplier_var.get().strip()
         if not supplier_name or supplier_name == "No suppliers":
             return None
+        # F029: Strip star indicator if present
+        supplier_name = self._strip_star_from_supplier(supplier_name)
         supplier = next(
             (s for s in self.suppliers if s["display_name"] == supplier_name),
             None,
@@ -1401,6 +1444,11 @@ class InventoryItemFormDialog(ctk.CTkToplevel):
             self.result["location"] = location
         if notes:
             self.result["notes"] = notes
+
+        # F029: Update session state on successful add (not edit)
+        if not is_editing and supplier_id:
+            self.session_state.update_supplier(supplier_id)
+            # Category update will be added by WP06 when category dropdown is implemented
 
         self.destroy()
 
