@@ -11,7 +11,7 @@ subtasks:
 title: "AddInventoryDialog - Session Memory"
 phase: "Phase 2 - Core Integration"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "gemini"
 shell_pid: "gemini"
 review_status: ""

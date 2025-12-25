@@ -9,7 +9,7 @@ subtasks:
 title: "Category Defaults Utility"
 phase: "Phase 0 - Foundation"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude"
 shell_pid: "33920"
 review_status: ""

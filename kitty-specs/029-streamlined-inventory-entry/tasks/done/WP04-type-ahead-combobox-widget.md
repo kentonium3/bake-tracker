@@ -12,7 +12,7 @@ subtasks:
 title: "TypeAheadComboBox Widget"
 phase: "Phase 1 - Widgets"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude"
 shell_pid: "33920"
 review_status: ""

@@ -16,7 +16,7 @@ subtasks:
 title: "Inline Product Creation"
 phase: "Phase 3 - Advanced Features"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude"
 shell_pid: "33920"
 review_status: ""

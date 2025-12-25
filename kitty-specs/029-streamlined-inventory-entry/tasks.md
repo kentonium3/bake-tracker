@@ -22,12 +22,12 @@
 **Prompt**: `tasks/planned/WP01-session-state-foundation.md`
 
 ### Included Subtasks
-- [ ] T001 Create `src/ui/session_state.py` with SessionState singleton class
-- [ ] T002 Implement `update_supplier(supplier_id)` and `update_category(category)` methods
-- [ ] T003 Implement `get_last_supplier_id()` and `get_last_category()` getter methods
-- [ ] T004 Implement `reset()` method for test isolation
-- [ ] T005 Add `get_session_state()` convenience function
-- [ ] T006 [P] Create `src/tests/ui/test_session_state.py` with unit tests
+- [x] T001 Create `src/ui/session_state.py` with SessionState singleton class
+- [x] T002 Implement `update_supplier(supplier_id)` and `update_category(category)` methods
+- [x] T003 Implement `get_last_supplier_id()` and `get_last_category()` getter methods
+- [x] T004 Implement `reset()` method for test isolation
+- [x] T005 Add `get_session_state()` convenience function
+- [x] T006 [P] Create `src/tests/ui/test_session_state.py` with unit tests
 
 ### Implementation Notes
 1. Use `__new__` for singleton pattern implementation
@@ -53,11 +53,11 @@
 **Prompt**: `tasks/planned/WP02-category-defaults-utility.md`
 
 ### Included Subtasks
-- [ ] T007 Create `src/utils/category_defaults.py`
-- [ ] T008 Define `CATEGORY_DEFAULT_UNITS` dictionary mapping
-- [ ] T009 Implement `get_default_unit_for_category(category)` function
-- [ ] T010 Implement `get_default_unit_for_ingredient(ingredient)` wrapper
-- [ ] T011 [P] Create `src/tests/utils/test_category_defaults.py` with unit tests
+- [x] T007 Create `src/utils/category_defaults.py`
+- [x] T008 Define `CATEGORY_DEFAULT_UNITS` dictionary mapping
+- [x] T009 Implement `get_default_unit_for_category(category)` function
+- [x] T010 Implement `get_default_unit_for_ingredient(ingredient)` wrapper
+- [x] T011 [P] Create `src/tests/utils/test_category_defaults.py` with unit tests
 
 ### Implementation Notes
 1. Default mapping: Baking→lb, Chocolate→oz, Dairy→lb, Spices→oz, Liquids→fl oz, Nuts→lb, Fruits→lb, Sweeteners→lb, Leavening→oz, Oils→fl oz, Grains→lb
@@ -83,13 +83,13 @@
 **Prompt**: `tasks/planned/WP03-recency-query-service.md`
 
 ### Included Subtasks
-- [ ] T012 Add `get_recent_products()` method to `src/services/inventory_item_service.py`
-- [ ] T013 Implement temporal recency check (within last 30 days)
-- [ ] T014 Implement frequency recency check (3+ times in 90 days)
-- [ ] T015 Implement hybrid OR logic combining both criteria
-- [ ] T016 Add `get_recent_ingredients()` method for category-filtered recency
-- [ ] T017 Follow session parameter pattern (`session=None`) per CLAUDE.md guidelines
-- [ ] T018 [P] Add recency tests to `src/tests/services/test_inventory_item_service.py`
+- [x] T012 Add `get_recent_products()` method to `src/services/inventory_item_service.py`
+- [x] T013 Implement temporal recency check (within last 30 days)
+- [x] T014 Implement frequency recency check (3+ times in 90 days)
+- [x] T015 Implement hybrid OR logic combining both criteria
+- [x] T016 Add `get_recent_ingredients()` method for category-filtered recency
+- [x] T017 Follow session parameter pattern (`session=None`) per CLAUDE.md guidelines
+- [x] T018 [P] Add recency tests to `src/tests/services/test_inventory_item_service.py`
 
 ### Implementation Notes
 1. Query InventoryItem table for addition_date analysis
@@ -119,14 +119,14 @@
 **Prompt**: `tasks/planned/WP04-type-ahead-combobox-widget.md`
 
 ### Included Subtasks
-- [ ] T019 Create `src/ui/widgets/__init__.py` if not exists
-- [ ] T020 Create `src/ui/widgets/type_ahead_combobox.py`
-- [ ] T021 Subclass CTkFrame, embed CTkComboBox
-- [ ] T022 Implement `_filter_values()` with word-boundary prioritization
-- [ ] T023 Bind KeyRelease event for real-time filtering
-- [ ] T024 Implement `reset_values()` for dynamic content updates
-- [ ] T025 Add `min_chars` parameter for filter threshold
-- [ ] T026 [P] Create `src/tests/ui/test_type_ahead_combobox.py`
+- [x] T019 Create `src/ui/widgets/__init__.py` if not exists
+- [x] T020 Create `src/ui/widgets/type_ahead_combobox.py`
+- [x] T021 Subclass CTkFrame, embed CTkComboBox
+- [x] T022 Implement `_filter_values()` with word-boundary prioritization
+- [x] T023 Bind KeyRelease event for real-time filtering
+- [x] T024 Implement `reset_values()` for dynamic content updates
+- [x] T025 Add `min_chars` parameter for filter threshold
+- [x] T026 [P] Create `src/tests/ui/test_type_ahead_combobox.py`
 
 ### Implementation Notes
 1. Word boundary matching: split on spaces, check startswith for each word
@@ -154,13 +154,13 @@
 **Prompt**: `tasks/planned/WP05-dropdown-builder-functions.md`
 
 ### Included Subtasks
-- [ ] T027 Create `src/ui/widgets/dropdown_builders.py`
-- [ ] T028 Implement `build_product_dropdown_values(ingredient_id, session)` function
-- [ ] T029 Implement `build_ingredient_dropdown_values(category, session)` function
-- [ ] T030 Add star prefix (⭐) for recent items
-- [ ] T031 Add separator line between recent and non-recent items
-- [ ] T032 Add "[+ Create New Product]" option at bottom of product list
-- [ ] T033 [P] Create tests for dropdown builders
+- [x] T027 Create `src/ui/widgets/dropdown_builders.py`
+- [x] T028 Implement `build_product_dropdown_values(ingredient_id, session)` function
+- [x] T029 Implement `build_ingredient_dropdown_values(category, session)` function
+- [x] T030 Add star prefix (⭐) for recent items
+- [x] T031 Add separator line between recent and non-recent items
+- [x] T032 Add "[+ Create New Product]" option at bottom of product list
+- [x] T033 [P] Create tests for dropdown builders
 
 ### Implementation Notes
 1. Call recency service methods from WP03
@@ -188,13 +188,13 @@
 **Prompt**: `tasks/planned/WP06-dialog-type-ahead-integration.md`
 
 ### Included Subtasks
-- [ ] T034 Replace Category CTkComboBox with TypeAheadComboBox (min_chars=1)
-- [ ] T035 Replace Ingredient CTkComboBox with TypeAheadComboBox (min_chars=2)
-- [ ] T036 Replace Product CTkComboBox with TypeAheadComboBox (min_chars=2)
-- [ ] T037 Wire up category selection to reload ingredient dropdown with recency
-- [ ] T038 Wire up ingredient selection to reload product dropdown with recency
-- [ ] T039 Handle separator and create-new selections in product dropdown
-- [ ] T040 Update dialog import statements and initialization
+- [x] T034 Replace Category CTkComboBox with TypeAheadComboBox (min_chars=1)
+- [x] T035 Replace Ingredient CTkComboBox with TypeAheadComboBox (min_chars=2)
+- [x] T036 Replace Product CTkComboBox with TypeAheadComboBox (min_chars=2)
+- [x] T037 Wire up category selection to reload ingredient dropdown with recency
+- [x] T038 Wire up ingredient selection to reload product dropdown with recency
+- [x] T039 Handle separator and create-new selections in product dropdown
+- [x] T040 Update dialog import statements and initialization
 
 ### Implementation Notes
 1. Keep existing dialog structure, swap widget classes
@@ -223,13 +223,13 @@
 **Prompt**: `tasks/planned/WP07-dialog-session-memory.md`
 
 ### Included Subtasks
-- [ ] T041 Import and use SessionState singleton in dialog
-- [ ] T042 Load session state on dialog open, pre-select last supplier/category
-- [ ] T043 Add star prefix (⭐) to pre-selected session values
-- [ ] T044 Update session state on successful Add (not on cancel)
-- [ ] T045 Clear product-specific fields after Add, retain category/supplier
-- [ ] T046 Focus ingredient dropdown after successful Add for rapid entry
-- [ ] T047 Add integration tests for session memory workflow
+- [x] T041 Import and use SessionState singleton in dialog
+- [x] T042 Load session state on dialog open, pre-select last supplier/category
+- [x] T043 Add star prefix (⭐) to pre-selected session values
+- [x] T044 Update session state on successful Add (not on cancel)
+- [x] T045 Clear product-specific fields after Add, retain category/supplier
+- [x] T046 Focus ingredient dropdown after successful Add for rapid entry
+- [x] T047 Add integration tests for session memory workflow
 
 ### Implementation Notes
 1. Import `get_session_state()` from session_state module
@@ -258,18 +258,18 @@
 **Prompt**: `tasks/planned/WP08-inline-product-creation.md`
 
 ### Included Subtasks
-- [ ] T048 Create inline product creation frame (CTkFrame) within dialog
-- [ ] T049 Implement accordion expand/collapse toggle
-- [ ] T050 Pre-fill ingredient field (read-only) from current selection
-- [ ] T051 Pre-fill preferred supplier from session state
-- [ ] T052 Pre-fill package unit using category defaults (WP02)
-- [ ] T053 Add product name, package unit, package quantity fields
-- [ ] T054 Implement Create button with product_service integration
-- [ ] T055 Implement Cancel button to collapse and clear form
-- [ ] T056 On success: add product to dropdown, select it, collapse form
-- [ ] T057 On error: show error message, keep form expanded
-- [ ] T058 Handle zero-products case with prominent create button
-- [ ] T059 [P] Add integration tests for inline creation workflow
+- [x] T048 Create inline product creation frame (CTkFrame) within dialog
+- [x] T049 Implement accordion expand/collapse toggle
+- [x] T050 Pre-fill ingredient field (read-only) from current selection
+- [x] T051 Pre-fill preferred supplier from session state
+- [x] T052 Pre-fill package unit using category defaults (WP02)
+- [x] T053 Add product name, package unit, package quantity fields
+- [x] T054 Implement Create button with product_service integration
+- [x] T055 Implement Cancel button to collapse and clear form
+- [x] T056 On success: add product to dropdown, select it, collapse form
+- [x] T057 On error: show error message, keep form expanded
+- [x] T058 Handle zero-products case with prominent create button
+- [x] T059 [P] Add integration tests for inline creation workflow
 
 ### Implementation Notes
 1. Use grid_forget() for collapse, grid() for expand
@@ -299,14 +299,14 @@
 **Prompt**: `tasks/planned/WP09-price-suggestions.md`
 
 ### Included Subtasks
-- [ ] T060 Add price hint label below price entry field
-- [ ] T061 Query last purchase price when product AND supplier selected
-- [ ] T062 Implement primary query: price at selected supplier
-- [ ] T063 Implement fallback query: price at any supplier (different hint)
-- [ ] T064 Display "(no purchase history)" when no history exists
-- [ ] T065 Pre-fill price field with suggested value (editable)
-- [ ] T066 Clear hint when user manually modifies price
-- [ ] T067 [P] Add tests for price suggestion scenarios
+- [x] T060 Add price hint label below price entry field
+- [x] T061 Query last purchase price when product AND supplier selected
+- [x] T062 Implement primary query: price at selected supplier
+- [x] T063 Implement fallback query: price at any supplier (different hint)
+- [x] T064 Display "(no purchase history)" when no history exists
+- [x] T065 Pre-fill price field with suggested value (editable)
+- [x] T066 Clear hint when user manually modifies price
+- [x] T067 [P] Add tests for price suggestion scenarios
 
 ### Implementation Notes
 1. Use purchase_service from F028 for history queries
@@ -336,13 +336,13 @@
 **Prompt**: `tasks/planned/WP10-validation-warnings.md`
 
 ### Included Subtasks
-- [ ] T068 Add price validation on FocusOut event
-- [ ] T069 Show warning dialog if price > $100
-- [ ] T070 Block negative prices with error message
-- [ ] T071 Add quantity validation on FocusOut event
-- [ ] T072 Show warning for decimal quantities on count-based units
-- [ ] T073 Define count-based units list: count, bag, box, package, bottle, can
-- [ ] T074 [P] Add tests for validation scenarios
+- [x] T068 Add price validation on FocusOut event
+- [x] T069 Show warning dialog if price > $100
+- [x] T070 Block negative prices with error message
+- [x] T071 Add quantity validation on FocusOut event
+- [x] T072 Show warning for decimal quantities on count-based units
+- [x] T073 Define count-based units list: count, bag, box, package, bottle, can
+- [x] T074 [P] Add tests for validation scenarios
 
 ### Implementation Notes
 1. Use tkinter.messagebox for confirmation dialogs
@@ -370,15 +370,15 @@
 **Prompt**: `tasks/planned/WP11-integration-testing-polish.md`
 
 ### Included Subtasks
-- [ ] T075 Create `src/tests/integration/test_add_inventory_dialog.py`
-- [ ] T076 Test: Category type-ahead filtering workflow
-- [ ] T077 Test: Session memory persistence across dialog opens
-- [ ] T078 Test: Inline product creation full workflow
-- [ ] T079 Test: Price suggestion with fallback scenarios
-- [ ] T080 Test: Tab navigation through all fields
-- [ ] T081 Verify all existing tests still pass (regression check)
-- [ ] T082 Performance validation: recency queries < 200ms
-- [ ] T083 Manual user acceptance testing with realistic data
+- [x] T075 Create `src/tests/integration/test_add_inventory_dialog.py`
+- [x] T076 Test: Category type-ahead filtering workflow
+- [x] T077 Test: Session memory persistence across dialog opens
+- [x] T078 Test: Inline product creation full workflow
+- [x] T079 Test: Price suggestion with fallback scenarios
+- [x] T080 Test: Tab navigation through all fields
+- [x] T081 Verify all existing tests still pass (regression check)
+- [x] T082 Performance validation: recency queries < 200ms
+- [x] T083 Manual user acceptance testing with realistic data
 
 ### Implementation Notes
 1. Use pytest fixtures for dialog setup

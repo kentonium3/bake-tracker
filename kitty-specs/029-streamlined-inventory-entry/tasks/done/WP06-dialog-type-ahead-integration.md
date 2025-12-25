@@ -11,7 +11,7 @@ subtasks:
 title: "AddInventoryDialog - Type-Ahead Integration"
 phase: "Phase 2 - Core Integration"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude"
 shell_pid: "33920"
 review_status: ""

@@ -11,7 +11,7 @@ subtasks:
 title: "Validation Warnings"
 phase: "Phase 4 - Polish"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "gemini"
 shell_pid: "gemini"
 review_status: ""

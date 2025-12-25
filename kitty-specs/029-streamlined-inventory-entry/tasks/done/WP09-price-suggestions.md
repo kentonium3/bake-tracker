@@ -12,9 +12,9 @@ subtasks:
 title: "Price Suggestions"
 phase: "Phase 3 - Advanced Features"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "system"
-shell_pid: ""
+shell_pid: "33920"
 review_status: ""
 reviewed_by: ""
 history:

@@ -11,7 +11,7 @@ subtasks:
 title: "Recency Query Service Methods"
 phase: "Phase 0 - Foundation"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude"
 shell_pid: "33920"
 review_status: ""
