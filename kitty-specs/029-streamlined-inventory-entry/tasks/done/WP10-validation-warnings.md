@@ -10,7 +10,7 @@ subtasks:
   - "T074"
 title: "Validation Warnings"
 phase: "Phase 4 - Polish"
-lane: "for_review"
+lane: "done"
 assignee: ""
 agent: "gemini"
 shell_pid: "gemini"
@@ -313,3 +313,4 @@ Manual testing:
 
 - 2025-12-24T23:15:00Z – system – lane=planned – Prompt created.
 - 2025-12-25T05:40:37Z – gemini – shell_pid=gemini – lane=for_review – Validation warnings implemented
+- 2025-12-25T15:19:55Z – gemini – shell_pid=gemini – lane=done – Moved to done
