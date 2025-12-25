@@ -8,10 +8,10 @@ subtasks:
   - "T011"
 title: "Category Defaults Utility"
 phase: "Phase 0 - Foundation"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "claude"
+shell_pid: "33920"
 review_status: ""
 reviewed_by: ""
 history:
@@ -224,3 +224,4 @@ All test cases must pass.
 ## Activity Log
 
 - 2025-12-24T23:15:00Z – system – lane=planned – Prompt created.
+- 2025-12-25T04:56:17Z – claude – shell_pid=33920 – lane=doing – Started implementation
