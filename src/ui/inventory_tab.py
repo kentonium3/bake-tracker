@@ -25,7 +25,7 @@ from src.services.exceptions import (
     ValidationError as ServiceValidationError,
     DatabaseError,
 )
-from src.database import session_scope
+from src.services.database import session_scope
 from src.models import Ingredient
 from src.ui.session_state import get_session_state
 from src.ui.widgets.type_ahead_combobox import TypeAheadComboBox
@@ -1251,7 +1251,7 @@ class InventoryItemFormDialog(ctk.CTkToplevel):
             self.products = [
                 {
                     "id": p.id,
-                    "name": p.name,
+                    "name": p.display_name,
                     "brand": p.brand,
                     "package_unit_quantity": p.package_unit_quantity,
                     "package_unit": p.package_unit,
@@ -1507,13 +1507,17 @@ class InventoryItemFormDialog(ctk.CTkToplevel):
 
         # Create product via service
         try:
+            product_data = {
+                "brand": name,  # Use entered name as brand
+                "package_unit": unit,
+                "package_unit_quantity": qty,  # Already a Decimal
+            }
+            if preferred_supplier_id:
+                product_data["preferred_supplier_id"] = preferred_supplier_id
+
             new_product = product_service.create_product(
-                name=name,
-                ingredient_slug=self.selected_ingredient.get("slug"),
-                brand=name,  # Use name as brand for simplicity
-                package_unit=unit,
-                package_unit_quantity=float(qty),
-                preferred_supplier_id=preferred_supplier_id,
+                self.selected_ingredient.get("slug"),
+                product_data,
             )
 
             # Success - rebuild dropdown and select new product
@@ -1533,7 +1537,7 @@ class InventoryItemFormDialog(ctk.CTkToplevel):
             # Update products list for tracking
             self.products.append({
                 "id": new_product.id,
-                "name": new_product.name,
+                "name": new_product.display_name,
                 "brand": new_product.brand,
                 "package_unit": new_product.package_unit,
                 "package_unit_quantity": new_product.package_unit_quantity,
@@ -1920,8 +1924,8 @@ class InventoryItemFormDialog(ctk.CTkToplevel):
             self.price_entry.focus_set()
             return False
 
-        # Check for high price (> $100)
-        if price > 100:
+        # Check for high price (>= $100) per FR-027
+        if price >= 100:
             if not self._confirm_high_price(price):
                 self.price_entry.focus_set()
                 return False
