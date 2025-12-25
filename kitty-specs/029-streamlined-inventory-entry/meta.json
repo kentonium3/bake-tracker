@@ -1,7 +1,24 @@
 {
+  "accept_commit": null,
+  "acceptance_history": [
+    {
+      "accepted_at": "2025-12-25T15:32:59Z",
+      "accepted_by": "claude",
+      "accepted_from_commit": "112e9b32a4a8d6511cc62506bb8ae3e9dabc36b4",
+      "branch": "029-streamlined-inventory-entry",
+      "mode": "local",
+      "validation_commands": [
+        "pytest src/tests -v --tb=short (1173 passed, 12 skipped)"
+      ]
+    }
+  ],
+  "acceptance_mode": "local",
+  "accepted_at": "2025-12-25T15:32:59Z",
+  "accepted_by": "claude",
+  "accepted_from_commit": "112e9b32a4a8d6511cc62506bb8ae3e9dabc36b4",
+  "created_at": "2025-12-25T03:44:15Z",
   "feature_number": "029",
-  "slug": "029-streamlined-inventory-entry",
   "friendly_name": "Streamlined Inventory Entry",
-  "source_description": "Transform inventory entry from tedious data entry into intelligent, flow-optimized experience with type-ahead filtering, recency intelligence, session memory, inline product creation, and smart defaults. Target: reduce 20-item data entry from 15-20 minutes to 5 minutes.",
-  "created_at": "2025-12-25T03:44:15Z"
+  "slug": "029-streamlined-inventory-entry",
+  "source_description": "Transform inventory entry from tedious data entry into intelligent, flow-optimized experience with type-ahead filtering, recency intelligence, session memory, inline product creation, and smart defaults. Target: reduce 20-item data entry from 15-20 minutes to 5 minutes."
 }
