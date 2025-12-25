@@ -11,7 +11,7 @@ Tests cover:
 
 import pytest
 from decimal import Decimal
-from datetime import date
+from datetime import date, timedelta
 
 from src.services import ingredient_service, product_service, inventory_item_service, purchase_service, supplier_service
 
@@ -572,3 +572,196 @@ class TestAddToInventoryWithPurchase:
             # Verify item created within same transaction
             assert item.id is not None
             assert item.purchase_id is not None
+
+
+# =============================================================================
+# Recency Intelligence Tests (Feature 029)
+# =============================================================================
+
+
+@pytest.fixture
+def recency_test_data(test_db, test_supplier):
+    """Create inventory items with specific dates for recency testing.
+
+    Creates:
+    - Product A: Added yesterday (temporal recent)
+    - Product B: Added 45 days ago, only once (not recent)
+    - Product C: Added 60 days ago but 4 times (frequency recent)
+    """
+    # Create ingredient in Flour category
+    ingredient = ingredient_service.create_ingredient({
+        "name": "Test Flour Recency",
+        "category": "Flour",
+    })
+
+    today = date.today()
+
+    # Product A: Added yesterday (temporal recent)
+    product_a = product_service.create_product(
+        ingredient.slug,
+        {"brand": "Brand A", "package_unit": "lb", "package_unit_quantity": Decimal("5.0")}
+    )
+    inventory_item_service.add_to_inventory(
+        product_id=product_a.id,
+        quantity=Decimal("1.0"),
+        supplier_id=test_supplier.id,
+        unit_price=Decimal("5.00"),
+        purchase_date=today - timedelta(days=1),
+    )
+
+    # Product B: Added 45 days ago, only once (not recent - outside 30 days, only 1 time)
+    product_b = product_service.create_product(
+        ingredient.slug,
+        {"brand": "Brand B", "package_unit": "lb", "package_unit_quantity": Decimal("5.0")}
+    )
+    inventory_item_service.add_to_inventory(
+        product_id=product_b.id,
+        quantity=Decimal("1.0"),
+        supplier_id=test_supplier.id,
+        unit_price=Decimal("5.00"),
+        purchase_date=today - timedelta(days=45),
+    )
+
+    # Product C: Added 60 days ago but 4 times (frequency recent - 4 >= 3 within 90 days)
+    product_c = product_service.create_product(
+        ingredient.slug,
+        {"brand": "Brand C", "package_unit": "lb", "package_unit_quantity": Decimal("5.0")}
+    )
+    for i in range(4):
+        inventory_item_service.add_to_inventory(
+            product_id=product_c.id,
+            quantity=Decimal("1.0"),
+            supplier_id=test_supplier.id,
+            unit_price=Decimal("5.00"),
+            purchase_date=today - timedelta(days=60 + i),
+        )
+
+    return {
+        "ingredient": ingredient,
+        "product_a": product_a,
+        "product_b": product_b,
+        "product_c": product_c,
+        "category": "Flour",
+    }
+
+
+class TestGetRecentProducts:
+    """Tests for get_recent_products() recency query."""
+
+    def test_get_recent_products_temporal(self, recency_test_data):
+        """Product A should be recent (temporal - added yesterday)."""
+        from src.services.inventory_item_service import get_recent_products
+
+        ingredient = recency_test_data["ingredient"]
+        product_a = recency_test_data["product_a"]
+
+        recent_ids = get_recent_products(ingredient.id)
+
+        assert product_a.id in recent_ids, "Product A should be recent (temporal)"
+
+    def test_get_recent_products_not_recent(self, recency_test_data):
+        """Product B should NOT be recent (45 days ago, only once)."""
+        from src.services.inventory_item_service import get_recent_products
+
+        ingredient = recency_test_data["ingredient"]
+        product_b = recency_test_data["product_b"]
+
+        recent_ids = get_recent_products(ingredient.id)
+
+        assert product_b.id not in recent_ids, "Product B should NOT be recent"
+
+    def test_get_recent_products_frequency(self, recency_test_data):
+        """Product C should be recent (frequency - added 4 times in 90 days)."""
+        from src.services.inventory_item_service import get_recent_products
+
+        ingredient = recency_test_data["ingredient"]
+        product_c = recency_test_data["product_c"]
+
+        recent_ids = get_recent_products(ingredient.id)
+
+        assert product_c.id in recent_ids, "Product C should be recent (frequency)"
+
+    def test_get_recent_products_sorted_by_date(self, recency_test_data):
+        """Results should be sorted by most recent first."""
+        from src.services.inventory_item_service import get_recent_products
+
+        ingredient = recency_test_data["ingredient"]
+        product_a = recency_test_data["product_a"]
+        product_c = recency_test_data["product_c"]
+
+        recent_ids = get_recent_products(ingredient.id)
+
+        # Both A and C should be recent
+        if product_a.id in recent_ids and product_c.id in recent_ids:
+            a_idx = recent_ids.index(product_a.id)
+            c_idx = recent_ids.index(product_c.id)
+            # Product A (yesterday) should come before Product C (60 days ago)
+            assert a_idx < c_idx, "Product A should come before Product C"
+
+    def test_get_recent_products_respects_limit(self, recency_test_data):
+        """Results should respect the limit parameter."""
+        from src.services.inventory_item_service import get_recent_products
+
+        ingredient = recency_test_data["ingredient"]
+
+        recent_ids = get_recent_products(ingredient.id, limit=1)
+
+        assert len(recent_ids) <= 1, "Should respect limit parameter"
+
+    def test_get_recent_products_with_session(self, recency_test_data):
+        """Function should work with provided session."""
+        from src.services.inventory_item_service import get_recent_products
+        from src.services.database import session_scope
+
+        ingredient = recency_test_data["ingredient"]
+
+        with session_scope() as session:
+            recent_ids = get_recent_products(ingredient.id, session=session)
+
+        # Should return results without error
+        assert isinstance(recent_ids, list)
+
+    def test_get_recent_products_empty_for_nonexistent_ingredient(self, test_db):
+        """Should return empty list for ingredient with no inventory."""
+        from src.services.inventory_item_service import get_recent_products
+
+        # Use a non-existent ingredient ID
+        recent_ids = get_recent_products(ingredient_id=99999)
+
+        assert recent_ids == [], "Should return empty list for nonexistent ingredient"
+
+
+class TestGetRecentIngredients:
+    """Tests for get_recent_ingredients() recency query."""
+
+    def test_get_recent_ingredients_temporal(self, recency_test_data):
+        """Ingredient should be recent when product was added recently."""
+        from src.services.inventory_item_service import get_recent_ingredients
+
+        ingredient = recency_test_data["ingredient"]
+        category = recency_test_data["category"]
+
+        recent_ids = get_recent_ingredients(category)
+
+        assert ingredient.id in recent_ids, "Ingredient should be recent"
+
+    def test_get_recent_ingredients_empty_for_nonexistent_category(self, test_db):
+        """Should return empty list for category with no inventory."""
+        from src.services.inventory_item_service import get_recent_ingredients
+
+        recent_ids = get_recent_ingredients(category="NonexistentCategory")
+
+        assert recent_ids == [], "Should return empty list for nonexistent category"
+
+    def test_get_recent_ingredients_with_session(self, recency_test_data):
+        """Function should work with provided session."""
+        from src.services.inventory_item_service import get_recent_ingredients
+        from src.services.database import session_scope
+
+        category = recency_test_data["category"]
+
+        with session_scope() as session:
+            recent_ids = get_recent_ingredients(category, session=session)
+
+        # Should return results without error
+        assert isinstance(recent_ids, list)

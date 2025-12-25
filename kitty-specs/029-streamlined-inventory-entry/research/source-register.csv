@@ -1,0 +1,6 @@
+id,source_type,title,location,date_accessed,credibility,notes
+S001,Planning Discussion,Planning Interrogation Session,N/A,2025-12-24,High,User-confirmed architectural decisions
+S002,Design Document,F029 Streamlined Inventory Entry,docs/design/F029_streamlined_inventory_entry.md,2025-12-24,High,Comprehensive technical specification
+S003,Codebase Analysis,Existing Service Patterns,src/services/,2025-12-24,High,Analyzed inventory_item_service and purchase_service patterns
+S004,Feature Specification,F029 Spec,kitty-specs/029-streamlined-inventory-entry/spec.md,2025-12-24,High,34 functional requirements defined
+S005,Constitution,Project Constitution,.kittify/memory/constitution.md,2025-12-24,High,Architecture and testing principles

@@ -606,3 +606,245 @@ def get_inventory_value() -> Decimal:
     # 3. Convert quantities to purchase unit if needed
     # 4. Calculate: SUM(quantity * unit_cost)
     return Decimal("0.0")
+
+
+# =============================================================================
+# Recency Intelligence Methods (Feature 029)
+# =============================================================================
+
+
+def get_recent_products(
+    ingredient_id: int,
+    days: int = 30,
+    min_frequency: int = 3,
+    frequency_days: int = 90,
+    limit: int = 20,
+    session: Optional[Session] = None,
+) -> List[int]:
+    """
+    Get product IDs that are "recent" for an ingredient.
+
+    A product is considered "recent" if it meets EITHER criterion:
+    - Temporal: Added within last 'days' days
+    - Frequency: Added 'min_frequency' or more times in last 'frequency_days' days
+
+    This hybrid approach captures both "recently purchased" and "regularly
+    purchased" patterns.
+
+    Args:
+        ingredient_id: The ingredient to query products for
+        days: Number of days for temporal recency (default: 30)
+        min_frequency: Minimum additions for frequency recency (default: 3)
+        frequency_days: Days window for frequency check (default: 90)
+        limit: Maximum number of product IDs to return (default: 20)
+        session: Optional database session for transaction composability
+
+    Returns:
+        List of product IDs sorted by most recent purchase date (newest first)
+
+    Example:
+        >>> # Get recent products for All-Purpose Flour
+        >>> recent_ids = get_recent_products(ingredient_id=42)
+        >>> len(recent_ids)  # At most 20
+        5
+    """
+    if session is not None:
+        return _get_recent_products_impl(
+            ingredient_id, days, min_frequency, frequency_days, limit, session
+        )
+    with session_scope() as sess:
+        return _get_recent_products_impl(
+            ingredient_id, days, min_frequency, frequency_days, limit, sess
+        )
+
+
+def _get_recent_products_impl(
+    ingredient_id: int,
+    days: int,
+    min_frequency: int,
+    frequency_days: int,
+    limit: int,
+    session: Session,
+) -> List[int]:
+    """Implementation of get_recent_products with provided session."""
+    from sqlalchemy import func, and_
+
+    today = date.today()
+    temporal_cutoff = today - timedelta(days=days)
+    frequency_cutoff = today - timedelta(days=frequency_days)
+
+    # Query 1: Products added within last N days (temporal recency)
+    temporal_query = (
+        session.query(
+            InventoryItem.product_id,
+            func.max(InventoryItem.purchase_date).label("last_purchase"),
+        )
+        .filter(
+            and_(
+                InventoryItem.product_id.isnot(None),
+                InventoryItem.purchase_date >= temporal_cutoff,
+            )
+        )
+        .join(Product, InventoryItem.product_id == Product.id)
+        .filter(Product.ingredient_id == ingredient_id)
+        .group_by(InventoryItem.product_id)
+    )
+
+    # Query 2: Products added 3+ times in last 90 days (frequency recency)
+    frequency_query = (
+        session.query(
+            InventoryItem.product_id,
+            func.max(InventoryItem.purchase_date).label("last_purchase"),
+        )
+        .filter(
+            and_(
+                InventoryItem.product_id.isnot(None),
+                InventoryItem.purchase_date >= frequency_cutoff,
+            )
+        )
+        .join(Product, InventoryItem.product_id == Product.id)
+        .filter(Product.ingredient_id == ingredient_id)
+        .group_by(InventoryItem.product_id)
+        .having(func.count(InventoryItem.id) >= min_frequency)
+    )
+
+    # Execute both queries and merge results
+    temporal_results = {row.product_id: row.last_purchase for row in temporal_query.all()}
+    frequency_results = {row.product_id: row.last_purchase for row in frequency_query.all()}
+
+    # Merge with max date (OR logic - product appears if in EITHER result)
+    merged = {}
+    for pid, dt in temporal_results.items():
+        merged[pid] = dt
+    for pid, dt in frequency_results.items():
+        if pid in merged:
+            # Keep the more recent date
+            if dt and (merged[pid] is None or dt > merged[pid]):
+                merged[pid] = dt
+        else:
+            merged[pid] = dt
+
+    # Sort by date descending (most recent first), limit results
+    sorted_products = sorted(
+        merged.items(),
+        key=lambda x: x[1] if x[1] else date.min,
+        reverse=True,
+    )
+    return [pid for pid, _ in sorted_products[:limit]]
+
+
+def get_recent_ingredients(
+    category: str,
+    days: int = 30,
+    min_frequency: int = 3,
+    frequency_days: int = 90,
+    limit: int = 20,
+    session: Optional[Session] = None,
+) -> List[int]:
+    """
+    Get ingredient IDs that are "recent" for a category.
+
+    A ingredient is considered "recent" if it meets EITHER criterion:
+    - Temporal: Added within last 'days' days
+    - Frequency: Added 'min_frequency' or more times in last 'frequency_days' days
+
+    Args:
+        category: The category to query ingredients for
+        days: Number of days for temporal recency (default: 30)
+        min_frequency: Minimum additions for frequency recency (default: 3)
+        frequency_days: Days window for frequency check (default: 90)
+        limit: Maximum number of ingredient IDs to return (default: 20)
+        session: Optional database session for transaction composability
+
+    Returns:
+        List of ingredient IDs sorted by most recent purchase date (newest first)
+
+    Example:
+        >>> # Get recent ingredients for Baking category
+        >>> recent_ids = get_recent_ingredients(category="Baking")
+        >>> len(recent_ids)  # At most 20
+        8
+    """
+    if session is not None:
+        return _get_recent_ingredients_impl(
+            category, days, min_frequency, frequency_days, limit, session
+        )
+    with session_scope() as sess:
+        return _get_recent_ingredients_impl(
+            category, days, min_frequency, frequency_days, limit, sess
+        )
+
+
+def _get_recent_ingredients_impl(
+    category: str,
+    days: int,
+    min_frequency: int,
+    frequency_days: int,
+    limit: int,
+    session: Session,
+) -> List[int]:
+    """Implementation of get_recent_ingredients with provided session."""
+    from sqlalchemy import func, and_
+    from ..models import Ingredient
+
+    today = date.today()
+    temporal_cutoff = today - timedelta(days=days)
+    frequency_cutoff = today - timedelta(days=frequency_days)
+
+    # Query 1: Ingredients with items added within last N days (temporal recency)
+    temporal_query = (
+        session.query(
+            Product.ingredient_id,
+            func.max(InventoryItem.purchase_date).label("last_purchase"),
+        )
+        .join(InventoryItem, InventoryItem.product_id == Product.id)
+        .join(Ingredient, Product.ingredient_id == Ingredient.id)
+        .filter(
+            and_(
+                Ingredient.category == category,
+                InventoryItem.purchase_date >= temporal_cutoff,
+            )
+        )
+        .group_by(Product.ingredient_id)
+    )
+
+    # Query 2: Ingredients added 3+ times in last 90 days (frequency recency)
+    frequency_query = (
+        session.query(
+            Product.ingredient_id,
+            func.max(InventoryItem.purchase_date).label("last_purchase"),
+        )
+        .join(InventoryItem, InventoryItem.product_id == Product.id)
+        .join(Ingredient, Product.ingredient_id == Ingredient.id)
+        .filter(
+            and_(
+                Ingredient.category == category,
+                InventoryItem.purchase_date >= frequency_cutoff,
+            )
+        )
+        .group_by(Product.ingredient_id)
+        .having(func.count(InventoryItem.id) >= min_frequency)
+    )
+
+    # Execute both queries and merge results
+    temporal_results = {row.ingredient_id: row.last_purchase for row in temporal_query.all()}
+    frequency_results = {row.ingredient_id: row.last_purchase for row in frequency_query.all()}
+
+    # Merge with max date (OR logic)
+    merged = {}
+    for iid, dt in temporal_results.items():
+        merged[iid] = dt
+    for iid, dt in frequency_results.items():
+        if iid in merged:
+            if dt and (merged[iid] is None or dt > merged[iid]):
+                merged[iid] = dt
+        else:
+            merged[iid] = dt
+
+    # Sort by date descending (most recent first), limit results
+    sorted_ingredients = sorted(
+        merged.items(),
+        key=lambda x: x[1] if x[1] else date.min,
+        reverse=True,
+    )
+    return [iid for iid, _ in sorted_ingredients[:limit]]
