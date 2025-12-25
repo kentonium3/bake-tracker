@@ -15,8 +15,11 @@ from tkinter import messagebox
 from datetime import date
 from typing import Optional, List, Dict, Any
 
-from decimal import Decimal
+from decimal import Decimal, InvalidOperation
 from src.services import inventory_item_service, ingredient_service, product_service, supplier_service, purchase_service
+
+# WP10: Units where decimal quantities are unusual
+COUNT_BASED_UNITS = ['count', 'bag', 'box', 'package', 'bottle', 'can', 'jar', 'carton']
 from src.services.exceptions import (
     InventoryItemNotFound,
     ValidationError as ServiceValidationError,
@@ -1031,6 +1034,19 @@ class InventoryItemFormDialog(ctk.CTkToplevel):
         self.selected_product = None  # Track selected product object
         row += 1
 
+        # F029/WP08: Inline product creation frame (hidden initially)
+        self.inline_create_row = row  # Track row for dynamic positioning
+        self.inline_create_expanded = False
+        self.inline_create_frame = ctk.CTkFrame(
+            self,
+            border_width=1,
+            corner_radius=5,
+            fg_color=("gray90", "gray20"),
+        )
+        self._setup_inline_create_form()
+        # Do NOT grid initially - hidden until expanded
+        row += 1
+
         # Trigger cascading load if category is pre-selected
         if default_category and not self.item:
             self._on_category_selected(default_category)
@@ -1076,6 +1092,10 @@ class InventoryItemFormDialog(ctk.CTkToplevel):
         self.price_var = ctk.StringVar(value="")
         self.price_entry = ctk.CTkEntry(self, textvariable=self.price_var, placeholder_text="0.00")
         self.price_entry.grid(row=row, column=1, padx=10, pady=(10, 0), sticky="ew")
+        # WP09: Bind Key to clear hint on manual edit
+        self.price_entry.bind('<Key>', self._on_price_key)
+        # WP10: Bind FocusOut for price validation
+        self.price_entry.bind('<FocusOut>', self._on_price_focus_out)
         row += 1
 
         # F028: Price hint label (shows last paid price)
@@ -1098,6 +1118,8 @@ class InventoryItemFormDialog(ctk.CTkToplevel):
 
         self.quantity_entry = ctk.CTkEntry(self, placeholder_text="e.g., 25")
         self.quantity_entry.grid(row=row, column=1, padx=10, pady=10, sticky="ew")
+        # WP10: Bind FocusOut for quantity validation
+        self.quantity_entry.bind('<FocusOut>', self._on_quantity_focus_out)
         row += 1
 
         # Purchase Date
@@ -1247,15 +1269,10 @@ class InventoryItemFormDialog(ctk.CTkToplevel):
             self.product_combo.set("")
             return
 
-        # Check for create new option (placeholder for WP08)
+        # WP08: Check for create new option - trigger inline form
         if is_create_new_option(selected_value):
-            # TODO: WP08 will implement inline product creation
             self.product_combo.set("")
-            messagebox.showinfo(
-                "Coming Soon",
-                "Inline product creation will be available in a future update.",
-                parent=self,
-            )
+            self._toggle_inline_create()
             return
 
         # Strip star if present
@@ -1294,6 +1311,268 @@ class InventoryItemFormDialog(ctk.CTkToplevel):
         if display_name.startswith("* "):
             return display_name[2:]
         return display_name
+
+    # ==========================================================================
+    # WP08: Inline Product Creation Methods
+    # ==========================================================================
+
+    def _setup_inline_create_form(self):
+        """Setup inline product creation form (WP08)."""
+        form_frame = ctk.CTkFrame(self.inline_create_frame, fg_color="transparent")
+        form_frame.pack(fill="both", expand=True, padx=10, pady=10)
+        form_frame.grid_columnconfigure(1, weight=1)
+
+        # Header
+        header = ctk.CTkLabel(
+            form_frame,
+            text="Create New Product",
+            font=ctk.CTkFont(weight="bold"),
+        )
+        header.grid(row=0, column=0, columnspan=2, pady=(0, 10), sticky="w")
+
+        # Ingredient (read-only display)
+        ctk.CTkLabel(form_frame, text="Ingredient:").grid(
+            row=1, column=0, padx=5, pady=5, sticky="w"
+        )
+        self.inline_ingredient_label = ctk.CTkLabel(
+            form_frame, text="", text_color="gray"
+        )
+        self.inline_ingredient_label.grid(row=1, column=1, padx=5, pady=5, sticky="w")
+
+        # Product Name (required)
+        ctk.CTkLabel(form_frame, text="Product Name:*").grid(
+            row=2, column=0, padx=5, pady=5, sticky="w"
+        )
+        self.inline_name_entry = ctk.CTkEntry(
+            form_frame, placeholder_text="e.g., Gold Medal AP Flour"
+        )
+        self.inline_name_entry.grid(row=2, column=1, padx=5, pady=5, sticky="ew")
+
+        # Package Unit + Quantity on same row
+        ctk.CTkLabel(form_frame, text="Package:*").grid(
+            row=3, column=0, padx=5, pady=5, sticky="w"
+        )
+        package_frame = ctk.CTkFrame(form_frame, fg_color="transparent")
+        package_frame.grid(row=3, column=1, padx=5, pady=5, sticky="ew")
+
+        self.inline_qty_entry = ctk.CTkEntry(package_frame, width=80, placeholder_text="Qty")
+        self.inline_qty_entry.pack(side="left", padx=(0, 5))
+
+        self.inline_unit_combo = ctk.CTkComboBox(
+            package_frame,
+            values=["lb", "oz", "kg", "g", "fl oz", "ml", "L", "count", "bag", "box"],
+            width=100,
+        )
+        self.inline_unit_combo.pack(side="left")
+
+        # Preferred Supplier (optional, pre-filled from session)
+        ctk.CTkLabel(form_frame, text="Preferred Supplier:").grid(
+            row=4, column=0, padx=5, pady=5, sticky="w"
+        )
+        supplier_names = [s["display_name"] for s in self.suppliers]
+        self.inline_supplier_combo = ctk.CTkComboBox(
+            form_frame,
+            values=supplier_names if supplier_names else [""],
+        )
+        self.inline_supplier_combo.grid(row=4, column=1, padx=5, pady=5, sticky="ew")
+
+        # Buttons
+        btn_frame = ctk.CTkFrame(form_frame, fg_color="transparent")
+        btn_frame.grid(row=5, column=0, columnspan=2, pady=10)
+
+        ctk.CTkButton(
+            btn_frame,
+            text="Cancel",
+            width=100,
+            fg_color="gray",
+            command=self._cancel_inline_create,
+        ).pack(side="left", padx=5)
+
+        ctk.CTkButton(
+            btn_frame,
+            text="Create Product",
+            width=120,
+            command=self._create_product_inline,
+        ).pack(side="left", padx=5)
+
+    def _toggle_inline_create(self):
+        """Toggle inline product creation form (accordion) (WP08)."""
+        if self.inline_create_expanded:
+            # Collapse
+            self.inline_create_frame.grid_forget()
+            self.inline_create_expanded = False
+            self.product_combo.configure(state="normal")
+        else:
+            # Expand
+            self.inline_create_frame.grid(
+                row=self.inline_create_row,
+                column=0,
+                columnspan=2,
+                sticky="ew",
+                padx=10,
+                pady=5,
+            )
+            self.inline_create_expanded = True
+            self.product_combo.configure(state="disabled")
+            self._prefill_inline_form()
+            self.inline_name_entry.focus_set()
+
+    def _prefill_inline_form(self):
+        """Pre-fill inline creation form with smart defaults (WP08)."""
+        from src.utils.category_defaults import get_default_unit_for_category
+
+        # Clear previous values
+        self.inline_name_entry.delete(0, "end")
+        self.inline_qty_entry.delete(0, "end")
+
+        # Pre-fill ingredient (read-only display)
+        if self.selected_ingredient:
+            self.inline_ingredient_label.configure(
+                text=self.selected_ingredient.get("name", "")
+            )
+
+            # Pre-fill unit from category defaults
+            category = self.selected_ingredient.get("category", "")
+            if category:
+                default_unit = get_default_unit_for_category(category)
+                self.inline_unit_combo.set(default_unit)
+
+        # Pre-fill supplier from session
+        last_supplier_id = self.session_state.get_last_supplier_id()
+        if last_supplier_id:
+            for s in self.suppliers:
+                if s["id"] == last_supplier_id:
+                    self.inline_supplier_combo.set(f"⭐ {s['display_name']}")
+                    break
+        else:
+            # Default to first supplier if any
+            if self.suppliers:
+                self.inline_supplier_combo.set(self.suppliers[0]["display_name"])
+
+    def _create_product_inline(self):
+        """Create product from inline form (WP08)."""
+        from decimal import Decimal, InvalidOperation
+
+        # Validate required fields
+        name = self.inline_name_entry.get().strip()
+        if not name:
+            messagebox.showerror(
+                "Validation Error", "Product name is required", parent=self
+            )
+            self.inline_name_entry.focus_set()
+            return
+
+        unit = self.inline_unit_combo.get().strip()
+        if not unit:
+            messagebox.showerror(
+                "Validation Error", "Package unit is required", parent=self
+            )
+            return
+
+        qty_str = self.inline_qty_entry.get().strip()
+        if not qty_str:
+            messagebox.showerror(
+                "Validation Error", "Package quantity is required", parent=self
+            )
+            self.inline_qty_entry.focus_set()
+            return
+
+        try:
+            qty = Decimal(qty_str)
+            if qty <= 0:
+                raise ValueError("Quantity must be positive")
+        except (InvalidOperation, ValueError):
+            messagebox.showerror(
+                "Validation Error",
+                "Package quantity must be a positive number",
+                parent=self,
+            )
+            self.inline_qty_entry.focus_set()
+            return
+
+        if not self.selected_ingredient:
+            messagebox.showerror("Error", "No ingredient selected", parent=self)
+            return
+
+        # Get preferred supplier (optional)
+        supplier_display = self.inline_supplier_combo.get().replace("⭐ ", "").strip()
+        preferred_supplier_id = None
+        if supplier_display:
+            supplier = next(
+                (s for s in self.suppliers if s["display_name"] == supplier_display),
+                None,
+            )
+            if supplier:
+                preferred_supplier_id = supplier["id"]
+
+        # Create product via service
+        try:
+            new_product = product_service.create_product(
+                name=name,
+                ingredient_slug=self.selected_ingredient.get("slug"),
+                brand=name,  # Use name as brand for simplicity
+                package_unit=unit,
+                package_unit_quantity=float(qty),
+                preferred_supplier_id=preferred_supplier_id,
+            )
+
+            # Success - rebuild dropdown and select new product
+            with session_scope() as session:
+                # Find the ingredient ID
+                ing_obj = session.query(Ingredient).filter_by(
+                    display_name=self.selected_ingredient.get("name")
+                ).first()
+
+                if ing_obj:
+                    product_values = build_product_dropdown_values(ing_obj.id, session)
+                    self.product_combo.reset_values(product_values)
+
+            # Select the new product (it's "recent" so should have star)
+            self.product_combo.set(f"⭐ {name}")
+
+            # Update products list for tracking
+            self.products.append({
+                "id": new_product.id,
+                "name": new_product.name,
+                "brand": new_product.brand,
+                "package_unit": new_product.package_unit,
+                "package_unit_quantity": new_product.package_unit_quantity,
+            })
+            self.selected_product = self.products[-1]
+
+            # Collapse form
+            self._cancel_inline_create()
+
+            # Trigger price hint update
+            self._on_supplier_change(self.supplier_var.get())
+
+        except Exception as e:
+            messagebox.showerror(
+                "Error",
+                f"Failed to create product: {str(e)}",
+                parent=self,
+            )
+            # Keep form expanded for correction
+
+    def _cancel_inline_create(self):
+        """Cancel inline product creation (WP08)."""
+        # Clear form
+        self.inline_name_entry.delete(0, "end")
+        self.inline_qty_entry.delete(0, "end")
+        self.inline_unit_combo.set("")
+        self.inline_supplier_combo.set("")
+
+        # Collapse
+        self.inline_create_frame.grid_forget()
+        self.inline_create_expanded = False
+
+        # Re-enable product dropdown and focus
+        self.product_combo.configure(state="normal")
+        self.product_combo.focus_set()
+
+    # ==========================================================================
+    # End WP08 Methods
+    # ==========================================================================
 
     def _get_selected_product_id(self) -> Optional[int]:
         """Get product_id from current product dropdown selection (F028, F029)."""
@@ -1597,6 +1876,123 @@ class InventoryItemFormDialog(ctk.CTkToplevel):
                 self.session_state.update_category(category)
 
         self.destroy()
+
+    # WP09: Clear price hint when user types
+
+    def _on_price_key(self, event):
+        """Clear hint when user types in price field (WP09)."""
+        # Ignore navigation keys
+        if event.keysym not in ('Tab', 'Return', 'Escape', 'Up', 'Down', 'Left', 'Right'):
+            self.price_hint_label.configure(text="")
+
+    # WP10: Validation methods for price and quantity
+
+    def _on_price_focus_out(self, event):
+        """Validate price when focus leaves field."""
+        self._validate_price()
+
+    def _on_quantity_focus_out(self, event):
+        """Validate quantity when focus leaves field."""
+        self._validate_quantity()
+
+    def _validate_price(self) -> bool:
+        """Validate price value.
+
+        Returns:
+            True if valid or empty, False if invalid.
+        """
+        price_str = self.price_entry.get().strip()
+        if not price_str:
+            return True  # Empty is OK, will be caught on submit
+
+        try:
+            price = Decimal(price_str)
+        except InvalidOperation:
+            return True  # Invalid format caught on submit
+
+        # Check for negative price
+        if price < 0:
+            messagebox.showerror(
+                "Invalid Price",
+                "Price cannot be negative.",
+                parent=self,
+            )
+            self.price_entry.focus_set()
+            return False
+
+        # Check for high price (> $100)
+        if price > 100:
+            if not self._confirm_high_price(price):
+                self.price_entry.focus_set()
+                return False
+
+        return True
+
+    def _confirm_high_price(self, price: Decimal) -> bool:
+        """Ask user to confirm high price.
+
+        Args:
+            price: The price value to confirm.
+
+        Returns:
+            True if user confirms, False if user cancels.
+        """
+        return messagebox.askyesno(
+            "Confirm High Price",
+            f"Price is ${price:.2f} (over $100).\n\nIs this correct?",
+            parent=self,
+        )
+
+    def _validate_quantity(self) -> bool:
+        """Validate quantity value.
+
+        Returns:
+            True if valid or empty, False if invalid.
+        """
+        qty_str = self.quantity_entry.get().strip()
+        if not qty_str:
+            return True  # Empty OK, caught on submit
+
+        try:
+            qty = Decimal(qty_str)
+        except InvalidOperation:
+            return True  # Invalid format caught on submit
+
+        # Check for count-based unit with decimal quantity
+        if self.selected_product and self._is_count_based_unit():
+            if qty != qty.to_integral_value():
+                if not self._confirm_decimal_quantity(qty):
+                    self.quantity_entry.focus_set()
+                    return False
+
+        return True
+
+    def _confirm_decimal_quantity(self, qty: Decimal) -> bool:
+        """Ask user to confirm decimal quantity for count-based unit.
+
+        Args:
+            qty: The quantity value to confirm.
+
+        Returns:
+            True if user confirms, False if user cancels.
+        """
+        return messagebox.askyesno(
+            "Confirm Decimal Quantity",
+            f"Package quantities are usually whole numbers.\n\n"
+            f"You entered {qty}. Continue?",
+            parent=self,
+        )
+
+    def _is_count_based_unit(self) -> bool:
+        """Check if selected product uses count-based unit.
+
+        Returns:
+            True if the product's package_unit is count-based, False otherwise.
+        """
+        if not self.selected_product:
+            return False
+        unit = self.selected_product.get("package_unit", "").lower()
+        return unit in COUNT_BASED_UNITS
 
 
 class ConsumeIngredientDialog(ctk.CTkToplevel):
