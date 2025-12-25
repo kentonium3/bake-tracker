@@ -24,7 +24,6 @@ from src.services.exceptions import (
 )
 from src.database import session_scope
 from src.models import Ingredient
-from src.utils.constants import INGREDIENT_CATEGORIES
 from src.ui.session_state import get_session_state
 from src.ui.widgets.type_ahead_combobox import TypeAheadComboBox
 from src.ui.widgets.dropdown_builders import (
@@ -975,39 +974,66 @@ class InventoryItemFormDialog(ctk.CTkToplevel):
 
         row = 0
 
-        # Ingredient dropdown
+        # F029: Category dropdown (type-ahead, min_chars=1)
+        cat_label = ctk.CTkLabel(self, text="Category:*")
+        cat_label.grid(row=row, column=0, padx=10, pady=10, sticky="w")
+
+        # Load categories from ingredients
+        categories = sorted(set(ing.get("category", "") for ing in self.ingredients if ing.get("category")))
+
+        # F029: Apply session memory for category
+        default_category = ""
+        if not self.item and categories:
+            last_category = self.session_state.get_last_category()
+            if last_category and last_category in categories:
+                default_category = last_category
+            else:
+                default_category = categories[0] if categories else ""
+
+        self.category_combo = TypeAheadComboBox(
+            self,
+            values=categories if categories else [],
+            min_chars=1,
+            command=self._on_category_selected,
+        )
+        self.category_combo.grid(row=row, column=1, padx=10, pady=10, sticky="ew")
+        if default_category:
+            self.category_combo.set(default_category)
+        row += 1
+
+        # F029: Ingredient dropdown (type-ahead, min_chars=2, filtered by category)
         ing_label = ctk.CTkLabel(self, text="Ingredient:*")
         ing_label.grid(row=row, column=0, padx=10, pady=10, sticky="w")
 
-        ingredient_names = [ing["name"] for ing in self.ingredients]
-        default_ingredient = ingredient_names[0] if ingredient_names else ""
-        self.ingredient_var = ctk.StringVar(value=default_ingredient if not self.item else "")
-        self.ingredient_dropdown = ctk.CTkOptionMenu(
+        self.ingredient_combo = TypeAheadComboBox(
             self,
-            variable=self.ingredient_var,
-            values=ingredient_names if ingredient_names else ["No ingredients"],
-            command=self._on_ingredient_change,
+            values=[],  # Populated when category selected
+            min_chars=2,
+            command=self._on_ingredient_selected,
         )
-        self.ingredient_dropdown.grid(row=row, column=1, padx=10, pady=10, sticky="ew")
+        self.ingredient_combo.grid(row=row, column=1, padx=10, pady=10, sticky="ew")
+        self.ingredient_combo.configure(state="disabled")
+        self.selected_ingredient = None  # Track selected ingredient object
         row += 1
 
-        # Product dropdown (populated when ingredient selected)
+        # F029: Product dropdown (type-ahead, min_chars=2, filtered by ingredient)
         product_label = ctk.CTkLabel(self, text="Product:*")
         product_label.grid(row=row, column=0, padx=10, pady=10, sticky="w")
 
-        self.product_var = ctk.StringVar(value="")
-        self.product_dropdown = ctk.CTkOptionMenu(
+        self.product_combo = TypeAheadComboBox(
             self,
-            variable=self.product_var,
-            values=["Select ingredient first"],
+            values=[],  # Populated when ingredient selected
+            min_chars=2,
+            command=self._on_product_selected,
         )
-        self.product_dropdown.grid(row=row, column=1, padx=10, pady=10, sticky="ew")
-        self.product_dropdown.configure(state="disabled")
+        self.product_combo.grid(row=row, column=1, padx=10, pady=10, sticky="ew")
+        self.product_combo.configure(state="disabled")
+        self.selected_product = None  # Track selected product object
         row += 1
 
-        # Now that product_dropdown exists, we can safely call _on_ingredient_change
-        if default_ingredient and not self.item:
-            self._on_ingredient_change(default_ingredient)
+        # Trigger cascading load if category is pre-selected
+        if default_category and not self.item:
+            self._on_category_selected(default_category)
 
         # F028: Supplier dropdown (required for new items)
         # F029: Pre-select from session memory with star indicator
@@ -1129,19 +1155,81 @@ class InventoryItemFormDialog(ctk.CTkToplevel):
         )
         save_btn.grid(row=0, column=1, padx=5, pady=5, sticky="ew")
 
-    def _on_ingredient_change(self, ingredient_name: str):
-        """Handle ingredient selection change."""
-        # Find ingredient
-        ingredient = next((ing for ing in self.ingredients if ing["name"] == ingredient_name), None)
+    def _on_category_selected(self, selected_value: str):
+        """Handle category selection - load ingredients for this category (F029)."""
+        # Strip star if present
+        category = strip_star_prefix(selected_value).strip()
+        if not category:
+            return
+
+        # Load ingredients for this category using dropdown builder with recency
+        try:
+            with session_scope() as session:
+                ingredient_values = build_ingredient_dropdown_values(category, session)
+
+            self.ingredient_combo.reset_values(ingredient_values)
+            self.ingredient_combo.configure(state="normal")
+
+            # Clear downstream selections
+            self.ingredient_combo.set("")
+            self.product_combo.set("")
+            self.product_combo.configure(state="disabled")
+            self.selected_ingredient = None
+            self.selected_product = None
+
+        except Exception as e:
+            messagebox.showerror("Error", f"Failed to load ingredients: {str(e)}", parent=self)
+
+    def _on_ingredient_selected(self, selected_value: str):
+        """Handle ingredient selection - load products for this ingredient (F029)."""
+        # Handle separator selection
+        if is_separator(selected_value):
+            self.ingredient_combo.set("")
+            return
+
+        # Strip star if present
+        ingredient_name = strip_star_prefix(selected_value).strip()
+        if not ingredient_name:
+            return
+
+        # Find ingredient by display_name from our loaded ingredients
+        ingredient = next(
+            (ing for ing in self.ingredients if ing["name"] == ingredient_name),
+            None,
+        )
         if not ingredient:
             return
 
-        # Load products for this ingredient
+        self.selected_ingredient = ingredient
+
+        # Load products for this ingredient using dropdown builder with recency
         try:
+            with session_scope() as session:
+                # Find the ingredient ID
+                ing_obj = session.query(Ingredient).filter_by(
+                    display_name=ingredient_name
+                ).first()
+
+                if not ing_obj:
+                    self.product_combo.reset_values([])
+                    self.product_combo.configure(state="disabled")
+                    return
+
+                product_values = build_product_dropdown_values(ing_obj.id, session)
+
+            self.product_combo.reset_values(product_values)
+            self.product_combo.configure(state="normal")
+
+            # Clear product selection
+            self.product_combo.set("")
+            self.selected_product = None
+
+            # Also load products dict for validation
             product_objects = product_service.get_products_for_ingredient(ingredient["slug"])
             self.products = [
                 {
                     "id": p.id,
+                    "name": p.name,
                     "brand": p.brand,
                     "package_unit_quantity": p.package_unit_quantity,
                     "package_unit": p.package_unit,
@@ -1149,16 +1237,44 @@ class InventoryItemFormDialog(ctk.CTkToplevel):
                 for p in product_objects
             ]
 
-            if self.products:
-                product_names = [self._format_product_display(p) for p in self.products]
-                self.product_dropdown.configure(values=product_names, state="normal")
-                self.product_var.set(product_names[0])
-            else:
-                self.product_dropdown.configure(values=["No products available"], state="disabled")
-                self.product_var.set("No products available")
-
         except Exception as e:
             messagebox.showerror("Error", f"Failed to load products: {str(e)}", parent=self)
+
+    def _on_product_selected(self, selected_value: str):
+        """Handle product selection (F029)."""
+        # Ignore separator selection
+        if is_separator(selected_value):
+            self.product_combo.set("")
+            return
+
+        # Check for create new option (placeholder for WP08)
+        if is_create_new_option(selected_value):
+            # TODO: WP08 will implement inline product creation
+            self.product_combo.set("")
+            messagebox.showinfo(
+                "Coming Soon",
+                "Inline product creation will be available in a future update.",
+                parent=self,
+            )
+            return
+
+        # Strip star if present
+        product_name = strip_star_prefix(selected_value).strip()
+        if not product_name:
+            return
+
+        # Find product by name from our loaded products
+        product = next(
+            (p for p in self.products
+             if p.get("brand") == product_name
+             or self._format_product_display(p) == selected_value.replace("⭐ ", "")),
+            None,
+        )
+
+        if product:
+            self.selected_product = product
+            # Trigger price hint update
+            self._on_supplier_change(self.supplier_var.get())
 
     def _format_product_display(self, product: dict) -> str:
         """Format a product dictionary into a human-readable label."""
@@ -1180,12 +1296,23 @@ class InventoryItemFormDialog(ctk.CTkToplevel):
         return display_name
 
     def _get_selected_product_id(self) -> Optional[int]:
-        """Get product_id from current product dropdown selection (F028)."""
-        product_display = self.product_var.get().strip()
-        if not product_display or product_display in ["Select ingredient first", "No products available"]:
+        """Get product_id from current product dropdown selection (F028, F029)."""
+        # F029: Use tracked selected_product from type-ahead combo
+        if self.selected_product:
+            return self.selected_product.get("id")
+
+        # Fallback: try to match from combo value
+        product_display = self.product_combo.get().strip()
+        if not product_display:
             return None
+
+        # Strip star prefix if present
+        product_display = strip_star_prefix(product_display)
+
         product = next(
-            (p for p in self.products if self._format_product_display(p) == product_display),
+            (p for p in self.products
+             if self._format_product_display(p) == product_display
+             or p.get("brand") == product_display),
             None,
         )
         return product["id"] if product else None
@@ -1244,10 +1371,23 @@ class InventoryItemFormDialog(ctk.CTkToplevel):
             return
 
         try:
+            # F029: For editing, we need to set category first, then ingredient, then product
             ingredient_name = self.item.get("ingredient_name")
             if ingredient_name:
-                self.ingredient_var.set(ingredient_name)
-                self._on_ingredient_change(ingredient_name)
+                # Find the category for this ingredient
+                ingredient = next(
+                    (ing for ing in self.ingredients if ing["name"] == ingredient_name),
+                    None,
+                )
+                if ingredient:
+                    category = ingredient.get("category", "")
+                    if category:
+                        self.category_combo.set(category)
+                        self._on_category_selected(category)
+
+                    # Set ingredient
+                    self.ingredient_combo.set(ingredient_name)
+                    self._on_ingredient_selected(ingredient_name)
 
             product_id = self.item.get("product_id")
             display = None
@@ -1255,9 +1395,10 @@ class InventoryItemFormDialog(ctk.CTkToplevel):
                 for product in self.products:
                     if product["id"] == product_id:
                         display = self._format_product_display(product)
+                        self.selected_product = product
                         break
             if display:
-                self.product_var.set(display)
+                self.product_combo.set(display)
 
             # Set quantity
             self.quantity_entry.delete(0, "end")
@@ -1287,9 +1428,10 @@ class InventoryItemFormDialog(ctk.CTkToplevel):
                 self.notes_text.delete("1.0", "end")
                 self.notes_text.insert("1.0", notes)
 
-            # Prevent editing immutable fields
-            self.ingredient_dropdown.configure(state="disabled")
-            self.product_dropdown.configure(state="disabled")
+            # Prevent editing immutable fields (F029: use combo boxes)
+            self.category_combo.configure(state="disabled")
+            self.ingredient_combo.configure(state="disabled")
+            self.product_combo.configure(state="disabled")
             self.purchase_date_entry.configure(state="disabled")
 
         except Exception as e:
@@ -1299,24 +1441,26 @@ class InventoryItemFormDialog(ctk.CTkToplevel):
         """Validate and save form data."""
         from decimal import Decimal
 
-        # Get values
-        ingredient_name = self.ingredient_var.get().strip()
-        product_display = self.product_var.get().strip()
+        # Get values (F029: use combo boxes)
+        category = strip_star_prefix(self.category_combo.get()).strip()
+        ingredient_name = strip_star_prefix(self.ingredient_combo.get()).strip()
+        product_display = strip_star_prefix(self.product_combo.get()).strip()
         quantity_str = self.quantity_entry.get().strip()
         purchase_date_str = self.purchase_date_entry.get().strip()
         expiration_date_str = self.expiration_date_entry.get().strip()
         location = self.location_entry.get().strip()
         notes = self.notes_text.get("1.0", "end").strip()
 
-        # Validate required fields
-        if not ingredient_name or ingredient_name == "No ingredients":
+        # Validate required fields (F029: check for category too)
+        if not category:
+            messagebox.showerror("Validation Error", "Please select a category", parent=self)
+            return
+
+        if not ingredient_name:
             messagebox.showerror("Validation Error", "Please select an ingredient", parent=self)
             return
 
-        if not product_display or product_display in [
-            "Select ingredient first",
-            "No products available",
-        ]:
+        if not product_display or is_separator(product_display) or is_create_new_option(product_display):
             messagebox.showerror("Validation Error", "Please select a product", parent=self)
             return
 
@@ -1446,9 +1590,11 @@ class InventoryItemFormDialog(ctk.CTkToplevel):
             self.result["notes"] = notes
 
         # F029: Update session state on successful add (not edit)
-        if not is_editing and supplier_id:
-            self.session_state.update_supplier(supplier_id)
-            # Category update will be added by WP06 when category dropdown is implemented
+        if not is_editing:
+            if supplier_id:
+                self.session_state.update_supplier(supplier_id)
+            if category:
+                self.session_state.update_category(category)
 
         self.destroy()
 
