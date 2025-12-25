@@ -1,0 +1,9 @@
+id,finding,source_id,date_captured,relevance,notes
+E001,Session state should be UI-layer singleton,S001,2025-12-24,High,User confirmed during planning interrogation
+E002,TypeAheadComboBox as reusable widget,S001,2025-12-24,High,User confirmed pragmatic approach
+E003,Recency queries extend inventory_item_service,S001,2025-12-24,High,Co-located with inventory logic
+E004,Hybrid recency: 30 days OR 3+ in 90 days,S002,2025-12-24,High,Captures both recent and frequent patterns
+E005,Inline product creation uses accordion pattern,S002,2025-12-24,High,Maintains workflow continuity
+E006,Category-to-unit defaults configurable,S002,2025-12-24,Medium,All defaults editable by user
+E007,Price suggestions with two-tier fallback,S002,2025-12-24,High,Primary supplier then any supplier
+E008,No database schema changes required,S003,2025-12-24,High,All new structures are in-memory
