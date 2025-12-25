@@ -10,10 +10,10 @@ subtasks:
   - "T033"
 title: "Dropdown Builder Functions"
 phase: "Phase 1 - Widgets"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "claude"
+shell_pid: "33920"
 review_status: ""
 reviewed_by: ""
 history:
@@ -343,3 +343,4 @@ pytest src/tests -v -k "dropdown_builder"
 ## Activity Log
 
 - 2025-12-24T23:15:00Z – system – lane=planned – Prompt created.
+- 2025-12-25T05:09:43Z – claude – shell_pid=33920 – lane=doing – Starting implementation
