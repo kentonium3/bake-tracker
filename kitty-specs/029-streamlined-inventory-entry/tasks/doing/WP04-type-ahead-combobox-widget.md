@@ -11,10 +11,10 @@ subtasks:
   - "T026"
 title: "TypeAheadComboBox Widget"
 phase: "Phase 1 - Widgets"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "claude"
+shell_pid: "33920"
 review_status: ""
 reviewed_by: ""
 history:
@@ -331,3 +331,4 @@ Note: Full widget tests may require Tk root. Focus on algorithm tests.
 ## Activity Log
 
 - 2025-12-24T23:15:00Z – system – lane=planned – Prompt created.
+- 2025-12-25T05:06:12Z – claude – shell_pid=33920 – lane=doing – Starting implementation

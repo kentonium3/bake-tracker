@@ -16,6 +16,7 @@ from src.ui.widgets.data_table import (
     EventDataTable,
 )
 from src.ui.widgets.event_card import EventCard
+from src.ui.widgets.type_ahead_combobox import TypeAheadComboBox
 
 __all__ = [
     # Base widget
@@ -34,4 +35,6 @@ __all__ = [
     "PackageDataTable",
     "RecipientDataTable",
     "EventDataTable",
+    # Feature 029 widgets
+    "TypeAheadComboBox",
 ]
