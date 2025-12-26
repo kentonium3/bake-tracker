@@ -1,0 +1,9 @@
+id,source_type,path_or_url,description,accessed_date
+1,code,src/services/catalog_import_service.py,Catalog import service with slug-based FK resolution,2025-12-25
+2,code,src/services/import_export_service.py,Existing import/export service (monolithic),2025-12-25
+3,code,src/utils/import_export_cli.py,Existing CLI with argparse,2025-12-25
+4,code,src/ui/import_export_dialog.py,Existing import/export UI dialogs,2025-12-25
+5,code,src/models/,Entity models for FK analysis,2025-12-25
+6,doc,docs/design/F030_enhanced_export_import.md,Original design document (reference only),2025-12-25
+7,doc,CLAUDE.md,Session management warnings and patterns,2025-12-25
+8,doc,.kittify/memory/constitution.md,Project constitution and principles,2025-12-25

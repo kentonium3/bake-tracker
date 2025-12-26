@@ -72,6 +72,7 @@ class MainWindow(ctk.CTk):
         file_menu.add_command(label="Export Data...", command=self._show_export_dialog)
         file_menu.add_separator()
         file_menu.add_command(label="Import Catalog...", command=self._show_catalog_import_dialog)
+        file_menu.add_command(label="Import View...", command=self._show_import_view_dialog)
         file_menu.add_separator()
         file_menu.add_command(label="Exit", command=self._on_exit)
         self.menu_bar.add_cascade(label="File", menu=file_menu)
@@ -245,6 +246,58 @@ class MainWindow(ctk.CTk):
             # Catalog import was successful - refresh affected tabs
             self._refresh_catalog_tabs()
             self.update_status("Catalog import completed. Data refreshed.")
+
+    def _show_import_view_dialog(self):
+        """Show the import view dialog (F030)."""
+        from src.ui.import_export_dialog import ImportViewDialog, ImportResultsDialog, _write_import_log
+        from src.ui.fk_resolution_dialog import UIFKResolver
+        from src.services.enhanced_import_service import import_view
+
+        # Show file/mode selection dialog
+        dialog = ImportViewDialog(self)
+        self.wait_window(dialog)
+
+        if dialog.confirmed and dialog.file_path:
+            # Set up UI FK resolver for interactive resolution
+            resolver = UIFKResolver(self)
+
+            # Show progress indicator
+            self.update_status("Importing view data... Please wait.")
+            self.update()
+
+            try:
+                # Perform the import with interactive FK resolution
+                result = import_view(
+                    dialog.file_path,
+                    mode=dialog.mode,
+                    resolver=resolver,
+                )
+
+                # Get summary and write log
+                summary_text = result.get_summary()
+                log_path = _write_import_log(dialog.file_path, result, summary_text)
+
+                # Show results dialog
+                results_dialog = ImportResultsDialog(
+                    self,
+                    title="Import View Complete",
+                    summary_text=summary_text,
+                    log_path=log_path,
+                )
+                results_dialog.wait_window()
+
+                # Refresh affected tabs
+                self._refresh_catalog_tabs()
+                self.update_status("View import completed successfully. Data refreshed.")
+
+            except Exception as e:
+                from tkinter import messagebox
+                messagebox.showerror(
+                    "Import Failed",
+                    f"An error occurred during import:\n{str(e)}",
+                    parent=self,
+                )
+                self.update_status("View import failed.")
 
     def _refresh_catalog_tabs(self):
         """Refresh tabs that may have been affected by catalog import."""

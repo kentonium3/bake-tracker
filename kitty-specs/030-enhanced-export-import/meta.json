@@ -1,0 +1,40 @@
+{
+  "accept_commit": null,
+  "acceptance_history": [
+    {
+      "accepted_at": "2025-12-26T03:51:52Z",
+      "accepted_by": "claude",
+      "accepted_from_commit": "72dee2b479baafb7dfc7cedb26a57062d171101f",
+      "branch": "030-enhanced-export-import",
+      "mode": "local",
+      "validation_commands": [
+        "pytest (108 tests passed)"
+      ]
+    }
+  ],
+  "acceptance_mode": "local",
+  "accepted_at": "2025-12-26T03:51:52Z",
+  "accepted_by": "claude",
+  "accepted_from_commit": "72dee2b479baafb7dfc7cedb26a57062d171101f",
+  "created_at": "2025-12-25T18:39:01Z",
+  "feature_number": "030",
+  "friendly_name": "Enhanced Export/Import System",
+  "merge_history": [
+    {
+      "merge_commit": "3d82f2c1ec87fcfc0514ad1372e0ca28e8ae4054",
+      "merged_at": "2025-12-26T03:53:47Z",
+      "merged_by": "Kent Gale",
+      "pushed": true,
+      "strategy": "merge",
+      "target": "main"
+    }
+  ],
+  "merged_at": "2025-12-26T03:53:47Z",
+  "merged_by": "Kent Gale",
+  "merged_commit": "3d82f2c1ec87fcfc0514ad1372e0ca28e8ae4054",
+  "merged_into": "main",
+  "merged_push": true,
+  "merged_strategy": "merge",
+  "slug": "030-enhanced-export-import",
+  "source_description": "See docs/design/F030_enhanced_export_import.md for the feature specification."
+}

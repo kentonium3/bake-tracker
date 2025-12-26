@@ -1,0 +1,9 @@
+id,date,source,finding,relevance,decision_impact
+1,2025-12-25,src/services/catalog_import_service.py,Uses session=None pattern with _impl functions for transactional composition,HIGH,All new services must follow this pattern
+2,2025-12-25,src/services/catalog_import_service.py,FK resolution via slug field not ID,HIGH,Use slug-based resolution in enhanced import
+3,2025-12-25,src/services/catalog_import_service.py,CatalogImportResult with structured ImportError objects,MEDIUM,Adopt this result pattern for enhanced import
+4,2025-12-25,src/services/import_export_service.py,Per-entity export functions with ExportResult class,MEDIUM,Follow pattern for coordinated export
+5,2025-12-25,src/utils/import_export_cli.py,Uses argparse with subcommands,MEDIUM,Extend existing CLI rather than create new
+6,2025-12-25,src/ui/import_export_dialog.py,Modal dialogs with transient/grab_set pattern,MEDIUM,Follow for FK resolution dialogs
+7,2025-12-25,src/models/product.py,Product has no single unique key - uses composite,HIGH,Handle ambiguous product matching
+8,2025-12-25,docs/design/F030_enhanced_export_import.md,Original design doc proposes 4 new services,REFERENCE,Design doc is reference only - derive from codebase
