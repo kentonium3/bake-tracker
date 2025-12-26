@@ -8,7 +8,7 @@ subtasks:
   - "T041"
 title: "UI Integration"
 phase: "Phase 3 - UI Integration"
-lane: "for_review"
+lane: "done"
 assignee: ""
 agent: "system"
 shell_pid: ""
@@ -298,3 +298,4 @@ Integrate import view functionality into main application UI.
 - 2025-12-25T14:00:00Z - system - lane=planned - Prompt created.
 - 2025-12-26T02:59:42Z – system – shell_pid= – lane=doing – Moved to doing
 - 2025-12-26T03:04:27Z – system – shell_pid= – lane=for_review – Moved to for_review
+- 2025-12-26T03:38:42Z – system – shell_pid= – lane=done – Code review passed: Menu item, dialog, FK resolver integration all work
