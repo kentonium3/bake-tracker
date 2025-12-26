@@ -79,6 +79,8 @@ class MainWindow(ctk.CTk):
 
         # Tools menu
         tools_menu = tk.Menu(self.menu_bar, tearoff=0)
+        tools_menu.add_command(label="Manage Suppliers...", command=self._show_manage_suppliers)
+        tools_menu.add_separator()
         tools_menu.add_command(label="Service Health Check...", command=self._show_service_health_check)
         self.menu_bar.add_cascade(label="Tools", menu=tools_menu)
 
@@ -307,6 +309,19 @@ class MainWindow(ctk.CTk):
         self.recipes_tab.refresh()
         # Inventory tab may show products, refresh it too
         self.inventory_tab.refresh()
+
+    def _show_manage_suppliers(self):
+        """Show the manage suppliers dialog."""
+        from src.ui.forms.manage_suppliers_dialog import ManageSuppliersDialog
+
+        dialog = ManageSuppliersDialog(self)
+        self.wait_window(dialog)
+
+        if dialog.result:
+            # Suppliers may have changed - refresh tabs that use supplier data
+            self.products_tab.refresh()
+            self.inventory_tab.refresh()
+            self.update_status("Supplier data updated.")
 
     def _show_service_health_check(self):
         """Show service integration health status."""

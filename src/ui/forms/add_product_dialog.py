@@ -63,7 +63,7 @@ class AddProductDialog(ctk.CTkToplevel):
 
         # Window configuration
         self.title("Add Product" if not product_id else "Edit Product")
-        self.geometry("500x550")
+        self.geometry("500x620")
         self.resizable(False, False)
 
         # Make dialog modal
@@ -119,12 +119,12 @@ class AddProductDialog(ctk.CTkToplevel):
             text="Add Product" if not self.product_id else "Edit Product",
             font=ctk.CTkFont(size=18, weight="bold"),
         )
-        title_label.grid(row=row, column=0, columnspan=2, padx=20, pady=(20, 15), sticky="w")
+        title_label.grid(row=row, column=0, columnspan=2, padx=20, pady=(20, 10), sticky="w")
         row += 1
 
         # Product Name (required)
         name_label = ctk.CTkLabel(self, text="Product Name *")
-        name_label.grid(row=row, column=0, padx=(20, 10), pady=10, sticky="w")
+        name_label.grid(row=row, column=0, padx=(20, 10), pady=5, sticky="w")
 
         self.name_var = ctk.StringVar()
         self.name_entry = ctk.CTkEntry(
@@ -133,12 +133,12 @@ class AddProductDialog(ctk.CTkToplevel):
             width=280,
             placeholder_text="e.g., All-Purpose Flour 25lb",
         )
-        self.name_entry.grid(row=row, column=1, padx=(0, 20), pady=10, sticky="w")
+        self.name_entry.grid(row=row, column=1, padx=(0, 20), pady=5, sticky="w")
         row += 1
 
         # Brand (optional)
         brand_label = ctk.CTkLabel(self, text="Brand")
-        brand_label.grid(row=row, column=0, padx=(20, 10), pady=10, sticky="w")
+        brand_label.grid(row=row, column=0, padx=(20, 10), pady=5, sticky="w")
 
         self.brand_var = ctk.StringVar()
         self.brand_entry = ctk.CTkEntry(
@@ -147,12 +147,12 @@ class AddProductDialog(ctk.CTkToplevel):
             width=280,
             placeholder_text="e.g., King Arthur",
         )
-        self.brand_entry.grid(row=row, column=1, padx=(0, 20), pady=10, sticky="w")
+        self.brand_entry.grid(row=row, column=1, padx=(0, 20), pady=5, sticky="w")
         row += 1
 
         # Package Unit (required)
         unit_label = ctk.CTkLabel(self, text="Package Unit *")
-        unit_label.grid(row=row, column=0, padx=(20, 10), pady=10, sticky="w")
+        unit_label.grid(row=row, column=0, padx=(20, 10), pady=5, sticky="w")
 
         self.unit_var = ctk.StringVar()
         self.unit_entry = ctk.CTkEntry(
@@ -161,12 +161,12 @@ class AddProductDialog(ctk.CTkToplevel):
             width=280,
             placeholder_text="e.g., lb, oz, each, bag",
         )
-        self.unit_entry.grid(row=row, column=1, padx=(0, 20), pady=10, sticky="w")
+        self.unit_entry.grid(row=row, column=1, padx=(0, 20), pady=5, sticky="w")
         row += 1
 
         # Package Quantity (required)
         qty_label = ctk.CTkLabel(self, text="Package Quantity *")
-        qty_label.grid(row=row, column=0, padx=(20, 10), pady=10, sticky="w")
+        qty_label.grid(row=row, column=0, padx=(20, 10), pady=5, sticky="w")
 
         self.quantity_var = ctk.StringVar()
         self.quantity_entry = ctk.CTkEntry(
@@ -175,12 +175,12 @@ class AddProductDialog(ctk.CTkToplevel):
             width=280,
             placeholder_text="e.g., 25 (for 25 lb bag)",
         )
-        self.quantity_entry.grid(row=row, column=1, padx=(0, 20), pady=10, sticky="w")
+        self.quantity_entry.grid(row=row, column=1, padx=(0, 20), pady=5, sticky="w")
         row += 1
 
         # Ingredient (required)
         ing_label = ctk.CTkLabel(self, text="Ingredient *")
-        ing_label.grid(row=row, column=0, padx=(20, 10), pady=10, sticky="w")
+        ing_label.grid(row=row, column=0, padx=(20, 10), pady=5, sticky="w")
 
         self.ingredient_var = ctk.StringVar()
         ingredient_names = sorted(self.ingredients_map.keys())
@@ -191,14 +191,14 @@ class AddProductDialog(ctk.CTkToplevel):
             command=self._on_ingredient_change,
             width=280,
         )
-        self.ingredient_dropdown.grid(row=row, column=1, padx=(0, 20), pady=10, sticky="w")
+        self.ingredient_dropdown.grid(row=row, column=1, padx=(0, 20), pady=5, sticky="w")
         if not ingredient_names:
             self.ingredient_dropdown.configure(state="disabled")
         row += 1
 
         # Category (read-only, auto-populated)
         cat_label = ctk.CTkLabel(self, text="Category")
-        cat_label.grid(row=row, column=0, padx=(20, 10), pady=10, sticky="w")
+        cat_label.grid(row=row, column=0, padx=(20, 10), pady=5, sticky="w")
 
         self.category_var = ctk.StringVar(value="(Select ingredient)")
         self.category_label = ctk.CTkLabel(
@@ -207,12 +207,12 @@ class AddProductDialog(ctk.CTkToplevel):
             width=280,
             anchor="w",
         )
-        self.category_label.grid(row=row, column=1, padx=(0, 20), pady=10, sticky="w")
+        self.category_label.grid(row=row, column=1, padx=(0, 20), pady=5, sticky="w")
         row += 1
 
         # Preferred Supplier (optional)
         sup_label = ctk.CTkLabel(self, text="Preferred Supplier")
-        sup_label.grid(row=row, column=0, padx=(20, 10), pady=10, sticky="w")
+        sup_label.grid(row=row, column=0, padx=(20, 10), pady=5, sticky="w")
 
         self.supplier_var = ctk.StringVar(value="None")
         supplier_names = ["None"] + sorted(self.suppliers_map.keys())
@@ -222,12 +222,40 @@ class AddProductDialog(ctk.CTkToplevel):
             values=supplier_names,
             width=280,
         )
-        self.supplier_dropdown.grid(row=row, column=1, padx=(0, 20), pady=10, sticky="w")
+        self.supplier_dropdown.grid(row=row, column=1, padx=(0, 20), pady=5, sticky="w")
+        row += 1
+
+        # GTIN (optional)
+        gtin_label = ctk.CTkLabel(self, text="GTIN")
+        gtin_label.grid(row=row, column=0, padx=(20, 10), pady=5, sticky="w")
+
+        self.gtin_var = ctk.StringVar()
+        self.gtin_entry = ctk.CTkEntry(
+            self,
+            textvariable=self.gtin_var,
+            width=280,
+            placeholder_text="e.g., 071012010615",
+        )
+        self.gtin_entry.grid(row=row, column=1, padx=(0, 20), pady=5, sticky="w")
+        row += 1
+
+        # UPC (optional)
+        upc_label = ctk.CTkLabel(self, text="UPC")
+        upc_label.grid(row=row, column=0, padx=(20, 10), pady=5, sticky="w")
+
+        self.upc_var = ctk.StringVar()
+        self.upc_entry = ctk.CTkEntry(
+            self,
+            textvariable=self.upc_var,
+            width=280,
+            placeholder_text="e.g., 012345678901",
+        )
+        self.upc_entry.grid(row=row, column=1, padx=(0, 20), pady=5, sticky="w")
         row += 1
 
         # Buttons
         button_frame = ctk.CTkFrame(self)
-        button_frame.grid(row=row, column=0, columnspan=2, padx=20, pady=30, sticky="ew")
+        button_frame.grid(row=row, column=0, columnspan=2, padx=20, pady=20, sticky="ew")
         button_frame.grid_columnconfigure(0, weight=1)
         button_frame.grid_columnconfigure(1, weight=1)
 
@@ -320,6 +348,8 @@ class AddProductDialog(ctk.CTkToplevel):
                     package_unit_quantity=float(self.quantity_var.get()),
                     ingredient_id=ingredient["id"],
                     preferred_supplier_id=supplier_id,
+                    gtin=self.gtin_var.get().strip() or None,
+                    upc_code=self.upc_var.get().strip() or None,
                 )
                 messagebox.showinfo(
                     "Success",
@@ -335,6 +365,8 @@ class AddProductDialog(ctk.CTkToplevel):
                     package_unit_quantity=float(self.quantity_var.get()),
                     preferred_supplier_id=supplier_id,
                     brand=self.brand_var.get().strip() or None,
+                    gtin=self.gtin_var.get().strip() or None,
+                    upc_code=self.upc_var.get().strip() or None,
                 )
                 messagebox.showinfo(
                     "Success",
@@ -378,6 +410,10 @@ class AddProductDialog(ctk.CTkToplevel):
             package_qty = product.get("package_unit_quantity") or product.get("package_quantity")
             if package_qty:
                 self.quantity_var.set(str(package_qty))
+
+            # GTIN and UPC
+            self.gtin_var.set(product.get("gtin", "") or "")
+            self.upc_var.set(product.get("upc_code", "") or "")
 
             # Find and set ingredient
             ingredient_id = product.get("ingredient_id")

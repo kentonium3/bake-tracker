@@ -102,52 +102,71 @@ class ProductDetailDialog(ctk.CTkToplevel):
         )
         self.status_label.grid(row=1, column=0, columnspan=4, padx=15, pady=(0, 15), sticky="w")
 
-        # Details grid
+        # Details grid (tighter spacing with pady=3)
         row = 2
 
-        # Brand
+        # ID and Brand
+        ctk.CTkLabel(info_frame, text="ID:", anchor="e").grid(
+            row=row, column=0, padx=(15, 5), pady=3, sticky="e"
+        )
+        self.id_label = ctk.CTkLabel(info_frame, text="", anchor="w")
+        self.id_label.grid(row=row, column=1, padx=5, pady=3, sticky="w")
+
         ctk.CTkLabel(info_frame, text="Brand:", anchor="e").grid(
-            row=row, column=0, padx=(15, 5), pady=5, sticky="e"
+            row=row, column=2, padx=(15, 5), pady=3, sticky="e"
         )
         self.brand_label = ctk.CTkLabel(info_frame, text="", anchor="w")
-        self.brand_label.grid(row=row, column=1, padx=5, pady=5, sticky="w")
+        self.brand_label.grid(row=row, column=3, padx=(5, 15), pady=3, sticky="w")
+        row += 1
 
-        # Ingredient
+        # GTIN and Ingredient
+        ctk.CTkLabel(info_frame, text="GTIN:", anchor="e").grid(
+            row=row, column=0, padx=(15, 5), pady=3, sticky="e"
+        )
+        self.gtin_label = ctk.CTkLabel(info_frame, text="", anchor="w")
+        self.gtin_label.grid(row=row, column=1, padx=5, pady=3, sticky="w")
+
         ctk.CTkLabel(info_frame, text="Ingredient:", anchor="e").grid(
-            row=row, column=2, padx=(15, 5), pady=5, sticky="e"
+            row=row, column=2, padx=(15, 5), pady=3, sticky="e"
         )
         self.ingredient_label = ctk.CTkLabel(info_frame, text="", anchor="w")
-        self.ingredient_label.grid(row=row, column=3, padx=(5, 15), pady=5, sticky="w")
+        self.ingredient_label.grid(row=row, column=3, padx=(5, 15), pady=3, sticky="w")
         row += 1
 
-        # Category
+        # UPC and Category
+        ctk.CTkLabel(info_frame, text="UPC:", anchor="e").grid(
+            row=row, column=0, padx=(15, 5), pady=3, sticky="e"
+        )
+        self.upc_label = ctk.CTkLabel(info_frame, text="", anchor="w")
+        self.upc_label.grid(row=row, column=1, padx=5, pady=3, sticky="w")
+
         ctk.CTkLabel(info_frame, text="Category:", anchor="e").grid(
-            row=row, column=0, padx=(15, 5), pady=5, sticky="e"
+            row=row, column=2, padx=(15, 5), pady=3, sticky="e"
         )
         self.category_label = ctk.CTkLabel(info_frame, text="", anchor="w")
-        self.category_label.grid(row=row, column=1, padx=5, pady=5, sticky="w")
-
-        # Package
-        ctk.CTkLabel(info_frame, text="Package:", anchor="e").grid(
-            row=row, column=2, padx=(15, 5), pady=5, sticky="e"
-        )
-        self.package_label = ctk.CTkLabel(info_frame, text="", anchor="w")
-        self.package_label.grid(row=row, column=3, padx=(5, 15), pady=5, sticky="w")
+        self.category_label.grid(row=row, column=3, padx=(5, 15), pady=3, sticky="w")
         row += 1
 
-        # Preferred Supplier
+        # Package and Preferred Supplier
+        ctk.CTkLabel(info_frame, text="Package:", anchor="e").grid(
+            row=row, column=0, padx=(15, 5), pady=3, sticky="e"
+        )
+        self.package_label = ctk.CTkLabel(info_frame, text="", anchor="w")
+        self.package_label.grid(row=row, column=1, padx=5, pady=3, sticky="w")
+
         ctk.CTkLabel(info_frame, text="Preferred Supplier:", anchor="e").grid(
-            row=row, column=0, padx=(15, 5), pady=5, sticky="e"
+            row=row, column=2, padx=(15, 5), pady=3, sticky="e"
         )
         self.supplier_label = ctk.CTkLabel(info_frame, text="", anchor="w")
-        self.supplier_label.grid(row=row, column=1, padx=5, pady=5, sticky="w")
+        self.supplier_label.grid(row=row, column=3, padx=(5, 15), pady=3, sticky="w")
+        row += 1
 
-        # Last Price
+        # Last Price (single field, last row)
         ctk.CTkLabel(info_frame, text="Last Price:", anchor="e").grid(
-            row=row, column=2, padx=(15, 5), pady=5, sticky="e"
+            row=row, column=0, padx=(15, 5), pady=(3, 10), sticky="e"
         )
         self.price_label = ctk.CTkLabel(info_frame, text="", anchor="w")
-        self.price_label.grid(row=row, column=3, padx=(5, 15), pady=(5, 15), sticky="w")
+        self.price_label.grid(row=row, column=1, padx=5, pady=(3, 10), sticky="w")
 
     def _setup_buttons(self):
         """Create action buttons."""
@@ -301,9 +320,21 @@ class ProductDetailDialog(ctk.CTkToplevel):
         else:
             self.status_label.configure(text="")
 
+        # ID
+        product_id = self.product.get("id", "")
+        self.id_label.configure(text=str(product_id) if product_id else "N/A")
+
         # Brand
         brand = self.product.get("brand", "")
         self.brand_label.configure(text=brand if brand else "N/A")
+
+        # GTIN
+        gtin = self.product.get("gtin", "")
+        self.gtin_label.configure(text=gtin if gtin else "(none)")
+
+        # UPC
+        upc = self.product.get("upc_code", "")
+        self.upc_label.configure(text=upc if upc else "(none)")
 
         # Ingredient
         ingredient = self.product.get("ingredient_name", "")

@@ -199,6 +199,8 @@ def create_product(
     package_unit_quantity: float,
     preferred_supplier_id: Optional[int] = None,
     brand: Optional[str] = None,
+    gtin: Optional[str] = None,
+    upc_code: Optional[str] = None,
     session: Optional[Session] = None,
 ) -> Dict[str, Any]:
     """Create a new product (FR-001, FR-002).
@@ -210,6 +212,8 @@ def create_product(
         package_unit_quantity: Quantity per package
         preferred_supplier_id: Optional preferred supplier ID
         brand: Optional brand name
+        gtin: Optional GS1 GTIN barcode
+        upc_code: Optional UPC barcode
         session: Optional database session
 
     Returns:
@@ -229,12 +233,12 @@ def create_product(
     if session is not None:
         return _create_product_impl(
             product_name, ingredient_id, package_unit, package_unit_quantity,
-            preferred_supplier_id, brand, session
+            preferred_supplier_id, brand, gtin, upc_code, session
         )
     with session_scope() as session:
         return _create_product_impl(
             product_name, ingredient_id, package_unit, package_unit_quantity,
-            preferred_supplier_id, brand, session
+            preferred_supplier_id, brand, gtin, upc_code, session
         )
 
 
@@ -245,6 +249,8 @@ def _create_product_impl(
     package_unit_quantity: float,
     preferred_supplier_id: Optional[int],
     brand: Optional[str],
+    gtin: Optional[str],
+    upc_code: Optional[str],
     session: Session,
 ) -> Dict[str, Any]:
     """Implementation of create_product."""
@@ -255,6 +261,8 @@ def _create_product_impl(
         package_unit_quantity=package_unit_quantity,
         preferred_supplier_id=preferred_supplier_id,
         brand=brand,
+        gtin=gtin,
+        upc_code=upc_code,
         is_hidden=False,
     )
     session.add(product)
@@ -300,7 +308,8 @@ def _update_product_impl(product_id: int, session: Session, **kwargs) -> Dict[st
 
     allowed_fields = {
         "product_name", "ingredient_id", "package_unit",
-        "package_unit_quantity", "preferred_supplier_id", "brand"
+        "package_unit_quantity", "preferred_supplier_id", "brand",
+        "gtin", "upc_code"
     }
     for key, value in kwargs.items():
         if key in allowed_fields:
