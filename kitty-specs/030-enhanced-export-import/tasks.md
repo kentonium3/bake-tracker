@@ -22,12 +22,12 @@
 **Prompt**: `tasks/planned/WP01-coordinated-export-service.md`
 
 ### Included Subtasks
-- [ ] T001 Create ExportManifest and FileEntry dataclasses in `src/services/coordinated_export_service.py`
-- [ ] T002 [P] Implement per-entity export functions with FK resolution fields (id + slug/name)
-- [ ] T003 Implement manifest generation with SHA256 checksums
-- [ ] T004 Implement dependency ordering logic for import order
-- [ ] T005 Implement ZIP archive creation
-- [ ] T006 Write unit tests in `src/tests/services/test_coordinated_export.py`
+- [x] T001 Create ExportManifest and FileEntry dataclasses in `src/services/coordinated_export_service.py`
+- [x] T002 [P] Implement per-entity export functions with FK resolution fields (id + slug/name)
+- [x] T003 Implement manifest generation with SHA256 checksums
+- [x] T004 Implement dependency ordering logic for import order
+- [x] T005 Implement ZIP archive creation
+- [x] T006 Write unit tests in `src/tests/services/test_coordinated_export.py`
 
 ### Implementation Notes
 1. Follow session=None pattern from `catalog_import_service.py`
@@ -54,11 +54,11 @@
 **Prompt**: `tasks/planned/WP02-denormalized-export-service.md`
 
 ### Included Subtasks
-- [ ] T007 [P] Implement `export_products_view()` with ingredient/supplier context in `src/services/denormalized_export_service.py`
-- [ ] T008 [P] Implement `export_inventory_view()` with product/purchase context
-- [ ] T009 [P] Implement `export_purchases_view()` with product/supplier context
-- [ ] T010 Add `_meta.editable_fields` and `_meta.readonly_fields` to all view exports
-- [ ] T011 Write unit tests in `src/tests/services/test_denormalized_export.py`
+- [x] T007 [P] Implement `export_products_view()` with ingredient/supplier context in `src/services/denormalized_export_service.py`
+- [x] T008 [P] Implement `export_inventory_view()` with product/purchase context
+- [x] T009 [P] Implement `export_purchases_view()` with product/supplier context
+- [x] T010 Add `_meta.editable_fields` and `_meta.readonly_fields` to all view exports
+- [x] T011 Write unit tests in `src/tests/services/test_denormalized_export.py`
 
 ### Implementation Notes
 1. Views are read-only aggregations - no session modifications
@@ -84,10 +84,10 @@
 **Prompt**: `tasks/planned/WP03-export-cli-commands.md`
 
 ### Included Subtasks
-- [ ] T012 Add `export-complete` command with --output and --zip flags to `src/utils/import_export_cli.py`
-- [ ] T013 Add `export-view` command with --type flag (products, inventory, purchases)
-- [ ] T014 Add `validate-export` command for manifest checksum verification
-- [ ] T015 Write CLI smoke tests
+- [x] T012 Add `export-complete` command with --output and --zip flags to `src/utils/import_export_cli.py`
+- [x] T013 Add `export-view` command with --type flag (products, inventory, purchases)
+- [x] T014 Add `validate-export` command for manifest checksum verification
+- [x] T015 Write CLI smoke tests
 
 ### Implementation Notes
 1. Follow existing argparse patterns in import_export_cli.py
@@ -113,12 +113,12 @@
 **Prompt**: `tasks/planned/WP04-fk-resolver-service.md`
 
 ### Included Subtasks
-- [ ] T016 Create ResolutionChoice enum and MissingFK/Resolution dataclasses in `src/services/fk_resolver_service.py`
-- [ ] T017 Define FKResolverCallback protocol for pluggable resolution strategies
-- [ ] T018 Implement `resolve_missing_fks()` core logic with dependency ordering
-- [ ] T019 Implement entity creation support (Supplier, Ingredient, Product)
-- [ ] T020 Implement fuzzy search for "map to existing" option using existing entity lookups
-- [ ] T021 Write unit tests in `src/tests/services/test_fk_resolver.py`
+- [x] T016 Create ResolutionChoice enum and MissingFK/Resolution dataclasses in `src/services/fk_resolver_service.py`
+- [x] T017 Define FKResolverCallback protocol for pluggable resolution strategies
+- [x] T018 Implement `resolve_missing_fks()` core logic with dependency ordering
+- [x] T019 Implement entity creation support (Supplier, Ingredient, Product)
+- [x] T020 Implement fuzzy search for "map to existing" option using existing entity lookups
+- [x] T021 Write unit tests in `src/tests/services/test_fk_resolver.py`
 
 ### Implementation Notes
 1. Use session=None pattern for transactional composition
@@ -145,14 +145,14 @@
 **Prompt**: `tasks/planned/WP05-enhanced-import-service.md`
 
 ### Included Subtasks
-- [ ] T022 Create EnhancedImportResult extending ImportResult in `src/services/enhanced_import_service.py`
-- [ ] T023 Implement FK resolution via slug/name matching (not ID)
-- [ ] T024 Implement merge mode (update existing, add new)
-- [ ] T025 Implement skip_existing mode (only add new records)
-- [ ] T026 Implement dry_run mode via session rollback
-- [ ] T027 Implement skip-on-error mode with logging to `import_skipped_{timestamp}.json`
-- [ ] T028 Integrate FK resolver for missing reference handling
-- [ ] T029 Write unit tests in `src/tests/services/test_enhanced_import.py`
+- [x] T022 Create EnhancedImportResult extending ImportResult in `src/services/enhanced_import_service.py`
+- [x] T023 Implement FK resolution via slug/name matching (not ID)
+- [x] T024 Implement merge mode (update existing, add new)
+- [x] T025 Implement skip_existing mode (only add new records)
+- [x] T026 Implement dry_run mode via session rollback
+- [x] T027 Implement skip-on-error mode with logging to `import_skipped_{timestamp}.json`
+- [x] T028 Integrate FK resolver for missing reference handling
+- [x] T029 Write unit tests in `src/tests/services/test_enhanced_import.py`
 
 ### Implementation Notes
 1. Follow patterns from catalog_import_service.py
@@ -179,9 +179,9 @@
 **Prompt**: `tasks/planned/WP06-import-cli-commands.md`
 
 ### Included Subtasks
-- [ ] T030 Add `import-view` command with --mode, --interactive, --skip-on-error, --dry-run flags to `src/utils/import_export_cli.py`
-- [ ] T031 Implement CLI interactive FK resolution prompts (text-based menu)
-- [ ] T032 Write CLI smoke tests
+- [x] T030 Add `import-view` command with --mode, --interactive, --skip-on-error, --dry-run flags to `src/utils/import_export_cli.py`
+- [x] T031 Implement CLI interactive FK resolution prompts (text-based menu)
+- [x] T032 Write CLI smoke tests
 
 ### Implementation Notes
 1. --interactive shows text prompts: "Missing supplier 'X'. [C]reate, [M]ap, [S]kip?"
@@ -207,10 +207,10 @@
 **Prompt**: `tasks/planned/WP07-fk-resolution-dialog.md`
 
 ### Included Subtasks
-- [ ] T033 Create FKResolutionDialog with create/map/skip options in `src/ui/fk_resolution_dialog.py`
-- [ ] T034 Implement fuzzy search dropdown for "map to existing" option
-- [ ] T035 Implement entity creation form for "create new" (Supplier: name, city, state, zip)
-- [ ] T036 Handle user cancellation with keep/rollback confirmation per clarification
+- [x] T033 Create FKResolutionDialog with create/map/skip options in `src/ui/fk_resolution_dialog.py`
+- [x] T034 Implement fuzzy search dropdown for "map to existing" option
+- [x] T035 Implement entity creation form for "create new" (Supplier: name, city, state, zip)
+- [x] T036 Handle user cancellation with keep/rollback confirmation per clarification
 
 ### Implementation Notes
 1. Follow modal dialog patterns from import_export_dialog.py
@@ -236,11 +236,11 @@
 **Prompt**: `tasks/planned/WP08-ui-integration.md`
 
 ### Included Subtasks
-- [ ] T037 Add File > Import > Import View menu item in `src/ui/main_window.py`
-- [ ] T038 Create import view dialog with file chooser and mode selection in `src/ui/import_export_dialog.py`
-- [ ] T039 Integrate FK resolution wizard into import flow
-- [ ] T040 Show results summary dialog after import (reuse ImportResultsDialog)
-- [ ] T041 Manual UI testing of complete import flow
+- [x] T037 Add File > Import > Import View menu item in `src/ui/main_window.py`
+- [x] T038 Create import view dialog with file chooser and mode selection in `src/ui/import_export_dialog.py`
+- [x] T039 Integrate FK resolution wizard into import flow
+- [x] T040 Show results summary dialog after import (reuse ImportResultsDialog)
+- [x] T041 Manual UI testing of complete import flow
 
 ### Implementation Notes
 1. Wire menu item to new import view dialog

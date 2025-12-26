@@ -10,7 +10,7 @@ subtasks:
 title: "FK Resolver Service"
 phase: "Phase 2 - Import Services"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude"
 shell_pid: "65041"
 review_status: ""

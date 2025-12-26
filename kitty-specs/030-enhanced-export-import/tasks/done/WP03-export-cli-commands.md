@@ -7,9 +7,9 @@ subtasks:
   - "T015"
 title: "Export CLI Commands"
 phase: "Phase 1 - Export Services"
-lane: "planned"
-assignee: ""
-agent: ""
+lane: "done"
+assignee: "gemini"
+agent: "gemini"
 shell_pid: ""
 review_status: ""
 reviewed_by: ""
@@ -187,3 +187,4 @@ Add CLI commands for coordinated and denormalized export operations.
 ## Activity Log
 
 - 2025-12-25T14:00:00Z - system - lane=planned - Prompt created.
+- 2025-12-26T03:48:10Z – system – shell_pid= – lane=done – Implementation complete by Gemini CLI, reviewed and tests pass
