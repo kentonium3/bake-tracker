@@ -1,7 +1,7 @@
 # Feature Roadmap
 
 **Created:** 2025-12-03
-**Last Updated:** 2025-12-24
+**Last Updated:** 2025-12-25
 **Workflow:** Spec-Kitty driven development
 
 ---
@@ -39,12 +39,15 @@
 | 026 | Deferred Packaging Decisions | MERGED | Generic packaging at planning time, deferred material assignment, EventPackagingRequirement and EventPackagingAssignment tables, assembly definition with material assignment interface. |
 | 027 | Product Catalog Management | MERGED | Products tab with CRUD operations, filtering, purchase history. Supplier entity, preferred_supplier on Product, is_hidden flag. |
 | 028 | Purchase Tracking & Enhanced Costing | MERGED | Purchase entity, price history queries, FIFO using Purchase.unit_price, InventoryAddition.purchase_id FK, supplier dropdown in Add Inventory dialog. |
+| 029 | Streamlined Inventory Entry | MERGED | Type-ahead filtering, recency intelligence, session memory, inline product creation, smart defaults, enhanced price display. |
 
 ---
 
 ## In Progress
 
-*No features currently in progress.*
+| # | Name | Status | Started |
+|---|------|--------|---------|
+| 030 | Enhanced Export/Import System | IN PROGRESS | 2025-12-25 |
 
 ---
 
@@ -52,15 +55,13 @@
 
 | # | Name | Priority | Dependencies | Status |
 |---|------|----------|--------------|--------|
-| 029 | Streamlined Inventory Entry | HIGH | Features 027, 028 | Ready |
-| 030 | Enhanced Export/Import System | HIGH | Features 027, 028 | Ready |
 | 031 | Packaging & Distribution | LOW | User testing complete | Blocked |
 
 ---
 
 ## Implementation Order
 
-**Current:** None - awaiting next feature
+**Current:** Feature 030 - Enhanced Export/Import System
 
 1. ~~**TD-001** - Clean foundation before adding new entities~~ ✅ COMPLETE
 2. ~~**Feature 011** - Packaging materials, extend Composition for packaging~~ ✅ COMPLETE
@@ -83,8 +84,8 @@
 19. ~~**Feature 026** - Deferred Packaging Decisions~~ ✅ COMPLETE
 20. ~~**Feature 027** - Product Catalog Management~~ ✅ COMPLETE
 21. ~~**Feature 028** - Purchase Tracking & Enhanced Costing~~ ✅ COMPLETE
-22. **Feature 029** - Streamlined Inventory Entry
-23. **Feature 030** - Enhanced Export/Import System
+22. ~~**Feature 029** - Streamlined Inventory Entry~~ ✅ COMPLETE
+23. **Feature 030** - Enhanced Export/Import System (IN PROGRESS)
 24. **Feature 031** - Packaging & Distribution
 
 ---
@@ -93,7 +94,7 @@
 
 ### Feature 030: Enhanced Export/Import System
 
-**Status:** READY 📋
+**Status:** IN PROGRESS 🚧 (Started 2025-12-25)
 
 **Dependencies:** Features 027 (Product Catalog Management), 028 (Purchase Tracking & Enhanced Costing)
 
@@ -162,7 +163,7 @@
 
 ### Feature 029: Streamlined Inventory Entry
 
-**Status:** READY 📋
+**Status:** COMPLETE ✅ (Merged 2025-12-25)
 
 **Dependencies:** Features 027 (Product Catalog Management), 028 (Purchase Tracking & Enhanced Costing)
 
@@ -170,7 +171,7 @@
 
 **Solution:** Transform inventory entry from tedious data entry into intelligent, flow-optimized experience using enhanced ingredient-first workflow with type-ahead, recency ranking, session memory, and inline product creation.
 
-**Scope:**
+**Delivered:**
 - Type-ahead filtering on Category/Ingredient/Product dropdowns (1-2 char thresholds, contains matching)
 - Recency intelligence: Recent/frequent items marked with ⭐ and sorted to top (last 30 days OR 3+ uses in 90 days)
 - Session memory: Last supplier/category pre-selected (persists until app restart)
@@ -575,6 +576,11 @@ This prevents safe catalog expansion without risking user data.
 
 ## Key Decisions
 
+### 2025-12-25
+- **Feature 029 Complete:** Streamlined Inventory Entry merged. Type-ahead filtering, recency intelligence, session memory, inline product creation, smart defaults, enhanced price display.
+- **Feature 030 In Progress:** Enhanced Export/Import System implementation started. Coordinated export/import with denormalized views for AI augmentation, interactive FK resolution, skip-on-error mode.
+- **Three-Feature Product/Inventory Sequence Complete:** F027 (Product Catalog Management - foundation) + F028 (Purchase Tracking & Enhanced Costing - data model) + F029 (Streamlined Inventory Entry - workflow) all merged. Complete "I just shopped at Costco with 20 items" use case fully operational.
+
 ### 2025-12-24
 - **Feature Renumbering:** Enhanced Export/Import System moved from F031 to F030. Packaging & Distribution moved from F030 to F031.
 - **Feature 030 Defined:** Enhanced Export/Import System specification complete. Coordinated export/import with denormalized views for AI augmentation, interactive FK resolution, skip-on-error mode.
@@ -582,7 +588,6 @@ This prevents safe catalog expansion without risking user data.
 - **Feature 027 Complete:** Product Catalog Management merged. Products tab with CRUD operations, filtering, purchase history display, Supplier entity, preferred_supplier on Product, is_hidden flag.
 - **Feature 028 Complete:** Purchase Tracking & Enhanced Costing merged. Purchase entity, price history queries, FIFO using Purchase.unit_price, InventoryAddition.purchase_id FK, supplier dropdown in Add Inventory dialog, price suggestions.
 - **Feature 029 Ready:** Streamlined Inventory Entry specification complete. Enhanced ingredient-first workflow with type-ahead, recency ranking, session memory, inline product creation.
-- **Three-Feature Product/Inventory Sequence Complete:** F027 (foundation) + F028 (data model) + F029 (workflow) addresses complete "I just shopped at Costco with 20 items" use case. F027 & F028 merged, F029 ready for implementation.
 
 ### 2025-12-21
 - **Feature 025 Complete:** Production Loss Tracking merged. Tracks burnt/broken/contaminated/dropped losses, yield balance constraint, ProductionLoss table for analytics, UI auto-calculation, expandable loss details section, cost breakdown, waste reporting.
@@ -687,3 +692,4 @@ Part B: Ingredient.name → Ingredient.display_name ✅
 - 2025-12-21: Feature 025 (Production Loss Tracking) defined. Design document created. Feature 025 implementation complete and merged. Features renumbered: 025 = Production Loss Tracking (complete), 026 = Deferred Packaging Decisions (ready), 027 = Packaging & Distribution (blocked).
 - 2025-12-22: Feature 026 (Deferred Packaging Decisions) assumed complete. Feature 027 (Product Catalog Management) defined with comprehensive specification. Three-feature product/inventory workflow sequence: 027 (Product Catalog Management - foundation), 028 (Purchase Tracking & Enhanced Costing - data model), 029 (Streamlined Inventory Entry - workflow). Features renumbered: 026 = Deferred Packaging Decisions (complete), 027 = Product Catalog Management (ready), 028/029 = Purchase/Inventory features (planned), 030 = Packaging & Distribution (blocked).
 - 2025-12-24: Features 026, 027, 028 complete and merged. Feature 030 (Enhanced Export/Import System) defined with comprehensive specification. Feature renumbering: Enhanced Export/Import moved from F031 to F030, Packaging & Distribution moved from F030 to F031. F029 (Streamlined Inventory Entry) ready, F030 (Enhanced Export/Import) ready.
+- 2025-12-25: Feature 029 (Streamlined Inventory Entry) complete and merged. Type-ahead filtering, recency intelligence, session memory, inline product creation operational. Feature 030 (Enhanced Export/Import System) implementation started. Three-feature product/inventory sequence (F027+F028+F029) complete.
