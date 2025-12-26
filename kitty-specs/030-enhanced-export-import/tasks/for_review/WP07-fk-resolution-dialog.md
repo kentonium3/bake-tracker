@@ -7,9 +7,9 @@ subtasks:
   - "T036"
 title: "FK Resolution Dialog"
 phase: "Phase 3 - UI Integration"
-lane: "planned"
+lane: "for_review"
 assignee: ""
-agent: ""
+agent: "system"
 shell_pid: ""
 review_status: ""
 reviewed_by: ""
@@ -292,3 +292,5 @@ Create UI dialog for interactive FK resolution during import.
 ## Activity Log
 
 - 2025-12-25T14:00:00Z - system - lane=planned - Prompt created.
+- 2025-12-26T02:57:09Z – system – shell_pid= – lane=doing – Moved to doing
+- 2025-12-26T02:59:35Z – system – shell_pid= – lane=for_review – Moved to for_review

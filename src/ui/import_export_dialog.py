@@ -554,3 +554,156 @@ class ExportDialog(ctk.CTkToplevel):
 
         # Generic fallback
         return f"An error occurred during export:\n{error_str}"
+
+
+class ImportViewDialog(ctk.CTkToplevel):
+    """Dialog for importing a denormalized view file (F030).
+
+    Provides file selection and mode selection before import.
+    Interactive FK resolution is enabled by default for UI.
+    """
+
+    def __init__(self, parent):
+        """Initialize the import view dialog.
+
+        Args:
+            parent: Parent window
+        """
+        super().__init__(parent)
+        self.title("Import View")
+        self.geometry("500x350")
+        self.resizable(False, False)
+
+        self.file_path: str = None
+        self.mode: str = "merge"
+        self.confirmed: bool = False
+
+        self._setup_ui()
+
+        # Modal behavior
+        self.transient(parent)
+        self.grab_set()
+
+        # Center on parent
+        self.update_idletasks()
+        x = parent.winfo_x() + (parent.winfo_width() - self.winfo_width()) // 2
+        y = parent.winfo_y() + (parent.winfo_height() - self.winfo_height()) // 2
+        self.geometry(f"+{x}+{y}")
+
+        # Bind Escape key
+        self.bind("<Escape>", lambda e: self.destroy())
+
+    def _setup_ui(self):
+        """Set up the dialog UI."""
+        # Title
+        title_label = ctk.CTkLabel(
+            self,
+            text="Import View",
+            font=ctk.CTkFont(size=20, weight="bold"),
+        )
+        title_label.pack(pady=(20, 10))
+
+        # Instructions
+        instructions = ctk.CTkLabel(
+            self,
+            text="Import a denormalized view file (JSON format).\n"
+            "Missing references will be resolved interactively.",
+            font=ctk.CTkFont(size=12),
+            justify="center",
+        )
+        instructions.pack(pady=(0, 15))
+
+        # File selection frame
+        file_frame = ctk.CTkFrame(self)
+        file_frame.pack(fill="x", padx=20, pady=10)
+
+        ctk.CTkLabel(file_frame, text="File:").pack(anchor="w", padx=10, pady=(10, 5))
+
+        file_inner = ctk.CTkFrame(file_frame, fg_color="transparent")
+        file_inner.pack(fill="x", padx=10, pady=(0, 10))
+
+        self.file_entry = ctk.CTkEntry(file_inner, width=320, state="readonly")
+        self.file_entry.pack(side="left", padx=(0, 10))
+
+        browse_btn = ctk.CTkButton(
+            file_inner,
+            text="Browse...",
+            width=80,
+            command=self._browse_file,
+        )
+        browse_btn.pack(side="left")
+
+        # Mode selection frame
+        mode_frame = ctk.CTkFrame(self)
+        mode_frame.pack(fill="x", padx=20, pady=10)
+
+        ctk.CTkLabel(
+            mode_frame,
+            text="Import Mode:",
+            font=ctk.CTkFont(weight="bold"),
+        ).pack(anchor="w", padx=10, pady=(10, 5))
+
+        self.mode_var = ctk.StringVar(value="merge")
+
+        ctk.CTkRadioButton(
+            mode_frame,
+            text="Merge (update existing, add new)",
+            variable=self.mode_var,
+            value="merge",
+        ).pack(anchor="w", padx=20, pady=2)
+
+        ctk.CTkRadioButton(
+            mode_frame,
+            text="Skip Existing (add new only)",
+            variable=self.mode_var,
+            value="skip_existing",
+        ).pack(anchor="w", padx=20, pady=(2, 10))
+
+        # Button frame
+        btn_frame = ctk.CTkFrame(self, fg_color="transparent")
+        btn_frame.pack(fill="x", padx=20, pady=20)
+
+        self.import_btn = ctk.CTkButton(
+            btn_frame,
+            text="Import",
+            width=100,
+            command=self._on_import,
+        )
+        self.import_btn.pack(side="right", padx=(10, 0))
+
+        cancel_btn = ctk.CTkButton(
+            btn_frame,
+            text="Cancel",
+            width=100,
+            fg_color="gray",
+            command=self.destroy,
+        )
+        cancel_btn.pack(side="right")
+
+    def _browse_file(self):
+        """Open file browser to select view file."""
+        file_path = filedialog.askopenfilename(
+            title="Select View File",
+            filetypes=[("JSON files", "*.json"), ("All files", "*.*")],
+            parent=self,
+        )
+        if file_path:
+            self.file_path = file_path
+            self.file_entry.configure(state="normal")
+            self.file_entry.delete(0, "end")
+            self.file_entry.insert(0, file_path)
+            self.file_entry.configure(state="readonly")
+
+    def _on_import(self):
+        """Handle import button click."""
+        if not self.file_path:
+            messagebox.showwarning(
+                "No File Selected",
+                "Please select a file to import.",
+                parent=self,
+            )
+            return
+
+        self.confirmed = True
+        self.mode = self.mode_var.get()
+        self.destroy()
