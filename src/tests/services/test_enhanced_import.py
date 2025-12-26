@@ -40,7 +40,7 @@ def unique_id():
 
 
 @pytest.fixture
-def sample_ingredient(unique_id):
+def sample_ingredient(test_db, unique_id):
     """Create a sample ingredient in the database."""
     with session_scope() as session:
         ingredient = Ingredient(
@@ -59,7 +59,7 @@ def sample_ingredient(unique_id):
 
 
 @pytest.fixture
-def sample_supplier(unique_id):
+def sample_supplier(test_db, unique_id):
     """Create a sample supplier in the database."""
     with session_scope() as session:
         supplier = Supplier(
@@ -80,7 +80,7 @@ def sample_supplier(unique_id):
 
 
 @pytest.fixture
-def sample_product(sample_ingredient, unique_id):
+def sample_product(test_db, sample_ingredient, unique_id):
     """Create a sample product in the database."""
     with session_scope() as session:
         product = Product(
@@ -321,19 +321,19 @@ class TestResolveFkBySlug:
             result = _resolve_fk_by_slug("supplier", sample_supplier["name"], session)
             assert result == sample_supplier["id"]
 
-    def test_resolve_nonexistent_returns_none(self):
+    def test_resolve_nonexistent_returns_none(self, test_db):
         """Test that nonexistent slugs return None."""
         with session_scope() as session:
             result = _resolve_fk_by_slug("ingredient", "nonexistent_slug", session)
             assert result is None
 
-    def test_resolve_empty_slug_returns_none(self):
+    def test_resolve_empty_slug_returns_none(self, test_db):
         """Test that empty slug returns None."""
         with session_scope() as session:
             result = _resolve_fk_by_slug("ingredient", "", session)
             assert result is None
 
-    def test_resolve_product_returns_none(self):
+    def test_resolve_product_returns_none(self, test_db):
         """Test that product resolution returns None (needs composite key)."""
         with session_scope() as session:
             result = _resolve_fk_by_slug("product", "any_value", session)
@@ -379,7 +379,7 @@ class TestFindExistingBySlug:
             assert result is not None
             assert result.brand == sample_product["brand"]
 
-    def test_find_nonexistent_returns_none(self):
+    def test_find_nonexistent_returns_none(self, test_db):
         """Test that nonexistent entity returns None."""
         with session_scope() as session:
             record = {"ingredient_slug": "nonexistent"}
@@ -390,7 +390,7 @@ class TestFindExistingBySlug:
 class TestCollectMissingFksForView:
     """Tests for _collect_missing_fks_for_view."""
 
-    def test_collect_missing_ingredient_fk(self, unique_id):
+    def test_collect_missing_ingredient_fk(self, test_db, unique_id):
         """Test collecting missing ingredient FK references."""
         records = [
             {
@@ -450,7 +450,7 @@ class TestCollectMissingFksForView:
 
         assert len(missing) == 0
 
-    def test_sample_records_limited_to_3(self, unique_id):
+    def test_sample_records_limited_to_3(self, test_db, unique_id):
         """Test that sample_records is limited to 3 records."""
         records = [
             {
@@ -477,14 +477,14 @@ class TestCollectMissingFksForView:
 class TestImportViewBasic:
     """Basic tests for import_view function."""
 
-    def test_import_file_not_found(self, tmp_path):
+    def test_import_file_not_found(self, test_db, tmp_path):
         """Test import with non-existent file."""
         result = import_view(str(tmp_path / "nonexistent.json"))
 
         assert result.failed == 1
         assert "File not found" in result.errors[0]["message"]
 
-    def test_import_invalid_json(self, tmp_path):
+    def test_import_invalid_json(self, test_db, tmp_path):
         """Test import with invalid JSON file."""
         file_path = tmp_path / "invalid.json"
         file_path.write_text("not valid json")
@@ -494,7 +494,7 @@ class TestImportViewBasic:
         assert result.failed == 1
         assert "Invalid JSON" in result.errors[0]["message"]
 
-    def test_import_missing_view_type(self, tmp_path):
+    def test_import_missing_view_type(self, test_db, tmp_path):
         """Test import with missing view_type."""
         file_path = tmp_path / "missing_type.json"
         file_path.write_text('{"records": []}')
@@ -504,7 +504,7 @@ class TestImportViewBasic:
         assert result.failed == 1
         assert "Missing view_type" in result.errors[0]["message"]
 
-    def test_import_empty_records(self, tmp_path):
+    def test_import_empty_records(self, test_db, tmp_path):
         """Test import with empty records."""
         file_path = tmp_path / "empty.json"
         file_path.write_text('{"view_type": "products", "records": []}')
@@ -728,7 +728,7 @@ class TestImportViewSkipOnError:
         assert result.successful >= 1
         assert result.skipped_due_to_fk >= 1
 
-    def test_skip_on_error_writes_log_file(self, tmp_path, unique_id):
+    def test_skip_on_error_writes_log_file(self, test_db, tmp_path, unique_id):
         """Test that skip_on_error writes skipped records log."""
         view_data = {
             "version": "1.0",
@@ -767,7 +767,7 @@ class TestImportViewFKResolution:
     """Tests for FK resolution integration."""
 
     def test_import_fails_with_missing_fk_and_no_resolver(
-        self, view_file_with_missing_fk
+        self, test_db, view_file_with_missing_fk
     ):
         """Test that import fails with missing FK and no resolver."""
         result = import_view(view_file_with_missing_fk, mode="merge")
@@ -775,7 +775,7 @@ class TestImportViewFKResolution:
         assert result.failed >= 1
         assert "Missing foreign key" in result.errors[0]["message"]
 
-    def test_import_with_resolver_create(self, tmp_path, unique_id):
+    def test_import_with_resolver_create(self, test_db, tmp_path, unique_id):
         """Test import with FK resolver choosing CREATE."""
         # Create a view with missing ingredient
         view_data = {
@@ -816,7 +816,7 @@ class TestImportViewFKResolution:
         assert mock_resolver.resolve.called
         assert result.created_entities.get("ingredient", 0) >= 1
 
-    def test_import_with_resolver_skip(self, tmp_path, unique_id):
+    def test_import_with_resolver_skip(self, test_db, tmp_path, unique_id):
         """Test import with FK resolver choosing SKIP."""
         view_data = {
             "version": "1.0",

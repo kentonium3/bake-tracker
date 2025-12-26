@@ -88,7 +88,7 @@ def sample_product_data(sample_ingredient_data):
 
 
 @pytest.fixture
-def existing_ingredient(sample_ingredient_data):
+def existing_ingredient(test_db, sample_ingredient_data):
     """Create an ingredient in the database for FK tests."""
     with session_scope() as session:
         ingredient = Ingredient(
@@ -103,7 +103,7 @@ def existing_ingredient(sample_ingredient_data):
 
 
 @pytest.fixture
-def existing_supplier(sample_supplier_data):
+def existing_supplier(test_db, sample_supplier_data):
     """Create a supplier in the database for FK tests."""
     with session_scope() as session:
         supplier = Supplier(
@@ -241,7 +241,7 @@ class TestResolution:
 class TestCreateSupplier:
     """Tests for _create_supplier function."""
 
-    def test_create_supplier_success(self, sample_supplier_data):
+    def test_create_supplier_success(self, test_db, sample_supplier_data):
         """Test successful supplier creation."""
         with session_scope() as session:
             supplier_id = _create_supplier(sample_supplier_data, session)
@@ -255,7 +255,7 @@ class TestCreateSupplier:
             assert supplier.state == "MA"
             assert supplier.is_active is True
 
-    def test_create_supplier_normalizes_state(self):
+    def test_create_supplier_normalizes_state(self, test_db):
         """Test that state is normalized to uppercase."""
         with session_scope() as session:
             data = {
@@ -268,7 +268,7 @@ class TestCreateSupplier:
             supplier = session.get(Supplier, supplier_id)
             assert supplier.state == "OR"
 
-    def test_create_supplier_missing_required_field(self):
+    def test_create_supplier_missing_required_field(self, test_db):
         """Test that missing required fields raise EntityCreationError."""
         with session_scope() as session:
             data = {"name": "Incomplete Supplier"}  # Missing city, state, zip
@@ -281,7 +281,7 @@ class TestCreateSupplier:
 class TestCreateIngredient:
     """Tests for _create_ingredient function."""
 
-    def test_create_ingredient_success(self):
+    def test_create_ingredient_success(self, test_db):
         """Test successful ingredient creation."""
         import uuid
         unique_id = str(uuid.uuid4())[:8]
@@ -298,7 +298,7 @@ class TestCreateIngredient:
             assert ingredient.slug == data["slug"]
             assert ingredient.display_name == data["display_name"]
 
-    def test_create_ingredient_missing_slug(self):
+    def test_create_ingredient_missing_slug(self, test_db):
         """Test that missing slug raises EntityCreationError."""
         with session_scope() as session:
             data = {"display_name": "No Slug", "category": "Testing"}
@@ -339,7 +339,7 @@ class TestCreateProduct:
             product = session.get(Product, product_id)
             assert product.ingredient_id == existing_ingredient
 
-    def test_create_product_missing_ingredient(self):
+    def test_create_product_missing_ingredient(self, test_db):
         """Test that missing ingredient raises error."""
         with session_scope() as session:
             data = {
@@ -403,7 +403,7 @@ class TestFindSimilarEntities:
             )
             assert len(results) >= 1
 
-    def test_find_similar_no_matches(self):
+    def test_find_similar_no_matches(self, test_db):
         """Test that no matches returns empty list."""
         with session_scope() as session:
             results = find_similar_entities(
@@ -428,7 +428,7 @@ class TestFindSimilarEntities:
 class TestResolveMissingFks:
     """Tests for resolve_missing_fks function."""
 
-    def test_skip_resolution_no_mapping(self):
+    def test_skip_resolution_no_mapping(self, test_db):
         """Test that SKIP resolution creates no mapping entry."""
         missing = [
             MissingFK(
@@ -474,7 +474,7 @@ class TestResolveMissingFks:
         assert mapping["supplier"]["Some Supplier"] == existing_supplier
         assert resolutions[0].choice == ResolutionChoice.MAP
 
-    def test_create_resolution_creates_entity(self):
+    def test_create_resolution_creates_entity(self, test_db):
         """Test that CREATE resolution creates entity and stores ID."""
         missing = [
             MissingFK(
@@ -511,7 +511,7 @@ class TestResolveMissingFks:
             assert supplier.name == "New Vendor"
             assert supplier.city == "Chicago"
 
-    def test_dependency_ordering(self):
+    def test_dependency_ordering(self, test_db):
         """Test that suppliers/ingredients are resolved before products."""
         missing = [
             MissingFK(
@@ -547,7 +547,7 @@ class TestResolveMissingFks:
         assert supplier_idx < product_idx
         assert ingredient_idx < product_idx
 
-    def test_resolver_called_for_each_missing(self):
+    def test_resolver_called_for_each_missing(self, test_db):
         """Test that resolver is called once for each missing FK."""
         missing = [
             MissingFK(
@@ -638,7 +638,7 @@ class TestCollectMissingFks:
         assert "supplier" in entity_types
         assert "ingredient" in entity_types
 
-    def test_sample_records_limited_to_three(self):
+    def test_sample_records_limited_to_three(self, test_db):
         """Test that sample_records is limited to 3."""
         records = [
             {"supplier_name": "Missing Supplier", "id": i}
