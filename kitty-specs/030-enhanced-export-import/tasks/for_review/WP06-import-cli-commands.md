@@ -6,9 +6,9 @@ subtasks:
   - "T032"
 title: "Import CLI Commands"
 phase: "Phase 2 - Import Services"
-lane: "planned"
+lane: "for_review"
 assignee: ""
-agent: ""
+agent: "system"
 shell_pid: ""
 review_status: ""
 reviewed_by: ""
@@ -191,3 +191,5 @@ Add CLI command for import operations with interactive FK resolution support.
 ## Activity Log
 
 - 2025-12-25T14:00:00Z - system - lane=planned - Prompt created.
+- 2025-12-26T02:45:06Z – system – shell_pid= – lane=doing – Moved to doing
+- 2025-12-26T02:55:45Z – system – shell_pid= – lane=for_review – Moved to for_review

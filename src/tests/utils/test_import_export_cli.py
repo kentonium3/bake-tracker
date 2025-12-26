@@ -24,8 +24,10 @@ from src.models.purchase import Purchase
 from src.models.supplier import Supplier
 from src.services.database import session_scope
 from src.utils.import_export_cli import (
+    CLIFKResolver,
     export_complete_cmd,
     export_view_cmd,
+    import_view_cmd,
     main,
     validate_export_cmd,
 )
@@ -57,6 +59,7 @@ def sample_data(test_db):
             name="Test Supplier",
             city="Boston",
             state="MA",
+            zip_code="02101",
         )
         session.add(supplier)
         session.flush()
@@ -379,3 +382,443 @@ class TestMainCLI:
                 result = main()
 
                 assert result == 0
+
+
+# ============================================================================
+# import-view Command Tests
+# ============================================================================
+
+
+class TestImportViewCmd:
+    """Tests for import_view_cmd function."""
+
+    def test_import_view_valid_file_merge_mode(self, test_db, sample_data, cleanup_test_data):
+        """Test import-view with valid file in merge mode (default)."""
+        with tempfile.NamedTemporaryFile(suffix=".json", delete=False, mode="w") as f:
+            # Create a simple view file with existing ingredient
+            view_data = {
+                "view_type": "products",
+                "export_date": "2025-12-25T12:00:00Z",
+                "_meta": {
+                    "editable_fields": ["product_name"],
+                },
+                "records": [
+                    {
+                        "ingredient_slug": "test_flour",
+                        "brand": "New Brand",
+                        "package_unit": "oz",
+                        "package_unit_quantity": 16.0,
+                        "product_name": "New Product",
+                    }
+                ],
+            }
+            json.dump(view_data, f)
+            temp_path = f.name
+
+        try:
+            result = import_view_cmd(temp_path, mode="merge")
+
+            assert result == 0
+
+            # Verify the product was created
+            with session_scope() as session:
+                products = session.query(Product).filter(Product.brand == "New Brand").all()
+                assert len(products) == 1
+                assert products[0].product_name == "New Product"
+
+        finally:
+            os.unlink(temp_path)
+
+    def test_import_view_skip_existing_mode(self, test_db, sample_data, cleanup_test_data):
+        """Test import-view with skip_existing mode doesn't update existing."""
+        with tempfile.NamedTemporaryFile(suffix=".json", delete=False, mode="w") as f:
+            # Create view with duplicate of existing product
+            view_data = {
+                "view_type": "products",
+                "export_date": "2025-12-25T12:00:00Z",
+                "_meta": {
+                    "editable_fields": ["product_name"],
+                },
+                "records": [
+                    {
+                        # This matches the existing product
+                        "ingredient_slug": "test_flour",
+                        "brand": "Test Brand",
+                        "package_unit": "lb",
+                        "package_unit_quantity": 5.0,
+                        "product_name": "Updated Name",
+                    }
+                ],
+            }
+            json.dump(view_data, f)
+            temp_path = f.name
+
+        try:
+            result = import_view_cmd(temp_path, mode="skip_existing")
+
+            assert result == 0
+
+            # Verify the product was NOT updated (skip_existing)
+            with session_scope() as session:
+                products = session.query(Product).filter(Product.brand == "Test Brand").all()
+                assert len(products) == 1
+                # Original product should have no product_name
+                assert products[0].product_name is None
+
+        finally:
+            os.unlink(temp_path)
+
+    def test_import_view_dry_run_no_changes(self, test_db, sample_data, cleanup_test_data):
+        """Test import-view with dry-run makes no database changes."""
+        # Count products before
+        with session_scope() as session:
+            product_count_before = session.query(Product).count()
+
+        with tempfile.NamedTemporaryFile(suffix=".json", delete=False, mode="w") as f:
+            view_data = {
+                "view_type": "products",
+                "export_date": "2025-12-25T12:00:00Z",
+                "_meta": {
+                    "editable_fields": ["product_name"],
+                },
+                "records": [
+                    {
+                        "ingredient_slug": "test_flour",
+                        "brand": "DryRun Brand",
+                        "package_unit": "oz",
+                        "package_unit_quantity": 8.0,
+                    }
+                ],
+            }
+            json.dump(view_data, f)
+            temp_path = f.name
+
+        try:
+            result = import_view_cmd(temp_path, dry_run=True)
+
+            # Should return 0 (success)
+            assert result == 0
+
+            # Verify no new product was created
+            with session_scope() as session:
+                product_count_after = session.query(Product).count()
+                assert product_count_after == product_count_before
+
+                # Double-check no "DryRun Brand" product exists
+                products = session.query(Product).filter(Product.brand == "DryRun Brand").all()
+                assert len(products) == 0
+
+        finally:
+            os.unlink(temp_path)
+
+    def test_import_view_skip_on_error_logs_failures(self, test_db, cleanup_test_data):
+        """Test import-view with skip-on-error logs skipped records."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            # Create view file with missing FK
+            view_path = Path(tmpdir) / "view.json"
+            view_data = {
+                "view_type": "products",
+                "export_date": "2025-12-25T12:00:00Z",
+                "_meta": {
+                    "editable_fields": [],
+                },
+                "records": [
+                    {
+                        "ingredient_slug": "nonexistent_ingredient",
+                        "brand": "Test Brand",
+                        "package_unit": "lb",
+                        "package_unit_quantity": 5.0,
+                    }
+                ],
+            }
+            with open(view_path, "w") as f:
+                json.dump(view_data, f)
+
+            result = import_view_cmd(str(view_path), skip_on_error=True)
+
+            # Should return 0 (no actual failures since they were skipped)
+            assert result == 0
+
+            # Verify a skipped records log was created
+            log_files = list(Path(tmpdir).glob("import_skipped_*.json"))
+            assert len(log_files) == 1
+
+            # Verify log contents
+            with open(log_files[0]) as f:
+                log_data = json.load(f)
+            assert len(log_data["skipped_records"]) > 0
+
+    def test_import_view_missing_fk_without_interactive_fails(self, test_db, cleanup_test_data):
+        """Test import-view fails on missing FK without --interactive (fail-fast default)."""
+        with tempfile.NamedTemporaryFile(suffix=".json", delete=False, mode="w") as f:
+            view_data = {
+                "view_type": "products",
+                "export_date": "2025-12-25T12:00:00Z",
+                "_meta": {
+                    "editable_fields": [],
+                },
+                "records": [
+                    {
+                        "ingredient_slug": "nonexistent_ingredient",
+                        "brand": "Test Brand",
+                        "package_unit": "lb",
+                        "package_unit_quantity": 5.0,
+                    }
+                ],
+            }
+            json.dump(view_data, f)
+            temp_path = f.name
+
+        try:
+            # No --interactive and no --skip-on-error should fail
+            result = import_view_cmd(temp_path)
+
+            # Should return 1 (failure)
+            assert result == 1
+
+        finally:
+            os.unlink(temp_path)
+
+    def test_import_view_file_not_found(self, test_db, cleanup_test_data):
+        """Test import-view returns error for missing file."""
+        result = import_view_cmd("/nonexistent/path/file.json")
+        assert result == 1
+
+    def test_import_view_invalid_json(self, test_db, cleanup_test_data):
+        """Test import-view returns error for invalid JSON."""
+        with tempfile.NamedTemporaryFile(suffix=".json", delete=False, mode="w") as f:
+            f.write("this is not valid json {{{")
+            temp_path = f.name
+
+        try:
+            result = import_view_cmd(temp_path)
+            assert result == 1
+
+        finally:
+            os.unlink(temp_path)
+
+
+# ============================================================================
+# CLIFKResolver Tests
+# ============================================================================
+
+
+class TestCLIFKResolver:
+    """Tests for CLIFKResolver class."""
+
+    def test_resolve_skip_choice(self, test_db):
+        """Test CLIFKResolver handles SKIP choice."""
+        from unittest import mock
+        from src.services.fk_resolver_service import MissingFK, ResolutionChoice
+
+        resolver = CLIFKResolver()
+
+        missing = MissingFK(
+            entity_type="supplier",
+            missing_value="Unknown Supplier",
+            field_name="supplier_name",
+            affected_record_count=3,
+            sample_records=[],
+        )
+
+        # Mock input to return "S"
+        with mock.patch("builtins.input", return_value="S"):
+            resolution = resolver.resolve(missing)
+
+        assert resolution.choice == ResolutionChoice.SKIP
+        assert resolution.entity_type == "supplier"
+        assert resolution.missing_value == "Unknown Supplier"
+
+    def test_resolve_create_supplier(self, test_db):
+        """Test CLIFKResolver handles CREATE for supplier."""
+        from unittest import mock
+        from src.services.fk_resolver_service import MissingFK, ResolutionChoice
+
+        resolver = CLIFKResolver()
+
+        missing = MissingFK(
+            entity_type="supplier",
+            missing_value="New Supplier",
+            field_name="supplier_name",
+            affected_record_count=2,
+            sample_records=[],
+        )
+
+        # Mock input sequence: C -> enter (default name) -> Boston -> MA -> 02101 -> (empty street)
+        inputs = iter(["C", "", "Boston", "MA", "02101", ""])
+        with mock.patch("builtins.input", lambda _: next(inputs)):
+            resolution = resolver.resolve(missing)
+
+        assert resolution.choice == ResolutionChoice.CREATE
+        assert resolution.entity_type == "supplier"
+        assert resolution.created_entity["name"] == "New Supplier"
+        assert resolution.created_entity["city"] == "Boston"
+        assert resolution.created_entity["state"] == "MA"
+        assert resolution.created_entity["zip_code"] == "02101"
+
+    def test_resolve_create_ingredient(self, test_db):
+        """Test CLIFKResolver handles CREATE for ingredient."""
+        from unittest import mock
+        from src.services.fk_resolver_service import MissingFK, ResolutionChoice
+
+        resolver = CLIFKResolver()
+
+        missing = MissingFK(
+            entity_type="ingredient",
+            missing_value="new_sugar",
+            field_name="ingredient_slug",
+            affected_record_count=1,
+            sample_records=[],
+        )
+
+        # Mock input sequence: C -> enter (default slug) -> Sugar -> Sweeteners -> (empty desc)
+        inputs = iter(["C", "", "Sugar", "Sweeteners", ""])
+        with mock.patch("builtins.input", lambda _: next(inputs)):
+            resolution = resolver.resolve(missing)
+
+        assert resolution.choice == ResolutionChoice.CREATE
+        assert resolution.entity_type == "ingredient"
+        assert resolution.created_entity["slug"] == "new_sugar"
+        assert resolution.created_entity["display_name"] == "Sugar"
+        assert resolution.created_entity["category"] == "Sweeteners"
+
+    def test_resolve_invalid_input_retries(self, test_db):
+        """Test CLIFKResolver retries on invalid input."""
+        from unittest import mock
+        from src.services.fk_resolver_service import MissingFK, ResolutionChoice
+
+        resolver = CLIFKResolver()
+
+        missing = MissingFK(
+            entity_type="supplier",
+            missing_value="Test",
+            field_name="supplier_name",
+            affected_record_count=1,
+            sample_records=[],
+        )
+
+        # Mock input sequence: X (invalid) -> Y (invalid) -> S (valid)
+        inputs = iter(["X", "Y", "S"])
+        with mock.patch("builtins.input", lambda _: next(inputs)):
+            resolution = resolver.resolve(missing)
+
+        assert resolution.choice == ResolutionChoice.SKIP
+
+
+# ============================================================================
+# import-view CLI Integration Tests
+# ============================================================================
+
+
+class TestImportViewCLIIntegration:
+    """Integration tests for import-view via main()."""
+
+    def test_main_import_view(self, test_db, sample_data, cleanup_test_data):
+        """Test main with import-view command."""
+        import sys
+        from unittest import mock
+
+        with tempfile.NamedTemporaryFile(suffix=".json", delete=False, mode="w") as f:
+            view_data = {
+                "view_type": "products",
+                "export_date": "2025-12-25T12:00:00Z",
+                "_meta": {
+                    "editable_fields": [],
+                },
+                "records": [
+                    {
+                        "ingredient_slug": "test_flour",
+                        "brand": "CLI Test Brand",
+                        "package_unit": "oz",
+                        "package_unit_quantity": 12.0,
+                    }
+                ],
+            }
+            json.dump(view_data, f)
+            temp_path = f.name
+
+        try:
+            with mock.patch.object(
+                sys, "argv", ["import_export_cli", "import-view", temp_path]
+            ):
+                result = main()
+
+            assert result == 0
+
+        finally:
+            os.unlink(temp_path)
+
+    def test_main_import_view_with_dry_run(self, test_db, sample_data, cleanup_test_data):
+        """Test main with import-view --dry-run command."""
+        import sys
+        from unittest import mock
+
+        with tempfile.NamedTemporaryFile(suffix=".json", delete=False, mode="w") as f:
+            view_data = {
+                "view_type": "products",
+                "export_date": "2025-12-25T12:00:00Z",
+                "_meta": {
+                    "editable_fields": [],
+                },
+                "records": [
+                    {
+                        "ingredient_slug": "test_flour",
+                        "brand": "DryRun CLI Brand",
+                        "package_unit": "oz",
+                        "package_unit_quantity": 12.0,
+                    }
+                ],
+            }
+            json.dump(view_data, f)
+            temp_path = f.name
+
+        try:
+            with mock.patch.object(
+                sys, "argv", ["import_export_cli", "import-view", temp_path, "--dry-run"]
+            ):
+                result = main()
+
+            assert result == 0
+
+            # Verify no product created
+            with session_scope() as session:
+                products = session.query(Product).filter(Product.brand == "DryRun CLI Brand").all()
+                assert len(products) == 0
+
+        finally:
+            os.unlink(temp_path)
+
+    def test_main_import_view_with_mode(self, test_db, sample_data, cleanup_test_data):
+        """Test main with import-view --mode skip_existing command."""
+        import sys
+        from unittest import mock
+
+        with tempfile.NamedTemporaryFile(suffix=".json", delete=False, mode="w") as f:
+            view_data = {
+                "view_type": "products",
+                "export_date": "2025-12-25T12:00:00Z",
+                "_meta": {
+                    "editable_fields": [],
+                },
+                "records": [
+                    {
+                        "ingredient_slug": "test_flour",
+                        "brand": "Mode Test Brand",
+                        "package_unit": "oz",
+                        "package_unit_quantity": 8.0,
+                    }
+                ],
+            }
+            json.dump(view_data, f)
+            temp_path = f.name
+
+        try:
+            with mock.patch.object(
+                sys, "argv", ["import_export_cli", "import-view", temp_path, "-m", "skip_existing"]
+            ):
+                result = main()
+
+            assert result == 0
+
+        finally:
+            os.unlink(temp_path)
