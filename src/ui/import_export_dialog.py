@@ -13,6 +13,8 @@ from tkinter import filedialog, messagebox
 import customtkinter as ctk
 
 from src.services import import_export_service
+from src.services import coordinated_export_service
+from src.services import denormalized_export_service
 
 
 def _get_logs_dir() -> Path:
@@ -400,16 +402,38 @@ class ImportDialog(ctk.CTkToplevel):
 
 
 class ExportDialog(ctk.CTkToplevel):
-    """Dialog for exporting data to a JSON file."""
+    """Dialog for exporting data with multiple export type options."""
+
+    # Export type constants
+    EXPORT_FULL_BACKUP = "full_backup"
+    EXPORT_COORDINATED = "coordinated"
+    EXPORT_VIEWS = "views"
+
+    # Descriptions for each export type
+    EXPORT_DESCRIPTIONS = {
+        EXPORT_FULL_BACKUP: (
+            "Single JSON file containing all data.\n"
+            "Best for: Complete backups, restoring to same version."
+        ),
+        EXPORT_COORDINATED: (
+            "Multiple files with manifest for referential integrity.\n"
+            "Best for: Database migrations, sharing between systems."
+        ),
+        EXPORT_VIEWS: (
+            "Denormalized view files for AI-assisted data augmentation.\n"
+            "Best for: Adding UPC codes, product names, prices via AI tools."
+        ),
+    }
 
     def __init__(self, parent):
         """Initialize the export dialog."""
         super().__init__(parent)
         self.title("Export Data")
-        self.geometry("450x250")
+        self.geometry("550x420")
         self.resizable(False, False)
 
         self.result = None
+        self.export_type = ctk.StringVar(value=self.EXPORT_FULL_BACKUP)
 
         self._setup_ui()
 
@@ -433,16 +457,56 @@ class ExportDialog(ctk.CTkToplevel):
         )
         title_label.pack(pady=(20, 10))
 
-        # Instructions
-        instructions = ctk.CTkLabel(
-            self,
-            text="Export all application data to a JSON backup file.\n"
-            "This creates a complete backup of your ingredients,\n"
-            "recipes, pantry items, events, and more.",
-            font=ctk.CTkFont(size=12),
-            justify="center",
+        # Export type selection frame
+        type_frame = ctk.CTkFrame(self)
+        type_frame.pack(fill="x", padx=20, pady=10)
+
+        type_label = ctk.CTkLabel(
+            type_frame,
+            text="Export Type:",
+            font=ctk.CTkFont(size=14, weight="bold"),
         )
-        instructions.pack(pady=(0, 20))
+        type_label.pack(anchor="w", padx=10, pady=(10, 5))
+
+        # Full Backup option
+        full_radio = ctk.CTkRadioButton(
+            type_frame,
+            text="Full Backup (single file)",
+            variable=self.export_type,
+            value=self.EXPORT_FULL_BACKUP,
+            command=self._on_type_changed,
+        )
+        full_radio.pack(anchor="w", padx=20, pady=2)
+
+        # Coordinated Export option
+        coord_radio = ctk.CTkRadioButton(
+            type_frame,
+            text="Coordinated Export (multi-file with manifest)",
+            variable=self.export_type,
+            value=self.EXPORT_COORDINATED,
+            command=self._on_type_changed,
+        )
+        coord_radio.pack(anchor="w", padx=20, pady=2)
+
+        # View Export option
+        view_radio = ctk.CTkRadioButton(
+            type_frame,
+            text="AI Augmentation Views (products, inventory, purchases)",
+            variable=self.export_type,
+            value=self.EXPORT_VIEWS,
+            command=self._on_type_changed,
+        )
+        view_radio.pack(anchor="w", padx=20, pady=(2, 10))
+
+        # Description label (updates based on selection)
+        self.description_label = ctk.CTkLabel(
+            self,
+            text=self.EXPORT_DESCRIPTIONS[self.EXPORT_FULL_BACKUP],
+            font=ctk.CTkFont(size=12),
+            justify="left",
+            wraplength=480,
+        )
+        self.description_label.pack(padx=20, pady=10, anchor="w")
 
         # Status label (for progress indication)
         self.status_label = ctk.CTkLabel(
@@ -474,13 +538,30 @@ class ExportDialog(ctk.CTkToplevel):
         )
         cancel_btn.pack(side="right")
 
+    def _on_type_changed(self):
+        """Handle export type selection change."""
+        export_type = self.export_type.get()
+        self.description_label.configure(
+            text=self.EXPORT_DESCRIPTIONS.get(export_type, "")
+        )
+
     def _do_export(self):
-        """Execute the export operation."""
-        # Default filename with date
+        """Execute the export operation based on selected type."""
+        export_type = self.export_type.get()
+
+        if export_type == self.EXPORT_FULL_BACKUP:
+            self._do_full_backup_export()
+        elif export_type == self.EXPORT_COORDINATED:
+            self._do_coordinated_export()
+        elif export_type == self.EXPORT_VIEWS:
+            self._do_views_export()
+
+    def _do_full_backup_export(self):
+        """Execute full backup export (single JSON file)."""
         default_name = f"bake-tracker-backup-{date.today().isoformat()}.json"
 
         file_path = filedialog.asksaveasfilename(
-            title="Export Data",
+            title="Export Full Backup",
             defaultextension=".json",
             initialfile=default_name,
             filetypes=[("JSON files", "*.json"), ("All files", "*.*")],
@@ -488,18 +569,13 @@ class ExportDialog(ctk.CTkToplevel):
         )
 
         if not file_path:
-            return  # User cancelled
+            return
 
-        # Show progress
-        self.status_label.configure(text="Exporting data... Please wait.")
-        self.export_btn.configure(state="disabled")
-        self.config(cursor="wait")
-        self.update()
+        self._show_progress("Exporting full backup...")
 
         try:
             result = import_export_service.export_all_to_json(file_path)
 
-            # Build success message with entity counts
             summary_lines = [f"Successfully exported {result.record_count} records."]
             if result.entity_counts:
                 summary_lines.append("")
@@ -519,31 +595,142 @@ class ExportDialog(ctk.CTkToplevel):
             self.result = result
             self.destroy()
 
-        except PermissionError:
-            messagebox.showerror(
-                "Export Failed",
-                "Unable to write to the selected location.\n"
-                "Please check that you have write permission and try again.",
-                parent=self,
-            )
         except Exception as e:
-            messagebox.showerror(
-                "Export Failed",
-                self._format_error(e),
+            self._show_error("Export Failed", e)
+        finally:
+            self._hide_progress()
+
+    def _do_coordinated_export(self):
+        """Execute coordinated export (multi-file with manifest)."""
+        # Ask for directory
+        dir_path = filedialog.askdirectory(
+            title="Select Export Directory",
+            parent=self,
+        )
+
+        if not dir_path:
+            return
+
+        # Create timestamped subdirectory
+        timestamp = datetime.now().strftime("%Y-%m-%d_%H%M%S")
+        export_dir = Path(dir_path) / f"export_{timestamp}"
+
+        self._show_progress("Exporting coordinated file set...")
+
+        try:
+            manifest = coordinated_export_service.export_complete(str(export_dir))
+
+            # Build summary
+            file_count = len(manifest.files)
+            total_records = sum(f.record_count for f in manifest.files)
+
+            summary_lines = [
+                f"Successfully exported {total_records} records",
+                f"across {file_count} files.",
+                "",
+                "Files created:",
+            ]
+            for f in manifest.files:
+                summary_lines.append(f"  {f.filename}: {f.record_count} records")
+
+            summary_lines.append("")
+            summary_lines.append(f"Export directory:\n{export_dir}")
+
+            messagebox.showinfo(
+                "Export Complete",
+                "\n".join(summary_lines),
                 parent=self,
             )
+            self.result = manifest
+            self.destroy()
+
+        except Exception as e:
+            self._show_error("Export Failed", e)
         finally:
-            # Only update widgets if dialog still exists (not destroyed after success)
-            if self.winfo_exists():
-                self.status_label.configure(text="")
-                self.export_btn.configure(state="normal")
-                self.config(cursor="")
+            self._hide_progress()
+
+    def _do_views_export(self):
+        """Execute views export (denormalized views for AI augmentation)."""
+        # Ask for directory
+        dir_path = filedialog.askdirectory(
+            title="Select Export Directory for Views",
+            parent=self,
+        )
+
+        if not dir_path:
+            return
+
+        self._show_progress("Exporting AI augmentation views...")
+
+        try:
+            result = denormalized_export_service.export_all_views(dir_path)
+
+            summary_lines = [
+                "Successfully exported denormalized views:",
+                "",
+            ]
+
+            # Show each view's results (result is a dict)
+            if "products" in result and result["products"]:
+                summary_lines.append(
+                    f"  view_products.json: {result['products'].record_count} products"
+                )
+            if "inventory" in result and result["inventory"]:
+                summary_lines.append(
+                    f"  view_inventory.json: {result['inventory'].record_count} items"
+                )
+            if "purchases" in result and result["purchases"]:
+                summary_lines.append(
+                    f"  view_purchases.json: {result['purchases'].record_count} purchases"
+                )
+
+            summary_lines.append("")
+            summary_lines.append(f"Export directory:\n{dir_path}")
+            summary_lines.append("")
+            summary_lines.append(
+                "These files can be edited (e.g., by AI tools)\n"
+                "and re-imported to update the database."
+            )
+
+            messagebox.showinfo(
+                "Export Complete",
+                "\n".join(summary_lines),
+                parent=self,
+            )
+            self.result = result
+            self.destroy()
+
+        except Exception as e:
+            self._show_error("Export Failed", e)
+        finally:
+            self._hide_progress()
+
+    def _show_progress(self, message: str):
+        """Show progress indication."""
+        self.status_label.configure(text=message)
+        self.export_btn.configure(state="disabled")
+        self.config(cursor="wait")
+        self.update()
+
+    def _hide_progress(self):
+        """Hide progress indication."""
+        if self.winfo_exists():
+            self.status_label.configure(text="")
+            self.export_btn.configure(state="normal")
+            self.config(cursor="")
+
+    def _show_error(self, title: str, e: Exception):
+        """Show error message."""
+        messagebox.showerror(
+            title,
+            self._format_error(e),
+            parent=self,
+        )
 
     def _format_error(self, e: Exception) -> str:
         """Convert exception to user-friendly message."""
         error_str = str(e)
 
-        # Handle common errors with friendly messages
         if "permission" in error_str.lower():
             return (
                 "Unable to write to the selected location.\n"
@@ -552,7 +739,6 @@ class ExportDialog(ctk.CTkToplevel):
         if "database" in error_str.lower() or "sqlite" in error_str.lower():
             return "A database error occurred while reading data for export."
 
-        # Generic fallback
         return f"An error occurred during export:\n{error_str}"
 
 
