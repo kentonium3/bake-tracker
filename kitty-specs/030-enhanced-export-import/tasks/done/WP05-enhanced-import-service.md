@@ -14,7 +14,7 @@ phase: "Phase 2 - Import Services"
 lane: "done"
 assignee: "claude"
 agent: "claude"
-shell_pid: ""
+shell_pid: "reviewed"
 review_status: ""
 reviewed_by: ""
 history:

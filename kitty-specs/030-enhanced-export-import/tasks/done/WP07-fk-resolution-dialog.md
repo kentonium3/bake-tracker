@@ -10,7 +10,7 @@ phase: "Phase 3 - UI Integration"
 lane: "done"
 assignee: "claude"
 agent: "claude"
-shell_pid: ""
+shell_pid: "reviewed"
 review_status: ""
 reviewed_by: ""
 history:

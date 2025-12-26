@@ -10,7 +10,7 @@ phase: "Phase 1 - Export Services"
 lane: "done"
 assignee: "gemini"
 agent: "gemini"
-shell_pid: ""
+shell_pid: "retroactive"
 review_status: ""
 reviewed_by: ""
 history:
