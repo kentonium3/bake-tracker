@@ -7,7 +7,7 @@ subtasks:
   - "T036"
 title: "FK Resolution Dialog"
 phase: "Phase 3 - UI Integration"
-lane: "for_review"
+lane: "done"
 assignee: ""
 agent: "system"
 shell_pid: ""
@@ -294,3 +294,4 @@ Create UI dialog for interactive FK resolution during import.
 - 2025-12-25T14:00:00Z - system - lane=planned - Prompt created.
 - 2025-12-26T02:57:09Z – system – shell_pid= – lane=doing – Moved to doing
 - 2025-12-26T02:59:35Z – system – shell_pid= – lane=for_review – Moved to for_review
+- 2025-12-26T03:38:36Z – system – shell_pid= – lane=done – Code review passed: UI dialogs implement FKResolverCallback, modal behavior correct
