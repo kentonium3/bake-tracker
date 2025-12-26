@@ -11,7 +11,7 @@ subtasks:
   - "T029"
 title: "Enhanced Import Service"
 phase: "Phase 2 - Import Services"
-lane: "for_review"
+lane: "done"
 assignee: ""
 agent: "system"
 shell_pid: ""
@@ -315,3 +315,4 @@ Import denormalized views with FK resolution, merge/skip modes, dry-run, and ski
 - 2025-12-25T14:00:00Z - system - lane=planned - Prompt created.
 - 2025-12-26T02:37:29Z – system – shell_pid= – lane=doing – Moved to doing
 - 2025-12-26T02:44:18Z – system – shell_pid= – lane=for_review – Moved to for_review
+- 2025-12-26T03:37:13Z – system – shell_pid= – lane=done – Code review passed: All 46 tests pass, session=None pattern correct, all import modes work
