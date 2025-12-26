@@ -1,6 +1,6 @@
 {
   "version": "3.5",
-  "exported_at": "2025-12-24T16:09:54.786625Z",
+  "exported_at": "2025-12-26T20:18:48.017701Z",
   "application": "bake-tracker",
   "suppliers": [
     {
@@ -12,8 +12,8 @@
       "zip_code": "00000",
       "is_active": true,
       "notes": "Default supplier for migrated inventory additions (F028)",
-      "created_at": "2025-12-24T12:40:36.594052",
-      "updated_at": "2025-12-24T12:40:36.594061"
+      "created_at": "2025-12-26T17:39:13.554852",
+      "updated_at": "2025-12-26T17:39:13.554859"
     }
   ],
   "ingredients": [
@@ -985,11 +985,11 @@
       "description": "Cream of tartar (aka potassium bitartrate)"
     },
     {
-      "display_name": "Cr\u00e8me fra\u00eeche",
+      "display_name": "Crème fraîche",
       "slug": "creme_fraiche",
       "category": "Dairy & Eggs",
       "is_packaging": false,
-      "description": "Creme fraiche (aka cr\u00e8me fra\u00eeche)",
+      "description": "Creme fraiche (aka crème fraîche)",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 8.35,
@@ -1199,7 +1199,7 @@
       "slug": "fruit_candied_mixed",
       "category": "Chocolate & Cocoa",
       "is_packaging": false,
-      "description": "Mixed candied fruit for fruitcake (aka glac\u00e9 fruit)"
+      "description": "Mixed candied fruit for fruitcake (aka glacé fruit)"
     },
     {
       "display_name": "Gelatin powder",
@@ -1491,7 +1491,7 @@
       "description": "Lime zest"
     },
     {
-      "display_name": "Cr\u00e8me de cassis",
+      "display_name": "Crème de cassis",
       "slug": "liqueur_blackcurrant",
       "category": "Liquids & Liquors",
       "is_packaging": false,
@@ -1502,7 +1502,7 @@
       "slug": "liqueur_chocolate",
       "category": "Liquids & Liquors",
       "is_packaging": false,
-      "description": "Chocolate-flavored liqueur (aka cr\u00e8me de cacao)"
+      "description": "Chocolate-flavored liqueur (aka crème de cacao)"
     },
     {
       "display_name": "Coffee Liqueur",
@@ -2175,7 +2175,7 @@
       "slug": "pineapple_candied",
       "category": "Chocolate & Cocoa",
       "is_packaging": false,
-      "description": "Candied pineapple pieces (aka glac\u00e9 pineapple)"
+      "description": "Candied pineapple pieces (aka glacé pineapple)"
     },
     {
       "display_name": "Pineapple, crushed",
@@ -2940,6 +2940,7 @@
       "brand": "King Arthur",
       "product_name": "Unbleached All-Purpose Flour",
       "package_type": "bag",
+      "gtin": "71012010615",
       "is_hidden": false
     },
     {
@@ -2966,6 +2967,7 @@
       "brand": "McCormick",
       "product_name": "Pure Almond Extract",
       "package_type": "bottle",
+      "gtin": "52100037868",
       "is_hidden": false
     },
     {
@@ -2991,6 +2993,7 @@
       "brand": "Disaronno",
       "product_name": "Disaronno Originale",
       "package_type": "bottle",
+      "gtin": "5003701450",
       "is_hidden": false
     },
     {
@@ -3000,6 +3003,7 @@
       "brand": "Rumford",
       "product_name": "Baking Powder",
       "package_type": "can",
+      "gtin": "41617002254",
       "is_hidden": false
     },
     {
@@ -3009,6 +3013,7 @@
       "brand": "Arm & Hammer",
       "product_name": "Pure Baking Soda",
       "package_type": "box",
+      "gtin": "33200011101",
       "is_hidden": false
     },
     {
@@ -3017,6 +3022,7 @@
       "package_unit_quantity": 1.0,
       "brand": "Evan Williams",
       "package_type": "bottle",
+      "gtin": "9674902124",
       "is_hidden": false
     },
     {
@@ -3026,6 +3032,7 @@
       "brand": "King Arthur",
       "product_name": "Bread Flour",
       "package_type": "bag",
+      "gtin": "071012041053",
       "is_hidden": false
     },
     {
@@ -3043,6 +3050,7 @@
       "brand": "Costco",
       "product_name": "Kirkland Signature Salted Sweet Cream Butter",
       "package_type": "box",
+      "gtin": "096619384884",
       "is_hidden": false
     },
     {
@@ -3060,6 +3068,7 @@
       "brand": "Costco",
       "product_name": "Kirkland Signature Unsalted Sweet Cream Butter",
       "package_type": "box",
+      "gtin": "096619414000",
       "is_hidden": false
     },
     {
@@ -3075,8 +3084,9 @@
       "package_unit": "oz",
       "package_unit_quantity": 11.0,
       "brand": "Nestle",
-      "product_name": "NESTL\u00c9\u00ae TOLL HOUSE\u00ae Butterscotch Artificially Flavored Morsels",
+      "product_name": "NESTLÉ® TOLL HOUSE® Butterscotch Artificially Flavored Morsels",
       "package_type": "bag",
+      "gtin": "2800021730",
       "is_hidden": false
     },
     {
@@ -3086,6 +3096,7 @@
       "brand": "King Arthur",
       "product_name": "Unbleached Cake Flour Blend",
       "package_type": "bag",
+      "gtin": "071012000043",
       "is_hidden": false
     },
     {
@@ -3105,19 +3116,12 @@
       "is_hidden": false
     },
     {
-      "ingredient_slug": "oil_canola",
-      "package_unit": "qt",
-      "package_unit_quantity": 1.0,
-      "brand": "Wegman's",
-      "package_type": "bottle",
-      "is_hidden": false
-    },
-    {
       "ingredient_slug": "caramels",
       "package_unit": "oz",
       "package_unit_quantity": 14.0,
-      "brand": "Brach\u2019s",
+      "brand": "Brach’s",
       "package_type": "bag",
+      "gtin": "11300049228",
       "is_hidden": false
     },
     {
@@ -3144,6 +3148,7 @@
       "brand": "Baker's",
       "product_name": "Premium Semi-Sweet Chocolate Baking Bar",
       "package_type": "box",
+      "gtin": "043000054024",
       "is_hidden": false
     },
     {
@@ -3153,6 +3158,7 @@
       "brand": "Baker's",
       "product_name": "Premium Unsweetened Chocolate Baking Bar",
       "package_type": "box",
+      "gtin": "043000054017",
       "is_hidden": false
     },
     {
@@ -3161,6 +3167,7 @@
       "package_unit_quantity": 12.0,
       "brand": "Guittard",
       "package_type": "bag",
+      "gtin": "7181802100",
       "is_hidden": false
     },
     {
@@ -3178,6 +3185,7 @@
       "brand": "Hershey's",
       "product_name": "HERSHEY'S SPECIAL DARK Mildly Sweet Chocolate Baking Chips",
       "package_type": "bag",
+      "gtin": "3400014680",
       "is_hidden": false
     },
     {
@@ -3186,6 +3194,7 @@
       "package_unit_quantity": 9.0,
       "brand": "Nestle",
       "package_type": "bag",
+      "gtin": "2800071465",
       "is_hidden": false
     },
     {
@@ -3201,8 +3210,9 @@
       "package_unit": "oz",
       "package_unit_quantity": 11.5,
       "brand": "Nestle",
-      "product_name": "NESTL\u00c9\u00ae TOLL HOUSE\u00ae Milk Chocolate Morsels",
+      "product_name": "NESTLÉ® TOLL HOUSE® Milk Chocolate Morsels",
       "package_type": "bag",
+      "gtin": "2800021760",
       "is_hidden": false
     },
     {
@@ -3210,8 +3220,9 @@
       "package_unit": "oz",
       "package_unit_quantity": 10.0,
       "brand": "Nestle",
-      "product_name": "NESTL\u00c9\u00ae TOLL HOUSE\u00ae Semi-Sweet Chocolate Morsels",
+      "product_name": "NESTLÉ® TOLL HOUSE® Semi-Sweet Chocolate Morsels",
       "package_type": "bag",
+      "gtin": "2800098612",
       "is_hidden": false
     },
     {
@@ -3227,8 +3238,9 @@
       "package_unit": "oz",
       "package_unit_quantity": 10.0,
       "brand": "Nestle",
-      "product_name": "NESTL\u00c9\u00ae TOLL HOUSE\u00ae Organic Allergen Free Semi-Sweet Morsels",
+      "product_name": "NESTLÉ® TOLL HOUSE® Organic Allergen Free Semi-Sweet Morsels",
       "package_type": "bag",
+      "gtin": "2800049618",
       "is_hidden": false
     },
     {
@@ -3244,8 +3256,9 @@
       "package_unit": "oz",
       "package_unit_quantity": 12.0,
       "brand": "Nestle",
-      "product_name": "NESTL\u00c9\u00ae TOLL HOUSE\u00ae Premier White Morsels",
+      "product_name": "NESTLÉ® TOLL HOUSE® Premier White Morsels",
       "package_type": "bag",
+      "gtin": "2800021010",
       "is_hidden": false
     },
     {
@@ -3254,6 +3267,7 @@
       "package_unit_quantity": 9.0,
       "brand": "Cadbury",
       "package_type": "bag",
+      "gtin": "3400005675",
       "is_hidden": false
     },
     {
@@ -3262,6 +3276,7 @@
       "package_unit_quantity": 12.6,
       "brand": "Mars",
       "package_type": "bag",
+      "gtin": "4000024906",
       "is_hidden": false
     },
     {
@@ -3287,6 +3302,7 @@
       "brand": "Hershey's",
       "product_name": "HERSHEY'S KISSES SPECIAL DARK Mildly Sweet Chocolate Candy",
       "package_type": "bag",
+      "gtin": "3400012088",
       "is_hidden": false
     },
     {
@@ -3296,6 +3312,7 @@
       "brand": "Hershey's",
       "product_name": "HERSHEY'S Cinnamon Baking Chips",
       "package_type": "bag",
+      "gtin": "3400014670",
       "is_hidden": false
     },
     {
@@ -3330,6 +3347,7 @@
       "package_unit_quantity": 1.0,
       "brand": "deZaan",
       "package_type": "bag",
+      "gtin": "718444190707",
       "is_hidden": false
     },
     {
@@ -3364,6 +3382,7 @@
       "brand": "Hershey's",
       "product_name": "Natural Unsweetened Cocoa",
       "package_type": "container",
+      "gtin": "3400005200",
       "is_hidden": false
     },
     {
@@ -3389,6 +3408,7 @@
       "brand": "Karo",
       "product_name": "Dark Corn Syrup",
       "package_type": "bottle",
+      "gtin": "761720050101",
       "is_hidden": false
     },
     {
@@ -3398,6 +3418,7 @@
       "brand": "Karo",
       "product_name": "Light Corn Syrup with Real Vanilla",
       "package_type": "bottle",
+      "gtin": "761720051108",
       "is_hidden": false
     },
     {
@@ -3407,6 +3428,7 @@
       "brand": "Argo",
       "product_name": "100% Pure Corn Starch",
       "package_type": "box",
+      "gtin": "761720071045",
       "is_hidden": false
     },
     {
@@ -3416,6 +3438,7 @@
       "brand": "Wegman's",
       "product_name": "100% Pure Corn Starch",
       "package_type": "box",
+      "gtin": "77890900239",
       "is_hidden": false
     },
     {
@@ -3433,6 +3456,7 @@
       "brand": "McCormick",
       "product_name": "Cream of Tartar",
       "package_type": "bottle",
+      "gtin": "052100002361",
       "is_hidden": false
     },
     {
@@ -3458,6 +3482,7 @@
       "brand": "Flavor Organics",
       "product_name": "Organic Chocolate Extract",
       "package_type": "bottle",
+      "gtin": "651170001092",
       "is_hidden": false
     },
     {
@@ -3483,6 +3508,7 @@
       "brand": "Flavor Organics",
       "product_name": "Organic Coffee Extract",
       "package_type": "bottle",
+      "gtin": "65117000110",
       "is_hidden": false
     },
     {
@@ -3532,6 +3558,7 @@
       "brand": "King Arthur",
       "product_name": "Almond Flour",
       "package_type": "bag",
+      "gtin": "071012107018",
       "is_hidden": false
     },
     {
@@ -3541,6 +3568,7 @@
       "brand": "Knox",
       "product_name": "Original Unflavored Gelatin",
       "package_type": "box",
+      "gtin": "43000048675",
       "is_hidden": false
     },
     {
@@ -3559,15 +3587,17 @@
       "brand": "Bob's Red Mill",
       "product_name": "Gluten Free 1-to-1 Baking Flour",
       "package_type": "bag",
+      "gtin": "039978034530",
       "is_hidden": false
     },
     {
       "ingredient_slug": "golden_syrup",
       "package_unit": "oz",
       "package_unit_quantity": 16.0,
-      "brand": "Lyle\u2019s",
+      "brand": "Lyle’s",
       "product_name": "Golden Syrup",
       "package_type": "bottle",
+      "gtin": "73449287005",
       "is_hidden": false
     },
     {
@@ -3601,6 +3631,7 @@
       "brand": "Morrell",
       "product_name": "Snow Cap Lard",
       "package_type": "box",
+      "gtin": "70100070623",
       "is_hidden": false
     },
     {
@@ -3618,6 +3649,7 @@
       "brand": "McCormick",
       "product_name": "Pure Lemon Extract",
       "package_type": "bottle",
+      "gtin": "52100070964",
       "is_hidden": false
     },
     {
@@ -3634,6 +3666,7 @@
       "package_unit_quantity": 750.0,
       "brand": "Francesca",
       "package_type": "bottle",
+      "gtin": "8800401648",
       "is_hidden": false
     },
     {
@@ -3643,6 +3676,7 @@
       "brand": "Cointreau",
       "product_name": "Cointreau l'Unique",
       "package_type": "bottle",
+      "gtin": "87236565107",
       "is_hidden": false
     },
     {
@@ -3652,6 +3686,7 @@
       "brand": "Grand Marnier",
       "product_name": "Grand Marnier Cordon Rouge",
       "package_type": "bottle",
+      "gtin": "8811093103",
       "is_hidden": false
     },
     {
@@ -3661,6 +3696,7 @@
       "brand": "Chambord",
       "product_name": "Chambord Black Raspberry Liqueur",
       "package_type": "bottle",
+      "gtin": "833003452",
       "is_hidden": false
     },
     {
@@ -3710,6 +3746,7 @@
       "brand": "Nestle",
       "product_name": "Toll House Mini Semi-Sweet Chocolate Morsels",
       "package_type": "bag",
+      "gtin": "028000986124",
       "is_hidden": false
     },
     {
@@ -3727,6 +3764,7 @@
       "brand": "Grandma's",
       "product_name": "Robust Unsulphured Molasses",
       "package_type": "bottle",
+      "gtin": "72400711169",
       "is_hidden": false
     },
     {
@@ -3736,6 +3774,7 @@
       "brand": "Grandma's",
       "product_name": "Original Unsulphured Molasses",
       "package_type": "bottle",
+      "gtin": "72400711244",
       "is_hidden": false
     },
     {
@@ -3775,8 +3814,16 @@
       "package_unit": "oz",
       "package_unit_quantity": 18.0,
       "brand": "Quaker",
-      "product_name": "Quaker\u00ae Oats Old Fashioned",
+      "product_name": "Quaker® Oats Old Fashioned",
       "package_type": "container",
+      "is_hidden": false
+    },
+    {
+      "ingredient_slug": "oil_canola",
+      "package_unit": "qt",
+      "package_unit_quantity": 1.0,
+      "brand": "Wegman's",
+      "package_type": "bottle",
       "is_hidden": false
     },
     {
@@ -3795,6 +3842,7 @@
       "brand": "Flavor Organics",
       "product_name": "Organic Orange Extract",
       "package_type": "bottle",
+      "gtin": "30684963223",
       "is_hidden": false
     },
     {
@@ -3804,6 +3852,7 @@
       "brand": "McCormick",
       "product_name": "Pure Orange Extract",
       "package_type": "bottle",
+      "gtin": "52100070780",
       "is_hidden": false
     },
     {
@@ -3838,6 +3887,7 @@
       "brand": "Ball",
       "product_name": "RealFruit Classic Pectin",
       "package_type": "container",
+      "gtin": "014400722110",
       "is_hidden": false
     },
     {
@@ -3855,6 +3905,7 @@
       "brand": "McCormick",
       "product_name": "Pure Peppermint Extract",
       "package_type": "bottle",
+      "gtin": "52100070797",
       "is_hidden": false
     },
     {
@@ -3893,7 +3944,7 @@
       "ingredient_slug": "raisins",
       "package_unit": "lb",
       "package_unit_quantity": 3.0,
-      "brand": "Wegman\u2019s",
+      "brand": "Wegman’s",
       "package_type": "bag",
       "is_hidden": false
     },
@@ -3912,6 +3963,7 @@
       "brand": "Kraken",
       "product_name": "Kraken Black Spiced Rum",
       "package_type": "bottle",
+      "gtin": "1153801301",
       "is_hidden": false
     },
     {
@@ -3937,6 +3989,7 @@
       "brand": "Diamond",
       "product_name": "Crystal Kosher Salt",
       "package_type": "box",
+      "gtin": "43000011126",
       "is_hidden": false
     },
     {
@@ -3953,6 +4006,7 @@
       "package_unit_quantity": 240.0,
       "brand": "Maldon",
       "package_type": "box",
+      "gtin": "4797200000",
       "is_hidden": false
     },
     {
@@ -3962,6 +4016,7 @@
       "brand": "King Arthur",
       "product_name": "Unbleached Self-Rising Flour",
       "package_type": "bag",
+      "gtin": "071012013302",
       "is_hidden": false
     },
     {
@@ -3977,8 +4032,8 @@
       "package_unit": "oz",
       "package_unit_quantity": 1.0,
       "brand": "Penzeys",
-      "package_type": "jar",
       "product_name": "Black Sesame Seeds",
+      "package_type": "jar",
       "is_hidden": false
     },
     {
@@ -3986,8 +4041,8 @@
       "package_unit": "oz",
       "package_unit_quantity": 2.2,
       "brand": "Penzeys",
-      "package_type": "jar",
       "product_name": "Black Sesame Seeds",
+      "package_type": "jar",
       "is_hidden": false
     },
     {
@@ -3997,6 +4052,7 @@
       "brand": "Crisco",
       "product_name": "All-Vegetable Shortening Baking Sticks",
       "package_type": "container",
+      "gtin": "51500251881",
       "is_hidden": false
     },
     {
@@ -4022,6 +4078,7 @@
       "brand": "Domino",
       "product_name": "Premium Pure Cane Dark Brown Sugar",
       "package_type": "bag",
+      "gtin": "049200057910",
       "is_hidden": false
     },
     {
@@ -4031,6 +4088,7 @@
       "brand": "Domino",
       "product_name": "Premium Pure Cane Light Brown Sugar",
       "package_type": "bag",
+      "gtin": "049200057803",
       "is_hidden": false
     },
     {
@@ -4048,6 +4106,7 @@
       "brand": "Domino",
       "product_name": "Premium Pure Cane Granulated Sugar 4 lb",
       "package_type": "bag",
+      "gtin": "49200045503",
       "is_hidden": false
     },
     {
@@ -4057,6 +4116,7 @@
       "brand": "Domino",
       "product_name": "Confectioners Sugar 10-X Powdered",
       "package_type": "bag",
+      "gtin": "049200906002",
       "is_hidden": false
     },
     {
@@ -4074,6 +4134,7 @@
       "brand": "Domino",
       "product_name": "Quick Dissolve Superfine Sugar",
       "package_type": "bottle",
+      "gtin": "049200902936",
       "is_hidden": false
     },
     {
@@ -4090,6 +4151,7 @@
       "package_unit_quantity": 1.0,
       "brand": "Toblerone",
       "package_type": "box",
+      "gtin": "702200400",
       "is_hidden": false
     },
     {
@@ -4099,6 +4161,7 @@
       "brand": "Heathbar",
       "product_name": "HEATH BITS O' BRICKLE English Toffee Bits",
       "package_type": "bag",
+      "gtin": "3400006152",
       "is_hidden": false
     },
     {
@@ -4133,6 +4196,7 @@
       "brand": "Costco",
       "product_name": "Pure Vanilla Extract",
       "package_type": "bottle",
+      "gtin": "96619329113",
       "is_hidden": false
     },
     {
@@ -4193,6 +4257,7 @@
       "package_unit_quantity": 750.0,
       "brand": "Jamison",
       "package_type": "bottle",
+      "gtin": "8043250017",
       "is_hidden": false
     },
     {
@@ -4202,6 +4267,7 @@
       "brand": "King Arthur",
       "product_name": "White Whole Wheat Flour",
       "package_type": "bag",
+      "gtin": "071012055555",
       "is_hidden": false
     },
     {
@@ -4211,6 +4277,7 @@
       "brand": "Fleischmann's",
       "product_name": "Active Dry Yeast",
       "package_type": "packet",
+      "gtin": "40100009280",
       "is_hidden": false
     },
     {
@@ -4220,6 +4287,7 @@
       "brand": "Fleischmann's",
       "product_name": "RapidRise Instant Yeast",
       "package_type": "packet",
+      "gtin": "40100009299",
       "is_hidden": false
     }
   ],
@@ -4236,7 +4304,7 @@
       "unit_price": null,
       "product_name": "100% Pure Corn Starch",
       "package_unit": "oz",
-      "created_at": "2025-12-24T12:41:31.199894"
+      "created_at": "2025-12-26T17:39:13.813467"
     },
     {
       "id": 2,
@@ -4250,7 +4318,7 @@
       "unit_price": null,
       "product_name": "Pure Baking Soda",
       "package_unit": "lb",
-      "created_at": "2025-12-24T12:41:31.203156"
+      "created_at": "2025-12-26T17:39:13.816122"
     },
     {
       "id": 3,
@@ -4263,7 +4331,7 @@
       "quantity_purchased": 750,
       "unit_price": null,
       "package_unit": "ml",
-      "created_at": "2025-12-24T12:41:31.208300"
+      "created_at": "2025-12-26T17:39:13.818080"
     },
     {
       "id": 4,
@@ -4277,7 +4345,7 @@
       "unit_price": null,
       "product_name": "Premium Semi-Sweet Chocolate Baking Bar",
       "package_unit": "oz",
-      "created_at": "2025-12-24T12:41:31.209520"
+      "created_at": "2025-12-26T17:39:13.820044"
     },
     {
       "id": 5,
@@ -4291,7 +4359,7 @@
       "unit_price": null,
       "product_name": "Premium Unsweetened Chocolate Baking Bar",
       "package_unit": "oz",
-      "created_at": "2025-12-24T12:41:31.210899"
+      "created_at": "2025-12-26T17:39:13.821837"
     },
     {
       "id": 6,
@@ -4305,7 +4373,7 @@
       "unit_price": null,
       "product_name": "RealFruit Classic Pectin",
       "package_unit": "oz",
-      "created_at": "2025-12-24T12:41:31.211976"
+      "created_at": "2025-12-26T17:39:13.823593"
     },
     {
       "id": 7,
@@ -4319,7 +4387,7 @@
       "unit_price": null,
       "product_name": "Extra Virgin Olive Oil",
       "package_unit": "l",
-      "created_at": "2025-12-24T12:41:31.212690"
+      "created_at": "2025-12-26T17:39:13.825616"
     },
     {
       "id": 8,
@@ -4333,7 +4401,7 @@
       "unit_price": null,
       "product_name": "Gluten Free 1-to-1 Baking Flour",
       "package_unit": "oz",
-      "created_at": "2025-12-24T12:41:31.213568"
+      "created_at": "2025-12-26T17:39:13.827548"
     },
     {
       "id": 9,
@@ -4341,12 +4409,12 @@
       "product_id": 22,
       "supplier_id": 1,
       "ingredient_slug": "caramels",
-      "product_brand": "Brach\u2019s",
+      "product_brand": "Brach’s",
       "purchase_date": "2025-12-21",
       "quantity_purchased": 14,
       "unit_price": null,
       "package_unit": "oz",
-      "created_at": "2025-12-24T12:41:31.214802"
+      "created_at": "2025-12-26T17:39:13.829300"
     },
     {
       "id": 10,
@@ -4359,7 +4427,7 @@
       "quantity_purchased": 9,
       "unit_price": null,
       "package_unit": "oz",
-      "created_at": "2025-12-24T12:41:31.215601"
+      "created_at": "2025-12-26T17:39:13.831496"
     },
     {
       "id": 11,
@@ -4372,7 +4440,7 @@
       "quantity_purchased": 10,
       "unit_price": null,
       "package_unit": "kg",
-      "created_at": "2025-12-24T12:41:31.216228"
+      "created_at": "2025-12-26T17:39:13.833607"
     },
     {
       "id": 12,
@@ -4385,7 +4453,7 @@
       "quantity_purchased": 2,
       "unit_price": null,
       "package_unit": "kg",
-      "created_at": "2025-12-24T12:41:31.216842"
+      "created_at": "2025-12-26T17:39:13.835463"
     },
     {
       "id": 13,
@@ -4399,7 +4467,7 @@
       "unit_price": null,
       "product_name": "Chambord Black Raspberry Liqueur",
       "package_unit": "ml",
-      "created_at": "2025-12-24T12:41:31.217506"
+      "created_at": "2025-12-26T17:39:13.837279"
     },
     {
       "id": 14,
@@ -4413,7 +4481,7 @@
       "unit_price": null,
       "product_name": "Cointreau l'Unique",
       "package_unit": "ml",
-      "created_at": "2025-12-24T12:41:31.218438"
+      "created_at": "2025-12-26T17:39:13.839070"
     },
     {
       "id": 15,
@@ -4427,7 +4495,7 @@
       "unit_price": null,
       "product_name": "Kirkland Signature Salted Sweet Cream Butter",
       "package_unit": "lb",
-      "created_at": "2025-12-24T12:41:31.219054"
+      "created_at": "2025-12-26T17:39:13.840949"
     },
     {
       "id": 16,
@@ -4441,7 +4509,7 @@
       "unit_price": null,
       "product_name": "Kirkland Signature Unsalted Sweet Cream Butter",
       "package_unit": "lb",
-      "created_at": "2025-12-24T12:41:31.219780"
+      "created_at": "2025-12-26T17:39:13.842841"
     },
     {
       "id": 17,
@@ -4454,7 +4522,7 @@
       "quantity_purchased": 2,
       "unit_price": null,
       "package_unit": "lb",
-      "created_at": "2025-12-24T12:41:31.220431"
+      "created_at": "2025-12-26T17:39:13.844832"
     },
     {
       "id": 18,
@@ -4467,7 +4535,7 @@
       "quantity_purchased": 3,
       "unit_price": null,
       "package_unit": "lb",
-      "created_at": "2025-12-24T12:41:31.222354"
+      "created_at": "2025-12-26T17:39:13.846663"
     },
     {
       "id": 19,
@@ -4480,7 +4548,7 @@
       "quantity_purchased": 2,
       "unit_price": null,
       "package_unit": "lb",
-      "created_at": "2025-12-24T12:41:31.224460"
+      "created_at": "2025-12-26T17:39:13.848894"
     },
     {
       "id": 20,
@@ -4493,7 +4561,7 @@
       "quantity_purchased": 1,
       "unit_price": null,
       "package_unit": "qt",
-      "created_at": "2025-12-24T12:41:31.225543"
+      "created_at": "2025-12-26T17:39:13.850588"
     },
     {
       "id": 21,
@@ -4507,7 +4575,7 @@
       "unit_price": null,
       "product_name": "Pure Vanilla Extract",
       "package_unit": "fl oz",
-      "created_at": "2025-12-24T12:41:31.226272"
+      "created_at": "2025-12-26T17:39:13.852096"
     },
     {
       "id": 22,
@@ -4521,7 +4589,7 @@
       "unit_price": null,
       "product_name": "All-Vegetable Shortening Baking Sticks",
       "package_unit": "oz",
-      "created_at": "2025-12-24T12:41:31.226875"
+      "created_at": "2025-12-26T17:39:13.853509"
     },
     {
       "id": 23,
@@ -4534,7 +4602,7 @@
       "quantity_purchased": 1,
       "unit_price": null,
       "package_unit": "kg",
-      "created_at": "2025-12-24T12:41:31.228216"
+      "created_at": "2025-12-26T17:39:13.854785"
     },
     {
       "id": 24,
@@ -4548,7 +4616,7 @@
       "unit_price": null,
       "product_name": "Crystal Kosher Salt",
       "package_unit": "lb",
-      "created_at": "2025-12-24T12:41:31.229536"
+      "created_at": "2025-12-26T17:39:13.856548"
     },
     {
       "id": 25,
@@ -4562,7 +4630,7 @@
       "unit_price": null,
       "product_name": "Disaronno Originale",
       "package_unit": "ml",
-      "created_at": "2025-12-24T12:41:31.230796"
+      "created_at": "2025-12-26T17:39:13.858393"
     },
     {
       "id": 26,
@@ -4576,7 +4644,7 @@
       "unit_price": null,
       "product_name": "Premium Pure Cane Granulated Sugar 4 lb",
       "package_unit": "lb",
-      "created_at": "2025-12-24T12:41:31.231992"
+      "created_at": "2025-12-26T17:39:13.860606"
     },
     {
       "id": 27,
@@ -4590,7 +4658,7 @@
       "unit_price": null,
       "product_name": "Premium Pure Cane Light Brown Sugar",
       "package_unit": "lb",
-      "created_at": "2025-12-24T12:41:31.233130"
+      "created_at": "2025-12-26T17:39:13.862429"
     },
     {
       "id": 28,
@@ -4604,7 +4672,7 @@
       "unit_price": null,
       "product_name": "Premium Pure Cane Dark Brown Sugar",
       "package_unit": "lb",
-      "created_at": "2025-12-24T12:41:31.234206"
+      "created_at": "2025-12-26T17:39:13.864184"
     },
     {
       "id": 29,
@@ -4618,7 +4686,7 @@
       "unit_price": null,
       "product_name": "Quick Dissolve Superfine Sugar",
       "package_unit": "oz",
-      "created_at": "2025-12-24T12:41:31.235324"
+      "created_at": "2025-12-26T17:39:13.866138"
     },
     {
       "id": 30,
@@ -4632,7 +4700,7 @@
       "unit_price": null,
       "product_name": "Confectioners Sugar 10-X Powdered",
       "package_unit": "lb",
-      "created_at": "2025-12-24T12:41:31.236544"
+      "created_at": "2025-12-26T17:39:13.868446"
     },
     {
       "id": 31,
@@ -4645,7 +4713,7 @@
       "quantity_purchased": 1,
       "unit_price": null,
       "package_unit": "l",
-      "created_at": "2025-12-24T12:41:31.238161"
+      "created_at": "2025-12-26T17:39:13.870159"
     },
     {
       "id": 32,
@@ -4659,7 +4727,7 @@
       "unit_price": null,
       "product_name": "Organic Orange Extract",
       "package_unit": "fl oz",
-      "created_at": "2025-12-24T12:41:31.240147"
+      "created_at": "2025-12-26T17:39:13.871948"
     },
     {
       "id": 33,
@@ -4673,7 +4741,7 @@
       "unit_price": null,
       "product_name": "Organic Coffee Extract",
       "package_unit": "fl oz",
-      "created_at": "2025-12-24T12:41:31.241335"
+      "created_at": "2025-12-26T17:39:13.873721"
     },
     {
       "id": 34,
@@ -4687,7 +4755,7 @@
       "unit_price": null,
       "product_name": "Organic Chocolate Extract",
       "package_unit": "fl oz",
-      "created_at": "2025-12-24T12:41:31.242383"
+      "created_at": "2025-12-26T17:39:13.875448"
     },
     {
       "id": 35,
@@ -4701,7 +4769,7 @@
       "unit_price": null,
       "product_name": "RapidRise Instant Yeast",
       "package_unit": "g",
-      "created_at": "2025-12-24T12:41:31.243480"
+      "created_at": "2025-12-26T17:39:13.877394"
     },
     {
       "id": 36,
@@ -4715,7 +4783,7 @@
       "unit_price": null,
       "product_name": "Active Dry Yeast",
       "package_unit": "g",
-      "created_at": "2025-12-24T12:41:31.244712"
+      "created_at": "2025-12-26T17:39:13.879217"
     },
     {
       "id": 37,
@@ -4728,7 +4796,7 @@
       "quantity_purchased": 750,
       "unit_price": null,
       "package_unit": "ml",
-      "created_at": "2025-12-24T12:41:31.245893"
+      "created_at": "2025-12-26T17:39:13.880974"
     },
     {
       "id": 38,
@@ -4741,7 +4809,7 @@
       "quantity_purchased": 750,
       "unit_price": null,
       "package_unit": "fl oz",
-      "created_at": "2025-12-24T12:41:31.247378"
+      "created_at": "2025-12-26T17:39:13.882835"
     },
     {
       "id": 39,
@@ -4755,7 +4823,7 @@
       "unit_price": null,
       "product_name": "Grand Marnier Cordon Rouge",
       "package_unit": "ml",
-      "created_at": "2025-12-24T12:41:31.248529"
+      "created_at": "2025-12-26T17:39:13.884860"
     },
     {
       "id": 40,
@@ -4769,7 +4837,7 @@
       "unit_price": null,
       "product_name": "Original Unsulphured Molasses",
       "package_unit": "oz",
-      "created_at": "2025-12-24T12:41:31.249458"
+      "created_at": "2025-12-26T17:39:13.886723"
     },
     {
       "id": 41,
@@ -4783,7 +4851,7 @@
       "unit_price": null,
       "product_name": "Robust Unsulphured Molasses",
       "package_unit": "oz",
-      "created_at": "2025-12-24T12:41:31.250718"
+      "created_at": "2025-12-26T17:39:13.888449"
     },
     {
       "id": 42,
@@ -4796,7 +4864,7 @@
       "quantity_purchased": 3,
       "unit_price": null,
       "package_unit": "kg",
-      "created_at": "2025-12-24T12:41:31.251904"
+      "created_at": "2025-12-26T17:39:13.890335"
     },
     {
       "id": 43,
@@ -4809,7 +4877,7 @@
       "quantity_purchased": 12,
       "unit_price": null,
       "package_unit": "g",
-      "created_at": "2025-12-24T12:41:31.253169"
+      "created_at": "2025-12-26T17:39:13.892145"
     },
     {
       "id": 44,
@@ -4822,7 +4890,7 @@
       "quantity_purchased": 12,
       "unit_price": null,
       "package_unit": "g",
-      "created_at": "2025-12-24T12:41:31.254599"
+      "created_at": "2025-12-26T17:39:13.894098"
     },
     {
       "id": 45,
@@ -4835,7 +4903,7 @@
       "quantity_purchased": 340,
       "unit_price": null,
       "package_unit": "g",
-      "created_at": "2025-12-24T12:41:31.256157"
+      "created_at": "2025-12-26T17:39:13.895779"
     },
     {
       "id": 46,
@@ -4849,7 +4917,7 @@
       "unit_price": null,
       "product_name": "HEATH BITS O' BRICKLE English Toffee Bits",
       "package_unit": "oz",
-      "created_at": "2025-12-24T12:41:31.257634"
+      "created_at": "2025-12-26T17:39:13.897681"
     },
     {
       "id": 47,
@@ -4863,7 +4931,7 @@
       "unit_price": null,
       "product_name": "HEATH BITS O' BRICKLE English Toffee Bits",
       "package_unit": "oz",
-      "created_at": "2025-12-24T12:41:31.259264"
+      "created_at": "2025-12-26T17:39:13.899670"
     },
     {
       "id": 48,
@@ -4877,7 +4945,7 @@
       "unit_price": null,
       "product_name": "Premium Vanilla Beans 2-Pack",
       "package_unit": "each",
-      "created_at": "2025-12-24T12:41:31.260954"
+      "created_at": "2025-12-26T17:39:13.901463"
     },
     {
       "id": 49,
@@ -4891,7 +4959,7 @@
       "unit_price": null,
       "product_name": "Pure Vanilla Extract",
       "package_unit": "ml",
-      "created_at": "2025-12-24T12:41:31.262552"
+      "created_at": "2025-12-26T17:39:13.903507"
     },
     {
       "id": 50,
@@ -4905,7 +4973,7 @@
       "unit_price": null,
       "product_name": "Pure Vanilla Bean Paste",
       "package_unit": "g",
-      "created_at": "2025-12-24T12:41:31.264361"
+      "created_at": "2025-12-26T17:39:13.905433"
     },
     {
       "id": 51,
@@ -4919,7 +4987,7 @@
       "unit_price": null,
       "product_name": "Vanilla Powder",
       "package_unit": "g",
-      "created_at": "2025-12-24T12:41:31.265931"
+      "created_at": "2025-12-26T17:39:13.907164"
     },
     {
       "id": 52,
@@ -4933,7 +5001,7 @@
       "unit_price": null,
       "product_name": "Vanilla Powder with Extract",
       "package_unit": "oz",
-      "created_at": "2025-12-24T12:41:31.267420"
+      "created_at": "2025-12-26T17:39:13.909187"
     },
     {
       "id": 53,
@@ -4946,7 +5014,7 @@
       "quantity_purchased": 50,
       "unit_price": null,
       "package_unit": "ml",
-      "created_at": "2025-12-24T12:41:31.268595"
+      "created_at": "2025-12-26T17:39:13.911190"
     },
     {
       "id": 54,
@@ -4959,7 +5027,7 @@
       "quantity_purchased": 50,
       "unit_price": null,
       "package_unit": "ml",
-      "created_at": "2025-12-24T12:41:31.269984"
+      "created_at": "2025-12-26T17:39:13.913339"
     },
     {
       "id": 55,
@@ -4973,7 +5041,7 @@
       "unit_price": null,
       "product_name": "HERSHEY'S Cinnamon Baking Chips",
       "package_unit": "oz",
-      "created_at": "2025-12-24T12:41:31.273690"
+      "created_at": "2025-12-26T17:39:13.915270"
     },
     {
       "id": 56,
@@ -4987,7 +5055,7 @@
       "unit_price": null,
       "product_name": "HERSHEY'S KISSES SPECIAL DARK Mildly Sweet Chocolate Candy",
       "package_unit": "oz",
-      "created_at": "2025-12-24T12:41:31.275961"
+      "created_at": "2025-12-26T17:39:13.917105"
     },
     {
       "id": 57,
@@ -5001,7 +5069,7 @@
       "unit_price": null,
       "product_name": "HERSHEY'S SPECIAL DARK Mildly Sweet Chocolate Baking Chips",
       "package_unit": "oz",
-      "created_at": "2025-12-24T12:41:31.277027"
+      "created_at": "2025-12-26T17:39:13.918756"
     },
     {
       "id": 58,
@@ -5015,7 +5083,7 @@
       "unit_price": null,
       "product_name": "Natural Unsweetened Cocoa",
       "package_unit": "oz",
-      "created_at": "2025-12-24T12:41:31.278283"
+      "created_at": "2025-12-26T17:39:13.920975"
     },
     {
       "id": 59,
@@ -5028,7 +5096,7 @@
       "quantity_purchased": 14,
       "unit_price": null,
       "package_unit": "oz",
-      "created_at": "2025-12-24T12:41:31.279798"
+      "created_at": "2025-12-26T17:39:13.922930"
     },
     {
       "id": 60,
@@ -5041,7 +5109,7 @@
       "quantity_purchased": 750,
       "unit_price": null,
       "package_unit": "fl oz",
-      "created_at": "2025-12-24T12:41:31.281439"
+      "created_at": "2025-12-26T17:39:13.924710"
     },
     {
       "id": 61,
@@ -5055,7 +5123,7 @@
       "unit_price": null,
       "product_name": "Light Corn Syrup with Real Vanilla",
       "package_unit": "fl oz",
-      "created_at": "2025-12-24T12:41:31.282972"
+      "created_at": "2025-12-26T17:39:13.926533"
     },
     {
       "id": 62,
@@ -5069,7 +5137,7 @@
       "unit_price": null,
       "product_name": "Dark Corn Syrup",
       "package_unit": "fl oz",
-      "created_at": "2025-12-24T12:41:31.284033"
+      "created_at": "2025-12-26T17:39:13.928233"
     },
     {
       "id": 63,
@@ -5082,7 +5150,7 @@
       "quantity_purchased": 1,
       "unit_price": null,
       "package_unit": "oz",
-      "created_at": "2025-12-24T12:41:31.285132"
+      "created_at": "2025-12-26T17:39:13.930028"
     },
     {
       "id": 64,
@@ -5096,7 +5164,7 @@
       "unit_price": null,
       "product_name": "Unbleached All-Purpose Flour",
       "package_unit": "lb",
-      "created_at": "2025-12-24T12:41:31.286252"
+      "created_at": "2025-12-26T17:39:13.931874"
     },
     {
       "id": 65,
@@ -5110,7 +5178,7 @@
       "unit_price": null,
       "product_name": "White Whole Wheat Flour",
       "package_unit": "lb",
-      "created_at": "2025-12-24T12:41:31.287297"
+      "created_at": "2025-12-26T17:39:13.933639"
     },
     {
       "id": 66,
@@ -5124,7 +5192,7 @@
       "unit_price": null,
       "product_name": "Almond Flour",
       "package_unit": "oz",
-      "created_at": "2025-12-24T12:41:31.288951"
+      "created_at": "2025-12-26T17:39:13.935286"
     },
     {
       "id": 67,
@@ -5138,7 +5206,7 @@
       "unit_price": null,
       "product_name": "King Arthur Pastry Flour",
       "package_unit": "lb",
-      "created_at": "2025-12-24T12:41:31.291361"
+      "created_at": "2025-12-26T17:39:13.937378"
     },
     {
       "id": 68,
@@ -5152,7 +5220,7 @@
       "unit_price": null,
       "product_name": "Bread Flour",
       "package_unit": "lb",
-      "created_at": "2025-12-24T12:41:31.292878"
+      "created_at": "2025-12-26T17:39:13.939214"
     },
     {
       "id": 69,
@@ -5166,7 +5234,7 @@
       "unit_price": null,
       "product_name": "Unbleached Cake Flour Blend",
       "package_unit": "lb",
-      "created_at": "2025-12-24T12:41:31.294028"
+      "created_at": "2025-12-26T17:39:13.940986"
     },
     {
       "id": 70,
@@ -5180,7 +5248,7 @@
       "unit_price": null,
       "product_name": "Unbleached Self-Rising Flour",
       "package_unit": "lb",
-      "created_at": "2025-12-24T12:41:31.295134"
+      "created_at": "2025-12-26T17:39:13.942902"
     },
     {
       "id": 71,
@@ -5194,7 +5262,7 @@
       "unit_price": null,
       "product_name": "King Arthur Black Cocoa",
       "package_unit": "oz",
-      "created_at": "2025-12-24T12:41:31.296685"
+      "created_at": "2025-12-26T17:39:13.944707"
     },
     {
       "id": 72,
@@ -5208,7 +5276,7 @@
       "unit_price": null,
       "product_name": "Original Unflavored Gelatin",
       "package_unit": "oz",
-      "created_at": "2025-12-24T12:41:31.297948"
+      "created_at": "2025-12-26T17:39:13.946439"
     },
     {
       "id": 73,
@@ -5222,7 +5290,7 @@
       "unit_price": null,
       "product_name": "Kraken Black Spiced Rum",
       "package_unit": "l",
-      "created_at": "2025-12-24T12:41:31.299233"
+      "created_at": "2025-12-26T17:39:13.948138"
     },
     {
       "id": 74,
@@ -5235,7 +5303,7 @@
       "quantity_purchased": 5,
       "unit_price": null,
       "package_unit": "lb",
-      "created_at": "2025-12-24T12:41:31.300316"
+      "created_at": "2025-12-26T17:39:13.949850"
     },
     {
       "id": 75,
@@ -5243,13 +5311,13 @@
       "product_id": 75,
       "supplier_id": 1,
       "ingredient_slug": "golden_syrup",
-      "product_brand": "Lyle\u2019s",
+      "product_brand": "Lyle’s",
       "purchase_date": "2025-12-21",
       "quantity_purchased": 16,
       "unit_price": null,
       "product_name": "Golden Syrup",
       "package_unit": "oz",
-      "created_at": "2025-12-24T12:41:31.301603"
+      "created_at": "2025-12-26T17:39:13.951625"
     },
     {
       "id": 76,
@@ -5262,7 +5330,7 @@
       "quantity_purchased": 240,
       "unit_price": null,
       "package_unit": "g",
-      "created_at": "2025-12-24T12:41:31.302999"
+      "created_at": "2025-12-26T17:39:13.953333"
     },
     {
       "id": 77,
@@ -5275,7 +5343,7 @@
       "quantity_purchased": 12,
       "unit_price": null,
       "package_unit": "oz",
-      "created_at": "2025-12-24T12:41:31.304101"
+      "created_at": "2025-12-26T17:39:13.955926"
     },
     {
       "id": 78,
@@ -5289,7 +5357,7 @@
       "unit_price": null,
       "product_name": "Pure Almond Extract",
       "package_unit": "fl oz",
-      "created_at": "2025-12-24T12:41:31.306003"
+      "created_at": "2025-12-26T17:39:13.957775"
     },
     {
       "id": 79,
@@ -5303,7 +5371,7 @@
       "unit_price": null,
       "product_name": "Pure Orange Extract",
       "package_unit": "fl oz",
-      "created_at": "2025-12-24T12:41:31.308480"
+      "created_at": "2025-12-26T17:39:13.959529"
     },
     {
       "id": 80,
@@ -5317,7 +5385,7 @@
       "unit_price": null,
       "product_name": "Pure Lemon Extract",
       "package_unit": "fl oz",
-      "created_at": "2025-12-24T12:41:31.310245"
+      "created_at": "2025-12-26T17:39:13.961338"
     },
     {
       "id": 81,
@@ -5331,7 +5399,7 @@
       "unit_price": null,
       "product_name": "Pure Lemon Extract",
       "package_unit": "fl oz",
-      "created_at": "2025-12-24T12:41:31.311529"
+      "created_at": "2025-12-26T17:39:13.963119"
     },
     {
       "id": 82,
@@ -5345,7 +5413,7 @@
       "unit_price": null,
       "product_name": "Cream of Tartar",
       "package_unit": "oz",
-      "created_at": "2025-12-24T12:41:31.312884"
+      "created_at": "2025-12-26T17:39:13.964912"
     },
     {
       "id": 83,
@@ -5358,7 +5426,7 @@
       "quantity_purchased": 2,
       "unit_price": null,
       "package_unit": "fl oz",
-      "created_at": "2025-12-24T12:41:31.314338"
+      "created_at": "2025-12-26T17:39:13.966720"
     },
     {
       "id": 84,
@@ -5372,7 +5440,7 @@
       "unit_price": null,
       "product_name": "Pure Peppermint Extract",
       "package_unit": "fl oz",
-      "created_at": "2025-12-24T12:41:31.315614"
+      "created_at": "2025-12-26T17:39:13.968421"
     },
     {
       "id": 85,
@@ -5385,7 +5453,7 @@
       "quantity_purchased": 2,
       "unit_price": null,
       "package_unit": "fl oz",
-      "created_at": "2025-12-24T12:41:31.317854"
+      "created_at": "2025-12-26T17:39:13.970165"
     },
     {
       "id": 86,
@@ -5398,7 +5466,7 @@
       "quantity_purchased": 1,
       "unit_price": null,
       "package_unit": "fl oz",
-      "created_at": "2025-12-24T12:41:31.319046"
+      "created_at": "2025-12-26T17:39:13.972402"
     },
     {
       "id": 87,
@@ -5411,7 +5479,7 @@
       "quantity_purchased": 2,
       "unit_price": null,
       "package_unit": "fl oz",
-      "created_at": "2025-12-24T12:41:31.320356"
+      "created_at": "2025-12-26T17:39:13.974441"
     },
     {
       "id": 88,
@@ -5424,7 +5492,7 @@
       "quantity_purchased": 1,
       "unit_price": null,
       "package_unit": "fl oz",
-      "created_at": "2025-12-24T12:41:31.321678"
+      "created_at": "2025-12-26T17:39:13.976323"
     },
     {
       "id": 89,
@@ -5437,7 +5505,7 @@
       "quantity_purchased": 1,
       "unit_price": null,
       "package_unit": "fl oz",
-      "created_at": "2025-12-24T12:41:31.325503"
+      "created_at": "2025-12-26T17:39:13.978101"
     },
     {
       "id": 90,
@@ -5451,7 +5519,7 @@
       "unit_price": null,
       "product_name": "Snow Cap Lard",
       "package_unit": "oz",
-      "created_at": "2025-12-24T12:41:31.327491"
+      "created_at": "2025-12-26T17:39:13.979953"
     },
     {
       "id": 91,
@@ -5464,7 +5532,7 @@
       "quantity_purchased": 26,
       "unit_price": null,
       "package_unit": "oz",
-      "created_at": "2025-12-24T12:41:31.328803"
+      "created_at": "2025-12-26T17:39:13.981861"
     },
     {
       "id": 92,
@@ -5477,7 +5545,7 @@
       "quantity_purchased": 3,
       "unit_price": null,
       "package_unit": "lb",
-      "created_at": "2025-12-24T12:41:31.330124"
+      "created_at": "2025-12-26T17:39:13.983728"
     },
     {
       "id": 93,
@@ -5489,9 +5557,9 @@
       "purchase_date": "2025-12-21",
       "quantity_purchased": 10,
       "unit_price": null,
-      "product_name": "NESTL\u00c9\u00ae TOLL HOUSE\u00ae Semi-Sweet Chocolate Morsels",
+      "product_name": "NESTLÉ® TOLL HOUSE® Semi-Sweet Chocolate Morsels",
       "package_unit": "oz",
-      "created_at": "2025-12-24T12:41:31.331670"
+      "created_at": "2025-12-26T17:39:13.985656"
     },
     {
       "id": 94,
@@ -5503,9 +5571,9 @@
       "purchase_date": "2025-12-21",
       "quantity_purchased": 11,
       "unit_price": null,
-      "product_name": "NESTL\u00c9\u00ae TOLL HOUSE\u00ae Milk Chocolate Morsels",
+      "product_name": "NESTLÉ® TOLL HOUSE® Milk Chocolate Morsels",
       "package_unit": "oz",
-      "created_at": "2025-12-24T12:41:31.333070"
+      "created_at": "2025-12-26T17:39:13.987710"
     },
     {
       "id": 95,
@@ -5517,9 +5585,9 @@
       "purchase_date": "2025-12-21",
       "quantity_purchased": 11,
       "unit_price": null,
-      "product_name": "NESTL\u00c9\u00ae TOLL HOUSE\u00ae Butterscotch Artificially Flavored Morsels",
+      "product_name": "NESTLÉ® TOLL HOUSE® Butterscotch Artificially Flavored Morsels",
       "package_unit": "oz",
-      "created_at": "2025-12-24T12:41:31.334112"
+      "created_at": "2025-12-26T17:39:13.989688"
     },
     {
       "id": 96,
@@ -5532,7 +5600,7 @@
       "quantity_purchased": 10,
       "unit_price": null,
       "package_unit": "oz",
-      "created_at": "2025-12-24T12:41:31.335113"
+      "created_at": "2025-12-26T17:39:13.991566"
     },
     {
       "id": 97,
@@ -5544,9 +5612,9 @@
       "purchase_date": "2025-12-21",
       "quantity_purchased": 5,
       "unit_price": null,
-      "product_name": "NESTL\u00c9\u00ae TOLL HOUSE\u00ae Organic Allergen Free Semi-Sweet Morsels",
+      "product_name": "NESTLÉ® TOLL HOUSE® Organic Allergen Free Semi-Sweet Morsels",
       "package_unit": "oz",
-      "created_at": "2025-12-24T12:41:31.336144"
+      "created_at": "2025-12-26T17:39:13.993637"
     },
     {
       "id": 98,
@@ -5560,7 +5628,7 @@
       "unit_price": null,
       "product_name": "Toll House Mini Semi-Sweet Chocolate Morsels",
       "package_unit": "oz",
-      "created_at": "2025-12-24T12:41:31.337431"
+      "created_at": "2025-12-26T17:39:13.995392"
     },
     {
       "id": 99,
@@ -5572,9 +5640,9 @@
       "purchase_date": "2025-12-21",
       "quantity_purchased": 12,
       "unit_price": null,
-      "product_name": "NESTL\u00c9\u00ae TOLL HOUSE\u00ae Premier White Morsels",
+      "product_name": "NESTLÉ® TOLL HOUSE® Premier White Morsels",
       "package_unit": "oz",
-      "created_at": "2025-12-24T12:41:31.338530"
+      "created_at": "2025-12-26T17:39:13.997177"
     },
     {
       "id": 100,
@@ -5587,7 +5655,7 @@
       "quantity_purchased": 9,
       "unit_price": null,
       "package_unit": "oz",
-      "created_at": "2025-12-24T12:41:31.340856"
+      "created_at": "2025-12-26T17:39:13.999034"
     },
     {
       "id": 101,
@@ -5600,7 +5668,7 @@
       "quantity_purchased": 26,
       "unit_price": null,
       "package_unit": "oz",
-      "created_at": "2025-12-24T12:41:31.343260"
+      "created_at": "2025-12-26T17:39:14.000995"
     },
     {
       "id": 102,
@@ -5613,7 +5681,7 @@
       "quantity_purchased": 5,
       "unit_price": null,
       "package_unit": "oz",
-      "created_at": "2025-12-24T12:41:31.344408"
+      "created_at": "2025-12-26T17:39:14.002844"
     },
     {
       "id": 103,
@@ -5626,7 +5694,7 @@
       "quantity_purchased": 12,
       "unit_price": null,
       "package_unit": "oz",
-      "created_at": "2025-12-24T12:41:31.345563"
+      "created_at": "2025-12-26T17:39:14.004563"
     },
     {
       "id": 104,
@@ -5639,7 +5707,7 @@
       "quantity_purchased": 12,
       "unit_price": null,
       "package_unit": "oz",
-      "created_at": "2025-12-24T12:41:31.346720"
+      "created_at": "2025-12-26T17:39:14.006661"
     },
     {
       "id": 105,
@@ -5652,7 +5720,7 @@
       "quantity_purchased": 2,
       "unit_price": null,
       "package_unit": "fl oz",
-      "created_at": "2025-12-24T12:41:31.347912"
+      "created_at": "2025-12-26T17:39:14.008537"
     },
     {
       "id": 106,
@@ -5665,7 +5733,7 @@
       "quantity_purchased": 2,
       "unit_price": null,
       "package_unit": "fl oz",
-      "created_at": "2025-12-24T12:41:31.349655"
+      "created_at": "2025-12-26T17:39:14.010649"
     },
     {
       "id": 107,
@@ -5678,7 +5746,7 @@
       "quantity_purchased": 8,
       "unit_price": null,
       "package_unit": "fl oz",
-      "created_at": "2025-12-24T12:41:31.351120"
+      "created_at": "2025-12-26T17:39:14.012649"
     },
     {
       "id": 108,
@@ -5691,7 +5759,7 @@
       "quantity_purchased": 3,
       "unit_price": null,
       "package_unit": "each",
-      "created_at": "2025-12-24T12:41:31.352648"
+      "created_at": "2025-12-26T17:39:14.014487"
     },
     {
       "id": 109,
@@ -5704,7 +5772,7 @@
       "quantity_purchased": 3,
       "unit_price": null,
       "package_unit": "each",
-      "created_at": "2025-12-24T12:41:31.353971"
+      "created_at": "2025-12-26T17:39:14.016358"
     },
     {
       "id": 110,
@@ -5718,7 +5786,7 @@
       "unit_price": null,
       "product_name": "Ground Cinnamon (Vietnam Extra Fancy)",
       "package_unit": "oz",
-      "created_at": "2025-12-24T12:41:31.355503"
+      "created_at": "2025-12-26T17:39:14.018013"
     },
     {
       "id": 111,
@@ -5732,7 +5800,7 @@
       "unit_price": null,
       "product_name": "Ground Allspice",
       "package_unit": "oz",
-      "created_at": "2025-12-24T12:41:31.357169"
+      "created_at": "2025-12-26T17:39:14.019759"
     },
     {
       "id": 112,
@@ -5746,7 +5814,7 @@
       "unit_price": null,
       "product_name": "Ground Ginger",
       "package_unit": "oz",
-      "created_at": "2025-12-24T12:41:31.358821"
+      "created_at": "2025-12-26T17:39:14.021566"
     },
     {
       "id": 113,
@@ -5760,7 +5828,7 @@
       "unit_price": null,
       "product_name": "Ground Ginger",
       "package_unit": "oz",
-      "created_at": "2025-12-24T12:41:31.360047"
+      "created_at": "2025-12-26T17:39:14.023755"
     },
     {
       "id": 114,
@@ -5773,7 +5841,7 @@
       "quantity_purchased": 1,
       "unit_price": null,
       "package_unit": "oz",
-      "created_at": "2025-12-24T12:41:31.361254"
+      "created_at": "2025-12-26T17:39:14.025790"
     },
     {
       "id": 115,
@@ -5786,7 +5854,7 @@
       "quantity_purchased": 2,
       "unit_price": null,
       "package_unit": "oz",
-      "created_at": "2025-12-24T12:41:31.362445"
+      "created_at": "2025-12-26T17:39:14.027703"
     },
     {
       "id": 116,
@@ -5799,7 +5867,7 @@
       "quantity_purchased": 1,
       "unit_price": null,
       "package_unit": "oz",
-      "created_at": "2025-12-24T12:41:31.363571"
+      "created_at": "2025-12-26T17:39:14.029569"
     },
     {
       "id": 117,
@@ -5812,7 +5880,7 @@
       "quantity_purchased": 1,
       "unit_price": null,
       "package_unit": "oz",
-      "created_at": "2025-12-24T12:41:31.364807"
+      "created_at": "2025-12-26T17:39:14.031357"
     },
     {
       "id": 118,
@@ -5825,7 +5893,7 @@
       "quantity_purchased": 1,
       "unit_price": null,
       "package_unit": "oz",
-      "created_at": "2025-12-24T12:41:31.365990"
+      "created_at": "2025-12-26T17:39:14.033199"
     },
     {
       "id": 119,
@@ -5839,7 +5907,7 @@
       "unit_price": null,
       "product_name": "Ground Cloves",
       "package_unit": "oz",
-      "created_at": "2025-12-24T12:41:31.367499"
+      "created_at": "2025-12-26T17:39:14.035251"
     },
     {
       "id": 120,
@@ -5853,7 +5921,7 @@
       "unit_price": null,
       "product_name": "Ground Cardamom",
       "package_unit": "oz",
-      "created_at": "2025-12-24T12:41:31.368823"
+      "created_at": "2025-12-26T17:39:14.037892"
     },
     {
       "id": 121,
@@ -5865,8 +5933,9 @@
       "purchase_date": "2025-12-21",
       "quantity_purchased": 1,
       "unit_price": null,
+      "product_name": "Black Sesame Seeds",
       "package_unit": "oz",
-      "created_at": "2025-12-24T12:41:31.369859"
+      "created_at": "2025-12-26T17:39:14.040661"
     },
     {
       "id": 122,
@@ -5878,8 +5947,9 @@
       "purchase_date": "2025-12-21",
       "quantity_purchased": 1,
       "unit_price": null,
+      "product_name": "Black Sesame Seeds",
       "package_unit": "oz",
-      "created_at": "2025-12-24T12:41:31.371073"
+      "created_at": "2025-12-26T17:39:14.043277"
     },
     {
       "id": 123,
@@ -5892,7 +5962,7 @@
       "quantity_purchased": 1,
       "unit_price": null,
       "package_unit": "oz",
-      "created_at": "2025-12-24T12:41:31.372441"
+      "created_at": "2025-12-26T17:39:14.045944"
     },
     {
       "id": 124,
@@ -5905,7 +5975,7 @@
       "quantity_purchased": 5,
       "unit_price": null,
       "package_unit": "oz",
-      "created_at": "2025-12-24T12:41:31.374053"
+      "created_at": "2025-12-26T17:39:14.048718"
     },
     {
       "id": 125,
@@ -5918,7 +5988,7 @@
       "quantity_purchased": 1,
       "unit_price": null,
       "package_unit": "oz",
-      "created_at": "2025-12-24T12:41:31.375502"
+      "created_at": "2025-12-26T17:39:14.051470"
     },
     {
       "id": 126,
@@ -5931,7 +6001,7 @@
       "quantity_purchased": 1,
       "unit_price": null,
       "package_unit": "oz",
-      "created_at": "2025-12-24T12:41:31.376732"
+      "created_at": "2025-12-26T17:39:14.053622"
     },
     {
       "id": 127,
@@ -5944,7 +6014,7 @@
       "quantity_purchased": 3,
       "unit_price": null,
       "package_unit": "oz",
-      "created_at": "2025-12-24T12:41:31.377740"
+      "created_at": "2025-12-26T17:39:14.055509"
     },
     {
       "id": 128,
@@ -5957,7 +6027,7 @@
       "quantity_purchased": 4,
       "unit_price": null,
       "package_unit": "oz",
-      "created_at": "2025-12-24T12:41:31.378775"
+      "created_at": "2025-12-26T17:39:14.057319"
     },
     {
       "id": 129,
@@ -5970,7 +6040,7 @@
       "quantity_purchased": 4,
       "unit_price": null,
       "package_unit": "oz",
-      "created_at": "2025-12-24T12:41:31.379859"
+      "created_at": "2025-12-26T17:39:14.059890"
     },
     {
       "id": 130,
@@ -5983,7 +6053,7 @@
       "quantity_purchased": 3,
       "unit_price": null,
       "package_unit": "oz",
-      "created_at": "2025-12-24T12:41:31.380959"
+      "created_at": "2025-12-26T17:39:14.062453"
     },
     {
       "id": 131,
@@ -5996,7 +6066,7 @@
       "quantity_purchased": 1,
       "unit_price": null,
       "package_unit": "oz",
-      "created_at": "2025-12-24T12:41:31.381936"
+      "created_at": "2025-12-26T17:39:14.064409"
     },
     {
       "id": 132,
@@ -6008,9 +6078,9 @@
       "purchase_date": "2025-12-21",
       "quantity_purchased": 18,
       "unit_price": null,
-      "product_name": "Quaker\u00ae Oats Old Fashioned",
+      "product_name": "Quaker® Oats Old Fashioned",
       "package_unit": "oz",
-      "created_at": "2025-12-24T12:41:31.383328"
+      "created_at": "2025-12-26T17:39:14.066275"
     },
     {
       "id": 133,
@@ -6024,7 +6094,7 @@
       "unit_price": null,
       "product_name": "Baking Powder",
       "package_unit": "g",
-      "created_at": "2025-12-24T12:41:31.384561"
+      "created_at": "2025-12-26T17:39:14.068053"
     },
     {
       "id": 134,
@@ -6037,7 +6107,7 @@
       "quantity_purchased": 2,
       "unit_price": null,
       "package_unit": "lb",
-      "created_at": "2025-12-24T12:41:31.385593"
+      "created_at": "2025-12-26T17:39:14.069841"
     },
     {
       "id": 135,
@@ -6050,7 +6120,7 @@
       "quantity_purchased": 13,
       "unit_price": null,
       "package_unit": "oz",
-      "created_at": "2025-12-24T12:41:31.386631"
+      "created_at": "2025-12-26T17:39:14.072070"
     },
     {
       "id": 136,
@@ -6063,7 +6133,7 @@
       "quantity_purchased": 8,
       "unit_price": null,
       "package_unit": "oz",
-      "created_at": "2025-12-24T12:41:31.387938"
+      "created_at": "2025-12-26T17:39:14.073835"
     },
     {
       "id": 137,
@@ -6076,7 +6146,7 @@
       "quantity_purchased": 1,
       "unit_price": null,
       "package_unit": "lb",
-      "created_at": "2025-12-24T12:41:31.389092"
+      "created_at": "2025-12-26T17:39:14.075939"
     },
     {
       "id": 138,
@@ -6089,7 +6159,7 @@
       "quantity_purchased": 1,
       "unit_price": null,
       "package_unit": "oz",
-      "created_at": "2025-12-24T12:41:31.390246"
+      "created_at": "2025-12-26T17:39:14.077929"
     },
     {
       "id": 139,
@@ -6102,7 +6172,7 @@
       "quantity_purchased": 16,
       "unit_price": null,
       "package_unit": "lb",
-      "created_at": "2025-12-24T12:41:31.391707"
+      "created_at": "2025-12-26T17:39:14.079676"
     },
     {
       "id": 140,
@@ -6115,7 +6185,7 @@
       "quantity_purchased": 8,
       "unit_price": null,
       "package_unit": "oz",
-      "created_at": "2025-12-24T12:41:31.393380"
+      "created_at": "2025-12-26T17:39:14.081378"
     },
     {
       "id": 141,
@@ -6128,7 +6198,7 @@
       "quantity_purchased": 8,
       "unit_price": null,
       "package_unit": "oz",
-      "created_at": "2025-12-24T12:41:31.394594"
+      "created_at": "2025-12-26T17:39:14.083200"
     },
     {
       "id": 142,
@@ -6141,7 +6211,7 @@
       "quantity_purchased": 16,
       "unit_price": null,
       "package_unit": "lb",
-      "created_at": "2025-12-24T12:41:31.395605"
+      "created_at": "2025-12-26T17:39:14.084962"
     },
     {
       "id": 143,
@@ -6154,7 +6224,7 @@
       "quantity_purchased": 24,
       "unit_price": null,
       "package_unit": "oz",
-      "created_at": "2025-12-24T12:41:31.396824"
+      "created_at": "2025-12-26T17:39:14.087013"
     },
     {
       "id": 144,
@@ -6167,7 +6237,7 @@
       "quantity_purchased": 7,
       "unit_price": null,
       "package_unit": "lb",
-      "created_at": "2025-12-24T12:41:31.397884"
+      "created_at": "2025-12-26T17:39:14.088741"
     },
     {
       "id": 145,
@@ -6180,7 +6250,7 @@
       "quantity_purchased": 1,
       "unit_price": null,
       "package_unit": "qt",
-      "created_at": "2025-12-24T12:41:31.399053"
+      "created_at": "2025-12-26T17:39:14.090591"
     },
     {
       "id": 146,
@@ -6193,7 +6263,7 @@
       "quantity_purchased": 5,
       "unit_price": null,
       "package_unit": "lb",
-      "created_at": "2025-12-24T12:41:31.400227"
+      "created_at": "2025-12-26T17:39:14.092683"
     },
     {
       "id": 147,
@@ -6206,7 +6276,7 @@
       "quantity_purchased": 2,
       "unit_price": null,
       "package_unit": "lb",
-      "created_at": "2025-12-24T12:41:31.401303"
+      "created_at": "2025-12-26T17:39:14.094674"
     },
     {
       "id": 148,
@@ -6219,7 +6289,7 @@
       "quantity_purchased": 5,
       "unit_price": null,
       "package_unit": "lb",
-      "created_at": "2025-12-24T12:41:31.402366"
+      "created_at": "2025-12-26T17:39:14.096448"
     },
     {
       "id": 149,
@@ -6232,7 +6302,7 @@
       "quantity_purchased": 16,
       "unit_price": null,
       "package_unit": "oz",
-      "created_at": "2025-12-24T12:41:31.403738"
+      "created_at": "2025-12-26T17:39:14.098251"
     },
     {
       "id": 150,
@@ -6245,7 +6315,7 @@
       "quantity_purchased": 16,
       "unit_price": null,
       "package_unit": "oz",
-      "created_at": "2025-12-24T12:41:31.405099"
+      "created_at": "2025-12-26T17:39:14.100075"
     },
     {
       "id": 151,
@@ -6258,7 +6328,7 @@
       "quantity_purchased": 32,
       "unit_price": null,
       "package_unit": "fl oz",
-      "created_at": "2025-12-24T12:41:31.406247"
+      "created_at": "2025-12-26T17:39:14.101856"
     },
     {
       "id": 152,
@@ -6272,7 +6342,7 @@
       "unit_price": null,
       "product_name": "100% Pure Corn Starch",
       "package_unit": "lb",
-      "created_at": "2025-12-24T12:41:31.407730"
+      "created_at": "2025-12-26T17:39:14.103701"
     },
     {
       "id": 153,
@@ -6285,7 +6355,7 @@
       "quantity_purchased": 2,
       "unit_price": null,
       "package_unit": "lb",
-      "created_at": "2025-12-24T12:41:31.409359"
+      "created_at": "2025-12-26T17:39:14.105484"
     },
     {
       "id": 154,
@@ -6293,12 +6363,12 @@
       "product_id": 114,
       "supplier_id": 1,
       "ingredient_slug": "raisins",
-      "product_brand": "Wegman\u2019s",
+      "product_brand": "Wegman’s",
       "purchase_date": "2025-12-21",
       "quantity_purchased": 3,
       "unit_price": null,
       "package_unit": "lb",
-      "created_at": "2025-12-24T12:41:31.410468"
+      "created_at": "2025-12-26T17:39:14.107287"
     },
     {
       "id": 155,
@@ -6311,7 +6381,7 @@
       "quantity_purchased": 1,
       "unit_price": null,
       "package_unit": "lb",
-      "created_at": "2025-12-24T12:41:31.411787"
+      "created_at": "2025-12-26T17:39:14.109192"
     }
   ],
   "inventory_items": [
@@ -6322,6 +6392,7 @@
       "purchase_date": "2025-12-21",
       "product_name": "100% Pure Corn Starch",
       "package_unit": "oz",
+      "package_unit_quantity": 16.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 1
@@ -6333,6 +6404,7 @@
       "purchase_date": "2025-12-21",
       "product_name": "Pure Baking Soda",
       "package_unit": "lb",
+      "package_unit_quantity": 1.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 2
@@ -6343,6 +6415,7 @@
       "quantity": 750.0,
       "purchase_date": "2025-12-21",
       "package_unit": "ml",
+      "package_unit_quantity": 750.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 3
@@ -6354,6 +6427,7 @@
       "purchase_date": "2025-12-21",
       "product_name": "Premium Semi-Sweet Chocolate Baking Bar",
       "package_unit": "oz",
+      "package_unit_quantity": 4.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 4
@@ -6365,6 +6439,7 @@
       "purchase_date": "2025-12-21",
       "product_name": "Premium Unsweetened Chocolate Baking Bar",
       "package_unit": "oz",
+      "package_unit_quantity": 4.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 5
@@ -6376,6 +6451,7 @@
       "purchase_date": "2025-12-21",
       "product_name": "RealFruit Classic Pectin",
       "package_unit": "oz",
+      "package_unit_quantity": 4.7,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 6
@@ -6387,6 +6463,7 @@
       "purchase_date": "2025-12-21",
       "product_name": "Extra Virgin Olive Oil",
       "package_unit": "l",
+      "package_unit_quantity": 3.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 7
@@ -6398,16 +6475,18 @@
       "purchase_date": "2025-12-21",
       "product_name": "Gluten Free 1-to-1 Baking Flour",
       "package_unit": "oz",
+      "package_unit_quantity": 22.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 8
     },
     {
       "ingredient_slug": "caramels",
-      "product_brand": "Brach\u2019s",
+      "product_brand": "Brach’s",
       "quantity": 14.0,
       "purchase_date": "2025-12-21",
       "package_unit": "oz",
+      "package_unit_quantity": 14.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 9
@@ -6418,6 +6497,7 @@
       "quantity": 9.0,
       "purchase_date": "2025-12-21",
       "package_unit": "oz",
+      "package_unit_quantity": 9.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 10
@@ -6428,6 +6508,7 @@
       "quantity": 10.0,
       "purchase_date": "2025-12-21",
       "package_unit": "kg",
+      "package_unit_quantity": 10.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 11
@@ -6438,6 +6519,7 @@
       "quantity": 2.5,
       "purchase_date": "2025-12-21",
       "package_unit": "kg",
+      "package_unit_quantity": 2.5,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 12
@@ -6449,6 +6531,7 @@
       "purchase_date": "2025-12-21",
       "product_name": "Chambord Black Raspberry Liqueur",
       "package_unit": "ml",
+      "package_unit_quantity": 375.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 13
@@ -6460,6 +6543,7 @@
       "purchase_date": "2025-12-21",
       "product_name": "Cointreau l'Unique",
       "package_unit": "ml",
+      "package_unit_quantity": 750.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 14
@@ -6471,6 +6555,7 @@
       "purchase_date": "2025-12-21",
       "product_name": "Kirkland Signature Salted Sweet Cream Butter",
       "package_unit": "lb",
+      "package_unit_quantity": 1.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 15
@@ -6482,6 +6567,7 @@
       "purchase_date": "2025-12-21",
       "product_name": "Kirkland Signature Unsalted Sweet Cream Butter",
       "package_unit": "lb",
+      "package_unit_quantity": 1.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 16
@@ -6492,6 +6578,7 @@
       "quantity": 2.0,
       "purchase_date": "2025-12-21",
       "package_unit": "lb",
+      "package_unit_quantity": 2.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 17
@@ -6502,6 +6589,7 @@
       "quantity": 3.0,
       "purchase_date": "2025-12-21",
       "package_unit": "lb",
+      "package_unit_quantity": 3.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 18
@@ -6512,6 +6600,7 @@
       "quantity": 2.0,
       "purchase_date": "2025-12-21",
       "package_unit": "lb",
+      "package_unit_quantity": 2.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 19
@@ -6522,6 +6611,7 @@
       "quantity": 1.0,
       "purchase_date": "2025-12-21",
       "package_unit": "qt",
+      "package_unit_quantity": 1.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 20
@@ -6533,6 +6623,7 @@
       "purchase_date": "2025-12-21",
       "product_name": "Pure Vanilla Extract",
       "package_unit": "fl oz",
+      "package_unit_quantity": 16.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 21
@@ -6544,6 +6635,7 @@
       "purchase_date": "2025-12-21",
       "product_name": "All-Vegetable Shortening Baking Sticks",
       "package_unit": "oz",
+      "package_unit_quantity": 16.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 22
@@ -6554,6 +6646,7 @@
       "quantity": 1.0,
       "purchase_date": "2025-12-21",
       "package_unit": "kg",
+      "package_unit_quantity": 1.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 23
@@ -6565,6 +6658,7 @@
       "purchase_date": "2025-12-21",
       "product_name": "Crystal Kosher Salt",
       "package_unit": "lb",
+      "package_unit_quantity": 3.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 24
@@ -6576,6 +6670,7 @@
       "purchase_date": "2025-12-21",
       "product_name": "Disaronno Originale",
       "package_unit": "ml",
+      "package_unit_quantity": 750.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 25
@@ -6587,6 +6682,7 @@
       "purchase_date": "2025-12-21",
       "product_name": "Premium Pure Cane Granulated Sugar 4 lb",
       "package_unit": "lb",
+      "package_unit_quantity": 4.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 26
@@ -6598,6 +6694,7 @@
       "purchase_date": "2025-12-21",
       "product_name": "Premium Pure Cane Light Brown Sugar",
       "package_unit": "lb",
+      "package_unit_quantity": 2.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 27
@@ -6609,6 +6706,7 @@
       "purchase_date": "2025-12-21",
       "product_name": "Premium Pure Cane Dark Brown Sugar",
       "package_unit": "lb",
+      "package_unit_quantity": 2.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 28
@@ -6620,6 +6718,7 @@
       "purchase_date": "2025-12-21",
       "product_name": "Quick Dissolve Superfine Sugar",
       "package_unit": "oz",
+      "package_unit_quantity": 12.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 29
@@ -6631,6 +6730,7 @@
       "purchase_date": "2025-12-21",
       "product_name": "Confectioners Sugar 10-X Powdered",
       "package_unit": "lb",
+      "package_unit_quantity": 4.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 30
@@ -6641,6 +6741,7 @@
       "quantity": 1.0,
       "purchase_date": "2025-12-21",
       "package_unit": "l",
+      "package_unit_quantity": 1.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 31
@@ -6652,6 +6753,7 @@
       "purchase_date": "2025-12-21",
       "product_name": "Organic Orange Extract",
       "package_unit": "fl oz",
+      "package_unit_quantity": 2.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 32
@@ -6663,6 +6765,7 @@
       "purchase_date": "2025-12-21",
       "product_name": "Organic Coffee Extract",
       "package_unit": "fl oz",
+      "package_unit_quantity": 2.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 33
@@ -6674,6 +6777,7 @@
       "purchase_date": "2025-12-21",
       "product_name": "Organic Chocolate Extract",
       "package_unit": "fl oz",
+      "package_unit_quantity": 2.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 34
@@ -6685,6 +6789,7 @@
       "purchase_date": "2025-12-21",
       "product_name": "RapidRise Instant Yeast",
       "package_unit": "g",
+      "package_unit_quantity": 21.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 35
@@ -6696,6 +6801,7 @@
       "purchase_date": "2025-12-21",
       "product_name": "Active Dry Yeast",
       "package_unit": "g",
+      "package_unit_quantity": 21.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 36
@@ -6706,6 +6812,7 @@
       "quantity": 750.0,
       "purchase_date": "2025-12-21",
       "package_unit": "ml",
+      "package_unit_quantity": 750.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 37
@@ -6716,6 +6823,7 @@
       "quantity": 750.0,
       "purchase_date": "2025-12-21",
       "package_unit": "fl oz",
+      "package_unit_quantity": 750.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 38
@@ -6727,6 +6835,7 @@
       "purchase_date": "2025-12-21",
       "product_name": "Grand Marnier Cordon Rouge",
       "package_unit": "ml",
+      "package_unit_quantity": 750.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 39
@@ -6738,6 +6847,7 @@
       "purchase_date": "2025-12-21",
       "product_name": "Original Unsulphured Molasses",
       "package_unit": "oz",
+      "package_unit_quantity": 16.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 40
@@ -6749,6 +6859,7 @@
       "purchase_date": "2025-12-21",
       "product_name": "Robust Unsulphured Molasses",
       "package_unit": "oz",
+      "package_unit_quantity": 16.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 41
@@ -6759,6 +6870,7 @@
       "quantity": 3.0,
       "purchase_date": "2025-12-21",
       "package_unit": "kg",
+      "package_unit_quantity": 3.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 42
@@ -6769,6 +6881,7 @@
       "quantity": 12.0,
       "purchase_date": "2025-12-21",
       "package_unit": "g",
+      "package_unit_quantity": 12.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 43
@@ -6779,6 +6892,7 @@
       "quantity": 12.0,
       "purchase_date": "2025-12-21",
       "package_unit": "g",
+      "package_unit_quantity": 12.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 44
@@ -6789,6 +6903,7 @@
       "quantity": 340.0,
       "purchase_date": "2025-12-21",
       "package_unit": "g",
+      "package_unit_quantity": 340.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 45
@@ -6800,6 +6915,7 @@
       "purchase_date": "2025-12-21",
       "product_name": "HEATH BITS O' BRICKLE English Toffee Bits",
       "package_unit": "oz",
+      "package_unit_quantity": 8.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 46
@@ -6811,6 +6927,7 @@
       "purchase_date": "2025-12-21",
       "product_name": "HEATH BITS O' BRICKLE English Toffee Bits",
       "package_unit": "oz",
+      "package_unit_quantity": 8.0,
       "location": "pantry",
       "notes": "Initial inventory - partial package (20%)",
       "purchase_id": 47
@@ -6822,6 +6939,7 @@
       "purchase_date": "2025-12-21",
       "product_name": "Premium Vanilla Beans 2-Pack",
       "package_unit": "each",
+      "package_unit_quantity": 2.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 48
@@ -6833,6 +6951,7 @@
       "purchase_date": "2025-12-21",
       "product_name": "Pure Vanilla Extract",
       "package_unit": "ml",
+      "package_unit_quantity": 500.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 49
@@ -6844,6 +6963,7 @@
       "purchase_date": "2025-12-21",
       "product_name": "Pure Vanilla Bean Paste",
       "package_unit": "g",
+      "package_unit_quantity": 65.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 50
@@ -6855,6 +6975,7 @@
       "purchase_date": "2025-12-21",
       "product_name": "Vanilla Powder",
       "package_unit": "g",
+      "package_unit_quantity": 25.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 51
@@ -6866,6 +6987,7 @@
       "purchase_date": "2025-12-21",
       "product_name": "Vanilla Powder with Extract",
       "package_unit": "oz",
+      "package_unit_quantity": 5.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 52
@@ -6876,6 +6998,7 @@
       "quantity": 50.0,
       "purchase_date": "2025-12-21",
       "package_unit": "ml",
+      "package_unit_quantity": 50.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 53
@@ -6886,6 +7009,7 @@
       "quantity": 50.0,
       "purchase_date": "2025-12-21",
       "package_unit": "ml",
+      "package_unit_quantity": 50.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 54
@@ -6897,6 +7021,7 @@
       "purchase_date": "2025-12-21",
       "product_name": "HERSHEY'S Cinnamon Baking Chips",
       "package_unit": "oz",
+      "package_unit_quantity": 10.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 55
@@ -6908,6 +7033,7 @@
       "purchase_date": "2025-12-21",
       "product_name": "HERSHEY'S KISSES SPECIAL DARK Mildly Sweet Chocolate Candy",
       "package_unit": "oz",
+      "package_unit_quantity": 11.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 56
@@ -6919,6 +7045,7 @@
       "purchase_date": "2025-12-21",
       "product_name": "HERSHEY'S SPECIAL DARK Mildly Sweet Chocolate Baking Chips",
       "package_unit": "oz",
+      "package_unit_quantity": 12.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 57
@@ -6930,6 +7057,7 @@
       "purchase_date": "2025-12-21",
       "product_name": "Natural Unsweetened Cocoa",
       "package_unit": "oz",
+      "package_unit_quantity": 10.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 58
@@ -6940,6 +7068,7 @@
       "quantity": 14.4,
       "purchase_date": "2025-12-21",
       "package_unit": "oz",
+      "package_unit_quantity": 14.4,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 59
@@ -6950,6 +7079,7 @@
       "quantity": 750.0,
       "purchase_date": "2025-12-21",
       "package_unit": "fl oz",
+      "package_unit_quantity": 750.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 60
@@ -6961,6 +7091,7 @@
       "purchase_date": "2025-12-21",
       "product_name": "Light Corn Syrup with Real Vanilla",
       "package_unit": "fl oz",
+      "package_unit_quantity": 16.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 61
@@ -6972,6 +7103,7 @@
       "purchase_date": "2025-12-21",
       "product_name": "Dark Corn Syrup",
       "package_unit": "fl oz",
+      "package_unit_quantity": 16.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 62
@@ -6982,6 +7114,7 @@
       "quantity": 1.0,
       "purchase_date": "2025-12-21",
       "package_unit": "oz",
+      "package_unit_quantity": 1.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 63
@@ -6993,6 +7126,7 @@
       "purchase_date": "2025-12-21",
       "product_name": "Unbleached All-Purpose Flour",
       "package_unit": "lb",
+      "package_unit_quantity": 25.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 64
@@ -7004,6 +7138,7 @@
       "purchase_date": "2025-12-21",
       "product_name": "White Whole Wheat Flour",
       "package_unit": "lb",
+      "package_unit_quantity": 5.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 65
@@ -7015,6 +7150,7 @@
       "purchase_date": "2025-12-21",
       "product_name": "Almond Flour",
       "package_unit": "oz",
+      "package_unit_quantity": 16.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 66
@@ -7026,6 +7162,7 @@
       "purchase_date": "2025-12-21",
       "product_name": "King Arthur Pastry Flour",
       "package_unit": "lb",
+      "package_unit_quantity": 3.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 67
@@ -7037,6 +7174,7 @@
       "purchase_date": "2025-12-21",
       "product_name": "Bread Flour",
       "package_unit": "lb",
+      "package_unit_quantity": 5.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 68
@@ -7048,6 +7186,7 @@
       "purchase_date": "2025-12-21",
       "product_name": "Unbleached Cake Flour Blend",
       "package_unit": "lb",
+      "package_unit_quantity": 2.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 69
@@ -7059,6 +7198,7 @@
       "purchase_date": "2025-12-21",
       "product_name": "Unbleached Self-Rising Flour",
       "package_unit": "lb",
+      "package_unit_quantity": 5.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 70
@@ -7070,6 +7210,7 @@
       "purchase_date": "2025-12-21",
       "product_name": "King Arthur Black Cocoa",
       "package_unit": "oz",
+      "package_unit_quantity": 14.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 71
@@ -7081,6 +7222,7 @@
       "purchase_date": "2025-12-21",
       "product_name": "Original Unflavored Gelatin",
       "package_unit": "oz",
+      "package_unit_quantity": 1.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 72
@@ -7092,6 +7234,7 @@
       "purchase_date": "2025-12-21",
       "product_name": "Kraken Black Spiced Rum",
       "package_unit": "l",
+      "package_unit_quantity": 1.75,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 73
@@ -7102,17 +7245,19 @@
       "quantity": 5.0,
       "purchase_date": "2025-12-21",
       "package_unit": "lb",
+      "package_unit_quantity": 5.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 74
     },
     {
       "ingredient_slug": "golden_syrup",
-      "product_brand": "Lyle\u2019s",
+      "product_brand": "Lyle’s",
       "quantity": 16.0,
       "purchase_date": "2025-12-21",
       "product_name": "Golden Syrup",
       "package_unit": "oz",
+      "package_unit_quantity": 16.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 75
@@ -7123,6 +7268,7 @@
       "quantity": 240.0,
       "purchase_date": "2025-12-21",
       "package_unit": "g",
+      "package_unit_quantity": 240.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 76
@@ -7133,6 +7279,7 @@
       "quantity": 12.6,
       "purchase_date": "2025-12-21",
       "package_unit": "oz",
+      "package_unit_quantity": 12.6,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 77
@@ -7144,6 +7291,7 @@
       "purchase_date": "2025-12-21",
       "product_name": "Pure Almond Extract",
       "package_unit": "fl oz",
+      "package_unit_quantity": 2.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 78
@@ -7155,6 +7303,7 @@
       "purchase_date": "2025-12-21",
       "product_name": "Pure Orange Extract",
       "package_unit": "fl oz",
+      "package_unit_quantity": 1.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 79
@@ -7166,6 +7315,7 @@
       "purchase_date": "2025-12-21",
       "product_name": "Pure Lemon Extract",
       "package_unit": "fl oz",
+      "package_unit_quantity": 2.0,
       "location": "pantry",
       "notes": "Initial inventory - full package (1/2)",
       "purchase_id": 80
@@ -7177,6 +7327,7 @@
       "purchase_date": "2025-12-21",
       "product_name": "Pure Lemon Extract",
       "package_unit": "fl oz",
+      "package_unit_quantity": 2.0,
       "location": "pantry",
       "notes": "Initial inventory - full package (2/2)",
       "purchase_id": 81
@@ -7188,6 +7339,7 @@
       "purchase_date": "2025-12-21",
       "product_name": "Cream of Tartar",
       "package_unit": "oz",
+      "package_unit_quantity": 1.5,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 82
@@ -7198,6 +7350,7 @@
       "quantity": 2.0,
       "purchase_date": "2025-12-21",
       "package_unit": "fl oz",
+      "package_unit_quantity": 2.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 83
@@ -7209,6 +7362,7 @@
       "purchase_date": "2025-12-21",
       "product_name": "Pure Peppermint Extract",
       "package_unit": "fl oz",
+      "package_unit_quantity": 2.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 84
@@ -7219,6 +7373,7 @@
       "quantity": 2.0,
       "purchase_date": "2025-12-21",
       "package_unit": "fl oz",
+      "package_unit_quantity": 2.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 85
@@ -7229,6 +7384,7 @@
       "quantity": 1.0,
       "purchase_date": "2025-12-21",
       "package_unit": "fl oz",
+      "package_unit_quantity": 1.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 86
@@ -7239,6 +7395,7 @@
       "quantity": 2.0,
       "purchase_date": "2025-12-21",
       "package_unit": "fl oz",
+      "package_unit_quantity": 2.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 87
@@ -7249,6 +7406,7 @@
       "quantity": 1.0,
       "purchase_date": "2025-12-21",
       "package_unit": "fl oz",
+      "package_unit_quantity": 1.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 88
@@ -7259,6 +7417,7 @@
       "quantity": 1.0,
       "purchase_date": "2025-12-21",
       "package_unit": "fl oz",
+      "package_unit_quantity": 1.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 89
@@ -7270,6 +7429,7 @@
       "purchase_date": "2025-12-21",
       "product_name": "Snow Cap Lard",
       "package_unit": "oz",
+      "package_unit_quantity": 16.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 90
@@ -7280,6 +7440,7 @@
       "quantity": 26.0,
       "purchase_date": "2025-12-21",
       "package_unit": "oz",
+      "package_unit_quantity": 26.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 91
@@ -7290,6 +7451,7 @@
       "quantity": 3.0,
       "purchase_date": "2025-12-21",
       "package_unit": "lb",
+      "package_unit_quantity": 3.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 92
@@ -7299,8 +7461,9 @@
       "product_brand": "Nestle",
       "quantity": 10.0,
       "purchase_date": "2025-12-21",
-      "product_name": "NESTL\u00c9\u00ae TOLL HOUSE\u00ae Semi-Sweet Chocolate Morsels",
+      "product_name": "NESTLÉ® TOLL HOUSE® Semi-Sweet Chocolate Morsels",
       "package_unit": "oz",
+      "package_unit_quantity": 10.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 93
@@ -7310,8 +7473,9 @@
       "product_brand": "Nestle",
       "quantity": 11.5,
       "purchase_date": "2025-12-21",
-      "product_name": "NESTL\u00c9\u00ae TOLL HOUSE\u00ae Milk Chocolate Morsels",
+      "product_name": "NESTLÉ® TOLL HOUSE® Milk Chocolate Morsels",
       "package_unit": "oz",
+      "package_unit_quantity": 11.5,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 94
@@ -7321,8 +7485,9 @@
       "product_brand": "Nestle",
       "quantity": 11.0,
       "purchase_date": "2025-12-21",
-      "product_name": "NESTL\u00c9\u00ae TOLL HOUSE\u00ae Butterscotch Artificially Flavored Morsels",
+      "product_name": "NESTLÉ® TOLL HOUSE® Butterscotch Artificially Flavored Morsels",
       "package_unit": "oz",
+      "package_unit_quantity": 11.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 95
@@ -7333,6 +7498,7 @@
       "quantity": 10.0,
       "purchase_date": "2025-12-21",
       "package_unit": "oz",
+      "package_unit_quantity": 10.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 96
@@ -7342,8 +7508,9 @@
       "product_brand": "Nestle",
       "quantity": 5.0,
       "purchase_date": "2025-12-21",
-      "product_name": "NESTL\u00c9\u00ae TOLL HOUSE\u00ae Organic Allergen Free Semi-Sweet Morsels",
+      "product_name": "NESTLÉ® TOLL HOUSE® Organic Allergen Free Semi-Sweet Morsels",
       "package_unit": "oz",
+      "package_unit_quantity": 10.0,
       "location": "pantry",
       "notes": "Initial inventory - partial package (50%)",
       "purchase_id": 97
@@ -7355,6 +7522,7 @@
       "purchase_date": "2025-12-21",
       "product_name": "Toll House Mini Semi-Sweet Chocolate Morsels",
       "package_unit": "oz",
+      "package_unit_quantity": 10.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 98
@@ -7364,8 +7532,9 @@
       "product_brand": "Nestle",
       "quantity": 12.0,
       "purchase_date": "2025-12-21",
-      "product_name": "NESTL\u00c9\u00ae TOLL HOUSE\u00ae Premier White Morsels",
+      "product_name": "NESTLÉ® TOLL HOUSE® Premier White Morsels",
       "package_unit": "oz",
+      "package_unit_quantity": 12.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 99
@@ -7376,6 +7545,7 @@
       "quantity": 9.0,
       "purchase_date": "2025-12-21",
       "package_unit": "oz",
+      "package_unit_quantity": 9.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 100
@@ -7386,6 +7556,7 @@
       "quantity": 26.5,
       "purchase_date": "2025-12-21",
       "package_unit": "oz",
+      "package_unit_quantity": 26.5,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 101
@@ -7396,6 +7567,7 @@
       "quantity": 5.0,
       "purchase_date": "2025-12-21",
       "package_unit": "oz",
+      "package_unit_quantity": 5.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 102
@@ -7406,6 +7578,7 @@
       "quantity": 12.8,
       "purchase_date": "2025-12-21",
       "package_unit": "oz",
+      "package_unit_quantity": 12.8,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 103
@@ -7416,6 +7589,7 @@
       "quantity": 12.8,
       "purchase_date": "2025-12-21",
       "package_unit": "oz",
+      "package_unit_quantity": 12.8,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 104
@@ -7426,6 +7600,7 @@
       "quantity": 2.0,
       "purchase_date": "2025-12-21",
       "package_unit": "fl oz",
+      "package_unit_quantity": 2.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 105
@@ -7436,6 +7611,7 @@
       "quantity": 2.0,
       "purchase_date": "2025-12-21",
       "package_unit": "fl oz",
+      "package_unit_quantity": 2.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 106
@@ -7446,6 +7622,7 @@
       "quantity": 8.0,
       "purchase_date": "2025-12-21",
       "package_unit": "fl oz",
+      "package_unit_quantity": 8.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 107
@@ -7456,6 +7633,7 @@
       "quantity": 3.0,
       "purchase_date": "2025-12-21",
       "package_unit": "each",
+      "package_unit_quantity": 3.0,
       "location": "pantry",
       "notes": "Initial inventory - full package (1/2)",
       "purchase_id": 108
@@ -7466,6 +7644,7 @@
       "quantity": 3.0,
       "purchase_date": "2025-12-21",
       "package_unit": "each",
+      "package_unit_quantity": 3.0,
       "location": "pantry",
       "notes": "Initial inventory - full package (2/2)",
       "purchase_id": 109
@@ -7477,6 +7656,7 @@
       "purchase_date": "2025-12-21",
       "product_name": "Ground Cinnamon (Vietnam Extra Fancy)",
       "package_unit": "oz",
+      "package_unit_quantity": 4.8,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 110
@@ -7488,6 +7668,7 @@
       "purchase_date": "2025-12-21",
       "product_name": "Ground Allspice",
       "package_unit": "oz",
+      "package_unit_quantity": 1.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 111
@@ -7499,6 +7680,7 @@
       "purchase_date": "2025-12-21",
       "product_name": "Ground Ginger",
       "package_unit": "oz",
+      "package_unit_quantity": 1.9,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 112
@@ -7510,6 +7692,7 @@
       "purchase_date": "2025-12-21",
       "product_name": "Ground Ginger",
       "package_unit": "oz",
+      "package_unit_quantity": 1.9,
       "location": "pantry",
       "notes": "Initial inventory - partial package (25%)",
       "purchase_id": 113
@@ -7520,6 +7703,7 @@
       "quantity": 0.33,
       "purchase_date": "2025-12-21",
       "package_unit": "oz",
+      "package_unit_quantity": 2.2,
       "location": "pantry",
       "notes": "Initial inventory - partial package (15%)",
       "purchase_id": 114
@@ -7530,6 +7714,7 @@
       "quantity": 2.4,
       "purchase_date": "2025-12-21",
       "package_unit": "oz",
+      "package_unit_quantity": 2.4,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 115
@@ -7540,6 +7725,7 @@
       "quantity": 0.9,
       "purchase_date": "2025-12-21",
       "package_unit": "oz",
+      "package_unit_quantity": 0.9,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 116
@@ -7550,6 +7736,7 @@
       "quantity": 0.6,
       "purchase_date": "2025-12-21",
       "package_unit": "oz",
+      "package_unit_quantity": 0.6,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 117
@@ -7560,6 +7747,7 @@
       "quantity": 0.9,
       "purchase_date": "2025-12-21",
       "package_unit": "oz",
+      "package_unit_quantity": 0.9,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 118
@@ -7571,6 +7759,7 @@
       "purchase_date": "2025-12-21",
       "product_name": "Ground Cloves",
       "package_unit": "oz",
+      "package_unit_quantity": 1.5,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 119
@@ -7582,6 +7771,7 @@
       "purchase_date": "2025-12-21",
       "product_name": "Ground Cardamom",
       "package_unit": "oz",
+      "package_unit_quantity": 2.4,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 120
@@ -7604,8 +7794,8 @@
       "quantity": 1.1,
       "purchase_date": "2025-12-21",
       "product_name": "Black Sesame Seeds",
-      "package_unit_quantity": 2.2,
       "package_unit": "oz",
+      "package_unit_quantity": 2.2,
       "location": "pantry",
       "notes": "Initial inventory - partial package (50%)",
       "purchase_id": 122
@@ -7616,6 +7806,7 @@
       "quantity": 0.3,
       "purchase_date": "2025-12-21",
       "package_unit": "oz",
+      "package_unit_quantity": 0.4,
       "location": "pantry",
       "notes": "Initial inventory - partial package (75%)",
       "purchase_id": 123
@@ -7626,6 +7817,7 @@
       "quantity": 5.15,
       "purchase_date": "2025-12-21",
       "package_unit": "oz",
+      "package_unit_quantity": 15.6,
       "location": "pantry",
       "notes": "Initial inventory - partial package (33%)",
       "purchase_id": 124
@@ -7636,6 +7828,7 @@
       "quantity": 1.8,
       "purchase_date": "2025-12-21",
       "package_unit": "oz",
+      "package_unit_quantity": 1.8,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 125
@@ -7646,6 +7839,7 @@
       "quantity": 1.3,
       "purchase_date": "2025-12-21",
       "package_unit": "oz",
+      "package_unit_quantity": 2.6,
       "location": "pantry",
       "notes": "Initial inventory - partial package (50%)",
       "purchase_id": 126
@@ -7656,6 +7850,7 @@
       "quantity": 3.4,
       "purchase_date": "2025-12-21",
       "package_unit": "oz",
+      "package_unit_quantity": 3.4,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 127
@@ -7666,6 +7861,7 @@
       "quantity": 4.0,
       "purchase_date": "2025-12-21",
       "package_unit": "oz",
+      "package_unit_quantity": 4.0,
       "location": "pantry",
       "notes": "Initial inventory - full package (1/2)",
       "purchase_id": 128
@@ -7676,6 +7872,7 @@
       "quantity": 4.0,
       "purchase_date": "2025-12-21",
       "package_unit": "oz",
+      "package_unit_quantity": 4.0,
       "location": "pantry",
       "notes": "Initial inventory - full package (2/2)",
       "purchase_id": 129
@@ -7686,6 +7883,7 @@
       "quantity": 3.2,
       "purchase_date": "2025-12-21",
       "package_unit": "oz",
+      "package_unit_quantity": 4.0,
       "location": "pantry",
       "notes": "Initial inventory - partial package (80%)",
       "purchase_id": 130
@@ -7696,6 +7894,7 @@
       "quantity": 1.65,
       "purchase_date": "2025-12-21",
       "package_unit": "oz",
+      "package_unit_quantity": 2.2,
       "location": "pantry",
       "notes": "Initial inventory - partial package (75%)",
       "purchase_id": 131
@@ -7705,8 +7904,9 @@
       "product_brand": "Quaker",
       "quantity": 18.0,
       "purchase_date": "2025-12-21",
-      "product_name": "Quaker\u00ae Oats Old Fashioned",
+      "product_name": "Quaker® Oats Old Fashioned",
       "package_unit": "oz",
+      "package_unit_quantity": 18.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 132
@@ -7718,6 +7918,7 @@
       "purchase_date": "2025-12-21",
       "product_name": "Baking Powder",
       "package_unit": "g",
+      "package_unit_quantity": 230.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 133
@@ -7728,6 +7929,7 @@
       "quantity": 2.0,
       "purchase_date": "2025-12-21",
       "package_unit": "lb",
+      "package_unit_quantity": 2.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 134
@@ -7738,6 +7940,7 @@
       "quantity": 13.0,
       "purchase_date": "2025-12-21",
       "package_unit": "oz",
+      "package_unit_quantity": 13.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 135
@@ -7748,6 +7951,7 @@
       "quantity": 8.0,
       "purchase_date": "2025-12-21",
       "package_unit": "oz",
+      "package_unit_quantity": 8.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 136
@@ -7758,6 +7962,7 @@
       "quantity": 1.0,
       "purchase_date": "2025-12-21",
       "package_unit": "lb",
+      "package_unit_quantity": 1.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 137
@@ -7768,6 +7973,7 @@
       "quantity": 1.0,
       "purchase_date": "2025-12-21",
       "package_unit": "oz",
+      "package_unit_quantity": 1.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 138
@@ -7778,6 +7984,7 @@
       "quantity": 16.0,
       "purchase_date": "2025-12-21",
       "package_unit": "lb",
+      "package_unit_quantity": 16.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 139
@@ -7788,6 +7995,7 @@
       "quantity": 8.0,
       "purchase_date": "2025-12-21",
       "package_unit": "oz",
+      "package_unit_quantity": 8.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 140
@@ -7798,6 +8006,7 @@
       "quantity": 8.0,
       "purchase_date": "2025-12-21",
       "package_unit": "oz",
+      "package_unit_quantity": 8.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 141
@@ -7808,6 +8017,7 @@
       "quantity": 16.0,
       "purchase_date": "2025-12-21",
       "package_unit": "lb",
+      "package_unit_quantity": 16.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 142
@@ -7818,6 +8028,7 @@
       "quantity": 24.0,
       "purchase_date": "2025-12-21",
       "package_unit": "oz",
+      "package_unit_quantity": 24.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 143
@@ -7828,6 +8039,7 @@
       "quantity": 7.0,
       "purchase_date": "2025-12-21",
       "package_unit": "lb",
+      "package_unit_quantity": 7.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 144
@@ -7838,6 +8050,7 @@
       "quantity": 1.0,
       "purchase_date": "2025-12-21",
       "package_unit": "qt",
+      "package_unit_quantity": 1.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 145
@@ -7848,6 +8061,7 @@
       "quantity": 5.0,
       "purchase_date": "2025-12-21",
       "package_unit": "lb",
+      "package_unit_quantity": 5.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 146
@@ -7858,6 +8072,7 @@
       "quantity": 2.0,
       "purchase_date": "2025-12-21",
       "package_unit": "lb",
+      "package_unit_quantity": 2.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 147
@@ -7868,6 +8083,7 @@
       "quantity": 5.0,
       "purchase_date": "2025-12-21",
       "package_unit": "lb",
+      "package_unit_quantity": 5.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 148
@@ -7878,6 +8094,7 @@
       "quantity": 16.0,
       "purchase_date": "2025-12-21",
       "package_unit": "oz",
+      "package_unit_quantity": 16.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 149
@@ -7888,6 +8105,7 @@
       "quantity": 16.0,
       "purchase_date": "2025-12-21",
       "package_unit": "oz",
+      "package_unit_quantity": 16.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 150
@@ -7898,6 +8116,7 @@
       "quantity": 32.0,
       "purchase_date": "2025-12-21",
       "package_unit": "fl oz",
+      "package_unit_quantity": 32.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 151
@@ -7909,6 +8128,7 @@
       "purchase_date": "2025-12-21",
       "product_name": "100% Pure Corn Starch",
       "package_unit": "lb",
+      "package_unit_quantity": 1.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 152
@@ -7919,16 +8139,18 @@
       "quantity": 2.0,
       "purchase_date": "2025-12-21",
       "package_unit": "lb",
+      "package_unit_quantity": 2.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 153
     },
     {
       "ingredient_slug": "raisins",
-      "product_brand": "Wegman\u2019s",
+      "product_brand": "Wegman’s",
       "quantity": 3.0,
       "purchase_date": "2025-12-21",
       "package_unit": "lb",
+      "package_unit_quantity": 3.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 154
@@ -7939,6 +8161,7 @@
       "quantity": 1.0,
       "purchase_date": "2025-12-21",
       "package_unit": "lb",
+      "package_unit_quantity": 1.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 155
@@ -7951,7 +8174,7 @@
       "yield_quantity": 30.0,
       "yield_unit": "slices",
       "source": "Holiday Cooking 1982",
-      "notes": "Beat butter until softened. Add 1 cup flour, sugar, eggs, baking powder, vanilla; beat till combined. Stir in remaining flour and nuts. Divide in half. Shape into 9-inch logs, 2 inches wide. Place 4 inches apart on ungreased sheet. Bake 325\u00b0F for 1 hour. Cool 1 hour. Cut diagonally into \u00bd-inch slices. Lay cut side down. Bake 325\u00b0F 8 minutes, turn, bake 8-10 minutes more till dry and crisp. Cool. Optional: melt chocolate with shortening, drizzle over cookies.",
+      "notes": "Beat butter until softened. Add 1 cup flour, sugar, eggs, baking powder, vanilla; beat till combined. Stir in remaining flour and nuts. Divide in half. Shape into 9-inch logs, 2 inches wide. Place 4 inches apart on ungreased sheet. Bake 325°F for 1 hour. Cool 1 hour. Cut diagonally into ½-inch slices. Lay cut side down. Bake 325°F 8 minutes, turn, bake 8-10 minutes more till dry and crisp. Cool. Optional: melt chocolate with shortening, drizzle over cookies.",
       "ingredients": [
         {
           "ingredient_slug": "butter_unsalted",
@@ -8117,8 +8340,8 @@
       "category": "Cakes",
       "yield_quantity": 16.0,
       "yield_unit": "servings",
-      "source": "NESTL\u00c9 TOLL HOUSE",
-      "notes": "Preheat 350\u00b0F. Grease bundt pan. Microwave 1 cup butterscotch morsels MEDIUM HIGH 70% 1 min; stir till melted. Cool. Mix flour, sugar, baking powder, cinnamon, salt, nutmeg. Whisk melted morsels, pumpkin, oil, eggs, vanilla. Stir in flour. Pour into pan. Bake 40-50 min till pick clean. Cool 30 min, remove from pan. Dust with powdered sugar. Sauce: heat 1/3 cup evaporated milk to boil, remove. Add remaining morsels, stir smooth. Return to heat, bring to boil. Cool.",
+      "source": "NESTLÉ TOLL HOUSE",
+      "notes": "Preheat 350°F. Grease bundt pan. Microwave 1 cup butterscotch morsels MEDIUM HIGH 70% 1 min; stir till melted. Cool. Mix flour, sugar, baking powder, cinnamon, salt, nutmeg. Whisk melted morsels, pumpkin, oil, eggs, vanilla. Stir in flour. Pour into pan. Bake 40-50 min till pick clean. Cool 30 min, remove from pan. Dust with powdered sugar. Sauce: heat 1/3 cup evaporated milk to boil, remove. Add remaining morsels, stir smooth. Return to heat, bring to boil. Cool.",
       "ingredients": [
         {
           "ingredient_slug": "butterscotch_chips",
@@ -8261,7 +8484,7 @@
       "yield_quantity": 76.0,
       "yield_unit": "truffles",
       "source": "Magazine",
-      "notes": "Boil cream and butter. Add 2.5 lb chocolate; whisk smooth. Whisk in sour cream, liqueur, orange peel. Pour into 9x13 dish, refrigerate 1 hr. Line 4 sheets: 2 with powdered sugar, 2 with cocoa. Scoop truffles onto sheets. Freeze 10 min. Roll in coating, then hands. Freeze 15 min. Melt white chocolate to 115\u00b0F. Dip sugar truffles, refrigerate 1 hr. Repeat for double coat. Melt 1.5 lb bittersweet to 115\u00b0F. Wave spoon over white truffles making zigzags. Repeat process for remaining truffles. Assemble on cone with toothpicks in spiral.",
+      "notes": "Boil cream and butter. Add 2.5 lb chocolate; whisk smooth. Whisk in sour cream, liqueur, orange peel. Pour into 9x13 dish, refrigerate 1 hr. Line 4 sheets: 2 with powdered sugar, 2 with cocoa. Scoop truffles onto sheets. Freeze 10 min. Roll in coating, then hands. Freeze 15 min. Melt white chocolate to 115°F. Dip sugar truffles, refrigerate 1 hr. Repeat for double coat. Melt 1.5 lb bittersweet to 115°F. Wave spoon over white truffles making zigzags. Repeat process for remaining truffles. Assemble on cone with toothpicks in spiral.",
       "ingredients": [
         {
           "ingredient_slug": "cream_heavy",
@@ -8318,7 +8541,7 @@
       "yield_quantity": 9.0,
       "yield_unit": "cookies",
       "source": "Magazine",
-      "notes": "Preheat 350\u00b0F. Beat butter, 2/3 cup sugar, vanilla till fluffy 2-3 min. Beat in egg, molasses. Whisk flour, cardamom (1/2 cup), cinnamon (2.5 tbsp), ginger (6 tsp total), cloves (2 tsp), pepper (2 tsp), baking soda, salt. Add to butter on low. Beat on medium 2 min. Roll dough 1/2 inch thick. Scoop into 2-inch balls. Roll in 1 cup sugar. Place 2.5 inches apart. Bake 15-16 min till cracked. Cool on pans.",
+      "notes": "Preheat 350°F. Beat butter, 2/3 cup sugar, vanilla till fluffy 2-3 min. Beat in egg, molasses. Whisk flour, cardamom (1/2 cup), cinnamon (2.5 tbsp), ginger (6 tsp total), cloves (2 tsp), pepper (2 tsp), baking soda, salt. Add to butter on low. Beat on medium 2 min. Roll dough 1/2 inch thick. Scoop into 2-inch balls. Roll in 1 cup sugar. Place 2.5 inches apart. Bake 15-16 min till cracked. Cool on pans.",
       "ingredients": [
         {
           "ingredient_slug": "butter_unsalted",
@@ -8395,7 +8618,7 @@
       "yield_quantity": 15.0,
       "yield_unit": "cookies",
       "source": "King Arthur Baking (print)",
-      "notes": "Combine; scoop 1\" balls; flatten with fork; bake 8\u201310 min.",
+      "notes": "Combine; scoop 1\" balls; flatten with fork; bake 8–10 min.",
       "ingredients": [
         {
           "ingredient_slug": "almond_flour",
@@ -8496,7 +8719,7 @@
       "yield_quantity": 4.0,
       "yield_unit": "cakes",
       "source": "Magazine recipe",
-      "notes": "Preheat oven to 350\u00b0F. Butter and flour four 5\u00bex3\u00bcx1\u215e-inch loaf pans. Sift flour, baking powder and salt into medium bowl. Using electric mixer, beat sugar and unsalted butter in large bowl until light and fluffy. Add eggs 1 at a time, beating well after each addition. Beat in orange juice, grated orange peel and vanilla extract (batter may look curdled). Beat in flour mixture. Fold in poppy seeds. Divide batter equally among prepared pans (about 1\u00bd cups each). Place pans in oven. Bake until tester inserted in center comes out clean, about 55 minutes. Transfer pans to racks. Cool cakes in pans 10 minutes. Turn cakes out onto wire racks and cool completely.",
+      "notes": "Preheat oven to 350°F. Butter and flour four 5¾x3¼x1⅞-inch loaf pans. Sift flour, baking powder and salt into medium bowl. Using electric mixer, beat sugar and unsalted butter in large bowl until light and fluffy. Add eggs 1 at a time, beating well after each addition. Beat in orange juice, grated orange peel and vanilla extract (batter may look curdled). Beat in flour mixture. Fold in poppy seeds. Divide batter equally among prepared pans (about 1½ cups each). Place pans in oven. Bake until tester inserted in center comes out clean, about 55 minutes. Transfer pans to racks. Cool cakes in pans 10 minutes. Turn cakes out onto wire racks and cool completely.",
       "ingredients": [
         {
           "ingredient_slug": "all_purpose_wheat_flour",
@@ -8560,7 +8783,7 @@
       "yield_quantity": 36.0,
       "yield_unit": "cookies",
       "source": "Christmas Cookies 2006",
-      "notes": "Line sheet with parchment. Preheat 350\u00b0F. Mix flour, baking soda, salt. Beat butter 30 sec. Beat in sugars. Beat in eggs, vanilla. Beat in flour as much as possible. Stir in remaining flour. Stir in nuts, raisins, chocolate. Drop 1/4 cup dough 3 inches apart. Bake 12-15 min till golden and set. Stand 5 min. Transfer to rack; cool. Store in refrigerator up to 3 days or freeze up to 3 months.",
+      "notes": "Line sheet with parchment. Preheat 350°F. Mix flour, baking soda, salt. Beat butter 30 sec. Beat in sugars. Beat in eggs, vanilla. Beat in flour as much as possible. Stir in remaining flour. Stir in nuts, raisins, chocolate. Drop 1/4 cup dough 3 inches apart. Bake 12-15 min till golden and set. Stand 5 min. Transfer to rack; cool. Store in refrigerator up to 3 days or freeze up to 3 months.",
       "ingredients": [
         {
           "ingredient_slug": "all_purpose_wheat_flour",
@@ -8720,13 +8943,13 @@
       "yield_quantity": 1.0,
       "yield_unit": "cake",
       "source": "King Arthur Baking - 2017 Recipe of the Year",
-      "notes": "Preheat oven to 350\u00b0F. Beat butter, sugar, and salt until combined, then fluffy and lightened in color. Add eggs one at a time, beating well after each addition. Scrape sides and bottom once all eggs added, beat briefly to re-combine. Measure flour by gently spooning into cup, then sweeping off excess. Whisk baking powder into flour. Add flour mixture to batter in three parts alternately with milk, starting and ending with flour. Batter may look slightly curdled when you add milk - that's OK; it'll smooth out as you add flour. Mix until well combined; batter will look a bit rough, but shouldn't have large lumps. Stir in grated lemon rind or lemon oil. Thoroughly grease 10-12 cup Bundt pan. Spoon batter into prepared pan, leveling and smoothing top with spatula. Bake 45-60 minutes, until cake tester or toothpick comes out clean. Pan with dark interior will bake more quickly; start checking at 40 minutes. While cake bakes, make glaze by stirring together lemon juice and sugar. Microwave or heat over burner briefly, stirring to dissolve sugar. Don't cook lemon juice; microwave until very warm, but not uncomfortably hot - less than 1 minute. Remove cake from oven, carefully run knife between cake and pan all around edge. Place pan upside down on serving plate. Let cool 15 minutes before removing pan. Poke holes in warm cake with toothpick. Brush glaze over warm cake. Cool completely before serving.",
+      "notes": "Preheat oven to 350°F. Beat butter, sugar, and salt until combined, then fluffy and lightened in color. Add eggs one at a time, beating well after each addition. Scrape sides and bottom once all eggs added, beat briefly to re-combine. Measure flour by gently spooning into cup, then sweeping off excess. Whisk baking powder into flour. Add flour mixture to batter in three parts alternately with milk, starting and ending with flour. Batter may look slightly curdled when you add milk - that's OK; it'll smooth out as you add flour. Mix until well combined; batter will look a bit rough, but shouldn't have large lumps. Stir in grated lemon rind or lemon oil. Thoroughly grease 10-12 cup Bundt pan. Spoon batter into prepared pan, leveling and smoothing top with spatula. Bake 45-60 minutes, until cake tester or toothpick comes out clean. Pan with dark interior will bake more quickly; start checking at 40 minutes. While cake bakes, make glaze by stirring together lemon juice and sugar. Microwave or heat over burner briefly, stirring to dissolve sugar. Don't cook lemon juice; microwave until very warm, but not uncomfortably hot - less than 1 minute. Remove cake from oven, carefully run knife between cake and pan all around edge. Place pan upside down on serving plate. Let cool 15 minutes before removing pan. Poke holes in warm cake with toothpick. Brush glaze over warm cake. Cool completely before serving.",
       "ingredients": [
         {
           "ingredient_slug": "butter_unsalted",
           "quantity": 16.0,
           "unit": "tbsp",
-          "notes": "room temperature, at least 65\u00b0F"
+          "notes": "room temperature, at least 65°F"
         },
         {
           "ingredient_slug": "sugar_granulated",
@@ -8782,7 +9005,7 @@
       "yield_quantity": 1.0,
       "yield_unit": "cake",
       "source": "Cake Baker's Art",
-      "notes": "Sift flour, baking powder, salt, baking soda, cinnamon, ginger, nutmeg, and cloves onto wax paper. Cream butter or margarine with brown sugar until fluffy in a large bowl; beat in eggs, one at a time; stir in currant jelly and apple juice. Stir in flour mixture until blended, then candied fruits, dates, walnuts, and currants. Spoon half of batter into a greased 9-inch tube pan. Combine granulated sugar, lemon rind, and lemon sections; spoon over batter in pan. Top with remaining batter. Bake in slow oven (300\u00b0) for 1\u00be hours, or until a long thin skewer inserted near center comes out clean. Cool completely in pan on a wire rack. Loosen around edge with a knife; turn out onto rack.",
+      "notes": "Sift flour, baking powder, salt, baking soda, cinnamon, ginger, nutmeg, and cloves onto wax paper. Cream butter or margarine with brown sugar until fluffy in a large bowl; beat in eggs, one at a time; stir in currant jelly and apple juice. Stir in flour mixture until blended, then candied fruits, dates, walnuts, and currants. Spoon half of batter into a greased 9-inch tube pan. Combine granulated sugar, lemon rind, and lemon sections; spoon over batter in pan. Top with remaining batter. Bake in slow oven (300°) for 1¾ hours, or until a long thin skewer inserted near center comes out clean. Cool completely in pan on a wire rack. Loosen around edge with a knife; turn out onto rack.",
       "ingredients": [
         {
           "ingredient_slug": "all_purpose_wheat_flour",
@@ -9055,7 +9278,7 @@
       "yield_quantity": 1.0,
       "yield_unit": "loaf",
       "source": "Cake Baker's Art",
-      "notes": "Grease a loaf pan, 9x5x3. Sift flour, baking powder, cinnamon, mace, and cloves onto wax paper. Cream butter or margarine with brown sugar until fluffy; light in a large bowl; beat in eggs, one at a time; stir in apricots and whiskey. Stir in flour mixture until blended, then raisins, mixed fruits, pecans, and cherries. Spoon into prepared pan; spread top even. Bake in slow oven (300\u00b0) 2 hours, or until a wooden pick inserted in center comes out clean. Cool completely in pan on a wire rack. Loosen cooled cake around the edges with a knife; turn out onto rack.",
+      "notes": "Grease a loaf pan, 9x5x3. Sift flour, baking powder, cinnamon, mace, and cloves onto wax paper. Cream butter or margarine with brown sugar until fluffy; light in a large bowl; beat in eggs, one at a time; stir in apricots and whiskey. Stir in flour mixture until blended, then raisins, mixed fruits, pecans, and cherries. Spoon into prepared pan; spread top even. Bake in slow oven (300°) 2 hours, or until a wooden pick inserted in center comes out clean. Cool completely in pan on a wire rack. Loosen cooled cake around the edges with a knife; turn out onto rack.",
       "ingredients": [
         {
           "ingredient_slug": "all_purpose_wheat_flour",
@@ -9150,7 +9373,7 @@
       "yield_quantity": 18.0,
       "yield_unit": "cookies",
       "source": "Bake from Scratch magazine",
-      "notes": "In bowl of stand mixer fitted with paddle attachment, beat butter, confectioners' sugar, and salt at medium speed until light and creamy, 2 to 3 minutes, stopping to scrape sides of bowl. Beat in vanilla. In medium bowl, whisk together flours. With mixer on low speed, add flour mixture to butter mixture in two additions, beating just until combined after each addition. Turn out dough, and shape into a disk. Wrap in plastic wrap, and refrigerate until firm, about 2 hours, or up to overnight. Preheat oven to 325\u00b0F (170\u00b0C). Line baking sheets with parchment paper. On lightly floured surface, roll dough to \u00bd-inch thickness. Using 4-inch tree-shaped cutter, cut dough, rerolling scraps as necessary. Place 1\u00bd inches apart on prepared pans. Bake until edges are lightly browned, 20 to 25 minutes, rotating pans halfway through baking. Let cool on pans 10 minutes. Remove from pans, and let cool completely on wire racks. Spoon melted white chocolate into piping bag, and cut very small opening in tip. Pipe onto cookies to resemble garland; immediately garnish with nonpareils, if desired. Let stand until chocolate is set, about 1 hour. Store in airtight container up to 5 days.",
+      "notes": "In bowl of stand mixer fitted with paddle attachment, beat butter, confectioners' sugar, and salt at medium speed until light and creamy, 2 to 3 minutes, stopping to scrape sides of bowl. Beat in vanilla. In medium bowl, whisk together flours. With mixer on low speed, add flour mixture to butter mixture in two additions, beating just until combined after each addition. Turn out dough, and shape into a disk. Wrap in plastic wrap, and refrigerate until firm, about 2 hours, or up to overnight. Preheat oven to 325°F (170°C). Line baking sheets with parchment paper. On lightly floured surface, roll dough to ½-inch thickness. Using 4-inch tree-shaped cutter, cut dough, rerolling scraps as necessary. Place 1½ inches apart on prepared pans. Bake until edges are lightly browned, 20 to 25 minutes, rotating pans halfway through baking. Let cool on pans 10 minutes. Remove from pans, and let cool completely on wire racks. Spoon melted white chocolate into piping bag, and cut very small opening in tip. Pipe onto cookies to resemble garland; immediately garnish with nonpareils, if desired. Let stand until chocolate is set, about 1 hour. Store in airtight container up to 5 days.",
       "ingredients": [
         {
           "ingredient_slug": "butter_unsalted",
@@ -9204,7 +9427,7 @@
       "yield_quantity": 16.0,
       "yield_unit": "servings",
       "source": "Williams-Sonoma",
-      "notes": "Room temp ingredients. Preheat 325\u00b0F. Grease flour bundt pan. Sift flour, cocoa, baking powder, baking soda, salt twice. Beat butter smooth 30-45 sec. Add 1.5 cups sugar on low. Beat medium-high till fluffy 3-5 min. Add eggs gradually till thick 1-2 min. Beat in vanilla. Fold in flour in 3 additions alternating with sour cream, beginning and ending with flour. Fold in 6 oz melted chocolate. Pour into pan. Bake 1 hour till pick clean. Cool 10 min. Glaze: heat 1 cup sugar, 1/2 cup milk till dissolved. Stir in 1 tbsp liqueur. Invert cake. Brush with glaze. Dust with powdered sugar. Serve with whipped cream.",
+      "notes": "Room temp ingredients. Preheat 325°F. Grease flour bundt pan. Sift flour, cocoa, baking powder, baking soda, salt twice. Beat butter smooth 30-45 sec. Add 1.5 cups sugar on low. Beat medium-high till fluffy 3-5 min. Add eggs gradually till thick 1-2 min. Beat in vanilla. Fold in flour in 3 additions alternating with sour cream, beginning and ending with flour. Fold in 6 oz melted chocolate. Pour into pan. Bake 1 hour till pick clean. Cool 10 min. Glaze: heat 1 cup sugar, 1/2 cup milk till dissolved. Stir in 1 tbsp liqueur. Invert cake. Brush with glaze. Dust with powdered sugar. Serve with whipped cream.",
       "ingredients": [
         {
           "ingredient_slug": "all_purpose_wheat_flour",
@@ -9287,7 +9510,7 @@
       "components": []
     },
     {
-      "name": "Toasted Almond Sabl\u00e9s",
+      "name": "Toasted Almond Sablés",
       "category": "Cookies",
       "yield_quantity": 22.0,
       "yield_unit": "cookies",
