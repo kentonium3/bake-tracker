@@ -16,10 +16,23 @@ Usage Examples:
 
     # Import with replace mode (clears existing data first)
     python -m src.utils.import_export_cli import test_data.json --mode replace
+
+    # Export complete database with manifest (F030)
+    python -m src.utils.import_export_cli export-complete -o ./export_dir
+
+    # Export complete database as ZIP (F030)
+    python -m src.utils.import_export_cli export-complete -o ./export_dir --zip
+
+    # Export denormalized view (F030)
+    python -m src.utils.import_export_cli export-view -t products -o view_products.json
+
+    # Validate export checksums (F030)
+    python -m src.utils.import_export_cli validate-export ./export_dir
 """
 
 import sys
 import argparse
+from datetime import datetime
 from pathlib import Path
 
 # Add parent directory to path for imports
@@ -160,6 +173,156 @@ def import_all(input_file: str, mode: str = "merge"):
         return 1
 
 
+# ============================================================================
+# F030 Export Commands
+# ============================================================================
+
+
+def export_complete_cmd(output_dir: str = None, create_zip: bool = False):
+    """
+    Export complete database with manifest (F030).
+
+    Creates a directory containing:
+    - manifest.json with checksums and import order
+    - Individual entity JSON files (suppliers, ingredients, products, etc.)
+    - Optional ZIP archive
+
+    Args:
+        output_dir: Output directory (default: export_{timestamp})
+        create_zip: Whether to create a ZIP archive
+
+    Returns:
+        0 on success, 1 on failure
+    """
+    from src.services.coordinated_export_service import export_complete
+
+    # Generate default output directory if not provided
+    if output_dir is None:
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        output_dir = f"export_{timestamp}"
+
+    print(f"Exporting complete database to {output_dir}...")
+
+    try:
+        manifest = export_complete(output_dir, create_zip=create_zip)
+
+        # Print summary
+        total_records = sum(f.record_count for f in manifest.files)
+        print(f"\nExport Complete")
+        print(f"---------------")
+        print(f"Output directory: {output_dir}")
+        print(f"Export date: {manifest.export_date}")
+        print(f"Files exported: {len(manifest.files)}")
+        print(f"Total records: {total_records}")
+        print()
+        for f in manifest.files:
+            print(f"  {f.filename}: {f.record_count} records")
+
+        if create_zip:
+            zip_path = Path(output_dir).with_suffix(".zip")
+            print(f"\nZIP archive: {zip_path}")
+
+        return 0
+
+    except Exception as e:
+        print(f"ERROR: {e}")
+        return 1
+
+
+def export_view_cmd(view_type: str, output_path: str = None):
+    """
+    Export denormalized view (F030).
+
+    Creates a view file with context fields for AI augmentation.
+
+    Args:
+        view_type: Type of view (products, inventory, purchases)
+        output_path: Output file path (default: view_{type}.json)
+
+    Returns:
+        0 on success, 1 on failure
+    """
+    from src.services.denormalized_export_service import (
+        export_products_view,
+        export_inventory_view,
+        export_purchases_view,
+    )
+
+    # Map view types to export functions
+    exporters = {
+        "products": export_products_view,
+        "inventory": export_inventory_view,
+        "purchases": export_purchases_view,
+    }
+
+    if view_type not in exporters:
+        print(f"ERROR: Unknown view type '{view_type}'. Valid types: {', '.join(exporters.keys())}")
+        return 1
+
+    # Generate default output path if not provided
+    if output_path is None:
+        output_path = f"view_{view_type}.json"
+
+    print(f"Exporting {view_type} view to {output_path}...")
+
+    try:
+        result = exporters[view_type](output_path)
+
+        # Print summary
+        print(f"\nExport Complete")
+        print(f"---------------")
+        print(f"View type: {result.view_type}")
+        print(f"Output file: {result.output_path}")
+        print(f"Records exported: {result.record_count}")
+        print(f"Export date: {result.export_date}")
+
+        return 0
+
+    except Exception as e:
+        print(f"ERROR: {e}")
+        return 1
+
+
+def validate_export_cmd(export_dir: str):
+    """
+    Validate export checksums (F030).
+
+    Verifies that all files in the export directory match their
+    manifest checksums.
+
+    Args:
+        export_dir: Path to export directory with manifest.json
+
+    Returns:
+        0 if valid, 1 if invalid
+    """
+    from src.services.coordinated_export_service import validate_export
+
+    print(f"Validating export in {export_dir}...")
+
+    try:
+        result = validate_export(export_dir)
+
+        if result["valid"]:
+            print(f"\nValidation Passed")
+            print(f"-----------------")
+            print(f"Files checked: {result['files_checked']}")
+            print("All checksums valid.")
+            return 0
+        else:
+            print(f"\nValidation Failed")
+            print(f"-----------------")
+            print(f"Files checked: {result['files_checked']}")
+            print("Errors found:")
+            for error in result["errors"]:
+                print(f"  - {error}")
+            return 1
+
+    except Exception as e:
+        print(f"ERROR: {e}")
+        return 1
+
+
 def main():
     """Main CLI entry point."""
     parser = argparse.ArgumentParser(
@@ -176,41 +339,96 @@ Examples:
   Import with replace mode (clears existing data):
     python -m src.utils.import_export_cli import test_data.json --mode replace
 
-  Export specific entity types:
-    python -m src.utils.import_export_cli export-ingredients ingredients.json
-    python -m src.utils.import_export_cli export-recipes recipes.json
+  Export complete database with manifest (F030):
+    python -m src.utils.import_export_cli export-complete -o ./export_dir
+    python -m src.utils.import_export_cli export-complete -o ./export_dir --zip
+
+  Export denormalized view (F030):
+    python -m src.utils.import_export_cli export-view -t products -o view_products.json
+
+  Validate export checksums (F030):
+    python -m src.utils.import_export_cli validate-export ./export_dir
 
 Note: Individual entity imports (import-ingredients, etc.) are no longer
 supported. Use the 'import' command with a complete v3.2 format file.
 """,
     )
 
-    parser.add_argument(
-        "command",
-        choices=[
-            "export",
-            "export-ingredients",
-            "export-recipes",
-            "export-finished-goods",
-            "export-bundles",
-            "export-packages",
-            "export-recipients",
-            "export-events",
-            "import",
-        ],
-        help="Command to execute",
-    )
+    # Create subparsers for different commands
+    subparsers = parser.add_subparsers(dest="command", help="Command to execute")
 
-    parser.add_argument("file", help="JSON file path")
+    # Legacy export command (requires file)
+    export_parser = subparsers.add_parser("export", help="Export all data (v3.2 format)")
+    export_parser.add_argument("file", help="JSON file path")
 
-    parser.add_argument(
+    # Legacy entity-specific export commands
+    for entity in ["ingredients", "recipes", "finished-goods", "bundles", "packages", "recipients", "events"]:
+        entity_parser = subparsers.add_parser(
+            f"export-{entity}",
+            help=f"Export {entity} only"
+        )
+        entity_parser.add_argument("file", help="JSON file path")
+
+    # Legacy import command
+    import_parser = subparsers.add_parser("import", help="Import all data (v3.2 format)")
+    import_parser.add_argument("file", help="JSON file path")
+    import_parser.add_argument(
         "--mode",
         choices=["merge", "replace"],
         default="merge",
         help="Import mode: 'merge' (default) adds new records, 'replace' clears existing data first",
     )
 
+    # F030: export-complete command
+    export_complete_parser = subparsers.add_parser(
+        "export-complete",
+        help="Export complete database with manifest (F030)"
+    )
+    export_complete_parser.add_argument(
+        "-o", "--output",
+        dest="output_dir",
+        help="Output directory (default: export_{timestamp})"
+    )
+    export_complete_parser.add_argument(
+        "-z", "--zip",
+        dest="create_zip",
+        action="store_true",
+        help="Create ZIP archive"
+    )
+
+    # F030: export-view command
+    export_view_parser = subparsers.add_parser(
+        "export-view",
+        help="Export denormalized view (F030)"
+    )
+    export_view_parser.add_argument(
+        "-t", "--type",
+        dest="view_type",
+        choices=["products", "inventory", "purchases"],
+        required=True,
+        help="View type to export"
+    )
+    export_view_parser.add_argument(
+        "-o", "--output",
+        dest="output_path",
+        help="Output file path (default: view_{type}.json)"
+    )
+
+    # F030: validate-export command
+    validate_parser = subparsers.add_parser(
+        "validate-export",
+        help="Validate export checksums (F030)"
+    )
+    validate_parser.add_argument(
+        "export_dir",
+        help="Path to export directory with manifest.json"
+    )
+
     args = parser.parse_args()
+
+    if args.command is None:
+        parser.print_help()
+        return 1
 
     # Initialize database (required for all operations)
     print("Initializing database...")
@@ -235,6 +453,12 @@ supported. Use the 'import' command with a complete v3.2 format file.
         return export_events(args.file)
     elif args.command == "import":
         return import_all(args.file, mode=args.mode)
+    elif args.command == "export-complete":
+        return export_complete_cmd(args.output_dir, args.create_zip)
+    elif args.command == "export-view":
+        return export_view_cmd(args.view_type, args.output_path)
+    elif args.command == "validate-export":
+        return validate_export_cmd(args.export_dir)
     else:
         print(f"Unknown command: {args.command}")
         return 1
