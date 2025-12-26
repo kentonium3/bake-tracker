@@ -924,14 +924,16 @@
       "brand": "Penzeys",
       "package_unit": "oz",
       "package_unit_quantity": 1.0,
-      "package_type": "jar"
+      "package_type": "jar",
+      "product_name": "Black Sesame Seeds"
     },
     {
       "ingredient_slug": "sesame_seeds",
       "brand": "Penzeys",
       "package_unit": "oz",
       "package_unit_quantity": 2.2,
-      "package_type": "jar"
+      "package_type": "jar",
+      "product_name": "Black Sesame Seeds"
     },
     {
       "ingredient_slug": "shortening",

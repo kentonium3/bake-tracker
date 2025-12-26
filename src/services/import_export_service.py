@@ -1294,6 +1294,8 @@ def export_all_to_json(file_path: str) -> ExportResult:
                     item_data["package_size"] = item.product.package_size
                 if item.product.package_unit:
                     item_data["package_unit"] = item.product.package_unit
+                if item.product.package_unit_quantity is not None:
+                    item_data["package_unit_quantity"] = item.product.package_unit_quantity
 
                 # Optional fields
                 if item.expiration_date:
@@ -2764,6 +2766,7 @@ def import_all_from_json_v3(file_path: str, mode: str = "merge") -> ImportResult
                         product_name = item_data.get("product_name")
                         package_size = item_data.get("package_size")
                         package_unit = item_data.get("package_unit")
+                        package_unit_quantity = item_data.get("package_unit_quantity")
 
                         # Find ingredient
                         ingredient = session.query(Ingredient).filter_by(slug=ing_slug).first()
@@ -2788,6 +2791,8 @@ def import_all_from_json_v3(file_path: str, mode: str = "merge") -> ImportResult
                             product_filter["package_size"] = package_size
                         if package_unit is not None:
                             product_filter["package_unit"] = package_unit
+                        if package_unit_quantity is not None:
+                            product_filter["package_unit_quantity"] = package_unit_quantity
 
                         # Query for matching products
                         matching_products = session.query(Product).filter_by(**product_filter).all()

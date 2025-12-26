@@ -110,7 +110,7 @@ def _get_products_impl(
     for p in products:
         data = p.to_dict()
         last_purchase = _get_last_purchase(p.id, session)
-        data["last_price"] = str(last_purchase["unit_price"]) if last_purchase else None
+        data["last_price"] = float(last_purchase["unit_price"]) if last_purchase and last_purchase["unit_price"] is not None else None
         data["last_purchase_date"] = last_purchase["purchase_date"] if last_purchase else None
 
         # Enrich with ingredient info
@@ -164,7 +164,7 @@ def _get_product_with_last_price_impl(product_id: int, session: Session) -> Opti
         return None
     data = product.to_dict()
     last_purchase = _get_last_purchase(product_id, session)
-    data["last_price"] = str(last_purchase["unit_price"]) if last_purchase else None
+    data["last_price"] = float(last_purchase["unit_price"]) if last_purchase and last_purchase["unit_price"] is not None else None
     data["last_purchase_date"] = last_purchase["purchase_date"] if last_purchase else None
 
     # Enrich with ingredient info

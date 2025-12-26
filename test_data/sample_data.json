@@ -3978,6 +3978,7 @@
       "package_unit_quantity": 1.0,
       "brand": "Penzeys",
       "package_type": "jar",
+      "product_name": "Black Sesame Seeds",
       "is_hidden": false
     },
     {
@@ -3986,6 +3987,7 @@
       "package_unit_quantity": 2.2,
       "brand": "Penzeys",
       "package_type": "jar",
+      "product_name": "Black Sesame Seeds",
       "is_hidden": false
     },
     {
@@ -4310,7 +4312,7 @@
       "uuid": "02885bf8-c2fb-46cf-86f4-2df3ac2d7d03",
       "product_id": 101,
       "supplier_id": 1,
-      "ingredient_slug": "olive_oil",
+      "ingredient_slug": "oil_olive",
       "product_brand": "Bertolli",
       "purchase_date": "2025-12-21",
       "quantity_purchased": 3,
@@ -4472,7 +4474,7 @@
       "uuid": "5cd45485-4d1c-4c80-a96e-12189239703d",
       "product_id": 6,
       "supplier_id": 1,
-      "ingredient_slug": "almonds_whole",
+      "ingredient_slug": "almonds",
       "product_brand": "Costco",
       "purchase_date": "2025-12-21",
       "quantity_purchased": 2,
@@ -5709,7 +5711,7 @@
       "uuid": "ab4722c9-c225-4a4f-9f7d-1d01b548baca",
       "product_id": 44,
       "supplier_id": 1,
-      "ingredient_slug": "cinnamon_ground_ceylon",
+      "ingredient_slug": "cinnamon_ground",
       "product_brand": "Penzeys",
       "purchase_date": "2025-12-21",
       "quantity_purchased": 4,
@@ -5858,7 +5860,7 @@
       "uuid": "f70e04d5-7236-4284-a103-43aee16e7f08",
       "product_id": 124,
       "supplier_id": 1,
-      "ingredient_slug": "sesame_seeds_black",
+      "ingredient_slug": "sesame_seeds",
       "product_brand": "Penzeys",
       "purchase_date": "2025-12-21",
       "quantity_purchased": 1,
@@ -5871,7 +5873,7 @@
       "uuid": "6dc06328-939e-4f32-ae2b-235a5ab2798d",
       "product_id": 125,
       "supplier_id": 1,
-      "ingredient_slug": "sesame_seeds_white",
+      "ingredient_slug": "sesame_seeds",
       "product_brand": "Penzeys",
       "purchase_date": "2025-12-21",
       "quantity_purchased": 1,
@@ -5949,7 +5951,7 @@
       "uuid": "c220b6ff-15ef-449a-8a89-bfd460994963",
       "product_id": 45,
       "supplier_id": 1,
-      "ingredient_slug": "cinnamon_sticks_indonesian",
+      "ingredient_slug": "cinnamon_sticks",
       "product_brand": "Penzeys",
       "purchase_date": "2025-12-21",
       "quantity_purchased": 4,
@@ -5962,7 +5964,7 @@
       "uuid": "b9a90972-694d-4ca7-96af-38fe93c07e73",
       "product_id": 45,
       "supplier_id": 1,
-      "ingredient_slug": "cinnamon_sticks_indonesian",
+      "ingredient_slug": "cinnamon_sticks",
       "product_brand": "Penzeys",
       "purchase_date": "2025-12-21",
       "quantity_purchased": 4,
@@ -5988,7 +5990,7 @@
       "uuid": "edff9bcc-e181-43dc-a23b-0a130903f611",
       "product_id": 108,
       "supplier_id": 1,
-      "ingredient_slug": "pepper_black_tellicherry",
+      "ingredient_slug": "pepper_black_ground",
       "product_brand": "Penzeys",
       "purchase_date": "2025-12-21",
       "quantity_purchased": 1,
@@ -6172,7 +6174,7 @@
       "uuid": "2fca12bd-b63e-4daa-872d-e2286d083396",
       "product_id": 21,
       "supplier_id": 1,
-      "ingredient_slug": "canola_oil",
+      "ingredient_slug": "oil_canola",
       "product_brand": "Wegman's",
       "purchase_date": "2025-12-21",
       "quantity_purchased": 1,
@@ -6379,7 +6381,7 @@
       "purchase_id": 6
     },
     {
-      "ingredient_slug": "olive_oil",
+      "ingredient_slug": "oil_olive",
       "product_brand": "Bertolli",
       "quantity": 3.0,
       "purchase_date": "2025-12-21",
@@ -6505,7 +6507,7 @@
       "purchase_id": 18
     },
     {
-      "ingredient_slug": "almonds_whole",
+      "ingredient_slug": "almonds",
       "product_brand": "Costco",
       "quantity": 2.0,
       "purchase_date": "2025-12-21",
@@ -7469,7 +7471,7 @@
       "purchase_id": 109
     },
     {
-      "ingredient_slug": "cinnamon_ground_ceylon",
+      "ingredient_slug": "cinnamon_ground",
       "product_brand": "Penzeys",
       "quantity": 4.8,
       "purchase_date": "2025-12-21",
@@ -7585,20 +7587,24 @@
       "purchase_id": 120
     },
     {
-      "ingredient_slug": "sesame_seeds_black",
+      "ingredient_slug": "sesame_seeds",
       "product_brand": "Penzeys",
       "quantity": 1.0,
       "purchase_date": "2025-12-21",
+      "product_name": "Black Sesame Seeds",
       "package_unit": "oz",
+      "package_unit_quantity": 1.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 121
     },
     {
-      "ingredient_slug": "sesame_seeds_white",
+      "ingredient_slug": "sesame_seeds",
       "product_brand": "Penzeys",
       "quantity": 1.1,
       "purchase_date": "2025-12-21",
+      "product_name": "Black Sesame Seeds",
+      "package_unit_quantity": 2.2,
       "package_unit": "oz",
       "location": "pantry",
       "notes": "Initial inventory - partial package (50%)",
@@ -7655,7 +7661,7 @@
       "purchase_id": 127
     },
     {
-      "ingredient_slug": "cinnamon_sticks_indonesian",
+      "ingredient_slug": "cinnamon_sticks",
       "product_brand": "Penzeys",
       "quantity": 4.0,
       "purchase_date": "2025-12-21",
@@ -7665,7 +7671,7 @@
       "purchase_id": 128
     },
     {
-      "ingredient_slug": "cinnamon_sticks_indonesian",
+      "ingredient_slug": "cinnamon_sticks",
       "product_brand": "Penzeys",
       "quantity": 4.0,
       "purchase_date": "2025-12-21",
@@ -7685,7 +7691,7 @@
       "purchase_id": 130
     },
     {
-      "ingredient_slug": "pepper_black_tellicherry",
+      "ingredient_slug": "pepper_black_ground",
       "product_brand": "Penzeys",
       "quantity": 1.65,
       "purchase_date": "2025-12-21",
@@ -7827,7 +7833,7 @@
       "purchase_id": 144
     },
     {
-      "ingredient_slug": "canola_oil",
+      "ingredient_slug": "oil_canola",
       "product_brand": "Wegman's",
       "quantity": 1.0,
       "purchase_date": "2025-12-21",
@@ -7978,7 +7984,7 @@
           "unit": "tsp"
         },
         {
-          "ingredient_slug": "almonds_slivered",
+          "ingredient_slug": "almonds",
           "quantity": 1.5,
           "unit": "cup"
         },
@@ -8597,13 +8603,13 @@
           "unit": "tsp"
         },
         {
-          "ingredient_slug": "almonds_whole",
+          "ingredient_slug": "almonds",
           "quantity": 1.25,
           "unit": "cup",
           "notes": "toasted, chopped"
         },
         {
-          "ingredient_slug": "pecans_halves",
+          "ingredient_slug": "pecans",
           "quantity": 1.5,
           "unit": "cup"
         },
@@ -9118,7 +9124,7 @@
           "notes": "8 oz container chopped"
         },
         {
-          "ingredient_slug": "pecans_halves",
+          "ingredient_slug": "pecans",
           "quantity": 1.5,
           "unit": "cup",
           "notes": "chopped"
@@ -9173,7 +9179,7 @@
           "unit": "cup"
         },
         {
-          "ingredient_slug": "pecans_chopped",
+          "ingredient_slug": "pecans",
           "quantity": 0.25,
           "unit": "cup"
         },
@@ -9289,7 +9295,7 @@
       "notes": "Toast sliced almonds; roll to 1/2-inch; chill dough for clean cuts.",
       "ingredients": [
         {
-          "ingredient_slug": "almonds_sliced",
+          "ingredient_slug": "almonds",
           "quantity": 0.33,
           "unit": "cup"
         },

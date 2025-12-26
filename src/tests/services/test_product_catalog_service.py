@@ -259,7 +259,7 @@ class TestGetProducts:
         results = product_catalog_service.get_products(session=session)
 
         assert len(results) == 1
-        assert results[0]["last_price"] == "12.99"
+        assert results[0]["last_price"] == 12.99
         assert results[0]["last_purchase_date"] is not None
 
 
@@ -285,7 +285,7 @@ class TestGetProductWithLastPrice:
 
         assert result is not None
         assert result["product_name"] == "King Arthur Flour 25lb"
-        assert result["last_price"] == "12.99"
+        assert result["last_price"] == 12.99
 
     def test_get_product_with_last_price_no_purchases(self, session, test_product):
         """Test getting a product with no purchases."""

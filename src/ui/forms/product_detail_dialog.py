@@ -370,14 +370,14 @@ class ProductDetailDialog(ctk.CTkToplevel):
 
                     supplier_name = purchase.get("supplier_name", "Unknown")
                     location = purchase.get("supplier_location", "")
-                    unit_price = purchase.get("unit_price", 0)
+                    unit_price = purchase.get("unit_price")
                     quantity = purchase.get("quantity_purchased", "")
 
                     values = (
                         date_str,
                         supplier_name,
                         location,
-                        f"${float(unit_price):.2f}",
+                        f"${float(unit_price):.2f}" if unit_price is not None else "N/A",
                         str(quantity),
                     )
                     self.history_tree.insert("", "end", values=values)

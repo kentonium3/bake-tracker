@@ -216,10 +216,20 @@ class ProductsTab(ctk.CTkFrame):
         grid_container.grid_columnconfigure(0, weight=1)
         grid_container.grid_rowconfigure(0, weight=1)
 
-        # Define columns
+        # Define columns (ingredient included but hidden)
         columns = (
-            "name",
+            "brand",
+            "product_name",
             "ingredient",
+            "category",
+            "supplier",
+            "last_price",
+            "last_purchase",
+        )
+        # Display columns excludes ingredient (hidden)
+        display_columns = (
+            "brand",
+            "product_name",
             "category",
             "supplier",
             "last_price",
@@ -228,21 +238,24 @@ class ProductsTab(ctk.CTkFrame):
         self.tree = ttk.Treeview(
             grid_container,
             columns=columns,
+            displaycolumns=display_columns,
             show="headings",
             selectmode="browse",
         )
 
         # Configure column headings
-        self.tree.heading("name", text="Product Name", anchor="w")
-        self.tree.heading("ingredient", text="Ingredient", anchor="w")
+        self.tree.heading("brand", text="Brand", anchor="w")
+        self.tree.heading("product_name", text="Product Name", anchor="w")
+        self.tree.heading("ingredient", text="Ingredient", anchor="w")  # Hidden
         self.tree.heading("category", text="Category", anchor="w")
         self.tree.heading("supplier", text="Preferred Supplier", anchor="w")
         self.tree.heading("last_price", text="Last Price", anchor="e")
         self.tree.heading("last_purchase", text="Last Purchase", anchor="w")
 
         # Configure column widths
-        self.tree.column("name", width=200, minwidth=150)
-        self.tree.column("ingredient", width=150, minwidth=100)
+        self.tree.column("brand", width=120, minwidth=80)
+        self.tree.column("product_name", width=200, minwidth=150)
+        self.tree.column("ingredient", width=0)  # Hidden via displaycolumns
         self.tree.column("category", width=100, minwidth=80)
         self.tree.column("supplier", width=150, minwidth=100)
         self.tree.column("last_price", width=80, minwidth=60, anchor="e")
@@ -372,8 +385,9 @@ class ProductsTab(ctk.CTkFrame):
         # Populate grid
         for p in self.products:
             values = (
-                p.get("product_name") or p.get("display_name", "Unknown"),
-                p.get("ingredient_name", ""),
+                p.get("brand", ""),
+                p.get("product_name", ""),
+                p.get("ingredient_name", ""),  # Hidden column
                 p.get("category", ""),
                 p.get("preferred_supplier_name", ""),
                 f"${p['last_price']:.2f}" if p.get("last_price") else "N/A",
