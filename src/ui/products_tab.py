@@ -27,7 +27,7 @@ class ProductsTab(ctk.CTkFrame):
     Products tab for product catalog management.
 
     Displays products in a grid with:
-    - Toolbar with Add Product and Manage Suppliers buttons
+    - Toolbar with Add Product and Refresh buttons
     - Filters for Ingredient, Category, and Supplier
     - Search box for text search
     - Show Hidden checkbox for visibility toggle
@@ -105,15 +105,6 @@ class ProductsTab(ctk.CTkFrame):
             width=120,
         )
         self.add_btn.pack(side="left", padx=5, pady=5)
-
-        # Manage Suppliers button
-        self.suppliers_btn = ctk.CTkButton(
-            toolbar_frame,
-            text="Manage Suppliers",
-            command=self._on_manage_suppliers,
-            width=140,
-        )
-        self.suppliers_btn.pack(side="left", padx=5, pady=5)
 
         # Refresh button
         refresh_btn = ctk.CTkButton(
@@ -439,15 +430,6 @@ class ProductsTab(ctk.CTkFrame):
 
         if dialog.result:
             self._load_products()
-
-    def _on_manage_suppliers(self):
-        """Open supplier management dialog."""
-        # Placeholder - could be a separate dialog or tab
-        messagebox.showinfo(
-            "Manage Suppliers",
-            "Supplier management functionality coming soon.",
-            parent=self,
-        )
 
     def _on_product_double_click(self, event):
         """Handle double-click on product row."""

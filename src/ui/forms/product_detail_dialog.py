@@ -344,15 +344,19 @@ class ProductDetailDialog(ctk.CTkToplevel):
         category = self.product.get("category", "")
         self.category_label.configure(text=category if category else "Uncategorized")
 
-        # Package info
+        # Package info (qty unit type, e.g. "25 lb bag")
         unit = self.product.get("package_unit", "")
         qty = self.product.get("package_unit_quantity") or self.product.get("package_quantity")
-        if unit and qty:
-            package = f"{qty} {unit}"
-        elif unit:
-            package = unit
-        else:
-            package = "N/A"
+        pkg_type = self.product.get("package_type", "")
+
+        parts = []
+        if qty:
+            parts.append(str(qty))
+        if unit:
+            parts.append(unit)
+        if pkg_type:
+            parts.append(pkg_type)
+        package = " ".join(parts) if parts else "N/A"
         self.package_label.configure(text=package)
 
         # Preferred supplier

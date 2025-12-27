@@ -17,6 +17,7 @@ from src.services import (
     supplier_service,
     ingredient_service,
 )
+from src.utils.constants import PACKAGE_TYPES, MEASUREMENT_UNITS
 
 
 class AddProductDialog(ctk.CTkToplevel):
@@ -150,18 +151,33 @@ class AddProductDialog(ctk.CTkToplevel):
         self.brand_entry.grid(row=row, column=1, padx=(0, 20), pady=5, sticky="w")
         row += 1
 
-        # Package Unit (required)
+        # Package Type (optional)
+        type_label = ctk.CTkLabel(self, text="Package Type")
+        type_label.grid(row=row, column=0, padx=(20, 10), pady=5, sticky="w")
+
+        self.package_type_var = ctk.StringVar(value="")
+        package_type_values = [""] + PACKAGE_TYPES  # Empty option for optional field
+        self.package_type_dropdown = ctk.CTkOptionMenu(
+            self,
+            variable=self.package_type_var,
+            values=package_type_values,
+            width=280,
+        )
+        self.package_type_dropdown.grid(row=row, column=1, padx=(0, 20), pady=5, sticky="w")
+        row += 1
+
+        # Package Unit (required) - dropdown for validation
         unit_label = ctk.CTkLabel(self, text="Package Unit *")
         unit_label.grid(row=row, column=0, padx=(20, 10), pady=5, sticky="w")
 
-        self.unit_var = ctk.StringVar()
-        self.unit_entry = ctk.CTkEntry(
+        self.unit_var = ctk.StringVar(value="")
+        self.unit_dropdown = ctk.CTkOptionMenu(
             self,
-            textvariable=self.unit_var,
+            variable=self.unit_var,
+            values=MEASUREMENT_UNITS,
             width=280,
-            placeholder_text="e.g., lb, oz, each, bag",
         )
-        self.unit_entry.grid(row=row, column=1, padx=(0, 20), pady=5, sticky="w")
+        self.unit_dropdown.grid(row=row, column=1, padx=(0, 20), pady=5, sticky="w")
         row += 1
 
         # Package Quantity (required)
@@ -344,7 +360,8 @@ class AddProductDialog(ctk.CTkToplevel):
                     self.product_id,
                     product_name=self.name_var.get().strip(),
                     brand=self.brand_var.get().strip() or None,
-                    package_unit=self.unit_var.get().strip(),
+                    package_type=self.package_type_var.get() or None,
+                    package_unit=self.unit_var.get(),
                     package_unit_quantity=float(self.quantity_var.get()),
                     ingredient_id=ingredient["id"],
                     preferred_supplier_id=supplier_id,
@@ -361,7 +378,8 @@ class AddProductDialog(ctk.CTkToplevel):
                 product_catalog_service.create_product(
                     product_name=self.name_var.get().strip(),
                     ingredient_id=ingredient["id"],
-                    package_unit=self.unit_var.get().strip(),
+                    package_type=self.package_type_var.get() or None,
+                    package_unit=self.unit_var.get(),
                     package_unit_quantity=float(self.quantity_var.get()),
                     preferred_supplier_id=supplier_id,
                     brand=self.brand_var.get().strip() or None,
@@ -405,6 +423,7 @@ class AddProductDialog(ctk.CTkToplevel):
             # Populate form fields
             self.name_var.set(product.get("product_name", "") or "")
             self.brand_var.set(product.get("brand", "") or "")
+            self.package_type_var.set(product.get("package_type", "") or "")
             self.unit_var.set(product.get("package_unit", "") or "")
 
             package_qty = product.get("package_unit_quantity") or product.get("package_quantity")
