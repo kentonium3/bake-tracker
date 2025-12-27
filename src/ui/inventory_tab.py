@@ -164,15 +164,6 @@ class InventoryTab(ctk.CTkFrame):
         )
         view_mode_dropdown.grid(row=0, column=4, padx=5, pady=5)
 
-        # Refresh button
-        refresh_button = ctk.CTkButton(
-            controls_frame,
-            text="Refresh",
-            command=self.refresh,
-            width=80,
-        )
-        refresh_button.grid(row=0, column=5, padx=5, pady=5)
-
         # Row 1: Action buttons
         # Add Inventory Item button
         add_button = ctk.CTkButton(

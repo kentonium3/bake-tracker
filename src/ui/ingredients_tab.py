@@ -198,16 +198,6 @@ class IngredientsTab(ctk.CTkFrame):
         )
         self.products_button.grid(row=0, column=3, padx=(0, PADDING_MEDIUM))
 
-        # Refresh button
-        refresh_button = ctk.CTkButton(
-            button_frame,
-            text="🔄 Refresh",
-            command=self.refresh,
-            width=100,
-            height=36,
-        )
-        refresh_button.grid(row=0, column=4)
-
     def _create_ingredient_list(self):
         """Create the ingredient list using ttk.Treeview for performance."""
         # Container frame for grid and scrollbar
@@ -1100,15 +1090,6 @@ class ProductsDialog(ctk.CTkToplevel):
             hover_color="red",
         )
         self.delete_button.grid(row=0, column=2, padx=(0, 10))
-
-        # Refresh button
-        refresh_button = ctk.CTkButton(
-            button_frame,
-            text="🔄 Refresh",
-            command=self.refresh,
-            width=100,
-        )
-        refresh_button.grid(row=0, column=3)
 
     def _create_product_list(self):
         """Create scrollable product list."""

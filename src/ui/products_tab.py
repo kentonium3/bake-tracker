@@ -106,15 +106,6 @@ class ProductsTab(ctk.CTkFrame):
         )
         self.add_btn.pack(side="left", padx=5, pady=5)
 
-        # Refresh button
-        refresh_btn = ctk.CTkButton(
-            toolbar_frame,
-            text="Refresh",
-            command=self.refresh,
-            width=80,
-        )
-        refresh_btn.pack(side="right", padx=5, pady=5)
-
     def _create_filters(self):
         """Create filter controls for ingredient, category, and supplier."""
         filter_frame = ctk.CTkFrame(self)
