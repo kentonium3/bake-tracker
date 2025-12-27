@@ -4,7 +4,7 @@
   "application": "bake-tracker",
   "products": [
     {
-      "ingredient_slug": "all_purpose_wheat_flour",
+      "ingredient_slug": "flour_all_purpose",
       "brand": "King Arthur",
       "package_unit": "lb",
       "package_unit_quantity": 25.0,
@@ -833,7 +833,7 @@
       "package_type": "bag"
     },
     {
-      "ingredient_slug": "poppy_seeds_blue",
+      "ingredient_slug": "poppy_seeds",
       "brand": "Penzeys",
       "package_unit": "oz",
       "package_unit_quantity": 15.6,

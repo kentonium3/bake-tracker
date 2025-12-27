@@ -31,10 +31,10 @@
       "density_weight_unit": "oz"
     },
     {
-      "slug": "all_purpose_wheat_flour",
+      "slug": "flour_all_purpose",
       "category": "Flours & Starches",
-      "description": "All-purpose wheat flour (aka AP flour|plain flour)",
-      "display_name": "All-purpose wheat flour",
+      "description": "Flour, all-purpose (aka AP flour|plain flour)",
+      "display_name": "Flour, all-purpose",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 4.42,
@@ -73,10 +73,10 @@
       "display_name": "Almond extract"
     },
     {
-      "slug": "almond_flour",
+      "slug": "flour_almond",
       "category": "Flours & Starches",
-      "description": "Almond flour (aka ground almonds)",
-      "display_name": "Almond flour",
+      "description": "Flour, almond (aka ground almonds)",
+      "display_name": "Flour, almond",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 3.76,
@@ -1185,10 +1185,10 @@
       "display_name": "Hard candy, assorted"
     },
     {
-      "slug": "hazelnut_flour",
+      "slug": "flour_hazelnut",
       "category": "Flours & Starches",
-      "description": "Hazelnut flour",
-      "display_name": "Hazelnut flour",
+      "description": "Flour, hazelnut",
+      "display_name": "Flour, hazelnut",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 3.76,
@@ -1963,10 +1963,10 @@
       "display_name": "Poppy seeds"
     },
     {
-      "slug": "poppy_seeds_blue",
+      "slug": "poppy_seeds",
       "category": "Spices & Extracts",
       "description": null,
-      "display_name": "Poppy seeds, blue",
+      "display_name": "Poppy seeds",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 138.0,
@@ -2037,20 +2037,20 @@
       "display_name": "Rice cereal, crisp"
     },
     {
-      "slug": "rice_flour_brown",
+      "slug": "flour_rice",
       "category": "Flours & Starches",
-      "description": "Rice flour, brown",
-      "display_name": "Rice flour, brown",
+      "description": "Flour, rice",
+      "display_name": "Flour, rice",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 4.59,
       "density_weight_unit": "oz"
     },
     {
-      "slug": "rice_flour_white",
+      "slug": "flour_rice",
       "category": "Flours & Starches",
-      "description": "Rice flour, white",
-      "display_name": "Rice flour, white",
+      "description": "Flour, rice",
+      "display_name": "Flour, rice",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 4.59,
@@ -2157,10 +2157,10 @@
       "density_weight_unit": "oz"
     },
     {
-      "slug": "semolina_flour",
+      "slug": "flour_semolina",
       "category": "Flours & Starches",
-      "description": "Semolina flour (aka semolina)",
-      "display_name": "Semolina flour",
+      "description": "Flour, semolina (aka semolina)",
+      "display_name": "Flour, semolina",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 5.01,
@@ -2193,10 +2193,10 @@
       "density_weight_unit": "oz"
     },
     {
-      "slug": "sorghum_flour",
+      "slug": "flour_sorghum",
       "category": "Flours & Starches",
-      "description": "Sorghum flour",
-      "display_name": "Sorghum flour",
+      "description": "Flour, sorghum",
+      "display_name": "Flour, sorghum",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 4.59,

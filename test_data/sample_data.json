@@ -47,11 +47,11 @@
       "density_weight_unit": "oz"
     },
     {
-      "display_name": "All-purpose wheat flour",
-      "slug": "all_purpose_wheat_flour",
+      "display_name": "Flour, all-purpose",
+      "slug": "flour_all_purpose",
       "category": "Flours & Starches",
       "is_packaging": false,
-      "description": "All-purpose wheat flour (aka AP flour|plain flour)",
+      "description": "Flour, all-purpose (aka AP flour|plain flour)",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 4.42,
@@ -93,11 +93,11 @@
       "description": "Almond extract"
     },
     {
-      "display_name": "Almond flour",
-      "slug": "almond_flour",
+      "display_name": "Flour, almond",
+      "slug": "flour_almond",
       "category": "Flours & Starches",
       "is_packaging": false,
-      "description": "Almond flour (aka ground almonds)",
+      "description": "Flour, almond (aka ground almonds)",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 3.76,
@@ -1341,11 +1341,11 @@
       "description": "Hard candy, assorted"
     },
     {
-      "display_name": "Hazelnut flour",
-      "slug": "hazelnut_flour",
+      "display_name": "Flour, hazelnut",
+      "slug": "flour_hazelnut",
       "category": "Flours & Starches",
       "is_packaging": false,
-      "description": "Hazelnut flour",
+      "description": "Flour, hazelnut",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 3.76,
@@ -2220,8 +2220,8 @@
       "description": "Whole culinary poppy seeds"
     },
     {
-      "display_name": "Poppy seeds, blue",
-      "slug": "poppy_seeds_blue",
+      "display_name": "Poppy seeds",
+      "slug": "poppy_seeds",
       "category": "Spices & Extracts",
       "is_packaging": false,
       "density_volume_value": 1.0,
@@ -2304,22 +2304,22 @@
       "description": "Rice cereal, crisp (aka crispy rice cereal)"
     },
     {
-      "display_name": "Rice flour, brown",
-      "slug": "rice_flour_brown",
+      "display_name": "Flour, rice",
+      "slug": "flour_rice",
       "category": "Flours & Starches",
       "is_packaging": false,
-      "description": "Rice flour, brown",
+      "description": "Flour, rice",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 4.59,
       "density_weight_unit": "oz"
     },
     {
-      "display_name": "Rice flour, white",
-      "slug": "rice_flour_white",
+      "display_name": "Flour, rice",
+      "slug": "flour_rice",
       "category": "Flours & Starches",
       "is_packaging": false,
-      "description": "Rice flour, white",
+      "description": "Flour, rice",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 4.59,
@@ -2440,11 +2440,11 @@
       "density_weight_unit": "oz"
     },
     {
-      "display_name": "Semolina flour",
-      "slug": "semolina_flour",
+      "display_name": "Flour, semolina",
+      "slug": "flour_semolina",
       "category": "Flours & Starches",
       "is_packaging": false,
-      "description": "Semolina flour (aka semolina)",
+      "description": "Flour, semolina (aka semolina)",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 5.01,
@@ -2480,11 +2480,11 @@
       "density_weight_unit": "oz"
     },
     {
-      "display_name": "Sorghum flour",
-      "slug": "sorghum_flour",
+      "display_name": "Flour, sorghum",
+      "slug": "flour_sorghum",
       "category": "Flours & Starches",
       "is_packaging": false,
-      "description": "Sorghum flour",
+      "description": "Flour, sorghum",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 4.59,
@@ -2934,7 +2934,7 @@
   ],
   "products": [
     {
-      "ingredient_slug": "all_purpose_wheat_flour",
+      "ingredient_slug": "flour_all_purpose",
       "package_unit": "lb",
       "package_unit_quantity": 25.0,
       "brand": "King Arthur",
@@ -3925,7 +3925,7 @@
       "is_hidden": false
     },
     {
-      "ingredient_slug": "poppy_seeds_blue",
+      "ingredient_slug": "poppy_seeds",
       "package_unit": "oz",
       "package_unit_quantity": 15.6,
       "brand": "Penzeys",
@@ -5157,7 +5157,7 @@
       "uuid": "f478fd80-af50-4bf3-b38f-832668e6a040",
       "product_id": 1,
       "supplier_id": 1,
-      "ingredient_slug": "all_purpose_wheat_flour",
+      "ingredient_slug": "flour_all_purpose",
       "product_brand": "King Arthur",
       "purchase_date": "2025-12-21",
       "quantity_purchased": 25,
@@ -5969,7 +5969,7 @@
       "uuid": "f004bb4e-a934-4f96-866e-ede76717790a",
       "product_id": 112,
       "supplier_id": 1,
-      "ingredient_slug": "poppy_seeds_blue",
+      "ingredient_slug": "poppy_seeds",
       "product_brand": "Penzeys",
       "purchase_date": "2025-12-21",
       "quantity_purchased": 5,
@@ -7120,7 +7120,7 @@
       "purchase_id": 63
     },
     {
-      "ingredient_slug": "all_purpose_wheat_flour",
+      "ingredient_slug": "flour_all_purpose",
       "product_brand": "King Arthur",
       "quantity": 25.0,
       "purchase_date": "2025-12-21",
@@ -7812,7 +7812,7 @@
       "purchase_id": 123
     },
     {
-      "ingredient_slug": "poppy_seeds_blue",
+      "ingredient_slug": "poppy_seeds",
       "product_brand": "Penzeys",
       "quantity": 5.15,
       "purchase_date": "2025-12-21",
@@ -8182,7 +8182,7 @@
           "unit": "cup"
         },
         {
-          "ingredient_slug": "all_purpose_wheat_flour",
+          "ingredient_slug": "flour_all_purpose",
           "quantity": 2.0,
           "unit": "cup"
         },
@@ -8258,7 +8258,7 @@
           "unit": "cup"
         },
         {
-          "ingredient_slug": "almond_flour",
+          "ingredient_slug": "flour_almond",
           "quantity": 0.75,
           "unit": "cup"
         },
@@ -8283,7 +8283,7 @@
       "source": "Christmas Cookies 2006 (scan)",
       "ingredients": [
         {
-          "ingredient_slug": "all_purpose_wheat_flour",
+          "ingredient_slug": "flour_all_purpose",
           "quantity": 2.0,
           "unit": "cup"
         },
@@ -8350,7 +8350,7 @@
           "notes": "divided"
         },
         {
-          "ingredient_slug": "all_purpose_wheat_flour",
+          "ingredient_slug": "flour_all_purpose",
           "quantity": 2.0,
           "unit": "cup"
         },
@@ -8570,7 +8570,7 @@
           "unit": "cup"
         },
         {
-          "ingredient_slug": "all_purpose_wheat_flour",
+          "ingredient_slug": "flour_all_purpose",
           "quantity": 2.75,
           "unit": "cup"
         },
@@ -8621,7 +8621,7 @@
       "notes": "Combine; scoop 1\" balls; flatten with fork; bake 8–10 min.",
       "ingredients": [
         {
-          "ingredient_slug": "almond_flour",
+          "ingredient_slug": "flour_almond",
           "quantity": 1.0,
           "unit": "cup"
         },
@@ -8695,7 +8695,7 @@
           "unit": "tsp"
         },
         {
-          "ingredient_slug": "all_purpose_wheat_flour",
+          "ingredient_slug": "flour_all_purpose",
           "quantity": 2.25,
           "unit": "cup"
         },
@@ -8722,7 +8722,7 @@
       "notes": "Preheat oven to 350°F. Butter and flour four 5¾x3¼x1⅞-inch loaf pans. Sift flour, baking powder and salt into medium bowl. Using electric mixer, beat sugar and unsalted butter in large bowl until light and fluffy. Add eggs 1 at a time, beating well after each addition. Beat in orange juice, grated orange peel and vanilla extract (batter may look curdled). Beat in flour mixture. Fold in poppy seeds. Divide batter equally among prepared pans (about 1½ cups each). Place pans in oven. Bake until tester inserted in center comes out clean, about 55 minutes. Transfer pans to racks. Cool cakes in pans 10 minutes. Turn cakes out onto wire racks and cool completely.",
       "ingredients": [
         {
-          "ingredient_slug": "all_purpose_wheat_flour",
+          "ingredient_slug": "flour_all_purpose",
           "quantity": 2.0,
           "unit": "cup"
         },
@@ -8786,7 +8786,7 @@
       "notes": "Line sheet with parchment. Preheat 350°F. Mix flour, baking soda, salt. Beat butter 30 sec. Beat in sugars. Beat in eggs, vanilla. Beat in flour as much as possible. Stir in remaining flour. Stir in nuts, raisins, chocolate. Drop 1/4 cup dough 3 inches apart. Bake 12-15 min till golden and set. Stand 5 min. Transfer to rack; cool. Store in refrigerator up to 3 days or freeze up to 3 months.",
       "ingredients": [
         {
-          "ingredient_slug": "all_purpose_wheat_flour",
+          "ingredient_slug": "flour_all_purpose",
           "quantity": 2.25,
           "unit": "cup"
         },
@@ -8974,7 +8974,7 @@
           "unit": "tsp"
         },
         {
-          "ingredient_slug": "all_purpose_wheat_flour",
+          "ingredient_slug": "flour_all_purpose",
           "quantity": 3.0,
           "unit": "cup"
         },
@@ -9008,7 +9008,7 @@
       "notes": "Sift flour, baking powder, salt, baking soda, cinnamon, ginger, nutmeg, and cloves onto wax paper. Cream butter or margarine with brown sugar until fluffy in a large bowl; beat in eggs, one at a time; stir in currant jelly and apple juice. Stir in flour mixture until blended, then candied fruits, dates, walnuts, and currants. Spoon half of batter into a greased 9-inch tube pan. Combine granulated sugar, lemon rind, and lemon sections; spoon over batter in pan. Top with remaining batter. Bake in slow oven (300°) for 1¾ hours, or until a long thin skewer inserted near center comes out clean. Cool completely in pan on a wire rack. Loosen around edge with a knife; turn out onto rack.",
       "ingredients": [
         {
-          "ingredient_slug": "all_purpose_wheat_flour",
+          "ingredient_slug": "flour_all_purpose",
           "quantity": 3.0,
           "unit": "cup",
           "notes": "sifted"
@@ -9132,7 +9132,7 @@
       "source": "Holiday Tea Party spread (scan)",
       "ingredients": [
         {
-          "ingredient_slug": "all_purpose_wheat_flour",
+          "ingredient_slug": "flour_all_purpose",
           "quantity": 1.25,
           "unit": "cup"
         },
@@ -9238,7 +9238,7 @@
           "unit": "tsp"
         },
         {
-          "ingredient_slug": "all_purpose_wheat_flour",
+          "ingredient_slug": "flour_all_purpose",
           "quantity": 2.0,
           "unit": "cup"
         },
@@ -9281,7 +9281,7 @@
       "notes": "Grease a loaf pan, 9x5x3. Sift flour, baking powder, cinnamon, mace, and cloves onto wax paper. Cream butter or margarine with brown sugar until fluffy; light in a large bowl; beat in eggs, one at a time; stir in apricots and whiskey. Stir in flour mixture until blended, then raisins, mixed fruits, pecans, and cherries. Spoon into prepared pan; spread top even. Bake in slow oven (300°) 2 hours, or until a wooden pick inserted in center comes out clean. Cool completely in pan on a wire rack. Loosen cooled cake around the edges with a knife; turn out onto rack.",
       "ingredients": [
         {
-          "ingredient_slug": "all_purpose_wheat_flour",
+          "ingredient_slug": "flour_all_purpose",
           "quantity": 2.0,
           "unit": "cup",
           "notes": "sifted"
@@ -9397,7 +9397,7 @@
           "unit": "tsp"
         },
         {
-          "ingredient_slug": "all_purpose_wheat_flour",
+          "ingredient_slug": "flour_all_purpose",
           "quantity": 3.25,
           "unit": "cup"
         },
@@ -9430,7 +9430,7 @@
       "notes": "Room temp ingredients. Preheat 325°F. Grease flour bundt pan. Sift flour, cocoa, baking powder, baking soda, salt twice. Beat butter smooth 30-45 sec. Add 1.5 cups sugar on low. Beat medium-high till fluffy 3-5 min. Add eggs gradually till thick 1-2 min. Beat in vanilla. Fold in flour in 3 additions alternating with sour cream, beginning and ending with flour. Fold in 6 oz melted chocolate. Pour into pan. Bake 1 hour till pick clean. Cool 10 min. Glaze: heat 1 cup sugar, 1/2 cup milk till dissolved. Stir in 1 tbsp liqueur. Invert cake. Brush with glaze. Dust with powdered sugar. Serve with whipped cream.",
       "ingredients": [
         {
-          "ingredient_slug": "all_purpose_wheat_flour",
+          "ingredient_slug": "flour_all_purpose",
           "quantity": 2.25,
           "unit": "cup"
         },
@@ -9523,7 +9523,7 @@
           "unit": "cup"
         },
         {
-          "ingredient_slug": "all_purpose_wheat_flour",
+          "ingredient_slug": "flour_all_purpose",
           "quantity": 2.0,
           "unit": "cup"
         },
