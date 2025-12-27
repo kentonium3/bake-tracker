@@ -174,19 +174,6 @@ class IngredientsTab(ctk.CTkFrame):
         )
         self.edit_button.grid(row=0, column=1, padx=(0, PADDING_MEDIUM))
 
-        # Delete button
-        self.delete_button = ctk.CTkButton(
-            button_frame,
-            text="🗑️ Delete",
-            command=self._delete_ingredient,
-            width=120,
-            height=36,
-            state="disabled",
-            fg_color="darkred",
-            hover_color="red",
-        )
-        self.delete_button.grid(row=0, column=2, padx=(0, PADDING_MEDIUM))
-
         # View Products button (for WP02)
         self.products_button = ctk.CTkButton(
             button_frame,
@@ -196,7 +183,7 @@ class IngredientsTab(ctk.CTkFrame):
             height=36,
             state="disabled",
         )
-        self.products_button.grid(row=0, column=3, padx=(0, PADDING_MEDIUM))
+        self.products_button.grid(row=0, column=2, padx=(0, PADDING_MEDIUM))
 
     def _create_ingredient_list(self):
         """Create the ingredient list using ttk.Treeview for performance."""
@@ -464,13 +451,11 @@ class IngredientsTab(ctk.CTkFrame):
     def _enable_selection_buttons(self):
         """Enable buttons that require a selection."""
         self.edit_button.configure(state="normal")
-        self.delete_button.configure(state="normal")
         self.products_button.configure(state="normal")
 
     def _disable_selection_buttons(self):
         """Disable buttons that require a selection."""
         self.edit_button.configure(state="disabled")
-        self.delete_button.configure(state="disabled")
         self.products_button.configure(state="disabled")
         self.selected_ingredient_slug = None
 
@@ -519,6 +504,8 @@ class IngredientsTab(ctk.CTkFrame):
                     "density_weight_unit": ingredient_obj.density_weight_unit,
                 }
             )
+            # Store slug in ingredient_data for delete operation
+            ingredient_data["slug"] = self.selected_ingredient_slug
 
             dialog = IngredientFormDialog(
                 self,
@@ -526,6 +513,12 @@ class IngredientsTab(ctk.CTkFrame):
                 title="Edit Ingredient",
             )
             self.wait_window(dialog)
+
+            # Check if ingredient was deleted
+            if dialog.deleted:
+                self.selected_ingredient_slug = None
+                self.refresh()
+                return
 
             if dialog.result:
                 # Update ingredient using service
@@ -659,10 +652,14 @@ class IngredientFormDialog(ctk.CTkToplevel):
         """
         super().__init__(parent)
 
+        # Store reference to parent tab for accessing data
+        self.parent_tab = parent
+
         if ingredient is not None and hasattr(ingredient, "to_dict"):
             ingredient = ingredient.to_dict()
         self.ingredient = ingredient
         self.result: Optional[Dict[str, Any]] = None
+        self.deleted = False  # Track if item was deleted
 
         # Configure window
         self.title(title)
@@ -828,12 +825,29 @@ class IngredientFormDialog(ctk.CTkToplevel):
         help_label.grid(row=row, column=0, columnspan=2, sticky="w", padx=10, pady=10)
 
     def _create_buttons(self):
-        """Create Save and Cancel buttons."""
+        """Create Save, Cancel, and Delete buttons."""
         button_frame = ctk.CTkFrame(self, fg_color="transparent")
         button_frame.grid(row=1, column=0, sticky="ew", padx=20, pady=(0, 20))
+        button_frame.grid_columnconfigure(0, weight=1)  # Left side expands
+
+        # Delete button on left (only when editing)
+        if self.ingredient:
+            delete_button = ctk.CTkButton(
+                button_frame,
+                text="Delete",
+                command=self._delete,
+                width=100,
+                fg_color="#8B0000",
+                hover_color="#B22222",
+            )
+            delete_button.grid(row=0, column=0, sticky="w")
+
+        # Cancel and Save buttons on right
+        right_buttons = ctk.CTkFrame(button_frame, fg_color="transparent")
+        right_buttons.grid(row=0, column=1, sticky="e")
 
         cancel_button = ctk.CTkButton(
-            button_frame,
+            right_buttons,
             text="Cancel",
             command=self._cancel,
             width=120,
@@ -841,7 +855,7 @@ class IngredientFormDialog(ctk.CTkToplevel):
         cancel_button.grid(row=0, column=0, padx=(0, 10))
 
         save_button = ctk.CTkButton(
-            button_frame,
+            right_buttons,
             text="Save",
             command=self._save,
             width=120,
@@ -995,6 +1009,46 @@ class IngredientFormDialog(ctk.CTkToplevel):
         """Cancel the form."""
         self.result = None
         self.destroy()
+
+    def _delete(self):
+        """Delete the ingredient after confirmation."""
+        if not self.ingredient:
+            return
+
+        # Get ingredient name for confirmation
+        name = self.ingredient.get("name") or self.ingredient.get("display_name", "")
+        slug = self.ingredient.get("slug")
+
+        if not slug:
+            messagebox.showerror("Error", "Cannot delete: ingredient slug not found")
+            return
+
+        # Confirm deletion
+        result = messagebox.askyesno(
+            "Confirm Deletion",
+            f"Are you sure you want to delete '{name}'?\n\n"
+            "This will fail if the ingredient has products or is used in recipes.",
+        )
+
+        if result:
+            try:
+                # Delete using service
+                ingredient_service.delete_ingredient(slug)
+                self.deleted = True
+                self.result = None
+                messagebox.showinfo("Success", f"Ingredient '{name}' deleted!")
+                self.destroy()
+
+            except IngredientNotFoundBySlug:
+                messagebox.showerror("Error", "Ingredient not found")
+            except IngredientInUse as e:
+                messagebox.showerror(
+                    "Cannot Delete",
+                    f"Cannot delete this ingredient:\n\n{e}\n\n"
+                    "Delete associated products/recipes first.",
+                )
+            except DatabaseError as e:
+                messagebox.showerror("Database Error", f"Failed to delete ingredient: {e}")
 
 
 class ProductsDialog(ctk.CTkToplevel):

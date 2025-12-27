@@ -785,6 +785,12 @@ class InventoryTab(ctk.CTkFrame):
             )
             self.wait_window(dialog)
 
+            # Check if item was deleted
+            if dialog.deleted:
+                self.selected_item_id = None
+                self.refresh()
+                return
+
             if not dialog.result:
                 return
 
@@ -907,6 +913,8 @@ class InventoryItemFormDialog(ctk.CTkToplevel):
 
         self.item = item
         self.result: Optional[Dict[str, Any]] = None
+        self.deleted = False  # Track if item was deleted
+        self.parent_tab = parent  # Reference to parent tab for delete callback
         self.ingredients: List[Dict[str, Any]] = []
         self.products: List[Dict[str, Any]] = []
         self.suppliers: List[Dict[str, Any]] = []  # F028
@@ -1130,22 +1138,39 @@ class InventoryItemFormDialog(ctk.CTkToplevel):
         # Buttons
         button_frame = ctk.CTkFrame(self)
         button_frame.grid(row=row, column=0, columnspan=2, padx=10, pady=20, sticky="ew")
-        button_frame.grid_columnconfigure(0, weight=1)
-        button_frame.grid_columnconfigure(1, weight=1)
+        button_frame.grid_columnconfigure(0, weight=1)  # Left side expands
+
+        # Delete button on left (only when editing)
+        if self.item:
+            delete_btn = ctk.CTkButton(
+                button_frame,
+                text="Delete",
+                command=self._delete,
+                width=100,
+                fg_color="#8B0000",
+                hover_color="#B22222",
+            )
+            delete_btn.grid(row=0, column=0, padx=5, pady=5, sticky="w")
+
+        # Cancel and Save buttons on right
+        right_buttons = ctk.CTkFrame(button_frame, fg_color="transparent")
+        right_buttons.grid(row=0, column=1, sticky="e")
 
         cancel_btn = ctk.CTkButton(
-            button_frame,
+            right_buttons,
             text="Cancel",
             command=self.destroy,
+            width=100,
         )
-        cancel_btn.grid(row=0, column=0, padx=5, pady=5, sticky="ew")
+        cancel_btn.grid(row=0, column=0, padx=5, pady=5)
 
         save_btn = ctk.CTkButton(
-            button_frame,
+            right_buttons,
             text="Save",
             command=self._save,
+            width=100,
         )
-        save_btn.grid(row=0, column=1, padx=5, pady=5, sticky="ew")
+        save_btn.grid(row=0, column=1, padx=5, pady=5)
 
     def _on_category_selected(self, selected_value: str):
         """Handle category selection - load ingredients for this category (F029)."""
@@ -1850,6 +1875,48 @@ class InventoryItemFormDialog(ctk.CTkToplevel):
                 self.session_state.update_category(category)
 
         self.destroy()
+
+    def _delete(self):
+        """Delete the inventory item after confirmation."""
+        if not self.item:
+            return
+
+        item_id = self.item.get("id")
+        if not item_id:
+            messagebox.showerror("Error", "Cannot delete: item ID not found", parent=self)
+            return
+
+        # Build description for confirmation message
+        brand = self.item.get("product_brand", "Unknown")
+        ingredient = self.item.get("ingredient_name", "Unknown")
+        quantity = self.item.get("quantity", "?")
+        unit = self.item.get("product_package_unit", "")
+        description = f"{brand} {ingredient} ({quantity} {unit})"
+
+        # Confirm deletion
+        result = messagebox.askyesno(
+            "Confirm Deletion",
+            f"Are you sure you want to delete this inventory item?\n\n"
+            f"{description}\n\n"
+            "This action cannot be undone.",
+            parent=self,
+        )
+
+        if result:
+            try:
+                # Delete using service
+                inventory_item_service.delete_inventory_item(item_id)
+                self.deleted = True
+                self.result = None
+                messagebox.showinfo("Success", "Inventory item deleted!", parent=self)
+                self.destroy()
+
+            except InventoryItemNotFound:
+                messagebox.showerror("Error", "Inventory item not found", parent=self)
+            except DatabaseError as e:
+                messagebox.showerror("Database Error", f"Failed to delete: {e}", parent=self)
+            except Exception as e:
+                messagebox.showerror("Error", f"Failed to delete inventory item: {e}", parent=self)
 
     # WP09: Clear price hint when user types
 
