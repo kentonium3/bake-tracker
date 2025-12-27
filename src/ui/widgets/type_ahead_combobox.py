@@ -188,11 +188,16 @@ class TypeAheadComboBox(ctk.CTkFrame):
             kwargs["values"] = self.full_values
             self.filtered = False
 
-        if kwargs:
+        # Guard against calls during parent __init__ before _combobox is created
+        if kwargs and hasattr(self, "_combobox"):
             self._combobox.configure(**kwargs)
 
     def cget(self, attribute: str) -> Any:
         """Get widget attribute."""
         if attribute == "values":
             return self.full_values
-        return self._combobox.cget(attribute)
+        # Guard against calls during parent __init__ before _combobox is created
+        # Fall back to CTkFrame's cget for frame-level attributes
+        if hasattr(self, "_combobox"):
+            return self._combobox.cget(attribute)
+        return super().cget(attribute)
