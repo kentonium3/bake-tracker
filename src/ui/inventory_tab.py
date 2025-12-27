@@ -209,6 +209,7 @@ class InventoryTab(ctk.CTkFrame):
             columns=columns,
             show="headings",
             selectmode="browse",
+            height=20,  # Show more rows (default is 10)
         )
 
         # Configure column headings
