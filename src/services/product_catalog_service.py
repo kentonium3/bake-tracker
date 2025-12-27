@@ -199,6 +199,7 @@ def create_product(
     package_unit_quantity: float,
     preferred_supplier_id: Optional[int] = None,
     brand: Optional[str] = None,
+    package_type: Optional[str] = None,
     gtin: Optional[str] = None,
     upc_code: Optional[str] = None,
     session: Optional[Session] = None,
@@ -212,6 +213,7 @@ def create_product(
         package_unit_quantity: Quantity per package
         preferred_supplier_id: Optional preferred supplier ID
         brand: Optional brand name
+        package_type: Optional package type (e.g., "bag", "can", "jar")
         gtin: Optional GS1 GTIN barcode
         upc_code: Optional UPC barcode
         session: Optional database session
@@ -233,12 +235,12 @@ def create_product(
     if session is not None:
         return _create_product_impl(
             product_name, ingredient_id, package_unit, package_unit_quantity,
-            preferred_supplier_id, brand, gtin, upc_code, session
+            preferred_supplier_id, brand, package_type, gtin, upc_code, session
         )
     with session_scope() as session:
         return _create_product_impl(
             product_name, ingredient_id, package_unit, package_unit_quantity,
-            preferred_supplier_id, brand, gtin, upc_code, session
+            preferred_supplier_id, brand, package_type, gtin, upc_code, session
         )
 
 
@@ -249,6 +251,7 @@ def _create_product_impl(
     package_unit_quantity: float,
     preferred_supplier_id: Optional[int],
     brand: Optional[str],
+    package_type: Optional[str],
     gtin: Optional[str],
     upc_code: Optional[str],
     session: Session,
@@ -257,6 +260,7 @@ def _create_product_impl(
     product = Product(
         product_name=product_name,
         ingredient_id=ingredient_id,
+        package_type=package_type,
         package_unit=package_unit,
         package_unit_quantity=package_unit_quantity,
         preferred_supplier_id=preferred_supplier_id,
@@ -307,7 +311,7 @@ def _update_product_impl(product_id: int, session: Session, **kwargs) -> Dict[st
         raise ProductNotFound(product_id)
 
     allowed_fields = {
-        "product_name", "ingredient_id", "package_unit",
+        "product_name", "ingredient_id", "package_type", "package_unit",
         "package_unit_quantity", "preferred_supplier_id", "brand",
         "gtin", "upc_code"
     }
