@@ -6,12 +6,12 @@ with validation and error handling.
 """
 
 import customtkinter as ctk
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, List
 
 from src.models.ingredient import Ingredient
 from src.services.unit_service import get_units_by_category
+from src.services import ingredient_service
 from src.utils.constants import (
-    INGREDIENT_CATEGORIES,
     ALL_UNITS,
     PACKAGE_UNITS,
     WEIGHT_UNITS,
@@ -24,6 +24,20 @@ from src.utils.constants import (
     PADDING_LARGE,
 )
 from src.ui.widgets.dialogs import show_error
+
+
+def _get_categories_from_database() -> List[str]:
+    """Load categories from existing ingredients in database."""
+    try:
+        ingredients = ingredient_service.get_all_ingredients()
+        categories = sorted(set(
+            ing.get("category", "")
+            for ing in ingredients
+            if ing.get("category")
+        ))
+        return categories if categories else ["Uncategorized"]
+    except Exception:
+        return ["Uncategorized"]
 
 
 class IngredientFormDialog(ctk.CTkToplevel):
@@ -120,17 +134,18 @@ class IngredientFormDialog(ctk.CTkToplevel):
         self.brand_entry.grid(row=row, column=1, sticky="ew", padx=PADDING_MEDIUM, pady=5)
         row += 1
 
-        # Category field (required)
+        # Category field (required) - uses database categories for consistency
         category_label = ctk.CTkLabel(parent, text="Category*:", anchor="w")
         category_label.grid(row=row, column=0, sticky="w", padx=PADDING_MEDIUM, pady=5)
 
+        self.db_categories = _get_categories_from_database()
         self.category_combo = ctk.CTkComboBox(
             parent,
             width=400,
-            values=INGREDIENT_CATEGORIES,
+            values=self.db_categories,
             state="readonly",
         )
-        self.category_combo.set(INGREDIENT_CATEGORIES[0])
+        self.category_combo.set(self.db_categories[0] if self.db_categories else "")
         self.category_combo.grid(row=row, column=1, sticky="ew", padx=PADDING_MEDIUM, pady=5)
         row += 1
 
