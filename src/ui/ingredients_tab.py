@@ -6,8 +6,33 @@ Provides CRUD interface for managing generic ingredient catalog
 """
 
 import customtkinter as ctk
+import tkinter as tk
+from tkinter import ttk
+import unicodedata
 from typing import Optional, List, Dict, Any
 from tkinter import messagebox
+
+
+def normalize_for_search(text: str) -> str:
+    """
+    Normalize text for search by removing diacriticals and converting to lowercase.
+
+    Examples:
+        "Crème Brûlée" -> "creme brulee"
+        "Café" -> "cafe"
+        "Jalapeño" -> "jalapeno"
+    """
+    if not text:
+        return ""
+
+    # Normalize to NFKD form (canonical decomposition)
+    nfkd = unicodedata.normalize("NFKD", text)
+
+    # Remove combining marks (accents)
+    ascii_text = nfkd.encode("ASCII", "ignore").decode("ASCII")
+
+    # Convert to lowercase for case-insensitive matching
+    return ascii_text.lower()
 
 from src.services import ingredient_service, product_service
 from src.services.unit_service import get_units_for_dropdown
@@ -55,7 +80,6 @@ class IngredientsTab(ctk.CTkFrame):
 
         self.selected_ingredient_slug: Optional[str] = None
         self.ingredients: List[dict] = []
-        self.selection_var = ctk.StringVar(value="")
         self._data_loaded = False  # Lazy loading flag
 
         # Configure grid
@@ -186,79 +210,75 @@ class IngredientsTab(ctk.CTkFrame):
         refresh_button.grid(row=0, column=4)
 
     def _create_ingredient_list(self):
-        """Create the scrollable list for displaying ingredients."""
-        # Container for header + scrollable content
-        list_container = ctk.CTkFrame(self)
-        list_container.grid(
+        """Create the ingredient list using ttk.Treeview for performance."""
+        # Container frame for grid and scrollbar
+        grid_container = ctk.CTkFrame(self)
+        grid_container.grid(
             row=3,
             column=0,
             sticky="nsew",
             padx=PADDING_LARGE,
             pady=PADDING_MEDIUM,
         )
-        list_container.grid_columnconfigure(0, weight=1)
-        list_container.grid_rowconfigure(1, weight=1)
+        grid_container.grid_columnconfigure(0, weight=1)
+        grid_container.grid_rowconfigure(0, weight=1)
 
-        # Column header frame (fixed, doesn't scroll)
-        self.header_frame = ctk.CTkFrame(list_container, fg_color=("gray85", "gray20"))
-        self.header_frame.grid(row=0, column=0, sticky="ew")
-        self._create_column_headers()
-
-        # Create scrollable frame for data rows
-        self.list_frame = ctk.CTkScrollableFrame(
-            list_container,
-            width=800,
-            height=400,  # Explicit height for better scroll behavior
-        )
-        self.list_frame.grid(row=1, column=0, sticky="nsew")
-        self.list_frame.grid_columnconfigure(0, weight=1)
-
-        # Empty state label (shown when no ingredients)
-        self.empty_label = ctk.CTkLabel(
-            self.list_frame,
-            text="No ingredients found. Click 'Add Ingredient' to get started.",
-            text_color="gray",
-        )
-
-    def _create_column_headers(self):
-        """Create sortable column headers."""
         # Track current sort state
         self.sort_column = "name"
         self.sort_ascending = True
 
-        # Column definitions: (text, width, sort_key)
-        self.columns = [
-            ("", 30, None),  # Radio button column
-            ("Category", 180, "category"),
-            ("Name", 280, "name"),
-            ("Density", 150, "density_display"),
-        ]
+        # Define columns
+        columns = ("category", "name", "type", "density")
+        self.tree = ttk.Treeview(
+            grid_container,
+            columns=columns,
+            show="headings",
+            selectmode="browse",
+        )
 
-        for col_idx, (text, width, sort_key) in enumerate(self.columns):
-            if sort_key:
-                # Clickable header for sorting
-                btn = ctk.CTkButton(
-                    self.header_frame,
-                    text=text,
-                    width=width,
-                    height=28,
-                    fg_color="transparent",
-                    text_color=("gray10", "gray90"),
-                    hover_color=("gray75", "gray30"),
-                    anchor="w",
-                    command=lambda sk=sort_key: self._on_header_click(sk),
-                )
-                btn.grid(row=0, column=col_idx, padx=1, pady=2, sticky="w")
-            else:
-                # Non-sortable column (radio button)
-                lbl = ctk.CTkLabel(
-                    self.header_frame,
-                    text=text,
-                    width=width,
-                    height=28,
-                    anchor="w",
-                )
-                lbl.grid(row=0, column=col_idx, padx=1, pady=2, sticky="w")
+        # Configure column headings with click-to-sort
+        self.tree.heading("category", text="Category", anchor="w",
+                          command=lambda: self._on_header_click("category"))
+        self.tree.heading("name", text="Name", anchor="w",
+                          command=lambda: self._on_header_click("name"))
+        self.tree.heading("type", text="Type", anchor="w",
+                          command=lambda: self._on_header_click("is_packaging"))
+        self.tree.heading("density", text="Density", anchor="w",
+                          command=lambda: self._on_header_click("density_display"))
+
+        # Configure column widths
+        self.tree.column("category", width=150, minwidth=100)
+        self.tree.column("name", width=280, minwidth=150)
+        self.tree.column("type", width=80, minwidth=60)
+        self.tree.column("density", width=150, minwidth=100)
+
+        # Add scrollbars
+        y_scrollbar = ttk.Scrollbar(
+            grid_container,
+            orient="vertical",
+            command=self.tree.yview,
+        )
+        x_scrollbar = ttk.Scrollbar(
+            grid_container,
+            orient="horizontal",
+            command=self.tree.xview,
+        )
+        self.tree.configure(
+            yscrollcommand=y_scrollbar.set,
+            xscrollcommand=x_scrollbar.set,
+        )
+
+        # Grid layout
+        self.tree.grid(row=0, column=0, sticky="nsew")
+        y_scrollbar.grid(row=0, column=1, sticky="ns")
+        x_scrollbar.grid(row=1, column=0, sticky="ew")
+
+        # Configure tag for packaging items
+        self.tree.tag_configure("packaging", foreground="#0066cc")
+
+        # Bind events
+        self.tree.bind("<Double-1>", self._on_double_click)
+        self.tree.bind("<<TreeviewSelect>>", self._on_tree_select)
 
     def _on_header_click(self, sort_key: str):
         """Handle column header click for sorting."""
@@ -268,6 +288,24 @@ class IngredientsTab(ctk.CTkFrame):
             self.sort_column = sort_key
             self.sort_ascending = True
         self._update_ingredient_display()
+
+    def _on_double_click(self, event):
+        """Handle double-click on ingredient row to open edit dialog."""
+        selection = self.tree.selection()
+        if selection:
+            slug = selection[0]
+            self.selected_ingredient_slug = slug
+            self._enable_selection_buttons()
+            self._edit_ingredient()
+
+    def _on_tree_select(self, event):
+        """Handle tree selection change."""
+        selection = self.tree.selection()
+        if selection:
+            self.selected_ingredient_slug = selection[0]
+            self._enable_selection_buttons()
+        else:
+            self._disable_selection_buttons()
 
     def _create_status_bar(self):
         """Create status bar for displaying messages."""
@@ -291,9 +329,14 @@ class IngredientsTab(ctk.CTkFrame):
             # Get all ingredients from service
             self.ingredients = ingredient_service.get_all_ingredients()
 
-            # Update category dropdown with unique categories
-            categories = set(ing["category"] for ing in self.ingredients if ing.get("category"))
-            category_list = ["All Categories"] + sorted(categories)
+            # Update category dropdown from actual database categories
+            # (same approach as Products tab for consistency)
+            categories = sorted(set(
+                ing.get("category", "")
+                for ing in self.ingredients
+                if ing.get("category")
+            ))
+            category_list = ["All Categories"] + categories
             self.category_dropdown.configure(values=category_list)
 
             # Update display
@@ -308,136 +351,69 @@ class IngredientsTab(ctk.CTkFrame):
             self.update_status("Error loading ingredients")
 
     def _show_initial_state(self):
-        """Show initial state - data loads automatically when tab is selected."""
-        for widget in self.list_frame.winfo_children():
-            if widget != self.empty_label:
-                widget.destroy()
-        initial_label = ctk.CTkLabel(
-            self.list_frame,
-            text="Loading ingredients...",
-            font=ctk.CTkFont(size=14),
-            text_color="gray",
-        )
-        initial_label.grid(row=0, column=0, padx=20, pady=30)
+        """Show initial loading state."""
+        # Clear any existing items
+        for item in self.tree.get_children():
+            self.tree.delete(item)
         self.update_status("Loading...")
 
     def _update_ingredient_display(self):
         """Update the displayed list of ingredients based on current filters."""
         # Clear existing items
-        for widget in self.list_frame.winfo_children():
-            if widget != self.empty_label:
-                widget.destroy()
+        for item in self.tree.get_children():
+            self.tree.delete(item)
 
         # Apply filters
         filtered_ingredients = self._apply_filters(self.ingredients)
 
-        # Show empty state if no ingredients
-        if not filtered_ingredients:
-            self.empty_label.grid(row=0, column=0, pady=50)
-            self._disable_selection_buttons()
-            self.selection_var.set("")
-            return
+        # Populate grid with all ingredients (Treeview handles large datasets well)
+        for ingredient in filtered_ingredients:
+            category = ingredient.get("category", "Uncategorized")
+            name = ingredient["name"]
+            is_packaging = ingredient.get("is_packaging", False)
+            type_text = "Packaging" if is_packaging else "Food"
+            density = ingredient.get("density_display", "—")
+            if density == "Not set":
+                density = "—"
 
-        # Hide empty label
-        self.empty_label.grid_forget()
+            values = (category, name, type_text, density)
+            tags = ("packaging",) if is_packaging else ()
+
+            # Use slug as the item ID for easy lookup
+            self.tree.insert("", "end", iid=ingredient["slug"], values=values, tags=tags)
 
         # Restore selection if still present
-        if self.selected_ingredient_slug and any(
-            ing["slug"] == self.selected_ingredient_slug for ing in filtered_ingredients
-        ):
-            self.selection_var.set(self.selected_ingredient_slug)
+        if self.selected_ingredient_slug:
+            try:
+                self.tree.selection_set(self.selected_ingredient_slug)
+                self._enable_selection_buttons()
+            except tk.TclError:
+                # Item not in filtered list
+                self.selected_ingredient_slug = None
+                self._disable_selection_buttons()
         else:
-            self.selection_var.set("")
             self._disable_selection_buttons()
 
-        # Limit rows to prevent UI freeze with large datasets
-        MAX_DISPLAY_ROWS = 100
-        display_ingredients = filtered_ingredients[:MAX_DISPLAY_ROWS]
-
-        # Display ingredients
-        for idx, ingredient in enumerate(display_ingredients):
-            self._create_ingredient_row(idx, ingredient)
-
-        # Show truncation warning if needed
-        if len(filtered_ingredients) > MAX_DISPLAY_ROWS:
-            warning_frame = ctk.CTkFrame(self.list_frame)
-            warning_frame.grid(row=MAX_DISPLAY_ROWS, column=0, pady=10, sticky="ew")
-            warning_label = ctk.CTkLabel(
-                warning_frame,
-                text=f"Showing {MAX_DISPLAY_ROWS} of {len(filtered_ingredients)} ingredients. Use search to find specific items.",
-                text_color="orange",
-                font=ctk.CTkFont(size=12, weight="bold"),
-            )
-            warning_label.grid(row=0, column=0, padx=10, pady=5)
-
-    def _create_ingredient_row(self, row_idx: int, ingredient: dict):
-        """Create a compact row displaying ingredient information in columns."""
-        # Create frame for row with minimal padding
-        row_frame = ctk.CTkFrame(self.list_frame, height=28)
-        row_frame.grid(row=row_idx, column=0, sticky="ew", pady=1)
-        row_frame.grid_propagate(False)  # Enforce fixed height
-
-        # Get data
-        name_text = ingredient["name"]
-        category_text = ingredient.get("category", "Uncategorized")
-        density_text = ingredient.get("density_display", "—")
-        is_packaging = ingredient.get("is_packaging", False)
-        type_indicator = "📦 " if is_packaging else ""
-
-        # Column 0: Radio button (width 30)
-        radio = ctk.CTkRadioButton(
-            row_frame,
-            text="",
-            variable=self.selection_var,
-            value=ingredient["slug"],
-            width=20,
-            height=20,
-            command=lambda slug=ingredient["slug"]: self._on_ingredient_select(slug),
-        )
-        radio.grid(row=0, column=0, padx=(5, 2), pady=3)
-
-        # Column 1: Category (width 180)
-        cat_label = ctk.CTkLabel(
-            row_frame,
-            text=category_text,
-            width=180,
-            height=22,
-            anchor="w",
-            font=ctk.CTkFont(size=12),
-        )
-        cat_label.grid(row=0, column=1, padx=2, pady=3, sticky="w")
-
-        # Column 2: Name (width 280)
-        name_label = ctk.CTkLabel(
-            row_frame,
-            text=f"{type_indicator}{name_text}",
-            width=280,
-            height=22,
-            anchor="w",
-            font=ctk.CTkFont(size=12),
-        )
-        name_label.grid(row=0, column=2, padx=2, pady=3, sticky="w")
-
-        # Column 3: Density (width 150)
-        density_label = ctk.CTkLabel(
-            row_frame,
-            text=density_text if density_text != "Not set" else "—",
-            width=150,
-            height=22,
-            anchor="w",
-            font=ctk.CTkFont(size=12),
-            text_color="gray" if density_text in ("—", "Not set") else None,
-        )
-        density_label.grid(row=0, column=3, padx=2, pady=3, sticky="w")
+        # Update status with count
+        count = len(filtered_ingredients)
+        total = len(self.ingredients)
+        if count < total:
+            self.update_status(f"Showing {count} of {total} ingredients")
+        else:
+            self.update_status(f"{count} ingredient{'s' if count != 1 else ''}")
 
     def _apply_filters(self, ingredients: List[dict]) -> List[dict]:
         """Apply search, category filters, and sorting to ingredient list."""
         filtered = ingredients
 
-        # Apply search filter
-        search_text = self.search_entry.get().lower()
+        # Apply search filter with diacritical normalization
+        # (e.g., "creme" matches "crème", "cafe" matches "café")
+        search_text = normalize_for_search(self.search_entry.get())
         if search_text:
-            filtered = [ing for ing in filtered if search_text in ing["name"].lower()]
+            filtered = [
+                ing for ing in filtered
+                if search_text in normalize_for_search(ing["name"])
+            ]
 
         # Apply category filter
         category = self.category_var.get()
@@ -489,18 +465,11 @@ class IngredientsTab(ctk.CTkFrame):
 
         self.selected_ingredient_slug = ingredient_slug
         self._update_ingredient_display()
-        self.selection_var.set(ingredient_slug)
-        self._enable_selection_buttons()
+        # Treeview selection is handled in _update_ingredient_display()
         self.update_status(f"Ingredient '{ingredient_slug}' selected")
 
         if product_id is not None:
             self._view_products(selected_product_id=product_id)
-
-    def _on_ingredient_select(self, slug: str):
-        """Handle ingredient selection."""
-        self.selected_ingredient_slug = slug
-        self.selection_var.set(slug)
-        self._enable_selection_buttons()
 
     def _enable_selection_buttons(self):
         """Enable buttons that require a selection."""
@@ -514,7 +483,6 @@ class IngredientsTab(ctk.CTkFrame):
         self.delete_button.configure(state="disabled")
         self.products_button.configure(state="disabled")
         self.selected_ingredient_slug = None
-        self.selection_var.set("")
 
     def _add_ingredient(self):
         """Open dialog to add a new ingredient."""
@@ -530,8 +498,7 @@ class IngredientsTab(ctk.CTkFrame):
                 )
                 self.selected_ingredient_slug = getattr(ingredient_obj, "slug", None)
                 self.refresh()
-                if self.selected_ingredient_slug:
-                    self.selection_var.set(self.selected_ingredient_slug)
+                # Selection is restored by refresh() -> _update_ingredient_display()
                 self.update_status(f"Ingredient '{ingredient_name}' added successfully")
                 messagebox.showinfo("Success", f"Ingredient '{ingredient_name}' created!")
 
@@ -576,7 +543,6 @@ class IngredientsTab(ctk.CTkFrame):
                     self.selected_ingredient_slug,
                     dialog.result,
                 )
-                self.refresh()
                 if updated_obj:
                     updated_name = getattr(
                         updated_obj, "name", dialog.result.get("name", "Ingredient")
@@ -584,11 +550,11 @@ class IngredientsTab(ctk.CTkFrame):
                     self.selected_ingredient_slug = getattr(
                         updated_obj, "slug", self.selected_ingredient_slug
                     )
-                    if self.selected_ingredient_slug:
-                        self.selection_var.set(self.selected_ingredient_slug)
                     self.update_status(f"Ingredient '{updated_name}' updated successfully")
                 else:
                     self.update_status("Ingredient updated successfully")
+                self.refresh()
+                # Selection is restored by refresh() -> _update_ingredient_display()
                 messagebox.showinfo("Success", "Ingredient updated!")
 
         except IngredientNotFoundBySlug:

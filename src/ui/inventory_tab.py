@@ -11,9 +11,26 @@ Provides interface for:
 """
 
 import customtkinter as ctk
-from tkinter import messagebox
+import tkinter as tk
+from tkinter import ttk, messagebox
 from datetime import date
 from typing import Optional, List, Dict, Any
+import unicodedata
+
+
+def normalize_for_search(text: str) -> str:
+    """
+    Normalize text for search by removing diacriticals and converting to lowercase.
+
+    Examples:
+        "Crème Brûlée" -> "creme brulee"
+        "Café" -> "cafe"
+    """
+    if not text:
+        return ""
+    nfkd = unicodedata.normalize("NFKD", text)
+    ascii_text = nfkd.encode("ASCII", "ignore").decode("ASCII")
+    return ascii_text.lower()
 
 from decimal import Decimal, InvalidOperation
 from src.services import inventory_item_service, ingredient_service, product_service, supplier_service, purchase_service
@@ -178,20 +195,75 @@ class InventoryTab(ctk.CTkFrame):
         consume_button.grid(row=1, column=1, padx=5, pady=5, sticky="w")
 
     def _create_item_list(self):
-        """Create scrollable list for displaying inventory items."""
-        # Container to ensure proper expansion
-        list_container = ctk.CTkFrame(self)
-        list_container.grid(row=2, column=0, padx=5, pady=5, sticky="nsew")
-        list_container.grid_columnconfigure(0, weight=1)
-        list_container.grid_rowconfigure(0, weight=1)
+        """Create item list using ttk.Treeview for performance."""
+        # Container for grid and scrollbar
+        grid_container = ctk.CTkFrame(self)
+        grid_container.grid(row=2, column=0, padx=5, pady=5, sticky="nsew")
+        grid_container.grid_columnconfigure(0, weight=1)
+        grid_container.grid_rowconfigure(0, weight=1)
 
-        # Scrollable frame with minimum height, expands with container
-        self.scrollable_frame = ctk.CTkScrollableFrame(
-            list_container,
-            height=400,  # Minimum height
+        # Define columns for detail view
+        columns = ("brand", "product", "quantity", "purchase_date", "expiration")
+        self.tree = ttk.Treeview(
+            grid_container,
+            columns=columns,
+            show="headings",
+            selectmode="browse",
         )
-        self.scrollable_frame.pack(fill="both", expand=True)
-        self.scrollable_frame.grid_columnconfigure(0, weight=1)
+
+        # Configure column headings
+        self.tree.heading("brand", text="Brand", anchor="w")
+        self.tree.heading("product", text="Product", anchor="w")
+        self.tree.heading("quantity", text="Quantity", anchor="w")
+        self.tree.heading("purchase_date", text="Purchase Date", anchor="w")
+        self.tree.heading("expiration", text="Expiration", anchor="w")
+
+        # Configure column widths
+        self.tree.column("brand", width=150, minwidth=100)
+        self.tree.column("product", width=300, minwidth=200)
+        self.tree.column("quantity", width=140, minwidth=100)
+        self.tree.column("purchase_date", width=110, minwidth=90)
+        self.tree.column("expiration", width=110, minwidth=90)
+
+        # Add scrollbars
+        y_scrollbar = ttk.Scrollbar(
+            grid_container,
+            orient="vertical",
+            command=self.tree.yview,
+        )
+        x_scrollbar = ttk.Scrollbar(
+            grid_container,
+            orient="horizontal",
+            command=self.tree.xview,
+        )
+        self.tree.configure(
+            yscrollcommand=y_scrollbar.set,
+            xscrollcommand=x_scrollbar.set,
+        )
+
+        # Grid layout
+        self.tree.grid(row=0, column=0, sticky="nsew")
+        y_scrollbar.grid(row=0, column=1, sticky="ns")
+        x_scrollbar.grid(row=1, column=0, sticky="ew")
+
+        # Configure tags for expiration warnings
+        self.tree.tag_configure("expired", background="#8B0000", foreground="white")
+        self.tree.tag_configure("expiring_soon", background="#DAA520")
+        self.tree.tag_configure("packaging", foreground="#0066cc")
+
+        # Bind events
+        self.tree.bind("<Double-1>", self._on_item_double_click)
+        self.tree.bind("<<TreeviewSelect>>", self._on_item_select)
+
+        # Also keep scrollable frame for aggregate view
+        self.scrollable_frame = ctk.CTkScrollableFrame(
+            grid_container,
+            height=400,
+        )
+        # Don't pack/grid yet - will be shown when aggregate mode is selected
+
+        # Track selected item for actions
+        self.selected_item_id: Optional[int] = None
 
     def refresh(self):
         """Refresh inventory list from database."""
@@ -224,8 +296,8 @@ class InventoryTab(ctk.CTkFrame):
         """Apply search and category filters and update display."""
         self.filtered_items = list(self.inventory_items)
 
-        # Apply search filter
-        search_text = self.search_entry.get().lower().strip()
+        # Apply search filter with diacritical normalization
+        search_text = normalize_for_search(self.search_entry.get())
         if search_text:
             filtered = []
             for item in self.filtered_items:
@@ -233,7 +305,9 @@ class InventoryTab(ctk.CTkFrame):
                 ingredient = getattr(product, "ingredient", None) if product else None
                 ingredient_name = getattr(ingredient, "display_name", "") or ""
                 brand = getattr(product, "brand", "") or ""
-                if search_text in ingredient_name.lower() or search_text in brand.lower():
+                # Normalize both for comparison
+                if (search_text in normalize_for_search(ingredient_name) or
+                        search_text in normalize_for_search(brand)):
                     filtered.append(item)
             self.filtered_items = filtered
 
@@ -262,22 +336,33 @@ class InventoryTab(ctk.CTkFrame):
 
     def _update_display(self):
         """Update the display based on current view mode."""
-        # Clear existing widgets
-        for widget in self.scrollable_frame.winfo_children():
-            widget.destroy()
-
-        if not self.filtered_items:
-            self._show_empty_state()
-            return
-
         if self.view_mode == "aggregate":
-            self._display_aggregate_view()
-        else:
-            self._display_detail_view()
+            # Hide tree, show scrollable frame
+            self.tree.grid_remove()
+            self.scrollable_frame.grid(row=0, column=0, sticky="nsew")
 
-        # Note: Removed update_idletasks() call - it blocks the UI thread
-        # and causes freezing with many widgets. CustomTkinter handles
-        # scroll region updates automatically.
+            # Clear scrollable frame
+            for widget in self.scrollable_frame.winfo_children():
+                widget.destroy()
+
+            if not self.filtered_items:
+                self._show_empty_state()
+            else:
+                self._display_aggregate_view()
+        else:
+            # Hide scrollable frame, show tree
+            self.scrollable_frame.grid_remove()
+            self.tree.grid(row=0, column=0, sticky="nsew")
+
+            # Clear tree
+            for item in self.tree.get_children():
+                self.tree.delete(item)
+
+            if not self.filtered_items:
+                # Insert empty state message as tree item
+                pass  # Treeview will just be empty
+            else:
+                self._display_detail_view()
 
     def _show_initial_state(self):
         """Show initial state - data loads automatically when tab is selected."""
@@ -467,61 +552,103 @@ class InventoryTab(ctk.CTkFrame):
         view_details_btn.grid(row=0, column=0, padx=2)
 
     def _display_detail_view(self):
-        """Display individual inventory items (lots)."""
-        # Create header
-        self._create_detail_header()
-
+        """Display individual inventory items in Treeview (lots)."""
         # Sort items by purchase date (FIFO order - oldest first)
         sorted_items = sorted(
             self.filtered_items,
             key=lambda x: getattr(x, "purchase_date", None) or date.today(),
         )
 
-        # Limit rows to prevent UI freeze with large datasets
-        # CustomTkinter is slow with many widgets - keep this low
-        MAX_DISPLAY_ROWS = 25
-        display_items = sorted_items[:MAX_DISPLAY_ROWS]
+        # Populate Treeview - no row limit needed, handles large datasets well
+        for item in sorted_items:
+            # Get ingredient and product info
+            product_obj = getattr(item, "product", None)
+            ingredient_obj = getattr(product_obj, "ingredient", None) if product_obj else None
 
-        # Display each item
-        for idx, item in enumerate(display_items):
-            self._create_detail_row(idx + 1, item)
+            # Brand
+            brand = getattr(product_obj, "brand", "Unknown") if product_obj else "Unknown"
+            is_packaging = getattr(ingredient_obj, "is_packaging", False) if ingredient_obj else False
+            if is_packaging:
+                brand = f"📦 {brand}"
 
-        # Show truncation warning if needed
-        if len(sorted_items) > MAX_DISPLAY_ROWS:
-            warning_frame = ctk.CTkFrame(self.scrollable_frame)
-            warning_frame.grid(row=MAX_DISPLAY_ROWS + 1, column=0, padx=5, pady=10, sticky="ew")
-            warning_label = ctk.CTkLabel(
-                warning_frame,
-                text=f"Showing {MAX_DISPLAY_ROWS} of {len(sorted_items)} items. Use search or filters to narrow results.",
-                text_color="orange",
-                font=ctk.CTkFont(size=12, weight="bold"),
-            )
-            warning_label.grid(row=0, column=0, padx=10, pady=5)
+            # Product description
+            product_name = getattr(product_obj, "product_name", None) or ""
+            ingredient_name = getattr(ingredient_obj, "display_name", "") if ingredient_obj else ""
+            package_qty = getattr(product_obj, "package_unit_quantity", None)
+            package_unit = getattr(product_obj, "package_unit", "") or ""
+            package_type = getattr(product_obj, "package_type", None) or ""
 
-    def _create_detail_header(self):
-        """Create header for detail view."""
-        header_frame = ctk.CTkFrame(self.scrollable_frame)
-        header_frame.grid(row=0, column=0, padx=2, pady=2, sticky="ew")
-        header_frame.grid_columnconfigure(1, weight=1)
+            desc_parts = []
+            if product_name:
+                desc_parts.append(product_name)
+            elif ingredient_name:
+                desc_parts.append(f"[{ingredient_name}]")
+            if package_qty and package_unit:
+                size_str = f"{package_qty:g} {package_unit}"
+                if package_type:
+                    size_str += f" {package_type}"
+                desc_parts.append(size_str)
+            description = " - ".join(desc_parts) if desc_parts else "N/A"
 
-        headers = [
-            ("Brand", 0, 180),
-            ("Product", 1, 330),  # 50% wider for longer descriptions
-            ("Quantity", 2, 140),
-            ("Purchase Date", 3, 100),
-            ("Expiration", 4, 100),
-            ("Actions", 5, 160),
-        ]
+            # Quantity display
+            qty_value = getattr(item, "quantity", 0) or 0
+            if qty_value == int(qty_value):
+                qty_total = str(int(qty_value))
+            else:
+                qty_total = f"{qty_value:.1f}"
 
-        for text, col, width in headers:
-            label = ctk.CTkLabel(
-                header_frame,
-                text=text,
-                font=ctk.CTkFont(weight="bold"),
-                width=width,
-                anchor="w",  # Left justify header text
-            )
-            label.grid(row=0, column=col, padx=3, pady=3, sticky="w")
+            if package_qty and package_qty > 0:
+                packages = qty_value / float(package_qty)
+                if packages == int(packages):
+                    pkg_text = str(int(packages))
+                else:
+                    pkg_text = f"{packages:.1f}"
+                qty_display = f"{pkg_text} pkg ({qty_total} {package_unit})"
+            else:
+                qty_display = f"{qty_total} {package_unit}".strip()
+
+            # Dates
+            purchase_date = getattr(item, "purchase_date", None)
+            purchase_str = purchase_date.strftime("%Y-%m-%d") if purchase_date else "N/A"
+
+            expiration_date = getattr(item, "expiration_date", None)
+            expiration_text = "None"
+            tags = []
+
+            if expiration_date:
+                days_until_expiry = (expiration_date - date.today()).days
+                if days_until_expiry < 0:
+                    expiration_text = "EXPIRED"
+                    tags.append("expired")
+                elif days_until_expiry <= 14:
+                    expiration_text = f"⚠️ {expiration_date.strftime('%Y-%m-%d')}"
+                    tags.append("expiring_soon")
+                else:
+                    expiration_text = expiration_date.strftime("%Y-%m-%d")
+
+            if is_packaging and "expired" not in tags and "expiring_soon" not in tags:
+                tags.append("packaging")
+
+            values = (brand, description, qty_display, purchase_str, expiration_text)
+            item_id = getattr(item, "id", None)
+
+            # Use item ID as the tree item ID for easy lookup
+            self.tree.insert("", "end", iid=str(item_id), values=values, tags=tuple(tags))
+
+    def _on_item_double_click(self, event):
+        """Handle double-click on inventory item to open edit dialog."""
+        selection = self.tree.selection()
+        if selection:
+            item_id = int(selection[0])
+            self._edit_inventory_item(item_id)
+
+    def _on_item_select(self, event):
+        """Handle tree selection change."""
+        selection = self.tree.selection()
+        if selection:
+            self.selected_item_id = int(selection[0])
+        else:
+            self.selected_item_id = None
 
     def _truncate_text(self, text: str, max_chars: int = 25) -> str:
         """Truncate text and add ellipsis if too long."""
@@ -530,155 +657,6 @@ class InventoryTab(ctk.CTkFrame):
         if len(text) <= max_chars:
             return text
         return text[: max_chars - 1] + "..."
-
-    def _create_detail_row(self, row_idx: int, item: dict):
-        """Create a row for individual inventory item."""
-        row_frame = ctk.CTkFrame(self.scrollable_frame)
-        row_frame.grid(row=row_idx, column=0, padx=2, pady=1, sticky="ew")
-        row_frame.grid_columnconfigure(1, weight=1)
-
-        # Get ingredient and product info
-        product_obj = getattr(item, "product", None)
-        ingredient_obj = getattr(product_obj, "ingredient", None) if product_obj else None
-
-        # Feature 011: Check if packaging ingredient
-        is_packaging = getattr(ingredient_obj, "is_packaging", False) if ingredient_obj else False
-        type_indicator = "📦 " if is_packaging else ""
-
-        # Product column: Brand name
-        brand = getattr(product_obj, "brand", "Unknown") if product_obj else "Unknown"
-        product_display = f"{type_indicator}{brand}"
-
-        # Description column: Product name + package info
-        # Falls back to ingredient name in brackets if product_name is empty
-        product_name = getattr(product_obj, "product_name", None) or ""
-        ingredient_name = getattr(ingredient_obj, "display_name", "") if ingredient_obj else ""
-        package_qty = getattr(product_obj, "package_unit_quantity", None)
-        package_unit = getattr(product_obj, "package_unit", "") or ""
-        package_type = getattr(product_obj, "package_type", None) or ""
-
-        # Build description: "Product Name - 25 lb bag" or "[Ingredient] - 25 lb bag"
-        desc_parts = []
-        if product_name:
-            desc_parts.append(product_name)
-        elif ingredient_name:
-            # Fallback: show ingredient name in brackets to indicate it's not a product name
-            desc_parts.append(f"[{ingredient_name}]")
-        if package_qty and package_unit:
-            size_str = f"{package_qty:g} {package_unit}"
-            if package_type:
-                size_str += f" {package_type}"
-            desc_parts.append(size_str)
-        description = " - ".join(desc_parts) if desc_parts else "N/A"
-
-        # Check expiration status
-        expiration_date = getattr(item, "expiration_date", None)
-        warning_color = None
-        expiration_text = "None"
-
-        if expiration_date:
-            expiration_text = expiration_date.strftime("%Y-%m-%d")
-            days_until_expiry = (expiration_date - date.today()).days
-
-            if days_until_expiry < 0:
-                warning_color = "#8B0000"  # Dark red for expired
-                expiration_text = f"EXPIRED"
-            elif days_until_expiry <= 14:
-                warning_color = "#DAA520"  # Goldenrod for expiring soon
-                expiration_text = f"⚠️ {expiration_text}"
-
-        if warning_color:
-            row_frame.configure(fg_color=warning_color)
-
-        # Column 0: Product (brand)
-        product_label = ctk.CTkLabel(
-            row_frame,
-            text=self._truncate_text(product_display, 22),
-            width=180,
-            anchor="w",
-        )
-        product_label.grid(row=0, column=0, padx=3, pady=3, sticky="w")
-
-        # Column 1: Product (product name + package info)
-        desc_label = ctk.CTkLabel(
-            row_frame,
-            text=self._truncate_text(description, 42),  # More chars for wider column
-            width=330,
-            anchor="w",
-        )
-        desc_label.grid(row=0, column=1, padx=3, pady=3, sticky="w")
-
-        # Column 2: Quantity - show as "X pkg (Y unit)" format
-        qty_value = getattr(item, "quantity", 0) or 0
-
-        # Format total quantity
-        if qty_value == int(qty_value):
-            qty_total = str(int(qty_value))
-        else:
-            qty_total = f"{qty_value:.1f}"
-
-        # Calculate packages if package size is known
-        if package_qty and package_qty > 0:
-            packages = qty_value / float(package_qty)
-            if packages == int(packages):
-                pkg_text = str(int(packages))
-            else:
-                pkg_text = f"{packages:.1f}"
-            qty_display = f"{pkg_text} pkg ({qty_total} {package_unit})"
-        else:
-            qty_display = f"{qty_total} {package_unit}".strip()
-
-        qty_label = ctk.CTkLabel(
-            row_frame,
-            text=qty_display,
-            width=140,
-            anchor="w",
-            font=ctk.CTkFont(weight="bold"),
-        )
-        qty_label.grid(row=0, column=2, padx=3, pady=3, sticky="w")
-
-        # Column 3: Purchase date
-        purchase_date = getattr(item, "purchase_date", None)
-        purchase_str = purchase_date.strftime("%Y-%m-%d") if purchase_date else "N/A"
-        purchase_label = ctk.CTkLabel(
-            row_frame,
-            text=purchase_str,
-            width=100,
-            anchor="w",
-        )
-        purchase_label.grid(row=0, column=3, padx=3, pady=3, sticky="w")
-
-        # Column 4: Expiration date
-        exp_label = ctk.CTkLabel(
-            row_frame,
-            text=expiration_text,
-            width=100,
-            anchor="w",
-        )
-        exp_label.grid(row=0, column=4, padx=3, pady=3, sticky="w")
-
-        # Column 5: Actions
-        actions_frame = ctk.CTkFrame(row_frame)
-        actions_frame.grid(row=0, column=5, padx=3, pady=3)
-
-        item_id = getattr(item, "id", None)
-        edit_btn = ctk.CTkButton(
-            actions_frame,
-            text="Edit",
-            command=lambda id=item_id: self._edit_inventory_item(id),
-            width=70,
-        )
-        edit_btn.grid(row=0, column=0, padx=2)
-
-        delete_btn = ctk.CTkButton(
-            actions_frame,
-            text="Delete",
-            command=lambda id=item_id: self._delete_inventory_item(id),
-            width=70,
-            fg_color="darkred",
-            hover_color="red",
-        )
-        delete_btn.grid(row=0, column=1, padx=2)
 
     def _get_expiration_warning_color(self, items: List[dict]) -> Optional[str]:
         """Get warning color based on expiration dates in items."""
