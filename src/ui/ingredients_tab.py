@@ -51,7 +51,6 @@ from src.utils.constants import (
     VOLUME_UNITS,
     WEIGHT_UNITS,
     PACKAGE_TYPES,
-    FOOD_INGREDIENT_CATEGORIES,
     PACKAGING_INGREDIENT_CATEGORIES,
 )
 
@@ -743,13 +742,19 @@ class IngredientFormDialog(ctk.CTkToplevel):
         row += 1
 
         # Category field (required) - now a dropdown that changes based on is_packaging
+        # Load food categories from database for consistency with other dropdowns
+        self.food_categories_from_db = sorted(set(
+            ing.get("category", "") for ing in self.parent_tab.ingredients
+            if ing.get("category") and not ing.get("is_packaging")
+        )) or ["Uncategorized"]
+
         ctk.CTkLabel(form_frame, text="Category*:").grid(
             row=row, column=0, sticky="w", padx=10, pady=5
         )
         self.category_var = ctk.StringVar(value="")
         self.category_dropdown = ctk.CTkComboBox(
             form_frame,
-            values=FOOD_INGREDIENT_CATEGORIES,
+            values=self.food_categories_from_db,
             variable=self.category_var,
             width=250,
         )
@@ -855,18 +860,18 @@ class IngredientFormDialog(ctk.CTkToplevel):
     def _on_packaging_checkbox_change(self):
         """Handle packaging checkbox change - update category dropdown options."""
         if self.is_packaging_var.get():
-            # Packaging ingredient - show packaging categories
+            # Packaging ingredient - show packaging categories (from constants, as no packaging data yet)
             self.category_dropdown.configure(values=PACKAGING_INGREDIENT_CATEGORIES)
             # Clear current selection if it's not a packaging category
             current = self.category_var.get()
             if current and current not in PACKAGING_INGREDIENT_CATEGORIES:
                 self.category_var.set("")
         else:
-            # Food ingredient - show food categories
-            self.category_dropdown.configure(values=FOOD_INGREDIENT_CATEGORIES)
-            # Clear current selection if it's not a food category
+            # Food ingredient - show food categories from database
+            self.category_dropdown.configure(values=self.food_categories_from_db)
+            # Clear current selection if it's not in the database categories
             current = self.category_var.get()
-            if current and current not in FOOD_INGREDIENT_CATEGORIES:
+            if current and current not in self.food_categories_from_db:
                 self.category_var.set("")
 
     def _populate_form(self):
