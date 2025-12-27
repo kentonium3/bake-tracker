@@ -53,7 +53,6 @@ from src.utils.constants import (
     PACKAGE_TYPES,
     FOOD_INGREDIENT_CATEGORIES,
     PACKAGING_INGREDIENT_CATEGORIES,
-    INGREDIENT_CATEGORIES,
 )
 
 
@@ -330,9 +329,14 @@ class IngredientsTab(ctk.CTkFrame):
             # Get all ingredients from service
             self.ingredients = ingredient_service.get_all_ingredients()
 
-            # Update category dropdown with categories from constants
-            # (ensures consistency with edit form categories)
-            category_list = ["All Categories"] + INGREDIENT_CATEGORIES
+            # Update category dropdown from actual database categories
+            # (same approach as Products tab for consistency)
+            categories = sorted(set(
+                ing.get("category", "")
+                for ing in self.ingredients
+                if ing.get("category")
+            ))
+            category_list = ["All Categories"] + categories
             self.category_dropdown.configure(values=category_list)
 
             # Update display
