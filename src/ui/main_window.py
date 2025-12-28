@@ -465,7 +465,7 @@ class MainWindow(ctk.CTk):
         except Exception:
             pass  # Tab doesn't exist or is disabled
 
-    def navigate_to_ingredient(self, ingredient_slug: str, product_id: Optional[int] = None):
+    def navigate_to_ingredient(self, ingredient_slug: str):
         """
         Navigate to My Ingredients tab with specific ingredient selected.
 
@@ -473,14 +473,13 @@ class MainWindow(ctk.CTk):
 
         Args:
             ingredient_slug: Slug of ingredient to select
-            product_id: Optional product ID to highlight
         """
         # Switch to My Ingredients tab
         self.switch_to_tab("My Ingredients")
 
         # Tell ingredients tab to select the ingredient
         if hasattr(self.ingredients_tab, "select_ingredient"):
-            self.ingredients_tab.select_ingredient(ingredient_slug, product_id)
+            self.ingredients_tab.select_ingredient(ingredient_slug)
 
     def navigate_to_inventory(self, ingredient_slug: Optional[str] = None):
         """
