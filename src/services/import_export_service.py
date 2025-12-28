@@ -2577,17 +2577,20 @@ def import_all_from_json_v3(file_path: str, mode: str = "merge") -> ImportResult
                         product_name = prod_data.get("product_name")
                         package_size = prod_data.get("package_size")
                         package_unit = prod_data.get("package_unit")
+                        package_unit_quantity = prod_data.get("package_unit_quantity")
                         if skip_duplicates:
-                            # Match all 5 fields in UniqueConstraint uq_product_variant
+                            # Match all 6 fields in UniqueConstraint uq_product_variant
+                            # Must include package_unit_quantity to distinguish different sizes
                             existing = session.query(Product).filter_by(
                                 ingredient_id=ingredient.id,
                                 brand=brand,
                                 product_name=product_name,
                                 package_size=package_size,
                                 package_unit=package_unit,
+                                package_unit_quantity=package_unit_quantity,
                             ).first()
                             if existing:
-                                result.add_skip("product", brand, "Already exists")
+                                result.add_skip("product", f"{brand} ({package_unit_quantity} {package_unit})", "Already exists")
                                 continue
 
                         # Validate package_unit
