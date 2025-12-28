@@ -289,6 +289,12 @@ class InventoryTab(ctk.CTkFrame):
             # Get all inventory items from service (returns InventoryItem instances)
             self.inventory_items = inventory_item_service.get_inventory_items()
 
+            # Preserve current filter selections before updating dropdown values
+            # (CTkOptionMenu can sometimes reset selection when values change)
+            current_ingredient = self.ingredient_var.get()
+            current_category = self.category_var.get()
+            current_brand = self.brand_var.get()
+
             # Update filter dropdowns with unique values from inventory
             ingredients = set()
             categories = set()
@@ -314,6 +320,22 @@ class InventoryTab(ctk.CTkFrame):
 
             brand_list = ["All Brands"] + sorted(brands)
             self.brand_dropdown.configure(values=brand_list)
+
+            # Restore filter selections (reset to "All" if previous value no longer valid)
+            if current_ingredient in ingredient_list:
+                self.ingredient_var.set(current_ingredient)
+            else:
+                self.ingredient_var.set("All Ingredients")
+
+            if current_category in category_list:
+                self.category_var.set(current_category)
+            else:
+                self.category_var.set("All Categories")
+
+            if current_brand in brand_list:
+                self.brand_var.set(current_brand)
+            else:
+                self.brand_var.set("All Brands")
 
             # Apply filters
             self._apply_filters()
@@ -991,12 +1013,14 @@ class InventoryItemFormDialog(ctk.CTkToplevel):
         super().__init__(parent)
 
         self.title(title)
-        self.geometry("500x700")  # Increased height for new fields
+        # Taller height when editing to accommodate expanded calculator section
+        height = 900 if item else 700
+        self.geometry(f"500x{height}")
         self.resizable(False, False)
 
-        # Make dialog modal
+        # Mark as transient (child of parent) but don't grab yet
+        # Grabbing before form is built causes apparent freeze
         self.transient(parent)
-        self.grab_set()
 
         # Center on parent
         self.update_idletasks()
@@ -1028,6 +1052,11 @@ class InventoryItemFormDialog(ctk.CTkToplevel):
         # Populate if editing
         if self.item:
             self._populate_form()
+
+        # Now that form is fully built, grab events to make dialog modal
+        # This prevents apparent freeze during initialization
+        self.update_idletasks()
+        self.grab_set()
 
     def _load_ingredients(self):
         """Load ingredients from service."""
