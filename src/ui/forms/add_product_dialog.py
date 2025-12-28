@@ -166,21 +166,7 @@ class AddProductDialog(ctk.CTkToplevel):
         self.package_type_dropdown.grid(row=row, column=1, padx=(0, 20), pady=5, sticky="w")
         row += 1
 
-        # Package Unit (required) - dropdown for validation
-        unit_label = ctk.CTkLabel(self, text="Package Unit *")
-        unit_label.grid(row=row, column=0, padx=(20, 10), pady=5, sticky="w")
-
-        self.unit_var = ctk.StringVar(value="")
-        self.unit_dropdown = ctk.CTkOptionMenu(
-            self,
-            variable=self.unit_var,
-            values=MEASUREMENT_UNITS,
-            width=280,
-        )
-        self.unit_dropdown.grid(row=row, column=1, padx=(0, 20), pady=5, sticky="w")
-        row += 1
-
-        # Package Quantity (required)
+        # Package Quantity (required) - comes first for natural reading ("24 oz")
         qty_label = ctk.CTkLabel(self, text="Package Quantity *")
         qty_label.grid(row=row, column=0, padx=(20, 10), pady=5, sticky="w")
 
@@ -192,6 +178,20 @@ class AddProductDialog(ctk.CTkToplevel):
             placeholder_text="e.g., 25 (for 25 lb bag)",
         )
         self.quantity_entry.grid(row=row, column=1, padx=(0, 20), pady=5, sticky="w")
+        row += 1
+
+        # Package Unit (required) - comes after quantity for natural reading
+        unit_label = ctk.CTkLabel(self, text="Package Unit *")
+        unit_label.grid(row=row, column=0, padx=(20, 10), pady=5, sticky="w")
+
+        self.unit_var = ctk.StringVar(value="")
+        self.unit_dropdown = ctk.CTkOptionMenu(
+            self,
+            variable=self.unit_var,
+            values=MEASUREMENT_UNITS,
+            width=280,
+        )
+        self.unit_dropdown.grid(row=row, column=1, padx=(0, 20), pady=5, sticky="w")
         row += 1
 
         # Ingredient (required)
