@@ -250,26 +250,26 @@ class InventoryTab(ctk.CTkFrame):
         self.tree.column("qty_remaining", width=180, minwidth=140)
         self.tree.column("purchased", width=100, minwidth=80)
 
-        # Add scrollbars
-        y_scrollbar = ttk.Scrollbar(
+        # Add scrollbars for tree
+        self.y_scrollbar = ttk.Scrollbar(
             grid_container,
             orient="vertical",
             command=self.tree.yview,
         )
-        x_scrollbar = ttk.Scrollbar(
+        self.x_scrollbar = ttk.Scrollbar(
             grid_container,
             orient="horizontal",
             command=self.tree.xview,
         )
         self.tree.configure(
-            yscrollcommand=y_scrollbar.set,
-            xscrollcommand=x_scrollbar.set,
+            yscrollcommand=self.y_scrollbar.set,
+            xscrollcommand=self.x_scrollbar.set,
         )
 
-        # Grid layout
+        # Grid layout for tree (detail view - default)
         self.tree.grid(row=0, column=0, sticky="nsew")
-        y_scrollbar.grid(row=0, column=1, sticky="ns")
-        x_scrollbar.grid(row=1, column=0, sticky="ew")
+        self.y_scrollbar.grid(row=0, column=1, sticky="ns")
+        self.x_scrollbar.grid(row=1, column=0, sticky="ew")
 
         # Configure tags for visual differentiation
         self.tree.tag_configure("packaging", foreground="#0066cc")
@@ -278,12 +278,11 @@ class InventoryTab(ctk.CTkFrame):
         self.tree.bind("<Double-1>", self._on_item_double_click)
         self.tree.bind("<<TreeviewSelect>>", self._on_item_select)
 
-        # Also keep scrollable frame for aggregate view
+        # Scrollable frame for aggregate view (NOT gridded initially)
         self.scrollable_frame = ctk.CTkScrollableFrame(
             grid_container,
-            height=400,
+            height=500,
         )
-        # Don't pack/grid yet - will be shown when aggregate mode is selected
 
         # Track selected item for actions
         self.selected_item_id: Optional[int] = None
@@ -438,9 +437,11 @@ class InventoryTab(ctk.CTkFrame):
     def _update_display(self):
         """Update the display based on current view mode."""
         if self.view_mode == "aggregate":
-            # Hide tree, show scrollable frame
+            # Hide tree and its scrollbars, show scrollable frame
             self.tree.grid_remove()
-            self.scrollable_frame.grid(row=0, column=0, sticky="nsew")
+            self.y_scrollbar.grid_remove()
+            self.x_scrollbar.grid_remove()
+            self.scrollable_frame.grid(row=0, column=0, columnspan=2, sticky="nsew")
 
             # Clear scrollable frame
             for widget in self.scrollable_frame.winfo_children():
@@ -451,9 +452,11 @@ class InventoryTab(ctk.CTkFrame):
             else:
                 self._display_aggregate_view()
         else:
-            # Hide scrollable frame, show tree
+            # Hide scrollable frame, show tree and its scrollbars
             self.scrollable_frame.grid_remove()
             self.tree.grid(row=0, column=0, sticky="nsew")
+            self.y_scrollbar.grid(row=0, column=1, sticky="ns")
+            self.x_scrollbar.grid(row=1, column=0, sticky="ew")
 
             # Clear tree
             for item in self.tree.get_children():
@@ -466,16 +469,11 @@ class InventoryTab(ctk.CTkFrame):
                 self._display_detail_view()
 
     def _show_initial_state(self):
-        """Show initial state - data loads automatically when tab is selected."""
-        for widget in self.scrollable_frame.winfo_children():
-            widget.destroy()
-        initial_label = ctk.CTkLabel(
-            self.scrollable_frame,
-            text="Loading inventory...",
-            font=ctk.CTkFont(size=16),
-            text_color="gray",
-        )
-        initial_label.grid(row=0, column=0, padx=20, pady=50)
+        """Show initial state - tree is shown by default, data loads when tab is selected."""
+        # Tree is already gridded and visible by default
+        # Just clear any existing items
+        for item in self.tree.get_children():
+            self.tree.delete(item)
 
     def _show_empty_state(self):
         """Show empty state message."""
