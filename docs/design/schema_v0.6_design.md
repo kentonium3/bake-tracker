@@ -2,9 +2,24 @@
 
 **Purpose:** Add event-production linkage to enable progress tracking and fulfillment workflows. This addresses a fundamental structural gap where production runs were "orphaned" from events.
 
-**Status:** PLANNING (Feature 015)
+**Status:** IMPLEMENTED
 **Created:** 2025-12-10
+**Last Updated:** 2025-12-28
 **Previous Version:** v0.5 (TD-001 cleanup, Features 011-014)
+
+---
+
+## Implementation Status
+
+The v0.6 schema has been fully implemented and extended with additional features:
+
+| Feature | Status | Notes |
+|---------|--------|-------|
+| F015/F016: Event-Centric Production | ✅ Complete | ProductionRun/AssemblyRun event_id, targets, fulfillment |
+| F025: Production Loss Tracking | ✅ Complete | ProductionLoss model, loss categories, status tracking |
+| F026: Packaging Bypass | ✅ Complete | CompositionAssignment, bypass flags on AssemblyRun |
+| F027: Product Catalog Management | ✅ Complete | Supplier, Purchase models, GTIN support |
+| F022: Unit Reference Table | ✅ Complete | Unit model for measurement standardization |
 
 ---
 
@@ -243,7 +258,196 @@ class EventAssemblyTarget(BaseModel):
 
 ---
 
-## 3) Updated ERD (v0.6)
+## 2.3 Additional Features (Post-v0.6 Design)
+
+The following features were implemented after the initial v0.6 design and are now part of the current schema.
+
+### Feature 025: Production Loss Tracking
+
+#### ProductionLoss Table
+
+Records detailed information about items lost during production for audit trail and trend analysis.
+
+```sql
+CREATE TABLE production_losses (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    uuid TEXT,
+    production_run_id INTEGER REFERENCES production_runs(id) ON DELETE SET NULL,
+    finished_unit_id INTEGER NOT NULL REFERENCES finished_units(id) ON DELETE RESTRICT,
+    loss_category TEXT NOT NULL DEFAULT 'other',
+    loss_quantity INTEGER NOT NULL CHECK (loss_quantity > 0),
+    per_unit_cost NUMERIC(10,4) NOT NULL DEFAULT 0,
+    total_loss_cost NUMERIC(10,4) NOT NULL DEFAULT 0,
+    notes TEXT,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+| Column | Type | Constraints | Description |
+|--------|------|-------------|-------------|
+| `production_run_id` | Integer | FK → ProductionRun, SET NULL | Nullable for audit trail preservation |
+| `finished_unit_id` | Integer | FK → FinishedUnit, NOT NULL, RESTRICT | What was being produced |
+| `loss_category` | String(20) | NOT NULL, DEFAULT 'other' | LossCategory enum value |
+| `loss_quantity` | Integer | NOT NULL, > 0 | Number of units lost |
+| `per_unit_cost` | Numeric | NOT NULL | Cost snapshot at production time |
+| `total_loss_cost` | Numeric | NOT NULL | loss_quantity × per_unit_cost |
+
+**LossCategory Enum Values:** `burnt`, `broken`, `contaminated`, `dropped`, `wrong_ingredients`, `other`
+
+#### ProductionRun Extensions
+
+Added columns for loss tracking:
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `production_status` | String(20) | `complete`, `partial_loss`, or `total_loss` |
+| `loss_quantity` | Integer | Total units lost in this run |
+
+**ProductionStatus Enum Values:** `complete`, `partial_loss`, `total_loss`
+
+---
+
+### Feature 026: Packaging Bypass
+
+Allows assembly of finished goods without consuming packaging materials (for custom packaging scenarios).
+
+#### AssemblyRun Extensions
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `packaging_bypassed` | Boolean | True if packaging consumption was skipped |
+| `packaging_bypass_notes` | Text | Reason for bypass |
+
+#### CompositionAssignment Table
+
+Tracks what actually got assembled vs what was defined in Composition.
+
+```sql
+CREATE TABLE composition_assignments (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    uuid TEXT,
+    assembly_run_id INTEGER NOT NULL REFERENCES assembly_runs(id) ON DELETE CASCADE,
+    composition_id INTEGER NOT NULL REFERENCES compositions(id) ON DELETE RESTRICT,
+    quantity_used INTEGER NOT NULL CHECK (quantity_used >= 0),
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+---
+
+### Feature 027: Product Catalog Management
+
+Full purchase tracking with suppliers and price history.
+
+#### Supplier Table
+
+```sql
+CREATE TABLE suppliers (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    uuid TEXT,
+    name TEXT NOT NULL,
+    street_address TEXT,
+    city TEXT NOT NULL,
+    state TEXT NOT NULL CHECK (state = UPPER(state) AND LENGTH(state) = 2),
+    zip_code TEXT NOT NULL,
+    notes TEXT,
+    is_active BOOLEAN NOT NULL DEFAULT 1,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+| Column | Type | Constraints | Description |
+|--------|------|-------------|-------------|
+| `name` | String(200) | NOT NULL | Supplier name (e.g., "Costco") |
+| `city` | String(100) | NOT NULL | City name |
+| `state` | String(2) | NOT NULL, 2-letter uppercase | State code (e.g., "MA") |
+| `zip_code` | String(10) | NOT NULL | ZIP code |
+| `is_active` | Boolean | NOT NULL, DEFAULT true | Soft delete flag |
+
+#### Purchase Table
+
+Immutable record of purchase transactions.
+
+```sql
+CREATE TABLE purchases (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    uuid TEXT,
+    product_id INTEGER NOT NULL REFERENCES products(id) ON DELETE RESTRICT,
+    supplier_id INTEGER NOT NULL REFERENCES suppliers(id) ON DELETE RESTRICT,
+    purchase_date DATE NOT NULL,
+    unit_price NUMERIC(10,4) NOT NULL CHECK (unit_price >= 0),
+    quantity_purchased INTEGER NOT NULL CHECK (quantity_purchased > 0),
+    notes TEXT,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+    -- No updated_at: purchases are immutable
+);
+```
+
+| Column | Type | Constraints | Description |
+|--------|------|-------------|-------------|
+| `product_id` | Integer | FK → Product, NOT NULL, RESTRICT | What was purchased |
+| `supplier_id` | Integer | FK → Supplier, NOT NULL, RESTRICT | Where it was purchased |
+| `purchase_date` | Date | NOT NULL | When purchased |
+| `unit_price` | Numeric | NOT NULL, ≥ 0 | Price per package unit |
+| `quantity_purchased` | Integer | NOT NULL, > 0 | Number of packages bought |
+
+#### Product Extensions
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `preferred_supplier_id` | Integer | FK → Supplier (SET NULL on delete) |
+| `is_hidden` | Boolean | Hide from UI dropdowns |
+| `gtin` | String(20) | GS1 GTIN (unique, replaces upc_code) |
+| `brand_owner` | String(200) | Brand owner/manufacturer |
+| `gpc_brick_code` | String(20) | GS1 GPC category code |
+| `net_content_value` | Float | Net content from label |
+| `net_content_uom` | String(20) | Net content unit (g, kg, ml, oz) |
+| `country_of_sale` | String(3) | ISO 3166-1 alpha-3 country code |
+| `off_id` | String(50) | Open Food Facts product code |
+
+#### InventoryItem Extensions
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `purchase_id` | Integer | FK → Purchase (nullable for migration) |
+| `lot_or_batch` | String(100) | Lot/batch number for tracking |
+
+---
+
+### Feature 022: Unit Reference Table
+
+Standardized measurement units for consistency.
+
+#### Unit Table
+
+```sql
+CREATE TABLE units (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    uuid TEXT,
+    name TEXT NOT NULL UNIQUE,
+    abbreviation TEXT NOT NULL UNIQUE,
+    unit_type TEXT NOT NULL,
+    base_unit_id INTEGER REFERENCES units(id),
+    conversion_factor REAL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `name` | String | Full name (e.g., "tablespoon") |
+| `abbreviation` | String | Short form (e.g., "tbsp") |
+| `unit_type` | String | Category (volume, weight, count) |
+| `base_unit_id` | Integer | FK to base unit for conversions |
+| `conversion_factor` | Float | Multiply by this to get base unit |
+
+---
+
+## 3) Updated ERD (Current Implementation)
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
@@ -252,22 +456,21 @@ class EventAssemblyTarget(BaseModel):
 │                                                                              │
 │  ┌──────────────────────────────────────────────────────────────────────┐  │
 │  │                              EVENT                                    │  │
-│  │  • name, year, event_date                                            │  │
-│  │  • notes                                                              │  │
+│  │  • name, year, event_date, notes                                      │  │
 │  └───────┬──────────────┬──────────────┬──────────────┬─────────────────┘  │
 │          │              │              │              │                     │
 │          ▼              ▼              ▼              ▼                     │
 │  ┌───────────────┐ ┌─────────────┐ ┌─────────────┐ ┌─────────────────────┐ │
-│  │EventRecipient │ │EventProduc- │ │EventAssemb- │ │                     │ │
-│  │Package        │ │tionTarget   │ │lyTarget     │ │ (links to           │ │
-│  │               │ │             │ │             │ │  ProductionRun &    │ │
-│  │• recipient_id │ │• recipe_id  │ │• finished_  │ │  AssemblyRun via    │ │
-│  │• package_id   │ │• target_    │ │  good_id    │ │  event_id FK)       │ │
+│  │EventRecipient │ │EventProduc- │ │EventAssemb- │ │ ProductionRun &     │ │
+│  │Package        │ │tionTarget   │ │lyTarget     │ │ AssemblyRun         │ │
+│  │               │ │             │ │             │ │ (via event_id FK)   │ │
+│  │• recipient_id │ │• recipe_id  │ │• finished_  │ │                     │ │
+│  │• package_id   │ │• target_    │ │  good_id    │ │                     │ │
 │  │• quantity     │ │  batches    │ │• target_    │ │                     │ │
 │  │• fulfillment_ │ │• notes      │ │  quantity   │ │                     │ │
-│  │  status  NEW  │ │             │ │• notes      │ │                     │ │
+│  │  status       │ │             │ │• notes      │ │                     │ │
+│  │• status       │ │             │ │             │ │                     │ │
 │  └───────────────┘ └─────────────┘ └─────────────┘ └─────────────────────┘ │
-│         NEW              NEW             NEW                                │
 │                                                                              │
 └─────────────────────────────────────────────────────────────────────────────┘
 
@@ -279,35 +482,113 @@ class EventAssemblyTarget(BaseModel):
 │  │       ProductionRun         │    │        AssemblyRun          │        │
 │  │                             │    │                             │        │
 │  │ • recipe_id                 │    │ • finished_good_id          │        │
-│  │ • event_id  ◄── NEW         │    │ • event_id  ◄── NEW         │        │
-│  │ • num_batches               │    │ • quantity                  │        │
-│  │ • actual_yield              │    │ • total_cost                │        │
-│  │ • total_cost                │    │ • assembled_at              │        │
+│  │ • finished_unit_id          │    │ • event_id (nullable)       │        │
+│  │ • event_id (nullable)       │    │ • quantity_assembled        │        │
+│  │ • num_batches               │    │ • total_component_cost      │        │
+│  │ • expected_yield            │    │ • per_unit_cost             │        │
+│  │ • actual_yield              │    │ • assembled_at              │        │
+│  │ • total_ingredient_cost     │    │ • packaging_bypassed (F026) │        │
+│  │ • per_unit_cost             │    │ • packaging_bypass_notes    │        │
 │  │ • produced_at               │    │ • notes                     │        │
+│  │ • production_status (F025)  │    │                             │        │
+│  │ • loss_quantity (F025)      │    │                             │        │
 │  │ • notes                     │    │                             │        │
 │  └──────────────┬──────────────┘    └──────────────┬──────────────┘        │
 │                 │                                   │                       │
-│                 ▼                                   ▼                       │
-│  ┌─────────────────────────────┐    ┌─────────────────────────────────────┐│
-│  │  ProductionConsumption      │    │ AssemblyFinishedUnitConsumption     ││
-│  │  • ingredient_slug          │    │ AssemblyPackagingConsumption        ││
-│  │  • quantity_consumed        │    │ • component_id, quantity, cost      ││
-│  │  • unit, cost_at_time       │    │                                     ││
-│  └─────────────────────────────┘    └─────────────────────────────────────┘│
+│       ┌─────────┴─────────┐               ┌────────┴────────┐              │
+│       ▼                   ▼               ▼                 ▼              │
+│  ┌────────────────┐ ┌────────────────┐ ┌────────────────┐ ┌─────────────┐ │
+│  │ProductionCon-  │ │ProductionLoss  │ │AssemblyFU-     │ │AssemblyPkg- │ │
+│  │sumption        │ │(F025)          │ │Consumption     │ │Consumption  │ │
+│  │                │ │                │ │                │ │             │ │
+│  │• ingredient_   │ │• loss_category │ │• finished_unit │ │• inventory_ │ │
+│  │  slug          │ │• loss_quantity │ │  _id           │ │  item_id    │ │
+│  │• quantity      │ │• per_unit_cost │ │• quantity      │ │• quantity   │ │
+│  │• unit          │ │• total_loss_   │ │• cost_at_time  │ │• cost       │ │
+│  │• cost_at_time  │ │  cost          │ │                │ │             │ │
+│  └────────────────┘ └────────────────┘ └────────────────┘ └─────────────┘ │
 │                                                                              │
 └─────────────────────────────────────────────────────────────────────────────┘
 
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│                        DEFINITION LAYER (unchanged)                          │
+│                     CATALOG & INVENTORY LAYER (F027)                         │
 ├─────────────────────────────────────────────────────────────────────────────┤
 │                                                                              │
-│  Ingredient ─▶ Product ─▶ InventoryItem                                     │
-│      │                                                                       │
-│      ▼                                                                       │
-│  Recipe ─▶ RecipeIngredient                                                 │
-│      │                                                                       │
-│      ▼                                                                       │
-│  FinishedUnit ─▶ FinishedGood ─▶ Composition                               │
+│  ┌────────────┐      ┌────────────┐      ┌────────────┐      ┌───────────┐ │
+│  │ Ingredient │──1:N─│  Product   │──1:N─│InventoryIt │◀─N:1─│ Purchase  │ │
+│  │            │      │            │      │  em        │      │           │ │
+│  │• name      │      │• brand     │      │• quantity  │      │• unit_    │ │
+│  │• slug      │      │• product_  │      │• unit_cost │      │  price    │ │
+│  │• category  │      │  name      │      │• purchase_ │      │• quantity │ │
+│  │• recipe_   │      │• package_* │      │  date      │      │• purchase │ │
+│  │  unit      │      │• gtin      │      │• expiration│      │  _date    │ │
+│  │            │      │• preferred_│      │• location  │      │           │ │
+│  │            │      │  supplier_ │      │• lot_or_   │      │           │ │
+│  │            │      │  id (F027) │      │  batch     │      │           │ │
+│  │            │      │• is_hidden │      │            │      │           │ │
+│  └────────────┘      └─────┬──────┘      └────────────┘      └─────┬─────┘ │
+│                            │                                       │       │
+│                            └───────────────────┬───────────────────┘       │
+│                                                ▼                           │
+│                                         ┌────────────┐                     │
+│                                         │  Supplier  │                     │
+│                                         │            │                     │
+│                                         │• name      │                     │
+│                                         │• city      │                     │
+│                                         │• state     │                     │
+│                                         │• zip_code  │                     │
+│                                         │• is_active │                     │
+│                                         └────────────┘                     │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                        DEFINITION LAYER                                      │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│  ┌────────────┐      ┌────────────────┐      ┌────────────┐                │
+│  │   Recipe   │──1:N─│RecipeIngredient│      │   Unit     │                │
+│  │            │      │                │      │  (F022)    │                │
+│  │• name      │      │• ingredient_id │      │            │                │
+│  │• yields    │      │• quantity      │      │• name      │                │
+│  │• yield_    │      │• unit          │      │• abbrev    │                │
+│  │  unit      │      │                │      │• unit_type │                │
+│  └─────┬──────┘      └────────────────┘      │• base_unit │                │
+│        │                                      │• conv_     │                │
+│        │                                      │  factor    │                │
+│        ▼                                      └────────────┘                │
+│  ┌────────────────┐                                                         │
+│  │RecipeComponent │  (Nested recipes)                                       │
+│  │• parent_id     │                                                         │
+│  │• child_id      │                                                         │
+│  │• quantity      │                                                         │
+│  └────────────────┘                                                         │
+│                                                                              │
+│  ┌────────────┐      ┌────────────┐      ┌────────────┐                    │
+│  │FinishedUnit│──1:N─│FinishedGood│──1:N─│Composition │                    │
+│  │            │      │            │      │            │                    │
+│  │• display_  │      │• display_  │      │• package_id│                    │
+│  │  name      │      │  name      │      │  OR        │                    │
+│  │• inventory │      │• inventory │      │• assembly_ │                    │
+│  │  _count    │      │  _count    │      │  _id       │                    │
+│  └────────────┘      └────────────┘      │• finished_ │                    │
+│                                          │  unit_id   │                    │
+│                                          │• quantity  │                    │
+│                                          └────────────┘                    │
+│                                                                              │
+│  ┌────────────┐      ┌────────────────────┐                                │
+│  │  Package   │──1:N─│PackageFinishedGood │                                │
+│  │            │      │                    │                                │
+│  │• name      │      │• finished_good_id  │                                │
+│  │• notes     │      │• quantity          │                                │
+│  └────────────┘      └────────────────────┘                                │
+│                                                                              │
+│  ┌────────────┐                                                             │
+│  │ Recipient  │                                                             │
+│  │            │                                                             │
+│  │• name      │                                                             │
+│  │• notes     │                                                             │
+│  └────────────┘                                                             │
 │                                                                              │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
@@ -693,76 +974,92 @@ Add new entities to import/export:
    - Decision: Yes, nullable
    - Rationale: Supports standalone production not tied to any event
 
-### For Discussion
+### Previously For Discussion (Now Resolved)
 
 1. **Auto-calculate initial targets from packages?**
-   - Option A: User always sets targets manually
-   - Option B: System suggests targets based on package assignments, user confirms
-   - Recommendation: Option B for better UX
+   - Decision: Option B implemented - System suggests targets based on package assignments
+   - UI allows manual adjustment of suggested values
 
 2. **Progress percentage display?**
-   - Option A: Simple percentage (produced/target)
-   - Option B: Include over-production indicator (105% when exceeds target)
-   - Recommendation: Option B for transparency
+   - Decision: Option B implemented - Progress shows over-production indicator when exceeds target
+   - Visual progress bars cap at 100% but show actual percentage in text
 
 ---
 
 ## 9) Implementation Checklist
 
-### Models
-- [ ] Add `event_id` column to ProductionRun model
-- [ ] Add `event_id` column to AssemblyRun model
-- [ ] Create EventProductionTarget model
-- [ ] Create EventAssemblyTarget model
-- [ ] Add `fulfillment_status` column to EventRecipientPackage
-- [ ] Create FulfillmentStatus enum
-- [ ] Add relationships to Event model
-- [ ] Update `__init__.py` exports
+### Models (v0.6 Core - Feature 015/016)
+- [x] Add `event_id` column to ProductionRun model
+- [x] Add `event_id` column to AssemblyRun model
+- [x] Create EventProductionTarget model
+- [x] Create EventAssemblyTarget model
+- [x] Add `fulfillment_status` column to EventRecipientPackage
+- [x] Create FulfillmentStatus enum
+- [x] Add relationships to Event model
+- [x] Update `__init__.py` exports
+
+### Models (Additional Features)
+- [x] Feature 025: ProductionLoss model
+- [x] Feature 025: ProductionStatus, LossCategory enums
+- [x] Feature 025: ProductionRun.production_status, loss_quantity
+- [x] Feature 026: AssemblyRun.packaging_bypassed, packaging_bypass_notes
+- [x] Feature 026: CompositionAssignment model
+- [x] Feature 027: Supplier model
+- [x] Feature 027: Purchase model
+- [x] Feature 027: Product extensions (preferred_supplier_id, is_hidden, GTIN fields)
+- [x] Feature 027: InventoryItem.purchase_id
+- [x] Feature 022: Unit model
 
 ### Services
-- [ ] Update BatchProductionService.record_batch_production() with event_id param
-- [ ] Update AssemblyService.record_assembly() with event_id param
-- [ ] Add EventService.set_production_target()
-- [ ] Add EventService.set_assembly_target()
-- [ ] Add EventService.get_production_targets()
-- [ ] Add EventService.get_assembly_targets()
-- [ ] Add EventService.get_production_progress()
-- [ ] Add EventService.get_assembly_progress()
-- [ ] Add EventService.get_event_overall_progress()
-- [ ] Add EventService.update_fulfillment_status()
-- [ ] Add EventService.get_packages_by_status()
+- [x] Update BatchProductionService.record_batch_production() with event_id param
+- [x] Update AssemblyService.record_assembly() with event_id param
+- [x] Add EventService.set_production_target()
+- [x] Add EventService.set_assembly_target()
+- [x] Add EventService.get_production_targets()
+- [x] Add EventService.get_assembly_targets()
+- [x] Add EventService.get_production_progress()
+- [x] Add EventService.get_assembly_progress()
+- [x] Add EventService.get_event_overall_progress()
+- [x] Add EventService.update_fulfillment_status()
+- [x] Add EventService.get_packages_by_status()
 
 ### Import/Export
-- [ ] Add EventProductionTarget to export
-- [ ] Add EventAssemblyTarget to export
-- [ ] Add event_name to ProductionRun export
-- [ ] Add event_name to AssemblyRun export
-- [ ] Add fulfillment_status to EventRecipientPackage export
-- [ ] Handle all new fields in import
+- [x] Add EventProductionTarget to export
+- [x] Add EventAssemblyTarget to export
+- [x] Add event_name to ProductionRun export
+- [x] Add event_name to AssemblyRun export
+- [x] Add fulfillment_status to EventRecipientPackage export
+- [x] Handle all new fields in import
 
 ### UI
-- [ ] Add event selector to RecordProductionDialog
-- [ ] Add event selector to RecordAssemblyDialog
-- [ ] Add Targets tab to EventDetailWindow
-- [ ] Add progress display to Targets tab
-- [ ] Add fulfillment status to package assignments view
-- [ ] Add target CRUD dialogs
+- [x] Add event selector to RecordProductionDialog
+- [x] Add event selector to RecordAssemblyDialog
+- [x] Add Targets tab to EventDetailWindow
+- [x] Add progress display to Targets tab
+- [x] Add fulfillment status to package assignments view
+- [x] Add target CRUD dialogs
 
 ### Tests
-- [ ] Model unit tests for new tables
-- [ ] Service unit tests for new methods
-- [ ] Service integration tests for progress calculation
-- [ ] Import/export tests for new entities
-- [ ] Manual UI testing checklist
+- [x] Model unit tests for new tables
+- [x] Service unit tests for new methods
+- [x] Service integration tests for progress calculation
+- [x] Import/export tests for new entities
+- [x] Manual UI testing checklist
 
 ### Documentation
-- [ ] Update CLAUDE.md with event-centric model
-- [ ] Update feature_roadmap.md
-- [ ] Update current_priorities.md
-- [ ] Update workflow-refactoring-spec.md
+- [x] Update CLAUDE.md with event-centric model
+- [x] Update feature_roadmap.md
+- [x] Update current_priorities.md
+- [x] Update workflow-refactoring-spec.md
 
 ---
 
 ## Document History
 
+- **2025-12-28:** Major update to reflect current implementation status
+  - Changed status from PLANNING to IMPLEMENTED
+  - Added Implementation Status summary table
+  - Added section 2.3 documenting Features 022, 025, 026, 027
+  - Updated ERD to show all current models including Supplier, Purchase, ProductionLoss
+  - Marked all implementation checklist items as complete
 - **2025-12-10:** Initial creation for Feature 015 (Event-Centric Production Model)
