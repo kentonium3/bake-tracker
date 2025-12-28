@@ -203,8 +203,8 @@ class IngredientsTab(ctk.CTkFrame):
         self.sort_column = "name"
         self.sort_ascending = True
 
-        # Define columns
-        columns = ("category", "name", "type", "density")
+        # Define columns - no Type column per correction spec
+        columns = ("category", "name", "density")
         self.tree = ttk.Treeview(
             grid_container,
             columns=columns,
@@ -218,15 +218,12 @@ class IngredientsTab(ctk.CTkFrame):
                           command=lambda: self._on_header_click("category"))
         self.tree.heading("name", text="Name", anchor="w",
                           command=lambda: self._on_header_click("name"))
-        self.tree.heading("type", text="Type", anchor="w",
-                          command=lambda: self._on_header_click("is_packaging"))
         self.tree.heading("density", text="Density", anchor="w",
                           command=lambda: self._on_header_click("density_display"))
 
         # Configure column widths
         self.tree.column("category", width=150, minwidth=100)
-        self.tree.column("name", width=280, minwidth=150)
-        self.tree.column("type", width=80, minwidth=60)
+        self.tree.column("name", width=350, minwidth=200)
         self.tree.column("density", width=150, minwidth=100)
 
         # Add scrollbars
@@ -348,12 +345,11 @@ class IngredientsTab(ctk.CTkFrame):
             category = ingredient.get("category", "Uncategorized")
             name = ingredient["name"]
             is_packaging = ingredient.get("is_packaging", False)
-            type_text = "Packaging" if is_packaging else "Food"
             density = ingredient.get("density_display", "—")
             if density == "Not set":
                 density = "—"
 
-            values = (category, name, type_text, density)
+            values = (category, name, density)
             tags = ("packaging",) if is_packaging else ()
 
             # Use slug as the item ID for easy lookup

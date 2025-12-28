@@ -193,8 +193,8 @@ class InventoryTab(ctk.CTkFrame):
         grid_container.grid_columnconfigure(0, weight=1)
         grid_container.grid_rowconfigure(0, weight=1)
 
-        # Define columns for detail view
-        columns = ("ingredient", "product", "brand", "remaining_qty", "unit", "location", "purchased")
+        # Define columns for detail view - exactly 5 columns
+        columns = ("ingredient", "product", "brand", "qty_remaining", "purchased")
         self.tree = ttk.Treeview(
             grid_container,
             columns=columns,
@@ -207,18 +207,14 @@ class InventoryTab(ctk.CTkFrame):
         self.tree.heading("ingredient", text="Ingredient", anchor="w")
         self.tree.heading("product", text="Product", anchor="w")
         self.tree.heading("brand", text="Brand", anchor="w")
-        self.tree.heading("remaining_qty", text="Remaining Qty", anchor="w")
-        self.tree.heading("unit", text="Unit", anchor="w")
-        self.tree.heading("location", text="Location", anchor="w")
+        self.tree.heading("qty_remaining", text="Qty Remaining", anchor="w")
         self.tree.heading("purchased", text="Purchased", anchor="w")
 
         # Configure column widths
         self.tree.column("ingredient", width=150, minwidth=100)
         self.tree.column("product", width=200, minwidth=150)
         self.tree.column("brand", width=120, minwidth=80)
-        self.tree.column("remaining_qty", width=100, minwidth=80)
-        self.tree.column("unit", width=60, minwidth=50)
-        self.tree.column("location", width=100, minwidth=80)
+        self.tree.column("qty_remaining", width=180, minwidth=140)
         self.tree.column("purchased", width=100, minwidth=80)
 
         # Add scrollbars
@@ -584,25 +580,45 @@ class InventoryTab(ctk.CTkFrame):
                 desc_parts.append(size_str)
             description = " - ".join(desc_parts) if desc_parts else "N/A"
 
-            # Remaining quantity display - use actual package_type instead of generic "pkg"
+            # Qty Remaining format: {qty} {package_type}(s) ({total} {package_unit})
+            # Example: "2.5 jars (70 oz)" or "1 can (28 oz)"
             qty_value = getattr(item, "quantity", 0) or 0
+            pkg_type_display = package_type if package_type else "pkg"
+            pkg_unit_display = package_unit if package_unit else "unit"
+
             if package_qty and package_qty > 0:
+                # Calculate packages remaining
                 packages = qty_value / float(package_qty)
+                # Calculate total amount
+                total_amount = qty_value  # quantity is already in base units
+
+                # Format package count (remove trailing zeros)
                 if packages == int(packages):
-                    pkg_text = str(int(packages))
+                    pkg_count = str(int(packages))
                 else:
-                    pkg_text = f"{packages:.1f}"
-                # Use actual package_type (jar, can, bag) or fallback to "pkg"
-                pkg_type_display = package_type if package_type else "pkg"
-                qty_display = f"{pkg_text} {pkg_type_display}"
+                    pkg_count = f"{packages:g}"
+
+                # Handle singular/plural for package type
+                if packages == 1:
+                    pkg_type_text = pkg_type_display
+                else:
+                    pkg_type_text = f"{pkg_type_display}s"
+
+                # Format total amount (round large values)
+                if total_amount > 100:
+                    total_text = f"{total_amount:.0f}"
+                elif total_amount == int(total_amount):
+                    total_text = str(int(total_amount))
+                else:
+                    total_text = f"{total_amount:g}"
+
+                qty_display = f"{pkg_count} {pkg_type_text} ({total_text} {pkg_unit_display})"
             else:
+                # Fallback if no package info
                 if qty_value == int(qty_value):
                     qty_display = str(int(qty_value))
                 else:
-                    qty_display = f"{qty_value:.1f}"
-
-            # Location
-            location = getattr(item, "location", None) or ""
+                    qty_display = f"{qty_value:g}"
 
             # Purchase date
             purchase_date = getattr(item, "purchase_date", None)
@@ -613,8 +629,8 @@ class InventoryTab(ctk.CTkFrame):
             if is_packaging:
                 tags.append("packaging")
 
-            # New column order: ingredient, product, brand, remaining_qty, unit, location, purchased
-            values = (ingredient_name, description, brand, qty_display, package_unit, location, purchase_str)
+            # Column order: ingredient, product, brand, qty_remaining, purchased (exactly 5)
+            values = (ingredient_name, description, brand, qty_display, purchase_str)
             item_id = getattr(item, "id", None)
 
             # Use item ID as the tree item ID for easy lookup
