@@ -20,7 +20,9 @@ from typing import Any, Dict, List, Optional, Tuple
 from sqlalchemy.orm import Session
 
 from src.models.ingredient import Ingredient
+from src.models.inventory_item import InventoryItem
 from src.models.product import Product
+from src.models.purchase import Purchase
 from src.models.supplier import Supplier
 from src.services.fk_resolver_service import (
     FKResolverCallback,
@@ -210,10 +212,34 @@ def _resolve_fk_by_slug(
         return sup.id if sup else None
 
     elif entity_type == "product":
-        # Product lookup by ingredient_slug + brand + package info
-        # This requires more context than just a single slug
-        # Typically called after ingredient resolution
-        return None  # Caller handles product lookup specifically
+        # Product lookup by product_slug (format: ingredient_slug:brand:qty:unit)
+        # Parse the slug and look up by composite key
+        parts = slug_value.split(":")
+        if len(parts) >= 4:
+            ingredient_slug = parts[0]
+            brand = parts[1]
+            try:
+                package_unit_quantity = float(parts[2])
+            except (ValueError, TypeError):
+                return None
+            package_unit = parts[3]
+
+            # First resolve ingredient
+            ingredient = session.query(Ingredient).filter(
+                Ingredient.slug == ingredient_slug
+            ).first()
+            if not ingredient:
+                return None
+
+            # Then find product by composite key
+            prod = session.query(Product).filter(
+                Product.ingredient_id == ingredient.id,
+                Product.brand == brand,
+                Product.package_unit == package_unit,
+                Product.package_unit_quantity == package_unit_quantity,
+            ).first()
+            return prod.id if prod else None
+        return None
 
     return None
 
@@ -221,7 +247,7 @@ def _resolve_fk_by_slug(
 def _find_existing_by_slug(
     record: Dict[str, Any], entity_type: str, session: Session
 ) -> Optional[Any]:
-    """Find an existing entity by its unique identifier (slug/name).
+    """Find an existing entity by its unique identifier (slug/name/uuid).
 
     Args:
         record: The record containing identifier fields
@@ -267,6 +293,18 @@ def _find_existing_by_slug(
                     .first()
                 )
 
+    elif entity_type == "inventory_item":
+        # Inventory items are identified by UUID
+        uuid_val = record.get("uuid")
+        if uuid_val:
+            return session.query(InventoryItem).filter(InventoryItem.uuid == uuid_val).first()
+
+    elif entity_type == "purchase":
+        # Purchases are identified by UUID
+        uuid_val = record.get("uuid")
+        if uuid_val:
+            return session.query(Purchase).filter(Purchase.uuid == uuid_val).first()
+
     return None
 
 
@@ -298,9 +336,26 @@ def _import_record_merge(
     existing = _find_existing_by_slug(record, entity_type, session)
 
     if existing:
-        # Update only editable fields
+        # Build list of fields to update
+        # Start with editable_fields from metadata
+        fields_to_update = list(editable_fields)
+
+        # For inventory_item and purchase, also allow updating price fields
+        # These may have been AI-augmented even though marked readonly in export
+        if entity_type == "inventory_item":
+            # unit_cost is the price field for inventory
+            if "unit_cost" not in fields_to_update:
+                fields_to_update.append("unit_cost")
+        elif entity_type == "purchase":
+            # unit_price and quantity_purchased are price/quantity fields for purchases
+            if "unit_price" not in fields_to_update:
+                fields_to_update.append("unit_price")
+            if "quantity_purchased" not in fields_to_update:
+                fields_to_update.append("quantity_purchased")
+
+        # Update fields
         updated = False
-        for field_name in editable_fields:
+        for field_name in fields_to_update:
             if field_name in record and record[field_name] is not None:
                 current_value = getattr(existing, field_name, None)
                 new_value = record[field_name]
@@ -447,6 +502,86 @@ def _create_new_record(
                 upc_code=record.get("upc_code"),
             )
             session.add(product)
+            return ("added", None)
+
+        elif entity_type == "inventory_item":
+            # Resolve product FK
+            product_slug = record.get("product_slug")
+            product_id = None
+
+            if product_slug:
+                # Check FK mapping first
+                if "product" in fk_mapping and product_slug in fk_mapping.get("product", {}):
+                    product_id = fk_mapping["product"][product_slug]
+                else:
+                    # Try direct lookup
+                    product_id = _resolve_fk_by_slug("product", product_slug, session)
+
+            if not product_id:
+                return ("failed", f"Cannot resolve product: {product_slug}")
+
+            # Parse date fields
+            purchase_date = record.get("purchase_date")
+            expiration_date = record.get("expiration_date")
+            opened_date = record.get("opened_date")
+
+            inventory_item = InventoryItem(
+                product_id=product_id,
+                quantity=record.get("quantity", 0.0),
+                unit_cost=record.get("unit_cost"),
+                purchase_date=purchase_date,
+                expiration_date=expiration_date,
+                opened_date=opened_date,
+                location=record.get("location"),
+                lot_or_batch=record.get("lot_or_batch"),
+                notes=record.get("notes"),
+            )
+            session.add(inventory_item)
+            return ("added", None)
+
+        elif entity_type == "purchase":
+            # Resolve product FK
+            product_slug = record.get("product_slug")
+            product_id = None
+
+            if product_slug:
+                # Check FK mapping first
+                if "product" in fk_mapping and product_slug in fk_mapping.get("product", {}):
+                    product_id = fk_mapping["product"][product_slug]
+                else:
+                    # Try direct lookup
+                    product_id = _resolve_fk_by_slug("product", product_slug, session)
+
+            if not product_id:
+                return ("failed", f"Cannot resolve product: {product_slug}")
+
+            # Resolve supplier FK
+            supplier_name = record.get("supplier_name")
+            supplier_id = None
+
+            if supplier_name:
+                # Check FK mapping first
+                if "supplier" in fk_mapping and supplier_name in fk_mapping.get("supplier", {}):
+                    supplier_id = fk_mapping["supplier"][supplier_name]
+                else:
+                    # Try direct lookup
+                    supplier_id = _resolve_fk_by_slug("supplier", supplier_name, session)
+
+            if not supplier_id:
+                return ("failed", f"Cannot resolve supplier: {supplier_name}")
+
+            # Parse purchase date
+            purchase_date = record.get("purchase_date")
+
+            purchase = Purchase(
+                product_id=product_id,
+                supplier_id=supplier_id,
+                purchase_date=purchase_date,
+                unit_price=record.get("unit_price"),
+                quantity_purchased=record.get("quantity_purchased", 1),
+                notes=record.get("notes"),
+            )
+            session.add(purchase)
             return ("added", None)
 
         else:
@@ -750,6 +885,10 @@ def _view_type_to_entity_type(view_type: str) -> Optional[str]:
         "ingredient": "ingredient",
         "suppliers": "supplier",
         "supplier": "supplier",
+        "inventory": "inventory_item",
+        "inventory_item": "inventory_item",
+        "purchases": "purchase",
+        "purchase": "purchase",
     }
     return mapping.get(view_type.lower())
 
@@ -764,6 +903,14 @@ def _get_record_identifier(record: Dict[str, Any], entity_type: str) -> str:
         brand = record.get("brand", "")
         name = record.get("product_name", "")
         return f"{brand} {name}".strip() or str(record.get("id", "unknown"))
+    elif entity_type == "inventory_item":
+        product_slug = record.get("product_slug", "")
+        uuid = record.get("uuid", "")
+        return f"{product_slug} ({uuid[:8]})" if uuid else product_slug or str(record.get("id", "unknown"))
+    elif entity_type == "purchase":
+        product_slug = record.get("product_slug", "")
+        purchase_date = record.get("purchase_date", "")
+        return f"{product_slug} @ {purchase_date}" or str(record.get("id", "unknown"))
     return str(record.get("id", "unknown"))
 
 
@@ -823,6 +970,61 @@ def _collect_missing_fks_for_view(
                     if len(missing_fks[key].sample_records) < 3:
                         missing_fks[key].sample_records.append(record)
 
+        elif entity_type == "inventory_item":
+            # Inventory items have FK to product
+            product_slug = record.get("product_slug")
+            if product_slug:
+                product_id = _resolve_fk_by_slug("product", product_slug, session)
+                if product_id is None:
+                    key = ("product", product_slug, "product_slug")
+                    if key not in missing_fks:
+                        missing_fks[key] = MissingFK(
+                            entity_type="product",
+                            missing_value=product_slug,
+                            field_name="product_slug",
+                            affected_record_count=0,
+                            sample_records=[],
+                        )
+                    missing_fks[key].affected_record_count += 1
+                    if len(missing_fks[key].sample_records) < 3:
+                        missing_fks[key].sample_records.append(record)
+
+        elif entity_type == "purchase":
+            # Purchases have FK to product and supplier
+            product_slug = record.get("product_slug")
+            if product_slug:
+                product_id = _resolve_fk_by_slug("product", product_slug, session)
+                if product_id is None:
+                    key = ("product", product_slug, "product_slug")
+                    if key not in missing_fks:
+                        missing_fks[key] = MissingFK(
+                            entity_type="product",
+                            missing_value=product_slug,
+                            field_name="product_slug",
+                            affected_record_count=0,
+                            sample_records=[],
+                        )
+                    missing_fks[key].affected_record_count += 1
+                    if len(missing_fks[key].sample_records) < 3:
+                        missing_fks[key].sample_records.append(record)
+
+            supplier_name = record.get("supplier_name")
+            if supplier_name:
+                supplier_id = _resolve_fk_by_slug("supplier", supplier_name, session)
+                if supplier_id is None:
+                    key = ("supplier", supplier_name, "supplier_name")
+                    if key not in missing_fks:
+                        missing_fks[key] = MissingFK(
+                            entity_type="supplier",
+                            missing_value=supplier_name,
+                            field_name="supplier_name",
+                            affected_record_count=0,
+                            sample_records=[],
+                        )
+                    missing_fks[key].affected_record_count += 1
+                    if len(missing_fks[key].sample_records) < 3:
+                        missing_fks[key].sample_records.append(record)
+
     return list(missing_fks.values())
 
 
@@ -852,6 +1054,32 @@ def _check_record_fk(
             elif _resolve_fk_by_slug("ingredient", ingredient_slug, session) is None:
                 return ("ingredient", ingredient_slug)
 
+    elif entity_type == "inventory_item":
+        product_slug = record.get("product_slug")
+        if product_slug:
+            # Check mapping first
+            if "product" in fk_mapping and product_slug in fk_mapping.get("product", {}):
+                pass  # Resolved via mapping
+            elif _resolve_fk_by_slug("product", product_slug, session) is None:
+                return ("product", product_slug)
+
+    elif entity_type == "purchase":
+        product_slug = record.get("product_slug")
+        if product_slug:
+            # Check mapping first
+            if "product" in fk_mapping and product_slug in fk_mapping.get("product", {}):
+                pass  # Resolved via mapping
+            elif _resolve_fk_by_slug("product", product_slug, session) is None:
+                return ("product", product_slug)
+
+        # Supplier is also required for purchases
+        supplier_name = record.get("supplier_name")
+        if supplier_name:
+            if "supplier" in fk_mapping and supplier_name in fk_mapping.get("supplier", {}):
+                pass  # Resolved via mapping
+            elif _resolve_fk_by_slug("supplier", supplier_name, session) is None:
+                return ("supplier", supplier_name)
+
     return None
 
 
@@ -873,6 +1101,20 @@ def _record_has_skipped_fk(
     if entity_type == "product":
         ingredient_slug = record.get("ingredient_slug")
         if ingredient_slug and ("ingredient", ingredient_slug) in skipped_fk_values:
+            return True
+
+        supplier_name = record.get("supplier_name")
+        if supplier_name and ("supplier", supplier_name) in skipped_fk_values:
+            return True
+
+    elif entity_type == "inventory_item":
+        product_slug = record.get("product_slug")
+        if product_slug and ("product", product_slug) in skipped_fk_values:
+            return True
+
+    elif entity_type == "purchase":
+        product_slug = record.get("product_slug")
+        if product_slug and ("product", product_slug) in skipped_fk_values:
             return True
 
         supplier_name = record.get("supplier_name")
