@@ -335,6 +335,60 @@ class TestCreateProduct:
 
         assert result["preferred_supplier_id"] == test_supplier.id
 
+    def test_create_product_duplicate_gtin_fails(self, session, test_ingredient):
+        """Test that creating a product with duplicate GTIN fails."""
+        from src.services.exceptions import ValidationError
+
+        # Create first product with GTIN
+        product_catalog_service.create_product(
+            product_name="First Product",
+            ingredient_id=test_ingredient.id,
+            package_unit="lb",
+            package_unit_quantity=10.0,
+            gtin="123456789012",
+            session=session,
+        )
+
+        # Try to create second product with same GTIN - should fail
+        with pytest.raises(ValidationError) as exc_info:
+            product_catalog_service.create_product(
+                product_name="Second Product",
+                ingredient_id=test_ingredient.id,
+                package_unit="oz",
+                package_unit_quantity=5.0,
+                gtin="123456789012",
+                session=session,
+            )
+
+        assert "GTIN 123456789012 is already used" in str(exc_info.value)
+
+    def test_create_product_duplicate_upc_fails(self, session, test_ingredient):
+        """Test that creating a product with duplicate UPC fails."""
+        from src.services.exceptions import ValidationError
+
+        # Create first product with UPC
+        product_catalog_service.create_product(
+            product_name="First Product",
+            ingredient_id=test_ingredient.id,
+            package_unit="lb",
+            package_unit_quantity=10.0,
+            upc_code="987654321098",
+            session=session,
+        )
+
+        # Try to create second product with same UPC - should fail
+        with pytest.raises(ValidationError) as exc_info:
+            product_catalog_service.create_product(
+                product_name="Second Product",
+                ingredient_id=test_ingredient.id,
+                package_unit="oz",
+                package_unit_quantity=5.0,
+                upc_code="987654321098",
+                session=session,
+            )
+
+        assert "UPC 987654321098 is already used" in str(exc_info.value)
+
 
 class TestUpdateProduct:
     """Tests for update_product function."""
@@ -367,6 +421,86 @@ class TestUpdateProduct:
             product_catalog_service.update_product(999, brand="Test", session=session)
 
         assert exc_info.value.product_id == 999
+
+    def test_update_product_keeps_same_gtin(self, session, test_ingredient):
+        """Test that updating a product with its existing GTIN succeeds."""
+        # Create product with GTIN
+        result = product_catalog_service.create_product(
+            product_name="Test Product",
+            ingredient_id=test_ingredient.id,
+            package_unit="lb",
+            package_unit_quantity=10.0,
+            gtin="718444190707",
+            session=session,
+        )
+        product_id = result["id"]
+
+        # Update product keeping same GTIN - should succeed
+        updated = product_catalog_service.update_product(
+            product_id,
+            product_name="Updated Name",
+            gtin="718444190707",  # Same GTIN
+            session=session,
+        )
+
+        assert updated["product_name"] == "Updated Name"
+        assert updated["gtin"] == "718444190707"
+
+    def test_update_product_duplicate_gtin_fails(self, session, test_ingredient):
+        """Test that changing to another product's GTIN fails."""
+        from src.services.exceptions import ValidationError
+
+        # Create first product with GTIN
+        product_catalog_service.create_product(
+            product_name="First Product",
+            ingredient_id=test_ingredient.id,
+            package_unit="lb",
+            package_unit_quantity=10.0,
+            gtin="111111111111",
+            session=session,
+        )
+
+        # Create second product with different GTIN
+        result = product_catalog_service.create_product(
+            product_name="Second Product",
+            ingredient_id=test_ingredient.id,
+            package_unit="oz",
+            package_unit_quantity=5.0,
+            gtin="222222222222",
+            session=session,
+        )
+        product2_id = result["id"]
+
+        # Try to update second product with first product's GTIN - should fail
+        with pytest.raises(ValidationError) as exc_info:
+            product_catalog_service.update_product(
+                product2_id,
+                gtin="111111111111",
+                session=session,
+            )
+
+        assert "GTIN 111111111111 is already used" in str(exc_info.value)
+
+    def test_update_product_new_unique_gtin_succeeds(self, session, test_ingredient):
+        """Test that changing to a unique GTIN succeeds."""
+        # Create product without GTIN
+        result = product_catalog_service.create_product(
+            product_name="Test Product",
+            ingredient_id=test_ingredient.id,
+            package_unit="lb",
+            package_unit_quantity=10.0,
+            session=session,
+        )
+        product_id = result["id"]
+
+        # Add GTIN to product - should succeed
+        updated = product_catalog_service.update_product(
+            product_id,
+            gtin="333333333333",
+            session=session,
+        )
+
+        assert updated["gtin"] == "333333333333"
 
 
 class TestHideUnhideProduct:

@@ -31,7 +31,7 @@ from sqlalchemy import func
 
 from src.models import Product, Purchase, Ingredient, InventoryItem, Supplier
 from src.services.database import session_scope
-from src.services.exceptions import ProductNotFound
+from src.services.exceptions import ProductNotFound, ValidationError
 
 
 def get_products(
@@ -257,6 +257,24 @@ def _create_product_impl(
     session: Session,
 ) -> Dict[str, Any]:
     """Implementation of create_product."""
+    # Validate GTIN uniqueness
+    if gtin:
+        duplicate = session.query(Product).filter(Product.gtin == gtin).first()
+        if duplicate:
+            raise ValidationError([
+                f"GTIN {gtin} is already used by product '{duplicate.brand}' "
+                f"(ID: {duplicate.id}). GTINs must be unique."
+            ])
+
+    # Validate UPC uniqueness
+    if upc_code:
+        duplicate = session.query(Product).filter(Product.upc_code == upc_code).first()
+        if duplicate:
+            raise ValidationError([
+                f"UPC {upc_code} is already used by product '{duplicate.brand}' "
+                f"(ID: {duplicate.id}). UPCs must be unique."
+            ])
+
     product = Product(
         product_name=product_name,
         ingredient_id=ingredient_id,
@@ -309,6 +327,32 @@ def _update_product_impl(product_id: int, session: Session, **kwargs) -> Dict[st
     product = session.query(Product).filter(Product.id == product_id).first()
     if not product:
         raise ProductNotFound(product_id)
+
+    # Validate GTIN uniqueness (excluding current product)
+    new_gtin = kwargs.get("gtin")
+    if new_gtin:  # Only check if GTIN is being set to a non-empty value
+        duplicate = session.query(Product).filter(
+            Product.gtin == new_gtin,
+            Product.id != product_id  # Exclude current product
+        ).first()
+        if duplicate:
+            raise ValidationError([
+                f"GTIN {new_gtin} is already used by product '{duplicate.brand}' "
+                f"(ID: {duplicate.id}). GTINs must be unique."
+            ])
+
+    # Validate UPC uniqueness (excluding current product) - same pattern
+    new_upc = kwargs.get("upc_code")
+    if new_upc:  # Only check if UPC is being set to a non-empty value
+        duplicate = session.query(Product).filter(
+            Product.upc_code == new_upc,
+            Product.id != product_id  # Exclude current product
+        ).first()
+        if duplicate:
+            raise ValidationError([
+                f"UPC {new_upc} is already used by product '{duplicate.brand}' "
+                f"(ID: {duplicate.id}). UPCs must be unique."
+            ])
 
     allowed_fields = {
         "product_name", "ingredient_id", "package_type", "package_unit",
