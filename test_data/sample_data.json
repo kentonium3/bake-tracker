@@ -1,6 +1,6 @@
 {
   "version": "3.5",
-  "exported_at": "2025-12-26T20:18:48.017701Z",
+  "exported_at": "2025-12-28T03:02:14.998072Z",
   "application": "bake-tracker",
   "suppliers": [
     {
@@ -14,20 +14,69 @@
       "notes": "Default supplier for migrated inventory additions (F028)",
       "created_at": "2025-12-26T17:39:13.554852",
       "updated_at": "2025-12-26T17:39:13.554859"
+    },
+    {
+      "id": 2,
+      "uuid": "12f0edf8-b183-4e5e-9f12-bd476b6c9f29",
+      "name": "Costco",
+      "city": "Waltham",
+      "state": "MA",
+      "zip_code": "02451-1107",
+      "is_active": true,
+      "street_address": "71 2ND AVE",
+      "created_at": "2025-12-26T21:39:43.366251",
+      "updated_at": "2025-12-26T21:39:43.366263"
+    },
+    {
+      "id": 3,
+      "uuid": "e62b8999-a8a1-4d10-9d35-ab0c92e9cc11",
+      "name": "Wegmans",
+      "city": "Burlington",
+      "state": "MA",
+      "zip_code": "01803",
+      "is_active": true,
+      "street_address": "53 Third Avenue",
+      "created_at": "2025-12-26T21:40:30.948168",
+      "updated_at": "2025-12-26T21:40:30.948178"
+    },
+    {
+      "id": 4,
+      "uuid": "c0b9d147-a81a-47b4-9cff-d088d9b7b59e",
+      "name": "Penzeys Spices",
+      "city": "Arlington",
+      "state": "MA",
+      "zip_code": "02476",
+      "is_active": true,
+      "street_address": "1293 Massachusetts Ave",
+      "created_at": "2025-12-26T21:42:02.657870",
+      "updated_at": "2025-12-26T21:42:02.657880"
+    },
+    {
+      "id": 5,
+      "uuid": "d09d3998-7035-4960-945d-8363ea37e8e9",
+      "name": "Stop & Shop",
+      "city": "Bedford",
+      "state": "MA",
+      "zip_code": "01730",
+      "is_active": true,
+      "street_address": "337 Great Rd",
+      "created_at": "2025-12-26T21:43:04.835270",
+      "updated_at": "2025-12-26T21:43:04.835280"
+    },
+    {
+      "id": 6,
+      "uuid": "99971b26-c639-41f3-9c8f-46a23e9919f1",
+      "name": "Gordon's Fine Wine & Liquors",
+      "city": "Waltham",
+      "state": "MA",
+      "zip_code": "02451",
+      "is_active": true,
+      "street_address": "894 Main St",
+      "created_at": "2025-12-26T21:44:25.068265",
+      "updated_at": "2025-12-26T21:44:25.068273"
     }
   ],
   "ingredients": [
-    {
-      "display_name": "00 flour",
-      "slug": "00_flour",
-      "category": "Flours & Starches",
-      "is_packaging": false,
-      "description": "00 flour (aka double zero flour)",
-      "density_volume_value": 1.0,
-      "density_volume_unit": "cup",
-      "density_weight_value": 4.34,
-      "density_weight_unit": "oz"
-    },
     {
       "display_name": "Agar agar powder",
       "slug": "agar_agar_powder",
@@ -51,7 +100,7 @@
       "slug": "flour_all_purpose",
       "category": "Flours & Starches",
       "is_packaging": false,
-      "description": "Flour, all-purpose (aka AP flour|plain flour)",
+      "description": "All-purpose wheat flour (aka AP flour|plain flour)",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 4.42,
@@ -91,17 +140,6 @@
       "category": "Spices & Extracts",
       "is_packaging": false,
       "description": "Almond extract"
-    },
-    {
-      "display_name": "Flour, almond",
-      "slug": "flour_almond",
-      "category": "Flours & Starches",
-      "is_packaging": false,
-      "description": "Flour, almond (aka ground almonds)",
-      "density_volume_value": 1.0,
-      "density_volume_unit": "cup",
-      "density_weight_value": 3.76,
-      "density_weight_unit": "oz"
     },
     {
       "display_name": "Almond meal",
@@ -231,7 +269,7 @@
     {
       "display_name": "Baking spray",
       "slug": "baking_spray",
-      "category": "Additives & Thickeners",
+      "category": "Fats & Oils",
       "is_packaging": false,
       "description": "Baking spray (aka pan spray)"
     },
@@ -1023,14 +1061,14 @@
     {
       "display_name": "Edible glitter",
       "slug": "edible_glitter",
-      "category": "Additives & Thickeners",
+      "category": "Decorations & Candies",
       "is_packaging": false,
       "description": "Edible glitter (aka luster dust)"
     },
     {
       "display_name": "Edible pearls",
       "slug": "edible_pearls",
-      "category": "Additives & Thickeners",
+      "category": "Decorations & Candies",
       "is_packaging": false,
       "description": "Edible pearls (aka sugar pearls)"
     },
@@ -1345,7 +1383,7 @@
       "slug": "flour_hazelnut",
       "category": "Flours & Starches",
       "is_packaging": false,
-      "description": "Flour, hazelnut",
+      "description": "Hazelnut flour",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 3.76,
@@ -2220,16 +2258,6 @@
       "description": "Whole culinary poppy seeds"
     },
     {
-      "display_name": "Poppy seeds",
-      "slug": "poppy_seeds",
-      "category": "Spices & Extracts",
-      "is_packaging": false,
-      "density_volume_value": 1.0,
-      "density_volume_unit": "cup",
-      "density_weight_value": 138.0,
-      "density_weight_unit": "g"
-    },
-    {
       "display_name": "Potato starch",
       "slug": "potato_starch",
       "category": "Flours & Starches",
@@ -2308,18 +2336,7 @@
       "slug": "flour_rice",
       "category": "Flours & Starches",
       "is_packaging": false,
-      "description": "Flour, rice",
-      "density_volume_value": 1.0,
-      "density_volume_unit": "cup",
-      "density_weight_value": 4.59,
-      "density_weight_unit": "oz"
-    },
-    {
-      "display_name": "Flour, rice",
-      "slug": "flour_rice",
-      "category": "Flours & Starches",
-      "is_packaging": false,
-      "description": "Flour, rice",
+      "description": "Rice flour, brown",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 4.59,
@@ -2444,7 +2461,7 @@
       "slug": "flour_semolina",
       "category": "Flours & Starches",
       "is_packaging": false,
-      "description": "Flour, semolina (aka semolina)",
+      "description": "Semolina flour (aka semolina)",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 5.01,
@@ -2484,7 +2501,7 @@
       "slug": "flour_sorghum",
       "category": "Flours & Starches",
       "is_packaging": false,
-      "description": "Flour, sorghum",
+      "description": "Sorghum flour",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 4.59,
@@ -2930,6 +2947,18 @@
       "density_volume_unit": "cup",
       "density_weight_value": 8.35,
       "density_weight_unit": "oz"
+    },
+    {
+      "display_name": "Flour, pastry",
+      "slug": "flour_pastry",
+      "category": "Flour",
+      "is_packaging": false
+    },
+    {
+      "display_name": "Oil, spray",
+      "slug": "oil_spray",
+      "category": "Fats & Oils",
+      "is_packaging": false
     }
   ],
   "products": [
@@ -2957,6 +2986,7 @@
       "package_unit": "oz",
       "package_unit_quantity": 0.6,
       "brand": "Penzeys",
+      "product_name": "Allspice",
       "package_type": "jar",
       "is_hidden": false
     },
@@ -2975,15 +3005,18 @@
       "package_unit": "fl oz",
       "package_unit_quantity": 2.0,
       "brand": "Penzeys",
+      "product_name": "Almond Extract",
       "package_type": "bottle",
       "is_hidden": false
     },
     {
       "ingredient_slug": "almonds",
       "package_unit": "lb",
-      "package_unit_quantity": 2.0,
+      "package_unit_quantity": 3.0,
       "brand": "Costco",
+      "product_name": "Signature Supreme Whole Almonds",
       "package_type": "bag",
+      "gtin": "9661984601",
       "is_hidden": false
     },
     {
@@ -3021,6 +3054,7 @@
       "package_unit": "l",
       "package_unit_quantity": 1.0,
       "brand": "Evan Williams",
+      "product_name": "Kentucky Straight Bourbon Whiskey",
       "package_type": "bottle",
       "gtin": "9674902124",
       "is_hidden": false
@@ -3040,7 +3074,9 @@
       "package_unit": "lb",
       "package_unit_quantity": 5.0,
       "brand": "Wegman's",
+      "product_name": "Enriched Unbleached Bread Flour",
       "package_type": "bag",
+      "preferred_supplier_id": 3,
       "is_hidden": false
     },
     {
@@ -3058,7 +3094,9 @@
       "package_unit": "oz",
       "package_unit_quantity": 1.0,
       "brand": "Kerry",
+      "product_name": "Salted Butter",
       "package_type": "package",
+      "gtin": "6770700106",
       "is_hidden": false
     },
     {
@@ -3076,7 +3114,9 @@
       "package_unit": "oz",
       "package_unit_quantity": 1.0,
       "brand": "Kerry",
+      "product_name": "Unsalted Butter",
       "package_type": "package",
+      "gtin": "6770700125",
       "is_hidden": false
     },
     {
@@ -3105,7 +3145,7 @@
       "package_unit_quantity": 5.0,
       "brand": "Lilly",
       "package_type": "bag",
-      "is_hidden": false
+      "is_hidden": true
     },
     {
       "ingredient_slug": "cake_flour",
@@ -3113,13 +3153,14 @@
       "package_unit_quantity": 2.0,
       "brand": "Wegman's",
       "package_type": "bag",
-      "is_hidden": false
+      "is_hidden": true
     },
     {
       "ingredient_slug": "caramels",
       "package_unit": "oz",
       "package_unit_quantity": 14.0,
       "brand": "Brach’s",
+      "product_name": "Milk Maid Caramels",
       "package_type": "bag",
       "gtin": "11300049228",
       "is_hidden": false
@@ -3138,6 +3179,7 @@
       "package_unit": "lb",
       "package_unit_quantity": 16.0,
       "brand": "Trader Joe's",
+      "product_name": "Cashews",
       "package_type": "bag",
       "is_hidden": false
     },
@@ -3162,13 +3204,22 @@
       "is_hidden": false
     },
     {
+      "ingredient_slug": "chocolate_baking_unsweetened",
+      "package_unit": "oz",
+      "package_unit_quantity": 8.0,
+      "brand": "Guittard",
+      "product_name": "Cocoa Rouge Cocoa Powder",
+      "gtin": "7181875000",
+      "is_hidden": false
+    },
+    {
       "ingredient_slug": "chocolate_chips_bittersweet",
       "package_unit": "g",
       "package_unit_quantity": 12.0,
       "brand": "Guittard",
       "package_type": "bag",
       "gtin": "7181802100",
-      "is_hidden": false
+      "is_hidden": true
     },
     {
       "ingredient_slug": "chocolate_chips_bittersweet",
@@ -3202,7 +3253,9 @@
       "package_unit": "g",
       "package_unit_quantity": 340.0,
       "brand": "Guittard",
+      "product_name": "Organic Milk Chocolate Baking Wafers",
       "package_type": "bag",
+      "gtin": "7181873800",
       "is_hidden": false
     },
     {
@@ -3230,6 +3283,7 @@
       "package_unit": "oz",
       "package_unit_quantity": 72.0,
       "brand": "Nestle",
+      "product_name": "NESTLÉ® TOLL HOUSE® Semi-Sweet Chocolate Morsels",
       "package_type": "bag",
       "is_hidden": false
     },
@@ -3248,7 +3302,9 @@
       "package_unit": "kg",
       "package_unit_quantity": 3.0,
       "brand": "Guittard",
+      "product_name": "Crème Française",
       "package_type": "bag",
+      "gtin": "7181833103",
       "is_hidden": false
     },
     {
@@ -3284,7 +3340,9 @@
       "package_unit": "kg",
       "package_unit_quantity": 10.0,
       "brand": "Callebaut",
+      "product_name": "Finest Belgian Chocolate",
       "package_type": "bag",
+      "gtin": "410522189254",
       "is_hidden": false
     },
     {
@@ -3292,6 +3350,7 @@
       "package_unit": "kg",
       "package_unit_quantity": 2.5,
       "brand": "Callebaut",
+      "product_name": "Ruby Chocolate",
       "package_type": "bag",
       "is_hidden": false
     },
@@ -3329,7 +3388,9 @@
       "package_unit": "oz",
       "package_unit_quantity": 4.0,
       "brand": "Penzeys",
+      "product_name": "Cinnamon sticks",
       "package_type": "bag",
+      "preferred_supplier_id": 4,
       "is_hidden": false
     },
     {
@@ -3346,6 +3407,7 @@
       "package_unit": "kg",
       "package_unit_quantity": 1.0,
       "brand": "deZaan",
+      "product_name": "Black Cocoa Powder",
       "package_type": "bag",
       "gtin": "718444190707",
       "is_hidden": false
@@ -3364,6 +3426,7 @@
       "package_unit": "lb",
       "package_unit_quantity": 1.0,
       "brand": "Wincrest",
+      "product_name": "Rich Terracotta",
       "package_type": "container",
       "is_hidden": false
     },
@@ -3372,7 +3435,9 @@
       "package_unit": "oz",
       "package_unit_quantity": 12.8,
       "brand": "Penzeys",
+      "product_name": "Dutch Cocoa Powder",
       "package_type": "bag",
+      "preferred_supplier_id": 4,
       "is_hidden": false
     },
     {
@@ -3390,7 +3455,9 @@
       "package_unit": "oz",
       "package_unit_quantity": 12.8,
       "brand": "Penzeys",
+      "product_name": "Natural Cocoa Powder",
       "package_type": "bag",
+      "preferred_supplier_id": 4,
       "is_hidden": false
     },
     {
@@ -3398,7 +3465,9 @@
       "package_unit": "oz",
       "package_unit_quantity": 16.0,
       "brand": "Wegman's",
+      "product_name": "Sweetened Flaked Coconut",
       "package_type": "bag",
+      "preferred_supplier_id": 3,
       "is_hidden": false
     },
     {
@@ -3439,14 +3508,17 @@
       "product_name": "100% Pure Corn Starch",
       "package_type": "box",
       "gtin": "77890900239",
+      "preferred_supplier_id": 3,
       "is_hidden": false
     },
     {
       "ingredient_slug": "cranberries_dried",
       "package_unit": "oz",
-      "package_unit_quantity": 5.0,
+      "package_unit_quantity": 6.0,
       "brand": "Ocean Spray",
+      "product_name": "Craisins Dried Cranberries",
       "package_type": "bag",
+      "gtin": "3120000168",
       "is_hidden": false
     },
     {
@@ -3464,7 +3536,9 @@
       "package_unit": "oz",
       "package_unit_quantity": 1.8,
       "brand": "Penzeys",
+      "product_name": "Cream of Tartar",
       "package_type": "jar",
+      "preferred_supplier_id": 4,
       "is_hidden": false
     },
     {
@@ -3472,7 +3546,9 @@
       "package_unit": "oz",
       "package_unit_quantity": 8.0,
       "brand": "Sun Maid",
+      "product_name": "Zante Currants",
       "package_type": "bag",
+      "gtin": "4114304941",
       "is_hidden": false
     },
     {
@@ -3498,6 +3574,7 @@
       "package_unit": "fl oz",
       "package_unit_quantity": 2.0,
       "brand": "McCormick",
+      "product_name": "Coconut Extract",
       "package_type": "bottle",
       "is_hidden": false
     },
@@ -3516,6 +3593,7 @@
       "package_unit": "fl oz",
       "package_unit_quantity": 1.0,
       "brand": "McCormick",
+      "product_name": "Pure Mint Extract",
       "package_type": "bottle",
       "is_hidden": false
     },
@@ -3524,6 +3602,7 @@
       "package_unit": "fl oz",
       "package_unit_quantity": 1.0,
       "brand": "McCormick",
+      "product_name": "Raspberry Extract With Other Natural Flavors",
       "package_type": "bottle",
       "is_hidden": false
     },
@@ -3532,23 +3611,9 @@
       "package_unit": "fl oz",
       "package_unit_quantity": 8.0,
       "brand": "Penzeys",
+      "product_name": "Mexican Vanilla Extract",
       "package_type": "bottle",
-      "is_hidden": false
-    },
-    {
-      "ingredient_slug": "extract_vanilla_oak_aged",
-      "package_unit": "ml",
-      "package_unit_quantity": 50.0,
-      "brand": "Heilala",
-      "package_type": "bottle",
-      "is_hidden": false
-    },
-    {
-      "ingredient_slug": "extract_vanilla_spiced",
-      "package_unit": "ml",
-      "package_unit_quantity": 50.0,
-      "brand": "Heilala",
-      "package_type": "bottle",
+      "preferred_supplier_id": 4,
       "is_hidden": false
     },
     {
@@ -3605,6 +3670,7 @@
       "package_unit": "oz",
       "package_unit_quantity": 14.4,
       "brand": "HoneyMaid",
+      "product_name": "Honey Graham Crackers",
       "package_type": "box",
       "is_hidden": false
     },
@@ -3613,6 +3679,7 @@
       "package_unit": "lb",
       "package_unit_quantity": 16.0,
       "brand": "Trader Joe's",
+      "product_name": "Whole Hazelnuts",
       "package_type": "bag",
       "is_hidden": false
     },
@@ -3621,7 +3688,9 @@
       "package_unit": "oz",
       "package_unit_quantity": 16.0,
       "brand": "Wegman's",
+      "product_name": "100% Pure Squeeze Honey",
       "package_type": "bottle",
+      "preferred_supplier_id": 3,
       "is_hidden": false
     },
     {
@@ -3639,7 +3708,9 @@
       "package_unit": "oz",
       "package_unit_quantity": 0.4,
       "brand": "Penzeys",
+      "product_name": "Lavender",
       "package_type": "jar",
+      "preferred_supplier_id": 4,
       "is_hidden": false
     },
     {
@@ -3657,7 +3728,18 @@
       "package_unit": "fl oz",
       "package_unit_quantity": 750.0,
       "brand": "Gabriel Brudier",
+      "product_name": "Crème de Cassis",
       "package_type": "bottle",
+      "gtin": "8043231167",
+      "is_hidden": false
+    },
+    {
+      "ingredient_slug": "liqueur_coffee",
+      "package_unit": "ml",
+      "package_unit_quantity": 750.0,
+      "brand": "Kahlua",
+      "product_name": "Kahlua",
+      "preferred_supplier_id": 6,
       "is_hidden": false
     },
     {
@@ -3665,6 +3747,7 @@
       "package_unit": "ml",
       "package_unit_quantity": 750.0,
       "brand": "Francesca",
+      "product_name": "Original Hazelnut Liqueur",
       "package_type": "bottle",
       "gtin": "8800401648",
       "is_hidden": false
@@ -3704,6 +3787,7 @@
       "package_unit": "oz",
       "package_unit_quantity": 8.0,
       "brand": "Trader Joe's",
+      "product_name": "Macadamia Nuts",
       "package_type": "bag",
       "is_hidden": false
     },
@@ -3712,7 +3796,9 @@
       "package_unit": "oz",
       "package_unit_quantity": 0.9,
       "brand": "Penzeys",
+      "product_name": "Ground Mace",
       "package_type": "jar",
+      "preferred_supplier_id": 4,
       "is_hidden": false
     },
     {
@@ -3725,9 +3811,10 @@
     },
     {
       "ingredient_slug": "maple_syrup",
-      "package_unit": "qt",
+      "package_unit": "l",
       "package_unit_quantity": 1.0,
       "brand": "Costco",
+      "product_name": "Organic Maple Syrup",
       "package_type": "jug",
       "is_hidden": false
     },
@@ -3736,7 +3823,9 @@
       "package_unit": "fl oz",
       "package_unit_quantity": 32.0,
       "brand": "Wegman's",
+      "product_name": "Pure Maple Syrup",
       "package_type": "bottle",
+      "preferred_supplier_id": 3,
       "is_hidden": false
     },
     {
@@ -3754,7 +3843,9 @@
       "package_unit": "g",
       "package_unit_quantity": 12.0,
       "brand": "Guittard",
+      "product_name": "Green Mint Baking Chips",
       "package_type": "bag",
+      "gtin": "7181802350",
       "is_hidden": false
     },
     {
@@ -3782,6 +3873,7 @@
       "package_unit": "oz",
       "package_unit_quantity": 26.5,
       "brand": "Nutella",
+      "product_name": "Nutella",
       "package_type": "jar",
       "is_hidden": false
     },
@@ -3790,7 +3882,9 @@
       "package_unit": "oz",
       "package_unit_quantity": 2.2,
       "brand": "Penzeys",
+      "product_name": "East Indian Ground Nutmeg",
       "package_type": "jar",
+      "preferred_supplier_id": 4,
       "is_hidden": false
     },
     {
@@ -3798,7 +3892,9 @@
       "package_unit": "oz",
       "package_unit_quantity": 2.4,
       "brand": "Penzeys",
+      "product_name": "West Indian Ground Nutmeg",
       "package_type": "jar",
+      "preferred_supplier_id": 4,
       "is_hidden": false
     },
     {
@@ -3806,7 +3902,9 @@
       "package_unit": "oz",
       "package_unit_quantity": 4.0,
       "brand": "Penzeys",
+      "product_name": "Whole Nutmeg",
       "package_type": "bag",
+      "preferred_supplier_id": 4,
       "is_hidden": false
     },
     {
@@ -3823,7 +3921,9 @@
       "package_unit": "qt",
       "package_unit_quantity": 1.0,
       "brand": "Wegman's",
+      "product_name": "Canola Oil",
       "package_type": "bottle",
+      "preferred_supplier_id": 3,
       "is_hidden": false
     },
     {
@@ -3860,7 +3960,9 @@
       "package_unit": "fl oz",
       "package_unit_quantity": 2.0,
       "brand": "Penzeys",
+      "product_name": "Orange Extract",
       "package_type": "bottle",
+      "preferred_supplier_id": 4,
       "is_hidden": false
     },
     {
@@ -3868,7 +3970,7 @@
       "package_unit": "lb",
       "package_unit_quantity": 3.0,
       "brand": "King Arthur",
-      "product_name": "King Arthur Pastry Flour",
+      "product_name": "Pastry Flour",
       "package_type": "bag",
       "is_hidden": false
     },
@@ -3895,7 +3997,9 @@
       "package_unit": "oz",
       "package_unit_quantity": 2.2,
       "brand": "Penzeys",
+      "product_name": "Ground Black Pepper",
       "package_type": "jar",
+      "preferred_supplier_id": 4,
       "is_hidden": false
     },
     {
@@ -3929,7 +4033,9 @@
       "package_unit": "oz",
       "package_unit_quantity": 15.6,
       "brand": "Penzeys",
+      "product_name": "Blue Poppy Seeds",
       "package_type": "bag",
+      "preferred_supplier_id": 4,
       "is_hidden": false
     },
     {
@@ -3937,6 +4043,7 @@
       "package_unit": "oz",
       "package_unit_quantity": 13.0,
       "brand": "Sun Maid",
+      "product_name": "California Sun Dried Raisins",
       "package_type": "container",
       "is_hidden": false
     },
@@ -3945,7 +4052,10 @@
       "package_unit": "lb",
       "package_unit_quantity": 3.0,
       "brand": "Wegman’s",
+      "product_name": "Seedless Raisins",
       "package_type": "bag",
+      "gtin": "7789040542",
+      "preferred_supplier_id": 3,
       "is_hidden": false
     },
     {
@@ -3953,7 +4063,9 @@
       "package_unit": "ml",
       "package_unit_quantity": 750.0,
       "brand": "Baccardi",
+      "product_name": "Supuerior White Rum",
       "package_type": "bottle",
+      "gtin": "8048001540",
       "is_hidden": false
     },
     {
@@ -3971,6 +4083,7 @@
       "package_unit": "fl oz",
       "package_unit_quantity": 1.0,
       "brand": "McCormick",
+      "product_name": "Rum Extract",
       "package_type": "bottle",
       "is_hidden": false
     },
@@ -3979,6 +4092,7 @@
       "package_unit": "oz",
       "package_unit_quantity": 26.0,
       "brand": "Morton",
+      "product_name": "Iodized Salt",
       "package_type": "container",
       "is_hidden": false
     },
@@ -3997,6 +4111,7 @@
       "package_unit": "lb",
       "package_unit_quantity": 3.0,
       "brand": "Morton",
+      "product_name": "Course Kosher Salt",
       "package_type": "box",
       "is_hidden": false
     },
@@ -4005,6 +4120,7 @@
       "package_unit": "g",
       "package_unit_quantity": 240.0,
       "brand": "Maldon",
+      "product_name": "SEA SALT FLAKES",
       "package_type": "box",
       "gtin": "4797200000",
       "is_hidden": false
@@ -4060,7 +4176,9 @@
       "package_unit": "oz",
       "package_unit_quantity": 0.9,
       "brand": "Penzeys",
+      "product_name": "Chinese Five Spice",
       "package_type": "jar",
+      "preferred_supplier_id": 4,
       "is_hidden": false
     },
     {
@@ -4068,7 +4186,9 @@
       "package_unit": "oz",
       "package_unit_quantity": 2.6,
       "brand": "Penzeys",
+      "product_name": "Mulling Spices",
       "package_type": "bag",
+      "preferred_supplier_id": 4,
       "is_hidden": false
     },
     {
@@ -4096,7 +4216,9 @@
       "package_unit": "lb",
       "package_unit_quantity": 2.0,
       "brand": "Wegman's",
+      "product_name": "Light Brown Sugar",
       "package_type": "bag",
+      "preferred_supplier_id": 3,
       "is_hidden": false
     },
     {
@@ -4124,6 +4246,7 @@
       "package_unit": "lb",
       "package_unit_quantity": 7.0,
       "brand": "U.S.",
+      "product_name": "Powdered Sugar",
       "package_type": "bag",
       "is_hidden": false
     },
@@ -4150,6 +4273,7 @@
       "package_unit": "lb",
       "package_unit_quantity": 1.0,
       "brand": "Toblerone",
+      "product_name": "Toblerone Swiss Milk Chcolate",
       "package_type": "box",
       "gtin": "702200400",
       "is_hidden": false
@@ -4169,6 +4293,7 @@
       "package_unit": "lb",
       "package_unit_quantity": 2.0,
       "brand": "Sugar in the Raw",
+      "product_name": "Turbinado Sugar",
       "package_type": "bag",
       "is_hidden": false
     },
@@ -4186,7 +4311,27 @@
       "package_unit": "each",
       "package_unit_quantity": 3.0,
       "brand": "Penzeys",
+      "product_name": "Vanilla Beans",
       "package_type": "container",
+      "preferred_supplier_id": 4,
+      "is_hidden": false
+    },
+    {
+      "ingredient_slug": "vanilla_extract",
+      "package_unit": "ml",
+      "package_unit_quantity": 50.0,
+      "brand": "Heilala",
+      "product_name": "Oak Aged Vanilla Extract",
+      "package_type": "bottle",
+      "is_hidden": false
+    },
+    {
+      "ingredient_slug": "vanilla_extract",
+      "package_unit": "ml",
+      "package_unit_quantity": 50.0,
+      "brand": "Heilala",
+      "product_name": "Spiced Vanilla Extract",
+      "package_type": "bottle",
       "is_hidden": false
     },
     {
@@ -4240,7 +4385,9 @@
       "package_unit": "oz",
       "package_unit_quantity": 3.4,
       "brand": "Penzeys",
+      "product_name": "Vanilla Sugar",
       "package_type": "jar",
+      "preferred_supplier_id": 4,
       "is_hidden": false
     },
     {
@@ -4248,7 +4395,9 @@
       "package_unit": "lb",
       "package_unit_quantity": 3.0,
       "brand": "Costco",
+      "product_name": "Shelled Walnuts",
       "package_type": "bag",
+      "preferred_supplier_id": 2,
       "is_hidden": false
     },
     {
@@ -4256,6 +4405,7 @@
       "package_unit": "fl oz",
       "package_unit_quantity": 750.0,
       "brand": "Jamison",
+      "product_name": "Jameson Irish Whiskey",
       "package_type": "bottle",
       "gtin": "8043250017",
       "is_hidden": false
@@ -4288,6 +4438,28 @@
       "product_name": "RapidRise Instant Yeast",
       "package_type": "packet",
       "gtin": "40100009299",
+      "is_hidden": false
+    },
+    {
+      "ingredient_slug": "flour_pastry",
+      "package_unit": "lb",
+      "package_unit_quantity": 5.0,
+      "brand": "Wegmans",
+      "product_name": "Pastry Flour",
+      "package_type": "bag",
+      "gtin": "7789046510",
+      "preferred_supplier_id": 3,
+      "is_hidden": false
+    },
+    {
+      "ingredient_slug": "oil_spray",
+      "package_unit": "oz",
+      "package_unit_quantity": 12.0,
+      "brand": "PAM",
+      "product_name": "Original No-Stick Cooking Spray with Canola Oil Blend",
+      "upc_code": "06414403094",
+      "preferred": true,
+      "preferred_supplier_id": 3,
       "is_hidden": false
     }
   ],
@@ -4330,6 +4502,7 @@
       "purchase_date": "2025-12-21",
       "quantity_purchased": 750,
       "unit_price": null,
+      "product_name": "Supuerior White Rum",
       "package_unit": "ml",
       "created_at": "2025-12-26T17:39:13.818080"
     },
@@ -4413,6 +4586,7 @@
       "purchase_date": "2025-12-21",
       "quantity_purchased": 14,
       "unit_price": null,
+      "product_name": "Milk Maid Caramels",
       "package_unit": "oz",
       "created_at": "2025-12-26T17:39:13.829300"
     },
@@ -4439,6 +4613,7 @@
       "purchase_date": "2025-12-21",
       "quantity_purchased": 10,
       "unit_price": null,
+      "product_name": "Finest Belgian Chocolate",
       "package_unit": "kg",
       "created_at": "2025-12-26T17:39:13.833607"
     },
@@ -4452,6 +4627,7 @@
       "purchase_date": "2025-12-21",
       "quantity_purchased": 2,
       "unit_price": null,
+      "product_name": "Ruby Chocolate",
       "package_unit": "kg",
       "created_at": "2025-12-26T17:39:13.835463"
     },
@@ -4534,6 +4710,7 @@
       "purchase_date": "2025-12-21",
       "quantity_purchased": 3,
       "unit_price": null,
+      "product_name": "Shelled Walnuts",
       "package_unit": "lb",
       "created_at": "2025-12-26T17:39:13.846663"
     },
@@ -4547,6 +4724,7 @@
       "purchase_date": "2025-12-21",
       "quantity_purchased": 2,
       "unit_price": null,
+      "product_name": "Signature Supreme Whole Almonds",
       "package_unit": "lb",
       "created_at": "2025-12-26T17:39:13.848894"
     },
@@ -4560,7 +4738,8 @@
       "purchase_date": "2025-12-21",
       "quantity_purchased": 1,
       "unit_price": null,
-      "package_unit": "qt",
+      "product_name": "Organic Maple Syrup",
+      "package_unit": "l",
       "created_at": "2025-12-26T17:39:13.850588"
     },
     {
@@ -4601,6 +4780,7 @@
       "purchase_date": "2025-12-21",
       "quantity_purchased": 1,
       "unit_price": null,
+      "product_name": "Black Cocoa Powder",
       "package_unit": "kg",
       "created_at": "2025-12-26T17:39:13.854785"
     },
@@ -4712,6 +4892,7 @@
       "purchase_date": "2025-12-21",
       "quantity_purchased": 1,
       "unit_price": null,
+      "product_name": "Kentucky Straight Bourbon Whiskey",
       "package_unit": "l",
       "created_at": "2025-12-26T17:39:13.870159"
     },
@@ -4795,6 +4976,7 @@
       "purchase_date": "2025-12-21",
       "quantity_purchased": 750,
       "unit_price": null,
+      "product_name": "Original Hazelnut Liqueur",
       "package_unit": "ml",
       "created_at": "2025-12-26T17:39:13.880974"
     },
@@ -4808,6 +4990,7 @@
       "purchase_date": "2025-12-21",
       "quantity_purchased": 750,
       "unit_price": null,
+      "product_name": "Crème de Cassis",
       "package_unit": "fl oz",
       "created_at": "2025-12-26T17:39:13.882835"
     },
@@ -4863,6 +5046,7 @@
       "purchase_date": "2025-12-21",
       "quantity_purchased": 3,
       "unit_price": null,
+      "product_name": "Crème Française",
       "package_unit": "kg",
       "created_at": "2025-12-26T17:39:13.890335"
     },
@@ -4889,6 +5073,7 @@
       "purchase_date": "2025-12-21",
       "quantity_purchased": 12,
       "unit_price": null,
+      "product_name": "Green Mint Baking Chips",
       "package_unit": "g",
       "created_at": "2025-12-26T17:39:13.894098"
     },
@@ -4902,6 +5087,7 @@
       "purchase_date": "2025-12-21",
       "quantity_purchased": 340,
       "unit_price": null,
+      "product_name": "Organic Milk Chocolate Baking Wafers",
       "package_unit": "g",
       "created_at": "2025-12-26T17:39:13.895779"
     },
@@ -5008,11 +5194,12 @@
       "uuid": "bddc94b2-1d7e-46d7-8f7e-449e10793b58",
       "product_id": 69,
       "supplier_id": 1,
-      "ingredient_slug": "extract_vanilla_oak_aged",
+      "ingredient_slug": "vanilla_extract",
       "product_brand": "Heilala",
       "purchase_date": "2025-12-21",
       "quantity_purchased": 50,
       "unit_price": null,
+      "product_name": "Oak Aged Vanilla Extract",
       "package_unit": "ml",
       "created_at": "2025-12-26T17:39:13.911190"
     },
@@ -5021,11 +5208,12 @@
       "uuid": "156e66ba-399e-4637-9ecd-cab17a3dc639",
       "product_id": 70,
       "supplier_id": 1,
-      "ingredient_slug": "extract_vanilla_spiced",
+      "ingredient_slug": "vanilla_extract",
       "product_brand": "Heilala",
       "purchase_date": "2025-12-21",
       "quantity_purchased": 50,
       "unit_price": null,
+      "product_name": "Spiced Vanilla Extract",
       "package_unit": "ml",
       "created_at": "2025-12-26T17:39:13.913339"
     },
@@ -5095,6 +5283,7 @@
       "purchase_date": "2025-12-21",
       "quantity_purchased": 14,
       "unit_price": null,
+      "product_name": "Honey Graham Crackers",
       "package_unit": "oz",
       "created_at": "2025-12-26T17:39:13.922930"
     },
@@ -5108,6 +5297,7 @@
       "purchase_date": "2025-12-21",
       "quantity_purchased": 750,
       "unit_price": null,
+      "product_name": "Jameson Irish Whiskey",
       "package_unit": "fl oz",
       "created_at": "2025-12-26T17:39:13.924710"
     },
@@ -5149,6 +5339,7 @@
       "purchase_date": "2025-12-21",
       "quantity_purchased": 1,
       "unit_price": null,
+      "product_name": "Unsalted Butter",
       "package_unit": "oz",
       "created_at": "2025-12-26T17:39:13.930028"
     },
@@ -5204,7 +5395,7 @@
       "purchase_date": "2025-12-21",
       "quantity_purchased": 3,
       "unit_price": null,
-      "product_name": "King Arthur Pastry Flour",
+      "product_name": "Pastry Flour",
       "package_unit": "lb",
       "created_at": "2025-12-26T17:39:13.937378"
     },
@@ -5329,6 +5520,7 @@
       "purchase_date": "2025-12-21",
       "quantity_purchased": 240,
       "unit_price": null,
+      "product_name": "SEA SALT FLAKES",
       "package_unit": "g",
       "created_at": "2025-12-26T17:39:13.953333"
     },
@@ -5465,6 +5657,7 @@
       "purchase_date": "2025-12-21",
       "quantity_purchased": 1,
       "unit_price": null,
+      "product_name": "Pure Mint Extract",
       "package_unit": "fl oz",
       "created_at": "2025-12-26T17:39:13.972402"
     },
@@ -5478,6 +5671,7 @@
       "purchase_date": "2025-12-21",
       "quantity_purchased": 2,
       "unit_price": null,
+      "product_name": "Coconut Extract",
       "package_unit": "fl oz",
       "created_at": "2025-12-26T17:39:13.974441"
     },
@@ -5491,6 +5685,7 @@
       "purchase_date": "2025-12-21",
       "quantity_purchased": 1,
       "unit_price": null,
+      "product_name": "Rum Extract",
       "package_unit": "fl oz",
       "created_at": "2025-12-26T17:39:13.976323"
     },
@@ -5504,6 +5699,7 @@
       "purchase_date": "2025-12-21",
       "quantity_purchased": 1,
       "unit_price": null,
+      "product_name": "Raspberry Extract With Other Natural Flavors",
       "package_unit": "fl oz",
       "created_at": "2025-12-26T17:39:13.978101"
     },
@@ -5531,6 +5727,7 @@
       "purchase_date": "2025-12-21",
       "quantity_purchased": 26,
       "unit_price": null,
+      "product_name": "Iodized Salt",
       "package_unit": "oz",
       "created_at": "2025-12-26T17:39:13.981861"
     },
@@ -5544,6 +5741,7 @@
       "purchase_date": "2025-12-21",
       "quantity_purchased": 3,
       "unit_price": null,
+      "product_name": "Course Kosher Salt",
       "package_unit": "lb",
       "created_at": "2025-12-26T17:39:13.983728"
     },
@@ -5667,6 +5865,7 @@
       "purchase_date": "2025-12-21",
       "quantity_purchased": 26,
       "unit_price": null,
+      "product_name": "Nutella",
       "package_unit": "oz",
       "created_at": "2025-12-26T17:39:14.000995"
     },
@@ -5680,6 +5879,7 @@
       "purchase_date": "2025-12-21",
       "quantity_purchased": 5,
       "unit_price": null,
+      "product_name": "Craisins Dried Cranberries",
       "package_unit": "oz",
       "created_at": "2025-12-26T17:39:14.002844"
     },
@@ -5693,6 +5893,7 @@
       "purchase_date": "2025-12-21",
       "quantity_purchased": 12,
       "unit_price": null,
+      "product_name": "Natural Cocoa Powder",
       "package_unit": "oz",
       "created_at": "2025-12-26T17:39:14.004563"
     },
@@ -5706,6 +5907,7 @@
       "purchase_date": "2025-12-21",
       "quantity_purchased": 12,
       "unit_price": null,
+      "product_name": "Dutch Cocoa Powder",
       "package_unit": "oz",
       "created_at": "2025-12-26T17:39:14.006661"
     },
@@ -5719,6 +5921,7 @@
       "purchase_date": "2025-12-21",
       "quantity_purchased": 2,
       "unit_price": null,
+      "product_name": "Orange Extract",
       "package_unit": "fl oz",
       "created_at": "2025-12-26T17:39:14.008537"
     },
@@ -5732,6 +5935,7 @@
       "purchase_date": "2025-12-21",
       "quantity_purchased": 2,
       "unit_price": null,
+      "product_name": "Almond Extract",
       "package_unit": "fl oz",
       "created_at": "2025-12-26T17:39:14.010649"
     },
@@ -5745,6 +5949,7 @@
       "purchase_date": "2025-12-21",
       "quantity_purchased": 8,
       "unit_price": null,
+      "product_name": "Mexican Vanilla Extract",
       "package_unit": "fl oz",
       "created_at": "2025-12-26T17:39:14.012649"
     },
@@ -5758,6 +5963,7 @@
       "purchase_date": "2025-12-21",
       "quantity_purchased": 3,
       "unit_price": null,
+      "product_name": "Vanilla Beans",
       "package_unit": "each",
       "created_at": "2025-12-26T17:39:14.014487"
     },
@@ -5771,6 +5977,7 @@
       "purchase_date": "2025-12-21",
       "quantity_purchased": 3,
       "unit_price": null,
+      "product_name": "Vanilla Beans",
       "package_unit": "each",
       "created_at": "2025-12-26T17:39:14.016358"
     },
@@ -5840,6 +6047,7 @@
       "purchase_date": "2025-12-21",
       "quantity_purchased": 1,
       "unit_price": null,
+      "product_name": "East Indian Ground Nutmeg",
       "package_unit": "oz",
       "created_at": "2025-12-26T17:39:14.025790"
     },
@@ -5853,6 +6061,7 @@
       "purchase_date": "2025-12-21",
       "quantity_purchased": 2,
       "unit_price": null,
+      "product_name": "West Indian Ground Nutmeg",
       "package_unit": "oz",
       "created_at": "2025-12-26T17:39:14.027703"
     },
@@ -5866,6 +6075,7 @@
       "purchase_date": "2025-12-21",
       "quantity_purchased": 1,
       "unit_price": null,
+      "product_name": "Chinese Five Spice",
       "package_unit": "oz",
       "created_at": "2025-12-26T17:39:14.029569"
     },
@@ -5879,6 +6089,7 @@
       "purchase_date": "2025-12-21",
       "quantity_purchased": 1,
       "unit_price": null,
+      "product_name": "Allspice",
       "package_unit": "oz",
       "created_at": "2025-12-26T17:39:14.031357"
     },
@@ -5892,6 +6103,7 @@
       "purchase_date": "2025-12-21",
       "quantity_purchased": 1,
       "unit_price": null,
+      "product_name": "Ground Mace",
       "package_unit": "oz",
       "created_at": "2025-12-26T17:39:14.033199"
     },
@@ -5961,6 +6173,7 @@
       "purchase_date": "2025-12-21",
       "quantity_purchased": 1,
       "unit_price": null,
+      "product_name": "Lavender",
       "package_unit": "oz",
       "created_at": "2025-12-26T17:39:14.045944"
     },
@@ -5974,6 +6187,7 @@
       "purchase_date": "2025-12-21",
       "quantity_purchased": 5,
       "unit_price": null,
+      "product_name": "Blue Poppy Seeds",
       "package_unit": "oz",
       "created_at": "2025-12-26T17:39:14.048718"
     },
@@ -5987,6 +6201,7 @@
       "purchase_date": "2025-12-21",
       "quantity_purchased": 1,
       "unit_price": null,
+      "product_name": "Cream of Tartar",
       "package_unit": "oz",
       "created_at": "2025-12-26T17:39:14.051470"
     },
@@ -6000,6 +6215,7 @@
       "purchase_date": "2025-12-21",
       "quantity_purchased": 1,
       "unit_price": null,
+      "product_name": "Mulling Spices",
       "package_unit": "oz",
       "created_at": "2025-12-26T17:39:14.053622"
     },
@@ -6013,6 +6229,7 @@
       "purchase_date": "2025-12-21",
       "quantity_purchased": 3,
       "unit_price": null,
+      "product_name": "Vanilla Sugar",
       "package_unit": "oz",
       "created_at": "2025-12-26T17:39:14.055509"
     },
@@ -6026,6 +6243,7 @@
       "purchase_date": "2025-12-21",
       "quantity_purchased": 4,
       "unit_price": null,
+      "product_name": "Cinnamon sticks",
       "package_unit": "oz",
       "created_at": "2025-12-26T17:39:14.057319"
     },
@@ -6039,6 +6257,7 @@
       "purchase_date": "2025-12-21",
       "quantity_purchased": 4,
       "unit_price": null,
+      "product_name": "Cinnamon sticks",
       "package_unit": "oz",
       "created_at": "2025-12-26T17:39:14.059890"
     },
@@ -6052,6 +6271,7 @@
       "purchase_date": "2025-12-21",
       "quantity_purchased": 3,
       "unit_price": null,
+      "product_name": "Whole Nutmeg",
       "package_unit": "oz",
       "created_at": "2025-12-26T17:39:14.062453"
     },
@@ -6065,6 +6285,7 @@
       "purchase_date": "2025-12-21",
       "quantity_purchased": 1,
       "unit_price": null,
+      "product_name": "Ground Black Pepper",
       "package_unit": "oz",
       "created_at": "2025-12-26T17:39:14.064409"
     },
@@ -6106,6 +6327,7 @@
       "purchase_date": "2025-12-21",
       "quantity_purchased": 2,
       "unit_price": null,
+      "product_name": "Turbinado Sugar",
       "package_unit": "lb",
       "created_at": "2025-12-26T17:39:14.069841"
     },
@@ -6119,6 +6341,7 @@
       "purchase_date": "2025-12-21",
       "quantity_purchased": 13,
       "unit_price": null,
+      "product_name": "California Sun Dried Raisins",
       "package_unit": "oz",
       "created_at": "2025-12-26T17:39:14.072070"
     },
@@ -6132,6 +6355,7 @@
       "purchase_date": "2025-12-21",
       "quantity_purchased": 8,
       "unit_price": null,
+      "product_name": "Zante Currants",
       "package_unit": "oz",
       "created_at": "2025-12-26T17:39:14.073835"
     },
@@ -6145,6 +6369,7 @@
       "purchase_date": "2025-12-21",
       "quantity_purchased": 1,
       "unit_price": null,
+      "product_name": "Toblerone Swiss Milk Chcolate",
       "package_unit": "lb",
       "created_at": "2025-12-26T17:39:14.075939"
     },
@@ -6171,6 +6396,7 @@
       "purchase_date": "2025-12-21",
       "quantity_purchased": 16,
       "unit_price": null,
+      "product_name": "Whole Hazelnuts",
       "package_unit": "lb",
       "created_at": "2025-12-26T17:39:14.079676"
     },
@@ -6184,6 +6410,7 @@
       "purchase_date": "2025-12-21",
       "quantity_purchased": 8,
       "unit_price": null,
+      "product_name": "Macadamia Nuts",
       "package_unit": "oz",
       "created_at": "2025-12-26T17:39:14.081378"
     },
@@ -6210,6 +6437,7 @@
       "purchase_date": "2025-12-21",
       "quantity_purchased": 16,
       "unit_price": null,
+      "product_name": "Cashews",
       "package_unit": "lb",
       "created_at": "2025-12-26T17:39:14.084962"
     },
@@ -6236,6 +6464,7 @@
       "purchase_date": "2025-12-21",
       "quantity_purchased": 7,
       "unit_price": null,
+      "product_name": "Powdered Sugar",
       "package_unit": "lb",
       "created_at": "2025-12-26T17:39:14.088741"
     },
@@ -6249,6 +6478,7 @@
       "purchase_date": "2025-12-21",
       "quantity_purchased": 1,
       "unit_price": null,
+      "product_name": "Canola Oil",
       "package_unit": "qt",
       "created_at": "2025-12-26T17:39:14.090591"
     },
@@ -6262,6 +6492,7 @@
       "purchase_date": "2025-12-21",
       "quantity_purchased": 5,
       "unit_price": null,
+      "product_name": "Enriched Unbleached Bread Flour",
       "package_unit": "lb",
       "created_at": "2025-12-26T17:39:14.092683"
     },
@@ -6301,6 +6532,7 @@
       "purchase_date": "2025-12-21",
       "quantity_purchased": 16,
       "unit_price": null,
+      "product_name": "Sweetened Flaked Coconut",
       "package_unit": "oz",
       "created_at": "2025-12-26T17:39:14.098251"
     },
@@ -6314,6 +6546,7 @@
       "purchase_date": "2025-12-21",
       "quantity_purchased": 16,
       "unit_price": null,
+      "product_name": "100% Pure Squeeze Honey",
       "package_unit": "oz",
       "created_at": "2025-12-26T17:39:14.100075"
     },
@@ -6327,6 +6560,7 @@
       "purchase_date": "2025-12-21",
       "quantity_purchased": 32,
       "unit_price": null,
+      "product_name": "Pure Maple Syrup",
       "package_unit": "fl oz",
       "created_at": "2025-12-26T17:39:14.101856"
     },
@@ -6354,6 +6588,7 @@
       "purchase_date": "2025-12-21",
       "quantity_purchased": 2,
       "unit_price": null,
+      "product_name": "Light Brown Sugar",
       "package_unit": "lb",
       "created_at": "2025-12-26T17:39:14.105484"
     },
@@ -6367,6 +6602,7 @@
       "purchase_date": "2025-12-21",
       "quantity_purchased": 3,
       "unit_price": null,
+      "product_name": "Seedless Raisins",
       "package_unit": "lb",
       "created_at": "2025-12-26T17:39:14.107287"
     },
@@ -6380,8 +6616,24 @@
       "purchase_date": "2025-12-21",
       "quantity_purchased": 1,
       "unit_price": null,
+      "product_name": "Rich Terracotta",
       "package_unit": "lb",
       "created_at": "2025-12-26T17:39:14.109192"
+    },
+    {
+      "id": 156,
+      "uuid": "8700b7c8-0438-472c-9cf8-6032475f7ffb",
+      "product_id": 156,
+      "supplier_id": 3,
+      "ingredient_slug": "oil_spray",
+      "product_brand": "PAM",
+      "purchase_date": "2025-12-27",
+      "quantity_purchased": 1,
+      "unit_price": "3.9900",
+      "product_name": "Original No-Stick Cooking Spray with Canola Oil Blend",
+      "package_unit": "oz",
+      "notes": "Created from AI photo analysis experiment",
+      "created_at": "2025-12-27T23:23:30"
     }
   ],
   "inventory_items": [
@@ -6414,6 +6666,7 @@
       "product_brand": "Baccardi",
       "quantity": 750.0,
       "purchase_date": "2025-12-21",
+      "product_name": "Supuerior White Rum",
       "package_unit": "ml",
       "package_unit_quantity": 750.0,
       "location": "pantry",
@@ -6485,6 +6738,7 @@
       "product_brand": "Brach’s",
       "quantity": 14.0,
       "purchase_date": "2025-12-21",
+      "product_name": "Milk Maid Caramels",
       "package_unit": "oz",
       "package_unit_quantity": 14.0,
       "location": "pantry",
@@ -6507,6 +6761,7 @@
       "product_brand": "Callebaut",
       "quantity": 10.0,
       "purchase_date": "2025-12-21",
+      "product_name": "Finest Belgian Chocolate",
       "package_unit": "kg",
       "package_unit_quantity": 10.0,
       "location": "pantry",
@@ -6518,6 +6773,7 @@
       "product_brand": "Callebaut",
       "quantity": 2.5,
       "purchase_date": "2025-12-21",
+      "product_name": "Ruby Chocolate",
       "package_unit": "kg",
       "package_unit_quantity": 2.5,
       "location": "pantry",
@@ -6588,6 +6844,7 @@
       "product_brand": "Costco",
       "quantity": 3.0,
       "purchase_date": "2025-12-21",
+      "product_name": "Shelled Walnuts",
       "package_unit": "lb",
       "package_unit_quantity": 3.0,
       "location": "pantry",
@@ -6599,8 +6856,9 @@
       "product_brand": "Costco",
       "quantity": 2.0,
       "purchase_date": "2025-12-21",
+      "product_name": "Signature Supreme Whole Almonds",
       "package_unit": "lb",
-      "package_unit_quantity": 2.0,
+      "package_unit_quantity": 3.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 19
@@ -6610,7 +6868,8 @@
       "product_brand": "Costco",
       "quantity": 1.0,
       "purchase_date": "2025-12-21",
-      "package_unit": "qt",
+      "product_name": "Organic Maple Syrup",
+      "package_unit": "l",
       "package_unit_quantity": 1.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
@@ -6645,6 +6904,7 @@
       "product_brand": "deZaan",
       "quantity": 1.0,
       "purchase_date": "2025-12-21",
+      "product_name": "Black Cocoa Powder",
       "package_unit": "kg",
       "package_unit_quantity": 1.0,
       "location": "pantry",
@@ -6740,6 +7000,7 @@
       "product_brand": "Evan Williams",
       "quantity": 1.0,
       "purchase_date": "2025-12-21",
+      "product_name": "Kentucky Straight Bourbon Whiskey",
       "package_unit": "l",
       "package_unit_quantity": 1.0,
       "location": "pantry",
@@ -6811,6 +7072,7 @@
       "product_brand": "Francesca",
       "quantity": 750.0,
       "purchase_date": "2025-12-21",
+      "product_name": "Original Hazelnut Liqueur",
       "package_unit": "ml",
       "package_unit_quantity": 750.0,
       "location": "pantry",
@@ -6822,6 +7084,7 @@
       "product_brand": "Gabriel Brudier",
       "quantity": 750.0,
       "purchase_date": "2025-12-21",
+      "product_name": "Crème de Cassis",
       "package_unit": "fl oz",
       "package_unit_quantity": 750.0,
       "location": "pantry",
@@ -6869,6 +7132,7 @@
       "product_brand": "Guittard",
       "quantity": 3.0,
       "purchase_date": "2025-12-21",
+      "product_name": "Crème Française",
       "package_unit": "kg",
       "package_unit_quantity": 3.0,
       "location": "pantry",
@@ -6891,6 +7155,7 @@
       "product_brand": "Guittard",
       "quantity": 12.0,
       "purchase_date": "2025-12-21",
+      "product_name": "Green Mint Baking Chips",
       "package_unit": "g",
       "package_unit_quantity": 12.0,
       "location": "pantry",
@@ -6902,6 +7167,7 @@
       "product_brand": "Guittard",
       "quantity": 340.0,
       "purchase_date": "2025-12-21",
+      "product_name": "Organic Milk Chocolate Baking Wafers",
       "package_unit": "g",
       "package_unit_quantity": 340.0,
       "location": "pantry",
@@ -6993,10 +7259,11 @@
       "purchase_id": 52
     },
     {
-      "ingredient_slug": "extract_vanilla_oak_aged",
+      "ingredient_slug": "vanilla_extract",
       "product_brand": "Heilala",
       "quantity": 50.0,
       "purchase_date": "2025-12-21",
+      "product_name": "Oak Aged Vanilla Extract",
       "package_unit": "ml",
       "package_unit_quantity": 50.0,
       "location": "pantry",
@@ -7004,10 +7271,11 @@
       "purchase_id": 53
     },
     {
-      "ingredient_slug": "extract_vanilla_spiced",
+      "ingredient_slug": "vanilla_extract",
       "product_brand": "Heilala",
       "quantity": 50.0,
       "purchase_date": "2025-12-21",
+      "product_name": "Spiced Vanilla Extract",
       "package_unit": "ml",
       "package_unit_quantity": 50.0,
       "location": "pantry",
@@ -7067,6 +7335,7 @@
       "product_brand": "HoneyMaid",
       "quantity": 14.4,
       "purchase_date": "2025-12-21",
+      "product_name": "Honey Graham Crackers",
       "package_unit": "oz",
       "package_unit_quantity": 14.4,
       "location": "pantry",
@@ -7078,6 +7347,7 @@
       "product_brand": "Jamison",
       "quantity": 750.0,
       "purchase_date": "2025-12-21",
+      "product_name": "Jameson Irish Whiskey",
       "package_unit": "fl oz",
       "package_unit_quantity": 750.0,
       "location": "pantry",
@@ -7113,6 +7383,7 @@
       "product_brand": "Kerry",
       "quantity": 1.0,
       "purchase_date": "2025-12-21",
+      "product_name": "Unsalted Butter",
       "package_unit": "oz",
       "package_unit_quantity": 1.0,
       "location": "pantry",
@@ -7160,7 +7431,7 @@
       "product_brand": "King Arthur",
       "quantity": 3.0,
       "purchase_date": "2025-12-21",
-      "product_name": "King Arthur Pastry Flour",
+      "product_name": "Pastry Flour",
       "package_unit": "lb",
       "package_unit_quantity": 3.0,
       "location": "pantry",
@@ -7267,6 +7538,7 @@
       "product_brand": "Maldon",
       "quantity": 240.0,
       "purchase_date": "2025-12-21",
+      "product_name": "SEA SALT FLAKES",
       "package_unit": "g",
       "package_unit_quantity": 240.0,
       "location": "pantry",
@@ -7383,6 +7655,7 @@
       "product_brand": "McCormick",
       "quantity": 1.0,
       "purchase_date": "2025-12-21",
+      "product_name": "Pure Mint Extract",
       "package_unit": "fl oz",
       "package_unit_quantity": 1.0,
       "location": "pantry",
@@ -7394,6 +7667,7 @@
       "product_brand": "McCormick",
       "quantity": 2.0,
       "purchase_date": "2025-12-21",
+      "product_name": "Coconut Extract",
       "package_unit": "fl oz",
       "package_unit_quantity": 2.0,
       "location": "pantry",
@@ -7405,6 +7679,7 @@
       "product_brand": "McCormick",
       "quantity": 1.0,
       "purchase_date": "2025-12-21",
+      "product_name": "Rum Extract",
       "package_unit": "fl oz",
       "package_unit_quantity": 1.0,
       "location": "pantry",
@@ -7416,6 +7691,7 @@
       "product_brand": "McCormick",
       "quantity": 1.0,
       "purchase_date": "2025-12-21",
+      "product_name": "Raspberry Extract With Other Natural Flavors",
       "package_unit": "fl oz",
       "package_unit_quantity": 1.0,
       "location": "pantry",
@@ -7439,6 +7715,7 @@
       "product_brand": "Morton",
       "quantity": 26.0,
       "purchase_date": "2025-12-21",
+      "product_name": "Iodized Salt",
       "package_unit": "oz",
       "package_unit_quantity": 26.0,
       "location": "pantry",
@@ -7450,6 +7727,7 @@
       "product_brand": "Morton",
       "quantity": 3.0,
       "purchase_date": "2025-12-21",
+      "product_name": "Course Kosher Salt",
       "package_unit": "lb",
       "package_unit_quantity": 3.0,
       "location": "pantry",
@@ -7555,6 +7833,7 @@
       "product_brand": "Nutella",
       "quantity": 26.5,
       "purchase_date": "2025-12-21",
+      "product_name": "Nutella",
       "package_unit": "oz",
       "package_unit_quantity": 26.5,
       "location": "pantry",
@@ -7566,8 +7845,9 @@
       "product_brand": "Ocean Spray",
       "quantity": 5.0,
       "purchase_date": "2025-12-21",
+      "product_name": "Craisins Dried Cranberries",
       "package_unit": "oz",
-      "package_unit_quantity": 5.0,
+      "package_unit_quantity": 6.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 102
@@ -7577,6 +7857,7 @@
       "product_brand": "Penzeys",
       "quantity": 12.8,
       "purchase_date": "2025-12-21",
+      "product_name": "Natural Cocoa Powder",
       "package_unit": "oz",
       "package_unit_quantity": 12.8,
       "location": "pantry",
@@ -7588,6 +7869,7 @@
       "product_brand": "Penzeys",
       "quantity": 12.8,
       "purchase_date": "2025-12-21",
+      "product_name": "Dutch Cocoa Powder",
       "package_unit": "oz",
       "package_unit_quantity": 12.8,
       "location": "pantry",
@@ -7599,6 +7881,7 @@
       "product_brand": "Penzeys",
       "quantity": 2.0,
       "purchase_date": "2025-12-21",
+      "product_name": "Orange Extract",
       "package_unit": "fl oz",
       "package_unit_quantity": 2.0,
       "location": "pantry",
@@ -7610,6 +7893,7 @@
       "product_brand": "Penzeys",
       "quantity": 2.0,
       "purchase_date": "2025-12-21",
+      "product_name": "Almond Extract",
       "package_unit": "fl oz",
       "package_unit_quantity": 2.0,
       "location": "pantry",
@@ -7621,6 +7905,7 @@
       "product_brand": "Penzeys",
       "quantity": 8.0,
       "purchase_date": "2025-12-21",
+      "product_name": "Mexican Vanilla Extract",
       "package_unit": "fl oz",
       "package_unit_quantity": 8.0,
       "location": "pantry",
@@ -7632,6 +7917,7 @@
       "product_brand": "Penzeys",
       "quantity": 3.0,
       "purchase_date": "2025-12-21",
+      "product_name": "Vanilla Beans",
       "package_unit": "each",
       "package_unit_quantity": 3.0,
       "location": "pantry",
@@ -7643,6 +7929,7 @@
       "product_brand": "Penzeys",
       "quantity": 3.0,
       "purchase_date": "2025-12-21",
+      "product_name": "Vanilla Beans",
       "package_unit": "each",
       "package_unit_quantity": 3.0,
       "location": "pantry",
@@ -7702,6 +7989,7 @@
       "product_brand": "Penzeys",
       "quantity": 0.33,
       "purchase_date": "2025-12-21",
+      "product_name": "East Indian Ground Nutmeg",
       "package_unit": "oz",
       "package_unit_quantity": 2.2,
       "location": "pantry",
@@ -7713,6 +8001,7 @@
       "product_brand": "Penzeys",
       "quantity": 2.4,
       "purchase_date": "2025-12-21",
+      "product_name": "West Indian Ground Nutmeg",
       "package_unit": "oz",
       "package_unit_quantity": 2.4,
       "location": "pantry",
@@ -7724,6 +8013,7 @@
       "product_brand": "Penzeys",
       "quantity": 0.9,
       "purchase_date": "2025-12-21",
+      "product_name": "Chinese Five Spice",
       "package_unit": "oz",
       "package_unit_quantity": 0.9,
       "location": "pantry",
@@ -7735,6 +8025,7 @@
       "product_brand": "Penzeys",
       "quantity": 0.6,
       "purchase_date": "2025-12-21",
+      "product_name": "Allspice",
       "package_unit": "oz",
       "package_unit_quantity": 0.6,
       "location": "pantry",
@@ -7746,6 +8037,7 @@
       "product_brand": "Penzeys",
       "quantity": 0.9,
       "purchase_date": "2025-12-21",
+      "product_name": "Ground Mace",
       "package_unit": "oz",
       "package_unit_quantity": 0.9,
       "location": "pantry",
@@ -7805,6 +8097,7 @@
       "product_brand": "Penzeys",
       "quantity": 0.3,
       "purchase_date": "2025-12-21",
+      "product_name": "Lavender",
       "package_unit": "oz",
       "package_unit_quantity": 0.4,
       "location": "pantry",
@@ -7816,6 +8109,7 @@
       "product_brand": "Penzeys",
       "quantity": 5.15,
       "purchase_date": "2025-12-21",
+      "product_name": "Blue Poppy Seeds",
       "package_unit": "oz",
       "package_unit_quantity": 15.6,
       "location": "pantry",
@@ -7827,6 +8121,7 @@
       "product_brand": "Penzeys",
       "quantity": 1.8,
       "purchase_date": "2025-12-21",
+      "product_name": "Cream of Tartar",
       "package_unit": "oz",
       "package_unit_quantity": 1.8,
       "location": "pantry",
@@ -7838,6 +8133,7 @@
       "product_brand": "Penzeys",
       "quantity": 1.3,
       "purchase_date": "2025-12-21",
+      "product_name": "Mulling Spices",
       "package_unit": "oz",
       "package_unit_quantity": 2.6,
       "location": "pantry",
@@ -7849,6 +8145,7 @@
       "product_brand": "Penzeys",
       "quantity": 3.4,
       "purchase_date": "2025-12-21",
+      "product_name": "Vanilla Sugar",
       "package_unit": "oz",
       "package_unit_quantity": 3.4,
       "location": "pantry",
@@ -7860,6 +8157,7 @@
       "product_brand": "Penzeys",
       "quantity": 4.0,
       "purchase_date": "2025-12-21",
+      "product_name": "Cinnamon sticks",
       "package_unit": "oz",
       "package_unit_quantity": 4.0,
       "location": "pantry",
@@ -7871,6 +8169,7 @@
       "product_brand": "Penzeys",
       "quantity": 4.0,
       "purchase_date": "2025-12-21",
+      "product_name": "Cinnamon sticks",
       "package_unit": "oz",
       "package_unit_quantity": 4.0,
       "location": "pantry",
@@ -7882,6 +8181,7 @@
       "product_brand": "Penzeys",
       "quantity": 3.2,
       "purchase_date": "2025-12-21",
+      "product_name": "Whole Nutmeg",
       "package_unit": "oz",
       "package_unit_quantity": 4.0,
       "location": "pantry",
@@ -7893,6 +8193,7 @@
       "product_brand": "Penzeys",
       "quantity": 1.65,
       "purchase_date": "2025-12-21",
+      "product_name": "Ground Black Pepper",
       "package_unit": "oz",
       "package_unit_quantity": 2.2,
       "location": "pantry",
@@ -7928,6 +8229,7 @@
       "product_brand": "Sugar in the Raw",
       "quantity": 2.0,
       "purchase_date": "2025-12-21",
+      "product_name": "Turbinado Sugar",
       "package_unit": "lb",
       "package_unit_quantity": 2.0,
       "location": "pantry",
@@ -7939,6 +8241,7 @@
       "product_brand": "Sun Maid",
       "quantity": 13.0,
       "purchase_date": "2025-12-21",
+      "product_name": "California Sun Dried Raisins",
       "package_unit": "oz",
       "package_unit_quantity": 13.0,
       "location": "pantry",
@@ -7950,6 +8253,7 @@
       "product_brand": "Sun Maid",
       "quantity": 8.0,
       "purchase_date": "2025-12-21",
+      "product_name": "Zante Currants",
       "package_unit": "oz",
       "package_unit_quantity": 8.0,
       "location": "pantry",
@@ -7961,6 +8265,7 @@
       "product_brand": "Toblerone",
       "quantity": 1.0,
       "purchase_date": "2025-12-21",
+      "product_name": "Toblerone Swiss Milk Chcolate",
       "package_unit": "lb",
       "package_unit_quantity": 1.0,
       "location": "pantry",
@@ -7983,6 +8288,7 @@
       "product_brand": "Trader Joe's",
       "quantity": 16.0,
       "purchase_date": "2025-12-21",
+      "product_name": "Whole Hazelnuts",
       "package_unit": "lb",
       "package_unit_quantity": 16.0,
       "location": "pantry",
@@ -7994,6 +8300,7 @@
       "product_brand": "Trader Joe's",
       "quantity": 8.0,
       "purchase_date": "2025-12-21",
+      "product_name": "Macadamia Nuts",
       "package_unit": "oz",
       "package_unit_quantity": 8.0,
       "location": "pantry",
@@ -8016,6 +8323,7 @@
       "product_brand": "Trader Joe's",
       "quantity": 16.0,
       "purchase_date": "2025-12-21",
+      "product_name": "Cashews",
       "package_unit": "lb",
       "package_unit_quantity": 16.0,
       "location": "pantry",
@@ -8038,6 +8346,7 @@
       "product_brand": "U.S.",
       "quantity": 7.0,
       "purchase_date": "2025-12-21",
+      "product_name": "Powdered Sugar",
       "package_unit": "lb",
       "package_unit_quantity": 7.0,
       "location": "pantry",
@@ -8049,6 +8358,7 @@
       "product_brand": "Wegman's",
       "quantity": 1.0,
       "purchase_date": "2025-12-21",
+      "product_name": "Canola Oil",
       "package_unit": "qt",
       "package_unit_quantity": 1.0,
       "location": "pantry",
@@ -8060,6 +8370,7 @@
       "product_brand": "Wegman's",
       "quantity": 5.0,
       "purchase_date": "2025-12-21",
+      "product_name": "Enriched Unbleached Bread Flour",
       "package_unit": "lb",
       "package_unit_quantity": 5.0,
       "location": "pantry",
@@ -8093,6 +8404,7 @@
       "product_brand": "Wegman's",
       "quantity": 16.0,
       "purchase_date": "2025-12-21",
+      "product_name": "Sweetened Flaked Coconut",
       "package_unit": "oz",
       "package_unit_quantity": 16.0,
       "location": "pantry",
@@ -8104,6 +8416,7 @@
       "product_brand": "Wegman's",
       "quantity": 16.0,
       "purchase_date": "2025-12-21",
+      "product_name": "100% Pure Squeeze Honey",
       "package_unit": "oz",
       "package_unit_quantity": 16.0,
       "location": "pantry",
@@ -8115,6 +8428,7 @@
       "product_brand": "Wegman's",
       "quantity": 32.0,
       "purchase_date": "2025-12-21",
+      "product_name": "Pure Maple Syrup",
       "package_unit": "fl oz",
       "package_unit_quantity": 32.0,
       "location": "pantry",
@@ -8138,6 +8452,7 @@
       "product_brand": "Wegman's",
       "quantity": 2.0,
       "purchase_date": "2025-12-21",
+      "product_name": "Light Brown Sugar",
       "package_unit": "lb",
       "package_unit_quantity": 2.0,
       "location": "pantry",
@@ -8149,6 +8464,7 @@
       "product_brand": "Wegman’s",
       "quantity": 3.0,
       "purchase_date": "2025-12-21",
+      "product_name": "Seedless Raisins",
       "package_unit": "lb",
       "package_unit_quantity": 3.0,
       "location": "pantry",
@@ -8160,11 +8476,24 @@
       "product_brand": "Wincrest",
       "quantity": 1.0,
       "purchase_date": "2025-12-21",
+      "product_name": "Rich Terracotta",
       "package_unit": "lb",
       "package_unit_quantity": 1.0,
       "location": "pantry",
       "notes": "Initial inventory - full package",
       "purchase_id": 155
+    },
+    {
+      "ingredient_slug": "oil_spray",
+      "product_brand": "PAM",
+      "quantity": 1.0,
+      "purchase_date": "2025-12-27",
+      "product_name": "Original No-Stick Cooking Spray with Canola Oil Blend",
+      "package_unit": "oz",
+      "package_unit_quantity": 12.0,
+      "location": "Pantry",
+      "notes": "Created from AI photo analysis experiment",
+      "purchase_id": 156
     }
   ],
   "recipes": [
@@ -9568,8 +9897,27 @@
   "compositions": [],
   "packages": [],
   "package_finished_goods": [],
-  "recipients": [],
-  "events": [],
+  "recipients": [
+    {
+      "name": "Saladino-Kuhl",
+      "household_name": "Saladino-Kuhl Household"
+    },
+    {
+      "name": "Thomas",
+      "household_name": "Howell Household"
+    },
+    {
+      "name": "Wilson's",
+      "household_name": "Wilson Household"
+    }
+  ],
+  "events": [
+    {
+      "name": "Christmas 2026",
+      "event_date": "2026-12-15",
+      "year": 2026
+    }
+  ],
   "event_recipient_packages": [],
   "event_production_targets": [],
   "event_assembly_targets": [],
