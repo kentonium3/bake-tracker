@@ -1,0 +1,214 @@
+DIAGNOSTIC RESULTS: Purchase Data Investigation
+================================================
+Generated: 2025-12-28
+Database: /Users/kentgale/Documents/BakeTracker/bake_tracker.db
+
+================================================================================
+TASK 1: DATABASE QUERIES
+================================================================================
+
+Query 1: Total Purchases
+------------------------
+Total purchases: 156
+
+Query 2: Purchases with Prices
+------------------------------
+purchases_with_price: 1
+min_price: 3.99
+max_price: 3.99
+avg_price: 3.99
+
+Query 3: Inventory-Purchase Links
+---------------------------------
+total_inventory_items: 156
+items_with_purchase_link: 156
+items_without_purchase_link: 0
+
+Query 4: Sample Purchase Data (10 most recent)
+----------------------------------------------
+id   product_name                                           brand     purchase_date  quantity  unit_price  supplier
+---  -----------------------------------------------------  --------  -------------  --------  ----------  --------
+156  Original No-Stick Cooking Spray with Canola Oil Blend  PAM       2025-12-27     1         3.99        Wegmans
+155  Rich Terracotta                                        Wincrest  2025-12-21     1         0           Unknown
+154  Seedless Raisins                                       Wegman's  2025-12-21     3         0           Unknown
+153  Light Brown Sugar                                      Wegman's  2025-12-21     2         0           Unknown
+152  100% Pure Corn Starch                                  Wegman's  2025-12-21     1         0           Unknown
+151  Toll House Mini Semi-Sweet Chocolate Morsels           Nestle    2025-12-21     32        0           Unknown
+150  Lavender                                               Penzeys   2025-12-21     16        0           Unknown
+149  Sweetened Flaked Coconut                               Wegman's  2025-12-21     16        0           Unknown
+148                                                         Wegman's  2025-12-21     5         0           Unknown
+147                                                         Wegman's  2025-12-21     2         0           Unknown
+
+Query 5: Costco Almonds Investigation
+-------------------------------------
+product_name                     brand        quantity  purchase_id  unit_price  purchase_date  supplier
+-------------------------------  -----------  --------  -----------  ----------  -------------  --------
+Signature Supreme Whole Almonds  Costco       2.0       19           0           2025-12-21     Costco
+Almond Flour                     King Arthur  16.0      66           0           2025-12-21     Unknown
+Pure Almond Extract              McCormick    2.0       78           0           2025-12-21     Unknown
+Almond Extract                   Penzeys      2.0       106          0           2025-12-21     Unknown
+
+Query 6: Orphaned Purchases
+---------------------------
+orphaned_purchases: 0
+
+Price Distribution:
+------------------
+unit_price  count
+----------  -----
+0           155
+3.99        1
+
+================================================================================
+TASK 2: EDIT FORM ANALYSIS (from previous bug fix session)
+================================================================================
+
+File: src/ui/inventory_tab.py
+Method: _on_supplier_change()
+Lines: 1430-1464
+
+The edit form's supplier change handler queries Purchase.unit_price:
+    last_purchase = (
+        session.query(Purchase)
+        .filter(
+            Purchase.product_id == product_id,
+            Purchase.supplier_id == supplier_id,
+        )
+        .order_by(Purchase.purchase_date.desc())
+        .first()
+    )
+    if last_purchase:
+        price = last_purchase.unit_price or Decimal("0")
+
+Currently loading: Purchase.unit_price (correct field)
+Issue: Purchase records have unit_price = 0, not NULL
+
+================================================================================
+TASK 3: IMPORT SERVICE ANALYSIS
+================================================================================
+
+File: src/services/enhanced_import_service.py
+
+Import Service Capabilities:
+- DOES import unit_price (lines 580-581)
+- DOES support merge mode (update existing + add new)
+- DOES special-case unit_price for purchases (lines 349-354)
+
+Merge Mode Logic (lines 316-368):
+1. Find existing record by UUID
+2. If exists: update editable_fields + unit_price + quantity_purchased
+3. Update condition: if field_name in record AND record[field_name] is not None
+   AND current_value != new_value
+
+Expected Behavior: Import should update unit_price from 0 to JSON values
+
+================================================================================
+TASK 4: AUGMENTED JSON FILES
+================================================================================
+
+File: test_data/view_purchases_augmented.json
+EXISTS: YES
+Export Date: 2025-12-28T03:03:16.771046Z
+Total Records: 156 (based on purchase count)
+
+Sample Records from JSON:
+-------------------------
+Record 1:
+  id: 1
+  product_name: 100% Pure Corn Starch (Argo)
+  unit_price: 2.25    <-- HAS PRICE!
+  quantity_purchased: 1
+
+Record 2:
+  id: 2
+  product_name: Pure Baking Soda (Arm & Hammer)
+  unit_price: 5.49    <-- HAS PRICE!
+  quantity_purchased: 1
+
+Record 3:
+  id: 3
+  product_name: Superior White Rum (Baccardi)
+  unit_price: 5.49    <-- HAS PRICE!
+  quantity_purchased: 750
+
+File: test_data/view_inventory_augmented.json
+EXISTS: YES
+
+================================================================================
+SUMMARY OF FINDINGS
+================================================================================
+
+Purchase Records:
+- Total purchases in DB: 156
+- Purchases with prices > 0: 1 (only PAM at $3.99)
+- Purchases with prices = 0: 155
+
+Inventory Links:
+- Total inventory items: 156
+- Items linked to purchases: 156 (100%)
+- Items without purchase link: 0
+
+Edit Form Issue:
+- File: src/ui/inventory_tab.py
+- Currently loads: Purchase.unit_price (CORRECT)
+- Problem: Database has unit_price = 0
+
+Import Service:
+- Imports prices: YES (code exists)
+- Links purchases: YES (all items linked)
+- Issue identified: IMPORT NOT RUN OR RUN IN WRONG MODE
+
+JSON Files:
+- Augmented files EXIST with prices populated
+- Sample: Corn Starch=$2.25, Baking Soda=$5.49, Rum=$5.49
+- Prices ARE in the JSON files
+
+================================================================================
+ROOT CAUSE HYPOTHESIS
+================================================================================
+
+The augmented JSON files contain correct price data, but the prices were
+NOT imported into the database. Evidence:
+
+1. All 156 purchases exist in DB (records were created)
+2. Only 1 record has a price (manually added later via PAM purchase)
+3. 155 records have unit_price = 0 (original import value)
+4. JSON files have prices like $2.25, $5.49, etc.
+
+Most likely cause: The enhanced import was either:
+a) Never run after AI augmentation
+b) Run in "skip_existing" mode (skips existing records)
+c) Run before augmentation was complete
+
+================================================================================
+RECOMMENDED FIX
+================================================================================
+
+Re-run the import in MERGE mode to update existing purchase records with prices:
+
+Option A - Python Script:
+    from src.services.enhanced_import_service import import_view
+    result = import_view(
+        "test_data/view_purchases_augmented.json",
+        mode="merge",  # IMPORTANT: must be merge to update existing
+        dry_run=False  # Set to True first to verify
+    )
+    print(result.get_summary())
+
+Option B - Verify with dry_run first:
+    result = import_view(
+        "test_data/view_purchases_augmented.json",
+        mode="merge",
+        dry_run=True  # Preview changes only
+    )
+
+Expected outcome: 155 purchases should be updated with unit_price values from JSON.
+
+================================================================================
+ADDITIONAL NOTES
+================================================================================
+
+- The PAM cooking spray ($3.99) was likely added AFTER the original import
+- All inventory items correctly link to their purchases
+- Supplier data is present (Costco, Wegmans, Unknown, Penzeys, etc.)
+- The import infrastructure is correct; just needs to be executed
