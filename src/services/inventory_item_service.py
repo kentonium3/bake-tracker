@@ -544,6 +544,168 @@ def update_inventory_item(inventory_item_id: int, item_data: Dict[str, Any]) -> 
         raise DatabaseError(f"Failed to update inventory item {inventory_item_id}", original_error=e)
 
 
+def update_inventory_quantity(
+    inventory_item_id: int,
+    *,
+    remaining_percentage: Optional[float] = None,
+    new_quantity: Optional[Decimal] = None,
+    amount_used: Optional[Decimal] = None,
+    amount_used_unit: Optional[str] = None,
+    session: Optional[Session] = None,
+) -> InventoryItem:
+    """Update inventory quantity using flexible input methods.
+
+    Supports three methods for updating quantity, with precedence rules:
+    1. remaining_percentage - "This jar is 40% full"
+    2. new_quantity - Direct quantity entry
+    3. amount_used + amount_used_unit - "I used 2 cups"
+
+    Precedence (if multiple values provided):
+    1. remaining_percentage (highest)
+    2. new_quantity
+    3. amount_used + amount_used_unit (lowest)
+
+    Args:
+        inventory_item_id: ID of inventory item to update
+        remaining_percentage: Percentage remaining (0-100)
+        new_quantity: New quantity in package units
+        amount_used: Amount consumed
+        amount_used_unit: Unit for amount_used (must match package_unit or be package type)
+        session: Optional database session for transaction composability
+
+    Returns:
+        InventoryItem: Updated inventory item
+
+    Raises:
+        InventoryItemNotFound: If item doesn't exist
+        ValidationError: If no update method provided or invalid values
+
+    Example:
+        >>> # Method 1: 40% of a 2.5 jar item = 1.0 jar
+        >>> update_inventory_quantity(123, remaining_percentage=40)
+        >>>
+        >>> # Method 2: Set directly to 1.5 jars
+        >>> update_inventory_quantity(123, new_quantity=Decimal("1.5"))
+        >>>
+        >>> # Method 3: Used 16 oz from a 28 oz/jar item
+        >>> update_inventory_quantity(123, amount_used=Decimal("16"), amount_used_unit="oz")
+    """
+    def _do_update(sess: Session) -> InventoryItem:
+        item = (
+            sess.query(InventoryItem)
+            .options(joinedload(InventoryItem.product))
+            .filter_by(id=inventory_item_id)
+            .first()
+        )
+        if not item:
+            raise InventoryItemNotFound(inventory_item_id)
+
+        current_qty = Decimal(str(item.quantity))
+        product = item.product
+        package_unit = product.package_unit if product else None
+        package_unit_quantity = Decimal(str(product.package_unit_quantity)) if product else Decimal("1")
+
+        # Apply precedence rules
+        if remaining_percentage is not None:
+            # Method 1: Percentage
+            if not 0 <= remaining_percentage <= 100:
+                raise ServiceValidationError("Percentage must be between 0 and 100")
+            new_qty = current_qty * (Decimal(str(remaining_percentage)) / 100)
+
+        elif new_quantity is not None:
+            # Method 2: Direct quantity
+            if new_quantity < 0:
+                raise ServiceValidationError("New quantity cannot be negative")
+            new_qty = new_quantity
+
+        elif amount_used is not None:
+            # Method 3: Amount consumed
+            if amount_used < 0:
+                raise ServiceValidationError("Amount used cannot be negative")
+
+            if amount_used_unit is None:
+                raise ServiceValidationError("amount_used_unit is required with amount_used")
+
+            # Convert amount_used to package units
+            used_in_pkg_units = _convert_to_package_units(
+                amount_used,
+                amount_used_unit,
+                package_unit_quantity,
+                package_unit,
+            )
+
+            new_qty = current_qty - used_in_pkg_units
+            if new_qty < 0:
+                raise ServiceValidationError(
+                    f"Amount used ({amount_used} {amount_used_unit}) exceeds "
+                    f"current quantity ({current_qty})"
+                )
+        else:
+            raise ServiceValidationError(
+                "Must provide remaining_percentage, new_quantity, or amount_used"
+            )
+
+        # Update the item
+        item.quantity = float(new_qty)
+        return item
+
+    if session is not None:
+        return _do_update(session)
+
+    try:
+        with session_scope() as sess:
+            return _do_update(sess)
+    except (InventoryItemNotFound, ServiceValidationError):
+        raise
+    except Exception as e:
+        raise DatabaseError(
+            f"Failed to update inventory quantity for item {inventory_item_id}",
+            original_error=e
+        )
+
+
+def _convert_to_package_units(
+    amount: Decimal,
+    from_unit: str,
+    package_qty: Decimal,
+    package_unit: str,
+) -> Decimal:
+    """Convert amount in arbitrary unit to package units.
+
+    Args:
+        amount: Amount to convert
+        from_unit: Unit of the amount
+        package_qty: Package quantity (e.g., 28 for "28 oz jar")
+        package_unit: Package unit (e.g., "oz")
+
+    Returns:
+        Amount in package units (e.g., number of jars)
+
+    Example:
+        >>> _convert_to_package_units(Decimal("16"), "oz", Decimal("28"), "oz")
+        Decimal('0.571...')  # 16 oz = 0.57 jars (if jar is 28 oz)
+    """
+    # If units match package unit, divide by package quantity
+    if from_unit.lower() == package_unit.lower():
+        return amount / package_qty
+
+    # If from_unit is a package type (jar, can, bag, etc.), return directly
+    package_types = [
+        'jar', 'jars', 'can', 'cans', 'bag', 'bags',
+        'bottle', 'bottles', 'package', 'packages', 'pkg', 'pkgs',
+        'box', 'boxes', 'container', 'containers',
+    ]
+    if from_unit.lower() in package_types:
+        return amount
+
+    # For other unit mismatches, we can't convert without a conversion table
+    # For now, raise an error with guidance
+    raise ServiceValidationError(
+        f"Cannot convert {from_unit} to {package_unit}. "
+        f"Please use {package_unit} or package units (jars, cans, etc.)"
+    )
+
+
 def delete_inventory_item(inventory_item_id: int) -> bool:
     """Delete inventory item (lot).
 

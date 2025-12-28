@@ -1013,6 +1013,11 @@ class InventoryItemFormDialog(ctk.CTkToplevel):
         self.suppliers: List[Dict[str, Any]] = []  # F028
         self.session_state = get_session_state()  # F029: Session memory
 
+        # Calculator state (for editing mode)
+        self._calc_collapsed = True
+        self._calc_calculating = False  # Prevent recursive calculation updates
+        self._calc_new_qty = None  # Calculated new quantity for save
+
         # Load data
         self._load_ingredients()
         self._load_suppliers()  # F028
@@ -1192,6 +1197,11 @@ class InventoryItemFormDialog(ctk.CTkToplevel):
         # WP10: Bind FocusOut for quantity validation
         self.quantity_entry.bind('<FocusOut>', self._on_quantity_focus_out)
         row += 1
+
+        # Calculator section (only for editing mode)
+        if self.item:
+            self._create_calculator_section(row)
+            row += 1
 
         # Purchase Date
         purchase_label = ctk.CTkLabel(self, text="Purchase Date:*")
@@ -1847,16 +1857,26 @@ class InventoryItemFormDialog(ctk.CTkToplevel):
         item_data: Dict[str, Any] = self.item or {}
 
         # Parse and validate quantity
-        try:
-            quantity = Decimal(quantity_str)
-            if quantity <= 0:
+        # If calculator was used (editing mode), use calculated quantity
+        if is_editing and hasattr(self, '_calc_new_qty') and self._calc_new_qty is not None:
+            quantity = self._calc_new_qty
+            # Allow zero for fully consumed items
+            if quantity < 0:
                 messagebox.showerror(
-                    "Validation Error", "Quantity must be greater than 0", parent=self
+                    "Validation Error", "Quantity cannot be negative", parent=self
                 )
                 return
-        except Exception:
-            messagebox.showerror("Validation Error", "Invalid quantity format", parent=self)
-            return
+        else:
+            try:
+                quantity = Decimal(quantity_str)
+                if quantity <= 0:
+                    messagebox.showerror(
+                        "Validation Error", "Quantity must be greater than 0", parent=self
+                    )
+                    return
+            except Exception:
+                messagebox.showerror("Validation Error", "Invalid quantity format", parent=self)
+                return
 
         # Parse purchase date
         if is_editing and item_data.get("purchase_date"):
@@ -2028,6 +2048,255 @@ class InventoryItemFormDialog(ctk.CTkToplevel):
     def _on_quantity_focus_out(self, event):
         """Validate quantity when focus leaves field."""
         self._validate_quantity()
+
+    # =========================================================================
+    # Calculator Section (for editing mode)
+    # =========================================================================
+
+    def _create_calculator_section(self, row: int):
+        """Create the quantity update calculator section (editing mode only)."""
+        from decimal import Decimal, InvalidOperation
+
+        # Get current quantity and package info for calculations
+        self._calc_current_qty = Decimal(str(self.item.get("quantity", 0)))
+        product = self.selected_product or {}
+        self._calc_package_unit = product.get("package_unit", "units")
+        self._calc_package_qty = Decimal(str(product.get("package_unit_quantity", 1)))
+
+        # Main calculator frame
+        self.calc_frame = ctk.CTkFrame(self, border_width=1, corner_radius=5)
+        self.calc_frame.grid(row=row, column=0, columnspan=2, padx=10, pady=5, sticky="ew")
+        self.calc_frame.grid_columnconfigure(1, weight=1)
+
+        # Toggle button (collapsed by default)
+        self.calc_toggle_btn = ctk.CTkButton(
+            self.calc_frame,
+            text="▶ Update Quantity",
+            command=self._toggle_calculator,
+            width=150,
+            fg_color="transparent",
+            text_color=("gray40", "gray60"),
+            hover_color=("gray80", "gray30"),
+            anchor="w",
+        )
+        self.calc_toggle_btn.grid(row=0, column=0, columnspan=2, padx=5, pady=5, sticky="w")
+
+        # Calculator inputs frame (hidden initially)
+        self.calc_inputs_frame = ctk.CTkFrame(self.calc_frame, fg_color="transparent")
+        # Don't grid yet - will show on expand
+
+        # Current quantity display
+        current_display = f"Current: {self._calc_current_qty:.2f} {self._calc_package_unit}"
+        self.calc_current_label = ctk.CTkLabel(
+            self.calc_inputs_frame,
+            text=current_display,
+            font=ctk.CTkFont(weight="bold"),
+        )
+        self.calc_current_label.grid(row=0, column=0, columnspan=3, pady=(5, 10), sticky="w")
+
+        # Field 1: Remaining %
+        remaining_label = ctk.CTkLabel(self.calc_inputs_frame, text="Remaining %:")
+        remaining_label.grid(row=1, column=0, padx=(5, 10), pady=3, sticky="w")
+
+        self._calc_pct_var = ctk.StringVar()
+        self._calc_pct_var.trace_add("write", self._on_calc_pct_change)
+        self._calc_pct_entry = ctk.CTkEntry(
+            self.calc_inputs_frame,
+            textvariable=self._calc_pct_var,
+            width=80,
+            placeholder_text="0-100",
+        )
+        self._calc_pct_entry.grid(row=1, column=1, pady=3, sticky="w")
+
+        pct_suffix = ctk.CTkLabel(self.calc_inputs_frame, text="%")
+        pct_suffix.grid(row=1, column=2, padx=(3, 10), pady=3, sticky="w")
+
+        # Field 2: New Quantity
+        new_qty_label = ctk.CTkLabel(self.calc_inputs_frame, text="New Qty:")
+        new_qty_label.grid(row=2, column=0, padx=(5, 10), pady=3, sticky="w")
+
+        self._calc_new_qty_var = ctk.StringVar()
+        self._calc_new_qty_var.trace_add("write", self._on_calc_new_qty_change)
+        self._calc_new_qty_entry = ctk.CTkEntry(
+            self.calc_inputs_frame,
+            textvariable=self._calc_new_qty_var,
+            width=80,
+        )
+        self._calc_new_qty_entry.grid(row=2, column=1, pady=3, sticky="w")
+
+        qty_suffix = ctk.CTkLabel(self.calc_inputs_frame, text=self._calc_package_unit)
+        qty_suffix.grid(row=2, column=2, padx=(3, 10), pady=3, sticky="w")
+
+        # Field 3: Amount Used
+        used_label = ctk.CTkLabel(self.calc_inputs_frame, text="Used:")
+        used_label.grid(row=3, column=0, padx=(5, 10), pady=3, sticky="w")
+
+        self._calc_used_var = ctk.StringVar()
+        self._calc_used_var.trace_add("write", self._on_calc_used_change)
+        self._calc_used_entry = ctk.CTkEntry(
+            self.calc_inputs_frame,
+            textvariable=self._calc_used_var,
+            width=80,
+        )
+        self._calc_used_entry.grid(row=3, column=1, pady=3, sticky="w")
+
+        # Unit dropdown for amount used
+        unit_options = [self._calc_package_unit]
+        self._calc_used_unit_var = ctk.StringVar(value=self._calc_package_unit)
+        self._calc_used_unit_dropdown = ctk.CTkOptionMenu(
+            self.calc_inputs_frame,
+            variable=self._calc_used_unit_var,
+            values=unit_options,
+            width=60,
+        )
+        self._calc_used_unit_dropdown.grid(row=3, column=2, padx=(3, 10), pady=3, sticky="w")
+
+        # Result preview label
+        self._calc_result_label = ctk.CTkLabel(
+            self.calc_inputs_frame,
+            text="",
+            font=ctk.CTkFont(size=12),
+            text_color=("green", "lightgreen"),
+        )
+        self._calc_result_label.grid(row=4, column=0, columnspan=3, pady=(10, 5), sticky="w")
+
+    def _toggle_calculator(self):
+        """Toggle calculator section collapsed/expanded."""
+        if self._calc_collapsed:
+            # Expand
+            self.calc_inputs_frame.grid(row=1, column=0, columnspan=2, padx=10, pady=5, sticky="ew")
+            self.calc_toggle_btn.configure(text="▼ Update Quantity")
+            self._calc_collapsed = False
+        else:
+            # Collapse
+            self.calc_inputs_frame.grid_forget()
+            self.calc_toggle_btn.configure(text="▶ Update Quantity")
+            self._calc_collapsed = True
+            # Clear calculator state
+            self._calc_new_qty = None
+
+    def _on_calc_pct_change(self, *args):
+        """Handle remaining percentage input change."""
+        if self._calc_calculating:
+            return
+        self._calc_calculating = True
+        try:
+            pct_str = self._calc_pct_var.get().strip()
+            if not pct_str:
+                self._clear_calc_fields()
+                return
+
+            pct = float(pct_str)
+            if not 0 <= pct <= 100:
+                self._calc_result_label.configure(text="% must be 0-100", text_color="red")
+                return
+
+            # Calculate new quantity
+            new_qty = self._calc_current_qty * (Decimal(str(pct)) / 100)
+            amount_used = self._calc_current_qty - new_qty
+
+            # Update other fields (show as calculated)
+            self._calc_new_qty_var.set(f"{new_qty:.2f}")
+            self._calc_used_var.set(f"{amount_used:.2f}")
+
+            # Store for save
+            self._calc_new_qty = new_qty
+
+            # Update preview
+            self._calc_result_label.configure(
+                text=f"→ New: {new_qty:.2f} {self._calc_package_unit}",
+                text_color=("green", "lightgreen"),
+            )
+        except (ValueError, Exception):
+            self._calc_result_label.configure(text="Invalid input", text_color="red")
+        finally:
+            self._calc_calculating = False
+
+    def _on_calc_new_qty_change(self, *args):
+        """Handle new quantity input change."""
+        if self._calc_calculating:
+            return
+        self._calc_calculating = True
+        try:
+            qty_str = self._calc_new_qty_var.get().strip()
+            if not qty_str:
+                self._clear_calc_fields()
+                return
+
+            new_qty = Decimal(qty_str)
+            if new_qty < 0:
+                self._calc_result_label.configure(text="Qty cannot be negative", text_color="red")
+                return
+
+            # Calculate percentage and amount used
+            if self._calc_current_qty > 0:
+                pct = (new_qty / self._calc_current_qty) * 100
+                self._calc_pct_var.set(f"{pct:.1f}")
+            amount_used = self._calc_current_qty - new_qty
+            self._calc_used_var.set(f"{amount_used:.2f}")
+
+            # Store for save
+            self._calc_new_qty = new_qty
+
+            # Update preview
+            self._calc_result_label.configure(
+                text=f"→ New: {new_qty:.2f} {self._calc_package_unit}",
+                text_color=("green", "lightgreen"),
+            )
+        except (ValueError, Exception):
+            self._calc_result_label.configure(text="Invalid input", text_color="red")
+        finally:
+            self._calc_calculating = False
+
+    def _on_calc_used_change(self, *args):
+        """Handle amount used input change."""
+        if self._calc_calculating:
+            return
+        self._calc_calculating = True
+        try:
+            used_str = self._calc_used_var.get().strip()
+            if not used_str:
+                self._clear_calc_fields()
+                return
+
+            amount_used = Decimal(used_str)
+            if amount_used < 0:
+                self._calc_result_label.configure(text="Used cannot be negative", text_color="red")
+                return
+
+            new_qty = self._calc_current_qty - amount_used
+            if new_qty < 0:
+                self._calc_result_label.configure(text="Used exceeds current qty", text_color="red")
+                return
+
+            # Calculate percentage
+            if self._calc_current_qty > 0:
+                pct = (new_qty / self._calc_current_qty) * 100
+                self._calc_pct_var.set(f"{pct:.1f}")
+            self._calc_new_qty_var.set(f"{new_qty:.2f}")
+
+            # Store for save
+            self._calc_new_qty = new_qty
+
+            # Update preview
+            self._calc_result_label.configure(
+                text=f"→ New: {new_qty:.2f} {self._calc_package_unit}",
+                text_color=("green", "lightgreen"),
+            )
+        except (ValueError, Exception):
+            self._calc_result_label.configure(text="Invalid input", text_color="red")
+        finally:
+            self._calc_calculating = False
+
+    def _clear_calc_fields(self):
+        """Clear calculator fields and result."""
+        self._calc_calculating = True
+        self._calc_pct_var.set("")
+        self._calc_new_qty_var.set("")
+        self._calc_used_var.set("")
+        self._calc_result_label.configure(text="")
+        self._calc_new_qty = None
+        self._calc_calculating = False
 
     def _validate_price(self) -> bool:
         """Validate price value.
