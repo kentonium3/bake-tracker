@@ -278,12 +278,6 @@ class InventoryTab(ctk.CTkFrame):
         self.tree.bind("<Double-1>", self._on_item_double_click)
         self.tree.bind("<<TreeviewSelect>>", self._on_item_select)
 
-        # Scrollable frame for aggregate view (NOT gridded initially)
-        self.scrollable_frame = ctk.CTkScrollableFrame(
-            grid_container,
-            height=500,
-        )
-
         # Track selected item for actions
         self.selected_item_id: Optional[int] = None
 
@@ -436,36 +430,39 @@ class InventoryTab(ctk.CTkFrame):
 
     def _update_display(self):
         """Update the display based on current view mode."""
+        # Clear tree
+        for item in self.tree.get_children():
+            self.tree.delete(item)
+
         if self.view_mode == "aggregate":
-            # Hide tree and its scrollbars, show scrollable frame
-            self.tree.grid_remove()
-            self.y_scrollbar.grid_remove()
-            self.x_scrollbar.grid_remove()
-            self.scrollable_frame.grid(row=0, column=0, columnspan=2, sticky="nsew")
+            # Reconfigure tree columns for aggregate view (no Purchased column)
+            self.tree.configure(columns=("ingredient", "product", "brand", "qty_remaining"))
+            self.tree.heading("ingredient", text="Ingredient", anchor="w")
+            self.tree.heading("product", text="Product", anchor="w")
+            self.tree.heading("brand", text="Brand", anchor="w")
+            self.tree.heading("qty_remaining", text="Qty Remaining", anchor="w")
+            self.tree.column("ingredient", width=180, minwidth=120)
+            self.tree.column("product", width=250, minwidth=150)
+            self.tree.column("brand", width=140, minwidth=100)
+            self.tree.column("qty_remaining", width=180, minwidth=120)
 
-            # Clear scrollable frame
-            for widget in self.scrollable_frame.winfo_children():
-                widget.destroy()
-
-            if not self.filtered_items:
-                self._show_empty_state()
-            else:
+            if self.filtered_items:
                 self._display_aggregate_view()
         else:
-            # Hide scrollable frame, show tree and its scrollbars
-            self.scrollable_frame.grid_remove()
-            self.tree.grid(row=0, column=0, sticky="nsew")
-            self.y_scrollbar.grid(row=0, column=1, sticky="ns")
-            self.x_scrollbar.grid(row=1, column=0, sticky="ew")
+            # Reconfigure tree columns for detail view (with Purchased column)
+            self.tree.configure(columns=("ingredient", "product", "brand", "qty_remaining", "purchased"))
+            self.tree.heading("ingredient", text="Ingredient", anchor="w")
+            self.tree.heading("product", text="Product", anchor="w")
+            self.tree.heading("brand", text="Brand", anchor="w")
+            self.tree.heading("qty_remaining", text="Qty Remaining", anchor="w")
+            self.tree.heading("purchased", text="Purchased", anchor="w")
+            self.tree.column("ingredient", width=150, minwidth=100)
+            self.tree.column("product", width=200, minwidth=150)
+            self.tree.column("brand", width=120, minwidth=80)
+            self.tree.column("qty_remaining", width=180, minwidth=140)
+            self.tree.column("purchased", width=100, minwidth=80)
 
-            # Clear tree
-            for item in self.tree.get_children():
-                self.tree.delete(item)
-
-            if not self.filtered_items:
-                # Insert empty state message as tree item
-                pass  # Treeview will just be empty
-            else:
+            if self.filtered_items:
                 self._display_detail_view()
 
     def _show_initial_state(self):
@@ -476,16 +473,12 @@ class InventoryTab(ctk.CTkFrame):
             self.tree.delete(item)
 
     def _show_empty_state(self):
-        """Show empty state message."""
-        empty_label = ctk.CTkLabel(
-            self.scrollable_frame,
-            text="No inventory items.\nClick 'Add Inventory Item' to record purchases.",
-            font=ctk.CTkFont(size=16),
-        )
-        empty_label.grid(row=0, column=0, padx=20, pady=50)
+        """Show empty state - tree is already empty, nothing to do."""
+        # Tree is already cleared in _update_display, just leave it empty
+        pass
 
     def _display_aggregate_view(self):
-        """Display inventory items grouped by product with totals."""
+        """Display inventory items grouped by product with totals in Treeview."""
         # Group items by product (not ingredient)
         from collections import defaultdict
         from decimal import Decimal
@@ -498,7 +491,7 @@ class InventoryTab(ctk.CTkFrame):
             if product_id:
                 product_groups[product_id].append(item)
 
-        # Build aggregated data for display
+        # Build and display aggregated data
         aggregated = []
         for product_id, items in product_groups.items():
             first_item = items[0]
@@ -573,94 +566,15 @@ class InventoryTab(ctk.CTkFrame):
         # Sort by ingredient name, then product description
         aggregated.sort(key=lambda x: (x['ingredient_name'].lower(), x['description'].lower()))
 
-        # Create header
-        self._create_aggregate_header()
-
-        # Limit rows to prevent UI freeze
-        MAX_DISPLAY_ROWS = 50
-        display_items = aggregated[:MAX_DISPLAY_ROWS]
-
-        # Display each product row
-        for idx, item_data in enumerate(display_items):
-            self._create_aggregate_row(idx + 1, item_data)
-
-        # Show truncation warning if needed
-        if len(aggregated) > MAX_DISPLAY_ROWS:
-            warning_frame = ctk.CTkFrame(self.scrollable_frame)
-            warning_frame.grid(row=MAX_DISPLAY_ROWS + 1, column=0, padx=5, pady=10, sticky="ew")
-            warning_label = ctk.CTkLabel(
-                warning_frame,
-                text=f"Showing {MAX_DISPLAY_ROWS} of {len(aggregated)} products. Use filters to narrow results.",
-                text_color="orange",
-                font=ctk.CTkFont(size=12, weight="bold"),
-            )
-            warning_label.grid(row=0, column=0, padx=10, pady=5)
-
-    def _create_aggregate_header(self):
-        """Create header for aggregate view."""
-        header_frame = ctk.CTkFrame(self.scrollable_frame)
-        header_frame.grid(row=0, column=0, padx=5, pady=5, sticky="ew")
-        header_frame.grid_columnconfigure(1, weight=1)
-
-        # Aggregate view columns: Ingredient, Product, Brand, Qty Remaining
-        # (No Purchased column - not meaningful for aggregated data)
-        headers = [
-            ("Ingredient", 0, 180),
-            ("Product", 1, 250),
-            ("Brand", 2, 140),
-            ("Qty Remaining", 3, 180),
-        ]
-
-        for text, col, width in headers:
-            label = ctk.CTkLabel(
-                header_frame,
-                text=text,
-                font=ctk.CTkFont(weight="bold"),
-                width=width,
-            )
-            label.grid(row=0, column=col, padx=5, pady=5, sticky="w")
-
-    def _create_aggregate_row(self, row_idx: int, item_data: dict):
-        """Create a row for aggregated product."""
-        row_frame = ctk.CTkFrame(self.scrollable_frame)
-        row_frame.grid(row=row_idx, column=0, padx=5, pady=2, sticky="ew")
-        row_frame.grid_columnconfigure(1, weight=1)
-
-        # Ingredient name
-        ingredient_label = ctk.CTkLabel(
-            row_frame,
-            text=item_data['ingredient_name'],
-            width=180,
-            anchor="w",
-        )
-        ingredient_label.grid(row=0, column=0, padx=5, pady=5, sticky="w")
-
-        # Product description
-        product_label = ctk.CTkLabel(
-            row_frame,
-            text=item_data['description'],
-            width=250,
-            anchor="w",
-        )
-        product_label.grid(row=0, column=1, padx=5, pady=5, sticky="w")
-
-        # Brand (includes packaging indicator if applicable)
-        brand_label = ctk.CTkLabel(
-            row_frame,
-            text=item_data['brand'],
-            width=140,
-            anchor="w",
-        )
-        brand_label.grid(row=0, column=2, padx=5, pady=5, sticky="w")
-
-        # Quantity remaining
-        qty_label = ctk.CTkLabel(
-            row_frame,
-            text=item_data['qty_display'],
-            width=180,
-            anchor="w",
-        )
-        qty_label.grid(row=0, column=3, padx=5, pady=5, sticky="w")
+        # Populate Treeview - no row limit needed, handles large datasets well
+        for item_data in aggregated:
+            tags = ("packaging",) if item_data['is_packaging'] else ()
+            self.tree.insert("", "end", values=(
+                item_data['ingredient_name'],
+                item_data['description'],
+                item_data['brand'],
+                item_data['qty_display'],
+            ), tags=tags)
 
     def _display_detail_view(self):
         """Display individual inventory items in Treeview (lots)."""
