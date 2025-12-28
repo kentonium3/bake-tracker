@@ -139,6 +139,20 @@ class ProductsTab(ctk.CTkFrame):
         )
         self.category_dropdown.pack(side="left", padx=5, pady=5)
 
+        # Brand filter
+        brand_label = ctk.CTkLabel(filter_frame, text="Brand:")
+        brand_label.pack(side="left", padx=(15, 2), pady=5)
+
+        self.brand_var = ctk.StringVar(value="All")
+        self.brand_dropdown = ctk.CTkOptionMenu(
+            filter_frame,
+            variable=self.brand_var,
+            values=["All"],
+            command=self._on_filter_change,
+            width=150,
+        )
+        self.brand_dropdown.pack(side="left", padx=5, pady=5)
+
         # Supplier filter
         sup_label = ctk.CTkLabel(filter_frame, text="Supplier:")
         sup_label.pack(side="left", padx=(15, 2), pady=5)
@@ -299,6 +313,16 @@ class ProductsTab(ctk.CTkFrame):
             category_values = ["All"] + self.categories
             self.category_dropdown.configure(values=category_values)
 
+            # Load all products to extract unique brands
+            all_products = product_catalog_service.get_products(include_hidden=True)
+            self.brands = sorted(set(
+                p.get("brand", "")
+                for p in all_products
+                if p.get("brand")
+            ))
+            brand_values = ["All"] + self.brands
+            self.brand_dropdown.configure(values=brand_values)
+
             # Load active suppliers
             self.suppliers = supplier_service.get_active_suppliers()
             supplier_names = ["All"] + [sup["name"] for sup in self.suppliers]
@@ -350,6 +374,11 @@ class ProductsTab(ctk.CTkFrame):
                 parent=self,
             )
             self.products = []
+
+        # Apply brand filter (not supported by service, filter in UI)
+        if self.brand_var.get() != "All":
+            selected_brand = self.brand_var.get()
+            self.products = [p for p in self.products if p.get("brand") == selected_brand]
 
         # Populate grid - new order: ingredient, product, brand, package, category, supplier
         for p in self.products:
