@@ -98,3 +98,4 @@ ai-agents/
 .roo/
 .amazonq/
 docs/.obsidian/
+bake_tracker.db

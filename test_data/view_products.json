@@ -1,7 +1,7 @@
 {
   "version": "1.0",
   "view_type": "products",
-  "export_date": "2025-12-26T18:55:23.886161Z",
+  "export_date": "2025-12-28T03:03:16.723123Z",
   "_meta": {
     "editable_fields": [
       "brand",
@@ -57,7 +57,7 @@
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 25.0,
       "date_added": "2025-12-26T17:39:13.560489",
-      "last_modified": "2025-12-26T17:39:13.560496"
+      "last_modified": "2025-12-26T20:14:34.063333"
     },
     {
       "id": 2,
@@ -89,7 +89,7 @@
       "id": 3,
       "uuid": "93d40b15-616d-4779-9847-3972f4d1ac7d",
       "brand": "Penzeys",
-      "product_name": null,
+      "product_name": "Allspice",
       "package_size": null,
       "package_type": "jar",
       "package_unit": "oz",
@@ -109,7 +109,7 @@
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 0.6,
       "date_added": "2025-12-26T17:39:13.564590",
-      "last_modified": "2025-12-26T17:39:13.564597"
+      "last_modified": "2025-12-26T22:06:06.870829"
     },
     {
       "id": 4,
@@ -135,13 +135,13 @@
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 2.0,
       "date_added": "2025-12-26T17:39:13.566195",
-      "last_modified": "2025-12-26T17:39:13.566202"
+      "last_modified": "2025-12-26T20:14:34.065523"
     },
     {
       "id": 5,
       "uuid": "1fa1d048-2ce7-435c-852d-bedf6c2cfa9a",
       "brand": "Penzeys",
-      "product_name": null,
+      "product_name": "Almond Extract",
       "package_size": null,
       "package_type": "bottle",
       "package_unit": "fl oz",
@@ -161,19 +161,19 @@
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 2.0,
       "date_added": "2025-12-26T17:39:13.567759",
-      "last_modified": "2025-12-26T17:39:13.567765"
+      "last_modified": "2025-12-26T22:06:40.828012"
     },
     {
       "id": 6,
       "uuid": "778c6f69-a7f5-4eae-92bc-ff3fb7158de7",
       "brand": "Costco",
-      "product_name": null,
+      "product_name": "Signature Supreme Whole Almonds",
       "package_size": null,
       "package_type": "bag",
       "package_unit": "lb",
-      "package_unit_quantity": 2.0,
+      "package_unit_quantity": 3.0,
       "upc_code": null,
-      "gtin": null,
+      "gtin": "9661984601",
       "notes": null,
       "preferred": false,
       "is_hidden": false,
@@ -187,7 +187,7 @@
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 2.0,
       "date_added": "2025-12-26T17:39:13.569250",
-      "last_modified": "2025-12-26T17:39:13.569257"
+      "last_modified": "2025-12-26T22:05:38.286503"
     },
     {
       "id": 7,
@@ -213,7 +213,7 @@
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 750.0,
       "date_added": "2025-12-26T17:39:13.570745",
-      "last_modified": "2025-12-26T17:39:13.570753"
+      "last_modified": "2025-12-26T20:14:34.066911"
     },
     {
       "id": 8,
@@ -239,7 +239,7 @@
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 230.0,
       "date_added": "2025-12-26T17:39:13.572288",
-      "last_modified": "2025-12-26T17:39:13.572294"
+      "last_modified": "2025-12-26T20:14:34.068818"
     },
     {
       "id": 9,
@@ -265,13 +265,13 @@
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 1.0,
       "date_added": "2025-12-26T17:39:13.573757",
-      "last_modified": "2025-12-26T17:39:13.573764"
+      "last_modified": "2025-12-26T20:14:34.070342"
     },
     {
       "id": 10,
       "uuid": "254ea9a8-ff64-46f3-993e-2012e24b5271",
       "brand": "Evan Williams",
-      "product_name": null,
+      "product_name": "Kentucky Straight Bourbon Whiskey",
       "package_size": null,
       "package_type": "bottle",
       "package_unit": "l",
@@ -291,7 +291,7 @@
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 1.0,
       "date_added": "2025-12-26T17:39:13.575280",
-      "last_modified": "2025-12-26T17:39:13.575287"
+      "last_modified": "2025-12-26T21:47:08.819652"
     },
     {
       "id": 11,
@@ -317,13 +317,13 @@
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 5.0,
       "date_added": "2025-12-26T17:39:13.576768",
-      "last_modified": "2025-12-26T17:39:13.576774"
+      "last_modified": "2025-12-26T20:14:34.072809"
     },
     {
       "id": 12,
       "uuid": "fed6aa20-7ab9-4a86-8bf7-023e613b6fbd",
       "brand": "Wegman's",
-      "product_name": null,
+      "product_name": "Enriched Unbleached Bread Flour",
       "package_size": null,
       "package_type": "bag",
       "package_unit": "lb",
@@ -337,13 +337,13 @@
       "ingredient_slug": "bread_flour",
       "ingredient_name": "Bread flour",
       "ingredient_category": "Flours & Starches",
-      "preferred_supplier_id": null,
-      "preferred_supplier_name": null,
+      "preferred_supplier_id": 3,
+      "preferred_supplier_name": "Wegmans",
       "last_purchase_price": "0.0000",
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 5.0,
       "date_added": "2025-12-26T17:39:13.578147",
-      "last_modified": "2025-12-26T17:39:13.578156"
+      "last_modified": "2025-12-27T11:16:46.365818"
     },
     {
       "id": 13,
@@ -369,19 +369,19 @@
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 1.0,
       "date_added": "2025-12-26T17:39:13.579965",
-      "last_modified": "2025-12-26T17:39:13.579978"
+      "last_modified": "2025-12-26T20:14:34.074220"
     },
     {
       "id": 14,
       "uuid": "54361100-330a-4479-84d3-cd850def9d08",
       "brand": "Kerry",
-      "product_name": null,
+      "product_name": "Salted Butter",
       "package_size": null,
       "package_type": "package",
       "package_unit": "oz",
       "package_unit_quantity": 1.0,
       "upc_code": null,
-      "gtin": null,
+      "gtin": "6770700106",
       "notes": null,
       "preferred": false,
       "is_hidden": false,
@@ -395,7 +395,7 @@
       "last_purchase_date": null,
       "inventory_quantity": 0.0,
       "date_added": "2025-12-26T17:39:13.581588",
-      "last_modified": "2025-12-26T17:39:13.581596"
+      "last_modified": "2025-12-26T22:08:52.591729"
     },
     {
       "id": 15,
@@ -421,19 +421,19 @@
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 1.0,
       "date_added": "2025-12-26T17:39:13.583164",
-      "last_modified": "2025-12-26T17:39:13.583171"
+      "last_modified": "2025-12-26T20:14:34.075864"
     },
     {
       "id": 16,
       "uuid": "bf82f85e-78fc-4527-ab01-be65ff95a193",
       "brand": "Kerry",
-      "product_name": null,
+      "product_name": "Unsalted Butter",
       "package_size": null,
       "package_type": "package",
       "package_unit": "oz",
       "package_unit_quantity": 1.0,
       "upc_code": null,
-      "gtin": null,
+      "gtin": "6770700125",
       "notes": null,
       "preferred": false,
       "is_hidden": false,
@@ -447,13 +447,13 @@
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 1.0,
       "date_added": "2025-12-26T17:39:13.584677",
-      "last_modified": "2025-12-26T17:39:13.584683"
+      "last_modified": "2025-12-26T22:09:48.536951"
     },
     {
       "id": 17,
       "uuid": "e1c93916-d5d0-463f-8445-0c6494477c59",
       "brand": "Nestle",
-      "product_name": "NESTL\u00c9\u00ae TOLL HOUSE\u00ae Butterscotch Artificially Flavored Morsels",
+      "product_name": "NESTLÉ® TOLL HOUSE® Butterscotch Artificially Flavored Morsels",
       "package_size": null,
       "package_type": "bag",
       "package_unit": "oz",
@@ -473,7 +473,7 @@
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 11.0,
       "date_added": "2025-12-26T17:39:13.586087",
-      "last_modified": "2025-12-26T17:39:13.586093"
+      "last_modified": "2025-12-26T20:14:34.077361"
     },
     {
       "id": 18,
@@ -499,7 +499,7 @@
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 2.0,
       "date_added": "2025-12-26T17:39:13.587427",
-      "last_modified": "2025-12-26T17:39:13.587434"
+      "last_modified": "2025-12-26T20:14:34.079066"
     },
     {
       "id": 19,
@@ -514,7 +514,7 @@
       "gtin": null,
       "notes": null,
       "preferred": false,
-      "is_hidden": false,
+      "is_hidden": true,
       "ingredient_id": 43,
       "ingredient_slug": "cake_flour",
       "ingredient_name": "Cake flour",
@@ -525,7 +525,7 @@
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 5.0,
       "date_added": "2025-12-26T17:39:13.588848",
-      "last_modified": "2025-12-26T17:39:13.588859"
+      "last_modified": "2025-12-27T16:44:28.321565"
     },
     {
       "id": 20,
@@ -540,7 +540,7 @@
       "gtin": null,
       "notes": null,
       "preferred": false,
-      "is_hidden": false,
+      "is_hidden": true,
       "ingredient_id": 43,
       "ingredient_slug": "cake_flour",
       "ingredient_name": "Cake flour",
@@ -551,13 +551,13 @@
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 2.0,
       "date_added": "2025-12-26T17:39:13.590255",
-      "last_modified": "2025-12-26T17:39:13.590261"
+      "last_modified": "2025-12-27T16:42:14.865634"
     },
     {
       "id": 21,
       "uuid": "146bf364-b513-4db6-a6b4-db2dc5bd9f73",
       "brand": "Wegman's",
-      "product_name": null,
+      "product_name": "Canola Oil",
       "package_size": null,
       "package_type": "bottle",
       "package_unit": "qt",
@@ -571,19 +571,19 @@
       "ingredient_slug": "oil_canola",
       "ingredient_name": "Oil, canola",
       "ingredient_category": "Fats & Oils",
-      "preferred_supplier_id": null,
-      "preferred_supplier_name": null,
+      "preferred_supplier_id": 3,
+      "preferred_supplier_name": "Wegmans",
       "last_purchase_price": "0.0000",
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 1.0,
       "date_added": "2025-12-26T17:39:13.591682",
-      "last_modified": "2025-12-26T17:39:13.591689"
+      "last_modified": "2025-12-27T11:16:57.721715"
     },
     {
       "id": 22,
       "uuid": "09689240-430d-41d8-bc35-cd68b08dc6ba",
-      "brand": "Brach\u2019s",
-      "product_name": null,
+      "brand": "Brach’s",
+      "product_name": "Milk Maid Caramels",
       "package_size": null,
       "package_type": "bag",
       "package_unit": "oz",
@@ -603,7 +603,7 @@
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 14.0,
       "date_added": "2025-12-26T17:39:13.593201",
-      "last_modified": "2025-12-26T17:39:13.593208"
+      "last_modified": "2025-12-26T22:42:02.049745"
     },
     {
       "id": 23,
@@ -635,7 +635,7 @@
       "id": 24,
       "uuid": "1533250e-81ca-49d1-ba10-e5a59a76496d",
       "brand": "Trader Joe's",
-      "product_name": null,
+      "product_name": "Cashews",
       "package_size": null,
       "package_type": "bag",
       "package_unit": "lb",
@@ -655,7 +655,7 @@
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 16.0,
       "date_added": "2025-12-26T17:39:13.596361",
-      "last_modified": "2025-12-26T17:39:13.596368"
+      "last_modified": "2025-12-26T22:42:31.064992"
     },
     {
       "id": 25,
@@ -681,7 +681,7 @@
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 4.0,
       "date_added": "2025-12-26T17:39:13.597978",
-      "last_modified": "2025-12-26T17:39:13.597985"
+      "last_modified": "2025-12-26T20:14:34.082106"
     },
     {
       "id": 26,
@@ -707,7 +707,7 @@
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 4.0,
       "date_added": "2025-12-26T17:39:13.599422",
-      "last_modified": "2025-12-26T17:39:13.599429"
+      "last_modified": "2025-12-26T20:14:34.083691"
     },
     {
       "id": 27,
@@ -722,7 +722,7 @@
       "gtin": "7181802100",
       "notes": null,
       "preferred": false,
-      "is_hidden": false,
+      "is_hidden": true,
       "ingredient_id": 66,
       "ingredient_slug": "chocolate_chips_bittersweet",
       "ingredient_name": "Chocolate chips, bittersweet",
@@ -733,7 +733,7 @@
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 12.0,
       "date_added": "2025-12-26T17:39:13.600979",
-      "last_modified": "2025-12-26T17:39:13.600985"
+      "last_modified": "2025-12-28T00:31:49.142933"
     },
     {
       "id": 28,
@@ -785,7 +785,7 @@
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 12.0,
       "date_added": "2025-12-26T17:39:13.604254",
-      "last_modified": "2025-12-26T17:39:13.604264"
+      "last_modified": "2025-12-26T20:14:34.088368"
     },
     {
       "id": 30,
@@ -811,19 +811,19 @@
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 9.0,
       "date_added": "2025-12-26T17:39:13.606537",
-      "last_modified": "2025-12-26T17:39:13.606546"
+      "last_modified": "2025-12-26T20:14:34.090212"
     },
     {
       "id": 31,
       "uuid": "2140e300-d5a5-4e8c-8385-4aca13af057e",
       "brand": "Guittard",
-      "product_name": null,
+      "product_name": "Organic Milk Chocolate Baking Wafers",
       "package_size": null,
       "package_type": "bag",
       "package_unit": "g",
       "package_unit_quantity": 340.0,
       "upc_code": null,
-      "gtin": null,
+      "gtin": "7181873800",
       "notes": null,
       "preferred": false,
       "is_hidden": false,
@@ -837,13 +837,13 @@
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 340.0,
       "date_added": "2025-12-26T17:39:13.608814",
-      "last_modified": "2025-12-26T17:39:13.608823"
+      "last_modified": "2025-12-26T22:55:07.342951"
     },
     {
       "id": 32,
       "uuid": "1cdead02-6e99-4ad0-a6af-bb752f7a51e3",
       "brand": "Nestle",
-      "product_name": "NESTL\u00c9\u00ae TOLL HOUSE\u00ae Milk Chocolate Morsels",
+      "product_name": "NESTLÉ® TOLL HOUSE® Milk Chocolate Morsels",
       "package_size": null,
       "package_type": "bag",
       "package_unit": "oz",
@@ -863,13 +863,13 @@
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 11.5,
       "date_added": "2025-12-26T17:39:13.610971",
-      "last_modified": "2025-12-26T17:39:13.610980"
+      "last_modified": "2025-12-26T20:14:34.092348"
     },
     {
       "id": 33,
       "uuid": "3c5f6ef3-d972-4f0a-8f2b-241433540627",
       "brand": "Nestle",
-      "product_name": "NESTL\u00c9\u00ae TOLL HOUSE\u00ae Semi-Sweet Chocolate Morsels",
+      "product_name": "NESTLÉ® TOLL HOUSE® Semi-Sweet Chocolate Morsels",
       "package_size": null,
       "package_type": "bag",
       "package_unit": "oz",
@@ -889,19 +889,19 @@
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 10.0,
       "date_added": "2025-12-26T17:39:13.613193",
-      "last_modified": "2025-12-26T17:39:13.613201"
+      "last_modified": "2025-12-26T20:14:34.094187"
     },
     {
       "id": 34,
       "uuid": "bb6740ac-433e-48cc-848a-46e4e471adf8",
       "brand": "Nestle",
-      "product_name": null,
+      "product_name": "NESTLÉ® TOLL HOUSE® Semi-Sweet Chocolate Morsels",
       "package_size": null,
       "package_type": "bag",
       "package_unit": "oz",
       "package_unit_quantity": 72.0,
       "upc_code": null,
-      "gtin": "2800098612",
+      "gtin": null,
       "notes": null,
       "preferred": false,
       "is_hidden": false,
@@ -915,13 +915,13 @@
       "last_purchase_date": null,
       "inventory_quantity": 0.0,
       "date_added": "2025-12-26T17:39:13.615361",
-      "last_modified": "2025-12-26T17:39:13.615368"
+      "last_modified": "2025-12-26T21:50:18.895150"
     },
     {
       "id": 35,
       "uuid": "a0a22c0b-9ad5-4e58-88d8-59152b3a7371",
       "brand": "Nestle",
-      "product_name": "NESTL\u00c9\u00ae TOLL HOUSE\u00ae Organic Allergen Free Semi-Sweet Morsels",
+      "product_name": "NESTLÉ® TOLL HOUSE® Organic Allergen Free Semi-Sweet Morsels",
       "package_size": null,
       "package_type": "bag",
       "package_unit": "oz",
@@ -941,19 +941,19 @@
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 5.0,
       "date_added": "2025-12-26T17:39:13.617210",
-      "last_modified": "2025-12-26T17:39:13.617216"
+      "last_modified": "2025-12-26T20:14:34.095675"
     },
     {
       "id": 36,
       "uuid": "ac968956-8b93-4fae-a95a-9c289e40601b",
       "brand": "Guittard",
-      "product_name": null,
+      "product_name": "Crème Française",
       "package_size": null,
       "package_type": "bag",
       "package_unit": "kg",
       "package_unit_quantity": 3.0,
       "upc_code": null,
-      "gtin": null,
+      "gtin": "7181833103",
       "notes": null,
       "preferred": false,
       "is_hidden": false,
@@ -967,13 +967,13 @@
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 3.0,
       "date_added": "2025-12-26T17:39:13.618808",
-      "last_modified": "2025-12-26T17:39:13.618815"
+      "last_modified": "2025-12-26T22:54:12.850966"
     },
     {
       "id": 37,
       "uuid": "6d9d7c28-7226-44d6-bd95-487459e90b9c",
       "brand": "Nestle",
-      "product_name": "NESTL\u00c9\u00ae TOLL HOUSE\u00ae Premier White Morsels",
+      "product_name": "NESTLÉ® TOLL HOUSE® Premier White Morsels",
       "package_size": null,
       "package_type": "bag",
       "package_unit": "oz",
@@ -993,7 +993,7 @@
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 12.0,
       "date_added": "2025-12-26T17:39:13.620695",
-      "last_modified": "2025-12-26T17:39:13.620702"
+      "last_modified": "2025-12-26T20:14:34.097117"
     },
     {
       "id": 38,
@@ -1019,7 +1019,7 @@
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 9.0,
       "date_added": "2025-12-26T17:39:13.622389",
-      "last_modified": "2025-12-26T17:39:13.622395"
+      "last_modified": "2025-12-26T20:14:34.098779"
     },
     {
       "id": 39,
@@ -1045,19 +1045,19 @@
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 12.6,
       "date_added": "2025-12-26T17:39:13.624042",
-      "last_modified": "2025-12-26T17:39:13.624049"
+      "last_modified": "2025-12-26T20:14:34.101867"
     },
     {
       "id": 40,
       "uuid": "f7f55d06-b218-4a7c-991d-9808741fcdb1",
       "brand": "Callebaut",
-      "product_name": null,
+      "product_name": "Finest Belgian Chocolate",
       "package_size": null,
       "package_type": "bag",
       "package_unit": "kg",
       "package_unit_quantity": 10.0,
       "upc_code": null,
-      "gtin": null,
+      "gtin": "410522189254",
       "notes": null,
       "preferred": false,
       "is_hidden": false,
@@ -1071,13 +1071,13 @@
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 10.0,
       "date_added": "2025-12-26T17:39:13.625686",
-      "last_modified": "2025-12-26T17:39:13.625695"
+      "last_modified": "2025-12-26T23:37:24.050185"
     },
     {
       "id": 41,
       "uuid": "db3a7f79-6ea6-4b55-bd27-3867246759c0",
       "brand": "Callebaut",
-      "product_name": null,
+      "product_name": "Ruby Chocolate",
       "package_size": null,
       "package_type": "bag",
       "package_unit": "kg",
@@ -1097,7 +1097,7 @@
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 2.5,
       "date_added": "2025-12-26T17:39:13.627517",
-      "last_modified": "2025-12-26T17:39:13.627524"
+      "last_modified": "2025-12-27T11:52:59.559772"
     },
     {
       "id": 42,
@@ -1123,7 +1123,7 @@
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 11.0,
       "date_added": "2025-12-26T17:39:13.629371",
-      "last_modified": "2025-12-26T17:39:13.629378"
+      "last_modified": "2025-12-26T20:14:34.103465"
     },
     {
       "id": 43,
@@ -1149,7 +1149,7 @@
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 10.0,
       "date_added": "2025-12-26T17:39:13.631040",
-      "last_modified": "2025-12-26T17:39:13.631047"
+      "last_modified": "2025-12-26T20:14:34.104792"
     },
     {
       "id": 44,
@@ -1181,7 +1181,7 @@
       "id": 45,
       "uuid": "9334cccf-b764-4b26-a7aa-ccb0d5181195",
       "brand": "Penzeys",
-      "product_name": null,
+      "product_name": "Cinnamon sticks",
       "package_size": null,
       "package_type": "bag",
       "package_unit": "oz",
@@ -1195,13 +1195,13 @@
       "ingredient_slug": "cinnamon_sticks",
       "ingredient_name": "Cinnamon sticks",
       "ingredient_category": "Spices & Extracts",
-      "preferred_supplier_id": null,
-      "preferred_supplier_name": null,
+      "preferred_supplier_id": 4,
+      "preferred_supplier_name": "Penzeys Spices",
       "last_purchase_price": "0.0000",
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 8.0,
       "date_added": "2025-12-26T17:39:13.634084",
-      "last_modified": "2025-12-26T17:39:13.634090"
+      "last_modified": "2025-12-26T23:03:22.723005"
     },
     {
       "id": 46,
@@ -1233,7 +1233,7 @@
       "id": 47,
       "uuid": "416905e9-4e7e-4a38-870d-ec3450381611",
       "brand": "deZaan",
-      "product_name": null,
+      "product_name": "Black Cocoa Powder",
       "package_size": null,
       "package_type": "bag",
       "package_unit": "kg",
@@ -1253,7 +1253,7 @@
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 1.0,
       "date_added": "2025-12-26T17:39:13.636980",
-      "last_modified": "2025-12-26T17:39:13.636987"
+      "last_modified": "2025-12-28T00:33:31.339462"
     },
     {
       "id": 48,
@@ -1285,7 +1285,7 @@
       "id": 49,
       "uuid": "d48b4915-3dca-4195-b7e5-adb954d88fa8",
       "brand": "Wincrest",
-      "product_name": null,
+      "product_name": "Rich Terracotta",
       "package_size": null,
       "package_type": "container",
       "package_unit": "lb",
@@ -1305,13 +1305,13 @@
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 1.0,
       "date_added": "2025-12-26T17:39:13.639815",
-      "last_modified": "2025-12-26T17:39:13.639821"
+      "last_modified": "2025-12-28T00:42:54.039365"
     },
     {
       "id": 50,
       "uuid": "e5b4a8ae-c331-42ac-94e8-611ba5d23e64",
       "brand": "Penzeys",
-      "product_name": null,
+      "product_name": "Dutch Cocoa Powder",
       "package_size": null,
       "package_type": "bag",
       "package_unit": "oz",
@@ -1325,13 +1325,13 @@
       "ingredient_slug": "cocoa_powder_dutch_processed",
       "ingredient_name": "Cocoa powder, dutch-processed",
       "ingredient_category": "Chocolate & Cocoa",
-      "preferred_supplier_id": null,
-      "preferred_supplier_name": null,
+      "preferred_supplier_id": 4,
+      "preferred_supplier_name": "Penzeys Spices",
       "last_purchase_price": "0.0000",
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 12.8,
       "date_added": "2025-12-26T17:39:13.641256",
-      "last_modified": "2025-12-26T17:39:13.641263"
+      "last_modified": "2025-12-26T23:04:33.074937"
     },
     {
       "id": 51,
@@ -1357,13 +1357,13 @@
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 10.0,
       "date_added": "2025-12-26T17:39:13.642827",
-      "last_modified": "2025-12-26T17:39:13.642834"
+      "last_modified": "2025-12-26T20:14:34.107523"
     },
     {
       "id": 52,
       "uuid": "07637da8-c6b0-4996-b9c8-918c1a8fb849",
       "brand": "Penzeys",
-      "product_name": null,
+      "product_name": "Natural Cocoa Powder",
       "package_size": null,
       "package_type": "bag",
       "package_unit": "oz",
@@ -1377,19 +1377,19 @@
       "ingredient_slug": "cocoa_powder_natural",
       "ingredient_name": "Cocoa powder, natural",
       "ingredient_category": "Chocolate & Cocoa",
-      "preferred_supplier_id": null,
-      "preferred_supplier_name": null,
+      "preferred_supplier_id": 4,
+      "preferred_supplier_name": "Penzeys Spices",
       "last_purchase_price": "0.0000",
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 12.8,
       "date_added": "2025-12-26T17:39:13.644277",
-      "last_modified": "2025-12-26T17:39:13.644284"
+      "last_modified": "2025-12-26T23:05:02.169156"
     },
     {
       "id": 53,
       "uuid": "d4b0e2f1-4a07-4973-bb29-fd3e8180c309",
       "brand": "Wegman's",
-      "product_name": null,
+      "product_name": "Sweetened Flaked Coconut",
       "package_size": null,
       "package_type": "bag",
       "package_unit": "oz",
@@ -1403,13 +1403,13 @@
       "ingredient_slug": "coconut_shredded_sweetened",
       "ingredient_name": "Coconut, shredded sweetened",
       "ingredient_category": "Fruits & Dried Fruits",
-      "preferred_supplier_id": null,
-      "preferred_supplier_name": null,
+      "preferred_supplier_id": 3,
+      "preferred_supplier_name": "Wegmans",
       "last_purchase_price": "0.0000",
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 16.0,
       "date_added": "2025-12-26T17:39:13.646017",
-      "last_modified": "2025-12-26T17:39:13.646024"
+      "last_modified": "2025-12-27T11:12:43.398381"
     },
     {
       "id": 54,
@@ -1435,7 +1435,7 @@
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 16.0,
       "date_added": "2025-12-26T17:39:13.647570",
-      "last_modified": "2025-12-26T17:39:13.647576"
+      "last_modified": "2025-12-26T20:14:34.109012"
     },
     {
       "id": 55,
@@ -1461,7 +1461,7 @@
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 16.0,
       "date_added": "2025-12-26T17:39:13.648978",
-      "last_modified": "2025-12-26T17:39:13.648989"
+      "last_modified": "2025-12-26T20:14:34.111687"
     },
     {
       "id": 56,
@@ -1487,7 +1487,7 @@
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 16.0,
       "date_added": "2025-12-26T17:39:13.650413",
-      "last_modified": "2025-12-26T17:39:13.650420"
+      "last_modified": "2025-12-26T20:14:34.113374"
     },
     {
       "id": 57,
@@ -1507,25 +1507,25 @@
       "ingredient_slug": "cornstarch",
       "ingredient_name": "Cornstarch",
       "ingredient_category": "Flours & Starches",
-      "preferred_supplier_id": null,
-      "preferred_supplier_name": null,
+      "preferred_supplier_id": 3,
+      "preferred_supplier_name": "Wegmans",
       "last_purchase_price": "0.0000",
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 1.0,
       "date_added": "2025-12-26T17:39:13.651823",
-      "last_modified": "2025-12-26T17:39:13.651829"
+      "last_modified": "2025-12-27T11:17:14.047437"
     },
     {
       "id": 58,
       "uuid": "aee5a910-2823-4e61-9c40-97530d2bd26e",
       "brand": "Ocean Spray",
-      "product_name": null,
+      "product_name": "Craisins Dried Cranberries",
       "package_size": null,
       "package_type": "bag",
       "package_unit": "oz",
-      "package_unit_quantity": 5.0,
+      "package_unit_quantity": 6.0,
       "upc_code": null,
-      "gtin": null,
+      "gtin": "3120000168",
       "notes": null,
       "preferred": false,
       "is_hidden": false,
@@ -1539,7 +1539,7 @@
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 5.0,
       "date_added": "2025-12-26T17:39:13.653345",
-      "last_modified": "2025-12-26T17:39:13.653351"
+      "last_modified": "2025-12-27T14:01:31.388164"
     },
     {
       "id": 59,
@@ -1565,13 +1565,13 @@
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 1.5,
       "date_added": "2025-12-26T17:39:13.654943",
-      "last_modified": "2025-12-26T17:39:13.654951"
+      "last_modified": "2025-12-26T20:14:34.117468"
     },
     {
       "id": 60,
       "uuid": "2fb4fe67-0109-4304-8abc-f9618c5069fd",
       "brand": "Penzeys",
-      "product_name": null,
+      "product_name": "Cream of Tartar",
       "package_size": null,
       "package_type": "jar",
       "package_unit": "oz",
@@ -1585,25 +1585,25 @@
       "ingredient_slug": "cream_of_tartar",
       "ingredient_name": "Cream of tartar",
       "ingredient_category": "Leaveners",
-      "preferred_supplier_id": null,
-      "preferred_supplier_name": null,
+      "preferred_supplier_id": 4,
+      "preferred_supplier_name": "Penzeys Spices",
       "last_purchase_price": "0.0000",
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 1.8,
       "date_added": "2025-12-26T17:39:13.656576",
-      "last_modified": "2025-12-26T17:39:13.656584"
+      "last_modified": "2025-12-26T23:03:51.505180"
     },
     {
       "id": 61,
       "uuid": "8875fd33-9c57-49c9-96c3-a9620de2f699",
       "brand": "Sun Maid",
-      "product_name": null,
+      "product_name": "Zante Currants",
       "package_size": null,
       "package_type": "bag",
       "package_unit": "oz",
       "package_unit_quantity": 8.0,
       "upc_code": null,
-      "gtin": null,
+      "gtin": "4114304941",
       "notes": null,
       "preferred": false,
       "is_hidden": false,
@@ -1617,7 +1617,7 @@
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 8.0,
       "date_added": "2025-12-26T17:39:13.658372",
-      "last_modified": "2025-12-26T17:39:13.658381"
+      "last_modified": "2025-12-26T23:02:22.383832"
     },
     {
       "id": 62,
@@ -1643,7 +1643,7 @@
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 2.0,
       "date_added": "2025-12-26T17:39:13.660550",
-      "last_modified": "2025-12-26T17:39:13.660564"
+      "last_modified": "2025-12-26T20:14:34.119443"
     },
     {
       "id": 63,
@@ -1675,7 +1675,7 @@
       "id": 64,
       "uuid": "8a6be192-e4bf-420c-aa0d-7aa5c08dd995",
       "brand": "McCormick",
-      "product_name": null,
+      "product_name": "Coconut Extract",
       "package_size": null,
       "package_type": "bottle",
       "package_unit": "fl oz",
@@ -1695,7 +1695,7 @@
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 2.0,
       "date_added": "2025-12-26T17:39:13.664933",
-      "last_modified": "2025-12-26T17:39:13.664942"
+      "last_modified": "2025-12-27T11:45:55.939497"
     },
     {
       "id": 65,
@@ -1721,13 +1721,13 @@
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 2.0,
       "date_added": "2025-12-26T17:39:13.666750",
-      "last_modified": "2025-12-26T17:39:13.666757"
+      "last_modified": "2025-12-26T20:14:34.121968"
     },
     {
       "id": 66,
       "uuid": "7747e0cf-496d-40a0-aad0-610b32b740f2",
       "brand": "McCormick",
-      "product_name": null,
+      "product_name": "Pure Mint Extract",
       "package_size": null,
       "package_type": "bottle",
       "package_unit": "fl oz",
@@ -1747,13 +1747,13 @@
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 1.0,
       "date_added": "2025-12-26T17:39:13.668704",
-      "last_modified": "2025-12-26T17:39:13.668712"
+      "last_modified": "2025-12-27T11:46:53.848614"
     },
     {
       "id": 67,
       "uuid": "5dcecdb8-31cc-41a6-b0de-1373cf3ecd4c",
       "brand": "McCormick",
-      "product_name": null,
+      "product_name": "Raspberry Extract With Other Natural Flavors",
       "package_size": null,
       "package_type": "bottle",
       "package_unit": "fl oz",
@@ -1773,13 +1773,13 @@
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 1.0,
       "date_added": "2025-12-26T17:39:13.670716",
-      "last_modified": "2025-12-26T17:39:13.670724"
+      "last_modified": "2025-12-27T11:49:49.075422"
     },
     {
       "id": 68,
       "uuid": "a9789122-2509-40cd-8596-212847002d85",
       "brand": "Penzeys",
-      "product_name": null,
+      "product_name": "Mexican Vanilla Extract",
       "package_size": null,
       "package_type": "bottle",
       "package_unit": "fl oz",
@@ -1793,19 +1793,19 @@
       "ingredient_slug": "extract_vanilla_mexican",
       "ingredient_name": "Extract, vanilla, Mexican",
       "ingredient_category": "Spices & Extracts",
-      "preferred_supplier_id": null,
-      "preferred_supplier_name": null,
+      "preferred_supplier_id": 4,
+      "preferred_supplier_name": "Penzeys Spices",
       "last_purchase_price": "0.0000",
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 8.0,
       "date_added": "2025-12-26T17:39:13.672717",
-      "last_modified": "2025-12-26T17:39:13.672723"
+      "last_modified": "2025-12-26T23:05:36.278127"
     },
     {
       "id": 69,
       "uuid": "f6e79d46-5306-4f40-a179-e5dbfca6bf19",
       "brand": "Heilala",
-      "product_name": null,
+      "product_name": "Oak Aged Vanilla Extract",
       "package_size": null,
       "package_type": "bottle",
       "package_unit": "ml",
@@ -1815,9 +1815,9 @@
       "notes": null,
       "preferred": false,
       "is_hidden": false,
-      "ingredient_id": 132,
-      "ingredient_slug": "extract_vanilla_oak_aged",
-      "ingredient_name": "Extract, vanilla, oak-aged",
+      "ingredient_id": 323,
+      "ingredient_slug": "vanilla_extract",
+      "ingredient_name": "Vanilla extract",
       "ingredient_category": "Spices & Extracts",
       "preferred_supplier_id": null,
       "preferred_supplier_name": null,
@@ -1825,13 +1825,13 @@
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 50.0,
       "date_added": "2025-12-26T17:39:13.674464",
-      "last_modified": "2025-12-26T17:39:13.674470"
+      "last_modified": "2025-12-27T12:00:05.237957"
     },
     {
       "id": 70,
       "uuid": "fcd6feae-48d2-421a-a800-343ef8fcda24",
       "brand": "Heilala",
-      "product_name": null,
+      "product_name": "Spiced Vanilla Extract",
       "package_size": null,
       "package_type": "bottle",
       "package_unit": "ml",
@@ -1841,9 +1841,9 @@
       "notes": null,
       "preferred": false,
       "is_hidden": false,
-      "ingredient_id": 133,
-      "ingredient_slug": "extract_vanilla_spiced",
-      "ingredient_name": "Extract, vanilla, spiced",
+      "ingredient_id": 323,
+      "ingredient_slug": "vanilla_extract",
+      "ingredient_name": "Vanilla extract",
       "ingredient_category": "Spices & Extracts",
       "preferred_supplier_id": null,
       "preferred_supplier_name": null,
@@ -1851,7 +1851,7 @@
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 50.0,
       "date_added": "2025-12-26T17:39:13.675861",
-      "last_modified": "2025-12-26T17:39:13.675868"
+      "last_modified": "2025-12-27T12:01:36.416167"
     },
     {
       "id": 71,
@@ -1877,7 +1877,7 @@
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 16.0,
       "date_added": "2025-12-26T17:39:13.677603",
-      "last_modified": "2025-12-26T17:39:13.677611"
+      "last_modified": "2025-12-26T20:14:34.125097"
     },
     {
       "id": 72,
@@ -1903,7 +1903,7 @@
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 1.0,
       "date_added": "2025-12-26T17:39:13.679679",
-      "last_modified": "2025-12-26T17:39:13.679688"
+      "last_modified": "2025-12-26T20:14:34.128313"
     },
     {
       "id": 73,
@@ -1955,12 +1955,12 @@
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 22.0,
       "date_added": "2025-12-26T17:39:13.683038",
-      "last_modified": "2025-12-26T17:39:13.683044"
+      "last_modified": "2025-12-26T20:14:34.130901"
     },
     {
       "id": 75,
       "uuid": "95d41b57-9ac3-4fbd-b104-5955bddc8382",
-      "brand": "Lyle\u2019s",
+      "brand": "Lyle’s",
       "product_name": "Golden Syrup",
       "package_size": null,
       "package_type": "bottle",
@@ -1981,13 +1981,13 @@
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 16.0,
       "date_added": "2025-12-26T17:39:13.684556",
-      "last_modified": "2025-12-26T17:39:13.684592"
+      "last_modified": "2025-12-26T20:14:34.132616"
     },
     {
       "id": 76,
       "uuid": "269ee400-c81d-4a33-bf9b-fa22fea4ff28",
       "brand": "HoneyMaid",
-      "product_name": null,
+      "product_name": "Honey Graham Crackers",
       "package_size": null,
       "package_type": "box",
       "package_unit": "oz",
@@ -2007,13 +2007,13 @@
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 14.4,
       "date_added": "2025-12-26T17:39:13.686041",
-      "last_modified": "2025-12-26T17:39:13.686047"
+      "last_modified": "2025-12-27T00:30:28.273128"
     },
     {
       "id": 77,
       "uuid": "dc362b32-3fa0-4079-98b1-ca7a3ae9ec4c",
       "brand": "Trader Joe's",
-      "product_name": null,
+      "product_name": "Whole Hazelnuts",
       "package_size": null,
       "package_type": "bag",
       "package_unit": "lb",
@@ -2033,13 +2033,13 @@
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 16.0,
       "date_added": "2025-12-26T17:39:13.687646",
-      "last_modified": "2025-12-26T17:39:13.687652"
+      "last_modified": "2025-12-27T00:31:42.213419"
     },
     {
       "id": 78,
       "uuid": "c63c0ceb-3e1c-4f44-bff3-45b13c332774",
       "brand": "Wegman's",
-      "product_name": null,
+      "product_name": "100% Pure Squeeze Honey",
       "package_size": null,
       "package_type": "bottle",
       "package_unit": "oz",
@@ -2053,13 +2053,13 @@
       "ingredient_slug": "honey",
       "ingredient_name": "Honey",
       "ingredient_category": "Sugars & Sweeteners",
-      "preferred_supplier_id": null,
-      "preferred_supplier_name": null,
+      "preferred_supplier_id": 3,
+      "preferred_supplier_name": "Wegmans",
       "last_purchase_price": "0.0000",
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 16.0,
       "date_added": "2025-12-26T17:39:13.689227",
-      "last_modified": "2025-12-26T17:39:13.689234"
+      "last_modified": "2025-12-27T11:16:14.843800"
     },
     {
       "id": 79,
@@ -2085,13 +2085,13 @@
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 16.0,
       "date_added": "2025-12-26T17:39:13.690852",
-      "last_modified": "2025-12-26T17:39:13.690858"
+      "last_modified": "2025-12-26T20:14:34.135064"
     },
     {
       "id": 80,
       "uuid": "61aac34d-7474-4b55-a2cf-2dd9849dc2b6",
       "brand": "Penzeys",
-      "product_name": null,
+      "product_name": "Lavender",
       "package_size": null,
       "package_type": "jar",
       "package_unit": "oz",
@@ -2105,13 +2105,13 @@
       "ingredient_slug": "lavender_culinary",
       "ingredient_name": "Lavender, culinary",
       "ingredient_category": "Spices & Extracts",
-      "preferred_supplier_id": null,
-      "preferred_supplier_name": null,
+      "preferred_supplier_id": 4,
+      "preferred_supplier_name": "Penzeys Spices",
       "last_purchase_price": "0.0000",
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 0.3,
       "date_added": "2025-12-26T17:39:13.692346",
-      "last_modified": "2025-12-26T17:39:13.692354"
+      "last_modified": "2025-12-26T23:06:05.758985"
     },
     {
       "id": 81,
@@ -2137,25 +2137,25 @@
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 4.0,
       "date_added": "2025-12-26T17:39:13.693989",
-      "last_modified": "2025-12-26T17:39:13.693996"
+      "last_modified": "2025-12-26T20:14:34.138354"
     },
     {
       "id": 82,
       "uuid": "aadb342d-5012-43f5-bcc5-6b429dd42fe6",
       "brand": "Gabriel Brudier",
-      "product_name": null,
+      "product_name": "Crème de Cassis",
       "package_size": null,
       "package_type": "bottle",
       "package_unit": "fl oz",
       "package_unit_quantity": 750.0,
       "upc_code": null,
-      "gtin": null,
+      "gtin": "8043231167",
       "notes": null,
       "preferred": false,
       "is_hidden": false,
       "ingredient_id": 177,
       "ingredient_slug": "liqueur_blackcurrant",
-      "ingredient_name": "Cr\u00e8me de cassis",
+      "ingredient_name": "Crème de cassis",
       "ingredient_category": "Liquids & Liquors",
       "preferred_supplier_id": null,
       "preferred_supplier_name": null,
@@ -2163,13 +2163,13 @@
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 750.0,
       "date_added": "2025-12-26T17:39:13.695608",
-      "last_modified": "2025-12-26T17:39:13.695615"
+      "last_modified": "2025-12-27T00:37:51.173127"
     },
     {
       "id": 83,
       "uuid": "7f73b25a-3f15-445a-b31e-7ea01053cd05",
       "brand": "Francesca",
-      "product_name": null,
+      "product_name": "Original Hazelnut Liqueur",
       "package_size": null,
       "package_type": "bottle",
       "package_unit": "ml",
@@ -2189,7 +2189,7 @@
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 750.0,
       "date_added": "2025-12-26T17:39:13.697241",
-      "last_modified": "2025-12-26T17:39:13.697247"
+      "last_modified": "2025-12-27T12:05:12.753402"
     },
     {
       "id": 84,
@@ -2215,7 +2215,7 @@
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 750.0,
       "date_added": "2025-12-26T17:39:13.699298",
-      "last_modified": "2025-12-26T17:39:13.699306"
+      "last_modified": "2025-12-26T20:14:34.141660"
     },
     {
       "id": 85,
@@ -2241,7 +2241,7 @@
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 750.0,
       "date_added": "2025-12-26T17:39:13.700848",
-      "last_modified": "2025-12-26T17:39:13.700854"
+      "last_modified": "2025-12-26T20:14:34.143181"
     },
     {
       "id": 86,
@@ -2267,13 +2267,13 @@
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 375.0,
       "date_added": "2025-12-26T17:39:13.702354",
-      "last_modified": "2025-12-26T17:39:13.702361"
+      "last_modified": "2025-12-26T20:14:34.144662"
     },
     {
       "id": 87,
       "uuid": "fbfecf95-e6eb-4b8e-9867-b99c36bae7a0",
       "brand": "Trader Joe's",
-      "product_name": null,
+      "product_name": "Macadamia Nuts",
       "package_size": null,
       "package_type": "bag",
       "package_unit": "oz",
@@ -2293,13 +2293,13 @@
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 8.0,
       "date_added": "2025-12-26T17:39:13.703970",
-      "last_modified": "2025-12-26T17:39:13.703977"
+      "last_modified": "2025-12-27T12:08:56.594362"
     },
     {
       "id": 88,
       "uuid": "4d61ff60-66c0-4fa7-803a-38a7b5b96eed",
       "brand": "Penzeys",
-      "product_name": null,
+      "product_name": "Ground Mace",
       "package_size": null,
       "package_type": "jar",
       "package_unit": "oz",
@@ -2313,13 +2313,13 @@
       "ingredient_slug": "mace_ground",
       "ingredient_name": "Mace, ground",
       "ingredient_category": "Spices & Extracts",
-      "preferred_supplier_id": null,
-      "preferred_supplier_name": null,
+      "preferred_supplier_id": 4,
+      "preferred_supplier_name": "Penzeys Spices",
       "last_purchase_price": "0.0000",
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 0.9,
       "date_added": "2025-12-26T17:39:13.705496",
-      "last_modified": "2025-12-26T17:39:13.705503"
+      "last_modified": "2025-12-26T23:06:37.805649"
     },
     {
       "id": 89,
@@ -2351,10 +2351,10 @@
       "id": 90,
       "uuid": "8a8ae6d3-1f83-49e5-8ad9-efa3118b768f",
       "brand": "Costco",
-      "product_name": null,
+      "product_name": "Organic Maple Syrup",
       "package_size": null,
       "package_type": "jug",
-      "package_unit": "qt",
+      "package_unit": "l",
       "package_unit_quantity": 1.0,
       "upc_code": null,
       "gtin": null,
@@ -2371,13 +2371,13 @@
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 1.0,
       "date_added": "2025-12-26T17:39:13.708622",
-      "last_modified": "2025-12-26T17:39:13.708629"
+      "last_modified": "2025-12-27T12:08:29.827924"
     },
     {
       "id": 91,
       "uuid": "93858a43-a78e-4ac0-ad29-3d8c2264b259",
       "brand": "Wegman's",
-      "product_name": null,
+      "product_name": "Pure Maple Syrup",
       "package_size": null,
       "package_type": "bottle",
       "package_unit": "fl oz",
@@ -2391,13 +2391,13 @@
       "ingredient_slug": "maple_syrup",
       "ingredient_name": "Maple syrup",
       "ingredient_category": "Sugars & Sweeteners",
-      "preferred_supplier_id": null,
-      "preferred_supplier_name": null,
+      "preferred_supplier_id": 3,
+      "preferred_supplier_name": "Wegmans",
       "last_purchase_price": "0.0000",
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 32.0,
       "date_added": "2025-12-26T17:39:13.710177",
-      "last_modified": "2025-12-26T17:39:13.710183"
+      "last_modified": "2025-12-27T11:15:24.632402"
     },
     {
       "id": 92,
@@ -2423,19 +2423,19 @@
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 10.0,
       "date_added": "2025-12-26T17:39:13.711584",
-      "last_modified": "2025-12-26T17:39:13.711590"
+      "last_modified": "2025-12-26T20:14:34.146104"
     },
     {
       "id": 93,
       "uuid": "6b723354-52fc-48b0-a34a-96f5b86e6338",
       "brand": "Guittard",
-      "product_name": null,
+      "product_name": "Green Mint Baking Chips",
       "package_size": null,
       "package_type": "bag",
       "package_unit": "g",
       "package_unit_quantity": 12.0,
       "upc_code": null,
-      "gtin": null,
+      "gtin": "7181802350",
       "notes": null,
       "preferred": false,
       "is_hidden": false,
@@ -2449,7 +2449,7 @@
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 12.0,
       "date_added": "2025-12-26T17:39:13.713195",
-      "last_modified": "2025-12-26T17:39:13.713202"
+      "last_modified": "2025-12-26T22:52:14.895546"
     },
     {
       "id": 94,
@@ -2475,7 +2475,7 @@
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 16.0,
       "date_added": "2025-12-26T17:39:13.714846",
-      "last_modified": "2025-12-26T17:39:13.714854"
+      "last_modified": "2025-12-26T20:14:34.147677"
     },
     {
       "id": 95,
@@ -2501,13 +2501,13 @@
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 16.0,
       "date_added": "2025-12-26T17:39:13.716461",
-      "last_modified": "2025-12-26T17:39:13.716467"
+      "last_modified": "2025-12-26T20:14:34.149316"
     },
     {
       "id": 96,
       "uuid": "650f841e-f1da-4745-aa26-e1cb9b482da8",
       "brand": "Nutella",
-      "product_name": null,
+      "product_name": "Nutella",
       "package_size": null,
       "package_type": "jar",
       "package_unit": "oz",
@@ -2527,13 +2527,13 @@
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 26.5,
       "date_added": "2025-12-26T17:39:13.718091",
-      "last_modified": "2025-12-26T17:39:13.718097"
+      "last_modified": "2025-12-26T23:06:54.802117"
     },
     {
       "id": 97,
       "uuid": "29897a9f-6007-4d34-b1b0-97b321254b2a",
       "brand": "Penzeys",
-      "product_name": null,
+      "product_name": "East Indian Ground Nutmeg",
       "package_size": null,
       "package_type": "jar",
       "package_unit": "oz",
@@ -2547,19 +2547,19 @@
       "ingredient_slug": "nutmeg_ground_east_indian",
       "ingredient_name": "Nutmeg, ground, East Indian",
       "ingredient_category": "Spices & Extracts",
-      "preferred_supplier_id": null,
-      "preferred_supplier_name": null,
+      "preferred_supplier_id": 4,
+      "preferred_supplier_name": "Penzeys Spices",
       "last_purchase_price": "0.0000",
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 0.33,
       "date_added": "2025-12-26T17:39:13.719678",
-      "last_modified": "2025-12-26T17:39:13.719686"
+      "last_modified": "2025-12-27T00:33:09.031172"
     },
     {
       "id": 98,
       "uuid": "21ae3c20-969d-4e35-afcb-a2f810d9b5ba",
       "brand": "Penzeys",
-      "product_name": null,
+      "product_name": "West Indian Ground Nutmeg",
       "package_size": null,
       "package_type": "jar",
       "package_unit": "oz",
@@ -2573,19 +2573,19 @@
       "ingredient_slug": "nutmeg_ground_west_indian",
       "ingredient_name": "Nutmeg, ground, West Indian",
       "ingredient_category": "Spices & Extracts",
-      "preferred_supplier_id": null,
-      "preferred_supplier_name": null,
+      "preferred_supplier_id": 4,
+      "preferred_supplier_name": "Penzeys Spices",
       "last_purchase_price": "0.0000",
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 2.4,
       "date_added": "2025-12-26T17:39:13.721168",
-      "last_modified": "2025-12-26T17:39:13.721174"
+      "last_modified": "2025-12-27T00:33:47.312140"
     },
     {
       "id": 99,
       "uuid": "4e5acde1-92d0-4ad6-9d18-834ac872f6c2",
       "brand": "Penzeys",
-      "product_name": null,
+      "product_name": "Whole Nutmeg",
       "package_size": null,
       "package_type": "bag",
       "package_unit": "oz",
@@ -2599,19 +2599,19 @@
       "ingredient_slug": "nutmeg_whole",
       "ingredient_name": "Nutmeg, whole",
       "ingredient_category": "Spices & Extracts",
-      "preferred_supplier_id": null,
-      "preferred_supplier_name": null,
+      "preferred_supplier_id": 4,
+      "preferred_supplier_name": "Penzeys Spices",
       "last_purchase_price": "0.0000",
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 3.2,
       "date_added": "2025-12-26T17:39:13.722751",
-      "last_modified": "2025-12-26T17:39:13.722758"
+      "last_modified": "2025-12-27T00:34:23.989770"
     },
     {
       "id": 100,
       "uuid": "01f27b51-bf6f-4770-b8a3-75da9a504d5b",
       "brand": "Quaker",
-      "product_name": "Quaker\u00ae Oats Old Fashioned",
+      "product_name": "Quaker® Oats Old Fashioned",
       "package_size": null,
       "package_type": "container",
       "package_unit": "oz",
@@ -2683,7 +2683,7 @@
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 2.0,
       "date_added": "2025-12-26T17:39:13.727566",
-      "last_modified": "2025-12-26T17:39:13.727575"
+      "last_modified": "2025-12-26T20:14:34.151689"
     },
     {
       "id": 103,
@@ -2709,13 +2709,13 @@
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 1.0,
       "date_added": "2025-12-26T17:39:13.729144",
-      "last_modified": "2025-12-26T17:39:13.729151"
+      "last_modified": "2025-12-26T20:14:34.153385"
     },
     {
       "id": 104,
       "uuid": "cf9a74f2-1b60-4ac8-8688-417b51b37042",
       "brand": "Penzeys",
-      "product_name": null,
+      "product_name": "Orange Extract",
       "package_size": null,
       "package_type": "bottle",
       "package_unit": "fl oz",
@@ -2729,19 +2729,19 @@
       "ingredient_slug": "orange_extract",
       "ingredient_name": "Orange extract",
       "ingredient_category": "Spices & Extracts",
-      "preferred_supplier_id": null,
-      "preferred_supplier_name": null,
+      "preferred_supplier_id": 4,
+      "preferred_supplier_name": "Penzeys Spices",
       "last_purchase_price": "0.0000",
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 2.0,
       "date_added": "2025-12-26T17:39:13.730627",
-      "last_modified": "2025-12-26T17:39:13.730636"
+      "last_modified": "2025-12-27T12:09:20.505223"
     },
     {
       "id": 105,
       "uuid": "3f7093c2-577b-4adb-a1db-7d2927a9c6eb",
       "brand": "King Arthur",
-      "product_name": "King Arthur Pastry Flour",
+      "product_name": "Pastry Flour",
       "package_size": null,
       "package_type": "bag",
       "package_unit": "lb",
@@ -2761,7 +2761,7 @@
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 3.0,
       "date_added": "2025-12-26T17:39:13.732337",
-      "last_modified": "2025-12-26T17:39:13.732346"
+      "last_modified": "2025-12-28T01:50:43.080341"
     },
     {
       "id": 106,
@@ -2813,13 +2813,13 @@
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 4.7,
       "date_added": "2025-12-26T17:39:13.735586",
-      "last_modified": "2025-12-26T17:39:13.735592"
+      "last_modified": "2025-12-26T20:14:34.155183"
     },
     {
       "id": 108,
       "uuid": "98eddafa-631e-4114-8268-5204d92cc6e8",
       "brand": "Penzeys",
-      "product_name": null,
+      "product_name": "Ground Black Pepper",
       "package_size": null,
       "package_type": "jar",
       "package_unit": "oz",
@@ -2833,13 +2833,13 @@
       "ingredient_slug": "pepper_black_ground",
       "ingredient_name": "Pepper, black ground",
       "ingredient_category": "Spices & Extracts",
-      "preferred_supplier_id": null,
-      "preferred_supplier_name": null,
+      "preferred_supplier_id": 4,
+      "preferred_supplier_name": "Penzeys Spices",
       "last_purchase_price": "0.0000",
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 1.65,
       "date_added": "2025-12-26T17:39:13.737108",
-      "last_modified": "2025-12-26T17:39:13.737114"
+      "last_modified": "2025-12-26T23:30:06.852441"
     },
     {
       "id": 109,
@@ -2865,7 +2865,7 @@
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 2.0,
       "date_added": "2025-12-26T17:39:13.738534",
-      "last_modified": "2025-12-26T17:39:13.738540"
+      "last_modified": "2025-12-26T20:14:34.157313"
     },
     {
       "id": 110,
@@ -2923,7 +2923,7 @@
       "id": 112,
       "uuid": "26295b05-d25c-4598-8d56-000ff8fc1902",
       "brand": "Penzeys",
-      "product_name": null,
+      "product_name": "Blue Poppy Seeds",
       "package_size": null,
       "package_type": "bag",
       "package_unit": "oz",
@@ -2933,23 +2933,23 @@
       "notes": null,
       "preferred": false,
       "is_hidden": false,
-      "ingredient_id": 262,
+      "ingredient_id": 261,
       "ingredient_slug": "poppy_seeds",
       "ingredient_name": "Poppy seeds",
-      "ingredient_category": "Spices & Extracts",
-      "preferred_supplier_id": null,
-      "preferred_supplier_name": null,
+      "ingredient_category": "Nuts & Seeds",
+      "preferred_supplier_id": 4,
+      "preferred_supplier_name": "Penzeys Spices",
       "last_purchase_price": "0.0000",
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 5.15,
       "date_added": "2025-12-26T17:39:13.743037",
-      "last_modified": "2025-12-26T17:39:13.743043"
+      "last_modified": "2025-12-27T16:59:29.522135"
     },
     {
       "id": 113,
       "uuid": "03e92698-e480-4b43-b176-8af22930a9c6",
       "brand": "Sun Maid",
-      "product_name": null,
+      "product_name": "California Sun Dried Raisins",
       "package_size": null,
       "package_type": "container",
       "package_unit": "oz",
@@ -2969,19 +2969,19 @@
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 13.0,
       "date_added": "2025-12-26T17:39:13.744895",
-      "last_modified": "2025-12-26T17:39:13.744903"
+      "last_modified": "2025-12-27T11:27:21.561206"
     },
     {
       "id": 114,
       "uuid": "a2566c44-a4fc-418e-9abd-d6fba974dd21",
-      "brand": "Wegman\u2019s",
-      "product_name": null,
+      "brand": "Wegman’s",
+      "product_name": "Seedless Raisins",
       "package_size": null,
       "package_type": "bag",
       "package_unit": "lb",
       "package_unit_quantity": 3.0,
       "upc_code": null,
-      "gtin": null,
+      "gtin": "7789040542",
       "notes": null,
       "preferred": false,
       "is_hidden": false,
@@ -2989,25 +2989,25 @@
       "ingredient_slug": "raisins",
       "ingredient_name": "Raisins",
       "ingredient_category": "Fruits & Dried Fruits",
-      "preferred_supplier_id": null,
-      "preferred_supplier_name": null,
+      "preferred_supplier_id": 3,
+      "preferred_supplier_name": "Wegmans",
       "last_purchase_price": "0.0000",
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 3.0,
       "date_added": "2025-12-26T17:39:13.746545",
-      "last_modified": "2025-12-26T17:39:13.746552"
+      "last_modified": "2025-12-27T11:16:32.807749"
     },
     {
       "id": 115,
       "uuid": "5ac9ad0a-8f84-4962-a9fb-78d21c6c372c",
       "brand": "Baccardi",
-      "product_name": null,
+      "product_name": "Supuerior White Rum",
       "package_size": null,
       "package_type": "bottle",
       "package_unit": "ml",
       "package_unit_quantity": 750.0,
       "upc_code": null,
-      "gtin": null,
+      "gtin": "8048001540",
       "notes": null,
       "preferred": false,
       "is_hidden": false,
@@ -3021,7 +3021,7 @@
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 750.0,
       "date_added": "2025-12-26T17:39:13.748366",
-      "last_modified": "2025-12-26T17:39:13.748375"
+      "last_modified": "2025-12-26T23:29:32.821395"
     },
     {
       "id": 116,
@@ -3047,13 +3047,13 @@
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 1.75,
       "date_added": "2025-12-26T17:39:13.750590",
-      "last_modified": "2025-12-26T17:39:13.750597"
+      "last_modified": "2025-12-26T20:14:34.160579"
     },
     {
       "id": 117,
       "uuid": "a0197e19-f5b5-44ba-ae3c-777d2a2cb437",
       "brand": "McCormick",
-      "product_name": null,
+      "product_name": "Rum Extract",
       "package_size": null,
       "package_type": "bottle",
       "package_unit": "fl oz",
@@ -3073,13 +3073,13 @@
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 1.0,
       "date_added": "2025-12-26T17:39:13.752209",
-      "last_modified": "2025-12-26T17:39:13.752216"
+      "last_modified": "2025-12-26T23:26:40.186900"
     },
     {
       "id": 118,
       "uuid": "7ea6ca19-753d-4cae-85f4-28ddc90607f2",
       "brand": "Morton",
-      "product_name": null,
+      "product_name": "Iodized Salt",
       "package_size": null,
       "package_type": "container",
       "package_unit": "oz",
@@ -3099,7 +3099,7 @@
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 26.0,
       "date_added": "2025-12-26T17:39:13.753815",
-      "last_modified": "2025-12-26T17:39:13.753823"
+      "last_modified": "2025-12-26T23:24:40.374579"
     },
     {
       "id": 119,
@@ -3125,13 +3125,13 @@
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 3.0,
       "date_added": "2025-12-26T17:39:13.755439",
-      "last_modified": "2025-12-26T17:39:13.755445"
+      "last_modified": "2025-12-26T20:14:34.163439"
     },
     {
       "id": 120,
       "uuid": "489d985d-1d22-4f38-b56d-6431f6f024e3",
       "brand": "Morton",
-      "product_name": null,
+      "product_name": "Course Kosher Salt",
       "package_size": null,
       "package_type": "box",
       "package_unit": "lb",
@@ -3151,13 +3151,13 @@
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 3.0,
       "date_added": "2025-12-26T17:39:13.756987",
-      "last_modified": "2025-12-26T17:39:13.756993"
+      "last_modified": "2025-12-26T23:26:20.669638"
     },
     {
       "id": 121,
       "uuid": "f48243bd-6d14-4ae9-a7ca-626f7b52bd0d",
       "brand": "Maldon",
-      "product_name": null,
+      "product_name": "SEA SALT FLAKES",
       "package_size": null,
       "package_type": "box",
       "package_unit": "g",
@@ -3177,7 +3177,7 @@
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 240.0,
       "date_added": "2025-12-26T17:39:13.758491",
-      "last_modified": "2025-12-26T17:39:13.758499"
+      "last_modified": "2025-12-26T21:49:02.530768"
     },
     {
       "id": 122,
@@ -3203,7 +3203,7 @@
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 5.0,
       "date_added": "2025-12-26T17:39:13.760201",
-      "last_modified": "2025-12-26T17:39:13.760208"
+      "last_modified": "2025-12-26T20:14:34.167065"
     },
     {
       "id": 123,
@@ -3307,13 +3307,13 @@
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 16.0,
       "date_added": "2025-12-26T17:39:13.766466",
-      "last_modified": "2025-12-26T17:39:13.766472"
+      "last_modified": "2025-12-26T20:14:34.168729"
     },
     {
       "id": 127,
       "uuid": "193bd2df-2bee-43c3-9a69-27971a56c6c7",
       "brand": "Penzeys",
-      "product_name": null,
+      "product_name": "Chinese Five Spice",
       "package_size": null,
       "package_type": "jar",
       "package_unit": "oz",
@@ -3327,19 +3327,19 @@
       "ingredient_slug": "spice_blend_chinese_five_spice",
       "ingredient_name": "Spice blend, Chinese five spice",
       "ingredient_category": "Spices & Extracts",
-      "preferred_supplier_id": null,
-      "preferred_supplier_name": null,
+      "preferred_supplier_id": 4,
+      "preferred_supplier_name": "Penzeys Spices",
       "last_purchase_price": "0.0000",
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 0.9,
       "date_added": "2025-12-26T17:39:13.767968",
-      "last_modified": "2025-12-26T17:39:13.767974"
+      "last_modified": "2025-12-26T23:21:38.773639"
     },
     {
       "id": 128,
       "uuid": "57062c5c-72f0-4cfb-b731-9f52e3618ab4",
       "brand": "Penzeys",
-      "product_name": null,
+      "product_name": "Mulling Spices",
       "package_size": null,
       "package_type": "bag",
       "package_unit": "oz",
@@ -3353,13 +3353,13 @@
       "ingredient_slug": "spice_blend_mulling",
       "ingredient_name": "Spice blend, mulling spices",
       "ingredient_category": "Spices & Extracts",
-      "preferred_supplier_id": null,
-      "preferred_supplier_name": null,
+      "preferred_supplier_id": 4,
+      "preferred_supplier_name": "Penzeys Spices",
       "last_purchase_price": "0.0000",
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 1.3,
       "date_added": "2025-12-26T17:39:13.769511",
-      "last_modified": "2025-12-26T17:39:13.769518"
+      "last_modified": "2025-12-26T23:23:44.423541"
     },
     {
       "id": 129,
@@ -3385,7 +3385,7 @@
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 2.0,
       "date_added": "2025-12-26T17:39:13.771017",
-      "last_modified": "2025-12-26T17:39:13.771023"
+      "last_modified": "2025-12-26T20:14:34.170577"
     },
     {
       "id": 130,
@@ -3411,13 +3411,13 @@
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 2.0,
       "date_added": "2025-12-26T17:39:13.772466",
-      "last_modified": "2025-12-26T17:39:13.772473"
+      "last_modified": "2025-12-26T20:14:34.173360"
     },
     {
       "id": 131,
       "uuid": "9575c71a-09e3-4663-af55-78dd1d14402b",
       "brand": "Wegman's",
-      "product_name": null,
+      "product_name": "Light Brown Sugar",
       "package_size": null,
       "package_type": "bag",
       "package_unit": "lb",
@@ -3431,13 +3431,13 @@
       "ingredient_slug": "sugar_brown_light",
       "ingredient_name": "Sugar, brown light",
       "ingredient_category": "Sugars & Sweeteners",
-      "preferred_supplier_id": null,
-      "preferred_supplier_name": null,
+      "preferred_supplier_id": 3,
+      "preferred_supplier_name": "Wegmans",
       "last_purchase_price": "0.0000",
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 2.0,
       "date_added": "2025-12-26T17:39:13.773905",
-      "last_modified": "2025-12-26T17:39:13.773911"
+      "last_modified": "2025-12-27T11:13:56.382023"
     },
     {
       "id": 132,
@@ -3463,7 +3463,7 @@
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 4.0,
       "date_added": "2025-12-26T17:39:13.775506",
-      "last_modified": "2025-12-26T17:39:13.775513"
+      "last_modified": "2025-12-26T20:14:34.175835"
     },
     {
       "id": 133,
@@ -3489,13 +3489,13 @@
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 4.0,
       "date_added": "2025-12-26T17:39:13.777176",
-      "last_modified": "2025-12-26T17:39:13.777183"
+      "last_modified": "2025-12-26T20:14:34.177113"
     },
     {
       "id": 134,
       "uuid": "9b0e86b2-6d72-44e5-ba21-835a6df3c30e",
       "brand": "U.S.",
-      "product_name": null,
+      "product_name": "Powdered Sugar",
       "package_size": null,
       "package_type": "bag",
       "package_unit": "lb",
@@ -3515,7 +3515,7 @@
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 7.0,
       "date_added": "2025-12-26T17:39:13.778803",
-      "last_modified": "2025-12-26T17:39:13.778809"
+      "last_modified": "2025-12-26T23:21:17.186537"
     },
     {
       "id": 135,
@@ -3541,7 +3541,7 @@
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 12.0,
       "date_added": "2025-12-26T17:39:13.780475",
-      "last_modified": "2025-12-26T17:39:13.780484"
+      "last_modified": "2025-12-26T20:14:34.178388"
     },
     {
       "id": 136,
@@ -3573,7 +3573,7 @@
       "id": 137,
       "uuid": "8aa4f2ed-69ca-4fc7-887a-e53855e13869",
       "brand": "Toblerone",
-      "product_name": null,
+      "product_name": "Toblerone Swiss Milk Chcolate",
       "package_size": null,
       "package_type": "box",
       "package_unit": "lb",
@@ -3593,7 +3593,7 @@
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 1.0,
       "date_added": "2025-12-26T17:39:13.783622",
-      "last_modified": "2025-12-26T17:39:13.783629"
+      "last_modified": "2025-12-26T23:20:49.305783"
     },
     {
       "id": 138,
@@ -3619,13 +3619,13 @@
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 9.6,
       "date_added": "2025-12-26T17:39:13.785147",
-      "last_modified": "2025-12-26T17:39:13.785153"
+      "last_modified": "2025-12-26T20:14:34.181787"
     },
     {
       "id": 139,
       "uuid": "51829b82-0002-4e0c-95c7-10b68ff3f79b",
       "brand": "Sugar in the Raw",
-      "product_name": null,
+      "product_name": "Turbinado Sugar",
       "package_size": null,
       "package_type": "bag",
       "package_unit": "lb",
@@ -3645,7 +3645,7 @@
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 2.0,
       "date_added": "2025-12-26T17:39:13.786600",
-      "last_modified": "2025-12-26T17:39:13.786606"
+      "last_modified": "2025-12-26T23:18:25.766444"
     },
     {
       "id": 140,
@@ -3677,7 +3677,7 @@
       "id": 141,
       "uuid": "ce0bac0c-03b8-43d4-acc3-18a2f5aca470",
       "brand": "Penzeys",
-      "product_name": null,
+      "product_name": "Vanilla Beans",
       "package_size": null,
       "package_type": "container",
       "package_unit": "each",
@@ -3691,13 +3691,13 @@
       "ingredient_slug": "vanilla_bean",
       "ingredient_name": "Vanilla bean",
       "ingredient_category": "Spices & Extracts",
-      "preferred_supplier_id": null,
-      "preferred_supplier_name": null,
+      "preferred_supplier_id": 4,
+      "preferred_supplier_name": "Penzeys Spices",
       "last_purchase_price": "0.0000",
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 6.0,
       "date_added": "2025-12-26T17:39:13.789426",
-      "last_modified": "2025-12-26T17:39:13.789432"
+      "last_modified": "2025-12-26T23:12:22.785590"
     },
     {
       "id": 142,
@@ -3723,7 +3723,7 @@
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 16.0,
       "date_added": "2025-12-26T17:39:13.790958",
-      "last_modified": "2025-12-26T17:39:13.790971"
+      "last_modified": "2025-12-26T20:14:34.183417"
     },
     {
       "id": 143,
@@ -3833,7 +3833,7 @@
       "id": 147,
       "uuid": "d7b8d573-9aa2-4eb2-91a8-f4ad5018e242",
       "brand": "Penzeys",
-      "product_name": null,
+      "product_name": "Vanilla Sugar",
       "package_size": null,
       "package_type": "jar",
       "package_unit": "oz",
@@ -3847,19 +3847,19 @@
       "ingredient_slug": "vanilla_sugar",
       "ingredient_name": "Vanilla sugar",
       "ingredient_category": "Sugars & Sweeteners",
-      "preferred_supplier_id": null,
-      "preferred_supplier_name": null,
+      "preferred_supplier_id": 4,
+      "preferred_supplier_name": "Penzeys Spices",
       "last_purchase_price": "0.0000",
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 3.4,
       "date_added": "2025-12-26T17:39:13.798831",
-      "last_modified": "2025-12-26T17:39:13.798838"
+      "last_modified": "2025-12-26T23:11:52.054775"
     },
     {
       "id": 148,
       "uuid": "d9cc3aaf-63c3-43bb-8138-8fd869011d90",
       "brand": "Costco",
-      "product_name": null,
+      "product_name": "Shelled Walnuts",
       "package_size": null,
       "package_type": "bag",
       "package_unit": "lb",
@@ -3873,19 +3873,19 @@
       "ingredient_slug": "walnuts",
       "ingredient_name": "Walnuts",
       "ingredient_category": "Nuts & Seeds",
-      "preferred_supplier_id": null,
-      "preferred_supplier_name": null,
+      "preferred_supplier_id": 2,
+      "preferred_supplier_name": "Costco",
       "last_purchase_price": "0.0000",
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 3.0,
       "date_added": "2025-12-26T17:39:13.800345",
-      "last_modified": "2025-12-26T17:39:13.800351"
+      "last_modified": "2025-12-26T23:11:22.740710"
     },
     {
       "id": 149,
       "uuid": "411f442c-43c3-4b10-aa38-d073a3d0e1e1",
       "brand": "Jamison",
-      "product_name": null,
+      "product_name": "Jameson Irish Whiskey",
       "package_size": null,
       "package_type": "bottle",
       "package_unit": "fl oz",
@@ -3905,7 +3905,7 @@
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 750.0,
       "date_added": "2025-12-26T17:39:13.801772",
-      "last_modified": "2025-12-26T17:39:13.801777"
+      "last_modified": "2025-12-26T21:48:13.416360"
     },
     {
       "id": 150,
@@ -3931,7 +3931,7 @@
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 5.0,
       "date_added": "2025-12-26T17:39:13.803125",
-      "last_modified": "2025-12-26T17:39:13.803131"
+      "last_modified": "2025-12-26T20:14:34.187032"
     },
     {
       "id": 151,
@@ -3957,7 +3957,7 @@
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 21.0,
       "date_added": "2025-12-26T17:39:13.804711",
-      "last_modified": "2025-12-26T17:39:13.804726"
+      "last_modified": "2025-12-26T20:14:34.189173"
     },
     {
       "id": 152,
@@ -3983,7 +3983,111 @@
       "last_purchase_date": "2025-12-21",
       "inventory_quantity": 21.0,
       "date_added": "2025-12-26T17:39:13.806033",
-      "last_modified": "2025-12-26T17:39:13.806039"
+      "last_modified": "2025-12-26T20:14:34.191207"
+    },
+    {
+      "id": 153,
+      "uuid": "5e614eac-9843-47f8-94ed-fb7afccdfb20",
+      "brand": "Guittard",
+      "product_name": "Cocoa Rouge Cocoa Powder",
+      "package_size": null,
+      "package_type": null,
+      "package_unit": "oz",
+      "package_unit_quantity": 8.0,
+      "upc_code": null,
+      "gtin": "7181875000",
+      "notes": null,
+      "preferred": false,
+      "is_hidden": false,
+      "ingredient_id": 65,
+      "ingredient_slug": "chocolate_baking_unsweetened",
+      "ingredient_name": "Chocolate, baking unsweetened",
+      "ingredient_category": "Chocolate & Cocoa",
+      "preferred_supplier_id": null,
+      "preferred_supplier_name": null,
+      "last_purchase_price": null,
+      "last_purchase_date": null,
+      "inventory_quantity": 0.0,
+      "date_added": "2025-12-26T23:00:27.274937",
+      "last_modified": "2025-12-26T23:00:27.274948"
+    },
+    {
+      "id": 154,
+      "uuid": "b86cf9af-1907-4367-87b4-27b1628a01bf",
+      "brand": "Kahlua",
+      "product_name": "Kahlua",
+      "package_size": null,
+      "package_type": null,
+      "package_unit": "ml",
+      "package_unit_quantity": 750.0,
+      "upc_code": null,
+      "gtin": null,
+      "notes": null,
+      "preferred": false,
+      "is_hidden": false,
+      "ingredient_id": 179,
+      "ingredient_slug": "liqueur_coffee",
+      "ingredient_name": "Coffee Liqueur",
+      "ingredient_category": "Liquids & Liquors",
+      "preferred_supplier_id": 6,
+      "preferred_supplier_name": "Gordon's Fine Wine & Liquors",
+      "last_purchase_price": null,
+      "last_purchase_date": null,
+      "inventory_quantity": 0.0,
+      "date_added": "2025-12-26T23:34:08.816667",
+      "last_modified": "2025-12-26T23:34:08.816677"
+    },
+    {
+      "id": 155,
+      "uuid": "8bf0f826-ba3e-44cf-be1f-339560f9383d",
+      "brand": "Wegmans",
+      "product_name": "Pastry Flour",
+      "package_size": null,
+      "package_type": "bag",
+      "package_unit": "lb",
+      "package_unit_quantity": 5.0,
+      "upc_code": null,
+      "gtin": "7789046510",
+      "notes": null,
+      "preferred": false,
+      "is_hidden": false,
+      "ingredient_id": 344,
+      "ingredient_slug": "flour_pastry",
+      "ingredient_name": "Flour, pastry",
+      "ingredient_category": "Flour",
+      "preferred_supplier_id": 3,
+      "preferred_supplier_name": "Wegmans",
+      "last_purchase_price": null,
+      "last_purchase_date": null,
+      "inventory_quantity": 0.0,
+      "date_added": "2025-12-27T13:59:25.095598",
+      "last_modified": "2025-12-27T13:59:52.091677"
+    },
+    {
+      "id": 156,
+      "uuid": "e2107320-6c3e-4640-a0d6-200035f08fd1",
+      "brand": "PAM",
+      "product_name": "Original No-Stick Cooking Spray with Canola Oil Blend",
+      "package_size": null,
+      "package_type": null,
+      "package_unit": "oz",
+      "package_unit_quantity": 12.0,
+      "upc_code": "06414403094",
+      "gtin": null,
+      "notes": null,
+      "preferred": true,
+      "is_hidden": false,
+      "ingredient_id": 345,
+      "ingredient_slug": "oil_spray",
+      "ingredient_name": "Oil, spray",
+      "ingredient_category": "Fats & Oils",
+      "preferred_supplier_id": 3,
+      "preferred_supplier_name": "Wegmans",
+      "last_purchase_price": "3.9900",
+      "last_purchase_date": "2025-12-27",
+      "inventory_quantity": 1.0,
+      "date_added": "2025-12-27T23:11:23",
+      "last_modified": "2025-12-27T23:11:23"
     }
   ]
 }

@@ -1,0 +1,62 @@
+{
+  "suppliers": [
+    {
+      "id": 2,
+      "name": "Costco",
+      "display_name": "Costco (Waltham, MA)",
+      "location": "Waltham, MA",
+      "full_address": "71 2ND AVE, Waltham, MA 02451-1107",
+      "is_active": true,
+      "notes": null
+    },
+    {
+      "id": 6,
+      "name": "Gordon's Fine Wine & Liquors",
+      "display_name": "Gordon's Fine Wine & Liquors (Waltham, MA)",
+      "location": "Waltham, MA",
+      "full_address": "894 Main St, Waltham, MA 02451",
+      "is_active": true,
+      "notes": null
+    },
+    {
+      "id": 4,
+      "name": "Penzeys Spices",
+      "display_name": "Penzeys Spices (Arlington, MA)",
+      "location": "Arlington, MA",
+      "full_address": "1293 Massachusetts Ave, Arlington, MA 02476",
+      "is_active": true,
+      "notes": null
+    },
+    {
+      "id": 5,
+      "name": "Stop & Shop",
+      "display_name": "Stop & Shop (Bedford, MA)",
+      "location": "Bedford, MA",
+      "full_address": "337 Great Rd, Bedford, MA 01730",
+      "is_active": true,
+      "notes": null
+    },
+    {
+      "id": 1,
+      "name": "Unknown",
+      "display_name": "Unknown (Unknown, XX)",
+      "location": "Unknown, XX",
+      "full_address": "Unknown, XX 00000",
+      "is_active": true,
+      "notes": "Default supplier for migrated inventory additions (F028)"
+    },
+    {
+      "id": 3,
+      "name": "Wegmans",
+      "display_name": "Wegmans (Burlington, MA)",
+      "location": "Burlington, MA",
+      "full_address": "53 Third Avenue, Burlington, MA 01803",
+      "is_active": true,
+      "notes": null
+    }
+  ],
+  "metadata": {
+    "exported_at": "2024-12-27",
+    "count": 6
+  }
+}

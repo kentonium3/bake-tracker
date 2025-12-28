@@ -10,6 +10,8 @@ User testing has revealed significant UI/UX issues in the My Ingredients and My 
 
 **Reference Implementation**: `src/ui/products_tab.py` - This tab has the desired UX patterns
 
+**NEW REQUIREMENT**: Products tab recently moved Delete button from main list toolbar into the edit form dialog. This makes it very clear what is being deleted and avoids uncertainty. Ingredients and Pantry tabs should follow this same pattern.
+
 ## Problems to Fix
 
 ### 1. My Ingredients Tab (`src/ui/ingredients_tab.py`)
@@ -39,9 +41,14 @@ User testing has revealed significant UI/UX issues in the My Ingredients and My 
 **Expected Behavior**: Match Products tab pattern:
 - Full scrollable list (no pagination)
 - Double-click item to edit in modal
-- Delete button on edit form
+- Delete button INSIDE edit form (not on main list)
 - More responsive interaction
 - Denser, more readable listing
+
+#### Issue 1F: Delete Button Location
+**Current Behavior**: Delete button on main tab toolbar  
+**Expected Behavior**: Delete button inside edit form dialog (matches Products pattern)  
+**Rationale**: Makes clear what is being deleted, avoids uncertainty when looking at list
 
 ### 2. My Pantry Tab (`src/ui/inventory_tab.py`)
 
@@ -50,9 +57,14 @@ User testing has revealed significant UI/UX issues in the My Ingredients and My 
 **Expected Behavior**: Match Products tab pattern:
 - Full scrollable list (no pagination)
 - Double-click item to edit in modal
-- Delete button on edit form
+- Delete button INSIDE edit form (not on main list)
 - More responsive interaction
 - Denser listing
+
+#### Issue 2B: Delete Button Location
+**Current Behavior**: Delete button on main tab toolbar  
+**Expected Behavior**: Delete button inside edit form dialog (matches Products pattern)  
+**Rationale**: Makes clear what is being deleted, avoids uncertainty when looking at list
 
 ## Technical Requirements
 
@@ -68,10 +80,11 @@ User testing has revealed significant UI/UX issues in the My Ingredients and My 
 ```python
 # Layout
 - Header (title + subtitle)
-- Toolbar (action buttons)
+- Toolbar (action buttons - NO delete button)
 - Filters (dropdowns + search)
 - Scrollable Treeview grid
 - Double-click opens modal edit dialog
+- Delete button INSIDE edit dialog
 - Context menu for additional actions
 ```
 
@@ -81,6 +94,7 @@ User testing has revealed significant UI/UX issues in the My Ingredients and My 
 - Double-click binding: `tree.bind("<Double-1>", handler)`
 - Clean, simple filter logic
 - Modal dialogs for create/edit operations
+- **Delete button is inside edit dialog, NOT on main toolbar**
 
 ## Implementation Tasks
 
@@ -144,6 +158,7 @@ User testing has revealed significant UI/UX issues in the My Ingredients and My 
    - Note how it uses `ttk.Treeview`
    - Note how double-click works
    - Note toolbar/filter layout
+   - **IMPORTANT**: Note that Delete button is INSIDE edit dialog, NOT on main toolbar
 
 2. Replace ingredient list widget
    - Remove current list/selection widget
@@ -152,26 +167,33 @@ User testing has revealed significant UI/UX issues in the My Ingredients and My 
    - Add scrollbars (vertical + horizontal if needed)
    - Style to match Products tab appearance
 
-3. Implement double-click edit
+3. Remove Delete button from main toolbar
+   - **CRITICAL**: Remove any Delete button from the main tab toolbar
+   - Delete will be handled inside edit dialog only
+   - Clean up toolbar layout after removal
+
+4. Implement double-click edit
    - Bind `<Double-1>` event to tree
    - Open modal dialog with ingredient form
    - Pass ingredient slug to dialog
    - Refresh list after dialog closes
 
-4. Create/update ingredient edit dialog
+5. Create/update ingredient edit dialog
    - Move edit form to modal dialog (if not already)
-   - Add Delete button to dialog
-   - Implement delete with confirmation
+   - **Add Delete button INSIDE the dialog** (bottom of form, typically)
+   - Position Delete button clearly (e.g., bottom-left or with other buttons)
+   - Implement delete with confirmation dialog
+   - Delete should close dialog and refresh list on success
    - Handle validation errors in dialog
    - Close dialog on successful save
 
-5. Update filtering logic
+6. Update filtering logic
    - Load all ingredients upfront
    - Filter in-memory based on category/search
    - Rebuild tree display (fast operation)
    - No database queries during filtering
 
-6. Performance optimization
+7. Performance optimization
    - Profile list refresh
    - Ensure data loaded once on tab activation
    - Use lazy loading for tab
@@ -183,6 +205,7 @@ User testing has revealed significant UI/UX issues in the My Ingredients and My 
 **Major Refactor** - Similar to Ingredients tab changes
 
 1. Study Products tab implementation (same as Task Group 4.1)
+   - **IMPORTANT**: Note Delete button location (inside dialog, not on toolbar)
 
 2. Replace inventory list widget
    - Remove current list widget
@@ -192,26 +215,33 @@ User testing has revealed significant UI/UX issues in the My Ingredients and My 
    - Add scrollbars
    - Style to match Products tab
 
-3. Implement double-click edit
+3. Remove Delete button from main toolbar
+   - **CRITICAL**: Remove any Delete button from the main tab toolbar
+   - Delete will be handled inside edit dialog only
+   - Clean up toolbar layout after removal
+
+4. Implement double-click edit
    - Bind `<Double-1>` event to tree
    - Open modal dialog with inventory form
    - Pass inventory item ID to dialog
    - Refresh list after dialog closes
 
-4. Create/update inventory edit dialog
+5. Create/update inventory edit dialog
    - Move edit form to modal dialog (if not already)
-   - Add Delete button to dialog
-   - Implement delete with confirmation
+   - **Add Delete button INSIDE the dialog** (bottom of form, typically)
+   - Position Delete button clearly (e.g., bottom-left or with other buttons)
+   - Implement delete with confirmation dialog
+   - Delete should close dialog and refresh list on success
    - Handle validation errors in dialog
    - Close dialog on successful save
 
-5. Update filtering logic
+6. Update filtering logic
    - Load all inventory items upfront
    - Filter in-memory based on category/search/view mode
    - Rebuild tree display
    - Maintain aggregate vs detail view modes
 
-6. Performance optimization
+7. Performance optimization
    - Profile list refresh
    - Ensure data loaded once on tab activation
    - Use lazy loading
@@ -227,17 +257,20 @@ User testing has revealed significant UI/UX issues in the My Ingredients and My 
 - [ ] Search is case-insensitive
 - [ ] List loads quickly (< 1 second for 100+ ingredients)
 - [ ] Double-click opens edit dialog
-- [ ] Edit dialog has Delete button
+- [ ] **Delete button is INSIDE edit dialog (not on main toolbar)**
 - [ ] Delete button works with confirmation
+- [ ] Delete closes dialog and refreshes list on success
 - [ ] List refreshes after edit/delete
 - [ ] Scrolling through full list is smooth
 - [ ] Layout matches Products tab visual style
+- [ ] **Main toolbar has NO delete button**
 
 ### Pantry Tab Testing
 - [ ] List loads quickly (< 1 second for 100+ items)
 - [ ] Double-click opens edit dialog
-- [ ] Edit dialog has Delete button
+- [ ] **Delete button is INSIDE edit dialog (not on main toolbar)**
 - [ ] Delete button works with confirmation
+- [ ] Delete closes dialog and refreshes list on success
 - [ ] List refreshes after edit/delete
 - [ ] Category filter works correctly
 - [ ] Search works correctly
@@ -245,6 +278,7 @@ User testing has revealed significant UI/UX issues in the My Ingredients and My 
 - [ ] Expiration highlighting works (yellow/red)
 - [ ] Scrolling through full list is smooth
 - [ ] Layout matches Products tab visual style
+- [ ] **Main toolbar has NO delete button**
 
 ## Success Criteria
 
@@ -253,9 +287,10 @@ User testing has revealed significant UI/UX issues in the My Ingredients and My 
 3. **Consistency Achieved**: Category dropdowns use same source
 4. **Diacriticals Handled**: Search finds accented character equivalents
 5. **UI Patterns Match**: Both tabs follow Products tab UX model
-6. **User Feedback**: Primary user (Marianne) confirms tabs are now usable and fast
-7. **No Regressions**: Existing functionality still works
-8. **Code Quality**: Changes follow constitution principles (layered architecture, no business logic in UI)
+6. **Delete Button Relocated**: Delete is inside edit dialog, NOT on main toolbar
+7. **User Feedback**: Primary user (Marianne) confirms tabs are now usable and fast
+8. **No Regressions**: Existing functionality still works
+9. **Code Quality**: Changes follow constitution principles (layered architecture, no business logic in UI)
 
 ## Implementation Notes
 
@@ -283,6 +318,47 @@ def normalize_for_search(text: str) -> str:
     
     # Convert to lowercase for case-insensitive matching
     return ascii_text.lower()
+```
+
+### Delete Button in Edit Dialog (reference from Products pattern)
+```python
+# Inside edit dialog, typically at bottom with other buttons
+delete_button = ctk.CTkButton(
+    button_frame,
+    text="🗑️ Delete",
+    command=self._on_delete,
+    fg_color="red",
+    hover_color="darkred",
+    width=100,
+)
+# Typically positioned on left side, away from Save/Cancel
+delete_button.pack(side="left", padx=5)
+
+def _on_delete(self):
+    """Handle delete button click."""
+    # Confirm deletion
+    result = messagebox.askyesno(
+        "Confirm Delete",
+        f"Are you sure you want to delete '{self.item_name}'?\n\nThis cannot be undone."
+    )
+    
+    if result:
+        try:
+            # Delete via service layer
+            with session_scope() as session:
+                service.delete_item(session, self.item_id)
+            
+            # Close dialog
+            self.destroy()
+            
+            # Refresh parent list
+            if hasattr(self.parent, 'refresh'):
+                self.parent.refresh()
+                
+        except ItemInUse as e:
+            messagebox.showerror("Cannot Delete", str(e))
+        except Exception as e:
+            messagebox.showerror("Error", f"Failed to delete: {e}")
 ```
 
 ### Treeview Basic Setup (reference)
@@ -319,11 +395,11 @@ scrollbar.grid(row=0, column=1, sticky='ns')
 ## Related Files
 
 **Primary Files to Modify**:
-- `src/ui/ingredients_tab.py` - Main ingredients UI refactor
-- `src/ui/inventory_tab.py` - Main pantry UI refactor
+- `src/ui/ingredients_tab.py` - Main ingredients UI refactor + remove delete from toolbar
+- `src/ui/inventory_tab.py` - Main pantry UI refactor + remove delete from toolbar
 
 **Reference Files** (DO NOT MODIFY):
-- `src/ui/products_tab.py` - Pattern to follow
+- `src/ui/products_tab.py` - Pattern to follow (note delete button location)
 - `src/utils/constants.py` - Category definitions
 
 **Potentially New Files**:
@@ -345,7 +421,9 @@ git commit -m "fix: repair category filter in ingredients tab"
 git commit -m "fix: standardize category dropdown sources"
 git commit -m "feat: add diacritical-insensitive search"
 git commit -m "refactor: ingredients tab to match products UX pattern"
+git commit -m "refactor: move delete button into ingredient edit dialog"
 git commit -m "refactor: pantry tab to match products UX pattern"
+git commit -m "refactor: move delete button into inventory edit dialog"
 
 # Test thoroughly before merging
 # Create PR for review
@@ -362,3 +440,5 @@ git commit -m "refactor: pantry tab to match products UX pattern"
 ---
 
 **Ready to implement**: Point Claude Code to this file and let it work through the task groups systematically. The fixes are well-scoped, low-risk, and will significantly improve usability for ongoing testing work.
+
+**CRITICAL**: Make sure Delete buttons are removed from main toolbars and moved INSIDE edit dialogs to match Products tab pattern.
