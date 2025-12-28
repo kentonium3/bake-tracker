@@ -215,11 +215,16 @@ class InventoryTab(ctk.CTkFrame):
 
     def _create_item_list(self):
         """Create item list using ttk.Treeview for performance."""
-        # Container for grid and scrollbar
-        grid_container = ctk.CTkFrame(self)
-        grid_container.grid(row=2, column=0, padx=5, pady=5, sticky="nsew")
+        # Container for grid and scrollbar (transparent to match other tabs)
+        grid_container = ctk.CTkFrame(self, fg_color="transparent")
+        grid_container.grid(row=2, column=0, padx=10, pady=5, sticky="nsew")
         grid_container.grid_columnconfigure(0, weight=1)
         grid_container.grid_rowconfigure(0, weight=1)
+        self.grid_container = grid_container  # Store reference for view switching
+
+        # Configure ttk.Treeview style for compact row height
+        style = ttk.Style()
+        style.configure("Treeview", rowheight=25)  # Compact row height
 
         # Define columns for detail view - exactly 5 columns
         columns = ("ingredient", "product", "brand", "qty_remaining", "purchased")
