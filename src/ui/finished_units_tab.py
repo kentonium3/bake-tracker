@@ -30,8 +30,9 @@ except ImportError:
     from src.services import finished_good_service as finished_unit_service
 
     HAS_FINISHED_UNIT_SERVICE = False
+from src.models.recipe import Recipe
+from src.services.database import session_scope
 from src.utils.constants import (
-    RECIPE_CATEGORIES,
     PADDING_MEDIUM,
     PADDING_LARGE,
     COLOR_SUCCESS,
@@ -126,6 +127,7 @@ class FinishedUnitsTab(ctk.CTkFrame):
 
         self.selected_finished_unit: Optional[FinishedUnit] = None
         self.service_integrator = get_ui_service_integrator()
+        self.recipe_categories = self._load_recipe_categories()
 
         # Configure grid
         self.grid_columnconfigure(0, weight=1)
@@ -173,12 +175,23 @@ class FinishedUnitsTab(ctk.CTkFrame):
             self._update_status(f"{operation_message} failed: {error_msg}", error=True)
             raise  # Re-raise the exception
 
+    def _load_recipe_categories(self) -> list:
+        """Load recipe categories from database."""
+        try:
+            with session_scope() as session:
+                categories = session.query(Recipe.category).distinct().filter(
+                    Recipe.category.isnot(None)
+                ).order_by(Recipe.category).all()
+                return [cat[0] for cat in categories if cat[0]]
+        except Exception:
+            return []
+
     def _create_search_bar(self):
         """Create the search bar with category filter."""
         self.search_bar = SearchBar(
             self,
             search_callback=self._on_search,
-            categories=["All Categories"] + RECIPE_CATEGORIES,
+            categories=["All Categories"] + self.recipe_categories,
             placeholder="Search by finished unit name...",
         )
         self.search_bar.grid(

@@ -8,12 +8,14 @@ This module provides validation functions for all user inputs including:
 - Category validation
 """
 
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Set
+
+from src.services.database import session_scope
+from src.models.ingredient import Ingredient
+from src.models.recipe import Recipe
 
 from .constants import (
     ALL_UNITS,
-    INGREDIENT_CATEGORIES,
-    RECIPE_CATEGORIES,
     MAX_NAME_LENGTH,
     MAX_BRAND_LENGTH,
     MAX_DESCRIPTION_LENGTH,
@@ -158,9 +160,40 @@ def validate_unit(unit: str, field_name: str = "Unit") -> Tuple[bool, str]:
     return True, ""
 
 
+def _get_valid_ingredient_categories() -> Set[str]:
+    """Get valid ingredient categories from database.
+
+    Returns:
+        Set of valid category names.
+    """
+    try:
+        with session_scope() as session:
+            categories = session.query(Ingredient.category).distinct().all()
+            return {cat[0] for cat in categories if cat[0]}
+    except Exception:
+        return set()
+
+
+def _get_valid_recipe_categories() -> Set[str]:
+    """Get valid recipe categories from database.
+
+    Returns:
+        Set of valid category names.
+    """
+    try:
+        with session_scope() as session:
+            categories = session.query(Recipe.category).distinct().all()
+            return {cat[0] for cat in categories if cat[0]}
+    except Exception:
+        return set()
+
+
 def validate_ingredient_category(category: str, field_name: str = "Category") -> Tuple[bool, str]:
     """
-    Validate that a category is in the list of valid ingredient categories.
+    Validate that a category exists in the database.
+
+    Categories are validated against existing ingredient categories in the database.
+    This allows new categories to be added simply by creating ingredients with them.
 
     Args:
         category: The category string to validate
@@ -172,15 +205,24 @@ def validate_ingredient_category(category: str, field_name: str = "Category") ->
     if not category:
         return False, f"{field_name}: {ERROR_REQUIRED_FIELD}"
 
-    if category not in INGREDIENT_CATEGORIES:
-        return False, f"{field_name}: {ERROR_INVALID_CATEGORY}"
+    valid_categories = _get_valid_ingredient_categories()
+
+    # If no categories exist yet (empty database), accept any non-empty category
+    if not valid_categories:
+        return True, ""
+
+    if category not in valid_categories:
+        return False, f"{field_name}: {ERROR_INVALID_CATEGORY}. Valid: {', '.join(sorted(valid_categories))}"
 
     return True, ""
 
 
 def validate_recipe_category(category: str, field_name: str = "Category") -> Tuple[bool, str]:
     """
-    Validate that a category is in the list of valid recipe categories.
+    Validate that a category exists in the database.
+
+    Categories are validated against existing recipe categories in the database.
+    This allows new categories to be added simply by creating recipes with them.
 
     Args:
         category: The category string to validate
@@ -192,8 +234,14 @@ def validate_recipe_category(category: str, field_name: str = "Category") -> Tup
     if not category:
         return False, f"{field_name}: {ERROR_REQUIRED_FIELD}"
 
-    if category not in RECIPE_CATEGORIES:
-        return False, f"{field_name}: {ERROR_INVALID_CATEGORY}"
+    valid_categories = _get_valid_recipe_categories()
+
+    # If no categories exist yet (empty database), accept any non-empty category
+    if not valid_categories:
+        return True, ""
+
+    if category not in valid_categories:
+        return False, f"{field_name}: {ERROR_INVALID_CATEGORY}. Valid: {', '.join(sorted(valid_categories))}"
 
     return True, ""
 

@@ -10,8 +10,8 @@ from typing import Optional
 
 from src.models.recipe import Recipe
 from src.services import recipe_service
+from src.services.database import session_scope
 from src.utils.constants import (
-    RECIPE_CATEGORIES,
     PADDING_MEDIUM,
     PADDING_LARGE,
     COLOR_SUCCESS,
@@ -52,6 +52,7 @@ class RecipesTab(ctk.CTkFrame):
         super().__init__(parent)
 
         self.selected_recipe: Optional[Recipe] = None
+        self.recipe_categories = self._load_recipe_categories()
 
         # Configure grid
         self.grid_columnconfigure(0, weight=1)
@@ -72,12 +73,27 @@ class RecipesTab(ctk.CTkFrame):
         # Grid the frame
         self.grid(row=0, column=0, sticky="nsew", padx=10, pady=10)
 
+    def _load_recipe_categories(self) -> list:
+        """Load recipe categories from database.
+
+        Returns:
+            List of distinct category names from recipes table.
+        """
+        try:
+            with session_scope() as session:
+                categories = session.query(Recipe.category).distinct().filter(
+                    Recipe.category.isnot(None)
+                ).order_by(Recipe.category).all()
+                return [cat[0] for cat in categories if cat[0]]
+        except Exception:
+            return []
+
     def _create_search_bar(self):
         """Create the search bar with category filter."""
         self.search_bar = SearchBar(
             self,
             search_callback=self._on_search,
-            categories=["All Categories"] + RECIPE_CATEGORIES,
+            categories=["All Categories"] + self.recipe_categories,
             placeholder="Search by recipe name...",
         )
         self.search_bar.grid(

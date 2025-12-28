@@ -120,58 +120,6 @@ UNIT_TYPE_MAP: Dict[str, str] = {
 }
 
 # ============================================================================
-# Ingredient Categories
-# ============================================================================
-
-# Food ingredient categories
-FOOD_INGREDIENT_CATEGORIES: List[str] = [
-    "Flour",
-    "Sugar",
-    "Dairy",
-    "Oils/Butters",
-    "Nuts",
-    "Spices",
-    "Chocolate/Candies",
-    "Cocoa Powders",
-    "Dried Fruits",
-    "Extracts",
-    "Syrups",
-    "Alcohol",
-    "Misc",
-]
-
-# Packaging ingredient categories (Feature 011)
-PACKAGING_INGREDIENT_CATEGORIES: List[str] = [
-    "Bags",
-    "Boxes",
-    "Ribbon",
-    "Labels",
-    "Tissue Paper",
-    "Wrapping",
-    "Other Packaging",
-]
-
-# All ingredient categories (food + packaging)
-INGREDIENT_CATEGORIES: List[str] = FOOD_INGREDIENT_CATEGORIES + PACKAGING_INGREDIENT_CATEGORIES
-
-# ============================================================================
-# Recipe Categories
-# ============================================================================
-
-RECIPE_CATEGORIES: List[str] = [
-    "Cookies",
-    "Cakes",
-    "Candies",
-    "Bars",
-    "Brownies",
-    "Breads",
-    "Pastries",
-    "Pies",
-    "Tarts",
-    "Other",
-]
-
-# ============================================================================
 # Event Status
 # ============================================================================
 
@@ -342,32 +290,6 @@ def is_valid_unit(unit: str) -> bool:
         True if the unit is valid, False otherwise
     """
     return unit.lower() in [u.lower() for u in ALL_UNITS]
-
-
-def is_valid_ingredient_category(category: str) -> bool:
-    """
-    Check if an ingredient category is valid.
-
-    Args:
-        category: The category string to validate
-
-    Returns:
-        True if the category is valid, False otherwise
-    """
-    return category in INGREDIENT_CATEGORIES
-
-
-def is_valid_recipe_category(category: str) -> bool:
-    """
-    Check if a recipe category is valid.
-
-    Args:
-        category: The category string to validate
-
-    Returns:
-        True if the category is valid, False otherwise
-    """
-    return category in RECIPE_CATEGORIES
 
 
 def format_currency(amount: float) -> str:

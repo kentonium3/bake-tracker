@@ -14,7 +14,6 @@ from src.models.ingredient import Ingredient
 from src.services import ingredient_crud_service, recipe_service
 from src.services.unit_service import get_units_for_dropdown
 from src.utils.constants import (
-    RECIPE_CATEGORIES,
     ALL_UNITS,
     WEIGHT_UNITS,
     VOLUME_UNITS,
@@ -24,6 +23,7 @@ from src.utils.constants import (
     PADDING_MEDIUM,
     PADDING_LARGE,
 )
+from src.services.database import session_scope
 from src.ui.widgets.dialogs import show_error, show_confirmation
 
 
@@ -226,6 +226,9 @@ class RecipeFormDialog(ctk.CTkToplevel):
         except Exception:
             self.available_ingredients = []
 
+        # Load recipe categories from database
+        self.recipe_categories = self._load_recipe_categories()
+
         # Configure window
         self.title(title)
         self.geometry("700x750")
@@ -268,6 +271,22 @@ class RecipeFormDialog(ctk.CTkToplevel):
         self.grab_set()
         self.focus_force()
 
+    def _load_recipe_categories(self) -> List[str]:
+        """Load recipe categories from database.
+
+        Returns:
+            List of distinct category names, or default if empty.
+        """
+        try:
+            with session_scope() as session:
+                categories = session.query(Recipe.category).distinct().filter(
+                    Recipe.category.isnot(None)
+                ).order_by(Recipe.category).all()
+                cat_list = [cat[0] for cat in categories if cat[0]]
+                return cat_list if cat_list else ["Uncategorized"]
+        except Exception:
+            return ["Uncategorized"]
+
     def _create_form_fields(self, parent):
         """Create all form input fields."""
         row = 0
@@ -305,10 +324,10 @@ class RecipeFormDialog(ctk.CTkToplevel):
         self.category_combo = ctk.CTkComboBox(
             parent,
             width=450,
-            values=RECIPE_CATEGORIES,
+            values=self.recipe_categories,
             state="readonly",
         )
-        self.category_combo.set(RECIPE_CATEGORIES[0])
+        self.category_combo.set(self.recipe_categories[0])
         self.category_combo.grid(row=row, column=1, sticky="ew", padx=PADDING_MEDIUM, pady=5)
         row += 1
 

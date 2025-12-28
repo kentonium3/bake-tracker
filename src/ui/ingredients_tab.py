@@ -51,8 +51,8 @@ from src.utils.constants import (
     VOLUME_UNITS,
     WEIGHT_UNITS,
     PACKAGE_TYPES,
-    PACKAGING_INGREDIENT_CATEGORIES,
 )
+from src.services import ingredient_service
 
 
 class IngredientsTab(ctk.CTkFrame):
@@ -861,11 +861,16 @@ class IngredientFormDialog(ctk.CTkToplevel):
     def _on_packaging_checkbox_change(self):
         """Handle packaging checkbox change - update category dropdown options."""
         if self.is_packaging_var.get():
-            # Packaging ingredient - show packaging categories (from constants, as no packaging data yet)
-            self.category_dropdown.configure(values=PACKAGING_INGREDIENT_CATEGORIES)
+            # Packaging ingredient - show packaging categories from database
+            packaging_categories = ingredient_service.get_distinct_ingredient_categories(
+                include_packaging=True
+            )
+            if not packaging_categories:
+                packaging_categories = ["Other Packaging"]  # Default if no packaging exists
+            self.category_dropdown.configure(values=packaging_categories)
             # Clear current selection if it's not a packaging category
             current = self.category_var.get()
-            if current and current not in PACKAGING_INGREDIENT_CATEGORIES:
+            if current and current not in packaging_categories:
                 self.category_var.set("")
         else:
             # Food ingredient - show food categories from database

@@ -698,3 +698,40 @@ def validate_packaging_category(category: str) -> bool:
         False
     """
     return category in PACKAGING_CATEGORIES
+
+
+def get_distinct_ingredient_categories(include_packaging: bool = False) -> List[str]:
+    """Get distinct ingredient categories from the database.
+
+    This is the canonical source for ingredient categories. UI components
+    should use this instead of hardcoded constants.
+
+    Args:
+        include_packaging: If True, include packaging categories. Default False.
+
+    Returns:
+        List of distinct category names, sorted alphabetically.
+    """
+    with session_scope() as session:
+        query = session.query(Ingredient.category).distinct()
+        if not include_packaging:
+            query = query.filter(Ingredient.is_packaging == False)  # noqa: E712
+        else:
+            query = query.filter(Ingredient.is_packaging == True)  # noqa: E712
+        categories = [row[0] for row in query.all() if row[0]]
+        return sorted(categories)
+
+
+def get_all_distinct_categories() -> List[str]:
+    """Get all distinct ingredient categories (food + packaging) from database.
+
+    Returns:
+        List of all distinct category names, sorted alphabetically.
+    """
+    with session_scope() as session:
+        categories = [
+            row[0] for row in
+            session.query(Ingredient.category).distinct().all()
+            if row[0]
+        ]
+        return sorted(categories)
