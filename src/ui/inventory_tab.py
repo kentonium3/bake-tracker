@@ -124,7 +124,7 @@ class InventoryTab(ctk.CTkFrame):
         """Create control buttons and filters."""
         controls_frame = ctk.CTkFrame(self)
         controls_frame.grid(row=1, column=0, padx=10, pady=10, sticky="ew")
-        controls_frame.grid_columnconfigure(6, weight=1)
+        controls_frame.grid_columnconfigure(9, weight=1)
 
         # Row 0: Search and filters
         # Search entry
@@ -136,9 +136,23 @@ class InventoryTab(ctk.CTkFrame):
         self.search_entry.grid(row=0, column=0, padx=5, pady=5)
         self.search_entry.bind("<KeyRelease>", self._on_search)
 
+        # Ingredient filter
+        ing_label = ctk.CTkLabel(controls_frame, text="Ingredient:")
+        ing_label.grid(row=0, column=1, padx=(15, 5), pady=5)
+
+        self.ingredient_var = ctk.StringVar(value="All Ingredients")
+        self.ingredient_dropdown = ctk.CTkOptionMenu(
+            controls_frame,
+            variable=self.ingredient_var,
+            values=["All Ingredients"],
+            command=self._on_ingredient_change,
+            width=160,
+        )
+        self.ingredient_dropdown.grid(row=0, column=2, padx=5, pady=5)
+
         # Category filter
         cat_label = ctk.CTkLabel(controls_frame, text="Category:")
-        cat_label.grid(row=0, column=1, padx=(15, 5), pady=5)
+        cat_label.grid(row=0, column=3, padx=(15, 5), pady=5)
 
         self.category_var = ctk.StringVar(value="All Categories")
         self.category_dropdown = ctk.CTkOptionMenu(
@@ -146,13 +160,27 @@ class InventoryTab(ctk.CTkFrame):
             variable=self.category_var,
             values=["All Categories"],
             command=self._on_category_change,
-            width=180,
+            width=160,
         )
-        self.category_dropdown.grid(row=0, column=2, padx=5, pady=5)
+        self.category_dropdown.grid(row=0, column=4, padx=5, pady=5)
+
+        # Brand filter
+        brand_label = ctk.CTkLabel(controls_frame, text="Brand:")
+        brand_label.grid(row=0, column=5, padx=(15, 5), pady=5)
+
+        self.brand_var = ctk.StringVar(value="All Brands")
+        self.brand_dropdown = ctk.CTkOptionMenu(
+            controls_frame,
+            variable=self.brand_var,
+            values=["All Brands"],
+            command=self._on_brand_change,
+            width=140,
+        )
+        self.brand_dropdown.grid(row=0, column=6, padx=5, pady=5)
 
         # View mode toggle
         view_label = ctk.CTkLabel(controls_frame, text="View:")
-        view_label.grid(row=0, column=3, padx=(15, 5), pady=5)
+        view_label.grid(row=0, column=7, padx=(15, 5), pady=5)
 
         self.view_mode_var = ctk.StringVar(value="Detail")
         view_mode_dropdown = ctk.CTkOptionMenu(
@@ -162,7 +190,7 @@ class InventoryTab(ctk.CTkFrame):
             command=self._on_view_mode_change,
             width=100,
         )
-        view_mode_dropdown.grid(row=0, column=4, padx=5, pady=5)
+        view_mode_dropdown.grid(row=0, column=8, padx=5, pady=5)
 
         # Row 1: Action buttons
         # Add Inventory Item button
@@ -261,16 +289,31 @@ class InventoryTab(ctk.CTkFrame):
             # Get all inventory items from service (returns InventoryItem instances)
             self.inventory_items = inventory_item_service.get_inventory_items()
 
-            # Update category dropdown with unique ingredient categories
+            # Update filter dropdowns with unique values from inventory
+            ingredients = set()
             categories = set()
+            brands = set()
             for item in self.inventory_items:
                 product = getattr(item, "product", None)
                 ingredient = getattr(product, "ingredient", None) if product else None
+                ingredient_name = getattr(ingredient, "display_name", None) if ingredient else None
                 category = getattr(ingredient, "category", None) if ingredient else None
+                brand = getattr(product, "brand", None) if product else None
+                if ingredient_name:
+                    ingredients.add(ingredient_name)
                 if category:
                     categories.add(category)
+                if brand:
+                    brands.add(brand)
+
+            ingredient_list = ["All Ingredients"] + sorted(ingredients)
+            self.ingredient_dropdown.configure(values=ingredient_list)
+
             category_list = ["All Categories"] + sorted(categories)
             self.category_dropdown.configure(values=category_list)
+
+            brand_list = ["All Brands"] + sorted(brands)
+            self.brand_dropdown.configure(values=brand_list)
 
             # Apply filters
             self._apply_filters()
@@ -283,7 +326,7 @@ class InventoryTab(ctk.CTkFrame):
             )
 
     def _apply_filters(self):
-        """Apply search and category filters and update display."""
+        """Apply search, ingredient, category, and brand filters and update display."""
         self.filtered_items = list(self.inventory_items)
 
         # Apply search filter with diacritical normalization
@@ -301,6 +344,18 @@ class InventoryTab(ctk.CTkFrame):
                     filtered.append(item)
             self.filtered_items = filtered
 
+        # Apply ingredient filter
+        selected_ingredient = self.ingredient_var.get()
+        if selected_ingredient and selected_ingredient != "All Ingredients":
+            filtered = []
+            for item in self.filtered_items:
+                product = getattr(item, "product", None)
+                ingredient = getattr(product, "ingredient", None) if product else None
+                ingredient_name = getattr(ingredient, "display_name", None) if ingredient else None
+                if ingredient_name == selected_ingredient:
+                    filtered.append(item)
+            self.filtered_items = filtered
+
         # Apply category filter
         selected_category = self.category_var.get()
         if selected_category and selected_category != "All Categories":
@@ -313,6 +368,27 @@ class InventoryTab(ctk.CTkFrame):
                     filtered.append(item)
             self.filtered_items = filtered
 
+        # Apply brand filter
+        selected_brand = self.brand_var.get()
+        if selected_brand and selected_brand != "All Brands":
+            filtered = []
+            for item in self.filtered_items:
+                product = getattr(item, "product", None)
+                brand = getattr(product, "brand", None) if product else None
+                if brand == selected_brand:
+                    filtered.append(item)
+            self.filtered_items = filtered
+
+        # Sort by ingredient name alphabetically (case-insensitive)
+        self.filtered_items.sort(
+            key=lambda item: (
+                getattr(
+                    getattr(getattr(item, "product", None), "ingredient", None),
+                    "display_name", ""
+                ) or ""
+            ).lower()
+        )
+
         # Update display based on view mode
         self._update_display()
 
@@ -320,8 +396,16 @@ class InventoryTab(ctk.CTkFrame):
         """Handle search text change."""
         self._apply_filters()
 
+    def _on_ingredient_change(self, value: str):
+        """Handle ingredient filter change."""
+        self._apply_filters()
+
     def _on_category_change(self, value: str):
         """Handle category filter change."""
+        self._apply_filters()
+
+    def _on_brand_change(self, value: str):
+        """Handle brand filter change."""
         self._apply_filters()
 
     def _update_display(self):
