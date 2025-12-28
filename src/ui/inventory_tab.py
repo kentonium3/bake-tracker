@@ -194,7 +194,7 @@ class InventoryTab(ctk.CTkFrame):
         grid_container.grid_rowconfigure(0, weight=1)
 
         # Define columns for detail view
-        columns = ("brand", "product", "quantity", "purchase_date", "expiration")
+        columns = ("ingredient", "product", "brand", "remaining_qty", "unit", "location", "purchased")
         self.tree = ttk.Treeview(
             grid_container,
             columns=columns,
@@ -204,18 +204,22 @@ class InventoryTab(ctk.CTkFrame):
         )
 
         # Configure column headings
-        self.tree.heading("brand", text="Brand", anchor="w")
+        self.tree.heading("ingredient", text="Ingredient", anchor="w")
         self.tree.heading("product", text="Product", anchor="w")
-        self.tree.heading("quantity", text="Quantity", anchor="w")
-        self.tree.heading("purchase_date", text="Purchase Date", anchor="w")
-        self.tree.heading("expiration", text="Expiration", anchor="w")
+        self.tree.heading("brand", text="Brand", anchor="w")
+        self.tree.heading("remaining_qty", text="Remaining Qty", anchor="w")
+        self.tree.heading("unit", text="Unit", anchor="w")
+        self.tree.heading("location", text="Location", anchor="w")
+        self.tree.heading("purchased", text="Purchased", anchor="w")
 
         # Configure column widths
-        self.tree.column("brand", width=150, minwidth=100)
-        self.tree.column("product", width=300, minwidth=200)
-        self.tree.column("quantity", width=140, minwidth=100)
-        self.tree.column("purchase_date", width=110, minwidth=90)
-        self.tree.column("expiration", width=110, minwidth=90)
+        self.tree.column("ingredient", width=150, minwidth=100)
+        self.tree.column("product", width=200, minwidth=150)
+        self.tree.column("brand", width=120, minwidth=80)
+        self.tree.column("remaining_qty", width=100, minwidth=80)
+        self.tree.column("unit", width=60, minwidth=50)
+        self.tree.column("location", width=100, minwidth=80)
+        self.tree.column("purchased", width=100, minwidth=80)
 
         # Add scrollbars
         y_scrollbar = ttk.Scrollbar(
@@ -238,9 +242,7 @@ class InventoryTab(ctk.CTkFrame):
         y_scrollbar.grid(row=0, column=1, sticky="ns")
         x_scrollbar.grid(row=1, column=0, sticky="ew")
 
-        # Configure tags for expiration warnings
-        self.tree.tag_configure("expired", background="#8B0000", foreground="white")
-        self.tree.tag_configure("expiring_soon", background="#DAA520")
+        # Configure tags for visual differentiation
         self.tree.tag_configure("packaging", foreground="#0066cc")
 
         # Bind events
@@ -582,46 +584,37 @@ class InventoryTab(ctk.CTkFrame):
                 desc_parts.append(size_str)
             description = " - ".join(desc_parts) if desc_parts else "N/A"
 
-            # Quantity display
+            # Remaining quantity display - use actual package_type instead of generic "pkg"
             qty_value = getattr(item, "quantity", 0) or 0
-            if qty_value == int(qty_value):
-                qty_total = str(int(qty_value))
-            else:
-                qty_total = f"{qty_value:.1f}"
-
             if package_qty and package_qty > 0:
                 packages = qty_value / float(package_qty)
                 if packages == int(packages):
                     pkg_text = str(int(packages))
                 else:
                     pkg_text = f"{packages:.1f}"
-                qty_display = f"{pkg_text} pkg ({qty_total} {package_unit})"
+                # Use actual package_type (jar, can, bag) or fallback to "pkg"
+                pkg_type_display = package_type if package_type else "pkg"
+                qty_display = f"{pkg_text} {pkg_type_display}"
             else:
-                qty_display = f"{qty_total} {package_unit}".strip()
-
-            # Dates
-            purchase_date = getattr(item, "purchase_date", None)
-            purchase_str = purchase_date.strftime("%Y-%m-%d") if purchase_date else "N/A"
-
-            expiration_date = getattr(item, "expiration_date", None)
-            expiration_text = "None"
-            tags = []
-
-            if expiration_date:
-                days_until_expiry = (expiration_date - date.today()).days
-                if days_until_expiry < 0:
-                    expiration_text = "EXPIRED"
-                    tags.append("expired")
-                elif days_until_expiry <= 14:
-                    expiration_text = f"⚠️ {expiration_date.strftime('%Y-%m-%d')}"
-                    tags.append("expiring_soon")
+                if qty_value == int(qty_value):
+                    qty_display = str(int(qty_value))
                 else:
-                    expiration_text = expiration_date.strftime("%Y-%m-%d")
+                    qty_display = f"{qty_value:.1f}"
 
-            if is_packaging and "expired" not in tags and "expiring_soon" not in tags:
+            # Location
+            location = getattr(item, "location", None) or ""
+
+            # Purchase date
+            purchase_date = getattr(item, "purchase_date", None)
+            purchase_str = purchase_date.strftime("%Y-%m-%d") if purchase_date else ""
+
+            # Tags for visual styling
+            tags = []
+            if is_packaging:
                 tags.append("packaging")
 
-            values = (brand, description, qty_display, purchase_str, expiration_text)
+            # New column order: ingredient, product, brand, remaining_qty, unit, location, purchased
+            values = (ingredient_name, description, brand, qty_display, package_unit, location, purchase_str)
             item_id = getattr(item, "id", None)
 
             # Use item ID as the tree item ID for easy lookup

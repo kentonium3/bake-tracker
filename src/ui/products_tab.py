@@ -198,50 +198,37 @@ class ProductsTab(ctk.CTkFrame):
         grid_container.grid_columnconfigure(0, weight=1)
         grid_container.grid_rowconfigure(0, weight=1)
 
-        # Define columns (ingredient included but hidden)
+        # Define columns - new order: Ingredient, Product, Brand, Package, Category, Supplier
         columns = (
-            "brand",
-            "product_name",
             "ingredient",
-            "category",
-            "supplier",
-            "last_price",
-            "last_purchase",
-        )
-        # Display columns excludes ingredient (hidden)
-        display_columns = (
-            "brand",
             "product_name",
+            "brand",
+            "package",
             "category",
             "supplier",
-            "last_price",
-            "last_purchase",
         )
         self.tree = ttk.Treeview(
             grid_container,
             columns=columns,
-            displaycolumns=display_columns,
             show="headings",
             selectmode="browse",
         )
 
         # Configure column headings
+        self.tree.heading("ingredient", text="Ingredient", anchor="w")
+        self.tree.heading("product_name", text="Product", anchor="w")
         self.tree.heading("brand", text="Brand", anchor="w")
-        self.tree.heading("product_name", text="Product Name", anchor="w")
-        self.tree.heading("ingredient", text="Ingredient", anchor="w")  # Hidden
+        self.tree.heading("package", text="Package", anchor="w")
         self.tree.heading("category", text="Category", anchor="w")
-        self.tree.heading("supplier", text="Preferred Supplier", anchor="w")
-        self.tree.heading("last_price", text="Last Price", anchor="e")
-        self.tree.heading("last_purchase", text="Last Purchase", anchor="w")
+        self.tree.heading("supplier", text="Supplier", anchor="w")
 
         # Configure column widths
+        self.tree.column("ingredient", width=150, minwidth=100)
+        self.tree.column("product_name", width=180, minwidth=120)
         self.tree.column("brand", width=120, minwidth=80)
-        self.tree.column("product_name", width=200, minwidth=150)
-        self.tree.column("ingredient", width=0)  # Hidden via displaycolumns
-        self.tree.column("category", width=100, minwidth=80)
+        self.tree.column("package", width=100, minwidth=80)
+        self.tree.column("category", width=120, minwidth=80)
         self.tree.column("supplier", width=150, minwidth=100)
-        self.tree.column("last_price", width=80, minwidth=60, anchor="e")
-        self.tree.column("last_purchase", width=100, minwidth=80)
 
         # Add scrollbars
         y_scrollbar = ttk.Scrollbar(
@@ -364,16 +351,29 @@ class ProductsTab(ctk.CTkFrame):
             )
             self.products = []
 
-        # Populate grid
+        # Populate grid - new order: ingredient, product, brand, package, category, supplier
         for p in self.products:
+            # Build package display string (e.g., "28 oz can")
+            pkg_qty = p.get("package_unit_quantity", "")
+            pkg_unit = p.get("package_unit", "")
+            pkg_type = p.get("package_type", "")
+            if pkg_qty and pkg_unit:
+                # Format quantity nicely (remove .0 for whole numbers)
+                if isinstance(pkg_qty, float) and pkg_qty == int(pkg_qty):
+                    pkg_qty = int(pkg_qty)
+                package_display = f"{pkg_qty} {pkg_unit}"
+                if pkg_type:
+                    package_display += f" {pkg_type}"
+            else:
+                package_display = ""
+
             values = (
-                p.get("brand", ""),
+                p.get("ingredient_name", ""),
                 p.get("product_name", ""),
-                p.get("ingredient_name", ""),  # Hidden column
+                p.get("brand", ""),
+                package_display,
                 p.get("category", ""),
-                p.get("preferred_supplier_name", ""),
-                f"${p['last_price']:.2f}" if p.get("last_price") else "N/A",
-                p.get("last_purchase_date", "N/A") or "N/A",
+                p.get("preferred_supplier_name", "") or "",
             )
             tags = ("hidden",) if p.get("is_hidden") else ()
             self.tree.insert("", "end", iid=str(p["id"]), values=values, tags=tags)
