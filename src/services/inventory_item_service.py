@@ -210,7 +210,8 @@ def get_inventory_items(
     """
     with session_scope() as session:
         q = session.query(InventoryItem).options(
-            joinedload(InventoryItem.product).joinedload(Product.ingredient)
+            joinedload(InventoryItem.product).joinedload(Product.ingredient),
+            joinedload(InventoryItem.purchase).joinedload(Purchase.supplier),
         )
 
         # Join Product if filtering by ingredient_slug
@@ -542,6 +543,70 @@ def update_inventory_item(inventory_item_id: int, item_data: Dict[str, Any]) -> 
         raise
     except Exception as e:
         raise DatabaseError(f"Failed to update inventory item {inventory_item_id}", original_error=e)
+
+
+def update_inventory_supplier(
+    inventory_item_id: int,
+    supplier_id: Optional[int],
+) -> InventoryItem:
+    """Update the supplier for an inventory item's linked purchase record.
+
+    If the inventory item doesn't have a linked purchase record, creates one.
+    This supports editing supplier on existing inventory items.
+
+    Args:
+        inventory_item_id: Inventory item identifier
+        supplier_id: Supplier ID to set (or None to clear)
+
+    Returns:
+        InventoryItem: Updated inventory item
+
+    Raises:
+        InventoryItemNotFound: If inventory_item_id doesn't exist
+        ValidationError: If supplier_id is invalid
+        DatabaseError: If database operation fails
+    """
+    try:
+        with session_scope() as session:
+            item = (
+                session.query(InventoryItem)
+                .options(joinedload(InventoryItem.purchase))
+                .filter_by(id=inventory_item_id)
+                .first()
+            )
+            if not item:
+                raise InventoryItemNotFound(inventory_item_id)
+
+            # Validate supplier exists if provided
+            if supplier_id is not None:
+                supplier = session.query(Supplier).filter_by(id=supplier_id).first()
+                if not supplier:
+                    raise ServiceValidationError([f"Supplier with id {supplier_id} not found"])
+
+            if item.purchase_id and item.purchase:
+                # Update existing purchase record
+                item.purchase.supplier_id = supplier_id
+            elif supplier_id is not None:
+                # Create new purchase record for this inventory item
+                purchase = Purchase(
+                    product_id=item.product_id,
+                    supplier_id=supplier_id,
+                    purchase_date=item.purchase_date or date.today(),
+                    unit_price=item.unit_cost or Decimal("0"),
+                    quantity_purchased=int(item.quantity) if item.quantity else 1,
+                )
+                session.add(purchase)
+                session.flush()
+                item.purchase_id = purchase.id
+
+            return item
+
+    except InventoryItemNotFound:
+        raise
+    except ServiceValidationError:
+        raise
+    except Exception as e:
+        raise DatabaseError(f"Failed to update inventory supplier for {inventory_item_id}", original_error=e)
 
 
 def update_inventory_quantity(

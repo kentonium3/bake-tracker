@@ -7,7 +7,6 @@ Provides interface for:
 - Editing existing inventory items
 - Deleting inventory items
 - Filtering by location
-- Expiration alerts (visual indicators)
 """
 
 import customtkinter as ctk
@@ -65,7 +64,6 @@ class InventoryTab(ctk.CTkFrame):
 
     Features:
     - Location filter
-    - Expiration alerts (yellow < 14 days, red expired)
     - CRUD operations for inventory items
     """
 
@@ -534,26 +532,29 @@ class InventoryTab(ctk.CTkFrame):
                 packages = float(total_qty) / float(package_qty)
                 total_amount = float(total_qty)
 
+                # Format package count (1 decimal max, remove trailing zeros)
                 if packages == int(packages):
                     pkg_count = str(int(packages))
                 else:
-                    pkg_count = f"{packages:.2f}".rstrip('0').rstrip('.')
+                    pkg_count = f"{packages:.1f}".rstrip('0').rstrip('.')
 
                 pkg_type_text = pkg_type_display if packages == 1 else f"{pkg_type_display}s"
 
+                # Format total amount (1 decimal max for small, 0 for large)
                 if total_amount > 100:
                     total_text = f"{total_amount:.0f}"
                 elif total_amount == int(total_amount):
                     total_text = str(int(total_amount))
                 else:
-                    total_text = f"{total_amount:g}"
+                    total_text = f"{total_amount:.1f}".rstrip('0').rstrip('.')
 
                 qty_display = f"{pkg_count} {pkg_type_text} ({total_text} {pkg_unit_display})"
             else:
+                # Fallback if no package info (1 decimal max)
                 if total_qty == int(total_qty):
                     qty_display = str(int(total_qty))
                 else:
-                    qty_display = f"{float(total_qty):g}"
+                    qty_display = f"{float(total_qty):.1f}".rstrip('0').rstrip('.')
 
             aggregated.append({
                 'ingredient_name': ingredient_name,
@@ -627,11 +628,11 @@ class InventoryTab(ctk.CTkFrame):
                 # Calculate total amount
                 total_amount = qty_value  # quantity is already in base units
 
-                # Format package count (remove trailing zeros)
+                # Format package count (1 decimal max, remove trailing zeros)
                 if packages == int(packages):
                     pkg_count = str(int(packages))
                 else:
-                    pkg_count = f"{packages:g}"
+                    pkg_count = f"{packages:.1f}".rstrip('0').rstrip('.')
 
                 # Handle singular/plural for package type
                 if packages == 1:
@@ -639,21 +640,21 @@ class InventoryTab(ctk.CTkFrame):
                 else:
                     pkg_type_text = f"{pkg_type_display}s"
 
-                # Format total amount (round large values)
+                # Format total amount (1 decimal max for small, 0 for large)
                 if total_amount > 100:
                     total_text = f"{total_amount:.0f}"
                 elif total_amount == int(total_amount):
                     total_text = str(int(total_amount))
                 else:
-                    total_text = f"{total_amount:g}"
+                    total_text = f"{total_amount:.1f}".rstrip('0').rstrip('.')
 
                 qty_display = f"{pkg_count} {pkg_type_text} ({total_text} {pkg_unit_display})"
             else:
-                # Fallback if no package info
+                # Fallback if no package info (1 decimal max)
                 if qty_value == int(qty_value):
                     qty_display = str(int(qty_value))
                 else:
-                    qty_display = f"{qty_value:g}"
+                    qty_display = f"{float(qty_value):.1f}".rstrip('0').rstrip('.')
 
             # Purchase date
             purchase_date = getattr(item, "purchase_date", None)
@@ -839,7 +840,13 @@ class InventoryTab(ctk.CTkFrame):
                 return
 
             # Update inventory item via service
+            # Extract supplier_id before passing to update (it's handled separately)
+            supplier_id = dialog.result.pop("supplier_id", None)
             inventory_item_service.update_inventory_item(inventory_item_id, dialog.result)
+
+            # Update supplier via purchase record if provided
+            if supplier_id is not None:
+                inventory_item_service.update_inventory_supplier(inventory_item_id, supplier_id)
 
             messagebox.showinfo(
                 "Success",
@@ -898,6 +905,8 @@ class InventoryTab(ctk.CTkFrame):
         """Convert an InventoryItem ORM instance to a simple dict for dialog usage."""
         product = getattr(item, "product", None)
         ingredient = getattr(product, "ingredient", None) if product else None
+        purchase = getattr(item, "purchase", None)
+        supplier = getattr(purchase, "supplier", None) if purchase else None
 
         return {
             "id": item.id,
@@ -911,6 +920,11 @@ class InventoryTab(ctk.CTkFrame):
             "product_package_unit_quantity": getattr(product, "package_unit_quantity", None),
             "product_package_unit": getattr(product, "package_unit", None),
             "ingredient_name": getattr(ingredient, "display_name", None),
+            # Purchase/Supplier info for edit form
+            "purchase_id": getattr(item, "purchase_id", None),
+            "supplier_id": getattr(supplier, "id", None) if supplier else None,
+            "supplier_name": getattr(supplier, "name", None) if supplier else None,
+            "unit_price": getattr(purchase, "unit_price", None) if purchase else None,
         }
 
 
@@ -925,7 +939,6 @@ class InventoryItemFormDialog(ctk.CTkToplevel):
     - Price (entry with suggestion hint, required for new items) - F028
     - Quantity (required, > 0)
     - Purchase Date (required)
-    - Expiration Date (optional, >= purchase_date)
     - Location (optional)
     - Notes (optional)
     """
@@ -1146,8 +1159,8 @@ class InventoryItemFormDialog(ctk.CTkToplevel):
         if default_supplier and not self.item:
             self._on_supplier_change(default_supplier)
 
-        # Quantity
-        qty_label = ctk.CTkLabel(self, text="Quantity:*")
+        # Quantity Remaining (current stock level, not original purchase amount)
+        qty_label = ctk.CTkLabel(self, text="Quantity Remaining:*")
         qty_label.grid(row=row, column=0, padx=10, pady=10, sticky="w")
 
         self.quantity_entry = ctk.CTkEntry(self, placeholder_text="e.g., 25")
@@ -1170,14 +1183,6 @@ class InventoryItemFormDialog(ctk.CTkToplevel):
 
         # Set default to today
         self.purchase_date_entry.insert(0, date.today().strftime("%Y-%m-%d"))
-        row += 1
-
-        # Expiration Date
-        exp_label = ctk.CTkLabel(self, text="Expiration Date:")
-        exp_label.grid(row=row, column=0, padx=10, pady=10, sticky="w")
-
-        self.expiration_date_entry = ctk.CTkEntry(self, placeholder_text="YYYY-MM-DD (optional)")
-        self.expiration_date_entry.grid(row=row, column=1, padx=10, pady=10, sticky="ew")
         row += 1
 
         # Location
@@ -1749,12 +1754,6 @@ class InventoryItemFormDialog(ctk.CTkToplevel):
                 self.purchase_date_entry.delete(0, "end")
                 self.purchase_date_entry.insert(0, purchase_date.strftime("%Y-%m-%d"))
 
-            # Set expiration date
-            expiration_date = self.item.get("expiration_date")
-            if expiration_date:
-                self.expiration_date_entry.delete(0, "end")
-                self.expiration_date_entry.insert(0, expiration_date.strftime("%Y-%m-%d"))
-
             # Set location
             location = self.item.get("location")
             if location:
@@ -1766,6 +1765,19 @@ class InventoryItemFormDialog(ctk.CTkToplevel):
             if notes:
                 self.notes_text.delete("1.0", "end")
                 self.notes_text.insert("1.0", notes)
+
+            # Set supplier from purchase record (if linked)
+            supplier_name = self.item.get("supplier_name")
+            if supplier_name:
+                # Find matching supplier in dropdown
+                supplier_display = next(
+                    (s["display_name"] for s in self.suppliers if s["name"] == supplier_name),
+                    None,
+                )
+                if supplier_display:
+                    self.supplier_var.set(supplier_display)
+                    # Trigger price hint update
+                    self._on_supplier_change(supplier_display)
 
             # Prevent editing immutable fields (F029: use combo boxes)
             self.category_combo.configure(state="disabled")
@@ -1786,7 +1798,6 @@ class InventoryItemFormDialog(ctk.CTkToplevel):
         product_display = strip_star_prefix(self.product_combo.get()).strip()
         quantity_str = self.quantity_entry.get().strip()
         purchase_date_str = self.purchase_date_entry.get().strip()
-        expiration_date_str = self.expiration_date_entry.get().strip()
         location = self.location_entry.get().strip()
         notes = self.notes_text.get("1.0", "end").strip()
 
@@ -1846,26 +1857,6 @@ class InventoryItemFormDialog(ctk.CTkToplevel):
                 messagebox.showerror(
                     "Validation Error",
                     "Invalid purchase date format (use YYYY-MM-DD)",
-                    parent=self,
-                )
-                return
-
-        # Parse expiration date (optional)
-        expiration_date = None
-        if expiration_date_str:
-            try:
-                expiration_date = date.fromisoformat(expiration_date_str)
-                if expiration_date < purchase_date:
-                    messagebox.showerror(
-                        "Validation Error",
-                        "Expiration date must be after purchase date",
-                        parent=self,
-                    )
-                    return
-            except Exception:
-                messagebox.showerror(
-                    "Validation Error",
-                    "Invalid expiration date format (use YYYY-MM-DD)",
                     parent=self,
                 )
                 return
@@ -1930,9 +1921,12 @@ class InventoryItemFormDialog(ctk.CTkToplevel):
             self.result["supplier_id"] = supplier_id  # F028
             self.result["unit_price"] = unit_price  # F028
             self.result["purchase_date"] = purchase_date
+        else:
+            # For editing, include supplier_id so it can be updated via purchase record
+            supplier_id = self._get_selected_supplier_id()
+            if supplier_id is not None:
+                self.result["supplier_id"] = supplier_id
 
-        if expiration_date:
-            self.result["expiration_date"] = expiration_date
         if location:
             self.result["location"] = location
         if notes:
