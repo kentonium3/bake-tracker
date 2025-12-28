@@ -482,39 +482,112 @@ class InventoryTab(ctk.CTkFrame):
         empty_label.grid(row=0, column=0, padx=20, pady=50)
 
     def _display_aggregate_view(self):
-        """Display inventory items grouped by ingredient with totals."""
-        # Group items by ingredient
+        """Display inventory items grouped by product with totals."""
+        # Group items by product (not ingredient)
         from collections import defaultdict
+        from decimal import Decimal
 
-        ingredient_groups = defaultdict(list)
+        product_groups = defaultdict(list)
 
         for item in self.filtered_items:
             product = getattr(item, "product", None)
+            product_id = getattr(product, "id", None)
+            if product_id:
+                product_groups[product_id].append(item)
+
+        # Build aggregated data for display
+        aggregated = []
+        for product_id, items in product_groups.items():
+            first_item = items[0]
+            product = getattr(first_item, "product", None)
             ingredient = getattr(product, "ingredient", None) if product else None
-            ingredient_slug = getattr(ingredient, "slug", None)
-            if ingredient_slug:
-                ingredient_groups[ingredient_slug].append(item)
+
+            # Sum quantities for this product
+            total_qty = sum(
+                Decimal(str(getattr(item, "quantity", 0) or 0))
+                for item in items
+            )
+
+            # Get product details
+            ingredient_name = getattr(ingredient, "display_name", "Unknown") if ingredient else "Unknown"
+            is_packaging = getattr(ingredient, "is_packaging", False) if ingredient else False
+            brand = getattr(product, "brand", "") or ""
+            product_name = getattr(product, "product_name", "") or ""
+            package_qty = getattr(product, "package_unit_quantity", None)
+            package_unit = getattr(product, "package_unit", "") or ""
+            package_type = getattr(product, "package_type", "") or ""
+
+            # Build product description
+            desc_parts = []
+            if product_name:
+                desc_parts.append(product_name)
+            elif ingredient_name:
+                desc_parts.append(f"[{ingredient_name}]")
+            if package_qty and package_unit:
+                size_str = f"{package_qty:g} {package_unit}"
+                if package_type:
+                    size_str += f" {package_type}"
+                desc_parts.append(size_str)
+            description = " - ".join(desc_parts) if desc_parts else "N/A"
+
+            # Format quantity display (same as detail view)
+            pkg_type_display = package_type if package_type else "pkg"
+            pkg_unit_display = package_unit if package_unit else "unit"
+
+            if package_qty and package_qty > 0:
+                packages = float(total_qty) / float(package_qty)
+                total_amount = float(total_qty)
+
+                if packages == int(packages):
+                    pkg_count = str(int(packages))
+                else:
+                    pkg_count = f"{packages:.2f}".rstrip('0').rstrip('.')
+
+                pkg_type_text = pkg_type_display if packages == 1 else f"{pkg_type_display}s"
+
+                if total_amount > 100:
+                    total_text = f"{total_amount:.0f}"
+                elif total_amount == int(total_amount):
+                    total_text = str(int(total_amount))
+                else:
+                    total_text = f"{total_amount:g}"
+
+                qty_display = f"{pkg_count} {pkg_type_text} ({total_text} {pkg_unit_display})"
+            else:
+                if total_qty == int(total_qty):
+                    qty_display = str(int(total_qty))
+                else:
+                    qty_display = f"{float(total_qty):g}"
+
+            aggregated.append({
+                'ingredient_name': ingredient_name,
+                'description': description,
+                'brand': f"📦 {brand}" if is_packaging else brand,
+                'qty_display': qty_display,
+                'is_packaging': is_packaging,
+            })
+
+        # Sort by ingredient name, then product description
+        aggregated.sort(key=lambda x: (x['ingredient_name'].lower(), x['description'].lower()))
 
         # Create header
         self._create_aggregate_header()
 
         # Limit rows to prevent UI freeze
-        # CustomTkinter is slow with many widgets - keep this low
-        MAX_DISPLAY_ROWS = 25
-        sorted_groups = sorted(ingredient_groups.items())
-        display_groups = sorted_groups[:MAX_DISPLAY_ROWS]
+        MAX_DISPLAY_ROWS = 50
+        display_items = aggregated[:MAX_DISPLAY_ROWS]
 
-        # Display each ingredient group
-        for idx, (ingredient_slug, items) in enumerate(display_groups):
-            self._create_aggregate_row(idx + 1, ingredient_slug, items)
+        # Display each product row
+        for idx, item_data in enumerate(display_items):
+            self._create_aggregate_row(idx + 1, item_data)
 
         # Show truncation warning if needed
-        if len(sorted_groups) > MAX_DISPLAY_ROWS:
+        if len(aggregated) > MAX_DISPLAY_ROWS:
             warning_frame = ctk.CTkFrame(self.scrollable_frame)
             warning_frame.grid(row=MAX_DISPLAY_ROWS + 1, column=0, padx=5, pady=10, sticky="ew")
             warning_label = ctk.CTkLabel(
                 warning_frame,
-                text=f"Showing {MAX_DISPLAY_ROWS} of {len(sorted_groups)} ingredients. Use filters to narrow results.",
+                text=f"Showing {MAX_DISPLAY_ROWS} of {len(aggregated)} products. Use filters to narrow results.",
                 text_color="orange",
                 font=ctk.CTkFont(size=12, weight="bold"),
             )
@@ -526,12 +599,13 @@ class InventoryTab(ctk.CTkFrame):
         header_frame.grid(row=0, column=0, padx=5, pady=5, sticky="ew")
         header_frame.grid_columnconfigure(1, weight=1)
 
+        # Aggregate view columns: Ingredient, Product, Brand, Qty Remaining
+        # (No Purchased column - not meaningful for aggregated data)
         headers = [
-            ("Ingredient", 0, 300),
-            ("Total Quantity", 1, 150),
-            ("# Lots", 2, 100),
-            ("Oldest Purchase", 3, 150),
-            ("Actions", 4, 150),
+            ("Ingredient", 0, 180),
+            ("Product", 1, 250),
+            ("Brand", 2, 140),
+            ("Qty Remaining", 3, 180),
         ]
 
         for text, col, width in headers:
@@ -543,109 +617,47 @@ class InventoryTab(ctk.CTkFrame):
             )
             label.grid(row=0, column=col, padx=5, pady=5, sticky="w")
 
-    def _create_aggregate_row(self, row_idx: int, ingredient_slug: str, items):
-        """Create a row for aggregated ingredient."""
+    def _create_aggregate_row(self, row_idx: int, item_data: dict):
+        """Create a row for aggregated product."""
         row_frame = ctk.CTkFrame(self.scrollable_frame)
         row_frame.grid(row=row_idx, column=0, padx=5, pady=2, sticky="ew")
         row_frame.grid_columnconfigure(1, weight=1)
 
-        # Get ingredient info from already-loaded items (no DB query needed)
-        ingredient_obj = None
-        if items:
-            product = getattr(items[0], "product", None)
-            ingredient_obj = getattr(product, "ingredient", None) if product else None
-
-        ingredient_name = getattr(ingredient_obj, "display_name", ingredient_slug)
-
-        # Feature 011: Check if packaging ingredient
-        is_packaging = getattr(ingredient_obj, "is_packaging", False) if ingredient_obj else False
-        type_indicator = "📦 " if is_packaging else ""
-
-        # Calculate total quantity from already-loaded items (no DB query needed)
-        from decimal import Decimal
-        unit_totals = {}
-        for item in items:
-            product = getattr(item, "product", None)
-            unit = getattr(product, "package_unit", None) if product else None
-            qty = getattr(item, "quantity", 0) or 0
-            if unit and qty > 0:
-                if unit not in unit_totals:
-                    unit_totals[unit] = Decimal("0.0")
-                unit_totals[unit] += Decimal(str(qty))
-
-        if unit_totals:
-            # Format as "25 lb + 3 cup" style display
-            qty_parts = []
-            for unit, total in unit_totals.items():
-                if total > 0:
-                    if total == int(total):
-                        qty_parts.append(f"{int(total)} {unit}")
-                    else:
-                        qty_parts.append(f"{float(total):.1f} {unit}")
-            qty_display = " + ".join(qty_parts) if qty_parts else "0"
-        else:
-            qty_display = "0"
-
-        # Get lot count and oldest purchase date
-        lot_count = len(items)
-        oldest_date = min(
-            (item.purchase_date for item in items if getattr(item, "purchase_date", None)),
-            default=None,
-        )
-        oldest_str = oldest_date.strftime("%Y-%m-%d") if oldest_date else "N/A"
-
-        # Check for expiration warnings
-        warning_color = self._get_expiration_warning_color(items)
-        if warning_color:
-            row_frame.configure(fg_color=warning_color)
-
-        # Ingredient name (with packaging indicator if applicable)
-        name_label = ctk.CTkLabel(
+        # Ingredient name
+        ingredient_label = ctk.CTkLabel(
             row_frame,
-            text=f"{type_indicator}{ingredient_name}",
-            width=300,
+            text=item_data['ingredient_name'],
+            width=180,
             anchor="w",
         )
-        name_label.grid(row=0, column=0, padx=5, pady=5, sticky="w")
+        ingredient_label.grid(row=0, column=0, padx=5, pady=5, sticky="w")
 
-        # Total quantity
+        # Product description
+        product_label = ctk.CTkLabel(
+            row_frame,
+            text=item_data['description'],
+            width=250,
+            anchor="w",
+        )
+        product_label.grid(row=0, column=1, padx=5, pady=5, sticky="w")
+
+        # Brand (includes packaging indicator if applicable)
+        brand_label = ctk.CTkLabel(
+            row_frame,
+            text=item_data['brand'],
+            width=140,
+            anchor="w",
+        )
+        brand_label.grid(row=0, column=2, padx=5, pady=5, sticky="w")
+
+        # Quantity remaining
         qty_label = ctk.CTkLabel(
             row_frame,
-            text=qty_display,
-            width=150,
+            text=item_data['qty_display'],
+            width=180,
             anchor="w",
         )
-        qty_label.grid(row=0, column=1, padx=5, pady=5, sticky="w")
-
-        # Lot count
-        lot_label = ctk.CTkLabel(
-            row_frame,
-            text=str(lot_count),
-            width=100,
-            anchor="w",
-        )
-        lot_label.grid(row=0, column=2, padx=5, pady=5, sticky="w")
-
-        # Oldest purchase
-        date_label = ctk.CTkLabel(
-            row_frame,
-            text=oldest_str,
-            width=150,
-            anchor="w",
-        )
-        date_label.grid(row=0, column=3, padx=5, pady=5, sticky="w")
-
-        # Actions
-        actions_frame = ctk.CTkFrame(row_frame)
-        actions_frame.grid(row=0, column=4, padx=5, pady=5)
-
-        view_details_btn = ctk.CTkButton(
-            actions_frame,
-            text="View Details",
-            command=lambda: self._view_ingredient_details(ingredient_slug),
-            width=120,
-        )
-        view_details_btn.grid(row=0, column=0, padx=2)
+        qty_label.grid(row=0, column=3, padx=5, pady=5, sticky="w")
 
     def _display_detail_view(self):
         """Display individual inventory items in Treeview (lots)."""
