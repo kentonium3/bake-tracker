@@ -40,10 +40,15 @@
 	- ~~When editing an ingredient, the categories in the edit form are different than the categories in the category drop down on the ingredient list filter and everywhere else. It should be using the same list.~~
 - My Pantry tab
 	- ~~Make the inventory listing work like the Products tab listing -- full list scroll, double click to edit, delete button on edit form, more responsive, denser listing.~~
-	- Add Ingredient column (1)
-	- Position Product (2)
-	- Rename Quantity -> Remaining Qty(3), replace the generic "Pkg" with the actual package type.
-	- Drop Expiration column. 
+	- ~~Add Ingredient column (1)~~
+	- ~~Position Product (2)~~
+	- ~~Rename Quantity -> Remaining Qty(3), replace the generic "Pkg" with the actual package type.~~
+	- ~~Drop Expiration column.~~ 
+	- ~~For some items the Qty Remaining column shows unreasonably precise numbers such as for Costco Signature Supreme Whole Almonds it shows .666667 bags (2 lb)~~
+	- When opening that record to edit it in the Edit Inventory form, the Quantity value shows as 2.0. I'm not clear why it doesn't show .666667 unless it is showing the purchased package quantity vs whatever the value is called for the remaining quantity.
+	- On this form and for the same record, when I select a supplier (Costco), the Unit Price displays as 0.0000 even though I thought prices were added to all purchase and inventory records via AI assisted updates applied by a script by claude code. 
+	- ~~"Expiration date" is proving not a useful field to display at this phase of development because it will always require manual entry. We can keep it as part of the schema but remove it as a field from all listings and forms for now.~~ 
+	- After selecting a supplier (Costco) and saving the record, when reopening the record the supplier shows as blank again. 
 - My Products tab
 	- ~~Has a "Manage Suppliers" button that results in "Coming soon!" Should invoke the same function as File > Manage Suppliers~~
 	- ~~Product Detail and Edit form missing package type (jar, bag, can, etc.)~~
