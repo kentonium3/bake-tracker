@@ -23,15 +23,19 @@ Example Usage:
     True
 """
 
+import logging
+from dataclasses import dataclass, field
 from typing import Optional, List, Dict, Any
 from datetime import date
 from decimal import Decimal
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 
-from src.models import Product, Purchase, Ingredient, InventoryItem, Supplier
+from src.models import Product, Purchase, Ingredient, InventoryItem, Supplier, RecipeIngredient
 from src.services.database import session_scope
 from src.services.exceptions import ProductNotFound, ValidationError
+
+logger = logging.getLogger(__name__)
 
 
 def get_products(
@@ -670,3 +674,264 @@ def get_product_or_raise(
     if result is None:
         raise ProductNotFound(product_id)
     return result
+
+
+# ============================================================================
+# Force Delete with Dependency Analysis
+# ============================================================================
+
+
+@dataclass
+class ProductDependencies:
+    """Analysis of product dependencies for deletion safety check.
+
+    This dataclass provides detailed information about what would be deleted
+    if a product is force-deleted, and whether deletion should be blocked.
+
+    Attributes:
+        product_id: The product ID being analyzed
+        product_name: Product display name
+        brand: Product brand (or "Unknown")
+        purchase_count: Number of purchase records
+        inventory_count: Number of inventory items
+        recipe_count: Number of recipes using this product's ingredient
+        purchases: List of purchase details
+        inventory_items: List of inventory item details
+        recipes: List of recipe names using the ingredient
+        has_valid_purchases: True if any purchase has price > 0
+        has_supplier_data: True if any purchase has supplier info
+        is_used_in_recipes: True if the product's ingredient is used in recipes
+    """
+
+    product_id: int
+    product_name: str
+    brand: str
+
+    # Counts
+    purchase_count: int
+    inventory_count: int
+    recipe_count: int
+
+    # Details
+    purchases: List[Dict[str, Any]] = field(default_factory=list)
+    inventory_items: List[Dict[str, Any]] = field(default_factory=list)
+    recipes: List[str] = field(default_factory=list)
+
+    # Safety flags
+    has_valid_purchases: bool = False
+    has_supplier_data: bool = False
+    is_used_in_recipes: bool = False
+
+    @property
+    def can_force_delete(self) -> bool:
+        """Can only force delete if NOT used in recipes."""
+        return not self.is_used_in_recipes
+
+    @property
+    def deletion_risk_level(self) -> str:
+        """Risk level: LOW, MEDIUM, or BLOCKED.
+
+        BLOCKED: Product's ingredient is used in recipes
+        MEDIUM: Has valid purchase data (price > 0) or supplier info
+        LOW: No valuable data to lose
+        """
+        if self.is_used_in_recipes:
+            return "BLOCKED"
+        if self.has_valid_purchases or self.has_supplier_data:
+            return "MEDIUM"
+        return "LOW"
+
+
+def analyze_product_dependencies(
+    product_id: int,
+    session: Optional[Session] = None,
+) -> ProductDependencies:
+    """Analyze what will be deleted if product is force-deleted.
+
+    This function examines all dependencies of a product to help the user
+    understand what data will be lost if they proceed with force deletion.
+
+    Note: Recipe blocking is based on whether the product's INGREDIENT is
+    used in recipes (since recipes are brand-agnostic).
+
+    Args:
+        product_id: Product ID to analyze
+        session: Optional database session
+
+    Returns:
+        ProductDependencies: Detailed dependency information
+
+    Raises:
+        ProductNotFound: If product doesn't exist
+
+    Example:
+        >>> deps = analyze_product_dependencies(1)
+        >>> deps.can_force_delete
+        False  # If ingredient is used in recipes
+        >>> deps.deletion_risk_level
+        'BLOCKED'
+    """
+    if session is not None:
+        return _analyze_product_dependencies_impl(product_id, session)
+    with session_scope() as session:
+        return _analyze_product_dependencies_impl(product_id, session)
+
+
+def _analyze_product_dependencies_impl(
+    product_id: int,
+    session: Session,
+) -> ProductDependencies:
+    """Implementation of analyze_product_dependencies."""
+    product = session.query(Product).filter(Product.id == product_id).first()
+    if not product:
+        raise ProductNotFound(product_id)
+
+    # Get all purchases
+    purchases = session.query(Purchase).filter(
+        Purchase.product_id == product_id
+    ).all()
+
+    purchase_details = []
+    for p in purchases:
+        purchase_details.append({
+            "id": p.id,
+            "date": str(p.purchase_date) if p.purchase_date else None,
+            "supplier": p.supplier.name if p.supplier else None,
+            "price": float(p.unit_price or 0),
+            "quantity": int(p.quantity_purchased or 0),
+        })
+
+    # Get inventory items
+    inventory = session.query(InventoryItem).filter(
+        InventoryItem.product_id == product_id
+    ).all()
+
+    inventory_details = []
+    for i in inventory:
+        inventory_details.append({
+            "id": i.id,
+            "qty": float(i.quantity or 0),
+            "location": i.location,
+        })
+
+    # Get recipes using this product's INGREDIENT
+    # (Recipes are brand-agnostic, so we check if the ingredient is used)
+    recipe_ingredients = session.query(RecipeIngredient).filter(
+        RecipeIngredient.ingredient_id == product.ingredient_id
+    ).all()
+
+    recipe_names = []
+    for ri in recipe_ingredients:
+        if ri.recipe:
+            recipe_names.append(ri.recipe.name)
+
+    # Analyze data quality
+    has_valid_purchases = any(p["price"] > 0 for p in purchase_details)
+    has_supplier_data = any(p["supplier"] for p in purchase_details)
+
+    return ProductDependencies(
+        product_id=product_id,
+        product_name=product.product_name or product.display_name,
+        brand=product.brand or "Unknown",
+        purchase_count=len(purchases),
+        inventory_count=len(inventory),
+        recipe_count=len(recipe_names),
+        purchases=purchase_details,
+        inventory_items=inventory_details,
+        recipes=recipe_names,
+        has_valid_purchases=has_valid_purchases,
+        has_supplier_data=has_supplier_data,
+        is_used_in_recipes=bool(recipe_names),
+    )
+
+
+def force_delete_product(
+    product_id: int,
+    confirmed: bool = False,
+    session: Optional[Session] = None,
+) -> ProductDependencies:
+    """Force delete a product and all dependent data.
+
+    CRITICAL: Cannot delete products whose ingredient is used in recipes.
+    Recipes are brand-agnostic, so this checks ingredient usage.
+
+    WARNING: This permanently deletes:
+    - Purchase records
+    - Inventory items
+    - The product itself
+
+    Args:
+        product_id: Product to delete
+        confirmed: Must be True to actually delete (safety check)
+        session: Optional database session
+
+    Returns:
+        ProductDependencies: Object showing what was deleted
+
+    Raises:
+        ProductNotFound: If product doesn't exist
+        ValueError: If confirmed=False (must confirm deletion)
+        ValueError: If product's ingredient is used in recipes
+
+    Example:
+        >>> # First analyze to show user
+        >>> deps = analyze_product_dependencies(1)
+        >>> if deps.can_force_delete:
+        ...     deps = force_delete_product(1, confirmed=True)
+        ...     print(f"Deleted {deps.purchase_count} purchases")
+    """
+    if session is not None:
+        return _force_delete_product_impl(product_id, confirmed, session)
+    with session_scope() as session:
+        return _force_delete_product_impl(product_id, confirmed, session)
+
+
+def _force_delete_product_impl(
+    product_id: int,
+    confirmed: bool,
+    session: Session,
+) -> ProductDependencies:
+    """Implementation of force_delete_product."""
+    # Analyze dependencies first
+    deps = _analyze_product_dependencies_impl(product_id, session)
+
+    # CRITICAL CHECK: Cannot delete if ingredient is used in recipes
+    if deps.is_used_in_recipes:
+        recipe_list = ", ".join(deps.recipes[:5])
+        if len(deps.recipes) > 5:
+            recipe_list += f", ... ({len(deps.recipes) - 5} more)"
+        raise ValueError(
+            f"Cannot delete product - its ingredient is used in {deps.recipe_count} recipe(s): "
+            f"{recipe_list}. Remove ingredient from recipes first, or use hide_product() instead."
+        )
+
+    if not confirmed:
+        raise ValueError(
+            "Force delete requires confirmed=True. "
+            "User must confirm deletion after seeing dependencies."
+        )
+
+    # Delete in correct order (respect FK constraints)
+    # 1. Delete inventory items first (may reference purchases)
+    deleted_inventory = session.query(InventoryItem).filter(
+        InventoryItem.product_id == product_id
+    ).delete(synchronize_session=False)
+
+    # 2. Delete purchases
+    deleted_purchases = session.query(Purchase).filter(
+        Purchase.product_id == product_id
+    ).delete(synchronize_session=False)
+
+    # 3. Delete the product itself
+    session.query(Product).filter(
+        Product.id == product_id
+    ).delete(synchronize_session=False)
+
+    session.flush()
+
+    logger.warning(
+        f"FORCE DELETED product {product_id}: {deps.brand} {deps.product_name} "
+        f"({deleted_purchases} purchases, {deleted_inventory} inventory items)"
+    )
+
+    return deps

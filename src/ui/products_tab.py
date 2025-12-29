@@ -551,7 +551,7 @@ class ProductsTab(ctk.CTkFrame):
             )
 
     def _on_delete_product(self):
-        """Delete selected product after confirmation."""
+        """Delete selected product with force delete option for dependencies."""
         selection = self.tree.selection()
         if not selection:
             return
@@ -563,18 +563,7 @@ class ProductsTab(ctk.CTkFrame):
 
         product_name = product.get("product_name") or product.get("display_name", "Unknown")
 
-        # Confirm deletion
-        result = messagebox.askyesno(
-            "Confirm Delete",
-            f"Are you sure you want to delete '{product_name}'?\n\n"
-            "Note: Products with purchase history or inventory cannot be deleted. "
-            "Use 'Hide' instead.",
-            parent=self,
-        )
-
-        if not result:
-            return
-
+        # Try normal delete first
         try:
             product_catalog_service.delete_product(product_id)
             messagebox.showinfo(
@@ -583,17 +572,252 @@ class ProductsTab(ctk.CTkFrame):
                 parent=self,
             )
             self._load_products()
+            return
 
-        except ValueError as e:
-            # Expected when product has dependencies
-            messagebox.showwarning(
-                "Cannot Delete",
-                str(e),
-                parent=self,
-            )
+        except ValueError:
+            # Has dependencies - analyze them
+            pass
         except Exception as e:
             messagebox.showerror(
                 "Error",
                 f"Failed to delete product: {str(e)}",
+                parent=self,
+            )
+            return
+
+        # Analyze dependencies
+        try:
+            deps = product_catalog_service.analyze_product_dependencies(product_id)
+
+            # Check if used in recipes - BLOCKED
+            if deps.is_used_in_recipes:
+                self._show_recipe_block_dialog(deps)
+                return
+
+            # Not in recipes - show force delete confirmation
+            self._show_force_delete_confirmation(deps)
+
+        except Exception as e:
+            messagebox.showerror(
+                "Error",
+                f"Failed to analyze dependencies: {str(e)}",
+                parent=self,
+            )
+
+    def _show_recipe_block_dialog(self, deps):
+        """Show dialog explaining product cannot be deleted (ingredient used in recipes)."""
+        dialog = ctk.CTkToplevel(self)
+        dialog.title("Cannot Delete Product")
+        dialog.geometry("500x400")
+        dialog.transient(self)
+        dialog.grab_set()
+
+        # Center on parent
+        dialog.update_idletasks()
+        x = self.winfo_rootx() + (self.winfo_width() - 500) // 2
+        y = self.winfo_rooty() + (self.winfo_height() - 400) // 2
+        dialog.geometry(f"+{x}+{y}")
+
+        # Header
+        header = ctk.CTkLabel(
+            dialog,
+            text="Cannot Delete Product",
+            font=ctk.CTkFont(size=16, weight="bold"),
+            text_color="red",
+        )
+        header.pack(pady=15)
+
+        # Product info
+        product_label = ctk.CTkLabel(
+            dialog,
+            text=f"Product: {deps.product_name}\nBrand: {deps.brand}",
+            font=ctk.CTkFont(size=12, weight="bold"),
+        )
+        product_label.pack(pady=10)
+
+        # Explanation
+        explanation = ctk.CTkLabel(
+            dialog,
+            text=f"This product's ingredient is used in {deps.recipe_count} recipe(s):",
+            font=ctk.CTkFont(size=11),
+        )
+        explanation.pack(pady=5)
+
+        # Recipe list
+        recipe_frame = ctk.CTkScrollableFrame(dialog, height=120)
+        recipe_frame.pack(padx=20, pady=10, fill="both", expand=True)
+
+        for recipe in deps.recipes:
+            recipe_label = ctk.CTkLabel(
+                recipe_frame,
+                text=f"  {recipe}",
+                anchor="w",
+            )
+            recipe_label.pack(anchor="w", padx=10, pady=2)
+
+        # Instructions
+        instructions = ctk.CTkLabel(
+            dialog,
+            text=(
+                "Products whose ingredients are used in recipes cannot be deleted.\n\n"
+                "To remove this product:\n"
+                "1. Remove the ingredient from all recipes listed above, OR\n"
+                "2. Use 'Hide' to keep it but hide from lists"
+            ),
+            justify="left",
+        )
+        instructions.pack(pady=15, padx=20)
+
+        # OK button
+        ok_btn = ctk.CTkButton(
+            dialog,
+            text="OK",
+            command=dialog.destroy,
+            width=150,
+        )
+        ok_btn.pack(pady=15)
+
+    def _show_force_delete_confirmation(self, deps):
+        """Show detailed force delete confirmation dialog."""
+        dialog = ctk.CTkToplevel(self)
+        dialog.title("Confirm Force Delete")
+        dialog.geometry("550x500")
+        dialog.transient(self)
+        dialog.grab_set()
+
+        # Center on parent
+        dialog.update_idletasks()
+        x = self.winfo_rootx() + (self.winfo_width() - 550) // 2
+        y = self.winfo_rooty() + (self.winfo_height() - 500) // 2
+        dialog.geometry(f"+{x}+{y}")
+
+        # Header
+        header = ctk.CTkLabel(
+            dialog,
+            text="Force Delete Product",
+            font=ctk.CTkFont(size=16, weight="bold"),
+            text_color="orange",
+        )
+        header.pack(pady=15)
+
+        # Product info frame
+        product_frame = ctk.CTkFrame(dialog)
+        product_frame.pack(padx=20, pady=10, fill="x")
+
+        product_label = ctk.CTkLabel(
+            product_frame,
+            text=f"Product: {deps.product_name}\nBrand: {deps.brand}",
+            font=ctk.CTkFont(size=12, weight="bold"),
+        )
+        product_label.pack(pady=10)
+
+        # Risk level indicator
+        risk_color = {"LOW": "green", "MEDIUM": "orange"}
+        risk_label = ctk.CTkLabel(
+            product_frame,
+            text=f"Risk Level: {deps.deletion_risk_level}",
+            text_color=risk_color.get(deps.deletion_risk_level, "gray"),
+            font=ctk.CTkFont(size=11, weight="bold"),
+        )
+        risk_label.pack(pady=(0, 10))
+
+        # Scrollable details
+        details_frame = ctk.CTkScrollableFrame(dialog, height=200)
+        details_frame.pack(padx=20, pady=10, fill="both", expand=True)
+
+        # Build warning message
+        warning_lines = ["This will permanently delete:\n"]
+
+        # Purchases
+        if deps.purchase_count > 0:
+            warning_lines.append(f"  {deps.purchase_count} Purchase Record(s):")
+            for p in deps.purchases:
+                supplier = p.get("supplier") or "No supplier"
+                price = f"${p['price']:.2f}" if p.get("price", 0) > 0 else "No price"
+                warning_lines.append(
+                    f"      {p.get('date', 'Unknown date')}: {p.get('quantity', 0)} pkg, "
+                    f"{price}, {supplier}"
+                )
+            warning_lines.append("")
+
+        # Inventory
+        if deps.inventory_count > 0:
+            warning_lines.append(f"  {deps.inventory_count} Inventory Item(s):")
+            for i in deps.inventory_items:
+                location = i.get("location") or "No location"
+                warning_lines.append(f"      {i.get('qty', 0)} remaining, {location}")
+            warning_lines.append("")
+
+        # Add specific warnings
+        if deps.has_valid_purchases:
+            warning_lines.append("  WARNING: Has purchases with price data - cost history will be lost")
+        if deps.has_supplier_data:
+            warning_lines.append("  WARNING: Has supplier information - this data will be lost")
+
+        warning_lines.append("\n  This action CANNOT be undone!")
+
+        warning_text = "\n".join(warning_lines)
+
+        details_label = ctk.CTkLabel(
+            details_frame,
+            text=warning_text,
+            justify="left",
+            anchor="w",
+        )
+        details_label.pack(padx=10, pady=10, fill="both")
+
+        # Buttons
+        button_frame = ctk.CTkFrame(dialog, fg_color="transparent")
+        button_frame.pack(pady=15)
+
+        def on_confirm():
+            dialog.destroy()
+            self._execute_force_delete(deps.product_id)
+
+        def on_cancel():
+            dialog.destroy()
+
+        cancel_btn = ctk.CTkButton(
+            button_frame,
+            text="Cancel",
+            command=on_cancel,
+            width=150,
+        )
+        cancel_btn.pack(side="left", padx=10)
+
+        delete_btn = ctk.CTkButton(
+            button_frame,
+            text="Delete Permanently",
+            command=on_confirm,
+            fg_color="#cc0000",
+            hover_color="#990000",
+            width=150,
+        )
+        delete_btn.pack(side="left", padx=10)
+
+    def _execute_force_delete(self, product_id: int):
+        """Execute the force delete after confirmation."""
+        try:
+            deps = product_catalog_service.force_delete_product(
+                product_id,
+                confirmed=True,
+            )
+
+            messagebox.showinfo(
+                "Deleted",
+                f"Product '{deps.product_name}' and all related data deleted.\n\n"
+                f"Deleted: {deps.purchase_count} purchases, "
+                f"{deps.inventory_count} inventory items",
+                parent=self,
+            )
+            self._load_products()
+
+        except ValueError as e:
+            # Should not happen (already checked recipes) but handle anyway
+            messagebox.showerror("Cannot Delete", str(e), parent=self)
+        except Exception as e:
+            messagebox.showerror(
+                "Error",
+                f"Force delete failed: {str(e)}",
                 parent=self,
             )

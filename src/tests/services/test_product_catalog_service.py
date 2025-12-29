@@ -23,7 +23,9 @@ from src.models.ingredient import Ingredient
 from src.models.product import Product
 from src.models.purchase import Purchase
 from src.models.inventory_item import InventoryItem
+from src.models.recipe import Recipe, RecipeIngredient
 from src.services import product_catalog_service
+from src.services.product_catalog_service import ProductDependencies
 from src.services.exceptions import ProductNotFound
 
 
@@ -761,3 +763,246 @@ class TestConvenienceMethods:
             product_catalog_service.get_product_or_raise(999, session=session)
 
         assert exc_info.value.product_id == 999
+
+
+class TestForceDeleteProduct:
+    """Tests for force delete functionality with dependency analysis."""
+
+    @pytest.fixture
+    def product_with_purchase(self, session, test_ingredient, test_supplier):
+        """Create a product with a purchase record."""
+        product = Product(
+            ingredient_id=test_ingredient.id,
+            brand="Test Brand",
+            product_name="Test Product With Purchase",
+            package_unit="lb",
+            package_unit_quantity=5.0,
+        )
+        session.add(product)
+        session.flush()
+
+        purchase = Purchase(
+            product_id=product.id,
+            supplier_id=test_supplier.id,
+            purchase_date=date.today(),
+            unit_price=Decimal("10.00"),
+            quantity_purchased=1,
+        )
+        session.add(purchase)
+        session.flush()
+
+        return product
+
+    @pytest.fixture
+    def product_with_inventory(self, session, test_ingredient, test_supplier):
+        """Create a product with an inventory item."""
+        product = Product(
+            ingredient_id=test_ingredient.id,
+            brand="Test Brand",
+            product_name="Test Product With Inventory",
+            package_unit="oz",
+            package_unit_quantity=16.0,
+        )
+        session.add(product)
+        session.flush()
+
+        # Purchase is required for inventory
+        purchase = Purchase(
+            product_id=product.id,
+            supplier_id=test_supplier.id,
+            purchase_date=date.today(),
+            unit_price=Decimal("5.00"),
+            quantity_purchased=2,
+        )
+        session.add(purchase)
+        session.flush()
+
+        inventory = InventoryItem(
+            product_id=product.id,
+            purchase_id=purchase.id,
+            quantity=2.0,
+            unit_cost=5.00,
+            purchase_date=date.today(),
+        )
+        session.add(inventory)
+        session.flush()
+
+        return product
+
+    @pytest.fixture
+    def product_in_recipe(self, session, test_ingredient, test_supplier):
+        """Create a product whose ingredient is used in a recipe."""
+        product = Product(
+            ingredient_id=test_ingredient.id,
+            brand="Recipe Brand",
+            product_name="Test Product In Recipe",
+            package_unit="cup",
+            package_unit_quantity=2.0,
+        )
+        session.add(product)
+        session.flush()
+
+        # Create a recipe that uses this ingredient
+        recipe = Recipe(
+            name="Test Recipe",
+            category="Cookies",
+            yield_quantity=12,
+            yield_unit="cookies",
+        )
+        session.add(recipe)
+        session.flush()
+
+        # Link recipe to ingredient
+        recipe_ingredient = RecipeIngredient(
+            recipe_id=recipe.id,
+            ingredient_id=test_ingredient.id,
+            quantity=2.0,
+            unit="cups",
+        )
+        session.add(recipe_ingredient)
+        session.flush()
+
+        return product
+
+    def test_analyze_dependencies_no_dependencies(self, session, test_product):
+        """Test analyzing product with no dependencies."""
+        deps = product_catalog_service.analyze_product_dependencies(
+            test_product.id,
+            session=session,
+        )
+
+        assert isinstance(deps, ProductDependencies)
+        assert deps.product_id == test_product.id
+        assert deps.purchase_count == 0
+        assert deps.inventory_count == 0
+        assert deps.recipe_count == 0
+        assert deps.can_force_delete is True
+        assert deps.deletion_risk_level == "LOW"
+
+    def test_analyze_dependencies_with_purchase(
+        self, session, product_with_purchase, test_supplier
+    ):
+        """Test analyzing product with purchase record."""
+        deps = product_catalog_service.analyze_product_dependencies(
+            product_with_purchase.id,
+            session=session,
+        )
+
+        assert deps.purchase_count == 1
+        assert deps.has_valid_purchases is True
+        assert deps.has_supplier_data is True
+        assert deps.deletion_risk_level == "MEDIUM"
+        assert len(deps.purchases) == 1
+        assert deps.purchases[0]["price"] == 10.0
+
+    def test_analyze_dependencies_with_inventory(
+        self, session, product_with_inventory
+    ):
+        """Test analyzing product with inventory items."""
+        deps = product_catalog_service.analyze_product_dependencies(
+            product_with_inventory.id,
+            session=session,
+        )
+
+        assert deps.inventory_count == 1
+        assert deps.purchase_count == 1
+        assert len(deps.inventory_items) == 1
+        assert deps.inventory_items[0]["qty"] == 2.0
+
+    def test_analyze_dependencies_used_in_recipe(
+        self, session, product_in_recipe
+    ):
+        """Test analyzing product whose ingredient is used in recipe."""
+        deps = product_catalog_service.analyze_product_dependencies(
+            product_in_recipe.id,
+            session=session,
+        )
+
+        assert deps.recipe_count == 1
+        assert deps.is_used_in_recipes is True
+        assert deps.can_force_delete is False
+        assert deps.deletion_risk_level == "BLOCKED"
+        assert "Test Recipe" in deps.recipes
+
+    def test_force_delete_requires_confirmation(
+        self, session, product_with_purchase
+    ):
+        """Test that force delete requires confirmed=True."""
+        with pytest.raises(ValueError) as exc_info:
+            product_catalog_service.force_delete_product(
+                product_with_purchase.id,
+                confirmed=False,
+                session=session,
+            )
+
+        assert "confirmed=True" in str(exc_info.value)
+
+    def test_force_delete_blocked_by_recipe(
+        self, session, product_in_recipe
+    ):
+        """Test that products used in recipes cannot be force deleted."""
+        with pytest.raises(ValueError) as exc_info:
+            product_catalog_service.force_delete_product(
+                product_in_recipe.id,
+                confirmed=True,
+                session=session,
+            )
+
+        assert "used in" in str(exc_info.value).lower()
+        assert "recipe" in str(exc_info.value).lower()
+
+    def test_force_delete_success_with_purchase(
+        self, session, product_with_purchase, test_supplier
+    ):
+        """Test successful force delete of product with purchase."""
+        product_id = product_with_purchase.id
+
+        # Verify product and purchase exist
+        assert session.query(Product).filter(Product.id == product_id).count() == 1
+        assert session.query(Purchase).filter(Purchase.product_id == product_id).count() == 1
+
+        # Force delete
+        deps = product_catalog_service.force_delete_product(
+            product_id,
+            confirmed=True,
+            session=session,
+        )
+
+        # Verify deleted
+        assert deps.purchase_count == 1
+        assert session.query(Product).filter(Product.id == product_id).count() == 0
+        assert session.query(Purchase).filter(Purchase.product_id == product_id).count() == 0
+
+    def test_force_delete_success_with_inventory(
+        self, session, product_with_inventory
+    ):
+        """Test successful force delete of product with inventory."""
+        product_id = product_with_inventory.id
+
+        # Verify all exist
+        assert session.query(Product).filter(Product.id == product_id).count() == 1
+        assert session.query(Purchase).filter(Purchase.product_id == product_id).count() == 1
+        assert session.query(InventoryItem).filter(InventoryItem.product_id == product_id).count() == 1
+
+        # Force delete
+        deps = product_catalog_service.force_delete_product(
+            product_id,
+            confirmed=True,
+            session=session,
+        )
+
+        # Verify all deleted
+        assert deps.inventory_count == 1
+        assert deps.purchase_count == 1
+        assert session.query(Product).filter(Product.id == product_id).count() == 0
+        assert session.query(Purchase).filter(Purchase.product_id == product_id).count() == 0
+        assert session.query(InventoryItem).filter(InventoryItem.product_id == product_id).count() == 0
+
+    def test_force_delete_not_found(self, session):
+        """Test force delete of non-existent product."""
+        with pytest.raises(ProductNotFound):
+            product_catalog_service.force_delete_product(
+                999,
+                confirmed=True,
+                session=session,
+            )
