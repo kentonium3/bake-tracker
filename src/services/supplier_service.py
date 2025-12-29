@@ -41,63 +41,113 @@ from src.services.exceptions import SupplierNotFoundError
 
 def create_supplier(
     name: str,
-    city: str,
-    state: str,
-    zip_code: str,
+    city: Optional[str] = None,
+    state: Optional[str] = None,
+    zip_code: Optional[str] = None,
     street_address: Optional[str] = None,
     notes: Optional[str] = None,
+    supplier_type: str = "physical",
+    website_url: Optional[str] = None,
     session: Optional[Session] = None,
 ) -> Dict[str, Any]:
     """Create a new supplier.
 
+    Supports two supplier types:
+    - 'physical': Requires city, state, zip_code
+    - 'online': Only requires name (website_url recommended)
+
     Args:
         name: Supplier/store name (required)
-        city: City (required)
-        state: 2-letter state code (required, will be uppercased)
-        zip_code: ZIP code (required)
+        city: City (required for physical, optional for online)
+        state: 2-letter state code (required for physical, will be uppercased)
+        zip_code: ZIP code (required for physical, optional for online)
         street_address: Street address (optional)
         notes: Additional notes (optional)
+        supplier_type: 'physical' or 'online' (default: 'physical')
+        website_url: Website URL (recommended for online vendors)
         session: Optional database session for transactional atomicity
 
     Returns:
         Dict[str, Any]: Created supplier as dictionary
 
     Raises:
-        ValueError: If state is not a 2-letter code
+        ValueError: If validation fails (missing required fields for type)
 
     Example:
+        >>> # Physical store
         >>> supplier = create_supplier(
         ...     name="Costco",
         ...     city="Issaquah",
-        ...     state="wa",  # Will be uppercased
+        ...     state="wa",
         ...     zip_code="98027"
         ... )
         >>> supplier["state"]
         'WA'
+
+        >>> # Online vendor
+        >>> supplier = create_supplier(
+        ...     name="King Arthur Baking",
+        ...     supplier_type="online",
+        ...     website_url="https://www.kingarthurbaking.com"
+        ... )
+        >>> supplier["is_online"]
+        True
     """
     if session is not None:
-        return _create_supplier_impl(name, city, state, zip_code, street_address, notes, session)
+        return _create_supplier_impl(
+            name, city, state, zip_code, street_address, notes,
+            supplier_type, website_url, session
+        )
     with session_scope() as session:
-        return _create_supplier_impl(name, city, state, zip_code, street_address, notes, session)
+        return _create_supplier_impl(
+            name, city, state, zip_code, street_address, notes,
+            supplier_type, website_url, session
+        )
 
 
 def _create_supplier_impl(
     name: str,
-    city: str,
-    state: str,
-    zip_code: str,
+    city: Optional[str],
+    state: Optional[str],
+    zip_code: Optional[str],
     street_address: Optional[str],
     notes: Optional[str],
+    supplier_type: str,
+    website_url: Optional[str],
     session: Session,
 ) -> Dict[str, Any]:
     """Implementation of create_supplier."""
-    # Validate and normalize state
-    state = state.upper()
-    if len(state) != 2:
-        raise ValueError("State must be a 2-letter code")
+    # Validate supplier_type
+    if supplier_type not in ("physical", "online"):
+        raise ValueError("supplier_type must be 'physical' or 'online'")
+
+    # Validate based on type
+    if supplier_type == "physical":
+        if not city:
+            raise ValueError("City is required for physical stores")
+        if not state:
+            raise ValueError("State is required for physical stores")
+        if not zip_code:
+            raise ValueError("ZIP code is required for physical stores")
+        # Normalize state
+        state = state.upper()
+        if len(state) != 2:
+            raise ValueError("State must be a 2-letter code")
+    else:
+        # Online vendor - normalize state if provided
+        if state:
+            state = state.upper()
+            if len(state) != 2:
+                raise ValueError("State must be a 2-letter code")
+
+    # Validate URL format if provided
+    if website_url and not website_url.startswith(("http://", "https://")):
+        raise ValueError("Website URL must start with http:// or https://")
 
     supplier = Supplier(
         name=name,
+        supplier_type=supplier_type,
+        website_url=website_url,
         city=city,
         state=state,
         zip_code=zip_code,
@@ -254,14 +304,44 @@ def _update_supplier_impl(supplier_id: int, session: Session, **kwargs) -> Dict[
     if not supplier:
         raise SupplierNotFoundError(supplier_id)
 
+    # Validate supplier_type if provided
+    if "supplier_type" in kwargs:
+        if kwargs["supplier_type"] not in ("physical", "online"):
+            raise ValueError("supplier_type must be 'physical' or 'online'")
+
     # Validate state if provided
-    if "state" in kwargs:
+    if "state" in kwargs and kwargs["state"]:
         kwargs["state"] = kwargs["state"].upper()
         if len(kwargs["state"]) != 2:
             raise ValueError("State must be a 2-letter code")
 
+    # Validate URL format if provided
+    if "website_url" in kwargs and kwargs["website_url"]:
+        if not kwargs["website_url"].startswith(("http://", "https://")):
+            raise ValueError("Website URL must start with http:// or https://")
+
+    # Determine effective supplier_type for validation
+    new_type = kwargs.get("supplier_type", supplier.supplier_type)
+
+    # Validate required fields for physical stores
+    if new_type == "physical":
+        # Check if we're clearing required fields
+        new_city = kwargs.get("city", supplier.city)
+        new_state = kwargs.get("state", supplier.state)
+        new_zip = kwargs.get("zip_code", supplier.zip_code)
+
+        if not new_city:
+            raise ValueError("City is required for physical stores")
+        if not new_state:
+            raise ValueError("State is required for physical stores")
+        if not new_zip:
+            raise ValueError("ZIP code is required for physical stores")
+
     # Update allowed fields
-    allowed_fields = {"name", "city", "state", "zip_code", "street_address", "notes"}
+    allowed_fields = {
+        "name", "city", "state", "zip_code", "street_address", "notes",
+        "supplier_type", "website_url"
+    }
     for key, value in kwargs.items():
         if key in allowed_fields:
             setattr(supplier, key, value)

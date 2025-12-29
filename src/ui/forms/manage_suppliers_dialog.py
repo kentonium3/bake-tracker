@@ -92,7 +92,7 @@ class ManageSuppliersDialog(ctk.CTkToplevel):
         list_container.grid_rowconfigure(0, weight=1)
 
         # Treeview
-        columns = ("name", "city", "state", "zip", "status")
+        columns = ("name", "type", "location", "status")
         self.tree = ttk.Treeview(
             list_container,
             columns=columns,
@@ -101,15 +101,13 @@ class ManageSuppliersDialog(ctk.CTkToplevel):
         )
 
         self.tree.heading("name", text="Name", anchor="w")
-        self.tree.heading("city", text="City", anchor="w")
-        self.tree.heading("state", text="State", anchor="w")
-        self.tree.heading("zip", text="ZIP", anchor="w")
+        self.tree.heading("type", text="Type", anchor="w")
+        self.tree.heading("location", text="Location / URL", anchor="w")
         self.tree.heading("status", text="Status", anchor="w")
 
         self.tree.column("name", width=200, minwidth=150)
-        self.tree.column("city", width=150, minwidth=100)
-        self.tree.column("state", width=60, minwidth=50)
-        self.tree.column("zip", width=80, minwidth=60)
+        self.tree.column("type", width=80, minwidth=70)
+        self.tree.column("location", width=250, minwidth=150)
         self.tree.column("status", width=80, minwidth=60)
 
         # Scrollbar
@@ -196,11 +194,23 @@ class ManageSuppliersDialog(ctk.CTkToplevel):
 
             for supplier in suppliers:
                 status = "Active" if supplier.get("is_active", True) else "Inactive"
+
+                # Format type display
+                is_online = supplier.get("is_online", False) or supplier.get("supplier_type") == "online"
+                type_display = "Online" if is_online else "Store"
+
+                # Format location/URL display
+                if is_online:
+                    location_display = supplier.get("website_url") or "Online"
+                else:
+                    city = supplier.get("city", "")
+                    state = supplier.get("state", "")
+                    location_display = f"{city}, {state}" if city and state else state or city or ""
+
                 values = (
                     supplier.get("name", ""),
-                    supplier.get("city", ""),
-                    supplier.get("state", ""),
-                    supplier.get("zip_code", ""),
+                    type_display,
+                    location_display,
                     status,
                 )
                 self.tree.insert(
@@ -376,6 +386,10 @@ class ManageSuppliersDialog(ctk.CTkToplevel):
 class SupplierFormDialog(ctk.CTkToplevel):
     """
     Dialog for adding or editing a supplier.
+
+    Supports two supplier types:
+    - Physical Store: Requires city, state, zip code
+    - Online Vendor: Only requires name (URL recommended)
     """
 
     def __init__(self, parent, supplier_id: Optional[int] = None, **kwargs):
@@ -393,7 +407,7 @@ class SupplierFormDialog(ctk.CTkToplevel):
 
         # Window configuration
         self.title("Add Supplier" if not supplier_id else "Edit Supplier")
-        self.geometry("400x350")
+        self.geometry("450x450")
         self.resizable(False, False)
 
         # Make dialog modal
@@ -416,6 +430,9 @@ class SupplierFormDialog(ctk.CTkToplevel):
         # Load data if editing
         if supplier_id:
             self._load_supplier()
+        else:
+            # Default to physical store for new suppliers
+            self._on_type_change()
 
     def _setup_form(self):
         """Create form fields."""
@@ -427,7 +444,33 @@ class SupplierFormDialog(ctk.CTkToplevel):
             self,
             text=title,
             font=ctk.CTkFont(size=18, weight="bold"),
-        ).grid(row=row, column=0, columnspan=2, padx=20, pady=(20, 15), sticky="w")
+        ).grid(row=row, column=0, columnspan=2, padx=20, pady=(20, 10), sticky="w")
+        row += 1
+
+        # Supplier Type (radio buttons)
+        type_frame = ctk.CTkFrame(self, fg_color="transparent")
+        type_frame.grid(row=row, column=0, columnspan=2, padx=20, pady=(0, 10), sticky="w")
+
+        ctk.CTkLabel(type_frame, text="Type:").pack(side="left", padx=(0, 10))
+
+        self.type_var = ctk.StringVar(value="physical")
+        self.physical_radio = ctk.CTkRadioButton(
+            type_frame,
+            text="Physical Store",
+            variable=self.type_var,
+            value="physical",
+            command=self._on_type_change,
+        )
+        self.physical_radio.pack(side="left", padx=5)
+
+        self.online_radio = ctk.CTkRadioButton(
+            type_frame,
+            text="Online Vendor",
+            variable=self.type_var,
+            value="online",
+            command=self._on_type_change,
+        )
+        self.online_radio.pack(side="left", padx=5)
         row += 1
 
         # Name (required)
@@ -438,64 +481,73 @@ class SupplierFormDialog(ctk.CTkToplevel):
         self.name_entry = ctk.CTkEntry(
             self,
             textvariable=self.name_var,
-            width=220,
-            placeholder_text="e.g., Costco",
+            width=250,
+            placeholder_text="e.g., Costco or King Arthur Baking",
         )
         self.name_entry.grid(row=row, column=1, padx=(0, 20), pady=5, sticky="w")
         row += 1
 
-        # Street Address (optional)
-        ctk.CTkLabel(self, text="Street Address").grid(
-            row=row, column=0, padx=(20, 10), pady=5, sticky="w"
+        # Website URL (optional for physical, recommended for online)
+        self.url_label = ctk.CTkLabel(self, text="Website URL")
+        self.url_label.grid(row=row, column=0, padx=(20, 10), pady=5, sticky="w")
+        self.url_var = ctk.StringVar()
+        self.url_entry = ctk.CTkEntry(
+            self,
+            textvariable=self.url_var,
+            width=250,
+            placeholder_text="https://www.example.com",
         )
+        self.url_entry.grid(row=row, column=1, padx=(0, 20), pady=5, sticky="w")
+        row += 1
+
+        # Street Address (optional, physical only)
+        self.street_label = ctk.CTkLabel(self, text="Street Address")
+        self.street_label.grid(row=row, column=0, padx=(20, 10), pady=5, sticky="w")
         self.street_var = ctk.StringVar()
         self.street_entry = ctk.CTkEntry(
             self,
             textvariable=self.street_var,
-            width=220,
+            width=250,
             placeholder_text="e.g., 123 Main St",
         )
         self.street_entry.grid(row=row, column=1, padx=(0, 20), pady=5, sticky="w")
         row += 1
 
-        # City (required)
-        ctk.CTkLabel(self, text="City *").grid(
-            row=row, column=0, padx=(20, 10), pady=5, sticky="w"
-        )
+        # City (required for physical)
+        self.city_label = ctk.CTkLabel(self, text="City *")
+        self.city_label.grid(row=row, column=0, padx=(20, 10), pady=5, sticky="w")
         self.city_var = ctk.StringVar()
         self.city_entry = ctk.CTkEntry(
             self,
             textvariable=self.city_var,
-            width=220,
-            placeholder_text="e.g., Issaquah",
+            width=250,
+            placeholder_text="e.g., Waltham",
         )
         self.city_entry.grid(row=row, column=1, padx=(0, 20), pady=5, sticky="w")
         row += 1
 
-        # State (required)
-        ctk.CTkLabel(self, text="State *").grid(
-            row=row, column=0, padx=(20, 10), pady=5, sticky="w"
-        )
+        # State (required for physical)
+        self.state_label = ctk.CTkLabel(self, text="State *")
+        self.state_label.grid(row=row, column=0, padx=(20, 10), pady=5, sticky="w")
         self.state_var = ctk.StringVar()
         self.state_entry = ctk.CTkEntry(
             self,
             textvariable=self.state_var,
             width=60,
-            placeholder_text="WA",
+            placeholder_text="MA",
         )
         self.state_entry.grid(row=row, column=1, padx=(0, 20), pady=5, sticky="w")
         row += 1
 
-        # ZIP Code (required)
-        ctk.CTkLabel(self, text="ZIP Code *").grid(
-            row=row, column=0, padx=(20, 10), pady=5, sticky="w"
-        )
+        # ZIP Code (required for physical)
+        self.zip_label = ctk.CTkLabel(self, text="ZIP Code *")
+        self.zip_label.grid(row=row, column=0, padx=(20, 10), pady=5, sticky="w")
         self.zip_var = ctk.StringVar()
         self.zip_entry = ctk.CTkEntry(
             self,
             textvariable=self.zip_var,
             width=100,
-            placeholder_text="98027",
+            placeholder_text="02451",
         )
         self.zip_entry.grid(row=row, column=1, padx=(0, 20), pady=5, sticky="w")
         row += 1
@@ -508,7 +560,7 @@ class SupplierFormDialog(ctk.CTkToplevel):
         self.notes_entry = ctk.CTkEntry(
             self,
             textvariable=self.notes_var,
-            width=220,
+            width=250,
             placeholder_text="Optional notes",
         )
         self.notes_entry.grid(row=row, column=1, padx=(0, 20), pady=5, sticky="w")
@@ -534,6 +586,41 @@ class SupplierFormDialog(ctk.CTkToplevel):
             width=100,
         ).grid(row=0, column=1, padx=5, pady=5, sticky="w")
 
+    def _on_type_change(self):
+        """Handle supplier type change - enable/disable location fields."""
+        is_online = self.type_var.get() == "online"
+
+        if is_online:
+            # Online vendor: disable location fields, highlight URL
+            self.street_entry.configure(state="disabled")
+            self.city_entry.configure(state="disabled")
+            self.state_entry.configure(state="disabled")
+            self.zip_entry.configure(state="disabled")
+
+            # Update labels to show optional
+            self.street_label.configure(text="Street Address")
+            self.city_label.configure(text="City")
+            self.state_label.configure(text="State")
+            self.zip_label.configure(text="ZIP Code")
+
+            # Highlight URL as recommended
+            self.url_label.configure(text="Website URL *")
+        else:
+            # Physical store: enable location fields
+            self.street_entry.configure(state="normal")
+            self.city_entry.configure(state="normal")
+            self.state_entry.configure(state="normal")
+            self.zip_entry.configure(state="normal")
+
+            # Update labels to show required
+            self.street_label.configure(text="Street Address")
+            self.city_label.configure(text="City *")
+            self.state_label.configure(text="State *")
+            self.zip_label.configure(text="ZIP Code *")
+
+            # URL is optional for physical
+            self.url_label.configure(text="Website URL")
+
     def _load_supplier(self):
         """Load existing supplier data for edit mode."""
         try:
@@ -547,7 +634,13 @@ class SupplierFormDialog(ctk.CTkToplevel):
                 self.destroy()
                 return
 
+            # Set supplier type first (affects field enable/disable)
+            supplier_type = supplier.get("supplier_type", "physical") or "physical"
+            self.type_var.set(supplier_type)
+            self._on_type_change()  # Update field states
+
             self.name_var.set(supplier.get("name", "") or "")
+            self.url_var.set(supplier.get("website_url", "") or "")
             self.street_var.set(supplier.get("street_address", "") or "")
             self.city_var.set(supplier.get("city", "") or "")
             self.state_var.set(supplier.get("state", "") or "")
@@ -563,23 +656,32 @@ class SupplierFormDialog(ctk.CTkToplevel):
             self.destroy()
 
     def _validate(self) -> bool:
-        """Validate form fields."""
+        """Validate form fields based on supplier type."""
         errors = []
+        is_online = self.type_var.get() == "online"
 
+        # Name always required
         if not self.name_var.get().strip():
             errors.append("Name is required")
 
-        if not self.city_var.get().strip():
-            errors.append("City is required")
+        # URL validation (if provided)
+        url = self.url_var.get().strip()
+        if url and not url.startswith(("http://", "https://")):
+            errors.append("Website URL must start with http:// or https://")
 
-        state = self.state_var.get().strip()
-        if not state:
-            errors.append("State is required")
-        elif len(state) != 2:
-            errors.append("State must be a 2-letter code")
+        # Physical store validations
+        if not is_online:
+            if not self.city_var.get().strip():
+                errors.append("City is required for physical stores")
 
-        if not self.zip_var.get().strip():
-            errors.append("ZIP Code is required")
+            state = self.state_var.get().strip()
+            if not state:
+                errors.append("State is required for physical stores")
+            elif len(state) != 2:
+                errors.append("State must be a 2-letter code")
+
+            if not self.zip_var.get().strip():
+                errors.append("ZIP Code is required for physical stores")
 
         if errors:
             messagebox.showerror(
@@ -596,16 +698,20 @@ class SupplierFormDialog(ctk.CTkToplevel):
         if not self._validate():
             return
 
+        is_online = self.type_var.get() == "online"
+
         try:
             if self.supplier_id:
                 # Edit mode
                 supplier_service.update_supplier(
                     self.supplier_id,
                     name=self.name_var.get().strip(),
+                    supplier_type=self.type_var.get(),
+                    website_url=self.url_var.get().strip() or None,
                     street_address=self.street_var.get().strip() or None,
-                    city=self.city_var.get().strip(),
-                    state=self.state_var.get().strip(),
-                    zip_code=self.zip_var.get().strip(),
+                    city=self.city_var.get().strip() or None if is_online else self.city_var.get().strip(),
+                    state=self.state_var.get().strip() or None if is_online else self.state_var.get().strip(),
+                    zip_code=self.zip_var.get().strip() or None if is_online else self.zip_var.get().strip(),
                     notes=self.notes_var.get().strip() or None,
                 )
                 messagebox.showinfo(
@@ -617,9 +723,11 @@ class SupplierFormDialog(ctk.CTkToplevel):
                 # Add mode
                 supplier_service.create_supplier(
                     name=self.name_var.get().strip(),
-                    city=self.city_var.get().strip(),
-                    state=self.state_var.get().strip(),
-                    zip_code=self.zip_var.get().strip(),
+                    supplier_type=self.type_var.get(),
+                    website_url=self.url_var.get().strip() or None,
+                    city=self.city_var.get().strip() or None,
+                    state=self.state_var.get().strip() or None,
+                    zip_code=self.zip_var.get().strip() or None,
                     street_address=self.street_var.get().strip() or None,
                     notes=self.notes_var.get().strip() or None,
                 )
