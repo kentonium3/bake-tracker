@@ -1106,6 +1106,167 @@ bag, box, jar, bottle, can, packet, container, case
 
 ---
 
+## Appendix D: Future Enhancement Roadmap
+
+> **Status**: PLANNED - Not yet implemented. This section documents requirements for future export/import enhancements.
+
+### Overview
+
+Future enhancements to support:
+1. Coordinated export sets that can fully rebuild the database
+2. AI-assisted augmentation workflows (price enrichment, purchase record creation)
+3. Denormalized views optimized for external AI processing
+
+### D.1 Coordinated Export Set with Manifest
+
+Create a manifest file that coordinates export sets:
+
+```json
+{
+  "manifest_version": "1.0",
+  "export_id": "uuid-v4",
+  "exported_at": "2025-12-24T12:00:00Z",
+  "application": "bake-tracker",
+  "app_version": "0.6.0",
+  "schema_version": "3.5",
+  "files": [
+    {
+      "filename": "01_suppliers.json",
+      "entity_type": "suppliers",
+      "record_count": 5,
+      "checksum_sha256": "abc123...",
+      "import_order": 1,
+      "dependencies": []
+    }
+  ],
+  "import_modes_supported": ["replace", "merge"]
+}
+```
+
+**Entity Export Files:**
+
+| File | Entity | Dependencies | Import Order |
+|------|--------|--------------|--------------|
+| `01_suppliers.json` | Supplier | None | 1 |
+| `02_ingredients.json` | Ingredient | None | 2 |
+| `03_products.json` | Product | ingredients, suppliers | 3 |
+| `04_purchases.json` | Purchase | products, suppliers | 4 |
+| `05_inventory_items.json` | InventoryItem | products, purchases | 5 |
+| `06_recipes.json` | Recipe + RecipeIngredient | ingredients | 6 |
+| `07_finished_units.json` | FinishedUnit | recipes | 7 |
+| `08_finished_goods.json` | FinishedGood | None | 8 |
+| `09_compositions.json` | Composition | finished_goods, finished_units | 9 |
+| `10_packages.json` | Package | finished_goods | 10 |
+| `11_recipients.json` | Recipient | None | 11 |
+| `12_events.json` | Event + Targets | recipients, packages | 12 |
+| `13_production_runs.json` | ProductionRun | events, recipes | 13 |
+| `14_assembly_runs.json` | AssemblyRun | events, finished_goods | 14 |
+
+### D.2 AI-Assisted Augmentation Workflows
+
+**Use Cases:**
+
+| Use Case | Input | AI Task | Output |
+|----------|-------|---------|--------|
+| Price enrichment | Products without prices | Look up current prices | Products with `suggested_price`, `price_source` |
+| Purchase creation | Inventory without purchases | Generate purchase records | New purchase records |
+| Ingredient matching | Raw product list | Match to canonical ingredients | Products with `ingredient_slug` |
+
+**AI-Friendly Export Format (Denormalized):**
+
+```json
+{
+  "purpose": "AI price enrichment",
+  "instructions": "Research current retail price for each product",
+  "products": [
+    {
+      "product_id": 42,
+      "ingredient_name": "All-Purpose Flour",
+      "brand": "King Arthur",
+      "product_name": "Unbleached All-Purpose Flour",
+      "package_size": "5 lb",
+      "current_unit_price": null,
+      "last_purchase_price": 6.99,
+      "supplier_name": "Costco",
+      "suggested_unit_price": null,
+      "price_source": null
+    }
+  ]
+}
+```
+
+### D.3 Denormalized View Exports
+
+| View | Purpose | Contents |
+|------|---------|----------|
+| `view_products_complete.json` | Full product context | Product + Ingredient + Last purchase + Inventory |
+| `view_inventory_status.json` | Current inventory | InventoryItem + Product + Ingredient + Purchase |
+| `view_recipes_costed.json` | Recipes with costs | Recipe + Ingredients + Current costs |
+| `view_shopping_needs.json` | Shopping requirements | Shortage analysis + Preferred products |
+
+### D.4 Proposed API Functions
+
+```python
+# Coordinated export
+def export_complete_set(output_dir: Path, include_transactional: bool = True) -> ExportManifest
+
+# Denormalized view exports
+def export_view(view_name: str, output_path: Path) -> ExportResult
+
+# AI workflow exports
+def export_for_ai_augmentation(workflow: str, output_path: Path) -> ExportResult
+
+# AI augmentation import
+def import_ai_augmentation(augmentation_file: Path) -> ImportResult
+
+# Validation
+def validate_export_set(manifest_path: Path) -> ValidationResult
+```
+
+### D.5 Entity Dependency Graph
+
+```
+Level 0 (No dependencies):
+  - Supplier, Ingredient, Recipient, Unit
+
+Level 1 (Single dependency):
+  - Product → Ingredient, Supplier
+  - Recipe → Ingredient
+  - FinishedGood, Package (standalone)
+
+Level 2 (Multiple dependencies):
+  - Purchase → Product, Supplier
+  - FinishedUnit → Recipe
+  - Event (standalone but links many)
+
+Level 3 (Complex dependencies):
+  - InventoryItem → Product, Purchase
+  - Composition → FinishedGood, FinishedUnit
+  - EventRecipientPackage → Event, Recipient, Package
+
+Level 4 (Transactional):
+  - ProductionRun → Event, Recipe
+  - AssemblyRun → Event, FinishedGood
+```
+
+### D.6 File Organization (Proposed)
+
+```
+exports/
+├── manifest.json
+├── 01_suppliers.json
+├── 02_ingredients.json
+├── ...
+└── views/
+    ├── products_complete.json
+    └── inventory_status.json
+└── ai/
+    ├── products_for_pricing.json
+    └── augmentation_response.json
+```
+
+---
+
 **Document Status**: Current
 **Version**: 3.5
-**Last Updated**: 2025-12-20
+**Last Updated**: 2025-12-29
