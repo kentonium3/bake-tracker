@@ -1106,44 +1106,46 @@ bag, box, jar, bottle, can, packet, container, case
 
 ---
 
-## Appendix D: Future Enhancement Roadmap
+## Appendix D: Coordinated Export System
 
-> **Status**: PLANNED - Not yet implemented. This section documents requirements for future export/import enhancements.
+The coordinated export system provides individual entity files with a manifest for database backup, migration, and integrity verification.
 
-### Overview
+### D.1 Coordinated Export Manifest
 
-Future enhancements to support:
-1. Coordinated export sets that can fully rebuild the database
-2. AI-assisted augmentation workflows (price enrichment, purchase record creation)
-3. Denormalized views optimized for external AI processing
+**Service**: `src.services.coordinated_export_service`
+**Function**: `export_complete(output_dir, create_zip=False)`
 
-### D.1 Coordinated Export Set with Manifest
-
-Create a manifest file that coordinates export sets:
+The manifest file (`manifest.json`) coordinates the export set:
 
 ```json
 {
-  "manifest_version": "1.0",
-  "export_id": "uuid-v4",
-  "exported_at": "2025-12-24T12:00:00Z",
-  "application": "bake-tracker",
-  "app_version": "0.6.0",
-  "schema_version": "3.5",
+  "version": "1.0",
+  "export_date": "2025-12-24T12:00:00Z",
+  "source": "bake-tracker v0.6.0",
   "files": [
     {
       "filename": "01_suppliers.json",
       "entity_type": "suppliers",
       "record_count": 5,
-      "checksum_sha256": "abc123...",
-      "import_order": 1,
-      "dependencies": []
+      "sha256": "abc123...",
+      "dependencies": [],
+      "import_order": 1
+    },
+    {
+      "filename": "02_ingredients.json",
+      "entity_type": "ingredients",
+      "record_count": 343,
+      "sha256": "def456...",
+      "dependencies": [],
+      "import_order": 2
     }
-  ],
-  "import_modes_supported": ["replace", "merge"]
+  ]
 }
 ```
 
-**Entity Export Files:**
+### D.2 Entity Export Files
+
+Each entity exports to its own file with FK resolution fields (both ID and slug/name):
 
 | File | Entity | Dependencies | Import Order |
 |------|--------|--------------|--------------|
@@ -1152,117 +1154,250 @@ Create a manifest file that coordinates export sets:
 | `03_products.json` | Product | ingredients, suppliers | 3 |
 | `04_purchases.json` | Purchase | products, suppliers | 4 |
 | `05_inventory_items.json` | InventoryItem | products, purchases | 5 |
-| `06_recipes.json` | Recipe + RecipeIngredient | ingredients | 6 |
-| `07_finished_units.json` | FinishedUnit | recipes | 7 |
-| `08_finished_goods.json` | FinishedGood | None | 8 |
-| `09_compositions.json` | Composition | finished_goods, finished_units | 9 |
-| `10_packages.json` | Package | finished_goods | 10 |
-| `11_recipients.json` | Recipient | None | 11 |
-| `12_events.json` | Event + Targets | recipients, packages | 12 |
-| `13_production_runs.json` | ProductionRun | events, recipes | 13 |
-| `14_assembly_runs.json` | AssemblyRun | events, finished_goods | 14 |
+| `06_recipes.json` | Recipe + RecipeIngredient + RecipeComponent | ingredients | 6 |
 
-### D.2 AI-Assisted Augmentation Workflows
+### D.3 Entity File Format
 
-**Use Cases:**
-
-| Use Case | Input | AI Task | Output |
-|----------|-------|---------|--------|
-| Price enrichment | Products without prices | Look up current prices | Products with `suggested_price`, `price_source` |
-| Purchase creation | Inventory without purchases | Generate purchase records | New purchase records |
-| Ingredient matching | Raw product list | Match to canonical ingredients | Products with `ingredient_slug` |
-
-**AI-Friendly Export Format (Denormalized):**
+Each entity file includes metadata and records:
 
 ```json
 {
-  "purpose": "AI price enrichment",
-  "instructions": "Research current retail price for each product",
-  "products": [
+  "entity_type": "products",
+  "export_date": "2025-12-24T12:00:00Z",
+  "record_count": 152,
+  "records": [
     {
-      "product_id": 42,
-      "ingredient_name": "All-Purpose Flour",
+      "id": 42,
+      "uuid": "abc123...",
+      "ingredient_id": 15,
+      "ingredient_slug": "all_purpose_flour",
       "brand": "King Arthur",
       "product_name": "Unbleached All-Purpose Flour",
-      "package_size": "5 lb",
-      "current_unit_price": null,
-      "last_purchase_price": 6.99,
-      "supplier_name": "Costco",
-      "suggested_unit_price": null,
-      "price_source": null
+      "preferred_supplier_id": 3,
+      "preferred_supplier_name": "Costco"
     }
   ]
 }
 ```
 
-### D.3 Denormalized View Exports
+---
 
-| View | Purpose | Contents |
-|------|---------|----------|
-| `view_products_complete.json` | Full product context | Product + Ingredient + Last purchase + Inventory |
-| `view_inventory_status.json` | Current inventory | InventoryItem + Product + Ingredient + Purchase |
-| `view_recipes_costed.json` | Recipes with costs | Recipe + Ingredients + Current costs |
-| `view_shopping_needs.json` | Shopping requirements | Shortage analysis + Preferred products |
+## Appendix E: Denormalized View Exports
 
-### D.4 Proposed API Functions
+Denormalized views provide AI-friendly exports with context fields for external augmentation workflows.
 
-```python
-# Coordinated export
-def export_complete_set(output_dir: Path, include_transactional: bool = True) -> ExportManifest
+### E.1 Overview
 
-# Denormalized view exports
-def export_view(view_name: str, output_path: Path) -> ExportResult
+**Service**: `src.services.denormalized_export_service`
 
-# AI workflow exports
-def export_for_ai_augmentation(workflow: str, output_path: Path) -> ExportResult
+Views eliminate FK lookups by including related entity fields directly. Each view includes a `_meta` section documenting which fields are editable vs readonly for import.
 
-# AI augmentation import
-def import_ai_augmentation(augmentation_file: Path) -> ImportResult
+### E.2 Products View
 
-# Validation
-def validate_export_set(manifest_path: Path) -> ValidationResult
+**Function**: `export_products_view(output_path)`
+**Output**: `view_products.json`
+
+Contains products with ingredient, supplier, purchase, and inventory context:
+
+```json
+{
+  "view_type": "products",
+  "export_date": "2025-12-24T12:00:00Z",
+  "record_count": 152,
+  "_meta": {
+    "editable_fields": ["brand", "product_name", "package_size", "package_type",
+                        "package_unit", "package_unit_quantity", "upc_code", "gtin",
+                        "notes", "preferred", "is_hidden"],
+    "readonly_fields": ["id", "uuid", "ingredient_id", "ingredient_slug",
+                        "ingredient_name", "ingredient_category", "preferred_supplier_id",
+                        "preferred_supplier_name", "last_purchase_price",
+                        "last_purchase_date", "inventory_quantity"]
+  },
+  "records": [
+    {
+      "id": 42,
+      "uuid": "abc123...",
+      "ingredient_slug": "all_purpose_flour",
+      "ingredient_name": "All-Purpose Flour",
+      "ingredient_category": "Flours & Meals",
+      "brand": "King Arthur",
+      "product_name": "Unbleached All-Purpose Flour",
+      "package_unit": "lb",
+      "package_unit_quantity": 5.0,
+      "preferred_supplier_name": "Costco",
+      "last_purchase_price": 6.99,
+      "last_purchase_date": "2025-11-15",
+      "inventory_quantity": 4.5
+    }
+  ]
+}
 ```
 
-### D.5 Entity Dependency Graph
+### E.3 Inventory View
+
+**Function**: `export_inventory_view(output_path)`
+**Output**: `view_inventory.json`
+
+Contains inventory items with product and purchase context:
+
+```json
+{
+  "view_type": "inventory",
+  "export_date": "2025-12-24T12:00:00Z",
+  "record_count": 180,
+  "_meta": {
+    "editable_fields": ["quantity", "location", "expiration_date", "notes"],
+    "readonly_fields": ["id", "uuid", "product_id", "purchase_id", "product_name",
+                        "brand", "ingredient_name", "unit_cost", "purchase_date"]
+  },
+  "records": [...]
+}
+```
+
+### E.4 Purchases View
+
+**Function**: `export_purchases_view(output_path)`
+**Output**: `view_purchases.json`
+
+Contains purchases with product and supplier context:
+
+```json
+{
+  "view_type": "purchases",
+  "export_date": "2025-12-24T12:00:00Z",
+  "record_count": 156,
+  "_meta": {
+    "editable_fields": ["unit_price", "quantity_purchased", "notes"],
+    "readonly_fields": ["id", "uuid", "product_id", "supplier_id", "product_name",
+                        "brand", "ingredient_name", "supplier_name", "purchase_date"]
+  },
+  "records": [...]
+}
+```
+
+### E.5 Export All Views
+
+**Function**: `export_all_views(output_dir)`
+
+Exports all views to a directory in a single operation.
+
+---
+
+## Appendix F: Enhanced Import Service
+
+The enhanced import service supports importing denormalized views back with FK resolution, merge modes, and error handling.
+
+### F.1 Overview
+
+**Service**: `src.services.enhanced_import_service`
+**Function**: `import_view(file_path, mode='merge', dry_run=False, skip_on_error=False)`
+
+### F.2 Import Modes
+
+| Mode | Behavior |
+|------|----------|
+| `merge` | Update existing records (by UUID), add new records |
+| `skip_existing` | Add new records only, skip records that exist |
+
+### F.3 FK Resolution
+
+The enhanced import resolves foreign keys by slug/name rather than ID:
+
+- `ingredient_slug` → resolves to `ingredient_id`
+- `supplier_name` → resolves to `supplier_id`
+- `product_slug` (ingredient_slug + brand + product_name) → resolves to `product_id`
+
+### F.4 Dry Run Mode
+
+With `dry_run=True`, the import validates all records and reports what would change without modifying the database.
+
+### F.5 Skip-on-Error Mode
+
+With `skip_on_error=True`, valid records are imported while invalid records are logged to a timestamped file (`import_skipped_YYYY-MM-DD_HHMMSS.json`).
+
+### F.6 Usage Example
+
+```python
+from src.services.enhanced_import_service import import_view
+
+# Preview changes without modifying DB
+result = import_view("view_purchases_augmented.json", mode="merge", dry_run=True)
+print(result.get_summary())
+
+# Import with merge (update existing + add new)
+result = import_view("view_purchases_augmented.json", mode="merge")
+print(f"Imported: {result.successful}, Skipped: {result.skipped}")
+
+# Import valid records, log failures
+result = import_view("view_products.json", mode="merge", skip_on_error=True)
+if result.skipped_records_path:
+    print(f"Skipped records logged to: {result.skipped_records_path}")
+```
+
+---
+
+## Appendix G: AI Augmentation Workflow
+
+The denormalized views are designed for AI-assisted data augmentation workflows.
+
+### G.1 Workflow Pattern
+
+1. **Export**: Use `export_*_view()` to create denormalized JSON
+2. **Augment**: AI assistant reviews and enriches data (e.g., price research)
+3. **Save**: AI saves augmented file (e.g., `view_purchases_augmented.json`)
+4. **Import**: Use `import_view()` with `mode='merge'` to apply changes
+
+### G.2 Editable vs Readonly Fields
+
+The `_meta` section in each view defines:
+- **editable_fields**: Can be modified by AI and imported back
+- **readonly_fields**: Context only, ignored on import
+
+### G.3 Example: Price Enrichment
+
+```python
+# 1. Export purchases for price research
+from src.services.denormalized_export_service import export_purchases_view
+export_purchases_view("view_purchases.json")
+
+# 2. AI enriches unit_price field in view_purchases_augmented.json
+
+# 3. Import enriched prices
+from src.services.enhanced_import_service import import_view
+result = import_view("view_purchases_augmented.json", mode="merge")
+```
+
+---
+
+## Appendix H: Entity Dependency Graph
 
 ```
 Level 0 (No dependencies):
-  - Supplier, Ingredient, Recipient, Unit
+  - Supplier
+  - Ingredient
+  - Recipient
 
 Level 1 (Single dependency):
-  - Product → Ingredient, Supplier
-  - Recipe → Ingredient
-  - FinishedGood, Package (standalone)
+  - Product → Ingredient, Supplier (optional)
+  - Recipe → Ingredient (via RecipeIngredient)
+  - FinishedGood (standalone)
+  - Package (standalone)
 
 Level 2 (Multiple dependencies):
   - Purchase → Product, Supplier
   - FinishedUnit → Recipe
-  - Event (standalone but links many)
+  - Event (standalone)
 
 Level 3 (Complex dependencies):
   - InventoryItem → Product, Purchase
   - Composition → FinishedGood, FinishedUnit
   - EventRecipientPackage → Event, Recipient, Package
+  - EventProductionTarget → Event, Recipe
+  - EventAssemblyTarget → Event, FinishedGood
 
 Level 4 (Transactional):
-  - ProductionRun → Event, Recipe
-  - AssemblyRun → Event, FinishedGood
-```
-
-### D.6 File Organization (Proposed)
-
-```
-exports/
-├── manifest.json
-├── 01_suppliers.json
-├── 02_ingredients.json
-├── ...
-└── views/
-    ├── products_complete.json
-    └── inventory_status.json
-└── ai/
-    ├── products_for_pricing.json
-    └── augmentation_response.json
+  - ProductionRun → Event (optional), Recipe
+  - AssemblyRun → Event (optional), FinishedGood
 ```
 
 ---
