@@ -9,10 +9,10 @@ subtasks:
   - "T006"
 title: "Schema & Model Foundation"
 phase: "Phase 1 - Foundation"
-lane: "for_review"
+lane: "done"
 assignee: ""
-agent: "claude"
-shell_pid: "29529"
+agent: "claude-reviewer"
+shell_pid: "2807"
 review_status: ""
 reviewed_by: ""
 history:
@@ -170,3 +170,4 @@ history:
 - 2025-12-31T14:13:48Z – claude – shell_pid=29529 – lane=doing – Started implementation
 - 2025-12-31T17:22:00Z – claude – shell_pid=29529 – lane=doing – Completed T001-T005: Added hierarchy fields, relationship, indexes, tests. T006 deferred to deployment.
 - 2025-12-31T14:23:39Z – claude – shell_pid=29529 – lane=for_review – Ready for review - T001-T005 complete, T006 deferred to deployment
+- 2025-12-31T19:36:08Z – claude-reviewer – shell_pid=2807 – lane=done – Code review passed: All DoD items verified, 19/19 tests pass, T006 appropriately deferred to deployment
