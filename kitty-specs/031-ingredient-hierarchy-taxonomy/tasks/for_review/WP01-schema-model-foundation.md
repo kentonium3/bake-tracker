@@ -9,10 +9,10 @@ subtasks:
   - "T006"
 title: "Schema & Model Foundation"
 phase: "Phase 1 - Foundation"
-lane: "planned"
+lane: "for_review"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "claude"
+shell_pid: "29529"
 review_status: ""
 reviewed_by: ""
 history:
@@ -167,3 +167,6 @@ history:
 ## Activity Log
 
 - 2025-12-30T12:00:00Z – system – lane=planned – Prompt created.
+- 2025-12-31T14:13:48Z – claude – shell_pid=29529 – lane=doing – Started implementation
+- 2025-12-31T17:22:00Z – claude – shell_pid=29529 – lane=doing – Completed T001-T005: Added hierarchy fields, relationship, indexes, tests. T006 deferred to deployment.
+- 2025-12-31T14:23:39Z – claude – shell_pid=29529 – lane=for_review – Ready for review - T001-T005 complete, T006 deferred to deployment
