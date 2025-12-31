@@ -1,0 +1,9 @@
+id,type,title,url,accessed_date,relevance,notes
+001,documentation,SQLAlchemy Self-Referential Relationships,https://docs.sqlalchemy.org/en/20/orm/self_referential.html,2025-12-30,high,Confirms pattern for parent/child on same table
+002,documentation,SQLAlchemy Adjacency List Relationships,https://docs.sqlalchemy.org/en/20/orm/self_referential.html#adjacency-list-relationships,2025-12-30,high,backref with remote_side pattern
+003,codebase,Existing Ingredient Model,src/models/ingredient.py,2025-12-30,high,Current model structure for modification
+004,documentation,tkinter.ttk.Treeview,https://docs.python.org/3/library/tkinter.ttk.html#treeview,2025-12-30,high,Widget capabilities for tree display
+005,codebase,CustomTkinter Examples,src/ui/,2025-12-30,medium,Existing UI patterns for consistency
+006,design,F031 Design Document,docs/design/F031_ingredient_hierarchy.md,2025-12-30,high,Comprehensive design specification
+007,codebase,Constitution,/.kittify/memory/constitution.md,2025-12-30,high,Architectural principles and constraints
+008,documentation,SQLite Recursive CTEs,https://www.sqlite.org/lang_with.html,2025-12-30,medium,Confirms SQLite 3.8.3+ support for recursive queries

@@ -1,0 +1,9 @@
+id,source_id,finding,decision_supported,date_logged
+E001,001,SQLAlchemy relationship() with remote_side enables self-referential FKs,D1 - Self-referential model,2025-12-30
+E002,002,backref creates bidirectional navigation (parent/children),D1 - Self-referential model,2025-12-30
+E003,003,Existing Ingredient has BaseModel with to_dict() and session patterns,D1 - Minimal model changes,2025-12-30
+E004,004,ttk.Treeview supports hierarchical data with expand/collapse and selection,D3 - Tree widget choice,2025-12-30
+E005,005,CustomTkinter can embed ttk widgets in CTkFrame containers,D3 - Tree widget choice,2025-12-30
+E006,006,Design doc specifies 3-level hierarchy with clear level semantics,D2 - Level enforcement,2025-12-30
+E007,007,Constitution VI mandates export/reset/import for schema changes,D5 - Migration strategy,2025-12-30
+E008,008,SQLite supports recursive CTEs for tree traversal queries,R2 - Query patterns,2025-12-30
