@@ -8,10 +8,10 @@ subtasks:
   - "T036"
 title: "UI Integration"
 phase: "Phase 3 - UI"
-lane: "for_review"
+lane: "done"
 assignee: ""
-agent: "claude"
-shell_pid: "37805"
+agent: "claude-reviewer"
+shell_pid: "4513"
 review_status: ""
 reviewed_by: ""
 history:
@@ -168,3 +168,4 @@ history:
 - 2025-12-30T12:00:00Z – system – lane=planned – Prompt created.
 - 2025-12-31T15:34:06Z – claude – shell_pid=37805 – lane=doing – Starting UI integration
 - 2025-12-31T15:58:59Z – claude – shell_pid=37805 – lane=for_review – Moved to for_review
+- 2025-12-31T19:44:09Z – claude-reviewer – shell_pid=4513 – lane=done – Code review passed: Tree view toggle in ingredients tab, recipe dialog with leaf-only, parent selection in create/edit forms, breadcrumb enabled
