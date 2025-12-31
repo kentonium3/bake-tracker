@@ -7,6 +7,7 @@ Tests for production/assembly progress and overall event progress.
 
 import pytest
 from datetime import date, datetime
+from src.utils.datetime_utils import utc_now
 from decimal import Decimal
 
 from src.models import (
@@ -201,7 +202,7 @@ class TestProductionProgress:
                 num_batches=2,
                 expected_yield=96,
                 actual_yield=96,
-                produced_at=datetime.utcnow(),
+                produced_at=utc_now(),
                 total_ingredient_cost=Decimal("10.00"),
                 per_unit_cost=Decimal("0.10"),
             )
@@ -233,7 +234,7 @@ class TestProductionProgress:
                 num_batches=4,
                 expected_yield=192,
                 actual_yield=192,
-                produced_at=datetime.utcnow(),
+                produced_at=utc_now(),
                 total_ingredient_cost=Decimal("20.00"),
                 per_unit_cost=Decimal("0.10"),
             )
@@ -265,7 +266,7 @@ class TestProductionProgress:
                 num_batches=5,
                 expected_yield=240,
                 actual_yield=240,
-                produced_at=datetime.utcnow(),
+                produced_at=utc_now(),
                 total_ingredient_cost=Decimal("25.00"),
                 per_unit_cost=Decimal("0.10"),
             )
@@ -298,7 +299,7 @@ class TestProductionProgress:
                 num_batches=2,
                 expected_yield=96,
                 actual_yield=96,
-                produced_at=datetime.utcnow(),
+                produced_at=utc_now(),
                 total_ingredient_cost=Decimal("10.00"),
                 per_unit_cost=Decimal("0.10"),
             )
@@ -310,7 +311,7 @@ class TestProductionProgress:
                 num_batches=3,
                 expected_yield=144,
                 actual_yield=144,
-                produced_at=datetime.utcnow(),
+                produced_at=utc_now(),
                 total_ingredient_cost=Decimal("15.00"),
                 per_unit_cost=Decimal("0.10"),
             )
@@ -322,7 +323,7 @@ class TestProductionProgress:
                 num_batches=10,
                 expected_yield=480,
                 actual_yield=480,
-                produced_at=datetime.utcnow(),
+                produced_at=utc_now(),
                 total_ingredient_cost=Decimal("50.00"),
                 per_unit_cost=Decimal("0.10"),
             )
@@ -397,7 +398,7 @@ class TestAssemblyProgress:
                 finished_good_id=finished_good_gift_box.id,
                 event_id=event_christmas.id,
                 quantity_assembled=10,
-                assembled_at=datetime.utcnow(),
+                assembled_at=utc_now(),
                 total_component_cost=Decimal("50.00"),
                 per_unit_cost=Decimal("5.00"),
             )
@@ -424,7 +425,7 @@ class TestAssemblyProgress:
                 finished_good_id=finished_good_gift_box.id,
                 event_id=event_christmas.id,
                 quantity_assembled=20,
-                assembled_at=datetime.utcnow(),
+                assembled_at=utc_now(),
                 total_component_cost=Decimal("100.00"),
                 per_unit_cost=Decimal("5.00"),
             )
@@ -451,7 +452,7 @@ class TestAssemblyProgress:
                 finished_good_id=finished_good_gift_box.id,
                 event_id=event_christmas.id,
                 quantity_assembled=30,
-                assembled_at=datetime.utcnow(),
+                assembled_at=utc_now(),
                 total_component_cost=Decimal("150.00"),
                 per_unit_cost=Decimal("5.00"),
             )
@@ -481,7 +482,7 @@ class TestAssemblyProgress:
                 finished_good_id=finished_good_gift_box.id,
                 event_id=event_christmas.id,
                 quantity_assembled=5,
-                assembled_at=datetime.utcnow(),
+                assembled_at=utc_now(),
                 total_component_cost=Decimal("25.00"),
                 per_unit_cost=Decimal("5.00"),
             )
@@ -490,7 +491,7 @@ class TestAssemblyProgress:
                 finished_good_id=finished_good_gift_box.id,
                 event_id=event_thanksgiving.id,
                 quantity_assembled=10,
-                assembled_at=datetime.utcnow(),
+                assembled_at=utc_now(),
                 total_component_cost=Decimal("50.00"),
                 per_unit_cost=Decimal("5.00"),
             )
@@ -499,7 +500,7 @@ class TestAssemblyProgress:
                 finished_good_id=finished_good_gift_box.id,
                 event_id=None,
                 quantity_assembled=15,
-                assembled_at=datetime.utcnow(),
+                assembled_at=utc_now(),
                 total_component_cost=Decimal("75.00"),
                 per_unit_cost=Decimal("5.00"),
             )
@@ -562,7 +563,7 @@ class TestOverallProgress:
                 num_batches=2,
                 expected_yield=96,
                 actual_yield=96,
-                produced_at=datetime.utcnow(),
+                produced_at=utc_now(),
                 total_ingredient_cost=Decimal("10.00"),
                 per_unit_cost=Decimal("0.10"),
             )
@@ -635,7 +636,7 @@ class TestOverallProgress:
                 num_batches=2,
                 expected_yield=96,
                 actual_yield=96,
-                produced_at=datetime.utcnow(),
+                produced_at=utc_now(),
                 total_ingredient_cost=Decimal("10.00"),
                 per_unit_cost=Decimal("0.10"),
             )
@@ -653,7 +654,7 @@ class TestOverallProgress:
                 finished_good_id=finished_good_gift_box.id,
                 event_id=event_christmas.id,
                 quantity_assembled=10,
-                assembled_at=datetime.utcnow(),
+                assembled_at=utc_now(),
                 total_component_cost=Decimal("50.00"),
                 per_unit_cost=Decimal("5.00"),
             )

@@ -17,6 +17,7 @@ from sqlalchemy import Column, Integer, String, Float, Text, Date, DateTime, For
 from sqlalchemy.orm import relationship
 
 from .base import BaseModel
+from src.utils.datetime_utils import utc_now
 
 
 class InventoryItem(BaseModel):
@@ -77,7 +78,7 @@ class InventoryItem(BaseModel):
 
     # Timestamp
     last_updated = Column(
-        DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow
+        DateTime, nullable=False, default=utc_now, onupdate=utc_now
     )
 
     # Relationships
@@ -162,7 +163,7 @@ class InventoryItem(BaseModel):
             new_quantity: New quantity value
         """
         self.quantity = new_quantity
-        self.last_updated = datetime.utcnow()
+        self.last_updated = utc_now()
 
     def consume(self, quantity: float) -> float:
         """
@@ -176,7 +177,7 @@ class InventoryItem(BaseModel):
         """
         consumed = min(quantity, self.quantity)
         self.quantity -= consumed
-        self.last_updated = datetime.utcnow()
+        self.last_updated = utc_now()
         return consumed
 
     def add_quantity(self, quantity: float) -> None:
@@ -187,7 +188,7 @@ class InventoryItem(BaseModel):
             quantity: Amount to add
         """
         self.quantity += quantity
-        self.last_updated = datetime.utcnow()
+        self.last_updated = utc_now()
 
     def to_dict(self, include_relationships: bool = False) -> dict:
         """

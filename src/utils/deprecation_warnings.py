@@ -8,6 +8,7 @@ during the FinishedGood → FinishedUnit migration process.
 import warnings
 import logging
 from datetime import datetime
+from src.utils.datetime_utils import utc_now
 from typing import Optional, Dict, Any
 import functools
 
@@ -144,7 +145,7 @@ def log_legacy_usage_stats() -> Dict[str, Any]:
     # In a real implementation, this would query logging data
     # For now, return a placeholder structure
     return {
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": utc_now().isoformat(),
         "deprecated_ui_components": {
             "FinishedGoodsTab": {"usage_count": 0, "last_used": None},
             "FinishedGoodFormDialog": {"usage_count": 0, "last_used": None},

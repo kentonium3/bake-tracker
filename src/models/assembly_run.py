@@ -23,6 +23,7 @@ from sqlalchemy import (
 from sqlalchemy.orm import relationship
 
 from .base import BaseModel
+from src.utils.datetime_utils import utc_now
 
 
 class AssemblyRun(BaseModel):
@@ -58,7 +59,7 @@ class AssemblyRun(BaseModel):
 
     # Assembly data
     quantity_assembled = Column(Integer, nullable=False)
-    assembled_at = Column(DateTime, nullable=False, default=datetime.utcnow)
+    assembled_at = Column(DateTime, nullable=False, default=utc_now)
     notes = Column(Text, nullable=True)
 
     # Cost data

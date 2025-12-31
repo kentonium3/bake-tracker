@@ -25,6 +25,7 @@ from sqlalchemy import (
 from sqlalchemy.orm import relationship
 
 from .base import BaseModel
+from src.utils.datetime_utils import utc_now
 
 
 class Recipe(BaseModel):
@@ -65,9 +66,9 @@ class Recipe(BaseModel):
     is_archived = Column(Boolean, nullable=False, default=False, index=True)
 
     # Timestamps
-    date_added = Column(DateTime, nullable=False, default=datetime.utcnow)
+    date_added = Column(DateTime, nullable=False, default=utc_now)
     last_modified = Column(
-        DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow
+        DateTime, nullable=False, default=utc_now, onupdate=utc_now
     )
 
     # Relationships

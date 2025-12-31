@@ -20,6 +20,7 @@ The service integrates with:
 from typing import Dict, Any, List, Optional
 from decimal import Decimal, ROUND_HALF_UP
 from datetime import datetime
+from src.utils.datetime_utils import utc_now
 import logging
 
 from sqlalchemy.orm import Session
@@ -508,7 +509,7 @@ def assign_materials(
                 composition_id=composition_id,
                 inventory_item_id=record["inventory_item"].id,
                 quantity_assigned=float(record["quantity"]),
-                assigned_at=datetime.utcnow(),
+                assigned_at=utc_now(),
             )
             s.add(assignment)
 

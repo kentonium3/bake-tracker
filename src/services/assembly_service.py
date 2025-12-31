@@ -19,6 +19,7 @@ Feature 013: Production & Inventory Tracking
 from typing import Dict, Any, List, Optional
 from decimal import Decimal
 from datetime import datetime
+from src.utils.datetime_utils import utc_now
 
 from sqlalchemy.orm import joinedload
 
@@ -423,7 +424,7 @@ def _record_assembly_impl(
     assembly_run = AssemblyRun(
         finished_good_id=finished_good_id,
         quantity_assembled=quantity,
-        assembled_at=assembled_at or datetime.utcnow(),
+        assembled_at=assembled_at or utc_now(),
         notes=notes,
         total_component_cost=total_component_cost,
         per_unit_cost=per_unit_cost,
@@ -717,7 +718,7 @@ def export_assembly_history(
 
     return {
         "version": "1.0",
-        "exported_at": datetime.utcnow().isoformat(),
+        "exported_at": utc_now().isoformat(),
         "assembly_runs": exported_runs,
     }
 

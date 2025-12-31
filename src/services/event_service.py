@@ -17,6 +17,7 @@ Architecture Note (Feature 006):
 from typing import List, Optional, Dict, Any
 from dataclasses import dataclass
 from datetime import datetime, date
+from src.utils.datetime_utils import utc_now
 from decimal import Decimal
 from math import ceil
 import csv
@@ -352,7 +353,7 @@ def update_event(event_id: int, **updates) -> Event:
             if "notes" in updates:
                 event.notes = updates["notes"]
 
-            event.last_modified = datetime.utcnow()
+            event.last_modified = utc_now()
             session.flush()
 
             # Reload with relationships

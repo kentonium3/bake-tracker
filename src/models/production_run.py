@@ -23,6 +23,7 @@ from sqlalchemy import (
 from sqlalchemy.orm import relationship
 
 from .base import BaseModel
+from src.utils.datetime_utils import utc_now
 
 
 class ProductionRun(BaseModel):
@@ -66,7 +67,7 @@ class ProductionRun(BaseModel):
     num_batches = Column(Integer, nullable=False)
     expected_yield = Column(Integer, nullable=False)
     actual_yield = Column(Integer, nullable=False)
-    produced_at = Column(DateTime, nullable=False, default=datetime.utcnow)
+    produced_at = Column(DateTime, nullable=False, default=utc_now)
     notes = Column(Text, nullable=True)
 
     # Feature 025: Loss tracking fields

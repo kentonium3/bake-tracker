@@ -18,6 +18,7 @@ Usage:
 import json
 from dataclasses import dataclass
 from datetime import datetime
+from src.utils.datetime_utils import utc_now
 from pathlib import Path
 from typing import Dict, List, Optional
 
@@ -205,7 +206,7 @@ def _export_products_view_impl(output_path: str, session: Session) -> ExportResu
         .all()
     )
 
-    export_date = datetime.utcnow().isoformat() + "Z"
+    export_date = utc_now().isoformat() + "Z"
     records = []
 
     for p in products:
@@ -322,7 +323,7 @@ def _export_inventory_view_impl(output_path: str, session: Session) -> ExportRes
         .all()
     )
 
-    export_date = datetime.utcnow().isoformat() + "Z"
+    export_date = utc_now().isoformat() + "Z"
     records = []
 
     for item in items:
@@ -435,7 +436,7 @@ def _export_purchases_view_impl(output_path: str, session: Session) -> ExportRes
         .all()
     )
 
-    export_date = datetime.utcnow().isoformat() + "Z"
+    export_date = utc_now().isoformat() + "Z"
     records = []
 
     for p in purchases:

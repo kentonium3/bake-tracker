@@ -14,6 +14,7 @@ from sqlalchemy import Column, Integer, String, Float, Text, DateTime, Boolean, 
 from sqlalchemy.orm import relationship, validates
 
 from .base import BaseModel
+from src.utils.datetime_utils import utc_now
 
 
 class Product(BaseModel):
@@ -98,9 +99,9 @@ class Product(BaseModel):
     notes = Column(Text, nullable=True)
 
     # Timestamps
-    date_added = Column(DateTime, nullable=False, default=datetime.utcnow)
+    date_added = Column(DateTime, nullable=False, default=utc_now)
     last_modified = Column(
-        DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow
+        DateTime, nullable=False, default=utc_now, onupdate=utc_now
     )
 
     # Relationships

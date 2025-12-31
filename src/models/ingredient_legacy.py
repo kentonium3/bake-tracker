@@ -14,6 +14,7 @@ from sqlalchemy import Column, String, Float, Text, DateTime, Index
 from sqlalchemy.orm import relationship
 
 from .base import BaseModel
+from src.utils.datetime_utils import utc_now
 
 
 class IngredientLegacy(BaseModel):
@@ -55,7 +56,7 @@ class IngredientLegacy(BaseModel):
     # Inventory tracking
     quantity = Column(Float, nullable=False, default=0.0)
     unit_cost = Column(Float, nullable=False, default=0.0)
-    last_updated = Column(DateTime, nullable=False, default=datetime.utcnow)
+    last_updated = Column(DateTime, nullable=False, default=utc_now)
 
     # Additional information
     notes = Column(Text, nullable=True)
@@ -120,7 +121,7 @@ class IngredientLegacy(BaseModel):
             new_quantity: New quantity value
         """
         self.quantity = new_quantity
-        self.last_updated = datetime.utcnow()
+        self.last_updated = utc_now()
 
     def adjust_quantity(self, adjustment: float) -> None:
         """
@@ -130,7 +131,7 @@ class IngredientLegacy(BaseModel):
             adjustment: Amount to add (positive) or subtract (negative)
         """
         self.quantity += adjustment
-        self.last_updated = datetime.utcnow()
+        self.last_updated = utc_now()
 
     def get_density(self) -> float:
         """

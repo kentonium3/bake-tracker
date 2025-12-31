@@ -12,6 +12,7 @@ Feature 018 - Multi-Event Production Dashboard (replaces single-event selector)
 import logging
 import customtkinter as ctk
 from datetime import datetime, timedelta
+from src.utils.datetime_utils import utc_now
 from tkinter import messagebox
 
 from src.ui.widgets.production_history_table import ProductionHistoryTable
@@ -502,7 +503,7 @@ class ProductionDashboardTab(ctk.CTkFrame):
 
     def _load_production_runs(self):
         """Load recent production runs (last 30 days)."""
-        start_date = datetime.utcnow() - timedelta(days=30)
+        start_date = utc_now() - timedelta(days=30)
 
         runs = self.service_integrator.execute_service_operation(
             operation_name="Load Recent Production",
@@ -524,7 +525,7 @@ class ProductionDashboardTab(ctk.CTkFrame):
 
     def _load_assembly_runs(self):
         """Load recent assembly runs (last 30 days)."""
-        start_date = datetime.utcnow() - timedelta(days=30)
+        start_date = utc_now() - timedelta(days=30)
 
         runs = self.service_integrator.execute_service_operation(
             operation_name="Load Recent Assembly",

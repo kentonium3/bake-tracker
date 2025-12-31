@@ -8,6 +8,7 @@ for testing purposes. No UI required - designed for programmatic use.
 import json
 from typing import Dict, List, Optional, Tuple
 from datetime import datetime
+from src.utils.datetime_utils import utc_now
 from pathlib import Path
 
 from sqlalchemy.orm import joinedload
@@ -326,7 +327,7 @@ def export_ingredients_to_json(
         # Build export data
         export_data = {
             "version": "1.0",
-            "export_date": datetime.utcnow().isoformat() + "Z",
+            "export_date": utc_now().isoformat() + "Z",
             "source": f"{APP_NAME} v{APP_VERSION}",
             "ingredients": [],
         }
@@ -388,7 +389,7 @@ def export_recipes_to_json(
         # Build export data
         export_data = {
             "version": "1.0",
-            "export_date": datetime.utcnow().isoformat() + "Z",
+            "export_date": utc_now().isoformat() + "Z",
             "source": f"{APP_NAME} v{APP_VERSION}",
             "recipes": [],
         }
@@ -480,7 +481,7 @@ def export_finished_goods_to_json(
         # Build export data
         export_data = {
             "version": "1.0",
-            "export_date": datetime.utcnow().isoformat() + "Z",
+            "export_date": utc_now().isoformat() + "Z",
             "source": f"{APP_NAME} v{APP_VERSION}",
             "finished_goods": [],
         }
@@ -540,7 +541,7 @@ def export_bundles_to_json(file_path: str, include_all: bool = True) -> ExportRe
         # Build export data
         export_data = {
             "version": "1.0",
-            "export_date": datetime.utcnow().isoformat() + "Z",
+            "export_date": utc_now().isoformat() + "Z",
             "source": f"{APP_NAME} v{APP_VERSION}",
             "bundles": [],
         }
@@ -589,7 +590,7 @@ def export_packages_to_json(file_path: str, include_all: bool = True) -> ExportR
         # Build export data
         export_data = {
             "version": "1.0",
-            "export_date": datetime.utcnow().isoformat() + "Z",
+            "export_date": utc_now().isoformat() + "Z",
             "source": f"{APP_NAME} v{APP_VERSION}",
             "packages": [],
         }
@@ -645,7 +646,7 @@ def export_recipients_to_json(file_path: str, include_all: bool = True) -> Expor
         # Build export data
         export_data = {
             "version": "1.0",
-            "export_date": datetime.utcnow().isoformat() + "Z",
+            "export_date": utc_now().isoformat() + "Z",
             "source": f"{APP_NAME} v{APP_VERSION}",
             "recipients": [],
         }
@@ -700,7 +701,7 @@ def export_events_to_json(file_path: str, include_all: bool = True) -> ExportRes
         # Build export data
         export_data = {
             "version": "1.0",
-            "export_date": datetime.utcnow().isoformat() + "Z",
+            "export_date": utc_now().isoformat() + "Z",
             "source": f"{APP_NAME} v{APP_VERSION}",
             "events": [],
         }
@@ -1134,7 +1135,7 @@ def export_all_to_json(file_path: str) -> ExportResult:
         # Build combined export data - v3.5 format (Feature 027: suppliers and purchases with FK)
         export_data = {
             "version": "3.5",
-            "exported_at": datetime.utcnow().isoformat() + "Z",
+            "exported_at": utc_now().isoformat() + "Z",
             "application": "bake-tracker",
             "suppliers": [],  # Feature 027: Suppliers before products (products reference suppliers)
             "ingredients": [],
@@ -2301,7 +2302,7 @@ def import_production_runs_from_json(
                 try:
                     produced_at = datetime.fromisoformat(produced_at_str.replace("Z", "+00:00"))
                 except ValueError:
-                    produced_at = datetime.utcnow()
+                    produced_at = utc_now()
 
             # Create production run
             run = ProductionRun(
@@ -2373,7 +2374,7 @@ def import_assembly_runs_from_json(
                 try:
                     assembled_at = datetime.fromisoformat(assembled_at_str.replace("Z", "+00:00"))
                 except ValueError:
-                    assembled_at = datetime.utcnow()
+                    assembled_at = utc_now()
 
             # Create assembly run
             run = AssemblyRun(

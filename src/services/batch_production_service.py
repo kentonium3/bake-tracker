@@ -19,6 +19,7 @@ from contextlib import nullcontext
 from typing import Dict, Any, List, Optional
 from decimal import Decimal
 from datetime import datetime
+from src.utils.datetime_utils import utc_now
 
 from sqlalchemy.orm import joinedload
 
@@ -368,7 +369,7 @@ def record_batch_production(
             num_batches=num_batches,
             expected_yield=expected_yield,
             actual_yield=actual_yield,
-            produced_at=produced_at or datetime.utcnow(),
+            produced_at=produced_at or utc_now(),
             notes=notes,
             total_ingredient_cost=total_ingredient_cost,
             per_unit_cost=per_unit_cost,
@@ -704,7 +705,7 @@ def export_production_history(
 
     return {
         "version": "1.1",  # Feature 025: Updated from 1.0
-        "exported_at": datetime.utcnow().isoformat(),
+        "exported_at": utc_now().isoformat(),
         "production_runs": exported_runs,
     }
 

@@ -22,6 +22,7 @@ from sqlalchemy import (
 from sqlalchemy.orm import relationship
 
 from .base import BaseModel
+from src.utils.datetime_utils import utc_now
 
 
 class ProductionRecord(BaseModel):
@@ -53,7 +54,7 @@ class ProductionRecord(BaseModel):
     # Production data
     batches = Column(Integer, nullable=False)
     actual_cost = Column(Numeric(10, 4), nullable=False, default=Decimal("0.0000"))
-    produced_at = Column(DateTime, nullable=False, default=datetime.utcnow)
+    produced_at = Column(DateTime, nullable=False, default=utc_now)
     notes = Column(Text, nullable=True)
 
     # Relationships

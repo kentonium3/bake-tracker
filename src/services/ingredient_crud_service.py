@@ -12,6 +12,7 @@ was confusing since InventoryItem tracks actual stock.
 
 from typing import List, Optional, Dict
 from datetime import datetime
+from src.utils.datetime_utils import utc_now
 
 from sqlalchemy import or_
 from sqlalchemy.exc import SQLAlchemyError
@@ -198,7 +199,7 @@ def update_ingredient(ingredient_id: int, data: Dict) -> Ingredient:
                     setattr(ingredient, field, value)
 
             # Update timestamp
-            ingredient.last_updated = datetime.utcnow()
+            ingredient.last_updated = utc_now()
 
             session.flush()
             session.refresh(ingredient)

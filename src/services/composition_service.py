@@ -19,6 +19,7 @@ from decimal import Decimal
 from typing import List, Optional, Dict, Any, Set, Tuple
 from collections import deque
 from datetime import datetime
+from src.utils.datetime_utils import utc_now
 import threading
 import time
 
@@ -320,7 +321,7 @@ class CompositionService:
                     if hasattr(composition, field):
                         setattr(composition, field, value)
 
-                composition.updated_at = datetime.utcnow()
+                composition.updated_at = utc_now()
                 session.flush()
 
                 logger.info(f"Updated composition ID {composition_id}")
@@ -817,7 +818,7 @@ class CompositionService:
                     "issues": issues,
                     "warnings": warnings,
                     "total_compositions": len(compositions),
-                    "checked_at": datetime.utcnow().isoformat(),
+                    "checked_at": utc_now().isoformat(),
                 }
 
                 logger.debug(
@@ -1331,7 +1332,7 @@ class CompositionService:
                     "total_cost": cost_breakdown["total_assembly_cost"],
                     "finished_unit_cost": cost_breakdown["total_finished_unit_cost"],
                     "finished_good_cost": cost_breakdown["total_finished_good_cost"],
-                    "calculated_at": datetime.utcnow().isoformat(),
+                    "calculated_at": utc_now().isoformat(),
                 }
 
                 logger.debug(f"Generated statistics for assembly {assembly_id}")

@@ -18,6 +18,7 @@ from sqlalchemy import (
 from sqlalchemy.orm import relationship, backref
 
 from .base import BaseModel
+from src.utils.datetime_utils import utc_now
 
 
 class Ingredient(BaseModel):
@@ -110,9 +111,9 @@ class Ingredient(BaseModel):
     allergens = Column(JSON, nullable=True)  # Array of allergen codes
 
     # Timestamps
-    date_added = Column(DateTime, nullable=False, default=datetime.utcnow)
+    date_added = Column(DateTime, nullable=False, default=utc_now)
     last_modified = Column(
-        DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow
+        DateTime, nullable=False, default=utc_now, onupdate=utc_now
     )
 
     # Relationships

@@ -18,6 +18,7 @@ import time
 import random
 import copy
 from datetime import datetime
+from src.utils.datetime_utils import utc_now
 from typing import Dict, List, Optional, Any, Union, Callable, Protocol
 from enum import Enum
 import functools
@@ -428,7 +429,7 @@ class UICompatibilityService:
                 "failure_rate": round(failure_rate, 2),
             },
             "raw_stats": copy.deepcopy(self.operation_stats),
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": utc_now().isoformat(),
         }
 
     def should_rollback(self) -> bool:

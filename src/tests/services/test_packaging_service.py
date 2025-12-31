@@ -16,6 +16,7 @@ Tests cover:
 
 import pytest
 from datetime import date, datetime
+from src.utils.datetime_utils import utc_now
 from decimal import Decimal
 
 from src.services import packaging_service
@@ -700,7 +701,7 @@ class TestIsFullyAssigned:
             composition_id=generic_composition.id,
             inventory_item_id=inventory_a.id,
             quantity_assigned=10.0,  # Only 10 of 20 required
-            assigned_at=datetime.utcnow(),
+            assigned_at=utc_now(),
         )
         test_db.add(assignment)
         test_db.flush()
@@ -764,7 +765,7 @@ class TestGetPendingRequirements:
             composition_id=generic_composition.id,
             inventory_item_id=inventory_a.id,
             quantity_assigned=10.0,
-            assigned_at=datetime.utcnow(),
+            assigned_at=utc_now(),
         )
         test_db.add(assignment)
         test_db.flush()

@@ -29,6 +29,7 @@ from sqlalchemy import (
 from sqlalchemy.orm import relationship
 
 from .base import BaseModel
+from src.utils.datetime_utils import utc_now
 from .assembly_type import AssemblyType
 
 
@@ -79,8 +80,8 @@ class FinishedGood(BaseModel):
     notes = Column(Text, nullable=True)
 
     # Enhanced timestamps
-    created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
-    updated_at = Column(DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = Column(DateTime, nullable=False, default=utc_now)
+    updated_at = Column(DateTime, nullable=False, default=utc_now, onupdate=utc_now)
 
     # Relationships
     # Components managed through Composition model
