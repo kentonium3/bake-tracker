@@ -10,7 +10,7 @@ subtasks:
   - "T048"
 title: "Integration & Polish"
 phase: "Phase 5 - Integration"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "claude"
 shell_pid: "48074"
@@ -233,3 +233,4 @@ history:
 
 - 2025-12-30T12:00:00Z – system – lane=planned – Prompt created.
 - 2025-12-31T18:17:08Z – claude – shell_pid=48074 – lane=doing – Started implementation - continuing from T043
+- 2025-12-31T18:22:10Z – claude – shell_pid=48074 – lane=for_review – T042,T043,T048 complete. T044-T047 blocked pending user actions (migration, UAT)
