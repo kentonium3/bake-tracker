@@ -45,49 +45,50 @@ The conceptual flow diagram needs an additional layer showing Event → Producti
 This graph illustrates the desired operational flow, emphasizing how inventory moves between stock types and how packaging materials are consumed.
 
 Code snippet
+```mermaid
 
 graph TD
-    subgraph Input & Definition
+    subgraph Input_Definition [Input & Definition]
         A[INGREDIENT]
         B[PACKAGING_PRODUCT]
         C[RECIPE]
     end
 
     subgraph Inventory
-        D[PANTRY (Raw Material Stock)]
-        E[FINISHED_ITEM_INV (Atomic Stock)]
-        F[FINISHED_GOOD_INV (Sellable Stock)]
+        D["PANTRY (Raw Material Stock)"]
+        E["FINISHED_ITEM_INV (Atomic Stock)"]
+        F["FINISHED_GOOD_INV (Sellable Stock)"]
     end
 
-    subgraph Production Processes
-        G(BATCH RUN - Process 1)
-        H(FG ASSEMBLY - Process 2)
-        I(PACKAGE ASSEMBLY - Process 3)
+    subgraph Production_Processes [Production Processes]
+        G("(BATCH RUN - Process 1)")
+        H("(FG ASSEMBLY - Process 2)")
+        I("(PACKAGE ASSEMBLY - Process 3)")
     end
 
     subgraph Output
-        J[PACKAGE (Final Logistics Unit)]
+        J["PACKAGE (Final Logistics Unit)"]
     end
 
     %% Definition Flow
-    C -- calls for --> A
+    C -- "calls for" --> A
 
     %% Input Flow
     A & B --> D
 
     %% Consumption/Production 1: Batch Run
-    G -- consumes ingredients --> D
-    G -- yields --> E
+    G -- "consumes ingredients" --> D
+    G -- "yields" --> E
 
-    %% Consumption/Production 2: Finished Good Assembly (Intermediate Inventory)
-    H -- consumes atomic items --> E
-    H -- consumes packaging (BOM 1) --> B
-    H -- yields --> F
+    %% Consumption/Production 2: Finished Good Assembly
+    H -- "consumes atomic items" --> E
+    H -- "consumes packaging (BOM 1)" --> B
+    H -- "yields" --> F
 
-    %% Consumption/Production 3: Package Assembly (Final Order)
-    I -- consumes assembled goods --> F
-    I -- consumes packaging (BOM 2) --> B
-    I -- yields --> J
+    %% Consumption/Production 3: Package Assembly
+    I -- "consumes assembled goods" --> F
+    I -- "consumes packaging (BOM 2)" --> B
+    I -- "yields" --> J
 
     style A fill:#F9E79F,stroke:#000
     style B fill:#F9E79F,stroke:#000
@@ -95,11 +96,13 @@ graph TD
     style D fill:#A9DFBF,stroke:#000
     style E fill:#A9DFBF,stroke:#000
     style F fill:#A9DFBF,stroke:#000
+```
+
 2. 🗃️ Entity Relationship Diagram (ERD)
 This diagram focuses on the database model and the relationships, specifically introducing the Bill of Materials (BOM) concept.
 
 Code snippet
-
+```mermaid
 erDiagram
     %% DEFINITIONS
     RECIPE ||--o{ RECIPE_INGREDIENT : calls_for
@@ -124,8 +127,9 @@ erDiagram
     PACKAGE ||--|{ PKG_BOM_LINE : requires_materials
     PKG_BOM_LINE }|--o{ FINISHED_GOOD : requires_assembled_good
     PKG_BOM_LINE }|--o{ PACKAGING_PRODUCT : requires_packaging_2
+```
 
-    %% INVENTORY NOTE: INVENTORY_STOCK tracks all raw/packaging items.
+    
 3. 📦 Core Concepts & Requirements
 A. Introduction of Packaging Products
 Concept: A new entity, PACKAGING_PRODUCT, must be defined.
