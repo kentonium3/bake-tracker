@@ -8,10 +8,10 @@ subtasks:
   - "T041"
 title: "Migration Tooling"
 phase: "Phase 4 - Migration"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "gemini"
-shell_pid: "31123"
+shell_pid: "34398"
 review_status: ""
 reviewed_by: ""
 history:
@@ -214,3 +214,4 @@ history:
 
 - 2025-12-30T12:00:00Z – system – lane=planned – Prompt created.
 - 2025-12-31T14:24:31Z – gemini – shell_pid=31123 – lane=doing – Started parallel implementation
+- 2025-12-31T14:35:05Z – gemini – shell_pid=34398 – lane=for_review – Ready for review - all scripts implemented and tested
