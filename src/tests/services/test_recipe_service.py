@@ -2599,3 +2599,148 @@ class TestGetRecipeWithCostsComponents:
         assert "components" in result
         assert len(result["components"]) == 0
         assert result["total_component_cost"] == 0.0
+
+
+# =============================================================================
+# Feature 031: Leaf-Only Ingredient Validation Tests
+# =============================================================================
+
+class TestLeafOnlyIngredientValidation:
+    """Tests for leaf-only ingredient enforcement in recipes (Feature 031)."""
+
+    def test_create_recipe_with_leaf_ingredient_succeeds(self, test_db, hierarchy_ingredients):
+        """Creating recipe with leaf ingredient (level 2) succeeds."""
+        recipe = recipe_service.create_recipe(
+            {
+                "name": "Leaf Ingredient Recipe",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch"
+            },
+            [{"ingredient_id": hierarchy_ingredients.leaf1.id, "quantity": 1.0, "unit": "cup"}]
+        )
+        assert recipe is not None
+        assert len(recipe.recipe_ingredients) == 1
+
+    def test_create_recipe_with_non_leaf_ingredient_fails(self, test_db, hierarchy_ingredients):
+        """Creating recipe with non-leaf ingredient (level 0 or 1) raises NonLeafIngredientError."""
+        from src.services.exceptions import NonLeafIngredientError
+
+        # Try with root (level 0)
+        with pytest.raises(NonLeafIngredientError) as exc_info:
+            recipe_service.create_recipe(
+                {
+                    "name": "Root Ingredient Recipe",
+                    "category": "Cookies",
+                    "yield_quantity": 1,
+                    "yield_unit": "batch"
+                },
+                [{"ingredient_id": hierarchy_ingredients.root.id, "quantity": 1.0, "unit": "cup"}]
+            )
+        assert "Test Chocolate" in str(exc_info.value)
+
+    def test_create_recipe_with_mid_tier_ingredient_fails(self, test_db, hierarchy_ingredients):
+        """Creating recipe with mid-tier ingredient (level 1) raises NonLeafIngredientError."""
+        from src.services.exceptions import NonLeafIngredientError
+
+        with pytest.raises(NonLeafIngredientError) as exc_info:
+            recipe_service.create_recipe(
+                {
+                    "name": "Mid Ingredient Recipe",
+                    "category": "Cookies",
+                    "yield_quantity": 1,
+                    "yield_unit": "batch"
+                },
+                [{"ingredient_id": hierarchy_ingredients.mid.id, "quantity": 1.0, "unit": "cup"}]
+            )
+        assert "Test Dark Chocolate" in str(exc_info.value)
+
+    def test_add_ingredient_to_recipe_leaf_succeeds(self, test_db, hierarchy_ingredients):
+        """Adding leaf ingredient to existing recipe succeeds."""
+        recipe = recipe_service.create_recipe(
+            {
+                "name": "Add Leaf Test Recipe",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch"
+            },
+            []
+        )
+
+        result = recipe_service.add_ingredient_to_recipe(
+            recipe.id,
+            hierarchy_ingredients.leaf1.id,
+            1.0,
+            "cup"
+        )
+        assert result is not None
+
+    def test_add_ingredient_to_recipe_non_leaf_fails(self, test_db, hierarchy_ingredients):
+        """Adding non-leaf ingredient to existing recipe raises NonLeafIngredientError."""
+        from src.services.exceptions import NonLeafIngredientError
+
+        recipe = recipe_service.create_recipe(
+            {
+                "name": "Add Non-Leaf Test Recipe",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch"
+            },
+            []
+        )
+
+        with pytest.raises(NonLeafIngredientError):
+            recipe_service.add_ingredient_to_recipe(
+                recipe.id,
+                hierarchy_ingredients.mid.id,
+                1.0,
+                "cup"
+            )
+
+    def test_non_leaf_error_includes_suggestions(self, test_db, hierarchy_ingredients):
+        """NonLeafIngredientError includes leaf ingredient suggestions."""
+        from src.services.exceptions import NonLeafIngredientError
+
+        with pytest.raises(NonLeafIngredientError) as exc_info:
+            recipe_service.create_recipe(
+                {
+                    "name": "Suggestion Test Recipe",
+                    "category": "Cookies",
+                    "yield_quantity": 1,
+                    "yield_unit": "batch"
+                },
+                [{"ingredient_id": hierarchy_ingredients.mid.id, "quantity": 1.0, "unit": "cup"}]
+            )
+
+        # The error should have suggestions (leaf children of mid-tier)
+        error = exc_info.value
+        assert hasattr(error, "suggestions")
+        # Should suggest leaves under dark_chocolate (leaf1 and leaf2)
+        assert len(error.suggestions) > 0
+
+    def test_update_recipe_with_non_leaf_fails(self, test_db, hierarchy_ingredients):
+        """Updating recipe with non-leaf ingredient raises NonLeafIngredientError."""
+        from src.services.exceptions import NonLeafIngredientError
+
+        recipe = recipe_service.create_recipe(
+            {
+                "name": "Update Non-Leaf Test",
+                "category": "Cookies",
+                "yield_quantity": 1,
+                "yield_unit": "batch"
+            },
+            [{"ingredient_id": hierarchy_ingredients.leaf1.id, "quantity": 1.0, "unit": "cup"}]
+        )
+
+        # Try to update with a non-leaf ingredient
+        with pytest.raises(NonLeafIngredientError):
+            recipe_service.update_recipe(
+                recipe.id,
+                {
+                    "name": "Updated Recipe",
+                    "category": "Cookies",
+                    "yield_quantity": 1,
+                    "yield_unit": "batch"
+                },
+                [{"ingredient_id": hierarchy_ingredients.root.id, "quantity": 1.0, "unit": "cup"}]
+            )

@@ -50,10 +50,54 @@ from .exceptions import (
     IngredientNotFoundBySlug,
     ValidationError as ServiceValidationError,
     DatabaseError,
+    NonLeafIngredientError,
 )
 from .ingredient_service import get_ingredient
 from ..utils.validators import validate_product_data
 from sqlalchemy.orm import joinedload
+
+
+# ============================================================================
+# Feature 031: Hierarchy Validation Helpers
+# ============================================================================
+
+
+def _validate_leaf_ingredient_for_product(ingredient, session) -> None:
+    """
+    Validate that an ingredient is a leaf (level 2) before linking to a product.
+
+    Args:
+        ingredient: Ingredient object to validate
+        session: Database session
+
+    Raises:
+        NonLeafIngredientError: If ingredient is not a leaf (hierarchy_level != 2)
+    """
+    if ingredient.hierarchy_level != 2:
+        # Get leaf suggestions from descendants
+        from src.services import ingredient_hierarchy_service
+
+        suggestions = []
+        try:
+            descendants = ingredient_hierarchy_service.get_leaf_ingredients(
+                parent_id=ingredient.id, session=session
+            )
+            suggestions = [d["display_name"] for d in descendants[:3]]
+        except Exception:
+            # If we can't get suggestions, continue without them
+            pass
+
+        raise NonLeafIngredientError(
+            ingredient_id=ingredient.id,
+            ingredient_name=ingredient.display_name,
+            context="product",
+            suggestions=suggestions,
+        )
+
+
+# ============================================================================
+# CRUD Operations
+# ============================================================================
 
 
 def create_product(ingredient_slug: str, product_data: Dict[str, Any]) -> Product:
@@ -113,6 +157,9 @@ def create_product(ingredient_slug: str, product_data: Dict[str, Any]) -> Produc
 
     try:
         with session_scope() as session:
+            # Feature 031: Validate leaf-only constraint
+            _validate_leaf_ingredient_for_product(ingredient, session)
+
             # If preferred=True, clear all other products for this ingredient
             if product_data.get("preferred", False):
                 session.query(Product).filter_by(ingredient_id=ingredient.id).update(
@@ -147,7 +194,7 @@ def create_product(ingredient_slug: str, product_data: Dict[str, Any]) -> Produc
 
     except IngredientNotFoundBySlug:
         raise
-    except ServiceValidationError:
+    except (ServiceValidationError, NonLeafIngredientError):
         raise
     except Exception as e:
         raise DatabaseError("Failed to create product", original_error=e)

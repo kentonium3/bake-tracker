@@ -33,7 +33,7 @@ from sqlalchemy import func
 
 from src.models import Product, Purchase, Ingredient, InventoryItem, Supplier, RecipeIngredient
 from src.services.database import session_scope
-from src.services.exceptions import ProductNotFound, ValidationError
+from src.services.exceptions import ProductNotFound, ValidationError, NonLeafIngredientError
 
 logger = logging.getLogger(__name__)
 
@@ -261,6 +261,28 @@ def _create_product_impl(
     session: Session,
 ) -> Dict[str, Any]:
     """Implementation of create_product."""
+    # Feature 031: Validate leaf-only constraint
+    ingredient = session.query(Ingredient).filter(Ingredient.id == ingredient_id).first()
+    if ingredient and ingredient.hierarchy_level != 2:
+        # Get leaf suggestions from descendants
+        from src.services import ingredient_hierarchy_service
+
+        suggestions = []
+        try:
+            descendants = ingredient_hierarchy_service.get_leaf_ingredients(
+                parent_id=ingredient_id, session=session
+            )
+            suggestions = [d["display_name"] for d in descendants[:3]]
+        except Exception:
+            pass
+
+        raise NonLeafIngredientError(
+            ingredient_id=ingredient_id,
+            ingredient_name=ingredient.display_name if ingredient else f"ID {ingredient_id}",
+            context="product",
+            suggestions=suggestions,
+        )
+
     # Validate GTIN uniqueness
     if gtin:
         duplicate = session.query(Product).filter(Product.gtin == gtin).first()
@@ -357,6 +379,29 @@ def _update_product_impl(product_id: int, session: Session, **kwargs) -> Dict[st
                 f"UPC {new_upc} is already used by product '{duplicate.brand}' "
                 f"(ID: {duplicate.id}). UPCs must be unique."
             ])
+
+    # Feature 031: Validate leaf-only constraint if ingredient_id is being changed
+    new_ingredient_id = kwargs.get("ingredient_id")
+    if new_ingredient_id is not None and new_ingredient_id != product.ingredient_id:
+        ingredient = session.query(Ingredient).filter(Ingredient.id == new_ingredient_id).first()
+        if ingredient and ingredient.hierarchy_level != 2:
+            from src.services import ingredient_hierarchy_service
+
+            suggestions = []
+            try:
+                descendants = ingredient_hierarchy_service.get_leaf_ingredients(
+                    parent_id=new_ingredient_id, session=session
+                )
+                suggestions = [d["display_name"] for d in descendants[:3]]
+            except Exception:
+                pass
+
+            raise NonLeafIngredientError(
+                ingredient_id=new_ingredient_id,
+                ingredient_name=ingredient.display_name,
+                context="product",
+                suggestions=suggestions,
+            )
 
     allowed_fields = {
         "product_name", "ingredient_id", "package_type", "package_unit",

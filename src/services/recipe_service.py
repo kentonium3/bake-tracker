@@ -23,11 +23,51 @@ from src.services.exceptions import (
     IngredientNotFound,
     ValidationError,
     DatabaseError,
+    NonLeafIngredientError,
 )
 from src.services import inventory_item_service, product_service, purchase_service
 
 from src.services.unit_converter import convert_any_units
 from src.utils.validators import validate_recipe_data
+
+
+# ============================================================================
+# Feature 031: Hierarchy Validation Helpers
+# ============================================================================
+
+
+def _validate_leaf_ingredient(ingredient: Ingredient, context: str, session) -> None:
+    """
+    Validate that an ingredient is a leaf (level 2) before adding to recipe/product.
+
+    Args:
+        ingredient: Ingredient object to validate
+        context: Context string for error message (e.g., "recipe", "product")
+        session: Database session
+
+    Raises:
+        NonLeafIngredientError: If ingredient is not a leaf (hierarchy_level != 2)
+    """
+    if ingredient.hierarchy_level != 2:
+        # Get leaf suggestions from descendants
+        from src.services import ingredient_hierarchy_service
+
+        suggestions = []
+        try:
+            descendants = ingredient_hierarchy_service.get_leaf_ingredients(
+                parent_id=ingredient.id, session=session
+            )
+            suggestions = [d["display_name"] for d in descendants[:3]]
+        except Exception:
+            # If we can't get suggestions, continue without them
+            pass
+
+        raise NonLeafIngredientError(
+            ingredient_id=ingredient.id,
+            ingredient_name=ingredient.display_name,
+            context=context,
+            suggestions=suggestions,
+        )
 
 
 # ============================================================================
@@ -88,6 +128,9 @@ def create_recipe(recipe_data: Dict, ingredients_data: List[Dict] = None) -> Rec
                     if not ingredient:
                         raise IngredientNotFound(ing_data["ingredient_id"])
 
+                    # Feature 031: Validate leaf-only constraint
+                    _validate_leaf_ingredient(ingredient, "recipe", session)
+
                     # Create recipe ingredient
                     recipe_ingredient = RecipeIngredient(
                         recipe_id=recipe.id,
@@ -115,7 +158,7 @@ def create_recipe(recipe_data: Dict, ingredients_data: List[Dict] = None) -> Rec
 
             return recipe
 
-    except (ValidationError, IngredientNotFound):
+    except (ValidationError, IngredientNotFound, NonLeafIngredientError):
         raise
     except SQLAlchemyError as e:
         raise DatabaseError("Failed to create recipe", e)
@@ -323,6 +366,9 @@ def update_recipe(  # noqa: C901
                     if not ingredient:
                         raise IngredientNotFound(ing_data["ingredient_id"])
 
+                    # Feature 031: Validate leaf-only constraint
+                    _validate_leaf_ingredient(ingredient, "recipe", session)
+
                     recipe_ingredient = RecipeIngredient(
                         recipe_id=recipe.id,
                         ingredient_id=ing_data["ingredient_id"],
@@ -349,7 +395,7 @@ def update_recipe(  # noqa: C901
 
             return recipe
 
-    except (RecipeNotFound, ValidationError, IngredientNotFound):
+    except (RecipeNotFound, ValidationError, IngredientNotFound, NonLeafIngredientError):
         raise
     except SQLAlchemyError as e:
         raise DatabaseError(f"Failed to update recipe {recipe_id}", e)
@@ -477,6 +523,9 @@ def add_ingredient_to_recipe(
             if not ingredient:
                 raise IngredientNotFound(ingredient_id)
 
+            # Feature 031: Validate leaf-only constraint
+            _validate_leaf_ingredient(ingredient, "recipe", session)
+
             recipe_ingredient = RecipeIngredient(
                 recipe_id=recipe_id,
                 ingredient_id=ingredient_id,
@@ -491,7 +540,7 @@ def add_ingredient_to_recipe(
 
             return recipe_ingredient
 
-    except (RecipeNotFound, IngredientNotFound, ValidationError):
+    except (RecipeNotFound, IngredientNotFound, ValidationError, NonLeafIngredientError):
         raise
     except SQLAlchemyError as e:
         raise DatabaseError("Failed to add ingredient to recipe", e)

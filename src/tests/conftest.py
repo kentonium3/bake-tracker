@@ -96,3 +96,70 @@ def sample_product(test_db, sample_ingredient):
             "preferred": True,
         },
     )
+
+
+@pytest.fixture(scope="function")
+def hierarchy_ingredients(test_db):
+    """Provide a sample ingredient hierarchy for testing leaf-only validation.
+
+    Creates:
+    - Chocolate (level 0, root)
+      - Dark Chocolate (level 1, mid-tier)
+        - Semi-Sweet Chips (level 2, leaf)
+        - Bittersweet Chips (level 2, leaf)
+    """
+    from src.models.ingredient import Ingredient
+
+    session = test_db()
+
+    # Root category
+    chocolate = Ingredient(
+        display_name="Test Chocolate",
+        slug="test-chocolate",
+        category="Chocolate",
+        hierarchy_level=0,
+        parent_ingredient_id=None,
+    )
+    session.add(chocolate)
+    session.flush()
+
+    # Mid-tier category
+    dark_chocolate = Ingredient(
+        display_name="Test Dark Chocolate",
+        slug="test-dark-chocolate",
+        category="Chocolate",
+        hierarchy_level=1,
+        parent_ingredient_id=chocolate.id,
+    )
+    session.add(dark_chocolate)
+    session.flush()
+
+    # Leaf ingredients
+    semi_sweet = Ingredient(
+        display_name="Test Semi-Sweet Chips",
+        slug="test-semi-sweet-chips",
+        category="Chocolate",
+        hierarchy_level=2,
+        parent_ingredient_id=dark_chocolate.id,
+    )
+    session.add(semi_sweet)
+
+    bittersweet = Ingredient(
+        display_name="Test Bittersweet Chips",
+        slug="test-bittersweet-chips",
+        category="Chocolate",
+        hierarchy_level=2,
+        parent_ingredient_id=dark_chocolate.id,
+    )
+    session.add(bittersweet)
+
+    session.commit()
+
+    class HierarchyData:
+        def __init__(self, root, mid, leaf1, leaf2):
+            self.root = root
+            self.mid = mid
+            self.leaf1 = leaf1
+            self.leaf2 = leaf2
+
+    return HierarchyData(chocolate, dark_chocolate, semi_sweet, bittersweet)

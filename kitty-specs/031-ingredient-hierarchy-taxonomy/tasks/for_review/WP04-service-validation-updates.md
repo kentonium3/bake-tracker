@@ -8,10 +8,10 @@ subtasks:
   - "T025"
 title: "Service Layer Validation Updates"
 phase: "Phase 2 - Services"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "claude"
-shell_pid: "33615"
+shell_pid: "37805"
 review_status: ""
 reviewed_by: ""
 history:
@@ -185,3 +185,4 @@ history:
 
 - 2025-12-30T12:00:00Z – system – lane=planned – Prompt created.
 - 2025-12-31T14:32:19Z – claude – shell_pid=33615 – lane=doing – Started implementation
+- 2025-12-31T15:32:03Z – claude – shell_pid=37805 – lane=for_review – T025 complete - 16 hierarchy validation tests passing
