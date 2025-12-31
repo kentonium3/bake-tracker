@@ -8,10 +8,10 @@ subtasks:
   - "T025"
 title: "Service Layer Validation Updates"
 phase: "Phase 2 - Services"
-lane: "for_review"
+lane: "done"
 assignee: ""
-agent: "claude"
-shell_pid: "37805"
+agent: "claude-reviewer"
+shell_pid: "4288"
 review_status: ""
 reviewed_by: ""
 history:
@@ -186,3 +186,4 @@ history:
 - 2025-12-30T12:00:00Z – system – lane=planned – Prompt created.
 - 2025-12-31T14:32:19Z – claude – shell_pid=33615 – lane=doing – Started implementation
 - 2025-12-31T15:32:03Z – claude – shell_pid=37805 – lane=for_review – T025 complete - 16 hierarchy validation tests passing
+- 2025-12-31T19:41:44Z – claude-reviewer – shell_pid=4288 – lane=done – Code review passed: Leaf-only validation in recipe/product/catalog services, 16/16 WP04-specific tests pass. Note: 17 pre-existing test failures due to category fixture issues unrelated to WP04
