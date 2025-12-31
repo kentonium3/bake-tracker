@@ -209,31 +209,41 @@ def validate_hierarchy(input_path: str) -> ValidationResult:
                 )
 
     # Detect cycles in parent chain
-    def has_cycle(slug: str, visited: set) -> Optional[list]:
-        """Check if following parent chain leads to a cycle."""
+    def detect_cycle(start_slug: str) -> Optional[list]:
+        """
+        Check if following parent chain leads to a cycle.
+
+        Returns the cycle path if found, None otherwise.
+        """
+        visited = set()
         path = []
-        current = slug
+        current = start_slug
+
         while current is not None:
             if current in visited:
-                return path + [current]  # Cycle detected
+                # Found a cycle - extract the cycle portion
+                cycle_start = path.index(current)
+                return path[cycle_start:] + [current]
             visited.add(current)
             path.append(current)
             current = slug_to_parent.get(current)
+
         return None
 
-    visited_global = set()
+    # Check each item for cycles (only report each cycle once)
+    reported_cycles = set()
     for slug in slug_to_parent:
-        if slug not in visited_global:
-            cycle = has_cycle(slug, visited_global.copy())
-            if cycle:
+        cycle = detect_cycle(slug)
+        if cycle:
+            # Create a normalized cycle representation for deduplication
+            cycle_key = tuple(sorted(cycle[:-1]))  # Exclude repeated element
+            if cycle_key not in reported_cycles:
+                reported_cycles.add(cycle_key)
                 result.add_error(
                     "CYCLE_DETECTED",
                     f"Cycle in parent chain: {' -> '.join(cycle)}",
                     {"cycle": cycle}
                 )
-                visited_global.add(slug)
-            else:
-                visited_global.add(slug)
 
     # Check for unassigned ingredients (warning, not error)
     if unassigned:
