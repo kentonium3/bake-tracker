@@ -54,7 +54,12 @@
 
 | # | Name | Priority | Dependencies | Status |
 |---|------|----------|--------------|--------|
-| 031 | Packaging & Distribution | LOW | User testing complete | Blocked |
+| 031 | Ingredient Hierarchy | HIGH | Phase 2 Architecture | Ready |
+| 032 | Recipe Redesign | HIGH | F031 | Ready |
+| 033 | UI Mode Restructure | HIGH | Phase 2 Architecture | Ready |
+| 034 | Purchase Workflow & AI Assist | HIGH | F033 | Ready |
+| 035 | Finished Goods Inventory | MEDIUM | F032 | Ready |
+| 036 | Packaging & Distribution | LOW | User testing complete | Blocked |
 
 ---
 
@@ -85,7 +90,12 @@
 21. ~~**Feature 028** - Purchase Tracking & Enhanced Costing~~ ✅ COMPLETE
 22. ~~**Feature 029** - Streamlined Inventory Entry~~ ✅ COMPLETE
 23. ~~**Feature 030** - Enhanced Export/Import System~~ ✅ COMPLETE
-24. **Feature 031** - Packaging & Distribution
+24. **Feature 031** - Ingredient Hierarchy
+25. **Feature 032** - Recipe Redesign
+26. **Feature 033** - UI Mode Restructure
+27. **Feature 034** - Purchase Workflow & AI Assist
+28. **Feature 035** - Finished Goods Inventory
+29. **Feature 036** - Packaging & Distribution
 
 ---
 
@@ -167,7 +177,193 @@
 
 ---
 
-### Feature 031: Packaging & Distribution
+### Feature 031: Ingredient Hierarchy
+
+**Status:** PLANNED (Phase 2 Architecture Complete)
+
+**Dependencies:** None (foundation layer)
+
+**Problem:** Flat ingredient list (487 items) creates navigation friction. No semantic grouping ("All-Purpose Flour" vs "Bread Flour" vs "Cake Flour"), difficult product assignment (which chocolate product goes with which chocolate type?), unclear recipe ingredient selection (user must know exact ingredient name).
+
+**Solution:** Three-tier hierarchical ingredient taxonomy with self-referential structure, leaf-only product assignment, and AI-assisted migration from flat categories.
+
+**Planned Deliverables:**
+- Schema: `parent_ingredient_id` FK (self-referential), `hierarchy_level` (0/1/2) on Ingredient table
+- Hierarchy levels: L0 (Root categories), L1 (Mid-tier functional grouping), L2 (Leaf ingredients - only level with products)
+- Service layer: Tree traversal, ancestry queries, cycle prevention, level validation
+- UI: Tree widget with expand/collapse, search auto-expands matching branches, breadcrumb navigation
+- Migration: AI-assisted categorization (Claude/Gemini API) with manual review
+- Validation: Only L2 ingredients can have products or be used in recipes
+
+**Example Hierarchy:**
+```
+Chocolate (L0)
+├── Dark Chocolate (L1)
+│   ├── Semi-Sweet Chocolate Chips (L2) ← Products here
+│   ├── Bittersweet Chocolate Chips (L2)
+├── Milk Chocolate (L1)
+│   ├── Milk Chocolate Chips (L2)
+```
+
+**User Impact:**
+- Reduces cognitive load (hierarchical browsing vs. scrolling 487 items)
+- Clarifies product relationships (products grouped under specific ingredients)
+- Improves recipe creation (hierarchical selection guides user to correct ingredient)
+- Enables filtering and reporting by hierarchy level
+
+**Design Document:** `docs/design/F031_ingredient_hierarchy.md`
+
+---
+
+### Feature 032: Recipe Redesign
+
+**Status:** PLANNED (Phase 2 Architecture Complete)
+
+**Dependencies:** F031 (Ingredient Hierarchy - recipes use hierarchical selection)
+
+**Problem:** Recipe changes retroactively corrupt historical production costs (Dec 15: made cookies with 2 cups flour, Dec 20: improved recipe to 2.5 cups, Dec 25: historical costs now show 2.5 cups instead of actual 2 cups). No base/variant relationships ("Raspberry Thumbprints" vs "Strawberry Thumbprints" are duplicates). No batch scaling (user wants 3x recipe, must create 3 separate production runs).
+
+**Solution:** Template/snapshot architecture where recipes are mutable definitions and snapshots capture immutable production instances. Self-referential variants via `base_recipe_id`, simple multiplier-based scaling.
+
+**Planned Deliverables:**
+- Schema: `recipe_snapshots` table (JSON denormalized recipe data), `base_recipe_id` FK (self-ref), `variant_name`, `is_production_ready` on Recipe table
+- Recipe snapshots: Captured at production time, immutable, linked to ProductionRun
+- Variant relationships: Base recipe → N variants (self-referential tree)
+- Scaling: `scale_factor` on snapshot (1x, 2x, 3x multiplier)
+- Service layer: Snapshot creation, variant management, historical cost calculation from snapshots
+- UI: Recipe list with base/variant tree view, version history modal, scaling inputs on production form
+- Migration: Export current recipes → create snapshots for historical production → import
+
+**Example Workflow:**
+- Dec 10: Create recipe v1 (2 cups flour)
+- Dec 15: Produce 2 batches → Snapshot captures v1 recipe data
+- Dec 18: Improve recipe to v2 (2.5 cups flour)
+- Dec 20: Produce 3 batches → Snapshot captures v2 recipe data
+- Dec 25: Historical report shows Dec 15 used v1 costs, Dec 20 used v2 costs (accurate)
+
+**User Impact:**
+- Preserves historical accuracy (production costs reflect actual recipes used)
+- Simplifies variant management (create variant from base, modify jam type only)
+- Enables scaling workflows ("make 3 batches" in single production run)
+- Supports recipe evolution tracking (version history view)
+
+**Design Document:** `docs/design/F032_recipe_redesign.md`
+
+---
+
+### Feature 033: UI Mode Restructure
+
+**Status:** PLANNED (Phase 2 Architecture Complete)
+
+**Dependencies:** None (UI-only reorganization, no schema changes)
+
+**Problem:** Flat 11-tab navigation with no workflow guidance. Inconsistent tab layouts (some have search, others don't; action buttons in different positions). No state visibility ("What events are coming up?" requires clicking through tabs). Unclear entry points ("Where do I start to plan an event?").
+
+**Solution:** 5-mode workflow architecture organizing UI by work activity (not entity type): CATALOG (define things), PLAN (forward-looking), SHOP (acquire materials), PRODUCE (execute), OBSERVE (monitor).
+
+**Planned Deliverables:**
+- Mode containers: 5 top-level modes with mode-specific dashboards
+- Tab reorganization: Existing tabs moved into appropriate modes
+- Standard tab layout: Consistent header/search/filter/actions/grid pattern
+- Mode dashboards: Quick stats, recent activity, quick actions per mode
+- Navigation: Horizontal mode switcher, keyboard shortcuts (Ctrl+1-5)
+- Migration: One mode at a time (CATALOG → OBSERVE → PRODUCE → SHOP → PLAN)
+
+**Mode Organization:**
+- **CATALOG** (Infrequent setup): Ingredients, Products, Recipes, Finished Units, Packages
+- **PLAN** (Weekly planning): Events, Planning Workspace (future F035)
+- **SHOP** (Shopping trips): Shopping Lists (new), Purchases (new), My Pantry
+- **PRODUCE** (Production days): Production Runs, Assembly (future), Packaging (future)
+- **OBSERVE** (Daily monitoring): Dashboard, Event Status (new), Reports
+
+**User Impact:**
+- Reduces "Where do I start?" confusion (mode names indicate purpose)
+- Provides workflow guidance (mode sequence matches real work activity)
+- Improves state visibility (mode dashboards show status at-a-glance)
+- Standardizes UI patterns (consistent layout reduces relearning)
+
+**Design Document:** `docs/design/F033_ui_mode_restructure.md`
+
+---
+
+### Feature 034: Purchase Workflow & AI Assist
+
+**Status:** PLANNED (Phase 2 Architecture Complete)
+
+**Dependencies:** F033 (UI Mode Restructure - Purchases tab in SHOP mode)
+
+**Problem:** Manual price entry for 100+ items takes 30-45 minutes (user abandons price tracking after 1-2 shopping trips). No shopping list generation from event plans. No purchase history visibility ("When did I last buy flour?" requires searching receipts). Price comparison impossible ("Is this a good price for butter?" with no historical data).
+
+**Solution:** Multi-channel purchase capture: manual UI entry, CSV bulk import, and AI-assisted capture via Google AI Studio (batch file import for Phase 2 desktop demo).
+
+**Planned Deliverables:**
+- Schema: `upc_mappings` table (learn UPC → Product mappings)
+- JSON import format: AI Studio generates `purchases_YYYYMMDD_HHMMSS.json` with UPC/price/quantity
+- UPC matching: Automatic product matching via `products.gtin` → `upc_mappings` (learned)
+- Unmatched resolution: Interactive UI for mapping unknown UPCs to products
+- Folder monitoring: Desktop monitors Dropbox/Google Drive folder, auto-detects JSON files
+- CSV import: Alternative bulk import channel
+- Service layer: `import_purchases_from_json()`, `match_upc_to_product()`, `create_upc_mapping()`
+- UI: Purchases tab (SHOP mode), manual entry form, JSON import wizard, UPC resolution dialog
+
+**AI Studio Workflow (Phone):**
+1. Open AI Studio, capture UPC barcode photo
+2. Capture price tag photo
+3. AI extracts UPC + price, generates JSON entry
+4. Repeat for all items, export JSON
+5. Upload to Dropbox sync folder
+6. Desktop detects file, matches UPCs, imports purchases
+
+**User Impact:**
+- Reduces purchase entry time from 30-45 min to <5 min (AI-assisted)
+- Enables "I just shopped at Costco with 20 items" workflow
+- Tracks purchase history ("Last paid $5.99 for flour at Costco on Dec 15")
+- Supports price comparison ("Butter trend: $300 → $450 → $600")
+
+**Design Document:** `docs/design/F034_purchase_workflow_ai_assist.md`
+
+---
+
+### Feature 035: Finished Goods Inventory
+
+**Status:** PLANNED (Phase 2 Architecture Complete - Service Layer Only, No UI)
+
+**Dependencies:** F032 (Recipe Redesign - production runs create snapshots)
+
+**Problem:** No inventory visibility during planning (user produces 50 cookies when already has 30, wastes effort). Assembly runs may fail mid-process (try to assemble 10 gift boxes needing 120 cookies, only have 100). No stock level awareness ("How many cookies do I have ready?").
+
+**Solution:** Service layer enhancement for inventory management and validation. Data model already exists (`inventory_count` fields on FinishedUnit and FinishedGood). UI deferred to Phase 3.
+
+**Planned Deliverables (Phase 2 - Service Layer Only):**
+- Service layer: `finished_goods_inventory_service.py` with inventory queries
+- Methods: `get_inventory_status()`, `check_availability()`, `validate_consumption()`, `adjust_inventory()`, `get_low_stock_items()`, `get_assembly_feasibility()`
+- Production integration: Production runs automatically update FinishedUnit inventory
+- Assembly integration: Assembly runs validate component availability, consume components, add assembled goods
+- Validation: Non-negative inventory enforced, consumption validates before proceeding
+- No FIFO required: Finished goods cost based on production time (not purchase time)
+
+**Deferred to Phase 3:**
+- Inventory dashboard UI
+- Stock level management UI
+- Low stock alerts
+- Manual adjustment workflows
+- Historical tracking
+
+**User Impact (Phase 2):**
+- Production runs correctly update inventory (automatic)
+- Assembly runs fail early if components insufficient (validation)
+- Service methods available for future UI (Phase 3)
+
+**User Impact (Phase 3 - Future):**
+- Visibility into current stock ("I have 120 cookies ready")
+- Planning uses inventory ("Need 50 cookies, already have 30, produce 20 more")
+- Low stock awareness ("Gingerbread cookies running low - 3 remaining")
+
+**Design Document:** `docs/design/F035_finished_goods_inventory.md`
+
+---
+
+### Feature 036: Packaging & Distribution
 
 **Status:** Blocked (awaiting user testing completion)
 
@@ -412,6 +608,16 @@
 
 ## Key Decisions
 
+### 2025-12-30
+- **Phase 2 Architecture Complete:** Five comprehensive design specifications created for Phase 2 requirements:
+  - **F031 (Ingredient Hierarchy):** Three-tier hierarchical taxonomy (L0/L1/L2), leaf-only product assignment, AI-assisted migration from flat categories. Blocks recipe redesign.
+  - **F032 (Recipe Redesign):** Template/snapshot architecture for immutable production history, base/variant relationships via self-referential FK, simple scaling (1x/2x/3x multiplier). Depends on F031.
+  - **F033 (UI Mode Restructure):** 5-mode workflow organization (CATALOG/PLAN/SHOP/PRODUCE/OBSERVE), consistent tab layouts, mode-specific dashboards. UI-only, no schema changes.
+  - **F034 (Purchase Workflow & AI Assist):** Multi-channel purchase capture (manual/CSV/AI Studio), UPC matching with learned mappings, batch file import for Phase 2, real-time API for Phase 3. Depends on F033.
+  - **F035 (Finished Goods Inventory):** Service layer architecture for inventory management and validation. Data model exists, UI deferred to Phase 3. Depends on F032.
+- **Feature Renumbering:** Original F031 (Packaging & Distribution) moved to F036 to accommodate Phase 2 features.
+- **Implementation Ready:** All specs include data models, service layers, UI mockups (where applicable), flow diagrams, gap analysis, constitutional compliance checks, and complexity estimates.
+
 ### 2025-12-26
 - **Feature 030 Complete:** Enhanced Export/Import System merged. Coordinated exports with manifest validation, denormalized views for AI augmentation, interactive FK resolution, skip-on-error mode, mid-import cancellation handling with smart defaults.
 - **Four-Feature Product/Inventory/Import Sequence Complete:** F027 (Product Catalog Management) + F028 (Purchase Tracking & Enhanced Costing) + F029 (Streamlined Inventory Entry) + F030 (Enhanced Export/Import) all merged. Complete AI-assisted data augmentation workflow now operational.
@@ -471,3 +677,4 @@
 - 2025-12-03: Initial creation
 - 2025-12-04 through 2025-12-25: Progressive feature completions (see detailed history above)
 - 2025-12-26: Feature 030 (Enhanced Export/Import System) complete and merged. Four-feature product/inventory/import sequence (F027+F028+F029+F030) complete. AI-assisted data augmentation workflow fully operational.
+- 2025-12-30: **Phase 2 Architecture Complete.** Added Features 031-035 (Ingredient Hierarchy, Recipe Redesign, UI Mode Restructure, Purchase Workflow & AI Assist, Finished Goods Inventory). Comprehensive design specifications created for all Phase 2 requirements. Original F031 (Packaging & Distribution) renumbered to F036.
