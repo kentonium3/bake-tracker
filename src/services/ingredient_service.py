@@ -47,6 +47,8 @@ from .exceptions import (
     IngredientInUse,
     ValidationError as ServiceValidationError,
     DatabaseError,
+    IngredientNotFound,
+    MaxDepthExceededError,
 )
 from ..utils.slug_utils import create_slug
 from ..utils.validators import validate_ingredient_data
@@ -183,6 +185,32 @@ def create_ingredient(ingredient_data: Dict[str, Any]) -> Ingredient:
         with session_scope() as session:
             # Generate slug from name
             slug = create_slug(ingredient_data["name"], session)
+
+            # Feature 031: Handle hierarchy fields
+            parent_ingredient_id = ingredient_data.get("parent_ingredient_id")
+            hierarchy_level = ingredient_data.get("hierarchy_level")
+
+            if parent_ingredient_id is not None:
+                # Validate parent exists
+                parent = session.query(Ingredient).filter(Ingredient.id == parent_ingredient_id).first()
+                if parent is None:
+                    raise IngredientNotFound(parent_ingredient_id)
+
+                # Calculate hierarchy level from parent
+                calculated_level = parent.hierarchy_level + 1
+                if calculated_level > 2:
+                    raise MaxDepthExceededError(0, calculated_level)  # 0 = new ingredient
+
+                # Use calculated level (override any provided value)
+                hierarchy_level = calculated_level
+            else:
+                # No parent - default to level 2 (leaf) for backwards compatibility
+                if hierarchy_level is None:
+                    hierarchy_level = 2
+
+            # Validate hierarchy level is valid (0, 1, or 2)
+            if hierarchy_level not in (0, 1, 2):
+                raise ServiceValidationError([f"Invalid hierarchy level: {hierarchy_level}. Must be 0, 1, or 2."])
 
             # Create ingredient instance
             fdc_ids = ingredient_data.get("fdc_ids")

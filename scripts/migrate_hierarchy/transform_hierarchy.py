@@ -148,12 +148,18 @@ def transform_hierarchy(
     }
 
     # Process new category ingredients (level 0 and 1)
+    # Two-pass approach: first build slug map, then resolve parents
     new_categories = []
     category_slug_map = {}  # Map category name -> slug for parent resolution
 
+    # Pass 1: Build slug map for all categories
     for category in ai_suggestions["categories"]:
         cat_slug = category.get("slug") or slugify(category["name"])
         category_slug_map[category["name"]] = cat_slug
+
+    # Pass 2: Create category entries with resolved parent slugs
+    for category in ai_suggestions["categories"]:
+        cat_slug = category_slug_map[category["name"]]
 
         parent_slug = None
         if category.get("parent"):

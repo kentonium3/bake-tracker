@@ -75,21 +75,24 @@ def export_ingredients(db_path: str, output_path: str) -> dict:
     cursor = conn.cursor()
 
     try:
-        # Query all ingredients with fields relevant for categorization
-        cursor.execute("""
-            SELECT
-                id,
-                slug,
-                display_name,
-                category,
-                is_packaging,
-                description,
-                notes,
-                parent_ingredient_id,
-                hierarchy_level
+        # Check which columns exist (handle pre-migration schema)
+        cursor.execute("PRAGMA table_info(ingredients)")
+        columns = {row[1] for row in cursor.fetchall()}
+
+        has_hierarchy = "parent_ingredient_id" in columns
+
+        # Build query based on available columns
+        base_fields = ["id", "slug", "display_name", "category", "is_packaging",
+                       "description", "notes"]
+        hierarchy_fields = ["parent_ingredient_id", "hierarchy_level"] if has_hierarchy else []
+        all_fields = base_fields + hierarchy_fields
+
+        query = f"""
+            SELECT {', '.join(all_fields)}
             FROM ingredients
             ORDER BY category, display_name
-        """)
+        """
+        cursor.execute(query)
 
         rows = cursor.fetchall()
 
@@ -111,10 +114,12 @@ def export_ingredients(db_path: str, output_path: str) -> dict:
                 ingredient["notes"] = row["notes"]
 
             # Include current hierarchy fields if set (for re-runs)
-            if row["parent_ingredient_id"] is not None:
-                ingredient["parent_ingredient_id"] = row["parent_ingredient_id"]
-            if row["hierarchy_level"] is not None:
-                ingredient["hierarchy_level"] = row["hierarchy_level"]
+            # Only check if schema has hierarchy columns
+            if has_hierarchy:
+                if row["parent_ingredient_id"] is not None:
+                    ingredient["parent_ingredient_id"] = row["parent_ingredient_id"]
+                if row["hierarchy_level"] is not None:
+                    ingredient["hierarchy_level"] = row["hierarchy_level"]
 
             ingredients.append(ingredient)
 
