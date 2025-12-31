@@ -7,6 +7,23 @@
 
 ---
 
+## Important Note on Specification Approach
+
+**This document contains detailed technical illustrations** including code samples, schema definitions, service method signatures, and UI mockups. These are provided as **examples and guidance**, not as prescriptive implementations.
+
+**When using spec-kitty to implement this feature:**
+- The code samples are **illustrative** - they show one possible approach
+- Spec-kitty should **validate and rationalize** the technical approach during its planning phase
+- Spec-kitty may **modify or replace** these examples based on:
+  - Current codebase patterns and conventions
+  - Better architectural approaches discovered during analysis
+  - Constitution compliance verification
+  - Test-driven development requirements
+
+**The requirements and business logic are the source of truth** - the technical implementation details should be determined by spec-kitty's specification and planning phases.
+
+---
+
 ## Executive Summary
 
 This specification defines a **low-friction purchase capture system** combining manual UI entry, bulk CSV import, and AI-assisted capture via Google AI Studio. The system addresses the critical usability blocker where manual price entry for 100+ items takes hours and discourages price tracking. The solution uses a **batch-oriented, file-based workflow** for Phase 2 (desktop demo), with a path to real-time sync for Phase 3 (web).

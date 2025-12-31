@@ -7,6 +7,23 @@
 
 ---
 
+## Important Note on Specification Approach
+
+**This document contains detailed technical illustrations** including code samples, schema definitions, service method signatures, and UI mockups. These are provided as **examples and guidance**, not as prescriptive implementations.
+
+**When using spec-kitty to implement this feature:**
+- The code samples are **illustrative** - they show one possible approach
+- Spec-kitty should **validate and rationalize** the technical approach during its planning phase
+- Spec-kitty may **modify or replace** these examples based on:
+  - Current codebase patterns and conventions
+  - Better architectural approaches discovered during analysis
+  - Constitution compliance verification
+  - Test-driven development requirements
+
+**The requirements and business logic are the source of truth** - the technical implementation details should be determined by spec-kitty's specification and planning phases.
+
+---
+
 ## Executive Summary
 
 This specification documents the **finished goods inventory architecture** for Phase 2. The data model already exists in Phase 1 with `inventory_count` fields on both `FinishedUnit` and `FinishedGood` models. Phase 2 adds service layer methods for inventory management and validation, preparing for Phase 3 UI implementation. This is an **architecture-only requirement** - no UI is planned for Phase 2.

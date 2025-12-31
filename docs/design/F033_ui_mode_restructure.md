@@ -7,6 +7,23 @@
 
 ---
 
+## Important Note on Specification Approach
+
+**This document contains detailed technical illustrations** including code samples, schema definitions, service method signatures, and UI mockups. These are provided as **examples and guidance**, not as prescriptive implementations.
+
+**When using spec-kitty to implement this feature:**
+- The code samples are **illustrative** - they show one possible approach
+- Spec-kitty should **validate and rationalize** the technical approach during its planning phase
+- Spec-kitty may **modify or replace** these examples based on:
+  - Current codebase patterns and conventions
+  - Better architectural approaches discovered during analysis
+  - Constitution compliance verification
+  - Test-driven development requirements
+
+**The requirements and business logic are the source of truth** - the technical implementation details should be determined by spec-kitty's specification and planning phases.
+
+---
+
 ## Executive Summary
 
 This specification restructures the application UI from a flat tab-based navigation (11 tabs with inconsistent layouts) to a **5-mode workflow-oriented architecture**. Each mode represents a distinct work activity (Catalog, Plan, Shop, Produce, Observe) with consistent internal layouts and mode-specific dashboards. This reorganization addresses usability issues where users cannot find entry points, lack visibility into system state, and experience jarring transitions between related tasks.

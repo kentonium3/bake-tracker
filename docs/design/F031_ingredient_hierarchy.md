@@ -7,6 +7,23 @@
 
 ---
 
+## Important Note on Specification Approach
+
+**This document contains detailed technical illustrations** including code samples, schema definitions, service method signatures, and UI mockups. These are provided as **examples and guidance**, not as prescriptive implementations.
+
+**When using spec-kitty to implement this feature:**
+- The code samples are **illustrative** - they show one possible approach
+- Spec-kitty should **validate and rationalize** the technical approach during its planning phase
+- Spec-kitty may **modify or replace** these examples based on:
+  - Current codebase patterns and conventions
+  - Better architectural approaches discovered during analysis
+  - Constitution compliance verification
+  - Test-driven development requirements
+
+**The requirements and business logic are the source of truth** - the technical implementation details should be determined by spec-kitty's specification and planning phases.
+
+---
+
 ## Executive Summary
 
 This specification defines a **three-tier hierarchical ingredient taxonomy** to replace the current flat `category` field. The hierarchy enables context-appropriate ingredient selection (granular for recipes, broad for shopping lists, flexible for filtering) while maintaining data integrity and supporting future multi-domain expansion (baking → BBQ → meal prep).

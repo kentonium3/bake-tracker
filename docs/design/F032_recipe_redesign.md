@@ -7,6 +7,23 @@
 
 ---
 
+## Important Note on Specification Approach
+
+**This document contains detailed technical illustrations** including code samples, schema definitions, service method signatures, and UI mockups. These are provided as **examples and guidance**, not as prescriptive implementations.
+
+**When using spec-kitty to implement this feature:**
+- The code samples are **illustrative** - they show one possible approach
+- Spec-kitty should **validate and rationalize** the technical approach during its planning phase
+- Spec-kitty may **modify or replace** these examples based on:
+  - Current codebase patterns and conventions
+  - Better architectural approaches discovered during analysis
+  - Constitution compliance verification
+  - Test-driven development requirements
+
+**The requirements and business logic are the source of truth** - the technical implementation details should be determined by spec-kitty's specification and planning phases.
+
+---
+
 ## Executive Summary
 
 This specification redesigns the recipe system to distinguish between **recipe templates** (definitions) and **recipe snapshots** (production instances), enabling accurate historical costing, recipe versioning, scaling, and base/variant relationships. The redesign solves critical problems where recipe changes retroactively affect historical production costs and where creating variants requires full duplication.
