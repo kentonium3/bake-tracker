@@ -11,7 +11,7 @@ subtasks:
   - "T014"
 title: "Hierarchy Service - Core Functions"
 phase: "Phase 2 - Services"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "claude"
 shell_pid: "29529"
@@ -200,3 +200,4 @@ history:
 
 - 2025-12-30T12:00:00Z – system – lane=planned – Prompt created.
 - 2025-12-31T14:24:38Z – claude – shell_pid=29529 – lane=doing – Started implementation
+- 2025-12-31T14:26:55Z – claude – shell_pid=29529 – lane=for_review – Ready for review - all 6 core functions implemented with 23 tests
