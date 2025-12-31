@@ -8,10 +8,10 @@ subtasks:
   - "T036"
 title: "UI Integration"
 phase: "Phase 3 - UI"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "claude"
+shell_pid: "37805"
 review_status: ""
 reviewed_by: ""
 history:
@@ -166,3 +166,4 @@ history:
 ## Activity Log
 
 - 2025-12-30T12:00:00Z – system – lane=planned – Prompt created.
+- 2025-12-31T15:34:06Z – claude – shell_pid=37805 – lane=doing – Starting UI integration

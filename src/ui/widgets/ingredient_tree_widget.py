@@ -75,8 +75,8 @@ class IngredientTreeWidget(ctk.CTkFrame):
         self._search_after_id: Optional[str] = None
         self._search_debounce_ms: int = 300
 
-        # Service stub flag - will be replaced with real service when available
-        self._use_stub_data: bool = True
+        # Service stub flag - set to False to use real hierarchy service
+        self._use_stub_data: bool = False
 
         self._setup_ui()
         self._setup_styles()
@@ -585,73 +585,98 @@ class IngredientTreeWidget(ctk.CTkFrame):
         self.leaf_only = leaf_only
         self.refresh()
 
+    def search(self, query: str) -> None:
+        """
+        Perform a search from external trigger.
+
+        Args:
+            query: Search query string
+        """
+        # Update internal search entry if visible
+        if self.show_search:
+            self._search_entry.delete(0, "end")
+            self._search_entry.insert(0, query)
+
+        # Clear previous highlights
+        self._clear_search_highlights()
+
+        if not query or len(query) < 2:
+            return
+
+        # Search for matches
+        matches = self._search_ingredients(query)
+
+        if not matches:
+            return
+
+        # Process matches and find first one to select
+        first_match_id = self._process_search_matches(matches)
+
+        # Select and scroll to first match
+        if first_match_id:
+            self._tree.selection_set(first_match_id)
+            self._tree.focus(first_match_id)
+            self._tree.see(first_match_id)
+
+    def clear_search(self) -> None:
+        """Clear search highlights and reset tree state."""
+        self._clear_search()
+
     # -------------------------------------------------------------------------
     # Service Interface (Stubbed - Replace with real service calls)
     # -------------------------------------------------------------------------
 
     def _get_root_ingredients(self) -> List[Dict]:
         """
-        Get root-level ingredients.
+        Get root-level ingredients (hierarchy_level=0).
 
-        Stub implementation - replace with:
-            from src.services.ingredient_hierarchy_service import get_root_ingredients
-            return get_root_ingredients()
+        Returns list of ingredient dicts with id, display_name, hierarchy_level, etc.
         """
         if self._use_stub_data:
             return self._stub_get_root_ingredients()
 
-        # Real implementation (uncomment when service is ready):
-        # from src.services.ingredient_hierarchy_service import get_root_ingredients
-        # return get_root_ingredients()
-        return []
+        from src.services import ingredient_hierarchy_service
+        return ingredient_hierarchy_service.get_root_ingredients()
 
     def _get_children(self, parent_id: int) -> List[Dict]:
         """
         Get children of an ingredient.
 
-        Stub implementation - replace with:
-            from src.services.ingredient_hierarchy_service import get_children
-            return get_children(parent_id)
+        Returns list of ingredient dicts that are direct children of parent_id.
         """
         if self._use_stub_data:
             return self._stub_get_children(parent_id)
 
-        # Real implementation (uncomment when service is ready):
-        # from src.services.ingredient_hierarchy_service import get_children
-        # return get_children(parent_id)
-        return []
+        from src.services import ingredient_hierarchy_service
+        return ingredient_hierarchy_service.get_children(parent_id)
 
     def _get_ancestors(self, ingredient_id: int) -> List[Dict]:
         """
         Get ancestors of an ingredient (immediate parent to root).
 
-        Stub implementation - replace with:
-            from src.services.ingredient_hierarchy_service import get_ancestors
-            return get_ancestors(ingredient_id)
+        Returns list ordered from immediate parent to root.
         """
         if self._use_stub_data:
             return self._stub_get_ancestors(ingredient_id)
 
-        # Real implementation (uncomment when service is ready):
-        # from src.services.ingredient_hierarchy_service import get_ancestors
-        # return get_ancestors(ingredient_id)
-        return []
+        from src.services import ingredient_hierarchy_service
+        return ingredient_hierarchy_service.get_ancestors(ingredient_id)
 
     def _search_ingredients(self, query: str) -> List[Dict]:
         """
         Search ingredients by display name.
 
-        Stub implementation - replace with:
-            from src.services.ingredient_hierarchy_service import search_ingredients
-            return search_ingredients(query)
+        Returns matching ingredients with their ancestors for tree expansion.
         """
         if self._use_stub_data:
             return self._stub_search_ingredients(query)
 
-        # Real implementation (uncomment when service is ready):
-        # from src.services.ingredient_hierarchy_service import search_ingredients
-        # return search_ingredients(query)
-        return []
+        from src.services import ingredient_hierarchy_service
+        results = ingredient_hierarchy_service.search_ingredients(query, limit=50)
+        # Add ancestors to each result for tree expansion
+        for result in results:
+            result["ancestors"] = ingredient_hierarchy_service.get_ancestors(result["id"])
+        return results
 
     # -------------------------------------------------------------------------
     # Stub Data (for development without service layer)

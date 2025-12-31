@@ -13,6 +13,8 @@ from src.models.recipe import Recipe, RecipeComponent
 from src.models.ingredient import Ingredient
 from src.services import ingredient_crud_service, recipe_service
 from src.services.unit_service import get_units_for_dropdown
+# Feature 031: Import hierarchy service for leaf-only filtering
+from src.services import ingredient_hierarchy_service
 from src.utils.constants import (
     ALL_UNITS,
     WEIGHT_UNITS,
@@ -25,6 +27,142 @@ from src.utils.constants import (
 )
 from src.services.database import session_scope
 from src.ui.widgets.dialogs import show_error, show_confirmation
+
+
+class IngredientSelectionDialog(ctk.CTkToplevel):
+    """
+    Dialog for selecting an ingredient using the tree widget (Feature 031).
+
+    Provides hierarchical browsing of ingredients with leaf-only selection
+    for recipe ingredient assignment.
+    """
+
+    def __init__(self, parent, title: str = "Select Ingredient"):
+        """
+        Initialize the ingredient selection dialog.
+
+        Args:
+            parent: Parent window
+            title: Dialog title
+        """
+        super().__init__(parent)
+
+        self.result: Optional[Dict[str, Any]] = None
+
+        # Configure window
+        self.title(title)
+        self.geometry("500x500")
+        self.resizable(True, True)
+
+        # Center on parent
+        self.transient(parent)
+        self.grab_set()
+
+        # Configure grid
+        self.grid_columnconfigure(0, weight=1)
+        self.grid_rowconfigure(0, weight=1)
+
+        # Create tree widget
+        self._create_tree_widget()
+
+        # Create buttons
+        self._create_buttons()
+
+        # Center dialog
+        self.update_idletasks()
+        parent_x = parent.winfo_rootx()
+        parent_y = parent.winfo_rooty()
+        parent_width = parent.winfo_width()
+        parent_height = parent.winfo_height()
+        dialog_width = self.winfo_width()
+        dialog_height = self.winfo_height()
+        x = max(0, parent_x + (parent_width - dialog_width) // 2)
+        y = max(0, parent_y + (parent_height - dialog_height) // 2)
+        self.geometry(f"+{x}+{y}")
+
+    def _create_tree_widget(self):
+        """Create the ingredient tree widget."""
+        from src.ui.widgets.ingredient_tree_widget import IngredientTreeWidget
+
+        tree_frame = ctk.CTkFrame(self)
+        tree_frame.grid(row=0, column=0, sticky="nsew", padx=10, pady=10)
+        tree_frame.grid_columnconfigure(0, weight=1)
+        tree_frame.grid_rowconfigure(0, weight=1)
+
+        self.tree_widget = IngredientTreeWidget(
+            tree_frame,
+            on_select_callback=self._on_tree_select,
+            leaf_only=True,  # Only allow leaf selection for recipes
+            show_search=True,
+            show_breadcrumb=True,
+        )
+        self.tree_widget.grid(row=0, column=0, sticky="nsew")
+
+        # Help text
+        help_label = ctk.CTkLabel(
+            self,
+            text="Select a specific ingredient (not a category). Use search to find ingredients quickly.",
+            text_color="gray",
+            font=ctk.CTkFont(size=11),
+        )
+        help_label.grid(row=1, column=0, sticky="w", padx=10, pady=(0, 5))
+
+    def _create_buttons(self):
+        """Create dialog buttons."""
+        button_frame = ctk.CTkFrame(self, fg_color="transparent")
+        button_frame.grid(row=2, column=0, sticky="ew", padx=10, pady=10)
+        button_frame.grid_columnconfigure((0, 1), weight=1)
+
+        # Select button
+        self.select_button = ctk.CTkButton(
+            button_frame,
+            text="Select",
+            command=self._on_select,
+            width=120,
+            state="disabled",  # Disabled until selection
+        )
+        self.select_button.grid(row=0, column=0, padx=5)
+
+        # Cancel button
+        cancel_button = ctk.CTkButton(
+            button_frame,
+            text="Cancel",
+            command=self._on_cancel,
+            width=120,
+            fg_color="gray",
+            hover_color="darkgray",
+        )
+        cancel_button.grid(row=0, column=1, padx=5)
+
+    def _on_tree_select(self, ingredient_data: Optional[Dict[str, Any]]):
+        """Handle tree selection."""
+        if ingredient_data and ingredient_data.get("is_leaf", False):
+            self._selected_ingredient = ingredient_data
+            self.select_button.configure(state="normal")
+        else:
+            self._selected_ingredient = None
+            self.select_button.configure(state="disabled")
+
+    def _on_select(self):
+        """Handle select button click."""
+        if hasattr(self, "_selected_ingredient") and self._selected_ingredient:
+            self.result = self._selected_ingredient
+            self.destroy()
+
+    def _on_cancel(self):
+        """Handle cancel button click."""
+        self.result = None
+        self.destroy()
+
+    def get_result(self) -> Optional[Dict[str, Any]]:
+        """
+        Wait for dialog to close and return result.
+
+        Returns:
+            Dictionary with ingredient data if selected, None if cancelled
+        """
+        self.wait_window()
+        return self.result
 
 
 class RecipeIngredientRow(ctk.CTkFrame):
@@ -44,7 +182,7 @@ class RecipeIngredientRow(ctk.CTkFrame):
 
         Args:
             parent: Parent widget
-            ingredients: List of available ingredients
+            ingredients: List of available ingredients (should be leaf-only)
             remove_callback: Callback to remove this row
             ingredient_id: Selected ingredient ID (None for new row)
             quantity: Ingredient quantity
@@ -54,12 +192,14 @@ class RecipeIngredientRow(ctk.CTkFrame):
 
         self.remove_callback = remove_callback
         self.ingredients = ingredients
+        self._selected_ingredient_id: Optional[int] = ingredient_id
 
-        # Configure grid (Quantity / Unit / Ingredient - traditional recipe format)
+        # Configure grid (Quantity / Unit / Ingredient / Browse / Remove)
         self.grid_columnconfigure(0, weight=1)  # Quantity
         self.grid_columnconfigure(1, weight=2)  # Unit dropdown
         self.grid_columnconfigure(2, weight=3)  # Ingredient dropdown
-        self.grid_columnconfigure(3, weight=0)  # Remove button
+        self.grid_columnconfigure(3, weight=0)  # Browse button
+        self.grid_columnconfigure(4, weight=0)  # Remove button
 
         # Quantity entry
         self.quantity_entry = ctk.CTkEntry(self, width=100, placeholder_text="Quantity")
@@ -81,12 +221,13 @@ class RecipeIngredientRow(ctk.CTkFrame):
         self.unit_combo.set(self._last_valid_unit)
         self.unit_combo.grid(row=0, column=1, padx=PADDING_MEDIUM, pady=5, sticky="ew")
 
-        # Ingredient dropdown (no unit suffix)
+        # Ingredient dropdown (leaf ingredients only - Feature 031)
         ingredient_names = [i.display_name for i in ingredients]
         self.ingredient_combo = ctk.CTkComboBox(
             self,
             values=ingredient_names if ingredient_names else ["No ingredients available"],
             state="readonly" if ingredient_names else "disabled",
+            width=200,
         )
         if ingredient_names:
             # Set selected ingredient or default to first
@@ -97,8 +238,21 @@ class RecipeIngredientRow(ctk.CTkFrame):
                         break
             else:
                 self.ingredient_combo.set(ingredient_names[0])
+                if ingredients:
+                    self._selected_ingredient_id = ingredients[0].id
 
         self.ingredient_combo.grid(row=0, column=2, padx=PADDING_MEDIUM, pady=5, sticky="ew")
+        # Bind selection change to update tracked ID
+        self.ingredient_combo.configure(command=self._on_ingredient_selected)
+
+        # Browse button (Feature 031) - opens tree dialog for hierarchical selection
+        browse_button = ctk.CTkButton(
+            self,
+            text="...",
+            width=30,
+            command=self._browse_ingredients,
+        )
+        browse_button.grid(row=0, column=3, padx=(0, PADDING_MEDIUM), pady=5)
 
         # Remove button
         remove_button = ctk.CTkButton(
@@ -109,7 +263,38 @@ class RecipeIngredientRow(ctk.CTkFrame):
             fg_color="darkred",
             hover_color="red",
         )
-        remove_button.grid(row=0, column=3, padx=(PADDING_MEDIUM, 0), pady=5)
+        remove_button.grid(row=0, column=4, padx=(0, 0), pady=5)
+
+    def _on_ingredient_selected(self, selected_name: str):
+        """Handle ingredient dropdown selection (Feature 031)."""
+        for ing in self.ingredients:
+            if ing.display_name == selected_name:
+                self._selected_ingredient_id = ing.id
+                break
+
+    def _browse_ingredients(self):
+        """Open tree dialog to browse and select ingredient (Feature 031)."""
+        dialog = IngredientSelectionDialog(
+            self.winfo_toplevel(),
+            title="Select Ingredient",
+        )
+        result = dialog.get_result()
+
+        if result:
+            # Update the combo box with selected ingredient
+            display_name = result.get("display_name", "")
+            ingredient_id = result.get("id")
+
+            if display_name and ingredient_id:
+                self._selected_ingredient_id = ingredient_id
+                # Check if ingredient is in our list, add if not
+                if display_name not in [i.display_name for i in self.ingredients]:
+                    # Need to refresh or add to dropdown
+                    current_values = list(self.ingredient_combo.cget("values"))
+                    if display_name not in current_values:
+                        current_values.append(display_name)
+                        self.ingredient_combo.configure(values=current_values)
+                self.ingredient_combo.set(display_name)
 
     def get_data(self) -> Optional[Dict[str, Any]]:
         """
@@ -118,18 +303,17 @@ class RecipeIngredientRow(ctk.CTkFrame):
         Returns:
             Dictionary with ingredient_id, quantity, and unit, or None if invalid
         """
-        if not self.ingredients:
-            return None
+        # Feature 031: Use tracked ingredient ID (supports tree selection)
+        ingredient_id = self._selected_ingredient_id
+        if not ingredient_id:
+            # Fallback: try to find by display name
+            selected_name = self.ingredient_combo.get()
+            for ing in self.ingredients:
+                if ing.display_name == selected_name:
+                    ingredient_id = ing.id
+                    break
 
-        # Get selected ingredient by display_name
-        selected_name = self.ingredient_combo.get()
-        ingredient = None
-        for ing in self.ingredients:
-            if ing.display_name == selected_name:
-                ingredient = ing
-                break
-
-        if not ingredient:
+        if not ingredient_id:
             return None
 
         # Get selected unit from dropdown
@@ -150,30 +334,45 @@ class RecipeIngredientRow(ctk.CTkFrame):
 
         recipe_unit_type = get_unit_type(unit)
 
-        # Get package_unit from preferred product (if available)
-        preferred_product = ingredient.get_preferred_product()
-        if preferred_product and hasattr(preferred_product, "package_unit"):
-            package_unit_type = get_unit_type(preferred_product.package_unit)
+        # Find the ingredient (from local list or by ID)
+        ingredient = None
+        for ing in self.ingredients:
+            if ing.id == ingredient_id:
+                ingredient = ing
+                break
 
-            # Check if cross-type conversion is needed (volume↔weight)
-            if recipe_unit_type != package_unit_type:
-                if (recipe_unit_type == "volume" and package_unit_type == "weight") or (
-                    recipe_unit_type == "weight" and package_unit_type == "volume"
-                ):
-                    # Density is required for volume↔weight conversion
-                    if ingredient.get_density_g_per_ml() is None:
-                        from src.ui.widgets.dialogs import show_error
+        # If not in local list, fetch from database
+        if not ingredient:
+            try:
+                ingredient = ingredient_crud_service.get_ingredient_by_id(ingredient_id)
+            except Exception:
+                pass
 
-                        show_error(
-                            "Density Required",
-                            f"'{ingredient.display_name}' requires density data for {recipe_unit_type}↔{package_unit_type} conversion.\n\n"
-                            f"Please edit the ingredient and add density before using it with {unit} in recipes.",
-                            parent=self.winfo_toplevel(),
-                        )
-                        return None
+        if ingredient:
+            # Get package_unit from preferred product (if available)
+            preferred_product = ingredient.get_preferred_product()
+            if preferred_product and hasattr(preferred_product, "package_unit"):
+                package_unit_type = get_unit_type(preferred_product.package_unit)
+
+                # Check if cross-type conversion is needed (volume↔weight)
+                if recipe_unit_type != package_unit_type:
+                    if (recipe_unit_type == "volume" and package_unit_type == "weight") or (
+                        recipe_unit_type == "weight" and package_unit_type == "volume"
+                    ):
+                        # Density is required for volume↔weight conversion
+                        if ingredient.get_density_g_per_ml() is None:
+                            from src.ui.widgets.dialogs import show_error
+
+                            show_error(
+                                "Density Required",
+                                f"'{ingredient.display_name}' requires density data for {recipe_unit_type}↔{package_unit_type} conversion.\n\n"
+                                f"Please edit the ingredient and add density before using it with {unit} in recipes.",
+                                parent=self.winfo_toplevel(),
+                            )
+                            return None
 
         return {
-            "ingredient_id": ingredient.id,
+            "ingredient_id": ingredient_id,
             "quantity": quantity,
             "unit": unit,
         }
@@ -220,9 +419,14 @@ class RecipeFormDialog(ctk.CTkToplevel):
         self.current_components: List[RecipeComponent] = []  # For existing recipe
         self.pending_components: List[Dict] = []  # For new recipe
 
-        # Load available ingredients
+        # Load available ingredients (Feature 031: leaf ingredients only for recipes)
         try:
-            self.available_ingredients = ingredient_crud_service.get_all_ingredients()
+            all_ingredients = ingredient_crud_service.get_all_ingredients()
+            # Filter to leaf ingredients only (hierarchy_level = 2 or no children)
+            self.available_ingredients = [
+                ing for ing in all_ingredients
+                if getattr(ing, 'hierarchy_level', 2) == 2  # Default to leaf if no hierarchy_level
+            ]
         except Exception:
             self.available_ingredients = []
 
