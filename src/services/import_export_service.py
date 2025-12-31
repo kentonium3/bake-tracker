@@ -1134,7 +1134,7 @@ def export_all_to_json(file_path: str) -> ExportResult:
 
         # Build combined export data - v3.5 format (Feature 027: suppliers and purchases with FK)
         export_data = {
-            "version": "3.5",
+            "version": "3.6",  # Feature 031: Added hierarchy fields
             "exported_at": utc_now().isoformat() + "Z",
             "application": "bake-tracker",
             "suppliers": [],  # Feature 027: Suppliers before products (products reference suppliers)
@@ -1165,7 +1165,19 @@ def export_all_to_json(file_path: str) -> ExportResult:
                 "slug": ingredient.slug,
                 "category": ingredient.category,
                 "is_packaging": ingredient.is_packaging,  # Feature 011
+                # Feature 031: Hierarchy fields
+                "hierarchy_level": ingredient.hierarchy_level,
             }
+
+            # Feature 031: Parent reference uses slug for portability
+            if ingredient.parent_ingredient_id is not None:
+                # Look up parent's slug for export (more portable than ID)
+                parent = next(
+                    (i for i in ingredients if i.id == ingredient.parent_ingredient_id),
+                    None
+                )
+                if parent:
+                    ingredient_data["parent_slug"] = parent.slug
 
             # Optional fields
             if ingredient.description:
@@ -2492,6 +2504,9 @@ def import_all_from_json_v3(file_path: str, mode: str = "merge") -> ImportResult
                             density_args["density_weight_value"] = ing.get("density_weight_value")
                             density_args["density_weight_unit"] = wgt_unit
 
+                        # Feature 031: hierarchy_level defaults to 2 (leaf) if not specified
+                        hierarchy_level = ing.get("hierarchy_level", 2)
+
                         ingredient = Ingredient(
                             display_name=ing.get("display_name"),
                             slug=slug,
@@ -2499,6 +2514,7 @@ def import_all_from_json_v3(file_path: str, mode: str = "merge") -> ImportResult
                             description=ing.get("description"),
                             notes=ing.get("notes"),
                             is_packaging=ing.get("is_packaging", False),  # Feature 011
+                            hierarchy_level=hierarchy_level,  # Feature 031
                             **density_args,
                         )
                         session.add(ingredient)
@@ -2508,6 +2524,32 @@ def import_all_from_json_v3(file_path: str, mode: str = "merge") -> ImportResult
 
             # Flush to get IDs for foreign keys
             session.flush()
+
+            # Feature 031: Second pass to resolve parent_slug references
+            if "ingredients" in data:
+                for ing in data["ingredients"]:
+                    parent_slug = ing.get("parent_slug")
+                    if parent_slug:
+                        try:
+                            slug = ing.get("slug", "")
+                            ingredient = session.query(Ingredient).filter_by(slug=slug).first()
+                            parent = session.query(Ingredient).filter_by(slug=parent_slug).first()
+                            if ingredient and parent:
+                                ingredient.parent_ingredient_id = parent.id
+                            elif ingredient and not parent:
+                                result.add_error(
+                                    "ingredient",
+                                    slug,
+                                    f"Parent slug '{parent_slug}' not found"
+                                )
+                        except Exception as e:
+                            result.add_error(
+                                "ingredient",
+                                ing.get("slug", "unknown"),
+                                f"Error resolving parent: {str(e)}"
+                            )
+
+                session.flush()
 
             # 1.5 Feature 027: Suppliers (before products, which reference them)
             if "suppliers" in data:
