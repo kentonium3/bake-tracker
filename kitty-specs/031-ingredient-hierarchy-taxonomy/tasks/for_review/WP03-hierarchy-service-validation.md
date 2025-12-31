@@ -9,7 +9,7 @@ subtasks:
   - "T020"
 title: "Hierarchy Service - Validation & Management"
 phase: "Phase 2 - Services"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "claude"
 shell_pid: "29529"
@@ -197,3 +197,4 @@ history:
 
 - 2025-12-30T12:00:00Z – system – lane=planned – Prompt created.
 - 2025-12-31T14:27:14Z – claude – shell_pid=29529 – lane=doing – Started implementation
+- 2025-12-31T14:30:11Z – claude – shell_pid=29529 – lane=for_review – Ready for review - validation functions with 19 tests
