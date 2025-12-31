@@ -16,7 +16,12 @@ from sqlalchemy.orm import sessionmaker, scoped_session
 
 from src.models.base import Base
 from src.models.ingredient import Ingredient
-from src.services.exceptions import IngredientNotFound
+from src.services.exceptions import (
+    IngredientNotFound,
+    CircularReferenceError,
+    MaxDepthExceededError,
+    HierarchyValidationError,
+)
 from src.services import ingredient_hierarchy_service
 
 
@@ -329,3 +334,187 @@ class TestIsLeaf:
         """Test that IngredientNotFound is raised for invalid id."""
         with pytest.raises(IngredientNotFound):
             ingredient_hierarchy_service.is_leaf(99999, session=test_db)
+
+
+# =============================================================================
+# Validation Function Tests (WP03)
+# =============================================================================
+
+
+class TestValidateHierarchyLevel:
+    """Tests for validate_hierarchy_level()."""
+
+    def test_valid_level_returns_true(self, test_db):
+        """Test that valid level returns True."""
+        semi_sweet = test_db.query(Ingredient).filter(Ingredient.slug == "semi-sweet-chips").first()
+        result = ingredient_hierarchy_service.validate_hierarchy_level(
+            semi_sweet.id, [2], session=test_db
+        )
+        assert result is True
+
+    def test_invalid_level_raises_error(self, test_db):
+        """Test that invalid level raises HierarchyValidationError."""
+        chocolate = test_db.query(Ingredient).filter(Ingredient.slug == "chocolate").first()
+        with pytest.raises(HierarchyValidationError) as exc_info:
+            ingredient_hierarchy_service.validate_hierarchy_level(
+                chocolate.id, [2], session=test_db
+            )
+        assert "level 0" in str(exc_info.value)
+        assert "only levels [2]" in str(exc_info.value)
+
+    def test_multiple_allowed_levels(self, test_db):
+        """Test validation with multiple allowed levels."""
+        dark = test_db.query(Ingredient).filter(Ingredient.slug == "dark-chocolate").first()
+        result = ingredient_hierarchy_service.validate_hierarchy_level(
+            dark.id, [0, 1], session=test_db
+        )
+        assert result is True
+
+    def test_ingredient_not_found(self, test_db):
+        """Test that IngredientNotFound is raised for invalid id."""
+        with pytest.raises(IngredientNotFound):
+            ingredient_hierarchy_service.validate_hierarchy_level(99999, [2], session=test_db)
+
+
+class TestWouldCreateCycle:
+    """Tests for would_create_cycle()."""
+
+    def test_direct_self_reference_is_cycle(self, test_db):
+        """Test that self-reference is detected as cycle."""
+        chocolate = test_db.query(Ingredient).filter(Ingredient.slug == "chocolate").first()
+        result = ingredient_hierarchy_service.would_create_cycle(
+            chocolate.id, chocolate.id, session=test_db
+        )
+        assert result is True
+
+    def test_indirect_cycle_detected(self, test_db):
+        """Test that indirect cycle is detected (parent becomes child of descendant)."""
+        chocolate = test_db.query(Ingredient).filter(Ingredient.slug == "chocolate").first()
+        dark = test_db.query(Ingredient).filter(Ingredient.slug == "dark-chocolate").first()
+        # Trying to make Chocolate a child of Dark Chocolate (its own child)
+        result = ingredient_hierarchy_service.would_create_cycle(
+            chocolate.id, dark.id, session=test_db
+        )
+        assert result is True
+
+    def test_deep_cycle_detected(self, test_db):
+        """Test cycle detection through grandchild."""
+        chocolate = test_db.query(Ingredient).filter(Ingredient.slug == "chocolate").first()
+        semi_sweet = test_db.query(Ingredient).filter(Ingredient.slug == "semi-sweet-chips").first()
+        # Trying to make Chocolate a child of Semi-Sweet (its grandchild)
+        result = ingredient_hierarchy_service.would_create_cycle(
+            chocolate.id, semi_sweet.id, session=test_db
+        )
+        assert result is True
+
+    def test_safe_move_returns_false(self, test_db):
+        """Test that valid move returns False."""
+        semi_sweet = test_db.query(Ingredient).filter(Ingredient.slug == "semi-sweet-chips").first()
+        milk = test_db.query(Ingredient).filter(Ingredient.slug == "milk-chocolate").first()
+        # Moving Semi-Sweet to Milk Chocolate is safe (both are siblings under Chocolate)
+        result = ingredient_hierarchy_service.would_create_cycle(
+            semi_sweet.id, milk.id, session=test_db
+        )
+        assert result is False
+
+
+class TestMoveIngredient:
+    """Tests for move_ingredient()."""
+
+    def test_valid_move_updates_parent(self, test_db):
+        """Test that valid move updates parent and level."""
+        semi_sweet = test_db.query(Ingredient).filter(Ingredient.slug == "semi-sweet-chips").first()
+        milk = test_db.query(Ingredient).filter(Ingredient.slug == "milk-chocolate").first()
+
+        result = ingredient_hierarchy_service.move_ingredient(
+            semi_sweet.id, milk.id, session=test_db
+        )
+
+        assert result["parent_ingredient_id"] == milk.id
+        assert result["hierarchy_level"] == 2  # Level stays same (milk is level 1)
+
+    def test_move_to_root(self, test_db):
+        """Test moving ingredient to root (no parent)."""
+        dark = test_db.query(Ingredient).filter(Ingredient.slug == "dark-chocolate").first()
+
+        result = ingredient_hierarchy_service.move_ingredient(
+            dark.id, None, session=test_db
+        )
+
+        assert result["parent_ingredient_id"] is None
+        assert result["hierarchy_level"] == 0
+
+    def test_cycle_raises_error(self, test_db):
+        """Test that cycle raises CircularReferenceError."""
+        chocolate = test_db.query(Ingredient).filter(Ingredient.slug == "chocolate").first()
+        dark = test_db.query(Ingredient).filter(Ingredient.slug == "dark-chocolate").first()
+
+        with pytest.raises(CircularReferenceError):
+            ingredient_hierarchy_service.move_ingredient(
+                chocolate.id, dark.id, session=test_db
+            )
+
+    def test_max_depth_exceeded_raises_error(self, test_db):
+        """Test that exceeding max depth raises MaxDepthExceededError."""
+        # Try to move a leaf under another leaf (would make it level 3)
+        semi_sweet = test_db.query(Ingredient).filter(Ingredient.slug == "semi-sweet-chips").first()
+        bittersweet = test_db.query(Ingredient).filter(Ingredient.slug == "bittersweet-chips").first()
+
+        with pytest.raises(MaxDepthExceededError):
+            ingredient_hierarchy_service.move_ingredient(
+                semi_sweet.id, bittersweet.id, session=test_db
+            )
+
+    def test_ingredient_not_found(self, test_db):
+        """Test that IngredientNotFound is raised for invalid id."""
+        with pytest.raises(IngredientNotFound):
+            ingredient_hierarchy_service.move_ingredient(99999, 1, session=test_db)
+
+    def test_parent_not_found(self, test_db):
+        """Test that IngredientNotFound is raised for invalid parent."""
+        semi_sweet = test_db.query(Ingredient).filter(Ingredient.slug == "semi-sweet-chips").first()
+        with pytest.raises(IngredientNotFound):
+            ingredient_hierarchy_service.move_ingredient(semi_sweet.id, 99999, session=test_db)
+
+
+class TestSearchIngredients:
+    """Tests for search_ingredients()."""
+
+    def test_match_found(self, test_db):
+        """Test that matching ingredients are returned."""
+        results = ingredient_hierarchy_service.search_ingredients("chocolate", session=test_db)
+
+        # Should match: Chocolate, Dark Chocolate, Milk Chocolate, Milk Chocolate Chips
+        assert len(results) >= 4
+        names = [r["display_name"] for r in results]
+        assert "Chocolate" in names
+        assert "Dark Chocolate" in names
+
+    def test_partial_match(self, test_db):
+        """Test partial match works."""
+        results = ingredient_hierarchy_service.search_ingredients("chips", session=test_db)
+
+        names = [r["display_name"] for r in results]
+        assert "Semi-Sweet Chips" in names
+        assert "Bittersweet Chips" in names
+        assert "Milk Chocolate Chips" in names
+
+    def test_case_insensitive(self, test_db):
+        """Test case-insensitive search."""
+        results = ingredient_hierarchy_service.search_ingredients("CHOCOLATE", session=test_db)
+        assert len(results) >= 1
+
+    def test_no_match_returns_empty(self, test_db):
+        """Test that no matches returns empty list."""
+        results = ingredient_hierarchy_service.search_ingredients("xyz123", session=test_db)
+        assert results == []
+
+    def test_includes_ancestors(self, test_db):
+        """Test that results include ancestors field."""
+        results = ingredient_hierarchy_service.search_ingredients("Semi-Sweet", session=test_db)
+
+        assert len(results) == 1
+        assert "ancestors" in results[0]
+        ancestor_names = [a["display_name"] for a in results[0]["ancestors"]]
+        assert "Dark Chocolate" in ancestor_names
+        assert "Chocolate" in ancestor_names

@@ -12,7 +12,12 @@ from typing import List, Dict, Optional
 
 from src.models.ingredient import Ingredient
 from src.services.database import session_scope
-from src.services.exceptions import IngredientNotFound
+from src.services.exceptions import (
+    IngredientNotFound,
+    CircularReferenceError,
+    MaxDepthExceededError,
+    HierarchyValidationError,
+)
 
 
 def get_root_ingredients(session=None) -> List[Dict]:
@@ -207,6 +212,208 @@ def is_leaf(ingredient_id: int, session=None) -> bool:
         if ingredient is None:
             raise IngredientNotFound(ingredient_id)
         return ingredient.hierarchy_level == 2
+
+    if session is not None:
+        return _impl(session)
+    with session_scope() as session:
+        return _impl(session)
+
+
+# =============================================================================
+# Validation Functions (WP03)
+# =============================================================================
+
+
+def validate_hierarchy_level(
+    ingredient_id: int, allowed_levels: List[int], session=None
+) -> bool:
+    """
+    Check if ingredient is at an allowed hierarchy level.
+
+    Args:
+        ingredient_id: ID of ingredient to check
+        allowed_levels: List of allowed levels (e.g., [2] for recipes)
+        session: Optional SQLAlchemy session
+
+    Returns:
+        True if valid
+
+    Raises:
+        HierarchyValidationError: With helpful message if invalid
+        IngredientNotFound: If ingredient doesn't exist
+    """
+    def _impl(session):
+        ingredient = session.query(Ingredient).filter(Ingredient.id == ingredient_id).first()
+        if ingredient is None:
+            raise IngredientNotFound(ingredient_id)
+
+        if ingredient.hierarchy_level in allowed_levels:
+            return True
+
+        allowed_str = ", ".join(str(l) for l in allowed_levels)
+        raise HierarchyValidationError(
+            f"Ingredient '{ingredient.display_name}' is at level {ingredient.hierarchy_level}, "
+            f"but only levels [{allowed_str}] are allowed"
+        )
+
+    if session is not None:
+        return _impl(session)
+    with session_scope() as session:
+        return _impl(session)
+
+
+def would_create_cycle(ingredient_id: int, new_parent_id: int, session=None) -> bool:
+    """
+    Check if setting new_parent_id would create a circular reference.
+
+    Args:
+        ingredient_id: ID of ingredient being moved
+        new_parent_id: Proposed new parent ID
+        session: Optional SQLAlchemy session
+
+    Returns:
+        True if cycle would be created, False if safe
+    """
+    def _impl(session):
+        # Self-reference is a cycle
+        if ingredient_id == new_parent_id:
+            return True
+
+        # Walk from new_parent up to root
+        current = session.query(Ingredient).filter(Ingredient.id == new_parent_id).first()
+        while current is not None:
+            if current.id == ingredient_id:
+                return True  # Found ingredient in ancestor chain - cycle!
+            current = current.parent
+
+        return False  # Safe - no cycle
+
+    if session is not None:
+        return _impl(session)
+    with session_scope() as session:
+        return _impl(session)
+
+
+def move_ingredient(
+    ingredient_id: int, new_parent_id: Optional[int], session=None
+) -> Dict:
+    """
+    Move ingredient to a new parent with full validation.
+
+    Args:
+        ingredient_id: ID of ingredient to move
+        new_parent_id: ID of new parent (None = make root)
+        session: Optional SQLAlchemy session
+
+    Returns:
+        Updated ingredient dictionary
+
+    Raises:
+        IngredientNotFound: If ingredient or parent not found
+        CircularReferenceError: If move would create cycle
+        MaxDepthExceededError: If move would exceed max depth (3 levels)
+    """
+    def _impl(session):
+        # Get ingredient
+        ingredient = session.query(Ingredient).filter(Ingredient.id == ingredient_id).first()
+        if ingredient is None:
+            raise IngredientNotFound(ingredient_id)
+
+        # If moving to no parent, becomes root (level 0)
+        if new_parent_id is None:
+            new_level = 0
+        else:
+            # Verify new parent exists
+            new_parent = session.query(Ingredient).filter(Ingredient.id == new_parent_id).first()
+            if new_parent is None:
+                raise IngredientNotFound(new_parent_id)
+
+            # Check for cycle
+            if would_create_cycle(ingredient_id, new_parent_id, session=session):
+                raise CircularReferenceError(ingredient_id, new_parent_id)
+
+            # Calculate new level
+            new_level = new_parent.hierarchy_level + 1
+
+        # Check max depth (max level is 2)
+        if new_level > 2:
+            raise MaxDepthExceededError(ingredient_id, new_level)
+
+        # Check if ingredient has children - they would also move deeper
+        children = (
+            session.query(Ingredient)
+            .filter(Ingredient.parent_ingredient_id == ingredient_id)
+            .all()
+        )
+        for child in children:
+            child_new_level = new_level + (child.hierarchy_level - ingredient.hierarchy_level)
+            if child_new_level > 2:
+                raise MaxDepthExceededError(
+                    child.id, child_new_level
+                )
+
+        # Calculate level difference for updating children
+        level_diff = new_level - ingredient.hierarchy_level
+
+        # Update ingredient
+        ingredient.parent_ingredient_id = new_parent_id
+        ingredient.hierarchy_level = new_level
+
+        # Update children's levels recursively
+        _update_descendant_levels(ingredient, level_diff, session)
+
+        session.commit()
+        return ingredient.to_dict()
+
+    if session is not None:
+        return _impl(session)
+    with session_scope() as session:
+        return _impl(session)
+
+
+def _update_descendant_levels(ingredient: Ingredient, level_diff: int, session) -> None:
+    """
+    Recursively update hierarchy levels of all descendants.
+
+    Helper function for move_ingredient.
+    """
+    children = (
+        session.query(Ingredient)
+        .filter(Ingredient.parent_ingredient_id == ingredient.id)
+        .all()
+    )
+    for child in children:
+        child.hierarchy_level += level_diff
+        _update_descendant_levels(child, level_diff, session)
+
+
+def search_ingredients(query: str, session=None) -> List[Dict]:
+    """
+    Search ingredients by display_name, returning matches with ancestry info.
+
+    Args:
+        query: Search string (case-insensitive partial match)
+        session: Optional SQLAlchemy session
+
+    Returns:
+        List of matching ingredients with `ancestors` field populated
+    """
+    def _impl(session):
+        results = (
+            session.query(Ingredient)
+            .filter(Ingredient.display_name.ilike(f"%{query}%"))
+            .order_by(Ingredient.display_name)
+            .all()
+        )
+
+        matches = []
+        for ingredient in results:
+            ingredient_dict = ingredient.to_dict()
+            # Add ancestors for breadcrumb display
+            ingredient_dict["ancestors"] = get_ancestors(ingredient.id, session=session)
+            matches.append(ingredient_dict)
+
+        return matches
 
     if session is not None:
         return _impl(session)

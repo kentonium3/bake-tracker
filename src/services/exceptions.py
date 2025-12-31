@@ -17,6 +17,8 @@ Exception Hierarchy:
     └── DatabaseError
 """
 
+from typing import List
+
 
 class ServiceException(Exception):
     """Base exception for all service layer errors (legacy).
@@ -242,3 +244,90 @@ class SupplierNotFoundError(ServiceError):
     def __init__(self, supplier_id: int):
         self.supplier_id = supplier_id
         super().__init__(f"Supplier with ID {supplier_id} not found")
+
+
+# Hierarchy Service Exceptions (Feature 031)
+
+
+class HierarchyValidationError(ValidationError):
+    """Raised for hierarchy-specific validation failures.
+
+    Base class for all hierarchy validation errors.
+    """
+
+    def __init__(self, message: str):
+        super().__init__([message])
+        self.message = message
+
+
+class CircularReferenceError(HierarchyValidationError):
+    """Raised when operation would create circular reference.
+
+    Args:
+        ingredient_id: The ingredient being moved
+        new_parent_id: The proposed new parent that would create a cycle
+
+    Example:
+        >>> raise CircularReferenceError(123, 456)
+        CircularReferenceError: Moving ingredient 123 under 456 would create a circular reference
+    """
+
+    def __init__(self, ingredient_id: int, new_parent_id: int):
+        self.ingredient_id = ingredient_id
+        self.new_parent_id = new_parent_id
+        super().__init__(
+            f"Moving ingredient {ingredient_id} under {new_parent_id} would create a circular reference"
+        )
+
+
+class MaxDepthExceededError(HierarchyValidationError):
+    """Raised when operation would exceed maximum hierarchy depth.
+
+    Args:
+        ingredient_id: The ingredient being moved or created
+        current_level: The current hierarchy level
+        max_level: The maximum allowed level (2)
+
+    Example:
+        >>> raise MaxDepthExceededError(123, 3, 2)
+        MaxDepthExceededError: Ingredient 123 would be at level 3, but maximum is 2
+    """
+
+    def __init__(self, ingredient_id: int, would_be_level: int, max_level: int = 2):
+        self.ingredient_id = ingredient_id
+        self.would_be_level = would_be_level
+        self.max_level = max_level
+        super().__init__(
+            f"Ingredient {ingredient_id} would be at level {would_be_level}, but maximum is {max_level}"
+        )
+
+
+class NonLeafIngredientError(HierarchyValidationError):
+    """Raised when non-leaf ingredient is used where only leaf is allowed.
+
+    Args:
+        ingredient_id: The non-leaf ingredient ID
+        ingredient_name: Display name of the ingredient
+        context: Where the error occurred (e.g., "recipe", "product")
+        suggestions: Optional list of leaf ingredient names to suggest
+
+    Example:
+        >>> raise NonLeafIngredientError(123, "Dark Chocolate", "recipe", ["Semi-Sweet Chips"])
+    """
+
+    def __init__(
+        self,
+        ingredient_id: int,
+        ingredient_name: str,
+        context: str = "recipe",
+        suggestions: List[str] = None,
+    ):
+        self.ingredient_id = ingredient_id
+        self.ingredient_name = ingredient_name
+        self.context = context
+        self.suggestions = suggestions or []
+
+        msg = f"Cannot add '{ingredient_name}' to {context}: only leaf ingredients allowed"
+        if self.suggestions:
+            msg += f". Try: {', '.join(self.suggestions[:3])}"
+        super().__init__(msg)
