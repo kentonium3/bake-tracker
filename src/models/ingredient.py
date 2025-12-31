@@ -236,6 +236,54 @@ class Ingredient(BaseModel):
             f"{self.density_weight_value:g} {self.density_weight_unit}"
         )
 
+    # =========================================================================
+    # Hierarchy Methods (Feature 031)
+    # =========================================================================
+
+    @property
+    def is_leaf(self) -> bool:
+        """
+        Check if this ingredient is a leaf (usable in recipes/products).
+
+        Returns:
+            True if hierarchy_level == 2 (leaf), False otherwise
+        """
+        return self.hierarchy_level == 2
+
+    def get_ancestors(self) -> list:
+        """
+        Get path from this ingredient to the root (for breadcrumb display).
+
+        Returns:
+            List of ancestor Ingredient objects, ordered from immediate parent to root.
+            Empty list if this is a root ingredient.
+        """
+        ancestors = []
+        current = self.parent
+        while current is not None:
+            ancestors.append(current)
+            current = current.parent
+        return ancestors
+
+    def get_descendants(self) -> list:
+        """
+        Get all descendants (recursive) of this ingredient.
+
+        Returns:
+            List of all descendant Ingredient objects (all levels below this).
+            Empty list if this is a leaf ingredient.
+        """
+        descendants = []
+        self._collect_descendants(descendants)
+        return descendants
+
+    def _collect_descendants(self, descendants: list) -> None:
+        """Recursively collect all descendants into the provided list."""
+        # children is a dynamic relationship, need to call .all()
+        for child in self.children.all():
+            descendants.append(child)
+            child._collect_descendants(descendants)
+
     def to_dict(self, include_relationships: bool = False) -> dict:
         """
         Convert ingredient to dictionary.

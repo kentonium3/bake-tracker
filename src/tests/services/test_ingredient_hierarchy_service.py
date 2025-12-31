@@ -5,9 +5,17 @@ Tests cover:
 - get_root_ingredients()
 - get_children()
 - get_ancestors()
-- get_all_descendants()
+- get_descendants()
 - get_leaf_ingredients()
+- get_ingredients_by_level()
+- get_ingredient_by_id()
+- get_ingredient_tree()
 - is_leaf()
+- validate_hierarchy_level()
+- would_create_cycle()
+- validate_hierarchy()
+- move_ingredient()
+- search_ingredients()
 """
 
 import pytest
@@ -229,12 +237,12 @@ class TestGetAncestors:
 
 
 class TestGetAllDescendants:
-    """Tests for get_all_descendants()."""
+    """Tests for get_descendants()."""
 
     def test_root_has_all_descendants(self, test_db):
         """Test getting all descendants of a root ingredient."""
         chocolate = test_db.query(Ingredient).filter(Ingredient.slug == "chocolate").first()
-        descendants = ingredient_hierarchy_service.get_all_descendants(chocolate.id, session=test_db)
+        descendants = ingredient_hierarchy_service.get_descendants(chocolate.id, session=test_db)
 
         # Chocolate has: Dark Chocolate, Milk Chocolate (level 1)
         #                Semi-Sweet, Bittersweet, Milk Chips (level 2)
@@ -249,7 +257,7 @@ class TestGetAllDescendants:
     def test_mid_tier_has_descendants(self, test_db):
         """Test getting descendants of a mid-tier ingredient."""
         dark = test_db.query(Ingredient).filter(Ingredient.slug == "dark-chocolate").first()
-        descendants = ingredient_hierarchy_service.get_all_descendants(dark.id, session=test_db)
+        descendants = ingredient_hierarchy_service.get_descendants(dark.id, session=test_db)
 
         assert len(descendants) == 2
         names = [d["display_name"] for d in descendants]
@@ -259,13 +267,13 @@ class TestGetAllDescendants:
     def test_leaf_has_no_descendants(self, test_db):
         """Test that leaf ingredients have no descendants."""
         semi_sweet = test_db.query(Ingredient).filter(Ingredient.slug == "semi-sweet-chips").first()
-        descendants = ingredient_hierarchy_service.get_all_descendants(semi_sweet.id, session=test_db)
+        descendants = ingredient_hierarchy_service.get_descendants(semi_sweet.id, session=test_db)
         assert descendants == []
 
     def test_ingredient_not_found(self, test_db):
         """Test that IngredientNotFound is raised for invalid id."""
         with pytest.raises(IngredientNotFound):
-            ingredient_hierarchy_service.get_all_descendants(99999, session=test_db)
+            ingredient_hierarchy_service.get_descendants(99999, session=test_db)
 
 
 class TestGetLeafIngredients:
@@ -518,3 +526,179 @@ class TestSearchIngredients:
         ancestor_names = [a["display_name"] for a in results[0]["ancestors"]]
         assert "Dark Chocolate" in ancestor_names
         assert "Chocolate" in ancestor_names
+
+    def test_limit_parameter(self, test_db):
+        """Test that limit parameter restricts results."""
+        # Search for "chocolate" should find at least 4 ingredients
+        all_results = ingredient_hierarchy_service.search_ingredients("chocolate", session=test_db)
+        assert len(all_results) >= 4
+
+        # With limit=2, should get exactly 2
+        limited_results = ingredient_hierarchy_service.search_ingredients("chocolate", limit=2, session=test_db)
+        assert len(limited_results) == 2
+
+
+class TestGetIngredientsByLevel:
+    """Tests for get_ingredients_by_level()."""
+
+    def test_returns_root_level_ingredients(self, test_db):
+        """Test getting root level (0) ingredients."""
+        results = ingredient_hierarchy_service.get_ingredients_by_level(0, session=test_db)
+
+        assert len(results) == 2  # Chocolate, Flour
+        names = [r["display_name"] for r in results]
+        assert "Chocolate" in names
+        assert "Flour" in names
+
+    def test_returns_mid_level_ingredients(self, test_db):
+        """Test getting mid level (1) ingredients."""
+        results = ingredient_hierarchy_service.get_ingredients_by_level(1, session=test_db)
+
+        assert len(results) == 2  # Dark Chocolate, Milk Chocolate
+        names = [r["display_name"] for r in results]
+        assert "Dark Chocolate" in names
+        assert "Milk Chocolate" in names
+
+    def test_returns_leaf_level_ingredients(self, test_db):
+        """Test getting leaf level (2) ingredients."""
+        results = ingredient_hierarchy_service.get_ingredients_by_level(2, session=test_db)
+
+        # 4 leaves: Semi-Sweet, Bittersweet, Milk Chocolate Chips, All-Purpose Flour
+        assert len(results) == 4
+        names = [r["display_name"] for r in results]
+        assert "Semi-Sweet Chips" in names
+        assert "All-Purpose Flour" in names
+
+    def test_sorted_by_display_name(self, test_db):
+        """Test results are sorted by display_name."""
+        results = ingredient_hierarchy_service.get_ingredients_by_level(2, session=test_db)
+        names = [r["display_name"] for r in results]
+        assert names == sorted(names)
+
+
+class TestGetIngredientById:
+    """Tests for get_ingredient_by_id()."""
+
+    def test_returns_ingredient(self, test_db):
+        """Test getting an ingredient by ID."""
+        # Get chocolate root's ID
+        roots = ingredient_hierarchy_service.get_root_ingredients(session=test_db)
+        chocolate = next(r for r in roots if r["display_name"] == "Chocolate")
+
+        result = ingredient_hierarchy_service.get_ingredient_by_id(chocolate["id"], session=test_db)
+
+        assert result is not None
+        assert result["display_name"] == "Chocolate"
+        assert result["hierarchy_level"] == 0
+
+    def test_returns_none_for_nonexistent(self, test_db):
+        """Test returns None for nonexistent ID."""
+        result = ingredient_hierarchy_service.get_ingredient_by_id(99999, session=test_db)
+        assert result is None
+
+
+class TestGetIngredientTree:
+    """Tests for get_ingredient_tree()."""
+
+    def test_returns_nested_structure(self, test_db):
+        """Test that tree has proper nested structure."""
+        tree = ingredient_hierarchy_service.get_ingredient_tree(session=test_db)
+
+        # Should have 2 roots
+        assert len(tree) == 2
+        root_names = [r["display_name"] for r in tree]
+        assert "Chocolate" in root_names
+        assert "Flour" in root_names
+
+    def test_children_are_nested(self, test_db):
+        """Test that children are properly nested."""
+        tree = ingredient_hierarchy_service.get_ingredient_tree(session=test_db)
+
+        chocolate = next(r for r in tree if r["display_name"] == "Chocolate")
+
+        # Chocolate should have 2 children: Dark Chocolate, Milk Chocolate
+        assert len(chocolate["children"]) == 2
+        child_names = [c["display_name"] for c in chocolate["children"]]
+        assert "Dark Chocolate" in child_names
+        assert "Milk Chocolate" in child_names
+
+    def test_grandchildren_are_nested(self, test_db):
+        """Test that grandchildren are properly nested."""
+        tree = ingredient_hierarchy_service.get_ingredient_tree(session=test_db)
+
+        chocolate = next(r for r in tree if r["display_name"] == "Chocolate")
+        dark_choc = next(c for c in chocolate["children"] if c["display_name"] == "Dark Chocolate")
+
+        # Dark Chocolate should have 2 leaves
+        assert len(dark_choc["children"]) == 2
+        leaf_names = [c["display_name"] for c in dark_choc["children"]]
+        assert "Semi-Sweet Chips" in leaf_names
+        assert "Bittersweet Chips" in leaf_names
+
+
+class TestValidateHierarchy:
+    """Tests for validate_hierarchy()."""
+
+    def test_valid_parent_returns_true(self, test_db):
+        """Test that valid parent assignment returns True."""
+        # Get IDs
+        roots = ingredient_hierarchy_service.get_root_ingredients(session=test_db)
+        chocolate = next(r for r in roots if r["display_name"] == "Chocolate")
+        leaves = ingredient_hierarchy_service.get_leaf_ingredients(session=test_db)
+        semi_sweet = next(l for l in leaves if l["display_name"] == "Semi-Sweet Chips")
+
+        # Moving a leaf under root is valid
+        result = ingredient_hierarchy_service.validate_hierarchy(
+            semi_sweet["id"], chocolate["id"], session=test_db
+        )
+        assert result is True
+
+    def test_becoming_root_is_valid(self, test_db):
+        """Test that making an ingredient root is valid."""
+        leaves = ingredient_hierarchy_service.get_leaf_ingredients(session=test_db)
+        semi_sweet = next(l for l in leaves if l["display_name"] == "Semi-Sweet Chips")
+
+        result = ingredient_hierarchy_service.validate_hierarchy(
+            semi_sweet["id"], None, session=test_db
+        )
+        assert result is True
+
+    def test_cycle_raises_error(self, test_db):
+        """Test that circular reference raises error."""
+        roots = ingredient_hierarchy_service.get_root_ingredients(session=test_db)
+        chocolate = next(r for r in roots if r["display_name"] == "Chocolate")
+        children = ingredient_hierarchy_service.get_children(chocolate["id"], session=test_db)
+        dark_choc = next(c for c in children if c["display_name"] == "Dark Chocolate")
+
+        # Trying to make Chocolate a child of Dark Chocolate creates a cycle
+        with pytest.raises(CircularReferenceError):
+            ingredient_hierarchy_service.validate_hierarchy(
+                chocolate["id"], dark_choc["id"], session=test_db
+            )
+
+    def test_max_depth_raises_error(self, test_db):
+        """Test that exceeding max depth raises error."""
+        leaves = ingredient_hierarchy_service.get_leaf_ingredients(session=test_db)
+        semi_sweet = next(l for l in leaves if l["display_name"] == "Semi-Sweet Chips")
+        bittersweet = next(l for l in leaves if l["display_name"] == "Bittersweet Chips")
+
+        # Trying to make a leaf a child of another leaf exceeds depth
+        with pytest.raises(MaxDepthExceededError):
+            ingredient_hierarchy_service.validate_hierarchy(
+                semi_sweet["id"], bittersweet["id"], session=test_db
+            )
+
+    def test_ingredient_not_found(self, test_db):
+        """Test that nonexistent ingredient raises error."""
+        with pytest.raises(IngredientNotFound):
+            ingredient_hierarchy_service.validate_hierarchy(99999, None, session=test_db)
+
+    def test_parent_not_found(self, test_db):
+        """Test that nonexistent parent raises error."""
+        leaves = ingredient_hierarchy_service.get_leaf_ingredients(session=test_db)
+        semi_sweet = next(l for l in leaves if l["display_name"] == "Semi-Sweet Chips")
+
+        with pytest.raises(IngredientNotFound):
+            ingredient_hierarchy_service.validate_hierarchy(
+                semi_sweet["id"], 99999, session=test_db
+            )

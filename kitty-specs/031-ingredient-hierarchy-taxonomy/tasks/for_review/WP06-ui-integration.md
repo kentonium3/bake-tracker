@@ -8,7 +8,7 @@ subtasks:
   - "T036"
 title: "UI Integration"
 phase: "Phase 3 - UI"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "claude"
 shell_pid: "37805"
@@ -167,3 +167,4 @@ history:
 
 - 2025-12-30T12:00:00Z – system – lane=planned – Prompt created.
 - 2025-12-31T15:34:06Z – claude – shell_pid=37805 – lane=doing – Starting UI integration
+- 2025-12-31T15:58:59Z – claude – shell_pid=37805 – lane=for_review – Moved to for_review
