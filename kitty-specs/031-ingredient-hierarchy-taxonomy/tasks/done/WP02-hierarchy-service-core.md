@@ -12,7 +12,7 @@ subtasks:
 title: "Hierarchy Service - Core Functions"
 phase: "Phase 2 - Services"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude-reviewer"
 shell_pid: "3515"
 review_status: ""

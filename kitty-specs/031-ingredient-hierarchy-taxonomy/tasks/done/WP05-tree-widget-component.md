@@ -10,7 +10,7 @@ subtasks:
 title: "Tree Widget Component"
 phase: "Phase 3 - UI"
 lane: "done"
-assignee: ""
+assignee: "gemini"
 agent: "claude-reviewer"
 shell_pid: "4378"
 review_status: ""

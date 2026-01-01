@@ -9,7 +9,7 @@ subtasks:
 title: "Service Layer Validation Updates"
 phase: "Phase 2 - Services"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude-reviewer"
 shell_pid: "4288"
 review_status: ""

@@ -9,7 +9,7 @@ subtasks:
 title: "Migration Tooling"
 phase: "Phase 4 - Migration"
 lane: "done"
-assignee: ""
+assignee: "gemini"
 agent: "claude-reviewer"
 shell_pid: "4712"
 review_status: ""

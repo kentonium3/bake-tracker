@@ -9,7 +9,7 @@ subtasks:
 title: "UI Integration"
 phase: "Phase 3 - UI"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude-reviewer"
 shell_pid: "4513"
 review_status: ""
