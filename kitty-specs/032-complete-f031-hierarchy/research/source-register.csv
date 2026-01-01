@@ -1,0 +1,6 @@
+id,type,path,description,accessed
+1,file,docs/bugs/BUG_F031_incomplete_hierarchy_ui.md,Detailed bug specification with mockups and test cases,2025-12-31
+2,file,src/services/ingredient_hierarchy_service.py,Hierarchy service with all required functions,2025-12-31
+3,file,src/ui/forms/add_product_dialog.py,Reference implementation for cascading dropdowns,2025-12-31
+4,file,src/ui/ingredients_tab.py,Current ingredients tab with deprecated category field,2025-12-31
+5,file,.kittify/memory/constitution.md,Project constitution and architectural principles,2025-12-31

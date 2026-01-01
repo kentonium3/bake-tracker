@@ -1,0 +1,6 @@
+id,date,category,finding,source,impact,decision_ref
+1,2025-12-31,Pattern,Modal dialog withdraw/deiconify pattern prevents visibility issues,Previous debugging session,High,Decision 1
+2,2025-12-31,API,ingredient_hierarchy_service has all required functions,src/services/ingredient_hierarchy_service.py grep,High,Decision 2
+3,2025-12-31,Schema,Ingredient model has hierarchy_level and parent_ingredient_id fields,F031 implementation,High,Decision 3
+4,2025-12-31,Spec,Bug spec recommends simple level filter for Phase 1,docs/bugs/BUG_F031_incomplete_hierarchy_ui.md,Medium,Decision 4
+5,2025-12-31,API,get_leaf_ingredients() function available for validation,src/services/ingredient_hierarchy_service.py,High,Decision 5
