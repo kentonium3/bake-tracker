@@ -236,7 +236,7 @@ class InventoryTab(ctk.CTkFrame):
         style.configure("Treeview", rowheight=25)  # Compact row height
 
         # Define columns for detail view - exactly 5 columns
-        columns = ("ingredient", "product", "brand", "qty_remaining", "purchased")
+        columns = ("hierarchy_path", "product", "brand", "qty_remaining", "purchased")
         self.tree = ttk.Treeview(
             grid_container,
             columns=columns,
@@ -246,17 +246,17 @@ class InventoryTab(ctk.CTkFrame):
         )
 
         # Configure column headings
-        self.tree.heading("ingredient", text="Ingredient", anchor="w")
+        self.tree.heading("hierarchy_path", text="Ingredient Hierarchy", anchor="w")
         self.tree.heading("product", text="Product", anchor="w")
         self.tree.heading("brand", text="Brand", anchor="w")
         self.tree.heading("qty_remaining", text="Qty Remaining", anchor="w")
         self.tree.heading("purchased", text="Purchased", anchor="w")
 
         # Configure column widths
-        self.tree.column("ingredient", width=150, minwidth=100)
+        self.tree.column("hierarchy_path", width=220, minwidth=150)
         self.tree.column("product", width=200, minwidth=150)
         self.tree.column("brand", width=120, minwidth=80)
-        self.tree.column("qty_remaining", width=180, minwidth=140)
+        self.tree.column("qty_remaining", width=160, minwidth=120)
         self.tree.column("purchased", width=100, minwidth=80)
 
         # Add scrollbars for tree
@@ -541,30 +541,30 @@ class InventoryTab(ctk.CTkFrame):
 
         if self.view_mode == "aggregate":
             # Reconfigure tree columns for aggregate view (no Purchased column)
-            self.tree.configure(columns=("ingredient", "product", "brand", "qty_remaining"))
-            self.tree.heading("ingredient", text="Ingredient", anchor="w")
+            self.tree.configure(columns=("hierarchy_path", "product", "brand", "qty_remaining"))
+            self.tree.heading("hierarchy_path", text="Ingredient Hierarchy", anchor="w")
             self.tree.heading("product", text="Product", anchor="w")
             self.tree.heading("brand", text="Brand", anchor="w")
             self.tree.heading("qty_remaining", text="Qty Remaining", anchor="w")
-            self.tree.column("ingredient", width=180, minwidth=120)
+            self.tree.column("hierarchy_path", width=220, minwidth=150)
             self.tree.column("product", width=250, minwidth=150)
             self.tree.column("brand", width=140, minwidth=100)
-            self.tree.column("qty_remaining", width=180, minwidth=120)
+            self.tree.column("qty_remaining", width=160, minwidth=120)
 
             if self.filtered_items:
                 self._display_aggregate_view()
         else:
             # Reconfigure tree columns for detail view (with Purchased column)
-            self.tree.configure(columns=("ingredient", "product", "brand", "qty_remaining", "purchased"))
-            self.tree.heading("ingredient", text="Ingredient", anchor="w")
+            self.tree.configure(columns=("hierarchy_path", "product", "brand", "qty_remaining", "purchased"))
+            self.tree.heading("hierarchy_path", text="Ingredient Hierarchy", anchor="w")
             self.tree.heading("product", text="Product", anchor="w")
             self.tree.heading("brand", text="Brand", anchor="w")
             self.tree.heading("qty_remaining", text="Qty Remaining", anchor="w")
             self.tree.heading("purchased", text="Purchased", anchor="w")
-            self.tree.column("ingredient", width=150, minwidth=100)
+            self.tree.column("hierarchy_path", width=220, minwidth=150)
             self.tree.column("product", width=200, minwidth=150)
             self.tree.column("brand", width=120, minwidth=80)
-            self.tree.column("qty_remaining", width=180, minwidth=140)
+            self.tree.column("qty_remaining", width=160, minwidth=120)
             self.tree.column("purchased", width=100, minwidth=80)
 
             if self.filtered_items:
@@ -611,6 +611,9 @@ class InventoryTab(ctk.CTkFrame):
 
             # Get product details
             ingredient_name = getattr(ingredient, "display_name", "Unknown") if ingredient else "Unknown"
+            ingredient_id = getattr(ingredient, "id", None) if ingredient else None
+            # Use hierarchy path from cache, fallback to ingredient name
+            hierarchy_path = self._hierarchy_path_cache.get(ingredient_id, ingredient_name) if ingredient_id else ingredient_name
             is_packaging = getattr(ingredient, "is_packaging", False) if ingredient else False
             brand = getattr(product, "brand", "") or ""
             product_name = getattr(product, "product_name", "") or ""
@@ -664,21 +667,21 @@ class InventoryTab(ctk.CTkFrame):
                     qty_display = f"{float(total_qty):.1f}".rstrip('0').rstrip('.')
 
             aggregated.append({
-                'ingredient_name': ingredient_name,
+                'hierarchy_path': hierarchy_path,
                 'description': description,
                 'brand': f"📦 {brand}" if is_packaging else brand,
                 'qty_display': qty_display,
                 'is_packaging': is_packaging,
             })
 
-        # Sort by ingredient name, then product description
-        aggregated.sort(key=lambda x: (x['ingredient_name'].lower(), x['description'].lower()))
+        # Sort by hierarchy path, then product description
+        aggregated.sort(key=lambda x: (x['hierarchy_path'].lower(), x['description'].lower()))
 
         # Populate Treeview - no row limit needed, handles large datasets well
         for item_data in aggregated:
             tags = ("packaging",) if item_data['is_packaging'] else ()
             self.tree.insert("", "end", values=(
-                item_data['ingredient_name'],
+                item_data['hierarchy_path'],
                 item_data['description'],
                 item_data['brand'],
                 item_data['qty_display'],
@@ -704,9 +707,12 @@ class InventoryTab(ctk.CTkFrame):
             if is_packaging:
                 brand = f"📦 {brand}"
 
-            # Product description
+            # Product description and hierarchy path
             product_name = getattr(product_obj, "product_name", None) or ""
             ingredient_name = getattr(ingredient_obj, "display_name", "") if ingredient_obj else ""
+            ingredient_id = getattr(ingredient_obj, "id", None) if ingredient_obj else None
+            # Use hierarchy path from cache, fallback to ingredient name
+            hierarchy_path = self._hierarchy_path_cache.get(ingredient_id, ingredient_name) if ingredient_id else ingredient_name
             package_qty = getattr(product_obj, "package_unit_quantity", None)
             package_unit = getattr(product_obj, "package_unit", "") or ""
             package_type = getattr(product_obj, "package_type", None) or ""
@@ -772,8 +778,8 @@ class InventoryTab(ctk.CTkFrame):
             if is_packaging:
                 tags.append("packaging")
 
-            # Column order: ingredient, product, brand, qty_remaining, purchased (exactly 5)
-            values = (ingredient_name, description, brand, qty_display, purchase_str)
+            # Column order: hierarchy_path, product, brand, qty_remaining, purchased (exactly 5)
+            values = (hierarchy_path, description, brand, qty_display, purchase_str)
             item_id = getattr(item, "id", None)
 
             # Use item ID as the tree item ID for easy lookup
