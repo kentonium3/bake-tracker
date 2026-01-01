@@ -8,7 +8,7 @@ subtasks:
   - "T040"
 title: "Leaf-Only Validation"
 phase: "Phase 4 - Validation & Testing"
-lane: "for_review"
+lane: "done"
 assignee: ""
 agent: "claude"
 shell_pid: "35513"
@@ -224,3 +224,4 @@ Please select a specific ingredient, not a category."
 - 2025-12-31T23:59:00Z - system - lane=planned - Prompt created via /spec-kitty.tasks
 - 2026-01-01T18:22:26Z – claude – shell_pid=35513 – lane=doing – Starting implementation
 - 2026-01-01T18:25:22Z – claude – shell_pid=35513 – lane=for_review – Ready for review - leaf-only validation implemented
+- 2026-01-01T19:16:07Z – claude – shell_pid=35513 – lane=done – Code review approved: get_leaf_ingredients() used in add_product_dialog and recipe_form, leaf-only validation with user-friendly error messages correctly implemented.
