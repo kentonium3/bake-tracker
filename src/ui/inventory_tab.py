@@ -1202,6 +1202,38 @@ class InventoryItemFormDialog(ctk.CTkToplevel):
         if default_category and not self.item:
             self._on_category_selected(default_category)
 
+        # Feature 032: Hierarchy display labels (read-only)
+        hierarchy_frame = ctk.CTkFrame(self, fg_color=("gray90", "gray20"), corner_radius=5)
+        hierarchy_frame.grid(row=row, column=0, columnspan=2, padx=10, pady=5, sticky="ew")
+        hierarchy_frame.grid_columnconfigure(1, weight=1)
+        hierarchy_frame.grid_columnconfigure(3, weight=1)
+        hierarchy_frame.grid_columnconfigure(5, weight=1)
+
+        # L0 (Category)
+        l0_label = ctk.CTkLabel(hierarchy_frame, text="Category:", font=ctk.CTkFont(size=11))
+        l0_label.grid(row=0, column=0, padx=(10, 5), pady=5, sticky="w")
+        self.hierarchy_l0_value = ctk.CTkLabel(
+            hierarchy_frame, text="--", font=ctk.CTkFont(size=11), text_color="gray"
+        )
+        self.hierarchy_l0_value.grid(row=0, column=1, padx=(0, 15), pady=5, sticky="w")
+
+        # L1 (Subcategory)
+        l1_label = ctk.CTkLabel(hierarchy_frame, text="Subcategory:", font=ctk.CTkFont(size=11))
+        l1_label.grid(row=0, column=2, padx=(0, 5), pady=5, sticky="w")
+        self.hierarchy_l1_value = ctk.CTkLabel(
+            hierarchy_frame, text="--", font=ctk.CTkFont(size=11), text_color="gray"
+        )
+        self.hierarchy_l1_value.grid(row=0, column=3, padx=(0, 15), pady=5, sticky="w")
+
+        # L2 (Ingredient)
+        l2_label = ctk.CTkLabel(hierarchy_frame, text="Ingredient:", font=ctk.CTkFont(size=11))
+        l2_label.grid(row=0, column=4, padx=(0, 5), pady=5, sticky="w")
+        self.hierarchy_l2_value = ctk.CTkLabel(
+            hierarchy_frame, text="--", font=ctk.CTkFont(size=11), text_color="gray"
+        )
+        self.hierarchy_l2_value.grid(row=0, column=5, padx=(0, 10), pady=5, sticky="w")
+        row += 1
+
         # F028: Supplier dropdown (required for new items)
         # F029: Pre-select from session memory with star indicator
         supplier_label = ctk.CTkLabel(self, text="Supplier:*")
@@ -1364,8 +1396,53 @@ class InventoryItemFormDialog(ctk.CTkToplevel):
             self.selected_ingredient = None
             self.selected_product = None
 
+            # Feature 032: Clear hierarchy labels when category changes
+            self._clear_hierarchy_labels()
+
         except Exception as e:
             messagebox.showerror("Error", f"Failed to load ingredients: {str(e)}", parent=self)
+
+    # Feature 032: Hierarchy label methods
+    def _update_hierarchy_labels(self, ingredient_id: int):
+        """Update hierarchy display labels based on ingredient."""
+        if not ingredient_id:
+            self._clear_hierarchy_labels()
+            return
+
+        try:
+            # Get ingredient details
+            ingredient = next(
+                (ing for ing in self.ingredients if ing.get("id") == ingredient_id),
+                None,
+            )
+            # Get ancestors
+            ancestors = ingredient_hierarchy_service.get_ancestors(ingredient_id)
+
+            # L2 is the ingredient itself
+            l2_name = ingredient.get("display_name", "--") if ingredient else "--"
+
+            # L1 and L0 from ancestors
+            if len(ancestors) >= 2:
+                l0_name = ancestors[1].get("display_name", "--")
+                l1_name = ancestors[0].get("display_name", "--")
+            elif len(ancestors) == 1:
+                l0_name = ancestors[0].get("display_name", "--")
+                l1_name = "--"
+            else:
+                l0_name = "--"
+                l1_name = "--"
+
+            self.hierarchy_l0_value.configure(text=l0_name)
+            self.hierarchy_l1_value.configure(text=l1_name)
+            self.hierarchy_l2_value.configure(text=l2_name)
+        except Exception:
+            self._clear_hierarchy_labels()
+
+    def _clear_hierarchy_labels(self):
+        """Clear hierarchy display labels to default."""
+        self.hierarchy_l0_value.configure(text="--")
+        self.hierarchy_l1_value.configure(text="--")
+        self.hierarchy_l2_value.configure(text="--")
 
     def _on_ingredient_selected(self, selected_value: str):
         """Handle ingredient selection - load products for this ingredient (F029)."""
@@ -1388,6 +1465,9 @@ class InventoryItemFormDialog(ctk.CTkToplevel):
             return
 
         self.selected_ingredient = ingredient
+
+        # Feature 032: Update hierarchy labels
+        self._update_hierarchy_labels(ingredient.get("id"))
 
         # Load products for this ingredient using dropdown builder with recency
         try:
