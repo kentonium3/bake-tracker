@@ -9,7 +9,7 @@ subtasks:
   - "T031"
 title: "Inventory Grid Hierarchy"
 phase: "Phase 3 - Inventory Tab"
-lane: "for_review"
+lane: "done"
 assignee: ""
 agent: "claude"
 shell_pid: "35513"
@@ -233,3 +233,4 @@ def _build_inventory_hierarchy_cache(self) -> Dict[int, str]:
 - 2025-12-31T23:59:00Z - system - lane=planned - Prompt created via /spec-kitty.tasks
 - 2026-01-01T18:16:21Z – claude – shell_pid=35513 – lane=doing – Starting implementation
 - 2026-01-01T18:19:30Z – claude – shell_pid=35513 – lane=for_review – Ready for review - hierarchy filters replacing category
+- 2026-01-01T19:15:53Z – claude – shell_pid=35513 – lane=done – Code review approved: hierarchy_path column, cascading L0->L1->L2 filters, path cache, and display in both aggregate and detail views correctly implemented.
