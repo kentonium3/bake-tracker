@@ -10,7 +10,7 @@ subtasks:
 title: "Products Tab Hierarchy"
 phase: "Phase 2 - Products Tab"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude"
 shell_pid: "35513"
 review_status: ""

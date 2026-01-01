@@ -9,7 +9,7 @@ subtasks:
 title: "Leaf-Only Validation"
 phase: "Phase 4 - Validation & Testing"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude"
 shell_pid: "35513"
 review_status: ""

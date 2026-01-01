@@ -10,7 +10,7 @@ subtasks:
 title: "Inventory Grid Hierarchy"
 phase: "Phase 3 - Inventory Tab"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude"
 shell_pid: "35513"
 review_status: ""

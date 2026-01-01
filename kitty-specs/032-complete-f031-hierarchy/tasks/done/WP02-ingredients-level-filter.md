@@ -9,7 +9,7 @@ subtasks:
 title: "Ingredients Level Filter"
 phase: "Phase 1 - Ingredients Tab"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude"
 shell_pid: "35513"
 review_status: ""

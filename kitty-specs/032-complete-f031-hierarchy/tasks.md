@@ -23,12 +23,12 @@
 **User Story**: US1 - View Ingredients by Hierarchy
 
 ### Included Subtasks
-- [ ] T001 Build hierarchy cache using `get_ancestors()` for efficient display
-- [ ] T002 Replace "Category" column header with "Root (L0)" column in grid configuration
-- [ ] T003 Add "Subcategory (L1)" column to grid configuration
-- [ ] T004 Update `_update_ingredient_display()` to populate L0/L1 columns from cache
-- [ ] T005 Ensure column sorting works for each hierarchy column
-- [ ] T006 Display dash ("--") for empty hierarchy levels (L0/L1 items)
+- [x] T001 Build hierarchy cache using `get_ancestors()` for efficient display
+- [x] T002 Replace "Category" column header with "Root (L0)" column in grid configuration
+- [x] T003 Add "Subcategory (L1)" column to grid configuration
+- [x] T004 Update `_update_ingredient_display()` to populate L0/L1 columns from cache
+- [x] T005 Ensure column sorting works for each hierarchy column
+- [x] T006 Display dash ("--") for empty hierarchy levels (L0/L1 items)
 
 ### Implementation Notes
 - Reference: `src/ui/forms/add_product_dialog.py` for hierarchy service usage
@@ -56,11 +56,11 @@
 **User Story**: US2 - Filter Ingredients by Hierarchy Level
 
 ### Included Subtasks
-- [ ] T007 Remove deprecated category dropdown from filter area
-- [ ] T008 Add level filter dropdown with options: All Levels, Root (L0), Subcategory (L1), Leaf (L2)
-- [ ] T009 Update `_apply_filters()` to filter by `hierarchy_level` field
-- [ ] T010 Ensure search works across all hierarchy levels regardless of filter
-- [ ] T011 Add Clear button to reset all filters
+- [x] T007 Remove deprecated category dropdown from filter area
+- [x] T008 Add level filter dropdown with options: All Levels, Root (L0), Subcategory (L1), Leaf (L2)
+- [x] T009 Update `_apply_filters()` to filter by `hierarchy_level` field
+- [x] T010 Ensure search works across all hierarchy levels regardless of filter
+- [x] T011 Add Clear button to reset all filters
 
 ### Implementation Notes
 - Use `get_ingredients_by_level(level)` or filter locally on `hierarchy_level` field
@@ -86,14 +86,14 @@
 **User Story**: US3 - Create/Edit Ingredients with Hierarchy Position
 
 ### Included Subtasks
-- [ ] T012 Remove deprecated category dropdown from edit form
-- [ ] T013 Add ingredient type selector (Root/Subcategory/Leaf) to control form behavior
-- [ ] T014 Add L0 (Root Category) dropdown populated from `get_root_ingredients()`
-- [ ] T015 Add L1 (Subcategory) dropdown with cascading behavior
-- [ ] T016 Implement `_on_category_change()` to populate L1 from `get_children()`
-- [ ] T017 Pre-populate L0/L1 dropdowns when editing existing ingredient using `get_ancestors()`
-- [ ] T018 Apply withdraw/deiconify modal pattern for dialog stability
-- [ ] T019 Handle edge case: L0 with no children shows "(No subcategories)" disabled
+- [x] T012 Remove deprecated category dropdown from edit form
+- [x] T013 Add ingredient type selector (Root/Subcategory/Leaf) to control form behavior
+- [x] T014 Add L0 (Root Category) dropdown populated from `get_root_ingredients()`
+- [x] T015 Add L1 (Subcategory) dropdown with cascading behavior
+- [x] T016 Implement `_on_category_change()` to populate L1 from `get_children()`
+- [x] T017 Pre-populate L0/L1 dropdowns when editing existing ingredient using `get_ancestors()`
+- [x] T018 Apply withdraw/deiconify modal pattern for dialog stability
+- [x] T019 Handle edge case: L0 with no children shows "(No subcategories)" disabled
 
 ### Implementation Notes
 - Pattern reference: `src/ui/forms/add_product_dialog.py` (cascading dropdown implementation)
@@ -121,12 +121,12 @@
 **User Story**: US4 - Filter Products by Ingredient Hierarchy
 
 ### Included Subtasks
-- [ ] T020 Add or modify ingredient column to show full hierarchy path (L0 -> L1 -> L2)
-- [ ] T021 Build hierarchy path display helper using `get_ancestors()`
-- [ ] T022 Remove deprecated category filter from Products tab
-- [ ] T023 Add cascading hierarchy filters (L0 dropdown -> L1 dropdown -> L2 dropdown)
-- [ ] T024 Implement filter logic to show products matching any ingredient under selected hierarchy
-- [ ] T025 [P] Update column widths to accommodate hierarchy path
+- [x] T020 Add or modify ingredient column to show full hierarchy path (L0 -> L1 -> L2)
+- [x] T021 Build hierarchy path display helper using `get_ancestors()`
+- [x] T022 Remove deprecated category filter from Products tab
+- [x] T023 Add cascading hierarchy filters (L0 dropdown -> L1 dropdown -> L2 dropdown)
+- [x] T024 Implement filter logic to show products matching any ingredient under selected hierarchy
+- [x] T025 [P] Update column widths to accommodate hierarchy path
 
 ### Implementation Notes
 - Path format: "Chocolate -> Dark Chocolate -> Semi-Sweet Chips"
@@ -153,12 +153,12 @@
 **User Story**: US5 - View Inventory with Hierarchy Information
 
 ### Included Subtasks
-- [ ] T026 Remove deprecated category column from Inventory grid
-- [ ] T027 Add hierarchy columns (L0, L1, L2) or single path column
-- [ ] T028 Build hierarchy display cache for inventory items (via product -> ingredient)
-- [ ] T029 Update inventory display method to populate hierarchy from cache
-- [ ] T030 [P] Remove deprecated category filter from Inventory tab
-- [ ] T031 [P] Add hierarchy-based filtering to Inventory tab
+- [x] T026 Remove deprecated category column from Inventory grid
+- [x] T027 Add hierarchy columns (L0, L1, L2) or single path column
+- [x] T028 Build hierarchy display cache for inventory items (via product -> ingredient)
+- [x] T029 Update inventory display method to populate hierarchy from cache
+- [x] T030 [P] Remove deprecated category filter from Inventory tab
+- [x] T031 [P] Add hierarchy-based filtering to Inventory tab
 
 ### Implementation Notes
 - Inventory -> Product -> Ingredient chain for hierarchy lookup
@@ -184,10 +184,10 @@
 **User Story**: US5 - View Inventory with Hierarchy Information
 
 ### Included Subtasks
-- [ ] T032 Add read-only hierarchy labels (L0, L1, L2) to inventory add dialog
-- [ ] T033 Add read-only hierarchy labels to inventory edit dialog
-- [ ] T034 Populate hierarchy labels from product -> ingredient relationship
-- [ ] T035 Handle display when ingredient hierarchy is incomplete (dash for missing levels)
+- [x] T032 Add read-only hierarchy labels (L0, L1, L2) to inventory add dialog
+- [x] T033 Add read-only hierarchy labels to inventory edit dialog
+- [x] T034 Populate hierarchy labels from product -> ingredient relationship
+- [x] T035 Handle display when ingredient hierarchy is incomplete (dash for missing levels)
 
 ### Implementation Notes
 - Labels are informational only, not editable
@@ -213,11 +213,11 @@
 **User Story**: US6 - Prevent Invalid Hierarchy Assignments
 
 ### Included Subtasks
-- [ ] T036 Update product ingredient selector to use `get_leaf_ingredients()` only
-- [ ] T037 Add validation error message for non-leaf selection attempts
-- [ ] T038 Update recipe ingredient selector to use `get_leaf_ingredients()` only
-- [ ] T039 Verify add_product_dialog already enforces leaf-only (reference implementation)
-- [ ] T040 Add user-friendly error message: "Only leaf ingredients (L2) can be assigned to products"
+- [x] T036 Update product ingredient selector to use `get_leaf_ingredients()` only
+- [x] T037 Add validation error message for non-leaf selection attempts
+- [x] T038 Update recipe ingredient selector to use `get_leaf_ingredients()` only
+- [x] T039 Verify add_product_dialog already enforces leaf-only (reference implementation)
+- [x] T040 Add user-friendly error message: "Only leaf ingredients (L2) can be assigned to products"
 
 ### Implementation Notes
 - `get_leaf_ingredients()` returns only L2 ingredients for dropdown population
@@ -243,18 +243,18 @@
 **User Story**: All user stories (validation phase)
 
 ### Included Subtasks
-- [ ] T041 Execute test case 1: Ingredients tab shows L0, L1, Name columns
-- [ ] T042 Execute test case 2: Level filter works correctly
-- [ ] T043 Execute test case 3: Ingredient edit form cascading dropdowns work
-- [ ] T044 Execute test case 4: Can create L0, L1, L2 ingredients
-- [ ] T045 Execute test case 5: Products tab shows hierarchy path
-- [ ] T046 Execute test case 6: Products tab hierarchy filter works
-- [ ] T047 Execute test case 7: Inventory tab shows hierarchy
-- [ ] T048 Execute test case 8: Inventory form shows hierarchy labels
-- [ ] T049 Execute test case 9: Leaf-only validation works
-- [ ] T050 Execute test case 10: No deprecated "category" UI elements remain
-- [ ] T051 Code review: Search for remaining "category" references in affected UI files
-- [ ] T052 User acceptance testing with Marianne
+- [x] T041 Execute test case 1: Ingredients tab shows L0, L1, Name columns
+- [x] T042 Execute test case 2: Level filter works correctly
+- [x] T043 Execute test case 3: Ingredient edit form cascading dropdowns work
+- [x] T044 Execute test case 4: Can create L0, L1, L2 ingredients
+- [x] T045 Execute test case 5: Products tab shows hierarchy path
+- [x] T046 Execute test case 6: Products tab hierarchy filter works
+- [x] T047 Execute test case 7: Inventory tab shows hierarchy
+- [x] T048 Execute test case 8: Inventory form shows hierarchy labels
+- [x] T049 Execute test case 9: Leaf-only validation works
+- [x] T050 Execute test case 10: No deprecated "category" UI elements remain
+- [x] T051 Code review: Search for remaining "category" references in affected UI files
+- [x] T052 User acceptance testing with Marianne
 
 ### Implementation Notes
 - Test cases defined in `docs/bugs/BUG_F031_incomplete_hierarchy_ui.md`
