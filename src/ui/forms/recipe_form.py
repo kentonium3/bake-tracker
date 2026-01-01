@@ -419,14 +419,17 @@ class RecipeFormDialog(ctk.CTkToplevel):
         self.current_components: List[RecipeComponent] = []  # For existing recipe
         self.pending_components: List[Dict] = []  # For new recipe
 
-        # Load available ingredients (Feature 031: leaf ingredients only for recipes)
+        # Load available ingredients (Feature 032: use get_leaf_ingredients directly)
         try:
-            all_ingredients = ingredient_crud_service.get_all_ingredients()
-            # Filter to leaf ingredients only (hierarchy_level = 2 or no children)
-            self.available_ingredients = [
-                ing for ing in all_ingredients
-                if getattr(ing, 'hierarchy_level', 2) == 2  # Default to leaf if no hierarchy_level
-            ]
+            leaf_dicts = ingredient_hierarchy_service.get_leaf_ingredients()
+            # Convert to ingredient objects for compatibility with existing code
+            from src.models.ingredient import Ingredient
+            from src.services.database import session_scope
+            with session_scope() as session:
+                leaf_ids = [d.get("id") for d in leaf_dicts if d.get("id")]
+                self.available_ingredients = session.query(Ingredient).filter(
+                    Ingredient.id.in_(leaf_ids)
+                ).all()
         except Exception:
             self.available_ingredients = []
 
