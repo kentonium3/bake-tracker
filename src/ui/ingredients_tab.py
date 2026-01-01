@@ -34,7 +34,7 @@ def normalize_for_search(text: str) -> str:
     # Convert to lowercase for case-insensitive matching
     return ascii_text.lower()
 
-from src.services import ingredient_service, product_service
+from src.services import ingredient_service, product_service, ingredient_hierarchy_service
 from src.services.unit_service import get_units_for_dropdown
 from src.services.exceptions import (
     IngredientInUse,
@@ -52,7 +52,6 @@ from src.utils.constants import (
     WEIGHT_UNITS,
     PACKAGE_TYPES,
 )
-from src.services import ingredient_service
 from src.ui.widgets.ingredient_tree_widget import IngredientTreeWidget
 
 
@@ -83,6 +82,7 @@ class IngredientsTab(ctk.CTkFrame):
         self.ingredients: List[dict] = []
         self._data_loaded = False  # Lazy loading flag
         self._view_mode = "flat"  # Feature 031: "flat" or "tree"
+        self._hierarchy_cache: Dict[int, tuple] = {}  # Feature 032: Cache for L0/L1 names
 
         # Configure grid
         self.grid_columnconfigure(0, weight=1)
@@ -207,8 +207,8 @@ class IngredientsTab(ctk.CTkFrame):
         self.sort_column = "name"
         self.sort_ascending = True
 
-        # Define columns - no Type column per correction spec
-        columns = ("category", "name", "density")
+        # Define columns - Feature 032: L0, L1, Name hierarchy columns
+        columns = ("l0", "l1", "name", "density")
         self.tree = ttk.Treeview(
             self.grid_container,
             columns=columns,
@@ -217,18 +217,21 @@ class IngredientsTab(ctk.CTkFrame):
             height=20,  # Show more rows (default is 10)
         )
 
-        # Configure column headings with click-to-sort
-        self.tree.heading("category", text="Category", anchor="w",
-                          command=lambda: self._on_header_click("category"))
+        # Configure column headings with click-to-sort - Feature 032: hierarchy columns
+        self.tree.heading("l0", text="Root (L0)", anchor="w",
+                          command=lambda: self._on_header_click("l0_name"))
+        self.tree.heading("l1", text="Subcategory (L1)", anchor="w",
+                          command=lambda: self._on_header_click("l1_name"))
         self.tree.heading("name", text="Name", anchor="w",
                           command=lambda: self._on_header_click("name"))
         self.tree.heading("density", text="Density", anchor="w",
                           command=lambda: self._on_header_click("density_display"))
 
-        # Configure column widths
-        self.tree.column("category", width=150, minwidth=100)
-        self.tree.column("name", width=350, minwidth=200)
-        self.tree.column("density", width=150, minwidth=100)
+        # Configure column widths - Feature 032: adjusted for hierarchy
+        self.tree.column("l0", width=150, minwidth=100)
+        self.tree.column("l1", width=150, minwidth=100)
+        self.tree.column("name", width=250, minwidth=150)
+        self.tree.column("density", width=120, minwidth=80)
 
         # Add scrollbars
         y_scrollbar = ttk.Scrollbar(
@@ -266,6 +269,56 @@ class IngredientsTab(ctk.CTkFrame):
             self.sort_column = sort_key
             self.sort_ascending = True
         self._update_ingredient_display()
+
+    def _build_hierarchy_cache(self) -> Dict[int, tuple]:
+        """Build cache mapping ingredient ID to (L0_name, L1_name) for display.
+
+        Feature 032: This cache is built once per display refresh to avoid N+1 queries.
+
+        Returns:
+            Dict mapping ingredient ID to (l0_name, l1_name) tuple
+        """
+        cache = {}
+        for ingredient in self.ingredients:
+            ing_id = ingredient.get("id")
+            if not ing_id:
+                continue
+
+            hierarchy_level = ingredient.get("hierarchy_level", 2)
+
+            if hierarchy_level == 0:
+                # L0 (root) - no parents
+                cache[ing_id] = ("--", "--")
+            elif hierarchy_level == 1:
+                # L1 (subcategory) - has L0 parent only
+                try:
+                    ancestors = ingredient_hierarchy_service.get_ancestors(ing_id)
+                    if ancestors:
+                        l0_name = ancestors[0].get("display_name", "--")
+                    else:
+                        l0_name = "--"
+                    cache[ing_id] = (l0_name, "--")
+                except Exception:
+                    cache[ing_id] = ("--", "--")
+            else:
+                # L2 (leaf) - has L0 grandparent and L1 parent
+                try:
+                    ancestors = ingredient_hierarchy_service.get_ancestors(ing_id)
+                    # ancestors[0] = immediate parent (L1), ancestors[1] = grandparent (L0)
+                    if len(ancestors) >= 2:
+                        l0_name = ancestors[1].get("display_name", "--")
+                        l1_name = ancestors[0].get("display_name", "--")
+                    elif len(ancestors) == 1:
+                        l0_name = ancestors[0].get("display_name", "--")
+                        l1_name = "--"
+                    else:
+                        l0_name = "--"
+                        l1_name = "--"
+                    cache[ing_id] = (l0_name, l1_name)
+                except Exception:
+                    cache[ing_id] = ("--", "--")
+
+        return cache
 
     def _on_double_click(self, event):
         """Handle double-click on ingredient row to open edit dialog."""
@@ -407,19 +460,25 @@ class IngredientsTab(ctk.CTkFrame):
         for item in self.tree.get_children():
             self.tree.delete(item)
 
+        # Feature 032: Build hierarchy cache once per refresh
+        self._hierarchy_cache = self._build_hierarchy_cache()
+
         # Apply filters
         filtered_ingredients = self._apply_filters(self.ingredients)
 
         # Populate grid with all ingredients (Treeview handles large datasets well)
         for ingredient in filtered_ingredients:
-            category = ingredient.get("category", "Uncategorized")
-            name = ingredient["name"]
+            # Feature 032: Get hierarchy columns from cache
+            ing_id = ingredient.get("id")
+            l0_name, l1_name = self._hierarchy_cache.get(ing_id, ("--", "--"))
+
+            name = ingredient.get("display_name") or ingredient.get("name", "Unknown")
             is_packaging = ingredient.get("is_packaging", False)
             density = ingredient.get("density_display", "—")
             if density == "Not set":
                 density = "—"
 
-            values = (category, name, density)
+            values = (l0_name, l1_name, name, density)
             tags = ("packaging",) if is_packaging else ()
 
             # Use slug as the item ID for easy lookup
@@ -455,22 +514,38 @@ class IngredientsTab(ctk.CTkFrame):
         if search_text:
             filtered = [
                 ing for ing in filtered
-                if search_text in normalize_for_search(ing["name"])
+                if search_text in normalize_for_search(ing.get("display_name") or ing.get("name", ""))
             ]
 
-        # Apply category filter
+        # Apply category filter (legacy - will be replaced in WP02)
         category = self.category_var.get()
         if category and category != "All Categories":
             filtered = [ing for ing in filtered if ing.get("category") == category]
 
-        # Sort by selected column
+        # Sort by selected column - Feature 032: support hierarchy column sorting
         sort_key = getattr(self, "sort_column", "name")
         ascending = getattr(self, "sort_ascending", True)
-        filtered = sorted(
-            filtered,
-            key=lambda x: (x.get(sort_key) or "").lower() if isinstance(x.get(sort_key), str) else str(x.get(sort_key, "")),
-            reverse=not ascending,
-        )
+
+        def get_sort_value(ing):
+            """Get the sortable value for an ingredient based on sort_key."""
+            if sort_key == "l0_name":
+                # Get L0 from hierarchy cache
+                ing_id = ing.get("id")
+                l0, _ = self._hierarchy_cache.get(ing_id, ("--", "--"))
+                return l0.lower()
+            elif sort_key == "l1_name":
+                # Get L1 from hierarchy cache
+                ing_id = ing.get("id")
+                _, l1 = self._hierarchy_cache.get(ing_id, ("--", "--"))
+                return l1.lower()
+            elif sort_key == "name":
+                name = ing.get("display_name") or ing.get("name", "")
+                return name.lower()
+            else:
+                val = ing.get(sort_key, "")
+                return val.lower() if isinstance(val, str) else str(val)
+
+        filtered = sorted(filtered, key=get_sort_value, reverse=not ascending)
 
         return filtered
 
