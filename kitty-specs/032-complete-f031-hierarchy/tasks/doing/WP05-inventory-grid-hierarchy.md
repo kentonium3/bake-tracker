@@ -9,10 +9,10 @@ subtasks:
   - "T031"
 title: "Inventory Grid Hierarchy"
 phase: "Phase 3 - Inventory Tab"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "claude"
+shell_pid: "35513"
 review_status: ""
 reviewed_by: ""
 history:
@@ -231,3 +231,4 @@ def _build_inventory_hierarchy_cache(self) -> Dict[int, str]:
 ## Activity Log
 
 - 2025-12-31T23:59:00Z - system - lane=planned - Prompt created via /spec-kitty.tasks
+- 2026-01-01T18:16:21Z – claude – shell_pid=35513 – lane=doing – Starting implementation

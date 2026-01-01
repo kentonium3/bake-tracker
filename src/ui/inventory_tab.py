@@ -32,7 +32,7 @@ def normalize_for_search(text: str) -> str:
     return ascii_text.lower()
 
 from decimal import Decimal, InvalidOperation
-from src.services import inventory_item_service, ingredient_service, product_service, supplier_service, purchase_service
+from src.services import inventory_item_service, ingredient_service, product_service, supplier_service, purchase_service, ingredient_hierarchy_service
 
 # WP10: Units where decimal quantities are unusual
 COUNT_BASED_UNITS = ['count', 'bag', 'box', 'package', 'bottle', 'can', 'jar', 'carton']
@@ -76,6 +76,11 @@ class InventoryTab(ctk.CTkFrame):
         self.filtered_items = []  # Items after filtering
         self.view_mode = "detail"  # "aggregate" or "detail"
         self._data_loaded = False  # Lazy loading flag
+        # Feature 032: Hierarchy filter state
+        self._l0_map: Dict[str, Dict[str, Any]] = {}  # L0 name -> ingredient dict
+        self._l1_map: Dict[str, Dict[str, Any]] = {}  # L1 name -> ingredient dict
+        self._l2_map: Dict[str, Dict[str, Any]] = {}  # L2 name -> ingredient dict
+        self._hierarchy_path_cache: Dict[int, str] = {}  # ingredient_id -> path string
 
         # Configure grid
         self.grid_columnconfigure(0, weight=1)
@@ -134,37 +139,54 @@ class InventoryTab(ctk.CTkFrame):
         self.search_entry.grid(row=0, column=0, padx=5, pady=5)
         self.search_entry.bind("<KeyRelease>", self._on_search)
 
-        # Ingredient filter
-        ing_label = ctk.CTkLabel(controls_frame, text="Ingredient:")
-        ing_label.grid(row=0, column=1, padx=(15, 5), pady=5)
+        # Feature 032: Cascading hierarchy filters (L0 -> L1 -> L2)
+        # L0 (Root Category) filter
+        l0_label = ctk.CTkLabel(controls_frame, text="Category:")
+        l0_label.grid(row=0, column=1, padx=(15, 5), pady=5)
 
-        self.ingredient_var = ctk.StringVar(value="All Ingredients")
-        self.ingredient_dropdown = ctk.CTkOptionMenu(
+        self.l0_filter_var = ctk.StringVar(value="All Categories")
+        self.l0_filter_dropdown = ctk.CTkOptionMenu(
             controls_frame,
-            variable=self.ingredient_var,
-            values=["All Ingredients"],
-            command=self._on_ingredient_change,
-            width=160,
-        )
-        self.ingredient_dropdown.grid(row=0, column=2, padx=5, pady=5)
-
-        # Category filter
-        cat_label = ctk.CTkLabel(controls_frame, text="Category:")
-        cat_label.grid(row=0, column=3, padx=(15, 5), pady=5)
-
-        self.category_var = ctk.StringVar(value="All Categories")
-        self.category_dropdown = ctk.CTkOptionMenu(
-            controls_frame,
-            variable=self.category_var,
+            variable=self.l0_filter_var,
             values=["All Categories"],
-            command=self._on_category_change,
-            width=160,
+            command=self._on_l0_filter_change,
+            width=150,
         )
-        self.category_dropdown.grid(row=0, column=4, padx=5, pady=5)
+        self.l0_filter_dropdown.grid(row=0, column=2, padx=5, pady=5)
+
+        # L1 (Subcategory) filter - initially disabled
+        l1_label = ctk.CTkLabel(controls_frame, text="Subcategory:")
+        l1_label.grid(row=0, column=3, padx=(10, 5), pady=5)
+
+        self.l1_filter_var = ctk.StringVar(value="All")
+        self.l1_filter_dropdown = ctk.CTkOptionMenu(
+            controls_frame,
+            variable=self.l1_filter_var,
+            values=["All"],
+            command=self._on_l1_filter_change,
+            width=150,
+            state="disabled",
+        )
+        self.l1_filter_dropdown.grid(row=0, column=4, padx=5, pady=5)
+
+        # L2 (Leaf Ingredient) filter - initially disabled
+        l2_label = ctk.CTkLabel(controls_frame, text="Ingredient:")
+        l2_label.grid(row=0, column=5, padx=(10, 5), pady=5)
+
+        self.l2_filter_var = ctk.StringVar(value="All")
+        self.l2_filter_dropdown = ctk.CTkOptionMenu(
+            controls_frame,
+            variable=self.l2_filter_var,
+            values=["All"],
+            command=self._on_l2_filter_change,
+            width=150,
+            state="disabled",
+        )
+        self.l2_filter_dropdown.grid(row=0, column=6, padx=5, pady=5)
 
         # Brand filter
         brand_label = ctk.CTkLabel(controls_frame, text="Brand:")
-        brand_label.grid(row=0, column=5, padx=(15, 5), pady=5)
+        brand_label.grid(row=0, column=7, padx=(15, 5), pady=5)
 
         self.brand_var = ctk.StringVar(value="All Brands")
         self.brand_dropdown = ctk.CTkOptionMenu(
@@ -174,11 +196,11 @@ class InventoryTab(ctk.CTkFrame):
             command=self._on_brand_change,
             width=140,
         )
-        self.brand_dropdown.grid(row=0, column=6, padx=5, pady=5)
+        self.brand_dropdown.grid(row=0, column=8, padx=5, pady=5)
 
         # View mode toggle
         view_label = ctk.CTkLabel(controls_frame, text="View:")
-        view_label.grid(row=0, column=7, padx=(15, 5), pady=5)
+        view_label.grid(row=0, column=9, padx=(15, 5), pady=5)
 
         self.view_mode_var = ctk.StringVar(value="Detail")
         view_mode_dropdown = ctk.CTkOptionMenu(
@@ -188,7 +210,7 @@ class InventoryTab(ctk.CTkFrame):
             command=self._on_view_mode_change,
             width=100,
         )
-        view_mode_dropdown.grid(row=0, column=8, padx=5, pady=5)
+        view_mode_dropdown.grid(row=0, column=10, padx=5, pady=5)
 
         # Row 1: Action buttons
         # Add Inventory Item button
@@ -274,48 +296,43 @@ class InventoryTab(ctk.CTkFrame):
             # Get all inventory items from service (returns InventoryItem instances)
             self.inventory_items = inventory_item_service.get_inventory_items()
 
-            # Preserve current filter selections before updating dropdown values
-            # (CTkOptionMenu can sometimes reset selection when values change)
-            current_ingredient = self.ingredient_var.get()
-            current_category = self.category_var.get()
+            # Preserve current filter selections
+            current_l0 = self.l0_filter_var.get()
             current_brand = self.brand_var.get()
 
-            # Update filter dropdowns with unique values from inventory
-            ingredients = set()
-            categories = set()
+            # Feature 032: Populate L0 (root categories) dropdown
+            root_ingredients = ingredient_hierarchy_service.get_root_ingredients()
+            self._l0_map = {ing.get("display_name", ing.get("name", "?")): ing for ing in root_ingredients}
+            l0_values = ["All Categories"] + sorted(self._l0_map.keys())
+            self.l0_filter_dropdown.configure(values=l0_values)
+
+            # Reset L1 and L2 dropdowns
+            self._l1_map = {}
+            self._l2_map = {}
+            self.l1_filter_dropdown.configure(values=["All"], state="disabled")
+            self.l2_filter_dropdown.configure(values=["All"], state="disabled")
+            self.l1_filter_var.set("All")
+            self.l2_filter_var.set("All")
+
+            # Build hierarchy path cache
+            self._build_hierarchy_path_cache()
+
+            # Extract brands from inventory
             brands = set()
             for item in self.inventory_items:
                 product = getattr(item, "product", None)
-                ingredient = getattr(product, "ingredient", None) if product else None
-                ingredient_name = getattr(ingredient, "display_name", None) if ingredient else None
-                category = getattr(ingredient, "category", None) if ingredient else None
                 brand = getattr(product, "brand", None) if product else None
-                if ingredient_name:
-                    ingredients.add(ingredient_name)
-                if category:
-                    categories.add(category)
                 if brand:
                     brands.add(brand)
-
-            ingredient_list = ["All Ingredients"] + sorted(ingredients)
-            self.ingredient_dropdown.configure(values=ingredient_list)
-
-            category_list = ["All Categories"] + sorted(categories)
-            self.category_dropdown.configure(values=category_list)
 
             brand_list = ["All Brands"] + sorted(brands)
             self.brand_dropdown.configure(values=brand_list)
 
-            # Restore filter selections (reset to "All" if previous value no longer valid)
-            if current_ingredient in ingredient_list:
-                self.ingredient_var.set(current_ingredient)
+            # Restore filter selections
+            if current_l0 in l0_values:
+                self.l0_filter_var.set(current_l0)
             else:
-                self.ingredient_var.set("All Ingredients")
-
-            if current_category in category_list:
-                self.category_var.set(current_category)
-            else:
-                self.category_var.set("All Categories")
+                self.l0_filter_var.set("All Categories")
 
             if current_brand in brand_list:
                 self.brand_var.set(current_brand)
@@ -333,7 +350,7 @@ class InventoryTab(ctk.CTkFrame):
             )
 
     def _apply_filters(self):
-        """Apply search, ingredient, category, and brand filters and update display."""
+        """Apply search, hierarchy, and brand filters and update display."""
         self.filtered_items = list(self.inventory_items)
 
         # Apply search filter with diacritical normalization
@@ -351,29 +368,8 @@ class InventoryTab(ctk.CTkFrame):
                     filtered.append(item)
             self.filtered_items = filtered
 
-        # Apply ingredient filter
-        selected_ingredient = self.ingredient_var.get()
-        if selected_ingredient and selected_ingredient != "All Ingredients":
-            filtered = []
-            for item in self.filtered_items:
-                product = getattr(item, "product", None)
-                ingredient = getattr(product, "ingredient", None) if product else None
-                ingredient_name = getattr(ingredient, "display_name", None) if ingredient else None
-                if ingredient_name == selected_ingredient:
-                    filtered.append(item)
-            self.filtered_items = filtered
-
-        # Apply category filter
-        selected_category = self.category_var.get()
-        if selected_category and selected_category != "All Categories":
-            filtered = []
-            for item in self.filtered_items:
-                product = getattr(item, "product", None)
-                ingredient = getattr(product, "ingredient", None) if product else None
-                category = getattr(ingredient, "category", None) if ingredient else None
-                if category == selected_category:
-                    filtered.append(item)
-            self.filtered_items = filtered
+        # Feature 032: Apply hierarchy filters
+        self.filtered_items = self._apply_hierarchy_filters(self.filtered_items)
 
         # Apply brand filter
         selected_brand = self.brand_var.get()
@@ -403,13 +399,135 @@ class InventoryTab(ctk.CTkFrame):
         """Handle search text change."""
         self._apply_filters()
 
-    def _on_ingredient_change(self, value: str):
-        """Handle ingredient filter change."""
+    # Feature 032: Hierarchy filter handlers
+    def _build_hierarchy_path_cache(self):
+        """Build cache mapping ingredient_id to hierarchy path string."""
+        self._hierarchy_path_cache = {}
+        # Get all ingredients for the cache
+        try:
+            all_ingredients = ingredient_service.get_all_ingredients()
+            for ingredient in all_ingredients:
+                ing_id = ingredient.get("id")
+                if not ing_id:
+                    continue
+                try:
+                    ancestors = ingredient_hierarchy_service.get_ancestors(ing_id)
+                    # Build path from root to leaf
+                    path_parts = []
+                    for ancestor in reversed(ancestors):
+                        path_parts.append(ancestor.get("display_name", "?"))
+                    path_parts.append(ingredient.get("display_name", ingredient.get("name", "?")))
+                    self._hierarchy_path_cache[ing_id] = " -> ".join(path_parts)
+                except Exception:
+                    self._hierarchy_path_cache[ing_id] = ingredient.get("display_name", "--")
+        except Exception:
+            pass
+
+    def _on_l0_filter_change(self, value: str):
+        """Handle L0 (category) filter change - cascade to L1."""
+        if value == "All Categories":
+            # Reset L1 and L2
+            self._l1_map = {}
+            self._l2_map = {}
+            self.l1_filter_dropdown.configure(values=["All"], state="disabled")
+            self.l2_filter_dropdown.configure(values=["All"], state="disabled")
+            self.l1_filter_var.set("All")
+            self.l2_filter_var.set("All")
+        elif value in self._l0_map:
+            # Populate L1 with children of selected L0
+            l0_id = self._l0_map[value].get("id")
+            subcategories = ingredient_hierarchy_service.get_children(l0_id)
+            self._l1_map = {sub.get("display_name", "?"): sub for sub in subcategories}
+            if subcategories:
+                l1_values = ["All"] + sorted(self._l1_map.keys())
+                self.l1_filter_dropdown.configure(values=l1_values, state="normal")
+            else:
+                self.l1_filter_dropdown.configure(values=["All"], state="disabled")
+            self.l1_filter_var.set("All")
+            # Reset L2
+            self._l2_map = {}
+            self.l2_filter_dropdown.configure(values=["All"], state="disabled")
+            self.l2_filter_var.set("All")
         self._apply_filters()
 
-    def _on_category_change(self, value: str):
-        """Handle category filter change."""
+    def _on_l1_filter_change(self, value: str):
+        """Handle L1 (subcategory) filter change - cascade to L2."""
+        if value == "All":
+            # Reset L2
+            self._l2_map = {}
+            self.l2_filter_dropdown.configure(values=["All"], state="disabled")
+            self.l2_filter_var.set("All")
+        elif value in self._l1_map:
+            # Populate L2 with children of selected L1
+            l1_id = self._l1_map[value].get("id")
+            leaves = ingredient_hierarchy_service.get_children(l1_id)
+            self._l2_map = {leaf.get("display_name", "?"): leaf for leaf in leaves}
+            if leaves:
+                l2_values = ["All"] + sorted(self._l2_map.keys())
+                self.l2_filter_dropdown.configure(values=l2_values, state="normal")
+            else:
+                self.l2_filter_dropdown.configure(values=["All"], state="disabled")
+            self.l2_filter_var.set("All")
         self._apply_filters()
+
+    def _on_l2_filter_change(self, value: str):
+        """Handle L2 (ingredient) filter change."""
+        self._apply_filters()
+
+    def _apply_hierarchy_filters(self, items: List) -> List:
+        """Apply hierarchy filters to inventory items."""
+        l0_val = self.l0_filter_var.get()
+        l1_val = self.l1_filter_var.get()
+        l2_val = self.l2_filter_var.get()
+
+        # If all filters are "All", return unfiltered
+        if l0_val == "All Categories" and l1_val == "All" and l2_val == "All":
+            return items
+
+        # Build set of matching ingredient IDs
+        matching_ids = None
+
+        if l2_val != "All" and l2_val in self._l2_map:
+            # Exact L2 ingredient match
+            matching_ids = {self._l2_map[l2_val].get("id")}
+        elif l1_val != "All" and l1_val in self._l1_map:
+            # All L2 descendants under this L1
+            l1_id = self._l1_map[l1_val].get("id")
+            matching_ids = self._get_all_leaf_descendants(l1_id)
+        elif l0_val != "All Categories" and l0_val in self._l0_map:
+            # All L2 descendants under this L0
+            l0_id = self._l0_map[l0_val].get("id")
+            matching_ids = self._get_all_leaf_descendants(l0_id)
+
+        if matching_ids is None:
+            return items
+
+        # Filter by ingredient_id through product relationship
+        filtered = []
+        for item in items:
+            product = getattr(item, "product", None)
+            ingredient = getattr(product, "ingredient", None) if product else None
+            ingredient_id = getattr(ingredient, "id", None) if ingredient else None
+            if ingredient_id in matching_ids:
+                filtered.append(item)
+        return filtered
+
+    def _get_all_leaf_descendants(self, parent_id: int) -> set:
+        """Get all leaf (L2) ingredient IDs under a parent."""
+        descendants = set()
+        try:
+            children = ingredient_hierarchy_service.get_children(parent_id)
+            for child in children:
+                level = child.get("hierarchy_level", 2)
+                if level == 2:
+                    # This is a leaf
+                    descendants.add(child.get("id"))
+                else:
+                    # Recurse to get leaves under this node
+                    descendants.update(self._get_all_leaf_descendants(child.get("id")))
+        except Exception:
+            pass
+        return descendants
 
     def _on_brand_change(self, value: str):
         """Handle brand filter change."""
@@ -758,7 +876,12 @@ class InventoryTab(ctk.CTkFrame):
         self.view_mode_var.set("Detail")
         # Clear filters to show the specific ingredient
         self.search_entry.delete(0, "end")
-        self.category_var.set("All Categories")
+        # Feature 032: Reset hierarchy filters
+        self.l0_filter_var.set("All Categories")
+        self.l1_filter_var.set("All")
+        self.l2_filter_var.set("All")
+        self.l1_filter_dropdown.configure(state="disabled")
+        self.l2_filter_dropdown.configure(state="disabled")
 
         self.filtered_items = [
             item
