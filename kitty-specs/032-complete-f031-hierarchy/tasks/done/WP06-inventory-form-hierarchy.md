@@ -7,7 +7,7 @@ subtasks:
   - "T035"
 title: "Inventory Form Hierarchy Display"
 phase: "Phase 3 - Inventory Tab"
-lane: "for_review"
+lane: "done"
 assignee: ""
 agent: "claude"
 shell_pid: "35513"
@@ -234,3 +234,4 @@ def _load_item_for_edit(self, inventory_item_id: int):
 - 2025-12-31T23:59:00Z - system - lane=planned - Prompt created via /spec-kitty.tasks
 - 2026-01-01T18:20:01Z – claude – shell_pid=35513 – lane=doing – Starting implementation
 - 2026-01-01T18:21:59Z – claude – shell_pid=35513 – lane=for_review – Ready for review - hierarchy labels implemented
+- 2026-01-01T19:15:59Z – claude – shell_pid=35513 – lane=done – Code review approved: InventoryItemFormDialog with hierarchy labels and _update_hierarchy_labels method correctly implemented.
