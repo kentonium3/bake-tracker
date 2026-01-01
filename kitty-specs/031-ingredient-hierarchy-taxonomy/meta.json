@@ -1,7 +1,26 @@
 {
+  "accept_commit": null,
+  "acceptance_history": [
+    {
+      "accepted_at": "2026-01-01T00:10:32Z",
+      "accepted_by": "claude",
+      "accepted_from_commit": "2e5609aca5b43e2714d850a3c4a8190972bebf76",
+      "branch": "031-ingredient-hierarchy-taxonomy",
+      "mode": "local",
+      "validation_commands": [
+        "pytest src/tests/services/test_ingredient_hierarchy_service.py -v",
+        "pytest src/tests/models/test_ingredient.py -v",
+        "python scripts/migrate_hierarchy/test_pipeline.py"
+      ]
+    }
+  ],
+  "acceptance_mode": "local",
+  "accepted_at": "2026-01-01T00:10:32Z",
+  "accepted_by": "claude",
+  "accepted_from_commit": "2e5609aca5b43e2714d850a3c4a8190972bebf76",
+  "created_at": "2025-12-31T03:24:44Z",
   "feature_number": "031",
-  "slug": "031-ingredient-hierarchy-taxonomy",
   "friendly_name": "Ingredient Hierarchy Taxonomy",
-  "source_description": "Three-tier hierarchical ingredient taxonomy (Root/Mid/Leaf) with self-referential schema, tree traversal services, UI tree widget, and AI-assisted migration of 500+ ingredients. See docs/design/F031_ingredient_hierarchy.md for full design.",
-  "created_at": "2025-12-31T03:24:44Z"
+  "slug": "031-ingredient-hierarchy-taxonomy",
+  "source_description": "Three-tier hierarchical ingredient taxonomy (Root/Mid/Leaf) with self-referential schema, tree traversal services, UI tree widget, and AI-assisted migration of 500+ ingredients. See docs/design/F031_ingredient_hierarchy.md for full design."
 }
