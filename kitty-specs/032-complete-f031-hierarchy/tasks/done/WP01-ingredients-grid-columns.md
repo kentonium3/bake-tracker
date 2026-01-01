@@ -9,7 +9,7 @@ subtasks:
   - "T006"
 title: "Ingredients Grid Columns"
 phase: "Phase 1 - Ingredients Tab"
-lane: "for_review"
+lane: "done"
 assignee: ""
 agent: "claude"
 shell_pid: "35513"
@@ -252,3 +252,4 @@ def _update_ingredient_display(self):
 - 2025-12-31T23:59:00Z - system - lane=planned - Prompt created via /spec-kitty.tasks
 - 2026-01-01T18:02:20Z – claude – shell_pid=35513 – lane=doing – Started implementation
 - 2026-01-01T18:05:04Z – claude – shell_pid=35513 – lane=for_review – Ready for review - grid columns implemented
+- 2026-01-01T19:13:55Z – claude – shell_pid=35513 – lane=done – Code review approved: Hierarchy cache, L0/L1 columns, sorting all correctly implemented. 58 hierarchy service tests pass.
