@@ -1,6 +1,6 @@
 {
   "version": "3.6",
-  "exported_at": "2026-01-01T07:38:31.015535+00:00",
+  "exported_at": "2026-01-01T07:38:06.714051+00:00",
   "application": "bake-tracker",
   "ingredients": [
     {
@@ -3732,14 +3732,6 @@
       "is_packaging": false,
       "parent_slug": "rums",
       "description": "Generic rum (unspecified type)"
-    },
-    {
-      "display_name": "Orange zest",
-      "slug": "orange_zest",
-      "hierarchy_level": 2,
-      "is_packaging": false,
-      "parent_slug": "fresh_frozen_canned_fruits",
-      "description": "Fresh orange zest/peel"
     }
   ],
   "suppliers": [

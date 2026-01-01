@@ -5,7 +5,9 @@ Provides a modal dialog for:
 - Adding new products with ingredient association
 - Editing existing product attributes
 - Selecting preferred supplier
-- Category auto-population from ingredient
+- Hierarchical ingredient selection (Category -> Subcategory -> Ingredient)
+
+Feature 031: Ingredient Hierarchy - Cascading dropdown selection
 """
 
 import customtkinter as ctk
@@ -15,8 +17,8 @@ from typing import Optional, Dict, Any, List
 from src.services import (
     product_catalog_service,
     supplier_service,
-    ingredient_service,
 )
+from src.services import ingredient_hierarchy_service
 from src.utils.constants import PACKAGE_TYPES, MEASUREMENT_UNITS
 
 
@@ -56,47 +58,86 @@ class AddProductDialog(ctk.CTkToplevel):
         self.product_id = product_id
         self.result: Optional[bool] = None
 
-        # Data stores
-        self.ingredients: List[Dict[str, Any]] = []
+        # Data stores - Feature 031: Hierarchical ingredient selection
+        self.categories: List[Dict[str, Any]] = []  # Level 0
+        self.categories_map: Dict[str, Dict[str, Any]] = {}
+        self.subcategories: List[Dict[str, Any]] = []  # Level 1 (filtered by category)
+        self.subcategories_map: Dict[str, Dict[str, Any]] = {}
+        self.ingredients: List[Dict[str, Any]] = []  # Level 2 (filtered by subcategory)
         self.ingredients_map: Dict[str, Dict[str, Any]] = {}
+        self.selected_ingredient: Optional[Dict[str, Any]] = None
+
+        # Supplier data
         self.suppliers: List[Dict[str, Any]] = []
         self.suppliers_map: Dict[str, Dict[str, Any]] = {}
 
         # Window configuration
         self.title("Add Product" if not product_id else "Edit Product")
-        self.geometry("500x620")
+        self.geometry("500x680")  # Extra height for hierarchical dropdowns
         self.resizable(False, False)
 
-        # Make dialog modal
-        self.transient(parent)
-        self.grab_set()
+        # Hide window while building UI
+        self.withdraw()
 
-        # Center on parent
+        # Make dialog modal - set transient first
+        self.transient(parent)
+
+        # Load reference data
+        if not self._load_data():
+            return  # Dialog destroyed due to error
+
+        # Setup UI
+        try:
+            self._setup_ui()
+        except Exception as e:
+            messagebox.showerror("Error", f"Failed to setup UI: {str(e)}", parent=parent)
+            self.destroy()
+            return
+
+        # Load product data if editing
+        if product_id:
+            try:
+                self._load_product()
+            except Exception as e:
+                messagebox.showerror("Error", f"Failed to load product: {str(e)}", parent=self)
+                # Don't destroy - let user close manually or try again
+
+        # Center on parent (after UI is built so size is known)
         self.update_idletasks()
         x = parent.winfo_rootx() + (parent.winfo_width() - self.winfo_width()) // 2
         y = parent.winfo_rooty() + (parent.winfo_height() - self.winfo_height()) // 2
         self.geometry(f"+{x}+{y}")
 
-        # Load reference data
-        self._load_data()
-
-        # Setup UI
-        self._setup_ui()
-
-        # Load product data if editing
-        if product_id:
-            self._load_product()
-
-    def _load_data(self):
-        """Load ingredients and suppliers for dropdowns."""
+        # Now show the fully-built dialog
+        self.deiconify()
+        self.update()
         try:
-            # Load ingredients
-            self.ingredients = ingredient_service.get_all_ingredients()
-            self.ingredients_map = {ing["name"]: ing for ing in self.ingredients}
+            self.wait_visibility()
+            self.grab_set()
+        except Exception:
+            # Window may have been closed before becoming visible
+            if not self.winfo_exists():
+                return
+        self.lift()
+        self.focus_force()
+
+    def _load_data(self) -> bool:
+        """Load categories and suppliers for dropdowns.
+
+        Returns:
+            True if data loaded successfully, False if error occurred
+        """
+        try:
+            # Feature 031: Load root categories (level 0)
+            self.categories = ingredient_hierarchy_service.get_root_ingredients()
+            # Note: to_dict() returns "display_name", not "name"
+            self.categories_map = {cat["display_name"]: cat for cat in self.categories}
 
             # Load active suppliers
             self.suppliers = supplier_service.get_active_suppliers()
             self.suppliers_map = {sup["name"]: sup for sup in self.suppliers}
+
+            return True
 
         except Exception as e:
             messagebox.showerror(
@@ -105,6 +146,7 @@ class AddProductDialog(ctk.CTkToplevel):
                 parent=self,
             )
             self.destroy()
+            return False
 
     def _setup_ui(self):
         """Create form fields and buttons."""
@@ -194,36 +236,55 @@ class AddProductDialog(ctk.CTkToplevel):
         self.unit_dropdown.grid(row=row, column=1, padx=(0, 20), pady=5, sticky="w")
         row += 1
 
-        # Ingredient (required)
+        # Feature 031: Hierarchical ingredient selection
+        # Category dropdown (Level 0)
+        cat_label = ctk.CTkLabel(self, text="Category *")
+        cat_label.grid(row=row, column=0, padx=(20, 10), pady=5, sticky="w")
+
+        self.category_var = ctk.StringVar()
+        category_names = sorted(self.categories_map.keys())
+        self.category_dropdown = ctk.CTkComboBox(
+            self,
+            variable=self.category_var,
+            values=category_names if category_names else ["No categories"],
+            command=self._on_category_change,
+            width=280,
+        )
+        self.category_dropdown.grid(row=row, column=1, padx=(0, 20), pady=5, sticky="w")
+        if not category_names:
+            self.category_dropdown.configure(state="disabled")
+        row += 1
+
+        # Subcategory dropdown (Level 1)
+        subcat_label = ctk.CTkLabel(self, text="Subcategory *")
+        subcat_label.grid(row=row, column=0, padx=(20, 10), pady=5, sticky="w")
+
+        self.subcategory_var = ctk.StringVar()
+        self.subcategory_dropdown = ctk.CTkComboBox(
+            self,
+            variable=self.subcategory_var,
+            values=["(Select category first)"],
+            command=self._on_subcategory_change,
+            width=280,
+            state="disabled",
+        )
+        self.subcategory_dropdown.grid(row=row, column=1, padx=(0, 20), pady=5, sticky="w")
+        row += 1
+
+        # Ingredient dropdown (Level 2 - leaves)
         ing_label = ctk.CTkLabel(self, text="Ingredient *")
         ing_label.grid(row=row, column=0, padx=(20, 10), pady=5, sticky="w")
 
         self.ingredient_var = ctk.StringVar()
-        ingredient_names = sorted(self.ingredients_map.keys())
         self.ingredient_dropdown = ctk.CTkComboBox(
             self,
             variable=self.ingredient_var,
-            values=ingredient_names if ingredient_names else ["No ingredients available"],
+            values=["(Select subcategory first)"],
             command=self._on_ingredient_change,
             width=280,
+            state="disabled",
         )
         self.ingredient_dropdown.grid(row=row, column=1, padx=(0, 20), pady=5, sticky="w")
-        if not ingredient_names:
-            self.ingredient_dropdown.configure(state="disabled")
-        row += 1
-
-        # Category (read-only, auto-populated)
-        cat_label = ctk.CTkLabel(self, text="Category")
-        cat_label.grid(row=row, column=0, padx=(20, 10), pady=5, sticky="w")
-
-        self.category_var = ctk.StringVar(value="(Select ingredient)")
-        self.category_label = ctk.CTkLabel(
-            self,
-            textvariable=self.category_var,
-            width=280,
-            anchor="w",
-        )
-        self.category_label.grid(row=row, column=1, padx=(0, 20), pady=5, sticky="w")
         row += 1
 
         # Preferred Supplier (optional)
@@ -291,14 +352,124 @@ class AddProductDialog(ctk.CTkToplevel):
         )
         save_btn.grid(row=0, column=1, padx=10, pady=10, sticky="w")
 
+    def _on_category_change(self, choice: str):
+        """Handle category selection - populate subcategory dropdown."""
+        # Reset downstream selections
+        self.subcategory_var.set("")
+        self.ingredient_var.set("")
+        self.subcategories_map.clear()
+        self.ingredients_map.clear()
+        self.selected_ingredient = None
+
+        if choice not in self.categories_map:
+            self.subcategory_dropdown.configure(values=["(Select category first)"], state="disabled")
+            self.ingredient_dropdown.configure(values=["(Select subcategory first)"], state="disabled")
+            return
+
+        # Get subcategories (children of selected category)
+        category = self.categories_map[choice]
+        try:
+            self.subcategories = ingredient_hierarchy_service.get_children(category["id"])
+            self.subcategories_map = {sub["display_name"]: sub for sub in self.subcategories}
+
+            if self.subcategories:
+                subcat_names = sorted(self.subcategories_map.keys())
+                self.subcategory_dropdown.configure(values=subcat_names, state="normal")
+            else:
+                self.subcategory_dropdown.configure(values=["(No subcategories)"], state="disabled")
+
+            self.ingredient_dropdown.configure(values=["(Select subcategory first)"], state="disabled")
+
+        except Exception as e:
+            messagebox.showerror("Error", f"Failed to load subcategories: {e}", parent=self)
+
+    def _on_subcategory_change(self, choice: str):
+        """Handle subcategory selection - populate ingredient dropdown."""
+        # Reset ingredient selection
+        self.ingredient_var.set("")
+        self.ingredients_map.clear()
+        self.selected_ingredient = None
+
+        if choice not in self.subcategories_map:
+            self.ingredient_dropdown.configure(values=["(Select subcategory first)"], state="disabled")
+            return
+
+        # Get leaf ingredients (children of selected subcategory)
+        subcategory = self.subcategories_map[choice]
+        try:
+            self.ingredients = ingredient_hierarchy_service.get_children(subcategory["id"])
+            self.ingredients_map = {ing["display_name"]: ing for ing in self.ingredients}
+
+            if self.ingredients:
+                ing_names = sorted(self.ingredients_map.keys())
+                self.ingredient_dropdown.configure(values=ing_names, state="normal")
+            else:
+                self.ingredient_dropdown.configure(values=["(No ingredients)"], state="disabled")
+
+        except Exception as e:
+            messagebox.showerror("Error", f"Failed to load ingredients: {e}", parent=self)
+
     def _on_ingredient_change(self, choice: str):
-        """Handle ingredient selection - update category display."""
+        """Handle ingredient selection - store selected ingredient."""
         if choice in self.ingredients_map:
-            ingredient = self.ingredients_map[choice]
-            category = ingredient.get("category", "Unknown")
-            self.category_var.set(category if category else "Uncategorized")
+            self.selected_ingredient = self.ingredients_map[choice]
         else:
-            self.category_var.set("(Select ingredient)")
+            self.selected_ingredient = None
+
+    def _set_ingredient_by_id(self, ingredient_id: int):
+        """
+        Set all three dropdowns based on an ingredient ID.
+
+        Used when editing a product to populate the hierarchy from the saved ingredient.
+        Walks up the ancestor chain to find category and subcategory.
+        """
+        try:
+            # Get the ingredient and its ancestors
+            ingredient = ingredient_hierarchy_service.get_ingredient_by_id(ingredient_id)
+            if not ingredient:
+                print(f"Warning: Ingredient {ingredient_id} not found")
+                return
+
+            ancestors = ingredient_hierarchy_service.get_ancestors(ingredient_id)
+
+            # Ancestors are ordered from immediate parent to root
+            # For a leaf ingredient: [subcategory, category]
+            if len(ancestors) >= 2:
+                subcategory = ancestors[0]  # Immediate parent (level 1)
+                category = ancestors[1]     # Grandparent (level 0)
+            elif len(ancestors) == 1:
+                subcategory = ancestors[0]
+                category = None
+            else:
+                subcategory = None
+                category = None
+
+            # Set category dropdown
+            if category and category["display_name"] in self.categories_map:
+                self.category_var.set(category["display_name"])
+                self._on_category_change(category["display_name"])
+
+                # Set subcategory dropdown (after category change populates subcategories_map)
+                if subcategory and subcategory["display_name"] in self.subcategories_map:
+                    self.subcategory_var.set(subcategory["display_name"])
+                    self._on_subcategory_change(subcategory["display_name"])
+
+                    # Set ingredient dropdown (after subcategory change populates ingredients_map)
+                    if ingredient["display_name"] in self.ingredients_map:
+                        self.ingredient_var.set(ingredient["display_name"])
+                        self._on_ingredient_change(ingredient["display_name"])
+                    else:
+                        print(f"Warning: Ingredient '{ingredient['display_name']}' not in ingredients_map")
+                else:
+                    print(f"Warning: Subcategory '{subcategory['display_name'] if subcategory else 'None'}' not in subcategories_map")
+            else:
+                print(f"Warning: Category '{category['display_name'] if category else 'None'}' not in categories_map")
+
+        except Exception as e:
+            # Log but don't fail - user can still select manually
+            import traceback
+            print(f"Warning: Could not set ingredient hierarchy: {e}")
+            traceback.print_exc()
 
     def _validate(self) -> bool:
         """Validate form fields before save."""
@@ -324,10 +495,14 @@ class AddProductDialog(ctk.CTkToplevel):
             except ValueError:
                 errors.append("Package quantity must be a valid number")
 
-        # Ingredient required
-        ingredient_name = self.ingredient_var.get()
-        if not ingredient_name or ingredient_name not in self.ingredients_map:
-            errors.append("Please select an ingredient")
+        # Ingredient required (must complete all three dropdowns)
+        if not self.selected_ingredient:
+            if not self.category_var.get() or self.category_var.get() not in self.categories_map:
+                errors.append("Please select a category")
+            elif not self.subcategory_var.get() or self.subcategory_var.get() not in self.subcategories_map:
+                errors.append("Please select a subcategory")
+            else:
+                errors.append("Please select an ingredient")
 
         if errors:
             messagebox.showerror(
@@ -344,8 +519,8 @@ class AddProductDialog(ctk.CTkToplevel):
         if not self._validate():
             return
 
-        # Get ingredient
-        ingredient = self.ingredients_map[self.ingredient_var.get()]
+        # Get ingredient (already validated in _validate)
+        ingredient = self.selected_ingredient
 
         # Get supplier (optional)
         supplier_id = None
@@ -434,14 +609,10 @@ class AddProductDialog(ctk.CTkToplevel):
             self.gtin_var.set(product.get("gtin", "") or "")
             self.upc_var.set(product.get("upc_code", "") or "")
 
-            # Find and set ingredient
+            # Feature 031: Find and set hierarchical ingredient selection
             ingredient_id = product.get("ingredient_id")
             if ingredient_id:
-                for name, ing in self.ingredients_map.items():
-                    if ing["id"] == ingredient_id:
-                        self.ingredient_var.set(name)
-                        self._on_ingredient_change(name)
-                        break
+                self._set_ingredient_by_id(ingredient_id)
 
             # Find and set supplier
             supplier_id = product.get("preferred_supplier_id")

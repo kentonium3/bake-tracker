@@ -428,12 +428,19 @@ class ProductDetailDialog(ctk.CTkToplevel):
         """Open AddProductDialog in edit mode."""
         from src.ui.forms.add_product_dialog import AddProductDialog
 
+        # Release grab before opening child dialog to avoid modal conflict
+        self.grab_release()
+
         dialog = AddProductDialog(self, product_id=self.product_id)
         self.wait_window(dialog)
 
-        if dialog.result:
-            self._load_product()  # Refresh after edit
-            self.result = True  # Signal parent to refresh
+        # Re-acquire grab after child dialog closes (if this window still exists)
+        if self.winfo_exists():
+            self.grab_set()
+
+            if dialog.result:
+                self._load_product()  # Refresh after edit
+                self.result = True  # Signal parent to refresh
 
     def _on_toggle_hidden(self):
         """Toggle product visibility."""

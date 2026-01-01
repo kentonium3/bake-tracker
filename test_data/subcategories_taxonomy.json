@@ -1,0 +1,429 @@
+[
+  {
+    "name": "Gelling Agents",
+    "slug": "gelling_agents",
+    "category_slug": "additives_thickeners",
+    "description": "Contains: Gelatin powder, Gelatin sheets, Pectin",
+    "ingredient_count": 3
+  },
+  {
+    "name": "Gums",
+    "slug": "gums",
+    "category_slug": "additives_thickeners",
+    "description": "Contains: Guar gum, Xanthan gum",
+    "ingredient_count": 2
+  },
+  {
+    "name": "Bars & Baking Chocolate",
+    "slug": "bars_baking_chocolate",
+    "category_slug": "chocolate_cocoa",
+    "description": "Contains: Chocolate, baking bittersweet, Chocolate, baking semi-sweet, Chocolate, baking unsweetened",
+    "ingredient_count": 3
+  },
+  {
+    "name": "Chips & Chunks",
+    "slug": "chips_chunks",
+    "category_slug": "chocolate_cocoa",
+    "description": "Contains: Chocolate chips, bittersweet, Chocolate chips, dark, Chocolate chips, espresso, Chocolate chips, milk, Chocolate chips, semi-sweet (+7 more)",
+    "ingredient_count": 12
+  },
+  {
+    "name": "Candy melts",
+    "slug": "candy_melts",
+    "category_slug": "chocolate_cocoa",
+    "description": "Contains: Chocolate coating, milk chocolate, Candy melts, colored, Candy melts, white",
+    "ingredient_count": 3
+  },
+  {
+    "name": "Couverture",
+    "slug": "couverture",
+    "category_slug": "chocolate_cocoa",
+    "description": "Contains: Chocolate couverture, ruby, Chocolate, couverture dark, Chocolate, couverture milk, Chocolate, couverture white",
+    "ingredient_count": 4
+  },
+  {
+    "name": "Chocolate Wafers",
+    "slug": "chocolate_wafers",
+    "category_slug": "chocolate_cocoa",
+    "description": "Contains: Baking wafers, chocolate, Baking wafers, vanilla",
+    "ingredient_count": 2
+  },
+  {
+    "name": "Cocoa Powders",
+    "slug": "cocoa_powders",
+    "category_slug": "chocolate_cocoa",
+    "description": "Contains: Cocoa powder, black, Cocoa powder, dutch-processed, Cocoa powder, natural, Cocoa powder, red, Malt powder",
+    "ingredient_count": 5
+  },
+  {
+    "name": "Cheese",
+    "slug": "cheese",
+    "category_slug": "dairy_eggs",
+    "description": "Contains: Cheddar cheese, Cottage cheese, Mascarpone cheese, Parmesan cheese, Ricotta cheese (+2 more)",
+    "ingredient_count": 7
+  },
+  {
+    "name": "Eggs",
+    "slug": "eggs",
+    "category_slug": "dairy_eggs",
+    "description": "Contains: Egg whites, Egg yolks, Eggs, whole",
+    "ingredient_count": 3
+  },
+  {
+    "name": "Milk & Cream",
+    "slug": "milk_cream",
+    "category_slug": "dairy_eggs",
+    "description": "Contains: Cream, heavy, Cream, light, Milk powder, nonfat, Milk powder, whole, Milk, 2% (+6 more)",
+    "ingredient_count": 11
+  },
+  {
+    "name": "Other Dairy",
+    "slug": "other_dairy",
+    "category_slug": "dairy_eggs",
+    "description": "Contains: Cr\u00e8me fra\u00eeche, Mascarpone, Sour cream",
+    "ingredient_count": 3
+  },
+  {
+    "name": "Yogurt",
+    "slug": "yogurt",
+    "category_slug": "dairy_eggs",
+    "description": "Contains: Greek yogurt, plain, Yogurt, plain",
+    "ingredient_count": 2
+  },
+  {
+    "name": "Colorants",
+    "slug": "colorants",
+    "category_slug": "decorations_candies",
+    "description": "Contains: Liquid, Gel, Paste, Powder",
+    "ingredient_count": 4
+  },
+  {
+    "name": "Baking Chips & Bits (Non-chocolate)",
+    "slug": "baking_chips_bits_non_chocolate",
+    "category_slug": "decorations_candies",
+    "description": "Contains: Butterscotch chips, Caramel bits",
+    "ingredient_count": 2
+  },
+  {
+    "name": "Candied Fruit",
+    "slug": "candied_fruit",
+    "category_slug": "decorations_candies",
+    "description": "Contains: Candied cherries, Cherries, maraschino, Candied citrus peel, Candied ginger, Fruit, candied mixed (+1 more)",
+    "ingredient_count": 6
+  },
+  {
+    "name": "Candy Pieces",
+    "slug": "candy_pieces",
+    "category_slug": "decorations_candies",
+    "description": "Contains: Candy canes, Caramel sauce, Caramels, Hard candy, assorted, Peppermint bark (+11 more)",
+    "ingredient_count": 16
+  },
+  {
+    "name": "Edible Decor",
+    "slug": "edible_decor",
+    "category_slug": "decorations_candies",
+    "description": "Contains: Edible glitter, Edible pearls, Chocolate, cocoa nibs",
+    "ingredient_count": 3
+  },
+  {
+    "name": "Other",
+    "slug": "other",
+    "category_slug": "decorations_candies",
+    "description": "Contains: Almond paste, Fondant, Gum paste, Marshmallows, Marzipan (+2 more)",
+    "ingredient_count": 7
+  },
+  {
+    "name": "Sprinkles & Nonpareils",
+    "slug": "sprinkles_nonpareils",
+    "category_slug": "decorations_candies",
+    "description": "Contains: Nonpareils, Sprinkles, chocolate, Sprinkles, rainbow, Sanding sugar, Sugar, pearl (+1 more)",
+    "ingredient_count": 6
+  },
+  {
+    "name": "Butter & Margarine",
+    "slug": "butter_margarine",
+    "category_slug": "fats_oils",
+    "description": "Contains: Butter, clarified, Butter, salted, Butter, unsalted",
+    "ingredient_count": 3
+  },
+  {
+    "name": "Oils",
+    "slug": "oils",
+    "category_slug": "fats_oils",
+    "description": "Contains: Oil, avocado, Oil, canola, Oil, coconut, Oil, grapeseed, Oil, olive (+2 more)",
+    "ingredient_count": 7
+  },
+  {
+    "name": "Other Fats",
+    "slug": "other_fats",
+    "category_slug": "fats_oils",
+    "description": "Contains: Baking spray, Oil, spray, Cooking spray, Cocoa butter, Lard (+2 more)",
+    "ingredient_count": 7
+  },
+  {
+    "name": "Jams & Jellies",
+    "slug": "jams_jellies",
+    "category_slug": "spreads",
+    "description": "Contains: Jelly, currant",
+    "ingredient_count": 1
+  },
+  {
+    "name": "Nuts & Seeds",
+    "slug": "nut_seed_spreads",
+    "category_slug": "spreads",
+    "description": "Contains: Almond butter, Hazelnut cocoa spread, Tahini, Peanut butter, crunchy, Peanut butter, smooth (+1 more)",
+    "ingredient_count": 6
+  },
+  {
+    "name": "Meals",
+    "slug": "meals",
+    "category_slug": "flours_starches",
+    "description": "Contains: Almond meal, Cornmeal",
+    "ingredient_count": 2
+  },
+  {
+    "name": "Other Flours",
+    "slug": "other_flours",
+    "category_slug": "flours_starches",
+    "description": "Contains: Buckwheat flour, Coconut flour, Gluten-free flour blend, Oat flour, Flour, almond (+12 more)",
+    "ingredient_count": 17
+  },
+  {
+    "name": "Starches",
+    "slug": "starches",
+    "category_slug": "flours_starches",
+    "description": "Contains: Arrowroot starch, Cornstarch, Potato starch, Tapioca starch",
+    "ingredient_count": 4
+  },
+  {
+    "name": "Wheat Flours",
+    "slug": "wheat_flours",
+    "category_slug": "flours_starches",
+    "description": "Contains: Bread flour, Cake flour, Flour, all-purpose, Flour, pastry, Pastry flour (+2 more)",
+    "ingredient_count": 7
+  },
+  {
+    "name": "Dried Fruits",
+    "slug": "dried_fruits",
+    "category_slug": "fruits_dried_fruits",
+    "description": "Contains: Apricots, dried, Cherries, dried, Cranberries, dried, Currants, dried, Dates, pitted (+7 more)",
+    "ingredient_count": 12
+  },
+  {
+    "name": "Fresh, frozen & canned fruits",
+    "slug": "fresh_frozen_canned_fruits",
+    "category_slug": "fruits_dried_fruits",
+    "description": "Contains: Apples, Applesauce, unsweetened, Apricots, Bananas, Blueberries (+9 more)",
+    "ingredient_count": 14
+  },
+  {
+    "name": "Juices",
+    "slug": "juices",
+    "category_slug": "fruits_dried_fruits",
+    "description": "Contains: Lemon juice, Lime juice, Orange juice",
+    "ingredient_count": 3
+  },
+  {
+    "name": "Purees",
+    "slug": "purees",
+    "category_slug": "fruits_dried_fruits",
+    "description": "Contains: Pumpkin puree",
+    "ingredient_count": 1
+  },
+  {
+    "name": "Stabilizers",
+    "slug": "stabilizers",
+    "category_slug": "leaveners_stabilizers",
+    "description": "Contains: Cream of tartar",
+    "ingredient_count": 1
+  },
+  {
+    "name": "Leaveners",
+    "slug": "leaveners",
+    "category_slug": "leaveners_stabilizers",
+    "description": "Contains: Baking powder, Baking soda, Ammonium bicarbonate",
+    "ingredient_count": 3
+  },
+  {
+    "name": "Yeasts",
+    "slug": "yeasts",
+    "category_slug": "leaveners_stabilizers",
+    "description": "Contains: Yeast, active dry, Yeast, fresh, Yeast, instant, Sourdough starter",
+    "ingredient_count": 4
+  },
+  {
+    "name": "Coffee & Tea",
+    "slug": "coffee_tea",
+    "category_slug": "liquids",
+    "description": "Contains: Coffee, brewed, Tea, brewed",
+    "ingredient_count": 2
+  },
+  {
+    "name": "Juices & Ciders",
+    "slug": "juices_ciders",
+    "category_slug": "liquids",
+    "description": "Contains: Apple cider, Apple juice, Grape juice, Vinegar, apple cider",
+    "ingredient_count": 4
+  },
+  {
+    "name": "Other Liquids",
+    "slug": "other_liquids",
+    "category_slug": "liquids",
+    "description": "Contains: Coconut milk, canned, Milk alternative, almond, Milk alternative, oat, Milk alternative, soy",
+    "ingredient_count": 4
+  },
+  {
+    "name": "Vinegars",
+    "slug": "vinegars",
+    "category_slug": "liquids",
+    "description": "Contains: Vinegar, white",
+    "ingredient_count": 1
+  },
+  {
+    "name": "Water",
+    "slug": "water_subcategory",
+    "category_slug": "liquids",
+    "description": "Contains: Water",
+    "ingredient_count": 1
+  },
+  {
+    "name": "Liqueurs",
+    "slug": "liqueurs",
+    "category_slug": "liquors",
+    "description": "Contains: Cr\u00e8me de cassis, Coffee Liqueur, Hazelnut Liqueur, Liqueur, chocolate, Liqueur, orange (+2 more)",
+    "ingredient_count": 7
+  },
+  {
+    "name": "Wiskeys",
+    "slug": "wiskeys",
+    "category_slug": "liquors",
+    "description": "Contains: Bourbon, Whiskey, Irish",
+    "ingredient_count": 2
+  },
+  {
+    "name": "Brandy",
+    "slug": "brandy",
+    "category_slug": "liquors",
+    "description": "Contains: Calvados, Peach Schnapps",
+    "ingredient_count": 2
+  },
+  {
+    "name": "Rums",
+    "slug": "rums",
+    "category_slug": "liquors",
+    "description": "Contains: Rum, dark, Rum, amber, Rum, white",
+    "ingredient_count": 3
+  },
+  {
+    "name": "Vodka",
+    "slug": "vodka",
+    "category_slug": "liquors",
+    "description": "Contains: Vodka, flavored, Vodka, plain",
+    "ingredient_count": 2
+  },
+  {
+    "name": "Peanuts",
+    "slug": "peanuts_subcategory",
+    "category_slug": "nuts_seeds",
+    "description": "Contains: Peanuts",
+    "ingredient_count": 1
+  },
+  {
+    "name": "Seeds",
+    "slug": "seeds",
+    "category_slug": "nuts_seeds",
+    "description": "Contains: Chia seeds, Flaxseed meal, Flaxseed, whole, Poppy seeds, Pumpkin seeds (+2 more)",
+    "ingredient_count": 7
+  },
+  {
+    "name": "Tree Nuts",
+    "slug": "tree_nuts",
+    "category_slug": "nuts_seeds",
+    "description": "Contains: Almonds, Brazil nuts, Cashews, Hazelnuts, Macadamia nuts (+9 more)",
+    "ingredient_count": 14
+  },
+  {
+    "name": "Extracts",
+    "slug": "extracts",
+    "category_slug": "extracts_flavorings",
+    "description": "Contains: Almond extract, Extract, chocolate, Extract, coconut, Extract, coffee, Extract, mint (+14 more)",
+    "ingredient_count": 19
+  },
+  {
+    "name": "Powders",
+    "slug": "powders",
+    "category_slug": "extracts_flavorings",
+    "description": "Contains: Espresso powder, Instant coffee granules, Matcha powder, Tea, matcha powder",
+    "ingredient_count": 4
+  },
+  {
+    "name": "Salts",
+    "slug": "salts",
+    "category_slug": "spices_herbs",
+    "description": "Contains: Salt, fine, Salt, kosher, Sea salt, flaky",
+    "ingredient_count": 3
+  },
+  {
+    "name": "Herbs, fresh",
+    "slug": "herbs_fresh",
+    "category_slug": "spices_herbs",
+    "description": "Contains: Ginger, fresh",
+    "ingredient_count": 1
+  },
+  {
+    "name": "Herbs, dried",
+    "slug": "herbs_dried",
+    "category_slug": "spices_herbs",
+    "description": "Contains: Basil, dried, Oregano, dried, Rosemary, dried, Sage, dried, Thyme, dried (+1 more)",
+    "ingredient_count": 6
+  },
+  {
+    "name": "Spices, Ground",
+    "slug": "spices_ground",
+    "category_slug": "spices_herbs",
+    "description": "Contains: Paprika, Lavender, culinary, Mace, ground, Coriander, ground, Allspice, ground (+13 more)",
+    "ingredient_count": 18
+  },
+  {
+    "name": "Spices, Whole & Pods",
+    "slug": "spices_whole_pods",
+    "category_slug": "spices_herbs",
+    "description": "Contains: Anise seed, Allspice, whole, Cardamom pods, Cinnamon sticks, Cloves, whole (+4 more)",
+    "ingredient_count": 9
+  },
+  {
+    "name": "Alternative Sweeteners",
+    "slug": "alternative_sweeteners",
+    "category_slug": "sugars_sweeteners",
+    "description": "Contains: Sweetener, stevia, Swerve sweetener, Honey",
+    "ingredient_count": 3
+  },
+  {
+    "name": "Brown Sugars",
+    "slug": "brown_sugars",
+    "category_slug": "sugars_sweeteners",
+    "description": "Contains: Muscovado sugar, Sugar, brown dark, Sugar, brown light",
+    "ingredient_count": 3
+  },
+  {
+    "name": "Granulated & White Sugars",
+    "slug": "granulated_white_sugars",
+    "category_slug": "sugars_sweeteners",
+    "description": "Contains: Sugar, granulated, Sugar, superfine, Vanilla sugar, Sugar, powdered",
+    "ingredient_count": 4
+  },
+  {
+    "name": "Raw & Specialty Sugars",
+    "slug": "raw_specialty_sugars",
+    "category_slug": "sugars_sweeteners",
+    "description": "Contains: Demerara sugar, Turbinado sugar",
+    "ingredient_count": 2
+  },
+  {
+    "name": "Syrups & Molasses",
+    "slug": "syrups_molasses",
+    "category_slug": "sugars_sweeteners",
+    "description": "Contains: Agave syrup, Brown rice syrup, Corn syrup, dark, Corn syrup, light, Glucose syrup (+8 more)",
+    "ingredient_count": 13
+  }
+]

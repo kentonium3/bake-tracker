@@ -1,0 +1,521 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<opml version="2.0">
+  <head>
+    <title></title>
+    <flavor>dynalist</flavor>
+    <source>https://dynalist.io</source>
+    <ownerName>Kent Gale</ownerName>
+    <ownerEmail>kent@intentional.biz</ownerEmail>
+  </head>
+  <body>
+    <outline text="ingredient_taxonomy_workbench_seeded">
+      <outline text="Additives &amp; Thickeners">
+        <outline text="Gelling Agents">
+          <outline text="Agar agar powder [1] delete"/>
+          <outline text="Gelatin powder [140]"/>
+          <outline text="Gelatin sheets [141]"/>
+          <outline text="Pectin [247]"/>
+        </outline>
+        <outline text="Gums">
+          <outline text="Guar gum [153]"/>
+          <outline text="Xanthan gum [335]"/>
+        </outline>
+        <outline text="Other Additives delete">
+          <outline text="Granola [149] delete"/>
+        </outline>
+      </outline>
+      <outline text="Chocolate &amp; Cocoa">
+        <outline text="Bars &amp; Baking Chocolate">
+          <outline text="Chocolate, baking bittersweet [60]"/>
+          <outline text="Chocolate, baking semi-sweet [62]"/>
+          <outline text="Chocolate, baking unsweetened [63]"/>
+        </outline>
+        <outline text="Chips &amp; Chunks">
+          <outline text="Chocolate chips, bittersweet [64]"/>
+          <outline text="Chocolate chips, dark [65]"/>
+          <outline text="Chocolate chips, espresso [66]"/>
+          <outline text="Chocolate chips, milk [67]"/>
+          <outline text="Chocolate chips, semi-sweet [68]"/>
+          <outline text="Chocolate chips, semi-sweet, allergen-free [69]"/>
+          <outline text="Chocolate chips, white [70]"/>
+          <outline text="Chocolate chunks, semi-sweet [71]"/>
+          <outline text="Cinnamon baking chips [84]"/>
+          <outline text="Mini chocolate chips, semi-sweet [210]"/>
+          <outline text="Mint chocolate baking chips [81]"/>
+          <outline text="Ruby chocolate callets [82]"/>
+        </outline>
+        <outline text="Chocolate (Other) delete">
+          <outline text="Chocolate syrup [83] delete"/>
+          <outline text="Chocolate, baking milk [61] delete"/>
+        </outline>
+        <outline text="Candy melts">
+          <outline text="Chocolate coating, milk chocolate [72]"/>
+          <outline text="Candy melts, colored [46]"/>
+          <outline text="Candy melts, white [47]"/>
+        </outline>
+        <outline text="Couverture">
+          <outline text="Chocolate couverture, ruby [77]"/>
+          <outline text="Chocolate, couverture dark [75]"/>
+          <outline text="Chocolate, couverture milk [76]"/>
+          <outline text="Chocolate, couverture white [78]"/>
+          <outline text="Couverture chocolate [74] delete"/>
+        </outline>
+        <outline text="Chocolate Wafers">
+          <outline text="Baking wafers, chocolate [24]"/>
+          <outline text="Baking wafers, vanilla [25]"/>
+        </outline>
+        <outline text="Cocoa Powders">
+          <outline text="Cocoa powder, black [90]"/>
+          <outline text="Cocoa powder, dutch-processed [91]"/>
+          <outline text="Cocoa powder, natural [92]"/>
+          <outline text="Cocoa powder, red [???]"/>
+          <outline text="Malt powder [183]"/>
+        </outline>
+      </outline>
+      <outline text="Dairy &amp; Eggs">
+        <outline text="Cheese">
+          <outline text="Cheddar cheese [55]"/>
+          <outline text="Cottage cheese [107]"/>
+          <outline text="Mascarpone cheese [196]"/>
+          <outline text="Parmesan cheese [239]"/>
+          <outline text="Ricotta cheese [272]"/>
+          <outline text="Ricotta [271]"/>
+          <outline text="Cream cheese [110]"/>
+        </outline>
+        <outline text="Eggs">
+          <outline text="Egg whites [120]"/>
+          <outline text="Egg yolks [121]"/>
+          <outline text="Eggs, whole [122]"/>
+        </outline>
+        <outline text="Milk &amp; Cream">
+          <outline text="Cream, heavy [111]"/>
+          <outline text="Cream, light [112]"/>
+          <outline text="Milk powder, nonfat [205]"/>
+          <outline text="Milk powder, whole [206]"/>
+          <outline text="Milk, 2% [198]"/>
+          <outline text="Milk, buttermilk [202]"/>
+          <outline text="Milk, condensed sweetened [203]"/>
+          <outline text="Milk, evaporated [204]"/>
+          <outline text="Milk, skim [207]"/>
+          <outline text="Milk, whole [208]"/>
+          <outline text="Powdered milk, malted [261]"/>
+        </outline>
+        <outline text="Other Dairy">
+          <outline text="Crème fraîche [114]"/>
+          <outline text="Mascarpone [195]"/>
+          <outline text="Sour cream [290]"/>
+        </outline>
+        <outline text="Yogurt">
+          <outline text="Greek yogurt, plain [152]"/>
+          <outline text="Yogurt, plain [339]"/>
+        </outline>
+      </outline>
+      <outline text="Decorations &amp; Candies">
+        <outline text="Colorants">
+          <outline text="Liquid [???]"/>
+          <outline text="Gel [???]"/>
+          <outline text="Paste [138]"/>
+          <outline text="Powder [???]"/>
+        </outline>
+        <outline text="Baking Chips &amp; Bits (Non-chocolate)">
+          <outline text="Butterscotch chips [40]"/>
+          <outline text="Caramel bits [48]"/>
+        </outline>
+        <outline text="Candied Fruit">
+          <outline text="Candied cherries [42]"/>
+          <outline text="Cherries, maraschino [58]"/>
+          <outline text="Candied citrus peel [43]"/>
+          <outline text="Candied ginger [44]"/>
+          <outline text="Fruit, candied mixed [139]"/>
+          <outline text="Pineapple, candied [253]"/>
+        </outline>
+        <outline text="Candy Pieces">
+          <outline text="Candy canes [45]"/>
+          <outline text="Caramel sauce [49]"/>
+          <outline text="Caramels [50]"/>
+          <outline text="Hard candy, assorted [156]"/>
+          <outline text="Peppermint bark [249]"/>
+          <outline text="Mint chocolate candies [212]"/>
+          <outline text="Toblerone chocolate [315]"/>
+          <outline text="Toffee bits [316]"/>
+          <outline text="Chocolate, kisses, dark [80]"/>
+          <outline text="M&amp;M&apos;s, peanut [186]"/>
+          <outline text="M&amp;M&apos;s, plain chocolate [187]"/>
+          <outline text="Malted milk balls [185]"/>
+          <outline text="Jelly beans [162]"/>
+          <outline text="Gumdrops [155]"/>
+          <outline text="Peppermints [251]"/>
+          <outline text="Chocolate-covered candies, assorted [79]"/>
+        </outline>
+        <outline text="Edible Decor">
+          <outline text="Edible glitter [118]"/>
+          <outline text="Edible pearls [119]"/>
+          <outline text="Chocolate, cocoa nibs [73]"/>
+        </outline>
+        <outline text="Other">
+          <outline text="Almond paste [9]"/>
+          <outline text="Fondant [137]"/>
+          <outline text="Gum paste [154]"/>
+          <outline text="Licorice, black [170] delete"/>
+          <outline text="Licorice, red [171] delete"/>
+          <outline text="Marshmallows [193]"/>
+          <outline text="Marzipan [194]"/>
+          <outline text="Mini marshmallows [211]"/>
+          <outline text="Pretzels [262] delete"/>
+          <outline text="Royal icing mix [274]"/>
+        </outline>
+        <outline text="Sprinkles &amp; Nonpareils">
+          <outline text="Nonpareils [217]"/>
+          <outline text="Sprinkles, chocolate [295]"/>
+          <outline text="Sprinkles, rainbow [296]"/>
+          <outline text="Sanding sugar [281]"/>
+          <outline text="Sugar, pearl [302]"/>
+          <outline text="Sugar, sanding [304]"/>
+        </outline>
+      </outline>
+      <outline text="Fats &amp; Oils">
+        <outline text="Butter &amp; Margarine">
+          <outline text="Butter, clarified [37]"/>
+          <outline text="Butter, salted [38]"/>
+          <outline text="Butter, unsalted [39]"/>
+        </outline>
+        <outline text="Oils">
+          <outline text="Oil, avocado [226]"/>
+          <outline text="Oil, canola [227]"/>
+          <outline text="Oil, coconut [228]"/>
+          <outline text="Oil, grapeseed [229]"/>
+          <outline text="Oil, olive [230]"/>
+          <outline text="Oil, sunflower [231]"/>
+          <outline text="Oil, vegetable [232]"/>
+        </outline>
+        <outline text="Other Fats">
+          <outline text="Baking spray [23]"/>
+          <outline text="Oil, spray [341]"/>
+          <outline text="Cooking spray [100]"/>
+          <outline text="Cocoa butter [89]"/>
+          <outline text="Lard [164]"/>
+          <outline text="Margarine [191]"/>
+          <outline text="Shortening [287]"/>
+        </outline>
+      </outline>
+      <outline text="Spreads">
+        <outline text="Jams &amp; Jellies">
+          <outline text="Jelly, currant [163]"/>
+        </outline>
+        <outline text="Nuts &amp; Seeds">
+          <outline text="Almond butter [6]"/>
+          <outline text="Hazelnut cocoa spread [218]"/>
+          <outline text="Tahini [310]"/>
+          <outline text="Peanut butter, crunchy [241]"/>
+          <outline text="Peanut butter, smooth [242]"/>
+          <outline text="Speculoos cookie butter [29]"/>
+        </outline>
+      </outline>
+      <outline text="Flours &amp; Starches">
+        <outline text="Meals">
+          <outline text="Almond meal [8]"/>
+          <outline text="Cornmeal [105]"/>
+        </outline>
+        <outline text="Other Flours">
+          <outline text="Buckwheat flour [36]"/>
+          <outline text="Coconut flour [94]"/>
+          <outline text="Gluten-free flour blend [146]"/>
+          <outline text="Oat flour [223]"/>
+          <outline text="Flour, almond [136]"/>
+          <outline text="Flour, hazelnut [157]"/>
+          <outline text="Flour, rice [270]"/>
+          <outline text="Flour, semolina [285]"/>
+          <outline text="Flour, sorghum [289]"/>
+          <outline text="Graham cracker crumbs [148]"/>
+          <outline text="Oats, quick [224]"/>
+          <outline text="Oats, rolled [225]"/>
+          <outline text="Pecan flour [245]"/>
+          <outline text="Rye flour [277]"/>
+          <outline text="Self-rising flour [284]"/>
+          <outline text="Spelt flour [292]"/>
+          <outline text="Vital wheat gluten [326]"/>
+        </outline>
+        <outline text="Starches">
+          <outline text="Arrowroot starch [20]"/>
+          <outline text="Cornstarch [106]"/>
+          <outline text="Potato starch [260]"/>
+          <outline text="Tapioca starch [311]"/>
+          <outline text="Corn flakes [102] delete"/>
+          <outline text="Rice cereal, crisp [269] delete"/>
+        </outline>
+        <outline text="Wheat Flours">
+          <outline text="Bread flour [34]"/>
+          <outline text="Cake flour [41]"/>
+          <outline text="Flour, all-purpose [3]"/>
+          <outline text="Flour, pastry [340]"/>
+          <outline text="Pastry flour [240]"/>
+          <outline text="White whole wheat flour [333]"/>
+          <outline text="Whole wheat flour [334]"/>
+        </outline>
+      </outline>
+      <outline text="Fruits &amp; Dried Fruits">
+        <outline text="Dried Fruits">
+          <outline text="Apricots, dried [19]"/>
+          <outline text="Cherries, dried [56]"/>
+          <outline text="Cranberries, dried [109]"/>
+          <outline text="Currants, dried [115]"/>
+          <outline text="Dates, pitted [116]"/>
+          <outline text="Figs, dried [133]"/>
+          <outline text="Mango, dried [188]"/>
+          <outline text="Pears, dried [244]"/>
+          <outline text="Pineapple, dried [256]"/>
+          <outline text="Prunes [263]"/>
+          <outline text="Raisins [267]"/>
+          <outline text="Mincemeat [209]"/>
+        </outline>
+        <outline text="Fresh, frozen &amp; canned fruits">
+          <outline text="Apples [17]"/>
+          <outline text="Applesauce, unsweetened [18]"/>
+          <outline text="Apricot glaze [144] delete"/>
+          <outline text="Apricots [???]"/>
+          <outline text="Bananas [26]"/>
+          <outline text="Blueberries [30]"/>
+          <outline text="Cherries, fresh [57]"/>
+          <outline text="Cranberries [108]"/>
+          <outline text="Lemon, whole [168]"/>
+          <outline text="Lime, whole [173]"/>
+          <outline text="Orange, whole [235]"/>
+          <outline text="Pineapple, crushed [254]"/>
+          <outline text="Pineapple, crushed canned [255]"/>
+          <outline text="Raspberries [268]"/>
+          <outline text="Strawberries [298]"/>
+        </outline>
+        <outline text="Juices">
+          <outline text="Lemon juice [167]"/>
+          <outline text="Lime juice [172]"/>
+          <outline text="Orange juice [234]"/>
+        </outline>
+        <outline text="Purees">
+          <outline text="Pumpkin puree [265]"/>
+          <outline text="Sweet potato puree [307] delete"/>
+        </outline>
+      </outline>
+      <outline text="Leaveners &amp; stabilizers">
+        <outline text="Stabilizers">
+          <outline text="Cream of tartar [113]"/>
+        </outline>
+        <outline text="Leaveners">
+          <outline text="Baking powder [21]"/>
+          <outline text="Baking soda [22]"/>
+          <outline text="Ammonium bicarbonate [12]"/>
+        </outline>
+        <outline text="Yeasts">
+          <outline text="Yeast, active dry [336]"/>
+          <outline text="Yeast, fresh [337]"/>
+          <outline text="Yeast, instant [338]"/>
+          <outline text="Sourdough starter [291]"/>
+        </outline>
+      </outline>
+      <outline text="Liquids">
+        <outline text="Coffee &amp; Tea">
+          <outline text="Coffee, brewed [99]"/>
+          <outline text="Tea, brewed [312]"/>
+        </outline>
+        <outline text="Juices &amp; Ciders">
+          <outline text="Apple cider [14]"/>
+          <outline text="Apple juice [15]"/>
+          <outline text="Grape juice [150]"/>
+          <outline text="Vinegar, apple cider [324]"/>
+        </outline>
+        <outline text="Other Liquids">
+          <outline text="Coconut milk, canned [95]"/>
+          <outline text="Milk alternative, almond [199]"/>
+          <outline text="Milk alternative, oat [200]"/>
+          <outline text="Milk alternative, soy [201]"/>
+        </outline>
+        <outline text="Vinegars">
+          <outline text="Vinegar, white [325]"/>
+        </outline>
+        <outline text="Water">
+          <outline text="Water [331]"/>
+        </outline>
+      </outline>
+      <outline text="Liquors">
+        <outline text="Liqueurs">
+          <outline text="Crème de cassis [175]"/>
+          <outline text="Coffee Liqueur [177]"/>
+          <outline text="Hazelnut Liqueur [178]"/>
+          <outline text="Liqueur, chocolate [176]"/>
+          <outline text="Liqueur, orange [179]"/>
+          <outline text="Raspberry Liqueur [180]"/>
+          <outline text="Amaretto [11]"/>
+        </outline>
+        <outline text="Wiskeys">
+          <outline text="Bourbon [31]"/>
+          <outline text="Whiskey, Irish [332]"/>
+        </outline>
+        <outline text="Brandy [32]">
+          <outline text="Calvados [???]"/>
+          <outline text="Peach Schnapps [282]"/>
+        </outline>
+        <outline text="Rums [???]">
+          <outline text="Rum, dark [275]"/>
+          <outline text="Rum, amber [???]"/>
+          <outline text="Rum, white [???]"/>
+        </outline>
+        <outline text="Vodka [???]">
+          <outline text="Vodka, flavored"/>
+          <outline text="Vodka, plain [327]"/>
+        </outline>
+      </outline>
+      <outline text="Nuts &amp; Seeds">
+        <outline text="Peanuts">
+          <outline text="Peanuts [243]"/>
+        </outline>
+        <outline text="Seeds">
+          <outline text="Chia seeds [59]"/>
+          <outline text="Flaxseed meal [134]"/>
+          <outline text="Flaxseed, whole [135]"/>
+          <outline text="Poppy seeds [259]"/>
+          <outline text="Pumpkin seeds [266]"/>
+          <outline text="Sesame seeds [286]"/>
+          <outline text="Sunflower seeds [306]"/>
+        </outline>
+        <outline text="Tree Nuts">
+          <outline text="Almonds [10]"/>
+          <outline text="Brazil nuts [33]"/>
+          <outline text="Cashews [53]"/>
+          <outline text="Hazelnuts [158]"/>
+          <outline text="Macadamia nuts [181]"/>
+          <outline text="Pecans [246]"/>
+          <outline text="Pine nuts [252]"/>
+          <outline text="Pistachios [258]"/>
+          <outline text="Walnuts [328]"/>
+          <outline text="Walnuts, chopped [329]"/>
+          <outline text="Walnuts, halves [330]"/>
+          <outline text="Coconut, shredded sweetened [96]"/>
+          <outline text="Coconut, shredded unsweetened [97]"/>
+          <outline text="Coconut flakes [93]"/>
+        </outline>
+      </outline>
+      <outline text="Extracts &amp; Flavorings">
+        <outline text="Extracts">
+          <outline text="Almond extract [7]"/>
+          <outline text="Extract, chocolate [124]"/>
+          <outline text="Extract, coconut [125]"/>
+          <outline text="Extract, coffee [126]"/>
+          <outline text="Extract, mint [127]"/>
+          <outline text="Extract, raspberry [128]"/>
+          <outline text="Extract, vanilla, Mexican [129]"/>
+          <outline text="Extract, vanilla, oak-aged [130]"/>
+          <outline text="Extract, vanilla, spiced [131]"/>
+          <outline text="Lemon extract [166]"/>
+          <outline text="Maple extract [189]"/>
+          <outline text="Orange extract [233]"/>
+          <outline text="Peppermint extract [250]"/>
+          <outline text="Pistachio extract [257]"/>
+          <outline text="Rum extract [276]"/>
+          <outline text="Vanilla extract [319]"/>
+          <outline text="Vanilla paste [320]"/>
+          <outline text="Vanilla powder, extract blend [321]"/>
+          <outline text="Vanilla powder, pure [322]"/>
+        </outline>
+        <outline text="Other Spices &amp; Extracts delete">
+          <outline text="Grapefruit zest [151] delete"/>
+          <outline text="Lemon zest [169] delete"/>
+          <outline text="Lime zest [174] delete"/>
+          <outline text="Orange zest [236] delete"/>
+        </outline>
+        <outline text="Powders">
+          <outline text="Espresso powder [123]"/>
+          <outline text="Instant coffee granules [160]"/>
+          <outline text="Matcha powder [197]"/>
+          <outline text="Tea, matcha powder [313]"/>
+        </outline>
+      </outline>
+      <outline text="Spices &amp; Herbs">
+        <outline text="Salts">
+          <outline text="Salt, fine [279]"/>
+          <outline text="Salt, kosher [280]"/>
+          <outline text="Sea salt, flaky [283]"/>
+        </outline>
+        <outline text="Herbs, fresh">
+          <outline text="Ginger, fresh [142]"/>
+        </outline>
+        <outline text="Herbs, dried">
+          <outline text="Basil, dried [27]"/>
+          <outline text="Bay leaves [28] delete"/>
+          <outline text="Oregano, dried [237]"/>
+          <outline text="Rosemary, dried [273]"/>
+          <outline text="Sage, dried [278]"/>
+          <outline text="Thyme, dried [314]"/>
+          <outline text="Marjoram, dried [192]"/>
+        </outline>
+        <outline text="Spices, Ground">
+          <outline text="Paprika [238]"/>
+          <outline text="Lavender, culinary [165]"/>
+          <outline text="Mace, ground [182]"/>
+          <outline text="Coriander, ground [101]"/>
+          <outline text="Allspice, ground [4]"/>
+          <outline text="Apple pie spice [16]"/>
+          <outline text="Cardamom, ground [51]"/>
+          <outline text="Cayenne pepper [54]"/>
+          <outline text="Cinnamon, ground [85]"/>
+          <outline text="Cloves, ground [87]"/>
+          <outline text="Ginger, ground [143]"/>
+          <outline text="Nutmeg, ground [219]"/>
+          <outline text="Nutmeg, ground, East Indian [220]"/>
+          <outline text="Nutmeg, ground, West Indian [221]"/>
+          <outline text="Pepper, black ground [248]"/>
+          <outline text="Pumpkin pie spice [264]"/>
+          <outline text="Spice blend, Chinese five spice [293]"/>
+          <outline text="Star anise [297]"/>
+        </outline>
+        <outline text="Spices, Whole &amp; Pods">
+          <outline text="Anise seed [13]"/>
+          <outline text="Allspice, whole [5]"/>
+          <outline text="Cardamom pods [52]"/>
+          <outline text="Cinnamon sticks [86]"/>
+          <outline text="Cloves, whole [88]"/>
+          <outline text="Fennel seeds [132]"/>
+          <outline text="Nutmeg, whole [222]"/>
+          <outline text="Vanilla bean [318]"/>
+          <outline text="Spice blend, mulling spices [294]"/>
+        </outline>
+      </outline>
+      <outline text="Sugars &amp; Sweeteners">
+        <outline text="Alternative Sweeteners">
+          <outline text="Sweetener, stevia [308]"/>
+          <outline text="Swerve sweetener [309]"/>
+          <outline text="Honey [159]"/>
+        </outline>
+        <outline text="Brown Sugars">
+          <outline text="Muscovado sugar [216]"/>
+          <outline text="Sugar, brown dark [299]"/>
+          <outline text="Sugar, brown light [300]"/>
+        </outline>
+        <outline text="Granulated &amp; White Sugars">
+          <outline text="Coconut sugar [98] delete"/>
+          <outline text="Sugar, granulated [301]"/>
+          <outline text="Sugar, superfine [305]"/>
+          <outline text="Vanilla sugar [323]"/>
+          <outline text="Sugar, powdered [303]"/>
+        </outline>
+        <outline text="Raw &amp; Specialty Sugars">
+          <outline text="Demerara sugar [117]"/>
+          <outline text="Turbinado sugar [317]"/>
+        </outline>
+        <outline text="Syrups &amp; Molasses">
+          <outline text="Agave syrup [2]"/>
+          <outline text="Brown rice syrup [35]"/>
+          <outline text="Corn syrup, dark [103]"/>
+          <outline text="Corn syrup, light [104]"/>
+          <outline text="Glucose syrup [145]"/>
+          <outline text="Golden syrup [147]"/>
+          <outline text="Malt syrup [184]"/>
+          <outline text="Maple syrup [190]"/>
+          <outline text="Molasses, blackstrap [213]"/>
+          <outline text="Molasses, dark [214]"/>
+          <outline text="Molasses, light [215]"/>
+          <outline text="Simple syrup [288]"/>
+          <outline text="Invert sugar syrup [161]"/>
+        </outline>
+      </outline>
+    </outline>
+  </body>
+</opml>
