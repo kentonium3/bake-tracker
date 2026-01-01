@@ -655,7 +655,10 @@ def get_all_ingredients(
             "id": ing.id,
             "slug": ing.slug,
             "name": ing.display_name,
+            "display_name": ing.display_name,  # F031: UI expects this key
             "category": ing.category,
+            "hierarchy_level": ing.hierarchy_level,  # F031: hierarchy level (0/1/2)
+            "parent_ingredient_id": ing.parent_ingredient_id,  # F031: parent reference
             "density_volume_value": ing.density_volume_value,
             "density_volume_unit": ing.density_volume_unit,
             "density_weight_value": ing.density_weight_value,
