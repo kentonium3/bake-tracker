@@ -8,7 +8,7 @@ subtasks:
   - "T011"
 title: "Ingredients Level Filter"
 phase: "Phase 1 - Ingredients Tab"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "claude"
 shell_pid: "35513"
@@ -255,3 +255,4 @@ def _clear_filters(self):
 
 - 2025-12-31T23:59:00Z - system - lane=planned - Prompt created via /spec-kitty.tasks
 - 2026-01-01T18:05:26Z – claude – shell_pid=35513 – lane=doing – Started implementation
+- 2026-01-01T18:07:36Z – claude – shell_pid=35513 – lane=for_review – Ready for review - level filter implemented
