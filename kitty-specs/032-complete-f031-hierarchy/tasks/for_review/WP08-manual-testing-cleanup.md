@@ -15,7 +15,7 @@ subtasks:
   - "T052"
 title: "Manual Testing & Cleanup"
 phase: "Phase 4 - Validation & Testing"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "claude"
 shell_pid: "35513"
@@ -325,3 +325,4 @@ history:
 
 - 2025-12-31T23:59:00Z - system - lane=planned - Prompt created via /spec-kitty.tasks
 - 2026-01-01T18:25:46Z – claude – shell_pid=35513 – lane=doing – Starting code cleanup verification
+- 2026-01-01T18:26:46Z – claude – shell_pid=35513 – lane=for_review – Code cleanup verified - ready for manual testing
