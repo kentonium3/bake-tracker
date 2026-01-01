@@ -11,10 +11,10 @@ subtasks:
   - "T019"
 title: "Ingredient Edit Form Hierarchy"
 phase: "Phase 1 - Ingredients Tab"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "claude"
+shell_pid: "35513"
 review_status: ""
 reviewed_by: ""
 history:
@@ -391,3 +391,4 @@ def __init__(self, parent, ingredient_id=None, **kwargs):
 ## Activity Log
 
 - 2025-12-31T23:59:00Z - system - lane=planned - Prompt created via /spec-kitty.tasks
+- 2026-01-01T18:07:54Z – claude – shell_pid=35513 – lane=doing – Started implementation
