@@ -216,3 +216,4 @@ Leaf-only enforcement is applied in the right layer (services). Hierarchy moves 
 The underlying hierarchy implementation is solid, but the feature as specified in the F031 prompt is incomplete: **missing contract APIs and UI-service mismatches will cause runtime issues** (parent selection and tree search). Once the missing service functions + model APIs are added (or the prompt/spec is updated to match the intended architecture), the feature should be re-reviewed.
 
 
+
