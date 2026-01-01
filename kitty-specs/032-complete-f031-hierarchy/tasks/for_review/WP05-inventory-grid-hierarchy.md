@@ -9,7 +9,7 @@ subtasks:
   - "T031"
 title: "Inventory Grid Hierarchy"
 phase: "Phase 3 - Inventory Tab"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "claude"
 shell_pid: "35513"
@@ -232,3 +232,4 @@ def _build_inventory_hierarchy_cache(self) -> Dict[int, str]:
 
 - 2025-12-31T23:59:00Z - system - lane=planned - Prompt created via /spec-kitty.tasks
 - 2026-01-01T18:16:21Z – claude – shell_pid=35513 – lane=doing – Starting implementation
+- 2026-01-01T18:19:30Z – claude – shell_pid=35513 – lane=for_review – Ready for review - hierarchy filters replacing category
