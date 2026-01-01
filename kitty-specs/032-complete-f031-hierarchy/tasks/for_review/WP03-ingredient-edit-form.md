@@ -11,7 +11,7 @@ subtasks:
   - "T019"
 title: "Ingredient Edit Form Hierarchy"
 phase: "Phase 1 - Ingredients Tab"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "claude"
 shell_pid: "35513"
@@ -392,3 +392,4 @@ def __init__(self, parent, ingredient_id=None, **kwargs):
 
 - 2025-12-31T23:59:00Z - system - lane=planned - Prompt created via /spec-kitty.tasks
 - 2026-01-01T18:07:54Z – claude – shell_pid=35513 – lane=doing – Started implementation
+- 2026-01-01T18:12:15Z – claude – shell_pid=35513 – lane=for_review – Ready for review - cascading hierarchy dropdowns implemented
