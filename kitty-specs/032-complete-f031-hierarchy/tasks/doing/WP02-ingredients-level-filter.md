@@ -8,10 +8,10 @@ subtasks:
   - "T011"
 title: "Ingredients Level Filter"
 phase: "Phase 1 - Ingredients Tab"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "claude"
+shell_pid: "35513"
 review_status: ""
 reviewed_by: ""
 history:
@@ -254,3 +254,4 @@ def _clear_filters(self):
 ## Activity Log
 
 - 2025-12-31T23:59:00Z - system - lane=planned - Prompt created via /spec-kitty.tasks
+- 2026-01-01T18:05:26Z – claude – shell_pid=35513 – lane=doing – Started implementation
