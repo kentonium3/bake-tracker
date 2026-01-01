@@ -132,16 +132,16 @@ class IngredientsTab(ctk.CTkFrame):
         self.search_entry.grid(row=0, column=0, sticky="ew", padx=(0, PADDING_MEDIUM))
         self.search_entry.bind("<KeyRelease>", self._on_search)
 
-        # Category filter dropdown
-        self.category_var = ctk.StringVar(value="All Categories")
-        self.category_dropdown = ctk.CTkOptionMenu(
+        # Feature 032: Level filter dropdown (replaces category filter)
+        self.level_filter_var = ctk.StringVar(value="All Levels")
+        self.level_filter_dropdown = ctk.CTkOptionMenu(
             search_frame,
-            values=["All Categories"],  # Will be populated dynamically
-            variable=self.category_var,
-            command=self._on_category_change,
+            values=["All Levels", "Root Categories (L0)", "Subcategories (L1)", "Leaf Ingredients (L2)"],
+            variable=self.level_filter_var,
+            command=self._on_level_filter_change,
             width=200,
         )
-        self.category_dropdown.grid(row=0, column=1, padx=(0, PADDING_MEDIUM))
+        self.level_filter_dropdown.grid(row=0, column=1, padx=(0, PADDING_MEDIUM))
 
         # Feature 031: View toggle (Flat/Tree)
         self.view_var = ctk.StringVar(value="Flat")
@@ -369,8 +369,8 @@ class IngredientsTab(ctk.CTkFrame):
             )
             # Refresh tree
             self.ingredient_tree.refresh()
-            # Hide category filter (tree has its own navigation)
-            self.category_dropdown.configure(state="disabled")
+            # Hide level filter (tree has its own navigation)
+            self.level_filter_dropdown.configure(state="disabled")
             self.update_status("Tree view - navigate hierarchy")
         else:
             self._view_mode = "flat"
@@ -383,8 +383,8 @@ class IngredientsTab(ctk.CTkFrame):
                 padx=PADDING_LARGE,
                 pady=PADDING_MEDIUM,
             )
-            # Re-enable category filter
-            self.category_dropdown.configure(state="normal")
+            # Re-enable level filter
+            self.level_filter_dropdown.configure(state="normal")
             self._update_ingredient_display()
 
     def _on_hierarchy_tree_select(self, ingredient: Dict[str, Any]):
@@ -421,16 +421,6 @@ class IngredientsTab(ctk.CTkFrame):
         try:
             # Get all ingredients from service
             self.ingredients = ingredient_service.get_all_ingredients()
-
-            # Update category dropdown from actual database categories
-            # (same approach as Products tab for consistency)
-            categories = sorted(set(
-                ing.get("category", "")
-                for ing in self.ingredients
-                if ing.get("category")
-            ))
-            category_list = ["All Categories"] + categories
-            self.category_dropdown.configure(values=category_list)
 
             # Feature 031: Refresh based on current view mode
             if self._view_mode == "tree":
@@ -505,8 +495,16 @@ class IngredientsTab(ctk.CTkFrame):
             self.update_status(f"{count} ingredient{'s' if count != 1 else ''}")
 
     def _apply_filters(self, ingredients: List[dict]) -> List[dict]:
-        """Apply search, category filters, and sorting to ingredient list."""
+        """Apply search, level filters, and sorting to ingredient list."""
         filtered = ingredients
+
+        # Feature 032: Apply level filter
+        selected_level = self._get_selected_level()
+        if selected_level is not None:
+            filtered = [
+                ing for ing in filtered
+                if ing.get("hierarchy_level") == selected_level
+            ]
 
         # Apply search filter with diacritical normalization
         # (e.g., "creme" matches "crème", "cafe" matches "café")
@@ -516,11 +514,6 @@ class IngredientsTab(ctk.CTkFrame):
                 ing for ing in filtered
                 if search_text in normalize_for_search(ing.get("display_name") or ing.get("name", ""))
             ]
-
-        # Apply category filter (legacy - will be replaced in WP02)
-        category = self.category_var.get()
-        if category and category != "All Categories":
-            filtered = [ing for ing in filtered if ing.get("category") == category]
 
         # Sort by selected column - Feature 032: support hierarchy column sorting
         sort_key = getattr(self, "sort_column", "name")
@@ -558,14 +551,31 @@ class IngredientsTab(ctk.CTkFrame):
         else:
             self._update_ingredient_display()
 
-    def _on_category_change(self, category: str):
-        """Handle category filter change."""
+    def _on_level_filter_change(self, level: str):
+        """Handle level filter change (Feature 032)."""
         self._update_ingredient_display()
+
+    def _get_selected_level(self) -> Optional[int]:
+        """Convert level filter dropdown value to hierarchy level number.
+
+        Feature 032: Maps dropdown text to hierarchy_level values.
+
+        Returns:
+            0 for L0, 1 for L1, 2 for L2, or None for All Levels
+        """
+        value = self.level_filter_var.get()
+        level_map = {
+            "All Levels": None,
+            "Root Categories (L0)": 0,
+            "Subcategories (L1)": 1,
+            "Leaf Ingredients (L2)": 2,
+        }
+        return level_map.get(value)
 
     def _clear_filters(self):
         """Clear all filters and refresh display."""
         self.search_entry.delete(0, "end")
-        self.category_var.set("All Categories")
+        self.level_filter_var.set("All Levels")  # Feature 032: Reset level filter
         # Feature 031: Clear search based on view mode
         if self._view_mode == "tree":
             self.ingredient_tree.clear_search()
