@@ -11,10 +11,14 @@ Example: "All-Purpose Flour" as an ingredient concept, separate from
 from datetime import datetime
 from typing import Optional
 
-from sqlalchemy import Column, String, Text, DateTime, Float, JSON, Index, Boolean
-from sqlalchemy.orm import relationship
+from sqlalchemy import (
+    Column, String, Text, DateTime, Float, JSON, Index, Boolean,
+    Integer, ForeignKey, CheckConstraint
+)
+from sqlalchemy.orm import relationship, backref
 
 from .base import BaseModel
+from src.utils.datetime_utils import utc_now
 
 
 class Ingredient(BaseModel):
@@ -24,10 +28,19 @@ class Ingredient(BaseModel):
     This is the base catalog entry for an ingredient type. Multiple
     Products (brands, package sizes) can exist for each Ingredient.
 
+    Ingredients are organized in a three-tier hierarchy (Feature 031):
+    - Level 0 (root): Top-level categories (e.g., "Chocolate")
+    - Level 1 (mid): Sub-categories (e.g., "Dark Chocolate")
+    - Level 2 (leaf): Specific ingredients usable in recipes (e.g., "Semi-Sweet Chips")
+
+    Only leaf ingredients (level 2) can have Products or be used in Recipes.
+
     Attributes:
         display_name: Ingredient name (e.g., "All-Purpose Flour", "White Granulated Sugar")
         slug: URL-friendly identifier (e.g., "all_purpose_flour")
-        category: Category (e.g., "Flour", "Sugar", "Dairy")
+        parent_ingredient_id: FK to parent ingredient (None for root ingredients)
+        hierarchy_level: Position in hierarchy (0=root, 1=mid, 2=leaf)
+        category: Category (deprecated, retained for rollback safety)
         description: Optional detailed description
         notes: Additional notes
 
@@ -59,6 +72,18 @@ class Ingredient(BaseModel):
     slug = Column(
         String(200), nullable=True, unique=True, index=True
     )  # Will be required after migration
+
+    # Hierarchy fields (Feature 031)
+    # parent_ingredient_id enables self-referential parent-child relationships
+    # Nullable to support root ingredients (level 0) which have no parent
+    parent_ingredient_id = Column(
+        Integer, ForeignKey("ingredients.id"), nullable=True, index=True
+    )
+    # hierarchy_level: 0=root category, 1=mid-tier category, 2=leaf (usable in recipes)
+    # Default=2 ensures existing ingredients become leaves
+    hierarchy_level = Column(Integer, nullable=False, default=2)
+
+    # category field retained for rollback safety (deprecated - use hierarchy instead)
     category = Column(String(100), nullable=False, index=True)
 
     # Packaging indicator (Feature 011)
@@ -86,9 +111,9 @@ class Ingredient(BaseModel):
     allergens = Column(JSON, nullable=True)  # Array of allergen codes
 
     # Timestamps
-    date_added = Column(DateTime, nullable=False, default=datetime.utcnow)
+    date_added = Column(DateTime, nullable=False, default=utc_now)
     last_modified = Column(
-        DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow
+        DateTime, nullable=False, default=utc_now, onupdate=utc_now
     )
 
     # Relationships
@@ -99,11 +124,27 @@ class Ingredient(BaseModel):
         "RecipeIngredient", back_populates="ingredient", lazy="select"
     )
 
-    # Indexes for common queries
+    # Self-referential relationship for ingredient hierarchy (Feature 031)
+    # children: Query direct child ingredients of this parent
+    # parent: Access the parent ingredient (backref creates this automatically)
+    # lazy='dynamic' allows filtering children without loading all
+    children = relationship(
+        "Ingredient",
+        backref=backref("parent", remote_side="Ingredient.id"),
+        lazy="dynamic",
+        foreign_keys=[parent_ingredient_id],
+    )
+
+    # Indexes for common queries and hierarchy constraints
     __table_args__ = (
         Index("idx_ingredient_display_name", "display_name"),
         Index("idx_ingredient_category", "category"),
         Index("idx_ingredient_is_packaging", "is_packaging"),
+        # Hierarchy indexes for tree traversal performance (Feature 031)
+        Index("idx_ingredient_parent", "parent_ingredient_id"),
+        Index("idx_ingredient_hierarchy_level", "hierarchy_level"),
+        # CHECK constraint ensures hierarchy_level is valid (0=root, 1=mid, 2=leaf)
+        CheckConstraint("hierarchy_level IN (0, 1, 2)", name="ck_ingredient_hierarchy_level"),
     )
 
     def __repr__(self) -> str:
@@ -196,6 +237,54 @@ class Ingredient(BaseModel):
             f"{self.density_weight_value:g} {self.density_weight_unit}"
         )
 
+    # =========================================================================
+    # Hierarchy Methods (Feature 031)
+    # =========================================================================
+
+    @property
+    def is_leaf(self) -> bool:
+        """
+        Check if this ingredient is a leaf (usable in recipes/products).
+
+        Returns:
+            True if hierarchy_level == 2 (leaf), False otherwise
+        """
+        return self.hierarchy_level == 2
+
+    def get_ancestors(self) -> list:
+        """
+        Get path from this ingredient to the root (for breadcrumb display).
+
+        Returns:
+            List of ancestor Ingredient objects, ordered from immediate parent to root.
+            Empty list if this is a root ingredient.
+        """
+        ancestors = []
+        current = self.parent
+        while current is not None:
+            ancestors.append(current)
+            current = current.parent
+        return ancestors
+
+    def get_descendants(self) -> list:
+        """
+        Get all descendants (recursive) of this ingredient.
+
+        Returns:
+            List of all descendant Ingredient objects (all levels below this).
+            Empty list if this is a leaf ingredient.
+        """
+        descendants = []
+        self._collect_descendants(descendants)
+        return descendants
+
+    def _collect_descendants(self, descendants: list) -> None:
+        """Recursively collect all descendants into the provided list."""
+        # children is a dynamic relationship, need to call .all()
+        for child in self.children.all():
+            descendants.append(child)
+            child._collect_descendants(descendants)
+
     def to_dict(self, include_relationships: bool = False) -> dict:
         """
         Convert ingredient to dictionary.
@@ -207,6 +296,10 @@ class Ingredient(BaseModel):
             Dictionary representation
         """
         result = super().to_dict(include_relationships)
+
+        # Add computed hierarchy property (Feature 031)
+        # is_leaf indicates whether this ingredient can be used in recipes/products
+        result["is_leaf"] = self.hierarchy_level == 2
 
         if include_relationships:
             result["products"] = [p.to_dict(False) for p in self.products]

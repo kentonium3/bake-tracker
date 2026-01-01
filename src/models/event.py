@@ -31,6 +31,7 @@ from sqlalchemy.orm import relationship
 from .package_status import PackageStatus
 
 from .base import BaseModel
+from src.utils.datetime_utils import utc_now
 
 
 class FulfillmentStatus(str, Enum):
@@ -67,9 +68,9 @@ class Event(BaseModel):
     notes = Column(Text, nullable=True)
 
     # Timestamps
-    date_added = Column(DateTime, nullable=False, default=datetime.utcnow)
+    date_added = Column(DateTime, nullable=False, default=utc_now)
     last_modified = Column(
-        DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow
+        DateTime, nullable=False, default=utc_now, onupdate=utc_now
     )
 
     # Relationships

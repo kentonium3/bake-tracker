@@ -10,6 +10,7 @@ from datetime import datetime
 from sqlalchemy import Column, String, Text, DateTime, Index
 
 from .base import BaseModel
+from src.utils.datetime_utils import utc_now
 
 
 class Recipient(BaseModel):
@@ -35,9 +36,9 @@ class Recipient(BaseModel):
     notes = Column(Text, nullable=True)
 
     # Timestamps
-    date_added = Column(DateTime, nullable=False, default=datetime.utcnow)
+    date_added = Column(DateTime, nullable=False, default=utc_now)
     last_modified = Column(
-        DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow
+        DateTime, nullable=False, default=utc_now, onupdate=utc_now
     )
 
     # Indexes

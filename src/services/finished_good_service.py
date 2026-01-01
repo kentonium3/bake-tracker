@@ -20,6 +20,7 @@ from typing import List, Optional, Dict, Any, Set, Tuple
 import re
 import unicodedata
 from datetime import datetime
+from src.utils.datetime_utils import utc_now
 from collections import deque
 
 from sqlalchemy import and_, or_, text
@@ -369,7 +370,7 @@ class FinishedGoodService:
                     if hasattr(assembly, field):
                         setattr(assembly, field, value)
 
-                assembly.updated_at = datetime.utcnow()
+                assembly.updated_at = utc_now()
                 session.flush()
 
                 logger.info(f"Updated FinishedGood ID {finished_good_id}: {assembly.display_name}")
@@ -1351,7 +1352,7 @@ class FinishedGoodService:
                     "total_cost": float(total_cost),
                     "business_rules": assembly.assembly_type.get_business_rules(),
                     "component_limits": assembly.assembly_type.get_component_limits(),
-                    "validated_at": datetime.utcnow().isoformat(),
+                    "validated_at": utc_now().isoformat(),
                 }
 
                 logger.debug(f"Business rule validation for assembly {assembly_id}: {is_valid}")
@@ -1408,7 +1409,7 @@ class FinishedGoodService:
                     "profit_margin_percentage": float(
                         ((suggested_price - assembly.total_cost) / suggested_price) * 100
                     ),
-                    "calculated_at": datetime.utcnow().isoformat(),
+                    "calculated_at": utc_now().isoformat(),
                 }
 
                 logger.debug(f"Calculated pricing for assembly {assembly_id}: ${suggested_price}")

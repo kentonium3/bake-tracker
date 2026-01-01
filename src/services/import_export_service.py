@@ -8,6 +8,7 @@ for testing purposes. No UI required - designed for programmatic use.
 import json
 from typing import Dict, List, Optional, Tuple
 from datetime import datetime
+from src.utils.datetime_utils import utc_now
 from pathlib import Path
 
 from sqlalchemy.orm import joinedload
@@ -326,7 +327,7 @@ def export_ingredients_to_json(
         # Build export data
         export_data = {
             "version": "1.0",
-            "export_date": datetime.utcnow().isoformat() + "Z",
+            "export_date": utc_now().isoformat() + "Z",
             "source": f"{APP_NAME} v{APP_VERSION}",
             "ingredients": [],
         }
@@ -388,7 +389,7 @@ def export_recipes_to_json(
         # Build export data
         export_data = {
             "version": "1.0",
-            "export_date": datetime.utcnow().isoformat() + "Z",
+            "export_date": utc_now().isoformat() + "Z",
             "source": f"{APP_NAME} v{APP_VERSION}",
             "recipes": [],
         }
@@ -480,7 +481,7 @@ def export_finished_goods_to_json(
         # Build export data
         export_data = {
             "version": "1.0",
-            "export_date": datetime.utcnow().isoformat() + "Z",
+            "export_date": utc_now().isoformat() + "Z",
             "source": f"{APP_NAME} v{APP_VERSION}",
             "finished_goods": [],
         }
@@ -540,7 +541,7 @@ def export_bundles_to_json(file_path: str, include_all: bool = True) -> ExportRe
         # Build export data
         export_data = {
             "version": "1.0",
-            "export_date": datetime.utcnow().isoformat() + "Z",
+            "export_date": utc_now().isoformat() + "Z",
             "source": f"{APP_NAME} v{APP_VERSION}",
             "bundles": [],
         }
@@ -589,7 +590,7 @@ def export_packages_to_json(file_path: str, include_all: bool = True) -> ExportR
         # Build export data
         export_data = {
             "version": "1.0",
-            "export_date": datetime.utcnow().isoformat() + "Z",
+            "export_date": utc_now().isoformat() + "Z",
             "source": f"{APP_NAME} v{APP_VERSION}",
             "packages": [],
         }
@@ -645,7 +646,7 @@ def export_recipients_to_json(file_path: str, include_all: bool = True) -> Expor
         # Build export data
         export_data = {
             "version": "1.0",
-            "export_date": datetime.utcnow().isoformat() + "Z",
+            "export_date": utc_now().isoformat() + "Z",
             "source": f"{APP_NAME} v{APP_VERSION}",
             "recipients": [],
         }
@@ -700,7 +701,7 @@ def export_events_to_json(file_path: str, include_all: bool = True) -> ExportRes
         # Build export data
         export_data = {
             "version": "1.0",
-            "export_date": datetime.utcnow().isoformat() + "Z",
+            "export_date": utc_now().isoformat() + "Z",
             "source": f"{APP_NAME} v{APP_VERSION}",
             "events": [],
         }
@@ -1133,8 +1134,8 @@ def export_all_to_json(file_path: str) -> ExportResult:
 
         # Build combined export data - v3.5 format (Feature 027: suppliers and purchases with FK)
         export_data = {
-            "version": "3.5",
-            "exported_at": datetime.utcnow().isoformat() + "Z",
+            "version": "3.6",  # Feature 031: Added hierarchy fields
+            "exported_at": utc_now().isoformat() + "Z",
             "application": "bake-tracker",
             "suppliers": [],  # Feature 027: Suppliers before products (products reference suppliers)
             "ingredients": [],
@@ -1164,7 +1165,19 @@ def export_all_to_json(file_path: str) -> ExportResult:
                 "slug": ingredient.slug,
                 "category": ingredient.category,
                 "is_packaging": ingredient.is_packaging,  # Feature 011
+                # Feature 031: Hierarchy fields
+                "hierarchy_level": ingredient.hierarchy_level,
             }
+
+            # Feature 031: Parent reference uses slug for portability
+            if ingredient.parent_ingredient_id is not None:
+                # Look up parent's slug for export (more portable than ID)
+                parent = next(
+                    (i for i in ingredients if i.id == ingredient.parent_ingredient_id),
+                    None
+                )
+                if parent:
+                    ingredient_data["parent_slug"] = parent.slug
 
             # Optional fields
             if ingredient.description:
@@ -2301,7 +2314,7 @@ def import_production_runs_from_json(
                 try:
                     produced_at = datetime.fromisoformat(produced_at_str.replace("Z", "+00:00"))
                 except ValueError:
-                    produced_at = datetime.utcnow()
+                    produced_at = utc_now()
 
             # Create production run
             run = ProductionRun(
@@ -2373,7 +2386,7 @@ def import_assembly_runs_from_json(
                 try:
                     assembled_at = datetime.fromisoformat(assembled_at_str.replace("Z", "+00:00"))
                 except ValueError:
-                    assembled_at = datetime.utcnow()
+                    assembled_at = utc_now()
 
             # Create assembly run
             run = AssemblyRun(
@@ -2491,6 +2504,9 @@ def import_all_from_json_v3(file_path: str, mode: str = "merge") -> ImportResult
                             density_args["density_weight_value"] = ing.get("density_weight_value")
                             density_args["density_weight_unit"] = wgt_unit
 
+                        # Feature 031: hierarchy_level defaults to 2 (leaf) if not specified
+                        hierarchy_level = ing.get("hierarchy_level", 2)
+
                         ingredient = Ingredient(
                             display_name=ing.get("display_name"),
                             slug=slug,
@@ -2498,6 +2514,7 @@ def import_all_from_json_v3(file_path: str, mode: str = "merge") -> ImportResult
                             description=ing.get("description"),
                             notes=ing.get("notes"),
                             is_packaging=ing.get("is_packaging", False),  # Feature 011
+                            hierarchy_level=hierarchy_level,  # Feature 031
                             **density_args,
                         )
                         session.add(ingredient)
@@ -2507,6 +2524,32 @@ def import_all_from_json_v3(file_path: str, mode: str = "merge") -> ImportResult
 
             # Flush to get IDs for foreign keys
             session.flush()
+
+            # Feature 031: Second pass to resolve parent_slug references
+            if "ingredients" in data:
+                for ing in data["ingredients"]:
+                    parent_slug = ing.get("parent_slug")
+                    if parent_slug:
+                        try:
+                            slug = ing.get("slug", "")
+                            ingredient = session.query(Ingredient).filter_by(slug=slug).first()
+                            parent = session.query(Ingredient).filter_by(slug=parent_slug).first()
+                            if ingredient and parent:
+                                ingredient.parent_ingredient_id = parent.id
+                            elif ingredient and not parent:
+                                result.add_error(
+                                    "ingredient",
+                                    slug,
+                                    f"Parent slug '{parent_slug}' not found"
+                                )
+                        except Exception as e:
+                            result.add_error(
+                                "ingredient",
+                                ing.get("slug", "unknown"),
+                                f"Error resolving parent: {str(e)}"
+                            )
+
+                session.flush()
 
             # 1.5 Feature 027: Suppliers (before products, which reference them)
             if "suppliers" in data:

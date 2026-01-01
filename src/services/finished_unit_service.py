@@ -19,6 +19,7 @@ from typing import List, Optional, Dict, Any
 import re
 import unicodedata
 from datetime import datetime
+from src.utils.datetime_utils import utc_now
 
 from sqlalchemy import and_, or_, text
 from sqlalchemy.orm import Session, selectinload
@@ -362,7 +363,7 @@ class FinishedUnitService:
                     if hasattr(unit, field):
                         setattr(unit, field, value)
 
-                unit.updated_at = datetime.utcnow()
+                unit.updated_at = utc_now()
                 session.flush()
 
                 logger.info(f"Updated FinishedUnit ID {finished_unit_id}: {unit.display_name}")
@@ -464,7 +465,7 @@ class FinishedUnitService:
                     )
 
                 unit.inventory_count = new_count
-                unit.updated_at = datetime.utcnow()
+                unit.updated_at = utc_now()
                 session.flush()
 
                 logger.info(

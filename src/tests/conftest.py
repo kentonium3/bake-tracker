@@ -96,3 +96,155 @@ def sample_product(test_db, sample_ingredient):
             "preferred": True,
         },
     )
+
+
+@pytest.fixture(scope="function")
+def hierarchy_ingredients(test_db):
+    """Provide a sample ingredient hierarchy for testing leaf-only validation.
+
+    Creates:
+    - Chocolate (level 0, root)
+      - Dark Chocolate (level 1, mid-tier)
+        - Semi-Sweet Chips (level 2, leaf)
+        - Bittersweet Chips (level 2, leaf)
+    """
+    from src.models.ingredient import Ingredient
+
+    session = test_db()
+
+    # Root category
+    chocolate = Ingredient(
+        display_name="Test Chocolate",
+        slug="test-chocolate",
+        category="Chocolate",
+        hierarchy_level=0,
+        parent_ingredient_id=None,
+    )
+    session.add(chocolate)
+    session.flush()
+
+    # Mid-tier category
+    dark_chocolate = Ingredient(
+        display_name="Test Dark Chocolate",
+        slug="test-dark-chocolate",
+        category="Chocolate",
+        hierarchy_level=1,
+        parent_ingredient_id=chocolate.id,
+    )
+    session.add(dark_chocolate)
+    session.flush()
+
+    # Leaf ingredients
+    semi_sweet = Ingredient(
+        display_name="Test Semi-Sweet Chips",
+        slug="test-semi-sweet-chips",
+        category="Chocolate",
+        hierarchy_level=2,
+        parent_ingredient_id=dark_chocolate.id,
+    )
+    session.add(semi_sweet)
+
+    bittersweet = Ingredient(
+        display_name="Test Bittersweet Chips",
+        slug="test-bittersweet-chips",
+        category="Chocolate",
+        hierarchy_level=2,
+        parent_ingredient_id=dark_chocolate.id,
+    )
+    session.add(bittersweet)
+
+    session.commit()
+
+    class HierarchyData:
+        def __init__(self, root, mid, leaf1, leaf2):
+            self.root = root
+            self.mid = mid
+            self.leaf1 = leaf1
+            self.leaf2 = leaf2
+
+    return HierarchyData(chocolate, dark_chocolate, semi_sweet, bittersweet)
+
+
+@pytest.fixture(scope="function")
+def sample_hierarchy_from_json(test_db):
+    """Load sample hierarchy from JSON file for comprehensive testing (T042).
+
+    Loads test_data/sample_hierarchy.json which contains:
+    - 4 root categories (Chocolate, Dairy, Flours, Sugars)
+    - 12 mid-tier categories
+    - 32 leaf ingredients
+
+    Returns a dict with lists of ingredients by level and a lookup by ID.
+    """
+    import json
+    import os
+    from src.models.ingredient import Ingredient
+
+    session = test_db()
+
+    # Find the sample_hierarchy.json file
+    # Try multiple paths since test runner may have different cwd
+    possible_paths = [
+        "test_data/sample_hierarchy.json",
+        "../test_data/sample_hierarchy.json",
+        os.path.join(os.path.dirname(__file__), "../../test_data/sample_hierarchy.json"),
+    ]
+
+    data = None
+    for path in possible_paths:
+        try:
+            with open(path) as f:
+                data = json.load(f)
+            break
+        except FileNotFoundError:
+            continue
+
+    if data is None:
+        pytest.skip("sample_hierarchy.json not found")
+
+    records = data["records"]
+    by_id = {}
+    by_level = {0: [], 1: [], 2: []}
+
+    # Sort by level to ensure parents are created before children
+    sorted_records = sorted(records, key=lambda r: r.get("hierarchy_level", 2))
+
+    # Map old IDs to new IDs (database will assign new ones)
+    id_map = {}
+
+    for r in sorted_records:
+        old_id = r["id"]
+        parent_id = r.get("parent_ingredient_id")
+
+        # Map parent ID if needed
+        mapped_parent_id = id_map.get(parent_id) if parent_id else None
+
+        ingredient = Ingredient(
+            slug=r["slug"],
+            display_name=r["display_name"],
+            category=r.get("category") or r["display_name"],  # Use display_name if no category
+            hierarchy_level=r.get("hierarchy_level", 2),
+            parent_ingredient_id=mapped_parent_id,
+            description=r.get("description"),
+            is_packaging=r.get("is_packaging", False),
+        )
+        session.add(ingredient)
+        session.flush()  # Get the new ID
+
+        # Store mapping
+        id_map[old_id] = ingredient.id
+        by_id[ingredient.id] = ingredient
+        by_level[ingredient.hierarchy_level].append(ingredient)
+
+    session.commit()
+
+    class SampleHierarchy:
+        def __init__(self, by_id, by_level, id_map):
+            self.by_id = by_id
+            self.by_level = by_level
+            self.id_map = id_map
+            self.roots = by_level[0]
+            self.mid_tier = by_level[1]
+            self.leaves = by_level[2]
+
+    return SampleHierarchy(by_id, by_level, id_map)

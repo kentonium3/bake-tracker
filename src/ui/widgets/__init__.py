@@ -27,6 +27,7 @@ from src.ui.widgets.dropdown_builders import (
     CREATE_NEW_OPTION,
     STAR_PREFIX,
 )
+from src.ui.widgets.ingredient_tree_widget import IngredientTreeWidget
 
 __all__ = [
     # Base widget
@@ -55,4 +56,6 @@ __all__ = [
     "SEPARATOR",
     "CREATE_NEW_OPTION",
     "STAR_PREFIX",
+    # Feature 031 widgets
+    "IngredientTreeWidget",
 ]

@@ -14,6 +14,7 @@ Architecture Note (Feature 006):
 from decimal import Decimal
 from typing import List, Optional, Dict, Any
 from datetime import datetime
+from src.utils.datetime_utils import utc_now
 
 from sqlalchemy import or_
 from sqlalchemy.exc import SQLAlchemyError
@@ -275,7 +276,7 @@ def update_package(
             if "notes" in package_data:
                 package.notes = package_data["notes"]
 
-            package.last_modified = datetime.utcnow()
+            package.last_modified = utc_now()
 
             # Update finished goods if provided
             if finished_good_items is not None:
@@ -420,7 +421,7 @@ def add_finished_good_to_package(
             session.flush()
 
             # Update package last_modified
-            package.last_modified = datetime.utcnow()
+            package.last_modified = utc_now()
 
             return pfg
 
@@ -467,7 +468,7 @@ def remove_finished_good_from_package(package_id: int, finished_good_id: int) ->
                 raise PackageFinishedGoodNotFoundError(package_id, finished_good_id)
 
             session.delete(pfg)
-            package.last_modified = datetime.utcnow()
+            package.last_modified = utc_now()
             return True
 
     except (PackageNotFoundError, PackageFinishedGoodNotFoundError):
@@ -520,7 +521,7 @@ def update_finished_good_quantity(
                 raise PackageFinishedGoodNotFoundError(package_id, finished_good_id)
 
             pfg.quantity = quantity
-            package.last_modified = datetime.utcnow()
+            package.last_modified = utc_now()
             session.flush()
             return pfg
 

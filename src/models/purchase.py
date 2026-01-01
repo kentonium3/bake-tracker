@@ -18,6 +18,7 @@ from sqlalchemy import (
 from sqlalchemy.orm import relationship
 
 from .base import BaseModel
+from src.utils.datetime_utils import utc_now
 
 
 class Purchase(BaseModel):
@@ -70,7 +71,7 @@ class Purchase(BaseModel):
     notes = Column(Text, nullable=True)
 
     # Timestamp (no updated_at - immutable)
-    created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
+    created_at = Column(DateTime, nullable=False, default=utc_now)
 
     # Relationships
     product = relationship("Product", back_populates="purchases")

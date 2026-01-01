@@ -29,6 +29,7 @@ from sqlalchemy import (
 from sqlalchemy.orm import relationship
 
 from .base import BaseModel
+from src.utils.datetime_utils import utc_now
 
 
 class Composition(BaseModel):
@@ -88,7 +89,7 @@ class Composition(BaseModel):
     is_generic = Column(Boolean, nullable=False, default=False)
 
     # Timestamps
-    created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
+    created_at = Column(DateTime, nullable=False, default=utc_now)
 
     # Relationships
     assembly = relationship("FinishedGood", foreign_keys=[assembly_id], back_populates="components", lazy="joined")

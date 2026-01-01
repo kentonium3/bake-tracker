@@ -16,6 +16,8 @@ from typing import Any, Dict
 from sqlalchemy import Column, Integer, String, DateTime
 from sqlalchemy.orm import declarative_base
 
+from src.utils.datetime_utils import utc_now
+
 # Create the declarative base for all models
 Base = declarative_base()
 
@@ -44,8 +46,8 @@ class BaseModel(Base):
     )
 
     # Timestamp fields
-    created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
-    updated_at = Column(DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = Column(DateTime, nullable=False, default=utc_now)
+    updated_at = Column(DateTime, nullable=False, default=utc_now, onupdate=utc_now)
 
     def to_dict(self, include_relationships: bool = False) -> Dict[str, Any]:
         """
@@ -100,7 +102,7 @@ class BaseModel(Base):
                 setattr(self, column.name, data[column.name])
 
         # Update timestamp
-        self.updated_at = datetime.utcnow()
+        self.updated_at = utc_now()
 
     def __repr__(self) -> str:
         """

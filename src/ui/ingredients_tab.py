@@ -53,6 +53,7 @@ from src.utils.constants import (
     PACKAGE_TYPES,
 )
 from src.services import ingredient_service
+from src.ui.widgets.ingredient_tree_widget import IngredientTreeWidget
 
 
 class IngredientsTab(ctk.CTkFrame):
@@ -78,8 +79,10 @@ class IngredientsTab(ctk.CTkFrame):
         super().__init__(parent)
 
         self.selected_ingredient_slug: Optional[str] = None
+        self.selected_ingredient_id: Optional[int] = None  # Feature 031: Track by ID too
         self.ingredients: List[dict] = []
         self._data_loaded = False  # Lazy loading flag
+        self._view_mode = "flat"  # Feature 031: "flat" or "tree"
 
         # Configure grid
         self.grid_columnconfigure(0, weight=1)
@@ -94,6 +97,7 @@ class IngredientsTab(ctk.CTkFrame):
         self._create_search_filter()
         self._create_action_buttons()
         self._create_ingredient_list()
+        self._create_tree_view()  # Feature 031
         self._create_status_bar()
 
         # Grid the frame
@@ -139,6 +143,17 @@ class IngredientsTab(ctk.CTkFrame):
         )
         self.category_dropdown.grid(row=0, column=1, padx=(0, PADDING_MEDIUM))
 
+        # Feature 031: View toggle (Flat/Tree)
+        self.view_var = ctk.StringVar(value="Flat")
+        view_toggle = ctk.CTkSegmentedButton(
+            search_frame,
+            values=["Flat", "Tree"],
+            variable=self.view_var,
+            command=self._on_view_change,
+            width=120,
+        )
+        view_toggle.grid(row=0, column=2, padx=(0, PADDING_MEDIUM))
+
         # Clear button
         clear_button = ctk.CTkButton(
             search_frame,
@@ -146,7 +161,7 @@ class IngredientsTab(ctk.CTkFrame):
             command=self._clear_filters,
             width=100,
         )
-        clear_button.grid(row=0, column=2)
+        clear_button.grid(row=0, column=3)
 
     def _create_action_buttons(self):
         """Create action buttons for CRUD operations."""
@@ -177,16 +192,16 @@ class IngredientsTab(ctk.CTkFrame):
     def _create_ingredient_list(self):
         """Create the ingredient list using ttk.Treeview for performance."""
         # Container frame for grid and scrollbar
-        grid_container = ctk.CTkFrame(self)
-        grid_container.grid(
+        self.grid_container = ctk.CTkFrame(self)
+        self.grid_container.grid(
             row=3,
             column=0,
             sticky="nsew",
             padx=PADDING_LARGE,
             pady=PADDING_MEDIUM,
         )
-        grid_container.grid_columnconfigure(0, weight=1)
-        grid_container.grid_rowconfigure(0, weight=1)
+        self.grid_container.grid_columnconfigure(0, weight=1)
+        self.grid_container.grid_rowconfigure(0, weight=1)
 
         # Track current sort state
         self.sort_column = "name"
@@ -195,7 +210,7 @@ class IngredientsTab(ctk.CTkFrame):
         # Define columns - no Type column per correction spec
         columns = ("category", "name", "density")
         self.tree = ttk.Treeview(
-            grid_container,
+            self.grid_container,
             columns=columns,
             show="headings",
             selectmode="browse",
@@ -217,12 +232,12 @@ class IngredientsTab(ctk.CTkFrame):
 
         # Add scrollbars
         y_scrollbar = ttk.Scrollbar(
-            grid_container,
+            self.grid_container,
             orient="vertical",
             command=self.tree.yview,
         )
         x_scrollbar = ttk.Scrollbar(
-            grid_container,
+            self.grid_container,
             orient="horizontal",
             command=self.tree.xview,
         )
@@ -270,6 +285,68 @@ class IngredientsTab(ctk.CTkFrame):
         else:
             self._disable_selection_buttons()
 
+    def _create_tree_view(self):
+        """Create the hierarchical tree view for ingredients (Feature 031)."""
+        # Container frame for tree widget (hidden by default)
+        self.tree_container = ctk.CTkFrame(self)
+        # Don't grid initially - will be shown when view mode is "Tree"
+
+        # Create the tree widget
+        self.ingredient_tree = IngredientTreeWidget(
+            self.tree_container,
+            on_select_callback=self._on_hierarchy_tree_select,
+            leaf_only=False,  # Allow selecting all ingredients in this view
+            show_search=False,  # Use our existing search
+            show_breadcrumb=True,
+        )
+        self.ingredient_tree.pack(fill="both", expand=True, padx=5, pady=5)
+
+    def _on_view_change(self, value: str):
+        """Handle view toggle between Flat and Tree views (Feature 031)."""
+        if value == "Tree":
+            self._view_mode = "tree"
+            # Hide flat view, show tree view
+            self.grid_container.grid_remove()
+            self.tree_container.grid(
+                row=3,
+                column=0,
+                sticky="nsew",
+                padx=PADDING_LARGE,
+                pady=PADDING_MEDIUM,
+            )
+            # Refresh tree
+            self.ingredient_tree.refresh()
+            # Hide category filter (tree has its own navigation)
+            self.category_dropdown.configure(state="disabled")
+            self.update_status("Tree view - navigate hierarchy")
+        else:
+            self._view_mode = "flat"
+            # Hide tree view, show flat view
+            self.tree_container.grid_remove()
+            self.grid_container.grid(
+                row=3,
+                column=0,
+                sticky="nsew",
+                padx=PADDING_LARGE,
+                pady=PADDING_MEDIUM,
+            )
+            # Re-enable category filter
+            self.category_dropdown.configure(state="normal")
+            self._update_ingredient_display()
+
+    def _on_hierarchy_tree_select(self, ingredient: Dict[str, Any]):
+        """Handle selection in the hierarchy tree widget (Feature 031)."""
+        if ingredient:
+            self.selected_ingredient_slug = ingredient.get("slug")
+            self.selected_ingredient_id = ingredient.get("id")
+            self._enable_selection_buttons()
+            name = ingredient.get("display_name", "Unknown")
+            level = ingredient.get("hierarchy_level", 2)
+            level_names = {0: "Category", 1: "Group", 2: "Ingredient"}
+            self.update_status(f"Selected: {name} ({level_names.get(level, 'Unknown')})")
+        else:
+            self._disable_selection_buttons()
+
     def _create_status_bar(self):
         """Create status bar for displaying messages."""
         self.status_label = ctk.CTkLabel(
@@ -302,12 +379,16 @@ class IngredientsTab(ctk.CTkFrame):
             category_list = ["All Categories"] + categories
             self.category_dropdown.configure(values=category_list)
 
-            # Update display
-            self._update_ingredient_display()
-
-            # Update status
-            count = len(self.ingredients)
-            self.update_status(f"{count} ingredient{'s' if count != 1 else ''} loaded")
+            # Feature 031: Refresh based on current view mode
+            if self._view_mode == "tree":
+                self.ingredient_tree.refresh()
+                self.update_status("Tree view refreshed")
+            else:
+                # Update flat display
+                self._update_ingredient_display()
+                # Update status
+                count = len(self.ingredients)
+                self.update_status(f"{count} ingredient{'s' if count != 1 else ''} loaded")
 
         except DatabaseError as e:
             messagebox.showerror("Database Error", f"Failed to load ingredients: {e}")
@@ -395,7 +476,12 @@ class IngredientsTab(ctk.CTkFrame):
 
     def _on_search(self, event=None):
         """Handle search text change."""
-        self._update_ingredient_display()
+        # Feature 031: Handle search based on view mode
+        if self._view_mode == "tree":
+            query = self.search_entry.get().strip()
+            self.ingredient_tree.search(query)
+        else:
+            self._update_ingredient_display()
 
     def _on_category_change(self, category: str):
         """Handle category filter change."""
@@ -405,7 +491,11 @@ class IngredientsTab(ctk.CTkFrame):
         """Clear all filters and refresh display."""
         self.search_entry.delete(0, "end")
         self.category_var.set("All Categories")
-        self._update_ingredient_display()
+        # Feature 031: Clear search based on view mode
+        if self._view_mode == "tree":
+            self.ingredient_tree.clear_search()
+        else:
+            self._update_ingredient_display()
 
     def select_ingredient(self, ingredient_slug: str) -> None:
         """
@@ -609,7 +699,7 @@ class IngredientFormDialog(ctk.CTkToplevel):
 
         # Configure window
         self.title(title)
-        self.geometry("550x580")
+        self.geometry("550x650")  # Increased height for hierarchy fields (Feature 031)
         self.resizable(False, False)
 
         # Center on parent
@@ -693,6 +783,36 @@ class IngredientFormDialog(ctk.CTkToplevel):
             width=250,
         )
         self.category_dropdown.grid(row=row, column=1, sticky="w", padx=10, pady=5)
+        row += 1
+
+        # Feature 031: Parent ingredient field (optional) for hierarchy
+        ctk.CTkLabel(form_frame, text="Parent:").grid(
+            row=row, column=0, sticky="w", padx=10, pady=5
+        )
+        # Build parent options from level 0 and 1 ingredients
+        self._parent_options = self._build_parent_options()
+        self.parent_var = ctk.StringVar(value="(None - Top Level)")
+        self.parent_dropdown = ctk.CTkComboBox(
+            form_frame,
+            values=["(None - Top Level)"] + list(self._parent_options.keys()),
+            variable=self.parent_var,
+            width=300,
+        )
+        self.parent_dropdown.grid(row=row, column=1, sticky="w", padx=10, pady=5)
+        row += 1
+
+        # Feature 031: Show current hierarchy level (read-only)
+        ctk.CTkLabel(form_frame, text="Level:").grid(
+            row=row, column=0, sticky="w", padx=10, pady=5
+        )
+        self.level_label = ctk.CTkLabel(
+            form_frame,
+            text="Leaf (Level 2)",
+            text_color="gray",
+        )
+        self.level_label.grid(row=row, column=1, sticky="w", padx=10, pady=5)
+        # Bind parent change to update level display
+        self.parent_dropdown.configure(command=self._on_parent_change)
         row += 1
 
         # Density section (4-field input)
@@ -830,6 +950,49 @@ class IngredientFormDialog(ctk.CTkToplevel):
             if current and current not in self.food_categories_from_db:
                 self.category_var.set("")
 
+    def _build_parent_options(self) -> Dict[str, int]:
+        """Build parent ingredient options from level 0 and 1 ingredients (Feature 031).
+
+        Returns:
+            Dict mapping display text to ingredient ID
+        """
+        options = {}
+        try:
+            from src.services import ingredient_hierarchy_service
+            # Get all non-leaf ingredients (level 0 and 1)
+            for level in [0, 1]:
+                parents = ingredient_hierarchy_service.get_ingredients_by_level(level)
+                for parent in parents:
+                    # Format: "  > Name" for level 1, "Name" for level 0
+                    prefix = "  > " if level == 1 else ""
+                    display = f"{prefix}{parent.get('display_name', 'Unknown')}"
+                    options[display] = parent.get("id")
+        except Exception:
+            # Fallback: return empty if service not available
+            pass
+        return options
+
+    def _on_parent_change(self, value: str):
+        """Handle parent selection change to update level display (Feature 031)."""
+        if value == "(None - Top Level)":
+            # No parent = this will be a leaf by default (level 2)
+            self.level_label.configure(text="Leaf (Level 2)")
+        else:
+            parent_id = self._parent_options.get(value)
+            if parent_id:
+                try:
+                    from src.services import ingredient_hierarchy_service
+                    parent = ingredient_hierarchy_service.get_ingredient_by_id(parent_id)
+                    if parent:
+                        parent_level = parent.get("hierarchy_level", 0)
+                        child_level = parent_level + 1
+                        level_names = {0: "Root Category", 1: "Sub-Category", 2: "Leaf"}
+                        self.level_label.configure(
+                            text=f"{level_names.get(child_level, 'Unknown')} (Level {child_level})"
+                        )
+                except Exception:
+                    self.level_label.configure(text="Unknown")
+
     def _populate_form(self):
         """Populate form with existing ingredient data."""
         if not self.ingredient:
@@ -845,6 +1008,22 @@ class IngredientFormDialog(ctk.CTkToplevel):
         # Set category value
         category = self.ingredient.get("category", "")
         self.category_var.set(category)
+
+        # Feature 031: Set parent ingredient if present
+        parent_id = self.ingredient.get("parent_ingredient_id")
+        if parent_id:
+            # Find the parent in our options
+            for display, pid in self._parent_options.items():
+                if pid == parent_id:
+                    self.parent_var.set(display)
+                    self._on_parent_change(display)  # Update level display
+                    break
+        else:
+            self.parent_var.set("(None - Top Level)")
+            # Update level display based on current hierarchy_level
+            level = self.ingredient.get("hierarchy_level", 2)
+            level_names = {0: "Root Category", 1: "Sub-Category", 2: "Leaf"}
+            self.level_label.configure(text=f"{level_names.get(level, 'Unknown')} (Level {level})")
 
         # Populate 4-field density
         if self.ingredient.get("density_volume_value") is not None:
@@ -941,6 +1120,13 @@ class IngredientFormDialog(ctk.CTkToplevel):
             "category": category,
             "is_packaging": is_packaging,  # Feature 011
         }
+
+        # Feature 031: Add parent_ingredient_id if selected
+        parent_selection = self.parent_var.get()
+        if parent_selection != "(None - Top Level)":
+            parent_id = self._parent_options.get(parent_selection)
+            if parent_id:
+                result["parent_ingredient_id"] = parent_id
 
         # Add density fields if any are provided
         if volume_value is not None:

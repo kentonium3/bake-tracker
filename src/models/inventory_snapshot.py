@@ -15,6 +15,7 @@ from sqlalchemy import Column, String, Integer, Float, Text, DateTime, ForeignKe
 from sqlalchemy.orm import relationship
 
 from .base import BaseModel
+from src.utils.datetime_utils import utc_now
 
 
 class InventorySnapshot(BaseModel):
@@ -34,7 +35,7 @@ class InventorySnapshot(BaseModel):
 
     # Basic information
     name = Column(String(200), nullable=False, index=True)
-    snapshot_date = Column(DateTime, nullable=False, default=datetime.utcnow)
+    snapshot_date = Column(DateTime, nullable=False, default=utc_now)
     description = Column(Text, nullable=True)
 
     # Relationships

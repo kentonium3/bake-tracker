@@ -1006,3 +1006,135 @@ class TestForceDeleteProduct:
                 confirmed=True,
                 session=session,
             )
+
+
+# =============================================================================
+# Feature 031: Leaf-Only Ingredient Validation Tests
+# =============================================================================
+
+@pytest.fixture
+def hierarchy_ingredients_catalog(session):
+    """Create a sample ingredient hierarchy for testing leaf-only validation.
+
+    Creates:
+    - Chocolate (level 0, root)
+      - Dark Chocolate (level 1, mid-tier)
+        - Semi-Sweet Chips (level 2, leaf)
+    """
+    # Root category
+    chocolate = Ingredient(
+        display_name="Catalog Chocolate",
+        slug="catalog-chocolate",
+        category="Chocolate",
+        hierarchy_level=0,
+        parent_ingredient_id=None,
+    )
+    session.add(chocolate)
+    session.flush()
+
+    # Mid-tier category
+    dark_chocolate = Ingredient(
+        display_name="Catalog Dark Chocolate",
+        slug="catalog-dark-chocolate",
+        category="Chocolate",
+        hierarchy_level=1,
+        parent_ingredient_id=chocolate.id,
+    )
+    session.add(dark_chocolate)
+    session.flush()
+
+    # Leaf ingredient
+    semi_sweet = Ingredient(
+        display_name="Catalog Semi-Sweet Chips",
+        slug="catalog-semi-sweet-chips",
+        category="Chocolate",
+        hierarchy_level=2,
+        parent_ingredient_id=dark_chocolate.id,
+    )
+    session.add(semi_sweet)
+    session.flush()
+
+    class HierarchyData:
+        def __init__(self, root, mid, leaf):
+            self.root = root
+            self.mid = mid
+            self.leaf = leaf
+
+    return HierarchyData(chocolate, dark_chocolate, semi_sweet)
+
+
+class TestLeafOnlyProductCatalogValidation:
+    """Tests for leaf-only ingredient enforcement in product catalog (Feature 031)."""
+
+    def test_create_product_with_leaf_ingredient_succeeds(
+        self, session, hierarchy_ingredients_catalog
+    ):
+        """Creating product with leaf ingredient (level 2) succeeds."""
+        result = product_catalog_service.create_product(
+            product_name="Test Leaf Product",
+            ingredient_id=hierarchy_ingredients_catalog.leaf.id,
+            package_unit="bag",
+            package_unit_quantity=12.0,
+            brand="Test Brand",
+            session=session,
+        )
+        assert result is not None
+        assert result["ingredient_id"] == hierarchy_ingredients_catalog.leaf.id
+
+    def test_create_product_with_non_leaf_fails(
+        self, session, hierarchy_ingredients_catalog
+    ):
+        """Creating product with non-leaf ingredient raises NonLeafIngredientError."""
+        from src.services.exceptions import NonLeafIngredientError
+
+        with pytest.raises(NonLeafIngredientError) as exc_info:
+            product_catalog_service.create_product(
+                product_name="Test Root Product",
+                ingredient_id=hierarchy_ingredients_catalog.root.id,
+                package_unit="bag",
+                package_unit_quantity=12.0,
+                brand="Test Brand",
+                session=session,
+            )
+        assert "Catalog Chocolate" in str(exc_info.value)
+
+    def test_create_product_with_mid_tier_fails(
+        self, session, hierarchy_ingredients_catalog
+    ):
+        """Creating product with mid-tier ingredient raises NonLeafIngredientError."""
+        from src.services.exceptions import NonLeafIngredientError
+
+        with pytest.raises(NonLeafIngredientError) as exc_info:
+            product_catalog_service.create_product(
+                product_name="Test Mid Product",
+                ingredient_id=hierarchy_ingredients_catalog.mid.id,
+                package_unit="bag",
+                package_unit_quantity=12.0,
+                brand="Test Brand",
+                session=session,
+            )
+        assert "Catalog Dark Chocolate" in str(exc_info.value)
+
+    def test_update_product_ingredient_to_non_leaf_fails(
+        self, session, hierarchy_ingredients_catalog
+    ):
+        """Updating product to use non-leaf ingredient raises NonLeafIngredientError."""
+        from src.services.exceptions import NonLeafIngredientError
+
+        # First create a product with the leaf ingredient
+        product = product_catalog_service.create_product(
+            product_name="Test Update Product",
+            ingredient_id=hierarchy_ingredients_catalog.leaf.id,
+            package_unit="bag",
+            package_unit_quantity=12.0,
+            brand="Test Brand",
+            session=session,
+        )
+
+        # Try to update to use the root (non-leaf) ingredient
+        with pytest.raises(NonLeafIngredientError):
+            product_catalog_service.update_product(
+                product_id=product["id"],
+                ingredient_id=hierarchy_ingredients_catalog.root.id,
+                session=session,
+            )

@@ -15,6 +15,7 @@ import logging
 import time
 import threading
 from datetime import datetime
+from src.utils.datetime_utils import utc_now
 from typing import Dict, Any, Optional, Callable, Union, TypeVar, Protocol, ParamSpec
 from enum import Enum
 import functools
@@ -360,7 +361,7 @@ class UIServiceIntegrator:
         with self._lock:
             self.operation_stats["total_operations"] += 1
             self.operation_stats["successful_operations"] += 1
-            self.operation_stats["last_operation_time"] = datetime.utcnow().isoformat()
+            self.operation_stats["last_operation_time"] = utc_now().isoformat()
             self.operation_stats["operation_times"].append(execution_time)
             # Automatic trimming handled by deque maxlen
 
@@ -371,7 +372,7 @@ class UIServiceIntegrator:
         with self._lock:
             self.operation_stats["total_operations"] += 1
             self.operation_stats["failed_operations"] += 1
-            self.operation_stats["last_operation_time"] = datetime.utcnow().isoformat()
+            self.operation_stats["last_operation_time"] = utc_now().isoformat()
             self.operation_stats["operation_times"].append(execution_time)
             # Automatic trimming handled by deque maxlen
 
@@ -608,7 +609,7 @@ def check_service_integration_health() -> Dict[str, Any]:
 
     return {
         "status": health_status,
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": utc_now().isoformat(),
         "statistics": stats,
         "recommendations": _get_health_recommendations(stats),
     }

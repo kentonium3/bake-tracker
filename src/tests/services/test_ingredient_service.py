@@ -386,3 +386,84 @@ class TestUpdateIngredientPackagingProtection:
         # Should be able to unmark since no compositions reference the product
         updated = update_ingredient(ingredient.slug, {"is_packaging": False})
         assert updated.is_packaging is False
+
+
+# =============================================================================
+# Feature 031: Hierarchy Validation Tests
+# =============================================================================
+
+class TestCreateIngredientHierarchy:
+    """Tests for create_ingredient with hierarchy fields."""
+
+    def test_create_ingredient_with_valid_parent(self, test_db, hierarchy_ingredients):
+        """Create ingredient with valid parent sets correct hierarchy_level."""
+        # Create a new leaf under the mid-tier category
+        new_ingredient = create_ingredient({
+            "name": "White Chocolate Chips",
+            "category": "Chocolate",
+            "parent_ingredient_id": hierarchy_ingredients.mid.id,
+        })
+        assert new_ingredient.parent_ingredient_id == hierarchy_ingredients.mid.id
+        assert new_ingredient.hierarchy_level == 2  # Parent is level 1, so child is level 2
+
+    def test_create_ingredient_with_nonexistent_parent_fails(self, test_db):
+        """Create ingredient with non-existent parent raises IngredientNotFound."""
+        from src.services.exceptions import IngredientNotFound
+
+        with pytest.raises(IngredientNotFound):
+            create_ingredient({
+                "name": "Orphan Ingredient",
+                "category": "Test",
+                "parent_ingredient_id": 99999,  # Non-existent ID
+            })
+
+    def test_create_ingredient_exceeding_max_depth_fails(self, test_db, hierarchy_ingredients):
+        """Create ingredient that would exceed max depth (3 levels) raises MaxDepthExceededError."""
+        from src.services.exceptions import MaxDepthExceededError
+
+        # hierarchy_ingredients.leaf1 is level 2; adding child would make level 3
+        with pytest.raises(MaxDepthExceededError):
+            create_ingredient({
+                "name": "Too Deep Ingredient",
+                "category": "Chocolate",
+                "parent_ingredient_id": hierarchy_ingredients.leaf1.id,
+            })
+
+    def test_create_ingredient_without_parent_defaults_to_leaf(self, test_db):
+        """Create ingredient without parent defaults hierarchy_level to 2 (leaf)."""
+        ingredient = create_ingredient({
+            "name": "Standalone Ingredient",
+            "category": "Other",
+        })
+        assert ingredient.hierarchy_level == 2
+        assert ingredient.parent_ingredient_id is None
+
+
+class TestUpdateIngredientHierarchy:
+    """Tests for update_ingredient with hierarchy field changes."""
+
+    def test_update_ingredient_parent_triggers_move(self, test_db, hierarchy_ingredients):
+        """Update parent_ingredient_id triggers move_ingredient logic."""
+        # Create a new mid-tier to move a leaf under
+        from src.models.ingredient import Ingredient
+        session = test_db()
+
+        new_mid = Ingredient(
+            display_name="New Mid Category",
+            slug="new-mid-category",
+            category="Chocolate",
+            hierarchy_level=1,
+            parent_ingredient_id=hierarchy_ingredients.root.id,
+        )
+        session.add(new_mid)
+        session.commit()
+
+        leaf_slug = hierarchy_ingredients.leaf1.slug
+        leaf_id = hierarchy_ingredients.leaf1.id
+
+        # Move leaf1 from dark_chocolate to new_mid
+        updated = update_ingredient(leaf_slug, {"parent_ingredient_id": new_mid.id})
+
+        # Verify it moved by querying fresh from the database
+        moved_leaf = session.query(Ingredient).filter(Ingredient.id == leaf_id).first()
+        assert moved_leaf.parent_ingredient_id == new_mid.id

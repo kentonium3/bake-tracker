@@ -47,6 +47,9 @@ from .exceptions import (
     IngredientInUse,
     ValidationError as ServiceValidationError,
     DatabaseError,
+    IngredientNotFound,
+    MaxDepthExceededError,
+    CircularReferenceError,
 )
 from ..utils.slug_utils import create_slug
 from ..utils.validators import validate_ingredient_data
@@ -184,6 +187,32 @@ def create_ingredient(ingredient_data: Dict[str, Any]) -> Ingredient:
             # Generate slug from name
             slug = create_slug(ingredient_data["name"], session)
 
+            # Feature 031: Handle hierarchy fields
+            parent_ingredient_id = ingredient_data.get("parent_ingredient_id")
+            hierarchy_level = ingredient_data.get("hierarchy_level")
+
+            if parent_ingredient_id is not None:
+                # Validate parent exists
+                parent = session.query(Ingredient).filter(Ingredient.id == parent_ingredient_id).first()
+                if parent is None:
+                    raise IngredientNotFound(parent_ingredient_id)
+
+                # Calculate hierarchy level from parent
+                calculated_level = parent.hierarchy_level + 1
+                if calculated_level > 2:
+                    raise MaxDepthExceededError(0, calculated_level)  # 0 = new ingredient
+
+                # Use calculated level (override any provided value)
+                hierarchy_level = calculated_level
+            else:
+                # No parent - default to level 2 (leaf) for backwards compatibility
+                if hierarchy_level is None:
+                    hierarchy_level = 2
+
+            # Validate hierarchy level is valid (0, 1, or 2)
+            if hierarchy_level not in (0, 1, 2):
+                raise ServiceValidationError([f"Invalid hierarchy level: {hierarchy_level}. Must be 0, 1, or 2."])
+
             # Create ingredient instance
             fdc_ids = ingredient_data.get("fdc_ids")
             if fdc_ids is None:
@@ -214,6 +243,9 @@ def create_ingredient(ingredient_data: Dict[str, Any]) -> Ingredient:
                 category=category,
                 description=ingredient_data.get("description"),
                 is_packaging=is_packaging,
+                # Feature 031: Hierarchy fields
+                parent_ingredient_id=parent_ingredient_id,
+                hierarchy_level=hierarchy_level,
                 density_volume_value=ingredient_data.get("density_volume_value"),
                 density_volume_unit=ingredient_data.get("density_volume_unit"),
                 density_weight_value=ingredient_data.get("density_weight_value"),
@@ -234,6 +266,9 @@ def create_ingredient(ingredient_data: Dict[str, Any]) -> Ingredient:
 
     except SlugAlreadyExists:
         # Re-raise slug conflicts as-is
+        raise
+    except (IngredientNotFound, MaxDepthExceededError, ServiceValidationError):
+        # Re-raise hierarchy validation errors as-is
         raise
     except Exception as e:
         # Check if it's a duplicate name IntegrityError
@@ -399,6 +434,20 @@ def update_ingredient(slug: str, ingredient_data: Dict[str, Any]) -> Ingredient:
                         [f"Cannot unmark packaging: ingredient has products used in {count} composition(s)"]
                     )
 
+            # Feature 031: Handle hierarchy field changes
+            new_parent_id = ingredient_data.get("parent_ingredient_id")
+            if "parent_ingredient_id" in ingredient_data and new_parent_id != ingredient.parent_ingredient_id:
+                # Parent is changing - use move_ingredient logic
+                from . import ingredient_hierarchy_service
+
+                ingredient_hierarchy_service.move_ingredient(
+                    ingredient.id, new_parent_id, session=session
+                )
+                # Remove from ingredient_data so it's not set again below
+                ingredient_data = {k: v for k, v in ingredient_data.items() if k != "parent_ingredient_id"}
+                # Also remove hierarchy_level as move_ingredient handles it
+                ingredient_data = {k: v for k, v in ingredient_data.items() if k != "hierarchy_level"}
+
             # Update attributes
             for key, value in ingredient_data.items():
                 if hasattr(ingredient, key):
@@ -408,7 +457,7 @@ def update_ingredient(slug: str, ingredient_data: Dict[str, Any]) -> Ingredient:
 
     except IngredientNotFoundBySlug:
         raise
-    except ServiceValidationError:
+    except (ServiceValidationError, IngredientNotFound, MaxDepthExceededError, CircularReferenceError):
         raise
     except Exception as e:
         raise DatabaseError(f"Failed to update ingredient '{slug}'", original_error=e)

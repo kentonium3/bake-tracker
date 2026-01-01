@@ -12,6 +12,7 @@ Updated for Feature 006 Event Planning Restoration:
 
 from typing import List, Optional, Dict
 from datetime import datetime
+from src.utils.datetime_utils import utc_now
 
 from sqlalchemy import or_
 from sqlalchemy.exc import SQLAlchemyError
@@ -235,7 +236,7 @@ def update_recipient(recipient_id: int, data: Dict) -> Recipient:
             recipient.household_name = data.get("household_name")
             recipient.address = data.get("address")
             recipient.notes = data.get("notes")
-            recipient.last_modified = datetime.utcnow()
+            recipient.last_modified = utc_now()
 
             session.commit()
             session.refresh(recipient)

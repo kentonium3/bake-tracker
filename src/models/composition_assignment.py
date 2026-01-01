@@ -29,6 +29,7 @@ from sqlalchemy import (
 from sqlalchemy.orm import relationship
 
 from .base import BaseModel
+from src.utils.datetime_utils import utc_now
 
 
 class CompositionAssignment(BaseModel):
@@ -68,7 +69,7 @@ class CompositionAssignment(BaseModel):
 
     # Assignment details
     quantity_assigned = Column(Float, nullable=False)
-    assigned_at = Column(DateTime, nullable=False, default=datetime.utcnow)
+    assigned_at = Column(DateTime, nullable=False, default=utc_now)
 
     # Relationships
     composition = relationship("Composition", backref="assignments", lazy="joined")

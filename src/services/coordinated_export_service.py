@@ -21,6 +21,7 @@ import json
 import zipfile
 from dataclasses import dataclass, field
 from datetime import datetime
+from src.utils.datetime_utils import utc_now
 from pathlib import Path
 from typing import Dict, List, Optional
 
@@ -433,7 +434,7 @@ def _export_complete_impl(
     # Initialize manifest
     manifest = ExportManifest(
         version="1.0",
-        export_date=datetime.utcnow().isoformat() + "Z",
+        export_date=utc_now().isoformat() + "Z",
         source=f"{APP_NAME} v{APP_VERSION}",
     )
 
