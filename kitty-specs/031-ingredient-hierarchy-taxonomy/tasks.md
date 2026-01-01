@@ -19,12 +19,12 @@
 **Assignee**: Claude (foundation layer)
 
 ### Included Subtasks
-- [ ] T001 Add `parent_ingredient_id` FK column to Ingredient model (`src/models/ingredient.py`)
-- [ ] T002 Add `hierarchy_level` column with CHECK constraint (0, 1, 2)
-- [ ] T003 Add self-referential relationship (children/parent backref)
-- [ ] T004 Add database indexes for parent_ingredient_id and hierarchy_level
-- [ ] T005 Update Ingredient.to_dict() to include hierarchy fields
-- [ ] T006 Export database, delete, recreate with new schema (constitution VI)
+- [x] T001 Add `parent_ingredient_id` FK column to Ingredient model (`src/models/ingredient.py`)
+- [x] T002 Add `hierarchy_level` column with CHECK constraint (0, 1, 2)
+- [x] T003 Add self-referential relationship (children/parent backref)
+- [x] T004 Add database indexes for parent_ingredient_id and hierarchy_level
+- [x] T005 Update Ingredient.to_dict() to include hierarchy fields
+- [x] T006 Export database, delete, recreate with new schema (constitution VI)
 
 ### Implementation Notes
 - Follow SQLAlchemy self-referential pattern: `relationship("Ingredient", backref=backref('parent', remote_side=[id]))`
@@ -50,14 +50,14 @@
 **Assignee**: Claude or Gemini
 
 ### Included Subtasks
-- [ ] T007 Create `src/services/ingredient_hierarchy_service.py` with session pattern
-- [ ] T008 Implement `get_root_ingredients()` - returns all level 0 ingredients
-- [ ] T009 Implement `get_children(parent_id)` - returns direct children
-- [ ] T010 Implement `get_ancestors(ingredient_id)` - returns path to root (breadcrumb)
-- [ ] T011 Implement `get_all_descendants(ancestor_id)` - recursive descendants
-- [ ] T012 Implement `get_leaf_ingredients(parent_id=None)` - all/filtered leaf nodes
-- [ ] T013 Implement `is_leaf(ingredient_id)` - helper for validation
-- [ ] T014 [P] Write unit tests for all core functions (`src/tests/services/test_ingredient_hierarchy_service.py`)
+- [x] T007 Create `src/services/ingredient_hierarchy_service.py` with session pattern
+- [x] T008 Implement `get_root_ingredients()` - returns all level 0 ingredients
+- [x] T009 Implement `get_children(parent_id)` - returns direct children
+- [x] T010 Implement `get_ancestors(ingredient_id)` - returns path to root (breadcrumb)
+- [x] T011 Implement `get_all_descendants(ancestor_id)` - recursive descendants
+- [x] T012 Implement `get_leaf_ingredients(parent_id=None)` - all/filtered leaf nodes
+- [x] T013 Implement `is_leaf(ingredient_id)` - helper for validation
+- [x] T014 [P] Write unit tests for all core functions (`src/tests/services/test_ingredient_hierarchy_service.py`)
 
 ### Implementation Notes
 - Follow existing service patterns (session_scope, optional session parameter)
@@ -83,12 +83,12 @@
 **Assignee**: Claude
 
 ### Included Subtasks
-- [ ] T015 Implement `validate_hierarchy_level(ingredient_id, allowed_levels)`
-- [ ] T016 Implement `would_create_cycle(ingredient_id, new_parent_id)` - cycle detection
-- [ ] T017 Implement `move_ingredient(ingredient_id, new_parent_id)` - with validation
-- [ ] T018 Implement `search_ingredients(query)` - returns matches with ancestors
-- [ ] T019 Add hierarchy exceptions to `src/services/exceptions.py` (CircularReferenceError, etc.)
-- [ ] T020 [P] Write unit tests for validation and management functions
+- [x] T015 Implement `validate_hierarchy_level(ingredient_id, allowed_levels)`
+- [x] T016 Implement `would_create_cycle(ingredient_id, new_parent_id)` - cycle detection
+- [x] T017 Implement `move_ingredient(ingredient_id, new_parent_id)` - with validation
+- [x] T018 Implement `search_ingredients(query)` - returns matches with ancestors
+- [x] T019 Add hierarchy exceptions to `src/services/exceptions.py` (CircularReferenceError, etc.)
+- [x] T020 [P] Write unit tests for validation and management functions
 
 ### Implementation Notes
 - Cycle detection: walk from new_parent to root, check if ingredient_id is encountered
@@ -114,11 +114,11 @@
 **Assignee**: Claude
 
 ### Included Subtasks
-- [ ] T021 Update `src/services/ingredient_service.py` - validate hierarchy on create/update
-- [ ] T022 Update `src/services/recipe_service.py` - enforce leaf-only in add_ingredient_to_recipe
-- [ ] T023 Update `src/services/product_service.py` - enforce leaf-only on product creation
-- [ ] T024 Update `src/services/product_catalog_service.py` - leaf-only validation
-- [ ] T025 [P] Update existing service tests to cover hierarchy validation
+- [x] T021 Update `src/services/ingredient_service.py` - validate hierarchy on create/update
+- [x] T022 Update `src/services/recipe_service.py` - enforce leaf-only in add_ingredient_to_recipe
+- [x] T023 Update `src/services/product_service.py` - enforce leaf-only on product creation
+- [x] T024 Update `src/services/product_catalog_service.py` - leaf-only validation
+- [x] T025 [P] Update existing service tests to cover hierarchy validation
 
 ### Implementation Notes
 - Validation error messages should suggest leaf alternatives (get top 3 leaf descendants)
@@ -144,12 +144,12 @@
 **Assignee**: Gemini (parallel safe)
 
 ### Included Subtasks
-- [ ] T026 [P] Create `src/ui/widgets/ingredient_tree_widget.py` with ttk.Treeview
-- [ ] T027 [P] Implement expand/collapse functionality with lazy loading
-- [ ] T028 [P] Implement search box with auto-expand matching branches
-- [ ] T029 [P] Implement breadcrumb display for selected item
-- [ ] T030 [P] Add context-aware selection mode (leaf-only for recipes)
-- [ ] T031 [P] Add visual distinction between category nodes and leaf nodes
+- [x] T026 [P] Create `src/ui/widgets/ingredient_tree_widget.py` with ttk.Treeview
+- [x] T027 [P] Implement expand/collapse functionality with lazy loading
+- [x] T028 [P] Implement search box with auto-expand matching branches
+- [x] T029 [P] Implement breadcrumb display for selected item
+- [x] T030 [P] Add context-aware selection mode (leaf-only for recipes)
+- [x] T031 [P] Add visual distinction between category nodes and leaf nodes
 
 ### Implementation Notes
 - Use ttk.Treeview inside CTkFrame for CustomTkinter compatibility
@@ -177,11 +177,11 @@
 **Assignee**: Claude
 
 ### Included Subtasks
-- [ ] T032 Integrate tree widget into `src/ui/ingredients_tab.py`
-- [ ] T033 Update `src/ui/forms/recipe_ingredient_dialog.py` to use tree selector
-- [ ] T034 Add ingredient detail panel showing hierarchy (breadcrumb path)
-- [ ] T035 Wire up search and filter controls to tree widget
-- [ ] T036 Update ingredient creation/edit forms for hierarchy fields
+- [x] T032 Integrate tree widget into `src/ui/ingredients_tab.py`
+- [x] T033 Update `src/ui/forms/recipe_ingredient_dialog.py` to use tree selector
+- [x] T034 Add ingredient detail panel showing hierarchy (breadcrumb path)
+- [x] T035 Wire up search and filter controls to tree widget
+- [x] T036 Update ingredient creation/edit forms for hierarchy fields
 
 ### Implementation Notes
 - Replace flat dropdown/list with tree widget
@@ -207,11 +207,11 @@
 **Assignee**: Gemini (parallel safe)
 
 ### Included Subtasks
-- [ ] T037 [P] Create `scripts/migrate_hierarchy/export_ingredients.py` - export current data
-- [ ] T038 [P] Create `scripts/migrate_hierarchy/transform_hierarchy.py` - merge AI suggestions
-- [ ] T039 [P] Create `scripts/migrate_hierarchy/validate_hierarchy.py` - pre-import validation
-- [ ] T040 [P] Create `scripts/prompts/hierarchy_categorization_prompt.md` - AI prompt template
-- [ ] T041 [P] Document migration process in README or separate doc
+- [x] T037 [P] Create `scripts/migrate_hierarchy/export_ingredients.py` - export current data
+- [x] T038 [P] Create `scripts/migrate_hierarchy/transform_hierarchy.py` - merge AI suggestions
+- [x] T039 [P] Create `scripts/migrate_hierarchy/validate_hierarchy.py` - pre-import validation
+- [x] T040 [P] Create `scripts/prompts/hierarchy_categorization_prompt.md` - AI prompt template
+- [x] T041 [P] Document migration process in README or separate doc
 
 ### Implementation Notes
 - Transform script accepts AI-generated JSON with suggested parent relationships
@@ -238,13 +238,13 @@
 **Assignee**: Claude
 
 ### Included Subtasks
-- [ ] T042 Create sample hierarchy data for testing (20-30 ingredients, 5 root categories)
-- [ ] T043 Update export/import services to handle new hierarchy fields
-- [ ] T044 Execute full migration of production ingredient data
-- [ ] T045 End-to-end testing of all user stories
-- [ ] T046 User acceptance testing with Marianne
-- [ ] T047 Bug fixes from testing
-- [ ] T048 Update CHANGELOG and documentation
+- [x] T042 Create sample hierarchy data for testing (20-30 ingredients, 5 root categories)
+- [x] T043 Update export/import services to handle new hierarchy fields
+- [x] T044 Execute full migration of production ingredient data
+- [x] T045 End-to-end testing of all user stories
+- [x] T046 User acceptance testing with Marianne
+- [x] T047 Bug fixes from testing
+- [x] T048 Update CHANGELOG and documentation
 
 ### Implementation Notes
 - Sample data: Create JSON with Chocolate, Flour, Sugar hierarchies for testing
