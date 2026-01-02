@@ -9,10 +9,10 @@ subtasks:
   - "T010"
 title: "UI Form Fix - Remove Level Selector"
 phase: "Phase 2 - User Story 1 (P1)"
-lane: "for_review"
+lane: "done"
 assignee: ""
-agent: "system"
-shell_pid: ""
+agent: "claude-reviewer"
+shell_pid: "81353"
 review_status: "approved without changes"
 reviewed_by: "claude-reviewer"
 history:
@@ -313,3 +313,4 @@ def _check_parent_change_warnings(self):
 - 2026-01-02T00:00:00Z - system - lane=planned - Prompt created.
 - 2026-01-02T05:45:08Z – system – shell_pid= – lane=doing – Moved to doing
 - 2026-01-02T05:48:28Z – system – shell_pid= – lane=for_review – Moved to for_review
+- 2026-01-02T09:17:27Z – claude-reviewer – shell_pid=81353 – lane=done – Code review approved: Level selector removed, computed level display implemented, parent change warnings integrated with can_change_parent(). All acceptance scenarios satisfied.
