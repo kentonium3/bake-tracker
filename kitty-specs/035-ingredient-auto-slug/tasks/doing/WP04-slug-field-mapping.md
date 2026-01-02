@@ -6,10 +6,10 @@ subtasks:
   - "T018"
 title: "Slug Field Mapping Fix"
 phase: "Phase 2 - Core Implementation"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "gemini"
+shell_pid: "17160"
 review_status: ""
 reviewed_by: ""
 history:
@@ -155,3 +155,4 @@ slug = create_slug(ingredient_data["display_name"], session)
 ## Activity Log
 
 - 2026-01-02T12:00:00Z - system - lane=planned - Prompt created via /spec-kitty.tasks
+- 2026-01-02T19:38:05Z – gemini – shell_pid=17160 – lane=doing – Started Wave 2 implementation (parallel with WP03)
