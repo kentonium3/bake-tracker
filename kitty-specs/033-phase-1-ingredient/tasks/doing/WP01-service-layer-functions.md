@@ -7,10 +7,10 @@ subtasks:
   - "T004"
 title: "Service Layer Functions"
 phase: "Phase 1 - Foundational"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "claude"
+shell_pid: "66160"
 review_status: ""
 reviewed_by: ""
 history:
@@ -357,3 +357,4 @@ class TestCanChangeParent:
 ## Activity Log
 
 - 2026-01-02T00:00:00Z - system - lane=planned - Prompt created.
+- 2026-01-02T05:34:05Z – claude – shell_pid=66160 – lane=doing – Started implementation
