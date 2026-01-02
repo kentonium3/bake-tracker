@@ -4,6 +4,58 @@
 **Date**: 2026-01-02
 **Purpose**: Analyze existing test coverage for ingredient hierarchy to identify gaps before comprehensive testing
 
+---
+
+## Test Execution Results (WP01)
+
+**Executed**: 2026-01-02
+**Status**: ALL TESTS PASSED
+
+### Summary
+
+| Metric | Value |
+|--------|-------|
+| Total tests run | 1469 |
+| Passed | 1469 |
+| Failed | 0 |
+| Skipped | 14 |
+| Warnings | 1068 (resource warnings, non-blocking) |
+| Execution time | 218.26s |
+
+### Ingredient-Specific Test Results
+
+| Test File | Tests | Status |
+|-----------|-------|--------|
+| `test_ingredient_hierarchy_service.py` | 74 | PASSED |
+| `test_ingredient_service.py` | 50 | PASSED |
+| `test_recipe_service.py` (leaf-only) | 7 | PASSED |
+| `test_product_catalog_service.py` (leaf-only) | 4 | PASSED |
+| **Total ingredient tests** | **135** | **ALL PASSED** |
+
+### Deletion Protection Tests (F035)
+
+| Test | Status |
+|------|--------|
+| `test_delete_blocked_by_products` | PASSED |
+| `test_delete_blocked_by_recipes` | PASSED |
+| `test_delete_blocked_by_children` | PASSED |
+| `test_delete_with_snapshots_denormalizes` | PASSED |
+| `test_delete_cascades_aliases` | PASSED |
+| `test_delete_cascades_crosswalks` | PASSED |
+| `test_slug_auto_generation` | PASSED |
+| `test_slug_conflict_resolution` | PASSED |
+| `test_field_name_normalization` | PASSED |
+
+### Skipped Tests (All Expected)
+
+All 14 skipped tests have documented reasons:
+- TD-001: Stock management moved to InventoryItem
+- TD-001: quantity moved to InventoryItem
+- TD-001: conversion_factor replaced by 4-field density model
+- No root ingredients in test database (cascading filter test)
+
+---
+
 ## Decision Summary
 
 | Decision | Choice | Rationale |
