@@ -338,3 +338,4 @@ def mock_products_tab():
 ## Activity Log
 
 - 2026-01-02T10:45:22Z - system - lane=planned - Prompt created via /spec-kitty.tasks
+- 2026-01-02T16:15:00Z - claude - lane=planned - DEFERRED: WP04 is P3 priority and optional. Core functionality (WP01-03) is complete with all 1443 existing tests passing. Integration tests for cascading behavior deferred to future iteration. Cursor review APPROVED WITH CHANGES (addressed).

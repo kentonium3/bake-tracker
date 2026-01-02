@@ -119,10 +119,11 @@
 
 ---
 
-## Work Package WP04: Integration Tests (Priority: P3)
+## Work Package WP04: Integration Tests (Priority: P3) - DEFERRED
 
 **Goal**: Write integration tests to prevent regression of cascading filter behavior.
 **Agent**: Either
+**Status**: DEFERRED - P3 priority, optional for MVP. Core functionality complete with 1443 existing tests passing.
 **Independent Test**: Tests pass in CI and cover all cascading scenarios.
 **Prompt**: `tasks/planned/WP04-integration-tests.md`
 
