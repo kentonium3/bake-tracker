@@ -11,10 +11,10 @@ subtasks:
   - "T008"
 title: "Products Tab Cascading Fix"
 phase: "Phase A - Sequential Foundation"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "claude"
-shell_pid: "91196"
+shell_pid: "94052"
 review_status: ""
 reviewed_by: ""
 history:
@@ -286,3 +286,4 @@ Manual testing is primary for this work package. Automated tests will be added i
 
 - 2026-01-02T10:45:22Z - system - lane=planned - Prompt created via /spec-kitty.tasks
 - 2026-01-02T10:53:00Z – claude – shell_pid=91196 – lane=doing – Started implementation
+- 2026-01-02T15:36:59Z – claude – shell_pid=94052 – lane=for_review – Ready for review - re-entry guards and Clear button implemented
