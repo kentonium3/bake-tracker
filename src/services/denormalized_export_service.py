@@ -242,7 +242,7 @@ def _export_products_view_impl(output_path: str, session: Session) -> ExportResu
             ),
             # Purchase context (readonly)
             "last_purchase_price": (
-                str(recent_purchase.unit_price) if recent_purchase else None
+                f"{recent_purchase.unit_price:.2f}" if recent_purchase else None
             ),
             "last_purchase_date": (
                 recent_purchase.purchase_date.isoformat()
@@ -452,9 +452,9 @@ def _export_purchases_view_impl(output_path: str, session: Session) -> ExportRes
             "purchase_date": (
                 p.purchase_date.isoformat() if p.purchase_date else None
             ),
-            "unit_price": str(p.unit_price) if p.unit_price else None,
+            "unit_price": f"{p.unit_price:.2f}" if p.unit_price else None,
             "quantity_purchased": p.quantity_purchased,
-            "total_cost": str(p.total_cost) if p.unit_price else None,
+            "total_cost": f"{p.total_cost:.2f}" if p.unit_price else None,
             "notes": p.notes,  # Editable
             "created_at": p.created_at.isoformat() if p.created_at else None,
             # Product context (readonly)

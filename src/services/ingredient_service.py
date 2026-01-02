@@ -185,7 +185,7 @@ def create_ingredient(ingredient_data: Dict[str, Any]) -> Ingredient:
     try:
         with session_scope() as session:
             # Generate slug from name
-            slug = create_slug(ingredient_data["name"], session)
+            slug = create_slug(ingredient_data["display_name"], session)
 
             # Feature 031: Handle hierarchy fields
             parent_ingredient_id = ingredient_data.get("parent_ingredient_id")

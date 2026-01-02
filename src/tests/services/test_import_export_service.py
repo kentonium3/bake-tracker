@@ -339,7 +339,7 @@ class TestExportAllToJsonV3Format:
                 data = json.load(f)
 
             # Verify v3.4 header (Feature 021: field naming consistency)
-            assert data["version"] == "3.5"  # Feature 027: suppliers and purchases with FK
+            assert data["version"] == "3.6"  # Feature 027: suppliers and purchases with FK
             assert "exported_at" in data
             assert data["application"] == "bake-tracker"
 
@@ -642,14 +642,14 @@ class TestSampleDataIntegration:
 
         assert data is not None
         assert "version" in data
-        assert data["version"] == "3.5"  # Feature 027: suppliers and purchases with FK
+        assert data["version"] == "3.6"  # Feature 027: suppliers and purchases with FK
 
     def test_sample_data_has_v3_header(self):
         """Verify sample data has proper v3.5 header (Feature 028)."""
         with open(SAMPLE_DATA_PATH, "r") as f:
             data = json.load(f)
 
-        assert data.get("version") == "3.5"
+        assert data.get("version") == "3.6"
         assert "exported_at" in data
         assert "application" in data
         assert data.get("application") == "bake-tracker"
@@ -982,14 +982,14 @@ class TestDensityFieldsImportExport:
         with open("test_data/ingredients_catalog.json", "r") as f:
             data = json.load(f)
 
-        # Find All-Purpose Wheat Flour (standardized slug)
+        # Find All-Purpose Flour (standardized slug)
         flour = None
         for ing in data["ingredients"]:
-            if ing["slug"] == "all_purpose_wheat_flour":
+            if ing["slug"] == "flour_all_purpose":
                 flour = ing
                 break
 
-        assert flour is not None, "Catalog should have all_purpose_wheat_flour"
+        assert flour is not None, "Catalog should have flour_all_purpose"
 
         # Should have 4-field density, not legacy
         assert "density_g_per_ml" not in flour, "Should not have legacy density field"
@@ -1007,7 +1007,7 @@ class TestDensityFieldsImportExport:
             data = json.load(f)
 
         assert "version" in data
-        assert data["version"] == "3.5"  # Feature 027: suppliers and purchases with FK
+        assert data["version"] == "3.6"  # Feature 027: suppliers and purchases with FK
         # Note: ingredients are in separate catalog file, not sample_data.json
         assert "products" in data
         assert "recipes" in data

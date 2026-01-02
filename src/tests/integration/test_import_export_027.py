@@ -523,7 +523,7 @@ class TestRoundTrip:
             exported_data = json.load(f)
 
         # Verify version
-        assert exported_data["version"] == "3.5"
+        assert exported_data["version"] == "3.6"
 
         # Verify supplier data
         costco = next(s for s in exported_data["suppliers"] if s["name"] == "Costco")

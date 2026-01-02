@@ -150,11 +150,11 @@ class Purchase(BaseModel):
             "product_id": self.product_id,
             "supplier_id": self.supplier_id,
             "purchase_date": self.purchase_date.isoformat() if self.purchase_date else None,
-            "unit_price": str(self.unit_price) if self.unit_price else None,
+            "unit_price": f"{self.unit_price:.2f}" if self.unit_price else None,
             "quantity_purchased": self.quantity_purchased,
             "notes": self.notes,
             "created_at": self.created_at.isoformat() if self.created_at else None,
-            "total_cost": str(self.total_cost) if self.unit_price else None,
+            "total_cost": f"{self.total_cost:.2f}" if self.unit_price else None,
         }
 
         if include_relationships:

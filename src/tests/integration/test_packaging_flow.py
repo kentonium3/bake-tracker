@@ -379,7 +379,7 @@ class TestPackagingImportExport:
                 data = json.load(f)
 
             # Check version is 3.5 (Feature 028 added Purchase entity)
-            assert data["version"] == "3.5"
+            assert data["version"] == "3.6"
 
             # Find exported ingredients
             exported_ingredients = {i["slug"]: i for i in data["ingredients"]}

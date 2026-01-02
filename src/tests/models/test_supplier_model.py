@@ -86,40 +86,43 @@ class TestSupplierModel:
             session.flush()
 
     def test_supplier_requires_city(self, session):
-        """Test that city is required."""
-        supplier = Supplier(
-            name="Test Supplier",
-            city=None,  # Missing required field
-            state="MA",
-            zip_code="02101",
-        )
-        session.add(supplier)
-        with pytest.raises(IntegrityError):
-            session.flush()
+        """Test that city is required for physical suppliers."""
+        from src.services import supplier_service
+        with pytest.raises(ValueError) as exc_info:
+            supplier_service.create_supplier(
+                name="Test Supplier",
+                state="MA",
+                zip_code="02101",
+                supplier_type="physical",
+                session=session,
+            )
+        assert "City is required" in str(exc_info.value)
 
     def test_supplier_requires_state(self, session):
-        """Test that state is required."""
-        supplier = Supplier(
-            name="Test Supplier",
-            city="Boston",
-            state=None,  # Missing required field
-            zip_code="02101",
-        )
-        session.add(supplier)
-        with pytest.raises(IntegrityError):
-            session.flush()
+        """Test that state is required for physical suppliers."""
+        from src.services import supplier_service
+        with pytest.raises(ValueError) as exc_info:
+            supplier_service.create_supplier(
+                name="Test Supplier",
+                city="Boston",
+                zip_code="02101",
+                supplier_type="physical",
+                session=session,
+            )
+        assert "State is required" in str(exc_info.value)
 
     def test_supplier_requires_zip_code(self, session):
-        """Test that zip_code is required."""
-        supplier = Supplier(
-            name="Test Supplier",
-            city="Boston",
-            state="MA",
-            zip_code=None,  # Missing required field
-        )
-        session.add(supplier)
-        with pytest.raises(IntegrityError):
-            session.flush()
+        """Test that zip_code is required for physical suppliers."""
+        from src.services import supplier_service
+        with pytest.raises(ValueError) as exc_info:
+            supplier_service.create_supplier(
+                name="Test Supplier",
+                city="Boston",
+                state="MA",
+                supplier_type="physical",
+                session=session,
+            )
+        assert "ZIP code is required" in str(exc_info.value)
 
     def test_supplier_default_is_active(self, session):
         """Test that is_active defaults to True."""

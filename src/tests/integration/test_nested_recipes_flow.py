@@ -21,33 +21,49 @@ from src.models import Recipe, RecipeIngredient, RecipeComponent
 @pytest.fixture
 def test_ingredient(test_db):
     """Create a test ingredient with pricing."""
+    # Ensure 'Flour' root category exists
+    ingredient_service.create_ingredient({"display_name": "Flour (Category)", "category": "Flour", "hierarchy_level": 0, "slug": "flour-category"})
     return ingredient_service.create_ingredient({
-        "name": "Flour",
+        "display_name": "Flour",
         "category": "Flour",
+        "slug": "flour"
     })
 
 @pytest.fixture
 def test_ingredient_sugar(test_db):
     """Create a sugar ingredient."""
+    # Ensure 'Sugar' root category exists
+    ingredient_service.create_ingredient({"display_name": "Sugar (Category)", "category": "Sugar", "hierarchy_level": 0, "slug": "sugar-category"})
     return ingredient_service.create_ingredient({
-        "name": "Sugar",
+        "display_name": "Sugar",
         "category": "Sugar",
+        "slug": "sugar"
     })
 
 @pytest.fixture
 def test_ingredient_butter(test_db):
     """Create a butter ingredient."""
+    # Ensure 'Dairy' root category exists
+    ingredient_service.create_ingredient({"display_name": "Dairy (Category)", "category": "Dairy", "hierarchy_level": 0, "slug": "dairy-category"})
     return ingredient_service.create_ingredient({
-        "name": "Butter",
+        "display_name": "Butter",
         "category": "Dairy",
+        "slug": "butter"
     })
 
 @pytest.fixture
 def test_ingredient_milk(test_db):
     """Create a milk ingredient."""
+    # Ensure 'Dairy' root category exists
+    # This will be skipped if Dairy (Category) was already created by test_ingredient_butter
+    try:
+        ingredient_service.create_ingredient({"display_name": "Dairy (Category)", "category": "Dairy", "hierarchy_level": 0, "slug": "dairy-category"})
+    except ValidationError:
+        pass # Already exists
     return ingredient_service.create_ingredient({
-        "name": "Milk",
+        "display_name": "Milk",
         "category": "Dairy",
+        "slug": "milk"
     })
 
 # =============================================================================

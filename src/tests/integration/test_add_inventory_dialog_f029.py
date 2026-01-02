@@ -152,6 +152,9 @@ class TestDropdownBuilders:
         """Ingredient dropdown should filter by category."""
         # Add another ingredient in different category
         ingredient_service.create_ingredient(
+            {"name": "Dummy Dairy", "category": "Dairy"}
+        )
+        ingredient_service.create_ingredient(
             {"name": "Test Milk", "category": "Dairy"}
         )
 

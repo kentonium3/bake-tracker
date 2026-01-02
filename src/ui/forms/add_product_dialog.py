@@ -58,6 +58,7 @@ class AddProductDialog(ctk.CTkToplevel):
 
         self.product_id = product_id
         self.result: Optional[bool] = None
+        self._is_updating_ui = False
 
         # Data stores - Feature 031: Hierarchical ingredient selection
         self.categories: List[Dict[str, Any]] = []  # Level 0
@@ -113,7 +114,6 @@ class AddProductDialog(ctk.CTkToplevel):
         self.deiconify()
         self.update()
         try:
-<<<<<<< HEAD
             self.wait_visibility()
             self.grab_set()
         except Exception:
@@ -130,15 +130,9 @@ class AddProductDialog(ctk.CTkToplevel):
             True if data loaded successfully, False if error occurred
         """
         try:
-            # Feature 031: Load root categories (level 0)
-            self.categories = ingredient_hierarchy_service.get_root_ingredients()
-            # Note: to_dict() returns "display_name", not "name"
-            self.categories_map = {cat["display_name"]: cat for cat in self.categories}
-=======
             # Feature 032: Load only leaf ingredients (L2) for product assignment
             self.ingredients = ingredient_hierarchy_service.get_leaf_ingredients()
             self.ingredients_map = {ing.get("display_name", ing.get("name", "?")): ing for ing in self.ingredients}
->>>>>>> 032-complete-f031-hierarchy
 
             # Load active suppliers
             self.suppliers = supplier_service.get_active_suppliers()
@@ -243,57 +237,20 @@ class AddProductDialog(ctk.CTkToplevel):
         self.unit_dropdown.grid(row=row, column=1, padx=(0, 20), pady=5, sticky="w")
         row += 1
 
-        # Feature 031: Hierarchical ingredient selection
-        # Category dropdown (Level 0)
-        cat_label = ctk.CTkLabel(self, text="Category *")
-        cat_label.grid(row=row, column=0, padx=(20, 10), pady=5, sticky="w")
-
-        self.category_var = ctk.StringVar()
-        category_names = sorted(self.categories_map.keys())
-        self.category_dropdown = ctk.CTkComboBox(
-            self,
-            variable=self.category_var,
-            values=category_names if category_names else ["No categories"],
-            command=self._on_category_change,
-            width=280,
-        )
-        self.category_dropdown.grid(row=row, column=1, padx=(0, 20), pady=5, sticky="w")
-        if not category_names:
-            self.category_dropdown.configure(state="disabled")
-        row += 1
-
-        # Subcategory dropdown (Level 1)
-        subcat_label = ctk.CTkLabel(self, text="Subcategory *")
-        subcat_label.grid(row=row, column=0, padx=(20, 10), pady=5, sticky="w")
-
-        self.subcategory_var = ctk.StringVar()
-        self.subcategory_dropdown = ctk.CTkComboBox(
-            self,
-            variable=self.subcategory_var,
-            values=["(Select category first)"],
-            command=self._on_subcategory_change,
-            width=280,
-            state="disabled",
-        )
-        self.subcategory_dropdown.grid(row=row, column=1, padx=(0, 20), pady=5, sticky="w")
-        row += 1
-
         # Ingredient dropdown (Level 2 - leaves)
         ing_label = ctk.CTkLabel(self, text="Ingredient *")
         ing_label.grid(row=row, column=0, padx=(20, 10), pady=5, sticky="w")
 
         self.ingredient_var = ctk.StringVar()
+        ingredient_names = sorted(self.ingredients_map.keys())
         self.ingredient_dropdown = ctk.CTkComboBox(
             self,
             variable=self.ingredient_var,
-            values=["(Select subcategory first)"],
+            values=ingredient_names if ingredient_names else ["No ingredients"],
             command=self._on_ingredient_change,
             width=280,
-            state="disabled",
         )
         self.ingredient_dropdown.grid(row=row, column=1, padx=(0, 20), pady=5, sticky="w")
-<<<<<<< HEAD
-=======
         if not ingredient_names:
             self.ingredient_dropdown.configure(state="disabled")
         row += 1
@@ -310,7 +267,6 @@ class AddProductDialog(ctk.CTkToplevel):
             anchor="w",
         )
         self.hierarchy_display.grid(row=row, column=1, padx=(0, 20), pady=5, sticky="w")
->>>>>>> 032-complete-f031-hierarchy
         row += 1
 
         # Preferred Supplier (optional)
@@ -378,74 +334,14 @@ class AddProductDialog(ctk.CTkToplevel):
         )
         save_btn.grid(row=0, column=1, padx=10, pady=10, sticky="w")
 
-    def _on_category_change(self, choice: str):
-        """Handle category selection - populate subcategory dropdown."""
-        # Reset downstream selections
-        self.subcategory_var.set("")
-        self.ingredient_var.set("")
-        self.subcategories_map.clear()
-        self.ingredients_map.clear()
-        self.selected_ingredient = None
-
-        if choice not in self.categories_map:
-            self.subcategory_dropdown.configure(values=["(Select category first)"], state="disabled")
-            self.ingredient_dropdown.configure(values=["(Select subcategory first)"], state="disabled")
-            return
-
-        # Get subcategories (children of selected category)
-        category = self.categories_map[choice]
-        try:
-            self.subcategories = ingredient_hierarchy_service.get_children(category["id"])
-            self.subcategories_map = {sub["display_name"]: sub for sub in self.subcategories}
-
-            if self.subcategories:
-                subcat_names = sorted(self.subcategories_map.keys())
-                self.subcategory_dropdown.configure(values=subcat_names, state="normal")
-            else:
-                self.subcategory_dropdown.configure(values=["(No subcategories)"], state="disabled")
-
-            self.ingredient_dropdown.configure(values=["(Select subcategory first)"], state="disabled")
-
-        except Exception as e:
-            messagebox.showerror("Error", f"Failed to load subcategories: {e}", parent=self)
-
-    def _on_subcategory_change(self, choice: str):
-        """Handle subcategory selection - populate ingredient dropdown."""
-        # Reset ingredient selection
-        self.ingredient_var.set("")
-        self.ingredients_map.clear()
-        self.selected_ingredient = None
-
-        if choice not in self.subcategories_map:
-            self.ingredient_dropdown.configure(values=["(Select subcategory first)"], state="disabled")
-            return
-
-        # Get leaf ingredients (children of selected subcategory)
-        subcategory = self.subcategories_map[choice]
-        try:
-            self.ingredients = ingredient_hierarchy_service.get_children(subcategory["id"])
-            self.ingredients_map = {ing["display_name"]: ing for ing in self.ingredients}
-
-            if self.ingredients:
-                ing_names = sorted(self.ingredients_map.keys())
-                self.ingredient_dropdown.configure(values=ing_names, state="normal")
-            else:
-                self.ingredient_dropdown.configure(values=["(No ingredients)"], state="disabled")
-
-        except Exception as e:
-            messagebox.showerror("Error", f"Failed to load ingredients: {e}", parent=self)
-
     def _on_ingredient_change(self, choice: str):
-<<<<<<< HEAD
-        """Handle ingredient selection - store selected ingredient."""
+        """Handle ingredient selection - update category display with hierarchy path."""
+        if self._is_updating_ui:
+            return
         if choice in self.ingredients_map:
             self.selected_ingredient = self.ingredients_map[choice]
-=======
-        """Handle ingredient selection - update category display with hierarchy path."""
-        if choice in self.ingredients_map:
-            ingredient = self.ingredients_map[choice]
             # Feature 032: Show hierarchy path instead of deprecated category
-            ingredient_id = ingredient.get("id")
+            ingredient_id = self.selected_ingredient.get("id")
             if ingredient_id:
                 try:
                     ancestors = ingredient_hierarchy_service.get_ancestors(ingredient_id)
@@ -458,64 +354,9 @@ class AddProductDialog(ctk.CTkToplevel):
                     self.category_var.set("(Unknown)")
             else:
                 self.category_var.set("(Unknown)")
->>>>>>> 032-complete-f031-hierarchy
         else:
             self.selected_ingredient = None
-
-    def _set_ingredient_by_id(self, ingredient_id: int):
-        """
-        Set all three dropdowns based on an ingredient ID.
-
-        Used when editing a product to populate the hierarchy from the saved ingredient.
-        Walks up the ancestor chain to find category and subcategory.
-        """
-        try:
-            # Get the ingredient and its ancestors
-            ingredient = ingredient_hierarchy_service.get_ingredient_by_id(ingredient_id)
-            if not ingredient:
-                print(f"Warning: Ingredient {ingredient_id} not found")
-                return
-
-            ancestors = ingredient_hierarchy_service.get_ancestors(ingredient_id)
-
-            # Ancestors are ordered from immediate parent to root
-            # For a leaf ingredient: [subcategory, category]
-            if len(ancestors) >= 2:
-                subcategory = ancestors[0]  # Immediate parent (level 1)
-                category = ancestors[1]     # Grandparent (level 0)
-            elif len(ancestors) == 1:
-                subcategory = ancestors[0]
-                category = None
-            else:
-                subcategory = None
-                category = None
-
-            # Set category dropdown
-            if category and category["display_name"] in self.categories_map:
-                self.category_var.set(category["display_name"])
-                self._on_category_change(category["display_name"])
-
-                # Set subcategory dropdown (after category change populates subcategories_map)
-                if subcategory and subcategory["display_name"] in self.subcategories_map:
-                    self.subcategory_var.set(subcategory["display_name"])
-                    self._on_subcategory_change(subcategory["display_name"])
-
-                    # Set ingredient dropdown (after subcategory change populates ingredients_map)
-                    if ingredient["display_name"] in self.ingredients_map:
-                        self.ingredient_var.set(ingredient["display_name"])
-                        self._on_ingredient_change(ingredient["display_name"])
-                    else:
-                        print(f"Warning: Ingredient '{ingredient['display_name']}' not in ingredients_map")
-                else:
-                    print(f"Warning: Subcategory '{subcategory['display_name'] if subcategory else 'None'}' not in subcategories_map")
-            else:
-                print(f"Warning: Category '{category['display_name'] if category else 'None'}' not in categories_map")
-
-        except Exception as e:
-            # Log but don't fail - user can still select manually
-            import traceback
-            print(f"Warning: Could not set ingredient hierarchy: {e}")
-            traceback.print_exc()
+            self.category_var.set("(Select ingredient)")
 
     def _validate(self) -> bool:
         """Validate form fields before save."""
@@ -541,16 +382,6 @@ class AddProductDialog(ctk.CTkToplevel):
             except ValueError:
                 errors.append("Package quantity must be a valid number")
 
-<<<<<<< HEAD
-        # Ingredient required (must complete all three dropdowns)
-        if not self.selected_ingredient:
-            if not self.category_var.get() or self.category_var.get() not in self.categories_map:
-                errors.append("Please select a category")
-            elif not self.subcategory_var.get() or self.subcategory_var.get() not in self.subcategories_map:
-                errors.append("Please select a subcategory")
-            else:
-                errors.append("Please select an ingredient")
-=======
         # Ingredient required
         ingredient_name = self.ingredient_var.get()
         if not ingredient_name or ingredient_name not in self.ingredients_map:
@@ -563,7 +394,6 @@ class AddProductDialog(ctk.CTkToplevel):
                     "Only leaf ingredients (L2) can be assigned to products.\n"
                     "Please select a specific ingredient, not a category."
                 )
->>>>>>> 032-complete-f031-hierarchy
 
         if errors:
             messagebox.showerror(
@@ -645,6 +475,7 @@ class AddProductDialog(ctk.CTkToplevel):
 
     def _load_product(self):
         """Load existing product data for edit mode."""
+        self._is_updating_ui = True
         try:
             product = product_catalog_service.get_product_with_last_price(self.product_id)
             if not product:
@@ -673,15 +504,11 @@ class AddProductDialog(ctk.CTkToplevel):
             # Feature 031: Find and set hierarchical ingredient selection
             ingredient_id = product.get("ingredient_id")
             if ingredient_id:
-<<<<<<< HEAD
-                self._set_ingredient_by_id(ingredient_id)
-=======
                 for display_name, ing in self.ingredients_map.items():
                     if ing.get("id") == ingredient_id:
                         self.ingredient_var.set(display_name)
                         self._on_ingredient_change(display_name)
                         break
->>>>>>> 032-complete-f031-hierarchy
 
             # Find and set supplier
             supplier_id = product.get("preferred_supplier_id")
@@ -698,3 +525,5 @@ class AddProductDialog(ctk.CTkToplevel):
                 parent=self,
             )
             self.destroy()
+        finally:
+            self._is_updating_ui = False
