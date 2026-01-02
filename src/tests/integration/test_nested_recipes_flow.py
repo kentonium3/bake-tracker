@@ -22,7 +22,7 @@ from src.models import Recipe, RecipeIngredient, RecipeComponent
 def test_ingredient(test_db):
     """Create a test ingredient with pricing."""
     return ingredient_service.create_ingredient({
-        "name": "Flour",
+        "display_name": "Flour",
         "category": "Flour",
     })
 
@@ -30,7 +30,7 @@ def test_ingredient(test_db):
 def test_ingredient_sugar(test_db):
     """Create a sugar ingredient."""
     return ingredient_service.create_ingredient({
-        "name": "Sugar",
+        "display_name": "Sugar",
         "category": "Sugar",
     })
 
@@ -38,7 +38,7 @@ def test_ingredient_sugar(test_db):
 def test_ingredient_butter(test_db):
     """Create a butter ingredient."""
     return ingredient_service.create_ingredient({
-        "name": "Butter",
+        "display_name": "Butter",
         "category": "Dairy",
     })
 
@@ -46,7 +46,7 @@ def test_ingredient_butter(test_db):
 def test_ingredient_milk(test_db):
     """Create a milk ingredient."""
     return ingredient_service.create_ingredient({
-        "name": "Milk",
+        "display_name": "Milk",
         "category": "Dairy",
     })
 

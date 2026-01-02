@@ -27,7 +27,7 @@ def flour_ingredient(test_db):
     """Create a flour ingredient with known density for unit conversion."""
     return ingredient_service.create_ingredient(
         {
-            "name": "Test Flour",
+            "display_name": "Test Flour",
             "category": "Flour",
             # 4-field density: 1 cup = 125g (~0.529 g/ml)
             "density_volume_value": 1.0,
@@ -42,7 +42,7 @@ def sugar_ingredient(test_db):
     """Create a sugar ingredient with multiple products (no preferred)."""
     return ingredient_service.create_ingredient(
         {
-            "name": "Test Sugar",
+            "display_name": "Test Sugar",
             "category": "Sugar",
             # 4-field density: 1 cup = 200g (~0.85 g/ml)
             "density_volume_value": 1.0,
@@ -57,7 +57,7 @@ def no_product_ingredient(test_db):
     """Create an ingredient with no products configured."""
     return ingredient_service.create_ingredient(
         {
-            "name": "Special Spice",
+            "display_name": "Special Spice",
             "category": "Spices",
         }
     )

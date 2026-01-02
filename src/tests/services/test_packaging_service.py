@@ -76,7 +76,7 @@ def packaging_ingredient(test_db):
     """Create a packaging ingredient for tests."""
     return create_ingredient(
         {
-            "name": "Cellophane Bags 6x10",
+            "display_name": "Cellophane Bags 6x10",
             "category": "Bags",
             "is_packaging": True,
         }
@@ -88,7 +88,7 @@ def packaging_ingredient_2(test_db):
     """Create a second packaging ingredient for tests."""
     return create_ingredient(
         {
-            "name": "Gift Boxes Medium",
+            "display_name": "Gift Boxes Medium",
             "category": "Boxes",
             "is_packaging": True,
         }
@@ -100,7 +100,7 @@ def food_ingredient(test_db):
     """Create a food ingredient (not packaging) for tests."""
     return create_ingredient(
         {
-            "name": "All-Purpose Flour",
+            "display_name": "All-Purpose Flour",
             "category": "Flour",
             "is_packaging": False,
         }

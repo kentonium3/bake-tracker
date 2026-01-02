@@ -155,7 +155,7 @@ class TestCreatePackagingIngredient:
     def test_create_ingredient_with_is_packaging_true(self, test_db):
         """Create ingredient with is_packaging=True persists the flag."""
         ingredient = create_ingredient({
-            "name": "Test Cellophane Bags",
+            "display_name": "Test Cellophane Bags",
             "category": "Bags",
             "is_packaging": True
         })
@@ -165,7 +165,7 @@ class TestCreatePackagingIngredient:
     def test_create_ingredient_with_is_packaging_false(self, test_db):
         """Create ingredient with is_packaging=False (explicit)."""
         ingredient = create_ingredient({
-            "name": "Test All-Purpose Flour",
+            "display_name": "Test All-Purpose Flour",
             "category": "Flour",
             "is_packaging": False
         })
@@ -174,7 +174,7 @@ class TestCreatePackagingIngredient:
     def test_create_ingredient_without_is_packaging_defaults_false(self, test_db):
         """Create ingredient without is_packaging defaults to False."""
         ingredient = create_ingredient({
-            "name": "Test Sugar",
+            "display_name": "Test Sugar",
             "category": "Sugar"
         })
         assert ingredient.is_packaging is False
@@ -185,9 +185,9 @@ class TestGetPackagingIngredients:
     def test_get_packaging_ingredients_returns_only_packaging(self, test_db):
         """get_packaging_ingredients returns only is_packaging=True."""
         # Create mix of packaging and food ingredients
-        create_ingredient({"name": "Test Bags", "category": "Bags", "is_packaging": True})
-        create_ingredient({"name": "Test Boxes", "category": "Boxes", "is_packaging": True})
-        create_ingredient({"name": "Test Flour", "category": "Flour", "is_packaging": False})
+        create_ingredient({"display_name": "Test Bags", "category": "Bags", "is_packaging": True})
+        create_ingredient({"display_name": "Test Boxes", "category": "Boxes", "is_packaging": True})
+        create_ingredient({"display_name": "Test Flour", "category": "Flour", "is_packaging": False})
 
         results = get_packaging_ingredients()
 
@@ -199,9 +199,9 @@ class TestGetPackagingIngredients:
 
     def test_get_packaging_ingredients_sorted_by_category_then_name(self, test_db):
         """get_packaging_ingredients returns sorted results."""
-        create_ingredient({"name": "Test Z Ribbon", "category": "Ribbon", "is_packaging": True})
-        create_ingredient({"name": "Test A Bags", "category": "Bags", "is_packaging": True})
-        create_ingredient({"name": "Test B Bags", "category": "Bags", "is_packaging": True})
+        create_ingredient({"display_name": "Test Z Ribbon", "category": "Ribbon", "is_packaging": True})
+        create_ingredient({"display_name": "Test A Bags", "category": "Bags", "is_packaging": True})
+        create_ingredient({"display_name": "Test B Bags", "category": "Bags", "is_packaging": True})
 
         results = get_packaging_ingredients()
 
@@ -214,7 +214,7 @@ class TestGetPackagingIngredients:
     def test_get_packaging_ingredients_empty_when_no_packaging(self, test_db):
         """get_packaging_ingredients returns empty list when no packaging."""
         # Only create food ingredients
-        create_ingredient({"name": "Test Flour", "category": "Flour", "is_packaging": False})
+        create_ingredient({"display_name": "Test Flour", "category": "Flour", "is_packaging": False})
 
         results = get_packaging_ingredients()
         assert len(results) == 0
@@ -224,9 +224,9 @@ class TestGetFoodIngredients:
 
     def test_get_food_ingredients_returns_only_food(self, test_db):
         """get_food_ingredients returns only is_packaging=False."""
-        create_ingredient({"name": "Test Bags", "category": "Bags", "is_packaging": True})
-        create_ingredient({"name": "Test Flour", "category": "Flour", "is_packaging": False})
-        create_ingredient({"name": "Test Sugar", "category": "Sugar", "is_packaging": False})
+        create_ingredient({"display_name": "Test Bags", "category": "Bags", "is_packaging": True})
+        create_ingredient({"display_name": "Test Flour", "category": "Flour", "is_packaging": False})
+        create_ingredient({"display_name": "Test Sugar", "category": "Sugar", "is_packaging": False})
 
         results = get_food_ingredients()
 
@@ -241,7 +241,7 @@ class TestIsPackagingIngredient:
     def test_is_packaging_ingredient_returns_true_for_packaging(self, test_db):
         """is_packaging_ingredient returns True for packaging ingredient."""
         ingredient = create_ingredient({
-            "name": "Test Bags",
+            "display_name": "Test Bags",
             "category": "Bags",
             "is_packaging": True
         })
@@ -250,7 +250,7 @@ class TestIsPackagingIngredient:
     def test_is_packaging_ingredient_returns_false_for_food(self, test_db):
         """is_packaging_ingredient returns False for food ingredient."""
         ingredient = create_ingredient({
-            "name": "Test Flour",
+            "display_name": "Test Flour",
             "category": "Flour",
             "is_packaging": False
         })
@@ -301,7 +301,7 @@ class TestUpdateIngredientPackagingProtection:
 
         # Step 1: Create packaging ingredient
         ingredient = create_ingredient({
-            "name": "Test Protection Bags",
+            "display_name": "Test Protection Bags",
             "category": "Bags",
             "is_packaging": True
         })
@@ -350,7 +350,7 @@ class TestUpdateIngredientPackagingProtection:
         """Can unmark is_packaging when no products are in compositions."""
         # Create packaging ingredient with no products/compositions
         ingredient = create_ingredient({
-            "name": "Test Unused Bags",
+            "display_name": "Test Unused Bags",
             "category": "Bags",
             "is_packaging": True
         })
@@ -366,7 +366,7 @@ class TestUpdateIngredientPackagingProtection:
 
         # Create packaging ingredient
         ingredient = create_ingredient({
-            "name": "Test Lonely Bags",
+            "display_name": "Test Lonely Bags",
             "category": "Bags",
             "is_packaging": True
         })
@@ -399,7 +399,7 @@ class TestCreateIngredientHierarchy:
         """Create ingredient with valid parent sets correct hierarchy_level."""
         # Create a new leaf under the mid-tier category
         new_ingredient = create_ingredient({
-            "name": "White Chocolate Chips",
+            "display_name": "White Chocolate Chips",
             "category": "Chocolate",
             "parent_ingredient_id": hierarchy_ingredients.mid.id,
         })
@@ -412,7 +412,7 @@ class TestCreateIngredientHierarchy:
 
         with pytest.raises(IngredientNotFound):
             create_ingredient({
-                "name": "Orphan Ingredient",
+                "display_name": "Orphan Ingredient",
                 "category": "Test",
                 "parent_ingredient_id": 99999,  # Non-existent ID
             })
@@ -424,7 +424,7 @@ class TestCreateIngredientHierarchy:
         # hierarchy_ingredients.leaf1 is level 2; adding child would make level 3
         with pytest.raises(MaxDepthExceededError):
             create_ingredient({
-                "name": "Too Deep Ingredient",
+                "display_name": "Too Deep Ingredient",
                 "category": "Chocolate",
                 "parent_ingredient_id": hierarchy_ingredients.leaf1.id,
             })
@@ -432,7 +432,7 @@ class TestCreateIngredientHierarchy:
     def test_create_ingredient_without_parent_defaults_to_leaf(self, test_db):
         """Create ingredient without parent defaults hierarchy_level to 2 (leaf)."""
         ingredient = create_ingredient({
-            "name": "Standalone Ingredient",
+            "display_name": "Standalone Ingredient",
             "category": "Other",
         })
         assert ingredient.hierarchy_level == 2

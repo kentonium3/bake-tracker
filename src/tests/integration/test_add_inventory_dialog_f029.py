@@ -71,7 +71,7 @@ def test_ingredient(test_db):
     """Create a sample ingredient for testing."""
     return ingredient_service.create_ingredient(
         {
-            "name": "Test AP Flour",
+            "display_name": "Test AP Flour",
             "category": "Flour",
         }
     )
@@ -152,7 +152,7 @@ class TestDropdownBuilders:
         """Ingredient dropdown should filter by category."""
         # Add another ingredient in different category
         ingredient_service.create_ingredient(
-            {"name": "Test Milk", "category": "Dairy"}
+            {"display_name": "Test Milk", "category": "Dairy"}
         )
 
         session = test_db()
@@ -258,7 +258,7 @@ class TestRecencyQueryPerformance:
         # Add more ingredients to simulate realistic data
         for i in range(50):
             ingredient_service.create_ingredient(
-                {"name": f"Bulk Ingredient {i}", "category": "Flour"}
+                {"display_name": f"Bulk Ingredient {i}", "category": "Flour"}
             )
 
         session = test_db()

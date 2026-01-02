@@ -18,6 +18,7 @@ from .constants import (
     ALL_UNITS,
     MAX_NAME_LENGTH,
     MAX_BRAND_LENGTH,
+    MAX_CATEGORY_LENGTH,
     MAX_DESCRIPTION_LENGTH,
     MAX_NOTES_LENGTH,
     MIN_QUANTITY,
@@ -190,10 +191,12 @@ def _get_valid_recipe_categories() -> Set[str]:
 
 def validate_ingredient_category(category: str, field_name: str = "Category") -> Tuple[bool, str]:
     """
-    Validate that a category exists in the database.
+    Validate ingredient category.
 
-    Categories are validated against existing ingredient categories in the database.
-    This allows new categories to be added simply by creating ingredients with them.
+    Categories are treated as **free-form** labels (not an enum and not a DB-backed
+    allowlist). Validation enforces only:
+    - required / non-empty after trimming
+    - max length
 
     Args:
         category: The category string to validate
@@ -202,27 +205,26 @@ def validate_ingredient_category(category: str, field_name: str = "Category") ->
     Returns:
         Tuple of (is_valid, error_message)
     """
-    if not category:
-        return False, f"{field_name}: {ERROR_REQUIRED_FIELD}"
+    category = sanitize_string(category)
+    is_valid, error = validate_required_string(category, field_name)
+    if not is_valid:
+        return False, error
 
-    valid_categories = _get_valid_ingredient_categories()
-
-    # If no categories exist yet (empty database), accept any non-empty category
-    if not valid_categories:
-        return True, ""
-
-    if category not in valid_categories:
-        return False, f"{field_name}: {ERROR_INVALID_CATEGORY}. Valid: {', '.join(sorted(valid_categories))}"
+    is_valid, error = validate_string_length(category, MAX_CATEGORY_LENGTH, field_name)
+    if not is_valid:
+        return False, error
 
     return True, ""
 
 
 def validate_recipe_category(category: str, field_name: str = "Category") -> Tuple[bool, str]:
     """
-    Validate that a category exists in the database.
+    Validate recipe category.
 
-    Categories are validated against existing recipe categories in the database.
-    This allows new categories to be added simply by creating recipes with them.
+    Categories are treated as **free-form** labels (not an enum and not a DB-backed
+    allowlist). Validation enforces only:
+    - required / non-empty after trimming
+    - max length
 
     Args:
         category: The category string to validate
@@ -231,17 +233,14 @@ def validate_recipe_category(category: str, field_name: str = "Category") -> Tup
     Returns:
         Tuple of (is_valid, error_message)
     """
-    if not category:
-        return False, f"{field_name}: {ERROR_REQUIRED_FIELD}"
+    category = sanitize_string(category)
+    is_valid, error = validate_required_string(category, field_name)
+    if not is_valid:
+        return False, error
 
-    valid_categories = _get_valid_recipe_categories()
-
-    # If no categories exist yet (empty database), accept any non-empty category
-    if not valid_categories:
-        return True, ""
-
-    if category not in valid_categories:
-        return False, f"{field_name}: {ERROR_INVALID_CATEGORY}. Valid: {', '.join(sorted(valid_categories))}"
+    is_valid, error = validate_string_length(category, MAX_CATEGORY_LENGTH, field_name)
+    if not is_valid:
+        return False, error
 
     return True, ""
 
@@ -258,8 +257,8 @@ def validate_ingredient_data(data: dict) -> Tuple[bool, list]:  # noqa: C901
     """
     errors = []
 
-    # Required: Display name (accepts both 'display_name' and 'name' for compatibility)
-    display_name = data.get("display_name") or data.get("name")
+    # Required: Display name
+    display_name = data.get("display_name")
     is_valid, error = validate_required_string(display_name, "Name")
     if not is_valid:
         errors.append(error)

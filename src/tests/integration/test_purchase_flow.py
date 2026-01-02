@@ -14,7 +14,7 @@ def test_purchase_and_price_analysis(test_db):
 
     # Setup: Create ingredient and product
     ingredient = ingredient_service.create_ingredient(
-        {"name": "Whole Wheat Flour", "category": "Flour"}
+        {"display_name": "Whole Wheat Flour", "category": "Flour"}
     )
 
     product = product_service.create_product(
@@ -85,7 +85,7 @@ def test_purchase_history_filtering(test_db):
 
     # Setup
     ingredient = ingredient_service.create_ingredient(
-        {"name": "Brown Sugar", "category": "Sugar"}
+        {"display_name": "Brown Sugar", "category": "Sugar"}
     )
 
     product = product_service.create_product(
@@ -143,7 +143,7 @@ def test_price_trend_insufficient_data(test_db):
 
     # Setup
     ingredient = ingredient_service.create_ingredient(
-        {"name": "Vanilla Extract", "category": "Extracts"}
+        {"display_name": "Vanilla Extract", "category": "Extracts"}
     )
 
     product = product_service.create_product(
@@ -177,7 +177,7 @@ def test_most_recent_purchase(test_db):
 
     # Setup
     ingredient = ingredient_service.create_ingredient(
-        {"name": "Honey", "category": "Syrups"}
+        {"display_name": "Honey", "category": "Syrups"}
     )
 
     product = product_service.create_product(
@@ -224,7 +224,7 @@ def test_no_purchase_history_returns_none(test_db):
 
     # Setup
     ingredient = ingredient_service.create_ingredient(
-        {"name": "Cinnamon", "category": "Spices"}
+        {"display_name": "Cinnamon", "category": "Spices"}
     )
 
     product = product_service.create_product(

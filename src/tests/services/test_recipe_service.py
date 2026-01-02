@@ -31,7 +31,7 @@ class TestCalculateActualCost:
         # Setup: Create ingredient and product
         ingredient = ingredient_service.create_ingredient(
             {
-                "name": "Test FIFO Flour",
+                "display_name": "Test FIFO Flour",
                 "category": "Flour"
             }
         )
@@ -81,7 +81,7 @@ class TestCalculateActualCost:
         # Setup
         ingredient = ingredient_service.create_ingredient(
             {
-                "name": "Test Inventory Unchanged",
+                "display_name": "Test Inventory Unchanged",
                 "category": "Flour"
             }
         )
@@ -128,13 +128,13 @@ class TestCalculateActualCost:
         # Setup: Create two ingredients
         flour = ingredient_service.create_ingredient(
             {
-                "name": "Multi Test Flour",
+                "display_name": "Multi Test Flour",
                 "category": "Flour"
             }
         )
         sugar = ingredient_service.create_ingredient(
             {
-                "name": "Multi Test Sugar",
+                "display_name": "Multi Test Sugar",
                 "category": "Sugar"
             }
         )
@@ -214,7 +214,7 @@ class TestCalculateActualCost:
         # Setup
         ingredient = ingredient_service.create_ingredient(
             {
-                "name": "Shortfall Test Flour",
+                "display_name": "Shortfall Test Flour",
                 "category": "Flour"
             }
         )
@@ -270,7 +270,7 @@ class TestCalculateActualCost:
         # Setup
         ingredient = ingredient_service.create_ingredient(
             {
-                "name": "No Inventory Flour",
+                "display_name": "No Inventory Flour",
                 "category": "Flour"
             }
         )
@@ -314,7 +314,7 @@ class TestCalculateActualCost:
         # Setup: Ingredient with product but no purchase history and no inventory
         ingredient = ingredient_service.create_ingredient(
             {
-                "name": "No History Flour",
+                "display_name": "No History Flour",
                 "category": "Flour"
             }
         )
@@ -348,7 +348,7 @@ class TestCalculateActualCost:
         # Setup: Ingredient with NO products
         ingredient = ingredient_service.create_ingredient(
             {
-                "name": "No Products Flour",
+                "display_name": "No Products Flour",
                 "category": "Flour"
             }
         )
@@ -375,7 +375,7 @@ class TestCalculateActualCost:
         # Setup
         ingredient = ingredient_service.create_ingredient(
             {
-                "name": "Precision Test Flour",
+                "display_name": "Precision Test Flour",
                 "category": "Flour"
             }
         )
@@ -423,7 +423,7 @@ class TestCalculateEstimatedCost:
         # Setup: Create ingredient
         ingredient = ingredient_service.create_ingredient(
             {
-                "name": "Estimated Test Flour",
+                "display_name": "Estimated Test Flour",
                 "category": "Flour"
             }
         )
@@ -488,7 +488,7 @@ class TestCalculateEstimatedCost:
         # Setup: Create ingredient
         ingredient = ingredient_service.create_ingredient(
             {
-                "name": "Fallback Test Flour",
+                "display_name": "Fallback Test Flour",
                 "category": "Flour"
             }
         )
@@ -537,13 +537,13 @@ class TestCalculateEstimatedCost:
         # Setup: Create two ingredients
         flour = ingredient_service.create_ingredient(
             {
-                "name": "Est Multi Flour",
+                "display_name": "Est Multi Flour",
                 "category": "Flour"
             }
         )
         sugar = ingredient_service.create_ingredient(
             {
-                "name": "Est Multi Sugar",
+                "display_name": "Est Multi Sugar",
                 "category": "Sugar"
             }
         )
@@ -613,7 +613,7 @@ class TestCalculateEstimatedCost:
         # Setup: Create ingredient
         ingredient = ingredient_service.create_ingredient(
             {
-                "name": "Ignore Inventory Flour",
+                "display_name": "Ignore Inventory Flour",
                 "category": "Flour"
             }
         )
@@ -694,7 +694,7 @@ class TestCalculateEstimatedCost:
         # Setup: Ingredient with product but no purchase history
         ingredient = ingredient_service.create_ingredient(
             {
-                "name": "No Purchase Est Flour",
+                "display_name": "No Purchase Est Flour",
                 "category": "Flour"
             }
         )
@@ -729,7 +729,7 @@ class TestCalculateEstimatedCost:
         # Setup: Ingredient with NO products
         ingredient = ingredient_service.create_ingredient(
             {
-                "name": "No Products Est Flour",
+                "display_name": "No Products Est Flour",
                 "category": "Flour"
             }
         )
@@ -759,7 +759,7 @@ class TestPartialInventoryScenarios:
         # Setup
         ingredient = ingredient_service.create_ingredient(
             {
-                "name": "Full Coverage Flour",
+                "display_name": "Full Coverage Flour",
                 "category": "Flour"
             }
         )
@@ -819,19 +819,19 @@ class TestPartialInventoryScenarios:
 
         flour = ingredient_service.create_ingredient(
             {
-                "name": "Mixed Flour",
+                "display_name": "Mixed Flour",
                 "category": "Flour"
             }
         )
         sugar = ingredient_service.create_ingredient(
             {
-                "name": "Mixed Sugar",
+                "display_name": "Mixed Sugar",
                 "category": "Sugar"
             }
         )
         butter = ingredient_service.create_ingredient(
             {
-                "name": "Mixed Butter",
+                "display_name": "Mixed Butter",
                 "category": "Dairy"
             }
         )
@@ -940,7 +940,7 @@ class TestPartialInventoryScenarios:
         # Setup
         ingredient = ingredient_service.create_ingredient(
             {
-                "name": "Exact Coverage Flour",
+                "display_name": "Exact Coverage Flour",
                 "category": "Flour"
             }
         )
@@ -996,7 +996,7 @@ class TestPartialInventoryScenarios:
         # Setup
         ingredient = ingredient_service.create_ingredient(
             {
-                "name": "Precision Blend Flour",
+                "display_name": "Precision Blend Flour",
                 "category": "Flour"
             }
         )
@@ -1058,13 +1058,13 @@ class TestEdgeCases:
         # Setup
         flour = ingredient_service.create_ingredient(
             {
-                "name": "Zero Qty Flour",
+                "display_name": "Zero Qty Flour",
                 "category": "Flour"
             }
         )
         sugar = ingredient_service.create_ingredient(
             {
-                "name": "Zero Qty Sugar",
+                "display_name": "Zero Qty Sugar",
                 "category": "Sugar"
             }
         )
@@ -1135,13 +1135,13 @@ class TestEdgeCases:
         # Setup
         flour = ingredient_service.create_ingredient(
             {
-                "name": "Est Zero Flour",
+                "display_name": "Est Zero Flour",
                 "category": "Flour"
             }
         )
         sugar = ingredient_service.create_ingredient(
             {
-                "name": "Est Zero Sugar",
+                "display_name": "Est Zero Sugar",
                 "category": "Sugar"
             }
         )
@@ -1211,7 +1211,7 @@ class TestEdgeCases:
         # Setup: Ingredient with no products
         ingredient = ingredient_service.create_ingredient(
             {
-                "name": "Saffron Threads",  # Specific name to check in message
+                "display_name": "Saffron Threads",  # Specific name to check in message
                 "category": "Spices"
             }
         )
@@ -1239,7 +1239,7 @@ class TestEdgeCases:
         # Setup: Ingredient with product but no purchases
         ingredient = ingredient_service.create_ingredient(
             {
-                "name": "Rare Spice",
+                "display_name": "Rare Spice",
                 "category": "Spices"
             }
         )
@@ -2237,10 +2237,10 @@ class TestGetAggregatedIngredients:
         """Aggregation of recipe with no components."""
         # Create ingredients
         flour = ingredient_service.create_ingredient(
-            {"name": "Aggreg Flour", "category": "Flour"}
+            {"display_name": "Aggreg Flour", "category": "Flour"}
         )
         sugar = ingredient_service.create_ingredient(
-            {"name": "Aggreg Sugar", "category": "Sugar"}
+            {"display_name": "Aggreg Sugar", "category": "Sugar"}
         )
 
         # Create recipe with ingredients
@@ -2268,10 +2268,10 @@ class TestGetAggregatedIngredients:
         """Aggregation includes component ingredients."""
         # Create ingredients
         flour = ingredient_service.create_ingredient(
-            {"name": "Comp Flour", "category": "Flour"}
+            {"display_name": "Comp Flour", "category": "Flour"}
         )
         butter = ingredient_service.create_ingredient(
-            {"name": "Comp Butter", "category": "Dairy"}
+            {"display_name": "Comp Butter", "category": "Dairy"}
         )
 
         # Create child recipe with butter
@@ -2309,7 +2309,7 @@ class TestGetAggregatedIngredients:
     def test_get_aggregated_ingredients_same_ingredient_combined(self, test_db):
         """Same ingredient from parent and child should combine."""
         flour = ingredient_service.create_ingredient(
-            {"name": "Combine Flour", "category": "Flour"}
+            {"display_name": "Combine Flour", "category": "Flour"}
         )
 
         # Create child with 1 cup flour
@@ -2347,13 +2347,13 @@ class TestGetAggregatedIngredients:
     def test_get_aggregated_ingredients_3_levels(self, test_db):
         """Aggregation works across 3 levels."""
         salt = ingredient_service.create_ingredient(
-            {"name": "Three Level Salt", "category": "Spices"}
+            {"display_name": "Three Level Salt", "category": "Spices"}
         )
         butter = ingredient_service.create_ingredient(
-            {"name": "Three Level Butter", "category": "Dairy"}
+            {"display_name": "Three Level Butter", "category": "Dairy"}
         )
         flour = ingredient_service.create_ingredient(
-            {"name": "Three Level Flour", "category": "Flour"}
+            {"display_name": "Three Level Flour", "category": "Flour"}
         )
 
         grandchild = recipe_service.create_recipe(
@@ -2398,7 +2398,7 @@ class TestGetAggregatedIngredients:
     def test_get_aggregated_ingredients_with_multiplier(self, test_db):
         """Multiplier scales all quantities."""
         flour = ingredient_service.create_ingredient(
-            {"name": "Mult Flour", "category": "Flour"}
+            {"display_name": "Mult Flour", "category": "Flour"}
         )
 
         recipe = recipe_service.create_recipe(

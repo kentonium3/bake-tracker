@@ -74,7 +74,7 @@ class TestDeferredPackagingFullWorkflow:
         """
         # 1. Create packaging ingredient
         bag_ingredient = create_ingredient(
-            {"name": "Cellophane Bags 6x10", "category": "Bags", "is_packaging": True}
+            {"display_name": "Cellophane Bags 6x10", "category": "Bags", "is_packaging": True}
         )
 
         # 2. Create multiple product variants
@@ -183,7 +183,7 @@ class TestDeferredPackagingFullWorkflow:
         """
         # Create ingredient and variants with different costs
         bag_ingredient = create_ingredient(
-            {"name": "Gift Bags Small", "category": "Bags", "is_packaging": True}
+            {"display_name": "Gift Bags Small", "category": "Bags", "is_packaging": True}
         )
 
         cheap_product = create_product(
@@ -276,7 +276,7 @@ class TestDeferredPackagingFullWorkflow:
         """
         # Create packaging
         ribbon_ingredient = create_ingredient(
-            {"name": "Satin Ribbon 1in", "category": "Ribbon", "is_packaging": True}
+            {"display_name": "Satin Ribbon 1in", "category": "Ribbon", "is_packaging": True}
         )
         ribbon_product = create_product(
             ribbon_ingredient.slug,
@@ -363,7 +363,7 @@ class TestDeferredPackagingEdgeCases:
     def test_partial_assignment_allowed(self, test_db):
         """Test that partial assignments are tracked correctly."""
         bag_ingredient = create_ingredient(
-            {"name": "Partial Test Bags", "category": "Bags", "is_packaging": True}
+            {"display_name": "Partial Test Bags", "category": "Bags", "is_packaging": True}
         )
         bag_product = create_product(
             bag_ingredient.slug,
@@ -421,7 +421,7 @@ class TestDeferredPackagingEdgeCases:
     def test_reassignment_clears_previous(self, test_db):
         """Test that re-assigning clears previous assignments."""
         bag_ingredient = create_ingredient(
-            {"name": "Reassign Test Bags", "category": "Bags", "is_packaging": True}
+            {"display_name": "Reassign Test Bags", "category": "Bags", "is_packaging": True}
         )
         product_a = create_product(
             bag_ingredient.slug,
@@ -506,7 +506,7 @@ class TestDeferredPackagingEdgeCases:
     def test_assembly_bypass_records_flag(self, test_db):
         """Test that assembly completion can bypass with flag recorded."""
         bag_ingredient = create_ingredient(
-            {"name": "Bypass Test Bags", "category": "Bags", "is_packaging": True}
+            {"display_name": "Bypass Test Bags", "category": "Bags", "is_packaging": True}
         )
         bag_product = create_product(
             bag_ingredient.slug,
@@ -566,7 +566,7 @@ class TestDeferredPackagingAssignmentSummary:
     def test_summary_for_unassigned_generic(self, test_db):
         """Test summary shows correct status for unassigned generic."""
         bag_ingredient = create_ingredient(
-            {"name": "Summary Test Bags", "category": "Bags", "is_packaging": True}
+            {"display_name": "Summary Test Bags", "category": "Bags", "is_packaging": True}
         )
         bag_product = create_product(
             bag_ingredient.slug,
@@ -614,7 +614,7 @@ class TestDeferredPackagingAssignmentSummary:
     def test_summary_for_fully_assigned_generic(self, test_db):
         """Test summary shows correct status for fully assigned generic."""
         bag_ingredient = create_ingredient(
-            {"name": "Full Summary Bags", "category": "Bags", "is_packaging": True}
+            {"display_name": "Full Summary Bags", "category": "Bags", "is_packaging": True}
         )
         bag_product = create_product(
             bag_ingredient.slug,

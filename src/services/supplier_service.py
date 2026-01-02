@@ -117,6 +117,11 @@ def _create_supplier_impl(
     session: Session,
 ) -> Dict[str, Any]:
     """Implementation of create_supplier."""
+    # Validate name (service-layer validation so callers don't rely on DB errors)
+    if name is None or not str(name).strip():
+        raise ValueError("Name is required")
+    name = str(name).strip()
+
     # Validate supplier_type
     if supplier_type not in ("physical", "online"):
         raise ValueError("supplier_type must be 'physical' or 'online'")

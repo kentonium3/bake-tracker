@@ -133,7 +133,7 @@ def create_ingredient(ingredient_data: Dict[str, Any]) -> Ingredient:
 
     Args:
         ingredient_data: Dictionary containing ingredient fields:
-            - name (str, required): Ingredient name
+            - display_name (str, required): Ingredient display name
             - category (str, required): Category classification
             - density_volume_value (float, optional): Volume amount for density
             - density_volume_unit (str, optional): Volume unit for density
@@ -184,8 +184,8 @@ def create_ingredient(ingredient_data: Dict[str, Any]) -> Ingredient:
 
     try:
         with session_scope() as session:
-            # Generate slug from name
-            slug = create_slug(ingredient_data["name"], session)
+            # Generate slug from display_name
+            slug = create_slug(ingredient_data["display_name"], session)
 
             # Feature 031: Handle hierarchy fields
             parent_ingredient_id = ingredient_data.get("parent_ingredient_id")
@@ -224,8 +224,7 @@ def create_ingredient(ingredient_data: Dict[str, Any]) -> Ingredient:
             if foodex2_code is None:
                 foodex2_code = ingredient_data.get("gtin")
 
-            # TD-001: Support both 'name' and 'display_name' for compatibility
-            display_name = ingredient_data.get("display_name") or ingredient_data.get("name")
+            display_name = ingredient_data["display_name"]
 
             # Feature 011: Handle is_packaging flag
             is_packaging = ingredient_data.get("is_packaging", False)

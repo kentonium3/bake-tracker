@@ -40,7 +40,7 @@ class TestConsumeFifoDryRun:
         # Setup: Create ingredient, product, and inventory item
         ingredient = ingredient_service.create_ingredient(
             {
-                "name": "Test Flour DR",
+                "display_name": "Test Flour DR",
                 "category": "Flour",  # Same as package_unit for simplicity
             }
         )
@@ -79,7 +79,7 @@ class TestConsumeFifoDryRun:
         # Setup: Create ingredient and product
         ingredient = ingredient_service.create_ingredient(
             {
-                "name": "Test Flour Cost",
+                "display_name": "Test Flour Cost",
                 "category": "Flour"
             }
         )
@@ -123,7 +123,7 @@ class TestConsumeFifoDryRun:
         # Setup
         ingredient = ingredient_service.create_ingredient(
             {
-                "name": "Test Flour Breakdown",
+                "display_name": "Test Flour Breakdown",
                 "category": "Flour"
             }
         )
@@ -158,7 +158,7 @@ class TestConsumeFifoDryRun:
         # Setup
         ingredient = ingredient_service.create_ingredient(
             {
-                "name": "Test Flour Default",
+                "display_name": "Test Flour Default",
                 "category": "Flour"
             }
         )
@@ -199,7 +199,7 @@ class TestConsumeFifoDryRun:
         # Setup
         ingredient = ingredient_service.create_ingredient(
             {
-                "name": "Test Flour FIFO Order",
+                "display_name": "Test Flour FIFO Order",
                 "category": "Flour"
             }
         )
@@ -245,7 +245,7 @@ class TestConsumeFifoDryRun:
         # Setup
         ingredient = ingredient_service.create_ingredient(
             {
-                "name": "Test Flour No Cost",
+                "display_name": "Test Flour No Cost",
                 "category": "Flour"
             }
         )
@@ -277,7 +277,7 @@ class TestConsumeFifoDryRun:
         # Setup
         ingredient = ingredient_service.create_ingredient(
             {
-                "name": "Test Flour Partial",
+                "display_name": "Test Flour Partial",
                 "category": "Flour"
             }
         )
@@ -315,7 +315,7 @@ class TestConsumeFifoDryRun:
         # Setup
         ingredient = ingredient_service.create_ingredient(
             {
-                "name": "Test Flour Shortfall",
+                "display_name": "Test Flour Shortfall",
                 "category": "Flour"
             }
         )
@@ -374,7 +374,7 @@ class TestAddToInventoryWithPurchase:
         from src.models import Purchase
 
         ingredient = ingredient_service.create_ingredient({
-            "name": "Test Flour Purchase",
+            "display_name": "Test Flour Purchase",
             "category": "Flour",
         })
         product = product_service.create_product(
@@ -406,7 +406,7 @@ class TestAddToInventoryWithPurchase:
     def test_add_to_inventory_sets_unit_cost(self, test_db, test_supplier):
         """InventoryItem.unit_cost is set from unit_price for FIFO costing."""
         ingredient = ingredient_service.create_ingredient({
-            "name": "Test Flour Unit Cost",
+            "display_name": "Test Flour Unit Cost",
             "category": "Flour",
         })
         product = product_service.create_product(
@@ -428,7 +428,7 @@ class TestAddToInventoryWithPurchase:
         from src.models import Purchase
 
         ingredient = ingredient_service.create_ingredient({
-            "name": "Test Flour Today",
+            "display_name": "Test Flour Today",
             "category": "Flour",
         })
         product = product_service.create_product(
@@ -452,7 +452,7 @@ class TestAddToInventoryWithPurchase:
         from src.services.exceptions import ValidationError
 
         ingredient = ingredient_service.create_ingredient({
-            "name": "Test Flour Invalid Supplier",
+            "display_name": "Test Flour Invalid Supplier",
             "category": "Flour",
         })
         product = product_service.create_product(
@@ -483,7 +483,7 @@ class TestAddToInventoryWithPurchase:
     def test_add_to_inventory_stores_notes_on_item(self, test_db, test_supplier):
         """Notes are stored on InventoryItem, not Purchase (FR-014)."""
         ingredient = ingredient_service.create_ingredient({
-            "name": "Test Flour Notes",
+            "display_name": "Test Flour Notes",
             "category": "Flour",
         })
         product = product_service.create_product(
@@ -510,7 +510,7 @@ class TestAddToInventoryWithPurchase:
         from src.services.exceptions import ValidationError
 
         ingredient = ingredient_service.create_ingredient({
-            "name": "Test Flour Negative",
+            "display_name": "Test Flour Negative",
             "category": "Flour",
         })
         product = product_service.create_product(
@@ -529,7 +529,7 @@ class TestAddToInventoryWithPurchase:
     def test_add_to_inventory_zero_price_allowed(self, test_db, test_supplier):
         """Zero unit_price is allowed (e.g., donations) - FR-007."""
         ingredient = ingredient_service.create_ingredient({
-            "name": "Test Flour Zero Price",
+            "display_name": "Test Flour Zero Price",
             "category": "Flour",
         })
         product = product_service.create_product(
@@ -552,7 +552,7 @@ class TestAddToInventoryWithPurchase:
         from src.services.database import session_scope
 
         ingredient = ingredient_service.create_ingredient({
-            "name": "Test Flour Session",
+            "display_name": "Test Flour Session",
             "category": "Flour",
         })
         product = product_service.create_product(
@@ -590,7 +590,7 @@ def recency_test_data(test_db, test_supplier):
     """
     # Create ingredient in Flour category
     ingredient = ingredient_service.create_ingredient({
-        "name": "Test Flour Recency",
+        "display_name": "Test Flour Recency",
         "category": "Flour",
     })
 
