@@ -10,10 +10,10 @@ subtasks:
   - "T015"
 title: "Inventory Tab Cascading Fix"
 phase: "Phase B - Parallel Implementation"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "claude"
+shell_pid: "95321"
 review_status: ""
 reviewed_by: ""
 history:
@@ -248,3 +248,4 @@ Manual testing is primary. Automated tests in WP04.
 ## Activity Log
 
 - 2026-01-02T10:45:22Z - system - lane=planned - Prompt created via /spec-kitty.tasks
+- 2026-01-02T15:50:55Z – claude – shell_pid=95321 – lane=doing – Taking over from Gemini - starting implementation
