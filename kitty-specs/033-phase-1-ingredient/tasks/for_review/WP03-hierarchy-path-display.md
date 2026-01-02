@@ -6,9 +6,9 @@ subtasks:
   - "T013"
 title: "Hierarchy Path Display"
 phase: "Phase 3 - User Story 3 (P3)"
-lane: "planned"
+lane: "for_review"
 assignee: ""
-agent: ""
+agent: "system"
 shell_pid: ""
 review_status: ""
 reviewed_by: ""
@@ -235,3 +235,5 @@ for ing in ingredients:
 ## Activity Log
 
 - 2026-01-02T00:00:00Z - system - lane=planned - Prompt created.
+- 2026-01-02T05:48:55Z – system – shell_pid= – lane=doing – Moved to doing
+- 2026-01-02T05:51:11Z – system – shell_pid= – lane=for_review – Moved to for_review
