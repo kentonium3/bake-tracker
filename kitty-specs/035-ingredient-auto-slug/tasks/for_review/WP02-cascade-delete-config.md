@@ -7,10 +7,10 @@ subtasks:
   - "T010"
 title: "Verify Cascade Delete Configuration"
 phase: "Phase 1 - Foundation"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "claude"
-shell_pid: "15882"
+shell_pid: "16165"
 review_status: ""
 reviewed_by: ""
 history:
@@ -165,3 +165,4 @@ ingredient_id = Column(
   - T008: IngredientCrosswalk.ingredient_id has ondelete="CASCADE" (line 34-36)
   - T009: No changes needed - both already configured correctly
   - T010: Updated research.md section "6. Cascade Delete Configuration" with verification table
+- 2026-01-02T19:34:54Z – claude – shell_pid=16165 – lane=for_review – Ready for review - cascade delete verified (both already configured)

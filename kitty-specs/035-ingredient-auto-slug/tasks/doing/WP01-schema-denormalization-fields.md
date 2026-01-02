@@ -173,3 +173,4 @@ history:
 
 - 2026-01-02T12:00:00Z - system - lane=planned - Prompt created via /spec-kitty.tasks
 - 2026-01-02T19:32:23Z – claude – shell_pid=15513 – lane=doing – Started Wave 1 implementation
+- 2026-01-02T22:40:00Z – claude – shell_pid=15513 – lane=doing – Completed implementation: T001-T003 (3 snapshot columns), T004-T005 (FK SET NULL, nullable), T006 (to_dict verified)
