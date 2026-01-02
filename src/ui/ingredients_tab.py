@@ -34,6 +34,7 @@ def normalize_for_search(text: str) -> str:
     # Convert to lowercase for case-insensitive matching
     return ascii_text.lower()
 
+
 from src.services import ingredient_service, product_service, ingredient_hierarchy_service
 from src.services.unit_service import get_units_for_dropdown
 from src.services.exceptions import (
@@ -82,7 +83,7 @@ class IngredientsTab(ctk.CTkFrame):
         self.ingredients: List[dict] = []
         self._data_loaded = False  # Lazy loading flag
         self._view_mode = "flat"  # Feature 031: "flat" or "tree"
-        self._hierarchy_cache: Dict[int, tuple] = {}  # Feature 032: Cache for L0/L1 names
+        self._hierarchy_path_cache: Dict[int, str] = {}  # Feature 033: Cache for hierarchy paths
 
         # Configure grid
         self.grid_columnconfigure(0, weight=1)
@@ -136,7 +137,12 @@ class IngredientsTab(ctk.CTkFrame):
         self.level_filter_var = ctk.StringVar(value="All Levels")
         self.level_filter_dropdown = ctk.CTkOptionMenu(
             search_frame,
-            values=["All Levels", "Root Categories (L0)", "Subcategories (L1)", "Leaf Ingredients (L2)"],
+            values=[
+                "All Levels",
+                "Root Categories (L0)",
+                "Subcategories (L1)",
+                "Leaf Ingredients (L2)",
+            ],
             variable=self.level_filter_var,
             command=self._on_level_filter_change,
             width=200,
@@ -207,8 +213,8 @@ class IngredientsTab(ctk.CTkFrame):
         self.sort_column = "name"
         self.sort_ascending = True
 
-        # Define columns - Feature 032: L0, L1, Name hierarchy columns
-        columns = ("l0", "l1", "name", "density")
+        # Define columns - Feature 033: Added hierarchy_path column
+        columns = ("hierarchy_path", "name", "density")
         self.tree = ttk.Treeview(
             self.grid_container,
             columns=columns,
@@ -217,20 +223,26 @@ class IngredientsTab(ctk.CTkFrame):
             height=20,  # Show more rows (default is 10)
         )
 
-        # Configure column headings with click-to-sort - Feature 032: hierarchy columns
-        self.tree.heading("l0", text="Root (L0)", anchor="w",
-                          command=lambda: self._on_header_click("l0_name"))
-        self.tree.heading("l1", text="Subcategory (L1)", anchor="w",
-                          command=lambda: self._on_header_click("l1_name"))
-        self.tree.heading("name", text="Name", anchor="w",
-                          command=lambda: self._on_header_click("name"))
-        self.tree.heading("density", text="Density", anchor="w",
-                          command=lambda: self._on_header_click("density_display"))
+        # Configure column headings with click-to-sort - Feature 033: hierarchy path
+        self.tree.heading(
+            "hierarchy_path",
+            text="Hierarchy",
+            anchor="w",
+            command=lambda: self._on_header_click("hierarchy_path"),
+        )
+        self.tree.heading(
+            "name", text="Name", anchor="w", command=lambda: self._on_header_click("name")
+        )
+        self.tree.heading(
+            "density",
+            text="Density",
+            anchor="w",
+            command=lambda: self._on_header_click("density_display"),
+        )
 
-        # Configure column widths - Feature 032: adjusted for hierarchy
-        self.tree.column("l0", width=150, minwidth=100)
-        self.tree.column("l1", width=150, minwidth=100)
-        self.tree.column("name", width=250, minwidth=150)
+        # Configure column widths - Feature 033: hierarchy path column
+        self.tree.column("hierarchy_path", width=300, minwidth=200)
+        self.tree.column("name", width=200, minwidth=150)
         self.tree.column("density", width=120, minwidth=80)
 
         # Add scrollbars
@@ -270,13 +282,14 @@ class IngredientsTab(ctk.CTkFrame):
             self.sort_ascending = True
         self._update_ingredient_display()
 
-    def _build_hierarchy_cache(self) -> Dict[int, tuple]:
-        """Build cache mapping ingredient ID to (L0_name, L1_name) for display.
+    def _build_hierarchy_path_cache(self) -> Dict[int, str]:
+        """Build cache mapping ingredient ID to hierarchy path string.
 
-        Feature 032: This cache is built once per display refresh to avoid N+1 queries.
+        Feature 033: This cache is built once per display refresh to avoid N+1 queries.
+        Returns paths like "Baking > Flour > All-Purpose Flour" for L2 ingredients.
 
         Returns:
-            Dict mapping ingredient ID to (l0_name, l1_name) tuple
+            Dict mapping ingredient ID to hierarchy path string
         """
         cache = {}
         for ingredient in self.ingredients:
@@ -284,39 +297,39 @@ class IngredientsTab(ctk.CTkFrame):
             if not ing_id:
                 continue
 
+            ing_name = ingredient.get("display_name") or ingredient.get("name", "")
             hierarchy_level = ingredient.get("hierarchy_level", 2)
 
             if hierarchy_level == 0:
-                # L0 (root) - no parents
-                cache[ing_id] = ("--", "--")
+                # L0 (root) - just the name
+                cache[ing_id] = ing_name
             elif hierarchy_level == 1:
-                # L1 (subcategory) - has L0 parent only
+                # L1 (subcategory) - L0 > L1
                 try:
                     ancestors = ingredient_hierarchy_service.get_ancestors(ing_id)
                     if ancestors:
-                        l0_name = ancestors[0].get("display_name", "--")
+                        l0_name = ancestors[0].get("display_name", "")
+                        cache[ing_id] = f"{l0_name} > {ing_name}"
                     else:
-                        l0_name = "--"
-                    cache[ing_id] = (l0_name, "--")
+                        cache[ing_id] = ing_name
                 except Exception:
-                    cache[ing_id] = ("--", "--")
+                    cache[ing_id] = ing_name
             else:
-                # L2 (leaf) - has L0 grandparent and L1 parent
+                # L2 (leaf) - L0 > L1 > L2
                 try:
                     ancestors = ingredient_hierarchy_service.get_ancestors(ing_id)
                     # ancestors[0] = immediate parent (L1), ancestors[1] = grandparent (L0)
                     if len(ancestors) >= 2:
-                        l0_name = ancestors[1].get("display_name", "--")
-                        l1_name = ancestors[0].get("display_name", "--")
+                        l0_name = ancestors[1].get("display_name", "")
+                        l1_name = ancestors[0].get("display_name", "")
+                        cache[ing_id] = f"{l0_name} > {l1_name} > {ing_name}"
                     elif len(ancestors) == 1:
-                        l0_name = ancestors[0].get("display_name", "--")
-                        l1_name = "--"
+                        l1_name = ancestors[0].get("display_name", "")
+                        cache[ing_id] = f"{l1_name} > {ing_name}"
                     else:
-                        l0_name = "--"
-                        l1_name = "--"
-                    cache[ing_id] = (l0_name, l1_name)
+                        cache[ing_id] = ing_name
                 except Exception:
-                    cache[ing_id] = ("--", "--")
+                    cache[ing_id] = ing_name
 
         return cache
 
@@ -450,17 +463,17 @@ class IngredientsTab(ctk.CTkFrame):
         for item in self.tree.get_children():
             self.tree.delete(item)
 
-        # Feature 032: Build hierarchy cache once per refresh
-        self._hierarchy_cache = self._build_hierarchy_cache()
+        # Feature 033: Build hierarchy path cache once per refresh
+        self._hierarchy_path_cache = self._build_hierarchy_path_cache()
 
         # Apply filters
         filtered_ingredients = self._apply_filters(self.ingredients)
 
         # Populate grid with all ingredients (Treeview handles large datasets well)
         for ingredient in filtered_ingredients:
-            # Feature 032: Get hierarchy columns from cache
+            # Feature 033: Get hierarchy path from cache
             ing_id = ingredient.get("id")
-            l0_name, l1_name = self._hierarchy_cache.get(ing_id, ("--", "--"))
+            hierarchy_path = self._hierarchy_path_cache.get(ing_id, "")
 
             name = ingredient.get("display_name") or ingredient.get("name", "Unknown")
             is_packaging = ingredient.get("is_packaging", False)
@@ -468,7 +481,7 @@ class IngredientsTab(ctk.CTkFrame):
             if density == "Not set":
                 density = "—"
 
-            values = (l0_name, l1_name, name, density)
+            values = (hierarchy_path, name, density)
             tags = ("packaging",) if is_packaging else ()
 
             # Use slug as the item ID for easy lookup
@@ -501,36 +514,30 @@ class IngredientsTab(ctk.CTkFrame):
         # Feature 032: Apply level filter
         selected_level = self._get_selected_level()
         if selected_level is not None:
-            filtered = [
-                ing for ing in filtered
-                if ing.get("hierarchy_level") == selected_level
-            ]
+            filtered = [ing for ing in filtered if ing.get("hierarchy_level") == selected_level]
 
         # Apply search filter with diacritical normalization
         # (e.g., "creme" matches "crème", "cafe" matches "café")
         search_text = normalize_for_search(self.search_entry.get())
         if search_text:
             filtered = [
-                ing for ing in filtered
-                if search_text in normalize_for_search(ing.get("display_name") or ing.get("name", ""))
+                ing
+                for ing in filtered
+                if search_text
+                in normalize_for_search(ing.get("display_name") or ing.get("name", ""))
             ]
 
-        # Sort by selected column - Feature 032: support hierarchy column sorting
+        # Sort by selected column - Feature 033: support hierarchy_path sorting
         sort_key = getattr(self, "sort_column", "name")
         ascending = getattr(self, "sort_ascending", True)
 
         def get_sort_value(ing):
             """Get the sortable value for an ingredient based on sort_key."""
-            if sort_key == "l0_name":
-                # Get L0 from hierarchy cache
+            if sort_key == "hierarchy_path":
+                # Get hierarchy path from cache
                 ing_id = ing.get("id")
-                l0, _ = self._hierarchy_cache.get(ing_id, ("--", "--"))
-                return l0.lower()
-            elif sort_key == "l1_name":
-                # Get L1 from hierarchy cache
-                ing_id = ing.get("id")
-                _, l1 = self._hierarchy_cache.get(ing_id, ("--", "--"))
-                return l1.lower()
+                path = self._hierarchy_path_cache.get(ing_id, "")
+                return path.lower()
             elif sort_key == "name":
                 name = ing.get("display_name") or ing.get("name", "")
                 return name.lower()
@@ -851,9 +858,7 @@ class IngredientFormDialog(ctk.CTkToplevel):
         row += 1
 
         # Feature 011: Is Packaging checkbox
-        ctk.CTkLabel(form_frame, text="Type:").grid(
-            row=row, column=0, sticky="w", padx=10, pady=5
-        )
+        ctk.CTkLabel(form_frame, text="Type:").grid(row=row, column=0, sticky="w", padx=10, pady=5)
         self.is_packaging_var = ctk.BooleanVar(value=False)
         self.is_packaging_checkbox = ctk.CTkCheckBox(
             form_frame,
@@ -863,35 +868,28 @@ class IngredientFormDialog(ctk.CTkToplevel):
         self.is_packaging_checkbox.grid(row=row, column=1, sticky="w", padx=10, pady=5)
         row += 1
 
-        # Feature 032: Ingredient Level selector (replaces category)
-        ctk.CTkLabel(form_frame, text="Ingredient Level*:").grid(
-            row=row, column=0, sticky="w", padx=10, pady=5
-        )
-        self.ingredient_level_var = ctk.StringVar(value="Leaf Ingredient (L2)")
-        self.ingredient_level_dropdown = ctk.CTkOptionMenu(
+        # Feature 033: Parent selection section header
+        ctk.CTkLabel(
             form_frame,
-            values=["Root Category (L0)", "Subcategory (L1)", "Leaf Ingredient (L2)"],
-            variable=self.ingredient_level_var,
-            command=self._on_ingredient_level_change,
-            width=200,
-        )
-        self.ingredient_level_dropdown.grid(row=row, column=1, sticky="w", padx=10, pady=5)
+            text="Parent Ingredient (determines level):",
+            font=ctk.CTkFont(size=12, weight="bold"),
+        ).grid(row=row, column=0, columnspan=2, sticky="w", padx=10, pady=(10, 5))
         row += 1
 
-        # Feature 032: Root Category (L0) dropdown - for L1 and L2 ingredients
+        # Feature 033: Root Category (L0) dropdown
         self.l0_frame = ctk.CTkFrame(form_frame, fg_color="transparent")
         self.l0_frame.grid(row=row, column=0, columnspan=2, sticky="ew", padx=10, pady=5)
 
-        ctk.CTkLabel(self.l0_frame, text="Root Category (L0)*:").grid(
+        ctk.CTkLabel(self.l0_frame, text="Root Category (L0):").grid(
             row=0, column=0, sticky="w", padx=0, pady=0
         )
 
         # Build L0 options from root ingredients
         self._l0_options = self._build_l0_options()
-        self.l0_var = ctk.StringVar(value="(Select Category)")
+        self.l0_var = ctk.StringVar(value="(None - create root)")
         self.l0_dropdown = ctk.CTkComboBox(
             self.l0_frame,
-            values=["(Select Category)"] + list(self._l0_options.keys()),
+            values=["(None - create root)"] + list(self._l0_options.keys()),
             variable=self.l0_var,
             command=self._on_l0_change,
             width=280,
@@ -899,28 +897,47 @@ class IngredientFormDialog(ctk.CTkToplevel):
         self.l0_dropdown.grid(row=0, column=1, sticky="w", padx=(10, 0), pady=0)
         row += 1
 
-        # Feature 032: Subcategory (L1) dropdown - for L2 ingredients only
+        # Feature 033: Subcategory (L1) dropdown
         self.l1_frame = ctk.CTkFrame(form_frame, fg_color="transparent")
         self.l1_frame.grid(row=row, column=0, columnspan=2, sticky="ew", padx=10, pady=5)
 
-        ctk.CTkLabel(self.l1_frame, text="Subcategory (L1)*:").grid(
+        ctk.CTkLabel(self.l1_frame, text="Subcategory (L1):").grid(
             row=0, column=0, sticky="w", padx=0, pady=0
         )
 
         self._l1_options: Dict[str, int] = {}  # Populated on L0 change
-        self.l1_var = ctk.StringVar(value="(Select category first)")
+        self.l1_var = ctk.StringVar(value="(Select L0 first)")
         self.l1_dropdown = ctk.CTkComboBox(
             self.l1_frame,
-            values=["(Select category first)"],
+            values=["(Select L0 first)"],
             variable=self.l1_var,
+            command=self._on_l1_change,
             state="disabled",
             width=280,
         )
         self.l1_dropdown.grid(row=0, column=1, sticky="w", padx=(10, 0), pady=0)
         row += 1
 
-        # Initialize visibility based on default level
-        self._update_hierarchy_visibility()
+        # Feature 033: Level display (computed from parent selection)
+        self.level_display_var = ctk.StringVar(value="Level: L0 (Root Category)")
+        self.level_display = ctk.CTkLabel(
+            form_frame,
+            textvariable=self.level_display_var,
+            font=ctk.CTkFont(size=13, weight="bold"),
+            text_color="gray",
+        )
+        self.level_display.grid(row=row, column=0, columnspan=2, sticky="w", padx=10, pady=5)
+        row += 1
+
+        # Feature 033: Warning label for parent changes (hidden by default)
+        self.warning_label = ctk.CTkLabel(
+            form_frame,
+            text="",
+            text_color="orange",
+            wraplength=350,
+        )
+        self.warning_label.grid(row=row, column=0, columnspan=2, sticky="w", padx=10, pady=2)
+        self.warning_label.grid_remove()  # Hidden by default
         row += 1
 
         # Density section (4-field input)
@@ -1051,63 +1068,132 @@ class IngredientFormDialog(ctk.CTkToplevel):
             pass
         return options
 
-    def _on_ingredient_level_change(self, value: str):
-        """Handle ingredient level selector change.
+    def _compute_and_display_level(self):
+        """Compute and display the ingredient level based on parent selection.
 
-        Feature 032: Shows/hides L0 and L1 dropdowns based on selected level.
+        Feature 033: Level is determined by parent selection, not explicit dropdown.
         """
-        self._update_hierarchy_visibility()
+        l0_selection = self.l0_var.get()
+        l1_selection = self.l1_var.get()
 
-    def _update_hierarchy_visibility(self):
-        """Update visibility of L0 and L1 dropdowns based on selected level.
-
-        Feature 032:
-        - L0 (Root): Hide both dropdowns
-        - L1 (Subcategory): Show L0, hide L1
-        - L2 (Leaf): Show both dropdowns
-        """
-        level_value = self.ingredient_level_var.get()
-
-        if "L0" in level_value:
-            # Creating root category - no parents needed
-            self.l0_frame.grid_remove()
-            self.l1_frame.grid_remove()
-        elif "L1" in level_value:
-            # Creating subcategory - needs L0 parent only
-            self.l0_frame.grid()
-            self.l1_frame.grid_remove()
+        # Check if no L0 selected = creating root (L0)
+        if l0_selection == "(None - create root)" or l0_selection == "":
+            level = 0
+            level_text = "Level: L0 (Root Category)"
+        # Check if L0 selected but no L1 = creating subcategory (L1)
+        elif l1_selection in [
+            "(Select L0 first)",
+            "(None - create L1)",
+            "(No subcategories)",
+            "",
+        ]:
+            level = 1
+            level_text = "Level: L1 (Subcategory)"
+        # L1 selected = creating leaf (L2)
         else:
-            # Creating leaf - needs both L0 and L1
-            self.l0_frame.grid()
-            self.l1_frame.grid()
+            level = 2
+            level_text = "Level: L2 (Leaf Ingredient)"
+
+        self.level_display_var.set(level_text)
+        self._check_parent_change_warnings()
+        return level
+
+    def _check_parent_change_warnings(self):
+        """Check and display warnings for parent change on existing ingredient.
+
+        Feature 033: Informational warnings when editing existing ingredient's parent.
+        """
+        # Only check for existing ingredients
+        if not self.ingredient or not self.ingredient.get("id"):
+            self.warning_label.grid_remove()
+            return
+
+        ingredient_id = self.ingredient.get("id")
+        new_parent_id = self._get_selected_parent_id()
+
+        # Check with can_change_parent
+        try:
+            result = ingredient_hierarchy_service.can_change_parent(ingredient_id, new_parent_id)
+
+            if not result["allowed"]:
+                self.warning_label.configure(text=result["reason"], text_color="red")
+                self.warning_label.grid()
+            elif result["warnings"]:
+                warning_text = " | ".join(result["warnings"])
+                self.warning_label.configure(text=warning_text, text_color="orange")
+                self.warning_label.grid()
+            else:
+                self.warning_label.grid_remove()
+        except Exception:
+            self.warning_label.grid_remove()
+
+    def _get_selected_parent_id(self) -> Optional[int]:
+        """Get the parent ingredient ID based on current dropdown selections.
+
+        Feature 033: Returns the appropriate parent based on level.
+        """
+        l0_selection = self.l0_var.get()
+        l1_selection = self.l1_var.get()
+
+        # No L0 selected = root ingredient
+        if l0_selection == "(None - create root)" or l0_selection == "":
+            return None
+
+        # L0 selected but no valid L1 = L1 ingredient (parent is L0)
+        if (
+            l1_selection
+            in [
+                "(Select L0 first)",
+                "(None - create L1)",
+                "(No subcategories)",
+                "",
+            ]
+            or l1_selection not in self._l1_options
+        ):
+            return self._l0_options.get(l0_selection)
+
+        # L1 selected = L2 ingredient (parent is L1)
+        return self._l1_options.get(l1_selection)
 
     def _on_l0_change(self, value: str):
         """Handle L0 category selection - populate L1 dropdown.
 
-        Feature 032: Cascading dropdown behavior.
+        Feature 033: Cascading dropdown behavior with level computation.
         """
-        if value == "(Select Category)" or value not in self._l0_options:
+        if value == "(None - create root)" or value not in self._l0_options:
             # Reset L1 dropdown
-            self.l1_dropdown.configure(values=["(Select category first)"], state="disabled")
-            self.l1_var.set("(Select category first)")
+            self.l1_dropdown.configure(values=["(Select L0 first)"], state="disabled")
+            self.l1_var.set("(Select L0 first)")
+            self._compute_and_display_level()
             return
 
-        # Get children of selected L0
+        # Get children of selected L0 (only L1 ingredients)
         l0_id = self._l0_options[value]
         try:
             subcategories = ingredient_hierarchy_service.get_children(l0_id)
-            self._l1_options = {sub.get("display_name", "?"): sub.get("id") for sub in subcategories}
+            # Filter to only include L1 ingredients
+            l1_subs = [s for s in subcategories if s.get("hierarchy_level") == 1]
+            self._l1_options = {sub.get("display_name", "?"): sub.get("id") for sub in l1_subs}
 
-            if subcategories:
-                sub_names = ["(Select Subcategory)"] + sorted(self._l1_options.keys())
+            if l1_subs:
+                sub_names = ["(None - create L1)"] + sorted(self._l1_options.keys())
                 self.l1_dropdown.configure(values=sub_names, state="normal")
-                self.l1_var.set("(Select Subcategory)")
+                self.l1_var.set("(None - create L1)")
             else:
-                self.l1_dropdown.configure(values=["(No subcategories)"], state="disabled")
-                self.l1_var.set("(No subcategories)")
+                self.l1_dropdown.configure(values=["(None - create L1)"], state="normal")
+                self.l1_var.set("(None - create L1)")
         except Exception:
             self.l1_dropdown.configure(values=["(Error loading)"], state="disabled")
             self.l1_var.set("(Error loading)")
+
+        self._compute_and_display_level()
+
+    def _on_l1_change(self, value: str):
+        """Handle L1 subcategory selection.
+
+        Feature 033: Update level display when L1 selection changes.
+        """
+        self._compute_and_display_level()
 
     def _populate_form(self):
         """Populate form with existing ingredient data."""
@@ -1120,14 +1206,16 @@ class IngredientFormDialog(ctk.CTkToplevel):
         is_packaging = self.ingredient.get("is_packaging", False)
         self.is_packaging_var.set(is_packaging)
 
-        # Feature 032: Set ingredient level and hierarchy dropdowns
+        # Feature 033: Pre-populate hierarchy dropdowns based on ancestors
         level = self.ingredient.get("hierarchy_level", 2)
-        level_names = {0: "Root Category (L0)", 1: "Subcategory (L1)", 2: "Leaf Ingredient (L2)"}
-        self.ingredient_level_var.set(level_names.get(level, "Leaf Ingredient (L2)"))
-
-        # Pre-populate hierarchy dropdowns based on ancestors
         ing_id = self.ingredient.get("id")
-        if ing_id and level > 0:
+
+        if level == 0:
+            # L0 (Root): No parent selected
+            self.l0_var.set("(None - create root)")
+            self.l1_var.set("(Select L0 first)")
+            self.l1_dropdown.configure(state="disabled")
+        elif ing_id and level > 0:
             try:
                 ancestors = ingredient_hierarchy_service.get_ancestors(ing_id)
                 if level == 2 and len(ancestors) >= 2:
@@ -1148,23 +1236,21 @@ class IngredientFormDialog(ctk.CTkToplevel):
                     l0_name = ancestors[0].get("display_name")
                     if l0_name and l0_name in self._l0_options:
                         self.l0_var.set(l0_name)
+                        self._on_l0_change(l0_name)  # Populate L1 but set to None
+                        self.l1_var.set("(None - create L1)")
             except Exception:
                 pass  # Leave dropdowns at default if ancestors lookup fails
 
-        # Update visibility based on level
-        self._update_hierarchy_visibility()
+        # Feature 033: Update level display based on parent selection
+        self._compute_and_display_level()
 
         # Populate 4-field density
         if self.ingredient.get("density_volume_value") is not None:
-            self.density_volume_value_entry.insert(
-                0, str(self.ingredient["density_volume_value"])
-            )
+            self.density_volume_value_entry.insert(0, str(self.ingredient["density_volume_value"]))
         if self.ingredient.get("density_volume_unit"):
             self.density_volume_unit_var.set(self.ingredient["density_volume_unit"])
         if self.ingredient.get("density_weight_value") is not None:
-            self.density_weight_value_entry.insert(
-                0, str(self.ingredient["density_weight_value"])
-            )
+            self.density_weight_value_entry.insert(0, str(self.ingredient["density_weight_value"]))
         if self.ingredient.get("density_weight_unit"):
             self.density_weight_unit_var.set(self.ingredient["density_weight_unit"])
 
@@ -1204,6 +1290,7 @@ class IngredientFormDialog(ctk.CTkToplevel):
             return False, "Please enter valid numbers for density values"
 
         from src.services.ingredient_service import validate_density_fields
+
         return validate_density_fields(volume_value, volume_unit, weight_value, weight_unit)
 
     def _save(self):
@@ -1221,36 +1308,18 @@ class IngredientFormDialog(ctk.CTkToplevel):
 
         is_packaging = self.is_packaging_var.get()  # Feature 011
 
-        # Feature 032: Determine hierarchy level and parent from form
-        level_value = self.ingredient_level_var.get()
-        if "L0" in level_value:
-            hierarchy_level = 0
-            parent_ingredient_id = None
-        elif "L1" in level_value:
-            hierarchy_level = 1
-            # L1 needs L0 parent
-            l0_selection = self.l0_var.get()
-            if l0_selection == "(Select Category)" or l0_selection not in self._l0_options:
-                messagebox.showerror("Validation Error", "Please select a Root Category (L0)")
-                return
-            parent_ingredient_id = self._l0_options[l0_selection]
-        else:
-            # L2 (Leaf)
-            hierarchy_level = 2
-            # L2 needs L1 parent
+        # Feature 033: Determine hierarchy level and parent from dropdown selections
+        hierarchy_level = self._compute_and_display_level()
+        parent_ingredient_id = self._get_selected_parent_id()
+
+        # Validate L2 has a proper L1 parent selected
+        if hierarchy_level == 2:
             l1_selection = self.l1_var.get()
-            if l1_selection in ["(Select category first)", "(Select Subcategory)", "(No subcategories)", "(Error loading)"]:
-                # Check if L0 is selected first
-                l0_selection = self.l0_var.get()
-                if l0_selection == "(Select Category)" or l0_selection not in self._l0_options:
-                    messagebox.showerror("Validation Error", "Please select a Root Category (L0)")
-                    return
-                messagebox.showerror("Validation Error", "Please select a Subcategory (L1)")
-                return
             if l1_selection not in self._l1_options:
-                messagebox.showerror("Validation Error", "Please select a valid Subcategory (L1)")
+                messagebox.showerror(
+                    "Validation Error", "Please select a Subcategory (L1) for leaf ingredients"
+                )
                 return
-            parent_ingredient_id = self._l1_options[l1_selection]
 
         # Validate density fields
         is_valid, error = self._validate_density_input()
@@ -1337,4 +1406,3 @@ class IngredientFormDialog(ctk.CTkToplevel):
                 )
             except DatabaseError as e:
                 messagebox.showerror("Database Error", f"Failed to delete ingredient: {e}")
-

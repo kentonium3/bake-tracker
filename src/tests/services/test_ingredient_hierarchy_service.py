@@ -1,5 +1,5 @@
 """
-Tests for ingredient hierarchy service (Feature 031).
+Tests for ingredient hierarchy service (Feature 031 and Feature 033).
 
 Tests cover:
 - get_root_ingredients()
@@ -16,6 +16,9 @@ Tests cover:
 - validate_hierarchy()
 - move_ingredient()
 - search_ingredients()
+- get_child_count() (F033)
+- get_product_count() (F033)
+- can_change_parent() (F033)
 """
 
 import pytest
@@ -24,6 +27,7 @@ from sqlalchemy.orm import sessionmaker, scoped_session
 
 from src.models.base import Base
 from src.models.ingredient import Ingredient
+from src.models.product import Product
 from src.services.exceptions import (
     IngredientNotFound,
     CircularReferenceError,
@@ -294,7 +298,9 @@ class TestGetLeafIngredients:
     def test_filter_by_parent(self, test_db):
         """Test filtering leaves by parent."""
         dark = test_db.query(Ingredient).filter(Ingredient.slug == "dark-chocolate").first()
-        leaves = ingredient_hierarchy_service.get_leaf_ingredients(parent_id=dark.id, session=test_db)
+        leaves = ingredient_hierarchy_service.get_leaf_ingredients(
+            parent_id=dark.id, session=test_db
+        )
 
         assert len(leaves) == 2
         names = [l["display_name"] for l in leaves]
@@ -304,7 +310,9 @@ class TestGetLeafIngredients:
     def test_filter_by_root_parent(self, test_db):
         """Test filtering leaves by root parent."""
         chocolate = test_db.query(Ingredient).filter(Ingredient.slug == "chocolate").first()
-        leaves = ingredient_hierarchy_service.get_leaf_ingredients(parent_id=chocolate.id, session=test_db)
+        leaves = ingredient_hierarchy_service.get_leaf_ingredients(
+            parent_id=chocolate.id, session=test_db
+        )
 
         # Should have all chocolate leaves (3)
         assert len(leaves) == 3
@@ -445,9 +453,7 @@ class TestMoveIngredient:
         """Test moving ingredient to root (no parent)."""
         dark = test_db.query(Ingredient).filter(Ingredient.slug == "dark-chocolate").first()
 
-        result = ingredient_hierarchy_service.move_ingredient(
-            dark.id, None, session=test_db
-        )
+        result = ingredient_hierarchy_service.move_ingredient(dark.id, None, session=test_db)
 
         assert result["parent_ingredient_id"] is None
         assert result["hierarchy_level"] == 0
@@ -458,15 +464,15 @@ class TestMoveIngredient:
         dark = test_db.query(Ingredient).filter(Ingredient.slug == "dark-chocolate").first()
 
         with pytest.raises(CircularReferenceError):
-            ingredient_hierarchy_service.move_ingredient(
-                chocolate.id, dark.id, session=test_db
-            )
+            ingredient_hierarchy_service.move_ingredient(chocolate.id, dark.id, session=test_db)
 
     def test_max_depth_exceeded_raises_error(self, test_db):
         """Test that exceeding max depth raises MaxDepthExceededError."""
         # Try to move a leaf under another leaf (would make it level 3)
         semi_sweet = test_db.query(Ingredient).filter(Ingredient.slug == "semi-sweet-chips").first()
-        bittersweet = test_db.query(Ingredient).filter(Ingredient.slug == "bittersweet-chips").first()
+        bittersweet = (
+            test_db.query(Ingredient).filter(Ingredient.slug == "bittersweet-chips").first()
+        )
 
         with pytest.raises(MaxDepthExceededError):
             ingredient_hierarchy_service.move_ingredient(
@@ -534,7 +540,9 @@ class TestSearchIngredients:
         assert len(all_results) >= 4
 
         # With limit=2, should get exactly 2
-        limited_results = ingredient_hierarchy_service.search_ingredients("chocolate", limit=2, session=test_db)
+        limited_results = ingredient_hierarchy_service.search_ingredients(
+            "chocolate", limit=2, session=test_db
+        )
         assert len(limited_results) == 2
 
 
@@ -702,3 +710,390 @@ class TestValidateHierarchy:
             ingredient_hierarchy_service.validate_hierarchy(
                 semi_sweet["id"], 99999, session=test_db
             )
+
+
+# =============================================================================
+# Feature 033: Convenience Function Tests
+# =============================================================================
+
+
+@pytest.fixture
+def test_db_with_products():
+    """Create a test database with sample hierarchy data AND products."""
+    engine = create_engine("sqlite:///:memory:", echo=False)
+    Base.metadata.create_all(engine)
+    session_factory = sessionmaker(bind=engine)
+    Session = scoped_session(session_factory)
+    session = Session()
+
+    # Create sample hierarchy:
+    # Chocolate (level 0)
+    #   - Dark Chocolate (level 1)
+    #       - Semi-Sweet Chips (level 2) [3 products]
+    #       - Bittersweet Chips (level 2) [0 products]
+    #   - Milk Chocolate (level 1)
+    #       - Milk Chocolate Chips (level 2) [2 products]
+    # Flour (level 0)
+    #   - All-Purpose Flour (level 2) [0 products]
+
+    chocolate = Ingredient(
+        display_name="Chocolate",
+        slug="chocolate",
+        category="Chocolate",
+        hierarchy_level=0,
+        parent_ingredient_id=None,
+    )
+    session.add(chocolate)
+    session.flush()
+
+    dark_chocolate = Ingredient(
+        display_name="Dark Chocolate",
+        slug="dark-chocolate",
+        category="Chocolate",
+        hierarchy_level=1,
+        parent_ingredient_id=chocolate.id,
+    )
+    session.add(dark_chocolate)
+    session.flush()
+
+    semi_sweet = Ingredient(
+        display_name="Semi-Sweet Chips",
+        slug="semi-sweet-chips",
+        category="Chocolate",
+        hierarchy_level=2,
+        parent_ingredient_id=dark_chocolate.id,
+    )
+    session.add(semi_sweet)
+    session.flush()
+
+    bittersweet = Ingredient(
+        display_name="Bittersweet Chips",
+        slug="bittersweet-chips",
+        category="Chocolate",
+        hierarchy_level=2,
+        parent_ingredient_id=dark_chocolate.id,
+    )
+    session.add(bittersweet)
+    session.flush()
+
+    milk_chocolate = Ingredient(
+        display_name="Milk Chocolate",
+        slug="milk-chocolate",
+        category="Chocolate",
+        hierarchy_level=1,
+        parent_ingredient_id=chocolate.id,
+    )
+    session.add(milk_chocolate)
+    session.flush()
+
+    milk_chips = Ingredient(
+        display_name="Milk Chocolate Chips",
+        slug="milk-chocolate-chips",
+        category="Chocolate",
+        hierarchy_level=2,
+        parent_ingredient_id=milk_chocolate.id,
+    )
+    session.add(milk_chips)
+    session.flush()
+
+    flour = Ingredient(
+        display_name="Flour",
+        slug="flour",
+        category="Flour",
+        hierarchy_level=0,
+        parent_ingredient_id=None,
+    )
+    session.add(flour)
+    session.flush()
+
+    ap_flour = Ingredient(
+        display_name="All-Purpose Flour",
+        slug="all-purpose-flour",
+        category="Flour",
+        hierarchy_level=2,
+        parent_ingredient_id=flour.id,
+    )
+    session.add(ap_flour)
+    session.flush()
+
+    # Add products linked to ingredients
+    # 3 products linked to Semi-Sweet Chips
+    for i in range(3):
+        product = Product(
+            product_name=f"Semi-Sweet Product {i+1}",
+            brand=f"Brand {i+1}",
+            ingredient_id=semi_sweet.id,
+            package_unit="bag",
+            package_unit_quantity=12.0,
+        )
+        session.add(product)
+
+    # 2 products linked to Milk Chocolate Chips
+    for i in range(2):
+        product = Product(
+            product_name=f"Milk Chips Product {i+1}",
+            brand=f"Brand {i+1}",
+            ingredient_id=milk_chips.id,
+            package_unit="bag",
+            package_unit_quantity=12.0,
+        )
+        session.add(product)
+
+    session.commit()
+
+    yield session
+
+    session.close()
+    Session.remove()
+
+
+class TestGetChildCount:
+    """Tests for get_child_count() (Feature 033)."""
+
+    def test_root_with_children(self, test_db_with_products):
+        """Test counting children of root ingredient with children."""
+        chocolate = (
+            test_db_with_products.query(Ingredient).filter(Ingredient.slug == "chocolate").first()
+        )
+        count = ingredient_hierarchy_service.get_child_count(
+            chocolate.id, session=test_db_with_products
+        )
+        assert count == 2  # Dark Chocolate, Milk Chocolate
+
+    def test_mid_tier_with_children(self, test_db_with_products):
+        """Test counting children of mid-tier ingredient."""
+        dark_choc = (
+            test_db_with_products.query(Ingredient)
+            .filter(Ingredient.slug == "dark-chocolate")
+            .first()
+        )
+        count = ingredient_hierarchy_service.get_child_count(
+            dark_choc.id, session=test_db_with_products
+        )
+        assert count == 2  # Semi-Sweet, Bittersweet
+
+    def test_leaf_has_no_children(self, test_db_with_products):
+        """Test that leaf ingredient has 0 children."""
+        semi_sweet = (
+            test_db_with_products.query(Ingredient)
+            .filter(Ingredient.slug == "semi-sweet-chips")
+            .first()
+        )
+        count = ingredient_hierarchy_service.get_child_count(
+            semi_sweet.id, session=test_db_with_products
+        )
+        assert count == 0
+
+    def test_nonexistent_ingredient_returns_zero(self, test_db_with_products):
+        """Test that nonexistent ingredient returns 0 (not an error)."""
+        count = ingredient_hierarchy_service.get_child_count(99999, session=test_db_with_products)
+        assert count == 0
+
+
+class TestGetProductCount:
+    """Tests for get_product_count() (Feature 033)."""
+
+    def test_ingredient_with_products(self, test_db_with_products):
+        """Test counting products for ingredient with products."""
+        semi_sweet = (
+            test_db_with_products.query(Ingredient)
+            .filter(Ingredient.slug == "semi-sweet-chips")
+            .first()
+        )
+        count = ingredient_hierarchy_service.get_product_count(
+            semi_sweet.id, session=test_db_with_products
+        )
+        assert count == 3
+
+    def test_ingredient_with_different_product_count(self, test_db_with_products):
+        """Test counting products for another ingredient."""
+        milk_chips = (
+            test_db_with_products.query(Ingredient)
+            .filter(Ingredient.slug == "milk-chocolate-chips")
+            .first()
+        )
+        count = ingredient_hierarchy_service.get_product_count(
+            milk_chips.id, session=test_db_with_products
+        )
+        assert count == 2
+
+    def test_ingredient_with_no_products(self, test_db_with_products):
+        """Test that ingredient with no products returns 0."""
+        bittersweet = (
+            test_db_with_products.query(Ingredient)
+            .filter(Ingredient.slug == "bittersweet-chips")
+            .first()
+        )
+        count = ingredient_hierarchy_service.get_product_count(
+            bittersweet.id, session=test_db_with_products
+        )
+        assert count == 0
+
+    def test_nonexistent_ingredient_returns_zero(self, test_db_with_products):
+        """Test that nonexistent ingredient returns 0."""
+        count = ingredient_hierarchy_service.get_product_count(99999, session=test_db_with_products)
+        assert count == 0
+
+
+class TestCanChangeParent:
+    """Tests for can_change_parent() (Feature 033)."""
+
+    def test_valid_change_returns_allowed(self, test_db_with_products):
+        """Test that valid parent change returns allowed=True."""
+        semi_sweet = (
+            test_db_with_products.query(Ingredient)
+            .filter(Ingredient.slug == "semi-sweet-chips")
+            .first()
+        )
+        milk_choc = (
+            test_db_with_products.query(Ingredient)
+            .filter(Ingredient.slug == "milk-chocolate")
+            .first()
+        )
+
+        result = ingredient_hierarchy_service.can_change_parent(
+            semi_sweet.id, milk_choc.id, session=test_db_with_products
+        )
+
+        assert result["allowed"] is True
+        assert result["reason"] == ""
+        assert result["new_level"] == 2  # Child of L1 = L2
+
+    def test_becoming_root_is_allowed(self, test_db_with_products):
+        """Test that becoming root is allowed."""
+        semi_sweet = (
+            test_db_with_products.query(Ingredient)
+            .filter(Ingredient.slug == "semi-sweet-chips")
+            .first()
+        )
+
+        result = ingredient_hierarchy_service.can_change_parent(
+            semi_sweet.id, None, session=test_db_with_products
+        )
+
+        assert result["allowed"] is True
+        assert result["new_level"] == 0
+
+    def test_circular_reference_blocked(self, test_db_with_products):
+        """Test that circular reference is blocked."""
+        chocolate = (
+            test_db_with_products.query(Ingredient).filter(Ingredient.slug == "chocolate").first()
+        )
+        dark_choc = (
+            test_db_with_products.query(Ingredient)
+            .filter(Ingredient.slug == "dark-chocolate")
+            .first()
+        )
+
+        # Try to make Chocolate a child of Dark Chocolate (its own child)
+        result = ingredient_hierarchy_service.can_change_parent(
+            chocolate.id, dark_choc.id, session=test_db_with_products
+        )
+
+        assert result["allowed"] is False
+        assert "circular" in result["reason"].lower()
+
+    def test_depth_exceeded_blocked(self, test_db_with_products):
+        """Test that exceeding max depth is blocked."""
+        semi_sweet = (
+            test_db_with_products.query(Ingredient)
+            .filter(Ingredient.slug == "semi-sweet-chips")
+            .first()
+        )
+        bittersweet = (
+            test_db_with_products.query(Ingredient)
+            .filter(Ingredient.slug == "bittersweet-chips")
+            .first()
+        )
+
+        # Try to make semi-sweet a child of bittersweet (both are L2, would make L3)
+        result = ingredient_hierarchy_service.can_change_parent(
+            semi_sweet.id, bittersweet.id, session=test_db_with_products
+        )
+
+        assert result["allowed"] is False
+        assert "depth" in result["reason"].lower()
+
+    def test_product_warning_included(self, test_db_with_products):
+        """Test that product count is included in warnings."""
+        semi_sweet = (
+            test_db_with_products.query(Ingredient)
+            .filter(Ingredient.slug == "semi-sweet-chips")
+            .first()
+        )
+        milk_choc = (
+            test_db_with_products.query(Ingredient)
+            .filter(Ingredient.slug == "milk-chocolate")
+            .first()
+        )
+
+        result = ingredient_hierarchy_service.can_change_parent(
+            semi_sweet.id, milk_choc.id, session=test_db_with_products
+        )
+
+        assert result["allowed"] is True
+        assert result["product_count"] == 3
+        assert any("3 linked product" in w for w in result["warnings"])
+
+    def test_child_warning_included(self, test_db_with_products):
+        """Test that child count is included in warnings."""
+        dark_choc = (
+            test_db_with_products.query(Ingredient)
+            .filter(Ingredient.slug == "dark-chocolate")
+            .first()
+        )
+        chocolate = (
+            test_db_with_products.query(Ingredient).filter(Ingredient.slug == "chocolate").first()
+        )
+
+        # Moving dark_choc to be directly under root (stays L1)
+        result = ingredient_hierarchy_service.can_change_parent(
+            dark_choc.id, None, session=test_db_with_products
+        )
+
+        assert result["allowed"] is True
+        assert result["child_count"] == 2
+        assert any("2 child ingredient" in w for w in result["warnings"])
+
+    def test_no_warnings_when_no_products_or_children(self, test_db_with_products):
+        """Test that no warnings when ingredient has no products or children."""
+        bittersweet = (
+            test_db_with_products.query(Ingredient)
+            .filter(Ingredient.slug == "bittersweet-chips")
+            .first()
+        )
+        milk_choc = (
+            test_db_with_products.query(Ingredient)
+            .filter(Ingredient.slug == "milk-chocolate")
+            .first()
+        )
+
+        result = ingredient_hierarchy_service.can_change_parent(
+            bittersweet.id, milk_choc.id, session=test_db_with_products
+        )
+
+        assert result["allowed"] is True
+        assert result["product_count"] == 0
+        assert result["child_count"] == 0
+        assert len(result["warnings"]) == 0
+
+    def test_counts_returned_even_when_blocked(self, test_db_with_products):
+        """Test that counts are still returned when change is blocked."""
+        semi_sweet = (
+            test_db_with_products.query(Ingredient)
+            .filter(Ingredient.slug == "semi-sweet-chips")
+            .first()
+        )
+        bittersweet = (
+            test_db_with_products.query(Ingredient)
+            .filter(Ingredient.slug == "bittersweet-chips")
+            .first()
+        )
+
+        result = ingredient_hierarchy_service.can_change_parent(
+            semi_sweet.id, bittersweet.id, session=test_db_with_products
+        )
+
+        assert result["allowed"] is False
+        assert result["product_count"] == 3  # Still counted
+        assert result["child_count"] == 0  # Still counted

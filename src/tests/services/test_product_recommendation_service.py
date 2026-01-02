@@ -49,7 +49,7 @@ def flour_ingredient(test_db):
     """Create a flour ingredient with known density for unit conversion."""
     return ingredient_service.create_ingredient(
         {
-            "name": "All-Purpose Flour",
+            "display_name": "All-Purpose Flour",
             "category": "Flour",
             # 4-field density: 1 cup = 125g (approximately 0.529 g/ml)
             "density_volume_value": 1.0,
@@ -134,7 +134,7 @@ def ingredient_no_products(test_db):
     """Create an ingredient with no products configured."""
     return ingredient_service.create_ingredient(
         {
-            "name": "Specialty Ingredient",
+            "display_name": "Specialty Ingredient",
             "category": "Misc"
         }
     )
@@ -380,7 +380,7 @@ class TestEdgeCases:
         # Create an ingredient without density (no volume-weight conversion possible)
         ingredient = ingredient_service.create_ingredient(
             {
-                "name": "Count Ingredient",
+                "display_name": "Count Ingredient",
                 "category": "Misc",
                 # No density_g_per_ml - can't convert count to weight
             }

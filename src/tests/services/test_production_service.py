@@ -45,7 +45,7 @@ def setup_production_test_data(test_db):
     # Create ingredient: flour
     flour = ingredient_service.create_ingredient(
         {
-            "name": "All Purpose Flour",
+            "display_name": "All Purpose Flour",
             "category": "Flour",
             # 4-field density: 1 cup = 120g (~0.507 g/ml)
             "density_volume_value": 1.0,
@@ -89,7 +89,7 @@ def setup_production_test_data(test_db):
     # Create ingredient: sugar
     sugar = ingredient_service.create_ingredient(
         {
-            "name": "Granulated Sugar",
+            "display_name": "Granulated Sugar",
             "category": "Sugar",
             # 4-field density: 1 cup = 200g (~0.85 g/ml)
             "density_volume_value": 1.0,

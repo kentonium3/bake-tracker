@@ -1,0 +1,7 @@
+id,date,finding,source_id,decision_impact,notes
+E1,2026-01-02,ingredients_tab.py has both level dropdown (L866-879) AND parent dropdowns (L882-920),S1,D1,Hybrid approach causes conceptual confusion
+E2,2026-01-02,ingredient_hierarchy_service.py has validate_hierarchy() with full validation logic,S2,D4,Can reuse existing validation
+E3,2026-01-02,get_children() and get_descendants() already exist,S2,D4,No need to rewrite traversal logic
+E4,2026-01-02,Gap analysis identifies ~45% completion with critical blockers,S3,D1,Confirms need for this feature
+E5,2026-01-02,User confirms no negative consequence to products from parent change,S4,D2,Informational warnings sufficient
+E6,2026-01-02,User prefers inline form only scope,S4,D3,Legacy form deprecated

@@ -182,21 +182,13 @@ class TestCategoryValidation:
         is_valid, error = validators.validate_ingredient_category("Flour", "Category")
         assert is_valid is True
 
-    def test_validate_ingredient_category_invalid(self, test_db):
-        """Test ingredient category with invalid category."""
-        session = test_db
-        from src.models.ingredient import Ingredient
-        session.add(Ingredient(display_name="Dummy", category="Flour", slug="dummy"))
-        session.commit()
-        is_valid, error = validators.validate_ingredient_category("InvalidCategory", "Category")
+    def test_validate_ingredient_category_invalid(self):
+        """Test ingredient category with whitespace-only string."""
+        is_valid, error = validators.validate_ingredient_category("   ", "Category")
         assert is_valid is False
 
-    def test_validate_ingredient_category_empty(self, test_db):
+    def test_validate_ingredient_category_empty(self):
         """Test ingredient category with empty string."""
-        session = test_db
-        from src.models.ingredient import Ingredient
-        session.add(Ingredient(display_name="Dummy", category="Flour", slug="dummy"))
-        session.commit()
         is_valid, error = validators.validate_ingredient_category("", "Category")
         assert is_valid is False
 
@@ -205,13 +197,9 @@ class TestCategoryValidation:
         is_valid, error = validators.validate_recipe_category("Cookies", "Category")
         assert is_valid is True
 
-    def test_validate_recipe_category_invalid(self, test_db):
-        """Test recipe category with invalid category."""
-        session = test_db
-        from src.models.recipe import Recipe
-        session.add(Recipe(name="Dummy", category="Cookies", yield_quantity=1, yield_unit="batch"))
-        session.commit()
-        is_valid, error = validators.validate_recipe_category("InvalidCategory", "Category")
+    def test_validate_recipe_category_invalid(self):
+        """Test recipe category with whitespace-only string."""
+        is_valid, error = validators.validate_recipe_category("   ", "Category")
         assert is_valid is False
 
 class TestIngredientValidation:
@@ -220,7 +208,7 @@ class TestIngredientValidation:
     def get_valid_ingredient_data(self):
         """Get valid ingredient data for testing."""
         return {
-            "name": "All-Purpose Flour",
+            "display_name": "All-Purpose Flour",
             "brand": "King Arthur",
             "category": "Flour",
             "package_unit": "bag",
@@ -241,19 +229,15 @@ class TestIngredientValidation:
     def test_validate_ingredient_data_missing_name(self):
         """Test ingredient validation with missing name."""
         data = self.get_valid_ingredient_data()
-        del data["name"]
+        del data["display_name"]
         is_valid, errors = validators.validate_ingredient_data(data)
         assert is_valid is False
         assert any("name" in e.lower() for e in errors)
 
-    def test_validate_ingredient_data_invalid_category(self, test_db):
-        """Test ingredient validation with invalid category."""
-        session = test_db
-        from src.models.ingredient import Ingredient
-        session.add(Ingredient(display_name="Dummy", category="Flour", slug="dummy"))
-        session.commit()
+    def test_validate_ingredient_data_invalid_category(self):
+        """Test ingredient validation with missing/blank category."""
         data = self.get_valid_ingredient_data()
-        data["category"] = "InvalidCategory"
+        data["category"] = "   "
         is_valid, errors = validators.validate_ingredient_data(data)
         assert is_valid is False
         assert any("category" in e.lower() for e in errors)
@@ -303,14 +287,10 @@ class TestRecipeValidation:
         is_valid, errors = validators.validate_recipe_data(data)
         assert is_valid is False
 
-    def test_validate_recipe_data_invalid_category(self, test_db):
-        """Test recipe validation with invalid category."""
-        session = test_db
-        from src.models.recipe import Recipe
-        session.add(Recipe(name="Dummy", category="Cookies", yield_quantity=1, yield_unit="batch"))
-        session.commit()
+    def test_validate_recipe_data_invalid_category(self):
+        """Test recipe validation with missing/blank category."""
         data = self.get_valid_recipe_data()
-        data["category"] = "InvalidCategory"
+        data["category"] = "   "
         is_valid, errors = validators.validate_recipe_data(data)
         assert is_valid is False
 

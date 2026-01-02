@@ -18,6 +18,7 @@ Usage:
 import json
 from dataclasses import dataclass
 from datetime import datetime
+from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
 from src.utils.datetime_utils import utc_now
 from pathlib import Path
 from typing import Dict, List, Optional
@@ -29,6 +30,22 @@ from src.models.inventory_item import InventoryItem
 from src.models.product import Product
 from src.models.purchase import Purchase
 from src.services.database import session_scope
+
+
+# ============================================================================
+# Helpers
+# ============================================================================
+
+def _format_money(value) -> Optional[str]:
+    """Format a currency-like value as a 2-decimal string (e.g., '12.99')."""
+    if value is None:
+        return None
+    try:
+        dec = value if isinstance(value, Decimal) else Decimal(str(value))
+        return format(dec.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP), "f")
+    except (InvalidOperation, ValueError, TypeError):
+        # Fall back to the original string representation
+        return str(value)
 
 
 # ============================================================================
@@ -242,7 +259,7 @@ def _export_products_view_impl(output_path: str, session: Session) -> ExportResu
             ),
             # Purchase context (readonly)
             "last_purchase_price": (
-                f"{recent_purchase.unit_price:.2f}" if recent_purchase else None
+                _format_money(recent_purchase.unit_price) if recent_purchase else None
             ),
             "last_purchase_date": (
                 recent_purchase.purchase_date.isoformat()
@@ -452,9 +469,9 @@ def _export_purchases_view_impl(output_path: str, session: Session) -> ExportRes
             "purchase_date": (
                 p.purchase_date.isoformat() if p.purchase_date else None
             ),
-            "unit_price": f"{p.unit_price:.2f}" if p.unit_price else None,
+            "unit_price": _format_money(p.unit_price) if p.unit_price is not None else None,
             "quantity_purchased": p.quantity_purchased,
-            "total_cost": f"{p.total_cost:.2f}" if p.unit_price else None,
+            "total_cost": _format_money(p.total_cost) if p.total_cost is not None else None,
             "notes": p.notes,  # Editable
             "created_at": p.created_at.isoformat() if p.created_at else None,
             # Product context (readonly)

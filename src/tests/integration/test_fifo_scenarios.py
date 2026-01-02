@@ -31,7 +31,7 @@ def test_fifo_multiple_lots_partial_consumption(test_db, test_supplier):
     # Setup: Create ingredient and product
     ingredient = ingredient_service.create_ingredient(
         {
-            "name": "Rye Flour",
+            "display_name": "Rye Flour",
             "category": "Flour",
             # 4-field density: 1 cup = 113.4g (approximately 0.4793 g/ml, 4 cups/lb)
             "density_volume_value": 1.0,
@@ -111,7 +111,7 @@ def test_fifo_insufficient_inventory(test_db, test_supplier):
     # Setup
     ingredient = ingredient_service.create_ingredient(
         {
-            "name": "Oat Flour",
+            "display_name": "Oat Flour",
             "category": "Flour",
             # 4-field density: 1 cup = 113.4g (approximately 0.4793 g/ml, 4 cups/lb)
             "density_volume_value": 1.0,
@@ -159,7 +159,7 @@ def test_fifo_exact_consumption(test_db, test_supplier):
     # Setup
     ingredient = ingredient_service.create_ingredient(
         {
-            "name": "Almond Flour",
+            "display_name": "Almond Flour",
             "category": "Flour",
             # 4-field density: 1 cup = 113.4g (approximately 0.4793 g/ml, 4 cups/lb)
             "density_volume_value": 1.0,
@@ -206,7 +206,7 @@ def test_fifo_ordering_across_multiple_products(test_db, test_supplier):
     # Setup: Create ingredient
     ingredient = ingredient_service.create_ingredient(
         {
-            "name": "Coconut Flour",
+            "display_name": "Coconut Flour",
             "category": "Flour",
             # 4-field density: 1 cup = 113.4g (approximately 0.4793 g/ml, 4 cups/lb)
             "density_volume_value": 1.0,
@@ -260,7 +260,7 @@ def test_fifo_zero_quantity_lots_ignored(test_db, test_supplier):
     # Setup
     ingredient = ingredient_service.create_ingredient(
         {
-            "name": "Buckwheat Flour",
+            "display_name": "Buckwheat Flour",
             "category": "Flour",
             # 4-field density: 1 cup = 113.4g (approximately 0.4793 g/ml, 4 cups/lb)
             "density_volume_value": 1.0,
@@ -312,7 +312,7 @@ def test_fifo_precision(test_db, test_supplier):
     # Setup
     ingredient = ingredient_service.create_ingredient(
         {
-            "name": "Teff Flour",
+            "display_name": "Teff Flour",
             "category": "Flour",  # Changed to match package_unit for precision test
         }
     )

@@ -40,7 +40,7 @@ from src.models.assembly_type import AssemblyType
 def packaging_ingredient(test_db):
     """Create a packaging ingredient for tests."""
     return create_ingredient({
-        "name": "Test Cellophane Bags",
+        "display_name": "Test Cellophane Bags",
         "category": "Bags",
         "is_packaging": True,
     })
@@ -49,7 +49,7 @@ def packaging_ingredient(test_db):
 def food_ingredient(test_db):
     """Create a food ingredient for tests."""
     return create_ingredient({
-        "name": "Test All-Purpose Flour",
+        "display_name": "Test All-Purpose Flour",
         "category": "Flour",
         "is_packaging": False,
     })
@@ -307,12 +307,12 @@ class TestGetPackaging:
         """Packaging compositions are sorted by sort_order."""
         # Create multiple packaging ingredients
         ing1 = create_ingredient({
-            "name": "Test Ribbon",
+            "display_name": "Test Ribbon",
             "category": "Ribbon",
             "is_packaging": True,
         })
         ing2 = create_ingredient({
-            "name": "Test Labels",
+            "display_name": "Test Labels",
             "category": "Labels",
             "is_packaging": True,
         })

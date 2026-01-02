@@ -1,0 +1,5 @@
+id,type,location,description,accessed_date,reliability
+S1,Code,src/ui/ingredients_tab.py,Inline form implementation with hybrid level/parent UI,2026-01-02,Primary
+S2,Code,src/services/ingredient_hierarchy_service.py,Hierarchy validation and traversal functions,2026-01-02,Primary
+S3,Doc,docs/requirements/req_ingredients_GAP_ANALYSIS.md,Comprehensive gap analysis for ingredient features,2026-01-02,Primary
+S4,Interview,Planning session 2026-01-02,User decisions on form scope and warning behavior,2026-01-02,Primary

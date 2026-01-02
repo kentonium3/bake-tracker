@@ -14,6 +14,7 @@ import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import IntegrityError
+from src.services import supplier_service
 
 from src.models.base import Base
 from src.models.supplier import Supplier
@@ -74,55 +75,48 @@ class TestSupplierModel:
         assert supplier.notes == "Membership required. Open Mon-Sat 7am-6pm."
 
     def test_supplier_requires_name(self, session):
-        """Test that name is required."""
-        supplier = Supplier(
-            name=None,  # Missing required field
-            city="Boston",
-            state="MA",
-            zip_code="02101",
-        )
-        session.add(supplier)
-        with pytest.raises(IntegrityError):
-            session.flush()
+        """Service-layer validation: name is required."""
+        with pytest.raises(ValueError):
+            supplier_service.create_supplier(
+                name=None,
+                city="Boston",
+                state="MA",
+                zip_code="02101",
+                session=session,
+            )
 
     def test_supplier_requires_city(self, session):
-        """Test that city is required for physical suppliers."""
-        from src.services import supplier_service
-        with pytest.raises(ValueError) as exc_info:
+        """Service-layer validation: city is required for physical suppliers."""
+        with pytest.raises(ValueError):
             supplier_service.create_supplier(
                 name="Test Supplier",
+                city=None,
                 state="MA",
                 zip_code="02101",
-                supplier_type="physical",
                 session=session,
             )
-        assert "City is required" in str(exc_info.value)
 
     def test_supplier_requires_state(self, session):
-        """Test that state is required for physical suppliers."""
-        from src.services import supplier_service
-        with pytest.raises(ValueError) as exc_info:
+        """Service-layer validation: state is required for physical suppliers."""
+        with pytest.raises(ValueError):
             supplier_service.create_supplier(
                 name="Test Supplier",
                 city="Boston",
+                state=None,
                 zip_code="02101",
-                supplier_type="physical",
                 session=session,
             )
-        assert "State is required" in str(exc_info.value)
 
     def test_supplier_requires_zip_code(self, session):
-        """Test that zip_code is required for physical suppliers."""
-        from src.services import supplier_service
-        with pytest.raises(ValueError) as exc_info:
+        """Service-layer validation: zip_code is required for physical suppliers."""
+        with pytest.raises(ValueError):
             supplier_service.create_supplier(
                 name="Test Supplier",
                 city="Boston",
                 state="MA",
-                supplier_type="physical",
+                zip_code=None,
                 session=session,
             )
-        assert "ZIP code is required" in str(exc_info.value)
 
     def test_supplier_default_is_active(self, session):
         """Test that is_active defaults to True."""

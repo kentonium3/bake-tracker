@@ -31,7 +31,7 @@ def test_complete_inventory_workflow(test_db, test_supplier):
 
     # 1. Create ingredient
     ingredient_data = {
-        "name": "All-Purpose Flour",
+        "display_name": "All-Purpose Flour",
         "category": "Flour",
         # 4-field density: 1 cup = 113.4g (approximately 0.4793 g/ml, 4 cups/lb)
         "density_volume_value": 1.0,
@@ -84,7 +84,7 @@ def test_multiple_products_preferred_toggle(test_db):
     """Test: Create multiple products -> Toggle preferred -> Verify atomicity."""
 
     # Create ingredient
-    ingredient_data = {"name": "Granulated Sugar", "category": "Sugar"}
+    ingredient_data = {"display_name": "Granulated Sugar", "category": "Sugar"}
     ingredient = ingredient_service.create_ingredient(ingredient_data)
 
     # Create product 1 (preferred)
@@ -125,7 +125,7 @@ def test_inventory_items_filtering(test_db, test_supplier):
     # Setup: Create ingredient and product
     ingredient = ingredient_service.create_ingredient(
         {
-            "name": "Bread Flour",
+            "display_name": "Bread Flour",
             "category": "Flour",
             # 4-field density: 1 cup = 113.4g (approximately 0.4793 g/ml, 4 cups/lb)
             "density_volume_value": 1.0,
@@ -195,7 +195,7 @@ def test_expiring_items_detection(test_db, test_supplier):
 
     # Setup
     ingredient = ingredient_service.create_ingredient(
-        {"name": "Yeast", "category": "Misc"}
+        {"display_name": "Yeast", "category": "Misc"}
     )
 
     product = product_service.create_product(
@@ -251,7 +251,7 @@ def test_ingredient_deletion_blocked_by_products(test_db):
 
     # Create ingredient and product
     ingredient = ingredient_service.create_ingredient(
-        {"name": "Baking Powder", "category": "Misc"}
+        {"display_name": "Baking Powder", "category": "Misc"}
     )
 
     product = product_service.create_product(

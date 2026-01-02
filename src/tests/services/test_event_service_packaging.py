@@ -46,7 +46,7 @@ from src.models.assembly_type import AssemblyType
 def packaging_ingredient(test_db):
     """Create a packaging ingredient for tests."""
     return create_ingredient({
-        "name": "Test Cellophane Bags",
+        "display_name": "Test Cellophane Bags",
         "category": "Bags",
         "is_packaging": True,
     })
@@ -55,7 +55,7 @@ def packaging_ingredient(test_db):
 def packaging_ingredient_2(test_db):
     """Create a second packaging ingredient for tests."""
     return create_ingredient({
-        "name": "Test Gift Boxes",
+        "display_name": "Test Gift Boxes",
         "category": "Boxes",
         "is_packaging": True,
     })
