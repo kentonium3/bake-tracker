@@ -41,7 +41,8 @@ class IngredientCrosswalk(BaseModel):
     meta = Column(JSON, nullable=True)  # Optional system-specific metadata
 
     # Relationships
-    ingredient = relationship("Ingredient", backref="crosswalks")
+    # passive_deletes="all" lets database CASCADE handle deletion without ORM interference
+    ingredient = relationship("Ingredient", backref="crosswalks", passive_deletes="all")
 
     # Indexes for common queries
     __table_args__ = (

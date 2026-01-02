@@ -38,7 +38,8 @@ class IngredientAlias(BaseModel):
     locale = Column(String(10), nullable=True)  # Optional locale (e.g., "en-US", "fr-FR")
 
     # Relationships
-    ingredient = relationship("Ingredient", backref="aliases")
+    # passive_deletes="all" lets database CASCADE handle deletion without ORM interference
+    ingredient = relationship("Ingredient", backref="aliases", passive_deletes="all")
 
     # Indexes for common queries
     __table_args__ = (

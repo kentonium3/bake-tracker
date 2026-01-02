@@ -36,9 +36,11 @@ def normalize_for_search(text: str) -> str:
 
 
 from src.services import ingredient_service, product_service, ingredient_hierarchy_service
+from src.services.ingredient_service import delete_ingredient_safe
 from src.services.unit_service import get_units_for_dropdown
 from src.services.exceptions import (
     IngredientInUse,
+    IngredientNotFound,
     IngredientNotFoundBySlug,
     SlugAlreadyExists,
     ValidationError,
@@ -710,25 +712,32 @@ class IngredientsTab(ctk.CTkFrame):
             messagebox.showerror("Database Error", f"Failed to update ingredient: {e}")
 
     def _delete_ingredient(self):
-        """Delete the selected ingredient after confirmation."""
+        """Delete the selected ingredient after confirmation.
+
+        Uses delete_ingredient_safe() which:
+        - Blocks deletion if products, recipes, or children reference the ingredient
+        - Denormalizes snapshot records before deletion to preserve history
+        - Cascades delete for aliases and crosswalks via DB constraints
+        """
         if not self.selected_ingredient_slug:
             return
 
         try:
-            # Get ingredient name for confirmation
+            # Get ingredient for confirmation and ID
             ingredient = ingredient_service.get_ingredient(self.selected_ingredient_slug)
-            name = ingredient.display_name  # Fixed: Ingredient uses display_name not name
+            name = ingredient.display_name
+            ingredient_id = ingredient.id
 
             # Confirm deletion
             result = messagebox.askyesno(
                 "Confirm Deletion",
                 f"Are you sure you want to delete '{name}'?\n\n"
-                "This will fail if the ingredient has products or is used in recipes.",
+                "This will fail if the ingredient has products, recipes, or child ingredients.",
             )
 
             if result:
-                # Delete using service
-                ingredient_service.delete_ingredient(self.selected_ingredient_slug)
+                # Delete using safe deletion service (F035)
+                delete_ingredient_safe(ingredient_id)
                 self.selected_ingredient_slug = None
                 self.refresh()
                 self.update_status(f"Ingredient '{name}' deleted successfully")
@@ -737,12 +746,12 @@ class IngredientsTab(ctk.CTkFrame):
         except IngredientNotFoundBySlug:
             messagebox.showerror("Error", "Ingredient not found")
             self.refresh()
+        except IngredientNotFound:
+            messagebox.showerror("Error", "Ingredient not found")
+            self.refresh()
         except IngredientInUse as e:
-            messagebox.showerror(
-                "Cannot Delete",
-                f"Cannot delete this ingredient:\n\n{e}\n\n"
-                "Delete associated products/recipes first.",
-            )
+            # F035: Show detailed message with counts
+            self._show_deletion_blocked_message(e.details if hasattr(e, "details") else {})
         except DatabaseError as e:
             messagebox.showerror("Database Error", f"Failed to delete ingredient: {e}")
         except Exception as e:
@@ -751,6 +760,45 @@ class IngredientsTab(ctk.CTkFrame):
             import traceback
 
             traceback.print_exc()
+
+    def _show_deletion_blocked_message(self, details: dict):
+        """Display user-friendly message when ingredient deletion is blocked.
+
+        Args:
+            details: Dict with counts {products: N, recipes: N, children: N, snapshots: N}
+        """
+        parts = []
+
+        if details.get("products", 0) > 0:
+            count = details["products"]
+            parts.append(f"{count} product{'s' if count > 1 else ''}")
+
+        if details.get("recipes", 0) > 0:
+            count = details["recipes"]
+            parts.append(f"{count} recipe{'s' if count > 1 else ''}")
+
+        if details.get("children", 0) > 0:
+            count = details["children"]
+            parts.append(f"{count} child ingredient{'s' if count > 1 else ''}")
+
+        if parts:
+            # Build grammatically correct list (a, b and c)
+            if len(parts) == 1:
+                items = parts[0]
+            elif len(parts) == 2:
+                items = f"{parts[0]} and {parts[1]}"
+            else:
+                items = ", ".join(parts[:-1]) + f" and {parts[-1]}"
+
+            message = (
+                f"Cannot delete this ingredient.\n\n"
+                f"It is referenced by {items}.\n\n"
+                f"Please reassign or remove these references first."
+            )
+        else:
+            message = "Cannot delete this ingredient. It has active references."
+
+        messagebox.showerror("Cannot Delete", message)
 
     def update_status(self, message: str):
         """Update the status bar message."""
@@ -1368,41 +1416,85 @@ class IngredientFormDialog(ctk.CTkToplevel):
         self.destroy()
 
     def _delete(self):
-        """Delete the ingredient after confirmation."""
+        """Delete the ingredient after confirmation.
+
+        Uses delete_ingredient_safe() which:
+        - Blocks deletion if products, recipes, or children reference the ingredient
+        - Denormalizes snapshot records before deletion to preserve history
+        - Cascades delete for aliases and crosswalks via DB constraints
+        """
         if not self.ingredient:
             return
 
-        # Get ingredient name for confirmation
+        # Get ingredient name and ID for confirmation
         name = self.ingredient.get("name") or self.ingredient.get("display_name", "")
-        slug = self.ingredient.get("slug")
+        ingredient_id = self.ingredient.get("id")
 
-        if not slug:
-            messagebox.showerror("Error", "Cannot delete: ingredient slug not found")
+        if not ingredient_id:
+            messagebox.showerror("Error", "Cannot delete: ingredient ID not found")
             return
 
         # Confirm deletion
         result = messagebox.askyesno(
             "Confirm Deletion",
             f"Are you sure you want to delete '{name}'?\n\n"
-            "This will fail if the ingredient has products or is used in recipes.",
+            "This will fail if the ingredient has products, recipes, or child ingredients.",
         )
 
         if result:
             try:
-                # Delete using service
-                ingredient_service.delete_ingredient(slug)
+                # Delete using safe deletion service (F035)
+                delete_ingredient_safe(ingredient_id)
                 self.deleted = True
                 self.result = None
                 messagebox.showinfo("Success", f"Ingredient '{name}' deleted!")
                 self.destroy()
 
+            except IngredientNotFound:
+                messagebox.showerror("Error", "Ingredient not found")
             except IngredientNotFoundBySlug:
                 messagebox.showerror("Error", "Ingredient not found")
             except IngredientInUse as e:
-                messagebox.showerror(
-                    "Cannot Delete",
-                    f"Cannot delete this ingredient:\n\n{e}\n\n"
-                    "Delete associated products/recipes first.",
-                )
+                # F035: Show detailed message with counts
+                self._show_dialog_deletion_blocked_message(e.details if hasattr(e, "details") else {})
             except DatabaseError as e:
                 messagebox.showerror("Database Error", f"Failed to delete ingredient: {e}")
+
+    def _show_dialog_deletion_blocked_message(self, details: dict):
+        """Display user-friendly message when ingredient deletion is blocked (dialog version).
+
+        Args:
+            details: Dict with counts {products: N, recipes: N, children: N, snapshots: N}
+        """
+        parts = []
+
+        if details.get("products", 0) > 0:
+            count = details["products"]
+            parts.append(f"{count} product{'s' if count > 1 else ''}")
+
+        if details.get("recipes", 0) > 0:
+            count = details["recipes"]
+            parts.append(f"{count} recipe{'s' if count > 1 else ''}")
+
+        if details.get("children", 0) > 0:
+            count = details["children"]
+            parts.append(f"{count} child ingredient{'s' if count > 1 else ''}")
+
+        if parts:
+            # Build grammatically correct list (a, b and c)
+            if len(parts) == 1:
+                items = parts[0]
+            elif len(parts) == 2:
+                items = f"{parts[0]} and {parts[1]}"
+            else:
+                items = ", ".join(parts[:-1]) + f" and {parts[-1]}"
+
+            message = (
+                f"Cannot delete this ingredient.\n\n"
+                f"It is referenced by {items}.\n\n"
+                f"Please reassign or remove these references first."
+            )
+        else:
+            message = "Cannot delete this ingredient. It has active references."
+
+        messagebox.showerror("Cannot Delete", message)

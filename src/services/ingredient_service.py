@@ -133,7 +133,8 @@ def create_ingredient(ingredient_data: Dict[str, Any]) -> Ingredient:
 
     Args:
         ingredient_data: Dictionary containing ingredient fields:
-            - display_name (str, required): Ingredient display name
+            - display_name or name (str, required): Ingredient display name
+              (name is normalized to display_name for backward compatibility)
             - category (str, required): Category classification
             - density_volume_value (float, optional): Volume amount for density
             - density_volume_unit (str, optional): Volume unit for density
@@ -167,6 +168,11 @@ def create_ingredient(ingredient_data: Dict[str, Any]) -> Ingredient:
         >>> ingredient.id is not None
         True
     """
+    # Normalize field names for backward compatibility (F035)
+    # UI may send "name" but service expects "display_name"
+    if "name" in ingredient_data and "display_name" not in ingredient_data:
+        ingredient_data["display_name"] = ingredient_data.pop("name")
+
     # Validate ingredient data
     is_valid, errors = validate_ingredient_data(ingredient_data)
     if not is_valid:
@@ -509,6 +515,211 @@ def delete_ingredient(slug: str) -> bool:
         raise
     except Exception as e:
         raise DatabaseError(f"Failed to delete ingredient '{slug}'", original_error=e)
+
+
+# =============================================================================
+# Feature 035: Safe Deletion with Protection (F035)
+# =============================================================================
+
+
+def can_delete_ingredient(
+    ingredient_id: int, session=None
+) -> Tuple[bool, str, Dict[str, int]]:
+    """Check if ingredient can be deleted.
+
+    This function checks all blocking conditions before deletion:
+    - Products referencing the ingredient (blocks deletion)
+    - RecipeIngredients referencing the ingredient (blocks deletion)
+    - Child ingredients (blocks deletion)
+    - SnapshotIngredients (does NOT block - will be denormalized)
+
+    Args:
+        ingredient_id: ID of ingredient to check
+        session: Optional SQLAlchemy session
+
+    Returns:
+        Tuple of (can_delete, reason, details)
+        - can_delete: True if deletion is allowed
+        - reason: Error message if blocked, empty string if allowed
+        - details: Dict with counts {products: N, recipes: N, children: N, snapshots: N}
+
+    Example:
+        >>> can_delete, reason, details = can_delete_ingredient(123)
+        >>> if not can_delete:
+        ...     print(f"Blocked: {reason}")
+        ...     print(f"Products: {details['products']}, Recipes: {details['recipes']}")
+    """
+    from ..models import Product, RecipeIngredient
+    from ..models.inventory_snapshot import SnapshotIngredient
+    from .ingredient_hierarchy_service import get_child_count
+
+    def _check(session):
+        details = {
+            "products": 0,
+            "recipes": 0,
+            "children": 0,
+            "snapshots": 0,
+        }
+        reasons = []
+
+        # Check Product references (blocks deletion)
+        product_count = (
+            session.query(Product)
+            .filter(Product.ingredient_id == ingredient_id)
+            .count()
+        )
+        details["products"] = product_count
+        if product_count > 0:
+            reasons.append(f"{product_count} product{'s' if product_count != 1 else ''} reference this ingredient")
+
+        # Check RecipeIngredient references (blocks deletion)
+        recipe_count = (
+            session.query(RecipeIngredient)
+            .filter(RecipeIngredient.ingredient_id == ingredient_id)
+            .count()
+        )
+        details["recipes"] = recipe_count
+        if recipe_count > 0:
+            reasons.append(f"{recipe_count} recipe{'s' if recipe_count != 1 else ''} use this ingredient")
+
+        # Check child ingredients (blocks deletion)
+        child_count = get_child_count(ingredient_id, session=session)
+        details["children"] = child_count
+        if child_count > 0:
+            reasons.append(f"{child_count} child ingredient{'s' if child_count != 1 else ''} exist")
+
+        # Check SnapshotIngredient references (does NOT block, just count for info)
+        snapshot_count = (
+            session.query(SnapshotIngredient)
+            .filter(SnapshotIngredient.ingredient_id == ingredient_id)
+            .count()
+        )
+        details["snapshots"] = snapshot_count
+
+        if reasons:
+            reason = "Cannot delete: " + "; ".join(reasons) + ". Reassign or remove references first."
+            return False, reason, details
+
+        return True, "", details
+
+    if session is not None:
+        return _check(session)
+    with session_scope() as session:
+        return _check(session)
+
+
+def _denormalize_snapshot_ingredients(ingredient_id: int, session) -> int:
+    """Copy ingredient names to snapshot records before deletion.
+
+    This preserves historical data when the ingredient is deleted.
+    After denormalization, the ingredient_id FK is set to NULL.
+
+    Args:
+        ingredient_id: ID of ingredient being deleted
+        session: SQLAlchemy session (required, not optional)
+
+    Returns:
+        Count of records denormalized
+    """
+    from ..models.inventory_snapshot import SnapshotIngredient
+    from .ingredient_hierarchy_service import get_ancestors
+
+    # Get the ingredient being deleted
+    ingredient = session.query(Ingredient).filter(Ingredient.id == ingredient_id).first()
+
+    if not ingredient:
+        return 0
+
+    # Get hierarchy ancestors for parent names
+    ancestors = get_ancestors(ingredient_id, session=session)
+
+    # Determine parent names from ancestors
+    # ancestors returns [immediate parent, grandparent, ...] (nearest to farthest)
+    # Note: get_ancestors() returns list of dicts from .to_dict()
+    l1_name = None
+    l0_name = None
+    if len(ancestors) >= 1:
+        l1_name = ancestors[0]["display_name"]  # Immediate parent (L1)
+    if len(ancestors) >= 2:
+        l0_name = ancestors[1]["display_name"]  # Grandparent (L0/root)
+
+    # Find all snapshot records referencing this ingredient
+    snapshots = (
+        session.query(SnapshotIngredient)
+        .filter(SnapshotIngredient.ingredient_id == ingredient_id)
+        .all()
+    )
+
+    count = 0
+    for snapshot in snapshots:
+        # Denormalize names
+        snapshot.ingredient_name_snapshot = ingredient.display_name
+        snapshot.parent_l1_name_snapshot = l1_name
+        snapshot.parent_l0_name_snapshot = l0_name
+        # Nullify FK (ingredient will be deleted)
+        snapshot.ingredient_id = None
+        count += 1
+
+    return count
+
+
+def delete_ingredient_safe(ingredient_id: int, session=None) -> bool:
+    """Safely delete an ingredient with full protection.
+
+    This function:
+    1. Checks if deletion is allowed (no Product/Recipe/child references)
+    2. Denormalizes snapshot records to preserve historical data
+    3. Deletes the ingredient (cascades Alias/Crosswalk via DB)
+
+    Args:
+        ingredient_id: ID of ingredient to delete
+        session: Optional SQLAlchemy session
+
+    Returns:
+        True if deleted successfully
+
+    Raises:
+        IngredientNotFound: If ingredient doesn't exist
+        IngredientInUse: If ingredient has blocking references
+        DatabaseError: If database operation fails
+
+    Example:
+        >>> try:
+        ...     delete_ingredient_safe(123)
+        ...     print("Deleted successfully")
+        ... except IngredientInUse as e:
+        ...     print(f"Cannot delete: {e.details}")
+    """
+    def _delete(session):
+        # Verify ingredient exists
+        ingredient = session.query(Ingredient).filter(Ingredient.id == ingredient_id).first()
+        if not ingredient:
+            raise IngredientNotFound(ingredient_id)
+
+        # Check if deletion is allowed
+        can_delete, reason, details = can_delete_ingredient(ingredient_id, session=session)
+        if not can_delete:
+            raise IngredientInUse(ingredient_id, details)
+
+        # Denormalize snapshot records
+        denorm_count = _denormalize_snapshot_ingredients(ingredient_id, session)
+        if denorm_count > 0:
+            logger.info(f"Denormalized {denorm_count} snapshot records for ingredient {ingredient_id}")
+
+        # Delete ingredient (Alias/Crosswalk cascade via DB foreign key constraints)
+        session.delete(ingredient)
+
+        return True
+
+    try:
+        if session is not None:
+            return _delete(session)
+        with session_scope() as session:
+            return _delete(session)
+    except (IngredientNotFound, IngredientInUse):
+        raise
+    except Exception as e:
+        raise DatabaseError(f"Failed to delete ingredient {ingredient_id}", original_error=e)
 
 
 def check_ingredient_dependencies(slug: str) -> Dict[str, int]:

@@ -1,0 +1,11 @@
+source_id,source_type,path,description,accessed_date,relevance
+S001,code,src/utils/slug_utils.py,Slug generation utility with uniqueness checking,2026-01-02,Critical - reuse
+S002,code,src/services/ingredient_service.py,Ingredient CRUD with create_slug integration,2026-01-02,Critical - enhance
+S003,code,src/services/ingredient_crud_service.py,Legacy ingredient CRUD with partial deletion,2026-01-02,Reference only
+S004,code,src/models/inventory_snapshot.py,SnapshotIngredient model - needs schema update,2026-01-02,Critical - modify
+S005,code,src/ui/ingredients_tab.py,Ingredient form with field mapping issue,2026-01-02,Reference - verify
+S006,code,src/ui/products_tab.py,Products tab with existing Clear Filters,2026-01-02,Out of scope
+S007,code,src/ui/inventory_tab.py,Inventory tab with existing Clear Filters,2026-01-02,Out of scope
+S008,code,src/utils/validators.py,Validator expects display_name field,2026-01-02,Reference - compatibility
+S009,code,src/models/ingredient_alias.py,Alias model - verify cascade config,2026-01-02,Verify cascade
+S010,code,src/models/ingredient_crosswalk.py,Crosswalk model - verify cascade config,2026-01-02,Verify cascade
