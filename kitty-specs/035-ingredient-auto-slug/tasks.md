@@ -24,12 +24,12 @@
 **Assignee**: Claude or Gemini
 
 ### Included Subtasks
-- [ ] T001 Add `ingredient_name_snapshot` column (String(200), nullable) to SnapshotIngredient in `src/models/inventory_snapshot.py`
-- [ ] T002 Add `parent_l1_name_snapshot` column (String(200), nullable) to SnapshotIngredient
-- [ ] T003 Add `parent_l0_name_snapshot` column (String(200), nullable) to SnapshotIngredient
-- [ ] T004 Change `ingredient_id` FK from `ondelete="RESTRICT"` to `ondelete="SET NULL"`
-- [ ] T005 Make `ingredient_id` column nullable (`nullable=True`)
-- [ ] T006 Update `to_dict()` method to include new snapshot fields
+- [x] T001 Add `ingredient_name_snapshot` column (String(200), nullable) to SnapshotIngredient in `src/models/inventory_snapshot.py`
+- [x] T002 Add `parent_l1_name_snapshot` column (String(200), nullable) to SnapshotIngredient
+- [x] T003 Add `parent_l0_name_snapshot` column (String(200), nullable) to SnapshotIngredient
+- [x] T004 Change `ingredient_id` FK from `ondelete="RESTRICT"` to `ondelete="SET NULL"`
+- [x] T005 Make `ingredient_id` column nullable (`nullable=True`)
+- [x] T006 Update `to_dict()` method to include new snapshot fields
 
 ### Implementation Notes
 1. Edit `src/models/inventory_snapshot.py`
@@ -58,10 +58,10 @@
 **Assignee**: Gemini (parallel with WP01)
 
 ### Included Subtasks
-- [ ] T007 [P] Verify IngredientAlias FK has `ondelete="CASCADE"` in `src/models/ingredient_alias.py`
-- [ ] T008 [P] Verify IngredientCrosswalk FK has `ondelete="CASCADE"` in `src/models/ingredient_crosswalk.py`
-- [ ] T009 [P] Add cascade config if missing to either model
-- [ ] T010 Document findings in research.md (update if changes needed)
+- [x] T007 [P] Verify IngredientAlias FK has `ondelete="CASCADE"` in `src/models/ingredient_alias.py`
+- [x] T008 [P] Verify IngredientCrosswalk FK has `ondelete="CASCADE"` in `src/models/ingredient_crosswalk.py`
+- [x] T009 [P] Add cascade config if missing to either model
+- [x] T010 Document findings in research.md (update if changes needed)
 
 ### Implementation Notes
 1. Read `src/models/ingredient_alias.py` - check `ingredient_id` FK definition
@@ -89,26 +89,26 @@
 **Assignee**: Claude (main implementation)
 
 ### Included Subtasks
-- [ ] T011 Implement `can_delete_ingredient(ingredient_id, session=None)` in `src/services/ingredient_service.py`
+- [x] T011 Implement `can_delete_ingredient(ingredient_id, session=None)` in `src/services/ingredient_service.py`
   - Check Product count (block if > 0)
   - Check RecipeIngredient count (block if > 0)
   - Check child ingredient count (use existing `get_child_count`)
   - Return tuple: (can_delete: bool, reason: str, details: dict)
-- [ ] T012 Implement `_denormalize_snapshot_ingredients(ingredient_id, session)` helper
+- [x] T012 Implement `_denormalize_snapshot_ingredients(ingredient_id, session)` helper
   - Query all SnapshotIngredient records for this ingredient
   - Copy display_name to `ingredient_name_snapshot`
   - Copy parent L1 name to `parent_l1_name_snapshot` (use `get_ancestors`)
   - Copy parent L0 name to `parent_l0_name_snapshot`
   - Set `ingredient_id` to NULL
   - Return count of records updated
-- [ ] T013 Implement `delete_ingredient_safe(ingredient_id, session=None)` function
+- [x] T013 Implement `delete_ingredient_safe(ingredient_id, session=None)` function
   - Call `can_delete_ingredient()` first
   - If blocked, raise `IngredientInUse` with details
   - Call `_denormalize_snapshot_ingredients()`
   - Delete ingredient (cascades Alias/Crosswalk via DB)
   - Use atomic transaction
-- [ ] T014 Add imports for Product, RecipeIngredient, SnapshotIngredient models
-- [ ] T015 Follow session management pattern (accept optional session parameter)
+- [x] T014 Add imports for Product, RecipeIngredient, SnapshotIngredient models
+- [x] T015 Follow session management pattern (accept optional session parameter)
 
 ### Implementation Notes
 1. Follow existing patterns in `ingredient_service.py`
@@ -138,14 +138,14 @@
 **Assignee**: Gemini (parallel with WP03)
 
 ### Included Subtasks
-- [ ] T016 [P] Add field normalization at start of `create_ingredient()` in `src/services/ingredient_service.py`:
+- [x] T016 [P] Add field normalization at start of `create_ingredient()` in `src/services/ingredient_service.py`:
   ```python
   # Normalize field names for backward compatibility
   if "name" in ingredient_data and "display_name" not in ingredient_data:
       ingredient_data["display_name"] = ingredient_data["name"]
   ```
-- [ ] T017 [P] Verify existing `create_slug()` call uses `display_name` correctly
-- [ ] T018 [P] Test that slug generation works with both "name" and "display_name" inputs
+- [x] T017 [P] Verify existing `create_slug()` call uses `display_name` correctly
+- [x] T018 [P] Test that slug generation works with both "name" and "display_name" inputs
 
 ### Implementation Notes
 1. Add normalization BEFORE validation call
@@ -172,11 +172,11 @@
 **Assignee**: Claude (after WP03)
 
 ### Included Subtasks
-- [ ] T019 Update `_delete()` method in `src/ui/ingredients_tab.py` IngredientFormDialog class
-- [ ] T020 Import `delete_ingredient_safe` from ingredient_service
-- [ ] T021 Call `delete_ingredient_safe()` instead of current deletion
-- [ ] T022 Handle `IngredientInUse` exception with detailed message showing counts
-- [ ] T023 Display user-friendly error with counts: "Cannot delete: X products, Y recipes reference this ingredient"
+- [x] T019 Update `_delete()` method in `src/ui/ingredients_tab.py` IngredientFormDialog class
+- [x] T020 Import `delete_ingredient_safe` from ingredient_service
+- [x] T021 Call `delete_ingredient_safe()` instead of current deletion
+- [x] T022 Handle `IngredientInUse` exception with detailed message showing counts
+- [x] T023 Display user-friendly error with counts: "Cannot delete: X products, Y recipes reference this ingredient"
 
 ### Implementation Notes
 1. Find `_delete()` method in IngredientFormDialog class (~line 1370)
@@ -204,15 +204,15 @@
 **Assignee**: Gemini (parallel test writing)
 
 ### Included Subtasks
-- [ ] T024 [P] Test `test_delete_blocked_by_products` in `src/tests/services/test_ingredient_service.py`
-- [ ] T025 [P] Test `test_delete_blocked_by_recipes` - verify RecipeIngredient blocks deletion
-- [ ] T026 [P] Test `test_delete_blocked_by_children` - verify child ingredients block deletion
-- [ ] T027 Test `test_delete_with_snapshots_denormalizes` - verify snapshot fields populated
-- [ ] T028 [P] Test `test_delete_cascades_aliases` - verify IngredientAlias deleted
-- [ ] T029 [P] Test `test_delete_cascades_crosswalks` - verify IngredientCrosswalk deleted
-- [ ] T030 [P] Test `test_slug_auto_generation` - verify slug from display_name
-- [ ] T031 [P] Test `test_slug_conflict_resolution` - verify _1, _2 suffix handling
-- [ ] T032 [P] Test `test_field_name_normalization` - verify "name" maps to "display_name"
+- [x] T024 [P] Test `test_delete_blocked_by_products` in `src/tests/services/test_ingredient_service.py`
+- [x] T025 [P] Test `test_delete_blocked_by_recipes` - verify RecipeIngredient blocks deletion
+- [x] T026 [P] Test `test_delete_blocked_by_children` - verify child ingredients block deletion
+- [x] T027 Test `test_delete_with_snapshots_denormalizes` - verify snapshot fields populated
+- [x] T028 [P] Test `test_delete_cascades_aliases` - verify IngredientAlias deleted
+- [x] T029 [P] Test `test_delete_cascades_crosswalks` - verify IngredientCrosswalk deleted
+- [x] T030 [P] Test `test_slug_auto_generation` - verify slug from display_name
+- [x] T031 [P] Test `test_slug_conflict_resolution` - verify _1, _2 suffix handling
+- [x] T032 [P] Test `test_field_name_normalization` - verify "name" maps to "display_name"
 
 ### Implementation Notes
 1. Follow existing test patterns in `test_ingredient_service.py`

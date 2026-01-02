@@ -13,7 +13,7 @@ subtasks:
 title: "Deletion & Slug Tests"
 phase: "Phase 4 - Testing"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude-reviewer"
 shell_pid: "26513"
 review_status: ""

@@ -8,7 +8,7 @@ subtasks:
 title: "Verify Cascade Delete Configuration"
 phase: "Phase 1 - Foundation"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude-reviewer"
 shell_pid: "26156"
 review_status: ""

@@ -9,7 +9,7 @@ subtasks:
 title: "Deletion Protection Service"
 phase: "Phase 2 - Core Implementation"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude-reviewer"
 shell_pid: "26243"
 review_status: ""

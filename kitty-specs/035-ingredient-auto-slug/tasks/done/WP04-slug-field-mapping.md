@@ -7,7 +7,7 @@ subtasks:
 title: "Slug Field Mapping Fix"
 phase: "Phase 2 - Core Implementation"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude-reviewer"
 shell_pid: "26327"
 review_status: ""

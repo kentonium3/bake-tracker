@@ -9,7 +9,7 @@ subtasks:
 title: "UI Delete Handler Integration"
 phase: "Phase 3 - UI Integration"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude-reviewer"
 shell_pid: "26418"
 review_status: ""

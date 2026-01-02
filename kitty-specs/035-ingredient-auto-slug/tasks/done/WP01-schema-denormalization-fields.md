@@ -10,7 +10,7 @@ subtasks:
 title: "Schema & Denormalization Fields"
 phase: "Phase 1 - Foundation"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude-reviewer"
 shell_pid: "25817"
 review_status: ""
