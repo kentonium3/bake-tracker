@@ -59,6 +59,50 @@ Low user impact (field behaves correctly, just named confusingly). Rename would 
 
 ---
 
+### TD-004: Hierarchy Path Cache N+1 Query Performance
+
+| Attribute | Value |
+|-----------|-------|
+| **Status** | Open |
+| **Priority** | Low |
+| **Created** | 2026-01-02 |
+| **Feature** | F033 |
+| **Location** | `src/ui/ingredients_tab.py:285-334` |
+
+**Description:**
+
+The `_build_hierarchy_path_cache()` method makes a separate `get_ancestors()` DB call for each non-L0 ingredient. For large ingredient lists, this N+1 pattern could cause noticeable UI lag on refresh.
+
+**Suggested Fix:**
+
+Build paths in-memory using already-loaded ingredient data with `parent_ingredient_id`, or add a bulk service function that returns all ingredients with precomputed paths.
+
+See: `docs/technical-debt/TD-004_hierarchy_path_cache_n_plus_1.md`
+
+---
+
+### TD-005: can_change_parent() new_level Edge Case
+
+| Attribute | Value |
+|-----------|-------|
+| **Status** | Open |
+| **Priority** | Very Low |
+| **Created** | 2026-01-02 |
+| **Feature** | F033 |
+| **Location** | `src/services/ingredient_hierarchy_service.py:683-706` |
+
+**Description:**
+
+When `can_change_parent()` is called with an invalid `new_parent_id`, the returned `new_level` defaults to `0` instead of indicating the level is unknown. This is cosmetic - the `allowed` field will be `False` so the invalid level won't be acted upon.
+
+**Suggested Fix:**
+
+Return `new_level: None` when parent lookup fails, and update UI to display "(Invalid parent)" for unknown levels.
+
+See: `docs/technical-debt/TD-005_can_change_parent_new_level_edge_case.md`
+
+---
+
 ## Resolved Items
 
 *No resolved items yet.*
