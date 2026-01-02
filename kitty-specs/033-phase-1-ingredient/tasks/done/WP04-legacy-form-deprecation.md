@@ -5,12 +5,12 @@ subtasks:
   - "T015"
 title: "Legacy Form Deprecation"
 phase: "Phase 4 - Cleanup"
-lane: "for_review"
+lane: "done"
 assignee: ""
-agent: "system"
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
+agent: "claude-reviewer"
+shell_pid: "82876"
+review_status: "approved without changes"
+reviewed_by: "claude-reviewer"
 history:
   - timestamp: "2026-01-02T00:00:00Z"
     lane: "planned"
@@ -218,3 +218,4 @@ These should be migrated to the inline form before this file is removed.
 - 2026-01-02T00:00:00Z - system - lane=planned - Prompt created.
 - 2026-01-02T05:44:52Z – system – shell_pid= – lane=doing – Moved to doing
 - 2026-01-02T05:46:21Z – system – shell_pid= – lane=for_review – Moved to for_review
+- 2026-01-02T09:43:53Z – claude-reviewer – shell_pid=82876 – lane=done – Code review approved: Deprecation docstrings and warnings.warn() correctly implemented. Call sites documented. No behavior changes.
