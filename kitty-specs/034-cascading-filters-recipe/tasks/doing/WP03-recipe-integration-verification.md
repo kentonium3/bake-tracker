@@ -10,10 +10,10 @@ subtasks:
   - "T022"
 title: "Recipe Integration Verification"
 phase: "Phase B - Parallel Implementation"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "claude"
+shell_pid: "94596"
 review_status: ""
 reviewed_by: ""
 history:
@@ -249,3 +249,46 @@ This WP is primarily manual verification.
 ## Activity Log
 
 - 2026-01-02T10:45:22Z - system - lane=planned - Prompt created via /spec-kitty.tasks
+- 2026-01-02T15:43:57Z – claude – shell_pid=94596 – lane=doing – Starting verification
+- 2026-01-02T15:52:00Z – claude – T016 complete – Reviewed IngredientSelectionDialog in recipe_form.py:32-166
+- 2026-01-02T15:53:00Z – claude – T017 complete – Verified leaf_only enforcement in ingredient_tree_widget.py
+
+## Verification Results
+
+### T016 - IngredientSelectionDialog Review
+
+**Code Location**: `src/ui/forms/recipe_form.py:32-166`
+
+**Implementation Summary**:
+1. Dialog creates IngredientTreeWidget with `leaf_only=True` (line 95)
+2. `_on_tree_select()` callback (line 137-144) validates selection:
+   - Only enables Select button if `ingredient_data.get("is_leaf", False)` is True
+   - Sets `_selected_ingredient = None` and disables button for non-leaves
+
+### T017 - IngredientTreeWidget leaf_only Verification
+
+**Code Location**: `src/ui/widgets/ingredient_tree_widget.py`
+
+**Enforcement Points**:
+1. **Visual**: Lines 251-253 - Non-leaves get `non_selectable` tag (grayed styling)
+2. **Behavioral**: Lines 329-335 - `_on_item_select()` expands non-leaves instead of selecting
+3. **Callback**: Lines 338-339 - Callback only invoked after leaf check passes
+
+**Conclusion**: Two-tier enforcement is properly implemented:
+- Tree widget prevents non-leaf selection at UI level
+- Dialog callback double-checks `is_leaf` before enabling Select button
+
+### T018-T020 - Manual Testing
+
+**Note**: Manual testing requires running the application. Code review confirms:
+- L0/L1 items will expand when clicked (not select)
+- Only L2 items will trigger the selection callback
+- Help text "Select a specific ingredient (not a category)" provides user guidance
+
+### T021 - Issues Found
+
+**NONE** - Recipe integration is properly implemented with leaf-only enforcement.
+
+### T022 - Fixes Applied
+
+**N/A** - No issues found requiring fixes.
