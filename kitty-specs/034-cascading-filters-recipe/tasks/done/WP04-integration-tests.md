@@ -11,7 +11,7 @@ subtasks:
 title: "Integration Tests"
 phase: "Phase C - Validation"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude-reviewer"
 shell_pid: "3311"
 review_status: ""

@@ -11,7 +11,7 @@ subtasks:
 title: "Inventory Tab Cascading Fix"
 phase: "Phase B - Parallel Implementation"
 lane: "done"
-assignee: ""
+assignee: "gemini"
 agent: "claude-reviewer"
 shell_pid: "3311"
 review_status: ""

@@ -11,7 +11,7 @@ subtasks:
 title: "Recipe Integration Verification"
 phase: "Phase B - Parallel Implementation"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude-reviewer"
 shell_pid: "3311"
 review_status: ""

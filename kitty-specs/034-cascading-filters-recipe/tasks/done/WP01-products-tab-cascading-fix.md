@@ -12,7 +12,7 @@ subtasks:
 title: "Products Tab Cascading Fix"
 phase: "Phase A - Sequential Foundation"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude-reviewer"
 shell_pid: "3311"
 review_status: ""

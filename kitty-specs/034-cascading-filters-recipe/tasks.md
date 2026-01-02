@@ -23,14 +23,14 @@
 **Prompt**: `tasks/planned/WP01-products-tab-cascading-fix.md`
 
 ### Included Subtasks
-- [ ] T001 Debug `_on_l0_filter_change()` to identify cascading issue in `src/ui/products_tab.py`
-- [ ] T002 Add debug logging to trace event handler flow
-- [ ] T003 Fix cascading logic so L1 updates correctly when L0 changes
-- [ ] T004 Fix cascading logic so L2 updates correctly when L1 changes
-- [ ] T005 Add re-entry guards if event handlers are recursing
-- [ ] T006 Add "Clear Filters" button to filter frame
-- [ ] T007 Implement `_clear_filters()` method to reset all dropdowns
-- [ ] T008 Manual testing: verify all acceptance scenarios from spec
+- [x] T001 Debug `_on_l0_filter_change()` to identify cascading issue in `src/ui/products_tab.py`
+- [x] T002 Add debug logging to trace event handler flow
+- [x] T003 Fix cascading logic so L1 updates correctly when L0 changes
+- [x] T004 Fix cascading logic so L2 updates correctly when L1 changes
+- [x] T005 Add re-entry guards if event handlers are recursing
+- [x] T006 Add "Clear Filters" button to filter frame
+- [x] T007 Implement `_clear_filters()` method to reset all dropdowns
+- [x] T008 Manual testing: verify all acceptance scenarios from spec
 
 ### Implementation Notes
 1. Review existing code at `products_tab.py:479-554` - logic appears correct but bug exists
@@ -58,13 +58,13 @@
 **Prompt**: `tasks/planned/WP02-inventory-tab-cascading-fix.md`
 
 ### Included Subtasks
-- [ ] T009 [P] Review WP01 fix pattern from `src/ui/products_tab.py`
-- [ ] T010 [P] Apply same fix to `_on_l0_filter_change()` in `src/ui/inventory_tab.py`
-- [ ] T011 [P] Apply same fix to `_on_l1_filter_change()` in `src/ui/inventory_tab.py`
-- [ ] T012 [P] Add re-entry guards matching WP01 pattern
-- [ ] T013 [P] Add "Clear Filters" button matching WP01 pattern
-- [ ] T014 [P] Implement `_clear_filters()` method
-- [ ] T015 [P] Manual testing: verify acceptance scenarios
+- [x] T009 [P] Review WP01 fix pattern from `src/ui/products_tab.py`
+- [x] T010 [P] Apply same fix to `_on_l0_filter_change()` in `src/ui/inventory_tab.py`
+- [x] T011 [P] Apply same fix to `_on_l1_filter_change()` in `src/ui/inventory_tab.py`
+- [x] T012 [P] Add re-entry guards matching WP01 pattern
+- [x] T013 [P] Add "Clear Filters" button matching WP01 pattern
+- [x] T014 [P] Implement `_clear_filters()` method
+- [x] T015 [P] Manual testing: verify acceptance scenarios
 
 ### Implementation Notes
 1. Code structure in `inventory_tab.py:426-500` is nearly identical to `products_tab.py`
@@ -92,13 +92,13 @@
 **Prompt**: `tasks/planned/WP03-recipe-integration-verification.md`
 
 ### Included Subtasks
-- [ ] T016 [P] Review `IngredientSelectionDialog` in `src/ui/forms/recipe_form.py`
-- [ ] T017 [P] Verify `IngredientTreeWidget` has `leaf_only=True` configuration
-- [ ] T018 [P] Manual test: Try to select L0 ingredient - should be blocked
-- [ ] T019 [P] Manual test: Try to select L1 ingredient - should be blocked
-- [ ] T020 [P] Manual test: Select L2 ingredient - should succeed
-- [ ] T021 [P] Document any issues found (create bug file if needed)
-- [ ] T022 [P] Fix issues if any discovered (expected: none)
+- [x] T016 [P] Review `IngredientSelectionDialog` in `src/ui/forms/recipe_form.py`
+- [x] T017 [P] Verify `IngredientTreeWidget` has `leaf_only=True` configuration
+- [x] T018 [P] Manual test: Try to select L0 ingredient - should be blocked
+- [x] T019 [P] Manual test: Try to select L1 ingredient - should be blocked
+- [x] T020 [P] Manual test: Select L2 ingredient - should succeed
+- [x] T021 [P] Document any issues found (create bug file if needed)
+- [x] T022 [P] Fix issues if any discovered (expected: none)
 
 ### Implementation Notes
 1. Research found recipe form already uses `IngredientTreeWidget` with `leaf_only=True`
@@ -128,13 +128,13 @@
 **Prompt**: `tasks/for_review/WP04-integration-tests.md`
 
 ### Included Subtasks
-- [ ] T023 Create test file `src/tests/ui/test_cascading_filters.py`
-- [ ] T024 Test: L0 selection updates L1 options in products tab
-- [ ] T025 Test: L1 selection updates L2 options in products tab
-- [ ] T026 Test: Clear button resets all dropdowns in products tab
-- [ ] T027 Test: Same cascading tests for inventory tab
-- [ ] T028 Test: Recipe ingredient selection enforces L2-only
-- [ ] T029 Run full test suite to verify no regressions
+- [x] T023 Create test file `src/tests/ui/test_cascading_filters.py`
+- [x] T024 Test: L0 selection updates L1 options in products tab
+- [x] T025 Test: L1 selection updates L2 options in products tab
+- [x] T026 Test: Clear button resets all dropdowns in products tab
+- [x] T027 Test: Same cascading tests for inventory tab
+- [x] T028 Test: Recipe ingredient selection enforces L2-only
+- [x] T029 Run full test suite to verify no regressions
 
 ### Implementation Notes
 1. UI testing may require mocking or integration test framework
