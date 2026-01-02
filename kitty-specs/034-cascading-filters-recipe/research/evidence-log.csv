@@ -1,0 +1,7 @@
+id,date,finding,source,confidence,notes
+E001,2026-01-02,"Cascading filter code exists in products_tab.py lines 479-554",src/ui/products_tab.py,high,Code structure looks correct - event handlers bound
+E002,2026-01-02,"Cascading filter code exists in inventory_tab.py lines 426-500",src/ui/inventory_tab.py,high,Nearly identical to products_tab.py
+E003,2026-01-02,"Recipe form uses IngredientTreeWidget with leaf_only=True",src/ui/forms/recipe_form.py:95,high,Already enforces L2-only selection
+E004,2026-01-02,"ingredients_tab.py has Clear button at lines 163-170",src/ui/ingredients_tab.py,high,Pattern to follow for products/inventory
+E005,2026-01-02,"products_tab.py lacks Clear Filters button",src/ui/products_tab.py,high,Grep search confirms no clear filter functionality
+E006,2026-01-02,"inventory_tab.py lacks Clear Filters button",src/ui/inventory_tab.py,high,Grep search confirms no clear filter functionality

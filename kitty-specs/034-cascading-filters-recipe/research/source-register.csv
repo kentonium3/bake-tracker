@@ -1,0 +1,7 @@
+id,source_type,path_or_url,accessed,purpose
+S001,code,src/ui/products_tab.py,2026-01-02,Analyze cascading filter implementation
+S002,code,src/ui/inventory_tab.py,2026-01-02,Compare with products_tab cascading filters
+S003,code,src/ui/forms/recipe_form.py,2026-01-02,Verify recipe ingredient selection
+S004,code,src/ui/widgets/ingredient_tree_widget.py,2026-01-02,Understand leaf_only enforcement
+S005,code,src/ui/ingredients_tab.py,2026-01-02,Reference Clear button pattern
+S006,design,docs/design/_F033_ingredient_hierarchy_gap_analysis.md,2026-01-02,Understand Phase 2 requirements

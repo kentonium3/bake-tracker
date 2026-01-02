@@ -1,0 +1,7 @@
+{
+  "feature_number": "034",
+  "slug": "034-cascading-filters-recipe",
+  "friendly_name": "Cascading Filters & Recipe Integration",
+  "source_description": "Phase 2 of ingredient hierarchy gap analysis: Fix cascading filters in Product/Inventory tabs and verify/fix recipe integration with L2-only validation",
+  "created_at": "2026-01-02T10:31:46Z"
+}
