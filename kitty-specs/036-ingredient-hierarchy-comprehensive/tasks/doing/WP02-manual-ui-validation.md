@@ -9,10 +9,10 @@ subtasks:
   - "T012"
 title: "Manual UI Validation - Cascading Selectors"
 phase: "Phase 2 - Manual Testing"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "claude"
+shell_pid: "35839"
 review_status: ""
 reviewed_by: ""
 history:
@@ -187,3 +187,4 @@ Notes: _______________
 ## Activity Log
 
 - 2026-01-02T00:00:00Z - system - lane=planned - Prompt created.
+- 2026-01-02T22:13:27Z – claude – shell_pid=35839 – lane=doing – Starting manual UI validation
