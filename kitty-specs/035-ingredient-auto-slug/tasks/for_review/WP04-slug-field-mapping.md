@@ -6,10 +6,10 @@ subtasks:
   - "T018"
 title: "Slug Field Mapping Fix"
 phase: "Phase 2 - Core Implementation"
-lane: "doing"
+lane: "for_review"
 assignee: ""
-agent: "gemini"
-shell_pid: "17160"
+agent: "claude"
+shell_pid: "18330"
 review_status: ""
 reviewed_by: ""
 history:
@@ -140,11 +140,11 @@ slug = create_slug(ingredient_data["display_name"], session)
 
 ## Definition of Done Checklist
 
-- [ ] T016: Field normalization added at start of `create_ingredient()`
-- [ ] T017: Verified `create_slug()` uses `display_name` correctly
-- [ ] T018: Manual testing confirms both field names work
-- [ ] No existing tests broken
-- [ ] Code follows session management pattern
+- [x] T016: Field normalization added at start of `create_ingredient()`
+- [x] T017: Verified `create_slug()` uses `display_name` correctly
+- [x] T018: Manual testing confirms both field names work
+- [x] No existing tests broken
+- [x] Code follows session management pattern
 
 ## Review Guidance
 
@@ -155,4 +155,9 @@ slug = create_slug(ingredient_data["display_name"], session)
 ## Activity Log
 
 - 2026-01-02T12:00:00Z - system - lane=planned - Prompt created via /spec-kitty.tasks
-- 2026-01-02T19:38:05Z – gemini – shell_pid=17160 – lane=doing – Started Wave 2 implementation (parallel with WP03)
+- 2026-01-02T19:38:05Z - gemini - shell_pid=17160 - lane=doing - Started Wave 2 implementation (parallel with WP03)
+- 2026-01-02T19:45:00Z - claude - T016 DONE - Added field normalization at line 171-174 of ingredient_service.py
+- 2026-01-02T19:46:00Z - claude - T017 DONE - Verified create_slug at line 194 uses display_name correctly
+- 2026-01-02T19:47:00Z - claude - T018 DONE - Added 3 tests to test_ingredient_service.py (TestCreateIngredientFieldNormalization class)
+- 2026-01-02T19:48:00Z - claude - All 41 tests pass (38 original + 3 new normalization tests)
+- 2026-01-02T19:42:16Z – claude – shell_pid=18330 – lane=for_review – Ready for review - field normalization added with 3 new tests

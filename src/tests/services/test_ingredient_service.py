@@ -467,3 +467,36 @@ class TestUpdateIngredientHierarchy:
         # Verify it moved by querying fresh from the database
         moved_leaf = session.query(Ingredient).filter(Ingredient.id == leaf_id).first()
         assert moved_leaf.parent_ingredient_id == new_mid.id
+
+
+class TestCreateIngredientFieldNormalization:
+    """Tests for F035: Field name normalization in create_ingredient."""
+
+    def test_create_ingredient_with_name_field_normalized(self, test_db):
+        """Create ingredient with 'name' field normalizes to 'display_name'."""
+        # Use 'name' instead of 'display_name'
+        ingredient = create_ingredient({
+            "name": "Test Name Field",
+            "category": "Flour"
+        })
+        assert ingredient.display_name == "Test Name Field"
+        assert ingredient.slug == "test_name_field"
+
+    def test_create_ingredient_with_display_name_field_unchanged(self, test_db):
+        """Create ingredient with 'display_name' field still works (backward compat)."""
+        ingredient = create_ingredient({
+            "display_name": "Test Display Name",
+            "category": "Sugars"
+        })
+        assert ingredient.display_name == "Test Display Name"
+        assert ingredient.slug == "test_display_name"
+
+    def test_create_ingredient_display_name_takes_precedence(self, test_db):
+        """When both 'name' and 'display_name' present, display_name takes precedence."""
+        ingredient = create_ingredient({
+            "name": "This Should Be Ignored",
+            "display_name": "This Should Be Used",
+            "category": "Seasonings"
+        })
+        assert ingredient.display_name == "This Should Be Used"
+        assert ingredient.slug == "this_should_be_used"
