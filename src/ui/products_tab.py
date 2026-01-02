@@ -51,6 +51,8 @@ class ProductsTab(ctk.CTkFrame):
         self._l1_map: Dict[str, Dict[str, Any]] = {}  # L1 name -> ingredient dict
         self._l2_map: Dict[str, Dict[str, Any]] = {}  # L2 name -> ingredient dict
         self._hierarchy_path_cache: Dict[int, str] = {}  # ingredient_id -> path string
+        # Feature 034: Re-entry guard for cascading filter updates
+        self._updating_filters = False
 
         # Configure grid
         self.grid_columnconfigure(0, weight=1)
@@ -188,6 +190,15 @@ class ProductsTab(ctk.CTkFrame):
             width=150,
         )
         self.supplier_dropdown.pack(side="left", padx=5, pady=5)
+
+        # Feature 034: Clear Filters button
+        clear_button = ctk.CTkButton(
+            filter_frame,
+            text="Clear",
+            command=self._clear_filters,
+            width=60,
+        )
+        clear_button.pack(side="left", padx=10, pady=5)
 
     def _create_search(self):
         """Create search box and Show Hidden checkbox."""
@@ -477,50 +488,103 @@ class ProductsTab(ctk.CTkFrame):
                 self._hierarchy_path_cache[ing_id] = ingredient.get("display_name", "--")
 
     def _on_l0_filter_change(self, value: str):
-        """Handle L0 (category) filter change - cascade to L1."""
-        if value == "All Categories":
-            # Reset L1 and L2
-            self._l1_map = {}
-            self._l2_map = {}
-            self.l1_filter_dropdown.configure(values=["All"], state="disabled")
-            self.l2_filter_dropdown.configure(values=["All"], state="disabled")
-            self.l1_filter_var.set("All")
-            self.l2_filter_var.set("All")
-        elif value in self._l0_map:
-            # Populate L1 with children of selected L0
-            l0_id = self._l0_map[value].get("id")
-            subcategories = ingredient_hierarchy_service.get_children(l0_id)
-            self._l1_map = {sub.get("display_name", "?"): sub for sub in subcategories}
-            if subcategories:
-                l1_values = ["All"] + sorted(self._l1_map.keys())
-                self.l1_filter_dropdown.configure(values=l1_values, state="normal")
-            else:
+        """Handle L0 (category) filter change - cascade to L1.
+
+        Feature 034: Added re-entry guard to prevent recursive updates.
+        """
+        # Feature 034: Re-entry guard
+        if self._updating_filters:
+            return
+        self._updating_filters = True
+        try:
+            if value == "All Categories":
+                # Reset L1 and L2
+                self._l1_map = {}
+                self._l2_map = {}
                 self.l1_filter_dropdown.configure(values=["All"], state="disabled")
-            self.l1_filter_var.set("All")
-            # Reset L2
-            self._l2_map = {}
-            self.l2_filter_dropdown.configure(values=["All"], state="disabled")
-            self.l2_filter_var.set("All")
+                self.l2_filter_dropdown.configure(values=["All"], state="disabled")
+                self.l1_filter_var.set("All")
+                self.l2_filter_var.set("All")
+            elif value in self._l0_map:
+                # Populate L1 with children of selected L0
+                l0_id = self._l0_map[value].get("id")
+                subcategories = ingredient_hierarchy_service.get_children(l0_id)
+                self._l1_map = {sub.get("display_name", "?"): sub for sub in subcategories}
+                if subcategories:
+                    l1_values = ["All"] + sorted(self._l1_map.keys())
+                    self.l1_filter_dropdown.configure(values=l1_values, state="normal")
+                else:
+                    self.l1_filter_dropdown.configure(values=["All"], state="disabled")
+                self.l1_filter_var.set("All")
+                # Reset L2
+                self._l2_map = {}
+                self.l2_filter_dropdown.configure(values=["All"], state="disabled")
+                self.l2_filter_var.set("All")
+        finally:
+            self._updating_filters = False
         self._load_products()
 
     def _on_l1_filter_change(self, value: str):
-        """Handle L1 (subcategory) filter change - cascade to L2."""
-        if value == "All":
-            # Reset L2
-            self._l2_map = {}
-            self.l2_filter_dropdown.configure(values=["All"], state="disabled")
-            self.l2_filter_var.set("All")
-        elif value in self._l1_map:
-            # Populate L2 with children of selected L1
-            l1_id = self._l1_map[value].get("id")
-            leaves = ingredient_hierarchy_service.get_children(l1_id)
-            self._l2_map = {leaf.get("display_name", "?"): leaf for leaf in leaves}
-            if leaves:
-                l2_values = ["All"] + sorted(self._l2_map.keys())
-                self.l2_filter_dropdown.configure(values=l2_values, state="normal")
-            else:
+        """Handle L1 (subcategory) filter change - cascade to L2.
+
+        Feature 034: Added re-entry guard to prevent recursive updates.
+        """
+        # Feature 034: Re-entry guard
+        if self._updating_filters:
+            return
+        self._updating_filters = True
+        try:
+            if value == "All":
+                # Reset L2
+                self._l2_map = {}
                 self.l2_filter_dropdown.configure(values=["All"], state="disabled")
+                self.l2_filter_var.set("All")
+            elif value in self._l1_map:
+                # Populate L2 with children of selected L1
+                l1_id = self._l1_map[value].get("id")
+                leaves = ingredient_hierarchy_service.get_children(l1_id)
+                self._l2_map = {leaf.get("display_name", "?"): leaf for leaf in leaves}
+                if leaves:
+                    l2_values = ["All"] + sorted(self._l2_map.keys())
+                    self.l2_filter_dropdown.configure(values=l2_values, state="normal")
+                else:
+                    self.l2_filter_dropdown.configure(values=["All"], state="disabled")
+                self.l2_filter_var.set("All")
+        finally:
+            self._updating_filters = False
+        self._load_products()
+
+    def _clear_filters(self):
+        """Clear all filters and refresh product list.
+
+        Feature 034: Reset all hierarchy and attribute filters to default state.
+        """
+        # Use re-entry guard to prevent cascade callbacks
+        self._updating_filters = True
+        try:
+            # Reset hierarchy filters
+            self.l0_filter_var.set("All Categories")
+            self.l1_filter_var.set("All")
             self.l2_filter_var.set("All")
+
+            # Clear hierarchy maps
+            self._l1_map = {}
+            self._l2_map = {}
+
+            # Disable child dropdowns
+            self.l1_filter_dropdown.configure(values=["All"], state="disabled")
+            self.l2_filter_dropdown.configure(values=["All"], state="disabled")
+
+            # Reset brand and supplier filters
+            self.brand_var.set("All")
+            self.supplier_var.set("All")
+
+            # Clear search
+            self.search_var.set("")
+        finally:
+            self._updating_filters = False
+
+        # Refresh product list
         self._load_products()
 
     def _apply_hierarchy_filters(self, products: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
