@@ -10,10 +10,10 @@ subtasks:
   - "T022"
 title: "Recipe Integration Verification"
 phase: "Phase B - Parallel Implementation"
-lane: "for_review"
+lane: "done"
 assignee: ""
-agent: "claude"
-shell_pid: "94813"
+agent: "claude-reviewer"
+shell_pid: "3311"
 review_status: ""
 reviewed_by: ""
 history:
@@ -253,6 +253,7 @@ This WP is primarily manual verification.
 - 2026-01-02T15:52:00Z – claude – T016 complete – Reviewed IngredientSelectionDialog in recipe_form.py:32-166
 - 2026-01-02T15:53:00Z – claude – T017 complete – Verified leaf_only enforcement in ingredient_tree_widget.py
 - 2026-01-02T15:45:47Z – claude – shell_pid=94813 – lane=for_review – Verification complete - no issues found, L2-only properly enforced
+- 2026-01-02T16:50:31Z – claude-reviewer – shell_pid=3311 – lane=done – Review approved: leaf_only=True verified in IngredientTreeWidget, is_leaf check confirmed in callback.
 
 ## Verification Results
 
