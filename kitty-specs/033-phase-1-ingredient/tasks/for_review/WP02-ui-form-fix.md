@@ -9,9 +9,9 @@ subtasks:
   - "T010"
 title: "UI Form Fix - Remove Level Selector"
 phase: "Phase 2 - User Story 1 (P1)"
-lane: "planned"
+lane: "for_review"
 assignee: ""
-agent: ""
+agent: "system"
 shell_pid: ""
 review_status: ""
 reviewed_by: ""
@@ -311,3 +311,5 @@ def _check_parent_change_warnings(self):
 ## Activity Log
 
 - 2026-01-02T00:00:00Z - system - lane=planned - Prompt created.
+- 2026-01-02T05:45:08Z – system – shell_pid= – lane=doing – Moved to doing
+- 2026-01-02T05:48:28Z – system – shell_pid= – lane=for_review – Moved to for_review

@@ -1,10 +1,24 @@
 """
 Ingredient form dialog for adding and editing ingredients.
 
+.. deprecated::
+    This dialog is deprecated as of Feature 033. Use the inline form in
+    `ingredients_tab.py` instead, which supports the ingredient hierarchy.
+    This file is retained for backward compatibility but will be removed
+    in a future version.
+
+Known Call Sites (as of 2026-01-02):
+- None found in active codebase. The IngredientFormDialog class is defined
+  locally in src/ui/ingredients_tab.py and that implementation is used instead.
+- This module is exported in src/ui/forms/__init__.py but not imported elsewhere.
+
+These should be migrated to the inline form before this file is removed.
+
 Provides a comprehensive form for creating and updating ingredient records
 with validation and error handling.
 """
 
+import warnings
 import customtkinter as ctk
 from typing import Optional, Dict, Any, List
 
@@ -44,6 +58,11 @@ class IngredientFormDialog(ctk.CTkToplevel):
     """
     Dialog for creating or editing an ingredient.
 
+    .. deprecated::
+        Use the inline form in `ingredients_tab.py` instead.
+        This dialog does not support the ingredient hierarchy (L0/L1/L2)
+        and will be removed in a future version.
+
     Provides a comprehensive form with validation for all ingredient fields.
     """
 
@@ -61,6 +80,14 @@ class IngredientFormDialog(ctk.CTkToplevel):
             ingredient: Existing ingredient to edit (None for new)
             title: Dialog title
         """
+        # Emit deprecation warning
+        warnings.warn(
+            "IngredientFormDialog is deprecated. Use the inline form in "
+            "ingredients_tab.py instead, which supports ingredient hierarchy.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+
         super().__init__(parent)
 
         self.ingredient = ingredient
