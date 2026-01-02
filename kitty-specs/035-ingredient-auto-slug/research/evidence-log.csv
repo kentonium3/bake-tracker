@@ -1,0 +1,8 @@
+timestamp,finding_id,category,finding,source_file,source_line,impact,decision
+2026-01-02T10:00:00Z,F001,slug-generation,Slug utility already exists with full functionality,src/utils/slug_utils.py,30-143,Reduces scope - no new slug code needed,Reuse existing
+2026-01-02T10:05:00Z,F002,slug-integration,create_slug already called in ingredient_service.create_ingredient,src/services/ingredient_service.py,188,Confirms slug auto-generation works,Verify field mapping
+2026-01-02T10:10:00Z,F003,field-mapping,UI form uses 'name' but service expects 'display_name',src/ui/ingredients_tab.py,1341,Potential bug - needs normalization,Add field normalization
+2026-01-02T10:15:00Z,F004,deletion-service,delete_ingredient only checks RecipeIngredient not Product,src/services/ingredient_crud_service.py,239-241,Missing protection for catalog entities,Add Product check
+2026-01-02T10:20:00Z,F005,snapshot-model,SnapshotIngredient has RESTRICT FK - no denorm fields,src/models/inventory_snapshot.py,127-129,Schema change required,Add 3 fields + change FK
+2026-01-02T10:25:00Z,F006,clear-filters,Clear Filters buttons already exist from F034,src/ui/products_tab.py,194-198,Remove from scope,Already complete
+2026-01-02T10:30:00Z,F007,clear-filters,Clear Filters buttons already exist from F034,src/ui/inventory_tab.py,189-193,Remove from scope,Already complete

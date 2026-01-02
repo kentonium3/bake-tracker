@@ -1,0 +1,7 @@
+{
+  "feature_number": "035",
+  "slug": "035-ingredient-auto-slug",
+  "friendly_name": "Ingredient Auto-Slug & Deletion Protection",
+  "source_description": "Phase 3 of ingredient hierarchy: auto-generate slugs on creation, deletion protection for catalog entities, denormalize historical records before delete, clear/reset filter buttons",
+  "created_at": "2026-01-02T18:51:33Z"
+}
