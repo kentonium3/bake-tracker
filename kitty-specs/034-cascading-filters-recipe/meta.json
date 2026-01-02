@@ -1,7 +1,24 @@
 {
+  "accept_commit": null,
+  "acceptance_history": [
+    {
+      "accepted_at": "2026-01-02T16:53:48Z",
+      "accepted_by": "claude",
+      "accepted_from_commit": "51b67fa9ff206b5db8665c591d83d2173a0c8cd2",
+      "branch": "034-cascading-filters-recipe",
+      "mode": "local",
+      "validation_commands": [
+        "pytest src/tests -v"
+      ]
+    }
+  ],
+  "acceptance_mode": "local",
+  "accepted_at": "2026-01-02T16:53:48Z",
+  "accepted_by": "claude",
+  "accepted_from_commit": "51b67fa9ff206b5db8665c591d83d2173a0c8cd2",
+  "created_at": "2026-01-02T10:31:46Z",
   "feature_number": "034",
-  "slug": "034-cascading-filters-recipe",
   "friendly_name": "Cascading Filters & Recipe Integration",
-  "source_description": "Phase 2 of ingredient hierarchy gap analysis: Fix cascading filters in Product/Inventory tabs and verify/fix recipe integration with L2-only validation",
-  "created_at": "2026-01-02T10:31:46Z"
+  "slug": "034-cascading-filters-recipe",
+  "source_description": "Phase 2 of ingredient hierarchy gap analysis: Fix cascading filters in Product/Inventory tabs and verify/fix recipe integration with L2-only validation"
 }
