@@ -8,10 +8,10 @@ subtasks:
   - "T015"
 title: "Deletion Protection Service"
 phase: "Phase 2 - Core Implementation"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "claude"
+shell_pid: "15513"
 review_status: ""
 reviewed_by: ""
 history:
@@ -337,3 +337,4 @@ Tests are in WP06. Key scenarios to verify:
 ## Activity Log
 
 - 2026-01-02T12:00:00Z - system - lane=planned - Prompt created via /spec-kitty.tasks
+- 2026-01-02T19:37:49Z – claude – shell_pid=15513 – lane=doing – Started Wave 2 implementation
