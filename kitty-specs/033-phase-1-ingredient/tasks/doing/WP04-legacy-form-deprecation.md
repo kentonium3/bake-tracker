@@ -5,9 +5,9 @@ subtasks:
   - "T015"
 title: "Legacy Form Deprecation"
 phase: "Phase 4 - Cleanup"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
+agent: "system"
 shell_pid: ""
 review_status: ""
 reviewed_by: ""
@@ -216,3 +216,4 @@ These should be migrated to the inline form before this file is removed.
 ## Activity Log
 
 - 2026-01-02T00:00:00Z - system - lane=planned - Prompt created.
+- 2026-01-02T05:44:52Z – system – shell_pid= – lane=doing – Moved to doing

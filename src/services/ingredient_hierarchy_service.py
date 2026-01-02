@@ -6,11 +6,14 @@ for the ingredient taxonomy. All hierarchy-related business logic is
 encapsulated here, keeping the UI layer thin.
 
 Feature 031: Ingredient Hierarchy Taxonomy
+Feature 033: Added validation convenience functions (get_child_count,
+             get_product_count, can_change_parent)
 """
 
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Any
 
 from src.models.ingredient import Ingredient
+from src.models.product import Product
 from src.services.database import session_scope
 from src.services.exceptions import (
     IngredientNotFound,
@@ -30,6 +33,7 @@ def get_root_ingredients(session=None) -> List[Dict]:
     Returns:
         List of ingredient dictionaries, sorted by display_name
     """
+
     def _impl(session):
         results = (
             session.query(Ingredient)
@@ -59,6 +63,7 @@ def get_children(parent_id: int, session=None) -> List[Dict]:
     Raises:
         IngredientNotFound: If parent_id doesn't exist
     """
+
     def _impl(session):
         # Verify parent exists
         parent = session.query(Ingredient).filter(Ingredient.id == parent_id).first()
@@ -93,6 +98,7 @@ def get_ancestors(ingredient_id: int, session=None) -> List[Dict]:
     Raises:
         IngredientNotFound: If ingredient_id doesn't exist
     """
+
     def _impl(session):
         ingredient = session.query(Ingredient).filter(Ingredient.id == ingredient_id).first()
         if ingredient is None:
@@ -126,6 +132,7 @@ def get_descendants(ingredient_id: int, session=None) -> List[Dict]:
     Raises:
         IngredientNotFound: If ingredient_id doesn't exist
     """
+
     def _impl(session):
         ingredient = session.query(Ingredient).filter(Ingredient.id == ingredient_id).first()
         if ingredient is None:
@@ -149,9 +156,7 @@ def _collect_descendants(ingredient: Ingredient, descendants: List[Dict], sessio
     """
     # Get direct children
     children = (
-        session.query(Ingredient)
-        .filter(Ingredient.parent_ingredient_id == ingredient.id)
-        .all()
+        session.query(Ingredient).filter(Ingredient.parent_ingredient_id == ingredient.id).all()
     )
     for child in children:
         descendants.append(child.to_dict())
@@ -169,6 +174,7 @@ def get_ingredients_by_level(level: int, session=None) -> List[Dict]:
     Returns:
         List of ingredient dictionaries at the specified level, sorted by display_name
     """
+
     def _impl(session):
         results = (
             session.query(Ingredient)
@@ -195,6 +201,7 @@ def get_ingredient_by_id(ingredient_id: int, session=None) -> Optional[Dict]:
     Returns:
         Ingredient dictionary, or None if not found
     """
+
     def _impl(session):
         ingredient = session.query(Ingredient).filter(Ingredient.id == ingredient_id).first()
         if ingredient is None:
@@ -218,6 +225,7 @@ def get_leaf_ingredients(parent_id: Optional[int] = None, session=None) -> List[
     Returns:
         List of leaf ingredients, sorted by display_name
     """
+
     def _impl(session):
         if parent_id is None:
             # Return all leaves
@@ -255,6 +263,7 @@ def get_ingredient_tree(session=None) -> List[Dict]:
     Returns:
         List of root ingredient dicts, each with nested 'children' lists
     """
+
     def _impl(session):
         # Get all ingredients in one query
         all_ingredients = (
@@ -303,6 +312,7 @@ def is_leaf(ingredient_id: int, session=None) -> bool:
     Raises:
         IngredientNotFound: If ingredient_id doesn't exist
     """
+
     def _impl(session):
         ingredient = session.query(Ingredient).filter(Ingredient.id == ingredient_id).first()
         if ingredient is None:
@@ -320,9 +330,7 @@ def is_leaf(ingredient_id: int, session=None) -> bool:
 # =============================================================================
 
 
-def validate_hierarchy_level(
-    ingredient_id: int, allowed_levels: List[int], session=None
-) -> bool:
+def validate_hierarchy_level(ingredient_id: int, allowed_levels: List[int], session=None) -> bool:
     """
     Check if ingredient is at an allowed hierarchy level.
 
@@ -338,6 +346,7 @@ def validate_hierarchy_level(
         HierarchyValidationError: With helpful message if invalid
         IngredientNotFound: If ingredient doesn't exist
     """
+
     def _impl(session):
         ingredient = session.query(Ingredient).filter(Ingredient.id == ingredient_id).first()
         if ingredient is None:
@@ -370,6 +379,7 @@ def would_create_cycle(ingredient_id: int, new_parent_id: int, session=None) -> 
     Returns:
         True if cycle would be created, False if safe
     """
+
     def _impl(session):
         # Self-reference is a cycle
         if ingredient_id == new_parent_id:
@@ -390,9 +400,7 @@ def would_create_cycle(ingredient_id: int, new_parent_id: int, session=None) -> 
         return _impl(session)
 
 
-def validate_hierarchy(
-    ingredient_id: int, proposed_parent_id: Optional[int], session=None
-) -> bool:
+def validate_hierarchy(ingredient_id: int, proposed_parent_id: Optional[int], session=None) -> bool:
     """
     Validate that a proposed parent assignment is safe.
 
@@ -414,6 +422,7 @@ def validate_hierarchy(
         CircularReferenceError: If assignment would create cycle
         MaxDepthExceededError: If assignment would exceed max depth
     """
+
     def _impl(session):
         # Verify ingredient exists
         ingredient = session.query(Ingredient).filter(Ingredient.id == ingredient_id).first()
@@ -456,9 +465,7 @@ def validate_hierarchy(
         return _impl(session)
 
 
-def move_ingredient(
-    ingredient_id: int, new_parent_id: Optional[int], session=None
-) -> Dict:
+def move_ingredient(ingredient_id: int, new_parent_id: Optional[int], session=None) -> Dict:
     """
     Move ingredient to a new parent with full validation.
 
@@ -475,6 +482,7 @@ def move_ingredient(
         CircularReferenceError: If move would create cycle
         MaxDepthExceededError: If move would exceed max depth (3 levels)
     """
+
     def _impl(session):
         # Get ingredient
         ingredient = session.query(Ingredient).filter(Ingredient.id == ingredient_id).first()
@@ -503,16 +511,12 @@ def move_ingredient(
 
         # Check if ingredient has children - they would also move deeper
         children = (
-            session.query(Ingredient)
-            .filter(Ingredient.parent_ingredient_id == ingredient_id)
-            .all()
+            session.query(Ingredient).filter(Ingredient.parent_ingredient_id == ingredient_id).all()
         )
         for child in children:
             child_new_level = new_level + (child.hierarchy_level - ingredient.hierarchy_level)
             if child_new_level > 2:
-                raise MaxDepthExceededError(
-                    child.id, child_new_level
-                )
+                raise MaxDepthExceededError(child.id, child_new_level)
 
         # Calculate level difference for updating children
         level_diff = new_level - ingredient.hierarchy_level
@@ -540,9 +544,7 @@ def _update_descendant_levels(ingredient: Ingredient, level_diff: int, session) 
     Helper function for move_ingredient.
     """
     children = (
-        session.query(Ingredient)
-        .filter(Ingredient.parent_ingredient_id == ingredient.id)
-        .all()
+        session.query(Ingredient).filter(Ingredient.parent_ingredient_id == ingredient.id).all()
     )
     for child in children:
         child.hierarchy_level += level_diff
@@ -561,6 +563,7 @@ def search_ingredients(query: str, limit: Optional[int] = None, session=None) ->
     Returns:
         List of matching ingredients with `ancestors` field populated
     """
+
     def _impl(session):
         db_query = (
             session.query(Ingredient)
@@ -579,6 +582,139 @@ def search_ingredients(query: str, limit: Optional[int] = None, session=None) ->
             matches.append(ingredient_dict)
 
         return matches
+
+    if session is not None:
+        return _impl(session)
+    with session_scope() as session:
+        return _impl(session)
+
+
+# =============================================================================
+# Feature 033: Convenience Functions for UI Validation
+# =============================================================================
+
+
+def get_child_count(ingredient_id: int, session=None) -> int:
+    """
+    Count direct child ingredients.
+
+    Args:
+        ingredient_id: ID of ingredient to count children for
+        session: Optional SQLAlchemy session
+
+    Returns:
+        Number of direct child ingredients
+    """
+
+    def _impl(session):
+        return (
+            session.query(Ingredient)
+            .filter(Ingredient.parent_ingredient_id == ingredient_id)
+            .count()
+        )
+
+    if session is not None:
+        return _impl(session)
+    with session_scope() as session:
+        return _impl(session)
+
+
+def get_product_count(ingredient_id: int, session=None) -> int:
+    """
+    Count products linked to this ingredient.
+
+    Args:
+        ingredient_id: ID of ingredient to count products for
+        session: Optional SQLAlchemy session
+
+    Returns:
+        Number of products linked to this ingredient
+    """
+
+    def _impl(session):
+        return session.query(Product).filter(Product.ingredient_id == ingredient_id).count()
+
+    if session is not None:
+        return _impl(session)
+    with session_scope() as session:
+        return _impl(session)
+
+
+def can_change_parent(
+    ingredient_id: int, new_parent_id: Optional[int], session=None
+) -> Dict[str, Any]:
+    """
+    Check if parent change is allowed and gather impact information.
+
+    This is a convenience wrapper around validate_hierarchy() that
+    catches exceptions and returns a structured dict for UI display.
+    Warnings are informational only (non-blocking per F033 design).
+
+    Args:
+        ingredient_id: ID of ingredient to change
+        new_parent_id: Proposed new parent ID (None = make root)
+        session: Optional SQLAlchemy session
+
+    Returns:
+        {
+            "allowed": bool,
+            "reason": str,  # Empty if allowed, error message if not
+            "warnings": List[str],  # Informational warnings
+            "child_count": int,
+            "product_count": int,
+            "new_level": int  # 0, 1, or 2
+        }
+    """
+
+    def _impl(session):
+        result: Dict[str, Any] = {
+            "allowed": True,
+            "reason": "",
+            "warnings": [],
+            "child_count": 0,
+            "product_count": 0,
+            "new_level": 0,
+        }
+
+        # Get counts
+        result["child_count"] = get_child_count(ingredient_id, session=session)
+        result["product_count"] = get_product_count(ingredient_id, session=session)
+
+        # Compute new level
+        if new_parent_id is None:
+            result["new_level"] = 0
+        else:
+            parent = session.query(Ingredient).filter(Ingredient.id == new_parent_id).first()
+            if parent:
+                result["new_level"] = parent.hierarchy_level + 1
+
+        # Try validation
+        try:
+            validate_hierarchy(ingredient_id, new_parent_id, session=session)
+        except IngredientNotFound as e:
+            result["allowed"] = False
+            result["reason"] = str(e)
+            return result
+        except CircularReferenceError:
+            result["allowed"] = False
+            result["reason"] = "Cannot change: would create circular reference"
+            return result
+        except MaxDepthExceededError:
+            result["allowed"] = False
+            result["reason"] = "Cannot change: would exceed maximum hierarchy depth (3 levels)"
+            return result
+
+        # Add informational warnings (non-blocking)
+        if result["product_count"] > 0:
+            result["warnings"].append(
+                f"This ingredient has {result['product_count']} linked product(s)"
+            )
+        if result["child_count"] > 0:
+            result["warnings"].append(
+                f"This ingredient has {result['child_count']} child ingredient(s)"
+            )
+
+        return result
 
     if session is not None:
         return _impl(session)
