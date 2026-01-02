@@ -7,10 +7,10 @@ subtasks:
   - "T010"
 title: "Verify Cascade Delete Configuration"
 phase: "Phase 1 - Foundation"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "claude"
+shell_pid: "15882"
 review_status: ""
 reviewed_by: ""
 history:
@@ -145,11 +145,11 @@ ingredient_id = Column(
 
 ## Definition of Done Checklist
 
-- [ ] T007: IngredientAlias FK verified (cascade present)
-- [ ] T008: IngredientCrosswalk FK verified (cascade present)
-- [ ] T009: Cascade added if it was missing
-- [ ] T010: Research.md updated with findings
-- [ ] Both models have `ondelete="CASCADE"` on ingredient_id FK
+- [x] T007: IngredientAlias FK verified (cascade present)
+- [x] T008: IngredientCrosswalk FK verified (cascade present)
+- [x] T009: Cascade added if it was missing (N/A - already present)
+- [x] T010: Research.md updated with findings
+- [x] Both models have `ondelete="CASCADE"` on ingredient_id FK
 
 ## Review Guidance
 
@@ -159,3 +159,9 @@ ingredient_id = Column(
 ## Activity Log
 
 - 2026-01-02T12:00:00Z - system - lane=planned - Prompt created via /spec-kitty.tasks
+- 2026-01-02T19:34:08Z – claude – shell_pid=15882 – lane=doing – Started Wave 1 implementation (parallel with WP01)
+- 2026-01-02T19:35:00Z - claude - Verified cascade delete configuration:
+  - T007: IngredientAlias.ingredient_id has ondelete="CASCADE" (line 32-34)
+  - T008: IngredientCrosswalk.ingredient_id has ondelete="CASCADE" (line 34-36)
+  - T009: No changes needed - both already configured correctly
+  - T010: Updated research.md section "6. Cascade Delete Configuration" with verification table

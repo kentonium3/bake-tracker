@@ -125,11 +125,17 @@ class SnapshotIngredient(BaseModel):
         Integer, ForeignKey("inventory_snapshots.id", ondelete="CASCADE"), nullable=False
     )
     ingredient_id = Column(
-        Integer, ForeignKey("ingredients.id", ondelete="RESTRICT"), nullable=False
+        Integer, ForeignKey("ingredients.id", ondelete="SET NULL"), nullable=True
     )
 
     # Quantity at snapshot time
     quantity = Column(Float, nullable=False, default=0.0)
+
+    # Denormalized fields for historical preservation (F035)
+    # These capture ingredient hierarchy names before deletion
+    ingredient_name_snapshot = Column(String(200), nullable=True)
+    parent_l1_name_snapshot = Column(String(200), nullable=True)
+    parent_l0_name_snapshot = Column(String(200), nullable=True)
 
     # Relationships
     snapshot = relationship("InventorySnapshot", back_populates="snapshot_ingredients")

@@ -129,7 +129,17 @@ self.clear_filters_button = ctk.CTkButton(
 - `IngredientAlias` - check current config
 - `IngredientCrosswalk` - check current config
 
-**Need to verify**: Current FK configurations in these models.
+**Verification Complete** (2026-01-02):
+
+| Model | FK Column | Configuration | Status |
+|-------|-----------|---------------|--------|
+| IngredientAlias | `ingredient_id` | `ForeignKey("ingredients.id", ondelete="CASCADE")` | PRESENT |
+| IngredientCrosswalk | `ingredient_id` | `ForeignKey("ingredients.id", ondelete="CASCADE")` | PRESENT |
+
+**Findings**:
+- Both models already have `ondelete="CASCADE"` configured on their `ingredient_id` foreign keys
+- No changes required - cascade deletes will work automatically when parent ingredient is deleted
+- Verified in `src/models/ingredient_alias.py` (lines 32-34) and `src/models/ingredient_crosswalk.py` (lines 34-36)
 
 ## Updated Scope
 
