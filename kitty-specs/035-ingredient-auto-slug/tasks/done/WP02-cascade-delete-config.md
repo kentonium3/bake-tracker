@@ -7,10 +7,10 @@ subtasks:
   - "T010"
 title: "Verify Cascade Delete Configuration"
 phase: "Phase 1 - Foundation"
-lane: "for_review"
+lane: "done"
 assignee: ""
-agent: "claude"
-shell_pid: "16165"
+agent: "claude-reviewer"
+shell_pid: "26156"
 review_status: ""
 reviewed_by: ""
 history:
@@ -166,3 +166,4 @@ ingredient_id = Column(
   - T009: No changes needed - both already configured correctly
   - T010: Updated research.md section "6. Cascade Delete Configuration" with verification table
 - 2026-01-02T19:34:54Z – claude – shell_pid=16165 – lane=for_review – Ready for review - cascade delete verified (both already configured)
+- 2026-01-02T20:49:22Z – claude-reviewer – shell_pid=26156 – lane=done – Code review approved: CASCADE on Alias/Crosswalk verified with passive_deletes
