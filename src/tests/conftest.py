@@ -13,13 +13,22 @@ def test_db():
     """Provide a clean test database for each test function.
 
     This fixture:
-    1. Creates an in-memory SQLite database
+    1. Creates an in-memory SQLite database with foreign keys enabled
     2. Creates all tables
     3. Provides the database to the test
     4. Drops all tables after the test completes
     """
+    from sqlalchemy import event
+
     # Create in-memory SQLite database for testing
     engine = create_engine("sqlite:///:memory:", echo=False)
+
+    # Enable foreign key support in SQLite (required for CASCADE to work)
+    @event.listens_for(engine, "connect")
+    def set_sqlite_pragma(dbapi_connection, connection_record):
+        cursor = dbapi_connection.cursor()
+        cursor.execute("PRAGMA foreign_keys=ON")
+        cursor.close()
 
     # Create all tables
     Base.metadata.create_all(engine)

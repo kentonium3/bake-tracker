@@ -635,12 +635,13 @@ def _denormalize_snapshot_ingredients(ingredient_id: int, session) -> int:
 
     # Determine parent names from ancestors
     # ancestors returns [immediate parent, grandparent, ...] (nearest to farthest)
+    # Note: get_ancestors() returns list of dicts from .to_dict()
     l1_name = None
     l0_name = None
     if len(ancestors) >= 1:
-        l1_name = ancestors[0].display_name  # Immediate parent (L1)
+        l1_name = ancestors[0]["display_name"]  # Immediate parent (L1)
     if len(ancestors) >= 2:
-        l0_name = ancestors[1].display_name  # Grandparent (L0/root)
+        l0_name = ancestors[1]["display_name"]  # Grandparent (L0/root)
 
     # Find all snapshot records referencing this ingredient
     snapshots = (

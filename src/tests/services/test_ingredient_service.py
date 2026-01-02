@@ -18,8 +18,20 @@ from src.services.ingredient_service import (
     get_food_ingredients,
     is_packaging_ingredient,
     validate_packaging_category,
+    can_delete_ingredient,
+    delete_ingredient_safe,
     PACKAGING_CATEGORIES
 )
+from src.services.exceptions import IngredientInUse, IngredientNotFound
+from src.models import (
+    Product,
+    RecipeIngredient,
+    Recipe,
+    IngredientAlias,
+    IngredientCrosswalk,
+)
+from src.models.inventory_snapshot import SnapshotIngredient, InventorySnapshot
+from src.models.ingredient import Ingredient
 
 class TestValidateDensityFields:
     """Tests for density field validation."""
@@ -500,3 +512,399 @@ class TestCreateIngredientFieldNormalization:
         })
         assert ingredient.display_name == "This Should Be Used"
         assert ingredient.slug == "this_should_be_used"
+
+
+# =============================================================================
+# Feature 035: Deletion Protection and Slug Tests
+# =============================================================================
+
+
+class TestDeletionProtectionAndSlug:
+    """Tests for F035: Deletion protection and slug generation features."""
+
+    # -------------------------------------------------------------------------
+    # T024 - Delete Blocked by Products
+    # -------------------------------------------------------------------------
+
+    def test_delete_blocked_by_products(self, test_db):
+        """Verify deletion is blocked when Products reference the ingredient.
+
+        T024: When an ingredient has associated Product records, deletion must
+        be blocked and return the count of blocking products.
+        """
+        session = test_db()
+
+        # Arrange: Create an ingredient
+        ingredient = create_ingredient({
+            "display_name": "Test Flour for Product Block",
+            "category": "Flour"
+        })
+
+        # Create a Product referencing this ingredient
+        product = Product(
+            ingredient_id=ingredient.id,
+            brand="Test Brand",
+            package_size="5 lb",
+            package_unit="lb",
+            package_unit_quantity=5.0
+        )
+        session.add(product)
+        session.commit()
+
+        # Act: Check if deletion is allowed
+        can_delete, reason, details = can_delete_ingredient(ingredient.id, session=session)
+
+        # Assert: Deletion should be blocked
+        assert can_delete is False
+        assert "1 product" in reason
+        assert details["products"] == 1
+
+        # Also verify delete_ingredient_safe raises IngredientInUse
+        with pytest.raises(IngredientInUse) as exc_info:
+            delete_ingredient_safe(ingredient.id, session=session)
+        assert exc_info.value.details["products"] == 1
+
+    # -------------------------------------------------------------------------
+    # T025 - Delete Blocked by Recipes
+    # -------------------------------------------------------------------------
+
+    def test_delete_blocked_by_recipes(self, test_db):
+        """Verify deletion is blocked when RecipeIngredient records reference ingredient.
+
+        T025: When an ingredient is used in recipes via RecipeIngredient,
+        deletion must be blocked and return the count of blocking recipes.
+        """
+        session = test_db()
+
+        # Arrange: Create an ingredient
+        ingredient = create_ingredient({
+            "display_name": "Test Vanilla for Recipe Block",
+            "category": "Extracts"
+        })
+
+        # Create a Recipe and RecipeIngredient
+        # Recipe model uses: name, category, yield_quantity, yield_unit
+        recipe = Recipe(
+            name="Test Vanilla Cake",
+            category="Cakes",
+            yield_quantity=12.0,
+            yield_unit="servings"
+        )
+        session.add(recipe)
+        session.flush()
+
+        recipe_ingredient = RecipeIngredient(
+            recipe_id=recipe.id,
+            ingredient_id=ingredient.id,
+            quantity=1.0,
+            unit="tsp"
+        )
+        session.add(recipe_ingredient)
+        session.commit()
+
+        # Act: Check if deletion is allowed
+        can_delete, reason, details = can_delete_ingredient(ingredient.id, session=session)
+
+        # Assert: Deletion should be blocked
+        assert can_delete is False
+        assert "1 recipe" in reason
+        assert details["recipes"] == 1
+
+    # -------------------------------------------------------------------------
+    # T026 - Delete Blocked by Children
+    # -------------------------------------------------------------------------
+
+    def test_delete_blocked_by_children(self, test_db):
+        """Verify deletion is blocked when ingredient has child ingredients.
+
+        T026: Parent ingredients cannot be deleted if they have children.
+        This prevents orphaning child ingredients.
+        """
+        session = test_db()
+
+        # Arrange: Create parent ingredient
+        parent = create_ingredient({
+            "display_name": "Test Parent Category",
+            "category": "Test",
+            "hierarchy_level": 0
+        })
+
+        # Create child ingredient referencing the parent
+        child = Ingredient(
+            slug="test-child-ingredient",
+            display_name="Test Child Ingredient",
+            category="Test",
+            hierarchy_level=1,
+            parent_ingredient_id=parent.id
+        )
+        session.add(child)
+        session.commit()
+
+        # Act: Check if deletion is allowed
+        can_delete, reason, details = can_delete_ingredient(parent.id, session=session)
+
+        # Assert: Deletion should be blocked
+        assert can_delete is False
+        assert "1 child" in reason
+        assert details["children"] == 1
+
+    # -------------------------------------------------------------------------
+    # T027 - Delete with Snapshots Denormalizes
+    # -------------------------------------------------------------------------
+
+    def test_delete_with_snapshots_denormalizes(self, test_db):
+        """Verify snapshot records preserve ingredient names on deletion.
+
+        T027: When an ingredient with snapshot references is deleted,
+        the snapshot records should have their names denormalized to preserve
+        historical data, and the ingredient_id should be set to NULL.
+        """
+        session = test_db()
+
+        # Arrange: Create a 3-level hierarchy
+        l0 = Ingredient(
+            slug="test-baking-category",
+            display_name="Baking",
+            category="Baking",
+            hierarchy_level=0,
+            parent_ingredient_id=None
+        )
+        session.add(l0)
+        session.flush()
+
+        l1 = Ingredient(
+            slug="test-flour-category",
+            display_name="Flour",
+            category="Baking",
+            hierarchy_level=1,
+            parent_ingredient_id=l0.id
+        )
+        session.add(l1)
+        session.flush()
+
+        l2 = Ingredient(
+            slug="test-all-purpose",
+            display_name="All-Purpose",
+            category="Baking",
+            hierarchy_level=2,
+            parent_ingredient_id=l1.id
+        )
+        session.add(l2)
+        session.flush()
+
+        # Create an inventory snapshot
+        snapshot = InventorySnapshot(
+            name="Test Snapshot for Denorm",
+            description="Test snapshot"
+        )
+        session.add(snapshot)
+        session.flush()
+
+        # Create snapshot ingredient referencing the leaf ingredient
+        snapshot_ingredient = SnapshotIngredient(
+            snapshot_id=snapshot.id,
+            ingredient_id=l2.id,
+            quantity=5.0
+        )
+        session.add(snapshot_ingredient)
+        session.commit()
+
+        snapshot_ingredient_id = snapshot_ingredient.id
+        l2_id = l2.id
+
+        # Act: Delete the leaf ingredient (no blocking references other than snapshot)
+        delete_ingredient_safe(l2_id, session=session)
+
+        # Assert: Snapshot record should be preserved with denormalized names
+        updated = session.query(SnapshotIngredient).filter(
+            SnapshotIngredient.id == snapshot_ingredient_id
+        ).first()
+
+        assert updated is not None
+        assert updated.ingredient_id is None  # FK should be nullified
+        assert updated.ingredient_name_snapshot == "All-Purpose"
+        assert updated.parent_l1_name_snapshot == "Flour"
+        assert updated.parent_l0_name_snapshot == "Baking"
+
+    # -------------------------------------------------------------------------
+    # T028 - Delete Cascades Aliases
+    # -------------------------------------------------------------------------
+
+    def test_delete_cascades_aliases(self, test_db):
+        """Verify IngredientAlias records are cascade-deleted.
+
+        T028: When an ingredient is deleted, all associated IngredientAlias
+        records should be automatically removed (cascade delete via DB FK).
+
+        Note: This test verifies the database-level CASCADE DELETE works correctly.
+        The FK constraint on IngredientAlias.ingredient_id has ondelete="CASCADE".
+        """
+        session = test_db()
+
+        # Arrange: Create an ingredient directly (not via service to avoid caching)
+        ingredient = Ingredient(
+            slug="test-powdered-sugar",
+            display_name="Powdered Sugar",
+            category="Sugars",
+            hierarchy_level=2
+        )
+        session.add(ingredient)
+        session.flush()
+        ingredient_id = ingredient.id
+
+        # Create an alias for the ingredient
+        alias = IngredientAlias(
+            ingredient_id=ingredient_id,
+            alias="Confectioner's Sugar"
+        )
+        session.add(alias)
+        session.commit()
+        alias_id = alias.id
+
+        # Verify alias exists
+        assert session.query(IngredientAlias).filter(
+            IngredientAlias.id == alias_id
+        ).first() is not None
+
+        # Act: Delete the ingredient directly with session (bypassing ORM relationship handling)
+        # This tests the database CASCADE constraint
+        session.execute(Ingredient.__table__.delete().where(Ingredient.id == ingredient_id))
+        session.commit()
+
+        # Assert: Alias should be cascade-deleted by database FK constraint
+        remaining = session.query(IngredientAlias).filter(
+            IngredientAlias.id == alias_id
+        ).first()
+        assert remaining is None
+
+    # -------------------------------------------------------------------------
+    # T029 - Delete Cascades Crosswalks
+    # -------------------------------------------------------------------------
+
+    def test_delete_cascades_crosswalks(self, test_db):
+        """Verify IngredientCrosswalk records are cascade-deleted.
+
+        T029: When an ingredient is deleted, all associated IngredientCrosswalk
+        records should be automatically removed (cascade delete via DB FK).
+
+        Note: This test verifies the database-level CASCADE DELETE works correctly.
+        The FK constraint on IngredientCrosswalk.ingredient_id has ondelete="CASCADE".
+        """
+        session = test_db()
+
+        # Arrange: Create an ingredient directly (not via service to avoid caching)
+        ingredient = Ingredient(
+            slug="test-honey",
+            display_name="Honey",
+            category="Sweeteners",
+            hierarchy_level=2
+        )
+        session.add(ingredient)
+        session.flush()
+        ingredient_id = ingredient.id
+
+        # Create a crosswalk entry for the ingredient
+        crosswalk = IngredientCrosswalk(
+            ingredient_id=ingredient_id,
+            system="FoodOn",
+            code="FOODON_12345"
+        )
+        session.add(crosswalk)
+        session.commit()
+        crosswalk_id = crosswalk.id
+
+        # Verify crosswalk exists
+        assert session.query(IngredientCrosswalk).filter(
+            IngredientCrosswalk.id == crosswalk_id
+        ).first() is not None
+
+        # Act: Delete the ingredient directly with session (bypassing ORM relationship handling)
+        # This tests the database CASCADE constraint
+        session.execute(Ingredient.__table__.delete().where(Ingredient.id == ingredient_id))
+        session.commit()
+
+        # Assert: Crosswalk should be cascade-deleted by database FK constraint
+        remaining = session.query(IngredientCrosswalk).filter(
+            IngredientCrosswalk.id == crosswalk_id
+        ).first()
+        assert remaining is None
+
+    # -------------------------------------------------------------------------
+    # T030 - Slug Auto-Generation
+    # -------------------------------------------------------------------------
+
+    def test_slug_auto_generation(self, test_db):
+        """Verify slugs are auto-generated from display_name.
+
+        T030: When creating an ingredient, the slug should be automatically
+        generated from the display_name using the project's slugification rules.
+        """
+        # Arrange & Act: Create an ingredient
+        ingredient = create_ingredient({
+            "display_name": "Brown Sugar",
+            "category": "Sugars"
+        })
+
+        # Assert: Slug should be auto-generated from display_name
+        assert ingredient.slug is not None
+        assert ingredient.slug == "brown_sugar"
+
+    # -------------------------------------------------------------------------
+    # T031 - Slug Conflict Resolution
+    # -------------------------------------------------------------------------
+
+    def test_slug_conflict_resolution(self, test_db):
+        """Verify slug conflicts are resolved with numeric suffixes.
+
+        T031: When slugs would conflict (from similar display_names),
+        subsequent slugs should have numeric suffixes (_1, _2, etc.).
+
+        Note: display_name has a UNIQUE constraint, so we test with similar
+        but not identical names that generate the same base slug.
+        """
+        # Arrange: Create first ingredient - base slug "vanilla_extract"
+        first = create_ingredient({
+            "display_name": "Vanilla Extract",
+            "category": "Extracts"
+        })
+        assert first.slug == "vanilla_extract"
+
+        # Act: Create second ingredient with name that would generate same base slug
+        # "Vanilla-Extract" with hyphen becomes "vanilla_extract" base slug
+        second = create_ingredient({
+            "display_name": "Vanilla-Extract",
+            "category": "Extracts"
+        })
+
+        # Assert: Second should have suffix due to slug collision
+        assert second.slug == "vanilla_extract_1"
+
+        # Act: Create third ingredient with another variant
+        # "Vanilla  Extract" (double space) also becomes "vanilla_extract"
+        third = create_ingredient({
+            "display_name": "Vanilla  Extract",
+            "category": "Extracts"
+        })
+
+        # Assert: Third should have incremented suffix
+        assert third.slug == "vanilla_extract_2"
+
+    # -------------------------------------------------------------------------
+    # T032 - Field Name Normalization
+    # -------------------------------------------------------------------------
+
+    def test_field_name_normalization(self, test_db):
+        """Verify 'name' field is normalized to 'display_name'.
+
+        T032: For backward compatibility, when creating an ingredient with
+        'name' instead of 'display_name', the field should be normalized.
+        """
+        # Arrange & Act: Use "name" instead of "display_name"
+        ingredient = create_ingredient({
+            "name": "Cinnamon",  # UI-style field name
+            "category": "Spices"
+        })
+
+        # Assert: Should work with 'name' field
+        assert ingredient.display_name == "Cinnamon"
+        assert ingredient.slug == "cinnamon"

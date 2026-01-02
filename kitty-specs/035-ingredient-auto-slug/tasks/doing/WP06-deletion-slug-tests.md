@@ -12,10 +12,10 @@ subtasks:
   - "T032"
 title: "Deletion & Slug Tests"
 phase: "Phase 4 - Testing"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "gemini"
+shell_pid: "15513"
 review_status: ""
 reviewed_by: ""
 history:
@@ -415,3 +415,4 @@ pytest src/tests/services/test_ingredient_service.py -v --cov=src/services/ingre
 ## Activity Log
 
 - 2026-01-02T12:00:00Z - system - lane=planned - Prompt created via /spec-kitty.tasks
+- 2026-01-02T19:48:38Z – gemini – shell_pid=15513 – lane=doing – Starting Wave 4 test implementation
