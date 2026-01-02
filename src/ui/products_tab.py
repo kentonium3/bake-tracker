@@ -520,9 +520,9 @@ class ProductsTab(ctk.CTkFrame):
                 self._l2_map = {}
                 self.l2_filter_dropdown.configure(values=["All"], state="disabled")
                 self.l2_filter_var.set("All")
-            self._load_products()
         finally:
             self._updating_filters = False
+        self._load_products()
 
     def _on_l1_filter_change(self, value: str):
         """Handle L1 (subcategory) filter change - cascade to L2.
@@ -550,9 +550,9 @@ class ProductsTab(ctk.CTkFrame):
                 else:
                     self.l2_filter_dropdown.configure(values=["All"], state="disabled")
                 self.l2_filter_var.set("All")
-            self._load_products()
         finally:
             self._updating_filters = False
+        self._load_products()
 
     def _clear_filters(self):
         """Clear all filters and refresh product list.
