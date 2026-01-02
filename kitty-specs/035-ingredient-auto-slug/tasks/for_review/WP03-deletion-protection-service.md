@@ -8,7 +8,7 @@ subtasks:
   - "T015"
 title: "Deletion Protection Service"
 phase: "Phase 2 - Core Implementation"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "claude"
 shell_pid: "15513"
@@ -338,3 +338,11 @@ Tests are in WP06. Key scenarios to verify:
 
 - 2026-01-02T12:00:00Z - system - lane=planned - Prompt created via /spec-kitty.tasks
 - 2026-01-02T19:37:49Z – claude – shell_pid=15513 – lane=doing – Started Wave 2 implementation
+- 2026-01-02T22:45:00Z – claude – shell_pid=15513 – lane=doing – Completed implementation:
+  - T011: can_delete_ingredient() - checks products, recipes, children (blocking) and snapshots (info only)
+  - T012: _denormalize_snapshot_ingredients() - copies L0/L1/L2 names before nullifying FK
+  - T013: delete_ingredient_safe() - orchestrates validation, denormalization, deletion in atomic transaction
+  - T014: Imports added inside functions to avoid circular dependencies
+  - T015: Session management pattern followed (optional session parameter)
+  - Also updated IngredientInUse exception to expose details attribute
+- 2026-01-02T19:41:07Z – claude – shell_pid=15513 – lane=for_review – Ready for review - deletion protection service complete (T011-T015)

@@ -64,13 +64,14 @@ class IngredientInUse(ServiceException):
         Args:
             identifier: Ingredient identifier (slug string or id int)
             deps: Either an int (recipe count for legacy) or dict with dependency counts
-                  e.g., {'recipes': 5, 'products': 3, 'inventory_items': 12}
+                  e.g., {'recipes': 5, 'products': 3, 'inventory_items': 12, 'children': 2}
         """
         self.identifier = identifier
 
         # Support both old (int) and new (dict) signatures
         if isinstance(deps, dict):
             self.deps = deps
+            self.details = deps  # F035: Alias for UI access
             # Build descriptive message from all dependencies
             parts = []
             if deps.get("recipes", 0) > 0:
@@ -79,10 +80,13 @@ class IngredientInUse(ServiceException):
                 parts.append(f"{deps['products']} product(s)")
             if deps.get("inventory_items", 0) > 0:
                 parts.append(f"{deps['inventory_items']} inventory item(s)")
+            if deps.get("children", 0) > 0:
+                parts.append(f"{deps['children']} child ingredient(s)")
             deps_msg = ", ".join(parts) if parts else "related records"
         else:
             # Legacy: deps is just recipe_count (int)
             self.deps = {"recipes": deps}
+            self.details = self.deps  # F035: Alias for UI access
             deps_msg = f"{deps} recipe(s)"
 
         super().__init__(
