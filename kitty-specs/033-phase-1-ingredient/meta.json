@@ -1,0 +1,7 @@
+{
+  "feature_number": "033",
+  "slug": "033-phase-1-ingredient",
+  "friendly_name": "Phase 1 Ingredient Hierarchy Fixes - Fix conceptual model issue in edit form (remove level selector, make level computed from parent), implement missing validation services (can_change_parent, get_product_count, get_child_count), and verify ingredients tab display",
+  "source_description": "Phase 1 Ingredient Hierarchy Fixes - Fix conceptual model issue in edit form (remove level selector, make level computed from parent), implement missing validation services (can_change_parent, get_product_count, get_child_count), and verify ingredients tab display",
+  "created_at": "2026-01-02T05:01:29Z"
+}
