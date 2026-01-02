@@ -41,6 +41,8 @@
 | 028 | Purchase Tracking & Enhanced Costing | MERGED | Purchase entity, price history queries, FIFO using Purchase.unit_price, InventoryAddition.purchase_id FK, supplier dropdown in Add Inventory dialog. |
 | 029 | Streamlined Inventory Entry | MERGED | Type-ahead filtering, recency intelligence, session memory, inline product creation, smart defaults, enhanced price display. |
 | 030 | Enhanced Export/Import System | MERGED | Coordinated exports with manifest validation, denormalized views for AI augmentation, interactive FK resolution, skip-on-error mode, mid-import cancellation handling. |
+| 031 | Ingredient Hierarchy | MERGED | Schema support (parent_ingredient_id, hierarchy_level), import/export support, hierarchical ingredient selection in product edit form. |
+| 032 | Ingredient Hierarchy UI Completion | MERGED | UI implementation across all tabs: hierarchy columns, cascading dropdowns, filters, read-only displays. Replaced deprecated category field. |
 
 ---
 
@@ -54,12 +56,11 @@
 
 | # | Name | Priority | Dependencies | Status |
 |---|------|----------|--------------|--------|
-| 031 | Ingredient Hierarchy | HIGH | Phase 2 Architecture | Ready |
-| 032 | Recipe Redesign | HIGH | F031 | Ready |
-| 033 | UI Mode Restructure | HIGH | Phase 2 Architecture | Ready |
-| 034 | Purchase Workflow & AI Assist | HIGH | F033 | Ready |
-| 035 | Finished Goods Inventory | MEDIUM | F032 | Ready |
-| 036 | Packaging & Distribution | LOW | User testing complete | Blocked |
+| 033 | Recipe Redesign | HIGH | F031, F032 | Ready |
+| 034 | UI Mode Restructure | HIGH | Phase 2 Architecture | Ready |
+| 035 | Purchase Workflow & AI Assist | HIGH | F034 | Ready |
+| 036 | Finished Goods Inventory | MEDIUM | F033 | Ready |
+| 037 | Packaging & Distribution | LOW | User testing complete | Blocked |
 
 ---
 
@@ -90,12 +91,13 @@
 21. ~~**Feature 028** - Purchase Tracking & Enhanced Costing~~ ✅ COMPLETE
 22. ~~**Feature 029** - Streamlined Inventory Entry~~ ✅ COMPLETE
 23. ~~**Feature 030** - Enhanced Export/Import System~~ ✅ COMPLETE
-24. **Feature 031** - Ingredient Hierarchy
-25. **Feature 032** - Recipe Redesign
-26. **Feature 033** - UI Mode Restructure
-27. **Feature 034** - Purchase Workflow & AI Assist
-28. **Feature 035** - Finished Goods Inventory
-29. **Feature 036** - Packaging & Distribution
+24. ~~**Feature 031** - Ingredient Hierarchy~~ ✅ COMPLETE
+25. ~~**Feature 032** - Ingredient Hierarchy UI Completion~~ ✅ COMPLETE
+26. **Feature 033** - Recipe Redesign
+27. **Feature 034** - UI Mode Restructure
+28. **Feature 035** - Purchase Workflow & AI Assist
+29. **Feature 036** - Finished Goods Inventory
+30. **Feature 037** - Packaging & Distribution
 
 ---
 
@@ -179,7 +181,46 @@
 
 ### Feature 031: Ingredient Hierarchy
 
-**Status:** PLANNED (Phase 2 Architecture Complete)
+**Status:** COMPLETE ✅ (Merged 2025-12-30)
+
+**Dependencies:** None (foundation layer)
+
+**Problem:** Flat ingredient list (487 items) creates navigation friction. No semantic grouping ("All-Purpose Flour" vs "Bread Flour" vs "Cake Flour"), difficult product assignment (which chocolate product goes with which chocolate type?), unclear recipe ingredient selection (user must know exact ingredient name).
+
+**Solution:** Three-tier hierarchical ingredient taxonomy with self-referential structure and leaf-only product assignment.
+
+**Delivered:**
+- Schema: `parent_ingredient_id` FK (self-referential), `hierarchy_level` (0/1/2) on Ingredient table
+- Hierarchy levels: L0 (Root categories), L1 (Mid-tier functional grouping), L2 (Leaf ingredients - only level with products)
+- Service layer: `ingredient_hierarchy_service.py` with tree traversal, ancestry queries, cycle prevention, level validation
+- Import/export support: Handles hierarchical data correctly
+- Product edit form: Uses hierarchical ingredient selection
+- Validation: Only L2 ingredients can have products or be used in recipes
+
+**Example Hierarchy:**
+```
+Chocolate (L0)
+├── Dark Chocolate (L1)
+│   ├── Semi-Sweet Chocolate Chips (L2) ← Products here
+│   ├── Bittersweet Chocolate Chips (L2)
+├── Milk Chocolate (L1)
+│   ├── Milk Chocolate Chips (L2)
+```
+
+**User Impact:**
+- Enables hierarchical ingredient organization (foundation for UI work)
+- Product-ingredient relationships clarified via hierarchy levels
+- Import/export maintains hierarchy structure
+
+**Note:** UI implementation completed in F032.
+
+**Design Document:** `docs/design/F031_ingredient_hierarchy.md`
+
+---
+
+### Feature 032: Ingredient Hierarchy UI Completion
+
+**Status:** COMPLETE ✅ (Merged 2025-12-30)
 
 **Dependencies:** None (foundation layer)
 
@@ -217,9 +258,36 @@ Chocolate (L0)
 
 ### Feature 032: Recipe Redesign
 
+**Dependencies:** F031 (Ingredient Hierarchy - schema and services)
+
+**Problem:** F031 implemented backend support for ingredient hierarchy, but UI still used deprecated `category` field. Users could not effectively browse, filter, or manage the hierarchy. Multiple tabs showed category columns/filters instead of hierarchy.
+
+**Solution:** Complete UI implementation across all affected tabs and forms, replacing category-based UI with hierarchy-based UI.
+
+**Delivered:**
+- **Ingredients Tab:** Three hierarchy columns (L0/L1/L2) replace category column, hierarchy level filter, search across all levels
+- **Ingredient Edit Form:** Cascading dropdowns for L0/L1 selection, leaf ingredient radio button, proper validation
+- **Products Tab:** Hierarchical ingredient filter (L0→L1→L2 cascading), full ingredient path display
+- **Inventory Tab:** Hierarchy columns and filters replace category, ingredient path display
+- **Inventory Edit Form:** Read-only hierarchy display (three levels) instead of greyed-out category field
+- **Deprecated Field Removal:** All UI references to `category` field removed
+
+**User Impact:**
+- Can browse ingredients hierarchically (L0 → L1 → L2 navigation)
+- Can create/edit ingredients at any hierarchy level
+- Can filter products/inventory by ingredient hierarchy
+- Full visibility into ingredient organization across all tabs
+- Deprecated category field no longer confuses users
+
+**Bug Fix Document:** `docs/bugs/BUG_F031_incomplete_hierarchy_ui.md`
+
+---
+
+### Feature 033: Recipe Redesign
+
 **Status:** PLANNED (Phase 2 Architecture Complete)
 
-**Dependencies:** F031 (Ingredient Hierarchy - recipes use hierarchical selection)
+**Dependencies:** F031, F032 (Ingredient Hierarchy - recipes use hierarchical selection)
 
 **Problem:** Recipe changes retroactively corrupt historical production costs (Dec 15: made cookies with 2 cups flour, Dec 20: improved recipe to 2.5 cups, Dec 25: historical costs now show 2.5 cups instead of actual 2 cups). No base/variant relationships ("Raspberry Thumbprints" vs "Strawberry Thumbprints" are duplicates). No batch scaling (user wants 3x recipe, must create 3 separate production runs).
 
@@ -251,7 +319,7 @@ Chocolate (L0)
 
 ---
 
-### Feature 033: UI Mode Restructure
+### Feature 034: UI Mode Restructure
 
 **Status:** PLANNED (Phase 2 Architecture Complete)
 
@@ -282,15 +350,15 @@ Chocolate (L0)
 - Improves state visibility (mode dashboards show status at-a-glance)
 - Standardizes UI patterns (consistent layout reduces relearning)
 
-**Design Document:** `docs/design/F033_ui_mode_restructure.md`
+**Design Document:** `docs/design/F034_ui_mode_restructure.md`
 
 ---
 
-### Feature 034: Purchase Workflow & AI Assist
+### Feature 035: Purchase Workflow & AI Assist
 
 **Status:** PLANNED (Phase 2 Architecture Complete)
 
-**Dependencies:** F033 (UI Mode Restructure - Purchases tab in SHOP mode)
+**Dependencies:** F034 (UI Mode Restructure - Purchases tab in SHOP mode)
 
 **Problem:** Manual price entry for 100+ items takes 30-45 minutes (user abandons price tracking after 1-2 shopping trips). No shopping list generation from event plans. No purchase history visibility ("When did I last buy flour?" requires searching receipts). Price comparison impossible ("Is this a good price for butter?" with no historical data).
 
@@ -320,15 +388,15 @@ Chocolate (L0)
 - Tracks purchase history ("Last paid $5.99 for flour at Costco on Dec 15")
 - Supports price comparison ("Butter trend: $300 → $450 → $600")
 
-**Design Document:** `docs/design/F034_purchase_workflow_ai_assist.md`
+**Design Document:** `docs/design/F035_purchase_workflow_ai_assist.md`
 
 ---
 
-### Feature 035: Finished Goods Inventory
+### Feature 036: Finished Goods Inventory
 
 **Status:** PLANNED (Phase 2 Architecture Complete - Service Layer Only, No UI)
 
-**Dependencies:** F032 (Recipe Redesign - production runs create snapshots)
+**Dependencies:** F033 (Recipe Redesign - production runs create snapshots)
 
 **Problem:** No inventory visibility during planning (user produces 50 cookies when already has 30, wastes effort). Assembly runs may fail mid-process (try to assemble 10 gift boxes needing 120 cookies, only have 100). No stock level awareness ("How many cookies do I have ready?").
 
@@ -359,11 +427,11 @@ Chocolate (L0)
 - Planning uses inventory ("Need 50 cookies, already have 30, produce 20 more")
 - Low stock awareness ("Gingerbread cookies running low - 3 remaining")
 
-**Design Document:** `docs/design/F035_finished_goods_inventory.md`
+**Design Document:** `docs/design/F036_finished_goods_inventory.md`
 
 ---
 
-### Feature 036: Packaging & Distribution
+### Feature 037: Packaging & Distribution
 
 **Status:** Blocked (awaiting user testing completion)
 
@@ -609,6 +677,8 @@ Chocolate (L0)
 ## Key Decisions
 
 ### 2025-12-30
+- **Feature 031 Complete:** Ingredient Hierarchy schema and services merged. Three-tier taxonomy (L0/L1/L2), self-referential parent_ingredient_id, hierarchy_level field, ingredient_hierarchy_service.py with tree operations.
+- **Feature 032 Complete:** Ingredient Hierarchy UI Completion merged. Replaced all deprecated category UI with hierarchy columns/filters across Ingredients, Products, and Inventory tabs. Cascading dropdowns in edit forms, read-only hierarchy display.
 - **Phase 2 Architecture Complete:** Five comprehensive design specifications created for Phase 2 requirements:
   - **F031 (Ingredient Hierarchy):** Three-tier hierarchical taxonomy (L0/L1/L2), leaf-only product assignment, AI-assisted migration from flat categories. Blocks recipe redesign.
   - **F032 (Recipe Redesign):** Template/snapshot architecture for immutable production history, base/variant relationships via self-referential FK, simple scaling (1x/2x/3x multiplier). Depends on F031.
@@ -677,4 +747,4 @@ Chocolate (L0)
 - 2025-12-03: Initial creation
 - 2025-12-04 through 2025-12-25: Progressive feature completions (see detailed history above)
 - 2025-12-26: Feature 030 (Enhanced Export/Import System) complete and merged. Four-feature product/inventory/import sequence (F027+F028+F029+F030) complete. AI-assisted data augmentation workflow fully operational.
-- 2025-12-30: **Phase 2 Architecture Complete.** Added Features 031-035 (Ingredient Hierarchy, Recipe Redesign, UI Mode Restructure, Purchase Workflow & AI Assist, Finished Goods Inventory). Comprehensive design specifications created for all Phase 2 requirements. Original F031 (Packaging & Distribution) renumbered to F036.
+- 2025-12-30: **Phase 2 Architecture Complete.** Added Features 031-036 design specs (Ingredient Hierarchy, Recipe Redesign, UI Mode Restructure, Purchase Workflow & AI Assist, Finished Goods Inventory). F031 and F032 implemented and merged (Ingredient Hierarchy backend + UI). Original F031 (Packaging & Distribution) renumbered to F037. Remaining planned features renumbered: Recipe Redesign (F033), UI Mode Restructure (F034), Purchase Workflow (F035), Finished Goods Inventory (F036).
