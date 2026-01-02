@@ -22,10 +22,10 @@
 **Prompt**: `tasks/planned/WP01-service-layer-functions.md`
 
 ### Included Subtasks
-- [ ] T001 [P] Implement `get_child_count(ingredient_id, session=None) -> int` in `src/services/ingredient_hierarchy_service.py`
-- [ ] T002 [P] Implement `get_product_count(ingredient_id, session=None) -> int` in `src/services/ingredient_hierarchy_service.py`
-- [ ] T003 Implement `can_change_parent(ingredient_id, new_parent_id, session=None) -> dict` in `src/services/ingredient_hierarchy_service.py`
-- [ ] T004 Add unit tests for all three functions in `src/tests/services/test_ingredient_hierarchy_service.py`
+- [X] T001 [P] Implement `get_child_count(ingredient_id, session=None) -> int` in `src/services/ingredient_hierarchy_service.py`
+- [X] T002 [P] Implement `get_product_count(ingredient_id, session=None) -> int` in `src/services/ingredient_hierarchy_service.py`
+- [X] T003 Implement `can_change_parent(ingredient_id, new_parent_id, session=None) -> dict` in `src/services/ingredient_hierarchy_service.py`
+- [X] T004 Add unit tests for all three functions in `src/tests/services/test_ingredient_hierarchy_service.py`
 
 ### Implementation Notes
 - T001 and T002 are simple COUNT queries, can be implemented in parallel
@@ -54,12 +54,12 @@
 **Prompt**: `tasks/planned/WP02-ui-form-fix.md`
 
 ### Included Subtasks
-- [ ] T005 Remove `ingredient_level_dropdown` and `ingredient_level_var` from `src/ui/ingredients_tab.py` (lines ~866-879)
-- [ ] T006 Add read-only `level_display` CTkLabel to show computed level
-- [ ] T007 Implement `_compute_and_display_level()` helper method
-- [ ] T008 Update `_on_l0_change()` and `_on_l1_change()` callbacks to compute level
-- [ ] T009 Filter parent dropdowns to exclude L2 ingredients in `_build_l0_options()` and L1 refresh
-- [ ] T010 Add inline warning display using `can_change_parent()` when editing existing ingredient
+- [X] T005 Remove `ingredient_level_dropdown` and `ingredient_level_var` from `src/ui/ingredients_tab.py` (lines ~866-879)
+- [X] T006 Add read-only `level_display` CTkLabel to show computed level
+- [X] T007 Implement `_compute_and_display_level()` helper method
+- [X] T008 Update `_on_l0_change()` and `_on_l1_change()` callbacks to compute level
+- [X] T009 Filter parent dropdowns to exclude L2 ingredients in `_build_l0_options()` and L1 refresh
+- [X] T010 Add inline warning display using `can_change_parent()` when editing existing ingredient
 
 ### Implementation Notes
 - Remove lines 866-879 (level dropdown creation)
@@ -89,9 +89,9 @@
 **Prompt**: `tasks/planned/WP03-hierarchy-path-display.md`
 
 ### Included Subtasks
-- [ ] T011 Add `hierarchy_path` column to treeview definition in `src/ui/ingredients_tab.py`
-- [ ] T012 [P] Implement `_build_hierarchy_path_cache()` method using `get_ancestors()`
-- [ ] T013 Update list population to display hierarchy paths from cache
+- [X] T011 Add `hierarchy_path` column to treeview definition in `src/ui/ingredients_tab.py`
+- [X] T012 [P] Implement `_build_hierarchy_path_cache()` method using `get_ancestors()`
+- [X] T013 Update list population to display hierarchy paths from cache
 
 ### Implementation Notes
 - Follow pattern from inventory_tab.py which already has hierarchy path display
@@ -120,8 +120,8 @@
 **Prompt**: `tasks/planned/WP04-legacy-form-deprecation.md`
 
 ### Included Subtasks
-- [ ] T014 Add deprecation docstring and comment to `src/ui/forms/ingredient_form.py`
-- [ ] T015 [P] Add runtime warning when dialog is opened (optional)
+- [X] T014 Add deprecation docstring and comment to `src/ui/forms/ingredient_form.py`
+- [X] T015 [P] Add runtime warning when dialog is opened (optional)
 
 ### Implementation Notes
 - Add module-level docstring: "DEPRECATED: Use inline form in ingredients_tab.py instead"

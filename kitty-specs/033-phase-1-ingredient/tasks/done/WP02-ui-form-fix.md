@@ -10,7 +10,7 @@ subtasks:
 title: "UI Form Fix - Remove Level Selector"
 phase: "Phase 2 - User Story 1 (P1)"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude-reviewer"
 shell_pid: "81353"
 review_status: "approved without changes"

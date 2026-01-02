@@ -6,7 +6,7 @@ subtasks:
 title: "Legacy Form Deprecation"
 phase: "Phase 4 - Cleanup"
 lane: "done"
-assignee: ""
+assignee: "gemini"
 agent: "claude-reviewer"
 shell_pid: "82876"
 review_status: "approved without changes"

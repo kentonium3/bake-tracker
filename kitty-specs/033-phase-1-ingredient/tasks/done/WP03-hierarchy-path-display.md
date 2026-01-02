@@ -7,7 +7,7 @@ subtasks:
 title: "Hierarchy Path Display"
 phase: "Phase 3 - User Story 3 (P3)"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude-reviewer"
 shell_pid: "81550"
 review_status: "approved without changes"
