@@ -344,8 +344,15 @@ Re-run relevant F036 test cases:
 4. Selected ingredient updates dropdown and hierarchy display
 5. Matches recipe form pattern exactly
 
-**[DATE]** - Issue 1 fixed: [solution]
-**[DATE]** - All fixes tested and merged
+**2026-01-03** - Issue 1 fixed: Updated Ingredients tab to show separate L0/L1/Name columns (`src/ui/ingredients_tab.py`):
+1. Changed columns from `("hierarchy_path", "name", "density")` to `("l0", "l1", "name", "density")`
+2. Column headers: "Category (L0)", "Subcategory (L1)", "Name", "Density"
+3. Updated `_build_hierarchy_path_cache()` to return `{"l0": str, "l1": str}` dict instead of concatenated string
+4. Updated `_update_ingredient_display()` to use separate L0/L1 values
+5. Updated `_apply_filters()` sorting to handle new l0/l1 column names
+6. Now sortable by L0 or L1 column independently
+
+**2026-01-03** - All fixes tested and merged
 
 ---
 
