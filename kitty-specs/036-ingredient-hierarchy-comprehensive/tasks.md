@@ -22,12 +22,12 @@
 **Prompt**: `tasks/planned/WP01-run-automated-tests.md`
 
 ### Included Subtasks
-- [ ] T001 Run ingredient hierarchy service tests (`src/tests/services/test_ingredient_hierarchy_service.py`)
-- [ ] T002 Run ingredient service tests including deletion protection (`src/tests/services/test_ingredient_service.py`)
-- [ ] T003 [P] Run recipe leaf-only validation tests (`src/tests/services/test_recipe_service.py -k leaf`)
-- [ ] T004 [P] Run product catalog leaf-only tests (`src/tests/services/test_product_catalog_service.py -k leaf`)
-- [ ] T005 Generate coverage report for ingredient services
-- [ ] T006 Document test results in `research.md`
+- [x] T001 Run ingredient hierarchy service tests (`src/tests/services/test_ingredient_hierarchy_service.py`)
+- [x] T002 Run ingredient service tests including deletion protection (`src/tests/services/test_ingredient_service.py`)
+- [x] T003 [P] Run recipe leaf-only validation tests (`src/tests/services/test_recipe_service.py -k leaf`)
+- [x] T004 [P] Run product catalog leaf-only tests (`src/tests/services/test_product_catalog_service.py -k leaf`)
+- [x] T005 Generate coverage report for ingredient services
+- [x] T006 Document test results in `research.md`
 
 ### Implementation Notes
 1. Activate venv: `source venv/bin/activate`
@@ -54,12 +54,12 @@
 **Prompt**: `tasks/planned/WP02-manual-ui-validation.md`
 
 ### Included Subtasks
-- [ ] T007 Test Product edit form cascading selector (L0 -> L1 -> L2)
-- [ ] T008 Test Recipe creation form cascading selector
-- [ ] T009 Test Product tab filter cascading behavior
-- [ ] T010 Test Inventory tab filter cascading behavior
-- [ ] T011 Test Clear/Reset functionality in all filters
-- [ ] T012 Document UI test results with pass/fail status
+- [x] T007 Test Product edit form cascading selector (L0 -> L1 -> L2)
+- [x] T008 Test Recipe creation form cascading selector
+- [x] T009 Test Product tab filter cascading behavior
+- [x] T010 Test Inventory tab filter cascading behavior
+- [x] T011 Test Clear/Reset functionality in all filters
+- [x] T012 Document UI test results with pass/fail status
 
 ### Implementation Notes
 1. Start app: `python src/main.py`
@@ -89,12 +89,12 @@
 **Prompt**: `tasks/planned/WP03-deletion-protection-validation.md`
 
 ### Included Subtasks
-- [ ] T013 Test deletion blocked when Products reference ingredient
-- [ ] T014 Test deletion blocked when Recipes reference ingredient
-- [ ] T015 Test deletion blocked when Children exist
-- [ ] T016 Test deletion allowed when no references (verify cascade delete aliases/crosswalks)
-- [ ] T017 Verify error messages include correct counts
-- [ ] T018 Document deletion test results
+- [x] T013 Test deletion blocked when Products reference ingredient
+- [x] T014 Test deletion blocked when Recipes reference ingredient
+- [x] T015 Test deletion blocked when Children exist
+- [x] T016 Test deletion allowed when no references (verify cascade delete aliases/crosswalks)
+- [x] T017 Verify error messages include correct counts
+- [x] T018 Document deletion test results
 
 ### Implementation Notes
 1. In app, navigate to Ingredients tab
@@ -122,11 +122,11 @@
 **Prompt**: `tasks/planned/WP04-final-documentation.md`
 
 ### Included Subtasks
-- [ ] T019 Update `docs/design/_F033-F036_ingredient_hierarchy_gap_analysis.md` - mark Phase 4 complete
-- [ ] T020 Update `docs/requirements/req_ingredients.md` acceptance checklist
-- [ ] T021 Create test results summary in `research.md`
-- [ ] T022 Verify all success criteria from spec.md are met
-- [ ] T023 Update feature_roadmap.md if needed
+- [x] T019 Update `docs/design/_F033-F036_ingredient_hierarchy_gap_analysis.md` - mark Phase 4 complete
+- [x] T020 Update `docs/requirements/req_ingredients.md` acceptance checklist
+- [x] T021 Create test results summary in `research.md`
+- [x] T022 Verify all success criteria from spec.md are met
+- [x] T023 Update feature_roadmap.md if needed
 
 ### Implementation Notes
 1. Update gap analysis: Change Phase 4 from PENDING to COMPLETE
