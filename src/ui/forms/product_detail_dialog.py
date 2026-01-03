@@ -432,13 +432,16 @@ class ProductDetailDialog(ctk.CTkToplevel):
         self.grab_release()
 
         dialog = AddProductDialog(self, product_id=self.product_id)
-        self.wait_window(dialog)
+
+        # Only wait if dialog was successfully created (not destroyed during init)
+        if dialog.winfo_exists():
+            self.wait_window(dialog)
 
         # Re-acquire grab after child dialog closes (if this window still exists)
         if self.winfo_exists():
             self.grab_set()
 
-            if dialog.result:
+            if hasattr(dialog, 'result') and dialog.result:
                 self._load_product()  # Refresh after edit
                 self.result = True  # Signal parent to refresh
 
