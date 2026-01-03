@@ -412,6 +412,17 @@ class AddProductDialog(ctk.CTkToplevel):
 
         # Get ingredient (already validated in _validate)
         ingredient = self.selected_ingredient
+        if ingredient is None:
+            # Fallback: try to get from current dropdown selection
+            ingredient_name = self.ingredient_var.get()
+            ingredient = self.ingredients_map.get(ingredient_name)
+            if ingredient is None:
+                messagebox.showerror(
+                    "Error",
+                    "Please select an ingredient",
+                    parent=self,
+                )
+                return
 
         # Get supplier (optional)
         supplier_id = None
@@ -507,7 +518,18 @@ class AddProductDialog(ctk.CTkToplevel):
                 for display_name, ing in self.ingredients_map.items():
                     if ing.get("id") == ingredient_id:
                         self.ingredient_var.set(display_name)
-                        self._on_ingredient_change(display_name)
+                        # Set selected_ingredient directly (bypasses _is_updating_ui guard)
+                        self.selected_ingredient = ing
+                        # Update hierarchy display
+                        try:
+                            ancestors = ingredient_hierarchy_service.get_ancestors(ingredient_id)
+                            if ancestors:
+                                path_parts = [a.get("display_name", "?") for a in reversed(ancestors)]
+                                self.category_var.set(" -> ".join(path_parts))
+                            else:
+                                self.category_var.set("(No parent)")
+                        except Exception:
+                            self.category_var.set("(Unknown)")
                         break
 
             # Find and set supplier
