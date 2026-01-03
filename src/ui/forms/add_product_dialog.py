@@ -237,22 +237,35 @@ class AddProductDialog(ctk.CTkToplevel):
         self.unit_dropdown.grid(row=row, column=1, padx=(0, 20), pady=5, sticky="w")
         row += 1
 
-        # Ingredient dropdown (Level 2 - leaves)
+        # Ingredient dropdown (Level 2 - leaves) with browse button
         ing_label = ctk.CTkLabel(self, text="Ingredient *")
         ing_label.grid(row=row, column=0, padx=(20, 10), pady=5, sticky="w")
+
+        # Frame to hold dropdown and browse button
+        ing_frame = ctk.CTkFrame(self, fg_color="transparent")
+        ing_frame.grid(row=row, column=1, padx=(0, 20), pady=5, sticky="w")
 
         self.ingredient_var = ctk.StringVar()
         ingredient_names = sorted(self.ingredients_map.keys())
         self.ingredient_dropdown = ctk.CTkComboBox(
-            self,
+            ing_frame,
             variable=self.ingredient_var,
             values=ingredient_names if ingredient_names else ["No ingredients"],
             command=self._on_ingredient_change,
-            width=280,
+            width=230,
         )
-        self.ingredient_dropdown.grid(row=row, column=1, padx=(0, 20), pady=5, sticky="w")
+        self.ingredient_dropdown.pack(side="left")
         if not ingredient_names:
             self.ingredient_dropdown.configure(state="disabled")
+
+        # Browse button - opens tree selection dialog
+        browse_btn = ctk.CTkButton(
+            ing_frame,
+            text="...",
+            width=40,
+            command=self._browse_ingredients,
+        )
+        browse_btn.pack(side="left", padx=(5, 0))
         row += 1
 
         # Feature 032: Hierarchy path (read-only, auto-populated from ingredient)
@@ -357,6 +370,51 @@ class AddProductDialog(ctk.CTkToplevel):
         else:
             self.selected_ingredient = None
             self.category_var.set("(Select ingredient)")
+
+    def _browse_ingredients(self):
+        """Open tree dialog to browse and select ingredient hierarchically."""
+        from src.ui.forms.recipe_form import IngredientSelectionDialog
+
+        # Release grab before opening child dialog
+        self.grab_release()
+
+        dialog = IngredientSelectionDialog(self, title="Select Ingredient")
+        result = dialog.get_result()
+
+        # Re-acquire grab after dialog closes
+        if self.winfo_exists():
+            self.grab_set()
+
+        if result:
+            # Update with selected ingredient
+            display_name = result.get("display_name", "")
+            ingredient_id = result.get("id")
+
+            if display_name and ingredient_id:
+                # Update selected_ingredient
+                self.selected_ingredient = result
+
+                # Add to dropdown if not present and update
+                if display_name not in self.ingredients_map:
+                    self.ingredients_map[display_name] = result
+                    current_values = list(self.ingredient_dropdown.cget("values"))
+                    if display_name not in current_values:
+                        current_values.append(display_name)
+                        current_values.sort()
+                        self.ingredient_dropdown.configure(values=current_values)
+
+                self.ingredient_var.set(display_name)
+
+                # Update hierarchy display
+                try:
+                    ancestors = ingredient_hierarchy_service.get_ancestors(ingredient_id)
+                    if ancestors:
+                        path_parts = [a.get("display_name", "?") for a in reversed(ancestors)]
+                        self.category_var.set(" -> ".join(path_parts))
+                    else:
+                        self.category_var.set("(No parent)")
+                except Exception:
+                    self.category_var.set("(Unknown)")
 
     def _validate(self) -> bool:
         """Validate form fields before save."""

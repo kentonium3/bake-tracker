@@ -335,8 +335,15 @@ Re-run relevant F036 test cases:
 1. In `_load_product()`: Set `self.selected_ingredient` directly after finding ingredient match (bypasses event handler guard)
 2. In `_on_save()`: Added defensive null check with fallback to get ingredient from dropdown if `self.selected_ingredient` is None
 
-**[DATE]** - Issue 2 investigated: [findings]
-**[DATE]** - Issue 2 fixed: [solution]
+**2026-01-03** - Issue 2 investigated: Recipe form uses flat dropdown + browse button pattern (not cascading dropdowns). The browse button opens `IngredientSelectionDialog` with tree widget for hierarchical navigation. This is a better UX than cascading dropdowns.
+
+**2026-01-03** - Issue 2 fixed: Added browse button to product edit form (`src/ui/forms/add_product_dialog.py`):
+1. Added "..." browse button next to ingredient dropdown
+2. Browse button opens `IngredientSelectionDialog` (reused from recipe_form.py)
+3. Tree widget allows hierarchical browsing with L0→L1→L2 navigation
+4. Selected ingredient updates dropdown and hierarchy display
+5. Matches recipe form pattern exactly
+
 **[DATE]** - Issue 1 fixed: [solution]
 **[DATE]** - All fixes tested and merged
 
