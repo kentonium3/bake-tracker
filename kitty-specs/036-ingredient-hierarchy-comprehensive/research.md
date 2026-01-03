@@ -56,6 +56,35 @@ All 14 skipped tests have documented reasons:
 
 ---
 
+## Manual UI Test Results (WP02 & WP03)
+
+**Executed**: 2026-01-02
+**Tester**: User (production environment)
+
+### WP02: Cascading Selectors Validation
+
+| Test | Location | Result |
+|------|----------|--------|
+| T007 | Product edit form - L0→L1→L2 cascade | PASS |
+| T008 | Recipe creation form - L0→L1→L2 cascade | PASS |
+| T009 | Product tab filter - cascade and reset | PASS |
+| T010 | Inventory tab filter - cascade and reset | PASS |
+| T011 | Clear/Reset functionality | PASS |
+
+### WP03: Deletion Protection Validation
+
+| Test | Scenario | Result |
+|------|----------|--------|
+| T013 | Deletion blocked by Products | PASS |
+| T014 | Deletion blocked by Recipes | PASS |
+| T015 | Deletion blocked by Children (L0/L1) | PASS |
+| T016 | Deletion allowed (no references) | PASS |
+| T017 | Error message counts accurate | PASS |
+
+**Issue Found & Fixed**: Production database was missing `snapshot_ingredients` columns (`ingredient_name_snapshot`, `parent_l1_name_snapshot`, `parent_l0_name_snapshot`). Fixed with ALTER TABLE migration.
+
+---
+
 ## Decision Summary
 
 | Decision | Choice | Rationale |
