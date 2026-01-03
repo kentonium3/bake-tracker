@@ -10,7 +10,7 @@ subtasks:
 title: "Manual UI Validation - Cascading Selectors"
 phase: "Phase 2 - Manual Testing"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude"
 shell_pid: "35839"
 review_status: ""

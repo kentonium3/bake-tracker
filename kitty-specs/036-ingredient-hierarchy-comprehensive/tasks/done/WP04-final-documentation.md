@@ -9,9 +9,9 @@ subtasks:
 title: "Final Documentation & Gap Update"
 phase: "Phase 3 - Documentation"
 lane: "done"
-assignee: ""
-agent: "system"
-shell_pid: ""
+assignee: "claude"
+agent: "claude"
+shell_pid: "35839"
 review_status: ""
 reviewed_by: ""
 history:

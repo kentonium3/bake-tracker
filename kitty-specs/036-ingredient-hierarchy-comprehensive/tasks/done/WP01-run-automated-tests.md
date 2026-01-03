@@ -10,7 +10,7 @@ subtasks:
 title: "Run Automated Test Suite"
 phase: "Phase 1 - Automated Testing"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude"
 shell_pid: "35720"
 review_status: ""

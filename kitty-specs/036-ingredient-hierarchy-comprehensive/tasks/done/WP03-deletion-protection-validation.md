@@ -10,9 +10,9 @@ subtasks:
 title: "Deletion Protection Validation"
 phase: "Phase 2 - Manual Testing"
 lane: "done"
-assignee: ""
-agent: "system"
-shell_pid: ""
+assignee: "claude"
+agent: "claude"
+shell_pid: "35839"
 review_status: ""
 reviewed_by: ""
 history:
