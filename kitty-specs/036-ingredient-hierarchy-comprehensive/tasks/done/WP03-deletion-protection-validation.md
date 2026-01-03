@@ -9,9 +9,9 @@ subtasks:
   - "T018"
 title: "Deletion Protection Validation"
 phase: "Phase 2 - Manual Testing"
-lane: "planned"
+lane: "done"
 assignee: ""
-agent: ""
+agent: "system"
 shell_pid: ""
 review_status: ""
 reviewed_by: ""
@@ -197,3 +197,4 @@ Deletion test matrix:
 ## Activity Log
 
 - 2026-01-02T00:00:00Z - system - lane=planned - Prompt created.
+- 2026-01-03T01:28:29Z – system – shell_pid= – lane=done – Moved to done
