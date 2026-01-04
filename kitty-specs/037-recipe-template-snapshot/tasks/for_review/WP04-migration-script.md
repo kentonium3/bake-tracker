@@ -7,7 +7,7 @@ subtasks:
   - "T017"
 title: "Migration Script"
 phase: "Phase 1 - Core Snapshot System"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "system"
 shell_pid: ""
@@ -348,3 +348,4 @@ def test_migration_with_sample_data():
 
 - 2026-01-03T06:30:00Z - system - lane=planned - Prompt created.
 - 2026-01-04T19:08:51Z – system – shell_pid= – lane=doing – Moved to doing
+- 2026-01-04T19:50:14Z – system – shell_pid= – lane=for_review – Moved to for_review
