@@ -36,6 +36,7 @@ from src.models import (
 from src.services.database import session_scope
 from src.services import inventory_item_service
 from src.services.recipe_service import get_aggregated_ingredients
+from src.services import recipe_snapshot_service  # Feature 037
 
 
 # =============================================================================
@@ -116,6 +117,7 @@ def check_can_produce(
     recipe_id: int,
     num_batches: int,
     *,
+    scale_factor: float = 1.0,  # Feature 037
     session=None,
 ) -> Dict[str, Any]:
     """
@@ -128,6 +130,7 @@ def check_can_produce(
     Args:
         recipe_id: ID of the recipe to produce
         num_batches: Number of batches to produce
+        scale_factor: Recipe size multiplier (default 1.0, Feature 037)
         session: Optional database session (uses session_scope if not provided)
 
     Returns:
@@ -145,14 +148,15 @@ def check_can_produce(
     """
     # Use provided session or create a new one
     if session is not None:
-        return _check_can_produce_impl(recipe_id, num_batches, session)
+        return _check_can_produce_impl(recipe_id, num_batches, scale_factor, session)
     with session_scope() as session:
-        return _check_can_produce_impl(recipe_id, num_batches, session)
+        return _check_can_produce_impl(recipe_id, num_batches, scale_factor, session)
 
 
 def _check_can_produce_impl(
     recipe_id: int,
     num_batches: int,
+    scale_factor: float,
     session,
 ) -> Dict[str, Any]:
     """Implementation of check_can_produce that uses provided session."""
@@ -164,7 +168,7 @@ def _check_can_produce_impl(
     # Get aggregated ingredients (handles nested recipes)
     # Pass session to maintain transactional consistency
     try:
-        aggregated = get_aggregated_ingredients(recipe_id, multiplier=num_batches, session=session)
+        aggregated = get_aggregated_ingredients(recipe_id, multiplier=1, session=session)
     except Exception as e:
         raise RecipeNotFoundError(recipe_id) from e
 
@@ -174,8 +178,11 @@ def _check_can_produce_impl(
         ingredient = item["ingredient"]
         ingredient_slug = ingredient.slug
         ingredient_name = ingredient.display_name
-        quantity_needed = Decimal(str(item["total_quantity"]))
+        base_quantity = Decimal(str(item["total_quantity"]))
         unit = item["unit"]
+
+        # Feature 037: Apply scale_factor and num_batches to base quantity
+        quantity_needed = base_quantity * Decimal(str(scale_factor)) * Decimal(str(num_batches))
 
         # Perform dry-run FIFO check - pass session for consistency
         result = inventory_item_service.consume_fifo(
@@ -216,6 +223,7 @@ def record_batch_production(
     event_id: Optional[int] = None,
     loss_category: Optional[LossCategory] = None,
     loss_notes: Optional[str] = None,
+    scale_factor: float = 1.0,  # Feature 037: Recipe scaling
     session=None,
 ) -> Dict[str, Any]:
     """
@@ -224,12 +232,13 @@ def record_batch_production(
     This function atomically:
     1. Validates recipe and finished unit
     2. Validates event if provided (Feature 016)
-    3. Validates actual_yield <= expected_yield (Feature 025)
-    4. Consumes ingredients from inventory via FIFO
-    5. Increments FinishedUnit.inventory_count by actual_yield
-    6. Creates ProductionRun and ProductionConsumption records
-    7. Creates ProductionLoss record if loss_quantity > 0 (Feature 025)
-    8. Calculates per-unit cost based on actual yield
+    3. Creates recipe snapshot FIRST (Feature 037)
+    4. Validates actual_yield <= expected_yield (Feature 025)
+    5. Consumes ingredients from snapshot data via FIFO
+    6. Increments FinishedUnit.inventory_count by actual_yield
+    7. Creates ProductionRun with snapshot reference
+    8. Creates ProductionLoss record if loss_quantity > 0 (Feature 025)
+    9. Calculates per-unit cost based on actual yield
 
     Args:
         recipe_id: ID of the recipe being produced
@@ -241,6 +250,7 @@ def record_batch_production(
         event_id: Optional event ID to link production to (Feature 016)
         loss_category: Optional loss category enum (Feature 025, defaults to OTHER if loss exists)
         loss_notes: Optional notes about the loss (Feature 025)
+        scale_factor: Recipe size multiplier (default 1.0, Feature 037)
         session: Optional database session (uses session_scope if not provided)
 
     Returns:
@@ -259,6 +269,8 @@ def record_batch_production(
             - "loss_quantity": int - expected_yield - actual_yield (Feature 025)
             - "loss_record_id": Optional[int] - ID of ProductionLoss record if created (Feature 025)
             - "total_loss_cost": str - cost of lost units (Feature 025)
+            - "snapshot_id": int - Recipe snapshot ID (Feature 037)
+            - "scale_factor": float - Applied scale factor (Feature 037)
 
     Raises:
         RecipeNotFoundError: If recipe doesn't exist
@@ -289,11 +301,10 @@ def record_batch_production(
             if not event:
                 raise EventNotFoundError(event_id)
 
-        # Calculate expected yield based on finished unit configuration
-        if finished_unit.items_per_batch:
-            expected_yield = num_batches * finished_unit.items_per_batch
-        else:
-            expected_yield = num_batches  # Fallback if not configured
+        # Feature 037: Calculate expected yield with scale_factor
+        # expected_yield = base_yield x scale_factor x num_batches
+        base_yield = finished_unit.items_per_batch or 1
+        expected_yield = int(base_yield * scale_factor * num_batches)
 
         # Feature 025: Validate actual_yield <= expected_yield (fail fast)
         if actual_yield > expected_yield:
@@ -309,20 +320,56 @@ def record_batch_production(
         else:
             production_status = ProductionStatus.PARTIAL_LOSS
 
-        # Get aggregated ingredients (handles nested recipes)
-        # Pass session to maintain transactional atomicity
-        aggregated = get_aggregated_ingredients(recipe_id, multiplier=num_batches, session=session)
+        # Feature 037: Create snapshot FIRST - captures recipe state before production
+        # Note: We create a temporary ProductionRun to get an ID for the snapshot,
+        # then update it after. Alternative: create snapshot without run_id, then link.
+        # Using the simpler approach: create snapshot with placeholder, update later
+        temp_production_run = ProductionRun(
+            recipe_id=recipe_id,
+            finished_unit_id=finished_unit_id,
+            num_batches=num_batches,
+            expected_yield=expected_yield,
+            actual_yield=actual_yield,
+            produced_at=produced_at or utc_now(),
+            notes=notes,
+            total_ingredient_cost=Decimal("0.0000"),  # Will be updated
+            per_unit_cost=Decimal("0.0000"),  # Will be updated
+            event_id=event_id,
+            production_status=production_status.value,
+            loss_quantity=loss_quantity,
+        )
+        session.add(temp_production_run)
+        session.flush()  # Get the ID
+
+        # Now create the snapshot with the production_run_id
+        snapshot = recipe_snapshot_service.create_recipe_snapshot(
+            recipe_id=recipe_id,
+            scale_factor=scale_factor,
+            production_run_id=temp_production_run.id,
+            session=session
+        )
+        snapshot_id = snapshot["id"]
+
+        # Link snapshot to production run
+        temp_production_run.recipe_snapshot_id = snapshot_id
+
+        # Feature 037: Use snapshot data for ingredient consumption
+        # This ensures costs are calculated from the snapshot, not the live recipe
+        ingredients_data = snapshot["ingredients_data"]
 
         # Track consumption data
         total_ingredient_cost = Decimal("0.0000")
         consumption_records = []
 
-        # Consume ingredients via FIFO - ALL within this same session for atomicity
-        for item in aggregated:
-            ingredient = item["ingredient"]
-            ingredient_slug = ingredient.slug
-            quantity_needed = Decimal(str(item["total_quantity"]))
+        # Feature 037: Consume ingredients from snapshot data via FIFO
+        # Apply scale_factor to base quantities, then multiply by num_batches
+        for item in ingredients_data:
+            ingredient_slug = item["ingredient_slug"]
+            base_quantity = Decimal(str(item["quantity"]))
             unit = item["unit"]
+
+            # quantity_needed = base_quantity x scale_factor x num_batches
+            quantity_needed = base_quantity * Decimal(str(scale_factor)) * Decimal(str(num_batches))
 
             # Perform actual FIFO consumption - pass session for atomic transaction
             result = inventory_item_service.consume_fifo(
@@ -362,23 +409,10 @@ def record_batch_production(
         else:
             per_unit_cost = Decimal("0.0000")
 
-        # Create ProductionRun record (Feature 025: include status and loss fields)
-        production_run = ProductionRun(
-            recipe_id=recipe_id,
-            finished_unit_id=finished_unit_id,
-            num_batches=num_batches,
-            expected_yield=expected_yield,
-            actual_yield=actual_yield,
-            produced_at=produced_at or utc_now(),
-            notes=notes,
-            total_ingredient_cost=total_ingredient_cost,
-            per_unit_cost=per_unit_cost,
-            event_id=event_id,  # Feature 016
-            production_status=production_status.value,  # Feature 025
-            loss_quantity=loss_quantity,  # Feature 025
-        )
-        session.add(production_run)
-        session.flush()  # Get the ID
+        # Update the ProductionRun with actual costs (it was created earlier with placeholders)
+        temp_production_run.total_ingredient_cost = total_ingredient_cost
+        temp_production_run.per_unit_cost = per_unit_cost
+        production_run = temp_production_run  # Use the same reference for the rest
 
         # Feature 025: Create ProductionLoss record if there are losses
         loss_record_id = None
@@ -426,6 +460,8 @@ def record_batch_production(
             "loss_quantity": loss_quantity,  # Feature 025
             "loss_record_id": loss_record_id,  # Feature 025
             "total_loss_cost": str(total_loss_cost),  # Feature 025
+            "snapshot_id": snapshot_id,  # Feature 037
+            "scale_factor": scale_factor,  # Feature 037
         }
 
 
