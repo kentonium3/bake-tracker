@@ -11,10 +11,10 @@ subtasks:
   - "T029"
 title: "Variant Service & UI"
 phase: "Phase 2 - Scaling & Variants"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "gemini"
+shell_pid: "69362"
 review_status: ""
 reviewed_by: ""
 history:
@@ -466,3 +466,4 @@ def _get_row_values(self, recipe: dict) -> list:
 ## Activity Log
 
 - 2026-01-03T06:30:00Z - system - lane=planned - Prompt created.
+- 2026-01-04T18:56:22Z – gemini – shell_pid=69362 – lane=doing – Started parallel implementation
