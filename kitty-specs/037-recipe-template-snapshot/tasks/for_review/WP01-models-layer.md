@@ -8,10 +8,10 @@ subtasks:
   - "T005"
 title: "Models Layer"
 phase: "Phase 1 - Core Snapshot System"
-lane: "planned"
+lane: "for_review"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "claude"
+shell_pid: "67067"
 review_status: ""
 reviewed_by: ""
 history:
@@ -20,6 +20,11 @@ history:
     agent: "system"
     shell_pid: ""
     action: "Prompt generated via /spec-kitty.tasks"
+  - timestamp: "2026-01-04T21:45:00Z"
+    lane: "doing"
+    agent: "claude"
+    shell_pid: "67067"
+    action: "Started implementation"
 ---
 
 # Work Package Prompt: WP01 - Models Layer
@@ -275,3 +280,10 @@ def test_create_recipe_snapshot(test_session):
 ## Activity Log
 
 - 2026-01-03T06:30:00Z - system - lane=planned - Prompt created.
+- 2026-01-04T21:45:00Z - claude - shell_pid=67067 - lane=doing - Started implementation
+- 2026-01-04T22:00:00Z - claude - shell_pid=67067 - lane=doing - Completed T001: Created RecipeSnapshot model with JSON helpers
+- 2026-01-04T22:00:00Z - claude - shell_pid=67067 - lane=doing - Completed T002: Added base_recipe_id, variant_name, is_production_ready to Recipe
+- 2026-01-04T22:00:00Z - claude - shell_pid=67067 - lane=doing - Completed T003: Added recipe_snapshot_id FK to ProductionRun
+- 2026-01-04T22:00:00Z - claude - shell_pid=67067 - lane=doing - Completed T004: Exported RecipeSnapshot in __init__.py
+- 2026-01-04T22:00:00Z - claude - shell_pid=67067 - lane=doing - Completed T005: Created 15 unit tests (all passing)
+- 2026-01-04T18:55:32Z – claude – shell_pid=67067 – lane=for_review – Ready for review - all 15 tests passing

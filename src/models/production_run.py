@@ -4,6 +4,9 @@ ProductionRun model for tracking batch production.
 This module contains the ProductionRun model which represents
 batch production events where a recipe is made, ingredients are
 consumed via FIFO, and FinishedUnits are created with yield-based costing.
+
+Feature 037: Added recipe_snapshot_id FK to link production runs to
+immutable recipe snapshots for historical cost accuracy.
 """
 
 from datetime import datetime
@@ -62,6 +65,14 @@ class ProductionRun(BaseModel):
         nullable=True,
         index=True,
     )
+    # Feature 037: Link to immutable recipe snapshot for historical accuracy
+    # Nullable initially for migration; after backfill, new runs require snapshot
+    recipe_snapshot_id = Column(
+        Integer,
+        ForeignKey("recipe_snapshots.id", ondelete="RESTRICT"),
+        nullable=True,
+        index=True,
+    )
 
     # Production data
     num_batches = Column(Integer, nullable=False)
@@ -91,6 +102,14 @@ class ProductionRun(BaseModel):
     # Feature 016: Event relationship
     event = relationship("Event", back_populates="production_runs")
 
+    # Feature 037: Snapshot relationship (1:1)
+    snapshot = relationship(
+        "RecipeSnapshot",
+        back_populates="production_run",
+        uselist=False,
+        foreign_keys="RecipeSnapshot.production_run_id",
+    )
+
     # Feature 025: Loss records relationship
     # Note: Uses passive_deletes=True to let DB handle SET NULL on production_run_id
     # when ProductionRun is deleted, preserving loss records for audit trail (FR-017)
@@ -109,6 +128,7 @@ class ProductionRun(BaseModel):
         Index("idx_production_run_produced_at", "produced_at"),
         Index("idx_production_run_event", "event_id"),
         Index("idx_production_run_status", "production_status"),  # Feature 025
+        Index("idx_production_run_snapshot", "recipe_snapshot_id"),  # Feature 037
         # Constraints
         CheckConstraint("num_batches > 0", name="ck_production_run_batches_positive"),
         CheckConstraint(

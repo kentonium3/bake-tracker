@@ -5,6 +5,9 @@ This module contains:
 - Recipe: Main recipe model with metadata
 - RecipeIngredient: Junction table linking recipes to ingredients
 - RecipeComponent: Junction table linking parent recipes to child (component) recipes
+
+Feature 037: Added variant support (base_recipe_id, variant_name) and
+production readiness (is_production_ready) fields.
 """
 
 from datetime import datetime
@@ -65,6 +68,20 @@ class Recipe(BaseModel):
     # Archival status (for soft delete)
     is_archived = Column(Boolean, nullable=False, default=False, index=True)
 
+    # Feature 037: Variant support
+    # Self-referential FK for variant relationships (e.g., "Raspberry Thumbprint" -> "Thumbprint Cookies")
+    base_recipe_id = Column(
+        Integer,
+        ForeignKey("recipes.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
+    )
+    variant_name = Column(String(100), nullable=True)  # e.g., "Raspberry", "Strawberry"
+
+    # Feature 037: Production readiness flag
+    # New recipes default to experimental (False), user marks as ready for production
+    is_production_ready = Column(Boolean, nullable=False, default=False, index=True)
+
     # Timestamps
     date_added = Column(DateTime, nullable=False, default=utc_now)
     last_modified = Column(
@@ -99,10 +116,26 @@ class Recipe(BaseModel):
         lazy="select",  # Only load when accessed
     )
 
-    # Indexes
+    # Feature 037: Variant relationships (self-referential)
+    base_recipe = relationship(
+        "Recipe",
+        remote_side="Recipe.id",
+        foreign_keys=[base_recipe_id],
+        backref="variants",
+    )
+
+    # Feature 037: Snapshot relationships
+    snapshots = relationship("RecipeSnapshot", back_populates="recipe")
+
+    # Indexes and constraints
     __table_args__ = (
         Index("idx_recipe_name", "name"),
         Index("idx_recipe_category", "category"),
+        # Feature 037: Prevent self-referential variants
+        CheckConstraint(
+            "base_recipe_id IS NULL OR base_recipe_id != id",
+            name="ck_recipe_no_self_variant",
+        ),
     )
 
     def __repr__(self) -> str:
