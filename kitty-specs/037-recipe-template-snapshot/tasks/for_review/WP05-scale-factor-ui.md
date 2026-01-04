@@ -7,9 +7,9 @@ subtasks:
   - "T021"
 title: "Scale Factor UI"
 phase: "Phase 2 - Scaling & Variants"
-lane: "planned"
+lane: "for_review"
 assignee: ""
-agent: ""
+agent: "system"
 shell_pid: ""
 review_status: ""
 reviewed_by: ""
@@ -250,12 +250,12 @@ def _on_ok(self):
 
 ## Definition of Done Checklist
 
-- [ ] Scale factor entry added to dialog
-- [ ] Default value is 1.0
-- [ ] Expected yield calculation includes scale factor
-- [ ] Ingredient requirements shown scaled
-- [ ] Validation prevents invalid values (<=0)
-- [ ] scale_factor passed to record_batch_production()
+- [x] Scale factor entry added to dialog
+- [x] Default value is 1.0
+- [x] Expected yield calculation includes scale factor
+- [x] Ingredient requirements shown scaled
+- [x] Validation prevents invalid values (<=0)
+- [x] scale_factor passed to record_batch_production()
 
 ## Review Guidance
 
@@ -266,3 +266,13 @@ def _on_ok(self):
 ## Activity Log
 
 - 2026-01-03T06:30:00Z - system - lane=planned - Prompt created.
+- 2026-01-04T19:09:53Z – system – shell_pid= – lane=doing – Moved to doing
+- 2026-01-04T19:15:00Z - claude - lane=doing - Implementation complete:
+  - T018: Added scale_factor entry field with StringVar, CTkEntry, and hint label
+  - T019: Updated _calculate_expected_yield to use formula: base_yield x scale_factor x num_batches, displays formula when scale != 1.0
+  - T020: Added _update_ingredient_requirements() using recipe_service.get_aggregated_ingredients() with multiplier
+  - T021: Added scale_factor validation in _validate() checking > 0 and numeric
+  - Updated _on_confirm() to pass scale_factor to batch_production_service.record_batch_production()
+  - Added _get_scale_factor() helper and _on_scale_changed() event handler
+  - Fixed _calculate_loss_quantity() to include scale_factor in expected yield calculation
+- 2026-01-04T19:14:36Z – system – shell_pid= – lane=for_review – Moved to for_review

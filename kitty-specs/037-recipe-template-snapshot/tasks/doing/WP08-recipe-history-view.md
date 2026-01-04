@@ -8,9 +8,9 @@ subtasks:
   - "T038"
 title: "Recipe History View"
 phase: "Phase 3 - Production Readiness & History"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
+agent: "system"
 shell_pid: ""
 review_status: ""
 reviewed_by: ""
@@ -389,3 +389,4 @@ def _create_recipe_from_snapshot_impl(snapshot_id: int, session) -> dict:
 ## Activity Log
 
 - 2026-01-03T06:30:00Z - system - lane=planned - Prompt created.
+- 2026-01-04T19:09:43Z – system – shell_pid= – lane=doing – Moved to doing
