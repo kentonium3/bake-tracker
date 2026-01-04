@@ -108,7 +108,7 @@ class RecipesTab(ctk.CTkFrame):
         # Add button
         add_button = ctk.CTkButton(
             button_frame,
-            text="➕ Add Recipe",
+            text="+ Add Recipe",
             command=self._add_recipe,
             width=150,
         )
@@ -117,7 +117,7 @@ class RecipesTab(ctk.CTkFrame):
         # Edit button
         self.edit_button = ctk.CTkButton(
             button_frame,
-            text="✏️ Edit",
+            text="Edit",
             command=self._edit_recipe,
             width=120,
             state="disabled",
@@ -127,7 +127,7 @@ class RecipesTab(ctk.CTkFrame):
         # Delete button
         self.delete_button = ctk.CTkButton(
             button_frame,
-            text="🗑️ Delete",
+            text="Delete",
             command=self._delete_recipe,
             width=120,
             state="disabled",
@@ -139,21 +139,36 @@ class RecipesTab(ctk.CTkFrame):
         # View Details button
         self.details_button = ctk.CTkButton(
             button_frame,
-            text="📋 View Details",
+            text="View Details",
             command=self._view_details,
             width=150,
             state="disabled",
         )
         self.details_button.grid(row=0, column=3, padx=PADDING_MEDIUM)
 
+        # Readiness filter dropdown (T031 - Feature 037)
+        readiness_label = ctk.CTkLabel(button_frame, text="Readiness:")
+        readiness_label.grid(row=0, column=4, padx=(PADDING_LARGE, 5))
+
+        self.readiness_var = ctk.StringVar(value="All")
+        self.readiness_dropdown = ctk.CTkComboBox(
+            button_frame,
+            variable=self.readiness_var,
+            values=["All", "Production Ready", "Experimental"],
+            width=150,
+            state="readonly",
+            command=self._on_readiness_filter_changed,
+        )
+        self.readiness_dropdown.grid(row=0, column=5, padx=PADDING_MEDIUM)
+
         # Refresh button
         refresh_button = ctk.CTkButton(
             button_frame,
-            text="🔄 Refresh",
+            text="Refresh",
             command=self.refresh,
             width=120,
         )
-        refresh_button.grid(row=0, column=4, padx=PADDING_MEDIUM)
+        refresh_button.grid(row=0, column=6, padx=PADDING_MEDIUM)
 
     def _create_data_table(self):
         """Create the data table for displaying recipes."""
@@ -181,6 +196,13 @@ class RecipesTab(ctk.CTkFrame):
         )
         self.status_label.grid(row=0, column=0, sticky="w", padx=PADDING_MEDIUM, pady=5)
 
+    def _on_readiness_filter_changed(self, selection):
+        """Handle readiness filter change (T031 - Feature 037)."""
+        # Re-apply current search with new readiness filter
+        search_text = self.search_bar.get_search_term()
+        category = self.search_bar.get_category()
+        self._on_search(search_text, category)
+
     def _on_search(self, search_text: str, category: Optional[str] = None):
         """
         Handle search and filter.
@@ -200,6 +222,15 @@ class RecipesTab(ctk.CTkFrame):
                 name_search=search_text if search_text else None,
                 category=category_filter,
             )
+
+            # Apply readiness filter (T031 - Feature 037)
+            readiness = self.readiness_var.get()
+            if readiness == "Production Ready":
+                recipes = [r for r in recipes if r.is_production_ready]
+            elif readiness == "Experimental":
+                recipes = [r for r in recipes if not r.is_production_ready]
+            # "All" shows all recipes (no filtering)
+
             self.data_table.set_data(recipes)
             self._update_status(f"Found {len(recipes)} recipe(s)")
         except Exception as e:
@@ -457,6 +488,15 @@ class RecipesTab(ctk.CTkFrame):
         """Refresh the recipe list."""
         try:
             recipes = recipe_service.get_all_recipes()
+
+            # Apply readiness filter (T031 - Feature 037)
+            readiness = self.readiness_var.get()
+            if readiness == "Production Ready":
+                recipes = [r for r in recipes if r.is_production_ready]
+            elif readiness == "Experimental":
+                recipes = [r for r in recipes if not r.is_production_ready]
+            # "All" shows all recipes (no filtering)
+
             self.data_table.set_data(recipes)
             self._update_status(f"Loaded {len(recipes)} recipe(s)")
         except Exception as e:

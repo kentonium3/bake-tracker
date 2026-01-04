@@ -2744,3 +2744,312 @@ class TestLeafOnlyIngredientValidation:
                 },
                 [{"ingredient_id": hierarchy_ingredients.root.id, "quantity": 1.0, "unit": "cup"}]
             )
+
+
+class TestRecipeVariants:
+    """Tests for recipe variant functionality (Feature 037)."""
+
+    def test_get_recipe_variants_empty(self, test_db):
+        """Test: Base recipe with no variants returns empty list."""
+        # Create a base recipe with no variants
+        base = recipe_service.create_recipe(
+            {
+                "name": "Thumbprint Cookies",
+                "category": "Cookies",
+                "yield_quantity": 24,
+                "yield_unit": "cookies"
+            },
+            []
+        )
+
+        # Act
+        variants = recipe_service.get_recipe_variants(base.id)
+
+        # Assert
+        assert variants == []
+
+    def test_get_recipe_variants_found(self, test_db):
+        """Test: Returns correct variants for base recipe."""
+        # Create base recipe
+        base = recipe_service.create_recipe(
+            {
+                "name": "Thumbprint Cookies",
+                "category": "Cookies",
+                "yield_quantity": 24,
+                "yield_unit": "cookies"
+            },
+            []
+        )
+
+        # Create two variants
+        variant1 = recipe_service.create_recipe_variant(
+            base.id, "Raspberry", copy_ingredients=False
+        )
+        variant2 = recipe_service.create_recipe_variant(
+            base.id, "Strawberry", copy_ingredients=False
+        )
+
+        # Act
+        variants = recipe_service.get_recipe_variants(base.id)
+
+        # Assert
+        assert len(variants) == 2
+        variant_names = [v["variant_name"] for v in variants]
+        assert "Raspberry" in variant_names
+        assert "Strawberry" in variant_names
+
+    def test_create_recipe_variant_basic(self, test_db):
+        """Test: Creates variant linked to base recipe."""
+        # Create base recipe
+        base = recipe_service.create_recipe(
+            {
+                "name": "Sugar Cookies",
+                "category": "Cookies",
+                "yield_quantity": 36,
+                "yield_unit": "cookies",
+                "source": "Grandma's Recipe"
+            },
+            []
+        )
+
+        # Act
+        result = recipe_service.create_recipe_variant(
+            base.id, "Chocolate Chip", copy_ingredients=False
+        )
+
+        # Assert
+        assert result["base_recipe_id"] == base.id
+        assert result["variant_name"] == "Chocolate Chip"
+        assert result["name"] == "Sugar Cookies - Chocolate Chip"
+
+        # Verify in database
+        variant_recipe = recipe_service.get_recipe(result["id"])
+        assert variant_recipe.base_recipe_id == base.id
+        assert variant_recipe.variant_name == "Chocolate Chip"
+        assert variant_recipe.category == base.category
+        assert variant_recipe.is_production_ready is False
+
+    def test_create_recipe_variant_copy_ingredients(self, test_db, hierarchy_ingredients):
+        """Test: Ingredients are copied from base recipe when copy_ingredients=True."""
+        # Create base recipe with an ingredient
+        base = recipe_service.create_recipe(
+            {
+                "name": "Chocolate Cookies",
+                "category": "Cookies",
+                "yield_quantity": 24,
+                "yield_unit": "cookies"
+            },
+            [{"ingredient_id": hierarchy_ingredients.leaf1.id, "quantity": 2.0, "unit": "cup"}]
+        )
+
+        # Act
+        result = recipe_service.create_recipe_variant(
+            base.id, "Double Chocolate", copy_ingredients=True
+        )
+
+        # Assert: Variant should have same ingredients
+        variant_recipe = recipe_service.get_recipe(result["id"])
+        assert len(variant_recipe.recipe_ingredients) == 1
+        assert variant_recipe.recipe_ingredients[0].ingredient_id == hierarchy_ingredients.leaf1.id
+        assert variant_recipe.recipe_ingredients[0].quantity == 2.0
+        assert variant_recipe.recipe_ingredients[0].unit == "cup"
+
+    def test_create_recipe_variant_no_copy_ingredients(self, test_db, hierarchy_ingredients):
+        """Test: Ingredients are NOT copied when copy_ingredients=False."""
+        # Create base recipe with an ingredient
+        base = recipe_service.create_recipe(
+            {
+                "name": "Chocolate Cookies",
+                "category": "Cookies",
+                "yield_quantity": 24,
+                "yield_unit": "cookies"
+            },
+            [{"ingredient_id": hierarchy_ingredients.leaf1.id, "quantity": 2.0, "unit": "cup"}]
+        )
+
+        # Act
+        result = recipe_service.create_recipe_variant(
+            base.id, "Mint Chocolate", copy_ingredients=False
+        )
+
+        # Assert: Variant should have no ingredients
+        variant_recipe = recipe_service.get_recipe(result["id"])
+        assert len(variant_recipe.recipe_ingredients) == 0
+
+    def test_create_recipe_variant_custom_name(self, test_db):
+        """Test: Custom name overrides auto-generated name."""
+        base = recipe_service.create_recipe(
+            {
+                "name": "Basic Cookies",
+                "category": "Cookies",
+                "yield_quantity": 24,
+                "yield_unit": "cookies"
+            },
+            []
+        )
+
+        # Act
+        result = recipe_service.create_recipe_variant(
+            base.id, "Special", name="Holiday Special Cookies", copy_ingredients=False
+        )
+
+        # Assert
+        assert result["name"] == "Holiday Special Cookies"
+        assert result["variant_name"] == "Special"
+
+    def test_create_recipe_variant_base_not_found(self, test_db):
+        """Test: RecipeNotFound raised when base recipe doesn't exist."""
+        with pytest.raises(RecipeNotFound):
+            recipe_service.create_recipe_variant(
+                99999, "Test Variant", copy_ingredients=False
+            )
+
+    def test_variant_orphaned_on_base_delete(self, test_db):
+        """Test: Variant's base_recipe_id becomes None when base is deleted."""
+        # Create base and variant
+        base = recipe_service.create_recipe(
+            {
+                "name": "Base To Delete",
+                "category": "Cookies",
+                "yield_quantity": 12,
+                "yield_unit": "cookies"
+            },
+            []
+        )
+        variant_result = recipe_service.create_recipe_variant(
+            base.id, "Orphan Test", copy_ingredients=False
+        )
+
+        # Verify variant is linked
+        variant = recipe_service.get_recipe(variant_result["id"])
+        assert variant.base_recipe_id == base.id
+
+        # Delete base recipe (should use ON DELETE SET NULL)
+        recipe_service.delete_recipe(base.id)
+
+        # Assert: Variant should now be orphaned
+        variant = recipe_service.get_recipe(variant_result["id"])
+        assert variant.base_recipe_id is None
+
+    def test_get_all_recipes_grouped_variants_under_base(self, test_db):
+        """Test: Variants appear grouped under their base recipe."""
+        # Create base recipe
+        base = recipe_service.create_recipe(
+            {
+                "name": "Thumbprint Cookies",
+                "category": "Cookies",
+                "yield_quantity": 24,
+                "yield_unit": "cookies"
+            },
+            []
+        )
+
+        # Create variants
+        recipe_service.create_recipe_variant(base.id, "Raspberry", copy_ingredients=False)
+        recipe_service.create_recipe_variant(base.id, "Strawberry", copy_ingredients=False)
+
+        # Create another standalone recipe
+        recipe_service.create_recipe(
+            {
+                "name": "Brownies",
+                "category": "Bars",
+                "yield_quantity": 16,
+                "yield_unit": "pieces"
+            },
+            []
+        )
+
+        # Act
+        recipes = recipe_service.get_all_recipes_grouped(group_variants=True)
+
+        # Assert: Find the base and check structure
+        base_idx = None
+        for i, r in enumerate(recipes):
+            if r["name"] == "Thumbprint Cookies":
+                base_idx = i
+                break
+
+        assert base_idx is not None
+        base_recipe = recipes[base_idx]
+        assert base_recipe.get("_is_base") is True
+        assert base_recipe.get("_variant_count") == 2
+
+        # Variants should be immediately after base
+        assert recipes[base_idx + 1].get("_is_variant") is True
+        assert recipes[base_idx + 2].get("_is_variant") is True
+
+    def test_get_all_recipes_grouped_no_grouping(self, test_db):
+        """Test: group_variants=False returns flat list without metadata."""
+        # Create base and variant
+        base = recipe_service.create_recipe(
+            {
+                "name": "Test Base",
+                "category": "Cookies",
+                "yield_quantity": 12,
+                "yield_unit": "cookies"
+            },
+            []
+        )
+        recipe_service.create_recipe_variant(base.id, "Test Variant", copy_ingredients=False)
+
+        # Act
+        recipes = recipe_service.get_all_recipes_grouped(group_variants=False)
+
+        # Assert: No grouping metadata
+        for r in recipes:
+            assert "_is_base" not in r
+            assert "_is_variant" not in r
+
+    def test_get_all_recipes_grouped_orphaned_variants(self, test_db):
+        """Test: Orphaned variants (base filtered out) are marked correctly.
+
+        Note: When a base recipe is DELETED, ON DELETE SET NULL sets the
+        variant's base_recipe_id to NULL, making it appear as a standalone
+        recipe. This test covers the case where the base EXISTS in the DB
+        but is filtered out of the results (e.g., archived or different
+        category filter).
+        """
+        from src.services.recipe_service import _group_recipes_with_variants
+
+        # Test the grouping function directly with a scenario where
+        # a variant's base_recipe_id points to a recipe not in the list
+        test_recipes = [
+            {"id": 100, "name": "Orphan Variant", "base_recipe_id": 999, "variant_name": "Test"}
+        ]
+
+        result = _group_recipes_with_variants(test_recipes)
+
+        assert len(result) == 1
+        assert result[0].get("_is_orphaned_variant") is True
+
+    def test_get_all_recipes_grouped_filter_by_category(self, test_db):
+        """Test: Category filter works with grouped variants."""
+        # Create base in Cookies category
+        base = recipe_service.create_recipe(
+            {
+                "name": "Cookie Base",
+                "category": "Cookies",
+                "yield_quantity": 24,
+                "yield_unit": "cookies"
+            },
+            []
+        )
+        recipe_service.create_recipe_variant(base.id, "Vanilla", copy_ingredients=False)
+
+        # Create recipe in different category
+        recipe_service.create_recipe(
+            {
+                "name": "Brownies",
+                "category": "Bars",
+                "yield_quantity": 16,
+                "yield_unit": "pieces"
+            },
+            []
+        )
+
+        # Act: Filter by Cookies category
+        recipes = recipe_service.get_all_recipes_grouped(category="Cookies", group_variants=True)
+
+        # Assert: Only Cookies recipes
+        assert all(r["category"] == "Cookies" for r in recipes)
+        assert len(recipes) == 2  # Base + 1 variant

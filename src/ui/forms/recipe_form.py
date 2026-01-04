@@ -538,6 +538,35 @@ class RecipeFormDialog(ctk.CTkToplevel):
         self.category_combo.grid(row=row, column=1, sticky="ew", padx=PADDING_MEDIUM, pady=5)
         row += 1
 
+        # Production Readiness (T030 - Feature 037)
+        ready_frame = ctk.CTkFrame(parent, fg_color="transparent")
+        ready_frame.grid(
+            row=row,
+            column=0,
+            columnspan=2,
+            sticky="w",
+            padx=PADDING_MEDIUM,
+            pady=(PADDING_MEDIUM, 5),
+        )
+
+        self.production_ready_var = ctk.BooleanVar(value=False)
+        self.production_ready_checkbox = ctk.CTkCheckBox(
+            ready_frame,
+            text="Production Ready",
+            variable=self.production_ready_var,
+            onvalue=True,
+            offvalue=False,
+        )
+        self.production_ready_checkbox.pack(side="left")
+
+        ready_hint = ctk.CTkLabel(
+            ready_frame,
+            text="(Uncheck for experimental/test recipes)",
+            text_color="gray",
+        )
+        ready_hint.pack(side="left", padx=10)
+        row += 1
+
         # Yield section
         yield_label = ctk.CTkLabel(
             parent,
@@ -1084,6 +1113,12 @@ class RecipeFormDialog(ctk.CTkToplevel):
         if self.recipe.notes:
             self.notes_text.insert("1.0", self.recipe.notes)
 
+        # Production readiness (T030 - Feature 037)
+        if self.recipe.is_production_ready:
+            self.production_ready_var.set(True)
+        else:
+            self.production_ready_var.set(False)
+
         # Recipe ingredients
         for recipe_ingredient in self.recipe.recipe_ingredients:
             self._add_ingredient_row(
@@ -1200,6 +1235,7 @@ class RecipeFormDialog(ctk.CTkToplevel):
             "notes": notes,
             "ingredients": ingredients,
             "pending_components": self.pending_components,  # For new recipes
+            "is_production_ready": self.production_ready_var.get(),  # T030 - Feature 037
         }
 
     def _save(self):
