@@ -337,3 +337,143 @@ class TestSnapshotImmutability:
         assert not hasattr(recipe_snapshot_service, "delete_recipe_snapshot")
         assert not hasattr(recipe_snapshot_service, "delete_snapshot")
         assert not hasattr(recipe_snapshot_service, "remove_snapshot")
+
+
+class TestCreateRecipeFromSnapshot:
+    """Tests for create_recipe_from_snapshot()."""
+
+    def test_create_recipe_from_snapshot_success(
+        self, test_db, sample_recipe, sample_production_run, sample_ingredient
+    ):
+        """Test successful recipe creation from snapshot."""
+        # First create a snapshot
+        snapshot = recipe_snapshot_service.create_recipe_snapshot(
+            recipe_id=sample_recipe.id,
+            scale_factor=1.0,
+            production_run_id=sample_production_run.id,
+        )
+
+        # Create recipe from snapshot
+        result = recipe_snapshot_service.create_recipe_from_snapshot(snapshot["id"])
+
+        assert result["id"] is not None
+        assert "(restored" in result["name"]
+        assert "Test Cookie Recipe" in result["name"]
+        assert result["category"] == "Cookies"
+
+    def test_create_recipe_from_snapshot_not_production_ready(
+        self, test_db, sample_recipe, sample_production_run
+    ):
+        """Test that restored recipes are not production ready."""
+        session = test_db()
+
+        # Create snapshot
+        snapshot = recipe_snapshot_service.create_recipe_snapshot(
+            recipe_id=sample_recipe.id,
+            scale_factor=1.0,
+            production_run_id=sample_production_run.id,
+        )
+
+        # Create recipe from snapshot
+        result = recipe_snapshot_service.create_recipe_from_snapshot(snapshot["id"])
+
+        # Verify not production ready
+        restored_recipe = session.query(Recipe).filter_by(id=result["id"]).first()
+        assert restored_recipe is not None
+        assert restored_recipe.is_production_ready is False
+
+    def test_create_recipe_from_snapshot_restores_ingredients(
+        self, test_db, sample_recipe, sample_production_run, sample_ingredient
+    ):
+        """Test that ingredients are restored from snapshot."""
+        session = test_db()
+
+        # Create snapshot
+        snapshot = recipe_snapshot_service.create_recipe_snapshot(
+            recipe_id=sample_recipe.id,
+            scale_factor=1.0,
+            production_run_id=sample_production_run.id,
+        )
+
+        # Create recipe from snapshot
+        result = recipe_snapshot_service.create_recipe_from_snapshot(snapshot["id"])
+
+        # Verify ingredients were restored
+        restored_recipe = session.query(Recipe).filter_by(id=result["id"]).first()
+        assert len(restored_recipe.recipe_ingredients) == 1
+        ri = restored_recipe.recipe_ingredients[0]
+        assert ri.ingredient_id == sample_ingredient.id
+        assert ri.quantity == 2.0
+        assert ri.unit == "cups"
+
+    def test_create_recipe_from_snapshot_preserves_notes(
+        self, test_db, sample_recipe, sample_production_run
+    ):
+        """Test that notes include restoration info and original notes."""
+        session = test_db()
+
+        # Create snapshot
+        snapshot = recipe_snapshot_service.create_recipe_snapshot(
+            recipe_id=sample_recipe.id,
+            scale_factor=1.0,
+            production_run_id=sample_production_run.id,
+        )
+
+        # Create recipe from snapshot
+        result = recipe_snapshot_service.create_recipe_from_snapshot(snapshot["id"])
+
+        # Verify notes contain restoration info
+        restored_recipe = session.query(Recipe).filter_by(id=result["id"]).first()
+        assert f"Restored from snapshot {snapshot['id']}" in restored_recipe.notes
+        assert "Test recipe for snapshots" in restored_recipe.notes
+
+    def test_create_recipe_from_snapshot_not_found(self, test_db):
+        """Test error handling when snapshot doesn't exist."""
+        with pytest.raises(ValueError) as exc_info:
+            recipe_snapshot_service.create_recipe_from_snapshot(99999)
+
+        assert "not found" in str(exc_info.value)
+
+    def test_create_recipe_from_snapshot_with_session(
+        self, test_db, sample_recipe, sample_production_run
+    ):
+        """Test that session parameter is used correctly."""
+        session = test_db()
+
+        # Create snapshot
+        snapshot = recipe_snapshot_service.create_recipe_snapshot(
+            recipe_id=sample_recipe.id,
+            scale_factor=1.0,
+            production_run_id=sample_production_run.id,
+            session=session,
+        )
+        session.commit()
+
+        # Create recipe from snapshot using session
+        result = recipe_snapshot_service.create_recipe_from_snapshot(
+            snapshot["id"], session=session
+        )
+
+        assert result["id"] is not None
+
+    def test_create_recipe_from_snapshot_copies_yield_info(
+        self, test_db, sample_recipe, sample_production_run
+    ):
+        """Test that yield information is copied from snapshot."""
+        session = test_db()
+
+        # Create snapshot
+        snapshot = recipe_snapshot_service.create_recipe_snapshot(
+            recipe_id=sample_recipe.id,
+            scale_factor=1.0,
+            production_run_id=sample_production_run.id,
+        )
+
+        # Create recipe from snapshot
+        result = recipe_snapshot_service.create_recipe_from_snapshot(snapshot["id"])
+
+        # Verify yield info copied
+        restored_recipe = session.query(Recipe).filter_by(id=result["id"]).first()
+        assert restored_recipe.yield_quantity == 36
+        assert restored_recipe.yield_unit == "cookies"
+        assert restored_recipe.yield_description == "2-inch cookies"

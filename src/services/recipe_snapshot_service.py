@@ -12,12 +12,13 @@ Session Management Pattern (from CLAUDE.md):
 """
 
 import json
+from datetime import datetime
 from typing import Optional
 
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
 
-from src.models import Recipe, RecipeSnapshot
+from src.models import Recipe, RecipeIngredient, RecipeSnapshot
 from src.services.database import session_scope
 from src.utils.datetime_utils import utc_now
 
@@ -252,3 +253,104 @@ def _get_snapshot_by_id_impl(snapshot_id: int, session: Session) -> Optional[dic
         "ingredients_data": snapshot.get_ingredients_data(),
         "is_backfilled": snapshot.is_backfilled
     }
+
+
+def create_recipe_from_snapshot(snapshot_id: int, session: Session = None) -> dict:
+    """
+    Create a new recipe from historical snapshot data.
+
+    This restores a recipe from a production snapshot, creating a new recipe
+    with the ingredient list as it was captured at production time. The new
+    recipe starts as not production-ready (experimental) to allow review.
+
+    Args:
+        snapshot_id: Snapshot to restore from
+        session: Optional SQLAlchemy session for transaction sharing
+
+    Returns:
+        dict with created recipe info: id, name, category
+
+    Raises:
+        ValueError: If snapshot not found
+        SnapshotCreationError: If recipe creation fails
+    """
+    if session is not None:
+        return _create_recipe_from_snapshot_impl(snapshot_id, session)
+
+    try:
+        with session_scope() as session:
+            return _create_recipe_from_snapshot_impl(snapshot_id, session)
+    except SQLAlchemyError as e:
+        raise SnapshotCreationError(f"Database error creating recipe from snapshot: {e}")
+
+
+def _create_recipe_from_snapshot_impl(snapshot_id: int, session: Session) -> dict:
+    """Internal implementation of create_recipe_from_snapshot."""
+    # Get snapshot
+    snapshot = session.query(RecipeSnapshot).filter_by(id=snapshot_id).first()
+    if not snapshot:
+        raise ValueError(f"Snapshot {snapshot_id} not found")
+
+    recipe_data = snapshot.get_recipe_data()
+    ingredients_data = snapshot.get_ingredients_data()
+
+    # Create new recipe with restored data
+    original_name = recipe_data.get("name", "Restored")
+    date_str = datetime.now().strftime("%Y-%m-%d")
+    new_name = f"{original_name} (restored {date_str})"
+
+    recipe = Recipe(
+        name=new_name,
+        category=recipe_data.get("category", "Uncategorized"),
+        source=recipe_data.get("source"),
+        yield_quantity=recipe_data.get("yield_quantity", 1),
+        yield_unit=recipe_data.get("yield_unit", "each"),
+        yield_description=recipe_data.get("yield_description"),
+        estimated_time_minutes=recipe_data.get("estimated_time_minutes"),
+        notes=_build_restored_notes(snapshot_id, recipe_data.get("notes", "")),
+        is_production_ready=False,  # Restored recipes start experimental
+    )
+
+    session.add(recipe)
+    session.flush()  # Get recipe ID
+
+    # Restore ingredients - only add those with valid ingredient_id
+    for ing in ingredients_data:
+        ingredient_id = ing.get("ingredient_id")
+        if ingredient_id is None:
+            # Skip ingredients without valid ID (ingredient may have been deleted)
+            continue
+
+        ri = RecipeIngredient(
+            recipe_id=recipe.id,
+            ingredient_id=ingredient_id,
+            quantity=ing.get("quantity", 0),
+            unit=ing.get("unit", ""),
+            notes=ing.get("notes"),
+        )
+        session.add(ri)
+
+    session.commit()
+
+    return {
+        "id": recipe.id,
+        "name": recipe.name,
+        "category": recipe.category,
+    }
+
+
+def _build_restored_notes(snapshot_id: int, original_notes: str) -> str:
+    """
+    Build notes for restored recipe.
+
+    Args:
+        snapshot_id: ID of source snapshot
+        original_notes: Original recipe notes from snapshot
+
+    Returns:
+        Combined notes string
+    """
+    restoration_note = f"Restored from snapshot {snapshot_id}."
+    if original_notes:
+        return f"{restoration_note} Original notes: {original_notes}"
+    return restoration_note
