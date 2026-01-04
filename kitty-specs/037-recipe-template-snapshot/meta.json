@@ -1,0 +1,7 @@
+{
+  "feature_number": "037",
+  "slug": "037-recipe-template-snapshot",
+  "friendly_name": "Recipe Template & Snapshot System",
+  "source_description": "Recipe redesign implementing template/snapshot architecture for versioning, base/variant relationships, batch scaling, and production readiness flags",
+  "created_at": "2026-01-03T04:05:18Z"
+}

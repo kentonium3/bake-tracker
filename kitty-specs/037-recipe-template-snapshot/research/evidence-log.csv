@@ -1,0 +1,8 @@
+id,date,source,finding,decision_ref,confidence
+E001,2026-01-03,src/models/recipe.py,"Recipe model has name/category/yield fields suitable for snapshot capture",D001,high
+E002,2026-01-03,src/models/production_run.py,"ProductionRun links directly to recipe_id - needs migration to recipe_snapshot_id",D002,high
+E003,2026-01-03,src/models/recipe.py,"Recipe.to_dict() provides serialization pattern for snapshot JSON",D001,high
+E004,2026-01-03,spec.md,"Full denormalization confirmed by user - snapshots self-contained",D001,high
+E005,2026-01-03,spec.md,"Backfill migration with is_backfilled flag for historical data honesty",D002,high
+E006,2026-01-03,CLAUDE.md,"Session management pattern requires session=None parameter for cross-service calls",D003,high
+E007,2026-01-03,src/models/recipe.py,"RecipeComponent exists for nested recipes - snapshot captures direct ingredients only per spec",D001,medium
