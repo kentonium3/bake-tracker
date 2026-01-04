@@ -7,7 +7,7 @@ subtasks:
   - "T013"
 title: "Production Integration"
 phase: "Phase 1 - Core Snapshot System"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "system"
 shell_pid: ""
@@ -259,3 +259,4 @@ def test_production_historical_cost_unchanged(test_session):
 - 2026-01-04T19:10:00Z – claude – shell_pid=67067 – Completed T011: Updated cost calculation to use snapshot data
 - 2026-01-04T19:10:00Z – claude – shell_pid=67067 – Completed T012: Added scale_factor to production flow
 - 2026-01-04T19:10:00Z – claude – shell_pid=67067 – All 54 existing tests passing (no regressions)
+- 2026-01-04T19:06:53Z – system – shell_pid= – lane=for_review – Moved to for_review
