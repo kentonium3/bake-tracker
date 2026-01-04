@@ -7,10 +7,10 @@ subtasks:
   - "T009"
 title: "Snapshot Service"
 phase: "Phase 1 - Core Snapshot System"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "claude"
+shell_pid: "67067"
 review_status: ""
 reviewed_by: ""
 history:
@@ -350,3 +350,4 @@ def _get_snapshot_by_production_run_impl(production_run_id: int, session: Sessio
 ## Activity Log
 
 - 2026-01-03T06:30:00Z - system - lane=planned - Prompt created.
+- 2026-01-04T18:56:52Z – claude – shell_pid=67067 – lane=doing – Started implementation
