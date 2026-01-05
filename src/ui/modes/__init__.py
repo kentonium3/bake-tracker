@@ -10,4 +10,6 @@ This module provides mode implementations:
 Mode containers are added as they are implemented.
 """
 
-__all__ = []
+from .placeholder_mode import PlaceholderMode, PlaceholderDashboard
+
+__all__ = ["PlaceholderMode", "PlaceholderDashboard"]
