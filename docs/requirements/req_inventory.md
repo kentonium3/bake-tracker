@@ -1,9 +1,9 @@
 # Inventory - Requirements Document
 
-**Component:** Inventory (Ingredient Inventory Management)  
-**Version:** 0.1 (DRAFT - SEEDED)  
-**Last Updated:** 2025-01-04  
-**Status:** Draft - Awaiting Extension  
+**Component:** Inventory (Ingredient Inventory Management)
+**Version:** 0.2
+**Last Updated:** 2025-01-05
+**Status:** Current
 **Owner:** Kent Gale
 
 ---
@@ -106,8 +106,10 @@ Ingredient (catalog - what can be purchased)
 
 ### 3.2 Out of Scope (Phase 2)
 
-**Explicitly NOT Yet Supported:**
-- ❌ Manual inventory adjustments (spoilage, gifts, corrections) - Phase 3
+**Phase 2 (Now In Scope):**
+- ✅ Manual inventory adjustments (spoilage, gifts, corrections, ad hoc usage outside app)
+
+**Explicitly NOT Yet Supported (Future Phases):**
 - ❌ Inventory transfers between locations
 - ❌ Inventory reservations (allocation before consumption)
 - ❌ Batch/lot number tracking
@@ -140,10 +142,28 @@ Ingredient (catalog - what can be purchased)
 
 ### 4.2 Use Case: Record Purchase
 
-**Actor:** Baker  
-**Precondition:** Products defined in system  
+**Actor:** Baker
+**Precondition:** Products defined in system
 
-**Main Flow:**
+**Main Flow (AI-Assisted Batch Import - Phase 2):**
+1. User shops at store (Costco, Wegmans, etc.)
+2. User opens Google AI Studio app on phone
+3. For each item:
+   a. User captures photo of product barcode (UPC)
+   b. User captures photo of price tag
+4. AI Studio extracts UPC codes and prices, generates JSON purchase list
+5. User exports/uploads JSON file to sync folder (Dropbox/Google Drive)
+6. Desktop app detects new purchase file in monitored folder
+7. System matches UPCs to products via learned mappings:
+   - Known UPCs: Auto-match to products
+   - Unknown UPCs: Interactive resolution UI (map to existing product or create new)
+8. System creates Purchase records with supplier, date, prices
+9. System creates InventoryItem records linked to purchases
+10. System propagates ingredient L0/L1/L2 from products
+11. System calculates expiration dates from shelf life
+12. User confirms import
+
+**Alternative Flow (Manual Entry - Phase 2 Fallback):**
 1. User opens Purchases tab
 2. Clicks "Add Purchase"
 3. Selects product: "King Arthur All-Purpose Flour 25lb"
@@ -155,14 +175,22 @@ Ingredient (catalog - what can be purchased)
 9. User saves
 
 **Postconditions:**
-- Purchase record created
-- Inventory item created with 25 lb available
-- Ingredient L0/L1/L2 propagated from product
-- Expiration date calculated (purchase_date + shelf_life)
+- Purchase record(s) created
+- Inventory item(s) created with quantities available
+- Ingredient L0/L1/L2 propagated from products
+- Expiration dates calculated (purchase_date + shelf_life)
+- FIFO cost basis established
+
+**Notes:**
+- AI-assisted workflow reduces 30-45 minute manual entry to <5 minutes
+- Proof of concept validated: AI Studio successfully generates JSON from photos
+- Phase 2 implementation requires file monitoring and UPC matching logic
+- Manual entry remains available for edge cases and low-volume purchases
+- See F036 (Purchase Workflow & AI Assist) for detailed design
 
 ### 4.3 Use Case: FIFO Depletion During Production
 
-**Actor:** System (automatic during production run)  
+**Actor:** System (automatic during production run)
 **Precondition:** Recipe requires 10 cups flour, multiple purchases exist
 
 **Main Flow:**
@@ -192,27 +220,46 @@ Ingredient (catalog - what can be purchased)
 
 ### 4.4 Use Case: Check Inventory Before Planning
 
-**Actor:** Baker  
-**Precondition:** Event planning in progress
+**Actor:** Planning System (Automated - Phase 2)
+**Precondition:** Event planning in progress, recipes selected
 
-**Main Flow:**
-1. User planning event requiring 20 cups flour
-2. User opens Inventory tab
-3. Filters by ingredient: "All-Purpose Flour"
-4. System shows:
+**Main Flow (Automated - Phase 2):**
+1. User planning event via Planning Workspace (see req_planning.md)
+2. System automatically aggregates ingredient requirements from selected recipes
+3. System queries available inventory for each ingredient
+4. System calculates gaps: required - available = gap
+5. System presents integrated view:
+   - Recipe requirements with batch calculations
+   - Current inventory levels per ingredient
+   - Purchase gaps highlighted
+   - Shopping list auto-generated for gaps
+6. User reviews and confirms production plan
+
+**Alternative Flow (Manual Check - Phase 2 Supported):**
+1. User opens Inventory tab manually
+2. Filters by ingredient: "All-Purpose Flour"
+3. System shows:
    - King Arthur AP 25lb: 15 cups (from 2 purchases)
    - Bob's Red Mill AP 5lb: 3 cups (from 1 purchase)
    - Total available: 18 cups
-5. User sees gap: need 20 cups, have 18 cups
-6. User notes: purchase 2 more cups (or 1 small bag)
+4. User manually compares to recipe requirements
+5. User notes purchase needs
 
 **Postconditions:**
 - User aware of inventory status
+- Purchase gaps identified automatically
+- Shopping list generated from gaps
 - Planning adjusted based on available inventory
+
+**Notes:**
+- Phase 2 prioritizes automated planning workflow (see req_planning.md)
+- Manual inventory checking remains available for ad hoc verification
+- System automatically accounts for FIFO depletion from existing inventory
+- Planning system considers both on-hand and in-progress purchases
 
 ### 4.5 Use Case: Expiration Awareness (F041)
 
-**Actor:** Baker  
+**Actor:** Baker
 **Precondition:** Purchases have shelf life data
 
 **Main Flow:**
@@ -235,57 +282,57 @@ Ingredient (catalog - what can be purchased)
 
 ### 5.1 Purchase Management
 
-**REQ-INV-001:** System shall support purchase creation linked to a product  
-**REQ-INV-002:** Purchase shall record: product_id, quantity, unit, purchase_price, purchase_date  
-**REQ-INV-003:** Purchase shall optionally record: vendor_id, notes  
-**REQ-INV-004:** Purchase shall optionally override shelf_life_days (F041)  
-**REQ-INV-005:** System shall auto-propagate ingredient L0/L1/L2 from product  
-**REQ-INV-006:** System shall validate purchase quantity is positive  
-**REQ-INV-007:** System shall validate purchase price is non-negative  
-**REQ-INV-008:** System shall allow purchase editing before any depletion occurs  
-**REQ-INV-009:** System shall prevent purchase editing after depletion begins  
+**REQ-INV-001:** System shall support purchase creation linked to a product
+**REQ-INV-002:** Purchase shall record: product_id, quantity, unit, purchase_price, purchase_date
+**REQ-INV-003:** Purchase shall optionally record: vendor_id, notes
+**REQ-INV-004:** Purchase shall optionally override shelf_life_days (F041)
+**REQ-INV-005:** System shall auto-propagate ingredient L0/L1/L2 from product
+**REQ-INV-006:** System shall validate purchase quantity is positive
+**REQ-INV-007:** System shall validate purchase price is non-negative
+**REQ-INV-008:** System shall allow purchase editing before any depletion occurs
+**REQ-INV-009:** System shall prevent purchase editing after depletion begins
 **REQ-INV-010:** System shall allow purchase deletion if no depletion history exists
 
 ### 5.2 Inventory Item Creation
 
-**REQ-INV-011:** System shall automatically create inventory item from purchase  
-**REQ-INV-012:** Initial inventory_quantity = purchase_quantity  
-**REQ-INV-013:** Inventory item shall track: purchase_id, current_quantity, unit  
-**REQ-INV-014:** Inventory item shall compute: expiration_date (purchase_date + shelf_life)  
+**REQ-INV-011:** System shall automatically create inventory item from purchase
+**REQ-INV-012:** Initial inventory_quantity = purchase_quantity
+**REQ-INV-013:** Inventory item shall track: purchase_id, current_quantity, unit
+**REQ-INV-014:** Inventory item shall compute: expiration_date (purchase_date + shelf_life)
 **REQ-INV-015:** System shall update inventory_quantity as depletions occur
 
 ### 5.3 FIFO Depletion
 
-**REQ-INV-016:** System shall deplete inventory using FIFO methodology  
-**REQ-INV-017:** FIFO ordering: oldest purchase_date first  
-**REQ-INV-018:** System shall support partial depletion (consume portion of purchase)  
-**REQ-INV-019:** System shall support multi-purchase depletion (span multiple purchases)  
-**REQ-INV-020:** System shall validate sufficient inventory before depletion  
-**REQ-INV-021:** System shall create depletion record for each purchase consumed  
+**REQ-INV-016:** System shall deplete inventory using FIFO methodology
+**REQ-INV-017:** FIFO ordering: oldest purchase_date first
+**REQ-INV-018:** System shall support partial depletion (consume portion of purchase)
+**REQ-INV-019:** System shall support multi-purchase depletion (span multiple purchases)
+**REQ-INV-020:** System shall validate sufficient inventory before depletion
+**REQ-INV-021:** System shall create depletion record for each purchase consumed
 **REQ-INV-022:** Depletion record shall track: inventory_item_id, quantity_depleted, depletion_reason, related_entity (production_run_id, etc.)
 
 ### 5.4 Inventory Queries
 
-**REQ-INV-023:** System shall query inventory by ingredient (across all products)  
-**REQ-INV-024:** System shall query inventory by product (specific product only)  
-**REQ-INV-025:** System shall calculate available quantity (sum of remaining quantities)  
-**REQ-INV-026:** System shall filter inventory by freshness status (fresh, expiring, expired) (F041)  
-**REQ-INV-027:** System shall show inventory sorted by purchase_date (FIFO order)  
+**REQ-INV-023:** System shall query inventory by ingredient (across all products)
+**REQ-INV-024:** System shall query inventory by product (specific product only)
+**REQ-INV-025:** System shall calculate available quantity (sum of remaining quantities)
+**REQ-INV-026:** System shall filter inventory by freshness status (fresh, expiring, expired) (F041)
+**REQ-INV-027:** System shall show inventory sorted by purchase_date (FIFO order)
 **REQ-INV-028:** System shall show depletion history per inventory item
 
 ### 5.5 Cost Calculation
 
-**REQ-INV-029:** System shall calculate unit cost per purchase (purchase_price / purchase_quantity)  
-**REQ-INV-030:** System shall calculate weighted cost when depleting across purchases  
-**REQ-INV-031:** Weighted cost = sum(quantity_from_purchase × unit_cost_of_purchase)  
+**REQ-INV-029:** System shall calculate unit cost per purchase (purchase_price / purchase_quantity)
+**REQ-INV-030:** System shall calculate weighted cost when depleting across purchases
+**REQ-INV-031:** Weighted cost = sum(quantity_from_purchase × unit_cost_of_purchase)
 **REQ-INV-032:** System shall track total cost per depletion operation
 
 ### 5.6 Shelf Life Integration (F041)
 
-**REQ-INV-033:** System shall compute expiration_date from purchase_date + effective_shelf_life  
-**REQ-INV-034:** Effective shelf life priority: Purchase override > Product > Ingredient  
-**REQ-INV-035:** System shall display freshness indicators in inventory list  
-**REQ-INV-036:** System shall calculate days_until_expiration for each inventory item  
+**REQ-INV-033:** System shall compute expiration_date from purchase_date + effective_shelf_life
+**REQ-INV-034:** Effective shelf life priority: Purchase override > Ingredient (Product is immutable pass-through)
+**REQ-INV-035:** System shall display freshness indicators in inventory list
+**REQ-INV-036:** System shall calculate days_until_expiration for each inventory item
 **REQ-INV-037:** Freshness status: FRESH (>7 days), EXPIRING_SOON (0-7 days), EXPIRED (<0 days)
 
 ---
@@ -294,21 +341,21 @@ Ingredient (catalog - what can be purchased)
 
 ### 6.1 Performance
 
-**REQ-INV-NFR-001:** FIFO query shall complete in <100ms for 1000+ inventory items  
-**REQ-INV-NFR-002:** Depletion operation shall complete in <200ms for multi-purchase spanning  
+**REQ-INV-NFR-001:** FIFO query shall complete in <100ms for 1000+ inventory items
+**REQ-INV-NFR-002:** Depletion operation shall complete in <200ms for multi-purchase spanning
 **REQ-INV-NFR-003:** Inventory availability query shall complete in <50ms
 
 ### 6.2 Data Integrity
 
-**REQ-INV-NFR-004:** Inventory quantity shall never be negative (enforced)  
-**REQ-INV-NFR-005:** Depletion records shall be immutable (audit trail)  
-**REQ-INV-NFR-006:** Purchase deletion shall cascade to inventory items (if no depletions)  
+**REQ-INV-NFR-004:** Inventory quantity shall never be negative (enforced)
+**REQ-INV-NFR-005:** Depletion records shall be immutable (audit trail)
+**REQ-INV-NFR-006:** Purchase deletion shall cascade to inventory items (if no depletions)
 **REQ-INV-NFR-007:** FIFO ordering shall be deterministic (no ambiguity)
 
 ### 6.3 Accuracy
 
-**REQ-INV-NFR-008:** Cost calculations shall be accurate to 2 decimal places  
-**REQ-INV-NFR-009:** Quantity tracking shall be accurate to unit precision  
+**REQ-INV-NFR-008:** Cost calculations shall be accurate to 2 decimal places
+**REQ-INV-NFR-009:** Quantity tracking shall be accurate to unit precision
 **REQ-INV-NFR-010:** FIFO depletion shall always consume oldest purchases first
 
 ---
@@ -393,21 +440,21 @@ ProductionRun
 def deplete_inventory_fifo(ingredient_id, quantity_needed, depletion_reason, related_entity):
     """
     Deplete inventory using FIFO methodology.
-    
+
     Args:
         ingredient_id: Which ingredient to deplete
         quantity_needed: How much to consume
         depletion_reason: Why (production, assembly, etc.)
         related_entity: What triggered it (production_run, etc.)
-    
+
     Returns:
         depletions: List of depletion records created
         total_cost: Weighted cost of depleted inventory
-    
+
     Raises:
         InsufficientInventoryError: Not enough available
     """
-    
+
     # Step 1: Query available inventory (FIFO order)
     inventory_items = session.query(InventoryItem).filter(
         InventoryItem.ingredient_id == ingredient_id,
@@ -415,29 +462,29 @@ def deplete_inventory_fifo(ingredient_id, quantity_needed, depletion_reason, rel
     ).order_by(
         InventoryItem.purchase_date.asc()  # FIFO: oldest first
     ).all()
-    
+
     # Step 2: Validate sufficient inventory
     total_available = sum(item.current_quantity for item in inventory_items)
     if total_available < quantity_needed:
         raise InsufficientInventoryError(
             f"Need {quantity_needed}, only {total_available} available"
         )
-    
+
     # Step 3: Deplete from oldest purchases first
     remaining_needed = quantity_needed
     depletions = []
     total_cost = Decimal(0)
-    
+
     for item in inventory_items:
         if remaining_needed <= 0:
             break
-        
+
         # How much to take from this purchase
         quantity_from_this = min(item.current_quantity, remaining_needed)
-        
+
         # Calculate cost for this portion
         cost_from_this = quantity_from_this * item.unit_cost
-        
+
         # Create depletion record
         depletion = InventoryDepletion(
             inventory_item_id=item.id,
@@ -450,16 +497,16 @@ def deplete_inventory_fifo(ingredient_id, quantity_needed, depletion_reason, rel
         )
         session.add(depletion)
         depletions.append(depletion)
-        
+
         # Update inventory item
         item.current_quantity -= quantity_from_this
-        
+
         # Accumulate
         remaining_needed -= quantity_from_this
         total_cost += cost_from_this
-    
+
     session.commit()
-    
+
     return {
         'depletions': depletions,
         'total_cost': total_cost,
@@ -473,7 +520,7 @@ def deplete_inventory_fifo(ingredient_id, quantity_needed, depletion_reason, rel
 def get_available_inventory(ingredient_id):
     """
     Get available inventory for ingredient, FIFO ordered.
-    
+
     Returns:
         inventory: [
             {
@@ -494,7 +541,7 @@ def get_available_inventory(ingredient_id):
     ).order_by(
         InventoryItem.purchase_date.asc()
     ).all()
-    
+
     return [
         {
             'purchase_id': item.purchase_id,
@@ -570,21 +617,21 @@ def get_available_inventory(ingredient_id):
 
 ### 10.1 Purchase Validation
 
-| Rule ID | Validation | Error Message |
-|---------|-----------|---------------|
-| VAL-INV-001 | Product required | "Product must be selected" |
-| VAL-INV-002 | Quantity must be positive | "Purchase quantity must be greater than zero" |
-| VAL-INV-003 | Price must be non-negative | "Purchase price cannot be negative" |
-| VAL-INV-004 | Purchase date required | "Purchase date must be specified" |
+| Rule ID     | Validation                  | Error Message                                 |
+| ----------- | --------------------------- | --------------------------------------------- |
+| VAL-INV-001 | Product required            | "Product must be selected"                    |
+| VAL-INV-002 | Quantity must be positive   | "Purchase quantity must be greater than zero" |
+| VAL-INV-003 | Price must be non-negative  | "Purchase price cannot be negative"           |
+| VAL-INV-004 | Purchase date required      | "Purchase date must be specified"             |
 | VAL-INV-005 | Cannot edit after depletion | "Cannot edit: purchase has depletion history" |
 
 ### 10.2 Depletion Validation
 
-| Rule ID | Validation | Error Message |
-|---------|-----------|---------------|
-| VAL-INV-006 | Sufficient inventory required | "Insufficient inventory: need {X}, have {Y}" |
+| Rule ID     | Validation                           | Error Message                                  |
+| ----------- | ------------------------------------ | ---------------------------------------------- |
+| VAL-INV-006 | Sufficient inventory required        | "Insufficient inventory: need {X}, have {Y}"   |
 | VAL-INV-007 | Quantity to deplete must be positive | "Depletion quantity must be greater than zero" |
-| VAL-INV-008 | Cannot deplete more than available | "Cannot deplete {X}: only {Y} available" |
+| VAL-INV-008 | Cannot deplete more than available   | "Cannot deplete {X}: only {Y} available"       |
 
 ---
 
@@ -602,12 +649,16 @@ def get_available_inventory(ingredient_id):
 - [ ] Weighted cost calculation from FIFO depletions
 - [ ] Shelf life integration (F041) with freshness indicators
 - [ ] Inventory list view with freshness column
+- [ ] Manual inventory adjustments (spoilage, gifts, corrections, ad hoc usage)
+- [ ] AI-assisted batch purchase import (Google AI Studio → JSON → import)
+- [ ] Automated inventory checking via Planning system (see req_planning.md)
 
 **Should Have:**
 - [ ] Purchase editing (before depletion)
 - [ ] Depletion history display per purchase
 - [ ] Filter inventory by freshness status
 - [ ] Low stock alerts (configurable threshold)
+- [ ] UPC matching with learned mappings for AI-assisted import
 
 **Nice to Have:**
 - [ ] Inventory value reporting (total $ on hand)
@@ -616,16 +667,14 @@ def get_available_inventory(ingredient_id):
 
 ### 11.2 Phase 3 (Future) Acceptance
 
-**Manual Adjustments:**
-- [ ] Record spoilage (depletion reason: spoilage)
-- [ ] Record gifts (depletion reason: gift)
-- [ ] Inventory corrections (manual quantity adjustments)
-
 **Advanced Features:**
 - [ ] Inventory reservations (allocate before depletion)
 - [ ] Inventory transfers between locations
 - [ ] Batch/lot number tracking
 - [ ] Supplier quality tracking
+- [ ] Automatic unit conversion using ingredient density
+- [ ] Inventory alerts (low stock, expiring soon)
+- [ ] Purchase price trends and forecasting
 
 ---
 
@@ -677,16 +726,16 @@ def get_available_inventory(ingredient_id):
 
 ### 14.1 Open Questions
 
-**Q1:** Should system allow LIFO (Last-In, First-Out) as alternative to FIFO?  
+**Q1:** Should system allow LIFO (Last-In, First-Out) as alternative to FIFO?
 **A1:** No. FIFO is standard for food ingredients (rotation, freshness, cost accuracy).
 
-**Q2:** How to handle unit conversions during depletion (recipe uses cups, purchase in lbs)?  
+**Q2:** How to handle unit conversions during depletion (recipe uses cups, purchase in lbs)?
 **A2:** Phase 2: Require matching units or manual conversion. Phase 3: Automatic unit conversion using density.
 
-**Q3:** Should expired inventory be automatically excluded from FIFO queries?  
+**Q3:** Should expired inventory be automatically excluded from FIFO queries?
 **A3:** No. Show expired items with indicators, let user decide usage. Some ingredients usable past expiration.
 
-**Q4:** How to handle partial package opens (bag of flour opened, exposed to air)?  
+**Q4:** How to handle partial package opens (bag of flour opened, exposed to air)?
 **A4:** Phase 3 feature. Track "opened date" separate from purchase date for freshness calculations.
 
 ### 14.2 Future Enhancements
@@ -709,17 +758,17 @@ def get_available_inventory(ingredient_id):
 
 ## 15. Change Log
 
-| Version | Date | Author | Changes |
-|---------|------|--------|---------|
-| 0.1 | 2025-01-04 | Kent Gale | Initial seeded draft from documented knowledge |
+| Version | Date       | Author    | Changes                                        |
+| ------- | ---------- | --------- | ---------------------------------------------- |
+| 0.1     | 2025-01-04 | Kent Gale | Initial seeded draft from documented knowledge |
 
 ---
 
 ## 16. Approval & Sign-off
 
-**Document Owner:** Kent Gale  
-**Last Review Date:** 2025-01-04  
-**Next Review Date:** TBD (after extension and refinement)  
+**Document Owner:** Kent Gale
+**Last Review Date:** 2025-01-04
+**Next Review Date:** TBD (after extension and refinement)
 **Status:** 📝 DRAFT - SEEDED
 
 ---

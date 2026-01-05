@@ -1,9 +1,9 @@
 # Planning - Requirements Document
 
-**Component:** Planning (Event Planning, Production Planning, Assembly Planning)  
-**Version:** 0.1 (DRAFT - SEEDED)  
-**Last Updated:** 2025-01-04  
-**Status:** Draft - Awaiting Extension  
+**Component:** Planning (Event Planning, Production Planning, Assembly Planning)
+**Version:** 0.1
+**Last Updated:** 2025-01-05
+**Status:** Current
 **Owner:** Kent Gale
 
 ---
@@ -176,8 +176,8 @@ Result: Use 48-cookie yield, make 7 batches
 
 ### 4.2 Use Case: Simple Event Planning (BULK_COUNT)
 
-**Actor:** Baker  
-**Precondition:** Recipes and finished units defined  
+**Actor:** Baker
+**Precondition:** Recipes and finished units defined
 **Output Mode:** BULK_COUNT
 
 **Main Flow:**
@@ -205,8 +205,8 @@ Result: Use 48-cookie yield, make 7 batches
 
 ### 4.3 Use Case: Bundle Event Planning (BUNDLED)
 
-**Actor:** Baker  
-**Precondition:** Recipes, finished units, and bundles defined  
+**Actor:** Baker
+**Precondition:** Recipes, finished units, and bundles defined
 **Output Mode:** BUNDLED
 
 **Main Flow:**
@@ -238,8 +238,8 @@ Result: Use 48-cookie yield, make 7 batches
 
 ### 4.4 Use Case: Recipe Variant Allocation
 
-**Actor:** Baker  
-**Precondition:** Recipe with multiple variants, event requires mixed FinishedUnits  
+**Actor:** Baker
+**Precondition:** Recipe with multiple variants, event requires mixed FinishedUnits
 
 **Main Flow:**
 1. Event requires:
@@ -280,21 +280,21 @@ Result: Use 48-cookie yield, make 7 batches
 
 ### 5.1 Event Planning
 
-**REQ-PLAN-001:** System shall support event creation with name, date, and output mode  
-**REQ-PLAN-002:** Events shall have output_mode attribute (BULK_COUNT, BUNDLED, PACKAGED, etc.)  
+**REQ-PLAN-001:** System shall support event creation with name, date, and output mode
+**REQ-PLAN-002:** Events shall have output_mode attribute (BULK_COUNT, BUNDLED, PACKAGED, etc.)
 **REQ-PLAN-003:** Events shall define requirements based on output mode:
 - BULK_COUNT: List of {finished_unit_id, quantity}
 - BUNDLED: List of {bundle_id, quantity}
 - PACKAGED: List of {package_id, quantity} [Phase 3]
 
-**REQ-PLAN-004:** System shall validate event requirements reference valid entities  
+**REQ-PLAN-004:** System shall validate event requirements reference valid entities
 **REQ-PLAN-005:** System shall support event editing (requirements, quantities, dates)
 
 ### 5.2 Finished Goods Explosion
 
-**REQ-PLAN-006:** System shall explode Bundle requirements to FinishedUnit quantities  
-**REQ-PLAN-007:** System shall explode Package requirements to Bundle then FinishedUnit quantities [Phase 3]  
-**REQ-PLAN-008:** Explosion shall multiply bundle/package contents by quantity needed  
+**REQ-PLAN-006:** System shall explode Bundle requirements to FinishedUnit quantities
+**REQ-PLAN-007:** System shall explode Package requirements to Bundle then FinishedUnit quantities [Phase 3]
+**REQ-PLAN-008:** Explosion shall multiply bundle/package contents by quantity needed
 **REQ-PLAN-009:** System shall aggregate duplicate FinishedUnits across requirements
 
 **Example:**
@@ -311,16 +311,16 @@ Explosion:
 
 ### 5.3 Recipe Grouping & Batch Calculation
 
-**REQ-PLAN-010:** System shall group FinishedUnits by recipe (via recipe variant linkage)  
-**REQ-PLAN-011:** System shall sum quantities needed per recipe  
-**REQ-PLAN-012:** System shall retrieve recipe yield options for each recipe  
+**REQ-PLAN-010:** System shall group FinishedUnits by recipe (via recipe variant linkage)
+**REQ-PLAN-011:** System shall sum quantities needed per recipe
+**REQ-PLAN-012:** System shall retrieve recipe yield options for each recipe
 **REQ-PLAN-013:** System shall calculate optimal yield option using these criteria:
 1. Must meet or exceed requirement (never underproduce)
 2. Minimize waste (extra units produced)
 3. Minimize batches (fewer production runs if waste tied)
 
-**REQ-PLAN-014:** System shall calculate batches needed: `ceil(total_needed / yield_quantity)`  
-**REQ-PLAN-015:** System shall calculate total yield: `batches × yield_quantity`  
+**REQ-PLAN-014:** System shall calculate batches needed: `ceil(total_needed / yield_quantity)`
+**REQ-PLAN-015:** System shall calculate total yield: `batches × yield_quantity`
 **REQ-PLAN-016:** System shall calculate extra units: `total_yield - total_needed`
 
 **Example:**
@@ -332,12 +332,12 @@ Option 1: 96-cookie yield
   Batches: ceil(300 / 96) = 4
   Total yield: 4 × 96 = 384
   Extra: 384 - 300 = 84
-  
+
 Option 2: 48-cookie yield ← OPTIMAL
   Batches: ceil(300 / 48) = 7
   Total yield: 7 × 48 = 336
   Extra: 336 - 300 = 36 (least waste)
-  
+
 Option 3: 24-cookie yield
   Batches: ceil(300 / 24) = 13
   Total yield: 13 × 24 = 312
@@ -346,8 +346,8 @@ Option 3: 24-cookie yield
 
 ### 5.4 Variant Allocation
 
-**REQ-PLAN-017:** System shall track which recipe variants produce which FinishedUnits  
-**REQ-PLAN-018:** System shall calculate variant proportions within a batch  
+**REQ-PLAN-017:** System shall track which recipe variants produce which FinishedUnits
+**REQ-PLAN-018:** System shall calculate variant proportions within a batch
 **REQ-PLAN-019:** Variant proportion = (variant_quantity_needed / total_recipe_quantity)
 
 **Example:**
@@ -366,11 +366,11 @@ Proportions:
 
 ### 5.5 Ingredient Aggregation
 
-**REQ-PLAN-020:** System shall calculate base ingredients per recipe  
-**REQ-PLAN-021:** Base ingredients scaled by: batches × batch_multiplier (from yield option)  
-**REQ-PLAN-022:** System shall calculate variant ingredients per recipe  
-**REQ-PLAN-023:** Variant ingredients scaled by: base_scaled × variant_proportion  
-**REQ-PLAN-024:** System shall aggregate ingredients across all recipes  
+**REQ-PLAN-020:** System shall calculate base ingredients per recipe
+**REQ-PLAN-021:** Base ingredients scaled by: batches × batch_multiplier (from yield option)
+**REQ-PLAN-022:** System shall calculate variant ingredients per recipe
+**REQ-PLAN-023:** Variant ingredients scaled by: base_scaled × variant_proportion
+**REQ-PLAN-024:** System shall aggregate ingredients across all recipes
 **REQ-PLAN-025:** Aggregation shall combine same ingredient from multiple recipes
 
 **Example:**
@@ -391,12 +391,12 @@ Aggregated:
 
 ### 5.6 Inventory Gap Analysis
 
-**REQ-PLAN-026:** System shall query current ingredient inventory  
+**REQ-PLAN-026:** System shall query current ingredient inventory
 **REQ-PLAN-027:** For each ingredient needed, system shall calculate gap:
 - If `inventory_quantity >= needed_quantity`: gap = 0 (sufficient)
 - If `inventory_quantity < needed_quantity`: gap = needed - inventory (purchase)
 
-**REQ-PLAN-028:** System shall generate list of ingredients to purchase  
+**REQ-PLAN-028:** System shall generate list of ingredients to purchase
 **REQ-PLAN-029:** System shall display available ingredients (no purchase needed)
 
 **Phase 3 Enhancement:**
@@ -404,15 +404,15 @@ Aggregated:
 
 ### 5.7 Assembly Planning (Event-Scoped Phase 2)
 
-**REQ-PLAN-031:** System shall calculate assembly requirements from event Bundle needs  
+**REQ-PLAN-031:** System shall calculate assembly requirements from event Bundle needs
 **REQ-PLAN-032:** System shall validate assembly feasibility:
 - After production, are there enough FinishedUnits?
 - Compare: FinishedUnits_produced ≥ FinishedUnits_needed_for_assembly
 
-**REQ-PLAN-033:** System shall display assembly feasibility status (visual indicator)  
-**REQ-PLAN-034:** System shall provide assembly completion checklist (Phase 2 minimal)  
-**REQ-PLAN-035:** Checklist shall disable until production complete  
-**REQ-PLAN-036:** Checking checklist item shall record assembly confirmation  
+**REQ-PLAN-033:** System shall display assembly feasibility status (visual indicator)
+**REQ-PLAN-034:** System shall provide assembly completion checklist (Phase 2 minimal)
+**REQ-PLAN-035:** Checklist shall disable until production complete
+**REQ-PLAN-036:** Checking checklist item shall record assembly confirmation
 **REQ-PLAN-037:** Phase 3: System shall create assembly runs with inventory transactions
 
 **Phase 2 Assembly Feasibility Example:**
@@ -443,14 +443,14 @@ Assembly Checklist:
 - All recipe linkages exist
 - All yield options are valid
 
-**REQ-PLAN-039:** System shall warn if production creates shortfall (never underproduce)  
+**REQ-PLAN-039:** System shall warn if production creates shortfall (never underproduce)
 **REQ-PLAN-040:** System shall warn if excessive waste (user configurable threshold)
 
 ### 5.9 Multi-Event Planning (Phase 3)
 
-**REQ-PLAN-041:** System shall support planning multiple events simultaneously [Phase 3]  
-**REQ-PLAN-042:** System shall aggregate ingredients across events [Phase 3]  
-**REQ-PLAN-043:** System shall consider cross-event inventory [Phase 3]  
+**REQ-PLAN-041:** System shall support planning multiple events simultaneously [Phase 3]
+**REQ-PLAN-042:** System shall aggregate ingredients across events [Phase 3]
+**REQ-PLAN-043:** System shall consider cross-event inventory [Phase 3]
 **REQ-PLAN-044:** System shall allow event prioritization [Phase 3]
 
 ---
@@ -459,21 +459,21 @@ Assembly Checklist:
 
 ### 6.1 Usability
 
-**REQ-PLAN-NFR-001:** Batch calculation shall be automatic (no manual math)  
-**REQ-PLAN-NFR-002:** Production plan shall display in user-friendly format  
-**REQ-PLAN-NFR-003:** Assembly feasibility shall use clear visual indicators (✅/⚠️/❌)  
+**REQ-PLAN-NFR-001:** Batch calculation shall be automatic (no manual math)
+**REQ-PLAN-NFR-002:** Production plan shall display in user-friendly format
+**REQ-PLAN-NFR-003:** Assembly feasibility shall use clear visual indicators (✅/⚠️/❌)
 **REQ-PLAN-NFR-004:** Planning workflow shall follow natural mental model (event → finished goods → recipes)
 
 ### 6.2 Performance
 
-**REQ-PLAN-NFR-005:** Batch calculation shall complete in <500ms for events with 10+ recipes  
-**REQ-PLAN-NFR-006:** Ingredient aggregation shall complete in <200ms  
+**REQ-PLAN-NFR-005:** Batch calculation shall complete in <500ms for events with 10+ recipes
+**REQ-PLAN-NFR-006:** Ingredient aggregation shall complete in <200ms
 **REQ-PLAN-NFR-007:** Assembly feasibility check shall complete in <100ms
 
 ### 6.3 Accuracy
 
-**REQ-PLAN-NFR-008:** Batch calculations shall always meet or exceed requirements (never short)  
-**REQ-PLAN-NFR-009:** Ingredient quantities shall be accurate to 2 decimal places  
+**REQ-PLAN-NFR-008:** Batch calculations shall always meet or exceed requirements (never short)
+**REQ-PLAN-NFR-009:** Ingredient quantities shall be accurate to 2 decimal places
 **REQ-PLAN-NFR-010:** Variant proportions shall sum to 100% (within rounding error)
 
 ---
@@ -486,7 +486,7 @@ Assembly Checklist:
 def calculate_production_plan(event_requirements, output_mode):
     """
     Calculate production plan from event requirements.
-    
+
     Returns:
         production_plan: {
             recipes: [
@@ -509,17 +509,17 @@ def calculate_production_plan(event_requirements, output_mode):
             }
         }
     """
-    
+
     # Step 1: Explode requirements to FinishedUnit quantities
     finished_units_needed = explode_requirements(
-        event_requirements, 
+        event_requirements,
         output_mode
     )
     # Example: {
     #   "Chocolate Chip Cookie": 300,
     #   "Fudge Brownie": 150
     # }
-    
+
     # Step 2: Group FinishedUnits by recipe
     recipe_groups = group_by_recipe(finished_units_needed)
     # Example: {
@@ -530,25 +530,25 @@ def calculate_production_plan(event_requirements, output_mode):
     #     "Fudge Brownie": 150
     #   }
     # }
-    
+
     # Step 3: Calculate batches for each recipe
     recipe_plans = []
     for recipe, finished_units in recipe_groups.items():
         total_needed = sum(finished_units.values())
-        
+
         # Find optimal yield option
         optimal = find_optimal_yield(
-            total_needed, 
+            total_needed,
             recipe.yield_options
         )
-        
+
         # Calculate variant allocations
         variant_allocations = calculate_variant_allocations(
             recipe,
             finished_units,
             optimal.total_yield
         )
-        
+
         recipe_plans.append({
             'recipe': recipe,
             'yield_option': optimal.yield_option,
@@ -557,19 +557,19 @@ def calculate_production_plan(event_requirements, output_mode):
             'extra': optimal.extra,
             'variant_allocations': variant_allocations
         })
-    
+
     # Step 4: Aggregate ingredients
     ingredients = aggregate_ingredients(recipe_plans)
-    
+
     # Step 5: Check inventory gaps
     inventory_gaps = check_inventory_gaps(ingredients)
-    
+
     # Step 6: Validate assembly feasibility
     assembly_feasibility = validate_assembly_feasibility(
         recipe_plans,
         event_requirements
     )
-    
+
     return {
         'recipes': recipe_plans,
         'ingredients': ingredients,
@@ -581,36 +581,36 @@ def calculate_production_plan(event_requirements, output_mode):
 def find_optimal_yield(total_needed, yield_options):
     """
     Find best yield option that meets requirement.
-    
+
     Optimization criteria:
     1. Must meet or exceed requirement (never short)
     2. Minimize waste (extra units)
     3. Minimize batches (if waste tied)
     """
     solutions = []
-    
+
     for yield_option in yield_options:
         batches = math.ceil(total_needed / yield_option.quantity)
         total_yield = batches * yield_option.quantity
         extra = total_yield - total_needed
-        
+
         solutions.append({
             'yield_option': yield_option,
             'batches': batches,
             'total_yield': total_yield,
             'extra': extra
         })
-    
+
     # Sort by: least waste, then fewest batches
     solutions.sort(key=lambda s: (s['extra'], s['batches']))
-    
+
     return solutions[0]
 
 
 def calculate_variant_allocations(recipe, finished_units, total_yield):
     """
     Calculate how variants are distributed within batches.
-    
+
     Returns:
         variant_allocations: [
             {
@@ -622,45 +622,45 @@ def calculate_variant_allocations(recipe, finished_units, total_yield):
         ]
     """
     allocations = []
-    
+
     for finished_unit_id, quantity_needed in finished_units.items():
         finished_unit = FinishedUnit.get(finished_unit_id)
         variant = finished_unit.recipe_variant
         proportion = Decimal(quantity_needed) / Decimal(total_yield)
-        
+
         allocations.append({
             'variant': variant,
             'finished_unit': finished_unit,
             'quantity': quantity_needed,
             'proportion': proportion
         })
-    
+
     return allocations
 
 
 def aggregate_ingredients(recipe_plans):
     """
     Aggregate ingredients across all recipes.
-    
+
     For each recipe:
     - Base ingredients × batches × batch_multiplier
     - Variant ingredients × batches × batch_multiplier × variant_proportion
-    
+
     Combine same ingredients from different recipes.
     """
     ingredient_totals = {}
-    
+
     for plan in recipe_plans:
         recipe = plan['recipe']
         batches = plan['batches']
         yield_option = plan['yield_option']
         batch_multiplier = yield_option.batch_multiplier
-        
+
         # Base ingredients
         for recipe_ingredient in recipe.base_ingredients:
             scaled_quantity = (
-                recipe_ingredient.quantity 
-                * batches 
+                recipe_ingredient.quantity
+                * batches
                 * batch_multiplier
             )
             add_to_total(
@@ -669,12 +669,12 @@ def aggregate_ingredients(recipe_plans):
                 scaled_quantity,
                 recipe_ingredient.unit
             )
-        
+
         # Variant ingredients
         for allocation in plan['variant_allocations']:
             variant = allocation['variant']
             proportion = allocation['proportion']
-            
+
             for variant_ingredient in variant.ingredient_changes:
                 if variant_ingredient.action == "add":
                     scaled_quantity = (
@@ -689,7 +689,7 @@ def aggregate_ingredients(recipe_plans):
                         scaled_quantity,
                         variant_ingredient.unit
                     )
-    
+
     return ingredient_totals
 ```
 
@@ -699,9 +699,9 @@ def aggregate_ingredients(recipe_plans):
 def validate_assembly_feasibility(recipe_plans, event_requirements):
     """
     Check if production plan enables assembly.
-    
+
     Phase 2: Event-scoped only (no cross-event inventory)
-    
+
     Returns:
         feasibility: {
             bundles: [
@@ -728,47 +728,47 @@ def validate_assembly_feasibility(recipe_plans, event_requirements):
             finished_unit = allocation['finished_unit']
             quantity = allocation['quantity']
             finished_units_produced[finished_unit.id] = quantity
-    
+
     # Check each bundle requirement
     bundle_feasibility = []
-    
+
     for requirement in event_requirements:
         if requirement.type == 'bundle':
             bundle = requirement.bundle
             quantity_needed = requirement.quantity
-            
+
             # Check each component
             components = []
             can_assemble = True
-            
+
             for bundle_content in bundle.contents:
                 finished_unit = bundle_content.finished_unit
                 needed_per_bundle = bundle_content.quantity
                 total_needed = needed_per_bundle * quantity_needed
-                
+
                 available = finished_units_produced.get(
-                    finished_unit.id, 
+                    finished_unit.id,
                     0
                 )
-                
+
                 sufficient = available >= total_needed
                 if not sufficient:
                     can_assemble = False
-                
+
                 components.append({
                     'finished_unit': finished_unit,
                     'needed': total_needed,
                     'available_after_production': available,
                     'sufficient': sufficient
                 })
-            
+
             bundle_feasibility.append({
                 'bundle': bundle,
                 'quantity_needed': quantity_needed,
                 'can_assemble': can_assemble,
                 'components': components
             })
-    
+
     return {'bundles': bundle_feasibility}
 ```
 
@@ -1003,16 +1003,16 @@ def validate_assembly_feasibility(recipe_plans, event_requirements):
 
 ### 13.1 Open Questions
 
-**Q1:** Should system allow manual batch override (user knows better)?  
+**Q1:** Should system allow manual batch override (user knows better)?
 **A1:** Phase 2: Auto-calculate only. Phase 3: Allow manual override with validation.
 
-**Q2:** How to handle partial production (some batches done, some pending)?  
+**Q2:** How to handle partial production (some batches done, some pending)?
 **A2:** Phase 2: Track at event level (all or nothing). Phase 3: Granular batch tracking.
 
-**Q3:** Should system suggest consolidating similar recipes?  
+**Q3:** Should system suggest consolidating similar recipes?
 **A3:** Good Phase 3+ optimization. "These recipes share 80% ingredients, consider combining?"
 
-**Q4:** How to handle recipe yield changes after plan created?  
+**Q4:** How to handle recipe yield changes after plan created?
 **A4:** Phase 2: Require manual replan. Phase 3: Auto-detect and warn user.
 
 ### 13.2 Future Enhancements
@@ -1042,9 +1042,9 @@ def validate_assembly_feasibility(recipe_plans, event_requirements):
 
 ## 15. Approval & Sign-off
 
-**Document Owner:** Kent Gale  
-**Last Review Date:** 2025-01-04  
-**Next Review Date:** TBD (after extension and refinement)  
+**Document Owner:** Kent Gale
+**Last Review Date:** 2025-01-04
+**Next Review Date:** TBD (after extension and refinement)
 **Status:** 📝 DRAFT - SEEDED
 
 ---

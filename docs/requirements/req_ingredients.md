@@ -1,9 +1,9 @@
 # Ingredients - Requirements Document
 
-**Component:** Ingredients (Hierarchical Taxonomy)  
-**Version:** 1.0  
-**Last Updated:** 2025-12-30  
-**Status:** Active  
+**Component:** Ingredients (Hierarchical Taxonomy)
+**Version:** 1.1
+**Last Updated:** 2026-01-05
+**Status:** Current
 **Owner:** Kent Gale
 
 ---
@@ -35,10 +35,10 @@ There does not appear to be a standard industry hierarchical taxonomy for cookin
 
 The ingredient taxonomy uses a three-level hierarchy:
 
-| Level | Name | Purpose | Example |
-|-------|------|---------|---------|
-| **L0** | Root Category | High-level ingredient families | Chocolate, Flour, Sugar |
-| **L1** | Subcategory | Functional groupings within families | Dark Chocolate, All-Purpose, White Sugar |
+| Level  | Name            | Purpose                              | Example                                          |
+| ------ | --------------- | ------------------------------------ | ------------------------------------------------ |
+| **L0** | Root Category   | High-level ingredient families       | Chocolate, Flour, Sugar                          |
+| **L1** | Subcategory     | Functional groupings within families | Dark Chocolate, All-Purpose, White Sugar         |
 | **L2** | Leaf Ingredient | Specific ingredients used in recipes | Semi-Sweet Chocolate Chips, King Arthur AP Flour |
 
 ### 2.2 Hierarchy Rules
@@ -81,9 +81,15 @@ Users set parent relationships; the system computes level.
 **In-App Capabilities:**
 - ✅ Create new L2 ingredients with automatic unique slug generation
 - ✅ Edit L2 ingredient names and L0/L1 parentage
+- ✅ Set optional shelf life on ingredients (F041)
 - ✅ Auto-update related Product records when ingredient L0/L1 changes
 - ✅ Auto-update related Recipe records when ingredient attributes change
 - ✅ Safeguards ensuring no recipe has ingredients removed or materially changed
+
+**Cross-Document Notes:**
+- ✅ Products inherit shelf_life_days from Ingredient (immutable, no override - see req_products.md)
+- ✅ Purchases have shelf_life_days field (see req_inventory.md) - can override Ingredient default
+- ✅ Effective shelf life priority: Purchase > Ingredient (Product is pass-through, not override point)
 
 **UI Integration:**
 - ✅ Product edit form: Cascading ingredient selectors for product-ingredient association
@@ -120,8 +126,8 @@ Users set parent relationships; the system computes level.
 
 ### 4.2 Use Case: Create New Leaf Ingredient
 
-**Actor:** Baker  
-**Preconditions:** L0 and L1 hierarchy exists (e.g., Chocolate → Dark Chocolate)  
+**Actor:** Baker
+**Preconditions:** L0 and L1 hierarchy exists (e.g., Chocolate → Dark Chocolate)
 **Main Flow:**
 1. User opens Ingredients tab
 2. Clicks "Add Ingredient"
@@ -129,18 +135,26 @@ Users set parent relationships; the system computes level.
 4. Selects L0: "Chocolate"
 5. Selects L1: "Dark Chocolate"
 6. System computes level: L2 (Leaf)
-7. User saves
-8. System creates ingredient with unique slug: `bittersweet-chocolate-chips`
+7. Optionally sets shelf life: 1 year (converted to 365 days)
+8. User saves
+9. System creates ingredient with unique slug: `bittersweet-chocolate-chips`
 
 **Postconditions:**
 - New L2 ingredient exists
 - Available for product assignment
 - Available for recipe use
+- Shelf life (if set) available for product/purchase inheritance
+
+**Alternative Flow (Import):**
+1. User exports data to JSON
+2. User edits JSON to add new ingredient with shelf_life_days field
+3. User imports JSON
+4. System creates ingredient with shelf life from import
 
 ### 4.3 Use Case: Edit Ingredient Parentage
 
-**Actor:** Baker  
-**Preconditions:** Ingredient "Cocoa Powder" exists under "Chocolate → Milk Chocolate" (incorrect)  
+**Actor:** Baker
+**Preconditions:** Ingredient "Cocoa Powder" exists under "Chocolate → Milk Chocolate" (incorrect)
 **Main Flow:**
 1. User opens Ingredient edit form for "Cocoa Powder"
 2. Changes L1 from "Milk Chocolate" to "Baking Chocolate"
@@ -154,50 +168,105 @@ Users set parent relationships; the system computes level.
 - Products remain linked
 - Recipes remain valid
 
+### 4.4 Use Case: Shelf Life Inheritance (F041)
+
+**Actor:** System (automatic)
+**Preconditions:**
+- Ingredient "All-Purpose Flour" has shelf_life_days = 180 (6 months)
+- Product "King Arthur AP Flour 25lb" is linked to this ingredient
+- User creates purchase of this product
+
+**Main Flow (Ingredient Default):**
+1. User creates purchase without specifying shelf life override
+2. System checks Purchase.shelf_life_days: NULL (not overridden)
+3. System retrieves Ingredient.shelf_life_days via Product: 180 days
+4. System uses 180 days as effective shelf life
+5. System calculates expiration_date: purchase_date + 180 days
+6. Purchase created with computed expiration
+
+**Alternative Flow (Purchase Override):**
+1. User creates purchase and manually sets shelf life: 60 days (opened package)
+2. System uses Purchase.shelf_life_days (60) instead of Ingredient default (180)
+3. Purchase expires 60 days after purchase_date
+
+**Postconditions:**
+- Effective shelf life determined by: Purchase (if set) OR Ingredient (default)
+- Product acts as pass-through, inheriting from Ingredient immutably
+- Expiration date calculated for inventory tracking
+- Freshness indicators computed from expiration date
+
+**Notes:**
+- Product does not have its own shelf_life_days field
+- Product always reflects its ingredient's shelf life
+- Only Purchase can override the ingredient default
+- Priority: Purchase > Ingredient (Product is transparent)
+
 ---
 
 ## 5. Functional Requirements
 
 ### 5.1 Data Management
 
-**REQ-ING-001:** System shall store ingredients in a self-referential hierarchy using `parent_ingredient_id` foreign key  
-**REQ-ING-002:** System shall compute `hierarchy_level` (0/1/2) based on parent position  
-**REQ-ING-003:** System shall generate unique slugs for all ingredients using `display_name`  
+**REQ-ING-001:** System shall store ingredients in a self-referential hierarchy using `parent_ingredient_id` foreign key
+**REQ-ING-002:** System shall compute `hierarchy_level` (0/1/2) based on parent position
+**REQ-ING-003:** System shall generate unique slugs for all ingredients using `display_name`
 **REQ-ING-004:** System shall prevent cycles in hierarchy (ingredient cannot be its own ancestor)
 
 ### 5.2 Ingredient Creation
 
-**REQ-ING-005:** System shall allow creation of L2 ingredients via UI  
-**REQ-ING-006:** System shall require L0 and L1 parent selection for L2 creation  
-**REQ-ING-007:** System shall auto-generate slug from display_name on creation  
+**REQ-ING-005:** System shall allow creation of L2 ingredients via UI
+**REQ-ING-006:** System shall require L0 and L1 parent selection for L2 creation
+**REQ-ING-007:** System shall auto-generate slug from display_name on creation
 **REQ-ING-008:** System shall validate slug uniqueness before saving
 
 ### 5.3 Ingredient Editing
 
-**REQ-ING-009:** System shall allow editing of L2 ingredient names  
-**REQ-ING-010:** System shall allow changing L0/L1 parentage of L2 ingredients  
-**REQ-ING-011:** System shall prevent hierarchy changes that would orphan products  
-**REQ-ING-012:** System shall prevent hierarchy changes that would orphan recipes  
-**REQ-ING-013:** System shall update related Product records when ingredient L0/L1 changes  
+**REQ-ING-009:** System shall allow editing of L2 ingredient names
+**REQ-ING-010:** System shall allow changing L0/L1 parentage of L2 ingredients
+**REQ-ING-011:** System shall prevent hierarchy changes that would orphan products
+**REQ-ING-012:** System shall prevent hierarchy changes that would orphan recipes
+**REQ-ING-013:** System shall update related Product records when ingredient L0/L1 changes
 **REQ-ING-014:** System shall update related Recipe records when ingredient attributes change
 
 ### 5.4 Product Assignment
 
-**REQ-ING-015:** System shall allow product assignment only to L2 (leaf) ingredients  
-**REQ-ING-016:** System shall prevent product assignment to L0 or L1 ingredients  
+**REQ-ING-015:** System shall allow product assignment only to L2 (leaf) ingredients
+**REQ-ING-016:** System shall prevent product assignment to L0 or L1 ingredients
 **REQ-ING-017:** Product edit form shall use cascading selectors (L0 → L1 → L2)
 
 ### 5.5 Recipe Integration
 
-**REQ-ING-018:** System shall allow recipe ingredient selection only for L2 ingredients  
-**REQ-ING-019:** System shall prevent recipe use of L0 or L1 ingredients  
+**REQ-ING-018:** System shall allow recipe ingredient selection only for L2 ingredients
+**REQ-ING-019:** System shall prevent recipe use of L0 or L1 ingredients
 **REQ-ING-020:** Recipe creation form shall use cascading selectors (L0 → L1 → L2)
 
 ### 5.6 List Filtering
 
-**REQ-ING-021:** Product tab shall support filtering by ingredient hierarchy (L0 → L1 → L2)  
-**REQ-ING-022:** Inventory tab shall support filtering by ingredient hierarchy  
+**REQ-ING-021:** Product tab shall support filtering by ingredient hierarchy (L0 → L1 → L2)
+**REQ-ING-022:** Inventory tab shall support filtering by ingredient hierarchy
 **REQ-ING-023:** Filters shall cascade (L1 options filtered by selected L0, L2 by selected L1)
+
+### 5.7 Shelf Life Management (F041)
+
+**REQ-ING-024:** System shall support optional shelf life field on ingredients (nullable)
+**REQ-ING-025:** Shelf life shall be stored in database as integer days
+**REQ-ING-026:** System shall accept shelf life input in units: days, weeks, months, years
+**REQ-ING-027:** System shall convert all shelf life inputs to days for storage:
+- Days: value × 1
+- Weeks: value × 7
+- Months: value × 30
+- Years: value × 365
+**REQ-ING-028:** System shall allow shelf life to be set via:
+- Manual input in ingredient edit form
+- Import file (JSON format)
+- Leave empty/null (no default shelf life)
+**REQ-ING-029:** Products shall inherit shelf_life_days from ingredient (immutable, no override at product level)
+**REQ-ING-030:** Purchases shall have optional shelf_life_days field (nullable)
+**REQ-ING-031:** System shall determine effective shelf life using priority: Purchase > Ingredient (Product is pass-through)
+**REQ-ING-032:** System shall display shelf life in human-readable format:
+- < 90 days: show in days
+- 90-364 days: show in months (approximate)
+- ≥ 365 days: show in years (approximate)
 
 ---
 
@@ -205,19 +274,19 @@ Users set parent relationships; the system computes level.
 
 ### 6.1 Performance
 
-**REQ-ING-NFR-001:** Ingredient hierarchy queries shall complete in <100ms for datasets up to 1000 ingredients  
+**REQ-ING-NFR-001:** Ingredient hierarchy queries shall complete in <100ms for datasets up to 1000 ingredients
 **REQ-ING-NFR-002:** Cascading dropdown population shall feel instant (<50ms perceived delay)
 
 ### 6.2 Usability
 
-**REQ-ING-NFR-003:** Ingredient selection shall require max 3 clicks (L0 → L1 → L2)  
-**REQ-ING-NFR-004:** Hierarchy navigation shall feel intuitive to non-technical bakers  
+**REQ-ING-NFR-003:** Ingredient selection shall require max 3 clicks (L0 → L1 → L2)
+**REQ-ING-NFR-004:** Hierarchy navigation shall feel intuitive to non-technical bakers
 **REQ-ING-NFR-005:** Error messages shall clearly explain why actions are blocked (e.g., "Cannot delete: 3 products use this ingredient")
 
 ### 6.3 Data Integrity
 
-**REQ-ING-NFR-006:** No orphaned products (all products must have valid L2 ingredient)  
-**REQ-ING-NFR-007:** No orphaned recipes (all recipe ingredients must have valid L2 ingredient)  
+**REQ-ING-NFR-006:** No orphaned products (all products must have valid L2 ingredient)
+**REQ-ING-NFR-007:** No orphaned recipes (all recipe ingredients must have valid L2 ingredient)
 **REQ-ING-NFR-008:** Referential integrity enforced at database level (foreign key constraints)
 
 ---
@@ -276,9 +345,30 @@ Ingredient
 ├─ parent_ingredient_id (FK → Ingredient, nullable)
 ├─ hierarchy_level (0/1/2, computed)
 ├─ recipe_unit
+├─ shelf_life_days (integer, nullable) [F041]
 ├─ density fields (4-field model)
 └─ timestamps
 ```
+
+**Shelf Life Inheritance Chain (F041):**
+```
+Ingredient.shelf_life_days (nullable, editable at ingredient level)
+  ↓ inherited by (read-only, no override)
+Product (inherits from ingredient, immutable pass-through)
+  ↓ used as default for
+Purchase.shelf_life_days (nullable, can override ingredient default)
+  ↓ used to compute
+InventoryItem.expiration_date (purchase_date + effective_shelf_life)
+
+Effective shelf life = COALESCE(Purchase.shelf_life_days, Ingredient.shelf_life_days)
+```
+
+**Design Rationale:**
+- Ingredients define shelf life for the ingredient type (e.g., "All-Purpose Flour" = 180 days)
+- Products inherit this value immutably - they don't have their own shelf_life_days field
+- Products translate the ingredient shelf life to inventory when purchased
+- Purchases can override for specific circumstances (e.g., opened package = 60 days, bulk purchase with different date)
+- Priority: Purchase > Ingredient (Product is just a pass-through)
 
 ### 8.2 Key Relationships
 
@@ -310,25 +400,44 @@ Ingredient (L0)
 
 **Layout:**
 ```
-┌─ Edit Ingredient ──────────────────┐
-│ Name: [_______________]            │
-│                                    │
-│ Parent:                            │
-│   L0: [Chocolate ▼]                │
-│   L1: [Dark Chocolate ▼]           │
-│                                    │
-│ Level: L2 (Leaf) [computed]        │
-│ Can have products: Yes ✓           │
-│                                    │
-│ [Cancel] [Save]                    │
-└────────────────────────────────────┘
+┌─ Edit Ingredient ──────────────────────────────────┐
+│ Name: [_______________]                            │
+│                                                    │
+│ Parent:                                            │
+│   L0: [Chocolate ▼]                                │
+│   L1: [Dark Chocolate ▼]                           │
+│                                                    │
+│ Level: L2 (Leaf) [computed]                        │
+│ Can have products: Yes ✓                           │
+│                                                    │
+│ Shelf Life (Optional):                             │
+│   [ ] None (no default shelf life)                 │
+│   [•] Set value: [___] [Days ▼]                    │
+│       (Days, Weeks, Months, Years)                 │
+│                                                    │
+│ Display: "6 months" or "1 year" or "None"          │
+│                                                    │
+│ [Cancel] [Save]                                    │
+└────────────────────────────────────────────────────┘
 ```
 
 **Behavior:**
 - L0 dropdown: All L0 ingredients
 - L1 dropdown: Children of selected L0
 - Level display: Computed, read-only
+- Shelf Life: Optional field
+  - Radio button: "None" (default, saves as NULL)
+  - Radio button: "Set value" with numeric input + unit dropdown
+  - Unit dropdown: Days, Weeks, Months, Years
+  - System converts to days for storage
+  - Display shows human-readable format
 - Save: Validates no orphaned products/recipes
+
+**Shelf Life Input Examples:**
+- User enters: 6, Months → Stored as: 180 days → Displayed as: "6 months"
+- User enters: 1, Years → Stored as: 365 days → Displayed as: "1 year"
+- User enters: 45, Days → Stored as: 45 days → Displayed as: "45 days"
+- User selects: None → Stored as: NULL → Displayed as: "None"
 
 ### 9.3 Cascading Selector Component (Reusable)
 
@@ -350,29 +459,38 @@ Ingredient (L0)
 
 ### 10.1 Creation Validation
 
-| Rule ID | Validation | Error Message |
-|---------|-----------|---------------|
-| VAL-ING-001 | Ingredient name required | "Ingredient name cannot be empty" |
-| VAL-ING-002 | Slug must be unique | "An ingredient with this name already exists" |
-| VAL-ING-003 | L2 must have L1 parent | "Please select both L0 and L1 categories" |
-| VAL-ING-004 | L1 must have L0 parent | "Please select L0 category" |
+| Rule ID     | Validation               | Error Message                                 |
+| ----------- | ------------------------ | --------------------------------------------- |
+| VAL-ING-001 | Ingredient name required | "Ingredient name cannot be empty"             |
+| VAL-ING-002 | Slug must be unique      | "An ingredient with this name already exists" |
+| VAL-ING-003 | L2 must have L1 parent   | "Please select both L0 and L1 categories"     |
+| VAL-ING-004 | L1 must have L0 parent   | "Please select L0 category"                   |
 
 ### 10.2 Edit Validation
 
-| Rule ID | Validation | Error Message |
-|---------|-----------|---------------|
-| VAL-ING-005 | Cannot change parent if has children | "Cannot change parent: this ingredient has X children" |
-| VAL-ING-006 | Cannot change to non-leaf if has products | "Cannot change hierarchy: this ingredient has X products" |
+| Rule ID     | Validation                                   | Error Message                                                   |
+| ----------- | -------------------------------------------- | --------------------------------------------------------------- |
+| VAL-ING-005 | Cannot change parent if has children         | "Cannot change parent: this ingredient has X children"          |
+| VAL-ING-006 | Cannot change to non-leaf if has products    | "Cannot change hierarchy: this ingredient has X products"       |
 | VAL-ING-007 | Cannot change to non-leaf if used in recipes | "Cannot change hierarchy: this ingredient is used in X recipes" |
-| VAL-ING-008 | Cannot create cycle | "Invalid parent: would create circular reference" |
+| VAL-ING-008 | Cannot create cycle                          | "Invalid parent: would create circular reference"               |
 
 ### 10.3 Deletion Validation
 
-| Rule ID | Validation | Error Message |
-|---------|-----------|---------------|
-| VAL-ING-009 | Cannot delete if has products | "Cannot delete: X products use this ingredient" |
-| VAL-ING-010 | Cannot delete if used in recipes | "Cannot delete: X recipes use this ingredient" |
-| VAL-ING-011 | Cannot delete if has children | "Cannot delete: X ingredients are children of this category" |
+| Rule ID     | Validation                       | Error Message                                                |
+| ----------- | -------------------------------- | ------------------------------------------------------------ |
+| VAL-ING-009 | Cannot delete if has products    | "Cannot delete: X products use this ingredient"              |
+| VAL-ING-010 | Cannot delete if used in recipes | "Cannot delete: X recipes use this ingredient"               |
+| VAL-ING-011 | Cannot delete if has children    | "Cannot delete: X ingredients are children of this category" |
+
+### 10.4 Shelf Life Validation (F041)
+
+| Rule ID     | Validation                                   | Error Message                                         |
+| ----------- | -------------------------------------------- | ----------------------------------------------------- |
+| VAL-ING-012 | Shelf life value must be positive if set     | "Shelf life must be greater than zero"                |
+| VAL-ING-013 | Shelf life must be integer                   | "Shelf life must be a whole number"                   |
+| VAL-ING-014 | Shelf life unit must be valid                | "Invalid unit: must be Days, Weeks, Months, or Years" |
+| VAL-ING-015 | Converted days value must be > 0 and < 36500 | "Shelf life must be between 1 day and 100 years"      |
 
 ---
 
@@ -386,6 +504,9 @@ Ingredient (L0)
 - [x] Cascading filters work in Product/Inventory tabs
 - [x] Can create new L2 ingredients in-app
 - [x] Can edit L2 ingredient name and parentage
+- [ ] Shelf life field on ingredients (nullable, stored as days, input as days/weeks/months/years)
+- [ ] Shelf life inheritance: Purchase → Product → Ingredient
+- [ ] Shelf life UI with None/Set Value radio buttons and unit dropdown
 - [ ] Validation prevents orphaning products/recipes
 - [ ] Ingredients tab shows L2 by default with L0/L1 columns
 - [ ] Edit form uses radio + cascading dropdowns (not level dropdown)
@@ -394,11 +515,14 @@ Ingredient (L0)
 - [ ] Clear error messages for validation failures
 - [ ] Auto-update related records on hierarchy changes
 - [ ] Slug auto-generation on ingredient creation
+- [ ] Human-readable shelf life display (days → months → years)
+- [ ] Shelf life import via JSON
 
 **Nice to Have:**
 - [ ] Inline subcategory creation in edit form
 - [ ] Batch operations (move multiple ingredients)
 - [ ] Hierarchy visualization (tree view)
+- [ ] Bulk shelf life update for ingredient categories
 
 ### 11.2 Future Phase Acceptance
 
@@ -477,13 +601,13 @@ Flour (L0)
 
 ### 14.1 Open Questions
 
-**Q1:** Should we allow users to suggest L0/L1 changes via in-app feedback mechanism?  
+**Q1:** Should we allow users to suggest L0/L1 changes via in-app feedback mechanism?
 **A1:** Deferred to Phase 3. Phase 2 uses external Dynalist workflow.
 
-**Q2:** How to handle ingredient merging (e.g., duplicate ingredients discovered)?  
+**Q2:** How to handle ingredient merging (e.g., duplicate ingredients discovered)?
 **A2:** Manual process for now. Requires export → transform → import.
 
-**Q3:** Should hierarchy changes create audit trail?  
+**Q3:** Should hierarchy changes create audit trail?
 **A3:** Not required for Phase 2. Consider for Phase 3 (multi-user).
 
 ### 14.2 Future Enhancements
@@ -504,17 +628,18 @@ Flour (L0)
 
 ## 15. Change Log
 
-| Version | Date | Author | Changes |
-|---------|------|--------|---------|
-| 1.0 | 2025-12-30 | Kent Gale | Initial requirements document |
+| Version | Date       | Author    | Changes                              |
+| ------- | ---------- | --------- | ------------------------------------ |
+| 1.1     | 2026-01-05 | Kent Gale | Added shelf life requirements (F041) |
+| 1.0     | 2025-12-30 | Kent Gale | Initial requirements document        |
 
 ---
 
 ## 16. Approval & Sign-off
 
-**Document Owner:** Kent Gale  
-**Last Review Date:** 2025-12-30  
-**Next Review Date:** 2026-03-30 (quarterly)  
+**Document Owner:** Kent Gale
+**Last Review Date:** 2025-12-30
+**Next Review Date:** 2026-03-30 (quarterly)
 **Status:** ✅ APPROVED
 
 ---
@@ -522,6 +647,8 @@ Flour (L0)
 ## 17. Related Documents
 
 - **Design Specs:** `/docs/design/F031_ingredient_hierarchy.md` (backend architecture)
+- **Design Specs:** `/docs/design/_F041_shelf_life_freshness_tracking.md` (shelf life feature)
+- **Requirements:** `/docs/requirements/req_inventory.md` (inventory & expiration tracking)
 - **Bug Reports:** `/docs/bugs/BUG_F032_hierarchy_conceptual_errors.md` (UI fixes needed)
 - **Constitution:** `/.kittify/memory/constitution.md` (architectural principles)
 - **Data Model:** `/docs/design/architecture.md` (database schema)
