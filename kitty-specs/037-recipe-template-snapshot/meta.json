@@ -10,12 +10,22 @@
       "validation_commands": [
         "PYTHONPATH=. python3 -m pytest src/tests/services/test_recipe_snapshot_service.py src/tests/models/test_recipe_snapshot_model.py -v --tb=short"
       ]
+    },
+    {
+      "accepted_at": "2026-01-05T03:28:50Z",
+      "accepted_by": "claude",
+      "accepted_from_commit": "10255a671369a4f7e72d150b4349e01b253cdd1e",
+      "branch": "037-recipe-template-snapshot",
+      "mode": "local",
+      "validation_commands": [
+        "PYTHONPATH=. python3 -m pytest src/tests/services/test_recipe_snapshot_service.py src/tests/models/test_recipe_snapshot_model.py -v --tb=short"
+      ]
     }
   ],
   "acceptance_mode": "local",
-  "accepted_at": "2026-01-05T03:26:25Z",
+  "accepted_at": "2026-01-05T03:28:50Z",
   "accepted_by": "claude",
-  "accepted_from_commit": "3d9df27fb93be26e1d1cc7c29a11df45769deb5a",
+  "accepted_from_commit": "10255a671369a4f7e72d150b4349e01b253cdd1e",
   "created_at": "2026-01-03T04:05:18Z",
   "feature_number": "037",
   "friendly_name": "Recipe Template & Snapshot System",
