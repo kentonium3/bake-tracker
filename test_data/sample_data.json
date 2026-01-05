@@ -1,0 +1,134 @@
+{
+  "version": "3.6-sample",
+  "exported_at": "2026-01-05T00:00:00Z",
+  "application": "bake-tracker",
+  "products": [
+    { "ingredient_slug": "flour_all_purpose", "brand": "King Arthur", "package_unit": "lb" },
+    { "ingredient_slug": "flour_bread", "brand": "King Arthur", "package_unit": "lb" },
+    { "ingredient_slug": "sugar_granulated", "brand": "Domino", "package_unit": "lb" },
+    { "ingredient_slug": "sugar_powdered", "brand": "Domino", "package_unit": "lb" },
+    { "ingredient_slug": "sugar_brown_light", "brand": "Domino", "package_unit": "lb" },
+    { "ingredient_slug": "butter_unsalted", "brand": "Land O Lakes", "package_unit": "lb" },
+    { "ingredient_slug": "eggs_large", "brand": "Generic", "package_unit": "count" },
+    { "ingredient_slug": "vanilla_extract", "brand": "McCormick", "package_unit": "oz" },
+    { "ingredient_slug": "baking_powder", "brand": "Clabber Girl", "package_unit": "oz" },
+    { "ingredient_slug": "baking_soda", "brand": "Arm & Hammer", "package_unit": "oz" },
+
+    { "ingredient_slug": "salt_kosher", "brand": "Diamond Crystal", "package_unit": "oz" },
+    { "ingredient_slug": "cocoa_powder", "brand": "Hershey's", "package_unit": "oz" },
+    { "ingredient_slug": "chocolate_chips_semi_sweet", "brand": "Ghirardelli", "package_unit": "oz" },
+    { "ingredient_slug": "chocolate_baking_bar", "brand": "Ghirardelli", "package_unit": "oz" },
+    { "ingredient_slug": "milk_whole", "brand": "Generic", "package_unit": "qt" },
+    { "ingredient_slug": "heavy_cream", "brand": "Generic", "package_unit": "pt" },
+    { "ingredient_slug": "cream_cheese", "brand": "Philadelphia", "package_unit": "oz" },
+    { "ingredient_slug": "sour_cream", "brand": "Daisy", "package_unit": "oz" },
+    { "ingredient_slug": "yogurt_greek", "brand": "Fage", "package_unit": "oz" },
+    { "ingredient_slug": "honey", "brand": "Nature Nate's", "package_unit": "oz" },
+
+    { "ingredient_slug": "molasses", "brand": "Grandma's", "package_unit": "oz" },
+    { "ingredient_slug": "corn_syrup_light", "brand": "Karo", "package_unit": "oz" },
+    { "ingredient_slug": "oats_rolled", "brand": "Quaker", "package_unit": "lb" },
+    { "ingredient_slug": "peanut_butter", "brand": "Jif", "package_unit": "oz" },
+    { "ingredient_slug": "almonds_sliced", "brand": "Blue Diamond", "package_unit": "oz" },
+    { "ingredient_slug": "pecans_chopped", "brand": "Fisher", "package_unit": "oz" },
+    { "ingredient_slug": "walnuts_chopped", "brand": "Fisher", "package_unit": "oz" },
+    { "ingredient_slug": "cinnamon_ground", "brand": "McCormick", "package_unit": "oz" },
+    { "ingredient_slug": "nutmeg_ground", "brand": "McCormick", "package_unit": "oz" },
+    { "ingredient_slug": "ginger_ground", "brand": "McCormick", "package_unit": "oz" },
+
+    { "ingredient_slug": "cloves_ground", "brand": "McCormick", "package_unit": "oz" },
+    { "ingredient_slug": "allspice_ground", "brand": "McCormick", "package_unit": "oz" },
+    { "ingredient_slug": "cardamom_ground", "brand": "McCormick", "package_unit": "oz" },
+    { "ingredient_slug": "lemons", "brand": "Generic", "package_unit": "count" },
+    { "ingredient_slug": "oranges", "brand": "Generic", "package_unit": "count" },
+    { "ingredient_slug": "pumpkin_puree", "brand": "Libby's", "package_unit": "oz" },
+    { "ingredient_slug": "apples", "brand": "Generic", "package_unit": "lb" },
+    { "ingredient_slug": "banana", "brand": "Generic", "package_unit": "lb" },
+    { "ingredient_slug": "strawberries", "brand": "Generic", "package_unit": "lb" },
+    { "ingredient_slug": "blueberries", "brand": "Generic", "package_unit": "lb" },
+
+    { "ingredient_slug": "baking_chocolate_cocoa_butter", "brand": "Callebaut", "package_unit": "lb" },
+    { "ingredient_slug": "gelatin_powder", "brand": "Knox", "package_unit": "oz" },
+    { "ingredient_slug": "cornstarch", "brand": "Argo", "package_unit": "oz" },
+    { "ingredient_slug": "powdered_sugar", "brand": "C&H", "package_unit": "lb" },
+    { "ingredient_slug": "brown_sugar_dark", "brand": "C&H", "package_unit": "lb" },
+    { "ingredient_slug": "yeast_instant", "brand": "SAF", "package_unit": "oz" },
+    { "ingredient_slug": "flour_cake", "brand": "Swans Down", "package_unit": "lb" },
+    { "ingredient_slug": "flour_pastry", "brand": "Bob's Red Mill", "package_unit": "lb" },
+    { "ingredient_slug": "sprinkles", "brand": "Wilton", "package_unit": "oz" },
+    { "ingredient_slug": "food_coloring", "brand": "Wilton", "package_unit": "oz" }
+  ],
+  "recipes": [
+    {
+      "name": "Chocolate Chip Cookies",
+      "category": "Cookies",
+      "ingredients": [
+        { "ingredient_slug": "flour_all_purpose", "quantity": 2.25, "unit": "cup" },
+        { "ingredient_slug": "butter_unsalted", "quantity": 1.0, "unit": "cup" },
+        { "ingredient_slug": "sugar_granulated", "quantity": 0.75, "unit": "cup" },
+        { "ingredient_slug": "sugar_brown_light", "quantity": 0.75, "unit": "cup" },
+        { "ingredient_slug": "eggs_large", "quantity": 2.0, "unit": "count" },
+        { "ingredient_slug": "vanilla_extract", "quantity": 2.0, "unit": "tsp" },
+        { "ingredient_slug": "baking_soda", "quantity": 1.0, "unit": "tsp" },
+        { "ingredient_slug": "salt_kosher", "quantity": 1.0, "unit": "tsp" },
+        { "ingredient_slug": "chocolate_chips_semi_sweet", "quantity": 12.0, "unit": "oz" }
+      ]
+    },
+    {
+      "name": "Fudge Brownies",
+      "category": "Brownies",
+      "ingredients": [
+        { "ingredient_slug": "butter_unsalted", "quantity": 0.5, "unit": "cup" },
+        { "ingredient_slug": "chocolate_baking_bar", "quantity": 8.0, "unit": "oz" },
+        { "ingredient_slug": "sugar_granulated", "quantity": 1.0, "unit": "cup" },
+        { "ingredient_slug": "eggs_large", "quantity": 2.0, "unit": "count" },
+        { "ingredient_slug": "cocoa_powder", "quantity": 0.25, "unit": "cup" },
+        { "ingredient_slug": "flour_all_purpose", "quantity": 0.5, "unit": "cup" },
+        { "ingredient_slug": "salt_kosher", "quantity": 0.5, "unit": "tsp" }
+      ]
+    },
+    {
+      "name": "Vanilla Cupcakes",
+      "category": "Cakes",
+      "ingredients": [
+        { "ingredient_slug": "flour_cake", "quantity": 1.5, "unit": "cup" },
+        { "ingredient_slug": "sugar_granulated", "quantity": 1.0, "unit": "cup" },
+        { "ingredient_slug": "baking_powder", "quantity": 1.5, "unit": "tsp" },
+        { "ingredient_slug": "salt_kosher", "quantity": 0.5, "unit": "tsp" },
+        { "ingredient_slug": "butter_unsalted", "quantity": 0.5, "unit": "cup" },
+        { "ingredient_slug": "eggs_large", "quantity": 2.0, "unit": "count" },
+        { "ingredient_slug": "milk_whole", "quantity": 0.5, "unit": "cup" },
+        { "ingredient_slug": "vanilla_extract", "quantity": 2.0, "unit": "tsp" }
+      ]
+    },
+    {
+      "name": "Sugar Cookies",
+      "category": "Cookies",
+      "ingredients": [
+        { "ingredient_slug": "flour_all_purpose", "quantity": 2.75, "unit": "cup" },
+        { "ingredient_slug": "baking_powder", "quantity": 1.0, "unit": "tsp" },
+        { "ingredient_slug": "salt_kosher", "quantity": 0.5, "unit": "tsp" },
+        { "ingredient_slug": "butter_unsalted", "quantity": 1.0, "unit": "cup" },
+        { "ingredient_slug": "sugar_granulated", "quantity": 1.5, "unit": "cup" },
+        { "ingredient_slug": "eggs_large", "quantity": 1.0, "unit": "count" },
+        { "ingredient_slug": "vanilla_extract", "quantity": 1.0, "unit": "tsp" }
+      ]
+    },
+    {
+      "name": "Pumpkin Pie",
+      "category": "Pies",
+      "ingredients": [
+        { "ingredient_slug": "pumpkin_puree", "quantity": 15.0, "unit": "oz" },
+        { "ingredient_slug": "eggs_large", "quantity": 2.0, "unit": "count" },
+        { "ingredient_slug": "heavy_cream", "quantity": 1.0, "unit": "cup" },
+        { "ingredient_slug": "sugar_brown_light", "quantity": 0.5, "unit": "cup" },
+        { "ingredient_slug": "cinnamon_ground", "quantity": 1.0, "unit": "tsp" },
+        { "ingredient_slug": "ginger_ground", "quantity": 0.5, "unit": "tsp" },
+        { "ingredient_slug": "nutmeg_ground", "quantity": 0.25, "unit": "tsp" },
+        { "ingredient_slug": "salt_kosher", "quantity": 0.5, "unit": "tsp" }
+      ]
+    }
+  ]
+}
+
+

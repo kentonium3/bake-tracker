@@ -330,7 +330,7 @@ def _create_recipe_from_snapshot_impl(snapshot_id: int, session: Session) -> dic
         )
         session.add(ri)
 
-    session.commit()
+    session.flush()  # Flush to get IDs; caller controls commit
 
     return {
         "id": recipe.id,

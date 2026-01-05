@@ -1904,7 +1904,7 @@ def _create_recipe_variant_impl(
             )
             session.add(new_ri)
 
-    session.commit()
+    session.flush()  # Flush to get IDs; caller controls commit
 
     return {
         "id": variant.id,

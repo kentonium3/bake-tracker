@@ -72,7 +72,7 @@ class TestMigrateProductionSnapshots:
         assert run.recipe_snapshot_id is None
 
         # Run dry-run migration (uses the patched session from test_db)
-        stats = migrate_production_snapshots(dry_run=True)
+        stats = migrate_production_snapshots(dry_run=True, session=session)
 
         # Should report one run to migrate
         assert stats["migrated"] == 1
@@ -103,6 +103,7 @@ class TestMigrateProductionSnapshots:
         ingredient = Ingredient(
             display_name="All-Purpose Flour",
             slug="all-purpose-flour",
+            category="Flour",
         )
         session.add(ingredient)
         session.flush()
@@ -138,7 +139,7 @@ class TestMigrateProductionSnapshots:
         session.commit()
 
         # Run actual migration (uses patched session from test_db)
-        stats = migrate_production_snapshots(dry_run=False)
+        stats = migrate_production_snapshots(dry_run=False, session=session)
 
         # Should migrate both runs
         assert stats["migrated"] == 2
@@ -170,21 +171,21 @@ class TestMigrateProductionSnapshots:
         """Migration should skip runs where recipe was deleted."""
         session = test_db()
 
-        # Create a dummy recipe first to get a finished unit
-        dummy_recipe = Recipe(
-            name="Dummy Recipe",
+        # Create a recipe + run, then simulate an orphaned run by deleting the recipe
+        # with FK checks disabled (this matches the real-world scenario the migration
+        # is designed to handle: historical DBs with orphaned production runs).
+        recipe = Recipe(
+            name="Orphaned Recipe",
             category="Test",
             yield_quantity=12,
             yield_unit="each",
         )
-        session.add(dummy_recipe)
+        session.add(recipe)
         session.flush()
-        fu = create_finished_unit(session, dummy_recipe)
+        fu = create_finished_unit(session, recipe)
 
-        # Create a production run referencing non-existent recipe
-        # (after we delete the recipe or use non-existent ID)
         run = ProductionRun(
-            recipe_id=99999,  # Non-existent recipe
+            recipe_id=recipe.id,
             finished_unit_id=fu.id,
             num_batches=1,
             expected_yield=12,
@@ -194,8 +195,15 @@ class TestMigrateProductionSnapshots:
         session.add(run)
         session.commit()
 
+        # Disable FK enforcement just long enough to delete the recipe row.
+        # (SQLite enforces FKs when PRAGMA foreign_keys=ON.)
+        conn = session.connection()
+        conn.exec_driver_sql("PRAGMA foreign_keys=OFF")
+        conn.exec_driver_sql("DELETE FROM recipes WHERE id = ?", (recipe.id,))
+        conn.exec_driver_sql("PRAGMA foreign_keys=ON")
+
         # Run migration (uses patched session from test_db)
-        stats = migrate_production_snapshots(dry_run=False)
+        stats = migrate_production_snapshots(dry_run=False, session=session)
 
         # Should skip the run
         assert stats["skipped_no_recipe"] == 1
@@ -230,11 +238,11 @@ class TestMigrateProductionSnapshots:
         session.commit()
 
         # Run migration first time
-        stats1 = migrate_production_snapshots(dry_run=False)
+        stats1 = migrate_production_snapshots(dry_run=False, session=session)
         assert stats1["migrated"] == 1
 
         # Run migration second time
-        stats2 = migrate_production_snapshots(dry_run=False)
+        stats2 = migrate_production_snapshots(dry_run=False, session=session)
 
         # Should report already migrated
         assert stats2["already_migrated"] == 1
@@ -308,7 +316,7 @@ class TestCreateBackfillSnapshot:
         fu = create_finished_unit(session, recipe)
 
         # Create ingredient
-        flour = Ingredient(display_name="Flour", slug="flour")
+        flour = Ingredient(display_name="Flour", slug="flour", category="Baking")
         session.add(flour)
         session.flush()
 
@@ -373,10 +381,21 @@ class TestVerifyMigration:
         # Create finished unit for the recipe
         fu = create_finished_unit(session, recipe)
 
-        # Create migrated run with snapshot
+        # Create migrated run with snapshot (must satisfy the 1:1 linkage)
+        migrated_run = ProductionRun(
+            recipe_id=recipe.id,
+            finished_unit_id=fu.id,
+            num_batches=1,
+            expected_yield=12,
+            actual_yield=12,
+            recipe_snapshot_id=None,
+        )
+        session.add(migrated_run)
+        session.flush()
+
         snapshot = RecipeSnapshot(
             recipe_id=recipe.id,
-            production_run_id=None,
+            production_run_id=migrated_run.id,
             scale_factor=1.0,
             snapshot_date=utc_now(),
             recipe_data="{}",
@@ -386,15 +405,7 @@ class TestVerifyMigration:
         session.add(snapshot)
         session.flush()
 
-        migrated_run = ProductionRun(
-            recipe_id=recipe.id,
-            finished_unit_id=fu.id,
-            num_batches=1,
-            expected_yield=12,
-            actual_yield=12,
-            recipe_snapshot_id=snapshot.id,
-        )
-        session.add(migrated_run)
+        migrated_run.recipe_snapshot_id = snapshot.id
 
         # Create unmigrated run
         unmigrated_run = ProductionRun(

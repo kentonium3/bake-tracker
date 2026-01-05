@@ -33,12 +33,14 @@ from src.models import ProductionRun, Recipe, RecipeSnapshot
 from src.utils.datetime_utils import utc_now
 
 
-def migrate_production_snapshots(dry_run: bool = True) -> dict:
+def migrate_production_snapshots(dry_run: bool = True, session=None) -> dict:
     """
     Backfill snapshots for existing ProductionRuns.
 
     Args:
         dry_run: If True, validate without modifying data
+        session: Optional SQLAlchemy session. If provided, migration will run
+            within this session and will NOT open/close its own session.
 
     Returns:
         dict with migration statistics
@@ -51,7 +53,7 @@ def migrate_production_snapshots(dry_run: bool = True) -> dict:
         "errors": []
     }
 
-    with session_scope() as session:
+    def _run(session) -> None:
         # Count already migrated runs
         already_migrated = (
             session.query(ProductionRun)
@@ -105,6 +107,13 @@ def migrate_production_snapshots(dry_run: bool = True) -> dict:
             print(f"\nDRY RUN - No changes made")
         else:
             print(f"\nNo migrations needed")
+
+    if session is not None:
+        _run(session)
+        return stats
+
+    with session_scope() as session:
+        _run(session)
 
     return stats
 
