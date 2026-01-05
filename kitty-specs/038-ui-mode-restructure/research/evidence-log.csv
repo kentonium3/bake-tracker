@@ -1,0 +1,11 @@
+id,date,research_question,finding,source,confidence,notes
+E001,2026-01-05,RQ-1,CustomTkinter CTkFrame + CTkTabview pattern suitable for mode navigation,src/ui/main_window.py,High,Existing codebase uses this pattern
+E002,2026-01-05,RQ-2,Existing tabs follow action-bar/filter/grid/status pattern with variations,src/ui/ingredients_tab.py,High,Code review of multiple tabs
+E003,2026-01-05,RQ-3,Dashboard widgets use CTkLabel in grid layout for stats,src/ui/dashboard_tab.py,High,Reviewed existing dashboard implementation
+E004,2026-01-05,RQ-4,Tkinter bind_all() works for global keyboard shortcuts,tkinter docs,High,Standard tkinter functionality
+E005,2026-01-05,RQ-5,event_service.get_shopping_list() returns organized shopping data,src/services/event_service.py:946,High,Direct code review
+E006,2026-01-05,RQ-5,purchase_service has full CRUD operations,src/services/purchase_service.py,High,Direct code review
+E007,2026-01-05,RQ-5,assembly_service has check/record/history methods,src/services/assembly_service.py,High,Direct code review
+E008,2026-01-05,RQ-5,packaging_service has pending/assign/summary methods,src/services/packaging_service.py,High,Direct code review
+E009,2026-01-05,RQ-6,Simple dict can track per-mode tab selection,design decision,High,No persistence needed per spec
+E010,2026-01-05,RQ-7,recipients_tab not assigned to any mode in design doc,docs/design/_F038_ui_mode_restructure.md,High,Section 2.1 mode assignments
