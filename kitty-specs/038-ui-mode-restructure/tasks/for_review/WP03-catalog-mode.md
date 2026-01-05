@@ -11,7 +11,7 @@ subtasks:
   - "T021"
 title: "CATALOG Mode"
 phase: "Phase 1 - Mode Implementation"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "system"
 shell_pid: ""
@@ -284,3 +284,4 @@ self.ingredients_tab.pack(fill="both", expand=True)
 
 - 2026-01-05 - system - lane=planned - Prompt created.
 - 2026-01-05T22:40:43Z – system – shell_pid= – lane=doing – Moved to doing
+- 2026-01-05T22:43:11Z – system – shell_pid= – lane=for_review – Moved to for_review
