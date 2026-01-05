@@ -37,11 +37,11 @@ WP01 (Models) ──────────────────────
 **Prompt**: `tasks/planned/WP01-models-layer.md`
 
 ### Included Subtasks
-- [ ] T001 [P] Create RecipeSnapshot model in `src/models/recipe_snapshot.py`
-- [ ] T002 [P] Add base_recipe_id, variant_name, is_production_ready to Recipe in `src/models/recipe.py`
-- [ ] T003 [P] Add recipe_snapshot_id FK to ProductionRun in `src/models/production_run.py`
-- [ ] T004 Update `src/models/__init__.py` to export RecipeSnapshot
-- [ ] T005 [P] Create unit tests in `src/tests/models/test_recipe_snapshot_model.py`
+- [x] T001 [P] Create RecipeSnapshot model in `src/models/recipe_snapshot.py`
+- [x] T002 [P] Add base_recipe_id, variant_name, is_production_ready to Recipe in `src/models/recipe.py`
+- [x] T003 [P] Add recipe_snapshot_id FK to ProductionRun in `src/models/production_run.py`
+- [x] T004 Update `src/models/__init__.py` to export RecipeSnapshot
+- [x] T005 [P] Create unit tests in `src/tests/models/test_recipe_snapshot_model.py`
 
 ### Implementation Notes
 - T001-T003 can run in parallel (different files)
@@ -69,10 +69,10 @@ WP01 (Models) ──────────────────────
 **Prompt**: `tasks/planned/WP02-snapshot-service.md`
 
 ### Included Subtasks
-- [ ] T006 Create `src/services/recipe_snapshot_service.py` with create_recipe_snapshot()
-- [ ] T007 Add get_recipe_snapshots(recipe_id) function
-- [ ] T008 Add get_snapshot_by_production_run(production_run_id) function
-- [ ] T009 Create unit tests in `src/tests/services/test_recipe_snapshot_service.py`
+- [x] T006 Create `src/services/recipe_snapshot_service.py` with create_recipe_snapshot()
+- [x] T007 Add get_recipe_snapshots(recipe_id) function
+- [x] T008 Add get_snapshot_by_production_run(production_run_id) function
+- [x] T009 Create unit tests in `src/tests/services/test_recipe_snapshot_service.py`
 
 ### Implementation Notes
 - Follow session=None pattern from CLAUDE.md
@@ -99,10 +99,10 @@ WP01 (Models) ──────────────────────
 **Prompt**: `tasks/planned/WP03-production-integration.md`
 
 ### Included Subtasks
-- [ ] T010 Modify `record_batch_production()` to create snapshot FIRST
-- [ ] T011 Update cost calculation to use snapshot ingredient data
-- [ ] T012 Add scale_factor parameter to production flow
-- [ ] T013 Create integration tests in `src/tests/services/test_batch_production_service.py`
+- [x] T010 Modify `record_batch_production()` to create snapshot FIRST
+- [x] T011 Update cost calculation to use snapshot ingredient data
+- [x] T012 Add scale_factor parameter to production flow
+- [x] T013 Create integration tests in `src/tests/services/test_batch_production_service.py`
 
 ### Implementation Notes
 - Snapshot creation must be FIRST operation in production transaction
@@ -129,10 +129,10 @@ WP01 (Models) ──────────────────────
 **Prompt**: `tasks/planned/WP04-migration-script.md`
 
 ### Included Subtasks
-- [ ] T014 Create migration script in `scripts/migrate_production_snapshots.py`
-- [ ] T015 Handle is_backfilled flag for migrated snapshots
-- [ ] T016 Add dry-run mode and validation
-- [ ] T017 Test migration with sample_data.json
+- [x] T014 Create migration script in `scripts/migrate_production_snapshots.py`
+- [x] T015 Handle is_backfilled flag for migrated snapshots
+- [x] T016 Add dry-run mode and validation
+- [x] T017 Test migration with sample_data.json
 
 ### Implementation Notes
 - Query all ProductionRuns with recipe_id but no recipe_snapshot_id
@@ -159,10 +159,10 @@ WP01 (Models) ──────────────────────
 **Prompt**: `tasks/planned/WP05-scale-factor-ui.md`
 
 ### Included Subtasks
-- [ ] T018 Add scale_factor entry to `src/ui/forms/record_production_dialog.py`
-- [ ] T019 Update expected yield calculation display
-- [ ] T020 Show ingredient requirements scaled by scale_factor × num_batches
-- [ ] T021 Validate scale_factor > 0
+- [x] T018 Add scale_factor entry to `src/ui/forms/record_production_dialog.py`
+- [x] T019 Update expected yield calculation display
+- [x] T020 Show ingredient requirements scaled by scale_factor × num_batches
+- [x] T021 Validate scale_factor > 0
 
 ### Implementation Notes
 - Default scale_factor = 1.0
@@ -188,14 +188,14 @@ WP01 (Models) ──────────────────────
 **Prompt**: `tasks/planned/WP06-variant-service-ui.md`
 
 ### Included Subtasks
-- [ ] T022 [P] Add get_recipe_variants(base_recipe_id) to `src/services/recipe_service.py`
-- [ ] T023 [P] Add create_recipe_variant() function
-- [ ] T024 [P] Extend get_all_recipes() to support grouping by base
-- [ ] T025 [P] Add base_recipe dropdown to `src/ui/forms/recipe_form.py`
-- [ ] T026 [P] Add variant_name field to recipe form
-- [ ] T027 Update recipe list in `src/ui/recipes_tab.py` with variant indentation
-- [ ] T028 Sort: base recipes first, variants grouped below
-- [ ] T029 Create unit tests for variant functions
+- [x] T022 [P] Add get_recipe_variants(base_recipe_id) to `src/services/recipe_service.py`
+- [x] T023 [P] Add create_recipe_variant() function
+- [x] T024 [P] Extend get_all_recipes() to support grouping by base
+- [x] T025 [P] Add base_recipe dropdown to `src/ui/forms/recipe_form.py`
+- [x] T026 [P] Add variant_name field to recipe form
+- [x] T027 Update recipe list in `src/ui/recipes_tab.py` with variant indentation
+- [x] T028 Sort: base recipes first, variants grouped below
+- [x] T029 Create unit tests for variant functions
 
 ### Implementation Notes
 - Variant indentation: 2-3 spaces + "└─" prefix consistent with ingredient hierarchy
@@ -222,10 +222,10 @@ WP01 (Models) ──────────────────────
 **Prompt**: `tasks/planned/WP07-production-readiness.md`
 
 ### Included Subtasks
-- [ ] T030 [P] Add is_production_ready checkbox to `src/ui/forms/recipe_form.py`
-- [ ] T031 [P] Add readiness filter to `src/ui/recipes_tab.py` search bar
-- [ ] T032 Update recipe creation to default is_production_ready=False
-- [ ] T033 Filter production planning dropdowns to show ready recipes (optional)
+- [x] T030 [P] Add is_production_ready checkbox to `src/ui/forms/recipe_form.py`
+- [x] T031 [P] Add readiness filter to `src/ui/recipes_tab.py` search bar
+- [x] T032 Update recipe creation to default is_production_ready=False
+- [x] T033 Filter production planning dropdowns to show ready recipes (optional)
 
 ### Implementation Notes
 - Checkbox label: "Production Ready" (unchecked = experimental)
@@ -251,11 +251,11 @@ WP01 (Models) ──────────────────────
 **Prompt**: `tasks/planned/WP08-recipe-history-view.md`
 
 ### Included Subtasks
-- [ ] T034 Create `src/ui/views/recipe_history_view.py` dialog
-- [ ] T035 Display snapshot list with dates and "(approximated)" badge for backfilled
-- [ ] T036 Add "View Details" to show snapshot ingredient data
-- [ ] T037 Add "Restore as New Recipe" functionality
-- [ ] T038 Add create_recipe_from_snapshot() to snapshot service
+- [x] T034 Create `src/ui/views/recipe_history_view.py` dialog
+- [x] T035 Display snapshot list with dates and "(approximated)" badge for backfilled
+- [x] T036 Add "View Details" to show snapshot ingredient data
+- [x] T037 Add "Restore as New Recipe" functionality
+- [x] T038 Add create_recipe_from_snapshot() to snapshot service
 
 ### Implementation Notes
 - Modal dialog accessible from recipe details or context menu
