@@ -13,6 +13,7 @@ This repo is frequently reviewed via Cursor’s agent-driven terminal runner (py
 - **Workspace settings point at Windows executables** (e.g. `venv/Scripts/python.exe`). On macOS, this can break Python/terminal integration and contribute to runner instability.
 - **Shell mismatch**: Cursor (or the agent runner) tries to spawn `/bin/zsh`, but the runner process ends up in a context where zsh spawning fails.
 - **Sandbox incompatibility**: When commands run through a sandbox mechanism, the runner may not be able to access your `venv/` or may fail to launch the sandbox helper.
+- **Deleted worktree / invalid working directory (very common with Spec Kitty)**: if a feature worktree is removed while Cursor (or its runner helper) still has that worktree as its `cwd`, subsequent spawns can fail with `spawn ... ENOENT` until Cursor is restarted.
 
 ## Permanent mitigation (recommended)
 
@@ -42,6 +43,19 @@ If Cursor has any setting resembling “run commands in sandbox / restricted mod
 - commands failing only when run via the agent runner, but succeeding in your normal terminal
 
 Exact label varies by Cursor version; search in Settings for: `sandbox`, `restricted`, `secure`, `command execution`.
+
+### 4) Avoid deleting a worktree while Cursor is “inside” it
+
+This is the most common “it breaks once per review, restart fixes it” pattern when using Spec Kitty worktrees.
+
+- Before running `/spec-kitty.merge` (which may remove the feature worktree), ensure **all terminals** are not currently `cd`’d into the feature worktree.
+- After merge completes, do a quick reset:
+
+```bash
+cd /Users/kentgale/Vaults-repos/bake-tracker
+```
+
+If you still see runner failures after merge, open a **new** integrated terminal tab (or use “Developer: Reload Window”) to force Cursor to drop any stale `cwd`.
 
 ## Quick health check
 

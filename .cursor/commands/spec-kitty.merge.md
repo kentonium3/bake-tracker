@@ -20,6 +20,16 @@ Before running this command:
 3. ✅ Working directory must be clean (no uncommitted changes)
 4. ✅ Run the command from the feature worktree (Spec Kitty will move the merge to the primary repo automatically)
 
+**Important (Cursor terminal runner reliability):**
+- If you're using Cursor to run automated verification (pytest/greps) after merge, make sure Cursor is **not left inside a worktree that gets deleted**.
+- After `/spec-kitty.merge` finishes (and may remove the worktree), open a new terminal tab or run:
+
+```bash
+cd /Users/kentgale/Vaults-repos/bake-tracker
+```
+
+This avoids a stale `cwd` pointing at a deleted `.worktrees/<feature>/` directory, which can cause `spawn ... ENOENT` errors until Cursor is restarted.
+
 ## What This Command Does
 
 1. **Detects** your current feature branch and worktree status

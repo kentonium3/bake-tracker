@@ -274,30 +274,47 @@ graph TD
 ```mermaid
 graph TD
     A[User starts production] --> B[Select recipe template]
-    B --> C{Scale factor?}
+    B --> C[How many batches to make?]
     
-    C -->|1x| D[num_batches = 1]
-    C -->|2x| E[num_batches = 2]
-    C -->|Custom| F[Enter num_batches]
+    C --> D[Enter num_batches<br/>e.g., 2 separate batches]
     
-    D --> G[Create Recipe Snapshot]
-    E --> G
-    F --> G
+    D --> E{Scale each batch?}
+    E -->|1x - Normal recipe| F[scale_factor = 1.0]
+    E -->|2x - Double quantities| G[scale_factor = 2.0]
+    E -->|3x - Triple quantities| H[scale_factor = 3.0]
     
-    G --> H[Snapshot captures:<br/>- Recipe data at this moment<br/>- Ingredients with quantities<br/>- Scale factor]
+    F --> I[Create Recipe Snapshot]
+    G --> I
+    H --> I
     
-    H --> I[Create ProductionRun<br/>Links to snapshot, not recipe]
+    I --> J[Snapshot captures:<br/>- Recipe data at 1x base<br/>- Scale factor to apply<br/>- Number of batches]
     
-    I --> J[Execute production<br/>Consume ingredients via FIFO]
+    J --> K[Calculate total yield:<br/>base_yield × scale_factor × num_batches]
     
-    J --> K[Record actual yield]
-    K --> L[Calculate costs<br/>Using snapshot data]
+    K --> L[Example:<br/>36 cookies base<br/>× 2x scale per batch<br/>× 2 batches<br/>= 144 cookies total]
     
-    L --> M[Snapshot remains immutable<br/>Historical record preserved]
+    L --> M[Execute production<br/>Consume ingredients via FIFO]
     
-    style H fill:#FFE4B5
-    style M fill:#90EE90
+    M --> N[Record actual yield]
+    N --> O[Calculate costs<br/>Using snapshot data]
+    
+    O --> P[Snapshot remains immutable<br/>Historical record preserved]
+    
+    style J fill:#FFE4B5
+    style L fill:#E6F3FF
+    style P fill:#90EE90
 ```
+
+**Key Distinction:**
+- **num_batches** = How many separate batches to make (repetition)
+- **scale_factor** = Multiplier for quantities within each batch (size)
+- **Total yield** = base_yield × scale_factor × num_batches
+
+**Real-World Example:**
+- Recipe yields 36 cookies (1x)
+- Make 2 batches at 2x scale = 144 cookies total
+- This is NOT 4 batches - it's 2 batches, each doubled in size
+- Equipment constraint: Mixer holds max 2x recipe, so 2 scaled batches instead of 4 normal batches
 
 ### Flow 3: Recipe Template Evolution Over Time
 
@@ -421,19 +438,46 @@ def create_production_run(
     Flow:
     1. Create recipe snapshot (captures current recipe state)
     2. Create production run (links to snapshot)
-    3. Calculate expected yield (recipe.yield_quantity * num_batches * scale_factor)
-    4. FIFO consume ingredients (based on snapshot ingredient data)
+    3. Calculate expected yield (recipe.yield_quantity * scale_factor * num_batches)
+    4. FIFO consume ingredients (based on snapshot ingredient data × scale_factor × num_batches)
     5. Calculate costs (based on actual FIFO consumption)
     
     Args:
         recipe_id: Recipe template to produce
         finished_unit_id: What's being made
-        num_batches: Number of batches (1 batch = 1x recipe yield)
-        scale_factor: Multiplier within each batch (2.0 = double each batch)
+        num_batches: Number of separate batches to make (repetition)
+        scale_factor: Multiplier for quantities within each batch (size, default 1.0)
         event_id: Optional event attribution
     
     Returns:
         ProductionRun with linked RecipeSnapshot
+        
+    Examples:
+        # Make 4 batches at normal size (1x) = 144 cookies
+        # Recipe: 36 cookies, 2 cups flour per batch
+        # Total: 4 batches × 2 cups = 8 cups flour
+        create_production_run(
+            recipe_id=123, 
+            finished_unit_id=456,
+            num_batches=4, 
+            scale_factor=1.0
+        )
+        
+        # Make 2 batches at double size (2x) = 144 cookies  
+        # Recipe: 36 cookies, 2 cups flour per batch at 1x
+        # Each batch: 72 cookies, 4 cups flour (2x scale)
+        # Total: 2 batches × 4 cups = 8 cups flour
+        create_production_run(
+            recipe_id=123,
+            finished_unit_id=456, 
+            num_batches=2,
+            scale_factor=2.0
+        )
+        
+        # Equipment constraint scenario:
+        # Mixer holds max 2x recipe, need 144 cookies total
+        # Solution: 2 batches at 2x scale (not 4 batches at 1x)
+        # This is more efficient than 4 separate mixer runs
     """
     
 def get_production_cost(production_run_id: int) -> Decimal:
@@ -564,16 +608,32 @@ ALTER TABLE production_runs ALTER COLUMN recipe_snapshot_id SET NOT NULL;
 │  Making: [Finished Unit ▼]                             │
 │  Event:  [Christmas 2025 ▼] (optional)                 │
 │                                                         │
-│  ┌─ Batch Size ─────────────────────────────────────┐  │
-│  │                                                   │  │
-│  │  Recipe Yield: 36 cookies per batch              │  │
-│  │                                                   │  │
-│  │  Number of Batches: [3___]                       │  │
-│  │  Scale Factor:      [1x ▼] 1x, 2x, 3x, Custom   │  │
-│  │                                                   │  │
-│  │  Expected Total Yield: 108 cookies               │  │
-│  │  (3 batches × 36 cookies × 1x)                   │  │
-│  └───────────────────────────────────────────────────┘  │
+│  ┌─ Batch Configuration ─────────────────────────────┐ │
+│  │                                                    │ │
+│  │  Recipe Base Yield: 36 cookies (1x)               │ │
+│  │                                                    │ │
+│  │  How many batches? [2___]                         │ │
+│  │  Scale each batch?  [2x ▼] (1x, 2x, 3x, Custom)  │ │
+│  │                                                    │ │
+│  │  ┌─ Calculation ──────────────────────────────┐   │ │
+│  │  │ Per-Batch Yield: 72 cookies (36 × 2x)     │   │ │
+│  │  │ Total Yield: 144 cookies (72 × 2 batches) │   │ │
+│  │  └────────────────────────────────────────────┘   │ │
+│  │                                                    │ │
+│  │  What this means:                                 │ │
+│  │  You'll make TWO separate batches. Each batch    │ │
+│  │  will use DOUBLE the recipe quantities (2x       │ │
+│  │  scale) and produce 72 cookies.                  │ │
+│  │                                                    │ │
+│  │  Example ingredients per batch:                   │ │
+│  │  • Recipe (1x): 2 cups flour                     │ │
+│  │  • Each batch (2x): 4 cups flour                 │ │
+│  │  • Total needed: 8 cups flour (4 cups × 2)       │ │
+│  │                                                    │ │
+│  │  Equipment note: If your mixer holds max 2x      │ │
+│  │  recipe, making 2 scaled batches is more         │ │
+│  │  efficient than 4 normal batches.                │ │
+│  └────────────────────────────────────────────────────┘ │
 │                                                         │
 │  Estimated Ingredient Cost: $36.00                     │
 │  (Based on current recipe + inventory FIFO)            │
@@ -583,9 +643,10 @@ ALTER TABLE production_runs ALTER COLUMN recipe_snapshot_id SET NOT NULL;
 ```
 
 **Widget Behavior:**
-- **Number of Batches**: How many times to make the full recipe
-- **Scale Factor**: Multiplier for each batch (1x = normal, 2x = double recipe)
-- **Expected Yield**: Calculated automatically (batches × yield × scale)
+- **How many batches**: Number of separate batches to make (repetition)
+- **Scale each batch**: Multiplier for quantities within each batch (size)
+- **Per-Batch Yield**: Calculated as base_yield × scale_factor
+- **Total Yield**: Calculated as per_batch_yield × num_batches
 - **Snapshot created on "Start Production"** (captures recipe at this moment)
 
 ---
@@ -762,6 +823,41 @@ ALTER TABLE production_runs ALTER COLUMN recipe_snapshot_id SET NOT NULL;
 2. Clicks "Restore as New Recipe"
 3. Creates new recipe template with snapshot data
 4. User can edit/save as needed
+
+### Q6: Why separate num_batches and scale_factor instead of just total_batches?
+**Decision**: **Two parameters provide equipment constraint flexibility**
+
+**Problem Scenario:**
+- Need 144 cookies total
+- Recipe yields 36 cookies at 1x scale
+- Mixer capacity limited to 2x recipe maximum
+
+**Bad Design (single parameter):**
+```python
+# Option 1: 4 batches (inefficient - 4 separate mixer runs)
+create_production_run(total_batches=4)
+
+# Option 2: Can't express "2 doubled batches" with single parameter
+```
+
+**Good Design (separate parameters):**
+```python
+# Option 1: Four 1x batches (4 mixer runs)
+create_production_run(num_batches=4, scale_factor=1.0)
+# Each batch: 36 cookies, 2 cups flour
+# Total: 144 cookies, 8 cups flour, 4 mixer runs
+
+# Option 2: Two 2x batches (2 mixer runs - more efficient)
+create_production_run(num_batches=2, scale_factor=2.0)
+# Each batch: 72 cookies, 4 cups flour
+# Total: 144 cookies, 8 cups flour, 2 mixer runs
+```
+
+**Rationale**: 
+- Equipment constraints are real (mixer size, oven capacity, etc.)
+- Scaling allows efficient production within equipment limits
+- Maintains accurate batch tracking (2 batches recorded, not 4)
+- Users think in terms of "make 2 double batches" not "make 4 effective batches"
 
 ---
 
