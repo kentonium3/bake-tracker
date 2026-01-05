@@ -44,7 +44,13 @@ def test_db():
 
     # Cleanup
     Session.remove()
-    Base.metadata.drop_all(engine)
+    # Feature 037 note:
+    # SQLite can error during drop_all when FK cycles exist in metadata
+    # (production_runs <-> recipe_snapshots). Disable FK enforcement just for teardown.
+    with engine.connect() as conn:
+        conn.exec_driver_sql("PRAGMA foreign_keys=OFF")
+        Base.metadata.drop_all(conn)
+        conn.exec_driver_sql("PRAGMA foreign_keys=ON")
     db_module.get_session_factory = original_get_session_factory
 
 

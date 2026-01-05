@@ -1,0 +1,10 @@
+id,type,path,description,accessed
+S001,code,src/models/recipe.py,Recipe and RecipeIngredient model definitions,2026-01-03
+S002,code,src/models/production_run.py,ProductionRun model definition,2026-01-03
+S003,spec,kitty-specs/037-recipe-template-snapshot/spec.md,Feature specification with requirements,2026-01-03
+S004,doc,docs/design/_F037_recipe_redesign.md,Design document with template/snapshot architecture,2026-01-03
+S005,doc,.kittify/memory/constitution.md,Project constitution with architecture principles,2026-01-03
+S006,doc,CLAUDE.md,Session management patterns and architecture rules,2026-01-03
+S007,code,src/services/recipe_service.py,Recipe service patterns (agent research),2026-01-03
+S008,code,src/services/batch_production_service.py,Production service patterns (agent research),2026-01-03
+S009,code,src/ui/recipes_tab.py,Recipe UI patterns (agent research),2026-01-03

@@ -21,7 +21,7 @@ from src.models.enums import LossCategory
 from src.ui.widgets.availability_display import AvailabilityDisplay
 from src.ui.widgets.dialogs import show_error, show_confirmation
 from src.ui.service_integration import get_ui_service_integrator, OperationType
-from src.services import batch_production_service, event_service
+from src.services import batch_production_service, event_service, recipe_service
 from src.utils.constants import PADDING_MEDIUM, PADDING_LARGE
 
 
@@ -166,6 +166,30 @@ class RecordProductionDialog(ctk.CTkToplevel):
         self.batch_entry.bind("<KeyRelease>", self._on_batch_changed)
         row += 1
 
+        # Feature 037: Scale factor
+        scale_frame = ctk.CTkFrame(self, fg_color="transparent")
+        scale_frame.grid(row=row, column=0, columnspan=2, sticky="ew", pady=5)
+
+        scale_label = ctk.CTkLabel(scale_frame, text="Scale Factor:", width=120)
+        scale_label.pack(side="left", padx=(PADDING_MEDIUM, 0))
+
+        self.scale_factor_var = ctk.StringVar(value="1.0")
+        self.scale_factor_entry = ctk.CTkEntry(
+            scale_frame, textvariable=self.scale_factor_var, width=80
+        )
+        self.scale_factor_entry.pack(side="left", padx=5)
+
+        scale_hint = ctk.CTkLabel(
+            scale_frame,
+            text="(1.0 = normal, 2.0 = double batch, 0.5 = half batch)",
+            text_color="gray",
+        )
+        scale_hint.pack(side="left", padx=5)
+
+        # Bind to update handler
+        self.scale_factor_var.trace_add("write", self._on_scale_changed)
+        row += 1
+
         # Expected yield (calculated, read-only)
         ctk.CTkLabel(self, text="Expected Yield:").grid(
             row=row, column=0, sticky="e", padx=PADDING_MEDIUM
@@ -210,6 +234,18 @@ class RecordProductionDialog(ctk.CTkToplevel):
         self.notes_textbox = ctk.CTkTextbox(self, height=60)
         self.notes_textbox.grid(
             row=row, column=1, sticky="ew", padx=PADDING_MEDIUM, pady=PADDING_MEDIUM
+        )
+        row += 1
+
+        # Feature 037: Ingredient requirements display (scaled)
+        ctk.CTkLabel(self, text="Ingredients Needed:").grid(
+            row=row, column=0, sticky="ne", padx=PADDING_MEDIUM, pady=PADDING_MEDIUM
+        )
+        self.requirements_label = ctk.CTkLabel(
+            self, text="", justify="left", anchor="nw", wraplength=350
+        )
+        self.requirements_label.grid(
+            row=row, column=1, sticky="w", padx=PADDING_MEDIUM, pady=PADDING_MEDIUM
         )
         row += 1
 
@@ -304,6 +340,7 @@ class RecordProductionDialog(ctk.CTkToplevel):
             return
 
         batch_count = self._get_batch_count()
+        scale_factor = self._get_scale_factor()  # Feature 037
         actual_yield = self._get_actual_yield()
         notes = self.notes_textbox.get("1.0", "end-1c").strip() or None
         event_id = self._get_selected_event_id()  # Feature 016
@@ -314,11 +351,16 @@ class RecordProductionDialog(ctk.CTkToplevel):
         loss_notes = self._get_loss_notes() if loss_qty > 0 else None
 
         # Confirmation dialog
-        expected = self._calculate_expected_yield(batch_count)
+        expected = self._calculate_expected_yield(batch_count, scale_factor)
         event_info = ""
         if event_id:
             selected_event = self.event_var.get()
             event_info = f"Event: {selected_event}\n"
+
+        # Feature 037: Include scale factor in confirmation if not 1.0
+        scale_info = ""
+        if scale_factor != 1.0:
+            scale_info = f"Scale Factor: {scale_factor}x\n"
 
         # Feature 025: Include loss info in confirmation
         loss_info = ""
@@ -329,6 +371,7 @@ class RecordProductionDialog(ctk.CTkToplevel):
         message = (
             f"Record {batch_count} batch(es) of {self.finished_unit.display_name}?\n\n"
             f"{event_info}"
+            f"{scale_info}"
             f"Expected yield: {expected}\n"
             f"Actual yield: {actual_yield}\n"
             f"{loss_info}\n"
@@ -350,6 +393,7 @@ class RecordProductionDialog(ctk.CTkToplevel):
                 event_id=event_id,  # Feature 016
                 loss_category=loss_category,  # Feature 025
                 loss_notes=loss_notes,  # Feature 025
+                scale_factor=scale_factor,  # Feature 037
             ),
             parent_widget=self,
             success_message=f"Recorded {batch_count} batch(es) - {actual_yield} units produced",
@@ -369,6 +413,7 @@ class RecordProductionDialog(ctk.CTkToplevel):
                 "production_run_id": result.get("production_run_id"),
                 "loss_quantity": loss_qty,  # Feature 025
                 "production_status": result.get("production_status"),  # Feature 025
+                "scale_factor": scale_factor,  # Feature 037
             }
             self.destroy()
 
@@ -387,6 +432,24 @@ class RecordProductionDialog(ctk.CTkToplevel):
             )
             return False
 
+        # Feature 037: Validate scale_factor > 0 (T021)
+        try:
+            scale_factor = float(self.scale_factor_var.get())
+            if scale_factor <= 0:
+                show_error(
+                    "Validation Error",
+                    "Scale factor must be greater than 0.",
+                    parent=self,
+                )
+                return False
+        except ValueError:
+            show_error(
+                "Validation Error",
+                "Scale factor must be a valid number.",
+                parent=self,
+            )
+            return False
+
         # Validate actual yield
         actual_yield = self._get_actual_yield()
         if actual_yield < 0:
@@ -396,7 +459,7 @@ class RecordProductionDialog(ctk.CTkToplevel):
             return False
 
         # Feature 025: Validate actual yield <= expected yield
-        expected = self._calculate_expected_yield(batch_count)
+        expected = self._calculate_expected_yield(batch_count, scale_factor)
         if actual_yield > expected:
             show_error(
                 "Validation Error",
@@ -434,27 +497,52 @@ class RecordProductionDialog(ctk.CTkToplevel):
         except ValueError:
             return 0
 
+    def _get_scale_factor(self) -> float:
+        """Get the scale factor from input. Returns 1.0 if invalid."""
+        try:
+            value = float(self.scale_factor_var.get())
+            return value if value > 0 else 1.0
+        except ValueError:
+            return 1.0
+
     def _get_actual_yield(self) -> int:
         """Get the actual yield from input."""
         try:
             value = self.yield_entry.get().strip()
             if not value:
                 # Default to expected yield
-                return self._calculate_expected_yield(self._get_batch_count())
+                return self._calculate_expected_yield(
+                    self._get_batch_count(), self._get_scale_factor()
+                )
             return int(value)
         except ValueError:
-            return self._calculate_expected_yield(self._get_batch_count())
+            return self._calculate_expected_yield(
+                self._get_batch_count(), self._get_scale_factor()
+            )
 
-    def _calculate_expected_yield(self, batch_count: int) -> int:
-        """Calculate expected yield based on batch count."""
+    def _calculate_expected_yield(
+        self, batch_count: int, scale_factor: float = 1.0
+    ) -> int:
+        """Calculate expected yield based on batch count and scale factor.
+
+        Formula: expected = base_yield x scale_factor x num_batches
+        """
         items_per_batch = self.finished_unit.items_per_batch or 1
-        return batch_count * items_per_batch
+        return int(items_per_batch * scale_factor * batch_count)
 
     def _update_expected_yield(self):
-        """Update the expected yield display."""
+        """Update the expected yield display with formula."""
         batch_count = self._get_batch_count()
-        expected = self._calculate_expected_yield(batch_count)
-        self.expected_yield_label.configure(text=str(expected))
+        scale_factor = self._get_scale_factor()
+        items_per_batch = self.finished_unit.items_per_batch or 1
+        expected = self._calculate_expected_yield(batch_count, scale_factor)
+
+        # Display with formula for clarity (T019)
+        if scale_factor != 1.0:
+            formula = f"{items_per_batch} x {scale_factor} x {batch_count}"
+            self.expected_yield_label.configure(text=f"{expected} ({formula})")
+        else:
+            self.expected_yield_label.configure(text=str(expected))
 
         # Also update actual yield default if user hasn't changed it
         if not self._initializing:
@@ -465,8 +553,55 @@ class RecordProductionDialog(ctk.CTkToplevel):
 
         self._last_expected = expected
 
+        # Update ingredient requirements display (T020)
+        self._update_ingredient_requirements()
+
+    def _update_ingredient_requirements(self):
+        """Update ingredient requirements display with scaling applied (T020)."""
+        if not self.finished_unit.recipe_id:
+            self.requirements_label.configure(text="No recipe linked")
+            return
+
+        batch_count = self._get_batch_count()
+        scale_factor = self._get_scale_factor()
+
+        if batch_count <= 0 or scale_factor <= 0:
+            self.requirements_label.configure(text="")
+            return
+
+        multiplier = scale_factor * batch_count
+
+        try:
+            # Get aggregated ingredients with scaling applied
+            ingredients = recipe_service.get_aggregated_ingredients(
+                self.finished_unit.recipe_id, multiplier=multiplier
+            )
+
+            if not ingredients:
+                self.requirements_label.configure(text="No ingredients")
+                return
+
+            # Build requirements display
+            requirements = []
+            for ing in ingredients:
+                scaled_qty = ing.get("total_quantity", 0)
+                unit = ing.get("unit", "")
+                name = ing.get("ingredient_name", "Unknown")
+                requirements.append(f"{name}: {scaled_qty:.2f} {unit}")
+
+            self.requirements_label.configure(text="\n".join(requirements))
+        except Exception:
+            # If we can't get ingredients, just show empty
+            self.requirements_label.configure(text="Unable to load ingredients")
+
     def _on_batch_changed(self, event=None):
         """Handle batch count change."""
+        if self._initializing:
+            return
+        self._update_expected_yield()
+
+    def _on_scale_changed(self, *args):
+        """Handle scale factor change (T018)."""
         if self._initializing:
             return
         self._update_expected_yield()
@@ -576,7 +711,8 @@ class RecordProductionDialog(ctk.CTkToplevel):
     def _calculate_loss_quantity(self) -> int:
         """Calculate loss quantity from expected vs actual yield."""
         batch_count = self._get_batch_count()
-        expected = self._calculate_expected_yield(batch_count)
+        scale_factor = self._get_scale_factor()  # Feature 037
+        expected = self._calculate_expected_yield(batch_count, scale_factor)
         actual = self._get_actual_yield()
         return max(0, expected - actual)
 

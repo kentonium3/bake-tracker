@@ -48,7 +48,14 @@ def test_db():
 
     # Cleanup
     Session.remove()
-    Base.metadata.drop_all(engine)
+    # Feature 037 note:
+    # SQLite can't always drop tables cleanly when there are FK cycles
+    # (production_runs <-> recipe_snapshots). Keep FK enforcement ON for tests,
+    # but disable it just for teardown so drop_all can succeed deterministically.
+    with engine.connect() as conn:
+        conn.exec_driver_sql("PRAGMA foreign_keys=OFF")
+        Base.metadata.drop_all(conn)
+        conn.exec_driver_sql("PRAGMA foreign_keys=ON")
 
     # Restore original session factory
     db_module.get_session_factory = original_get_session

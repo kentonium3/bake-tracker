@@ -103,6 +103,7 @@ def create_recipe(recipe_data: Dict, ingredients_data: List[Dict] = None) -> Rec
     try:
         with session_scope() as session:
             # Create recipe
+            # T032 - Feature 037: is_production_ready defaults to False if not provided
             recipe = Recipe(
                 name=recipe_data["name"],
                 category=recipe_data["category"],
@@ -112,6 +113,7 @@ def create_recipe(recipe_data: Dict, ingredients_data: List[Dict] = None) -> Rec
                 estimated_time_minutes=recipe_data.get("estimated_time_minutes"),
                 source=recipe_data.get("source"),
                 notes=recipe_data.get("notes"),
+                is_production_ready=recipe_data.get("is_production_ready", False),
             )
 
             session.add(recipe)
@@ -1764,3 +1766,293 @@ def calculate_total_cost_with_components(recipe_id: int) -> Dict:
         raise
     except SQLAlchemyError as e:
         raise DatabaseError(f"Failed to calculate cost for recipe {recipe_id}", e)
+
+
+# ============================================================================
+# Recipe Variant Management (Feature 037)
+# ============================================================================
+
+
+def get_recipe_variants(base_recipe_id: int, session=None) -> list:
+    """
+    Get all variants of a base recipe.
+
+    Args:
+        base_recipe_id: The base recipe ID
+        session: Optional session for transaction sharing
+
+    Returns:
+        List of variant recipe dicts with keys:
+        - id, name, variant_name, category, is_production_ready
+    """
+    if session is not None:
+        return _get_recipe_variants_impl(base_recipe_id, session)
+
+    try:
+        with session_scope() as session:
+            return _get_recipe_variants_impl(base_recipe_id, session)
+    except SQLAlchemyError as e:
+        raise DatabaseError(f"Failed to get variants for recipe {base_recipe_id}", e)
+
+
+def _get_recipe_variants_impl(base_recipe_id: int, session) -> list:
+    """Internal implementation for get_recipe_variants."""
+    variants = (
+        session.query(Recipe)
+        .filter_by(base_recipe_id=base_recipe_id, is_archived=False)
+        .order_by(Recipe.variant_name, Recipe.name)
+        .all()
+    )
+
+    return [
+        {
+            "id": v.id,
+            "name": v.name,
+            "variant_name": v.variant_name,
+            "category": v.category,
+            "is_production_ready": v.is_production_ready,
+        }
+        for v in variants
+    ]
+
+
+def create_recipe_variant(
+    base_recipe_id: int,
+    variant_name: str,
+    name: str = None,
+    copy_ingredients: bool = True,
+    session=None
+) -> dict:
+    """
+    Create a variant of an existing recipe.
+
+    Args:
+        base_recipe_id: The recipe to create a variant of
+        variant_name: Name distinguishing this variant (e.g., "Raspberry")
+        name: Full recipe name (defaults to "Base Name - Variant Name")
+        copy_ingredients: If True, copy ingredients from base recipe
+        session: Optional session for transaction sharing
+
+    Returns:
+        Created variant recipe dict with keys:
+        - id, name, variant_name, base_recipe_id
+
+    Raises:
+        RecipeNotFound: If base recipe does not exist
+        DatabaseError: If database operation fails
+    """
+    if session is not None:
+        return _create_recipe_variant_impl(
+            base_recipe_id, variant_name, name, copy_ingredients, session
+        )
+
+    try:
+        with session_scope() as session:
+            return _create_recipe_variant_impl(
+                base_recipe_id, variant_name, name, copy_ingredients, session
+            )
+    except RecipeNotFound:
+        raise
+    except SQLAlchemyError as e:
+        raise DatabaseError(f"Failed to create variant of recipe {base_recipe_id}", e)
+
+
+def _create_recipe_variant_impl(
+    base_recipe_id: int,
+    variant_name: str,
+    name: str,
+    copy_ingredients: bool,
+    session
+) -> dict:
+    """Internal implementation for create_recipe_variant."""
+    # Get base recipe
+    base = session.query(Recipe).filter_by(id=base_recipe_id).first()
+    if not base:
+        raise RecipeNotFound(base_recipe_id)
+
+    # Generate name if not provided
+    if not name:
+        name = f"{base.name} - {variant_name}"
+
+    # Create variant
+    variant = Recipe(
+        name=name,
+        category=base.category,
+        source=base.source,
+        yield_quantity=base.yield_quantity,
+        yield_unit=base.yield_unit,
+        yield_description=base.yield_description,
+        estimated_time_minutes=base.estimated_time_minutes,
+        notes=f"Variant of {base.name}",
+        base_recipe_id=base_recipe_id,
+        variant_name=variant_name,
+        is_production_ready=False,  # Variants start experimental
+    )
+
+    session.add(variant)
+    session.flush()
+
+    # Copy ingredients if requested
+    if copy_ingredients:
+        for ri in base.recipe_ingredients:
+            new_ri = RecipeIngredient(
+                recipe_id=variant.id,
+                ingredient_id=ri.ingredient_id,
+                quantity=ri.quantity,
+                unit=ri.unit,
+                notes=ri.notes,
+            )
+            session.add(new_ri)
+
+    session.flush()  # Flush to get IDs; caller controls commit
+
+    return {
+        "id": variant.id,
+        "name": variant.name,
+        "variant_name": variant.variant_name,
+        "base_recipe_id": variant.base_recipe_id,
+    }
+
+
+def get_all_recipes_grouped(
+    category: Optional[str] = None,
+    name_search: Optional[str] = None,
+    ingredient_id: Optional[int] = None,
+    include_archived: bool = False,
+    group_variants: bool = True,
+) -> List[Dict]:
+    """
+    Retrieve all recipes as dictionaries with optional variant grouping.
+
+    This function returns recipes as dictionaries (not ORM objects) and
+    supports grouping variants under their base recipes.
+
+    Args:
+        category: Filter by category (exact match)
+        name_search: Filter by name (case-insensitive partial match)
+        ingredient_id: Filter by recipes using specific ingredient
+        include_archived: If True, include archived recipes
+        group_variants: If True, sort variants under their base recipe
+
+    Returns:
+        List of recipe dictionaries with additional fields:
+        - _is_base: True if recipe has variants
+        - _variant_count: Number of variants (for base recipes)
+        - _is_variant: True if recipe is a variant
+        - _indent_level: 1 for variants (for display indentation)
+        - _is_orphaned_variant: True if base was deleted
+
+    Raises:
+        DatabaseError: If database operation fails
+    """
+    try:
+        with session_scope() as session:
+            query = session.query(Recipe)
+
+            # Filter out archived recipes by default
+            if not include_archived:
+                query = query.filter(Recipe.is_archived == False)
+
+            # Apply other filters
+            if category:
+                query = query.filter(Recipe.category == category)
+
+            if name_search:
+                query = query.filter(Recipe.name.ilike(f"%{name_search}%"))
+
+            if ingredient_id is not None:
+                query = query.join(RecipeIngredient).filter(
+                    RecipeIngredient.ingredient_id == ingredient_id
+                )
+
+            # Order by name
+            query = query.order_by(Recipe.name)
+
+            recipes = query.all()
+
+            # Convert to dicts
+            recipe_dicts = []
+            for r in recipes:
+                recipe_dicts.append({
+                    "id": r.id,
+                    "name": r.name,
+                    "category": r.category,
+                    "source": r.source,
+                    "yield_quantity": r.yield_quantity,
+                    "yield_unit": r.yield_unit,
+                    "yield_description": r.yield_description,
+                    "estimated_time_minutes": r.estimated_time_minutes,
+                    "notes": r.notes,
+                    "is_archived": r.is_archived,
+                    "base_recipe_id": r.base_recipe_id,
+                    "variant_name": r.variant_name,
+                    "is_production_ready": r.is_production_ready,
+                })
+
+            if group_variants:
+                return _group_recipes_with_variants(recipe_dicts)
+
+            return recipe_dicts
+
+    except SQLAlchemyError as e:
+        raise DatabaseError("Failed to retrieve recipes", e)
+
+
+def _group_recipes_with_variants(recipes: list) -> list:
+    """
+    Sort recipes so variants appear indented under their base.
+
+    Order:
+    1. Base recipes (base_recipe_id is None) sorted by name
+    2. Variants immediately after their base, sorted by variant_name
+
+    Args:
+        recipes: List of recipe dicts
+
+    Returns:
+        Sorted list with metadata fields:
+        - _is_base: True for base recipes with variants
+        - _variant_count: Number of variants
+        - _is_variant: True for variants
+        - _indent_level: 1 for variants
+        - _is_orphaned_variant: True if base not in list
+    """
+    # Separate base recipes and variants
+    base_recipes = [r for r in recipes if r.get("base_recipe_id") is None]
+    variants = [r for r in recipes if r.get("base_recipe_id") is not None]
+
+    # Build variant lookup by base_recipe_id
+    variant_map = {}
+    for v in variants:
+        base_id = v["base_recipe_id"]
+        if base_id not in variant_map:
+            variant_map[base_id] = []
+        variant_map[base_id].append(v)
+
+    # Sort variants within each group
+    for base_id in variant_map:
+        variant_map[base_id].sort(key=lambda x: x.get("variant_name") or x.get("name") or "")
+
+    # Build set of base recipe IDs for orphan detection
+    base_ids = {b["id"] for b in base_recipes}
+
+    # Build result with variants under base
+    result = []
+    for base in sorted(base_recipes, key=lambda x: x.get("name") or ""):
+        base["_is_base"] = True
+        base["_variant_count"] = len(variant_map.get(base["id"], []))
+        result.append(base)
+
+        # Add variants indented
+        for variant in variant_map.get(base["id"], []):
+            variant["_is_variant"] = True
+            variant["_indent_level"] = 1
+            result.append(variant)
+
+    # Add orphaned variants (base was deleted or not in filtered results)
+    orphaned = [v for v in variants if v["base_recipe_id"] not in base_ids]
+    for v in orphaned:
+        v["_is_orphaned_variant"] = True
+        result.append(v)
+
+    return result
