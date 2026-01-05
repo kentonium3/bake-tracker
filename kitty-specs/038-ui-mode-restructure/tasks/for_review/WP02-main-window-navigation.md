@@ -10,7 +10,7 @@ subtasks:
   - "T013"
 title: "Main Window & Mode Navigation"
 phase: "Phase 0 - Setup"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "system"
 shell_pid: ""
@@ -278,3 +278,4 @@ def _update_mode_bar_highlight(self):
 
 - 2026-01-05 - system - lane=planned - Prompt created.
 - 2026-01-05T22:34:21Z – system – shell_pid= – lane=doing – Moved to doing
+- 2026-01-05T22:40:22Z – system – shell_pid= – lane=for_review – Moved to for_review
