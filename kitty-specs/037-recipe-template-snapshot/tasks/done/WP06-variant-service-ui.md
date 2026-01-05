@@ -12,7 +12,7 @@ subtasks:
 title: "Variant Service & UI"
 phase: "Phase 2 - Scaling & Variants"
 lane: "done"
-assignee: ""
+assignee: "gemini"
 agent: "claude-reviewer"
 shell_pid: "97164"
 review_status: ""

@@ -9,7 +9,7 @@ subtasks:
 title: "Recipe History View"
 phase: "Phase 3 - Production Readiness & History"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude-reviewer"
 shell_pid: "97164"
 review_status: ""

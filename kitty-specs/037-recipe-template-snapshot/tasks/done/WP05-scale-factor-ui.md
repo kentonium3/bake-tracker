@@ -8,7 +8,7 @@ subtasks:
 title: "Scale Factor UI"
 phase: "Phase 2 - Scaling & Variants"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude-reviewer"
 shell_pid: "97164"
 review_status: ""

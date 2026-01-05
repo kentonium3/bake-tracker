@@ -8,7 +8,7 @@ subtasks:
 title: "Snapshot Service"
 phase: "Phase 1 - Core Snapshot System"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude-reviewer"
 shell_pid: "96946"
 review_status: ""

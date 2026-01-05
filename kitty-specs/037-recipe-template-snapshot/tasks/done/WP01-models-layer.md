@@ -9,7 +9,7 @@ subtasks:
 title: "Models Layer"
 phase: "Phase 1 - Core Snapshot System"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude-reviewer"
 shell_pid: "96741"
 review_status: ""
