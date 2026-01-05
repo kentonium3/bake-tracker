@@ -11,5 +11,6 @@ Mode containers are added as they are implemented.
 """
 
 from .placeholder_mode import PlaceholderMode, PlaceholderDashboard
+from .catalog_mode import CatalogMode
 
-__all__ = ["PlaceholderMode", "PlaceholderDashboard"]
+__all__ = ["PlaceholderMode", "PlaceholderDashboard", "CatalogMode"]

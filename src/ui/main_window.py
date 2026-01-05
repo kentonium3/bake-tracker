@@ -17,15 +17,11 @@ from typing import Optional, Dict
 from src.utils.constants import APP_NAME, APP_VERSION
 from src.ui.mode_manager import ModeManager
 from src.ui.modes.placeholder_mode import PlaceholderMode
+from src.ui.modes.catalog_mode import CatalogMode
 
-# Existing tab imports
+# Existing tab imports (still needed for modes not yet converted)
 from src.ui.dashboard_tab import DashboardTab
-from src.ui.ingredients_tab import IngredientsTab
 from src.ui.inventory_tab import InventoryTab
-from src.ui.recipes_tab import RecipesTab
-from src.ui.finished_units_tab import FinishedUnitsTab
-from src.ui.products_tab import ProductsTab
-from src.ui.packages_tab import PackagesTab
 from src.ui.recipients_tab import RecipientsTab
 from src.ui.events_tab import EventsTab
 from src.ui.production_dashboard_tab import ProductionDashboardTab
@@ -177,50 +173,20 @@ class MainWindow(ctk.CTk):
         self._create_observe_mode()
 
     def _create_catalog_mode(self):
-        """Create CATALOG mode with 6 tabs."""
-        mode = PlaceholderMode(self.mode_content, "CATALOG", [])
-        mode.setup_dashboard()
-        mode.create_tabview()
+        """Create CATALOG mode with 6 tabs using CatalogMode class."""
+        mode = CatalogMode(self.mode_content)
 
-        # Ingredients tab
-        ingredients_frame = mode.tabview.add("Ingredients")
-        ingredients_frame.grid_columnconfigure(0, weight=1)
-        ingredients_frame.grid_rowconfigure(0, weight=1)
-        self.ingredients_tab = IngredientsTab(ingredients_frame)
+        # Store tab references for backward compatibility
+        self.ingredients_tab = mode.ingredients_tab
+        self.products_tab = mode.products_tab
+        self.recipes_tab = mode.recipes_tab
+        self.finished_units_tab = mode.finished_units_tab
+        self.packages_tab = mode.packages_tab
+
         self._tab_refs["ingredients"] = self.ingredients_tab
-
-        # Products tab
-        products_frame = mode.tabview.add("Products")
-        products_frame.grid_columnconfigure(0, weight=1)
-        products_frame.grid_rowconfigure(0, weight=1)
-        self.products_tab = ProductsTab(products_frame)
         self._tab_refs["products"] = self.products_tab
-
-        # Recipes tab
-        recipes_frame = mode.tabview.add("Recipes")
-        recipes_frame.grid_columnconfigure(0, weight=1)
-        recipes_frame.grid_rowconfigure(0, weight=1)
-        self.recipes_tab = RecipesTab(recipes_frame)
         self._tab_refs["recipes"] = self.recipes_tab
-
-        # Finished Units tab
-        finished_units_frame = mode.tabview.add("Finished Units")
-        finished_units_frame.grid_columnconfigure(0, weight=1)
-        finished_units_frame.grid_rowconfigure(0, weight=1)
-        self.finished_units_tab = FinishedUnitsTab(finished_units_frame)
         self._tab_refs["finished_units"] = self.finished_units_tab
-
-        # Finished Goods tab (placeholder for now)
-        finished_goods_frame = mode.tabview.add("Finished Goods")
-        finished_goods_frame.grid_columnconfigure(0, weight=1)
-        finished_goods_frame.grid_rowconfigure(0, weight=1)
-        self._add_placeholder_to_frame(finished_goods_frame, "Finished Goods", "Coming Soon")
-
-        # Packages tab
-        packages_frame = mode.tabview.add("Packages")
-        packages_frame.grid_columnconfigure(0, weight=1)
-        packages_frame.grid_rowconfigure(0, weight=1)
-        self.packages_tab = PackagesTab(packages_frame)
         self._tab_refs["packages"] = self.packages_tab
 
         self.mode_manager.register_mode("CATALOG", mode)
