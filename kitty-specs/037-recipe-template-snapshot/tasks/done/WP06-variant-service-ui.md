@@ -11,10 +11,10 @@ subtasks:
   - "T029"
 title: "Variant Service & UI"
 phase: "Phase 2 - Scaling & Variants"
-lane: "for_review"
+lane: "done"
 assignee: ""
-agent: "gemini"
-shell_pid: "72255"
+agent: "claude-reviewer"
+shell_pid: "97164"
 review_status: ""
 reviewed_by: ""
 history:
@@ -468,3 +468,4 @@ def _get_row_values(self, recipe: dict) -> list:
 - 2026-01-03T06:30:00Z - system - lane=planned - Prompt created.
 - 2026-01-04T18:56:22Z – gemini – shell_pid=69362 – lane=doing – Started parallel implementation
 - 2026-01-04T19:02:44Z – gemini – shell_pid=72255 – lane=for_review – Service layer complete: T022-T024, T029 (variant functions + tests)
+- 2026-01-05T03:20:23Z – claude-reviewer – shell_pid=97164 – lane=done – Code review approved: Variant service and base_recipe_id/variant_name fields verified

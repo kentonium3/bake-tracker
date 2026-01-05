@@ -7,10 +7,10 @@ subtasks:
   - "T021"
 title: "Scale Factor UI"
 phase: "Phase 2 - Scaling & Variants"
-lane: "for_review"
+lane: "done"
 assignee: ""
-agent: "system"
-shell_pid: ""
+agent: "claude-reviewer"
+shell_pid: "97164"
 review_status: ""
 reviewed_by: ""
 history:
@@ -276,3 +276,4 @@ def _on_ok(self):
   - Added _get_scale_factor() helper and _on_scale_changed() event handler
   - Fixed _calculate_loss_quantity() to include scale_factor in expected yield calculation
 - 2026-01-04T19:14:36Z – system – shell_pid= – lane=for_review – Moved to for_review
+- 2026-01-05T03:20:22Z – claude-reviewer – shell_pid=97164 – lane=done – Code review approved: Scale factor UI entry, validation, and service integration verified

@@ -7,10 +7,10 @@ subtasks:
   - "T017"
 title: "Migration Script"
 phase: "Phase 1 - Core Snapshot System"
-lane: "for_review"
+lane: "done"
 assignee: ""
-agent: "system"
-shell_pid: ""
+agent: "claude-reviewer"
+shell_pid: "97164"
 review_status: ""
 reviewed_by: ""
 history:
@@ -349,3 +349,4 @@ def test_migration_with_sample_data():
 - 2026-01-03T06:30:00Z - system - lane=planned - Prompt created.
 - 2026-01-04T19:08:51Z – system – shell_pid= – lane=doing – Moved to doing
 - 2026-01-04T19:50:14Z – system – shell_pid= – lane=for_review – Moved to for_review
+- 2026-01-05T03:20:22Z – claude-reviewer – shell_pid=97164 – lane=done – Code review approved: is_backfilled flag, dry-run mode, verify function all present
