@@ -1,7 +1,7 @@
 # UI Mode Restructure Architecture Specification
 
-**Document Version**: 1.2
-**Status**: Design Proposal (Revised alignment with req_planning.md)
+**Document Version**: 1.3
+**Status**: Design Proposal (Terminology corrected: Bundle → FinishedGood)
 **Date**: January 2026
 **Constitutional References**: Principles V (Layered Architecture), VII (Pragmatic Aspiration)
 
@@ -96,8 +96,8 @@ OLD (Entity-Centric):          NEW (Workflow-Centric):
 ├─ Products                    │  ├─ Ingredients
 ├─ Recipes                     │  ├─ Products
 ├─ Finished Units              │  ├─ Recipes
-├─ Packages                    │  ├─ Finished Units
-├─ Recipients                  │  ├─ Bundles (Phase 2)
+├─ Packages                    │  ├─ Finished Units (individual items)
+├─ Recipients                  │  ├─ Finished Goods (assemblies)
 ├─ Events                      │  └─ Packages (Phase 3 - deferred)
                                │
 ├─ My Pantry                   ├─ PLAN (Forward-Looking)
@@ -150,7 +150,7 @@ graph TD
     B --> B2[Products Tab]
     B --> B3[Recipes Tab]
     B --> B4[Finished Units Tab]
-    B --> B5[Bundles Tab]
+    B --> B5[Finished Goods Tab]
     B --> B6[Packages Tab]
     
     C --> C1[Events Tab]
@@ -295,7 +295,7 @@ graph TD
 │                                                         │
 │  Quick Stats:                                          │
 │  • 487 Ingredients | 892 Products | 45 Recipes         │
-│  • 12 Finished Units | 5 Bundles | 8 Package Types     │
+│  • 12 Finished Units | 8 Finished Goods                │
 │                                                         │
 │  Quick Actions:                                        │
 │  [+ New Ingredient] [+ New Recipe] [Import Catalog]    │
@@ -313,9 +313,11 @@ graph TD
 - **Ingredients**: Hierarchical ingredient catalog (after #1 implementation)
 - **Products**: Brand-specific products with UPCs, pricing
 - **Recipes**: Recipe templates (after #2 implementation)
-- **Finished Units**: What recipes produce (cookies, cakes, etc.)
-- **Bundles**: Bundle definitions (Phase 2 - functional assemblies, e.g., "Gift Bag A" contains 6 cookies + 3 brownies)
+- **Finished Units**: Individual items from recipes (single cookie, single brownie, etc.)
+- **Finished Goods**: Assemblies & gift bundles (e.g., "Holiday Gift Bag" = 6 cookies + 3 brownies)
 - **Packages**: Package definitions (Phase 3 - deferred per F026, aesthetic containers)
+
+**Terminology Note:** Requirements documents use "Bundle" terminology, which maps to the FinishedGood model in code. FinishedGoods are assemblies that contain FinishedUnits. The assembly_type field (GIFT_BOX, VARIETY_PACK, etc.) distinguishes different types.
 
 **Navigation from CATALOG:**
 - Create ingredient → Used in recipes (stay in CATALOG)
@@ -810,7 +812,7 @@ Step 5: Test CATALOG mode end-to-end
 | Recipes | CATALOG → Recipes | Adopt StandardTabLayout |
 | Finished Units | CATALOG → Finished Units | Adopt StandardTabLayout |
 | Packages | CATALOG → Packages | Adopt StandardTabLayout |
-| (New) | CATALOG → Bundles | New tab (Phase 2) |
+| Finished Goods | CATALOG → Finished Goods | Adopt StandardTabLayout (existing tab, may need rename) |
 | Events | PLAN → Events | Adopt StandardTabLayout |
 | (New) | PLAN → Planning Workspace | New tab (Phase 2 CRITICAL) |
 | (New) | SHOP → Shopping Lists | New tab |
@@ -830,11 +832,12 @@ Step 5: Test CATALOG mode end-to-end
 | Mode dashboards | Summary widgets for each mode | High |
 | Shopping Lists tab | Auto-generated from events | High |
 | Purchases tab | Record purchases (#6) | High |
-| Bundles tab | Bundle definitions for assembly | High (Phase 2) |
-| Assembly tab | Bundle assembly checklist | High (Phase 2) |
+| Assembly tab | FinishedGood assembly checklist | High (Phase 2) |
 | Packaging tab | Package completion checklist | High (Phase 2) |
 | Planning Workspace | Automatic batch calculation | High (Phase 2 CRITICAL) |
 | Event Status tab | Per-event progress tracking | Medium |
+
+**Note:** "Finished Goods" tab already exists (may be misnamed). No new tab needed - just adopt StandardTabLayout and clarify subtitle as "(Assemblies & Gift Bundles)".
 
 ---
 
@@ -873,13 +876,13 @@ Step 5: Test CATALOG mode end-to-end
 - Base classes (BaseMode, StandardTabLayout): 6-8 hours
 - Mode containers (5 modes): 8-10 hours
 - Mode dashboards (5 dashboards): 16-20 hours
-- Tab refactoring (11 tabs @ 2-3 hours each): 22-33 hours
+- Tab refactoring (12 tabs @ 2-3 hours each): 24-36 hours
 - Mode switcher UI: 4-6 hours
-- New tabs (Shopping Lists, Purchases, Bundles, Assembly Checklist, Packaging Checklist, Event Status): 24-32 hours
+- New tabs (Shopping Lists, Purchases, Assembly Checklist, Packaging Checklist, Event Status): 20-28 hours
 - Testing: 12-16 hours
-- **Total: 92-133 hours** (roughly 12-17 working days)
+- **Total: 90-132 hours** (roughly 11-17 working days)
 
-**Note:** Assembly and Packaging checklists are both Phase 2 minimal implementations (simple checklist UI, no inventory transactions until Phase 3).
+**Note:** Assembly and Packaging checklists are both Phase 2 minimal implementations (simple checklist UI, no inventory transactions until Phase 3). "Finished Goods" is an existing tab (not new) - just needs StandardTabLayout adoption.
 
 ### Risk Mitigation
 1. **Risk**: Refactoring breaks existing tabs
@@ -915,16 +918,41 @@ Step 5: Test CATALOG mode end-to-end
 
 ---
 
-## 14. Related Documents
+## 14. Terminology Glossary
+
+This section clarifies terminology mapping between requirements documents and code models.
+
+| User-Facing Term | Requirements Term | Code Model | Table | Description |
+|------------------|------------------|------------|-------|-------------|
+| Individual Item | FinishedUnit | FinishedUnit | finished_units | Single cookie, brownie, cake - produced from recipe |
+| Assembly / Bundle | Bundle | **FinishedGood** | finished_goods | Assembled item containing FinishedUnits |
+| Gift Bag / Gift Box | Bundle | FinishedGood (assembly_type=GIFT_BOX) | finished_goods | Specific assembly type for gifting |
+| Variety Pack | Bundle | FinishedGood (assembly_type=VARIETY_PACK) | finished_goods | Specific assembly type for variety |
+| Package | Package | Package | packages | Aesthetic container with materials |
+
+**Key Insight:** "Bundle" in requirements = FinishedGood in code. No separate Bundle entity exists.
+
+**Two-Tier Hierarchy:**
+- **FinishedUnit** (Tier 1): Individual items from recipes
+- **FinishedGood** (Tier 2): Assemblies that contain FinishedUnits (or other FinishedGoods)
+
+**Planning Flow:**
+- BULK_COUNT mode: Event specifies FinishedUnit quantities directly
+- BUNDLED mode: Event specifies FinishedGood quantities → system explodes to FinishedUnits
+
+---
+
+## 15. Related Documents
 
 - `/docs/design/ingredient_hierarchy_architecture.md` - Ingredient hierarchy (used in CATALOG)
 - `/docs/design/recipe_redesign_architecture.md` - Recipe templates (used in CATALOG/PLAN)
 - `/docs/design/PHASE2_workflow_ux_redesign.md` - Phase 2 requirements
+- `/docs/design/F038_TERMINOLOGY_CORRECTION.md` - Terminology alignment (Bundle → FinishedGood)
 - `/.kittify/memory/constitution.md` - Architectural principles
 
 ---
 
-## 15. Next Steps
+## 16. Next Steps
 
 ### Immediate (Pre-Implementation)
 1. **Create mode navigation mockups** for Marianne review
