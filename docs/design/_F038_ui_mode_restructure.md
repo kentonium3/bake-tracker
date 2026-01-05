@@ -1,8 +1,8 @@
 # UI Mode Restructure Architecture Specification
 
-**Document Version**: 1.0  
-**Status**: Design Proposal  
-**Date**: December 2024  
+**Document Version**: 1.2
+**Status**: Design Proposal (Revised alignment with req_planning.md)
+**Date**: January 2026
 **Constitutional References**: Principles V (Layered Architecture), VII (Pragmatic Aspiration)
 
 ---
@@ -94,11 +94,12 @@ Application organized by WORK ACTIVITY, not ENTITY TYPE
 OLD (Entity-Centric):          NEW (Workflow-Centric):
 ├─ My Ingredients              ├─ CATALOG (Define Things)
 ├─ Products                    │  ├─ Ingredients
-├─ Recipes                     │  ├─ Products  
+├─ Recipes                     │  ├─ Products
 ├─ Finished Units              │  ├─ Recipes
 ├─ Packages                    │  ├─ Finished Units
-├─ Recipients                  │  └─ Packages
-├─ Events                      │
+├─ Recipients                  │  ├─ Bundles (Phase 2)
+├─ Events                      │  └─ Packages (Phase 3 - deferred)
+                               │
 ├─ My Pantry                   ├─ PLAN (Forward-Looking)
 ├─ Production                  │  ├─ Events
 └─ Summary                     │  └─ Planning Workspace
@@ -126,7 +127,7 @@ OLD (Entity-Centric):          NEW (Workflow-Centric):
 | **CATALOG** | Define reusable things | "Set up my kitchen" | Infrequent (setup + maintenance) |
 | **PLAN** | Create event plans | "What am I making?" | Weekly (event planning) |
 | **SHOP** | Acquire ingredients | "What do I need to buy?" | Weekly (shopping trips) |
-| **PRODUCE** | Execute production | "Time to bake" | Daily (during production period) |
+| **PRODUCE** | Execute production & assembly | "Time to bake & assemble" | Daily (during production period) |
 | **OBSERVE** | Monitor status | "How am I doing?" | Daily (check progress) |
 
 ---
@@ -149,7 +150,8 @@ graph TD
     B --> B2[Products Tab]
     B --> B3[Recipes Tab]
     B --> B4[Finished Units Tab]
-    B --> B5[Packages Tab]
+    B --> B5[Bundles Tab]
+    B --> B6[Packages Tab]
     
     C --> C1[Events Tab]
     C --> C2[Planning Workspace Tab]
@@ -188,11 +190,14 @@ graph LR
     B -->|Go shopping| E[SHOP Mode]
     B -->|Start baking| F[PRODUCE Mode]
     B -->|Check progress| G[OBSERVE Mode]
-    
+
     C --> C1[Manage catalogs<br/>Infrequent changes]
     D --> D1[Create plans<br/>Weekly activity]
     E --> E1[Buy ingredients<br/>Shopping trips]
-    F --> F1[Make batches<br/>Production days]
+    F --> F1[Production Runs<br/>Make batches]
+    F1 --> F2[Assembly<br/>Assemble bundles]
+    F2 --> F3[Packaging<br/>Package bundles]
+    F3 --> G
     G --> G1[Monitor status<br/>Daily checks]
     
     style C fill:#FFF4E6
@@ -235,6 +240,45 @@ graph TD
     style I fill:#90EE90
 ```
 
+### Flow 3: PRODUCE Mode Internal Flow
+
+```mermaid
+graph TD
+    A[PRODUCE Mode] --> B[Mode Dashboard<br/>Today's production plan]
+
+    B --> C{Select Tab}
+
+    C --> D[Production Runs]
+    C --> E[Assembly]
+    C --> F[Packaging]
+
+    D --> D1[Record batch completion]
+    D1 --> D2[Update FinishedUnit inventory]
+
+    E --> E1[Check assembly feasibility]
+    E1 --> E2{Components available?}
+    E2 -->|Yes| E3[Assembly checklist enabled]
+    E2 -->|No| E4[Must complete production first]
+
+    E3 --> E5[Check off bundles assembled]
+    E5 --> E6[Record assembly completion]
+    E6 --> F
+
+    F --> F1[Check packaging materials selected]
+    F1 --> F2{Materials finalized?}
+    F2 -->|Yes| F3[Packaging checklist enabled]
+    F2 -->|No| F4[Must finalize material decisions]
+
+    F3 --> F5[Check off packages completed]
+    F5 --> F6[Record packaging completion]
+
+    style D fill:#FCE4EC
+    style E fill:#FCE4EC
+    style F fill:#FCE4EC
+```
+
+**Note:** Material selection can happen anytime between planning and assembly, but MUST be finalized by assembly time per F026 "deferred packaging decisions."
+
 ---
 
 ## 5. Detailed Mode Specifications
@@ -251,7 +295,7 @@ graph TD
 │                                                         │
 │  Quick Stats:                                          │
 │  • 487 Ingredients | 892 Products | 45 Recipes         │
-│  • 12 Finished Units | 8 Package Types                 │
+│  • 12 Finished Units | 5 Bundles | 8 Package Types     │
 │                                                         │
 │  Quick Actions:                                        │
 │  [+ New Ingredient] [+ New Recipe] [Import Catalog]    │
@@ -270,7 +314,8 @@ graph TD
 - **Products**: Brand-specific products with UPCs, pricing
 - **Recipes**: Recipe templates (after #2 implementation)
 - **Finished Units**: What recipes produce (cookies, cakes, etc.)
-- **Packages**: Package definitions (gift boxes, trays, etc.)
+- **Bundles**: Bundle definitions (Phase 2 - functional assemblies, e.g., "Gift Bag A" contains 6 cookies + 3 brownies)
+- **Packages**: Package definitions (Phase 3 - deferred per F026, aesthetic containers)
 
 **Navigation from CATALOG:**
 - Create ingredient → Used in recipes (stay in CATALOG)
@@ -304,13 +349,22 @@ graph TD
 │  Quick Actions:                                        │
 │  [+ New Event] [Planning Workspace]                   │
 │                                                         │
+│  Production Plan Preview:                              │
+│  ┌────────────────────────────────────────────────┐   │
+│  │ Christmas 2025 (planned)                        │   │
+│  │ • Sugar Cookies: 7 batches → 336 cookies       │   │
+│  │ • Brownies: 7 batches → 168 brownies           │   │
+│  │ • Assembly: 50 Holiday Gift Bags ✅            │   │
+│  │ [View Details in Planning Workspace →]         │   │
+│  └────────────────────────────────────────────────┘   │
+│                                                         │
 │  [Events] [Planning Workspace]                        │
 └─────────────────────────────────────────────────────────┘
 ```
 
 **Tabs within PLAN:**
-- **Events**: List of events with status (existing Events tab)
-- **Planning Workspace**: Non-linear planning tool (#5 - future)
+- **Events**: List of events with status and requirements
+- **Planning Workspace**: Automatic batch calculation (Phase 2 CRITICAL - see gap analysis)
 
 **Navigation from PLAN:**
 - Event needs ingredients → Generate shopping list (switch to SHOP mode)
@@ -379,6 +433,18 @@ graph TD
 │  │ ☐ Magic Bars (1 batch)                        │   │
 │  └────────────────────────────────────────────────┘   │
 │                                                         │
+│  Assembly Checklist (after production):                │
+│  ┌────────────────────────────────────────────────┐   │
+│  │ ☐ 50 Holiday Gift Bags assembled               │   │
+│  │   (6 cookies + 3 brownies per bag)             │   │
+│  └────────────────────────────────────────────────┘   │
+│                                                         │
+│  Packaging Checklist (after assembly):                 │
+│  ┌────────────────────────────────────────────────┐   │
+│  │ ☐ 50 Holiday Gift Bags packaged                │   │
+│  │   (in red tissue with gold ribbon)             │   │
+│  └────────────────────────────────────────────────┘   │
+│                                                         │
 │  Completed Today:                                      │
 │  • ✅ Gingerbread Cookies (2 batches, 48 cookies)      │
 │                                                         │
@@ -391,8 +457,10 @@ graph TD
 
 **Tabs within PRODUCE:**
 - **Production Runs**: Batch production (existing Production Dashboard tab)
-- **Assembly**: Finished goods assembly (future)
-- **Packaging**: Final packaging for events (future)
+- **Assembly**: Bundle assembly (Phase 2 - checklist; Phase 3 - inventory transactions)
+- **Packaging**: Final packaging (Phase 2 - checklist; Phase 3 - inventory transactions)
+
+**Note on F026 "Deferred Packaging":** F026 defers packaging material *selection* (which box, which ribbon), not packaging *execution*. Material decisions can happen anytime between planning and assembly, but MUST be finalized by assembly time. The packaging checklist workflow is Phase 2.
 
 **Navigation from PRODUCE:**
 - Production complete → View inventory (switch to SHOP mode)
@@ -416,6 +484,7 @@ graph TD
 │  │ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ │   │
 │  │ Shopping:     ✅ Complete (100%)               │   │
 │  │ Production:   🔶 In Progress (65%)             │   │
+│  │ Assembly:     ⚠️ Not Started (0%)              │   │
 │  │ Packaging:    ⚠️ Not Started (0%)              │   │
 │  │ [View Details →]                               │   │
 │  └────────────────────────────────────────────────┘   │
@@ -741,14 +810,15 @@ Step 5: Test CATALOG mode end-to-end
 | Recipes | CATALOG → Recipes | Adopt StandardTabLayout |
 | Finished Units | CATALOG → Finished Units | Adopt StandardTabLayout |
 | Packages | CATALOG → Packages | Adopt StandardTabLayout |
+| (New) | CATALOG → Bundles | New tab (Phase 2) |
 | Events | PLAN → Events | Adopt StandardTabLayout |
-| (New) | PLAN → Planning Workspace | New tab (#5 future) |
+| (New) | PLAN → Planning Workspace | New tab (Phase 2 CRITICAL) |
 | (New) | SHOP → Shopping Lists | New tab |
 | (New) | SHOP → Purchases | New tab (#6) |
 | My Pantry | SHOP → My Pantry | Adopt StandardTabLayout |
 | Production | PRODUCE → Production Runs | Adopt StandardTabLayout |
-| (New) | PRODUCE → Assembly | New tab (future) |
-| (New) | PRODUCE → Packaging | New tab (future) |
+| (New) | PRODUCE → Assembly | New tab (Phase 2 - checklist) |
+| (New) | PRODUCE → Packaging | New tab (Phase 2 - checklist) |
 | Summary | OBSERVE → Dashboard | Adopt StandardTabLayout |
 | (New) | OBSERVE → Event Status | New tab |
 | Reports | OBSERVE → Reports | Adopt StandardTabLayout |
@@ -760,10 +830,11 @@ Step 5: Test CATALOG mode end-to-end
 | Mode dashboards | Summary widgets for each mode | High |
 | Shopping Lists tab | Auto-generated from events | High |
 | Purchases tab | Record purchases (#6) | High |
+| Bundles tab | Bundle definitions for assembly | High (Phase 2) |
+| Assembly tab | Bundle assembly checklist | High (Phase 2) |
+| Packaging tab | Package completion checklist | High (Phase 2) |
+| Planning Workspace | Automatic batch calculation | High (Phase 2 CRITICAL) |
 | Event Status tab | Per-event progress tracking | Medium |
-| Planning Workspace | Non-linear planning (#5) | Future |
-| Assembly tab | Finished goods assembly | Future |
-| Packaging tab | Final packaging workflow | Future |
 
 ---
 
@@ -804,9 +875,11 @@ Step 5: Test CATALOG mode end-to-end
 - Mode dashboards (5 dashboards): 16-20 hours
 - Tab refactoring (11 tabs @ 2-3 hours each): 22-33 hours
 - Mode switcher UI: 4-6 hours
-- New tabs (Shopping Lists, Purchases, Event Status): 12-16 hours
+- New tabs (Shopping Lists, Purchases, Bundles, Assembly Checklist, Packaging Checklist, Event Status): 24-32 hours
 - Testing: 12-16 hours
-- **Total: 80-109 hours** (roughly 10-14 working days)
+- **Total: 92-133 hours** (roughly 12-17 working days)
+
+**Note:** Assembly and Packaging checklists are both Phase 2 minimal implementations (simple checklist UI, no inventory transactions until Phase 3).
 
 ### Risk Mitigation
 1. **Risk**: Refactoring breaks existing tabs
