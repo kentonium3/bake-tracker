@@ -9,7 +9,7 @@ subtasks:
   - "T006"
 title: "Base Classes & Directory Structure"
 phase: "Phase 0 - Setup"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "claude"
 shell_pid: "26809"
@@ -224,3 +224,4 @@ Row 3: [status_bar (col 0-2, sticky EW)]
 
 - 2026-01-05 - system - lane=planned - Prompt created.
 - 2026-01-05T22:29:48Z – claude – shell_pid=26809 – lane=doing – Started implementation
+- 2026-01-05T22:33:47Z – claude – shell_pid=26809 – lane=for_review – Moved to for_review
