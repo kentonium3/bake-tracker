@@ -18,9 +18,9 @@ from src.utils.constants import APP_NAME, APP_VERSION
 from src.ui.mode_manager import ModeManager
 from src.ui.modes.placeholder_mode import PlaceholderMode
 from src.ui.modes.catalog_mode import CatalogMode
+from src.ui.modes.observe_mode import ObserveMode
 
 # Existing tab imports (still needed for modes not yet converted)
-from src.ui.dashboard_tab import DashboardTab
 from src.ui.inventory_tab import InventoryTab
 from src.ui.recipients_tab import RecipientsTab
 from src.ui.events_tab import EventsTab
@@ -274,29 +274,13 @@ class MainWindow(ctk.CTk):
         self.mode_manager.register_mode("PRODUCE", mode)
 
     def _create_observe_mode(self):
-        """Create OBSERVE mode with 3 tabs (default mode - FR-005)."""
-        mode = PlaceholderMode(self.mode_content, "OBSERVE", [])
-        mode.setup_dashboard()
-        mode.create_tabview()
+        """Create OBSERVE mode with 3 tabs using ObserveMode class (FR-005 default)."""
+        mode = ObserveMode(self.mode_content)
 
-        # Dashboard tab (Summary)
-        dashboard_frame = mode.tabview.add("Dashboard")
-        dashboard_frame.grid_columnconfigure(0, weight=1)
-        dashboard_frame.grid_rowconfigure(0, weight=1)
-        self.dashboard_tab = DashboardTab(dashboard_frame)
+        # Store tab references for backward compatibility
+        self.dashboard_tab = mode.dashboard_tab
+
         self._tab_refs["dashboard"] = self.dashboard_tab
-
-        # Event Status tab (placeholder)
-        event_status_frame = mode.tabview.add("Event Status")
-        event_status_frame.grid_columnconfigure(0, weight=1)
-        event_status_frame.grid_rowconfigure(0, weight=1)
-        self._add_placeholder_to_frame(event_status_frame, "Event Status", "Coming Soon")
-
-        # Reports tab (placeholder)
-        reports_frame = mode.tabview.add("Reports")
-        reports_frame.grid_columnconfigure(0, weight=1)
-        reports_frame.grid_rowconfigure(0, weight=1)
-        self._add_placeholder_to_frame(reports_frame, "Reports", "Coming Soon")
 
         self.mode_manager.register_mode("OBSERVE", mode)
 

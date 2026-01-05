@@ -8,9 +8,9 @@ subtasks:
   - "T026"
 title: "OBSERVE Mode"
 phase: "Phase 1 - Mode Implementation"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
+agent: "system"
 shell_pid: ""
 review_status: ""
 reviewed_by: ""
@@ -262,3 +262,4 @@ class ReportsTab(ctk.CTkFrame):
 ## Activity Log
 
 - 2026-01-05 - system - lane=planned - Prompt created.
+- 2026-01-05T22:43:31Z – system – shell_pid= – lane=doing – Moved to doing

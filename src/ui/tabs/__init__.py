@@ -13,4 +13,7 @@ Tabs are organized by their parent mode:
 Tab widgets are added as they are implemented.
 """
 
-__all__ = []
+from .event_status_tab import EventStatusTab
+from .reports_tab import ReportsTab
+
+__all__ = ["EventStatusTab", "ReportsTab"]
