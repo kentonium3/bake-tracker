@@ -22,6 +22,10 @@ from src.services.planning import (
     EventNotFoundError,
 )
 from .phase_sidebar import PhaseSidebar, PlanPhase, PhaseStatus
+from .calculate_view import CalculateView
+from .shop_view import ShopView
+from .produce_view import ProduceView
+from .assemble_view import AssembleView
 
 
 class StalePlanBanner(ctk.CTkFrame):
@@ -348,16 +352,51 @@ class PlanningWorkspace(ctk.CTkFrame):
         self.view_container.grid_rowconfigure(0, weight=1)
 
     def _setup_views(self) -> None:
-        """Set up phase views (placeholders for now, WP08 will implement)."""
-        for phase in PlanPhase:
-            view = PlaceholderView(self.view_container, phase)
-            view.grid(row=0, column=0, sticky="nsew")
-            view.grid_remove()  # Hide initially
-            self._views[phase] = view
+        """Set up phase views with real implementations."""
+        # Calculate view
+        self._views[PlanPhase.CALCULATE] = CalculateView(
+            self.view_container,
+            event_id=self.event_id,
+            on_calculated=self._on_plan_calculated,
+        )
+        self._views[PlanPhase.CALCULATE].grid(row=0, column=0, sticky="nsew")
+        self._views[PlanPhase.CALCULATE].grid_remove()
+
+        # Shop view
+        self._views[PlanPhase.SHOP] = ShopView(
+            self.view_container,
+            event_id=self.event_id,
+        )
+        self._views[PlanPhase.SHOP].grid(row=0, column=0, sticky="nsew")
+        self._views[PlanPhase.SHOP].grid_remove()
+
+        # Produce view
+        self._views[PlanPhase.PRODUCE] = ProduceView(
+            self.view_container,
+            event_id=self.event_id,
+        )
+        self._views[PlanPhase.PRODUCE].grid(row=0, column=0, sticky="nsew")
+        self._views[PlanPhase.PRODUCE].grid_remove()
+
+        # Assemble view
+        self._views[PlanPhase.ASSEMBLE] = AssembleView(
+            self.view_container,
+            event_id=self.event_id,
+        )
+        self._views[PlanPhase.ASSEMBLE].grid(row=0, column=0, sticky="nsew")
+        self._views[PlanPhase.ASSEMBLE].grid_remove()
 
         # Show initial phase
         self._show_view(PlanPhase.CALCULATE)
         self.sidebar.update_active_phase(PlanPhase.CALCULATE)
+
+    def _on_plan_calculated(self) -> None:
+        """Handle plan calculation completion - refresh other views."""
+        # Refresh shopping list since plan changed
+        if PlanPhase.SHOP in self._views:
+            self._views[PlanPhase.SHOP].refresh()
+        # Update phase statuses
+        self._load_plan_data()
 
     def _show_view(self, phase: PlanPhase) -> None:
         """Show the view for a specific phase.
@@ -559,6 +598,12 @@ class PlanningWorkspace(ctk.CTkFrame):
         """
         self.event_id = event_id
         self._plan_data = {}
+
+        # Update all views with new event
+        for phase, view in self._views.items():
+            if hasattr(view, 'set_event'):
+                view.set_event(event_id)
+
         self._load_plan_data()
         # Reset to Calculate phase
         self.switch_to_phase(PlanPhase.CALCULATE)
@@ -566,3 +611,8 @@ class PlanningWorkspace(ctk.CTkFrame):
     def refresh(self) -> None:
         """Refresh the workspace data."""
         self._load_plan_data()
+        # Refresh current view
+        if self.current_phase in self._views:
+            view = self._views[self.current_phase]
+            if hasattr(view, 'refresh'):
+                view.refresh()

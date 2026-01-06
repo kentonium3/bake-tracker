@@ -14,10 +14,20 @@ Usage:
 """
 
 from .planning_workspace import PlanningWorkspace
-from .phase_sidebar import PhaseSidebar, StatusIndicator
+from .phase_sidebar import PhaseSidebar, StatusIndicator, PlanPhase, PhaseStatus
+from .calculate_view import CalculateView
+from .shop_view import ShopView
+from .produce_view import ProduceView
+from .assemble_view import AssembleView
 
 __all__ = [
     "PlanningWorkspace",
     "PhaseSidebar",
     "StatusIndicator",
+    "PlanPhase",
+    "PhaseStatus",
+    "CalculateView",
+    "ShopView",
+    "ProduceView",
+    "AssembleView",
 ]
