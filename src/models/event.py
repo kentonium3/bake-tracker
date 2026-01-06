@@ -45,6 +45,18 @@ class FulfillmentStatus(str, Enum):
     DELIVERED = "delivered"
 
 
+class OutputMode(str, Enum):
+    """
+    Output mode for event production requirements.
+
+    Determines how requirements are specified for production planning:
+    - BULK_COUNT: Direct FinishedUnit quantities (e.g., "make 300 cookies")
+    - BUNDLED: FinishedGood/bundle quantities (e.g., "make 50 gift bags")
+    """
+    BULK_COUNT = "bulk_count"
+    BUNDLED = "bundled"
+
+
 class Event(BaseModel):
     """
     Event model representing annual baking events.
@@ -66,6 +78,9 @@ class Event(BaseModel):
     event_date = Column(Date, nullable=False)
     year = Column(Integer, nullable=False, index=True)
     notes = Column(Text, nullable=True)
+
+    # Planning configuration (Feature 039)
+    output_mode = Column(SQLEnum(OutputMode), nullable=True, index=True)
 
     # Timestamps
     date_added = Column(DateTime, nullable=False, default=utc_now)
@@ -103,6 +118,14 @@ class Event(BaseModel):
     )
     assembly_targets = relationship(
         "EventAssemblyTarget",
+        back_populates="event",
+        cascade="all, delete-orphan",
+        lazy="selectin",
+    )
+
+    # Feature 039: Planning workspace relationships
+    production_plan_snapshots = relationship(
+        "ProductionPlanSnapshot",
         back_populates="event",
         cascade="all, delete-orphan",
         lazy="selectin",
