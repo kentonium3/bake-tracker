@@ -1,7 +1,24 @@
 {
+  "accept_commit": null,
+  "acceptance_history": [
+    {
+      "accepted_at": "2026-01-06T02:08:04Z",
+      "accepted_by": "claude",
+      "accepted_from_commit": "7919fca4e8a9a868dde96701e3937ff0696de580",
+      "branch": "038-ui-mode-restructure",
+      "mode": "local",
+      "validation_commands": [
+        "pytest src/tests -v --tb=short"
+      ]
+    }
+  ],
+  "acceptance_mode": "local",
+  "accepted_at": "2026-01-06T02:08:04Z",
+  "accepted_by": "claude",
+  "accepted_from_commit": "7919fca4e8a9a868dde96701e3937ff0696de580",
+  "created_at": "2026-01-05T21:36:02Z",
   "feature_number": "038",
-  "slug": "038-ui-mode-restructure",
   "friendly_name": "UI Mode Restructure",
-  "source_description": "Restructure application UI from flat 11-tab navigation to 5-mode workflow architecture (CATALOG, PLAN, SHOP, PRODUCE, OBSERVE) with consistent tab layouts, mode-specific dashboards, and clear navigation.",
-  "created_at": "2026-01-05T21:36:02Z"
+  "slug": "038-ui-mode-restructure",
+  "source_description": "Restructure application UI from flat 11-tab navigation to 5-mode workflow architecture (CATALOG, PLAN, SHOP, PRODUCE, OBSERVE) with consistent tab layouts, mode-specific dashboards, and clear navigation."
 }
