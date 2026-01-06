@@ -5,12 +5,13 @@ This module initializes the application, sets up the database,
 and launches the main window.
 """
 
+import argparse
 import os
 import sys
 import traceback
 import customtkinter as ctk
 
-from src.services.database import initialize_app_database
+from src.services.database import initialize_app_database, reset_database
 from src.services.health_service import HealthCheckService
 from src.ui.main_window import MainWindow
 from src.utils.config import get_config, Config
@@ -112,12 +113,28 @@ def initialize_application():
         return False
 
 
+def parse_args():
+    """Parse command-line arguments."""
+    parser = argparse.ArgumentParser(
+        description="Seasonal Baking Tracker - Desktop application for managing holiday baking"
+    )
+    parser.add_argument(
+        "--reset-db",
+        action="store_true",
+        help="Delete and recreate the database (WARNING: destroys all data!)"
+    )
+    return parser.parse_args()
+
+
 def main():
     """
     Main application entry point.
 
     Initializes the application and launches the main window.
     """
+    # Parse command-line arguments
+    args = parse_args()
+
     # Set CustomTkinter appearance
     ctk.set_appearance_mode("system")  # Modes: system, light, dark
     ctk.set_default_color_theme("blue")  # Themes: blue, dark-blue, green
@@ -126,6 +143,21 @@ def main():
     config = get_config()
     print(f"Starting Seasonal Baking Tracker v{config.app_version}")
     print(f"Environment: {config.environment}")
+
+    # Handle --reset-db flag
+    if args.reset_db:
+        print("\n" + "=" * 60)
+        print("WARNING: --reset-db flag detected!")
+        print(f"This will DELETE all data in: {config.database_path}")
+        print("=" * 60)
+        response = input("Type 'yes' to confirm database reset: ")
+        if response.lower() == "yes":
+            print("Resetting database...")
+            reset_database(confirm=True)
+            print("Database reset complete.")
+        else:
+            print("Database reset cancelled.")
+            sys.exit(0)
 
     # Check for database environment issues
     check_database_environment()

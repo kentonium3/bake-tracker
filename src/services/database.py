@@ -384,7 +384,7 @@ def verify_database() -> bool:
 
 def reset_database(confirm: bool = False) -> None:
     """
-    Drop all tables and recreate the database.
+    Delete and recreate the database file.
 
     WARNING: This will delete all data!
 
@@ -399,18 +399,21 @@ def reset_database(confirm: bool = False) -> None:
 
     logger.warning("RESETTING DATABASE - ALL DATA WILL BE LOST")
 
-    engine = get_engine()
+    config = get_config()
+    db_path = config.database_path
 
-    # Import all models
-    from ..models import ingredient, recipe, inventory_snapshot, finished_good  # noqa: F401
+    # Close all connections first
+    close_connections()
 
-    # Drop all tables
-    Base.metadata.drop_all(engine)
-    logger.info("All tables dropped")
+    # Delete the database file and related SQLite files (WAL, SHM)
+    import os
+    for suffix in ["", "-wal", "-shm"]:
+        file_path = str(db_path) + suffix
+        if os.path.exists(file_path):
+            os.remove(file_path)
+            logger.info(f"Deleted: {file_path}")
 
-    # Recreate tables
-    Base.metadata.create_all(engine)
-    logger.info("Tables recreated")
+    logger.info("Database files deleted - will be recreated on next initialization")
 
 
 def close_connections() -> None:

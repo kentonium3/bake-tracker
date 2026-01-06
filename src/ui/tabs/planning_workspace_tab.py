@@ -66,7 +66,7 @@ class EventSelector(ctk.CTkFrame):
     def _load_events(self) -> None:
         """Load available events from the database."""
         try:
-            self._events = event_service.list_events()
+            self._events = event_service.get_all_events()
             if self._events:
                 values = []
                 self._event_map = {}
