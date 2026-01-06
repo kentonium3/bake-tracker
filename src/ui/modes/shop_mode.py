@@ -1,0 +1,99 @@
+"""ShopMode - Mode container for shopping and inventory management.
+
+SHOP mode contains 3 tabs for managing purchases and inventory:
+- Shopping Lists: Create and manage shopping lists (placeholder)
+- Purchases: Track purchases from suppliers (placeholder)
+- Inventory: View and manage current inventory levels
+
+Implements User Story 6: SHOP Mode for Inventory Management (Priority P2)
+"""
+
+from typing import Any, TYPE_CHECKING
+import customtkinter as ctk
+
+from src.ui.base.base_mode import BaseMode
+from src.ui.dashboards.shop_dashboard import ShopDashboard
+from src.ui.tabs.shopping_lists_tab import ShoppingListsTab
+from src.ui.tabs.purchases_tab import PurchasesTab
+
+if TYPE_CHECKING:
+    from src.ui.inventory_tab import InventoryTab
+
+
+class ShopMode(BaseMode):
+    """Mode container for shopping and inventory management.
+
+    Provides access to shopping lists, purchase tracking, and
+    inventory management with a dashboard showing shopping stats.
+    """
+
+    def __init__(self, master: Any, **kwargs):
+        """Initialize ShopMode.
+
+        Args:
+            master: Parent widget
+            **kwargs: Additional arguments passed to BaseMode
+        """
+        super().__init__(master, name="SHOP", **kwargs)
+
+        # Tab references
+        self.shopping_lists_tab: ShoppingListsTab = None
+        self.purchases_tab: PurchasesTab = None
+        self.inventory_tab: "InventoryTab" = None
+
+        # Set up dashboard and tabs
+        self.setup_dashboard()
+        self.setup_tabs()
+
+    def setup_dashboard(self) -> None:
+        """Set up the SHOP dashboard with shopping statistics (FR-009)."""
+        dashboard = ShopDashboard(self)
+        self.set_dashboard(dashboard)
+
+    def setup_tabs(self) -> None:
+        """Set up all 3 tabs for SHOP mode."""
+        from src.ui.inventory_tab import InventoryTab
+
+        self.create_tabview()
+
+        # Shopping Lists tab (FR-023 placeholder)
+        shopping_lists_frame = self.tabview.add("Shopping Lists")
+        shopping_lists_frame.grid_columnconfigure(0, weight=1)
+        shopping_lists_frame.grid_rowconfigure(0, weight=1)
+        self.shopping_lists_tab = ShoppingListsTab(shopping_lists_frame)
+        self.shopping_lists_tab.grid(row=0, column=0, sticky="nsew")
+        self._tab_widgets["Shopping Lists"] = self.shopping_lists_tab
+
+        # Purchases tab (FR-022 placeholder)
+        purchases_frame = self.tabview.add("Purchases")
+        purchases_frame.grid_columnconfigure(0, weight=1)
+        purchases_frame.grid_rowconfigure(0, weight=1)
+        self.purchases_tab = PurchasesTab(purchases_frame)
+        self.purchases_tab.grid(row=0, column=0, sticky="nsew")
+        self._tab_widgets["Purchases"] = self.purchases_tab
+
+        # Inventory tab (existing functionality)
+        inventory_frame = self.tabview.add("Inventory")
+        inventory_frame.grid_columnconfigure(0, weight=1)
+        inventory_frame.grid_rowconfigure(0, weight=1)
+        self.inventory_tab = InventoryTab(inventory_frame)
+        self._tab_widgets["Inventory"] = self.inventory_tab
+
+    def activate(self) -> None:
+        """Called when SHOP mode becomes active."""
+        super().activate()
+        # Lazy load inventory data on first activation
+        if self.inventory_tab:
+            if not getattr(self.inventory_tab, '_data_loaded', False):
+                self.inventory_tab._data_loaded = True
+                self.after(10, self.inventory_tab.refresh)
+
+    def refresh_all_tabs(self) -> None:
+        """Refresh all tabs in SHOP mode."""
+        # Shopping lists and purchases tabs have no data to refresh yet
+        if self.shopping_lists_tab:
+            self.shopping_lists_tab.refresh()
+        if self.purchases_tab:
+            self.purchases_tab.refresh()
+        if self.inventory_tab:
+            self.inventory_tab.refresh()
