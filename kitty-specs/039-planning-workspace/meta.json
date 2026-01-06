@@ -1,7 +1,24 @@
 {
+  "accept_commit": null,
+  "acceptance_history": [
+    {
+      "accepted_at": "2026-01-06T16:43:53Z",
+      "accepted_by": "claude",
+      "accepted_from_commit": "9a6950236340c937a6529c1a61b4cfd5f6a26853",
+      "branch": "039-planning-workspace",
+      "mode": "local",
+      "validation_commands": [
+        "pytest src/tests/services/planning/ -v --cov=src/services/planning"
+      ]
+    }
+  ],
+  "acceptance_mode": "local",
+  "accepted_at": "2026-01-06T16:43:53Z",
+  "accepted_by": "claude",
+  "accepted_from_commit": "9a6950236340c937a6529c1a61b4cfd5f6a26853",
+  "created_at": "2026-01-06T02:24:09Z",
   "feature_number": "039",
-  "slug": "039-planning-workspace",
   "friendly_name": "Planning Workspace",
-  "source_description": "Planning Workspace - automatic batch calculation to prevent underproduction, with event requirements input, optimal batch calculation, ingredient aggregation, inventory gap analysis, shopping list generation, assembly feasibility validation, and progress tracking",
-  "created_at": "2026-01-06T02:24:09Z"
+  "slug": "039-planning-workspace",
+  "source_description": "Planning Workspace - automatic batch calculation to prevent underproduction, with event requirements input, optimal batch calculation, ingredient aggregation, inventory gap analysis, shopping list generation, assembly feasibility validation, and progress tracking"
 }
