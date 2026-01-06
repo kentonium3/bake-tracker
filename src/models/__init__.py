@@ -33,7 +33,9 @@ from .event import (
     FulfillmentStatus,
     EventProductionTarget,
     EventAssemblyTarget,
+    OutputMode,  # Feature 039
 )  # Re-enabled Feature 006, extended Feature 016
+from .production_plan_snapshot import ProductionPlanSnapshot  # Feature 039
 from .package_status import PackageStatus  # Feature 008
 from .production_record import ProductionRecord  # Feature 008
 from .production_run import ProductionRun  # Feature 013
@@ -80,6 +82,8 @@ __all__ = [
     "FulfillmentStatus",
     "EventProductionTarget",
     "EventAssemblyTarget",
+    "OutputMode",  # Feature 039
+    "ProductionPlanSnapshot",  # Feature 039
     # Production tracking Feature 008
     "PackageStatus",
     "ProductionRecord",

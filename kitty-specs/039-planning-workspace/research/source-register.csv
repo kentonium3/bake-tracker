@@ -1,0 +1,16 @@
+id,source_type,path_or_url,description,accessed_date,relevance
+1,code,src/models/base.py,BaseModel with updated_at timestamp,2026-01-05,high
+2,code,src/models/event.py,Event model and targets (EventAssemblyTarget EventProductionTarget),2026-01-05,high
+3,code,src/models/recipe.py,Recipe model - confirmed no RecipeYieldOption,2026-01-05,critical
+4,code,src/models/finished_unit.py,FinishedUnit with calculate_batches_needed(),2026-01-05,high
+5,code,src/models/finished_good.py,FinishedGood bundle model,2026-01-05,high
+6,code,src/models/composition.py,Composition linking bundles to components,2026-01-05,high
+7,code,src/services/event_service.py,Event service with planning functions,2026-01-05,critical
+8,code,src/services/batch_production_service.py,Batch production service with check_can_produce,2026-01-05,high
+9,code,src/services/assembly_service.py,Assembly service with check_can_assemble,2026-01-05,high
+10,code,src/services/recipe_service.py,Recipe service with get_aggregated_ingredients,2026-01-05,high
+11,code,src/services/inventory_item_service.py,Inventory service with FIFO and dry_run,2026-01-05,medium
+12,code,src/services/database.py,Session management patterns,2026-01-05,high
+13,code,src/services/exceptions.py,Exception patterns for services,2026-01-05,medium
+14,doc,.kittify/memory/constitution.md,Project constitution for compliance checks,2026-01-05,high
+15,doc,kitty-specs/039-planning-workspace/spec.md,Feature specification,2026-01-05,critical
