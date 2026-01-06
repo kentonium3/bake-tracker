@@ -271,6 +271,9 @@ def _calculate_plan_impl(
     recipes_ts = _get_latest_recipes_timestamp(recipe_batches, session)
     bundles_ts = _get_latest_bundles_timestamp(event, session)
 
+    # Get shopping list for the event
+    shopping_items = _get_shopping_list(event_id, session=session)
+
     # Build calculation results JSON
     calculation_results = {
         "recipe_batches": [
@@ -287,7 +290,19 @@ def _calculate_plan_impl(
             for rb in recipe_batches
         ],
         "aggregated_ingredients": [],  # TODO: Populate from recipe aggregation
-        "shopping_list": [],  # Will be populated if event_service has data
+        "shopping_list": [
+            {
+                "ingredient_id": item.ingredient_id,
+                "ingredient_slug": item.ingredient_slug,
+                "ingredient_name": item.ingredient_name,
+                "needed": str(item.needed),
+                "in_stock": str(item.in_stock),
+                "to_buy": str(item.to_buy),
+                "unit": item.unit,
+                "is_sufficient": item.is_sufficient,
+            }
+            for item in shopping_items
+        ],
     }
 
     # Create or update snapshot
