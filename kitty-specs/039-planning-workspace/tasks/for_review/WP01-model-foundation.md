@@ -9,10 +9,10 @@ subtasks:
   - "T006"
 title: "Model Foundation"
 phase: "Phase 1 - Foundation"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "claude"
-shell_pid: "56331"
+shell_pid: "57515"
 review_status: ""
 reviewed_by: ""
 history:
@@ -218,3 +218,4 @@ pytest src/tests/models/test_production_plan_snapshot.py -v
 
 - 2026-01-06T03:09:20Z - claude - lane=planned - Prompt created.
 - 2026-01-06T12:53:06Z – claude – shell_pid=56331 – lane=doing – Started implementation
+- 2026-01-06T12:57:57Z – claude – shell_pid=57515 – lane=for_review – Ready for review - all 20 tests pass
