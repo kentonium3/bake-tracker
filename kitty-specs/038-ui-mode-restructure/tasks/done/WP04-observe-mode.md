@@ -9,7 +9,7 @@ subtasks:
 title: "OBSERVE Mode"
 phase: "Phase 1 - Mode Implementation"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude-reviewer"
 shell_pid: "41347"
 review_status: ""

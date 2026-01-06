@@ -11,7 +11,7 @@ subtasks:
 title: "Main Window & Mode Navigation"
 phase: "Phase 0 - Setup"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude-reviewer"
 shell_pid: "41347"
 review_status: ""
