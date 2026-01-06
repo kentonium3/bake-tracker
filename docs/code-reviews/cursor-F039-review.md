@@ -82,45 +82,45 @@ None found (no test/import blockers; full suite passed).
 
 ## Files Reviewed
 
-| File | Status | Notes |
-|------|--------|-------|
-| src/models/production_plan_snapshot.py | OK | Required fields and helper methods present; JSON blob contract is clear. |
-| src/models/event.py | OK | `OutputMode` added and `Event.output_mode` + snapshots relationship present. |
-| src/services/planning/batch_calculation.py | OK | Uses `math.ceil` for round-up; recursion + cycle detection implemented. |
-| src/services/planning/shopping_list.py | OK (with warning) | Correct `Decimal` usage and gap math; cannot pass session into `event_service`. |
-| src/services/planning/feasibility.py | OK (with warning) | Partial assembly “min across components” logic works for FinishedUnit/FinishedGood; packaging case can overestimate. |
-| src/services/planning/progress.py | OK (with warning) | DTOs are correct; `available_to_assemble` defaults to 0; underlying `event_service` calls ignore supplied session. |
-| src/services/planning/planning_service.py | OK (with warning) | Orchestration works; staleness normalization is good; snapshot currently stores empty shopping/aggregation lists. |
-| src/services/planning/__init__.py | OK | Public exports appear consistent with prompt import list. |
-| src/tests/services/planning/*.py | OK | Strong coverage for rounding, nesting, staleness, progress edge cases. |
+| File                                       | Status            | Notes                                                                                                                |
+| ------------------------------------------ | ----------------- | -------------------------------------------------------------------------------------------------------------------- |
+| src/models/production_plan_snapshot.py     | OK                | Required fields and helper methods present; JSON blob contract is clear.                                             |
+| src/models/event.py                        | OK                | `OutputMode` added and `Event.output_mode` + snapshots relationship present.                                         |
+| src/services/planning/batch_calculation.py | OK                | Uses `math.ceil` for round-up; recursion + cycle detection implemented.                                              |
+| src/services/planning/shopping_list.py     | OK (with warning) | Correct `Decimal` usage and gap math; cannot pass session into `event_service`.                                      |
+| src/services/planning/feasibility.py       | OK (with warning) | Partial assembly “min across components” logic works for FinishedUnit/FinishedGood; packaging case can overestimate. |
+| src/services/planning/progress.py          | OK (with warning) | DTOs are correct; `available_to_assemble` defaults to 0; underlying `event_service` calls ignore supplied session.   |
+| src/services/planning/planning_service.py  | OK (with warning) | Orchestration works; staleness normalization is good; snapshot currently stores empty shopping/aggregation lists.    |
+| src/services/planning/__init__.py          | OK                | Public exports appear consistent with prompt import list.                                                            |
+| src/tests/services/planning/*.py           | OK                | Strong coverage for rounding, nesting, staleness, progress edge cases.                                               |
 
 ## Functional Requirements Verification
 
-| Requirement | Status | Evidence |
-|-------------|--------|----------|
-| FR-001: Batch calculation always rounds UP | PASS | `batch_calculation.calculate_batches()` uses `math.ceil` and tests assert no shortfall. |
-| FR-002: Waste percentage calculated correctly | PASS | `calculate_waste()` returns `(waste_units, waste_percent)`; tested with tolerances. |
-| FR-003: Bundle explosion handles nesting | PASS | Nested bundle test in `test_batch_calculation.py`. |
-| FR-004: Circular reference detection | PASS (not directly tested) | `_visited` set check in `explode_bundle_requirements()` raises `ValueError`. Consider adding explicit test. |
-| FR-005: Shopping gap never negative | PASS | `calculate_purchase_gap()` uses `max(Decimal(0), needed - in_stock)` and has tests. |
-| FR-006: Feasibility status accurate | PASS (with packaging caveat) | Tests cover AWAITING_PRODUCTION/PARTIAL/CAN_ASSEMBLE; packaging edge case not covered. |
-| FR-007: Partial assembly calculation correct | PASS | Tests verify min across components. |
-| FR-008: Progress tracking accurate | PASS | Unit tests validate percent calculations and overall status logic. |
-| FR-009: Staleness detection works | PASS | `_normalize_datetime()` + timestamp comparisons; tests cover modified-event staleness. |
-| FR-010: Plan persists to snapshot | PASS (with data completeness caveat) | Snapshot is created and flushed; persisted payload currently omits shopping/ingredient aggregates. |
-| Session management pattern followed | PARTIAL | Many services accept `session`; some delegate to `event_service` that does not accept session. |
-| All existing tests pass (no regressions) | PASS | Full suite: 1672 passed, 14 skipped, 0 failed. |
+| Requirement                                   | Status                               | Evidence                                                                                                    |
+| --------------------------------------------- | ------------------------------------ | ----------------------------------------------------------------------------------------------------------- |
+| FR-001: Batch calculation always rounds UP    | PASS                                 | `batch_calculation.calculate_batches()` uses `math.ceil` and tests assert no shortfall.                     |
+| FR-002: Waste percentage calculated correctly | PASS                                 | `calculate_waste()` returns `(waste_units, waste_percent)`; tested with tolerances.                         |
+| FR-003: Bundle explosion handles nesting      | PASS                                 | Nested bundle test in `test_batch_calculation.py`.                                                          |
+| FR-004: Circular reference detection          | PASS (not directly tested)           | `_visited` set check in `explode_bundle_requirements()` raises `ValueError`. Consider adding explicit test. |
+| FR-005: Shopping gap never negative           | PASS                                 | `calculate_purchase_gap()` uses `max(Decimal(0), needed - in_stock)` and has tests.                         |
+| FR-006: Feasibility status accurate           | PASS (with packaging caveat)         | Tests cover AWAITING_PRODUCTION/PARTIAL/CAN_ASSEMBLE; packaging edge case not covered.                      |
+| FR-007: Partial assembly calculation correct  | PASS                                 | Tests verify min across components.                                                                         |
+| FR-008: Progress tracking accurate            | PASS                                 | Unit tests validate percent calculations and overall status logic.                                          |
+| FR-009: Staleness detection works             | PASS                                 | `_normalize_datetime()` + timestamp comparisons; tests cover modified-event staleness.                      |
+| FR-010: Plan persists to snapshot             | PASS (with data completeness caveat) | Snapshot is created and flushed; persisted payload currently omits shopping/ingredient aggregates.          |
+| Session management pattern followed           | PARTIAL                              | Many services accept `session`; some delegate to `event_service` that does not accept session.              |
+| All existing tests pass (no regressions)      | PASS                                 | Full suite: 1672 passed, 14 skipped, 0 failed.                                                              |
 
 ## Work Package Verification
 
-| Work Package | Status | Notes |
-|--------------|--------|-------|
-| WP01: Model Foundation | PASS | Snapshot model + event output mode + relationship present. |
-| WP02: Batch Calculation Service | PASS | Round-up, waste, nesting, aggregation all present and tested. |
-| WP03: Shopping List Service | PASS (with warning) | Correct behavior; session passthrough limitation stems from `event_service`. |
-| WP04: Feasibility Service | PASS (with warning) | Correct core behavior; packaging component handling may misreport `can_assemble`. |
-| WP05: Progress Service | PASS (with warning) | Correct calculations; `available_to_assemble` placeholder (0) may need enhancement for UI. |
-| WP06: Planning Service Facade | PASS (with warning) | Orchestration and staleness are solid; needs wiring for persisted shopping/ingredient aggregates. |
+| Work Package                    | Status              | Notes                                                                                             |
+| ------------------------------- | ------------------- | ------------------------------------------------------------------------------------------------- |
+| WP01: Model Foundation          | PASS                | Snapshot model + event output mode + relationship present.                                        |
+| WP02: Batch Calculation Service | PASS                | Round-up, waste, nesting, aggregation all present and tested.                                     |
+| WP03: Shopping List Service     | PASS (with warning) | Correct behavior; session passthrough limitation stems from `event_service`.                      |
+| WP04: Feasibility Service       | PASS (with warning) | Correct core behavior; packaging component handling may misreport `can_assemble`.                 |
+| WP05: Progress Service          | PASS (with warning) | Correct calculations; `available_to_assemble` placeholder (0) may need enhancement for UI.        |
+| WP06: Planning Service Facade   | PASS (with warning) | Orchestration and staleness are solid; needs wiring for persisted shopping/ingredient aggregates. |
 
 ## Code Quality Assessment
 
