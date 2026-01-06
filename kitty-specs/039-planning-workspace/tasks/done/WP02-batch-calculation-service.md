@@ -10,7 +10,7 @@ subtasks:
 title: "Batch Calculation Service"
 phase: "Phase 2 - Services"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude-reviewer"
 shell_pid: "66971"
 review_status: ""

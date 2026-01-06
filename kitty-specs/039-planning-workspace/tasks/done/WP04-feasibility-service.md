@@ -10,7 +10,7 @@ subtasks:
 title: "Feasibility Service"
 phase: "Phase 2 - Services"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude-reviewer"
 shell_pid: "67169"
 review_status: ""

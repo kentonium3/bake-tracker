@@ -10,7 +10,7 @@ subtasks:
 title: "Model Foundation"
 phase: "Phase 1 - Foundation"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude-reviewer"
 shell_pid: "66740"
 review_status: ""

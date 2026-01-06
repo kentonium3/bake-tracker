@@ -13,7 +13,7 @@ subtasks:
 title: "Phase View Components"
 phase: "Phase 3 - UI"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude-reviewer"
 shell_pid: "71965"
 review_status: ""

@@ -12,7 +12,7 @@ subtasks:
 title: "Polish & Integration"
 phase: "Phase 4 - Validation"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude-reviewer"
 shell_pid: "72129"
 review_status: ""

@@ -25,12 +25,12 @@
 **Prompt**: `tasks/planned/WP01-model-foundation.md`
 
 ### Included Subtasks
-- [ ] T001 Add OutputMode enum to `src/models/event.py`
-- [ ] T002 Add output_mode field to Event model in `src/models/event.py`
-- [ ] T003 Create ProductionPlanSnapshot model in `src/models/production_plan_snapshot.py`
-- [ ] T004 Add ProductionPlanSnapshot relationship to Event model
-- [ ] T005 Export ProductionPlanSnapshot from `src/models/__init__.py`
-- [ ] T006 Write unit tests for new model in `src/tests/models/test_production_plan_snapshot.py`
+- [x] T001 Add OutputMode enum to `src/models/event.py`
+- [x] T002 Add output_mode field to Event model in `src/models/event.py`
+- [x] T003 Create ProductionPlanSnapshot model in `src/models/production_plan_snapshot.py`
+- [x] T004 Add ProductionPlanSnapshot relationship to Event model
+- [x] T005 Export ProductionPlanSnapshot from `src/models/__init__.py`
+- [x] T006 Write unit tests for new model in `src/tests/models/test_production_plan_snapshot.py`
 
 ### Implementation Notes
 - Event already uses `date_added`/`last_modified` instead of `created_at`/`updated_at`
@@ -55,12 +55,12 @@
 **Prompt**: `tasks/planned/WP02-batch-calculation-service.md`
 
 ### Included Subtasks
-- [ ] T007 [P] Create `src/services/planning/__init__.py` with module exports
-- [ ] T008 [P] Create `src/services/planning/batch_calculation.py` with calculate_batches function
-- [ ] T009 [P] Implement waste percentage calculation (FR-014)
-- [ ] T010 [P] Implement bundle explosion logic (FR-009) for BUNDLED mode
-- [ ] T011 [P] Implement recipe aggregation (FR-010) - group FinishedUnits by recipe
-- [ ] T012 [P] Write unit tests in `src/tests/services/planning/test_batch_calculation.py`
+- [x] T007 [P] Create `src/services/planning/__init__.py` with module exports
+- [x] T008 [P] Create `src/services/planning/batch_calculation.py` with calculate_batches function
+- [x] T009 [P] Implement waste percentage calculation (FR-014)
+- [x] T010 [P] Implement bundle explosion logic (FR-009) for BUNDLED mode
+- [x] T011 [P] Implement recipe aggregation (FR-010) - group FinishedUnits by recipe
+- [x] T012 [P] Write unit tests in `src/tests/services/planning/test_batch_calculation.py`
 
 ### Implementation Notes
 - Always use `math.ceil(needed / yield)` to prevent shortfall (SC-003)
@@ -85,12 +85,12 @@
 **Prompt**: `tasks/planned/WP03-shopping-list-service.md`
 
 ### Included Subtasks
-- [ ] T013 [P] Create `src/services/planning/shopping_list.py`
-- [ ] T014 [P] Implement get_shopping_list wrapping event_service (FR-015)
-- [ ] T015 [P] Implement ingredient aggregation across recipes (FR-016)
-- [ ] T016 [P] Implement inventory gap calculation (FR-018): max(0, needed - available)
-- [ ] T017 [P] Implement mark_shopping_complete (FR-020)
-- [ ] T018 [P] Write unit tests in `src/tests/services/planning/test_shopping_list.py`
+- [x] T013 [P] Create `src/services/planning/shopping_list.py`
+- [x] T014 [P] Implement get_shopping_list wrapping event_service (FR-015)
+- [x] T015 [P] Implement ingredient aggregation across recipes (FR-016)
+- [x] T016 [P] Implement inventory gap calculation (FR-018): max(0, needed - available)
+- [x] T017 [P] Implement mark_shopping_complete (FR-020)
+- [x] T018 [P] Write unit tests in `src/tests/services/planning/test_shopping_list.py`
 
 ### Implementation Notes
 - Existing `event_service.get_shopping_list()` provides base functionality
@@ -115,12 +115,12 @@
 **Prompt**: `tasks/planned/WP04-feasibility-service.md`
 
 ### Included Subtasks
-- [ ] T019 [P] Create `src/services/planning/feasibility.py`
-- [ ] T020 [P] Implement check_assembly_feasibility using assembly_service (FR-022-026)
-- [ ] T021 [P] Implement check_production_feasibility using batch_production_service
-- [ ] T022 [P] Implement FeasibilityResult and FeasibilityStatus DTOs
-- [ ] T023 [P] Handle partial assembly feasibility (FR-028, FR-036)
-- [ ] T024 [P] Write unit tests in `src/tests/services/planning/test_feasibility.py`
+- [x] T019 [P] Create `src/services/planning/feasibility.py`
+- [x] T020 [P] Implement check_assembly_feasibility using assembly_service (FR-022-026)
+- [x] T021 [P] Implement check_production_feasibility using batch_production_service
+- [x] T022 [P] Implement FeasibilityResult and FeasibilityStatus DTOs
+- [x] T023 [P] Handle partial assembly feasibility (FR-028, FR-036)
+- [x] T024 [P] Write unit tests in `src/tests/services/planning/test_feasibility.py`
 
 ### Implementation Notes
 - Wrap existing `assembly_service.check_can_assemble()`
@@ -145,12 +145,12 @@
 **Prompt**: `tasks/planned/WP05-progress-service.md`
 
 ### Included Subtasks
-- [ ] T025 [P] Create `src/services/planning/progress.py`
-- [ ] T026 [P] Implement get_production_progress wrapping event_service (FR-030-031)
-- [ ] T027 [P] Implement get_assembly_progress wrapping event_service
-- [ ] T028 [P] Implement get_overall_progress (FR-033)
-- [ ] T029 [P] Implement ProductionProgress and AssemblyProgress DTOs
-- [ ] T030 [P] Write unit tests in `src/tests/services/planning/test_progress.py`
+- [x] T025 [P] Create `src/services/planning/progress.py`
+- [x] T026 [P] Implement get_production_progress wrapping event_service (FR-030-031)
+- [x] T027 [P] Implement get_assembly_progress wrapping event_service
+- [x] T028 [P] Implement get_overall_progress (FR-033)
+- [x] T029 [P] Implement ProductionProgress and AssemblyProgress DTOs
+- [x] T030 [P] Write unit tests in `src/tests/services/planning/test_progress.py`
 
 ### Implementation Notes
 - Existing `event_service.get_production_progress()` and `get_assembly_progress()` provide base
@@ -175,17 +175,17 @@
 **Prompt**: `tasks/planned/WP06-planning-service-facade.md`
 
 ### Included Subtasks
-- [ ] T031 Create `src/services/planning/planning_service.py` facade
-- [ ] T032 Implement calculate_plan orchestrating all modules (contract method)
-- [ ] T033 Implement get_plan_summary with phase status calculation
-- [ ] T034 Implement check_staleness using timestamp comparison (FR-039-040)
-- [ ] T035 Implement get_recipe_batches, get_shopping_list facade methods
-- [ ] T036 Implement check_assembly_feasibility, check_production_feasibility facade methods
-- [ ] T037 Implement get_production_progress, get_assembly_progress, get_overall_progress
-- [ ] T038 Implement get_assembly_checklist, record_assembly_confirmation (FR-027-029)
-- [ ] T039 Implement mark_shopping_complete facade method
-- [ ] T040 Define PlanningError, StalePlanError, IncompleteRequirementsError exceptions
-- [ ] T041 Write integration tests in `src/tests/services/planning/test_planning_service.py`
+- [x] T031 Create `src/services/planning/planning_service.py` facade
+- [x] T032 Implement calculate_plan orchestrating all modules (contract method)
+- [x] T033 Implement get_plan_summary with phase status calculation
+- [x] T034 Implement check_staleness using timestamp comparison (FR-039-040)
+- [x] T035 Implement get_recipe_batches, get_shopping_list facade methods
+- [x] T036 Implement check_assembly_feasibility, check_production_feasibility facade methods
+- [x] T037 Implement get_production_progress, get_assembly_progress, get_overall_progress
+- [x] T038 Implement get_assembly_checklist, record_assembly_confirmation (FR-027-029)
+- [x] T039 Implement mark_shopping_complete facade method
+- [x] T040 Define PlanningError, StalePlanError, IncompleteRequirementsError exceptions
+- [x] T041 Write integration tests in `src/tests/services/planning/test_planning_service.py`
 
 ### Implementation Notes
 - Follow contract defined in `contracts/planning_service.py`
@@ -210,13 +210,13 @@
 **Prompt**: `tasks/planned/WP07-planning-workspace-container.md`
 
 ### Included Subtasks
-- [ ] T042 Create `src/ui/planning/__init__.py` with module exports
-- [ ] T043 Create `src/ui/planning/planning_workspace.py` main container
-- [ ] T044 Create `src/ui/planning/phase_sidebar.py` navigation sidebar
-- [ ] T045 Implement phase status indicators (not_started, in_progress, complete, blocked)
-- [ ] T046 Implement phase navigation with warning dialogs (FR-034-035)
-- [ ] T047 Implement stale plan banner with recalculate option (FR-040)
-- [ ] T048 Wire planning_workspace into PLAN mode navigation (from F038)
+- [x] T042 Create `src/ui/planning/__init__.py` with module exports
+- [x] T043 Create `src/ui/planning/planning_workspace.py` main container
+- [x] T044 Create `src/ui/planning/phase_sidebar.py` navigation sidebar
+- [x] T045 Implement phase status indicators (not_started, in_progress, complete, blocked)
+- [x] T046 Implement phase navigation with warning dialogs (FR-034-035)
+- [x] T047 Implement stale plan banner with recalculate option (FR-040)
+- [x] T048 Wire planning_workspace into PLAN mode navigation (from F038)
 
 ### Implementation Notes
 - Wizard layout: sidebar (20%) + main content (80%)
@@ -241,15 +241,15 @@
 **Prompt**: `tasks/planned/WP08-phase-view-components.md`
 
 ### Included Subtasks
-- [ ] T049 [P] Create `src/ui/planning/calculate_view.py` - batch calculation display (US1)
-- [ ] T050 [P] Create `src/ui/planning/shop_view.py` - shopping list with Need/Have/Buy (US2)
-- [ ] T051 [P] Create `src/ui/planning/produce_view.py` - production progress bars (US4)
-- [ ] T052 [P] Create `src/ui/planning/assemble_view.py` - assembly checklist (US5)
-- [ ] T053 [P] Implement calculate button and results table in calculate_view
-- [ ] T054 [P] Implement shopping list table with sufficient/needs-purchase styling
-- [ ] T055 [P] Implement progress bars per recipe in produce_view
-- [ ] T056 [P] Implement assembly checklist with partial assembly support (FR-036)
-- [ ] T057 [P] Implement feasibility indicators in assemble_view (FR-024-026)
+- [x] T049 [P] Create `src/ui/planning/calculate_view.py` - batch calculation display (US1)
+- [x] T050 [P] Create `src/ui/planning/shop_view.py` - shopping list with Need/Have/Buy (US2)
+- [x] T051 [P] Create `src/ui/planning/produce_view.py` - production progress bars (US4)
+- [x] T052 [P] Create `src/ui/planning/assemble_view.py` - assembly checklist (US5)
+- [x] T053 [P] Implement calculate button and results table in calculate_view
+- [x] T054 [P] Implement shopping list table with sufficient/needs-purchase styling
+- [x] T055 [P] Implement progress bars per recipe in produce_view
+- [x] T056 [P] Implement assembly checklist with partial assembly support (FR-036)
+- [x] T057 [P] Implement feasibility indicators in assemble_view (FR-024-026)
 
 ### Implementation Notes
 - Each view is a CTkFrame that can be swapped by container
@@ -274,14 +274,14 @@
 **Prompt**: `tasks/planned/WP09-polish-and-integration.md`
 
 ### Included Subtasks
-- [ ] T058 Validate full workflow: Event -> Calculate -> Shop -> Produce -> Assemble
-- [ ] T059 Test edge cases from spec (zero requirements, missing components, etc.)
-- [ ] T060 Verify staleness detection works correctly
-- [ ] T061 Verify batch calculation never produces shortfall (SC-003)
-- [ ] T062 Verify shopping list gap calculation (SC-008)
-- [ ] T063 Verify <500ms calculation performance for 10+ recipes (SC-002)
-- [ ] T064 Run pytest coverage and ensure >70% on services/planning
-- [ ] T065 Update quickstart.md verification checklist with results
+- [x] T058 Validate full workflow: Event -> Calculate -> Shop -> Produce -> Assemble
+- [x] T059 Test edge cases from spec (zero requirements, missing components, etc.)
+- [x] T060 Verify staleness detection works correctly
+- [x] T061 Verify batch calculation never produces shortfall (SC-003)
+- [x] T062 Verify shopping list gap calculation (SC-008)
+- [x] T063 Verify <500ms calculation performance for 10+ recipes (SC-002)
+- [x] T064 Run pytest coverage and ensure >70% on services/planning
+- [x] T065 Update quickstart.md verification checklist with results
 
 ### Implementation Notes
 - Use integration tests with realistic event data

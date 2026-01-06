@@ -11,7 +11,7 @@ subtasks:
 title: "Planning Workspace Container"
 phase: "Phase 3 - UI"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude-reviewer"
 shell_pid: "71837"
 review_status: ""

@@ -15,7 +15,7 @@ subtasks:
 title: "Planning Service Facade"
 phase: "Phase 2 - Services"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude-reviewer"
 shell_pid: "67385"
 review_status: ""
