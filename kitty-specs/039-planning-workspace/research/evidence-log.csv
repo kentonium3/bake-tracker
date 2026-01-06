@@ -1,0 +1,11 @@
+id,date,finding_type,description,source,impact,decision_made
+1,2026-01-05,discrepancy,"No RecipeYieldOption model exists - Recipe has single yield_quantity/yield_unit",src/models/recipe.py,high,"Simplify FR-011: use single yield per recipe; defer yield options to Phase 3"
+2,2026-01-05,confirmation,"BaseModel provides updated_at with onupdate=utc_now",src/models/base.py,low,"Timestamp staleness detection is viable"
+3,2026-01-05,confirmation,"Event model uses date_added/last_modified instead of created_at/updated_at",src/models/event.py,medium,"Handle both timestamp patterns in staleness check"
+4,2026-01-05,confirmation,"FinishedUnit has calculate_batches_needed() method",src/models/finished_unit.py,low,"Can reuse existing method for batch calculation"
+5,2026-01-05,confirmation,"event_service already has get_shopping_list() get_production_progress() get_assembly_progress()",src/services/event_service.py,high,"Much existing functionality to leverage"
+6,2026-01-05,confirmation,"batch_production_service has check_can_produce() with dry_run support",src/services/batch_production_service.py,medium,"Can use for production feasibility"
+7,2026-01-05,confirmation,"assembly_service has check_can_assemble()",src/services/assembly_service.py,medium,"Can use for assembly feasibility"
+8,2026-01-05,gap,"Event model missing output_mode field",src/models/event.py,medium,"Add OutputMode enum and field to Event"
+9,2026-01-05,gap,"Composition model has no updated_at timestamp",src/models/composition.py,low,"Use created_at for staleness or add updated_at"
+10,2026-01-05,confirmation,"Services follow consistent session=None pattern",src/services/*.py,high,"PlanningService must follow same pattern"
