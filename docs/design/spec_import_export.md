@@ -1,12 +1,33 @@
 # Import/Export Specification for Bake Tracker
 
-**Version:** 3.5
+**Version:** 4.0
 **Status:** Current
 
-> **NOTE**: This application only accepts v3.5 format files. Older format versions
+> **NOTE**: This application only accepts v4.0 format files. Older format versions
 > are no longer supported. Export your data using the current version before importing.
 
 ## Changelog
+
+### v4.0 (2026-01-06 - Feature 040)
+- **Breaking**: v3.5 compatibility removed - only v4.0 files accepted
+- **Changed**: Recipe schema redesigned for F037 (yield modes, variants, template/snapshot)
+  - Added `yield_mode` field: "fixed" or "scaled"
+  - Added `base_yield` and `scaling_factor` fields
+  - Changed `ingredients` to `base_ingredients` with `is_base` flag
+  - Added `variants` array for recipe variations linked to finished units
+- **Changed**: Event schema updated for F039 Planning Workspace
+  - Added `output_mode` field: "bulk_count", "bundled", or "packaged"
+  - EventAssemblyTarget required when output_mode="bundled"
+  - EventProductionTarget required when output_mode="bulk_count"
+- **Added**: BT Mobile purchase import workflow (`import_type: "purchases"`)
+  - UPC-based product matching
+  - Unknown UPC resolution flow
+  - Auto-creates Purchase + InventoryItem records
+- **Added**: BT Mobile inventory update workflow (`import_type: "inventory_updates"`)
+  - Percentage-based inventory corrections
+  - FIFO inventory item selection
+  - Creates InventoryDepletion records
+- **Changed**: Function names updated: `*_v3()` → `*_v4()`
 
 ### v3.5 (2025-12-19 - Feature 023)
 - **Added**: `product_name` field on products - enables product variant differentiation (e.g., "70% Cacao" vs "85% Cacao")
@@ -72,8 +93,8 @@ The export format is a single JSON file with a required header and entity arrays
 
 ```json
 {
-  "version": "3.5",
-  "exported_at": "2025-12-20T10:30:00Z",
+  "version": "4.0",
+  "exported_at": "2026-01-06T10:30:00Z",
   "application": "bake-tracker",
   "ingredients": [...],
   "products": [...],
@@ -100,7 +121,7 @@ The export format is a single JSON file with a required header and entity arrays
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| `version` | string | **Yes** | Must be "3.5" |
+| `version` | string | **Yes** | Must be "4.0" |
 | `exported_at` | string | **Yes** | ISO 8601 timestamp with 'Z' suffix |
 | `application` | string | **Yes** | Must be "bake-tracker" |
 
@@ -266,29 +287,51 @@ All entity arrays are optional, but when present, they must follow the dependenc
 
 ### 5. recipes
 
-**Purpose**: Recipe definitions with embedded ingredient list.
+**Purpose**: Recipe definitions with yield modes, base ingredients, and optional variants (F037).
 
-**Schema**:
+**Schema** (v4.0):
 
 ```json
 {
-  "name": "Chocolate Chip Cookies",
-  "slug": "chocolate_chip_cookies",
+  "name": "Sugar Cookie",
+  "slug": "sugar_cookie",
   "category": "Cookies",
-  "description": "Classic chocolate chip cookies",
+  "description": "Classic sugar cookie base with variants",
   "instructions": "1. Cream butter and sugar...",
   "prep_time_minutes": 15,
   "cook_time_minutes": 12,
-  "yield_quantity": 24,
+  "yield_mode": "scaled",
+  "base_yield": 48,
+  "scaling_factor": 1.0,
   "yield_unit": "cookies",
   "source": "Family recipe",
   "notes": "Best when slightly underbaked",
-  "ingredients": [
+  "base_ingredients": [
     {
       "ingredient_slug": "all_purpose_flour",
-      "quantity": 2.25,
+      "quantity": 2.0,
       "unit": "cup",
+      "is_base": true,
       "notes": "sifted"
+    }
+  ],
+  "variants": [
+    {
+      "name": "Chocolate Chip",
+      "finished_unit_slug": "chocolate_chip_cookie",
+      "ingredient_changes": [
+        {
+          "action": "add",
+          "ingredient_slug": "chocolate_chips_semi_sweet",
+          "quantity": 0.5,
+          "unit": "cup"
+        }
+      ]
+    },
+    {
+      "name": "Plain",
+      "finished_unit_slug": "plain_sugar_cookie",
+      "ingredient_changes": []
     }
   ],
   "components": [
@@ -310,21 +353,46 @@ All entity arrays are optional, but when present, they must follow the dependenc
 | `instructions` | text | No | Cooking instructions |
 | `prep_time_minutes` | integer | No | Prep time |
 | `cook_time_minutes` | integer | No | Cook time |
-| `yield_quantity` | decimal | No | Yield amount |
-| `yield_unit` | string | No | Yield unit |
+| `yield_mode` | string | **Yes** | "fixed" or "scaled" |
+| `base_yield` | integer | Conditional | Base yield quantity (required if yield_mode="scaled") |
+| `scaling_factor` | decimal | No | Scaling multiplier (default 1.0) |
+| `yield_unit` | string | No | Yield unit (e.g., "cookies", "servings") |
 | `source` | string | No | Recipe source |
 | `notes` | string | No | User notes |
-| `ingredients` | array | **Yes** | Recipe ingredients (embedded) |
+| `base_ingredients` | array | **Yes** | Base recipe ingredients |
+| `variants` | array | No | Recipe variants linked to finished units |
 | `components` | array | No | Sub-recipes used in this recipe (nested recipes) |
 
-**Recipe Ingredient Sub-Schema**:
+**Yield Mode Values**:
+- **fixed**: Recipe produces a fixed quantity regardless of ingredient amounts
+- **scaled**: Recipe yield scales proportionally with ingredient amounts
+
+**Recipe Base Ingredient Sub-Schema**:
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| `ingredient_slug` | string | **Yes** | Reference to ingredient |
+| `ingredient_slug` | string | **Yes** | Reference to ingredient (must be L2/leaf ingredient) |
 | `quantity` | decimal | **Yes** | Amount needed |
 | `unit` | string | **Yes** | Measurement unit |
+| `is_base` | boolean | No | True for base ingredients (default true) |
 | `notes` | string | No | Prep notes (sifted, melted, etc.) |
+
+**Recipe Variant Sub-Schema** (F037):
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `name` | string | **Yes** | Variant name (e.g., "Chocolate Chip") |
+| `finished_unit_slug` | string | **Yes** | Reference to finished unit |
+| `ingredient_changes` | array | **Yes** | Changes from base recipe (can be empty) |
+
+**Variant Ingredient Change Sub-Schema**:
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `action` | string | **Yes** | "add", "remove", or "modify" |
+| `ingredient_slug` | string | **Yes** | Reference to ingredient |
+| `quantity` | decimal | Conditional | Amount (required for add/modify) |
+| `unit` | string | Conditional | Unit (required for add/modify) |
 
 **Recipe Component Sub-Schema** (nested recipes):
 
@@ -334,7 +402,12 @@ All entity arrays are optional, but when present, they must follow the dependenc
 | `quantity` | decimal | **Yes** | Batch multiplier (must be > 0) |
 | `notes` | string | No | Usage notes for this component |
 
-**Recipe Component Validation Rules**:
+**Recipe Validation Rules**:
+- `yield_mode` must be "fixed" or "scaled"
+- `base_yield` required if yield_mode="scaled"
+- All `ingredient_slug` values must reference existing L2 (leaf) ingredients
+- All `finished_unit_slug` values must reference existing FinishedUnits
+- `ingredient_changes.action` must be "add", "remove", or "modify"
 - Component recipes must exist in the same import file or already exist in the database
 - Circular references are rejected (Recipe A cannot contain Recipe B if B contains A)
 - Maximum nesting depth: 3 levels
@@ -511,9 +584,9 @@ All entity arrays are optional, but when present, they must follow the dependenc
 
 ### 12. events
 
-**Purpose**: Holiday/occasion events.
+**Purpose**: Holiday/occasion events with output mode configuration (F039).
 
-**Schema**:
+**Schema** (v4.0):
 
 ```json
 {
@@ -521,6 +594,7 @@ All entity arrays are optional, but when present, they must follow the dependenc
   "slug": "christmas_2025",
   "event_date": "2025-12-25",
   "year": 2025,
+  "output_mode": "bundled",
   "notes": "Annual Christmas gift giving"
 }
 ```
@@ -531,7 +605,18 @@ All entity arrays are optional, but when present, they must follow the dependenc
 | `slug` | string | **Yes** | Unique identifier |
 | `event_date` | date | **Yes** | Event date (ISO 8601) |
 | `year` | integer | **Yes** | Event year |
+| `output_mode` | string | **Yes** | "bulk_count", "bundled", or "packaged" |
 | `notes` | string | No | User notes |
+
+**Output Mode Values** (F039):
+- **bulk_count**: Production-focused - track batches produced for the event
+- **bundled**: Assembly-focused - track finished goods assembled for the event
+- **packaged**: Package-focused - track packages assigned to recipients
+
+**Output Mode Validation**:
+- If `output_mode="bundled"`, the event should have `event_assembly_targets`
+- If `output_mode="bulk_count"`, the event should have `event_production_targets`
+- If `output_mode="packaged"`, the event should have `event_recipient_packages`
 
 ---
 
@@ -765,8 +850,8 @@ The **catalog import** is a streamlined import path for adding ingredients, prod
 
 ```json
 {
-  "version": "3.5",
-  "exported_at": "2025-12-20T00:00:00Z",
+  "version": "4.0",
+  "exported_at": "2026-01-06T00:00:00Z",
   "application": "bake-tracker",
   "description": "Optional description of the catalog",
   "ingredients": [...],
@@ -779,7 +864,7 @@ The **catalog import** is a streamlined import path for adding ingredients, prod
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| `version` | string | **Yes** | Must be "3.5" |
+| `version` | string | **Yes** | Must be "4.0" |
 | `exported_at` | string | No | ISO 8601 timestamp |
 | `application` | string | No | Should be "bake-tracker" |
 | `description` | string | No | Human-readable description |
@@ -846,9 +931,9 @@ result = import_catalog("catalog.json", mode="augment", dry_run=False)
 
 The import service first validates the header:
 
-1. `version` field must be present and equal to "3.5"
-2. If version is missing or not "3.5", import is rejected with error:
-   > "Unsupported file version: [version]. This application only supports v3.5 format."
+1. `version` field must be present and equal to "4.0"
+2. If version is missing or not "4.0", import is rejected with error:
+   > "Unsupported file version: [version]. This application only supports v4.0 format."
 
 ### Foreign Key Validation
 
@@ -884,7 +969,7 @@ All error messages are designed to be user-friendly (no stack traces):
 
 | Scenario | Message |
 |----------|---------|
-| Wrong version | "Unsupported file version: [X]. This application only supports v3.5 format. Please export a new backup from a current version." |
+| Wrong version | "Unsupported file version: [X]. This application only supports v4.0 format. Please export a new backup from a current version." |
 | Invalid JSON | "The selected file is not valid JSON. Please select a valid backup file." |
 | Missing entity | "[Entity type] '[name]' not found. It may be missing from the import file or listed in the wrong order." |
 | File not readable | "Could not read file: [path]. Please check file permissions." |
@@ -974,8 +1059,8 @@ bag, box, jar, bottle, can, packet, container, case
 
 ```json
 {
-  "version": "3.5",
-  "exported_at": "2025-12-20T10:30:00Z",
+  "version": "4.0",
+  "exported_at": "2026-01-06T10:30:00Z",
   "application": "bake-tracker",
   "ingredients": [
     {
@@ -1010,20 +1095,25 @@ bag, box, jar, bottle, can, packet, container, case
       "name": "Classic Chocolate Chip Cookies",
       "slug": "classic_chocolate_chip_cookies",
       "category": "Cookies",
-      "yield_quantity": 48,
+      "yield_mode": "scaled",
+      "base_yield": 48,
+      "scaling_factor": 1.0,
       "yield_unit": "cookies",
-      "ingredients": [
+      "base_ingredients": [
         {
           "ingredient_slug": "all_purpose_flour",
           "quantity": 2.25,
-          "unit": "cup"
+          "unit": "cup",
+          "is_base": true
         },
         {
           "ingredient_slug": "chocolate_chips_semi_sweet",
           "quantity": 2.0,
-          "unit": "cup"
+          "unit": "cup",
+          "is_base": true
         }
-      ]
+      ],
+      "variants": []
     }
   ],
   "finished_units": [
@@ -1079,7 +1169,8 @@ bag, box, jar, bottle, can, packet, container, case
       "name": "Christmas 2025",
       "slug": "christmas_2025",
       "event_date": "2025-12-25",
-      "year": 2025
+      "year": 2025,
+      "output_mode": "packaged"
     }
   ],
   "event_recipient_packages": [
@@ -1402,6 +1493,179 @@ Level 4 (Transactional):
 
 ---
 
+## Appendix I: BT Mobile Purchase Import (F040)
+
+The BT Mobile purchase import workflow enables importing purchases from a mobile app using UPC barcode scanning.
+
+### I.1 Purchase Import JSON Schema
+
+```json
+{
+  "schema_version": "4.0",
+  "import_type": "purchases",
+  "created_at": "2026-01-06T14:30:00Z",
+  "source": "bt_mobile",
+  "supplier": "Costco Waltham MA",
+  "purchases": [
+    {
+      "upc": "051000127952",
+      "gtin": "00051000127952",
+      "scanned_at": "2026-01-06T14:15:23Z",
+      "unit_price": 7.99,
+      "quantity_purchased": 1.0,
+      "supplier": "Costco Waltham MA",
+      "notes": "Weekly shopping"
+    }
+  ]
+}
+```
+
+### I.2 Purchase Import Header Fields
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `schema_version` | string | **Yes** | Must be "4.0" |
+| `import_type` | string | **Yes** | Must be "purchases" |
+| `created_at` | datetime | **Yes** | ISO 8601 timestamp |
+| `source` | string | **Yes** | Source application (e.g., "bt_mobile") |
+| `supplier` | string | No | Default supplier for all purchases |
+| `purchases` | array | **Yes** | Array of purchase records |
+
+### I.3 Purchase Record Fields
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `upc` | string | **Yes** | UPC barcode (used for product matching) |
+| `gtin` | string | No | GTIN barcode (GS1 standard) |
+| `scanned_at` | datetime | **Yes** | When the barcode was scanned |
+| `unit_price` | decimal | **Yes** | Price per package |
+| `quantity_purchased` | decimal | **Yes** | Number of packages |
+| `supplier` | string | No | Supplier name (overrides top-level default) |
+| `notes` | string | No | User notes |
+
+### I.4 UPC Matching Algorithm
+
+1. For each purchase record, attempt to match `upc` against `products.upc_code`
+2. If match found: Create Purchase + InventoryItem records
+3. If no match: Collect for Unknown UPC Resolution
+
+### I.5 Unknown UPC Resolution
+
+When a UPC cannot be matched, the user is prompted to:
+
+1. **Map to existing product**: Select from product dropdown
+2. **Create new product**: Fill out product form (ingredient, brand, name, etc.)
+3. **Skip this purchase**: Ignore and continue
+
+Resolution auto-assigns the UPC to the selected/created product for future imports.
+
+### I.6 Service Function
+
+```python
+from src.services.import_export_service import import_purchases_from_bt_mobile
+
+result = import_purchases_from_bt_mobile("purchases_20260106.json")
+print(f"Imported: {result.success_count}, Errors: {result.error_count}")
+```
+
+### I.7 CLI Usage
+
+```bash
+bake-tracker import-purchases purchases_20260106_143000.json
+```
+
+---
+
+## Appendix J: BT Mobile Inventory Update Import (F040)
+
+The BT Mobile inventory update workflow enables percentage-based inventory corrections from physical counts.
+
+### J.1 Inventory Update JSON Schema
+
+```json
+{
+  "schema_version": "4.0",
+  "import_type": "inventory_updates",
+  "created_at": "2026-01-06T09:15:00Z",
+  "source": "bt_mobile",
+  "inventory_updates": [
+    {
+      "upc": "051000127952",
+      "gtin": "00051000127952",
+      "scanned_at": "2026-01-06T09:10:12Z",
+      "remaining_percentage": 30,
+      "update_method": "percentage_based",
+      "notes": "Pre-production check"
+    }
+  ]
+}
+```
+
+### J.2 Inventory Update Header Fields
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `schema_version` | string | **Yes** | Must be "4.0" |
+| `import_type` | string | **Yes** | Must be "inventory_updates" |
+| `created_at` | datetime | **Yes** | ISO 8601 timestamp |
+| `source` | string | **Yes** | Source application (e.g., "bt_mobile") |
+| `inventory_updates` | array | **Yes** | Array of update records |
+
+### J.3 Inventory Update Record Fields
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `upc` | string | **Yes** | UPC barcode (used for product matching) |
+| `gtin` | string | No | GTIN barcode (GS1 standard) |
+| `scanned_at` | datetime | **Yes** | When the inventory was checked |
+| `remaining_percentage` | integer | **Yes** | Percentage of original quantity remaining (0-100) |
+| `update_method` | string | **Yes** | Must be "percentage_based" |
+| `notes` | string | No | User notes |
+
+### J.4 Percentage Calculation Algorithm
+
+1. Lookup Product by UPC
+2. Find active inventory items (current_quantity > 0) in FIFO order
+3. For each item:
+   - Get original quantity from linked Purchase
+   - Calculate target: `original * (percentage / 100)`
+   - Calculate adjustment: `target - current`
+4. Create InventoryDepletion record and update current_quantity
+
+**Example**:
+- Original purchase: 25 lbs flour
+- Current inventory: 18 lbs (user has been using it)
+- User scans: "30% remaining"
+- Target: 25 × 0.30 = 7.5 lbs
+- Adjustment: 7.5 - 18 = -10.5 lbs
+- System depletes 10.5 lbs and creates audit record
+
+### J.5 Multiple Inventory Items
+
+When multiple inventory items exist for the same product:
+- Default behavior: Apply to oldest (FIFO)
+- Future enhancement: Prompt user to select which item
+
+### J.6 Service Function
+
+```python
+from src.services.import_export_service import import_inventory_updates_from_bt_mobile
+
+result = import_inventory_updates_from_bt_mobile("inventory_update_20260106.json")
+print(f"Updated: {result.success_count}, Errors: {result.error_count}")
+```
+
+### J.7 CLI Usage
+
+```bash
+bake-tracker import-inventory-update inventory_update_20260106_091500.json
+
+# Auto-detect import type
+bake-tracker import-bt-mobile <file.json>
+```
+
+---
+
 **Document Status**: Current
-**Version**: 3.5
-**Last Updated**: 2025-12-29
+**Version**: 4.0
+**Last Updated**: 2026-01-06
