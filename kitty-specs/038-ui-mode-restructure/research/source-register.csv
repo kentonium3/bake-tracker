@@ -1,0 +1,13 @@
+id,type,location,description,accessed_date,reliability
+S001,code,src/ui/main_window.py,Current main window and navigation implementation,2026-01-05,Primary
+S002,code,src/ui/ingredients_tab.py,Example tab layout pattern (58KB),2026-01-05,Primary
+S003,code,src/ui/products_tab.py,Example tab layout pattern (37KB),2026-01-05,Primary
+S004,code,src/ui/inventory_tab.py,Complex tab example (103KB),2026-01-05,Primary
+S005,code,src/ui/dashboard_tab.py,Dashboard widget patterns (9KB),2026-01-05,Primary
+S006,code,src/ui/production_dashboard_tab.py,Production dashboard patterns (21KB),2026-01-05,Primary
+S007,code,src/services/event_service.py,Event and shopping list services (83KB),2026-01-05,Primary
+S008,code,src/services/purchase_service.py,Purchase tracking services (22KB),2026-01-05,Primary
+S009,code,src/services/assembly_service.py,Assembly services (34KB),2026-01-05,Primary
+S010,code,src/services/packaging_service.py,Packaging services (27KB),2026-01-05,Primary
+S011,design,docs/design/_F038_ui_mode_restructure.md,Feature design document (983 lines),2026-01-05,Primary
+S012,spec,kitty-specs/038-ui-mode-restructure/spec.md,Feature specification,2026-01-05,Primary
