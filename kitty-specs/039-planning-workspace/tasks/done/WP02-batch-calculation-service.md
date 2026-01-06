@@ -9,10 +9,10 @@ subtasks:
   - "T012"
 title: "Batch Calculation Service"
 phase: "Phase 2 - Services"
-lane: "for_review"
+lane: "done"
 assignee: ""
-agent: "claude"
-shell_pid: "57624"
+agent: "claude-reviewer"
+shell_pid: "66971"
 review_status: ""
 reviewed_by: ""
 history:
@@ -277,3 +277,4 @@ pytest src/tests/services/planning/test_batch_calculation.py -v
 - 2026-01-06T03:09:20Z - claude - lane=planned - Prompt created.
 - 2026-01-06T12:58:15Z – claude – shell_pid=57624 – lane=doing – Started implementation
 - 2026-01-06T13:04:15Z – claude – shell_pid=57624 – lane=for_review – Moved to for_review
+- 2026-01-06T13:57:42Z – claude-reviewer – shell_pid=66971 – lane=done – Code review approved: Batch calculation with math.ceil (never rounds down), waste calculation, bundle explosion with cycle detection, recipe aggregation - 28 tests passing
