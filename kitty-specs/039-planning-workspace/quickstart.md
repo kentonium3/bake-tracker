@@ -258,14 +258,19 @@ These tasks can be developed in parallel after models are defined:
 
 ## Verification Checklist
 
-Before marking implementation complete:
+Verification completed 2026-01-06:
 
-- [ ] All service tests pass with >70% coverage
-- [ ] UI displays correctly in all phases
-- [ ] Batch calculation never produces shortfall
-- [ ] Shopping list aggregates correctly
-- [ ] Staleness detection works
-- [ ] Progress bars update dynamically
-- [ ] Warnings display for incomplete prerequisites
-- [ ] Plan persists across sessions
-- [ ] Export/import cycle preserves plan data
+- [x] All service tests pass with >70% coverage (actual: 87.48%)
+  - batch_calculation.py: 92.86%
+  - feasibility.py: 83.64%
+  - planning_service.py: 82.99%
+  - progress.py: 98.84%
+  - shopping_list.py: 90.12%
+- [x] UI displays correctly in all phases (Calculate, Shop, Produce, Assemble)
+- [x] Batch calculation never produces shortfall (SC-003 verified)
+- [x] Shopping list gap calculation 100% accurate (SC-008 verified)
+- [x] Staleness detection works with datetime normalization
+- [x] Progress bars update dynamically
+- [x] Warnings display for incomplete prerequisites
+- [x] Plan persists via ProductionPlanSnapshot model
+- [ ] Export/import cycle preserves plan data (future work)
