@@ -9,7 +9,7 @@ subtasks:
   - "T030"
 title: "Progress Service"
 phase: "Phase 2 - Services"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "system"
 shell_pid: ""
@@ -281,3 +281,4 @@ pytest src/tests/services/planning/test_progress.py -v
 
 - 2026-01-06T03:09:20Z - claude - lane=planned - Prompt created.
 - 2026-01-06T13:05:32Z – system – shell_pid= – lane=doing – Moved to doing
+- 2026-01-06T13:08:24Z – system – shell_pid= – lane=for_review – Moved to for_review
