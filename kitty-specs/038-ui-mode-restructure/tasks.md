@@ -22,12 +22,12 @@
 **Prompt**: `tasks/planned/WP01-base-classes.md`
 
 ### Included Subtasks
-- [ ] T001 Create directory structure: `src/ui/base/`, `src/ui/modes/`, `src/ui/dashboards/`, `src/ui/tabs/`
-- [ ] T002 Create `src/ui/base/__init__.py` with exports
-- [ ] T003 Implement `StandardTabLayout` in `src/ui/base/standard_tab_layout.py`
-- [ ] T004 Implement `BaseMode` in `src/ui/base/base_mode.py`
-- [ ] T005 Implement `BaseDashboard` in `src/ui/dashboards/base_dashboard.py`
-- [ ] T006 Create `src/ui/modes/__init__.py`, `src/ui/dashboards/__init__.py`, `src/ui/tabs/__init__.py`
+- [x] T001 Create directory structure: `src/ui/base/`, `src/ui/modes/`, `src/ui/dashboards/`, `src/ui/tabs/`
+- [x] T002 Create `src/ui/base/__init__.py` with exports
+- [x] T003 Implement `StandardTabLayout` in `src/ui/base/standard_tab_layout.py`
+- [x] T004 Implement `BaseMode` in `src/ui/base/base_mode.py`
+- [x] T005 Implement `BaseDashboard` in `src/ui/dashboards/base_dashboard.py`
+- [x] T006 Create `src/ui/modes/__init__.py`, `src/ui/dashboards/__init__.py`, `src/ui/tabs/__init__.py`
 
 ### Implementation Notes
 1. StandardTabLayout provides consistent regions: action_bar, refresh_area, filter_bar, content_area, status_bar
@@ -53,13 +53,13 @@
 **Prompt**: `tasks/planned/WP02-main-window-navigation.md`
 
 ### Included Subtasks
-- [ ] T007 Create `ModeManager` class in `src/ui/main_window.py` or separate file
-- [ ] T008 Create mode bar frame with 5 mode buttons (CATALOG, PLAN, SHOP, PRODUCE, OBSERVE)
-- [ ] T009 Implement mode switching logic (show/hide mode frames)
-- [ ] T010 Implement keyboard shortcuts Ctrl+1 through Ctrl+5
-- [ ] T011 Implement mode tab state preservation (remember last tab per mode)
-- [ ] T012 Set default mode to OBSERVE on application launch (FR-005)
-- [ ] T013 Style active mode button highlighting (FR-002)
+- [x] T007 Create `ModeManager` class in `src/ui/main_window.py` or separate file
+- [x] T008 Create mode bar frame with 5 mode buttons (CATALOG, PLAN, SHOP, PRODUCE, OBSERVE)
+- [x] T009 Implement mode switching logic (show/hide mode frames)
+- [x] T010 Implement keyboard shortcuts Ctrl+1 through Ctrl+5
+- [x] T011 Implement mode tab state preservation (remember last tab per mode)
+- [x] T012 Set default mode to OBSERVE on application launch (FR-005)
+- [x] T013 Style active mode button highlighting (FR-002)
 
 ### Implementation Notes
 1. Mode bar should be horizontal, prominent placement
@@ -85,14 +85,14 @@
 **Prompt**: `tasks/planned/WP03-catalog-mode.md`
 
 ### Included Subtasks
-- [ ] T014 Create `CatalogDashboard` in `src/ui/dashboards/catalog_dashboard.py`
-- [ ] T015 Create `CatalogMode` in `src/ui/modes/catalog_mode.py`
-- [ ] T016 [P] Integrate `ingredients_tab.py` into CATALOG mode
-- [ ] T017 [P] Integrate `products_tab.py` into CATALOG mode
-- [ ] T018 [P] Integrate `recipes_tab.py` into CATALOG mode
-- [ ] T019 [P] Integrate `finished_units_tab.py` into CATALOG mode
-- [ ] T020 [P] Integrate `finished_goods_tab.py` into CATALOG mode
-- [ ] T021 [P] Integrate `packages_tab.py` into CATALOG mode
+- [x] T014 Create `CatalogDashboard` in `src/ui/dashboards/catalog_dashboard.py`
+- [x] T015 Create `CatalogMode` in `src/ui/modes/catalog_mode.py`
+- [x] T016 [P] Integrate `ingredients_tab.py` into CATALOG mode
+- [x] T017 [P] Integrate `products_tab.py` into CATALOG mode
+- [x] T018 [P] Integrate `recipes_tab.py` into CATALOG mode
+- [x] T019 [P] Integrate `finished_units_tab.py` into CATALOG mode
+- [x] T020 [P] Integrate `finished_goods_tab.py` into CATALOG mode
+- [x] T021 [P] Integrate `packages_tab.py` into CATALOG mode
 
 ### Implementation Notes
 1. CatalogDashboard shows counts: ingredients, products, recipes, finished units, finished goods (FR-007)
@@ -119,11 +119,11 @@
 **Prompt**: `tasks/planned/WP04-observe-mode.md`
 
 ### Included Subtasks
-- [ ] T022 Create `ObserveDashboard` in `src/ui/dashboards/observe_dashboard.py`
-- [ ] T023 Create `ObserveMode` in `src/ui/modes/observe_mode.py`
-- [ ] T024 Enhance `dashboard_tab.py` for OBSERVE mode context
-- [ ] T025 Create `event_status_tab.py` in `src/ui/tabs/` (NEW)
-- [ ] T026 Create placeholder `reports_tab.py` in `src/ui/tabs/`
+- [x] T022 Create `ObserveDashboard` in `src/ui/dashboards/observe_dashboard.py`
+- [x] T023 Create `ObserveMode` in `src/ui/modes/observe_mode.py`
+- [x] T024 Enhance `dashboard_tab.py` for OBSERVE mode context
+- [x] T025 Create `event_status_tab.py` in `src/ui/tabs/` (NEW)
+- [x] T026 Create placeholder `reports_tab.py` in `src/ui/tabs/`
 
 ### Implementation Notes
 1. ObserveDashboard shows event readiness: shopping %, production %, assembly %, packaging % (FR-011)
@@ -150,10 +150,10 @@
 **Prompt**: `tasks/planned/WP05-plan-mode.md`
 
 ### Included Subtasks
-- [ ] T027 Create `PlanDashboard` in `src/ui/dashboards/plan_dashboard.py`
-- [ ] T028 Create `PlanMode` in `src/ui/modes/plan_mode.py`
-- [ ] T029 Integrate `events_tab.py` into PLAN mode
-- [ ] T030 Create `planning_workspace_tab.py` in `src/ui/tabs/` (NEW)
+- [x] T027 Create `PlanDashboard` in `src/ui/dashboards/plan_dashboard.py`
+- [x] T028 Create `PlanMode` in `src/ui/modes/plan_mode.py`
+- [x] T029 Integrate `events_tab.py` into PLAN mode
+- [x] T030 Create `planning_workspace_tab.py` in `src/ui/tabs/` (NEW)
 
 ### Implementation Notes
 1. PlanDashboard shows upcoming events with status indicators (FR-008)
@@ -178,11 +178,11 @@
 **Prompt**: `tasks/planned/WP06-shop-mode.md`
 
 ### Included Subtasks
-- [ ] T031 Create `ShopDashboard` in `src/ui/dashboards/shop_dashboard.py`
-- [ ] T032 Create `ShopMode` in `src/ui/modes/shop_mode.py`
-- [ ] T033 Create `shopping_lists_tab.py` in `src/ui/tabs/` (NEW)
-- [ ] T034 Create `purchases_tab.py` in `src/ui/tabs/` (NEW)
-- [ ] T035 Integrate `inventory_tab.py` into SHOP mode
+- [x] T031 Create `ShopDashboard` in `src/ui/dashboards/shop_dashboard.py`
+- [x] T032 Create `ShopMode` in `src/ui/modes/shop_mode.py`
+- [x] T033 Create `shopping_lists_tab.py` in `src/ui/tabs/` (NEW)
+- [x] T034 Create `purchases_tab.py` in `src/ui/tabs/` (NEW)
+- [x] T035 Integrate `inventory_tab.py` into SHOP mode
 
 ### Implementation Notes
 1. ShopDashboard shows shopping lists by store and inventory alerts (FR-009)
@@ -208,12 +208,12 @@
 **Prompt**: `tasks/planned/WP07-produce-mode.md`
 
 ### Included Subtasks
-- [ ] T036 Create `ProduceDashboard` in `src/ui/dashboards/produce_dashboard.py`
-- [ ] T037 Create `ProduceMode` in `src/ui/modes/produce_mode.py`
-- [ ] T038 Merge `production_tab.py` and `production_dashboard_tab.py` into single Production Runs tab
-- [ ] T039 Create `assembly_tab.py` in `src/ui/tabs/` (NEW)
-- [ ] T040 Create `packaging_tab.py` in `src/ui/tabs/` (NEW)
-- [ ] T041 Integrate `recipients_tab.py` into PRODUCE mode
+- [x] T036 Create `ProduceDashboard` in `src/ui/dashboards/produce_dashboard.py`
+- [x] T037 Create `ProduceMode` in `src/ui/modes/produce_mode.py`
+- [x] T038 Merge `production_tab.py` and `production_dashboard_tab.py` into single Production Runs tab
+- [x] T039 Create `assembly_tab.py` in `src/ui/tabs/` (NEW)
+- [x] T040 Create `packaging_tab.py` in `src/ui/tabs/` (NEW)
+- [x] T041 Integrate `recipients_tab.py` into PRODUCE mode
 
 ### Implementation Notes
 1. ProduceDashboard shows pending production, assembly checklist, packaging checklist (FR-010)
@@ -239,12 +239,12 @@
 **Prompt**: `tasks/planned/WP08-integration-polish.md`
 
 ### Included Subtasks
-- [ ] T042 Remove old flat tab navigation from `main_window.py`
-- [ ] T043 Test mode switching and tab state preservation
-- [ ] T044 Implement unsaved changes confirmation dialog (edge case)
-- [ ] T045 Implement empty state handling for new users
-- [ ] T046 Verify dashboard loading performance (< 1 second per SC-005)
-- [ ] T047 Final code cleanup and organization
+- [x] T042 Remove old flat tab navigation from `main_window.py`
+- [x] T043 Test mode switching and tab state preservation
+- [x] T044 Implement unsaved changes confirmation dialog (edge case)
+- [x] T045 Implement empty state handling for new users
+- [x] T046 Verify dashboard loading performance (< 1 second per SC-005)
+- [x] T047 Final code cleanup and organization
 
 ### Implementation Notes
 1. Big-bang replacement - old navigation removed completely (FR-031)
