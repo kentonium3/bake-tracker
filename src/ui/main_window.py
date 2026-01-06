@@ -16,18 +16,12 @@ from typing import Optional, Dict
 
 from src.utils.constants import APP_NAME, APP_VERSION
 from src.ui.mode_manager import ModeManager
-from src.ui.modes.placeholder_mode import PlaceholderMode
 from src.ui.modes.catalog_mode import CatalogMode
 from src.ui.modes.observe_mode import ObserveMode
 from src.ui.modes.plan_mode import PlanMode
 from src.ui.modes.shop_mode import ShopMode
 from src.ui.modes.produce_mode import ProduceMode
 
-# Existing tab imports (still needed for backward compatibility refresh methods)
-from src.ui.inventory_tab import InventoryTab
-from src.ui.recipients_tab import RecipientsTab
-from src.ui.events_tab import EventsTab
-from src.ui.production_dashboard_tab import ProductionDashboardTab
 from src.ui.service_integration import check_service_integration_health
 from src.ui.catalog_import_dialog import CatalogImportDialog
 
@@ -239,21 +233,6 @@ class MainWindow(ctk.CTk):
         self._tab_refs["dashboard"] = self.dashboard_tab
 
         self.mode_manager.register_mode("OBSERVE", mode)
-
-    def _add_placeholder_to_frame(self, frame: ctk.CTkFrame, title: str, message: str):
-        """Add a placeholder message to a frame.
-
-        Args:
-            frame: Frame to add placeholder to
-            title: Placeholder title
-            message: Placeholder message
-        """
-        label = ctk.CTkLabel(
-            frame,
-            text=f"{title}\n\n{message}",
-            font=ctk.CTkFont(size=20),
-        )
-        label.grid(row=0, column=0, padx=20, pady=20)
 
     def _create_status_bar(self):
         """Create the status bar at the bottom."""

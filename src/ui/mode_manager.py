@@ -8,7 +8,7 @@ Implements FR-001 through FR-005:
 - FR-005: OBSERVE as default mode on launch
 """
 
-from typing import Dict, Optional, Callable, Any, TYPE_CHECKING
+from typing import Dict, Optional, Callable, TYPE_CHECKING
 import customtkinter as ctk
 
 if TYPE_CHECKING:
@@ -48,6 +48,8 @@ class ModeManager:
         self._mode_buttons: Dict[str, ctk.CTkButton] = {}
         self._on_mode_change_callback: Optional[Callable[[str], None]] = None
         self._content_frame: Optional[ctk.CTkFrame] = None
+        self._unsaved_changes_check: Optional[Callable[[], bool]] = None
+        self._confirm_discard_callback: Optional[Callable[[], bool]] = None
 
     def set_content_frame(self, frame: ctk.CTkFrame) -> None:
         """Set the content frame where mode widgets are displayed.
@@ -88,21 +90,42 @@ class ModeManager:
         """
         self._on_mode_change_callback = callback
 
-    def switch_mode(self, target_mode: str) -> None:
+    def set_unsaved_changes_callbacks(
+        self,
+        check_callback: Callable[[], bool],
+        confirm_callback: Callable[[], bool]
+    ) -> None:
+        """Set callbacks for unsaved changes checking.
+
+        Args:
+            check_callback: Returns True if there are unsaved changes
+            confirm_callback: Shows confirmation dialog, returns True if user wants to proceed
+        """
+        self._unsaved_changes_check = check_callback
+        self._confirm_discard_callback = confirm_callback
+
+    def switch_mode(self, target_mode: str) -> bool:
         """Switch to a different mode.
 
         Implements FR-004: Tab state preservation.
+        Checks for unsaved changes if callbacks are configured.
 
         Args:
             target_mode: Name of mode to switch to
 
         Returns:
-            None if target_mode is invalid or same as current
+            True if switch succeeded, False if cancelled or invalid
         """
         if target_mode not in self.modes:
-            return
+            return False
         if target_mode == self.current_mode:
-            return
+            return False
+
+        # Check for unsaved changes (edge case handling)
+        if self._unsaved_changes_check and self._confirm_discard_callback:
+            if self._unsaved_changes_check():
+                if not self._confirm_discard_callback():
+                    return False  # User cancelled the switch
 
         # Save current mode's tab state
         current = self.modes.get(self.current_mode)
@@ -129,6 +152,8 @@ class ModeManager:
         # Notify callback
         if self._on_mode_change_callback:
             self._on_mode_change_callback(target_mode)
+
+        return True
 
     def get_current_mode(self) -> Optional["BaseMode"]:
         """Get the currently active mode widget.
