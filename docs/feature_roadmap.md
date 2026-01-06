@@ -1,7 +1,7 @@
 # Feature Roadmap
 
 **Created:** 2025-12-03
-**Last Updated:** 2026-01-03
+**Last Updated:** 2026-01-05
 **Workflow:** Spec-Kitty driven development
 
 ---
@@ -52,7 +52,10 @@
 
 ## In Progress
 
-*No features currently in progress.*
+| # | Name | Priority | Dependencies | Status |
+|---|------|----------|--------------|--------|
+| 037 | Recipe Redesign | HIGH | F036 ✅ | ⚙️ Spec-Kitty Implementation |
+| 038 | UI Mode Restructure | HIGH | Phase 2 Architecture | ⚙️ Spec-Kitty Implementation |
 
 ---
 
@@ -60,11 +63,12 @@
 
 | # | Name | Priority | Dependencies | Status |
 |---|------|----------|--------------|--------|
-| 037 | Recipe Redesign | HIGH | F036 ✅ | Ready |
-| 038 | UI Mode Restructure | HIGH | Phase 2 Architecture | Ready |
-| 039 | Purchase Workflow & AI Assist | HIGH | F038 | Ready |
-| 040 | Finished Goods Inventory | MEDIUM | F037 | Ready |
-| 041 | Packaging & Distribution | LOW | User testing complete | Blocked |
+| 039 | Planning Workspace | **CRITICAL (P0)** | F037 ✅, F038 ✅ | 📝 Ready for Spec |
+| 040 | Manual Inventory Adjustments | MEDIUM | Inventory model ✅ | 📝 Ready for Spec |
+| 041 | Shelf Life & Freshness Tracking | MEDIUM | Ingredient/Inventory models ✅ | Partial Spec (_F041) |
+| 042 | Purchase Workflow & AI Assist | MEDIUM | F038 | Spec Complete (_F039) |
+| 043 | Finished Goods Inventory | LOW | F037 | Spec Complete (_F040) |
+| 044 | Packaging & Distribution | LOW | User testing complete | Blocked |
 
 ---
 
@@ -101,11 +105,14 @@
 27. ~~**Feature 034** - Ingredient Hierarchy Phase 2 (Integration Fixes)~~ ✅ COMPLETE
 28. ~~**Feature 035** - Ingredient Hierarchy Phase 3 (Deletion Protection)~~ ✅ COMPLETE
 29. ~~**Feature 036** - Ingredient Hierarchy Phase 4 (Comprehensive Testing)~~ ✅ COMPLETE
-30. **Feature 037** - Recipe Redesign
-31. **Feature 038** - UI Mode Restructure
-32. **Feature 039** - Purchase Workflow & AI Assist
-33. **Feature 040** - Finished Goods Inventory
-34. **Feature 041** - Packaging & Distribution
+30. **Feature 037** - Recipe Redesign (⚙️ IN PROGRESS)
+31. **Feature 038** - UI Mode Restructure (⚙️ IN PROGRESS)
+32. **Feature 039** - Planning Workspace (NEXT - Spec phase)
+33. **Feature 040** - Manual Inventory Adjustments
+34. **Feature 041** - Shelf Life & Freshness Tracking
+35. **Feature 042** - Purchase Workflow & AI Assist
+36. **Feature 043** - Finished Goods Inventory
+37. **Feature 044** - Packaging & Distribution
 
 ---
 
@@ -883,6 +890,19 @@ Chocolate (L0)
 
 ## Key Decisions
 
+### 2026-01-05
+- **Feature 037 & 038 In Progress:** Recipe Redesign and UI Mode Restructure both entered Spec-Kitty implementation phase.
+- **Planning Workspace Priority:** Identified as CRITICAL (P0) - THE core value proposition for automatic batch calculation solving Marianne's underproduction problem.
+- **Feature Renumbering:** Inserted Planning Workspace as F039, renumbering subsequent features:
+  - Planning Workspace: NEW → F039 (CRITICAL P0 - next spec)
+  - Manual Inventory Adjustments: NEW → F040
+  - Shelf Life & Freshness Tracking: F041 → F041 (no change)
+  - Purchase Workflow & AI Assist: F039 → F042
+  - Finished Goods Inventory: F040 → F043
+  - Packaging & Distribution: F041 → F044
+- **Spec File Naming:** Existing specs _F039, _F040 will need renumbering to _F042, _F043 respectively.
+- **Architecture Validation:** Confirmed Bundle concept correctly modeled as FinishedGood (two-tier hierarchy: FinishedUnit from recipes → FinishedGood assemblies). No schema changes needed for F038.
+
 ### 2026-01-03
 - **Feature 035 Complete:** Ingredient Hierarchy Phase 3 (Deletion Protection) merged. Deletion protection service blocks when Products/Recipes/Children reference ingredient, cascade delete for Alias/Crosswalk, snapshot denormalization preserves historical names. 9 new tests.
 - **Feature 036 Complete:** Ingredient Hierarchy Phase 4 (Comprehensive Testing) merged. Full test suite execution (1469 passed, 0 failed), manual UI validation for cascading selectors and deletion protection, gap analysis updated to 100% complete.
@@ -982,3 +1002,4 @@ Chocolate (L0)
 - 2025-12-30: **Phase 2 Architecture Complete.** Added Features 031-036 design specs (Ingredient Hierarchy, Recipe Redesign, UI Mode Restructure, Purchase Workflow & AI Assist, Finished Goods Inventory). F031 and F032 implemented and merged (Ingredient Hierarchy backend + UI). F033 gap analysis created (comprehensive implementation analysis revealing 55% completion, 5 critical blockers identified, 50-72 hour roadmap provided). Gap analysis divided into 4 phases: Phase 1 to be implemented immediately, Phases 2-4 deferred to future features. Original F031 (Packaging & Distribution) renumbered to F041.
 - 2026-01-02: **Feature 033 Phase 1 Complete.** Fixed ingredient edit form (parent selection vs level), fixed ingredients tab display, implemented core validation services. Overall completion increased from 45% to 55%. Remaining gap analysis work (Phases 2-4) planned as three new features: F034 (Integration Fixes, 12-20 hrs), F035 (Auto-Update & Polish, 10-14 hrs), F036 (Testing, 8-12 hrs). Previous planned features renumbered: Recipe Redesign (F037), UI Mode Restructure (F038), Purchase Workflow (F039), Finished Goods Inventory (F040), Packaging & Distribution (F041). Pending feature specs renamed with underscore prefix for sort order. **Feature 034 Complete.** Fixed cascading filters, debugged product edit hang, verified recipe integration. All Phase 2 integration blockers resolved. Overall completion now ~75%.
 - 2026-01-03: **Feature 035 Complete.** Deletion protection service, cascade delete for aliases/crosswalks, snapshot denormalization. **Feature 036 Complete.** Full test suite (1469 passed), manual UI validation, gap analysis at 100%. **F033-F036 Ingredient Hierarchy Implementation Complete.** All 4 phases merged. System production-ready. Next feature: F037 (Recipe Redesign).
+- 2026-01-05: **F037 & F038 In Progress.** Recipe Redesign and UI Mode Restructure entered Spec-Kitty implementation phase. **Planning Workspace Prioritized.** Identified as F039 CRITICAL (P0) feature - automatic batch calculation solving core underproduction problem. **Feature Renumbering.** Inserted Planning Workspace as F039, renumbering Purchase Workflow (F039→F042), Finished Goods Inventory (F040→F043), Packaging & Distribution (F041→F044). Added Manual Inventory Adjustments as F040. **Architecture Validation Complete.** Confirmed Bundle=FinishedGood in two-tier hierarchy (FinishedUnit from recipes → FinishedGood assemblies). No schema changes needed for F038. Existing spec files _F039 and _F040 require renumbering to _F042 and _F043.

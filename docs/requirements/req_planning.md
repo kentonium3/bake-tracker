@@ -888,26 +888,26 @@ def validate_assembly_feasibility(recipe_plans, event_requirements):
 
 ### 9.1 Event Planning Validation
 
-| Rule ID | Validation | Error Message |
-|---------|-----------|---------------|
-| VAL-PLAN-001 | Event name required | "Event name cannot be empty" |
-| VAL-PLAN-002 | Output mode required | "Output mode must be selected" |
-| VAL-PLAN-003 | At least one requirement needed | "Event must have at least one requirement" |
-| VAL-PLAN-004 | Requirement quantities must be positive | "Quantity must be greater than zero" |
+| Rule ID      | Validation                              | Error Message                              |
+| ------------ | --------------------------------------- | ------------------------------------------ |
+| VAL-PLAN-001 | Event name required                     | "Event name cannot be empty"               |
+| VAL-PLAN-002 | Output mode required                    | "Output mode must be selected"             |
+| VAL-PLAN-003 | At least one requirement needed         | "Event must have at least one requirement" |
+| VAL-PLAN-004 | Requirement quantities must be positive | "Quantity must be greater than zero"       |
 
 ### 9.2 Production Plan Validation
 
-| Rule ID | Validation | Error Message |
-|---------|-----------|---------------|
+| Rule ID      | Validation                                 | Error Message                                           |
+| ------------ | ------------------------------------------ | ------------------------------------------------------- |
 | VAL-PLAN-005 | All FinishedUnits must have recipe linkage | "Cannot plan production: {finished_unit} has no recipe" |
-| VAL-PLAN-006 | All recipes must have yield options | "Recipe {recipe} has no yield options defined" |
-| VAL-PLAN-007 | Batches must be positive integer | "Batch count must be at least 1" |
+| VAL-PLAN-006 | All recipes must have yield options        | "Recipe {recipe} has no yield options defined"          |
+| VAL-PLAN-007 | Batches must be positive integer           | "Batch count must be at least 1"                        |
 
 ### 9.3 Assembly Validation
 
-| Rule ID | Validation | Error Message |
-|---------|-----------|---------------|
-| VAL-PLAN-008 | Cannot assemble if components insufficient | "Cannot assemble: need {X}, have {Y}" |
+| Rule ID      | Validation                                      | Error Message                                         |
+| ------------ | ----------------------------------------------- | ----------------------------------------------------- |
+| VAL-PLAN-008 | Cannot assemble if components insufficient      | "Cannot assemble: need {X}, have {Y}"                 |
 | VAL-PLAN-009 | All bundle components must have production plan | "Cannot assemble: {component} not in production plan" |
 
 ---
@@ -1034,9 +1034,9 @@ def validate_assembly_feasibility(recipe_plans, event_requirements):
 
 ## 14. Change Log
 
-| Version | Date | Author | Changes |
-|---------|------|--------|---------|
-| 0.1 | 2025-01-04 | Kent Gale | Initial seeded draft from planning discussions |
+| Version | Date       | Author    | Changes                                        |
+| ------- | ---------- | --------- | ---------------------------------------------- |
+| 0.1     | 2025-01-04 | Kent Gale | Initial seeded draft from planning discussions |
 
 ---
 
