@@ -14,9 +14,9 @@ subtasks:
   - "T041"
 title: "Planning Service Facade"
 phase: "Phase 2 - Services"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
+agent: "system"
 shell_pid: ""
 review_status: ""
 reviewed_by: ""
@@ -337,3 +337,4 @@ pytest src/tests/services/planning/test_planning_service.py -v
 ## Activity Log
 
 - 2026-01-06T03:09:20Z - claude - lane=planned - Prompt created.
+- 2026-01-06T13:15:51Z – system – shell_pid= – lane=doing – Moved to doing

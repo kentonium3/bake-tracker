@@ -10,21 +10,40 @@ This module provides services for:
 - Shopping completion status tracking
 - Progress tracking for production and assembly
 - Feasibility checking for production and assembly
+- Planning service facade for orchestrating all modules
 
 Usage:
     from src.services.planning import (
+        # Facade functions
+        calculate_plan,
+        check_staleness,
+        get_plan_summary,
+        get_recipe_batches,
+        get_assembly_checklist,
+        # Exceptions
+        PlanningError,
+        StalePlanError,
+        EventNotConfiguredError,
+        # DTOs
+        PlanSummary,
+        PlanPhase,
+        PhaseStatus,
+        # Batch calculation
         calculate_batches,
         calculate_waste,
         explode_bundle_requirements,
         aggregate_by_recipe,
         RecipeBatchResult,
+        # Shopping list
         get_shopping_list,
         ShoppingListItem,
+        # Progress
         get_production_progress,
         get_assembly_progress,
         get_overall_progress,
         ProductionProgress,
         AssemblyProgress,
+        # Feasibility
         check_production_feasibility,
         check_assembly_feasibility,
         FeasibilityStatus,
@@ -69,7 +88,46 @@ from .feasibility import (
     FeasibilityResult,
 )
 
+from .planning_service import (
+    # Core planning functions
+    calculate_plan,
+    check_staleness,
+    get_plan_summary,
+    get_recipe_batches,
+    calculate_batches_for_quantity,
+    get_assembly_checklist,
+    record_assembly_confirmation,
+    # Exceptions
+    PlanningError,
+    StalePlanError,
+    IncompleteRequirementsError,
+    EventNotConfiguredError,
+    EventNotFoundError,
+    # DTOs
+    PlanSummary,
+    PlanPhase,
+    PhaseStatus,
+)
+
 __all__ = [
+    # Planning service facade
+    "calculate_plan",
+    "check_staleness",
+    "get_plan_summary",
+    "get_recipe_batches",
+    "calculate_batches_for_quantity",
+    "get_assembly_checklist",
+    "record_assembly_confirmation",
+    # Exceptions
+    "PlanningError",
+    "StalePlanError",
+    "IncompleteRequirementsError",
+    "EventNotConfiguredError",
+    "EventNotFoundError",
+    # DTOs
+    "PlanSummary",
+    "PlanPhase",
+    "PhaseStatus",
     # Batch calculation
     "calculate_batches",
     "calculate_waste",
