@@ -13,7 +13,20 @@ Tabs are organized by their parent mode:
 Tab widgets are added as they are implemented.
 """
 
+from .assembly_tab import AssemblyTab
 from .event_status_tab import EventStatusTab
+from .packaging_tab import PackagingTab
+from .planning_workspace_tab import PlanningWorkspaceTab
+from .purchases_tab import PurchasesTab
 from .reports_tab import ReportsTab
+from .shopping_lists_tab import ShoppingListsTab
 
-__all__ = ["EventStatusTab", "ReportsTab"]
+__all__ = [
+    "AssemblyTab",
+    "EventStatusTab",
+    "PackagingTab",
+    "PlanningWorkspaceTab",
+    "PurchasesTab",
+    "ReportsTab",
+    "ShoppingListsTab",
+]

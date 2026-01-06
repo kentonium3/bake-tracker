@@ -19,8 +19,11 @@ from src.ui.mode_manager import ModeManager
 from src.ui.modes.placeholder_mode import PlaceholderMode
 from src.ui.modes.catalog_mode import CatalogMode
 from src.ui.modes.observe_mode import ObserveMode
+from src.ui.modes.plan_mode import PlanMode
+from src.ui.modes.shop_mode import ShopMode
+from src.ui.modes.produce_mode import ProduceMode
 
-# Existing tab imports (still needed for modes not yet converted)
+# Existing tab imports (still needed for backward compatibility refresh methods)
 from src.ui.inventory_tab import InventoryTab
 from src.ui.recipients_tab import RecipientsTab
 from src.ui.events_tab import EventsTab
@@ -192,83 +195,36 @@ class MainWindow(ctk.CTk):
         self.mode_manager.register_mode("CATALOG", mode)
 
     def _create_plan_mode(self):
-        """Create PLAN mode with 2 tabs."""
-        mode = PlaceholderMode(self.mode_content, "PLAN", [])
-        mode.setup_dashboard()
-        mode.create_tabview()
+        """Create PLAN mode with 2 tabs using PlanMode class."""
+        mode = PlanMode(self.mode_content)
 
-        # Events tab
-        events_frame = mode.tabview.add("Events")
-        events_frame.grid_columnconfigure(0, weight=1)
-        events_frame.grid_rowconfigure(0, weight=1)
-        self.events_tab = EventsTab(events_frame)
+        # Store tab references for backward compatibility
+        self.events_tab = mode.events_tab
+
         self._tab_refs["events"] = self.events_tab
-
-        # Planning Workspace tab (placeholder)
-        planning_frame = mode.tabview.add("Planning Workspace")
-        planning_frame.grid_columnconfigure(0, weight=1)
-        planning_frame.grid_rowconfigure(0, weight=1)
-        self._add_placeholder_to_frame(planning_frame, "Planning Workspace", "Coming Soon")
 
         self.mode_manager.register_mode("PLAN", mode)
 
     def _create_shop_mode(self):
-        """Create SHOP mode with 3 tabs."""
-        mode = PlaceholderMode(self.mode_content, "SHOP", [])
-        mode.setup_dashboard()
-        mode.create_tabview()
+        """Create SHOP mode with 3 tabs using ShopMode class."""
+        mode = ShopMode(self.mode_content)
 
-        # Shopping Lists tab (placeholder)
-        shopping_frame = mode.tabview.add("Shopping Lists")
-        shopping_frame.grid_columnconfigure(0, weight=1)
-        shopping_frame.grid_rowconfigure(0, weight=1)
-        self._add_placeholder_to_frame(shopping_frame, "Shopping Lists", "Coming Soon")
+        # Store tab references for backward compatibility
+        self.inventory_tab = mode.inventory_tab
 
-        # Purchases tab (placeholder)
-        purchases_frame = mode.tabview.add("Purchases")
-        purchases_frame.grid_columnconfigure(0, weight=1)
-        purchases_frame.grid_rowconfigure(0, weight=1)
-        self._add_placeholder_to_frame(purchases_frame, "Purchases", "Coming Soon")
-
-        # Inventory tab (My Pantry)
-        inventory_frame = mode.tabview.add("Inventory")
-        inventory_frame.grid_columnconfigure(0, weight=1)
-        inventory_frame.grid_rowconfigure(0, weight=1)
-        self.inventory_tab = InventoryTab(inventory_frame)
         self._tab_refs["inventory"] = self.inventory_tab
 
         self.mode_manager.register_mode("SHOP", mode)
 
     def _create_produce_mode(self):
-        """Create PRODUCE mode with 4 tabs."""
-        mode = PlaceholderMode(self.mode_content, "PRODUCE", [])
-        mode.setup_dashboard()
-        mode.create_tabview()
+        """Create PRODUCE mode with 4 tabs using ProduceMode class."""
+        mode = ProduceMode(self.mode_content)
 
-        # Production Runs tab
-        production_frame = mode.tabview.add("Production Runs")
-        production_frame.grid_columnconfigure(0, weight=1)
-        production_frame.grid_rowconfigure(0, weight=1)
-        self.production_tab = ProductionDashboardTab(production_frame)
+        # Store tab references for backward compatibility
+        self.production_tab = mode.production_tab
+        self.recipients_tab = mode.recipients_tab
+
         self._tab_refs["production"] = self.production_tab
-
-        # Assembly tab (placeholder)
-        assembly_frame = mode.tabview.add("Assembly")
-        assembly_frame.grid_columnconfigure(0, weight=1)
-        assembly_frame.grid_rowconfigure(0, weight=1)
-        self._add_placeholder_to_frame(assembly_frame, "Assembly", "Coming Soon")
-
-        # Packaging tab (placeholder)
-        packaging_frame = mode.tabview.add("Packaging")
-        packaging_frame.grid_columnconfigure(0, weight=1)
-        packaging_frame.grid_rowconfigure(0, weight=1)
-        self._add_placeholder_to_frame(packaging_frame, "Packaging", "Coming Soon")
-
-        # Recipients tab
-        recipients_frame = mode.tabview.add("Recipients")
-        recipients_frame.grid_columnconfigure(0, weight=1)
-        recipients_frame.grid_rowconfigure(0, weight=1)
-        self.recipients_tab = RecipientsTab(recipients_frame)
         self._tab_refs["recipients"] = self.recipients_tab
 
         self.mode_manager.register_mode("PRODUCE", mode)
