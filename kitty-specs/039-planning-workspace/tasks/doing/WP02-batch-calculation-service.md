@@ -9,10 +9,10 @@ subtasks:
   - "T012"
 title: "Batch Calculation Service"
 phase: "Phase 2 - Services"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "claude"
+shell_pid: "57624"
 review_status: ""
 reviewed_by: ""
 history:
@@ -275,3 +275,4 @@ pytest src/tests/services/planning/test_batch_calculation.py -v
 ## Activity Log
 
 - 2026-01-06T03:09:20Z - claude - lane=planned - Prompt created.
+- 2026-01-06T12:58:15Z – claude – shell_pid=57624 – lane=doing – Started implementation
