@@ -7,7 +7,7 @@ subtasks:
   - "T041"
 title: "Integration Tests"
 phase: "Phase 3 - Integration & Documentation"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "system"
 shell_pid: ""
@@ -411,3 +411,4 @@ pytest src/tests/integration/test_import_export_v4.py -v
 
 - 2026-01-06T12:00:00Z - system - lane=planned - Prompt created.
 - 2026-01-07T03:44:11Z – system – shell_pid= – lane=doing – Moved to doing
+- 2026-01-07T03:52:40Z – system – shell_pid= – lane=for_review – Moved to for_review
