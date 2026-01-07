@@ -9,10 +9,10 @@ subtasks:
   - "T029"
 title: "UI Integration & Wiring"
 phase: "Phase 2 - UI Layer (Gemini)"
-lane: "for_review"
+lane: "done"
 assignee: ""
-agent: "claude"
-shell_pid: ""
+agent: "claude-reviewer"
+shell_pid: "50469"
 history:
   - timestamp: "2026-01-07T12:00:00Z"
     lane: "planned"
@@ -309,3 +309,4 @@ Manual integration testing:
 - 2026-01-07T12:00:00Z - system - lane=planned - Prompt created via /spec-kitty.tasks
 - 2026-01-07T17:14:07Z – claude – shell_pid= – lane=doing – Moved to doing
 - 2026-01-07T17:15:52Z – claude – shell_pid= – lane=for_review – Moved to for_review
+- 2026-01-07T20:34:18Z – claude-reviewer – shell_pid=50469 – lane=done – Code review approved: UI integration complete - Adjust button wired to dialog, dialog calls service, error handling, refresh after success - all 1744 tests pass
