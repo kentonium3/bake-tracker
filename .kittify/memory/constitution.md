@@ -1,31 +1,44 @@
 <!--
 Sync Impact Report:
-- Version change: 1.1.0 → 1.2.0
-- Modified principles: VI (Migration Safety → Schema Change Strategy)
-- Added sections: N/A
+- Version change: 1.2.0 → 1.3.0
+- Modified principles: I (User-Centric Design → User-Centric Design & Workflow Validation)
+- Added sections: Prototype & Workflow Validation, AI-Forward Foundation subsections
 - Removed sections: N/A
-- Rationale: For single-user desktop app, export/reset/import cycle replaces migration scripts
+- Rationale: Application now serves dual purpose - practical tool AND workflow validator for AI-forward SaaS
 - Templates requiring updates:
-  ✅ plan-template.md - Remove migration-related checks for desktop phase
-- Follow-up TODOs:
-  - Update Feature 019 spec if it references migration requirements
+  ✅ spec-template.md - No changes needed (references constitution dynamically)
+  ✅ plan-template.md - No changes needed (Constitution Check gates are generic)
+- Follow-up TODOs: None
 -->
 
 # Bake Tracker Constitution
 
 ## Core Principles
 
-### I. User-Centric Design
+### I. User-Centric Design & Workflow Validation
 
-**The application serves a real user with real needs - all features must deliver practical value.**
+**The application serves dual purposes: a practical tool for a real user AND a workflow validator for future AI-assisted SaaS evolution.**
 
+#### Immediate User Value
 - Features MUST solve actual user problems, not theoretical ones
 - UI MUST be intuitive for non-technical users
 - Workflows MUST match natural baking planning processes
 - User testing with the primary user (wife) MUST validate major features before completion
 - Complexity that doesn't serve the user MUST be rejected
+- Mobile companion workflows MUST reduce friction for common tasks (shopping, inventory checks)
 
-**Rationale:** This is a personal tool for managing holiday baking operations. Features exist to make the user's life easier, not to demonstrate technical sophistication. If the user can't understand or use it, it fails.
+#### Prototype & Workflow Validation
+- Data structures MUST support complete, real-world workflows that can be exercised manually
+- Business logic MUST be explicit, testable, and separable from UI for future API/voice/chat wrapping
+- Catalog creation workflows (Products, Bundles/Finished Goods, Recipe variations) MUST be fully functional before AI assistance layers are added
+- Planning and purchasing workflows MUST be validated with real use before conversational interfaces wrap them
+
+#### AI-Forward Foundation
+- Application logic and data models will form RAG/RAGraph foundations for AI-assisted user interactions
+- Voice and chat AI interactions for planning, purchasing, and catalog creation depend on proven manual workflows
+- The principle "solve it manually first, then add AI" ensures AI assistance enhances rather than obscures validated processes
+
+**Rationale:** This application is both a personal holiday baking tool AND a functional prototype for a multi-user, AI-forward SaaS platform. Features must work flawlessly for the current user while simultaneously validating the workflows, data structures, and business logic that will underpin future voice/chat AI interactions. If a workflow doesn't work well manually, wrapping AI around it will only amplify the friction. Proven manual workflows become the foundation for frictionless conversational experiences.
 
 ### II. Data Integrity & FIFO Accuracy (NON-NEGOTIABLE)
 
@@ -180,7 +193,7 @@ When making architectural choices, ask:
 
 #### Examples of Pragmatic Aspiration in Practice
 
-**✅ Good Opportunistic Choices:**
+**Good Opportunistic Choices:**
 - **Ingredient/Variant architecture with industry standard fields (FoodOn, GTIN, etc.)**
   - *Desktop: Nullable fields, no burden*
   - *Web: Enables supplier integrations*
@@ -211,7 +224,7 @@ When making architectural choices, ask:
   - *Web: Can switch to PostgreSQL/MySQL if needed*
   - *Platform: Read replicas, sharding options*
 
-**❌ Premature Optimization to Avoid:**
+**Premature Optimization to Avoid:**
 - Building multi-tenancy support in desktop app
   - *Wait for web phase to learn actual requirements*
 
@@ -224,7 +237,7 @@ When making architectural choices, ask:
 - Designing for 10,000+ users
   - *Validate 10-50 users first, learn scaling needs*
 
-**📋 Document for Later:**
+**Document for Later:**
 - Maintain `/docs/web_migration_notes.md` - decisions that impact web transition
 - Track "Web Migration Cost" in complexity justifications
 - Note where desktop implementation makes web-hostile assumptions
@@ -314,4 +327,4 @@ When making architectural choices, ask:
 - Conflicts between constitution and existing code MUST be resolved in favor of constitution
 - Runtime guidance for AI agents found in `.kittify/AGENTS.md`
 
-**Version**: 1.2.0 | **Ratified**: 2025-11-08 | **Last Amended**: 2025-12-14
+**Version**: 1.3.0 | **Ratified**: 2025-11-08 | **Last Amended**: 2026-01-07
