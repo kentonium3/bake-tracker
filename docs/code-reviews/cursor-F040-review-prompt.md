@@ -1,247 +1,172 @@
 # Cursor Code Review Prompt - Feature 040: Import/Export v4.0 Upgrade
 
-## Role
+## Your Role
 
-You are a senior software engineer performing an independent code review of Feature 040 (import-export-v4). Approach this as if you are discovering this feature for the first time with no prior knowledge of the implementation decisions.
+You are a senior software engineer performing an independent code review. Approach this as if discovering the feature for the first time. Read the spec first, form your own expectations, then evaluate the implementation.
 
-## Feature Summary
+## Feature Context
 
-**Feature Number:** 040
-**Title:** Import/Export v4.0 Upgrade
-**Branch/Worktree:** `.worktrees/040-import-export-v4`
+**Feature:** 040 - Import/Export v4.0 Upgrade
+**User Goal:** Upgrade export/import system to preserve new F037/F039 fields and enable mobile UPC-based purchase/inventory workflows
+**Spec File:** `kitty-specs/040-import-export-v4/spec.md`
 
-**High-Level User Goal:**
-Upgrade the import/export system to version 4.0 to support:
-1. Recipe variant relationships (F037 base_recipe_id, variant_name, is_production_ready)
-2. Event output_mode field (F039)
-3. BT Mobile workflows for purchase import via UPC scanning
-4. BT Mobile workflows for inventory quantity updates via UPC scanning
-5. Merge vs Replace import modes
+## Files to Review
 
-**Problem Being Solved:**
-- Export/import currently at v3.x does not preserve new F037/F039 fields
-- No mobile-friendly way to import purchases from UPC scans
-- No mobile-friendly way to update inventory quantities after pantry audits
-- Need to preserve recipe variant relationships across export/import cycles
+```
+src/services/import_export_service.py
+src/services/recipe_service.py
+src/ui/forms/upc_resolution_dialog.py
+src/tests/integration/test_import_export_v4.py
+src/tests/services/test_import_export_service.py
+test_data/sample_data.json
+test_data/bt_mobile_purchase_sample.json
+test_data/bt_mobile_inventory_sample.json
+```
 
-## Files Modified
+## Spec Files (Read First)
 
-### Service Layer
-- `src/services/import_export_service.py` - Core export/import logic
-- `src/services/recipe_service.py` - Recipe export serialization
-
-### UI Layer
-- `src/ui/forms/upc_resolution_dialog.py` - New dialog for resolving unknown UPCs
-
-### Tests
-- `src/tests/services/test_import_export_service.py` - Unit tests
-- `src/tests/integration/test_import_export_v4.py` - Integration tests
-
-### Sample Data
-- `test_data/sample_data.json` - Updated to v4.0 format
-- `test_data/bt_mobile_purchase_sample.json` - New BT Mobile purchase import sample
-- `test_data/bt_mobile_inventory_sample.json` - New BT Mobile inventory update sample
-
-## Specification Documents
-
-Read these BEFORE looking at the implementation:
-
-- `kitty-specs/040-import-export-v4/spec.md` - Feature specification with acceptance criteria
-- `kitty-specs/040-import-export-v4/plan.md` - Implementation plan
-- `kitty-specs/040-import-export-v4/data-model.md` - JSON schema definitions
-- `kitty-specs/040-import-export-v4/research.md` - Key decisions and rationale
-
-## Review Approach
-
-1. **Read the spec first** - Understand intended behavior from `spec.md` BEFORE examining code
-2. **Form expectations** - Based on the spec, what would you expect the implementation to do?
-3. **Compare** - Does the implementation match your expectations? Note discrepancies
-4. **Look for gaps** - Edge cases, error handling, data integrity risks the spec may not cover
-5. **Check patterns** - Does the code follow existing codebase patterns?
-6. **Verify** - Run the verification commands below
+```
+kitty-specs/040-import-export-v4/spec.md
+kitty-specs/040-import-export-v4/data-model.md
+```
 
 ## Verification Commands
 
-Run these commands from the worktree. If ANY fail, STOP and report as a blocker before continuing.
+Run from worktree: `/Users/kentgale/Vaults-repos/bake-tracker/.worktrees/040-import-export-v4`
 
 ```bash
-cd /Users/kentgale/Vaults-repos/bake-tracker/.worktrees/040-import-export-v4
-
-# Activate virtual environment
 source /Users/kentgale/Vaults-repos/bake-tracker/venv/bin/activate
 
-# Verify all modified modules import correctly
+# Imports
 PYTHONPATH=. python3 -c "
-from src.services.import_export_service import (
-    export_all_to_json,
-    import_all_from_json_v4,
-    import_purchases_from_bt_mobile,
-    import_inventory_updates_from_bt_mobile
-)
-from src.services.recipe_service import get_recipe
+from src.services.import_export_service import export_all_to_json, import_all_from_json_v4, import_purchases_from_bt_mobile, import_inventory_updates_from_bt_mobile
 from src.ui.forms.upc_resolution_dialog import UPCResolutionDialog
 print('All imports successful')
 "
 
-# Check version in export service
-grep -n "version.*4.0\|\"4.0\"" src/services/import_export_service.py | head -5
-
-# Check F037 recipe fields in export
-grep -n "base_recipe_slug\|variant_name\|is_production_ready" src/services/import_export_service.py | head -10
-grep -n "base_recipe_slug\|variant_name\|is_production_ready" src/services/recipe_service.py | head -10
-
-# Check F039 event fields in export
-grep -n "output_mode" src/services/import_export_service.py | head -5
-
-# Check BT Mobile import functions exist
-grep -n "def import_purchases_from_bt_mobile\|def import_inventory_updates_from_bt_mobile" src/services/import_export_service.py
-
-# Check import modes
-grep -n "mode.*merge\|mode.*replace" src/services/import_export_service.py | head -5
-
-# Verify UPC resolution dialog exists
-ls -la src/ui/forms/upc_resolution_dialog.py
-
-# Run integration tests
+# Tests
 PYTHONPATH=. python3 -m pytest src/tests/integration/test_import_export_v4.py -v --tb=short
-
-# Run import/export service tests
-PYTHONPATH=. python3 -m pytest src/tests/services/test_import_export_service.py -v --tb=short 2>&1 | tail -80
-
-# Run full test suite to verify no regressions
-PYTHONPATH=. python3 -m pytest src/tests -v --tb=short 2>&1 | tail -100
-
-# Validate sample data JSON files
-python3 -c "import json; d=json.load(open('test_data/sample_data.json')); print(f'sample_data.json: version={d.get(\"version\")}')"
-python3 -c "import json; d=json.load(open('test_data/bt_mobile_purchase_sample.json')); print(f'bt_mobile_purchase_sample.json: schema_version={d.get(\"schema_version\")}, import_type={d.get(\"import_type\")}')"
-python3 -c "import json; d=json.load(open('test_data/bt_mobile_inventory_sample.json')); print(f'bt_mobile_inventory_sample.json: schema_version={d.get(\"schema_version\")}, import_type={d.get(\"import_type\")}')"
-
-# Check git log
-git log --oneline -20
+PYTHONPATH=. python3 -m pytest src/tests/services/test_import_export_service.py -v --tb=short
+PYTHONPATH=. python3 -m pytest src/tests -v --tb=short 2>&1 | tail -50
 ```
 
-## Areas to Evaluate
+**If ANY verification fails, STOP and report as blocking issue.**
 
-Based on the spec (which you should read first), form your own assessment of:
+## Review Instructions
 
-- **Logic gaps** - Cases the spec or implementation may not handle
-- **Edge cases** - Empty data, null values, missing fields, circular references
-- **Error handling** - What happens when things go wrong?
-- **Data integrity** - Could import corrupt existing data?
-- **UPC matching** - What if UPC exists on multiple products?
-- **Session management** - Does code follow the project's session patterns?
-- **User workflow friction** - Is the UPC resolution dialog usable?
-- **Performance** - Any concerns with large datasets?
-- **Maintainability** - Is the code clear and well-structured?
+1. **Read the spec** (`spec.md`) to understand intended behavior
+2. **Form expectations** about how this SHOULD work before reading code
+3. **Run verification commands** - stop if failures
+4. **Review implementation** comparing against your expectations
+5. **Write report** to `docs/code-reviews/cursor-F040-review.md`
 
-## Output Format
+Focus on:
+- Logic gaps or edge cases
+- Data integrity risks
+- User workflow friction
+- Deviation from codebase patterns
+- Session management (see CLAUDE.md)
 
-Write your review to:
-`/Users/kentgale/Vaults-repos/bake-tracker/docs/code-reviews/cursor-F040-review.md`
+## Report Template
 
-Use this format:
+Write your report to: `/Users/kentgale/Vaults-repos/bake-tracker/docs/code-reviews/cursor-F040-review.md`
 
 ```markdown
-# Cursor Code Review: Feature 040 - Import/Export v4.0 Upgrade
+# Code Review Report: F040 - Import/Export v4.0 Upgrade
 
-**Date:** [DATE]
-**Reviewer:** Cursor (AI Code Review)
-**Feature:** 040-import-export-v4
-**Branch/Worktree:** `.worktrees/040-import-export-v4`
+**Reviewer:** Cursor (Independent Review)
+**Date:** [YYYY-MM-DD]
+**Feature Spec:** kitty-specs/040-import-export-v4/spec.md
 
-## Summary
+## Executive Summary
+[2-3 sentences: What this feature does, overall assessment, key concerns if any]
 
-[Brief overview - did the implementation match your expectations from the spec?]
+## Review Scope
+**Files Modified:**
+- src/services/import_export_service.py
+- src/services/recipe_service.py
+- src/ui/forms/upc_resolution_dialog.py
+- src/tests/integration/test_import_export_v4.py
+- src/tests/services/test_import_export_service.py
+- test_data/*.json
 
-## Verification Results
+**Dependencies Reviewed:**
+- [any related systems, services, or data models examined]
 
-### Import Validation
-- import_export_service.py: [PASS/FAIL]
-- recipe_service.py: [PASS/FAIL]
-- upc_resolution_dialog.py: [PASS/FAIL]
+## Environment Verification
+**Commands Run:**
+```bash
+[list verification commands executed]
+```
 
-### Test Results
-- Integration tests: [X passed, Y failed]
-- Import/export service tests: [X passed, Y failed]
-- Full test suite: [X passed, Y skipped, Z failed]
+**Results:**
+- [ ] All imports successful
+- [ ] All tests passed
+- [ ] Database migrations valid (if applicable)
+
+[If any failed: STOP - blocking issues must be resolved before continuing]
 
 ## Findings
 
 ### Critical Issues
-[Any blocking issues that must be fixed before merge]
+[Issues that could cause data loss, corruption, crashes, or security problems]
 
-### Warnings
-[Non-blocking concerns that should be addressed]
+**[Issue Title]**
+- **Location:** [file:line or general area]
+- **Problem:** [what's wrong]
+- **Impact:** [what could happen]
+- **Recommendation:** [how to fix]
 
-### Observations
-[General observations about code quality, patterns, potential improvements]
+### Major Concerns
+[Issues affecting core functionality, user workflows, or maintainability]
 
-## Spec vs Implementation Analysis
+### Minor Issues
+[Code quality, style inconsistencies, optimization opportunities]
 
-| Requirement from Spec | Implemented? | Notes |
-|-----------------------|--------------|-------|
-| [requirement 1] | [Yes/No/Partial] | [notes] |
-| [requirement 2] | [Yes/No/Partial] | [notes] |
-| ... | ... | ... |
+### Positive Observations
+[What was done well - good patterns, clever solutions, solid error handling]
 
-## Edge Cases Considered
+## Spec Compliance
+- [ ] Meets stated requirements
+- [ ] Handles edge cases appropriately
+- [ ] Error handling adequate
+- [ ] User workflow feels natural
 
-| Edge Case | Handled? | How? |
-|-----------|----------|------|
-| [case 1] | [Yes/No] | [notes] |
-| [case 2] | [Yes/No] | [notes] |
-| ... | ... | ... |
+[Note any gaps between spec and implementation]
 
 ## Code Quality Assessment
 
-### Session Management
-[Does the code follow project session management patterns per CLAUDE.md?]
+**Consistency with Codebase:**
+[Does this follow established patterns? Any deviations and why they matter?]
 
-### Layered Architecture
-[Is business logic properly in services, not UI?]
+**Maintainability:**
+[How easy will this be for future developers to understand and modify?]
 
-### Error Handling
-[Are errors handled gracefully with user-friendly messages?]
+**Test Coverage:**
+[Are the right things tested? Any obvious gaps?]
 
-### Test Coverage
-[Are the key scenarios covered?]
+## Recommendations Priority
 
-## Files Reviewed
+**Must Fix Before Merge:**
+1. [Critical/blocking items]
 
-| File | Status | Notes |
-|------|--------|-------|
-| src/services/import_export_service.py | [status] | [notes] |
-| src/services/recipe_service.py | [status] | [notes] |
-| src/ui/forms/upc_resolution_dialog.py | [status] | [notes] |
-| src/tests/integration/test_import_export_v4.py | [status] | [notes] |
-| src/tests/services/test_import_export_service.py | [status] | [notes] |
-| test_data/*.json | [status] | [notes] |
+**Should Fix Soon:**
+1. [Important but not blocking]
 
-## Conclusion
+**Consider for Future:**
+1. [Nice-to-haves, refactoring opportunities]
 
-[APPROVED / APPROVED WITH CHANGES / NEEDS REVISION]
+## Overall Assessment
+[Pass/Pass with minor fixes/Needs revision/Major rework needed]
 
-[Final summary and recommendations]
+[Final paragraph: Would you ship this to users? Why or why not?]
 ```
 
-## Additional Context
+## Context Notes
 
-- The project uses SQLAlchemy 2.x with type hints
-- CustomTkinter for UI
-- pytest for testing
-- Layered architecture: UI -> Services -> Models -> Database
-- Session management is CRITICAL: read CLAUDE.md for the pattern
-- Recipe model uses `name` for identification (NOT `slug`)
-- Event model uses `name` for identification (NOT `slug`)
-- Recipe variants reference base recipes via `base_recipe_id` FK
+- SQLAlchemy 2.x, CustomTkinter UI, pytest
+- Recipe/Event models use `name` not `slug` for identification
 - F037 fields: `base_recipe_slug`, `variant_name`, `is_production_ready`
-- F039 fields: `output_mode` (enum: BUNDLED, BULK_COUNT, or null)
-- BT Mobile is a hypothetical mobile app that scans UPCs for purchases/inventory
-
-## Important Notes
-
-- Read the spec files FIRST before looking at implementation
-- Form your own expectations about how features SHOULD work
-- Note any discrepancies between spec and implementation
-- Run all verification commands - if ANY fail, report as blocker
-- Write report to main repo docs/code-reviews/, NOT the worktree
+- F039 field: `output_mode` enum (BUNDLED, BULK_COUNT, null)
+- BT Mobile = hypothetical mobile app for UPC scanning
+- Session management pattern is CRITICAL - see CLAUDE.md
