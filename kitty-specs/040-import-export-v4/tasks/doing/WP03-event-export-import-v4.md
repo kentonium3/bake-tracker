@@ -7,9 +7,9 @@ subtasks:
   - "T015"
 title: "Event Export/Import v4.0"
 phase: "Phase 1 - Core Schema Upgrade"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
+agent: "system"
 shell_pid: ""
 review_status: ""
 reviewed_by: ""
@@ -166,18 +166,20 @@ pytest src/tests/services/test_import_export_service.py::TestEventExportImportV4
 
 ## Definition of Done Checklist
 
-- [ ] T012: output_mode exported for events
-- [ ] T013: output_mode imported for events
-- [ ] T014: Validation warns on mode/target mismatch
-- [ ] T015: All unit tests pass
-- [ ] Round-trip export -> import preserves output_mode
+- [x] T012: output_mode exported for events
+- [x] T013: output_mode imported for events
+- [x] T014: Validation warns on mode/target mismatch
+- [x] T015: All unit tests pass
+- [x] Round-trip export -> import preserves output_mode
 
 ## Review Guidance
 
 - Verify null handling for existing events without output_mode
 - Check warning messages are informative
-- Confirm enum values match exactly: "bulk_count", "bundled", "packaged"
+- Confirm enum values match exactly: "bulk_count", "bundled" (Note: no "packaged" value in OutputMode enum)
 
 ## Activity Log
 
 - 2026-01-06T12:00:00Z - system - lane=planned - Prompt created.
+- 2026-01-07T03:12:46Z – system – shell_pid= – lane=doing – Moved to doing
+- 2026-01-07T03:25:00Z – claude – shell_pid=89028 – lane=doing – Completed T012-T015: Added output_mode export/import, validation warnings for mismatched mode/targets, and 6 unit tests. All tests passing.

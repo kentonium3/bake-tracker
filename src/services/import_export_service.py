@@ -1517,6 +1517,9 @@ def export_all_to_json(file_path: str) -> ExportResult:
             if event.notes:
                 event_data["notes"] = event.notes
 
+            # Feature 040 / F039: Export output_mode
+            event_data["output_mode"] = event.output_mode.value if event.output_mode else None
+
             export_data["events"].append(event_data)
 
             # Populate event_recipient_packages separately (v3.2 format with both status fields)
@@ -3320,8 +3323,9 @@ def import_all_from_json_v3(file_path: str, mode: str = "merge") -> ImportResult
             session.flush()
 
             # 13. Events
+            # Feature 040 / F039: Import output_mode field
             if "events" in data:
-                from src.models.event import Event
+                from src.models.event import Event, OutputMode
                 for evt in data["events"]:
                     try:
                         name = evt.get("name", "")
@@ -3335,16 +3339,31 @@ def import_all_from_json_v3(file_path: str, mode: str = "merge") -> ImportResult
                         from datetime import date
                         event_date_str = evt.get("event_date")
                         event_date = date.fromisoformat(event_date_str) if event_date_str else None
-                        
+
                         # Extract year from event_date if not provided
                         if not year and event_date:
                             year = event_date.year
+
+                        # T013: Parse output_mode enum
+                        output_mode = None
+                        output_mode_str = evt.get("output_mode")
+                        if output_mode_str:
+                            try:
+                                output_mode = OutputMode(output_mode_str)
+                            except ValueError:
+                                result.add_error(
+                                    "event",
+                                    name,
+                                    f"Invalid output_mode: {output_mode_str}. Valid values: {[e.value for e in OutputMode]}",
+                                )
+                                continue
 
                         event = Event(
                             name=name,
                             event_date=event_date,
                             year=year,
                             notes=evt.get("notes"),
+                            output_mode=output_mode,  # Feature 040 / F039
                         )
                         session.add(event)
                         result.add_success("event")
@@ -3388,6 +3407,42 @@ def import_all_from_json_v3(file_path: str, mode: str = "merge") -> ImportResult
                 result.merge(eat_result)
 
             session.flush()
+
+            # T014: Validate output_mode vs targets consistency
+            # Check if events with specific output_mode have corresponding targets
+            if "events" in data:
+                from src.models.event import Event, OutputMode
+
+                for evt in data["events"]:
+                    name = evt.get("name", "")
+                    output_mode_str = evt.get("output_mode")
+
+                    if output_mode_str:
+                        # Check event_assembly_targets for this event
+                        has_assembly_targets = any(
+                            t.get("event_name") == name
+                            for t in data.get("event_assembly_targets", [])
+                        )
+                        # Check event_production_targets for this event
+                        has_production_targets = any(
+                            t.get("event_name") == name
+                            for t in data.get("event_production_targets", [])
+                        )
+
+                        if output_mode_str == "bundled" and not has_assembly_targets:
+                            result.add_warning(
+                                "event",
+                                name,
+                                "output_mode='bundled' but no event_assembly_targets provided",
+                                suggestion="Add assembly targets or change output_mode",
+                            )
+                        elif output_mode_str == "bulk_count" and not has_production_targets:
+                            result.add_warning(
+                                "event",
+                                name,
+                                "output_mode='bulk_count' but no event_production_targets provided",
+                                suggestion="Add production targets or change output_mode",
+                            )
 
             # 18. Production runs (Feature 016)
             if "production_runs" in data:

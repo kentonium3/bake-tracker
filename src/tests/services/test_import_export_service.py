@@ -2256,3 +2256,208 @@ class TestRecipeImportV4:
             assert fu.items_per_batch == 24
             assert fu.item_unit == "cookie"
 
+
+class TestEventExportImportV4:
+    """Tests for Feature 040 event export/import v4.0 fields (F039 output_mode support)."""
+
+    @pytest.fixture(autouse=True)
+    def setup_database(self, test_db):
+        """Use test database for each test."""
+        pass
+
+    def test_export_event_with_output_mode(self, tmp_path):
+        """Test export event with output_mode=bundled, verify field in JSON."""
+        from src.services.import_export_service import export_all_to_json
+        from src.services.database import session_scope
+        from src.models.event import Event, OutputMode
+        from datetime import date
+
+        # Create event with output_mode
+        with session_scope() as session:
+            event = Event(
+                name="Export Test Event",
+                event_date=date(2026, 12, 25),
+                year=2026,
+                output_mode=OutputMode.BUNDLED,
+            )
+            session.add(event)
+            session.commit()
+
+        # Export
+        export_file = tmp_path / "event_output_mode_export.json"
+        export_all_to_json(str(export_file))
+
+        # Verify JSON content
+        with open(export_file) as f:
+            data = json.load(f)
+
+        event_data = next(
+            (e for e in data["events"] if e["name"] == "Export Test Event"), None
+        )
+        assert event_data is not None, "Event not found in export"
+        assert event_data["output_mode"] == "bundled"
+
+    def test_export_event_without_output_mode(self, tmp_path):
+        """Test export event with null output_mode exports correctly."""
+        from src.services.import_export_service import export_all_to_json
+        from src.services.database import session_scope
+        from src.models.event import Event
+        from datetime import date
+
+        # Create event without output_mode
+        with session_scope() as session:
+            event = Event(
+                name="No Mode Event",
+                event_date=date(2026, 12, 25),
+                year=2026,
+                output_mode=None,
+            )
+            session.add(event)
+            session.commit()
+
+        # Export
+        export_file = tmp_path / "event_no_mode_export.json"
+        export_all_to_json(str(export_file))
+
+        # Verify JSON content
+        with open(export_file) as f:
+            data = json.load(f)
+
+        event_data = next(
+            (e for e in data["events"] if e["name"] == "No Mode Event"), None
+        )
+        assert event_data is not None, "Event not found in export"
+        assert event_data["output_mode"] is None
+
+    def test_import_event_with_output_mode(self, tmp_path):
+        """Test import JSON with output_mode, verify database."""
+        from src.services.import_export_service import import_all_from_json_v3
+        from src.services.database import session_scope
+        from src.models.event import Event, OutputMode
+
+        # Create JSON with output_mode
+        import_data = {
+            "version": "4.0",
+            "events": [
+                {
+                    "name": "Import Mode Event",
+                    "event_date": "2026-12-25",
+                    "year": 2026,
+                    "output_mode": "bulk_count",
+                }
+            ],
+        }
+
+        import_file = tmp_path / "event_import_mode.json"
+        with open(import_file, "w") as f:
+            json.dump(import_data, f)
+
+        # Import
+        result = import_all_from_json_v3(str(import_file), mode="replace")
+
+        assert result.failed == 0, f"Import failed: {result.errors}"
+
+        # Verify in database
+        with session_scope() as session:
+            event = session.query(Event).filter_by(name="Import Mode Event").first()
+            assert event is not None
+            assert event.output_mode == OutputMode.BULK_COUNT
+
+    def test_import_event_invalid_output_mode(self, tmp_path):
+        """Test import with bad output_mode value, verify error."""
+        from src.services.import_export_service import import_all_from_json_v3
+
+        # Create JSON with invalid output_mode
+        import_data = {
+            "version": "4.0",
+            "events": [
+                {
+                    "name": "Invalid Mode Event",
+                    "event_date": "2026-12-25",
+                    "year": 2026,
+                    "output_mode": "invalid_mode",  # Not a valid enum value
+                }
+            ],
+        }
+
+        import_file = tmp_path / "event_invalid_mode.json"
+        with open(import_file, "w") as f:
+            json.dump(import_data, f)
+
+        # Import - should record an error
+        result = import_all_from_json_v3(str(import_file), mode="replace")
+
+        assert result.failed > 0, "Expected error for invalid output_mode"
+        error_messages = [str(e) for e in result.errors]
+        assert any("invalid" in msg.lower() or "output_mode" in msg.lower() for msg in error_messages), \
+            f"Expected error message about invalid output_mode, got: {error_messages}"
+
+    def test_import_event_bundled_without_targets_warns(self, tmp_path):
+        """Test import event with bundled mode but no assembly targets, verify warning."""
+        from src.services.import_export_service import import_all_from_json_v3
+
+        # Create JSON with bundled mode but no assembly targets
+        import_data = {
+            "version": "4.0",
+            "events": [
+                {
+                    "name": "Bundled No Targets Event",
+                    "event_date": "2026-12-25",
+                    "year": 2026,
+                    "output_mode": "bundled",
+                }
+            ],
+            # No event_assembly_targets provided
+        }
+
+        import_file = tmp_path / "event_bundled_no_targets.json"
+        with open(import_file, "w") as f:
+            json.dump(import_data, f)
+
+        # Import - should succeed but with warning
+        result = import_all_from_json_v3(str(import_file), mode="replace")
+
+        assert result.failed == 0, f"Import should succeed: {result.errors}"
+        assert len(result.warnings) > 0, "Expected warning for bundled without targets"
+        warning_messages = [str(w) for w in result.warnings]
+        assert any("bundled" in msg.lower() or "assembly" in msg.lower() for msg in warning_messages), \
+            f"Expected warning about bundled without assembly targets, got: {warning_messages}"
+
+    def test_import_event_roundtrip(self, tmp_path):
+        """Test import with output_mode then verify data matches."""
+        from src.services.import_export_service import import_all_from_json_v3
+        from src.services.database import session_scope
+        from src.models.event import Event, OutputMode
+
+        # Create complete import data with output_mode
+        import_data = {
+            "version": "4.0",
+            "events": [
+                {
+                    "name": "Roundtrip Event",
+                    "event_date": "2026-12-25",
+                    "year": 2026,
+                    "output_mode": "bundled",
+                    "notes": "Test event with output mode",
+                }
+            ],
+        }
+
+        import_file = tmp_path / "event_roundtrip.json"
+        with open(import_file, "w") as f:
+            json.dump(import_data, f)
+
+        # Import
+        result = import_all_from_json_v3(str(import_file), mode="replace")
+
+        # Warnings expected for missing targets, but not errors
+        assert result.failed == 0, f"Import failed: {result.errors}"
+
+        # Verify all data imported correctly
+        with session_scope() as session:
+            event = session.query(Event).filter_by(name="Roundtrip Event").first()
+            assert event is not None, "Event not found after import"
+            assert event.output_mode == OutputMode.BUNDLED
+            assert event.year == 2026
+            assert event.notes == "Test event with output mode"
+
