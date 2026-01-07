@@ -1,10 +1,10 @@
 <!--
 Sync Impact Report:
-- Version change: 1.2.0 → 1.3.0
-- Modified principles: I (User-Centric Design → User-Centric Design & Workflow Validation)
-- Added sections: Prototype & Workflow Validation, AI-Forward Foundation subsections
-- Removed sections: N/A
-- Rationale: Application now serves dual purpose - practical tool AND workflow validator for AI-forward SaaS
+- Version change: 1.3.0 → 1.4.0
+- Modified principles: VII (Pragmatic Aspiration - timeline, AI integration, examples)
+- Added sections: AI-Assisted Data Entry: Proof of Concept, BT Mobile integrations
+- Removed sections: "2024-2025 Season" references, outdated timeline projections
+- Rationale: 2025 holiday season complete; shift to event-centric generalization and AI-assisted data entry proof-of-concept
 - Templates requiring updates:
   ✅ spec-template.md - No changes needed (references constitution dynamically)
   ✅ plan-template.md - No changes needed (Constitution Check gates are generic)
@@ -111,70 +111,75 @@ Sync Impact Report:
 
 **Build for today's user while keeping tomorrow's platform in mind.**
 
-#### Immediate Reality (2024-2025 Season)
-- **Single desktop user** managing holiday baking for family/friends
-- **Manual data entry** for ingredients, recipes, and planning
+#### Current Phase: Event-Centric Generalization (Q1-Q2 2025)
+- **Shift from holiday baking to event baking** - Christmas is one of many event types
+- **Shift from packaging to flexible output** - Support quantity goals, serving goals, or package goals
+- **Single desktop user** validating workflows for family/friends
+- **Manual + AI-assisted data entry** proving friction reduction is achievable
 - **English-only** interface for non-technical user
-- **Holiday-focused** workflow (Christmas, Thanksgiving, etc.)
-- **Gift packages** as primary output unit
 
-#### Near-Term Evolution (6-18 Months)
-**Web Application for Friends & Family - Learning Phase**
+#### Near-Term: Web Application (Q3-Q4 2025)
+**Hobby-scale web app for 2025 holiday baking season**
 
-The first major pivot serves as a **learning laboratory** for cloud application development:
+Target: 10-15 users (family, friends, neighbors) using the web version for holiday 2025.
 
-**Technical Learning Goals:**
-- **Architecture:** Desktop → Web migration patterns (API design, state management, session handling)
-- **Data Design:** Single-user → Multi-user schema evolution (tenant isolation, data privacy)
-- **UI Design:** Desktop native → Responsive web interface (browser compatibility, mobile-friendly)
-- **Technologies:** Evaluate web frameworks (FastAPI/Flask + React/Vue vs. Django)
-- **Deployment:** Cloud hosting basics (AWS/GCP/Azure, containerization, CI/CD)
-- **Security:** Authentication, authorization, data encryption, HTTPS, vulnerability management
-- **Costs:** Infrastructure monitoring, database hosting, bandwidth, scaling implications
-- **Workflows:** Web development lifecycle, staging environments, blue-green deployments
+**Technical Goals:**
+- **Architecture:** Desktop → Web migration (API design, state management, session handling)
+- **Data Design:** Single-user → Multi-user schema (tenant isolation, data privacy)
+- **UI Design:** Desktop native → Responsive web (browser compatibility, mobile-friendly)
+- **Deployment:** Cloud hosting basics (containerization, CI/CD)
+- **Security:** Authentication, authorization, HTTPS
 
-**Scope Constraints for Learning Phase:**
-- Still **hobby tool scale** (10-50 users max: family, friends, neighbors)
-- Still **baking-focused** (validate core use case before generalizing)
-- Still **English-only** (i18n is separate learning curve)
-- Still **manual data entry** (focus on multi-user before automation)
-- **New capability:** User accounts, data isolation, shared recipes (opt-in)
+**Scope Constraints:**
+- Still **hobby tool scale** (10-15 users max)
+- Now **event-focused** (not just baking - any food production event)
+- Still **English-only**
+- **AI-assisted data entry** validated and integrated
 
-**Questions This Phase Answers:**
-- What does multi-tenancy actually cost in complexity?
-- How do users actually collaborate on recipes/events?
-- What are real security concerns vs. theoretical ones?
-- What cloud costs look like for hobby-scale application?
-- Which frameworks/tools were good choices vs. regrets?
-
-#### Full Aspirational Vision (1-3+ Years)
+#### Full Platform Vision (2026+)
 After validating web deployment and multi-user patterns:
 
 **Platform Expansion:**
 - **Any food type** (BBQ, catering, meal prep, weekly planning)
 - **Any event type** (weddings, festivals, meal prep, restaurant prep)
 - **Multi-language** support with full internationalization
-- **Output flexibility** (packages, people served, dishes, portions, catering orders)
-
-**Data Integration & Automation:**
-- Programmatic ingredient/recipe ingestion (reduce friction)
-- Supplier API connections (pricing, availability, ordering)
-- Mobile companion app (shopping, inventory, notifications)
-- Accounting system integrations
-- Recipe sharing platforms and import tools
+- **Output flexibility** (packages, servings, quantities, catering orders)
+- **Scalable infrastructure** for broader user base
 
 **Intelligence & Enhancement:**
 - AI-powered menu generation and optimization
+- Fluid voice and chat interactions for planning and purchasing
 - Nutritional analysis and dietary accommodation
 - Recipe scaling and cost optimization
 - Smart inventory predictions
-- Social features and community recipe sharing
+
+#### AI-Assisted Data Entry: Proof of Concept
+
+**The Core Insight:** Data entry friction causes most apps and spreadsheets in this space to fail. AI assistance can overcome this friction IF the underlying structure and workflows are sound.
+
+**Proof-of-Concept Goals (Current Phase):**
+- Demonstrate mobile AI-assisted user input for purchasing and inventory updates
+- Validate with slow, batch, semi-automated JSON file creation and ingestion
+- Show that fluid voice/chat interactions are achievable even if current implementation is clunky
+- Prove the workflow structure supports AI wrapping before investing in real-time interfaces
+
+**Current Integrations:**
+- **BT Mobile Purchase Scanning:**
+  - Gemini photo processing of barcodes, package images, and price tags
+  - Results in JSON upload files merged via import service into Purchasing tables
+
+- **BT Mobile Inventory Updates:**
+  - Gemini image processing of products
+  - Voice or text input for percentage remaining
+  - Results in JSON upload files merged via import service into Inventory tables
+
+**Success Criteria:** If AI can create valid JSON that imports cleanly, real-time voice/chat is just an interface layer away.
 
 #### Decision Framework
 
 When making architectural choices, ask:
 
-1. **Does this choice block web deployment (6-18 months)?**
+1. **Does this choice block web deployment (Q3 2025)?**
    - If YES → Find alternative that supports web migration
    - If NO → Proceed with simplest desktop implementation
 
@@ -183,9 +188,9 @@ When making architectural choices, ask:
    - **Medium cost** (clean service layer, just needs API wrapper) → Acceptable
    - **Low cost** (already stateless, testable) → Ideal
 
-3. **Does this naturally enable future multi-user features?**
-   - If YES with minimal added complexity → Consider implementing
-   - If YES but adds significant desktop complexity → Document for web phase
+3. **Does this support AI-assisted data entry?**
+   - If YES with minimal added complexity → Implement now
+   - If YES but requires major refactoring → Document for near-term
 
 4. **What's the cost of changing this decision later?**
    - **High cost** (database schema, core abstractions) → Invest extra care now
@@ -194,48 +199,45 @@ When making architectural choices, ask:
 #### Examples of Pragmatic Aspiration in Practice
 
 **Good Opportunistic Choices:**
-- **Ingredient/Variant architecture with industry standard fields (FoodOn, GTIN, etc.)**
-  - *Desktop: Nullable fields, no burden*
-  - *Web: Enables supplier integrations*
-  - *Platform: Ready for API connections*
+
+- **BT Mobile purchase scanning with Gemini image processing**
+  - *Desktop: Proves AI-assisted workflow; reduces data entry friction*
+  - *Web: Same JSON import; mobile-first validated*
+  - *Platform: Foundation for real-time voice/chat purchasing*
+
+- **BT Mobile inventory updates with percentage input**
+  - *Desktop: Validates FIFO + percentage calculation logic*
+  - *Web: Same service layer; API-ready*
+  - *Platform: Voice command "flour is half empty" → automatic adjustment*
 
 - **Slug-based foreign keys instead of display names**
   - *Desktop: Clean references*
   - *Web: Enables future localization without breaking references*
   - *Platform: Multi-language ready*
 
-- **Recipe references generic Ingredients, not specific Variants**
-  - *Desktop: Brand flexibility*
-  - *Web: Recipe sharing across users with different suppliers*
-  - *Platform: Community recipe marketplace*
-
 - **Service layer separated from UI layer**
   - *Desktop: Easier testing*
   - *Web: Services become API endpoints with minimal refactoring*
-  - *Platform: Mobile app can use same API*
+  - *Platform: Mobile app and voice assistant use same API*
 
-- **UUID support in BaseModel**
-  - *Desktop: No impact*
-  - *Web: Distributed user IDs, no conflicts*
-  - *Platform: Mobile sync, distributed systems*
-
-- **SQLAlchemy ORM (not raw SQL)**
-  - *Desktop: Easier migrations*
-  - *Web: Can switch to PostgreSQL/MySQL if needed*
-  - *Platform: Read replicas, sharding options*
+- **Import/Export v4.0 with atomic rollback**
+  - *Desktop: Reliable data operations*
+  - *Web: Same guarantees for multi-user*
+  - *Platform: Foundation for real-time sync*
 
 **Premature Optimization to Avoid:**
-- Building multi-tenancy support in desktop app
-  - *Wait for web phase to learn actual requirements*
+
+- Building real-time voice interface before batch JSON proves workflow
+  - *Validate structure first; polish interface later*
 
 - Implementing OAuth/SSO before web deployment
   - *Desktop doesn't need it; web phase determines auth strategy*
 
-- Creating supplier API abstraction layer before first integration
-  - *Learn from real integration before generalizing*
+- Designing for 1000+ users before 15 users validated
+  - *Prove hobby scale works; then scale*
 
-- Designing for 10,000+ users
-  - *Validate 10-50 users first, learn scaling needs*
+- Building native mobile app before web + PWA validated
+  - *BT Mobile JSON export proves the workflow; native can come later*
 
 **Document for Later:**
 - Maintain `/docs/web_migration_notes.md` - decisions that impact web transition
@@ -244,26 +246,26 @@ When making architectural choices, ask:
 
 #### Phase-Specific Constitution Checks
 
-**Desktop Phase (Now):**
+**Desktop Phase (Now - Q2 2025):**
 - Does this design block web deployment? → Must be NO or have documented path
 - Is the service layer UI-independent? → Must be YES
-- Are business rules in services, not UI? → Must be YES
+- Does this support AI-assisted JSON import? → Should be YES
 - What's the web migration cost? → Must be documented
 
-**Web Phase (6-18 months):**
+**Web Phase (Q3-Q4 2025):**
 - Does this assume single-tenant database? → Should be NO
 - Does this expose user data to other users? → Must be NO
-- Can this scale to 50 users? → Must be YES
+- Can this scale to 15 users? → Must be YES
 - What security vulnerabilities exist? → Must be assessed
-- What are monthly infrastructure costs? → Must be monitored
+- Is AI-assisted input working? → Must be validated
 
-**Platform Phase (1-3+ years):**
+**Platform Phase (2026+):**
 - Does this assume baking domain? → Should be NO
 - Does this assume English? → Should be NO
-- Can this scale to 1000+ users? → Validate first
-- What's the API rate limit strategy? → Must exist
+- Can this scale to 100+ users? → Validate first
+- Is real-time voice/chat feasible? → Must have proof-of-concept
 
-**Rationale:** The user needs a working desktop tool this holiday season, but the **web migration is a deliberate learning exercise** in building cloud applications. This principle creates three distinct evaluation frames: "Does this work for my wife today?" (YES required), "Does this make web migration harder?" (document the cost), "Does this foreclose platform options?" (avoid if possible, but platform can wait).
+**Rationale:** The 2025 holiday baking season is complete. Focus shifts to event-centric generalization and proving AI-assisted data entry reduces friction. The web app must be ready for 10-15 users by holiday 2025. Current development pace may accelerate these timelines. The key insight: if batch JSON import works with AI assistance, real-time voice/chat is achievable.
 
 ## Technology Stack Constraints
 
@@ -327,4 +329,4 @@ When making architectural choices, ask:
 - Conflicts between constitution and existing code MUST be resolved in favor of constitution
 - Runtime guidance for AI agents found in `.kittify/AGENTS.md`
 
-**Version**: 1.3.0 | **Ratified**: 2025-11-08 | **Last Amended**: 2026-01-07
+**Version**: 1.4.0 | **Ratified**: 2025-11-08 | **Last Amended**: 2026-01-07
