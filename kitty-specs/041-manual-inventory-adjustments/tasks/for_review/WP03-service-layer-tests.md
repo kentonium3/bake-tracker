@@ -10,7 +10,7 @@ subtasks:
   - "T016"
 title: "Service Layer Tests"
 phase: "Phase 1 - Service Layer (Claude)"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "claude"
 shell_pid: ""
@@ -389,3 +389,4 @@ pytest src/tests/test_inventory_adjustment.py::TestManualAdjustmentValidation -v
 
 - 2026-01-07T12:00:00Z - system - lane=planned - Prompt created via /spec-kitty.tasks
 - 2026-01-07T16:58:03Z – claude – shell_pid= – lane=doing – Moved to doing
+- 2026-01-07T17:10:29Z – claude – shell_pid= – lane=for_review – Moved to for_review
