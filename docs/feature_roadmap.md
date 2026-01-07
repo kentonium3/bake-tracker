@@ -51,16 +51,42 @@
 | 038 | UI Mode Restructure | MERGED | 5-mode workflow (CATALOG/PLAN/SHOP/PRODUCE/OBSERVE), mode-specific dashboards, consistent tab layouts, keyboard shortcuts (Ctrl+1-5). |
 | 039 | Planning Workspace | MERGED | Automatic batch calculation, Event→FinishedGoods→Recipes workflow, ingredient aggregation with FIFO costing, assembly feasibility validation, batch optimization (15% waste threshold). |
 | 040 | Import/Export System Upgrade (v4.0) | MERGED | Schema v4.0 with F037/F039 fields, BT Mobile purchase import (UPC matching, resolution dialog), BT Mobile inventory updates (FIFO, percentage calculation), atomic rollback. 10 work packages, 1721 tests. |
+| 041 | Manual Inventory Adjustments | MERGED | Individual inventory corrections via UI dialog, depletion reason tracking (SPOILAGE, GIFT, CORRECTION, AD_HOC_USAGE), validation preventing negative inventory, audit trail, complementary to F040 bulk adjustments. |
+
+---
+
+## User Testing Phase
+
+**Status:** 🎯 **READY FOR MAJOR USER TESTING**
+
+**Completed Feature Group (F037-F041):**
+- ✅ F037: Recipe Redesign (snapshots, variants, scaling)
+- ✅ F038: UI Mode Restructure (5-mode workflow)
+- ✅ F039: Planning Workspace (automatic batch calculation)
+- ✅ F040: Import/Export v4.0 (BT Mobile workflows)
+- ✅ F041: Manual Inventory Adjustments (individual corrections)
+
+**Testing Objectives:**
+1. Exercise Planning Workspace with real event planning (Christmas 2026 prep)
+2. Validate Recipe Redesign with variants and scaling
+3. Test UI Mode navigation and workflow transitions
+4. Verify Import/Export v4.0 with BT Mobile JSON files
+5. Test Manual Inventory Adjustments for spoilage/gift scenarios
+6. End-to-end workflow: Plan → Shop → Produce → Assemble → Deliver
+7. Identify any usability gaps or workflow friction
+
+**Success Criteria:**
+- Primary user (Marianne) can successfully plan and execute a holiday baking event
+- No blocking bugs discovered
+- Workflow feels natural and efficient
+- Automatic batch calculation eliminates underproduction issues
+- User provides feedback for F042+ feature prioritization
 
 ---
 
 ## In Progress
 
-| # | Name | Priority | Dependencies | Status |
-|---|------|----------|--------------|--------|
-| 041 | Manual Inventory Adjustments | **HIGH** | F040 ✅ | 📝 Ready for Implementation |
-
-**Next Milestone:** User testing after F041 completion
+*No features currently in progress - paused for user testing*
 
 ---
 
@@ -112,8 +138,8 @@
 31. ~~**Feature 038** - UI Mode Restructure~~ ✅ COMPLETE
 32. ~~**Feature 039** - Planning Workspace~~ ✅ COMPLETE
 33. ~~**Feature 040** - Import/Export System Upgrade (v4.0)~~ ✅ COMPLETE
-34. **Feature 041** - Manual Inventory Adjustments ⚙️ **CURRENT**
-35. **USER TESTING** - Major round of user testing with primary user 🎯 **NEXT MILESTONE**
+34. ~~**Feature 041** - Manual Inventory Adjustments~~ ✅ COMPLETE
+35. **USER TESTING** - Major round of user testing with primary user 🎯 **CURRENT MILESTONE**
 36. **Feature 042** - Shelf Life & Freshness Tracking
 37. **Feature 043** - Purchase Workflow UI & Monitoring (needs spec rewrite)
 38. **Feature 044** - Finished Goods Inventory
@@ -255,7 +281,7 @@ Result: Make 3 batches (144 cookies, -6 shortfall acceptable)
 
 ### Feature 041: Manual Inventory Adjustments
 
-**Status:** 📝 Ready for Implementation
+**Status:** COMPLETE ✅ (Merged 2026-01-07)
 
 **Dependencies:** F040 Import/Export Upgrade ✅
 
@@ -263,7 +289,7 @@ Result: Make 3 batches (144 cookies, -6 shortfall acceptable)
 
 **Solution:** Manual adjustment UI for individual inventory corrections, complementary to F040 bulk adjustments.
 
-**Planned Deliverables:**
+**Delivered:**
 - [Adjust] button on inventory items
 - Adjustment dialog with depletion reason selection
 - Reasons: SPOILAGE, GIFT, CORRECTION, AD_HOC_USAGE, OTHER
@@ -277,9 +303,18 @@ Result: Make 3 batches (144 cookies, -6 shortfall acceptable)
 - Both use same InventoryDepletion model
 - Complementary workflows, no conflict
 
-**Effort:** 8-12 hours (1-1.5 days)
+**Implementation Stats:**
+- 8-12 hours actual effort (within estimate)
+- Integration with existing InventoryDepletion model
+- Complementary to F040 bulk adjustments (no conflicts)
 
-**Design Document:** `docs/design/_F041_MANUAL_INVENTORY_ADJUSTMENTS_SPEC.md` (renamed from _F040)
+**User Impact:**
+- Individual corrections via [Adjust] button on inventory items
+- Tracks real-world inventory changes (spoilage, gifts, corrections)
+- Maintains inventory accuracy for planning reliability
+- Full audit trail (who, when, why, how much)
+
+**Design Document:** `docs/design/F041_manual_inventory_adjustments.md`
 
 ---
 
@@ -400,4 +435,4 @@ Result: Make 3 batches (144 cookies, -6 shortfall acceptable)
 - 2026-01-03: F035-F036 complete. F033-F036 ingredient hierarchy 100% complete. System production-ready.
 - 2026-01-05: F037-F038 in progress. F039 prioritized as CRITICAL (P0). Feature renumbering.
 - 2026-01-06: **F037-F039 Complete and Merged.** Major milestone: Recipe Redesign, UI Mode Restructure, and Planning Workspace operational. **F040 Import/Export System Upgrade specification complete** - CRITICAL PATH blocking user testing. Feature reconciliation completed: _F040 through _F043 require renumbering, _F042 requires spec rewrite for reduced scope.
-- 2026-01-07: **F040 Complete and Merged.** Import/Export v4.0 with schema upgrade (F037/F039 fields), BT Mobile purchase import (UPC matching, resolution dialog), BT Mobile inventory updates (FIFO, percentage calculation), atomic rollback. 10 work packages, multi-agent (Claude+Gemini), 1721 tests, Cursor code review. Constitution updated to v1.4.0 (Principle VII timeline + AI integration). **F041 Manual Inventory Adjustments now CURRENT**, followed by major user testing milestone.
+- 2026-01-07: **F040 Complete and Merged.** Import/Export v4.0 with schema upgrade (F037/F039 fields), BT Mobile purchase import (UPC matching, resolution dialog), BT Mobile inventory updates (FIFO, percentage calculation), atomic rollback. 10 work packages, multi-agent (Claude+Gemini), 1721 tests, Cursor code review. Constitution updated to v1.4.0 (Principle VII timeline + AI integration). **F041 Complete and Merged.** Manual Inventory Adjustments with [Adjust] button UI, depletion reason tracking, validation, audit trail. **Ready for major user testing phase** - F037-F041 feature group complete (Recipe Redesign, UI Mode Restructure, Planning Workspace, Import/Export v4.0, Manual Inventory Adjustments). Testing objectives: exercise Planning Workspace with real events, validate workflow transitions, identify usability gaps.
