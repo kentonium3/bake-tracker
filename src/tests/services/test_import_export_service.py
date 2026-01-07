@@ -2632,3 +2632,231 @@ class TestVersionBumpV4:
         assert result.failed > 0, "Expected import to fail for file without version"
         error_msg = result.errors[0]["message"]
         assert "None" in error_msg or "version" in error_msg.lower()
+
+
+class TestPurchaseImportFromBTMobile:
+    """Tests for WP05 - Purchase Import from BT Mobile.
+
+    Test cases:
+    - test_import_purchase_with_known_upc: Product exists, Purchase+InventoryItem created
+    - test_import_purchase_with_unknown_upc: No product, UPC collected in unmatched
+    - test_import_purchase_creates_supplier: Supplier created if not exists
+    - test_import_purchase_invalid_schema_version: Error for wrong version
+    - test_import_purchase_wrong_import_type: Error for wrong type
+    - test_import_purchase_invalid_json: Error for malformed JSON
+    """
+
+    def test_import_purchase_with_known_upc(self, test_db, tmp_path):
+        """Import creates Purchase+InventoryItem for known UPC."""
+        from src.services.import_export_service import import_purchases_from_bt_mobile
+        from src.services.database import session_scope
+        from src.models import Ingredient, Product, Purchase, Supplier
+        from src.models.inventory_item import InventoryItem
+
+        # Create test data: ingredient -> product with UPC
+        with session_scope() as session:
+            ingredient = Ingredient(
+                slug="test-flour-upc",
+                display_name="Test Flour for UPC",
+                category="dry",
+            )
+            session.add(ingredient)
+            session.flush()
+
+            product = Product(
+                ingredient_id=ingredient.id,
+                brand="Test Flour Brand",
+                upc_code="051000127952",
+                package_unit_quantity=1,
+                package_unit="bag",
+            )
+            session.add(product)
+
+            supplier = Supplier(name="Test Store")
+            session.add(supplier)
+
+            session.commit()
+
+        # Create BT Mobile JSON
+        bt_mobile_data = {
+            "schema_version": "4.0",
+            "import_type": "purchases",
+            "created_at": "2026-01-06T14:30:00Z",
+            "source": "bt_mobile",
+            "supplier": "Test Store",
+            "purchases": [
+                {
+                    "upc": "051000127952",
+                    "scanned_at": "2026-01-06T14:15:23Z",
+                    "unit_price": 7.99,
+                    "quantity_purchased": 1,
+                }
+            ],
+        }
+        import_file = tmp_path / "purchases.json"
+        with open(import_file, "w") as f:
+            json.dump(bt_mobile_data, f)
+
+        # Import
+        result = import_purchases_from_bt_mobile(str(import_file))
+
+        # Verify success
+        assert result.failed == 0, f"Import failed: {result.errors}"
+        assert result.successful == 1, "Expected 1 successful import"
+        assert len(result.unmatched_purchases) == 0, "Should have no unmatched"
+
+        # Verify database records
+        with session_scope() as session:
+            purchase = session.query(Purchase).first()
+            assert purchase is not None, "Purchase not created"
+            assert float(purchase.unit_price) == 7.99
+            assert purchase.quantity_purchased == 1
+
+            inventory = session.query(InventoryItem).filter_by(purchase_id=purchase.id).first()
+            assert inventory is not None, "InventoryItem not created"
+            assert inventory.quantity == 1.0
+            assert inventory.unit_cost == 7.99
+
+    def test_import_purchase_with_unknown_upc(self, test_db, tmp_path):
+        """Unknown UPC is collected in unmatched_purchases, not errored."""
+        from src.services.import_export_service import import_purchases_from_bt_mobile
+
+        # Create BT Mobile JSON with unknown UPC
+        bt_mobile_data = {
+            "schema_version": "4.0",
+            "import_type": "purchases",
+            "created_at": "2026-01-06T14:30:00Z",
+            "source": "bt_mobile",
+            "purchases": [
+                {
+                    "upc": "999999999999",
+                    "scanned_at": "2026-01-06T14:15:23Z",
+                    "unit_price": 5.99,
+                    "quantity_purchased": 2,
+                }
+            ],
+        }
+        import_file = tmp_path / "purchases.json"
+        with open(import_file, "w") as f:
+            json.dump(bt_mobile_data, f)
+
+        # Import
+        result = import_purchases_from_bt_mobile(str(import_file))
+
+        # Verify unmatched is collected
+        assert result.failed == 0, "Unknown UPC should not be an error"
+        assert result.successful == 0, "Should have no successful imports"
+        assert len(result.unmatched_purchases) == 1, "Should have 1 unmatched"
+        assert result.unmatched_purchases[0]["upc"] == "999999999999"
+
+    def test_import_purchase_creates_supplier(self, test_db, tmp_path):
+        """Supplier is created if it doesn't exist."""
+        from src.services.import_export_service import import_purchases_from_bt_mobile
+        from src.services.database import session_scope
+        from src.models import Ingredient, Product, Supplier
+
+        # Create product with UPC
+        with session_scope() as session:
+            ingredient = Ingredient(
+                slug="test-sugar-upc",
+                display_name="Test Sugar for UPC",
+                category="dry",
+            )
+            session.add(ingredient)
+            session.flush()
+
+            product = Product(
+                ingredient_id=ingredient.id,
+                brand="Test Sugar Brand",
+                upc_code="012345678901",
+                package_unit_quantity=1,
+                package_unit="bag",
+            )
+            session.add(product)
+            session.commit()
+
+        # Create BT Mobile JSON with new supplier
+        bt_mobile_data = {
+            "schema_version": "4.0",
+            "import_type": "purchases",
+            "created_at": "2026-01-06T14:30:00Z",
+            "source": "bt_mobile",
+            "supplier": "New Grocery Store",
+            "purchases": [
+                {
+                    "upc": "012345678901",
+                    "scanned_at": "2026-01-06T14:15:23Z",
+                    "unit_price": 3.49,
+                    "quantity_purchased": 1,
+                }
+            ],
+        }
+        import_file = tmp_path / "purchases.json"
+        with open(import_file, "w") as f:
+            json.dump(bt_mobile_data, f)
+
+        # Import
+        result = import_purchases_from_bt_mobile(str(import_file))
+
+        # Verify success
+        assert result.failed == 0, f"Import failed: {result.errors}"
+        assert result.successful == 1
+
+        # Verify supplier was created
+        with session_scope() as session:
+            supplier = session.query(Supplier).filter_by(name="New Grocery Store").first()
+            assert supplier is not None, "Supplier not created"
+
+    def test_import_purchase_invalid_schema_version(self, test_db, tmp_path):
+        """Import errors for wrong schema version."""
+        from src.services.import_export_service import import_purchases_from_bt_mobile
+
+        bt_mobile_data = {
+            "schema_version": "3.0",
+            "import_type": "purchases",
+            "purchases": [],
+        }
+        import_file = tmp_path / "purchases.json"
+        with open(import_file, "w") as f:
+            json.dump(bt_mobile_data, f)
+
+        result = import_purchases_from_bt_mobile(str(import_file))
+
+        assert result.failed > 0, "Should fail for wrong schema version"
+        error_msg = result.errors[0]["message"]
+        assert "schema version" in error_msg.lower()
+        assert "3.0" in error_msg
+
+    def test_import_purchase_wrong_import_type(self, test_db, tmp_path):
+        """Import errors for wrong import type."""
+        from src.services.import_export_service import import_purchases_from_bt_mobile
+
+        bt_mobile_data = {
+            "schema_version": "4.0",
+            "import_type": "inventory",
+            "purchases": [],
+        }
+        import_file = tmp_path / "purchases.json"
+        with open(import_file, "w") as f:
+            json.dump(bt_mobile_data, f)
+
+        result = import_purchases_from_bt_mobile(str(import_file))
+
+        assert result.failed > 0, "Should fail for wrong import type"
+        error_msg = result.errors[0]["message"]
+        assert "import type" in error_msg.lower()
+        assert "inventory" in error_msg
+
+    def test_import_purchase_invalid_json(self, test_db, tmp_path):
+        """Import errors for malformed JSON."""
+        from src.services.import_export_service import import_purchases_from_bt_mobile
+
+        import_file = tmp_path / "purchases.json"
+        with open(import_file, "w") as f:
+            f.write("{ invalid json }")
+
+        result = import_purchases_from_bt_mobile(str(import_file))
+
+        assert result.failed > 0, "Should fail for invalid JSON"
+        error_msg = result.errors[0]["message"]
+        assert "Invalid JSON" in error_msg or "json" in error_msg.lower()

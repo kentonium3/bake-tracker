@@ -9,9 +9,9 @@ subtasks:
   - "T024"
 title: "Purchase Import Service"
 phase: "Phase 2 - BT Mobile Workflows"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
+agent: "system"
 shell_pid: ""
 review_status: ""
 reviewed_by: ""
@@ -311,3 +311,4 @@ def bt_mobile_purchase_json(tmp_path):
 ## Activity Log
 
 - 2026-01-06T12:00:00Z - system - lane=planned - Prompt created.
+- 2026-01-07T03:27:59Z – system – shell_pid= – lane=doing – Moved to doing

@@ -6,8 +6,9 @@ for testing purposes. No UI required - designed for programmatic use.
 """
 
 import json
+from decimal import Decimal
 from typing import Dict, List, Optional, Tuple
-from datetime import datetime
+from datetime import datetime, date
 from src.utils.datetime_utils import utc_now
 from pathlib import Path
 
@@ -3502,4 +3503,142 @@ def import_all_from_json_v3(file_path: str, mode: str = "merge") -> ImportResult
         stacklevel=2,
     )
     return import_all_from_json_v4(file_path, mode)
+
+
+def import_purchases_from_bt_mobile(file_path: str) -> ImportResult:
+    """
+    Import purchases from BT Mobile JSON file.
+
+    This function imports purchase data scanned from BT Mobile app, matching
+    UPCs against existing products and creating Purchase + InventoryItem records.
+
+    Args:
+        file_path: Path to JSON file with schema_version="4.0", import_type="purchases"
+
+    Returns:
+        ImportResult with:
+        - successful: Number of purchases created
+        - failed: Number of errors
+        - unmatched_purchases: List of purchase data for UPCs not found in products
+
+    Note:
+        Feature 040: Part of BT Mobile workflow for scanning receipts.
+    """
+    result = ImportResult()
+    result.unmatched_purchases = []  # T022: Collect unmatched for UI resolution
+
+    # T019: Read and validate JSON
+    try:
+        with open(file_path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+    except json.JSONDecodeError as e:
+        result.add_error("file", file_path, f"Invalid JSON: {e}")
+        return result
+    except FileNotFoundError:
+        result.add_error("file", file_path, f"File not found: {file_path}")
+        return result
+
+    # Schema validation
+    schema_version = data.get("schema_version")
+    if schema_version != "4.0":
+        result.add_error(
+            "file",
+            file_path,
+            f"Unsupported schema version: {schema_version}. Expected '4.0'.",
+        )
+        return result
+
+    import_type = data.get("import_type")
+    if import_type != "purchases":
+        result.add_error(
+            "file",
+            file_path,
+            f"Wrong import type: {import_type}. Expected 'purchases'.",
+        )
+        return result
+
+    # T020-T023: Process purchases
+    default_supplier = data.get("supplier")
+    purchases_data = data.get("purchases", [])
+
+    if not purchases_data:
+        # No purchases to import
+        return result
+
+    with session_scope() as session:
+        for purchase_data in purchases_data:
+            upc = purchase_data.get("upc")
+            if not upc:
+                result.add_error("purchase", "unknown", "Missing UPC field")
+                continue
+
+            # T020: UPC lookup
+            product = session.query(Product).filter_by(upc_code=upc).first()
+
+            if not product:
+                # Collect for UI resolution (WP06)
+                result.unmatched_purchases.append(purchase_data)
+                continue
+
+            # T021: Product found - create Purchase + InventoryItem
+            try:
+                # Resolve supplier
+                supplier_name = purchase_data.get("supplier") or default_supplier
+                supplier = None
+                if supplier_name:
+                    supplier = session.query(Supplier).filter_by(name=supplier_name).first()
+                    if not supplier:
+                        supplier = Supplier(name=supplier_name)
+                        session.add(supplier)
+                        session.flush()
+
+                # Parse scanned_at date
+                scanned_at = purchase_data.get("scanned_at")
+                if scanned_at:
+                    try:
+                        # Handle ISO format with Z suffix
+                        if scanned_at.endswith("Z"):
+                            scanned_at = scanned_at[:-1] + "+00:00"
+                        purchase_date = datetime.fromisoformat(scanned_at).date()
+                    except ValueError:
+                        purchase_date = date.today()
+                else:
+                    purchase_date = date.today()
+
+                # Parse price and quantity
+                unit_price = Decimal(str(purchase_data.get("unit_price", 0)))
+                quantity_purchased = int(purchase_data.get("quantity_purchased", 1))
+
+                # Create Purchase record
+                purchase = Purchase(
+                    product_id=product.id,
+                    supplier_id=supplier.id if supplier else None,
+                    purchase_date=purchase_date,
+                    unit_price=unit_price,
+                    quantity_purchased=quantity_purchased,
+                    notes=purchase_data.get("notes"),
+                )
+                session.add(purchase)
+                session.flush()  # Get purchase.id
+
+                # Create InventoryItem linked to Purchase
+                inventory_item = InventoryItem(
+                    product_id=product.id,
+                    purchase_id=purchase.id,
+                    quantity=float(quantity_purchased),
+                    unit_cost=float(unit_price),
+                    purchase_date=purchase_date,
+                )
+                session.add(inventory_item)
+
+                result.add_success("purchase")
+
+            except Exception as e:
+                result.add_error("purchase", upc, f"Failed to create purchase: {str(e)}")
+                continue
+
+        # Commit successful imports
+        session.commit()
+
+    return result
 
