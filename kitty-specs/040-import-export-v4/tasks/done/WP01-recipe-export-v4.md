@@ -169,13 +169,13 @@ pytest src/tests/services/test_import_export_service.py::TestRecipeExportV4 -v
 
 ## Definition of Done Checklist
 
-- [ ] T001: base_recipe_slug exported correctly
-- [ ] T002: variant_name exported correctly
-- [ ] T003: is_production_ready exported correctly
-- [ ] T004: finished_units[] array with yield_mode exported
-- [ ] T005: All unit tests pass
-- [ ] Export file can be parsed as valid JSON
-- [ ] Existing fields unchanged (backward compatible)
+- [x] T001: base_recipe_slug exported correctly
+- [x] T002: variant_name exported correctly
+- [x] T003: is_production_ready exported correctly
+- [x] T004: finished_units[] array with yield_mode exported
+- [x] T005: All unit tests pass
+- [x] Export file can be parsed as valid JSON
+- [x] Existing fields unchanged (backward compatible)
 
 ## Review Guidance
 

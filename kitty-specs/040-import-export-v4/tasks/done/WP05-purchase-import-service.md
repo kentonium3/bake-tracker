@@ -12,7 +12,7 @@ phase: "Phase 2 - BT Mobile Workflows"
 lane: "done"
 assignee: "claude"
 agent: "claude-reviewer"
-shell_pid: ""
+shell_pid: "11228"
 review_status: ""
 reviewed_by: ""
 history:
@@ -293,13 +293,13 @@ def bt_mobile_purchase_json(tmp_path):
 
 ## Definition of Done Checklist
 
-- [ ] T019: Function signature and schema validation
-- [ ] T020: UPC matching logic works
-- [ ] T021: Purchase + InventoryItem created for matches
-- [ ] T022: Unmatched UPCs collected
-- [ ] T023: ImportResult has meaningful counts
-- [ ] T024: All unit tests pass
-- [ ] Added at END of file (parallel safety)
+- [x] T019: Function signature and schema validation
+- [x] T020: UPC matching logic works
+- [x] T021: Purchase + InventoryItem created for matches
+- [x] T022: Unmatched UPCs collected
+- [x] T023: ImportResult has meaningful counts
+- [x] T024: All unit tests pass
+- [x] Added at END of file (parallel safety)
 
 ## Review Guidance
 

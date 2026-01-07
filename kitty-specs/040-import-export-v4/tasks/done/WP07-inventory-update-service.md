@@ -11,7 +11,7 @@ phase: "Phase 2 - BT Mobile Workflows"
 lane: "done"
 assignee: "gemini"
 agent: "claude-reviewer"
-shell_pid: ""
+shell_pid: "11228"
 review_status: ""
 reviewed_by: ""
 history:
@@ -310,12 +310,12 @@ def bt_mobile_inventory_json(tmp_path):
 
 ## Definition of Done Checklist
 
-- [ ] T029: Function signature and schema validation
-- [ ] T030: UPC to Product lookup works
-- [ ] T031: FIFO selection works (oldest first)
-- [ ] T032: Percentage calculation correct
-- [ ] T033: InventoryDepletion created, quantity updated
-- [ ] Added at END of file (parallel safety)
+- [x] T029: Function signature and schema validation
+- [x] T030: UPC to Product lookup works
+- [x] T031: FIFO selection works (oldest first)
+- [x] T032: Percentage calculation correct
+- [x] T033: InventoryDepletion created, quantity updated
+- [x] Added at END of file (parallel safety)
 
 ## Review Guidance
 

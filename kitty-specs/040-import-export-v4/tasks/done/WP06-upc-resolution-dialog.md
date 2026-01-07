@@ -10,7 +10,7 @@ phase: "Phase 2 - BT Mobile Workflows"
 lane: "done"
 assignee: "claude"
 agent: "claude-reviewer"
-shell_pid: ""
+shell_pid: "11228"
 review_status: ""
 reviewed_by: ""
 history:
@@ -301,12 +301,12 @@ pytest src/tests/ui/dialogs/test_upc_resolution_dialog.py -v
 
 ## Definition of Done Checklist
 
-- [ ] T025: Dialog structure created
-- [ ] T026: Map to existing works, updates UPC
-- [ ] T027: Create new works, creates product + purchase
-- [ ] T028: Skip works, logs and advances
-- [ ] All three paths complete successfully
-- [ ] Completion callback provides accurate counts
+- [x] T025: Dialog structure created
+- [x] T026: Map to existing works, updates UPC
+- [x] T027: Create new works, creates product + purchase
+- [x] T028: Skip works, logs and advances
+- [x] All three paths complete successfully
+- [x] Completion callback provides accurate counts
 
 ## Review Guidance
 

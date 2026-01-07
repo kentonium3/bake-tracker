@@ -10,7 +10,7 @@ phase: "Phase 1 - Core Schema Upgrade"
 lane: "done"
 assignee: "claude"
 agent: "claude-reviewer"
-shell_pid: ""
+shell_pid: "11228"
 review_status: ""
 reviewed_by: ""
 history:

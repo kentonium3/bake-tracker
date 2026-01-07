@@ -9,7 +9,7 @@ phase: "Phase 1 - Core Schema Upgrade"
 lane: "done"
 assignee: "claude"
 agent: "claude-reviewer"
-shell_pid: ""
+shell_pid: "11228"
 review_status: ""
 reviewed_by: ""
 history:
@@ -168,11 +168,11 @@ pytest src/tests/services/test_import_export_service.py -v -k "version"
 
 ## Definition of Done Checklist
 
-- [ ] T016: All exports produce version "4.0"
-- [ ] T017: Function renamed, deprecated alias exists
-- [ ] T018: v3.x files rejected with clear message
-- [ ] All tests updated and passing
-- [ ] No remaining "3.5" references in code (except deprecation message)
+- [x] T016: All exports produce version "4.0"
+- [x] T017: Function renamed, deprecated alias exists
+- [x] T018: v3.x files rejected with clear message
+- [x] All tests updated and passing
+- [x] No remaining "3.5" references in code (except deprecation message)
 
 ## Review Guidance
 

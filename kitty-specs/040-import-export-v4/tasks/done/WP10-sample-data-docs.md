@@ -9,7 +9,7 @@ phase: "Phase 3 - Integration & Documentation"
 lane: "done"
 assignee: "gemini"
 agent: "claude-reviewer"
-shell_pid: ""
+shell_pid: "11228"
 review_status: ""
 reviewed_by: ""
 history:
@@ -272,11 +272,11 @@ pytest src/tests/services/test_import_export_service.py -v -k "sample"
 
 ## Definition of Done Checklist
 
-- [ ] T042: sample_data.json updated to v4.0
-- [ ] T043: bt_mobile_purchase_sample.json created
-- [ ] T044: bt_mobile_inventory_sample.json created
-- [ ] All samples import without errors
-- [ ] Samples demonstrate all new features
+- [x] T042: sample_data.json updated to v4.0
+- [x] T043: bt_mobile_purchase_sample.json created
+- [x] T044: bt_mobile_inventory_sample.json created
+- [x] All samples import without errors
+- [x] Samples demonstrate all new features
 
 ## Review Guidance
 

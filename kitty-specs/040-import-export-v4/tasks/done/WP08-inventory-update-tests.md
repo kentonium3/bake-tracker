@@ -10,7 +10,7 @@ phase: "Phase 2 - BT Mobile Workflows"
 lane: "done"
 assignee: "gemini"
 agent: "claude-reviewer"
-shell_pid: ""
+shell_pid: "11228"
 review_status: ""
 reviewed_by: ""
 history:
@@ -274,12 +274,12 @@ pytest src/tests/services/test_import_export_service.py::TestInventoryUpdateFrom
 
 ## Definition of Done Checklist
 
-- [ ] T034: Basic happy path tests pass
-- [ ] T035: Edge case tests (0%, 100%, rounding) pass
-- [ ] T036: FIFO selection tests pass
-- [ ] T037: Error handling tests pass
-- [ ] >90% coverage of WP07 code
-- [ ] All tests run in isolation
+- [x] T034: Basic happy path tests pass
+- [x] T035: Edge case tests (0%, 100%, rounding) pass
+- [x] T036: FIFO selection tests pass
+- [x] T037: Error handling tests pass
+- [x] >90% coverage of WP07 code
+- [x] All tests run in isolation
 
 ## Review Guidance
 

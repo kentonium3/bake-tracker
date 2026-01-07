@@ -10,7 +10,7 @@ phase: "Phase 3 - Integration & Documentation"
 lane: "done"
 assignee: "claude"
 agent: "claude-reviewer"
-shell_pid: ""
+shell_pid: "11228"
 review_status: ""
 reviewed_by: ""
 history:
@@ -393,12 +393,12 @@ pytest src/tests/integration/test_import_export_v4.py -v
 
 ## Definition of Done Checklist
 
-- [ ] T038: Full round-trip test passes
-- [ ] T039: Variant recipes preserved
-- [ ] T040: Event output_mode preserved
-- [ ] T041: Merge/replace modes work correctly
-- [ ] All tests run in isolation
-- [ ] No flaky tests
+- [x] T038: Full round-trip test passes
+- [x] T039: Variant recipes preserved
+- [x] T040: Event output_mode preserved
+- [x] T041: Merge/replace modes work correctly
+- [x] All tests run in isolation
+- [x] No flaky tests
 
 ## Review Guidance
 
