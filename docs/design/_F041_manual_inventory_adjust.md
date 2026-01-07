@@ -179,7 +179,7 @@ class DepletionReason(str, Enum):
     # Automatic (system-generated)
     PRODUCTION = "production"        # Recipe execution
     ASSEMBLY = "assembly"            # Bundle assembly (Phase 3)
-    
+
     # Manual (user-initiated)
     SPOILAGE = "spoilage"           # Ingredient went bad
     GIFT = "gift"                   # Gave to friend/family
@@ -205,27 +205,27 @@ class DepletionReason(str, Enum):
 ```python
 class InventoryDepletion(BaseModel):
     __tablename__ = "inventory_depletions"
-    
+
     id = Column(Integer, primary_key=True)
     uuid = Column(String(36), unique=True, default=lambda: str(uuid4()))
-    
+
     # Which purchase/inventory item
     inventory_item_id = Column(Integer, ForeignKey("inventory_items.id"))
     purchase_id = Column(Integer, ForeignKey("purchases.id"))
-    
+
     # Depletion details
     quantity_depleted = Column(Numeric(10, 2))  # Negative value
     depletion_date = Column(DateTime, default=datetime.now)
     depletion_reason = Column(String(50))  # EXTEND with manual reasons
-    
+
     # Context (optional for automatic, populated for manual)
     related_entity_type = Column(String(50), nullable=True)
     related_entity_id = Column(Integer, nullable=True)
     notes = Column(Text, nullable=True)  # USER NOTES for manual adjustments
-    
+
     # Cost tracking
     cost = Column(Numeric(10, 2))  # Computed at depletion time
-    
+
     # Audit
     created_at = Column(DateTime, default=datetime.now)
     created_by = Column(String(100), nullable=True)  # User identifier
@@ -245,7 +245,7 @@ class InventoryDepletion(BaseModel):
 ```python
 class InventoryService:
     """Existing inventory service with manual adjustment extension."""
-    
+
     def manual_adjustment(
         self,
         inventory_item_id: int,
@@ -257,7 +257,7 @@ class InventoryService:
     ) -> InventoryDepletion:
         """
         Manually adjust inventory (spoilage, gift, correction, ad hoc).
-        
+
         Args:
             inventory_item_id: Which inventory item to adjust
             quantity_adjustment: Amount to deplete (negative value)
@@ -265,10 +265,10 @@ class InventoryService:
             notes: User explanation (required for OTHER, optional otherwise)
             user: Who made adjustment (for audit)
             session: DB session
-            
+
         Returns:
             InventoryDepletion record created
-            
+
         Raises:
             ValueError: Invalid adjustment (would go negative)
             ValueError: Notes required when reason=OTHER
@@ -276,15 +276,15 @@ class InventoryService:
         # Validation
         if quantity_adjustment >= 0:
             raise ValueError("Quantity adjustment must be negative (depletion)")
-        
+
         if reason == DepletionReason.OTHER and not notes:
             raise ValueError("Notes required when reason is OTHER")
-        
+
         # Get inventory item
         item = session.query(InventoryItem).get(inventory_item_id)
         if not item:
             raise ValueError(f"Inventory item {inventory_item_id} not found")
-        
+
         # Validate won't go negative
         new_quantity = item.current_quantity + quantity_adjustment  # adjustment is negative
         if new_quantity < 0:
@@ -292,11 +292,11 @@ class InventoryService:
                 f"Cannot deplete {abs(quantity_adjustment)}: "
                 f"only {item.current_quantity} available"
             )
-        
+
         # Calculate cost (for accounting)
         unit_cost = item.unit_cost
         cost = abs(quantity_adjustment) * unit_cost
-        
+
         # Create depletion record
         depletion = InventoryDepletion(
             inventory_item_id=inventory_item_id,
@@ -311,12 +311,12 @@ class InventoryService:
             created_by=user
         )
         session.add(depletion)
-        
+
         # Update inventory item
         item.current_quantity = new_quantity
-        
+
         session.commit()
-        
+
         return depletion
 ```
 
@@ -538,7 +538,7 @@ def test_manual_adjustment_prevents_negative_inventory():
     item = InventoryItem(current_quantity=Decimal("3.0"))
     session.add(item)
     session.commit()
-    
+
     with pytest.raises(ValueError, match="only 3.0 available"):
         inventory_service.manual_adjustment(
             inventory_item_id=item.id,
@@ -572,7 +572,7 @@ def test_manual_adjustment_creates_depletion_record():
     )
     session.add(item)
     session.commit()
-    
+
     depletion = inventory_service.manual_adjustment(
         inventory_item_id=item.id,
         quantity_adjustment=Decimal("-5.0"),
@@ -581,7 +581,7 @@ def test_manual_adjustment_creates_depletion_record():
         user="test@example.com",
         session=session
     )
-    
+
     assert depletion.quantity_depleted == Decimal("-5.0")
     assert depletion.depletion_reason == "spoilage"
     assert depletion.notes == "Weevils discovered"
@@ -593,7 +593,7 @@ def test_manual_adjustment_updates_inventory():
     item = InventoryItem(current_quantity=Decimal("10.0"))
     session.add(item)
     session.commit()
-    
+
     inventory_service.manual_adjustment(
         inventory_item_id=item.id,
         quantity_adjustment=Decimal("-5.0"),
@@ -602,7 +602,7 @@ def test_manual_adjustment_updates_inventory():
         user="test",
         session=session
     )
-    
+
     session.refresh(item)
     assert item.current_quantity == Decimal("5.0")
 ```
@@ -623,7 +623,7 @@ def test_manual_adjustment_full_workflow():
     )
     session.add(purchase)
     session.commit()
-    
+
     # 2. Create inventory item (automatic)
     item = InventoryItem(
         purchase_id=purchase.id,
@@ -633,7 +633,7 @@ def test_manual_adjustment_full_workflow():
     )
     session.add(item)
     session.commit()
-    
+
     # 3. Production depletes some
     depletion1 = inventory_service.deplete_fifo(
         ingredient_id=flour.id,
@@ -644,7 +644,7 @@ def test_manual_adjustment_full_workflow():
     )
     session.refresh(item)
     assert item.current_quantity == Decimal("17.0")
-    
+
     # 4. Manual adjustment (spoilage)
     depletion2 = inventory_service.manual_adjustment(
         inventory_item_id=item.id,
@@ -656,7 +656,7 @@ def test_manual_adjustment_full_workflow():
     )
     session.refresh(item)
     assert item.current_quantity == Decimal("12.0")
-    
+
     # 5. Query depletion history
     history = inventory_service.get_depletion_history(item.id, session)
     assert len(history) == 2

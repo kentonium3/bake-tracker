@@ -170,7 +170,7 @@ After validating web deployment and multi-user patterns:
 
 - **BT Mobile Inventory Updates:**
   - Gemini image processing of products
-  - Voice or text input for percentage remaining
+  - Voice or text input for additions or percentage remaining
   - Results in JSON upload files merged via import service into Inventory tables
 
 **Success Criteria:** If AI can create valid JSON that imports cleanly, real-time voice/chat is just an interface layer away.
