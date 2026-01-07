@@ -2,6 +2,7 @@
 
 **Purpose**: Validate specification completeness and quality before proceeding to planning
 **Created**: 2026-01-07
+**Updated**: 2026-01-07 (scope simplified to depletions-only)
 **Feature**: [spec.md](../spec.md)
 
 ## Content Quality
@@ -29,31 +30,31 @@
 - [x] Feature meets measurable outcomes defined in Success Criteria
 - [x] No implementation details leak into specification
 
+## Scope Summary (Updated)
+
+**In Scope (Depletions Only):**
+- Manual inventory reductions for spoilage, gifts, corrections, ad hoc usage
+- Depletion reason tracking with optional notes
+- Live preview of quantity/cost impact
+- Audit trail integration
+- FIFO system integration
+
+**Out of Scope (Redirected to Purchase Workflow):**
+- Inventory additions (found inventory, donations, missed purchases)
+- All increases must go through Purchase workflow to ensure proper data collection
+
 ## Validation Notes
 
-**Content Quality:**
-- Spec avoids mentioning Python, SQLAlchemy, CustomTkinter, or other implementation details
-- Focuses on what users need (record spoilage, correct counts) not how to implement
-- Readable by business stakeholder (the primary user)
+**Scope Simplification (2026-01-07):**
+- Removed inventory additions from scope
+- Rationale: increases imply a purchase; proper data collection (date, supplier, price) requires Purchase workflow
+- Edge cases like donations handled via $0 purchase
 
 **Requirements:**
-- 21 functional requirements covering interface, depletion, addition, data integrity, and history
-- Each FR is testable (e.g., FR-008: "validate reduction does not exceed available quantity")
-- Success criteria use user-facing metrics (30 seconds, 100ms preview, 5% accuracy)
-
-**Edge Cases Covered:**
-- Zero quantity result
-- No previous purchase price
-- Notes required for "Other" reason
-- Decimal quantities
-- Live preview timing
-
-**Assumptions Documented:**
-- Existing model extensibility
-- Notes field availability
-- User identifier approach
-- Last purchase price lookup
+- 16 functional requirements (down from 21)
+- 4 user stories (down from 5)
+- 5 success criteria (down from 6)
 
 ## Checklist Status: PASSED
 
-All items validated. Specification is ready for `/spec-kitty.clarify` or `/spec-kitty.plan`.
+All items validated. Specification is ready for `/spec-kitty.plan`.
