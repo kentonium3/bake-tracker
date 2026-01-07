@@ -1132,9 +1132,9 @@ def export_all_to_json(file_path: str) -> ExportResult:
         event_production_targets_data = export_event_production_targets_to_json()
         event_assembly_targets_data = export_event_assembly_targets_to_json()
 
-        # Build combined export data - v3.5 format (Feature 027: suppliers and purchases with FK)
+        # Build combined export data - v4.0 format (Feature 040: F037 recipe fields, F039 event output_mode)
         export_data = {
-            "version": "3.6",  # Feature 031: Added hierarchy fields
+            "version": "4.0",  # Feature 040: v4.0 schema upgrade
             "exported_at": utc_now().isoformat() + "Z",
             "application": "bake-tracker",
             "suppliers": [],  # Feature 027: Suppliers before products (products reference suppliers)
@@ -2445,9 +2445,9 @@ def import_assembly_runs_from_json(
     return result
 
 
-def import_all_from_json_v3(file_path: str, mode: str = "merge") -> ImportResult:
+def import_all_from_json_v4(file_path: str, mode: str = "merge") -> ImportResult:
     """
-    Import all data from a v3.4 format JSON file.
+    Import all data from a v4.0 format JSON file.
 
     Supports two import modes:
     - "merge": Add new records, skip duplicates (default, safe for incremental backups)
@@ -2458,19 +2458,19 @@ def import_all_from_json_v3(file_path: str, mode: str = "merge") -> ImportResult
     2. products (depends on ingredients)
     3. purchases (depends on products)
     4. inventory_items (depends on products)
-    5. recipes (depends on ingredients)
+    5. recipes (depends on ingredients) - with F037 variant fields
     6. finished_units (depends on recipes)
     7. finished_goods (no dependencies)
     8. compositions (depends on finished_goods)
     9. packages (no dependencies)
     10. package_finished_goods (depends on packages, finished_goods)
     11. recipients (no dependencies)
-    12. events (no dependencies)
+    12. events (no dependencies) - with F039 output_mode
     13. event_recipient_packages (depends on events, recipients, packages)
     14. production_records (depends on finished_units)
 
     Args:
-        file_path: Path to v3.4 format JSON file
+        file_path: Path to v4.0 format JSON file
         mode: Import mode - "merge" (default) or "replace"
 
     Returns:
@@ -2478,12 +2478,11 @@ def import_all_from_json_v3(file_path: str, mode: str = "merge") -> ImportResult
 
     Raises:
         ValueError: If mode is not "merge" or "replace"
+        ValueError: If file version is not "4.0"
 
     Note:
-        The 'version' field in the import file is optional and informational only.
-        Import validation relies on required field presence, FK resolution, and
-        SQLAlchemy model validation. This allows imports to work across minor
-        format changes without requiring version bumps.
+        Feature 040: This version requires v4.0 format files. Files from older
+        versions (v3.x) must be re-exported from a v4.0 application before import.
     """
     # Validate mode
     if mode not in ("merge", "replace"):
@@ -2497,8 +2496,17 @@ def import_all_from_json_v3(file_path: str, mode: str = "merge") -> ImportResult
         with open(file_path, "r", encoding="utf-8") as f:
             data = json.load(f)
 
-        # Version field is informational only - no validation
-        # Actual compatibility is determined by field presence and FK resolution
+        # T018: Validate version - require v4.0
+        version = data.get("version")
+        if version != "4.0":
+            result.add_error(
+                "file",
+                file_path,
+                f"Unsupported file version: {version}. "
+                f"This application requires v4.0 format. "
+                f"Please export a new backup from a current version of the application.",
+            )
+            return result
 
         # Use single transaction for atomicity
         with session_scope() as session:
@@ -3468,4 +3476,30 @@ def import_all_from_json_v3(file_path: str, mode: str = "merge") -> ImportResult
 
     return result
 
+
+def import_all_from_json_v3(file_path: str, mode: str = "merge") -> ImportResult:
+    """
+    DEPRECATED: Use import_all_from_json_v4() instead.
+
+    This function is retained for backward compatibility with existing code
+    but will be removed in a future version. Note that v3.x format files
+    will be rejected by the v4 importer - you must re-export from a v4.0
+    application to create compatible files.
+
+    Args:
+        file_path: Path to JSON file
+        mode: Import mode - "merge" (default) or "replace"
+
+    Returns:
+        ImportResult with error if file is v3.x format
+    """
+    import warnings
+
+    warnings.warn(
+        "import_all_from_json_v3 is deprecated. Use import_all_from_json_v4 instead. "
+        "Note: v3.x format files will be rejected. Re-export from v4.0 application.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
+    return import_all_from_json_v4(file_path, mode)
 

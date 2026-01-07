@@ -553,7 +553,7 @@ class TestImportModeValidation:
 
     def test_invalid_mode_raises_error(self):
         """Test invalid mode raises ValueError."""
-        v3_data = {"version": "3.4", "ingredients": []}
+        v3_data = {"version": "4.0", "ingredients": []}
 
         with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
             json.dump(v3_data, f)
@@ -571,7 +571,7 @@ class TestImportModeValidation:
 
     def test_merge_mode_accepted(self):
         """Test merge mode is accepted."""
-        v3_data = {"version": "3.0", "ingredients": []}
+        v3_data = {"version": "4.0", "ingredients": []}
 
         with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
             json.dump(v3_data, f)
@@ -591,7 +591,7 @@ class TestImportModeValidation:
 
     def test_replace_mode_accepted(self):
         """Test replace mode is accepted."""
-        v3_data = {"version": "3.0", "ingredients": []}
+        v3_data = {"version": "4.0", "ingredients": []}
 
         with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
             json.dump(v3_data, f)
@@ -1153,7 +1153,7 @@ class TestImportUnitValidation:
     def test_import_product_with_valid_unit_succeeds(self):
         """Import with valid package_unit succeeds."""
         v3_data = {
-            "version": "3.4",
+            "version": "4.0",
             "exported_at": "2025-12-16T00:00:00Z",
             "application": "bake-tracker",
             "ingredients": [
@@ -1193,7 +1193,7 @@ class TestImportUnitValidation:
     def test_import_product_with_invalid_unit_fails(self):
         """Import with invalid package_unit returns error."""
         v3_data = {
-            "version": "3.4",
+            "version": "4.0",
             "exported_at": "2025-12-16T00:00:00Z",
             "application": "bake-tracker",
             "ingredients": [
@@ -1233,7 +1233,7 @@ class TestImportUnitValidation:
     def test_import_ingredient_with_invalid_density_volume_unit_fails(self):
         """Import with invalid density_volume_unit returns error."""
         v3_data = {
-            "version": "3.4",
+            "version": "4.0",
             "exported_at": "2025-12-16T00:00:00Z",
             "application": "bake-tracker",
             "ingredients": [
@@ -1270,7 +1270,7 @@ class TestImportUnitValidation:
     def test_import_ingredient_with_invalid_density_weight_unit_fails(self):
         """Import with invalid density_weight_unit returns error."""
         v3_data = {
-            "version": "3.4",
+            "version": "4.0",
             "exported_at": "2025-12-16T00:00:00Z",
             "application": "bake-tracker",
             "ingredients": [
@@ -1306,7 +1306,7 @@ class TestImportUnitValidation:
     def test_import_ingredient_with_null_density_units_succeeds(self):
         """Import with null density units succeeds (density is optional)."""
         v3_data = {
-            "version": "3.4",
+            "version": "4.0",
             "exported_at": "2025-12-16T00:00:00Z",
             "application": "bake-tracker",
             "ingredients": [
@@ -1338,7 +1338,7 @@ class TestImportUnitValidation:
     def test_import_recipe_ingredient_with_invalid_unit_fails(self):
         """Import with invalid recipe ingredient unit returns error."""
         v3_data = {
-            "version": "3.4",
+            "version": "4.0",
             "exported_at": "2025-12-16T00:00:00Z",
             "application": "bake-tracker",
             "ingredients": [
@@ -1385,7 +1385,7 @@ class TestImportUnitValidation:
     def test_import_recipe_ingredient_with_valid_units_succeeds(self):
         """Import with valid recipe ingredient units succeeds."""
         v3_data = {
-            "version": "3.4",
+            "version": "4.0",
             "exported_at": "2025-12-16T00:00:00Z",
             "application": "bake-tracker",
             "ingredients": [
@@ -1432,7 +1432,7 @@ class TestImportUnitValidation:
     def test_error_message_includes_valid_units_list(self):
         """Error message includes list of valid units."""
         v3_data = {
-            "version": "3.4",
+            "version": "4.0",
             "exported_at": "2025-12-16T00:00:00Z",
             "application": "bake-tracker",
             "ingredients": [
@@ -1538,7 +1538,7 @@ class TestRecipeComponentImport:
 
         # Create a minimal v3.4 import file with missing component reference
         import_data = {
-            "version": "3.4",
+            "version": "4.0",
             "app_name": "Test",
             "app_version": "1.0.0",
             "exported_at": "2024-01-01T00:00:00Z",
@@ -1625,7 +1625,7 @@ class TestRecipeComponentImport:
 
         # Create import data that tries to make B contain A (circular!)
         import_data = {
-            "version": "3.4",
+            "version": "4.0",
             "app_name": "Test",
             "app_version": "1.0.0",
             "exported_at": "2024-01-01T00:00:00Z",
@@ -2461,3 +2461,174 @@ class TestEventExportImportV4:
             assert event.year == 2026
             assert event.notes == "Test event with output mode"
 
+
+class TestVersionBumpV4:
+    """Tests for WP04 - Version Bump and Function Rename.
+
+    Test cases:
+    - test_export_produces_version_4: Export file has version "4.0"
+    - test_import_rejects_v3_file: v3.5 file produces clear error
+    - test_import_rejects_v36_file: v3.6 file produces clear error
+    - test_import_accepts_v4_file: v4.0 file imports successfully
+    - test_deprecated_v3_function_warns: Calling v3 function shows deprecation warning
+    """
+
+    def test_export_produces_version_4(self, test_db, tmp_path):
+        """Export should produce files with version 4.0."""
+        from src.services.import_export_service import export_all_to_json
+
+        export_file = tmp_path / "test_export.json"
+        export_all_to_json(str(export_file))
+
+        # Read exported file
+        with open(export_file, "r") as f:
+            data = json.load(f)
+
+        assert data.get("version") == "4.0", f"Expected version 4.0, got {data.get('version')}"
+        assert data.get("application") == "bake-tracker"
+
+    def test_import_rejects_v35_file(self, test_db, tmp_path):
+        """v3.5 format files should be rejected with clear error message."""
+        from src.services.import_export_service import import_all_from_json_v4
+
+        # Create a v3.5 format file
+        import_file = tmp_path / "v35_data.json"
+        v35_data = {
+            "version": "3.5",
+            "application": "bake-tracker",
+            "exported_at": "2025-01-01T00:00:00Z",
+            "ingredients": [],
+            "recipes": [],
+        }
+        with open(import_file, "w") as f:
+            json.dump(v35_data, f)
+
+        # Import should fail with version error
+        result = import_all_from_json_v4(str(import_file), mode="merge")
+
+        assert result.failed > 0, "Expected import to fail for v3.5 file"
+        assert len(result.errors) > 0, "Expected error message for version mismatch"
+        error_msg = result.errors[0]["message"]
+        assert "3.5" in error_msg, f"Error should mention the file version: {error_msg}"
+        assert "4.0" in error_msg, f"Error should mention required version: {error_msg}"
+
+    def test_import_rejects_v36_file(self, test_db, tmp_path):
+        """v3.6 format files should be rejected with clear error message."""
+        from src.services.import_export_service import import_all_from_json_v4
+
+        # Create a v3.6 format file
+        import_file = tmp_path / "v36_data.json"
+        v36_data = {
+            "version": "3.6",
+            "application": "bake-tracker",
+            "exported_at": "2025-06-01T00:00:00Z",
+            "ingredients": [],
+            "recipes": [],
+        }
+        with open(import_file, "w") as f:
+            json.dump(v36_data, f)
+
+        # Import should fail with version error
+        result = import_all_from_json_v4(str(import_file), mode="merge")
+
+        assert result.failed > 0, "Expected import to fail for v3.6 file"
+        assert len(result.errors) > 0, "Expected error message for version mismatch"
+        error_msg = result.errors[0]["message"]
+        assert "3.6" in error_msg, f"Error should mention the file version: {error_msg}"
+        assert "4.0" in error_msg, f"Error should mention required version: {error_msg}"
+
+    def test_import_accepts_v4_file(self, test_db, tmp_path):
+        """v4.0 format files should import successfully."""
+        from src.services.import_export_service import import_all_from_json_v4
+
+        # Create a minimal v4.0 format file with all required ingredient fields
+        import_file = tmp_path / "v40_data.json"
+        v40_data = {
+            "version": "4.0",
+            "application": "bake-tracker",
+            "exported_at": "2026-01-07T00:00:00Z",
+            "ingredients": [
+                {
+                    "slug": "test-flour",
+                    "name": "Test Flour",
+                    "display_name": "Test Flour",
+                    "category": "dry",
+                    "subcategory": None,
+                    "default_unit": "g",
+                    "minimum_quantity": 0,
+                    "notes": None,
+                    "parent_slug": None,
+                    "is_discrete": False,
+                }
+            ],
+            "recipes": [],
+        }
+        with open(import_file, "w") as f:
+            json.dump(v40_data, f)
+
+        # Import should succeed
+        result = import_all_from_json_v4(str(import_file), mode="replace")
+
+        assert result.failed == 0, f"Import failed: {result.errors}"
+        assert result.successful > 0, "Expected at least one successful import"
+
+        # Verify ingredient was imported
+        from src.services.database import session_scope
+        from src.models import Ingredient
+
+        with session_scope() as session:
+            ing = session.query(Ingredient).filter_by(slug="test-flour").first()
+            assert ing is not None, "Ingredient was not imported"
+            assert ing.display_name == "Test Flour"
+
+    def test_deprecated_v3_function_warns(self, test_db, tmp_path):
+        """Calling import_all_from_json_v3 should show deprecation warning."""
+        import warnings
+        from src.services.import_export_service import import_all_from_json_v3
+
+        # Create a v4.0 format file (since v3 function now requires v4 format)
+        import_file = tmp_path / "v40_data.json"
+        v40_data = {
+            "version": "4.0",
+            "application": "bake-tracker",
+            "exported_at": "2026-01-07T00:00:00Z",
+            "ingredients": [],
+            "recipes": [],
+        }
+        with open(import_file, "w") as f:
+            json.dump(v40_data, f)
+
+        # Call deprecated function and check for warning
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            result = import_all_from_json_v3(str(import_file), mode="replace")
+
+            # Check that deprecation warning was raised
+            assert len(w) == 1, f"Expected 1 warning, got {len(w)}"
+            assert issubclass(w[0].category, DeprecationWarning)
+            assert "deprecated" in str(w[0].message).lower()
+            assert "import_all_from_json_v4" in str(w[0].message)
+
+        # Function should still work (calls v4 internally)
+        assert result.failed == 0, f"Deprecated function failed: {result.errors}"
+
+    def test_import_missing_version_rejected(self, test_db, tmp_path):
+        """Files without version field should be rejected."""
+        from src.services.import_export_service import import_all_from_json_v4
+
+        # Create a file without version
+        import_file = tmp_path / "no_version.json"
+        data = {
+            "application": "bake-tracker",
+            "exported_at": "2026-01-07T00:00:00Z",
+            "ingredients": [],
+        }
+        with open(import_file, "w") as f:
+            json.dump(data, f)
+
+        # Import should fail
+        result = import_all_from_json_v4(str(import_file), mode="merge")
+
+        assert result.failed > 0, "Expected import to fail for file without version"
+        error_msg = result.errors[0]["message"]
+        assert "None" in error_msg or "version" in error_msg.lower()

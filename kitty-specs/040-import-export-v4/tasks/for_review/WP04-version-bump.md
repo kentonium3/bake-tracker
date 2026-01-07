@@ -6,9 +6,9 @@ subtasks:
   - "T018"
 title: "Version Bump and Function Rename"
 phase: "Phase 1 - Core Schema Upgrade"
-lane: "planned"
+lane: "for_review"
 assignee: ""
-agent: ""
+agent: "system"
 shell_pid: ""
 review_status: ""
 reviewed_by: ""
@@ -184,3 +184,5 @@ pytest src/tests/services/test_import_export_service.py -v -k "version"
 ## Activity Log
 
 - 2026-01-06T12:00:00Z - system - lane=planned - Prompt created.
+- 2026-01-07T03:18:26Z – system – shell_pid= – lane=doing – Moved to doing
+- 2026-01-07T03:27:19Z – system – shell_pid= – lane=for_review – Moved to for_review
