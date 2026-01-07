@@ -103,6 +103,51 @@ See: `docs/technical-debt/TD-005_can_change_parent_new_level_edge_case.md`
 
 ---
 
+### TD-006: Deprecate expiration_date Field in Favor of Calculated Shelf Life
+
+| Attribute | Value |
+|-----------|-------|
+| **Status** | Open |
+| **Priority** | Medium |
+| **Created** | 2026-01-06 |
+| **Related Features** | F041 (Shelf Life), F042 (Purchase Workflow) |
+| **Location** | `src/models/inventory_item.py`, UI tabs, import/export |
+
+**Description:**
+
+Current `expiration_date` field in InventoryItem model requires manual entry for each purchase, which is unacceptable user effort (20+ items per shopping trip). Product expiration dates printed on packaging are inconsistent and difficult to read accurately with AI-assisted tools.
+
+**Proposed Solution:**
+
+Replace manual entry with calculated shelf life:
+- Add `Ingredient.shelf_life_days` (e.g., 365 for flour)
+- Add `Product.shelf_life_days` (inherited from ingredient, can override)
+- Add `InventoryItem.calculated_expiration_date` = purchase_date + shelf_life_days
+- Add `InventoryItem.expiration_date_override` (optional manual override for edge cases)
+- Deprecate `InventoryItem.expiration_date` field
+
+**User Impact:**
+- Eliminates manual date entry friction (90% effort reduction)
+- Enables AI-assisted purchase imports (BT Mobile workflow)
+- Consistent expiration logic across same products
+- Foundation for shelf life intelligence (F041)
+
+**Migration Path:**
+- Phase 1: Add new fields (non-breaking)
+- Phase 2: Update services with calculation logic
+- Phase 3: Update UI (remove manual entry, show calculated dates)
+- Phase 4: Migrate existing data (explicit dates → override field)
+- Phase 5: Mark old field as deprecated
+- Phase 6: Remove field in future schema version (v5.0)
+
+**Effort:** 26-37 hours (3.5-5 days)
+
+**Recommendation:** Implement during F041 development, complete before F042 rollout.
+
+See: `docs/technical-debt/TD-006_expiration_date_deprecated.md`
+
+---
+
 ## Resolved Items
 
 *No resolved items yet.*
