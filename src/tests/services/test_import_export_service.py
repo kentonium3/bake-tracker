@@ -626,7 +626,7 @@ class TestImportUserFriendlyErrors:
 import time
 
 # Path to sample data file
-SAMPLE_DATA_PATH = "test_data/sample_data.json"
+SAMPLE_DATA_PATH = "test_data/sample_data_min.json"
 
 class TestSampleDataIntegration:
     """Integration tests for sample data import (T035).
@@ -1005,7 +1005,7 @@ class TestDensityFieldsImportExport:
         import json
 
         # Should not raise
-        with open("test_data/sample_data.json", "r") as f:
+        with open("test_data/sample_data_min.json", "r") as f:
             data = json.load(f)
 
         assert "version" in data
