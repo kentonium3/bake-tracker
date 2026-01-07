@@ -1,0 +1,9 @@
+id,type,path,description,accessed
+S001,code,src/models/recipe.py,Recipe model with F037 variant fields,2026-01-06
+S002,code,src/models/finished_unit.py,FinishedUnit model with yield_mode,2026-01-06
+S003,code,src/models/event.py,Event model with output_mode,2026-01-06
+S004,code,src/models/product.py,Product model with upc_code,2026-01-06
+S005,code,src/services/import_export_service.py,Current v3 import/export implementation,2026-01-06
+S006,doc,docs/design/_F040_import_export_upgrade.md,F040 design specification,2026-01-06
+S007,doc,docs/design/spec_import_export.md,Import/export spec (updated to v4.0),2026-01-06
+S008,doc,.kittify/memory/constitution.md,Project constitution,2026-01-06
