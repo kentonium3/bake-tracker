@@ -8,7 +8,7 @@ subtasks:
 title: "Service Layer Foundation"
 phase: "Phase 1 - Service Layer (Claude)"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude-reviewer"
 shell_pid: "49117"
 history:

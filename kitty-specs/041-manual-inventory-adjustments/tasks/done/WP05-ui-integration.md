@@ -10,7 +10,7 @@ subtasks:
 title: "UI Integration & Wiring"
 phase: "Phase 2 - UI Layer (Gemini)"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude-reviewer"
 shell_pid: "50469"
 history:

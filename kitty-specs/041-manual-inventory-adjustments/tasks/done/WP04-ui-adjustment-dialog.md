@@ -11,7 +11,7 @@ subtasks:
 title: "UI Adjustment Dialog"
 phase: "Phase 2 - UI Layer (Gemini)"
 lane: "done"
-assignee: ""
+assignee: "gemini"
 agent: "claude-reviewer"
 shell_pid: "49926"
 history:
