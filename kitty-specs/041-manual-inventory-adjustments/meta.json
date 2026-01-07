@@ -1,7 +1,24 @@
 {
+  "accept_commit": null,
+  "acceptance_history": [
+    {
+      "accepted_at": "2026-01-07T20:47:46Z",
+      "accepted_by": "claude",
+      "accepted_from_commit": "ffde539170f64c375b8e5254095bd9f19b995e82",
+      "branch": "041-manual-inventory-adjustments",
+      "mode": "local",
+      "validation_commands": [
+        "pytest src/tests -v"
+      ]
+    }
+  ],
+  "acceptance_mode": "local",
+  "accepted_at": "2026-01-07T20:47:46Z",
+  "accepted_by": "claude",
+  "accepted_from_commit": "ffde539170f64c375b8e5254095bd9f19b995e82",
+  "created_at": "2026-01-07T14:30:59Z",
   "feature_number": "041",
-  "slug": "041-manual-inventory-adjustments",
   "friendly_name": "Manual Inventory Adjustments",
-  "source_description": "Manual adjustment interface for inventory items supporting both additions and depletions. Depletions handle spoilage, gifts, corrections, ad hoc usage. Additions handle found inventory with smart defaults (date=today, price=last purchase price, supplier optional). Low friction UX with live preview. Based on docs/design/_F041_manual_inventory_adjust.md",
-  "created_at": "2026-01-07T14:30:59Z"
+  "slug": "041-manual-inventory-adjustments",
+  "source_description": "Manual adjustment interface for inventory items supporting both additions and depletions. Depletions handle spoilage, gifts, corrections, ad hoc usage. Additions handle found inventory with smart defaults (date=today, price=last purchase price, supplier optional). Low friction UX with live preview. Based on docs/design/_F041_manual_inventory_adjust.md"
 }
