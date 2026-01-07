@@ -270,6 +270,14 @@ def get_all_recipes(
                 for comp in recipe.recipe_components:
                     _ = comp.component_recipe
 
+                # Feature 040: Load variant relationships for export
+                # Load base_recipe for variant recipes
+                if recipe.base_recipe_id:
+                    _ = recipe.base_recipe
+
+                # Load finished_units for recipe export
+                _ = recipe.finished_units
+
             return recipes
 
     except SQLAlchemyError as e:

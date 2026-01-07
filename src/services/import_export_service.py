@@ -1386,6 +1386,42 @@ def export_all_to_json(file_path: str) -> ExportResult:
             if recipe.notes:
                 recipe_data["notes"] = recipe.notes
 
+            # Feature 040 / F037: Export variant fields
+            # T001: Export base_recipe_slug (convert FK to name-based slug for portability)
+            # Note: Recipe model doesn't have a slug column, so we use name as identifier
+            recipe_data["base_recipe_slug"] = None
+            if recipe.base_recipe_id and recipe.base_recipe:
+                # Generate slug from recipe name (lowercase, spaces to underscores)
+                recipe_data["base_recipe_slug"] = recipe.base_recipe.name.lower().replace(" ", "_")
+
+            # T002: Export variant_name
+            recipe_data["variant_name"] = recipe.variant_name
+
+            # T003: Export is_production_ready
+            recipe_data["is_production_ready"] = recipe.is_production_ready
+
+            # T004: Export finished_units[] with yield_mode
+            recipe_data["finished_units"] = []
+            for fu in recipe.finished_units:
+                fu_data = {
+                    "slug": fu.slug,
+                    "name": fu.display_name,
+                    "yield_mode": fu.yield_mode.value if fu.yield_mode else None,
+                }
+                # Include yield quantity fields based on mode
+                if fu.yield_mode:
+                    if fu.yield_mode.value == "discrete_count":
+                        if fu.items_per_batch is not None:
+                            fu_data["unit_yield_quantity"] = fu.items_per_batch
+                        if fu.item_unit:
+                            fu_data["unit_yield_unit"] = fu.item_unit
+                    elif fu.yield_mode.value == "batch_portion":
+                        if fu.batch_percentage is not None:
+                            fu_data["unit_yield_quantity"] = float(fu.batch_percentage)
+                        if fu.portion_description:
+                            fu_data["unit_yield_unit"] = fu.portion_description
+                recipe_data["finished_units"].append(fu_data)
+
             recipe_data["ingredients"] = []
             for ri in recipe.recipe_ingredients:
                 # Get ingredient from the recipe ingredient relationship

@@ -1709,3 +1709,198 @@ class TestRecipeComponentImport:
         assert result.skipped > 0, \
             f"Expected some skipped items, got skipped={result.skipped}"
 
+
+class TestRecipeExportV4:
+    """Tests for Feature 040 recipe export v4.0 fields (F037 support)."""
+
+    @pytest.fixture(autouse=True)
+    def setup_database(self, test_db):
+        """Use test database for each test."""
+        pass
+
+    def test_export_recipe_with_variant_fields(self, tmp_path):
+        """Test export recipe with is_production_ready field."""
+        from src.services import ingredient_service, recipe_service
+        from src.services.import_export_service import export_all_to_json
+
+        # Create a recipe with is_production_ready set
+        flour = ingredient_service.create_ingredient(
+            {"display_name": "Export V4 Flour", "category": "Flour"}
+        )
+
+        recipe = recipe_service.create_recipe(
+            {
+                "name": "V4 Test Cookie",
+                "category": "Cookies",
+                "yield_quantity": 24,
+                "yield_unit": "cookies",
+                "is_production_ready": True,
+            },
+            [{"ingredient_id": flour.id, "quantity": 2.0, "unit": "cup"}]
+        )
+
+        # Export
+        export_file = tmp_path / "v4_variant_export.json"
+        export_all_to_json(str(export_file))
+
+        # Verify JSON content
+        with open(export_file) as f:
+            data = json.load(f)
+
+        recipe_data = next(
+            (r for r in data["recipes"] if r["name"] == "V4 Test Cookie"), None
+        )
+        assert recipe_data is not None, "Recipe not found in export"
+        assert recipe_data["is_production_ready"] is True
+        assert recipe_data["base_recipe_slug"] is None  # Not a variant
+        assert recipe_data["variant_name"] is None  # Not a variant
+
+    def test_export_recipe_with_base_recipe(self, tmp_path):
+        """Test export base and variant recipes, verify base_recipe_slug exported."""
+        from src.services import ingredient_service, recipe_service
+        from src.services.import_export_service import export_all_to_json
+
+        # Create base recipe
+        flour = ingredient_service.create_ingredient(
+            {"display_name": "Export V4 Base Flour", "category": "Flour"}
+        )
+
+        base_recipe = recipe_service.create_recipe(
+            {
+                "name": "Base Thumbprint Cookie",
+                "category": "Cookies",
+                "yield_quantity": 24,
+                "yield_unit": "cookies",
+                "is_production_ready": True,
+            },
+            [{"ingredient_id": flour.id, "quantity": 2.0, "unit": "cup"}]
+        )
+
+        # Create variant recipe using the recipe_service variant function
+        variant_result = recipe_service.create_recipe_variant(
+            base_recipe_id=base_recipe.id,
+            variant_name="Raspberry",
+            name="Raspberry Thumbprint",
+            copy_ingredients=True,
+        )
+
+        # Export
+        export_file = tmp_path / "v4_base_variant_export.json"
+        export_all_to_json(str(export_file))
+
+        # Verify JSON content
+        with open(export_file) as f:
+            data = json.load(f)
+
+        # Check base recipe
+        base_data = next(
+            (r for r in data["recipes"] if r["name"] == "Base Thumbprint Cookie"), None
+        )
+        assert base_data is not None, "Base recipe not found"
+        assert base_data["base_recipe_slug"] is None
+        assert base_data["is_production_ready"] is True
+
+        # Check variant recipe
+        variant_data = next(
+            (r for r in data["recipes"] if r["name"] == "Raspberry Thumbprint"), None
+        )
+        assert variant_data is not None, "Variant recipe not found"
+        # base_recipe_slug should be the base recipe name in slug format
+        expected_slug = "base_thumbprint_cookie"  # "Base Thumbprint Cookie" -> lowercase with underscores
+        assert variant_data["base_recipe_slug"] == expected_slug, f"Expected {expected_slug}, got {variant_data['base_recipe_slug']}"
+        assert variant_data["variant_name"] == "Raspberry"
+
+    def test_export_recipe_with_finished_units(self, tmp_path):
+        """Test export recipe with FinishedUnits, verify yield_mode exported."""
+        from src.services import ingredient_service, recipe_service
+        from src.services.import_export_service import export_all_to_json
+        from src.services.database import session_scope
+        from src.models.finished_unit import FinishedUnit, YieldMode
+
+        # Create recipe
+        flour = ingredient_service.create_ingredient(
+            {"display_name": "Export V4 FU Flour", "category": "Flour"}
+        )
+
+        recipe = recipe_service.create_recipe(
+            {
+                "name": "FU Test Cookie",
+                "category": "Cookies",
+                "yield_quantity": 24,
+                "yield_unit": "cookies",
+            },
+            [{"ingredient_id": flour.id, "quantity": 2.0, "unit": "cup"}]
+        )
+
+        # Create FinishedUnit for this recipe
+        with session_scope() as session:
+            fu = FinishedUnit(
+                slug="fu-test-cookie-dozen",
+                display_name="Cookie Dozen",
+                recipe_id=recipe.id,
+                yield_mode=YieldMode.DISCRETE_COUNT,
+                items_per_batch=12,
+                item_unit="cookie",
+            )
+            session.add(fu)
+            session.commit()
+
+        # Export
+        export_file = tmp_path / "v4_finished_units_export.json"
+        export_all_to_json(str(export_file))
+
+        # Verify JSON content
+        with open(export_file) as f:
+            data = json.load(f)
+
+        recipe_data = next(
+            (r for r in data["recipes"] if r["name"] == "FU Test Cookie"), None
+        )
+        assert recipe_data is not None, "Recipe not found"
+        assert "finished_units" in recipe_data
+        assert len(recipe_data["finished_units"]) == 1
+
+        fu_data = recipe_data["finished_units"][0]
+        assert fu_data["slug"] == "fu-test-cookie-dozen"
+        assert fu_data["name"] == "Cookie Dozen"
+        assert fu_data["yield_mode"] == "discrete_count"
+        assert fu_data["unit_yield_quantity"] == 12
+        assert fu_data["unit_yield_unit"] == "cookie"
+
+    def test_export_recipe_without_variant(self, tmp_path):
+        """Test non-variant recipe exports null for base_recipe_slug and variant_name."""
+        from src.services import ingredient_service, recipe_service
+        from src.services.import_export_service import export_all_to_json
+
+        # Create a plain recipe (not a variant)
+        flour = ingredient_service.create_ingredient(
+            {"display_name": "Export V4 Plain Flour", "category": "Flour"}
+        )
+
+        recipe = recipe_service.create_recipe(
+            {
+                "name": "Plain Non-Variant Cookie",
+                "category": "Cookies",
+                "yield_quantity": 24,
+                "yield_unit": "cookies",
+            },
+            [{"ingredient_id": flour.id, "quantity": 2.0, "unit": "cup"}]
+        )
+
+        # Export
+        export_file = tmp_path / "v4_nonvariant_export.json"
+        export_all_to_json(str(export_file))
+
+        # Verify JSON content
+        with open(export_file) as f:
+            data = json.load(f)
+
+        recipe_data = next(
+            (r for r in data["recipes"] if r["name"] == "Plain Non-Variant Cookie"), None
+        )
+        assert recipe_data is not None, "Recipe not found"
+        assert recipe_data["base_recipe_slug"] is None
+        assert recipe_data["variant_name"] is None
+        assert recipe_data["is_production_ready"] is False  # Default value
+        assert recipe_data["finished_units"] == []  # Empty array
+
