@@ -1,7 +1,7 @@
 # Feature Roadmap
 
 **Created:** 2025-12-03
-**Last Updated:** 2026-01-06
+**Last Updated:** 2026-01-07
 **Workflow:** Spec-Kitty driven development
 
 ---
@@ -50,6 +50,7 @@
 | 037 | Recipe Redesign | MERGED | Template/snapshot architecture, yield modes (fixed/scaled), base/variant relationships, recipe components with cycle detection, historical cost accuracy via immutable snapshots. |
 | 038 | UI Mode Restructure | MERGED | 5-mode workflow (CATALOG/PLAN/SHOP/PRODUCE/OBSERVE), mode-specific dashboards, consistent tab layouts, keyboard shortcuts (Ctrl+1-5). |
 | 039 | Planning Workspace | MERGED | Automatic batch calculation, Event→FinishedGoods→Recipes workflow, ingredient aggregation with FIFO costing, assembly feasibility validation, batch optimization (15% waste threshold). |
+| 040 | Import/Export System Upgrade (v4.0) | MERGED | Schema v4.0 with F037/F039 fields, BT Mobile purchase import (UPC matching, resolution dialog), BT Mobile inventory updates (FIFO, percentage calculation), atomic rollback. 10 work packages, 1721 tests. |
 
 ---
 
@@ -57,7 +58,9 @@
 
 | # | Name | Priority | Dependencies | Status |
 |---|------|----------|--------------|--------|
-| 040 | Import/Export System Upgrade (v4.0) | **CRITICAL (P0)** | F037 ✅, F039 ✅ | 📝 Ready for Implementation |
+| 041 | Manual Inventory Adjustments | **HIGH** | F040 ✅ | 📝 Ready for Implementation |
+
+**Next Milestone:** User testing after F041 completion
 
 ---
 
@@ -65,7 +68,6 @@
 
 | # | Name | Priority | Dependencies | Status |
 |---|------|----------|--------------|--------|
-| 041 | Manual Inventory Adjustments | MEDIUM | F040 (bulk adjustments) | Spec Complete (_F040 → _F041) |
 | 042 | Shelf Life & Freshness Tracking | MEDIUM | Ingredient/Inventory models ✅ | Spec Complete (_F041 → _F042) |
 | 043 | Purchase Workflow UI & Monitoring | MEDIUM | F040 ✅ | Needs Rewrite (_F042 → _F043) |
 | 044 | Finished Goods Inventory | LOW | F037 ✅ | Spec Complete (_F043 → _F044) |
@@ -75,7 +77,7 @@
 
 ## Implementation Order
 
-**Current:** F040 (Import/Export System Upgrade) - CRITICAL PATH
+**Current:** F041 (Manual Inventory Adjustments) → User Testing
 
 1. ~~**TD-001** - Clean foundation before adding new entities~~ ✅ COMPLETE
 2. ~~**Feature 011** - Packaging materials, extend Composition for packaging~~ ✅ COMPLETE
@@ -109,12 +111,13 @@
 30. ~~**Feature 037** - Recipe Redesign~~ ✅ COMPLETE
 31. ~~**Feature 038** - UI Mode Restructure~~ ✅ COMPLETE
 32. ~~**Feature 039** - Planning Workspace~~ ✅ COMPLETE
-33. **Feature 040** - Import/Export System Upgrade (v4.0) ⚙️ **CURRENT - CRITICAL PATH**
-34. **Feature 041** - Manual Inventory Adjustments (NEXT - awaiting F040)
-35. **Feature 042** - Shelf Life & Freshness Tracking
-36. **Feature 043** - Purchase Workflow UI & Monitoring (needs spec rewrite)
-37. **Feature 044** - Finished Goods Inventory
-38. **Feature 045** - Packaging & Distribution
+33. ~~**Feature 040** - Import/Export System Upgrade (v4.0)~~ ✅ COMPLETE
+34. **Feature 041** - Manual Inventory Adjustments ⚙️ **CURRENT**
+35. **USER TESTING** - Major round of user testing with primary user 🎯 **NEXT MILESTONE**
+36. **Feature 042** - Shelf Life & Freshness Tracking
+37. **Feature 043** - Purchase Workflow UI & Monitoring (needs spec rewrite)
+38. **Feature 044** - Finished Goods Inventory
+39. **Feature 045** - Packaging & Distribution
 
 ---
 
@@ -122,51 +125,40 @@
 
 ### Feature 040: Import/Export System Upgrade (v4.0)
 
-**Status:** 📝 Ready for Implementation (Specification Complete 2026-01-06)
-
-**Priority:** **CRITICAL (P0 - BLOCKS USER TESTING)**
+**Status:** COMPLETE ✅ (Merged 2026-01-07)
 
 **Dependencies:** F037 Recipe Redesign ✅, F039 Planning Workspace ✅
 
-**Problem:** F037 and F039 introduced schema changes that break current import/export system (v3.6). Cannot import recipes with new yield modes/variants structure, cannot configure events with output_mode, sample data files outdated, BT Mobile workflows undefined. Result: **Cannot proceed with user testing** of F037/F038/F039.
+**Problem:** F037 and F039 introduced schema changes that break current import/export system (v3.6). Cannot import recipes with new yield modes/variants structure, cannot configure events with output_mode, sample data files outdated, BT Mobile workflows undefined.
 
-**Solution:** Upgrade import/export to v4.0 schema with three-part implementation:
+**Solution:** Upgraded import/export to v4.0 schema with three-part implementation.
+
+**Delivered:**
 
 **Part 1: Core Schema Upgrade (F037/F039)**
-- Recipe import/export with yield modes, base ingredients, variants
-- Event import/export with output_mode, EventAssemblyTarget
-- Schema version bump to 4.0, no backward compatibility
+- Recipe export/import with base_recipe_slug, variant_name, is_production_ready, finished_units with yield_mode
+- Event export/import with output_mode field
+- Schema version bump to 4.0 with clear rejection of v3.x files
 
 **Part 2: BT Mobile Purchase Import**
-- JSON schema for UPC-based purchases from BT Mobile app
-- UPC → Product matching with resolution UI for unknown codes
-- Auto-create InventoryItem records from purchases
-- Service layer only (no BT Mobile app development)
+- `import_purchases_from_bt_mobile()` with UPC → Product matching
+- UPC Resolution Dialog for unknown codes (map to existing, create new, skip)
+- Auto-create Purchase + InventoryItem records
+- Atomic rollback on errors (SC-008 compliance)
 
 **Part 3: BT Mobile Inventory Updates**
-- JSON schema for percentage-based inventory corrections
-- Percentage → Quantity calculation algorithm
-- FIFO inventory item selection and adjustment
-- Physical count correction via InventoryDepletion records
+- `import_inventory_updates_from_bt_mobile()` with percentage-based corrections
+- FIFO inventory item selection (oldest purchase_date first)
+- Percentage → Quantity calculation with Decimal precision
+- InventoryDepletion records for audit trail
 
-**Deliverables:**
-- `import_all_from_json_v4()` with new recipe/event schemas
-- `import_purchases_from_bt_mobile()` for purchase workflow
-- `import_inventory_updates_from_bt_mobile()` for inventory corrections
-- Updated sample_data files (v4.0 schema)
-- Unknown UPC resolution dialog
-- CLI + programmatic interfaces
+**Implementation Stats:**
+- 10 work packages (WP01-WP10)
+- Multi-agent collaboration (Claude + Gemini)
+- 1721 tests passing (99 unit + 8 new integration tests)
+- Cursor independent code review incorporated
 
-**Implementation Phases:**
-1. Core Schema Updates (12-16 hours): F037/F039 import/export, schema v4.0
-2. BT Mobile Workflows (10-14 hours): Purchase/inventory import handlers
-3. Testing & Documentation (8-12 hours): Unit/integration tests, sample data
-
-**Blocks:** User testing of F037/F038/F039, sample data imports
-
-**Effort:** 36-49 hours (4.5-6 working days)
-
-**Design Document:** `docs/design/F040_import_export_upgrade.md`
+**Design Document:** `kitty-specs/040-import-export-v4/`
 
 ---
 
@@ -263,9 +255,9 @@ Result: Make 3 batches (144 cookies, -6 shortfall acceptable)
 
 ### Feature 041: Manual Inventory Adjustments
 
-**Status:** Spec Complete (awaiting F040 implementation)
+**Status:** 📝 Ready for Implementation
 
-**Dependencies:** F040 Import/Export Upgrade ✅ (bulk adjustments)
+**Dependencies:** F040 Import/Export Upgrade ✅
 
 **Problem:** Real-world inventory changes occur outside app (spoilage, gifts, corrections, ad hoc usage). System only tracks automatic depletions. Inventory drifts from reality, planning becomes unreliable.
 
@@ -408,3 +400,4 @@ Result: Make 3 batches (144 cookies, -6 shortfall acceptable)
 - 2026-01-03: F035-F036 complete. F033-F036 ingredient hierarchy 100% complete. System production-ready.
 - 2026-01-05: F037-F038 in progress. F039 prioritized as CRITICAL (P0). Feature renumbering.
 - 2026-01-06: **F037-F039 Complete and Merged.** Major milestone: Recipe Redesign, UI Mode Restructure, and Planning Workspace operational. **F040 Import/Export System Upgrade specification complete** - CRITICAL PATH blocking user testing. Feature reconciliation completed: _F040 through _F043 require renumbering, _F042 requires spec rewrite for reduced scope.
+- 2026-01-07: **F040 Complete and Merged.** Import/Export v4.0 with schema upgrade (F037/F039 fields), BT Mobile purchase import (UPC matching, resolution dialog), BT Mobile inventory updates (FIFO, percentage calculation), atomic rollback. 10 work packages, multi-agent (Claude+Gemini), 1721 tests, Cursor code review. Constitution updated to v1.4.0 (Principle VII timeline + AI integration). **F041 Manual Inventory Adjustments now CURRENT**, followed by major user testing milestone.
