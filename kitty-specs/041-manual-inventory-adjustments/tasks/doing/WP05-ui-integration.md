@@ -9,9 +9,9 @@ subtasks:
   - "T029"
 title: "UI Integration & Wiring"
 phase: "Phase 2 - UI Layer (Gemini)"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
+agent: "claude"
 shell_pid: ""
 history:
   - timestamp: "2026-01-07T12:00:00Z"
@@ -307,3 +307,4 @@ Manual integration testing:
 ## Activity Log
 
 - 2026-01-07T12:00:00Z - system - lane=planned - Prompt created via /spec-kitty.tasks
+- 2026-01-07T17:14:07Z – claude – shell_pid= – lane=doing – Moved to doing

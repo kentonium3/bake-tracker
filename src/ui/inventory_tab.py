@@ -52,6 +52,8 @@ from src.ui.widgets.dropdown_builders import (
     is_separator,
     is_create_new_option,
 )
+from src.ui.dialogs.adjustment_dialog import AdjustmentDialog  # Feature 041
+from src.models.enums import DepletionReason  # Feature 041
 
 
 class InventoryTab(ctk.CTkFrame):
@@ -232,6 +234,15 @@ class InventoryTab(ctk.CTkFrame):
             width=140,
         )
         add_button.grid(row=1, column=0, padx=5, pady=5, sticky="w")
+
+        # Adjust Inventory button (Feature 041)
+        self.adjust_button = ctk.CTkButton(
+            controls_frame,
+            text="Adjust Selected",
+            command=self._on_adjust_click,
+            width=120,
+        )
+        self.adjust_button.grid(row=1, column=1, padx=5, pady=5, sticky="w")
 
     def _create_item_list(self):
         """Create item list using ttk.Treeview for performance."""
@@ -1068,6 +1079,98 @@ class InventoryTab(ctk.CTkFrame):
                 messagebox.showerror(
                     "Error", f"Failed to delete inventory item: {str(e)}", parent=self
                 )
+
+    # Feature 041: Manual Inventory Adjustment Methods
+
+    def _on_adjust_click(self):
+        """Handle Adjust button click - open adjustment dialog for selected item."""
+        # Check if an item is selected
+        if not self.selected_item_id:
+            messagebox.showwarning(
+                "No Selection",
+                "Please select an inventory item to adjust.",
+                parent=self,
+            )
+            return
+
+        # Check if in detail view (adjustments only work on individual items)
+        if self.view_mode != "detail":
+            messagebox.showwarning(
+                "Detail View Required",
+                "Please switch to Detail view to adjust individual inventory items.",
+                parent=self,
+            )
+            return
+
+        # Get the selected inventory item
+        item = next(
+            (i for i in self.inventory_items if i.id == self.selected_item_id), None
+        )
+        if not item:
+            messagebox.showerror("Error", "Inventory item not found", parent=self)
+            return
+
+        # Open adjustment dialog
+        dialog = AdjustmentDialog(
+            parent=self.winfo_toplevel(),
+            inventory_item=item,
+            on_apply=self._on_adjustment_applied,
+        )
+        # Dialog is modal, waits for user
+
+    def _on_adjustment_applied(
+        self,
+        inventory_item_id: int,
+        quantity: Decimal,
+        reason: DepletionReason,
+        notes: Optional[str],
+    ):
+        """Handle adjustment applied from dialog - call service and refresh."""
+        try:
+            # Validate quantity before calling service
+            if quantity is None or quantity <= 0:
+                messagebox.showerror(
+                    "Validation Error",
+                    "Please enter a valid positive quantity",
+                    parent=self,
+                )
+                return
+
+            # Call service to record the adjustment
+            depletion = inventory_item_service.manual_adjustment(
+                inventory_item_id=inventory_item_id,
+                quantity_to_deplete=quantity,
+                reason=reason,
+                notes=notes,
+            )
+
+            # Show success message
+            messagebox.showinfo(
+                "Success",
+                f"Adjustment applied: {depletion.quantity_depleted} depleted",
+                parent=self,
+            )
+
+            # Refresh inventory list to show updated quantities
+            self.refresh()
+
+        except ServiceValidationError as e:
+            # Extract user-friendly message
+            messages = e.messages if hasattr(e, "messages") else [str(e)]
+            messagebox.showerror(
+                "Validation Error", "\n".join(messages), parent=self
+            )
+
+        except InventoryItemNotFound as e:
+            messagebox.showerror(
+                "Error", f"Inventory item not found: {e}", parent=self
+            )
+            self.refresh()
+
+        except Exception as e:
+            messagebox.showerror(
+                "Error", f"An error occurred: {e}", parent=self
+            )
 
     def _serialize_inventory_item(self, item) -> dict:
         """Convert an InventoryItem ORM instance to a simple dict for dialog usage."""
