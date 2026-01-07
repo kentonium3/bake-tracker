@@ -1,10 +1,11 @@
 # Manual Inventory Adjustments - Feature Specification
 
-**Feature ID**: F040
-**Feature Name**: Manual Inventory Adjustments
+**Feature ID**: F041
+**Feature Name**: Manual Inventory Adjustments (Depletions Only)
 **Priority**: MEDIUM (Phase 2 completion)
 **Status**: Design Specification
 **Created**: 2026-01-05
+**Updated**: 2026-01-07
 **Dependencies**: Inventory system (F028, F029) ✅
 **Constitutional References**: Principle I (Data Integrity), Principle V (Layered Architecture)
 
@@ -24,6 +25,26 @@
   - Test-driven development requirements
 
 **The requirements (req_inventory.md Section 3.2) and business logic are the source of truth** - the technical implementation details should be determined by spec-kitty's specification and planning phases.
+
+---
+
+## Scope Clarification (Updated 2026-01-07)
+
+**This feature supports DEPLETIONS ONLY (inventory reductions).**
+
+**In Scope:**
+- Manual inventory reductions for spoilage, gifts, corrections, ad hoc usage
+- Depletion reason tracking with optional notes
+- Live preview of quantity/cost impact
+- Audit trail integration
+- FIFO system integration
+
+**Out of Scope (by design decision):**
+- Inventory additions/increases are NOT supported through manual adjustment
+- All inventory increases must go through the **Purchase workflow**
+- This includes: found inventory, donations, missed purchases, initial inventory setup
+
+**Rationale:** An inventory increase implies a purchase occurred. The Purchase workflow ensures proper data collection (date, supplier, price) for accurate FIFO costing and audit trails. Donations and found inventory should be recorded as $0 purchases to maintain data integrity.
 
 ---
 
@@ -434,41 +455,41 @@ depletion = inventory_service.manual_adjustment(
 
 ### 6.1 Manual Adjustment Interface
 
-**REQ-F040-001:** System shall provide [Adjust] action on each inventory item
-**REQ-F040-002:** Adjustment dialog shall display current inventory quantity
-**REQ-F040-003:** User shall enter positive number to reduce inventory
-**REQ-F040-004:** User shall select depletion reason from dropdown
-**REQ-F040-005:** User shall optionally enter notes (required for OTHER reason)
-**REQ-F040-006:** System shall show preview of new quantity before applying
+**REQ-F041-001:** System shall provide [Adjust] action on each inventory item
+**REQ-F041-002:** Adjustment dialog shall display current inventory quantity
+**REQ-F041-003:** User shall enter positive number to reduce inventory
+**REQ-F041-004:** User shall select depletion reason from dropdown
+**REQ-F041-005:** User shall optionally enter notes (required for OTHER reason)
+**REQ-F041-006:** System shall show preview of new quantity before applying
 
 ### 6.2 Validation
 
-**REQ-F040-007:** System shall validate adjustment amount is positive
-**REQ-F040-008:** System shall validate new quantity ≥ 0 (cannot go negative)
-**REQ-F040-009:** System shall require notes when reason = OTHER
-**REQ-F040-010:** System shall show error message for invalid adjustments
+**REQ-F041-007:** System shall validate adjustment amount is positive
+**REQ-F041-008:** System shall validate new quantity ≥ 0 (cannot go negative)
+**REQ-F041-009:** System shall require notes when reason = OTHER
+**REQ-F041-010:** System shall show error message for invalid adjustments
 
 ### 6.3 Depletion Tracking
 
-**REQ-F040-011:** System shall create InventoryDepletion record for manual adjustment
-**REQ-F040-012:** Depletion shall include: quantity, reason, notes, user, timestamp
-**REQ-F040-013:** Depletion shall calculate cost impact (quantity × unit_cost)
-**REQ-F040-014:** System shall update inventory_item.current_quantity
-**REQ-F040-015:** Depletion records shall be immutable (audit trail)
+**REQ-F041-011:** System shall create InventoryDepletion record for manual adjustment
+**REQ-F041-012:** Depletion shall include: quantity, reason, notes, user, timestamp
+**REQ-F041-013:** Depletion shall calculate cost impact (quantity × unit_cost)
+**REQ-F041-014:** System shall update inventory_item.current_quantity
+**REQ-F041-015:** Depletion records shall be immutable (audit trail)
 
 ### 6.4 Depletion History
 
-**REQ-F040-016:** Depletion history shall show all depletions (automatic + manual)
-**REQ-F040-017:** Manual adjustments shall display reason and notes
-**REQ-F040-018:** History shall show: date, reason, quantity, cost, notes
-**REQ-F040-019:** History shall be sorted by date (newest first)
+**REQ-F041-016:** Depletion history shall show all depletions (automatic + manual)
+**REQ-F041-017:** Manual adjustments shall display reason and notes
+**REQ-F041-018:** History shall show: date, reason, quantity, cost, notes
+**REQ-F041-019:** History shall be sorted by date (newest first)
 
 ### 6.5 Integration
 
-**REQ-F040-020:** Manual adjustments shall use existing InventoryDepletion model
-**REQ-F040-021:** Manual adjustments shall respect FIFO ordering (deplete oldest first when viewing)
-**REQ-F040-022:** Cost calculations shall include manual adjustment costs
-**REQ-F040-023:** Planning system shall account for manually adjusted inventory
+**REQ-F041-020:** Manual adjustments shall use existing InventoryDepletion model
+**REQ-F041-021:** Manual adjustments shall respect FIFO ordering (deplete oldest first when viewing)
+**REQ-F041-022:** Cost calculations shall include manual adjustment costs
+**REQ-F041-023:** Planning system shall account for manually adjusted inventory
 
 ---
 
@@ -476,21 +497,21 @@ depletion = inventory_service.manual_adjustment(
 
 ### 7.1 Usability
 
-**REQ-F040-NFR-001:** Adjustment dialog shall be accessible from inventory list
-**REQ-F040-NFR-002:** UI shall clearly show impact before applying (preview)
-**REQ-F040-NFR-003:** Error messages shall be specific and actionable
-**REQ-F040-NFR-004:** Success confirmation shall show what changed
+**REQ-F041-NFR-001:** Adjustment dialog shall be accessible from inventory list
+**REQ-F041-NFR-002:** UI shall clearly show impact before applying (preview)
+**REQ-F041-NFR-003:** Error messages shall be specific and actionable
+**REQ-F041-NFR-004:** Success confirmation shall show what changed
 
 ### 7.2 Data Integrity
 
-**REQ-F040-NFR-005:** Inventory quantities shall never go negative (enforced)
-**REQ-F040-NFR-006:** Depletion records shall be immutable after creation
-**REQ-F040-NFR-007:** Audit trail shall capture who, when, why, how much
+**REQ-F041-NFR-005:** Inventory quantities shall never go negative (enforced)
+**REQ-F041-NFR-006:** Depletion records shall be immutable after creation
+**REQ-F041-NFR-007:** Audit trail shall capture who, when, why, how much
 
 ### 7.3 Performance
 
-**REQ-F040-NFR-008:** Adjustment operation shall complete in <200ms
-**REQ-F040-NFR-009:** Depletion history query shall complete in <100ms
+**REQ-F041-NFR-008:** Adjustment operation shall complete in <200ms
+**REQ-F041-NFR-009:** Depletion history query shall complete in <100ms
 
 ---
 
