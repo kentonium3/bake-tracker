@@ -24,11 +24,11 @@
 **Assignee**: Claude
 
 ### Included Subtasks
-- [ ] T001 [P] Export base_recipe_slug (lookup from base_recipe_id) in `src/services/import_export_service.py`
-- [ ] T002 [P] Export variant_name field
-- [ ] T003 [P] Export is_production_ready field
-- [ ] T004 Export finished_units[] array with yield_mode for each recipe
-- [ ] T005 Unit tests for recipe export v4.0 in `src/tests/services/test_import_export_service.py`
+- [x] T001 [P] Export base_recipe_slug (lookup from base_recipe_id) in `src/services/import_export_service.py`
+- [x] T002 [P] Export variant_name field
+- [x] T003 [P] Export is_production_ready field
+- [x] T004 Export finished_units[] array with yield_mode for each recipe
+- [x] T005 Unit tests for recipe export v4.0 in `src/tests/services/test_import_export_service.py`
 
 ### Implementation Notes
 - Modify `export_recipes_to_json()` function
@@ -54,12 +54,12 @@
 **Assignee**: Claude
 
 ### Included Subtasks
-- [ ] T006 Sort recipes for import order - base recipes (no base_recipe_slug) first, then variants
-- [ ] T007 Resolve base_recipe_slug to base_recipe_id via slug lookup
-- [ ] T008 [P] Import variant_name, is_production_ready fields
-- [ ] T009 Import finished_units[] with yield_mode, creating FinishedUnit records
-- [ ] T010 Validation for recipe import - ensure base_recipe exists, ingredient_slugs valid
-- [ ] T011 Unit tests for recipe import v4.0
+- [x] T006 Sort recipes for import order - base recipes (no base_recipe_slug) first, then variants
+- [x] T007 Resolve base_recipe_slug to base_recipe_id via slug lookup
+- [x] T008 [P] Import variant_name, is_production_ready fields
+- [x] T009 Import finished_units[] with yield_mode, creating FinishedUnit records
+- [x] T010 Validation for recipe import - ensure base_recipe exists, ingredient_slugs valid
+- [x] T011 Unit tests for recipe import v4.0
 
 ### Implementation Notes
 - Two-pass import: first pass imports base recipes, second pass imports variants
@@ -85,10 +85,10 @@
 **Assignee**: Claude
 
 ### Included Subtasks
-- [ ] T012 [P] Export output_mode field for events in event export function
-- [ ] T013 [P] Import output_mode field for events
-- [ ] T014 Validation: warn if output_mode="bundled" but no assembly_targets, warn if output_mode="bulk_count" but no production_targets
-- [ ] T015 Unit tests for event export/import v4.0
+- [x] T012 [P] Export output_mode field for events in event export function
+- [x] T013 [P] Import output_mode field for events
+- [x] T014 Validation: warn if output_mode="bundled" but no assembly_targets, warn if output_mode="bulk_count" but no production_targets
+- [x] T015 Unit tests for event export/import v4.0
 
 ### Implementation Notes
 - output_mode is nullable enum: bulk_count, bundled, packaged
@@ -114,9 +114,9 @@
 **Assignee**: Claude
 
 ### Included Subtasks
-- [ ] T016 Change version from "3.5" to "4.0" in export functions
-- [ ] T017 Rename `import_all_from_json_v3()` to `import_all_from_json_v4()`
-- [ ] T018 Update version validation to require "4.0", reject "3.5" with clear message
+- [x] T016 Change version from "3.5" to "4.0" in export functions
+- [x] T017 Rename `import_all_from_json_v3()` to `import_all_from_json_v4()`
+- [x] T018 Update version validation to require "4.0", reject "3.5" with clear message
 
 ### Implementation Notes
 - Keep v3 function as deprecated alias with deprecation warning
@@ -142,12 +142,12 @@
 **Assignee**: Claude
 
 ### Included Subtasks
-- [ ] T019 Create `import_purchases_from_bt_mobile(file_path)` function signature and schema validation
-- [ ] T020 Implement UPC matching logic: `Product.upc_code == purchase.upc`
-- [ ] T021 Create Purchase + InventoryItem records for matched UPCs
-- [ ] T022 Collect unmatched UPCs into separate list for resolution
-- [ ] T023 Return ImportResult with matched_count, unmatched_count, error_count
-- [ ] T024 Unit tests for purchase import service
+- [x] T019 Create `import_purchases_from_bt_mobile(file_path)` function signature and schema validation
+- [x] T020 Implement UPC matching logic: `Product.upc_code == purchase.upc`
+- [x] T021 Create Purchase + InventoryItem records for matched UPCs
+- [x] T022 Collect unmatched UPCs into separate list for resolution
+- [x] T023 Return ImportResult with matched_count, unmatched_count, error_count
+- [x] T024 Unit tests for purchase import service
 
 ### Implementation Notes
 - Schema validation: schema_version="4.0", import_type="purchases"
@@ -174,10 +174,10 @@
 **Assignee**: Claude
 
 ### Included Subtasks
-- [ ] T025 Create `src/ui/dialogs/upc_resolution_dialog.py` with dialog structure
-- [ ] T026 Implement "Map to existing product" option with product search/dropdown
-- [ ] T027 Implement "Create new product" option with ingredient/brand/name form
-- [ ] T028 Implement "Skip" option with logging
+- [x] T025 Create `src/ui/dialogs/upc_resolution_dialog.py` with dialog structure
+- [x] T026 Implement "Map to existing product" option with product search/dropdown
+- [x] T027 Implement "Create new product" option with ingredient/brand/name form
+- [x] T028 Implement "Skip" option with logging
 
 ### Implementation Notes
 - Dialog shows: UPC, price, scan timestamp
@@ -204,11 +204,11 @@
 **Assignee**: Gemini
 
 ### Included Subtasks
-- [ ] T029 Create `import_inventory_updates_from_bt_mobile(file_path)` function signature and schema validation
-- [ ] T030 Implement UPC to Product lookup
-- [ ] T031 Implement FIFO InventoryItem selection (oldest purchase_date first, current_quantity > 0)
-- [ ] T032 Implement percentage calculation: target = original * (pct/100), adjustment = target - current
-- [ ] T033 Create InventoryDepletion record, update InventoryItem.current_quantity
+- [x] T029 Create `import_inventory_updates_from_bt_mobile(file_path)` function signature and schema validation
+- [x] T030 Implement UPC to Product lookup
+- [x] T031 Implement FIFO InventoryItem selection (oldest purchase_date first, current_quantity > 0)
+- [x] T032 Implement percentage calculation: target = original * (pct/100), adjustment = target - current
+- [x] T033 Create InventoryDepletion record, update InventoryItem.current_quantity
 
 ### Implementation Notes
 - Schema validation: schema_version="4.0", import_type="inventory_updates"
@@ -236,10 +236,10 @@
 **Assignee**: Gemini
 
 ### Included Subtasks
-- [ ] T034 [P] Basic unit tests for import_inventory_updates_from_bt_mobile
-- [ ] T035 [P] Test percentage calculation edge cases (0%, 100%, rounding)
-- [ ] T036 [P] Test FIFO selection with multiple inventory items
-- [ ] T037 [P] Test error handling (no product, no inventory, no purchase, negative result)
+- [x] T034 [P] Basic unit tests for import_inventory_updates_from_bt_mobile
+- [x] T035 [P] Test percentage calculation edge cases (0%, 100%, rounding)
+- [x] T036 [P] Test FIFO selection with multiple inventory items
+- [x] T037 [P] Test error handling (no product, no inventory, no purchase, negative result)
 
 ### Implementation Notes
 - Use pytest fixtures for test data setup
@@ -265,10 +265,10 @@
 **Assignee**: Claude
 
 ### Included Subtasks
-- [ ] T038 [P] Full export -> import round-trip test (all entities)
-- [ ] T039 [P] Recipe variants round-trip (base + variant preserved)
-- [ ] T040 [P] Event output_mode round-trip
-- [ ] T041 Mode testing: merge vs replace behavior
+- [x] T038 [P] Full export -> import round-trip test (all entities)
+- [x] T039 [P] Recipe variants round-trip (base + variant preserved)
+- [x] T040 [P] Event output_mode round-trip
+- [x] T041 Mode testing: merge vs replace behavior
 
 ### Implementation Notes
 - Create comprehensive test database with all entity types
@@ -294,9 +294,9 @@
 **Assignee**: Claude
 
 ### Included Subtasks
-- [ ] T042 [P] Update `test_data/sample_data.json` to v4.0 format
-- [ ] T043 [P] Create `test_data/bt_mobile_purchase_sample.json`
-- [ ] T044 [P] Create `test_data/bt_mobile_inventory_sample.json`
+- [x] T042 [P] Update `test_data/sample_data.json` to v4.0 format
+- [x] T043 [P] Create `test_data/bt_mobile_purchase_sample.json`
+- [x] T044 [P] Create `test_data/bt_mobile_inventory_sample.json`
 
 ### Implementation Notes
 - sample_data.json: Add base_recipe_slug, variant_name, is_production_ready, finished_units, output_mode

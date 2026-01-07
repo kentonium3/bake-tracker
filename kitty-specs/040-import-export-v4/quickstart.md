@@ -132,15 +132,15 @@ pytest src/tests/services/test_import_export_service.py --cov=src/services/impor
 
 ## Validation Checklist
 
-- [ ] Version "4.0" in exported files
-- [ ] Recipe base_recipe_slug resolves correctly
-- [ ] Recipe finished_units include yield_mode
-- [ ] Event output_mode exported and validated
-- [ ] UPC matching finds products
-- [ ] Unknown UPCs collected for resolution
-- [ ] Percentage calculation matches manual calculation
-- [ ] FIFO ordering for inventory updates
-- [ ] Atomic rollback on errors
+- [x] Version "4.0" in exported files
+- [x] Recipe base_recipe_slug resolves correctly
+- [x] Recipe finished_units include yield_mode
+- [x] Event output_mode exported and validated
+- [x] UPC matching finds products
+- [x] Unknown UPCs collected for resolution
+- [x] Percentage calculation matches manual calculation
+- [x] FIFO ordering for inventory updates
+- [x] Atomic rollback on errors
 
 ## Common Gotchas
 
