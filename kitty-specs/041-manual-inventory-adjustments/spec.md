@@ -11,6 +11,7 @@
 ### Session 2026-01-07
 
 - Q: When adding found inventory, should the product selection include only products already in inventory, any product from catalog, or allow inline product creation? → A: Any product from the product catalog (including those with no current inventory). Inventory adjustment workflow remains distinct from purchasing workflow where new products are added to catalog.
+- Q: Should manual adjustments support inventory increases? → A: No. All inventory increases must go through the Purchase workflow to ensure proper data collection (date, supplier, price). This includes donations ($0 purchase), missed purchases, and initial inventory setup. Manual adjustments are depletions-only.
 
 ## Problem Statement
 
@@ -18,9 +19,10 @@ Inventory records drift from physical reality over time because the system only 
 
 - **Spoilage**: Ingredients go bad and must be discarded
 - **Gifts**: Ingredients given to friends/family
-- **Corrections**: Physical count doesn't match system records
+- **Corrections**: Physical count shows less than system records
 - **Ad hoc usage**: Testing recipes, personal consumption outside app
-- **Found inventory**: Discovering inventory not previously recorded
+
+Note: Inventory increases (found inventory, donations, missed purchases) must go through the Purchase workflow to ensure proper data collection.
 
 Without manual adjustments, users discover shortfalls during production ("System says I have 10 cups flour, but I only have 5") or miss inventory they actually have.
 
@@ -44,17 +46,15 @@ User discovers ingredients have spoiled (mold, weevils, expiration) and must dis
 
 ### User Story 2 - Physical Count Correction (Priority: P2)
 
-User performs physical inventory count and finds discrepancy between system and reality. They need to correct inventory up or down to match the physical count.
+User performs physical inventory count and finds system shows more than actual quantity. They need to reduce inventory to match reality.
 
-**Why this priority**: Physical count corrections maintain long-term inventory accuracy. Supports both increases (system too low) and decreases (system too high).
+**Why this priority**: Physical count corrections maintain long-term inventory accuracy. Note: If physical count is higher than system, user should record a purchase (even at $0) through the Purchase workflow.
 
-**Independent Test**: Can test by adjusting inventory in either direction and verifying the correction is recorded with appropriate audit trail.
+**Independent Test**: Can test by reducing inventory with "Physical Count Correction" reason and verifying the correction is recorded with appropriate audit trail.
 
 **Acceptance Scenarios**:
 
 1. **Given** system shows 10 cups sugar but physical count is 7, **When** user reduces by 3 cups with "Physical Count Correction" reason, **Then** inventory shows 7 cups and history shows correction.
-
-2. **Given** system shows 5 cups butter but physical count is 8, **When** user adds 3 cups with "Physical Count Correction" reason, **Then** inventory shows 8 cups with new inventory record using default values (today's date, last purchase price).
 
 ---
 
@@ -72,23 +72,7 @@ User gave ingredients to friend or family member. They need to record this deple
 
 ---
 
-### User Story 4 - Add Found Inventory (Priority: P4)
-
-User discovers inventory that wasn't in the system (found in back of pantry, received as gift, etc.). They need to add it with minimal data entry.
-
-**Why this priority**: Less common than depletions but necessary for complete inventory accuracy. Must be low friction.
-
-**Independent Test**: Can test by adding inventory with defaults and verifying sensible values are applied automatically.
-
-**Acceptance Scenarios**:
-
-1. **Given** user finds 2 cups of cocoa powder not currently in inventory, **When** user adds inventory by selecting cocoa powder from the product catalog, **Then** system creates inventory record with today's date, last purchase price (or $0 if none), and optional supplier.
-
-2. **Given** user adds found inventory, **When** user wants to specify a different date or price, **Then** user can override defaults before saving.
-
----
-
-### User Story 5 - Ad Hoc Usage Tracking (Priority: P5)
+### User Story 4 - Ad Hoc Usage Tracking (Priority: P4)
 
 User consumed ingredients outside the app (testing recipes, personal use) and needs to record the depletion.
 
@@ -105,10 +89,10 @@ User consumed ingredients outside the app (testing recipes, personal use) and ne
 ### Edge Cases
 
 - **Zero quantity**: What happens when adjustment would result in exactly zero? (Allowed - inventory item remains with 0 quantity)
-- **No previous purchase price**: When adding inventory for a product with no purchase history, default unit cost to $0.00 with option to enter actual cost
 - **Notes requirement**: Notes are required when reason is "Other" to ensure audit trail has context
 - **Decimal quantities**: System handles fractional quantities (e.g., 2.5 cups)
 - **Live preview accuracy**: Preview must update immediately as user types, showing new quantity and cost impact
+- **Inventory increase needed**: If user needs to increase inventory (found items, donations), they should use the Purchase workflow with $0 price if needed
 
 ## Requirements *(mandatory)*
 
@@ -117,8 +101,7 @@ User consumed ingredients outside the app (testing recipes, personal use) and ne
 **Adjustment Interface:**
 - **FR-001**: System MUST provide an [Adjust] action on each inventory item in the Inventory tab
 - **FR-002**: Adjustment dialog MUST display current inventory details (product, purchase date, current quantity, unit cost)
-- **FR-003**: User MUST be able to choose adjustment direction (reduce or add)
-- **FR-004**: System MUST show live preview of new quantity and cost impact as user enters values (no additional click required)
+- **FR-003**: System MUST show live preview of new quantity and cost impact as user enters values (no additional click required)
 
 **Depletion (Reduce Inventory):**
 - **FR-005**: User MUST enter a positive number representing the amount to reduce
@@ -127,44 +110,35 @@ User consumed ingredients outside the app (testing recipes, personal use) and ne
 - **FR-008**: System MUST validate that reduction does not exceed available quantity
 - **FR-009**: System MUST create a depletion record with quantity, reason, notes, timestamp, and user identifier
 
-**Addition (Add Inventory):**
-- **FR-010**: User MUST select a product from the full product catalog when adding inventory (not limited to products currently in inventory)
-- **FR-011**: System MUST pre-populate defaults: date=today, price=last purchase price (or $0), supplier=optional
-- **FR-012**: User MAY override any default value before saving
-- **FR-013**: System MUST create an inventory record linked to the selected product
-- **FR-014**: Addition reason MUST be recorded (e.g., "Physical Count Correction", "Found", "Received Gift", "Other")
-
 **Data Integrity:**
-- **FR-015**: System MUST NOT allow inventory quantity to go negative
-- **FR-016**: All adjustments MUST create immutable audit records (who, when, why, how much)
-- **FR-017**: Cost impact MUST be calculated accurately (quantity x unit cost)
-- **FR-018**: Adjustments MUST integrate with existing FIFO tracking
+- **FR-010**: System MUST NOT allow inventory quantity to go negative
+- **FR-011**: All adjustments MUST create immutable audit records (who, when, why, how much)
+- **FR-012**: Cost impact MUST be calculated accurately (quantity x unit cost)
+- **FR-013**: Adjustments MUST integrate with existing FIFO tracking
 
 **Depletion History:**
-- **FR-019**: Depletion history view MUST show all depletions (automatic and manual)
-- **FR-020**: History MUST display: date, reason, quantity, cost, and notes (truncated with hover for full text)
-- **FR-021**: History MUST be sorted by date (newest first)
+- **FR-014**: Depletion history view MUST show all depletions (automatic and manual)
+- **FR-015**: History MUST display: date, reason, quantity, cost, and notes (truncated with hover for full text)
+- **FR-016**: History MUST be sorted by date (newest first)
 
 ### Key Entities
 
 - **InventoryDepletion**: Records each inventory reduction with quantity, reason (extended enum), notes, cost, timestamp, and user. Immutable audit trail.
-- **InventoryItem**: Existing entity tracking current quantity per purchase. Updated by adjustments.
-- **AdjustmentReason**: Extended enumeration including manual reasons (Spoilage, Gift, Correction, Ad Hoc Usage, Found, Received Gift, Other) alongside automatic reasons (Production, Assembly).
+- **InventoryItem**: Existing entity tracking current quantity per purchase. Updated by depletion adjustments.
+- **DepletionReason**: Extended enumeration including manual reasons (Spoilage, Gift, Correction, Ad Hoc Usage, Other) alongside automatic reasons (Production, Assembly).
 
 ## Success Criteria *(mandatory)*
 
 ### Measurable Outcomes
 
-- **SC-001**: Users can complete a simple inventory adjustment (single item, standard reason) in under 30 seconds
-- **SC-002**: 100% of manual adjustments are recorded with complete audit trail (who, when, why, how much)
+- **SC-001**: Users can complete a simple inventory depletion (single item, standard reason) in under 30 seconds
+- **SC-002**: 100% of manual depletions are recorded with complete audit trail (who, when, why, how much)
 - **SC-003**: Live preview updates within 100ms of user input (perceived as instant)
 - **SC-004**: Zero data entry required beyond amount for standard depletions (reason dropdown, optional notes)
-- **SC-005**: Addition workflow requires only product selection and amount; all other fields have sensible defaults
-- **SC-006**: Inventory accuracy improves such that physical counts match system records within 5% tolerance after regular use
+- **SC-005**: Inventory accuracy improves such that physical counts match system records within 5% tolerance after regular use
 
 ## Assumptions
 
 - Existing `InventoryDepletion` model can be extended with new reason values without schema migration
 - The `notes` field already exists on the depletion model
 - User identifier will use a simple string (e.g., "desktop-user") until multi-user authentication is implemented
-- Last purchase price lookup is already available through existing services
