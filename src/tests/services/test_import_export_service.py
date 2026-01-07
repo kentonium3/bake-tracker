@@ -31,7 +31,8 @@ from src.services.import_export_service import (
     export_finished_units_to_json,
     export_package_finished_goods_to_json,
     export_production_records_to_json,
-    import_all_from_json_v3
+    import_all_from_json_v3,
+    import_inventory_updates_from_bt_mobile,
 )
 
 class TestExportResult:

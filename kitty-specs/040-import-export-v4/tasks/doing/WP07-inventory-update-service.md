@@ -8,9 +8,9 @@ subtasks:
   - "T033"
 title: "Inventory Update Service"
 phase: "Phase 2 - BT Mobile Workflows"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
+agent: "system"
 shell_pid: ""
 review_status: ""
 reviewed_by: ""
@@ -327,3 +327,4 @@ def bt_mobile_inventory_json(tmp_path):
 ## Activity Log
 
 - 2026-01-06T12:00:00Z - system - lane=planned - Prompt created.
+- 2026-01-07T03:38:02Z – system – shell_pid= – lane=doing – Moved to doing

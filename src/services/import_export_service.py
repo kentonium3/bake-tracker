@@ -3642,3 +3642,126 @@ def import_purchases_from_bt_mobile(file_path: str) -> ImportResult:
 
     return result
 
+
+# ============================================================================
+# v4.0 BT Mobile Inventory Update Import
+# ============================================================================
+
+
+def import_inventory_updates_from_bt_mobile(file_path: str) -> ImportResult:
+    """
+    Import inventory updates from BT Mobile JSON file.
+
+    Adjusts InventoryItem quantities based on percentage remaining.
+    Uses FIFO selection (oldest purchase_date first).
+
+    Args:
+        file_path: Path to JSON file with schema_version="4.0", import_type="inventory_updates"
+
+    Returns:
+        ImportResult with success_count, error_count, and details
+    """
+    result = ImportResult()
+
+    # Read JSON
+    try:
+        with open(file_path, 'r') as f:
+            data = json.load(f)
+    except json.JSONDecodeError as e:
+        result.add_error("file", file_path, f"Invalid JSON: {e}")
+        return result
+
+    # Validate schema
+    if data.get("schema_version") != "4.0":
+        result.add_error("file", file_path,
+            f"Unsupported schema version: {data.get('schema_version')}")
+        return result
+
+    if data.get("import_type") != "inventory_updates":
+        result.add_error("file", file_path,
+            f"Wrong import type: {data.get('import_type')} (expected 'inventory_updates')")
+        return result
+
+    # Process updates
+    with session_scope() as session:
+        for update_data in data.get("inventory_updates", []):
+            upc = update_data.get("upc")
+            if not upc:
+                result.add_error("inventory_update", "unknown", "Missing UPC")
+                continue
+
+            # UPC lookup
+            product = session.query(Product).filter_by(upc_code=upc).first()
+
+            if not product:
+                result.add_error("inventory_update", upc,
+                    f"No product found with UPC: {upc}")
+                continue
+
+            # FIFO: oldest purchase_date first, with remaining quantity
+            inventory_item = (
+                session.query(InventoryItem)
+                .filter_by(product_id=product.id)
+                .filter(InventoryItem.quantity > 0)
+                .order_by(InventoryItem.purchase_date.asc())
+                .first()
+            )
+
+            if not inventory_item:
+                result.add_error("inventory_update", upc,
+                    f"No inventory with remaining quantity for product: {product.display_name}")
+                continue
+
+            # Get percentage from update data
+            percentage = update_data.get("percentage_remaining")
+            if percentage is None:
+                result.add_error("inventory_update", upc, "Missing percentage_remaining")
+                continue
+
+            # Validate percentage range
+            if not (0 <= percentage <= 100):
+                result.add_error("inventory_update", upc,
+                    f"Invalid percentage: {percentage} (must be 0-100)")
+                continue
+
+            # Get original quantity from linked purchase
+            if not inventory_item.purchase_id:
+                result.add_error("inventory_update", upc,
+                    "Cannot calculate percentage - inventory item has no linked purchase")
+                continue
+
+            purchase = session.query(Purchase).get(inventory_item.purchase_id)
+            if not purchase:
+                result.add_error("inventory_update", upc,
+                    "Cannot calculate percentage - linked purchase not found")
+                continue
+
+            original_quantity = Decimal(str(purchase.quantity_purchased))
+
+            # Calculate target and adjustment
+            pct_decimal = Decimal(str(percentage)) / Decimal("100")
+            target_quantity = original_quantity * pct_decimal
+
+            # Current quantity as Decimal
+            current_quantity = Decimal(str(inventory_item.quantity))
+            adjustment = target_quantity - current_quantity
+
+            # Update inventory item quantity
+            new_quantity = current_quantity + adjustment
+
+            # Validate no negative inventory
+            if new_quantity < 0:
+                result.add_error("inventory_update", upc,
+                    f"Adjustment would result in negative inventory: {new_quantity}")
+                continue
+
+            # Update quantity (convert to float for model compatibility)
+            inventory_item.quantity = float(new_quantity)
+
+            result.add_success("inventory_update")
+
+        # Commit successful updates
+        session.commit()
+
+    return result
+
