@@ -1,67 +1,87 @@
 {
-  "version": "3.6-sample",
-  "exported_at": "2026-01-05T00:00:00Z",
+  "version": "4.0",
+  "exported_at": "2026-01-06T12:00:00Z",
   "application": "bake-tracker",
   "products": [
-    { "ingredient_slug": "flour_all_purpose", "brand": "King Arthur", "package_unit": "lb" },
-    { "ingredient_slug": "flour_bread", "brand": "King Arthur", "package_unit": "lb" },
-    { "ingredient_slug": "sugar_granulated", "brand": "Domino", "package_unit": "lb" },
-    { "ingredient_slug": "sugar_powdered", "brand": "Domino", "package_unit": "lb" },
-    { "ingredient_slug": "sugar_brown_light", "brand": "Domino", "package_unit": "lb" },
-    { "ingredient_slug": "butter_unsalted", "brand": "Land O Lakes", "package_unit": "lb" },
+    { "ingredient_slug": "flour_all_purpose", "brand": "King Arthur", "package_unit": "lb", "upc_code": "071012107018" },
+    { "ingredient_slug": "flour_bread", "brand": "King Arthur", "package_unit": "lb", "upc_code": "071012107025" },
+    { "ingredient_slug": "sugar_granulated", "brand": "Domino", "package_unit": "lb", "upc_code": "049200016152" },
+    { "ingredient_slug": "sugar_powdered", "brand": "Domino", "package_unit": "lb", "upc_code": "049200003527" },
+    { "ingredient_slug": "sugar_brown_light", "brand": "Domino", "package_unit": "lb", "upc_code": "049200003541" },
+    { "ingredient_slug": "butter_unsalted", "brand": "Land O Lakes", "package_unit": "lb", "upc_code": "034500151214" },
     { "ingredient_slug": "eggs_large", "brand": "Generic", "package_unit": "count" },
-    { "ingredient_slug": "vanilla_extract", "brand": "McCormick", "package_unit": "oz" },
-    { "ingredient_slug": "baking_powder", "brand": "Clabber Girl", "package_unit": "oz" },
-    { "ingredient_slug": "baking_soda", "brand": "Arm & Hammer", "package_unit": "oz" },
+    { "ingredient_slug": "vanilla_extract", "brand": "McCormick", "package_unit": "oz", "upc_code": "052100071121" },
+    { "ingredient_slug": "baking_powder", "brand": "Clabber Girl", "package_unit": "oz", "upc_code": "021500017004" },
+    { "ingredient_slug": "baking_soda", "brand": "Arm & Hammer", "package_unit": "oz", "upc_code": "033200011002" },
 
-    { "ingredient_slug": "salt_kosher", "brand": "Diamond Crystal", "package_unit": "oz" },
-    { "ingredient_slug": "cocoa_powder", "brand": "Hershey's", "package_unit": "oz" },
-    { "ingredient_slug": "chocolate_chips_semi_sweet", "brand": "Ghirardelli", "package_unit": "oz" },
-    { "ingredient_slug": "chocolate_baking_bar", "brand": "Ghirardelli", "package_unit": "oz" },
+    { "ingredient_slug": "salt_kosher", "brand": "Diamond Crystal", "package_unit": "oz", "upc_code": "024600010016" },
+    { "ingredient_slug": "cocoa_powder", "brand": "Hershey's", "package_unit": "oz", "upc_code": "034000051007" },
+    { "ingredient_slug": "chocolate_chips_semi_sweet", "brand": "Ghirardelli", "package_unit": "oz", "upc_code": "747599307812" },
+    { "ingredient_slug": "chocolate_baking_bar", "brand": "Ghirardelli", "package_unit": "oz", "upc_code": "747599307799" },
     { "ingredient_slug": "milk_whole", "brand": "Generic", "package_unit": "qt" },
     { "ingredient_slug": "heavy_cream", "brand": "Generic", "package_unit": "pt" },
-    { "ingredient_slug": "cream_cheese", "brand": "Philadelphia", "package_unit": "oz" },
-    { "ingredient_slug": "sour_cream", "brand": "Daisy", "package_unit": "oz" },
-    { "ingredient_slug": "yogurt_greek", "brand": "Fage", "package_unit": "oz" },
-    { "ingredient_slug": "honey", "brand": "Nature Nate's", "package_unit": "oz" },
+    { "ingredient_slug": "cream_cheese", "brand": "Philadelphia", "package_unit": "oz", "upc_code": "021000615919" },
+    { "ingredient_slug": "sour_cream", "brand": "Daisy", "package_unit": "oz", "upc_code": "071700440403" },
+    { "ingredient_slug": "yogurt_greek", "brand": "Fage", "package_unit": "oz", "upc_code": "689544000012" },
+    { "ingredient_slug": "honey", "brand": "Nature Nate's", "package_unit": "oz", "upc_code": "038778830321" },
 
-    { "ingredient_slug": "molasses", "brand": "Grandma's", "package_unit": "oz" },
-    { "ingredient_slug": "corn_syrup_light", "brand": "Karo", "package_unit": "oz" },
-    { "ingredient_slug": "oats_rolled", "brand": "Quaker", "package_unit": "lb" },
-    { "ingredient_slug": "peanut_butter", "brand": "Jif", "package_unit": "oz" },
-    { "ingredient_slug": "almonds_sliced", "brand": "Blue Diamond", "package_unit": "oz" },
-    { "ingredient_slug": "pecans_chopped", "brand": "Fisher", "package_unit": "oz" },
-    { "ingredient_slug": "walnuts_chopped", "brand": "Fisher", "package_unit": "oz" },
-    { "ingredient_slug": "cinnamon_ground", "brand": "McCormick", "package_unit": "oz" },
-    { "ingredient_slug": "nutmeg_ground", "brand": "McCormick", "package_unit": "oz" },
-    { "ingredient_slug": "ginger_ground", "brand": "McCormick", "package_unit": "oz" },
+    { "ingredient_slug": "molasses", "brand": "Grandma's", "package_unit": "oz", "upc_code": "071662102006" },
+    { "ingredient_slug": "corn_syrup_light", "brand": "Karo", "package_unit": "oz", "upc_code": "070880000011" },
+    { "ingredient_slug": "oats_rolled", "brand": "Quaker", "package_unit": "lb", "upc_code": "030000010105" },
+    { "ingredient_slug": "peanut_butter", "brand": "Jif", "package_unit": "oz", "upc_code": "051500255155" },
+    { "ingredient_slug": "almonds_sliced", "brand": "Blue Diamond", "package_unit": "oz", "upc_code": "041570054147" },
+    { "ingredient_slug": "pecans_chopped", "brand": "Fisher", "package_unit": "oz", "upc_code": "070690012003" },
+    { "ingredient_slug": "walnuts_chopped", "brand": "Fisher", "package_unit": "oz", "upc_code": "070690005005" },
+    { "ingredient_slug": "cinnamon_ground", "brand": "McCormick", "package_unit": "oz", "upc_code": "052100002125" },
+    { "ingredient_slug": "nutmeg_ground", "brand": "McCormick", "package_unit": "oz", "upc_code": "052100002156" },
+    { "ingredient_slug": "ginger_ground", "brand": "McCormick", "package_unit": "oz", "upc_code": "052100002149" },
 
-    { "ingredient_slug": "cloves_ground", "brand": "McCormick", "package_unit": "oz" },
-    { "ingredient_slug": "allspice_ground", "brand": "McCormick", "package_unit": "oz" },
-    { "ingredient_slug": "cardamom_ground", "brand": "McCormick", "package_unit": "oz" },
+    { "ingredient_slug": "cloves_ground", "brand": "McCormick", "package_unit": "oz", "upc_code": "052100002132" },
+    { "ingredient_slug": "allspice_ground", "brand": "McCormick", "package_unit": "oz", "upc_code": "052100002101" },
+    { "ingredient_slug": "cardamom_ground", "brand": "McCormick", "package_unit": "oz", "upc_code": "052100002118" },
     { "ingredient_slug": "lemons", "brand": "Generic", "package_unit": "count" },
     { "ingredient_slug": "oranges", "brand": "Generic", "package_unit": "count" },
-    { "ingredient_slug": "pumpkin_puree", "brand": "Libby's", "package_unit": "oz" },
+    { "ingredient_slug": "pumpkin_puree", "brand": "Libby's", "package_unit": "oz", "upc_code": "039000019569" },
     { "ingredient_slug": "apples", "brand": "Generic", "package_unit": "lb" },
     { "ingredient_slug": "banana", "brand": "Generic", "package_unit": "lb" },
     { "ingredient_slug": "strawberries", "brand": "Generic", "package_unit": "lb" },
     { "ingredient_slug": "blueberries", "brand": "Generic", "package_unit": "lb" },
 
-    { "ingredient_slug": "baking_chocolate_cocoa_butter", "brand": "Callebaut", "package_unit": "lb" },
-    { "ingredient_slug": "gelatin_powder", "brand": "Knox", "package_unit": "oz" },
-    { "ingredient_slug": "cornstarch", "brand": "Argo", "package_unit": "oz" },
-    { "ingredient_slug": "powdered_sugar", "brand": "C&H", "package_unit": "lb" },
-    { "ingredient_slug": "brown_sugar_dark", "brand": "C&H", "package_unit": "lb" },
-    { "ingredient_slug": "yeast_instant", "brand": "SAF", "package_unit": "oz" },
-    { "ingredient_slug": "flour_cake", "brand": "Swans Down", "package_unit": "lb" },
-    { "ingredient_slug": "flour_pastry", "brand": "Bob's Red Mill", "package_unit": "lb" },
-    { "ingredient_slug": "sprinkles", "brand": "Wilton", "package_unit": "oz" },
-    { "ingredient_slug": "food_coloring", "brand": "Wilton", "package_unit": "oz" }
+    { "ingredient_slug": "baking_chocolate_cocoa_butter", "brand": "Callebaut", "package_unit": "lb", "upc_code": "025637111116" },
+    { "ingredient_slug": "gelatin_powder", "brand": "Knox", "package_unit": "oz", "upc_code": "043000011102" },
+    { "ingredient_slug": "cornstarch", "brand": "Argo", "package_unit": "oz", "upc_code": "021500017011" },
+    { "ingredient_slug": "powdered_sugar", "brand": "C&H", "package_unit": "lb", "upc_code": "015800020021" },
+    { "ingredient_slug": "brown_sugar_dark", "brand": "C&H", "package_unit": "lb", "upc_code": "015800020038" },
+    { "ingredient_slug": "yeast_instant", "brand": "SAF", "package_unit": "oz", "upc_code": "070271001011" },
+    { "ingredient_slug": "flour_cake", "brand": "Swans Down", "package_unit": "lb", "upc_code": "072200008004" },
+    { "ingredient_slug": "flour_pastry", "brand": "Bob's Red Mill", "package_unit": "lb", "upc_code": "039978009067" },
+    { "ingredient_slug": "sprinkles", "brand": "Wilton", "package_unit": "oz", "upc_code": "070896539175" },
+    { "ingredient_slug": "food_coloring", "brand": "Wilton", "package_unit": "oz", "upc_code": "070896539182" }
   ],
   "recipes": [
     {
+      "slug": "chocolate-chip-cookies",
       "name": "Chocolate Chip Cookies",
       "category": "Cookies",
+      "base_recipe_slug": null,
+      "variant_name": null,
+      "is_production_ready": true,
+      "finished_units": [
+        {
+          "slug": "chocolate-chip-cookie-dozen",
+          "name": "Dozen Cookies",
+          "yield_mode": "discrete_count",
+          "unit_yield_quantity": 12,
+          "unit_yield_unit": "cookies"
+        },
+        {
+          "slug": "chocolate-chip-cookie-batch",
+          "name": "Full Batch",
+          "yield_mode": "discrete_count",
+          "unit_yield_quantity": 48,
+          "unit_yield_unit": "cookies"
+        }
+      ],
       "ingredients": [
         { "ingredient_slug": "flour_all_purpose", "quantity": 2.25, "unit": "cup" },
         { "ingredient_slug": "butter_unsalted", "quantity": 1.0, "unit": "cup" },
@@ -75,8 +95,50 @@
       ]
     },
     {
+      "slug": "double-chocolate-chip-cookies",
+      "name": "Double Chocolate Chip Cookies",
+      "category": "Cookies",
+      "base_recipe_slug": "chocolate-chip-cookies",
+      "variant_name": "Double Chocolate",
+      "is_production_ready": true,
+      "finished_units": [
+        {
+          "slug": "double-chocolate-cookie-dozen",
+          "name": "Dozen Cookies",
+          "yield_mode": "discrete_count",
+          "unit_yield_quantity": 12,
+          "unit_yield_unit": "cookies"
+        }
+      ],
+      "ingredients": [
+        { "ingredient_slug": "flour_all_purpose", "quantity": 2.0, "unit": "cup" },
+        { "ingredient_slug": "cocoa_powder", "quantity": 0.5, "unit": "cup" },
+        { "ingredient_slug": "butter_unsalted", "quantity": 1.0, "unit": "cup" },
+        { "ingredient_slug": "sugar_granulated", "quantity": 0.75, "unit": "cup" },
+        { "ingredient_slug": "sugar_brown_light", "quantity": 0.75, "unit": "cup" },
+        { "ingredient_slug": "eggs_large", "quantity": 2.0, "unit": "count" },
+        { "ingredient_slug": "vanilla_extract", "quantity": 2.0, "unit": "tsp" },
+        { "ingredient_slug": "baking_soda", "quantity": 1.0, "unit": "tsp" },
+        { "ingredient_slug": "salt_kosher", "quantity": 1.0, "unit": "tsp" },
+        { "ingredient_slug": "chocolate_chips_semi_sweet", "quantity": 16.0, "unit": "oz" }
+      ]
+    },
+    {
+      "slug": "fudge-brownies",
       "name": "Fudge Brownies",
       "category": "Brownies",
+      "base_recipe_slug": null,
+      "variant_name": null,
+      "is_production_ready": true,
+      "finished_units": [
+        {
+          "slug": "fudge-brownie-pan",
+          "name": "9x13 Pan",
+          "yield_mode": "discrete_count",
+          "unit_yield_quantity": 24,
+          "unit_yield_unit": "pieces"
+        }
+      ],
       "ingredients": [
         { "ingredient_slug": "butter_unsalted", "quantity": 0.5, "unit": "cup" },
         { "ingredient_slug": "chocolate_baking_bar", "quantity": 8.0, "unit": "oz" },
@@ -88,8 +150,21 @@
       ]
     },
     {
+      "slug": "vanilla-cupcakes",
       "name": "Vanilla Cupcakes",
       "category": "Cakes",
+      "base_recipe_slug": null,
+      "variant_name": null,
+      "is_production_ready": true,
+      "finished_units": [
+        {
+          "slug": "vanilla-cupcake-dozen",
+          "name": "Dozen Cupcakes",
+          "yield_mode": "discrete_count",
+          "unit_yield_quantity": 12,
+          "unit_yield_unit": "cupcakes"
+        }
+      ],
       "ingredients": [
         { "ingredient_slug": "flour_cake", "quantity": 1.5, "unit": "cup" },
         { "ingredient_slug": "sugar_granulated", "quantity": 1.0, "unit": "cup" },
@@ -102,8 +177,41 @@
       ]
     },
     {
+      "slug": "chocolate-vanilla-cupcakes",
+      "name": "Chocolate Vanilla Cupcakes",
+      "category": "Cakes",
+      "base_recipe_slug": "vanilla-cupcakes",
+      "variant_name": "Chocolate Swirl",
+      "is_production_ready": false,
+      "finished_units": [],
+      "ingredients": [
+        { "ingredient_slug": "flour_cake", "quantity": 1.5, "unit": "cup" },
+        { "ingredient_slug": "sugar_granulated", "quantity": 1.0, "unit": "cup" },
+        { "ingredient_slug": "cocoa_powder", "quantity": 0.25, "unit": "cup" },
+        { "ingredient_slug": "baking_powder", "quantity": 1.5, "unit": "tsp" },
+        { "ingredient_slug": "salt_kosher", "quantity": 0.5, "unit": "tsp" },
+        { "ingredient_slug": "butter_unsalted", "quantity": 0.5, "unit": "cup" },
+        { "ingredient_slug": "eggs_large", "quantity": 2.0, "unit": "count" },
+        { "ingredient_slug": "milk_whole", "quantity": 0.5, "unit": "cup" },
+        { "ingredient_slug": "vanilla_extract", "quantity": 2.0, "unit": "tsp" }
+      ]
+    },
+    {
+      "slug": "sugar-cookies",
       "name": "Sugar Cookies",
       "category": "Cookies",
+      "base_recipe_slug": null,
+      "variant_name": null,
+      "is_production_ready": true,
+      "finished_units": [
+        {
+          "slug": "sugar-cookie-dozen",
+          "name": "Dozen Cookies",
+          "yield_mode": "discrete_count",
+          "unit_yield_quantity": 12,
+          "unit_yield_unit": "cookies"
+        }
+      ],
       "ingredients": [
         { "ingredient_slug": "flour_all_purpose", "quantity": 2.75, "unit": "cup" },
         { "ingredient_slug": "baking_powder", "quantity": 1.0, "unit": "tsp" },
@@ -115,8 +223,21 @@
       ]
     },
     {
+      "slug": "pumpkin-pie",
       "name": "Pumpkin Pie",
       "category": "Pies",
+      "base_recipe_slug": null,
+      "variant_name": null,
+      "is_production_ready": true,
+      "finished_units": [
+        {
+          "slug": "pumpkin-pie-whole",
+          "name": "Whole Pie",
+          "yield_mode": "weight",
+          "unit_yield_quantity": 1,
+          "unit_yield_unit": "pie"
+        }
+      ],
       "ingredients": [
         { "ingredient_slug": "pumpkin_puree", "quantity": 15.0, "unit": "oz" },
         { "ingredient_slug": "eggs_large", "quantity": 2.0, "unit": "count" },
@@ -128,7 +249,35 @@
         { "ingredient_slug": "salt_kosher", "quantity": 0.5, "unit": "tsp" }
       ]
     }
+  ],
+  "events": [
+    {
+      "slug": "holiday-sale-2025",
+      "name": "Holiday Bake Sale 2025",
+      "event_date": "2025-12-15",
+      "output_mode": "bundled",
+      "notes": "Annual church bake sale - bundled gift boxes"
+    },
+    {
+      "slug": "christmas-gifts-2025",
+      "name": "Christmas Gift Boxes 2025",
+      "event_date": "2025-12-24",
+      "output_mode": "packaged",
+      "notes": "Individual gift packages for family and friends"
+    },
+    {
+      "slug": "thanksgiving-2025",
+      "name": "Thanksgiving Dinner 2025",
+      "event_date": "2025-11-27",
+      "output_mode": "bulk_count",
+      "notes": "Bulk production for family gathering"
+    },
+    {
+      "slug": "cookie-exchange-2025",
+      "name": "Cookie Exchange 2025",
+      "event_date": "2025-12-10",
+      "output_mode": null,
+      "notes": "Informal cookie swap - no specific output mode yet"
+    }
   ]
 }
-
-
