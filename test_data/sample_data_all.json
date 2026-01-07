@@ -340,7 +340,7 @@
       "category": "Spreads"
     },
     {
-      "display_name": "Nuts & Seeds",
+      "display_name": "Nut & Seed Spreads",
       "slug": "nut_seed_spreads",
       "hierarchy_level": 1,
       "is_packaging": false,
@@ -484,7 +484,7 @@
       "category": "Liquids"
     },
     {
-      "display_name": "Water",
+      "display_name": "Water (subcategory)",
       "slug": "water_subcategory",
       "hierarchy_level": 1,
       "is_packaging": false,
@@ -546,7 +546,7 @@
       "category": "Liquors"
     },
     {
-      "display_name": "Peanuts",
+      "display_name": "Peanuts (subcategory)",
       "slug": "peanuts_subcategory",
       "hierarchy_level": 1,
       "is_packaging": false,
@@ -8951,6 +8951,7 @@
     "Merged recipe data from recipes_catalog.json with ingredient slugs",
     "Transformation date: 2026-01-07",
     "Cleared 156 purchases (ID-based FK format incompatible with v4.0 import)",
-    "Added 4 missing ingredient variants: almonds_whole, almonds_sliced, pecans_halves, pecans_chopped"
+    "Added 4 missing ingredient variants: almonds_whole, almonds_sliced, pecans_halves, pecans_chopped",
+    "Fixed 3 duplicate display_names: nut_seed_spreads, water_subcategory, peanuts_subcategory"
   ]
 }
