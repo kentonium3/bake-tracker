@@ -10,7 +10,7 @@ subtasks:
   - "T023"
 title: "UI Adjustment Dialog"
 phase: "Phase 2 - UI Layer (Gemini)"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "gemini"
 shell_pid: ""
@@ -472,3 +472,4 @@ Manual visual testing:
 
 - 2026-01-07T12:00:00Z - system - lane=planned - Prompt created via /spec-kitty.tasks
 - 2026-01-07T16:58:59Z – gemini – shell_pid= – lane=doing – Moved to doing
+- 2026-01-07T17:11:09Z – gemini – shell_pid= – lane=for_review – Moved to for_review
