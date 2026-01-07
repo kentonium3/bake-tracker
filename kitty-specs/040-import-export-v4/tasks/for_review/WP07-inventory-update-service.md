@@ -184,9 +184,9 @@ history:
    from decimal import Decimal
 
    # Get percentage from update data
-   percentage = update_data.get("percentage_remaining")
+   percentage = update_data.get("remaining_percentage")
    if percentage is None:
-       result.add_error("inventory_update", upc, "Missing percentage_remaining")
+       result.add_error("inventory_update", upc, "Missing remaining_percentage")
        continue
 
    # Validate percentage range
@@ -291,7 +291,7 @@ def bt_mobile_inventory_json(tmp_path):
             {
                 "upc": "051000127952",
                 "scanned_at": "2026-01-06T14:15:23Z",
-                "percentage_remaining": 50
+                "remaining_percentage": 50
             }
         ]
     }

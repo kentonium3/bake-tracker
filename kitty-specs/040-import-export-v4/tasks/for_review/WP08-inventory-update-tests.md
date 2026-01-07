@@ -86,7 +86,7 @@ history:
                "schema_version": "4.0",
                "import_type": "inventory_updates",
                "inventory_updates": [
-                   {"upc": "123456789012", "percentage_remaining": 50}
+                   {"upc": "123456789012", "remaining_percentage": 50}
                ]
            }
            file_path = tmp_path / "update.json"
@@ -198,7 +198,7 @@ history:
            "schema_version": "4.0",
            "import_type": "inventory_updates",
            "inventory_updates": [
-               {"upc": "999999999999", "percentage_remaining": 50}
+               {"upc": "999999999999", "remaining_percentage": 50}
            ]
        }
        ...
@@ -233,7 +233,7 @@ history:
            "schema_version": "4.0",
            "import_type": "inventory_updates",
            "inventory_updates": [
-               {"upc": "123456789012", "percentage_remaining": 150}
+               {"upc": "123456789012", "remaining_percentage": 150}
            ]
        }
        ...

@@ -2479,11 +2479,6 @@ def import_all_from_json_v4(file_path: str, mode: str = "merge") -> ImportResult
 
     Raises:
         ValueError: If mode is not "merge" or "replace"
-        ValueError: If file version is not "4.0"
-
-    Note:
-        Feature 040: This version requires v4.0 format files. Files from older
-        versions (v3.x) must be re-exported from a v4.0 application before import.
     """
     # Validate mode
     if mode not in ("merge", "replace"):
@@ -2497,18 +2492,6 @@ def import_all_from_json_v4(file_path: str, mode: str = "merge") -> ImportResult
         with open(file_path, "r", encoding="utf-8") as f:
             data = json.load(f)
 
-        # T018: Validate version - require v4.0
-        version = data.get("version")
-        if version != "4.0":
-            result.add_error(
-                "file",
-                file_path,
-                f"Unsupported file version: {version}. "
-                f"This application requires v4.0 format. "
-                f"Please export a new backup from a current version of the application.",
-            )
-            return result
-
         # Use single transaction for atomicity
         with session_scope() as session:
             # Replace mode: clear all tables first
@@ -2516,8 +2499,7 @@ def import_all_from_json_v4(file_path: str, mode: str = "merge") -> ImportResult
                 _clear_all_tables(session)
 
             # Import in dependency order
-            # Note: For simplicity, we use existing import functions where possible
-            # and the new v3.0 functions for new entities
+            # Note: For simplicity, we use existing import functions where possible.
 
             # 1. Ingredients (no dependencies)
             if "ingredients" in data:
@@ -2721,117 +2703,88 @@ def import_all_from_json_v4(file_path: str, mode: str = "merge") -> ImportResult
 
                 for purch_data in data["purchases"]:
                     try:
-                        # Feature 027: Check for new format (supplier_id FK) vs old format
-                        if purch_data.get("supplier_id") is not None:
-                            # v3.5+ format: direct IDs
-                            product_id = purch_data.get("product_id")
-                            supplier_id = purch_data.get("supplier_id")
+                        # Current-spec purchase format: direct foreign keys.
+                        product_id = purch_data.get("product_id")
+                        supplier_id = purch_data.get("supplier_id")
 
-                            # Validate product exists
-                            product = session.query(Product).filter_by(id=product_id).first()
-                            if not product:
-                                result.add_error(
-                                    "purchase",
-                                    f"product_id={product_id}",
-                                    f"Product not found: ID {product_id}",
-                                )
-                                continue
-
-                            # Validate supplier exists
-                            supplier = session.query(Supplier).filter_by(id=supplier_id).first()
-                            if not supplier:
-                                result.add_error(
-                                    "purchase",
-                                    f"supplier_id={supplier_id}",
-                                    f"Supplier not found: ID {supplier_id}",
-                                )
-                                continue
-                        else:
-                            # Old format: lookup by ingredient/brand
-                            ing_slug = purch_data.get("ingredient_slug", "")
-                            product_brand = purch_data.get("product_brand", "")
-                            product_name = purch_data.get("product_name")
-                            package_size = purch_data.get("package_size")
-                            package_unit = purch_data.get("package_unit")
-
-                            # Find ingredient
-                            ingredient = session.query(Ingredient).filter_by(slug=ing_slug).first()
-                            if not ingredient:
-                                result.add_error(
-                                    "purchase",
-                                    f"{ing_slug}/{product_brand}",
-                                    f"Ingredient not found: {ing_slug}",
-                                    suggestion="Import ingredients and products before purchases.",
-                                )
-                                continue
-
-                            # Build product filter
-                            product_filter = {"ingredient_id": ingredient.id, "brand": product_brand}
-                            if product_name is not None:
-                                product_filter["product_name"] = product_name
-                            if package_size is not None:
-                                product_filter["package_size"] = package_size
-                            if package_unit is not None:
-                                product_filter["package_unit"] = package_unit
-
-                            matching_products = session.query(Product).filter_by(**product_filter).all()
-
-                            if len(matching_products) == 0:
-                                result.add_error(
-                                    "purchase",
-                                    f"{ing_slug}/{product_brand}",
-                                    f"Product not found: {product_brand}",
-                                )
-                                continue
-                            elif len(matching_products) > 1:
-                                result.add_error(
-                                    "purchase",
-                                    f"{ing_slug}/{product_brand}",
-                                    f"Ambiguous product match: {len(matching_products)} products found",
-                                    suggestion="Re-export data using latest version.",
-                                )
-                                continue
-
-                            product_id = matching_products[0].id
-
-                            # Old format doesn't have supplier_id - skip this purchase
-                            # (legacy purchases without supplier_id cannot be imported)
-                            result.add_warning(
+                        if product_id is None or supplier_id is None:
+                            result.add_error(
                                 "purchase",
-                                f"{ing_slug}/{product_brand}",
-                                "Legacy format without supplier_id - skipped",
-                                suggestion="Re-export data using latest version with supplier_id.",
+                                "unknown",
+                                "Missing required fields: product_id and/or supplier_id",
+                                suggestion="Adjust the import file to include product_id and supplier_id per current spec.",
                             )
                             continue
 
-                        # Parse purchase date (support both purchase_date and purchased_at keys)
-                        purchase_date = None
-                        date_str = purch_data.get("purchase_date") or purch_data.get("purchased_at")
-                        if date_str:
-                            try:
-                                # Handle both date and datetime formats
-                                if "T" in date_str:
-                                    purchase_date = dt.fromisoformat(date_str.replace("Z", "+00:00")).date()
-                                else:
-                                    from datetime import date as dt_date
-                                    purchase_date = dt_date.fromisoformat(date_str)
-                            except ValueError:
-                                result.add_warning(
-                                    "purchase",
-                                    f"product_id={product_id}",
-                                    f"Invalid date format: {date_str}",
-                                )
+                        # Validate product exists
+                        product = session.query(Product).filter_by(id=product_id).first()
+                        if not product:
+                            result.add_error(
+                                "purchase",
+                                f"product_id={product_id}",
+                                f"Product not found: ID {product_id}",
+                            )
+                            continue
 
-                        # Parse unit_price (support both unit_price and unit_cost for backward compat)
-                        price_str = purch_data.get("unit_price") or purch_data.get("unit_cost")
-                        unit_price = Decimal(str(price_str)) if price_str else Decimal("0")
+                        # Validate supplier exists
+                        supplier = session.query(Supplier).filter_by(id=supplier_id).first()
+                        if not supplier:
+                            result.add_error(
+                                "purchase",
+                                f"supplier_id={supplier_id}",
+                                f"Supplier not found: ID {supplier_id}",
+                            )
+                            continue
+
+                        # Parse purchase date (current field name only)
+                        purchase_date = None
+                        date_str = purch_data.get("purchase_date")
+                        if not date_str:
+                            result.add_error(
+                                "purchase",
+                                f"product_id={product_id}",
+                                "Missing required field: purchase_date",
+                            )
+                            continue
+                        try:
+                            # Handle both date and datetime formats
+                            if "T" in date_str:
+                                purchase_date = dt.fromisoformat(date_str.replace("Z", "+00:00")).date()
+                            else:
+                                from datetime import date as dt_date
+                                purchase_date = dt_date.fromisoformat(date_str)
+                        except ValueError:
+                            result.add_error(
+                                "purchase",
+                                f"product_id={product_id}",
+                                f"Invalid date format: {date_str}",
+                            )
+                            continue
+
+                        # Parse unit_price (current field name only)
+                        if purch_data.get("unit_price") is None:
+                            result.add_error(
+                                "purchase",
+                                f"product_id={product_id}",
+                                "Missing required field: unit_price",
+                            )
+                            continue
+                        unit_price = Decimal(str(purch_data.get("unit_price")))
+
+                        if purch_data.get("quantity_purchased") is None:
+                            result.add_error(
+                                "purchase",
+                                f"product_id={product_id}",
+                                "Missing required field: quantity_purchased",
+                            )
+                            continue
 
                         purchase = Purchase(
                             product_id=product_id,
                             supplier_id=supplier_id,
                             purchase_date=purchase_date,
                             unit_price=unit_price,
-                            quantity_purchased=purch_data.get("quantity_purchased", 0),
+                            quantity_purchased=purch_data.get("quantity_purchased"),
                             notes=purch_data.get("notes"),
                         )
                         # Preserve original ID if provided (for FK consistency in replace mode)
@@ -3120,7 +3073,7 @@ def import_all_from_json_v4(file_path: str, mode: str = "merge") -> ImportResult
                         result.add_success("recipe")
                     except Exception as e:
                         result.add_error("recipe", recipe_data.get("name", "unknown"), str(e))
-            
+
             session.flush()
 
             # 6.5 Recipe components (depends on all recipes being created)
@@ -3478,33 +3431,6 @@ def import_all_from_json_v4(file_path: str, mode: str = "merge") -> ImportResult
     return result
 
 
-def import_all_from_json_v3(file_path: str, mode: str = "merge") -> ImportResult:
-    """
-    DEPRECATED: Use import_all_from_json_v4() instead.
-
-    This function is retained for backward compatibility with existing code
-    but will be removed in a future version. Note that v3.x format files
-    will be rejected by the v4 importer - you must re-export from a v4.0
-    application to create compatible files.
-
-    Args:
-        file_path: Path to JSON file
-        mode: Import mode - "merge" (default) or "replace"
-
-    Returns:
-        ImportResult with error if file is v3.x format
-    """
-    import warnings
-
-    warnings.warn(
-        "import_all_from_json_v3 is deprecated. Use import_all_from_json_v4 instead. "
-        "Note: v3.x format files will be rejected. Re-export from v4.0 application.",
-        DeprecationWarning,
-        stacklevel=2,
-    )
-    return import_all_from_json_v4(file_path, mode)
-
-
 def import_purchases_from_bt_mobile(file_path: str) -> ImportResult:
     """
     Import purchases from BT Mobile JSON file.
@@ -3512,13 +3438,16 @@ def import_purchases_from_bt_mobile(file_path: str) -> ImportResult:
     This function imports purchase data scanned from BT Mobile app, matching
     UPCs against existing products and creating Purchase + InventoryItem records.
 
+    The import is ATOMIC per SC-008: if any record fails validation or creation,
+    the entire import is rolled back with no partial data changes.
+
     Args:
         file_path: Path to JSON file with schema_version="4.0", import_type="purchases"
 
     Returns:
         ImportResult with:
-        - successful: Number of purchases created
-        - failed: Number of errors
+        - successful: Number of purchases that would be created (0 if any errors)
+        - failed: Number of errors (causes full rollback)
         - unmatched_purchases: List of purchase data for UPCs not found in products
 
     Note:
@@ -3582,15 +3511,16 @@ def import_purchases_from_bt_mobile(file_path: str) -> ImportResult:
 
             # T021: Product found - create Purchase + InventoryItem
             try:
-                # Resolve supplier
+                # Resolve supplier - create default "Unknown" if not provided
                 supplier_name = purchase_data.get("supplier") or default_supplier
-                supplier = None
-                if supplier_name:
-                    supplier = session.query(Supplier).filter_by(name=supplier_name).first()
-                    if not supplier:
-                        supplier = Supplier(name=supplier_name)
-                        session.add(supplier)
-                        session.flush()
+                if not supplier_name:
+                    supplier_name = "Unknown"
+
+                supplier = session.query(Supplier).filter_by(name=supplier_name).first()
+                if not supplier:
+                    supplier = Supplier(name=supplier_name)
+                    session.add(supplier)
+                    session.flush()
 
                 # Parse scanned_at date
                 scanned_at = purchase_data.get("scanned_at")
@@ -3612,7 +3542,7 @@ def import_purchases_from_bt_mobile(file_path: str) -> ImportResult:
                 # Create Purchase record
                 purchase = Purchase(
                     product_id=product.id,
-                    supplier_id=supplier.id if supplier else None,
+                    supplier_id=supplier.id,
                     purchase_date=purchase_date,
                     unit_price=unit_price,
                     quantity_purchased=quantity_purchased,
@@ -3637,8 +3567,13 @@ def import_purchases_from_bt_mobile(file_path: str) -> ImportResult:
                 result.add_error("purchase", upc, f"Failed to create purchase: {str(e)}")
                 continue
 
-        # Commit successful imports
-        session.commit()
+        # SC-008 Atomic: Only commit if zero errors
+        if result.failed == 0:
+            session.commit()
+        else:
+            # Rollback happens automatically when session_scope exits without commit
+            # Reset successful count since nothing was committed
+            result.successful = 0
 
     return result
 
@@ -3655,11 +3590,14 @@ def import_inventory_updates_from_bt_mobile(file_path: str) -> ImportResult:
     Adjusts InventoryItem quantities based on percentage remaining.
     Uses FIFO selection (oldest purchase_date first).
 
+    The import is ATOMIC per SC-008: if any record fails validation,
+    the entire import is rolled back with no partial data changes.
+
     Args:
         file_path: Path to JSON file with schema_version="4.0", import_type="inventory_updates"
 
     Returns:
-        ImportResult with success_count, error_count, and details
+        ImportResult with success_count (0 if any errors), error_count, and details
     """
     result = ImportResult()
 
@@ -3713,9 +3651,9 @@ def import_inventory_updates_from_bt_mobile(file_path: str) -> ImportResult:
                 continue
 
             # Get percentage from update data
-            percentage = update_data.get("percentage_remaining")
+            percentage = update_data.get("remaining_percentage")
             if percentage is None:
-                result.add_error("inventory_update", upc, "Missing percentage_remaining")
+                result.add_error("inventory_update", upc, "Missing remaining_percentage")
                 continue
 
             # Validate percentage range
@@ -3760,8 +3698,13 @@ def import_inventory_updates_from_bt_mobile(file_path: str) -> ImportResult:
 
             result.add_success("inventory_update")
 
-        # Commit successful updates
-        session.commit()
+        # SC-008 Atomic: Only commit if zero errors
+        if result.failed == 0:
+            session.commit()
+        else:
+            # Rollback happens automatically when session_scope exits without commit
+            # Reset successful count since nothing was committed
+            result.successful = 0
 
     return result
 

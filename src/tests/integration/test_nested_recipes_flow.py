@@ -454,8 +454,8 @@ class TestImportExportRoundTrip:
             # Verify deleted
             assert recipe_service.get_recipe_by_name("Parent Export") is None
 
-            # Re-import using v3 importer with merge mode
-            import_result = import_export_service.import_all_from_json_v3(export_file, mode="merge")
+            # Re-import using the current importer with merge mode
+            import_result = import_export_service.import_all_from_json_v4(export_file, mode="merge")
             assert import_result.successful > 0
 
             # Verify hierarchy restored
@@ -552,9 +552,9 @@ class TestBackwardCompatibility:
             assert "components" in recipe_data
             assert len(recipe_data["components"]) == 0
 
-            # Delete and reimport using v3 importer
+            # Delete and reimport using current importer
             recipe_service.delete_recipe(recipe.id)
-            import_result = import_export_service.import_all_from_json_v3(export_file, mode="merge")
+            import_result = import_export_service.import_all_from_json_v4(export_file, mode="merge")
             assert import_result.successful > 0
 
             # Verify restored

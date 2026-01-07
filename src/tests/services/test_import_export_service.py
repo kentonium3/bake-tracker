@@ -9,7 +9,7 @@ Tests cover:
 - export_production_records_to_json()
 - export_all_to_json() v3.0 format
 - ImportResult class with per-entity tracking and merge
-- import_all_from_json_v3() with mode support
+- import_all_from_json_v4() with mode support
 - Version field handling (informational only, no validation)
 - New entity import functions
 """
@@ -31,7 +31,7 @@ from src.services.import_export_service import (
     export_finished_units_to_json,
     export_package_finished_goods_to_json,
     export_production_records_to_json,
-    import_all_from_json_v3,
+    import_all_from_json_v4,
     import_inventory_updates_from_bt_mobile,
 )
 
@@ -497,10 +497,10 @@ class TestImportResult:
         assert "recipe" in summary
 
 class TestImportVersionHandling:
-    """Tests for version field handling (informational only, no validation)."""
+    """Tests for version field handling (ignored by importer)."""
 
     def test_import_accepts_any_version(self):
-        """Test import accepts files with any version value."""
+        """Test import accepts files with any version value (version is ignored)."""
         for version in ["1.0", "2.0", "3.4", "3.5", "4.0", "99.99"]:
             test_data = {
                 "version": version,
@@ -515,8 +515,8 @@ class TestImportVersionHandling:
                 temp_path = f.name
 
             try:
-                # Should not raise - version is informational only
-                result = import_all_from_json_v3(temp_path)
+                # Should not raise due to version - version is ignored
+                result = import_all_from_json_v4(temp_path)
                 assert result is not None, f"Import failed for version {version}"
             except Exception as e:
                 # Only fail if it's a version-related error
@@ -526,7 +526,7 @@ class TestImportVersionHandling:
                 os.unlink(temp_path)
 
     def test_import_accepts_missing_version(self):
-        """Test import accepts files without version field."""
+        """Test import accepts files without version field (version is optional)."""
         no_version_data = {
             "exported_at": "2025-12-04T00:00:00Z",
             "application": "bake-tracker",
@@ -540,7 +540,7 @@ class TestImportVersionHandling:
 
         try:
             # Should not raise - version is optional
-            result = import_all_from_json_v3(temp_path)
+            result = import_all_from_json_v4(temp_path)
             assert result is not None
         except Exception as e:
             # Only fail if it's a version-related error
@@ -562,7 +562,7 @@ class TestImportModeValidation:
 
         try:
             with pytest.raises(ValueError) as exc_info:
-                import_all_from_json_v3(temp_path, mode="invalid")
+                import_all_from_json_v4(temp_path, mode="invalid")
 
             assert "Invalid import mode" in str(exc_info.value)
             assert "merge" in str(exc_info.value)
@@ -580,7 +580,7 @@ class TestImportModeValidation:
 
         try:
             # Should not raise ValueError for mode
-            result = import_all_from_json_v3(temp_path, mode="merge")
+            result = import_all_from_json_v4(temp_path, mode="merge")
             assert result is not None
         except ValueError as e:
             if "mode" in str(e).lower():
@@ -600,7 +600,7 @@ class TestImportModeValidation:
 
         try:
             # Should not raise ValueError for mode
-            result = import_all_from_json_v3(temp_path, mode="replace")
+            result = import_all_from_json_v4(temp_path, mode="replace")
             assert result is not None
         except ValueError as e:
             if "mode" in str(e).lower():
@@ -615,7 +615,7 @@ class TestImportUserFriendlyErrors:
 
     def test_file_not_found_error(self):
         """Test file not found returns ImportResult with error."""
-        result = import_all_from_json_v3("/nonexistent/path/data.json")
+        result = import_all_from_json_v4("/nonexistent/path/data.json")
 
         assert result.failed > 0 or len(result.errors) > 0
 
@@ -1180,7 +1180,7 @@ class TestImportUnitValidation:
             temp_path = f.name
 
         try:
-            result = import_all_from_json_v3(temp_path)
+            result = import_all_from_json_v4(temp_path)
             # Check that product was imported (no unit error)
             product_errors = [e for e in result.errors if e["record_type"] == "product"]
             assert len(product_errors) == 0, f"Expected no product errors, got: {product_errors}"
@@ -1220,7 +1220,7 @@ class TestImportUnitValidation:
             temp_path = f.name
 
         try:
-            result = import_all_from_json_v3(temp_path)
+            result = import_all_from_json_v4(temp_path)
             # Check for unit validation error
             product_errors = [e for e in result.errors if e["record_type"] == "product"]
             assert len(product_errors) > 0, "Expected product error for invalid unit"
@@ -1257,7 +1257,7 @@ class TestImportUnitValidation:
             temp_path = f.name
 
         try:
-            result = import_all_from_json_v3(temp_path)
+            result = import_all_from_json_v4(temp_path)
             # Check for ingredient error
             ingredient_errors = [e for e in result.errors if e["record_type"] == "ingredient"]
             assert len(ingredient_errors) > 0, "Expected ingredient error for invalid density_volume_unit"
@@ -1294,7 +1294,7 @@ class TestImportUnitValidation:
             temp_path = f.name
 
         try:
-            result = import_all_from_json_v3(temp_path)
+            result = import_all_from_json_v4(temp_path)
             ingredient_errors = [e for e in result.errors if e["record_type"] == "ingredient"]
             assert len(ingredient_errors) > 0, "Expected ingredient error for invalid density_weight_unit"
             error_msg = str(ingredient_errors[0])
@@ -1326,7 +1326,7 @@ class TestImportUnitValidation:
             temp_path = f.name
 
         try:
-            result = import_all_from_json_v3(temp_path)
+            result = import_all_from_json_v4(temp_path)
             ingredient_errors = [e for e in result.errors if e["record_type"] == "ingredient"]
             # Should have no density-related errors
             unit_errors = [e for e in ingredient_errors if "unit" in str(e).lower()]
@@ -1373,7 +1373,7 @@ class TestImportUnitValidation:
             temp_path = f.name
 
         try:
-            result = import_all_from_json_v3(temp_path)
+            result = import_all_from_json_v4(temp_path)
             recipe_errors = [e for e in result.errors if e["record_type"] == "recipe"]
             assert len(recipe_errors) > 0, "Expected recipe error for invalid ingredient unit"
             error_msg = str(recipe_errors[0])
@@ -1420,7 +1420,7 @@ class TestImportUnitValidation:
             temp_path = f.name
 
         try:
-            result = import_all_from_json_v3(temp_path)
+            result = import_all_from_json_v4(temp_path)
             recipe_errors = [e for e in result.errors if e["record_type"] == "recipe"]
             unit_errors = [e for e in recipe_errors if "unit" in str(e).lower()]
             assert len(unit_errors) == 0, f"Expected no unit errors for valid units, got: {unit_errors}"
@@ -1459,7 +1459,7 @@ class TestImportUnitValidation:
             temp_path = f.name
 
         try:
-            result = import_all_from_json_v3(temp_path)
+            result = import_all_from_json_v4(temp_path)
             product_errors = [e for e in result.errors if e["record_type"] == "product"]
             if product_errors:
                 error_msg = str(product_errors[0]["message"])
@@ -1478,7 +1478,7 @@ class TestRecipeComponentImport:
     def test_import_recipe_with_components(self, test_db, tmp_path):
         """Import creates recipe component relationships."""
         from src.services import ingredient_service, recipe_service
-        from src.services.import_export_service import export_all_to_json, import_all_from_json_v3
+        from src.services.import_export_service import export_all_to_json, import_all_from_json_v4
 
         # Create test data
         flour = ingredient_service.create_ingredient(
@@ -1520,7 +1520,7 @@ class TestRecipeComponentImport:
         assert recipe_service.get_recipe_by_name("Import Test Parent") is None
 
         # Import
-        result = import_all_from_json_v3(str(export_file), mode="merge")
+        result = import_all_from_json_v4(str(export_file), mode="merge")
         assert result.successful > 0
 
         # Verify component relationship restored
@@ -1535,7 +1535,7 @@ class TestRecipeComponentImport:
 
     def test_import_missing_component_recipe_errors(self, test_db, tmp_path):
         """Import errors gracefully when component recipe doesn't exist."""
-        from src.services.import_export_service import import_all_from_json_v3
+        from src.services.import_export_service import import_all_from_json_v4
 
         # Create a minimal v3.4 import file with missing component reference
         import_data = {
@@ -1588,7 +1588,7 @@ class TestRecipeComponentImport:
             json.dump(import_data, f)
 
         # Import should succeed but report error for component
-        result = import_all_from_json_v3(str(import_file), mode="merge")
+        result = import_all_from_json_v4(str(import_file), mode="merge")
 
         # Recipe itself should be created
         assert result.successful >= 1
@@ -1604,7 +1604,7 @@ class TestRecipeComponentImport:
     def test_import_rejects_circular_reference(self, test_db, tmp_path):
         """Import rejects components that would create circular references."""
         from src.services import ingredient_service, recipe_service
-        from src.services.import_export_service import import_all_from_json_v3
+        from src.services.import_export_service import import_all_from_json_v4
 
         # Create two recipes
         flour = ingredient_service.create_ingredient(
@@ -1667,7 +1667,7 @@ class TestRecipeComponentImport:
             json.dump(import_data, f)
 
         # Import should reject the circular reference
-        result = import_all_from_json_v3(str(import_file), mode="merge")
+        result = import_all_from_json_v4(str(import_file), mode="merge")
 
         # Should have an error about circular reference
         error_found = any(
@@ -1679,7 +1679,7 @@ class TestRecipeComponentImport:
     def test_import_skips_duplicate_components(self, test_db, tmp_path):
         """Import skips components that already exist."""
         from src.services import ingredient_service, recipe_service
-        from src.services.import_export_service import export_all_to_json, import_all_from_json_v3
+        from src.services.import_export_service import export_all_to_json, import_all_from_json_v4
 
         # Create recipes with component
         flour = ingredient_service.create_ingredient(
@@ -1703,7 +1703,7 @@ class TestRecipeComponentImport:
         export_all_to_json(str(export_file))
 
         # Import again (should skip duplicates)
-        result = import_all_from_json_v3(str(export_file), mode="merge")
+        result = import_all_from_json_v4(str(export_file), mode="merge")
 
         # Component should be skipped (already exists)
         # result.skipped is a count of skipped items
@@ -1916,7 +1916,7 @@ class TestRecipeImportV4:
 
     def test_import_base_recipe_with_f037_fields(self, tmp_path):
         """Test import recipe with variant_name, is_production_ready fields."""
-        from src.services.import_export_service import import_all_from_json_v3
+        from src.services.import_export_service import import_all_from_json_v4
         from src.services.database import session_scope
         from src.models.recipe import Recipe
 
@@ -1947,7 +1947,7 @@ class TestRecipeImportV4:
             json.dump(import_data, f)
 
         # Import
-        result = import_all_from_json_v3(str(import_file), mode="replace")
+        result = import_all_from_json_v4(str(import_file), mode="replace")
 
         assert result.successful > 0, f"Import failed: {result.errors}"
         assert result.failed == 0
@@ -1962,7 +1962,7 @@ class TestRecipeImportV4:
 
     def test_import_variant_recipe(self, tmp_path):
         """Test import variant with base_recipe_slug, verify FK set."""
-        from src.services.import_export_service import import_all_from_json_v3
+        from src.services.import_export_service import import_all_from_json_v4
         from src.services.database import session_scope
         from src.models.recipe import Recipe
 
@@ -2005,7 +2005,7 @@ class TestRecipeImportV4:
             json.dump(import_data, f)
 
         # Import
-        result = import_all_from_json_v3(str(import_file), mode="replace")
+        result = import_all_from_json_v4(str(import_file), mode="replace")
 
         assert result.successful >= 2, f"Import failed: {result.errors}"
         assert result.failed == 0
@@ -2022,7 +2022,7 @@ class TestRecipeImportV4:
 
     def test_import_recipe_with_finished_units(self, tmp_path):
         """Test import recipe with finished_units, verify yield_mode."""
-        from src.services.import_export_service import import_all_from_json_v3
+        from src.services.import_export_service import import_all_from_json_v4
         from src.services.database import session_scope
         from src.models.recipe import Recipe
         from src.models.finished_unit import FinishedUnit, YieldMode
@@ -2062,7 +2062,7 @@ class TestRecipeImportV4:
             json.dump(import_data, f)
 
         # Import
-        result = import_all_from_json_v3(str(import_file), mode="replace")
+        result = import_all_from_json_v4(str(import_file), mode="replace")
 
         assert result.successful >= 2, f"Import failed: {result.errors}"  # 1 recipe + 1 finished_unit
         assert result.failed == 0
@@ -2081,7 +2081,7 @@ class TestRecipeImportV4:
 
     def test_import_variant_before_base_sorted(self, tmp_path):
         """Test import JSON with variant listed first - should still work due to sorting."""
-        from src.services.import_export_service import import_all_from_json_v3
+        from src.services.import_export_service import import_all_from_json_v4
         from src.services.database import session_scope
         from src.models.recipe import Recipe
 
@@ -2126,7 +2126,7 @@ class TestRecipeImportV4:
             json.dump(import_data, f)
 
         # Import - should succeed because T006 sorts base before variants
-        result = import_all_from_json_v3(str(import_file), mode="replace")
+        result = import_all_from_json_v4(str(import_file), mode="replace")
 
         assert result.failed == 0, f"Import failed: {result.errors}"
         assert result.successful >= 2
@@ -2142,7 +2142,7 @@ class TestRecipeImportV4:
 
     def test_import_invalid_base_recipe_slug(self, tmp_path):
         """Test import with non-existent base_recipe_slug, verify error."""
-        from src.services.import_export_service import import_all_from_json_v3
+        from src.services.import_export_service import import_all_from_json_v4
 
         # Create JSON with invalid base_recipe_slug
         import_data = {
@@ -2171,7 +2171,7 @@ class TestRecipeImportV4:
             json.dump(import_data, f)
 
         # Import - should record an error for the invalid reference
-        result = import_all_from_json_v3(str(import_file), mode="replace")
+        result = import_all_from_json_v4(str(import_file), mode="replace")
 
         assert result.failed > 0, "Expected error for invalid base_recipe_slug"
         # Check that error message mentions base recipe not found
@@ -2181,7 +2181,7 @@ class TestRecipeImportV4:
 
     def test_import_recipe_roundtrip(self, tmp_path):
         """Test import then verify data matches - verifies F037 fields roundtrip."""
-        from src.services.import_export_service import import_all_from_json_v3
+        from src.services.import_export_service import import_all_from_json_v4
         from src.services.database import session_scope
         from src.models.recipe import Recipe
         from src.models.finished_unit import FinishedUnit, YieldMode
@@ -2234,7 +2234,7 @@ class TestRecipeImportV4:
             json.dump(import_data, f)
 
         # Import
-        result = import_all_from_json_v3(str(import_file), mode="replace")
+        result = import_all_from_json_v4(str(import_file), mode="replace")
 
         assert result.failed == 0, f"Import failed: {result.failed}, errors: {result.errors}"
 
@@ -2332,7 +2332,7 @@ class TestEventExportImportV4:
 
     def test_import_event_with_output_mode(self, tmp_path):
         """Test import JSON with output_mode, verify database."""
-        from src.services.import_export_service import import_all_from_json_v3
+        from src.services.import_export_service import import_all_from_json_v4
         from src.services.database import session_scope
         from src.models.event import Event, OutputMode
 
@@ -2354,7 +2354,7 @@ class TestEventExportImportV4:
             json.dump(import_data, f)
 
         # Import
-        result = import_all_from_json_v3(str(import_file), mode="replace")
+        result = import_all_from_json_v4(str(import_file), mode="replace")
 
         assert result.failed == 0, f"Import failed: {result.errors}"
 
@@ -2366,7 +2366,7 @@ class TestEventExportImportV4:
 
     def test_import_event_invalid_output_mode(self, tmp_path):
         """Test import with bad output_mode value, verify error."""
-        from src.services.import_export_service import import_all_from_json_v3
+        from src.services.import_export_service import import_all_from_json_v4
 
         # Create JSON with invalid output_mode
         import_data = {
@@ -2386,7 +2386,7 @@ class TestEventExportImportV4:
             json.dump(import_data, f)
 
         # Import - should record an error
-        result = import_all_from_json_v3(str(import_file), mode="replace")
+        result = import_all_from_json_v4(str(import_file), mode="replace")
 
         assert result.failed > 0, "Expected error for invalid output_mode"
         error_messages = [str(e) for e in result.errors]
@@ -2395,7 +2395,7 @@ class TestEventExportImportV4:
 
     def test_import_event_bundled_without_targets_warns(self, tmp_path):
         """Test import event with bundled mode but no assembly targets, verify warning."""
-        from src.services.import_export_service import import_all_from_json_v3
+        from src.services.import_export_service import import_all_from_json_v4
 
         # Create JSON with bundled mode but no assembly targets
         import_data = {
@@ -2416,7 +2416,7 @@ class TestEventExportImportV4:
             json.dump(import_data, f)
 
         # Import - should succeed but with warning
-        result = import_all_from_json_v3(str(import_file), mode="replace")
+        result = import_all_from_json_v4(str(import_file), mode="replace")
 
         assert result.failed == 0, f"Import should succeed: {result.errors}"
         assert len(result.warnings) > 0, "Expected warning for bundled without targets"
@@ -2426,7 +2426,7 @@ class TestEventExportImportV4:
 
     def test_import_event_roundtrip(self, tmp_path):
         """Test import with output_mode then verify data matches."""
-        from src.services.import_export_service import import_all_from_json_v3
+        from src.services.import_export_service import import_all_from_json_v4
         from src.services.database import session_scope
         from src.models.event import Event, OutputMode
 
@@ -2449,7 +2449,7 @@ class TestEventExportImportV4:
             json.dump(import_data, f)
 
         # Import
-        result = import_all_from_json_v3(str(import_file), mode="replace")
+        result = import_all_from_json_v4(str(import_file), mode="replace")
 
         # Warnings expected for missing targets, but not errors
         assert result.failed == 0, f"Import failed: {result.errors}"
@@ -2464,14 +2464,10 @@ class TestEventExportImportV4:
 
 
 class TestVersionBumpV4:
-    """Tests for WP04 - Version Bump and Function Rename.
+    """Tests for WP04 - Version field behavior (non-gating).
 
-    Test cases:
-    - test_export_produces_version_4: Export file has version "4.0"
-    - test_import_rejects_v3_file: v3.5 file produces clear error
-    - test_import_rejects_v36_file: v3.6 file produces clear error
-    - test_import_accepts_v4_file: v4.0 file imports successfully
-    - test_deprecated_v3_function_warns: Calling v3 function shows deprecation warning
+    Policy: the app does not gate imports based on version. Files must comply
+    with the current expected schema; the 'version' field is informational only.
     """
 
     def test_export_produces_version_4(self, test_db, tmp_path):
@@ -2487,56 +2483,6 @@ class TestVersionBumpV4:
 
         assert data.get("version") == "4.0", f"Expected version 4.0, got {data.get('version')}"
         assert data.get("application") == "bake-tracker"
-
-    def test_import_rejects_v35_file(self, test_db, tmp_path):
-        """v3.5 format files should be rejected with clear error message."""
-        from src.services.import_export_service import import_all_from_json_v4
-
-        # Create a v3.5 format file
-        import_file = tmp_path / "v35_data.json"
-        v35_data = {
-            "version": "3.5",
-            "application": "bake-tracker",
-            "exported_at": "2025-01-01T00:00:00Z",
-            "ingredients": [],
-            "recipes": [],
-        }
-        with open(import_file, "w") as f:
-            json.dump(v35_data, f)
-
-        # Import should fail with version error
-        result = import_all_from_json_v4(str(import_file), mode="merge")
-
-        assert result.failed > 0, "Expected import to fail for v3.5 file"
-        assert len(result.errors) > 0, "Expected error message for version mismatch"
-        error_msg = result.errors[0]["message"]
-        assert "3.5" in error_msg, f"Error should mention the file version: {error_msg}"
-        assert "4.0" in error_msg, f"Error should mention required version: {error_msg}"
-
-    def test_import_rejects_v36_file(self, test_db, tmp_path):
-        """v3.6 format files should be rejected with clear error message."""
-        from src.services.import_export_service import import_all_from_json_v4
-
-        # Create a v3.6 format file
-        import_file = tmp_path / "v36_data.json"
-        v36_data = {
-            "version": "3.6",
-            "application": "bake-tracker",
-            "exported_at": "2025-06-01T00:00:00Z",
-            "ingredients": [],
-            "recipes": [],
-        }
-        with open(import_file, "w") as f:
-            json.dump(v36_data, f)
-
-        # Import should fail with version error
-        result = import_all_from_json_v4(str(import_file), mode="merge")
-
-        assert result.failed > 0, "Expected import to fail for v3.6 file"
-        assert len(result.errors) > 0, "Expected error message for version mismatch"
-        error_msg = result.errors[0]["message"]
-        assert "3.6" in error_msg, f"Error should mention the file version: {error_msg}"
-        assert "4.0" in error_msg, f"Error should mention required version: {error_msg}"
 
     def test_import_accepts_v4_file(self, test_db, tmp_path):
         """v4.0 format files should import successfully."""
@@ -2582,39 +2528,8 @@ class TestVersionBumpV4:
             assert ing is not None, "Ingredient was not imported"
             assert ing.display_name == "Test Flour"
 
-    def test_deprecated_v3_function_warns(self, test_db, tmp_path):
-        """Calling import_all_from_json_v3 should show deprecation warning."""
-        import warnings
-        from src.services.import_export_service import import_all_from_json_v3
-
-        # Create a v4.0 format file (since v3 function now requires v4 format)
-        import_file = tmp_path / "v40_data.json"
-        v40_data = {
-            "version": "4.0",
-            "application": "bake-tracker",
-            "exported_at": "2026-01-07T00:00:00Z",
-            "ingredients": [],
-            "recipes": [],
-        }
-        with open(import_file, "w") as f:
-            json.dump(v40_data, f)
-
-        # Call deprecated function and check for warning
-        with warnings.catch_warnings(record=True) as w:
-            warnings.simplefilter("always")
-            result = import_all_from_json_v3(str(import_file), mode="replace")
-
-            # Check that deprecation warning was raised
-            assert len(w) == 1, f"Expected 1 warning, got {len(w)}"
-            assert issubclass(w[0].category, DeprecationWarning)
-            assert "deprecated" in str(w[0].message).lower()
-            assert "import_all_from_json_v4" in str(w[0].message)
-
-        # Function should still work (calls v4 internally)
-        assert result.failed == 0, f"Deprecated function failed: {result.errors}"
-
-    def test_import_missing_version_rejected(self, test_db, tmp_path):
-        """Files without version field should be rejected."""
+    def test_import_missing_version_accepted(self, test_db, tmp_path):
+        """Files without version field should not be rejected on version alone."""
         from src.services.import_export_service import import_all_from_json_v4
 
         # Create a file without version
@@ -2627,12 +2542,9 @@ class TestVersionBumpV4:
         with open(import_file, "w") as f:
             json.dump(data, f)
 
-        # Import should fail
+        # Import should not fail due to missing version
         result = import_all_from_json_v4(str(import_file), mode="merge")
-
-        assert result.failed > 0, "Expected import to fail for file without version"
-        error_msg = result.errors[0]["message"]
-        assert "None" in error_msg or "version" in error_msg.lower()
+        assert result.failed == 0, f"Import should not fail due to missing version: {result.errors}"
 
 
 class TestPurchaseImportFromBTMobile:
@@ -2927,7 +2839,7 @@ class TestInventoryUpdateFromBTMobile:
                 {
                     "upc": "051000127952",
                     "scanned_at": "2026-01-06T14:15:23Z",
-                    "percentage_remaining": 50
+                    "remaining_percentage": 50
                 }
             ]
         }
@@ -3000,7 +2912,7 @@ class TestInventoryUpdateFromBTMobile:
             "schema_version": "4.0",
             "import_type": "inventory_updates",
             "inventory_updates": [
-                {"upc": "051000127953", "percentage_remaining": 0}
+                {"upc": "051000127953", "remaining_percentage": 0}
             ]
         }
         file_path = tmp_path / "inventory_updates.json"
@@ -3072,7 +2984,7 @@ class TestInventoryUpdateFromBTMobile:
             "schema_version": "4.0",
             "import_type": "inventory_updates",
             "inventory_updates": [
-                {"upc": "051000127954", "percentage_remaining": 100}
+                {"upc": "051000127954", "remaining_percentage": 100}
             ]
         }
         file_path = tmp_path / "inventory_updates.json"
@@ -3143,7 +3055,7 @@ class TestInventoryUpdateFromBTMobile:
             "schema_version": "4.0",
             "import_type": "inventory_updates",
             "inventory_updates": [
-                {"upc": "051000127955", "percentage_remaining": 33}
+                {"upc": "051000127955", "remaining_percentage": 33}
             ]
         }
         file_path = tmp_path / "inventory_updates.json"
@@ -3216,7 +3128,7 @@ class TestInventoryUpdateFromBTMobile:
             "schema_version": "4.0",
             "import_type": "inventory_updates",
             "inventory_updates": [
-                {"upc": "051000127956", "percentage_remaining": 50}
+                {"upc": "051000127956", "remaining_percentage": 50}
             ]
         }
         file_path = tmp_path / "inventory_updates.json"
@@ -3311,7 +3223,7 @@ class TestInventoryUpdateFromBTMobile:
             "schema_version": "4.0",
             "import_type": "inventory_updates",
             "inventory_updates": [
-                {"upc": "051000127957", "percentage_remaining": 50}
+                {"upc": "051000127957", "remaining_percentage": 50}
             ]
         }
         file_path = tmp_path / "inventory_updates.json"
@@ -3407,7 +3319,7 @@ class TestInventoryUpdateFromBTMobile:
             "schema_version": "4.0",
             "import_type": "inventory_updates",
             "inventory_updates": [
-                {"upc": "051000127958", "percentage_remaining": 50}
+                {"upc": "051000127958", "remaining_percentage": 50}
             ]
         }
         file_path = tmp_path / "inventory_updates.json"
@@ -3431,7 +3343,7 @@ class TestInventoryUpdateFromBTMobile:
             "schema_version": "4.0",
             "import_type": "inventory_updates",
             "inventory_updates": [
-                {"upc": "999999999999", "percentage_remaining": 50}
+                {"upc": "999999999999", "remaining_percentage": 50}
             ]
         }
         file_path = tmp_path / "inventory_updates.json"
@@ -3471,7 +3383,7 @@ class TestInventoryUpdateFromBTMobile:
             "schema_version": "4.0",
             "import_type": "inventory_updates",
             "inventory_updates": [
-                {"upc": "051000127959", "percentage_remaining": 50}
+                {"upc": "051000127959", "remaining_percentage": 50}
             ]
         }
         file_path = tmp_path / "inventory_updates.json"
@@ -3522,7 +3434,7 @@ class TestInventoryUpdateFromBTMobile:
             "schema_version": "4.0",
             "import_type": "inventory_updates",
             "inventory_updates": [
-                {"upc": "051000127960", "percentage_remaining": 50}
+                {"upc": "051000127960", "remaining_percentage": 50}
             ]
         }
         file_path = tmp_path / "inventory_updates.json"
@@ -3585,7 +3497,7 @@ class TestInventoryUpdateFromBTMobile:
             "schema_version": "4.0",
             "import_type": "inventory_updates",
             "inventory_updates": [
-                {"upc": "051000127961", "percentage_remaining": 150}
+                {"upc": "051000127961", "remaining_percentage": 150}
             ]
         }
         file_path = tmp_path / "inventory_updates.json"
@@ -3643,7 +3555,7 @@ class TestInventoryUpdateFromBTMobile:
             "schema_version": "4.0",
             "import_type": "inventory_updates",
             "inventory_updates": [
-                {"percentage_remaining": 50}
+                {"remaining_percentage": 50}
             ]
         }
         file_path = tmp_path / "inventory_updates.json"
@@ -3655,7 +3567,7 @@ class TestInventoryUpdateFromBTMobile:
         assert "Missing UPC" in result.errors[0]["message"]
 
     def test_import_inventory_update_missing_percentage(self, test_db, tmp_path):
-        """Test error when percentage_remaining is missing."""
+        """Test error when remaining_percentage is missing."""
         from src.services.database import session_scope
         from src.models import Ingredient, Product, InventoryItem, Purchase, Supplier
         from datetime import date
@@ -3715,4 +3627,4 @@ class TestInventoryUpdateFromBTMobile:
         result = import_inventory_updates_from_bt_mobile(str(file_path))
 
         assert result.failed == 1
-        assert "Missing percentage_remaining" in result.errors[0]["message"]
+        assert "Missing remaining_percentage" in result.errors[0]["message"]

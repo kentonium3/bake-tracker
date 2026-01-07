@@ -61,7 +61,7 @@ from src.services.import_export_service import (
     export_recipients_to_json,
     export_events_to_json,
     export_all_to_json,
-    import_all_from_json_v3,
+    import_all_from_json_v4,
 )
 
 
@@ -170,11 +170,11 @@ def export_events(output_file: str):
 
 
 def import_all(input_file: str, mode: str = "merge"):
-    """Import all data from v3.2 format file."""
+    """Import all data from the current import/export format file."""
     print(f"Importing all data from {input_file} (mode: {mode})...")
 
     try:
-        result = import_all_from_json_v3(input_file, mode=mode)
+        result = import_all_from_json_v4(input_file, mode=mode)
         print(result.get_summary())
 
         if result.failed > 0:

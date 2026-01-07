@@ -306,7 +306,7 @@ class TestImportSuppliers:
             json.dump(import_data, f)
             import_path = f.name
 
-        result = import_export_service.import_all_from_json_v3(import_path, mode="merge")
+        result = import_export_service.import_all_from_json_v4(import_path, mode="merge")
 
         assert result.entity_counts["supplier"]["imported"] == 1
 
@@ -342,7 +342,7 @@ class TestImportSuppliers:
             import_path = f.name
 
         # Note: skip_duplicates is True by default in v3
-        result = import_export_service.import_all_from_json_v3(import_path, mode="merge")
+        result = import_export_service.import_all_from_json_v4(import_path, mode="merge")
 
         assert result.entity_counts["supplier"]["skipped"] == 1
 
@@ -389,7 +389,7 @@ class TestImportPurchases:
             json.dump(import_data, f)
             import_path = f.name
 
-        result = import_export_service.import_all_from_json_v3(import_path, mode="merge")
+        result = import_export_service.import_all_from_json_v4(import_path, mode="merge")
 
         assert result.entity_counts["purchase"]["imported"] == 1
 
@@ -432,7 +432,7 @@ class TestImportProducts:
             json.dump(import_data, f)
             import_path = f.name
 
-        result = import_export_service.import_all_from_json_v3(import_path, mode="merge")
+        result = import_export_service.import_all_from_json_v4(import_path, mode="merge")
 
         assert result.entity_counts["product"]["imported"] == 1
 
@@ -476,7 +476,7 @@ class TestImportInventoryItems:
             json.dump(import_data, f)
             import_path = f.name
 
-        result = import_export_service.import_all_from_json_v3(import_path, mode="merge")
+        result = import_export_service.import_all_from_json_v4(import_path, mode="merge")
 
         assert result.entity_counts["inventory_item"]["imported"] == 1
 
@@ -600,7 +600,7 @@ class TestImportOrder:
             import_path = f.name
 
         # Import with replace mode to use preserved IDs
-        result = import_export_service.import_all_from_json_v3(import_path, mode="replace")
+        result = import_export_service.import_all_from_json_v4(import_path, mode="replace")
 
         # Verify successful import
         assert result.entity_counts["supplier"]["imported"] == 1

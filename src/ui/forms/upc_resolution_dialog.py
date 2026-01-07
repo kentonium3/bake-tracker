@@ -372,7 +372,7 @@ class UPCResolutionDialog(ctk.CTkToplevel):
 
         try:
             with session_scope() as session:
-                product = session.query(Product).get(product_id)
+                product = session.get(Product, product_id)
                 if not product:
                     messagebox.showerror("Error", "Product not found in database.")
                     return
@@ -412,7 +412,7 @@ class UPCResolutionDialog(ctk.CTkToplevel):
                 if new_product_id:
                     # Update the UPC and create purchase
                     with session_scope() as session:
-                        product = session.query(Product).get(new_product_id)
+                        product = session.get(Product, new_product_id)
                         if product:
                             product.upc_code = self._current_purchase.get("upc")
                             self._create_purchase_for_product(product.id, session)
@@ -474,15 +474,16 @@ class UPCResolutionDialog(ctk.CTkToplevel):
         """Create Purchase and InventoryItem for the current purchase."""
         purchase_data = self._current_purchase
 
-        # Resolve supplier
+        # Resolve supplier - use "Unknown" as default if not provided
         supplier_name = purchase_data.get("supplier") or self._default_supplier
-        supplier = None
-        if supplier_name:
-            supplier = session.query(Supplier).filter_by(name=supplier_name).first()
-            if not supplier:
-                supplier = Supplier(name=supplier_name)
-                session.add(supplier)
-                session.flush()
+        if not supplier_name:
+            supplier_name = "Unknown"
+
+        supplier = session.query(Supplier).filter_by(name=supplier_name).first()
+        if not supplier:
+            supplier = Supplier(name=supplier_name)
+            session.add(supplier)
+            session.flush()
 
         # Parse date
         scanned_at = purchase_data.get("scanned_at")
@@ -503,7 +504,7 @@ class UPCResolutionDialog(ctk.CTkToplevel):
         # Create Purchase
         purchase = Purchase(
             product_id=product_id,
-            supplier_id=supplier.id if supplier else None,
+            supplier_id=supplier.id,
             purchase_date=purchase_date,
             unit_price=unit_price,
             quantity_purchased=quantity_purchased,

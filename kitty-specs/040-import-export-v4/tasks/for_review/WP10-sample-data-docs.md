@@ -215,25 +215,25 @@ history:
     {
       "upc": "016000196100",
       "scanned_at": "2026-01-06T14:55:00Z",
-      "percentage_remaining": 50,
+      "remaining_percentage": 50,
       "notes": "About half bag left"
     },
     {
       "upc": "051000127952",
       "scanned_at": "2026-01-06T14:56:00Z",
-      "percentage_remaining": 100,
+      "remaining_percentage": 100,
       "notes": "Unopened"
     },
     {
       "upc": "012345678901",
       "scanned_at": "2026-01-06T14:57:00Z",
-      "percentage_remaining": 0,
+      "remaining_percentage": 0,
       "notes": "Empty - discard"
     },
     {
       "upc": "098765432109",
       "scanned_at": "2026-01-06T14:58:00Z",
-      "percentage_remaining": 75
+      "remaining_percentage": 75
     }
   ]
 }
