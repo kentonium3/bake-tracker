@@ -35,11 +35,13 @@ Example Usage:
 
 from typing import Dict, Any, List, Optional
 from decimal import Decimal
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 
 from sqlalchemy.orm import Session, joinedload
 
 from ..models import InventoryItem, Product, Purchase, Supplier
+from ..models.inventory_depletion import InventoryDepletion  # Feature 041
+from ..models.enums import DepletionReason  # Feature 041
 from .database import session_scope
 from .exceptions import (
     ProductNotFound,
@@ -1075,3 +1077,120 @@ def _get_recent_ingredients_impl(
         reverse=True,
     )
     return [iid for iid, _ in sorted_ingredients[:limit]]
+
+
+# =============================================================================
+# Manual Inventory Adjustment Methods (Feature 041)
+# =============================================================================
+
+
+def manual_adjustment(
+    inventory_item_id: int,
+    quantity_to_deplete: Decimal,
+    reason: DepletionReason,
+    notes: Optional[str] = None,
+    session: Optional[Session] = None,
+) -> InventoryDepletion:
+    """
+    Manually adjust inventory by recording a depletion.
+
+    Creates an immutable InventoryDepletion audit record and updates
+    the InventoryItem quantity atomically.
+
+    Args:
+        inventory_item_id: ID of the InventoryItem to adjust
+        quantity_to_deplete: Amount to reduce (must be positive, <= current quantity)
+        reason: DepletionReason enum value
+        notes: Optional explanation (REQUIRED when reason is OTHER)
+        session: Optional SQLAlchemy session for transaction composability
+
+    Returns:
+        InventoryDepletion: The created depletion record
+
+    Raises:
+        InventoryItemNotFound: If inventory_item_id doesn't exist
+        ValidationError: If quantity/notes validation fails
+    """
+    def _do_adjustment(sess: Session) -> InventoryDepletion:
+        # Validate quantity is positive
+        if quantity_to_deplete <= Decimal("0"):
+            raise ServiceValidationError(["Quantity to deplete must be positive"])
+
+        # Validate notes for OTHER reason
+        if reason == DepletionReason.OTHER and not notes:
+            raise ServiceValidationError(["Notes are required when reason is OTHER"])
+
+        # Get inventory item
+        item = (
+            sess.query(InventoryItem)
+            .options(joinedload(InventoryItem.product))
+            .filter_by(id=inventory_item_id)
+            .first()
+        )
+        if not item:
+            raise InventoryItemNotFound(inventory_item_id)
+
+        # Validate quantity doesn't exceed available
+        current_qty = Decimal(str(item.quantity))
+        if quantity_to_deplete > current_qty:
+            raise ServiceValidationError([
+                f"Cannot deplete {quantity_to_deplete}: only {current_qty} available"
+            ])
+
+        # Calculate cost (quantity * unit_cost)
+        unit_cost = Decimal(str(item.unit_cost)) if item.unit_cost else Decimal("0")
+        cost = quantity_to_deplete * unit_cost
+
+        # Create depletion record
+        depletion = InventoryDepletion(
+            inventory_item_id=inventory_item_id,
+            quantity_depleted=quantity_to_deplete,
+            depletion_reason=reason.value,
+            depletion_date=datetime.now(),
+            notes=notes,
+            cost=cost,
+            created_by="desktop-user",
+        )
+        sess.add(depletion)
+
+        # Update inventory item quantity
+        item.quantity = float(current_qty - quantity_to_deplete)
+
+        sess.flush()
+        return depletion
+
+    # Session pattern per CLAUDE.md
+    if session is not None:
+        return _do_adjustment(session)
+    else:
+        with session_scope() as sess:
+            return _do_adjustment(sess)
+
+
+def get_depletion_history(
+    inventory_item_id: int,
+    session: Optional[Session] = None,
+) -> List[InventoryDepletion]:
+    """
+    Get depletion history for an inventory item.
+
+    Args:
+        inventory_item_id: ID of the InventoryItem
+        session: Optional SQLAlchemy session
+
+    Returns:
+        List[InventoryDepletion]: Depletion records ordered by depletion_date DESC
+    """
+    def _do_query(sess: Session) -> List[InventoryDepletion]:
+        return (
+            sess.query(InventoryDepletion)
+            .filter(InventoryDepletion.inventory_item_id == inventory_item_id)
+            .order_by(InventoryDepletion.depletion_date.desc())
+            .all()
+        )
+
+    if session is not None:
+        return _do_query(session)
+    else:
+        with session_scope() as sess:
+            return _do_query(sess)

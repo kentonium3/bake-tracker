@@ -8,9 +8,9 @@ subtasks:
   - "T009"
 title: "Service Methods Implementation"
 phase: "Phase 1 - Service Layer (Claude)"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
+agent: "claude"
 shell_pid: ""
 history:
   - timestamp: "2026-01-07T12:00:00Z"
@@ -286,3 +286,4 @@ print(f"Created depletion: {depletion.id}")
 ## Activity Log
 
 - 2026-01-07T12:00:00Z - system - lane=planned - Prompt created via /spec-kitty.tasks
+- 2026-01-07T16:54:05Z – claude – shell_pid= – lane=doing – Moved to doing
