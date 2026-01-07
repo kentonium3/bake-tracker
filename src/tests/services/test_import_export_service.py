@@ -1904,3 +1904,355 @@ class TestRecipeExportV4:
         assert recipe_data["is_production_ready"] is False  # Default value
         assert recipe_data["finished_units"] == []  # Empty array
 
+
+class TestRecipeImportV4:
+    """Tests for Feature 040 recipe import v4.0 fields (F037 support)."""
+
+    @pytest.fixture(autouse=True)
+    def setup_database(self, test_db):
+        """Use test database for each test."""
+        pass
+
+    def test_import_base_recipe_with_f037_fields(self, tmp_path):
+        """Test import recipe with variant_name, is_production_ready fields."""
+        from src.services.import_export_service import import_all_from_json_v3
+        from src.services.database import session_scope
+        from src.models.recipe import Recipe
+
+        # Create JSON with ingredient and recipe (replace mode clears all data)
+        import_data = {
+            "version": "4.0",
+            "ingredients": [
+                {"display_name": "Import V4 Flour", "slug": "import_v4_flour", "category": "Flour"}
+            ],
+            "recipes": [
+                {
+                    "name": "Import V4 Cookie",
+                    "category": "Cookies",
+                    "yield_quantity": 24,
+                    "yield_unit": "cookies",
+                    "variant_name": "Original",
+                    "is_production_ready": True,
+                    "base_recipe_slug": None,
+                    "ingredients": [
+                        {"ingredient_slug": "import_v4_flour", "quantity": 2.0, "unit": "cup"}
+                    ],
+                }
+            ],
+        }
+
+        import_file = tmp_path / "v4_import_f037.json"
+        with open(import_file, "w") as f:
+            json.dump(import_data, f)
+
+        # Import
+        result = import_all_from_json_v3(str(import_file), mode="replace")
+
+        assert result.successful > 0, f"Import failed: {result.errors}"
+        assert result.failed == 0
+
+        # Verify recipe in database
+        with session_scope() as session:
+            recipe = session.query(Recipe).filter_by(name="Import V4 Cookie").first()
+            assert recipe is not None
+            assert recipe.variant_name == "Original"
+            assert recipe.is_production_ready is True
+            assert recipe.base_recipe_id is None
+
+    def test_import_variant_recipe(self, tmp_path):
+        """Test import variant with base_recipe_slug, verify FK set."""
+        from src.services.import_export_service import import_all_from_json_v3
+        from src.services.database import session_scope
+        from src.models.recipe import Recipe
+
+        # Create JSON with ingredient, base and variant recipes
+        import_data = {
+            "version": "4.0",
+            "ingredients": [
+                {"display_name": "Variant Import Flour", "slug": "variant_import_flour", "category": "Flour"}
+            ],
+            "recipes": [
+                {
+                    "name": "Base Cookie Recipe",
+                    "category": "Cookies",
+                    "yield_quantity": 24,
+                    "yield_unit": "cookies",
+                    "variant_name": None,
+                    "is_production_ready": True,
+                    "base_recipe_slug": None,
+                    "ingredients": [
+                        {"ingredient_slug": "variant_import_flour", "quantity": 2.0, "unit": "cup"}
+                    ],
+                },
+                {
+                    "name": "Chocolate Chip Variant",
+                    "category": "Cookies",
+                    "yield_quantity": 24,
+                    "yield_unit": "cookies",
+                    "variant_name": "Chocolate Chip",
+                    "is_production_ready": False,
+                    "base_recipe_slug": "base_cookie_recipe",  # Should match base recipe
+                    "ingredients": [
+                        {"ingredient_slug": "variant_import_flour", "quantity": 2.0, "unit": "cup"}
+                    ],
+                },
+            ],
+        }
+
+        import_file = tmp_path / "v4_import_variant.json"
+        with open(import_file, "w") as f:
+            json.dump(import_data, f)
+
+        # Import
+        result = import_all_from_json_v3(str(import_file), mode="replace")
+
+        assert result.successful >= 2, f"Import failed: {result.errors}"
+        assert result.failed == 0
+
+        # Verify recipes in database
+        with session_scope() as session:
+            base_recipe = session.query(Recipe).filter_by(name="Base Cookie Recipe").first()
+            variant_recipe = session.query(Recipe).filter_by(name="Chocolate Chip Variant").first()
+
+            assert base_recipe is not None
+            assert variant_recipe is not None
+            assert variant_recipe.base_recipe_id == base_recipe.id
+            assert variant_recipe.variant_name == "Chocolate Chip"
+
+    def test_import_recipe_with_finished_units(self, tmp_path):
+        """Test import recipe with finished_units, verify yield_mode."""
+        from src.services.import_export_service import import_all_from_json_v3
+        from src.services.database import session_scope
+        from src.models.recipe import Recipe
+        from src.models.finished_unit import FinishedUnit, YieldMode
+
+        # Create JSON with ingredient, recipe and finished_units
+        import_data = {
+            "version": "4.0",
+            "ingredients": [
+                {"display_name": "FU Import Flour", "slug": "fu_import_flour", "category": "Flour"}
+            ],
+            "recipes": [
+                {
+                    "name": "Import FU Cookie",
+                    "category": "Cookies",
+                    "yield_quantity": 24,
+                    "yield_unit": "cookies",
+                    "is_production_ready": True,
+                    "base_recipe_slug": None,
+                    "ingredients": [
+                        {"ingredient_slug": "fu_import_flour", "quantity": 2.0, "unit": "cup"}
+                    ],
+                    "finished_units": [
+                        {
+                            "slug": "import-fu-cookie-dozen",
+                            "name": "Cookie Dozen",
+                            "yield_mode": "discrete_count",
+                            "unit_yield_quantity": 12,
+                            "unit_yield_unit": "cookie",
+                        }
+                    ],
+                }
+            ],
+        }
+
+        import_file = tmp_path / "v4_import_fu.json"
+        with open(import_file, "w") as f:
+            json.dump(import_data, f)
+
+        # Import
+        result = import_all_from_json_v3(str(import_file), mode="replace")
+
+        assert result.successful >= 2, f"Import failed: {result.errors}"  # 1 recipe + 1 finished_unit
+        assert result.failed == 0
+
+        # Verify in database
+        with session_scope() as session:
+            recipe = session.query(Recipe).filter_by(name="Import FU Cookie").first()
+            assert recipe is not None
+
+            fu = session.query(FinishedUnit).filter_by(slug="import-fu-cookie-dozen").first()
+            assert fu is not None
+            assert fu.recipe_id == recipe.id
+            assert fu.yield_mode == YieldMode.DISCRETE_COUNT
+            assert fu.items_per_batch == 12
+            assert fu.item_unit == "cookie"
+
+    def test_import_variant_before_base_sorted(self, tmp_path):
+        """Test import JSON with variant listed first - should still work due to sorting."""
+        from src.services.import_export_service import import_all_from_json_v3
+        from src.services.database import session_scope
+        from src.models.recipe import Recipe
+
+        # Create JSON with variant FIRST in the array (before base)
+        import_data = {
+            "version": "4.0",
+            "ingredients": [
+                {"display_name": "Sort Test Flour", "slug": "sort_test_flour", "category": "Flour"}
+            ],
+            "recipes": [
+                # Variant listed first - import should still succeed due to sorting
+                {
+                    "name": "Variant Listed First",
+                    "category": "Cookies",
+                    "yield_quantity": 24,
+                    "yield_unit": "cookies",
+                    "variant_name": "Raspberry",
+                    "is_production_ready": False,
+                    "base_recipe_slug": "base_listed_second",
+                    "ingredients": [
+                        {"ingredient_slug": "sort_test_flour", "quantity": 2.0, "unit": "cup"}
+                    ],
+                },
+                # Base listed second
+                {
+                    "name": "Base Listed Second",
+                    "category": "Cookies",
+                    "yield_quantity": 24,
+                    "yield_unit": "cookies",
+                    "variant_name": None,
+                    "is_production_ready": True,
+                    "base_recipe_slug": None,
+                    "ingredients": [
+                        {"ingredient_slug": "sort_test_flour", "quantity": 2.0, "unit": "cup"}
+                    ],
+                },
+            ],
+        }
+
+        import_file = tmp_path / "v4_import_sort.json"
+        with open(import_file, "w") as f:
+            json.dump(import_data, f)
+
+        # Import - should succeed because T006 sorts base before variants
+        result = import_all_from_json_v3(str(import_file), mode="replace")
+
+        assert result.failed == 0, f"Import failed: {result.errors}"
+        assert result.successful >= 2
+
+        # Verify FK relationship is correct
+        with session_scope() as session:
+            base = session.query(Recipe).filter_by(name="Base Listed Second").first()
+            variant = session.query(Recipe).filter_by(name="Variant Listed First").first()
+
+            assert base is not None
+            assert variant is not None
+            assert variant.base_recipe_id == base.id
+
+    def test_import_invalid_base_recipe_slug(self, tmp_path):
+        """Test import with non-existent base_recipe_slug, verify error."""
+        from src.services.import_export_service import import_all_from_json_v3
+
+        # Create JSON with invalid base_recipe_slug
+        import_data = {
+            "version": "4.0",
+            "ingredients": [
+                {"display_name": "Invalid Ref Flour", "slug": "invalid_ref_flour", "category": "Flour"}
+            ],
+            "recipes": [
+                {
+                    "name": "Orphan Variant",
+                    "category": "Cookies",
+                    "yield_quantity": 24,
+                    "yield_unit": "cookies",
+                    "variant_name": "Orphan",
+                    "is_production_ready": False,
+                    "base_recipe_slug": "nonexistent_base_recipe",  # This doesn't exist
+                    "ingredients": [
+                        {"ingredient_slug": "invalid_ref_flour", "quantity": 2.0, "unit": "cup"}
+                    ],
+                },
+            ],
+        }
+
+        import_file = tmp_path / "v4_import_invalid_ref.json"
+        with open(import_file, "w") as f:
+            json.dump(import_data, f)
+
+        # Import - should record an error for the invalid reference
+        result = import_all_from_json_v3(str(import_file), mode="replace")
+
+        assert result.failed > 0, "Expected error for invalid base_recipe_slug"
+        # Check that error message mentions base recipe not found
+        error_messages = [str(e) for e in result.errors]
+        assert any("not found" in msg.lower() or "base recipe" in msg.lower() for msg in error_messages), \
+            f"Expected error message about base recipe, got: {error_messages}"
+
+    def test_import_recipe_roundtrip(self, tmp_path):
+        """Test import then verify data matches - verifies F037 fields roundtrip."""
+        from src.services.import_export_service import import_all_from_json_v3
+        from src.services.database import session_scope
+        from src.models.recipe import Recipe
+        from src.models.finished_unit import FinishedUnit, YieldMode
+
+        # Create complete import data with all F037 fields
+        import_data = {
+            "version": "4.0",
+            "ingredients": [
+                {"display_name": "Roundtrip Flour", "slug": "roundtrip_flour", "category": "Flour"}
+            ],
+            "recipes": [
+                {
+                    "name": "Roundtrip Base",
+                    "category": "Cookies",
+                    "yield_quantity": 24,
+                    "yield_unit": "cookies",
+                    "is_production_ready": True,
+                    "base_recipe_slug": None,
+                    "variant_name": None,
+                    "ingredients": [
+                        {"ingredient_slug": "roundtrip_flour", "quantity": 2.0, "unit": "cup"}
+                    ],
+                    "finished_units": [
+                        {
+                            "slug": "roundtrip-fu",
+                            "name": "Roundtrip Unit",
+                            "yield_mode": "discrete_count",
+                            "unit_yield_quantity": 24,
+                            "unit_yield_unit": "cookie",
+                        }
+                    ],
+                },
+                {
+                    "name": "Roundtrip Variant Recipe",
+                    "category": "Cookies",
+                    "yield_quantity": 24,
+                    "yield_unit": "cookies",
+                    "is_production_ready": False,
+                    "base_recipe_slug": "roundtrip_base",
+                    "variant_name": "Roundtrip Variant",
+                    "ingredients": [
+                        {"ingredient_slug": "roundtrip_flour", "quantity": 2.0, "unit": "cup"}
+                    ],
+                },
+            ],
+        }
+
+        import_file = tmp_path / "roundtrip_import.json"
+        with open(import_file, "w") as f:
+            json.dump(import_data, f)
+
+        # Import
+        result = import_all_from_json_v3(str(import_file), mode="replace")
+
+        assert result.failed == 0, f"Import failed: {result.failed}, errors: {result.errors}"
+
+        # Verify all data imported correctly
+        with session_scope() as session:
+            base = session.query(Recipe).filter_by(name="Roundtrip Base").first()
+            variant = session.query(Recipe).filter_by(name="Roundtrip Variant Recipe").first()
+            fu = session.query(FinishedUnit).filter_by(slug="roundtrip-fu").first()
+
+            assert base is not None, "Base recipe not found after import"
+            assert base.is_production_ready is True
+            assert base.base_recipe_id is None
+
+            assert variant is not None, "Variant recipe not found after import"
+            assert variant.base_recipe_id == base.id
+            assert variant.variant_name == "Roundtrip Variant"
+
+            assert fu is not None, "FinishedUnit not found after import"
+            assert fu.yield_mode == YieldMode.DISCRETE_COUNT
+            assert fu.items_per_batch == 24
+            assert fu.item_unit == "cookie"
+

@@ -9,7 +9,7 @@ subtasks:
   - "T011"
 title: "Recipe Import v4.0"
 phase: "Phase 1 - Core Schema Upgrade"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "claude"
 shell_pid: "89028"
@@ -245,13 +245,13 @@ pytest src/tests/services/test_import_export_service.py::TestRecipeImportV4 -v
 
 ## Definition of Done Checklist
 
-- [ ] T006: Recipes sorted before import (base before variants)
-- [ ] T007: base_recipe_slug resolves to base_recipe_id
-- [ ] T008: variant_name, is_production_ready imported
-- [ ] T009: finished_units[] created with yield_mode
-- [ ] T010: Validation errors are clear and actionable
-- [ ] T011: All unit tests pass
-- [ ] Round-trip export -> import preserves all data
+- [x] T006: Recipes sorted before import (base before variants)
+- [x] T007: base_recipe_slug resolves to base_recipe_id
+- [x] T008: variant_name, is_production_ready imported
+- [x] T009: finished_units[] created with yield_mode
+- [x] T010: Validation errors are clear and actionable
+- [x] T011: All unit tests pass
+- [x] Round-trip export -> import preserves all data
 
 ## Review Guidance
 
@@ -264,3 +264,5 @@ pytest src/tests/services/test_import_export_service.py::TestRecipeImportV4 -v
 
 - 2026-01-06T12:00:00Z - system - lane=planned - Prompt created.
 - 2026-01-07T03:01:52Z – claude – shell_pid=89028 – lane=doing – Started implementation
+- 2026-01-07T03:45:00Z – claude – shell_pid=89028 – lane=doing – Completed T006-T011: Added recipe sorting (base before variants), base_recipe_slug resolution, F037 field imports, finished_units import with yield_mode, validation, and 6 unit tests. All tests passing.
+- 2026-01-07T03:10:33Z – claude – shell_pid=89028 – lane=for_review – Moved to for_review

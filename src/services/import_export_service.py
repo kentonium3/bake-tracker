@@ -2927,20 +2927,54 @@ def import_all_from_json_v3(file_path: str, mode: str = "merge") -> ImportResult
             session.flush()
 
             # 6. Recipes (depends on ingredients)
+            # Feature 040 / F037: Import recipes with variant support
             if "recipes" in data:
                 from src.models.recipe import Recipe, RecipeIngredient
-                
-                for recipe_data in data["recipes"]:
+                from src.models.finished_unit import FinishedUnit, YieldMode
+
+                # T006: Sort recipes - import base recipes before variants
+                # This ensures base_recipe exists when importing a variant
+                recipes_data = data["recipes"]
+                base_recipes = [r for r in recipes_data if not r.get("base_recipe_slug")]
+                variant_recipes = [r for r in recipes_data if r.get("base_recipe_slug")]
+                sorted_recipes = base_recipes + variant_recipes
+
+                for recipe_data in sorted_recipes:
                     try:
                         name = recipe_data.get("name", "")
-                        
+
                         if skip_duplicates:
                             existing = session.query(Recipe).filter_by(name=name).first()
                             if existing:
                                 result.add_skip("recipe", name, "Already exists")
                                 continue
-                        
-                        # Validate ingredients exist before creating recipe
+
+                        # T007: Resolve base_recipe_slug to base_recipe_id
+                        base_recipe_id = None
+                        base_recipe_slug = recipe_data.get("base_recipe_slug")
+                        if base_recipe_slug:
+                            # Convert slug back to name (slug format: lowercase with underscores)
+                            # Look up by matching the name pattern
+                            base_recipes_candidates = session.query(Recipe).all()
+                            base_recipe = None
+                            for candidate in base_recipes_candidates:
+                                # Generate slug from candidate name and compare
+                                candidate_slug = candidate.name.lower().replace(" ", "_")
+                                if candidate_slug == base_recipe_slug:
+                                    base_recipe = candidate
+                                    break
+
+                            if not base_recipe:
+                                result.add_error(
+                                    "recipe",
+                                    name,
+                                    f"Base recipe not found: {base_recipe_slug}",
+                                    suggestion="Ensure base recipe is exported and listed before variants.",
+                                )
+                                continue
+                            base_recipe_id = base_recipe.id
+
+                        # T010: Validate ingredients exist before creating recipe
                         recipe_ingredients_data = recipe_data.get("ingredients", [])
                         validated_ingredients = []
                         missing_ingredients = []
@@ -2978,8 +3012,26 @@ def import_all_from_json_v3(file_path: str, mode: str = "merge") -> ImportResult
                             for err in invalid_units:
                                 result.add_error("recipe", name, err)
                             continue
-                        
-                        # Create recipe (Recipe model doesn't have slug field)
+
+                        # T010: Validate finished_units yield_mode values before creating
+                        finished_units_data = recipe_data.get("finished_units", [])
+                        valid_yield_modes = [e.value for e in YieldMode]
+                        invalid_yield_mode = False
+                        for fu_data in finished_units_data:
+                            yield_mode_str = fu_data.get("yield_mode")
+                            if yield_mode_str and yield_mode_str not in valid_yield_modes:
+                                result.add_error(
+                                    "recipe",
+                                    name,
+                                    f"Invalid yield_mode: {yield_mode_str}. Valid values: {valid_yield_modes}",
+                                )
+                                invalid_yield_mode = True
+                                break
+                        if invalid_yield_mode:
+                            continue
+
+                        # Create recipe with F037 fields
+                        # T008: Import variant_name and is_production_ready
                         recipe = Recipe(
                             name=name,
                             category=recipe_data.get("category"),
@@ -2987,14 +3039,18 @@ def import_all_from_json_v3(file_path: str, mode: str = "merge") -> ImportResult
                             yield_quantity=recipe_data.get("yield_quantity"),
                             yield_unit=recipe_data.get("yield_unit"),
                             yield_description=recipe_data.get("yield_description"),
-                            estimated_time_minutes=recipe_data.get("estimated_time_minutes", 
-                                                                   recipe_data.get("prep_time_minutes", 0) + 
+                            estimated_time_minutes=recipe_data.get("estimated_time_minutes",
+                                                                   recipe_data.get("prep_time_minutes", 0) +
                                                                    recipe_data.get("cook_time_minutes", 0)),
                             notes=recipe_data.get("notes"),
+                            # F037 fields
+                            base_recipe_id=base_recipe_id,
+                            variant_name=recipe_data.get("variant_name"),
+                            is_production_ready=recipe_data.get("is_production_ready", False),
                         )
                         session.add(recipe)
                         session.flush()  # Get recipe ID
-                        
+
                         # Create recipe ingredients
                         for vi in validated_ingredients:
                             ri = RecipeIngredient(
@@ -3005,7 +3061,50 @@ def import_all_from_json_v3(file_path: str, mode: str = "merge") -> ImportResult
                                 notes=vi.get("notes"),
                             )
                             session.add(ri)
-                        
+
+                        # T009: Import finished_units[] with yield_mode
+                        for fu_data in finished_units_data:
+                            fu_slug = fu_data.get("slug")
+                            if not fu_slug:
+                                # Generate slug from name if not provided
+                                fu_name = fu_data.get("name", f"{name}_unit")
+                                fu_slug = fu_name.lower().replace(" ", "_")
+
+                            # Check for existing in merge mode
+                            if skip_duplicates:
+                                existing_fu = session.query(FinishedUnit).filter_by(slug=fu_slug).first()
+                                if existing_fu:
+                                    result.add_skip("finished_unit", fu_slug, "Already exists (from recipe import)")
+                                    continue
+
+                            # Convert yield_mode string to enum
+                            yield_mode_str = fu_data.get("yield_mode")
+                            yield_mode = YieldMode(yield_mode_str) if yield_mode_str else YieldMode.DISCRETE_COUNT
+
+                            # Build finished unit with mode-specific fields
+                            finished_unit = FinishedUnit(
+                                recipe_id=recipe.id,
+                                slug=fu_slug,
+                                display_name=fu_data.get("name", name),
+                                yield_mode=yield_mode,
+                            )
+
+                            # Set mode-specific fields based on yield_mode
+                            if yield_mode == YieldMode.DISCRETE_COUNT:
+                                if fu_data.get("unit_yield_quantity") is not None:
+                                    finished_unit.items_per_batch = int(fu_data["unit_yield_quantity"])
+                                if fu_data.get("unit_yield_unit"):
+                                    finished_unit.item_unit = fu_data["unit_yield_unit"]
+                            elif yield_mode == YieldMode.BATCH_PORTION:
+                                if fu_data.get("unit_yield_quantity") is not None:
+                                    from decimal import Decimal
+                                    finished_unit.batch_percentage = Decimal(str(fu_data["unit_yield_quantity"]))
+                                if fu_data.get("unit_yield_unit"):
+                                    finished_unit.portion_description = fu_data["unit_yield_unit"]
+
+                            session.add(finished_unit)
+                            result.add_success("finished_unit")
+
                         result.add_success("recipe")
                     except Exception as e:
                         result.add_error("recipe", recipe_data.get("name", "unknown"), str(e))
