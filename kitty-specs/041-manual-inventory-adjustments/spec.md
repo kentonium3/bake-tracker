@@ -6,6 +6,12 @@
 **Input**: User description: "Manual adjustment interface for inventory items supporting both additions and depletions. Depletions handle spoilage, gifts, corrections, ad hoc usage. Additions handle found inventory with smart defaults. Low friction UX with live preview."
 **Reference**: `docs/design/_F041_manual_inventory_adjust.md`
 
+## Clarifications
+
+### Session 2026-01-07
+
+- Q: When adding found inventory, should the product selection include only products already in inventory, any product from catalog, or allow inline product creation? → A: Any product from the product catalog (including those with no current inventory). Inventory adjustment workflow remains distinct from purchasing workflow where new products are added to catalog.
+
 ## Problem Statement
 
 Inventory records drift from physical reality over time because the system only tracks automatic depletions (production/assembly). Real-world changes occur outside the application:
@@ -76,7 +82,7 @@ User discovers inventory that wasn't in the system (found in back of pantry, rec
 
 **Acceptance Scenarios**:
 
-1. **Given** user finds 2 cups of cocoa powder not in system, **When** user adds inventory using product selection, **Then** system creates inventory record with today's date, last purchase price (or $0 if none), and optional supplier.
+1. **Given** user finds 2 cups of cocoa powder not currently in inventory, **When** user adds inventory by selecting cocoa powder from the product catalog, **Then** system creates inventory record with today's date, last purchase price (or $0 if none), and optional supplier.
 
 2. **Given** user adds found inventory, **When** user wants to specify a different date or price, **Then** user can override defaults before saving.
 
@@ -122,7 +128,7 @@ User consumed ingredients outside the app (testing recipes, personal use) and ne
 - **FR-009**: System MUST create a depletion record with quantity, reason, notes, timestamp, and user identifier
 
 **Addition (Add Inventory):**
-- **FR-010**: User MUST select a product when adding inventory
+- **FR-010**: User MUST select a product from the full product catalog when adding inventory (not limited to products currently in inventory)
 - **FR-011**: System MUST pre-populate defaults: date=today, price=last purchase price (or $0), supplier=optional
 - **FR-012**: User MAY override any default value before saving
 - **FR-013**: System MUST create an inventory record linked to the selected product
