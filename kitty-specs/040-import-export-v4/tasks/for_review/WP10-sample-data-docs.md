@@ -6,7 +6,7 @@ subtasks:
   - "T044"
 title: "Sample Data & Documentation"
 phase: "Phase 3 - Integration & Documentation"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "system"
 shell_pid: ""
@@ -289,3 +289,4 @@ pytest src/tests/services/test_import_export_service.py -v -k "sample"
 
 - 2026-01-06T12:00:00Z - system - lane=planned - Prompt created.
 - 2026-01-07T03:44:54Z – system – shell_pid= – lane=doing – Moved to doing
+- 2026-01-07T03:47:05Z – system – shell_pid= – lane=for_review – Moved to for_review
