@@ -1,0 +1,7 @@
+id,date,source_type,finding,decision_link,notes
+E001,2026-01-07,codebase,"No InventoryDepletion model exists in src/models/",D001-new-model,"Grep search returned no results for 'Depletion' pattern"
+E002,2026-01-07,codebase,"consume_fifo() modifies quantity without audit trail",D001-new-model,"inventory_item_service.py line 396-397"
+E003,2026-01-07,codebase,"enums.py uses str(Enum) pattern",D002-enum-pattern,"ProductionStatus and LossCategory both inherit from str and Enum"
+E004,2026-01-07,stakeholder,"Depletions only - increases go through Purchase workflow",D003-scope,"Spec clarification from planning interrogation"
+E005,2026-01-07,stakeholder,"Hardcode desktop-user for created_by field",D004-user-id,"Planning interrogation - single user desktop app"
+E006,2026-01-07,codebase,"Session management pattern documented in CLAUDE.md",D006-session,"Functions should accept session=None parameter"

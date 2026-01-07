@@ -1,0 +1,8 @@
+id,type,path_or_url,description,accessed_date
+S001,file,src/models/enums.py,Existing enum definitions (ProductionStatus LossCategory),2026-01-07
+S002,file,src/models/inventory_item.py,InventoryItem model definition,2026-01-07
+S003,file,src/services/inventory_item_service.py,FIFO consumption and inventory management service,2026-01-07
+S004,file,docs/design/_F041_manual_inventory_adjust.md,Feature design document,2026-01-07
+S005,file,kitty-specs/041-manual-inventory-adjustments/spec.md,Feature specification,2026-01-07
+S006,file,.kittify/memory/constitution.md,Project constitution,2026-01-07
+S007,file,CLAUDE.md,Agent instructions including session management pattern,2026-01-07

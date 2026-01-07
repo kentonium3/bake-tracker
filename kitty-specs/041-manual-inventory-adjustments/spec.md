@@ -102,6 +102,7 @@ User consumed ingredients outside the app (testing recipes, personal use) and ne
 - **FR-001**: System MUST provide an [Adjust] action on each inventory item in the Inventory tab
 - **FR-002**: Adjustment dialog MUST display current inventory details (product, purchase date, current quantity, unit cost)
 - **FR-003**: System MUST show live preview of new quantity and cost impact as user enters values (no additional click required)
+- **FR-004**: *(Reserved - removed during scope simplification to depletions-only)*
 
 **Depletion (Reduce Inventory):**
 - **FR-005**: User MUST enter a positive number representing the amount to reduce
@@ -139,6 +140,7 @@ User consumed ingredients outside the app (testing recipes, personal use) and ne
 
 ## Assumptions
 
-- Existing `InventoryDepletion` model can be extended with new reason values without schema migration
-- The `notes` field already exists on the depletion model
+- A new `InventoryDepletion` model will be created to track all inventory reductions (no existing model to extend)
+- The new model will include a `notes` field for user explanations
 - User identifier will use a simple string (e.g., "desktop-user") until multi-user authentication is implemented
+- Schema change will use export/reset/import cycle per Constitution Principle VI (no migration scripts)
