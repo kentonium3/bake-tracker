@@ -8,7 +8,7 @@ subtasks:
 title: "Integration Tests"
 phase: "Phase 3 - Integration & Documentation"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude-reviewer"
 shell_pid: ""
 review_status: ""

@@ -10,7 +10,7 @@ subtasks:
 title: "Recipe Import v4.0"
 phase: "Phase 1 - Core Schema Upgrade"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude-reviewer"
 shell_pid: "89028"
 review_status: ""

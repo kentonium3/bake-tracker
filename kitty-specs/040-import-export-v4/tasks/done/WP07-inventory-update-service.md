@@ -9,7 +9,7 @@ subtasks:
 title: "Inventory Update Service"
 phase: "Phase 2 - BT Mobile Workflows"
 lane: "done"
-assignee: ""
+assignee: "gemini"
 agent: "claude-reviewer"
 shell_pid: ""
 review_status: ""

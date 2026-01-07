@@ -10,7 +10,7 @@ subtasks:
 title: "Purchase Import Service"
 phase: "Phase 2 - BT Mobile Workflows"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude-reviewer"
 shell_pid: ""
 review_status: ""

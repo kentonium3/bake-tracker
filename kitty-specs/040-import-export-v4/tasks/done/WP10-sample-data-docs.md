@@ -7,7 +7,7 @@ subtasks:
 title: "Sample Data & Documentation"
 phase: "Phase 3 - Integration & Documentation"
 lane: "done"
-assignee: ""
+assignee: "gemini"
 agent: "claude-reviewer"
 shell_pid: ""
 review_status: ""

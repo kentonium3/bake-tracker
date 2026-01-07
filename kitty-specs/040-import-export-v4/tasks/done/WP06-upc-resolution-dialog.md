@@ -8,7 +8,7 @@ subtasks:
 title: "UPC Resolution Dialog"
 phase: "Phase 2 - BT Mobile Workflows"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude-reviewer"
 shell_pid: ""
 review_status: ""

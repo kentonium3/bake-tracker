@@ -7,7 +7,7 @@ subtasks:
 title: "Version Bump and Function Rename"
 phase: "Phase 1 - Core Schema Upgrade"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude-reviewer"
 shell_pid: ""
 review_status: ""
