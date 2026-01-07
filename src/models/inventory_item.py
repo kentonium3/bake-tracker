@@ -84,6 +84,7 @@ class InventoryItem(BaseModel):
     # Relationships
     product = relationship("Product", back_populates="inventory_items")
     purchase = relationship("Purchase", back_populates="inventory_items")
+    depletions = relationship("InventoryDepletion", back_populates="inventory_item")  # Feature 041
 
     # Indexes for common queries
     __table_args__ = (

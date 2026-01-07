@@ -41,7 +41,8 @@ from .production_record import ProductionRecord  # Feature 008
 from .production_run import ProductionRun  # Feature 013
 from .production_consumption import ProductionConsumption  # Feature 013
 from .production_loss import ProductionLoss  # Feature 025
-from .enums import ProductionStatus, LossCategory  # Feature 025
+from .enums import ProductionStatus, LossCategory, DepletionReason  # Feature 025, Feature 041
+from .inventory_depletion import InventoryDepletion  # Feature 041
 from .assembly_run import AssemblyRun  # Feature 013
 from .recipe_snapshot import RecipeSnapshot  # Feature 037
 from .assembly_finished_unit_consumption import AssemblyFinishedUnitConsumption  # Feature 013
@@ -97,6 +98,9 @@ __all__ = [
     "ProductionLoss",
     "ProductionStatus",
     "LossCategory",
+    # Inventory depletion tracking Feature 041
+    "DepletionReason",
+    "InventoryDepletion",
     # Unit reference table Feature 022
     "Unit",
     # Recipe snapshot Feature 037

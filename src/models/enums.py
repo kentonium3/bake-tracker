@@ -1,9 +1,10 @@
 """
-Enumerations for production tracking.
+Enumerations for production and inventory tracking.
 
 This module contains enums used across production-related models:
 - ProductionStatus: Outcome classification for production runs
 - LossCategory: Reason classification for production losses
+- DepletionReason: Reason classification for inventory depletions
 """
 
 from enum import Enum
@@ -48,4 +49,35 @@ class LossCategory(str, Enum):
     CONTAMINATED = "contaminated"
     DROPPED = "dropped"
     WRONG_INGREDIENTS = "wrong_ingredients"
+    OTHER = "other"
+
+
+class DepletionReason(str, Enum):
+    """
+    Reasons for inventory depletion.
+
+    Categorizes why inventory was reduced. Supports both automatic
+    system-generated depletions and manual user-initiated adjustments.
+
+    Automatic (system-generated):
+        PRODUCTION: Recipe execution consumed ingredients
+        ASSEMBLY: Bundle assembly consumed finished units (future)
+
+    Manual (user-initiated):
+        SPOILAGE: Ingredient went bad (mold, weevils, expiration)
+        GIFT: Gave to friend/family
+        CORRECTION: Physical count adjustment
+        AD_HOC_USAGE: Personal/testing usage outside app
+        OTHER: User-specified reason (requires notes)
+    """
+
+    # Automatic (system-generated)
+    PRODUCTION = "production"
+    ASSEMBLY = "assembly"
+
+    # Manual (user-initiated)
+    SPOILAGE = "spoilage"
+    GIFT = "gift"
+    CORRECTION = "correction"
+    AD_HOC_USAGE = "ad_hoc_usage"
     OTHER = "other"
