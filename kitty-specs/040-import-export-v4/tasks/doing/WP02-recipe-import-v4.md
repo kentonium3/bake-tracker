@@ -9,10 +9,10 @@ subtasks:
   - "T011"
 title: "Recipe Import v4.0"
 phase: "Phase 1 - Core Schema Upgrade"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "claude"
+shell_pid: "89028"
 review_status: ""
 reviewed_by: ""
 history:
@@ -263,3 +263,4 @@ pytest src/tests/services/test_import_export_service.py::TestRecipeImportV4 -v
 ## Activity Log
 
 - 2026-01-06T12:00:00Z - system - lane=planned - Prompt created.
+- 2026-01-07T03:01:52Z – claude – shell_pid=89028 – lane=doing – Started implementation
