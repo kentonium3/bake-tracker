@@ -6,9 +6,9 @@ subtasks:
   - "T044"
 title: "Sample Data & Documentation"
 phase: "Phase 3 - Integration & Documentation"
-lane: "for_review"
+lane: "done"
 assignee: ""
-agent: "system"
+agent: "claude-reviewer"
 shell_pid: ""
 review_status: ""
 reviewed_by: ""
@@ -290,3 +290,4 @@ pytest src/tests/services/test_import_export_service.py -v -k "sample"
 - 2026-01-06T12:00:00Z - system - lane=planned - Prompt created.
 - 2026-01-07T03:44:54Z – system – shell_pid= – lane=doing – Moved to doing
 - 2026-01-07T03:47:05Z – system – shell_pid= – lane=for_review – Moved to for_review
+- 2026-01-07T05:44:40Z – claude-reviewer – shell_pid= – lane=done – Approved: Sample data updated to v4.0, BT Mobile samples created

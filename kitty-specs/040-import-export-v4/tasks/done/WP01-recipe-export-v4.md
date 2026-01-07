@@ -8,9 +8,9 @@ subtasks:
   - "T005"
 title: "Recipe Export v4.0"
 phase: "Phase 1 - Core Schema Upgrade"
-lane: "for_review"
+lane: "done"
 assignee: ""
-agent: "claude"
+agent: "claude-reviewer"
 shell_pid: "89028"
 review_status: ""
 reviewed_by: ""
@@ -190,3 +190,4 @@ pytest src/tests/services/test_import_export_service.py::TestRecipeExportV4 -v
 - 2026-01-07T02:51:32Z – claude – shell_pid=89028 – lane=doing – Started implementation
 - 2026-01-07T03:15:00Z – claude – shell_pid=89028 – lane=doing – Completed T001-T005: Added base_recipe_slug, variant_name, is_production_ready, finished_units export. Added 4 unit tests. Note: Recipe model lacks slug column, using name-based slugs instead.
 - 2026-01-07T03:00:02Z – claude – shell_pid=89028 – lane=for_review – Ready for review - all subtasks complete, tests passing
+- 2026-01-07T05:42:58Z – claude-reviewer – shell_pid=89028 – lane=done – Approved: Tests pass, code follows spec patterns

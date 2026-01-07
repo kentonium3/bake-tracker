@@ -7,9 +7,9 @@ subtasks:
   - "T037"
 title: "Inventory Update Tests"
 phase: "Phase 2 - BT Mobile Workflows"
-lane: "for_review"
+lane: "done"
 assignee: ""
-agent: "system"
+agent: "claude-reviewer"
 shell_pid: ""
 review_status: ""
 reviewed_by: ""
@@ -293,3 +293,4 @@ pytest src/tests/services/test_import_export_service.py::TestInventoryUpdateFrom
 - 2026-01-06T12:00:00Z - system - lane=planned - Prompt created.
 - 2026-01-07T03:39:50Z – system – shell_pid= – lane=doing – Moved to doing
 - 2026-01-07T03:42:42Z – system – shell_pid= – lane=for_review – Moved to for_review
+- 2026-01-07T05:44:30Z – claude-reviewer – shell_pid= – lane=done – Approved: Tests pass, comprehensive coverage of edge cases

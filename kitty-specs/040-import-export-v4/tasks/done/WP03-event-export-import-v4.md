@@ -7,9 +7,9 @@ subtasks:
   - "T015"
 title: "Event Export/Import v4.0"
 phase: "Phase 1 - Core Schema Upgrade"
-lane: "for_review"
+lane: "done"
 assignee: ""
-agent: "system"
+agent: "claude-reviewer"
 shell_pid: ""
 review_status: ""
 reviewed_by: ""
@@ -184,3 +184,4 @@ pytest src/tests/services/test_import_export_service.py::TestEventExportImportV4
 - 2026-01-07T03:12:46Z – system – shell_pid= – lane=doing – Moved to doing
 - 2026-01-07T03:25:00Z – claude – shell_pid=89028 – lane=doing – Completed T012-T015: Added output_mode export/import, validation warnings for mismatched mode/targets, and 6 unit tests. All tests passing.
 - 2026-01-07T03:16:03Z – system – shell_pid= – lane=for_review – Moved to for_review
+- 2026-01-07T05:43:55Z – claude-reviewer – shell_pid= – lane=done – Approved: Tests pass, code follows spec patterns

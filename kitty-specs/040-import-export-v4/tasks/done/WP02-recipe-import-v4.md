@@ -9,9 +9,9 @@ subtasks:
   - "T011"
 title: "Recipe Import v4.0"
 phase: "Phase 1 - Core Schema Upgrade"
-lane: "for_review"
+lane: "done"
 assignee: ""
-agent: "claude"
+agent: "claude-reviewer"
 shell_pid: "89028"
 review_status: ""
 reviewed_by: ""
@@ -266,3 +266,4 @@ pytest src/tests/services/test_import_export_service.py::TestRecipeImportV4 -v
 - 2026-01-07T03:01:52Z – claude – shell_pid=89028 – lane=doing – Started implementation
 - 2026-01-07T03:45:00Z – claude – shell_pid=89028 – lane=doing – Completed T006-T011: Added recipe sorting (base before variants), base_recipe_slug resolution, F037 field imports, finished_units import with yield_mode, validation, and 6 unit tests. All tests passing.
 - 2026-01-07T03:10:33Z – claude – shell_pid=89028 – lane=for_review – Moved to for_review
+- 2026-01-07T05:43:51Z – claude-reviewer – shell_pid=89028 – lane=done – Approved: Tests pass, code follows spec patterns
