@@ -9,7 +9,7 @@ Tests cover:
 - export_production_records_to_json()
 - export_all_to_json() v3.0 format
 - ImportResult class with per-entity tracking and merge
-- import_all_from_json_v3() with mode support
+- import_all_from_json_v4() with mode support
 - Version field handling (informational only, no validation)
 - New entity import functions
 """
@@ -31,7 +31,8 @@ from src.services.import_export_service import (
     export_finished_units_to_json,
     export_package_finished_goods_to_json,
     export_production_records_to_json,
-    import_all_from_json_v3
+    import_all_from_json_v4,
+    import_inventory_updates_from_bt_mobile,
 )
 
 class TestExportResult:
@@ -496,10 +497,10 @@ class TestImportResult:
         assert "recipe" in summary
 
 class TestImportVersionHandling:
-    """Tests for version field handling (informational only, no validation)."""
+    """Tests for version field handling (ignored by importer)."""
 
     def test_import_accepts_any_version(self):
-        """Test import accepts files with any version value."""
+        """Test import accepts files with any version value (version is ignored)."""
         for version in ["1.0", "2.0", "3.4", "3.5", "4.0", "99.99"]:
             test_data = {
                 "version": version,
@@ -514,8 +515,8 @@ class TestImportVersionHandling:
                 temp_path = f.name
 
             try:
-                # Should not raise - version is informational only
-                result = import_all_from_json_v3(temp_path)
+                # Should not raise due to version - version is ignored
+                result = import_all_from_json_v4(temp_path)
                 assert result is not None, f"Import failed for version {version}"
             except Exception as e:
                 # Only fail if it's a version-related error
@@ -525,7 +526,7 @@ class TestImportVersionHandling:
                 os.unlink(temp_path)
 
     def test_import_accepts_missing_version(self):
-        """Test import accepts files without version field."""
+        """Test import accepts files without version field (version is optional)."""
         no_version_data = {
             "exported_at": "2025-12-04T00:00:00Z",
             "application": "bake-tracker",
@@ -539,7 +540,7 @@ class TestImportVersionHandling:
 
         try:
             # Should not raise - version is optional
-            result = import_all_from_json_v3(temp_path)
+            result = import_all_from_json_v4(temp_path)
             assert result is not None
         except Exception as e:
             # Only fail if it's a version-related error
@@ -553,7 +554,7 @@ class TestImportModeValidation:
 
     def test_invalid_mode_raises_error(self):
         """Test invalid mode raises ValueError."""
-        v3_data = {"version": "3.4", "ingredients": []}
+        v3_data = {"version": "4.0", "ingredients": []}
 
         with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
             json.dump(v3_data, f)
@@ -561,7 +562,7 @@ class TestImportModeValidation:
 
         try:
             with pytest.raises(ValueError) as exc_info:
-                import_all_from_json_v3(temp_path, mode="invalid")
+                import_all_from_json_v4(temp_path, mode="invalid")
 
             assert "Invalid import mode" in str(exc_info.value)
             assert "merge" in str(exc_info.value)
@@ -571,7 +572,7 @@ class TestImportModeValidation:
 
     def test_merge_mode_accepted(self):
         """Test merge mode is accepted."""
-        v3_data = {"version": "3.0", "ingredients": []}
+        v3_data = {"version": "4.0", "ingredients": []}
 
         with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
             json.dump(v3_data, f)
@@ -579,7 +580,7 @@ class TestImportModeValidation:
 
         try:
             # Should not raise ValueError for mode
-            result = import_all_from_json_v3(temp_path, mode="merge")
+            result = import_all_from_json_v4(temp_path, mode="merge")
             assert result is not None
         except ValueError as e:
             if "mode" in str(e).lower():
@@ -591,7 +592,7 @@ class TestImportModeValidation:
 
     def test_replace_mode_accepted(self):
         """Test replace mode is accepted."""
-        v3_data = {"version": "3.0", "ingredients": []}
+        v3_data = {"version": "4.0", "ingredients": []}
 
         with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
             json.dump(v3_data, f)
@@ -599,7 +600,7 @@ class TestImportModeValidation:
 
         try:
             # Should not raise ValueError for mode
-            result = import_all_from_json_v3(temp_path, mode="replace")
+            result = import_all_from_json_v4(temp_path, mode="replace")
             assert result is not None
         except ValueError as e:
             if "mode" in str(e).lower():
@@ -614,7 +615,7 @@ class TestImportUserFriendlyErrors:
 
     def test_file_not_found_error(self):
         """Test file not found returns ImportResult with error."""
-        result = import_all_from_json_v3("/nonexistent/path/data.json")
+        result = import_all_from_json_v4("/nonexistent/path/data.json")
 
         assert result.failed > 0 or len(result.errors) > 0
 
@@ -1153,7 +1154,7 @@ class TestImportUnitValidation:
     def test_import_product_with_valid_unit_succeeds(self):
         """Import with valid package_unit succeeds."""
         v3_data = {
-            "version": "3.4",
+            "version": "4.0",
             "exported_at": "2025-12-16T00:00:00Z",
             "application": "bake-tracker",
             "ingredients": [
@@ -1179,7 +1180,7 @@ class TestImportUnitValidation:
             temp_path = f.name
 
         try:
-            result = import_all_from_json_v3(temp_path)
+            result = import_all_from_json_v4(temp_path)
             # Check that product was imported (no unit error)
             product_errors = [e for e in result.errors if e["record_type"] == "product"]
             assert len(product_errors) == 0, f"Expected no product errors, got: {product_errors}"
@@ -1193,7 +1194,7 @@ class TestImportUnitValidation:
     def test_import_product_with_invalid_unit_fails(self):
         """Import with invalid package_unit returns error."""
         v3_data = {
-            "version": "3.4",
+            "version": "4.0",
             "exported_at": "2025-12-16T00:00:00Z",
             "application": "bake-tracker",
             "ingredients": [
@@ -1219,7 +1220,7 @@ class TestImportUnitValidation:
             temp_path = f.name
 
         try:
-            result = import_all_from_json_v3(temp_path)
+            result = import_all_from_json_v4(temp_path)
             # Check for unit validation error
             product_errors = [e for e in result.errors if e["record_type"] == "product"]
             assert len(product_errors) > 0, "Expected product error for invalid unit"
@@ -1233,7 +1234,7 @@ class TestImportUnitValidation:
     def test_import_ingredient_with_invalid_density_volume_unit_fails(self):
         """Import with invalid density_volume_unit returns error."""
         v3_data = {
-            "version": "3.4",
+            "version": "4.0",
             "exported_at": "2025-12-16T00:00:00Z",
             "application": "bake-tracker",
             "ingredients": [
@@ -1256,7 +1257,7 @@ class TestImportUnitValidation:
             temp_path = f.name
 
         try:
-            result = import_all_from_json_v3(temp_path)
+            result = import_all_from_json_v4(temp_path)
             # Check for ingredient error
             ingredient_errors = [e for e in result.errors if e["record_type"] == "ingredient"]
             assert len(ingredient_errors) > 0, "Expected ingredient error for invalid density_volume_unit"
@@ -1270,7 +1271,7 @@ class TestImportUnitValidation:
     def test_import_ingredient_with_invalid_density_weight_unit_fails(self):
         """Import with invalid density_weight_unit returns error."""
         v3_data = {
-            "version": "3.4",
+            "version": "4.0",
             "exported_at": "2025-12-16T00:00:00Z",
             "application": "bake-tracker",
             "ingredients": [
@@ -1293,7 +1294,7 @@ class TestImportUnitValidation:
             temp_path = f.name
 
         try:
-            result = import_all_from_json_v3(temp_path)
+            result = import_all_from_json_v4(temp_path)
             ingredient_errors = [e for e in result.errors if e["record_type"] == "ingredient"]
             assert len(ingredient_errors) > 0, "Expected ingredient error for invalid density_weight_unit"
             error_msg = str(ingredient_errors[0])
@@ -1306,7 +1307,7 @@ class TestImportUnitValidation:
     def test_import_ingredient_with_null_density_units_succeeds(self):
         """Import with null density units succeeds (density is optional)."""
         v3_data = {
-            "version": "3.4",
+            "version": "4.0",
             "exported_at": "2025-12-16T00:00:00Z",
             "application": "bake-tracker",
             "ingredients": [
@@ -1325,7 +1326,7 @@ class TestImportUnitValidation:
             temp_path = f.name
 
         try:
-            result = import_all_from_json_v3(temp_path)
+            result = import_all_from_json_v4(temp_path)
             ingredient_errors = [e for e in result.errors if e["record_type"] == "ingredient"]
             # Should have no density-related errors
             unit_errors = [e for e in ingredient_errors if "unit" in str(e).lower()]
@@ -1338,7 +1339,7 @@ class TestImportUnitValidation:
     def test_import_recipe_ingredient_with_invalid_unit_fails(self):
         """Import with invalid recipe ingredient unit returns error."""
         v3_data = {
-            "version": "3.4",
+            "version": "4.0",
             "exported_at": "2025-12-16T00:00:00Z",
             "application": "bake-tracker",
             "ingredients": [
@@ -1372,7 +1373,7 @@ class TestImportUnitValidation:
             temp_path = f.name
 
         try:
-            result = import_all_from_json_v3(temp_path)
+            result = import_all_from_json_v4(temp_path)
             recipe_errors = [e for e in result.errors if e["record_type"] == "recipe"]
             assert len(recipe_errors) > 0, "Expected recipe error for invalid ingredient unit"
             error_msg = str(recipe_errors[0])
@@ -1385,7 +1386,7 @@ class TestImportUnitValidation:
     def test_import_recipe_ingredient_with_valid_units_succeeds(self):
         """Import with valid recipe ingredient units succeeds."""
         v3_data = {
-            "version": "3.4",
+            "version": "4.0",
             "exported_at": "2025-12-16T00:00:00Z",
             "application": "bake-tracker",
             "ingredients": [
@@ -1419,7 +1420,7 @@ class TestImportUnitValidation:
             temp_path = f.name
 
         try:
-            result = import_all_from_json_v3(temp_path)
+            result = import_all_from_json_v4(temp_path)
             recipe_errors = [e for e in result.errors if e["record_type"] == "recipe"]
             unit_errors = [e for e in recipe_errors if "unit" in str(e).lower()]
             assert len(unit_errors) == 0, f"Expected no unit errors for valid units, got: {unit_errors}"
@@ -1432,7 +1433,7 @@ class TestImportUnitValidation:
     def test_error_message_includes_valid_units_list(self):
         """Error message includes list of valid units."""
         v3_data = {
-            "version": "3.4",
+            "version": "4.0",
             "exported_at": "2025-12-16T00:00:00Z",
             "application": "bake-tracker",
             "ingredients": [
@@ -1458,7 +1459,7 @@ class TestImportUnitValidation:
             temp_path = f.name
 
         try:
-            result = import_all_from_json_v3(temp_path)
+            result = import_all_from_json_v4(temp_path)
             product_errors = [e for e in result.errors if e["record_type"] == "product"]
             if product_errors:
                 error_msg = str(product_errors[0]["message"])
@@ -1477,7 +1478,7 @@ class TestRecipeComponentImport:
     def test_import_recipe_with_components(self, test_db, tmp_path):
         """Import creates recipe component relationships."""
         from src.services import ingredient_service, recipe_service
-        from src.services.import_export_service import export_all_to_json, import_all_from_json_v3
+        from src.services.import_export_service import export_all_to_json, import_all_from_json_v4
 
         # Create test data
         flour = ingredient_service.create_ingredient(
@@ -1519,7 +1520,7 @@ class TestRecipeComponentImport:
         assert recipe_service.get_recipe_by_name("Import Test Parent") is None
 
         # Import
-        result = import_all_from_json_v3(str(export_file), mode="merge")
+        result = import_all_from_json_v4(str(export_file), mode="merge")
         assert result.successful > 0
 
         # Verify component relationship restored
@@ -1534,11 +1535,11 @@ class TestRecipeComponentImport:
 
     def test_import_missing_component_recipe_errors(self, test_db, tmp_path):
         """Import errors gracefully when component recipe doesn't exist."""
-        from src.services.import_export_service import import_all_from_json_v3
+        from src.services.import_export_service import import_all_from_json_v4
 
         # Create a minimal v3.4 import file with missing component reference
         import_data = {
-            "version": "3.4",
+            "version": "4.0",
             "app_name": "Test",
             "app_version": "1.0.0",
             "exported_at": "2024-01-01T00:00:00Z",
@@ -1587,7 +1588,7 @@ class TestRecipeComponentImport:
             json.dump(import_data, f)
 
         # Import should succeed but report error for component
-        result = import_all_from_json_v3(str(import_file), mode="merge")
+        result = import_all_from_json_v4(str(import_file), mode="merge")
 
         # Recipe itself should be created
         assert result.successful >= 1
@@ -1603,7 +1604,7 @@ class TestRecipeComponentImport:
     def test_import_rejects_circular_reference(self, test_db, tmp_path):
         """Import rejects components that would create circular references."""
         from src.services import ingredient_service, recipe_service
-        from src.services.import_export_service import import_all_from_json_v3
+        from src.services.import_export_service import import_all_from_json_v4
 
         # Create two recipes
         flour = ingredient_service.create_ingredient(
@@ -1625,7 +1626,7 @@ class TestRecipeComponentImport:
 
         # Create import data that tries to make B contain A (circular!)
         import_data = {
-            "version": "3.4",
+            "version": "4.0",
             "app_name": "Test",
             "app_version": "1.0.0",
             "exported_at": "2024-01-01T00:00:00Z",
@@ -1666,7 +1667,7 @@ class TestRecipeComponentImport:
             json.dump(import_data, f)
 
         # Import should reject the circular reference
-        result = import_all_from_json_v3(str(import_file), mode="merge")
+        result = import_all_from_json_v4(str(import_file), mode="merge")
 
         # Should have an error about circular reference
         error_found = any(
@@ -1678,7 +1679,7 @@ class TestRecipeComponentImport:
     def test_import_skips_duplicate_components(self, test_db, tmp_path):
         """Import skips components that already exist."""
         from src.services import ingredient_service, recipe_service
-        from src.services.import_export_service import export_all_to_json, import_all_from_json_v3
+        from src.services.import_export_service import export_all_to_json, import_all_from_json_v4
 
         # Create recipes with component
         flour = ingredient_service.create_ingredient(
@@ -1702,10 +1703,1928 @@ class TestRecipeComponentImport:
         export_all_to_json(str(export_file))
 
         # Import again (should skip duplicates)
-        result = import_all_from_json_v3(str(export_file), mode="merge")
+        result = import_all_from_json_v4(str(export_file), mode="merge")
 
         # Component should be skipped (already exists)
         # result.skipped is a count of skipped items
         assert result.skipped > 0, \
             f"Expected some skipped items, got skipped={result.skipped}"
 
+
+class TestRecipeExportV4:
+    """Tests for Feature 040 recipe export v4.0 fields (F037 support)."""
+
+    @pytest.fixture(autouse=True)
+    def setup_database(self, test_db):
+        """Use test database for each test."""
+        pass
+
+    def test_export_recipe_with_variant_fields(self, tmp_path):
+        """Test export recipe with is_production_ready field."""
+        from src.services import ingredient_service, recipe_service
+        from src.services.import_export_service import export_all_to_json
+
+        # Create a recipe with is_production_ready set
+        flour = ingredient_service.create_ingredient(
+            {"display_name": "Export V4 Flour", "category": "Flour"}
+        )
+
+        recipe = recipe_service.create_recipe(
+            {
+                "name": "V4 Test Cookie",
+                "category": "Cookies",
+                "yield_quantity": 24,
+                "yield_unit": "cookies",
+                "is_production_ready": True,
+            },
+            [{"ingredient_id": flour.id, "quantity": 2.0, "unit": "cup"}]
+        )
+
+        # Export
+        export_file = tmp_path / "v4_variant_export.json"
+        export_all_to_json(str(export_file))
+
+        # Verify JSON content
+        with open(export_file) as f:
+            data = json.load(f)
+
+        recipe_data = next(
+            (r for r in data["recipes"] if r["name"] == "V4 Test Cookie"), None
+        )
+        assert recipe_data is not None, "Recipe not found in export"
+        assert recipe_data["is_production_ready"] is True
+        assert recipe_data["base_recipe_slug"] is None  # Not a variant
+        assert recipe_data["variant_name"] is None  # Not a variant
+
+    def test_export_recipe_with_base_recipe(self, tmp_path):
+        """Test export base and variant recipes, verify base_recipe_slug exported."""
+        from src.services import ingredient_service, recipe_service
+        from src.services.import_export_service import export_all_to_json
+
+        # Create base recipe
+        flour = ingredient_service.create_ingredient(
+            {"display_name": "Export V4 Base Flour", "category": "Flour"}
+        )
+
+        base_recipe = recipe_service.create_recipe(
+            {
+                "name": "Base Thumbprint Cookie",
+                "category": "Cookies",
+                "yield_quantity": 24,
+                "yield_unit": "cookies",
+                "is_production_ready": True,
+            },
+            [{"ingredient_id": flour.id, "quantity": 2.0, "unit": "cup"}]
+        )
+
+        # Create variant recipe using the recipe_service variant function
+        variant_result = recipe_service.create_recipe_variant(
+            base_recipe_id=base_recipe.id,
+            variant_name="Raspberry",
+            name="Raspberry Thumbprint",
+            copy_ingredients=True,
+        )
+
+        # Export
+        export_file = tmp_path / "v4_base_variant_export.json"
+        export_all_to_json(str(export_file))
+
+        # Verify JSON content
+        with open(export_file) as f:
+            data = json.load(f)
+
+        # Check base recipe
+        base_data = next(
+            (r for r in data["recipes"] if r["name"] == "Base Thumbprint Cookie"), None
+        )
+        assert base_data is not None, "Base recipe not found"
+        assert base_data["base_recipe_slug"] is None
+        assert base_data["is_production_ready"] is True
+
+        # Check variant recipe
+        variant_data = next(
+            (r for r in data["recipes"] if r["name"] == "Raspberry Thumbprint"), None
+        )
+        assert variant_data is not None, "Variant recipe not found"
+        # base_recipe_slug should be the base recipe name in slug format
+        expected_slug = "base_thumbprint_cookie"  # "Base Thumbprint Cookie" -> lowercase with underscores
+        assert variant_data["base_recipe_slug"] == expected_slug, f"Expected {expected_slug}, got {variant_data['base_recipe_slug']}"
+        assert variant_data["variant_name"] == "Raspberry"
+
+    def test_export_recipe_with_finished_units(self, tmp_path):
+        """Test export recipe with FinishedUnits, verify yield_mode exported."""
+        from src.services import ingredient_service, recipe_service
+        from src.services.import_export_service import export_all_to_json
+        from src.services.database import session_scope
+        from src.models.finished_unit import FinishedUnit, YieldMode
+
+        # Create recipe
+        flour = ingredient_service.create_ingredient(
+            {"display_name": "Export V4 FU Flour", "category": "Flour"}
+        )
+
+        recipe = recipe_service.create_recipe(
+            {
+                "name": "FU Test Cookie",
+                "category": "Cookies",
+                "yield_quantity": 24,
+                "yield_unit": "cookies",
+            },
+            [{"ingredient_id": flour.id, "quantity": 2.0, "unit": "cup"}]
+        )
+
+        # Create FinishedUnit for this recipe
+        with session_scope() as session:
+            fu = FinishedUnit(
+                slug="fu-test-cookie-dozen",
+                display_name="Cookie Dozen",
+                recipe_id=recipe.id,
+                yield_mode=YieldMode.DISCRETE_COUNT,
+                items_per_batch=12,
+                item_unit="cookie",
+            )
+            session.add(fu)
+            session.commit()
+
+        # Export
+        export_file = tmp_path / "v4_finished_units_export.json"
+        export_all_to_json(str(export_file))
+
+        # Verify JSON content
+        with open(export_file) as f:
+            data = json.load(f)
+
+        recipe_data = next(
+            (r for r in data["recipes"] if r["name"] == "FU Test Cookie"), None
+        )
+        assert recipe_data is not None, "Recipe not found"
+        assert "finished_units" in recipe_data
+        assert len(recipe_data["finished_units"]) == 1
+
+        fu_data = recipe_data["finished_units"][0]
+        assert fu_data["slug"] == "fu-test-cookie-dozen"
+        assert fu_data["name"] == "Cookie Dozen"
+        assert fu_data["yield_mode"] == "discrete_count"
+        assert fu_data["unit_yield_quantity"] == 12
+        assert fu_data["unit_yield_unit"] == "cookie"
+
+    def test_export_recipe_without_variant(self, tmp_path):
+        """Test non-variant recipe exports null for base_recipe_slug and variant_name."""
+        from src.services import ingredient_service, recipe_service
+        from src.services.import_export_service import export_all_to_json
+
+        # Create a plain recipe (not a variant)
+        flour = ingredient_service.create_ingredient(
+            {"display_name": "Export V4 Plain Flour", "category": "Flour"}
+        )
+
+        recipe = recipe_service.create_recipe(
+            {
+                "name": "Plain Non-Variant Cookie",
+                "category": "Cookies",
+                "yield_quantity": 24,
+                "yield_unit": "cookies",
+            },
+            [{"ingredient_id": flour.id, "quantity": 2.0, "unit": "cup"}]
+        )
+
+        # Export
+        export_file = tmp_path / "v4_nonvariant_export.json"
+        export_all_to_json(str(export_file))
+
+        # Verify JSON content
+        with open(export_file) as f:
+            data = json.load(f)
+
+        recipe_data = next(
+            (r for r in data["recipes"] if r["name"] == "Plain Non-Variant Cookie"), None
+        )
+        assert recipe_data is not None, "Recipe not found"
+        assert recipe_data["base_recipe_slug"] is None
+        assert recipe_data["variant_name"] is None
+        assert recipe_data["is_production_ready"] is False  # Default value
+        assert recipe_data["finished_units"] == []  # Empty array
+
+
+class TestRecipeImportV4:
+    """Tests for Feature 040 recipe import v4.0 fields (F037 support)."""
+
+    @pytest.fixture(autouse=True)
+    def setup_database(self, test_db):
+        """Use test database for each test."""
+        pass
+
+    def test_import_base_recipe_with_f037_fields(self, tmp_path):
+        """Test import recipe with variant_name, is_production_ready fields."""
+        from src.services.import_export_service import import_all_from_json_v4
+        from src.services.database import session_scope
+        from src.models.recipe import Recipe
+
+        # Create JSON with ingredient and recipe (replace mode clears all data)
+        import_data = {
+            "version": "4.0",
+            "ingredients": [
+                {"display_name": "Import V4 Flour", "slug": "import_v4_flour", "category": "Flour"}
+            ],
+            "recipes": [
+                {
+                    "name": "Import V4 Cookie",
+                    "category": "Cookies",
+                    "yield_quantity": 24,
+                    "yield_unit": "cookies",
+                    "variant_name": "Original",
+                    "is_production_ready": True,
+                    "base_recipe_slug": None,
+                    "ingredients": [
+                        {"ingredient_slug": "import_v4_flour", "quantity": 2.0, "unit": "cup"}
+                    ],
+                }
+            ],
+        }
+
+        import_file = tmp_path / "v4_import_f037.json"
+        with open(import_file, "w") as f:
+            json.dump(import_data, f)
+
+        # Import
+        result = import_all_from_json_v4(str(import_file), mode="replace")
+
+        assert result.successful > 0, f"Import failed: {result.errors}"
+        assert result.failed == 0
+
+        # Verify recipe in database
+        with session_scope() as session:
+            recipe = session.query(Recipe).filter_by(name="Import V4 Cookie").first()
+            assert recipe is not None
+            assert recipe.variant_name == "Original"
+            assert recipe.is_production_ready is True
+            assert recipe.base_recipe_id is None
+
+    def test_import_variant_recipe(self, tmp_path):
+        """Test import variant with base_recipe_slug, verify FK set."""
+        from src.services.import_export_service import import_all_from_json_v4
+        from src.services.database import session_scope
+        from src.models.recipe import Recipe
+
+        # Create JSON with ingredient, base and variant recipes
+        import_data = {
+            "version": "4.0",
+            "ingredients": [
+                {"display_name": "Variant Import Flour", "slug": "variant_import_flour", "category": "Flour"}
+            ],
+            "recipes": [
+                {
+                    "name": "Base Cookie Recipe",
+                    "category": "Cookies",
+                    "yield_quantity": 24,
+                    "yield_unit": "cookies",
+                    "variant_name": None,
+                    "is_production_ready": True,
+                    "base_recipe_slug": None,
+                    "ingredients": [
+                        {"ingredient_slug": "variant_import_flour", "quantity": 2.0, "unit": "cup"}
+                    ],
+                },
+                {
+                    "name": "Chocolate Chip Variant",
+                    "category": "Cookies",
+                    "yield_quantity": 24,
+                    "yield_unit": "cookies",
+                    "variant_name": "Chocolate Chip",
+                    "is_production_ready": False,
+                    "base_recipe_slug": "base_cookie_recipe",  # Should match base recipe
+                    "ingredients": [
+                        {"ingredient_slug": "variant_import_flour", "quantity": 2.0, "unit": "cup"}
+                    ],
+                },
+            ],
+        }
+
+        import_file = tmp_path / "v4_import_variant.json"
+        with open(import_file, "w") as f:
+            json.dump(import_data, f)
+
+        # Import
+        result = import_all_from_json_v4(str(import_file), mode="replace")
+
+        assert result.successful >= 2, f"Import failed: {result.errors}"
+        assert result.failed == 0
+
+        # Verify recipes in database
+        with session_scope() as session:
+            base_recipe = session.query(Recipe).filter_by(name="Base Cookie Recipe").first()
+            variant_recipe = session.query(Recipe).filter_by(name="Chocolate Chip Variant").first()
+
+            assert base_recipe is not None
+            assert variant_recipe is not None
+            assert variant_recipe.base_recipe_id == base_recipe.id
+            assert variant_recipe.variant_name == "Chocolate Chip"
+
+    def test_import_recipe_with_finished_units(self, tmp_path):
+        """Test import recipe with finished_units, verify yield_mode."""
+        from src.services.import_export_service import import_all_from_json_v4
+        from src.services.database import session_scope
+        from src.models.recipe import Recipe
+        from src.models.finished_unit import FinishedUnit, YieldMode
+
+        # Create JSON with ingredient, recipe and finished_units
+        import_data = {
+            "version": "4.0",
+            "ingredients": [
+                {"display_name": "FU Import Flour", "slug": "fu_import_flour", "category": "Flour"}
+            ],
+            "recipes": [
+                {
+                    "name": "Import FU Cookie",
+                    "category": "Cookies",
+                    "yield_quantity": 24,
+                    "yield_unit": "cookies",
+                    "is_production_ready": True,
+                    "base_recipe_slug": None,
+                    "ingredients": [
+                        {"ingredient_slug": "fu_import_flour", "quantity": 2.0, "unit": "cup"}
+                    ],
+                    "finished_units": [
+                        {
+                            "slug": "import-fu-cookie-dozen",
+                            "name": "Cookie Dozen",
+                            "yield_mode": "discrete_count",
+                            "unit_yield_quantity": 12,
+                            "unit_yield_unit": "cookie",
+                        }
+                    ],
+                }
+            ],
+        }
+
+        import_file = tmp_path / "v4_import_fu.json"
+        with open(import_file, "w") as f:
+            json.dump(import_data, f)
+
+        # Import
+        result = import_all_from_json_v4(str(import_file), mode="replace")
+
+        assert result.successful >= 2, f"Import failed: {result.errors}"  # 1 recipe + 1 finished_unit
+        assert result.failed == 0
+
+        # Verify in database
+        with session_scope() as session:
+            recipe = session.query(Recipe).filter_by(name="Import FU Cookie").first()
+            assert recipe is not None
+
+            fu = session.query(FinishedUnit).filter_by(slug="import-fu-cookie-dozen").first()
+            assert fu is not None
+            assert fu.recipe_id == recipe.id
+            assert fu.yield_mode == YieldMode.DISCRETE_COUNT
+            assert fu.items_per_batch == 12
+            assert fu.item_unit == "cookie"
+
+    def test_import_variant_before_base_sorted(self, tmp_path):
+        """Test import JSON with variant listed first - should still work due to sorting."""
+        from src.services.import_export_service import import_all_from_json_v4
+        from src.services.database import session_scope
+        from src.models.recipe import Recipe
+
+        # Create JSON with variant FIRST in the array (before base)
+        import_data = {
+            "version": "4.0",
+            "ingredients": [
+                {"display_name": "Sort Test Flour", "slug": "sort_test_flour", "category": "Flour"}
+            ],
+            "recipes": [
+                # Variant listed first - import should still succeed due to sorting
+                {
+                    "name": "Variant Listed First",
+                    "category": "Cookies",
+                    "yield_quantity": 24,
+                    "yield_unit": "cookies",
+                    "variant_name": "Raspberry",
+                    "is_production_ready": False,
+                    "base_recipe_slug": "base_listed_second",
+                    "ingredients": [
+                        {"ingredient_slug": "sort_test_flour", "quantity": 2.0, "unit": "cup"}
+                    ],
+                },
+                # Base listed second
+                {
+                    "name": "Base Listed Second",
+                    "category": "Cookies",
+                    "yield_quantity": 24,
+                    "yield_unit": "cookies",
+                    "variant_name": None,
+                    "is_production_ready": True,
+                    "base_recipe_slug": None,
+                    "ingredients": [
+                        {"ingredient_slug": "sort_test_flour", "quantity": 2.0, "unit": "cup"}
+                    ],
+                },
+            ],
+        }
+
+        import_file = tmp_path / "v4_import_sort.json"
+        with open(import_file, "w") as f:
+            json.dump(import_data, f)
+
+        # Import - should succeed because T006 sorts base before variants
+        result = import_all_from_json_v4(str(import_file), mode="replace")
+
+        assert result.failed == 0, f"Import failed: {result.errors}"
+        assert result.successful >= 2
+
+        # Verify FK relationship is correct
+        with session_scope() as session:
+            base = session.query(Recipe).filter_by(name="Base Listed Second").first()
+            variant = session.query(Recipe).filter_by(name="Variant Listed First").first()
+
+            assert base is not None
+            assert variant is not None
+            assert variant.base_recipe_id == base.id
+
+    def test_import_invalid_base_recipe_slug(self, tmp_path):
+        """Test import with non-existent base_recipe_slug, verify error."""
+        from src.services.import_export_service import import_all_from_json_v4
+
+        # Create JSON with invalid base_recipe_slug
+        import_data = {
+            "version": "4.0",
+            "ingredients": [
+                {"display_name": "Invalid Ref Flour", "slug": "invalid_ref_flour", "category": "Flour"}
+            ],
+            "recipes": [
+                {
+                    "name": "Orphan Variant",
+                    "category": "Cookies",
+                    "yield_quantity": 24,
+                    "yield_unit": "cookies",
+                    "variant_name": "Orphan",
+                    "is_production_ready": False,
+                    "base_recipe_slug": "nonexistent_base_recipe",  # This doesn't exist
+                    "ingredients": [
+                        {"ingredient_slug": "invalid_ref_flour", "quantity": 2.0, "unit": "cup"}
+                    ],
+                },
+            ],
+        }
+
+        import_file = tmp_path / "v4_import_invalid_ref.json"
+        with open(import_file, "w") as f:
+            json.dump(import_data, f)
+
+        # Import - should record an error for the invalid reference
+        result = import_all_from_json_v4(str(import_file), mode="replace")
+
+        assert result.failed > 0, "Expected error for invalid base_recipe_slug"
+        # Check that error message mentions base recipe not found
+        error_messages = [str(e) for e in result.errors]
+        assert any("not found" in msg.lower() or "base recipe" in msg.lower() for msg in error_messages), \
+            f"Expected error message about base recipe, got: {error_messages}"
+
+    def test_import_recipe_roundtrip(self, tmp_path):
+        """Test import then verify data matches - verifies F037 fields roundtrip."""
+        from src.services.import_export_service import import_all_from_json_v4
+        from src.services.database import session_scope
+        from src.models.recipe import Recipe
+        from src.models.finished_unit import FinishedUnit, YieldMode
+
+        # Create complete import data with all F037 fields
+        import_data = {
+            "version": "4.0",
+            "ingredients": [
+                {"display_name": "Roundtrip Flour", "slug": "roundtrip_flour", "category": "Flour"}
+            ],
+            "recipes": [
+                {
+                    "name": "Roundtrip Base",
+                    "category": "Cookies",
+                    "yield_quantity": 24,
+                    "yield_unit": "cookies",
+                    "is_production_ready": True,
+                    "base_recipe_slug": None,
+                    "variant_name": None,
+                    "ingredients": [
+                        {"ingredient_slug": "roundtrip_flour", "quantity": 2.0, "unit": "cup"}
+                    ],
+                    "finished_units": [
+                        {
+                            "slug": "roundtrip-fu",
+                            "name": "Roundtrip Unit",
+                            "yield_mode": "discrete_count",
+                            "unit_yield_quantity": 24,
+                            "unit_yield_unit": "cookie",
+                        }
+                    ],
+                },
+                {
+                    "name": "Roundtrip Variant Recipe",
+                    "category": "Cookies",
+                    "yield_quantity": 24,
+                    "yield_unit": "cookies",
+                    "is_production_ready": False,
+                    "base_recipe_slug": "roundtrip_base",
+                    "variant_name": "Roundtrip Variant",
+                    "ingredients": [
+                        {"ingredient_slug": "roundtrip_flour", "quantity": 2.0, "unit": "cup"}
+                    ],
+                },
+            ],
+        }
+
+        import_file = tmp_path / "roundtrip_import.json"
+        with open(import_file, "w") as f:
+            json.dump(import_data, f)
+
+        # Import
+        result = import_all_from_json_v4(str(import_file), mode="replace")
+
+        assert result.failed == 0, f"Import failed: {result.failed}, errors: {result.errors}"
+
+        # Verify all data imported correctly
+        with session_scope() as session:
+            base = session.query(Recipe).filter_by(name="Roundtrip Base").first()
+            variant = session.query(Recipe).filter_by(name="Roundtrip Variant Recipe").first()
+            fu = session.query(FinishedUnit).filter_by(slug="roundtrip-fu").first()
+
+            assert base is not None, "Base recipe not found after import"
+            assert base.is_production_ready is True
+            assert base.base_recipe_id is None
+
+            assert variant is not None, "Variant recipe not found after import"
+            assert variant.base_recipe_id == base.id
+            assert variant.variant_name == "Roundtrip Variant"
+
+            assert fu is not None, "FinishedUnit not found after import"
+            assert fu.yield_mode == YieldMode.DISCRETE_COUNT
+            assert fu.items_per_batch == 24
+            assert fu.item_unit == "cookie"
+
+
+class TestEventExportImportV4:
+    """Tests for Feature 040 event export/import v4.0 fields (F039 output_mode support)."""
+
+    @pytest.fixture(autouse=True)
+    def setup_database(self, test_db):
+        """Use test database for each test."""
+        pass
+
+    def test_export_event_with_output_mode(self, tmp_path):
+        """Test export event with output_mode=bundled, verify field in JSON."""
+        from src.services.import_export_service import export_all_to_json
+        from src.services.database import session_scope
+        from src.models.event import Event, OutputMode
+        from datetime import date
+
+        # Create event with output_mode
+        with session_scope() as session:
+            event = Event(
+                name="Export Test Event",
+                event_date=date(2026, 12, 25),
+                year=2026,
+                output_mode=OutputMode.BUNDLED,
+            )
+            session.add(event)
+            session.commit()
+
+        # Export
+        export_file = tmp_path / "event_output_mode_export.json"
+        export_all_to_json(str(export_file))
+
+        # Verify JSON content
+        with open(export_file) as f:
+            data = json.load(f)
+
+        event_data = next(
+            (e for e in data["events"] if e["name"] == "Export Test Event"), None
+        )
+        assert event_data is not None, "Event not found in export"
+        assert event_data["output_mode"] == "bundled"
+
+    def test_export_event_without_output_mode(self, tmp_path):
+        """Test export event with null output_mode exports correctly."""
+        from src.services.import_export_service import export_all_to_json
+        from src.services.database import session_scope
+        from src.models.event import Event
+        from datetime import date
+
+        # Create event without output_mode
+        with session_scope() as session:
+            event = Event(
+                name="No Mode Event",
+                event_date=date(2026, 12, 25),
+                year=2026,
+                output_mode=None,
+            )
+            session.add(event)
+            session.commit()
+
+        # Export
+        export_file = tmp_path / "event_no_mode_export.json"
+        export_all_to_json(str(export_file))
+
+        # Verify JSON content
+        with open(export_file) as f:
+            data = json.load(f)
+
+        event_data = next(
+            (e for e in data["events"] if e["name"] == "No Mode Event"), None
+        )
+        assert event_data is not None, "Event not found in export"
+        assert event_data["output_mode"] is None
+
+    def test_import_event_with_output_mode(self, tmp_path):
+        """Test import JSON with output_mode, verify database."""
+        from src.services.import_export_service import import_all_from_json_v4
+        from src.services.database import session_scope
+        from src.models.event import Event, OutputMode
+
+        # Create JSON with output_mode
+        import_data = {
+            "version": "4.0",
+            "events": [
+                {
+                    "name": "Import Mode Event",
+                    "event_date": "2026-12-25",
+                    "year": 2026,
+                    "output_mode": "bulk_count",
+                }
+            ],
+        }
+
+        import_file = tmp_path / "event_import_mode.json"
+        with open(import_file, "w") as f:
+            json.dump(import_data, f)
+
+        # Import
+        result = import_all_from_json_v4(str(import_file), mode="replace")
+
+        assert result.failed == 0, f"Import failed: {result.errors}"
+
+        # Verify in database
+        with session_scope() as session:
+            event = session.query(Event).filter_by(name="Import Mode Event").first()
+            assert event is not None
+            assert event.output_mode == OutputMode.BULK_COUNT
+
+    def test_import_event_invalid_output_mode(self, tmp_path):
+        """Test import with bad output_mode value, verify error."""
+        from src.services.import_export_service import import_all_from_json_v4
+
+        # Create JSON with invalid output_mode
+        import_data = {
+            "version": "4.0",
+            "events": [
+                {
+                    "name": "Invalid Mode Event",
+                    "event_date": "2026-12-25",
+                    "year": 2026,
+                    "output_mode": "invalid_mode",  # Not a valid enum value
+                }
+            ],
+        }
+
+        import_file = tmp_path / "event_invalid_mode.json"
+        with open(import_file, "w") as f:
+            json.dump(import_data, f)
+
+        # Import - should record an error
+        result = import_all_from_json_v4(str(import_file), mode="replace")
+
+        assert result.failed > 0, "Expected error for invalid output_mode"
+        error_messages = [str(e) for e in result.errors]
+        assert any("invalid" in msg.lower() or "output_mode" in msg.lower() for msg in error_messages), \
+            f"Expected error message about invalid output_mode, got: {error_messages}"
+
+    def test_import_event_bundled_without_targets_warns(self, tmp_path):
+        """Test import event with bundled mode but no assembly targets, verify warning."""
+        from src.services.import_export_service import import_all_from_json_v4
+
+        # Create JSON with bundled mode but no assembly targets
+        import_data = {
+            "version": "4.0",
+            "events": [
+                {
+                    "name": "Bundled No Targets Event",
+                    "event_date": "2026-12-25",
+                    "year": 2026,
+                    "output_mode": "bundled",
+                }
+            ],
+            # No event_assembly_targets provided
+        }
+
+        import_file = tmp_path / "event_bundled_no_targets.json"
+        with open(import_file, "w") as f:
+            json.dump(import_data, f)
+
+        # Import - should succeed but with warning
+        result = import_all_from_json_v4(str(import_file), mode="replace")
+
+        assert result.failed == 0, f"Import should succeed: {result.errors}"
+        assert len(result.warnings) > 0, "Expected warning for bundled without targets"
+        warning_messages = [str(w) for w in result.warnings]
+        assert any("bundled" in msg.lower() or "assembly" in msg.lower() for msg in warning_messages), \
+            f"Expected warning about bundled without assembly targets, got: {warning_messages}"
+
+    def test_import_event_roundtrip(self, tmp_path):
+        """Test import with output_mode then verify data matches."""
+        from src.services.import_export_service import import_all_from_json_v4
+        from src.services.database import session_scope
+        from src.models.event import Event, OutputMode
+
+        # Create complete import data with output_mode
+        import_data = {
+            "version": "4.0",
+            "events": [
+                {
+                    "name": "Roundtrip Event",
+                    "event_date": "2026-12-25",
+                    "year": 2026,
+                    "output_mode": "bundled",
+                    "notes": "Test event with output mode",
+                }
+            ],
+        }
+
+        import_file = tmp_path / "event_roundtrip.json"
+        with open(import_file, "w") as f:
+            json.dump(import_data, f)
+
+        # Import
+        result = import_all_from_json_v4(str(import_file), mode="replace")
+
+        # Warnings expected for missing targets, but not errors
+        assert result.failed == 0, f"Import failed: {result.errors}"
+
+        # Verify all data imported correctly
+        with session_scope() as session:
+            event = session.query(Event).filter_by(name="Roundtrip Event").first()
+            assert event is not None, "Event not found after import"
+            assert event.output_mode == OutputMode.BUNDLED
+            assert event.year == 2026
+            assert event.notes == "Test event with output mode"
+
+
+class TestVersionBumpV4:
+    """Tests for WP04 - Version field behavior (non-gating).
+
+    Policy: the app does not gate imports based on version. Files must comply
+    with the current expected schema; the 'version' field is informational only.
+    """
+
+    def test_export_produces_version_4(self, test_db, tmp_path):
+        """Export should produce files with version 4.0."""
+        from src.services.import_export_service import export_all_to_json
+
+        export_file = tmp_path / "test_export.json"
+        export_all_to_json(str(export_file))
+
+        # Read exported file
+        with open(export_file, "r") as f:
+            data = json.load(f)
+
+        assert data.get("version") == "4.0", f"Expected version 4.0, got {data.get('version')}"
+        assert data.get("application") == "bake-tracker"
+
+    def test_import_accepts_v4_file(self, test_db, tmp_path):
+        """v4.0 format files should import successfully."""
+        from src.services.import_export_service import import_all_from_json_v4
+
+        # Create a minimal v4.0 format file with all required ingredient fields
+        import_file = tmp_path / "v40_data.json"
+        v40_data = {
+            "version": "4.0",
+            "application": "bake-tracker",
+            "exported_at": "2026-01-07T00:00:00Z",
+            "ingredients": [
+                {
+                    "slug": "test-flour",
+                    "name": "Test Flour",
+                    "display_name": "Test Flour",
+                    "category": "dry",
+                    "subcategory": None,
+                    "default_unit": "g",
+                    "minimum_quantity": 0,
+                    "notes": None,
+                    "parent_slug": None,
+                    "is_discrete": False,
+                }
+            ],
+            "recipes": [],
+        }
+        with open(import_file, "w") as f:
+            json.dump(v40_data, f)
+
+        # Import should succeed
+        result = import_all_from_json_v4(str(import_file), mode="replace")
+
+        assert result.failed == 0, f"Import failed: {result.errors}"
+        assert result.successful > 0, "Expected at least one successful import"
+
+        # Verify ingredient was imported
+        from src.services.database import session_scope
+        from src.models import Ingredient
+
+        with session_scope() as session:
+            ing = session.query(Ingredient).filter_by(slug="test-flour").first()
+            assert ing is not None, "Ingredient was not imported"
+            assert ing.display_name == "Test Flour"
+
+    def test_import_missing_version_accepted(self, test_db, tmp_path):
+        """Files without version field should not be rejected on version alone."""
+        from src.services.import_export_service import import_all_from_json_v4
+
+        # Create a file without version
+        import_file = tmp_path / "no_version.json"
+        data = {
+            "application": "bake-tracker",
+            "exported_at": "2026-01-07T00:00:00Z",
+            "ingredients": [],
+        }
+        with open(import_file, "w") as f:
+            json.dump(data, f)
+
+        # Import should not fail due to missing version
+        result = import_all_from_json_v4(str(import_file), mode="merge")
+        assert result.failed == 0, f"Import should not fail due to missing version: {result.errors}"
+
+
+class TestPurchaseImportFromBTMobile:
+    """Tests for WP05 - Purchase Import from BT Mobile.
+
+    Test cases:
+    - test_import_purchase_with_known_upc: Product exists, Purchase+InventoryItem created
+    - test_import_purchase_with_unknown_upc: No product, UPC collected in unmatched
+    - test_import_purchase_creates_supplier: Supplier created if not exists
+    - test_import_purchase_invalid_schema_version: Error for wrong version
+    - test_import_purchase_wrong_import_type: Error for wrong type
+    - test_import_purchase_invalid_json: Error for malformed JSON
+    """
+
+    def test_import_purchase_with_known_upc(self, test_db, tmp_path):
+        """Import creates Purchase+InventoryItem for known UPC."""
+        from src.services.import_export_service import import_purchases_from_bt_mobile
+        from src.services.database import session_scope
+        from src.models import Ingredient, Product, Purchase, Supplier
+        from src.models.inventory_item import InventoryItem
+
+        # Create test data: ingredient -> product with UPC
+        with session_scope() as session:
+            ingredient = Ingredient(
+                slug="test-flour-upc",
+                display_name="Test Flour for UPC",
+                category="dry",
+            )
+            session.add(ingredient)
+            session.flush()
+
+            product = Product(
+                ingredient_id=ingredient.id,
+                brand="Test Flour Brand",
+                upc_code="051000127952",
+                package_unit_quantity=1,
+                package_unit="bag",
+            )
+            session.add(product)
+
+            supplier = Supplier(name="Test Store")
+            session.add(supplier)
+
+            session.commit()
+
+        # Create BT Mobile JSON
+        bt_mobile_data = {
+            "schema_version": "4.0",
+            "import_type": "purchases",
+            "created_at": "2026-01-06T14:30:00Z",
+            "source": "bt_mobile",
+            "supplier": "Test Store",
+            "purchases": [
+                {
+                    "upc": "051000127952",
+                    "scanned_at": "2026-01-06T14:15:23Z",
+                    "unit_price": 7.99,
+                    "quantity_purchased": 1,
+                }
+            ],
+        }
+        import_file = tmp_path / "purchases.json"
+        with open(import_file, "w") as f:
+            json.dump(bt_mobile_data, f)
+
+        # Import
+        result = import_purchases_from_bt_mobile(str(import_file))
+
+        # Verify success
+        assert result.failed == 0, f"Import failed: {result.errors}"
+        assert result.successful == 1, "Expected 1 successful import"
+        assert len(result.unmatched_purchases) == 0, "Should have no unmatched"
+
+        # Verify database records
+        with session_scope() as session:
+            purchase = session.query(Purchase).first()
+            assert purchase is not None, "Purchase not created"
+            assert float(purchase.unit_price) == 7.99
+            assert purchase.quantity_purchased == 1
+
+            inventory = session.query(InventoryItem).filter_by(purchase_id=purchase.id).first()
+            assert inventory is not None, "InventoryItem not created"
+            assert inventory.quantity == 1.0
+            assert inventory.unit_cost == 7.99
+
+    def test_import_purchase_with_unknown_upc(self, test_db, tmp_path):
+        """Unknown UPC is collected in unmatched_purchases, not errored."""
+        from src.services.import_export_service import import_purchases_from_bt_mobile
+
+        # Create BT Mobile JSON with unknown UPC
+        bt_mobile_data = {
+            "schema_version": "4.0",
+            "import_type": "purchases",
+            "created_at": "2026-01-06T14:30:00Z",
+            "source": "bt_mobile",
+            "purchases": [
+                {
+                    "upc": "999999999999",
+                    "scanned_at": "2026-01-06T14:15:23Z",
+                    "unit_price": 5.99,
+                    "quantity_purchased": 2,
+                }
+            ],
+        }
+        import_file = tmp_path / "purchases.json"
+        with open(import_file, "w") as f:
+            json.dump(bt_mobile_data, f)
+
+        # Import
+        result = import_purchases_from_bt_mobile(str(import_file))
+
+        # Verify unmatched is collected
+        assert result.failed == 0, "Unknown UPC should not be an error"
+        assert result.successful == 0, "Should have no successful imports"
+        assert len(result.unmatched_purchases) == 1, "Should have 1 unmatched"
+        assert result.unmatched_purchases[0]["upc"] == "999999999999"
+
+    def test_import_purchase_creates_supplier(self, test_db, tmp_path):
+        """Supplier is created if it doesn't exist."""
+        from src.services.import_export_service import import_purchases_from_bt_mobile
+        from src.services.database import session_scope
+        from src.models import Ingredient, Product, Supplier
+
+        # Create product with UPC
+        with session_scope() as session:
+            ingredient = Ingredient(
+                slug="test-sugar-upc",
+                display_name="Test Sugar for UPC",
+                category="dry",
+            )
+            session.add(ingredient)
+            session.flush()
+
+            product = Product(
+                ingredient_id=ingredient.id,
+                brand="Test Sugar Brand",
+                upc_code="012345678901",
+                package_unit_quantity=1,
+                package_unit="bag",
+            )
+            session.add(product)
+            session.commit()
+
+        # Create BT Mobile JSON with new supplier
+        bt_mobile_data = {
+            "schema_version": "4.0",
+            "import_type": "purchases",
+            "created_at": "2026-01-06T14:30:00Z",
+            "source": "bt_mobile",
+            "supplier": "New Grocery Store",
+            "purchases": [
+                {
+                    "upc": "012345678901",
+                    "scanned_at": "2026-01-06T14:15:23Z",
+                    "unit_price": 3.49,
+                    "quantity_purchased": 1,
+                }
+            ],
+        }
+        import_file = tmp_path / "purchases.json"
+        with open(import_file, "w") as f:
+            json.dump(bt_mobile_data, f)
+
+        # Import
+        result = import_purchases_from_bt_mobile(str(import_file))
+
+        # Verify success
+        assert result.failed == 0, f"Import failed: {result.errors}"
+        assert result.successful == 1
+
+        # Verify supplier was created
+        with session_scope() as session:
+            supplier = session.query(Supplier).filter_by(name="New Grocery Store").first()
+            assert supplier is not None, "Supplier not created"
+
+    def test_import_purchase_invalid_schema_version(self, test_db, tmp_path):
+        """Import errors for wrong schema version."""
+        from src.services.import_export_service import import_purchases_from_bt_mobile
+
+        bt_mobile_data = {
+            "schema_version": "3.0",
+            "import_type": "purchases",
+            "purchases": [],
+        }
+        import_file = tmp_path / "purchases.json"
+        with open(import_file, "w") as f:
+            json.dump(bt_mobile_data, f)
+
+        result = import_purchases_from_bt_mobile(str(import_file))
+
+        assert result.failed > 0, "Should fail for wrong schema version"
+        error_msg = result.errors[0]["message"]
+        assert "schema version" in error_msg.lower()
+        assert "3.0" in error_msg
+
+    def test_import_purchase_wrong_import_type(self, test_db, tmp_path):
+        """Import errors for wrong import type."""
+        from src.services.import_export_service import import_purchases_from_bt_mobile
+
+        bt_mobile_data = {
+            "schema_version": "4.0",
+            "import_type": "inventory",
+            "purchases": [],
+        }
+        import_file = tmp_path / "purchases.json"
+        with open(import_file, "w") as f:
+            json.dump(bt_mobile_data, f)
+
+        result = import_purchases_from_bt_mobile(str(import_file))
+
+        assert result.failed > 0, "Should fail for wrong import type"
+        error_msg = result.errors[0]["message"]
+        assert "import type" in error_msg.lower()
+        assert "inventory" in error_msg
+
+    def test_import_purchase_invalid_json(self, test_db, tmp_path):
+        """Import errors for malformed JSON."""
+        from src.services.import_export_service import import_purchases_from_bt_mobile
+
+        import_file = tmp_path / "purchases.json"
+        with open(import_file, "w") as f:
+            f.write("{ invalid json }")
+
+        result = import_purchases_from_bt_mobile(str(import_file))
+
+        assert result.failed > 0, "Should fail for invalid JSON"
+        error_msg = result.errors[0]["message"]
+        assert "Invalid JSON" in error_msg or "json" in error_msg.lower()
+
+
+class TestInventoryUpdateFromBTMobile:
+    """Tests for import_inventory_updates_from_bt_mobile function (WP07/WP08)."""
+
+    def test_import_inventory_update_50_percent(self, test_db, tmp_path):
+        """Test 50% remaining halves current quantity."""
+        from src.services.database import session_scope
+        from src.models import Ingredient, Product, InventoryItem, Purchase, Supplier
+        from datetime import date
+
+        # Setup: Product with UPC, InventoryItem with quantity=10, Purchase
+        with session_scope() as session:
+            ingredient = Ingredient(
+                slug="test-flour-inv-update",
+                display_name="Test Flour for Inventory Update",
+                category="dry",
+            )
+            session.add(ingredient)
+            session.flush()
+
+            product = Product(
+                ingredient_id=ingredient.id,
+                brand="Test Flour Brand",
+                upc_code="051000127952",
+                package_unit_quantity=1,
+                package_unit="bag",
+            )
+            session.add(product)
+            session.flush()
+
+            supplier = Supplier(name="Test Supplier")
+            session.add(supplier)
+            session.flush()
+
+            purchase = Purchase(
+                product_id=product.id,
+                supplier_id=supplier.id,
+                purchase_date=date(2025, 1, 1),
+                unit_price=Decimal("5.00"),
+                quantity_purchased=10,
+            )
+            session.add(purchase)
+            session.flush()
+
+            inventory_item = InventoryItem(
+                product_id=product.id,
+                purchase_id=purchase.id,
+                quantity=10.0,
+                unit_cost=5.0,
+                purchase_date=date(2025, 1, 1),
+            )
+            session.add(inventory_item)
+            session.commit()
+            inv_id = inventory_item.id
+
+        # Create JSON file
+        data = {
+            "schema_version": "4.0",
+            "import_type": "inventory_updates",
+            "created_at": "2026-01-06T14:30:00Z",
+            "source": "bt_mobile",
+            "inventory_updates": [
+                {
+                    "upc": "051000127952",
+                    "scanned_at": "2026-01-06T14:15:23Z",
+                    "remaining_percentage": 50
+                }
+            ]
+        }
+        file_path = tmp_path / "inventory_updates.json"
+        file_path.write_text(json.dumps(data))
+
+        # Execute
+        result = import_inventory_updates_from_bt_mobile(str(file_path))
+
+        # Assert
+        assert result.successful == 1, f"Expected 1 success, got errors: {result.errors}"
+        assert result.failed == 0
+
+        with session_scope() as session:
+            updated_item = session.get(InventoryItem, inv_id)
+            assert updated_item.quantity == 5.0, f"Expected quantity=5, got {updated_item.quantity}"
+
+    def test_import_inventory_update_0_percent(self, test_db, tmp_path):
+        """Test 0% remaining fully depletes inventory."""
+        from src.services.database import session_scope
+        from src.models import Ingredient, Product, InventoryItem, Purchase, Supplier
+        from datetime import date
+
+        # Setup
+        with session_scope() as session:
+            ingredient = Ingredient(
+                slug="test-sugar-inv-zero",
+                display_name="Test Sugar for Zero Percent",
+                category="dry",
+            )
+            session.add(ingredient)
+            session.flush()
+
+            product = Product(
+                ingredient_id=ingredient.id,
+                brand="Test Sugar Brand",
+                upc_code="051000127953",
+                package_unit_quantity=1,
+                package_unit="bag",
+            )
+            session.add(product)
+            session.flush()
+
+            supplier = Supplier(name="Test Supplier")
+            session.add(supplier)
+            session.flush()
+
+            purchase = Purchase(
+                product_id=product.id,
+                supplier_id=supplier.id,
+                purchase_date=date(2025, 1, 1),
+                unit_price=Decimal("4.00"),
+                quantity_purchased=10,
+            )
+            session.add(purchase)
+            session.flush()
+
+            inventory_item = InventoryItem(
+                product_id=product.id,
+                purchase_id=purchase.id,
+                quantity=10.0,
+                purchase_date=date(2025, 1, 1),
+            )
+            session.add(inventory_item)
+            session.commit()
+            inv_id = inventory_item.id
+
+        # Create JSON file with 0% remaining
+        data = {
+            "schema_version": "4.0",
+            "import_type": "inventory_updates",
+            "inventory_updates": [
+                {"upc": "051000127953", "remaining_percentage": 0}
+            ]
+        }
+        file_path = tmp_path / "inventory_updates.json"
+        file_path.write_text(json.dumps(data))
+
+        # Execute
+        result = import_inventory_updates_from_bt_mobile(str(file_path))
+
+        # Assert
+        assert result.successful == 1
+        assert result.failed == 0
+
+        with session_scope() as session:
+            updated_item = session.get(InventoryItem, inv_id)
+            assert updated_item.quantity == 0.0, f"Expected quantity=0, got {updated_item.quantity}"
+
+    def test_import_inventory_update_100_percent(self, test_db, tmp_path):
+        """Test 100% remaining leaves quantity unchanged."""
+        from src.services.database import session_scope
+        from src.models import Ingredient, Product, InventoryItem, Purchase, Supplier
+        from datetime import date
+
+        # Setup
+        with session_scope() as session:
+            ingredient = Ingredient(
+                slug="test-salt-inv-100",
+                display_name="Test Salt Full",
+                category="dry",
+            )
+            session.add(ingredient)
+            session.flush()
+
+            product = Product(
+                ingredient_id=ingredient.id,
+                brand="Test Salt Brand",
+                upc_code="051000127954",
+                package_unit_quantity=1,
+                package_unit="bag",
+            )
+            session.add(product)
+            session.flush()
+
+            supplier = Supplier(name="Test Supplier")
+            session.add(supplier)
+            session.flush()
+
+            purchase = Purchase(
+                product_id=product.id,
+                supplier_id=supplier.id,
+                purchase_date=date(2025, 1, 1),
+                unit_price=Decimal("2.00"),
+                quantity_purchased=10,
+            )
+            session.add(purchase)
+            session.flush()
+
+            inventory_item = InventoryItem(
+                product_id=product.id,
+                purchase_id=purchase.id,
+                quantity=10.0,
+                purchase_date=date(2025, 1, 1),
+            )
+            session.add(inventory_item)
+            session.commit()
+            inv_id = inventory_item.id
+
+        # Create JSON file with 100% remaining
+        data = {
+            "schema_version": "4.0",
+            "import_type": "inventory_updates",
+            "inventory_updates": [
+                {"upc": "051000127954", "remaining_percentage": 100}
+            ]
+        }
+        file_path = tmp_path / "inventory_updates.json"
+        file_path.write_text(json.dumps(data))
+
+        # Execute
+        result = import_inventory_updates_from_bt_mobile(str(file_path))
+
+        # Assert
+        assert result.successful == 1
+
+        with session_scope() as session:
+            updated_item = session.get(InventoryItem, inv_id)
+            assert updated_item.quantity == 10.0, f"Expected quantity=10, got {updated_item.quantity}"
+
+    def test_import_inventory_update_decimal_rounding(self, test_db, tmp_path):
+        """Test that percentage calculations maintain Decimal precision."""
+        from src.services.database import session_scope
+        from src.models import Ingredient, Product, InventoryItem, Purchase, Supplier
+        from datetime import date
+
+        # Setup with quantity=10, 33% should give 3.3
+        with session_scope() as session:
+            ingredient = Ingredient(
+                slug="test-oil-decimal",
+                display_name="Test Oil Decimal",
+                category="oil",
+            )
+            session.add(ingredient)
+            session.flush()
+
+            product = Product(
+                ingredient_id=ingredient.id,
+                brand="Test Oil Brand",
+                upc_code="051000127955",
+                package_unit_quantity=1,
+                package_unit="bottle",
+            )
+            session.add(product)
+            session.flush()
+
+            supplier = Supplier(name="Test Supplier")
+            session.add(supplier)
+            session.flush()
+
+            purchase = Purchase(
+                product_id=product.id,
+                supplier_id=supplier.id,
+                purchase_date=date(2025, 1, 1),
+                unit_price=Decimal("8.00"),
+                quantity_purchased=10,
+            )
+            session.add(purchase)
+            session.flush()
+
+            inventory_item = InventoryItem(
+                product_id=product.id,
+                purchase_id=purchase.id,
+                quantity=10.0,
+                purchase_date=date(2025, 1, 1),
+            )
+            session.add(inventory_item)
+            session.commit()
+            inv_id = inventory_item.id
+
+        # Create JSON file with 33% remaining
+        data = {
+            "schema_version": "4.0",
+            "import_type": "inventory_updates",
+            "inventory_updates": [
+                {"upc": "051000127955", "remaining_percentage": 33}
+            ]
+        }
+        file_path = tmp_path / "inventory_updates.json"
+        file_path.write_text(json.dumps(data))
+
+        # Execute
+        result = import_inventory_updates_from_bt_mobile(str(file_path))
+
+        # Assert
+        assert result.successful == 1
+
+        with session_scope() as session:
+            updated_item = session.get(InventoryItem, inv_id)
+            # 10 * 0.33 = 3.3
+            assert abs(updated_item.quantity - 3.3) < 0.01, f"Expected quantity~3.3, got {updated_item.quantity}"
+
+    def test_import_inventory_update_already_partial(self, test_db, tmp_path):
+        """Test update when current_quantity < purchase quantity."""
+        from src.services.database import session_scope
+        from src.models import Ingredient, Product, InventoryItem, Purchase, Supplier
+        from datetime import date
+
+        # Setup: purchase=10, current=7, percentage=50 -> target=5 (based on original 10)
+        with session_scope() as session:
+            ingredient = Ingredient(
+                slug="test-butter-partial",
+                display_name="Test Butter Partial",
+                category="dairy",
+            )
+            session.add(ingredient)
+            session.flush()
+
+            product = Product(
+                ingredient_id=ingredient.id,
+                brand="Test Butter Brand",
+                upc_code="051000127956",
+                package_unit_quantity=1,
+                package_unit="box",
+            )
+            session.add(product)
+            session.flush()
+
+            supplier = Supplier(name="Test Supplier")
+            session.add(supplier)
+            session.flush()
+
+            purchase = Purchase(
+                product_id=product.id,
+                supplier_id=supplier.id,
+                purchase_date=date(2025, 1, 1),
+                unit_price=Decimal("6.00"),
+                quantity_purchased=10,
+            )
+            session.add(purchase)
+            session.flush()
+
+            # Already partially consumed: current=7 of original 10
+            inventory_item = InventoryItem(
+                product_id=product.id,
+                purchase_id=purchase.id,
+                quantity=7.0,
+                purchase_date=date(2025, 1, 1),
+            )
+            session.add(inventory_item)
+            session.commit()
+            inv_id = inventory_item.id
+
+        # 50% of original 10 = 5
+        data = {
+            "schema_version": "4.0",
+            "import_type": "inventory_updates",
+            "inventory_updates": [
+                {"upc": "051000127956", "remaining_percentage": 50}
+            ]
+        }
+        file_path = tmp_path / "inventory_updates.json"
+        file_path.write_text(json.dumps(data))
+
+        # Execute
+        result = import_inventory_updates_from_bt_mobile(str(file_path))
+
+        # Assert
+        assert result.successful == 1
+
+        with session_scope() as session:
+            updated_item = session.get(InventoryItem, inv_id)
+            # Target = 10 * 0.50 = 5, adjustment = 5 - 7 = -2
+            assert updated_item.quantity == 5.0, f"Expected quantity=5, got {updated_item.quantity}"
+
+    def test_fifo_selects_oldest_inventory_item(self, test_db, tmp_path):
+        """Test that oldest purchase_date is updated first (FIFO)."""
+        from src.services.database import session_scope
+        from src.models import Ingredient, Product, InventoryItem, Purchase, Supplier
+        from datetime import date
+
+        # Setup: Two inventory items with different dates
+        with session_scope() as session:
+            ingredient = Ingredient(
+                slug="test-rice-fifo",
+                display_name="Test Rice FIFO",
+                category="grain",
+            )
+            session.add(ingredient)
+            session.flush()
+
+            product = Product(
+                ingredient_id=ingredient.id,
+                brand="Test Rice Brand",
+                upc_code="051000127957",
+                package_unit_quantity=1,
+                package_unit="bag",
+            )
+            session.add(product)
+            session.flush()
+
+            supplier = Supplier(name="Test Supplier")
+            session.add(supplier)
+            session.flush()
+
+            # Older purchase (Jan 1)
+            purchase1 = Purchase(
+                product_id=product.id,
+                supplier_id=supplier.id,
+                purchase_date=date(2025, 1, 1),
+                unit_price=Decimal("5.00"),
+                quantity_purchased=10,
+            )
+            session.add(purchase1)
+            session.flush()
+
+            # Newer purchase (June 1)
+            purchase2 = Purchase(
+                product_id=product.id,
+                supplier_id=supplier.id,
+                purchase_date=date(2025, 6, 1),
+                unit_price=Decimal("5.50"),
+                quantity_purchased=10,
+            )
+            session.add(purchase2)
+            session.flush()
+
+            # Older inventory item
+            inv1 = InventoryItem(
+                product_id=product.id,
+                purchase_id=purchase1.id,
+                quantity=10.0,
+                purchase_date=date(2025, 1, 1),
+            )
+            session.add(inv1)
+
+            # Newer inventory item
+            inv2 = InventoryItem(
+                product_id=product.id,
+                purchase_id=purchase2.id,
+                quantity=10.0,
+                purchase_date=date(2025, 6, 1),
+            )
+            session.add(inv2)
+            session.commit()
+            inv1_id = inv1.id
+            inv2_id = inv2.id
+
+        # Import 50% update
+        data = {
+            "schema_version": "4.0",
+            "import_type": "inventory_updates",
+            "inventory_updates": [
+                {"upc": "051000127957", "remaining_percentage": 50}
+            ]
+        }
+        file_path = tmp_path / "inventory_updates.json"
+        file_path.write_text(json.dumps(data))
+
+        # Execute
+        result = import_inventory_updates_from_bt_mobile(str(file_path))
+
+        # Assert: inv1 (oldest) is updated, inv2 unchanged
+        assert result.successful == 1
+
+        with session_scope() as session:
+            updated_inv1 = session.get(InventoryItem, inv1_id)
+            updated_inv2 = session.get(InventoryItem, inv2_id)
+            assert updated_inv1.quantity == 5.0, f"Expected inv1 quantity=5, got {updated_inv1.quantity}"
+            assert updated_inv2.quantity == 10.0, f"Expected inv2 quantity=10, got {updated_inv2.quantity}"
+
+    def test_fifo_skips_empty_inventory_items(self, test_db, tmp_path):
+        """Test that items with quantity=0 are skipped."""
+        from src.services.database import session_scope
+        from src.models import Ingredient, Product, InventoryItem, Purchase, Supplier
+        from datetime import date
+
+        # Setup: older item with 0 quantity, newer with 10
+        with session_scope() as session:
+            ingredient = Ingredient(
+                slug="test-pasta-skip",
+                display_name="Test Pasta Skip Empty",
+                category="grain",
+            )
+            session.add(ingredient)
+            session.flush()
+
+            product = Product(
+                ingredient_id=ingredient.id,
+                brand="Test Pasta Brand",
+                upc_code="051000127958",
+                package_unit_quantity=1,
+                package_unit="box",
+            )
+            session.add(product)
+            session.flush()
+
+            supplier = Supplier(name="Test Supplier")
+            session.add(supplier)
+            session.flush()
+
+            # Older purchase (depleted)
+            purchase1 = Purchase(
+                product_id=product.id,
+                supplier_id=supplier.id,
+                purchase_date=date(2025, 1, 1),
+                unit_price=Decimal("3.00"),
+                quantity_purchased=10,
+            )
+            session.add(purchase1)
+            session.flush()
+
+            # Newer purchase
+            purchase2 = Purchase(
+                product_id=product.id,
+                supplier_id=supplier.id,
+                purchase_date=date(2025, 6, 1),
+                unit_price=Decimal("3.50"),
+                quantity_purchased=10,
+            )
+            session.add(purchase2)
+            session.flush()
+
+            # Older but empty
+            inv1 = InventoryItem(
+                product_id=product.id,
+                purchase_id=purchase1.id,
+                quantity=0.0,
+                purchase_date=date(2025, 1, 1),
+            )
+            session.add(inv1)
+
+            # Newer with quantity
+            inv2 = InventoryItem(
+                product_id=product.id,
+                purchase_id=purchase2.id,
+                quantity=10.0,
+                purchase_date=date(2025, 6, 1),
+            )
+            session.add(inv2)
+            session.commit()
+            inv1_id = inv1.id
+            inv2_id = inv2.id
+
+        # Import 50% update
+        data = {
+            "schema_version": "4.0",
+            "import_type": "inventory_updates",
+            "inventory_updates": [
+                {"upc": "051000127958", "remaining_percentage": 50}
+            ]
+        }
+        file_path = tmp_path / "inventory_updates.json"
+        file_path.write_text(json.dumps(data))
+
+        # Execute
+        result = import_inventory_updates_from_bt_mobile(str(file_path))
+
+        # Assert: inv1 skipped, inv2 updated
+        assert result.successful == 1
+
+        with session_scope() as session:
+            updated_inv1 = session.get(InventoryItem, inv1_id)
+            updated_inv2 = session.get(InventoryItem, inv2_id)
+            assert updated_inv1.quantity == 0.0, f"inv1 should remain 0, got {updated_inv1.quantity}"
+            assert updated_inv2.quantity == 5.0, f"Expected inv2 quantity=5, got {updated_inv2.quantity}"
+
+    def test_import_inventory_update_no_product(self, test_db, tmp_path):
+        """Test error when UPC does not match any product."""
+        data = {
+            "schema_version": "4.0",
+            "import_type": "inventory_updates",
+            "inventory_updates": [
+                {"upc": "999999999999", "remaining_percentage": 50}
+            ]
+        }
+        file_path = tmp_path / "inventory_updates.json"
+        file_path.write_text(json.dumps(data))
+
+        result = import_inventory_updates_from_bt_mobile(str(file_path))
+
+        assert result.failed == 1
+        assert "No product found" in result.errors[0]["message"]
+
+    def test_import_inventory_update_no_inventory(self, test_db, tmp_path):
+        """Test error when product has no inventory items with quantity."""
+        from src.services.database import session_scope
+        from src.models import Ingredient, Product
+
+        # Create product but no inventory
+        with session_scope() as session:
+            ingredient = Ingredient(
+                slug="test-empty-inv",
+                display_name="Test Empty Inventory",
+                category="dry",
+            )
+            session.add(ingredient)
+            session.flush()
+
+            product = Product(
+                ingredient_id=ingredient.id,
+                brand="Test Brand Empty",
+                upc_code="051000127959",
+                package_unit_quantity=1,
+                package_unit="bag",
+            )
+            session.add(product)
+            session.commit()
+
+        data = {
+            "schema_version": "4.0",
+            "import_type": "inventory_updates",
+            "inventory_updates": [
+                {"upc": "051000127959", "remaining_percentage": 50}
+            ]
+        }
+        file_path = tmp_path / "inventory_updates.json"
+        file_path.write_text(json.dumps(data))
+
+        result = import_inventory_updates_from_bt_mobile(str(file_path))
+
+        assert result.failed == 1
+        assert "No inventory with remaining quantity" in result.errors[0]["message"]
+
+    def test_import_inventory_update_no_purchase(self, test_db, tmp_path):
+        """Test error when inventory item has no linked purchase."""
+        from src.services.database import session_scope
+        from src.models import Ingredient, Product, InventoryItem
+        from datetime import date
+
+        # Create inventory without purchase_id
+        with session_scope() as session:
+            ingredient = Ingredient(
+                slug="test-no-purchase",
+                display_name="Test No Purchase Link",
+                category="dry",
+            )
+            session.add(ingredient)
+            session.flush()
+
+            product = Product(
+                ingredient_id=ingredient.id,
+                brand="Test Brand No Purchase",
+                upc_code="051000127960",
+                package_unit_quantity=1,
+                package_unit="bag",
+            )
+            session.add(product)
+            session.flush()
+
+            # No purchase_id
+            inventory_item = InventoryItem(
+                product_id=product.id,
+                purchase_id=None,
+                quantity=10.0,
+                purchase_date=date(2025, 1, 1),
+            )
+            session.add(inventory_item)
+            session.commit()
+
+        data = {
+            "schema_version": "4.0",
+            "import_type": "inventory_updates",
+            "inventory_updates": [
+                {"upc": "051000127960", "remaining_percentage": 50}
+            ]
+        }
+        file_path = tmp_path / "inventory_updates.json"
+        file_path.write_text(json.dumps(data))
+
+        result = import_inventory_updates_from_bt_mobile(str(file_path))
+
+        assert result.failed == 1
+        assert "no linked purchase" in result.errors[0]["message"]
+
+    def test_import_inventory_update_invalid_percentage(self, test_db, tmp_path):
+        """Test error for percentage outside 0-100 range."""
+        from src.services.database import session_scope
+        from src.models import Ingredient, Product, InventoryItem, Purchase, Supplier
+        from datetime import date
+
+        with session_scope() as session:
+            ingredient = Ingredient(
+                slug="test-invalid-pct",
+                display_name="Test Invalid Percentage",
+                category="dry",
+            )
+            session.add(ingredient)
+            session.flush()
+
+            product = Product(
+                ingredient_id=ingredient.id,
+                brand="Test Brand",
+                upc_code="051000127961",
+                package_unit_quantity=1,
+                package_unit="bag",
+            )
+            session.add(product)
+            session.flush()
+
+            supplier = Supplier(name="Test Supplier")
+            session.add(supplier)
+            session.flush()
+
+            purchase = Purchase(
+                product_id=product.id,
+                supplier_id=supplier.id,
+                purchase_date=date(2025, 1, 1),
+                unit_price=Decimal("5.00"),
+                quantity_purchased=10,
+            )
+            session.add(purchase)
+            session.flush()
+
+            inventory_item = InventoryItem(
+                product_id=product.id,
+                purchase_id=purchase.id,
+                quantity=10.0,
+                purchase_date=date(2025, 1, 1),
+            )
+            session.add(inventory_item)
+            session.commit()
+
+        data = {
+            "schema_version": "4.0",
+            "import_type": "inventory_updates",
+            "inventory_updates": [
+                {"upc": "051000127961", "remaining_percentage": 150}
+            ]
+        }
+        file_path = tmp_path / "inventory_updates.json"
+        file_path.write_text(json.dumps(data))
+
+        result = import_inventory_updates_from_bt_mobile(str(file_path))
+
+        assert result.failed == 1
+        assert "Invalid percentage" in result.errors[0]["message"]
+
+    def test_import_inventory_update_wrong_schema_version(self, test_db, tmp_path):
+        """Test error for wrong schema version."""
+        data = {
+            "schema_version": "3.5",
+            "import_type": "inventory_updates",
+            "inventory_updates": []
+        }
+        file_path = tmp_path / "inventory_updates.json"
+        file_path.write_text(json.dumps(data))
+
+        result = import_inventory_updates_from_bt_mobile(str(file_path))
+
+        assert result.failed == 1
+        assert "Unsupported schema version" in result.errors[0]["message"]
+
+    def test_import_inventory_update_wrong_import_type(self, test_db, tmp_path):
+        """Test error for wrong import type."""
+        data = {
+            "schema_version": "4.0",
+            "import_type": "purchases",
+            "inventory_updates": []
+        }
+        file_path = tmp_path / "inventory_updates.json"
+        file_path.write_text(json.dumps(data))
+
+        result = import_inventory_updates_from_bt_mobile(str(file_path))
+
+        assert result.failed == 1
+        assert "Wrong import type" in result.errors[0]["message"]
+
+    def test_import_inventory_update_invalid_json(self, test_db, tmp_path):
+        """Test error for malformed JSON."""
+        file_path = tmp_path / "inventory_updates.json"
+        with open(file_path, "w") as f:
+            f.write("{ invalid json }")
+
+        result = import_inventory_updates_from_bt_mobile(str(file_path))
+
+        assert result.failed == 1
+        assert "Invalid JSON" in result.errors[0]["message"]
+
+    def test_import_inventory_update_missing_upc(self, test_db, tmp_path):
+        """Test error when UPC is missing from update record."""
+        data = {
+            "schema_version": "4.0",
+            "import_type": "inventory_updates",
+            "inventory_updates": [
+                {"remaining_percentage": 50}
+            ]
+        }
+        file_path = tmp_path / "inventory_updates.json"
+        file_path.write_text(json.dumps(data))
+
+        result = import_inventory_updates_from_bt_mobile(str(file_path))
+
+        assert result.failed == 1
+        assert "Missing UPC" in result.errors[0]["message"]
+
+    def test_import_inventory_update_missing_percentage(self, test_db, tmp_path):
+        """Test error when remaining_percentage is missing."""
+        from src.services.database import session_scope
+        from src.models import Ingredient, Product, InventoryItem, Purchase, Supplier
+        from datetime import date
+
+        with session_scope() as session:
+            ingredient = Ingredient(
+                slug="test-missing-pct",
+                display_name="Test Missing Percentage",
+                category="dry",
+            )
+            session.add(ingredient)
+            session.flush()
+
+            product = Product(
+                ingredient_id=ingredient.id,
+                brand="Test Brand",
+                upc_code="051000127962",
+                package_unit_quantity=1,
+                package_unit="bag",
+            )
+            session.add(product)
+            session.flush()
+
+            supplier = Supplier(name="Test Supplier")
+            session.add(supplier)
+            session.flush()
+
+            purchase = Purchase(
+                product_id=product.id,
+                supplier_id=supplier.id,
+                purchase_date=date(2025, 1, 1),
+                unit_price=Decimal("5.00"),
+                quantity_purchased=10,
+            )
+            session.add(purchase)
+            session.flush()
+
+            inventory_item = InventoryItem(
+                product_id=product.id,
+                purchase_id=purchase.id,
+                quantity=10.0,
+                purchase_date=date(2025, 1, 1),
+            )
+            session.add(inventory_item)
+            session.commit()
+
+        data = {
+            "schema_version": "4.0",
+            "import_type": "inventory_updates",
+            "inventory_updates": [
+                {"upc": "051000127962"}
+            ]
+        }
+        file_path = tmp_path / "inventory_updates.json"
+        file_path.write_text(json.dumps(data))
+
+        result = import_inventory_updates_from_bt_mobile(str(file_path))
+
+        assert result.failed == 1
+        assert "Missing remaining_percentage" in result.errors[0]["message"]

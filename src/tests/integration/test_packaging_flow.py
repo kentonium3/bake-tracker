@@ -346,7 +346,7 @@ class TestPackagingImportExport:
         import json
         import tempfile
         import os
-        from src.services.import_export_service import export_all_to_json, import_all_from_json_v3
+        from src.services.import_export_service import export_all_to_json, import_all_from_json_v4
         from src.models import Ingredient
         from src.models.base import Base
         from sqlalchemy import create_engine

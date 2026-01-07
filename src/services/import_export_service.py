@@ -6,8 +6,9 @@ for testing purposes. No UI required - designed for programmatic use.
 """
 
 import json
+from decimal import Decimal
 from typing import Dict, List, Optional, Tuple
-from datetime import datetime
+from datetime import datetime, date
 from src.utils.datetime_utils import utc_now
 from pathlib import Path
 
@@ -1132,9 +1133,9 @@ def export_all_to_json(file_path: str) -> ExportResult:
         event_production_targets_data = export_event_production_targets_to_json()
         event_assembly_targets_data = export_event_assembly_targets_to_json()
 
-        # Build combined export data - v3.5 format (Feature 027: suppliers and purchases with FK)
+        # Build combined export data - v4.0 format (Feature 040: F037 recipe fields, F039 event output_mode)
         export_data = {
-            "version": "3.6",  # Feature 031: Added hierarchy fields
+            "version": "4.0",  # Feature 040: v4.0 schema upgrade
             "exported_at": utc_now().isoformat() + "Z",
             "application": "bake-tracker",
             "suppliers": [],  # Feature 027: Suppliers before products (products reference suppliers)
@@ -1386,6 +1387,42 @@ def export_all_to_json(file_path: str) -> ExportResult:
             if recipe.notes:
                 recipe_data["notes"] = recipe.notes
 
+            # Feature 040 / F037: Export variant fields
+            # T001: Export base_recipe_slug (convert FK to name-based slug for portability)
+            # Note: Recipe model doesn't have a slug column, so we use name as identifier
+            recipe_data["base_recipe_slug"] = None
+            if recipe.base_recipe_id and recipe.base_recipe:
+                # Generate slug from recipe name (lowercase, spaces to underscores)
+                recipe_data["base_recipe_slug"] = recipe.base_recipe.name.lower().replace(" ", "_")
+
+            # T002: Export variant_name
+            recipe_data["variant_name"] = recipe.variant_name
+
+            # T003: Export is_production_ready
+            recipe_data["is_production_ready"] = recipe.is_production_ready
+
+            # T004: Export finished_units[] with yield_mode
+            recipe_data["finished_units"] = []
+            for fu in recipe.finished_units:
+                fu_data = {
+                    "slug": fu.slug,
+                    "name": fu.display_name,
+                    "yield_mode": fu.yield_mode.value if fu.yield_mode else None,
+                }
+                # Include yield quantity fields based on mode
+                if fu.yield_mode:
+                    if fu.yield_mode.value == "discrete_count":
+                        if fu.items_per_batch is not None:
+                            fu_data["unit_yield_quantity"] = fu.items_per_batch
+                        if fu.item_unit:
+                            fu_data["unit_yield_unit"] = fu.item_unit
+                    elif fu.yield_mode.value == "batch_portion":
+                        if fu.batch_percentage is not None:
+                            fu_data["unit_yield_quantity"] = float(fu.batch_percentage)
+                        if fu.portion_description:
+                            fu_data["unit_yield_unit"] = fu.portion_description
+                recipe_data["finished_units"].append(fu_data)
+
             recipe_data["ingredients"] = []
             for ri in recipe.recipe_ingredients:
                 # Get ingredient from the recipe ingredient relationship
@@ -1480,6 +1517,9 @@ def export_all_to_json(file_path: str) -> ExportResult:
             }
             if event.notes:
                 event_data["notes"] = event.notes
+
+            # Feature 040 / F039: Export output_mode
+            event_data["output_mode"] = event.output_mode.value if event.output_mode else None
 
             export_data["events"].append(event_data)
 
@@ -2406,9 +2446,9 @@ def import_assembly_runs_from_json(
     return result
 
 
-def import_all_from_json_v3(file_path: str, mode: str = "merge") -> ImportResult:
+def import_all_from_json_v4(file_path: str, mode: str = "merge") -> ImportResult:
     """
-    Import all data from a v3.4 format JSON file.
+    Import all data from a v4.0 format JSON file.
 
     Supports two import modes:
     - "merge": Add new records, skip duplicates (default, safe for incremental backups)
@@ -2419,19 +2459,19 @@ def import_all_from_json_v3(file_path: str, mode: str = "merge") -> ImportResult
     2. products (depends on ingredients)
     3. purchases (depends on products)
     4. inventory_items (depends on products)
-    5. recipes (depends on ingredients)
+    5. recipes (depends on ingredients) - with F037 variant fields
     6. finished_units (depends on recipes)
     7. finished_goods (no dependencies)
     8. compositions (depends on finished_goods)
     9. packages (no dependencies)
     10. package_finished_goods (depends on packages, finished_goods)
     11. recipients (no dependencies)
-    12. events (no dependencies)
+    12. events (no dependencies) - with F039 output_mode
     13. event_recipient_packages (depends on events, recipients, packages)
     14. production_records (depends on finished_units)
 
     Args:
-        file_path: Path to v3.4 format JSON file
+        file_path: Path to v4.0 format JSON file
         mode: Import mode - "merge" (default) or "replace"
 
     Returns:
@@ -2439,12 +2479,6 @@ def import_all_from_json_v3(file_path: str, mode: str = "merge") -> ImportResult
 
     Raises:
         ValueError: If mode is not "merge" or "replace"
-
-    Note:
-        The 'version' field in the import file is optional and informational only.
-        Import validation relies on required field presence, FK resolution, and
-        SQLAlchemy model validation. This allows imports to work across minor
-        format changes without requiring version bumps.
     """
     # Validate mode
     if mode not in ("merge", "replace"):
@@ -2458,9 +2492,6 @@ def import_all_from_json_v3(file_path: str, mode: str = "merge") -> ImportResult
         with open(file_path, "r", encoding="utf-8") as f:
             data = json.load(f)
 
-        # Version field is informational only - no validation
-        # Actual compatibility is determined by field presence and FK resolution
-
         # Use single transaction for atomicity
         with session_scope() as session:
             # Replace mode: clear all tables first
@@ -2468,8 +2499,7 @@ def import_all_from_json_v3(file_path: str, mode: str = "merge") -> ImportResult
                 _clear_all_tables(session)
 
             # Import in dependency order
-            # Note: For simplicity, we use existing import functions where possible
-            # and the new v3.0 functions for new entities
+            # Note: For simplicity, we use existing import functions where possible.
 
             # 1. Ingredients (no dependencies)
             if "ingredients" in data:
@@ -2673,117 +2703,88 @@ def import_all_from_json_v3(file_path: str, mode: str = "merge") -> ImportResult
 
                 for purch_data in data["purchases"]:
                     try:
-                        # Feature 027: Check for new format (supplier_id FK) vs old format
-                        if purch_data.get("supplier_id") is not None:
-                            # v3.5+ format: direct IDs
-                            product_id = purch_data.get("product_id")
-                            supplier_id = purch_data.get("supplier_id")
+                        # Current-spec purchase format: direct foreign keys.
+                        product_id = purch_data.get("product_id")
+                        supplier_id = purch_data.get("supplier_id")
 
-                            # Validate product exists
-                            product = session.query(Product).filter_by(id=product_id).first()
-                            if not product:
-                                result.add_error(
-                                    "purchase",
-                                    f"product_id={product_id}",
-                                    f"Product not found: ID {product_id}",
-                                )
-                                continue
-
-                            # Validate supplier exists
-                            supplier = session.query(Supplier).filter_by(id=supplier_id).first()
-                            if not supplier:
-                                result.add_error(
-                                    "purchase",
-                                    f"supplier_id={supplier_id}",
-                                    f"Supplier not found: ID {supplier_id}",
-                                )
-                                continue
-                        else:
-                            # Old format: lookup by ingredient/brand
-                            ing_slug = purch_data.get("ingredient_slug", "")
-                            product_brand = purch_data.get("product_brand", "")
-                            product_name = purch_data.get("product_name")
-                            package_size = purch_data.get("package_size")
-                            package_unit = purch_data.get("package_unit")
-
-                            # Find ingredient
-                            ingredient = session.query(Ingredient).filter_by(slug=ing_slug).first()
-                            if not ingredient:
-                                result.add_error(
-                                    "purchase",
-                                    f"{ing_slug}/{product_brand}",
-                                    f"Ingredient not found: {ing_slug}",
-                                    suggestion="Import ingredients and products before purchases.",
-                                )
-                                continue
-
-                            # Build product filter
-                            product_filter = {"ingredient_id": ingredient.id, "brand": product_brand}
-                            if product_name is not None:
-                                product_filter["product_name"] = product_name
-                            if package_size is not None:
-                                product_filter["package_size"] = package_size
-                            if package_unit is not None:
-                                product_filter["package_unit"] = package_unit
-
-                            matching_products = session.query(Product).filter_by(**product_filter).all()
-
-                            if len(matching_products) == 0:
-                                result.add_error(
-                                    "purchase",
-                                    f"{ing_slug}/{product_brand}",
-                                    f"Product not found: {product_brand}",
-                                )
-                                continue
-                            elif len(matching_products) > 1:
-                                result.add_error(
-                                    "purchase",
-                                    f"{ing_slug}/{product_brand}",
-                                    f"Ambiguous product match: {len(matching_products)} products found",
-                                    suggestion="Re-export data using latest version.",
-                                )
-                                continue
-
-                            product_id = matching_products[0].id
-
-                            # Old format doesn't have supplier_id - skip this purchase
-                            # (legacy purchases without supplier_id cannot be imported)
-                            result.add_warning(
+                        if product_id is None or supplier_id is None:
+                            result.add_error(
                                 "purchase",
-                                f"{ing_slug}/{product_brand}",
-                                "Legacy format without supplier_id - skipped",
-                                suggestion="Re-export data using latest version with supplier_id.",
+                                "unknown",
+                                "Missing required fields: product_id and/or supplier_id",
+                                suggestion="Adjust the import file to include product_id and supplier_id per current spec.",
                             )
                             continue
 
-                        # Parse purchase date (support both purchase_date and purchased_at keys)
-                        purchase_date = None
-                        date_str = purch_data.get("purchase_date") or purch_data.get("purchased_at")
-                        if date_str:
-                            try:
-                                # Handle both date and datetime formats
-                                if "T" in date_str:
-                                    purchase_date = dt.fromisoformat(date_str.replace("Z", "+00:00")).date()
-                                else:
-                                    from datetime import date as dt_date
-                                    purchase_date = dt_date.fromisoformat(date_str)
-                            except ValueError:
-                                result.add_warning(
-                                    "purchase",
-                                    f"product_id={product_id}",
-                                    f"Invalid date format: {date_str}",
-                                )
+                        # Validate product exists
+                        product = session.query(Product).filter_by(id=product_id).first()
+                        if not product:
+                            result.add_error(
+                                "purchase",
+                                f"product_id={product_id}",
+                                f"Product not found: ID {product_id}",
+                            )
+                            continue
 
-                        # Parse unit_price (support both unit_price and unit_cost for backward compat)
-                        price_str = purch_data.get("unit_price") or purch_data.get("unit_cost")
-                        unit_price = Decimal(str(price_str)) if price_str else Decimal("0")
+                        # Validate supplier exists
+                        supplier = session.query(Supplier).filter_by(id=supplier_id).first()
+                        if not supplier:
+                            result.add_error(
+                                "purchase",
+                                f"supplier_id={supplier_id}",
+                                f"Supplier not found: ID {supplier_id}",
+                            )
+                            continue
+
+                        # Parse purchase date (current field name only)
+                        purchase_date = None
+                        date_str = purch_data.get("purchase_date")
+                        if not date_str:
+                            result.add_error(
+                                "purchase",
+                                f"product_id={product_id}",
+                                "Missing required field: purchase_date",
+                            )
+                            continue
+                        try:
+                            # Handle both date and datetime formats
+                            if "T" in date_str:
+                                purchase_date = dt.fromisoformat(date_str.replace("Z", "+00:00")).date()
+                            else:
+                                from datetime import date as dt_date
+                                purchase_date = dt_date.fromisoformat(date_str)
+                        except ValueError:
+                            result.add_error(
+                                "purchase",
+                                f"product_id={product_id}",
+                                f"Invalid date format: {date_str}",
+                            )
+                            continue
+
+                        # Parse unit_price (current field name only)
+                        if purch_data.get("unit_price") is None:
+                            result.add_error(
+                                "purchase",
+                                f"product_id={product_id}",
+                                "Missing required field: unit_price",
+                            )
+                            continue
+                        unit_price = Decimal(str(purch_data.get("unit_price")))
+
+                        if purch_data.get("quantity_purchased") is None:
+                            result.add_error(
+                                "purchase",
+                                f"product_id={product_id}",
+                                "Missing required field: quantity_purchased",
+                            )
+                            continue
 
                         purchase = Purchase(
                             product_id=product_id,
                             supplier_id=supplier_id,
                             purchase_date=purchase_date,
                             unit_price=unit_price,
-                            quantity_purchased=purch_data.get("quantity_purchased", 0),
+                            quantity_purchased=purch_data.get("quantity_purchased"),
                             notes=purch_data.get("notes"),
                         )
                         # Preserve original ID if provided (for FK consistency in replace mode)
@@ -2891,20 +2892,54 @@ def import_all_from_json_v3(file_path: str, mode: str = "merge") -> ImportResult
             session.flush()
 
             # 6. Recipes (depends on ingredients)
+            # Feature 040 / F037: Import recipes with variant support
             if "recipes" in data:
                 from src.models.recipe import Recipe, RecipeIngredient
-                
-                for recipe_data in data["recipes"]:
+                from src.models.finished_unit import FinishedUnit, YieldMode
+
+                # T006: Sort recipes - import base recipes before variants
+                # This ensures base_recipe exists when importing a variant
+                recipes_data = data["recipes"]
+                base_recipes = [r for r in recipes_data if not r.get("base_recipe_slug")]
+                variant_recipes = [r for r in recipes_data if r.get("base_recipe_slug")]
+                sorted_recipes = base_recipes + variant_recipes
+
+                for recipe_data in sorted_recipes:
                     try:
                         name = recipe_data.get("name", "")
-                        
+
                         if skip_duplicates:
                             existing = session.query(Recipe).filter_by(name=name).first()
                             if existing:
                                 result.add_skip("recipe", name, "Already exists")
                                 continue
-                        
-                        # Validate ingredients exist before creating recipe
+
+                        # T007: Resolve base_recipe_slug to base_recipe_id
+                        base_recipe_id = None
+                        base_recipe_slug = recipe_data.get("base_recipe_slug")
+                        if base_recipe_slug:
+                            # Convert slug back to name (slug format: lowercase with underscores)
+                            # Look up by matching the name pattern
+                            base_recipes_candidates = session.query(Recipe).all()
+                            base_recipe = None
+                            for candidate in base_recipes_candidates:
+                                # Generate slug from candidate name and compare
+                                candidate_slug = candidate.name.lower().replace(" ", "_")
+                                if candidate_slug == base_recipe_slug:
+                                    base_recipe = candidate
+                                    break
+
+                            if not base_recipe:
+                                result.add_error(
+                                    "recipe",
+                                    name,
+                                    f"Base recipe not found: {base_recipe_slug}",
+                                    suggestion="Ensure base recipe is exported and listed before variants.",
+                                )
+                                continue
+                            base_recipe_id = base_recipe.id
+
+                        # T010: Validate ingredients exist before creating recipe
                         recipe_ingredients_data = recipe_data.get("ingredients", [])
                         validated_ingredients = []
                         missing_ingredients = []
@@ -2942,8 +2977,26 @@ def import_all_from_json_v3(file_path: str, mode: str = "merge") -> ImportResult
                             for err in invalid_units:
                                 result.add_error("recipe", name, err)
                             continue
-                        
-                        # Create recipe (Recipe model doesn't have slug field)
+
+                        # T010: Validate finished_units yield_mode values before creating
+                        finished_units_data = recipe_data.get("finished_units", [])
+                        valid_yield_modes = [e.value for e in YieldMode]
+                        invalid_yield_mode = False
+                        for fu_data in finished_units_data:
+                            yield_mode_str = fu_data.get("yield_mode")
+                            if yield_mode_str and yield_mode_str not in valid_yield_modes:
+                                result.add_error(
+                                    "recipe",
+                                    name,
+                                    f"Invalid yield_mode: {yield_mode_str}. Valid values: {valid_yield_modes}",
+                                )
+                                invalid_yield_mode = True
+                                break
+                        if invalid_yield_mode:
+                            continue
+
+                        # Create recipe with F037 fields
+                        # T008: Import variant_name and is_production_ready
                         recipe = Recipe(
                             name=name,
                             category=recipe_data.get("category"),
@@ -2951,14 +3004,18 @@ def import_all_from_json_v3(file_path: str, mode: str = "merge") -> ImportResult
                             yield_quantity=recipe_data.get("yield_quantity"),
                             yield_unit=recipe_data.get("yield_unit"),
                             yield_description=recipe_data.get("yield_description"),
-                            estimated_time_minutes=recipe_data.get("estimated_time_minutes", 
-                                                                   recipe_data.get("prep_time_minutes", 0) + 
+                            estimated_time_minutes=recipe_data.get("estimated_time_minutes",
+                                                                   recipe_data.get("prep_time_minutes", 0) +
                                                                    recipe_data.get("cook_time_minutes", 0)),
                             notes=recipe_data.get("notes"),
+                            # F037 fields
+                            base_recipe_id=base_recipe_id,
+                            variant_name=recipe_data.get("variant_name"),
+                            is_production_ready=recipe_data.get("is_production_ready", False),
                         )
                         session.add(recipe)
                         session.flush()  # Get recipe ID
-                        
+
                         # Create recipe ingredients
                         for vi in validated_ingredients:
                             ri = RecipeIngredient(
@@ -2969,11 +3026,54 @@ def import_all_from_json_v3(file_path: str, mode: str = "merge") -> ImportResult
                                 notes=vi.get("notes"),
                             )
                             session.add(ri)
-                        
+
+                        # T009: Import finished_units[] with yield_mode
+                        for fu_data in finished_units_data:
+                            fu_slug = fu_data.get("slug")
+                            if not fu_slug:
+                                # Generate slug from name if not provided
+                                fu_name = fu_data.get("name", f"{name}_unit")
+                                fu_slug = fu_name.lower().replace(" ", "_")
+
+                            # Check for existing in merge mode
+                            if skip_duplicates:
+                                existing_fu = session.query(FinishedUnit).filter_by(slug=fu_slug).first()
+                                if existing_fu:
+                                    result.add_skip("finished_unit", fu_slug, "Already exists (from recipe import)")
+                                    continue
+
+                            # Convert yield_mode string to enum
+                            yield_mode_str = fu_data.get("yield_mode")
+                            yield_mode = YieldMode(yield_mode_str) if yield_mode_str else YieldMode.DISCRETE_COUNT
+
+                            # Build finished unit with mode-specific fields
+                            finished_unit = FinishedUnit(
+                                recipe_id=recipe.id,
+                                slug=fu_slug,
+                                display_name=fu_data.get("name", name),
+                                yield_mode=yield_mode,
+                            )
+
+                            # Set mode-specific fields based on yield_mode
+                            if yield_mode == YieldMode.DISCRETE_COUNT:
+                                if fu_data.get("unit_yield_quantity") is not None:
+                                    finished_unit.items_per_batch = int(fu_data["unit_yield_quantity"])
+                                if fu_data.get("unit_yield_unit"):
+                                    finished_unit.item_unit = fu_data["unit_yield_unit"]
+                            elif yield_mode == YieldMode.BATCH_PORTION:
+                                if fu_data.get("unit_yield_quantity") is not None:
+                                    from decimal import Decimal
+                                    finished_unit.batch_percentage = Decimal(str(fu_data["unit_yield_quantity"]))
+                                if fu_data.get("unit_yield_unit"):
+                                    finished_unit.portion_description = fu_data["unit_yield_unit"]
+
+                            session.add(finished_unit)
+                            result.add_success("finished_unit")
+
                         result.add_success("recipe")
                     except Exception as e:
                         result.add_error("recipe", recipe_data.get("name", "unknown"), str(e))
-            
+
             session.flush()
 
             # 6.5 Recipe components (depends on all recipes being created)
@@ -3185,8 +3285,9 @@ def import_all_from_json_v3(file_path: str, mode: str = "merge") -> ImportResult
             session.flush()
 
             # 13. Events
+            # Feature 040 / F039: Import output_mode field
             if "events" in data:
-                from src.models.event import Event
+                from src.models.event import Event, OutputMode
                 for evt in data["events"]:
                     try:
                         name = evt.get("name", "")
@@ -3200,16 +3301,31 @@ def import_all_from_json_v3(file_path: str, mode: str = "merge") -> ImportResult
                         from datetime import date
                         event_date_str = evt.get("event_date")
                         event_date = date.fromisoformat(event_date_str) if event_date_str else None
-                        
+
                         # Extract year from event_date if not provided
                         if not year and event_date:
                             year = event_date.year
+
+                        # T013: Parse output_mode enum
+                        output_mode = None
+                        output_mode_str = evt.get("output_mode")
+                        if output_mode_str:
+                            try:
+                                output_mode = OutputMode(output_mode_str)
+                            except ValueError:
+                                result.add_error(
+                                    "event",
+                                    name,
+                                    f"Invalid output_mode: {output_mode_str}. Valid values: {[e.value for e in OutputMode]}",
+                                )
+                                continue
 
                         event = Event(
                             name=name,
                             event_date=event_date,
                             year=year,
                             notes=evt.get("notes"),
+                            output_mode=output_mode,  # Feature 040 / F039
                         )
                         session.add(event)
                         result.add_success("event")
@@ -3254,6 +3370,42 @@ def import_all_from_json_v3(file_path: str, mode: str = "merge") -> ImportResult
 
             session.flush()
 
+            # T014: Validate output_mode vs targets consistency
+            # Check if events with specific output_mode have corresponding targets
+            if "events" in data:
+                from src.models.event import Event, OutputMode
+
+                for evt in data["events"]:
+                    name = evt.get("name", "")
+                    output_mode_str = evt.get("output_mode")
+
+                    if output_mode_str:
+                        # Check event_assembly_targets for this event
+                        has_assembly_targets = any(
+                            t.get("event_name") == name
+                            for t in data.get("event_assembly_targets", [])
+                        )
+                        # Check event_production_targets for this event
+                        has_production_targets = any(
+                            t.get("event_name") == name
+                            for t in data.get("event_production_targets", [])
+                        )
+
+                        if output_mode_str == "bundled" and not has_assembly_targets:
+                            result.add_warning(
+                                "event",
+                                name,
+                                "output_mode='bundled' but no event_assembly_targets provided",
+                                suggestion="Add assembly targets or change output_mode",
+                            )
+                        elif output_mode_str == "bulk_count" and not has_production_targets:
+                            result.add_warning(
+                                "event",
+                                name,
+                                "output_mode='bulk_count' but no event_production_targets provided",
+                                suggestion="Add production targets or change output_mode",
+                            )
+
             # 18. Production runs (Feature 016)
             if "production_runs" in data:
                 pr_run_result = import_production_runs_from_json(
@@ -3278,4 +3430,281 @@ def import_all_from_json_v3(file_path: str, mode: str = "merge") -> ImportResult
 
     return result
 
+
+def import_purchases_from_bt_mobile(file_path: str) -> ImportResult:
+    """
+    Import purchases from BT Mobile JSON file.
+
+    This function imports purchase data scanned from BT Mobile app, matching
+    UPCs against existing products and creating Purchase + InventoryItem records.
+
+    The import is ATOMIC per SC-008: if any record fails validation or creation,
+    the entire import is rolled back with no partial data changes.
+
+    Args:
+        file_path: Path to JSON file with schema_version="4.0", import_type="purchases"
+
+    Returns:
+        ImportResult with:
+        - successful: Number of purchases that would be created (0 if any errors)
+        - failed: Number of errors (causes full rollback)
+        - unmatched_purchases: List of purchase data for UPCs not found in products
+
+    Note:
+        Feature 040: Part of BT Mobile workflow for scanning receipts.
+    """
+    result = ImportResult()
+    result.unmatched_purchases = []  # T022: Collect unmatched for UI resolution
+
+    # T019: Read and validate JSON
+    try:
+        with open(file_path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+    except json.JSONDecodeError as e:
+        result.add_error("file", file_path, f"Invalid JSON: {e}")
+        return result
+    except FileNotFoundError:
+        result.add_error("file", file_path, f"File not found: {file_path}")
+        return result
+
+    # Schema validation
+    schema_version = data.get("schema_version")
+    if schema_version != "4.0":
+        result.add_error(
+            "file",
+            file_path,
+            f"Unsupported schema version: {schema_version}. Expected '4.0'.",
+        )
+        return result
+
+    import_type = data.get("import_type")
+    if import_type != "purchases":
+        result.add_error(
+            "file",
+            file_path,
+            f"Wrong import type: {import_type}. Expected 'purchases'.",
+        )
+        return result
+
+    # T020-T023: Process purchases
+    default_supplier = data.get("supplier")
+    purchases_data = data.get("purchases", [])
+
+    if not purchases_data:
+        # No purchases to import
+        return result
+
+    with session_scope() as session:
+        for purchase_data in purchases_data:
+            upc = purchase_data.get("upc")
+            if not upc:
+                result.add_error("purchase", "unknown", "Missing UPC field")
+                continue
+
+            # T020: UPC lookup
+            product = session.query(Product).filter_by(upc_code=upc).first()
+
+            if not product:
+                # Collect for UI resolution (WP06)
+                result.unmatched_purchases.append(purchase_data)
+                continue
+
+            # T021: Product found - create Purchase + InventoryItem
+            try:
+                # Resolve supplier - create default "Unknown" if not provided
+                supplier_name = purchase_data.get("supplier") or default_supplier
+                if not supplier_name:
+                    supplier_name = "Unknown"
+
+                supplier = session.query(Supplier).filter_by(name=supplier_name).first()
+                if not supplier:
+                    supplier = Supplier(name=supplier_name)
+                    session.add(supplier)
+                    session.flush()
+
+                # Parse scanned_at date
+                scanned_at = purchase_data.get("scanned_at")
+                if scanned_at:
+                    try:
+                        # Handle ISO format with Z suffix
+                        if scanned_at.endswith("Z"):
+                            scanned_at = scanned_at[:-1] + "+00:00"
+                        purchase_date = datetime.fromisoformat(scanned_at).date()
+                    except ValueError:
+                        purchase_date = date.today()
+                else:
+                    purchase_date = date.today()
+
+                # Parse price and quantity
+                unit_price = Decimal(str(purchase_data.get("unit_price", 0)))
+                quantity_purchased = int(purchase_data.get("quantity_purchased", 1))
+
+                # Create Purchase record
+                purchase = Purchase(
+                    product_id=product.id,
+                    supplier_id=supplier.id,
+                    purchase_date=purchase_date,
+                    unit_price=unit_price,
+                    quantity_purchased=quantity_purchased,
+                    notes=purchase_data.get("notes"),
+                )
+                session.add(purchase)
+                session.flush()  # Get purchase.id
+
+                # Create InventoryItem linked to Purchase
+                inventory_item = InventoryItem(
+                    product_id=product.id,
+                    purchase_id=purchase.id,
+                    quantity=float(quantity_purchased),
+                    unit_cost=float(unit_price),
+                    purchase_date=purchase_date,
+                )
+                session.add(inventory_item)
+
+                result.add_success("purchase")
+
+            except Exception as e:
+                result.add_error("purchase", upc, f"Failed to create purchase: {str(e)}")
+                continue
+
+        # SC-008 Atomic: Only commit if zero errors
+        if result.failed == 0:
+            session.commit()
+        else:
+            # Rollback happens automatically when session_scope exits without commit
+            # Reset successful count since nothing was committed
+            result.successful = 0
+
+    return result
+
+
+# ============================================================================
+# v4.0 BT Mobile Inventory Update Import
+# ============================================================================
+
+
+def import_inventory_updates_from_bt_mobile(file_path: str) -> ImportResult:
+    """
+    Import inventory updates from BT Mobile JSON file.
+
+    Adjusts InventoryItem quantities based on percentage remaining.
+    Uses FIFO selection (oldest purchase_date first).
+
+    The import is ATOMIC per SC-008: if any record fails validation,
+    the entire import is rolled back with no partial data changes.
+
+    Args:
+        file_path: Path to JSON file with schema_version="4.0", import_type="inventory_updates"
+
+    Returns:
+        ImportResult with success_count (0 if any errors), error_count, and details
+    """
+    result = ImportResult()
+
+    # Read JSON
+    try:
+        with open(file_path, 'r') as f:
+            data = json.load(f)
+    except json.JSONDecodeError as e:
+        result.add_error("file", file_path, f"Invalid JSON: {e}")
+        return result
+
+    # Validate schema
+    if data.get("schema_version") != "4.0":
+        result.add_error("file", file_path,
+            f"Unsupported schema version: {data.get('schema_version')}")
+        return result
+
+    if data.get("import_type") != "inventory_updates":
+        result.add_error("file", file_path,
+            f"Wrong import type: {data.get('import_type')} (expected 'inventory_updates')")
+        return result
+
+    # Process updates
+    with session_scope() as session:
+        for update_data in data.get("inventory_updates", []):
+            upc = update_data.get("upc")
+            if not upc:
+                result.add_error("inventory_update", "unknown", "Missing UPC")
+                continue
+
+            # UPC lookup
+            product = session.query(Product).filter_by(upc_code=upc).first()
+
+            if not product:
+                result.add_error("inventory_update", upc,
+                    f"No product found with UPC: {upc}")
+                continue
+
+            # FIFO: oldest purchase_date first, with remaining quantity
+            inventory_item = (
+                session.query(InventoryItem)
+                .filter_by(product_id=product.id)
+                .filter(InventoryItem.quantity > 0)
+                .order_by(InventoryItem.purchase_date.asc())
+                .first()
+            )
+
+            if not inventory_item:
+                result.add_error("inventory_update", upc,
+                    f"No inventory with remaining quantity for product: {product.display_name}")
+                continue
+
+            # Get percentage from update data
+            percentage = update_data.get("remaining_percentage")
+            if percentage is None:
+                result.add_error("inventory_update", upc, "Missing remaining_percentage")
+                continue
+
+            # Validate percentage range
+            if not (0 <= percentage <= 100):
+                result.add_error("inventory_update", upc,
+                    f"Invalid percentage: {percentage} (must be 0-100)")
+                continue
+
+            # Get original quantity from linked purchase
+            if not inventory_item.purchase_id:
+                result.add_error("inventory_update", upc,
+                    "Cannot calculate percentage - inventory item has no linked purchase")
+                continue
+
+            purchase = session.get(Purchase, inventory_item.purchase_id)
+            if not purchase:
+                result.add_error("inventory_update", upc,
+                    "Cannot calculate percentage - linked purchase not found")
+                continue
+
+            original_quantity = Decimal(str(purchase.quantity_purchased))
+
+            # Calculate target and adjustment
+            pct_decimal = Decimal(str(percentage)) / Decimal("100")
+            target_quantity = original_quantity * pct_decimal
+
+            # Current quantity as Decimal
+            current_quantity = Decimal(str(inventory_item.quantity))
+            adjustment = target_quantity - current_quantity
+
+            # Update inventory item quantity
+            new_quantity = current_quantity + adjustment
+
+            # Validate no negative inventory
+            if new_quantity < 0:
+                result.add_error("inventory_update", upc,
+                    f"Adjustment would result in negative inventory: {new_quantity}")
+                continue
+
+            # Update quantity (convert to float for model compatibility)
+            inventory_item.quantity = float(new_quantity)
+
+            result.add_success("inventory_update")
+
+        # SC-008 Atomic: Only commit if zero errors
+        if result.failed == 0:
+            session.commit()
+        else:
+            # Rollback happens automatically when session_scope exits without commit
+            # Reset successful count since nothing was committed
+            result.successful = 0
+
+    return result
 

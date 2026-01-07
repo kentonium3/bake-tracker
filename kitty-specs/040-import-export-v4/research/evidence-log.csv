@@ -1,0 +1,7 @@
+id,date,finding,source,impact,decision_ref
+E001,2026-01-06,"Recipe model has base_recipe_id, variant_name, is_production_ready (F037)","src/models/recipe.py:71-83",Recipe export needs these fields,D1
+E002,2026-01-06,"FinishedUnit has yield_mode enum (DISCRETE_COUNT, BATCH_PORTION, WEIGHT_BASED)","src/models/finished_unit.py:87",yield_mode is on FinishedUnit not Recipe,D1
+E003,2026-01-06,"Event has output_mode nullable field with OutputMode enum","src/models/event.py:83",Event export needs output_mode,D2
+E004,2026-01-06,"Product has upc_code field indexed as idx_product_upc","src/models/product.py:67-123",UPC matching is straightforward,D4
+E005,2026-01-06,"InventoryItem links to Purchase via purchase_id FK","src/models/inventory_item.py",Purchase has original quantity for percentage calc,D5
+E006,2026-01-06,"Current import_all_from_json_v3 exists at line 2409","src/services/import_export_service.py:2409",Need v4 version with new fields,D1

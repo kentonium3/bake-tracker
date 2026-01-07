@@ -336,7 +336,7 @@ class ImportDialog(ctk.CTkToplevel):
         self.update()
 
         try:
-            result = import_export_service.import_all_from_json_v3(
+            result = import_export_service.import_all_from_json_v4(
                 self.file_path,
                 mode=self.mode_var.get(),
             )
