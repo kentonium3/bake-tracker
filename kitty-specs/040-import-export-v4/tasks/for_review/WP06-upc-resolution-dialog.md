@@ -7,7 +7,7 @@ subtasks:
   - "T028"
 title: "UPC Resolution Dialog"
 phase: "Phase 2 - BT Mobile Workflows"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "system"
 shell_pid: ""
@@ -319,3 +319,4 @@ pytest src/tests/ui/dialogs/test_upc_resolution_dialog.py -v
 
 - 2026-01-06T12:00:00Z - system - lane=planned - Prompt created.
 - 2026-01-07T03:38:12Z – system – shell_pid= – lane=doing – Moved to doing
+- 2026-01-07T03:41:59Z – system – shell_pid= – lane=for_review – Moved to for_review

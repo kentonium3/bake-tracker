@@ -3730,7 +3730,7 @@ def import_inventory_updates_from_bt_mobile(file_path: str) -> ImportResult:
                     "Cannot calculate percentage - inventory item has no linked purchase")
                 continue
 
-            purchase = session.query(Purchase).get(inventory_item.purchase_id)
+            purchase = session.get(Purchase, inventory_item.purchase_id)
             if not purchase:
                 result.add_error("inventory_update", upc,
                     "Cannot calculate percentage - linked purchase not found")

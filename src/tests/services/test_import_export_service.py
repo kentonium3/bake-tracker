@@ -2861,3 +2861,858 @@ class TestPurchaseImportFromBTMobile:
         assert result.failed > 0, "Should fail for invalid JSON"
         error_msg = result.errors[0]["message"]
         assert "Invalid JSON" in error_msg or "json" in error_msg.lower()
+
+
+class TestInventoryUpdateFromBTMobile:
+    """Tests for import_inventory_updates_from_bt_mobile function (WP07/WP08)."""
+
+    def test_import_inventory_update_50_percent(self, test_db, tmp_path):
+        """Test 50% remaining halves current quantity."""
+        from src.services.database import session_scope
+        from src.models import Ingredient, Product, InventoryItem, Purchase, Supplier
+        from datetime import date
+
+        # Setup: Product with UPC, InventoryItem with quantity=10, Purchase
+        with session_scope() as session:
+            ingredient = Ingredient(
+                slug="test-flour-inv-update",
+                display_name="Test Flour for Inventory Update",
+                category="dry",
+            )
+            session.add(ingredient)
+            session.flush()
+
+            product = Product(
+                ingredient_id=ingredient.id,
+                brand="Test Flour Brand",
+                upc_code="051000127952",
+                package_unit_quantity=1,
+                package_unit="bag",
+            )
+            session.add(product)
+            session.flush()
+
+            supplier = Supplier(name="Test Supplier")
+            session.add(supplier)
+            session.flush()
+
+            purchase = Purchase(
+                product_id=product.id,
+                supplier_id=supplier.id,
+                purchase_date=date(2025, 1, 1),
+                unit_price=Decimal("5.00"),
+                quantity_purchased=10,
+            )
+            session.add(purchase)
+            session.flush()
+
+            inventory_item = InventoryItem(
+                product_id=product.id,
+                purchase_id=purchase.id,
+                quantity=10.0,
+                unit_cost=5.0,
+                purchase_date=date(2025, 1, 1),
+            )
+            session.add(inventory_item)
+            session.commit()
+            inv_id = inventory_item.id
+
+        # Create JSON file
+        data = {
+            "schema_version": "4.0",
+            "import_type": "inventory_updates",
+            "created_at": "2026-01-06T14:30:00Z",
+            "source": "bt_mobile",
+            "inventory_updates": [
+                {
+                    "upc": "051000127952",
+                    "scanned_at": "2026-01-06T14:15:23Z",
+                    "percentage_remaining": 50
+                }
+            ]
+        }
+        file_path = tmp_path / "inventory_updates.json"
+        file_path.write_text(json.dumps(data))
+
+        # Execute
+        result = import_inventory_updates_from_bt_mobile(str(file_path))
+
+        # Assert
+        assert result.successful == 1, f"Expected 1 success, got errors: {result.errors}"
+        assert result.failed == 0
+
+        with session_scope() as session:
+            updated_item = session.get(InventoryItem, inv_id)
+            assert updated_item.quantity == 5.0, f"Expected quantity=5, got {updated_item.quantity}"
+
+    def test_import_inventory_update_0_percent(self, test_db, tmp_path):
+        """Test 0% remaining fully depletes inventory."""
+        from src.services.database import session_scope
+        from src.models import Ingredient, Product, InventoryItem, Purchase, Supplier
+        from datetime import date
+
+        # Setup
+        with session_scope() as session:
+            ingredient = Ingredient(
+                slug="test-sugar-inv-zero",
+                display_name="Test Sugar for Zero Percent",
+                category="dry",
+            )
+            session.add(ingredient)
+            session.flush()
+
+            product = Product(
+                ingredient_id=ingredient.id,
+                brand="Test Sugar Brand",
+                upc_code="051000127953",
+                package_unit_quantity=1,
+                package_unit="bag",
+            )
+            session.add(product)
+            session.flush()
+
+            supplier = Supplier(name="Test Supplier")
+            session.add(supplier)
+            session.flush()
+
+            purchase = Purchase(
+                product_id=product.id,
+                supplier_id=supplier.id,
+                purchase_date=date(2025, 1, 1),
+                unit_price=Decimal("4.00"),
+                quantity_purchased=10,
+            )
+            session.add(purchase)
+            session.flush()
+
+            inventory_item = InventoryItem(
+                product_id=product.id,
+                purchase_id=purchase.id,
+                quantity=10.0,
+                purchase_date=date(2025, 1, 1),
+            )
+            session.add(inventory_item)
+            session.commit()
+            inv_id = inventory_item.id
+
+        # Create JSON file with 0% remaining
+        data = {
+            "schema_version": "4.0",
+            "import_type": "inventory_updates",
+            "inventory_updates": [
+                {"upc": "051000127953", "percentage_remaining": 0}
+            ]
+        }
+        file_path = tmp_path / "inventory_updates.json"
+        file_path.write_text(json.dumps(data))
+
+        # Execute
+        result = import_inventory_updates_from_bt_mobile(str(file_path))
+
+        # Assert
+        assert result.successful == 1
+        assert result.failed == 0
+
+        with session_scope() as session:
+            updated_item = session.get(InventoryItem, inv_id)
+            assert updated_item.quantity == 0.0, f"Expected quantity=0, got {updated_item.quantity}"
+
+    def test_import_inventory_update_100_percent(self, test_db, tmp_path):
+        """Test 100% remaining leaves quantity unchanged."""
+        from src.services.database import session_scope
+        from src.models import Ingredient, Product, InventoryItem, Purchase, Supplier
+        from datetime import date
+
+        # Setup
+        with session_scope() as session:
+            ingredient = Ingredient(
+                slug="test-salt-inv-100",
+                display_name="Test Salt Full",
+                category="dry",
+            )
+            session.add(ingredient)
+            session.flush()
+
+            product = Product(
+                ingredient_id=ingredient.id,
+                brand="Test Salt Brand",
+                upc_code="051000127954",
+                package_unit_quantity=1,
+                package_unit="bag",
+            )
+            session.add(product)
+            session.flush()
+
+            supplier = Supplier(name="Test Supplier")
+            session.add(supplier)
+            session.flush()
+
+            purchase = Purchase(
+                product_id=product.id,
+                supplier_id=supplier.id,
+                purchase_date=date(2025, 1, 1),
+                unit_price=Decimal("2.00"),
+                quantity_purchased=10,
+            )
+            session.add(purchase)
+            session.flush()
+
+            inventory_item = InventoryItem(
+                product_id=product.id,
+                purchase_id=purchase.id,
+                quantity=10.0,
+                purchase_date=date(2025, 1, 1),
+            )
+            session.add(inventory_item)
+            session.commit()
+            inv_id = inventory_item.id
+
+        # Create JSON file with 100% remaining
+        data = {
+            "schema_version": "4.0",
+            "import_type": "inventory_updates",
+            "inventory_updates": [
+                {"upc": "051000127954", "percentage_remaining": 100}
+            ]
+        }
+        file_path = tmp_path / "inventory_updates.json"
+        file_path.write_text(json.dumps(data))
+
+        # Execute
+        result = import_inventory_updates_from_bt_mobile(str(file_path))
+
+        # Assert
+        assert result.successful == 1
+
+        with session_scope() as session:
+            updated_item = session.get(InventoryItem, inv_id)
+            assert updated_item.quantity == 10.0, f"Expected quantity=10, got {updated_item.quantity}"
+
+    def test_import_inventory_update_decimal_rounding(self, test_db, tmp_path):
+        """Test that percentage calculations maintain Decimal precision."""
+        from src.services.database import session_scope
+        from src.models import Ingredient, Product, InventoryItem, Purchase, Supplier
+        from datetime import date
+
+        # Setup with quantity=10, 33% should give 3.3
+        with session_scope() as session:
+            ingredient = Ingredient(
+                slug="test-oil-decimal",
+                display_name="Test Oil Decimal",
+                category="oil",
+            )
+            session.add(ingredient)
+            session.flush()
+
+            product = Product(
+                ingredient_id=ingredient.id,
+                brand="Test Oil Brand",
+                upc_code="051000127955",
+                package_unit_quantity=1,
+                package_unit="bottle",
+            )
+            session.add(product)
+            session.flush()
+
+            supplier = Supplier(name="Test Supplier")
+            session.add(supplier)
+            session.flush()
+
+            purchase = Purchase(
+                product_id=product.id,
+                supplier_id=supplier.id,
+                purchase_date=date(2025, 1, 1),
+                unit_price=Decimal("8.00"),
+                quantity_purchased=10,
+            )
+            session.add(purchase)
+            session.flush()
+
+            inventory_item = InventoryItem(
+                product_id=product.id,
+                purchase_id=purchase.id,
+                quantity=10.0,
+                purchase_date=date(2025, 1, 1),
+            )
+            session.add(inventory_item)
+            session.commit()
+            inv_id = inventory_item.id
+
+        # Create JSON file with 33% remaining
+        data = {
+            "schema_version": "4.0",
+            "import_type": "inventory_updates",
+            "inventory_updates": [
+                {"upc": "051000127955", "percentage_remaining": 33}
+            ]
+        }
+        file_path = tmp_path / "inventory_updates.json"
+        file_path.write_text(json.dumps(data))
+
+        # Execute
+        result = import_inventory_updates_from_bt_mobile(str(file_path))
+
+        # Assert
+        assert result.successful == 1
+
+        with session_scope() as session:
+            updated_item = session.get(InventoryItem, inv_id)
+            # 10 * 0.33 = 3.3
+            assert abs(updated_item.quantity - 3.3) < 0.01, f"Expected quantity~3.3, got {updated_item.quantity}"
+
+    def test_import_inventory_update_already_partial(self, test_db, tmp_path):
+        """Test update when current_quantity < purchase quantity."""
+        from src.services.database import session_scope
+        from src.models import Ingredient, Product, InventoryItem, Purchase, Supplier
+        from datetime import date
+
+        # Setup: purchase=10, current=7, percentage=50 -> target=5 (based on original 10)
+        with session_scope() as session:
+            ingredient = Ingredient(
+                slug="test-butter-partial",
+                display_name="Test Butter Partial",
+                category="dairy",
+            )
+            session.add(ingredient)
+            session.flush()
+
+            product = Product(
+                ingredient_id=ingredient.id,
+                brand="Test Butter Brand",
+                upc_code="051000127956",
+                package_unit_quantity=1,
+                package_unit="box",
+            )
+            session.add(product)
+            session.flush()
+
+            supplier = Supplier(name="Test Supplier")
+            session.add(supplier)
+            session.flush()
+
+            purchase = Purchase(
+                product_id=product.id,
+                supplier_id=supplier.id,
+                purchase_date=date(2025, 1, 1),
+                unit_price=Decimal("6.00"),
+                quantity_purchased=10,
+            )
+            session.add(purchase)
+            session.flush()
+
+            # Already partially consumed: current=7 of original 10
+            inventory_item = InventoryItem(
+                product_id=product.id,
+                purchase_id=purchase.id,
+                quantity=7.0,
+                purchase_date=date(2025, 1, 1),
+            )
+            session.add(inventory_item)
+            session.commit()
+            inv_id = inventory_item.id
+
+        # 50% of original 10 = 5
+        data = {
+            "schema_version": "4.0",
+            "import_type": "inventory_updates",
+            "inventory_updates": [
+                {"upc": "051000127956", "percentage_remaining": 50}
+            ]
+        }
+        file_path = tmp_path / "inventory_updates.json"
+        file_path.write_text(json.dumps(data))
+
+        # Execute
+        result = import_inventory_updates_from_bt_mobile(str(file_path))
+
+        # Assert
+        assert result.successful == 1
+
+        with session_scope() as session:
+            updated_item = session.get(InventoryItem, inv_id)
+            # Target = 10 * 0.50 = 5, adjustment = 5 - 7 = -2
+            assert updated_item.quantity == 5.0, f"Expected quantity=5, got {updated_item.quantity}"
+
+    def test_fifo_selects_oldest_inventory_item(self, test_db, tmp_path):
+        """Test that oldest purchase_date is updated first (FIFO)."""
+        from src.services.database import session_scope
+        from src.models import Ingredient, Product, InventoryItem, Purchase, Supplier
+        from datetime import date
+
+        # Setup: Two inventory items with different dates
+        with session_scope() as session:
+            ingredient = Ingredient(
+                slug="test-rice-fifo",
+                display_name="Test Rice FIFO",
+                category="grain",
+            )
+            session.add(ingredient)
+            session.flush()
+
+            product = Product(
+                ingredient_id=ingredient.id,
+                brand="Test Rice Brand",
+                upc_code="051000127957",
+                package_unit_quantity=1,
+                package_unit="bag",
+            )
+            session.add(product)
+            session.flush()
+
+            supplier = Supplier(name="Test Supplier")
+            session.add(supplier)
+            session.flush()
+
+            # Older purchase (Jan 1)
+            purchase1 = Purchase(
+                product_id=product.id,
+                supplier_id=supplier.id,
+                purchase_date=date(2025, 1, 1),
+                unit_price=Decimal("5.00"),
+                quantity_purchased=10,
+            )
+            session.add(purchase1)
+            session.flush()
+
+            # Newer purchase (June 1)
+            purchase2 = Purchase(
+                product_id=product.id,
+                supplier_id=supplier.id,
+                purchase_date=date(2025, 6, 1),
+                unit_price=Decimal("5.50"),
+                quantity_purchased=10,
+            )
+            session.add(purchase2)
+            session.flush()
+
+            # Older inventory item
+            inv1 = InventoryItem(
+                product_id=product.id,
+                purchase_id=purchase1.id,
+                quantity=10.0,
+                purchase_date=date(2025, 1, 1),
+            )
+            session.add(inv1)
+
+            # Newer inventory item
+            inv2 = InventoryItem(
+                product_id=product.id,
+                purchase_id=purchase2.id,
+                quantity=10.0,
+                purchase_date=date(2025, 6, 1),
+            )
+            session.add(inv2)
+            session.commit()
+            inv1_id = inv1.id
+            inv2_id = inv2.id
+
+        # Import 50% update
+        data = {
+            "schema_version": "4.0",
+            "import_type": "inventory_updates",
+            "inventory_updates": [
+                {"upc": "051000127957", "percentage_remaining": 50}
+            ]
+        }
+        file_path = tmp_path / "inventory_updates.json"
+        file_path.write_text(json.dumps(data))
+
+        # Execute
+        result = import_inventory_updates_from_bt_mobile(str(file_path))
+
+        # Assert: inv1 (oldest) is updated, inv2 unchanged
+        assert result.successful == 1
+
+        with session_scope() as session:
+            updated_inv1 = session.get(InventoryItem, inv1_id)
+            updated_inv2 = session.get(InventoryItem, inv2_id)
+            assert updated_inv1.quantity == 5.0, f"Expected inv1 quantity=5, got {updated_inv1.quantity}"
+            assert updated_inv2.quantity == 10.0, f"Expected inv2 quantity=10, got {updated_inv2.quantity}"
+
+    def test_fifo_skips_empty_inventory_items(self, test_db, tmp_path):
+        """Test that items with quantity=0 are skipped."""
+        from src.services.database import session_scope
+        from src.models import Ingredient, Product, InventoryItem, Purchase, Supplier
+        from datetime import date
+
+        # Setup: older item with 0 quantity, newer with 10
+        with session_scope() as session:
+            ingredient = Ingredient(
+                slug="test-pasta-skip",
+                display_name="Test Pasta Skip Empty",
+                category="grain",
+            )
+            session.add(ingredient)
+            session.flush()
+
+            product = Product(
+                ingredient_id=ingredient.id,
+                brand="Test Pasta Brand",
+                upc_code="051000127958",
+                package_unit_quantity=1,
+                package_unit="box",
+            )
+            session.add(product)
+            session.flush()
+
+            supplier = Supplier(name="Test Supplier")
+            session.add(supplier)
+            session.flush()
+
+            # Older purchase (depleted)
+            purchase1 = Purchase(
+                product_id=product.id,
+                supplier_id=supplier.id,
+                purchase_date=date(2025, 1, 1),
+                unit_price=Decimal("3.00"),
+                quantity_purchased=10,
+            )
+            session.add(purchase1)
+            session.flush()
+
+            # Newer purchase
+            purchase2 = Purchase(
+                product_id=product.id,
+                supplier_id=supplier.id,
+                purchase_date=date(2025, 6, 1),
+                unit_price=Decimal("3.50"),
+                quantity_purchased=10,
+            )
+            session.add(purchase2)
+            session.flush()
+
+            # Older but empty
+            inv1 = InventoryItem(
+                product_id=product.id,
+                purchase_id=purchase1.id,
+                quantity=0.0,
+                purchase_date=date(2025, 1, 1),
+            )
+            session.add(inv1)
+
+            # Newer with quantity
+            inv2 = InventoryItem(
+                product_id=product.id,
+                purchase_id=purchase2.id,
+                quantity=10.0,
+                purchase_date=date(2025, 6, 1),
+            )
+            session.add(inv2)
+            session.commit()
+            inv1_id = inv1.id
+            inv2_id = inv2.id
+
+        # Import 50% update
+        data = {
+            "schema_version": "4.0",
+            "import_type": "inventory_updates",
+            "inventory_updates": [
+                {"upc": "051000127958", "percentage_remaining": 50}
+            ]
+        }
+        file_path = tmp_path / "inventory_updates.json"
+        file_path.write_text(json.dumps(data))
+
+        # Execute
+        result = import_inventory_updates_from_bt_mobile(str(file_path))
+
+        # Assert: inv1 skipped, inv2 updated
+        assert result.successful == 1
+
+        with session_scope() as session:
+            updated_inv1 = session.get(InventoryItem, inv1_id)
+            updated_inv2 = session.get(InventoryItem, inv2_id)
+            assert updated_inv1.quantity == 0.0, f"inv1 should remain 0, got {updated_inv1.quantity}"
+            assert updated_inv2.quantity == 5.0, f"Expected inv2 quantity=5, got {updated_inv2.quantity}"
+
+    def test_import_inventory_update_no_product(self, test_db, tmp_path):
+        """Test error when UPC does not match any product."""
+        data = {
+            "schema_version": "4.0",
+            "import_type": "inventory_updates",
+            "inventory_updates": [
+                {"upc": "999999999999", "percentage_remaining": 50}
+            ]
+        }
+        file_path = tmp_path / "inventory_updates.json"
+        file_path.write_text(json.dumps(data))
+
+        result = import_inventory_updates_from_bt_mobile(str(file_path))
+
+        assert result.failed == 1
+        assert "No product found" in result.errors[0]["message"]
+
+    def test_import_inventory_update_no_inventory(self, test_db, tmp_path):
+        """Test error when product has no inventory items with quantity."""
+        from src.services.database import session_scope
+        from src.models import Ingredient, Product
+
+        # Create product but no inventory
+        with session_scope() as session:
+            ingredient = Ingredient(
+                slug="test-empty-inv",
+                display_name="Test Empty Inventory",
+                category="dry",
+            )
+            session.add(ingredient)
+            session.flush()
+
+            product = Product(
+                ingredient_id=ingredient.id,
+                brand="Test Brand Empty",
+                upc_code="051000127959",
+                package_unit_quantity=1,
+                package_unit="bag",
+            )
+            session.add(product)
+            session.commit()
+
+        data = {
+            "schema_version": "4.0",
+            "import_type": "inventory_updates",
+            "inventory_updates": [
+                {"upc": "051000127959", "percentage_remaining": 50}
+            ]
+        }
+        file_path = tmp_path / "inventory_updates.json"
+        file_path.write_text(json.dumps(data))
+
+        result = import_inventory_updates_from_bt_mobile(str(file_path))
+
+        assert result.failed == 1
+        assert "No inventory with remaining quantity" in result.errors[0]["message"]
+
+    def test_import_inventory_update_no_purchase(self, test_db, tmp_path):
+        """Test error when inventory item has no linked purchase."""
+        from src.services.database import session_scope
+        from src.models import Ingredient, Product, InventoryItem
+        from datetime import date
+
+        # Create inventory without purchase_id
+        with session_scope() as session:
+            ingredient = Ingredient(
+                slug="test-no-purchase",
+                display_name="Test No Purchase Link",
+                category="dry",
+            )
+            session.add(ingredient)
+            session.flush()
+
+            product = Product(
+                ingredient_id=ingredient.id,
+                brand="Test Brand No Purchase",
+                upc_code="051000127960",
+                package_unit_quantity=1,
+                package_unit="bag",
+            )
+            session.add(product)
+            session.flush()
+
+            # No purchase_id
+            inventory_item = InventoryItem(
+                product_id=product.id,
+                purchase_id=None,
+                quantity=10.0,
+                purchase_date=date(2025, 1, 1),
+            )
+            session.add(inventory_item)
+            session.commit()
+
+        data = {
+            "schema_version": "4.0",
+            "import_type": "inventory_updates",
+            "inventory_updates": [
+                {"upc": "051000127960", "percentage_remaining": 50}
+            ]
+        }
+        file_path = tmp_path / "inventory_updates.json"
+        file_path.write_text(json.dumps(data))
+
+        result = import_inventory_updates_from_bt_mobile(str(file_path))
+
+        assert result.failed == 1
+        assert "no linked purchase" in result.errors[0]["message"]
+
+    def test_import_inventory_update_invalid_percentage(self, test_db, tmp_path):
+        """Test error for percentage outside 0-100 range."""
+        from src.services.database import session_scope
+        from src.models import Ingredient, Product, InventoryItem, Purchase, Supplier
+        from datetime import date
+
+        with session_scope() as session:
+            ingredient = Ingredient(
+                slug="test-invalid-pct",
+                display_name="Test Invalid Percentage",
+                category="dry",
+            )
+            session.add(ingredient)
+            session.flush()
+
+            product = Product(
+                ingredient_id=ingredient.id,
+                brand="Test Brand",
+                upc_code="051000127961",
+                package_unit_quantity=1,
+                package_unit="bag",
+            )
+            session.add(product)
+            session.flush()
+
+            supplier = Supplier(name="Test Supplier")
+            session.add(supplier)
+            session.flush()
+
+            purchase = Purchase(
+                product_id=product.id,
+                supplier_id=supplier.id,
+                purchase_date=date(2025, 1, 1),
+                unit_price=Decimal("5.00"),
+                quantity_purchased=10,
+            )
+            session.add(purchase)
+            session.flush()
+
+            inventory_item = InventoryItem(
+                product_id=product.id,
+                purchase_id=purchase.id,
+                quantity=10.0,
+                purchase_date=date(2025, 1, 1),
+            )
+            session.add(inventory_item)
+            session.commit()
+
+        data = {
+            "schema_version": "4.0",
+            "import_type": "inventory_updates",
+            "inventory_updates": [
+                {"upc": "051000127961", "percentage_remaining": 150}
+            ]
+        }
+        file_path = tmp_path / "inventory_updates.json"
+        file_path.write_text(json.dumps(data))
+
+        result = import_inventory_updates_from_bt_mobile(str(file_path))
+
+        assert result.failed == 1
+        assert "Invalid percentage" in result.errors[0]["message"]
+
+    def test_import_inventory_update_wrong_schema_version(self, test_db, tmp_path):
+        """Test error for wrong schema version."""
+        data = {
+            "schema_version": "3.5",
+            "import_type": "inventory_updates",
+            "inventory_updates": []
+        }
+        file_path = tmp_path / "inventory_updates.json"
+        file_path.write_text(json.dumps(data))
+
+        result = import_inventory_updates_from_bt_mobile(str(file_path))
+
+        assert result.failed == 1
+        assert "Unsupported schema version" in result.errors[0]["message"]
+
+    def test_import_inventory_update_wrong_import_type(self, test_db, tmp_path):
+        """Test error for wrong import type."""
+        data = {
+            "schema_version": "4.0",
+            "import_type": "purchases",
+            "inventory_updates": []
+        }
+        file_path = tmp_path / "inventory_updates.json"
+        file_path.write_text(json.dumps(data))
+
+        result = import_inventory_updates_from_bt_mobile(str(file_path))
+
+        assert result.failed == 1
+        assert "Wrong import type" in result.errors[0]["message"]
+
+    def test_import_inventory_update_invalid_json(self, test_db, tmp_path):
+        """Test error for malformed JSON."""
+        file_path = tmp_path / "inventory_updates.json"
+        with open(file_path, "w") as f:
+            f.write("{ invalid json }")
+
+        result = import_inventory_updates_from_bt_mobile(str(file_path))
+
+        assert result.failed == 1
+        assert "Invalid JSON" in result.errors[0]["message"]
+
+    def test_import_inventory_update_missing_upc(self, test_db, tmp_path):
+        """Test error when UPC is missing from update record."""
+        data = {
+            "schema_version": "4.0",
+            "import_type": "inventory_updates",
+            "inventory_updates": [
+                {"percentage_remaining": 50}
+            ]
+        }
+        file_path = tmp_path / "inventory_updates.json"
+        file_path.write_text(json.dumps(data))
+
+        result = import_inventory_updates_from_bt_mobile(str(file_path))
+
+        assert result.failed == 1
+        assert "Missing UPC" in result.errors[0]["message"]
+
+    def test_import_inventory_update_missing_percentage(self, test_db, tmp_path):
+        """Test error when percentage_remaining is missing."""
+        from src.services.database import session_scope
+        from src.models import Ingredient, Product, InventoryItem, Purchase, Supplier
+        from datetime import date
+
+        with session_scope() as session:
+            ingredient = Ingredient(
+                slug="test-missing-pct",
+                display_name="Test Missing Percentage",
+                category="dry",
+            )
+            session.add(ingredient)
+            session.flush()
+
+            product = Product(
+                ingredient_id=ingredient.id,
+                brand="Test Brand",
+                upc_code="051000127962",
+                package_unit_quantity=1,
+                package_unit="bag",
+            )
+            session.add(product)
+            session.flush()
+
+            supplier = Supplier(name="Test Supplier")
+            session.add(supplier)
+            session.flush()
+
+            purchase = Purchase(
+                product_id=product.id,
+                supplier_id=supplier.id,
+                purchase_date=date(2025, 1, 1),
+                unit_price=Decimal("5.00"),
+                quantity_purchased=10,
+            )
+            session.add(purchase)
+            session.flush()
+
+            inventory_item = InventoryItem(
+                product_id=product.id,
+                purchase_id=purchase.id,
+                quantity=10.0,
+                purchase_date=date(2025, 1, 1),
+            )
+            session.add(inventory_item)
+            session.commit()
+
+        data = {
+            "schema_version": "4.0",
+            "import_type": "inventory_updates",
+            "inventory_updates": [
+                {"upc": "051000127962"}
+            ]
+        }
+        file_path = tmp_path / "inventory_updates.json"
+        file_path.write_text(json.dumps(data))
+
+        result = import_inventory_updates_from_bt_mobile(str(file_path))
+
+        assert result.failed == 1
+        assert "Missing percentage_remaining" in result.errors[0]["message"]
