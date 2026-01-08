@@ -30,8 +30,14 @@ class ObserveDashboard(BaseDashboard):
             master: Parent widget
             **kwargs: Additional arguments passed to BaseDashboard
         """
+        # Set mode identity before super().__init__
+        self.mode_name = "OBSERVE"
+        self.mode_icon = ""
+
+        # Initialize count variable for inline stats
+        self._event_count = 0
+
         super().__init__(master, **kwargs)
-        self.set_title("OBSERVE Dashboard - Event Readiness")
         self._progress_bars = {}
         self._create_progress_stats()
 
@@ -48,6 +54,14 @@ class ObserveDashboard(BaseDashboard):
 
         # Add quick action for refresh
         self.add_action("View Details", self._on_view_details)
+
+    def _format_inline_stats(self) -> str:
+        """Format observe stats for inline display in header.
+
+        Returns:
+            String like "5 events tracked"
+        """
+        return f"{self._event_count} events tracked"
 
     def _add_progress_stat(self, label: str, value: str = "0%") -> None:
         """Add a progress statistic with visual indicator.
@@ -111,6 +125,7 @@ class ObserveDashboard(BaseDashboard):
             )
 
             events = get_all_events()
+            self._event_count = len(events) if events else 0
 
             if not events:
                 # No events - show zeros

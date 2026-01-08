@@ -82,9 +82,11 @@ class InventoryTab(ctk.CTkFrame):
         self._l0_map: Dict[str, Dict[str, Any]] = {}  # L0 name -> ingredient dict
         self._l1_map: Dict[str, Dict[str, Any]] = {}  # L1 name -> ingredient dict
         self._l2_map: Dict[str, Dict[str, Any]] = {}  # L2 name -> ingredient dict
-        self._hierarchy_path_cache: Dict[int, str] = {}  # ingredient_id -> path string
+        self._hierarchy_path_cache: Dict[int, Dict[str, str]] = {}  # ingredient_id -> {"l0": ..., "l1": ..., "l2": ...}
         # Feature 034: Re-entry guard for cascading filter updates
         self._updating_filters = False
+        # Feature 042: Column sort state (tracks reverse=True/False per column)
+        self._sort_reverse: Dict[str, bool] = {}
 
         # Configure grid
         self.grid_columnconfigure(0, weight=1)
@@ -257,25 +259,29 @@ class InventoryTab(ctk.CTkFrame):
         style = ttk.Style()
         style.configure("Treeview", rowheight=25)  # Compact row height
 
-        # Define columns for detail view - exactly 5 columns
-        columns = ("hierarchy_path", "product", "brand", "qty_remaining", "purchased")
+        # Define columns for detail view - 7 columns with separate L0/L1/L2 hierarchy
+        columns = ("l0", "l1", "l2", "product", "brand", "qty_remaining", "purchased")
         self.tree = ttk.Treeview(
             grid_container,
             columns=columns,
             show="headings",
             selectmode="browse",
-            height=20,  # Show more rows (default is 10)
+            # No height constraint - allows dynamic expansion with weight=1
         )
 
-        # Configure column headings
-        self.tree.heading("hierarchy_path", text="Ingredient Hierarchy", anchor="w")
-        self.tree.heading("product", text="Product", anchor="w")
-        self.tree.heading("brand", text="Brand", anchor="w")
-        self.tree.heading("qty_remaining", text="Qty Remaining", anchor="w")
-        self.tree.heading("purchased", text="Purchased", anchor="w")
+        # Configure column headings for separate hierarchy levels (FR-011: sortable)
+        self.tree.heading("l0", text="L0", anchor="w", command=lambda: self._sort_tree("l0"))
+        self.tree.heading("l1", text="L1", anchor="w", command=lambda: self._sort_tree("l1"))
+        self.tree.heading("l2", text="L2", anchor="w", command=lambda: self._sort_tree("l2"))
+        self.tree.heading("product", text="Product", anchor="w", command=lambda: self._sort_tree("product"))
+        self.tree.heading("brand", text="Brand", anchor="w", command=lambda: self._sort_tree("brand"))
+        self.tree.heading("qty_remaining", text="Qty Remaining", anchor="w", command=lambda: self._sort_tree("qty_remaining"))
+        self.tree.heading("purchased", text="Purchased", anchor="w", command=lambda: self._sort_tree("purchased"))
 
-        # Configure column widths
-        self.tree.column("hierarchy_path", width=220, minwidth=150)
+        # Configure column widths for hierarchy columns
+        self.tree.column("l0", width=100, minwidth=80)
+        self.tree.column("l1", width=100, minwidth=80)
+        self.tree.column("l2", width=150, minwidth=100)
         self.tree.column("product", width=200, minwidth=150)
         self.tree.column("brand", width=120, minwidth=80)
         self.tree.column("qty_remaining", width=160, minwidth=120)
@@ -423,7 +429,7 @@ class InventoryTab(ctk.CTkFrame):
 
     # Feature 032: Hierarchy filter handlers
     def _build_hierarchy_path_cache(self):
-        """Build cache mapping ingredient_id to hierarchy path string."""
+        """Build cache mapping ingredient_id to hierarchy dict with l0/l1/l2 keys."""
         self._hierarchy_path_cache = {}
         # Get all ingredients for the cache
         try:
@@ -434,14 +440,25 @@ class InventoryTab(ctk.CTkFrame):
                     continue
                 try:
                     ancestors = ingredient_hierarchy_service.get_ancestors(ing_id)
-                    # Build path from root to leaf
-                    path_parts = []
-                    for ancestor in reversed(ancestors):
-                        path_parts.append(ancestor.get("display_name", "?"))
-                    path_parts.append(ingredient.get("display_name", ingredient.get("name", "?")))
-                    self._hierarchy_path_cache[ing_id] = " -> ".join(path_parts)
+                    # Build hierarchy dict from ancestors (root to leaf order after reverse)
+                    # ancestors are returned in leaf-to-root order, so reverse them
+                    ancestor_names = [a.get("display_name", "?") for a in reversed(ancestors)]
+                    leaf_name = ingredient.get("display_name", ingredient.get("name", "?"))
+                    # Combine ancestors + leaf into ordered list
+                    full_path = ancestor_names + [leaf_name]
+                    # Map to l0/l1/l2 (pad with empty strings if fewer levels)
+                    self._hierarchy_path_cache[ing_id] = {
+                        "l0": full_path[0] if len(full_path) > 0 else "",
+                        "l1": full_path[1] if len(full_path) > 1 else "",
+                        "l2": full_path[2] if len(full_path) > 2 else "",
+                    }
                 except Exception:
-                    self._hierarchy_path_cache[ing_id] = ingredient.get("display_name", "--")
+                    # Fallback: use display_name as l0 only
+                    self._hierarchy_path_cache[ing_id] = {
+                        "l0": ingredient.get("display_name", "--"),
+                        "l1": "",
+                        "l2": "",
+                    }
         except Exception:
             pass
 
@@ -610,12 +627,16 @@ class InventoryTab(ctk.CTkFrame):
 
         if self.view_mode == "aggregate":
             # Reconfigure tree columns for aggregate view (no Purchased column)
-            self.tree.configure(columns=("hierarchy_path", "product", "brand", "qty_remaining"))
-            self.tree.heading("hierarchy_path", text="Ingredient Hierarchy", anchor="w")
-            self.tree.heading("product", text="Product", anchor="w")
-            self.tree.heading("brand", text="Brand", anchor="w")
-            self.tree.heading("qty_remaining", text="Qty Remaining", anchor="w")
-            self.tree.column("hierarchy_path", width=220, minwidth=150)
+            self.tree.configure(columns=("l0", "l1", "l2", "product", "brand", "qty_remaining"))
+            self.tree.heading("l0", text="L0", anchor="w", command=lambda: self._sort_tree("l0"))
+            self.tree.heading("l1", text="L1", anchor="w", command=lambda: self._sort_tree("l1"))
+            self.tree.heading("l2", text="L2", anchor="w", command=lambda: self._sort_tree("l2"))
+            self.tree.heading("product", text="Product", anchor="w", command=lambda: self._sort_tree("product"))
+            self.tree.heading("brand", text="Brand", anchor="w", command=lambda: self._sort_tree("brand"))
+            self.tree.heading("qty_remaining", text="Qty Remaining", anchor="w", command=lambda: self._sort_tree("qty_remaining"))
+            self.tree.column("l0", width=100, minwidth=80)
+            self.tree.column("l1", width=100, minwidth=80)
+            self.tree.column("l2", width=150, minwidth=100)
             self.tree.column("product", width=250, minwidth=150)
             self.tree.column("brand", width=140, minwidth=100)
             self.tree.column("qty_remaining", width=160, minwidth=120)
@@ -624,13 +645,17 @@ class InventoryTab(ctk.CTkFrame):
                 self._display_aggregate_view()
         else:
             # Reconfigure tree columns for detail view (with Purchased column)
-            self.tree.configure(columns=("hierarchy_path", "product", "brand", "qty_remaining", "purchased"))
-            self.tree.heading("hierarchy_path", text="Ingredient Hierarchy", anchor="w")
-            self.tree.heading("product", text="Product", anchor="w")
-            self.tree.heading("brand", text="Brand", anchor="w")
-            self.tree.heading("qty_remaining", text="Qty Remaining", anchor="w")
-            self.tree.heading("purchased", text="Purchased", anchor="w")
-            self.tree.column("hierarchy_path", width=220, minwidth=150)
+            self.tree.configure(columns=("l0", "l1", "l2", "product", "brand", "qty_remaining", "purchased"))
+            self.tree.heading("l0", text="L0", anchor="w", command=lambda: self._sort_tree("l0"))
+            self.tree.heading("l1", text="L1", anchor="w", command=lambda: self._sort_tree("l1"))
+            self.tree.heading("l2", text="L2", anchor="w", command=lambda: self._sort_tree("l2"))
+            self.tree.heading("product", text="Product", anchor="w", command=lambda: self._sort_tree("product"))
+            self.tree.heading("brand", text="Brand", anchor="w", command=lambda: self._sort_tree("brand"))
+            self.tree.heading("qty_remaining", text="Qty Remaining", anchor="w", command=lambda: self._sort_tree("qty_remaining"))
+            self.tree.heading("purchased", text="Purchased", anchor="w", command=lambda: self._sort_tree("purchased"))
+            self.tree.column("l0", width=100, minwidth=80)
+            self.tree.column("l1", width=100, minwidth=80)
+            self.tree.column("l2", width=150, minwidth=100)
             self.tree.column("product", width=200, minwidth=150)
             self.tree.column("brand", width=120, minwidth=80)
             self.tree.column("qty_remaining", width=160, minwidth=120)
@@ -681,8 +706,9 @@ class InventoryTab(ctk.CTkFrame):
             # Get product details
             ingredient_name = getattr(ingredient, "display_name", "Unknown") if ingredient else "Unknown"
             ingredient_id = getattr(ingredient, "id", None) if ingredient else None
-            # Use hierarchy path from cache, fallback to ingredient name
-            hierarchy_path = self._hierarchy_path_cache.get(ingredient_id, ingredient_name) if ingredient_id else ingredient_name
+            # Use hierarchy dict from cache, fallback to ingredient name in l0
+            default_hierarchy = {"l0": ingredient_name, "l1": "", "l2": ""}
+            hierarchy = self._hierarchy_path_cache.get(ingredient_id, default_hierarchy) if ingredient_id else default_hierarchy
             is_packaging = getattr(ingredient, "is_packaging", False) if ingredient else False
             brand = getattr(product, "brand", "") or ""
             product_name = getattr(product, "product_name", "") or ""
@@ -736,21 +762,25 @@ class InventoryTab(ctk.CTkFrame):
                     qty_display = f"{float(total_qty):.1f}".rstrip('0').rstrip('.')
 
             aggregated.append({
-                'hierarchy_path': hierarchy_path,
+                'l0': hierarchy["l0"],
+                'l1': hierarchy["l1"],
+                'l2': hierarchy["l2"],
                 'description': description,
                 'brand': f"📦 {brand}" if is_packaging else brand,
                 'qty_display': qty_display,
                 'is_packaging': is_packaging,
             })
 
-        # Sort by hierarchy path, then product description
-        aggregated.sort(key=lambda x: (x['hierarchy_path'].lower(), x['description'].lower()))
+        # Sort by hierarchy levels, then product description
+        aggregated.sort(key=lambda x: (x['l0'].lower(), x['l1'].lower(), x['l2'].lower(), x['description'].lower()))
 
         # Populate Treeview - no row limit needed, handles large datasets well
         for item_data in aggregated:
             tags = ("packaging",) if item_data['is_packaging'] else ()
             self.tree.insert("", "end", values=(
-                item_data['hierarchy_path'],
+                item_data['l0'],
+                item_data['l1'],
+                item_data['l2'],
                 item_data['description'],
                 item_data['brand'],
                 item_data['qty_display'],
@@ -776,12 +806,13 @@ class InventoryTab(ctk.CTkFrame):
             if is_packaging:
                 brand = f"📦 {brand}"
 
-            # Product description and hierarchy path
+            # Product description and hierarchy dict
             product_name = getattr(product_obj, "product_name", None) or ""
             ingredient_name = getattr(ingredient_obj, "display_name", "") if ingredient_obj else ""
             ingredient_id = getattr(ingredient_obj, "id", None) if ingredient_obj else None
-            # Use hierarchy path from cache, fallback to ingredient name
-            hierarchy_path = self._hierarchy_path_cache.get(ingredient_id, ingredient_name) if ingredient_id else ingredient_name
+            # Use hierarchy dict from cache, fallback to ingredient name in l0
+            default_hierarchy = {"l0": ingredient_name, "l1": "", "l2": ""}
+            hierarchy = self._hierarchy_path_cache.get(ingredient_id, default_hierarchy) if ingredient_id else default_hierarchy
             package_qty = getattr(product_obj, "package_unit_quantity", None)
             package_unit = getattr(product_obj, "package_unit", "") or ""
             package_type = getattr(product_obj, "package_type", None) or ""
@@ -847,8 +878,8 @@ class InventoryTab(ctk.CTkFrame):
             if is_packaging:
                 tags.append("packaging")
 
-            # Column order: hierarchy_path, product, brand, qty_remaining, purchased (exactly 5)
-            values = (hierarchy_path, description, brand, qty_display, purchase_str)
+            # Column order: l0, l1, l2, product, brand, qty_remaining, purchased (7 columns)
+            values = (hierarchy["l0"], hierarchy["l1"], hierarchy["l2"], description, brand, qty_display, purchase_str)
             item_id = getattr(item, "id", None)
 
             # Use item ID as the tree item ID for easy lookup
@@ -868,6 +899,40 @@ class InventoryTab(ctk.CTkFrame):
             self.selected_item_id = int(selection[0])
         else:
             self.selected_item_id = None
+
+    def _sort_tree(self, col: str) -> None:
+        """Sort treeview by the specified column.
+
+        Clicking the same column toggles between ascending and descending order.
+        Implements FR-011: Hierarchy columns MUST be sortable.
+
+        Args:
+            col: Column identifier to sort by
+        """
+        # Get all items with their values
+        items = [(self.tree.set(item, col), item) for item in self.tree.get_children("")]
+
+        # Toggle sort direction
+        reverse = self._sort_reverse.get(col, False)
+        self._sort_reverse[col] = not reverse
+
+        # Sort items (case-insensitive string sort)
+        items.sort(key=lambda x: x[0].lower() if x[0] else "", reverse=reverse)
+
+        # Reorder items in tree
+        for index, (_, item) in enumerate(items):
+            self.tree.move(item, "", index)
+
+        # Update header to show sort direction indicator
+        for column in self.tree["columns"]:
+            # Get base text without any existing indicator
+            current_text = self.tree.heading(column, "text")
+            base_text = current_text.rstrip(" ^v")
+            if column == col:
+                indicator = " v" if reverse else " ^"
+                self.tree.heading(column, text=base_text + indicator)
+            else:
+                self.tree.heading(column, text=base_text)
 
     def _truncate_text(self, text: str, max_chars: int = 25) -> str:
         """Truncate text and add ellipsis if too long."""
