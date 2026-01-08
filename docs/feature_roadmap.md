@@ -1,7 +1,7 @@
 # Feature Roadmap
 
 **Created:** 2025-12-03
-**Last Updated:** 2026-01-07
+**Last Updated:** 2026-01-08
 **Workflow:** Spec-Kitty driven development
 
 ---
@@ -73,14 +73,18 @@
 
 | # | Name | Priority | Effort | Status |
 |---|------|----------|--------|--------|
-| 042 | UI Polish & Layout Fixes | **P0 - BLOCKING** | 14-20 hours (2-3 days) | 🎯 NEXT |
+| 042 | UI Polish & Layout Fixes | **P0 - BLOCKING** | 14-20 hours (2-3 days) | ✅ URGENT FIX COMPLETE |
 
-**Blocking Issues Identified** (2026-01-07 user testing):
-- Ingredient/Product listings only 2 rows high (unmanageable)
+**F042 Urgent Fix Applied** (2026-01-08):
+- ✅ Dashboard headers compacted (13-17 lines → 1-2 lines)
+- ✅ Legacy vertical stats widgets removed from all dashboards
+- ✅ Stats display inline in header only via `_format_inline_stats()`
+- ✅ Data grids now expand to fill available vertical space (20+ rows visible)
+- ✅ Removed redundant "Production Runs"/"Assembly Runs" nested tabview in MAKE mode
+
+**Remaining F042 Issues** (from 2026-01-07 user testing):
 - Ingredient hierarchy concatenated in Inventory tab (need separate L0/L1/L2 columns)
-- Stats showing "0" even after refresh
-- Header area way too large in ALL modes
-- Subcategory filters "very odd implementation"
+- Subcategory filters "very odd implementation" (should match Product Catalog pattern)
 
 **F042 Scope**: Layout fixes, header compaction, filter consistency, mode renames (Shop→Purchase, Produce→Make)
 
@@ -241,3 +245,9 @@
   - Old F042-F045: Moved to F0XX queue (deferred)
   - F0XX numbering introduced for future features
   - Timeline: ~3 weeks for foundational work
+- 2026-01-08: **F042 URGENT FIX** - Critical layout issues resolved:
+  - Removed legacy vertical stats widgets from all dashboards (base_dashboard.py)
+  - Headers compacted from 13-17 lines to 1-2 lines
+  - Data grids now expand properly (20+ rows visible)
+  - Removed redundant nested tabview in MAKE Production Dashboard
+  - Remaining F042 issues: hierarchy columns, filter consistency
