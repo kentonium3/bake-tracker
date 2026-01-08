@@ -159,53 +159,39 @@ class BaseDashboard(ctk.CTkFrame, ABC):
             self.content_frame.grid(row=1, column=0, sticky="ew", padx=5, pady=(0, 5))
             self._content_visible = True
 
-    def add_stat(self, label: str, value: str = "0") -> ctk.CTkLabel:
-        """Add a statistic display to the dashboard.
+    def add_stat(self, label: str, value: str = "0") -> None:
+        """Register a statistic for tracking (displayed inline in header only).
+
+        F042 Fix: Stats are displayed inline in header via _format_inline_stats().
+        Legacy vertical stat widgets are no longer created to maximize grid space.
 
         Args:
             label: Stat label (e.g., "Ingredients")
             value: Initial value (default "0")
 
         Returns:
-            The value label widget for later updates
+            None (legacy return value was widget, no longer created)
         """
-        self._show_content_frame()
-        stat_frame = ctk.CTkFrame(self.stats_frame, fg_color="transparent")
-        stat_frame.pack(side="left", padx=10)
-
-        # Value (larger font)
-        value_label = ctk.CTkLabel(
-            stat_frame,
-            text=value,
-            font=ctk.CTkFont(size=18, weight="bold")
-        )
-        value_label.pack()
-
-        # Label (smaller)
-        label_widget = ctk.CTkLabel(
-            stat_frame,
-            text=label,
-            font=ctk.CTkFont(size=11)
-        )
-        label_widget.pack()
-
-        self._stats[label] = label_widget
-        self._stat_values[label] = value_label
-
-        return value_label
+        # F042: Only track values for update_stat() - no visible widgets
+        # Stats are displayed inline via _format_inline_stats() in header
+        self._stat_values[label] = value
 
     def update_stat(self, label: str, value: str) -> None:
         """Update a statistic value.
+
+        F042 Fix: Updates stored value for use by _format_inline_stats().
 
         Args:
             label: Stat label to update
             value: New value to display
         """
-        if label in self._stat_values:
-            self._stat_values[label].configure(text=value)
+        # F042: Store value directly (no widget to configure)
+        self._stat_values[label] = value
 
     def get_stat_value(self, label: str) -> Optional[str]:
         """Get the current value of a statistic.
+
+        F042 Fix: Returns stored value directly.
 
         Args:
             label: Stat label
@@ -213,9 +199,8 @@ class BaseDashboard(ctk.CTkFrame, ABC):
         Returns:
             Current value string, or None if not found
         """
-        if label in self._stat_values:
-            return self._stat_values[label].cget("text")
-        return None
+        # F042: Return stored value directly (no widget to query)
+        return self._stat_values.get(label)
 
     def add_action(self, text: str, callback: Callable) -> ctk.CTkButton:
         """Add a quick action button to the dashboard.
@@ -246,9 +231,10 @@ class BaseDashboard(ctk.CTkFrame, ABC):
         pass
 
     def clear_stats(self) -> None:
-        """Clear all statistics from the dashboard."""
-        for widget in self.stats_frame.winfo_children():
-            widget.destroy()
+        """Clear all statistics from the dashboard.
+
+        F042 Fix: Only clears stored values (no widgets to destroy).
+        """
         self._stats.clear()
         self._stat_values.clear()
 

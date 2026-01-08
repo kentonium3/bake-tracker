@@ -16,10 +16,9 @@ from src.utils.datetime_utils import utc_now
 from tkinter import messagebox
 
 from src.ui.widgets.production_history_table import ProductionHistoryTable
-from src.ui.widgets.assembly_history_table import AssemblyHistoryTable
 from src.ui.widgets.event_card import EventCard
 from src.ui.service_integration import get_ui_service_integrator, OperationType
-from src.services import batch_production_service, assembly_service, event_service
+from src.services import batch_production_service, event_service
 from src.utils.constants import PADDING_MEDIUM, PADDING_LARGE
 
 logger = logging.getLogger(__name__)
@@ -58,10 +57,14 @@ class ProductionDashboardTab(ctk.CTkFrame):
         self.grid(row=0, column=0, sticky="nsew", padx=10, pady=10)
 
     def _setup_ui(self):
-        """Set up the tab UI layout."""
+        """Set up the tab UI layout.
+
+        F042 Fix: Row 4 (production table) now expands instead of nested tabview.
+        """
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(2, weight=0)  # Event cards section
-        self.grid_rowconfigure(3, weight=1)  # History tables get remaining space
+        self.grid_rowconfigure(3, weight=0)  # History section header
+        self.grid_rowconfigure(4, weight=1)  # Production table expands
 
         # Header with title and navigation links
         self._create_header()
@@ -72,23 +75,9 @@ class ProductionDashboardTab(ctk.CTkFrame):
         # Event cards container (Feature 018)
         self._create_event_cards_container()
 
-        # Tabview for Production/Assembly sub-tabs
-        self.tabview = ctk.CTkTabview(self)
-        self.tabview.grid(row=3, column=0, sticky="nsew", padx=PADDING_MEDIUM, pady=PADDING_MEDIUM)
-
-        # Add tabs
-        self.production_subtab = self.tabview.add("Production Runs")
-        self.assembly_subtab = self.tabview.add("Assembly Runs")
-
-        # Configure tab grids
-        self.production_subtab.grid_columnconfigure(0, weight=1)
-        self.production_subtab.grid_rowconfigure(0, weight=1)
-        self.assembly_subtab.grid_columnconfigure(0, weight=1)
-        self.assembly_subtab.grid_rowconfigure(0, weight=1)
-
-        # Create tables in each tab
+        # F042 Fix: Show production history directly without nested tabview
+        # (Assembly history is available in the separate Assembly tab)
         self._create_production_table()
-        self._create_assembly_table()
 
     def _create_header(self):
         """Create the header section with title and navigation links."""
@@ -480,25 +469,24 @@ class ProductionDashboardTab(ctk.CTkFrame):
     # =========================================================================
 
     def _create_production_table(self):
-        """Create the production runs table."""
+        """Create the production runs table.
+
+        F042 Fix: Table placed directly in main frame (no nested tabview).
+        """
+        # Section header
+        history_header = ctk.CTkLabel(
+            self,
+            text="Recent Production Runs",
+            font=ctk.CTkFont(size=16, weight="bold"),
+        )
+        history_header.grid(row=3, column=0, sticky="w", padx=PADDING_LARGE, pady=(PADDING_MEDIUM, 0))
+
         self.production_table = ProductionHistoryTable(
-            self.production_subtab,
+            self,
             on_row_double_click=self._on_production_double_click,
-            height=400,
         )
         self.production_table.grid(
-            row=0, column=0, sticky="nsew", padx=PADDING_MEDIUM, pady=PADDING_MEDIUM
-        )
-
-    def _create_assembly_table(self):
-        """Create the assembly runs table."""
-        self.assembly_table = AssemblyHistoryTable(
-            self.assembly_subtab,
-            on_row_double_click=self._on_assembly_double_click,
-            height=400,
-        )
-        self.assembly_table.grid(
-            row=0, column=0, sticky="nsew", padx=PADDING_MEDIUM, pady=PADDING_MEDIUM
+            row=4, column=0, sticky="nsew", padx=PADDING_MEDIUM, pady=PADDING_MEDIUM
         )
 
     def _load_production_runs(self):
@@ -523,34 +511,8 @@ class ProductionDashboardTab(ctk.CTkFrame):
         else:
             self.production_table.clear()
 
-    def _load_assembly_runs(self):
-        """Load recent assembly runs (last 30 days)."""
-        start_date = utc_now() - timedelta(days=30)
-
-        runs = self.service_integrator.execute_service_operation(
-            operation_name="Load Recent Assembly",
-            operation_type=OperationType.READ,
-            service_function=lambda: assembly_service.get_assembly_history(
-                start_date=start_date,
-                limit=100,
-                include_consumptions=False,
-            ),
-            parent_widget=self,
-            error_context="Loading recent assembly runs",
-            suppress_exception=True,
-        )
-
-        if runs:
-            self.assembly_table.set_data(runs)
-        else:
-            self.assembly_table.clear()
-
     def _on_production_double_click(self, run):
         """Handle double-click on production run row."""
-        pass
-
-    def _on_assembly_double_click(self, run):
-        """Handle double-click on assembly run row."""
         pass
 
     # =========================================================================
@@ -585,10 +547,12 @@ class ProductionDashboardTab(ctk.CTkFrame):
         return None
 
     def refresh(self):
-        """Refresh event cards and history tables (Feature 018 enhanced)."""
+        """Refresh event cards and production history (Feature 018 enhanced).
+
+        F042 Fix: Assembly history removed (available in Assembly tab).
+        """
         # Rebuild event cards
         self._rebuild_event_cards()
 
-        # Refresh history tables
+        # Refresh production history table
         self._load_production_runs()
-        self._load_assembly_runs()
