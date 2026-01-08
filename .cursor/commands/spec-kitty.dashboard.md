@@ -2,125 +2,95 @@
 description: Open the Spec Kitty dashboard in your browser.
 ---
 
-**⚠️ CRITICAL: Read [.kittify/AGENTS.md](.kittify/AGENTS.md) for universal rules (paths, UTF-8 encoding, context management, quality expectations).**
-
-*Path: [.kittify/templates/commands/dashboard.md](.kittify/templates/commands/dashboard.md)*
-
-
 ## Dashboard Access
 
-The dashboard shows ALL features across the project and runs from the **main repository**, not from individual feature worktrees.
+This command helps you access the Spec Kitty dashboard that was started when you ran `spec-kitty init`.
 
-## Important: Worktree Handling
+## What to do
 
-**If you're in a feature worktree**, the dashboard file is in the main repo, not in your worktree.
+1. **Check if dashboard is running**: Look for the `.kittify/.dashboard` file which contains the dashboard URL and port.
 
-The dashboard is project-wide (shows all features), so it must be accessed from the main repository location.
+2. **If dashboard file exists**:
+   - Read the URL from the first line of `.kittify/.dashboard`
+   - Display the URL to the user in a prominent, easy-to-copy format
+   - Attempt to open the URL in the user's default web browser using Python's `webbrowser` module
+   - If browser opening fails, show instructions on how to manually open it
+
+3. **If dashboard file does not exist**:
+   - Inform the user that no dashboard is currently running
+   - Explain that they need to run `spec-kitty init` to start the dashboard
+   - Provide clear instructions
 
 ## Implementation
 
 ```python
 import webbrowser
-import subprocess
-import argparse
-import sys
+import socket
 from pathlib import Path
 
-from specify_cli.dashboard import ensure_dashboard_running, stop_dashboard
+# Check for dashboard info file
+dashboard_file = Path('.kittify/.dashboard')
 
-# CRITICAL: Find the main repository root, not worktree
-current_dir = Path.cwd()
-
-# Check if we're in a worktree
-try:
-    # Get git worktree list to find main worktree
-    result = subprocess.run(
-        ['git', 'worktree', 'list', '--porcelain'],
-        capture_output=True,
-        text=True,
-        check=False
-    )
-
-    if result.returncode == 0:
-        # Parse worktree list to find the main worktree
-        main_repo = None
-        for line in result.stdout.split('\n'):
-            if line.startswith('worktree '):
-                path = line.split('worktree ')[1]
-                # First worktree in list is usually main
-                if main_repo is None:
-                    main_repo = Path(path)
-                    break
-
-        if main_repo and main_repo != current_dir:
-            print(f"📍 Note: You're in a worktree. Dashboard is in main repo at {main_repo}")
-            project_root = main_repo
-        else:
-            project_root = current_dir
-    else:
-        # Not a git repo or git not available
-        project_root = current_dir
-except Exception:
-    # Fallback to current directory
-    project_root = current_dir
-
-# Parse optional CLI arguments
-parser = argparse.ArgumentParser(add_help=False)
-parser.add_argument("--port", type=int, help="Preferred port for the dashboard.")
-parser.add_argument("--kill", action="store_true", help="Stop the dashboard for this project.")
-args, _ = parser.parse_known_args()
-
-if args.kill:
-    stopped, message = stop_dashboard(project_root)
-    if stopped:
-        print(f"✅ {message}")
-    else:
-        print(f"⚠️  {message}")
-    sys.exit(0)
-
-if args.port is not None and (args.port <= 0 or args.port > 65535):
-    print("❌ Invalid port specified. Use a value between 1 and 65535.")
-    sys.exit(1)
-
-# Ensure the dashboard is running for this project
-try:
-    dashboard_url, port, started = ensure_dashboard_running(project_root, preferred_port=args.port)
-except Exception as exc:
-    print("❌ Unable to start or locate the dashboard")
-    print(f"   {exc}")
+if not dashboard_file.exists():
+    print("❌ No dashboard information found")
     print()
-    print("To bootstrap it manually, run:")
-    print(f"  cd {project_root}")
+    print("To start the dashboard, run:")
     print("  spec-kitty init .")
     print()
 else:
-    print()
-    print("Spec Kitty Dashboard")
-    print("=" * 60)
-    print()
-    print(f"  Project Root: {project_root}")
-    print(f"  URL: {dashboard_url}")
-    print(f"  Port: {port}")
-    print()
-    if started:
-        print(f"  ✅ Status: Started new dashboard instance on port {port}")
+    # Read dashboard URL
+    content = dashboard_file.read_text().strip().split('\n')
+    dashboard_url = content[0] if content else None
+    port_str = content[1] if len(content) > 1 else None
+
+    if not dashboard_url or not port_str:
+        print("❌ Dashboard file is invalid or empty")
+        print("   Try running: spec-kitty init .")
+        print()
     else:
-        print(f"  ✅ Status: Dashboard already running on port {port}")
-    if args.port is not None and args.port != port:
-        print(f"  ⚠️  Requested port {args.port} was unavailable; using {port} instead.")
+        # Verify dashboard is actually running on this port
+        port = int(port_str)
+        is_running = False
+        try:
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            sock.settimeout(1)
+            result = sock.connect_ex(('127.0.0.1', port))
+            sock.close()
+            is_running = (result == 0)
+        except:
+            is_running = False
 
-    print()
-    print("=" * 60)
-    print()
+        print()
+        print("Spec Kitty Dashboard")
+        print("=" * 60)
+        print()
+        print(f"  URL: {dashboard_url}")
 
-    try:
-        webbrowser.open(dashboard_url)
-        print("✅ Opening dashboard in your browser...")
+        if not is_running:
+            print()
+            print("  ⚠️  Status: Dashboard appears to be stopped")
+            print(f"             (Port {port} is not responding)")
+        else:
+            print()
+            print(f"  ✅ Status: Running on port {port}")
+
         print()
-    except Exception:
-        print("⚠️  Could not automatically open browser")
-        print(f"   Please open this URL manually: {dashboard_url}")
+        print("=" * 60)
         print()
+
+        if is_running:
+            # Try to open in browser
+            try:
+                webbrowser.open(dashboard_url)
+                print("✅ Opening dashboard in your browser...")
+                print()
+            except Exception as e:
+                print("⚠️  Could not automatically open browser")
+                print(f"   Please open this URL manually: {dashboard_url}")
+                print()
+        else:
+            print("💡 To start the dashboard, run: spec-kitty init .")
+            print()
 ```
 
 ## Success Criteria

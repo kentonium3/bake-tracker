@@ -1,11 +1,5 @@
 ---
 description: Merge a completed feature into the main branch and clean up worktree
----
-
-**Path reference rule:** When you mention directories or files, provide either the absolute path or a path relative to the project root (for example, `kitty-specs/<feature>/tasks/`). Never refer to a folder by name alone.
-
-*Path: [.kittify/templates/commands/merge.md](.kittify/templates/commands/merge.md)*
-
 
 # Merge Feature Branch
 
@@ -16,25 +10,29 @@ This command merges a completed feature branch into the main/target branch and h
 Before running this command:
 
 1. ✅ Feature must pass `/spec-kitty.accept` checks
-2. ✅ All work packages must be in `tasks/done/`
+2. ✅ All work packages must be in `tasks/`
 3. ✅ Working directory must be clean (no uncommitted changes)
-4. ✅ Run the command from the feature worktree (Spec Kitty will move the merge to the primary repo automatically)
+4. ✅ You must be on the feature branch (or in its worktree)
 
-**Important (Cursor terminal runner reliability):**
-- If you're using Cursor to run automated verification (pytest/greps) after merge, make sure Cursor is **not left inside a worktree that gets deleted**.
-- After `/spec-kitty.merge` finishes (and may remove the worktree), open a new terminal tab or run:
+## Location Pre-flight Check (CRITICAL for AI Agents)
 
-```bash
-cd /Users/kentgale/Vaults-repos/bake-tracker
+Before merging, verify you are in the correct working directory by running the shared pre-flight validation:
+
+```python
 ```
 
-This avoids a stale `cwd` pointing at a deleted `.worktrees/<feature>/` directory, which can cause `spawn ... ENOENT` errors until Cursor is restarted.
+**What this validates**:
+- Current branch follows the feature pattern like `001-feature-name`
+- You're not attempting to run from `main` or any release branch
+- The validator prints clear navigation instructions if you're outside the feature worktree
+
+**Path reference rule:** When you mention directories or files, provide either the absolute path or a path relative to the project root (for example, `kitty-specs/<feature>/tasks/`). Never refer to a folder by name alone.
 
 ## What This Command Does
 
 1. **Detects** your current feature branch and worktree status
 2. **Verifies** working directory is clean
-3. **Switches** to the target branch (default: `main`) in the primary repository
+3. **Switches** to the target branch (default: `main`)
 4. **Updates** the target branch (`git pull --ff-only`)
 5. **Merges** the feature using your chosen strategy
 6. **Optionally pushes** to origin
@@ -150,7 +148,7 @@ my-project/                    # Main repo (main branch)
 1. **Main branch** stays in the primary repo root
 2. **Feature branches** live in `.worktrees/<feature-slug>/`
 3. **Work on features** happens in their worktrees (isolation)
-4. **Merge from worktrees** using this command – the CLI will hop to the primary repo for the Git merge
+4. **Merge from worktrees** using this command
 5. **Cleanup is automatic** - worktrees removed after merge
 
 ### Why Worktrees?
@@ -215,11 +213,10 @@ git branch -d <feature-branch>
 ## Safety Features
 
 1. **Clean working directory check** - Won't merge with uncommitted changes
-2. **Primary repo hand-off** - Automatically runs Git operations from the main checkout when invoked in a worktree
-3. **Fast-forward only pull** - Won't proceed if main has diverged
-4. **Graceful failure** - If merge fails, you can fix manually
-5. **Optional operations** - Push, branch delete, and worktree removal are configurable
-6. **Dry run mode** - Preview exactly what will happen
+2. **Fast-forward only pull** - Won't proceed if main has diverged
+3. **Graceful failure** - If merge fails, you can fix manually
+4. **Optional operations** - Push, branch delete, and worktree removal are configurable
+5. **Dry run mode** - Preview exactly what will happen
 
 ## Examples
 

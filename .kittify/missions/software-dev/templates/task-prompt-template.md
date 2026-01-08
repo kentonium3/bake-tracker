@@ -4,10 +4,12 @@ subtasks:
   - "Txxx"
 title: "Replace with work package title"
 phase: "Phase N - Replace with phase name"
-lane: "planned"  # planned | doing | for_review | done
+lane: "planned"  # DO NOT EDIT - use: spec-kitty agent tasks move-task <WPID> --to <lane>
 assignee: ""      # Optional friendly name when in doing/for_review
 agent: ""         # CLI agent identifier (claude, codex, etc.)
 shell_pid: ""     # PID captured when the task moved to the current lane
+review_status: "" # empty | has_feedback | acknowledged (populated by reviewers/implementers)
+reviewed_by: ""   # Agent ID of the reviewer (if reviewed)
 history:
   - timestamp: "{{TIMESTAMP}}"
     lane: "planned"
@@ -17,6 +19,31 @@ history:
 ---
 
 # Work Package Prompt: {{work_package_id}} – {{title}}
+
+## ⚠️ IMPORTANT: Review Feedback Status
+
+**Read this first if you are implementing this task!**
+
+- **Has review feedback?**: Check the `review_status` field above. If it says `has_feedback`, scroll to the **Review Feedback** section immediately (right below this notice).
+- **You must address all feedback** before your work is complete. Feedback items are your implementation TODO list.
+- **Mark as acknowledged**: When you understand the feedback and begin addressing it, update `review_status: acknowledged` in the frontmatter.
+- **Report progress**: As you address each feedback item, update the Activity Log explaining what you changed.
+
+---
+
+## Review Feedback
+
+> **Populated by `/spec-kitty.review`** – Reviewers add detailed feedback here when work needs changes. Implementation must address every item listed below before returning for re-review.
+
+*[This section is empty initially. Reviewers will populate it if the work is returned from review. If you see feedback here, treat each item as a must-do before completion.]*
+
+---
+
+## Markdown Formatting
+Wrap HTML/XML tags in backticks: `` `<div>` ``, `` `<script>` ``
+Use language identifiers in code blocks: ````python`, ````bash`
+
+---
 
 ## Objectives & Success Criteria
 
@@ -75,12 +102,21 @@ history:
 
 ### Updating Metadata When Changing Lanes
 
-1. Capture your shell PID: `echo $$` (or use helper scripts when available).
-2. Update frontmatter (`lane`, `assignee`, `agent`, `shell_pid`).
-3. Add an entry to the **Activity Log** describing the transition.
-4. Run `.kittify/scripts/bash/tasks-move-to-lane.sh <FEATURE> <WPID> <lane>` (PowerShell variant available) to move the prompt, update metadata, and append history in one step.
-5. Commit or stage the change, preserving history.
+**IMPORTANT: Never manually edit the `lane:` field.** The lane is determined by the file's directory location, not the YAML field. Editing the field without moving the file creates a mismatch that breaks the system.
+
+**Always use the move command:**
+```bash
+spec-kitty agent tasks move-task <WPID> --to <lane> --note "Your note"
+```
+
+This command:
+1. Updates the `lane:` field in YAML
+2. Updates `agent` and `shell_pid` metadata
+3. Appends an entry to the Activity Log
+4. Stages the changes for commit
+
+You can add `--agent <name>` and `--shell-pid <pid>` flags for explicit metadata.
 
 ### Optional Phase Subdirectories
 
-For large features, organize prompts under `tasks/planned/phase-<n>-<label>/` to keep bundles grouped while maintaining lexical ordering.
+For large features, organize prompts under `tasks/` to keep bundles grouped while maintaining lexical ordering.

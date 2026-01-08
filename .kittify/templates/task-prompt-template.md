@@ -4,7 +4,7 @@ subtasks:
   - "Txxx"
 title: "Replace with work package title"
 phase: "Phase N - Replace with phase name"
-lane: "planned"  # planned | doing | for_review | done
+lane: "planned"  # Edit directly or use: spec-kitty agent tasks move-task <WPID> --to <lane>
 assignee: ""      # Optional friendly name when in doing/for_review
 agent: ""         # CLI agent identifier (claude, codex, etc.)
 shell_pid: ""     # PID captured when the task moved to the current lane
@@ -96,14 +96,17 @@ history:
 
 ---
 
-### Updating Metadata When Changing Lanes
+### Updating Lane Status
 
-1. Capture your shell PID: `echo $$` (or use helper scripts when available).
-2. Update frontmatter (`lane`, `assignee`, `agent`, `shell_pid`).
-3. Add an entry to the **Activity Log** describing the transition.
-4. Run `.kittify/scripts/bash/tasks-move-to-lane.sh <FEATURE> <WPID> <lane>` (PowerShell variant available) to move the prompt, update metadata, and append history in one step.
-5. Commit or stage the change, preserving history.
+To change a work package's lane, either:
 
-### Optional Phase Subdirectories
+1. **Edit directly**: Change the `lane:` field in frontmatter
+2. **Use CLI**: `spec-kitty agent tasks move-task <WPID> --to <lane> --note "message"`
 
-For large features, organize prompts under `tasks/planned/phase-<n>-<label>/` to keep bundles grouped while maintaining lexical ordering.
+The CLI command also updates the activity log automatically.
+
+**Valid lanes**: `planned`, `doing`, `for_review`, `done`
+
+### File Structure
+
+All WP files live in a flat `tasks/` directory. The lane is determined by the `lane:` frontmatter field, not the directory location.
