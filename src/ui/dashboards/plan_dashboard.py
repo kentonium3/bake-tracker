@@ -27,8 +27,15 @@ class PlanDashboard(BaseDashboard):
             master: Parent widget
             **kwargs: Additional arguments passed to BaseDashboard
         """
+        # Set mode identity before super().__init__
+        self.mode_name = "PLAN"
+        self.mode_icon = ""
+
+        # Initialize count variables for inline stats
+        self._event_count = 0
+        self._package_count = 0
+
         super().__init__(master, **kwargs)
-        self.set_title("PLAN Dashboard - Event Planning")
         self._create_stats()
 
     def _create_stats(self) -> None:
@@ -37,13 +44,30 @@ class PlanDashboard(BaseDashboard):
         self.add_stat("Next Event", "N/A")
         self.add_stat("Need Attention", "0")
 
+    def _format_inline_stats(self) -> str:
+        """Format plan stats for inline display in header.
+
+        Returns:
+            String like "5 events - 12 packages"
+        """
+        return f"{self._event_count} events - {self._package_count} packages"
+
     def refresh(self) -> None:
         """Refresh dashboard with current event data."""
         try:
             from src.services.event_service import get_all_events
+            from src.services.package_service import get_all_packages
             from datetime import date
 
             events = get_all_events()
+            self._event_count = len(events) if events else 0
+
+            # Get package count for inline stats
+            try:
+                packages = get_all_packages()
+                self._package_count = len(packages) if packages else 0
+            except Exception:
+                self._package_count = 0
 
             if not events:
                 self.update_stat("Upcoming Events", "0")

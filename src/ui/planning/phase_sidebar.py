@@ -45,11 +45,11 @@ STATUS_SYMBOLS = {
     PhaseStatus.BLOCKED: "\u26a0",  # Warning sign
 }
 
-# Phase display names
+# Phase display names (FR-022/FR-023: Use Purchase/Make terminology)
 PHASE_NAMES = {
     PlanPhase.CALCULATE: "Calculate",
-    PlanPhase.SHOP: "Shop",
-    PlanPhase.PRODUCE: "Produce",
+    PlanPhase.SHOP: "Purchase",
+    PlanPhase.PRODUCE: "Make",
     PlanPhase.ASSEMBLE: "Assemble",
 }
 

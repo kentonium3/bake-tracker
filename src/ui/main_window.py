@@ -4,8 +4,8 @@ Main application window for the Seasonal Baking Tracker.
 Provides the main window with 5-mode workflow navigation (F038):
 - CATALOG: Ingredients, Products, Recipes, Finished Units, Finished Goods, Packages
 - PLAN: Events, Planning Workspace
-- SHOP: Shopping Lists, Purchases, Inventory
-- PRODUCE: Production Runs, Assembly, Packaging, Recipients
+- PURCHASE: Shopping Lists, Purchases, Inventory
+- MAKE: Production Runs, Assembly, Packaging, Recipients
 - OBSERVE: Dashboard, Event Status, Reports
 """
 
@@ -19,8 +19,8 @@ from src.ui.mode_manager import ModeManager
 from src.ui.modes.catalog_mode import CatalogMode
 from src.ui.modes.observe_mode import ObserveMode
 from src.ui.modes.plan_mode import PlanMode
-from src.ui.modes.shop_mode import ShopMode
-from src.ui.modes.produce_mode import ProduceMode
+from src.ui.modes.purchase_mode import PurchaseMode
+from src.ui.modes.make_mode import MakeMode
 
 from src.ui.service_integration import check_service_integration_health
 from src.ui.catalog_import_dialog import CatalogImportDialog
@@ -31,7 +31,7 @@ class MainWindow(ctk.CTk):
     Main application window with 5-mode workflow navigation.
 
     Implements FR-001 through FR-005:
-    - FR-001: 5-mode workflow (CATALOG, PLAN, SHOP, PRODUCE, OBSERVE)
+    - FR-001: 5-mode workflow (CATALOG, PLAN, PURCHASE, MAKE, OBSERVE)
     - FR-002: Visual highlighting of active mode
     - FR-003: Keyboard shortcuts Ctrl+1-5
     - FR-004: Tab state preservation per mode
@@ -125,8 +125,8 @@ class MainWindow(ctk.CTk):
         mode_configs = [
             ("CATALOG", "Ctrl+1"),
             ("PLAN", "Ctrl+2"),
-            ("SHOP", "Ctrl+3"),
-            ("PRODUCE", "Ctrl+4"),
+            ("PURCHASE", "Ctrl+3"),
+            ("MAKE", "Ctrl+4"),
             ("OBSERVE", "Ctrl+5"),
         ]
 
@@ -160,11 +160,11 @@ class MainWindow(ctk.CTk):
         # Create PLAN mode (2 tabs)
         self._create_plan_mode()
 
-        # Create SHOP mode (3 tabs)
-        self._create_shop_mode()
+        # Create PURCHASE mode (3 tabs)
+        self._create_purchase_mode()
 
-        # Create PRODUCE mode (4 tabs)
-        self._create_produce_mode()
+        # Create MAKE mode (4 tabs)
+        self._create_make_mode()
 
         # Create OBSERVE mode (3 tabs)
         self._create_observe_mode()
@@ -199,20 +199,20 @@ class MainWindow(ctk.CTk):
 
         self.mode_manager.register_mode("PLAN", mode)
 
-    def _create_shop_mode(self):
-        """Create SHOP mode with 3 tabs using ShopMode class."""
-        mode = ShopMode(self.mode_content)
+    def _create_purchase_mode(self):
+        """Create PURCHASE mode with 3 tabs using PurchaseMode class."""
+        mode = PurchaseMode(self.mode_content)
 
         # Store tab references for backward compatibility
         self.inventory_tab = mode.inventory_tab
 
         self._tab_refs["inventory"] = self.inventory_tab
 
-        self.mode_manager.register_mode("SHOP", mode)
+        self.mode_manager.register_mode("PURCHASE", mode)
 
-    def _create_produce_mode(self):
-        """Create PRODUCE mode with 4 tabs using ProduceMode class."""
-        mode = ProduceMode(self.mode_content)
+    def _create_make_mode(self):
+        """Create MAKE mode with 4 tabs using MakeMode class."""
+        mode = MakeMode(self.mode_content)
 
         # Store tab references for backward compatibility
         self.production_tab = mode.production_tab
@@ -221,7 +221,7 @@ class MainWindow(ctk.CTk):
         self._tab_refs["production"] = self.production_tab
         self._tab_refs["recipients"] = self.recipients_tab
 
-        self.mode_manager.register_mode("PRODUCE", mode)
+        self.mode_manager.register_mode("MAKE", mode)
 
     def _create_observe_mode(self):
         """Create OBSERVE mode with 3 tabs using ObserveMode class (FR-005 default)."""
@@ -251,8 +251,8 @@ class MainWindow(ctk.CTk):
         """Set up keyboard shortcuts for mode switching (FR-003)."""
         self.bind_all("<Control-Key-1>", lambda e: self._switch_mode("CATALOG"))
         self.bind_all("<Control-Key-2>", lambda e: self._switch_mode("PLAN"))
-        self.bind_all("<Control-Key-3>", lambda e: self._switch_mode("SHOP"))
-        self.bind_all("<Control-Key-4>", lambda e: self._switch_mode("PRODUCE"))
+        self.bind_all("<Control-Key-3>", lambda e: self._switch_mode("PURCHASE"))
+        self.bind_all("<Control-Key-4>", lambda e: self._switch_mode("MAKE"))
         self.bind_all("<Control-Key-5>", lambda e: self._switch_mode("OBSERVE"))
 
     def _switch_mode(self, mode_name: str):
@@ -415,7 +415,7 @@ class MainWindow(ctk.CTk):
             f"{APP_NAME}\nVersion {APP_VERSION}\n\n"
             f"A tool for tracking seasonal baking inventory,\n"
             f"recipes, and event planning.\n\n"
-            f"Modes: CATALOG | PLAN | SHOP | PRODUCE | OBSERVE",
+            f"Modes: CATALOG | PLAN | PURCHASE | MAKE | OBSERVE",
             parent=self,
         )
 
@@ -487,7 +487,7 @@ class MainWindow(ctk.CTk):
         """Switch to a specific mode.
 
         Args:
-            mode_name: Name of the mode to switch to (CATALOG, PLAN, SHOP, PRODUCE, OBSERVE)
+            mode_name: Name of the mode to switch to (CATALOG, PLAN, PURCHASE, MAKE, OBSERVE)
         """
         self._switch_mode(mode_name)
 
@@ -526,10 +526,10 @@ class MainWindow(ctk.CTk):
         Args:
             ingredient_slug: Optional ingredient slug to filter by
         """
-        self._switch_mode("SHOP")
-        shop_mode = self.mode_manager.get_mode("SHOP")
-        if shop_mode and shop_mode.tabview:
-            shop_mode.tabview.set("Inventory")
+        self._switch_mode("PURCHASE")
+        purchase_mode = self.mode_manager.get_mode("PURCHASE")
+        if purchase_mode and purchase_mode.tabview:
+            purchase_mode.tabview.set("Inventory")
 
         if ingredient_slug and hasattr(self.inventory_tab, "filter_by_ingredient"):
             self.inventory_tab.filter_by_ingredient(ingredient_slug)

@@ -193,11 +193,11 @@ class PrerequisiteWarningDialog(ctk.CTkToplevel):
         btn_frame = ctk.CTkFrame(self, fg_color="transparent")
         btn_frame.grid(row=1, column=0, pady=(10, 20), padx=20)
 
-        # Phase name mapping
+        # Phase name mapping (FR-022/FR-023: Use Purchase/Make terminology)
         phase_names = {
             PlanPhase.CALCULATE: "Calculate",
-            PlanPhase.SHOP: "Shop",
-            PlanPhase.PRODUCE: "Produce",
+            PlanPhase.SHOP: "Purchase",
+            PlanPhase.PRODUCE: "Make",
             PlanPhase.ASSEMBLE: "Assemble",
         }
 

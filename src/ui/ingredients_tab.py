@@ -86,6 +86,10 @@ class IngredientsTab(ctk.CTkFrame):
         self._data_loaded = False  # Lazy loading flag
         self._view_mode = "flat"  # Feature 031: "flat" or "tree"
         self._hierarchy_path_cache: Dict[int, str] = {}  # Feature 033: Cache for hierarchy paths
+        # Feature 042: Cascading filter state (matching Products tab pattern)
+        self._l0_map: Dict[str, Dict[str, Any]] = {}  # L0 name -> ingredient dict
+        self._l1_map: Dict[str, Dict[str, Any]] = {}  # L1 name -> ingredient dict
+        self._updating_filters = False  # Re-entry guard for cascading filter updates
 
         # Configure grid
         self.grid_columnconfigure(0, weight=1)
@@ -121,24 +125,59 @@ class IngredientsTab(ctk.CTkFrame):
         )
 
     def _create_search_filter(self):
-        """Create search and filter controls."""
-        search_frame = ctk.CTkFrame(self, fg_color="transparent")
-        search_frame.grid(row=1, column=0, sticky="ew", padx=PADDING_LARGE, pady=PADDING_MEDIUM)
-        search_frame.grid_columnconfigure(0, weight=1)
+        """Create search and filter controls with cascading hierarchy filters.
 
-        # Search entry
+        Feature 042: Standardized filter layout matching Products tab pattern.
+        Layout: Search | L0 Dropdown | L1 Dropdown | View Toggle | Clear
+        """
+        filter_frame = ctk.CTkFrame(self)
+        filter_frame.grid(row=1, column=0, sticky="ew", padx=PADDING_LARGE, pady=PADDING_MEDIUM)
+
+        # Search entry (left)
+        search_label = ctk.CTkLabel(filter_frame, text="Search:")
+        search_label.pack(side="left", padx=(5, 2), pady=5)
+
         self.search_entry = ctk.CTkEntry(
-            search_frame,
-            placeholder_text="Search by ingredient name...",
-            height=36,
+            filter_frame,
+            placeholder_text="Search ingredients...",
+            width=200,
         )
-        self.search_entry.grid(row=0, column=0, sticky="ew", padx=(0, PADDING_MEDIUM))
+        self.search_entry.pack(side="left", padx=5, pady=5)
         self.search_entry.bind("<KeyRelease>", self._on_search)
 
-        # Feature 032: Level filter dropdown (replaces category filter)
+        # Feature 042: L0 (Root Category) cascading filter
+        l0_label = ctk.CTkLabel(filter_frame, text="Category:")
+        l0_label.pack(side="left", padx=(15, 2), pady=5)
+
+        self.l0_filter_var = ctk.StringVar(value="All Categories")
+        self.l0_filter_dropdown = ctk.CTkOptionMenu(
+            filter_frame,
+            variable=self.l0_filter_var,
+            values=["All Categories"],
+            command=self._on_l0_filter_change,
+            width=150,
+        )
+        self.l0_filter_dropdown.pack(side="left", padx=5, pady=5)
+
+        # Feature 042: L1 (Subcategory) cascading filter - initially disabled
+        l1_label = ctk.CTkLabel(filter_frame, text="Subcategory:")
+        l1_label.pack(side="left", padx=(10, 2), pady=5)
+
+        self.l1_filter_var = ctk.StringVar(value="All")
+        self.l1_filter_dropdown = ctk.CTkOptionMenu(
+            filter_frame,
+            variable=self.l1_filter_var,
+            values=["All"],
+            command=self._on_l1_filter_change,
+            width=150,
+            state="disabled",
+        )
+        self.l1_filter_dropdown.pack(side="left", padx=5, pady=5)
+
+        # Feature 042: Level filter dropdown (moved after hierarchy filters)
         self.level_filter_var = ctk.StringVar(value="All Levels")
         self.level_filter_dropdown = ctk.CTkOptionMenu(
-            search_frame,
+            filter_frame,
             values=[
                 "All Levels",
                 "Root Categories (L0)",
@@ -147,29 +186,29 @@ class IngredientsTab(ctk.CTkFrame):
             ],
             variable=self.level_filter_var,
             command=self._on_level_filter_change,
-            width=200,
+            width=160,
         )
-        self.level_filter_dropdown.grid(row=0, column=1, padx=(0, PADDING_MEDIUM))
+        self.level_filter_dropdown.pack(side="left", padx=(15, 5), pady=5)
 
         # Feature 031: View toggle (Flat/Tree)
         self.view_var = ctk.StringVar(value="Flat")
         view_toggle = ctk.CTkSegmentedButton(
-            search_frame,
+            filter_frame,
             values=["Flat", "Tree"],
             variable=self.view_var,
             command=self._on_view_change,
-            width=120,
-        )
-        view_toggle.grid(row=0, column=2, padx=(0, PADDING_MEDIUM))
-
-        # Clear button
-        clear_button = ctk.CTkButton(
-            search_frame,
-            text="Clear",
-            command=self._clear_filters,
             width=100,
         )
-        clear_button.grid(row=0, column=3)
+        view_toggle.pack(side="left", padx=(15, 5), pady=5)
+
+        # Clear button (right side)
+        clear_button = ctk.CTkButton(
+            filter_frame,
+            text="Clear",
+            command=self._clear_filters,
+            width=60,
+        )
+        clear_button.pack(side="left", padx=10, pady=5)
 
     def _create_action_buttons(self):
         """Create action buttons for CRUD operations."""
@@ -222,7 +261,7 @@ class IngredientsTab(ctk.CTkFrame):
             columns=columns,
             show="headings",
             selectmode="browse",
-            height=20,  # Show more rows (default is 10)
+            # No height constraint - allows dynamic expansion with weight=1
         )
 
         # Configure column headings with click-to-sort
@@ -442,6 +481,9 @@ class IngredientsTab(ctk.CTkFrame):
             # Get all ingredients from service
             self.ingredients = ingredient_service.get_all_ingredients()
 
+            # Feature 042: Populate L0 (root categories) dropdown for cascading filters
+            self._load_filter_data()
+
             # Feature 031: Refresh based on current view mode
             if self._view_mode == "tree":
                 self.ingredient_tree.refresh()
@@ -456,6 +498,30 @@ class IngredientsTab(ctk.CTkFrame):
         except DatabaseError as e:
             messagebox.showerror("Database Error", f"Failed to load ingredients: {e}")
             self.update_status("Error loading ingredients")
+
+    def _load_filter_data(self):
+        """Load data for filter dropdowns.
+
+        Feature 042: Populate L0 cascading filter dropdown with root categories.
+        """
+        try:
+            # Populate L0 (root categories) dropdown
+            root_ingredients = ingredient_hierarchy_service.get_root_ingredients()
+            self._l0_map = {
+                ing.get("display_name", ing.get("name", "?")): ing
+                for ing in root_ingredients
+            }
+            l0_values = ["All Categories"] + sorted(self._l0_map.keys())
+            self.l0_filter_dropdown.configure(values=l0_values)
+
+            # Reset L1 dropdown (will be populated on L0 selection)
+            self._l1_map = {}
+            self.l1_filter_dropdown.configure(values=["All"], state="disabled")
+            self.l1_filter_var.set("All")
+
+        except Exception as e:
+            # Log error but continue - filters will have limited options
+            print(f"Warning: Failed to load filter data: {e}")
 
     def _show_initial_state(self):
         """Show initial loading state."""
@@ -517,8 +583,14 @@ class IngredientsTab(ctk.CTkFrame):
             self.update_status(f"{count} ingredient{'s' if count != 1 else ''}")
 
     def _apply_filters(self, ingredients: List[dict]) -> List[dict]:
-        """Apply search, level filters, and sorting to ingredient list."""
+        """Apply search, hierarchy, level filters, and sorting to ingredient list.
+
+        Feature 042: Added L0/L1 cascading hierarchy filtering.
+        """
         filtered = ingredients
+
+        # Feature 042: Apply L0/L1 hierarchy filters
+        filtered = self._apply_hierarchy_filters(filtered)
 
         # Feature 032: Apply level filter
         selected_level = self._get_selected_level()
@@ -563,6 +635,57 @@ class IngredientsTab(ctk.CTkFrame):
 
         return filtered
 
+    def _apply_hierarchy_filters(self, ingredients: List[dict]) -> List[dict]:
+        """Apply L0/L1 hierarchy filters to ingredient list.
+
+        Feature 042: Matching Products tab cascading filter behavior.
+        Filters ingredients based on their hierarchy path (ancestors).
+        """
+        l0_val = self.l0_filter_var.get()
+        l1_val = self.l1_filter_var.get()
+
+        # If all filters are "All", return unfiltered
+        if l0_val == "All Categories" and l1_val == "All":
+            return ingredients
+
+        # Build set of matching ingredient IDs based on selected hierarchy filters
+        matching_ids = set()
+
+        if l1_val != "All" and l1_val in self._l1_map:
+            # Exact L1 match - include L1 itself and all its L2 children
+            l1_id = self._l1_map[l1_val].get("id")
+            matching_ids.add(l1_id)
+            # Also include all L2 descendants under this L1
+            matching_ids.update(self._get_descendants(l1_id))
+        elif l0_val != "All Categories" and l0_val in self._l0_map:
+            # L0 selected but no L1 - include L0 itself and all descendants
+            l0_id = self._l0_map[l0_val].get("id")
+            matching_ids.add(l0_id)
+            # Include all L1 and L2 descendants under this L0
+            matching_ids.update(self._get_descendants(l0_id))
+
+        if not matching_ids:
+            return ingredients
+
+        return [ing for ing in ingredients if ing.get("id") in matching_ids]
+
+    def _get_descendants(self, parent_id: int) -> set:
+        """Get all descendant ingredient IDs under a parent.
+
+        Feature 042: Helper for hierarchy filtering.
+        """
+        descendants = set()
+        try:
+            children = ingredient_hierarchy_service.get_children(parent_id)
+            for child in children:
+                child_id = child.get("id")
+                descendants.add(child_id)
+                # Recurse to get deeper descendants
+                descendants.update(self._get_descendants(child_id))
+        except Exception:
+            pass
+        return descendants
+
     def _on_search(self, event=None):
         """Handle search text change."""
         # Feature 031: Handle search based on view mode
@@ -574,6 +697,49 @@ class IngredientsTab(ctk.CTkFrame):
 
     def _on_level_filter_change(self, level: str):
         """Handle level filter change (Feature 032)."""
+        self._update_ingredient_display()
+
+    def _on_l0_filter_change(self, value: str):
+        """Handle L0 (category) filter change - cascade to L1.
+
+        Feature 042: Matching Products tab cascading behavior.
+        """
+        # Re-entry guard to prevent recursive updates
+        if self._updating_filters:
+            return
+        self._updating_filters = True
+        try:
+            if value == "All Categories":
+                # Reset L1
+                self._l1_map = {}
+                self.l1_filter_dropdown.configure(values=["All"], state="disabled")
+                self.l1_filter_var.set("All")
+            elif value in self._l0_map:
+                # Populate L1 with children of selected L0
+                l0_id = self._l0_map[value].get("id")
+                subcategories = ingredient_hierarchy_service.get_children(l0_id)
+                self._l1_map = {
+                    sub.get("display_name", "?"): sub for sub in subcategories
+                    if sub.get("hierarchy_level") == 1
+                }
+                if self._l1_map:
+                    l1_values = ["All"] + sorted(self._l1_map.keys())
+                    self.l1_filter_dropdown.configure(values=l1_values, state="normal")
+                else:
+                    self.l1_filter_dropdown.configure(values=["All"], state="disabled")
+                self.l1_filter_var.set("All")
+        finally:
+            self._updating_filters = False
+        self._update_ingredient_display()
+
+    def _on_l1_filter_change(self, value: str):
+        """Handle L1 (subcategory) filter change.
+
+        Feature 042: Matching Products tab cascading behavior.
+        """
+        # Re-entry guard to prevent recursive updates
+        if self._updating_filters:
+            return
         self._update_ingredient_display()
 
     def _get_selected_level(self) -> Optional[int]:
@@ -594,9 +760,31 @@ class IngredientsTab(ctk.CTkFrame):
         return level_map.get(value)
 
     def _clear_filters(self):
-        """Clear all filters and refresh display."""
-        self.search_entry.delete(0, "end")
-        self.level_filter_var.set("All Levels")  # Feature 032: Reset level filter
+        """Clear all filters and refresh display.
+
+        Feature 042: Reset cascading hierarchy filters to match Products tab pattern.
+        """
+        # Use re-entry guard to prevent cascade callbacks
+        self._updating_filters = True
+        try:
+            # Clear search
+            self.search_entry.delete(0, "end")
+
+            # Reset hierarchy filters
+            self.l0_filter_var.set("All Categories")
+            self.l1_filter_var.set("All")
+
+            # Clear hierarchy maps
+            self._l1_map = {}
+
+            # Disable child dropdown
+            self.l1_filter_dropdown.configure(values=["All"], state="disabled")
+
+            # Reset level filter
+            self.level_filter_var.set("All Levels")
+        finally:
+            self._updating_filters = False
+
         # Feature 031: Clear search based on view mode
         if self._view_mode == "tree":
             self.ingredient_tree.clear_search()

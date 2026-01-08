@@ -1,4 +1,4 @@
-"""ProduceDashboard - Dashboard for PRODUCE mode.
+"""MakeDashboard - Dashboard for MAKE mode.
 
 Shows production-related statistics:
 - Pending Batches: Production runs not yet complete
@@ -14,21 +14,28 @@ import customtkinter as ctk
 from src.ui.dashboards.base_dashboard import BaseDashboard
 
 
-class ProduceDashboard(BaseDashboard):
+class MakeDashboard(BaseDashboard):
     """Dashboard showing production statistics.
 
-    Displays counts for production workflow stages in PRODUCE mode.
+    Displays counts for production workflow stages in MAKE mode.
     """
 
     def __init__(self, master: Any, **kwargs):
-        """Initialize ProduceDashboard.
+        """Initialize MakeDashboard.
 
         Args:
             master: Parent widget
             **kwargs: Additional arguments passed to BaseDashboard
         """
+        # Set mode identity before super().__init__
+        self.mode_name = "MAKE"
+        self.mode_icon = ""
+
+        # Initialize count variables for inline stats
+        self._production_runs = 0
+        self._assembly_runs = 0
+
         super().__init__(master, **kwargs)
-        self.set_title("PRODUCE Dashboard")
         self._create_stats()
 
     def _create_stats(self) -> None:
@@ -37,15 +44,25 @@ class ProduceDashboard(BaseDashboard):
         self.add_stat("Ready to Assemble", "0")
         self.add_stat("Ready to Package", "0")
 
+    def _format_inline_stats(self) -> str:
+        """Format make stats for inline display in header.
+
+        Returns:
+            String like "12 production runs - 5 assemblies"
+        """
+        return f"{self._production_runs} production runs - {self._assembly_runs} assemblies"
+
     def refresh(self) -> None:
         """Refresh dashboard with current production statistics."""
         try:
             # Try to get production statistics from services
             # These services may not exist yet, so handle errors silently
             pending_batches = self._get_pending_batches_count()
+            self._production_runs = pending_batches  # Use for inline stats
             self.update_stat("Pending Batches", str(pending_batches))
 
             ready_to_assemble = self._get_ready_to_assemble_count()
+            self._assembly_runs = ready_to_assemble  # Use for inline stats
             self.update_stat("Ready to Assemble", str(ready_to_assemble))
 
             ready_to_package = self._get_ready_to_package_count()

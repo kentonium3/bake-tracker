@@ -92,13 +92,6 @@ class ProductsTab(ctk.CTkFrame):
         )
         title.grid(row=0, column=0, padx=10, pady=10, sticky="w")
 
-        subtitle = ctk.CTkLabel(
-            header_frame,
-            text="Manage products, suppliers, and purchase history",
-            font=ctk.CTkFont(size=12),
-        )
-        subtitle.grid(row=1, column=0, padx=10, pady=(0, 10), sticky="w")
-
     def _create_toolbar(self):
         """Create toolbar with action buttons."""
         toolbar_frame = ctk.CTkFrame(self)

@@ -179,9 +179,13 @@ class BaseMode(ctk.CTkFrame, ABC):
         pass
 
     def refresh_dashboard(self) -> None:
-        """Refresh the mode's dashboard data."""
+        """Refresh the mode's dashboard data and update header display."""
         if self.dashboard:
-            self.dashboard.refresh()
+            # Call on_show() to refresh stats AND update header text
+            if hasattr(self.dashboard, "on_show"):
+                self.dashboard.on_show()
+            else:
+                self.dashboard.refresh()
 
     def refresh_current_tab(self) -> None:
         """Refresh the currently active tab."""

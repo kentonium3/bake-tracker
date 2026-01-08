@@ -1,7 +1,7 @@
 """ModeManager - Coordinates mode switching and state preservation.
 
 Implements FR-001 through FR-005:
-- FR-001: 5-mode workflow (CATALOG, PLAN, SHOP, PRODUCE, OBSERVE)
+- FR-001: 5-mode workflow (CATALOG, PLAN, PURCHASE, MAKE, OBSERVE)
 - FR-002: Visual highlighting of active mode
 - FR-003: Keyboard shortcuts Ctrl+1-5
 - FR-004: Tab state preservation per mode
@@ -21,8 +21,8 @@ class ModeManager:
     Manages the 5-mode workflow navigation:
     - CATALOG (Ctrl+1): Ingredients, Products, Recipes, etc.
     - PLAN (Ctrl+2): Events, Planning Workspace
-    - SHOP (Ctrl+3): Shopping Lists, Purchases, Inventory
-    - PRODUCE (Ctrl+4): Production Runs, Assembly, Packaging, Recipients
+    - PURCHASE (Ctrl+3): Shopping Lists, Purchases, Inventory
+    - MAKE (Ctrl+4): Production Runs, Assembly, Packaging, Recipients
     - OBSERVE (Ctrl+5): Dashboard, Event Status, Reports
 
     Attributes:
@@ -32,7 +32,7 @@ class ModeManager:
     """
 
     # Mode order matches Ctrl+1-5 shortcuts
-    MODE_ORDER = ["CATALOG", "PLAN", "SHOP", "PRODUCE", "OBSERVE"]
+    MODE_ORDER = ["CATALOG", "PLAN", "PURCHASE", "MAKE", "OBSERVE"]
 
     def __init__(self):
         """Initialize ModeManager."""
@@ -41,8 +41,8 @@ class ModeManager:
         self.mode_tab_state: Dict[str, int] = {
             "CATALOG": 0,
             "PLAN": 0,
-            "SHOP": 0,
-            "PRODUCE": 0,
+            "PURCHASE": 0,
+            "MAKE": 0,
             "OBSERVE": 0,
         }
         self._mode_buttons: Dict[str, ctk.CTkButton] = {}
@@ -63,7 +63,7 @@ class ModeManager:
         """Register a mode widget.
 
         Args:
-            name: Mode name (CATALOG, PLAN, SHOP, PRODUCE, OBSERVE)
+            name: Mode name (CATALOG, PLAN, PURCHASE, MAKE, OBSERVE)
             mode: BaseMode instance
 
         Raises:

@@ -1,19 +1,19 @@
-"""ProduceMode - Mode container for production workflow.
+"""MakeMode - Mode container for production workflow.
 
-PRODUCE mode contains 4 tabs for managing production activities:
+MAKE mode contains 4 tabs for managing production activities:
 - Production Runs: Record and track batch production
 - Assembly: Create finished goods from finished units
 - Packaging: Create gift packages for recipients
 - Recipients: Manage gift package recipients
 
-Implements User Story 6: PRODUCE Mode for Production Workflow (Priority P2)
+Implements User Story 6: MAKE Mode for Production Workflow (Priority P2)
 """
 
 from typing import Any, TYPE_CHECKING
 import customtkinter as ctk
 
 from src.ui.base.base_mode import BaseMode
-from src.ui.dashboards.produce_dashboard import ProduceDashboard
+from src.ui.dashboards.make_dashboard import MakeDashboard
 from src.ui.tabs.assembly_tab import AssemblyTab
 from src.ui.tabs.packaging_tab import PackagingTab
 
@@ -22,7 +22,7 @@ if TYPE_CHECKING:
     from src.ui.recipients_tab import RecipientsTab
 
 
-class ProduceMode(BaseMode):
+class MakeMode(BaseMode):
     """Mode container for production workflow.
 
     Provides access to production, assembly, packaging, and recipient
@@ -30,13 +30,13 @@ class ProduceMode(BaseMode):
     """
 
     def __init__(self, master: Any, **kwargs):
-        """Initialize ProduceMode.
+        """Initialize MakeMode.
 
         Args:
             master: Parent widget
             **kwargs: Additional arguments passed to BaseMode
         """
-        super().__init__(master, name="PRODUCE", **kwargs)
+        super().__init__(master, name="MAKE", **kwargs)
 
         # Tab references
         self.production_tab: "ProductionDashboardTab" = None
@@ -49,12 +49,12 @@ class ProduceMode(BaseMode):
         self.setup_tabs()
 
     def setup_dashboard(self) -> None:
-        """Set up the PRODUCE dashboard with production stats (FR-010)."""
-        dashboard = ProduceDashboard(self)
+        """Set up the MAKE dashboard with production stats (FR-010)."""
+        dashboard = MakeDashboard(self)
         self.set_dashboard(dashboard)
 
     def setup_tabs(self) -> None:
-        """Set up all 4 tabs for PRODUCE mode."""
+        """Set up all 4 tabs for MAKE mode."""
         from src.ui.production_dashboard_tab import ProductionDashboardTab
         from src.ui.recipients_tab import RecipientsTab
 
@@ -91,7 +91,7 @@ class ProduceMode(BaseMode):
         self._tab_widgets["Recipients"] = self.recipients_tab
 
     def activate(self) -> None:
-        """Called when PRODUCE mode becomes active."""
+        """Called when MAKE mode becomes active."""
         super().activate()
         # Lazy load data for production tab on first activation
         if self.production_tab:
@@ -100,7 +100,7 @@ class ProduceMode(BaseMode):
                 self.after(10, self.production_tab.refresh)
 
     def refresh_all_tabs(self) -> None:
-        """Refresh all tabs in PRODUCE mode."""
+        """Refresh all tabs in MAKE mode."""
         if self.production_tab:
             self.production_tab.refresh()
         if self.assembly_tab:
