@@ -1,9 +1,13 @@
-# Purchase Workflow & AI Assist Architecture Specification
+# Purchase Workflow Monitoring Specification
 
-**Document Version**: 1.0  
-**Status**: Design Proposal  
-**Date**: December 2024  
+**Feature ID:** F0XX *(Previously: F043, deferred after 2026-01-07 user testing)*
+**Document Version**: 1.0
+**Status**: Deferred
+**Date**: December 2024 (updated 2026-01-07)
 **Constitutional References**: Principles II (Data Integrity), V (Layered Architecture), VI (Schema Change Strategy), VII (Pragmatic Aspiration)
+
+> **Note**: The service layer for AI-assisted purchase import was implemented in F040.
+> This deferred feature covers only the UI monitoring components.
 
 ---
 

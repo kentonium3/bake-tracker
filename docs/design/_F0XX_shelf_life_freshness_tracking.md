@@ -1,10 +1,10 @@
 # Feature Specification: Shelf Life & Freshness Tracking
 
-**Feature ID:** F041  
-**Status:** Draft  
-**Created:** 2025-01-04  
-**Last Updated:** 2025-01-04  
-**Author:** Kent Gale  
+**Feature ID:** F0XX *(Previously: F042, deferred after 2026-01-07 user testing)*
+**Status:** Deferred
+**Created:** 2025-01-04
+**Last Updated:** 2026-01-07
+**Author:** Kent Gale
 **Spec-Kitty Phase:** Specification
 
 ---

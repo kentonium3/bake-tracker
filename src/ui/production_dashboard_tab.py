@@ -558,22 +558,28 @@ class ProductionDashboardTab(ctk.CTkFrame):
     # =========================================================================
 
     def _navigate_to_finished_units(self):
-        """Navigate to the Finished Units tab."""
+        """Navigate to the Finished Units tab in Catalog mode."""
         main_window = self._get_main_window()
-        if main_window and hasattr(main_window, "tabview"):
-            main_window.tabview.set("Finished Units")
+        if main_window and hasattr(main_window, "mode_manager"):
+            main_window.switch_to_mode("CATALOG")
+            catalog_mode = main_window.mode_manager.get_mode("CATALOG")
+            if catalog_mode and catalog_mode.tabview:
+                catalog_mode.tabview.set("Finished Units")
 
     def _navigate_to_finished_goods(self):
-        """Navigate to the Finished Goods tab."""
+        """Navigate to the Finished Goods tab in Catalog mode."""
         main_window = self._get_main_window()
-        if main_window and hasattr(main_window, "switch_to_tab"):
-            main_window.switch_to_tab("Finished Goods")
+        if main_window and hasattr(main_window, "mode_manager"):
+            main_window.switch_to_mode("CATALOG")
+            catalog_mode = main_window.mode_manager.get_mode("CATALOG")
+            if catalog_mode and catalog_mode.tabview:
+                catalog_mode.tabview.set("Finished Goods")
 
     def _get_main_window(self):
-        """Traverse up widget hierarchy to find main window."""
+        """Traverse up widget hierarchy to find main window (with mode_manager)."""
         parent = self.master
         while parent:
-            if hasattr(parent, "tabview"):
+            if hasattr(parent, "mode_manager"):
                 return parent
             parent = getattr(parent, "master", None)
         return None

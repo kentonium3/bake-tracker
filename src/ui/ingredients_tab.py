@@ -825,9 +825,13 @@ class IngredientsTab(ctk.CTkFrame):
     def _add_ingredient(self):
         """Open dialog to add a new ingredient."""
         dialog = IngredientFormDialog(self, title="Add Ingredient")
-        self.wait_window(dialog)
+        try:
+            self.wait_window(dialog)
+        except Exception:
+            # Dialog was destroyed before wait could complete
+            return
 
-        if dialog.result:
+        if getattr(dialog, "result", None):
             try:
                 # Create ingredient using service
                 ingredient_obj = ingredient_service.create_ingredient(dialog.result)
@@ -875,15 +879,19 @@ class IngredientsTab(ctk.CTkFrame):
                 ingredient=ingredient_data,
                 title="Edit Ingredient",
             )
-            self.wait_window(dialog)
+            try:
+                self.wait_window(dialog)
+            except Exception:
+                # Dialog was destroyed before wait could complete
+                return
 
             # Check if ingredient was deleted
-            if dialog.deleted:
+            if getattr(dialog, "deleted", False):
                 self.selected_ingredient_slug = None
                 self.refresh()
                 return
 
-            if dialog.result:
+            if getattr(dialog, "result", None):
                 # Update ingredient using service
                 updated_obj = ingredient_service.update_ingredient(
                     self.selected_ingredient_slug,

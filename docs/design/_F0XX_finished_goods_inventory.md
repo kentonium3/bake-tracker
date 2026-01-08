@@ -1,8 +1,9 @@
 # Finished Goods Inventory Architecture Specification
 
-**Document Version**: 1.0  
-**Status**: Design Proposal  
-**Date**: December 2024  
+**Feature ID:** F0XX *(Previously: F044, deferred after 2026-01-07 user testing)*
+**Document Version**: 1.0
+**Status**: Deferred
+**Date**: December 2024 (updated 2026-01-07)
 **Constitutional References**: Principles II (Data Integrity & FIFO), III (Future-Proof Schema), V (Layered Architecture)
 
 ---

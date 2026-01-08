@@ -50,7 +50,7 @@
       "ingredient_name": "Cornstarch",
       "purchase_id": 1,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 2.25,
       "last_updated": "2025-12-26T17:39:14.114463"
     },
     {
@@ -73,7 +73,7 @@
       "ingredient_name": "Baking soda",
       "purchase_id": 2,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 5.49,
       "last_updated": "2025-12-26T17:39:14.116832"
     },
     {
@@ -96,7 +96,7 @@
       "ingredient_name": "Rum",
       "purchase_id": 3,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 5.49,
       "last_updated": "2025-12-26T17:39:14.120099"
     },
     {
@@ -119,7 +119,7 @@
       "ingredient_name": "Chocolate, baking semi-sweet",
       "purchase_id": 4,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 5.49,
       "last_updated": "2025-12-26T17:39:14.122052"
     },
     {
@@ -142,7 +142,7 @@
       "ingredient_name": "Chocolate, baking unsweetened",
       "purchase_id": 5,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 5.49,
       "last_updated": "2025-12-26T17:39:14.124271"
     },
     {
@@ -165,7 +165,7 @@
       "ingredient_name": "Pectin",
       "purchase_id": 6,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 5.49,
       "last_updated": "2025-12-26T17:39:14.126647"
     },
     {
@@ -188,7 +188,7 @@
       "ingredient_name": "Oil, olive",
       "purchase_id": 7,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 28.0,
       "last_updated": "2025-12-26T17:39:14.128710"
     },
     {
@@ -211,7 +211,7 @@
       "ingredient_name": "Gluten-free flour blend",
       "purchase_id": 8,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 9.99,
       "last_updated": "2025-12-26T17:39:14.130604"
     },
     {
@@ -224,9 +224,9 @@
       "notes": "Initial inventory - full package",
       "lot_or_batch": null,
       "product_id": 22,
-      "product_slug": "caramels:Brach’s:14.0:oz",
+      "product_slug": "caramels:Brach\u2019s:14.0:oz",
       "product_name": "Milk Maid Caramels",
-      "brand": "Brach’s",
+      "brand": "Brach\u2019s",
       "package_unit": "oz",
       "package_unit_quantity": 14.0,
       "ingredient_id": 52,
@@ -234,7 +234,7 @@
       "ingredient_name": "Caramels",
       "purchase_id": 9,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 5.49,
       "last_updated": "2025-12-26T17:39:14.132508"
     },
     {
@@ -257,7 +257,7 @@
       "ingredient_name": "Chocolate coating, milk chocolate",
       "purchase_id": 10,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 5.49,
       "last_updated": "2025-12-26T17:39:14.134377"
     },
     {
@@ -280,7 +280,7 @@
       "ingredient_name": "Chocolate, couverture dark",
       "purchase_id": 11,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 245.0,
       "last_updated": "2025-12-26T17:39:14.136343"
     },
     {
@@ -303,7 +303,7 @@
       "ingredient_name": "Chocolate couverture, ruby",
       "purchase_id": 12,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 68.0,
       "last_updated": "2025-12-26T17:39:14.138342"
     },
     {
@@ -326,7 +326,7 @@
       "ingredient_name": "Raspberry Liqueur",
       "purchase_id": 13,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 24.0,
       "last_updated": "2025-12-26T17:39:14.140222"
     },
     {
@@ -349,7 +349,7 @@
       "ingredient_name": "Liqueur, orange",
       "purchase_id": 14,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 38.0,
       "last_updated": "2025-12-26T17:39:14.142167"
     },
     {
@@ -372,7 +372,7 @@
       "ingredient_name": "Butter, salted",
       "purchase_id": 15,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 5.99,
       "last_updated": "2025-12-26T17:39:14.144710"
     },
     {
@@ -395,7 +395,7 @@
       "ingredient_name": "Butter, unsalted",
       "purchase_id": 16,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 5.99,
       "last_updated": "2025-12-26T17:39:14.146773"
     },
     {
@@ -418,7 +418,7 @@
       "ingredient_name": "Pecans",
       "purchase_id": 17,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 18.99,
       "last_updated": "2025-12-26T17:39:14.148815"
     },
     {
@@ -441,7 +441,7 @@
       "ingredient_name": "Walnuts",
       "purchase_id": 18,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 18.99,
       "last_updated": "2025-12-26T17:39:14.150728"
     },
     {
@@ -464,7 +464,7 @@
       "ingredient_name": "Almonds",
       "purchase_id": 19,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 18.99,
       "last_updated": "2025-12-26T17:39:14.152624"
     },
     {
@@ -487,7 +487,7 @@
       "ingredient_name": "Maple syrup",
       "purchase_id": 20,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 5.49,
       "last_updated": "2025-12-26T17:39:14.154519"
     },
     {
@@ -510,7 +510,7 @@
       "ingredient_name": "Vanilla extract",
       "purchase_id": 21,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 14.0,
       "last_updated": "2025-12-26T17:39:14.156468"
     },
     {
@@ -533,7 +533,7 @@
       "ingredient_name": "Shortening",
       "purchase_id": 22,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 5.49,
       "last_updated": "2025-12-26T17:39:14.158477"
     },
     {
@@ -556,7 +556,7 @@
       "ingredient_name": "Cocoa powder, black",
       "purchase_id": 23,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 5.49,
       "last_updated": "2025-12-26T17:39:14.161162"
     },
     {
@@ -579,7 +579,7 @@
       "ingredient_name": "Salt, kosher",
       "purchase_id": 24,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 5.49,
       "last_updated": "2025-12-26T17:39:14.163088"
     },
     {
@@ -602,7 +602,7 @@
       "ingredient_name": "Amaretto",
       "purchase_id": 25,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 5.49,
       "last_updated": "2025-12-26T17:39:14.164930"
     },
     {
@@ -625,7 +625,7 @@
       "ingredient_name": "Sugar, granulated",
       "purchase_id": 26,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 4.5,
       "last_updated": "2025-12-26T17:39:14.166806"
     },
     {
@@ -648,7 +648,7 @@
       "ingredient_name": "Sugar, brown light",
       "purchase_id": 27,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 4.5,
       "last_updated": "2025-12-26T17:39:14.168653"
     },
     {
@@ -671,7 +671,7 @@
       "ingredient_name": "Sugar, brown dark",
       "purchase_id": 28,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 4.5,
       "last_updated": "2025-12-26T17:39:14.170637"
     },
     {
@@ -694,7 +694,7 @@
       "ingredient_name": "Sugar, superfine",
       "purchase_id": 29,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 4.5,
       "last_updated": "2025-12-26T17:39:14.172638"
     },
     {
@@ -717,7 +717,7 @@
       "ingredient_name": "Sugar, powdered",
       "purchase_id": 30,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 4.5,
       "last_updated": "2025-12-26T17:39:14.174771"
     },
     {
@@ -740,7 +740,7 @@
       "ingredient_name": "Bourbon",
       "purchase_id": 31,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 5.49,
       "last_updated": "2025-12-26T17:39:14.177315"
     },
     {
@@ -763,7 +763,7 @@
       "ingredient_name": "Orange extract",
       "purchase_id": 32,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 14.0,
       "last_updated": "2025-12-26T17:39:14.179710"
     },
     {
@@ -786,7 +786,7 @@
       "ingredient_name": "Extract, coffee",
       "purchase_id": 33,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 14.0,
       "last_updated": "2025-12-26T17:39:14.181678"
     },
     {
@@ -809,7 +809,7 @@
       "ingredient_name": "Extract, chocolate",
       "purchase_id": 34,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 14.0,
       "last_updated": "2025-12-26T17:39:14.183591"
     },
     {
@@ -832,7 +832,7 @@
       "ingredient_name": "Yeast, instant",
       "purchase_id": 35,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 5.49,
       "last_updated": "2025-12-26T17:39:14.185596"
     },
     {
@@ -855,7 +855,7 @@
       "ingredient_name": "Yeast, active dry",
       "purchase_id": 36,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 5.49,
       "last_updated": "2025-12-26T17:39:14.187604"
     },
     {
@@ -878,7 +878,7 @@
       "ingredient_name": "Hazelnut Liqueur",
       "purchase_id": 37,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 18.99,
       "last_updated": "2025-12-26T17:39:14.189432"
     },
     {
@@ -892,16 +892,16 @@
       "lot_or_batch": null,
       "product_id": 82,
       "product_slug": "liqueur_blackcurrant:Gabriel Brudier:750.0:fl oz",
-      "product_name": "Crème de Cassis",
+      "product_name": "Cr\u00e8me de Cassis",
       "brand": "Gabriel Brudier",
       "package_unit": "fl oz",
       "package_unit_quantity": 750.0,
       "ingredient_id": 177,
       "ingredient_slug": "liqueur_blackcurrant",
-      "ingredient_name": "Crème de cassis",
+      "ingredient_name": "Cr\u00e8me de cassis",
       "purchase_id": 38,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 5.49,
       "last_updated": "2025-12-26T17:39:14.191289"
     },
     {
@@ -924,7 +924,7 @@
       "ingredient_name": "Liqueur, orange",
       "purchase_id": 39,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 5.49,
       "last_updated": "2025-12-26T17:39:14.193585"
     },
     {
@@ -947,7 +947,7 @@
       "ingredient_name": "Molasses, light",
       "purchase_id": 40,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 5.49,
       "last_updated": "2025-12-26T17:39:14.195653"
     },
     {
@@ -970,7 +970,7 @@
       "ingredient_name": "Molasses, dark",
       "purchase_id": 41,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 5.49,
       "last_updated": "2025-12-26T17:39:14.197589"
     },
     {
@@ -984,7 +984,7 @@
       "lot_or_batch": null,
       "product_id": 36,
       "product_slug": "chocolate_chips_white:Guittard:3.0:kg",
-      "product_name": "Crème Française",
+      "product_name": "Cr\u00e8me Fran\u00e7aise",
       "brand": "Guittard",
       "package_unit": "kg",
       "package_unit_quantity": 3.0,
@@ -993,7 +993,7 @@
       "ingredient_name": "Chocolate chips, white",
       "purchase_id": 42,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 5.49,
       "last_updated": "2025-12-26T17:39:14.199402"
     },
     {
@@ -1016,7 +1016,7 @@
       "ingredient_name": "Chocolate chips, bittersweet",
       "purchase_id": 43,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 5.49,
       "last_updated": "2025-12-26T17:39:14.201253"
     },
     {
@@ -1039,7 +1039,7 @@
       "ingredient_name": "Mint chocolate candies",
       "purchase_id": 44,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 5.49,
       "last_updated": "2025-12-26T17:39:14.203081"
     },
     {
@@ -1062,7 +1062,7 @@
       "ingredient_name": "Chocolate chips, milk",
       "purchase_id": 45,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 5.49,
       "last_updated": "2025-12-26T17:39:14.204910"
     },
     {
@@ -1085,7 +1085,7 @@
       "ingredient_name": "Toffee bits",
       "purchase_id": 46,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 5.49,
       "last_updated": "2025-12-26T17:39:14.206748"
     },
     {
@@ -1108,7 +1108,7 @@
       "ingredient_name": "Toffee bits",
       "purchase_id": 47,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 5.49,
       "last_updated": "2025-12-26T17:39:14.208627"
     },
     {
@@ -1131,7 +1131,7 @@
       "ingredient_name": "Vanilla bean",
       "purchase_id": 48,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 55.0,
       "last_updated": "2025-12-26T17:39:14.210958"
     },
     {
@@ -1154,7 +1154,7 @@
       "ingredient_name": "Vanilla extract",
       "purchase_id": 49,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 55.0,
       "last_updated": "2025-12-26T17:39:14.212901"
     },
     {
@@ -1177,7 +1177,7 @@
       "ingredient_name": "Vanilla paste",
       "purchase_id": 50,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 55.0,
       "last_updated": "2025-12-26T17:39:14.215262"
     },
     {
@@ -1200,7 +1200,7 @@
       "ingredient_name": "Vanilla powder, pure",
       "purchase_id": 51,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 55.0,
       "last_updated": "2025-12-26T17:39:14.217436"
     },
     {
@@ -1223,7 +1223,7 @@
       "ingredient_name": "Vanilla powder, extract blend",
       "purchase_id": 52,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 55.0,
       "last_updated": "2025-12-26T17:39:14.219529"
     },
     {
@@ -1246,7 +1246,7 @@
       "ingredient_name": "Vanilla extract",
       "purchase_id": 53,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 55.0,
       "last_updated": "2025-12-26T17:39:14.221282"
     },
     {
@@ -1269,7 +1269,7 @@
       "ingredient_name": "Vanilla extract",
       "purchase_id": 54,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 55.0,
       "last_updated": "2025-12-26T17:39:14.223301"
     },
     {
@@ -1292,7 +1292,7 @@
       "ingredient_name": "Cinnamon baking chips",
       "purchase_id": 55,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 5.49,
       "last_updated": "2025-12-26T17:39:14.225286"
     },
     {
@@ -1315,7 +1315,7 @@
       "ingredient_name": "Chocolate, kisses, dark",
       "purchase_id": 56,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 5.49,
       "last_updated": "2025-12-26T17:39:14.227320"
     },
     {
@@ -1338,7 +1338,7 @@
       "ingredient_name": "Chocolate chips, dark",
       "purchase_id": 57,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 5.49,
       "last_updated": "2025-12-26T17:39:14.229505"
     },
     {
@@ -1361,7 +1361,7 @@
       "ingredient_name": "Cocoa powder, natural",
       "purchase_id": 58,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 5.49,
       "last_updated": "2025-12-26T17:39:14.231646"
     },
     {
@@ -1384,7 +1384,7 @@
       "ingredient_name": "Graham cracker crumbs",
       "purchase_id": 59,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 5.49,
       "last_updated": "2025-12-26T17:39:14.233599"
     },
     {
@@ -1407,7 +1407,7 @@
       "ingredient_name": "Whiskey, Irish",
       "purchase_id": 60,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 5.49,
       "last_updated": "2025-12-26T17:39:14.235418"
     },
     {
@@ -1430,7 +1430,7 @@
       "ingredient_name": "Corn syrup, light",
       "purchase_id": 61,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 5.49,
       "last_updated": "2025-12-26T17:39:14.237300"
     },
     {
@@ -1453,7 +1453,7 @@
       "ingredient_name": "Corn syrup, dark",
       "purchase_id": 62,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 5.49,
       "last_updated": "2025-12-26T17:39:14.239170"
     },
     {
@@ -1476,7 +1476,7 @@
       "ingredient_name": "Butter, unsalted",
       "purchase_id": 63,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 5.99,
       "last_updated": "2025-12-26T17:39:14.241077"
     },
     {
@@ -1499,7 +1499,7 @@
       "ingredient_name": "Flour, all-purpose",
       "purchase_id": 64,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 7.49,
       "last_updated": "2025-12-26T17:39:14.243263"
     },
     {
@@ -1522,7 +1522,7 @@
       "ingredient_name": "White whole wheat flour",
       "purchase_id": 65,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 7.49,
       "last_updated": "2025-12-26T17:39:14.245365"
     },
     {
@@ -1545,7 +1545,7 @@
       "ingredient_name": "Flour, almond",
       "purchase_id": 66,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 7.49,
       "last_updated": "2025-12-26T17:39:14.247357"
     },
     {
@@ -1568,7 +1568,7 @@
       "ingredient_name": "Pastry flour",
       "purchase_id": 67,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 7.49,
       "last_updated": "2025-12-26T17:39:14.250041"
     },
     {
@@ -1591,7 +1591,7 @@
       "ingredient_name": "Bread flour",
       "purchase_id": 68,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 7.49,
       "last_updated": "2025-12-26T17:39:14.252070"
     },
     {
@@ -1614,7 +1614,7 @@
       "ingredient_name": "Cake flour",
       "purchase_id": 69,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 7.49,
       "last_updated": "2025-12-26T17:39:14.254200"
     },
     {
@@ -1637,7 +1637,7 @@
       "ingredient_name": "Self-rising flour",
       "purchase_id": 70,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 7.49,
       "last_updated": "2025-12-26T17:39:14.256086"
     },
     {
@@ -1660,7 +1660,7 @@
       "ingredient_name": "Cocoa powder, black",
       "purchase_id": 71,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 7.49,
       "last_updated": "2025-12-26T17:39:14.258032"
     },
     {
@@ -1683,7 +1683,7 @@
       "ingredient_name": "Gelatin powder",
       "purchase_id": 72,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 5.49,
       "last_updated": "2025-12-26T17:39:14.259989"
     },
     {
@@ -1706,7 +1706,7 @@
       "ingredient_name": "Rum",
       "purchase_id": 73,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 5.49,
       "last_updated": "2025-12-26T17:39:14.261995"
     },
     {
@@ -1729,7 +1729,7 @@
       "ingredient_name": "Cake flour",
       "purchase_id": 74,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 5.99,
       "last_updated": "2025-12-26T17:39:14.263975"
     },
     {
@@ -1742,9 +1742,9 @@
       "notes": "Initial inventory - full package",
       "lot_or_batch": null,
       "product_id": 75,
-      "product_slug": "golden_syrup:Lyle’s:16.0:oz",
+      "product_slug": "golden_syrup:Lyle\u2019s:16.0:oz",
       "product_name": "Golden Syrup",
-      "brand": "Lyle’s",
+      "brand": "Lyle\u2019s",
       "package_unit": "oz",
       "package_unit_quantity": 16.0,
       "ingredient_id": 149,
@@ -1752,7 +1752,7 @@
       "ingredient_name": "Golden syrup",
       "purchase_id": 75,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 5.49,
       "last_updated": "2025-12-26T17:39:14.265866"
     },
     {
@@ -1775,7 +1775,7 @@
       "ingredient_name": "Sea salt, flaky",
       "purchase_id": 76,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 5.49,
       "last_updated": "2025-12-26T17:39:14.267847"
     },
     {
@@ -1798,7 +1798,7 @@
       "ingredient_name": "Chocolate coating, milk chocolate",
       "purchase_id": 77,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 5.49,
       "last_updated": "2025-12-26T17:39:14.269857"
     },
     {
@@ -1821,7 +1821,7 @@
       "ingredient_name": "Almond extract",
       "purchase_id": 78,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 14.0,
       "last_updated": "2025-12-26T17:39:14.271828"
     },
     {
@@ -1844,7 +1844,7 @@
       "ingredient_name": "Orange extract",
       "purchase_id": 79,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 14.0,
       "last_updated": "2025-12-26T17:39:14.273700"
     },
     {
@@ -1867,7 +1867,7 @@
       "ingredient_name": "Lemon extract",
       "purchase_id": 80,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 14.0,
       "last_updated": "2025-12-26T17:39:14.275638"
     },
     {
@@ -1890,7 +1890,7 @@
       "ingredient_name": "Lemon extract",
       "purchase_id": 81,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 14.0,
       "last_updated": "2025-12-26T17:39:14.277694"
     },
     {
@@ -1913,7 +1913,7 @@
       "ingredient_name": "Cream of tartar",
       "purchase_id": 82,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 5.49,
       "last_updated": "2025-12-26T17:39:14.279585"
     },
     {
@@ -1936,7 +1936,7 @@
       "ingredient_name": "Extract, chocolate",
       "purchase_id": 83,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 14.0,
       "last_updated": "2025-12-26T17:39:14.281437"
     },
     {
@@ -1959,7 +1959,7 @@
       "ingredient_name": "Peppermint extract",
       "purchase_id": 84,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 14.0,
       "last_updated": "2025-12-26T17:39:14.283266"
     },
     {
@@ -1982,7 +1982,7 @@
       "ingredient_name": "Maple extract",
       "purchase_id": 85,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 14.0,
       "last_updated": "2025-12-26T17:39:14.285096"
     },
     {
@@ -2005,7 +2005,7 @@
       "ingredient_name": "Extract, mint",
       "purchase_id": 86,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 14.0,
       "last_updated": "2025-12-26T17:39:14.287272"
     },
     {
@@ -2028,7 +2028,7 @@
       "ingredient_name": "Extract, coconut",
       "purchase_id": 87,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 14.0,
       "last_updated": "2025-12-26T17:39:14.289215"
     },
     {
@@ -2051,7 +2051,7 @@
       "ingredient_name": "Rum extract",
       "purchase_id": 88,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 14.0,
       "last_updated": "2025-12-26T17:39:14.291083"
     },
     {
@@ -2074,7 +2074,7 @@
       "ingredient_name": "Extract, raspberry",
       "purchase_id": 89,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 14.0,
       "last_updated": "2025-12-26T17:39:14.293109"
     },
     {
@@ -2097,7 +2097,7 @@
       "ingredient_name": "Lard",
       "purchase_id": 90,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 5.49,
       "last_updated": "2025-12-26T17:39:14.294957"
     },
     {
@@ -2120,7 +2120,7 @@
       "ingredient_name": "Salt, fine",
       "purchase_id": 91,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 5.49,
       "last_updated": "2025-12-26T17:39:14.296813"
     },
     {
@@ -2143,7 +2143,7 @@
       "ingredient_name": "Salt, kosher",
       "purchase_id": 92,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 5.49,
       "last_updated": "2025-12-26T17:39:14.298843"
     },
     {
@@ -2157,7 +2157,7 @@
       "lot_or_batch": null,
       "product_id": 33,
       "product_slug": "chocolate_chips_semi_sweet:Nestle:10.0:oz",
-      "product_name": "NESTLÉ® TOLL HOUSE® Semi-Sweet Chocolate Morsels",
+      "product_name": "NESTL\u00c9\u00ae TOLL HOUSE\u00ae Semi-Sweet Chocolate Morsels",
       "brand": "Nestle",
       "package_unit": "oz",
       "package_unit_quantity": 10.0,
@@ -2166,7 +2166,7 @@
       "ingredient_name": "Chocolate chips, semi-sweet",
       "purchase_id": 93,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 5.49,
       "last_updated": "2025-12-26T17:39:14.300787"
     },
     {
@@ -2180,7 +2180,7 @@
       "lot_or_batch": null,
       "product_id": 32,
       "product_slug": "chocolate_chips_milk:Nestle:11.5:oz",
-      "product_name": "NESTLÉ® TOLL HOUSE® Milk Chocolate Morsels",
+      "product_name": "NESTL\u00c9\u00ae TOLL HOUSE\u00ae Milk Chocolate Morsels",
       "brand": "Nestle",
       "package_unit": "oz",
       "package_unit_quantity": 11.5,
@@ -2189,7 +2189,7 @@
       "ingredient_name": "Chocolate chips, milk",
       "purchase_id": 94,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 5.49,
       "last_updated": "2025-12-26T17:39:14.302660"
     },
     {
@@ -2203,7 +2203,7 @@
       "lot_or_batch": null,
       "product_id": 17,
       "product_slug": "butterscotch_chips:Nestle:11.0:oz",
-      "product_name": "NESTLÉ® TOLL HOUSE® Butterscotch Artificially Flavored Morsels",
+      "product_name": "NESTL\u00c9\u00ae TOLL HOUSE\u00ae Butterscotch Artificially Flavored Morsels",
       "brand": "Nestle",
       "package_unit": "oz",
       "package_unit_quantity": 11.0,
@@ -2212,7 +2212,7 @@
       "ingredient_name": "Butterscotch chips",
       "purchase_id": 95,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 5.99,
       "last_updated": "2025-12-26T17:39:14.305166"
     },
     {
@@ -2235,7 +2235,7 @@
       "ingredient_name": "Chocolate chips, bittersweet",
       "purchase_id": 96,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 5.49,
       "last_updated": "2025-12-26T17:39:14.307521"
     },
     {
@@ -2249,7 +2249,7 @@
       "lot_or_batch": null,
       "product_id": 35,
       "product_slug": "chocolate_chips_semi_sweet_allergen_free:Nestle:10.0:oz",
-      "product_name": "NESTLÉ® TOLL HOUSE® Organic Allergen Free Semi-Sweet Morsels",
+      "product_name": "NESTL\u00c9\u00ae TOLL HOUSE\u00ae Organic Allergen Free Semi-Sweet Morsels",
       "brand": "Nestle",
       "package_unit": "oz",
       "package_unit_quantity": 10.0,
@@ -2258,7 +2258,7 @@
       "ingredient_name": "Chocolate chips, semi-sweet, allergen-free",
       "purchase_id": 97,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 5.49,
       "last_updated": "2025-12-26T17:39:14.309634"
     },
     {
@@ -2281,7 +2281,7 @@
       "ingredient_name": "Mini chocolate chips, semi-sweet",
       "purchase_id": 98,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 5.49,
       "last_updated": "2025-12-26T17:39:14.311710"
     },
     {
@@ -2295,7 +2295,7 @@
       "lot_or_batch": null,
       "product_id": 37,
       "product_slug": "chocolate_chips_white:Nestle:12.0:oz",
-      "product_name": "NESTLÉ® TOLL HOUSE® Premier White Morsels",
+      "product_name": "NESTL\u00c9\u00ae TOLL HOUSE\u00ae Premier White Morsels",
       "brand": "Nestle",
       "package_unit": "oz",
       "package_unit_quantity": 12.0,
@@ -2304,7 +2304,7 @@
       "ingredient_name": "Chocolate chips, white",
       "purchase_id": 99,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 5.49,
       "last_updated": "2025-12-26T17:39:14.313595"
     },
     {
@@ -2327,7 +2327,7 @@
       "ingredient_name": "Chocolate chips, espresso",
       "purchase_id": 100,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 5.49,
       "last_updated": "2025-12-26T17:39:14.315490"
     },
     {
@@ -2350,7 +2350,7 @@
       "ingredient_name": "Hazelnut cocoa spread",
       "purchase_id": 101,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 18.99,
       "last_updated": "2025-12-26T17:39:14.317162"
     },
     {
@@ -2373,7 +2373,7 @@
       "ingredient_name": "Cranberries, dried",
       "purchase_id": 102,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 5.49,
       "last_updated": "2025-12-26T17:39:14.318666"
     },
     {
@@ -2396,7 +2396,7 @@
       "ingredient_name": "Cocoa powder, natural",
       "purchase_id": 103,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 14.5,
       "last_updated": "2025-12-26T17:39:14.320224"
     },
     {
@@ -2419,7 +2419,7 @@
       "ingredient_name": "Cocoa powder, dutch-processed",
       "purchase_id": 104,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 14.5,
       "last_updated": "2025-12-26T17:39:14.322474"
     },
     {
@@ -2442,7 +2442,7 @@
       "ingredient_name": "Orange extract",
       "purchase_id": 105,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 14.5,
       "last_updated": "2025-12-26T17:39:14.324278"
     },
     {
@@ -2465,7 +2465,7 @@
       "ingredient_name": "Almond extract",
       "purchase_id": 106,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 14.5,
       "last_updated": "2025-12-26T17:39:14.326043"
     },
     {
@@ -2488,7 +2488,7 @@
       "ingredient_name": "Extract, vanilla, Mexican",
       "purchase_id": 107,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 14.5,
       "last_updated": "2025-12-26T17:39:14.327784"
     },
     {
@@ -2511,7 +2511,7 @@
       "ingredient_name": "Vanilla bean",
       "purchase_id": 108,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 14.5,
       "last_updated": "2025-12-26T17:39:14.329607"
     },
     {
@@ -2534,7 +2534,7 @@
       "ingredient_name": "Vanilla bean",
       "purchase_id": 109,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 14.5,
       "last_updated": "2025-12-26T17:39:14.331722"
     },
     {
@@ -2557,7 +2557,7 @@
       "ingredient_name": "Cinnamon, ground",
       "purchase_id": 110,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 14.5,
       "last_updated": "2025-12-26T17:39:14.333471"
     },
     {
@@ -2580,7 +2580,7 @@
       "ingredient_name": "Allspice, ground",
       "purchase_id": 111,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 14.5,
       "last_updated": "2025-12-26T17:39:14.335407"
     },
     {
@@ -2603,7 +2603,7 @@
       "ingredient_name": "Ginger, ground",
       "purchase_id": 112,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 14.5,
       "last_updated": "2025-12-26T17:39:14.337246"
     },
     {
@@ -2626,7 +2626,7 @@
       "ingredient_name": "Ginger, ground",
       "purchase_id": 113,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 14.5,
       "last_updated": "2025-12-26T17:39:14.339124"
     },
     {
@@ -2649,7 +2649,7 @@
       "ingredient_name": "Nutmeg, ground, East Indian",
       "purchase_id": 114,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 14.5,
       "last_updated": "2025-12-26T17:39:14.340871"
     },
     {
@@ -2672,7 +2672,7 @@
       "ingredient_name": "Nutmeg, ground, West Indian",
       "purchase_id": 115,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 14.5,
       "last_updated": "2025-12-26T17:39:14.342638"
     },
     {
@@ -2695,7 +2695,7 @@
       "ingredient_name": "Spice blend, Chinese five spice",
       "purchase_id": 116,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 14.5,
       "last_updated": "2025-12-26T17:39:14.344380"
     },
     {
@@ -2718,7 +2718,7 @@
       "ingredient_name": "Allspice, whole",
       "purchase_id": 117,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 14.5,
       "last_updated": "2025-12-26T17:39:14.346039"
     },
     {
@@ -2741,7 +2741,7 @@
       "ingredient_name": "Mace, ground",
       "purchase_id": 118,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 14.5,
       "last_updated": "2025-12-26T17:39:14.347756"
     },
     {
@@ -2764,7 +2764,7 @@
       "ingredient_name": "Cloves, whole",
       "purchase_id": 119,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 14.5,
       "last_updated": "2025-12-26T17:39:14.349495"
     },
     {
@@ -2787,7 +2787,7 @@
       "ingredient_name": "Cardamom, ground",
       "purchase_id": 120,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 14.5,
       "last_updated": "2025-12-26T17:39:14.351196"
     },
     {
@@ -2810,7 +2810,7 @@
       "ingredient_name": "Sesame seeds",
       "purchase_id": 121,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 14.5,
       "last_updated": "2025-12-26T17:39:14.354198"
     },
     {
@@ -2833,7 +2833,7 @@
       "ingredient_name": "Sesame seeds",
       "purchase_id": 122,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 14.5,
       "last_updated": "2025-12-26T17:39:14.356040"
     },
     {
@@ -2856,7 +2856,7 @@
       "ingredient_name": "Lavender, culinary",
       "purchase_id": 123,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 14.5,
       "last_updated": "2025-12-26T17:39:14.357791"
     },
     {
@@ -2879,7 +2879,7 @@
       "ingredient_name": "Poppy seeds",
       "purchase_id": 124,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 14.5,
       "last_updated": "2025-12-26T17:39:14.359546"
     },
     {
@@ -2902,7 +2902,7 @@
       "ingredient_name": "Cream of tartar",
       "purchase_id": 125,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 14.5,
       "last_updated": "2025-12-26T17:39:14.361210"
     },
     {
@@ -2925,7 +2925,7 @@
       "ingredient_name": "Spice blend, mulling spices",
       "purchase_id": 126,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 14.5,
       "last_updated": "2025-12-26T17:39:14.362890"
     },
     {
@@ -2948,7 +2948,7 @@
       "ingredient_name": "Vanilla sugar",
       "purchase_id": 127,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 14.5,
       "last_updated": "2025-12-26T17:39:14.364750"
     },
     {
@@ -2971,7 +2971,7 @@
       "ingredient_name": "Cinnamon sticks",
       "purchase_id": 128,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 14.5,
       "last_updated": "2025-12-26T17:39:14.366517"
     },
     {
@@ -2994,7 +2994,7 @@
       "ingredient_name": "Cinnamon sticks",
       "purchase_id": 129,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 14.5,
       "last_updated": "2025-12-26T17:39:14.368463"
     },
     {
@@ -3017,7 +3017,7 @@
       "ingredient_name": "Nutmeg, whole",
       "purchase_id": 130,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 14.5,
       "last_updated": "2025-12-26T17:39:14.370268"
     },
     {
@@ -3040,7 +3040,7 @@
       "ingredient_name": "Pepper, black ground",
       "purchase_id": 131,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 14.5,
       "last_updated": "2025-12-26T17:39:14.372174"
     },
     {
@@ -3054,7 +3054,7 @@
       "lot_or_batch": null,
       "product_id": 100,
       "product_slug": "oats_rolled:Quaker:18.0:oz",
-      "product_name": "Quaker® Oats Old Fashioned",
+      "product_name": "Quaker\u00ae Oats Old Fashioned",
       "brand": "Quaker",
       "package_unit": "oz",
       "package_unit_quantity": 18.0,
@@ -3063,7 +3063,7 @@
       "ingredient_name": "Oats, rolled",
       "purchase_id": 132,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 5.49,
       "last_updated": "2025-12-26T17:39:14.373929"
     },
     {
@@ -3086,7 +3086,7 @@
       "ingredient_name": "Baking powder",
       "purchase_id": 133,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 5.49,
       "last_updated": "2025-12-26T17:39:14.375788"
     },
     {
@@ -3109,7 +3109,7 @@
       "ingredient_name": "Turbinado sugar",
       "purchase_id": 134,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 4.5,
       "last_updated": "2025-12-26T17:39:14.377551"
     },
     {
@@ -3132,7 +3132,7 @@
       "ingredient_name": "Raisins",
       "purchase_id": 135,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 5.49,
       "last_updated": "2025-12-26T17:39:14.379365"
     },
     {
@@ -3155,7 +3155,7 @@
       "ingredient_name": "Currants, dried",
       "purchase_id": 136,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 5.49,
       "last_updated": "2025-12-26T17:39:14.381378"
     },
     {
@@ -3178,7 +3178,7 @@
       "ingredient_name": "Toblerone chocolate",
       "purchase_id": 137,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 5.49,
       "last_updated": "2025-12-26T17:39:14.383218"
     },
     {
@@ -3201,7 +3201,7 @@
       "ingredient_name": "Pistachios",
       "purchase_id": 138,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 5.49,
       "last_updated": "2025-12-26T17:39:14.384905"
     },
     {
@@ -3224,7 +3224,7 @@
       "ingredient_name": "Hazelnuts",
       "purchase_id": 139,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 18.99,
       "last_updated": "2025-12-26T17:39:14.386618"
     },
     {
@@ -3247,7 +3247,7 @@
       "ingredient_name": "Macadamia nuts",
       "purchase_id": 140,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 18.99,
       "last_updated": "2025-12-26T17:39:14.388375"
     },
     {
@@ -3270,7 +3270,7 @@
       "ingredient_name": "Pine nuts",
       "purchase_id": 141,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 18.99,
       "last_updated": "2025-12-26T17:39:14.390084"
     },
     {
@@ -3293,7 +3293,7 @@
       "ingredient_name": "Cashews",
       "purchase_id": 142,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 5.49,
       "last_updated": "2025-12-26T17:39:14.391763"
     },
     {
@@ -3316,7 +3316,7 @@
       "ingredient_name": "Sweetener, stevia",
       "purchase_id": 143,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 5.49,
       "last_updated": "2025-12-26T17:39:14.393521"
     },
     {
@@ -3339,7 +3339,7 @@
       "ingredient_name": "Sugar, powdered",
       "purchase_id": 144,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 4.5,
       "last_updated": "2025-12-26T17:39:14.395090"
     },
     {
@@ -3362,7 +3362,7 @@
       "ingredient_name": "Oil, canola",
       "purchase_id": 145,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 28.0,
       "last_updated": "2025-12-26T17:39:14.396598"
     },
     {
@@ -3385,7 +3385,7 @@
       "ingredient_name": "Bread flour",
       "purchase_id": 146,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 5.99,
       "last_updated": "2025-12-26T17:39:14.398534"
     },
     {
@@ -3408,7 +3408,7 @@
       "ingredient_name": "Cake flour",
       "purchase_id": 147,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 5.99,
       "last_updated": "2025-12-26T17:39:14.400275"
     },
     {
@@ -3431,7 +3431,7 @@
       "ingredient_name": "Self-rising flour",
       "purchase_id": 148,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 5.99,
       "last_updated": "2025-12-26T17:39:14.402112"
     },
     {
@@ -3454,7 +3454,7 @@
       "ingredient_name": "Coconut, shredded sweetened",
       "purchase_id": 149,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 18.99,
       "last_updated": "2025-12-26T17:39:14.403946"
     },
     {
@@ -3477,7 +3477,7 @@
       "ingredient_name": "Honey",
       "purchase_id": 150,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 5.49,
       "last_updated": "2025-12-26T17:39:14.405668"
     },
     {
@@ -3500,7 +3500,7 @@
       "ingredient_name": "Maple syrup",
       "purchase_id": 151,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 5.49,
       "last_updated": "2025-12-26T17:39:14.407322"
     },
     {
@@ -3523,7 +3523,7 @@
       "ingredient_name": "Cornstarch",
       "purchase_id": 152,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 2.25,
       "last_updated": "2025-12-26T17:39:14.409199"
     },
     {
@@ -3546,7 +3546,7 @@
       "ingredient_name": "Sugar, brown light",
       "purchase_id": 153,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 4.5,
       "last_updated": "2025-12-26T17:39:14.410962"
     },
     {
@@ -3559,9 +3559,9 @@
       "notes": "Initial inventory - full package",
       "lot_or_batch": null,
       "product_id": 114,
-      "product_slug": "raisins:Wegman’s:3.0:lb",
+      "product_slug": "raisins:Wegman\u2019s:3.0:lb",
       "product_name": "Seedless Raisins",
-      "brand": "Wegman’s",
+      "brand": "Wegman\u2019s",
       "package_unit": "lb",
       "package_unit_quantity": 3.0,
       "ingredient_id": 270,
@@ -3569,7 +3569,7 @@
       "ingredient_name": "Raisins",
       "purchase_id": 154,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 5.49,
       "last_updated": "2025-12-26T17:39:14.412702"
     },
     {
@@ -3592,7 +3592,7 @@
       "ingredient_name": "Cocoa powder, black",
       "purchase_id": 155,
       "purchase_date": "2025-12-21",
-      "unit_cost": null,
+      "unit_cost": 5.49,
       "last_updated": "2025-12-26T17:39:14.414180"
     },
     {
@@ -3615,7 +3615,7 @@
       "ingredient_name": "Oil, spray",
       "purchase_id": 156,
       "purchase_date": "2025-12-27",
-      "unit_cost": 3.99,
+      "unit_cost": "3.99",
       "last_updated": "2025-12-27T23:23:50"
     }
   ]
