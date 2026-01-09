@@ -81,10 +81,12 @@
 - ✅ Stats display inline in header only via `_format_inline_stats()`
 - ✅ Data grids now expand to fill available vertical space (20+ rows visible)
 - ✅ Removed redundant "Production Runs"/"Assembly Runs" nested tabview in MAKE mode
+- ✅ Inventory tab: separate L0/L1/L2 columns (already implemented)
+- ✅ Ingredients tab: hierarchy names now display in correct columns by level
+- ✅ Cascading filters match Product Catalog pattern
 
-**Remaining F042 Issues** (from 2026-01-07 user testing):
-- Ingredient hierarchy concatenated in Inventory tab (need separate L0/L1/L2 columns)
-- Subcategory filters "very odd implementation" (should match Product Catalog pattern)
+**Deferred to Tech Debt** (TD-007):
+- Ingredient edit form hierarchy level safeguards (low priority)
 
 **F042 Scope**: Layout fixes, header compaction, filter consistency, mode renames (Shop→Purchase, Produce→Make)
 
@@ -250,4 +252,5 @@
   - Headers compacted from 13-17 lines to 1-2 lines
   - Data grids now expand properly (20+ rows visible)
   - Removed redundant nested tabview in MAKE Production Dashboard
-  - Remaining F042 issues: hierarchy columns, filter consistency
+  - Fixed ingredients tab hierarchy display (names in correct columns by level)
+  - Logged TD-007 for ingredient edit form safeguards (deferred)
