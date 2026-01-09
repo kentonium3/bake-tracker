@@ -1,0 +1,14 @@
+{
+  "accept_commit": null,
+  "acceptance_history": [],
+  "acceptance_mode": "local",
+  "accepted_at": null,
+  "accepted_by": null,
+  "accepted_from_commit": null,
+  "created_at": "2026-01-09T00:00:00Z",
+  "feature_number": "045",
+  "friendly_name": "Cost Architecture Refactor",
+  "mission": "software-dev",
+  "slug": "045-cost-architecture-refactor",
+  "source_description": "See docs/design/F045_cost_architecture_refactor.md for the feature spec inputs."
+}
