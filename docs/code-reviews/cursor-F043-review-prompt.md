@@ -1,4 +1,4 @@
-# Cursor Code Review Prompt - Feature 042: Purchases Tab CRUD Operations
+# Cursor Code Review Prompt - Feature 043: Purchases Tab CRUD Operations
 
 ## Your Role
 
@@ -6,7 +6,7 @@ You are a senior software engineer performing an independent code review. Approa
 
 ## Feature Context
 
-**Feature:** 042 - Purchases Tab CRUD Operations
+**Feature:** 043 - Purchases Tab CRUD Operations
 **User Goal:** Manage purchase history with full CRUD operations - view, filter, add, edit, and delete purchases with FIFO inventory tracking and validation
 **Spec File:** `kitty-specs/042-purchases-tab-crud-operations/spec.md`
 
@@ -35,6 +35,7 @@ These are the primary changes, but review should extend to any related code, dep
 kitty-specs/042-purchases-tab-crud-operations/spec.md
 kitty-specs/042-purchases-tab-crud-operations/data-model.md
 kitty-specs/042-purchases-tab-crud-operations/plan.md
+docs/design/F043_purchases_tab_implementation.md
 ```
 
 ## Verification Commands
@@ -80,7 +81,7 @@ PYTHONPATH=. python3 -m pytest src/tests -v --tb=short 2>&1 | tail -30
 2. **Form expectations** about how this SHOULD work before reading code
 3. **Run verification commands** - stop if failures
 4. **Review implementation** comparing against your expectations
-5. **Write report** to `docs/code-reviews/cursor-F042-review.md`
+5. **Write report** to `docs/code-reviews/cursor-F043-review.md`
 
 ## Key Review Areas
 
@@ -95,7 +96,7 @@ PYTHONPATH=. python3 -m pytest src/tests -v --tb=short 2>&1 | tail -30
 
 Use the template at: `/Users/kentgale/Vaults-repos/bake-tracker/docs/code-reviews/TEMPLATE_code_review_report.md`
 
-Write your report to: `/Users/kentgale/Vaults-repos/bake-tracker/docs/code-reviews/cursor-F042-review.md`
+Write your report to: `/Users/kentgale/Vaults-repos/bake-tracker/docs/code-reviews/cursor-F043-review.md`
 
 **Important**: Write to `docs/code-reviews/` directory in the main repo, NOT in the worktree.
 

@@ -12,7 +12,7 @@ Example: For F040, write to `cursor-F040-review-prompt.md`
 
 **Feature Information:**
 - Feature number, title, and high-level user goal
-- Path to spec file(s) defining requirements
+- Full path to spec file(s) defining requirements
 
 **Code Changes:**
 - List of files modified (full paths)
