@@ -1,0 +1,25 @@
+{
+  "accept_commit": null,
+  "acceptance_history": [
+    {
+      "accepted_at": "2026-01-09T19:51:24Z",
+      "accepted_by": "claude",
+      "accepted_from_commit": "bc7f963916934802785067b4581cd86362b9f545",
+      "branch": "044-finished-units-yield-type-management",
+      "mode": "local",
+      "validation_commands": [
+        "python3 -m pytest src/tests -v --tb=short"
+      ]
+    }
+  ],
+  "acceptance_mode": "local",
+  "accepted_at": "2026-01-09T19:51:24Z",
+  "accepted_by": "claude",
+  "accepted_from_commit": "bc7f963916934802785067b4581cd86362b9f545",
+  "created_at": "2026-01-09T00:00:00Z",
+  "feature_number": "044",
+  "friendly_name": "Finished Units Yield Type Management",
+  "mission": "software-dev",
+  "slug": "044-finished-units-yield-type-management",
+  "source_description": "See docs/design/F044_finished_units_functionality_ui.md for the feature spec inputs."
+}

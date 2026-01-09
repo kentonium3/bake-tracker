@@ -1,8 +1,9 @@
 """
 Finished Units tab for the Seasonal Baking Tracker.
 
-Provides full CRUD interface for managing individual consumable items (finished units)
-with cost calculations and batch planning.
+Provides read-only catalog interface for viewing finished units (yield types).
+Yield types are managed through Recipe Edit, not directly in this tab.
+Double-click navigates to parent recipe for editing.
 """
 
 import customtkinter as ctk
@@ -41,22 +42,9 @@ from src.utils.constants import (
 from src.ui.widgets.search_bar import SearchBar
 from src.ui.widgets.data_table import FinishedGoodDataTable as FinishedUnitDataTable
 from src.ui.widgets.dialogs import (
-    show_confirmation,
     show_error,
-    show_success,
-    show_info,
 )
 
-# Conditional import for form dialog
-try:
-    from src.ui.forms.finished_unit_form import FinishedUnitFormDialog
-
-    HAS_FINISHED_UNIT_FORM = True
-except ImportError:
-    # Fall back to FinishedGood form until FinishedUnit form is implemented
-    from src.ui.forms.finished_good_form import FinishedGoodFormDialog as FinishedUnitFormDialog
-
-    HAS_FINISHED_UNIT_FORM = False
 from src.ui.service_integration import get_ui_service_integrator, OperationType
 
 
@@ -75,11 +63,7 @@ class StatusMessages:
 
     READY = "Ready"
     SEARCH_FAILED = "Search failed"
-    FAILED_TO_ADD = "Failed to add finished unit"
-    FAILED_TO_UPDATE = "Failed to update finished unit"
-    FAILED_TO_DELETE = "Failed to delete finished unit"
     FAILED_TO_LOAD = "Failed to load finished units"
-    DELETED_SUCCESS = "Finished unit deleted"
     SELECTION_STALE = "Selected item no longer exists"
 
     @staticmethod
@@ -91,29 +75,21 @@ class StatusMessages:
         return f"Selected: {name}"
 
     @staticmethod
-    def added_unit(name: str) -> str:
-        return f"Added: {name}"
-
-    @staticmethod
-    def updated_unit(name: str) -> str:
-        return f"Updated: {name}"
-
-    @staticmethod
     def loaded_units(count: int) -> str:
         return f"Loaded {count} finished unit(s)"
 
 
 class FinishedUnitsTab(ctk.CTkFrame):
     """
-    Finished Units management tab with full CRUD capabilities.
+    Finished Units read-only catalog tab.
 
     Provides interface for:
     - Viewing all finished units (individual consumable items) in a searchable table
-    - Adding new finished units
-    - Editing existing finished units
-    - Deleting finished units
     - Viewing finished unit details and costs
-    - Filtering by category
+    - Filtering by category or parent recipe
+    - Double-click navigation to edit the parent recipe
+
+    Note: Yield types are managed through Recipe Edit, not directly in this tab.
     """
 
     def __init__(self, parent):
@@ -128,6 +104,7 @@ class FinishedUnitsTab(ctk.CTkFrame):
         self.selected_finished_unit: Optional[FinishedUnit] = None
         self.service_integrator = get_ui_service_integrator()
         self.recipe_categories = self._load_recipe_categories()
+        self.recipe_list = self._load_recipes()  # For recipe filter dropdown
 
         # Configure grid
         self.grid_columnconfigure(0, weight=1)
@@ -186,53 +163,91 @@ class FinishedUnitsTab(ctk.CTkFrame):
         except Exception:
             return []
 
+    def _load_recipes(self) -> list:
+        """Load recipes from database for filter dropdown."""
+        try:
+            with session_scope() as session:
+                recipes = session.query(Recipe.id, Recipe.name).order_by(Recipe.name).all()
+                return [(r.id, r.name) for r in recipes]
+        except Exception:
+            return []
+
     def _create_search_bar(self):
-        """Create the search bar with category filter."""
+        """Create the search bar with category and recipe filters."""
+        # Main search container
+        search_container = ctk.CTkFrame(self, fg_color="transparent")
+        search_container.grid(
+            row=0, column=0, sticky="ew", padx=PADDING_LARGE, pady=(PADDING_LARGE, PADDING_MEDIUM)
+        )
+        search_container.grid_columnconfigure(0, weight=1)
+
+        # Search bar with category filter
         self.search_bar = SearchBar(
-            self,
+            search_container,
             search_callback=self._on_search,
             categories=["All Categories"] + self.recipe_categories,
             placeholder="Search by finished unit name...",
         )
-        self.search_bar.grid(
-            row=0, column=0, sticky="ew", padx=PADDING_LARGE, pady=(PADDING_LARGE, PADDING_MEDIUM)
+        self.search_bar.grid(row=0, column=0, sticky="ew")
+
+        # Recipe filter frame
+        recipe_filter_frame = ctk.CTkFrame(search_container, fg_color="transparent")
+        recipe_filter_frame.grid(row=1, column=0, sticky="w", pady=(PADDING_MEDIUM, 0))
+
+        recipe_filter_label = ctk.CTkLabel(recipe_filter_frame, text="Filter by Recipe:")
+        recipe_filter_label.grid(row=0, column=0, padx=(0, PADDING_MEDIUM))
+
+        # Build recipe filter options
+        recipe_options = ["All Recipes"] + [name for _, name in self.recipe_list]
+        self.recipe_filter_var = ctk.StringVar(value="All Recipes")
+        self.recipe_filter_dropdown = ctk.CTkOptionMenu(
+            recipe_filter_frame,
+            values=recipe_options,
+            variable=self.recipe_filter_var,
+            command=self._on_recipe_filter_change,
+            width=200,
         )
+        self.recipe_filter_dropdown.grid(row=0, column=1)
+
+    def _on_recipe_filter_change(self, selected_recipe_name: str):
+        """Handle recipe filter dropdown change."""
+        self._apply_filters()
+
+    def _apply_filters(self):
+        """Apply all current filters (search, category, recipe)."""
+        # Get current search text and category from search bar
+        search_text = self.search_bar.get_search_text() if hasattr(self.search_bar, 'get_search_text') else ""
+        category = self.search_bar.get_category() if hasattr(self.search_bar, 'get_category') else None
+
+        # Get recipe filter
+        recipe_name = self.recipe_filter_var.get()
+        recipe_id = None
+        if recipe_name != "All Recipes":
+            # Find recipe ID by name
+            for rid, rname in self.recipe_list:
+                if rname == recipe_name:
+                    recipe_id = rid
+                    break
+
+        # Trigger search with all filters
+        self._on_search(search_text, category, recipe_id=recipe_id)
 
     def _create_action_buttons(self):
-        """Create action buttons for CRUD operations."""
+        """Create action buttons (read-only mode - no Add/Edit/Delete)."""
         button_frame = ctk.CTkFrame(self, fg_color="transparent")
         button_frame.grid(row=1, column=0, sticky="ew", padx=PADDING_LARGE, pady=PADDING_MEDIUM)
 
-        # Add button
-        add_button = ctk.CTkButton(
+        # Info label explaining where to manage yield types
+        info_label = ctk.CTkLabel(
             button_frame,
-            text="+ Add Finished Unit",
-            command=self._add_finished_unit,
-            width=ButtonWidths.ADD_BUTTON,
+            text="Yield types are managed in Recipe Edit. Double-click to open recipe.",
+            text_color="gray50",
+            font=ctk.CTkFont(size=12, slant="italic"),
         )
-        add_button.grid(row=0, column=0, padx=PADDING_MEDIUM)
+        info_label.grid(row=0, column=0, padx=PADDING_MEDIUM, sticky="w")
 
-        # Edit button
-        self.edit_button = ctk.CTkButton(
-            button_frame,
-            text="Edit",
-            command=self._edit_finished_unit,
-            width=ButtonWidths.STANDARD_BUTTON,
-            state="disabled",
-        )
-        self.edit_button.grid(row=0, column=1, padx=PADDING_MEDIUM)
-
-        # Delete button
-        self.delete_button = ctk.CTkButton(
-            button_frame,
-            text="Delete",
-            command=self._delete_finished_unit,
-            width=ButtonWidths.STANDARD_BUTTON,
-            state="disabled",
-            fg_color="darkred",
-            hover_color="red",
-        )
-        self.delete_button.grid(row=0, column=2, padx=PADDING_MEDIUM)
+        # Spacer to push buttons to the right
+        button_frame.grid_columnconfigure(1, weight=1)
 
         # View Details button
         self.details_button = ctk.CTkButton(
@@ -242,7 +257,7 @@ class FinishedUnitsTab(ctk.CTkFrame):
             width=ButtonWidths.DETAILS_BUTTON,
             state="disabled",
         )
-        self.details_button.grid(row=0, column=3, padx=PADDING_MEDIUM)
+        self.details_button.grid(row=0, column=2, padx=PADDING_MEDIUM)
 
         # Refresh button
         refresh_button = ctk.CTkButton(
@@ -251,7 +266,7 @@ class FinishedUnitsTab(ctk.CTkFrame):
             command=self.refresh,
             width=ButtonWidths.STANDARD_BUTTON,
         )
-        refresh_button.grid(row=0, column=4, padx=PADDING_MEDIUM)
+        refresh_button.grid(row=0, column=3, padx=PADDING_MEDIUM)
 
     def _create_data_table(self):
         """Create the data table for displaying finished goods."""
@@ -279,13 +294,14 @@ class FinishedUnitsTab(ctk.CTkFrame):
         )
         self.status_label.grid(row=0, column=0, sticky="w", padx=PADDING_MEDIUM, pady=5)
 
-    def _on_search(self, search_text: str, category: Optional[str] = None) -> None:
+    def _on_search(self, search_text: str, category: Optional[str] = None, recipe_id: Optional[int] = None) -> None:
         """
         Handle search and filter.
 
         Args:
             search_text: Search query
             category: Selected category filter
+            recipe_id: Selected recipe filter (None for all recipes)
         """
         # Determine category filter
         category_filter = None
@@ -298,7 +314,9 @@ class FinishedUnitsTab(ctk.CTkFrame):
                 operation_name="Search Finished Units",
                 operation_type=OperationType.SEARCH,
                 service_function=lambda: finished_unit_service.get_all_finished_units(
-                    name_search=search_text if search_text else None, category=category_filter
+                    name_search=search_text if search_text else None,
+                    category=category_filter,
+                    recipe_id=recipe_id,
                 ),
                 parent_widget=self,
                 error_context="Searching finished units",
@@ -322,10 +340,8 @@ class FinishedUnitsTab(ctk.CTkFrame):
         """
         self.selected_finished_unit = finished_unit
 
-        # Enable/disable action buttons
+        # Enable/disable action buttons (read-only mode - only details button)
         has_selection = finished_unit is not None
-        self.edit_button.configure(state="normal" if has_selection else "disabled")
-        self.delete_button.configure(state="normal" if has_selection else "disabled")
         self.details_button.configure(state="normal" if has_selection else "disabled")
 
         if finished_unit:
@@ -335,142 +351,137 @@ class FinishedUnitsTab(ctk.CTkFrame):
 
     def _on_row_double_click(self, finished_unit: FinishedUnit) -> None:
         """
-        Handle row double-click (view details).
+        Handle row double-click (opens parent recipe for editing).
 
         Args:
-            finished_unit: Double-clicked finished good
+            finished_unit: Double-clicked finished unit
         """
         self.selected_finished_unit = finished_unit
-        self._view_details()
 
-    def _add_finished_unit(self):
-        """Show dialog to add a new finished unit."""
-        dialog = FinishedUnitFormDialog(self, title="Add New Finished Unit")
-        self.wait_window(dialog)
-        result = dialog.get_result()
+        # Open the parent recipe for editing
+        if finished_unit.recipe_id:
+            self._open_recipe_edit(finished_unit.recipe_id)
+        else:
+            show_error(
+                "No Recipe",
+                "This finished unit does not have an associated recipe.",
+                parent=self
+            )
 
-        if result:
-            # Validate required fields before service call
-            if not self._validate_finished_unit_data(result, "create"):
+    def _open_recipe_edit(self, recipe_id: int):
+        """
+        Open the Recipe Edit dialog for the parent recipe and persist changes.
+
+        Args:
+            recipe_id: ID of the recipe to edit
+        """
+        from src.services import recipe_service
+        from src.services import finished_unit_service
+        from src.ui.forms.recipe_form import RecipeFormDialog
+        from src.ui.widgets.dialogs import show_success
+
+        try:
+            recipe = recipe_service.get_recipe_by_id(recipe_id)
+            if not recipe:
+                show_error(
+                    "Recipe Not Found",
+                    "The parent recipe could not be found.",
+                    parent=self
+                )
                 return
 
-            # Use service integrator for consistent error handling and logging
-            try:
-                new_unit = self.service_integrator.execute_service_operation(
-                    operation_name="Create Finished Unit",
-                    operation_type=OperationType.CREATE,
-                    service_function=lambda: finished_unit_service.create_finished_unit(result),
-                    parent_widget=self,
-                    success_message=f"Finished unit '{result.get('display_name', 'New Unit')}' added successfully",
-                    error_context="Creating finished unit",
-                    show_success_dialog=True,
-                )
+            dialog = RecipeFormDialog(self, recipe=recipe, title=f"Edit Recipe: {recipe.name}")
+            self.wait_window(dialog)
+            result = dialog.result
 
+            if result:
+                # Persist changes (F044 fix: actually save the recipe and yield types)
+                try:
+                    # Extract ingredients and yield types from result
+                    ingredients = result.pop("ingredients", [])
+                    result.pop("pending_components", [])  # Not used for edits
+                    yield_types = result.pop("yield_types", [])
+
+                    # Map prep_time to estimated_time_minutes
+                    if "prep_time" in result:
+                        result["estimated_time_minutes"] = result.pop("prep_time")
+
+                    # Update recipe
+                    updated_recipe = recipe_service.update_recipe(
+                        recipe_id,
+                        result,
+                        ingredients,
+                    )
+
+                    # Save yield types
+                    self._save_yield_types_from_catalog(recipe_id, yield_types)
+
+                    show_success(
+                        "Success",
+                        f"Recipe '{updated_recipe.name}' updated successfully",
+                        parent=self,
+                    )
+                except Exception as e:
+                    logging.exception(f"Failed to save recipe changes: {e}")
+                    show_error(
+                        "Error",
+                        f"Failed to save recipe changes: {str(e)}",
+                        parent=self
+                    )
+
+                # Refresh the finished units list since recipe may have changed
                 self.refresh()
-                self._update_status(StatusMessages.added_unit(new_unit.display_name), success=True)
-
-            except Exception as e:
-                # Error already handled by service integrator
-                logging.exception(
-                    "Add finished unit operation failed after service integrator handling"
-                )
-                self._update_status(StatusMessages.FAILED_TO_ADD, error=True)
-
-    def _edit_finished_unit(self):
-        """Show dialog to edit the selected finished unit."""
-        if not self._validate_selected_unit():
-            return
-
-        # Load finished unit for editing with service integration
-        try:
-            unit = self.service_integrator.execute_service_operation(
-                operation_name="Load Finished Unit for Edit",
-                operation_type=OperationType.READ,
-                service_function=lambda: finished_unit_service.get_finished_unit_by_id(
-                    self.selected_finished_unit.id
-                ),
-                parent_widget=self,
-                error_context="Loading finished unit for editing",
-            )
-
-            dialog = FinishedUnitFormDialog(
-                self,
-                finished_unit=unit,
-                title=f"Edit Finished Unit: {unit.display_name}",
-            )
-            result = dialog.get_result()
 
         except Exception as e:
-            # Error already handled by service integrator
-            logging.exception(
-                "Edit finished unit dialog creation failed after service integrator handling"
+            logging.exception("Failed to open recipe edit dialog")
+            show_error(
+                "Error",
+                f"Failed to open recipe: {str(e)}",
+                parent=self
             )
-            return
 
-        if result:
-            try:
-                updated_unit = self.service_integrator.execute_service_operation(
-                    operation_name="Update Finished Unit",
-                    operation_type=OperationType.UPDATE,
-                    service_function=lambda: finished_unit_service.update_finished_unit(
-                        self.selected_finished_unit.id, result
-                    ),
-                    parent_widget=self,
-                    success_message=f"Finished unit '{result.get('display_name', 'Unit')}' updated successfully",
-                    error_context="Updating finished unit",
-                    show_success_dialog=True,
+    def _save_yield_types_from_catalog(self, recipe_id: int, yield_types: list):
+        """
+        Persist yield type changes for a recipe (called from catalog double-click edit).
+
+        Handles:
+        - Creating new yield types (id=None)
+        - Updating existing yield types (id set)
+        - Deleting removed yield types
+
+        Raises:
+            Exception: If yield type persistence fails (not swallowed)
+        """
+        from src.services import finished_unit_service
+
+        # Get existing yield types for this recipe
+        existing_units = finished_unit_service.get_units_by_recipe(recipe_id)
+        existing_ids = {unit.id for unit in existing_units}
+
+        # Track which IDs we're keeping
+        keeping_ids = set()
+
+        for data in yield_types:
+            if data["id"] is None:
+                # Create new
+                finished_unit_service.create_finished_unit(
+                    display_name=data["display_name"],
+                    recipe_id=recipe_id,
+                    items_per_batch=data["items_per_batch"],
+                )
+            else:
+                # Update existing
+                keeping_ids.add(data["id"])
+                finished_unit_service.update_finished_unit(
+                    data["id"],
+                    display_name=data["display_name"],
+                    items_per_batch=data["items_per_batch"],
                 )
 
-                self.refresh()
-                self._update_status(
-                    StatusMessages.updated_unit(updated_unit.display_name), success=True
-                )
-
-            except Exception as e:
-                # Error already handled by service integrator
-                logging.exception(
-                    "Update finished unit operation failed after service integrator handling"
-                )
-                self._update_status(StatusMessages.FAILED_TO_UPDATE, error=True)
-
-    def _delete_finished_unit(self):
-        """Delete the selected finished unit after confirmation."""
-        if not self._validate_selected_unit():
-            return
-
-        # Confirm deletion
-        confirmed = show_confirmation(
-            "Confirm Deletion",
-            f"Are you sure you want to delete '{self.selected_finished_unit.display_name}'?\n\n"
-            "This will remove the finished unit.\n"
-            "This action cannot be undone.",
-            parent=self,
-        )
-
-        if confirmed:
-            try:
-                self.service_integrator.execute_service_operation(
-                    operation_name="Delete Finished Unit",
-                    operation_type=OperationType.DELETE,
-                    service_function=lambda: finished_unit_service.delete_finished_unit(
-                        self.selected_finished_unit.id
-                    ),
-                    parent_widget=self,
-                    success_message=f"Finished unit '{self.selected_finished_unit.display_name}' deleted successfully",
-                    error_context="Deleting finished unit",
-                    show_success_dialog=True,
-                )
-
-                self.selected_finished_unit = None
-                self.refresh()
-                self._update_status(StatusMessages.DELETED_SUCCESS, success=True)
-
-            except Exception as e:
-                # Error already handled by service integrator with user-friendly messages
-                logging.exception(
-                    "Delete finished unit operation failed after service integrator handling"
-                )
-                self._update_status(StatusMessages.FAILED_TO_DELETE, error=True)
+        # Delete removed yield types
+        for unit in existing_units:
+            if unit.id not in keeping_ids:
+                finished_unit_service.delete_finished_unit(unit.id)
 
     def _view_details(self):
         """Open the FinishedUnit detail dialog for the selected unit."""
@@ -534,36 +545,6 @@ class FinishedUnitsTab(ctk.CTkFrame):
             )
             self._update_status(StatusMessages.FAILED_TO_LOAD, error=True)
 
-    def _add_item_to_table(self, item: FinishedUnit) -> None:
-        """
-        Add a single item to the table without full refresh.
-
-        TODO: Implement incremental add when data_table supports it.
-        For now, falls back to full refresh.
-        """
-        # Placeholder for future incremental update
-        self.refresh()
-
-    def _update_item_in_table(self, item: FinishedUnit) -> None:
-        """
-        Update a single item in the table without full refresh.
-
-        TODO: Implement incremental update when data_table supports it.
-        For now, falls back to full refresh.
-        """
-        # Placeholder for future incremental update
-        self.refresh()
-
-    def _remove_item_from_table(self, item_id: int) -> None:
-        """
-        Remove a single item from the table without full refresh.
-
-        TODO: Implement incremental removal when data_table supports it.
-        For now, falls back to full refresh.
-        """
-        # Placeholder for future incremental update
-        self.refresh()
-
     def _validate_selected_unit(self) -> bool:
         """
         Validate that the selected unit still exists to prevent race conditions.
@@ -601,109 +582,6 @@ class FinishedUnitsTab(ctk.CTkFrame):
             self.selected_finished_unit = None
             self._update_status(StatusMessages.SELECTION_STALE, error=True)
             return False
-
-    def _validate_finished_unit_data(self, form_data: dict, operation_type: str) -> bool:
-        """
-        Validate finished unit form data before service operations.
-
-        Args:
-            form_data: Form data dictionary from dialog
-            operation_type: Type of operation ("create", "update")
-
-        Returns:
-            True if validation passes, False if validation fails
-        """
-        if not form_data:
-            show_error("Validation Error", "No form data provided.", parent=self)
-            return False
-
-        # Validate required fields
-        required_fields = [("display_name", "Display Name"), ("recipe_id", "Recipe")]
-
-        for field_name, field_display in required_fields:
-            if not form_data.get(field_name):
-                show_error("Validation Error", f"'{field_display}' is required.", parent=self)
-                return False
-
-        # Validate display_name format
-        display_name = form_data.get("display_name", "").strip()
-        if len(display_name) < 2:
-            show_error(
-                "Validation Error", "Display Name must be at least 2 characters long.", parent=self
-            )
-            return False
-
-        if len(display_name) > 100:
-            show_error(
-                "Validation Error", "Display Name cannot exceed 100 characters.", parent=self
-            )
-            return False
-
-        # Validate slug if provided
-        slug = form_data.get("slug", "").strip()
-        if slug and not slug.replace("_", "").replace("-", "").isalnum():
-            show_error(
-                "Validation Error",
-                "Slug must only contain letters, numbers, hyphens, and underscores.",
-                parent=self,
-            )
-            return False
-
-        # Validate numerical fields
-        try:
-            # Validate batch_percentage if provided
-            batch_percentage = form_data.get("batch_percentage")
-            if batch_percentage is not None:
-                batch_percentage = float(batch_percentage)
-                if batch_percentage <= 0 or batch_percentage > 100:
-                    show_error(
-                        "Validation Error",
-                        "Batch percentage must be between 0 and 100.",
-                        parent=self,
-                    )
-                    return False
-
-            # Validate items_per_batch if provided
-            items_per_batch = form_data.get("items_per_batch")
-            if items_per_batch is not None:
-                items_per_batch = int(items_per_batch)
-                if items_per_batch <= 0:
-                    show_error(
-                        "Validation Error", "Items per batch must be greater than 0.", parent=self
-                    )
-                    return False
-
-        except (ValueError, TypeError) as e:
-            show_error(
-                "Validation Error", f"Invalid numerical value in form data: {e}", parent=self
-            )
-            return False
-
-        # Validate yield_mode consistency
-        yield_mode = form_data.get("yield_mode")
-        if yield_mode == "discrete_count":
-            if not form_data.get("items_per_batch") or not form_data.get("item_unit"):
-                show_error(
-                    "Validation Error",
-                    "Discrete count mode requires 'Items per Batch' and 'Item Unit'.",
-                    parent=self,
-                )
-                return False
-        elif yield_mode == "percentage_based":
-            if not form_data.get("batch_percentage"):
-                show_error(
-                    "Validation Error",
-                    "Percentage-based mode requires 'Batch Percentage'.",
-                    parent=self,
-                )
-                return False
-
-        # Additional validation for updates
-        if operation_type == "update":
-            # Could add specific update validation here if needed
-            pass
-
-        return True
 
     def _update_status(self, message: str, success: bool = False, error: bool = False):
         """

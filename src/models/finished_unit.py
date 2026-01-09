@@ -81,7 +81,7 @@ class FinishedUnit(BaseModel):
     # Basic information
     display_name = Column(String(200), nullable=False, index=True)
     description = Column(Text, nullable=True)
-    recipe_id = Column(Integer, ForeignKey("recipes.id", ondelete="RESTRICT"), nullable=False)
+    recipe_id = Column(Integer, ForeignKey("recipes.id", ondelete="CASCADE"), nullable=False)
 
     # Yield mode (preserved from original FinishedGood)
     yield_mode = Column(Enum(YieldMode), nullable=False, default=YieldMode.DISCRETE_COUNT)
