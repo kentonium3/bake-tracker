@@ -1,22 +1,22 @@
 # Feature Roadmap
 
 **Created:** 2025-12-03
-**Last Updated:** 2026-01-08
+**Last Updated:** 2026-01-09
 **Workflow:** Spec-Kitty driven development
 
 ---
 
 ## Executive Summary
 
-**Current Status**: Post-user testing pivot to foundational workflows
+**Current Status**: Foundational workflows in progress (F043-F047)
 
-**Recent Milestone**: F037-F041 complete (Recipe Redesign, UI Mode Restructure, Planning Workspace, Import/Export v4.0, Manual Inventory Adjustments)
+**Recent Milestone**: F042 complete (UI Polish), F044 complete (Finished Units Yield Type Management)
 
 **User Testing Outcome**: Mode structure validated ✅, but blocking UI issues discovered + missing foundational features identified
 
-**New Direction**: Fix UI issues (F042), then implement foundational workflows (F043-F047) before previously planned features
+**New Direction**: Implementing foundational workflows (F043-F047) before previously planned features
 
-**Timeline**: ~3 weeks for foundational work, then user testing round 2
+**Timeline**: ~2 weeks remaining for foundational work, then user testing round 2
 
 ---
 
@@ -66,6 +66,8 @@
 | 039 | Planning Workspace | MERGED | Automatic batch calculation, Event→FinishedGoods→Recipes workflow, ingredient aggregation with FIFO costing, assembly feasibility validation, batch optimization (15% waste threshold). |
 | 040 | Import/Export System Upgrade (v4.0) | MERGED | Schema v4.0 with F037/F039 fields, BT Mobile purchase import (UPC matching, resolution dialog), BT Mobile inventory updates (FIFO, percentage calculation), atomic rollback. 10 work packages, 1721 tests. |
 | 041 | Manual Inventory Adjustments | MERGED | Individual inventory corrections via UI dialog, depletion reason tracking (SPOILAGE, GIFT, CORRECTION, AD_HOC_USAGE), validation preventing negative inventory, audit trail, complementary to F040 bulk adjustments. |
+| 042 | UI Polish & Layout Fixes | MERGED | Dashboard header compaction (13-17 lines → 1-2 lines), legacy stats widget removal, data grid expansion (20+ rows visible), nested tabview cleanup in MAKE mode, ingredient hierarchy column fixes. |
+| 044 | Finished Units Yield Type Management | MERGED | Yield type authoring moved to Recipe Edit form, Finished Units tab converted to read-only catalog with recipe filter, double-click navigation to Recipe Edit, cascade delete on recipe deletion, per-recipe name uniqueness validation. |
 
 ---
 
@@ -73,46 +75,38 @@
 
 | # | Name | Priority | Effort | Status |
 |---|------|----------|--------|--------|
-| 042 | UI Polish & Layout Fixes | **P0 - BLOCKING** | 14-20 hours (2-3 days) | ✅ URGENT FIX COMPLETE |
-
-**F042 Urgent Fix Applied** (2026-01-08):
-- ✅ Dashboard headers compacted (13-17 lines → 1-2 lines)
-- ✅ Legacy vertical stats widgets removed from all dashboards
-- ✅ Stats display inline in header only via `_format_inline_stats()`
-- ✅ Data grids now expand to fill available vertical space (20+ rows visible)
-- ✅ Removed redundant "Production Runs"/"Assembly Runs" nested tabview in MAKE mode
-- ✅ Inventory tab: separate L0/L1/L2 columns (already implemented)
-- ✅ Ingredients tab: hierarchy names now display in correct columns by level
-- ✅ Cascading filters match Product Catalog pattern
-
-**Deferred to Tech Debt** (TD-007):
-- Ingredient edit form hierarchy level safeguards (low priority)
-
-**F042 Scope**: Layout fixes, header compaction, filter consistency, mode renames (Shop→Purchase, Produce→Make)
+| 043 | Purchases Tab Implementation | P1 - FOUNDATIONAL | 12-16 hours | Spec complete |
+| 045 | Finished Goods Functionality & UI | P1 - FOUNDATIONAL | 20-24 hours | Next after F043 |
+| 046 | Shopping Lists Tab Implementation | P1 - FOUNDATIONAL | 12-16 hours | Pending F045 |
+| 047 | Assembly Workflows | P1 - FOUNDATIONAL | 24-30 hours | Pending F045 |
 
 ---
 
 ## Foundational Workflows (F043-F047)
 
-**Status**: Required before previously planned features
+**Status**: In progress - F042, F044 complete
 **Rationale**: Cannot test end-to-end workflows without these foundations
 
-| # | Name | Priority | Effort | Dependencies |
-|---|------|----------|--------|--------------|
-| 043 | Purchases Tab Implementation | P1 - FOUNDATIONAL | 12-16 hours | F042 ✅ |
-| 044 | Finished Units Functionality & UI | P1 - FOUNDATIONAL | 16-20 hours | F042 ✅ |
-| 045 | Finished Goods Functionality & UI | P1 - FOUNDATIONAL | 20-24 hours | F044 ✅ |
-| 046 | Shopping Lists Tab Implementation | P1 - FOUNDATIONAL | 12-16 hours | F042 ✅, F045 ✅ |
-| 047 | Assembly Workflows | P1 - FOUNDATIONAL | 24-30 hours | F045 ✅ |
+| # | Name | Priority | Effort | Status |
+|---|------|----------|--------|--------|
+| 042 | UI Polish & Layout Fixes | P0 - BLOCKING | 14-20 hours | ✅ COMPLETE |
+| 043 | Purchases Tab Implementation | P1 - FOUNDATIONAL | 12-16 hours | Spec complete |
+| 044 | Finished Units Yield Type Management | P1 - FOUNDATIONAL | 16-20 hours | ✅ COMPLETE |
+| 045 | Finished Goods Functionality & UI | P1 - FOUNDATIONAL | 20-24 hours | Next |
+| 046 | Shopping Lists Tab Implementation | P1 - FOUNDATIONAL | 12-16 hours | Pending F045 |
+| 047 | Assembly Workflows | P1 - FOUNDATIONAL | 24-30 hours | Pending F045 |
 
-**Total Foundational Work**: 84-106 hours (10-13 days, ~3 weeks)
+**Remaining Foundational Work**: 68-86 hours (8-11 days, ~2 weeks)
 
-**Missing Functionality** (discovered in user testing):
-- Purchase history/entry (Purchases tab not implemented)
-- Finished Units definition (buttons go nowhere)
-- Finished Goods definition (buttons go nowhere)
-- Shopping list generation/export (tab not implemented)
-- Assembly recording (tab not implemented)
+**Completed** (2026-01-08/09):
+- ✅ F042: Dashboard headers compacted, stats widgets removed, data grids expanded
+- ✅ F044: Yield types managed in Recipe Edit, Finished Units tab is read-only catalog
+
+**Missing Functionality** (still to implement):
+- F043: Purchase history/entry (Purchases tab)
+- F045: Finished Goods definition and management
+- F046: Shopping list generation/export
+- F047: Assembly recording
 
 **Blocks**: Complete Plan → Shop → Make → Assemble → Deliver workflow testing
 
@@ -143,18 +137,18 @@
 5. ~~**Feature 041** - Manual Inventory Adjustments~~ ✅
 6. ~~**USER TESTING ROUND 1**~~ ✅ (2026-01-07)
 
-**Phase 1: UI Polish (Week 1)** 🎯 CURRENT
-7. **Feature 042** - UI Polish & Layout Fixes → 2026-01-10
+**Phase 1: UI Polish & Initial Foundations** ✅
+7. ~~**Feature 042** - UI Polish & Layout Fixes~~ ✅ (2026-01-08)
+8. ~~**Feature 044** - Finished Units Yield Type Management~~ ✅ (2026-01-09)
 
-**Phase 2: Foundational Workflows (Weeks 2-4)**
-8. **Feature 043** - Purchases Tab Implementation → 2026-01-12
-9. **Feature 044** - Finished Units Functionality & UI → 2026-01-15
-10. **Feature 045** - Finished Goods Functionality & UI → 2026-01-18
-11. **Feature 046** - Shopping Lists Tab Implementation → 2026-01-20
-12. **Feature 047** - Assembly Workflows → 2026-01-24
+**Phase 2: Foundational Workflows (Weeks 2-3)** 🎯 CURRENT
+9. **Feature 043** - Purchases Tab Implementation → 2026-01-12
+10. **Feature 045** - Finished Goods Functionality & UI → 2026-01-15
+11. **Feature 046** - Shopping Lists Tab Implementation → 2026-01-18
+12. **Feature 047** - Assembly Workflows → 2026-01-22
 
-**Phase 3: User Testing Round 2** (Week 5+)
-13. **USER TESTING ROUND 2** - Complete Plan → Make → Assemble → Deliver cycle → 2026-01-27+
+**Phase 3: User Testing Round 2** (Week 4+)
+13. **USER TESTING ROUND 2** - Complete Plan → Make → Assemble → Deliver cycle → 2026-01-25+
 14. Prioritize F0XX features based on user feedback
 15. Plan Phase 3 (web migration) architecture
 
@@ -162,12 +156,19 @@
 
 ## Success Criteria
 
-### After F042 (UI Polish)
+### After F042 (UI Polish) - COMPLETE ✅
 - ✅ User can browse ingredients/products effectively (20+ rows visible)
 - ✅ Mode navigation feels professional and polished
 - ✅ Stats display accurate data
 - ✅ Filters work consistently across tabs (match Product Catalog pattern)
 - ✅ Headers compact (3-4 lines max across all modes)
+
+### After F044 (Finished Units) - COMPLETE ✅
+- ✅ Yield types defined inline in Recipe Edit form
+- ✅ Finished Units tab shows read-only catalog of all yield types
+- ✅ Double-click navigates to parent recipe for editing
+- ✅ Recipe filter enables browsing by recipe
+- ✅ Validation prevents duplicate names within same recipe
 
 ### After F043-F047 (Foundational Workflows)
 - ✅ User can complete Plan → Shop → Make → Assemble → Deliver cycle
@@ -254,3 +255,11 @@
   - Removed redundant nested tabview in MAKE Production Dashboard
   - Fixed ingredients tab hierarchy display (names in correct columns by level)
   - Logged TD-007 for ingredient edit form safeguards (deferred)
+- 2026-01-09: **F044 COMPLETE** - Finished Units Yield Type Management merged:
+  - Yield type authoring moved to Recipe Edit form (inline YieldTypeRow widgets)
+  - Finished Units tab converted to read-only catalog with recipe filter
+  - Double-click navigation opens parent recipe for editing
+  - Cascade delete: yield types auto-delete when recipe is deleted
+  - Per-recipe name uniqueness validation (case-insensitive)
+  - Cursor code review completed, 5 fixes applied before merge
+  - 1774 tests pass, all integration scenarios verified
