@@ -87,6 +87,10 @@ class PurchaseMode(BaseMode):
             if not getattr(self.inventory_tab, '_data_loaded', False):
                 self.inventory_tab._data_loaded = True
                 self.after(10, self.inventory_tab.refresh)
+        # Lazy load purchases data on first activation
+        if self.purchases_tab:
+            if not getattr(self.purchases_tab, '_data_loaded', False):
+                self.after(20, self.purchases_tab.refresh)
 
     def refresh_all_tabs(self) -> None:
         """Refresh all tabs in PURCHASE mode."""
