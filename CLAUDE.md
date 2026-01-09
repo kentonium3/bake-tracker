@@ -161,6 +161,49 @@ This project uses spec-kitty for feature development. The workflow is AUTHORITAT
 
 **The correct response to workflow issues is to STOP and report, not to work around.**
 
+### Two-Tier Task Tracking (CRITICAL)
+
+Spec-kitty uses TWO separate tracking systems that MUST both be updated:
+
+1. **Work Package Frontmatter** (`tasks/WP##-*.md` files)
+   - `lane:` field tracks WP status (planned/doing/for_review/done)
+   - `assignee:` field tracks who is working on it
+   - Updated via `spec-kitty agent move-task`
+
+2. **Subtask Checkboxes** (`tasks.md` file)
+   - `- [ ]` / `- [x]` checkboxes for individual subtasks (T001, T002, etc.)
+   - Updated via `spec-kitty agent mark-status`
+
+**Both systems must be kept in sync. Moving a WP to "done" does NOT automatically check off its subtasks.**
+
+### Required Commands During Implementation
+
+**When starting a work package:**
+```bash
+spec-kitty agent move-task <FEATURE> <WP_ID> doing --assignee claude
+```
+
+**When completing each subtask (T###):**
+```bash
+spec-kitty agent mark-status --task-id <TASK_ID> --status done
+```
+Run this IMMEDIATELY after completing each subtask, not in a batch at the end.
+
+**When finishing a work package:**
+```bash
+spec-kitty agent move-task <FEATURE> <WP_ID> for_review
+```
+
+### Pre-Acceptance Checklist
+
+Before running `/spec-kitty.accept`, verify:
+- [ ] All subtasks (T###) are checked `[x]` in `tasks.md`
+- [ ] All work packages show `lane: done` in frontmatter
+- [ ] All work packages have `assignee:` set (not empty)
+- [ ] All changes are committed (clean git status)
+
+**If acceptance fails due to unchecked tasks or missing metadata, this indicates the above commands were skipped during implementation.**
+
 ## Key Design Decisions
 
 - **Ingredients vs Products**: Recipes reference generic Ingredients; Inventory holds specific Products (brands/packages). This enables recipe sharing and brand flexibility.
