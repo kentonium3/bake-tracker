@@ -1,8 +1,8 @@
 # Ingredients - Requirements Document
 
 **Component:** Ingredients (Hierarchical Taxonomy)
-**Version:** 1.1
-**Last Updated:** 2026-01-05
+**Version:** 1.2
+**Last Updated:** 2026-01-08
 **Status:** Current
 **Owner:** Kent Gale
 
@@ -439,7 +439,48 @@ Ingredient (L0)
 - User enters: 45, Days → Stored as: 45 days → Displayed as: "45 days"
 - User selects: None → Stored as: NULL → Displayed as: "None"
 
-### 9.3 Cascading Selector Component (Reusable)
+### 9.3 Level-Aware Edit Form Behavior (TD-007)
+
+**Status:** Requirements stub - to be detailed
+**Related Tech Debt:** TD-007 (Ingredient Edit Form Missing Hierarchy Level Safeguards)
+
+The ingredient edit form should dynamically adapt based on the hierarchy level of the item being edited. Currently, the form presents the same options regardless of level, which creates counter-intuitive UX.
+
+**L0 (Root Category) Editing:**
+- [ ] Hide/disable parent selection (L0 items have no parent by definition)
+- [ ] Show only L0-appropriate fields: `display_name`
+- [ ] Show read-only child count: "X subcategories"
+- [ ] Prevent level changes (L0 → L1/L2)
+
+**L1 (Subcategory) Editing:**
+- [ ] Show L0 parent selection only (can re-parent to different L0)
+- [ ] Hide L1 selection (item IS an L1)
+- [ ] Show only L1-appropriate fields: `display_name`, `parent_ingredient_id`
+- [ ] Show read-only child count: "X leaf ingredients"
+- [ ] Prevent level changes (L1 → L0/L2)
+
+**L2 (Leaf Ingredient) Editing:**
+- [ ] Show L0 selection (grandparent)
+- [ ] Show L1 selection filtered by L0 (direct parent)
+- [ ] Show all L2-appropriate fields: `display_name`, `parent_ingredient_id`, `shelf_life_days`, `density`, `is_packaging`
+- [ ] No children possible, so no child count
+- [ ] Prevent level changes (L2 → L0/L1)
+
+**Common Behavior:**
+- [ ] Level indicator shown as read-only (computed from position)
+- [ ] Validation messages explain why certain options are unavailable
+- [ ] Form title reflects level: "Edit Category", "Edit Subcategory", "Edit Ingredient"
+
+**Implementation Notes:**
+- Form should query `hierarchy_level` on load and conditionally render fields
+- Service layer already validates operations; UI should prevent invalid attempts
+- Consider separate form components per level vs. single adaptive form
+
+**Effort Estimate:** 4-6 hours (see TD-007)
+
+---
+
+### 9.4 Cascading Selector Component (Reusable)
 
 **Used In:**
 - Product edit form (ingredient selection)
@@ -630,6 +671,7 @@ Flour (L0)
 
 | Version | Date       | Author    | Changes                              |
 | ------- | ---------- | --------- | ------------------------------------ |
+| 1.2     | 2026-01-08 | Kent Gale | Added level-aware edit form requirements stub (TD-007) |
 | 1.1     | 2026-01-05 | Kent Gale | Added shelf life requirements (F041) |
 | 1.0     | 2025-12-30 | Kent Gale | Initial requirements document        |
 
