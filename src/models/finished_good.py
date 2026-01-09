@@ -9,15 +9,18 @@ Migration Note:
 - Original FinishedGood functionality moved to FinishedUnit model
 - This new model focuses on assemblies and packaged combinations
 - Uses Composition model for component relationships
+
+Cost Architecture (F045):
+- Costs are NOT stored on definition models (FinishedUnit, FinishedGood)
+- Costs are captured on production/assembly instances (F046+)
+- Philosophy: "Costs on Instances, Not Definitions"
 """
 
 from datetime import datetime
-from decimal import Decimal
 
 from sqlalchemy import (
     Column,
     String,
-    Numeric,
     Integer,
     Text,
     DateTime,
@@ -44,7 +47,6 @@ class FinishedGood(BaseModel):
     Key Features:
     - Represents packaged assemblies rather than individual items
     - Components managed through Composition relationships
-    - Calculated costs derived from component costs and quantities
     - Support for complex hierarchical packaging scenarios
     - Assembly-specific packaging and presentation instructions
 
@@ -54,7 +56,6 @@ class FinishedGood(BaseModel):
         description: Detailed description of the assembly
         assembly_type: Type of assembly (gift_box, variety_pack, etc.)
         packaging_instructions: Detailed instructions for assembly and packaging
-        total_cost: Calculated total cost from all components
         inventory_count: Current available quantity of assembled packages
         notes: Additional notes about the assembly
     """
@@ -72,8 +73,7 @@ class FinishedGood(BaseModel):
     assembly_type = Column(Enum(AssemblyType), nullable=False, default=AssemblyType.CUSTOM_ORDER)
     packaging_instructions = Column(Text, nullable=True)
 
-    # Cost and inventory
-    total_cost = Column(Numeric(10, 4), nullable=False, default=Decimal("0.0000"))
+    # Inventory tracking
     inventory_count = Column(Integer, nullable=False, default=0)
 
     # Additional information
@@ -103,52 +103,12 @@ class FinishedGood(BaseModel):
         Index("idx_finished_good_assembly_type", "assembly_type"),
         Index("idx_finished_good_inventory", "inventory_count"),
         UniqueConstraint("slug", name="uq_finished_good_slug"),
-        CheckConstraint("total_cost >= 0", name="ck_finished_good_total_cost_non_negative"),
         CheckConstraint("inventory_count >= 0", name="ck_finished_good_inventory_non_negative"),
     )
 
     def __repr__(self) -> str:
         """String representation of finished good assembly."""
         return f"FinishedGood(id={self.id}, slug='{self.slug}', display_name='{self.display_name}')"
-
-    def calculate_component_cost(self) -> Decimal:
-        """
-        Calculate total cost from all components in the assembly.
-
-        This method dynamically calculates the cost by summing all
-        component costs through the Composition relationships.
-
-        Returns:
-            Total cost based on current component costs and quantities
-        """
-        if not hasattr(self, "components") or not self.components:
-            return Decimal("0.0000")
-
-        total_cost = Decimal("0.0000")
-
-        for composition in self.components:
-            if composition.finished_unit_component:
-                # FinishedUnit component cost
-                unit_cost = composition.finished_unit_component.unit_cost or Decimal("0.0000")
-                component_cost = unit_cost * Decimal(str(composition.component_quantity))
-                total_cost += component_cost
-
-            elif composition.finished_good_component:
-                # FinishedGood component cost (recursive assembly)
-                assembly_cost = composition.finished_good_component.total_cost or Decimal("0.0000")
-                component_cost = assembly_cost * Decimal(str(composition.component_quantity))
-                total_cost += component_cost
-
-        return total_cost
-
-    def update_total_cost_from_components(self) -> None:
-        """
-        Update the stored total_cost field based on current component costs.
-
-        This method should be called when component costs or quantities change
-        to keep the stored cost in sync.
-        """
-        self.total_cost = self.calculate_component_cost()
 
     def get_component_breakdown(self) -> list:
         """
@@ -170,8 +130,6 @@ class FinishedGood(BaseModel):
                 "sort_order": composition.sort_order,
                 "type": None,
                 "name": None,
-                "unit_cost": Decimal("0.0000"),
-                "total_cost": Decimal("0.0000"),
             }
 
             if composition.finished_unit_component:
@@ -179,9 +137,6 @@ class FinishedGood(BaseModel):
                     {
                         "type": "finished_unit",
                         "name": composition.finished_unit_component.display_name,
-                        "unit_cost": composition.finished_unit_component.unit_cost,
-                        "total_cost": composition.finished_unit_component.unit_cost
-                        * composition.component_quantity,
                     }
                 )
 
@@ -190,9 +145,6 @@ class FinishedGood(BaseModel):
                     {
                         "type": "finished_good",
                         "name": composition.finished_good_component.display_name,
-                        "unit_cost": composition.finished_good_component.total_cost,
-                        "total_cost": composition.finished_good_component.total_cost
-                        * composition.component_quantity,
                     }
                 )
 
@@ -308,11 +260,7 @@ class FinishedGood(BaseModel):
         # Convert enum to string
         result["assembly_type"] = self.assembly_type.value if self.assembly_type else None
 
-        # Convert Decimal fields to float for JSON serialization
-        result["total_cost"] = float(self.total_cost) if self.total_cost else 0.0
-
         # Add calculated fields
-        result["component_cost"] = float(self.calculate_component_cost())
         result["is_in_stock"] = self.inventory_count > 0
 
         if include_relationships:

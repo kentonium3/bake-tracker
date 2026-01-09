@@ -67,13 +67,13 @@
 **Agent Assignment**: Gemini (parallel with WP01)
 
 ### Included Subtasks
-- [ ] T007 [P] Remove `total_cost` column from FinishedGood model in `src/models/finished_good.py`
-- [ ] T008 [P] Remove CheckConstraint `ck_finished_good_total_cost_non_negative`
-- [ ] T009 [P] Remove `calculate_component_cost()` method
-- [ ] T010 [P] Remove `update_total_cost_from_components()` method
-- [ ] T011 [P] Update `get_component_breakdown()` to remove cost fields from output
-- [ ] T012 [P] Update `to_dict()` to remove `total_cost` and `component_cost` fields
-- [ ] T013 [P] Remove cost display from `src/ui/forms/finished_good_detail.py` (lines 143, 426)
+- [x] T007 [P] Remove `total_cost` column from FinishedGood model in `src/models/finished_good.py`
+- [x] T008 [P] Remove CheckConstraint `ck_finished_good_total_cost_non_negative`
+- [x] T009 [P] Remove `calculate_component_cost()` method
+- [x] T010 [P] Remove `update_total_cost_from_components()` method
+- [x] T011 [P] Update `get_component_breakdown()` to remove cost fields from output
+- [x] T012 [P] Update `to_dict()` to remove `total_cost` and `component_cost` fields
+- [x] T013 [P] Remove cost display from `src/ui/forms/finished_good_detail.py` (lines 143, 426)
 
 ### Implementation Notes
 1. Open `src/models/finished_good.py`

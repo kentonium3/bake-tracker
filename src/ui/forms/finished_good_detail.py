@@ -21,7 +21,7 @@ class FinishedGoodDetailDialog(ctk.CTkToplevel):
 
     Shows:
     - Name
-    - Inventory count, total cost
+    - Inventory count
     - Composition (BOM - FinishedUnits, nested FinishedGoods, packaging)
     - Assembly history table
     - Record Assembly button
@@ -115,7 +115,7 @@ class FinishedGoodDetailDialog(ctk.CTkToplevel):
         name_label.pack(anchor="w")
 
     def _create_info_section(self):
-        """Create the info section with inventory and cost."""
+        """Create the info section with inventory."""
         info_frame = ctk.CTkFrame(self)
         info_frame.grid(row=1, column=0, sticky="ew", padx=PADDING_LARGE, pady=PADDING_MEDIUM)
         info_frame.grid_columnconfigure(1, weight=1)
@@ -132,17 +132,6 @@ class FinishedGoodDetailDialog(ctk.CTkToplevel):
             font=ctk.CTkFont(size=16, weight="bold"),
         )
         self.inventory_label.grid(
-            row=row, column=1, sticky="w", padx=PADDING_MEDIUM, pady=PADDING_MEDIUM
-        )
-        row += 1
-
-        # Total cost
-        ctk.CTkLabel(info_frame, text="Total Cost:").grid(
-            row=row, column=0, sticky="e", padx=PADDING_MEDIUM, pady=PADDING_MEDIUM
-        )
-        cost = self.finished_good.total_cost or 0
-        self.cost_label = ctk.CTkLabel(info_frame, text=f"${cost:.2f}")
-        self.cost_label.grid(
             row=row, column=1, sticky="w", padx=PADDING_MEDIUM, pady=PADDING_MEDIUM
         )
 
@@ -423,5 +412,3 @@ class FinishedGoodDetailDialog(ctk.CTkToplevel):
     def _update_info_display(self):
         """Update the info section with current data."""
         self.inventory_label.configure(text=str(self.finished_good.inventory_count or 0))
-        cost = self.finished_good.total_cost or 0
-        self.cost_label.configure(text=f"${cost:.2f}")
