@@ -44,7 +44,7 @@ Add explicit instructions to:
 - Run `mark-status` after completing each subtask
 - Verify subtask completion before moving to `for_review`
 
-See attached: `implement.md.proposed`
+See attached: `implement_proposed.md`
 
 ### 2. Update `review.md` Template
 
@@ -52,7 +52,7 @@ Add pre-check step to:
 - Verify all subtasks for the WP are marked `[x]` before proceeding
 - Reject reviews where subtasks are incomplete
 
-See attached: `review.md.proposed`
+See attached: `review_proposed.md`
 
 ### 3. CLI Enhancement: Validate Subtasks on Lane Transitions
 
@@ -107,5 +107,5 @@ With this fix:
 
 ## Attachments
 
-- `implement.md.proposed` - Proposed template with subtask tracking instructions
-- `review.md.proposed` - Proposed template with pre-check validation
+- `implement_proposed.md` - Proposed template with subtask tracking instructions
+- `review_proposed.md` - Proposed template with pre-check validation
