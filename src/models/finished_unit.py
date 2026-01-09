@@ -7,8 +7,13 @@ in assemblies or consumed directly.
 
 Migration Note:
 - This model preserves all existing FinishedGood functionality
-- Field mappings: name → display_name, cost calculated → unit_cost stored
+- Field mappings: name → display_name
 - New fields: production_notes, inventory_count, slug for unique reference
+
+Cost Architecture (F045):
+- Costs are NOT stored on definition models (FinishedUnit, FinishedGood)
+- Costs are captured on production/assembly instances (F046+)
+- Philosophy: "Costs on Instances, Not Definitions"
 """
 
 from datetime import datetime
@@ -54,7 +59,6 @@ class FinishedUnit(BaseModel):
     - Adds inventory tracking with non-negative constraints
     - Includes production notes for baking/storage information
     - Uses slug for unique, URL-safe identification
-    - Stores unit cost as field rather than calculation
 
     Attributes:
         slug: Unique URL-safe identifier for references
@@ -67,7 +71,6 @@ class FinishedUnit(BaseModel):
         batch_percentage: Percentage of recipe batch used (batch_portion mode)
         portion_description: Description of portion size (e.g., "9-inch round pan")
         category: Product category
-        unit_cost: Cost per individual unit (stored field for performance)
         inventory_count: Current available quantity
         production_notes: Notes about production, storage, handling
         notes: Additional general notes
@@ -94,8 +97,7 @@ class FinishedUnit(BaseModel):
     batch_percentage = Column(Numeric(5, 2), nullable=True)
     portion_description = Column(String(200), nullable=True)  # "9-inch round", "8x8 square"
 
-    # Cost and inventory
-    unit_cost = Column(Numeric(10, 4), nullable=False, default=Decimal("0.0000"))
+    # Inventory tracking
     inventory_count = Column(Integer, nullable=False, default=0)
 
     # Additional information
@@ -130,7 +132,6 @@ class FinishedUnit(BaseModel):
         Index("idx_finished_unit_recipe_inventory", "recipe_id", "inventory_count"),
         # Unique constraints
         UniqueConstraint("slug", name="uq_finished_unit_slug"),
-        CheckConstraint("unit_cost >= 0", name="ck_finished_unit_unit_cost_non_negative"),
         CheckConstraint("inventory_count >= 0", name="ck_finished_unit_inventory_non_negative"),
         CheckConstraint(
             "items_per_batch IS NULL OR items_per_batch > 0",
@@ -167,42 +168,6 @@ class FinishedUnit(BaseModel):
             return quantity * (float(self.batch_percentage) / 100.0)
 
         return 0.0
-
-    def calculate_recipe_cost_per_item(self) -> Decimal:
-        """
-        Calculate cost per finished unit item based on current recipe cost.
-
-        This method calculates the cost dynamically from the recipe,
-        separate from the stored unit_cost field.
-
-        Returns:
-            Cost per item based on recipe cost
-        """
-        if not self.recipe:
-            return Decimal("0.0000")
-
-        recipe_cost = Decimal(str(self.recipe.calculate_cost()))
-
-        if self.yield_mode == YieldMode.DISCRETE_COUNT:
-            if not self.items_per_batch or self.items_per_batch <= 0:
-                return Decimal("0.0000")
-            return recipe_cost / Decimal(str(self.items_per_batch))
-
-        elif self.yield_mode == YieldMode.BATCH_PORTION:
-            if not self.batch_percentage or self.batch_percentage <= 0:
-                return Decimal("0.0000")
-            return recipe_cost * (self.batch_percentage / Decimal("100.0"))
-
-        return Decimal("0.0000")
-
-    def update_unit_cost_from_recipe(self) -> None:
-        """
-        Update the stored unit_cost field based on current recipe cost.
-
-        This method should be called when recipe costs change to keep
-        the stored unit cost in sync.
-        """
-        self.unit_cost = self.calculate_recipe_cost_per_item()
 
     def is_available(self, quantity: int = 1) -> bool:
         """
@@ -250,18 +215,16 @@ class FinishedUnit(BaseModel):
         result["yield_mode"] = self.yield_mode.value if self.yield_mode else None
 
         # Convert Decimal fields to float for JSON serialization
-        result["unit_cost"] = float(self.unit_cost) if self.unit_cost else 0.0
         result["batch_percentage"] = float(self.batch_percentage) if self.batch_percentage else None
 
         # Add calculated fields
-        result["recipe_cost_per_item"] = float(self.calculate_recipe_cost_per_item())
         result["is_in_stock"] = self.inventory_count > 0
 
         return result
 
     @classmethod
     def create_from_finished_good(
-        cls, finished_good_data: dict, slug: str, unit_cost: Decimal = None
+        cls, finished_good_data: dict, slug: str
     ) -> "FinishedUnit":
         """
         Factory method to create FinishedUnit from existing FinishedGood data.
@@ -272,7 +235,6 @@ class FinishedUnit(BaseModel):
         Args:
             finished_good_data: Dictionary of FinishedGood field values
             slug: Unique slug for the new FinishedUnit
-            unit_cost: Optional unit cost override
 
         Returns:
             New FinishedUnit instance
@@ -307,7 +269,6 @@ class FinishedUnit(BaseModel):
 
         # Set new required fields
         unit_data["slug"] = slug
-        unit_data["unit_cost"] = unit_cost or Decimal("0.0000")
         unit_data["inventory_count"] = 0  # Start with zero inventory
 
         return cls(**unit_data)

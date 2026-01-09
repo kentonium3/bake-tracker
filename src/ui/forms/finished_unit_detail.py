@@ -21,7 +21,7 @@ class FinishedUnitDetailDialog(ctk.CTkToplevel):
 
     Shows:
     - Name and category
-    - Recipe, inventory count, unit cost
+    - Recipe, inventory count
     - Production history table
     - Record Production button
     """
@@ -156,17 +156,6 @@ class FinishedUnitDetailDialog(ctk.CTkToplevel):
             font=ctk.CTkFont(size=16, weight="bold"),
         )
         self.inventory_label.grid(
-            row=row, column=1, sticky="w", padx=PADDING_MEDIUM, pady=PADDING_MEDIUM
-        )
-        row += 1
-
-        # Unit cost
-        ctk.CTkLabel(info_frame, text="Unit Cost:").grid(
-            row=row, column=0, sticky="e", padx=PADDING_MEDIUM, pady=PADDING_MEDIUM
-        )
-        cost = self.finished_unit.unit_cost or 0
-        self.cost_label = ctk.CTkLabel(info_frame, text=f"${cost:.2f}")
-        self.cost_label.grid(
             row=row, column=1, sticky="w", padx=PADDING_MEDIUM, pady=PADDING_MEDIUM
         )
         row += 1
@@ -321,5 +310,3 @@ class FinishedUnitDetailDialog(ctk.CTkToplevel):
         self.inventory_label.configure(
             text=str(self.finished_unit.inventory_count or 0)
         )
-        cost = self.finished_unit.unit_cost or 0
-        self.cost_label.configure(text=f"${cost:.2f}")

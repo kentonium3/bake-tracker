@@ -9,9 +9,9 @@ subtasks:
   - "T006"
 title: "FinishedUnit Model + UI Cost Removal"
 phase: "Phase 1 - Model Layer"
-lane: "planned"
+lane: "for_review"
 assignee: ""
-agent: ""
+agent: "claude"
 shell_pid: ""
 review_status: ""
 reviewed_by: ""
@@ -215,3 +215,5 @@ However, verify:
 ## Activity Log
 
 - 2026-01-09T18:00:00Z - system - lane=planned - Prompt created via /spec-kitty.tasks
+- 2026-01-09T23:11:42Z – claude – lane=doing – Started implementation
+- 2026-01-09T23:28:30Z – claude – lane=for_review – Implementation complete - all subtasks done

@@ -29,12 +29,12 @@
 **Agent Assignment**: Claude (parallel with WP02)
 
 ### Included Subtasks
-- [ ] T001 [P] Remove `unit_cost` column from FinishedUnit model in `src/models/finished_unit.py`
-- [ ] T002 [P] Remove CheckConstraint `ck_finished_unit_unit_cost_non_negative`
-- [ ] T003 [P] Remove `calculate_recipe_cost_per_item()` method
-- [ ] T004 [P] Remove `update_unit_cost_from_recipe()` method
-- [ ] T005 [P] Update `to_dict()` to remove `unit_cost` and `recipe_cost_per_item` fields
-- [ ] T006 [P] Remove cost display from `src/ui/forms/finished_unit_detail.py` (lines 167, 324)
+- [x] T001 [P] Remove `unit_cost` column from FinishedUnit model in `src/models/finished_unit.py`
+- [x] T002 [P] Remove CheckConstraint `ck_finished_unit_unit_cost_non_negative`
+- [x] T003 [P] Remove `calculate_recipe_cost_per_item()` method
+- [x] T004 [P] Remove `update_unit_cost_from_recipe()` method
+- [x] T005 [P] Update `to_dict()` to remove `unit_cost` and `recipe_cost_per_item` fields
+- [x] T006 [P] Remove cost display from `src/ui/forms/finished_unit_detail.py` (lines 167, 324)
 
 ### Implementation Notes
 1. Open `src/models/finished_unit.py`
