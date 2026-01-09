@@ -47,8 +47,8 @@ Create the `PurchasesTab` component with:
 ## Context & Constraints
 
 **Reference Documents**:
-- `kitty-specs/042-purchases-tab-crud-operations/research.md` - InventoryTab pattern
-- `kitty-specs/042-purchases-tab-crud-operations/plan.md` - UI structure
+- `kitty-specs/043-purchases-tab-crud-operations/research.md` - InventoryTab pattern
+- `kitty-specs/043-purchases-tab-crud-operations/plan.md` - UI structure
 
 **Pattern Reference**: Follow `src/ui/inventory_tab.py` structure exactly
 

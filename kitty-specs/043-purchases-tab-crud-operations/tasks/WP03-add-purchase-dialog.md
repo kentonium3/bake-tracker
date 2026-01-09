@@ -45,7 +45,7 @@ Implement the Add Purchase dialog for primary data entry (User Story 3).
 ## Context & Constraints
 
 **Reference Documents**:
-- `kitty-specs/042-purchases-tab-crud-operations/research.md` - AdjustmentDialog pattern
+- `kitty-specs/043-purchases-tab-crud-operations/research.md` - AdjustmentDialog pattern
 - `src/ui/dialogs/adjustment_dialog.py` - Pattern reference
 
 **Key Constraints**:

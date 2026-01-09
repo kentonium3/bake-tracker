@@ -40,7 +40,7 @@ Implement delete validation and confirmation flow (User Story 5).
 ## Context & Constraints
 
 **Reference Documents**:
-- `kitty-specs/042-purchases-tab-crud-operations/data-model.md` - can_delete_purchase signature
+- `kitty-specs/043-purchases-tab-crud-operations/data-model.md` - can_delete_purchase signature
 
 **Key Constraints**:
 - NEVER delete if any inventory has been consumed (FIFO integrity)

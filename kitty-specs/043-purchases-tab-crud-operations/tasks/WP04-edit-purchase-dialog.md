@@ -43,7 +43,7 @@ Implement the Edit Purchase dialog for correcting errors (User Story 4).
 ## Context & Constraints
 
 **Reference Documents**:
-- `kitty-specs/042-purchases-tab-crud-operations/data-model.md` - can_edit_purchase, update_purchase signatures
+- `kitty-specs/043-purchases-tab-crud-operations/data-model.md` - can_edit_purchase, update_purchase signatures
 - `src/ui/dialogs/add_purchase_dialog.py` - Pattern reference (after WP03)
 
 **Key Constraints**:

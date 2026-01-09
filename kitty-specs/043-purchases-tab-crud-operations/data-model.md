@@ -1,6 +1,6 @@
 # Data Model: Purchases Tab with CRUD Operations
 
-**Feature**: 042-purchases-tab-crud-operations
+**Feature**: 043-purchases-tab-crud-operations
 **Date**: 2026-01-08
 
 ## Existing Entities (No Changes)

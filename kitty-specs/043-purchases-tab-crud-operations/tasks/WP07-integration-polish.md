@@ -43,7 +43,7 @@ Final integration, testing, and polish.
 ## Context & Constraints
 
 **Reference Documents**:
-- `kitty-specs/042-purchases-tab-crud-operations/spec.md` - Acceptance scenarios
+- `kitty-specs/043-purchases-tab-crud-operations/spec.md` - Acceptance scenarios
 
 **Key Constraints**:
 - All WP01-WP06 must be complete before this WP

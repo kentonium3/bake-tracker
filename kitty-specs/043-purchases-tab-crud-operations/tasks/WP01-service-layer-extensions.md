@@ -45,8 +45,8 @@ Extend `PurchaseService` with 6 new methods to support the Purchases tab CRUD op
 ## Context & Constraints
 
 **Reference Documents**:
-- `kitty-specs/042-purchases-tab-crud-operations/data-model.md` - Full method signatures
-- `kitty-specs/042-purchases-tab-crud-operations/research.md` - Session management pattern
+- `kitty-specs/043-purchases-tab-crud-operations/data-model.md` - Full method signatures
+- `kitty-specs/043-purchases-tab-crud-operations/research.md` - Session management pattern
 - `.kittify/memory/constitution.md` - Principle II (Data Integrity & FIFO)
 
 **Key Constraints**:

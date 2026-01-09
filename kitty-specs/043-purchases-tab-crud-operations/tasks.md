@@ -1,6 +1,6 @@
 # Work Packages: Purchases Tab with CRUD Operations
 
-**Inputs**: Design documents from `/kitty-specs/042-purchases-tab-crud-operations/`
+**Inputs**: Design documents from `/kitty-specs/043-purchases-tab-crud-operations/`
 **Prerequisites**: plan.md (required), spec.md (user stories), research.md, data-model.md, quickstart.md
 
 **Tests**: Unit tests required for service layer (>70% coverage target per constitution).

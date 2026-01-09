@@ -1,7 +1,7 @@
 # Implementation Plan: Purchases Tab with CRUD Operations
 
-**Branch**: `042-purchases-tab-crud-operations` | **Date**: 2026-01-08 | **Spec**: [spec.md](spec.md)
-**Input**: Feature specification from `/kitty-specs/042-purchases-tab-crud-operations/spec.md`
+**Branch**: `043-purchases-tab-crud-operations` | **Date**: 2026-01-08 | **Spec**: [spec.md](spec.md)
+**Input**: Feature specification from `/kitty-specs/043-purchases-tab-crud-operations/spec.md`
 
 ## Summary
 
@@ -46,7 +46,7 @@ Implement a Purchases tab in PURCHASE mode as the primary data entry point for r
 ### Documentation (this feature)
 
 ```
-kitty-specs/042-purchases-tab-crud-operations/
+kitty-specs/043-purchases-tab-crud-operations/
 ├── spec.md              # Feature specification (complete)
 ├── plan.md              # This file
 ├── research.md          # Codebase patterns and decisions

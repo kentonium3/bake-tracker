@@ -1,6 +1,6 @@
 # Feature Specification: Purchases Tab with CRUD Operations
 
-**Feature Branch**: `042-purchases-tab-crud-operations`
+**Feature Branch**: `043-purchases-tab-crud-operations`
 **Created**: 2026-01-08
 **Status**: Draft
 **Input**: User description: "See docs/design/F043_purchases_tab_implementation.md"

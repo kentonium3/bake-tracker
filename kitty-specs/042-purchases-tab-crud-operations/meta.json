@@ -1,8 +1,0 @@
-{
-  "feature_number": "042",
-  "slug": "042-purchases-tab-crud-operations",
-  "friendly_name": "Purchases Tab with CRUD Operations",
-  "mission": "software-dev",
-  "source_description": "See docs/design/F043_purchases_tab_implementation.md for inputs on the next feature.",
-  "created_at": "2026-01-08T00:00:00Z"
-}

@@ -40,7 +40,7 @@ Implement purchase details with usage history (User Story 6).
 ## Context & Constraints
 
 **Reference Documents**:
-- `kitty-specs/042-purchases-tab-crud-operations/data-model.md` - get_remaining_inventory, get_purchase_usage_history
+- `kitty-specs/043-purchases-tab-crud-operations/data-model.md` - get_remaining_inventory, get_purchase_usage_history
 
 **Key Constraints**:
 - Read-only dialog (no save, just close)
