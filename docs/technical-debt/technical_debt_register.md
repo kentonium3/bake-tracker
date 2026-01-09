@@ -148,6 +148,37 @@ See: `docs/technical-debt/TD-006_expiration_date_deprecated.md`
 
 ---
 
+### TD-007: Ingredient Edit Form Missing Hierarchy Level Safeguards
+
+| Attribute | Value |
+|-----------|-------|
+| **Status** | Open |
+| **Priority** | Low |
+| **Created** | 2026-01-08 |
+| **Feature** | F042 |
+| **Location** | `src/ui/forms/ingredient_edit_form.py` |
+
+**Description:**
+
+The ingredient edit form does not apply appropriate safeguards based on the hierarchy level of the ingredient being edited. For example, editing an L0 root category still offers the option to select a parent L0, which is invalid since L0 items have no parent.
+
+**Impact:** User confusion, counter-intuitive UI behavior.
+
+**Suggested Fix:**
+
+Dynamically adjust available form fields based on hierarchy level:
+- L0: Hide parent selection, show only category-appropriate fields
+- L1: Show L0 parent selection only, hide leaf-specific fields
+- L2: Show L1 parent selection, show all ingredient fields
+
+**Workaround:** Users can avoid selecting inappropriate options. Service layer validates operations.
+
+**Reason for Deferral:** Implementing foundational workflow features (F043-F047) is higher priority.
+
+See: `docs/technical-debt/TD-007_ingredient_edit_form_hierarchy_safeguards.md`
+
+---
+
 ## Resolved Items
 
 *No resolved items yet.*

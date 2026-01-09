@@ -544,11 +544,13 @@ class IngredientsTab(ctk.CTkFrame):
 
         # Populate grid with all ingredients (Treeview handles large datasets well)
         for ingredient in filtered_ingredients:
-            # F036 fix: Get L0/L1 values from cache for separate columns
+            # F042 fix: Place ingredient name in correct column based on hierarchy level
+            # L0 (root): name in L0 column, L1 and Name blank
+            # L1 (subcategory): parent L0 in L0 column, name in L1 column, Name blank
+            # L2 (leaf): grandparent L0 in L0 column, parent L1 in L1 column, name in Name column
             ing_id = ingredient.get("id")
+            hierarchy_level = ingredient.get("hierarchy_level", 2)
             hierarchy_info = self._hierarchy_path_cache.get(ing_id, {"l0": "", "l1": ""})
-            l0_value = hierarchy_info.get("l0", "")
-            l1_value = hierarchy_info.get("l1", "")
 
             name = ingredient.get("display_name") or ingredient.get("name", "Unknown")
             is_packaging = ingredient.get("is_packaging", False)
@@ -556,7 +558,24 @@ class IngredientsTab(ctk.CTkFrame):
             if density == "Not set":
                 density = "—"
 
-            values = (l0_value, l1_value, name, density)
+            # Place name in the appropriate column based on hierarchy level
+            if hierarchy_level == 0:
+                # L0: name goes in L0 column
+                l0_value = name
+                l1_value = ""
+                name_value = ""
+            elif hierarchy_level == 1:
+                # L1: parent L0 in L0 column, name in L1 column
+                l0_value = hierarchy_info.get("l0", "")
+                l1_value = name
+                name_value = ""
+            else:
+                # L2: grandparent L0 in L0, parent L1 in L1, name in Name
+                l0_value = hierarchy_info.get("l0", "")
+                l1_value = hierarchy_info.get("l1", "")
+                name_value = name
+
+            values = (l0_value, l1_value, name_value, density)
             tags = ("packaging",) if is_packaging else ()
 
             # Use slug as the item ID for easy lookup
@@ -613,20 +632,33 @@ class IngredientsTab(ctk.CTkFrame):
         ascending = getattr(self, "sort_ascending", True)
 
         def get_sort_value(ing):
-            """Get the sortable value for an ingredient based on sort_key."""
+            """Get the sortable value for an ingredient based on sort_key.
+
+            F042 fix: Account for hierarchy level when sorting by L0/L1 columns.
+            """
+            ing_id = ing.get("id")
+            hierarchy_level = ing.get("hierarchy_level", 2)
+            hierarchy_info = self._hierarchy_path_cache.get(ing_id, {"l0": "", "l1": ""})
+            name = (ing.get("display_name") or ing.get("name", "")).lower()
+
             if sort_key == "l0":
-                # Get L0 value from cache
-                ing_id = ing.get("id")
-                hierarchy_info = self._hierarchy_path_cache.get(ing_id, {"l0": "", "l1": ""})
-                return hierarchy_info.get("l0", "").lower()
+                # Get L0 column value based on hierarchy level
+                if hierarchy_level == 0:
+                    return name  # L0 items: name is in L0 column
+                else:
+                    return hierarchy_info.get("l0", "").lower()
             elif sort_key == "l1":
-                # Get L1 value from cache
-                ing_id = ing.get("id")
-                hierarchy_info = self._hierarchy_path_cache.get(ing_id, {"l0": "", "l1": ""})
-                return hierarchy_info.get("l1", "").lower()
+                # Get L1 column value based on hierarchy level
+                if hierarchy_level == 1:
+                    return name  # L1 items: name is in L1 column
+                else:
+                    return hierarchy_info.get("l1", "").lower()
             elif sort_key == "name":
-                name = ing.get("display_name") or ing.get("name", "")
-                return name.lower()
+                # Get Name column value based on hierarchy level
+                if hierarchy_level == 2:
+                    return name  # L2 items: name is in Name column
+                else:
+                    return ""  # L0/L1 items have empty Name column
             else:
                 val = ing.get(sort_key, "")
                 return val.lower() if isinstance(val, str) else str(val)
