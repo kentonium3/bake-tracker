@@ -387,6 +387,96 @@ class RecipeIngredientRow(ctk.CTkFrame):
             self._last_valid_unit = selected_value
 
 
+class YieldTypeRow(ctk.CTkFrame):
+    """Row widget for a single yield type in the Recipe Edit form."""
+
+    def __init__(
+        self,
+        parent,
+        remove_callback,
+        finished_unit_id: Optional[int] = None,
+        display_name: str = "",
+        items_per_batch: int = 1,
+    ):
+        """
+        Initialize yield type row.
+
+        Args:
+            parent: Parent widget
+            remove_callback: Callback to remove this row
+            finished_unit_id: ID if editing existing (None for new)
+            display_name: Yield type name
+            items_per_batch: Number of items per batch
+        """
+        super().__init__(parent)
+
+        self.remove_callback = remove_callback
+        self.finished_unit_id = finished_unit_id
+
+        # Configure grid (Name / Items Per Batch / Remove)
+        self.grid_columnconfigure(0, weight=3)  # Name (wider)
+        self.grid_columnconfigure(1, weight=1)  # Quantity
+        self.grid_columnconfigure(2, weight=0)  # Remove button
+
+        # Name entry
+        self.name_entry = ctk.CTkEntry(
+            self,
+            width=250,
+            placeholder_text="Yield type name (e.g., Large Cookie)"
+        )
+        if display_name:
+            self.name_entry.insert(0, display_name)
+        self.name_entry.grid(row=0, column=0, padx=(0, PADDING_MEDIUM), pady=5, sticky="ew")
+
+        # Items per batch entry
+        self.quantity_entry = ctk.CTkEntry(
+            self,
+            width=100,
+            placeholder_text="Per batch"
+        )
+        self.quantity_entry.insert(0, str(items_per_batch))
+        self.quantity_entry.grid(row=0, column=1, padx=PADDING_MEDIUM, pady=5)
+
+        # Remove button
+        remove_button = ctk.CTkButton(
+            self,
+            text="X",
+            width=30,
+            command=lambda: remove_callback(self),
+            fg_color="darkred",
+            hover_color="red",
+        )
+        remove_button.grid(row=0, column=2, padx=(PADDING_MEDIUM, 0), pady=5)
+
+    def get_data(self) -> Optional[Dict[str, Any]]:
+        """
+        Get yield type data from this row.
+
+        Returns:
+            Dictionary with id, display_name, items_per_batch, or None if invalid
+        """
+        name = self.name_entry.get().strip()
+        quantity_str = self.quantity_entry.get().strip()
+
+        # Validate name
+        if not name:
+            return None
+
+        # Validate quantity
+        try:
+            items_per_batch = int(quantity_str)
+            if items_per_batch <= 0:
+                return None
+        except ValueError:
+            return None
+
+        return {
+            "id": self.finished_unit_id,
+            "display_name": name,
+            "items_per_batch": items_per_batch,
+        }
+
+
 class RecipeFormDialog(ctk.CTkToplevel):
     """
     Dialog for creating or editing a recipe.
@@ -414,6 +504,7 @@ class RecipeFormDialog(ctk.CTkToplevel):
         self.recipe = recipe
         self.result = None
         self.ingredient_rows: List[RecipeIngredientRow] = []
+        self.yield_type_rows: List[YieldTypeRow] = []
 
         # Sub-recipe tracking
         self.current_components: List[RecipeComponent] = []  # For existing recipe
@@ -651,11 +742,62 @@ class RecipeFormDialog(ctk.CTkToplevel):
         # Add ingredient button
         add_ingredient_button = ctk.CTkButton(
             parent,
-            text="➕ Add Ingredient",
+            text="+ Add Ingredient",
             command=self._add_ingredient_row,
             width=150,
         )
         add_ingredient_button.grid(row=row, column=0, columnspan=2, padx=PADDING_MEDIUM, pady=5)
+        row += 1
+
+        # Yield Types section (F044 - WP03)
+        yield_types_label = ctk.CTkLabel(
+            parent,
+            text="Yield Types",
+            font=ctk.CTkFont(size=14, weight="bold"),
+        )
+        yield_types_label.grid(
+            row=row,
+            column=0,
+            columnspan=2,
+            sticky="w",
+            padx=PADDING_MEDIUM,
+            pady=(PADDING_LARGE, PADDING_MEDIUM),
+        )
+        row += 1
+
+        # Yield types info label
+        yield_types_info = ctk.CTkLabel(
+            parent,
+            text="Define the finished products this recipe produces (e.g., Large Cookie, Small Cookie)",
+            text_color="gray",
+            font=ctk.CTkFont(size=11),
+        )
+        yield_types_info.grid(
+            row=row,
+            column=0,
+            columnspan=2,
+            sticky="w",
+            padx=PADDING_MEDIUM,
+            pady=(0, 5),
+        )
+        row += 1
+
+        # Yield types container
+        self.yield_types_frame = ctk.CTkFrame(parent, fg_color="transparent")
+        self.yield_types_frame.grid(
+            row=row, column=0, columnspan=2, sticky="ew", padx=PADDING_MEDIUM, pady=5
+        )
+        self.yield_types_frame.grid_columnconfigure(0, weight=1)
+        row += 1
+
+        # Add yield type button
+        add_yield_type_button = ctk.CTkButton(
+            parent,
+            text="+ Add Yield Type",
+            command=self._add_yield_type_row,
+            width=150,
+        )
+        add_yield_type_button.grid(row=row, column=0, columnspan=2, padx=PADDING_MEDIUM, pady=5)
         row += 1
 
         # Sub-Recipes Section (T034)
@@ -1098,6 +1240,59 @@ class RecipeFormDialog(ctk.CTkToplevel):
             for idx, remaining_row in enumerate(self.ingredient_rows):
                 remaining_row.grid(row=idx, column=0, sticky="ew", pady=2)
 
+    def _add_yield_type_row(
+        self,
+        finished_unit_id: Optional[int] = None,
+        display_name: str = "",
+        items_per_batch: int = 1,
+    ):
+        """
+        Add a new yield type row.
+
+        Args:
+            finished_unit_id: ID if editing existing (None for new)
+            display_name: Yield type name
+            items_per_batch: Number of items per batch
+        """
+        row = YieldTypeRow(
+            self.yield_types_frame,
+            self._remove_yield_type_row,
+            finished_unit_id,
+            display_name,
+            items_per_batch,
+        )
+        row.grid(row=len(self.yield_type_rows), column=0, sticky="ew", pady=2)
+        self.yield_type_rows.append(row)
+
+    def _remove_yield_type_row(self, row: YieldTypeRow):
+        """
+        Remove a yield type row after confirmation.
+
+        Args:
+            row: Row to remove
+        """
+        if row in self.yield_type_rows:
+            # Check if row has data (existing yield type or filled-in new row)
+            name = row.name_entry.get().strip()
+            has_data = name or row.finished_unit_id is not None
+
+            if has_data:
+                # Confirm deletion (F044 fix: FR-008 compliance)
+                confirmed = show_confirmation(
+                    "Remove Yield Type",
+                    f"Are you sure you want to remove the yield type '{name or 'this entry'}'?\n\n"
+                    "This change will be saved when you save the recipe.",
+                    parent=self,
+                )
+                if not confirmed:
+                    return
+
+            self.yield_type_rows.remove(row)
+            row.destroy()
+            # Re-grid remaining rows
+            for idx, remaining_row in enumerate(self.yield_type_rows):
+                remaining_row.grid(row=idx, column=0, sticky="ew", pady=2)
+
     def _populate_form(self):
         """Populate form fields with existing recipe data."""
         if not self.recipe:
@@ -1132,6 +1327,20 @@ class RecipeFormDialog(ctk.CTkToplevel):
             self.current_components = recipe_service.get_recipe_components(self.recipe.id)
             self._refresh_subrecipes_display()
             self._update_cost_summary()
+        except Exception:
+            pass
+
+        # Load yield types (F044 - WP03 T009)
+        try:
+            from src.services import finished_unit_service
+
+            yield_types = finished_unit_service.get_units_by_recipe(self.recipe.id)
+            for yt in yield_types:
+                self._add_yield_type_row(
+                    finished_unit_id=yt.id,
+                    display_name=yt.display_name,
+                    items_per_batch=yt.items_per_batch or 1,
+                )
         except Exception:
             pass
 
@@ -1225,7 +1434,72 @@ class RecipeFormDialog(ctk.CTkToplevel):
             if not confirmed:
                 return None
 
-        # Return validated data (T041 - include pending components)
+        # Validate yield types (F044 - WP03 T010: warning if none, error if invalid)
+        yield_types = []
+        for idx, row in enumerate(self.yield_type_rows):
+            # Get raw values for validation
+            name = row.name_entry.get().strip()
+            quantity_str = row.quantity_entry.get().strip()
+
+            # Skip completely empty rows (not an error, just not entered)
+            if not name and not quantity_str:
+                continue
+
+            # Validate name
+            if not name:
+                show_error(
+                    "Validation Error",
+                    f"Yield type row {idx + 1}: Name is required.",
+                    parent=self,
+                )
+                return None
+
+            # Validate quantity
+            if not quantity_str:
+                show_error(
+                    "Validation Error",
+                    f"Yield type '{name}': Items per batch is required.",
+                    parent=self,
+                )
+                return None
+
+            try:
+                items_per_batch = int(quantity_str)
+            except ValueError:
+                show_error(
+                    "Validation Error",
+                    f"Yield type '{name}': Items per batch must be a whole number.",
+                    parent=self,
+                )
+                return None
+
+            if items_per_batch <= 0:
+                show_error(
+                    "Validation Error",
+                    f"Yield type '{name}': Items per batch must be greater than zero.",
+                    parent=self,
+                )
+                return None
+
+            yield_types.append({
+                "id": row.finished_unit_id,
+                "display_name": name,
+                "items_per_batch": items_per_batch,
+            })
+
+        if not yield_types:
+            confirmed = show_confirmation(
+                "No Yield Types",
+                "This recipe has no yield types defined.\n\n"
+                "Yield types specify what finished products this recipe produces "
+                "(e.g., '30 Large Cookies per batch').\n\n"
+                "Continue without yield types?",
+                parent=self,
+            )
+            if not confirmed:
+                return None
+
+        # Return validated data (T041 - include pending components, F044 - include yield_types)
         return {
             "name": name,
             "category": category,
@@ -1236,6 +1510,7 @@ class RecipeFormDialog(ctk.CTkToplevel):
             "ingredients": ingredients,
             "pending_components": self.pending_components,  # For new recipes
             "is_production_ready": self.production_ready_var.get(),  # T030 - Feature 037
+            "yield_types": yield_types,  # F044 - WP03
         }
 
     def _save(self):

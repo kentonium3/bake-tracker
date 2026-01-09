@@ -21,7 +21,7 @@ import unicodedata
 from datetime import datetime
 from src.utils.datetime_utils import utc_now
 
-from sqlalchemy import and_, or_, text
+from sqlalchemy import and_, func, or_, text
 from sqlalchemy.orm import Session, selectinload
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
@@ -253,6 +253,11 @@ class FinishedUnitService:
                     if not recipe:
                         raise ValidationError(f"Recipe ID {recipe_id} does not exist")
 
+                    # Validate name uniqueness within recipe
+                    FinishedUnitService._validate_name_unique_in_recipe(
+                        display_name.strip(), recipe_id, session
+                    )
+
                     # Create FinishedUnit with validated data
                     unit_data = {
                         "slug": slug,
@@ -357,6 +362,25 @@ class FinishedUnitService:
                     recipe = session.query(Recipe).filter(Recipe.id == updates["recipe_id"]).first()
                     if not recipe:
                         raise ValidationError(f"Recipe ID {updates['recipe_id']} does not exist")
+
+                # Validate name uniqueness within recipe for renames or recipe changes
+                # Get the effective values after update
+                effective_name = updates.get("display_name", unit.display_name)
+                if effective_name:
+                    effective_name = effective_name.strip()
+                effective_recipe_id = updates.get("recipe_id", unit.recipe_id)
+
+                # Check if name or recipe is changing
+                name_changing = "display_name" in updates and effective_name != unit.display_name
+                recipe_changing = "recipe_id" in updates and effective_recipe_id != unit.recipe_id
+
+                if name_changing or recipe_changing:
+                    FinishedUnitService._validate_name_unique_in_recipe(
+                        effective_name,
+                        effective_recipe_id,
+                        session,
+                        exclude_id=finished_unit_id,
+                    )
 
                 # Apply updates
                 for field, value in updates.items():
@@ -923,6 +947,41 @@ class FinishedUnitService:
                 return candidate_slug
 
         raise ValidationError(f"Unable to generate unique slug after {max_attempts} attempts")
+
+    @staticmethod
+    def _validate_name_unique_in_recipe(
+        display_name: str,
+        recipe_id: int,
+        session: Session,
+        exclude_id: Optional[int] = None,
+    ) -> None:
+        """
+        Validate that display_name is unique within a recipe.
+
+        Uses case-insensitive comparison to prevent duplicates like
+        "Large Cookie" vs "large cookie".
+
+        Args:
+            display_name: The name to validate
+            recipe_id: The recipe ID to check within
+            session: SQLAlchemy session to use
+            exclude_id: Optional FinishedUnit ID to exclude (for updates)
+
+        Raises:
+            ValidationError: If a duplicate name exists for this recipe
+        """
+        query = session.query(FinishedUnit).filter(
+            FinishedUnit.recipe_id == recipe_id,
+            func.lower(FinishedUnit.display_name) == func.lower(display_name.strip()),
+        )
+        if exclude_id is not None:
+            query = query.filter(FinishedUnit.id != exclude_id)
+
+        existing = query.first()
+        if existing:
+            raise ValidationError(
+                f"A yield type named '{display_name}' already exists for this recipe"
+            )
 
 
 # Module-level convenience functions for backward compatibility
