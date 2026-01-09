@@ -216,11 +216,6 @@ class FinishedGoodService:
             # Generate unique slug
             slug = FinishedGoodService._generate_slug(display_name.strip())
 
-            # Validate total cost
-            total_cost = kwargs.get("total_cost", Decimal("0.0000"))
-            if total_cost < 0:
-                raise ValidationError("Total cost must be non-negative")
-
             with session_scope() as session:
                 # Check slug uniqueness
                 existing = session.query(FinishedGood).filter(FinishedGood.slug == slug).first()
@@ -238,7 +233,6 @@ class FinishedGoodService:
                     "slug": slug,
                     "display_name": display_name.strip(),
                     "assembly_type": assembly_type,
-                    "total_cost": total_cost,
                     "inventory_count": kwargs.get("inventory_count", 0),
                     "description": kwargs.get("description"),
                     "packaging_instructions": kwargs.get("packaging_instructions"),
@@ -254,39 +248,23 @@ class FinishedGoodService:
 
                 # Add components if provided
                 if components:
-                    total_component_cost = Decimal("0.0000")
-
                     for component_spec in components:
                         composition = FinishedGoodService._create_composition(
                             finished_good.id, component_spec, session
                         )
                         session.add(composition)
 
-                        # Calculate component cost contribution
-                        component_cost = FinishedGoodService._get_component_cost(
-                            component_spec, session
-                        )
-                        total_component_cost += component_cost * component_spec["quantity"]
-
-                    # Calculate packaging cost and total cost
-                    packaging_cost = calculate_packaging_cost(assembly_type, total_component_cost)
-                    total_cost_with_packaging = total_component_cost + packaging_cost
-
-                    # Update total cost if not explicitly provided
-                    if "total_cost" not in kwargs:
-                        finished_good.total_cost = total_cost_with_packaging
-
-                    # Validate business rules
+                    # Validate business rules (cost parameter removed in F045)
                     component_count = len(components)
                     is_valid, errors = validate_assembly_type_business_rules(
-                        assembly_type, component_count, total_cost_with_packaging
+                        assembly_type, component_count, Decimal("0.0000")
                     )
                     if not is_valid:
                         raise ValidationError(
                             [f"Assembly type validation failed: {'; '.join(errors)}"]
                         )
 
-                elif "total_cost" not in kwargs:
+                else:
                     # No components provided, validate minimum requirements
                     component_count = 0
                     is_valid, errors = validate_assembly_type_business_rules(
@@ -684,42 +662,6 @@ class FinishedGoodService:
                 f"Database error getting components for FinishedGood ID {finished_good_id}: {e}"
             )
             raise DatabaseError(f"Failed to get components: {e}")
-
-    @staticmethod
-    def calculate_total_cost(finished_good_id: int) -> Decimal:
-        """
-        Calculate total cost of assembly including all components.
-
-        Args:
-            finished_good_id: ID of the assembly
-
-        Returns:
-            Total calculated cost
-
-        Performance:
-            Must complete in <500ms for complex hierarchies per contract
-        """
-        try:
-            with get_db_session() as session:
-                assembly = (
-                    session.query(FinishedGood)
-                    .options(selectinload(FinishedGood.components))
-                    .filter(FinishedGood.id == finished_good_id)
-                    .first()
-                )
-
-                if not assembly:
-                    raise FinishedGoodNotFoundError(f"FinishedGood ID {finished_good_id} not found")
-
-                total_cost = assembly.calculate_component_cost()
-                logger.debug(f"Calculated total cost for assembly {finished_good_id}: {total_cost}")
-                return total_cost
-
-        except SQLAlchemyError as e:
-            logger.error(
-                f"Database error calculating cost for FinishedGood ID {finished_good_id}: {e}"
-            )
-            raise DatabaseError(f"Failed to calculate total cost: {e}")
 
     @staticmethod
     def check_assembly_availability(finished_good_id: int, required_quantity: int = 1) -> dict:
@@ -1121,35 +1063,6 @@ class FinishedGoodService:
         return Composition(**composition_data)
 
     @staticmethod
-    def _get_component_cost(component_spec: dict, session: Session) -> Decimal:
-        """Get unit cost for a component."""
-        component_type = component_spec["component_type"]
-        component_id = component_spec["component_id"]
-
-        if component_type == "finished_unit":
-            component = session.query(FinishedUnit).filter(FinishedUnit.id == component_id).first()
-            return component.unit_cost if component else Decimal("0.0000")
-        elif component_type == "finished_good":
-            component = session.query(FinishedGood).filter(FinishedGood.id == component_id).first()
-            return component.total_cost if component else Decimal("0.0000")
-
-        return Decimal("0.0000")
-
-    @staticmethod
-    def _recalculate_assembly_cost(assembly_id: int, session: Session) -> None:
-        """Recalculate and update assembly total cost."""
-        assembly = (
-            session.query(FinishedGood)
-            .options(selectinload(FinishedGood.components))
-            .filter(FinishedGood.id == assembly_id)
-            .first()
-        )
-
-        if assembly:
-            assembly.update_total_cost_from_components()
-            session.flush()
-
-    @staticmethod
     def _get_flattened_components(finished_good_id: int, session: Session) -> List[dict]:
         """
         Get all components in a flattened list format.
@@ -1197,7 +1110,6 @@ class FinishedGoodService:
                             "component_type": "finished_unit",
                             "component_id": unit.id,
                             "display_name": unit.display_name,
-                            "unit_cost": float(unit.unit_cost),
                             "inventory_count": unit.inventory_count,
                             "slug": unit.slug,
                         }
@@ -1215,7 +1127,6 @@ class FinishedGoodService:
                             "component_type": "finished_good",
                             "component_id": subassembly.id,
                             "display_name": subassembly.display_name,
-                            "unit_cost": float(subassembly.total_cost),
                             "inventory_count": subassembly.inventory_count,
                             "slug": subassembly.slug,
                             "assembly_type": subassembly.assembly_type.value,
@@ -1229,7 +1140,6 @@ class FinishedGoodService:
         for key, total_quantity in components.items():
             detail = component_details[key].copy()
             detail["total_quantity"] = total_quantity
-            detail["total_cost"] = detail["unit_cost"] * total_quantity
             result.append(detail)
 
         # Sort by component type and name
@@ -1272,8 +1182,6 @@ class FinishedGoodService:
                         "display_name": unit.display_name,
                         "slug": unit.slug,
                         "quantity": comp.component_quantity,
-                        "unit_cost": float(unit.unit_cost),
-                        "total_cost": float(unit.unit_cost * comp.component_quantity),
                         "inventory_count": unit.inventory_count,
                         "component_notes": comp.component_notes,
                         "sort_order": comp.sort_order,
@@ -1291,8 +1199,6 @@ class FinishedGoodService:
                         "display_name": subassembly.display_name,
                         "slug": subassembly.slug,
                         "quantity": comp.component_quantity,
-                        "unit_cost": float(subassembly.total_cost),
-                        "total_cost": float(subassembly.total_cost * comp.component_quantity),
                         "inventory_count": subassembly.inventory_count,
                         "assembly_type": subassembly.assembly_type.value,
                         "component_notes": comp.component_notes,
@@ -1336,10 +1242,10 @@ class FinishedGoodService:
                     raise FinishedGoodNotFoundError(f"FinishedGood ID {assembly_id} not found")
 
                 component_count = len(assembly.components)
-                total_cost = assembly.total_cost
 
+                # Cost parameter removed in F045 - pass 0 for backward compatibility
                 is_valid, errors = validate_assembly_type_business_rules(
-                    assembly.assembly_type, component_count, total_cost
+                    assembly.assembly_type, component_count, Decimal("0.0000")
                 )
 
                 result = {
@@ -1349,7 +1255,6 @@ class FinishedGoodService:
                     "is_valid": is_valid,
                     "errors": errors,
                     "component_count": component_count,
-                    "total_cost": float(total_cost),
                     "business_rules": assembly.assembly_type.get_business_rules(),
                     "component_limits": assembly.assembly_type.get_component_limits(),
                     "validated_at": utc_now().isoformat(),
@@ -1361,63 +1266,6 @@ class FinishedGoodService:
         except SQLAlchemyError as e:
             logger.error(f"Database error validating assembly business rules: {e}")
             raise DatabaseError(f"Failed to validate assembly business rules: {e}")
-
-    @staticmethod
-    def calculate_suggested_pricing(assembly_id: int) -> dict:
-        """
-        Calculate suggested pricing based on assembly type markup rules.
-
-        Args:
-            assembly_id: ID of the assembly
-
-        Returns:
-            Dictionary with pricing breakdown and suggestions
-
-        Performance:
-            Must complete in <200ms per contract
-        """
-        try:
-            with get_db_session() as session:
-                assembly = (
-                    session.query(FinishedGood).filter(FinishedGood.id == assembly_id).first()
-                )
-
-                if not assembly:
-                    raise FinishedGoodNotFoundError(f"FinishedGood ID {assembly_id} not found")
-
-                # Calculate component cost breakdown
-                cost_breakdown = FinishedGoodService.calculate_total_cost(assembly_id)
-
-                # Get packaging cost
-                packaging_cost = calculate_packaging_cost(assembly.assembly_type, cost_breakdown)
-
-                # Calculate suggested retail price
-                suggested_price = get_suggested_retail_price(
-                    assembly.assembly_type, assembly.total_cost
-                )
-
-                pricing_info = {
-                    "assembly_id": assembly_id,
-                    "assembly_type": assembly.assembly_type.value,
-                    "assembly_type_name": assembly.assembly_type.get_display_name(),
-                    "component_cost": float(cost_breakdown),
-                    "packaging_cost": float(packaging_cost),
-                    "total_cost": float(assembly.total_cost),
-                    "markup_percentage": float(assembly.assembly_type.get_pricing_markup() * 100),
-                    "suggested_retail_price": float(suggested_price),
-                    "profit_margin": float(suggested_price - assembly.total_cost),
-                    "profit_margin_percentage": float(
-                        ((suggested_price - assembly.total_cost) / suggested_price) * 100
-                    ),
-                    "calculated_at": utc_now().isoformat(),
-                }
-
-                logger.debug(f"Calculated pricing for assembly {assembly_id}: ${suggested_price}")
-                return pricing_info
-
-        except SQLAlchemyError as e:
-            logger.error(f"Database error calculating suggested pricing: {e}")
-            raise DatabaseError(f"Failed to calculate suggested pricing: {e}")
 
     @staticmethod
     def get_assembly_type_recommendations(assembly_type: AssemblyType) -> dict:
@@ -1473,10 +1321,10 @@ class FinishedGoodService:
                 for assembly in assemblies:
                     issues = []
 
-                    # Check business rule compliance
+                    # Check business rule compliance (cost parameter removed in F045)
                     component_count = len(assembly.components)
                     is_valid, errors = validate_assembly_type_business_rules(
-                        assembly.assembly_type, component_count, assembly.total_cost
+                        assembly.assembly_type, component_count, Decimal("0.0000")
                     )
 
                     if not is_valid:
@@ -1499,7 +1347,6 @@ class FinishedGoodService:
                                 "assembly_type_name": assembly.assembly_type.get_display_name(),
                                 "issues": issues,
                                 "component_count": component_count,
-                                "total_cost": float(assembly.total_cost),
                                 "last_updated": (
                                     assembly.updated_at.isoformat() if assembly.updated_at else None
                                 ),

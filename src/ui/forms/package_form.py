@@ -67,8 +67,7 @@ class FinishedGoodRow(ctk.CTkFrame):
         # FinishedGood dropdown
         fg_names = []
         for fg in finished_goods:
-            cost = fg.total_cost if fg.total_cost else Decimal("0.00")
-            fg_names.append(f"{fg.display_name} (${cost:.2f})")
+            fg_names.append(fg.display_name)
 
         self.fg_combo = ctk.CTkComboBox(
             self,

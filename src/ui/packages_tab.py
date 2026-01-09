@@ -370,16 +370,10 @@ class PackagesTab(ctk.CTkFrame):
         if self.selected_package.package_finished_goods:
             for pfg in self.selected_package.package_finished_goods:
                 fg_name = pfg.finished_good.display_name if pfg.finished_good else "Unknown"
-                fg_cost = (
-                    pfg.finished_good.total_cost
-                    if pfg.finished_good and pfg.finished_good.total_cost
-                    else Decimal("0.00")
-                )
-                total_cost = fg_cost * pfg.quantity
 
                 ctk.CTkLabel(
                     scroll_frame,
-                    text=f"  - {fg_name} x {pfg.quantity} = ${total_cost:.2f}",
+                    text=f"  - {fg_name} x {pfg.quantity}",
                     font=ctk.CTkFont(size=12),
                 ).pack(anchor="w", pady=2)
         else:

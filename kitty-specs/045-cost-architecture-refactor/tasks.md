@@ -107,9 +107,9 @@
 **Agent Assignment**: Sequential (after WP01 + WP02 complete)
 
 ### Included Subtasks
-- [ ] T014 Remove cost calculation references in `src/services/finished_unit_service.py`
-- [ ] T015 Remove cost assignment/retrieval in `src/services/finished_good_service.py`
-- [ ] T016 Verify UI tabs don't reference removed service methods
+- [x] T014 Remove cost calculation references in `src/services/finished_unit_service.py`
+- [x] T015 Remove cost assignment/retrieval in `src/services/finished_good_service.py`
+- [x] T016 Verify UI tabs don't reference removed service methods
 
 ### Implementation Notes
 
