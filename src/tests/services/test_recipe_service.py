@@ -21,7 +21,42 @@ from src.services import (
     purchase_service
 )
 from src.services.exceptions import RecipeNotFound, IngredientNotFound, ValidationError
-from src.models import Recipe, RecipeIngredient
+from src.services.database import session_scope
+from src.models import Recipe, RecipeIngredient, Purchase, Supplier
+
+
+def create_purchase_for_fallback_pricing(
+    product_id: int,
+    unit_price: Decimal,
+    purchase_date: date,
+    quantity_purchased: int = 1,
+) -> None:
+    """Create a Purchase record directly for fallback pricing tests.
+
+    This bypasses record_purchase() which now creates InventoryItems.
+    Use this when testing fallback pricing without adding inventory.
+    """
+    with session_scope() as session:
+        # Get or create a test supplier
+        supplier = session.query(Supplier).filter(Supplier.name == "Test Supplier").first()
+        if not supplier:
+            supplier = Supplier(
+                name="Test Supplier",
+                city="Test City",
+                state="TS",
+                zip_code="00000",
+            )
+            session.add(supplier)
+            session.flush()
+
+        purchase = Purchase(
+            product_id=product_id,
+            supplier_id=supplier.id,
+            purchase_date=purchase_date,
+            unit_price=unit_price,
+            quantity_purchased=quantity_purchased,
+        )
+        session.add(purchase)
 
 class TestCalculateActualCost:
     """Tests for calculate_actual_cost() method."""
@@ -237,11 +272,10 @@ class TestCalculateActualCost:
             purchase_date=date(2025, 1, 1)
         )
 
-        # Record a purchase for fallback pricing at $0.15/cup
-        purchase_service.record_purchase(
+        # Create a purchase for fallback pricing at $0.15/cup (without adding inventory)
+        create_purchase_for_fallback_pricing(
             product_id=product.id,
-            quantity=Decimal("10.0"),
-            total_cost=Decimal("1.50"),  # $0.15/cup
+            unit_price=Decimal("0.15"),  # $0.15/cup
             purchase_date=date(2025, 1, 15)
         )
 
@@ -281,11 +315,10 @@ class TestCalculateActualCost:
         )
         product_service.set_preferred_product(product.id)
 
-        # Record purchase for fallback pricing (no inventory items)
-        purchase_service.record_purchase(
+        # Create purchase for fallback pricing (no inventory items)
+        create_purchase_for_fallback_pricing(
             product_id=product.id,
-            quantity=Decimal("10.0"),
-            total_cost=Decimal("2.00"),  # $0.20/cup
+            unit_price=Decimal("0.20"),  # $0.20/cup
             purchase_date=date(2025, 1, 15)
         )
 
@@ -887,23 +920,20 @@ class TestPartialInventoryScenarios:
 
         # Butter: NO inventory items (zero coverage)
 
-        # Record purchases for fallback pricing
-        purchase_service.record_purchase(
+        # Create purchases for fallback pricing (without adding inventory)
+        create_purchase_for_fallback_pricing(
             product_id=flour_product.id,
-            quantity=Decimal("10.0"),
-            total_cost=Decimal("1.50"),  # $0.15/cup
+            unit_price=Decimal("0.15"),  # $0.15/cup
             purchase_date=date(2025, 1, 15)
         )
-        purchase_service.record_purchase(
+        create_purchase_for_fallback_pricing(
             product_id=sugar_product.id,
-            quantity=Decimal("10.0"),
-            total_cost=Decimal("3.00"),  # $0.30/cup (won't be used - full coverage)
+            unit_price=Decimal("0.30"),  # $0.30/cup (won't be used - full coverage)
             purchase_date=date(2025, 1, 15)
         )
-        purchase_service.record_purchase(
+        create_purchase_for_fallback_pricing(
             product_id=butter_product.id,
-            quantity=Decimal("10.0"),
-            total_cost=Decimal("5.00"),  # $0.50/cup (100% fallback)
+            unit_price=Decimal("0.50"),  # $0.50/cup (100% fallback)
             purchase_date=date(2025, 1, 15)
         )
 
@@ -1019,11 +1049,10 @@ class TestPartialInventoryScenarios:
             purchase_date=date(2025, 1, 1)
         )
 
-        # Record fallback at $0.456/cup (precise value)
-        purchase_service.record_purchase(
+        # Create fallback purchase at $0.456/cup (precise value, without adding inventory)
+        create_purchase_for_fallback_pricing(
             product_id=product.id,
-            quantity=Decimal("10.0"),
-            total_cost=Decimal("4.56"),  # $0.456/cup
+            unit_price=Decimal("0.456"),  # $0.456/cup
             purchase_date=date(2025, 1, 15)
         )
 

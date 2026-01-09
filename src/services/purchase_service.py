@@ -37,14 +37,16 @@ Example Usage:
     Decimal('0.012')
 """
 
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List, Optional, Tuple
 from decimal import Decimal
 from datetime import date, timedelta
 from statistics import linear_regression
 
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 
 from ..models import Purchase, Product, Supplier
+from ..models.inventory_item import InventoryItem
+from ..models.inventory_depletion import InventoryDepletion
 from .database import session_scope
 from .ingredient_service import get_ingredient
 from .exceptions import (
@@ -69,21 +71,26 @@ def record_purchase(
     store: Optional[str] = None,
     receipt_number: Optional[str] = None,
     notes: Optional[str] = None,
+    session: Optional[Session] = None,
 ) -> Purchase:
-    """Record a new purchase with automatic unit cost calculation.
+    """Record a new purchase with automatic unit cost calculation and inventory creation.
 
-    This function creates a purchase record and auto-calculates the unit cost
-    by dividing total_cost by quantity. All monetary values use Decimal for
-    precision.
+    This function creates a purchase record, auto-calculates the unit cost
+    by dividing total_cost by quantity, and creates the linked InventoryItem
+    records atomically. All monetary values use Decimal for precision.
+
+    Per spec FR-014: System MUST create both Purchase and InventoryItem records
+    atomically on save.
 
     Args:
         product_id: ID of product purchased
-        quantity: Quantity purchased (must be > 0)
+        quantity: Quantity purchased in packages (must be > 0)
         total_cost: Total amount paid (must be >= 0)
         purchase_date: Date of purchase
         store: Optional store/supplier name
         receipt_number: Optional receipt identifier for tracking
         notes: Optional user notes
+        session: Optional database session for transaction sharing
 
     Returns:
         Purchase: Created purchase record with calculated unit_cost
@@ -109,8 +116,33 @@ def record_purchase(
         >>> purchase.quantity
         Decimal('25.0')
     """
-    # Validate product exists
-    product = get_product(product_id)
+    if session is not None:
+        return _record_purchase_impl(
+            product_id, quantity, total_cost, purchase_date,
+            store, receipt_number, notes, session
+        )
+    with session_scope() as sess:
+        return _record_purchase_impl(
+            product_id, quantity, total_cost, purchase_date,
+            store, receipt_number, notes, sess
+        )
+
+
+def _record_purchase_impl(
+    product_id: int,
+    quantity: Decimal,
+    total_cost: Decimal,
+    purchase_date: date,
+    store: Optional[str],
+    receipt_number: Optional[str],
+    notes: Optional[str],
+    session: Session,
+) -> Purchase:
+    """Implementation for record_purchase."""
+    # Validate product exists - need to query within session
+    product = session.query(Product).filter_by(id=product_id).first()
+    if not product:
+        raise ProductNotFound(product_id)
 
     # Validate quantity > 0
     if quantity <= 0:
@@ -120,47 +152,70 @@ def record_purchase(
     if total_cost < 0:
         raise ServiceValidationError("Total cost cannot be negative")
 
-    # Calculate unit price from total cost and quantity
+    # Calculate unit price from total cost and quantity (price per package)
     unit_price = total_cost / quantity if quantity > 0 else Decimal("0.0")
 
     try:
-        with session_scope() as session:
-            # Find or create supplier from store name
-            store_name = store if store else "Unknown"
-            supplier = session.query(Supplier).filter(Supplier.name == store_name).first()
-            if not supplier:
-                # Create a minimal supplier record with required fields
-                supplier = Supplier(
-                    name=store_name,
-                    city="Unknown",
-                    state="XX",
-                    zip_code="00000",
-                )
-                session.add(supplier)
-                session.flush()
-            supplier_id = supplier.id
-
-            # Combine receipt_number into notes if provided
-            full_notes = notes
-            if receipt_number:
-                if full_notes:
-                    full_notes = f"Receipt: {receipt_number}; {full_notes}"
-                else:
-                    full_notes = f"Receipt: {receipt_number}"
-
-            purchase = Purchase(
-                product_id=product_id,
-                supplier_id=supplier_id,
-                purchase_date=purchase_date,
-                unit_price=unit_price,
-                quantity_purchased=int(quantity),  # Model expects int
-                notes=full_notes,
+        # Find or create supplier from store name
+        store_name = store if store else "Unknown"
+        supplier = session.query(Supplier).filter(Supplier.name == store_name).first()
+        if not supplier:
+            # Create a minimal supplier record with required fields
+            supplier = Supplier(
+                name=store_name,
+                city="Unknown",
+                state="XX",
+                zip_code="00000",
             )
+            session.add(supplier)
+            session.flush()
+        supplier_id = supplier.id
 
-            session.add(purchase)
-            session.flush()  # Get ID before commit
+        # Combine receipt_number into notes if provided
+        full_notes = notes
+        if receipt_number:
+            if full_notes:
+                full_notes = f"Receipt: {receipt_number}; {full_notes}"
+            else:
+                full_notes = f"Receipt: {receipt_number}"
 
-            return purchase
+        # Create the Purchase record
+        purchase = Purchase(
+            product_id=product_id,
+            supplier_id=supplier_id,
+            purchase_date=purchase_date,
+            unit_price=unit_price,
+            quantity_purchased=int(quantity),  # Model expects int
+            notes=full_notes,
+        )
+
+        session.add(purchase)
+        session.flush()  # Get purchase ID before creating inventory
+
+        # FR-014: Create InventoryItem record linked to this purchase
+        # Calculate inventory quantity and unit cost
+        package_unit_qty = Decimal("1")
+        if product.package_unit_quantity:
+            package_unit_qty = Decimal(str(product.package_unit_quantity))
+
+        # Total units = packages * units per package
+        total_units = Decimal(str(int(quantity))) * package_unit_qty
+
+        # Unit cost = price per package / units per package
+        unit_cost = float(unit_price / package_unit_qty) if package_unit_qty > 0 else float(unit_price)
+
+        inventory_item = InventoryItem(
+            product_id=product_id,
+            purchase_id=purchase.id,
+            quantity=float(total_units),
+            unit_cost=unit_cost,
+            purchase_date=purchase_date,
+        )
+
+        session.add(inventory_item)
+        session.flush()
+
+        return purchase
 
     except ProductNotFound:
         raise
@@ -170,14 +225,19 @@ def record_purchase(
         raise DatabaseError(f"Failed to record purchase", original_error=e)
 
 
-def get_purchase(purchase_id: int) -> Purchase:
-    """Retrieve purchase record by ID.
+def get_purchase(
+    purchase_id: int,
+    session: Optional[Session] = None,
+) -> Purchase:
+    """Retrieve purchase record by ID with eager-loaded relationships.
 
     Args:
         purchase_id: Purchase identifier
+        session: Optional database session for transaction sharing
 
     Returns:
-        Purchase: Purchase object with product relationship eager-loaded
+        Purchase: Purchase object with product, supplier, and inventory_items
+            relationships eager-loaded for use outside session.
 
     Raises:
         PurchaseNotFound: If purchase_id doesn't exist
@@ -189,13 +249,38 @@ def get_purchase(purchase_id: int) -> Purchase:
         >>> purchase.total_cost
         Decimal('18.99')
     """
-    with session_scope() as session:
-        purchase = session.query(Purchase).filter_by(id=purchase_id).first()
+    if session is not None:
+        return _get_purchase_impl(purchase_id, session)
+    with session_scope() as sess:
+        return _get_purchase_impl(purchase_id, sess)
 
-        if not purchase:
-            raise PurchaseNotFound(purchase_id)
 
-        return purchase
+def _get_purchase_impl(purchase_id: int, session: Session) -> Purchase:
+    """Implementation for get_purchase with eager loading."""
+    purchase = (
+        session.query(Purchase)
+        .options(
+            joinedload(Purchase.product),
+            joinedload(Purchase.supplier),
+            joinedload(Purchase.inventory_items).joinedload(InventoryItem.depletions),
+        )
+        .filter(Purchase.id == purchase_id)
+        .first()
+    )
+
+    if not purchase:
+        raise PurchaseNotFound(purchase_id)
+
+    # Ensure all attributes are loaded before returning
+    # This forces SQLAlchemy to load everything while session is open
+    _ = purchase.product.display_name if purchase.product else None
+    _ = purchase.supplier.name if purchase.supplier else None
+    for item in purchase.inventory_items:
+        _ = item.quantity
+        for dep in item.depletions:
+            _ = dep.quantity_depleted
+
+    return purchase
 
 
 def get_purchase_history(
@@ -657,39 +742,644 @@ def _get_last_price_any_supplier_impl(
     }
 
 
-def delete_purchase(purchase_id: int) -> bool:
-    """Delete purchase record.
+def delete_purchase(
+    purchase_id: int,
+    session: Optional[Session] = None,
+) -> bool:
+    """Delete purchase record and linked inventory items.
 
-    Deletes a purchase record. Typically used for correcting erroneous entries.
+    Deletes a purchase record along with all linked InventoryItem records.
+    Per spec FR-024: Delete MUST cascade to remove linked InventoryItem records.
+
+    This function should only be called after validating with can_delete_purchase()
+    that no depletions exist. If depletions exist, the FK constraint on
+    InventoryDepletion will prevent deletion.
 
     Args:
         purchase_id: Purchase identifier
+        session: Optional database session for transaction sharing
 
     Returns:
         bool: True if deletion successful
 
     Raises:
         PurchaseNotFound: If purchase_id doesn't exist
-        DatabaseError: If database operation fails
+        DatabaseError: If database operation fails (e.g., FK constraint violation)
 
     Note:
-        Deletion is permanent and cannot be undone. Consider adding a 'deleted'
-        flag instead for audit trail preservation.
+        Deletion is permanent and cannot be undone. Always call can_delete_purchase()
+        first to verify deletion is allowed.
 
     Example:
-        >>> delete_purchase(789)
+        >>> allowed, reason = can_delete_purchase(789)
+        >>> if allowed:
+        ...     delete_purchase(789)
         True
     """
-    try:
-        with session_scope() as session:
-            purchase = session.query(Purchase).filter_by(id=purchase_id).first()
-            if not purchase:
-                raise PurchaseNotFound(purchase_id)
+    if session is not None:
+        return _delete_purchase_impl(purchase_id, session)
+    with session_scope() as sess:
+        return _delete_purchase_impl(purchase_id, sess)
 
-            session.delete(purchase)
-            return True
+
+def _delete_purchase_impl(purchase_id: int, session: Session) -> bool:
+    """Implementation for delete_purchase with cascade to InventoryItems."""
+    try:
+        # Load purchase with inventory items
+        purchase = (
+            session.query(Purchase)
+            .options(joinedload(Purchase.inventory_items))
+            .filter(Purchase.id == purchase_id)
+            .first()
+        )
+
+        if not purchase:
+            raise PurchaseNotFound(purchase_id)
+
+        # FR-024: Delete linked InventoryItem records first
+        # This must happen before deleting the purchase due to FK constraint
+        for item in purchase.inventory_items:
+            session.delete(item)
+
+        # Now delete the purchase
+        session.delete(purchase)
+        session.flush()
+
+        return True
 
     except PurchaseNotFound:
         raise
     except Exception as e:
         raise DatabaseError(f"Failed to delete purchase {purchase_id}", original_error=e)
+
+
+# =============================================================================
+# CRUD Operations for Purchases Tab (Feature 042)
+# =============================================================================
+
+
+def get_purchases_filtered(
+    date_range: str = "last_30_days",
+    supplier_id: Optional[int] = None,
+    search_query: Optional[str] = None,
+    session: Optional[Session] = None,
+) -> List[Dict]:
+    """Get purchase history with filters.
+
+    This function returns purchases filtered by date range, supplier, and search
+    query. Results include remaining inventory calculated via FIFO tracking.
+
+    Args:
+        date_range: One of "last_30_days", "last_90_days", "last_year", "all_time"
+        supplier_id: Optional supplier ID to filter by
+        search_query: Optional search string to filter by product name (case-insensitive)
+        session: Optional database session for transaction sharing
+
+    Returns:
+        List of dicts with:
+        - id: int
+        - product_name: str
+        - supplier_name: str
+        - purchase_date: date
+        - quantity_purchased: Decimal
+        - unit_price: Decimal
+        - total_cost: Decimal
+        - remaining_inventory: Decimal (from FIFO tracking)
+        - notes: Optional[str]
+
+    Ordered by purchase_date DESC.
+
+    Example:
+        >>> purchases = get_purchases_filtered(date_range="last_30_days")
+        >>> len(purchases)
+        5
+        >>> purchases[0]["product_name"]
+        'King Arthur All-Purpose Flour 5lb'
+    """
+    if session is not None:
+        return _get_purchases_filtered_impl(date_range, supplier_id, search_query, session)
+    with session_scope() as sess:
+        return _get_purchases_filtered_impl(date_range, supplier_id, search_query, sess)
+
+
+def _get_purchases_filtered_impl(
+    date_range: str,
+    supplier_id: Optional[int],
+    search_query: Optional[str],
+    session: Session,
+) -> List[Dict]:
+    """Implementation for get_purchases_filtered."""
+    # Calculate date cutoff based on date_range
+    cutoff_date = None
+    if date_range == "last_30_days":
+        cutoff_date = date.today() - timedelta(days=30)
+    elif date_range == "last_90_days":
+        cutoff_date = date.today() - timedelta(days=90)
+    elif date_range == "last_year":
+        cutoff_date = date.today() - timedelta(days=365)
+    # "all_time" has no cutoff
+
+    # Build query with eager loading
+    query = (
+        session.query(Purchase)
+        .options(
+            joinedload(Purchase.product),
+            joinedload(Purchase.supplier),
+            joinedload(Purchase.inventory_items),
+        )
+    )
+
+    # Apply date filter
+    if cutoff_date:
+        query = query.filter(Purchase.purchase_date >= cutoff_date)
+
+    # Apply supplier filter
+    if supplier_id:
+        query = query.filter(Purchase.supplier_id == supplier_id)
+
+    # Apply search filter (case-insensitive on product_name or brand)
+    if search_query:
+        search_pattern = f"%{search_query}%"
+        query = query.join(Purchase.product).filter(
+            (Product.product_name.ilike(search_pattern))
+            | (Product.brand.ilike(search_pattern))
+        )
+
+    # Order by purchase_date DESC
+    query = query.order_by(Purchase.purchase_date.desc())
+
+    purchases = query.all()
+
+    # Build result list
+    result = []
+    for purchase in purchases:
+        # Calculate remaining inventory from linked inventory items
+        remaining = Decimal("0")
+        for item in purchase.inventory_items:
+            if item.quantity is not None:
+                remaining += Decimal(str(item.quantity))
+
+        result.append({
+            "id": purchase.id,
+            "product_name": purchase.product.display_name if purchase.product else "Unknown",
+            "supplier_name": purchase.supplier.name if purchase.supplier else "Unknown",
+            "purchase_date": purchase.purchase_date,
+            "quantity_purchased": Decimal(str(purchase.quantity_purchased)),
+            "unit_price": purchase.unit_price,
+            "total_cost": purchase.total_cost,
+            "remaining_inventory": remaining,
+            "notes": purchase.notes,
+        })
+
+    return result
+
+
+def get_remaining_inventory(
+    purchase_id: int,
+    session: Optional[Session] = None,
+) -> Decimal:
+    """Calculate remaining inventory from this purchase.
+
+    Sums current_quantity across all linked InventoryItems for the purchase.
+
+    Args:
+        purchase_id: Purchase ID to check
+        session: Optional database session for transaction sharing
+
+    Returns:
+        Decimal representing total remaining quantity.
+        Returns Decimal("0") if fully consumed or no items.
+
+    Raises:
+        PurchaseNotFound: If purchase_id doesn't exist
+
+    Example:
+        >>> remaining = get_remaining_inventory(purchase_id=123)
+        >>> remaining
+        Decimal('2.5')
+    """
+    if session is not None:
+        return _get_remaining_inventory_impl(purchase_id, session)
+    with session_scope() as sess:
+        return _get_remaining_inventory_impl(purchase_id, sess)
+
+
+def _get_remaining_inventory_impl(
+    purchase_id: int,
+    session: Session,
+) -> Decimal:
+    """Implementation for get_remaining_inventory."""
+    purchase = (
+        session.query(Purchase)
+        .options(joinedload(Purchase.inventory_items))
+        .filter(Purchase.id == purchase_id)
+        .first()
+    )
+
+    if not purchase:
+        raise PurchaseNotFound(purchase_id)
+
+    remaining = Decimal("0")
+    for item in purchase.inventory_items:
+        if item.quantity is not None:
+            remaining += Decimal(str(item.quantity))
+
+    return remaining
+
+
+def can_edit_purchase(
+    purchase_id: int,
+    new_quantity: Decimal,
+    session: Optional[Session] = None,
+) -> Tuple[bool, str]:
+    """Validate if purchase can be edited with new quantity.
+
+    Checks if the new quantity is greater than or equal to the total consumed
+    quantity from this purchase. The product cannot be changed.
+
+    Args:
+        purchase_id: Purchase ID to validate
+        new_quantity: Proposed new quantity (in packages)
+        session: Optional database session for transaction sharing
+
+    Returns:
+        Tuple of (allowed: bool, reason: str)
+        - (True, "") if edit is allowed
+        - (False, "reason") if edit is blocked
+
+    Raises:
+        PurchaseNotFound: If purchase_id doesn't exist
+
+    Example:
+        >>> allowed, reason = can_edit_purchase(123, Decimal("5.0"))
+        >>> allowed
+        True
+
+        >>> allowed, reason = can_edit_purchase(123, Decimal("0.5"))
+        >>> allowed
+        False
+        >>> reason
+        'Cannot reduce below 2.0 units (already consumed)'
+    """
+    if session is not None:
+        return _can_edit_purchase_impl(purchase_id, new_quantity, session)
+    with session_scope() as sess:
+        return _can_edit_purchase_impl(purchase_id, new_quantity, sess)
+
+
+def _can_edit_purchase_impl(
+    purchase_id: int,
+    new_quantity: Decimal,
+    session: Session,
+) -> Tuple[bool, str]:
+    """Implementation for can_edit_purchase."""
+    purchase = (
+        session.query(Purchase)
+        .options(
+            joinedload(Purchase.product),
+            joinedload(Purchase.inventory_items).joinedload(InventoryItem.depletions),
+        )
+        .filter(Purchase.id == purchase_id)
+        .first()
+    )
+
+    if not purchase:
+        raise PurchaseNotFound(purchase_id)
+
+    # Calculate total consumed quantity across all inventory items
+    total_consumed = Decimal("0")
+    for item in purchase.inventory_items:
+        for depletion in item.depletions:
+            # quantity_depleted is positive in the model
+            total_consumed += Decimal(str(depletion.quantity_depleted))
+
+    # Get package_unit_quantity to convert new_quantity to units
+    package_unit_qty = Decimal("1")
+    if purchase.product and purchase.product.package_unit_quantity:
+        package_unit_qty = Decimal(str(purchase.product.package_unit_quantity))
+
+    # Calculate new total units from packages
+    new_total_units = new_quantity * package_unit_qty
+
+    if new_total_units < total_consumed:
+        return (False, f"Cannot reduce below {total_consumed} units (already consumed)")
+
+    return (True, "")
+
+
+def can_delete_purchase(
+    purchase_id: int,
+    session: Optional[Session] = None,
+) -> Tuple[bool, str]:
+    """Check if purchase can be deleted.
+
+    A purchase can only be deleted if no inventory from it has been consumed.
+
+    Args:
+        purchase_id: Purchase ID to check
+        session: Optional database session for transaction sharing
+
+    Returns:
+        Tuple of (allowed: bool, reason: str)
+        - (True, "") if no depletions exist
+        - (False, "Cannot delete - X units already used in: Recipe1, Recipe2")
+
+    Raises:
+        PurchaseNotFound: If purchase_id doesn't exist
+
+    Example:
+        >>> allowed, reason = can_delete_purchase(123)
+        >>> allowed
+        True
+
+        >>> allowed, reason = can_delete_purchase(456)
+        >>> allowed
+        False
+        >>> reason
+        'Cannot delete - 5.0 units already used in: Chocolate Chip Cookies, Banana Bread'
+    """
+    if session is not None:
+        return _can_delete_purchase_impl(purchase_id, session)
+    with session_scope() as sess:
+        return _can_delete_purchase_impl(purchase_id, sess)
+
+
+def _can_delete_purchase_impl(
+    purchase_id: int,
+    session: Session,
+) -> Tuple[bool, str]:
+    """Implementation for can_delete_purchase."""
+    purchase = (
+        session.query(Purchase)
+        .options(
+            joinedload(Purchase.product),
+            joinedload(Purchase.inventory_items).joinedload(InventoryItem.depletions),
+        )
+        .filter(Purchase.id == purchase_id)
+        .first()
+    )
+
+    if not purchase:
+        raise PurchaseNotFound(purchase_id)
+
+    # Check for any depletions
+    total_consumed = Decimal("0")
+    depletion_ids = []
+
+    for item in purchase.inventory_items:
+        for depletion in item.depletions:
+            total_consumed += Decimal(str(depletion.quantity_depleted))
+            depletion_ids.append(depletion.id)
+
+    if total_consumed == Decimal("0"):
+        return (True, "")
+
+    # Get recipe names from production runs
+    # Note: depletions link to production_runs which link to recipes
+    recipe_names = set()
+
+    # Query depletions to get production runs
+    depletions = (
+        session.query(InventoryDepletion)
+        .filter(InventoryDepletion.id.in_(depletion_ids))
+        .all()
+    )
+
+    for depletion in depletions:
+        # Check the depletion_reason for the recipe info
+        # In this codebase, depletion_reason contains the reason string
+        if depletion.depletion_reason:
+            recipe_names.add(depletion.depletion_reason)
+
+    # Get unit from product
+    unit = "units"
+    if purchase.product and purchase.product.package_unit:
+        unit = purchase.product.package_unit
+
+    recipes_str = ", ".join(sorted(recipe_names)) if recipe_names else "production runs"
+
+    return (False, f"Cannot delete - {total_consumed} {unit} already used in: {recipes_str}")
+
+
+def update_purchase(
+    purchase_id: int,
+    updates: Dict[str, Any],
+    session: Optional[Session] = None,
+) -> Purchase:
+    """Update purchase fields and recalculate FIFO costs if needed.
+
+    Updates allowed:
+    - purchase_date
+    - quantity_purchased (if >= consumed)
+    - unit_price (triggers unit_cost recalc on linked InventoryItems)
+    - supplier_id
+    - notes
+
+    NOT allowed:
+    - product_id (raises ValueError)
+
+    Args:
+        purchase_id: Purchase ID to update
+        updates: Dict of field -> new_value
+        session: Optional database session for transaction sharing
+
+    Returns:
+        Updated Purchase object
+
+    Raises:
+        PurchaseNotFound: If purchase_id doesn't exist
+        ValueError: If trying to change product_id
+        ValueError: If quantity < consumed
+
+    Example:
+        >>> purchase = update_purchase(123, {"unit_price": Decimal("9.99")})
+        >>> purchase.unit_price
+        Decimal('9.99')
+    """
+    if session is not None:
+        return _update_purchase_impl(purchase_id, updates, session)
+    with session_scope() as sess:
+        return _update_purchase_impl(purchase_id, updates, sess)
+
+
+def _update_purchase_impl(
+    purchase_id: int,
+    updates: Dict[str, Any],
+    session: Session,
+) -> Purchase:
+    """Implementation for update_purchase."""
+    purchase = (
+        session.query(Purchase)
+        .options(
+            joinedload(Purchase.product),
+            joinedload(Purchase.inventory_items).joinedload(InventoryItem.depletions),
+        )
+        .filter(Purchase.id == purchase_id)
+        .first()
+    )
+
+    if not purchase:
+        raise PurchaseNotFound(purchase_id)
+
+    # Check for disallowed updates
+    if "product_id" in updates and updates["product_id"] != purchase.product_id:
+        raise ValueError("Cannot change product_id on an existing purchase")
+
+    # Validate quantity change if present
+    if "quantity_purchased" in updates:
+        new_qty = Decimal(str(updates["quantity_purchased"]))
+        allowed, reason = _can_edit_purchase_impl(purchase_id, new_qty, session)
+        if not allowed:
+            raise ValueError(reason)
+
+    # Track old values for recalculations
+    old_unit_price = purchase.unit_price
+    old_quantity = purchase.quantity_purchased
+
+    # Apply updates
+    if "purchase_date" in updates:
+        purchase.purchase_date = updates["purchase_date"]
+
+    if "quantity_purchased" in updates:
+        purchase.quantity_purchased = updates["quantity_purchased"]
+
+    if "unit_price" in updates:
+        purchase.unit_price = updates["unit_price"]
+
+    if "supplier_id" in updates:
+        purchase.supplier_id = updates["supplier_id"]
+
+    if "notes" in updates:
+        purchase.notes = updates["notes"]
+
+    # If unit_price changed, recalculate unit_cost on linked InventoryItems
+    if "unit_price" in updates and updates["unit_price"] != old_unit_price:
+        new_price = Decimal(str(updates["unit_price"]))
+        package_unit_qty = Decimal("1")
+        if purchase.product and purchase.product.package_unit_quantity:
+            package_unit_qty = Decimal(str(purchase.product.package_unit_quantity))
+
+        new_unit_cost = new_price / package_unit_qty if package_unit_qty > 0 else new_price
+
+        for item in purchase.inventory_items:
+            item.unit_cost = float(new_unit_cost)
+
+    # If quantity changed, adjust current_quantity on InventoryItems proportionally
+    if "quantity_purchased" in updates and updates["quantity_purchased"] != old_quantity:
+        new_qty = Decimal(str(updates["quantity_purchased"]))
+
+        # Get package unit quantity
+        package_unit_qty = Decimal("1")
+        if purchase.product and purchase.product.package_unit_quantity:
+            package_unit_qty = Decimal(str(purchase.product.package_unit_quantity))
+
+        # Calculate consumed quantity
+        total_consumed = Decimal("0")
+        for item in purchase.inventory_items:
+            for depletion in item.depletions:
+                total_consumed += Decimal(str(depletion.quantity_depleted))
+
+        # New total units
+        new_total_units = new_qty * package_unit_qty
+
+        # Remaining should be new_total - consumed
+        new_remaining = new_total_units - total_consumed
+
+        # Distribute remaining across inventory items proportionally
+        # For simplicity, if there's only one item, set it directly
+        if len(purchase.inventory_items) == 1:
+            purchase.inventory_items[0].quantity = float(new_remaining)
+        elif purchase.inventory_items:
+            # Proportional distribution based on current quantities
+            current_remaining = sum(
+                Decimal(str(item.quantity)) for item in purchase.inventory_items
+            )
+            if current_remaining > 0:
+                for item in purchase.inventory_items:
+                    old_item_qty = Decimal(str(item.quantity))
+                    proportion = old_item_qty / current_remaining
+                    item.quantity = float(new_remaining * proportion)
+            else:
+                # If no current remaining, put all in first item
+                purchase.inventory_items[0].quantity = float(new_remaining)
+
+    session.flush()
+    return purchase
+
+
+def get_purchase_usage_history(
+    purchase_id: int,
+    session: Optional[Session] = None,
+) -> List[Dict]:
+    """Get consumption history for a purchase.
+
+    Returns all depletions from inventory items linked to this purchase,
+    including the recipe/reason for each consumption.
+
+    Args:
+        purchase_id: Purchase ID to get history for
+        session: Optional database session for transaction sharing
+
+    Returns:
+        List of dicts with:
+        - depletion_id: int
+        - depleted_at: datetime
+        - recipe_name: str (from depletion_reason)
+        - quantity_used: Decimal (positive)
+        - cost: Decimal (quantity * unit_cost at time of consumption)
+
+    Ordered by depleted_at ASC.
+
+    Raises:
+        PurchaseNotFound: If purchase_id doesn't exist
+
+    Example:
+        >>> history = get_purchase_usage_history(123)
+        >>> len(history)
+        2
+        >>> history[0]["recipe_name"]
+        'Chocolate Chip Cookies'
+    """
+    if session is not None:
+        return _get_purchase_usage_history_impl(purchase_id, session)
+    with session_scope() as sess:
+        return _get_purchase_usage_history_impl(purchase_id, sess)
+
+
+def _get_purchase_usage_history_impl(
+    purchase_id: int,
+    session: Session,
+) -> List[Dict]:
+    """Implementation for get_purchase_usage_history."""
+    purchase = (
+        session.query(Purchase)
+        .options(
+            joinedload(Purchase.inventory_items).joinedload(InventoryItem.depletions),
+        )
+        .filter(Purchase.id == purchase_id)
+        .first()
+    )
+
+    if not purchase:
+        raise PurchaseNotFound(purchase_id)
+
+    result = []
+
+    for item in purchase.inventory_items:
+        for depletion in item.depletions:
+            quantity_used = Decimal(str(depletion.quantity_depleted))
+            # Cost is quantity * unit_cost (stored on depletion)
+            cost = Decimal(str(depletion.cost)) if depletion.cost else Decimal("0")
+
+            result.append({
+                "depletion_id": depletion.id,
+                "depleted_at": depletion.depletion_date,
+                "recipe_name": depletion.depletion_reason or "Unknown",
+                "quantity_used": quantity_used,
+                "cost": cost,
+            })
+
+    # Sort by depleted_at ASC
+    result.sort(key=lambda x: x["depleted_at"] if x["depleted_at"] else "")
+
+    return result
