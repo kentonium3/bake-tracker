@@ -1,10 +1,21 @@
 {
   "accept_commit": null,
-  "acceptance_history": [],
+  "acceptance_history": [
+    {
+      "accepted_at": "2026-01-10T01:36:13Z",
+      "accepted_by": "claude",
+      "accepted_from_commit": "314e68924e2a8a8867607469a8c92bcf4e51538e",
+      "branch": "045-cost-architecture-refactor",
+      "mode": "local",
+      "validation_commands": [
+        "pytest src/tests -v"
+      ]
+    }
+  ],
   "acceptance_mode": "local",
-  "accepted_at": null,
-  "accepted_by": null,
-  "accepted_from_commit": null,
+  "accepted_at": "2026-01-10T01:36:13Z",
+  "accepted_by": "claude",
+  "accepted_from_commit": "314e68924e2a8a8867607469a8c92bcf4e51538e",
   "created_at": "2026-01-09T00:00:00Z",
   "feature_number": "045",
   "friendly_name": "Cost Architecture Refactor",
