@@ -350,12 +350,11 @@ class RecipeDataTable(DataTable):
             double_click_callback: Callback for row double-click
             height: Height of the table in pixels (default: 500)
         """
+        # Feature 045: Cost columns removed (costs tracked on instances, not definitions)
         columns = [
             ("Name", 250),
             ("Category", 120),
             ("Yield", 150),
-            ("Total Cost", 100),
-            ("Cost/Unit", 100),
         ]
         super().__init__(
             parent,
@@ -375,17 +374,11 @@ class RecipeDataTable(DataTable):
         Returns:
             List of formatted values
         """
-        total_cost = row_data.calculate_cost() if hasattr(row_data, "calculate_cost") else 0.0
-        cost_per_unit = (
-            row_data.get_cost_per_unit() if hasattr(row_data, "get_cost_per_unit") else 0.0
-        )
-
+        # Feature 045: Cost columns removed (costs tracked on instances, not definitions)
         return [
             row_data.name,
             row_data.category,
             f"{row_data.yield_quantity:.0f} {row_data.yield_unit}",
-            f"${total_cost:.2f}",
-            f"${cost_per_unit:.4f}",
         ]
 
 
@@ -410,13 +403,13 @@ class FinishedGoodDataTable(DataTable):
             double_click_callback: Callback for row double-click
             height: Height of the table in pixels (default: 500)
         """
+        # Feature 045: Cost columns removed (costs tracked on instances, not definitions)
         columns = [
             ("Name", 200),
             ("Recipe", 180),
             ("Category", 100),
             ("Type", 120),
             ("Yield Info", 180),
-            ("Cost/Item", 90),
         ]
         super().__init__(
             parent,
@@ -444,18 +437,13 @@ class FinishedGoodDataTable(DataTable):
             yield_info = f"{row_data.batch_percentage}% of batch"
             type_display = "Batch Portion"
 
-        # Calculate cost per item
-        cost_per_item = (
-            row_data.get_cost_per_item() if hasattr(row_data, "get_cost_per_item") else 0.0
-        )
-
+        # Feature 045: Cost columns removed (costs tracked on instances, not definitions)
         return [
             row_data.display_name,
             row_data.recipe.name if row_data.recipe else "N/A",
             row_data.category or "",
             type_display,
             yield_info,
-            f"${cost_per_item:.4f}",
         ]
 
 

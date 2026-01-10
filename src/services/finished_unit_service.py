@@ -207,7 +207,7 @@ class FinishedUnitService:
 
     @staticmethod
     def create_finished_unit(
-        display_name: str, recipe_id: int, unit_cost: Decimal = Decimal("0.0000"), **kwargs
+        display_name: str, recipe_id: int, **kwargs
     ) -> FinishedUnit:
         """
         Create a new FinishedUnit.
@@ -215,7 +215,6 @@ class FinishedUnitService:
         Args:
             display_name: Required string name
             recipe_id: Required Recipe ID reference (cannot be None)
-            unit_cost: Optional unit cost (default 0)
             **kwargs: Additional optional fields
 
         Returns:
@@ -228,6 +227,10 @@ class FinishedUnitService:
 
         Performance:
             Must complete in <500ms per contract
+
+        Note:
+            Feature 045: unit_cost removed from FinishedUnit model.
+            Costs are now tracked on ProductionRun instances.
         """
         # Retry logic for handling race conditions in slug generation
         max_retries = 3
@@ -239,10 +242,6 @@ class FinishedUnitService:
 
                 if recipe_id is None:
                     raise ValidationError("Recipe ID is required and cannot be None")
-
-                # Validate unit cost
-                if unit_cost < 0:
-                    raise ValidationError("Unit cost must be non-negative")
 
                 with session_scope() as session:
                     # Generate unique slug (more robust against race conditions)
@@ -259,11 +258,11 @@ class FinishedUnitService:
                     )
 
                     # Create FinishedUnit with validated data
+                    # Feature 045: unit_cost removed from FinishedUnit model
                     unit_data = {
                         "slug": slug,
                         "display_name": display_name.strip(),
                         "recipe_id": recipe_id,
-                        "unit_cost": unit_cost,
                         "inventory_count": kwargs.get("inventory_count", 0),
                         "yield_mode": kwargs.get("yield_mode"),
                         "items_per_batch": kwargs.get("items_per_batch"),
@@ -281,10 +280,6 @@ class FinishedUnitService:
                     finished_unit = FinishedUnit(**unit_data)
                     session.add(finished_unit)
                     session.flush()  # Get the ID
-
-                    # Calculate unit cost from recipe if cost is zero
-                    if unit_cost == Decimal("0.0000"):
-                        finished_unit.update_unit_cost_from_recipe()
 
                     logger.info(
                         f"Created FinishedUnit: {finished_unit.display_name} (ID: {finished_unit.id})"
@@ -352,8 +347,7 @@ class FinishedUnitService:
                         )
                         updates["slug"] = new_slug
 
-                if "unit_cost" in updates and updates["unit_cost"] < 0:
-                    raise ValidationError("Unit cost must be non-negative")
+                # Feature 045: unit_cost validation removed (field no longer exists)
 
                 if "inventory_count" in updates and updates["inventory_count"] < 0:
                     raise ValidationError("Inventory count must be non-negative")

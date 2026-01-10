@@ -332,8 +332,7 @@ class FinishedGoodService:
                         )
                         updates["slug"] = new_slug
 
-                if "total_cost" in updates and updates["total_cost"] < 0:
-                    raise ValidationError("Total cost must be non-negative")
+                # Feature 045: total_cost validation removed (field no longer exists on model)
 
                 if "inventory_count" in updates and updates["inventory_count"] < 0:
                     raise ValidationError("Inventory count must be non-negative")
