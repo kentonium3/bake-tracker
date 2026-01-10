@@ -1,123 +1,66 @@
 # GitHub Issue Report: review.md Template References Non-Existent CLI Parameters
 
 **Repository:** Priivacy-ai/spec-kitty
-**Related Issue:** #72 (Subtask Completion and Assignee Tracking)
+**Issue Filed:** #74
+**Status:** Reclassified as upgrade path issue
 **Prepared:** 2026-01-10
 **Reporter:** bake-tracker project
 
 ---
 
-## Summary
+## Update: This Was an Upgrade Path Issue
 
-The `review.md` command template references CLI parameters that do not exist in spec-kitty v0.10.12, causing confusion for AI agents attempting to follow the workflow.
+After investigation, we discovered this is **NOT an upstream bug**. Fresh spec-kitty v0.10.12 installations use simplified templates that delegate to `spec-kitty agent workflow`:
 
-## Affected Files
+**Fresh v0.10.12 template:**
+```markdown
+Run this command to get the work package prompt and review instructions:
+spec-kitty agent workflow review $ARGUMENTS
+```
 
-In the bundled templates (and consequently in initialized projects):
+**Our project's old template (109 lines):**
+Contained verbose inline instructions with outdated CLI syntax referencing non-existent parameters like `--review-status` and `--target-lane`.
+
+## Root Cause
+
+The `spec-kitty upgrade` command reported "Project is already up to date" but did NOT update the command templates from the old verbose format to the new simplified wrapper format.
+
+This is likely because:
+1. Template migration was marked as "skipped" or "not applicable" during upgrade
+2. The upgrade path doesn't detect content differences in existing templates
+3. Templates may have been considered "user customizations" and preserved
+
+## Resolution Applied
+
+We manually updated the local templates to match the current spec-kitty format:
+- `.kittify/missions/software-dev/command-templates/implement.md`
 - `.kittify/missions/software-dev/command-templates/review.md`
+- `.kittify/templates/command-templates/implement.md`
 - `.kittify/templates/command-templates/review.md`
 
-## Problem Details
+## Recommendation for spec-kitty
 
-### Issue 1: Non-existent `--review-status` and `--target-lane` parameters
-
-**Location:** Line 92
-
-**Current text:**
-```markdown
-* **Alternative:** For custom review statuses, use `--review-status "approved with minor notes"` or `--target-lane "planned"` for rejected tasks.
-```
-
-**Actual CLI (`spec-kitty agent tasks move-task --help`):**
-```
-Options:
-  --to               TEXT  Target lane (planned/doing/for_review/done) [required]
-  --feature          TEXT  Feature slug (auto-detected if omitted)
-  --agent            TEXT  Agent name
-  --shell-pid        TEXT  Shell PID
-  --note             TEXT  History note
-  --json                   Output JSON format
-  --help                   Show this message and exit.
-```
-
-Neither `--review-status` nor `--target-lane` exist. The lane is specified via `--to`.
-
-### Issue 2: Incorrect `mark-status` command syntax
-
-**Location:** Line 96
-
-**Current text:**
-```markdown
-Run `spec-kitty agent mark-status --task-id <TASK_ID> --status done` (POSIX) or `spec-kitty agent -TaskId <TASK_ID> -Status done` (PowerShell) from repo root.
-```
-
-**Actual CLI (`spec-kitty agent tasks mark-status --help`):**
-```
-Usage: spec-kitty agent tasks mark-status [OPTIONS] TASK_ID
-
-Arguments:
-  *    task_id      TEXT  Task ID (e.g., T001) [required]
-
-Options:
-  *  --status         TEXT  Status: done/pending [required]
-     --feature        TEXT  Feature slug (auto-detected if omitted)
-     --json                 Output JSON format
-```
-
-**Issues:**
-1. Missing `tasks` in command path (`agent mark-status` vs `agent tasks mark-status`)
-2. `--task-id` should be a positional argument, not a named option
-3. PowerShell syntax is incorrect
-
-**Correct syntax:**
-```bash
-spec-kitty agent tasks mark-status <TASK_ID> --status done
-```
-
-## Impact
-
-AI agents following the review.md template:
-1. Attempt to use non-existent parameters, causing command failures
-2. May invent workarounds or bypass validation rather than using correct syntax
-3. Reach acceptance stage with incomplete metadata (as documented in #72)
-
-## Suggested Fix
-
-Replace line 92:
-```markdown
-* **Note:** Use `--note "your review summary"` to document the review outcome in the activity log.
-```
-
-Replace line 96:
-```markdown
-Run `spec-kitty agent tasks mark-status <TASK_ID> --status done` from repo root.
-```
-
-## Relationship to Issue #72
-
-This template bug contributes to the problems described in #72:
-- Agents can't properly track work completion because the documented commands fail
-- The workaround behavior (bypassing validation) masks the underlying tracking issues
-
-Fixing these template references would help agents successfully execute the two-tier tracking system.
-
-## Verification
-
-Commands to verify the issue:
-```bash
-# These parameters don't exist:
-spec-kitty agent tasks move-task --help | grep -E "review-status|target-lane"
-# Returns nothing
-
-# Correct parameters:
-spec-kitty agent tasks move-task --help | grep -E "\-\-to|\-\-note"
-# Returns: --to, --note
-```
-
-## Local Fix Applied
-
-We've applied this fix locally to our project templates pending an upstream fix. The changes are minimal and preserve the intent while using correct CLI syntax.
+The upgrade path should either:
+1. Detect and offer to replace old verbose templates with new simplified ones
+2. Document that template format changes require manual intervention
+3. Add a `spec-kitty upgrade --refresh-templates` option for opt-in template replacement
 
 ---
 
-**Note:** This issue may be addressed as part of the template updates proposed in #72. Consider consolidating if appropriate.
+## Original Issue Content (for reference)
+
+The original issue documented these problems in the OLD templates:
+
+### Issue 1: Non-existent parameters (Line 92)
+```markdown
+* **Alternative:** For custom review statuses, use `--review-status "approved with minor notes"` or `--target-lane "planned"` for rejected tasks.
+```
+Neither `--review-status` nor `--target-lane` exist in the CLI.
+
+### Issue 2: Incorrect mark-status syntax (Line 96)
+```markdown
+Run `spec-kitty agent mark-status --task-id <TASK_ID> --status done`
+```
+Should be: `spec-kitty agent tasks mark-status <TASK_ID> --status done`
+
+These issues only affected projects with old templates that weren't refreshed during upgrade.
