@@ -1711,6 +1711,105 @@ class CompositionService:
             logger.error(f"Database error counting packaging product usage: {e}")
             raise DatabaseError(f"Failed to count packaging product usage: {e}")
 
+    # ==========================================================================
+    # Feature 047: Material Cost Breakdown
+    # ==========================================================================
+
+    @staticmethod
+    def get_cost_breakdown(assembly_id: int, session: Session = None) -> dict:
+        """
+        Get cost breakdown separating food, material, and packaging costs.
+
+        Feature 047: Provides detailed cost analysis for assemblies with
+        material components.
+
+        Args:
+            assembly_id: ID of the FinishedGood assembly
+            session: Optional database session
+
+        Returns:
+            Dictionary with:
+                - food_cost: Decimal (FinishedUnit and FinishedGood components)
+                - material_cost: Decimal (MaterialUnit and Material components)
+                - packaging_cost: Decimal (packaging_product components)
+                - total_cost: Decimal
+                - has_estimated_costs: bool (True if any generic materials)
+                - component_details: list of individual component costs
+
+        Performance:
+            Must complete in <400ms per contract
+        """
+        try:
+            use_session_scope = session is None
+
+            def _get_breakdown(sess):
+                compositions = (
+                    sess.query(Composition)
+                    .filter(Composition.assembly_id == assembly_id)
+                    .order_by(Composition.sort_order)
+                    .all()
+                )
+
+                food_cost = Decimal("0")
+                material_cost = Decimal("0")
+                packaging_cost = Decimal("0")
+                has_estimated_costs = False
+                component_details = []
+
+                for comp in compositions:
+                    unit_cost = Decimal(str(comp.get_component_cost()))
+                    total_cost = unit_cost * Decimal(str(comp.component_quantity))
+
+                    detail = {
+                        "composition_id": comp.id,
+                        "component_type": comp.component_type,
+                        "component_name": comp.component_name,
+                        "quantity": comp.component_quantity,
+                        "unit_cost": float(unit_cost),
+                        "total_cost": float(total_cost),
+                        "is_estimated": False,
+                    }
+
+                    if comp.finished_unit_id or comp.finished_good_id:
+                        food_cost += total_cost
+                        detail["cost_category"] = "food"
+                    elif comp.material_unit_id:
+                        material_cost += total_cost
+                        detail["cost_category"] = "material"
+                    elif comp.material_id:
+                        # Generic material - mark as estimated
+                        material_cost += total_cost
+                        detail["cost_category"] = "material"
+                        detail["is_estimated"] = True
+                        has_estimated_costs = True
+                    elif comp.packaging_product_id:
+                        packaging_cost += total_cost
+                        detail["cost_category"] = "packaging"
+
+                    component_details.append(detail)
+
+                total = food_cost + material_cost + packaging_cost
+
+                return {
+                    "assembly_id": assembly_id,
+                    "food_cost": float(food_cost),
+                    "material_cost": float(material_cost),
+                    "packaging_cost": float(packaging_cost),
+                    "total_cost": float(total),
+                    "has_estimated_costs": has_estimated_costs,
+                    "component_details": component_details,
+                }
+
+            if use_session_scope:
+                with get_db_session() as sess:
+                    return _get_breakdown(sess)
+            else:
+                return _get_breakdown(session)
+
+        except SQLAlchemyError as e:
+            logger.error(f"Database error getting cost breakdown: {e}")
+            raise DatabaseError(f"Failed to get cost breakdown: {e}")
+
     # Cache Management
 
     @staticmethod
@@ -1862,3 +1961,28 @@ def remove_packaging(composition_id: int) -> bool:
 def get_packaging_product_usage_count(product_id: int) -> int:
     """Get count of compositions using a packaging product."""
     return CompositionService.get_packaging_product_usage_count(product_id)
+
+
+# =============================================================================
+# Feature 047: Module-level convenience functions for material cost breakdown
+# =============================================================================
+
+
+def get_cost_breakdown(assembly_id: int, session: Optional[Session] = None) -> dict:
+    """
+    Get cost breakdown for an assembly, separating food, material, and packaging costs.
+
+    Args:
+        assembly_id: The FinishedGood ID to analyze
+        session: Optional database session
+
+    Returns:
+        dict with:
+            - food_cost: Decimal (FinishedUnit and FinishedGood components)
+            - material_cost: Decimal (MaterialUnit and Material components)
+            - packaging_cost: Decimal (packaging_product components)
+            - total_cost: Decimal
+            - has_estimated_costs: bool (True if any generic materials)
+            - component_details: list of individual component costs
+    """
+    return CompositionService.get_cost_breakdown(assembly_id, session)

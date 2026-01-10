@@ -76,6 +76,13 @@ class Composition(BaseModel):
     packaging_product_id = Column(
         Integer, ForeignKey("products.id", ondelete="RESTRICT"), nullable=True, index=True
     )
+    # Feature 047: Materials Management System - material component references
+    material_unit_id = Column(
+        Integer, ForeignKey("material_units.id", ondelete="RESTRICT"), nullable=True, index=True
+    )
+    material_id = Column(
+        Integer, ForeignKey("materials.id", ondelete="RESTRICT"), nullable=True, index=True
+    )
 
     # Component attributes
     component_quantity = Column(Float, nullable=False, default=1.0)
@@ -98,6 +105,9 @@ class Composition(BaseModel):
     finished_unit_component = relationship("FinishedUnit", foreign_keys=[finished_unit_id], lazy="joined")
     finished_good_component = relationship("FinishedGood", foreign_keys=[finished_good_id], lazy="joined")
     packaging_product = relationship("Product", foreign_keys=[packaging_product_id], lazy="joined")
+    # Feature 047: Materials Management System
+    material_unit_component = relationship("MaterialUnit", foreign_keys=[material_unit_id], lazy="joined")
+    material_component = relationship("Material", foreign_keys=[material_id], lazy="joined")
 
     # Table constraints and indexes
     __table_args__ = (
@@ -108,17 +118,23 @@ class Composition(BaseModel):
         Index("idx_composition_finished_good", "finished_good_id"),
         Index("idx_composition_packaging_product", "packaging_product_id"),
         Index("idx_composition_sort_order", "assembly_id", "sort_order"),
+        # Feature 047: Material component indexes
+        Index("idx_composition_material_unit", "material_unit_id"),
+        Index("idx_composition_material", "material_id"),
         # Parent XOR constraint: exactly one of assembly_id or package_id must be set
         CheckConstraint(
             "(assembly_id IS NOT NULL AND package_id IS NULL) OR "
             "(assembly_id IS NULL AND package_id IS NOT NULL)",
             name="ck_composition_exactly_one_parent",
         ),
-        # Component XOR constraint: exactly one component type must be set (3-way)
+        # Component XOR constraint: exactly one component type must be set (5-way)
+        # Feature 047: Extended from 3-way to include material_unit_id and material_id
         CheckConstraint(
-            "(finished_unit_id IS NOT NULL AND finished_good_id IS NULL AND packaging_product_id IS NULL) OR "
-            "(finished_unit_id IS NULL AND finished_good_id IS NOT NULL AND packaging_product_id IS NULL) OR "
-            "(finished_unit_id IS NULL AND finished_good_id IS NULL AND packaging_product_id IS NOT NULL)",
+            "(finished_unit_id IS NOT NULL AND finished_good_id IS NULL AND packaging_product_id IS NULL AND material_unit_id IS NULL AND material_id IS NULL) OR "
+            "(finished_unit_id IS NULL AND finished_good_id IS NOT NULL AND packaging_product_id IS NULL AND material_unit_id IS NULL AND material_id IS NULL) OR "
+            "(finished_unit_id IS NULL AND finished_good_id IS NULL AND packaging_product_id IS NOT NULL AND material_unit_id IS NULL AND material_id IS NULL) OR "
+            "(finished_unit_id IS NULL AND finished_good_id IS NULL AND packaging_product_id IS NULL AND material_unit_id IS NOT NULL AND material_id IS NULL) OR "
+            "(finished_unit_id IS NULL AND finished_good_id IS NULL AND packaging_product_id IS NULL AND material_unit_id IS NULL AND material_id IS NOT NULL)",
             name="ck_composition_exactly_one_component",
         ),
         # Positive quantity constraint
@@ -134,6 +150,9 @@ class Composition(BaseModel):
         UniqueConstraint("assembly_id", "finished_good_id", name="uq_composition_assembly_good"),
         UniqueConstraint("assembly_id", "packaging_product_id", name="uq_composition_assembly_packaging"),
         UniqueConstraint("package_id", "packaging_product_id", name="uq_composition_package_packaging"),
+        # Feature 047: Material component uniqueness constraints
+        UniqueConstraint("assembly_id", "material_unit_id", name="uq_composition_assembly_material_unit"),
+        UniqueConstraint("assembly_id", "material_id", name="uq_composition_assembly_material"),
     )
 
     def __repr__(self) -> str:
@@ -147,6 +166,12 @@ class Composition(BaseModel):
         elif self.packaging_product_id:
             component_type = "packaging"
             component_id = self.packaging_product_id
+        elif self.material_unit_id:
+            component_type = "material_unit"
+            component_id = self.material_unit_id
+        elif self.material_id:
+            component_type = "material"
+            component_id = self.material_id
         else:
             component_type = "unknown"
             component_id = None
@@ -164,7 +189,8 @@ class Composition(BaseModel):
         Get the type of component referenced.
 
         Returns:
-            "finished_unit", "finished_good", "packaging_product", or "unknown"
+            "finished_unit", "finished_good", "packaging_product",
+            "material_unit", "material", or "unknown"
         """
         if self.finished_unit_id is not None:
             return "finished_unit"
@@ -172,6 +198,10 @@ class Composition(BaseModel):
             return "finished_good"
         elif self.packaging_product_id is not None:
             return "packaging_product"
+        elif self.material_unit_id is not None:
+            return "material_unit"
+        elif self.material_id is not None:
+            return "material"
         else:
             return "unknown"
 
@@ -183,7 +213,13 @@ class Composition(BaseModel):
         Returns:
             Component ID or None if no valid component
         """
-        return self.finished_unit_id or self.finished_good_id or self.packaging_product_id
+        return (
+            self.finished_unit_id or
+            self.finished_good_id or
+            self.packaging_product_id or
+            self.material_unit_id or
+            self.material_id
+        )
 
     @property
     def component_name(self) -> str:
@@ -199,6 +235,11 @@ class Composition(BaseModel):
             return self.finished_good_component.display_name
         elif self.packaging_product:
             return self.packaging_product.display_name
+        elif self.material_unit_component:
+            return self.material_unit_component.name
+        elif self.material_component:
+            # Generic material placeholder - show material name with indicator
+            return f"{self.material_component.name} (selection pending)"
         else:
             return "Unknown Component"
 
@@ -208,6 +249,10 @@ class Composition(BaseModel):
 
         Uses dynamic cost calculation via calculate_current_cost() for
         FinishedUnit and FinishedGood components (F046).
+
+        For MaterialUnit components (F047), calls the material_unit_service.
+        For generic Material placeholders, returns estimated cost as average
+        across all products of that material.
 
         Returns:
             Unit cost for the component (dynamic calculation, not stored)
@@ -219,8 +264,51 @@ class Composition(BaseModel):
         elif self.packaging_product:
             # Packaging products have purchase_price per unit
             return float(self.packaging_product.purchase_price or 0.0)
+        elif self.material_unit_component:
+            # MaterialUnit - use service to calculate cost
+            from src.services.material_unit_service import get_current_cost
+            try:
+                return float(get_current_cost(self.material_unit_id))
+            except Exception:
+                return 0.0
+        elif self.material_component:
+            # Generic Material placeholder - estimate cost from products
+            return self._estimate_material_cost()
         else:
             return 0.0
+
+    def _estimate_material_cost(self) -> float:
+        """
+        Estimate cost for a generic Material placeholder.
+
+        Calculates average weighted cost across all products for the material,
+        then multiplies by component_quantity as a rough estimate.
+
+        Returns:
+            Estimated cost or 0.0 if no products
+        """
+        if not self.material_component:
+            return 0.0
+
+        products = self.material_component.products
+        if not products:
+            return 0.0
+
+        # Calculate inventory-weighted average
+        total_value = 0.0
+        total_inventory = 0.0
+        for product in products:
+            if product.current_inventory > 0:
+                total_value += product.current_inventory * float(product.weighted_avg_cost or 0)
+                total_inventory += product.current_inventory
+
+        if total_inventory == 0:
+            return 0.0
+
+        avg_cost_per_base_unit = total_value / total_inventory
+        # For generic materials, we don't know the quantity_per_unit
+        # Return per-base-unit cost (UI should clarify this is estimated)
+        return avg_cost_per_base_unit
 
     def get_total_cost(self) -> float:
         """
@@ -243,6 +331,16 @@ class Composition(BaseModel):
             return self.finished_unit_component.inventory_count
         elif self.finished_good_component:
             return self.finished_good_component.inventory_count
+        elif self.material_unit_component:
+            # MaterialUnit - use service to get available inventory
+            from src.services.material_unit_service import get_available_inventory
+            try:
+                return get_available_inventory(self.material_unit_id)
+            except Exception:
+                return 0
+        elif self.material_component:
+            # Generic Material - no specific availability (resolved at assembly time)
+            return 0
         else:
             return 0
 
@@ -272,9 +370,17 @@ class Composition(BaseModel):
         unit_specified = self.finished_unit_id is not None
         good_specified = self.finished_good_id is not None
         packaging_specified = self.packaging_product_id is not None
+        material_unit_specified = self.material_unit_id is not None
+        material_specified = self.material_id is not None
 
-        # Exactly one should be true (3-way XOR)
-        count = sum([unit_specified, good_specified, packaging_specified])
+        # Exactly one should be true (5-way XOR)
+        count = sum([
+            unit_specified,
+            good_specified,
+            packaging_specified,
+            material_unit_specified,
+            material_specified,
+        ])
         return count == 1
 
     def validate_parent_constraint(self) -> bool:
@@ -436,4 +542,85 @@ class Composition(BaseModel):
             component_quantity=quantity,
             component_notes=notes,
             sort_order=sort_order,
+        )
+
+    # Feature 047: Material composition factory methods
+
+    @classmethod
+    def create_material_unit_composition(
+        cls,
+        assembly_id: int,
+        material_unit_id: int,
+        quantity: int = 1,
+        notes: str = None,
+        sort_order: int = 0,
+    ) -> "Composition":
+        """
+        Factory method to create composition with MaterialUnit component.
+
+        Used when a specific material consumption unit is defined
+        (e.g., "6-inch ribbon" where quantity_per_unit = 6 inches).
+
+        Args:
+            assembly_id: Parent FinishedGood ID
+            material_unit_id: Component MaterialUnit ID
+            quantity: Number of units in composition
+            notes: Component-specific notes
+            sort_order: Display order
+
+        Returns:
+            New Composition instance with is_generic=False
+        """
+        return cls(
+            assembly_id=assembly_id,
+            package_id=None,
+            finished_unit_id=None,
+            finished_good_id=None,
+            packaging_product_id=None,
+            material_unit_id=material_unit_id,
+            material_id=None,
+            component_quantity=quantity,
+            component_notes=notes,
+            sort_order=sort_order,
+            is_generic=False,
+        )
+
+    @classmethod
+    def create_material_placeholder_composition(
+        cls,
+        assembly_id: int,
+        material_id: int,
+        quantity: int = 1,
+        notes: str = None,
+        sort_order: int = 0,
+    ) -> "Composition":
+        """
+        Factory method to create composition with generic Material placeholder.
+
+        Used when the specific material unit will be chosen at assembly time.
+        The material_id references the abstract Material, and the actual
+        product/unit selection is deferred.
+
+        Args:
+            assembly_id: Parent FinishedGood ID
+            material_id: Component Material ID (generic placeholder)
+            quantity: Number of units in composition
+            notes: Component-specific notes
+            sort_order: Display order
+
+        Returns:
+            New Composition instance with is_generic=True
+        """
+        return cls(
+            assembly_id=assembly_id,
+            package_id=None,
+            finished_unit_id=None,
+            finished_good_id=None,
+            packaging_product_id=None,
+            material_unit_id=None,
+            material_id=material_id,
+            component_quantity=quantity,
+            component_notes=notes,
+            sort_order=sort_order,
+            is_generic=True,
         )
