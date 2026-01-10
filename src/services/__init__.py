@@ -44,6 +44,7 @@ from . import (
     purchase_service,
     supplier_service,  # Feature 027: Supplier management
     product_catalog_service,  # Feature 027: Product catalog management
+    material_catalog_service,  # Feature 047: Materials Management System
 )
 
 # Migration services
@@ -270,6 +271,7 @@ __all__ = [
     "purchase_service",
     "supplier_service",  # Feature 027
     "product_catalog_service",  # Feature 027
+    "material_catalog_service",  # Feature 047
     # Migration services
     "MigrationService",
     # FinishedUnit services
