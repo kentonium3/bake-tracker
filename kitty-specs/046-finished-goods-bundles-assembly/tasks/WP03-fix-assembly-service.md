@@ -6,9 +6,9 @@ subtasks:
   - "T010"
 title: "Fix Assembly Service Cost Capture"
 phase: "Phase 2 - Service Layer Fixes"
-lane: "for_review"
+lane: "done"
 assignee: ""
-agent: ""
+agent: "claude"
 shell_pid: ""
 review_status: ""
 reviewed_by: ""
@@ -299,3 +299,4 @@ grep -A5 "comp.finished_unit_id:" src/services/assembly_service.py | grep "Decim
 - 2026-01-10T07:30:00Z - system - lane=planned - Prompt created via /spec-kitty.tasks
 - 2026-01-10T13:02:04Z – unknown – lane=doing – Moved to doing
 - 2026-01-10T13:06:40Z – unknown – lane=for_review – Moved to for_review
+- 2026-01-10T13:30:19Z – claude – lane=done – Code review approved: Cost capture fixed, no hardcoded zeros, 29 assembly tests pass
