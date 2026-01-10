@@ -8,7 +8,7 @@ subtasks:
   - "T021"
 title: "Export Version Bump and Test Updates"
 phase: "Phase 3 - Polish"
-lane: "doing"
+lane: "done"
 assignee: ""
 agent: "claude"
 shell_pid: ""
@@ -263,3 +263,5 @@ For each failing test, apply the appropriate fix:
 
 - 2026-01-09T18:00:00Z - system - lane=planned - Prompt created via /spec-kitty.tasks
 - 2026-01-09T23:40:10Z – claude – lane=doing – Started implementation
+- 2026-01-10T00:58:50Z – claude – lane=for_review – All tests pass, export/import verified
+- 2026-01-10T01:27:47Z – claude – lane=done – Code review approved: Export version 4.1, sample data v4.1, all 1774 tests pass

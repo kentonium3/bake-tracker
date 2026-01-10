@@ -10,7 +10,7 @@ subtasks:
   - "T013"
 title: "FinishedGood Model + UI Cost Removal"
 phase: "Phase 1 - Model Layer"
-lane: "for_review"
+lane: "done"
 assignee: ""
 agent: "claude"
 shell_pid: ""
@@ -266,3 +266,4 @@ However, verify:
 - 2026-01-09T18:00:00Z - system - lane=planned - Prompt created via /spec-kitty.tasks
 - 2026-01-09T23:28:51Z – claude – lane=doing – Started implementation
 - 2026-01-09T23:32:59Z – claude – lane=for_review – Implementation complete - all subtasks done
+- 2026-01-10T01:27:43Z – claude – lane=done – Code review approved: All verification points pass - no total_cost references in model, UI imports clean
