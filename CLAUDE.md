@@ -75,7 +75,7 @@ docs/           # Documentation
 
 4. **Future-Proof Schema**: Database includes nullable industry-standard fields (FoodOn, GTIN) for future expansion, but only essential fields are populated now.
 
-5. **Migration Safety**: Database migrations must support dry-run mode, preserve all data with validation, and have documented rollback plans.
+5. **Migration Strategy**: Schema changes use reset/re-import rather than migration scripts. Full data exports via the app's import/export service allow external transformation of import files to meet current schema requirements. This avoids maintaining version translation code.
 
 ## Development Workflow (Spec-Kitty)
 
