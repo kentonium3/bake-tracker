@@ -206,13 +206,16 @@ class Composition(BaseModel):
         """
         Get the unit cost of the referenced component.
 
+        Uses dynamic cost calculation via calculate_current_cost() for
+        FinishedUnit and FinishedGood components (F046).
+
         Returns:
-            Unit cost for the component
+            Unit cost for the component (dynamic calculation, not stored)
         """
         if self.finished_unit_component:
-            return float(self.finished_unit_component.unit_cost or 0.0)
+            return float(self.finished_unit_component.calculate_current_cost())
         elif self.finished_good_component:
-            return float(self.finished_good_component.total_cost or 0.0)
+            return float(self.finished_good_component.calculate_current_cost())
         elif self.packaging_product:
             # Packaging products have purchase_price per unit
             return float(self.packaging_product.purchase_price or 0.0)

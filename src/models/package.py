@@ -81,17 +81,24 @@ class Package(BaseModel):
 
     def calculate_cost(self) -> Decimal:
         """
-        Calculate total cost of package.
+        Calculate total package cost from FinishedGood component costs.
 
-        Feature 045: Costs are now tracked on production/assembly instances,
-        not on definition models. Package definition cost returns Decimal("0.00").
-        For actual costs, query the associated AssemblyRun records.
+        Uses dynamic cost calculation from FinishedGood.calculate_current_cost()
+        following the F045/F046 "Costs on Instances, Not Definitions" principle.
 
         Returns:
-            Decimal("0.00") - definition-level packages have no inherent cost
+            Decimal: Total cost for the package, or Decimal("0.00") if no contents
         """
-        # Feature 045: Costs on instances, not definitions
-        return Decimal("0.00")
+        if not self.package_finished_goods:
+            return Decimal("0.00")
+
+        total = Decimal("0.00")
+        for pfg in self.package_finished_goods:
+            if pfg.finished_good:
+                unit_cost = pfg.finished_good.calculate_current_cost()
+                total += unit_cost * Decimal(str(pfg.quantity))
+
+        return total.quantize(Decimal("0.01"))
 
     def get_item_count(self) -> int:
         """
@@ -127,7 +134,7 @@ class Package(BaseModel):
         for pfg in self.package_finished_goods:
             if pfg.finished_good:
                 fg = pfg.finished_good
-                unit_cost = fg.total_cost or Decimal("0.00")
+                unit_cost = fg.calculate_current_cost()
                 line_total = unit_cost * Decimal(str(pfg.quantity))
                 breakdown.append(
                     {
@@ -135,7 +142,7 @@ class Package(BaseModel):
                         "name": fg.display_name,
                         "quantity": pfg.quantity,
                         "unit_cost": float(unit_cost),
-                        "line_total": float(line_total),
+                        "line_total": float(line_total.quantize(Decimal("0.01"))),
                     }
                 )
 
@@ -206,15 +213,18 @@ class PackageFinishedGood(BaseModel):
 
     def get_line_cost(self) -> Decimal:
         """
-        Calculate line cost for this item (unit_cost * quantity).
+        Calculate line cost for this finished good entry.
+
+        Uses dynamic cost calculation from FinishedGood.calculate_current_cost()
+        following the F045/F046 "Costs on Instances, Not Definitions" principle.
 
         Returns:
-            Line total as Decimal
+            Decimal: Unit cost * quantity, or Decimal("0.00") if no finished good
         """
         if not self.finished_good:
             return Decimal("0.00")
-        unit_cost = self.finished_good.total_cost or Decimal("0.00")
-        return unit_cost * Decimal(str(self.quantity))
+        unit_cost = self.finished_good.calculate_current_cost()
+        return (unit_cost * Decimal(str(self.quantity))).quantize(Decimal("0.01"))
 
     def to_dict(self, include_relationships: bool = False) -> dict:
         """
@@ -230,7 +240,7 @@ class PackageFinishedGood(BaseModel):
 
         if include_relationships and self.finished_good:
             result["finished_good_name"] = self.finished_good.display_name
-            result["finished_good_cost"] = float(self.finished_good.total_cost or 0)
+            result["finished_good_cost"] = float(self.finished_good.calculate_current_cost())
             result["line_cost"] = float(self.get_line_cost())
 
         return result

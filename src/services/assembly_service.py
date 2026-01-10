@@ -338,10 +338,9 @@ def _record_assembly_impl(
                         fu.id, needed, fu.inventory_count
                     )
 
-                # Feature 045: Costs now tracked on instances, not definitions
-                # FinishedUnit no longer has unit_cost field
-                unit_cost = Decimal("0.0000")
-                cost = Decimal("0.0000")
+                # F046: Calculate actual cost from FinishedUnit's production history
+                unit_cost = fu.calculate_current_cost()
+                cost = unit_cost * Decimal(str(needed))
 
                 fu.inventory_count -= needed
                 total_component_cost += cost
@@ -367,10 +366,9 @@ def _record_assembly_impl(
                         nested_fg.id, needed, nested_fg.inventory_count
                     )
 
-                # Feature 045: Costs now tracked on instances, not definitions
-                # FinishedGood no longer has total_cost field
-                unit_cost = Decimal("0.0000")
-                cost = Decimal("0.0000")
+                # F046: Calculate actual cost from FinishedGood's component costs
+                unit_cost = nested_fg.calculate_current_cost()
+                cost = unit_cost * Decimal(str(needed))
 
                 nested_fg.inventory_count -= needed
                 total_component_cost += cost

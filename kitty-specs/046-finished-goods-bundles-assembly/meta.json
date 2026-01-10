@@ -1,0 +1,19 @@
+{
+  "accept_commit": null,
+  "acceptance_history": [
+    {
+      "accepted_at": "2026-01-10T13:38:19Z",
+      "accepted_by": "claude",
+      "accepted_from_commit": "e0e8a53a3be9c9ff4ba85c08505912645afac89d",
+      "branch": "046-finished-goods-bundles-assembly",
+      "mode": "local",
+      "validation_commands": [
+        "pytest src/tests -v -q"
+      ]
+    }
+  ],
+  "acceptance_mode": "local",
+  "accepted_at": "2026-01-10T13:38:19Z",
+  "accepted_by": "claude",
+  "accepted_from_commit": "e0e8a53a3be9c9ff4ba85c08505912645afac89d"
+}
