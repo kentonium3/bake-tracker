@@ -152,11 +152,11 @@
 **Agent Assignment**: Sequential (after WP03 complete)
 
 ### Included Subtasks
-- [ ] T017 Bump export version from "4.0" to "4.1" in `src/services/import_export_service.py:1138`
-- [ ] T018 Run pytest to identify all failing tests
-- [ ] T019 Update failing tests that reference unit_cost or total_cost
-- [ ] T020 Verify sample data files load successfully (already compliant per research)
-- [ ] T021 Verify full import/export cycle preserves data integrity
+- [x] T017 Bump export version from "4.0" to "4.1" in `src/services/import_export_service.py:1138`
+- [x] T018 Run pytest to identify all failing tests
+- [x] T019 Update failing tests that reference unit_cost or total_cost
+- [x] T020 Verify sample data files load successfully (already compliant per research)
+- [x] T021 Verify full import/export cycle preserves data integrity
 
 ### Implementation Notes
 
