@@ -144,65 +144,54 @@ Use the `gemini-parallel-dev` agent for tasks that:
 
 ## Spec-Kitty Workflow Compliance (NON-NEGOTIABLE)
 
-This project uses spec-kitty for feature development. The workflow is AUTHORITATIVE.
+This project uses spec-kitty (v0.10.12+) for feature development. The workflow is AUTHORITATIVE.
 
-**STOP and ask the user if:**
+### Golden Rule: Follow the Skill Prompts
+
+The `/spec-kitty.*` skills contain up-to-date command syntax and workflow guidance. When executing spec-kitty workflows:
+
+1. **Invoke the skill** (e.g., `/spec-kitty.implement`, `/spec-kitty.review`)
+2. **Follow the prompt instructions exactly** - they are loaded from current templates
+3. **Check `--help` before running CLI commands** - never guess at parameters
+4. **Do not memorize CLI syntax** - it changes between versions
+
+### STOP and Ask the User If:
+
 - A `/spec-kitty.*` command fails or errors
 - Task lane transitions don't work as expected
-- Acceptance checks fail
+- Acceptance checks fail unexpectedly
 - Any workflow step produces unexpected results
+- You're unsure which skill or command to use
 
-**NEVER manually:**
-- Move files between `planned/`, `doing/`, `for_review/`, `done/` directories
-- Edit task frontmatter fields (`lane`, `review_status`, `assignee`, etc.)
+### NEVER Manually:
+
+- Edit task frontmatter fields (`lane`, `agent`, `review_status`, etc.)
+- Move files between task directories
 - Run `git worktree` commands outside of `/spec-kitty.merge`
-- "Fix" git state to make acceptance pass
-- Simulate what a workflow command "should have done"
+- Bypass validation failures with flags (e.g., `--lenient`) without user approval
+- Invent CLI parameters - always verify with `--help`
 
-**The correct response to workflow issues is to STOP and report, not to work around.**
+### When Validation Fails:
 
-### Two-Tier Task Tracking (CRITICAL)
+**STOP and investigate the root cause** rather than:
+- Looking for bypass flags to skip validation
+- Manually editing files to satisfy checks
+- Guessing at what commands "should have" been run
 
-Spec-kitty uses TWO separate tracking systems that MUST both be updated:
+If acceptance fails due to missing metadata, this indicates workflow commands were skipped during implementation. Report this to the user rather than patching around it.
 
-1. **Work Package Frontmatter** (`tasks/WP##-*.md` files)
-   - `lane:` field tracks WP status (planned/doing/for_review/done)
-   - `assignee:` field tracks who is working on it
-   - Updated via `spec-kitty agent move-task`
+### CLI Reference (Always Verify with --help)
 
-2. **Subtask Checkboxes** (`tasks.md` file)
-   - `- [ ]` / `- [x]` checkboxes for individual subtasks (T001, T002, etc.)
-   - Updated via `spec-kitty agent mark-status`
-
-**Both systems must be kept in sync. Moving a WP to "done" does NOT automatically check off its subtasks.**
-
-### Required Commands During Implementation
-
-**When starting a work package:**
+The general command structure is:
 ```bash
-spec-kitty agent move-task <FEATURE> <WP_ID> doing --assignee claude
+# Move work package between lanes
+spec-kitty agent tasks move-task <WP_ID> --to <lane> [--agent <name>] [--note "..."]
+
+# Mark subtask status in tasks.md
+spec-kitty agent tasks mark-status <TASK_ID> --status done|pending
 ```
 
-**When completing each subtask (T###):**
-```bash
-spec-kitty agent mark-status --task-id <TASK_ID> --status done
-```
-Run this IMMEDIATELY after completing each subtask, not in a batch at the end.
-
-**When finishing a work package:**
-```bash
-spec-kitty agent move-task <FEATURE> <WP_ID> for_review
-```
-
-### Pre-Acceptance Checklist
-
-Before running `/spec-kitty.accept`, verify:
-- [ ] All subtasks (T###) are checked `[x]` in `tasks.md`
-- [ ] All work packages show `lane: done` in frontmatter
-- [ ] All work packages have `assignee:` set (not empty)
-- [ ] All changes are committed (clean git status)
-
-**If acceptance fails due to unchecked tasks or missing metadata, this indicates the above commands were skipped during implementation.**
+**Important:** Feature slug is auto-detected from git branch. Always run from the feature worktree.
 
 ## Key Design Decisions
 
