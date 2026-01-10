@@ -34,6 +34,7 @@ from src.models.material import Material
 from src.models.material_product import MaterialProduct
 from src.models.material_unit import MaterialUnit
 from src.models.supplier import Supplier
+from src.services.material_catalog_service import slugify
 
 
 # ============================================================================
@@ -1419,15 +1420,19 @@ def _import_material_products_impl(
         for row in session.query(Supplier).all()
     }
 
-    # Build existing product lookup by (material_id, name)
+    # Build existing product lookups by (material_id, name) and slug
     existing_products = {}
+    existing_slugs = {}
     for row in session.query(MaterialProduct).all():
         key = (row.material_id, row.name)
         existing_products[key] = row
+        if row.slug:
+            existing_slugs[row.slug] = row
 
     for item in data:
         material_slug = item.get("material_slug", "")
         name = item.get("name", "")
+        product_slug = item.get("slug", "")
         identifier = f"{name} ({material_slug})"
 
         if not name:
@@ -1464,12 +1469,19 @@ def _import_material_products_impl(
         elif supplier_name:
             supplier_id = supplier_lookup.get(supplier_name.lower())
 
-        product_key = (material_id, name)
-        if product_key in existing_products:
+        # Check for existing product by slug first, then by (material_id, name)
+        existing = None
+        if product_slug and product_slug in existing_slugs:
+            existing = existing_slugs[product_slug]
+        else:
+            product_key = (material_id, name)
+            if product_key in existing_products:
+                existing = existing_products[product_key]
+
+        if existing:
             if mode == ImportMode.ADD_ONLY.value:
                 result.add_skip("material_products", identifier, "Already exists")
                 continue
-            existing = existing_products[product_key]
             updated_fields = []
             if item.get("brand") and not existing.brand:
                 existing.brand = item["brand"]
@@ -1477,6 +1489,10 @@ def _import_material_products_impl(
             if supplier_id and not existing.supplier_id:
                 existing.supplier_id = supplier_id
                 updated_fields.append("supplier_id")
+            # Backfill slug if missing
+            if product_slug and not existing.slug:
+                existing.slug = product_slug
+                updated_fields.append("slug")
             if updated_fields:
                 result.add_augment("material_products", identifier, updated_fields)
             else:
@@ -1495,9 +1511,19 @@ def _import_material_products_impl(
             )
             continue
 
+        # Generate slug if not provided
+        final_slug = product_slug or slugify(name)
+        # Ensure uniqueness
+        if final_slug in existing_slugs:
+            counter = 1
+            while f"{final_slug}_{counter}" in existing_slugs:
+                counter += 1
+            final_slug = f"{final_slug}_{counter}"
+
         product = MaterialProduct(
             material_id=material_id,
             name=name,
+            slug=final_slug,
             brand=item.get("brand"),
             package_quantity=package_quantity,
             package_unit=package_unit,
@@ -1508,7 +1534,8 @@ def _import_material_products_impl(
         )
         session.add(product)
         result.add_success("material_products")
-        existing_products[product_key] = product
+        existing_products[(material_id, name)] = product
+        existing_slugs[final_slug] = product
 
     if dry_run:
         session.rollback()

@@ -36,6 +36,7 @@ class MaterialProduct(BaseModel):
         material_id: Foreign key to parent Material
         supplier_id: Foreign key to preferred Supplier (nullable)
         name: Product display name (e.g., "100ft Red Satin Roll")
+        slug: URL-friendly identifier for stable import/export references
         brand: Brand name (e.g., "Michaels")
         sku: Supplier SKU (nullable)
         package_quantity: Quantity per package (e.g., 100 for 100ft)
@@ -70,6 +71,7 @@ class MaterialProduct(BaseModel):
 
     # Product information
     name = Column(String(200), nullable=False)
+    slug = Column(String(200), nullable=True, unique=True, index=True)
     brand = Column(String(100), nullable=True)
     sku = Column(String(100), nullable=True)
 
@@ -107,6 +109,7 @@ class MaterialProduct(BaseModel):
     __table_args__ = (
         Index("idx_material_product_material", "material_id"),
         Index("idx_material_product_supplier", "supplier_id"),
+        Index("idx_material_product_slug", "slug"),
         Index("idx_material_product_hidden", "is_hidden"),
         CheckConstraint("package_quantity > 0", name="ck_material_product_quantity_positive"),
         CheckConstraint(

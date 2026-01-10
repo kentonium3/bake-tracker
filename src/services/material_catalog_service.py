@@ -835,6 +835,7 @@ def create_product(
     brand: Optional[str] = None,
     supplier_id: Optional[int] = None,
     sku: Optional[str] = None,
+    slug: Optional[str] = None,
     notes: Optional[str] = None,
     session: Optional[Session] = None,
 ) -> MaterialProduct:
@@ -849,6 +850,7 @@ def create_product(
         brand: Brand name (optional)
         supplier_id: Preferred supplier ID (optional)
         sku: Supplier SKU (optional)
+        slug: URL-friendly identifier (auto-generated if not provided)
         notes: Optional notes
         session: Optional database session
 
@@ -875,9 +877,31 @@ def create_product(
             package_quantity, package_unit, material.base_unit_type
         )
 
+        # Generate unique slug if not provided
+        product_slug = slug
+        if not product_slug:
+            base_slug = slugify(name.strip())
+            # Ensure uniqueness across all products
+            existing = sess.query(MaterialProduct).filter(
+                MaterialProduct.slug == base_slug
+            ).first()
+            if existing:
+                counter = 1
+                while True:
+                    candidate = f"{base_slug}_{counter}"
+                    if not sess.query(MaterialProduct).filter(
+                        MaterialProduct.slug == candidate
+                    ).first():
+                        product_slug = candidate
+                        break
+                    counter += 1
+            else:
+                product_slug = base_slug
+
         product = MaterialProduct(
             material_id=material_id,
             name=name.strip(),
+            slug=product_slug,
             brand=brand.strip() if brand else None,
             sku=sku,
             package_quantity=package_quantity,

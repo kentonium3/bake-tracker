@@ -479,6 +479,7 @@ def _export_material_products(output_dir: Path, session: Session) -> FileEntry:
             "material_id": p.material_id,
             "material_slug": p.material.slug if p.material else None,
             "name": p.name,
+            "slug": p.slug,
             "brand": p.brand,
             "package_quantity": p.package_quantity,
             "package_unit": p.package_unit,
