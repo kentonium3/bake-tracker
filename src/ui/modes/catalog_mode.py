@@ -23,6 +23,7 @@ if TYPE_CHECKING:
     from src.ui.recipes_tab import RecipesTab
     from src.ui.finished_units_tab import FinishedUnitsTab
     from src.ui.packages_tab import PackagesTab
+    from src.ui.materials_tab import MaterialsTab
 
 
 class CatalogMode(BaseMode):
@@ -48,6 +49,7 @@ class CatalogMode(BaseMode):
         self.finished_units_tab: "FinishedUnitsTab" = None
         self.finished_goods_tab = None  # Placeholder
         self.packages_tab: "PackagesTab" = None
+        self.materials_tab: "MaterialsTab" = None  # Feature 047
 
         # Set up dashboard and tabs
         self.setup_dashboard()
@@ -59,12 +61,13 @@ class CatalogMode(BaseMode):
         self.set_dashboard(dashboard)
 
     def setup_tabs(self) -> None:
-        """Set up all 6 tabs for CATALOG mode (FR-018)."""
+        """Set up all 7 tabs for CATALOG mode (FR-018)."""
         from src.ui.ingredients_tab import IngredientsTab
         from src.ui.products_tab import ProductsTab
         from src.ui.recipes_tab import RecipesTab
         from src.ui.finished_units_tab import FinishedUnitsTab
         from src.ui.packages_tab import PackagesTab
+        from src.ui.materials_tab import MaterialsTab
 
         self.create_tabview()
 
@@ -109,6 +112,13 @@ class CatalogMode(BaseMode):
         self.packages_tab = PackagesTab(packages_frame)
         self._tab_widgets["Packages"] = self.packages_tab
 
+        # Materials tab (Feature 047)
+        materials_frame = self.tabview.add("Materials")
+        materials_frame.grid_columnconfigure(0, weight=1)
+        materials_frame.grid_rowconfigure(0, weight=1)
+        self.materials_tab = MaterialsTab(materials_frame)
+        self._tab_widgets["Materials"] = self.materials_tab
+
     def _add_placeholder(self, frame: ctk.CTkFrame, title: str, message: str) -> None:
         """Add a placeholder message to a frame.
 
@@ -145,3 +155,5 @@ class CatalogMode(BaseMode):
             self.finished_units_tab.refresh()
         if self.packages_tab:
             self.packages_tab.refresh()
+        if self.materials_tab:
+            self.materials_tab.refresh()

@@ -189,6 +189,12 @@ class FinishedGoodDetailDialog(ctk.CTkToplevel):
                     name = f"[Pkg] {product_name} (Generic)"
                 else:
                     name = f"[Pkg] {comp.packaging_product.display_name}"
+            elif comp.material_unit_id and comp.material_unit:
+                # Feature 047: MaterialUnit component
+                name = f"[MU] {comp.material_unit.name}"
+            elif comp.material_id and comp.material:
+                # Feature 047: Generic material placeholder
+                name = f"[Mat] {comp.material.name} (selection pending)"
             else:
                 name = "Unknown component"
 
@@ -199,6 +205,10 @@ class FinishedGoodDetailDialog(ctk.CTkToplevel):
             # Feature 026: Show assignment status and button for generic packaging
             if comp.is_generic and comp.packaging_product_id:
                 self._add_assignment_indicator(row_frame, comp)
+
+            # Feature 047: Show pending status for generic materials
+            if comp.is_generic and comp.material_id:
+                self._add_material_pending_indicator(row_frame, comp)
 
     def _add_assignment_indicator(self, parent_frame, composition):
         """
@@ -267,6 +277,28 @@ class FinishedGoodDetailDialog(ctk.CTkToplevel):
             on_complete_callback=on_assignment_complete,
         )
         self.wait_window(dialog)
+
+    def _add_material_pending_indicator(self, parent_frame, composition):
+        """
+        Add pending indicator for generic material compositions.
+
+        Feature 047: Materials Management System
+
+        Generic materials are resolved at assembly time via material_assignments
+        parameter. This indicator shows that selection is pending.
+
+        Args:
+            parent_frame: The row frame to add widgets to
+            composition: The Composition object with is_generic=True and material_id
+        """
+        # Show orange "Pending" indicator - resolved at assembly time
+        status_label = ctk.CTkLabel(
+            parent_frame,
+            text=" (select at assembly)",
+            text_color="#CC7700",
+            font=ctk.CTkFont(size=11),
+        )
+        status_label.pack(side="left", padx=(5, 0))
 
     def _refresh_composition_display(self):
         """Refresh the composition display after assignment changes."""

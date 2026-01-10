@@ -16,7 +16,7 @@ from src.models.event import Event
 from src.ui.widgets.availability_display import AvailabilityDisplay
 from src.ui.widgets.dialogs import show_error, show_confirmation
 from src.ui.service_integration import get_ui_service_integrator, OperationType
-from src.services import assembly_service, event_service, packaging_service
+from src.services import assembly_service, event_service, packaging_service, material_consumption_service
 from src.utils.constants import PADDING_MEDIUM, PADDING_LARGE
 
 
@@ -234,6 +234,21 @@ class RecordAssemblyDialog(ctk.CTkToplevel):
         notes = self.notes_textbox.get("1.0", "end-1c").strip() or None
         event_id = self._get_selected_event_id()  # Feature 016
 
+        # Feature 047: Check for pending material requirements
+        pending_materials = self._check_pending_materials()
+        material_assignments: Optional[Dict[int, int]] = None
+
+        if pending_materials:
+            # Show material assignment dialog
+            dialog = PendingMaterialsDialog(self, pending_materials)
+            self.wait_window(dialog)
+
+            if dialog.result == "cancel":
+                return
+            elif dialog.result == "assigned":
+                material_assignments = dialog.assignments
+            # Note: Materials don't have bypass option - they must be assigned
+
         # Feature 026: Check for pending packaging requirements
         pending_packaging = self._check_pending_packaging()
         packaging_bypassed = False
@@ -289,6 +304,7 @@ class RecordAssemblyDialog(ctk.CTkToplevel):
                 event_id=event_id,  # Feature 016
                 packaging_bypassed=packaging_bypassed,  # Feature 026
                 packaging_bypass_notes=packaging_bypass_notes,  # Feature 026
+                material_assignments=material_assignments,  # Feature 047
             ),
             parent_widget=self,
             success_message=f"Assembled {quantity} {self.finished_good.display_name}",
@@ -304,8 +320,27 @@ class RecordAssemblyDialog(ctk.CTkToplevel):
                 "event_id": event_id,  # Feature 016
                 "assembly_run_id": result.get("assembly_run_id"),
                 "packaging_bypassed": packaging_bypassed,  # Feature 026
+                "material_assignments": material_assignments,  # Feature 047
             }
             self.destroy()
+
+    def _check_pending_materials(self) -> List[Dict[str, Any]]:
+        """
+        Check for pending generic material requirements.
+
+        Feature 047: Check if assembly has generic materials needing product selection.
+
+        Returns:
+            List of pending material dicts with available_products
+        """
+        try:
+            pending = material_consumption_service.get_pending_materials(
+                finished_good_id=self.finished_good.id
+            )
+            return pending
+        except Exception:
+            # Don't block assembly if check fails
+            return []
 
     def _check_pending_packaging(self) -> List[Dict[str, Any]]:
         """
@@ -571,6 +606,204 @@ class PendingPackagingDialog(ctk.CTkToplevel):
     def _on_bypass(self):
         """Handle Record Anyway button."""
         self.result = "bypass"
+        self.destroy()
+
+    def _on_cancel(self):
+        """Handle Cancel button."""
+        self.result = "cancel"
+        self.destroy()
+
+
+class PendingMaterialsDialog(ctk.CTkToplevel):
+    """
+    Dialog for selecting products for generic material compositions.
+
+    Feature 047: Materials Management System
+
+    When a FinishedGood has generic material compositions (material_id without
+    material_unit_id), the user must select which product to consume at assembly time.
+    Unlike packaging, there is no bypass option - materials must be assigned.
+
+    Attributes:
+        result: "assigned" or "cancel"
+        assignments: Dict[composition_id, product_id] when result is "assigned"
+    """
+
+    def __init__(self, parent, pending: List[Dict[str, Any]]):
+        """
+        Initialize the pending materials dialog.
+
+        Args:
+            parent: Parent widget
+            pending: List of pending material dicts from get_pending_materials()
+        """
+        super().__init__(parent)
+
+        self.pending = pending
+        self.result = "cancel"
+        self.assignments: Dict[int, int] = {}
+        self._product_vars: Dict[int, ctk.StringVar] = {}  # composition_id -> StringVar
+        self._product_maps: Dict[int, Dict[str, int]] = {}  # composition_id -> {name: product_id}
+
+        self._setup_window()
+        self._create_widgets()
+        self._setup_modal()
+
+    def _setup_window(self):
+        """Configure the dialog window."""
+        self.title("Select Material Products")
+        self.geometry("500x400")
+        self.resizable(False, True)
+
+    def _setup_modal(self):
+        """Set up modal behavior."""
+        self.transient(self.master)
+        self.wait_visibility()
+        self.grab_set()
+        self.focus_force()
+        self._center_on_parent()
+
+    def _center_on_parent(self):
+        """Center the dialog on its parent."""
+        self.update_idletasks()
+
+        parent = self.master
+        parent_x = parent.winfo_rootx()
+        parent_y = parent.winfo_rooty()
+        parent_width = parent.winfo_width()
+        parent_height = parent.winfo_height()
+
+        dialog_width = self.winfo_width()
+        dialog_height = self.winfo_height()
+
+        x = parent_x + (parent_width - dialog_width) // 2
+        y = parent_y + (parent_height - dialog_height) // 2
+
+        x = max(0, x)
+        y = max(0, y)
+
+        self.geometry(f"+{x}+{y}")
+
+    def _create_widgets(self):
+        """Create all dialog widgets."""
+        # Configure grid
+        self.grid_columnconfigure(0, weight=1)
+        self.grid_rowconfigure(1, weight=1)
+
+        # Header
+        header_frame = ctk.CTkFrame(self, fg_color="transparent")
+        header_frame.grid(row=0, column=0, sticky="ew", padx=PADDING_LARGE, pady=PADDING_LARGE)
+
+        ctk.CTkLabel(
+            header_frame,
+            text="Select Products for Materials",
+            font=ctk.CTkFont(size=16, weight="bold"),
+        ).pack()
+
+        ctk.CTkLabel(
+            header_frame,
+            text="This assembly uses generic materials. Please select\nwhich product to consume for each material.",
+            justify="center",
+        ).pack(pady=(PADDING_MEDIUM, 0))
+
+        # Scrollable frame for material selections
+        scroll_frame = ctk.CTkScrollableFrame(self)
+        scroll_frame.grid(
+            row=1, column=0, sticky="nsew",
+            padx=PADDING_LARGE, pady=PADDING_MEDIUM
+        )
+        scroll_frame.grid_columnconfigure(1, weight=1)
+
+        row = 0
+        for mat_info in self.pending:
+            self._create_material_row(scroll_frame, mat_info, row)
+            row += 1
+
+        # Buttons
+        button_frame = ctk.CTkFrame(self, fg_color="transparent")
+        button_frame.grid(row=2, column=0, pady=PADDING_LARGE)
+
+        ctk.CTkButton(
+            button_frame,
+            text="Confirm",
+            command=self._on_confirm,
+            width=100,
+            fg_color="#28A745",
+            hover_color="#218838",
+        ).pack(side="left", padx=PADDING_MEDIUM)
+
+        ctk.CTkButton(
+            button_frame,
+            text="Cancel",
+            command=self._on_cancel,
+            width=100,
+        ).pack(side="left", padx=PADDING_MEDIUM)
+
+    def _create_material_row(self, parent, mat_info: Dict[str, Any], row: int):
+        """Create a row for selecting a product for a material."""
+        composition_id = mat_info.get("composition_id")
+        material_name = mat_info.get("material_name", "Unknown Material")
+        quantity_needed = mat_info.get("quantity_needed", 0)
+        available_products = mat_info.get("available_products", [])
+
+        # Material label
+        label_text = f"{material_name} ({quantity_needed} units needed)"
+        ctk.CTkLabel(
+            parent, text=label_text, anchor="w"
+        ).grid(row=row, column=0, sticky="w", padx=PADDING_MEDIUM, pady=PADDING_MEDIUM)
+
+        # Product dropdown
+        if available_products:
+            product_names = []
+            product_map = {}
+            for prod in available_products:
+                name = prod.get("name", "Unknown")
+                inventory = prod.get("inventory", 0)
+                cost = prod.get("unit_cost", 0)
+                display = f"{name} ({inventory:.0f} avail, ${cost:.4f}/unit)"
+                product_names.append(display)
+                product_map[display] = prod.get("id")
+
+            self._product_maps[composition_id] = product_map
+
+            var = ctk.StringVar(value=product_names[0] if product_names else "")
+            self._product_vars[composition_id] = var
+
+            dropdown = ctk.CTkOptionMenu(
+                parent,
+                variable=var,
+                values=product_names,
+                width=280,
+            )
+            dropdown.grid(row=row, column=1, sticky="w", padx=PADDING_MEDIUM, pady=PADDING_MEDIUM)
+        else:
+            ctk.CTkLabel(
+                parent,
+                text="No products with inventory",
+                text_color="#CC0000",
+            ).grid(row=row, column=1, sticky="w", padx=PADDING_MEDIUM, pady=PADDING_MEDIUM)
+
+    def _on_confirm(self):
+        """Handle Confirm button - validate and build assignments."""
+        assignments = {}
+
+        for composition_id, var in self._product_vars.items():
+            selected = var.get()
+            product_map = self._product_maps.get(composition_id, {})
+            product_id = product_map.get(selected)
+
+            if not product_id:
+                show_error(
+                    "Selection Required",
+                    "Please select a product for all materials.",
+                    parent=self,
+                )
+                return
+
+            assignments[composition_id] = product_id
+
+        self.assignments = assignments
+        self.result = "assigned"
         self.destroy()
 
     def _on_cancel(self):
