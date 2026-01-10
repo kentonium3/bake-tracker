@@ -4,7 +4,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Seasonal Baking Tracker - Desktop application for managing holiday baking inventory, recipes, and gift package planning. Built for a single user (developer's wife) with aspirations toward web deployment.
+Bake Tracker - Desktop application for managing event-based food production: inventory, recipes, finished goods, and gift package planning.
+
+**Dual Purpose:** This application serves as both a practical tool for a real user (developer's wife) AND a workflow validator for future AI-assisted SaaS evolution. Features must work flawlessly for the current user while validating the workflows, data structures, and business logic that will underpin future voice/chat AI interactions.
+
+**AI-Forward Foundation:** The principle "solve it manually first, then add AI" ensures AI assistance enhances rather than obscures validated processes. BT Mobile companion app proves AI-assisted data entry (purchase scanning, inventory updates) before real-time interfaces are built.
 
 ## Technology Stack
 
