@@ -181,6 +181,33 @@ class FinishedUnit(BaseModel):
         """
         return self.inventory_count >= quantity
 
+    def calculate_current_cost(self) -> Decimal:
+        """
+        Calculate current average cost per unit from production history.
+
+        Uses weighted average of per_unit_cost from ProductionRuns,
+        weighted by actual_yield. This enables dynamic cost calculation
+        following the F045 "Costs on Instances, Not Definitions" principle.
+
+        Returns:
+            Decimal: Average cost per unit, or Decimal("0.0000") if no production history
+        """
+        if not self.production_runs:
+            return Decimal("0.0000")
+
+        total_cost = Decimal("0.0000")
+        total_yield = 0
+
+        for run in self.production_runs:
+            if run.actual_yield and run.actual_yield > 0 and run.per_unit_cost:
+                total_cost += run.per_unit_cost * run.actual_yield
+                total_yield += run.actual_yield
+
+        if total_yield == 0:
+            return Decimal("0.0000")
+
+        return (total_cost / Decimal(str(total_yield))).quantize(Decimal("0.0001"))
+
     def update_inventory(self, quantity_change: int) -> bool:
         """
         Update inventory count with the specified change.

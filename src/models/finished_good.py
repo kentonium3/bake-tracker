@@ -17,6 +17,7 @@ Cost Architecture (F045):
 """
 
 from datetime import datetime
+from decimal import Decimal
 
 from sqlalchemy import (
     Column,
@@ -244,6 +245,38 @@ class FinishedGood(BaseModel):
                     result["sufficient_components"].append(component_info)
 
         return result
+
+    def calculate_current_cost(self) -> Decimal:
+        """
+        Calculate current cost from component costs (dynamic, not stored).
+
+        Sums the costs of all FinishedUnit and FinishedGood components,
+        multiplied by their quantities in the composition. This enables
+        dynamic cost calculation following the F045 "Costs on Instances,
+        Not Definitions" principle.
+
+        For internal use during assembly recording and event planning.
+        NOT displayed in catalog UI.
+
+        Returns:
+            Decimal: Total cost for one assembly, or Decimal("0.0000") if no components
+        """
+        if not self.components:
+            return Decimal("0.0000")
+
+        total = Decimal("0.0000")
+
+        for composition in self.components:
+            if composition.finished_unit_component:
+                unit_cost = composition.finished_unit_component.calculate_current_cost()
+                total += unit_cost * Decimal(str(composition.component_quantity))
+            elif composition.finished_good_component:
+                # Recursive call for nested FinishedGoods
+                unit_cost = composition.finished_good_component.calculate_current_cost()
+                total += unit_cost * Decimal(str(composition.component_quantity))
+            # packaging_product_id ignored per F046 scope (deferred to F04X)
+
+        return total.quantize(Decimal("0.0001"))
 
     def to_dict(self, include_relationships: bool = False) -> dict:
         """
