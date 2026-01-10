@@ -9,25 +9,275 @@
 > - **Feature Specifications:** [`/docs/design/F0XX_*.md`](.) - Detailed design docs for each feature
 > - **Service Layer:** [`/src/services/`](../../src/services/) - Service docstrings and implementation
 > - **UI Structure:** [`/src/ui/`](../../src/ui/) - Current UI organization and components
-> - **Feature Roadmap:** [`/docs/feature_roadmap.md`](../feature_roadmap.md) - Completed and planned features
+> - **Feature Roadmap:** [`/docs/feature_roadmap.md`](<../feature_roadmap.md>) - Completed and planned features
 > - **Constitution:** [`/.kittify/memory/constitution.md`](../../.kittify/memory/constitution.md) - Core architectural principles
 >
 > **Document Status:**
-> - Last comprehensive review: 2025-12-11
-> - Schema version documented: v0.4 (Current production: v0.6+)
-> - Last updated: 2025-12-24 (obsolete reference cleanup, schema evolution section added)
->
-> **Known Gaps:**
-> - Production tracking architecture (see F013, F014, F016 specs)
-> - Enhanced inventory management (see F027, F028, F029 specs)
-> - Deferred packaging decisions (see F026 spec)
-> - Import/export enhancements (see F020, F030 specs)
+> - Last comprehensive review: 2026-01-09
+> - Architecture pattern analysis: 2026-01-09 (definition/instantiation)
+> - Schema version documented: v0.7+
+> - Last updated: 2026-01-09
 
 ---
 
 ## System Overview
 
-The Seasonal Baking Tracker is a desktop application built with Python and CustomTkinter, using SQLite for data persistence.
+The Seasonal Baking Tracker is a desktop application built with Python and CustomTkinter, using SQLite for data persistence. The architecture follows a **definition vs instantiation** pattern where catalog entities (recipes, products) are separate from their transaction records (production runs, purchases).
+
+---
+
+## Core Architectural Pattern: Definitions vs Instantiations
+
+### Pattern Overview
+
+The application distinguishes between two fundamental types of entities:
+
+**Definition Objects** (Catalog/Templates):
+- Describe **WHAT** can exist
+- No temporal context (timeless, persist indefinitely)
+- Can exist with zero instances
+- Examples: Recipe "Chocolate Chip Cookies", Product "King Arthur Flour 5lb bag"
+- **NO stored costs** - definitions don't have inherent prices
+
+**Instantiation Objects** (Transactions/Events):
+- Record **WHEN/WHERE/HOW** something happened
+- Temporal context (specific date/time/circumstances)
+- Snapshot state at time of use
+- Examples: ProductionRun "Made 3 batches on 2026-01-05", Purchase "Bought flour for $4.50 on 2026-01-03"
+- **Immutable snapshots** - capture point-in-time costs and details
+
+### Why This Pattern?
+
+**Problem solved:**
+- Definitions persist even when instances are zero (recipe you haven't made yet, product you haven't bought recently)
+- Historical accuracy (what did it cost WHEN we made it, not what does it cost now)
+- Price fluctuations tracked (chocolate went from $300 → $600, both prices preserved)
+- Data integrity (no stale costs on definitions)
+
+**Core principle:**
+> **"Costs on Instances, Not Definitions"**
+> 
+> A recipe doesn't have a cost - making a batch has a cost (depends on current ingredient prices).
+> A product doesn't have a price - a purchase has a price (depends on supplier and date).
+
+---
+
+## Pattern Implementation Examples
+
+### 1. Product/Purchase/InventoryItem ✅ Exemplar Pattern
+
+**Definition: Product**
+```python
+class Product:
+    """Brand-specific product definition (e.g., "King Arthur AP Flour 5lb")"""
+    ingredient_id: int          # Links to generic Ingredient
+    brand: str                  # "King Arthur"
+    package_size: str           # "5 lb"
+    preferred_supplier_id: int  # Preferred, not required
+    # NO stored prices, NO inventory counts
+```
+
+**Instantiation: Purchase**
+```python
+class Purchase:
+    """Records specific purchase transaction"""
+    product_id: int             # WHAT was purchased
+    supplier_id: int            # WHERE purchased (actual supplier used)
+    purchase_date: date         # WHEN purchased
+    unit_price: Decimal         # Price at THIS purchase
+    quantity_purchased: int     # How many packages
+    # IMMUTABLE after creation (no updated_at field)
+```
+
+**Instantiation: InventoryItem**
+```python
+class InventoryItem:
+    """Records actual inventory lot"""
+    product_id: int             # WHAT product
+    purchase_id: int            # Links to SPECIFIC purchase
+    quantity: float             # Current quantity on hand
+    purchase_date: date         # WHEN added to inventory
+    expiration_date: date       # THIS lot's expiration
+    location: str               # WHERE stored physically
+```
+
+**Real-world scenario:**
+```
+Product (definition):
+  "King Arthur All-Purpose Flour, 5 lb bag"
+  - Persists even when inventory = 0
+  - Persists even when no longer sold
+
+Purchase (instantiation #1):
+  King Arthur Flour from Costco on 2026-01-03 @ $4.50 each, bought 3
+
+Purchase (instantiation #2):
+  King Arthur Flour from Wegmans on 2026-01-08 @ $5.00 each, bought 2
+
+InventoryItem (physical instance #1):
+  10 lb remaining from Costco purchase (FIFO: oldest)
+
+InventoryItem (physical instance #2):
+  7.5 lb remaining from Wegmans purchase (FIFO: newer)
+```
+
+**Benefits:**
+- Product definition persists when out of stock
+- Product definition persists when discontinued (historical record intact)
+- Each purchase captures supplier + price + date (audit trail)
+- FIFO consumption matches physical reality (oldest first)
+- Price trends tracked (identify $4.50 → $5.00 increase)
+
+---
+
+### 2. Recipe/ProductionRun ✅ Production Pattern
+
+**Definition: Recipe**
+```python
+class Recipe:
+    """Recipe definition (instructions)"""
+    name: str                       # "Chocolate Chip Cookies"
+    ingredients: List[RecipeIngredient]
+    yield_quantity: int
+    base_recipe_id: int             # Optional variant parent
+    variant_name: str               # Optional variant identifier
+    # NO stored costs (calculates fresh from current inventory)
+```
+
+**Instantiation: ProductionRun**
+```python
+class ProductionRun:
+    """Records specific batch production"""
+    recipe_id: int                  # WHAT recipe
+    recipe_snapshot_id: int         # Immutable snapshot for historical accuracy
+    event_id: int                   # Optional event context (WHY produced)
+    num_batches: int                # HOW many batches
+    expected_yield: int             # Expected output
+    actual_yield: int               # Actual output (may differ due to loss)
+    produced_at: datetime           # WHEN produced
+    total_ingredient_cost: Decimal  # Snapshot at production time (FIFO)
+    per_unit_cost: Decimal          # Cost per unit at production time
+    production_status: str          # COMPLETE/PARTIAL_LOSS/TOTAL_LOSS
+```
+
+**Real-world scenario:**
+```
+Recipe (definition):
+  "Chocolate Chip Cookies"
+  - 2 cups flour, 1 cup sugar, ... (ingredients)
+  - Yields 30 cookies per batch
+  - Current cost calculation: $12.50/batch (based on current inventory prices)
+
+ProductionRun (instantiation #1):
+  Made 3 batches on 2026-01-05
+  - Expected: 90 cookies, Actual: 87 cookies (3 burnt)
+  - Cost: $12.50/batch × 3 = $37.50 total
+  - Per cookie: $37.50 ÷ 87 = $0.431
+
+ProductionRun (instantiation #2):
+  Made 2 batches on 2026-01-10
+  - Expected: 60 cookies, Actual: 60 cookies
+  - Cost: $13.00/batch × 2 = $26.00 (flour price increased)
+  - Per cookie: $26.00 ÷ 60 = $0.433
+```
+
+**Benefits:**
+- Recipe definition persists even when never produced
+- Each production captures actual yield (accounts for loss)
+- Costs snapshot at production time (historical accuracy)
+- Recipe snapshots ensure immutability (ingredients can't change retroactively)
+- Can answer "what did it cost to make cookies on Jan 5?" (not just "what does it cost now?")
+
+---
+
+### 3. FinishedUnit/ProductionRun ✅ Output Tracking Pattern
+
+**Definition: FinishedUnit**
+```python
+class FinishedUnit:
+    """Defines what a recipe produces"""
+    display_name: str               # "Large Cookie"
+    recipe_id: int                  # From "Chocolate Chip Cookie" recipe
+    items_per_batch: int            # 30 per batch
+    inventory_count: int            # Current aggregate inventory
+    # NO unit_cost (removed in F045 - costs on instances only)
+```
+
+**Instantiation: ProductionRun (same as above)**
+- ProductionRun.finished_unit_id links production to output type
+- ProductionRun.actual_yield increments FinishedUnit.inventory_count
+- ProductionRun.per_unit_cost captures cost at production time
+
+**Pattern notes:**
+- FinishedUnit.inventory_count is aggregate (current state, not historical)
+- No per-lot tracking (deferred enhancement - finished goods consumed quickly)
+- ProductionRun preserves historical production events and costs
+
+---
+
+### 4. FinishedGood/AssemblyRun ⚠️ Assembly Pattern (Incomplete)
+
+**Definition: FinishedGood**
+```python
+class FinishedGood:
+    """Defines assembly of FinishedUnits"""
+    display_name: str               # "Holiday Gift Box"
+    assembly_type: str              # "gift_box"
+    components: List[Composition]   # 4 cookies + 2 brownies + box
+    # NO total_cost (removed in F045 - costs on instances only)
+```
+
+**Instantiation: AssemblyRun**
+```python
+class AssemblyRun:
+    """Records specific assembly event"""
+    finished_good_id: int           # WHAT assembly
+    event_id: int                   # Optional event context
+    quantity: int                   # HOW many assembled
+    assembled_at: datetime          # WHEN assembled
+    # ⚠️ FUTURE (F046+): Add cost snapshot fields
+    # total_component_cost: Decimal
+    # per_assembly_cost: Decimal
+```
+
+**Pattern status: Incomplete**
+- FinishedGood correctly has no stored cost (F045)
+- AssemblyRun exists but lacks cost snapshot (future enhancement F046+)
+- Missing component consumption tracking (analogous to ProductionConsumption)
+
+**Future enhancement (F046+):**
+```python
+class AssemblyRun:
+    # Add cost snapshot
+    total_component_cost: Decimal   # Snapshot at assembly time
+    per_assembly_cost: Decimal      # Cost per assembled unit
+
+class AssemblyConsumption:
+    """Track which FinishedUnits consumed (analogous to ProductionConsumption)"""
+    assembly_run_id: int
+    finished_unit_id: int           # Which component
+    quantity_consumed: int
+    per_unit_cost: Decimal          # Cost of this component at assembly time
+```
+
+---
+
+## Pattern Compliance Matrix
+
+| Entity Pair | Definition | Instantiation | Cost Handling | Status |
+|-------------|-----------|---------------|---------------|---------|
+| Ingredient → N/A | Ingredient | (used in recipes) | No costs | ✅ Correct |
+| Product → Purchase → InventoryItem | Product | Purchase, InventoryItem | Purchase.unit_price | ✅ Exemplar |
+| Recipe → ProductionRun | Recipe | ProductionRun | ProductionRun.total_ingredient_cost | ✅ Correct |
+| FinishedUnit → ProductionRun | FinishedUnit | ProductionRun | ProductionRun.per_unit_cost | ✅ Correct (post-F045) |
+| FinishedGood → AssemblyRun | FinishedGood | AssemblyRun | ⚠️ Missing cost snapshot | ⚠️ Incomplete (F046+) |
+
+**Post-F045 compliance:**
+- ✅ All definitions have NO stored costs
+- ✅ All costs captured on instantiations (transactions)
+- ⚠️ AssemblyRun cost snapshot deferred to F046+
+
+---
 
 ## Architecture Layers
 
@@ -46,7 +296,7 @@ The Seasonal Baking Tracker is a desktop application built with Python and Custo
 - **Responsibilities:**
   - Business rules and calculations
   - Unit conversion logic
-  - Cost calculations
+  - Cost calculations (dynamic from current inventory)
   - Report generation
   - Production tracking
   - Event planning
@@ -59,6 +309,7 @@ The Seasonal Baking Tracker is a desktop application built with Python and Custo
   - CRUD operations
   - Relationship management
   - Data validation
+  - **Pattern enforcement:** Definitions vs Instantiations
 
 ### 4. Data Storage Layer
 - **Technology:** SQLite
@@ -67,6 +318,8 @@ The Seasonal Baking Tracker is a desktop application built with Python and Custo
   - Write-Ahead Logging (WAL) mode
   - Foreign key constraints
   - Transaction support
+
+---
 
 ## Component Diagram
 
@@ -113,25 +366,25 @@ The Seasonal Baking Tracker is a desktop application built with Python and Custo
                          │
 ┌────────────────────────┴─────────────────────────────────────────────┐
 │                      Data Access Layer                                │
-│  Core Catalog & Inventory:                                           │
-│  ┌──────────┐ ┌──────┐ ┌────────┐ ┌────────┐ ┌─────────────────┐   │
-│  │Ingredient│ │Product│ │Supplier│ │Purchase│ │ InventoryItem   │   │
-│  │  Model   │ │Model │ │ Model  │ │ Model  │ │ (InventoryAdd.) │   │
-│  └──────────┘ └──────┘ └────────┘ └────────┘ └─────────────────┘   │
+│  Definition Objects (Catalog):                                        │
+│  ┌──────────┐ ┌──────┐ ┌────────┐ ┌──────┐ ┌──────────────┐         │
+│  │Ingredient│ │Product│ │Supplier│ │Recipe│ │RecipeIngred. │         │
+│  │  Model   │ │Model │ │ Model  │ │Model │ │  (Junction)  │         │
+│  └──────────┘ └──────┘ └────────┘ └──────┘ └──────────────┘         │
+│  ┌──────────────┐ ┌──────────────┐ ┌──────────────┐                 │
+│  │FinishedUnit  │ │FinishedGood  │ │Composition   │                 │
+│  │   Model      │ │   Model      │ │  (Junction)  │                 │
+│  └──────────────┘ └──────────────┘ └──────────────┘                 │
 │                                                                       │
-│  Recipes & Production:                                               │
-│  ┌──────┐ ┌──────────────┐ ┌──────────────┐ ┌──────────────┐       │
-│  │Recipe│ │RecipeIngred. │ │RecipeComp.   │ │ProductionRun │       │
-│  │Model │ │(Junction)    │ │(Nested)      │ │ Model        │       │
-│  └──────┘ └──────────────┘ └──────────────┘ └──────────────┘       │
-│  ┌──────────────┐ ┌──────────────┐                                  │
-│  │FinishedUnit  │ │FinishedGood  │                                  │
-│  │   Model      │ │   Model      │                                  │
-│  └──────────────┘ └──────────────┘                                  │
-│  ┌──────────────┐ ┌──────────────┐                                  │
-│  │ AssemblyRun  │ │ProductionLoss│                                  │
-│  │    Model     │ │    Model     │                                  │
-│  └──────────────┘ └──────────────┘                                  │
+│  Instantiation Objects (Transactions):                               │
+│  ┌────────┐ ┌─────────────────┐ ┌──────────────┐                    │
+│  │Purchase│ │ InventoryItem   │ │ProductionRun │                    │
+│  │ Model  │ │ (InventoryAdd.) │ │    Model     │                    │
+│  └────────┘ └─────────────────┘ └──────────────┘                    │
+│  ┌──────────────┐ ┌────────────────┐ ┌──────────────┐               │
+│  │ AssemblyRun  │ │ProductionLoss  │ │RecipeSnapshot│               │
+│  │    Model     │ │     Model      │ │    Model     │               │
+│  └──────────────┘ └────────────────┘ └──────────────┘               │
 │                                                                       │
 │  Events & Planning:                                                  │
 │  ┌──────┐ ┌─────────┐ ┌──────┐ ┌──────┐ ┌────────────────────┐     │
@@ -141,10 +394,6 @@ The Seasonal Baking Tracker is a desktop application built with Python and Custo
 │  ┌────────────────────┐ ┌──────────────────┐                        │
 │  │EventProductionTgt  │ │EventAssemblyTgt  │                        │
 │  │      (Target)      │ │    (Target)      │                        │
-│  └────────────────────┘ └──────────────────┘                        │
-│  ┌────────────────────┐ ┌──────────────────┐                        │
-│  │EventPackagingReq   │ │EventPackagingAsn │                        │
-│  │   (Requirement)    │ │   (Assignment)   │                        │
 │  └────────────────────┘ └──────────────────┘                        │
 │                                                                       │
 │  Reference Tables:                                                   │
@@ -162,25 +411,33 @@ The Seasonal Baking Tracker is a desktop application built with Python and Custo
 └───────────────────────────────────────────────────────────────────────┘
 ```
 
-## Data Flow
+---
 
-### Example: Creating a Shopping List for an Event
+## Data Flow Example: Shopping List Generation
 
-1. **User Action:** User opens Event, clicks "View Details", then switches to "Shopping List" tab
-2. **UI Layer:** `event_detail_window.py` calls `event_service.generate_shopping_list(event_id)`
-3. **Service Layer (`event_service.py`):**
-   - Retrieves event and all EventRecipientPackage assignments
-   - For each assignment:
-     - Gets package → bundles → finished goods → recipes
-     - Calculates ingredient quantities needed (accounting for quantities at each level)
-   - Aggregates ingredients by ID
-   - Retrieves current inventory (from InventoryItem via Product → Ingredient)
-   - Calculates shortfall: `to_buy = needed - on_hand`
-   - Includes cost per ingredient: `cost = to_buy × (unit_cost / conversion_factor)`
-   - Returns list with only items where `to_buy > 0`
-4. **Data Layer:** SQLAlchemy models query with eager loading (joinedload)
-5. **Response:** Service returns list of dicts: `{ingredient, needed, on_hand, to_buy, cost}`
-6. **UI Layer:** Displays shopping list table with totals
+### User Action
+User opens Event, clicks "View Details", switches to "Shopping List" tab
+
+### Service Layer Flow
+1. `event_service.generate_shopping_list(event_id)` called
+2. Retrieves event and all EventRecipientPackage assignments
+3. For each assignment:
+   - Gets package → bundles → finished goods → recipes
+   - Calculates ingredient quantities needed (accounting for quantities at each level)
+4. Aggregates ingredients by ID
+5. Retrieves **current inventory** (from InventoryItem via Product → Ingredient)
+6. Calculates shortfall: `to_buy = needed - on_hand`
+7. Calculates cost per ingredient using **FIFO from Purchase records**:
+   - `cost = to_buy × (unit_price_from_purchase / conversion_factor)`
+8. Returns list with only items where `to_buy > 0`
+
+### Pattern Application
+- **Definition used**: Recipe (what ingredients needed)
+- **Instantiation used**: Purchase (what prices to use for cost calculation)
+- **Current state used**: InventoryItem.quantity (what we have on hand now)
+- **No stored costs**: All costs calculated fresh from Purchase records
+
+---
 
 ## Database Schema Overview
 
@@ -231,126 +488,114 @@ The database schema has evolved significantly through iterative feature developm
 **Specs:** F027 (Product Catalog), F028 (Purchase Tracking)
 
 - Added `Supplier` table for supplier tracking
-- Added `Purchase` table for price history
+- Added `Purchase` table for price history (IMMUTABLE transactions)
 - Added `Product.preferred_supplier_id` FK
 - Added `Product.is_hidden` flag
-- Added `InventoryAddition.purchase_id` FK (replaced `price_paid`)
+- Added `InventoryItem.purchase_id` FK (links to Purchase for FIFO costing)
 - **Major Shift:** Purchase transactions as first-class entities, FIFO uses Purchase.unit_price
+- **Pattern:** Definition (Product) vs Instantiation (Purchase) separation
 
-#### v0.6+ - Production Loss & Deferred Packaging (F025, F026)
-**Date:** 2025-12-21, 2025-12-22  
-**Specs:** F025 (Production Loss), F026 (Deferred Packaging)
+#### v0.7 - Cost Architecture Refactor (F045)
+**Date:** 2026-01-09  
+**Spec:** `docs/design/F045_cost_architecture_refactor.md`
 
-- Added `ProductionLoss` table for loss tracking
-- Added `production_status`, `loss_quantity`, `loss_notes` to ProductionRun
-- Added `EventPackagingRequirement` and `EventPackagingAssignment` tables
-- **Key Patterns:** Yield balance constraint, deferred material assignment
+- **DELETED:** `FinishedUnit.unit_cost` field (stored cost)
+- **DELETED:** `FinishedGood.total_cost` field (stored cost)
+- **Philosophy:** "Costs on Instances, Not Definitions"
+- **Pattern Enforcement:** All costs captured at transaction time (ProductionRun, Purchase)
+- **Breaking Change:** Version 4.1 export format
 
 #### Current Schema (v0.7+)
 **Complete Entity List:** See [`SCHEMA.md`](SCHEMA.md)
 
 **Core Domains:**
-- **Catalog:** Ingredient, Product, Supplier, Units (reference table)
-- **Inventory:** InventoryItem, Purchase, InventoryAddition
-- **Recipes:** Recipe, RecipeIngredient, RecipeComponent (nested)
-- **Production:** ProductionRun, AssemblyRun, ProductionLoss
-- **Products:** FinishedUnit, FinishedGood, Composition
-- **Events:** Event, EventRecipientPackage, EventProductionTarget, EventAssemblyTarget, EventPackagingRequirement, EventPackagingAssignment
-- **Packaging:** Bundle, Package, PackageBundle
-- **People:** Recipient
+- **Catalog (Definitions):** Ingredient, Product, Supplier, Recipe, FinishedUnit, FinishedGood
+- **Inventory (Instantiations):** Purchase, InventoryItem
+- **Production (Instantiations):** ProductionRun, AssemblyRun, ProductionLoss
+- **Events (Planning):** Event, EventRecipientPackage, EventProductionTarget, EventAssemblyTarget
+- **Packaging:** Bundle, Package
+- **People:** Recipient, Supplier
+- **Reference:** Units (standard unit reference table)
 
 **Schema Change Strategy:** See Constitution Principle VI - Export/Reset/Import workflow (no migration scripts for desktop phase)
 
-### Core Entities
+---
 
-#### Inventory Management (Ingredient/Product Architecture)
-- **Ingredient** - Generic ingredient definitions (e.g., "All-Purpose Flour")
-  - Brand-agnostic, represents the "platonic ideal" of an ingredient
-  - Stores category and physical properties (density via 4-field model)
-  - Supports industry standard identifiers (FoodOn, FDC, FoodEx2, LanguaL)
-- **Product** - Specific brand/package versions (e.g., "King Arthur 25 lb bag")
-  - Links to parent Ingredient
-  - Stores brand, package size, UPC/GTIN, supplier information
-  - Preferred supplier flag for shopping recommendations
-  - Can be hidden to preserve history without cluttering UI
-- **Supplier** - Vendor/store tracking
-  - Name, address, contact information
-  - Links to Products via preferred_supplier_id
-  - Can be deactivated to preserve history
-- **Purchase** - Price history tracking for trend analysis
-  - Links to Product and Supplier
-  - Tracks purchase date, quantity, unit cost
-  - Enables price trend calculations and alerts
-  - Replaces static price data with temporal context
-- **InventoryItem** - Actual inventory with FIFO support
-  - Links to Product
-  - Tracks quantity, addition date, location
-  - **InventoryAddition** sub-entity links to Purchase for cost tracking
-  - FIFO consumption for accurate cost calculations
+## Cost Calculation Architecture
 
-#### Recipe & Event Planning
-- **Recipes** - Instructions with ingredient lists
-  - Can reference sub-recipes via RecipeComponent (nested recipes)
-  - Recursive cost calculation
-- **Finished Goods** - Baked items from recipes
-- **Bundles** - Collections of finished goods
-- **Packages** - Gift collections of bundles
-- **Recipients** - People receiving packages
-- **Events** - Holiday seasons with planning data
-  - Production targets (batches per recipe)
-  - Assembly targets (quantities per finished good)
-  - Packaging requirements and assignments
-  - Progress tracking and fulfillment status
+### FIFO Strategy (First In, First Out)
 
-#### Production Tracking
-- **ProductionRun** - Records of recipe batches produced
-  - Links to Recipe and optionally Event
-  - Tracks actual yield, production date, loss quantity
-  - Production status (COMPLETE/PARTIAL_LOSS/TOTAL_LOSS)
-- **AssemblyRun** - Records of finished goods assembled
-  - Links to FinishedGood and optionally Event
-  - Tracks quantity assembled, packaging materials used
-- **ProductionLoss** - Detailed loss tracking
-  - Links to ProductionRun
-  - Loss category (burnt/broken/contaminated/dropped/wrong_ingredients/other)
-  - Per-unit cost and total loss cost
+The application uses **FIFO (First In, First Out)** for accurate cost tracking across all inventory:
 
-### Key Relationships
+**Why FIFO?**
+- Matches physical consumption (oldest items used first)
+- Accurate when prices fluctuate (chocolate $300 → $450 → $600)
+- Natural fit for lot tracking (future enhancement)
+- Industry standard for food/manufacturing
+- Temporal price context via Purchase transactions
 
-#### Ingredient/Product Hierarchy
-```
-Ingredient (generic)
-├─ Product (brand-specific)
-│  ├─ Purchase (price history)
-│  │  └─ InventoryAddition.purchase_id → Purchase
-│  └─ InventoryItem (actual inventory)
-│     └─ InventoryAddition (tracks Purchase for FIFO costing)
-└─ Density fields (4-field model for unit conversion)
+**Implementation Pattern:**
 
-Ingredient ←→ Recipe (many-to-many via RecipeIngredient)
-  - Recipes reference generic Ingredients, not specific Products
-  - Enables brand-agnostic recipes
-  - Cost calculation uses FIFO from inventory via Purchase.unit_price
+```python
+def calculate_recipe_cost_fifo(recipe_id):
+    """Calculate recipe cost using FIFO from current inventory."""
+    total_cost = Decimal("0.0000")
+
+    for recipe_ingredient in recipe.ingredients:
+        ingredient_id = recipe_ingredient.ingredient_id
+        quantity_needed = recipe_ingredient.quantity
+
+        # Consume using FIFO: oldest inventory first
+        # InventoryItem.purchase_id → Purchase.unit_price
+        consumed, cost_breakdown = consume_fifo(
+            ingredient_id=ingredient_id,
+            quantity_needed=quantity_needed
+        )
+
+        # Sum costs from each Purchase consumed
+        for item in cost_breakdown:
+            total_cost += item["cost"]
+
+        # Fallback: If insufficient inventory, estimate using most recent purchase
+        if consumed < quantity_needed:
+            remaining = quantity_needed - consumed
+            product = get_preferred_product(ingredient_id)
+            latest_purchase = product.get_most_recent_purchase()
+            fallback_cost = remaining * latest_purchase.unit_price
+            total_cost += fallback_cost
+
+    return total_cost
 ```
 
-#### Recipe & Event Planning
+**Cost Snapshot Pattern:**
+
+When production occurs, costs are captured as immutable snapshots:
+
+```python
+class ProductionRun:
+    """Records batch production with cost snapshot"""
+    recipe_id: int
+    num_batches: int
+    actual_yield: int
+    produced_at: datetime
+    
+    # Cost snapshot at production time
+    total_ingredient_cost: Decimal  # Sum of FIFO costs
+    per_unit_cost: Decimal          # total_cost / actual_yield
+    
+    # Link to immutable recipe snapshot
+    recipe_snapshot_id: int         # F037: Ensures historical accuracy
 ```
-Recipe → Finished Good (one-to-many)
-  └─ RecipeComponent → Recipe (self-referential for nested recipes)
 
-Finished Good → Bundle (one-to-many, simplified: each bundle has 1 FG type)
+**Benefits:**
+- Historical accuracy: Can answer "what did it cost on Jan 5?"
+- Price trend analysis: Track ingredient cost changes over time
+- Audit trail: Every production links to specific purchases
+- Future-ready: Lot tracking extension point
 
-Bundle ←→ Package (many-to-many via PackageBundle)
+---
 
-Event ←→ Recipient ←→ Package (via EventRecipientPackage junction)
-  └─ Event has ProductionTargets and AssemblyTargets
-  └─ Event has PackagingRequirements and PackagingAssignments
-
-ProductionRun → Event (optional FK for event-linked production)
-AssemblyRun → Event (optional FK for event-linked assembly)
-```
-
-## Ingredient/Product Architecture (v0.4.0+ Refactor)
+## Ingredient/Product Architecture
 
 ### Design Philosophy
 The inventory system follows a **"future-proof schema, present-simple implementation"** approach:
@@ -360,48 +605,42 @@ The inventory system follows a **"future-proof schema, present-simple implementa
 - User NOT burdened with unnecessary data entry upfront
 - Optional enhancements clearly documented for future phases
 
-### Separation of Concerns
+### Hierarchy & Separation of Concerns
 
-#### Ingredient (Generic Concept)
-Represents the platonic ideal of an ingredient, independent of brand or package:
-- **Purpose:** Brand-agnostic recipe references
-- **Example:** "All-Purpose Flour" (not "King Arthur 25 lb All-Purpose Flour")
-- **Recipe Usage:** Recipes reference Ingredients, allowing brand substitution
-- **Industry Standards:** Supports FoodOn, FDC, FoodEx2, LanguaL identifiers
-- **Physical Properties:** Density via 4-field model (`density_value`, `density_from_unit`, `density_to_unit`, `density_note`)
+**Ingredient (Generic Concept)**
+- Represents the platonic ideal of an ingredient, independent of brand or package
+- Purpose: Brand-agnostic recipe references
+- Example: "All-Purpose Flour" (not "King Arthur 25 lb All-Purpose Flour")
+- Recipe Usage: Recipes reference Ingredients, allowing brand substitution
+- Physical Properties: Density via 4-field model for unit conversion
 
-#### Product (Specific Purchasable Item)
-Represents a specific purchasable version with brand and package details:
-- **Purpose:** Track specific brands, packages, and suppliers
-- **Example:** "King Arthur All-Purpose Flour, 25 lb bag"
-- **Preferred Supplier:** Links to Supplier for shopping recommendations
-- **UPC/GTIN:** Barcode support for future mobile scanning
-- **Industry Standards:** GS1 GTIN, GPC brick codes, brand owner tracking
-- **Hidden Flag:** Can hide products while preserving purchase/inventory history
+**Product (Specific Purchasable Item - DEFINITION)**
+- Represents a specific purchasable version with brand and package details
+- Purpose: Track specific brands, packages, and suppliers
+- Example: "King Arthur All-Purpose Flour, 25 lb bag"
+- Preferred Supplier: Links to Supplier for shopping recommendations
+- NO stored prices, NO inventory counts (definition only)
 
-#### Supplier (Vendor Tracking)
-Tracks where products are purchased:
-- **Purpose:** Enable supplier-based purchasing decisions ("Costco is cheaper for bulk chocolate")
-- **Shopping Workflow:** "I just shopped at Costco with 20 items" becomes streamlined
-- **Price Context:** Different suppliers may have different prices for same product
+**Supplier (Vendor - DEFINITION)**
+- Tracks where products are purchased
+- Purpose: Enable supplier-based purchasing decisions
+- Shopping Workflow: "I just shopped at Costco with 20 items" becomes streamlined
 
-#### Purchase (Price History)
-Tracks all purchase transactions for a product:
-- **Purpose:** Price trend analysis and cost forecasting
-- **Benefits:**
+**Purchase (Transaction - INSTANTIATION)**
+- Tracks specific purchase transactions
+- Purpose: Price trend analysis and cost forecasting
+- Benefits:
   - Identify price increases/decreases ($300 → $600 chocolate chips)
   - Calculate average cost over time periods
   - Support future price alerts
   - Audit trail for expense tracking
-- **FIFO Integration:** InventoryAddition.purchase_id links to Purchase for accurate costing
+- **IMMUTABLE:** No updated_at field (transactions are permanent records)
 
-#### InventoryItem (Actual Inventory)
-Represents physical inventory with FIFO support:
-- **Purpose:** Track what's actually on the shelf
-- **FIFO Consumption:** Oldest items consumed first (matches physical flow)
-- **Lot Tracking Ready:** Each item can represent a lot/batch
-- **Location Tracking:** Store inventory location (future UI feature)
-- **InventoryAddition:** Sub-entity links inventory to Purchase for cost tracking
+**InventoryItem (Physical Lot - INSTANTIATION)**
+- Represents physical inventory with FIFO support
+- Purpose: Track what's actually on the shelf
+- FIFO Consumption: Oldest items consumed first (matches physical flow)
+- Links to Purchase: InventoryItem.purchase_id → Purchase for cost tracking
 
 ### Key Design Decisions
 
@@ -414,21 +653,23 @@ Represents physical inventory with FIFO support:
 2. **FIFO Costing Matches Physical Reality**
    - Consume oldest inventory first
    - Accurate cost tracking when prices fluctuate
-   - Uses Purchase.unit_price via InventoryAddition.purchase_id
+   - Uses Purchase.unit_price via InventoryItem.purchase_id
    - Natural extension to lot/batch tracking
-   - Industry standard approach
 
 3. **Purchase Transactions as First-Class Entities**
    - Every inventory addition creates a Purchase record
    - Temporal price context (not just static price)
    - Enables trend analysis and price alerts
    - Supplier-specific pricing history
+   - **Immutable:** Transactions never change (audit integrity)
 
 4. **Industry Standards as Optional Enhancements**
    - Schema supports FoodOn, GTIN, FDC, etc.
    - Fields nullable - populate as needed
    - No upfront data entry burden
    - Future-ready for commercial features
+
+---
 
 ## Unit Conversion Strategy
 
@@ -457,59 +698,26 @@ Standard unit conversions maintained in `unit_converter.py`:
 - Volume: tsp ↔ tbsp ↔ cup ↔ ml ↔ l
 - Falls back to standard conversions when ingredient-specific density not available
 
-#### Historical Note
-**Removed in F019:**
-- `UnitConversion` model/table (redundant with density model)
-- `Ingredient.recipe_unit` field (recipes declare their own units)
-
-**Rationale:** 4-field density model is sufficient for all conversion needs. Removing redundant mechanisms simplifies codebase and eliminates inconsistency risk.
-
-### Cost Calculation (FIFO Strategy)
-
-The refactored architecture uses **FIFO (First In, First Out)** for accurate cost tracking:
-
-```python
-# Primary: FIFO costing from inventory using Purchase prices
-def calculate_recipe_cost_fifo(recipe_id):
-    total_cost = 0
-
-    for recipe_ingredient in recipe.ingredients:
-        ingredient_id = recipe_ingredient.ingredient_id
-        quantity_needed = recipe_ingredient.quantity
-
-        # Consume using FIFO and get cost breakdown
-        # InventoryAddition.purchase_id → Purchase.unit_price
-        consumed, cost_breakdown = consume_fifo(
-            ingredient_id=ingredient_id,
-            quantity_needed=quantity_needed
-        )
-
-        # Sum costs from each Purchase consumed
-        total_cost += sum(item["cost"] for item in cost_breakdown)
-
-        # Fallback: If insufficient inventory, estimate using preferred product
-        if consumed < quantity_needed:
-            remaining = quantity_needed - consumed
-            preferred_product = get_preferred_product(ingredient_id)
-            # Get most recent Purchase for this product
-            latest_purchase = preferred_product.get_most_recent_purchase()
-            fallback_cost = remaining * latest_purchase.unit_price
-            total_cost += fallback_cost
-
-    return total_cost
-```
-
-**Benefits:**
-- Matches physical consumption (oldest first)
-- Accurate when prices fluctuate ($300 → $450 → $600 chocolate chips)
-- Natural fit for lot tracking (future enhancement)
-- Industry standard for food/manufacturing
-- Temporal price context via Purchase transactions
+---
 
 ## Event Planning Strategy
 
 ### Purpose
 Enable comprehensive planning for seasonal baking events with recipient-package assignments and production tracking.
+
+### Pattern Application
+
+**Definitions:**
+- Recipe (what to make)
+- FinishedUnit (what recipes produce)
+- FinishedGood (what assemblies create)
+- Package (what to give)
+
+**Instantiations:**
+- EventProductionTarget (how many batches to produce)
+- EventAssemblyTarget (how many assemblies to create)
+- ProductionRun (actual batch production)
+- AssemblyRun (actual assembly)
 
 ### Implementation
 - Events track year, name, and event date
@@ -518,36 +726,14 @@ Enable comprehensive planning for seasonal baking events with recipient-package 
 - **Assembly Targets:** Event specifies how many of each finished good to assemble
 - **Progress Tracking:** Compare actual production/assembly vs. targets
 - **Fulfillment Status:** Track package status (pending/ready/delivered)
-- **Packaging Workflow:** Generic packaging requirements, deferred material assignment until assembly
 - Shopping lists compare needs vs **live inventory** (no snapshots)
 - Event service calculates:
   - Recipe batches needed across all assignments
   - Ingredient quantities needed (aggregated)
   - Shopping list (what to buy = needed - on_hand)
-  - Total event cost (via FIFO)
+  - Total event cost (via FIFO from current Purchase records)
 
-### Event Production Dashboard
-**See:** Feature 018 spec for details
-
-Provides "mission control" view for event production:
-- Progress bars per recipe/finished good vs. targets
-- Fulfillment status tracking with visual indicators
-- Multi-event overview (compare progress across events)
-- Quick actions (jump to record production, view shopping list)
-
-### Recipient History
-- `get_recipient_history(recipient_id)` shows packages received in past events
-- Displayed in assignment form to avoid duplicate gifts year-over-year
-- Sorted by most recent first
-
-### Deferred Packaging Decisions
-**See:** Feature 026 spec for details
-
-Allows planning with generic packaging requirements:
-- **Event Planning:** Select generic packaging product (e.g., "Cellophane Bags 6x10")
-- **Decision Timing:** Anytime from planning through assembly
-- **Material Assignment:** User assigns specific material during assembly definition
-- **Cost Updates:** Estimated (average for generic) → Actual (specific material assigned)
+---
 
 ## Production Tracking Architecture
 
@@ -555,28 +741,27 @@ Allows planning with generic packaging requirements:
 
 ### Core Concepts
 
-**ProductionRun:**
+**ProductionRun (Instantiation):**
 - Records when recipe batches are produced
-- Links to Recipe and optionally Event (for event-specific production)
+- Links to Recipe (definition) and optionally Event (context)
 - Tracks actual yield, expected yield, production date
+- **Cost Snapshot:** total_ingredient_cost, per_unit_cost at production time
 - Production status: COMPLETE, PARTIAL_LOSS, TOTAL_LOSS
-- Loss quantity and loss notes
+- Links to RecipeSnapshot for historical accuracy (F037)
 
-**AssemblyRun:**
+**AssemblyRun (Instantiation):**
 - Records when finished goods are assembled from finished units
-- Links to FinishedGood and optionally Event
+- Links to FinishedGood (definition) and optionally Event (context)
 - Tracks quantity assembled, assembly date
-- Material assignment for packaging (specific products selected during assembly)
+- ⚠️ **Future (F046+):** Add cost snapshot fields
 
-**ProductionLoss:**
+**ProductionLoss (Instantiation Detail):**
 - Detailed loss tracking linked to ProductionRun
 - Loss category: burnt, broken, contaminated, dropped, wrong_ingredients, other
 - Per-unit cost and total loss cost
 - Yield balance constraint: `actual_yield + loss_quantity = expected_yield`
 
 ### Event-Centric Production Model
-**Schema v0.6 (Feature 016):**
-
 Production and assembly can be linked to events:
 - `ProductionRun.event_id` (nullable FK)
 - `AssemblyRun.event_id` (nullable FK)
@@ -588,6 +773,8 @@ Production and assembly can be linked to events:
 - Distinguish event-specific production from general inventory
 - Enable "Where do I stand for Christmas 2025?" queries
 - Support replacement batch workflows (lost batches must be remade)
+
+---
 
 ## Technology Decisions
 
@@ -626,6 +813,8 @@ For single-user desktop application with robust import/export:
 - Multi-user deployment (web phase)
 - Independent databases that must upgrade in place
 
+---
+
 ## Security Considerations
 
 - **No Network Exposure:** Offline application, no attack surface
@@ -633,13 +822,17 @@ For single-user desktop application with robust import/export:
 - **SQL Injection:** Prevented by SQLAlchemy parameterized queries
 - **Backup:** User responsible for file backup (Carbonite, OneDrive, etc.)
 
+---
+
 ## Performance Considerations
 
 - **Database Indexes:** On foreign keys and frequently queried fields
 - **Lazy Loading:** Related objects loaded on demand
 - **Eager Loading:** Strategic use of `joinedload()` for performance
 - **Query Optimization:** Efficient joins and batch operations
-- **FIFO Optimization:** Indexed by addition_date for performance
+- **FIFO Optimization:** Indexed by purchase_date for performance
+
+---
 
 ## Testing Strategy
 
@@ -649,6 +842,8 @@ For single-user desktop application with robust import/export:
 - **Coverage Goal:** >70% for services layer
 - **Spec-Kitty Workflow:** Test-driven development via spec-kitty tooling
 
+---
+
 ## Session Management (CRITICAL)
 
 ### The Nested Session Problem
@@ -656,13 +851,6 @@ For single-user desktop application with robust import/export:
 **CRITICAL BUG PATTERN:** When a service function uses `session_scope()` and calls another service that also uses `session_scope()`, objects from the outer scope become **detached** and modifications are silently lost.
 
 This issue was discovered during Feature 016 development and caused 5 test failures where `FinishedUnit.inventory_count` modifications were not persisting.
-
-### Root Cause
-
-When the inner `session_scope()` exits and calls `session.close()`:
-1. All objects in the session's identity map are cleared
-2. Objects queried in the outer scope are no longer tracked by any session
-3. Modifications to these detached objects are silently ignored on commit
 
 ### Required Pattern
 
@@ -677,84 +865,32 @@ def service_function(..., session=None):
         return _service_function_impl(..., session)
 ```
 
-When calling other services within a transaction, ALWAYS pass the session:
+**Reference:** See `docs/design/session_management_remediation_spec.md` for full details.
 
-```python
-def multi_step_operation(...):
-    with session_scope() as session:
-        obj = session.query(Model).first()
-        # CORRECT: Pass session to maintain object tracking
-        helper_function(..., session=session)
-        obj.field = new_value  # Persists correctly
-```
-
-### Reference
-
-See `docs/design/session_management_remediation_spec.md` for full details.
+---
 
 ## UI Widget Patterns (Emerging)
 
 ### Type-Ahead Filtering (F029)
-**See:** Feature 029 spec for details
-
-Custom `TypeAheadComboBox` widget for dropdown filtering:
-- Keystroke-based filtering (contains matching)
-- Word boundary priority (matches at start of words rank higher)
-- Configurable character threshold (1-2 chars before filtering)
-- Recency markers preserved (⭐)
-- Used for Category, Ingredient, Product dropdowns
+Custom `TypeAheadComboBox` widget for dropdown filtering with word boundary priority.
 
 **Location:** `src/ui/widgets/type_ahead_combobox.py`
 
 ### Session State Management (F029)
-**See:** Feature 029 spec for details
-
-Application-level `SessionState` singleton for cross-dialog persistence:
-- Remembers last selected supplier (across all inventory additions)
-- Remembers last selected category (filter for ingredient selection)
-- Survives dialog close/reopen, resets on app restart
-- NOT persisted to disk (in-memory only)
-
-**Pattern:**
-```python
-from src.ui.session_state import get_session_state
-
-class AddInventoryDialog(ctk.CTkToplevel):
-    def __init__(self, parent):
-        self.session_state = get_session_state()
-        
-        # Pre-select from session state
-        if self.session_state.last_supplier_id:
-            self._select_supplier(self.session_state.last_supplier_id)
-```
+Application-level `SessionState` singleton for cross-dialog persistence (supplier, category selections).
 
 **Location:** `src/ui/session_state.py`
 
 ### Recency Intelligence (F029)
-**See:** Feature 029 spec for details
-
-Service-layer queries for identifying frequently-used items:
-- **Temporal recency:** Items added in last 30 days
-- **Frequency recency:** Items added 3+ times in last 90 days
-- Union of both criteria (item qualifies if either condition met)
-- Used to mark dropdown items with ⭐ and sort to top
-
-**Pattern:**
-```python
-from src.services.inventory_service import get_recent_product_ids
-
-recent_ids = get_recent_product_ids()  # [42, 55, 67, ...]
-for product in products:
-    if product.id in recent_ids:
-        dropdown_label = f"⭐ {product.display_name}"
-```
+Service-layer queries for identifying frequently-used items (temporal + frequency recency).
 
 **Location:** Methods in `src/services/inventory_service.py`
+
+---
 
 ## Import/Export Architecture
 
 ### Catalog Import vs Unified Import (F020)
-**See:** Feature 020 spec for details
 
 **Two import pathways:**
 
@@ -769,45 +905,26 @@ for product in products:
    - Export → Reset → Import cycle
    - Lossless and version-controlled
 
-### Enhanced Export/Import System (F030 - In Progress)
-**See:** Feature 030 spec for details
+### Version 4.1 Breaking Changes (F045)
 
-**Coordinated Exports:**
-- Manifest with checksums, dependencies, import order
-- Individual entity files with FK resolution fields (id + slug/name)
-- ZIP archive option
-- Standard filenames for working files
+**Export format v4.1 removes stored costs:**
+- Removed `finished_units[].unit_cost` field
+- Removed `finished_goods[].total_cost` field
+- Import validates structure strictly and REJECTS old formats
+- Users must manually update v4.0 exports before importing
 
-**Denormalized Views for AI Augmentation:**
-- `view_products.json` - Products with ingredient/supplier context
-- `view_inventory.json` - Inventory with product/purchase context
-- `view_purchases.json` - Purchases with product/supplier context
-- Editable fields vs read-only context fields
-- Export → AI fills fields → Import with merge
+**Philosophy enforcement:** Costs only exist on instantiations (transactions), not definitions (catalog).
 
-**Interactive FK Resolution:**
-- Import can create missing entities (Suppliers, Ingredients, Products)
-- UI default: Interactive wizard prompts for resolution
-- CLI default: Fail-fast, require `--interactive` flag
-- Skip-on-error mode logs problematic records for later correction
+---
 
 ## Future Enhancements
 
 ### Near-Term (6-18 Months) - Web Application Learning Phase
 **See:** Constitution Principle VII for full context
 
-The web migration serves as a **learning laboratory** for cloud development:
-- **Architecture:** Desktop → Web patterns (API design, state management)
-- **Data Design:** Single-user → Multi-user schema (tenant isolation)
-- **UI Design:** Desktop native → Responsive web (mobile-friendly)
-- **Technologies:** Evaluate frameworks (FastAPI/Flask + React/Vue vs Django)
-- **Deployment:** Cloud hosting basics (AWS/GCP/Azure, containerization, CI/CD)
-- **Security:** Authentication, authorization, encryption, vulnerability management
-
-**Scope constraints:**
+The web migration serves as a **learning laboratory** for cloud development with constraints:
 - Hobby scale (10-50 users: family, friends, neighbors)
 - Still baking-focused (validate core use case)
-- Still English-only (i18n separate learning curve)
 - New capability: User accounts, data isolation, shared recipes (opt-in)
 
 ### Long-Term Vision (1-3+ Years)
@@ -823,21 +940,40 @@ After validating web deployment and multi-user patterns:
 - Programmatic ingredient/recipe ingestion
 - Supplier API connections (pricing, availability, ordering)
 - Mobile companion app (shopping, inventory, notifications)
-- Accounting system integrations
-- Recipe sharing platforms and import tools
 
 **Intelligence & Enhancement:**
 - AI-powered menu generation and optimization
 - Nutritional analysis and dietary accommodation
 - Recipe scaling and cost optimization
-- Smart inventory predictions
-- Social features and community recipe sharing
 
 ---
 
-**Document Status:** Living document - high-level architectural overview  
-**Last Comprehensive Review:** 2025-12-11  
-**Last Updated:** 2025-12-24 (Option C update: navigation guide, schema evolution, obsolete reference cleanup)  
-**Schema Version Documented:** v0.4 baseline (Current production: v0.7+)  
-**Next Review Recommended:** After web migration planning begins
+## Pattern Checklist for New Features
 
+When designing new features, verify compliance with core patterns:
+
+**Definition vs Instantiation:**
+- [ ] Definitions have NO stored costs (calculate fresh)
+- [ ] Definitions persist when instances = 0
+- [ ] Instantiations capture temporal context (date/time)
+- [ ] Instantiations snapshot costs at transaction time
+- [ ] Instantiations are immutable where appropriate
+
+**FIFO Pattern:**
+- [ ] Inventory consumption uses FIFO (oldest first)
+- [ ] Costs link to Purchase records (temporal pricing)
+- [ ] Cost snapshots captured at consumption time
+
+**Model Responsibilities:**
+- [ ] Models define schema and relationships
+- [ ] Services handle business logic and calculations
+- [ ] UI displays data and captures input
+- [ ] No stored costs on definitions
+- [ ] Cost calculations in service layer
+
+---
+
+**Document Status:** Living document - comprehensive architectural overview  
+**Last Comprehensive Review:** 2026-01-09  
+**Last Updated:** 2026-01-09 (definition/instantiation pattern analysis and documentation)  
+**Schema Version Documented:** v0.7+ (post-F045 cost refactor)

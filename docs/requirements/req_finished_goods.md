@@ -1,9 +1,9 @@
 # Finished Goods - Requirements Document
 
-**Component:** Finished Goods (Units, Bundles, Packages)  
-**Version:** 0.3 
-**Last Updated:** 2025-01-08 
-**Status:** Current 
+**Component:** Finished Goods (Units, FinishedGoods, Packages)
+**Version:** 0.3
+**Last Updated:** 2025-01-08
+**Status:** Current
 **Owner:** Kent Gale
 
 ---
@@ -12,7 +12,7 @@
 
 ### 1.1 Overview
 
-Finished Goods represent the **outputs of the baking process** in bake-tracker. They exist in a three-tier hierarchy: FinishedUnits (individual baked items), Bundles (consumer-packaged collections), and Packages (logistics containers). This taxonomy supports diverse output modes from bulk delivery to individual gift packaging.
+Finished Goods represent the **outputs of the baking process** in bake-tracker. They exist in a three-tier hierarchy: FinishedUnits (individual baked items), FinishedGoods (consumer-packaged collections), and Packages (logistics containers). This taxonomy supports diverse output modes from bulk delivery to individual gift packaging.
 
 ### 1.2 Business Purpose
 
@@ -28,10 +28,10 @@ The Finished Goods system serves multiple business functions:
 
 **Three-Tier Hierarchy:** Real-world baking operations involve multiple levels of "finished" state:
 - **FinishedUnit:** Individual items fresh from the oven (1 cookie, 1 cake)
-- **Bundle:** Consumer-facing packages (bag of 6 cookies, box of brownies)
-- **Package:** Logistics containers for delivery (gift basket with multiple bundles)
+- **FinishedGood:** Consumer-facing packages (bag of 6 cookies, box of brownies), representing an assembly of FinishedUnits.
+- **Package:** Logistics containers for delivery (gift basket with multiple FinishedGoods)
 
-This hierarchy supports both simple workflows (bulk cookie trays) and complex workflows (multi-bundle gift packages with deferred material decisions).
+This hierarchy supports both simple workflows (bulk cookie trays) and complex workflows (multi-FinishedGood gift packages with deferred material decisions).
 
 **Material vs Ingredient Separation:** Materials (bags, boxes, ribbon) have fundamentally different metadata and tracking needs than ingredients (flour, sugar). Materials are deferred to separate requirements (req_materials.md).
 
@@ -41,40 +41,39 @@ This hierarchy supports both simple workflows (bulk cookie trays) and complex wo
 
 ### 2.1 Three-Tier Model
 
-| Level | Name | Purpose | Example |
-|-------|------|---------|---------|
-| **Tier 1** | FinishedUnit | Individual baked items | 1 Chocolate Chip Cookie, 1 Vanilla Cake, 1 Truffle |
-| **Tier 2** | Bundle | Consumer-packaged collections | Bag of 6 Cookies, Box of 12 Brownies, Tin of 24 Truffles |
-| **Tier 3** | Package | Logistics containers | Gift Basket (3 bundles), Shipping Box (multiple recipients) |
+| Level      | Name         | Purpose                          | Example                                                        |
+| ---------- | ------------ | -------------------------------- | -------------------------------------------------------------- |
+| **Tier 1** | FinishedUnit | Individual baked items           | 1 Chocolate Chip Cookie, 1 Vanilla Cake, 1 Truffle             |
+| **Tier 2** | FinishedGood | Consumer-packaged assemblies     | Bag of 6 Cookies, Box of 12 Brownies, Tin of 24 Truffles       |
+| **Tier 3** | Package      | Logistics containers             | Gift Basket (3 FinishedGoods), Shipping Box (multiple recipients) |
 
 ### 2.2 Hierarchy Rules
 
 **FinishedUnit (Tier 1):**
-- Atomic baked item produced from a recipe variant
-- Linked to exactly one RecipeIngredientVariant
-- Can be delivered as-is (bulk mode) OR assembled into Bundles
-- Inventory tracked at unit level (Phase 3)
+- Atomic baked item produced from a recipe.
+- Can be delivered as-is (bulk mode) OR assembled into FinishedGoods.
+- Inventory is tracked at the unit level.
 
-**Bundle (Tier 2):**
-- Collection of FinishedUnits in consumer packaging
-- Contents: One or more FinishedUnits (can include other Bundles in Phase 3+)
-- Packaging material: Cellophane bag, decorative box, tin, basket
-- Material selection can be deferred until assembly (see F026)
-- Inventory tracked at bundle level (Phase 3)
+**FinishedGood (Tier 2):**
+- A collection of FinishedUnits, representing an assembly.
+- Contents: One or more FinishedUnits.
+- Packaging material: Cellophane bag, decorative box, tin, basket.
+- Material selection can be deferred until assembly (see F026).
+- Inventory of assembled FinishedGoods is tracked.
 
 **Package (Tier 3):**
-- Logistics container for delivery/shipping
-- Contents: One or more Bundles and/or FinishedUnits
-- Packaging material: Shipping box, gift basket, delivery tray
-- May be pre-assigned to recipient or bulk delivery
-- Not tracked in inventory (consumed at delivery)
+- Logistics container for delivery/shipping.
+- Contents: One or more FinishedGoods and/or FinishedUnits.
+- Packaging material: Shipping box, gift basket, delivery tray.
+- May be pre-assigned to recipient or bulk delivery.
+- Not tracked in inventory (consumed at delivery).
 
 ### 2.3 Key Principle
 
 **Hierarchy is compositional, not categorical:**
-- A FinishedUnit (cake) may BE a finished good for delivery (no bundling)
-- A Bundle may BE the final package (no additional packaging)
-- System supports all permutations based on output mode
+- A FinishedUnit (cake) may BE a finished good for delivery (no assembly).
+- A FinishedGood may BE the final package (no additional packaging).
+- System supports all permutations based on output mode.
 
 ---
 
@@ -88,21 +87,25 @@ This hierarchy supports both simple workflows (bulk cookie trays) and complex wo
 - ✅ Calculate production quantities from event requirements
 - ✅ Phase 3: Inventory tracking for cross-event use
 
-**Bundle Management:**
-- ✅ Define Bundle contents (FinishedUnit quantities)
+**FinishedGood Management:**
+- ✅ Define FinishedGood contents (FinishedUnit quantities)
 - ✅ Calculate assembly requirements from event needs
 - ✅ Deferred packaging material selection (Phase 2+)
 - ✅ Phase 3: Inventory tracking and assembly runs
 
 **Package Management:**
-- ✅ Define Package contents (Bundle/FinishedUnit quantities)
+- ✅ Define Package contents (FinishedGood/FinishedUnit quantities)
 - ✅ Support recipient assignment (pre-assigned vs bulk)
 - ⏳ Phase 3+: Full packaging workflow
 
+**Cost Visibility**
+- Cost calculation per finished good is available when FinishedGoods are selected for an event
+
+
 **Output Modes:**
 - ✅ BULK_COUNT: Deliver FinishedUnits on trays/baskets
-- ✅ BUNDLED: Deliver Bundles (bags, boxes, tins)
-- ⏳ Phase 3: PACKAGED (multi-bundle containers)
+- ✅ ASSEMBLED: Deliver FinishedGoods (bags, boxes, tins)
+- ⏳ Phase 3: PACKAGED (multi-FinishedGood containers)
 - ⏳ Phase 3: PER_SERVING (guest-count based)
 - ⏳ Phase 3: RECIPIENT_ASSIGNED (per-recipient packages)
 
@@ -113,7 +116,6 @@ This hierarchy supports both simple workflows (bulk cookie trays) and complex wo
 - ❌ Inventory transactions (consume/add) (Phase 3 - see F040)
 - ❌ Material management system (separate req_materials.md)
 - ❌ Historical production tracking
-- ❌ Cost calculation per finished good
 - ❌ Nutrition calculation per finished good
 
 ---
@@ -126,12 +128,12 @@ This hierarchy supports both simple workflows (bulk cookie trays) and complex wo
 1. Define what a recipe can produce (FinishedUnit) so FinishedGoods can be defined.
 2. Define what I can produce (FinishedGoods) from available recipes so I can plan production and assembly.
 3. See how many batches to make of which recipe based on finished goods needed
-4. Create bundles (gift bags, boxes) so I can package items attractively
+4. Create FinishedGood assemblies (gift bags, boxes) so I can package items attractively
 5. Track what's been produced, what's pending, and what needs assembly
 6. Defer packaging material choices until assembly time
 
 **As an event planner, I want to:**
-1. Specify event requirements in terms of finished goods (bundles or units)
+1. Specify event requirements in terms of finished goods (assemblies or units)
 2. See total production needed to fulfill event
 3. See the status of FinishedGoods needed/produced.
 4. Confirm when assembly is complete
@@ -139,14 +141,14 @@ This hierarchy supports both simple workflows (bulk cookie trays) and complex wo
 6. Support different output modes (trays vs bags vs gift boxes)
 
 **As a gift coordinator, I want to:**
-1. Create multi-bundle packages for VIP recipients
-2. Make bundling and packaging materials decisions as late as assembly time
+1. Create multi-FinishedGood packages for VIP recipients
+2. Make assembly and packaging materials decisions as late as assembly time
 3. Pre-assign packages to specific recipients
 
 ### 4.2 Use Case: Bulk Delivery (Trays)
 
-**Actor:** Baker  
-**Precondition:** Event requires FinishedUnits delivered loose  
+**Actor:** Baker
+**Precondition:** Event requires FinishedUnits delivered loose
 **Output Mode:** BULK_COUNT
 
 **Main Flow:**
@@ -162,20 +164,20 @@ This hierarchy supports both simple workflows (bulk cookie trays) and complex wo
 
 **Postconditions:**
 - Production plan shows 100 cookies, 50 brownies, 3 cakes
-- No bundle/package assembly needed
+- No assembly/package assembly needed
 - Event fulfilled with bulk delivery
 
-### 4.3 Use Case: Bundled Gifts
+### 4.3 Use Case: Assembled Gifts
 
-**Actor:** Baker  
-**Precondition:** Event requires packaged bundles  
-**Output Mode:** BUNDLED
+**Actor:** Baker
+**Precondition:** Event requires packaged FinishedGoods
+**Output Mode:** ASSEMBLED
 
 **Main Flow:**
 1. User creates event: "Christmas Client Gifts"
-2. Sets output mode: BUNDLED
+2. Sets output mode: ASSEMBLED
 3. Specifies requirements:
-   - 50 Cookie Assortment Bags (Bundle)
+   - 50 "Cookie Assortment" (FinishedGood)
      - Each contains: 6 cookies, 3 brownies
 4. System explodes to FinishedUnit quantities:
    - 150 plain sugar cookies (50 x 3) (base recipe)
@@ -186,33 +188,33 @@ This hierarchy supports both simple workflows (bulk cookie trays) and complex wo
 3. System generates shopping list if needed
 4. User purchases items and enters them into the app
 5. User produces items
-6. System checks assembly feasibility: ✅ Can assemble 50 bundles
+6. System checks assembly feasibility: ✅ Can assemble 50 FinishedGoods
 7. User confirms assembly complete (checklist)
-8. User delivers 50 bundles to clients
+8. User delivers 50 FinishedGoods to clients
 
 **Postconditions:**
 - Production plan met requirements
 - Assembly feasibility confirmed
-- 50 bundles assembled and delivered
+- 50 FinishedGoods assembled and delivered
 
 ### 4.4 Use Case: Deferred Packaging Material Selection
 
-**Actor:** Baker  
-**Precondition:** Bundle defined, material choice not yet made  
+**Actor:** Baker
+**Precondition:** FinishedGood defined, material choice not yet made
 **Trigger:** F026 deferred packaging decisions
 
 **Main Flow:**
-1. User defines Bundle: "Cookie Assortment Bag"
+1. User defines FinishedGood: "Cookie Assortment"
    - Contents: 6 cookies, 3 brownies
    - Packaging material: (not selected yet)
-2. User plans event requiring 50 of these bundles
+2. User plans event requiring 50 of these FinishedGoods
 3. System calculates production (300 cookies, 150 brownies)
 4. User produces items
 5. System checks assembly feasibility: ✅
 6. **At assembly time:** User selects material:
    - Choice: Snowflake cellophane bags (not Christmas tree)
-7. User assembles 50 bundles with selected material
-8. User delivers bundles
+7. User assembles 50 FinishedGoods with selected material
+8. User delivers FinishedGoods
 
 **Postconditions:**
 - Material choice deferred until assembly
@@ -225,214 +227,47 @@ This hierarchy supports both simple workflows (bulk cookie trays) and complex wo
 
 ### 5.1 FinishedUnit Management
 
-**Core Concept:** FinishedUnits represent **yield types** of recipes. A single recipe (at 1x scale) can produce different finished units depending on how the baker divides/portions the batch. This is a **one-to-many relationship**: Recipe → multiple FinishedUnits.
+**Core Concept:** A FinishedUnit represents a specific, named yield from a single recipe (e.g., "Large Chocolate Chip Cookie"). It is the atomic unit of production.
 
-**Design Philosophy:** A FinishedUnit is just a **name** and a **count** linked to a recipe. The baker describes the yield however makes sense to them.
+**REQ-FG-001:** The system SHALL allow a user to define a FinishedUnit with a descriptive name and the quantity produced from a single batch of a linked recipe.
+**REQ-FG-002:** Every FinishedUnit SHALL be linked to exactly one Recipe. A single Recipe can produce multiple types of FinishedUnits.
+**REQ-FG-003:** The system SHALL calculate the planning cost for a single FinishedUnit by dividing the parent recipe's current cost by the yield quantity. This cost is always calculated dynamically and is not stored.
+**REQ-FG-004:** The system SHALL allow users to view all FinishedUnits that can be produced from a given recipe.
 
----
+### 5.2 FinishedGood Management (Definition)
 
-**Examples:**
+**Core Concept:** A FinishedGood is a **definition** of an assembly. It describes what components (FinishedUnits or packaging materials) are needed to create a consumer-facing product, like a "Holiday Gift Box". It does not have a stored cost.
 
-| Recipe | Yield Type 1 | Yield Type 2 | Yield Type 3 |
-|--------|--------------|--------------|--------------|
-| **Cookie Dough (1x)** | Large Cookie → 30 per batch | Medium Cookie → 48 per batch | Small Cookie → 72 per batch |
-| **Chocolate Cake (1x)** | 11-inch Cake → 1 per batch | 8-inch Cake → 2 per batch | 6-inch Cake → 4 per batch |
-| **Brownie Batter (1x)** | Large Brownie (2x3") → 24 per batch | Medium Brownie (2x2") → 36 per batch | Small Brownie (1x2") → 48 per batch |
+**REQ-FG-005:** The system SHALL allow a user to define a FinishedGood with a descriptive name.
+**REQ-FG-006:** Each FinishedGood definition SHALL contain a list of one or more components, where each component is a specific FinishedUnit and a quantity.
+**REQ-FG-007:** The system SHALL support defining FinishedGoods with mixed component types (e.g., multiple different FinishedUnits).
+**REQ-FG-008:** The system SHALL allow the selection of packaging materials for a FinishedGood to be deferred.
+**REQ-FG-009:** The system SHALL validate that a FinishedGood definition has at least one component and that component quantities are positive integers.
 
----
+### 5.3 Package Management (Definition)
 
-## Functional Requirements
+**Core Concept:** A Package is a **definition** for a logistics or gift container that holds multiple FinishedGoods and/or individual FinishedUnits.
 
-**REQ-FG-001:** System SHALL support creation of FinishedUnits with minimal required data:
-- **Name**: How the baker describes this yield (e.g., "Large Cookie", "9-inch Cake", "Medium Brownie")
-- **Yield quantity**: How many items one recipe batch (1x scale) produces
-- **Recipe linkage**: Which recipe produces this yield type
+**REQ-FG-010:** The system SHALL allow a user to define a Package with a descriptive name.
+**REQ-FG-011:** Each Package definition SHALL contain a list of one or more components, where each component can be a FinishedGood or a FinishedUnit, with a specified quantity.
+**REQ-FG-012:** The system SHALL allow recipient assignment for a Package to be optional.
 
-**REQ-FG-002:** Each FinishedUnit SHALL link to exactly ONE Recipe
+### 5.4 Assembly Management (Instantiation)
 
-**REQ-FG-003:** A Recipe MAY have multiple FinishedUnits (different yield types)
+**Core Concept:** An AssemblyRun is an **instantiation** that records the physical act of assembling a specific quantity of a FinishedGood at a specific time. This record captures costs as an immutable snapshot.
 
-**REQ-FG-004:** System SHALL enforce relationship constraints:
-- Each FinishedUnit belongs to exactly one Recipe
-- A Recipe can have zero or many FinishedUnits
-- Deleting a Recipe must handle dependent FinishedUnits (block or cascade)
+**REQ-FG-013:** The system SHALL allow a user to record an AssemblyRun for a given FinishedGood definition.
+**REQ-FG-014:** When an AssemblyRun is recorded, the system SHALL capture an immutable snapshot of the total cost of all components and the calculated cost per assembled unit at that moment.
+**REQ-FG-015:** The system SHALL create a consumption record for each component (FinishedUnit) used in the AssemblyRun, detailing the quantity consumed and its cost at the time of assembly.
+**REQ-FG-016:** The system SHALL decrement the inventory for each FinishedUnit consumed in an AssemblyRun.
+**REQ-FG-017:** The system SHALL prevent the recording of an AssemblyRun if there is insufficient inventory of any required component.
 
-**REQ-FG-005:** System SHALL NOT parse or validate name format
-- User provides descriptive names as freeform text
-- No measurement parsing, no size categories enforced
-- System stores and displays name as-is
+### 5.5 Output Mode Support
 
-**REQ-FG-006:** System SHALL validate yield quantity is positive integer greater than zero
-
-**REQ-FG-007:** FinishedUnits SHALL be selectable for event requirements (BULK_COUNT mode)
-- User specifies quantity needed of specific FinishedUnit
-- System calculates required recipe batches
-
-**REQ-FG-008:** FinishedUnits SHALL be usable as components in Bundles
-- Bundles reference specific yield types, not abstract recipes
-- Multiple FinishedUnits from same recipe can be in one Bundle
-
-**REQ-FG-009:** System SHALL validate FinishedUnit has valid recipe linkage before use in planning
-
-**REQ-FG-010:** System SHALL calculate cost per FinishedUnit item from recipe FIFO cost
-- Cost = recipe_cost ÷ yield_quantity
-- Cost calculated dynamically, not stored (changes with ingredient prices)
-
-**REQ-FG-011:** System SHALL support querying "What can I make from this recipe?"
-- Given recipe, return all defined FinishedUnits with yield quantities
-
-**REQ-FG-012:** System SHALL prevent duplicate FinishedUnit definitions
-- Enforce uniqueness of (recipe, name) combination
-- Same recipe cannot have two FinishedUnits with identical names
-
----
-
-## Data Requirements
-
-**REQ-FG-013:** FinishedUnit data SHALL include:
-- Unique identifier (system-generated)
-- Name (freeform text, max 200 characters)
-- Yield quantity (positive integer)
-- Recipe reference (foreign key)
-- Timestamps (created, updated)
-
-**REQ-FG-014:** FinishedUnit name SHALL be freeform text
-- No measurement parsing required
-- No size category validation required
-- User responsible for descriptive naming
-
-**REQ-FG-015:** System SHALL maintain referential integrity
-- FinishedUnit cannot exist without parent Recipe
-- Recipe deletion must handle dependent FinishedUnits
-
----
-
-## Validation Requirements
-
-| Rule | Validation | Error Condition |
-|------|-----------|-----------------|
-| VAL-FG-001 | Name required | Name is empty or null |
-| VAL-FG-002 | Name length | Name exceeds 200 characters |
-| VAL-FG-003 | Yield quantity required | Quantity is empty or null |
-| VAL-FG-004 | Yield quantity positive | Quantity is zero or negative |
-| VAL-FG-005 | Recipe linkage required | Recipe reference is null |
-| VAL-FG-006 | Recipe exists | Referenced recipe not found |
-| VAL-FG-007 | Unique per recipe | (Recipe, Name) combination already exists |
-
----
-
-## Usage Requirements
-
-**REQ-FG-016:** Event planning SHALL allow selection of specific FinishedUnits
-- User selects "Large Cookie" not abstract "Cookie"
-- System calculates batches based on specific yield quantity
-
-**REQ-FG-017:** Bundle definition SHALL reference specific FinishedUnits
-- Bundle contains "4 × Large Cookie" and "6 × Small Cookie"
-- Not "10 × Cookie" without yield specification
-
-**REQ-FG-018:** Batch calculations SHALL use yield quantity
-- Formula: batches_needed = quantity_required ÷ yield_quantity
-- Example: 100 Large Cookies ÷ 30 per batch = 3.33 batches
-
-**REQ-FG-019:** System SHALL display FinishedUnits with their yield quantity
-- Format: "Large Cookie → 30 per batch"
-- Helps user understand batch implications
-
----
-
-## Management Requirements
-
-**REQ-FG-020:** FinishedUnit management SHALL be embedded in recipe management workflow
-- Add/edit/delete yield types as part of recipe management
-- No separate standalone FinishedUnit management interface required
-
-**REQ-FG-021:** System SHALL provide catalog view of all FinishedUnits across recipes
-- Browse/search all defined yield types
-- Filter by recipe
-- View-only (editing happens via recipe management)
-
----
-
-## Rationale
-
-**Why one-to-many (Recipe → FinishedUnits)?**
-- Same recipe produces different sizes: 30 large cookies vs 72 small cookies
-- Batch calculations require knowing specific yield type
-- Cost per item varies: large cookies cost more (fewer per batch)
-
-**Why minimal data (just name + count)?**
-- Reflects baker language: "I make 30 large cookies per batch"
-- Maximum flexibility in naming (user decides "large" vs "3-inch" vs "large scoop")
-- No premature structure (can add categories/measurements later if needed)
-
-**Why freeform names?**
-- No standard for describing baked good sizes across different types
-- "Large cookie" vs "9-inch cake" vs "2x3 brownie" - all valid, all different
-- System shouldn't enforce measurement formats baker may not use
-
----
-
-## Future Considerations
-
-If user testing reveals limitations, consider adding:
-
-**Optional categorization:**
-- Item type field (cookie, cake, brownie, etc.)
-- Enables filtering "show me all cookies"
-
-**Optional detailed descriptions:**
-- Separate field for size/measurement details
-- Keeps display name clean while providing detail
-
-**Optional pluralization:**
-- Item unit field for grammatical display
-- "30 cookies" vs "1 cookie"
-
-But don't add these until proven necessary by actual usage.
-
----
-
-**END OF SECTION 5.1**
-
-
-
-**REQ-FG-006:** System shall support creation of Bundles with name and description  
-**REQ-FG-007:** Each Bundle shall define contents as list of {FinishedUnit, quantity} pairs  
-**REQ-FG-008:** Bundle contents shall support multiple FinishedUnit types (mixed bundles)  
-**REQ-FG-009:** Bundle packaging material selection shall be optional (can be deferred)  
-**REQ-FG-010:** System shall validate Bundle has at least one component  
-**REQ-FG-011:** Bundles shall be selectable for event requirements (BUNDLED mode)
-
-### 5.3 Package Management (Phase 3)
-
-**REQ-FG-012:** System shall support creation of Packages with name and description  
-**REQ-FG-013:** Each Package shall define contents as list of {Bundle/FinishedUnit, quantity} pairs  
-**REQ-FG-014:** Package shall support recipient assignment (optional)  
-**REQ-FG-015:** Packages shall be selectable for event requirements (PACKAGED mode)
-
-### 5.4 Output Mode Support
-
-**REQ-FG-016:** Events shall have an output_mode attribute (enum)  
-**REQ-FG-017:** System shall support BULK_COUNT mode (FinishedUnits only)  
-**REQ-FG-018:** System shall support BUNDLED mode (Bundles as requirements)  
-**REQ-FG-019:** Phase 3: System shall support PACKAGED mode  
-**REQ-FG-020:** Phase 3: System shall support PER_SERVING mode (guest count × template)  
-**REQ-FG-021:** Phase 3: System shall support RECIPIENT_ASSIGNED mode
-
-### 5.5 Assembly Planning
-
-**REQ-FG-022:** System shall calculate assembly requirements from event Bundle needs  
-**REQ-FG-023:** System shall explode Bundle requirements to FinishedUnit quantities  
-**REQ-FG-024:** System shall validate assembly feasibility (enough components after production)  
-**REQ-FG-025:** System shall provide assembly checklist for event (Phase 2 minimal)  
-**REQ-FG-026:** Phase 3: System shall track assembly completion with inventory transactions
-
-### 5.6 Recipe Linkage
-
-**REQ-FG-027:** Each FinishedUnit shall be produced by exactly one RecipeIngredientVariant  
-**REQ-FG-028:** System shall use this linkage for production planning (batches needed)  
-**REQ-FG-029:** System shall validate recipe linkage exists before allowing FinishedUnit in planning
+**REQ-FG-018:** The system SHALL support different output modes for events, including:
+- **BULK_COUNT:** Requirements are specified as quantities of individual FinishedUnits.
+- **ASSEMBLED:** Requirements are specified as quantities of FinishedGoods.
+- **PACKAGED:** Requirements are specified as quantities of Packages.
 
 ---
 
@@ -440,376 +275,146 @@ But don't add these until proven necessary by actual usage.
 
 ### 6.1 Usability
 
-**REQ-FG-NFR-001:** Hierarchy (Unit → Bundle → Package) shall be intuitive to non-technical bakers  
-**REQ-FG-NFR-002:** Bundle content definition shall require max 3 clicks per component  
-**REQ-FG-NFR-003:** Assembly feasibility status shall be clearly visible (icons, colors)  
-**REQ-FG-NFR-004:** Deferred packaging decisions shall not block planning or production
+**REQ-FG-NFR-001:** The hierarchy (Unit → FinishedGood → Package) SHALL be intuitive to non-technical bakers.
+**REQ-FG-NFR-002:** Defining the contents of a FinishedGood SHALL be a simple and clear process.
+**REQ-FG-NFR-003:** The catalog view for defining FinishedGoods and Packages SHALL NOT display any cost information. Costs are only displayed for planning estimates and in historical assembly records.
+**REQ-FG-NFR-004:** The status of component availability for an assembly SHALL be clearly visible to the user.
 
 ### 6.2 Data Integrity
 
-**REQ-FG-NFR-005:** No orphaned Bundles (all must have valid FinishedUnit components)  
-**REQ-FG-NFR-006:** No orphaned FinishedUnits (all must link to valid recipe variant)  
-**REQ-FG-NFR-007:** Bundle component quantities must be positive integers  
-**REQ-FG-NFR-008:** Circular references not allowed (Bundle cannot contain itself)
+**REQ-FG-NFR-005:** The system SHALL prevent a FinishedGood definition from being deleted if it is used in a Package or an AssemblyRun.
+**REQ-FG-NFR-006:** The system SHALL prevent a FinishedUnit from being deleted if it is a component in a FinishedGood definition.
+**REQ-FG-NFR-007:** The system SHALL prevent circular references (e.g., a FinishedGood cannot contain itself).
 
 ### 6.3 Flexibility
 
-**REQ-FG-NFR-009:** System shall support creative variations (new bundles without schema changes)  
-**REQ-FG-NFR-010:** Material selection deferral shall not create technical debt  
-**REQ-FG-NFR-011:** Output mode additions (Phase 3) shall not break existing event data
+**REQ-FG-NFR-008:** The system SHALL support creating new FinishedGood and Package definitions easily without requiring schema changes.
+**REQ-FG-NFR-009:** The deferral of packaging material selection SHALL not block production or assembly planning.
 
 ---
 
 ## 7. Data Model Summary
 
-### 7.1 FinishedUnit Table Structure
+This summary describes the conceptual data entities and their relationships, not a literal database schema.
 
-```
-FinishedUnit
-├─ id (PK)
-├─ uuid (unique)
-├─ slug (unique)
-├─ display_name
-├─ description (optional)
-├─ recipe_variant_id (FK → RecipeIngredientVariant, required)
-├─ inventory_count (int, default 0) [Phase 3]
-└─ timestamps
-```
+### 7.1 Core Entities
 
-### 7.2 Bundle Table Structure
+-   **FinishedUnit**: A sellable or giftable item produced by a recipe (e.g., "Large Cookie"). It has a yield quantity from its parent recipe.
+-   **FinishedGood**: A definition of an assembly, composed of multiple FinishedUnits (e.g., "Cookie Assortment Box"). It is a template for what can be assembled.
+-   **Package**: A definition of a larger container, composed of FinishedGoods and/or FinishedUnits (e.g., "VIP Gift Basket").
+-   **AssemblyRun**: A record of an assembly event, capturing the specific FinishedGood, quantity assembled, timestamp, and an immutable cost snapshot.
+-   **AssemblyConsumption**: A ledger entry detailing the exact quantity and cost of a specific FinishedUnit consumed as part of an AssemblyRun.
 
-```
-Bundle (formerly "FinishedGood")
-├─ id (PK)
-├─ uuid (unique)
-├─ slug (unique)
-├─ display_name
-├─ description (optional)
-├─ packaging_material_id (FK → Material, nullable, can defer)
-├─ bundle_contents (relation)
-│    └─ BundleContent: {finished_unit_id, quantity}
-├─ inventory_count (int, default 0) [Phase 3]
-└─ timestamps
-```
+### 7.2 Key Relationships
 
-### 7.3 Package Table Structure (Phase 3)
-
-```
-Package
-├─ id (PK)
-├─ uuid (unique)
-├─ slug (unique)
-├─ display_name
-├─ description (optional)
-├─ packaging_material_id (FK → Material, nullable)
-├─ package_contents (relation)
-│    └─ PackageContent: {bundle_id OR finished_unit_id, quantity}
-├─ recipient_id (FK → Recipient, nullable)
-└─ timestamps
-```
-
-### 7.4 Key Relationships
-
-```
-RecipeIngredientVariant
-  └─ produces → FinishedUnit (1:1)
-
-FinishedUnit
-  └─ used_in → BundleContent (many)
-
-Bundle
-  ├─ contains → BundleContent (many)
-  └─ used_in → PackageContent (many) [Phase 3]
-
-Package [Phase 3]
-  └─ contains → PackageContent (many)
-
-Event
-  ├─ output_mode (enum)
-  └─ requirements:
-       ├─ If BULK_COUNT → List[{finished_unit_id, quantity}]
-       ├─ If BUNDLED → List[{bundle_id, quantity}]
-       └─ If PACKAGED → List[{package_id, quantity}] [Phase 3]
-```
+-   A **Recipe** can produce many **FinishedUnits**. Each **FinishedUnit** comes from one **Recipe**.
+-   A **FinishedGood** is composed of many **FinishedUnits** (via a composition table). A **FinishedUnit** can be a component in many **FinishedGoods**.
+-   A **Package** can contain many **FinishedGoods** and many **FinishedUnits**.
+-   An **AssemblyRun** is an instance of one **FinishedGood**.
+-   An **AssemblyRun** involves many **AssemblyConsumption** records (one for each component type consumed).
 
 ---
 
 ## 8. Output Modes
 
-### 8.1 BULK_COUNT (Phase 2)
+### 8.1 BULK_COUNT
 
-**Description:** Deliver FinishedUnits loose on trays, in baskets, or bulk containers
+**Description:** Deliver FinishedUnits loose.
+**Event Requirements Input:** A list of FinishedUnits and their quantities.
+**Planning Calculation:** No explosion needed. Calculate recipe batches directly. No assembly required.
 
-**Use Cases:**
-- House party with cookie trays
-- Fundraiser with bulk brownies
-- Casual gatherings
+### 8.2 ASSEMBLED
 
-**Event Requirements Input:**
-```
-Event: House Party
-Output Mode: BULK_COUNT
+**Description:** Deliver pre-defined FinishedGoods (assemblies).
+**Event Requirements Input:** A list of FinishedGoods and their quantities.
+**Planning Calculation:** Explode FinishedGoods to their component FinishedUnit quantities to determine production needs.
 
-Requirements:
-  - 100 Chocolate Chip Cookies (FinishedUnit)
-  - 50 Brownies (FinishedUnit)
-```
+### 8.3 PACKAGED
 
-**Planning Calculation:**
-- No explosion needed (already FinishedUnits)
-- Calculate recipe batches directly
-- No assembly required
-
-### 8.2 BUNDLED (Phase 2)
-
-**Description:** Deliver Bundles (consumer-packaged collections)
-
-**Use Cases:**
-- Client gifts in cellophane bags
-- Holiday cookie tins
-- Sampler boxes
-
-**Event Requirements Input:**
-```
-Event: Christmas Client Gifts
-Output Mode: BUNDLED
-
-Requirements:
-  - 50 Cookie Assortment Bags (Bundle)
-    - Each contains: 6 cookies, 3 brownies
-```
-
-**Planning Calculation:**
-- Explode Bundles to FinishedUnit quantities
-- Calculate recipe batches
-- Validate assembly feasibility
-- Provide assembly checklist
-
-### 8.3 PACKAGED (Phase 3)
-
-**Description:** Deliver Packages containing multiple Bundles
-
-**Use Cases:**
-- VIP gift baskets with multiple items
-- Corporate gift boxes
-- Multi-recipient shipments
-
-**Event Requirements Input:**
-```
-Event: VIP Client Gifts
-Output Mode: PACKAGED
-
-Requirements:
-  - 10 Premium Gift Baskets (Package)
-    - Each contains:
-      - 1 Cookie Assortment (Bundle)
-      - 1 Brownie Box (Bundle)
-      - 1 Truffle Tin (Bundle)
-```
-
-**Planning Calculation:**
-- Explode Packages to Bundles
-- Explode Bundles to FinishedUnits
-- Calculate recipe batches
-- Validate assembly feasibility (two levels)
-
-### 8.4 PER_SERVING (Phase 3)
-
-**Description:** Distribute based on guest count with serving template
-
-**Use Cases:**
-- Weddings (100 guests, each gets 2 cookies + 1 brownie)
-- Corporate events (per-person servings)
-
-**Event Requirements Input:**
-```
-Event: Wedding Reception
-Output Mode: PER_SERVING
-
-Guest Count: 100
-Serving Template:
-  - 2 Cookies (any variety)
-  - 1 Brownie
-```
-
-**Planning Calculation:**
-- Multiply serving template by guest count
-- Distribute varieties (if multiple)
-- Calculate recipe batches
-
-### 8.5 RECIPIENT_ASSIGNED (Phase 3)
-
-**Description:** Pre-assign Packages to specific recipients
-
-**Use Cases:**
-- Personalized client gifts
-- Mail-order shipments
-- Tracked deliveries
-
-**Event Requirements Input:**
-```
-Event: Holiday Shipping
-Output Mode: RECIPIENT_ASSIGNED
-
-Requirements:
-  - 10 Premium Boxes → VIP Client List
-  - 25 Standard Boxes → Regular Client List
-```
-
-**Planning Calculation:**
-- Calculate by recipient tier
-- Track shipping assignments
-- Generate shipping labels
+**Description:** Deliver pre-defined Packages.
+**Event Requirements Input:** A list of Packages and their quantities.
+**Planning Calculation:** Explode Packages to FinishedGoods and FinishedUnits, then explode the contained FinishedGoods to determine total production needs.
 
 ---
 
 ## 9. Assembly Workflow
 
-### 9.1 Assembly Decision Tiers (per F026)
+### 9.1 Assembly Decision Tiers
 
-**Tier 1: Content Decisions (Planning Phase)**
-- **When:** During event planning
-- **What:** Which FinishedUnits in each Bundle? Quantities?
-- **Must Decide:** Yes - required for production planning
+**Tier 1: Content Decisions (Definition Phase)**
+- **What:** Define the components and quantities for FinishedGoods and Packages.
+- **Must Decide:** Yes - this is required before they can be used in planning or assembly.
 
 **Tier 2: Material Decisions (Can Defer)**
-- **When:** Anytime before physical assembly
-- **What:** Which bag design? Box style? Ribbon color?
-- **Can Defer:** Yes - supports creative flexibility
+- **What:** Choose specific packaging materials (e.g., bag design, box style).
+- **Can Defer:** Yes - this choice can be made at the moment of assembly.
 
-**Tier 3: Recipient Assignment (Varies)**
-- **When:** Depends on output mode
-- **What:** Which package goes to which recipient?
-- **Required:** Only for RECIPIENT_ASSIGNED mode
+### 9.2 Assembly Recording (Instantiation Phase)
 
-### 9.2 Phase 2 Assembly Checklist (Minimal)
-
-**Purpose:** Confirm assembly completion without inventory transactions
-
-**UI Display:**
-```
-Assembly Checklist for "Christmas 2025":
-  
-  Production Status:
-  ✅ 300 Chocolate Chip Cookies produced
-  ✅ 150 Brownies produced
-  
-  Ready to Assemble:
-  [ ] 50 Holiday Gift Bags
-      Components available: ✅
-      (6 cookies + 3 brownies per bag)
-  
-  [ ] 25 Truffle Boxes
-      Components available: ✅
-      (12 truffles per box)
-```
+**Purpose:** To create a permanent, costed record of an assembly event and update inventory.
 
 **Behavior:**
-- Checkboxes disabled until production complete
-- Checking box records assembly confirmation
-- No inventory transactions in Phase 2
-- Event status updated to "assembly complete"
-
-### 9.3 Phase 3 Assembly Workflow (Full)
-
-**Additions in Phase 3:**
-- Assembly runs create actual inventory transactions
-- Material selection at assembly time
-- Batch assembly tracking
-- Assembly history and audit trail
-- Cross-event inventory consumption
+1. User selects a FinishedGood definition and specifies a quantity to assemble.
+2. System validates that sufficient inventory of all component FinishedUnits is available.
+3. Upon confirmation, the system:
+    - Creates an `AssemblyRun` record.
+    - Captures the current cost of all components as an immutable cost snapshot on the `AssemblyRun`.
+    - Creates `AssemblyConsumption` records for each component, decrementing `FinishedUnit` inventory.
+    - Increments the inventory for the assembled `FinishedGood`.
 
 ---
 
 ## 10. Validation Rules
 
 ### 10.1 FinishedUnit Validation
+- A FinishedUnit must have a name and be linked to a valid Recipe.
+- Yield quantity must be a positive integer.
 
-| Rule ID | Validation | Error Message |
-|---------|-----------|---------------|
-| VAL-FG-001 | FinishedUnit name required | "Finished unit name cannot be empty" |
-| VAL-FG-002 | FinishedUnit must link to recipe variant | "Finished unit must be produced by a recipe variant" |
-| VAL-FG-003 | Recipe variant must exist | "Recipe variant not found" |
+### 10.2 FinishedGood Validation
+- A FinishedGood must have a name and at least one component.
+- Component quantities must be positive integers.
+- A FinishedGood cannot contain itself.
 
-### 10.2 Bundle Validation
+### 10.3 Package Validation
+- A Package must have a name and at least one component.
+- Component quantities must be positive integers.
+- A Package cannot contain itself.
 
-| Rule ID | Validation | Error Message |
-|---------|-----------|---------------|
-| VAL-FG-004 | Bundle name required | "Bundle name cannot be empty" |
-| VAL-FG-005 | Bundle must have at least one component | "Bundle must contain at least one item" |
-| VAL-FG-006 | Component quantities must be positive | "Component quantity must be greater than zero" |
-| VAL-FG-007 | Bundle cannot contain itself (circular) | "Bundle cannot contain itself" |
-| VAL-FG-008 | All components must exist | "Component finished unit not found" |
-
-### 10.3 Package Validation (Phase 3)
-
-| Rule ID | Validation | Error Message |
-|---------|-----------|---------------|
-| VAL-FG-009 | Package name required | "Package name cannot be empty" |
-| VAL-FG-010 | Package must have at least one component | "Package must contain at least one item" |
-| VAL-FG-011 | Package cannot contain itself | "Package cannot contain itself" |
+### 10.4 AssemblyRun Validation
+- An AssemblyRun must be linked to a valid FinishedGood.
+- Assembled quantity must be a positive integer.
+- An AssemblyRun cannot be recorded if component inventory is insufficient.
 
 ---
 
 ## 11. Acceptance Criteria
 
-### 11.1 Phase 2 (Current) Acceptance
-
 **Must Have:**
-- [ ] FinishedUnit creation with recipe variant linkage
-- [ ] Bundle creation with FinishedUnit components
-- [ ] BULK_COUNT output mode supported
-- [ ] BUNDLED output mode supported
-- [ ] Event requirements explosion (Bundle → FinishedUnit)
-- [ ] Assembly feasibility check (event-scoped)
-- [ ] Assembly completion checklist (minimal UI)
-- [ ] Deferred packaging material selection (can be null)
+- [ ] Ability to define FinishedUnits linked to recipes.
+- [ ] Ability to define FinishedGoods composed of FinishedUnits.
+- [ ] Ability to define Packages composed of FinishedGoods and FinishedUnits.
+- [ ] Support for BULK_COUNT, ASSEMBLED, and PACKAGED output modes in event planning.
+- [ ] Ability to record an AssemblyRun, which captures a cost snapshot and decrements component inventory.
+- [ ] Prevention of assembly if components are not available in inventory.
+- [ ] The UI for defining FinishedGoods and Packages (the catalog) must not show any cost information.
 
 **Should Have:**
-- [ ] Bundle content validation (positive quantities, no circular refs)
-- [ ] Assembly feasibility displayed with visual indicators
-- [ ] Clear error messages for validation failures
-
-**Nice to Have:**
-- [ ] Bundle cloning (duplicate with new name)
-- [ ] Bundle templates for common patterns
-- [ ] Visual hierarchy display (Unit → Bundle → Package)
-
-### 11.2 Phase 3 (Future) Acceptance
-
-**Inventory Integration:**
-- [ ] Cross-event finished goods inventory tracking
-- [ ] Assembly runs with inventory transactions
-- [ ] FinishedUnit consumption during assembly
-- [ ] Bundle inventory addition after assembly
-
-**Advanced Output Modes:**
-- [ ] PACKAGED mode (multi-bundle containers)
-- [ ] PER_SERVING mode (guest count based)
-- [ ] RECIPIENT_ASSIGNED mode (per-recipient tracking)
-
-**Material Management:**
-- [ ] Material entity with metadata
-- [ ] Material inventory tracking
-- [ ] Material selection at assembly time
-- [ ] Material cost tracking
+- [ ] Clear visual indicators of assembly feasibility (component availability).
+- [ ] Clear error messages for all validation failures.
+- [ ] Ability to see the historical cost of past assemblies.
 
 ---
 
 ## 12. Dependencies
 
 ### 12.1 Upstream Dependencies (Blocks This)
-
-- ✅ Recipe system with ingredient variants (req_recipes.md)
-- ✅ RecipeIngredientVariant → FinishedUnit linkage
-- ⏳ Material entity definition (req_materials.md - future)
+- ✅ Recipe system must be in place.
 
 ### 12.2 Downstream Dependencies (This Blocks)
-
-- Event planning (requires finished goods definitions)
-- Production planning (requires FinishedUnit → recipe linkage)
-- Assembly planning (requires Bundle definitions)
-- Inventory management (Phase 3 - requires finished goods tracking)
+- Event planning cost calculations.
+- Production planning based on assembly needs.
+- Inventory tracking for assembled goods.
+- Shopping list generation.
 
 ---
 
@@ -818,82 +423,57 @@ Assembly Checklist for "Christmas 2025":
 ### 13.1 Test Coverage
 
 **Unit Tests:**
-- FinishedUnit validation rules
-- Bundle content validation
-- Bundle explosion to FinishedUnit quantities
-- Circular reference detection
+- Validation rules for all entities (FinishedUnit, FinishedGood, Package, AssemblyRun).
+- Dynamic cost calculation for planning purposes.
+- Explosion of FinishedGood and Package requirements into component quantities.
 
 **Integration Tests:**
-- Create FinishedUnit linked to recipe variant
-- Create Bundle with multiple FinishedUnits
-- Event requirements explosion (Bundle → FinishedUnit)
-- Assembly feasibility calculation
+- Create a FinishedGood, then attempt to record an AssemblyRun with insufficient inventory (expect failure).
+- Create a FinishedGood, ensure sufficient inventory, record an AssemblyRun, and verify cost snapshot and inventory decrements.
+- Change an ingredient price, and verify that the planning cost for a Package changes, but the cost of a previously recorded AssemblyRun does not.
 
 **User Acceptance Tests:**
-- Create event with BULK_COUNT mode
-- Create event with BUNDLED mode
-- Confirm assembly checklist workflow
-- Defer packaging material selection
+- User can successfully define a multi-component FinishedGood.
+- User can create an event using the ASSEMBLED output mode.
+- User can record an assembly and see the cost snapshot and updated inventory levels.
+- User is prevented from recording an assembly if they lack the parts.
 
 ---
 
 ## 14. Open Questions & Future Considerations
 
-### 14.1 Open Questions
+**Q1:** Should FinishedGoods support being components within other FinishedGoods (nesting)?
+**A1:** Deferred. Initial implementation supports only FinishedUnits as components.
 
-**Q1:** Should Bundles support nested Bundles (Bundle contains Bundle)?  
-**A1:** Deferred to Phase 3. Phase 2 supports Bundle contains FinishedUnits only.
-
-**Q2:** How to handle partial assembly (some bundles done, some pending)?  
-**A2:** Phase 2 uses simple checklist (all or nothing). Phase 3 adds granular tracking.
-
-**Q3:** Should system suggest Bundle templates based on common patterns?  
-**A3:** Good Phase 3+ feature. Track usage patterns, suggest popular bundles.
-
-### 14.2 Future Enhancements
-
-**Phase 3 Candidates:**
-- Bundle nesting (Bundle contains Bundle)
-- Assembly workflow automation
-- Material cost tracking per Bundle
-- Bundle popularity analytics
-- Cross-event Bundle reuse
-
-**Phase 4 Candidates:**
-- AI-suggested Bundle compositions
-- Nutrition facts per Bundle
-- Allergen tracking per Bundle
-- Custom Bundle builder UI
-- Photo upload per Bundle/FinishedUnit
+**Q2:** How to handle partial assembly (some quantity assembled, some pending)?
+**A2:** The current scope is to record completed AssemblyRuns. Granular tracking of partial assemblies is deferred.
 
 ---
 
 ## 15. Change Log
 
-| Version | Date | Author | Changes |
-|---------|------|--------|---------|
-| 0.1 | 2025-01-04 | Kent Gale | Initial seeded draft from planning discussions |
+| Version | Date       | Author    | Changes                                        |
+| ------- | ---------- | --------- | ---------------------------------------------- |
+| 0.1     | 2025-01-04 | Kent Gale | Initial seeded draft from planning discussions |
+| 0.4     | 2026-01-09 | Gemini    | Aligned with F046 design spec. Standardized on FinishedGood terminology, clarified definition vs. instantiation pattern for costs, and updated data models. |
 
 ---
 
 ## 16. Approval & Sign-off
 
-**Document Owner:** Kent Gale  
-**Last Review Date:** 2025-01-04  
-**Next Review Date:** TBD (after extension and refinement)  
-**Status:** 📝 DRAFT - SEEDED
+**Document Owner:** Kent Gale
+**Last Review Date:** 2026-01-09
+**Next Review Date:** TBD
+**Status:** 📝 DRAFT
 
 ---
 
 ## 17. Related Documents
 
-- **Design Specs:** `_F040_finished_goods_inventory.md` (inventory architecture - Phase 3)
-- **Design Specs:** `F026-deferred-packaging-decisions.md` (material selection workflow)
+- **Design Specs:** `docs/design/F046_finished_goods_bundles_assembly.md`
 - **Requirements:** `req_recipes.md` (recipe → FinishedUnit linkage)
 - **Requirements:** `req_planning.md` (event planning with finished goods)
-- **Requirements:** `req_materials.md` (future - material management)
-- **Constitution:** `/.kittify/memory/constitution.md` (architectural principles)
 
 ---
 
-**END OF REQUIREMENTS DOCUMENT (DRAFT - SEEDED)**
+**END OF REQUIREMENTS DOCUMENT**

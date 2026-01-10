@@ -8,13 +8,13 @@
 
 ## Executive Summary
 
-**Current Status**: Foundational workflows in progress (F045-F047)
+**Current Status**: Cost architecture refactor in progress (F045), then foundational workflows (F046-F048)
 
 **Recent Milestone**: F042-F044 complete (UI Polish, Purchases Tab, Finished Units)
 
 **User Testing Outcome**: Mode structure validated ✅, but blocking UI issues discovered + missing foundational features identified
 
-**New Direction**: Implementing foundational workflows (F043-F047) before previously planned features
+**New Direction**: Implementing foundational workflows (F042-F048) before previously planned features
 
 **Timeline**: ~2 weeks remaining for foundational work, then user testing round 2
 
@@ -76,15 +76,16 @@
 
 | # | Name | Priority | Effort | Status |
 |---|------|----------|--------|--------|
-| 045 | Finished Goods Functionality & UI | P1 - FOUNDATIONAL | 20-24 hours | 🎯 Next |
-| 046 | Shopping Lists Tab Implementation | P1 - FOUNDATIONAL | 12-16 hours | Pending F045 |
-| 047 | Assembly Workflows | P1 - FOUNDATIONAL | 24-30 hours | Pending F045 |
+| 045 | Cost Architecture Refactor | P0 - FOUNDATIONAL | TBD | 🎯 IN PROGRESS |
+| 046 | Finished Goods Functionality & UI | P1 - FOUNDATIONAL | 20-24 hours | Pending F045 |
+| 047 | Shopping Lists Tab Implementation | P1 - FOUNDATIONAL | 12-16 hours | Pending F046 |
+| 048 | Assembly Workflows | P1 - FOUNDATIONAL | 24-30 hours | Pending F046 |
 
 ---
 
-## Foundational Workflows (F042-F047)
+## Foundational Workflows (F042-F048)
 
-**Status**: F042-F044 complete, F045-F047 remaining
+**Status**: F042-F044 complete, F045 in progress, F046-F048 pending
 **Rationale**: Cannot test end-to-end workflows without these foundations
 
 | # | Name | Priority | Effort | Status |
@@ -92,21 +93,25 @@
 | 042 | UI Polish & Layout Fixes | P0 - BLOCKING | 14-20 hours | ✅ COMPLETE |
 | 043 | Purchases Tab Implementation | P1 - FOUNDATIONAL | 12-16 hours | ✅ COMPLETE |
 | 044 | Finished Units Yield Type Management | P1 - FOUNDATIONAL | 16-20 hours | ✅ COMPLETE |
-| 045 | Finished Goods Functionality & UI | P1 - FOUNDATIONAL | 20-24 hours | 🎯 Next |
-| 046 | Shopping Lists Tab Implementation | P1 - FOUNDATIONAL | 12-16 hours | Pending F045 |
-| 047 | Assembly Workflows | P1 - FOUNDATIONAL | 24-30 hours | Pending F045 |
+| 045 | Cost Architecture Refactor | P0 - FOUNDATIONAL | TBD | 🎯 IN PROGRESS |
+| 046 | Finished Goods Functionality & UI | P1 - FOUNDATIONAL | 20-24 hours | Pending F045 |
+| 047 | Shopping Lists Tab Implementation | P1 - FOUNDATIONAL | 12-16 hours | Pending F046 |
+| 048 | Assembly Workflows | P1 - FOUNDATIONAL | 24-30 hours | Pending F046 |
 
-**Remaining Foundational Work**: 56-70 hours (7-9 days, ~1.5 weeks)
+**Remaining Foundational Work**: TBD (depends on F045 scope) + 56-70 hours for F046-F048
 
 **Completed** (2026-01-08/09):
 - ✅ F042: Dashboard headers compacted, stats widgets removed, data grids expanded
 - ✅ F043: Purchases tab CRUD operations, supplier integration
 - ✅ F044: Yield types managed in Recipe Edit, Finished Units tab is read-only catalog
 
+**In Progress**:
+- 🎯 F045: Cost Architecture Refactor (spec in development)
+
 **Missing Functionality** (still to implement):
-- F045: Finished Goods definition and management
-- F046: Shopping list generation/export
-- F047: Assembly recording
+- F046: Finished Goods definition and management
+- F047: Shopping list generation/export
+- F048: Assembly recording
 
 **Blocks**: Complete Plan → Shop → Make → Assemble → Deliver workflow testing
 
@@ -143,14 +148,15 @@
 9. ~~**Feature 044** - Finished Units Yield Type Management~~ ✅ (2026-01-09)
 
 **Phase 2: Remaining Foundational Workflows (Week 2-3)** 🎯 CURRENT
-10. **Feature 045** - Finished Goods Functionality & UI → 2026-01-12
-11. **Feature 046** - Shopping Lists Tab Implementation → 2026-01-15
-12. **Feature 047** - Assembly Workflows → 2026-01-19
+10. **Feature 045** - Cost Architecture Refactor → IN PROGRESS
+11. **Feature 046** - Finished Goods Functionality & UI → Pending F045
+12. **Feature 047** - Shopping Lists Tab Implementation → Pending F046
+13. **Feature 048** - Assembly Workflows → Pending F046
 
 **Phase 3: User Testing Round 2** (Week 3+)
-13. **USER TESTING ROUND 2** - Complete Plan → Make → Assemble → Deliver cycle → 2026-01-22+
-14. Prioritize F0XX features based on user feedback
-15. Plan Phase 3 (web migration) architecture
+14. **USER TESTING ROUND 2** - Complete Plan → Make → Assemble → Deliver cycle → Pending F048
+15. Prioritize F0XX features based on user feedback
+16. Plan Phase 3 (web migration) architecture
 
 ---
 
@@ -176,7 +182,12 @@
 - ✅ Recipe filter enables browsing by recipe
 - ✅ Validation prevents duplicate names within same recipe
 
-### After F045-F047 (Remaining Foundational Workflows)
+### After F045 (Cost Architecture Refactor)
+- ✅ Cost calculations accurate and consistent across all views
+- ✅ FIFO costing properly integrated with new architecture
+- ✅ Foundation in place for F046-F048 workflows
+
+### After F046-F048 (Remaining Foundational Workflows)
 - ✅ User can complete Plan → Shop → Make → Assemble → Deliver cycle
 - ✅ All tabs in all modes functional (no dead buttons)
 - ✅ Purchases, Finished Units, Finished Goods, Shopping Lists, Assembly all operational
@@ -273,4 +284,8 @@
   - Per-recipe name uniqueness validation (case-insensitive)
   - Cursor code review completed, 5 fixes applied before merge
   - 1774 tests pass, all integration scenarios verified
-  - F042-F044 now complete, F045 (Finished Goods) is next
+  - F042-F044 now complete
+- 2026-01-09: **F045 INSERTED** - Cost Architecture Refactor:
+  - Inserted new F045 to address cost calculation foundation issues
+  - Renumbered: Finished Goods (F045→F046), Shopping Lists (F046→F047), Assembly (F047→F048)
+  - F045 spec in development by Claude Desktop
