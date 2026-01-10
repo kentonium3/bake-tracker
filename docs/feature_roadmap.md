@@ -8,7 +8,7 @@
 
 ## Executive Summary
 
-**Current Status**: F045-F046 complete, Shopping Lists (F047) and Assembly Workflows (F048) remaining
+**Current Status**: F045-F046 complete, Materials Management (F047), Shopping Lists (F048), Assembly Workflows (F049) remaining
 
 **Recent Milestone**: F045-F046 complete (Cost Architecture Refactor, Finished Goods & Assembly Tracking)
 
@@ -16,7 +16,7 @@
 
 **New Direction**: Implementing foundational workflows (F042-F048) before previously planned features
 
-**Timeline**: ~1 week remaining for F047-F048, then user testing round 2
+**Timeline**: ~1-2 weeks remaining for F047-F049, then user testing round 2
 
 ---
 
@@ -78,14 +78,15 @@
 
 | # | Name | Priority | Effort | Status |
 |---|------|----------|--------|--------|
-| 047 | Shopping Lists Tab Implementation | P1 - FOUNDATIONAL | 12-16 hours | 🎯 NEXT |
-| 048 | Assembly Workflows | P1 - FOUNDATIONAL | 24-30 hours | Pending F047 |
+| 047 | Materials Management System | P1 - FOUNDATIONAL | TBD | 🎯 NEXT |
+| 048 | Shopping Lists Tab Implementation | P1 - FOUNDATIONAL | 12-16 hours | Pending F047 |
+| 049 | Assembly Workflows | P1 - FOUNDATIONAL | 24-30 hours | Pending F048 |
 
 ---
 
-## Foundational Workflows (F042-F048)
+## Foundational Workflows (F042-F049)
 
-**Status**: F042-F046 complete, F047-F048 remaining
+**Status**: F042-F046 complete, F047-F049 remaining
 **Rationale**: Cannot test end-to-end workflows without these foundations
 
 | # | Name | Priority | Effort | Status |
@@ -95,10 +96,11 @@
 | 044 | Finished Units Yield Type Management | P1 - FOUNDATIONAL | 16-20 hours | ✅ COMPLETE |
 | 045 | Cost Architecture Refactor | P0 - FOUNDATIONAL | 8 hours | ✅ COMPLETE |
 | 046 | Finished Goods, Bundles & Assembly Tracking | P1 - FOUNDATIONAL | 12 hours | ✅ COMPLETE |
-| 047 | Shopping Lists Tab Implementation | P1 - FOUNDATIONAL | 12-16 hours | 🎯 NEXT |
-| 048 | Assembly Workflows | P1 - FOUNDATIONAL | 24-30 hours | Pending F047 |
+| 047 | Materials Management System | P1 - FOUNDATIONAL | TBD | 🎯 NEXT |
+| 048 | Shopping Lists Tab Implementation | P1 - FOUNDATIONAL | 12-16 hours | Pending F047 |
+| 049 | Assembly Workflows | P1 - FOUNDATIONAL | 24-30 hours | Pending F048 |
 
-**Remaining Foundational Work**: 36-46 hours for F047-F048
+**Remaining Foundational Work**: TBD (F047) + 36-46 hours for F048-F049
 
 **Completed** (2026-01-08/09/10):
 - ✅ F042: Dashboard headers compacted, stats widgets removed, data grids expanded
@@ -108,8 +110,9 @@
 - ✅ F046: Dynamic cost calculation methods, fixed assembly cost capture
 
 **Next Up**:
-- 🎯 F047: Shopping list generation/export
-- F048: Assembly recording workflows
+- 🎯 F047: Materials Management System (spec pending)
+- F048: Shopping list generation/export
+- F049: Assembly recording workflows
 
 **Blocks**: Complete Plan → Shop → Make → Assemble → Deliver workflow testing
 
@@ -148,11 +151,12 @@
 **Phase 2: Remaining Foundational Workflows (Week 2-3)** 🎯 CURRENT
 10. ~~**Feature 045** - Cost Architecture Refactor~~ ✅ (2026-01-09)
 11. ~~**Feature 046** - Finished Goods, Bundles & Assembly Tracking~~ ✅ (2026-01-10)
-12. **Feature 047** - Shopping Lists Tab Implementation → NEXT
-13. **Feature 048** - Assembly Workflows → Pending F047
+12. **Feature 047** - Materials Management System → NEXT
+13. **Feature 048** - Shopping Lists Tab Implementation → Pending F047
+14. **Feature 049** - Assembly Workflows → Pending F048
 
 **Phase 3: User Testing Round 2** (Week 3+)
-14. **USER TESTING ROUND 2** - Complete Plan → Make → Assemble → Deliver cycle → Pending F048
+15. **USER TESTING ROUND 2** - Complete Plan → Make → Assemble → Deliver cycle → Pending F049
 15. Prioritize F0XX features based on user feedback
 16. Plan Phase 3 (web migration) architecture
 
@@ -193,10 +197,10 @@
 - ✅ Assembly service captures actual costs (not hardcoded zeros)
 - ✅ 1774 tests pass, all cost calculations verified
 
-### After F047-F048 (Remaining Foundational Workflows)
+### After F047-F049 (Remaining Foundational Workflows)
 - ✅ User can complete Plan → Shop → Make → Assemble → Deliver cycle
 - ✅ All tabs in all modes functional (no dead buttons)
-- ✅ Purchases, Finished Units, Finished Goods, Shopping Lists, Assembly all operational
+- ✅ Purchases, Finished Units, Finished Goods, Materials, Shopping Lists, Assembly all operational
 - ✅ Event planning can use defined finished goods
 - ✅ Production cycle can be completed end-to-end
 
@@ -308,3 +312,7 @@
   - Cursor code review completed, no blockers found
   - 1774 tests pass, all 4 work packages approved
   - F042-F046 now complete, F047-F048 remaining
+- 2026-01-10: **F047 INSERTED** - Materials Management System:
+  - Inserted new F047 for materials management
+  - Renumbered: Shopping Lists (F047→F048), Assembly Workflows (F048→F049)
+  - F047 spec in development by Claude Desktop
