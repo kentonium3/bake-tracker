@@ -89,11 +89,11 @@ This is intentional - worktrees provide isolation for parallel feature developme
        - Updates `agent: <YOUR_AGENT_ID>` and `shell_pid: <YOUR_SHELL_PID>`
        - Appends Activity Log entry with reviewer's info (NOT implementer's)
        - Handles git operations (add new location, remove old location)
-     * **Alternative:** For custom review statuses, use `--review-status "approved with minor notes"` or `--target-lane "planned"` for rejected tasks.
+     * **Note:** Use `--note "your review summary"` to document the review outcome in the activity log.
      * Use helper script to mark the task complete in `tasks.md` (see Step 7).
 
 7. Update `tasks.md` automatically:
-   - Run `spec-kitty agent mark-status --task-id <TASK_ID> --status done` (POSIX) or `spec-kitty agent -TaskId <TASK_ID> -Status done` (PowerShell) from repo root.
+   - Run `spec-kitty agent tasks mark-status <TASK_ID> --status done` from repo root.
    - Confirm the task entry now shows `[X]` and includes a reference to the prompt file in its notes.
 
 7. Produce a review report summarizing:
