@@ -591,15 +591,17 @@ def get_package_contents(package_id: int) -> List[Dict[str, Any]]:
 
 def calculate_package_cost(package_id: int) -> Decimal:
     """
-    Calculate total cost of a package using FIFO-accurate pricing.
+    Calculate total cost of a package.
 
-    Cost chains through: Package -> PackageFinishedGood -> FinishedGood.total_cost
+    Feature 045: Costs are now tracked on production/assembly instances,
+    not on definition models. Package definition cost returns Decimal("0.00").
+    For actual costs, query the associated AssemblyRun records.
 
     Args:
         package_id: Package ID
 
     Returns:
-        Total cost as Decimal
+        Decimal("0.00") - definition-level packages have no inherent cost
 
     Raises:
         PackageNotFoundError: If package not found

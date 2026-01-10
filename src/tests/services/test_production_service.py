@@ -366,7 +366,6 @@ def setup_package_status_test_data(test_db, setup_production_test_data):
         recipe_id=data["recipe"].id,
         yield_mode=YieldMode.DISCRETE_COUNT,
         items_per_batch=24,
-        unit_cost=Decimal("0.50"),
     )
     session.add(fu)
     session.flush()
@@ -376,7 +375,6 @@ def setup_package_status_test_data(test_db, setup_production_test_data):
         display_name="Cookie Box",
         slug="cookie-box",
         assembly_type=AssemblyType.CUSTOM_ORDER,
-        total_cost=Decimal("6.00"),
     )
     session.add(fg)
     session.flush()

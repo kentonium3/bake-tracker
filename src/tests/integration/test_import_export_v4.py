@@ -200,7 +200,7 @@ class TestFullRoundTrip:
         # Verify export file exists and has correct version
         with open(export_path) as f:
             data = json.load(f)
-        assert data["version"] == "4.0"
+        assert data["version"] == "4.1"
 
         # Clear database
         clear_database(session)
@@ -239,7 +239,7 @@ class TestFullRoundTrip:
         with open(export_path) as f:
             data = json.load(f)
 
-        assert data["version"] == "4.0"
+        assert data["version"] == "4.1"
         assert "exported_at" in data
         assert "ingredients" in data
 

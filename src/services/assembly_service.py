@@ -338,9 +338,10 @@ def _record_assembly_impl(
                         fu.id, needed, fu.inventory_count
                     )
 
-                # Capture cost before decrementing
-                unit_cost = fu.unit_cost or Decimal("0.0000")
-                cost = unit_cost * Decimal(str(needed))
+                # Feature 045: Costs now tracked on instances, not definitions
+                # FinishedUnit no longer has unit_cost field
+                unit_cost = Decimal("0.0000")
+                cost = Decimal("0.0000")
 
                 fu.inventory_count -= needed
                 total_component_cost += cost
@@ -366,9 +367,10 @@ def _record_assembly_impl(
                         nested_fg.id, needed, nested_fg.inventory_count
                     )
 
-                # Capture cost (FinishedGood uses total_cost as unit cost)
-                unit_cost = nested_fg.total_cost or Decimal("0.0000")
-                cost = unit_cost * Decimal(str(needed))
+                # Feature 045: Costs now tracked on instances, not definitions
+                # FinishedGood no longer has total_cost field
+                unit_cost = Decimal("0.0000")
+                cost = Decimal("0.0000")
 
                 nested_fg.inventory_count -= needed
                 total_component_cost += cost

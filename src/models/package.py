@@ -9,7 +9,7 @@ Architecture Note (Feature 006):
 - Bundle concept eliminated per research decision D1
 - Package now directly references FinishedGood assemblies via PackageFinishedGood junction
 - FinishedGood assemblies are created via Features 002-004 (Composition model)
-- Cost calculation chains to FinishedGood.total_cost for FIFO-accurate pricing
+- Cost calculation: See Feature 045 - costs are now on production/assembly instances, not definitions
 """
 
 from datetime import datetime
@@ -81,25 +81,17 @@ class Package(BaseModel):
 
     def calculate_cost(self) -> Decimal:
         """
-        Calculate total cost of package from FinishedGood costs.
+        Calculate total cost of package.
 
-        Cost calculation chains through FinishedGood.total_cost which reflects
-        FIFO-accurate recipe costing via calculate_component_cost().
+        Feature 045: Costs are now tracked on production/assembly instances,
+        not on definition models. Package definition cost returns Decimal("0.00").
+        For actual costs, query the associated AssemblyRun records.
 
         Returns:
-            Total cost as Decimal (sum of all FinishedGood costs * quantities)
+            Decimal("0.00") - definition-level packages have no inherent cost
         """
-        if not self.package_finished_goods:
-            return Decimal("0.00")
-
-        total_cost = Decimal("0.00")
-        for pfg in self.package_finished_goods:
-            if pfg.finished_good:
-                # Use total_cost which reflects FIFO-accurate pricing
-                fg_cost = pfg.finished_good.total_cost or Decimal("0.00")
-                total_cost += fg_cost * Decimal(str(pfg.quantity))
-
-        return total_cost
+        # Feature 045: Costs on instances, not definitions
+        return Decimal("0.00")
 
     def get_item_count(self) -> int:
         """

@@ -91,7 +91,6 @@ def sample_finished_unit(test_db, sample_recipe):
         recipe_id=sample_recipe.id,
         yield_mode=YieldMode.DISCRETE_COUNT,
         items_per_batch=24,
-        unit_cost=Decimal("0.50"),
     )
     session.add(fu)
     session.commit()
@@ -110,7 +109,6 @@ def sample_finished_good(test_db, sample_finished_unit):
         display_name="Cookie Box",
         slug="cookie-box",
         assembly_type=AssemblyType.CUSTOM_ORDER,
-        total_cost=Decimal("6.00"),
     )
     session.add(fg)
     session.commit()
@@ -301,30 +299,39 @@ class TestFIFOCostAccuracy:
     """Tests for FIFO cost calculation accuracy."""
 
     def test_package_cost_calculation(self, test_db, sample_package, sample_finished_good):
-        """Test that package costs are calculated correctly."""
-        # sample_finished_good has total_cost = $6.00
-        # sample_package has quantity=2 of the finished good
-        # Expected: $6.00 * 2 = $12.00
+        """Test that package costs return zero for definitions.
 
+        Feature 045: Costs are now tracked on production/assembly instances,
+        not on definition models. Package definition cost returns Decimal("0.00").
+        """
         cost = calculate_package_cost(sample_package.id)
         assert cost is not None
-        assert cost == Decimal("12.00")
+        assert cost == Decimal("0.00")
 
     def test_event_total_cost_matches_package_cost(self, test_db, sample_event_with_assignment):
-        """Test that event total cost equals sum of package costs."""
+        """Test that event total cost equals sum of package costs.
+
+        Feature 045: Costs are now tracked on production/assembly instances,
+        not on definition models. Both package and event costs return Decimal("0.00").
+        """
         event, recipient, package, assignment = sample_event_with_assignment
 
-        # Get package cost
+        # Get package cost - returns 0.00 per Feature 045
         package_cost = calculate_package_cost(package.id)
+        assert package_cost == Decimal("0.00")
 
         # Get event summary
         summary = get_event_summary(event.id)
 
-        # Event cost should equal package cost (single assignment with quantity=1)
-        assert summary["total_cost"] == package_cost
+        # Event cost should equal package cost (both 0.00 for definitions)
+        assert summary["total_cost"] == Decimal("0.00")
 
     def test_cost_with_multiple_assignments(self, test_db, sample_package):
-        """Test cost calculation with multiple assignments."""
+        """Test cost calculation with multiple assignments.
+
+        Feature 045: Costs are now tracked on production/assembly instances,
+        not on definition models. All definition costs return Decimal("0.00").
+        """
         # Create event and recipients
         event = create_event(
             name="Multi-Assignment Event",
@@ -339,25 +346,23 @@ class TestFIFOCostAccuracy:
         assign_package_to_recipient(event.id, r1.id, sample_package.id, quantity=1)
         assign_package_to_recipient(event.id, r2.id, sample_package.id, quantity=2)
 
-        # Get package cost
+        # Get package cost - returns 0.00 per Feature 045
         package_cost = calculate_package_cost(sample_package.id)
-
-        # Expected: 1 * package_cost + 2 * package_cost = 3 * package_cost
-        expected_total = package_cost * 3
+        assert package_cost == Decimal("0.00")
 
         summary = get_event_summary(event.id)
-        assert summary["total_cost"] == expected_total
+        # Event cost is 0.00 for definitions
+        assert summary["total_cost"] == Decimal("0.00")
 
-    def test_cost_precision(self, test_db, sample_finished_good):
-        """Test that cost calculations maintain precision."""
+    def test_cost_returns_zero_for_definitions(self, test_db, sample_finished_good):
+        """Test that definition-level costs return zero.
+
+        Feature 045: Costs are now tracked on production/assembly instances,
+        not on definition models. This test verifies the new behavior.
+        """
         session = test_db()
 
-        # Update finished good with precise cost
-        sample_finished_good.total_cost = Decimal("3.33")
-        session.commit()
-        session.refresh(sample_finished_good)
-
-        # Create package with odd quantity
+        # Create package with finished good
         package = create_package({"name": "Precision Test Package"})
         pfg = PackageFinishedGood(
             package_id=package.id,
@@ -367,9 +372,9 @@ class TestFIFOCostAccuracy:
         session.add(pfg)
         session.commit()
 
-        # Expected: $3.33 * 3 = $9.99
+        # Package cost is 0.00 per Feature 045 (costs on instances, not definitions)
         cost = calculate_package_cost(package.id)
-        assert cost == Decimal("9.99")
+        assert cost == Decimal("0.00")
 
 
 # ============================================================================
@@ -517,25 +522,28 @@ class TestEdgeCases:
         assert summary["recipient_count"] == 0
         assert summary["total_cost"] == Decimal("0.00")
 
-    def test_finished_good_with_null_cost(self, test_db):
-        """Test handling of finished good with null cost."""
+    def test_finished_good_in_package(self, test_db):
+        """Test that finished goods can be added to packages.
+
+        Feature 045: Costs are now tracked on production/assembly instances,
+        not on definition models. FinishedGood no longer has total_cost field.
+        """
         from src.models.assembly_type import AssemblyType
 
         session = test_db()
 
-        # Create FG with no cost (default is 0)
+        # Create FG (no cost field per Feature 045)
         fg = FinishedGood(
-            display_name="No Cost Item",
-            slug="no-cost-item",
+            display_name="Test Item",
+            slug="test-item",
             assembly_type=AssemblyType.CUSTOM_ORDER,
-            total_cost=Decimal("0.00"),
         )
         session.add(fg)
         session.commit()
         session.refresh(fg)
 
         # Create package with this FG
-        package = create_package({"name": "Null Cost Package"})
+        package = create_package({"name": "Test Package"})
         pfg = PackageFinishedGood(
             package_id=package.id,
             finished_good_id=fg.id,
@@ -544,7 +552,7 @@ class TestEdgeCases:
         session.add(pfg)
         session.commit()
 
-        # Should handle gracefully (cost = 0)
+        # Package cost is 0.00 per Feature 045 (costs on instances, not definitions)
         cost = calculate_package_cost(package.id)
         assert cost == Decimal("0.00")
 

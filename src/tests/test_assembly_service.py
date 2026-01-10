@@ -64,7 +64,6 @@ def finished_unit_cookie(test_db, recipe_cookies):
         items_per_batch=48,
         item_unit="cookie",
         inventory_count=100,  # Start with inventory
-        unit_cost=Decimal("0.25"),
     )
     session.add(fu)
     session.commit()

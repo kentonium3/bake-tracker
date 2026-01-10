@@ -61,7 +61,6 @@ from .finished_unit_service import (
     delete_finished_unit,
     update_inventory,
     check_availability,
-    calculate_unit_cost,
     search_finished_units,
     get_units_by_recipe,
     # Exceptions

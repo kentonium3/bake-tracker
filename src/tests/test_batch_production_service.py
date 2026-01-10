@@ -178,7 +178,6 @@ def finished_unit_cookies(test_db, recipe_cookies):
         items_per_batch=48,
         item_unit="cookie",
         inventory_count=0,
-        unit_cost=Decimal("0.10"),
     )
     session.add(fu)
     session.commit()
@@ -451,7 +450,6 @@ class TestRecordBatchProduction:
             items_per_batch=36,
             item_unit="cookie",
             inventory_count=0,
-            unit_cost=Decimal("0.15"),
         )
         session.add(other_fu)
         session.commit()

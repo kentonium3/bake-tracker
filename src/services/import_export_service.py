@@ -1135,7 +1135,7 @@ def export_all_to_json(file_path: str) -> ExportResult:
 
         # Build combined export data - v4.0 format (Feature 040: F037 recipe fields, F039 event output_mode)
         export_data = {
-            "version": "4.0",  # Feature 040: v4.0 schema upgrade
+            "version": "4.1",  # Feature 045: Cost field removal from definitions
             "exported_at": utc_now().isoformat() + "Z",
             "application": "bake-tracker",
             "suppliers": [],  # Feature 027: Suppliers before products (products reference suppliers)

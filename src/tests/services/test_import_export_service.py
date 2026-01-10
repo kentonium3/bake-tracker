@@ -2470,8 +2470,8 @@ class TestVersionBumpV4:
     with the current expected schema; the 'version' field is informational only.
     """
 
-    def test_export_produces_version_4(self, test_db, tmp_path):
-        """Export should produce files with version 4.0."""
+    def test_export_produces_version_4_1(self, test_db, tmp_path):
+        """Export should produce files with version 4.1 (Feature 045)."""
         from src.services.import_export_service import export_all_to_json
 
         export_file = tmp_path / "test_export.json"
@@ -2481,7 +2481,7 @@ class TestVersionBumpV4:
         with open(export_file, "r") as f:
             data = json.load(f)
 
-        assert data.get("version") == "4.0", f"Expected version 4.0, got {data.get('version')}"
+        assert data.get("version") == "4.1", f"Expected version 4.1, got {data.get('version')}"
         assert data.get("application") == "bake-tracker"
 
     def test_import_accepts_v4_file(self, test_db, tmp_path):
