@@ -147,7 +147,7 @@ After validating web deployment and multi-user patterns:
 - **Scalable infrastructure** for broader user base
 
 **Intelligence & Enhancement:**
-- AI-powered menu generation and optimization
+- AI-powered event planning, purchase, finishedgoods creation, and inventory updates
 - Fluid voice and chat interactions for planning and purchasing
 - Nutritional analysis and dietary accommodation
 - Recipe scaling and cost optimization
