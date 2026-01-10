@@ -22,8 +22,8 @@
 **Prompt**: `tasks/WP01-dynamic-cost-methods.md`
 
 ### Included Subtasks
-- [ ] T001 Add `calculate_current_cost()` method to FinishedUnit model in `src/models/finished_unit.py`
-- [ ] T002 Add `calculate_current_cost()` method to FinishedGood model in `src/models/finished_good.py`
+- [x] T001 Add `calculate_current_cost()` method to FinishedUnit model in `src/models/finished_unit.py`
+- [x] T002 Add `calculate_current_cost()` method to FinishedGood model in `src/models/finished_good.py`
 
 ### Implementation Notes
 1. **T001**: FinishedUnit calculates weighted average from `self.production_runs`
@@ -55,11 +55,11 @@
 **Prompt**: `tasks/WP02-fix-model-methods.md`
 
 ### Included Subtasks
-- [ ] T003 [P] Fix `Composition.get_component_cost()` in `src/models/composition.py`
-- [ ] T004 [P] Fix `Composition.get_total_cost()` in `src/models/composition.py`
-- [ ] T005 Fix `Package.calculate_cost()` in `src/models/package.py`
-- [ ] T006 Fix `Package.get_cost_breakdown()` in `src/models/package.py`
-- [ ] T007 Fix `PackageFinishedGood.get_line_cost()` in `src/models/package.py`
+- [x] T003 [P] Fix `Composition.get_component_cost()` in `src/models/composition.py`
+- [x] T004 [P] Fix `Composition.get_total_cost()` in `src/models/composition.py`
+- [x] T005 Fix `Package.calculate_cost()` in `src/models/package.py`
+- [x] T006 Fix `Package.get_cost_breakdown()` in `src/models/package.py`
+- [x] T007 Fix `PackageFinishedGood.get_line_cost()` in `src/models/package.py`
 
 ### Implementation Notes
 1. **T003-T004**: Composition methods use `calculate_current_cost()`:
@@ -90,9 +90,9 @@
 **Prompt**: `tasks/WP03-fix-assembly-service.md`
 
 ### Included Subtasks
-- [ ] T008 Fix cost calculation for FinishedUnit components in `src/services/assembly_service.py` (lines 341-356)
-- [ ] T009 Fix cost calculation for nested FinishedGood components in `src/services/assembly_service.py` (lines 370-376)
-- [ ] T010 Verify finished_good_service.py works correctly with new cost methods
+- [x] T008 Fix cost calculation for FinishedUnit components in `src/services/assembly_service.py` (lines 341-356)
+- [x] T009 Fix cost calculation for nested FinishedGood components in `src/services/assembly_service.py` (lines 370-376)
+- [x] T010 Verify finished_good_service.py works correctly with new cost methods
 
 ### Implementation Notes
 1. **T008**: Replace hardcoded `Decimal("0.0000")` with actual cost:
@@ -127,11 +127,11 @@
 **Prompt**: `tasks/WP04-ui-verification.md`
 
 ### Included Subtasks
-- [ ] T011 [P] Verify Finished Goods tab shows no cost columns in `src/ui/finished_goods_tab.py`
-- [ ] T012 [P] Verify Assembly tab shows cost history in `src/ui/tabs/assembly_tab.py`
-- [ ] T013 [P] Verify Record Assembly dialog shows cost preview in `src/ui/forms/record_assembly_dialog.py`
-- [ ] T014 [P] Verify Event Planning package cost calculation works without errors
-- [ ] T015 Run full test suite and fix any failures
+- [x] T011 [P] Verify Finished Goods tab shows no cost columns in `src/ui/finished_goods_tab.py`
+- [x] T012 [P] Verify Assembly tab shows cost history in `src/ui/tabs/assembly_tab.py`
+- [x] T013 [P] Verify Record Assembly dialog shows cost preview in `src/ui/forms/record_assembly_dialog.py`
+- [x] T014 [P] Verify Event Planning package cost calculation works without errors
+- [x] T015 Run full test suite and fix any failures
 
 ### Implementation Notes
 1. **T011**: Check grid column configuration - should NOT have cost columns
