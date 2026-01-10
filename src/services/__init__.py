@@ -47,6 +47,7 @@ from . import (
     material_catalog_service,  # Feature 047: Materials Management System
     material_purchase_service,  # Feature 047: Materials Management System
     material_unit_service,  # Feature 047: Materials Management System
+    material_consumption_service,  # Feature 047: Materials Management System
 )
 
 # Migration services
@@ -276,6 +277,7 @@ __all__ = [
     "material_catalog_service",  # Feature 047
     "material_purchase_service",  # Feature 047
     "material_unit_service",  # Feature 047
+    "material_consumption_service",  # Feature 047
     # Migration services
     "MigrationService",
     # FinishedUnit services
