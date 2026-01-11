@@ -142,6 +142,11 @@ class CatalogMode(BaseMode):
             if not getattr(self.ingredients_tab, '_data_loaded', False):
                 self.ingredients_tab._data_loaded = True
                 self.after(10, self.ingredients_tab.refresh)
+        # Feature 047: Also lazy load materials tab
+        if hasattr(self.materials_tab, 'refresh'):
+            if not getattr(self.materials_tab, '_data_loaded', False):
+                self.materials_tab._data_loaded = True
+                self.after(20, self.materials_tab.refresh)
 
     def refresh_all_tabs(self) -> None:
         """Refresh all tabs in CATALOG mode."""

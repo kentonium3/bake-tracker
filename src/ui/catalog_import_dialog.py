@@ -291,9 +291,11 @@ class CatalogImportDialog(ctk.CTkToplevel):
             )
             self._show_error("Import Failed", error_details)
         finally:
-            self.status_label.configure(text="")
-            self.import_btn.configure(state="normal")
-            self.config(cursor="")
+            # Only update widgets if dialog still exists (may have been destroyed)
+            if self.winfo_exists():
+                self.status_label.configure(text="")
+                self.import_btn.configure(state="normal")
+                self.config(cursor="")
 
     def _show_results(self, result: CatalogImportResult):
         """Show import results in scrollable dialog with logging."""

@@ -174,7 +174,7 @@ def get_category(
         return _impl(sess)
 
 
-def list_categories(session: Optional[Session] = None) -> List[MaterialCategory]:
+def list_categories(session: Optional[Session] = None) -> List[dict]:
     """
     List all categories ordered by sort_order.
 
@@ -182,15 +182,26 @@ def list_categories(session: Optional[Session] = None) -> List[MaterialCategory]
         session: Optional database session
 
     Returns:
-        List of MaterialCategory instances
+        List of category dictionaries with keys: id, name, slug, description, sort_order
     """
 
-    def _impl(sess: Session) -> List[MaterialCategory]:
-        return (
+    def _impl(sess: Session) -> List[dict]:
+        categories = (
             sess.query(MaterialCategory)
             .order_by(MaterialCategory.sort_order, MaterialCategory.name)
             .all()
         )
+        # Convert to dicts before session closes to avoid detachment issues
+        return [
+            {
+                "id": cat.id,
+                "name": cat.name,
+                "slug": cat.slug,
+                "description": cat.description,
+                "sort_order": cat.sort_order,
+            }
+            for cat in categories
+        ]
 
     if session is not None:
         return _impl(session)
@@ -384,7 +395,7 @@ def get_subcategory(
 def list_subcategories(
     category_id: Optional[int] = None,
     session: Optional[Session] = None,
-) -> List[MaterialSubcategory]:
+) -> List[dict]:
     """
     List subcategories, optionally filtered by category.
 
@@ -393,14 +404,26 @@ def list_subcategories(
         session: Optional database session
 
     Returns:
-        List of MaterialSubcategory instances
+        List of subcategory dictionaries with keys: id, name, slug, category_id, description, sort_order
     """
 
-    def _impl(sess: Session) -> List[MaterialSubcategory]:
+    def _impl(sess: Session) -> List[dict]:
         query = sess.query(MaterialSubcategory)
         if category_id is not None:
             query = query.filter(MaterialSubcategory.category_id == category_id)
-        return query.order_by(MaterialSubcategory.sort_order, MaterialSubcategory.name).all()
+        subcategories = query.order_by(MaterialSubcategory.sort_order, MaterialSubcategory.name).all()
+        # Convert to dicts before session closes to avoid detachment issues
+        return [
+            {
+                "id": sub.id,
+                "name": sub.name,
+                "slug": sub.slug,
+                "category_id": sub.category_id,
+                "description": sub.description,
+                "sort_order": sub.sort_order,
+            }
+            for sub in subcategories
+        ]
 
     if session is not None:
         return _impl(session)
@@ -618,7 +641,7 @@ def list_materials(
     subcategory_id: Optional[int] = None,
     category_id: Optional[int] = None,
     session: Optional[Session] = None,
-) -> List[Material]:
+) -> List[dict]:
     """
     List materials with optional filtering.
 
@@ -628,10 +651,10 @@ def list_materials(
         session: Optional database session
 
     Returns:
-        List of Material instances
+        List of material dictionaries with keys: id, name, slug, subcategory_id, base_unit_type, description, notes
     """
 
-    def _impl(sess: Session) -> List[Material]:
+    def _impl(sess: Session) -> List[dict]:
         query = sess.query(Material)
 
         if subcategory_id is not None:
@@ -642,7 +665,20 @@ def list_materials(
                 MaterialSubcategory.category_id == category_id
             )
 
-        return query.order_by(Material.name).all()
+        materials = query.order_by(Material.name).all()
+        # Convert to dicts before session closes to avoid detachment issues
+        return [
+            {
+                "id": mat.id,
+                "name": mat.name,
+                "slug": mat.slug,
+                "subcategory_id": mat.subcategory_id,
+                "base_unit_type": mat.base_unit_type,
+                "description": mat.description,
+                "notes": mat.notes,
+            }
+            for mat in materials
+        ]
 
     if session is not None:
         return _impl(session)
@@ -953,7 +989,7 @@ def list_products(
     material_id: Optional[int] = None,
     include_hidden: bool = False,
     session: Optional[Session] = None,
-) -> List[MaterialProduct]:
+) -> List[dict]:
     """
     List products with optional filtering.
 
@@ -963,11 +999,12 @@ def list_products(
         session: Optional database session
 
     Returns:
-        List of MaterialProduct instances
+        List of product dictionaries with all product fields plus supplier_name
     """
+    from sqlalchemy.orm import joinedload
 
-    def _impl(sess: Session) -> List[MaterialProduct]:
-        query = sess.query(MaterialProduct)
+    def _impl(sess: Session) -> List[dict]:
+        query = sess.query(MaterialProduct).options(joinedload(MaterialProduct.supplier))
 
         if material_id is not None:
             query = query.filter(MaterialProduct.material_id == material_id)
@@ -975,7 +1012,28 @@ def list_products(
         if not include_hidden:
             query = query.filter(MaterialProduct.is_hidden == False)  # noqa: E712
 
-        return query.order_by(MaterialProduct.name).all()
+        products = query.order_by(MaterialProduct.name).all()
+        # Convert to dicts before session closes to avoid detachment issues
+        return [
+            {
+                "id": prod.id,
+                "name": prod.name,
+                "slug": prod.slug,
+                "material_id": prod.material_id,
+                "brand": prod.brand,
+                "sku": prod.sku,
+                "package_quantity": prod.package_quantity,
+                "package_unit": prod.package_unit,
+                "quantity_in_base_units": prod.quantity_in_base_units,
+                "supplier_id": prod.supplier_id,
+                "supplier_name": prod.supplier.name if prod.supplier else None,
+                "current_inventory": prod.current_inventory,
+                "weighted_avg_cost": prod.weighted_avg_cost,
+                "is_hidden": prod.is_hidden,
+                "notes": prod.notes,
+            }
+            for prod in products
+        ]
 
     if session is not None:
         return _impl(session)

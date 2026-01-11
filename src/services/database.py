@@ -226,6 +226,10 @@ def init_database(engine: Optional[Engine] = None) -> None:
     from ..models import ingredient, recipe, inventory_snapshot, finished_good  # noqa: F401
     from ..models import production_record  # noqa: F401  # Feature 008
     from ..models import unit  # noqa: F401  # Feature 022
+    # Feature 047: Materials Management System
+    from ..models import material_category, material_subcategory, material  # noqa: F401
+    from ..models import material_product, material_unit  # noqa: F401
+    from ..models import material_purchase, material_consumption  # noqa: F401
 
     # Create all tables
     Base.metadata.create_all(engine)

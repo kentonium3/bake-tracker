@@ -544,7 +544,7 @@ class MaterialProductFormDialog(ctk.CTkToplevel):
                     for mat in mats:
                         self._materials[mat["name"]] = {
                             "id": mat["id"],
-                            "base_unit": mat.get("base_unit", "each"),
+                            "base_unit": mat.get("base_unit_type", "each"),
                         }
         except Exception as e:
             print(f"Error loading materials: {e}")
@@ -554,7 +554,11 @@ class MaterialProductFormDialog(ctk.CTkToplevel):
         try:
             suppliers = supplier_service.get_all_suppliers()
             for sup in suppliers:
-                self._suppliers[sup["name"]] = sup["id"]
+                # supplier_service may return dicts or ORM objects
+                if isinstance(sup, dict):
+                    self._suppliers[sup["name"]] = sup["id"]
+                else:
+                    self._suppliers[sup.name] = sup.id
         except Exception as e:
             print(f"Error loading suppliers: {e}")
 
@@ -851,7 +855,11 @@ class RecordPurchaseDialog(ctk.CTkToplevel):
         try:
             suppliers = supplier_service.get_all_suppliers()
             for sup in suppliers:
-                self._suppliers[sup["name"]] = sup["id"]
+                # supplier_service may return dicts or ORM objects
+                if isinstance(sup, dict):
+                    self._suppliers[sup["name"]] = sup["id"]
+                else:
+                    self._suppliers[sup.name] = sup.id
         except Exception as e:
             print(f"Error loading suppliers: {e}")
 
@@ -1347,7 +1355,7 @@ class MaterialUnitFormDialog(ctk.CTkToplevel):
                     for mat in mats:
                         self._materials[mat["name"]] = {
                             "id": mat["id"],
-                            "base_unit": mat.get("base_unit", "each"),
+                            "base_unit": mat.get("base_unit_type", "each"),
                         }
         except Exception as e:
             print(f"Error loading materials: {e}")
@@ -1783,7 +1791,7 @@ class MaterialsCatalogTab:
                         materials.append({
                             "id": mat["id"],
                             "name": mat["name"],
-                            "base_unit": mat.get("base_unit", ""),
+                            "base_unit": mat.get("base_unit_type", ""),
                             "l0_name": cat["name"],
                             "l0_id": cat["id"],
                             "l1_name": subcat["name"],
@@ -2270,31 +2278,25 @@ class MaterialProductsTab:
         """Load all products with material and supplier info."""
         products = []
         try:
-            # Get all materials first
+            # Service now returns dicts - no session detachment issues
             categories = material_catalog_service.list_categories()
             for cat in categories:
                 subcategories = material_catalog_service.list_subcategories(cat["id"])
                 for subcat in subcategories:
                     mats = material_catalog_service.list_materials(subcat["id"])
                     for mat in mats:
-                        # Get products for this material
                         prods = material_catalog_service.list_products(mat["id"])
                         for prod in prods:
-                            # Get inventory info
-                            try:
-                                inventory = material_purchase_service.get_available_inventory(prod["id"])
-                            except Exception:
-                                inventory = 0
                             products.append({
                                 "id": prod["id"],
                                 "name": prod["name"],
                                 "material_name": mat["name"],
                                 "material_id": mat["id"],
-                                "base_unit": mat.get("base_unit", ""),
+                                "base_unit": mat.get("base_unit_type", ""),
                                 "package_quantity": prod.get("package_quantity", 1),
-                                "package_unit": prod.get("package_unit", mat.get("base_unit", "each")),
-                                "inventory": inventory,
-                                "unit_cost": prod.get("unit_cost", 0),
+                                "package_unit": prod.get("package_unit", mat.get("base_unit_type", "each")),
+                                "inventory": prod.get("current_inventory", 0),
+                                "unit_cost": prod.get("weighted_avg_cost", 0),
                                 "supplier_name": prod.get("supplier_name", ""),
                                 "supplier_id": prod.get("supplier_id"),
                                 "sku": prod.get("sku", ""),
@@ -2302,6 +2304,8 @@ class MaterialProductsTab:
                             })
         except Exception as e:
             print(f"Error loading products: {e}")
+            import traceback
+            traceback.print_exc()
         return products
 
     def _load_material_dropdown(self):
@@ -2792,7 +2796,7 @@ class MaterialUnitsTab:
         """Load all units with material info and computed values."""
         units = []
         try:
-            # Get all materials first
+            # Service now returns dicts - no session detachment issues
             categories = material_catalog_service.list_categories()
             for cat in categories:
                 subcategories = material_catalog_service.list_subcategories(cat["id"])
@@ -2802,22 +2806,33 @@ class MaterialUnitsTab:
                         # Get units for this material
                         mat_units = material_unit_service.list_units(mat["id"])
                         for unit in mat_units:
+                            # Handle both dict and ORM object returns
+                            if isinstance(unit, dict):
+                                unit_id = unit["id"]
+                                unit_name = unit["name"]
+                                qty = unit.get("quantity_per_unit", 1)
+                                desc = unit.get("description", "")
+                            else:
+                                unit_id = unit.id
+                                unit_name = unit.name
+                                qty = getattr(unit, "quantity_per_unit", 1)
+                                desc = getattr(unit, "description", "")
                             # Get computed values
                             try:
-                                available = material_unit_service.get_available_inventory(unit["id"])
+                                available = material_unit_service.get_available_inventory(unit_id)
                             except Exception:
                                 available = 0
                             try:
-                                cost = material_unit_service.get_current_cost(unit["id"])
+                                cost = material_unit_service.get_current_cost(unit_id)
                             except Exception:
                                 cost = None
                             units.append({
-                                "id": unit["id"],
-                                "name": unit["name"],
+                                "id": unit_id,
+                                "name": unit_name,
                                 "material_name": mat["name"],
                                 "material_id": mat["id"],
-                                "quantity_per_unit": unit.get("quantity_per_unit", 1),
-                                "description": unit.get("description", ""),
+                                "quantity_per_unit": qty,
+                                "description": desc,
                                 "available": available,
                                 "cost": cost,
                             })
