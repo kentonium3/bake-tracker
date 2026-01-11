@@ -142,9 +142,9 @@ class MaterialConsumption(BaseModel):
             if self.assembly_run:
                 result["assembly_run"] = {
                     "id": self.assembly_run.id,
-                    "run_date": (
-                        self.assembly_run.run_date.isoformat()
-                        if self.assembly_run.run_date
+                    "assembled_at": (
+                        self.assembly_run.assembled_at.isoformat()
+                        if self.assembly_run.assembled_at
                         else None
                     ),
                 }

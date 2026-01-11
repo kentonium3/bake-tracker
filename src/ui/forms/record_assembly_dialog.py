@@ -236,11 +236,11 @@ class RecordAssemblyDialog(ctk.CTkToplevel):
 
         # Feature 047: Check for pending material requirements
         pending_materials = self._check_pending_materials()
-        material_assignments: Optional[Dict[int, int]] = None
+        material_assignments: Optional[Dict[int, Dict[int, float]]] = None
 
         if pending_materials:
-            # Show material assignment dialog
-            dialog = PendingMaterialsDialog(self, pending_materials)
+            # Show material assignment dialog (supports split allocation)
+            dialog = PendingMaterialsDialog(self, pending_materials, assembly_quantity=quantity)
             self.wait_window(dialog)
 
             if dialog.result == "cancel":
@@ -616,34 +616,42 @@ class PendingPackagingDialog(ctk.CTkToplevel):
 
 class PendingMaterialsDialog(ctk.CTkToplevel):
     """
-    Dialog for selecting products for generic material compositions.
+    Dialog for assigning products to generic material compositions.
 
     Feature 047: Materials Management System
 
     When a FinishedGood has generic material compositions (material_id without
-    material_unit_id), the user must select which product to consume at assembly time.
+    material_unit_id), the user must specify which products and quantities to
+    consume at assembly time. Supports split allocation where a material need
+    can be fulfilled from multiple products (e.g., "30 from Snowflakes, 20 from Holly").
+
     Unlike packaging, there is no bypass option - materials must be assigned.
 
     Attributes:
         result: "assigned" or "cancel"
-        assignments: Dict[composition_id, product_id] when result is "assigned"
+        assignments: Dict[composition_id, Dict[product_id, quantity]] when assigned
     """
 
-    def __init__(self, parent, pending: List[Dict[str, Any]]):
+    def __init__(self, parent, pending: List[Dict[str, Any]], assembly_quantity: int = 1):
         """
         Initialize the pending materials dialog.
 
         Args:
             parent: Parent widget
             pending: List of pending material dicts from get_pending_materials()
+            assembly_quantity: Number of assemblies being recorded
         """
         super().__init__(parent)
 
         self.pending = pending
+        self.assembly_quantity = assembly_quantity
         self.result = "cancel"
-        self.assignments: Dict[int, int] = {}
-        self._product_vars: Dict[int, ctk.StringVar] = {}  # composition_id -> StringVar
-        self._product_maps: Dict[int, Dict[str, int]] = {}  # composition_id -> {name: product_id}
+        self.assignments: Dict[int, Dict[int, float]] = {}
+
+        # Track quantity entries: composition_id -> {product_id: (entry, available)}
+        self._quantity_entries: Dict[int, Dict[int, tuple]] = {}
+        # Track total labels: composition_id -> (total_var, needed)
+        self._total_info: Dict[int, tuple] = {}
 
         self._setup_window()
         self._create_widgets()
@@ -651,9 +659,9 @@ class PendingMaterialsDialog(ctk.CTkToplevel):
 
     def _setup_window(self):
         """Configure the dialog window."""
-        self.title("Select Material Products")
-        self.geometry("500x400")
-        self.resizable(False, True)
+        self.title("Assign Material Products")
+        self.geometry("550x500")
+        self.resizable(True, True)
 
     def _setup_modal(self):
         """Set up modal behavior."""
@@ -696,28 +704,27 @@ class PendingMaterialsDialog(ctk.CTkToplevel):
 
         ctk.CTkLabel(
             header_frame,
-            text="Select Products for Materials",
+            text="Assign Products for Materials",
             font=ctk.CTkFont(size=16, weight="bold"),
         ).pack()
 
         ctk.CTkLabel(
             header_frame,
-            text="This assembly uses generic materials. Please select\nwhich product to consume for each material.",
+            text="Enter the quantity to use from each product.\n"
+                 "You can split across multiple products.",
             justify="center",
         ).pack(pady=(PADDING_MEDIUM, 0))
 
-        # Scrollable frame for material selections
+        # Scrollable frame for material assignments
         scroll_frame = ctk.CTkScrollableFrame(self)
         scroll_frame.grid(
             row=1, column=0, sticky="nsew",
             padx=PADDING_LARGE, pady=PADDING_MEDIUM
         )
-        scroll_frame.grid_columnconfigure(1, weight=1)
+        scroll_frame.grid_columnconfigure(0, weight=1)
 
-        row = 0
         for mat_info in self.pending:
-            self._create_material_row(scroll_frame, mat_info, row)
-            row += 1
+            self._create_material_section(scroll_frame, mat_info)
 
         # Buttons
         button_frame = ctk.CTkFrame(self, fg_color="transparent")
@@ -739,68 +746,159 @@ class PendingMaterialsDialog(ctk.CTkToplevel):
             width=100,
         ).pack(side="left", padx=PADDING_MEDIUM)
 
-    def _create_material_row(self, parent, mat_info: Dict[str, Any], row: int):
-        """Create a row for selecting a product for a material."""
+    def _create_material_section(self, parent, mat_info: Dict[str, Any]):
+        """Create a section for assigning quantities from products for one material."""
         composition_id = mat_info.get("composition_id")
         material_name = mat_info.get("material_name", "Unknown Material")
-        quantity_needed = mat_info.get("quantity_needed", 0)
+        quantity_per_assembly = mat_info.get("quantity_needed", 0)
+        total_needed = quantity_per_assembly * self.assembly_quantity
         available_products = mat_info.get("available_products", [])
 
-        # Material label
-        label_text = f"{material_name} ({quantity_needed} units needed)"
+        # Material section frame
+        section = ctk.CTkFrame(parent)
+        section.pack(fill="x", pady=PADDING_MEDIUM)
+        section.grid_columnconfigure(1, weight=1)
+
+        # Material header
+        header_text = f"{material_name}"
         ctk.CTkLabel(
-            parent, text=label_text, anchor="w"
-        ).grid(row=row, column=0, sticky="w", padx=PADDING_MEDIUM, pady=PADDING_MEDIUM)
+            section,
+            text=header_text,
+            font=ctk.CTkFont(weight="bold"),
+            anchor="w",
+        ).grid(row=0, column=0, columnspan=3, sticky="w", padx=PADDING_MEDIUM, pady=(PADDING_MEDIUM, 0))
 
-        # Product dropdown
+        # Total needed info
+        total_var = ctk.StringVar(value=f"Assigned: 0 / {total_needed:.0f} needed")
+        self._total_info[composition_id] = (total_var, total_needed)
+
+        total_label = ctk.CTkLabel(
+            section,
+            textvariable=total_var,
+            anchor="e",
+        )
+        total_label.grid(row=0, column=2, sticky="e", padx=PADDING_MEDIUM, pady=(PADDING_MEDIUM, 0))
+
+        # Product entries
+        self._quantity_entries[composition_id] = {}
+
         if available_products:
-            product_names = []
-            product_map = {}
+            row = 1
             for prod in available_products:
+                product_id = prod.get("product_id")
                 name = prod.get("name", "Unknown")
-                inventory = prod.get("inventory", 0)
+                available = prod.get("available_inventory", 0)
                 cost = prod.get("unit_cost", 0)
-                display = f"{name} ({inventory:.0f} avail, ${cost:.4f}/unit)"
-                product_names.append(display)
-                product_map[display] = prod.get("id")
 
-            self._product_maps[composition_id] = product_map
+                # Product label
+                prod_text = f"{name} (avail: {available:.0f}, ${float(cost):.4f}/unit)"
+                ctk.CTkLabel(
+                    section,
+                    text=prod_text,
+                    anchor="w",
+                ).grid(row=row, column=0, columnspan=2, sticky="w", padx=(PADDING_LARGE, PADDING_MEDIUM), pady=2)
 
-            var = ctk.StringVar(value=product_names[0] if product_names else "")
-            self._product_vars[composition_id] = var
+                # Quantity entry
+                entry = ctk.CTkEntry(section, width=80, placeholder_text="0")
+                entry.grid(row=row, column=2, sticky="e", padx=PADDING_MEDIUM, pady=2)
 
-            dropdown = ctk.CTkOptionMenu(
-                parent,
-                variable=var,
-                values=product_names,
-                width=280,
-            )
-            dropdown.grid(row=row, column=1, sticky="w", padx=PADDING_MEDIUM, pady=PADDING_MEDIUM)
+                # Bind to update totals on change
+                entry.bind("<KeyRelease>", lambda e, cid=composition_id: self._update_total(cid))
+
+                self._quantity_entries[composition_id][product_id] = (entry, available)
+                row += 1
+
+            # Quick fill button for single product case
+            if len(available_products) == 1:
+                only_product = available_products[0]
+                only_id = only_product.get("product_id")
+                entry, _ = self._quantity_entries[composition_id][only_id]
+                entry.insert(0, str(int(total_needed)))
+                self._update_total(composition_id)
         else:
             ctk.CTkLabel(
-                parent,
-                text="No products with inventory",
+                section,
+                text="No products with inventory available",
                 text_color="#CC0000",
-            ).grid(row=row, column=1, sticky="w", padx=PADDING_MEDIUM, pady=PADDING_MEDIUM)
+            ).grid(row=1, column=0, columnspan=3, sticky="w", padx=PADDING_LARGE, pady=PADDING_MEDIUM)
+
+    def _update_total(self, composition_id: int):
+        """Update the total assigned display for a composition."""
+        entries = self._quantity_entries.get(composition_id, {})
+        total_var, needed = self._total_info.get(composition_id, (None, 0))
+
+        if not total_var:
+            return
+
+        total = 0.0
+        for product_id, (entry, _) in entries.items():
+            try:
+                val = float(entry.get() or 0)
+                total += val
+            except ValueError:
+                pass
+
+        # Update label with color coding
+        if abs(total - needed) < 0.001:
+            color_text = f"Assigned: {total:.0f} / {needed:.0f} needed"
+        elif total > needed:
+            color_text = f"Assigned: {total:.0f} / {needed:.0f} needed (OVER)"
+        else:
+            color_text = f"Assigned: {total:.0f} / {needed:.0f} needed"
+
+        total_var.set(color_text)
 
     def _on_confirm(self):
         """Handle Confirm button - validate and build assignments."""
         assignments = {}
+        errors = []
 
-        for composition_id, var in self._product_vars.items():
-            selected = var.get()
-            product_map = self._product_maps.get(composition_id, {})
-            product_id = product_map.get(selected)
+        for composition_id, entries in self._quantity_entries.items():
+            total_var, needed = self._total_info.get(composition_id, (None, 0))
 
-            if not product_id:
-                show_error(
-                    "Selection Required",
-                    "Please select a product for all materials.",
-                    parent=self,
+            allocations = {}
+            total_assigned = 0.0
+
+            for product_id, (entry, available) in entries.items():
+                try:
+                    qty = float(entry.get() or 0)
+                except ValueError:
+                    qty = 0
+
+                if qty > 0:
+                    if qty > available:
+                        errors.append(f"Quantity {qty:.0f} exceeds available {available:.0f}")
+                    allocations[product_id] = qty
+                    total_assigned += qty
+
+            # Validate total matches needed
+            if abs(total_assigned - needed) > 0.001:
+                # Find material name for error message
+                mat_name = "Unknown"
+                for mat in self.pending:
+                    if mat.get("composition_id") == composition_id:
+                        mat_name = mat.get("material_name", "Unknown")
+                        break
+                errors.append(
+                    f"{mat_name}: assigned {total_assigned:.0f} but need {needed:.0f}"
                 )
-                return
+            elif not allocations:
+                mat_name = "Unknown"
+                for mat in self.pending:
+                    if mat.get("composition_id") == composition_id:
+                        mat_name = mat.get("material_name", "Unknown")
+                        break
+                errors.append(f"{mat_name}: no products assigned")
+            else:
+                assignments[composition_id] = allocations
 
-            assignments[composition_id] = product_id
+        if errors:
+            show_error(
+                "Assignment Error",
+                "\n".join(errors),
+                parent=self,
+            )
+            return
 
         self.assignments = assignments
         self.result = "assigned"

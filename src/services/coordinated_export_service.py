@@ -38,6 +38,7 @@ from src.models.material_subcategory import MaterialSubcategory
 from src.models.material import Material
 from src.models.material_product import MaterialProduct
 from src.models.material_unit import MaterialUnit
+from src.models.material_purchase import MaterialPurchase
 from src.services.database import session_scope
 from src.utils.constants import APP_NAME, APP_VERSION
 
@@ -106,6 +107,7 @@ DEPENDENCY_ORDER = {
     "materials": (9, ["material_subcategories"]),
     "material_products": (10, ["materials", "suppliers"]),
     "material_units": (11, ["materials"]),
+    "material_purchases": (12, ["material_products", "suppliers"]),
 }
 
 
@@ -518,6 +520,34 @@ def _export_material_units(output_dir: Path, session: Session) -> FileEntry:
     return _write_entity_file(output_dir, "material_units", records)
 
 
+def _export_material_purchases(output_dir: Path, session: Session) -> FileEntry:
+    """Export all material purchases to JSON file with FK resolution."""
+    purchases = session.query(MaterialPurchase).options(
+        joinedload(MaterialPurchase.product),
+        joinedload(MaterialPurchase.supplier),
+    ).all()
+
+    records = []
+    for p in purchases:
+        records.append({
+            "id": p.id,
+            "uuid": str(p.uuid) if p.uuid else None,
+            "product_id": p.product_id,
+            "product_slug": p.product.slug if p.product else None,
+            "supplier_id": p.supplier_id,
+            "supplier_name": p.supplier.name if p.supplier else None,
+            "purchase_date": p.purchase_date.isoformat() if p.purchase_date else None,
+            "packages_purchased": p.packages_purchased,
+            "base_units_purchased": p.base_units_purchased,
+            "total_cost": str(p.total_cost) if p.total_cost else None,
+            "cost_per_base_unit": str(p.cost_per_base_unit) if p.cost_per_base_unit else None,
+            "notes": p.notes,
+            "created_at": p.created_at.isoformat() if p.created_at else None,
+        })
+
+    return _write_entity_file(output_dir, "material_purchases", records)
+
+
 # ============================================================================
 # Main Export Functions
 # ============================================================================
@@ -584,6 +614,7 @@ def _export_complete_impl(
     manifest.files.append(_export_materials(output_dir, session))
     manifest.files.append(_export_material_products(output_dir, session))
     manifest.files.append(_export_material_units(output_dir, session))
+    manifest.files.append(_export_material_purchases(output_dir, session))
 
     # Sort files by import_order
     manifest.files.sort(key=lambda f: f.import_order)

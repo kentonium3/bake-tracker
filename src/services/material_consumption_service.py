@@ -14,7 +14,7 @@ Key Features:
 All functions accept optional session parameter per CLAUDE.md session management rules.
 """
 
-from typing import Optional, List, Dict, Any
+from typing import Optional, List, Dict, Any, Union
 from decimal import Decimal
 
 from sqlalchemy.orm import Session
@@ -123,7 +123,7 @@ def _get_pending_materials_impl(
 def _validate_material_availability_impl(
     finished_good_id: int,
     assembly_quantity: int,
-    material_assignments: Optional[Dict[int, int]],
+    material_assignments: Optional[Dict[int, Dict[int, float]]],
     session: Session,
 ) -> Dict[str, Any]:
     """Implementation for validate_material_availability.
@@ -131,7 +131,8 @@ def _validate_material_availability_impl(
     Args:
         finished_good_id: FinishedGood being assembled
         assembly_quantity: Number of assemblies
-        material_assignments: Dict mapping composition_id -> product_id for generics
+        material_assignments: Dict mapping composition_id -> {product_id: quantity_to_consume}
+            for generic materials. Allows split allocation across multiple products.
         session: Database session
 
     Returns:
@@ -161,7 +162,9 @@ def _validate_material_availability_impl(
                 errors.append(f"MaterialUnit {comp.material_unit_id} not found")
                 continue
 
-            needed_units = int(comp.component_quantity * assembly_quantity)
+            # Calculate needed units with proper rounding (avoid int() truncation)
+            raw_needed = comp.component_quantity * assembly_quantity
+            needed_units = round(raw_needed)
             available_units = get_available_inventory(comp.material_unit_id, session=session)
             base_units_needed = needed_units * unit.quantity_per_unit
             base_available = available_units * unit.quantity_per_unit
@@ -186,11 +189,13 @@ def _validate_material_availability_impl(
             })
 
         elif comp.material_id:
-            # Generic Material placeholder - requires assignment
+            # Generic Material placeholder - requires assignment (supports split allocation)
             material = session.query(Material).filter_by(id=comp.material_id).first()
             if not material:
                 errors.append(f"Material {comp.material_id} not found")
                 continue
+
+            base_units_needed = comp.component_quantity * assembly_quantity
 
             # Check if assignment provided
             if comp.id not in material_assignments:
@@ -202,44 +207,84 @@ def _validate_material_availability_impl(
                     "composition_id": comp.id,
                     "is_generic": True,
                     "material_name": material.name,
-                    "base_units_needed": comp.component_quantity * assembly_quantity,
+                    "base_units_needed": base_units_needed,
                     "available": 0,
                     "sufficient": False,
                     "assignment_required": True,
                 })
                 continue
 
-            # Validate the assigned product
-            product_id = material_assignments[comp.id]
-            product = session.query(MaterialProduct).filter_by(id=product_id).first()
+            # Get the allocations for this composition
+            allocations = material_assignments[comp.id]
 
-            if not product:
-                errors.append(f"Assigned product {product_id} not found")
-                continue
+            # Support both old format (single product_id) and new format (dict)
+            if isinstance(allocations, int):
+                # Legacy format: single product_id - convert to new format
+                allocations = {allocations: base_units_needed}
 
-            if product.material_id != material.id:
+            # Validate allocations
+            if not allocations:
                 errors.append(
-                    f"Product {product_id} is not for material '{material.name}'"
+                    f"Generic material '{material.name}' (composition {comp.id}) "
+                    f"requires at least one product allocation"
                 )
                 continue
 
-            base_units_needed = comp.component_quantity * assembly_quantity
-            sufficient = product.current_inventory >= base_units_needed
+            # Calculate total allocated quantity
+            total_allocated = sum(allocations.values())
 
-            if not sufficient:
+            # Validate total matches needed quantity
+            if abs(total_allocated - base_units_needed) > 0.001:  # Float tolerance
                 errors.append(
-                    f"Material '{material.name}' has insufficient inventory "
-                    f"(need {base_units_needed}, have {product.current_inventory})"
+                    f"Material '{material.name}' allocation mismatch: "
+                    f"allocated {total_allocated}, need {base_units_needed}"
                 )
+                continue
+
+            # Validate each product allocation
+            allocation_details = []
+            all_sufficient = True
+            total_available = 0
+
+            for product_id, quantity_to_use in allocations.items():
+                product = session.query(MaterialProduct).filter_by(id=product_id).first()
+
+                if not product:
+                    errors.append(f"Assigned product {product_id} not found")
+                    all_sufficient = False
+                    continue
+
+                if product.material_id != material.id:
+                    errors.append(
+                        f"Product {product_id} is not for material '{material.name}'"
+                    )
+                    all_sufficient = False
+                    continue
+
+                if product.current_inventory < quantity_to_use:
+                    errors.append(
+                        f"Product '{product.display_name}' has insufficient inventory "
+                        f"(need {quantity_to_use}, have {product.current_inventory})"
+                    )
+                    all_sufficient = False
+
+                total_available += product.current_inventory
+                allocation_details.append({
+                    "product_id": product_id,
+                    "product_name": product.display_name,
+                    "quantity_to_use": quantity_to_use,
+                    "available": product.current_inventory,
+                    "sufficient": product.current_inventory >= quantity_to_use,
+                })
 
             material_requirements.append({
                 "composition_id": comp.id,
                 "is_generic": True,
                 "material_name": material.name,
                 "base_units_needed": base_units_needed,
-                "available": product.current_inventory,
-                "sufficient": sufficient,
-                "assigned_product_id": product_id,
+                "total_available": total_available,
+                "sufficient": all_sufficient,
+                "allocations": allocation_details,
             })
 
     return {
@@ -279,7 +324,7 @@ def _record_material_consumption_impl(
     assembly_run_id: int,
     finished_good_id: int,
     assembly_quantity: int,
-    material_assignments: Optional[Dict[int, int]],
+    material_assignments: Optional[Dict[int, Dict[int, float]]],
     session: Session,
 ) -> List[MaterialConsumption]:
     """Implementation for record_material_consumption.
@@ -288,7 +333,8 @@ def _record_material_consumption_impl(
         assembly_run_id: ID of the AssemblyRun being recorded
         finished_good_id: FinishedGood being assembled
         assembly_quantity: Number of assemblies
-        material_assignments: Dict mapping composition_id -> product_id for generics
+        material_assignments: Dict mapping composition_id -> {product_id: quantity_to_consume}
+            for generic materials. Allows split allocation across multiple products.
         session: Database session
 
     Returns:
@@ -328,7 +374,9 @@ def _record_material_consumption_impl(
             if not unit:
                 continue
 
-            needed_units = int(comp.component_quantity * assembly_quantity)
+            # Calculate needed units with proper rounding (avoid int() truncation)
+            raw_needed = comp.component_quantity * assembly_quantity
+            needed_units = round(raw_needed)
             base_units_needed = needed_units * unit.quantity_per_unit
 
             # Get material for snapshot
@@ -402,17 +450,12 @@ def _record_material_consumption_impl(
                 remaining_to_consume -= to_consume
 
         elif comp.material_id:
-            # Generic Material - use assigned product
+            # Generic Material - use assigned product(s) with split allocation support
             if comp.id not in material_assignments:
                 raise MaterialAssignmentRequiredError(
                     comp.material_component.name if comp.material_component else "Unknown",
                     comp.id,
                 )
-
-            product_id = material_assignments[comp.id]
-            product = session.query(MaterialProduct).filter_by(id=product_id).first()
-            if not product:
-                raise ValidationError([f"Assigned product {product_id} not found"])
 
             material = session.query(Material).filter_by(id=comp.material_id).first()
             if not material:
@@ -420,33 +463,45 @@ def _record_material_consumption_impl(
 
             base_units_needed = comp.component_quantity * assembly_quantity
 
-            # Get unit cost
-            unit_cost = product.weighted_avg_cost or Decimal("0")
-            total_cost = unit_cost * Decimal(str(base_units_needed))
+            # Get allocations - support both old and new format
+            allocations = material_assignments[comp.id]
+            if isinstance(allocations, int):
+                # Legacy format: single product_id - convert to new format
+                allocations = {allocations: base_units_needed}
 
-            # Decrement inventory
-            _decrement_inventory(product, base_units_needed, session)
+            # Process each allocation (supports split across multiple products)
+            for product_id, quantity_to_use in allocations.items():
+                product = session.query(MaterialProduct).filter_by(id=product_id).first()
+                if not product:
+                    raise ValidationError([f"Assigned product {product_id} not found"])
 
-            # Create consumption record with full snapshot
-            consumption = MaterialConsumption(
-                assembly_run_id=assembly_run_id,
-                product_id=product.id,
-                quantity_consumed=base_units_needed,
-                unit_cost=unit_cost,
-                total_cost=total_cost,
-                # Snapshot fields
-                product_name=product.display_name,
-                material_name=material.name,
-                subcategory_name=material.subcategory.name if material.subcategory else "",
-                category_name=(
-                    material.subcategory.category.name
-                    if material.subcategory and material.subcategory.category
-                    else ""
-                ),
-                supplier_name=product.supplier.name if product.supplier else None,
-            )
-            session.add(consumption)
-            consumptions.append(consumption)
+                # Get unit cost
+                unit_cost = product.weighted_avg_cost or Decimal("0")
+                total_cost = unit_cost * Decimal(str(quantity_to_use))
+
+                # Decrement inventory
+                _decrement_inventory(product, quantity_to_use, session)
+
+                # Create consumption record with full snapshot
+                consumption = MaterialConsumption(
+                    assembly_run_id=assembly_run_id,
+                    product_id=product.id,
+                    quantity_consumed=quantity_to_use,
+                    unit_cost=unit_cost,
+                    total_cost=total_cost,
+                    # Snapshot fields
+                    product_name=product.display_name,
+                    material_name=material.name,
+                    subcategory_name=material.subcategory.name if material.subcategory else "",
+                    category_name=(
+                        material.subcategory.category.name
+                        if material.subcategory and material.subcategory.category
+                        else ""
+                    ),
+                    supplier_name=product.supplier.name if product.supplier else None,
+                )
+                session.add(consumption)
+                consumptions.append(consumption)
 
     session.flush()
     return consumptions
@@ -494,18 +549,22 @@ def get_pending_materials(
 def validate_material_availability(
     finished_good_id: int,
     assembly_quantity: int,
-    material_assignments: Optional[Dict[int, int]] = None,
+    material_assignments: Optional[Dict[int, Union[int, Dict[int, float]]]] = None,
     session: Optional[Session] = None,
 ) -> Dict[str, Any]:
     """Check that all materials have sufficient inventory.
 
     Validates both specific MaterialUnit components and generic Material
-    placeholders with their assigned products.
+    placeholders with their assigned products. Supports split allocation
+    where a material need can be fulfilled from multiple products.
 
     Args:
         finished_good_id: FinishedGood being assembled
         assembly_quantity: Number of assemblies
-        material_assignments: Dict mapping composition_id -> product_id for generics
+        material_assignments: Dict mapping composition_id to either:
+            - int (legacy): single product_id (system calculates quantity)
+            - Dict[int, float] (new): {product_id: quantity_to_use, ...}
+              for split allocation across multiple products
         session: Optional database session
 
     Returns:
@@ -514,14 +573,17 @@ def validate_material_availability(
             - errors: List[str] - Error messages for any failures
             - material_requirements: List of requirement details
 
-    Example:
+    Example (single product):
         >>> result = validate_material_availability(
         ...     fg.id, assembly_quantity=10,
         ...     material_assignments={comp_id: product_id}
         ... )
-        >>> if not result['valid']:
-        ...     for error in result['errors']:
-        ...         print(error)
+
+    Example (split allocation):
+        >>> result = validate_material_availability(
+        ...     fg.id, assembly_quantity=50,
+        ...     material_assignments={comp_id: {prod1_id: 30, prod2_id: 20}}
+        ... )
     """
     if session is not None:
         return _validate_material_availability_impl(
@@ -537,14 +599,15 @@ def record_material_consumption(
     assembly_run_id: int,
     finished_good_id: int,
     assembly_quantity: int,
-    material_assignments: Optional[Dict[int, int]] = None,
+    material_assignments: Optional[Dict[int, Union[int, Dict[int, float]]]] = None,
     session: Optional[Session] = None,
 ) -> List[MaterialConsumption]:
     """Record material consumption with full snapshots and inventory decrements.
 
     Creates MaterialConsumption records for all materials used in assembly,
     capturing snapshot data (product name, material name, category, supplier)
-    for historical accuracy. Atomically decrements inventory.
+    for historical accuracy. Atomically decrements inventory. Supports split
+    allocation where a material need can be fulfilled from multiple products.
 
     IMPORTANT: This function enforces strict inventory validation with NO bypass.
     If inventory is insufficient, a ValidationError is raised and assembly is blocked.
@@ -553,7 +616,10 @@ def record_material_consumption(
         assembly_run_id: ID of the AssemblyRun being recorded
         finished_good_id: FinishedGood being assembled
         assembly_quantity: Number of assemblies
-        material_assignments: Dict mapping composition_id -> product_id for generics
+        material_assignments: Dict mapping composition_id to either:
+            - int (legacy): single product_id (system calculates quantity)
+            - Dict[int, float] (new): {product_id: quantity_to_use, ...}
+              for split allocation across multiple products
         session: Optional database session
 
     Returns:
@@ -564,7 +630,7 @@ def record_material_consumption(
         InsufficientMaterialError: If inventory becomes insufficient during consumption
         MaterialAssignmentRequiredError: If generic material lacks assignment
 
-    Example:
+    Example (single product):
         >>> consumptions = record_material_consumption(
         ...     assembly_run_id=run.id,
         ...     finished_good_id=fg.id,
@@ -572,8 +638,15 @@ def record_material_consumption(
         ...     material_assignments={comp_id: product_id},
         ...     session=session
         ... )
-        >>> for c in consumptions:
-        ...     print(f"Consumed {c.quantity_consumed} of {c.product_name}")
+
+    Example (split allocation):
+        >>> consumptions = record_material_consumption(
+        ...     assembly_run_id=run.id,
+        ...     finished_good_id=fg.id,
+        ...     assembly_quantity=50,
+        ...     material_assignments={comp_id: {prod1_id: 30, prod2_id: 20}},
+        ...     session=session
+        ... )
     """
     if session is not None:
         return _record_material_consumption_impl(

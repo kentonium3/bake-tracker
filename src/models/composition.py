@@ -265,12 +265,9 @@ class Composition(BaseModel):
             # Packaging products have purchase_price per unit
             return float(self.packaging_product.purchase_price or 0.0)
         elif self.material_unit_component:
-            # MaterialUnit - use service to calculate cost
-            from src.services.material_unit_service import get_current_cost
-            try:
-                return float(get_current_cost(self.material_unit_id))
-            except Exception:
-                return 0.0
+            # MaterialUnit - calculate cost from relationship data
+            # cost = weighted_avg_cost * quantity_per_unit
+            return self._calculate_material_unit_cost()
         elif self.material_component:
             # Generic Material placeholder - estimate cost from products
             return self._estimate_material_cost()
@@ -310,6 +307,64 @@ class Composition(BaseModel):
         # Return per-base-unit cost (UI should clarify this is estimated)
         return avg_cost_per_base_unit
 
+    def _calculate_material_unit_cost(self) -> float:
+        """
+        Calculate cost for a MaterialUnit component from relationship data.
+
+        Cost = weighted_avg_cost * quantity_per_unit, using inventory-weighted
+        average across all products of the material.
+
+        Returns:
+            Cost per unit or 0.0 if no products/inventory
+        """
+        if not self.material_unit_component or not self.material_unit_component.material:
+            return 0.0
+
+        products = self.material_unit_component.material.products
+        if not products:
+            return 0.0
+
+        # Calculate inventory-weighted average cost per base unit
+        total_value = 0.0
+        total_inventory = 0.0
+        for product in products:
+            if product.current_inventory > 0:
+                total_value += product.current_inventory * float(product.weighted_avg_cost or 0)
+                total_inventory += product.current_inventory
+
+        if total_inventory == 0:
+            return 0.0
+
+        avg_cost_per_base_unit = total_value / total_inventory
+        # Cost for this unit = avg cost per base unit × quantity per unit
+        return avg_cost_per_base_unit * self.material_unit_component.quantity_per_unit
+
+    def _calculate_material_unit_availability(self) -> int:
+        """
+        Calculate available inventory for a MaterialUnit from relationship data.
+
+        Available = sum(product.current_inventory) / quantity_per_unit
+        (how many times we can use this unit)
+
+        Returns:
+            Number of available units (integer, truncated down)
+        """
+        if not self.material_unit_component or not self.material_unit_component.material:
+            return 0
+
+        products = self.material_unit_component.material.products
+        if not products:
+            return 0
+
+        total_base_units = sum(p.current_inventory for p in products)
+        quantity_per_unit = self.material_unit_component.quantity_per_unit
+
+        if quantity_per_unit <= 0:
+            return 0
+
+        # Truncate to integer (can't have partial units available)
+        return int(total_base_units / quantity_per_unit)
+
     def get_total_cost(self) -> float:
         """
         Calculate total cost for this composition entry.
@@ -332,12 +387,8 @@ class Composition(BaseModel):
         elif self.finished_good_component:
             return self.finished_good_component.inventory_count
         elif self.material_unit_component:
-            # MaterialUnit - use service to get available inventory
-            from src.services.material_unit_service import get_available_inventory
-            try:
-                return get_available_inventory(self.material_unit_id)
-            except Exception:
-                return 0
+            # MaterialUnit - calculate availability from relationship data
+            return self._calculate_material_unit_availability()
         elif self.material_component:
             # Generic Material - no specific availability (resolved at assembly time)
             return 0

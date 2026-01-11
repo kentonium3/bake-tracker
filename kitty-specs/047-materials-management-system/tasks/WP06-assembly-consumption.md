@@ -12,7 +12,7 @@ subtasks:
   - "T046"
 title: "Assembly Consumption - User Story 6"
 phase: "Phase 2 - Integration"
-lane: "doing"
+lane: "done"
 assignee: ""
 agent: "claude"
 shell_pid: ""
@@ -296,3 +296,5 @@ def test_assembly_blocked_insufficient_inventory(db_session, assembly_run, fg_wi
 
 - 2026-01-10T00:00:00Z - system - lane=planned - Prompt created.
 - 2026-01-10T22:03:05Z – claude – lane=doing – Starting assembly consumption implementation
+- 2026-01-10T22:14:07Z – claude – lane=for_review – All subtasks complete: consumption service, assembly integration, strict inventory blocking, tests (17 passing)
+- 2026-01-11T01:06:50Z – claude – lane=done – Review passed: Material consumption service, split allocation support, inventory blocking, snapshot fields. Rounding fix applied.

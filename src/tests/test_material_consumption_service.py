@@ -484,3 +484,192 @@ class TestAssemblyBlocking:
         # Inventory should be unchanged after failed attempt
         db_session.refresh(product_a)
         assert product_a.current_inventory == original_inventory
+
+
+# =============================================================================
+# Tests for Split Allocation
+# =============================================================================
+
+
+class TestSplitAllocation:
+    """Tests for split allocation across multiple products (spec scenario US6)."""
+
+    def test_validate_split_allocation_passes(
+        self, db_session, sample_finished_good, material_with_products
+    ):
+        """Validation passes when split allocation totals match required quantity."""
+        product_a = material_with_products["product_a"]
+        product_b = material_with_products["product_b"]
+        material = material_with_products["material"]
+
+        # Create composition requiring 50 units (total) of the generic material
+        comp = Composition(
+            assembly_id=sample_finished_good.id,
+            material_id=material.id,
+            component_quantity=50,  # Total needed
+            sort_order=1,
+        )
+        db_session.add(comp)
+        db_session.flush()
+
+        # Split allocation: 30 from A, 20 from B = 50 total
+        result = validate_material_availability(
+            finished_good_id=sample_finished_good.id,
+            assembly_quantity=1,
+            material_assignments={comp.id: {product_a.id: 30, product_b.id: 20}},
+            session=db_session,
+        )
+
+        assert result["valid"] is True
+        assert len(result["errors"]) == 0
+
+    def test_validate_split_allocation_mismatch_fails(
+        self, db_session, sample_finished_good, material_with_products
+    ):
+        """Validation fails when split allocation total doesn't match required."""
+        product_a = material_with_products["product_a"]
+        product_b = material_with_products["product_b"]
+        material = material_with_products["material"]
+
+        comp = Composition(
+            assembly_id=sample_finished_good.id,
+            material_id=material.id,
+            component_quantity=50,
+            sort_order=1,
+        )
+        db_session.add(comp)
+        db_session.flush()
+
+        # Wrong total: 25 + 20 = 45, need 50
+        result = validate_material_availability(
+            finished_good_id=sample_finished_good.id,
+            assembly_quantity=1,
+            material_assignments={comp.id: {product_a.id: 25, product_b.id: 20}},
+            session=db_session,
+        )
+
+        assert result["valid"] is False
+        assert any("allocation mismatch" in e for e in result["errors"])
+
+    def test_validate_split_insufficient_on_one_product(
+        self, db_session, sample_finished_good, material_with_products
+    ):
+        """Validation fails when one product in split has insufficient inventory."""
+        product_a = material_with_products["product_a"]  # 800 inventory
+        product_b = material_with_products["product_b"]  # 400 inventory
+        material = material_with_products["material"]
+
+        comp = Composition(
+            assembly_id=sample_finished_good.id,
+            material_id=material.id,
+            component_quantity=1500,  # Needs 1500 total
+            sort_order=1,
+        )
+        db_session.add(comp)
+        db_session.flush()
+
+        # Request 700 from A (OK - has 800) but 800 from B (FAIL - has only 400)
+        result = validate_material_availability(
+            finished_good_id=sample_finished_good.id,
+            assembly_quantity=1,
+            material_assignments={comp.id: {product_a.id: 700, product_b.id: 800}},
+            session=db_session,
+        )
+
+        assert result["valid"] is False
+        assert any("insufficient" in e.lower() for e in result["errors"])
+
+    def test_record_split_allocation_creates_multiple_records(
+        self, db_session, sample_assembly_run, sample_finished_good, material_with_products
+    ):
+        """Recording split allocation creates separate consumption records."""
+        product_a = material_with_products["product_a"]
+        product_b = material_with_products["product_b"]
+        material = material_with_products["material"]
+
+        comp = Composition(
+            assembly_id=sample_finished_good.id,
+            material_id=material.id,
+            component_quantity=50,
+            sort_order=1,
+        )
+        db_session.add(comp)
+        db_session.flush()
+
+        consumptions = record_material_consumption(
+            assembly_run_id=sample_assembly_run.id,
+            finished_good_id=sample_finished_good.id,
+            assembly_quantity=1,
+            material_assignments={comp.id: {product_a.id: 30, product_b.id: 20}},
+            session=db_session,
+        )
+
+        # Should create 2 consumption records
+        assert len(consumptions) == 2
+
+        # Verify quantities
+        qty_by_product = {c.product_id: c.quantity_consumed for c in consumptions}
+        assert qty_by_product[product_a.id] == 30
+        assert qty_by_product[product_b.id] == 20
+
+    def test_record_split_allocation_decrements_both_inventories(
+        self, db_session, sample_assembly_run, sample_finished_good, material_with_products
+    ):
+        """Split allocation decrements inventory from both products."""
+        product_a = material_with_products["product_a"]
+        product_b = material_with_products["product_b"]
+        material = material_with_products["material"]
+        original_a = product_a.current_inventory
+        original_b = product_b.current_inventory
+
+        comp = Composition(
+            assembly_id=sample_finished_good.id,
+            material_id=material.id,
+            component_quantity=50,
+            sort_order=1,
+        )
+        db_session.add(comp)
+        db_session.flush()
+
+        record_material_consumption(
+            assembly_run_id=sample_assembly_run.id,
+            finished_good_id=sample_finished_good.id,
+            assembly_quantity=1,
+            material_assignments={comp.id: {product_a.id: 30, product_b.id: 20}},
+            session=db_session,
+        )
+
+        db_session.refresh(product_a)
+        db_session.refresh(product_b)
+
+        assert product_a.current_inventory == original_a - 30
+        assert product_b.current_inventory == original_b - 20
+
+    def test_legacy_single_product_format_still_works(
+        self, db_session, sample_assembly_run, sample_finished_good, material_with_products
+    ):
+        """Legacy format (composition_id -> product_id) still works."""
+        product_a = material_with_products["product_a"]
+        material = material_with_products["material"]
+
+        comp = Composition(
+            assembly_id=sample_finished_good.id,
+            material_id=material.id,
+            component_quantity=10,
+            sort_order=1,
+        )
+        db_session.add(comp)
+        db_session.flush()
+
+        # Use legacy format: {comp_id: product_id} instead of {comp_id: {product_id: qty}}
+        consumptions = record_material_consumption(
+            assembly_run_id=sample_assembly_run.id,
+            finished_good_id=sample_finished_good.id,
+            assembly_quantity=1,
+            material_assignments={comp.id: product_a.id},  # Legacy format
+            session=db_session,
+        )
+
+        assert len(consumptions) == 1
+        assert consumptions[0].product_id == product_a.id
+        assert consumptions[0].quantity_consumed == 10

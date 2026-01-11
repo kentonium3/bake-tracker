@@ -10,7 +10,7 @@ subtasks:
   - "T061"
 title: "Import/Export & Historical - User Stories 7 & 8"
 phase: "Phase 3 - Polish"
-lane: "doing"
+lane: "done"
 assignee: ""
 agent: "claude"
 shell_pid: ""
@@ -265,3 +265,5 @@ def test_historical_snapshot_preserved(db_session, assembly_with_materials):
 
 - 2026-01-10T00:00:00Z - system - lane=planned - Prompt created.
 - 2026-01-10T22:38:13Z – claude – lane=doing – Starting Import/Export Historical implementation
+- 2026-01-10T22:57:06Z – claude – lane=for_review – WP08 Import/Export Historical complete - all tests passing
+- 2026-01-11T01:06:59Z – claude – lane=done – Review passed: Import/export extended for materials, MaterialPurchase export added, historical snapshot queries working.

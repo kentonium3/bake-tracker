@@ -104,7 +104,7 @@ As a baker, I need to record which specific materials I used during assembly so 
 **Acceptance Scenarios**:
 
 1. **Given** an assembly with resolved material assignments, **When** I record assembly of 50 units, **Then** material inventory decreases appropriately and costs are captured
-2. **Given** a FinishedGood has generic material placeholders, **When** I start assembly recording, **Then** I see a "Packaging Not Finalized" dialog requiring me to assign specific products
+2. **Given** a FinishedGood has generic material placeholders, **When** I view the assembly form, **Then** each pending material shows an inline dropdown to select a specific product
 3. **Given** I'm assigning materials from multiple products, **When** I specify "30 from Snowflakes, 20 from Holly", **Then** the system validates the total equals my assembly quantity
 4. **Given** assembly is recorded, **When** I view the AssemblyRun later, **Then** I see the complete identity of materials used (product names, quantities, costs at time of assembly)
 
@@ -146,7 +146,7 @@ As a baker, I need to import and export my materials catalog for backup and data
 - What happens when attempting to delete a category that contains products with inventory > 0? (Validation error)
 - What happens when deleting a material that's used in a Composition? (Validation error)
 - How does the system handle purchasing 0 units? (Validation error - positive quantity required)
-- What happens if all material products run out of inventory during assembly? (Warning, with option to "Record Anyway" which flags for reconciliation)
+- What happens if material products have insufficient inventory during assembly? (Validation error - assembly blocked until inventory is corrected)
 - How does weighted average handle first purchase for a new product? (First purchase sets initial cost)
 
 ## Requirements *(mandatory)*
@@ -154,7 +154,7 @@ As a baker, I need to import and export my materials catalog for backup and data
 ### Functional Requirements
 
 **Materials Catalog**
-- **FR-001**: System MUST support a 3-level material hierarchy: Category > Subcategory > Material
+- **FR-001**: System MUST enforce a mandatory 3-level material hierarchy: Category > Subcategory > Material (all levels required)
 - **FR-002**: System MUST allow multiple Products per Material (different brands/suppliers)
 - **FR-003**: System MUST track inventory at the Product level (not Material level)
 - **FR-004**: System MUST calculate weighted average unit cost per Product on each purchase
@@ -174,7 +174,7 @@ As a baker, I need to import and export my materials catalog for backup and data
 
 **Assembly**
 - **FR-014**: System MUST enforce material resolution before assembly (hard stop for generic placeholders)
-- **FR-015**: System MUST provide a "Record Anyway" bypass that flags assembly for later reconciliation
+- **FR-015**: System MUST block assembly recording when material inventory is insufficient (no bypass option)
 - **FR-016**: System MUST capture complete identity snapshot at consumption time (product, quantity, cost, name)
 - **FR-017**: System MUST decrement Product inventory when materials are consumed in assembly
 - **FR-018**: System MUST calculate and store total material cost per assembly run
@@ -191,7 +191,7 @@ As a baker, I need to import and export my materials catalog for backup and data
 - **MaterialProduct**: Specific purchasable item from a supplier (e.g., "Michaels Red Satin 100ft Roll")
 - **MaterialUnit**: Atomic consumption unit defining quantity per use (e.g., "6-inch ribbon" = 6 inches per unit)
 - **MaterialPurchase**: Purchase transaction with immutable cost snapshot
-- **MaterialConsumption**: Assembly consumption record with complete identity snapshot
+- **MaterialConsumption**: Assembly consumption record with full denormalized snapshot (product_name, material_name, category_name, quantity, unit_cost, supplier_name) for historical accuracy
 
 ## Success Criteria *(mandatory)*
 
@@ -213,11 +213,22 @@ As a baker, I need to import and export my materials catalog for backup and data
 - **SC-011**: Primary user can add materials to FinishedGoods and plan events with material costs
 - **SC-012**: Primary user can complete assembly with material selection workflow
 
+## Clarifications
+
+### Session 2026-01-10
+
+- Q: How should material product quantities be stored and converted for inventory aggregation? → A: Products store native purchase units (feet/yards) with system converting to base unit (inches) for storage. "Each" items need no conversion.
+- Q: When a user records assembly despite insufficient material inventory, what should happen? → A: Block the save entirely until inventory is corrected. No "Record Anyway" bypass option.
+- Q: What fields should be captured in the MaterialConsumption snapshot for historical accuracy? → A: Full snapshot (product_name, material_name, category_name, quantity, unit_cost, supplier_name) - aligns with existing food consumption model.
+- Q: When should the user resolve generic material placeholders to specific products? → A: Inline during assembly - each pending material shows a dropdown next to the quantity field.
+- Q: Is the Subcategory level mandatory, or can Materials be added directly to Categories? → A: Mandatory - always require 3 levels for consistency and future organization.
+
 ## Assumptions
 
 - Materials are non-perishable, so weighted average costing (not FIFO) is acceptable
 - The existing Supplier table will be shared between ingredients and materials
 - Material unit types are limited to: 'each', 'linear_inches', 'square_feet' (covers common packaging needs)
+- Material products store quantity in native purchase units; system converts linear measurements to inches and area measurements to square inches for storage and aggregation
 - The UI pattern will mirror the existing Ingredients tab to leverage user familiarity
 
 ## Dependencies

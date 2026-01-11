@@ -11,7 +11,7 @@ subtasks:
   - "T037"
 title: "Composition Integration - User Stories 4 & 5"
 phase: "Phase 2 - Integration"
-lane: "doing"
+lane: "done"
 assignee: ""
 agent: "claude"
 shell_pid: ""
@@ -299,3 +299,5 @@ def test_cost_breakdown_separates_food_and_material(db_session, fg_with_food_and
 
 - 2026-01-10T00:00:00Z - system - lane=planned - Prompt created.
 - 2026-01-10T20:56:39Z – claude – lane=doing – Starting composition integration for materials
+- 2026-01-10T22:00:44Z – claude – lane=for_review – All subtasks complete: model columns, XOR constraint, relationships, factories, service updates, tests (24 passing)
+- 2026-01-11T01:06:46Z – claude – lane=done – Review passed: Composition extended with material_unit_id/material_id, 5-way XOR constraint, factory methods. Layering violation fixed.
