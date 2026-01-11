@@ -1,0 +1,16 @@
+{
+  "accept_commit": null,
+  "acceptance_history": [
+    {
+      "accepted_at": "2026-01-11T15:55:00Z",
+      "accepted_by": "kentgale",
+      "accepted_from_commit": "fb381ab34b38674a7cacfb074aadc4c40c586f9e",
+      "branch": "048-materials-ui-rebuild",
+      "mode": "pr"
+    }
+  ],
+  "acceptance_mode": "pr",
+  "accepted_at": "2026-01-11T15:55:00Z",
+  "accepted_by": "kentgale",
+  "accepted_from_commit": "fb381ab34b38674a7cacfb074aadc4c40c586f9e"
+}
