@@ -1285,6 +1285,12 @@ def import_materials(
         return _import_materials_impl(data, mode, dry_run, sess)
 
 
+def _generate_slug(name: str) -> str:
+    """Generate a URL-friendly slug from a name."""
+    slug = name.lower().replace(" ", "_").replace("-", "_")
+    return "".join(c for c in slug if c.isalnum() or c == "_")
+
+
 def _import_materials_impl(
     data: List[Dict],
     mode: str,
@@ -1296,11 +1302,19 @@ def _import_materials_impl(
     result.dry_run = dry_run
     result.mode = mode
 
-    # Build subcategory slug -> id lookup
-    subcategory_lookup = {
-        row.slug: row.id
-        for row in session.query(MaterialSubcategory).all()
+    # Build category lookups (by name for auto-creation)
+    category_by_name = {
+        row.name: row
+        for row in session.query(MaterialCategory).all()
     }
+
+    # Build subcategory lookups (by name within category for auto-creation)
+    # Key is (category_name, subcategory_name) -> subcategory object
+    subcategory_lookup = {}
+    for row in session.query(MaterialSubcategory).all():
+        if row.category:
+            key = (row.category.name, row.name)
+            subcategory_lookup[key] = row
 
     existing_slugs = {
         row.slug: row
@@ -1311,41 +1325,72 @@ def _import_materials_impl(
 
     for item in data:
         slug = item.get("slug", "")
-        name = item.get("name", "")
-        subcategory_slug = item.get("subcategory_slug", "")
-        base_unit_type = item.get("base_unit_type", "")
+        # Accept both 'name' and 'display_name' (prefer name, fallback to display_name)
+        name = item.get("name") or item.get("display_name", "")
+        # Default base_unit_type to "each" if not provided
+        base_unit_type = item.get("base_unit_type", "each")
         identifier = slug or name or "unknown"
 
         if not name:
             result.add_error(
                 "materials", identifier, "validation",
-                "Missing required field: name",
-                "Add 'name' field to material data",
+                "Missing required field: name or display_name",
+                "Add 'name' or 'display_name' field to material data",
             )
             continue
 
-        if not subcategory_slug:
+        # Parse category field (format: "Category: Subcategory")
+        category_str = item.get("category", "")
+        if not category_str:
             result.add_error(
                 "materials", identifier, "validation",
-                "Missing required field: subcategory_slug",
-                "Add 'subcategory_slug' referencing an existing subcategory",
+                "Missing required field: category",
+                "Add 'category' field in format 'Category: Subcategory'",
             )
             continue
 
-        if not base_unit_type or base_unit_type not in valid_base_units:
+        if ": " not in category_str:
+            result.add_error(
+                "materials", identifier, "validation",
+                f"Invalid category format: '{category_str}'",
+                "Use format 'Category: Subcategory' (e.g., 'Boxes: Window Boxes')",
+            )
+            continue
+
+        category_name, subcategory_name = category_str.split(": ", 1)
+
+        # Get or create category
+        if category_name not in category_by_name:
+            new_category = MaterialCategory(
+                name=category_name,
+                slug=_generate_slug(category_name),
+            )
+            session.add(new_category)
+            session.flush()  # Get the ID
+            category_by_name[category_name] = new_category
+
+        category = category_by_name[category_name]
+
+        # Get or create subcategory
+        subcat_key = (category_name, subcategory_name)
+        if subcat_key not in subcategory_lookup:
+            new_subcategory = MaterialSubcategory(
+                category_id=category.id,
+                name=subcategory_name,
+                slug=_generate_slug(subcategory_name),
+            )
+            session.add(new_subcategory)
+            session.flush()  # Get the ID
+            subcategory_lookup[subcat_key] = new_subcategory
+
+        subcategory = subcategory_lookup[subcat_key]
+        subcategory_id = subcategory.id
+
+        if base_unit_type not in valid_base_units:
             result.add_error(
                 "materials", identifier, "validation",
                 f"Invalid base_unit_type: {base_unit_type}",
                 f"Use one of: {', '.join(valid_base_units)}",
-            )
-            continue
-
-        subcategory_id = subcategory_lookup.get(subcategory_slug)
-        if subcategory_id is None:
-            result.add_error(
-                "materials", identifier, "fk_missing",
-                f"Subcategory '{subcategory_slug}' not found",
-                "Import the subcategory first or check the slug spelling",
             )
             continue
 
@@ -1409,11 +1454,10 @@ def _import_material_products_impl(
     result.dry_run = dry_run
     result.mode = mode
 
-    # Build lookups
-    material_lookup = {
-        row.slug: row.id
-        for row in session.query(Material).all()
-    }
+    # Build material lookups (by slug and by name for flexible matching)
+    all_materials = session.query(Material).all()
+    material_by_slug = {row.slug: row.id for row in all_materials}
+    material_by_name = {row.name: row.id for row in all_materials}
 
     supplier_lookup = {
         row.name.lower(): row.id
@@ -1430,44 +1474,47 @@ def _import_material_products_impl(
             existing_slugs[row.slug] = row
 
     for item in data:
+        # Accept material_slug or material (by display name)
         material_slug = item.get("material_slug", "")
-        name = item.get("name", "")
+        material_name = item.get("material", "")
+        # Accept both 'name' and 'display_name' (prefer name, fallback to display_name)
+        name = item.get("name") or item.get("display_name", "")
         product_slug = item.get("slug", "")
-        identifier = f"{name} ({material_slug})"
+        identifier = name or "unknown"
 
         if not name:
             result.add_error(
                 "material_products", identifier, "validation",
-                "Missing required field: name",
-                "Add 'name' field to product data",
+                "Missing required field: name or display_name",
+                "Add 'name' or 'display_name' field to product data",
             )
             continue
 
-        if not material_slug:
-            result.add_error(
-                "material_products", identifier, "validation",
-                "Missing required field: material_slug",
-                "Add 'material_slug' referencing an existing material",
-            )
-            continue
+        # Resolve material from slug or name
+        material_id = None
+        if material_slug:
+            material_id = material_by_slug.get(material_slug)
+        if material_id is None and material_name:
+            material_id = material_by_name.get(material_name)
 
-        material_id = material_lookup.get(material_slug)
         if material_id is None:
+            mat_info = material_slug or material_name or "not specified"
             result.add_error(
                 "material_products", identifier, "fk_missing",
-                f"Material '{material_slug}' not found",
-                "Import the material first or check the slug spelling",
+                f"Material not found: '{mat_info}'",
+                "Import the material first or check the name/slug",
             )
             continue
 
-        # Resolve optional supplier
+        # Resolve optional supplier (accept supplier, supplier_name, or supplier_slug)
         supplier_id = None
-        supplier_slug = item.get("supplier_slug", "")
-        supplier_name = item.get("supplier_name", "")
-        if supplier_slug:
-            supplier_id = supplier_lookup.get(supplier_slug.lower())
-        elif supplier_name:
-            supplier_id = supplier_lookup.get(supplier_name.lower())
+        supplier_value = (
+            item.get("supplier_slug")
+            or item.get("supplier_name")
+            or item.get("supplier", "")
+        )
+        if supplier_value:
+            supplier_id = supplier_lookup.get(supplier_value.lower())
 
         # Check for existing product by slug first, then by (material_id, name)
         existing = None
@@ -1500,14 +1547,15 @@ def _import_material_products_impl(
             continue
 
         # Required fields for new product
-        package_quantity = item.get("package_quantity")
-        package_unit = item.get("package_unit")
+        # Accept default_unit as fallback for package_unit, default package_quantity to 1
+        package_quantity = item.get("package_quantity", 1)
+        package_unit = item.get("package_unit") or item.get("default_unit", "")
         quantity_in_base_units = item.get("quantity_in_base_units", package_quantity)
-        if package_quantity is None or not package_unit:
+        if not package_unit:
             result.add_error(
                 "material_products", identifier, "validation",
-                "Missing package_quantity or package_unit",
-                "Add 'package_quantity' and 'package_unit' fields",
+                "Missing package_unit or default_unit",
+                "Add 'package_unit' or 'default_unit' field (e.g., 'each', 'linear_inches')",
             )
             continue
 

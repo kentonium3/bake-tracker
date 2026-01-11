@@ -24,8 +24,8 @@ class CatalogImportDialog(ctk.CTkToplevel):
         """Initialize the catalog import dialog."""
         super().__init__(parent)
         self.title("Import Catalog")
-        self.geometry("550x620")
-        self.resizable(False, False)
+        self.geometry("550x680")
+        self.resizable(True, True)
 
         self.result = None
         self.file_path = None
@@ -44,6 +44,27 @@ class CatalogImportDialog(ctk.CTkToplevel):
 
     def _setup_ui(self):
         """Set up the dialog UI."""
+        # Button frame - pack FIRST with side="bottom" to ensure always visible
+        btn_frame = ctk.CTkFrame(self, fg_color="transparent")
+        btn_frame.pack(side="bottom", fill="x", padx=20, pady=20)
+
+        self.import_btn = ctk.CTkButton(
+            btn_frame,
+            text="Import",
+            width=100,
+            command=self._do_import,
+        )
+        self.import_btn.pack(side="right", padx=(10, 0))
+
+        cancel_btn = ctk.CTkButton(
+            btn_frame,
+            text="Cancel",
+            width=100,
+            fg_color="gray",
+            command=self.destroy,
+        )
+        cancel_btn.pack(side="right")
+
         # Title
         title_label = ctk.CTkLabel(
             self,
@@ -123,6 +144,8 @@ class CatalogImportDialog(ctk.CTkToplevel):
         self.ingredients_var = ctk.BooleanVar(value=True)
         self.products_var = ctk.BooleanVar(value=True)
         self.recipes_var = ctk.BooleanVar(value=True)
+        self.materials_var = ctk.BooleanVar(value=True)
+        self.material_products_var = ctk.BooleanVar(value=True)
 
         ctk.CTkCheckBox(
             entity_frame,
@@ -134,6 +157,18 @@ class CatalogImportDialog(ctk.CTkToplevel):
             entity_frame,
             text="Products",
             variable=self.products_var,
+        ).pack(anchor="w", padx=20, pady=2)
+
+        ctk.CTkCheckBox(
+            entity_frame,
+            text="Materials",
+            variable=self.materials_var,
+        ).pack(anchor="w", padx=20, pady=2)
+
+        ctk.CTkCheckBox(
+            entity_frame,
+            text="Material Products",
+            variable=self.material_products_var,
         ).pack(anchor="w", padx=20, pady=2)
 
         self.recipes_checkbox = ctk.CTkCheckBox(
@@ -161,27 +196,6 @@ class CatalogImportDialog(ctk.CTkToplevel):
             text_color="gray",
         )
         self.status_label.pack(pady=5)
-
-        # Button frame
-        btn_frame = ctk.CTkFrame(self, fg_color="transparent")
-        btn_frame.pack(fill="x", padx=20, pady=20)
-
-        self.import_btn = ctk.CTkButton(
-            btn_frame,
-            text="Import",
-            width=100,
-            command=self._do_import,
-        )
-        self.import_btn.pack(side="right", padx=(10, 0))
-
-        cancel_btn = ctk.CTkButton(
-            btn_frame,
-            text="Cancel",
-            width=100,
-            fg_color="gray",
-            command=self.destroy,
-        )
-        cancel_btn.pack(side="right")
 
     def _browse_file(self):
         """Open file browser to select catalog file."""
@@ -232,6 +246,10 @@ class CatalogImportDialog(ctk.CTkToplevel):
             entities.append("products")
         if self.recipes_var.get():
             entities.append("recipes")
+        if self.materials_var.get():
+            entities.append("materials")
+        if self.material_products_var.get():
+            entities.append("material_products")
 
         if not entities:
             messagebox.showwarning(

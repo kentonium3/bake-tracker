@@ -1,0 +1,191 @@
+{
+  "version": "4.2",
+  "exported_at": "2026-01-10T22:45:00.000000+00:00",
+  "application": "bake-tracker",
+  "description": "Materials product catalog for import - maps to materials_catalog.json materials",
+  
+  "material_products": [
+    {
+      "material": "Box Window Cake 10x10",
+      "display_name": "Amazon 10x10 Cake Window Box 25pk",
+      "default_unit": "each",
+      "supplier": "Amazon",
+      "notes": "Pack of 25 boxes"
+    },
+    {
+      "material": "Box Window Cake 10x10",
+      "display_name": "Webstaurant 10x10 Cake Window Box 100pk",
+      "default_unit": "each",
+      "supplier": "Webstaurant",
+      "notes": "Bulk pack of 100 boxes"
+    },
+    {
+      "material": "Box Window Cupcake 6ct",
+      "display_name": "Michaels 6ct Cupcake Window Box 12pk",
+      "default_unit": "each",
+      "supplier": "Michaels",
+      "notes": "Pack of 12 boxes"
+    },
+    {
+      "material": "Box Solid Pastry White",
+      "display_name": "Amazon White Pastry Box 50pk",
+      "default_unit": "each",
+      "supplier": "Amazon",
+      "notes": "Pack of 50 white pastry boxes"
+    },
+    {
+      "material": "Box Solid Macaron",
+      "display_name": "Webstaurant Macaron Box 25pk",
+      "default_unit": "each",
+      "supplier": "Webstaurant",
+      "notes": "Pack of 25 macaron boxes"
+    },
+    {
+      "material": "Insert Cupcake Std",
+      "display_name": "Wilton Standard Cupcake Insert 24pk",
+      "default_unit": "each",
+      "supplier": "Amazon",
+      "notes": "Pack of 24 standard cupcake inserts"
+    },
+    {
+      "material": "Insert Cupcake Mini",
+      "display_name": "Wilton Mini Cupcake Insert 24pk",
+      "default_unit": "each",
+      "supplier": "Amazon",
+      "notes": "Pack of 24 mini cupcake inserts"
+    },
+    {
+      "material": "Bag Cello Gusset Small",
+      "display_name": "Amazon Small Cello Gusset Bag 100pk",
+      "default_unit": "each",
+      "supplier": "Amazon",
+      "notes": "Pack of 100 small cellophane bags"
+    },
+    {
+      "material": "Bag Cello Gusset Medium",
+      "display_name": "Amazon Medium Cello Gusset Bag 100pk",
+      "default_unit": "each",
+      "supplier": "Amazon",
+      "notes": "Pack of 100 medium cellophane bags"
+    },
+    {
+      "material": "Bag Cello Gusset Medium",
+      "display_name": "Christmas Cello Bag - Wishes for Santa 100ct",
+      "default_unit": "each",
+      "supplier": "PaperMart.com",
+      "notes": "100 count box, Wishes for Santa design"
+    },
+    {
+      "material": "Bag Cello Gusset Large",
+      "display_name": "Amazon Large Cello Gusset Bag 50pk",
+      "default_unit": "each",
+      "supplier": "Amazon",
+      "notes": "Pack of 50 large cellophane bags"
+    },
+    {
+      "material": "Bag Cello Gusset Large",
+      "display_name": "Christmas Cello Bag - Snow Flakes 100ct",
+      "default_unit": "each",
+      "supplier": "PaperMart.com",
+      "notes": "100 count box, Snow Flakes design"
+    },
+    {
+      "material": "Bag Poly Gusset Large",
+      "display_name": "Webstaurant Large Poly Gusset Bag 100pk",
+      "default_unit": "each",
+      "supplier": "Webstaurant",
+      "notes": "Pack of 100 large poly bags"
+    },
+    {
+      "material": "Bag Kraft Handle",
+      "display_name": "Amazon Kraft Handle Bag 25pk",
+      "default_unit": "each",
+      "supplier": "Amazon",
+      "notes": "Pack of 25 kraft bags with handles"
+    },
+    {
+      "material": "Bag Greaseproof Cookie",
+      "display_name": "Webstaurant Greaseproof Cookie Bag 100pk",
+      "default_unit": "each",
+      "supplier": "Webstaurant",
+      "notes": "Pack of 100 greaseproof cookie bags"
+    },
+    {
+      "material": "Board Round 10in",
+      "display_name": "Wilton 10in Round Cake Board 6pk",
+      "default_unit": "each",
+      "supplier": "Amazon",
+      "notes": "Pack of 6 round boards"
+    },
+    {
+      "material": "Board Square 12in",
+      "display_name": "Wilton 12in Square Cake Board 3pk",
+      "default_unit": "each",
+      "supplier": "Amazon",
+      "notes": "Pack of 3 square boards"
+    },
+    {
+      "material": "Drum Silver 12in",
+      "display_name": "PME 12in Silver Drum Individual",
+      "default_unit": "each",
+      "supplier": "Amazon",
+      "notes": "Individual silver cake drum"
+    },
+    {
+      "material": "Liner Cupcake Standard",
+      "display_name": "Wilton White Standard Cupcake Liners 300ct",
+      "default_unit": "each",
+      "supplier": "Amazon",
+      "notes": "300 count white standard cupcake liners"
+    },
+    {
+      "material": "Liner Cupcake Standard",
+      "display_name": "Reynolds Pink Standard Cupcake Liners 200ct",
+      "default_unit": "each",
+      "supplier": "Amazon",
+      "notes": "200 count pink standard cupcake liners"
+    },
+    {
+      "material": "Liner Muffin Tulip",
+      "display_name": "Katgely Tulip Muffin Liners Natural 200ct",
+      "default_unit": "each",
+      "supplier": "Amazon",
+      "notes": "200 count natural tulip muffin liners"
+    },
+    {
+      "material": "Ribbon Curling 3-16",
+      "display_name": "Berwick 3/16 Red Curling Ribbon 500yd",
+      "default_unit": "linear_inches",
+      "supplier": "Amazon",
+      "notes": "500 yard spool = 18000 inches, red"
+    },
+    {
+      "material": "Ribbon Curling 3-16",
+      "display_name": "Amazon Curling Ribbon 12-Roll Assorted 120m",
+      "default_unit": "linear_inches",
+      "supplier": "Amazon",
+      "notes": "Pack of 12 rolls, 120 meters total (4724 inches), various colors"
+    },
+    {
+      "material": "Twine Bakers Red White",
+      "display_name": "Norpro Red White Bakers Twine 110yd",
+      "default_unit": "linear_inches",
+      "supplier": "Amazon",
+      "notes": "110 yard spool = 3960 inches"
+    },
+    {
+      "material": "Label Seal Permanent",
+      "display_name": "Amazon Permanent Seal Labels 500ct",
+      "default_unit": "each",
+      "supplier": "Amazon",
+      "notes": "500 count permanent adhesive seals"
+    },
+    {
+      "material": "Tag Product Hang",
+      "display_name": "Amazon Product Hang Tags 100pk",
+      "default_unit": "each",
+      "supplier": "Amazon",
+      "notes": "Pack of 100 product hang tags"
+    }
+  ]
+}
