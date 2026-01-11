@@ -25,14 +25,14 @@
 **Prompt**: `tasks/WP01-foundation-material-models.md`
 
 ### Included Subtasks
-- [ ] T001 [P] Create MaterialCategory model in `src/models/material_category.py`
-- [ ] T002 [P] Create MaterialSubcategory model in `src/models/material_subcategory.py`
-- [ ] T003 [P] Create Material model in `src/models/material.py`
-- [ ] T004 [P] Create MaterialProduct model in `src/models/material_product.py`
-- [ ] T005 [P] Create MaterialUnit model in `src/models/material_unit.py`
-- [ ] T006 [P] Create MaterialPurchase model in `src/models/material_purchase.py`
-- [ ] T007 [P] Create MaterialConsumption model in `src/models/material_consumption.py`
-- [ ] T008 Update `src/models/__init__.py` to export all new models
+- [x] T001 [P] Create MaterialCategory model in `src/models/material_category.py`
+- [x] T002 [P] Create MaterialSubcategory model in `src/models/material_subcategory.py`
+- [x] T003 [P] Create Material model in `src/models/material.py`
+- [x] T004 [P] Create MaterialProduct model in `src/models/material_product.py`
+- [x] T005 [P] Create MaterialUnit model in `src/models/material_unit.py`
+- [x] T006 [P] Create MaterialPurchase model in `src/models/material_purchase.py`
+- [x] T007 [P] Create MaterialConsumption model in `src/models/material_consumption.py`
+- [x] T008 Update `src/models/__init__.py` to export all new models
 
 ### Implementation Notes
 - All models inherit from `BaseModel` in `src/models/base.py`
@@ -60,14 +60,14 @@
 **Prompt**: `tasks/WP02-catalog-service.md`
 
 ### Included Subtasks
-- [ ] T009 Create `src/services/material_catalog_service.py` with category CRUD
-- [ ] T010 Add subcategory CRUD to material_catalog_service
-- [ ] T011 Add material CRUD to material_catalog_service
-- [ ] T012 Add product CRUD to material_catalog_service
-- [ ] T013 Implement slug auto-generation for all entities
-- [ ] T014 Implement cascade delete validation rules
-- [ ] T015 [P] Create `src/tests/test_material_catalog_service.py`
-- [ ] T016 Update `src/services/__init__.py` to export new service
+- [x] T009 Create `src/services/material_catalog_service.py` with category CRUD
+- [x] T010 Add subcategory CRUD to material_catalog_service
+- [x] T011 Add material CRUD to material_catalog_service
+- [x] T012 Add product CRUD to material_catalog_service
+- [x] T013 Implement slug auto-generation for all entities
+- [x] T014 Implement cascade delete validation rules
+- [x] T015 [P] Create `src/tests/test_material_catalog_service.py`
+- [x] T016 Update `src/services/__init__.py` to export new service
 
 ### Implementation Notes
 - Follow `ingredient_crud_service.py` pattern
@@ -93,13 +93,13 @@
 **Prompt**: `tasks/WP03-purchase-service.md`
 
 ### Included Subtasks
-- [ ] T017 Create `src/services/material_purchase_service.py` with record_purchase()
-- [ ] T018 Implement weighted_average_cost calculation
-- [ ] T019 Implement inventory update logic (atomic with purchase)
-- [ ] T020 Implement inventory adjustment (by count or percentage)
-- [ ] T021 Add unit conversion for package_unit to base_units
-- [ ] T022 [P] Create `src/tests/test_material_purchase_service.py`
-- [ ] T023 Update `src/services/__init__.py`
+- [x] T017 Create `src/services/material_purchase_service.py` with record_purchase()
+- [x] T018 Implement weighted_average_cost calculation
+- [x] T019 Implement inventory update logic (atomic with purchase)
+- [x] T020 Implement inventory adjustment (by count or percentage)
+- [x] T021 Add unit conversion for package_unit to base_units
+- [x] T022 [P] Create `src/tests/test_material_purchase_service.py`
+- [x] T023 Update `src/services/__init__.py`
 
 ### Implementation Notes
 - Weighted average: `new_avg = (old_qty * old_avg + new_qty * new_cost) / (old_qty + new_qty)`
@@ -126,12 +126,12 @@
 **Prompt**: `tasks/WP04-material-units-service.md`
 
 ### Included Subtasks
-- [ ] T024 Create `src/services/material_unit_service.py` with unit CRUD
-- [ ] T025 Implement get_available_inventory() aggregation
-- [ ] T026 Implement get_current_cost() weighted across products
-- [ ] T027 Implement preview_consumption() for allocation planning
-- [ ] T028 [P] Create `src/tests/test_material_unit_service.py`
-- [ ] T029 Update `src/services/__init__.py`
+- [x] T024 Create `src/services/material_unit_service.py` with unit CRUD
+- [x] T025 Implement get_available_inventory() aggregation
+- [x] T026 Implement get_current_cost() weighted across products
+- [x] T027 Implement preview_consumption() for allocation planning
+- [x] T028 [P] Create `src/tests/test_material_unit_service.py`
+- [x] T029 Update `src/services/__init__.py`
 
 ### Implementation Notes
 - Available inventory: `floor(sum(product.current_inventory) / quantity_per_unit)`
@@ -157,14 +157,14 @@
 **Prompt**: `tasks/WP05-composition-integration.md`
 
 ### Included Subtasks
-- [ ] T030 Add `material_unit_id` column to `src/models/composition.py`
-- [ ] T031 Add `material_id` column to `src/models/composition.py`
-- [ ] T032 Update XOR constraint to 5-way (existing 3 + 2 new)
-- [ ] T033 Add relationships: `material_unit_component`, `material_component`
-- [ ] T034 Update composition factory methods for material types
-- [ ] T035 Update `composition_service.py` for material cost calculations
-- [ ] T036 Implement separate food vs material cost totals
-- [ ] T037 [P] Update composition tests for new component types
+- [x] T030 Add `material_unit_id` column to `src/models/composition.py`
+- [x] T031 Add `material_id` column to `src/models/composition.py`
+- [x] T032 Update XOR constraint to 5-way (existing 3 + 2 new)
+- [x] T033 Add relationships: `material_unit_component`, `material_component`
+- [x] T034 Update composition factory methods for material types
+- [x] T035 Update `composition_service.py` for material cost calculations
+- [x] T036 Implement separate food vs material cost totals
+- [x] T037 [P] Update composition tests for new component types
 
 ### Implementation Notes
 - XOR constraint ensures exactly ONE of 5 component types is set
@@ -190,15 +190,15 @@
 **Prompt**: `tasks/WP06-assembly-consumption.md`
 
 ### Included Subtasks
-- [ ] T038 Create `src/services/material_consumption_service.py`
-- [ ] T039 Implement get_pending_materials() for generic resolution
-- [ ] T040 Implement validate_material_availability() checks
-- [ ] T041 Implement record_material_consumption() with snapshots
-- [ ] T042 Integrate with existing assembly_service.py
-- [ ] T043 Implement inventory decrement logic (atomic with consumption)
-- [ ] T044 Block assembly when inventory insufficient (FR-015)
-- [ ] T045 [P] Create `src/tests/test_material_consumption_service.py`
-- [ ] T046 Update `src/services/__init__.py`
+- [x] T038 Create `src/services/material_consumption_service.py`
+- [x] T039 Implement get_pending_materials() for generic resolution
+- [x] T040 Implement validate_material_availability() checks
+- [x] T041 Implement record_material_consumption() with snapshots
+- [x] T042 Integrate with existing assembly_service.py
+- [x] T043 Implement inventory decrement logic (atomic with consumption)
+- [x] T044 Block assembly when inventory insufficient (FR-015)
+- [x] T045 [P] Create `src/tests/test_material_consumption_service.py`
+- [x] T046 Update `src/services/__init__.py`
 
 ### Implementation Notes
 - Snapshot captures: product_name, material_name, subcategory_name, category_name, supplier_name, unit_cost
@@ -224,14 +224,14 @@
 **Prompt**: `tasks/WP07-materials-tab-ui.md`
 
 ### Included Subtasks
-- [ ] T047 Create `src/ui/materials_tab.py` with tab structure
-- [ ] T048 Implement hierarchy tree view (Category > Subcategory > Material)
-- [ ] T049 Implement product list panel
-- [ ] T050 Implement purchase recording form
-- [ ] T051 Implement inventory adjustment controls
-- [ ] T052 Implement MaterialUnit management UI
-- [ ] T053 Add material to composition dialog integration
-- [ ] T054 Wire up all service calls with error handling
+- [x] T047 Create `src/ui/materials_tab.py` with tab structure
+- [x] T048 Implement hierarchy tree view (Category > Subcategory > Material)
+- [x] T049 Implement product list panel
+- [x] T050 Implement purchase recording form
+- [x] T051 Implement inventory adjustment controls
+- [x] T052 Implement MaterialUnit management UI
+- [x] T053 Add material to composition dialog integration
+- [x] T054 Wire up all service calls with error handling
 
 ### Implementation Notes
 - Mirror `src/ui/ingredients_tab.py` structure
@@ -257,13 +257,13 @@
 **Prompt**: `tasks/WP08-import-export-historical.md`
 
 ### Included Subtasks
-- [ ] T055 Extend `src/services/catalog_import_service.py` for materials
-- [ ] T056 Extend `src/services/coordinated_export_service.py` for materials
-- [ ] T057 Add material sections to import/export format (v4.x extension)
-- [ ] T058 Implement get_consumption_history() query
-- [ ] T059 Update assembly detail views to show material snapshots
-- [ ] T060 [P] Add import/export tests for materials
-- [ ] T061 [P] Add historical query tests
+- [x] T055 Extend `src/services/catalog_import_service.py` for materials
+- [x] T056 Extend `src/services/coordinated_export_service.py` for materials
+- [x] T057 Add material sections to import/export format (v4.x extension)
+- [x] T058 Implement get_consumption_history() query
+- [x] T059 Update assembly detail views to show material snapshots
+- [x] T060 [P] Add import/export tests for materials
+- [x] T061 [P] Add historical query tests
 
 ### Implementation Notes
 - Import order: categories → subcategories → materials → products → units
