@@ -1,0 +1,22 @@
+Tier 1: Category,Tier 2: Sub-Category,Tier 3: Specific Type (Slugs)
+Boxes,Window Boxes,"box_window_cake_10x10, 
+box_window_cupcake_6ct"
+,Solid Boxes,"box_solid_pastry_white, 
+box_solid_macaron"
+,Inserts,"insert_cupcake_std, 
+insert_cupcake_mini"
+Bags,Transparent,"bag_cello_gusset_small,
+bag_cello_gusset_medium,
+bag_cello_gusset_large,
+bag_poly_gusset_large"
+,Paper,"bag_kraft_handle, 
+bag_greaseproof_cookie"
+Support & Liners,Cake Boards,"board_round_10in, 
+board_square_12in, 
+drum_silver_12in"
+,Baking Liners,"liner_cupcake_standard, 
+liner_muffin_tulip"
+Finishing,Ribbons & Twine,"ribbon_curling_3-16, 
+twine_bakers_red_white"
+,Fasteners,"label_seal_permanent, 
+tag_product_hang"

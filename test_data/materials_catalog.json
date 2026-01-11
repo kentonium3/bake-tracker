@@ -1,0 +1,155 @@
+{
+  "version": "1.0",
+  "exported_at": "2026-01-10T22:03:18.073057+00:00",
+  "application": "bake-tracker",
+  "description": "Standardized packaging materials catalog.",
+  "materials": [
+    {
+      "slug": "box_window_cake_10x10",
+      "category": "Boxes: Window Boxes",
+      "description": "Box Window Cake 10x10",
+      "display_name": "Box Window Cake 10x10",
+      "is_packaging_material": true
+    },
+    {
+      "slug": "box_window_cupcake_6ct",
+      "category": "Boxes: Window Boxes",
+      "description": "Box Window Cupcake 6ct",
+      "display_name": "Box Window Cupcake 6ct",
+      "is_packaging_material": true
+    },
+    {
+      "slug": "box_solid_pastry_white",
+      "category": "Boxes: Solid Boxes",
+      "description": "Box Solid Pastry White",
+      "display_name": "Box Solid Pastry White",
+      "is_packaging_material": true
+    },
+    {
+      "slug": "box_solid_macaron",
+      "category": "Boxes: Solid Boxes",
+      "description": "Box Solid Macaron",
+      "display_name": "Box Solid Macaron",
+      "is_packaging_material": true
+    },
+    {
+      "slug": "insert_cupcake_std",
+      "category": "Boxes: Inserts",
+      "description": "Insert Cupcake Std",
+      "display_name": "Insert Cupcake Std",
+      "is_packaging_material": true
+    },
+    {
+      "slug": "insert_cupcake_mini",
+      "category": "Boxes: Inserts",
+      "description": "Insert Cupcake Mini",
+      "display_name": "Insert Cupcake Mini",
+      "is_packaging_material": true
+    },
+    {
+      "slug": "bag_cello_gusset_small",
+      "category": "Bags: Transparent",
+      "description": "Bag Cello Gusset Small",
+      "display_name": "Bag Cello Gusset Small",
+      "is_packaging_material": true
+    },
+    {
+      "slug": "bag_cello_gusset_medium",
+      "category": "Bags: Transparent",
+      "description": "Bag Cello Gusset Medium",
+      "display_name": "Bag Cello Gusset Medium",
+      "is_packaging_material": true
+    },
+    {
+      "slug": "bag_cello_gusset_large",
+      "category": "Bags: Transparent",
+      "description": "Bag Cello Gusset Large",
+      "display_name": "Bag Cello Gusset Large",
+      "is_packaging_material": true
+    },
+    {
+      "slug": "bag_poly_gusset_large",
+      "category": "Bags: Transparent",
+      "description": "Bag Poly Gusset Large",
+      "display_name": "Bag Poly Gusset Large",
+      "is_packaging_material": true
+    },
+    {
+      "slug": "bag_kraft_handle",
+      "category": "Bags: Paper",
+      "description": "Bag Kraft Handle",
+      "display_name": "Bag Kraft Handle",
+      "is_packaging_material": true
+    },
+    {
+      "slug": "bag_greaseproof_cookie",
+      "category": "Bags: Paper",
+      "description": "Bag Greaseproof Cookie",
+      "display_name": "Bag Greaseproof Cookie",
+      "is_packaging_material": true
+    },
+    {
+      "slug": "board_round_10in",
+      "category": "Support & Liners: Cake Boards",
+      "description": "Board Round 10in",
+      "display_name": "Board Round 10in",
+      "is_packaging_material": true
+    },
+    {
+      "slug": "board_square_12in",
+      "category": "Support & Liners: Cake Boards",
+      "description": "Board Square 12in",
+      "display_name": "Board Square 12in",
+      "is_packaging_material": true
+    },
+    {
+      "slug": "drum_silver_12in",
+      "category": "Support & Liners: Cake Boards",
+      "description": "Drum Silver 12in",
+      "display_name": "Drum Silver 12in",
+      "is_packaging_material": true
+    },
+    {
+      "slug": "liner_cupcake_standard",
+      "category": "Support & Liners: Baking Liners",
+      "description": "Liner Cupcake Standard",
+      "display_name": "Liner Cupcake Standard",
+      "is_packaging_material": true
+    },
+    {
+      "slug": "liner_muffin_tulip",
+      "category": "Support & Liners: Baking Liners",
+      "description": "Liner Muffin Tulip",
+      "display_name": "Liner Muffin Tulip",
+      "is_packaging_material": true
+    },
+    {
+      "slug": "ribbon_curling_3-16",
+      "category": "Finishing: Ribbons & Twine",
+      "description": "Ribbon Curling 3-16",
+      "display_name": "Ribbon Curling 3-16",
+      "is_packaging_material": true
+    },
+    {
+      "slug": "twine_bakers_red_white",
+      "category": "Finishing: Ribbons & Twine",
+      "description": "Twine Bakers Red White",
+      "display_name": "Twine Bakers Red White",
+      "is_packaging_material": true
+    },
+    {
+      "slug": "label_seal_permanent",
+      "category": "Finishing: Fasteners",
+      "description": "Label Seal Permanent",
+      "display_name": "Label Seal Permanent",
+      "is_packaging_material": true
+    },
+    {
+      "slug": "tag_product_hang",
+      "category": "Finishing: Fasteners",
+      "description": "Tag Product Hang",
+      "display_name": "Tag Product Hang",
+      "is_packaging_material": true
+    }
+  ]
+}
