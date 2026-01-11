@@ -22,13 +22,13 @@
 **Prompt**: `tasks/planned/WP01-core-tab-structure.md`
 
 ### Included Subtasks
-- [ ] T001 Create new `MaterialsTab` class structure in `src/ui/materials_tab.py`
-- [ ] T002 Implement `CTkTabview` with 3 tabs: Materials Catalog, Material Products, Material Units
-- [ ] T003 [P] Create `MaterialsCatalogTab` inner class with grid skeleton
-- [ ] T004 [P] Create `MaterialProductsTab` inner class with grid skeleton
-- [ ] T005 [P] Create `MaterialUnitsTab` inner class with grid skeleton
-- [ ] T006 Wire up lazy loading and `refresh()` pattern from parent
-- [ ] T007 Add status bar to each tab
+- [x] T001 Create new `MaterialsTab` class structure in `src/ui/materials_tab.py`
+- [x] T002 Implement `CTkTabview` with 3 tabs: Materials Catalog, Material Products, Material Units
+- [x] T003 [P] Create `MaterialsCatalogTab` inner class with grid skeleton
+- [x] T004 [P] Create `MaterialProductsTab` inner class with grid skeleton
+- [x] T005 [P] Create `MaterialUnitsTab` inner class with grid skeleton
+- [x] T006 Wire up lazy loading and `refresh()` pattern from parent
+- [x] T007 Add status bar to each tab
 
 ### Implementation Notes
 - Replace entire `src/ui/materials_tab.py` (backup existing as reference)
@@ -55,18 +55,18 @@
 **Prompt**: `tasks/planned/WP02-materials-catalog-grid.md`
 
 ### Included Subtasks
-- [ ] T008 Implement grid columns: l0, l1, name, base_unit with proper widths
-- [ ] T009 Implement `_load_all_materials()` to fetch materials across all subcategories
-- [ ] T010 Implement `_build_hierarchy_cache()` for L0/L1 display values
-- [ ] T011 Implement `_update_display()` with filter application and grid population
-- [ ] T012 [P] Implement search filter with `_on_search()` handler
-- [ ] T013 Implement cascading L0 dropdown with `_load_filter_data()` and `_on_l0_filter_change()`
-- [ ] T014 Implement cascading L1 dropdown with `_on_l1_filter_change()`
-- [ ] T015 Implement level filter dropdown with `_on_level_filter_change()`
-- [ ] T016 Implement Clear button with `_clear_filters()`
-- [ ] T017 Implement column header click sorting with `_on_header_click()`
-- [ ] T018 Implement selection handling: `_on_select()`, `_on_double_click()`
-- [ ] T019 Implement button state management: `_enable_selection_buttons()`, `_disable_selection_buttons()`
+- [x] T008 Implement grid columns: l0, l1, name, base_unit with proper widths
+- [x] T009 Implement `_load_all_materials()` to fetch materials across all subcategories
+- [x] T010 Implement `_build_hierarchy_cache()` for L0/L1 display values
+- [x] T011 Implement `_update_display()` with filter application and grid population
+- [x] T012 [P] Implement search filter with `_on_search()` handler
+- [x] T013 Implement cascading L0 dropdown with `_load_filter_data()` and `_on_l0_filter_change()`
+- [x] T014 Implement cascading L1 dropdown with `_on_l1_filter_change()`
+- [x] T015 Implement level filter dropdown with `_on_level_filter_change()`
+- [x] T016 Implement Clear button with `_clear_filters()`
+- [x] T017 Implement column header click sorting with `_on_header_click()`
+- [x] T018 Implement selection handling: `_on_select()`, `_on_double_click()`
+- [x] T019 Implement button state management: `_enable_selection_buttons()`, `_disable_selection_buttons()`
 
 ### Implementation Notes
 - Copy `_build_hierarchy_path_cache()` pattern from ingredients_tab.py:333-380
@@ -92,16 +92,16 @@
 **Prompt**: `tasks/planned/WP03-material-form-dialog.md`
 
 ### Included Subtasks
-- [ ] T020 Create `MaterialFormDialog` class with modal pattern (withdraw/deiconify/grab_set)
-- [ ] T021 Implement form fields: Name entry, L0 dropdown, L1 dropdown, Base Unit dropdown
-- [ ] T022 Implement `_build_l0_options()` to populate categories
-- [ ] T023 Implement `_on_l0_change()` to cascade subcategories to L1
-- [ ] T024 Implement `_populate_form()` for edit mode
-- [ ] T025 Implement `_validate_and_save()` with required field validation
-- [ ] T026 Implement Delete button with confirmation dialog
-- [ ] T027 Wire `_add_material()` handler in `MaterialsCatalogTab`
-- [ ] T028 Wire `_edit_material()` handler in `MaterialsCatalogTab`
-- [ ] T029 Wire delete flow through dialog
+- [x] T020 Create `MaterialFormDialog` class with modal pattern (withdraw/deiconify/grab_set)
+- [x] T021 Implement form fields: Name entry, L0 dropdown, L1 dropdown, Base Unit dropdown
+- [x] T022 Implement `_build_l0_options()` to populate categories
+- [x] T023 Implement `_on_l0_change()` to cascade subcategories to L1
+- [x] T024 Implement `_populate_form()` for edit mode
+- [x] T025 Implement `_validate_and_save()` with required field validation
+- [x] T026 Implement Delete button with confirmation dialog
+- [x] T027 Wire `_add_material()` handler in `MaterialsCatalogTab`
+- [x] T028 Wire `_edit_material()` handler in `MaterialsCatalogTab`
+- [x] T029 Wire delete flow through dialog
 
 ### Implementation Notes
 - Copy dialog structure from `IngredientFormDialog` (lines 1048-1741)
@@ -128,15 +128,15 @@
 **Prompt**: `tasks/planned/WP04-material-products-tab.md`
 
 ### Included Subtasks
-- [ ] T030 Implement grid columns: material, name, inventory, unit_cost, supplier
-- [ ] T031 Implement `_load_all_products()` to fetch products across all materials
-- [ ] T032 Implement inventory formatting: `f"{qty:,.1f} {unit}"`
-- [ ] T033 Implement cost formatting: `f"${cost:.4f}"` or "-"
-- [ ] T034 Implement `_update_display()` with filter and formatting
-- [ ] T035 Implement Material filter dropdown with `_load_material_dropdown()`
-- [ ] T036 [P] Implement search filter for product name
-- [ ] T037 Implement Clear button
-- [ ] T038 Implement selection handling and button states
+- [x] T030 Implement grid columns: material, name, inventory, unit_cost, supplier
+- [x] T031 Implement `_load_all_products()` to fetch products across all materials
+- [x] T032 Implement inventory formatting: `f"{qty:,.1f} {unit}"`
+- [x] T033 Implement cost formatting: `f"${cost:.4f}"` or "-"
+- [x] T034 Implement `_update_display()` with filter and formatting
+- [x] T035 Implement Material filter dropdown with `_load_material_dropdown()`
+- [x] T036 [P] Implement search filter for product name
+- [x] T037 Implement Clear button
+- [x] T038 Implement selection handling and button states
 
 ### Implementation Notes
 - Use `material_catalog_service.list_products(material_id)` for each material
@@ -162,17 +162,17 @@
 **Prompt**: `tasks/planned/WP05-product-crud-and-purchase.md`
 
 ### Included Subtasks
-- [ ] T039 Create `MaterialProductFormDialog` with Material dropdown, Name, Package Qty, Package Unit, Supplier, SKU, Notes
-- [ ] T040 Implement `_populate_form()` for edit mode
-- [ ] T041 Implement `_validate_and_save()` with service calls
-- [ ] T042 Wire `_add_product()` and `_edit_product()` handlers
-- [ ] T043 Create `RecordPurchaseDialog` with Supplier, Date, Packages, Total Price, Notes
-- [ ] T044 Implement auto-calculation: total units = packages * package_quantity
-- [ ] T045 Implement auto-calculation: unit cost = total_price / total_units
-- [ ] T046 Wire `_record_purchase()` handler with `material_purchase_service.record_purchase()`
-- [ ] T047 Create `AdjustInventoryDialog` with mode (set/percentage), value, notes
-- [ ] T048 Wire `_adjust_inventory()` handler with `material_purchase_service.adjust_inventory()`
-- [ ] T049 Implement button enable/disable for Record Purchase and Adjust Inventory
+- [x] T039 Create `MaterialProductFormDialog` with Material dropdown, Name, Package Qty, Package Unit, Supplier, SKU, Notes
+- [x] T040 Implement `_populate_form()` for edit mode
+- [x] T041 Implement `_validate_and_save()` with service calls
+- [x] T042 Wire `_add_product()` and `_edit_product()` handlers
+- [x] T043 Create `RecordPurchaseDialog` with Supplier, Date, Packages, Total Price, Notes
+- [x] T044 Implement auto-calculation: total units = packages * package_quantity
+- [x] T045 Implement auto-calculation: unit cost = total_price / total_units
+- [x] T046 Wire `_record_purchase()` handler with `material_purchase_service.record_purchase()`
+- [x] T047 Create `AdjustInventoryDialog` with mode (set/percentage), value, notes
+- [x] T048 Wire `_adjust_inventory()` handler with `material_purchase_service.adjust_inventory()`
+- [x] T049 Implement button enable/disable for Record Purchase and Adjust Inventory
 
 ### Implementation Notes
 - RecordPurchaseDialog shows calculated values in real-time (bind to KeyRelease)
@@ -199,16 +199,16 @@
 **Note**: US6 "Adjust Inventory" is covered by WP05 (T047-T048). This WP implements the Material Units tab (third tab per plan.md D1).
 
 ### Included Subtasks
-- [ ] T050 Implement grid columns: material, name, qty_per_unit, available, cost
-- [ ] T051 Implement `_load_all_units()` to fetch units across all materials
-- [ ] T052 Implement available inventory computation via `material_unit_service.get_available_inventory()`
-- [ ] T053 Implement cost computation via `material_unit_service.get_current_cost()`
-- [ ] T054 Implement `_update_display()` with formatting
-- [ ] T055 Implement Material filter dropdown
-- [ ] T056 [P] Implement search filter
-- [ ] T057 Implement selection handling and button states
-- [ ] T058 Create `MaterialUnitFormDialog` with Material, Name, Qty per Unit, Description
-- [ ] T059 Wire `_add_unit()` and `_edit_unit()` handlers
+- [x] T050 Implement grid columns: material, name, qty_per_unit, available, cost
+- [x] T051 Implement `_load_all_units()` to fetch units across all materials
+- [x] T052 Implement available inventory computation via `material_unit_service.get_available_inventory()`
+- [x] T053 Implement cost computation via `material_unit_service.get_current_cost()`
+- [x] T054 Implement `_update_display()` with formatting
+- [x] T055 Implement Material filter dropdown
+- [x] T056 [P] Implement search filter
+- [x] T057 Implement selection handling and button states
+- [x] T058 Create `MaterialUnitFormDialog` with Material, Name, Qty per Unit, Description
+- [x] T059 Wire `_add_unit()` and `_edit_unit()` handlers
 
 ### Implementation Notes
 - Use `material_unit_service.list_units(material_id)` for each material
@@ -235,14 +235,14 @@
 **Prompt**: `tasks/planned/WP07-polish-and-acceptance.md`
 
 ### Included Subtasks
-- [ ] T060 Review and standardize status bar messages across all 3 tabs
-- [ ] T061 Implement empty state messages when no items match filters
-- [ ] T062 Verify button spacing and sizing matches Ingredients tab
-- [ ] T063 Verify dialog sizing and field alignment (120px label column)
-- [ ] T064 Test deletion prevention for materials with products
-- [ ] T065 Test filter persistence when switching tabs
-- [ ] T066 Run full acceptance scenario walkthrough (US1-US6)
-- [ ] T067 Verify no regression in data (materials, products, inventory intact)
+- [x] T060 Review and standardize status bar messages across all 3 tabs
+- [x] T061 Implement empty state messages when no items match filters
+- [x] T062 Verify button spacing and sizing matches Ingredients tab
+- [x] T063 Verify dialog sizing and field alignment (120px label column)
+- [x] T064 Test deletion prevention for materials with products
+- [x] T065 Test filter persistence when switching tabs
+- [x] T066 Run full acceptance scenario walkthrough (US1-US6)
+- [x] T067 Verify no regression in data (materials, products, inventory intact)
 
 ### Implementation Notes
 - Compare Materials tab side-by-side with Ingredients tab
