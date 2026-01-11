@@ -1,4 +1,32 @@
 ---
+work_package_id: WP07
+subtasks:
+- T060
+- T061
+- T062
+- T063
+- T064
+- T065
+- T066
+- T067
+title: Polish & Acceptance
+phase: Phase 5 - Polish and Testing
+lane: "done"
+assignee: ''
+agent: ''
+shell_pid: ''
+review_status: ''
+reviewed_by: ''
+history:
+- timestamp: '2026-01-11T07:09:48Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
+activity_log: "  - timestamp: \"2026-01-11T15:49:00Z\"\n    lane: \"planned\"\n  \
+  \  agent: \"system\"\n    shell_pid: \"47812\"\n    action: \"Auto-repaired lane\
+  \ metadata (was: done)\"\n"
+---
 work_package_id: "WP07"
 subtasks:
   - "T060"
@@ -23,8 +51,6 @@ history:
     agent: "system"
     shell_pid: ""
     action: "Prompt generated via /spec-kitty.tasks"
----
-
 # Work Package Prompt: WP07 - Polish & Acceptance
 
 ## Objectives & Success Criteria
@@ -212,3 +238,5 @@ history:
 - 2026-01-11T14:27:23Z – unknown – lane=for_review – Polish & acceptance: Status messages, button sizing, dialog layout all match Ingredients tab patterns. All tests pass (1958/1958). Ready for visual validation and manual acceptance testing.
 - 2026-01-11T15:40:56Z – agent – lane=doing – Started review via workflow command
 - 2026-01-11T15:41:16Z – unknown – lane=done – Review passed: Code verification complete. Status messages, button sizing, dialog patterns match Ingredients tab. Manual acceptance testing required for visual/functional validation.
+- 2026-01-11T15:50:34Z – agent – lane=doing – Started review via workflow command
+- 2026-01-11T15:50:39Z – unknown – lane=done – Review passed (re-run after validate-tasks --fix reset)

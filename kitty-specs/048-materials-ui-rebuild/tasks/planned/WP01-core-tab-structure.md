@@ -1,4 +1,31 @@
 ---
+work_package_id: WP01
+subtasks:
+- T001
+- T002
+- T003
+- T004
+- T005
+- T006
+- T007
+title: Core Tab Structure
+phase: Phase 1 - Core Tab Structure
+lane: "done"
+assignee: ''
+agent: ''
+shell_pid: ''
+review_status: ''
+reviewed_by: ''
+history:
+- timestamp: '2026-01-11T07:09:48Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
+activity_log: "  - timestamp: \"2026-01-11T15:49:00Z\"\n    lane: \"planned\"\n  \
+  \  agent: \"system\"\n    shell_pid: \"47812\"\n    action: \"Auto-repaired lane\
+  \ metadata (was: done)\"\n"
+---
 work_package_id: "WP01"
 subtasks:
   - "T001"
@@ -22,8 +49,6 @@ history:
     agent: "system"
     shell_pid: ""
     action: "Prompt generated via /spec-kitty.tasks"
----
-
 # Work Package Prompt: WP01 - Core Tab Structure
 
 ## Objectives & Success Criteria
@@ -170,3 +195,5 @@ history:
 - 2026-01-11T13:20:40Z – unknown – lane=for_review – Implementation complete: 3-tab MaterialsTab with MaterialsCatalogTab, MaterialProductsTab, MaterialUnitsTab. All grids have correct columns per spec. Tests pass (1958/1958).
 - 2026-01-11T15:37:41Z – agent – lane=doing – Started review via workflow command
 - 2026-01-11T15:38:36Z – unknown – lane=done – Review passed: All 7 subtasks verified. 3-tab structure with correct columns, refresh wiring, and status bars.
+- 2026-01-11T15:49:54Z – agent – lane=doing – Started review via workflow command
+- 2026-01-11T15:50:02Z – unknown – lane=done – Review passed (re-run after validate-tasks --fix reset)

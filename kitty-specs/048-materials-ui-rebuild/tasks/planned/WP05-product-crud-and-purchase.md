@@ -1,4 +1,35 @@
 ---
+work_package_id: WP05
+subtasks:
+- T039
+- T040
+- T041
+- T042
+- T043
+- T044
+- T045
+- T046
+- T047
+- T048
+- T049
+title: Product CRUD & Purchase Recording
+phase: Phase 3 - Material Products Tab
+lane: "done"
+assignee: ''
+agent: ''
+shell_pid: ''
+review_status: ''
+reviewed_by: ''
+history:
+- timestamp: '2026-01-11T07:09:48Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
+activity_log: "  - timestamp: \"2026-01-11T15:49:00Z\"\n    lane: \"planned\"\n  \
+  \  agent: \"system\"\n    shell_pid: \"47812\"\n    action: \"Auto-repaired lane\
+  \ metadata (was: done)\"\n"
+---
 work_package_id: "WP05"
 subtasks:
   - "T039"
@@ -26,8 +57,6 @@ history:
     agent: "system"
     shell_pid: ""
     action: "Prompt generated via /spec-kitty.tasks"
----
-
 # Work Package Prompt: WP05 - Product CRUD & Purchase Recording
 
 ## Objectives & Success Criteria
@@ -244,3 +273,5 @@ history:
 - 2026-01-11T14:13:11Z – unknown – lane=for_review – Implementation complete: MaterialProductFormDialog, RecordPurchaseDialog, AdjustInventoryDialog with auto-calculations. All handlers wired. Tests pass (1958/1958).
 - 2026-01-11T15:40:02Z – agent – lane=doing – Started review via workflow command
 - 2026-01-11T15:40:27Z – unknown – lane=done – Review passed: All 11 subtasks verified. Product dialogs with auto-calculations, purchase recording, and inventory adjustment.
+- 2026-01-11T15:50:22Z – agent – lane=doing – Started review via workflow command
+- 2026-01-11T15:50:27Z – unknown – lane=done – Review passed (re-run after validate-tasks --fix reset)

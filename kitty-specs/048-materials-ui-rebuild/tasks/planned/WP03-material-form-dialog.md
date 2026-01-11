@@ -1,4 +1,34 @@
 ---
+work_package_id: WP03
+subtasks:
+- T020
+- T021
+- T022
+- T023
+- T024
+- T025
+- T026
+- T027
+- T028
+- T029
+title: Material Form Dialog
+phase: Phase 2 - Materials Catalog Tab
+lane: "done"
+assignee: ''
+agent: ''
+shell_pid: ''
+review_status: ''
+reviewed_by: ''
+history:
+- timestamp: '2026-01-11T07:09:48Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
+activity_log: "  - timestamp: \"2026-01-11T15:49:00Z\"\n    lane: \"planned\"\n  \
+  \  agent: \"system\"\n    shell_pid: \"47812\"\n    action: \"Auto-repaired lane\
+  \ metadata (was: done)\"\n"
+---
 work_package_id: "WP03"
 subtasks:
   - "T020"
@@ -25,8 +55,6 @@ history:
     agent: "system"
     shell_pid: ""
     action: "Prompt generated via /spec-kitty.tasks"
----
-
 # Work Package Prompt: WP03 - Material Form Dialog
 
 ## Objectives & Success Criteria
@@ -225,3 +253,5 @@ history:
 - 2026-01-11T13:55:34Z – unknown – lane=for_review – Implementation complete: MaterialFormDialog with cascading L0/L1 dropdowns, add/edit/delete functionality. Tests pass (1958/1958).
 - 2026-01-11T15:39:10Z – agent – lane=doing – Started review via workflow command
 - 2026-01-11T15:39:31Z – unknown – lane=done – Review passed: All 10 subtasks verified. MaterialFormDialog with cascading L0/L1, CRUD operations wired. Cursor fix applied: name editable, base_unit disabled in edit mode.
+- 2026-01-11T15:50:10Z – agent – lane=doing – Started review via workflow command
+- 2026-01-11T15:50:15Z – unknown – lane=done – Review passed (re-run after validate-tasks --fix reset)

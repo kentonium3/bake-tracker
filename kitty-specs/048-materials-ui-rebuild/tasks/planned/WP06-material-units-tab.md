@@ -1,4 +1,34 @@
 ---
+work_package_id: WP06
+subtasks:
+- T050
+- T051
+- T052
+- T053
+- T054
+- T055
+- T056
+- T057
+- T058
+- T059
+title: Material Units Tab
+phase: Phase 4 - Material Units Tab
+lane: "done"
+assignee: ''
+agent: ''
+shell_pid: ''
+review_status: ''
+reviewed_by: ''
+history:
+- timestamp: '2026-01-11T07:09:48Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
+activity_log: "  - timestamp: \"2026-01-11T15:49:00Z\"\n    lane: \"planned\"\n  \
+  \  agent: \"system\"\n    shell_pid: \"47812\"\n    action: \"Auto-repaired lane\
+  \ metadata (was: done)\"\n"
+---
 work_package_id: "WP06"
 subtasks:
   - "T050"
@@ -25,8 +55,6 @@ history:
     agent: "system"
     shell_pid: ""
     action: "Prompt generated via /spec-kitty.tasks"
----
-
 # Work Package Prompt: WP06 - Material Units Tab
 
 ## Objectives & Success Criteria
@@ -217,3 +245,5 @@ Plus: Unit grid displays correctly, add/edit works.
 - 2026-01-11T14:21:01Z – unknown – lane=for_review – Implementation complete: MaterialUnitFormDialog with add/edit functionality. Handlers wired. Tests pass (1958/1958).
 - 2026-01-11T15:40:33Z – agent – lane=doing – Started review via workflow command
 - 2026-01-11T15:40:49Z – unknown – lane=done – Review passed: All 10 subtasks verified. MaterialUnitsTab with computed values, material filter, and MaterialUnitFormDialog.
+- 2026-01-11T15:50:28Z – agent – lane=doing – Started review via workflow command
+- 2026-01-11T15:50:33Z – unknown – lane=done – Review passed (re-run after validate-tasks --fix reset)

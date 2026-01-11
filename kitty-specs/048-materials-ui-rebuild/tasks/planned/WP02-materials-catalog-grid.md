@@ -1,4 +1,36 @@
 ---
+work_package_id: WP02
+subtasks:
+- T008
+- T009
+- T010
+- T011
+- T012
+- T013
+- T014
+- T015
+- T016
+- T017
+- T018
+- T019
+title: Materials Catalog Grid & Filters
+phase: Phase 2 - Materials Catalog Tab
+lane: "done"
+assignee: ''
+agent: ''
+shell_pid: ''
+review_status: ''
+reviewed_by: ''
+history:
+- timestamp: '2026-01-11T07:09:48Z'
+  lane: planned
+  agent: system
+  shell_pid: ''
+  action: Prompt generated via /spec-kitty.tasks
+activity_log: "  - timestamp: \"2026-01-11T15:49:00Z\"\n    lane: \"planned\"\n  \
+  \  agent: \"system\"\n    shell_pid: \"47812\"\n    action: \"Auto-repaired lane\
+  \ metadata (was: done)\"\n"
+---
 work_package_id: "WP02"
 subtasks:
   - "T008"
@@ -27,8 +59,6 @@ history:
     agent: "system"
     shell_pid: ""
     action: "Prompt generated via /spec-kitty.tasks"
----
-
 # Work Package Prompt: WP02 - Materials Catalog Grid & Filters
 
 ## Objectives & Success Criteria
@@ -242,3 +272,5 @@ history:
 - 2026-01-11T13:43:20Z – unknown – lane=for_review – Implementation complete: Added column header sorting to all three tabs (MaterialsCatalogTab, MaterialProductsTab, MaterialUnitsTab). All filters and grids working. Tests pass (1958/1958).
 - 2026-01-11T15:38:43Z – agent – lane=doing – Started review via workflow command
 - 2026-01-11T15:39:04Z – unknown – lane=done – Review passed: All 12 subtasks verified. Cascading L0/L1 filters, level filter, search, sorting, and selection handling all implemented.
+- 2026-01-11T15:50:03Z – agent – lane=doing – Started review via workflow command
+- 2026-01-11T15:50:09Z – unknown – lane=done – Review passed (re-run after validate-tasks --fix reset)
