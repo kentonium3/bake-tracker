@@ -1,49 +1,9 @@
 ---
 description: Merge a completed feature into the main branch and clean up worktree
-scripts:
-  sh: "spec-kitty agent feature merge"
-  ps: "spec-kitty agent"
----
-**Path reference rule:** When you mention directories or files, provide either the absolute path or a path relative to the project root (for example, `kitty-specs/<feature>/tasks/`). Never refer to a folder by name alone.
-
-*Path: [templates/commands/merge.md](templates/commands/merge.md)*
-
 
 # Merge Feature Branch
 
 This command merges a completed feature branch into the main/target branch and handles cleanup of worktrees and branches.
-
-## ⛔ Location Pre-flight Check (CRITICAL)
-
-**BEFORE PROCEEDING:** You MUST be in the feature worktree, NOT the main repository.
-
-Verify your current location:
-```bash
-pwd
-git branch --show-current
-```
-
-**Expected output:**
-- `pwd`: Should end with `.worktrees/001-feature-name` (or similar feature worktree)
-- Branch: Should show your feature branch name like `001-feature-name` (NOT `main` or `release/*`)
-
-**If you see:**
-- Branch showing `main` or `release/`
-- OR pwd shows the main repository root
-
-⛔ **STOP - DANGER! You are in the wrong location!**
-
-This command merges your feature INTO main. Running from the wrong location can cause:
-- Loss of work
-- Merge conflicts
-- Repository corruption
-
-**Correct the issue:**
-1. Navigate to your feature worktree: `cd .worktrees/001-feature-name`
-2. Verify you're on the correct feature branch: `git branch --show-current`
-3. Then run this merge command again
-
----
 
 ## Prerequisites
 
@@ -52,7 +12,7 @@ Before running this command:
 1. ✅ Feature must pass `/spec-kitty.accept` checks
 2. ✅ All work packages must be in `tasks/`
 3. ✅ Working directory must be clean (no uncommitted changes)
-4. ✅ Run the command from the feature worktree (Spec Kitty will move the merge to the primary repo automatically)
+4. ✅ You must be on the feature branch (or in its worktree)
 
 ## Location Pre-flight Check (CRITICAL for AI Agents)
 
@@ -66,11 +26,13 @@ Before merging, verify you are in the correct working directory by running the s
 - You're not attempting to run from `main` or any release branch
 - The validator prints clear navigation instructions if you're outside the feature worktree
 
+**Path reference rule:** When you mention directories or files, provide either the absolute path or a path relative to the project root (for example, `kitty-specs/<feature>/tasks/`). Never refer to a folder by name alone.
+
 ## What This Command Does
 
 1. **Detects** your current feature branch and worktree status
 2. **Verifies** working directory is clean
-3. **Switches** to the target branch (default: `main`) in the primary repository
+3. **Switches** to the target branch (default: `main`)
 4. **Updates** the target branch (`git pull --ff-only`)
 5. **Merges** the feature using your chosen strategy
 6. **Optionally pushes** to origin
@@ -186,7 +148,7 @@ my-project/                    # Main repo (main branch)
 1. **Main branch** stays in the primary repo root
 2. **Feature branches** live in `.worktrees/<feature-slug>/`
 3. **Work on features** happens in their worktrees (isolation)
-4. **Merge from worktrees** using this command – the CLI will hop to the primary repo for the Git merge
+4. **Merge from worktrees** using this command
 5. **Cleanup is automatic** - worktrees removed after merge
 
 ### Why Worktrees?
@@ -251,11 +213,10 @@ git branch -d <feature-branch>
 ## Safety Features
 
 1. **Clean working directory check** - Won't merge with uncommitted changes
-2. **Primary repo hand-off** - Automatically runs Git operations from the main checkout when invoked in a worktree
-3. **Fast-forward only pull** - Won't proceed if main has diverged
-4. **Graceful failure** - If merge fails, you can fix manually
-5. **Optional operations** - Push, branch delete, and worktree removal are configurable
-6. **Dry run mode** - Preview exactly what will happen
+2. **Fast-forward only pull** - Won't proceed if main has diverged
+3. **Graceful failure** - If merge fails, you can fix manually
+4. **Optional operations** - Push, branch delete, and worktree removal are configurable
+5. **Dry run mode** - Preview exactly what will happen
 
 ## Examples
 

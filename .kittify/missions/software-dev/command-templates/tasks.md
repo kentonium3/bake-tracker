@@ -1,11 +1,6 @@
 ---
 description: Generate grouped work packages with actionable subtasks and matching prompt files for the feature in one pass.
-scripts:
-  sh: spec-kitty agent check-prerequisites --json --include-tasks
-  ps: spec-kitty agent -Json -IncludeTasks
 ---
-*Path: [templates/commands/tasks.md](templates/commands/tasks.md)*
-
 
 ## User Input
 
@@ -35,16 +30,13 @@ If you're on the `main` branch:
 3. Verify you're in the right place: `git branch --show-current` should show the feature branch
 4. Then re-run this command
 
-The script will fail if you're not in a feature worktree.
-**Path reference rule:** When you mention directories or files, provide either the absolute path or a path relative to the project root (for example, `kitty-specs/<feature>/tasks/`). Never refer to a folder by name alone.
-
-This is intentional - worktrees provide isolation for parallel feature development.
+The script will fail if you're not in a feature worktree. This is intentional - worktrees provide isolation for parallel feature development.
 
 ## Outline
 
-1. **Setup**: Run `{SCRIPT}` from repo root and capture `FEATURE_DIR` plus `AVAILABLE_DOCS`. All paths must be absolute.
+1. **Setup**: Run `spec-kitty agent feature check-prerequisites --json --paths-only --include-tasks` from the worktree root and capture `FEATURE_DIR` plus `AVAILABLE_DOCS`. All paths must be absolute.
 
-   **CRITICAL**: The script returns JSON with `FEATURE_DIR` as an ABSOLUTE path (e.g., `/Users/robert/Code/new_specify/kitty-specs/001-feature-name`).
+   **CRITICAL**: The command returns JSON with `FEATURE_DIR` as an ABSOLUTE path (e.g., `/Users/robert/Code/new_specify/kitty-specs/001-feature-name`).
 
    **YOU MUST USE THIS PATH** for ALL subsequent file operations. Example:
    ```
@@ -56,6 +48,7 @@ This is intentional - worktrees provide isolation for parallel feature developme
    **DO NOT CREATE** paths like:
    - ❌ `tasks/WP01-slug.md` (missing FEATURE_DIR prefix)
    - ❌ `/tasks/WP01-slug.md` (wrong root)
+   - ❌ `FEATURE_DIR/tasks/planned/WP01-slug.md` (WRONG - no subdirectories!)
    - ❌ `WP01-slug.md` (wrong directory)
 
 2. **Load design documents** from `FEATURE_DIR` (only those present):
@@ -85,20 +78,23 @@ This is intentional - worktrees provide isolation for parallel feature developme
    - Preserve the checklist style so implementers can mark progress
 
 6. **Generate prompt files (one per work package)**:
-   - **CRITICAL PATH RULE**: All task directories and prompt files MUST be created under `FEATURE_DIR/tasks/`, NOT in the repo root!
-   - Correct structure: `FEATURE_DIR/tasks/WPxx-slug.md`, `FEATURE_DIR/tasks/`, `FEATURE_DIR/tasks/`, `FEATURE_DIR/tasks/`
+   - **CRITICAL PATH RULE**: All work package files MUST be created in a FLAT `FEATURE_DIR/tasks/` directory, NOT in subdirectories!
+   - Correct structure: `FEATURE_DIR/tasks/WPxx-slug.md` (flat, no subdirectories)
+   - WRONG (do not create): `FEATURE_DIR/tasks/planned/`, `FEATURE_DIR/tasks/doing/`, or ANY lane subdirectories
    - WRONG (do not create): `/tasks/`, `tasks/`, or any path not under FEATURE_DIR
-   - Ensure `FEATURE_DIR/tasks/` exists (create `FEATURE_DIR/tasks/`, `FEATURE_DIR/tasks/`, `FEATURE_DIR/tasks/` if missing)
+   - Ensure `FEATURE_DIR/tasks/` exists (create as flat directory, NO subdirectories)
    - For each work package:
      - Derive a kebab-case slug from the title; filename: `WPxx-slug.md`
      - Full path example: `FEATURE_DIR/tasks/WP01-create-html-page.md` (use ABSOLUTE path from FEATURE_DIR variable)
      - Use `.kittify/templates/task-prompt-template.md` to capture:
-       - Frontmatter with `work_package_id`, `subtasks` array, `lane=planned`, history entry
+       - Frontmatter with `work_package_id`, `subtasks` array, `lane: "planned"`, history entry
        - Objective, context, detailed guidance per subtask
        - Test strategy (only if requested)
        - Definition of Done, risks, reviewer guidance
      - Update `tasks.md` to reference the prompt filename
    - Keep prompts exhaustive enough that a new agent can complete the work package unaided
+
+   **IMPORTANT**: All WP files live in flat `tasks/` directory. Lane status is tracked ONLY in the `lane:` frontmatter field, NOT by directory location. Agents can change lanes by editing the `lane:` field directly or using `spec-kitty agent tasks move-task`.
 
 7. **Report**: Provide a concise outcome summary:
    - Path to `tasks.md`

@@ -1,11 +1,6 @@
 ---
 description: Create or update the project constitution from interactive or provided principle inputs, ensuring all dependent templates stay in sync.
 ---
-**Path reference rule:** When you mention directories or files, provide either the absolute path or a path relative to the project root (for example, `kitty-specs/<feature>/tasks/`). Never refer to a folder by name alone.
-
-
-*Path: [templates/commands/constitution.md](templates/commands/constitution.md)*
-
 
 ## User Input
 
@@ -14,50 +9,6 @@ $ARGUMENTS
 ```
 
 You **MUST** consider the user input before proceeding (if not empty).
-
----
-
-## What This Command Does
-
-This command manages the **project constitution** - the global set of principles and governance rules that apply to ALL features in this project.
-
-**Location**: The constitution lives at `.kittify/memory/constitution.md` (in the main repository, not feature worktrees)
-
-**Scope**: This command is project-wide, not feature-specific
-- Does NOT need to be run from a worktree
-- Can be run from the main repository root
-- Creates/updates principles that all features must follow
-- Updates dependent templates to stay in sync
-
----
-
-## Why Constitutions Matter
-
-The project constitution defines non-negotiable principles such as:
-- Code quality standards
-- Security and compliance requirements
-- Testing discipline
-- Documentation standards
-- Performance expectations
-
-All features (`/spec-kitty.specify`, `/spec-kitty.plan`, `/spec-kitty.tasks`) must align with these principles.
-
----
-
-## Workflow Context
-
-**When to use**:
-- First time: Create initial project constitution with your team's core principles
-- Later: Update constitution when principles change or new ones are needed
-- Impacts: Every feature automatically validates against current constitution
-
-**What it affects**:
-- All spec.md files (features must comply with constitution)
-- All plan.md files (architecture must align with principles)
-- All tasks.md files (testing and quality tasks reflect constitution)
-- The `/spec-kitty.analyze` command validates constitution alignment
-
----
 
 ## Outline
 

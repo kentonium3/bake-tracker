@@ -99,3 +99,4 @@ ai-agents/
 .amazonq/
 docs/.obsidian/
 bake_tracker.db
+.github/copilot/
