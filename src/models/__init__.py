@@ -49,6 +49,15 @@ from .assembly_finished_unit_consumption import AssemblyFinishedUnitConsumption 
 from .assembly_packaging_consumption import AssemblyPackagingConsumption  # Feature 013
 from .unit import Unit  # Feature 022
 
+# Feature 047: Materials Management System
+from .material_category import MaterialCategory
+from .material_subcategory import MaterialSubcategory
+from .material import Material
+from .material_product import MaterialProduct
+from .material_unit import MaterialUnit
+from .material_purchase import MaterialPurchase
+from .material_consumption import MaterialConsumption
+
 __all__ = [
     "Base",
     "BaseModel",
@@ -105,4 +114,12 @@ __all__ = [
     "Unit",
     # Recipe snapshot Feature 037
     "RecipeSnapshot",
+    # Feature 047: Materials Management System
+    "MaterialCategory",
+    "MaterialSubcategory",
+    "Material",
+    "MaterialProduct",
+    "MaterialUnit",
+    "MaterialPurchase",
+    "MaterialConsumption",
 ]

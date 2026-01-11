@@ -337,8 +337,8 @@ class TestExportComplete:
             assert manifest.export_date != ""
             assert "Seasonal Baking Tracker" in manifest.source
 
-            # Verify all entity files created
-            assert len(manifest.files) == 6
+            # Verify all entity files created (6 original + 6 material entities)
+            assert len(manifest.files) == 12
 
             # Verify files sorted by import_order
             orders = [f.import_order for f in manifest.files]
@@ -487,8 +487,8 @@ class TestExportComplete:
             with session_scope() as session:
                 manifest = export_complete(tmpdir, session=session)
 
-                # Verify export completed
-                assert len(manifest.files) == 6
+                # Verify export completed (6 original + 6 material entities)
+                assert len(manifest.files) == 12
 
                 # Verify ingredients exported
                 ing_entry = next(
@@ -512,7 +512,7 @@ class TestValidateExport:
             result = validate_export(tmpdir)
 
             assert result["valid"] is True
-            assert result["files_checked"] == 6
+            assert result["files_checked"] == 12  # 6 original + 6 material entities
             assert result["errors"] == []
 
     def test_validate_export_missing_manifest(self, test_db):
@@ -567,7 +567,7 @@ class TestValidateExport:
             result = validate_export(str(zip_path))
 
             assert result["valid"] is True
-            assert result["files_checked"] == 6
+            assert result["files_checked"] == 12  # 6 original + 6 material entities
 
 
 # ============================================================================
@@ -612,7 +612,7 @@ class TestExportRoundTrip:
         with tempfile.TemporaryDirectory() as tmpdir:
             manifest = export_complete(tmpdir)
 
-            # Check order
+            # Check order - original entities followed by material entities
             entity_order = [f.entity_type for f in manifest.files]
             expected_order = [
                 "suppliers",
@@ -621,5 +621,12 @@ class TestExportRoundTrip:
                 "recipes",
                 "purchases",
                 "inventory_items",
+                # Feature 047: Material entities
+                "material_categories",
+                "material_subcategories",
+                "materials",
+                "material_products",
+                "material_units",
+                "material_purchases",
             ]
             assert entity_order == expected_order

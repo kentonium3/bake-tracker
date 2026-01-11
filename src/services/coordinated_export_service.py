@@ -33,6 +33,12 @@ from src.models.product import Product
 from src.models.purchase import Purchase
 from src.models.recipe import Recipe, RecipeIngredient, RecipeComponent
 from src.models.supplier import Supplier
+from src.models.material_category import MaterialCategory
+from src.models.material_subcategory import MaterialSubcategory
+from src.models.material import Material
+from src.models.material_product import MaterialProduct
+from src.models.material_unit import MaterialUnit
+from src.models.material_purchase import MaterialPurchase
 from src.services.database import session_scope
 from src.utils.constants import APP_NAME, APP_VERSION
 
@@ -95,6 +101,13 @@ DEPENDENCY_ORDER = {
     "recipes": (4, ["ingredients"]),
     "purchases": (5, ["products", "suppliers"]),
     "inventory_items": (6, ["products", "purchases"]),
+    # Feature 047: Materials Management System
+    "material_categories": (7, []),
+    "material_subcategories": (8, ["material_categories"]),
+    "materials": (9, ["material_subcategories"]),
+    "material_products": (10, ["materials", "suppliers"]),
+    "material_units": (11, ["materials"]),
+    "material_purchases": (12, ["material_products", "suppliers"]),
 }
 
 
@@ -387,6 +400,155 @@ def _export_inventory_items(output_dir: Path, session: Session) -> FileEntry:
 
 
 # ============================================================================
+# Material Export Functions (Feature 047)
+# ============================================================================
+
+
+def _export_material_categories(output_dir: Path, session: Session) -> FileEntry:
+    """Export all material categories to JSON file."""
+    categories = session.query(MaterialCategory).all()
+
+    records = []
+    for c in categories:
+        records.append({
+            "id": c.id,
+            "uuid": str(c.uuid) if c.uuid else None,
+            "name": c.name,
+            "slug": c.slug,
+            "description": c.description,
+            "sort_order": c.sort_order,
+        })
+
+    return _write_entity_file(output_dir, "material_categories", records)
+
+
+def _export_material_subcategories(output_dir: Path, session: Session) -> FileEntry:
+    """Export all material subcategories to JSON file with FK resolution."""
+    subcategories = session.query(MaterialSubcategory).options(
+        joinedload(MaterialSubcategory.category)
+    ).all()
+
+    records = []
+    for s in subcategories:
+        records.append({
+            "id": s.id,
+            "uuid": str(s.uuid) if s.uuid else None,
+            "category_id": s.category_id,
+            "category_slug": s.category.slug if s.category else None,
+            "name": s.name,
+            "slug": s.slug,
+            "description": s.description,
+            "sort_order": s.sort_order,
+        })
+
+    return _write_entity_file(output_dir, "material_subcategories", records)
+
+
+def _export_materials(output_dir: Path, session: Session) -> FileEntry:
+    """Export all materials to JSON file with FK resolution."""
+    materials = session.query(Material).options(
+        joinedload(Material.subcategory)
+    ).all()
+
+    records = []
+    for m in materials:
+        records.append({
+            "id": m.id,
+            "uuid": str(m.uuid) if m.uuid else None,
+            "subcategory_id": m.subcategory_id,
+            "subcategory_slug": m.subcategory.slug if m.subcategory else None,
+            "name": m.name,
+            "slug": m.slug,
+            "base_unit_type": m.base_unit_type,
+            "description": m.description,
+        })
+
+    return _write_entity_file(output_dir, "materials", records)
+
+
+def _export_material_products(output_dir: Path, session: Session) -> FileEntry:
+    """Export all material products to JSON file with FK resolution."""
+    products = session.query(MaterialProduct).options(
+        joinedload(MaterialProduct.material),
+        joinedload(MaterialProduct.supplier),
+    ).all()
+
+    records = []
+    for p in products:
+        records.append({
+            "id": p.id,
+            "uuid": str(p.uuid) if p.uuid else None,
+            "material_id": p.material_id,
+            "material_slug": p.material.slug if p.material else None,
+            "name": p.name,
+            "slug": p.slug,
+            "brand": p.brand,
+            "package_quantity": p.package_quantity,
+            "package_unit": p.package_unit,
+            "quantity_in_base_units": p.quantity_in_base_units,
+            "supplier_id": p.supplier_id,
+            "supplier_name": p.supplier.name if p.supplier else None,
+            "sku": p.sku,
+            "current_inventory": p.current_inventory,
+            "weighted_avg_cost": str(p.weighted_avg_cost) if p.weighted_avg_cost else None,
+            "is_hidden": p.is_hidden,
+            "notes": p.notes,
+        })
+
+    return _write_entity_file(output_dir, "material_products", records)
+
+
+def _export_material_units(output_dir: Path, session: Session) -> FileEntry:
+    """Export all material units to JSON file with FK resolution."""
+    units = session.query(MaterialUnit).options(
+        joinedload(MaterialUnit.material)
+    ).all()
+
+    records = []
+    for u in units:
+        records.append({
+            "id": u.id,
+            "uuid": str(u.uuid) if u.uuid else None,
+            "material_id": u.material_id,
+            "material_slug": u.material.slug if u.material else None,
+            "name": u.name,
+            "slug": u.slug,
+            "quantity_per_unit": u.quantity_per_unit,
+            "description": u.description,
+        })
+
+    return _write_entity_file(output_dir, "material_units", records)
+
+
+def _export_material_purchases(output_dir: Path, session: Session) -> FileEntry:
+    """Export all material purchases to JSON file with FK resolution."""
+    purchases = session.query(MaterialPurchase).options(
+        joinedload(MaterialPurchase.product),
+        joinedload(MaterialPurchase.supplier),
+    ).all()
+
+    records = []
+    for p in purchases:
+        records.append({
+            "id": p.id,
+            "uuid": str(p.uuid) if p.uuid else None,
+            "product_id": p.product_id,
+            "product_slug": p.product.slug if p.product else None,
+            "supplier_id": p.supplier_id,
+            "supplier_name": p.supplier.name if p.supplier else None,
+            "purchase_date": p.purchase_date.isoformat() if p.purchase_date else None,
+            "packages_purchased": p.packages_purchased,
+            "base_units_purchased": p.base_units_purchased,
+            "total_cost": str(p.total_cost) if p.total_cost else None,
+            "cost_per_base_unit": str(p.cost_per_base_unit) if p.cost_per_base_unit else None,
+            "notes": p.notes,
+            "created_at": p.created_at.isoformat() if p.created_at else None,
+        })
+
+    return _write_entity_file(output_dir, "material_purchases", records)
+
+
+# ============================================================================
 # Main Export Functions
 # ============================================================================
 
@@ -445,6 +607,14 @@ def _export_complete_impl(
     manifest.files.append(_export_recipes(output_dir, session))
     manifest.files.append(_export_purchases(output_dir, session))
     manifest.files.append(_export_inventory_items(output_dir, session))
+
+    # Feature 047: Materials Management System
+    manifest.files.append(_export_material_categories(output_dir, session))
+    manifest.files.append(_export_material_subcategories(output_dir, session))
+    manifest.files.append(_export_materials(output_dir, session))
+    manifest.files.append(_export_material_products(output_dir, session))
+    manifest.files.append(_export_material_units(output_dir, session))
+    manifest.files.append(_export_material_purchases(output_dir, session))
 
     # Sort files by import_order
     manifest.files.sort(key=lambda f: f.import_order)

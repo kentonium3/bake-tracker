@@ -16,7 +16,7 @@ from src.models.event import Event
 from src.ui.widgets.availability_display import AvailabilityDisplay
 from src.ui.widgets.dialogs import show_error, show_confirmation
 from src.ui.service_integration import get_ui_service_integrator, OperationType
-from src.services import assembly_service, event_service, packaging_service
+from src.services import assembly_service, event_service, packaging_service, material_consumption_service
 from src.utils.constants import PADDING_MEDIUM, PADDING_LARGE
 
 
@@ -234,6 +234,21 @@ class RecordAssemblyDialog(ctk.CTkToplevel):
         notes = self.notes_textbox.get("1.0", "end-1c").strip() or None
         event_id = self._get_selected_event_id()  # Feature 016
 
+        # Feature 047: Check for pending material requirements
+        pending_materials = self._check_pending_materials()
+        material_assignments: Optional[Dict[int, Dict[int, float]]] = None
+
+        if pending_materials:
+            # Show material assignment dialog (supports split allocation)
+            dialog = PendingMaterialsDialog(self, pending_materials, assembly_quantity=quantity)
+            self.wait_window(dialog)
+
+            if dialog.result == "cancel":
+                return
+            elif dialog.result == "assigned":
+                material_assignments = dialog.assignments
+            # Note: Materials don't have bypass option - they must be assigned
+
         # Feature 026: Check for pending packaging requirements
         pending_packaging = self._check_pending_packaging()
         packaging_bypassed = False
@@ -289,6 +304,7 @@ class RecordAssemblyDialog(ctk.CTkToplevel):
                 event_id=event_id,  # Feature 016
                 packaging_bypassed=packaging_bypassed,  # Feature 026
                 packaging_bypass_notes=packaging_bypass_notes,  # Feature 026
+                material_assignments=material_assignments,  # Feature 047
             ),
             parent_widget=self,
             success_message=f"Assembled {quantity} {self.finished_good.display_name}",
@@ -304,8 +320,27 @@ class RecordAssemblyDialog(ctk.CTkToplevel):
                 "event_id": event_id,  # Feature 016
                 "assembly_run_id": result.get("assembly_run_id"),
                 "packaging_bypassed": packaging_bypassed,  # Feature 026
+                "material_assignments": material_assignments,  # Feature 047
             }
             self.destroy()
+
+    def _check_pending_materials(self) -> List[Dict[str, Any]]:
+        """
+        Check for pending generic material requirements.
+
+        Feature 047: Check if assembly has generic materials needing product selection.
+
+        Returns:
+            List of pending material dicts with available_products
+        """
+        try:
+            pending = material_consumption_service.get_pending_materials(
+                finished_good_id=self.finished_good.id
+            )
+            return pending
+        except Exception:
+            # Don't block assembly if check fails
+            return []
 
     def _check_pending_packaging(self) -> List[Dict[str, Any]]:
         """
@@ -571,6 +606,302 @@ class PendingPackagingDialog(ctk.CTkToplevel):
     def _on_bypass(self):
         """Handle Record Anyway button."""
         self.result = "bypass"
+        self.destroy()
+
+    def _on_cancel(self):
+        """Handle Cancel button."""
+        self.result = "cancel"
+        self.destroy()
+
+
+class PendingMaterialsDialog(ctk.CTkToplevel):
+    """
+    Dialog for assigning products to generic material compositions.
+
+    Feature 047: Materials Management System
+
+    When a FinishedGood has generic material compositions (material_id without
+    material_unit_id), the user must specify which products and quantities to
+    consume at assembly time. Supports split allocation where a material need
+    can be fulfilled from multiple products (e.g., "30 from Snowflakes, 20 from Holly").
+
+    Unlike packaging, there is no bypass option - materials must be assigned.
+
+    Attributes:
+        result: "assigned" or "cancel"
+        assignments: Dict[composition_id, Dict[product_id, quantity]] when assigned
+    """
+
+    def __init__(self, parent, pending: List[Dict[str, Any]], assembly_quantity: int = 1):
+        """
+        Initialize the pending materials dialog.
+
+        Args:
+            parent: Parent widget
+            pending: List of pending material dicts from get_pending_materials()
+            assembly_quantity: Number of assemblies being recorded
+        """
+        super().__init__(parent)
+
+        self.pending = pending
+        self.assembly_quantity = assembly_quantity
+        self.result = "cancel"
+        self.assignments: Dict[int, Dict[int, float]] = {}
+
+        # Track quantity entries: composition_id -> {product_id: (entry, available)}
+        self._quantity_entries: Dict[int, Dict[int, tuple]] = {}
+        # Track total labels: composition_id -> (total_var, needed)
+        self._total_info: Dict[int, tuple] = {}
+
+        self._setup_window()
+        self._create_widgets()
+        self._setup_modal()
+
+    def _setup_window(self):
+        """Configure the dialog window."""
+        self.title("Assign Material Products")
+        self.geometry("550x500")
+        self.resizable(True, True)
+
+    def _setup_modal(self):
+        """Set up modal behavior."""
+        self.transient(self.master)
+        self.wait_visibility()
+        self.grab_set()
+        self.focus_force()
+        self._center_on_parent()
+
+    def _center_on_parent(self):
+        """Center the dialog on its parent."""
+        self.update_idletasks()
+
+        parent = self.master
+        parent_x = parent.winfo_rootx()
+        parent_y = parent.winfo_rooty()
+        parent_width = parent.winfo_width()
+        parent_height = parent.winfo_height()
+
+        dialog_width = self.winfo_width()
+        dialog_height = self.winfo_height()
+
+        x = parent_x + (parent_width - dialog_width) // 2
+        y = parent_y + (parent_height - dialog_height) // 2
+
+        x = max(0, x)
+        y = max(0, y)
+
+        self.geometry(f"+{x}+{y}")
+
+    def _create_widgets(self):
+        """Create all dialog widgets."""
+        # Configure grid
+        self.grid_columnconfigure(0, weight=1)
+        self.grid_rowconfigure(1, weight=1)
+
+        # Header
+        header_frame = ctk.CTkFrame(self, fg_color="transparent")
+        header_frame.grid(row=0, column=0, sticky="ew", padx=PADDING_LARGE, pady=PADDING_LARGE)
+
+        ctk.CTkLabel(
+            header_frame,
+            text="Assign Products for Materials",
+            font=ctk.CTkFont(size=16, weight="bold"),
+        ).pack()
+
+        ctk.CTkLabel(
+            header_frame,
+            text="Enter the quantity to use from each product.\n"
+                 "You can split across multiple products.",
+            justify="center",
+        ).pack(pady=(PADDING_MEDIUM, 0))
+
+        # Scrollable frame for material assignments
+        scroll_frame = ctk.CTkScrollableFrame(self)
+        scroll_frame.grid(
+            row=1, column=0, sticky="nsew",
+            padx=PADDING_LARGE, pady=PADDING_MEDIUM
+        )
+        scroll_frame.grid_columnconfigure(0, weight=1)
+
+        for mat_info in self.pending:
+            self._create_material_section(scroll_frame, mat_info)
+
+        # Buttons
+        button_frame = ctk.CTkFrame(self, fg_color="transparent")
+        button_frame.grid(row=2, column=0, pady=PADDING_LARGE)
+
+        ctk.CTkButton(
+            button_frame,
+            text="Confirm",
+            command=self._on_confirm,
+            width=100,
+            fg_color="#28A745",
+            hover_color="#218838",
+        ).pack(side="left", padx=PADDING_MEDIUM)
+
+        ctk.CTkButton(
+            button_frame,
+            text="Cancel",
+            command=self._on_cancel,
+            width=100,
+        ).pack(side="left", padx=PADDING_MEDIUM)
+
+    def _create_material_section(self, parent, mat_info: Dict[str, Any]):
+        """Create a section for assigning quantities from products for one material."""
+        composition_id = mat_info.get("composition_id")
+        material_name = mat_info.get("material_name", "Unknown Material")
+        quantity_per_assembly = mat_info.get("quantity_needed", 0)
+        total_needed = quantity_per_assembly * self.assembly_quantity
+        available_products = mat_info.get("available_products", [])
+
+        # Material section frame
+        section = ctk.CTkFrame(parent)
+        section.pack(fill="x", pady=PADDING_MEDIUM)
+        section.grid_columnconfigure(1, weight=1)
+
+        # Material header
+        header_text = f"{material_name}"
+        ctk.CTkLabel(
+            section,
+            text=header_text,
+            font=ctk.CTkFont(weight="bold"),
+            anchor="w",
+        ).grid(row=0, column=0, columnspan=3, sticky="w", padx=PADDING_MEDIUM, pady=(PADDING_MEDIUM, 0))
+
+        # Total needed info
+        total_var = ctk.StringVar(value=f"Assigned: 0 / {total_needed:.0f} needed")
+        self._total_info[composition_id] = (total_var, total_needed)
+
+        total_label = ctk.CTkLabel(
+            section,
+            textvariable=total_var,
+            anchor="e",
+        )
+        total_label.grid(row=0, column=2, sticky="e", padx=PADDING_MEDIUM, pady=(PADDING_MEDIUM, 0))
+
+        # Product entries
+        self._quantity_entries[composition_id] = {}
+
+        if available_products:
+            row = 1
+            for prod in available_products:
+                product_id = prod.get("product_id")
+                name = prod.get("name", "Unknown")
+                available = prod.get("available_inventory", 0)
+                cost = prod.get("unit_cost", 0)
+
+                # Product label
+                prod_text = f"{name} (avail: {available:.0f}, ${float(cost):.4f}/unit)"
+                ctk.CTkLabel(
+                    section,
+                    text=prod_text,
+                    anchor="w",
+                ).grid(row=row, column=0, columnspan=2, sticky="w", padx=(PADDING_LARGE, PADDING_MEDIUM), pady=2)
+
+                # Quantity entry
+                entry = ctk.CTkEntry(section, width=80, placeholder_text="0")
+                entry.grid(row=row, column=2, sticky="e", padx=PADDING_MEDIUM, pady=2)
+
+                # Bind to update totals on change
+                entry.bind("<KeyRelease>", lambda e, cid=composition_id: self._update_total(cid))
+
+                self._quantity_entries[composition_id][product_id] = (entry, available)
+                row += 1
+
+            # Quick fill button for single product case
+            if len(available_products) == 1:
+                only_product = available_products[0]
+                only_id = only_product.get("product_id")
+                entry, _ = self._quantity_entries[composition_id][only_id]
+                entry.insert(0, str(int(total_needed)))
+                self._update_total(composition_id)
+        else:
+            ctk.CTkLabel(
+                section,
+                text="No products with inventory available",
+                text_color="#CC0000",
+            ).grid(row=1, column=0, columnspan=3, sticky="w", padx=PADDING_LARGE, pady=PADDING_MEDIUM)
+
+    def _update_total(self, composition_id: int):
+        """Update the total assigned display for a composition."""
+        entries = self._quantity_entries.get(composition_id, {})
+        total_var, needed = self._total_info.get(composition_id, (None, 0))
+
+        if not total_var:
+            return
+
+        total = 0.0
+        for product_id, (entry, _) in entries.items():
+            try:
+                val = float(entry.get() or 0)
+                total += val
+            except ValueError:
+                pass
+
+        # Update label with color coding
+        if abs(total - needed) < 0.001:
+            color_text = f"Assigned: {total:.0f} / {needed:.0f} needed"
+        elif total > needed:
+            color_text = f"Assigned: {total:.0f} / {needed:.0f} needed (OVER)"
+        else:
+            color_text = f"Assigned: {total:.0f} / {needed:.0f} needed"
+
+        total_var.set(color_text)
+
+    def _on_confirm(self):
+        """Handle Confirm button - validate and build assignments."""
+        assignments = {}
+        errors = []
+
+        for composition_id, entries in self._quantity_entries.items():
+            total_var, needed = self._total_info.get(composition_id, (None, 0))
+
+            allocations = {}
+            total_assigned = 0.0
+
+            for product_id, (entry, available) in entries.items():
+                try:
+                    qty = float(entry.get() or 0)
+                except ValueError:
+                    qty = 0
+
+                if qty > 0:
+                    if qty > available:
+                        errors.append(f"Quantity {qty:.0f} exceeds available {available:.0f}")
+                    allocations[product_id] = qty
+                    total_assigned += qty
+
+            # Validate total matches needed
+            if abs(total_assigned - needed) > 0.001:
+                # Find material name for error message
+                mat_name = "Unknown"
+                for mat in self.pending:
+                    if mat.get("composition_id") == composition_id:
+                        mat_name = mat.get("material_name", "Unknown")
+                        break
+                errors.append(
+                    f"{mat_name}: assigned {total_assigned:.0f} but need {needed:.0f}"
+                )
+            elif not allocations:
+                mat_name = "Unknown"
+                for mat in self.pending:
+                    if mat.get("composition_id") == composition_id:
+                        mat_name = mat.get("material_name", "Unknown")
+                        break
+                errors.append(f"{mat_name}: no products assigned")
+            else:
+                assignments[composition_id] = allocations
+
+        if errors:
+            show_error(
+                "Assignment Error",
+                "\n".join(errors),
+                parent=self,
+            )
+            return
+
+        self.assignments = assignments
+        self.result = "assigned"
         self.destroy()
 
     def _on_cancel(self):

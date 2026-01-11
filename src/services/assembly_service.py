@@ -35,6 +35,7 @@ from src.models import (
 )
 from src.services.database import session_scope
 from src.services import inventory_item_service
+from src.services import material_consumption_service
 
 
 # =============================================================================
@@ -236,6 +237,7 @@ def record_assembly(
     event_id: Optional[int] = None,
     packaging_bypassed: bool = False,
     packaging_bypass_notes: Optional[str] = None,
+    material_assignments: Optional[Dict[int, int]] = None,
     session=None,
 ) -> Dict[str, Any]:
     """
@@ -247,8 +249,9 @@ def record_assembly(
     3. Decrements FinishedUnit.inventory_count for FU components
     4. Decrements FinishedGood.inventory_count for nested FG components
     5. Consumes packaging via FIFO
-    6. Increments the target FinishedGood.inventory_count
-    7. Creates AssemblyRun and consumption ledger records
+    6. Consumes materials (MaterialUnit or assigned products for generic Material)
+    7. Increments the target FinishedGood.inventory_count
+    8. Creates AssemblyRun and consumption ledger records
 
     Args:
         finished_good_id: ID of the FinishedGood being assembled
@@ -258,6 +261,7 @@ def record_assembly(
         event_id: Optional event ID to link assembly to (Feature 016)
         packaging_bypassed: If True, records that packaging assignment was bypassed (Feature 026)
         packaging_bypass_notes: Notes about why packaging was bypassed (Feature 026)
+        material_assignments: Dict mapping composition_id -> product_id for generic materials (Feature 047)
         session: Optional database session (uses session_scope if not provided)
 
     Returns:
@@ -269,6 +273,7 @@ def record_assembly(
             - "per_unit_cost": Decimal
             - "finished_unit_consumptions": List[Dict]
             - "packaging_consumptions": List[Dict]
+            - "material_consumptions": List[Dict] - material consumption records (Feature 047)
             - "event_id": Optional[int] - linked event ID (Feature 016)
             - "packaging_bypassed": bool - packaging bypass flag (Feature 026)
 
@@ -278,17 +283,18 @@ def record_assembly(
         InsufficientFinishedGoodError: If nested FG inventory is insufficient
         InsufficientPackagingError: If packaging inventory is insufficient
         EventNotFoundError: If event_id is provided but event doesn't exist
+        ValidationError: If material availability validation fails (Feature 047)
     """
     # Use provided session or create a new one
     if session is not None:
         return _record_assembly_impl(
             finished_good_id, quantity, assembled_at, notes, event_id,
-            packaging_bypassed, packaging_bypass_notes, session
+            packaging_bypassed, packaging_bypass_notes, material_assignments, session
         )
     with session_scope() as session:
         return _record_assembly_impl(
             finished_good_id, quantity, assembled_at, notes, event_id,
-            packaging_bypassed, packaging_bypass_notes, session
+            packaging_bypassed, packaging_bypass_notes, material_assignments, session
         )
 
 
@@ -300,6 +306,7 @@ def _record_assembly_impl(
     event_id: Optional[int],
     packaging_bypassed: bool,
     packaging_bypass_notes: Optional[str],
+    material_assignments: Optional[Dict[int, int]],
     session,
 ) -> Dict[str, Any]:
     """Implementation of record_assembly that uses provided session."""
@@ -456,6 +463,29 @@ def _record_assembly_impl(
         )
         session.add(consumption)
 
+    # Feature 047: Record material consumption
+    # This validates availability, creates MaterialConsumption records, and decrements inventory
+    material_consumptions = material_consumption_service.record_material_consumption(
+        assembly_run_id=assembly_run.id,
+        finished_good_id=finished_good_id,
+        assembly_quantity=quantity,
+        material_assignments=material_assignments,
+        session=session,
+    )
+
+    # Add material costs to total
+    material_cost = sum(
+        c.total_cost for c in material_consumptions
+    ) if material_consumptions else Decimal("0")
+    total_component_cost += material_cost
+
+    # Recalculate per-unit cost with materials included
+    per_unit_cost = total_component_cost / Decimal(str(quantity)) if quantity > 0 else Decimal("0.0000")
+
+    # Update assembly run with final cost totals
+    assembly_run.total_component_cost = total_component_cost
+    assembly_run.per_unit_cost = per_unit_cost
+
     # Commit happens automatically via session_scope
 
     return {
@@ -466,6 +496,7 @@ def _record_assembly_impl(
         "per_unit_cost": per_unit_cost,
         "finished_unit_consumptions": fu_consumptions,
         "packaging_consumptions": pkg_consumptions,
+        "material_consumptions": [c.to_dict() for c in material_consumptions],  # Feature 047
         "event_id": event_id,  # Feature 016
         "packaging_bypassed": packaging_bypassed,  # Feature 026
     }
