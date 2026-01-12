@@ -5,6 +5,9 @@ Tests cover:
 - Products view export with context fields
 - Inventory view export with product/purchase context
 - Purchases view export with product/supplier context
+- Ingredients view export with hierarchy and computed values
+- Materials view export with hierarchy
+- Recipes view export with embedded ingredients and costs
 - _meta editable/readonly field definitions
 """
 
@@ -19,22 +22,36 @@ import pytest
 
 from src.models.ingredient import Ingredient
 from src.models.inventory_item import InventoryItem
+from src.models.material import Material
+from src.models.material_category import MaterialCategory
+from src.models.material_product import MaterialProduct
+from src.models.material_subcategory import MaterialSubcategory
 from src.models.product import Product
 from src.models.purchase import Purchase
+from src.models.recipe import Recipe, RecipeIngredient
 from src.models.supplier import Supplier
 from src.services.database import session_scope
 from src.services.denormalized_export_service import (
+    INGREDIENTS_VIEW_EDITABLE,
+    INGREDIENTS_VIEW_READONLY,
     INVENTORY_VIEW_EDITABLE,
     INVENTORY_VIEW_READONLY,
+    MATERIALS_VIEW_EDITABLE,
+    MATERIALS_VIEW_READONLY,
     PRODUCTS_VIEW_EDITABLE,
     PRODUCTS_VIEW_READONLY,
     PURCHASES_VIEW_EDITABLE,
     PURCHASES_VIEW_READONLY,
+    RECIPES_VIEW_EDITABLE,
+    RECIPES_VIEW_READONLY,
     ExportResult,
     export_all_views,
+    export_ingredients_view,
     export_inventory_view,
+    export_materials_view,
     export_products_view,
     export_purchases_view,
+    export_recipes_view,
 )
 
 
@@ -145,6 +162,166 @@ def sample_inventory_item(test_db, sample_product, sample_purchase):
         session.flush()
         item_id = item.id
     return item_id
+
+
+@pytest.fixture
+def sample_ingredient_with_hierarchy(test_db):
+    """Create sample ingredients with parent-child hierarchy for tests."""
+    with session_scope() as session:
+        # Create root ingredient (level 0)
+        root = Ingredient(
+            slug="chocolate",
+            display_name="Chocolate",
+            category="Chocolate",
+            hierarchy_level=0,
+            description="All chocolate products",
+        )
+        session.add(root)
+        session.flush()
+        root_id = root.id
+
+        # Create mid-level ingredient (level 1)
+        mid = Ingredient(
+            slug="dark_chocolate",
+            display_name="Dark Chocolate",
+            category="Chocolate",
+            hierarchy_level=1,
+            parent_ingredient_id=root_id,
+        )
+        session.add(mid)
+        session.flush()
+        mid_id = mid.id
+
+        # Create leaf ingredient (level 2)
+        leaf = Ingredient(
+            slug="semi_sweet_chips",
+            display_name="Semi-Sweet Chips",
+            category="Chocolate",
+            hierarchy_level=2,
+            parent_ingredient_id=mid_id,
+            description="Semi-sweet chocolate chips",
+        )
+        session.add(leaf)
+        session.flush()
+        leaf_id = leaf.id
+
+    return {"root": root_id, "mid": mid_id, "leaf": leaf_id}
+
+
+@pytest.fixture
+def sample_material_hierarchy(test_db):
+    """Create sample material hierarchy for tests."""
+    with session_scope() as session:
+        # Create category
+        category = MaterialCategory(
+            name="Ribbons",
+            slug="ribbons",
+            description="All ribbons",
+        )
+        session.add(category)
+        session.flush()
+        category_id = category.id
+
+        # Create subcategory
+        subcategory = MaterialSubcategory(
+            category_id=category_id,
+            name="Satin",
+            slug="satin",
+            description="Satin ribbons",
+        )
+        session.add(subcategory)
+        session.flush()
+        subcategory_id = subcategory.id
+
+        # Create material
+        material = Material(
+            subcategory_id=subcategory_id,
+            name="Red Satin Ribbon",
+            slug="red-satin-ribbon",
+            description="1-inch red satin ribbon",
+            base_unit_type="linear_inches",
+        )
+        session.add(material)
+        session.flush()
+        material_id = material.id
+
+    return {
+        "category": category_id,
+        "subcategory": subcategory_id,
+        "material": material_id,
+    }
+
+
+@pytest.fixture
+def sample_material_with_product(test_db, sample_material_hierarchy, sample_supplier):
+    """Create sample material with a product for tests."""
+    with session_scope() as session:
+        product = MaterialProduct(
+            material_id=sample_material_hierarchy["material"],
+            supplier_id=sample_supplier,
+            name="100ft Red Satin Roll",
+            slug="red-satin-100ft",
+            brand="Michaels",
+            package_quantity=100,
+            package_unit="feet",
+            quantity_in_base_units=1200,  # 100 feet = 1200 inches
+            current_inventory=600,  # 50 feet remaining
+            weighted_avg_cost=Decimal("0.05"),  # $0.05 per inch
+        )
+        session.add(product)
+        session.flush()
+        product_id = product.id
+    return product_id
+
+
+@pytest.fixture
+def sample_recipe(test_db, sample_ingredient):
+    """Create a sample recipe with ingredients for tests."""
+    with session_scope() as session:
+        recipe = Recipe(
+            name="Chocolate Chip Cookies",
+            category="Cookies",
+            source="Family Recipe",
+            yield_quantity=24,
+            yield_unit="cookies",
+            yield_description="2-inch cookies",
+            estimated_time_minutes=45,
+            notes="Classic recipe",
+        )
+        session.add(recipe)
+        session.flush()
+        recipe_id = recipe.id
+
+        # Add recipe ingredient
+        ri = RecipeIngredient(
+            recipe_id=recipe_id,
+            ingredient_id=sample_ingredient,
+            quantity=2.5,
+            unit="cup",
+            notes="sifted",
+        )
+        session.add(ri)
+
+    return recipe_id
+
+
+@pytest.fixture
+def cleanup_extended_test_data(test_db):
+    """Cleanup extended test data after each test."""
+    yield
+    with session_scope() as session:
+        # Delete in reverse dependency order
+        session.query(RecipeIngredient).delete(synchronize_session=False)
+        session.query(Recipe).delete(synchronize_session=False)
+        session.query(MaterialProduct).delete(synchronize_session=False)
+        session.query(Material).delete(synchronize_session=False)
+        session.query(MaterialSubcategory).delete(synchronize_session=False)
+        session.query(MaterialCategory).delete(synchronize_session=False)
+        session.query(InventoryItem).delete(synchronize_session=False)
+        session.query(Purchase).delete(synchronize_session=False)
+        session.query(Product).delete(synchronize_session=False)
+        session.query(Ingredient).delete(synchronize_session=False)
+        session.query(Supplier).delete(synchronize_session=False)
 
 
 # ============================================================================
@@ -624,7 +801,572 @@ class TestFieldDefinitions:
         products_overlap = set(PRODUCTS_VIEW_EDITABLE) & set(PRODUCTS_VIEW_READONLY)
         inventory_overlap = set(INVENTORY_VIEW_EDITABLE) & set(INVENTORY_VIEW_READONLY)
         purchases_overlap = set(PURCHASES_VIEW_EDITABLE) & set(PURCHASES_VIEW_READONLY)
+        ingredients_overlap = set(INGREDIENTS_VIEW_EDITABLE) & set(INGREDIENTS_VIEW_READONLY)
+        materials_overlap = set(MATERIALS_VIEW_EDITABLE) & set(MATERIALS_VIEW_READONLY)
+        recipes_overlap = set(RECIPES_VIEW_EDITABLE) & set(RECIPES_VIEW_READONLY)
 
         assert len(products_overlap) == 0
         assert len(inventory_overlap) == 0
         assert len(purchases_overlap) == 0
+        assert len(ingredients_overlap) == 0
+        assert len(materials_overlap) == 0
+        assert len(recipes_overlap) == 0
+
+
+# ============================================================================
+# Ingredients View Export Tests
+# ============================================================================
+
+
+class TestExportIngredientsView:
+    """Tests for export_ingredients_view function."""
+
+    def test_export_empty_database(self, test_db, cleanup_test_data):
+        """Test export of empty database creates file with 0 records."""
+        with tempfile.NamedTemporaryFile(suffix=".json", delete=False) as f:
+            temp_path = f.name
+
+        try:
+            result = export_ingredients_view(temp_path)
+
+            assert result.view_type == "ingredients"
+            assert result.record_count == 0
+
+            with open(temp_path) as f:
+                data = json.load(f)
+
+            assert data["view_type"] == "ingredients"
+            assert data["version"] == "1.0"
+            assert "_meta" in data
+            assert data["records"] == []
+        finally:
+            os.unlink(temp_path)
+
+    def test_export_with_ingredient(self, test_db, sample_ingredient, cleanup_test_data):
+        """Test export includes ingredient data."""
+        with tempfile.NamedTemporaryFile(suffix=".json", delete=False) as f:
+            temp_path = f.name
+
+        try:
+            result = export_ingredients_view(temp_path)
+
+            assert result.record_count == 1
+
+            with open(temp_path) as f:
+                data = json.load(f)
+
+            assert len(data["records"]) == 1
+            ingredient = data["records"][0]
+
+            # Verify ingredient fields
+            assert ingredient["slug"] == "test_flour"
+            assert ingredient["display_name"] == "All-Purpose Flour"
+            assert ingredient["category"] == "Flour"
+            assert ingredient["description"] == "Standard baking flour"
+
+        finally:
+            os.unlink(temp_path)
+
+    def test_export_includes_hierarchy_path(
+        self, test_db, sample_ingredient_with_hierarchy, cleanup_extended_test_data
+    ):
+        """Test export includes full category hierarchy path."""
+        with tempfile.NamedTemporaryFile(suffix=".json", delete=False) as f:
+            temp_path = f.name
+
+        try:
+            result = export_ingredients_view(temp_path)
+
+            with open(temp_path) as f:
+                data = json.load(f)
+
+            # Find the leaf ingredient
+            leaf_record = None
+            for record in data["records"]:
+                if record["slug"] == "semi_sweet_chips":
+                    leaf_record = record
+                    break
+
+            assert leaf_record is not None
+            # Should have full hierarchy path
+            assert "Chocolate" in leaf_record["category_hierarchy"]
+            assert "Dark Chocolate" in leaf_record["category_hierarchy"]
+            assert "Semi-Sweet Chips" in leaf_record["category_hierarchy"]
+            assert " > " in leaf_record["category_hierarchy"]
+
+        finally:
+            os.unlink(temp_path)
+
+    def test_export_includes_products_array(
+        self, test_db, sample_product, cleanup_test_data
+    ):
+        """Test export includes nested products array."""
+        with tempfile.NamedTemporaryFile(suffix=".json", delete=False) as f:
+            temp_path = f.name
+
+        try:
+            result = export_ingredients_view(temp_path)
+
+            with open(temp_path) as f:
+                data = json.load(f)
+
+            ingredient = data["records"][0]
+
+            assert "products" in ingredient
+            assert len(ingredient["products"]) == 1
+
+            product = ingredient["products"][0]
+            assert product["brand"] == "King Arthur"
+            assert product["product_name"] == "All-Purpose Flour"
+
+        finally:
+            os.unlink(temp_path)
+
+    def test_export_includes_inventory_total(
+        self, test_db, sample_inventory_item, cleanup_test_data
+    ):
+        """Test export includes computed inventory total."""
+        with tempfile.NamedTemporaryFile(suffix=".json", delete=False) as f:
+            temp_path = f.name
+
+        try:
+            result = export_ingredients_view(temp_path)
+
+            with open(temp_path) as f:
+                data = json.load(f)
+
+            ingredient = data["records"][0]
+
+            assert "inventory_total" in ingredient
+            assert ingredient["inventory_total"] == 10.0
+
+        finally:
+            os.unlink(temp_path)
+
+    def test_export_includes_average_cost(
+        self, test_db, sample_inventory_item, cleanup_test_data
+    ):
+        """Test export includes computed average cost."""
+        with tempfile.NamedTemporaryFile(suffix=".json", delete=False) as f:
+            temp_path = f.name
+
+        try:
+            result = export_ingredients_view(temp_path)
+
+            with open(temp_path) as f:
+                data = json.load(f)
+
+            ingredient = data["records"][0]
+
+            assert "average_cost" in ingredient
+            # Should be the unit cost from inventory item
+            assert ingredient["average_cost"] == 12.99
+
+        finally:
+            os.unlink(temp_path)
+
+    def test_export_meta_fields_present(self, test_db, cleanup_test_data):
+        """Test _meta section includes editable and readonly fields."""
+        with tempfile.NamedTemporaryFile(suffix=".json", delete=False) as f:
+            temp_path = f.name
+
+        try:
+            export_ingredients_view(temp_path)
+
+            with open(temp_path) as f:
+                data = json.load(f)
+
+            assert "_meta" in data
+            assert "editable_fields" in data["_meta"]
+            assert "readonly_fields" in data["_meta"]
+            assert data["_meta"]["editable_fields"] == INGREDIENTS_VIEW_EDITABLE
+            assert data["_meta"]["readonly_fields"] == INGREDIENTS_VIEW_READONLY
+
+        finally:
+            os.unlink(temp_path)
+
+
+# ============================================================================
+# Materials View Export Tests
+# ============================================================================
+
+
+class TestExportMaterialsView:
+    """Tests for export_materials_view function."""
+
+    def test_export_empty_database(self, test_db, cleanup_test_data):
+        """Test export of empty database creates file with 0 records."""
+        with tempfile.NamedTemporaryFile(suffix=".json", delete=False) as f:
+            temp_path = f.name
+
+        try:
+            result = export_materials_view(temp_path)
+
+            assert result.view_type == "materials"
+            assert result.record_count == 0
+
+            with open(temp_path) as f:
+                data = json.load(f)
+
+            assert data["view_type"] == "materials"
+            assert data["version"] == "1.0"
+            assert "_meta" in data
+            assert data["records"] == []
+        finally:
+            os.unlink(temp_path)
+
+    def test_export_with_material(
+        self, test_db, sample_material_hierarchy, cleanup_extended_test_data
+    ):
+        """Test export includes material data."""
+        with tempfile.NamedTemporaryFile(suffix=".json", delete=False) as f:
+            temp_path = f.name
+
+        try:
+            result = export_materials_view(temp_path)
+
+            assert result.record_count == 1
+
+            with open(temp_path) as f:
+                data = json.load(f)
+
+            assert len(data["records"]) == 1
+            material = data["records"][0]
+
+            # Verify material fields
+            assert material["slug"] == "red-satin-ribbon"
+            assert material["name"] == "Red Satin Ribbon"
+            assert material["base_unit_type"] == "linear_inches"
+
+        finally:
+            os.unlink(temp_path)
+
+    def test_export_includes_hierarchy_path(
+        self, test_db, sample_material_hierarchy, cleanup_extended_test_data
+    ):
+        """Test export includes full category hierarchy path."""
+        with tempfile.NamedTemporaryFile(suffix=".json", delete=False) as f:
+            temp_path = f.name
+
+        try:
+            result = export_materials_view(temp_path)
+
+            with open(temp_path) as f:
+                data = json.load(f)
+
+            material = data["records"][0]
+
+            # Should have full hierarchy: Category > Subcategory > Material
+            assert material["category_hierarchy"] == "Ribbons > Satin > Red Satin Ribbon"
+
+        finally:
+            os.unlink(temp_path)
+
+    def test_export_includes_products_array(
+        self, test_db, sample_material_with_product, cleanup_extended_test_data
+    ):
+        """Test export includes nested products array."""
+        with tempfile.NamedTemporaryFile(suffix=".json", delete=False) as f:
+            temp_path = f.name
+
+        try:
+            result = export_materials_view(temp_path)
+
+            with open(temp_path) as f:
+                data = json.load(f)
+
+            material = data["records"][0]
+
+            assert "products" in material
+            assert len(material["products"]) == 1
+
+            product = material["products"][0]
+            assert product["name"] == "100ft Red Satin Roll"
+            assert product["brand"] == "Michaels"
+            assert product["current_inventory"] == 600
+
+        finally:
+            os.unlink(temp_path)
+
+    def test_export_includes_inventory_totals(
+        self, test_db, sample_material_with_product, cleanup_extended_test_data
+    ):
+        """Test export includes computed inventory totals."""
+        with tempfile.NamedTemporaryFile(suffix=".json", delete=False) as f:
+            temp_path = f.name
+
+        try:
+            result = export_materials_view(temp_path)
+
+            with open(temp_path) as f:
+                data = json.load(f)
+
+            material = data["records"][0]
+
+            assert "total_inventory" in material
+            assert material["total_inventory"] == 600.0
+
+            assert "total_inventory_value" in material
+            # 600 inches * $0.05/inch = $30.00
+            assert material["total_inventory_value"] == 30.0
+
+        finally:
+            os.unlink(temp_path)
+
+    def test_export_meta_fields_present(self, test_db, cleanup_test_data):
+        """Test _meta section includes editable and readonly fields."""
+        with tempfile.NamedTemporaryFile(suffix=".json", delete=False) as f:
+            temp_path = f.name
+
+        try:
+            export_materials_view(temp_path)
+
+            with open(temp_path) as f:
+                data = json.load(f)
+
+            assert "_meta" in data
+            assert data["_meta"]["editable_fields"] == MATERIALS_VIEW_EDITABLE
+            assert data["_meta"]["readonly_fields"] == MATERIALS_VIEW_READONLY
+
+        finally:
+            os.unlink(temp_path)
+
+
+# ============================================================================
+# Recipes View Export Tests
+# ============================================================================
+
+
+class TestExportRecipesView:
+    """Tests for export_recipes_view function."""
+
+    def test_export_empty_database(self, test_db, cleanup_test_data):
+        """Test export of empty database creates file with 0 records."""
+        with tempfile.NamedTemporaryFile(suffix=".json", delete=False) as f:
+            temp_path = f.name
+
+        try:
+            result = export_recipes_view(temp_path)
+
+            assert result.view_type == "recipes"
+            assert result.record_count == 0
+
+            with open(temp_path) as f:
+                data = json.load(f)
+
+            assert data["view_type"] == "recipes"
+            assert data["version"] == "1.0"
+            assert "_meta" in data
+            assert data["records"] == []
+        finally:
+            os.unlink(temp_path)
+
+    def test_export_with_recipe(
+        self, test_db, sample_recipe, cleanup_extended_test_data
+    ):
+        """Test export includes recipe data."""
+        with tempfile.NamedTemporaryFile(suffix=".json", delete=False) as f:
+            temp_path = f.name
+
+        try:
+            result = export_recipes_view(temp_path)
+
+            assert result.record_count == 1
+
+            with open(temp_path) as f:
+                data = json.load(f)
+
+            assert len(data["records"]) == 1
+            recipe = data["records"][0]
+
+            # Verify recipe fields
+            assert recipe["name"] == "Chocolate Chip Cookies"
+            assert recipe["category"] == "Cookies"
+            assert recipe["source"] == "Family Recipe"
+            assert recipe["yield_quantity"] == 24
+            assert recipe["yield_unit"] == "cookies"
+            assert recipe["estimated_time_minutes"] == 45
+
+        finally:
+            os.unlink(temp_path)
+
+    def test_export_includes_embedded_ingredients(
+        self, test_db, sample_recipe, cleanup_extended_test_data
+    ):
+        """Test export includes nested ingredients array."""
+        with tempfile.NamedTemporaryFile(suffix=".json", delete=False) as f:
+            temp_path = f.name
+
+        try:
+            result = export_recipes_view(temp_path)
+
+            with open(temp_path) as f:
+                data = json.load(f)
+
+            recipe = data["records"][0]
+
+            assert "ingredients" in recipe
+            assert len(recipe["ingredients"]) == 1
+
+            ingredient = recipe["ingredients"][0]
+            assert ingredient["ingredient_slug"] == "test_flour"
+            assert ingredient["ingredient_name"] == "All-Purpose Flour"
+            assert ingredient["quantity"] == 2.5
+            assert ingredient["unit"] == "cup"
+            assert ingredient["notes"] == "sifted"
+
+        finally:
+            os.unlink(temp_path)
+
+    def test_export_includes_computed_costs(
+        self, test_db, sample_recipe, cleanup_extended_test_data
+    ):
+        """Test export includes computed cost fields."""
+        with tempfile.NamedTemporaryFile(suffix=".json", delete=False) as f:
+            temp_path = f.name
+
+        try:
+            result = export_recipes_view(temp_path)
+
+            with open(temp_path) as f:
+                data = json.load(f)
+
+            recipe = data["records"][0]
+
+            # Cost fields should be present (may be None if no pricing data)
+            assert "total_cost" in recipe
+            assert "cost_per_unit" in recipe
+
+        finally:
+            os.unlink(temp_path)
+
+    def test_export_meta_fields_present(self, test_db, cleanup_test_data):
+        """Test _meta section includes editable and readonly fields."""
+        with tempfile.NamedTemporaryFile(suffix=".json", delete=False) as f:
+            temp_path = f.name
+
+        try:
+            export_recipes_view(temp_path)
+
+            with open(temp_path) as f:
+                data = json.load(f)
+
+            assert "_meta" in data
+            assert data["_meta"]["editable_fields"] == RECIPES_VIEW_EDITABLE
+            assert data["_meta"]["readonly_fields"] == RECIPES_VIEW_READONLY
+
+        finally:
+            os.unlink(temp_path)
+
+    def test_export_uses_session_parameter(
+        self, test_db, sample_recipe, cleanup_extended_test_data
+    ):
+        """Test export works with passed session parameter."""
+        with tempfile.NamedTemporaryFile(suffix=".json", delete=False) as f:
+            temp_path = f.name
+
+        try:
+            with session_scope() as session:
+                result = export_recipes_view(temp_path, session=session)
+
+            assert result.record_count == 1
+
+        finally:
+            os.unlink(temp_path)
+
+
+# ============================================================================
+# Export All Views Tests (Extended)
+# ============================================================================
+
+
+class TestExportAllViewsExtended:
+    """Extended tests for export_all_views including new views."""
+
+    def test_export_all_views_creates_all_files(
+        self, test_db, cleanup_extended_test_data
+    ):
+        """Test export_all_views creates all six view files."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            results = export_all_views(tmpdir)
+
+            # Verify all views are included
+            assert "products" in results
+            assert "inventory" in results
+            assert "purchases" in results
+            assert "ingredients" in results
+            assert "materials" in results
+            assert "recipes" in results
+
+            # Verify files exist
+            assert (Path(tmpdir) / "view_products.json").exists()
+            assert (Path(tmpdir) / "view_inventory.json").exists()
+            assert (Path(tmpdir) / "view_purchases.json").exists()
+            assert (Path(tmpdir) / "view_ingredients.json").exists()
+            assert (Path(tmpdir) / "view_materials.json").exists()
+            assert (Path(tmpdir) / "view_recipes.json").exists()
+
+
+# ============================================================================
+# New Field Definition Tests
+# ============================================================================
+
+
+class TestNewFieldDefinitions:
+    """Tests for new editable/readonly field constant definitions."""
+
+    def test_ingredients_editable_fields(self):
+        """Verify ingredients editable fields match spec requirements."""
+        required_editable = [
+            "description",
+            "notes",
+            "density_volume_value",
+            "density_volume_unit",
+        ]
+        for field in required_editable:
+            assert field in INGREDIENTS_VIEW_EDITABLE
+
+    def test_ingredients_readonly_includes_computed(self):
+        """Verify ingredients readonly includes computed fields."""
+        computed_fields = [
+            "category_hierarchy",
+            "product_count",
+            "inventory_total",
+            "average_cost",
+        ]
+        for field in computed_fields:
+            assert field in INGREDIENTS_VIEW_READONLY
+
+    def test_materials_editable_fields(self):
+        """Verify materials editable fields match spec requirements."""
+        required_editable = ["description", "notes"]
+        for field in required_editable:
+            assert field in MATERIALS_VIEW_EDITABLE
+
+    def test_materials_readonly_includes_hierarchy(self):
+        """Verify materials readonly includes hierarchy and computed fields."""
+        context_fields = [
+            "category_hierarchy",
+            "product_count",
+            "total_inventory",
+            "total_inventory_value",
+        ]
+        for field in context_fields:
+            assert field in MATERIALS_VIEW_READONLY
+
+    def test_recipes_editable_fields(self):
+        """Verify recipes editable fields match spec requirements."""
+        required_editable = ["notes", "source", "estimated_time_minutes"]
+        for field in required_editable:
+            assert field in RECIPES_VIEW_EDITABLE
+
+    def test_recipes_readonly_includes_computed(self):
+        """Verify recipes readonly includes computed and nested fields."""
+        context_fields = [
+            "ingredients",
+            "recipe_components",
+            "total_cost",
+            "cost_per_unit",
+        ]
+        for field in context_fields:
+            assert field in RECIPES_VIEW_READONLY

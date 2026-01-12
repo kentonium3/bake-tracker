@@ -39,6 +39,11 @@ from src.models.material import Material
 from src.models.material_product import MaterialProduct
 from src.models.material_unit import MaterialUnit
 from src.models.material_purchase import MaterialPurchase
+from src.models.finished_good import FinishedGood
+from src.models.finished_unit import FinishedUnit
+from src.models.event import Event, EventProductionTarget, EventAssemblyTarget
+from src.models.production_run import ProductionRun
+from src.models.inventory_depletion import InventoryDepletion
 from src.services.database import session_scope
 from src.utils.constants import APP_NAME, APP_VERSION
 
@@ -108,6 +113,11 @@ DEPENDENCY_ORDER = {
     "material_products": (10, ["materials", "suppliers"]),
     "material_units": (11, ["materials"]),
     "material_purchases": (12, ["material_products", "suppliers"]),
+    # Feature 049: Complete backup entities
+    "finished_goods": (13, []),
+    "events": (14, []),
+    "production_runs": (15, ["recipes", "events"]),
+    "inventory_depletions": (16, ["inventory_items"]),
 }
 
 
@@ -549,6 +559,153 @@ def _export_material_purchases(output_dir: Path, session: Session) -> FileEntry:
 
 
 # ============================================================================
+# Complete Backup Export Functions (Feature 049)
+# ============================================================================
+
+
+def _export_finished_goods(output_dir: Path, session: Session) -> FileEntry:
+    """Export all finished goods to JSON file."""
+    goods = session.query(FinishedGood).all()
+
+    records = []
+    for g in goods:
+        records.append({
+            "id": g.id,
+            "uuid": str(g.uuid) if g.uuid else None,
+            "slug": g.slug,
+            "display_name": g.display_name,
+            "description": g.description,
+            "assembly_type": g.assembly_type.value if g.assembly_type else None,
+            "packaging_instructions": g.packaging_instructions,
+            "inventory_count": g.inventory_count,
+            "notes": g.notes,
+            "created_at": g.created_at.isoformat() if g.created_at else None,
+            "updated_at": g.updated_at.isoformat() if g.updated_at else None,
+        })
+
+    return _write_entity_file(output_dir, "finished_goods", records)
+
+
+def _export_events(output_dir: Path, session: Session) -> FileEntry:
+    """Export all events with production/assembly targets to JSON file."""
+    events = session.query(Event).options(
+        joinedload(Event.production_targets).joinedload(EventProductionTarget.recipe),
+        joinedload(Event.assembly_targets).joinedload(EventAssemblyTarget.finished_good),
+    ).all()
+
+    records = []
+    for e in events:
+        # Build production targets list
+        production_targets = []
+        for pt in e.production_targets:
+            production_targets.append({
+                "recipe_id": pt.recipe_id,
+                "recipe_name": pt.recipe.name if pt.recipe else None,
+                "target_batches": pt.target_batches,
+                "notes": pt.notes,
+            })
+
+        # Build assembly targets list
+        assembly_targets = []
+        for at in e.assembly_targets:
+            assembly_targets.append({
+                "finished_good_id": at.finished_good_id,
+                "finished_good_slug": at.finished_good.slug if at.finished_good else None,
+                "target_quantity": at.target_quantity,
+                "notes": at.notes,
+            })
+
+        records.append({
+            "id": e.id,
+            "uuid": str(e.uuid) if e.uuid else None,
+            "name": e.name,
+            "event_date": e.event_date.isoformat() if e.event_date else None,
+            "year": e.year,
+            "output_mode": e.output_mode.value if e.output_mode else None,
+            "notes": e.notes,
+            "date_added": e.date_added.isoformat() if e.date_added else None,
+            "last_modified": e.last_modified.isoformat() if e.last_modified else None,
+            # Nested targets
+            "production_targets": production_targets,
+            "assembly_targets": assembly_targets,
+        })
+
+    return _write_entity_file(output_dir, "events", records)
+
+
+def _export_production_runs(output_dir: Path, session: Session) -> FileEntry:
+    """Export all production runs to JSON file with FK resolution."""
+    runs = session.query(ProductionRun).options(
+        joinedload(ProductionRun.recipe),
+        joinedload(ProductionRun.event),
+        joinedload(ProductionRun.finished_unit),
+    ).all()
+
+    records = []
+    for r in runs:
+        records.append({
+            "id": r.id,
+            "uuid": str(r.uuid) if r.uuid else None,
+            # FK with resolution fields
+            "recipe_id": r.recipe_id,
+            "recipe_name": r.recipe.name if r.recipe else None,
+            "finished_unit_id": r.finished_unit_id,
+            "finished_unit_slug": r.finished_unit.slug if r.finished_unit else None,
+            "event_id": r.event_id,
+            "event_name": r.event.name if r.event else None,
+            "recipe_snapshot_id": r.recipe_snapshot_id,
+            # Production data
+            "num_batches": r.num_batches,
+            "expected_yield": r.expected_yield,
+            "actual_yield": r.actual_yield,
+            "produced_at": r.produced_at.isoformat() if r.produced_at else None,
+            "notes": r.notes,
+            "production_status": r.production_status,
+            "loss_quantity": r.loss_quantity,
+            # Cost data
+            "total_ingredient_cost": str(r.total_ingredient_cost) if r.total_ingredient_cost else None,
+            "per_unit_cost": str(r.per_unit_cost) if r.per_unit_cost else None,
+        })
+
+    return _write_entity_file(output_dir, "production_runs", records)
+
+
+def _export_inventory_depletions(output_dir: Path, session: Session) -> FileEntry:
+    """Export all inventory depletions to JSON file with FK resolution."""
+    depletions = session.query(InventoryDepletion).options(
+        joinedload(InventoryDepletion.inventory_item),
+    ).all()
+
+    records = []
+    for d in depletions:
+        # Build inventory item resolution
+        inventory_item_ref = None
+        if d.inventory_item and d.inventory_item.product:
+            product = d.inventory_item.product
+            if product.ingredient:
+                inventory_item_ref = f"{product.ingredient.slug}:{product.brand}:{product.package_unit_quantity}:{product.package_unit}"
+
+        records.append({
+            "id": d.id,
+            "uuid": d.uuid,
+            # FK with resolution fields
+            "inventory_item_id": d.inventory_item_id,
+            "inventory_item_ref": inventory_item_ref,
+            # Depletion data
+            "quantity_depleted": str(d.quantity_depleted) if d.quantity_depleted else None,
+            "depletion_reason": d.depletion_reason,
+            "depletion_date": d.depletion_date.isoformat() if d.depletion_date else None,
+            "notes": d.notes,
+            "cost": str(d.cost) if d.cost else None,
+            # Audit fields
+            "created_by": d.created_by,
+            "created_at": d.created_at.isoformat() if d.created_at else None,
+        })
+
+    return _write_entity_file(output_dir, "inventory_depletions", records)
+
+
+# ============================================================================
 # Main Export Functions
 # ============================================================================
 
@@ -615,6 +772,12 @@ def _export_complete_impl(
     manifest.files.append(_export_material_products(output_dir, session))
     manifest.files.append(_export_material_units(output_dir, session))
     manifest.files.append(_export_material_purchases(output_dir, session))
+
+    # Feature 049: Complete backup entities
+    manifest.files.append(_export_finished_goods(output_dir, session))
+    manifest.files.append(_export_events(output_dir, session))
+    manifest.files.append(_export_production_runs(output_dir, session))
+    manifest.files.append(_export_inventory_depletions(output_dir, session))
 
     # Sort files by import_order
     manifest.files.sort(key=lambda f: f.import_order)

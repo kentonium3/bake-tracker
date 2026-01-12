@@ -18,9 +18,14 @@ from pathlib import Path
 
 import pytest
 
+from src.models.event import Event, EventProductionTarget, EventAssemblyTarget
+from src.models.finished_good import FinishedGood
+from src.models.finished_unit import FinishedUnit
 from src.models.ingredient import Ingredient
+from src.models.inventory_depletion import InventoryDepletion
 from src.models.inventory_item import InventoryItem
 from src.models.product import Product
+from src.models.production_run import ProductionRun
 from src.models.purchase import Purchase
 from src.models.recipe import Recipe, RecipeComponent, RecipeIngredient
 from src.models.supplier import Supplier
@@ -46,6 +51,15 @@ def cleanup_test_data(test_db):
     yield
     with session_scope() as session:
         # Delete in reverse dependency order
+        # Feature 049: New entities first
+        session.query(InventoryDepletion).delete(synchronize_session=False)
+        session.query(ProductionRun).delete(synchronize_session=False)
+        session.query(EventProductionTarget).delete(synchronize_session=False)
+        session.query(EventAssemblyTarget).delete(synchronize_session=False)
+        session.query(Event).delete(synchronize_session=False)
+        session.query(FinishedGood).delete(synchronize_session=False)
+        session.query(FinishedUnit).delete(synchronize_session=False)
+        # Original entities
         session.query(InventoryItem).delete(synchronize_session=False)
         session.query(Purchase).delete(synchronize_session=False)
         session.query(RecipeIngredient).delete(synchronize_session=False)
@@ -165,6 +179,121 @@ def sample_inventory_item(test_db, sample_product, sample_purchase):
         session.flush()
         item_id = item.id
     return item_id
+
+
+# Feature 049: New entity fixtures
+@pytest.fixture
+def sample_finished_good(test_db):
+    """Create a sample finished good for tests."""
+    with session_scope() as session:
+        fg = FinishedGood(
+            slug="test_cookies_box",
+            display_name="Test Cookies Box",
+            description="A box of test cookies",
+            packaging_instructions="Pack 12 cookies per box",
+            notes="Test finished good notes",
+        )
+        session.add(fg)
+        session.flush()
+        fg_id = fg.id
+    return fg_id
+
+
+@pytest.fixture
+def sample_finished_unit(test_db, sample_recipe):
+    """Create a sample finished unit for tests."""
+    with session_scope() as session:
+        fu = FinishedUnit(
+            slug="test_cookie",
+            display_name="Test Cookie",
+            description="A single test cookie",
+            recipe_id=sample_recipe,
+            items_per_batch=24,
+            item_unit="cookie",
+            notes="Test finished unit notes",
+        )
+        session.add(fu)
+        session.flush()
+        fu_id = fu.id
+    return fu_id
+
+
+@pytest.fixture
+def sample_event(test_db, sample_recipe, sample_finished_good):
+    """Create a sample event with production and assembly targets."""
+    with session_scope() as session:
+        event = Event(
+            name="Test Holiday Event",
+            event_date=date(2025, 12, 25),
+            year=2025,
+            notes="Test event notes",
+        )
+        session.add(event)
+        session.flush()
+
+        # Add production target
+        prod_target = EventProductionTarget(
+            event_id=event.id,
+            recipe_id=sample_recipe,
+            target_batches=5,
+            notes="Production target notes",
+        )
+        session.add(prod_target)
+
+        # Add assembly target
+        assembly_target = EventAssemblyTarget(
+            event_id=event.id,
+            finished_good_id=sample_finished_good,
+            target_quantity=10,
+            notes="Assembly target notes",
+        )
+        session.add(assembly_target)
+
+        event_id = event.id
+    return event_id
+
+
+@pytest.fixture
+def sample_production_run(test_db, sample_recipe, sample_event, sample_finished_unit):
+    """Create a sample production run for tests."""
+    from datetime import datetime
+
+    with session_scope() as session:
+        run = ProductionRun(
+            recipe_id=sample_recipe,
+            finished_unit_id=sample_finished_unit,
+            event_id=sample_event,
+            num_batches=2,
+            expected_yield=48,
+            actual_yield=46,
+            produced_at=datetime(2025, 12, 20, 10, 0, 0),
+            notes="Test production run notes",
+        )
+        session.add(run)
+        session.flush()
+        run_id = run.id
+    return run_id
+
+
+@pytest.fixture
+def sample_inventory_depletion(test_db, sample_inventory_item):
+    """Create a sample inventory depletion for tests."""
+    from datetime import datetime
+    from decimal import Decimal
+
+    with session_scope() as session:
+        depletion = InventoryDepletion(
+            inventory_item_id=sample_inventory_item,
+            quantity_depleted=Decimal("2.0"),
+            depletion_reason="production",
+            depletion_date=datetime(2025, 12, 20),
+            notes="Used in test batch",
+            cost=Decimal("25.98"),  # 2 units * 12.99 cost per unit
+        )
+        session.add(depletion)
+        session.flush()
+        depletion_id = depletion.id
+    return depletion_id
 
 
 # ============================================================================
@@ -318,6 +447,32 @@ class TestDependencyOrder:
         assert "products" in deps
         assert order == 6
 
+    # Feature 049: New entity dependency tests
+    def test_finished_goods_no_dependencies(self):
+        """Verify finished_goods have no dependencies."""
+        order, deps = DEPENDENCY_ORDER["finished_goods"]
+        assert deps == []
+        assert order == 13
+
+    def test_events_no_dependencies(self):
+        """Verify events have no dependencies."""
+        order, deps = DEPENDENCY_ORDER["events"]
+        assert deps == []
+        assert order == 14
+
+    def test_production_runs_depend_on_recipes_and_events(self):
+        """Verify production_runs depend on recipes and events."""
+        order, deps = DEPENDENCY_ORDER["production_runs"]
+        assert "recipes" in deps
+        assert "events" in deps
+        assert order == 15
+
+    def test_inventory_depletions_depend_on_inventory_items(self):
+        """Verify inventory_depletions depend on inventory_items."""
+        order, deps = DEPENDENCY_ORDER["inventory_depletions"]
+        assert "inventory_items" in deps
+        assert order == 16
+
 
 # ============================================================================
 # Export Function Tests
@@ -337,8 +492,8 @@ class TestExportComplete:
             assert manifest.export_date != ""
             assert "Seasonal Baking Tracker" in manifest.source
 
-            # Verify all entity files created (6 original + 6 material entities)
-            assert len(manifest.files) == 12
+            # Verify all entity files created (6 original + 6 material + 4 new = 16)
+            assert len(manifest.files) == 16
 
             # Verify files sorted by import_order
             orders = [f.import_order for f in manifest.files]
@@ -487,8 +642,8 @@ class TestExportComplete:
             with session_scope() as session:
                 manifest = export_complete(tmpdir, session=session)
 
-                # Verify export completed (6 original + 6 material entities)
-                assert len(manifest.files) == 12
+                # Verify export completed (6 original + 6 material + 4 new = 16)
+                assert len(manifest.files) == 16
 
                 # Verify ingredients exported
                 ing_entry = next(
@@ -512,7 +667,7 @@ class TestValidateExport:
             result = validate_export(tmpdir)
 
             assert result["valid"] is True
-            assert result["files_checked"] == 12  # 6 original + 6 material entities
+            assert result["files_checked"] == 16  # 6 original + 6 material + 4 new
             assert result["errors"] == []
 
     def test_validate_export_missing_manifest(self, test_db):
@@ -567,7 +722,7 @@ class TestValidateExport:
             result = validate_export(str(zip_path))
 
             assert result["valid"] is True
-            assert result["files_checked"] == 12  # 6 original + 6 material entities
+            assert result["files_checked"] == 16  # 6 original + 6 material + 4 new
 
 
 # ============================================================================
@@ -612,7 +767,7 @@ class TestExportRoundTrip:
         with tempfile.TemporaryDirectory() as tmpdir:
             manifest = export_complete(tmpdir)
 
-            # Check order - original entities followed by material entities
+            # Check order - original entities, material entities, then new entities
             entity_order = [f.entity_type for f in manifest.files]
             expected_order = [
                 "suppliers",
@@ -628,5 +783,248 @@ class TestExportRoundTrip:
                 "material_products",
                 "material_units",
                 "material_purchases",
+                # Feature 049: Complete backup entities
+                "finished_goods",
+                "events",
+                "production_runs",
+                "inventory_depletions",
             ]
             assert entity_order == expected_order
+
+
+# ============================================================================
+# Feature 049: New Entity Export Tests
+# ============================================================================
+
+
+class TestExportFinishedGoods:
+    """Tests for finished_goods export functionality."""
+
+    def test_export_finished_goods_empty(self, test_db, cleanup_test_data):
+        """Test finished_goods export with no records."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            manifest = export_complete(tmpdir)
+
+            fg_entry = next(
+                (f for f in manifest.files if f.entity_type == "finished_goods"), None
+            )
+            assert fg_entry is not None
+            assert fg_entry.record_count == 0
+            assert fg_entry.import_order == 13
+
+    def test_export_finished_goods_with_data(
+        self, test_db, sample_finished_good, cleanup_test_data
+    ):
+        """Test finished_goods export includes correct fields."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            manifest = export_complete(tmpdir)
+
+            fg_entry = next(
+                (f for f in manifest.files if f.entity_type == "finished_goods"), None
+            )
+            assert fg_entry.record_count == 1
+
+            # Verify file content
+            fg_path = Path(tmpdir) / "finished_goods.json"
+            with open(fg_path) as f:
+                data = json.load(f)
+
+            assert data["entity_type"] == "finished_goods"
+            assert len(data["records"]) == 1
+
+            fg = data["records"][0]
+            assert fg["slug"] == "test_cookies_box"
+            assert fg["display_name"] == "Test Cookies Box"
+            assert fg["description"] == "A box of test cookies"
+            assert fg["packaging_instructions"] == "Pack 12 cookies per box"
+
+
+class TestExportEvents:
+    """Tests for events export functionality."""
+
+    def test_export_events_empty(self, test_db, cleanup_test_data):
+        """Test events export with no records."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            manifest = export_complete(tmpdir)
+
+            event_entry = next(
+                (f for f in manifest.files if f.entity_type == "events"), None
+            )
+            assert event_entry is not None
+            assert event_entry.record_count == 0
+            assert event_entry.import_order == 14
+
+    def test_export_events_with_data(
+        self,
+        test_db,
+        sample_event,
+        sample_recipe,
+        sample_finished_good,
+        cleanup_test_data,
+    ):
+        """Test events export includes targets with FK resolution."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            manifest = export_complete(tmpdir)
+
+            event_entry = next(
+                (f for f in manifest.files if f.entity_type == "events"), None
+            )
+            assert event_entry.record_count == 1
+
+            # Verify file content
+            events_path = Path(tmpdir) / "events.json"
+            with open(events_path) as f:
+                data = json.load(f)
+
+            assert data["entity_type"] == "events"
+            assert len(data["records"]) == 1
+
+            event = data["records"][0]
+            assert event["name"] == "Test Holiday Event"
+            assert event["year"] == 2025
+
+            # Verify production targets with FK fields
+            assert "production_targets" in event
+            assert len(event["production_targets"]) == 1
+            pt = event["production_targets"][0]
+            assert "recipe_id" in pt
+            assert "recipe_name" in pt
+            assert pt["recipe_name"] == "Test Cookies"
+
+            # Verify assembly targets with FK fields
+            assert "assembly_targets" in event
+            assert len(event["assembly_targets"]) == 1
+            at = event["assembly_targets"][0]
+            assert "finished_good_id" in at
+            assert "finished_good_slug" in at
+            assert at["finished_good_slug"] == "test_cookies_box"
+
+
+class TestExportProductionRuns:
+    """Tests for production_runs export functionality."""
+
+    def test_export_production_runs_empty(self, test_db, cleanup_test_data):
+        """Test production_runs export with no records."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            manifest = export_complete(tmpdir)
+
+            pr_entry = next(
+                (f for f in manifest.files if f.entity_type == "production_runs"), None
+            )
+            assert pr_entry is not None
+            assert pr_entry.record_count == 0
+            assert pr_entry.import_order == 15
+
+    def test_export_production_runs_with_data(
+        self, test_db, sample_production_run, cleanup_test_data
+    ):
+        """Test production_runs export includes FK resolution fields."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            manifest = export_complete(tmpdir)
+
+            pr_entry = next(
+                (f for f in manifest.files if f.entity_type == "production_runs"), None
+            )
+            assert pr_entry.record_count == 1
+
+            # Verify file content
+            pr_path = Path(tmpdir) / "production_runs.json"
+            with open(pr_path) as f:
+                data = json.load(f)
+
+            assert data["entity_type"] == "production_runs"
+            assert len(data["records"]) == 1
+
+            run = data["records"][0]
+            assert run["num_batches"] == 2
+            assert run["expected_yield"] == 48
+            assert run["actual_yield"] == 46
+
+            # Verify FK resolution fields (slugs not just IDs)
+            assert "recipe_id" in run
+            assert "recipe_name" in run
+            assert run["recipe_name"] == "Test Cookies"
+
+            assert "event_id" in run
+            assert "event_name" in run
+            assert run["event_name"] == "Test Holiday Event"
+
+
+class TestExportInventoryDepletions:
+    """Tests for inventory_depletions export functionality."""
+
+    def test_export_inventory_depletions_empty(self, test_db, cleanup_test_data):
+        """Test inventory_depletions export with no records."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            manifest = export_complete(tmpdir)
+
+            dep_entry = next(
+                (f for f in manifest.files if f.entity_type == "inventory_depletions"),
+                None,
+            )
+            assert dep_entry is not None
+            assert dep_entry.record_count == 0
+            assert dep_entry.import_order == 16
+
+    def test_export_inventory_depletions_with_data(
+        self, test_db, sample_inventory_depletion, cleanup_test_data
+    ):
+        """Test inventory_depletions export includes FK resolution fields."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            manifest = export_complete(tmpdir)
+
+            dep_entry = next(
+                (f for f in manifest.files if f.entity_type == "inventory_depletions"),
+                None,
+            )
+            assert dep_entry.record_count == 1
+
+            # Verify file content
+            dep_path = Path(tmpdir) / "inventory_depletions.json"
+            with open(dep_path) as f:
+                data = json.load(f)
+
+            assert data["entity_type"] == "inventory_depletions"
+            assert len(data["records"]) == 1
+
+            depletion = data["records"][0]
+            # Decimals may include additional precision, check numeric value
+            assert float(depletion["quantity_depleted"]) == 2.0
+            assert depletion["depletion_reason"] == "production"
+            assert depletion["notes"] == "Used in test batch"
+
+            # Verify FK resolution field present
+            assert "inventory_item_id" in depletion
+            assert "inventory_item_ref" in depletion
+
+
+class TestNewEntitiesEmptyArrays:
+    """Tests verifying empty entities export as empty arrays (T008)."""
+
+    def test_all_16_entities_export_with_empty_database(
+        self, test_db, cleanup_test_data
+    ):
+        """Verify all 16 entity types export as empty arrays when DB is empty."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            manifest = export_complete(tmpdir)
+
+            # Verify all 16 files exist
+            assert len(manifest.files) == 16
+
+            # Verify each file has records: []
+            for file_entry in manifest.files:
+                file_path = Path(tmpdir) / file_entry.filename
+                assert file_path.exists(), f"File {file_entry.filename} does not exist"
+
+                with open(file_path) as f:
+                    data = json.load(f)
+
+                assert (
+                    "records" in data
+                ), f"File {file_entry.filename} missing 'records' key"
+                assert (
+                    data["records"] == []
+                ), f"File {file_entry.filename} should have empty records array"
+                assert (
+                    file_entry.record_count == 0
+                ), f"Manifest entry {file_entry.entity_type} should have 0 records"
