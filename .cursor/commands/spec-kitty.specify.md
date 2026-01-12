@@ -1,13 +1,11 @@
 ---
 description: Create or update the feature specification from a natural language feature description.
-scripts:
-  sh: spec-kitty agent create-feature --json "{ARGS}"
-  ps: spec-kitty agent create-feature --json "{ARGS}"
 ---
+
 **Path reference rule:** When you mention directories or files, provide either the absolute path or a path relative to the project root (for example, `kitty-specs/<feature>/tasks/`). Never refer to a folder by name alone.
 
 
-*Path: [templates/commands/specify.md](templates/commands/specify.md)*
+*Path: [.kittify/templates/commands/specify.md](.kittify/templates/commands/specify.md)*
 
 
 ## User Input
@@ -25,12 +23,12 @@ You **MUST** consider the user input before proceeding (if not empty).
 **IMPORTANT**: This is the FIRST command in the spec-kitty feature workflow.
 
 **Location Context**:
-- **Before running {SCRIPT}**: You are in the main repository root
-- **After running {SCRIPT}**: A new feature worktree is created at `.worktrees/001-feature-name/`
+- **Before running spec-kitty agent create-feature --json "$ARGUMENTS"**: You are in the main repository root
+- **After running spec-kitty agent create-feature --json "$ARGUMENTS"**: A new feature worktree is created at `.worktrees/001-feature-name/`
 
 The script handles location setup automatically. You do NOT need to navigate anywhere before running it.
 
-**What {SCRIPT} Provides**:
+**What spec-kitty agent create-feature --json "$ARGUMENTS" Provides**:
 When you run the creation script, it returns JSON with:
 - **BRANCH_NAME**: Your feature branch name (e.g., "001-checkout-flow")
 - **SPEC_FILE**: Absolute path to newly created spec.md
@@ -135,11 +133,11 @@ Given that feature description, do this:
 - **Interactive Interview Mode (no arguments)**: Use the discovery interview to elicit all necessary context, synthesize the working feature description, and confirm it with the user before you generate any specification artifacts.
 
 1. **Check discovery status**:
-   - If this is your first message or discovery questions remain unanswered, stay in the one-question loop, capture the user’s response, update your internal table, and end with `WAITING_FOR_DISCOVERY_INPUT`. Do **not** surface the table; keep it internal. Do **not** call `{SCRIPT}` yet.
+   - If this is your first message or discovery questions remain unanswered, stay in the one-question loop, capture the user’s response, update your internal table, and end with `WAITING_FOR_DISCOVERY_INPUT`. Do **not** surface the table; keep it internal. Do **not** call `spec-kitty agent create-feature --json "$ARGUMENTS"` yet.
    - Only proceed once every discovery question has an explicit answer and the user has acknowledged the Intent Summary.
-   - Empty invocation rule: stay in interview mode until you can restate the agreed-upon feature description. Do **not** call `{SCRIPT}` while the description is missing or provisional.
+   - Empty invocation rule: stay in interview mode until you can restate the agreed-upon feature description. Do **not** call `spec-kitty agent create-feature --json "$ARGUMENTS"` while the description is missing or provisional.
 
-2. When discovery is complete and the intent summary, **title**, and **mission** are confirmed, run the script `{SCRIPT}` from repo root, inserting `--feature-name "<Friendly Title>"` and `--mission "<selected-mission>"` immediately before the feature description argument. For example:
+2. When discovery is complete and the intent summary, **title**, and **mission** are confirmed, run the script `spec-kitty agent create-feature --json "$ARGUMENTS"` from repo root, inserting `--feature-name "<Friendly Title>"` and `--mission "<selected-mission>"` immediately before the feature description argument. For example:
 
    - **All platforms**: `spec-kitty agent create-feature --json --feature-name "Checkout Upsell Flow" --mission "software-dev"`
 
@@ -148,7 +146,7 @@ Given that feature description, do this:
    **Note**: The `--mission` flag writes the mission to the feature's `meta.json`, which downstream commands will read to use the correct templates.
 
    **IMPORTANT** You must only ever run this script once. The JSON is provided in the terminal as output - always refer to it to get the actual content you're looking for.
-3. Load `templates/spec-template.md` to understand required sections.
+3. Load `.kittify/templates/spec-template.md` to understand required sections.
 
 4. Follow this execution flow:
 

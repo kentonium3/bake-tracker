@@ -1,13 +1,11 @@
 ---
 description: Identify underspecified areas in the current feature spec by asking up to 5 highly targeted clarification questions and encoding answers back into the spec.
-scripts:
-   sh: spec-kitty agent check-prerequisites --json --paths-only
-   ps: spec-kitty agent -Json -PathsOnly
 ---
+
 **Path reference rule:** When you mention directories or files, provide either the absolute path or a path relative to the project root (for example, `kitty-specs/<feature>/tasks/`). Never refer to a folder by name alone.
 
 
-*Path: [templates/commands/clarify.md](templates/commands/clarify.md)*
+*Path: [.kittify/templates/commands/clarify.md](.kittify/templates/commands/clarify.md)*
 
 
 ## User Input
@@ -48,7 +46,7 @@ This command updates your feature's spec.md file. You must be in the feature wor
 
 ## What You Have Available
 
-After running `{SCRIPT}`, you will have paths to:
+After running `spec-kitty agent check-prerequisites --json --paths-only`, you will have paths to:
 - **FEATURE_DIR**: Absolute path to your feature directory (kitty-specs/001-feature-name/)
 - **FEATURE_SPEC**: Absolute path to spec.md (the file you'll be clarifying)
 
@@ -85,7 +83,7 @@ Note: This clarification workflow is expected to run (and be completed) BEFORE i
 
 Execution steps:
 
-1. Run `{SCRIPT}` from repo root **once** (combined `--json --paths-only` mode / `-Json -PathsOnly`). Parse minimal JSON payload fields:
+1. Run `spec-kitty agent check-prerequisites --json --paths-only` from repo root **once** (combined `--json --paths-only` mode / `-Json -PathsOnly`). Parse minimal JSON payload fields:
    - `FEATURE_DIR`
    - `FEATURE_SPEC`
    - (Optionally capture `IMPL_PLAN`, `TASKS` for future chained flows.)
@@ -221,4 +219,4 @@ Behavior rules:
  - If no questions asked due to full coverage, output a compact coverage summary (all categories Clear) then suggest advancing.
  - If quota reached with unresolved high-impact categories remaining, explicitly flag them under Deferred with rationale.
 
-Context for prioritization: {ARGS}
+Context for prioritization: $ARGUMENTS

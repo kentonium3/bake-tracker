@@ -1,11 +1,12 @@
 ---
 description: Open the Spec Kitty dashboard in your browser.
 ---
+
 **⚠️ CRITICAL: Read the project's AGENTS.md for universal rules (paths, UTF-8 encoding, context management, quality expectations).**
 
 **Finding AGENTS.md**: Look for `.kittify/AGENTS.md` in your current directory. If not found (e.g., in a worktree), find the main repo via `git worktree list --porcelain` (first "worktree" entry is the main repo) and read `.kittify/AGENTS.md` from there.
 
-*Path: [templates/commands/dashboard.md](templates/commands/dashboard.md)*
+*Path: [.kittify/templates/commands/dashboard.md](.kittify/templates/commands/dashboard.md)*
 
 
 ## Context: Dashboard Overview

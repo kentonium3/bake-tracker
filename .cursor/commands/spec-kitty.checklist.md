@@ -1,13 +1,11 @@
 ---
 description: Generate a custom checklist for the current feature based on user requirements.
-scripts:
-  sh: spec-kitty agent check-prerequisites --json
-  ps: spec-kitty agent -Json
 ---
+
 **Path reference rule:** When you mention directories or files, provide either the absolute path or a path relative to the project root (for example, `kitty-specs/<feature>/tasks/`). Never refer to a folder by name alone.
 
 
-*Path: [templates/commands/checklist.md](templates/commands/checklist.md)*
+*Path: [.kittify/templates/commands/checklist.md](.kittify/templates/commands/checklist.md)*
 
 
 ## Checklist Purpose: "Unit Tests for English"
@@ -67,7 +65,7 @@ This command creates checklists in your feature directory. You must be in the fe
 
 ## What You Have Available
 
-After running `{SCRIPT}`, you will have paths to:
+After running `spec-kitty agent check-prerequisites --json`, you will have paths to:
 - **FEATURE_DIR**: Absolute path to your feature directory (kitty-specs/001-feature-name/)
 - **AVAILABLE_DOCS**: List of available documents (spec.md, plan.md, tasks.md, etc.)
 
@@ -97,7 +95,7 @@ Your checklist will be created at:
 
 ## Execution Steps
 
-1. **Setup**: Run `{SCRIPT}` from repo root and parse JSON for FEATURE_DIR and AVAILABLE_DOCS list.
+1. **Setup**: Run `spec-kitty agent check-prerequisites --json` from repo root and parse JSON for FEATURE_DIR and AVAILABLE_DOCS list.
    - All file paths must be absolute.
 
 2. **Clarify intent (dynamic)**: Derive up to THREE initial contextual clarifying questions (no pre-baked catalog). They MUST:
@@ -266,7 +264,7 @@ Your checklist will be created at:
    - ✅ "Are [edge cases/scenarios] addressed in requirements?"
    - ✅ "Does the spec define [missing aspect]?"
 
-6. **Structure Reference**: Generate the checklist following the canonical template in `templates/checklist-template.md` for title, meta section, category headings, and ID formatting. If template is unavailable, use: H1 title, purpose/created meta lines, `##` category sections containing `- [ ] CHK### <requirement item>` lines with globally incrementing IDs starting at CHK001.
+6. **Structure Reference**: Generate the checklist following the canonical template in `.kittify/templates/checklist-template.md` for title, meta section, category headings, and ID formatting. If template is unavailable, use: H1 title, purpose/created meta lines, `##` category sections containing `- [ ] CHK### <requirement item>` lines with globally incrementing IDs starting at CHK001.
 
 7. **Report**: Output full path to created checklist, item count, and remind user that each run creates a new file. Summarize:
    - Focus areas selected

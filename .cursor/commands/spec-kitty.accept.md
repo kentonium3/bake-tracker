@@ -1,13 +1,11 @@
 ---
 description: Validate feature readiness and guide final acceptance steps.
-scripts:
-  sh: spec-kitty agent feature accept --json {ARGS}
-  ps: spec-kitty agent --json {ARGS}
 ---
+
 **Path reference rule:** When you mention directories or files, provide either the absolute path or a path relative to the project root (for example, `kitty-specs/<feature>/tasks/`). Never refer to a folder by name alone.
 
 
-*Path: [templates/commands/accept.md](templates/commands/accept.md)*
+*Path: [.kittify/templates/commands/accept.md](.kittify/templates/commands/accept.md)*
 
 
 ## User Input
@@ -50,7 +48,7 @@ You **MUST** consider the user input before proceeding (if not empty).
    - **Never block on missing validation commands**
 
 4. **Acceptance actor**:
-   - Always defaults to `__AGENT__` (current agent name)
+   - Always defaults to `cursor` (current agent name)
    - No need to ask or confirm
 
 ### Execution Flow
@@ -97,7 +95,7 @@ If user provides explicit values in $ARGUMENTS, those override auto-detected val
    - Feature slug: From git branch (or user override from $ARGUMENTS)
    - Mode: `local` (or user override: "pr"/"checklist")
    - Validation commands: From git log search (or user-specified)
-   - Actor: `__AGENT__` (always)
+   - Actor: `cursor` (always)
 
 3. **Present detected values to user** (brief confirmation):
    ```
@@ -106,12 +104,12 @@ If user provides explicit values in $ARGUMENTS, those override auto-detected val
    ```
 
 4. **Compile the acceptance options** into an argument list:
-   - Always include `--actor "__AGENT__"`.
+   - Always include `--actor "cursor"`.
    - Append `--feature "<slug>"` (from detection or user input).
    - Append `--mode <mode>` (default: `local`).
    - Append `--test "<command>"` for each validation command found.
 
-5. Run `{SCRIPT}` (the CLI wrapper) with the assembled arguments **and** `--json`.
+5. Run `spec-kitty agent feature accept --json $ARGUMENTS` (the CLI wrapper) with the assembled arguments **and** `--json`.
 
 6. Parse the JSON response. It contains:
    - `summary.ok` (boolean) and other readiness details.

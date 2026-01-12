@@ -1,13 +1,11 @@
 ---
 description: Run the Phase 0 research workflow to scaffold research artifacts before task planning.
-scripts:
-  sh: spec-kitty research
-  ps: spec-kitty research
 ---
+
 **Path reference rule:** When you mention directories or files, provide either the absolute path or a path relative to the project root (for example, `kitty-specs/<feature>/tasks/`). Never refer to a folder by name alone.
 
 
-*Path: [templates/commands/research.md](templates/commands/research.md)*
+*Path: [.kittify/templates/commands/research.md](.kittify/templates/commands/research.md)*
 
 
 ## Location Pre-flight Check
@@ -38,7 +36,7 @@ This command creates research artifacts in your feature directory. You must be i
 
 ## What This Command Creates
 
-When you run `{SCRIPT}`, the following files are generated in your feature directory:
+When you run `spec-kitty research`, the following files are generated in your feature directory:
 
 **Generated files**:
 - **research.md** – Decisions, rationale, and supporting evidence
@@ -72,7 +70,7 @@ Create `research.md`, `data-model.md`, and supporting CSV stubs based on the act
 ## What to do
 
 1. You should already be in the correct feature worktree (verified above with pre-flight check).
-2. Run `{SCRIPT}` to generate the mission-specific research artifacts. (Add `--force` only when it is acceptable to overwrite existing drafts.)
+2. Run `spec-kitty research` to generate the mission-specific research artifacts. (Add `--force` only when it is acceptable to overwrite existing drafts.)
 3. Open the generated files and fill in the required content:
    - `research.md` – capture decisions, rationale, and supporting evidence.
    - `data-model.md` – document entities, attributes, and relationships discovered during research.

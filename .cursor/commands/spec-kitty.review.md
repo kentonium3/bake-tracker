@@ -1,10 +1,8 @@
 ---
 description: Perform structured code review and kanban transitions for completed task prompt files.
-scripts:
-  sh: spec-kitty agent check-prerequisites --json --include-tasks
-  ps: spec-kitty agent -Json -IncludeTasks
 ---
-*Path: [templates/commands/review.md](templates/commands/review.md)*
+
+*Path: [.kittify/templates/commands/review.md](.kittify/templates/commands/review.md)*
 
 
 ## User Input
@@ -33,7 +31,7 @@ This is intentional - worktrees provide isolation for parallel feature developme
 
 ## Outline
 
-1. Run `{SCRIPT}` from repo root; capture `FEATURE_DIR`, `AVAILABLE_DOCS`, and `tasks.md` path.
+1. Run `spec-kitty agent check-prerequisites --json --include-tasks` from repo root; capture `FEATURE_DIR`, `AVAILABLE_DOCS`, and `tasks.md` path.
 
 2. Determine the review target:
    - If user input specifies a filename, validate it exists under `tasks/` (flat structure, check `lane: "for_review"` in frontmatter).
@@ -103,6 +101,6 @@ This is intentional - worktrees provide isolation for parallel feature developme
    - Follow-up actions (if any) for other team members.
    - Reminder to push changes or notify teammates as per project conventions.
 
-Context for review: {ARGS} (resolve this to the prompt's relative path, e.g., `kitty-specs/<feature>/tasks/WPXX.md`)
+Context for review: $ARGUMENTS (resolve this to the prompt's relative path, e.g., `kitty-specs/<feature>/tasks/WPXX.md`)
 
 All review feedback must live inside the prompt file, ensuring future implementers understand historical decisions before revisiting the task.

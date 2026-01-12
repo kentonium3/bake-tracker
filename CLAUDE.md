@@ -41,6 +41,33 @@ flake8 src/                                    # Lint
 mypy src/                                      # Type check
 ```
 
+## Testing from Worktrees (IMPORTANT)
+
+When working in a feature worktree (`.worktrees/NNN-feature/`), the Python venv is in the **main repo**, not the worktree. Use the helper script which handles this automatically:
+
+```bash
+# From anywhere (main repo or worktree) - PREFERRED METHOD
+./run-tests.sh                           # Run all tests
+./run-tests.sh -v                        # Verbose
+./run-tests.sh src/tests/test_foo.py -v  # Specific file
+./run-tests.sh -k "test_name"            # Specific test
+./run-tests.sh --cov=src                 # With coverage
+```
+
+If you need to run Python directly from a worktree:
+
+```bash
+# Get main repo path (works from worktree or main)
+MAIN_REPO="$(git rev-parse --show-toplevel)"
+MAIN_REPO="${MAIN_REPO%%/.worktrees/*}"
+
+# Use main repo's venv
+$MAIN_REPO/venv/bin/python src/main.py
+$MAIN_REPO/venv/bin/pytest src/tests -v
+```
+
+**Why this matters:** Worktrees share the git history but not the filesystem. The venv at `./venv` only exists in the main repo. Attempting to activate `./venv/bin/activate` from a worktree will fail.
+
 ## Project Structure
 
 ```
