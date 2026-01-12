@@ -8,7 +8,7 @@
 ## Overview
 
 Complete the backup/restore capability and enable AI-augmented data workflows by:
-- Adding 8 missing entities to full backup (achieving complete 14-entity backup)
+- Adding 4 missing entities to full backup (achieving complete 16-entity backup)
 - Expanding context-rich exports to all catalog entities
 - Adding materials catalog import support
 - Enabling transaction imports (purchases and inventory adjustments)
@@ -22,11 +22,11 @@ As a user, I want to create a full backup of my entire system so that I can rest
 
 **Why this priority**: Without complete backup, users risk data loss. Current backup is missing 8 entities, making restore incomplete. This is foundational for the migration strategy (reset/re-import).
 
-**Independent Test**: Export full backup, reset database, import backup, verify all 14 entity types restored with correct counts.
+**Independent Test**: Export full backup, reset database, import backup, verify all 16 entity types restored with correct counts.
 
 **Acceptance Scenarios**:
 
-1. **Given** a database with data in all entity types, **When** user exports full backup, **Then** backup folder contains 14 entity files plus manifest.json with accurate counts
+1. **Given** a database with data in all entity types, **When** user exports full backup, **Then** backup folder contains 16 entity files plus manifest.json with accurate counts
 2. **Given** a full backup export, **When** user restores to empty database, **Then** all entities restored with matching counts from manifest
 3. **Given** some entity types have zero records, **When** user exports full backup, **Then** those entities export as empty arrays (not omitted)
 
@@ -149,7 +149,7 @@ As a user, I want clear UI that distinguishes between export types and import pu
 
 ### Functional Requirements
 
-- **FR-001**: System MUST export all 14 entity types in full backup (ingredients, products, recipes, suppliers, purchases, inventory_items, materials, material_products, material_units, material_purchases, finished_goods, events, production_runs, consumption_records)
+- **FR-001**: System MUST export all 16 entity types in full backup (suppliers, ingredients, products, recipes, purchases, inventory_items, material_categories, material_subcategories, materials, material_products, material_units, material_purchases, finished_goods, events, production_runs, inventory_depletions)
 - **FR-002**: System MUST include manifest.json with entity counts in full backup export
 - **FR-003**: System MUST export empty entities as empty arrays (not omit them)
 - **FR-004**: System MUST use slug-based references in all exports (not database IDs)
@@ -190,13 +190,13 @@ As a user, I want clear UI that distinguishes between export types and import pu
 - **Finished Goods**: Completed recipe outputs
 - **Events**: Production events (holidays, occasions)
 - **Production Runs**: Batch production records
-- **Consumption Records**: Inventory consumption tracking
+- **Inventory Depletions**: Inventory consumption/depletion tracking
 
 ## Success Criteria *(mandatory)*
 
 ### Measurable Outcomes
 
-- **SC-001**: Full backup export includes all 14 entity types with accurate manifest counts
+- **SC-001**: Full backup export includes all 16 entity types with accurate manifest counts
 - **SC-002**: Complete system state can be restored from backup (round-trip test passes)
 - **SC-003**: Context-rich export available for ingredients, materials, and recipes with hierarchy paths
 - **SC-004**: Materials import creates records visible in Materials tab within 5 seconds of import completion
