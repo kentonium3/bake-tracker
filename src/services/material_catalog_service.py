@@ -174,7 +174,7 @@ def get_category(
         return _impl(sess)
 
 
-def list_categories(session: Optional[Session] = None) -> List[dict]:
+def list_categories(session: Optional[Session] = None) -> List[MaterialCategory]:
     """
     List all categories ordered by sort_order.
 
@@ -182,26 +182,16 @@ def list_categories(session: Optional[Session] = None) -> List[dict]:
         session: Optional database session
 
     Returns:
-        List of category dictionaries with keys: id, name, slug, description, sort_order
+        List of MaterialCategory objects
     """
 
-    def _impl(sess: Session) -> List[dict]:
+    def _impl(sess: Session) -> List[MaterialCategory]:
         categories = (
             sess.query(MaterialCategory)
             .order_by(MaterialCategory.sort_order, MaterialCategory.name)
             .all()
         )
-        # Convert to dicts before session closes to avoid detachment issues
-        return [
-            {
-                "id": cat.id,
-                "name": cat.name,
-                "slug": cat.slug,
-                "description": cat.description,
-                "sort_order": cat.sort_order,
-            }
-            for cat in categories
-        ]
+        return categories
 
     if session is not None:
         return _impl(session)

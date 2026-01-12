@@ -1302,24 +1302,24 @@ def _import_materials_impl(
     result.dry_run = dry_run
     result.mode = mode
 
-    # Build category lookups (by name for auto-creation)
-    category_by_name = {
-        row.name: row
-        for row in session.query(MaterialCategory).all()
-    }
+    # Build category lookups
+    categories = session.query(MaterialCategory).all()
+    category_by_name = {row.name: row for row in categories}
+    category_by_slug = {row.slug: row for row in categories}
+    category_by_id = {row.id: row for row in categories}
 
-    # Build subcategory lookups (by name within category for auto-creation)
-    # Key is (category_name, subcategory_name) -> subcategory object
+    # Build subcategory lookups
+    subcategories = session.query(MaterialSubcategory).all()
+    # Key is (category_name, subcategory_name) -> subcategory object (for name-based creation)
     subcategory_lookup = {}
-    for row in session.query(MaterialSubcategory).all():
+    for row in subcategories:
         if row.category:
             key = (row.category.name, row.name)
             subcategory_lookup[key] = row
+    subcategory_by_slug = {row.slug: row for row in subcategories}
+    subcategory_by_id = {row.id: row for row in subcategories}
 
-    existing_slugs = {
-        row.slug: row
-        for row in session.query(Material).all()
-    }
+    existing_slugs = {row.slug: row for row in session.query(Material).all()}
 
     valid_base_units = {"linear_inches", "square_inches", "each"}
 
@@ -1339,52 +1339,96 @@ def _import_materials_impl(
             )
             continue
 
-        # Parse category field (format: "Category: Subcategory")
-        category_str = item.get("category", "")
-        if not category_str:
+        # Resolve subcategory / category from slug/id or legacy "Category: Subcategory" string
+        subcategory = None
+        category = None
+
+        subcategory_id = item.get("subcategory_id")
+        if subcategory_id:
+            subcategory = subcategory_by_id.get(subcategory_id)
+
+        if subcategory is None:
+            sub_slug = item.get("subcategory_slug")
+            if sub_slug:
+                subcategory = subcategory_by_slug.get(sub_slug)
+
+        if subcategory is None:
+            # Legacy path: category string "Category: Subcategory"
+            category_str = item.get("category", "")
+            if not category_str:
+                result.add_error(
+                    "materials",
+                    identifier,
+                    "validation",
+                    "Missing required field: category or subcategory_slug",
+                    "Provide 'subcategory_slug' or 'category' in format 'Category: Subcategory'",
+                )
+                continue
+
+            if ": " not in category_str:
+                result.add_error(
+                    "materials",
+                    identifier,
+                    "validation",
+                    f"Invalid category format: '{category_str}'",
+                    "Use format 'Category: Subcategory' (e.g., 'Boxes: Window Boxes')",
+                )
+                continue
+
+            category_name, subcategory_name = category_str.split(": ", 1)
+
+            # Get or create category
+            if category_name not in category_by_name:
+                new_category = MaterialCategory(
+                    name=category_name,
+                    slug=_generate_slug(category_name),
+                )
+                session.add(new_category)
+                session.flush()  # Get the ID
+                category_by_name[category_name] = new_category
+                category_by_slug[new_category.slug] = new_category
+                category_by_id[new_category.id] = new_category
+
+            category = category_by_name[category_name]
+
+            # Get or create subcategory
+            subcat_key = (category_name, subcategory_name)
+            if subcat_key not in subcategory_lookup:
+                new_subcategory = MaterialSubcategory(
+                    category_id=category.id,
+                    name=subcategory_name,
+                    slug=_generate_slug(subcategory_name),
+                )
+                session.add(new_subcategory)
+                session.flush()  # Get the ID
+                subcategory_lookup[subcat_key] = new_subcategory
+                subcategory_by_slug[new_subcategory.slug] = new_subcategory
+                subcategory_by_id[new_subcategory.id] = new_subcategory
+
+            subcategory = subcategory_lookup[subcat_key]
+            subcategory_id = subcategory.id
+        else:
+            # If we resolved a subcategory, resolve its category as well
+            category = subcategory.category or category_by_id.get(subcategory.category_id)
+
+        # If category was provided separately by slug/id, prefer it when missing
+        if category is None:
+            cat_slug = item.get("category_slug")
+            cat_id = item.get("category_id")
+            if cat_slug and cat_slug in category_by_slug:
+                category = category_by_slug[cat_slug]
+            elif cat_id and cat_id in category_by_id:
+                category = category_by_id[cat_id]
+
+        if subcategory is None or category is None:
             result.add_error(
-                "materials", identifier, "validation",
-                "Missing required field: category",
-                "Add 'category' field in format 'Category: Subcategory'",
+                "materials",
+                identifier,
+                "validation",
+                "Could not resolve material category/subcategory",
+                "Provide valid 'subcategory_slug' or 'category' in format 'Category: Subcategory'",
             )
             continue
-
-        if ": " not in category_str:
-            result.add_error(
-                "materials", identifier, "validation",
-                f"Invalid category format: '{category_str}'",
-                "Use format 'Category: Subcategory' (e.g., 'Boxes: Window Boxes')",
-            )
-            continue
-
-        category_name, subcategory_name = category_str.split(": ", 1)
-
-        # Get or create category
-        if category_name not in category_by_name:
-            new_category = MaterialCategory(
-                name=category_name,
-                slug=_generate_slug(category_name),
-            )
-            session.add(new_category)
-            session.flush()  # Get the ID
-            category_by_name[category_name] = new_category
-
-        category = category_by_name[category_name]
-
-        # Get or create subcategory
-        subcat_key = (category_name, subcategory_name)
-        if subcat_key not in subcategory_lookup:
-            new_subcategory = MaterialSubcategory(
-                category_id=category.id,
-                name=subcategory_name,
-                slug=_generate_slug(subcategory_name),
-            )
-            session.add(new_subcategory)
-            session.flush()  # Get the ID
-            subcategory_lookup[subcat_key] = new_subcategory
-
-        subcategory = subcategory_lookup[subcat_key]
-        subcategory_id = subcategory.id
 
         if base_unit_type not in valid_base_units:
             result.add_error(

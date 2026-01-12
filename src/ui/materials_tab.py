@@ -45,6 +45,15 @@ def normalize_for_search(text: str) -> str:
     return ascii_text.lower()
 
 
+def _get_value(obj: Any, key: str):
+    """Safely get attribute or dict value for service return objects/dicts."""
+    if hasattr(obj, key):
+        return getattr(obj, key)
+    if isinstance(obj, dict):
+        return obj.get(key)
+    return None
+
+
 class MaterialsTab(ctk.CTkFrame):
     """
     Materials catalog management tab with 3 sub-tabs.
@@ -336,7 +345,10 @@ class MaterialFormDialog(ctk.CTkToplevel):
         try:
             categories = material_catalog_service.list_categories()
             for cat in categories:
-                options[cat["name"]] = cat["id"]
+                name = _get_value(cat, "name")
+                cat_id = _get_value(cat, "id")
+                if name is not None and cat_id is not None:
+                    options[name] = cat_id
         except Exception as e:
             print(f"Error loading categories: {e}")
         return options
@@ -356,7 +368,12 @@ class MaterialFormDialog(ctk.CTkToplevel):
         category_id = self._l0_options[value]
         try:
             subcategories = material_catalog_service.list_subcategories(category_id)
-            self._l1_options = {sub["name"]: sub["id"] for sub in subcategories}
+            self._l1_options = {}
+            for sub in subcategories:
+                name = _get_value(sub, "name")
+                sub_id = _get_value(sub, "id")
+                if name is not None and sub_id is not None:
+                    self._l1_options[name] = sub_id
 
             if self._l1_options:
                 self.l1_dropdown.configure(
@@ -538,13 +555,20 @@ class MaterialProductFormDialog(ctk.CTkToplevel):
         try:
             categories = material_catalog_service.list_categories()
             for cat in categories:
-                subcategories = material_catalog_service.list_subcategories(cat["id"])
+                cat_id = _get_value(cat, "id")
+                subcategories = material_catalog_service.list_subcategories(cat_id)
                 for subcat in subcategories:
-                    mats = material_catalog_service.list_materials(subcat["id"])
+                    sub_id = _get_value(subcat, "id")
+                    mats = material_catalog_service.list_materials(sub_id)
                     for mat in mats:
-                        self._materials[mat["name"]] = {
-                            "id": mat["id"],
-                            "base_unit": mat.get("base_unit_type", "each"),
+                        name = _get_value(mat, "name")
+                        mat_id = _get_value(mat, "id")
+                        base_unit = _get_value(mat, "base_unit_type") or "each"
+                        if name is None or mat_id is None:
+                            continue
+                        self._materials[name] = {
+                            "id": mat_id,
+                            "base_unit": base_unit,
                         }
         except Exception as e:
             print(f"Error loading materials: {e}")
@@ -1349,13 +1373,20 @@ class MaterialUnitFormDialog(ctk.CTkToplevel):
         try:
             categories = material_catalog_service.list_categories()
             for cat in categories:
-                subcategories = material_catalog_service.list_subcategories(cat["id"])
+                cat_id = _get_value(cat, "id")
+                subcategories = material_catalog_service.list_subcategories(cat_id)
                 for subcat in subcategories:
-                    mats = material_catalog_service.list_materials(subcat["id"])
+                    sub_id = _get_value(subcat, "id")
+                    mats = material_catalog_service.list_materials(sub_id)
                     for mat in mats:
-                        self._materials[mat["name"]] = {
-                            "id": mat["id"],
-                            "base_unit": mat.get("base_unit_type", "each"),
+                        name = _get_value(mat, "name")
+                        mat_id = _get_value(mat, "id")
+                        base_unit = _get_value(mat, "base_unit_type") or "each"
+                        if name is None or mat_id is None:
+                            continue
+                        self._materials[name] = {
+                            "id": mat_id,
+                            "base_unit": base_unit,
                         }
         except Exception as e:
             print(f"Error loading materials: {e}")
@@ -1759,43 +1790,50 @@ class MaterialsCatalogTab:
         try:
             categories = material_catalog_service.list_categories()
             for cat in categories:
+                cat_id = _get_value(cat, "id")
+                cat_name = _get_value(cat, "name") or ""
                 # Add L0 category
                 materials.append({
-                    "id": f"cat_{cat['id']}",  # Prefix to avoid ID collision
+                    "id": f"cat_{cat_id}",  # Prefix to avoid ID collision
                     "name": "",  # Name column empty for L0
                     "base_unit": "",
-                    "l0_name": cat["name"],
-                    "l0_id": cat["id"],
+                    "l0_name": cat_name,
+                    "l0_id": cat_id,
                     "l1_name": "",
                     "l1_id": None,
                     "hierarchy_level": 0,
                 })
 
-                subcategories = material_catalog_service.list_subcategories(cat["id"])
+                subcategories = material_catalog_service.list_subcategories(cat_id)
                 for subcat in subcategories:
+                    sub_id = _get_value(subcat, "id")
+                    sub_name = _get_value(subcat, "name") or ""
                     # Add L1 subcategory
                     materials.append({
-                        "id": f"subcat_{subcat['id']}",  # Prefix to avoid ID collision
+                        "id": f"subcat_{sub_id}",  # Prefix to avoid ID collision
                         "name": "",  # Name column empty for L1
                         "base_unit": "",
-                        "l0_name": cat["name"],
-                        "l0_id": cat["id"],
-                        "l1_name": subcat["name"],
-                        "l1_id": subcat["id"],
+                        "l0_name": cat_name,
+                        "l0_id": cat_id,
+                        "l1_name": sub_name,
+                        "l1_id": sub_id,
                         "hierarchy_level": 1,
                     })
 
-                    mats = material_catalog_service.list_materials(subcat["id"])
+                    mats = material_catalog_service.list_materials(sub_id)
                     for mat in mats:
+                        mat_id = _get_value(mat, "id")
+                        mat_name = _get_value(mat, "name")
+                        base_unit = mat.get("base_unit_type", "") if isinstance(mat, dict) else _get_value(mat, "base_unit_type") or ""
                         # Add L2 material
                         materials.append({
-                            "id": mat["id"],
-                            "name": mat["name"],
-                            "base_unit": mat.get("base_unit_type", ""),
-                            "l0_name": cat["name"],
-                            "l0_id": cat["id"],
-                            "l1_name": subcat["name"],
-                            "l1_id": subcat["id"],
+                            "id": mat_id,
+                            "name": mat_name,
+                            "base_unit": base_unit,
+                            "l0_name": cat_name,
+                            "l0_id": cat_id,
+                            "l1_name": sub_name,
+                            "l1_id": sub_id,
                             "hierarchy_level": 2,
                         })
         except Exception as e:
@@ -1806,7 +1844,9 @@ class MaterialsCatalogTab:
         """Load data for filter dropdowns."""
         try:
             categories = material_catalog_service.list_categories()
-            l0_names = ["All Categories"] + sorted([c["name"] for c in categories])
+            l0_names = ["All Categories"] + sorted(
+                [_get_value(c, "name") or "" for c in categories]
+            )
             self.l0_filter_dropdown.configure(values=l0_names)
         except Exception:
             pass
