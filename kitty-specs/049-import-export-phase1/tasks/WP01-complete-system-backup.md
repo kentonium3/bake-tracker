@@ -11,12 +11,12 @@ subtasks:
   - "T008"
 title: "Complete System Backup (16 Entities)"
 phase: "Phase 1 - Foundation"
-lane: "for_review"
+lane: "done"
 assignee: ""
 agent: "claude"
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
+shell_pid: "13882"
+review_status: "approved"
+reviewed_by: "claude"
 history:
   - timestamp: "2026-01-12T16:00:00Z"
     lane: "planned"
@@ -274,3 +274,4 @@ def export_finished_goods(session: Session, output_dir: Path) -> FileEntry:
 - 2026-01-12T16:00:00Z - system - lane=planned - Prompt created via /spec-kitty.tasks
 - 2026-01-12T17:00:22Z – claude – lane=doing – Started implementation
 - 2026-01-12T17:15:00Z – claude – lane=for_review – All 8 subtasks complete. 4 new exporters implemented, 40 tests passing.
+- 2026-01-12T21:45:00Z – claude – shell_pid=13882 – lane=done – Approved: All 40 tests pass. DEPENDENCY_ORDER has all 16 entities. Empty arrays verified. Slug-based FK references confirmed.

@@ -12,12 +12,12 @@ subtasks:
   - "T028"
 title: "Context-Rich Export"
 phase: "Phase 2 - Wave 1"
-lane: "for_review"
+lane: "done"
 assignee: ""
 agent: "gemini"
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
+shell_pid: "13882"
+review_status: "approved"
+reviewed_by: "claude"
 history:
   - timestamp: "2026-01-12T16:00:00Z"
     lane: "planned"
@@ -352,3 +352,4 @@ INGREDIENTS_META = {
 - 2026-01-12T16:00:00Z - system - lane=planned - Prompt created via /spec-kitty.tasks
 - 2026-01-12T17:19:41Z – gemini – lane=doing – Starting context-rich export implementation
 - 2026-01-12T17:28:01Z – gemini – lane=for_review – All 50 tests passing. Context-rich exports for ingredients, materials, recipes complete.
+- 2026-01-12T21:55:00Z – claude – shell_pid=13882 – lane=done – Approved: All 50 tests pass. Views include hierarchy paths, embedded products, computed values, and _meta sections.

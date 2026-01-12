@@ -11,12 +11,12 @@ subtasks:
   - "T054"
 title: "Context-Rich Import with Auto-Detection"
 phase: "Phase 3 - Wave 2"
-lane: "for_review"
+lane: "done"
 assignee: ""
 agent: "claude"
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
+shell_pid: "13882"
+review_status: "approved"
+reviewed_by: "claude"
 history:
   - timestamp: "2026-01-12T16:00:00Z"
     lane: "planned"
@@ -378,3 +378,4 @@ class FormatDetectionResult:
 - 2026-01-12T16:00:00Z - system - lane=planned - Prompt created via /spec-kitty.tasks
 - 2026-01-12T17:29:12Z – claude – lane=doing – Starting context-rich import implementation
 - 2026-01-12T17:33:39Z – claude – lane=for_review – All 82 tests passing. Format auto-detection and context-rich import complete.
+- 2026-01-12T22:10:00Z – claude – shell_pid=13882 – lane=done – Approved: All 82 tests pass. Format detection accurate for all types. Editable fields extracted correctly, computed fields ignored (fix applied for readonly override issue).

@@ -12,12 +12,12 @@ subtasks:
   - "T046"
 title: "Inventory Adjustment Import"
 phase: "Phase 3 - Wave 2"
-lane: "for_review"
+lane: "done"
 assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
+agent: "claude"
+shell_pid: "13882"
+review_status: "approved"
+reviewed_by: "claude"
 history:
   - timestamp: "2026-01-12T16:00:00Z"
     lane: "planned"
@@ -385,3 +385,4 @@ for inv_item in inventory_items:  # Already ordered by purchase_date asc
 
 - 2026-01-12T16:00:00Z - system - lane=planned - Prompt created via /spec-kitty.tasks
 - 2026-01-12T17:48:07Z – unknown – lane=for_review – Implemented import_adjustments() with FIFO inventory selection, negative quantity validation, reason_code validation, prevents exceeding available inventory, creates InventoryDepletion audit records. Added comprehensive unit tests.
+- 2026-01-12T22:05:00Z – claude – shell_pid=13882 – lane=done – Approved: All 19 adjustment tests pass. Negative-only validation, FIFO ordering, reason code validation (now case-insensitive with DAMAGED added), depletion records created correctly.

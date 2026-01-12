@@ -15,12 +15,12 @@ subtasks:
   - "T066"
 title: "Redesigned Import/Export UI"
 phase: "Phase 2 - Wave 1"
-lane: "planned"
+lane: "done"
 assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
+agent: "claude"
+shell_pid: "13882"
+review_status: "approved"
+reviewed_by: "claude"
 history:
   - timestamp: "2026-01-12T16:00:00Z"
     lane: "planned"
@@ -463,3 +463,5 @@ def _update_progress(self, current: int, total: int):
 ## Activity Log
 
 - 2026-01-12T16:00:00Z - system - lane=planned - Prompt created via /spec-kitty.tasks
+- 2026-01-12T18:30:00Z – claude – lane=doing – Implemented UI redesign
+- 2026-01-12T22:15:00Z – claude – shell_pid=13882 – lane=done – Approved: ExportDialog with 3 tabs (Full Backup, Catalog, Context-Rich). ImportDialog with 4 purposes. Auto-detection integrated. Progress indicators added.

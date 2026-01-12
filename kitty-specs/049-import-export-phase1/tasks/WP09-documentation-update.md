@@ -13,12 +13,12 @@ subtasks:
   - "T085"
 title: "Documentation Update"
 phase: "Phase 3 - Wave 2"
-lane: "planned"
+lane: "done"
 assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
+agent: "claude"
+shell_pid: "13882"
+review_status: "approved"
+reviewed_by: "claude"
 history:
   - timestamp: "2026-01-12T16:00:00Z"
     lane: "planned"
@@ -596,3 +596,5 @@ See `src/tests/fixtures/import_export/sample_backup/`
 ## Activity Log
 
 - 2026-01-12T16:00:00Z - system - lane=planned - Prompt created via /spec-kitty.tasks
+- 2026-01-12T19:00:00Z – claude – lane=doing – Updating spec_import_export.md
+- 2026-01-12T22:25:00Z – claude – shell_pid=13882 – lane=done – Approved: spec_import_export.md updated to v4.1. Added 16 entity table, materials schemas, context-rich views E.2-E.4, Appendix K/L/M for format detection and transaction imports.
