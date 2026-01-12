@@ -8,6 +8,16 @@
 
 ## Changelog
 
+### v4.1 (2026-01-12 - Feature 049)
+- **Added**: Complete system backup with all 16 entity types
+- **Added**: Materials and material_products import schemas
+- **Added**: Context-rich export views for ingredients, materials, and recipes
+- **Added**: `_meta` section for format auto-detection and editable/readonly field distinction
+- **Added**: Purchase transaction import (slug-based product resolution)
+- **Added**: Inventory adjustment import with reason codes
+- **Added**: Format auto-detection for import files
+- **Changed**: UI redesigned with tabbed export dialog and purpose-based import dialog
+
 ### v4.0 (2026-01-06 - Feature 040)
 - **Breaking**: v3.5 compatibility removed - only v4.0 files accepted
 - **Changed**: Recipe schema redesigned for F037 (yield modes, variants, template/snapshot)
@@ -86,6 +96,31 @@ The Bake Tracker uses an **Ingredient/Product architecture** that separates:
 - **Brand Products** (e.g., "King Arthur All-Purpose Flour") - purchased and tracked in inventory
 
 This separation allows recipes to reference generic ingredients while tracking specific brands in inventory.
+
+## Supported Entity Types
+
+The full backup export includes all 16 entity types:
+
+| Entity | Import Order | Dependencies |
+|--------|--------------|--------------|
+| suppliers | 1 | None |
+| ingredients | 2 | None |
+| products | 3 | ingredients, suppliers |
+| recipes | 4 | ingredients |
+| purchases | 5 | products, suppliers |
+| inventory_items | 6 | products, purchases |
+| material_categories | 7 | None |
+| material_subcategories | 8 | material_categories |
+| materials | 9 | material_subcategories |
+| material_products | 10 | materials, suppliers |
+| material_units | 11 | materials |
+| material_purchases | 12 | material_products, suppliers |
+| finished_goods | 13 | None |
+| events | 14 | None |
+| production_runs | 15 | recipes, events |
+| inventory_depletions | 16 | inventory_items |
+
+---
 
 ## JSON Structure
 
@@ -783,6 +818,134 @@ All entity arrays are optional, but when present, they must follow the dependenc
 
 ---
 
+### 18. suppliers
+
+**Purpose**: Supplier/store information for purchases.
+
+**Schema**:
+
+```json
+{
+  "name": "Costco Waltham MA",
+  "slug": "costco_waltham_ma",
+  "address": "200 Lexington Road, Waltham, MA 02451",
+  "notes": "Membership required"
+}
+```
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `name` | string | **Yes** | Supplier name (unique) |
+| `slug` | string | **Yes** | Unique identifier |
+| `address` | string | No | Supplier address |
+| `notes` | string | No | User notes |
+
+---
+
+### 19. material_categories
+
+**Purpose**: Top-level categories for non-food materials (packaging, labels, etc.).
+
+**Schema**:
+
+```json
+{
+  "slug": "packaging",
+  "display_name": "Packaging",
+  "description": "Boxes, bags, and containers"
+}
+```
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `slug` | string | **Yes** | Unique identifier |
+| `display_name` | string | **Yes** | Display name |
+| `description` | string | No | Category description |
+
+---
+
+### 20. material_subcategories
+
+**Purpose**: Subcategories within material categories.
+
+**Schema**:
+
+```json
+{
+  "slug": "gift_boxes",
+  "display_name": "Gift Boxes",
+  "category_slug": "packaging",
+  "description": "Decorative boxes for gift packaging"
+}
+```
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `slug` | string | **Yes** | Unique identifier |
+| `display_name` | string | **Yes** | Display name |
+| `category_slug` | string | **Yes** | Reference to material_category |
+| `description` | string | No | Subcategory description |
+
+---
+
+### 21. materials
+
+**Purpose**: Generic material types (like ingredients but for non-food items).
+
+**Schema**:
+
+```json
+{
+  "slug": "kraft_box_6x6x6",
+  "display_name": "Kraft Box 6x6x6",
+  "subcategory_slug": "gift_boxes",
+  "description": "Brown kraft paper box, 6 inch cube",
+  "notes": "Food safe"
+}
+```
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `slug` | string | **Yes** | Unique identifier |
+| `display_name` | string | **Yes** | Display name |
+| `subcategory_slug` | string | No | Reference to material_subcategory |
+| `description` | string | No | Detailed description |
+| `notes` | string | No | User notes |
+
+---
+
+### 22. material_products
+
+**Purpose**: Specific purchasable versions of materials (like products for ingredients).
+
+**Schema**:
+
+```json
+{
+  "material_slug": "kraft_box_6x6x6",
+  "brand": "Uline",
+  "product_name": "S-4344",
+  "package_quantity": 25,
+  "package_unit": "count",
+  "supplier_slug": "uline",
+  "upc_code": "012345678901",
+  "notes": "Minimum order 25 units"
+}
+```
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `material_slug` | string | **Yes** | Reference to material |
+| `brand` | string | **Yes** | Brand name |
+| `product_name` | string | No | Product variant name |
+| `package_quantity` | decimal | **Yes** | Quantity per package |
+| `package_unit` | string | **Yes** | Unit of measure |
+| `supplier_slug` | string | No | Preferred supplier |
+| `upc_code` | string | No | UPC barcode |
+| `notes` | string | No | User notes |
+
+---
+
 ### 14. production_records (Legacy)
 
 **Purpose**: Track historical batch production records (v3.0-3.4 format, maintained for backward compatibility).
@@ -1283,7 +1446,139 @@ Denormalized views provide AI-friendly exports with context fields for external 
 
 Views eliminate FK lookups by including related entity fields directly. Each view includes a `_meta` section documenting which fields are editable vs readonly for import.
 
-### E.2 Products View
+### E.2 Ingredients View
+
+**Function**: `export_ingredients_view(output_path)`
+**Output**: `view_ingredients.json`
+
+Contains ingredients with hierarchy paths, related products, and computed values:
+
+```json
+{
+  "view_type": "ingredients",
+  "export_date": "2026-01-12T10:30:00Z",
+  "record_count": 150,
+  "_meta": {
+    "editable_fields": ["description", "notes", "density_volume_value",
+                        "density_volume_unit", "density_weight_value",
+                        "density_weight_unit"],
+    "readonly_fields": ["id", "uuid", "slug", "display_name", "category",
+                        "category_hierarchy", "product_count", "products",
+                        "inventory_total", "average_cost"]
+  },
+  "records": [
+    {
+      "id": 1,
+      "slug": "all_purpose_flour",
+      "display_name": "All-Purpose Flour",
+      "category": "Flours & Meals",
+      "category_hierarchy": "Flours & Meals > Wheat Flours > All-Purpose",
+      "description": "Standard white flour for general baking",
+      "notes": null,
+      "density_volume_value": 1.0,
+      "density_volume_unit": "cup",
+      "density_weight_value": 4.25,
+      "density_weight_unit": "oz",
+      "product_count": 3,
+      "inventory_total": 15.5,
+      "average_cost": 0.45,
+      "products": [
+        {
+          "brand": "King Arthur",
+          "product_name": "Unbleached All-Purpose Flour",
+          "package_size": "5 lb",
+          "is_preferred": true,
+          "last_purchase_price": 6.99
+        }
+      ]
+    }
+  ]
+}
+```
+
+### E.3 Materials View
+
+**Function**: `export_materials_view(output_path)`
+**Output**: `view_materials.json`
+
+Contains materials with hierarchy paths and related products:
+
+```json
+{
+  "view_type": "materials",
+  "export_date": "2026-01-12T10:30:00Z",
+  "record_count": 45,
+  "_meta": {
+    "editable_fields": ["description", "notes"],
+    "readonly_fields": ["id", "uuid", "slug", "display_name", "category_hierarchy",
+                        "product_count", "products"]
+  },
+  "records": [
+    {
+      "id": 1,
+      "slug": "kraft_box_6x6x6",
+      "display_name": "Kraft Box 6x6x6",
+      "category_hierarchy": "Packaging > Gift Boxes > Kraft",
+      "description": "Brown kraft paper box, 6 inch cube",
+      "product_count": 2,
+      "products": [
+        {
+          "brand": "Uline",
+          "product_name": "S-4344",
+          "package_quantity": 25
+        }
+      ]
+    }
+  ]
+}
+```
+
+### E.4 Recipes View
+
+**Function**: `export_recipes_view(output_path)`
+**Output**: `view_recipes.json`
+
+Contains recipes with embedded ingredients and computed costs:
+
+```json
+{
+  "view_type": "recipes",
+  "export_date": "2026-01-12T10:30:00Z",
+  "record_count": 85,
+  "_meta": {
+    "editable_fields": ["instructions", "notes", "prep_time_minutes",
+                        "cook_time_minutes"],
+    "readonly_fields": ["id", "uuid", "slug", "name", "category",
+                        "yield_quantity", "yield_unit", "computed_cost",
+                        "ingredients"]
+  },
+  "records": [
+    {
+      "id": 1,
+      "slug": "sugar_cookies",
+      "name": "Sugar Cookies",
+      "category": "Cookies",
+      "yield_quantity": 48,
+      "yield_unit": "cookies",
+      "instructions": "1. Cream butter and sugar...",
+      "prep_time_minutes": 15,
+      "cook_time_minutes": 12,
+      "computed_cost": 4.50,
+      "ingredients": [
+        {
+          "ingredient_slug": "all_purpose_flour",
+          "ingredient_name": "All-Purpose Flour",
+          "quantity": 2.0,
+          "unit": "cup",
+          "estimated_cost": 0.90
+        }
+      ]
+    }
+  ]
+}
+```
+
+### E.5 Products View
 
 **Function**: `export_products_view(output_path)`
 **Output**: `view_products.json`
@@ -1666,6 +1961,214 @@ bake-tracker import-bt-mobile <file.json>
 
 ---
 
+## Appendix K: Format Auto-Detection
+
+The import system automatically detects file format to route to the appropriate import handler.
+
+### K.1 Detection Algorithm
+
+```
+Load JSON
+  ↓
+Has _meta.editable_fields? → Yes → Context-Rich View
+  ↓ No
+Has import_type field?
+  → "purchases" → Purchase Transaction Import
+  → "adjustments" → Inventory Adjustment Import
+  → "inventory_updates" → Legacy Inventory Update (treat as adjustment)
+  ↓ No
+Has version + application == "bake-tracker"? → Yes → Normalized Backup
+  ↓ No
+Unknown Format (prompt user)
+```
+
+### K.2 Detection Service
+
+**Function**: `detect_format(file_path) -> FormatDetectionResult`
+
+**Returns**:
+```python
+FormatDetectionResult(
+    format_type: str,        # "context_rich", "purchases", "adjustments", "normalized", "unknown"
+    entity_type: str | None, # For context-rich: "ingredients", "materials", "recipes", etc.
+    entity_count: int | None,
+    confidence: float        # 0.0-1.0
+)
+```
+
+### K.3 Format Indicators
+
+| Format | Key Indicators |
+|--------|---------------|
+| Context-Rich | `_meta.editable_fields` present |
+| Purchases | `import_type == "purchases"` |
+| Adjustments | `import_type in ["adjustments", "inventory_updates"]` |
+| Normalized | `version` + `application == "bake-tracker"` |
+
+### K.4 UI Integration
+
+After auto-detection, the Import Dialog:
+1. Displays detected format with color indicator (green=confident, orange=ambiguous)
+2. Auto-selects matching import purpose
+3. Allows user to override if detection is wrong
+
+---
+
+## Appendix L: Inventory Adjustment Import (F049)
+
+The inventory adjustment import supports importing corrections with reason codes for audit trail.
+
+### L.1 Adjustment Import JSON Schema
+
+```json
+{
+  "schema_version": "4.0",
+  "import_type": "adjustments",
+  "created_at": "2026-01-12T09:15:00Z",
+  "source": "bt_mobile",
+  "adjustments": [
+    {
+      "product_slug": "all_purpose_flour:King Arthur:5.0:lb",
+      "adjusted_at": "2026-01-12T09:10:12Z",
+      "quantity": -2.5,
+      "reason_code": "spoilage",
+      "notes": "Found mold, discarding partial bag"
+    }
+  ]
+}
+```
+
+### L.2 Header Fields
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `schema_version` | string | **Yes** | Must be "4.0" |
+| `import_type` | string | **Yes** | Must be "adjustments" |
+| `created_at` | datetime | No | ISO 8601 timestamp |
+| `source` | string | No | Source application |
+| `adjustments` | array | **Yes** | Array of adjustment records |
+
+### L.3 Adjustment Record Fields
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `product_slug` | string | **Yes** | Composite slug (see L.4) |
+| `adjusted_at` | datetime | No | Adjustment timestamp |
+| `quantity` | decimal | **Yes** | Amount to adjust (must be negative) |
+| `reason_code` | string | **Yes** | Reason for adjustment |
+| `notes` | string | No | Additional details |
+
+### L.4 Product Slug Format
+
+Product slugs use a composite format for unique identification:
+
+```
+{ingredient_slug}:{brand}:{package_unit_quantity}:{package_unit}
+```
+
+**Examples**:
+- `all_purpose_flour:King Arthur:5.0:lb`
+- `chocolate_chips_semi_sweet:Ghirardelli:2.0:lb`
+- `vanilla_extract:McCormick:4.0:oz`
+
+### L.5 Allowed Reason Codes
+
+| Code | Description |
+|------|-------------|
+| `SPOILAGE` | Product went bad (mold, expired, etc.) |
+| `WASTE` | Spilled, burned, or otherwise wasted |
+| `DAMAGED` | Packaging damaged, product unusable |
+| `CORRECTION` | Physical count doesn't match system |
+| `OTHER` | Other reason (explain in notes) |
+
+### L.6 Validation Rules
+
+- `quantity` must be negative (< 0)
+- `reason_code` must be one of allowed values (case-insensitive)
+- `product_slug` must resolve to existing product
+- Cannot reduce inventory below zero
+- FIFO: oldest inventory item adjusted first
+
+### L.7 Service Function
+
+```python
+from src.services.transaction_import_service import import_adjustments
+
+result = import_adjustments("adjustments_20260112.json")
+print(f"Imported: {result.created}, Skipped: {result.skipped}")
+if result.errors:
+    for error in result.errors:
+        print(f"Error: {error}")
+```
+
+---
+
+## Appendix M: Purchase Transaction Import (F049)
+
+Enhanced purchase import using slug-based product resolution.
+
+### M.1 Purchase Import JSON Schema
+
+```json
+{
+  "schema_version": "4.0",
+  "import_type": "purchases",
+  "created_at": "2026-01-12T14:30:00Z",
+  "source": "bt_mobile",
+  "supplier": "Costco Waltham MA",
+  "purchases": [
+    {
+      "product_slug": "all_purpose_flour:King Arthur:5.0:lb",
+      "purchased_at": "2026-01-12T14:15:23Z",
+      "unit_price": 7.99,
+      "quantity_purchased": 2,
+      "supplier": "Costco Waltham MA",
+      "notes": "Weekly shopping"
+    }
+  ]
+}
+```
+
+### M.2 Header Fields
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `schema_version` | string | **Yes** | Must be "4.0" |
+| `import_type` | string | **Yes** | Must be "purchases" |
+| `created_at` | datetime | No | ISO 8601 timestamp |
+| `source` | string | No | Source application |
+| `supplier` | string | No | Default supplier for all purchases |
+| `purchases` | array | **Yes** | Array of purchase records |
+
+### M.3 Purchase Record Fields
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `product_slug` | string | **Yes** | Composite slug (see L.4) |
+| `purchased_at` | datetime | No | Purchase timestamp |
+| `unit_price` | decimal | **Yes** | Price per package |
+| `quantity_purchased` | decimal | **Yes** | Number of packages (must be positive) |
+| `supplier` | string | No | Supplier name (overrides default) |
+| `notes` | string | No | Purchase notes |
+
+### M.4 Validation Rules
+
+- `quantity_purchased` must be positive (> 0)
+- `product_slug` must resolve to existing product
+- If no supplier specified, creates "Unknown" supplier
+- Duplicate detection: same (product, date, price) skipped
+
+### M.5 Service Function
+
+```python
+from src.services.transaction_import_service import import_purchases
+
+result = import_purchases("purchases_20260112.json")
+print(f"Imported: {result.created}, Skipped: {result.skipped}")
+```
+
+---
+
 **Document Status**: Current
-**Version**: 4.0
-**Last Updated**: 2026-01-06
+**Version**: 4.1
+**Last Updated**: 2026-01-12
