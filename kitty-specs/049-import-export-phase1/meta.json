@@ -1,0 +1,16 @@
+{
+  "accept_commit": null,
+  "acceptance_history": [
+    {
+      "accepted_at": "2026-01-12T22:54:48Z",
+      "accepted_by": "kentgale",
+      "accepted_from_commit": "c1674d3669c19dbf103a93c92d4bb11393e238ad",
+      "branch": "049-import-export-phase1",
+      "mode": "local"
+    }
+  ],
+  "acceptance_mode": "local",
+  "accepted_at": "2026-01-12T22:54:48Z",
+  "accepted_by": "kentgale",
+  "accepted_from_commit": "c1674d3669c19dbf103a93c92d4bb11393e238ad"
+}

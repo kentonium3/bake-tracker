@@ -25,10 +25,17 @@ from typing import Dict, List, Optional
 
 from sqlalchemy.orm import Session, joinedload
 
+from sqlalchemy import func
+
 from src.models.ingredient import Ingredient
 from src.models.inventory_item import InventoryItem
+from src.models.material import Material
+from src.models.material_category import MaterialCategory
+from src.models.material_product import MaterialProduct
+from src.models.material_subcategory import MaterialSubcategory
 from src.models.product import Product
 from src.models.purchase import Purchase
+from src.models.recipe import Recipe, RecipeIngredient
 from src.services.database import session_scope
 
 
@@ -151,6 +158,81 @@ PURCHASES_VIEW_READONLY = [
     "created_at",
 ]
 
+# Ingredients view field definitions
+INGREDIENTS_VIEW_EDITABLE = [
+    "description",
+    "notes",
+    "density_volume_value",
+    "density_volume_unit",
+    "density_weight_value",
+    "density_weight_unit",
+]
+
+INGREDIENTS_VIEW_READONLY = [
+    "id",
+    "uuid",
+    "slug",
+    "display_name",
+    "category",
+    "category_hierarchy",
+    "hierarchy_level",
+    "parent_ingredient_id",
+    "is_packaging",
+    "product_count",
+    "products",
+    "inventory_total",
+    "average_cost",
+    "date_added",
+    "last_modified",
+]
+
+# Materials view field definitions
+MATERIALS_VIEW_EDITABLE = [
+    "description",
+    "notes",
+]
+
+MATERIALS_VIEW_READONLY = [
+    "id",
+    "uuid",
+    "slug",
+    "name",
+    "base_unit_type",
+    "category_hierarchy",
+    "subcategory_id",
+    "product_count",
+    "products",
+    "total_inventory",
+    "total_inventory_value",
+]
+
+# Recipes view field definitions
+RECIPES_VIEW_EDITABLE = [
+    "notes",
+    "source",
+    "estimated_time_minutes",
+]
+
+RECIPES_VIEW_READONLY = [
+    "id",
+    "uuid",
+    "name",
+    "category",
+    "yield_quantity",
+    "yield_unit",
+    "yield_description",
+    "is_archived",
+    "is_production_ready",
+    "base_recipe_id",
+    "variant_name",
+    "ingredients",
+    "recipe_components",
+    "total_cost",
+    "cost_per_unit",
+    "date_added",
+    "last_modified",
+]
+
 
 # ============================================================================
 # Helper Functions
@@ -176,6 +258,210 @@ def _build_product_slug(product: Product) -> Optional[str]:
     if not product.ingredient:
         return None
     return f"{product.ingredient.slug}:{product.brand}:{product.package_unit_quantity}:{product.package_unit}"
+
+
+def _build_ingredient_hierarchy_path(ingredient: Ingredient) -> str:
+    """
+    Build full category hierarchy path for an ingredient.
+
+    For ingredients using the self-referential hierarchy (Feature 031),
+    walks up the parent chain to build a path like:
+    "Chocolate > Dark Chocolate > Semi-Sweet Chips"
+
+    Falls back to the legacy category field if no parent hierarchy exists.
+
+    Args:
+        ingredient: The ingredient to build the path for
+
+    Returns:
+        Hierarchy path as " > "-separated string, or empty string if no hierarchy
+    """
+    if ingredient is None:
+        return ""
+
+    # Build path from current ingredient up to root
+    path_parts = []
+
+    # Start with the current ingredient
+    current = ingredient
+    while current is not None:
+        path_parts.insert(0, current.display_name or current.slug or "")
+        current = current.parent if hasattr(current, "parent") else None
+
+    # If we only have the leaf (no parent hierarchy), use the category field
+    if len(path_parts) == 1 and ingredient.category:
+        return f"{ingredient.category} > {ingredient.display_name}"
+
+    return " > ".join(path_parts) if path_parts else ""
+
+
+def _build_material_hierarchy_path(material: Material) -> str:
+    """
+    Build full category hierarchy path for a material.
+
+    Materials use a 3-level hierarchy: Category > Subcategory > Material
+    Example: "Ribbons > Satin > Red Satin Ribbon"
+
+    Args:
+        material: The material to build the path for
+
+    Returns:
+        Hierarchy path as " > "-separated string, or empty string if no hierarchy
+    """
+    if material is None:
+        return ""
+
+    path_parts = []
+
+    # Build path: Category > Subcategory > Material
+    if material.subcategory:
+        if material.subcategory.category:
+            path_parts.append(material.subcategory.category.name)
+        path_parts.append(material.subcategory.name)
+
+    path_parts.append(material.name)
+
+    return " > ".join(path_parts) if path_parts else ""
+
+
+def _calculate_ingredient_inventory_total(
+    ingredient: Ingredient, session: Session
+) -> float:
+    """
+    Sum current_quantity across all inventory items for ingredient's products.
+
+    Args:
+        ingredient: The ingredient to calculate inventory for
+        session: SQLAlchemy session
+
+    Returns:
+        Total inventory quantity across all products for this ingredient
+    """
+    if ingredient is None:
+        return 0.0
+
+    # Only leaf ingredients can have products
+    if not ingredient.is_leaf:
+        return 0.0
+
+    total = (
+        session.query(func.sum(InventoryItem.quantity))
+        .join(Product)
+        .filter(
+            Product.ingredient_id == ingredient.id,
+            InventoryItem.quantity > 0,
+        )
+        .scalar()
+    )
+    return float(total) if total else 0.0
+
+
+def _calculate_ingredient_average_cost(
+    ingredient: Ingredient, session: Session
+) -> Optional[float]:
+    """
+    Calculate weighted average cost per unit for an ingredient.
+
+    Uses the most recent purchase prices from all products linked to this ingredient.
+
+    Args:
+        ingredient: The ingredient to calculate average cost for
+        session: SQLAlchemy session
+
+    Returns:
+        Weighted average cost per unit, or None if no purchase history
+    """
+    if ingredient is None:
+        return None
+
+    # Only leaf ingredients can have products
+    if not ingredient.is_leaf:
+        return None
+
+    # Get all inventory items with costs for this ingredient's products
+    items = (
+        session.query(InventoryItem.quantity, InventoryItem.unit_cost)
+        .join(Product)
+        .filter(
+            Product.ingredient_id == ingredient.id,
+            InventoryItem.quantity > 0,
+            InventoryItem.unit_cost.isnot(None),
+        )
+        .all()
+    )
+
+    if not items:
+        return None
+
+    total_cost = sum(item.quantity * (item.unit_cost or 0) for item in items)
+    total_quantity = sum(item.quantity for item in items)
+
+    if total_quantity == 0:
+        return None
+
+    return round(total_cost / total_quantity, 4)
+
+
+def _calculate_material_inventory_total(material: Material) -> float:
+    """
+    Sum current inventory across all products for a material.
+
+    Args:
+        material: The material to calculate inventory for
+
+    Returns:
+        Total inventory in base units across all products
+    """
+    if material is None:
+        return 0.0
+
+    total = sum(p.current_inventory for p in material.products if p.current_inventory)
+    return float(total)
+
+
+def _calculate_material_inventory_value(material: Material) -> float:
+    """
+    Sum inventory value across all products for a material.
+
+    Args:
+        material: The material to calculate value for
+
+    Returns:
+        Total inventory value across all products
+    """
+    if material is None:
+        return 0.0
+
+    total = sum(float(p.inventory_value) for p in material.products)
+    return round(total, 2)
+
+
+def _calculate_recipe_cost(recipe: Recipe, session: Session) -> float:
+    """
+    Calculate total recipe cost from ingredient costs.
+
+    Uses each RecipeIngredient's calculate_cost() method which handles
+    unit conversions and density-based calculations.
+
+    Args:
+        recipe: The recipe to calculate cost for
+        session: SQLAlchemy session (unused but kept for consistency)
+
+    Returns:
+        Total cost of all ingredients in the recipe
+    """
+    if recipe is None:
+        return 0.0
+
+    return recipe.calculate_cost()
+
+
+def _get_last_purchase_price(product: Product) -> Optional[str]:
+    """Get the last purchase price for a product as formatted string."""
+    recent = _get_most_recent_purchase(product)
+    if recent and recent.unit_price is not None:
+        return _format_money(recent.unit_price)
+    return None
 
 
 # ============================================================================
@@ -515,6 +801,360 @@ def _export_purchases_view_impl(output_path: str, session: Session) -> ExportRes
 
 
 # ============================================================================
+# Ingredients View Export
+# ============================================================================
+
+
+def export_ingredients_view(
+    output_path: str,
+    session: Optional[Session] = None,
+) -> ExportResult:
+    """
+    Export ingredients with context for AI augmentation.
+
+    Creates a view file with all ingredient fields plus context fields:
+    - category_hierarchy: Full path (e.g., "Chocolate > Dark Chocolate > Semi-Sweet Chips")
+    - products: Nested array of related products with purchase info
+    - inventory_total: Sum of inventory across all products
+    - average_cost: Weighted average cost per unit
+
+    Args:
+        output_path: Path for the output JSON file
+        session: Optional SQLAlchemy session for transactional composition
+
+    Returns:
+        ExportResult with export metadata
+    """
+    if session is not None:
+        return _export_ingredients_view_impl(output_path, session)
+    with session_scope() as sess:
+        return _export_ingredients_view_impl(output_path, sess)
+
+
+def _export_ingredients_view_impl(output_path: str, session: Session) -> ExportResult:
+    """Internal implementation of ingredients view export."""
+    # Query ingredients with eager loading
+    ingredients = (
+        session.query(Ingredient)
+        .options(
+            joinedload(Ingredient.products).joinedload(Product.purchases),
+            joinedload(Ingredient.parent),
+        )
+        .all()
+    )
+
+    export_date = utc_now().isoformat() + "Z"
+    records = []
+
+    for ing in ingredients:
+        # Build nested products array
+        products_data = []
+        for p in ing.products:
+            products_data.append({
+                "id": p.id,
+                "brand": p.brand,
+                "product_name": p.product_name,
+                "package_size": p.package_size,
+                "package_unit": p.package_unit,
+                "package_unit_quantity": p.package_unit_quantity,
+                "preferred": p.preferred,
+                "last_purchase_price": _get_last_purchase_price(p),
+            })
+
+        records.append({
+            # Primary fields (readonly)
+            "id": ing.id,
+            "uuid": str(ing.uuid) if ing.uuid else None,
+            "slug": ing.slug,
+            "display_name": ing.display_name,
+            "category": ing.category,
+            "category_hierarchy": _build_ingredient_hierarchy_path(ing),
+            "hierarchy_level": ing.hierarchy_level,
+            "parent_ingredient_id": ing.parent_ingredient_id,
+            "is_packaging": ing.is_packaging,
+            # Editable fields
+            "description": ing.description,
+            "notes": ing.notes,
+            "density_volume_value": ing.density_volume_value,
+            "density_volume_unit": ing.density_volume_unit,
+            "density_weight_value": ing.density_weight_value,
+            "density_weight_unit": ing.density_weight_unit,
+            # Computed fields (readonly)
+            "product_count": len(ing.products),
+            "products": products_data,
+            "inventory_total": _calculate_ingredient_inventory_total(ing, session),
+            "average_cost": _calculate_ingredient_average_cost(ing, session),
+            # Timestamps
+            "date_added": ing.date_added.isoformat() if ing.date_added else None,
+            "last_modified": ing.last_modified.isoformat() if ing.last_modified else None,
+        })
+
+    view_data = {
+        "version": "1.0",
+        "view_type": "ingredients",
+        "export_date": export_date,
+        "_meta": {
+            "editable_fields": INGREDIENTS_VIEW_EDITABLE,
+            "readonly_fields": INGREDIENTS_VIEW_READONLY,
+        },
+        "records": records,
+    }
+
+    # Write to file
+    output = Path(output_path)
+    output.parent.mkdir(parents=True, exist_ok=True)
+    with open(output, "w", encoding="utf-8") as f:
+        json.dump(view_data, f, indent=2, ensure_ascii=False, default=str)
+
+    return ExportResult(
+        view_type="ingredients",
+        record_count=len(records),
+        output_path=str(output),
+        export_date=export_date,
+    )
+
+
+# ============================================================================
+# Materials View Export
+# ============================================================================
+
+
+def export_materials_view(
+    output_path: str,
+    session: Optional[Session] = None,
+) -> ExportResult:
+    """
+    Export materials with context for AI augmentation.
+
+    Creates a view file with all material fields plus context fields:
+    - category_hierarchy: Full path (e.g., "Ribbons > Satin > Red Satin Ribbon")
+    - products: Nested array of related products
+    - total_inventory: Sum of inventory across all products (in base units)
+    - total_inventory_value: Total value of inventory
+
+    Args:
+        output_path: Path for the output JSON file
+        session: Optional SQLAlchemy session for transactional composition
+
+    Returns:
+        ExportResult with export metadata
+    """
+    if session is not None:
+        return _export_materials_view_impl(output_path, session)
+    with session_scope() as sess:
+        return _export_materials_view_impl(output_path, sess)
+
+
+def _export_materials_view_impl(output_path: str, session: Session) -> ExportResult:
+    """Internal implementation of materials view export."""
+    # Query materials with eager loading
+    materials = (
+        session.query(Material)
+        .options(
+            joinedload(Material.subcategory).joinedload(MaterialSubcategory.category),
+            joinedload(Material.products).joinedload(MaterialProduct.supplier),
+        )
+        .all()
+    )
+
+    export_date = utc_now().isoformat() + "Z"
+    records = []
+
+    for mat in materials:
+        # Build nested products array
+        products_data = []
+        for p in mat.products:
+            products_data.append({
+                "id": p.id,
+                "name": p.name,
+                "slug": p.slug,
+                "brand": p.brand,
+                "sku": p.sku,
+                "package_quantity": p.package_quantity,
+                "package_unit": p.package_unit,
+                "current_inventory": p.current_inventory,
+                "weighted_avg_cost": str(p.weighted_avg_cost) if p.weighted_avg_cost else None,
+                "supplier_name": p.supplier.name if p.supplier else None,
+            })
+
+        records.append({
+            # Primary fields (readonly)
+            "id": mat.id,
+            "uuid": str(mat.uuid) if mat.uuid else None,
+            "slug": mat.slug,
+            "name": mat.name,
+            "base_unit_type": mat.base_unit_type,
+            "category_hierarchy": _build_material_hierarchy_path(mat),
+            "subcategory_id": mat.subcategory_id,
+            # Editable fields
+            "description": mat.description,
+            "notes": mat.notes,
+            # Computed fields (readonly)
+            "product_count": len(mat.products),
+            "products": products_data,
+            "total_inventory": _calculate_material_inventory_total(mat),
+            "total_inventory_value": _calculate_material_inventory_value(mat),
+        })
+
+    view_data = {
+        "version": "1.0",
+        "view_type": "materials",
+        "export_date": export_date,
+        "_meta": {
+            "editable_fields": MATERIALS_VIEW_EDITABLE,
+            "readonly_fields": MATERIALS_VIEW_READONLY,
+        },
+        "records": records,
+    }
+
+    # Write to file
+    output = Path(output_path)
+    output.parent.mkdir(parents=True, exist_ok=True)
+    with open(output, "w", encoding="utf-8") as f:
+        json.dump(view_data, f, indent=2, ensure_ascii=False, default=str)
+
+    return ExportResult(
+        view_type="materials",
+        record_count=len(records),
+        output_path=str(output),
+        export_date=export_date,
+    )
+
+
+# ============================================================================
+# Recipes View Export
+# ============================================================================
+
+
+def export_recipes_view(
+    output_path: str,
+    session: Optional[Session] = None,
+) -> ExportResult:
+    """
+    Export recipes with full ingredient details and computed costs.
+
+    Creates a view file with all recipe fields plus context fields:
+    - ingredients: Nested array with ingredient details and costs
+    - recipe_components: Nested array of sub-recipes (if any)
+    - total_cost: Computed total cost of all ingredients
+    - cost_per_unit: Cost divided by yield_quantity
+
+    Args:
+        output_path: Path for the output JSON file
+        session: Optional SQLAlchemy session for transactional composition
+
+    Returns:
+        ExportResult with export metadata
+    """
+    if session is not None:
+        return _export_recipes_view_impl(output_path, session)
+    with session_scope() as sess:
+        return _export_recipes_view_impl(output_path, sess)
+
+
+def _export_recipes_view_impl(output_path: str, session: Session) -> ExportResult:
+    """Internal implementation of recipes view export."""
+    # Query recipes with eager loading
+    recipes = (
+        session.query(Recipe)
+        .options(
+            joinedload(Recipe.recipe_ingredients).joinedload(RecipeIngredient.ingredient),
+            joinedload(Recipe.recipe_components),
+        )
+        .all()
+    )
+
+    export_date = utc_now().isoformat() + "Z"
+    records = []
+
+    for recipe in recipes:
+        # Build nested ingredients array
+        ingredients_data = []
+        for ri in recipe.recipe_ingredients:
+            ingredient_cost = ri.calculate_cost()
+            ingredients_data.append({
+                "ingredient_id": ri.ingredient_id,
+                "ingredient_slug": ri.ingredient.slug if ri.ingredient else None,
+                "ingredient_name": ri.ingredient.display_name if ri.ingredient else None,
+                "quantity": float(ri.quantity),
+                "unit": ri.unit,
+                "notes": ri.notes,
+                "estimated_cost": round(ingredient_cost, 2) if ingredient_cost else None,
+            })
+
+        # Build nested recipe_components array (sub-recipes)
+        components_data = []
+        for rc in recipe.recipe_components:
+            components_data.append({
+                "component_recipe_id": rc.component_recipe_id,
+                "component_recipe_name": rc.component_recipe.name if rc.component_recipe else None,
+                "quantity": float(rc.quantity),
+                "notes": rc.notes,
+                "sort_order": rc.sort_order,
+            })
+
+        # Calculate costs
+        total_cost = _calculate_recipe_cost(recipe, session)
+        cost_per_unit = (
+            round(total_cost / recipe.yield_quantity, 2)
+            if recipe.yield_quantity and recipe.yield_quantity > 0
+            else None
+        )
+
+        records.append({
+            # Primary fields (readonly)
+            "id": recipe.id,
+            "uuid": str(recipe.uuid) if recipe.uuid else None,
+            "name": recipe.name,
+            "category": recipe.category,
+            "yield_quantity": recipe.yield_quantity,
+            "yield_unit": recipe.yield_unit,
+            "yield_description": recipe.yield_description,
+            "is_archived": recipe.is_archived,
+            "is_production_ready": recipe.is_production_ready,
+            "base_recipe_id": recipe.base_recipe_id,
+            "variant_name": recipe.variant_name,
+            # Editable fields
+            "source": recipe.source,
+            "estimated_time_minutes": recipe.estimated_time_minutes,
+            "notes": recipe.notes,
+            # Nested relationships (readonly)
+            "ingredients": ingredients_data,
+            "recipe_components": components_data,
+            # Computed fields (readonly)
+            "total_cost": round(total_cost, 2) if total_cost else None,
+            "cost_per_unit": cost_per_unit,
+            # Timestamps
+            "date_added": recipe.date_added.isoformat() if recipe.date_added else None,
+            "last_modified": recipe.last_modified.isoformat() if recipe.last_modified else None,
+        })
+
+    view_data = {
+        "version": "1.0",
+        "view_type": "recipes",
+        "export_date": export_date,
+        "_meta": {
+            "editable_fields": RECIPES_VIEW_EDITABLE,
+            "readonly_fields": RECIPES_VIEW_READONLY,
+        },
+        "records": records,
+    }
+
+    # Write to file
+    output = Path(output_path)
+    output.parent.mkdir(parents=True, exist_ok=True)
+    with open(output, "w", encoding="utf-8") as f:
+        json.dump(view_data, f, indent=2, ensure_ascii=False, default=str)
+
+    return ExportResult(
+        view_type="recipes",
+        record_count=len(records),
+        output_path=str(output),
+        export_date=export_date,
+    )
+
+
+# ============================================================================
 # Convenience Function
 # ============================================================================
 
@@ -549,6 +1189,18 @@ def export_all_views(
     )
     results["purchases"] = export_purchases_view(
         str(output_path / "view_purchases.json"),
+        session=session,
+    )
+    results["ingredients"] = export_ingredients_view(
+        str(output_path / "view_ingredients.json"),
+        session=session,
+    )
+    results["materials"] = export_materials_view(
+        str(output_path / "view_materials.json"),
+        session=session,
+    )
+    results["recipes"] = export_recipes_view(
+        str(output_path / "view_recipes.json"),
         session=session,
     )
 

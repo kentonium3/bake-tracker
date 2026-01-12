@@ -15,14 +15,16 @@ import json
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Literal, Optional, Tuple
 
 from sqlalchemy.orm import Session
 
 from src.models.ingredient import Ingredient
 from src.models.inventory_item import InventoryItem
+from src.models.material import Material
 from src.models.product import Product
 from src.models.purchase import Purchase
+from src.models.recipe import Recipe
 from src.models.supplier import Supplier
 from src.services.fk_resolver_service import (
     FKResolverCallback,
@@ -183,6 +185,393 @@ class EnhancedImportResult:
 
 
 # ============================================================================
+# Format Detection Types
+# ============================================================================
+
+FormatType = Literal["context_rich", "normalized", "purchases", "adjustments", "unknown"]
+
+
+@dataclass
+class FormatDetectionResult:
+    """Result of format auto-detection for UI confirmation.
+
+    Attributes:
+        format_type: Detected format type
+        view_type: For context-rich formats, the entity type (e.g., "ingredients")
+        entity_count: Number of records in the file
+        editable_fields: List of editable fields (for context-rich)
+        readonly_fields: List of readonly fields (for context-rich)
+        version: Schema version (for normalized)
+        import_type: Import type (for purchases/adjustments)
+        source: Source system if specified
+        raw_data: The parsed JSON data for subsequent import
+    """
+
+    format_type: FormatType
+    view_type: Optional[str] = None
+    entity_count: int = 0
+    editable_fields: Optional[List[str]] = None
+    readonly_fields: Optional[List[str]] = None
+    version: Optional[str] = None
+    import_type: Optional[str] = None
+    source: Optional[str] = None
+    raw_data: Optional[Dict[str, Any]] = None
+
+    @property
+    def display_name(self) -> str:
+        """Human-readable format name for UI display."""
+        if self.format_type == "context_rich":
+            view_name = (self.view_type or "unknown").replace("_", " ").title()
+            return f"Context-Rich View ({view_name})"
+        elif self.format_type == "normalized":
+            return f"Normalized Backup (v{self.version or 'unknown'})"
+        elif self.format_type == "purchases":
+            return "Purchase Transactions"
+        elif self.format_type == "adjustments":
+            return "Inventory Adjustments"
+        else:
+            return "Unknown Format"
+
+    @property
+    def summary(self) -> str:
+        """Get a summary string for display."""
+        lines = [f"Format: {self.display_name}"]
+        lines.append(f"Records: {self.entity_count}")
+
+        if self.editable_fields:
+            lines.append(f"Editable fields: {', '.join(self.editable_fields)}")
+        if self.readonly_fields:
+            lines.append(f"Readonly fields: {', '.join(self.readonly_fields)}")
+        if self.source:
+            lines.append(f"Source: {self.source}")
+
+        return "\n".join(lines)
+
+
+# ============================================================================
+# Format Detection Functions
+# ============================================================================
+
+
+def detect_format(file_path: str) -> FormatDetectionResult:
+    """Detect the format of an import file.
+
+    Args:
+        file_path: Path to JSON file to analyze
+
+    Returns:
+        FormatDetectionResult with detected format and metadata
+
+    Raises:
+        FileNotFoundError: If file does not exist
+        json.JSONDecodeError: If file is not valid JSON
+    """
+    with open(file_path, "r", encoding="utf-8") as f:
+        data = json.load(f)
+
+    return _detect_format_from_data(data)
+
+
+def _detect_format_from_data(data: Dict[str, Any]) -> FormatDetectionResult:
+    """Detect format from parsed JSON data.
+
+    Detection rules (in order of priority):
+    1. Context-Rich: Has _meta.editable_fields
+    2. Purchases: import_type == "purchases"
+    3. Adjustments: import_type in ("adjustments", "inventory_updates")
+    4. Normalized: Has version and application == "bake-tracker"
+    5. Unknown: None of the above
+
+    Args:
+        data: Parsed JSON data
+
+    Returns:
+        FormatDetectionResult with detected format
+    """
+    result = FormatDetectionResult(format_type="unknown", raw_data=data)
+
+    # Check for context-rich view format (has _meta.editable_fields)
+    meta = data.get("_meta", {})
+    if isinstance(meta, dict) and "editable_fields" in meta:
+        result.format_type = "context_rich"
+        result.view_type = data.get("view_type")
+        result.editable_fields = meta.get("editable_fields", [])
+        result.readonly_fields = meta.get("readonly_fields", [])
+        result.entity_count = len(data.get("records", []))
+        return result
+
+    # Check for transaction imports (purchases, adjustments)
+    import_type = data.get("import_type")
+    if import_type == "purchases":
+        result.format_type = "purchases"
+        result.import_type = import_type
+        result.version = data.get("schema_version")
+        result.source = data.get("source")
+        result.entity_count = len(data.get("purchases", []))
+        return result
+
+    if import_type in ("adjustments", "inventory_updates"):
+        result.format_type = "adjustments"
+        result.import_type = import_type
+        result.version = data.get("schema_version")
+        result.source = data.get("source")
+        # Check both possible array names
+        adjustments = data.get("adjustments", []) or data.get("inventory_updates", [])
+        result.entity_count = len(adjustments)
+        return result
+
+    # Check for normalized backup/catalog format
+    if "version" in data and data.get("application") == "bake-tracker":
+        result.format_type = "normalized"
+        result.version = data.get("version")
+        result.source = data.get("application")
+        # Count total records across all entity arrays
+        entity_count = 0
+        for key, value in data.items():
+            if isinstance(value, list) and key not in ("_meta", "files"):
+                entity_count += len(value)
+        result.entity_count = entity_count
+        return result
+
+    # Unknown format - try to provide some info
+    result.format_type = "unknown"
+    # Try to count records if there's any array
+    for key, value in data.items():
+        if isinstance(value, list):
+            result.entity_count = len(value)
+            result.view_type = key  # Best guess at what the data represents
+            break
+
+    return result
+
+
+def extract_editable_fields(record: Dict[str, Any], meta: Dict[str, Any]) -> Dict[str, Any]:
+    """Extract only editable fields from a context-rich record.
+
+    This filters out computed and readonly fields, returning only the
+    fields that should be imported/merged with existing records.
+
+    Args:
+        record: Full record with all fields
+        meta: _meta section containing editable_fields list
+
+    Returns:
+        Dict containing only editable fields from the record
+    """
+    editable_fields = set(meta.get("editable_fields", []))
+    return {k: v for k, v in record.items() if k in editable_fields}
+
+
+def merge_fields(entity: Any, editable_data: Dict[str, Any]) -> bool:
+    """Update entity with editable field values.
+
+    Only updates fields that are present in editable_data.
+    Does not clear fields not present in the update.
+
+    Args:
+        entity: The SQLAlchemy entity to update
+        editable_data: Dict of field names to new values
+
+    Returns:
+        True if any fields were updated, False otherwise
+    """
+    updated = False
+    for field_name, value in editable_data.items():
+        if hasattr(entity, field_name):
+            current_value = getattr(entity, field_name, None)
+            if current_value != value:
+                setattr(entity, field_name, value)
+                updated = True
+    return updated
+
+
+def _find_entity_by_slug(
+    view_type: str, slug: str, session: Session
+) -> Optional[Any]:
+    """Find an entity by its slug for context-rich import.
+
+    Args:
+        view_type: The view type (e.g., "ingredients", "materials", "recipes")
+        slug: The entity's slug identifier
+        session: Database session
+
+    Returns:
+        The entity if found, None otherwise
+    """
+    entity_type = _view_type_to_entity_type(view_type)
+
+    if entity_type == "ingredient":
+        return session.query(Ingredient).filter(Ingredient.slug == slug).first()
+    elif entity_type == "material":
+        return session.query(Material).filter(Material.slug == slug).first()
+    elif entity_type == "recipe":
+        return session.query(Recipe).filter(Recipe.slug == slug).first()
+    elif entity_type == "product":
+        return session.query(Product).filter(Product.slug == slug).first()
+    elif entity_type == "supplier":
+        return session.query(Supplier).filter(Supplier.name == slug).first()
+
+    return None
+
+
+# ============================================================================
+# Context-Rich Import
+# ============================================================================
+
+
+@dataclass
+class ContextRichImportResult:
+    """Result of context-rich import operation.
+
+    Tracks which records were merged, skipped, or had errors.
+    """
+
+    total_records: int = 0
+    merged: int = 0
+    skipped: int = 0
+    not_found: int = 0
+    errors: List[Dict[str, Any]] = field(default_factory=list)
+    dry_run: bool = False
+
+    def add_merged(self):
+        """Record a successful merge."""
+        self.merged += 1
+
+    def add_skipped(self, slug: str, reason: str):
+        """Record a skipped record."""
+        self.skipped += 1
+        self.errors.append({"slug": slug, "reason": reason, "type": "skip"})
+
+    def add_not_found(self, slug: str):
+        """Record a record that wasn't found in the database."""
+        self.not_found += 1
+        self.errors.append({"slug": slug, "reason": "Record not found for merge", "type": "not_found"})
+
+    def add_error(self, slug: str, error: str):
+        """Record an error."""
+        self.errors.append({"slug": slug, "reason": error, "type": "error"})
+
+    def get_summary(self) -> str:
+        """Get a summary of the import operation."""
+        lines = []
+        if self.dry_run:
+            lines.append("=" * 50)
+            lines.append("DRY RUN - No changes were made")
+            lines.append("=" * 50)
+            lines.append("")
+
+        lines.append(f"Total records: {self.total_records}")
+        lines.append(f"Merged: {self.merged}")
+        lines.append(f"Skipped (no changes): {self.skipped}")
+        lines.append(f"Not found: {self.not_found}")
+
+        if self.errors:
+            lines.append("")
+            lines.append("Issues:")
+            for err in self.errors[:10]:  # Show first 10
+                lines.append(f"  - [{err['type']}] {err['slug']}: {err['reason']}")
+            if len(self.errors) > 10:
+                lines.append(f"  ... and {len(self.errors) - 10} more")
+
+        return "\n".join(lines)
+
+
+def import_context_rich_view(
+    file_path: str,
+    dry_run: bool = False,
+    session: Optional[Session] = None,
+) -> ContextRichImportResult:
+    """Import a context-rich view file, merging editable fields with existing records.
+
+    Context-rich imports are merge-only operations - they update existing
+    records with AI-augmented editable fields. Records not found in the
+    database are skipped (not created).
+
+    Args:
+        file_path: Path to the context-rich JSON file
+        dry_run: If True, preview changes without modifying database
+        session: Optional database session
+
+    Returns:
+        ContextRichImportResult with import statistics
+    """
+    if session is not None:
+        return _import_context_rich_impl(file_path, dry_run, session)
+
+    with session_scope() as session:
+        result = _import_context_rich_impl(file_path, dry_run, session)
+        if dry_run:
+            session.rollback()
+        return result
+
+
+def _import_context_rich_impl(
+    file_path: str,
+    dry_run: bool,
+    session: Session,
+) -> ContextRichImportResult:
+    """Implementation of context-rich import.
+
+    Args:
+        file_path: Path to the JSON file
+        dry_run: Preview mode flag
+        session: Database session
+
+    Returns:
+        ContextRichImportResult
+    """
+    result = ContextRichImportResult(dry_run=dry_run)
+
+    # First detect the format to ensure it's context-rich
+    detection = detect_format(file_path)
+    if detection.format_type != "context_rich":
+        result.add_error("file", f"Expected context-rich format, got {detection.format_type}")
+        return result
+
+    data = detection.raw_data
+    meta = data.get("_meta", {})
+    view_type = data.get("view_type")
+    records = data.get("records", [])
+
+    result.total_records = len(records)
+
+    if not view_type:
+        result.add_error("file", "Missing view_type in context-rich file")
+        return result
+
+    # Process each record
+    for record in records:
+        # Get the slug identifier (always in readonly fields but needed for lookup)
+        slug = record.get("slug")
+        if not slug:
+            result.add_error("unknown", "Record missing slug identifier")
+            continue
+
+        # Find existing entity
+        existing = _find_entity_by_slug(view_type, slug, session)
+        if not existing:
+            result.add_not_found(slug)
+            continue
+
+        # Extract only editable fields
+        editable_data = extract_editable_fields(record, meta)
+
+        if not editable_data:
+            result.add_skipped(slug, "No editable fields to update")
+            continue
+
+        # Merge editable fields
+        updated = merge_fields(existing, editable_data)
+
+        if updated:
+            result.add_merged()
+        else:
+            result.add_skipped(slug, "No changes needed")
+
+    return result
+
+
+# ============================================================================
 # FK Resolution Helpers
 # ============================================================================
 
@@ -337,21 +726,9 @@ def _import_record_merge(
 
     if existing:
         # Build list of fields to update
-        # Start with editable_fields from metadata
+        # IMPORTANT: Honor _meta.editable_fields strictly (FR-014)
+        # Never update readonly/computed fields like unit_cost, unit_price, quantity_purchased
         fields_to_update = list(editable_fields)
-
-        # For inventory_item and purchase, also allow updating price fields
-        # These may have been AI-augmented even though marked readonly in export
-        if entity_type == "inventory_item":
-            # unit_cost is the price field for inventory
-            if "unit_cost" not in fields_to_update:
-                fields_to_update.append("unit_cost")
-        elif entity_type == "purchase":
-            # unit_price and quantity_purchased are price/quantity fields for purchases
-            if "unit_price" not in fields_to_update:
-                fields_to_update.append("unit_price")
-            if "quantity_purchased" not in fields_to_update:
-                fields_to_update.append("quantity_purchased")
 
         # Update fields
         updated = False
@@ -889,6 +1266,10 @@ def _view_type_to_entity_type(view_type: str) -> Optional[str]:
         "inventory_item": "inventory_item",
         "purchases": "purchase",
         "purchase": "purchase",
+        "materials": "material",
+        "material": "material",
+        "recipes": "recipe",
+        "recipe": "recipe",
     }
     return mapping.get(view_type.lower())
 
