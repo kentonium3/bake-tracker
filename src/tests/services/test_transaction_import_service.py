@@ -1196,6 +1196,46 @@ class TestImportAdjustmentsRequiresReasonCode:
             assert result.successful == 1, f"Failed for reason_code: {reason_code}"
             assert result.failed == 0, f"Failed for reason_code: {reason_code}"
 
+    def test_import_adjustments_reason_code_case_insensitive(
+        self,
+        test_db,
+        cleanup_transaction_data,
+        sample_product_for_purchase,
+        sample_inventory_for_adjustment,
+        create_adjustment_file,
+    ):
+        """Verify reason codes are matched case-insensitively (FR-021)."""
+        # Test uppercase variants
+        uppercase_codes = ["SPOILAGE", "DAMAGED", "WASTE", "CORRECTION", "OTHER"]
+
+        for reason_code in uppercase_codes:
+            # Reset inventory for each test iteration
+            with session_scope() as session:
+                items = session.query(InventoryItem).filter(
+                    InventoryItem.product_id == sample_inventory_for_adjustment["product_id"]
+                ).all()
+                for item in items:
+                    if item.quantity < 10:
+                        item.quantity = 10.0
+
+            file_path = create_adjustment_file({
+                "schema_version": "4.0",
+                "import_type": "adjustments",
+                "adjustments": [
+                    {
+                        "product_slug": sample_inventory_for_adjustment["product_slug"],
+                        "adjusted_at": "2026-01-12T09:10:12Z",
+                        "quantity": -1.0,
+                        "reason_code": reason_code,  # Uppercase
+                    }
+                ],
+            })
+
+            result = import_adjustments(file_path)
+
+            assert result.successful == 1, f"Failed for uppercase reason_code: {reason_code}"
+            assert result.failed == 0, f"Failed for uppercase reason_code: {reason_code}"
+
 
 # ============================================================================
 # Test: Prevent negative inventory (FR-022)

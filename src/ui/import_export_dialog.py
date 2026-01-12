@@ -520,12 +520,42 @@ class ImportDialog(ctk.CTkToplevel):
         self._show_progress("Restoring backup...")
 
         try:
-            result = import_export_service.import_all_from_json_v4(
-                self.file_path,
-                mode="replace",
+            # Check if this is a coordinated backup (manifest.json)
+            file_path = Path(self.file_path)
+            is_coordinated = (
+                file_path.name == "manifest.json" or
+                (file_path.is_dir() and (file_path / "manifest.json").exists())
             )
 
-            summary_text = result.get_summary()
+            if is_coordinated:
+                # Use coordinated import for manifest-based backups
+                result = coordinated_export_service.import_complete(str(file_path))
+
+                summary_lines = [
+                    f"Restored {result['successful']} records",
+                    f"from {result['files_imported']} entity files.",
+                    "",
+                ]
+                if result['entity_counts']:
+                    summary_lines.append("Records by entity:")
+                    for entity, count in result['entity_counts'].items():
+                        summary_lines.append(f"  {entity}: {count}")
+
+                if result['errors']:
+                    summary_lines.append("")
+                    summary_lines.append("Errors:")
+                    for err in result['errors'][:5]:
+                        summary_lines.append(f"  - {err}")
+
+                summary_text = "\n".join(summary_lines)
+            else:
+                # Use standard single-file import
+                result = import_export_service.import_all_from_json_v4(
+                    self.file_path,
+                    mode="replace",
+                )
+                summary_text = result.get_summary()
+
             log_path = _write_import_log(self.file_path, result, summary_text)
 
             self.result = result

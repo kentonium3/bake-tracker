@@ -726,21 +726,9 @@ def _import_record_merge(
 
     if existing:
         # Build list of fields to update
-        # Start with editable_fields from metadata
+        # IMPORTANT: Honor _meta.editable_fields strictly (FR-014)
+        # Never update readonly/computed fields like unit_cost, unit_price, quantity_purchased
         fields_to_update = list(editable_fields)
-
-        # For inventory_item and purchase, also allow updating price fields
-        # These may have been AI-augmented even though marked readonly in export
-        if entity_type == "inventory_item":
-            # unit_cost is the price field for inventory
-            if "unit_cost" not in fields_to_update:
-                fields_to_update.append("unit_cost")
-        elif entity_type == "purchase":
-            # unit_price and quantity_purchased are price/quantity fields for purchases
-            if "unit_price" not in fields_to_update:
-                fields_to_update.append("unit_price")
-            if "quantity_purchased" not in fields_to_update:
-                fields_to_update.append("quantity_purchased")
 
         # Update fields
         updated = False

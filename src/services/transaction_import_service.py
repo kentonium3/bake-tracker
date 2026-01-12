@@ -44,7 +44,8 @@ from src.models.supplier import Supplier
 SUPPORTED_SCHEMA_VERSIONS = {"4.0"}
 
 # Allowed reason codes for inventory adjustments (FR-021)
-ALLOWED_REASON_CODES = {"spoilage", "waste", "correction", "other"}
+# Stored as lowercase for case-insensitive matching
+ALLOWED_REASON_CODES = {"spoilage", "waste", "correction", "damaged", "other"}
 
 
 # ============================================================================
@@ -704,9 +705,9 @@ def _process_single_adjustment(
     # -------------------------------------------------------------------------
     # T040: Require reason_code field
     # -------------------------------------------------------------------------
-    reason_code = adj_data.get("reason_code")
+    reason_code_raw = adj_data.get("reason_code")
 
-    if not reason_code:
+    if not reason_code_raw:
         result.add_error(
             "adjustments",
             identifier,
@@ -714,6 +715,9 @@ def _process_single_adjustment(
             suggestion=f"Valid codes: {', '.join(sorted(ALLOWED_REASON_CODES))}",
         )
         return
+
+    # Normalize to lowercase for case-insensitive matching (FR-021)
+    reason_code = reason_code_raw.lower()
 
     # -------------------------------------------------------------------------
     # T041: Validate reason_code against allowed list
