@@ -12,12 +12,20 @@ from src.models.ingredient import Ingredient
 from src.models.product import Product
 from src.models.supplier import Supplier
 from src.services.enhanced_import_service import (
+    ContextRichImportResult,
     EnhancedImportResult,
+    FormatDetectionResult,
+    FormatType,
     _collect_missing_fks_for_view,
+    _detect_format_from_data,
     _find_existing_by_slug,
     _resolve_fk_by_slug,
     _view_type_to_entity_type,
+    detect_format,
+    extract_editable_fields,
+    import_context_rich_view,
     import_view,
+    merge_fields,
 )
 from src.services.fk_resolver_service import (
     MissingFK,
@@ -935,3 +943,598 @@ class TestImportViewDuplicateHandling:
             )
             # In merge mode, second record updates the first
             assert product is not None
+
+
+# ============================================================================
+# Format Detection Tests (WP06 - T047-T049)
+# ============================================================================
+
+
+class TestFormatDetectionResult:
+    """Tests for FormatDetectionResult dataclass."""
+
+    def test_context_rich_display_name(self):
+        """Test display name for context-rich format."""
+        result = FormatDetectionResult(
+            format_type="context_rich",
+            view_type="ingredients",
+        )
+        assert result.display_name == "Context-Rich View (Ingredients)"
+
+    def test_normalized_display_name(self):
+        """Test display name for normalized format."""
+        result = FormatDetectionResult(
+            format_type="normalized",
+            version="4.0",
+        )
+        assert result.display_name == "Normalized Backup (v4.0)"
+
+    def test_purchases_display_name(self):
+        """Test display name for purchases format."""
+        result = FormatDetectionResult(format_type="purchases")
+        assert result.display_name == "Purchase Transactions"
+
+    def test_adjustments_display_name(self):
+        """Test display name for adjustments format."""
+        result = FormatDetectionResult(format_type="adjustments")
+        assert result.display_name == "Inventory Adjustments"
+
+    def test_unknown_display_name(self):
+        """Test display name for unknown format."""
+        result = FormatDetectionResult(format_type="unknown")
+        assert result.display_name == "Unknown Format"
+
+    def test_summary_includes_format_and_records(self):
+        """Test that summary includes format and record count."""
+        result = FormatDetectionResult(
+            format_type="context_rich",
+            view_type="ingredients",
+            entity_count=150,
+            editable_fields=["description", "notes"],
+        )
+        summary = result.summary
+        assert "Context-Rich View" in summary
+        assert "150" in summary
+        assert "description" in summary
+
+
+class TestDetectFormatFromData:
+    """Tests for _detect_format_from_data function."""
+
+    def test_detect_context_rich_format(self):
+        """Test detection of context-rich format by _meta.editable_fields."""
+        data = {
+            "view_type": "ingredients",
+            "_meta": {
+                "editable_fields": ["description", "notes"],
+                "readonly_fields": ["id", "slug"],
+            },
+            "records": [{"slug": "test", "description": "Test"}],
+        }
+        result = _detect_format_from_data(data)
+
+        assert result.format_type == "context_rich"
+        assert result.view_type == "ingredients"
+        assert result.editable_fields == ["description", "notes"]
+        assert result.readonly_fields == ["id", "slug"]
+        assert result.entity_count == 1
+
+    def test_detect_normalized_format(self):
+        """Test detection of normalized format by version + application."""
+        data = {
+            "version": "4.0",
+            "application": "bake-tracker",
+            "exported_at": "2026-01-12T10:00:00Z",
+            "ingredients": [{"slug": "flour"}, {"slug": "sugar"}],
+            "products": [{"brand": "Test"}],
+        }
+        result = _detect_format_from_data(data)
+
+        assert result.format_type == "normalized"
+        assert result.version == "4.0"
+        assert result.source == "bake-tracker"
+        assert result.entity_count == 3  # 2 ingredients + 1 product
+
+    def test_detect_purchases_format(self):
+        """Test detection of purchases import format."""
+        data = {
+            "schema_version": "4.0",
+            "import_type": "purchases",
+            "source": "bt_mobile",
+            "purchases": [
+                {"product_slug": "test", "unit_price": 5.99},
+                {"product_slug": "test2", "unit_price": 3.49},
+            ],
+        }
+        result = _detect_format_from_data(data)
+
+        assert result.format_type == "purchases"
+        assert result.import_type == "purchases"
+        assert result.version == "4.0"
+        assert result.source == "bt_mobile"
+        assert result.entity_count == 2
+
+    def test_detect_adjustments_format(self):
+        """Test detection of adjustments import format."""
+        data = {
+            "schema_version": "4.0",
+            "import_type": "adjustments",
+            "source": "bt_mobile",
+            "adjustments": [
+                {"product_slug": "test", "quantity": -2.5},
+            ],
+        }
+        result = _detect_format_from_data(data)
+
+        assert result.format_type == "adjustments"
+        assert result.import_type == "adjustments"
+        assert result.entity_count == 1
+
+    def test_detect_inventory_updates_format(self):
+        """Test detection of inventory_updates (alias for adjustments)."""
+        data = {
+            "schema_version": "4.0",
+            "import_type": "inventory_updates",
+            "inventory_updates": [
+                {"product_slug": "test", "quantity": -1.0},
+            ],
+        }
+        result = _detect_format_from_data(data)
+
+        assert result.format_type == "adjustments"
+        assert result.import_type == "inventory_updates"
+
+    def test_detect_unknown_format(self):
+        """Test detection of unknown format."""
+        data = {
+            "random_field": "value",
+            "some_array": [1, 2, 3],
+        }
+        result = _detect_format_from_data(data)
+
+        assert result.format_type == "unknown"
+        assert result.entity_count == 3  # Best guess from some_array
+        assert result.view_type == "some_array"
+
+    def test_detect_format_preserves_raw_data(self):
+        """Test that detection preserves raw data for subsequent import."""
+        data = {"view_type": "test", "_meta": {"editable_fields": []}, "records": []}
+        result = _detect_format_from_data(data)
+
+        assert result.raw_data == data
+
+
+class TestDetectFormatFromFile:
+    """Tests for detect_format function with actual files."""
+
+    def test_detect_format_context_rich_file(self, tmp_path):
+        """Test format detection from context-rich file."""
+        data = {
+            "view_type": "materials",
+            "_meta": {
+                "editable_fields": ["description"],
+                "readonly_fields": ["id", "slug"],
+            },
+            "records": [{"slug": "boxes"}],
+        }
+        file_path = tmp_path / "context_rich.json"
+        with open(file_path, "w") as f:
+            json.dump(data, f)
+
+        result = detect_format(str(file_path))
+
+        assert result.format_type == "context_rich"
+        assert result.view_type == "materials"
+
+    def test_detect_format_normalized_file(self, tmp_path):
+        """Test format detection from normalized backup file."""
+        data = {
+            "version": "4.0",
+            "application": "bake-tracker",
+            "suppliers": [{"name": "Test"}],
+        }
+        file_path = tmp_path / "normalized.json"
+        with open(file_path, "w") as f:
+            json.dump(data, f)
+
+        result = detect_format(str(file_path))
+
+        assert result.format_type == "normalized"
+
+    def test_detect_format_file_not_found(self, tmp_path):
+        """Test that FileNotFoundError is raised for missing file."""
+        with pytest.raises(FileNotFoundError):
+            detect_format(str(tmp_path / "nonexistent.json"))
+
+    def test_detect_format_invalid_json(self, tmp_path):
+        """Test that JSONDecodeError is raised for invalid JSON."""
+        file_path = tmp_path / "invalid.json"
+        file_path.write_text("not valid json {{{")
+
+        with pytest.raises(json.JSONDecodeError):
+            detect_format(str(file_path))
+
+
+# ============================================================================
+# Editable Field Extraction Tests (WP06 - T050)
+# ============================================================================
+
+
+class TestExtractEditableFields:
+    """Tests for extract_editable_fields function."""
+
+    def test_extracts_only_editable_fields(self):
+        """Test that only editable fields are extracted."""
+        record = {
+            "id": 123,
+            "slug": "test_ingredient",
+            "description": "A test description",
+            "notes": "Some notes",
+            "product_count": 5,
+            "inventory_total": 10.5,
+        }
+        meta = {
+            "editable_fields": ["description", "notes"],
+            "readonly_fields": ["id", "slug", "product_count", "inventory_total"],
+        }
+
+        result = extract_editable_fields(record, meta)
+
+        assert result == {"description": "A test description", "notes": "Some notes"}
+        assert "id" not in result
+        assert "slug" not in result
+        assert "product_count" not in result
+
+    def test_ignores_computed_fields(self):
+        """Test that computed fields are ignored."""
+        record = {
+            "slug": "flour",
+            "description": "White flour",
+            "average_cost": 0.45,  # Computed
+            "inventory_total": 15.5,  # Computed
+        }
+        meta = {"editable_fields": ["description"]}
+
+        result = extract_editable_fields(record, meta)
+
+        assert "average_cost" not in result
+        assert "inventory_total" not in result
+        assert result == {"description": "White flour"}
+
+    def test_handles_missing_editable_fields(self):
+        """Test handling when editable_fields is missing from record."""
+        record = {
+            "id": 1,
+            "slug": "test",
+            "other_field": "value",
+        }
+        meta = {"editable_fields": ["description", "notes"]}  # Not in record
+
+        result = extract_editable_fields(record, meta)
+
+        assert result == {}
+
+    def test_empty_meta_returns_empty_dict(self):
+        """Test that empty meta returns empty dict."""
+        record = {"slug": "test", "description": "Test"}
+        meta = {}
+
+        result = extract_editable_fields(record, meta)
+
+        assert result == {}
+
+
+# ============================================================================
+# Merge Fields Tests (WP06 - T051-T052)
+# ============================================================================
+
+
+class TestMergeFields:
+    """Tests for merge_fields function."""
+
+    def test_merges_editable_fields(self, test_db, sample_ingredient):
+        """Test that merge_fields updates entity attributes."""
+        with session_scope() as session:
+            ingredient = (
+                session.query(Ingredient)
+                .filter_by(slug=sample_ingredient["slug"])
+                .first()
+            )
+            original_name = ingredient.display_name
+
+            editable_data = {"description": "Updated description"}
+            updated = merge_fields(ingredient, editable_data)
+
+            assert updated is True
+            assert ingredient.description == "Updated description"
+            assert ingredient.display_name == original_name  # Unchanged
+
+    def test_returns_false_when_no_changes(self, test_db, sample_ingredient):
+        """Test that merge_fields returns False when no changes made."""
+        with session_scope() as session:
+            ingredient = (
+                session.query(Ingredient)
+                .filter_by(slug=sample_ingredient["slug"])
+                .first()
+            )
+            # Set description to a known value
+            ingredient.description = "Same value"
+            session.flush()
+
+            editable_data = {"description": "Same value"}
+            updated = merge_fields(ingredient, editable_data)
+
+            assert updated is False
+
+    def test_ignores_nonexistent_attributes(self, test_db, sample_ingredient):
+        """Test that merge_fields ignores attributes not on entity."""
+        with session_scope() as session:
+            ingredient = (
+                session.query(Ingredient)
+                .filter_by(slug=sample_ingredient["slug"])
+                .first()
+            )
+
+            editable_data = {
+                "description": "New description",
+                "nonexistent_field": "Should be ignored",
+            }
+            updated = merge_fields(ingredient, editable_data)
+
+            assert updated is True
+            assert not hasattr(ingredient, "nonexistent_field")
+
+
+# ============================================================================
+# Context-Rich Import Tests (WP06 - T051-T054)
+# ============================================================================
+
+
+class TestContextRichImportResult:
+    """Tests for ContextRichImportResult dataclass."""
+
+    def test_default_initialization(self):
+        """Test default initialization."""
+        result = ContextRichImportResult()
+
+        assert result.total_records == 0
+        assert result.merged == 0
+        assert result.skipped == 0
+        assert result.not_found == 0
+        assert result.errors == []
+        assert result.dry_run is False
+
+    def test_add_merged(self):
+        """Test add_merged increments count."""
+        result = ContextRichImportResult()
+        result.add_merged()
+        result.add_merged()
+
+        assert result.merged == 2
+
+    def test_add_not_found(self):
+        """Test add_not_found tracks missing records."""
+        result = ContextRichImportResult()
+        result.add_not_found("missing_slug")
+
+        assert result.not_found == 1
+        assert len(result.errors) == 1
+        assert result.errors[0]["type"] == "not_found"
+
+    def test_get_summary_dry_run(self):
+        """Test summary shows dry run notice."""
+        result = ContextRichImportResult(dry_run=True)
+        summary = result.get_summary()
+
+        assert "DRY RUN" in summary
+
+
+class TestImportContextRichView:
+    """Tests for import_context_rich_view function."""
+
+    def test_import_context_rich_merges_existing(
+        self, test_db, sample_ingredient, tmp_path, unique_id
+    ):
+        """Test that context-rich import merges with existing records."""
+        # Create context-rich file with updated description
+        data = {
+            "view_type": "ingredients",
+            "_meta": {
+                "editable_fields": ["description", "notes"],
+                "readonly_fields": ["id", "slug", "display_name", "product_count"],
+            },
+            "records": [
+                {
+                    "id": 999,  # Readonly - should be ignored
+                    "slug": sample_ingredient["slug"],
+                    "display_name": "Ignored Name",  # Readonly - should be ignored
+                    "description": f"AI-augmented description {unique_id}",
+                    "notes": f"AI-added notes {unique_id}",
+                    "product_count": 999,  # Computed - should be ignored
+                }
+            ],
+        }
+        file_path = tmp_path / "context_rich_ingredients.json"
+        with open(file_path, "w") as f:
+            json.dump(data, f)
+
+        result = import_context_rich_view(str(file_path))
+
+        assert result.total_records == 1
+        assert result.merged == 1
+
+        # Verify the editable fields were updated
+        with session_scope() as session:
+            ingredient = (
+                session.query(Ingredient)
+                .filter_by(slug=sample_ingredient["slug"])
+                .first()
+            )
+            assert ingredient.description == f"AI-augmented description {unique_id}"
+            assert ingredient.notes == f"AI-added notes {unique_id}"
+            # display_name should be unchanged (readonly)
+            assert ingredient.display_name == sample_ingredient["display_name"]
+
+    def test_import_context_rich_ignores_computed_fields(
+        self, test_db, sample_ingredient, tmp_path, unique_id
+    ):
+        """Test that computed/readonly fields are ignored during import."""
+        data = {
+            "view_type": "ingredients",
+            "_meta": {
+                "editable_fields": ["description"],
+                "readonly_fields": ["id", "slug", "display_name"],
+            },
+            "records": [
+                {
+                    "slug": sample_ingredient["slug"],
+                    "display_name": "This Should Be Ignored",
+                    "description": f"Only this should be imported {unique_id}",
+                }
+            ],
+        }
+        file_path = tmp_path / "context_rich_readonly.json"
+        with open(file_path, "w") as f:
+            json.dump(data, f)
+
+        result = import_context_rich_view(str(file_path))
+
+        assert result.merged == 1
+
+        # Verify display_name was NOT changed
+        with session_scope() as session:
+            ingredient = (
+                session.query(Ingredient)
+                .filter_by(slug=sample_ingredient["slug"])
+                .first()
+            )
+            assert ingredient.display_name == sample_ingredient["display_name"]
+            assert ingredient.description == f"Only this should be imported {unique_id}"
+
+    def test_import_context_rich_skips_not_found(self, test_db, tmp_path, unique_id):
+        """Test that records not found in database are tracked as not_found."""
+        data = {
+            "view_type": "ingredients",
+            "_meta": {
+                "editable_fields": ["description"],
+                "readonly_fields": ["slug"],
+            },
+            "records": [
+                {
+                    "slug": f"nonexistent_ingredient_{unique_id}",
+                    "description": "This should not be imported",
+                }
+            ],
+        }
+        file_path = tmp_path / "context_rich_missing.json"
+        with open(file_path, "w") as f:
+            json.dump(data, f)
+
+        result = import_context_rich_view(str(file_path))
+
+        assert result.total_records == 1
+        assert result.not_found == 1
+        assert result.merged == 0
+
+    def test_import_context_rich_dry_run(
+        self, test_db, sample_ingredient, tmp_path, unique_id
+    ):
+        """Test that dry_run mode makes no changes."""
+        data = {
+            "view_type": "ingredients",
+            "_meta": {
+                "editable_fields": ["description"],
+                "readonly_fields": ["slug"],
+            },
+            "records": [
+                {
+                    "slug": sample_ingredient["slug"],
+                    "description": f"Dry run description {unique_id}",
+                }
+            ],
+        }
+        file_path = tmp_path / "context_rich_dryrun.json"
+        with open(file_path, "w") as f:
+            json.dump(data, f)
+
+        result = import_context_rich_view(str(file_path), dry_run=True)
+
+        assert result.dry_run is True
+        assert result.merged == 1
+
+        # Verify no actual changes were made
+        with session_scope() as session:
+            ingredient = (
+                session.query(Ingredient)
+                .filter_by(slug=sample_ingredient["slug"])
+                .first()
+            )
+            # Description should NOT be updated (dry run)
+            assert ingredient.description != f"Dry run description {unique_id}"
+
+    def test_import_context_rich_rejects_wrong_format(self, test_db, tmp_path):
+        """Test that non-context-rich format is rejected."""
+        data = {
+            "version": "4.0",
+            "application": "bake-tracker",
+            "ingredients": [],
+        }
+        file_path = tmp_path / "normalized_not_context.json"
+        with open(file_path, "w") as f:
+            json.dump(data, f)
+
+        result = import_context_rich_view(str(file_path))
+
+        assert len(result.errors) >= 1
+        assert "Expected context-rich" in result.errors[0]["reason"]
+
+    def test_import_context_rich_skips_no_changes(
+        self, test_db, sample_ingredient, tmp_path
+    ):
+        """Test that records with no changes are tracked as skipped."""
+        # First set a description
+        with session_scope() as session:
+            ingredient = (
+                session.query(Ingredient)
+                .filter_by(slug=sample_ingredient["slug"])
+                .first()
+            )
+            ingredient.description = "Existing description"
+            session.commit()
+
+        # Now import with same description
+        data = {
+            "view_type": "ingredients",
+            "_meta": {
+                "editable_fields": ["description"],
+                "readonly_fields": ["slug"],
+            },
+            "records": [
+                {
+                    "slug": sample_ingredient["slug"],
+                    "description": "Existing description",  # Same value
+                }
+            ],
+        }
+        file_path = tmp_path / "context_rich_nochange.json"
+        with open(file_path, "w") as f:
+            json.dump(data, f)
+
+        result = import_context_rich_view(str(file_path))
+
+        assert result.skipped == 1
+        assert result.merged == 0
+
+
+class TestViewTypeMappingExtended:
+    """Extended tests for view type mapping including materials and recipes."""
+
+    def test_materials_mapping(self):
+        """Test materials view type mapping."""
+        assert _view_type_to_entity_type("materials") == "material"
+        assert _view_type_to_entity_type("material") == "material"
+
+    def test_recipes_mapping(self):
+        """Test recipes view type mapping."""
+        assert _view_type_to_entity_type("recipes") == "recipe"
+        assert _view_type_to_entity_type("recipe") == "recipe"
