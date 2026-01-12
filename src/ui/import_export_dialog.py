@@ -176,17 +176,25 @@ class ImportResultsDialog(ctk.CTkToplevel):
 
 
 class ImportDialog(ctk.CTkToplevel):
-    """Dialog for importing data from a JSON file."""
+    """Dialog for importing data with 4 purpose options and auto-detection.
+
+    Redesigned for Feature 049 to clearly distinguish:
+    - Backup Restore: Full restore, replace mode
+    - Catalog Import: Add/augment entities
+    - Purchases Import: Transaction import from BT Mobile
+    - Adjustments Import: Inventory adjustments (spoilage, waste)
+    """
 
     def __init__(self, parent):
         """Initialize the import dialog."""
         super().__init__(parent)
         self.title("Import Data")
-        self.geometry("500x450")
+        self.geometry("550x600")
         self.resizable(False, False)
 
         self.result = None
         self.file_path = None
+        self.detected_format = None
 
         self._setup_ui()
 
@@ -208,26 +216,22 @@ class ImportDialog(ctk.CTkToplevel):
             text="Import Data",
             font=ctk.CTkFont(size=20, weight="bold"),
         )
-        title_label.pack(pady=(20, 10))
+        title_label.pack(pady=(15, 5))
 
-        # Instructions
-        instructions = ctk.CTkLabel(
-            self,
-            text="Select a JSON backup file to import into the application.",
-            font=ctk.CTkFont(size=12),
-        )
-        instructions.pack(pady=(0, 15))
-
-        # File selection frame
+        # File selection frame (at top for workflow)
         file_frame = ctk.CTkFrame(self)
         file_frame.pack(fill="x", padx=20, pady=10)
 
-        ctk.CTkLabel(file_frame, text="File:").pack(anchor="w", padx=10, pady=(10, 5))
+        ctk.CTkLabel(
+            file_frame,
+            text="1. Select file to import:",
+            font=ctk.CTkFont(weight="bold"),
+        ).pack(anchor="w", padx=10, pady=(10, 5))
 
         file_inner = ctk.CTkFrame(file_frame, fg_color="transparent")
-        file_inner.pack(fill="x", padx=10, pady=(0, 10))
+        file_inner.pack(fill="x", padx=10, pady=(0, 5))
 
-        self.file_entry = ctk.CTkEntry(file_inner, width=320, state="readonly")
+        self.file_entry = ctk.CTkEntry(file_inner, width=350, state="readonly")
         self.file_entry.pack(side="left", padx=(0, 10))
 
         browse_btn = ctk.CTkButton(
@@ -238,33 +242,67 @@ class ImportDialog(ctk.CTkToplevel):
         )
         browse_btn.pack(side="left")
 
-        # Mode selection frame
-        mode_frame = ctk.CTkFrame(self)
-        mode_frame.pack(fill="x", padx=20, pady=10)
+        # Detection result label
+        self.detection_label = ctk.CTkLabel(
+            file_frame,
+            text="",
+            font=ctk.CTkFont(size=11),
+            text_color="gray",
+        )
+        self.detection_label.pack(anchor="w", padx=10, pady=(0, 10))
+
+        # Purpose selection frame
+        purpose_frame = ctk.CTkFrame(self)
+        purpose_frame.pack(fill="x", padx=20, pady=10)
 
         ctk.CTkLabel(
-            mode_frame,
-            text="Import Mode:",
+            purpose_frame,
+            text="2. What are you importing?",
             font=ctk.CTkFont(weight="bold"),
         ).pack(anchor="w", padx=10, pady=(10, 5))
 
-        self.mode_var = ctk.StringVar(value="merge")
+        self.purpose_var = ctk.StringVar(value="catalog")
+        purposes = [
+            ("backup", "Backup Restore", "Restore complete system from backup (replaces all data)"),
+            ("catalog", "Catalog Data", "Add or update ingredients, products, recipes, materials"),
+            ("purchases", "Purchases", "Import purchase transactions (from BT Mobile or spreadsheet)"),
+            ("adjustments", "Adjustments", "Import inventory adjustments (spoilage, waste, corrections)"),
+        ]
 
-        ctk.CTkRadioButton(
-            mode_frame,
-            text="Merge (add new records, skip duplicates)",
-            variable=self.mode_var,
-            value="merge",
-        ).pack(anchor="w", padx=20, pady=2)
+        for value, label, desc in purposes:
+            frame = ctk.CTkFrame(purpose_frame, fg_color="transparent")
+            frame.pack(fill="x", padx=10, pady=3)
 
-        ctk.CTkRadioButton(
-            mode_frame,
-            text="Replace (clear ALL existing data first)",
-            variable=self.mode_var,
-            value="replace",
-        ).pack(anchor="w", padx=20, pady=(2, 10))
+            rb = ctk.CTkRadioButton(
+                frame,
+                text=label,
+                variable=self.purpose_var,
+                value=value,
+                command=self._on_purpose_changed,
+            )
+            rb.pack(side="left")
 
-        # Status label (for progress indication)
+            desc_label = ctk.CTkLabel(
+                frame,
+                text=f"- {desc}",
+                font=ctk.CTkFont(size=11),
+                text_color="gray",
+            )
+            desc_label.pack(side="left", padx=(10, 0))
+
+        ctk.CTkLabel(purpose_frame, text="").pack(pady=3)
+
+        # Options frame (changes based on purpose)
+        self.options_frame = ctk.CTkFrame(self)
+        self.options_frame.pack(fill="x", padx=20, pady=10)
+
+        self._setup_catalog_options()  # Default
+
+        # Progress bar
+        self.progress = ctk.CTkProgressBar(self)
+        self.progress.set(0)
+
+        # Status label
         self.status_label = ctk.CTkLabel(
             self,
             text="",
@@ -275,12 +313,12 @@ class ImportDialog(ctk.CTkToplevel):
 
         # Button frame
         btn_frame = ctk.CTkFrame(self, fg_color="transparent")
-        btn_frame.pack(fill="x", padx=20, pady=20)
+        btn_frame.pack(fill="x", padx=20, pady=15)
 
         self.import_btn = ctk.CTkButton(
             btn_frame,
             text="Import",
-            width=100,
+            width=120,
             command=self._do_import,
         )
         self.import_btn.pack(side="right", padx=(10, 0))
@@ -294,8 +332,102 @@ class ImportDialog(ctk.CTkToplevel):
         )
         cancel_btn.pack(side="right")
 
+    def _setup_catalog_options(self):
+        """Set up options for catalog import."""
+        # Clear existing options
+        for widget in self.options_frame.winfo_children():
+            widget.destroy()
+
+        ctk.CTkLabel(
+            self.options_frame,
+            text="3. Import mode:",
+            font=ctk.CTkFont(weight="bold"),
+        ).pack(anchor="w", padx=10, pady=(10, 5))
+
+        self.mode_var = ctk.StringVar(value="add")
+
+        modes = [
+            ("add", "Add Only", "Create new records, skip existing"),
+            ("augment", "Augment", "Create new + fill empty fields on existing"),
+        ]
+
+        for value, label, desc in modes:
+            frame = ctk.CTkFrame(self.options_frame, fg_color="transparent")
+            frame.pack(fill="x", padx=10, pady=2)
+
+            rb = ctk.CTkRadioButton(frame, text=label, variable=self.mode_var, value=value)
+            rb.pack(side="left")
+
+            desc_label = ctk.CTkLabel(
+                frame,
+                text=f"- {desc}",
+                font=ctk.CTkFont(size=11),
+                text_color="gray",
+            )
+            desc_label.pack(side="left", padx=(10, 0))
+
+        ctk.CTkLabel(self.options_frame, text="").pack(pady=3)
+
+    def _setup_backup_options(self):
+        """Set up options for backup restore."""
+        for widget in self.options_frame.winfo_children():
+            widget.destroy()
+
+        warning = ctk.CTkLabel(
+            self.options_frame,
+            text="WARNING: This will replace ALL existing data!",
+            font=ctk.CTkFont(size=13, weight="bold"),
+            text_color="red",
+        )
+        warning.pack(pady=15)
+
+        info = ctk.CTkLabel(
+            self.options_frame,
+            text="All current data will be deleted and replaced\n"
+                 "with the contents of the backup file.",
+            font=ctk.CTkFont(size=12),
+        )
+        info.pack(pady=5)
+
+    def _setup_transaction_options(self, transaction_type: str):
+        """Set up options for purchase/adjustment import."""
+        for widget in self.options_frame.winfo_children():
+            widget.destroy()
+
+        if transaction_type == "purchases":
+            info_text = (
+                "Import purchase records with product, price, and quantity.\n"
+                "Inventory will be increased for each purchase."
+            )
+        else:
+            info_text = (
+                "Import inventory adjustments (negative quantities only).\n"
+                "Requires reason code: SPOILAGE, WASTE, DAMAGED, CORRECTION, OTHER."
+            )
+
+        info = ctk.CTkLabel(
+            self.options_frame,
+            text=info_text,
+            font=ctk.CTkFont(size=12),
+            justify="left",
+        )
+        info.pack(anchor="w", padx=10, pady=15)
+
+    def _on_purpose_changed(self):
+        """Handle purpose selection change."""
+        purpose = self.purpose_var.get()
+
+        if purpose == "backup":
+            self._setup_backup_options()
+        elif purpose == "catalog":
+            self._setup_catalog_options()
+        elif purpose == "purchases":
+            self._setup_transaction_options("purchases")
+        elif purpose == "adjustments":
+            self._setup_transaction_options("adjustments")
+
     def _browse_file(self):
-        """Open file browser to select import file."""
+        """Open file browser and auto-detect format."""
         file_path = filedialog.askopenfilename(
             title="Select Import File",
             filetypes=[("JSON files", "*.json"), ("All files", "*.*")],
@@ -308,8 +440,51 @@ class ImportDialog(ctk.CTkToplevel):
             self.file_entry.insert(0, file_path)
             self.file_entry.configure(state="readonly")
 
+            # Auto-detect format
+            self._detect_format()
+
+    def _detect_format(self):
+        """Detect file format and update UI."""
+        try:
+            from src.services.enhanced_import_service import detect_format
+
+            result = detect_format(self.file_path)
+            self.detected_format = result
+
+            # Display detection result
+            format_name = result.format_type.replace("_", " ").title()
+            record_count = result.entity_count or "unknown"
+            self.detection_label.configure(
+                text=f"Detected: {format_name} format ({record_count} records)",
+                text_color="green",
+            )
+
+            # Auto-select matching purpose
+            if result.format_type == "purchases":
+                self.purpose_var.set("purchases")
+                self._on_purpose_changed()
+            elif result.format_type in ("adjustments", "inventory_updates"):
+                self.purpose_var.set("adjustments")
+                self._on_purpose_changed()
+            elif result.format_type == "context_rich":
+                self.purpose_var.set("catalog")
+                self._on_purpose_changed()
+            elif result.format_type == "normalized":
+                # Could be backup or catalog
+                self.detection_label.configure(
+                    text=f"Detected: Normalized format ({record_count} records) - select purpose below",
+                    text_color="orange",
+                )
+
+        except Exception as e:
+            self.detection_label.configure(
+                text=f"Could not detect format: {str(e)[:50]}",
+                text_color="red",
+            )
+            self.detected_format = None
+
     def _do_import(self):
-        """Execute the import operation."""
+        """Execute the import operation based on selected purpose."""
         if not self.file_path:
             messagebox.showwarning(
                 "No File Selected",
@@ -318,37 +493,82 @@ class ImportDialog(ctk.CTkToplevel):
             )
             return
 
-        # Confirm Replace mode
-        if self.mode_var.get() == "replace":
-            if not messagebox.askyesno(
-                "Confirm Replace",
-                "This will DELETE all existing data before importing.\n\n"
-                "Are you sure you want to continue?",
-                icon="warning",
-                parent=self,
-            ):
-                return
+        purpose = self.purpose_var.get()
 
-        # Show progress
-        self.status_label.configure(text="Importing data... Please wait.")
-        self.import_btn.configure(state="disabled")
-        self.config(cursor="wait")
-        self.update()
+        if purpose == "backup":
+            self._do_backup_restore()
+        elif purpose == "catalog":
+            self._do_catalog_import()
+        elif purpose == "purchases":
+            self._do_purchases_import()
+        elif purpose == "adjustments":
+            self._do_adjustments_import()
+
+    def _do_backup_restore(self):
+        """Execute full backup restore (replace mode)."""
+        if not messagebox.askyesno(
+            "Confirm Backup Restore",
+            "This will DELETE all existing data and replace it with\n"
+            "the contents of the backup file.\n\n"
+            "This action cannot be undone.\n\n"
+            "Are you sure you want to continue?",
+            icon="warning",
+            parent=self,
+        ):
+            return
+
+        self._show_progress("Restoring backup...")
 
         try:
             result = import_export_service.import_all_from_json_v4(
                 self.file_path,
-                mode=self.mode_var.get(),
+                mode="replace",
             )
 
-            # Get summary text and write to log file
             summary_text = result.get_summary()
             log_path = _write_import_log(self.file_path, result, summary_text)
 
-            # Show results in custom dialog with scrolling, copy, and log path
             self.result = result
             results_dialog = ImportResultsDialog(
-                self.master,  # Use main window as parent, not this dialog
+                self.master,
+                title="Backup Restored",
+                summary_text=summary_text,
+                log_path=log_path,
+            )
+            results_dialog.wait_window()
+            self.destroy()
+
+        except Exception as e:
+            messagebox.showerror("Restore Failed", self._format_error(e), parent=self)
+        finally:
+            self._hide_progress()
+
+    def _do_catalog_import(self):
+        """Execute catalog import with selected mode."""
+        self._show_progress("Importing catalog data...")
+
+        try:
+            mode = self.mode_var.get()
+
+            # Check if it's a context-rich file
+            if self.detected_format and self.detected_format.format_type == "context_rich":
+                from src.services.enhanced_import_service import import_context_rich_view
+
+                result = import_context_rich_view(self.file_path)
+                summary_text = result.get_summary()
+            else:
+                # Standard catalog import
+                result = import_export_service.import_all_from_json_v4(
+                    self.file_path,
+                    mode="merge" if mode == "add" else mode,
+                )
+                summary_text = result.get_summary()
+
+            log_path = _write_import_log(self.file_path, result, summary_text)
+
+            self.result = result
+            results_dialog = ImportResultsDialog(
+                self.master,
                 title="Import Complete",
                 summary_text=summary_text,
                 log_path=log_path,
@@ -356,31 +576,111 @@ class ImportDialog(ctk.CTkToplevel):
             results_dialog.wait_window()
             self.destroy()
 
-        except FileNotFoundError:
-            messagebox.showerror(
-                "File Not Found",
-                "The selected file could not be found.\n"
-                "Please check the file path and try again.",
-                parent=self,
-            )
         except Exception as e:
-            messagebox.showerror(
-                "Import Failed",
-                self._format_error(e),
-                parent=self,
-            )
+            messagebox.showerror("Import Failed", self._format_error(e), parent=self)
         finally:
-            # Only update widgets if dialog still exists (not destroyed after success)
-            if self.winfo_exists():
-                self.status_label.configure(text="")
-                self.import_btn.configure(state="normal")
-                self.config(cursor="")
+            self._hide_progress()
+
+    def _do_purchases_import(self):
+        """Execute purchase transaction import."""
+        self._show_progress("Importing purchases...")
+
+        try:
+            from src.services.transaction_import_service import import_purchases
+
+            result = import_purchases(self.file_path)
+
+            summary_lines = [
+                f"Successfully imported {result.created} purchase(s).",
+                f"Skipped: {result.skipped} (duplicates or errors)",
+            ]
+            if result.errors:
+                summary_lines.append("")
+                summary_lines.append("Errors:")
+                for err in result.errors[:5]:
+                    summary_lines.append(f"  - {err}")
+                if len(result.errors) > 5:
+                    summary_lines.append(f"  ... and {len(result.errors) - 5} more")
+
+            summary_text = "\n".join(summary_lines)
+            log_path = _write_import_log(self.file_path, result, summary_text)
+
+            self.result = result
+            results_dialog = ImportResultsDialog(
+                self.master,
+                title="Purchases Imported",
+                summary_text=summary_text,
+                log_path=log_path,
+            )
+            results_dialog.wait_window()
+            self.destroy()
+
+        except Exception as e:
+            messagebox.showerror("Import Failed", self._format_error(e), parent=self)
+        finally:
+            self._hide_progress()
+
+    def _do_adjustments_import(self):
+        """Execute inventory adjustment import."""
+        self._show_progress("Importing adjustments...")
+
+        try:
+            from src.services.transaction_import_service import import_adjustments
+
+            result = import_adjustments(self.file_path)
+
+            summary_lines = [
+                f"Successfully imported {result.created} adjustment(s).",
+                f"Skipped: {result.skipped}",
+            ]
+            if result.errors:
+                summary_lines.append("")
+                summary_lines.append("Errors:")
+                for err in result.errors[:5]:
+                    summary_lines.append(f"  - {err}")
+                if len(result.errors) > 5:
+                    summary_lines.append(f"  ... and {len(result.errors) - 5} more")
+
+            summary_text = "\n".join(summary_lines)
+            log_path = _write_import_log(self.file_path, result, summary_text)
+
+            self.result = result
+            results_dialog = ImportResultsDialog(
+                self.master,
+                title="Adjustments Imported",
+                summary_text=summary_text,
+                log_path=log_path,
+            )
+            results_dialog.wait_window()
+            self.destroy()
+
+        except Exception as e:
+            messagebox.showerror("Import Failed", self._format_error(e), parent=self)
+        finally:
+            self._hide_progress()
+
+    def _show_progress(self, message: str):
+        """Show progress indication."""
+        self.status_label.configure(text=message)
+        self.progress.pack(fill="x", padx=20, pady=(0, 5))
+        self.progress.start()
+        self.import_btn.configure(state="disabled")
+        self.config(cursor="wait")
+        self.update()
+
+    def _hide_progress(self):
+        """Hide progress indication."""
+        if self.winfo_exists():
+            self.progress.stop()
+            self.progress.pack_forget()
+            self.status_label.configure(text="")
+            self.import_btn.configure(state="normal")
+            self.config(cursor="")
 
     def _format_error(self, e: Exception) -> str:
         """Convert exception to user-friendly message."""
         error_str = str(e)
 
-        # Handle common errors with friendly messages
         if "JSON" in error_str or "json" in error_str:
             return (
                 "The file does not appear to be a valid JSON file.\n"
@@ -397,43 +697,26 @@ class ImportDialog(ctk.CTkToplevel):
                 "The import has been rolled back. No data was changed."
             )
 
-        # Generic fallback
         return f"An error occurred during import:\n{error_str}"
 
 
 class ExportDialog(ctk.CTkToplevel):
-    """Dialog for exporting data with multiple export type options."""
+    """Dialog for exporting data with tabbed interface for 3 export types.
 
-    # Export type constants
-    EXPORT_FULL_BACKUP = "full_backup"
-    EXPORT_COORDINATED = "coordinated"
-    EXPORT_VIEWS = "views"
-
-    # Descriptions for each export type
-    EXPORT_DESCRIPTIONS = {
-        EXPORT_FULL_BACKUP: (
-            "Single JSON file containing all data.\n"
-            "Best for: Complete backups, restoring to same version."
-        ),
-        EXPORT_COORDINATED: (
-            "Multiple files with manifest for referential integrity.\n"
-            "Best for: Database migrations, sharing between systems."
-        ),
-        EXPORT_VIEWS: (
-            "Denormalized view files for AI-assisted data augmentation.\n"
-            "Best for: Adding UPC codes, product names, prices via AI tools."
-        ),
-    }
+    Redesigned for Feature 049 to provide clear separation:
+    - Full Backup: Complete system backup (all 16 entities)
+    - Catalog: Selective entity export
+    - Context-Rich: AI-augmentation views with hierarchy paths
+    """
 
     def __init__(self, parent):
         """Initialize the export dialog."""
         super().__init__(parent)
         self.title("Export Data")
-        self.geometry("550x420")
+        self.geometry("550x480")
         self.resizable(False, False)
 
         self.result = None
-        self.export_type = ctk.StringVar(value=self.EXPORT_FULL_BACKUP)
 
         self._setup_ui()
 
@@ -448,67 +731,22 @@ class ExportDialog(ctk.CTkToplevel):
         self.geometry(f"+{x}+{y}")
 
     def _setup_ui(self):
-        """Set up the dialog UI."""
-        # Title
-        title_label = ctk.CTkLabel(
-            self,
-            text="Export Data",
-            font=ctk.CTkFont(size=20, weight="bold"),
-        )
-        title_label.pack(pady=(20, 10))
+        """Set up the tabbed dialog UI."""
+        # Create tab view
+        self.tabview = ctk.CTkTabview(self)
+        self.tabview.pack(fill="both", expand=True, padx=10, pady=10)
 
-        # Export type selection frame
-        type_frame = ctk.CTkFrame(self)
-        type_frame.pack(fill="x", padx=20, pady=10)
+        # Add tabs
+        self.tabview.add("Full Backup")
+        self.tabview.add("Catalog")
+        self.tabview.add("Context-Rich")
 
-        type_label = ctk.CTkLabel(
-            type_frame,
-            text="Export Type:",
-            font=ctk.CTkFont(size=14, weight="bold"),
-        )
-        type_label.pack(anchor="w", padx=10, pady=(10, 5))
+        # Populate each tab
+        self._setup_full_backup_tab()
+        self._setup_catalog_tab()
+        self._setup_context_rich_tab()
 
-        # Full Backup option
-        full_radio = ctk.CTkRadioButton(
-            type_frame,
-            text="Full Backup (single file)",
-            variable=self.export_type,
-            value=self.EXPORT_FULL_BACKUP,
-            command=self._on_type_changed,
-        )
-        full_radio.pack(anchor="w", padx=20, pady=2)
-
-        # Coordinated Export option
-        coord_radio = ctk.CTkRadioButton(
-            type_frame,
-            text="Coordinated Export (multi-file with manifest)",
-            variable=self.export_type,
-            value=self.EXPORT_COORDINATED,
-            command=self._on_type_changed,
-        )
-        coord_radio.pack(anchor="w", padx=20, pady=2)
-
-        # View Export option
-        view_radio = ctk.CTkRadioButton(
-            type_frame,
-            text="AI Augmentation Views (products, inventory, purchases)",
-            variable=self.export_type,
-            value=self.EXPORT_VIEWS,
-            command=self._on_type_changed,
-        )
-        view_radio.pack(anchor="w", padx=20, pady=(2, 10))
-
-        # Description label (updates based on selection)
-        self.description_label = ctk.CTkLabel(
-            self,
-            text=self.EXPORT_DESCRIPTIONS[self.EXPORT_FULL_BACKUP],
-            font=ctk.CTkFont(size=12),
-            justify="left",
-            wraplength=480,
-        )
-        self.description_label.pack(padx=20, pady=10, anchor="w")
-
-        # Status label (for progress indication)
+        # Status label (shared across tabs)
         self.status_label = ctk.CTkLabel(
             self,
             text="",
@@ -517,51 +755,235 @@ class ExportDialog(ctk.CTkToplevel):
         )
         self.status_label.pack(pady=5)
 
-        # Button frame
-        btn_frame = ctk.CTkFrame(self, fg_color="transparent")
-        btn_frame.pack(fill="x", padx=20, pady=20)
+        # Progress bar
+        self.progress = ctk.CTkProgressBar(self)
+        self.progress.pack(fill="x", padx=20, pady=(0, 10))
+        self.progress.set(0)
+        self.progress.pack_forget()  # Hidden initially
 
-        self.export_btn = ctk.CTkButton(
-            btn_frame,
-            text="Choose Location & Export...",
+    def _setup_full_backup_tab(self):
+        """Set up Full Backup tab - exports everything, no selection needed."""
+        tab = self.tabview.tab("Full Backup")
+
+        # Purpose explanation
+        purpose = ctk.CTkLabel(
+            tab,
+            text="Create a complete backup of all data for disaster recovery\n"
+                 "or migration to another system.",
+            font=ctk.CTkFont(size=13),
+            wraplength=450,
+            justify="center",
+        )
+        purpose.pack(pady=(20, 15))
+
+        # Info about what's included
+        info_frame = ctk.CTkFrame(tab)
+        info_frame.pack(fill="x", padx=20, pady=10)
+
+        info_title = ctk.CTkLabel(
+            info_frame,
+            text="Includes:",
+            font=ctk.CTkFont(weight="bold"),
+        )
+        info_title.pack(anchor="w", padx=10, pady=(10, 5))
+
+        entities = (
+            "All 16 entity types: ingredients, products, recipes,\n"
+            "materials, suppliers, inventory, purchases, events,\n"
+            "finished goods, packages, recipients, and more."
+        )
+        info_label = ctk.CTkLabel(
+            info_frame,
+            text=entities,
+            font=ctk.CTkFont(size=12),
+            justify="left",
+        )
+        info_label.pack(anchor="w", padx=20, pady=(0, 10))
+
+        output_label = ctk.CTkLabel(
+            info_frame,
+            text="Output: Folder with individual JSON files + manifest",
+            font=ctk.CTkFont(size=12),
+        )
+        output_label.pack(anchor="w", padx=20, pady=(0, 10))
+
+        # Export button
+        export_btn = ctk.CTkButton(
+            tab,
+            text="Export Full Backup...",
             width=200,
-            command=self._do_export,
+            command=self._export_full_backup,
         )
-        self.export_btn.pack(side="right", padx=(10, 0))
+        export_btn.pack(pady=20)
 
-        cancel_btn = ctk.CTkButton(
-            btn_frame,
-            text="Cancel",
-            width=100,
-            fg_color="gray",
-            command=self.destroy,
+    def _setup_catalog_tab(self):
+        """Set up Catalog tab - selective entity export."""
+        tab = self.tabview.tab("Catalog")
+
+        purpose = ctk.CTkLabel(
+            tab,
+            text="Export catalog data for sharing or partial backup.",
+            font=ctk.CTkFont(size=13),
+            wraplength=450,
         )
-        cancel_btn.pack(side="right")
+        purpose.pack(pady=(15, 10))
 
-    def _on_type_changed(self):
-        """Handle export type selection change."""
-        export_type = self.export_type.get()
-        self.description_label.configure(
-            text=self.EXPORT_DESCRIPTIONS.get(export_type, "")
+        # Entity selection frame
+        entity_frame = ctk.CTkFrame(tab)
+        entity_frame.pack(fill="x", padx=20, pady=10)
+
+        ctk.CTkLabel(
+            entity_frame,
+            text="Select entities to export:",
+            font=ctk.CTkFont(weight="bold"),
+        ).pack(anchor="w", padx=10, pady=(10, 5))
+
+        self.entity_vars = {}
+        entities = [
+            ("ingredients", "Ingredients"),
+            ("products", "Products"),
+            ("recipes", "Recipes"),
+            ("materials", "Materials"),
+            ("material_products", "Material Products"),
+            ("suppliers", "Suppliers"),
+        ]
+        for key, label in entities:
+            var = ctk.BooleanVar(value=True)
+            self.entity_vars[key] = var
+            cb = ctk.CTkCheckBox(entity_frame, text=label, variable=var)
+            cb.pack(anchor="w", padx=20, pady=2)
+
+        # Spacer
+        ctk.CTkLabel(entity_frame, text="").pack(pady=5)
+
+        # Export button
+        export_btn = ctk.CTkButton(
+            tab,
+            text="Export Catalog...",
+            width=200,
+            command=self._export_catalog,
+        )
+        export_btn.pack(pady=15)
+
+    def _setup_context_rich_tab(self):
+        """Set up Context-Rich tab - AI augmentation views."""
+        tab = self.tabview.tab("Context-Rich")
+
+        purpose = ctk.CTkLabel(
+            tab,
+            text="Export data with full context (hierarchy paths, computed values)\n"
+                 "for AI tools to augment and return.",
+            font=ctk.CTkFont(size=13),
+            wraplength=450,
+            justify="center",
+        )
+        purpose.pack(pady=(15, 10))
+
+        # View type selection
+        view_frame = ctk.CTkFrame(tab)
+        view_frame.pack(fill="x", padx=20, pady=10)
+
+        ctk.CTkLabel(
+            view_frame,
+            text="Select view to export:",
+            font=ctk.CTkFont(weight="bold"),
+        ).pack(anchor="w", padx=10, pady=(10, 5))
+
+        self.view_var = ctk.StringVar(value="ingredients")
+        views = [
+            ("ingredients", "Ingredients (with products, inventory totals, costs)"),
+            ("materials", "Materials (with hierarchy paths, products)"),
+            ("recipes", "Recipes (with ingredients, computed costs)"),
+        ]
+        for value, label in views:
+            rb = ctk.CTkRadioButton(
+                view_frame,
+                text=label,
+                variable=self.view_var,
+                value=value,
+            )
+            rb.pack(anchor="w", padx=20, pady=3)
+
+        ctk.CTkLabel(view_frame, text="").pack(pady=5)
+
+        # Info about editable fields
+        info_label = ctk.CTkLabel(
+            tab,
+            text="Exported files include _meta section indicating which\n"
+                 "fields are editable vs. computed (readonly).",
+            font=ctk.CTkFont(size=11),
+            text_color="gray",
+        )
+        info_label.pack(pady=5)
+
+        # Export button
+        export_btn = ctk.CTkButton(
+            tab,
+            text="Export Context-Rich View...",
+            width=200,
+            command=self._export_context_rich,
+        )
+        export_btn.pack(pady=15)
+
+    def _export_full_backup(self):
+        """Execute full backup export."""
+        dir_path = filedialog.askdirectory(
+            title="Select Export Directory for Full Backup",
+            parent=self,
         )
 
-    def _do_export(self):
-        """Execute the export operation based on selected type."""
-        export_type = self.export_type.get()
+        if not dir_path:
+            return
 
-        if export_type == self.EXPORT_FULL_BACKUP:
-            self._do_full_backup_export()
-        elif export_type == self.EXPORT_COORDINATED:
-            self._do_coordinated_export()
-        elif export_type == self.EXPORT_VIEWS:
-            self._do_views_export()
+        # Create timestamped subdirectory
+        timestamp = datetime.now().strftime("%Y-%m-%d_%H%M%S")
+        export_dir = Path(dir_path) / f"backup_{timestamp}"
 
-    def _do_full_backup_export(self):
-        """Execute full backup export (single JSON file)."""
-        default_name = f"bake-tracker-backup-{date.today().isoformat()}.json"
+        self._show_progress("Exporting full backup...")
+
+        try:
+            manifest = coordinated_export_service.export_complete(str(export_dir))
+
+            file_count = len(manifest.files)
+            total_records = sum(f.record_count for f in manifest.files)
+
+            summary_lines = [
+                f"Successfully exported {total_records} records",
+                f"across {file_count} files.",
+                "",
+                f"Export directory:\n{export_dir}",
+            ]
+
+            messagebox.showinfo(
+                "Export Complete",
+                "\n".join(summary_lines),
+                parent=self,
+            )
+            self.result = manifest
+            self.destroy()
+
+        except Exception as e:
+            self._show_error("Export Failed", e)
+        finally:
+            self._hide_progress()
+
+    def _export_catalog(self):
+        """Execute catalog export with selected entities."""
+        # Get selected entities
+        selected = [k for k, v in self.entity_vars.items() if v.get()]
+
+        if not selected:
+            messagebox.showwarning(
+                "No Entities Selected",
+                "Please select at least one entity type to export.",
+                parent=self,
+            )
+            return
+
+        default_name = f"catalog-export-{date.today().isoformat()}.json"
 
         file_path = filedialog.asksaveasfilename(
-            title="Export Full Backup",
+            title="Export Catalog",
             defaultextension=".json",
             initialfile=default_name,
             filetypes=[("JSON files", "*.json"), ("All files", "*.*")],
@@ -571,15 +993,17 @@ class ExportDialog(ctk.CTkToplevel):
         if not file_path:
             return
 
-        self._show_progress("Exporting full backup...")
+        self._show_progress("Exporting catalog...")
 
         try:
-            result = import_export_service.export_all_to_json(file_path)
+            result = import_export_service.export_all_to_json(
+                file_path,
+                entities=selected,
+            )
 
             summary_lines = [f"Successfully exported {result.record_count} records."]
             if result.entity_counts:
                 summary_lines.append("")
-                summary_lines.append("Records by type:")
                 for entity, count in result.entity_counts.items():
                     if count > 0:
                         summary_lines.append(f"  {entity}: {count}")
@@ -600,97 +1024,43 @@ class ExportDialog(ctk.CTkToplevel):
         finally:
             self._hide_progress()
 
-    def _do_coordinated_export(self):
-        """Execute coordinated export (multi-file with manifest)."""
-        # Ask for directory
+    def _export_context_rich(self):
+        """Execute context-rich view export."""
+        view_type = self.view_var.get()
+
         dir_path = filedialog.askdirectory(
-            title="Select Export Directory",
+            title=f"Select Export Directory for {view_type.title()} View",
             parent=self,
         )
 
         if not dir_path:
             return
 
-        # Create timestamped subdirectory
-        timestamp = datetime.now().strftime("%Y-%m-%d_%H%M%S")
-        export_dir = Path(dir_path) / f"export_{timestamp}"
-
-        self._show_progress("Exporting coordinated file set...")
+        self._show_progress(f"Exporting {view_type} view...")
 
         try:
-            manifest = coordinated_export_service.export_complete(str(export_dir))
-
-            # Build summary
-            file_count = len(manifest.files)
-            total_records = sum(f.record_count for f in manifest.files)
+            # Export the selected view type
+            if view_type == "ingredients":
+                result = denormalized_export_service.export_ingredients_view(
+                    str(Path(dir_path) / "view_ingredients.json")
+                )
+            elif view_type == "materials":
+                result = denormalized_export_service.export_materials_view(
+                    str(Path(dir_path) / "view_materials.json")
+                )
+            elif view_type == "recipes":
+                result = denormalized_export_service.export_recipes_view(
+                    str(Path(dir_path) / "view_recipes.json")
+                )
 
             summary_lines = [
-                f"Successfully exported {total_records} records",
-                f"across {file_count} files.",
+                f"Successfully exported {view_type} view.",
                 "",
-                "Files created:",
-            ]
-            for f in manifest.files:
-                summary_lines.append(f"  {f.filename}: {f.record_count} records")
-
-            summary_lines.append("")
-            summary_lines.append(f"Export directory:\n{export_dir}")
-
-            messagebox.showinfo(
-                "Export Complete",
-                "\n".join(summary_lines),
-                parent=self,
-            )
-            self.result = manifest
-            self.destroy()
-
-        except Exception as e:
-            self._show_error("Export Failed", e)
-        finally:
-            self._hide_progress()
-
-    def _do_views_export(self):
-        """Execute views export (denormalized views for AI augmentation)."""
-        # Ask for directory
-        dir_path = filedialog.askdirectory(
-            title="Select Export Directory for Views",
-            parent=self,
-        )
-
-        if not dir_path:
-            return
-
-        self._show_progress("Exporting AI augmentation views...")
-
-        try:
-            result = denormalized_export_service.export_all_views(dir_path)
-
-            summary_lines = [
-                "Successfully exported denormalized views:",
+                f"Export directory:\n{dir_path}",
                 "",
+                "This file can be edited (e.g., by AI tools)",
+                "and re-imported to update the database.",
             ]
-
-            # Show each view's results (result is a dict)
-            if "products" in result and result["products"]:
-                summary_lines.append(
-                    f"  view_products.json: {result['products'].record_count} products"
-                )
-            if "inventory" in result and result["inventory"]:
-                summary_lines.append(
-                    f"  view_inventory.json: {result['inventory'].record_count} items"
-                )
-            if "purchases" in result and result["purchases"]:
-                summary_lines.append(
-                    f"  view_purchases.json: {result['purchases'].record_count} purchases"
-                )
-
-            summary_lines.append("")
-            summary_lines.append(f"Export directory:\n{dir_path}")
-            summary_lines.append("")
-            summary_lines.append(
-                "These files can be edited (e.g., by AI tools)\n"
-                "and re-imported to update the database."
-            )
 
             messagebox.showinfo(
                 "Export Complete",
@@ -708,15 +1078,18 @@ class ExportDialog(ctk.CTkToplevel):
     def _show_progress(self, message: str):
         """Show progress indication."""
         self.status_label.configure(text=message)
-        self.export_btn.configure(state="disabled")
+        self.progress.pack(fill="x", padx=20, pady=(0, 10))
+        self.progress.set(0)
+        self.progress.start()
         self.config(cursor="wait")
         self.update()
 
     def _hide_progress(self):
         """Hide progress indication."""
         if self.winfo_exists():
+            self.progress.stop()
+            self.progress.pack_forget()
             self.status_label.configure(text="")
-            self.export_btn.configure(state="normal")
             self.config(cursor="")
 
     def _show_error(self, title: str, e: Exception):
