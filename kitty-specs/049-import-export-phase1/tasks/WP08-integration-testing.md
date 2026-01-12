@@ -13,7 +13,7 @@ subtasks:
 title: "Integration Testing"
 phase: "Phase 4 - Final"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude"
 shell_pid: "13882"
 review_status: "approved"

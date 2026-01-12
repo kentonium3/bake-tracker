@@ -12,7 +12,7 @@ subtasks:
 title: "Complete System Backup (16 Entities)"
 phase: "Phase 1 - Foundation"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude"
 shell_pid: "13882"
 review_status: "approved"

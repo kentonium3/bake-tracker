@@ -11,7 +11,7 @@ subtasks:
 title: "Materials Catalog Import"
 phase: "Phase 2 - Wave 1"
 lane: "done"
-assignee: ""
+assignee: "gemini"
 agent: "gemini"
 shell_pid: "13882"
 review_status: "approved"

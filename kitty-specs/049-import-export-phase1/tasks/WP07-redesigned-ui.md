@@ -16,7 +16,7 @@ subtasks:
 title: "Redesigned Import/Export UI"
 phase: "Phase 2 - Wave 1"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude"
 shell_pid: "13882"
 review_status: "approved"

@@ -13,7 +13,7 @@ subtasks:
 title: "Inventory Adjustment Import"
 phase: "Phase 3 - Wave 2"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude"
 shell_pid: "13882"
 review_status: "approved"

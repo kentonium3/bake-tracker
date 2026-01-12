@@ -29,14 +29,14 @@
 **Agent**: Claude
 
 ### Included Subtasks
-- [ ] T001 Add finished_goods exporter in `src/services/coordinated_export_service.py`
-- [ ] T002 [P] Add events exporter
-- [ ] T003 [P] Add production_runs exporter
-- [ ] T004 [P] Add inventory_depletions exporter
-- [ ] T005 Update DEPENDENCY_ORDER constant with 4 new entities
-- [ ] T006 Update manifest generation to include all 16 entities
-- [ ] T007 Add unit tests for new entity exporters in `src/tests/services/test_coordinated_export_service.py`
-- [ ] T008 Verify empty arrays exported for entities with zero records
+- [X] T001 Add finished_goods exporter in `src/services/coordinated_export_service.py`
+- [X] T002 [P] Add events exporter
+- [X] T003 [P] Add production_runs exporter
+- [X] T004 [P] Add inventory_depletions exporter
+- [X] T005 Update DEPENDENCY_ORDER constant with 4 new entities
+- [X] T006 Update manifest generation to include all 16 entities
+- [X] T007 Add unit tests for new entity exporters in `src/tests/services/test_coordinated_export_service.py`
+- [X] T008 Verify empty arrays exported for entities with zero records
 
 ### Implementation Notes
 - Follow existing exporter pattern (suppliers, ingredients, products)
@@ -65,13 +65,13 @@
 **Agent**: Gemini
 
 ### Included Subtasks
-- [ ] T013 Add `import_materials()` function in `src/services/catalog_import_service.py`
-- [ ] T014 Add `import_material_products()` with slug resolution
-- [ ] T015 Support ADD_ONLY mode for materials
-- [ ] T016 Support AUGMENT mode for materials (update null fields only)
-- [ ] T017 Add validation for circular category references
-- [ ] T018 Add unit tests in `src/tests/services/test_catalog_import_service.py`
-- [ ] T019 Verify import result counts (created/updated/skipped/errors)
+- [X] T013 Add `import_materials()` function in `src/services/catalog_import_service.py`
+- [X] T014 Add `import_material_products()` with slug resolution
+- [X] T015 Support ADD_ONLY mode for materials
+- [X] T016 Support AUGMENT mode for materials (update null fields only)
+- [X] T017 Add validation for circular category references
+- [X] T018 Add unit tests in `src/tests/services/test_catalog_import_service.py`
+- [X] T019 Verify import result counts (created/updated/skipped/errors)
 
 ### Implementation Notes
 - Mirror `import_ingredients()` structure exactly (SC-013)
@@ -100,15 +100,15 @@
 **Agent**: Gemini
 
 ### Included Subtasks
-- [ ] T020 Add `export_ingredients_view()` in `src/services/denormalized_export_service.py`
-- [ ] T021 Include hierarchy paths (e.g., "Flours & Starches > Wheat Flours > All-Purpose")
-- [ ] T022 Include related products as nested array
-- [ ] T023 Include computed inventory totals and average costs
-- [ ] T024 [P] Add `export_materials_view()` with hierarchy paths
-- [ ] T025 [P] Add `export_recipes_view()` with embedded ingredients
-- [ ] T026 Include computed recipe costs
-- [ ] T027 Add `_meta` section with editable/readonly field lists
-- [ ] T028 Add unit tests in `src/tests/services/test_denormalized_export_service.py`
+- [X] T020 Add `export_ingredients_view()` in `src/services/denormalized_export_service.py`
+- [X] T021 Include hierarchy paths (e.g., "Flours & Starches > Wheat Flours > All-Purpose")
+- [X] T022 Include related products as nested array
+- [X] T023 Include computed inventory totals and average costs
+- [X] T024 [P] Add `export_materials_view()` with hierarchy paths
+- [X] T025 [P] Add `export_recipes_view()` with embedded ingredients
+- [X] T026 Include computed recipe costs
+- [X] T027 Add `_meta` section with editable/readonly field lists
+- [X] T028 Add unit tests in `src/tests/services/test_denormalized_export_service.py`
 
 ### Implementation Notes
 - Follow existing `export_products_view()` pattern
@@ -136,15 +136,15 @@
 **Agent**: Gemini
 
 ### Included Subtasks
-- [ ] T029 Create `src/services/transaction_import_service.py` with `import_purchases()`
-- [ ] T030 Validate positive quantities (reject negative)
-- [ ] T031 Resolve product_slug to Product record
-- [ ] T032 Create Purchase record for each transaction
-- [ ] T033 Create InventoryItem record linked to Purchase
-- [ ] T034 Recalculate weighted average costs
-- [ ] T035 Implement duplicate detection (product_slug + date + cost)
-- [ ] T036 Return ImportResult with counts
-- [ ] T037 Add unit tests in `src/tests/services/test_transaction_import_service.py`
+- [X] T029 Create `src/services/transaction_import_service.py` with `import_purchases()`
+- [X] T030 Validate positive quantities (reject negative)
+- [X] T031 Resolve product_slug to Product record
+- [X] T032 Create Purchase record for each transaction
+- [X] T033 Create InventoryItem record linked to Purchase
+- [X] T034 Recalculate weighted average costs
+- [X] T035 Implement duplicate detection (product_slug + date + cost)
+- [X] T036 Return ImportResult with counts
+- [X] T037 Add unit tests in `src/tests/services/test_transaction_import_service.py`
 
 ### Implementation Notes
 - New service file for transaction imports (separate from catalog imports)
@@ -173,15 +173,15 @@
 **Agent**: Gemini
 
 ### Included Subtasks
-- [ ] T038 Add `import_adjustments()` in `src/services/transaction_import_service.py`
-- [ ] T039 Validate negative quantities only (reject positive)
-- [ ] T040 Require reason_code (spoilage, waste, correction, other)
-- [ ] T041 Validate reason_code against allowed list
-- [ ] T042 Resolve product_slug to Product and find InventoryItem (FIFO)
-- [ ] T043 Prevent adjustments exceeding available inventory
-- [ ] T044 Create adjustment record (consumption or depletion)
-- [ ] T045 Update InventoryItem.current_quantity
-- [ ] T046 Add unit tests for adjustment import
+- [X] T038 Add `import_adjustments()` in `src/services/transaction_import_service.py`
+- [X] T039 Validate negative quantities only (reject positive)
+- [X] T040 Require reason_code (spoilage, waste, correction, other)
+- [X] T041 Validate reason_code against allowed list
+- [X] T042 Resolve product_slug to Product and find InventoryItem (FIFO)
+- [X] T043 Prevent adjustments exceeding available inventory
+- [X] T044 Create adjustment record (consumption or depletion)
+- [X] T045 Update InventoryItem.current_quantity
+- [X] T046 Add unit tests for adjustment import
 
 ### Implementation Notes
 - Extend transaction_import_service.py (same file as WP04)
@@ -209,14 +209,14 @@
 **Agent**: Claude
 
 ### Included Subtasks
-- [ ] T047 Add `detect_format()` in `src/services/enhanced_import_service.py`
-- [ ] T048 Detect context-rich by `_meta` field presence
-- [ ] T049 Detect normalized by `version` + `application` fields
-- [ ] T050 Extract editable fields only from context-rich records
-- [ ] T051 Ignore readonly/computed fields during import
-- [ ] T052 Merge editable fields with existing records
-- [ ] T053 Return detection result for UI confirmation
-- [ ] T054 Add unit tests in `src/tests/services/test_enhanced_import_service.py`
+- [X] T047 Add `detect_format()` in `src/services/enhanced_import_service.py`
+- [X] T048 Detect context-rich by `_meta` field presence
+- [X] T049 Detect normalized by `version` + `application` fields
+- [X] T050 Extract editable fields only from context-rich records
+- [X] T051 Ignore readonly/computed fields during import
+- [X] T052 Merge editable fields with existing records
+- [X] T053 Return detection result for UI confirmation
+- [X] T054 Add unit tests in `src/tests/services/test_enhanced_import_service.py`
 
 ### Implementation Notes
 - Detection algorithm based on _meta.editable_fields presence
@@ -244,18 +244,18 @@
 **Agent**: Gemini
 
 ### Included Subtasks
-- [ ] T055 Redesign export dialog with 3 tabs in `src/ui/dialogs/import_export_dialog.py`
-- [ ] T056 Full Backup tab: no entity selection, exports all 16
-- [ ] T057 Catalog Export tab: entity selection, format selection
-- [ ] T058 Context-Rich Export tab: entity selection for views
-- [ ] T059 Add purpose explanations for each export type
-- [ ] T060 Redesign import dialog with 4 purpose options
-- [ ] T061 Backup Restore: full restore, no mode selection
-- [ ] T062 Catalog Import: entity selection, ADD_ONLY/AUGMENT mode
-- [ ] T063 Purchases Import: file selection, validation preview
-- [ ] T064 Adjustments Import: file selection, validation preview
-- [ ] T065 Integrate auto-detection with confirmation display
-- [ ] T066 Add progress indicator during import/export
+- [X] T055 Redesign export dialog with 3 tabs in `src/ui/dialogs/import_export_dialog.py`
+- [X] T056 Full Backup tab: no entity selection, exports all 16
+- [X] T057 Catalog Export tab: entity selection, format selection
+- [X] T058 Context-Rich Export tab: entity selection for views
+- [X] T059 Add purpose explanations for each export type
+- [X] T060 Redesign import dialog with 4 purpose options
+- [X] T061 Backup Restore: full restore, no mode selection
+- [X] T062 Catalog Import: entity selection, ADD_ONLY/AUGMENT mode
+- [X] T063 Purchases Import: file selection, validation preview
+- [X] T064 Adjustments Import: file selection, validation preview
+- [X] T065 Integrate auto-detection with confirmation display
+- [X] T066 Add progress indicator during import/export
 
 ### Implementation Notes
 - Use CustomTkinter CTkTabview for export types
@@ -284,15 +284,15 @@
 **Agent**: Claude
 
 ### Included Subtasks
-- [ ] T067 Create `src/tests/integration/test_import_export_roundtrip.py`
-- [ ] T068 Test: full backup export → reset DB → import → verify counts
-- [ ] T069 Test: context-rich export → modify editable → import → verify changes
-- [ ] T070 Test: purchase import → verify inventory increased
-- [ ] T071 Test: adjustment import → verify inventory decreased
-- [ ] T072 Test: error handling and rollback on failure
-- [ ] T073 Test: format auto-detection accuracy
-- [ ] T074 Verify >70% coverage on new service code
-- [ ] T075 Document test fixtures and data requirements
+- [X] T067 Create `src/tests/integration/test_import_export_roundtrip.py`
+- [X] T068 Test: full backup export → reset DB → import → verify counts
+- [X] T069 Test: context-rich export → modify editable → import → verify changes
+- [X] T070 Test: purchase import → verify inventory increased
+- [X] T071 Test: adjustment import → verify inventory decreased
+- [X] T072 Test: error handling and rollback on failure
+- [X] T073 Test: format auto-detection accuracy
+- [X] T074 Verify >70% coverage on new service code
+- [X] T075 Document test fixtures and data requirements
 
 ### Implementation Notes
 - Use pytest fixtures for database setup/teardown
@@ -320,16 +320,16 @@
 **Agent**: Gemini
 
 ### Included Subtasks
-- [ ] T076 Update entity list to 14 types in `docs/design/spec_import_export.md`
-- [ ] T077 Document manifest format with new entities
-- [ ] T078 Add materials and material_products import schemas
-- [ ] T079 Document context-rich export schemas (ingredients, materials, recipes)
-- [ ] T080 Document `_meta` section format for views
-- [ ] T081 Add purchase transaction import schema
-- [ ] T082 Add inventory adjustment import schema
-- [ ] T083 Document format auto-detection rules
-- [ ] T084 Update Appendix sections (categories, units, examples)
-- [ ] T085 Add complete JSON examples for each new format
+- [X] T076 Update entity list to 14 types in `docs/design/spec_import_export.md`
+- [X] T077 Document manifest format with new entities
+- [X] T078 Add materials and material_products import schemas
+- [X] T079 Document context-rich export schemas (ingredients, materials, recipes)
+- [X] T080 Document `_meta` section format for views
+- [X] T081 Add purchase transaction import schema
+- [X] T082 Add inventory adjustment import schema
+- [X] T083 Document format auto-detection rules
+- [X] T084 Update Appendix sections (categories, units, examples)
+- [X] T085 Add complete JSON examples for each new format
 
 ### Implementation Notes
 - Follow existing documentation style in spec_import_export.md
