@@ -24,6 +24,7 @@ from src.ui.modes.make_mode import MakeMode
 
 from src.ui.service_integration import check_service_integration_health
 from src.ui.catalog_import_dialog import CatalogImportDialog
+from src.ui.preferences_dialog import PreferencesDialog
 
 
 class MainWindow(ctk.CTk):
@@ -96,6 +97,8 @@ class MainWindow(ctk.CTk):
         file_menu.add_separator()
         file_menu.add_command(label="Import Catalog...", command=self._show_catalog_import_dialog)
         file_menu.add_command(label="Import View...", command=self._show_import_view_dialog)
+        file_menu.add_separator()
+        file_menu.add_command(label="Preferences...", command=self._show_preferences_dialog)
         file_menu.add_separator()
         file_menu.add_command(label="Exit", command=self._on_exit)
         self.menu_bar.add_cascade(label="File", menu=file_menu)
@@ -315,6 +318,11 @@ class MainWindow(ctk.CTk):
         if dialog.result:
             self._refresh_catalog_tabs()
             self.update_status("Catalog import completed. Data refreshed.")
+
+    def _show_preferences_dialog(self):
+        """Show the preferences dialog."""
+        dialog = PreferencesDialog(self)
+        self.wait_window(dialog)
 
     def _show_import_view_dialog(self):
         """Show the import view dialog (F030)."""
