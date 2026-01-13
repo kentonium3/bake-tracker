@@ -24,13 +24,13 @@
 **Prompt**: `tasks/WP01-schema-validation-service.md`
 
 ### Included Subtasks
-- [ ] T001 [P] Create `src/services/schema_validation_service.py` with ValidationResult, ValidationError, ValidationWarning dataclasses
-- [ ] T002 [P] Implement `validate_supplier_schema()` - required: name; optional: slug, contact_info, notes
-- [ ] T003 [P] Implement `validate_ingredient_schema()` - required: display_name; optional: category, package_unit, etc.
-- [ ] T004 [P] Implement `validate_product_schema()` - required: display_name, ingredient_slug; FK validation
-- [ ] T005 [P] Implement `validate_recipe_schema()` - required: name; validate nested ingredients array
-- [ ] T006 Implement `validate_import_file()` dispatcher that routes to entity-specific validators
-- [ ] T007 [P] Create `src/tests/test_schema_validation_service.py` with test cases for each validator
+- [X] T001 [P] Create `src/services/schema_validation_service.py` with ValidationResult, ValidationError, ValidationWarning dataclasses
+- [X] T002 [P] Implement `validate_supplier_schema()` - required: name; optional: slug, contact_info, notes
+- [X] T003 [P] Implement `validate_ingredient_schema()` - required: display_name; optional: category, package_unit, etc.
+- [X] T004 [P] Implement `validate_product_schema()` - required: display_name, ingredient_slug; FK validation
+- [X] T005 [P] Implement `validate_recipe_schema()` - required: name; validate nested ingredients array
+- [X] T006 Implement `validate_import_file()` dispatcher that routes to entity-specific validators
+- [X] T007 [P] Create `src/tests/test_schema_validation_service.py` with test cases for each validator
 
 ### Implementation Notes
 - Each validator returns `ValidationResult(valid=bool, errors=[], warnings=[])`
@@ -58,13 +58,13 @@
 **Prompt**: `tasks/WP02-preferences-service.md`
 
 ### Included Subtasks
-- [ ] T008 [P] Create `src/services/preferences_service.py` with get/set/reset functions
-- [ ] T009 Implement `get_import_directory()`, `set_import_directory()`
-- [ ] T010 [P] Implement `get_export_directory()`, `set_export_directory()`
-- [ ] T011 [P] Implement `get_logs_directory()`, `set_logs_directory()`
-- [ ] T012 Implement `reset_all_preferences()` to restore system defaults
-- [ ] T013 Implement directory existence validation with graceful fallback
-- [ ] T014 [P] Create `src/tests/test_preferences_service.py`
+- [X] T008 [P] Create `src/services/preferences_service.py` with get/set/reset functions
+- [X] T009 Implement `get_import_directory()`, `set_import_directory()`
+- [X] T010 [P] Implement `get_export_directory()`, `set_export_directory()`
+- [X] T011 [P] Implement `get_logs_directory()`, `set_logs_directory()`
+- [X] T012 Implement `reset_all_preferences()` to restore system defaults
+- [X] T013 Implement directory existence validation with graceful fallback
+- [X] T014 [P] Create `src/tests/test_preferences_service.py`
 
 ### Implementation Notes
 - Use existing `app_config` table with key-value pattern
@@ -92,13 +92,13 @@
 **Prompt**: `tasks/WP03-preferences-dialog.md`
 
 ### Included Subtasks
-- [ ] T015 Create `src/ui/preferences_dialog.py` with CustomTkinter dialog
-- [ ] T016 Add directory picker for Import directory with Browse button
-- [ ] T017 [P] Add directory picker for Export directory
-- [ ] T018 [P] Add directory picker for Logs directory
-- [ ] T019 Add "Restore Defaults" button that calls `reset_all_preferences()`
-- [ ] T020 Add Save/Cancel buttons with validation
-- [ ] T021 Update main menu to add "Preferences..." item under File
+- [X] T015 Create `src/ui/preferences_dialog.py` with CustomTkinter dialog
+- [X] T016 Add directory picker for Import directory with Browse button
+- [X] T017 [P] Add directory picker for Export directory
+- [X] T018 [P] Add directory picker for Logs directory
+- [X] T019 Add "Restore Defaults" button that calls `reset_all_preferences()`
+- [X] T020 Add Save/Cancel buttons with validation
+- [X] T021 Update main menu to add "Preferences..." item under File
 
 ### Implementation Notes
 - Follow existing dialog patterns (ImportDialog, ExportDialog)
@@ -125,16 +125,16 @@
 **Prompt**: `tasks/WP04-enhanced-import-logging.md`
 
 ### Included Subtasks
-- [ ] T022 Refactor `_write_import_log()` in `src/ui/import_export_dialog.py` to use configurable logs directory
-- [ ] T023 Add SOURCE section with file path, size, detected format
-- [ ] T024 [P] Add OPERATION section with purpose, mode, timestamp
-- [ ] T025 [P] Add PREPROCESSING section (for Context-Rich: entity type, records extracted, FK validations)
-- [ ] T026 [P] Add SCHEMA VALIDATION section with status, error count, warning details
-- [ ] T027 [P] Add IMPORT RESULTS section with per-entity counts
-- [ ] T028 [P] Add ERRORS section with entity name, record snippet, expected vs actual, resolution suggestion
-- [ ] T029 [P] Add WARNINGS section with context and action taken
-- [ ] T030 Add SUMMARY section with total/successful/skipped/failed counts
-- [ ] T031 Add METADATA section with app version, log version, duration
+- [X] T022 Refactor `_write_import_log()` in `src/ui/import_export_dialog.py` to use configurable logs directory
+- [X] T023 Add SOURCE section with file path, size, detected format
+- [X] T024 [P] Add OPERATION section with purpose, mode, timestamp
+- [X] T025 [P] Add PREPROCESSING section (for Context-Rich: entity type, records extracted, FK validations)
+- [X] T026 [P] Add SCHEMA VALIDATION section with status, error count, warning details
+- [X] T027 [P] Add IMPORT RESULTS section with per-entity counts
+- [X] T028 [P] Add ERRORS section with entity name, record snippet, expected vs actual, resolution suggestion
+- [X] T029 [P] Add WARNINGS section with context and action taken
+- [X] T030 Add SUMMARY section with total/successful/skipped/failed counts
+- [X] T031 Add METADATA section with app version, log version, duration
 
 ### Implementation Notes
 - Plain text format with header separators (e.g., `--- SECTION NAME ---`)
@@ -161,11 +161,11 @@
 **Prompt**: `tasks/WP05-supplier-export.md`
 
 ### Included Subtasks
-- [ ] T032 Add `export_suppliers()` function to `src/services/import_export_service.py`
-- [ ] T033 Include `slug` field in supplier export per F050 format
-- [ ] T034 Update `export_all_to_json()` to include suppliers when selected
-- [ ] T035 Add "Suppliers" checkbox to ExportDialog Catalog tab (alphabetically positioned)
-- [ ] T036 Wire checkbox to `entity_vars['suppliers']` and export logic
+- [X] T032 Add `export_suppliers()` function to `src/services/import_export_service.py`
+- [X] T033 Include `slug` field in supplier export per F050 format
+- [X] T034 Update `export_all_to_json()` to include suppliers when selected
+- [X] T035 Add "Suppliers" checkbox to ExportDialog Catalog tab (alphabetically positioned)
+- [X] T036 Wire checkbox to `entity_vars['suppliers']` and export logic
 
 ### Implementation Notes
 - Follow existing export patterns (export_ingredients_to_json, etc.)
@@ -191,12 +191,12 @@
 **Prompt**: `tasks/WP06-supplier-import.md`
 
 ### Included Subtasks
-- [ ] T037 Add `suppliers` to `VALID_ENTITIES` in `src/services/catalog_import_service.py`
-- [ ] T038 Add `import_suppliers()` function following existing patterns
-- [ ] T039 Update import dependency order: suppliers before products
-- [ ] T040 Update `detect_format()` in `src/services/enhanced_import_service.py` to recognize supplier files
-- [ ] T041 Update detection result display to show supplier record count
-- [ ] T042 Validate supplier slug uniqueness during import
+- [X] T037 Add `suppliers` to `VALID_ENTITIES` in `src/services/catalog_import_service.py`
+- [X] T038 Add `import_suppliers()` function following existing patterns
+- [X] T039 Update import dependency order: suppliers before products
+- [X] T040 Update `detect_format()` in `src/services/enhanced_import_service.py` to recognize supplier files
+- [X] T041 Update detection result display to show supplier record count
+- [X] T042 Validate supplier slug uniqueness during import
 
 ### Implementation Notes
 - Suppliers must import before products (FK dependency)
@@ -223,15 +223,15 @@
 **Prompt**: `tasks/WP07-unified-import-dialog.md`
 
 ### Included Subtasks
-- [ ] T043 Add "Context-Rich" radio button as 5th purpose option in ImportDialog
-- [ ] T044 Add description text: "Import AI-augmented files (aug_*.json) with preprocessing"
-- [ ] T045 Update `_setup_catalog_options()` to also apply to Context-Rich (mode selection)
-- [ ] T046 Update `_detect_format()` to auto-select Context-Rich for aug_*.json files
-- [ ] T047 Update `_do_import()` to route Context-Rich to appropriate handler
-- [ ] T048 Integrate schema_validation_service before import execution
-- [ ] T049 Display validation errors with record numbers in error dialog
-- [ ] T050 Update `ImportResultsDialog` to show per-entity counts in modal summary
-- [ ] T051 Ensure mode selection appears for both Catalog and Context-Rich purposes
+- [X] T043 Add "Context-Rich" radio button as 5th purpose option in ImportDialog
+- [X] T044 Add description text: "Import AI-augmented files (aug_*.json) with preprocessing"
+- [X] T045 Update `_setup_catalog_options()` to also apply to Context-Rich (mode selection)
+- [X] T046 Update `_detect_format()` to auto-select Context-Rich for aug_*.json files
+- [X] T047 Update `_do_import()` to route Context-Rich to appropriate handler
+- [X] T048 Integrate schema_validation_service before import execution
+- [X] T049 Display validation errors with record numbers in error dialog
+- [X] T050 Update `ImportResultsDialog` to show per-entity counts in modal summary
+- [X] T051 Ensure mode selection appears for both Catalog and Context-Rich purposes
 
 ### Implementation Notes
 - Context-Rich preprocessing already exists in `enhanced_import_service.import_context_rich_view()`
@@ -259,13 +259,13 @@
 **Prompt**: `tasks/WP08-menu-cleanup-multi-entity.md`
 
 ### Included Subtasks
-- [ ] T052 Remove "Import Catalog" menu item from File menu
-- [ ] T053 Remove "Import Context-Rich" menu item from File menu
-- [ ] T054 Remove associated handler code if orphaned
-- [ ] T055 Update detection display for multi-entity files (e.g., "Multiple entities: Suppliers (6), Ingredients (45)")
-- [ ] T056 Ensure multi-entity import respects dependency order (suppliers → ingredients → products → ...)
-- [ ] T057 Hide entity checkboxes for Catalog purpose (rely on auto-detection per FR-009)
-- [ ] T058 Verify all existing import workflows still function (regression check)
+- [X] T052 Remove "Import Catalog" menu item from File menu
+- [X] T053 Remove "Import Context-Rich" menu item from File menu
+- [X] T054 Remove associated handler code if orphaned
+- [X] T055 Update detection display for multi-entity files (e.g., "Multiple entities: Suppliers (6), Ingredients (45)")
+- [X] T056 Ensure multi-entity import respects dependency order (suppliers → ingredients → products → ...)
+- [X] T057 Hide entity checkboxes for Catalog purpose (rely on auto-detection per FR-009)
+- [X] T058 Verify all existing import workflows still function (regression check)
 
 ### Implementation Notes
 - Find menu setup in main_window.py or similar
