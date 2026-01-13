@@ -2318,29 +2318,34 @@ class MaterialProductsTab:
         """Load all products with material and supplier info."""
         products = []
         try:
-            # Service now returns dicts - no session detachment issues
+            # Service returns ORM objects - use _get_value helper for safe access
             categories = material_catalog_service.list_categories()
             for cat in categories:
-                subcategories = material_catalog_service.list_subcategories(cat["id"])
+                cat_id = _get_value(cat, "id")
+                subcategories = material_catalog_service.list_subcategories(cat_id)
                 for subcat in subcategories:
-                    mats = material_catalog_service.list_materials(subcat["id"])
+                    subcat_id = _get_value(subcat, "id")
+                    mats = material_catalog_service.list_materials(subcat_id)
                     for mat in mats:
-                        prods = material_catalog_service.list_products(mat["id"])
+                        mat_id = _get_value(mat, "id")
+                        mat_name = _get_value(mat, "name")
+                        mat_base_unit = _get_value(mat, "base_unit_type") or ""
+                        prods = material_catalog_service.list_products(mat_id)
                         for prod in prods:
                             products.append({
-                                "id": prod["id"],
-                                "name": prod["name"],
-                                "material_name": mat["name"],
-                                "material_id": mat["id"],
-                                "base_unit": mat.get("base_unit_type", ""),
-                                "package_quantity": prod.get("package_quantity", 1),
-                                "package_unit": prod.get("package_unit", mat.get("base_unit_type", "each")),
-                                "inventory": prod.get("current_inventory", 0),
-                                "unit_cost": prod.get("weighted_avg_cost", 0),
-                                "supplier_name": prod.get("supplier_name", ""),
-                                "supplier_id": prod.get("supplier_id"),
-                                "sku": prod.get("sku", ""),
-                                "notes": prod.get("notes", ""),
+                                "id": _get_value(prod, "id"),
+                                "name": _get_value(prod, "name"),
+                                "material_name": mat_name,
+                                "material_id": mat_id,
+                                "base_unit": mat_base_unit,
+                                "package_quantity": _get_value(prod, "package_quantity") or 1,
+                                "package_unit": _get_value(prod, "package_unit") or mat_base_unit or "each",
+                                "inventory": _get_value(prod, "current_inventory") or 0,
+                                "unit_cost": _get_value(prod, "weighted_avg_cost") or 0,
+                                "supplier_name": _get_value(prod, "supplier_name") or "",
+                                "supplier_id": _get_value(prod, "supplier_id"),
+                                "sku": _get_value(prod, "sku") or "",
+                                "notes": _get_value(prod, "notes") or "",
                             })
         except Exception as e:
             print(f"Error loading products: {e}")
@@ -2836,27 +2841,24 @@ class MaterialUnitsTab:
         """Load all units with material info and computed values."""
         units = []
         try:
-            # Service now returns dicts - no session detachment issues
+            # Service returns ORM objects - use _get_value helper for safe access
             categories = material_catalog_service.list_categories()
             for cat in categories:
-                subcategories = material_catalog_service.list_subcategories(cat["id"])
+                cat_id = _get_value(cat, "id")
+                subcategories = material_catalog_service.list_subcategories(cat_id)
                 for subcat in subcategories:
-                    mats = material_catalog_service.list_materials(subcat["id"])
+                    subcat_id = _get_value(subcat, "id")
+                    mats = material_catalog_service.list_materials(subcat_id)
                     for mat in mats:
+                        mat_id = _get_value(mat, "id")
+                        mat_name = _get_value(mat, "name")
                         # Get units for this material
-                        mat_units = material_unit_service.list_units(mat["id"])
+                        mat_units = material_unit_service.list_units(mat_id)
                         for unit in mat_units:
-                            # Handle both dict and ORM object returns
-                            if isinstance(unit, dict):
-                                unit_id = unit["id"]
-                                unit_name = unit["name"]
-                                qty = unit.get("quantity_per_unit", 1)
-                                desc = unit.get("description", "")
-                            else:
-                                unit_id = unit.id
-                                unit_name = unit.name
-                                qty = getattr(unit, "quantity_per_unit", 1)
-                                desc = getattr(unit, "description", "")
+                            unit_id = _get_value(unit, "id")
+                            unit_name = _get_value(unit, "name")
+                            qty = _get_value(unit, "quantity_per_unit") or 1
+                            desc = _get_value(unit, "description") or ""
                             # Get computed values
                             try:
                                 available = material_unit_service.get_available_inventory(unit_id)
@@ -2869,8 +2871,8 @@ class MaterialUnitsTab:
                             units.append({
                                 "id": unit_id,
                                 "name": unit_name,
-                                "material_name": mat["name"],
-                                "material_id": mat["id"],
+                                "material_name": mat_name,
+                                "material_id": mat_id,
                                 "quantity_per_unit": qty,
                                 "description": desc,
                                 "available": available,
