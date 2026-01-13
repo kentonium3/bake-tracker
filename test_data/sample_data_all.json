@@ -1,5 +1,5 @@
 {
-  "version": "4.1",
+  "version": "4.2",
   "exported_at": "2026-01-07T23:23:19.772500+00:00",
   "application": "bake-tracker",
   "ingredients": [
@@ -228,7 +228,7 @@
       "hierarchy_level": 1,
       "is_packaging": false,
       "parent_slug": "dairy_eggs",
-      "description": "Subcategory: Contains: Cr\u00e8me fra\u00eeche, Mascarpone, Sour cream",
+      "description": "Subcategory: Contains: Crème fraîche, Mascarpone, Sour cream",
       "category": "Dairy & Eggs"
     },
     {
@@ -498,7 +498,7 @@
       "hierarchy_level": 1,
       "is_packaging": false,
       "parent_slug": "liquors",
-      "description": "Subcategory: Contains: Cr\u00e8me de cassis, Coffee Liqueur, Hazelnut Liqueur, Liqueur, chocolate, Liqueur, orange (+2 more)",
+      "description": "Subcategory: Contains: Crème de cassis, Coffee Liqueur, Hazelnut Liqueur, Liqueur, chocolate, Liqueur, orange (+2 more)",
       "category": "Liquors"
     },
     {
@@ -1260,12 +1260,12 @@
       "category": "Dairy & Eggs"
     },
     {
-      "display_name": "Cr\u00e8me fra\u00eeche",
+      "display_name": "Crème fraîche",
       "slug": "creme_fraiche",
       "hierarchy_level": 2,
       "is_packaging": false,
       "parent_slug": "other_dairy",
-      "description": "Creme fraiche (aka cr\u00e8me fra\u00eeche)",
+      "description": "Creme fraiche (aka crème fraîche)",
       "density_volume_value": 1.0,
       "density_volume_unit": "cup",
       "density_weight_value": 8.35,
@@ -1419,7 +1419,7 @@
       "hierarchy_level": 2,
       "is_packaging": false,
       "parent_slug": "candied_fruit",
-      "description": "Mixed candied fruit for fruitcake (aka glac\u00e9 fruit)",
+      "description": "Mixed candied fruit for fruitcake (aka glacé fruit)",
       "category": "Decorations & Candies"
     },
     {
@@ -1428,7 +1428,7 @@
       "hierarchy_level": 2,
       "is_packaging": false,
       "parent_slug": "candied_fruit",
-      "description": "Candied pineapple pieces (aka glac\u00e9 pineapple)",
+      "description": "Candied pineapple pieces (aka glacé pineapple)",
       "category": "Decorations & Candies"
     },
     {
@@ -2884,7 +2884,7 @@
       "category": "Liquids"
     },
     {
-      "display_name": "Cr\u00e8me de cassis",
+      "display_name": "Crème de cassis",
       "slug": "liqueur_blackcurrant",
       "hierarchy_level": 2,
       "is_packaging": false,
@@ -2916,7 +2916,7 @@
       "hierarchy_level": 2,
       "is_packaging": false,
       "parent_slug": "liqueurs",
-      "description": "Chocolate-flavored liqueur (aka cr\u00e8me de cacao)",
+      "description": "Chocolate-flavored liqueur (aka crème de cacao)",
       "category": "Liquors"
     },
     {
@@ -4187,80 +4187,6 @@
       "category": "Nuts & Seeds"
     }
   ],
-  "suppliers": [
-    {
-      "id": 1,
-      "uuid": "b25323f5-193f-4973-b7a6-5490a60ed248",
-      "name": "Unknown",
-      "city": "Unknown",
-      "state": "XX",
-      "zip_code": "00000",
-      "is_active": true,
-      "notes": "Default supplier for migrated inventory additions (F028)",
-      "created_at": "2025-12-26T17:39:13.554852",
-      "updated_at": "2025-12-26T17:39:13.554859"
-    },
-    {
-      "id": 2,
-      "uuid": "12f0edf8-b183-4e5e-9f12-bd476b6c9f29",
-      "name": "Costco",
-      "city": "Waltham",
-      "state": "MA",
-      "zip_code": "02451-1107",
-      "is_active": true,
-      "street_address": "71 2ND AVE",
-      "created_at": "2025-12-26T21:39:43.366251",
-      "updated_at": "2025-12-26T21:39:43.366263"
-    },
-    {
-      "id": 3,
-      "uuid": "e62b8999-a8a1-4d10-9d35-ab0c92e9cc11",
-      "name": "Wegmans",
-      "city": "Burlington",
-      "state": "MA",
-      "zip_code": "01803",
-      "is_active": true,
-      "street_address": "53 Third Avenue",
-      "created_at": "2025-12-26T21:40:30.948168",
-      "updated_at": "2025-12-26T21:40:30.948178"
-    },
-    {
-      "id": 4,
-      "uuid": "c0b9d147-a81a-47b4-9cff-d088d9b7b59e",
-      "name": "Penzeys Spices",
-      "city": "Arlington",
-      "state": "MA",
-      "zip_code": "02476",
-      "is_active": true,
-      "street_address": "1293 Massachusetts Ave",
-      "created_at": "2025-12-26T21:42:02.657870",
-      "updated_at": "2025-12-26T21:42:02.657880"
-    },
-    {
-      "id": 5,
-      "uuid": "d09d3998-7035-4960-945d-8363ea37e8e9",
-      "name": "Stop & Shop",
-      "city": "Bedford",
-      "state": "MA",
-      "zip_code": "01730",
-      "is_active": true,
-      "street_address": "337 Great Rd",
-      "created_at": "2025-12-26T21:43:04.835270",
-      "updated_at": "2025-12-26T21:43:04.835280"
-    },
-    {
-      "id": 6,
-      "uuid": "99971b26-c639-41f3-9c8f-46a23e9919f1",
-      "name": "Gordon's Fine Wine & Liquors",
-      "city": "Waltham",
-      "state": "MA",
-      "zip_code": "02451",
-      "is_active": true,
-      "street_address": "894 Main St",
-      "created_at": "2025-12-26T21:44:25.068265",
-      "updated_at": "2025-12-26T21:44:25.068273"
-    }
-  ],
   "products": [
     {
       "ingredient_slug": "flour_all_purpose",
@@ -4424,7 +4350,7 @@
       "package_unit": "oz",
       "package_unit_quantity": 11.0,
       "brand": "Nestle",
-      "product_name": "NESTL\u00c9\u00ae TOLL HOUSE\u00ae Butterscotch Artificially Flavored Morsels",
+      "product_name": "NESTLÉ® TOLL HOUSE® Butterscotch Artificially Flavored Morsels",
       "package_type": "bag",
       "gtin": "2800021730",
       "is_hidden": false
@@ -4459,7 +4385,7 @@
       "ingredient_slug": "caramels",
       "package_unit": "oz",
       "package_unit_quantity": 14.0,
-      "brand": "Brach\u2019s",
+      "brand": "Brach’s",
       "product_name": "Milk Maid Caramels",
       "package_type": "bag",
       "gtin": "11300049228",
@@ -4563,7 +4489,7 @@
       "package_unit": "oz",
       "package_unit_quantity": 11.5,
       "brand": "Nestle",
-      "product_name": "NESTL\u00c9\u00ae TOLL HOUSE\u00ae Milk Chocolate Morsels",
+      "product_name": "NESTLÉ® TOLL HOUSE® Milk Chocolate Morsels",
       "package_type": "bag",
       "gtin": "2800021760",
       "is_hidden": false
@@ -4573,7 +4499,7 @@
       "package_unit": "oz",
       "package_unit_quantity": 10.0,
       "brand": "Nestle",
-      "product_name": "NESTL\u00c9\u00ae TOLL HOUSE\u00ae Semi-Sweet Chocolate Morsels",
+      "product_name": "NESTLÉ® TOLL HOUSE® Semi-Sweet Chocolate Morsels",
       "package_type": "bag",
       "gtin": "2800098612",
       "is_hidden": false
@@ -4583,7 +4509,7 @@
       "package_unit": "oz",
       "package_unit_quantity": 72.0,
       "brand": "Nestle",
-      "product_name": "NESTL\u00c9\u00ae TOLL HOUSE\u00ae Semi-Sweet Chocolate Morsels",
+      "product_name": "NESTLÉ® TOLL HOUSE® Semi-Sweet Chocolate Morsels",
       "package_type": "bag",
       "is_hidden": false
     },
@@ -4592,7 +4518,7 @@
       "package_unit": "oz",
       "package_unit_quantity": 10.0,
       "brand": "Nestle",
-      "product_name": "NESTL\u00c9\u00ae TOLL HOUSE\u00ae Organic Allergen Free Semi-Sweet Morsels",
+      "product_name": "NESTLÉ® TOLL HOUSE® Organic Allergen Free Semi-Sweet Morsels",
       "package_type": "bag",
       "gtin": "2800049618",
       "is_hidden": false
@@ -4602,7 +4528,7 @@
       "package_unit": "kg",
       "package_unit_quantity": 3.0,
       "brand": "Guittard",
-      "product_name": "Cr\u00e8me Fran\u00e7aise",
+      "product_name": "Crème Française",
       "package_type": "bag",
       "gtin": "7181833103",
       "is_hidden": false
@@ -4612,7 +4538,7 @@
       "package_unit": "oz",
       "package_unit_quantity": 12.0,
       "brand": "Nestle",
-      "product_name": "NESTL\u00c9\u00ae TOLL HOUSE\u00ae Premier White Morsels",
+      "product_name": "NESTLÉ® TOLL HOUSE® Premier White Morsels",
       "package_type": "bag",
       "gtin": "2800021010",
       "is_hidden": false
@@ -4959,7 +4885,7 @@
       "ingredient_slug": "golden_syrup",
       "package_unit": "oz",
       "package_unit_quantity": 16.0,
-      "brand": "Lyle\u2019s",
+      "brand": "Lyle’s",
       "product_name": "Golden Syrup",
       "package_type": "bottle",
       "gtin": "73449287005",
@@ -5028,7 +4954,7 @@
       "package_unit": "fl oz",
       "package_unit_quantity": 750.0,
       "brand": "Gabriel Brudier",
-      "product_name": "Cr\u00e8me de Cassis",
+      "product_name": "Crème de Cassis",
       "package_type": "bottle",
       "gtin": "8043231167",
       "is_hidden": false
@@ -5212,7 +5138,7 @@
       "package_unit": "oz",
       "package_unit_quantity": 18.0,
       "brand": "Quaker",
-      "product_name": "Quaker\u00ae Oats Old Fashioned",
+      "product_name": "Quaker® Oats Old Fashioned",
       "package_type": "container",
       "is_hidden": false
     },
@@ -5351,7 +5277,7 @@
       "ingredient_slug": "raisins",
       "package_unit": "lb",
       "package_unit_quantity": 3.0,
-      "brand": "Wegman\u2019s",
+      "brand": "Wegman’s",
       "product_name": "Seedless Raisins",
       "package_type": "bag",
       "gtin": "7789040542",
@@ -5855,7 +5781,7 @@
     },
     {
       "ingredient_slug": "caramels",
-      "product_brand": "Brach\u2019s",
+      "product_brand": "Brach’s",
       "quantity": 14.0,
       "purchase_date": "2025-12-21",
       "product_name": "Milk Maid Caramels",
@@ -6175,7 +6101,7 @@
       "product_brand": "Gabriel Brudier",
       "quantity": 750.0,
       "purchase_date": "2025-12-21",
-      "product_name": "Cr\u00e8me de Cassis",
+      "product_name": "Crème de Cassis",
       "package_unit": "fl oz",
       "package_unit_quantity": 750.0,
       "location": "pantry",
@@ -6219,7 +6145,7 @@
       "product_brand": "Guittard",
       "quantity": 3.0,
       "purchase_date": "2025-12-21",
-      "product_name": "Cr\u00e8me Fran\u00e7aise",
+      "product_name": "Crème Française",
       "package_unit": "kg",
       "package_unit_quantity": 3.0,
       "location": "pantry",
@@ -6577,7 +6503,7 @@
     },
     {
       "ingredient_slug": "golden_syrup",
-      "product_brand": "Lyle\u2019s",
+      "product_brand": "Lyle’s",
       "quantity": 16.0,
       "purchase_date": "2025-12-21",
       "product_name": "Golden Syrup",
@@ -6775,7 +6701,7 @@
       "product_brand": "Nestle",
       "quantity": 10.0,
       "purchase_date": "2025-12-21",
-      "product_name": "NESTL\u00c9\u00ae TOLL HOUSE\u00ae Semi-Sweet Chocolate Morsels",
+      "product_name": "NESTLÉ® TOLL HOUSE® Semi-Sweet Chocolate Morsels",
       "package_unit": "oz",
       "package_unit_quantity": 10.0,
       "location": "pantry",
@@ -6786,7 +6712,7 @@
       "product_brand": "Nestle",
       "quantity": 11.5,
       "purchase_date": "2025-12-21",
-      "product_name": "NESTL\u00c9\u00ae TOLL HOUSE\u00ae Milk Chocolate Morsels",
+      "product_name": "NESTLÉ® TOLL HOUSE® Milk Chocolate Morsels",
       "package_unit": "oz",
       "package_unit_quantity": 11.5,
       "location": "pantry",
@@ -6797,7 +6723,7 @@
       "product_brand": "Nestle",
       "quantity": 11.0,
       "purchase_date": "2025-12-21",
-      "product_name": "NESTL\u00c9\u00ae TOLL HOUSE\u00ae Butterscotch Artificially Flavored Morsels",
+      "product_name": "NESTLÉ® TOLL HOUSE® Butterscotch Artificially Flavored Morsels",
       "package_unit": "oz",
       "package_unit_quantity": 11.0,
       "location": "pantry",
@@ -6818,7 +6744,7 @@
       "product_brand": "Nestle",
       "quantity": 5.0,
       "purchase_date": "2025-12-21",
-      "product_name": "NESTL\u00c9\u00ae TOLL HOUSE\u00ae Organic Allergen Free Semi-Sweet Morsels",
+      "product_name": "NESTLÉ® TOLL HOUSE® Organic Allergen Free Semi-Sweet Morsels",
       "package_unit": "oz",
       "package_unit_quantity": 10.0,
       "location": "pantry",
@@ -6840,7 +6766,7 @@
       "product_brand": "Nestle",
       "quantity": 12.0,
       "purchase_date": "2025-12-21",
-      "product_name": "NESTL\u00c9\u00ae TOLL HOUSE\u00ae Premier White Morsels",
+      "product_name": "NESTLÉ® TOLL HOUSE® Premier White Morsels",
       "package_unit": "oz",
       "package_unit_quantity": 12.0,
       "location": "pantry",
@@ -7202,7 +7128,7 @@
       "product_brand": "Quaker",
       "quantity": 18.0,
       "purchase_date": "2025-12-21",
-      "product_name": "Quaker\u00ae Oats Old Fashioned",
+      "product_name": "Quaker® Oats Old Fashioned",
       "package_unit": "oz",
       "package_unit_quantity": 18.0,
       "location": "pantry",
@@ -7436,7 +7362,7 @@
     },
     {
       "ingredient_slug": "raisins",
-      "product_brand": "Wegman\u2019s",
+      "product_brand": "Wegman’s",
       "quantity": 3.0,
       "purchase_date": "2025-12-21",
       "product_name": "Seedless Raisins",
@@ -7479,7 +7405,7 @@
       "yield_quantity": 30.0,
       "yield_unit": "slices",
       "source": "Holiday Cooking 1982",
-      "notes": "Beat butter until softened. Add 1 cup flour, sugar, eggs, baking powder, vanilla; beat till combined. Stir in remaining flour and nuts. Divide in half. Shape into 9-inch logs, 2 inches wide. Place 4 inches apart on ungreased sheet. Bake 325\u00b0F for 1 hour. Cool 1 hour. Cut diagonally into \u00bd-inch slices. Lay cut side down. Bake 325\u00b0F 8 minutes, turn, bake 8-10 minutes more till dry and crisp. Cool. Optional: melt chocolate with shortening, drizzle over cookies.",
+      "notes": "Beat butter until softened. Add 1 cup flour, sugar, eggs, baking powder, vanilla; beat till combined. Stir in remaining flour and nuts. Divide in half. Shape into 9-inch logs, 2 inches wide. Place 4 inches apart on ungreased sheet. Bake 325°F for 1 hour. Cool 1 hour. Cut diagonally into ½-inch slices. Lay cut side down. Bake 325°F 8 minutes, turn, bake 8-10 minutes more till dry and crisp. Cool. Optional: melt chocolate with shortening, drizzle over cookies.",
       "finished_units": [],
       "components": [],
       "ingredients": [
@@ -7661,8 +7587,8 @@
       "is_production_ready": true,
       "yield_quantity": 16.0,
       "yield_unit": "servings",
-      "source": "NESTL\u00c9 TOLL HOUSE",
-      "notes": "Preheat 350\u00b0F. Grease bundt pan. Microwave 1 cup butterscotch morsels MEDIUM HIGH 70% 1 min; stir till melted. Cool. Mix flour, sugar, baking powder, cinnamon, salt, nutmeg. Whisk melted morsels, pumpkin, oil, eggs, vanilla. Stir in flour. Pour into pan. Bake 40-50 min till pick clean. Cool 30 min, remove from pan. Dust with powdered sugar. Sauce: heat 1/3 cup evaporated milk to boil, remove. Add remaining morsels, stir smooth. Return to heat, bring to boil. Cool.",
+      "source": "NESTLÉ TOLL HOUSE",
+      "notes": "Preheat 350°F. Grease bundt pan. Microwave 1 cup butterscotch morsels MEDIUM HIGH 70% 1 min; stir till melted. Cool. Mix flour, sugar, baking powder, cinnamon, salt, nutmeg. Whisk melted morsels, pumpkin, oil, eggs, vanilla. Stir in flour. Pour into pan. Bake 40-50 min till pick clean. Cool 30 min, remove from pan. Dust with powdered sugar. Sauce: heat 1/3 cup evaporated milk to boil, remove. Add remaining morsels, stir smooth. Return to heat, bring to boil. Cool.",
       "finished_units": [],
       "components": [],
       "ingredients": [
@@ -7809,7 +7735,7 @@
       "yield_quantity": 76.0,
       "yield_unit": "truffles",
       "source": "Magazine",
-      "notes": "Boil cream and butter. Add 2.5 lb chocolate; whisk smooth. Whisk in sour cream, liqueur, orange peel. Pour into 9x13 dish, refrigerate 1 hr. Line 4 sheets: 2 with powdered sugar, 2 with cocoa. Scoop truffles onto sheets. Freeze 10 min. Roll in coating, then hands. Freeze 15 min. Melt white chocolate to 115\u00b0F. Dip sugar truffles, refrigerate 1 hr. Repeat for double coat. Melt 1.5 lb bittersweet to 115\u00b0F. Wave spoon over white truffles making zigzags. Repeat process for remaining truffles. Assemble on cone with toothpicks in spiral.",
+      "notes": "Boil cream and butter. Add 2.5 lb chocolate; whisk smooth. Whisk in sour cream, liqueur, orange peel. Pour into 9x13 dish, refrigerate 1 hr. Line 4 sheets: 2 with powdered sugar, 2 with cocoa. Scoop truffles onto sheets. Freeze 10 min. Roll in coating, then hands. Freeze 15 min. Melt white chocolate to 115°F. Dip sugar truffles, refrigerate 1 hr. Repeat for double coat. Melt 1.5 lb bittersweet to 115°F. Wave spoon over white truffles making zigzags. Repeat process for remaining truffles. Assemble on cone with toothpicks in spiral.",
       "finished_units": [],
       "components": [],
       "ingredients": [
@@ -7870,7 +7796,7 @@
       "yield_quantity": 9.0,
       "yield_unit": "cookies",
       "source": "Magazine",
-      "notes": "Preheat 350\u00b0F. Beat butter, 2/3 cup sugar, vanilla till fluffy 2-3 min. Beat in egg, molasses. Whisk flour, cardamom (1/2 cup), cinnamon (2.5 tbsp), ginger (6 tsp total), cloves (2 tsp), pepper (2 tsp), baking soda, salt. Add to butter on low. Beat on medium 2 min. Roll dough 1/2 inch thick. Scoop into 2-inch balls. Roll in 1 cup sugar. Place 2.5 inches apart. Bake 15-16 min till cracked. Cool on pans.",
+      "notes": "Preheat 350°F. Beat butter, 2/3 cup sugar, vanilla till fluffy 2-3 min. Beat in egg, molasses. Whisk flour, cardamom (1/2 cup), cinnamon (2.5 tbsp), ginger (6 tsp total), cloves (2 tsp), pepper (2 tsp), baking soda, salt. Add to butter on low. Beat on medium 2 min. Roll dough 1/2 inch thick. Scoop into 2-inch balls. Roll in 1 cup sugar. Place 2.5 inches apart. Bake 15-16 min till cracked. Cool on pans.",
       "finished_units": [],
       "components": [],
       "ingredients": [
@@ -7951,7 +7877,7 @@
       "yield_quantity": 15.0,
       "yield_unit": "cookies",
       "source": "King Arthur Baking (print)",
-      "notes": "Combine; scoop 1\" balls; flatten with fork; bake 8\u201310 min.",
+      "notes": "Combine; scoop 1\" balls; flatten with fork; bake 8–10 min.",
       "finished_units": [],
       "components": [],
       "ingredients": [
@@ -8058,7 +7984,7 @@
       "yield_quantity": 4.0,
       "yield_unit": "cakes",
       "source": "Magazine recipe",
-      "notes": "Preheat oven to 350\u00b0F. Butter and flour four 5\u00bex3\u00bcx1\u215e-inch loaf pans. Sift flour, baking powder and salt into medium bowl. Using electric mixer, beat sugar and unsalted butter in large bowl until light and fluffy. Add eggs 1 at a time, beating well after each addition. Beat in orange juice, grated orange peel and vanilla extract (batter may look curdled). Beat in flour mixture. Fold in poppy seeds. Divide batter equally among prepared pans (about 1\u00bd cups each). Place pans in oven. Bake until tester inserted in center comes out clean, about 55 minutes. Transfer pans to racks. Cool cakes in pans 10 minutes. Turn cakes out onto wire racks and cool completely.",
+      "notes": "Preheat oven to 350°F. Butter and flour four 5¾x3¼x1⅞-inch loaf pans. Sift flour, baking powder and salt into medium bowl. Using electric mixer, beat sugar and unsalted butter in large bowl until light and fluffy. Add eggs 1 at a time, beating well after each addition. Beat in orange juice, grated orange peel and vanilla extract (batter may look curdled). Beat in flour mixture. Fold in poppy seeds. Divide batter equally among prepared pans (about 1½ cups each). Place pans in oven. Bake until tester inserted in center comes out clean, about 55 minutes. Transfer pans to racks. Cool cakes in pans 10 minutes. Turn cakes out onto wire racks and cool completely.",
       "finished_units": [],
       "components": [],
       "ingredients": [
@@ -8124,7 +8050,7 @@
       "yield_quantity": 36.0,
       "yield_unit": "cookies",
       "source": "Christmas Cookies 2006",
-      "notes": "Line sheet with parchment. Preheat 350\u00b0F. Mix flour, baking soda, salt. Beat butter 30 sec. Beat in sugars. Beat in eggs, vanilla. Beat in flour as much as possible. Stir in remaining flour. Stir in nuts, raisins, chocolate. Drop 1/4 cup dough 3 inches apart. Bake 12-15 min till golden and set. Stand 5 min. Transfer to rack; cool. Store in refrigerator up to 3 days or freeze up to 3 months.",
+      "notes": "Line sheet with parchment. Preheat 350°F. Mix flour, baking soda, salt. Beat butter 30 sec. Beat in sugars. Beat in eggs, vanilla. Beat in flour as much as possible. Stir in remaining flour. Stir in nuts, raisins, chocolate. Drop 1/4 cup dough 3 inches apart. Bake 12-15 min till golden and set. Stand 5 min. Transfer to rack; cool. Store in refrigerator up to 3 days or freeze up to 3 months.",
       "finished_units": [],
       "components": [],
       "ingredients": [
@@ -8291,7 +8217,7 @@
       "yield_quantity": 1.0,
       "yield_unit": "cake",
       "source": "King Arthur Baking - 2017 Recipe of the Year",
-      "notes": "Preheat oven to 350\u00b0F. Beat butter, sugar, and salt until combined, then fluffy and lightened in color. Add eggs one at a time, beating well after each addition. Scrape sides and bottom once all eggs added, beat briefly to re-combine. Measure flour by gently spooning into cup, then sweeping off excess. Whisk baking powder into flour. Add flour mixture to batter in three parts alternately with milk, starting and ending with flour. Batter may look slightly curdled when you add milk - that's OK; it'll smooth out as you add flour. Mix until well combined; batter will look a bit rough, but shouldn't have large lumps. Stir in grated lemon rind or lemon oil. Thoroughly grease 10-12 cup Bundt pan. Spoon batter into prepared pan, leveling and smoothing top with spatula. Bake 45-60 minutes, until cake tester or toothpick comes out clean. Pan with dark interior will bake more quickly; start checking at 40 minutes. While cake bakes, make glaze by stirring together lemon juice and sugar. Microwave or heat over burner briefly, stirring to dissolve sugar. Don't cook lemon juice; microwave until very warm, but not uncomfortably hot - less than 1 minute. Remove cake from oven, carefully run knife between cake and pan all around edge. Place pan upside down on serving plate. Let cool 15 minutes before removing pan. Poke holes in warm cake with toothpick. Brush glaze over warm cake. Cool completely before serving.",
+      "notes": "Preheat oven to 350°F. Beat butter, sugar, and salt until combined, then fluffy and lightened in color. Add eggs one at a time, beating well after each addition. Scrape sides and bottom once all eggs added, beat briefly to re-combine. Measure flour by gently spooning into cup, then sweeping off excess. Whisk baking powder into flour. Add flour mixture to batter in three parts alternately with milk, starting and ending with flour. Batter may look slightly curdled when you add milk - that's OK; it'll smooth out as you add flour. Mix until well combined; batter will look a bit rough, but shouldn't have large lumps. Stir in grated lemon rind or lemon oil. Thoroughly grease 10-12 cup Bundt pan. Spoon batter into prepared pan, leveling and smoothing top with spatula. Bake 45-60 minutes, until cake tester or toothpick comes out clean. Pan with dark interior will bake more quickly; start checking at 40 minutes. While cake bakes, make glaze by stirring together lemon juice and sugar. Microwave or heat over burner briefly, stirring to dissolve sugar. Don't cook lemon juice; microwave until very warm, but not uncomfortably hot - less than 1 minute. Remove cake from oven, carefully run knife between cake and pan all around edge. Place pan upside down on serving plate. Let cool 15 minutes before removing pan. Poke holes in warm cake with toothpick. Brush glaze over warm cake. Cool completely before serving.",
       "finished_units": [],
       "components": [],
       "ingredients": [
@@ -8352,7 +8278,7 @@
       "yield_quantity": 1.0,
       "yield_unit": "cake",
       "source": "Cake Baker's Art",
-      "notes": "Sift flour, baking powder, salt, baking soda, cinnamon, ginger, nutmeg, and cloves onto wax paper. Cream butter or margarine with brown sugar until fluffy in a large bowl; beat in eggs, one at a time; stir in currant jelly and apple juice. Stir in flour mixture until blended, then candied fruits, dates, walnuts, and currants. Spoon half of batter into a greased 9-inch tube pan. Combine granulated sugar, lemon rind, and lemon sections; spoon over batter in pan. Top with remaining batter. Bake in slow oven (300\u00b0) for 1\u00be hours, or until a long thin skewer inserted near center comes out clean. Cool completely in pan on a wire rack. Loosen around edge with a knife; turn out onto rack.",
+      "notes": "Sift flour, baking powder, salt, baking soda, cinnamon, ginger, nutmeg, and cloves onto wax paper. Cream butter or margarine with brown sugar until fluffy in a large bowl; beat in eggs, one at a time; stir in currant jelly and apple juice. Stir in flour mixture until blended, then candied fruits, dates, walnuts, and currants. Spoon half of batter into a greased 9-inch tube pan. Combine granulated sugar, lemon rind, and lemon sections; spoon over batter in pan. Top with remaining batter. Bake in slow oven (300°) for 1¾ hours, or until a long thin skewer inserted near center comes out clean. Cool completely in pan on a wire rack. Loosen around edge with a knife; turn out onto rack.",
       "finished_units": [],
       "components": [],
       "ingredients": [
@@ -8625,7 +8551,7 @@
       "yield_quantity": 1.0,
       "yield_unit": "loaf",
       "source": "Cake Baker's Art",
-      "notes": "Grease a loaf pan, 9x5x3. Sift flour, baking powder, cinnamon, mace, and cloves onto wax paper. Cream butter or margarine with brown sugar until fluffy; light in a large bowl; beat in eggs, one at a time; stir in apricots and whiskey. Stir in flour mixture until blended, then raisins, mixed fruits, pecans, and cherries. Spoon into prepared pan; spread top even. Bake in slow oven (300\u00b0) 2 hours, or until a wooden pick inserted in center comes out clean. Cool completely in pan on a wire rack. Loosen cooled cake around the edges with a knife; turn out onto rack.",
+      "notes": "Grease a loaf pan, 9x5x3. Sift flour, baking powder, cinnamon, mace, and cloves onto wax paper. Cream butter or margarine with brown sugar until fluffy; light in a large bowl; beat in eggs, one at a time; stir in apricots and whiskey. Stir in flour mixture until blended, then raisins, mixed fruits, pecans, and cherries. Spoon into prepared pan; spread top even. Bake in slow oven (300°) 2 hours, or until a wooden pick inserted in center comes out clean. Cool completely in pan on a wire rack. Loosen cooled cake around the edges with a knife; turn out onto rack.",
       "finished_units": [],
       "components": [],
       "ingredients": [
@@ -8716,7 +8642,7 @@
       "yield_quantity": 18.0,
       "yield_unit": "cookies",
       "source": "Bake from Scratch magazine",
-      "notes": "In bowl of stand mixer fitted with paddle attachment, beat butter, confectioners' sugar, and salt at medium speed until light and creamy, 2 to 3 minutes, stopping to scrape sides of bowl. Beat in vanilla. In medium bowl, whisk together flours. With mixer on low speed, add flour mixture to butter mixture in two additions, beating just until combined after each addition. Turn out dough, and shape into a disk. Wrap in plastic wrap, and refrigerate until firm, about 2 hours, or up to overnight. Preheat oven to 325\u00b0F (170\u00b0C). Line baking sheets with parchment paper. On lightly floured surface, roll dough to \u00bd-inch thickness. Using 4-inch tree-shaped cutter, cut dough, rerolling scraps as necessary. Place 1\u00bd inches apart on prepared pans. Bake until edges are lightly browned, 20 to 25 minutes, rotating pans halfway through baking. Let cool on pans 10 minutes. Remove from pans, and let cool completely on wire racks. Spoon melted white chocolate into piping bag, and cut very small opening in tip. Pipe onto cookies to resemble garland; immediately garnish with nonpareils, if desired. Let stand until chocolate is set, about 1 hour. Store in airtight container up to 5 days.",
+      "notes": "In bowl of stand mixer fitted with paddle attachment, beat butter, confectioners' sugar, and salt at medium speed until light and creamy, 2 to 3 minutes, stopping to scrape sides of bowl. Beat in vanilla. In medium bowl, whisk together flours. With mixer on low speed, add flour mixture to butter mixture in two additions, beating just until combined after each addition. Turn out dough, and shape into a disk. Wrap in plastic wrap, and refrigerate until firm, about 2 hours, or up to overnight. Preheat oven to 325°F (170°C). Line baking sheets with parchment paper. On lightly floured surface, roll dough to ½-inch thickness. Using 4-inch tree-shaped cutter, cut dough, rerolling scraps as necessary. Place 1½ inches apart on prepared pans. Bake until edges are lightly browned, 20 to 25 minutes, rotating pans halfway through baking. Let cool on pans 10 minutes. Remove from pans, and let cool completely on wire racks. Spoon melted white chocolate into piping bag, and cut very small opening in tip. Pipe onto cookies to resemble garland; immediately garnish with nonpareils, if desired. Let stand until chocolate is set, about 1 hour. Store in airtight container up to 5 days.",
       "finished_units": [],
       "components": [],
       "ingredients": [
@@ -8772,7 +8698,7 @@
       "yield_quantity": 16.0,
       "yield_unit": "servings",
       "source": "Williams-Sonoma",
-      "notes": "Room temp ingredients. Preheat 325\u00b0F. Grease flour bundt pan. Sift flour, cocoa, baking powder, baking soda, salt twice. Beat butter smooth 30-45 sec. Add 1.5 cups sugar on low. Beat medium-high till fluffy 3-5 min. Add eggs gradually till thick 1-2 min. Beat in vanilla. Fold in flour in 3 additions alternating with sour cream, beginning and ending with flour. Fold in 6 oz melted chocolate. Pour into pan. Bake 1 hour till pick clean. Cool 10 min. Glaze: heat 1 cup sugar, 1/2 cup milk till dissolved. Stir in 1 tbsp liqueur. Invert cake. Brush with glaze. Dust with powdered sugar. Serve with whipped cream.",
+      "notes": "Room temp ingredients. Preheat 325°F. Grease flour bundt pan. Sift flour, cocoa, baking powder, baking soda, salt twice. Beat butter smooth 30-45 sec. Add 1.5 cups sugar on low. Beat medium-high till fluffy 3-5 min. Add eggs gradually till thick 1-2 min. Beat in vanilla. Fold in flour in 3 additions alternating with sour cream, beginning and ending with flour. Fold in 6 oz melted chocolate. Pour into pan. Bake 1 hour till pick clean. Cool 10 min. Glaze: heat 1 cup sugar, 1/2 cup milk till dissolved. Stir in 1 tbsp liqueur. Invert cake. Brush with glaze. Dust with powdered sugar. Serve with whipped cream.",
       "finished_units": [],
       "components": [],
       "ingredients": [
@@ -8854,7 +8780,7 @@
       ]
     },
     {
-      "name": "Toasted Almond Sabl\u00e9s",
+      "name": "Toasted Almond Sablés",
       "slug": "toasted-almond-sabl-s",
       "category": "Cookies",
       "base_recipe_slug": null,
@@ -8942,6 +8868,339 @@
   "production_records": [],
   "production_runs": [],
   "assembly_runs": [],
+  "materials": [
+    {
+      "slug": "box_window_cake_10x10",
+      "category": "Boxes: Window Boxes",
+      "description": "Box Window Cake 10x10",
+      "display_name": "Box Window Cake 10x10",
+      "is_packaging_material": true
+    },
+    {
+      "slug": "box_window_cupcake_6ct",
+      "category": "Boxes: Window Boxes",
+      "description": "Box Window Cupcake 6ct",
+      "display_name": "Box Window Cupcake 6ct",
+      "is_packaging_material": true
+    },
+    {
+      "slug": "box_solid_pastry_white",
+      "category": "Boxes: Solid Boxes",
+      "description": "Box Solid Pastry White",
+      "display_name": "Box Solid Pastry White",
+      "is_packaging_material": true
+    },
+    {
+      "slug": "box_solid_macaron",
+      "category": "Boxes: Solid Boxes",
+      "description": "Box Solid Macaron",
+      "display_name": "Box Solid Macaron",
+      "is_packaging_material": true
+    },
+    {
+      "slug": "insert_cupcake_std",
+      "category": "Boxes: Inserts",
+      "description": "Insert Cupcake Std",
+      "display_name": "Insert Cupcake Std",
+      "is_packaging_material": true
+    },
+    {
+      "slug": "insert_cupcake_mini",
+      "category": "Boxes: Inserts",
+      "description": "Insert Cupcake Mini",
+      "display_name": "Insert Cupcake Mini",
+      "is_packaging_material": true
+    },
+    {
+      "slug": "bag_cello_gusset_small",
+      "category": "Bags: Transparent",
+      "description": "Bag Cello Gusset Small",
+      "display_name": "Bag Cello Gusset Small",
+      "is_packaging_material": true
+    },
+    {
+      "slug": "bag_cello_gusset_medium",
+      "category": "Bags: Transparent",
+      "description": "Bag Cello Gusset Medium",
+      "display_name": "Bag Cello Gusset Medium",
+      "is_packaging_material": true
+    },
+    {
+      "slug": "bag_cello_gusset_large",
+      "category": "Bags: Transparent",
+      "description": "Bag Cello Gusset Large",
+      "display_name": "Bag Cello Gusset Large",
+      "is_packaging_material": true
+    },
+    {
+      "slug": "bag_poly_gusset_large",
+      "category": "Bags: Transparent",
+      "description": "Bag Poly Gusset Large",
+      "display_name": "Bag Poly Gusset Large",
+      "is_packaging_material": true
+    },
+    {
+      "slug": "bag_kraft_handle",
+      "category": "Bags: Paper",
+      "description": "Bag Kraft Handle",
+      "display_name": "Bag Kraft Handle",
+      "is_packaging_material": true
+    },
+    {
+      "slug": "bag_greaseproof_cookie",
+      "category": "Bags: Paper",
+      "description": "Bag Greaseproof Cookie",
+      "display_name": "Bag Greaseproof Cookie",
+      "is_packaging_material": true
+    },
+    {
+      "slug": "board_round_10in",
+      "category": "Support & Liners: Cake Boards",
+      "description": "Board Round 10in",
+      "display_name": "Board Round 10in",
+      "is_packaging_material": true
+    },
+    {
+      "slug": "board_square_12in",
+      "category": "Support & Liners: Cake Boards",
+      "description": "Board Square 12in",
+      "display_name": "Board Square 12in",
+      "is_packaging_material": true
+    },
+    {
+      "slug": "drum_silver_12in",
+      "category": "Support & Liners: Cake Boards",
+      "description": "Drum Silver 12in",
+      "display_name": "Drum Silver 12in",
+      "is_packaging_material": true
+    },
+    {
+      "slug": "liner_cupcake_standard",
+      "category": "Support & Liners: Baking Liners",
+      "description": "Liner Cupcake Standard",
+      "display_name": "Liner Cupcake Standard",
+      "is_packaging_material": true
+    },
+    {
+      "slug": "liner_muffin_tulip",
+      "category": "Support & Liners: Baking Liners",
+      "description": "Liner Muffin Tulip",
+      "display_name": "Liner Muffin Tulip",
+      "is_packaging_material": true
+    },
+    {
+      "slug": "ribbon_curling_3-16",
+      "category": "Finishing: Ribbons & Twine",
+      "description": "Ribbon Curling 3-16",
+      "display_name": "Ribbon Curling 3-16",
+      "is_packaging_material": true
+    },
+    {
+      "slug": "twine_bakers_red_white",
+      "category": "Finishing: Ribbons & Twine",
+      "description": "Twine Bakers Red White",
+      "display_name": "Twine Bakers Red White",
+      "is_packaging_material": true
+    },
+    {
+      "slug": "label_seal_permanent",
+      "category": "Finishing: Fasteners",
+      "description": "Label Seal Permanent",
+      "display_name": "Label Seal Permanent",
+      "is_packaging_material": true
+    },
+    {
+      "slug": "tag_product_hang",
+      "category": "Finishing: Fasteners",
+      "description": "Tag Product Hang",
+      "display_name": "Tag Product Hang",
+      "is_packaging_material": true
+    }
+  ],
+  "material_products": [
+    {
+      "material": "Box Window Cake 10x10",
+      "display_name": "Amazon 10x10 Cake Window Box 25pk",
+      "default_unit": "each",
+      "supplier": "Amazon",
+      "notes": "Pack of 25 boxes"
+    },
+    {
+      "material": "Box Window Cake 10x10",
+      "display_name": "Webstaurant 10x10 Cake Window Box 100pk",
+      "default_unit": "each",
+      "supplier": "Webstaurant",
+      "notes": "Bulk pack of 100 boxes"
+    },
+    {
+      "material": "Box Window Cupcake 6ct",
+      "display_name": "Michaels 6ct Cupcake Window Box 12pk",
+      "default_unit": "each",
+      "supplier": "Michaels",
+      "notes": "Pack of 12 boxes"
+    },
+    {
+      "material": "Box Solid Pastry White",
+      "display_name": "Amazon White Pastry Box 50pk",
+      "default_unit": "each",
+      "supplier": "Amazon",
+      "notes": "Pack of 50 white pastry boxes"
+    },
+    {
+      "material": "Box Solid Macaron",
+      "display_name": "Webstaurant Macaron Box 25pk",
+      "default_unit": "each",
+      "supplier": "Webstaurant",
+      "notes": "Pack of 25 macaron boxes"
+    },
+    {
+      "material": "Insert Cupcake Std",
+      "display_name": "Wilton Standard Cupcake Insert 24pk",
+      "default_unit": "each",
+      "supplier": "Amazon",
+      "notes": "Pack of 24 standard cupcake inserts"
+    },
+    {
+      "material": "Insert Cupcake Mini",
+      "display_name": "Wilton Mini Cupcake Insert 24pk",
+      "default_unit": "each",
+      "supplier": "Amazon",
+      "notes": "Pack of 24 mini cupcake inserts"
+    },
+    {
+      "material": "Bag Cello Gusset Small",
+      "display_name": "Amazon Small Cello Gusset Bag 100pk",
+      "default_unit": "each",
+      "supplier": "Amazon",
+      "notes": "Pack of 100 small cellophane bags"
+    },
+    {
+      "material": "Bag Cello Gusset Medium",
+      "display_name": "Amazon Medium Cello Gusset Bag 100pk",
+      "default_unit": "each",
+      "supplier": "Amazon",
+      "notes": "Pack of 100 medium cellophane bags"
+    },
+    {
+      "material": "Bag Cello Gusset Medium",
+      "display_name": "Christmas Cello Bag - Wishes for Santa 100ct",
+      "default_unit": "each",
+      "supplier": "PaperMart.com",
+      "notes": "100 count box, Wishes for Santa design"
+    },
+    {
+      "material": "Bag Cello Gusset Large",
+      "display_name": "Amazon Large Cello Gusset Bag 50pk",
+      "default_unit": "each",
+      "supplier": "Amazon",
+      "notes": "Pack of 50 large cellophane bags"
+    },
+    {
+      "material": "Bag Cello Gusset Large",
+      "display_name": "Christmas Cello Bag - Snow Flakes 100ct",
+      "default_unit": "each",
+      "supplier": "PaperMart.com",
+      "notes": "100 count box, Snow Flakes design"
+    },
+    {
+      "material": "Bag Poly Gusset Large",
+      "display_name": "Webstaurant Large Poly Gusset Bag 100pk",
+      "default_unit": "each",
+      "supplier": "Webstaurant",
+      "notes": "Pack of 100 large poly bags"
+    },
+    {
+      "material": "Bag Kraft Handle",
+      "display_name": "Amazon Kraft Handle Bag 25pk",
+      "default_unit": "each",
+      "supplier": "Amazon",
+      "notes": "Pack of 25 kraft bags with handles"
+    },
+    {
+      "material": "Bag Greaseproof Cookie",
+      "display_name": "Webstaurant Greaseproof Cookie Bag 100pk",
+      "default_unit": "each",
+      "supplier": "Webstaurant",
+      "notes": "Pack of 100 greaseproof cookie bags"
+    },
+    {
+      "material": "Board Round 10in",
+      "display_name": "Wilton 10in Round Cake Board 6pk",
+      "default_unit": "each",
+      "supplier": "Amazon",
+      "notes": "Pack of 6 round boards"
+    },
+    {
+      "material": "Board Square 12in",
+      "display_name": "Wilton 12in Square Cake Board 3pk",
+      "default_unit": "each",
+      "supplier": "Amazon",
+      "notes": "Pack of 3 square boards"
+    },
+    {
+      "material": "Drum Silver 12in",
+      "display_name": "PME 12in Silver Drum Individual",
+      "default_unit": "each",
+      "supplier": "Amazon",
+      "notes": "Individual silver cake drum"
+    },
+    {
+      "material": "Liner Cupcake Standard",
+      "display_name": "Wilton White Standard Cupcake Liners 300ct",
+      "default_unit": "each",
+      "supplier": "Amazon",
+      "notes": "300 count white standard cupcake liners"
+    },
+    {
+      "material": "Liner Cupcake Standard",
+      "display_name": "Reynolds Pink Standard Cupcake Liners 200ct",
+      "default_unit": "each",
+      "supplier": "Amazon",
+      "notes": "200 count pink standard cupcake liners"
+    },
+    {
+      "material": "Liner Muffin Tulip",
+      "display_name": "Katgely Tulip Muffin Liners Natural 200ct",
+      "default_unit": "each",
+      "supplier": "Amazon",
+      "notes": "200 count natural tulip muffin liners"
+    },
+    {
+      "material": "Ribbon Curling 3-16",
+      "display_name": "Berwick 3/16 Red Curling Ribbon 500yd",
+      "default_unit": "linear_inches",
+      "supplier": "Amazon",
+      "notes": "500 yard spool = 18000 inches, red"
+    },
+    {
+      "material": "Ribbon Curling 3-16",
+      "display_name": "Amazon Curling Ribbon 12-Roll Assorted 120m",
+      "default_unit": "linear_inches",
+      "supplier": "Amazon",
+      "notes": "Pack of 12 rolls, 120 meters total (4724 inches), various colors"
+    },
+    {
+      "material": "Twine Bakers Red White",
+      "display_name": "Norpro Red White Bakers Twine 110yd",
+      "default_unit": "linear_inches",
+      "supplier": "Amazon",
+      "notes": "110 yard spool = 3960 inches"
+    },
+    {
+      "material": "Label Seal Permanent",
+      "display_name": "Amazon Permanent Seal Labels 500ct",
+      "default_unit": "each",
+      "supplier": "Amazon",
+      "notes": "500 count permanent adhesive seals"
+    },
+    {
+      "material": "Tag Product Hang",
+      "display_name": "Amazon Product Hang Tags 100pk",
+      "default_unit": "each",
+      "supplier": "Amazon",
+      "notes": "Pack of 100 product hang tags"
+    }
+  ],
   "transformed_at": "2026-01-02",
   "transformation_notes": [
     "Transformed from v3.6-importable to v4.0",
@@ -8952,6 +9211,81 @@
     "Transformation date: 2026-01-07",
     "Cleared 156 purchases (ID-based FK format incompatible with v4.0 import)",
     "Added 4 missing ingredient variants: almonds_whole, almonds_sliced, pecans_halves, pecans_chopped",
-    "Fixed 3 duplicate display_names: nut_seed_spreads, water_subcategory, peanuts_subcategory"
+    "Fixed 3 duplicate display_names: nut_seed_spreads, water_subcategory, peanuts_subcategory",
+    "Added materials and material_products from separate catalog files"
+  ],
+  "suppliers": [
+    {
+      "id": 1,
+      "uuid": "b25323f5-193f-4973-b7a6-5490a60ed248",
+      "name": "Unknown",
+      "city": "Unknown",
+      "state": "XX",
+      "zip_code": "00000",
+      "is_active": true,
+      "notes": "Default supplier for migrated inventory additions (F028)",
+      "created_at": "2025-12-26T17:39:13.554852",
+      "updated_at": "2025-12-26T17:39:13.554859"
+    },
+    {
+      "id": 2,
+      "uuid": "12f0edf8-b183-4e5e-9f12-bd476b6c9f29",
+      "name": "Costco",
+      "city": "Waltham",
+      "state": "MA",
+      "zip_code": "02451-1107",
+      "is_active": true,
+      "street_address": "71 2ND AVE",
+      "created_at": "2025-12-26T21:39:43.366251",
+      "updated_at": "2025-12-26T21:39:43.366263"
+    },
+    {
+      "id": 3,
+      "uuid": "e62b8999-a8a1-4d10-9d35-ab0c92e9cc11",
+      "name": "Wegmans",
+      "city": "Burlington",
+      "state": "MA",
+      "zip_code": "01803",
+      "is_active": true,
+      "street_address": "53 Third Avenue",
+      "created_at": "2025-12-26T21:40:30.948168",
+      "updated_at": "2025-12-26T21:40:30.948178"
+    },
+    {
+      "id": 4,
+      "uuid": "c0b9d147-a81a-47b4-9cff-d088d9b7b59e",
+      "name": "Penzeys Spices",
+      "city": "Arlington",
+      "state": "MA",
+      "zip_code": "02476",
+      "is_active": true,
+      "street_address": "1293 Massachusetts Ave",
+      "created_at": "2025-12-26T21:42:02.657870",
+      "updated_at": "2025-12-26T21:42:02.657880"
+    },
+    {
+      "id": 5,
+      "uuid": "d09d3998-7035-4960-945d-8363ea37e8e9",
+      "name": "Stop & Shop",
+      "city": "Bedford",
+      "state": "MA",
+      "zip_code": "01730",
+      "is_active": true,
+      "street_address": "337 Great Rd",
+      "created_at": "2025-12-26T21:43:04.835270",
+      "updated_at": "2025-12-26T21:43:04.835280"
+    },
+    {
+      "id": 6,
+      "uuid": "99971b26-c639-41f3-9c8f-46a23e9919f1",
+      "name": "Gordon's Fine Wine & Liquors",
+      "city": "Waltham",
+      "state": "MA",
+      "zip_code": "02451",
+      "is_active": true,
+      "street_address": "894 Main St",
+      "created_at": "2025-12-26T21:44:25.068265",
+      "updated_at": "2025-12-26T21:44:25.068273"
+    }
   ]
 }
