@@ -1,0 +1,16 @@
+{
+  "accept_commit": null,
+  "acceptance_history": [
+    {
+      "accepted_at": "2026-01-13T21:01:26Z",
+      "accepted_by": "kentgale",
+      "accepted_from_commit": "ab89cd8fb635ab0bca58ec5a95097e1d20da32e1",
+      "branch": "051-import-export-ui-rationalization",
+      "mode": "local"
+    }
+  ],
+  "acceptance_mode": "local",
+  "accepted_at": "2026-01-13T21:01:26Z",
+  "accepted_by": "kentgale",
+  "accepted_from_commit": "ab89cd8fb635ab0bca58ec5a95097e1d20da32e1"
+}

@@ -1,0 +1,8 @@
+id,date,finding,source_id,confidence,notes
+E001,2026-01-13,ImportDialog already supports 4 purposes with auto-detection,S001,High,Lines 178-731 show complete implementation
+E002,2026-01-13,detect_format() returns FormatDetectionResult with raw_data,S002,High,Function at line 260 handles all format types
+E003,2026-01-13,ImportResult class has per-entity tracking via entity_counts,S003,High,Lines 50-247 define complete result structure
+E004,2026-01-13,catalog_import_service validates VALID_ENTITIES list,S004,High,Suppliers not currently in list but pattern established
+E005,2026-01-13,_write_import_log exists but minimal sections,S001,High,Lines 30-59 show basic log structure
+E006,2026-01-13,app_config table exists for key-value storage,S005,High,Used by Feature 050 for slug storage
+E007,2026-01-13,Context-Rich preprocessing in enhanced_import_service,S002,High,import_context_rich_view handles FK validation

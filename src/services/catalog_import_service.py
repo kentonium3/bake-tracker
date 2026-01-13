@@ -28,6 +28,7 @@ from src.services.database import session_scope
 from src.models.ingredient import Ingredient
 from src.models.product import Product
 from src.models.recipe import Recipe, RecipeIngredient, RecipeComponent
+from src.models.supplier import Supplier
 from src.models.material_category import MaterialCategory
 from src.models.material_subcategory import MaterialSubcategory
 from src.models.material import Material
@@ -54,6 +55,8 @@ class CatalogImportError(Exception):
 
 # Valid entity types for import
 VALID_ENTITIES = {
+    # Feature 051: Suppliers must be first (products reference suppliers)
+    "suppliers",
     "ingredients", "products", "recipes",
     # Feature 047: Materials Management System
     "material_categories", "material_subcategories", "materials",
@@ -116,6 +119,19 @@ PRODUCT_AUGMENTABLE_FIELDS = {
     "off_id",
 }
 
+# Feature 051: Supplier fields for AUGMENT mode
+SUPPLIER_PROTECTED_FIELDS = {"slug", "name", "id", "created_at"}
+SUPPLIER_AUGMENTABLE_FIELDS = {
+    "supplier_type",
+    "city",
+    "state",
+    "zip_code",
+    "street_address",
+    "website_url",
+    "notes",
+    "is_active",
+}
+
 
 @dataclass
 class ImportError:
@@ -153,6 +169,8 @@ class CatalogImportResult:
 
     def __init__(self):
         self.entity_counts: Dict[str, EntityImportCounts] = {
+            # Feature 051: Suppliers must be first (products reference suppliers)
+            "suppliers": EntityImportCounts(),
             "ingredients": EntityImportCounts(),
             "products": EntityImportCounts(),
             "recipes": EntityImportCounts(),
@@ -353,6 +371,152 @@ class CatalogImportResult:
                 )
 
         return "\n".join(lines)
+
+
+# ============================================================================
+# Supplier Import Functions (Feature 051)
+# ============================================================================
+
+
+def import_suppliers(
+    data: List[Dict],
+    mode: str = "add",
+    dry_run: bool = False,
+    session: Optional[Session] = None,
+) -> CatalogImportResult:
+    """
+    Import suppliers from parsed data.
+
+    Independently callable for catalog imports. Uses the session=None pattern
+    for transactional composition.
+
+    Args:
+        data: List of supplier dictionaries from catalog file
+        mode: "add" (ADD_ONLY) or "augment" (AUGMENT mode)
+        dry_run: If True, validate and preview without committing
+        session: Optional SQLAlchemy session for transactional composition
+
+    Returns:
+        CatalogImportResult with counts and any errors
+    """
+    if session is not None:
+        return _import_suppliers_impl(data, mode, dry_run, session)
+    with session_scope() as sess:
+        return _import_suppliers_impl(data, mode, dry_run, sess)
+
+
+def _import_suppliers_impl(
+    data: List[Dict],
+    mode: str,
+    dry_run: bool,
+    session: Session,
+) -> CatalogImportResult:
+    """Internal implementation of supplier import."""
+    from src.services.supplier_service import generate_supplier_slug
+
+    result = CatalogImportResult()
+    result.dry_run = dry_run
+    result.mode = mode
+
+    # Query existing suppliers for duplicate detection and AUGMENT mode
+    existing_suppliers = {
+        row.slug: row
+        for row in session.query(Supplier).filter(Supplier.slug.isnot(None)).all()
+    }
+    existing_slugs = set(existing_suppliers.keys())
+
+    # Also track names for slug collision detection
+    existing_names = {
+        row.name: row.slug
+        for row in session.query(Supplier).all()
+    }
+
+    for item in data:
+        name = item.get("name", "")
+        slug = item.get("slug", "")
+
+        # Generate slug if not provided
+        if not slug and name:
+            slug = generate_supplier_slug(name)
+
+        identifier = slug or name or "unknown"
+
+        # Validate required fields
+        if not name:
+            result.add_error(
+                "suppliers",
+                identifier,
+                "validation",
+                "Missing required field: name",
+                "Ensure each supplier has a 'name' field",
+            )
+            continue
+
+        # Check for slug collision with different name
+        if slug in existing_slugs:
+            existing_supplier = existing_suppliers[slug]
+            if existing_supplier.name != name:
+                result.add_error(
+                    "suppliers",
+                    identifier,
+                    "duplicate",
+                    f"Slug '{slug}' already exists for different supplier '{existing_supplier.name}'",
+                    f"Change the slug or use a unique identifier",
+                )
+                continue
+
+            # Same slug and matching name - handle based on mode
+            if mode == ImportMode.ADD_ONLY.value:
+                result.add_skip("suppliers", slug, "Already exists")
+                continue
+
+            # AUGMENT mode: update only null fields
+            updated_fields = []
+            for field in SUPPLIER_AUGMENTABLE_FIELDS:
+                if field in item and item[field] is not None:
+                    current_value = getattr(existing_supplier, field, None)
+                    if current_value is None:
+                        setattr(existing_supplier, field, item[field])
+                        updated_fields.append(field)
+
+            if updated_fields:
+                result.add_augment("suppliers", slug, updated_fields)
+            else:
+                result.add_skip("suppliers", slug, "No null fields to update")
+            continue
+
+        # Check if name exists but with different slug (name collision)
+        if name in existing_names and existing_names[name] != slug:
+            if mode == ImportMode.ADD_ONLY.value:
+                result.add_skip("suppliers", name, "Supplier with this name already exists")
+                continue
+
+        # Create new supplier
+        supplier = Supplier(
+            slug=slug,
+            name=name,
+            supplier_type=item.get("supplier_type", "physical"),
+            city=item.get("city"),
+            state=item.get("state"),
+            zip_code=item.get("zip_code"),
+            street_address=item.get("street_address"),
+            website_url=item.get("website_url"),
+            notes=item.get("notes"),
+            is_active=item.get("is_active", True),
+        )
+
+        if not dry_run:
+            session.add(supplier)
+            session.flush()  # Get ID for FK references
+
+        result.add_success("suppliers")
+
+        # Track for subsequent imports in same transaction
+        existing_suppliers[slug] = supplier
+        existing_slugs.add(slug)
+        existing_names[name] = slug
+
+    return result
 
 
 # ============================================================================
@@ -1880,8 +2044,17 @@ def _import_catalog_impl(
     result.dry_run = dry_run
     result.mode = mode
 
-    # Dependency order: ingredients first, then products, then recipes
+    # Dependency order: suppliers -> ingredients -> products -> recipes
     # This ensures FK references exist when needed
+    # (Products may reference suppliers via supplier_slug FK)
+
+    # Feature 051: Import suppliers first (products reference suppliers)
+    if entities is None or "suppliers" in entities:
+        if "suppliers" in data:
+            sup_result = import_suppliers(
+                data["suppliers"], mode, dry_run=False, session=session
+            )
+            result.merge(sup_result)
 
     # Import ingredients
     if entities is None or "ingredients" in entities:
@@ -1891,7 +2064,7 @@ def _import_catalog_impl(
             )
             result.merge(ing_result)
 
-    # Import products (depends on ingredients)
+    # Import products (depends on ingredients and suppliers)
     if entities is None or "products" in entities:
         if "products" in data:
             prod_result = import_products(
