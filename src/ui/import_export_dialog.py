@@ -781,11 +781,33 @@ class ImportDialog(ctk.CTkToplevel):
                         text_color="green",
                     )
             elif result.format_type == "normalized":
-                # Could be backup or catalog
-                self.detection_label.configure(
-                    text=f"Detected: Normalized format ({record_count} records) - select purpose below",
-                    text_color="orange",
-                )
+                # Could be backup or catalog - show per-entity breakdown
+                entity_parts = []
+                if result.raw_data:
+                    # Build per-entity counts
+                    entity_order = ["suppliers", "ingredients", "products", "recipes",
+                                    "materials", "material_products", "finished_goods",
+                                    "packages", "recipients", "events"]
+                    for entity in entity_order:
+                        if entity in result.raw_data and isinstance(result.raw_data[entity], list):
+                            count = len(result.raw_data[entity])
+                            if count > 0:
+                                entity_name = entity.replace("_", " ").title()
+                                entity_parts.append(f"{entity_name} ({count})")
+
+                if entity_parts:
+                    entity_summary = ", ".join(entity_parts[:4])  # Show first 4
+                    if len(entity_parts) > 4:
+                        entity_summary += f", +{len(entity_parts) - 4} more"
+                    self.detection_label.configure(
+                        text=f"Multiple entities: {entity_summary} - select purpose below",
+                        text_color="orange",
+                    )
+                else:
+                    self.detection_label.configure(
+                        text=f"Detected: Normalized format ({record_count} records) - select purpose below",
+                        text_color="orange",
+                    )
 
         except Exception as e:
             self.detection_label.configure(

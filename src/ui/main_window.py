@@ -23,8 +23,8 @@ from src.ui.modes.purchase_mode import PurchaseMode
 from src.ui.modes.make_mode import MakeMode
 
 from src.ui.service_integration import check_service_integration_health
-from src.ui.catalog_import_dialog import CatalogImportDialog
 from src.ui.preferences_dialog import PreferencesDialog
+# Feature 051: Removed CatalogImportDialog import - now handled by unified ImportDialog
 
 
 class MainWindow(ctk.CTk):
@@ -91,12 +91,10 @@ class MainWindow(ctk.CTk):
         self.config(menu=self.menu_bar)
 
         # File menu
+        # Feature 051: Unified import entry point - removed separate Import Catalog and Import View
         file_menu = tk.Menu(self.menu_bar, tearoff=0)
         file_menu.add_command(label="Import Data...", command=self._show_import_dialog)
         file_menu.add_command(label="Export Data...", command=self._show_export_dialog)
-        file_menu.add_separator()
-        file_menu.add_command(label="Import Catalog...", command=self._show_catalog_import_dialog)
-        file_menu.add_command(label="Import View...", command=self._show_import_view_dialog)
         file_menu.add_separator()
         file_menu.add_command(label="Preferences...", command=self._show_preferences_dialog)
         file_menu.add_separator()
@@ -310,62 +308,13 @@ class MainWindow(ctk.CTk):
         if dialog.result:
             self.update_status("Export completed successfully.")
 
-    def _show_catalog_import_dialog(self):
-        """Show the catalog import dialog."""
-        dialog = CatalogImportDialog(self)
-        self.wait_window(dialog)
-
-        if dialog.result:
-            self._refresh_catalog_tabs()
-            self.update_status("Catalog import completed. Data refreshed.")
-
     def _show_preferences_dialog(self):
         """Show the preferences dialog."""
         dialog = PreferencesDialog(self)
         self.wait_window(dialog)
 
-    def _show_import_view_dialog(self):
-        """Show the import view dialog (F030)."""
-        from src.ui.import_export_dialog import ImportViewDialog, ImportResultsDialog, _write_import_log
-        from src.ui.fk_resolution_dialog import UIFKResolver
-        from src.services.enhanced_import_service import import_view
-
-        dialog = ImportViewDialog(self)
-        self.wait_window(dialog)
-
-        if dialog.confirmed and dialog.file_path:
-            resolver = UIFKResolver(self)
-            self.update_status("Importing view data... Please wait.")
-            self.update()
-
-            try:
-                result = import_view(
-                    dialog.file_path,
-                    mode=dialog.mode,
-                    resolver=resolver,
-                )
-
-                summary_text = result.get_summary()
-                log_path = _write_import_log(dialog.file_path, result, summary_text)
-
-                results_dialog = ImportResultsDialog(
-                    self,
-                    title="Import View Complete",
-                    summary_text=summary_text,
-                    log_path=log_path,
-                )
-                results_dialog.wait_window()
-
-                self._refresh_catalog_tabs()
-                self.update_status("View import completed successfully. Data refreshed.")
-
-            except Exception as e:
-                messagebox.showerror(
-                    "Import Failed",
-                    f"An error occurred during import:\n{str(e)}",
-                    parent=self,
-                )
-                self.update_status("View import failed.")
+    # Feature 051: Removed _show_catalog_import_dialog and _show_import_view_dialog
+    # These are now handled by the unified ImportDialog via File > Import Data
 
     def _show_manage_suppliers(self):
         """Show the manage suppliers dialog."""
