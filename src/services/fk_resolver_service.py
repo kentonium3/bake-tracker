@@ -36,6 +36,7 @@ from src.services.database import session_scope
 from src.models.supplier import Supplier
 from src.models.ingredient import Ingredient
 from src.models.product import Product
+from src.services.supplier_service import generate_supplier_slug
 
 
 # ============================================================================
@@ -191,8 +192,20 @@ def _create_supplier(data: Dict[str, Any], session: Session) -> int:
     # Normalize state to uppercase
     state = data["state"].upper() if data.get("state") else ""
 
+    # Feature 050: Generate slug for supplier
+    supplier_type = data.get("supplier_type", "physical")
+    slug = generate_supplier_slug(
+        name=data["name"],
+        supplier_type=supplier_type,
+        city=data["city"],
+        state=state,
+        session=session,
+    )
+
     supplier = Supplier(
         name=data["name"],
+        slug=slug,
+        supplier_type=supplier_type,
         city=data["city"],
         state=state,
         zip_code=data["zip_code"],
@@ -576,9 +589,10 @@ def _collect_missing_fks_impl(
     for field_name, target_type in fk_fields.items():
         if target_type not in existing:
             if target_type == "supplier":
+                # Feature 050: Collect slugs instead of names for supplier matching
                 existing["supplier"] = {
-                    s.name
-                    for s in session.query(Supplier.name)
+                    s.slug
+                    for s in session.query(Supplier.slug)
                     .filter(Supplier.is_active == True)  # noqa: E712
                     .all()
                 }

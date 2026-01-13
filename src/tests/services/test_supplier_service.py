@@ -1,4 +1,4 @@
-"""Tests for Supplier Service (Feature 027).
+"""Tests for Supplier Service (Feature 027, 050).
 
 Tests cover:
 - Create supplier with validation
@@ -10,6 +10,7 @@ Tests cover:
 - Reactivate supplier
 - Delete supplier (with/without purchases)
 - Error handling for not found cases
+- Slug generation (Feature 050)
 """
 
 import pytest
@@ -24,6 +25,7 @@ from src.models.ingredient import Ingredient
 from src.models.product import Product
 from src.models.purchase import Purchase
 from src.services import supplier_service
+from src.services.supplier_service import generate_supplier_slug
 from src.services.exceptions import SupplierNotFoundError
 
 
@@ -565,3 +567,629 @@ class TestDeleteSupplier:
         """Test deleting non-existent supplier raises error."""
         with pytest.raises(SupplierNotFoundError):
             supplier_service.delete_supplier(999, session=session)
+
+
+class TestSupplierSlugGeneration:
+    """Tests for supplier slug generation (Feature 050)."""
+
+    def test_physical_supplier_slug(self):
+        """Physical supplier slug includes name, city, and state."""
+        slug = generate_supplier_slug(
+            name="Wegmans",
+            supplier_type="physical",
+            city="Burlington",
+            state="MA",
+        )
+        assert slug == "wegmans_burlington_ma"
+
+    def test_online_supplier_slug(self):
+        """Online supplier slug is name only, no city/state."""
+        slug = generate_supplier_slug(
+            name="King Arthur Baking",
+            supplier_type="online",
+        )
+        assert slug == "king_arthur_baking"
+
+    def test_slug_unicode_normalization(self):
+        """Accented characters are normalized to ASCII equivalents."""
+        slug = generate_supplier_slug(
+            name="Cafe Creme",
+            supplier_type="online",
+        )
+        assert slug == "cafe_creme"
+
+    def test_slug_special_characters_removed(self):
+        """Special characters removed, spaces become underscores."""
+        slug = generate_supplier_slug(
+            name="Bob's Market & Deli",
+            supplier_type="physical",
+            city="New York",
+            state="NY",
+        )
+        assert slug == "bobs_market_deli_new_york_ny"
+
+    def test_slug_hyphens_converted_to_underscores(self):
+        """Hyphens are converted to underscores."""
+        slug = generate_supplier_slug(
+            name="Whole-Foods",
+            supplier_type="physical",
+            city="Cambridge",
+            state="MA",
+        )
+        assert slug == "whole_foods_cambridge_ma"
+
+    def test_slug_multiple_spaces_collapsed(self):
+        """Multiple consecutive spaces become single underscore."""
+        slug = generate_supplier_slug(
+            name="Test   Store",
+            supplier_type="physical",
+            city="Boston",
+            state="MA",
+        )
+        assert slug == "test_store_boston_ma"
+
+    def test_slug_leading_trailing_spaces_stripped(self):
+        """Leading and trailing spaces are stripped."""
+        slug = generate_supplier_slug(
+            name="  Store Name  ",
+            supplier_type="physical",
+            city="  City  ",
+            state="MA",
+        )
+        assert slug == "store_name_city_ma"
+
+    def test_physical_supplier_missing_city(self):
+        """Physical supplier with only state in location."""
+        slug = generate_supplier_slug(
+            name="Rural Store",
+            supplier_type="physical",
+            city=None,
+            state="VT",
+        )
+        assert slug == "rural_store_vt"
+
+    def test_physical_supplier_missing_state(self):
+        """Physical supplier with only city in location."""
+        slug = generate_supplier_slug(
+            name="City Market",
+            supplier_type="physical",
+            city="Burlington",
+            state=None,
+        )
+        assert slug == "city_market_burlington"
+
+    def test_slug_conflict_resolution(self, session):
+        """Duplicate slugs get numeric suffix _1, _2, etc."""
+        # Create first supplier with slug "test_store_boston_ma"
+        supplier1 = Supplier(
+            name="Test Store",
+            slug="test_store_boston_ma",
+            supplier_type="physical",
+            city="Boston",
+            state="MA",
+        )
+        session.add(supplier1)
+        session.flush()
+
+        # Generate slug for supplier with same details
+        slug = generate_supplier_slug(
+            name="Test Store",
+            supplier_type="physical",
+            city="Boston",
+            state="MA",
+            session=session,
+        )
+
+        assert slug == "test_store_boston_ma_1"
+
+    def test_slug_conflict_resolution_multiple(self, session):
+        """Multiple conflicts increment suffix correctly."""
+        # Create suppliers with base slug and _1 suffix
+        supplier1 = Supplier(
+            name="Test Store",
+            slug="test_store_boston_ma",
+            supplier_type="physical",
+            city="Boston",
+            state="MA",
+        )
+        supplier2 = Supplier(
+            name="Test Store 2",
+            slug="test_store_boston_ma_1",
+            supplier_type="physical",
+            city="Boston",
+            state="MA",
+        )
+        session.add(supplier1)
+        session.add(supplier2)
+        session.flush()
+
+        # Generate slug for third supplier with same details
+        slug = generate_supplier_slug(
+            name="Test Store",
+            supplier_type="physical",
+            city="Boston",
+            state="MA",
+            session=session,
+        )
+
+        assert slug == "test_store_boston_ma_2"
+
+    def test_identical_suppliers_same_location(self, session):
+        """Two suppliers with identical names in same city get different slugs (Edge case per FR-004)."""
+        # First "Costco" in Burlington, MA
+        supplier1 = Supplier(
+            name="Costco",
+            slug="costco_burlington_ma",
+            supplier_type="physical",
+            city="Burlington",
+            state="MA",
+        )
+        session.add(supplier1)
+        session.flush()
+
+        # Second "Costco" opening in same location
+        slug = generate_supplier_slug(
+            name="Costco",
+            supplier_type="physical",
+            city="Burlington",
+            state="MA",
+            session=session,
+        )
+
+        # Conflict resolved with numeric suffix
+        assert slug == "costco_burlington_ma_1"
+
+    def test_slug_without_session_no_uniqueness_check(self):
+        """Without session, returns base slug without uniqueness check."""
+        # Even if duplicates would exist, returns base slug
+        slug1 = generate_supplier_slug(
+            name="Test Store",
+            supplier_type="physical",
+            city="Boston",
+            state="MA",
+        )
+        slug2 = generate_supplier_slug(
+            name="Test Store",
+            supplier_type="physical",
+            city="Boston",
+            state="MA",
+        )
+        # Both return same base slug (no session = no uniqueness check)
+        assert slug1 == slug2 == "test_store_boston_ma"
+
+
+class TestSupplierCreationWithAutoSlug:
+    """Tests for automatic slug generation on supplier creation (T010)."""
+
+    def test_create_supplier_generates_slug(self, session):
+        """Creating supplier auto-generates slug based on name/city/state."""
+        result = supplier_service.create_supplier(
+            name="Test Store",
+            supplier_type="physical",
+            city="Boston",
+            state="MA",
+            zip_code="02101",
+            session=session,
+        )
+
+        assert result["slug"] == "test_store_boston_ma"
+
+    def test_create_online_supplier_generates_slug(self, session):
+        """Online supplier slug uses name only (no city/state)."""
+        result = supplier_service.create_supplier(
+            name="Amazon Fresh",
+            supplier_type="online",
+            website_url="https://www.amazon.com/fresh",
+            session=session,
+        )
+
+        assert result["slug"] == "amazon_fresh"
+
+    def test_create_supplier_slug_handles_conflicts(self, session):
+        """Creating suppliers with same name/location gets numeric suffix."""
+        # Create first supplier
+        result1 = supplier_service.create_supplier(
+            name="Costco",
+            supplier_type="physical",
+            city="Burlington",
+            state="MA",
+            zip_code="01803",
+            session=session,
+        )
+        assert result1["slug"] == "costco_burlington_ma"
+
+        # Create second supplier with same details
+        result2 = supplier_service.create_supplier(
+            name="Costco",
+            supplier_type="physical",
+            city="Burlington",
+            state="MA",
+            zip_code="01803",
+            session=session,
+        )
+        assert result2["slug"] == "costco_burlington_ma_1"
+
+    def test_created_supplier_has_slug_in_dict(self, session):
+        """Verify slug is included in to_dict() output."""
+        result = supplier_service.create_supplier(
+            name="Wegmans",
+            supplier_type="physical",
+            city="Burlington",
+            state="MA",
+            zip_code="01803",
+            session=session,
+        )
+
+        assert "slug" in result
+        assert result["slug"] == "wegmans_burlington_ma"
+
+
+class TestMigrateSupplierSlugs:
+    """Tests for migrate_supplier_slugs() function (T011, T012)."""
+
+    def test_migration_generates_slugs_for_all(self, session):
+        """Migration assigns slugs to all suppliers."""
+        # Create suppliers with placeholder slugs (simulating pre-migration state)
+        supplier1 = Supplier(
+            name="Store A",
+            slug="placeholder_1",
+            supplier_type="physical",
+            city="Boston",
+            state="MA",
+            zip_code="02101",
+        )
+        supplier2 = Supplier(
+            name="Store B",
+            slug="placeholder_2",
+            supplier_type="physical",
+            city="Cambridge",
+            state="MA",
+            zip_code="02139",
+        )
+        session.add(supplier1)
+        session.add(supplier2)
+        session.flush()
+
+        # Run migration
+        from src.services.supplier_service import migrate_supplier_slugs
+        result = migrate_supplier_slugs(session=session)
+
+        # Verify all suppliers got proper slugs
+        assert result["migrated"] == 2
+        assert supplier1.slug == "store_a_boston_ma"
+        assert supplier2.slug == "store_b_cambridge_ma"
+
+    def test_migration_regenerates_existing_slugs(self, session):
+        """Migration regenerates even existing slugs (per clarification)."""
+        # Create supplier with non-standard slug
+        supplier = Supplier(
+            name="Test Store",
+            slug="wrong_format_slug",
+            supplier_type="physical",
+            city="Boston",
+            state="MA",
+            zip_code="02101",
+        )
+        session.add(supplier)
+        session.flush()
+
+        # Run migration
+        from src.services.supplier_service import migrate_supplier_slugs
+        result = migrate_supplier_slugs(session=session)
+
+        # Verify slug was regenerated
+        assert result["migrated"] == 1
+        assert supplier.slug == "test_store_boston_ma"
+
+    def test_migration_handles_conflicts(self, session):
+        """Duplicate names get numeric suffixes during migration."""
+        # Create two suppliers that would have the same slug
+        supplier1 = Supplier(
+            name="Costco",
+            slug="temp_1",
+            supplier_type="physical",
+            city="Burlington",
+            state="MA",
+            zip_code="01803",
+        )
+        supplier2 = Supplier(
+            name="Costco",
+            slug="temp_2",
+            supplier_type="physical",
+            city="Burlington",
+            state="MA",
+            zip_code="01803",
+        )
+        session.add(supplier1)
+        session.add(supplier2)
+        session.flush()
+
+        # Run migration
+        from src.services.supplier_service import migrate_supplier_slugs
+        result = migrate_supplier_slugs(session=session)
+
+        # Verify one has the base slug and one has _1 suffix
+        assert result["migrated"] == 2
+        assert result["conflicts"] == 1  # Second one needed suffix
+        slugs = {supplier1.slug, supplier2.slug}
+        assert "costco_burlington_ma" in slugs
+        assert "costco_burlington_ma_1" in slugs
+
+    def test_migration_idempotent(self, session):
+        """Running migration multiple times produces same result."""
+        # Create supplier
+        supplier = Supplier(
+            name="Test Store",
+            slug="temp_slug",
+            supplier_type="physical",
+            city="Boston",
+            state="MA",
+            zip_code="02101",
+        )
+        session.add(supplier)
+        session.flush()
+
+        # Run migration twice
+        from src.services.supplier_service import migrate_supplier_slugs
+        result1 = migrate_supplier_slugs(session=session)
+        slug_after_first = supplier.slug
+
+        result2 = migrate_supplier_slugs(session=session)
+        slug_after_second = supplier.slug
+
+        # Slug should be the same after both migrations
+        assert slug_after_first == slug_after_second == "test_store_boston_ma"
+
+    def test_malformed_slug_regenerated(self, session):
+        """Malformed slugs (uppercase, spaces) are corrected during migration (T012)."""
+        # Insert supplier with malformed slug
+        supplier = Supplier(
+            name="Test Store",
+            slug="UPPERCASE_SLUG",  # Wrong format
+            supplier_type="physical",
+            city="Boston",
+            state="MA",
+            zip_code="02101",
+        )
+        session.add(supplier)
+        session.flush()
+
+        # Run migration
+        from src.services.supplier_service import migrate_supplier_slugs
+        result = migrate_supplier_slugs(session=session)
+
+        # Verify slug is now proper format
+        assert result["migrated"] == 1
+        assert supplier.slug == "test_store_boston_ma"
+
+    def test_migration_online_supplier(self, session):
+        """Online suppliers get name-only slugs during migration."""
+        supplier = Supplier(
+            name="King Arthur Baking",
+            slug="temp_online",
+            supplier_type="online",
+            website_url="https://www.kingarthurbaking.com",
+        )
+        session.add(supplier)
+        session.flush()
+
+        from src.services.supplier_service import migrate_supplier_slugs
+        result = migrate_supplier_slugs(session=session)
+
+        assert result["migrated"] == 1
+        assert supplier.slug == "king_arthur_baking"
+
+
+class TestValidateSupplierData:
+    """Tests for validate_supplier_data() function (T009)."""
+
+    def test_validation_requires_name(self):
+        """Name is required."""
+        from src.services.supplier_service import validate_supplier_data
+        errors = validate_supplier_data({"name": ""})
+        assert "Supplier name is required" in errors
+
+    def test_validation_requires_name_not_whitespace(self):
+        """Name cannot be just whitespace."""
+        from src.services.supplier_service import validate_supplier_data
+        errors = validate_supplier_data({"name": "   "})
+        assert "Supplier name is required" in errors
+
+    def test_validation_rejects_invalid_slug_format(self):
+        """Invalid slug formats are rejected."""
+        from src.services.supplier_service import validate_supplier_data
+        errors = validate_supplier_data({
+            "name": "Test",
+            "slug": "UPPERCASE_NOT_ALLOWED",
+            "city": "Boston",
+            "state": "MA",
+            "zip_code": "02101",
+        })
+        assert any("Invalid slug format" in e for e in errors)
+
+    def test_validation_accepts_valid_slug(self):
+        """Valid slug format is accepted."""
+        from src.services.supplier_service import validate_supplier_data
+        errors = validate_supplier_data({
+            "name": "Test",
+            "slug": "valid_slug_format",
+            "city": "Boston",
+            "state": "MA",
+            "zip_code": "02101",
+        })
+        assert not any("Invalid slug format" in e for e in errors)
+
+    def test_validation_requires_physical_supplier_fields(self):
+        """Physical suppliers require city, state, zip_code."""
+        from src.services.supplier_service import validate_supplier_data
+        errors = validate_supplier_data({
+            "name": "Test Store",
+            "supplier_type": "physical",
+        })
+        assert "City is required for physical suppliers" in errors
+        assert "State is required for physical suppliers" in errors
+        assert "ZIP code is required for physical suppliers" in errors
+
+    def test_validation_online_supplier_no_location_required(self):
+        """Online suppliers don't require city/state/zip."""
+        from src.services.supplier_service import validate_supplier_data
+        errors = validate_supplier_data({
+            "name": "Online Store",
+            "supplier_type": "online",
+        })
+        assert "City is required" not in str(errors)
+        assert "State is required" not in str(errors)
+        assert "ZIP code is required" not in str(errors)
+
+    def test_validation_rejects_invalid_supplier_type(self):
+        """Invalid supplier_type is rejected."""
+        from src.services.supplier_service import validate_supplier_data
+        errors = validate_supplier_data({
+            "name": "Test",
+            "supplier_type": "invalid_type",
+        })
+        assert "supplier_type must be 'physical' or 'online'" in errors
+
+    def test_validation_rejects_invalid_state_length(self):
+        """State must be 2 characters."""
+        from src.services.supplier_service import validate_supplier_data
+        errors = validate_supplier_data({
+            "name": "Test",
+            "state": "MAS",
+            "city": "Boston",
+            "zip_code": "02101",
+        })
+        assert "State must be a 2-letter code" in errors
+
+
+class TestSlugImmutability:
+    """Test slug immutability enforcement (Feature 050 - T031)."""
+
+    def test_update_supplier_rejects_slug_change(self, test_db):
+        """Attempting to change slug raises error."""
+        from src.services.supplier_service import create_supplier, update_supplier
+
+        session = test_db()
+        supplier = create_supplier(
+            name="Original Store",
+            supplier_type="physical",
+            city="Boston",
+            state="MA",
+            zip_code="02101",
+            session=session,
+        )
+        original_slug = supplier["slug"]
+
+        with pytest.raises(ValueError) as exc_info:
+            update_supplier(
+                supplier["id"],
+                slug="different_slug",
+                session=session,
+            )
+
+        assert "cannot be modified" in str(exc_info.value).lower()
+        assert "immutable" in str(exc_info.value).lower()
+
+        # Verify slug unchanged in database
+        from src.models.supplier import Supplier
+        db_supplier = session.query(Supplier).get(supplier["id"])
+        assert db_supplier.slug == original_slug
+
+    def test_update_supplier_name_preserves_slug(self, test_db):
+        """Changing name doesn't change slug."""
+        from src.services.supplier_service import create_supplier, update_supplier
+
+        session = test_db()
+        supplier = create_supplier(
+            name="Original Store",
+            supplier_type="physical",
+            city="Boston",
+            state="MA",
+            zip_code="02101",
+            session=session,
+        )
+        original_slug = supplier["slug"]
+
+        updated = update_supplier(
+            supplier["id"],
+            name="New Store Name",
+            session=session,
+        )
+
+        assert updated["name"] == "New Store Name"
+        assert updated["slug"] == original_slug  # Unchanged!
+
+    def test_update_supplier_location_preserves_slug(self, test_db):
+        """Changing location doesn't change slug."""
+        from src.services.supplier_service import create_supplier, update_supplier
+
+        session = test_db()
+        supplier = create_supplier(
+            name="Test Store",
+            supplier_type="physical",
+            city="Boston",
+            state="MA",
+            zip_code="02101",
+            session=session,
+        )
+        original_slug = supplier["slug"]  # test_store_boston_ma
+
+        updated = update_supplier(
+            supplier["id"],
+            city="Cambridge",
+            state="MA",
+            session=session,
+        )
+
+        assert updated["city"] == "Cambridge"
+        assert updated["slug"] == original_slug  # Still test_store_boston_ma!
+
+    def test_update_supplier_same_slug_allowed(self, test_db):
+        """Passing same slug value is allowed (no-op)."""
+        from src.services.supplier_service import create_supplier, update_supplier
+
+        session = test_db()
+        supplier = create_supplier(
+            name="Test Store",
+            supplier_type="physical",
+            city="Boston",
+            state="MA",
+            zip_code="02101",
+            session=session,
+        )
+
+        # This should NOT raise an error
+        updated = update_supplier(
+            supplier["id"],
+            slug=supplier["slug"],  # Same value
+            name="Updated Name",
+            session=session,
+        )
+
+        assert updated["name"] == "Updated Name"
+        assert updated["slug"] == supplier["slug"]
+
+    def test_slug_error_message_includes_values(self, test_db):
+        """Error message includes current and attempted slug values."""
+        from src.services.supplier_service import create_supplier, update_supplier
+
+        session = test_db()
+        supplier = create_supplier(
+            name="Test Store",
+            supplier_type="physical",
+            city="Boston",
+            state="MA",
+            zip_code="02101",
+            session=session,
+        )
+
+        with pytest.raises(ValueError) as exc_info:
+            update_supplier(
+                supplier["id"],
+                slug="new_slug_value",
+                session=session,
+            )
+
+        error_msg = str(exc_info.value)
+        assert supplier["slug"] in error_msg  # Current slug in message
+        assert "new_slug_value" in error_msg  # Attempted slug in message

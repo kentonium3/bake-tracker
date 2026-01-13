@@ -44,6 +44,7 @@ class TestSupplierModel:
         """Test creating a supplier with valid data."""
         supplier = Supplier(
             name="Costco",
+            slug="costco_waltham_ma",
             city="Waltham",
             state="MA",
             zip_code="02451",
@@ -53,6 +54,7 @@ class TestSupplierModel:
 
         assert supplier.id is not None
         assert supplier.name == "Costco"
+        assert supplier.slug == "costco_waltham_ma"
         assert supplier.city == "Waltham"
         assert supplier.state == "MA"
         assert supplier.zip_code == "02451"
@@ -61,6 +63,7 @@ class TestSupplierModel:
         """Test creating a supplier with all optional fields."""
         supplier = Supplier(
             name="Restaurant Depot",
+            slug="restaurant_depot_boston_ma",
             street_address="123 Main St",
             city="Boston",
             state="MA",
@@ -122,6 +125,7 @@ class TestSupplierModel:
         """Test that is_active defaults to True."""
         supplier = Supplier(
             name="Costco",
+            slug="costco_waltham_ma_active_test",
             city="Waltham",
             state="MA",
             zip_code="02451",
@@ -135,6 +139,7 @@ class TestSupplierModel:
         """Test that is_active can be set to False."""
         supplier = Supplier(
             name="Old Supplier",
+            slug="old_supplier_boston_ma",
             city="Boston",
             state="MA",
             zip_code="02101",
@@ -149,6 +154,7 @@ class TestSupplierModel:
         """Test that UUID is automatically generated."""
         supplier = Supplier(
             name="Costco",
+            slug="costco_waltham_ma_uuid_test",
             city="Waltham",
             state="MA",
             zip_code="02451",
@@ -163,12 +169,14 @@ class TestSupplierModel:
         """Test that each supplier gets a unique UUID."""
         supplier1 = Supplier(
             name="Supplier 1",
+            slug="supplier_1_boston_ma",
             city="Boston",
             state="MA",
             zip_code="02101",
         )
         supplier2 = Supplier(
             name="Supplier 2",
+            slug="supplier_2_cambridge_ma",
             city="Cambridge",
             state="MA",
             zip_code="02139",
@@ -183,6 +191,7 @@ class TestSupplierModel:
         """Test that created_at and updated_at are set."""
         supplier = Supplier(
             name="Costco",
+            slug="costco_waltham_ma_timestamps_test",
             city="Waltham",
             state="MA",
             zip_code="02451",
@@ -201,6 +210,7 @@ class TestSupplierStateConstraint:
         """Test that uppercase state codes are accepted."""
         supplier = Supplier(
             name="Test",
+            slug="test_boston_ma_state_test",
             city="Boston",
             state="MA",
             zip_code="02101",
@@ -219,6 +229,7 @@ class TestSupplierStateConstraint:
         """
         supplier = Supplier(
             name="Test",
+            slug="test_boston_ma_lowercase_test",
             city="Boston",
             state="ma",  # Lowercase - violates constraint
             zip_code="02101",
@@ -240,6 +251,7 @@ class TestSupplierStateConstraint:
         """Test that state codes longer than 2 characters may violate constraint."""
         supplier = Supplier(
             name="Test",
+            slug="test_boston_mas_long_state_test",
             city="Boston",
             state="MAS",  # 3 characters - violates constraint
             zip_code="02101",
@@ -260,6 +272,7 @@ class TestSupplierMethods:
         """Test location property formatting."""
         supplier = Supplier(
             name="Costco",
+            slug="costco_waltham_ma_location",
             city="Waltham",
             state="MA",
             zip_code="02451",
@@ -270,6 +283,7 @@ class TestSupplierMethods:
         """Test full_address when street_address is not set."""
         supplier = Supplier(
             name="Costco",
+            slug="costco_waltham_ma_fulladdr",
             city="Waltham",
             state="MA",
             zip_code="02451",
@@ -280,6 +294,7 @@ class TestSupplierMethods:
         """Test full_address when street_address is set."""
         supplier = Supplier(
             name="Restaurant Depot",
+            slug="restaurant_depot_boston_ma_street",
             street_address="123 Main St",
             city="Boston",
             state="MA",
@@ -291,6 +306,7 @@ class TestSupplierMethods:
         """Test string representation."""
         supplier = Supplier(
             name="Costco",
+            slug="costco_waltham_ma_repr",
             city="Waltham",
             state="MA",
             zip_code="02451",
@@ -306,6 +322,7 @@ class TestSupplierMethods:
         """Test to_dict method includes computed fields."""
         supplier = Supplier(
             name="Costco",
+            slug="costco_waltham_ma_todict",
             street_address="100 Commerce Way",
             city="Waltham",
             state="MA",
@@ -317,6 +334,7 @@ class TestSupplierMethods:
         result = supplier.to_dict()
 
         assert result["name"] == "Costco"
+        assert result["slug"] == "costco_waltham_ma_todict"
         assert result["city"] == "Waltham"
         assert result["state"] == "MA"
         assert result["zip_code"] == "02451"

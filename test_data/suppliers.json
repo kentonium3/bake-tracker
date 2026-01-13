@@ -7,7 +7,12 @@
       "location": "Waltham, MA",
       "full_address": "71 2ND AVE, Waltham, MA 02451-1107",
       "is_active": true,
-      "notes": null
+      "notes": null,
+      "city": "Waltham",
+      "state": "MA",
+      "zip_code": "02451-1107",
+      "supplier_type": "physical",
+      "slug": "costco_waltham_ma"
     },
     {
       "id": 6,
@@ -16,7 +21,12 @@
       "location": "Waltham, MA",
       "full_address": "894 Main St, Waltham, MA 02451",
       "is_active": true,
-      "notes": null
+      "notes": null,
+      "city": "Waltham",
+      "state": "MA",
+      "zip_code": "02451",
+      "supplier_type": "physical",
+      "slug": "gordon_s_fine_wine_liquors_waltham_ma"
     },
     {
       "id": 4,
@@ -25,7 +35,12 @@
       "location": "Arlington, MA",
       "full_address": "1293 Massachusetts Ave, Arlington, MA 02476",
       "is_active": true,
-      "notes": null
+      "notes": null,
+      "city": "Arlington",
+      "state": "MA",
+      "zip_code": "02476",
+      "supplier_type": "physical",
+      "slug": "penzeys_spices_arlington_ma"
     },
     {
       "id": 5,
@@ -34,7 +49,12 @@
       "location": "Bedford, MA",
       "full_address": "337 Great Rd, Bedford, MA 01730",
       "is_active": true,
-      "notes": null
+      "notes": null,
+      "city": "Bedford",
+      "state": "MA",
+      "zip_code": "01730",
+      "supplier_type": "physical",
+      "slug": "stop_shop_bedford_ma"
     },
     {
       "id": 1,
@@ -43,7 +63,12 @@
       "location": "Unknown, XX",
       "full_address": "Unknown, XX 00000",
       "is_active": true,
-      "notes": "Default supplier for migrated inventory additions (F028)"
+      "notes": "Default supplier for migrated inventory additions (F028)",
+      "city": "Unknown",
+      "state": "XX",
+      "zip_code": "00000",
+      "supplier_type": "physical",
+      "slug": "unknown_unknown_xx"
     },
     {
       "id": 3,
@@ -52,7 +77,12 @@
       "location": "Burlington, MA",
       "full_address": "53 Third Avenue, Burlington, MA 01803",
       "is_active": true,
-      "notes": null
+      "notes": null,
+      "city": "Burlington",
+      "state": "MA",
+      "zip_code": "01803",
+      "supplier_type": "physical",
+      "slug": "wegmans_burlington_ma"
     }
   ],
   "metadata": {
