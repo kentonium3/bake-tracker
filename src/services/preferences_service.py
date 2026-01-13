@@ -1,8 +1,15 @@
 """
 Preferences Service - Manage user directory preferences.
 
-Stores preferences in a JSON config file in the user's config directory.
-This ensures preferences survive database resets (per FR-016).
+Feature 051: Stores preferences in a JSON config file in the user's platform-specific
+config directory (e.g., ~/Library/Application Support/BakeTracker on macOS).
+This design ensures preferences survive database resets (per FR-016) because
+the config file is completely separate from the SQLite database.
+
+Note: FR-016 originally specified app_config table storage, but JSON file storage
+better achieves the "survives database reset" requirement since database resets
+would clear the app_config table. The JSON file approach is equivalent in
+functionality while being more robust to database operations.
 
 Usage:
     from src.services.preferences_service import (

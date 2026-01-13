@@ -169,6 +169,8 @@ class CatalogImportResult:
 
     def __init__(self):
         self.entity_counts: Dict[str, EntityImportCounts] = {
+            # Feature 051: Suppliers must be first (products reference suppliers)
+            "suppliers": EntityImportCounts(),
             "ingredients": EntityImportCounts(),
             "products": EntityImportCounts(),
             "recipes": EntityImportCounts(),
@@ -507,7 +509,7 @@ def _import_suppliers_impl(
             session.add(supplier)
             session.flush()  # Get ID for FK references
 
-        result.add_success("suppliers", slug)
+        result.add_success("suppliers")
 
         # Track for subsequent imports in same transaction
         existing_suppliers[slug] = supplier

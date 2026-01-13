@@ -729,8 +729,11 @@ class ImportDialog(ctk.CTkToplevel):
 
     def _browse_file(self):
         """Open file browser and auto-detect format."""
+        # FR-015: Use configured import directory as initial location
+        initial_dir = str(preferences_service.get_import_directory())
         file_path = filedialog.askopenfilename(
             title="Select Import File",
+            initialdir=initial_dir,
             filetypes=[("JSON files", "*.json"), ("All files", "*.*")],
             parent=self,
         )
@@ -884,6 +887,19 @@ class ImportDialog(ctk.CTkToplevel):
 
                 summary_text = "\n".join(summary_lines)
             else:
+                # FR-012: Run schema validation before single-file backup restore
+                import json
+                with open(self.file_path, "r", encoding="utf-8") as f:
+                    raw_data = json.load(f)
+
+                validation_result = schema_validation_service.validate_import_file(raw_data)
+
+                if not validation_result.valid:
+                    # Show validation error dialog and abort
+                    self._hide_progress()
+                    self._show_validation_errors(validation_result)
+                    return
+
                 # Use standard single-file import
                 result = import_export_service.import_all_from_json_v4(
                     self.file_path,
@@ -915,6 +931,19 @@ class ImportDialog(ctk.CTkToplevel):
         try:
             mode = self.mode_var.get()
 
+            # FR-012: Run schema validation before import
+            import json
+            with open(self.file_path, "r", encoding="utf-8") as f:
+                raw_data = json.load(f)
+
+            validation_result = schema_validation_service.validate_import_file(raw_data)
+
+            if not validation_result.valid:
+                # Show validation error dialog and abort
+                self._hide_progress()
+                self._show_validation_errors(validation_result)
+                return
+
             # Check if it's a context-rich file
             if self.detected_format and self.detected_format.format_type == "context_rich":
                 from src.services.enhanced_import_service import import_context_rich_view
@@ -922,11 +951,11 @@ class ImportDialog(ctk.CTkToplevel):
                 result = import_context_rich_view(self.file_path)
                 summary_text = result.get_summary()
             else:
-                # Standard catalog import
-                result = import_export_service.import_all_from_json_v4(
-                    self.file_path,
-                    mode="merge" if mode == "add" else mode,
-                )
+                # Standard catalog import - use catalog_import_service which supports
+                # both "add" (ADD_ONLY) and "augment" (AUGMENT) modes properly
+                from src.services.catalog_import_service import import_catalog
+
+                result = import_catalog(self.file_path, mode=mode)
                 summary_text = result.get_summary()
 
             log_path = _write_import_log(self.file_path, result, summary_text)
@@ -954,7 +983,7 @@ class ImportDialog(ctk.CTkToplevel):
         try:
             mode = self.mode_var.get()
 
-            # Load and preprocess the file
+            # Load the context-rich file
             import json
             with open(self.file_path, "r", encoding="utf-8") as f:
                 raw_data = json.load(f)
@@ -962,19 +991,48 @@ class ImportDialog(ctk.CTkToplevel):
             # Track preprocessing info for logging
             preprocessing_result = {}
 
-            # Detect entity type from the file
-            entity_type = None
-            if isinstance(raw_data, dict):
-                # Check for entity keys
-                for key in ["ingredients", "products", "recipes", "materials", "suppliers"]:
-                    if key in raw_data:
-                        entity_type = key
-                        break
+            # FR-010: Preprocess context-rich files
+            # Context-rich format has _meta, view_type, records structure
+            view_type = raw_data.get("view_type")
+            meta = raw_data.get("_meta", {})
+            records = raw_data.get("records", [])
 
-            preprocessing_result["entity_type"] = entity_type or "unknown"
+            preprocessing_result["view_type"] = view_type or "unknown"
+            preprocessing_result["record_count"] = len(records)
 
-            # Run schema validation on the data
-            validation_result = schema_validation_service.validate_import_file(raw_data)
+            if not view_type:
+                messagebox.showerror(
+                    "Invalid Format",
+                    "Context-rich file missing 'view_type' field.\n\n"
+                    "Expected format: {\"view_type\": \"ingredients\", \"records\": [...]}",
+                    parent=self,
+                )
+                return
+
+            # FR-010a/FR-010b: Extract editable fields and convert to normalized format
+            # for schema validation (strip read-only context fields)
+            editable_fields = set(meta.get("editable_fields", []))
+            normalized_records = []
+
+            for record in records:
+                # Extract only editable fields plus identifier (slug)
+                normalized = {"slug": record.get("slug")}
+                for field in editable_fields:
+                    if field in record:
+                        normalized[field] = record[field]
+                # Always include display_name/name if present (for identification)
+                if "display_name" in record:
+                    normalized["display_name"] = record["display_name"]
+                if "name" in record:
+                    normalized["name"] = record["name"]
+                normalized_records.append(normalized)
+
+            # Build normalized data structure for schema validation
+            normalized_data = {view_type: normalized_records}
+            preprocessing_result["normalized_fields"] = list(editable_fields)
+
+            # FR-010b: Run schema validation on preprocessed/normalized output
+            validation_result = schema_validation_service.validate_import_file(normalized_data)
 
             if not validation_result.valid:
                 # Show validation error dialog
@@ -985,6 +1043,41 @@ class ImportDialog(ctk.CTkToplevel):
             # Log any warnings but continue
             if validation_result.warnings:
                 preprocessing_result["validation_warnings"] = len(validation_result.warnings)
+
+            # FR-011: Validate FK references exist before import
+            # Context-rich imports update EXISTING records - check all slugs exist
+            from src.services.database import session_scope
+            from src.services.enhanced_import_service import _find_entity_by_slug
+
+            missing_refs = []
+            with session_scope() as session:
+                for record in records:
+                    slug = record.get("slug")
+                    if slug:
+                        existing = _find_entity_by_slug(view_type, slug, session)
+                        if not existing:
+                            missing_refs.append(slug)
+
+            if missing_refs:
+                # FR-011: Block with actionable error dialog
+                self._hide_progress()
+                error_msg = (
+                    f"Cannot import: {len(missing_refs)} record(s) reference "
+                    f"{view_type} that don't exist in the database.\n\n"
+                    f"Missing {view_type}:\n"
+                )
+                for slug in missing_refs[:10]:
+                    error_msg += f"  - {slug}\n"
+                if len(missing_refs) > 10:
+                    error_msg += f"  ... and {len(missing_refs) - 10} more\n"
+                error_msg += (
+                    "\nTo fix: Import the missing records first using Catalog import, "
+                    "then retry the Context-Rich import."
+                )
+                messagebox.showerror("Missing References", error_msg, parent=self)
+                return
+
+            preprocessing_result["fk_validated"] = True
 
             # Execute the import using enhanced_import_service
             # Note: Context-rich imports are merge-only (updates existing records)
@@ -1396,12 +1489,13 @@ class ExportDialog(ctk.CTkToplevel):
         ).pack(anchor="w", padx=10, pady=(10, 5))
 
         self.entity_vars = {}
+        # FR-003: Entities sorted alphabetically with Suppliers in correct position
         entities = [
             ("ingredients", "Ingredients"),
+            ("material_products", "Material Products"),
+            ("materials", "Materials"),
             ("products", "Products"),
             ("recipes", "Recipes"),
-            ("materials", "Materials"),
-            ("material_products", "Material Products"),
             ("suppliers", "Suppliers"),
         ]
         for key, label in entities:
@@ -1484,8 +1578,11 @@ class ExportDialog(ctk.CTkToplevel):
 
     def _export_full_backup(self):
         """Execute full backup export."""
+        # FR-015: Use configured export directory as initial location
+        initial_dir = str(preferences_service.get_export_directory())
         dir_path = filedialog.askdirectory(
             title="Select Export Directory for Full Backup",
+            initialdir=initial_dir,
             parent=self,
         )
 
@@ -1539,8 +1636,11 @@ class ExportDialog(ctk.CTkToplevel):
 
         default_name = f"catalog-export-{date.today().isoformat()}.json"
 
+        # FR-015: Use configured export directory as initial location
+        initial_dir = str(preferences_service.get_export_directory())
         file_path = filedialog.asksaveasfilename(
             title="Export Catalog",
+            initialdir=initial_dir,
             defaultextension=".json",
             initialfile=default_name,
             filetypes=[("JSON files", "*.json"), ("All files", "*.*")],
@@ -1585,8 +1685,11 @@ class ExportDialog(ctk.CTkToplevel):
         """Execute context-rich view export."""
         view_type = self.view_var.get()
 
+        # FR-015: Use configured export directory as initial location
+        initial_dir = str(preferences_service.get_export_directory())
         dir_path = filedialog.askdirectory(
             title=f"Select Export Directory for {view_type.title()} View",
+            initialdir=initial_dir,
             parent=self,
         )
 
@@ -1798,8 +1901,11 @@ class ImportViewDialog(ctk.CTkToplevel):
 
     def _browse_file(self):
         """Open file browser to select view file."""
+        # FR-015: Use configured import directory as initial location
+        initial_dir = str(preferences_service.get_import_directory())
         file_path = filedialog.askopenfilename(
             title="Select View File",
+            initialdir=initial_dir,
             filetypes=[("JSON files", "*.json"), ("All files", "*.*")],
             parent=self,
         )

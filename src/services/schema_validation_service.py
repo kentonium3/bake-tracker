@@ -165,8 +165,22 @@ def validate_supplier_schema(
         )
         return ValidationResult(valid=False, errors=errors, warnings=warnings)
 
-    # Define known fields for suppliers
-    supplier_fields = {"name", "slug", "contact_info", "notes"}
+    # Define known fields for suppliers (matches actual export format from F050)
+    supplier_fields = {
+        "name",
+        "slug",
+        "supplier_type",
+        "street_address",
+        "city",
+        "state",
+        "zip_code",
+        "website_url",
+        "notes",
+        "is_active",
+        "contact_info",  # Legacy field
+        "id",
+        "uuid",
+    }
 
     for idx, supplier in enumerate(suppliers):
         record_num = idx + 1
@@ -252,6 +266,105 @@ def validate_supplier_schema(
                         record_number=record_num,
                         expected="string",
                         actual=_get_type_name(supplier["notes"]),
+                    )
+                )
+
+        # Optional: supplier_type (if present, must be valid type)
+        if "supplier_type" in supplier and supplier["supplier_type"] is not None:
+            if not isinstance(supplier["supplier_type"], str):
+                errors.append(
+                    ValidationError(
+                        field=f"{prefix}.supplier_type",
+                        message="Field 'supplier_type' must be a string",
+                        record_number=record_num,
+                        expected="string",
+                        actual=_get_type_name(supplier["supplier_type"]),
+                    )
+                )
+            elif supplier["supplier_type"] not in ("physical", "online"):
+                warnings.append(
+                    ValidationWarning(
+                        field=f"{prefix}.supplier_type",
+                        message=f"Unknown supplier_type '{supplier['supplier_type']}' - expected 'physical' or 'online'",
+                        record_number=record_num,
+                    )
+                )
+
+        # Optional: city (if present, must be string)
+        if "city" in supplier and supplier["city"] is not None:
+            if not isinstance(supplier["city"], str):
+                errors.append(
+                    ValidationError(
+                        field=f"{prefix}.city",
+                        message="Field 'city' must be a string",
+                        record_number=record_num,
+                        expected="string",
+                        actual=_get_type_name(supplier["city"]),
+                    )
+                )
+
+        # Optional: state (if present, must be string)
+        if "state" in supplier and supplier["state"] is not None:
+            if not isinstance(supplier["state"], str):
+                errors.append(
+                    ValidationError(
+                        field=f"{prefix}.state",
+                        message="Field 'state' must be a string",
+                        record_number=record_num,
+                        expected="string",
+                        actual=_get_type_name(supplier["state"]),
+                    )
+                )
+
+        # Optional: zip_code (if present, must be string)
+        if "zip_code" in supplier and supplier["zip_code"] is not None:
+            if not isinstance(supplier["zip_code"], str):
+                errors.append(
+                    ValidationError(
+                        field=f"{prefix}.zip_code",
+                        message="Field 'zip_code' must be a string",
+                        record_number=record_num,
+                        expected="string",
+                        actual=_get_type_name(supplier["zip_code"]),
+                    )
+                )
+
+        # Optional: street_address (if present, must be string)
+        if "street_address" in supplier and supplier["street_address"] is not None:
+            if not isinstance(supplier["street_address"], str):
+                errors.append(
+                    ValidationError(
+                        field=f"{prefix}.street_address",
+                        message="Field 'street_address' must be a string",
+                        record_number=record_num,
+                        expected="string",
+                        actual=_get_type_name(supplier["street_address"]),
+                    )
+                )
+
+        # Optional: website_url (if present, must be string)
+        if "website_url" in supplier and supplier["website_url"] is not None:
+            if not isinstance(supplier["website_url"], str):
+                errors.append(
+                    ValidationError(
+                        field=f"{prefix}.website_url",
+                        message="Field 'website_url' must be a string",
+                        record_number=record_num,
+                        expected="string",
+                        actual=_get_type_name(supplier["website_url"]),
+                    )
+                )
+
+        # Optional: is_active (if present, must be boolean)
+        if "is_active" in supplier and supplier["is_active"] is not None:
+            if not isinstance(supplier["is_active"], bool):
+                errors.append(
+                    ValidationError(
+                        field=f"{prefix}.is_active",
+                        message="Field 'is_active' must be a boolean",
+                        record_number=record_num,
+                        expected="boolean",
+                        actual=_get_type_name(supplier["is_active"]),
                     )
                 )
 
