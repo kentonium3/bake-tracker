@@ -2583,12 +2583,15 @@ def import_all_from_json_v4(file_path: str, mode: str = "merge") -> ImportResult
                 session.flush()
 
             # 1.5 Feature 027: Suppliers (before products, which reference them)
+            # Track old_id -> new_id mapping for FK resolution in merge mode
+            supplier_id_map = {}  # old_id -> new_id
             if "suppliers" in data:
                 for supplier_data in data["suppliers"]:
                     try:
                         name = supplier_data.get("name", "")
                         city = supplier_data.get("city", "")
                         state = supplier_data.get("state", "")
+                        old_id = supplier_data.get("id")
 
                         if not name or not city or not state:
                             result.add_error(
@@ -2607,6 +2610,9 @@ def import_all_from_json_v4(file_path: str, mode: str = "merge") -> ImportResult
                             ).first()
                             if existing:
                                 result.add_skip("supplier", f"{name} ({city}, {state})", "Already exists")
+                                # Track mapping even for skipped suppliers
+                                if old_id:
+                                    supplier_id_map[old_id] = existing.id
                                 continue
 
                         supplier = Supplier(
@@ -2619,13 +2625,18 @@ def import_all_from_json_v4(file_path: str, mode: str = "merge") -> ImportResult
                             is_active=supplier_data.get("is_active", True),
                         )
                         # Preserve original ID if provided (for FK consistency in replace mode)
-                        if supplier_data.get("id") and mode == "replace":
-                            supplier.id = supplier_data["id"]
+                        if old_id and mode == "replace":
+                            supplier.id = old_id
                         if supplier_data.get("uuid"):
                             supplier.uuid = supplier_data["uuid"]
 
                         session.add(supplier)
+                        session.flush()  # Get the new ID
                         result.add_success("supplier")
+
+                        # Track old->new ID mapping for product FK resolution
+                        if old_id:
+                            supplier_id_map[old_id] = supplier.id
                     except Exception as e:
                         result.add_error("supplier", supplier_data.get("name", "unknown"), str(e))
 
@@ -2664,6 +2675,14 @@ def import_all_from_json_v4(file_path: str, mode: str = "merge") -> ImportResult
                                 package_unit_quantity=package_unit_quantity,
                             ).first()
                             if existing:
+                                # Update preferred_supplier_id on existing product if import has one
+                                old_supplier_id = prod_data.get("preferred_supplier_id")
+                                if old_supplier_id and not existing.preferred_supplier_id:
+                                    new_supplier_id = supplier_id_map.get(old_supplier_id)
+                                    if new_supplier_id:
+                                        existing.preferred_supplier_id = new_supplier_id
+                                        result.add_success("product")  # Count as success since we updated it
+                                        continue
                                 result.add_skip("product", f"{brand} ({package_unit_quantity} {package_unit})", "Already exists")
                                 continue
 
@@ -2672,6 +2691,17 @@ def import_all_from_json_v4(file_path: str, mode: str = "merge") -> ImportResult
                         if unit_error:
                             result.add_error("product", brand, unit_error)
                             continue
+
+                        # Resolve preferred_supplier_id using ID mapping
+                        old_supplier_id = prod_data.get("preferred_supplier_id")
+                        new_supplier_id = None
+                        if old_supplier_id:
+                            new_supplier_id = supplier_id_map.get(old_supplier_id)
+                            if not new_supplier_id:
+                                # Supplier might already exist with same ID (replace mode)
+                                existing_supplier = session.query(Supplier).filter_by(id=old_supplier_id).first()
+                                if existing_supplier:
+                                    new_supplier_id = old_supplier_id
 
                         product = Product(
                             ingredient_id=ingredient.id,
@@ -2684,8 +2714,8 @@ def import_all_from_json_v4(file_path: str, mode: str = "merge") -> ImportResult
                             upc_code=prod_data.get("upc_code"),
                             preferred=prod_data.get("is_preferred", prod_data.get("preferred", False)),
                             notes=prod_data.get("notes"),
-                            # Feature 027: New fields
-                            preferred_supplier_id=prod_data.get("preferred_supplier_id"),
+                            # Feature 027: New fields - use mapped supplier ID
+                            preferred_supplier_id=new_supplier_id,
                             is_hidden=prod_data.get("is_hidden", False),
                         )
                         session.add(product)
