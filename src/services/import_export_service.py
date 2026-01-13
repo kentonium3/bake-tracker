@@ -1123,18 +1123,24 @@ def export_event_assembly_targets_to_json() -> List[Dict]:
     return result
 
 
-def export_all_to_json(file_path: str) -> ExportResult:
+def export_all_to_json(
+    file_path: str,
+    entities: Optional[List[str]] = None,
+) -> ExportResult:
     """
-    Export all data to a single JSON file in v3.4 format.
+    Export data to a single JSON file in v4.1 format.
 
     Exports in dependency order per data-model.md:
-    ingredients, products, purchases, inventory_items,
+    suppliers, ingredients, products, purchases, inventory_items,
     recipes, finished_units, finished_goods, compositions, packages,
     package_finished_goods, recipients, events, event_recipient_packages,
     production_records.
 
     Args:
         file_path: Path to output JSON file
+        entities: Optional list of entity types to export. If None, exports all.
+                  Valid values: suppliers, ingredients, products, recipes,
+                  materials, material_products, etc.
 
     Returns:
         ExportResult with export statistics including per-entity counts
@@ -1596,6 +1602,29 @@ def export_all_to_json(file_path: str) -> ExportResult:
                     assignment_data["notes"] = assignment.notes
 
                 export_data["event_recipient_packages"].append(assignment_data)
+
+        # Filter entities if selective export requested
+        if entities is not None:
+            # Map UI entity names to export_data keys
+            entity_mapping = {
+                "suppliers": ["suppliers"],
+                "ingredients": ["ingredients"],
+                "products": ["products"],
+                "recipes": ["recipes", "finished_units", "compositions"],
+                "materials": ["ingredients"],  # Materials are a type of ingredient
+                "material_products": ["products"],  # Material products are products
+            }
+
+            # Build set of keys to keep
+            keys_to_keep = {"version", "exported_at", "application"}
+            for entity in entities:
+                if entity in entity_mapping:
+                    keys_to_keep.update(entity_mapping[entity])
+
+            # Clear data for unselected entities
+            for key in list(export_data.keys()):
+                if key not in keys_to_keep and isinstance(export_data[key], list):
+                    export_data[key] = []
 
         # Write to file
         with open(file_path, "w", encoding="utf-8") as f:
