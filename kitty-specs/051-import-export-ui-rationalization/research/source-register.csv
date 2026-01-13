@@ -1,0 +1,8 @@
+id,type,reference,accessed,notes
+S001,code,src/ui/import_export_dialog.py,2026-01-13,ImportDialog ExportDialog ImportResultsDialog
+S002,code,src/services/enhanced_import_service.py,2026-01-13,detect_format import_context_rich_view
+S003,code,src/services/import_export_service.py,2026-01-13,ImportResult ExportResult export functions
+S004,code,src/services/catalog_import_service.py,2026-01-13,VALID_ENTITIES import_catalog
+S005,code,src/models/app_config.py,2026-01-13,AppConfig model key-value pattern
+S006,doc,.kittify/memory/constitution.md,2026-01-13,Project principles and constraints
+S007,doc,kitty-specs/051-import-export-ui-rationalization/spec.md,2026-01-13,Feature specification with clarifications
