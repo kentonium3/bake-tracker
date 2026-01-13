@@ -18,6 +18,7 @@ from src.services import import_export_service
 from src.services import coordinated_export_service
 from src.services import denormalized_export_service
 from src.services import preferences_service
+from src.services import schema_validation_service
 from src.utils.constants import APP_NAME, APP_VERSION
 
 
@@ -550,6 +551,7 @@ class ImportDialog(ctk.CTkToplevel):
             ("catalog", "Catalog Data", "Add or update ingredients, products, recipes, materials"),
             ("purchases", "Purchases", "Import purchase transactions (from BT Mobile or spreadsheet)"),
             ("adjustments", "Adjustments", "Import inventory adjustments (spoilage, waste, corrections)"),
+            ("context_rich", "Context-Rich", "Import AI-augmented files (aug_*.json) with preprocessing"),
         ]
 
         for value, label, desc in purposes:
@@ -675,6 +677,41 @@ class ImportDialog(ctk.CTkToplevel):
         )
         info.pack(anchor="w", padx=10, pady=15)
 
+    def _setup_context_rich_options(self):
+        """Set up options for context-rich import."""
+        # Clear existing options
+        for widget in self.options_frame.winfo_children():
+            widget.destroy()
+
+        # Context-rich imports are merge-only (update existing records)
+        # No mode selection needed
+
+        ctk.CTkLabel(
+            self.options_frame,
+            text="3. Import behavior:",
+            font=ctk.CTkFont(weight="bold"),
+        ).pack(anchor="w", padx=10, pady=(10, 5))
+
+        info_label = ctk.CTkLabel(
+            self.options_frame,
+            text="Context-rich imports update existing records with\n"
+                 "AI-augmented editable fields. Records not found\n"
+                 "in the database will be skipped (not created).",
+            font=ctk.CTkFont(size=12),
+            justify="left",
+        )
+        info_label.pack(anchor="w", padx=20, pady=(5, 10))
+
+        # Additional info about aug_*.json files
+        format_label = ctk.CTkLabel(
+            self.options_frame,
+            text="Context-rich files (aug_*.json) include metadata\n"
+                 "indicating which fields are editable vs. computed.",
+            font=ctk.CTkFont(size=11),
+            text_color="gray",
+        )
+        format_label.pack(anchor="w", padx=10, pady=(5, 10))
+
     def _on_purpose_changed(self):
         """Handle purpose selection change."""
         purpose = self.purpose_var.get()
@@ -683,6 +720,8 @@ class ImportDialog(ctk.CTkToplevel):
             self._setup_backup_options()
         elif purpose == "catalog":
             self._setup_catalog_options()
+        elif purpose == "context_rich":
+            self._setup_context_rich_options()
         elif purpose == "purchases":
             self._setup_transaction_options("purchases")
         elif purpose == "adjustments":
@@ -713,6 +752,10 @@ class ImportDialog(ctk.CTkToplevel):
             result = detect_format(self.file_path)
             self.detected_format = result
 
+            # Check for aug_*.json filename pattern (overrides format detection)
+            filename = Path(self.file_path).name
+            is_aug_file = filename.startswith("aug_") and filename.endswith(".json")
+
             # Display detection result
             format_name = result.format_type.replace("_", " ").title()
             record_count = result.entity_count or "unknown"
@@ -728,9 +771,15 @@ class ImportDialog(ctk.CTkToplevel):
             elif result.format_type in ("adjustments", "inventory_updates"):
                 self.purpose_var.set("adjustments")
                 self._on_purpose_changed()
-            elif result.format_type == "context_rich":
-                self.purpose_var.set("catalog")
+            elif result.format_type == "context_rich" or is_aug_file:
+                # Auto-select context_rich for context-rich files or aug_*.json
+                self.purpose_var.set("context_rich")
                 self._on_purpose_changed()
+                if is_aug_file:
+                    self.detection_label.configure(
+                        text=f"Detected: Context-Rich format (aug_*.json, {record_count} records)",
+                        text_color="green",
+                    )
             elif result.format_type == "normalized":
                 # Could be backup or catalog
                 self.detection_label.configure(
@@ -761,6 +810,8 @@ class ImportDialog(ctk.CTkToplevel):
             self._do_backup_restore()
         elif purpose == "catalog":
             self._do_catalog_import()
+        elif purpose == "context_rich":
+            self._do_context_rich_import()
         elif purpose == "purchases":
             self._do_purchases_import()
         elif purpose == "adjustments":
@@ -872,6 +923,198 @@ class ImportDialog(ctk.CTkToplevel):
             messagebox.showerror("Import Failed", self._format_error(e), parent=self)
         finally:
             self._hide_progress()
+
+    def _do_context_rich_import(self):
+        """Execute context-rich import with preprocessing and schema validation."""
+        start_time = time.time()
+        self._show_progress("Importing context-rich data...")
+
+        try:
+            mode = self.mode_var.get()
+
+            # Load and preprocess the file
+            import json
+            with open(self.file_path, "r", encoding="utf-8") as f:
+                raw_data = json.load(f)
+
+            # Track preprocessing info for logging
+            preprocessing_result = {}
+
+            # Detect entity type from the file
+            entity_type = None
+            if isinstance(raw_data, dict):
+                # Check for entity keys
+                for key in ["ingredients", "products", "recipes", "materials", "suppliers"]:
+                    if key in raw_data:
+                        entity_type = key
+                        break
+
+            preprocessing_result["entity_type"] = entity_type or "unknown"
+
+            # Run schema validation on the data
+            validation_result = schema_validation_service.validate_import_file(raw_data)
+
+            if not validation_result.valid:
+                # Show validation error dialog
+                self._hide_progress()
+                self._show_validation_errors(validation_result)
+                return
+
+            # Log any warnings but continue
+            if validation_result.warnings:
+                preprocessing_result["validation_warnings"] = len(validation_result.warnings)
+
+            # Execute the import using enhanced_import_service
+            # Note: Context-rich imports are merge-only (updates existing records)
+            from src.services.enhanced_import_service import import_context_rich_view
+
+            result = import_context_rich_view(self.file_path)
+
+            # Build summary with per-entity counts
+            summary_lines = self._build_import_summary(result)
+            summary_text = "\n".join(summary_lines)
+
+            # Write enhanced log
+            log_path = _write_import_log(
+                self.file_path,
+                result,
+                summary_text,
+                purpose="context_rich",
+                mode=mode,
+                detected_format=self.detected_format,
+                validation_result=validation_result,
+                preprocessing_result=preprocessing_result,
+                start_time=start_time,
+            )
+
+            self.result = result
+            results_dialog = ImportResultsDialog(
+                self.master,
+                title="Context-Rich Import Complete",
+                summary_text=summary_text,
+                log_path=log_path,
+            )
+            results_dialog.wait_window()
+            self.destroy()
+
+        except Exception as e:
+            messagebox.showerror("Import Failed", self._format_error(e), parent=self)
+        finally:
+            self._hide_progress()
+
+    def _show_validation_errors(self, validation_result):
+        """Show dialog with validation errors and field paths."""
+        errors = validation_result.errors
+        error_count = len(errors)
+
+        # Build error message
+        lines = [
+            f"Schema validation found {error_count} error(s).",
+            "",
+            "Please fix these issues in the source file before importing:",
+            "",
+        ]
+
+        # Show first 10 errors with details
+        for i, err in enumerate(errors[:10]):
+            record_num = getattr(err, "record_number", 0)
+            field = getattr(err, "field", "")
+            message = getattr(err, "message", str(err))
+            expected = getattr(err, "expected", "")
+            actual = getattr(err, "actual", "")
+
+            if record_num > 0:
+                lines.append(f"Record {record_num}, {field}:")
+            else:
+                lines.append(f"{field}:")
+            lines.append(f"  {message}")
+            if expected and actual:
+                lines.append(f"  Expected: {expected}")
+                lines.append(f"  Actual: {actual}")
+            lines.append("")
+
+        if error_count > 10:
+            lines.append(f"... and {error_count - 10} more error(s)")
+            lines.append("")
+
+        lines.append("Import aborted. No changes were made.")
+
+        error_text = "\n".join(lines)
+
+        # Show in a scrollable dialog
+        error_dialog = ImportResultsDialog(
+            self,
+            title="Validation Failed",
+            summary_text=error_text,
+            log_path=None,
+        )
+        error_dialog.wait_window()
+
+    def _build_import_summary(self, result) -> List[str]:
+        """Build formatted summary lines with per-entity counts."""
+        lines = []
+
+        # Header
+        total = getattr(result, "total_records", 0)
+        successful = getattr(result, "successful", 0)
+        lines.append(f"Import completed: {successful} of {total} records processed.")
+        lines.append("")
+
+        # Per-entity breakdown
+        entity_counts = getattr(result, "entity_counts", None)
+        if entity_counts:
+            lines.append("Results by entity:")
+            for entity, counts in entity_counts.items():
+                if isinstance(counts, dict):
+                    imported = counts.get("imported", counts.get("added", 0))
+                    skipped = counts.get("skipped", 0)
+                    updated = counts.get("updated", counts.get("augmented", 0))
+                    failed = counts.get("failed", counts.get("errors", 0))
+
+                    parts = []
+                    if imported:
+                        parts.append(f"{imported} imported")
+                    if updated:
+                        parts.append(f"{updated} updated")
+                    if skipped:
+                        parts.append(f"{skipped} skipped")
+                    if failed:
+                        parts.append(f"{failed} failed")
+
+                    if parts:
+                        lines.append(f"  {entity}: {', '.join(parts)}")
+                else:
+                    lines.append(f"  {entity}: {counts}")
+            lines.append("")
+
+        # Errors summary
+        errors = getattr(result, "errors", [])
+        if errors:
+            lines.append(f"Errors ({len(errors)}):")
+            for err in errors[:5]:
+                if isinstance(err, dict):
+                    msg = err.get("message", str(err))
+                else:
+                    msg = getattr(err, "message", str(err))
+                lines.append(f"  - {msg}")
+            if len(errors) > 5:
+                lines.append(f"  ... and {len(errors) - 5} more")
+            lines.append("")
+
+        # Warnings summary
+        warnings = getattr(result, "warnings", [])
+        if warnings:
+            lines.append(f"Warnings ({len(warnings)}):")
+            for warn in warnings[:5]:
+                if isinstance(warn, dict):
+                    msg = warn.get("message", str(warn))
+                else:
+                    msg = getattr(warn, "message", str(warn))
+                lines.append(f"  - {msg}")
+            if len(warnings) > 5:
+                lines.append(f"  ... and {len(warnings) - 5} more")
+
+        return lines
 
     def _do_purchases_import(self):
         """Execute purchase transaction import."""
