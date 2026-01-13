@@ -77,7 +77,7 @@ The `_build_hierarchy_path_cache()` method makes a separate `get_ancestors()` DB
 
 Build paths in-memory using already-loaded ingredient data with `parent_ingredient_id`, or add a bulk service function that returns all ingredients with precomputed paths.
 
-See: `docs/technical-debt/TD-004_hierarchy_path_cache_n_plus_1.md`
+See: `docs/technical-debt/_TD-004_hierarchy_path_cache_n_plus_1.md`
 
 ---
 
@@ -99,7 +99,7 @@ When `can_change_parent()` is called with an invalid `new_parent_id`, the return
 
 Return `new_level: None` when parent lookup fails, and update UI to display "(Invalid parent)" for unknown levels.
 
-See: `docs/technical-debt/TD-005_can_change_parent_new_level_edge_case.md`
+See: `docs/technical-debt/_TD-005_can_change_parent_new_level_edge_case.md`
 
 ---
 
@@ -144,7 +144,7 @@ Replace manual entry with calculated shelf life:
 
 **Recommendation:** Implement during F041 development, complete before F042 rollout.
 
-See: `docs/technical-debt/TD-006_expiration_date_deprecated.md`
+See: `docs/technical-debt/_TD-006_expiration_date_deprecated.md`
 
 ---
 
@@ -175,7 +175,7 @@ Dynamically adjust available form fields based on hierarchy level:
 
 **Reason for Deferral:** Implementing foundational workflow features (F043-F047) is higher priority.
 
-See: `docs/technical-debt/TD-007_ingredient_edit_form_hierarchy_safeguards.md`
+See: `docs/technical-debt/_TD-007_ingredient_edit_form_hierarchy_safeguards.md`
 
 ---
 
@@ -209,10 +209,42 @@ Add `Supplier.slug` field for stable identification:
 
 **Recommendation:** Address when import/export reliability becomes critical or during next import service enhancement.
 
-See: `docs/technical-debt/TD-009_supplier_slug_portable_identification.md`
+See: `docs/technical-debt/_TD-009_supplier_slug_portable_identification.md`
 
 ---
 
 ## Resolved Items
 
-*No resolved items yet.*
+### TD-002: Unit Standardization
+
+| Attribute | Value |
+|-----------|-------|
+| **Status** | Resolved |
+| **Priority** | Medium |
+| **Created** | 2025-12-28 |
+| **Resolved** | 2026-01-XX |
+| **Location** | `test_data/sample_data.json`, `src/services/import_export_service.py` |
+
+**Description:**
+
+Fixed unit naming inconsistencies (oz vs fl oz for liquids), added unit validation to import service, and created database audit script for non-standard unit values.
+
+See: `docs/technical-debt/TD-002_unit_standardization.md`
+
+---
+
+### TD-003: Test Schema Field Name Mismatch
+
+| Attribute | Value |
+|-----------|-------|
+| **Status** | Resolved |
+| **Priority** | High |
+| **Created** | 2025-12-28 |
+| **Resolved** | 2026-01-XX |
+| **Location** | `tests/test_catalog_import_service.py` |
+
+**Description:**
+
+Fixed 19 test failures caused by schema field naming mismatch (`purchase_unit` → `package_unit`, `purchase_quantity` → `package_unit_quantity`).
+
+See: `docs/technical-debt/TD-003_catalog_import_test_schema_mismatch.md`
