@@ -179,6 +179,40 @@ See: `docs/technical-debt/TD-007_ingredient_edit_form_hierarchy_safeguards.md`
 
 ---
 
+### TD-009: Add Slug Field to Supplier Model for Portable Identification
+
+| Attribute | Value |
+|-----------|-------|
+| **Status** | Open |
+| **Priority** | Medium |
+| **Created** | 2026-01-12 |
+| **Related Features** | F049 (Import/Export), F027 (Suppliers) |
+| **Location** | `src/models/supplier.py`, import/export services |
+
+**Description:**
+
+The Supplier model lacks a portable identifier (slug) for cross-system identification. Currently, `Product.preferred_supplier_id` references suppliers by auto-increment ID, which differs between databases. Import must build an `old_id -> new_id` mapping by matching suppliers on `(name, city, state)` tuple, which is fragile.
+
+**Problem:**
+- IDs are not portable between dev/test/production databases
+- Matching by name/city/state breaks if address changes
+- Inconsistent with Ingredient and Material models which use slugs
+
+**Proposed Solution:**
+
+Add `Supplier.slug` field for stable identification:
+- Export: Include `slug` in supplier data, add `preferred_supplier_slug` to products
+- Import: Match suppliers by slug instead of name/city/state tuple
+- Migration: Generate slugs from `{name}_{city}_{state}` for existing suppliers
+
+**Effort:** 8-12 hours
+
+**Recommendation:** Address when import/export reliability becomes critical or during next import service enhancement.
+
+See: `docs/technical-debt/TD-009_supplier_slug_portable_identification.md`
+
+---
+
 ## Resolved Items
 
 *No resolved items yet.*
