@@ -17,6 +17,7 @@ from sqlalchemy.orm import joinedload
 from src.services import ingredient_crud_service
 from src.services import recipe_service, finished_good_service
 from src.services import package_service, recipient_service, event_service
+from src.services import catalog_import_service
 from src.services.exceptions import ValidationError
 from src.services.database import session_scope
 from src.models.ingredient import Ingredient
@@ -3421,6 +3422,89 @@ def import_all_from_json_v4(file_path: str, mode: str = "merge") -> ImportResult
                     data["assembly_runs"], session, skip_duplicates
                 )
                 result.merge(ar_result)
+
+            # 20. Materials (Feature 047 - materials catalog)
+            # Import order: categories -> subcategories -> materials -> products -> units
+            import_mode = "add" if skip_duplicates else "augment"
+
+            if "material_categories" in data:
+                mat_cat_result = catalog_import_service.import_material_categories(
+                    data["material_categories"], mode=import_mode, session=session
+                )
+                counts = mat_cat_result.entity_counts["material_categories"]
+                result.entity_counts["material_category"] = {
+                    "imported": counts.added,
+                    "skipped": counts.skipped,
+                    "errors": counts.failed,
+                }
+                result.successful += counts.added
+                result.skipped += counts.skipped
+                result.failed += counts.failed
+                result.total_records += counts.added + counts.skipped + counts.failed
+                session.flush()
+
+            if "material_subcategories" in data:
+                mat_subcat_result = catalog_import_service.import_material_subcategories(
+                    data["material_subcategories"], mode=import_mode, session=session
+                )
+                counts = mat_subcat_result.entity_counts["material_subcategories"]
+                result.entity_counts["material_subcategory"] = {
+                    "imported": counts.added,
+                    "skipped": counts.skipped,
+                    "errors": counts.failed,
+                }
+                result.successful += counts.added
+                result.skipped += counts.skipped
+                result.failed += counts.failed
+                result.total_records += counts.added + counts.skipped + counts.failed
+                session.flush()
+
+            if "materials" in data:
+                mat_result = catalog_import_service.import_materials(
+                    data["materials"], mode=import_mode, session=session
+                )
+                counts = mat_result.entity_counts["materials"]
+                result.entity_counts["material"] = {
+                    "imported": counts.added,
+                    "skipped": counts.skipped,
+                    "errors": counts.failed,
+                }
+                result.successful += counts.added
+                result.skipped += counts.skipped
+                result.failed += counts.failed
+                result.total_records += counts.added + counts.skipped + counts.failed
+                session.flush()
+
+            if "material_products" in data:
+                mat_prod_result = catalog_import_service.import_material_products(
+                    data["material_products"], mode=import_mode, session=session
+                )
+                counts = mat_prod_result.entity_counts["material_products"]
+                result.entity_counts["material_product"] = {
+                    "imported": counts.added,
+                    "skipped": counts.skipped,
+                    "errors": counts.failed,
+                }
+                result.successful += counts.added
+                result.skipped += counts.skipped
+                result.failed += counts.failed
+                result.total_records += counts.added + counts.skipped + counts.failed
+                session.flush()
+
+            if "material_units" in data:
+                mat_unit_result = catalog_import_service.import_material_units(
+                    data["material_units"], mode=import_mode, session=session
+                )
+                counts = mat_unit_result.entity_counts["material_units"]
+                result.entity_counts["material_unit"] = {
+                    "imported": counts.added,
+                    "skipped": counts.skipped,
+                    "errors": counts.failed,
+                }
+                result.successful += counts.added
+                result.skipped += counts.skipped
+                result.failed += counts.failed
+                result.total_records += counts.added + counts.skipped + counts.failed
 
             # Commit transaction
             session.commit()

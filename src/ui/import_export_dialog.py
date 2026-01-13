@@ -189,8 +189,8 @@ class ImportDialog(ctk.CTkToplevel):
         """Initialize the import dialog."""
         super().__init__(parent)
         self.title("Import Data")
-        self.geometry("550x600")
-        self.resizable(False, False)
+        self.geometry("550x650")
+        self.minsize(550, 600)
 
         self.result = None
         self.file_path = None
@@ -210,6 +210,27 @@ class ImportDialog(ctk.CTkToplevel):
 
     def _setup_ui(self):
         """Set up the dialog UI."""
+        # Button frame - pack at bottom FIRST so it's always visible
+        btn_frame = ctk.CTkFrame(self, fg_color="transparent")
+        btn_frame.pack(side="bottom", fill="x", padx=20, pady=15)
+
+        self.import_btn = ctk.CTkButton(
+            btn_frame,
+            text="Import",
+            width=120,
+            command=self._do_import,
+        )
+        self.import_btn.pack(side="right", padx=(10, 0))
+
+        cancel_btn = ctk.CTkButton(
+            btn_frame,
+            text="Cancel",
+            width=100,
+            fg_color="gray",
+            command=self.destroy,
+        )
+        cancel_btn.pack(side="right")
+
         # Title
         title_label = ctk.CTkLabel(
             self,
@@ -310,27 +331,6 @@ class ImportDialog(ctk.CTkToplevel):
             text_color="gray",
         )
         self.status_label.pack(pady=5)
-
-        # Button frame
-        btn_frame = ctk.CTkFrame(self, fg_color="transparent")
-        btn_frame.pack(fill="x", padx=20, pady=15)
-
-        self.import_btn = ctk.CTkButton(
-            btn_frame,
-            text="Import",
-            width=120,
-            command=self._do_import,
-        )
-        self.import_btn.pack(side="right", padx=(10, 0))
-
-        cancel_btn = ctk.CTkButton(
-            btn_frame,
-            text="Cancel",
-            width=100,
-            fg_color="gray",
-            command=self.destroy,
-        )
-        cancel_btn.pack(side="right")
 
     def _setup_catalog_options(self):
         """Set up options for catalog import."""

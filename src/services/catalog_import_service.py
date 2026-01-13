@@ -91,6 +91,7 @@ INGREDIENT_AUGMENTABLE_FIELDS = {
     "allergens",
     "description",
     "is_packaging",
+    "hierarchy_level",  # Feature 031: Ingredient hierarchy
 }
 
 # Product fields: Protected = never modified; Augmentable = updated only if current value is NULL
@@ -442,12 +443,16 @@ def _import_ingredients_impl(
             continue
 
         # Create new ingredient
+        # Feature 031: hierarchy_level defaults to 2 (leaf) if not specified
+        hierarchy_level = item.get("hierarchy_level", 2)
+
         ingredient = Ingredient(
             slug=slug,
             display_name=item.get("display_name"),
             category=item.get("category"),
             description=item.get("description"),
             is_packaging=item.get("is_packaging", False),
+            hierarchy_level=hierarchy_level,
             # Density fields (4-field model)
             density_volume_value=item.get("density_volume_value"),
             density_volume_unit=item.get("density_volume_unit"),
@@ -466,6 +471,33 @@ def _import_ingredients_impl(
         # Track for duplicate detection within same import
         existing_slugs.add(slug)
         existing_ingredients[slug] = ingredient
+
+    # Feature 031: Second pass to resolve parent_slug references
+    # Flush first to ensure all ingredients have IDs
+    session.flush()
+
+    for item in data:
+        parent_slug = item.get("parent_slug")
+        if parent_slug:
+            slug = item.get("slug", "")
+            ingredient = existing_ingredients.get(slug)
+            if not ingredient:
+                # Try to find in DB (may have been skipped as existing)
+                ingredient = session.query(Ingredient).filter_by(slug=slug).first()
+
+            parent = existing_ingredients.get(parent_slug)
+            if not parent:
+                # Try to find in DB
+                parent = session.query(Ingredient).filter_by(slug=parent_slug).first()
+
+            if ingredient and parent:
+                ingredient.parent_ingredient_id = parent.id
+            elif ingredient and not parent:
+                result.add_warning(
+                    "ingredients",
+                    slug,
+                    f"Parent '{parent_slug}' not found - hierarchy not set",
+                )
 
     # Handle dry-run: rollback instead of commit
     if dry_run:
