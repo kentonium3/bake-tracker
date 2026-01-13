@@ -142,6 +142,103 @@ def create_slug(name: str, session: Optional[Session] = None) -> str:
             )
 
 
+def create_slug_for_model(
+    name: str,
+    model_class: type,
+    session: Optional[Session] = None
+) -> str:
+    """Generate unique slug for any SQLAlchemy model with a slug field.
+
+    This is a generalized version of create_slug() that works with any model
+    class that has a 'slug' attribute. It avoids circular imports by accepting
+    the model class as a parameter.
+
+    Algorithm:
+        1. Normalize Unicode to NFD (decompose accented characters)
+        2. Encode to ASCII, ignoring non-ASCII characters
+        3. Convert to lowercase
+        4. Replace whitespace and hyphens with underscores
+        5. Remove all non-alphanumeric characters except underscores
+        6. Collapse multiple consecutive underscores
+        7. Strip leading/trailing underscores
+        8. Check uniqueness and auto-increment if needed
+
+    Args:
+        name: String to convert to slug
+        model_class: SQLAlchemy model class with 'slug' attribute
+        session: Optional database session for uniqueness checking.
+                If None, no uniqueness check is performed.
+
+    Returns:
+        URL-safe slug string (lowercase, alphanumeric + underscores only)
+
+    Examples:
+        >>> from src.models import Supplier
+        >>> create_slug_for_model("Wegmans Burlington MA", Supplier)
+        'wegmans_burlington_ma'
+
+        >>> # With session - auto-increment on conflicts
+        >>> create_slug_for_model("Test Store", Supplier, session)
+        'test_store'
+        >>> create_slug_for_model("Test Store", Supplier, session)  # Duplicate
+        'test_store_1'
+    """
+    # Unicode normalization: decompose accented characters
+    normalized = unicodedata.normalize("NFD", name)
+
+    # Encode to ASCII, ignoring characters that can't be represented
+    slug = normalized.encode("ascii", "ignore").decode("ascii")
+
+    # Convert to lowercase
+    slug = slug.lower()
+
+    # Replace whitespace and hyphens with underscores
+    slug = re.sub(r"[\s\-]+", "_", slug)
+
+    # Remove all non-alphanumeric characters except underscores
+    slug = re.sub(r"[^a-z0-9_]", "", slug)
+
+    # Collapse multiple consecutive underscores to single underscore
+    slug = re.sub(r"_+", "_", slug)
+
+    # Strip leading and trailing underscores
+    slug = slug.strip("_")
+
+    # If no session provided, return base slug without uniqueness check
+    if session is None:
+        return slug
+
+    # Uniqueness checking with auto-increment
+    existing = session.query(model_class).filter(
+        model_class.slug == slug
+    ).first()
+
+    if not existing:
+        return slug
+
+    # Base slug exists, try appending incrementing numbers
+    original_slug = slug
+    counter = 1
+
+    while True:
+        candidate_slug = f"{original_slug}_{counter}"
+        existing = session.query(model_class).filter(
+            model_class.slug == candidate_slug
+        ).first()
+
+        if not existing:
+            return candidate_slug
+
+        counter += 1
+
+        # Safety check: prevent infinite loop (should never happen in practice)
+        if counter > 10000:
+            raise ValueError(
+                f"Unable to generate unique slug for '{name}' after 10000 attempts. "
+                "This should never happen - please investigate database state."
+            )
+
+
 def validate_slug_format(slug: str) -> bool:
     """Validate that a slug meets format requirements.
 

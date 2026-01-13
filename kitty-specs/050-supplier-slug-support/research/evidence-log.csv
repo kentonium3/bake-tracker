@@ -1,0 +1,10 @@
+evidence_id,source_id,finding,relevance,notes
+EVD-001,SRC-001,create_slug() uses NFD Unicode normalization,high,Handles accented characters gracefully
+EVD-002,SRC-001,Conflict resolution uses _1 _2 _3 numeric suffixes,high,Starting at _1 not _2 as spec states
+EVD-003,SRC-001,create_slug() hardcodes Ingredient model import,medium,Needs generalization for Supplier
+EVD-004,SRC-002,Ingredient slug is nullable with unique constraint,medium,Supplier should be non-nullable
+EVD-005,SRC-003,Material slug is non-nullable with unique constraint,high,Follow this pattern for Supplier
+EVD-006,SRC-005,Material uses simpler slugify() without Unicode normalization,low,Use full create_slug() for consistency
+EVD-007,SRC-006,Supplier FK resolution uses name not slug,high,Current gap to fix
+EVD-008,SRC-007,FK resolver collects supplier names not slugs,high,Current gap to fix
+EVD-009,SRC-009,Constitution VII endorses slug-based FKs,high,Feature is constitution-aligned

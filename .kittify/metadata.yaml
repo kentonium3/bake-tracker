@@ -3,12 +3,16 @@
 # DO NOT EDIT MANUALLY
 
 spec_kitty:
-  version: 0.10.12
+  version: 0.10.13
   initialized_at: '2026-01-12T10:28:16.553014'
-  last_upgraded_at: null
+  last_upgraded_at: '2026-01-12T23:24:10.237923'
 environment:
   python_version: 3.13.11
   platform: darwin
   platform_version: macOS-26.2-x86_64-i386-64bit-Mach-O
 migrations:
-  applied: []
+  applied:
+  - id: 0.10.12_constitution_cleanup
+    applied_at: '2026-01-12T23:24:10.237910'
+    result: success
+    notes: Removed software-dev/constitution/

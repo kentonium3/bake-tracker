@@ -1,0 +1,10 @@
+source_id,source_type,location,description,accessed_date
+SRC-001,code,src/utils/slug_utils.py,Primary slug generation utility with Unicode normalization,2026-01-12
+SRC-002,code,src/models/ingredient.py,Ingredient model slug field definition,2026-01-12
+SRC-003,code,src/models/material.py,Material model slug field definition,2026-01-12
+SRC-004,code,src/services/ingredient_service.py,Ingredient service slug usage patterns,2026-01-12
+SRC-005,code,src/services/material_catalog_service.py,Material service slugify function,2026-01-12
+SRC-006,code,src/services/enhanced_import_service.py,Import service slug resolution,2026-01-12
+SRC-007,code,src/services/fk_resolver_service.py,FK resolver slug lookups,2026-01-12
+SRC-008,code,src/models/supplier.py,Current supplier model (no slug),2026-01-12
+SRC-009,doc,.kittify/memory/constitution.md,Constitution v1.4.0 slug endorsement,2026-01-12

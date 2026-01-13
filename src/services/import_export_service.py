@@ -6,6 +6,7 @@ for testing purposes. No UI required - designed for programmatic use.
 """
 
 import json
+import logging
 from decimal import Decimal
 from typing import Dict, List, Optional, Tuple
 from datetime import datetime, date
@@ -14,11 +15,14 @@ from pathlib import Path
 
 from sqlalchemy.orm import joinedload
 
+logger = logging.getLogger(__name__)
+
 from src.services import ingredient_crud_service
 from src.services import recipe_service, finished_good_service
 from src.services import package_service, recipient_service, event_service
 from src.services import catalog_import_service
 from src.services.exceptions import ValidationError
+from src.services.supplier_service import generate_supplier_slug
 from src.services.database import session_scope
 from src.models.ingredient import Ingredient
 from src.models.product import Product
@@ -92,6 +96,30 @@ class ImportResult:
             warning_entry["suggestion"] = suggestion
         self.warnings.append(warning_entry)
 
+    def add_update(
+        self,
+        record_type: str,
+        record_name: str,
+        message: str,
+    ):
+        """Record an updated record (merge mode).
+
+        Args:
+            record_type: Type of record (e.g., "supplier")
+            record_name: Identifier for the record
+            message: Description of what was updated
+        """
+        self.successful += 1
+        self.total_records += 1
+        self._ensure_entity(record_type)
+        self.entity_counts[record_type]["updated"] += 1
+        self.warnings.append({
+            "record_type": record_type,
+            "record_name": record_name,
+            "warning_type": "updated",
+            "message": message,
+        })
+
     def add_error(
         self,
         record_type: str,
@@ -149,7 +177,7 @@ class ImportResult:
     def _ensure_entity(self, entity_type: str):
         """Ensure entity type exists in entity_counts."""
         if entity_type not in self.entity_counts:
-            self.entity_counts[entity_type] = {"imported": 0, "skipped": 0, "errors": 0}
+            self.entity_counts[entity_type] = {"imported": 0, "skipped": 0, "errors": 0, "updated": 0}
 
     def merge(self, other: "ImportResult"):
         """Merge another ImportResult into this one."""
@@ -164,6 +192,7 @@ class ImportResult:
             self.entity_counts[entity]["imported"] += counts["imported"]
             self.entity_counts[entity]["skipped"] += counts["skipped"]
             self.entity_counts[entity]["errors"] += counts["errors"]
+            self.entity_counts[entity]["updated"] += counts.get("updated", 0)
 
     def get_summary(self) -> str:
         """Get a user-friendly summary string of the import results."""
@@ -179,6 +208,8 @@ class ImportResult:
                 parts = []
                 if counts["imported"] > 0:
                     parts.append(f"{counts['imported']} imported")
+                if counts.get("updated", 0) > 0:
+                    parts.append(f"{counts['updated']} updated")
                 if counts["skipped"] > 0:
                     parts.append(f"{counts['skipped']} skipped")
                 if counts["errors"] > 0:
@@ -1213,13 +1244,17 @@ def export_all_to_json(file_path: str) -> ExportResult:
             export_data["ingredients"].append(ingredient_data)
 
         # Feature 027: Add suppliers (before products, which may reference them)
+        # Feature 050: Build supplier lookup map for product export
+        supplier_lookup = {}  # supplier_id -> {slug, display_name}
         with session_scope() as session:
             suppliers = session.query(Supplier).all()
             for supplier in suppliers:
                 supplier_data = {
                     "id": supplier.id,
                     "uuid": supplier.uuid,
+                    "slug": supplier.slug,  # Feature 050: Portable identifier
                     "name": supplier.name,
+                    "supplier_type": supplier.supplier_type,  # Feature 050
                     "city": supplier.city,
                     "state": supplier.state,
                     "zip_code": supplier.zip_code,
@@ -1227,6 +1262,8 @@ def export_all_to_json(file_path: str) -> ExportResult:
                 }
 
                 # Optional fields
+                if supplier.website_url:
+                    supplier_data["website_url"] = supplier.website_url
                 if supplier.street_address:
                     supplier_data["street_address"] = supplier.street_address
                 if supplier.notes:
@@ -1239,6 +1276,12 @@ def export_all_to_json(file_path: str) -> ExportResult:
                     supplier_data["updated_at"] = supplier.updated_at.isoformat()
 
                 export_data["suppliers"].append(supplier_data)
+
+                # Feature 050: Store for product export lookup
+                supplier_lookup[supplier.id] = {
+                    "slug": supplier.slug,
+                    "display_name": supplier.display_name,
+                }
 
         # Add products (brand/package-specific versions)
         for ingredient in ingredients:
@@ -1286,6 +1329,19 @@ def export_all_to_json(file_path: str) -> ExportResult:
                 # Feature 027: New fields
                 if product.preferred_supplier_id:
                     product_data["preferred_supplier_id"] = product.preferred_supplier_id
+                    # Feature 050: Add slug-based supplier reference
+                    supplier_info = supplier_lookup.get(product.preferred_supplier_id)
+                    if supplier_info:
+                        product_data["preferred_supplier_slug"] = supplier_info["slug"]
+                        product_data["preferred_supplier_name"] = supplier_info["display_name"]
+                    else:
+                        # Supplier was deleted but ID still referenced
+                        product_data["preferred_supplier_slug"] = None
+                        product_data["preferred_supplier_name"] = None
+                else:
+                    # Feature 050: Include null fields for products without supplier
+                    product_data["preferred_supplier_slug"] = None
+                    product_data["preferred_supplier_name"] = None
                 # Always include is_hidden for round-trip (defaults to False)
                 product_data["is_hidden"] = product.is_hidden
 
@@ -2447,7 +2503,111 @@ def import_assembly_runs_from_json(
     return result
 
 
-def import_all_from_json_v4(file_path: str, mode: str = "merge") -> ImportResult:
+def _import_dry_run_preview(
+    data: dict, mode: str, skip_duplicates: bool
+) -> ImportResult:
+    """
+    Generate a preview of what an import would do without making changes.
+
+    Feature 050: Dry-run preview for import operations.
+
+    Args:
+        data: Parsed JSON data to preview
+        mode: Import mode ("merge" or "replace")
+        skip_duplicates: Whether to skip existing records
+
+    Returns:
+        ImportResult with preview counts (no DB changes made)
+    """
+    result = ImportResult()
+    result.warnings.append("DRY RUN - No changes were made to the database")
+
+    with session_scope() as session:
+        # Preview suppliers
+        if "suppliers" in data:
+            for supplier_data in data["suppliers"]:
+                name = supplier_data.get("name", "unknown")
+                slug = supplier_data.get("slug")
+                city = supplier_data.get("city", "")
+                state = supplier_data.get("state", "")
+
+                # Check for existing supplier
+                existing = None
+                if slug:
+                    existing = session.query(Supplier).filter_by(slug=slug).first()
+                if not existing and name and city and state:
+                    existing = session.query(Supplier).filter_by(
+                        name=name, city=city, state=state
+                    ).first()
+
+                if existing:
+                    if skip_duplicates:
+                        result.add_skip("supplier", f"{name} ({city}, {state})", "Would skip (exists)")
+                    else:
+                        # In replace mode, would update
+                        result.add_success("supplier")
+                else:
+                    result.add_success("supplier")
+
+        # Preview ingredients
+        if "ingredients" in data:
+            for ing in data["ingredients"]:
+                slug = ing.get("slug", "unknown")
+                if skip_duplicates:
+                    existing = session.query(Ingredient).filter_by(slug=slug).first()
+                    if existing:
+                        result.add_skip("ingredient", slug, "Would skip (exists)")
+                        continue
+                result.add_success("ingredient")
+
+        # Preview products
+        if "products" in data:
+            for prod in data["products"]:
+                brand = prod.get("brand", "unknown")
+                ing_slug = prod.get("ingredient_slug", "")
+                if skip_duplicates:
+                    ingredient = session.query(Ingredient).filter_by(slug=ing_slug).first()
+                    if ingredient:
+                        existing = session.query(Product).filter_by(
+                            ingredient_id=ingredient.id,
+                            brand=brand,
+                            product_name=prod.get("product_name"),
+                            package_size=prod.get("package_size"),
+                            package_unit=prod.get("package_unit"),
+                            package_unit_quantity=prod.get("package_unit_quantity"),
+                        ).first()
+                        if existing:
+                            result.add_skip("product", brand, "Would skip (exists)")
+                            continue
+                result.add_success("product")
+
+        # Preview purchases
+        if "purchases" in data:
+            for purch in data["purchases"]:
+                result.add_success("purchase")
+
+        # Preview inventory items
+        if "inventory_items" in data:
+            for item in data["inventory_items"]:
+                result.add_success("inventory_item")
+
+        # Preview recipes
+        if "recipes" in data:
+            for recipe in data["recipes"]:
+                slug = recipe.get("slug", "unknown")
+                if skip_duplicates:
+                    existing = session.query(Recipe).filter_by(slug=slug).first()
+                    if existing:
+                        result.add_skip("recipe", slug, "Would skip (exists)")
+                        continue
+                result.add_success("recipe")
+
+    return result
+
+
+def import_all_from_json_v4(
+    file_path: str, mode: str = "merge", dry_run: bool = False
+) -> ImportResult:
     """
     Import all data from a v4.0 format JSON file.
 
@@ -2474,9 +2634,11 @@ def import_all_from_json_v4(file_path: str, mode: str = "merge") -> ImportResult
     Args:
         file_path: Path to v4.0 format JSON file
         mode: Import mode - "merge" (default) or "replace"
+        dry_run: If True, return preview without making any DB changes (Feature 050)
 
     Returns:
-        ImportResult with detailed per-entity statistics
+        ImportResult with detailed per-entity statistics.
+        In dry_run mode, entity_counts show what WOULD happen without changes.
 
     Raises:
         ValueError: If mode is not "merge" or "replace"
@@ -2492,6 +2654,10 @@ def import_all_from_json_v4(file_path: str, mode: str = "merge") -> ImportResult
         # Read file
         with open(file_path, "r", encoding="utf-8") as f:
             data = json.load(f)
+
+        # Feature 050: Dry-run preview mode
+        if dry_run:
+            return _import_dry_run_preview(data, mode, skip_duplicates)
 
         # Use single transaction for atomicity
         with session_scope() as session:
@@ -2585,6 +2751,8 @@ def import_all_from_json_v4(file_path: str, mode: str = "merge") -> ImportResult
             # 1.5 Feature 027: Suppliers (before products, which reference them)
             # Track old_id -> new_id mapping for FK resolution in merge mode
             supplier_id_map = {}  # old_id -> new_id
+            # Feature 050: Also track slug -> id mapping for slug-based FK resolution
+            supplier_slug_map = {}  # slug -> id
             if "suppliers" in data:
                 for supplier_data in data["suppliers"]:
                     try:
@@ -2592,35 +2760,111 @@ def import_all_from_json_v4(file_path: str, mode: str = "merge") -> ImportResult
                         city = supplier_data.get("city", "")
                         state = supplier_data.get("state", "")
                         old_id = supplier_data.get("id")
+                        # Feature 050: Get slug and supplier_type from import data
+                        import_slug = supplier_data.get("slug")
+                        supplier_type = supplier_data.get("supplier_type", "physical")
 
-                        if not name or not city or not state:
+                        # Feature 050: Online suppliers only need name; physical need city/state
+                        if not name:
                             result.add_error(
                                 "supplier",
                                 name or "unknown",
-                                "Missing required fields: name, city, or state"
+                                "Missing required field: name"
+                            )
+                            continue
+                        if supplier_type == "physical" and (not city or not state):
+                            result.add_error(
+                                "supplier",
+                                name,
+                                "Physical suppliers require city and state"
                             )
                             continue
 
                         if skip_duplicates:
-                            # Check by name + city + state (unique supplier locations)
-                            existing = session.query(Supplier).filter_by(
-                                name=name,
-                                city=city,
-                                state=state,
-                            ).first()
+                            # Feature 050: Prefer slug-based matching, fallback to name+city+state
+                            existing = None
+                            if import_slug:
+                                existing = session.query(Supplier).filter_by(slug=import_slug).first()
+                            if not existing and supplier_type == "physical":
+                                # Fallback to name + city + state (unique supplier locations)
+                                existing = session.query(Supplier).filter_by(
+                                    name=name,
+                                    city=city,
+                                    state=state,
+                                ).first()
+                            if not existing and supplier_type == "online":
+                                # Online suppliers: fallback to name-only matching
+                                existing = session.query(Supplier).filter_by(
+                                    name=name,
+                                    supplier_type="online",
+                                ).first()
                             if existing:
-                                result.add_skip("supplier", f"{name} ({city}, {state})", "Already exists")
-                                # Track mapping even for skipped suppliers
+                                # Feature 050: Merge mode - sparse update existing suppliers
+                                # Only update fields explicitly present in import (never slug)
+                                updated_fields = []
+                                if "name" in supplier_data and supplier_data["name"] != existing.name:
+                                    existing.name = supplier_data["name"]
+                                    updated_fields.append("name")
+                                if "supplier_type" in supplier_data and supplier_data["supplier_type"] != existing.supplier_type:
+                                    existing.supplier_type = supplier_data["supplier_type"]
+                                    updated_fields.append("supplier_type")
+                                if "street_address" in supplier_data and supplier_data.get("street_address") != existing.street_address:
+                                    existing.street_address = supplier_data.get("street_address")
+                                    updated_fields.append("street_address")
+                                if "city" in supplier_data and supplier_data["city"] != existing.city:
+                                    existing.city = supplier_data["city"]
+                                    updated_fields.append("city")
+                                if "state" in supplier_data and supplier_data["state"] != existing.state:
+                                    existing.state = supplier_data["state"]
+                                    updated_fields.append("state")
+                                if "zip_code" in supplier_data and supplier_data.get("zip_code") != existing.zip_code:
+                                    existing.zip_code = supplier_data.get("zip_code", "")
+                                    updated_fields.append("zip_code")
+                                if "website_url" in supplier_data and supplier_data.get("website_url") != existing.website_url:
+                                    existing.website_url = supplier_data.get("website_url")
+                                    updated_fields.append("website_url")
+                                if "notes" in supplier_data and supplier_data.get("notes") != existing.notes:
+                                    existing.notes = supplier_data.get("notes")
+                                    updated_fields.append("notes")
+                                if "is_active" in supplier_data and supplier_data.get("is_active") != existing.is_active:
+                                    existing.is_active = supplier_data.get("is_active", True)
+                                    updated_fields.append("is_active")
+                                # Note: slug is NEVER updated (immutability)
+
+                                if updated_fields:
+                                    result.add_update("supplier", f"{name} ({city or 'online'}, {state or ''})", f"Updated: {', '.join(updated_fields)}")
+                                else:
+                                    result.add_skip("supplier", f"{name} ({city or 'online'}, {state or ''})", "Already exists (no changes)")
+                                # Track mapping for existing suppliers
                                 if old_id:
                                     supplier_id_map[old_id] = existing.id
+                                # Feature 050: Track slug mapping
+                                if existing.slug:
+                                    supplier_slug_map[existing.slug] = existing.id
                                 continue
 
+                        # Feature 050: Generate slug if not provided
+                        slug = import_slug
+                        if not slug:
+                            slug = generate_supplier_slug(
+                                name=name,
+                                supplier_type=supplier_type,
+                                city=city,
+                                state=state,
+                                session=session,
+                            )
+
+                        # Feature 050: For online suppliers, use None instead of empty strings
+                        # to satisfy database CHECK constraints
                         supplier = Supplier(
                             name=name,
+                            slug=slug,
+                            supplier_type=supplier_type,
                             street_address=supplier_data.get("street_address"),
-                            city=city,
-                            state=state,
-                            zip_code=supplier_data.get("zip_code", ""),
+                            city=city if city else None,
+                            state=state if state else None,
+                            zip_code=supplier_data.get("zip_code") or None,
+                            website_url=supplier_data.get("website_url"),
                             notes=supplier_data.get("notes"),
                             is_active=supplier_data.get("is_active", True),
                         )
@@ -2637,6 +2881,8 @@ def import_all_from_json_v4(file_path: str, mode: str = "merge") -> ImportResult
                         # Track old->new ID mapping for product FK resolution
                         if old_id:
                             supplier_id_map[old_id] = supplier.id
+                        # Feature 050: Track slug mapping
+                        supplier_slug_map[slug] = supplier.id
                     except Exception as e:
                         result.add_error("supplier", supplier_data.get("name", "unknown"), str(e))
 
@@ -2676,9 +2922,27 @@ def import_all_from_json_v4(file_path: str, mode: str = "merge") -> ImportResult
                             ).first()
                             if existing:
                                 # Update preferred_supplier_id on existing product if import has one
-                                old_supplier_id = prod_data.get("preferred_supplier_id")
-                                if old_supplier_id and not existing.preferred_supplier_id:
-                                    new_supplier_id = supplier_id_map.get(old_supplier_id)
+                                # Feature 050: Prefer slug-based resolution, fallback to ID
+                                if not existing.preferred_supplier_id:
+                                    new_supplier_id = None
+                                    supplier_slug = prod_data.get("preferred_supplier_slug")
+                                    if supplier_slug:
+                                        # Try slug-based lookup
+                                        new_supplier_id = supplier_slug_map.get(supplier_slug)
+                                        if not new_supplier_id:
+                                            # Try direct database lookup
+                                            sup = session.query(Supplier).filter_by(slug=supplier_slug).first()
+                                            if sup:
+                                                new_supplier_id = sup.id
+                                            else:
+                                                logger.warning(f"Supplier slug not found: {supplier_slug}")
+                                    if not new_supplier_id:
+                                        # Fallback to ID-based resolution (legacy support)
+                                        old_supplier_id = prod_data.get("preferred_supplier_id")
+                                        if old_supplier_id:
+                                            new_supplier_id = supplier_id_map.get(old_supplier_id)
+                                            if new_supplier_id:
+                                                logger.info(f"Using legacy supplier_id fallback: {old_supplier_id}")
                                     if new_supplier_id:
                                         existing.preferred_supplier_id = new_supplier_id
                                         result.add_success("product")  # Count as success since we updated it
@@ -2692,16 +2956,34 @@ def import_all_from_json_v4(file_path: str, mode: str = "merge") -> ImportResult
                             result.add_error("product", brand, unit_error)
                             continue
 
-                        # Resolve preferred_supplier_id using ID mapping
-                        old_supplier_id = prod_data.get("preferred_supplier_id")
+                        # Feature 050: Resolve preferred_supplier_id - prefer slug, fallback to ID
                         new_supplier_id = None
-                        if old_supplier_id:
-                            new_supplier_id = supplier_id_map.get(old_supplier_id)
+                        supplier_slug = prod_data.get("preferred_supplier_slug")
+                        if supplier_slug:
+                            # Try slug-based lookup from mapping first
+                            new_supplier_id = supplier_slug_map.get(supplier_slug)
                             if not new_supplier_id:
-                                # Supplier might already exist with same ID (replace mode)
-                                existing_supplier = session.query(Supplier).filter_by(id=old_supplier_id).first()
+                                # Try direct database lookup
+                                existing_supplier = session.query(Supplier).filter_by(slug=supplier_slug).first()
                                 if existing_supplier:
-                                    new_supplier_id = old_supplier_id
+                                    new_supplier_id = existing_supplier.id
+                                else:
+                                    logger.warning(f"Supplier slug not found: {supplier_slug}")
+                        if not new_supplier_id:
+                            # Fallback to ID-based resolution (legacy support)
+                            old_supplier_id = prod_data.get("preferred_supplier_id")
+                            if old_supplier_id:
+                                new_supplier_id = supplier_id_map.get(old_supplier_id)
+                                if not new_supplier_id:
+                                    # Supplier might already exist with same ID (replace mode)
+                                    existing_supplier = session.query(Supplier).filter_by(id=old_supplier_id).first()
+                                    if existing_supplier:
+                                        new_supplier_id = old_supplier_id
+                                        logger.info(f"Using legacy supplier_id fallback: {old_supplier_id}")
+                                    else:
+                                        logger.warning(f"Legacy supplier_id not found: {old_supplier_id}")
+                                else:
+                                    logger.info(f"Using legacy supplier_id fallback: {old_supplier_id}")
 
                         product = Product(
                             ingredient_id=ingredient.id,

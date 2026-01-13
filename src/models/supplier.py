@@ -45,6 +45,7 @@ class Supplier(BaseModel):
 
     # Supplier information
     name = Column(String(200), nullable=False)
+    slug = Column(String(100), nullable=False, unique=True, index=True)
     supplier_type = Column(String(20), nullable=False, default="physical")
     website_url = Column(String(500), nullable=True)
     street_address = Column(String(200), nullable=True)
@@ -71,6 +72,8 @@ class Supplier(BaseModel):
             "supplier_type IN ('physical', 'online')",
             name="ck_supplier_type_valid"
         ),
+        # Unique index for slug (portable identifier)
+        Index("idx_supplier_slug", "slug", unique=True),
         # Index for name + city lookups (e.g., "Costco in Waltham")
         Index("idx_supplier_name_city", "name", "city"),
         # Index for filtering active suppliers in dropdowns

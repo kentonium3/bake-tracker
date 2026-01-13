@@ -12,10 +12,13 @@ Key Features:
 """
 
 import json
+import logging
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Literal, Optional, Tuple
+
+logger = logging.getLogger(__name__)
 
 from sqlalchemy.orm import Session
 
@@ -36,6 +39,7 @@ from src.services.fk_resolver_service import (
 )
 from src.services.import_export_service import ImportResult
 from src.services.database import session_scope
+from src.services.supplier_service import generate_supplier_slug
 
 
 # ============================================================================
@@ -409,7 +413,8 @@ def _find_entity_by_slug(
     elif entity_type == "product":
         return session.query(Product).filter(Product.slug == slug).first()
     elif entity_type == "supplier":
-        return session.query(Supplier).filter(Supplier.name == slug).first()
+        # Feature 050: Use slug-based matching for suppliers
+        return session.query(Supplier).filter(Supplier.slug == slug).first()
 
     return None
 
@@ -597,7 +602,8 @@ def _resolve_fk_by_slug(
         return ing.id if ing else None
 
     elif entity_type == "supplier":
-        sup = session.query(Supplier).filter(Supplier.name == slug_value).first()
+        # Feature 050: Use slug-based supplier resolution
+        sup = session.query(Supplier).filter(Supplier.slug == slug_value).first()
         return sup.id if sup else None
 
     elif entity_type == "product":
@@ -652,6 +658,11 @@ def _find_existing_by_slug(
             return session.query(Ingredient).filter(Ingredient.slug == slug).first()
 
     elif entity_type == "supplier":
+        # Feature 050: Prefer slug-based matching
+        slug = record.get("slug")
+        if slug:
+            return session.query(Supplier).filter(Supplier.slug == slug).first()
+        # Fallback to name-based matching for backward compatibility
         name = record.get("supplier_name") or record.get("name")
         if name:
             return session.query(Supplier).filter(Supplier.name == name).first()
@@ -729,6 +740,18 @@ def _import_record_merge(
         # IMPORTANT: Honor _meta.editable_fields strictly (FR-014)
         # Never update readonly/computed fields like unit_cost, unit_price, quantity_purchased
         fields_to_update = list(editable_fields)
+
+        # Feature 050: Supplier-specific sparse update logic
+        if entity_type == "supplier":
+            # NEVER update slug (immutability preserved)
+            if "slug" in fields_to_update:
+                fields_to_update.remove("slug")
+            # If no editable_fields provided, use supplier-specific field list
+            if not fields_to_update:
+                fields_to_update = [
+                    "name", "supplier_type", "website_url", "city",
+                    "state", "zip_code", "street_address", "notes"
+                ]
 
         # Update fields
         updated = False
@@ -816,24 +839,46 @@ def _create_new_record(
 
         elif entity_type == "supplier":
             name = record.get("supplier_name") or record.get("name")
-            city = record.get("city")
-            state = record.get("state")
-            zip_code = record.get("zip_code") or record.get("zip")
+            city = record.get("city") or ""
+            state = record.get("state") or ""
+            zip_code = record.get("zip_code") or record.get("zip") or ""
+            supplier_type = record.get("supplier_type", "physical")
 
             if not name:
                 return ("failed", "Missing required field: name")
-            if not city:
-                return ("failed", "Missing required field: city")
-            if not state:
-                return ("failed", "Missing required field: state")
-            if not zip_code:
-                return ("failed", "Missing required field: zip_code")
+            # Feature 050: Only physical suppliers require city/state/zip
+            if supplier_type == "physical":
+                if not city:
+                    return ("failed", "Physical suppliers require city")
+                if not state:
+                    return ("failed", "Physical suppliers require state")
+                if not zip_code:
+                    return ("failed", "Physical suppliers require zip_code")
 
+            # Feature 050: Generate slug for supplier
+            # Prefer slug from record if provided, otherwise generate
+            slug = record.get("slug")
+            if not slug:
+                slug = generate_supplier_slug(
+                    name=name,
+                    supplier_type=supplier_type,
+                    city=city,
+                    state=state,
+                    session=session,
+                )
+
+            # Feature 050: Use None instead of empty strings for online suppliers
+            # to satisfy database CHECK constraints
             supplier = Supplier(
                 name=name,
-                city=city,
-                state=state,
-                zip_code=zip_code,
+                slug=slug,
+                supplier_type=supplier_type,
+                city=city if city else None,
+                state=state if state else None,
+                zip_code=zip_code if zip_code else None,
+                website_url=record.get("website_url"),
+                street_address=record.get("street_address"),
+                notes=record.get("notes"),
             )
             session.add(supplier)
             return ("added", None)

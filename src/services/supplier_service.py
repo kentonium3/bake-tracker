@@ -37,6 +37,112 @@ from sqlalchemy.orm import Session
 from src.models import Supplier, Product, Purchase
 from src.services.database import session_scope
 from src.services.exceptions import SupplierNotFoundError
+from src.utils.slug_utils import create_slug_for_model, validate_slug_format
+
+
+def generate_supplier_slug(
+    name: str,
+    supplier_type: str,
+    city: Optional[str] = None,
+    state: Optional[str] = None,
+    session: Optional[Session] = None,
+) -> str:
+    """Generate slug for supplier based on type.
+
+    Physical suppliers: {name}_{city}_{state} normalized
+    Online suppliers: {name} only
+
+    Uses Unicode normalization and conflict resolution matching existing
+    Ingredient/Material patterns.
+
+    Args:
+        name: Supplier name (required)
+        supplier_type: 'physical' or 'online'
+        city: City name (used for physical suppliers)
+        state: 2-letter state code (used for physical suppliers)
+        session: Optional session for uniqueness checking
+
+    Returns:
+        Generated slug string
+
+    Examples:
+        >>> generate_supplier_slug("Wegmans", "physical", "Burlington", "MA")
+        'wegmans_burlington_ma'
+
+        >>> generate_supplier_slug("King Arthur Baking", "online")
+        'king_arthur_baking'
+    """
+    if supplier_type == "online":
+        input_string = name
+    else:
+        # Physical supplier: include location
+        parts = [name]
+        if city:
+            parts.append(city)
+        if state:
+            parts.append(state)
+        input_string = " ".join(parts)
+
+    return create_slug_for_model(input_string, Supplier, session)
+
+
+def validate_supplier_data(supplier_data: Dict[str, Any]) -> List[str]:
+    """Validate supplier data before creation or import.
+
+    This function validates supplier data, checking required fields and
+    format constraints. Used during import operations to validate data
+    before committing to the database.
+
+    Args:
+        supplier_data: Dictionary containing supplier fields
+
+    Returns:
+        List of validation error messages (empty if valid)
+
+    Example:
+        >>> errors = validate_supplier_data({"name": ""})
+        >>> errors
+        ['Supplier name is required']
+
+        >>> errors = validate_supplier_data({"name": "Test", "slug": "INVALID SLUG"})
+        >>> errors
+        ['Invalid slug format: must be lowercase, alphanumeric with underscores']
+    """
+    errors = []
+
+    # Name is required
+    name = supplier_data.get("name")
+    if not name or not str(name).strip():
+        errors.append("Supplier name is required")
+
+    # Slug is auto-generated, but if provided, validate format
+    if "slug" in supplier_data and supplier_data["slug"]:
+        if not validate_slug_format(supplier_data["slug"]):
+            errors.append(
+                "Invalid slug format: must be lowercase, alphanumeric with underscores"
+            )
+
+    # Validate supplier_type if provided
+    supplier_type = supplier_data.get("supplier_type", "physical")
+    if supplier_type not in ("physical", "online"):
+        errors.append("supplier_type must be 'physical' or 'online'")
+
+    # Validate state format if provided
+    state = supplier_data.get("state")
+    if state:
+        if len(state) != 2:
+            errors.append("State must be a 2-letter code")
+
+    # Physical suppliers require city, state, zip_code
+    if supplier_type == "physical":
+        if not supplier_data.get("city"):
+            errors.append("City is required for physical suppliers")
+        if not supplier_data.get("state"):
+            errors.append("State is required for physical suppliers")
+        if not supplier_data.get("zip_code"):
+            errors.append("ZIP code is required for physical suppliers")
+
+    return errors
 
 
 def create_supplier(
@@ -149,8 +255,18 @@ def _create_supplier_impl(
     if website_url and not website_url.startswith(("http://", "https://")):
         raise ValueError("Website URL must start with http:// or https://")
 
+    # Generate unique slug based on supplier type
+    slug = generate_supplier_slug(
+        name=name,
+        supplier_type=supplier_type,
+        city=city,
+        state=state,
+        session=session,
+    )
+
     supplier = Supplier(
         name=name,
+        slug=slug,
         supplier_type=supplier_type,
         website_url=website_url,
         city=city,
@@ -278,19 +394,24 @@ def update_supplier(
     session: Optional[Session] = None,
     **kwargs,
 ) -> Dict[str, Any]:
-    """Update supplier attributes.
+    """Update supplier attributes. Slug is immutable and cannot be changed.
 
     Args:
         supplier_id: Supplier ID
         session: Optional database session
-        **kwargs: Fields to update (name, city, state, zip_code, street_address, notes)
+        **kwargs: Fields to update (name, city, state, zip_code, street_address,
+            notes, supplier_type, website_url). Slug changes are rejected.
 
     Returns:
         Dict[str, Any]: Updated supplier as dictionary
 
     Raises:
         SupplierNotFoundError: If supplier not found
-        ValueError: If state is invalid
+        ValueError: If state is invalid or attempting to modify slug
+
+    Note:
+        Slug is generated once at creation and NEVER regenerated, even if
+        name/city/state changes. This preserves data portability for exports.
 
     Example:
         >>> supplier = update_supplier(1, name="Costco Business Center")
@@ -308,6 +429,20 @@ def _update_supplier_impl(supplier_id: int, session: Session, **kwargs) -> Dict[
     supplier = session.query(Supplier).filter(Supplier.id == supplier_id).first()
     if not supplier:
         raise SupplierNotFoundError(supplier_id)
+
+    # Feature 050: Slug immutability enforcement
+    # Slug is generated once at creation and NEVER regenerated,
+    # even if name/city/state changes. This preserves data portability.
+    if "slug" in kwargs:
+        new_slug = kwargs["slug"]
+        if new_slug != supplier.slug:
+            raise ValueError(
+                f"Slug cannot be modified after creation. "
+                f"Current: '{supplier.slug}', Attempted: '{new_slug}'. "
+                f"Slugs are immutable to preserve data portability."
+            )
+        # Remove slug from kwargs (even if same value - it's a no-op)
+        kwargs = {k: v for k, v in kwargs.items() if k != "slug"}
 
     # Validate supplier_type if provided
     if "supplier_type" in kwargs:
@@ -528,3 +663,116 @@ def get_supplier_or_raise(
     if result is None:
         raise SupplierNotFoundError(supplier_id)
     return result
+
+
+def migrate_supplier_slugs(
+    session: Optional[Session] = None,
+) -> Dict[str, Any]:
+    """Generate slugs for all existing suppliers.
+
+    Per clarification (session 2026-01-12): ALL slugs are regenerated to
+    enforce consistency, even if a supplier already has a slug. This ensures
+    all slugs follow the standard pattern.
+
+    The migration is idempotent - running it multiple times produces the
+    same result (though slugs may change if supplier data changes).
+
+    Args:
+        session: Optional database session for transactional atomicity
+
+    Returns:
+        Dict with migration results:
+            - migrated: Number of suppliers processed
+            - conflicts: Number of slug conflicts resolved with suffixes
+            - errors: List of error messages (if any)
+
+    Example:
+        >>> result = migrate_supplier_slugs()
+        >>> result["migrated"]
+        6
+        >>> result["conflicts"]
+        0
+
+        >>> # With conflicting suppliers
+        >>> result = migrate_supplier_slugs()
+        >>> result["conflicts"]
+        1  # One supplier needed _1 suffix
+    """
+    if session is not None:
+        return _migrate_supplier_slugs_impl(session)
+    with session_scope() as session:
+        return _migrate_supplier_slugs_impl(session)
+
+
+def _migrate_supplier_slugs_impl(session: Session) -> Dict[str, Any]:
+    """Implementation of migrate_supplier_slugs."""
+    suppliers = session.query(Supplier).order_by(Supplier.id).all()
+    migrated = 0
+    conflicts = 0
+    errors = []
+
+    # Track slugs we've assigned in this migration to detect conflicts
+    # within the same migration run
+    assigned_slugs = set()
+
+    for supplier in suppliers:
+        try:
+            # Generate the base slug (without uniqueness check)
+            base_slug = generate_supplier_slug(
+                name=supplier.name,
+                supplier_type=supplier.supplier_type,
+                city=supplier.city,
+                state=supplier.state,
+                session=None,  # No session = no uniqueness check
+            )
+
+            # Check if this base slug conflicts with one we've already assigned
+            # in this migration run
+            if base_slug in assigned_slugs:
+                # Need to find a unique variant
+                conflicts += 1
+                counter = 1
+                while True:
+                    candidate_slug = f"{base_slug}_{counter}"
+                    if candidate_slug not in assigned_slugs:
+                        # Also check database for slugs assigned to other suppliers
+                        # we haven't processed yet
+                        existing = session.query(Supplier).filter(
+                            Supplier.slug == candidate_slug,
+                            Supplier.id != supplier.id
+                        ).first()
+                        if not existing:
+                            supplier.slug = candidate_slug
+                            assigned_slugs.add(candidate_slug)
+                            break
+                    counter += 1
+                    if counter > 10000:
+                        errors.append(
+                            f"Could not generate unique slug for supplier {supplier.id}: {supplier.name}"
+                        )
+                        break
+            else:
+                # Check if another supplier (not yet migrated) has this slug
+                existing = session.query(Supplier).filter(
+                    Supplier.slug == base_slug,
+                    Supplier.id != supplier.id
+                ).first()
+                if existing:
+                    # The existing supplier will be re-slugged when we process it
+                    # We can take this slug
+                    pass
+                supplier.slug = base_slug
+                assigned_slugs.add(base_slug)
+
+            migrated += 1
+
+        except Exception as e:
+            errors.append(f"Error migrating supplier {supplier.id}: {str(e)}")
+
+    session.flush()
+
+    return {
+        "migrated": migrated,
+        "conflicts": conflicts,
+        "errors": errors,
+    }
