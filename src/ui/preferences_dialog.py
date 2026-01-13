@@ -30,7 +30,7 @@ class PreferencesDialog(ctk.CTkToplevel):
         """
         super().__init__(parent)
         self.title("Preferences")
-        self.geometry("550x400")
+        self.geometry("550x520")
         self.resizable(False, False)
 
         # Store original values for cancel
@@ -59,6 +59,39 @@ class PreferencesDialog(ctk.CTkToplevel):
 
     def _setup_ui(self):
         """Set up the dialog UI."""
+        # Button frame - pack at bottom FIRST so it's always visible
+        btn_frame = ctk.CTkFrame(self, fg_color="transparent")
+        btn_frame.pack(side="bottom", fill="x", padx=20, pady=(20, 15))
+
+        # Restore Defaults button (left side)
+        restore_btn = ctk.CTkButton(
+            btn_frame,
+            text="Restore Defaults",
+            width=130,
+            fg_color="gray",
+            command=self._on_restore_defaults,
+        )
+        restore_btn.pack(side="left")
+
+        # Cancel button (right side)
+        cancel_btn = ctk.CTkButton(
+            btn_frame,
+            text="Cancel",
+            width=100,
+            fg_color="gray",
+            command=self._on_cancel,
+        )
+        cancel_btn.pack(side="right", padx=(10, 0))
+
+        # Save button (right side)
+        save_btn = ctk.CTkButton(
+            btn_frame,
+            text="Save",
+            width=100,
+            command=self._on_save,
+        )
+        save_btn.pack(side="right")
+
         # Title
         title_label = ctk.CTkLabel(
             self,
@@ -102,39 +135,6 @@ class PreferencesDialog(ctk.CTkToplevel):
             "Where import/export logs are saved (requires write permission)",
             "logs",
         )
-
-        # Button frame
-        btn_frame = ctk.CTkFrame(self, fg_color="transparent")
-        btn_frame.pack(fill="x", padx=20, pady=(20, 15))
-
-        # Restore Defaults button (left side)
-        restore_btn = ctk.CTkButton(
-            btn_frame,
-            text="Restore Defaults",
-            width=130,
-            fg_color="gray",
-            command=self._on_restore_defaults,
-        )
-        restore_btn.pack(side="left")
-
-        # Cancel button (right side)
-        cancel_btn = ctk.CTkButton(
-            btn_frame,
-            text="Cancel",
-            width=100,
-            fg_color="gray",
-            command=self._on_cancel,
-        )
-        cancel_btn.pack(side="right", padx=(10, 0))
-
-        # Save button (right side)
-        save_btn = ctk.CTkButton(
-            btn_frame,
-            text="Save",
-            width=100,
-            command=self._on_save,
-        )
-        save_btn.pack(side="right")
 
     def _create_directory_picker(
         self, parent, label: str, description: str, dir_type: str
