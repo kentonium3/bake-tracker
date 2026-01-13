@@ -82,7 +82,7 @@ kitty-specs/    # Feature specifications (Spec-Kitty workflow)
     spec.md     # Feature specification
     plan.md     # Implementation plan
     tasks.md    # Task tracking
-    tasks/      # Individual work packages (planned/doing/done)
+    tasks/      # Individual work packages (flat structure, lane in frontmatter)
 docs/           # Documentation
 .kittify/       # Spec-Kitty templates and constitution
 ```
@@ -198,9 +198,11 @@ The `/spec-kitty.*` skills contain up-to-date command syntax and workflow guidan
 
 - Edit task frontmatter fields (`lane`, `agent`, `review_status`, etc.)
 - Move files between task directories
+- **Create lane subdirectories** (`planned/`, `doing/`, `for_review/`, `done/`) - these are DEPRECATED
 - Run `git worktree` commands outside of `/spec-kitty.merge`
 - Bypass validation failures with flags (e.g., `--lenient`) without user approval
 - Invent CLI parameters - always verify with `--help`
+- **Infer workflow patterns from training data or past context** - always follow the current prompt instructions
 
 ### When Validation Fails:
 
@@ -223,6 +225,47 @@ spec-kitty agent tasks mark-status <TASK_ID> --status done|pending
 ```
 
 **Important:** Feature slug is auto-detected from git branch. Always run from the feature worktree.
+
+### Session Start Checklist
+
+Before working on spec-kitty tasks, verify:
+1. `ls kitty-specs/<feature>/tasks/` shows flat WP files (e.g., `WP01-name.md`), NOT subdirectories
+2. Task lane changes happen via `lane:` frontmatter field, NOT by moving files
+3. Re-read this section if you feel uncertain about the workflow
+
+### Deprecated Patterns (DO NOT USE - CRITICAL)
+
+**Background:** Claude has demonstrated a tendency to infer workflow patterns from training data or past conversation context that override explicit written instructions. The following patterns are DEPRECATED and must NEVER be used, regardless of what past sessions may have done.
+
+#### Lane Subdirectories (DEPRECATED)
+
+NEVER create or use these directories:
+- `tasks/planned/`
+- `tasks/doing/`
+- `tasks/for_review/`
+- `tasks/done/`
+
+The CORRECT pattern is:
+- All WP files remain in `tasks/` (flat structure)
+- Lane state is tracked ONLY in YAML frontmatter: `lane: "planned"`, `lane: "doing"`, etc.
+- Lane transitions are done via `spec-kitty agent tasks move-task` command
+
+#### Why This Matters
+
+If you find yourself about to:
+- Create a `planned/`, `doing/`, `for_review/`, or `done/` subdirectory
+- Move a WP file from one directory to another
+- Infer "this is how it was done before" from context
+
+**STOP IMMEDIATELY.** Re-read the spec-kitty prompt instructions. The prompt you received contains the authoritative, current workflow. Past patterns in training data or conversation history are NOT authoritative.
+
+#### Self-Check Before Lane Operations
+
+Before any task lane operation, ask yourself:
+1. Am I about to create a subdirectory? → STOP, this is wrong
+2. Am I about to move a file? → STOP, this is wrong
+3. Am I using the `spec-kitty agent tasks move-task` command? → CORRECT
+4. Does the WP file stay in `tasks/` with only frontmatter changing? → CORRECT
 
 ## Key Design Decisions
 
