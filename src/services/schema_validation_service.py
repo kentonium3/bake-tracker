@@ -1076,6 +1076,673 @@ def validate_recipe_schema(
 
 
 # ============================================================================
+# Material Entity Validators (Feature 047)
+# ============================================================================
+
+
+def validate_material_category_schema(
+    data: Dict[str, Any], known_fields: Optional[Set[str]] = None
+) -> ValidationResult:
+    """
+    Validate material category entity records.
+
+    Args:
+        data: Parsed JSON data containing 'material_categories' array
+        known_fields: Optional set of known fields for warning on unexpected
+
+    Returns:
+        ValidationResult with errors and warnings
+    """
+    errors: List[ValidationError] = []
+    warnings: List[ValidationWarning] = []
+
+    if "material_categories" not in data:
+        return ValidationResult(valid=True, errors=[], warnings=[])
+
+    categories = data["material_categories"]
+    if not isinstance(categories, list):
+        errors.append(
+            ValidationError(
+                field="material_categories",
+                message="Expected an array of material category records",
+                record_number=0,
+                expected="array",
+                actual=_get_type_name(categories),
+            )
+        )
+        return ValidationResult(valid=False, errors=errors, warnings=warnings)
+
+    category_fields = {"name", "slug", "description", "sort_order", "id", "uuid"}
+
+    for idx, category in enumerate(categories):
+        record_num = idx + 1
+        prefix = f"material_categories[{idx}]"
+
+        if not isinstance(category, dict):
+            errors.append(
+                ValidationError(
+                    field=prefix,
+                    message="Expected a material category object",
+                    record_number=record_num,
+                    expected="object",
+                    actual=_get_type_name(category),
+                )
+            )
+            continue
+
+        # Required: name
+        if "name" not in category:
+            errors.append(
+                ValidationError(
+                    field=f"{prefix}.name",
+                    message="Missing required field 'name'",
+                    record_number=record_num,
+                    expected="string",
+                    actual="missing",
+                )
+            )
+        elif not _is_non_empty_string(category["name"]):
+            errors.append(
+                ValidationError(
+                    field=f"{prefix}.name",
+                    message="Field 'name' must be a non-empty string",
+                    record_number=record_num,
+                    expected="non-empty string",
+                    actual=_get_type_name(category["name"]),
+                )
+            )
+
+        # Optional: slug (if present, must be valid slug format)
+        if "slug" in category and category["slug"] is not None:
+            if not isinstance(category["slug"], str):
+                errors.append(
+                    ValidationError(
+                        field=f"{prefix}.slug",
+                        message="Field 'slug' must be a string",
+                        record_number=record_num,
+                        expected="string",
+                        actual=_get_type_name(category["slug"]),
+                    )
+                )
+
+        # Optional: sort_order (if present, must be integer)
+        if "sort_order" in category and category["sort_order"] is not None:
+            if not isinstance(category["sort_order"], int) or isinstance(category["sort_order"], bool):
+                errors.append(
+                    ValidationError(
+                        field=f"{prefix}.sort_order",
+                        message="Field 'sort_order' must be an integer",
+                        record_number=record_num,
+                        expected="integer",
+                        actual=_get_type_name(category["sort_order"]),
+                    )
+                )
+
+        # Check for unexpected fields
+        for key in category.keys():
+            if key not in category_fields:
+                warnings.append(
+                    ValidationWarning(
+                        field=f"{prefix}.{key}",
+                        message=f"Unexpected field '{key}' will be ignored",
+                        record_number=record_num,
+                    )
+                )
+
+    return ValidationResult(
+        valid=len(errors) == 0, errors=errors, warnings=warnings
+    )
+
+
+def validate_material_subcategory_schema(
+    data: Dict[str, Any], known_fields: Optional[Set[str]] = None
+) -> ValidationResult:
+    """
+    Validate material subcategory entity records.
+
+    Args:
+        data: Parsed JSON data containing 'material_subcategories' array
+        known_fields: Optional set of known fields for warning on unexpected
+
+    Returns:
+        ValidationResult with errors and warnings
+    """
+    errors: List[ValidationError] = []
+    warnings: List[ValidationWarning] = []
+
+    if "material_subcategories" not in data:
+        return ValidationResult(valid=True, errors=[], warnings=[])
+
+    subcategories = data["material_subcategories"]
+    if not isinstance(subcategories, list):
+        errors.append(
+            ValidationError(
+                field="material_subcategories",
+                message="Expected an array of material subcategory records",
+                record_number=0,
+                expected="array",
+                actual=_get_type_name(subcategories),
+            )
+        )
+        return ValidationResult(valid=False, errors=errors, warnings=warnings)
+
+    subcategory_fields = {
+        "name", "slug", "category_slug", "category_id", "description", "sort_order", "id", "uuid"
+    }
+
+    for idx, subcategory in enumerate(subcategories):
+        record_num = idx + 1
+        prefix = f"material_subcategories[{idx}]"
+
+        if not isinstance(subcategory, dict):
+            errors.append(
+                ValidationError(
+                    field=prefix,
+                    message="Expected a material subcategory object",
+                    record_number=record_num,
+                    expected="object",
+                    actual=_get_type_name(subcategory),
+                )
+            )
+            continue
+
+        # Required: name
+        if "name" not in subcategory:
+            errors.append(
+                ValidationError(
+                    field=f"{prefix}.name",
+                    message="Missing required field 'name'",
+                    record_number=record_num,
+                    expected="string",
+                    actual="missing",
+                )
+            )
+        elif not _is_non_empty_string(subcategory["name"]):
+            errors.append(
+                ValidationError(
+                    field=f"{prefix}.name",
+                    message="Field 'name' must be a non-empty string",
+                    record_number=record_num,
+                    expected="non-empty string",
+                    actual=_get_type_name(subcategory["name"]),
+                )
+            )
+
+        # Required: category_slug (FK reference)
+        if "category_slug" not in subcategory and "category_id" not in subcategory:
+            errors.append(
+                ValidationError(
+                    field=f"{prefix}.category_slug",
+                    message="Missing required field 'category_slug' or 'category_id'",
+                    record_number=record_num,
+                    expected="string",
+                    actual="missing",
+                )
+            )
+        elif "category_slug" in subcategory and subcategory["category_slug"] is not None:
+            if not _is_non_empty_string(subcategory["category_slug"]):
+                errors.append(
+                    ValidationError(
+                        field=f"{prefix}.category_slug",
+                        message="Field 'category_slug' must be a non-empty string",
+                        record_number=record_num,
+                        expected="non-empty string",
+                        actual=_get_type_name(subcategory["category_slug"]),
+                    )
+                )
+
+        # Check for unexpected fields
+        for key in subcategory.keys():
+            if key not in subcategory_fields:
+                warnings.append(
+                    ValidationWarning(
+                        field=f"{prefix}.{key}",
+                        message=f"Unexpected field '{key}' will be ignored",
+                        record_number=record_num,
+                    )
+                )
+
+    return ValidationResult(
+        valid=len(errors) == 0, errors=errors, warnings=warnings
+    )
+
+
+def validate_material_schema(
+    data: Dict[str, Any], known_fields: Optional[Set[str]] = None
+) -> ValidationResult:
+    """
+    Validate material entity records.
+
+    Args:
+        data: Parsed JSON data containing 'materials' array
+        known_fields: Optional set of known fields for warning on unexpected
+
+    Returns:
+        ValidationResult with errors and warnings
+    """
+    errors: List[ValidationError] = []
+    warnings: List[ValidationWarning] = []
+
+    if "materials" not in data:
+        return ValidationResult(valid=True, errors=[], warnings=[])
+
+    materials = data["materials"]
+    if not isinstance(materials, list):
+        errors.append(
+            ValidationError(
+                field="materials",
+                message="Expected an array of material records",
+                record_number=0,
+                expected="array",
+                actual=_get_type_name(materials),
+            )
+        )
+        return ValidationResult(valid=False, errors=errors, warnings=warnings)
+
+    material_fields = {
+        "name", "display_name", "slug", "base_unit_type", "description", "notes",
+        "category", "subcategory_slug", "subcategory_id", "category_slug", "category_id",
+        "id", "uuid",
+    }
+    valid_base_units = {"each", "linear_inches", "square_inches"}
+
+    for idx, material in enumerate(materials):
+        record_num = idx + 1
+        prefix = f"materials[{idx}]"
+
+        if not isinstance(material, dict):
+            errors.append(
+                ValidationError(
+                    field=prefix,
+                    message="Expected a material object",
+                    record_number=record_num,
+                    expected="object",
+                    actual=_get_type_name(material),
+                )
+            )
+            continue
+
+        # Required: name or display_name
+        has_name = "name" in material and _is_non_empty_string(material.get("name"))
+        has_display = "display_name" in material and _is_non_empty_string(material.get("display_name"))
+        if not has_name and not has_display:
+            errors.append(
+                ValidationError(
+                    field=f"{prefix}.name",
+                    message="Missing required field 'name' or 'display_name'",
+                    record_number=record_num,
+                    expected="non-empty string",
+                    actual="missing",
+                )
+            )
+
+        # Optional: base_unit_type (if present, must be valid)
+        if "base_unit_type" in material and material["base_unit_type"] is not None:
+            if not isinstance(material["base_unit_type"], str):
+                errors.append(
+                    ValidationError(
+                        field=f"{prefix}.base_unit_type",
+                        message="Field 'base_unit_type' must be a string",
+                        record_number=record_num,
+                        expected="string",
+                        actual=_get_type_name(material["base_unit_type"]),
+                    )
+                )
+            elif material["base_unit_type"] not in valid_base_units:
+                errors.append(
+                    ValidationError(
+                        field=f"{prefix}.base_unit_type",
+                        message=f"Invalid base_unit_type '{material['base_unit_type']}'",
+                        record_number=record_num,
+                        expected=f"one of: {', '.join(valid_base_units)}",
+                        actual=material["base_unit_type"],
+                    )
+                )
+
+        # Check for unexpected fields
+        for key in material.keys():
+            if key not in material_fields:
+                warnings.append(
+                    ValidationWarning(
+                        field=f"{prefix}.{key}",
+                        message=f"Unexpected field '{key}' will be ignored",
+                        record_number=record_num,
+                    )
+                )
+
+    return ValidationResult(
+        valid=len(errors) == 0, errors=errors, warnings=warnings
+    )
+
+
+def validate_material_product_schema(
+    data: Dict[str, Any], known_fields: Optional[Set[str]] = None
+) -> ValidationResult:
+    """
+    Validate material product entity records.
+
+    Args:
+        data: Parsed JSON data containing 'material_products' array
+        known_fields: Optional set of known fields for warning on unexpected
+
+    Returns:
+        ValidationResult with errors and warnings
+    """
+    errors: List[ValidationError] = []
+    warnings: List[ValidationWarning] = []
+
+    if "material_products" not in data:
+        return ValidationResult(valid=True, errors=[], warnings=[])
+
+    products = data["material_products"]
+    if not isinstance(products, list):
+        errors.append(
+            ValidationError(
+                field="material_products",
+                message="Expected an array of material product records",
+                record_number=0,
+                expected="array",
+                actual=_get_type_name(products),
+            )
+        )
+        return ValidationResult(valid=False, errors=errors, warnings=warnings)
+
+    product_fields = {
+        "name", "display_name", "slug", "material_slug", "material", "material_id",
+        "brand", "sku", "package_quantity", "package_unit", "quantity_in_base_units",
+        "current_inventory", "weighted_avg_cost", "is_hidden", "notes",
+        "supplier", "supplier_name", "supplier_slug", "supplier_id",
+        "id", "uuid",
+    }
+
+    for idx, product in enumerate(products):
+        record_num = idx + 1
+        prefix = f"material_products[{idx}]"
+
+        if not isinstance(product, dict):
+            errors.append(
+                ValidationError(
+                    field=prefix,
+                    message="Expected a material product object",
+                    record_number=record_num,
+                    expected="object",
+                    actual=_get_type_name(product),
+                )
+            )
+            continue
+
+        # Required: name or display_name
+        has_name = "name" in product and _is_non_empty_string(product.get("name"))
+        has_display = "display_name" in product and _is_non_empty_string(product.get("display_name"))
+        if not has_name and not has_display:
+            errors.append(
+                ValidationError(
+                    field=f"{prefix}.name",
+                    message="Missing required field 'name' or 'display_name'",
+                    record_number=record_num,
+                    expected="non-empty string",
+                    actual="missing",
+                )
+            )
+
+        # Required: package_quantity (positive number)
+        if "package_quantity" not in product:
+            errors.append(
+                ValidationError(
+                    field=f"{prefix}.package_quantity",
+                    message="Missing required field 'package_quantity'",
+                    record_number=record_num,
+                    expected="positive number",
+                    actual="missing",
+                )
+            )
+        elif not _is_positive_number(product["package_quantity"]):
+            errors.append(
+                ValidationError(
+                    field=f"{prefix}.package_quantity",
+                    message="Field 'package_quantity' must be a positive number",
+                    record_number=record_num,
+                    expected="positive number",
+                    actual=str(product["package_quantity"]),
+                )
+            )
+
+        # Required: package_unit (string)
+        if "package_unit" not in product:
+            errors.append(
+                ValidationError(
+                    field=f"{prefix}.package_unit",
+                    message="Missing required field 'package_unit'",
+                    record_number=record_num,
+                    expected="string",
+                    actual="missing",
+                )
+            )
+        elif not _is_non_empty_string(product["package_unit"]):
+            errors.append(
+                ValidationError(
+                    field=f"{prefix}.package_unit",
+                    message="Field 'package_unit' must be a non-empty string",
+                    record_number=record_num,
+                    expected="non-empty string",
+                    actual=_get_type_name(product["package_unit"]),
+                )
+            )
+
+        # Required: quantity_in_base_units (positive number)
+        if "quantity_in_base_units" not in product:
+            errors.append(
+                ValidationError(
+                    field=f"{prefix}.quantity_in_base_units",
+                    message="Missing required field 'quantity_in_base_units'",
+                    record_number=record_num,
+                    expected="positive number",
+                    actual="missing",
+                )
+            )
+        elif not _is_positive_number(product["quantity_in_base_units"]):
+            errors.append(
+                ValidationError(
+                    field=f"{prefix}.quantity_in_base_units",
+                    message="Field 'quantity_in_base_units' must be a positive number",
+                    record_number=record_num,
+                    expected="positive number",
+                    actual=str(product["quantity_in_base_units"]),
+                )
+            )
+
+        # Optional: current_inventory (if present, must be non-negative)
+        if "current_inventory" in product and product["current_inventory"] is not None:
+            if not _is_non_negative_number(product["current_inventory"]):
+                errors.append(
+                    ValidationError(
+                        field=f"{prefix}.current_inventory",
+                        message="Field 'current_inventory' must be a non-negative number",
+                        record_number=record_num,
+                        expected="non-negative number",
+                        actual=str(product["current_inventory"]),
+                    )
+                )
+
+        # Optional: weighted_avg_cost (if present, must be non-negative)
+        if "weighted_avg_cost" in product and product["weighted_avg_cost"] is not None:
+            if not _is_non_negative_number(product["weighted_avg_cost"]):
+                errors.append(
+                    ValidationError(
+                        field=f"{prefix}.weighted_avg_cost",
+                        message="Field 'weighted_avg_cost' must be a non-negative number",
+                        record_number=record_num,
+                        expected="non-negative number",
+                        actual=str(product["weighted_avg_cost"]),
+                    )
+                )
+
+        # Optional: is_hidden (if present, must be boolean)
+        if "is_hidden" in product and product["is_hidden"] is not None:
+            if not isinstance(product["is_hidden"], bool):
+                errors.append(
+                    ValidationError(
+                        field=f"{prefix}.is_hidden",
+                        message="Field 'is_hidden' must be a boolean",
+                        record_number=record_num,
+                        expected="boolean",
+                        actual=_get_type_name(product["is_hidden"]),
+                    )
+                )
+
+        # Check for unexpected fields
+        for key in product.keys():
+            if key not in product_fields:
+                warnings.append(
+                    ValidationWarning(
+                        field=f"{prefix}.{key}",
+                        message=f"Unexpected field '{key}' will be ignored",
+                        record_number=record_num,
+                    )
+                )
+
+    return ValidationResult(
+        valid=len(errors) == 0, errors=errors, warnings=warnings
+    )
+
+
+def validate_material_unit_schema(
+    data: Dict[str, Any], known_fields: Optional[Set[str]] = None
+) -> ValidationResult:
+    """
+    Validate material unit entity records.
+
+    Args:
+        data: Parsed JSON data containing 'material_units' array
+        known_fields: Optional set of known fields for warning on unexpected
+
+    Returns:
+        ValidationResult with errors and warnings
+    """
+    errors: List[ValidationError] = []
+    warnings: List[ValidationWarning] = []
+
+    if "material_units" not in data:
+        return ValidationResult(valid=True, errors=[], warnings=[])
+
+    units = data["material_units"]
+    if not isinstance(units, list):
+        errors.append(
+            ValidationError(
+                field="material_units",
+                message="Expected an array of material unit records",
+                record_number=0,
+                expected="array",
+                actual=_get_type_name(units),
+            )
+        )
+        return ValidationResult(valid=False, errors=errors, warnings=warnings)
+
+    unit_fields = {
+        "name", "slug", "material_slug", "material_id", "quantity_per_unit", "description",
+        "id", "uuid",
+    }
+
+    for idx, unit in enumerate(units):
+        record_num = idx + 1
+        prefix = f"material_units[{idx}]"
+
+        if not isinstance(unit, dict):
+            errors.append(
+                ValidationError(
+                    field=prefix,
+                    message="Expected a material unit object",
+                    record_number=record_num,
+                    expected="object",
+                    actual=_get_type_name(unit),
+                )
+            )
+            continue
+
+        # Required: name
+        if "name" not in unit:
+            errors.append(
+                ValidationError(
+                    field=f"{prefix}.name",
+                    message="Missing required field 'name'",
+                    record_number=record_num,
+                    expected="string",
+                    actual="missing",
+                )
+            )
+        elif not _is_non_empty_string(unit["name"]):
+            errors.append(
+                ValidationError(
+                    field=f"{prefix}.name",
+                    message="Field 'name' must be a non-empty string",
+                    record_number=record_num,
+                    expected="non-empty string",
+                    actual=_get_type_name(unit["name"]),
+                )
+            )
+
+        # Required: material_slug (FK reference)
+        if "material_slug" not in unit and "material_id" not in unit:
+            errors.append(
+                ValidationError(
+                    field=f"{prefix}.material_slug",
+                    message="Missing required field 'material_slug' or 'material_id'",
+                    record_number=record_num,
+                    expected="string",
+                    actual="missing",
+                )
+            )
+        elif "material_slug" in unit and unit["material_slug"] is not None:
+            if not _is_non_empty_string(unit["material_slug"]):
+                errors.append(
+                    ValidationError(
+                        field=f"{prefix}.material_slug",
+                        message="Field 'material_slug' must be a non-empty string",
+                        record_number=record_num,
+                        expected="non-empty string",
+                        actual=_get_type_name(unit["material_slug"]),
+                    )
+                )
+
+        # Required: quantity_per_unit (positive number)
+        if "quantity_per_unit" not in unit:
+            errors.append(
+                ValidationError(
+                    field=f"{prefix}.quantity_per_unit",
+                    message="Missing required field 'quantity_per_unit'",
+                    record_number=record_num,
+                    expected="positive number",
+                    actual="missing",
+                )
+            )
+        elif not _is_positive_number(unit["quantity_per_unit"]):
+            errors.append(
+                ValidationError(
+                    field=f"{prefix}.quantity_per_unit",
+                    message="Field 'quantity_per_unit' must be a positive number",
+                    record_number=record_num,
+                    expected="positive number",
+                    actual=str(unit["quantity_per_unit"]),
+                )
+            )
+
+        # Check for unexpected fields
+        for key in unit.keys():
+            if key not in unit_fields:
+                warnings.append(
+                    ValidationWarning(
+                        field=f"{prefix}.{key}",
+                        message=f"Unexpected field '{key}' will be ignored",
+                        record_number=record_num,
+                    )
+                )
+
+    return ValidationResult(
+        valid=len(errors) == 0, errors=errors, warnings=warnings
+    )
+
+
+# ============================================================================
 # Main Dispatcher
 # ============================================================================
 
@@ -1117,6 +1784,12 @@ def validate_import_file(data: Dict[str, Any]) -> ValidationResult:
         "ingredients": validate_ingredient_schema,
         "products": validate_product_schema,
         "recipes": validate_recipe_schema,
+        # Material entities (FR-012: full catalog validation)
+        "material_categories": validate_material_category_schema,
+        "material_subcategories": validate_material_subcategory_schema,
+        "materials": validate_material_schema,
+        "material_products": validate_material_product_schema,
+        "material_units": validate_material_unit_schema,
     }
 
     entities_found = []
