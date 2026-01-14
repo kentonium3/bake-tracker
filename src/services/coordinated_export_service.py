@@ -184,7 +184,6 @@ def _export_suppliers(output_dir: Path, session: Session) -> FileEntry:
     records = []
     for s in suppliers:
         records.append({
-            "id": s.id,
             "uuid": str(s.uuid) if s.uuid else None,
             "name": s.name,
             "slug": s.slug,
@@ -208,7 +207,6 @@ def _export_ingredients(output_dir: Path, session: Session) -> FileEntry:
     records = []
     for i in ingredients:
         records.append({
-            "id": i.id,
             "uuid": str(i.uuid) if i.uuid else None,
             "slug": i.slug,
             "display_name": i.display_name,
@@ -216,6 +214,9 @@ def _export_ingredients(output_dir: Path, session: Session) -> FileEntry:
             "description": i.description,
             "notes": i.notes,
             "is_packaging": i.is_packaging,
+            # Hierarchy fields (Feature 031)
+            "hierarchy_level": i.hierarchy_level,
+            "parent_ingredient_slug": i.parent.slug if i.parent else None,
             # Density fields
             "density_volume_value": i.density_volume_value,
             "density_volume_unit": i.density_volume_unit,
@@ -246,10 +247,8 @@ def _export_products(output_dir: Path, session: Session) -> FileEntry:
     records = []
     for p in products:
         records.append({
-            "id": p.id,
             "uuid": str(p.uuid) if p.uuid else None,
-            # FK with resolution field
-            "ingredient_id": p.ingredient_id,
+            # FK resolved by slug
             "ingredient_slug": p.ingredient.slug if p.ingredient else None,
             # Product fields
             "brand": p.brand,
@@ -263,9 +262,8 @@ def _export_products(output_dir: Path, session: Session) -> FileEntry:
             "supplier_sku": p.supplier_sku,
             "preferred": p.preferred,
             # Feature 027 fields
-            "preferred_supplier_id": p.preferred_supplier_id,
-            "preferred_supplier_name": (
-                p.preferred_supplier.name if p.preferred_supplier else None
+            "preferred_supplier_slug": (
+                p.preferred_supplier.slug if p.preferred_supplier else None
             ),
             "is_hidden": p.is_hidden,
             # Industry standard fields
@@ -298,7 +296,6 @@ def _export_recipes(output_dir: Path, session: Session) -> FileEntry:
         ingredients = []
         for ri in r.recipe_ingredients:
             ingredients.append({
-                "ingredient_id": ri.ingredient_id,
                 "ingredient_slug": ri.ingredient.slug if ri.ingredient else None,
                 "quantity": ri.quantity,
                 "unit": ri.unit,
@@ -309,7 +306,6 @@ def _export_recipes(output_dir: Path, session: Session) -> FileEntry:
         components = []
         for rc in r.recipe_components:
             components.append({
-                "component_recipe_id": rc.component_recipe_id,
                 "component_recipe_name": (
                     rc.component_recipe.name if rc.component_recipe else None
                 ),
@@ -319,7 +315,6 @@ def _export_recipes(output_dir: Path, session: Session) -> FileEntry:
             })
 
         records.append({
-            "id": r.id,
             "uuid": str(r.uuid) if r.uuid else None,
             "name": r.name,
             "category": r.category,
@@ -356,13 +351,10 @@ def _export_purchases(output_dir: Path, session: Session) -> FileEntry:
             product_slug = f"{p.product.ingredient.slug}:{p.product.brand}:{p.product.package_unit_quantity}:{p.product.package_unit}"
 
         records.append({
-            "id": p.id,
             "uuid": str(p.uuid) if p.uuid else None,
-            # FK with resolution fields
-            "product_id": p.product_id,
+            # FK resolved by slugs
             "product_slug": product_slug,
-            "supplier_id": p.supplier_id,
-            "supplier_name": p.supplier.name if p.supplier else None,
+            "supplier_slug": p.supplier.slug if p.supplier else None,
             # Purchase fields
             "purchase_date": p.purchase_date.isoformat() if p.purchase_date else None,
             "unit_price": str(p.unit_price) if p.unit_price else None,
@@ -390,12 +382,9 @@ def _export_inventory_items(output_dir: Path, session: Session) -> FileEntry:
             product_slug = f"{item.product.ingredient.slug}:{item.product.brand}:{item.product.package_unit_quantity}:{item.product.package_unit}"
 
         records.append({
-            "id": item.id,
             "uuid": str(item.uuid) if item.uuid else None,
-            # FK with resolution fields
-            "product_id": item.product_id,
+            # FK resolved by slug
             "product_slug": product_slug,
-            "purchase_id": item.purchase_id,
             # Inventory fields
             "quantity": item.quantity,
             "unit_cost": item.unit_cost,
@@ -424,7 +413,6 @@ def _export_material_categories(output_dir: Path, session: Session) -> FileEntry
     records = []
     for c in categories:
         records.append({
-            "id": c.id,
             "uuid": str(c.uuid) if c.uuid else None,
             "name": c.name,
             "slug": c.slug,
@@ -444,9 +432,7 @@ def _export_material_subcategories(output_dir: Path, session: Session) -> FileEn
     records = []
     for s in subcategories:
         records.append({
-            "id": s.id,
             "uuid": str(s.uuid) if s.uuid else None,
-            "category_id": s.category_id,
             "category_slug": s.category.slug if s.category else None,
             "name": s.name,
             "slug": s.slug,
@@ -466,9 +452,7 @@ def _export_materials(output_dir: Path, session: Session) -> FileEntry:
     records = []
     for m in materials:
         records.append({
-            "id": m.id,
             "uuid": str(m.uuid) if m.uuid else None,
-            "subcategory_id": m.subcategory_id,
             "subcategory_slug": m.subcategory.slug if m.subcategory else None,
             "name": m.name,
             "slug": m.slug,
@@ -489,9 +473,7 @@ def _export_material_products(output_dir: Path, session: Session) -> FileEntry:
     records = []
     for p in products:
         records.append({
-            "id": p.id,
             "uuid": str(p.uuid) if p.uuid else None,
-            "material_id": p.material_id,
             "material_slug": p.material.slug if p.material else None,
             "name": p.name,
             "slug": p.slug,
@@ -499,8 +481,7 @@ def _export_material_products(output_dir: Path, session: Session) -> FileEntry:
             "package_quantity": p.package_quantity,
             "package_unit": p.package_unit,
             "quantity_in_base_units": p.quantity_in_base_units,
-            "supplier_id": p.supplier_id,
-            "supplier_name": p.supplier.name if p.supplier else None,
+            "supplier_slug": p.supplier.slug if p.supplier else None,
             "sku": p.sku,
             "current_inventory": p.current_inventory,
             "weighted_avg_cost": str(p.weighted_avg_cost) if p.weighted_avg_cost else None,
@@ -520,9 +501,7 @@ def _export_material_units(output_dir: Path, session: Session) -> FileEntry:
     records = []
     for u in units:
         records.append({
-            "id": u.id,
             "uuid": str(u.uuid) if u.uuid else None,
-            "material_id": u.material_id,
             "material_slug": u.material.slug if u.material else None,
             "name": u.name,
             "slug": u.slug,
@@ -543,12 +522,9 @@ def _export_material_purchases(output_dir: Path, session: Session) -> FileEntry:
     records = []
     for p in purchases:
         records.append({
-            "id": p.id,
             "uuid": str(p.uuid) if p.uuid else None,
-            "product_id": p.product_id,
             "product_slug": p.product.slug if p.product else None,
-            "supplier_id": p.supplier_id,
-            "supplier_name": p.supplier.name if p.supplier else None,
+            "supplier_slug": p.supplier.slug if p.supplier else None,
             "purchase_date": p.purchase_date.isoformat() if p.purchase_date else None,
             "packages_purchased": p.packages_purchased,
             "base_units_purchased": p.base_units_purchased,
@@ -573,7 +549,6 @@ def _export_finished_goods(output_dir: Path, session: Session) -> FileEntry:
     records = []
     for g in goods:
         records.append({
-            "id": g.id,
             "uuid": str(g.uuid) if g.uuid else None,
             "slug": g.slug,
             "display_name": g.display_name,
@@ -602,7 +577,6 @@ def _export_events(output_dir: Path, session: Session) -> FileEntry:
         production_targets = []
         for pt in e.production_targets:
             production_targets.append({
-                "recipe_id": pt.recipe_id,
                 "recipe_name": pt.recipe.name if pt.recipe else None,
                 "target_batches": pt.target_batches,
                 "notes": pt.notes,
@@ -612,14 +586,12 @@ def _export_events(output_dir: Path, session: Session) -> FileEntry:
         assembly_targets = []
         for at in e.assembly_targets:
             assembly_targets.append({
-                "finished_good_id": at.finished_good_id,
                 "finished_good_slug": at.finished_good.slug if at.finished_good else None,
                 "target_quantity": at.target_quantity,
                 "notes": at.notes,
             })
 
         records.append({
-            "id": e.id,
             "uuid": str(e.uuid) if e.uuid else None,
             "name": e.name,
             "event_date": e.event_date.isoformat() if e.event_date else None,
@@ -647,16 +619,11 @@ def _export_production_runs(output_dir: Path, session: Session) -> FileEntry:
     records = []
     for r in runs:
         records.append({
-            "id": r.id,
             "uuid": str(r.uuid) if r.uuid else None,
-            # FK with resolution fields
-            "recipe_id": r.recipe_id,
+            # FK resolved by names/slugs
             "recipe_name": r.recipe.name if r.recipe else None,
-            "finished_unit_id": r.finished_unit_id,
             "finished_unit_slug": r.finished_unit.slug if r.finished_unit else None,
-            "event_id": r.event_id,
             "event_name": r.event.name if r.event else None,
-            "recipe_snapshot_id": r.recipe_snapshot_id,
             # Production data
             "num_batches": r.num_batches,
             "expected_yield": r.expected_yield,
@@ -689,10 +656,8 @@ def _export_inventory_depletions(output_dir: Path, session: Session) -> FileEntr
                 inventory_item_ref = f"{product.ingredient.slug}:{product.brand}:{product.package_unit_quantity}:{product.package_unit}"
 
         records.append({
-            "id": d.id,
-            "uuid": d.uuid,
-            # FK with resolution fields
-            "inventory_item_id": d.inventory_item_id,
+            "uuid": str(d.uuid) if d.uuid else None,
+            # FK resolved by reference
             "inventory_item_ref": inventory_item_ref,
             # Depletion data
             "quantity_depleted": str(d.quantity_depleted) if d.quantity_depleted else None,
@@ -1038,6 +1003,10 @@ def _import_entity_records(
 
     imported_count = 0
 
+    # Sort ingredients by hierarchy_level to ensure parents are imported before children
+    if entity_type == "ingredients":
+        records = sorted(records, key=lambda r: r.get("hierarchy_level", 2))
+
     for record in records:
         try:
             if entity_type == "suppliers":
@@ -1063,11 +1032,37 @@ def _import_entity_records(
                 imported_count += 1
 
             elif entity_type == "ingredients":
+                # Resolve parent FK by slug if present
+                parent_id = None
+                parent_slug = record.get("parent_ingredient_slug")
+                if parent_slug:
+                    parent = session.query(Ingredient).filter(
+                        Ingredient.slug == parent_slug
+                    ).first()
+                    if parent:
+                        parent_id = parent.id
+
                 obj = Ingredient(
                     slug=record.get("slug"),
                     display_name=record.get("display_name"),
                     category=record.get("category"),
                     description=record.get("description"),
+                    notes=record.get("notes"),
+                    is_packaging=record.get("is_packaging", False),
+                    hierarchy_level=record.get("hierarchy_level", 2),
+                    parent_ingredient_id=parent_id,
+                    # Density fields
+                    density_volume_value=record.get("density_volume_value"),
+                    density_volume_unit=record.get("density_volume_unit"),
+                    density_weight_value=record.get("density_weight_value"),
+                    density_weight_unit=record.get("density_weight_unit"),
+                    # Industry standard fields
+                    foodon_id=record.get("foodon_id"),
+                    foodex2_code=record.get("foodex2_code"),
+                    langual_terms=record.get("langual_terms"),
+                    fdc_ids=record.get("fdc_ids"),
+                    moisture_pct=record.get("moisture_pct"),
+                    allergens=record.get("allergens"),
                 )
                 session.add(obj)
                 imported_count += 1
