@@ -615,6 +615,9 @@ def validate_product_schema(
         "net_content_uom",
         "country_of_sale",
         "off_id",
+        "is_hidden",  # Export format field
+        "id",
+        "uuid",
     }
 
     valid_units_lower = {u.lower() for u in MEASUREMENT_UNITS}
@@ -635,27 +638,30 @@ def validate_product_schema(
             )
             continue
 
-        # Required: display_name
-        if "display_name" not in product:
-            errors.append(
-                ValidationError(
-                    field=f"{prefix}.display_name",
-                    message="Missing required field 'display_name'",
-                    record_number=record_num,
-                    expected="string",
-                    actual="missing",
+        # Optional: display_name OR product_name (can be derived from brand + ingredient)
+        # Validate if present but don't require it
+        if "display_name" in product and product["display_name"] is not None:
+            if not isinstance(product["display_name"], str):
+                errors.append(
+                    ValidationError(
+                        field=f"{prefix}.display_name",
+                        message="Field 'display_name' must be a string",
+                        record_number=record_num,
+                        expected="string",
+                        actual=_get_type_name(product["display_name"]),
+                    )
                 )
-            )
-        elif not _is_non_empty_string(product["display_name"]):
-            errors.append(
-                ValidationError(
-                    field=f"{prefix}.display_name",
-                    message="Field 'display_name' must be a non-empty string",
-                    record_number=record_num,
-                    expected="non-empty string",
-                    actual=_get_type_name(product["display_name"]),
+        if "product_name" in product and product["product_name"] is not None:
+            if not isinstance(product["product_name"], str):
+                errors.append(
+                    ValidationError(
+                        field=f"{prefix}.product_name",
+                        message="Field 'product_name' must be a string",
+                        record_number=record_num,
+                        expected="string",
+                        actual=_get_type_name(product["product_name"]),
+                    )
                 )
-            )
 
         # Required: ingredient_slug
         if "ingredient_slug" not in product:
@@ -1452,6 +1458,7 @@ def validate_material_product_schema(
         "brand", "sku", "package_quantity", "package_unit", "quantity_in_base_units",
         "current_inventory", "weighted_avg_cost", "is_hidden", "notes",
         "supplier", "supplier_name", "supplier_slug", "supplier_id",
+        "default_unit",  # Export format field
         "id", "uuid",
     }
 
@@ -1485,71 +1492,55 @@ def validate_material_product_schema(
                 )
             )
 
-        # Required: package_quantity (positive number)
-        if "package_quantity" not in product:
-            errors.append(
-                ValidationError(
-                    field=f"{prefix}.package_quantity",
-                    message="Missing required field 'package_quantity'",
-                    record_number=record_num,
-                    expected="positive number",
-                    actual="missing",
+        # Optional: package_quantity (if present, must be positive number)
+        if "package_quantity" in product and product["package_quantity"] is not None:
+            if not _is_positive_number(product["package_quantity"]):
+                errors.append(
+                    ValidationError(
+                        field=f"{prefix}.package_quantity",
+                        message="Field 'package_quantity' must be a positive number",
+                        record_number=record_num,
+                        expected="positive number",
+                        actual=str(product["package_quantity"]),
+                    )
                 )
-            )
-        elif not _is_positive_number(product["package_quantity"]):
-            errors.append(
-                ValidationError(
-                    field=f"{prefix}.package_quantity",
-                    message="Field 'package_quantity' must be a positive number",
-                    record_number=record_num,
-                    expected="positive number",
-                    actual=str(product["package_quantity"]),
-                )
-            )
 
-        # Required: package_unit (string)
-        if "package_unit" not in product:
-            errors.append(
-                ValidationError(
-                    field=f"{prefix}.package_unit",
-                    message="Missing required field 'package_unit'",
-                    record_number=record_num,
-                    expected="string",
-                    actual="missing",
+        # Optional: package_unit or default_unit (if present, must be string)
+        if "package_unit" in product and product["package_unit"] is not None:
+            if not _is_non_empty_string(product["package_unit"]):
+                errors.append(
+                    ValidationError(
+                        field=f"{prefix}.package_unit",
+                        message="Field 'package_unit' must be a non-empty string",
+                        record_number=record_num,
+                        expected="non-empty string",
+                        actual=_get_type_name(product["package_unit"]),
+                    )
                 )
-            )
-        elif not _is_non_empty_string(product["package_unit"]):
-            errors.append(
-                ValidationError(
-                    field=f"{prefix}.package_unit",
-                    message="Field 'package_unit' must be a non-empty string",
-                    record_number=record_num,
-                    expected="non-empty string",
-                    actual=_get_type_name(product["package_unit"]),
+        if "default_unit" in product and product["default_unit"] is not None:
+            if not _is_non_empty_string(product["default_unit"]):
+                errors.append(
+                    ValidationError(
+                        field=f"{prefix}.default_unit",
+                        message="Field 'default_unit' must be a non-empty string",
+                        record_number=record_num,
+                        expected="non-empty string",
+                        actual=_get_type_name(product["default_unit"]),
+                    )
                 )
-            )
 
-        # Required: quantity_in_base_units (positive number)
-        if "quantity_in_base_units" not in product:
-            errors.append(
-                ValidationError(
-                    field=f"{prefix}.quantity_in_base_units",
-                    message="Missing required field 'quantity_in_base_units'",
-                    record_number=record_num,
-                    expected="positive number",
-                    actual="missing",
+        # Optional: quantity_in_base_units (if present, must be positive number)
+        if "quantity_in_base_units" in product and product["quantity_in_base_units"] is not None:
+            if not _is_positive_number(product["quantity_in_base_units"]):
+                errors.append(
+                    ValidationError(
+                        field=f"{prefix}.quantity_in_base_units",
+                        message="Field 'quantity_in_base_units' must be a positive number",
+                        record_number=record_num,
+                        expected="positive number",
+                        actual=str(product["quantity_in_base_units"]),
+                    )
                 )
-            )
-        elif not _is_positive_number(product["quantity_in_base_units"]):
-            errors.append(
-                ValidationError(
-                    field=f"{prefix}.quantity_in_base_units",
-                    message="Field 'quantity_in_base_units' must be a positive number",
-                    record_number=record_num,
-                    expected="positive number",
-                    actual=str(product["quantity_in_base_units"]),
-                )
-            )
 
         # Optional: current_inventory (if present, must be non-negative)
         if "current_inventory" in product and product["current_inventory"] is not None:
@@ -1804,6 +1795,8 @@ def validate_import_file(data: Dict[str, Any]) -> ValidationResult:
     known_keys = set(entity_validators.keys()) | {
         "version",
         "export_date",
+        "exported_at",  # Backup format field
+        "application",  # Backup format field
         "source",
         "_meta",
         "metadata",

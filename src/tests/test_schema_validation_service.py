@@ -385,12 +385,14 @@ class TestProductSchema:
         assert result.valid is True
 
     def test_multiple_errors_same_record(self):
-        """Test multiple errors can be reported for same record."""
-        data = {"products": [{"brand": "Test"}]}  # Missing display_name AND ingredient_slug
+        """Test error reported for missing required field."""
+        # display_name/product_name is optional (can be derived from brand + ingredient)
+        # ingredient_slug is required
+        data = {"products": [{"brand": "Test"}]}  # Missing ingredient_slug
         result = validate_product_schema(data)
 
         assert result.valid is False
-        assert result.error_count == 2  # Both required fields missing
+        assert result.error_count == 1  # ingredient_slug required
 
 
 # ============================================================================

@@ -721,6 +721,7 @@ def import_products(
     mode: str = "add",
     dry_run: bool = False,
     session: Optional[Session] = None,
+    supplier_id_to_slug: Optional[Dict[int, str]] = None,
 ) -> CatalogImportResult:
     """
     Import products from parsed data.
@@ -734,14 +735,15 @@ def import_products(
         mode: "add" (ADD_ONLY) or "augment" (AUGMENT mode)
         dry_run: If True, validate and preview without committing
         session: Optional SQLAlchemy session for transactional composition
+        supplier_id_to_slug: Mapping of old supplier IDs to slugs for FK resolution
 
     Returns:
         CatalogImportResult with counts and any errors
     """
     if session is not None:
-        return _import_products_impl(data, mode, dry_run, session)
+        return _import_products_impl(data, mode, dry_run, session, supplier_id_to_slug)
     with session_scope() as sess:
-        return _import_products_impl(data, mode, dry_run, sess)
+        return _import_products_impl(data, mode, dry_run, sess, supplier_id_to_slug)
 
 
 def _import_products_impl(
@@ -749,6 +751,7 @@ def _import_products_impl(
     mode: str,
     dry_run: bool,
     session: Session,
+    supplier_id_to_slug: Optional[Dict[int, str]] = None,
 ) -> CatalogImportResult:
     """Internal implementation of product import.
 
@@ -766,6 +769,24 @@ def _import_products_impl(
         for row in session.query(Ingredient.slug, Ingredient.id).filter(
             Ingredient.slug.isnot(None)
         ).all()
+    }
+
+    # Build supplier lookups for resolving preferred_supplier
+    # Support: preferred_supplier_id (int), supplier_slug, supplier_name
+    from src.models.supplier import Supplier
+    supplier_by_id = {
+        row.id: row.id
+        for row in session.query(Supplier.id).all()
+    }
+    supplier_slug_to_id = {
+        row.slug.lower(): row.id
+        for row in session.query(Supplier.slug, Supplier.id).filter(
+            Supplier.slug.isnot(None)
+        ).all()
+    }
+    supplier_name_to_id = {
+        row.name.lower(): row.id
+        for row in session.query(Supplier.name, Supplier.id).all()
     }
 
     # Build existing products lookup for uniqueness check and AUGMENT mode
@@ -830,6 +851,26 @@ def _import_products_impl(
             )
             continue
 
+        # Resolve preferred supplier (support: supplier_slug, supplier_name, preferred_supplier_id)
+        resolved_supplier_id = None
+        supplier_slug = item.get("supplier_slug") or item.get("preferred_supplier_slug")
+        supplier_name = item.get("supplier_name") or item.get("preferred_supplier_name")
+        supplier_id_from_import = item.get("preferred_supplier_id")
+
+        if supplier_slug:
+            resolved_supplier_id = supplier_slug_to_id.get(supplier_slug.lower())
+        elif supplier_name:
+            resolved_supplier_id = supplier_name_to_id.get(supplier_name.lower())
+        elif supplier_id_from_import and supplier_id_to_slug:
+            # Use the ID->slug mapping from the same import file, then resolve slug
+            mapped_slug = supplier_id_to_slug.get(supplier_id_from_import)
+            if mapped_slug:
+                resolved_supplier_id = supplier_slug_to_id.get(mapped_slug.lower())
+        elif supplier_id_from_import:
+            # Fallback: try to match by ID directly if it exists in database
+            if supplier_id_from_import in supplier_by_id:
+                resolved_supplier_id = supplier_id_from_import
+
         # Build matching key
         product_key = (ingredient_id, brand, package_unit_quantity, package_unit)
         matching_products = existing_products_map.get(product_key, [])
@@ -857,6 +898,10 @@ def _import_products_impl(
                     if current_value is None:
                         setattr(existing_product, field, item[field])
                         updated_fields.append(field)
+            # Also augment preferred_supplier_id if resolved and currently null
+            if resolved_supplier_id and existing_product.preferred_supplier_id is None:
+                existing_product.preferred_supplier_id = resolved_supplier_id
+                updated_fields.append("preferred_supplier_id")
             if updated_fields:
                 result.add_augment("products", identifier, updated_fields)
             else:
@@ -888,6 +933,7 @@ def _import_products_impl(
             upc_code=item.get("upc_code"),
             gtin=item.get("gtin"),
             preferred=item.get("preferred", False),
+            preferred_supplier_id=resolved_supplier_id,
         )
         session.add(product)
         result.add_success("products")
@@ -2067,8 +2113,18 @@ def _import_catalog_impl(
     # Import products (depends on ingredients and suppliers)
     if entities is None or "products" in entities:
         if "products" in data:
+            # Build supplier ID -> slug mapping from import file for FK resolution
+            # This handles the case where preferred_supplier_id references an ID
+            # from the same import file (which may have a different ID in the database)
+            supplier_id_to_slug = {}
+            if "suppliers" in data:
+                for sup in data["suppliers"]:
+                    if sup.get("id") and sup.get("slug"):
+                        supplier_id_to_slug[sup["id"]] = sup["slug"]
+
             prod_result = import_products(
-                data["products"], mode, dry_run=False, session=session
+                data["products"], mode, dry_run=False, session=session,
+                supplier_id_to_slug=supplier_id_to_slug,
             )
             result.merge(prod_result)
 

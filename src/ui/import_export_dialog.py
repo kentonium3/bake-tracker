@@ -895,9 +895,39 @@ class ImportDialog(ctk.CTkToplevel):
                 validation_result = schema_validation_service.validate_import_file(raw_data)
 
                 if not validation_result.valid:
+                    # Write validation failure log before showing dialog
+                    from dataclasses import dataclass
+
+                    @dataclass
+                    class ValidationFailureResult:
+                        total_records: int = 0
+                        successful: int = 0
+                        failed: int = 0
+                        errors: list = None
+                        warnings: list = None
+
+                        def __post_init__(self):
+                            if self.errors is None:
+                                self.errors = []
+                            if self.warnings is None:
+                                self.warnings = []
+
+                    failure_result = ValidationFailureResult(
+                        failed=len(validation_result.errors),
+                        errors=validation_result.errors,
+                        warnings=validation_result.warnings or [],
+                    )
+                    log_path = _write_import_log(
+                        self.file_path,
+                        failure_result,
+                        f"Schema validation failed with {len(validation_result.errors)} error(s)",
+                        purpose="backup",
+                        validation_result=validation_result,
+                    )
+
                     # Show validation error dialog and abort
                     self._hide_progress()
-                    self._show_validation_errors(validation_result)
+                    self._show_validation_errors(validation_result, log_path=log_path)
                     return
 
                 # Use standard single-file import
@@ -939,9 +969,40 @@ class ImportDialog(ctk.CTkToplevel):
             validation_result = schema_validation_service.validate_import_file(raw_data)
 
             if not validation_result.valid:
+                # Write validation failure log before showing dialog
+                from dataclasses import dataclass
+
+                @dataclass
+                class ValidationFailureResult:
+                    total_records: int = 0
+                    successful: int = 0
+                    failed: int = 0
+                    errors: list = None
+                    warnings: list = None
+
+                    def __post_init__(self):
+                        if self.errors is None:
+                            self.errors = []
+                        if self.warnings is None:
+                            self.warnings = []
+
+                failure_result = ValidationFailureResult(
+                    failed=len(validation_result.errors),
+                    errors=validation_result.errors,
+                    warnings=validation_result.warnings or [],
+                )
+                log_path = _write_import_log(
+                    self.file_path,
+                    failure_result,
+                    f"Schema validation failed with {len(validation_result.errors)} error(s)",
+                    purpose="catalog",
+                    mode=mode,
+                    validation_result=validation_result,
+                )
+
                 # Show validation error dialog and abort
                 self._hide_progress()
-                self._show_validation_errors(validation_result)
+                self._show_validation_errors(validation_result, log_path=log_path)
                 return
 
             # Check if it's a context-rich file
@@ -1035,9 +1096,42 @@ class ImportDialog(ctk.CTkToplevel):
             validation_result = schema_validation_service.validate_import_file(normalized_data)
 
             if not validation_result.valid:
+                # Write validation failure log before showing dialog
+                from dataclasses import dataclass
+
+                @dataclass
+                class ValidationFailureResult:
+                    total_records: int = 0
+                    successful: int = 0
+                    failed: int = 0
+                    errors: list = None
+                    warnings: list = None
+
+                    def __post_init__(self):
+                        if self.errors is None:
+                            self.errors = []
+                        if self.warnings is None:
+                            self.warnings = []
+
+                failure_result = ValidationFailureResult(
+                    failed=len(validation_result.errors),
+                    errors=validation_result.errors,
+                    warnings=validation_result.warnings or [],
+                )
+                log_path = _write_import_log(
+                    self.file_path,
+                    failure_result,
+                    f"Schema validation failed with {len(validation_result.errors)} error(s)",
+                    purpose="context_rich",
+                    mode=mode,
+                    validation_result=validation_result,
+                    preprocessing_result=preprocessing_result,
+                    start_time=start_time,
+                )
+
                 # Show validation error dialog
                 self._hide_progress()
-                self._show_validation_errors(validation_result)
+                self._show_validation_errors(validation_result, log_path=log_path)
                 return
 
             # Log any warnings but continue
@@ -1117,7 +1211,7 @@ class ImportDialog(ctk.CTkToplevel):
         finally:
             self._hide_progress()
 
-    def _show_validation_errors(self, validation_result):
+    def _show_validation_errors(self, validation_result, log_path: str = None):
         """Show dialog with validation errors and field paths."""
         errors = validation_result.errors
         error_count = len(errors)
@@ -1161,7 +1255,7 @@ class ImportDialog(ctk.CTkToplevel):
             self,
             title="Validation Failed",
             summary_text=error_text,
-            log_path=None,
+            log_path=log_path,
         )
         error_dialog.wait_window()
 
