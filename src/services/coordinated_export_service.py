@@ -999,12 +999,22 @@ def _import_entity_records(
     for record in records:
         try:
             if entity_type == "suppliers":
+                # Generate slug from name if not present (backward compatibility)
+                name = record.get("name", "")
+                slug = record.get("slug")
+                if not slug and name:
+                    from src.services.material_catalog_service import slugify
+                    slug = slugify(name)
                 obj = Supplier(
-                    name=record.get("name"),
+                    name=name,
+                    slug=slug,
                     supplier_type=record.get("supplier_type", "physical"),
+                    website_url=record.get("website_url"),
+                    street_address=record.get("street_address"),
                     city=record.get("city"),
                     state=record.get("state"),
                     zip_code=record.get("zip_code"),
+                    notes=record.get("notes"),
                     is_active=record.get("is_active", True),
                 )
                 session.add(obj)
