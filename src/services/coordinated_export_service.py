@@ -980,8 +980,7 @@ def _import_entity_records(
     from src.models.supplier import Supplier
     from src.models.ingredient import Ingredient
     from src.models.product import Product
-    from src.models.recipe import Recipe
-    from src.models.recipe_ingredient import RecipeIngredient
+    from src.models.recipe import Recipe, RecipeIngredient
     from src.models.recipe_component import RecipeComponent
     from src.models.purchase import Purchase
     from src.models.inventory_item import InventoryItem
