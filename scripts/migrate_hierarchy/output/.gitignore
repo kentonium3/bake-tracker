@@ -1,3 +1,0 @@
-# Ignore generated migration output files
-*.json
-!.gitkeep
