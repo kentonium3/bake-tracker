@@ -1096,21 +1096,21 @@ def _import_entity_records(
 
             elif entity_type == "recipes":
                 obj = Recipe(
-                    slug=record.get("slug"),
                     name=record.get("name"),
-                    description=record.get("description"),
                     category=record.get("category"),
+                    source=record.get("source"),
                     yield_quantity=record.get("yield_quantity"),
                     yield_unit=record.get("yield_unit"),
-                    prep_time_minutes=record.get("prep_time_minutes"),
-                    cook_time_minutes=record.get("cook_time_minutes"),
-                    instructions=record.get("instructions"),
+                    yield_description=record.get("yield_description"),
+                    estimated_time_minutes=record.get("estimated_time_minutes"),
+                    notes=record.get("notes"),
+                    is_archived=record.get("is_archived", False),
                 )
                 session.add(obj)
                 session.flush()
 
-                # Add recipe ingredients
-                for ri in record.get("recipe_ingredients", []):
+                # Add recipe ingredients (export uses "ingredients" key)
+                for ri in record.get("ingredients", []):
                     ing_slug = ri.get("ingredient_slug")
                     ingredient = session.query(Ingredient).filter(
                         Ingredient.slug == ing_slug
@@ -1125,17 +1125,20 @@ def _import_entity_records(
                         )
                         session.add(ri_obj)
 
-                # Add recipe components (nested recipes)
-                for rc in record.get("recipe_components", []):
-                    comp_slug = rc.get("component_recipe_slug")
+                # Add recipe components (export uses "components" key)
+                for rc in record.get("components", []):
+                    # Look up component by name since we may not have slugs
+                    comp_name = rc.get("component_recipe_name")
                     component = session.query(Recipe).filter(
-                        Recipe.slug == comp_slug
+                        Recipe.name == comp_name
                     ).first()
                     if component:
                         rc_obj = RecipeComponent(
                             parent_recipe_id=obj.id,
                             component_recipe_id=component.id,
                             quantity=rc.get("quantity"),
+                            notes=rc.get("notes"),
+                            sort_order=rc.get("sort_order"),
                         )
                         session.add(rc_obj)
 
@@ -1238,7 +1241,7 @@ def _import_entity_records(
                         name=record.get("name"),
                         slug=record.get("slug"),
                         description=record.get("description"),
-                        base_unit=record.get("base_unit"),
+                        base_unit_type=record.get("base_unit_type"),
                     )
                     session.add(obj)
                     imported_count += 1
@@ -1250,19 +1253,33 @@ def _import_entity_records(
                     Material.slug == material_slug
                 ).first()
                 if material:
+                    # Resolve supplier FK if present
+                    supplier_id = None
+                    supplier_name = record.get("supplier_name")
+                    if supplier_name:
+                        supplier = session.query(Supplier).filter(
+                            Supplier.name == supplier_name
+                        ).first()
+                        if supplier:
+                            supplier_id = supplier.id
+
                     obj = MaterialProduct(
                         material_id=material.id,
                         name=record.get("name"),
+                        slug=record.get("slug"),
                         brand=record.get("brand"),
                         sku=record.get("sku"),
                         package_unit=record.get("package_unit"),
                         package_quantity=record.get("package_quantity"),
+                        quantity_in_base_units=record.get("quantity_in_base_units"),
+                        supplier_id=supplier_id,
+                        current_inventory=record.get("current_inventory", 0.0),
+                        weighted_avg_cost=record.get("weighted_avg_cost"),
+                        is_hidden=record.get("is_hidden", False),
+                        notes=record.get("notes"),
                     )
                     session.add(obj)
                     imported_count += 1
-
-            # Skip complex entity types for now - they require more FK resolution
-            # These would need additional implementation for full support
 
             session.flush()
 
