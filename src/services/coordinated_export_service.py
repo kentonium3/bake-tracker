@@ -934,6 +934,45 @@ def _import_complete_impl(
     }
 
     # Clear existing data first (replace mode)
+    # Delete in reverse dependency order to avoid FK constraint violations
+    from src.models.supplier import Supplier
+    from src.models.ingredient import Ingredient
+    from src.models.product import Product
+    from src.models.recipe import Recipe, RecipeIngredient, RecipeComponent
+    from src.models.purchase import Purchase
+    from src.models.inventory_item import InventoryItem
+    from src.models.material import Material
+    from src.models.material_category import MaterialCategory
+    from src.models.material_subcategory import MaterialSubcategory
+    from src.models.material_product import MaterialProduct
+    from src.models.material_unit import MaterialUnit
+    from src.models.material_purchase import MaterialPurchase
+    from src.models.finished_good import FinishedGood
+    from src.models.event import Event
+    from src.models.production_run import ProductionRun
+    from src.models.inventory_depletion import InventoryDepletion
+
+    # Delete in reverse dependency order
+    session.query(InventoryDepletion).delete()
+    session.query(ProductionRun).delete()
+    session.query(Event).delete()
+    session.query(FinishedGood).delete()
+    session.query(MaterialPurchase).delete()
+    session.query(MaterialUnit).delete()
+    session.query(MaterialProduct).delete()
+    session.query(Material).delete()
+    session.query(MaterialSubcategory).delete()
+    session.query(MaterialCategory).delete()
+    session.query(InventoryItem).delete()
+    session.query(Purchase).delete()
+    session.query(RecipeComponent).delete()
+    session.query(RecipeIngredient).delete()
+    session.query(Recipe).delete()
+    session.query(Product).delete()
+    session.query(Ingredient).delete()
+    session.query(Supplier).delete()
+    session.flush()
+
     # Import each file in dependency order
     for file_info in files:
         filename = file_info.get("filename")
