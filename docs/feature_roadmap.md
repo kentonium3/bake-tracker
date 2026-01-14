@@ -1,22 +1,20 @@
 # Feature Roadmap
 
 **Created:** 2025-12-03
-**Last Updated:** 2026-01-10
+**Last Updated:** 2026-01-13
 **Workflow:** Spec-Kitty driven development
 
 ---
 
 ## Executive Summary
 
-**Current Status**: F045-F046 complete, Materials Management (F047), Shopping Lists (F048), Assembly Workflows (F049) remaining
+**Current Status**: All foundational features complete (F042-F051). Ready for User Testing Round 2.
 
-**Recent Milestone**: F045-F046 complete (Cost Architecture Refactor, Finished Goods & Assembly Tracking)
+**Recent Milestone**: F047-F051 complete (Materials Management, Import/Export rationalization, Supplier slugs)
 
-**User Testing Outcome**: Mode structure validated ✅, but blocking UI issues discovered + missing foundational features identified
+**Test Suite**: 2238 tests
 
-**New Direction**: Implementing foundational workflows (F042-F048) before previously planned features
-
-**Timeline**: ~1-2 weeks remaining for F047-F049, then user testing round 2
+**Next Step**: User Testing Round 2 - Complete Plan → Shop → Make → Assemble → Deliver workflow
 
 ---
 
@@ -71,50 +69,55 @@
 | 044 | Finished Units Yield Type Management | MERGED | Yield type authoring moved to Recipe Edit form, Finished Units tab converted to read-only catalog with recipe filter, double-click navigation to Recipe Edit, cascade delete on recipe deletion, per-recipe name uniqueness validation. |
 | 045 | Cost Architecture Refactor | MERGED | "Costs on Instances, Not Definitions" principle. Removed stored `unit_cost`/`total_cost` from FinishedUnit/FinishedGood/Composition. Costs now calculated dynamically from ProductionRun/AssemblyRun history. Snap-and-store at transaction time. |
 | 046 | Finished Goods, Bundles & Assembly Tracking | MERGED | Added `calculate_current_cost()` methods to FinishedUnit/FinishedGood. Fixed Composition/Package model methods. Fixed assembly_service cost capture. Dynamic cost calculation from production history. |
+| 047 | Materials Management System | MERGED | Comprehensive materials management paralleling ingredient system. Material/MaterialProduct/MaterialCategory/MaterialSubcategory models. Non-edible materials (ribbon, boxes, bags) properly separated from ingredients. |
+| 048 | Materials UI Rebuild | MERGED | Rebuilt Materials UI to match Ingredients pattern. 3-tab grid structure (Categories, Subcategories, Materials). Consistent with established UI patterns. |
+| 049 | Import/Export Phase 1 | MERGED | Complete 16-entity backup capability. Context-rich exports for all catalog entities. Materials catalog import support. Enhanced import service with FK resolution. |
+| 050 | Supplier Slug Support | MERGED | Added supplier_slug field for stable FK references. Import/export uses slugs instead of IDs. Backward-compatible with existing data. |
+| 051 | Import/Export UI Rationalization | MERGED | Unified import dialog with consistent workflow. Purpose-based import selection (Catalog, Backup, Context-Rich). Improved error handling and log file generation. |
 
 ---
 
 ## In Progress
 
-| # | Name | Priority | Effort | Status |
-|---|------|----------|--------|--------|
-| 047 | Materials Management System | P1 - FOUNDATIONAL | TBD | 🎯 NEXT |
-| 048 | Shopping Lists Tab Implementation | P1 - FOUNDATIONAL | 12-16 hours | Pending F047 |
-| 049 | Assembly Workflows | P1 - FOUNDATIONAL | 24-30 hours | Pending F048 |
+*No features currently in progress. All foundational work complete.*
+
+| # | Name | Priority | Status |
+|---|------|----------|--------|
+| - | User Testing Round 2 | P0 | 🎯 NEXT |
 
 ---
 
-## Foundational Workflows (F042-F049)
+## Foundational Workflows (F042-F051)
 
-**Status**: F042-F046 complete, F047-F049 remaining
-**Rationale**: Cannot test end-to-end workflows without these foundations
+**Status**: ✅ ALL COMPLETE
+**Rationale**: End-to-end workflow testing now possible
 
-| # | Name | Priority | Effort | Status |
-|---|------|----------|--------|--------|
-| 042 | UI Polish & Layout Fixes | P0 - BLOCKING | 14-20 hours | ✅ COMPLETE |
-| 043 | Purchases Tab Implementation | P1 - FOUNDATIONAL | 12-16 hours | ✅ COMPLETE |
-| 044 | Finished Units Yield Type Management | P1 - FOUNDATIONAL | 16-20 hours | ✅ COMPLETE |
-| 045 | Cost Architecture Refactor | P0 - FOUNDATIONAL | 8 hours | ✅ COMPLETE |
-| 046 | Finished Goods, Bundles & Assembly Tracking | P1 - FOUNDATIONAL | 12 hours | ✅ COMPLETE |
-| 047 | Materials Management System | P1 - FOUNDATIONAL | TBD | 🎯 NEXT |
-| 048 | Shopping Lists Tab Implementation | P1 - FOUNDATIONAL | 12-16 hours | Pending F047 |
-| 049 | Assembly Workflows | P1 - FOUNDATIONAL | 24-30 hours | Pending F048 |
+| # | Name | Priority | Status |
+|---|------|----------|--------|
+| 042 | UI Polish & Layout Fixes | P0 - BLOCKING | ✅ COMPLETE |
+| 043 | Purchases Tab Implementation | P1 - FOUNDATIONAL | ✅ COMPLETE |
+| 044 | Finished Units Yield Type Management | P1 - FOUNDATIONAL | ✅ COMPLETE |
+| 045 | Cost Architecture Refactor | P0 - FOUNDATIONAL | ✅ COMPLETE |
+| 046 | Finished Goods, Bundles & Assembly Tracking | P1 - FOUNDATIONAL | ✅ COMPLETE |
+| 047 | Materials Management System | P1 - FOUNDATIONAL | ✅ COMPLETE |
+| 048 | Materials UI Rebuild | P1 - FOUNDATIONAL | ✅ COMPLETE |
+| 049 | Import/Export Phase 1 | P1 - FOUNDATIONAL | ✅ COMPLETE |
+| 050 | Supplier Slug Support | P1 - FOUNDATIONAL | ✅ COMPLETE |
+| 051 | Import/Export UI Rationalization | P1 - FOUNDATIONAL | ✅ COMPLETE |
 
-**Remaining Foundational Work**: TBD (F047) + 36-46 hours for F048-F049
-
-**Completed** (2026-01-08/09/10):
+**Completed** (2026-01-08 through 2026-01-13):
 - ✅ F042: Dashboard headers compacted, stats widgets removed, data grids expanded
 - ✅ F043: Purchases tab CRUD operations, supplier integration
 - ✅ F044: Yield types managed in Recipe Edit, Finished Units tab is read-only catalog
 - ✅ F045: "Costs on Instances, Not Definitions" - removed stored cost fields from definition models
 - ✅ F046: Dynamic cost calculation methods, fixed assembly cost capture
+- ✅ F047: Materials management system paralleling ingredients
+- ✅ F048: Materials UI rebuilt to match Ingredients 3-tab pattern
+- ✅ F049: Complete 16-entity backup, context-rich exports, materials import
+- ✅ F050: Supplier slug support for stable FK references
+- ✅ F051: Unified import dialog with purpose-based selection
 
-**Next Up**:
-- 🎯 F047: Materials Management System (spec pending)
-- F048: Shopping list generation/export
-- F049: Assembly recording workflows
-
-**Blocks**: Complete Plan → Shop → Make → Assemble → Deliver workflow testing
+**Ready For**: User Testing Round 2 - Complete Plan → Shop → Make → Assemble → Deliver workflow
 
 ---
 
@@ -124,12 +127,16 @@
 
 | Original # | Name | New # | Status | Spec File |
 |------------|------|-------|--------|-----------|
-| F042 | Shelf Life & Freshness Tracking | F0XX | Deferred | `_F0XX_shelf_life_freshness_tracking.md` |
-| F043 | Purchase Workflow Monitoring | F0XX | Deferred (service layer in F040) | `_F0XX_purchase_workflow_monitoring.md` |
-| F044 | Advanced Finished Goods | F0XX | May not be needed after F045 | `_F0XX_advanced_finished_goods.md` |
-| F045 | Packaging & Distribution | F0XX | Deferred to Phase 3 | (no spec yet) |
+| (old F042) | Shelf Life & Freshness Tracking | F0XX | Deferred | `_F0XX_shelf_life_freshness_tracking.md` |
+| (old F043) | Purchase Workflow Monitoring | F0XX | Deferred (service layer in F040) | `_F0XX_purchase_workflow_monitoring.md` |
+| (old F044) | Advanced Finished Goods | F0XX | May not be needed after F045 | `_F0XX_advanced_finished_goods.md` |
+| (old F045) | Packaging & Distribution | F0XX | Deferred to Phase 4 | (no spec yet) |
+| - | Shopping Lists Tab | F0XX | Deferred (originally planned as F048) | (no spec yet) |
+| - | Assembly Workflows | F0XX | Deferred (originally planned as F049) | (no spec yet) |
 
 **F0XX Rationale**: "Future queue, specific number TBD" - avoids renumbering churn as new features are inserted during foundational work
+
+**Note**: Original F047-F049 plans (Shopping Lists, Assembly Workflows) were deferred as materials management and import/export improvements took priority based on user testing feedback
 
 ---
 
@@ -148,17 +155,19 @@
 8. ~~**Feature 043** - Purchases Tab Implementation~~ ✅ (2026-01-09)
 9. ~~**Feature 044** - Finished Units Yield Type Management~~ ✅ (2026-01-09)
 
-**Phase 2: Remaining Foundational Workflows (Week 2-3)** 🎯 CURRENT
+**Phase 2: Remaining Foundational Workflows** ✅
 10. ~~**Feature 045** - Cost Architecture Refactor~~ ✅ (2026-01-09)
 11. ~~**Feature 046** - Finished Goods, Bundles & Assembly Tracking~~ ✅ (2026-01-10)
-12. **Feature 047** - Materials Management System → NEXT
-13. **Feature 048** - Shopping Lists Tab Implementation → Pending F047
-14. **Feature 049** - Assembly Workflows → Pending F048
+12. ~~**Feature 047** - Materials Management System~~ ✅ (2026-01-11)
+13. ~~**Feature 048** - Materials UI Rebuild~~ ✅ (2026-01-11)
+14. ~~**Feature 049** - Import/Export Phase 1~~ ✅ (2026-01-12)
+15. ~~**Feature 050** - Supplier Slug Support~~ ✅ (2026-01-12)
+16. ~~**Feature 051** - Import/Export UI Rationalization~~ ✅ (2026-01-13)
 
-**Phase 3: User Testing Round 2** (Week 3+)
-15. **USER TESTING ROUND 2** - Complete Plan → Make → Assemble → Deliver cycle → Pending F049
-15. Prioritize F0XX features based on user feedback
-16. Plan Phase 3 (web migration) architecture
+**Phase 3: User Testing Round 2** 🎯 CURRENT
+17. **USER TESTING ROUND 2** - Complete Plan → Shop → Make → Assemble → Deliver cycle
+18. Prioritize F0XX features based on user feedback
+19. Plan Phase 4 (web migration) architecture
 
 ---
 
@@ -197,22 +206,53 @@
 - ✅ Assembly service captures actual costs (not hardcoded zeros)
 - ✅ 1774 tests pass, all cost calculations verified
 
-### After F047-F049 (Remaining Foundational Workflows)
+### After F047 (Materials Management System) - COMPLETE ✅
+- ✅ Material/MaterialProduct/MaterialCategory/MaterialSubcategory models implemented
+- ✅ Non-edible materials properly separated from ingredients
+- ✅ Materials can be used in assemblies
+
+### After F048 (Materials UI Rebuild) - COMPLETE ✅
+- ✅ Materials UI matches Ingredients 3-tab pattern
+- ✅ Categories, Subcategories, Materials tabs with grids
+- ✅ Consistent filtering and CRUD operations
+
+### After F049 (Import/Export Phase 1) - COMPLETE ✅
+- ✅ Complete 16-entity backup capability
+- ✅ Context-rich exports for all catalog entities
+- ✅ Materials catalog import support
+
+### After F050 (Supplier Slug Support) - COMPLETE ✅
+- ✅ Supplier slugs used for stable FK references in import/export
+- ✅ Products reference suppliers by slug, not ID
+
+### After F051 (Import/Export UI Rationalization) - COMPLETE ✅
+- ✅ Unified import dialog with purpose-based selection
+- ✅ Consistent workflow across Catalog, Backup, Context-Rich imports
+- ✅ Improved error handling and log generation
+
+### Ready for User Testing Round 2
+- ✅ All foundational workflows complete (F042-F051)
 - ✅ User can complete Plan → Shop → Make → Assemble → Deliver cycle
-- ✅ All tabs in all modes functional (no dead buttons)
-- ✅ Purchases, Finished Units, Finished Goods, Materials, Shopping Lists, Assembly all operational
-- ✅ Event planning can use defined finished goods
-- ✅ Production cycle can be completed end-to-end
+- ✅ All tabs in all modes functional
+- ✅ Materials properly managed separate from ingredients
+- ✅ Import/export system complete with 16 entities
 
 ### Ready for F0XX (Future Features)
 - ✅ Foundational workflows solid and tested
-- ✅ User provides feedback on F0XX priorities
-- ✅ Mode structure validated with complete workflows
-- ✅ System ready for Phase 3 (web migration) planning
+- User provides feedback on F0XX priorities
+- Mode structure validated with complete workflows
+- System ready for Phase 4 (web migration) planning
 
 ---
 
 ## Key Decisions
+
+### 2026-01-13 (Foundational Work Complete)
+- **All Foundational Features Complete**: F042-F051 merged, covering UI polish, materials management, and import/export rationalization
+- **Scope Evolution**: Original F047-F049 plans (Shopping Lists, Assembly Workflows) deferred as materials and import/export took priority
+- **Import/Export Mature**: 16-entity backup, supplier slugs, unified UI, context-rich exports all operational
+- **Ready for User Testing Round 2**: Full Plan → Shop → Make → Assemble → Deliver cycle can be tested
+- **Repository Cleanup**: Removed obsolete scripts/, templates/, docs/workflows/ directories and archived resolved bugs
 
 ### 2026-01-07 (Post-User Testing Pivot)
 - **User Testing Round 1 Complete**: Tested F037-F041 feature group. Mode structure validated ✅, but blocking UI issues discovered.
@@ -316,3 +356,24 @@
   - Inserted new F047 for materials management
   - Renumbered: Shopping Lists (F047→F048), Assembly Workflows (F048→F049)
   - F047 spec in development by Claude Desktop
+- 2026-01-11: **F047 COMPLETE** - Materials Management System merged:
+  - Material/MaterialProduct/MaterialCategory/MaterialSubcategory models
+  - Non-edible materials (ribbon, boxes, bags) properly separated from ingredients
+  - Materials can be used in assemblies
+- 2026-01-11: **F048 COMPLETE** - Materials UI Rebuild merged:
+  - Materials UI rebuilt to match Ingredients 3-tab pattern
+  - Categories, Subcategories, Materials tabs with consistent grids
+  - Note: Feature scope changed from "Shopping Lists" to "Materials UI Rebuild"
+- 2026-01-12: **F049 COMPLETE** - Import/Export Phase 1 merged:
+  - Complete 16-entity backup capability
+  - Context-rich exports for all catalog entities
+  - Materials catalog import support
+  - Note: Feature scope changed from "Assembly Workflows" to "Import/Export Phase 1"
+- 2026-01-12: **F050 COMPLETE** - Supplier Slug Support merged:
+  - Added supplier_slug field for stable FK references
+  - Import/export uses slugs instead of IDs
+- 2026-01-13: **F051 COMPLETE** - Import/Export UI Rationalization merged:
+  - Unified import dialog with purpose-based selection (Catalog, Backup, Context-Rich)
+  - Improved error handling and log file generation
+  - All foundational features (F042-F051) now complete
+  - Ready for User Testing Round 2
