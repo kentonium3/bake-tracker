@@ -280,14 +280,31 @@ def _write_import_log(
     lines.append("=" * 80)
     lines.append("SUMMARY")
     lines.append("=" * 80)
-    total_records = getattr(result, "total_records", 0)
-    successful = getattr(result, "successful", 0)
-    skipped = getattr(result, "skipped", 0)
-    failed = getattr(result, "failed", len(errors))
-    lines.append(f"Total Records: {total_records}")
-    lines.append(f"Successful: {successful}")
-    lines.append(f"Skipped: {skipped}")
-    lines.append(f"Failed: {failed}")
+    # Handle CatalogImportResult (has total_processed, total_added, etc.)
+    # vs other result types (have total_records, successful, etc.)
+    if hasattr(result, "total_processed"):
+        # CatalogImportResult
+        total_records = result.total_processed
+        successful = getattr(result, "total_added", 0)
+        augmented = getattr(result, "total_augmented", 0)
+        skipped = getattr(result, "total_skipped", 0)
+        failed = getattr(result, "total_failed", 0)
+        lines.append(f"Total Records: {total_records}")
+        lines.append(f"Added: {successful}")
+        if augmented:
+            lines.append(f"Augmented: {augmented}")
+        lines.append(f"Skipped: {skipped}")
+        lines.append(f"Failed: {failed}")
+    else:
+        # Other result types (ImportResult, etc.)
+        total_records = getattr(result, "total_records", 0)
+        successful = getattr(result, "successful", 0)
+        skipped = getattr(result, "skipped", 0)
+        failed = getattr(result, "failed", len(errors))
+        lines.append(f"Total Records: {total_records}")
+        lines.append(f"Successful: {successful}")
+        lines.append(f"Skipped: {skipped}")
+        lines.append(f"Failed: {failed}")
     lines.append("")
 
     # --- METADATA section ---
@@ -1019,7 +1036,10 @@ class ImportDialog(ctk.CTkToplevel):
                 result = import_catalog(self.file_path, mode=mode)
                 summary_text = result.get_summary()
 
-            log_path = _write_import_log(self.file_path, result, summary_text)
+            log_path = _write_import_log(
+                self.file_path, result, summary_text,
+                purpose="catalog", mode=mode,
+            )
 
             self.result = result
             results_dialog = ImportResultsDialog(
