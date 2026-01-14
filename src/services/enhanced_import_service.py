@@ -942,10 +942,25 @@ def _create_new_record(
             if not product_id:
                 return ("failed", f"Cannot resolve product: {product_slug}")
 
-            # Parse date fields
-            purchase_date = record.get("purchase_date")
-            expiration_date = record.get("expiration_date")
-            opened_date = record.get("opened_date")
+            # Parse date fields (convert strings to date objects)
+            from datetime import date, datetime
+
+            def parse_date_field(val):
+                if val is None:
+                    return None
+                if isinstance(val, date):
+                    return val
+                if isinstance(val, str):
+                    try:
+                        # Try ISO format first (YYYY-MM-DD)
+                        return datetime.strptime(val[:10], "%Y-%m-%d").date()
+                    except (ValueError, TypeError):
+                        return None
+                return None
+
+            purchase_date = parse_date_field(record.get("purchase_date"))
+            expiration_date = parse_date_field(record.get("expiration_date"))
+            opened_date = parse_date_field(record.get("opened_date"))
 
             inventory_item = InventoryItem(
                 product_id=product_id,
