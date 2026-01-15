@@ -2,12 +2,12 @@
 Tests for the Denormalized Export Service.
 
 Tests cover:
-- Products view export with context fields
-- Inventory view export with product/purchase context
-- Purchases view export with product/supplier context
-- Ingredients view export with hierarchy and computed values
-- Materials view export with hierarchy
-- Recipes view export with embedded ingredients and costs
+- Products context-rich export with context fields
+- Inventory context-rich export with product/purchase context
+- Purchases context-rich export with product/supplier context
+- Ingredients context-rich export with hierarchy and computed values
+- Materials context-rich export with hierarchy
+- Recipes context-rich export with embedded ingredients and costs
 - _meta editable/readonly field definitions
 """
 
@@ -32,26 +32,26 @@ from src.models.recipe import Recipe, RecipeIngredient
 from src.models.supplier import Supplier
 from src.services.database import session_scope
 from src.services.denormalized_export_service import (
-    INGREDIENTS_VIEW_EDITABLE,
-    INGREDIENTS_VIEW_READONLY,
-    INVENTORY_VIEW_EDITABLE,
-    INVENTORY_VIEW_READONLY,
-    MATERIALS_VIEW_EDITABLE,
-    MATERIALS_VIEW_READONLY,
-    PRODUCTS_VIEW_EDITABLE,
-    PRODUCTS_VIEW_READONLY,
-    PURCHASES_VIEW_EDITABLE,
-    PURCHASES_VIEW_READONLY,
-    RECIPES_VIEW_EDITABLE,
-    RECIPES_VIEW_READONLY,
+    INGREDIENTS_CONTEXT_RICH_EDITABLE,
+    INGREDIENTS_CONTEXT_RICH_READONLY,
+    INVENTORY_CONTEXT_RICH_EDITABLE,
+    INVENTORY_CONTEXT_RICH_READONLY,
+    MATERIALS_CONTEXT_RICH_EDITABLE,
+    MATERIALS_CONTEXT_RICH_READONLY,
+    PRODUCTS_CONTEXT_RICH_EDITABLE,
+    PRODUCTS_CONTEXT_RICH_READONLY,
+    PURCHASES_CONTEXT_RICH_EDITABLE,
+    PURCHASES_CONTEXT_RICH_READONLY,
+    RECIPES_CONTEXT_RICH_EDITABLE,
+    RECIPES_CONTEXT_RICH_READONLY,
     ExportResult,
-    export_all_views,
-    export_ingredients_view,
-    export_inventory_view,
-    export_materials_view,
-    export_products_view,
-    export_purchases_view,
-    export_recipes_view,
+    export_all_context_rich,
+    export_ingredients_context_rich,
+    export_inventory_context_rich,
+    export_materials_context_rich,
+    export_products_context_rich,
+    export_purchases_context_rich,
+    export_recipes_context_rich,
 )
 
 
@@ -335,24 +335,24 @@ class TestExportResult:
     def test_export_result_creation(self):
         """Test ExportResult can be created with all fields."""
         result = ExportResult(
-            view_type="products",
+            export_type="products",
             record_count=10,
             output_path="/tmp/test.json",
             export_date="2025-12-25T10:00:00Z",
         )
-        assert result.view_type == "products"
+        assert result.export_type == "products"
         assert result.record_count == 10
         assert result.output_path == "/tmp/test.json"
         assert result.export_date == "2025-12-25T10:00:00Z"
 
 
 # ============================================================================
-# Products View Export Tests
+# Products Context-Rich Export Tests
 # ============================================================================
 
 
-class TestExportProductsView:
-    """Tests for export_products_view function."""
+class TestExportProductsContextRich:
+    """Tests for export_products_context_rich function."""
 
     def test_export_empty_database(self, test_db, cleanup_test_data):
         """Test export of empty database creates file with 0 records."""
@@ -360,15 +360,15 @@ class TestExportProductsView:
             temp_path = f.name
 
         try:
-            result = export_products_view(temp_path)
+            result = export_products_context_rich(temp_path)
 
-            assert result.view_type == "products"
+            assert result.export_type == "products"
             assert result.record_count == 0
 
             with open(temp_path) as f:
                 data = json.load(f)
 
-            assert data["view_type"] == "products"
+            assert data["export_type"] == "products"
             assert data["version"] == "1.0"
             assert "_meta" in data
             assert data["records"] == []
@@ -381,7 +381,7 @@ class TestExportProductsView:
             temp_path = f.name
 
         try:
-            result = export_products_view(temp_path)
+            result = export_products_context_rich(temp_path)
 
             assert result.record_count == 1
 
@@ -413,7 +413,7 @@ class TestExportProductsView:
             temp_path = f.name
 
         try:
-            result = export_products_view(temp_path)
+            result = export_products_context_rich(temp_path)
 
             with open(temp_path) as f:
                 data = json.load(f)
@@ -432,7 +432,7 @@ class TestExportProductsView:
             temp_path = f.name
 
         try:
-            result = export_products_view(temp_path)
+            result = export_products_context_rich(temp_path)
 
             with open(temp_path) as f:
                 data = json.load(f)
@@ -452,7 +452,7 @@ class TestExportProductsView:
             temp_path = f.name
 
         try:
-            result = export_products_view(temp_path)
+            result = export_products_context_rich(temp_path)
 
             with open(temp_path) as f:
                 data = json.load(f)
@@ -469,7 +469,7 @@ class TestExportProductsView:
             temp_path = f.name
 
         try:
-            export_products_view(temp_path)
+            export_products_context_rich(temp_path)
 
             with open(temp_path) as f:
                 data = json.load(f)
@@ -477,8 +477,8 @@ class TestExportProductsView:
             assert "_meta" in data
             assert "editable_fields" in data["_meta"]
             assert "readonly_fields" in data["_meta"]
-            assert data["_meta"]["editable_fields"] == PRODUCTS_VIEW_EDITABLE
-            assert data["_meta"]["readonly_fields"] == PRODUCTS_VIEW_READONLY
+            assert data["_meta"]["editable_fields"] == PRODUCTS_CONTEXT_RICH_EDITABLE
+            assert data["_meta"]["readonly_fields"] == PRODUCTS_CONTEXT_RICH_READONLY
 
         finally:
             os.unlink(temp_path)
@@ -492,7 +492,7 @@ class TestExportProductsView:
 
         try:
             with session_scope() as session:
-                result = export_products_view(temp_path, session=session)
+                result = export_products_context_rich(temp_path, session=session)
 
             assert result.record_count == 1
 
@@ -501,12 +501,12 @@ class TestExportProductsView:
 
 
 # ============================================================================
-# Inventory View Export Tests
+# Inventory Context-Rich Export Tests
 # ============================================================================
 
 
-class TestExportInventoryView:
-    """Tests for export_inventory_view function."""
+class TestExportInventoryContextRich:
+    """Tests for export_inventory_context_rich function."""
 
     def test_export_empty_database(self, test_db, cleanup_test_data):
         """Test export of empty database creates file with 0 records."""
@@ -514,15 +514,15 @@ class TestExportInventoryView:
             temp_path = f.name
 
         try:
-            result = export_inventory_view(temp_path)
+            result = export_inventory_context_rich(temp_path)
 
-            assert result.view_type == "inventory"
+            assert result.export_type == "inventory"
             assert result.record_count == 0
 
             with open(temp_path) as f:
                 data = json.load(f)
 
-            assert data["view_type"] == "inventory"
+            assert data["export_type"] == "inventory"
             assert data["records"] == []
         finally:
             os.unlink(temp_path)
@@ -535,7 +535,7 @@ class TestExportInventoryView:
             temp_path = f.name
 
         try:
-            result = export_inventory_view(temp_path)
+            result = export_inventory_context_rich(temp_path)
 
             assert result.record_count == 1
 
@@ -571,7 +571,7 @@ class TestExportInventoryView:
             temp_path = f.name
 
         try:
-            export_inventory_view(temp_path)
+            export_inventory_context_rich(temp_path)
 
             with open(temp_path) as f:
                 data = json.load(f)
@@ -588,26 +588,26 @@ class TestExportInventoryView:
             temp_path = f.name
 
         try:
-            export_inventory_view(temp_path)
+            export_inventory_context_rich(temp_path)
 
             with open(temp_path) as f:
                 data = json.load(f)
 
             assert "_meta" in data
-            assert data["_meta"]["editable_fields"] == INVENTORY_VIEW_EDITABLE
-            assert data["_meta"]["readonly_fields"] == INVENTORY_VIEW_READONLY
+            assert data["_meta"]["editable_fields"] == INVENTORY_CONTEXT_RICH_EDITABLE
+            assert data["_meta"]["readonly_fields"] == INVENTORY_CONTEXT_RICH_READONLY
 
         finally:
             os.unlink(temp_path)
 
 
 # ============================================================================
-# Purchases View Export Tests
+# Purchases Context-Rich Export Tests
 # ============================================================================
 
 
-class TestExportPurchasesView:
-    """Tests for export_purchases_view function."""
+class TestExportPurchasesContextRich:
+    """Tests for export_purchases_context_rich function."""
 
     def test_export_empty_database(self, test_db, cleanup_test_data):
         """Test export of empty database creates file with 0 records."""
@@ -615,15 +615,15 @@ class TestExportPurchasesView:
             temp_path = f.name
 
         try:
-            result = export_purchases_view(temp_path)
+            result = export_purchases_context_rich(temp_path)
 
-            assert result.view_type == "purchases"
+            assert result.export_type == "purchases"
             assert result.record_count == 0
 
             with open(temp_path) as f:
                 data = json.load(f)
 
-            assert data["view_type"] == "purchases"
+            assert data["export_type"] == "purchases"
             assert data["records"] == []
         finally:
             os.unlink(temp_path)
@@ -636,7 +636,7 @@ class TestExportPurchasesView:
             temp_path = f.name
 
         try:
-            result = export_purchases_view(temp_path)
+            result = export_purchases_context_rich(temp_path)
 
             assert result.record_count == 1
 
@@ -676,7 +676,7 @@ class TestExportPurchasesView:
             temp_path = f.name
 
         try:
-            export_purchases_view(temp_path)
+            export_purchases_context_rich(temp_path)
 
             with open(temp_path) as f:
                 data = json.load(f)
@@ -694,61 +694,61 @@ class TestExportPurchasesView:
             temp_path = f.name
 
         try:
-            export_purchases_view(temp_path)
+            export_purchases_context_rich(temp_path)
 
             with open(temp_path) as f:
                 data = json.load(f)
 
             assert "_meta" in data
-            assert data["_meta"]["editable_fields"] == PURCHASES_VIEW_EDITABLE
-            assert data["_meta"]["readonly_fields"] == PURCHASES_VIEW_READONLY
+            assert data["_meta"]["editable_fields"] == PURCHASES_CONTEXT_RICH_EDITABLE
+            assert data["_meta"]["readonly_fields"] == PURCHASES_CONTEXT_RICH_READONLY
 
         finally:
             os.unlink(temp_path)
 
 
 # ============================================================================
-# Export All Views Tests
+# Export All Context-Rich Tests
 # ============================================================================
 
 
-class TestExportAllViews:
-    """Tests for export_all_views function."""
+class TestExportAllContextRich:
+    """Tests for export_all_context_rich function."""
 
-    def test_export_all_views_creates_files(self, test_db, cleanup_test_data):
-        """Test export_all_views creates all three view files."""
+    def test_export_all_context_rich_creates_files(self, test_db, cleanup_test_data):
+        """Test export_all_context_rich creates all three context-rich files."""
         with tempfile.TemporaryDirectory() as tmpdir:
-            results = export_all_views(tmpdir)
+            results = export_all_context_rich(tmpdir)
 
             assert "products" in results
             assert "inventory" in results
             assert "purchases" in results
 
             # Verify files exist
-            assert (Path(tmpdir) / "view_products.json").exists()
-            assert (Path(tmpdir) / "view_inventory.json").exists()
-            assert (Path(tmpdir) / "view_purchases.json").exists()
+            assert (Path(tmpdir) / "aug_products.json").exists()
+            assert (Path(tmpdir) / "aug_inventory.json").exists()
+            assert (Path(tmpdir) / "aug_purchases.json").exists()
 
-    def test_export_all_views_with_data(
+    def test_export_all_context_rich_with_data(
         self, test_db, sample_inventory_item, cleanup_test_data
     ):
-        """Test export_all_views exports all data correctly."""
+        """Test export_all_context_rich exports all data correctly."""
         with tempfile.TemporaryDirectory() as tmpdir:
-            results = export_all_views(tmpdir)
+            results = export_all_context_rich(tmpdir)
 
-            # All views should have records
+            # All exports should have records
             assert results["products"].record_count == 1
             assert results["inventory"].record_count == 1
             # Purchase was created as dependency for inventory_item
             assert results["purchases"].record_count == 1
 
-    def test_export_all_views_uses_session(
+    def test_export_all_context_rich_uses_session(
         self, test_db, sample_product, cleanup_test_data
     ):
-        """Test export_all_views works with passed session."""
+        """Test export_all_context_rich works with passed session."""
         with tempfile.TemporaryDirectory() as tmpdir:
             with session_scope() as session:
-                results = export_all_views(tmpdir, session=session)
+                results = export_all_context_rich(tmpdir, session=session)
 
             assert results["products"].record_count == 1
 
@@ -772,7 +772,7 @@ class TestFieldDefinitions:
             "notes",
         ]
         for field in required_editable:
-            assert field in PRODUCTS_VIEW_EDITABLE
+            assert field in PRODUCTS_CONTEXT_RICH_EDITABLE
 
     def test_products_readonly_includes_context(self):
         """Verify products readonly includes context fields."""
@@ -783,27 +783,27 @@ class TestFieldDefinitions:
             "inventory_quantity",
         ]
         for field in context_fields:
-            assert field in PRODUCTS_VIEW_READONLY
+            assert field in PRODUCTS_CONTEXT_RICH_READONLY
 
     def test_inventory_editable_fields(self):
         """Verify inventory editable fields match spec requirements."""
         required_editable = ["quantity", "location", "notes"]
         for field in required_editable:
-            assert field in INVENTORY_VIEW_EDITABLE
+            assert field in INVENTORY_CONTEXT_RICH_EDITABLE
 
     def test_purchases_minimal_editable(self):
         """Verify purchases has minimal editable fields (historical data)."""
         # Purchases are historical - only notes should be editable
-        assert PURCHASES_VIEW_EDITABLE == ["notes"]
+        assert PURCHASES_CONTEXT_RICH_EDITABLE == ["notes"]
 
     def test_no_overlap_editable_readonly(self):
         """Verify no fields appear in both editable and readonly."""
-        products_overlap = set(PRODUCTS_VIEW_EDITABLE) & set(PRODUCTS_VIEW_READONLY)
-        inventory_overlap = set(INVENTORY_VIEW_EDITABLE) & set(INVENTORY_VIEW_READONLY)
-        purchases_overlap = set(PURCHASES_VIEW_EDITABLE) & set(PURCHASES_VIEW_READONLY)
-        ingredients_overlap = set(INGREDIENTS_VIEW_EDITABLE) & set(INGREDIENTS_VIEW_READONLY)
-        materials_overlap = set(MATERIALS_VIEW_EDITABLE) & set(MATERIALS_VIEW_READONLY)
-        recipes_overlap = set(RECIPES_VIEW_EDITABLE) & set(RECIPES_VIEW_READONLY)
+        products_overlap = set(PRODUCTS_CONTEXT_RICH_EDITABLE) & set(PRODUCTS_CONTEXT_RICH_READONLY)
+        inventory_overlap = set(INVENTORY_CONTEXT_RICH_EDITABLE) & set(INVENTORY_CONTEXT_RICH_READONLY)
+        purchases_overlap = set(PURCHASES_CONTEXT_RICH_EDITABLE) & set(PURCHASES_CONTEXT_RICH_READONLY)
+        ingredients_overlap = set(INGREDIENTS_CONTEXT_RICH_EDITABLE) & set(INGREDIENTS_CONTEXT_RICH_READONLY)
+        materials_overlap = set(MATERIALS_CONTEXT_RICH_EDITABLE) & set(MATERIALS_CONTEXT_RICH_READONLY)
+        recipes_overlap = set(RECIPES_CONTEXT_RICH_EDITABLE) & set(RECIPES_CONTEXT_RICH_READONLY)
 
         assert len(products_overlap) == 0
         assert len(inventory_overlap) == 0
@@ -814,12 +814,12 @@ class TestFieldDefinitions:
 
 
 # ============================================================================
-# Ingredients View Export Tests
+# Ingredients Context-Rich Export Tests
 # ============================================================================
 
 
-class TestExportIngredientsView:
-    """Tests for export_ingredients_view function."""
+class TestExportIngredientsContextRich:
+    """Tests for export_ingredients_context_rich function."""
 
     def test_export_empty_database(self, test_db, cleanup_test_data):
         """Test export of empty database creates file with 0 records."""
@@ -827,15 +827,15 @@ class TestExportIngredientsView:
             temp_path = f.name
 
         try:
-            result = export_ingredients_view(temp_path)
+            result = export_ingredients_context_rich(temp_path)
 
-            assert result.view_type == "ingredients"
+            assert result.export_type == "ingredients"
             assert result.record_count == 0
 
             with open(temp_path) as f:
                 data = json.load(f)
 
-            assert data["view_type"] == "ingredients"
+            assert data["export_type"] == "ingredients"
             assert data["version"] == "1.0"
             assert "_meta" in data
             assert data["records"] == []
@@ -848,7 +848,7 @@ class TestExportIngredientsView:
             temp_path = f.name
 
         try:
-            result = export_ingredients_view(temp_path)
+            result = export_ingredients_context_rich(temp_path)
 
             assert result.record_count == 1
 
@@ -875,7 +875,7 @@ class TestExportIngredientsView:
             temp_path = f.name
 
         try:
-            result = export_ingredients_view(temp_path)
+            result = export_ingredients_context_rich(temp_path)
 
             with open(temp_path) as f:
                 data = json.load(f)
@@ -905,7 +905,7 @@ class TestExportIngredientsView:
             temp_path = f.name
 
         try:
-            result = export_ingredients_view(temp_path)
+            result = export_ingredients_context_rich(temp_path)
 
             with open(temp_path) as f:
                 data = json.load(f)
@@ -930,7 +930,7 @@ class TestExportIngredientsView:
             temp_path = f.name
 
         try:
-            result = export_ingredients_view(temp_path)
+            result = export_ingredients_context_rich(temp_path)
 
             with open(temp_path) as f:
                 data = json.load(f)
@@ -951,7 +951,7 @@ class TestExportIngredientsView:
             temp_path = f.name
 
         try:
-            result = export_ingredients_view(temp_path)
+            result = export_ingredients_context_rich(temp_path)
 
             with open(temp_path) as f:
                 data = json.load(f)
@@ -971,7 +971,7 @@ class TestExportIngredientsView:
             temp_path = f.name
 
         try:
-            export_ingredients_view(temp_path)
+            export_ingredients_context_rich(temp_path)
 
             with open(temp_path) as f:
                 data = json.load(f)
@@ -979,20 +979,20 @@ class TestExportIngredientsView:
             assert "_meta" in data
             assert "editable_fields" in data["_meta"]
             assert "readonly_fields" in data["_meta"]
-            assert data["_meta"]["editable_fields"] == INGREDIENTS_VIEW_EDITABLE
-            assert data["_meta"]["readonly_fields"] == INGREDIENTS_VIEW_READONLY
+            assert data["_meta"]["editable_fields"] == INGREDIENTS_CONTEXT_RICH_EDITABLE
+            assert data["_meta"]["readonly_fields"] == INGREDIENTS_CONTEXT_RICH_READONLY
 
         finally:
             os.unlink(temp_path)
 
 
 # ============================================================================
-# Materials View Export Tests
+# Materials Context-Rich Export Tests
 # ============================================================================
 
 
-class TestExportMaterialsView:
-    """Tests for export_materials_view function."""
+class TestExportMaterialsContextRich:
+    """Tests for export_materials_context_rich function."""
 
     def test_export_empty_database(self, test_db, cleanup_test_data):
         """Test export of empty database creates file with 0 records."""
@@ -1000,15 +1000,15 @@ class TestExportMaterialsView:
             temp_path = f.name
 
         try:
-            result = export_materials_view(temp_path)
+            result = export_materials_context_rich(temp_path)
 
-            assert result.view_type == "materials"
+            assert result.export_type == "materials"
             assert result.record_count == 0
 
             with open(temp_path) as f:
                 data = json.load(f)
 
-            assert data["view_type"] == "materials"
+            assert data["export_type"] == "materials"
             assert data["version"] == "1.0"
             assert "_meta" in data
             assert data["records"] == []
@@ -1023,7 +1023,7 @@ class TestExportMaterialsView:
             temp_path = f.name
 
         try:
-            result = export_materials_view(temp_path)
+            result = export_materials_context_rich(temp_path)
 
             assert result.record_count == 1
 
@@ -1049,7 +1049,7 @@ class TestExportMaterialsView:
             temp_path = f.name
 
         try:
-            result = export_materials_view(temp_path)
+            result = export_materials_context_rich(temp_path)
 
             with open(temp_path) as f:
                 data = json.load(f)
@@ -1070,7 +1070,7 @@ class TestExportMaterialsView:
             temp_path = f.name
 
         try:
-            result = export_materials_view(temp_path)
+            result = export_materials_context_rich(temp_path)
 
             with open(temp_path) as f:
                 data = json.load(f)
@@ -1096,7 +1096,7 @@ class TestExportMaterialsView:
             temp_path = f.name
 
         try:
-            result = export_materials_view(temp_path)
+            result = export_materials_context_rich(temp_path)
 
             with open(temp_path) as f:
                 data = json.load(f)
@@ -1119,26 +1119,26 @@ class TestExportMaterialsView:
             temp_path = f.name
 
         try:
-            export_materials_view(temp_path)
+            export_materials_context_rich(temp_path)
 
             with open(temp_path) as f:
                 data = json.load(f)
 
             assert "_meta" in data
-            assert data["_meta"]["editable_fields"] == MATERIALS_VIEW_EDITABLE
-            assert data["_meta"]["readonly_fields"] == MATERIALS_VIEW_READONLY
+            assert data["_meta"]["editable_fields"] == MATERIALS_CONTEXT_RICH_EDITABLE
+            assert data["_meta"]["readonly_fields"] == MATERIALS_CONTEXT_RICH_READONLY
 
         finally:
             os.unlink(temp_path)
 
 
 # ============================================================================
-# Recipes View Export Tests
+# Recipes Context-Rich Export Tests
 # ============================================================================
 
 
-class TestExportRecipesView:
-    """Tests for export_recipes_view function."""
+class TestExportRecipesContextRich:
+    """Tests for export_recipes_context_rich function."""
 
     def test_export_empty_database(self, test_db, cleanup_test_data):
         """Test export of empty database creates file with 0 records."""
@@ -1146,15 +1146,15 @@ class TestExportRecipesView:
             temp_path = f.name
 
         try:
-            result = export_recipes_view(temp_path)
+            result = export_recipes_context_rich(temp_path)
 
-            assert result.view_type == "recipes"
+            assert result.export_type == "recipes"
             assert result.record_count == 0
 
             with open(temp_path) as f:
                 data = json.load(f)
 
-            assert data["view_type"] == "recipes"
+            assert data["export_type"] == "recipes"
             assert data["version"] == "1.0"
             assert "_meta" in data
             assert data["records"] == []
@@ -1169,7 +1169,7 @@ class TestExportRecipesView:
             temp_path = f.name
 
         try:
-            result = export_recipes_view(temp_path)
+            result = export_recipes_context_rich(temp_path)
 
             assert result.record_count == 1
 
@@ -1198,7 +1198,7 @@ class TestExportRecipesView:
             temp_path = f.name
 
         try:
-            result = export_recipes_view(temp_path)
+            result = export_recipes_context_rich(temp_path)
 
             with open(temp_path) as f:
                 data = json.load(f)
@@ -1226,7 +1226,7 @@ class TestExportRecipesView:
             temp_path = f.name
 
         try:
-            result = export_recipes_view(temp_path)
+            result = export_recipes_context_rich(temp_path)
 
             with open(temp_path) as f:
                 data = json.load(f)
@@ -1246,14 +1246,14 @@ class TestExportRecipesView:
             temp_path = f.name
 
         try:
-            export_recipes_view(temp_path)
+            export_recipes_context_rich(temp_path)
 
             with open(temp_path) as f:
                 data = json.load(f)
 
             assert "_meta" in data
-            assert data["_meta"]["editable_fields"] == RECIPES_VIEW_EDITABLE
-            assert data["_meta"]["readonly_fields"] == RECIPES_VIEW_READONLY
+            assert data["_meta"]["editable_fields"] == RECIPES_CONTEXT_RICH_EDITABLE
+            assert data["_meta"]["readonly_fields"] == RECIPES_CONTEXT_RICH_READONLY
 
         finally:
             os.unlink(temp_path)
@@ -1267,7 +1267,7 @@ class TestExportRecipesView:
 
         try:
             with session_scope() as session:
-                result = export_recipes_view(temp_path, session=session)
+                result = export_recipes_context_rich(temp_path, session=session)
 
             assert result.record_count == 1
 
@@ -1276,35 +1276,41 @@ class TestExportRecipesView:
 
 
 # ============================================================================
-# Export All Views Tests (Extended)
+# Export All Context-Rich Tests (Extended)
 # ============================================================================
 
 
-class TestExportAllViewsExtended:
-    """Extended tests for export_all_views including new views."""
+class TestExportAllContextRichExtended:
+    """Extended tests for export_all_context_rich including new exports."""
 
-    def test_export_all_views_creates_all_files(
+    def test_export_all_context_rich_creates_all_files(
         self, test_db, cleanup_extended_test_data
     ):
-        """Test export_all_views creates all six view files."""
+        """Test export_all_context_rich creates all nine context-rich files."""
         with tempfile.TemporaryDirectory() as tmpdir:
-            results = export_all_views(tmpdir)
+            results = export_all_context_rich(tmpdir)
 
-            # Verify all views are included
+            # Verify all exports are included (9 total)
             assert "products" in results
             assert "inventory" in results
             assert "purchases" in results
             assert "ingredients" in results
             assert "materials" in results
             assert "recipes" in results
+            assert "material_products" in results
+            assert "finished_units" in results
+            assert "finished_goods" in results
 
             # Verify files exist
-            assert (Path(tmpdir) / "view_products.json").exists()
-            assert (Path(tmpdir) / "view_inventory.json").exists()
-            assert (Path(tmpdir) / "view_purchases.json").exists()
-            assert (Path(tmpdir) / "view_ingredients.json").exists()
-            assert (Path(tmpdir) / "view_materials.json").exists()
-            assert (Path(tmpdir) / "view_recipes.json").exists()
+            assert (Path(tmpdir) / "aug_products.json").exists()
+            assert (Path(tmpdir) / "aug_inventory.json").exists()
+            assert (Path(tmpdir) / "aug_purchases.json").exists()
+            assert (Path(tmpdir) / "aug_ingredients.json").exists()
+            assert (Path(tmpdir) / "aug_materials.json").exists()
+            assert (Path(tmpdir) / "aug_recipes.json").exists()
+            assert (Path(tmpdir) / "aug_material_products.json").exists()
+            assert (Path(tmpdir) / "aug_finished_units.json").exists()
+            assert (Path(tmpdir) / "aug_finished_goods.json").exists()
 
 
 # ============================================================================
@@ -1324,7 +1330,7 @@ class TestNewFieldDefinitions:
             "density_volume_unit",
         ]
         for field in required_editable:
-            assert field in INGREDIENTS_VIEW_EDITABLE
+            assert field in INGREDIENTS_CONTEXT_RICH_EDITABLE
 
     def test_ingredients_readonly_includes_computed(self):
         """Verify ingredients readonly includes computed fields."""
@@ -1335,13 +1341,13 @@ class TestNewFieldDefinitions:
             "average_cost",
         ]
         for field in computed_fields:
-            assert field in INGREDIENTS_VIEW_READONLY
+            assert field in INGREDIENTS_CONTEXT_RICH_READONLY
 
     def test_materials_editable_fields(self):
         """Verify materials editable fields match spec requirements."""
         required_editable = ["description", "notes"]
         for field in required_editable:
-            assert field in MATERIALS_VIEW_EDITABLE
+            assert field in MATERIALS_CONTEXT_RICH_EDITABLE
 
     def test_materials_readonly_includes_hierarchy(self):
         """Verify materials readonly includes hierarchy and computed fields."""
@@ -1352,13 +1358,13 @@ class TestNewFieldDefinitions:
             "total_inventory_value",
         ]
         for field in context_fields:
-            assert field in MATERIALS_VIEW_READONLY
+            assert field in MATERIALS_CONTEXT_RICH_READONLY
 
     def test_recipes_editable_fields(self):
         """Verify recipes editable fields match spec requirements."""
         required_editable = ["notes", "source", "estimated_time_minutes"]
         for field in required_editable:
-            assert field in RECIPES_VIEW_EDITABLE
+            assert field in RECIPES_CONTEXT_RICH_EDITABLE
 
     def test_recipes_readonly_includes_computed(self):
         """Verify recipes readonly includes computed and nested fields."""
@@ -1369,4 +1375,4 @@ class TestNewFieldDefinitions:
             "cost_per_unit",
         ]
         for field in context_fields:
-            assert field in RECIPES_VIEW_READONLY
+            assert field in RECIPES_CONTEXT_RICH_READONLY

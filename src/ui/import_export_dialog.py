@@ -1024,9 +1024,9 @@ class ImportDialog(ctk.CTkToplevel):
 
             # Check if it's a context-rich file
             if self.detected_format and self.detected_format.format_type == "context_rich":
-                from src.services.enhanced_import_service import import_context_rich_view
+                from src.services.enhanced_import_service import import_context_rich
 
-                result = import_context_rich_view(self.file_path)
+                result = import_context_rich(self.file_path)
                 summary_text = result.get_summary()
             else:
                 # Standard catalog import - use catalog_import_service which supports
@@ -1073,19 +1073,19 @@ class ImportDialog(ctk.CTkToplevel):
             preprocessing_result = {}
 
             # FR-010: Preprocess context-rich files
-            # Context-rich format has _meta, view_type, records structure
-            view_type = raw_data.get("view_type")
+            # Context-rich format has _meta, export_type, records structure
+            export_type = raw_data.get("export_type")
             meta = raw_data.get("_meta", {})
             records = raw_data.get("records", [])
 
-            preprocessing_result["view_type"] = view_type or "unknown"
+            preprocessing_result["export_type"] = export_type or "unknown"
             preprocessing_result["record_count"] = len(records)
 
-            if not view_type:
+            if not export_type:
                 messagebox.showerror(
                     "Invalid Format",
-                    "Context-rich file missing 'view_type' field.\n\n"
-                    "Expected format: {\"view_type\": \"ingredients\", \"records\": [...]}",
+                    "Context-rich file missing 'export_type' field.\n\n"
+                    "Expected format: {\"export_type\": \"ingredients\", \"records\": [...]}",
                     parent=self,
                 )
                 return
@@ -1109,7 +1109,7 @@ class ImportDialog(ctk.CTkToplevel):
                 normalized_records.append(normalized)
 
             # Build normalized data structure for schema validation
-            normalized_data = {view_type: normalized_records}
+            normalized_data = {export_type: normalized_records}
             preprocessing_result["normalized_fields"] = list(editable_fields)
 
             # FR-010b: Run schema validation on preprocessed/normalized output
@@ -1168,7 +1168,7 @@ class ImportDialog(ctk.CTkToplevel):
                 for record in records:
                     slug = record.get("slug")
                     if slug:
-                        existing = _find_entity_by_slug(view_type, slug, session)
+                        existing = _find_entity_by_slug(export_type, slug, session)
                         if not existing:
                             missing_refs.append(slug)
 
@@ -1177,8 +1177,8 @@ class ImportDialog(ctk.CTkToplevel):
                 self._hide_progress()
                 error_msg = (
                     f"Cannot import: {len(missing_refs)} record(s) reference "
-                    f"{view_type} that don't exist in the database.\n\n"
-                    f"Missing {view_type}:\n"
+                    f"{export_type} that don't exist in the database.\n\n"
+                    f"Missing {export_type}:\n"
                 )
                 for slug in missing_refs[:10]:
                     error_msg += f"  - {slug}\n"
@@ -1195,9 +1195,9 @@ class ImportDialog(ctk.CTkToplevel):
 
             # Execute the import using enhanced_import_service
             # Note: Context-rich imports are merge-only (updates existing records)
-            from src.services.enhanced_import_service import import_context_rich_view
+            from src.services.enhanced_import_service import import_context_rich
 
-            result = import_context_rich_view(self.file_path)
+            result = import_context_rich(self.file_path)
 
             # Build summary with per-entity counts
             summary_lines = self._build_import_summary(result)
@@ -1470,7 +1470,7 @@ class ExportDialog(ctk.CTkToplevel):
     Redesigned for Feature 049 to provide clear separation:
     - Full Backup: Complete system backup (all 16 entities)
     - Catalog: Selective entity export
-    - Context-Rich: AI-augmentation views with hierarchy paths
+    - Context-Rich: AI-augmentation exports with hierarchy paths
     """
 
     def __init__(self, parent):
@@ -1631,7 +1631,7 @@ class ExportDialog(ctk.CTkToplevel):
         export_btn.pack(pady=15)
 
     def _setup_context_rich_tab(self):
-        """Set up Context-Rich tab - AI augmentation views."""
+        """Set up Context-Rich tab - AI augmentation views with multi-select."""
         tab = self.tabview.tab("Context-Rich")
 
         purpose = ctk.CTkLabel(
@@ -1644,32 +1644,53 @@ class ExportDialog(ctk.CTkToplevel):
         )
         purpose.pack(pady=(15, 10))
 
-        # View type selection
-        view_frame = ctk.CTkFrame(tab)
-        view_frame.pack(fill="x", padx=20, pady=10)
+        # Entity type selection (multi-select with checkboxes)
+        entity_frame = ctk.CTkFrame(tab)
+        entity_frame.pack(fill="x", padx=20, pady=10)
 
         ctk.CTkLabel(
-            view_frame,
-            text="Select view to export:",
+            entity_frame,
+            text="Select entities to export:",
             font=ctk.CTkFont(weight="bold"),
         ).pack(anchor="w", padx=10, pady=(10, 5))
 
-        self.view_var = ctk.StringVar(value="ingredients")
-        views = [
-            ("ingredients", "Ingredients (with products, inventory totals, costs)"),
-            ("materials", "Materials (with hierarchy paths, products)"),
-            ("recipes", "Recipes (with ingredients, computed costs)"),
-        ]
-        for value, label in views:
-            rb = ctk.CTkRadioButton(
-                view_frame,
-                text=label,
-                variable=self.view_var,
-                value=value,
-            )
-            rb.pack(anchor="w", padx=20, pady=3)
+        # "All" checkbox
+        self.context_rich_all_var = ctk.BooleanVar(value=False)
+        self.all_checkbox = ctk.CTkCheckBox(
+            entity_frame,
+            text="All",
+            variable=self.context_rich_all_var,
+            command=self._on_all_checkbox_changed,
+        )
+        self.all_checkbox.pack(anchor="w", padx=20, pady=(5, 2))
 
-        ctk.CTkLabel(view_frame, text="").pack(pady=5)
+        # Separator
+        separator = ctk.CTkFrame(entity_frame, height=2, fg_color="gray50")
+        separator.pack(fill="x", padx=20, pady=5)
+
+        # Individual entity checkboxes
+        self.context_rich_vars = {}
+        entities = [
+            ("ingredients", "Ingredients (with products, inventory totals, costs)"),
+            ("products", "Products (with ingredient context, supplier, inventory)"),
+            ("recipes", "Recipes (with ingredients, computed costs)"),
+            ("finished_units", "Finished Units (with recipe, yield information)"),
+            ("finished_goods", "Finished Goods (with components, assembly context)"),
+            ("materials", "Materials (with hierarchy paths, products)"),
+            ("material_products", "Material Products (with material context, supplier)"),
+        ]
+        for key, label in entities:
+            var = ctk.BooleanVar(value=False)
+            self.context_rich_vars[key] = var
+            cb = ctk.CTkCheckBox(
+                entity_frame,
+                text=label,
+                variable=var,
+                command=self._on_entity_checkbox_changed,
+            )
+            cb.pack(anchor="w", padx=20, pady=2)
+
+        ctk.CTkLabel(entity_frame, text="").pack(pady=3)
 
         # Info about editable fields
         info_label = ctk.CTkLabel(
@@ -1684,11 +1705,22 @@ class ExportDialog(ctk.CTkToplevel):
         # Export button
         export_btn = ctk.CTkButton(
             tab,
-            text="Export Context-Rich View...",
+            text="Export Context-Rich File...",
             width=200,
             command=self._export_context_rich,
         )
         export_btn.pack(pady=15)
+
+    def _on_all_checkbox_changed(self):
+        """Handle All checkbox state change - toggle all entity checkboxes."""
+        all_selected = self.context_rich_all_var.get()
+        for var in self.context_rich_vars.values():
+            var.set(all_selected)
+
+    def _on_entity_checkbox_changed(self):
+        """Update All checkbox based on individual entity selections."""
+        all_selected = all(var.get() for var in self.context_rich_vars.values())
+        self.context_rich_all_var.set(all_selected)
 
     def _export_full_backup(self):
         """Execute full backup export."""
@@ -1796,13 +1828,23 @@ class ExportDialog(ctk.CTkToplevel):
             self._hide_progress()
 
     def _export_context_rich(self):
-        """Execute context-rich view export."""
-        view_type = self.view_var.get()
+        """Execute context-rich export for selected entity types."""
+        # Get selected entities from checkboxes
+        selected = [key for key, var in self.context_rich_vars.items() if var.get()]
+
+        # Validate selection
+        if not selected:
+            messagebox.showwarning(
+                "No Selection",
+                "Please select at least one entity type to export.",
+                parent=self,
+            )
+            return
 
         # FR-015: Use configured export directory as initial location
         initial_dir = str(preferences_service.get_export_directory())
         dir_path = filedialog.askdirectory(
-            title=f"Select Export Directory for {view_type.title()} View",
+            title="Select Export Directory for Context-Rich Export",
             initialdir=initial_dir,
             parent=self,
         )
@@ -1810,38 +1852,75 @@ class ExportDialog(ctk.CTkToplevel):
         if not dir_path:
             return
 
-        self._show_progress(f"Exporting {view_type} view...")
+        # Map entity keys to export methods and filenames
+        export_methods = {
+            "ingredients": (
+                denormalized_export_service.export_ingredients_context_rich,
+                "aug_ingredients.json",
+            ),
+            "products": (
+                denormalized_export_service.export_products_context_rich,
+                "aug_products.json",
+            ),
+            "recipes": (
+                denormalized_export_service.export_recipes_context_rich,
+                "aug_recipes.json",
+            ),
+            "finished_units": (
+                denormalized_export_service.export_finished_units_context_rich,
+                "aug_finished_units.json",
+            ),
+            "finished_goods": (
+                denormalized_export_service.export_finished_goods_context_rich,
+                "aug_finished_goods.json",
+            ),
+            "materials": (
+                denormalized_export_service.export_materials_context_rich,
+                "aug_materials.json",
+            ),
+            "material_products": (
+                denormalized_export_service.export_material_products_context_rich,
+                "aug_material_products.json",
+            ),
+        }
+
+        entity_count = len(selected)
+        self._show_progress(f"Exporting {entity_count} context-rich file(s)...")
 
         try:
-            # Export the selected view type
-            if view_type == "ingredients":
-                result = denormalized_export_service.export_ingredients_view(
-                    str(Path(dir_path) / "view_ingredients.json")
-                )
-            elif view_type == "materials":
-                result = denormalized_export_service.export_materials_view(
-                    str(Path(dir_path) / "view_materials.json")
-                )
-            elif view_type == "recipes":
-                result = denormalized_export_service.export_recipes_view(
-                    str(Path(dir_path) / "view_recipes.json")
-                )
+            # Export each selected entity type
+            results = []
+            for entity_key in selected:
+                if entity_key in export_methods:
+                    method, filename = export_methods[entity_key]
+                    result = method(str(Path(dir_path) / filename))
+                    results.append((entity_key, result))
 
+            # Build summary
+            total_records = sum(r.record_count for _, r in results)
             summary_lines = [
-                f"Successfully exported {view_type} view.",
+                f"Successfully exported {len(results)} context-rich file(s).",
+                f"Total records: {total_records}",
+                "",
+            ]
+
+            for entity_key, result in results:
+                summary_lines.append(f"  {entity_key}: {result.record_count} records")
+
+            summary_lines.extend([
                 "",
                 f"Export directory:\n{dir_path}",
                 "",
-                "This file can be edited (e.g., by AI tools)",
+                "These files can be edited (e.g., by AI tools)",
                 "and re-imported to update the database.",
-            ]
+            ])
 
             messagebox.showinfo(
                 "Export Complete",
                 "\n".join(summary_lines),
                 parent=self,
             )
-            self.result = result
+            self.result = results
             self.destroy()
 
         except Exception as e:
@@ -1889,21 +1968,21 @@ class ExportDialog(ctk.CTkToplevel):
         return f"An error occurred during export:\n{error_str}"
 
 
-class ImportViewDialog(ctk.CTkToplevel):
-    """Dialog for importing a denormalized view file (F030).
+class ImportContextRichDialog(ctk.CTkToplevel):
+    """Dialog for importing a context-rich export file (F030).
 
     Provides file selection and mode selection before import.
     Interactive FK resolution is enabled by default for UI.
     """
 
     def __init__(self, parent):
-        """Initialize the import view dialog.
+        """Initialize the import context-rich dialog.
 
         Args:
             parent: Parent window
         """
         super().__init__(parent)
-        self.title("Import View")
+        self.title("Import Context-Rich File")
         self.geometry("500x350")
         self.resizable(False, False)
 
@@ -1931,7 +2010,7 @@ class ImportViewDialog(ctk.CTkToplevel):
         # Title
         title_label = ctk.CTkLabel(
             self,
-            text="Import View",
+            text="Import Context-Rich File",
             font=ctk.CTkFont(size=20, weight="bold"),
         )
         title_label.pack(pady=(20, 10))
@@ -1939,7 +2018,7 @@ class ImportViewDialog(ctk.CTkToplevel):
         # Instructions
         instructions = ctk.CTkLabel(
             self,
-            text="Import a denormalized view file (JSON format).\n"
+            text="Import a context-rich export file (JSON format).\n"
             "Missing references will be resolved interactively.",
             font=ctk.CTkFont(size=12),
             justify="center",
@@ -2014,11 +2093,11 @@ class ImportViewDialog(ctk.CTkToplevel):
         cancel_btn.pack(side="right")
 
     def _browse_file(self):
-        """Open file browser to select view file."""
+        """Open file browser to select export file."""
         # FR-015: Use configured import directory as initial location
         initial_dir = str(preferences_service.get_import_directory())
         file_path = filedialog.askopenfilename(
-            title="Select View File",
+            title="Select Context-Rich Export File",
             initialdir=initial_dir,
             filetypes=[("JSON files", "*.json"), ("All files", "*.*")],
             parent=self,

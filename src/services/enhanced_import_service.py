@@ -1,6 +1,6 @@
-"""Enhanced import service for denormalized views with FK resolution.
+"""Enhanced import service for context-rich exports with FK resolution.
 
-This module provides import functionality for denormalized view exports,
+This module provides import functionality for context-rich exports,
 with support for FK resolution, merge/skip modes, dry-run, and skip-on-error.
 
 Key Features:
@@ -22,9 +22,12 @@ logger = logging.getLogger(__name__)
 
 from sqlalchemy.orm import Session
 
+from src.models.finished_good import FinishedGood
+from src.models.finished_unit import FinishedUnit
 from src.models.ingredient import Ingredient
 from src.models.inventory_item import InventoryItem
 from src.models.material import Material
+from src.models.material_product import MaterialProduct
 from src.models.product import Product
 from src.models.purchase import Purchase
 from src.models.recipe import Recipe
@@ -201,7 +204,7 @@ class FormatDetectionResult:
 
     Attributes:
         format_type: Detected format type
-        view_type: For context-rich formats, the entity type (e.g., "ingredients")
+        export_type: For context-rich formats, the entity type (e.g., "ingredients")
         entity_count: Number of records in the file
         editable_fields: List of editable fields (for context-rich)
         readonly_fields: List of readonly fields (for context-rich)
@@ -212,7 +215,7 @@ class FormatDetectionResult:
     """
 
     format_type: FormatType
-    view_type: Optional[str] = None
+    export_type: Optional[str] = None
     entity_count: int = 0
     editable_fields: Optional[List[str]] = None
     readonly_fields: Optional[List[str]] = None
@@ -225,8 +228,8 @@ class FormatDetectionResult:
     def display_name(self) -> str:
         """Human-readable format name for UI display."""
         if self.format_type == "context_rich":
-            view_name = (self.view_type or "unknown").replace("_", " ").title()
-            return f"Context-Rich View ({view_name})"
+            entity_name = (self.export_type or "unknown").replace("_", " ").title()
+            return f"Context-Rich ({entity_name})"
         elif self.format_type == "normalized":
             return f"Normalized Backup (v{self.version or 'unknown'})"
         elif self.format_type == "purchases":
@@ -294,11 +297,11 @@ def _detect_format_from_data(data: Dict[str, Any]) -> FormatDetectionResult:
     """
     result = FormatDetectionResult(format_type="unknown", raw_data=data)
 
-    # Check for context-rich view format (has _meta.editable_fields)
+    # Check for context-rich format (has _meta.editable_fields)
     meta = data.get("_meta", {})
     if isinstance(meta, dict) and "editable_fields" in meta:
         result.format_type = "context_rich"
-        result.view_type = data.get("view_type")
+        result.export_type = data.get("export_type")
         result.editable_fields = meta.get("editable_fields", [])
         result.readonly_fields = meta.get("readonly_fields", [])
         result.entity_count = len(data.get("records", []))
@@ -343,7 +346,7 @@ def _detect_format_from_data(data: Dict[str, Any]) -> FormatDetectionResult:
     for key, value in data.items():
         if isinstance(value, list):
             result.entity_count = len(value)
-            result.view_type = key  # Best guess at what the data represents
+            result.export_type = key  # Best guess at what the data represents
             break
 
     return result
@@ -390,19 +393,19 @@ def merge_fields(entity: Any, editable_data: Dict[str, Any]) -> bool:
 
 
 def _find_entity_by_slug(
-    view_type: str, slug: str, session: Session
+    export_type: str, slug: str, session: Session
 ) -> Optional[Any]:
     """Find an entity by its slug for context-rich import.
 
     Args:
-        view_type: The view type (e.g., "ingredients", "materials", "recipes")
+        export_type: The export type (e.g., "ingredients", "materials", "recipes")
         slug: The entity's slug identifier
         session: Database session
 
     Returns:
         The entity if found, None otherwise
     """
-    entity_type = _view_type_to_entity_type(view_type)
+    entity_type = _export_type_to_entity_type(export_type)
 
     if entity_type == "ingredient":
         return session.query(Ingredient).filter(Ingredient.slug == slug).first()
@@ -415,6 +418,12 @@ def _find_entity_by_slug(
     elif entity_type == "supplier":
         # Feature 050: Use slug-based matching for suppliers
         return session.query(Supplier).filter(Supplier.slug == slug).first()
+    elif entity_type == "material_product":
+        return session.query(MaterialProduct).filter(MaterialProduct.slug == slug).first()
+    elif entity_type == "finished_unit":
+        return session.query(FinishedUnit).filter(FinishedUnit.slug == slug).first()
+    elif entity_type == "finished_good":
+        return session.query(FinishedGood).filter(FinishedGood.slug == slug).first()
 
     return None
 
@@ -481,12 +490,12 @@ class ContextRichImportResult:
         return "\n".join(lines)
 
 
-def import_context_rich_view(
+def import_context_rich(
     file_path: str,
     dry_run: bool = False,
     session: Optional[Session] = None,
 ) -> ContextRichImportResult:
-    """Import a context-rich view file, merging editable fields with existing records.
+    """Import a context-rich file, merging editable fields with existing records.
 
     Context-rich imports are merge-only operations - they update existing
     records with AI-augmented editable fields. Records not found in the
@@ -535,13 +544,13 @@ def _import_context_rich_impl(
 
     data = detection.raw_data
     meta = data.get("_meta", {})
-    view_type = data.get("view_type")
+    export_type = data.get("export_type")
     records = data.get("records", [])
 
     result.total_records = len(records)
 
-    if not view_type:
-        result.add_error("file", "Missing view_type in context-rich file")
+    if not export_type:
+        result.add_error("file", "Missing export_type in context-rich file")
         return result
 
     # Process each record
@@ -553,7 +562,7 @@ def _import_context_rich_impl(
             continue
 
         # Find existing entity
-        existing = _find_entity_by_slug(view_type, slug, session)
+        existing = _find_entity_by_slug(export_type, slug, session)
         if not existing:
             result.add_not_found(slug)
             continue
@@ -1079,7 +1088,7 @@ def _write_skipped_records_log(
 # ============================================================================
 
 
-def import_view(
+def import_context_rich_export(
     file_path: str,
     mode: str = "merge",
     dry_run: bool = False,
@@ -1087,10 +1096,10 @@ def import_view(
     resolver: Optional[FKResolverCallback] = None,
     session: Session = None,
 ) -> EnhancedImportResult:
-    """Import a denormalized view file with FK resolution.
+    """Import a context-rich export file with FK resolution.
 
     Args:
-        file_path: Path to the view JSON file
+        file_path: Path to the export JSON file
         mode: Import mode - "merge" (default) or "skip_existing"
         dry_run: If True, preview changes without modifying database
         skip_on_error: If True, skip records with errors and continue
@@ -1101,12 +1110,12 @@ def import_view(
         EnhancedImportResult with import statistics and resolution tracking
     """
     if session is not None:
-        return _import_view_impl(
+        return _import_context_rich_export_impl(
             file_path, mode, dry_run, skip_on_error, resolver, session
         )
 
     with session_scope() as session:
-        result = _import_view_impl(
+        result = _import_context_rich_export_impl(
             file_path, mode, dry_run, skip_on_error, resolver, session
         )
         if dry_run:
@@ -1114,7 +1123,7 @@ def import_view(
         return result
 
 
-def _import_view_impl(
+def _import_context_rich_export_impl(
     file_path: str,
     mode: str,
     dry_run: bool,
@@ -1122,10 +1131,10 @@ def _import_view_impl(
     resolver: Optional[FKResolverCallback],
     session: Session,
 ) -> EnhancedImportResult:
-    """Implementation of view import with FK resolution.
+    """Implementation of context-rich export import with FK resolution.
 
     Args:
-        file_path: Path to the view JSON file
+        file_path: Path to the export JSON file
         mode: Import mode - "merge" or "skip_existing"
         dry_run: If True, preview changes without modifying database
         skip_on_error: If True, skip records with errors and continue
@@ -1139,10 +1148,10 @@ def _import_view_impl(
     result.dry_run = dry_run
     skipped_records: List[Dict[str, Any]] = []
 
-    # Load the view file
+    # Load the export file
     try:
         with open(file_path, "r", encoding="utf-8") as f:
-            view_data = json.load(f)
+            export_data = json.load(f)
     except FileNotFoundError:
         result.add_error("file", file_path, f"File not found: {file_path}")
         return result
@@ -1150,28 +1159,28 @@ def _import_view_impl(
         result.add_error("file", file_path, f"Invalid JSON: {e}")
         return result
 
-    # Extract view metadata
-    view_type = view_data.get("view_type")
-    if not view_type:
-        result.add_error("file", file_path, "Missing view_type in file")
+    # Extract export metadata
+    export_type = export_data.get("export_type")
+    if not export_type:
+        result.add_error("file", file_path, "Missing export_type in file")
         return result
 
-    records = view_data.get("records", [])
+    records = export_data.get("records", [])
     if not records:
         result.add_warning("file", file_path, "No records in file")
         return result
 
-    meta = view_data.get("_meta", {})
+    meta = export_data.get("_meta", {})
     editable_fields = meta.get("editable_fields", [])
 
-    # Determine entity type from view_type
-    entity_type = _view_type_to_entity_type(view_type)
+    # Determine entity type from export_type
+    entity_type = _export_type_to_entity_type(export_type)
     if not entity_type:
-        result.add_error("file", file_path, f"Unknown view type: {view_type}")
+        result.add_error("file", file_path, f"Unknown export type: {export_type}")
         return result
 
     # Collect missing FKs
-    missing_fks = _collect_missing_fks_for_view(records, entity_type, session)
+    missing_fks = _collect_missing_fks(records, entity_type, session)
 
     # Resolve missing FKs if any
     fk_mapping: Dict[str, Dict[str, int]] = {}
@@ -1313,8 +1322,8 @@ def _import_view_impl(
 # ============================================================================
 
 
-def _view_type_to_entity_type(view_type: str) -> Optional[str]:
-    """Convert view type to entity type."""
+def _export_type_to_entity_type(export_type: str) -> Optional[str]:
+    """Convert export type to entity type."""
     mapping = {
         "products": "product",
         "product": "product",
@@ -1330,8 +1339,14 @@ def _view_type_to_entity_type(view_type: str) -> Optional[str]:
         "material": "material",
         "recipes": "recipe",
         "recipe": "recipe",
+        "material_products": "material_product",
+        "material_product": "material_product",
+        "finished_units": "finished_unit",
+        "finished_unit": "finished_unit",
+        "finished_goods": "finished_good",
+        "finished_good": "finished_good",
     }
-    return mapping.get(view_type.lower())
+    return mapping.get(export_type.lower())
 
 
 def _get_record_identifier(record: Dict[str, Any], entity_type: str) -> str:
@@ -1355,15 +1370,15 @@ def _get_record_identifier(record: Dict[str, Any], entity_type: str) -> str:
     return str(record.get("id", "unknown"))
 
 
-def _collect_missing_fks_for_view(
+def _collect_missing_fks(
     records: List[Dict[str, Any]],
     entity_type: str,
     session: Session,
 ) -> List[MissingFK]:
-    """Collect missing FK references from view records.
+    """Collect missing FK references from export records.
 
     Args:
-        records: List of records from the view
+        records: List of records from the export
         entity_type: Type of entity being imported
         session: Database session
 
