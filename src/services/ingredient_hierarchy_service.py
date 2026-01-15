@@ -739,6 +739,40 @@ def get_product_count(ingredient_id: int, session=None) -> int:
         return _impl(session)
 
 
+def get_usage_counts(ingredient_id: int, session=None) -> Dict[str, int]:
+    """
+    Get product and recipe counts for an ingredient.
+
+    Feature 052: Used in Hierarchy Admin UI to show usage information
+    before performing rename/reparent/delete operations.
+
+    Args:
+        ingredient_id: ID of ingredient to check
+        session: Optional SQLAlchemy session
+
+    Returns:
+        {"product_count": int, "recipe_count": int}
+    """
+    from src.models.recipe_ingredient import RecipeIngredient
+
+    def _impl(session):
+        product_count = session.query(Product).filter(Product.ingredient_id == ingredient_id).count()
+
+        recipe_count = (
+            session.query(RecipeIngredient).filter(RecipeIngredient.ingredient_id == ingredient_id).count()
+        )
+
+        return {
+            "product_count": product_count,
+            "recipe_count": recipe_count,
+        }
+
+    if session is not None:
+        return _impl(session)
+    with session_scope() as session:
+        return _impl(session)
+
+
 def can_change_parent(
     ingredient_id: int, new_parent_id: Optional[int], session=None
 ) -> Dict[str, Any]:

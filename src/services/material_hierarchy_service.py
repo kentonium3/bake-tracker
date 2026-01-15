@@ -157,3 +157,126 @@ def get_category_hierarchy(session=None) -> List[Dict]:
         return _impl(session)
     with session_scope() as session:
         return _impl(session)
+
+
+def get_hierarchy_tree(session=None) -> List[Dict]:
+    """
+    Get full material tree structure for admin UI.
+
+    Feature 052: Returns nested tree structure matching ingredient tree format
+    for consistent UI rendering in Hierarchy Admin.
+
+    Returns:
+        List of category nodes, each with subcategories containing materials:
+        [{
+            "id": int,
+            "name": str,
+            "type": "category",
+            "children": [{
+                "id": int,
+                "name": str,
+                "type": "subcategory",
+                "children": [{
+                    "id": int,
+                    "name": str,
+                    "type": "material",
+                    "children": [],
+                    "material": dict
+                }],
+                "subcategory": dict
+            }],
+            "category": dict
+        }]
+    """
+
+    def _impl(session):
+        categories = (
+            session.query(MaterialCategory)
+            .order_by(MaterialCategory.sort_order, MaterialCategory.name)
+            .all()
+        )
+
+        result = []
+        for cat in categories:
+            subcategories = (
+                session.query(MaterialSubcategory)
+                .filter(MaterialSubcategory.category_id == cat.id)
+                .order_by(MaterialSubcategory.sort_order, MaterialSubcategory.name)
+                .all()
+            )
+
+            subcat_nodes = []
+            for subcat in subcategories:
+                materials = (
+                    session.query(Material)
+                    .filter(Material.subcategory_id == subcat.id)
+                    .order_by(Material.name)
+                    .all()
+                )
+
+                mat_nodes = [
+                    {
+                        "id": mat.id,
+                        "name": mat.name,
+                        "type": "material",
+                        "children": [],
+                        "material": mat.to_dict(),
+                    }
+                    for mat in materials
+                ]
+
+                subcat_nodes.append(
+                    {
+                        "id": subcat.id,
+                        "name": subcat.name,
+                        "type": "subcategory",
+                        "children": mat_nodes,
+                        "subcategory": subcat.to_dict(),
+                    }
+                )
+
+            result.append(
+                {
+                    "id": cat.id,
+                    "name": cat.name,
+                    "type": "category",
+                    "children": subcat_nodes,
+                    "category": cat.to_dict(),
+                }
+            )
+
+        return result
+
+    if session is not None:
+        return _impl(session)
+    with session_scope() as session:
+        return _impl(session)
+
+
+def get_usage_counts(material_id: int, session=None) -> Dict[str, int]:
+    """
+    Get product count for a material.
+
+    Feature 052: Used in Hierarchy Admin UI to show usage information
+    before performing rename/reparent/delete operations.
+
+    Args:
+        material_id: ID of material to check
+        session: Optional SQLAlchemy session
+
+    Returns:
+        {"product_count": int}
+    """
+    from src.models.material_product import MaterialProduct
+
+    def _impl(session):
+        product_count = (
+            session.query(MaterialProduct).filter(MaterialProduct.material_id == material_id).count()
+        )
+
+        return {"product_count": product_count}
+
+    if session is not None:
+        return _impl(session)
+    with session_scope() as session:
+        return _impl(session)

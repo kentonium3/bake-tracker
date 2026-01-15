@@ -1260,3 +1260,49 @@ class TestGetIngredientWithAncestors:
         assert result["l2_name"] == "Chocolate"
         assert result["l1_name"] == ""
         assert result["l0_name"] == ""
+
+
+# =============================================================================
+# Feature 052: Usage Counts Tests
+# =============================================================================
+
+
+class TestGetUsageCounts:
+    """Tests for get_usage_counts() (Feature 052)."""
+
+    def test_returns_product_and_recipe_counts(self, test_db_with_products):
+        """Test that both product and recipe counts are returned."""
+        semi_sweet = (
+            test_db_with_products.query(Ingredient)
+            .filter(Ingredient.slug == "semi-sweet-chips")
+            .first()
+        )
+
+        result = ingredient_hierarchy_service.get_usage_counts(
+            semi_sweet.id, session=test_db_with_products
+        )
+
+        assert "product_count" in result
+        assert "recipe_count" in result
+        assert result["product_count"] == 3  # From test_db_with_products fixture
+
+    def test_zero_counts_for_unused_ingredient(self, test_db_with_products):
+        """Test that unused ingredient returns zero counts."""
+        bittersweet = (
+            test_db_with_products.query(Ingredient)
+            .filter(Ingredient.slug == "bittersweet-chips")
+            .first()
+        )
+
+        result = ingredient_hierarchy_service.get_usage_counts(
+            bittersweet.id, session=test_db_with_products
+        )
+
+        assert result["product_count"] == 0
+        assert result["recipe_count"] == 0
+
+    def test_nonexistent_ingredient_returns_zeros(self, test_db_with_products):
+        """Test that nonexistent ingredient returns zero counts."""
+        result = ingredient_hierarchy_service.get_usage_counts(99999, session=test_db_with_products)
+        assert result["product_count"] == 0
+        assert result["recipe_count"] == 0
