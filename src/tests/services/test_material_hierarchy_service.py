@@ -385,3 +385,112 @@ class TestGetUsageCounts:
 
         assert "product_count" in result
         assert isinstance(result["product_count"], int)
+
+
+class TestAddMaterial:
+    """Tests for add_material() (Feature 052)."""
+
+    def test_add_material_success(self, test_db):
+        """Test adding material under subcategory."""
+        # Get a subcategory
+        satin = test_db.query(MaterialSubcategory).filter(MaterialSubcategory.slug == "satin").first()
+
+        result = material_hierarchy_service.add_material(
+            subcategory_id=satin.id,
+            name="Green Satin 1-inch",
+            base_unit_type="linear_inches",
+            session=test_db,
+        )
+
+        assert result is not None
+        assert result["name"] == "Green Satin 1-inch"
+        assert result["subcategory_id"] == satin.id
+        assert result["base_unit_type"] == "linear_inches"
+        assert "slug" in result
+
+    def test_add_material_default_unit_type(self, test_db):
+        """Test that default unit type is 'each'."""
+        satin = test_db.query(MaterialSubcategory).filter(MaterialSubcategory.slug == "satin").first()
+
+        result = material_hierarchy_service.add_material(
+            subcategory_id=satin.id, name="Yellow Satin 1-inch", session=test_db
+        )
+
+        assert result["base_unit_type"] == "each"
+
+    def test_add_material_trims_whitespace(self, test_db):
+        """Test that leading/trailing whitespace is trimmed."""
+        satin = test_db.query(MaterialSubcategory).filter(MaterialSubcategory.slug == "satin").first()
+
+        result = material_hierarchy_service.add_material(
+            subcategory_id=satin.id, name="  Purple Satin 1-inch  ", session=test_db
+        )
+
+        assert result["name"] == "Purple Satin 1-inch"
+
+    def test_add_material_subcategory_not_found(self, test_db):
+        """Test error when subcategory doesn't exist."""
+        with pytest.raises(ValueError, match="not found"):
+            material_hierarchy_service.add_material(
+                subcategory_id=99999, name="Test Material", session=test_db
+            )
+
+    def test_add_material_invalid_unit_type(self, test_db):
+        """Test error for invalid unit type."""
+        satin = test_db.query(MaterialSubcategory).filter(MaterialSubcategory.slug == "satin").first()
+
+        with pytest.raises(ValueError, match="Invalid unit type"):
+            material_hierarchy_service.add_material(
+                subcategory_id=satin.id,
+                name="Test Material",
+                base_unit_type="invalid_type",
+                session=test_db,
+            )
+
+    def test_add_material_duplicate_name(self, test_db):
+        """Test error when name already exists in subcategory."""
+        satin = test_db.query(MaterialSubcategory).filter(MaterialSubcategory.slug == "satin").first()
+        existing = test_db.query(Material).filter(Material.subcategory_id == satin.id).first()
+
+        with pytest.raises(ValueError, match="already exists"):
+            material_hierarchy_service.add_material(
+                subcategory_id=satin.id, name=existing.name, session=test_db
+            )
+
+    def test_add_material_empty_name(self, test_db):
+        """Test error when name is empty."""
+        satin = test_db.query(MaterialSubcategory).filter(MaterialSubcategory.slug == "satin").first()
+
+        with pytest.raises(ValueError, match="cannot be empty"):
+            material_hierarchy_service.add_material(
+                subcategory_id=satin.id, name="", session=test_db
+            )
+
+    def test_add_material_whitespace_only_name(self, test_db):
+        """Test error when name is whitespace only."""
+        satin = test_db.query(MaterialSubcategory).filter(MaterialSubcategory.slug == "satin").first()
+
+        with pytest.raises(ValueError, match="cannot be empty"):
+            material_hierarchy_service.add_material(
+                subcategory_id=satin.id, name="   ", session=test_db
+            )
+
+    def test_add_material_generates_slug(self, test_db):
+        """Test that slug is auto-generated from name."""
+        satin = test_db.query(MaterialSubcategory).filter(MaterialSubcategory.slug == "satin").first()
+
+        result = material_hierarchy_service.add_material(
+            subcategory_id=satin.id, name="Orange Satin 2-inch", session=test_db
+        )
+
+        assert result["slug"] == "orange-satin-2-inch"
+
+    def test_add_material_case_insensitive_duplicate_check(self, test_db):
+        """Test that duplicate check is case-insensitive."""
+        satin = test_db.query(MaterialSubcategory).filter(MaterialSubcategory.slug == "satin").first()
+        existing = test_db.query(Material).filter(Material.subcategory_id == satin.id).first()
+
+        with pytest.raises(ValueError, match="already exists"):
+            material_hierarchy_service.add_material(
+                subcategory_id=satin.id, name=existing.name.upper(), session=test_db
+            )

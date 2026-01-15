@@ -853,3 +853,85 @@ def can_change_parent(
         return _impl(session)
     with session_scope() as session:
         return _impl(session)
+
+
+def add_leaf_ingredient(parent_id: int, name: str, session=None) -> Dict:
+    """
+    Create new L2 (leaf) ingredient under L1 parent.
+
+    Feature 052: Admin operation to add new ingredient.
+
+    Args:
+        parent_id: ID of L1 parent ingredient
+        name: Display name for new ingredient
+        session: Optional SQLAlchemy session
+
+    Returns:
+        Dictionary representation of created Ingredient
+
+    Raises:
+        ValueError: If parent not found, parent not L1, name empty, or name not unique
+    """
+    from src.services import hierarchy_admin_service
+
+    def _impl(session):
+        # Validate name not empty
+        if not hierarchy_admin_service.validate_name_not_empty(name):
+            raise ValueError("Ingredient name cannot be empty")
+
+        # Trim name
+        trimmed_name = hierarchy_admin_service.trim_name(name)
+
+        # Validate parent exists and is L1
+        parent = session.query(Ingredient).filter(Ingredient.id == parent_id).first()
+
+        if not parent:
+            raise ValueError(f"Parent ingredient {parent_id} not found")
+
+        if parent.hierarchy_level != 1:
+            raise ValueError(
+                f"Parent must be L1 (level 1), got level {parent.hierarchy_level}"
+            )
+
+        # Get siblings for uniqueness check
+        siblings = (
+            session.query(Ingredient)
+            .filter(Ingredient.parent_ingredient_id == parent_id)
+            .all()
+        )
+
+        # Validate unique name
+        if not hierarchy_admin_service.validate_unique_sibling_name(siblings, trimmed_name):
+            raise ValueError(
+                f"An ingredient named '{trimmed_name}' already exists under this parent"
+            )
+
+        # Generate slug
+        slug = hierarchy_admin_service.generate_slug(trimmed_name)
+
+        # Check slug uniqueness globally
+        existing_slug = session.query(Ingredient).filter(Ingredient.slug == slug).first()
+        if existing_slug:
+            # Append parent slug for uniqueness
+            slug = f"{parent.slug}-{slug}"
+
+        # Create ingredient (inherit category from parent)
+        ingredient = Ingredient(
+            display_name=trimmed_name,
+            slug=slug,
+            parent_ingredient_id=parent_id,
+            hierarchy_level=2,
+            category=parent.category,
+        )
+
+        session.add(ingredient)
+        session.flush()  # Get ID
+
+        return ingredient.to_dict()
+
+    if session is not None:
+        return _impl(session)
+    with session_scope() as session:
+        result = _impl(session)
+        session.commit()
+        return result

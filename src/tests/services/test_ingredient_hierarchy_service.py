@@ -1306,3 +1306,111 @@ class TestGetUsageCounts:
         result = ingredient_hierarchy_service.get_usage_counts(99999, session=test_db_with_products)
         assert result["product_count"] == 0
         assert result["recipe_count"] == 0
+
+
+# =============================================================================
+# Feature 052: Add Leaf Ingredient Tests
+# =============================================================================
+
+
+class TestAddLeafIngredient:
+    """Tests for add_leaf_ingredient() (Feature 052)."""
+
+    def test_add_leaf_ingredient_success(self, test_db):
+        """Test adding L2 ingredient under L1 parent."""
+        # Get an L1 parent (dark-chocolate is level 1 in fixture)
+        dark_choc = test_db.query(Ingredient).filter(Ingredient.slug == "dark-chocolate").first()
+
+        result = ingredient_hierarchy_service.add_leaf_ingredient(
+            parent_id=dark_choc.id, name="White Chocolate Chips", session=test_db
+        )
+
+        assert result is not None
+        assert result["display_name"] == "White Chocolate Chips"
+        assert result["hierarchy_level"] == 2
+        assert result["parent_ingredient_id"] == dark_choc.id
+        assert "slug" in result
+
+    def test_add_leaf_ingredient_trims_whitespace(self, test_db):
+        """Test that leading/trailing whitespace is trimmed."""
+        dark_choc = test_db.query(Ingredient).filter(Ingredient.slug == "dark-chocolate").first()
+
+        result = ingredient_hierarchy_service.add_leaf_ingredient(
+            parent_id=dark_choc.id, name="  Caramel Chips  ", session=test_db
+        )
+
+        assert result["display_name"] == "Caramel Chips"
+
+    def test_add_leaf_ingredient_parent_not_found(self, test_db):
+        """Test error when parent doesn't exist."""
+        with pytest.raises(ValueError, match="not found"):
+            ingredient_hierarchy_service.add_leaf_ingredient(
+                parent_id=99999, name="Test Ingredient", session=test_db
+            )
+
+    def test_add_leaf_ingredient_parent_not_l1(self, test_db):
+        """Test error when parent is not L1 (e.g., L0 or L2)."""
+        # Get an L0 ingredient
+        chocolate = test_db.query(Ingredient).filter(Ingredient.slug == "chocolate").first()
+
+        with pytest.raises(ValueError, match="must be L1"):
+            ingredient_hierarchy_service.add_leaf_ingredient(
+                parent_id=chocolate.id, name="Test Ingredient", session=test_db
+            )
+
+    def test_add_leaf_ingredient_duplicate_name(self, test_db):
+        """Test error when name already exists under same parent."""
+        # Get L1 parent that has children (dark-chocolate has semi-sweet and bittersweet)
+        dark_choc = test_db.query(Ingredient).filter(Ingredient.slug == "dark-chocolate").first()
+        existing = (
+            test_db.query(Ingredient)
+            .filter(Ingredient.parent_ingredient_id == dark_choc.id)
+            .first()
+        )
+
+        with pytest.raises(ValueError, match="already exists"):
+            ingredient_hierarchy_service.add_leaf_ingredient(
+                parent_id=dark_choc.id, name=existing.display_name, session=test_db
+            )
+
+    def test_add_leaf_ingredient_empty_name(self, test_db):
+        """Test error when name is empty."""
+        dark_choc = test_db.query(Ingredient).filter(Ingredient.slug == "dark-chocolate").first()
+
+        with pytest.raises(ValueError, match="cannot be empty"):
+            ingredient_hierarchy_service.add_leaf_ingredient(
+                parent_id=dark_choc.id, name="", session=test_db
+            )
+
+    def test_add_leaf_ingredient_whitespace_only_name(self, test_db):
+        """Test error when name is whitespace only."""
+        dark_choc = test_db.query(Ingredient).filter(Ingredient.slug == "dark-chocolate").first()
+
+        with pytest.raises(ValueError, match="cannot be empty"):
+            ingredient_hierarchy_service.add_leaf_ingredient(
+                parent_id=dark_choc.id, name="   ", session=test_db
+            )
+
+    def test_add_leaf_ingredient_generates_slug(self, test_db):
+        """Test that slug is auto-generated from name."""
+        dark_choc = test_db.query(Ingredient).filter(Ingredient.slug == "dark-chocolate").first()
+
+        result = ingredient_hierarchy_service.add_leaf_ingredient(
+            parent_id=dark_choc.id, name="Extra Dark Chips", session=test_db
+        )
+
+        assert result["slug"] == "extra-dark-chips"
+
+    def test_add_leaf_ingredient_case_insensitive_duplicate_check(self, test_db):
+        """Test that duplicate check is case-insensitive."""
+        dark_choc = test_db.query(Ingredient).filter(Ingredient.slug == "dark-chocolate").first()
+        existing = (
+            test_db.query(Ingredient)
+            .filter(Ingredient.parent_ingredient_id == dark_choc.id)
+            .first()
+        )
+
+        with pytest.raises(ValueError, match="already exists"):
+            ingredient_hierarchy_service.add_leaf_ingredient(
+                parent_id=dark_choc.id, name=existing.display_name.upper(), session=test_db
+            )

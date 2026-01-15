@@ -196,7 +196,7 @@ class HierarchyAdminWindow(ctk.CTkToplevel):
             self.actions_frame,
             text="Add New...",
             command=self._on_add_click,
-            state="disabled",  # Enabled in WP05
+            state="normal",
         )
         self.add_btn.pack(fill="x", pady=2)
 
@@ -424,9 +424,68 @@ class HierarchyAdminWindow(ctk.CTkToplevel):
         self.path_label.configure(text="-")
         self.usage_label.configure(text="-")
 
+    def _get_parent_options(self) -> list:
+        """Get valid parent options for add operation."""
+        if self.entity_type == "ingredient":
+            # Get all L1 ingredients
+            tree = self.hierarchy_service.get_ingredient_tree()
+            options = []
+            for l0 in tree:
+                l0_name = l0.get("display_name", l0.get("name", ""))
+                for l1 in l0.get("children", []):
+                    l1_name = l1.get("display_name", l1.get("name", ""))
+                    options.append({"id": l1["id"], "display": f"{l0_name} > {l1_name}"})
+            return sorted(options, key=lambda x: x["display"])
+        else:
+            # Get all subcategories
+            tree = self.hierarchy_service.get_hierarchy_tree()
+            options = []
+            for cat in tree:
+                for subcat in cat.get("children", []):
+                    if subcat.get("type") == "subcategory":
+                        options.append(
+                            {"id": subcat["id"], "display": f"{cat['name']} > {subcat['name']}"}
+                        )
+            return sorted(options, key=lambda x: x["display"])
+
     def _on_add_click(self):
-        """Placeholder for add operation."""
-        pass  # Implemented in WP05
+        """Handle add button click - open add dialog."""
+        parent_options = self._get_parent_options()
+
+        if not parent_options:
+            # Show error - no valid parents
+            from tkinter import messagebox
+
+            entity_name = "L1 ingredients" if self.entity_type == "ingredient" else "subcategories"
+            messagebox.showerror("Cannot Add", f"No valid parent {entity_name} available.")
+            return
+
+        def on_save(data):
+            """Callback when dialog saves."""
+            try:
+                if self.entity_type == "ingredient":
+                    self.hierarchy_service.add_leaf_ingredient(
+                        parent_id=data["parent_id"], name=data["name"]
+                    )
+                else:
+                    self.hierarchy_service.add_material(
+                        subcategory_id=data["parent_id"],
+                        name=data["name"],
+                        base_unit_type=data.get("base_unit_type", "each"),
+                    )
+
+                # Refresh tree
+                self._load_tree()
+
+                # Show success
+                from tkinter import messagebox
+
+                messagebox.showinfo("Success", f"{self.entity_type.title()} added successfully!")
+
+            except ValueError as e:
+                raise  # Re-raise for dialog to display
+
+        AddItemDialog(self, self.entity_type, parent_options, on_save)
 
     def _on_rename_click(self):
         """Placeholder for rename operation."""
@@ -435,3 +494,145 @@ class HierarchyAdminWindow(ctk.CTkToplevel):
     def _on_reparent_click(self):
         """Placeholder for reparent operation."""
         pass  # Implemented in WP07
+
+
+class AddItemDialog(ctk.CTkToplevel):
+    """
+    Dialog for adding new ingredient or material.
+
+    Feature 052: Modal dialog for add operations in Hierarchy Admin.
+    """
+
+    def __init__(
+        self,
+        parent,
+        entity_type: str,
+        parent_options: list,
+        on_save: Callable,
+    ):
+        super().__init__(parent)
+
+        self.entity_type = entity_type
+        self.on_save = on_save
+        self.result = None
+
+        # Window setup
+        self.title(f"Add New {entity_type.title()}")
+        self.geometry("400x350")
+        self.resizable(False, False)
+        self.transient(parent)
+        self.grab_set()
+
+        # Build form
+        self._create_form(parent_options)
+
+        # Center on parent
+        self.update_idletasks()
+        x = parent.winfo_x() + (parent.winfo_width() - self.winfo_width()) // 2
+        y = parent.winfo_y() + (parent.winfo_height() - self.winfo_height()) // 2
+        self.geometry(f"+{x}+{y}")
+
+        # Focus on name entry after a brief delay
+        self.after(100, lambda: self.name_entry.focus())
+
+    def _create_form(self, parent_options):
+        """Create the add form."""
+        # Parent selection
+        parent_frame = ctk.CTkFrame(self)
+        parent_frame.pack(fill="x", padx=20, pady=10)
+
+        if self.entity_type == "ingredient":
+            label_text = "Parent (L1):"
+        else:
+            label_text = "Subcategory:"
+
+        ctk.CTkLabel(parent_frame, text=label_text).pack(anchor="w")
+
+        self.parent_var = ctk.StringVar()
+        self.parent_dropdown = ctk.CTkComboBox(
+            parent_frame,
+            values=[p["display"] for p in parent_options],
+            variable=self.parent_var,
+            state="readonly",
+            width=340,
+        )
+        self.parent_dropdown.pack(fill="x", pady=5)
+
+        # Store mapping for lookup
+        self._parent_map = {p["display"]: p["id"] for p in parent_options}
+
+        # Set default selection if available
+        if parent_options:
+            self.parent_var.set(parent_options[0]["display"])
+
+        # Name input
+        name_frame = ctk.CTkFrame(self)
+        name_frame.pack(fill="x", padx=20, pady=10)
+
+        ctk.CTkLabel(name_frame, text="Name:").pack(anchor="w")
+        self.name_entry = ctk.CTkEntry(name_frame, width=340)
+        self.name_entry.pack(fill="x", pady=5)
+
+        # Unit type (materials only)
+        if self.entity_type == "material":
+            unit_frame = ctk.CTkFrame(self)
+            unit_frame.pack(fill="x", padx=20, pady=10)
+
+            ctk.CTkLabel(unit_frame, text="Unit Type:").pack(anchor="w")
+            self.unit_var = ctk.StringVar(value="each")
+            self.unit_dropdown = ctk.CTkComboBox(
+                unit_frame,
+                values=["each", "linear_inches", "square_inches"],
+                variable=self.unit_var,
+                state="readonly",
+                width=340,
+            )
+            self.unit_dropdown.pack(fill="x", pady=5)
+
+        # Error label
+        self.error_label = ctk.CTkLabel(self, text="", text_color="red")
+        self.error_label.pack(pady=5)
+
+        # Buttons
+        btn_frame = ctk.CTkFrame(self)
+        btn_frame.pack(fill="x", padx=20, pady=10)
+
+        ctk.CTkButton(
+            btn_frame, text="Cancel", command=self.destroy, fg_color="gray", width=100
+        ).pack(side="right", padx=5)
+
+        ctk.CTkButton(btn_frame, text="Add", command=self._on_save, width=100).pack(
+            side="right", padx=5
+        )
+
+    def _on_save(self):
+        """Handle save button click."""
+        # Validate parent selection
+        parent_display = self.parent_var.get()
+        if not parent_display:
+            self.error_label.configure(text="Please select a parent")
+            return
+
+        # Validate name
+        name = self.name_entry.get().strip()
+        if not name:
+            self.error_label.configure(text="Name is required")
+            return
+
+        parent_id = self._parent_map.get(parent_display)
+        if not parent_id:
+            self.error_label.configure(text="Invalid parent selection")
+            return
+
+        # Build result
+        self.result = {"parent_id": parent_id, "name": name}
+
+        if self.entity_type == "material":
+            self.result["base_unit_type"] = self.unit_var.get()
+
+        # Call save callback
+        try:
+            self.on_save(self.result)
+            self.destroy()
+        except ValueError as e:
+            self.error_label.configure(text=str(e))

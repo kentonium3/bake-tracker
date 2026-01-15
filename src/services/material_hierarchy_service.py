@@ -280,3 +280,97 @@ def get_usage_counts(material_id: int, session=None) -> Dict[str, int]:
         return _impl(session)
     with session_scope() as session:
         return _impl(session)
+
+
+def add_material(
+    subcategory_id: int,
+    name: str,
+    base_unit_type: str = "each",
+    session=None,
+) -> Dict:
+    """
+    Create new material under subcategory.
+
+    Feature 052: Admin operation to add new material.
+
+    Args:
+        subcategory_id: ID of parent subcategory
+        name: Display name for new material
+        base_unit_type: Unit type ('each', 'linear_inches', 'square_inches')
+        session: Optional SQLAlchemy session
+
+    Returns:
+        Dictionary representation of created Material
+
+    Raises:
+        ValueError: If subcategory not found, invalid unit type, name empty, or name not unique
+    """
+    from src.services import hierarchy_admin_service
+
+    VALID_UNIT_TYPES = ("each", "linear_inches", "square_inches")
+
+    def _impl(session):
+        # Validate name not empty
+        if not hierarchy_admin_service.validate_name_not_empty(name):
+            raise ValueError("Material name cannot be empty")
+
+        # Trim name
+        trimmed_name = hierarchy_admin_service.trim_name(name)
+
+        # Validate unit type
+        if base_unit_type not in VALID_UNIT_TYPES:
+            raise ValueError(
+                f"Invalid unit type '{base_unit_type}'. Must be one of: {VALID_UNIT_TYPES}"
+            )
+
+        # Validate subcategory exists
+        subcategory = (
+            session.query(MaterialSubcategory)
+            .filter(MaterialSubcategory.id == subcategory_id)
+            .first()
+        )
+
+        if not subcategory:
+            raise ValueError(f"Subcategory {subcategory_id} not found")
+
+        # Get siblings for uniqueness check
+        siblings = (
+            session.query(Material)
+            .filter(Material.subcategory_id == subcategory_id)
+            .all()
+        )
+
+        # Validate unique name
+        if not hierarchy_admin_service.validate_unique_sibling_name(siblings, trimmed_name):
+            raise ValueError(
+                f"A material named '{trimmed_name}' already exists in this subcategory"
+            )
+
+        # Generate slug
+        slug = hierarchy_admin_service.generate_slug(trimmed_name)
+
+        # Check slug uniqueness globally
+        existing_slug = session.query(Material).filter(Material.slug == slug).first()
+        if existing_slug:
+            # Append subcategory slug for uniqueness
+            slug = f"{subcategory.slug}-{slug}"
+
+        # Create material
+        material = Material(
+            name=trimmed_name,
+            slug=slug,
+            subcategory_id=subcategory_id,
+            base_unit_type=base_unit_type,
+        )
+
+        session.add(material)
+        session.flush()  # Get ID
+
+        return material.to_dict()
+
+    if session is not None:
+        return _impl(session)
+    with session_scope() as session:
+        result = _impl(session)
+        session.commit()
+        return result
