@@ -457,7 +457,6 @@ class HierarchyAdminWindow(ctk.CTkToplevel):
 
     def _get_valid_ingredient_parents(self, node: dict) -> list:
         """Get valid parent targets for ingredient reparent."""
-        ingredient = node.get("ingredient")
         level = node.get("hierarchy_level", 0)
         tree = self.hierarchy_service.get_ingredient_tree()
 
@@ -557,7 +556,7 @@ class HierarchyAdminWindow(ctk.CTkToplevel):
 
                 messagebox.showinfo("Success", f"{self.entity_type.title()} added successfully!")
 
-            except ValueError as e:
+            except ValueError:
                 raise  # Re-raise for dialog to display
 
         AddItemDialog(self, self.entity_type, parent_options, on_save)
@@ -600,7 +599,7 @@ class HierarchyAdminWindow(ctk.CTkToplevel):
 
                 messagebox.showinfo("Success", "Item renamed successfully!")
 
-            except ValueError as e:
+            except ValueError:
                 raise  # Re-raise for dialog to display
 
         RenameDialog(self, current_name, self.entity_type, on_save)
@@ -676,7 +675,7 @@ class HierarchyAdminWindow(ctk.CTkToplevel):
 
                 messagebox.showinfo("Success", "Item moved successfully!")
 
-            except ValueError as e:
+            except ValueError:
                 raise  # Re-raise for dialog to display
 
         ReparentDialog(

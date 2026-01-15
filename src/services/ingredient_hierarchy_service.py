@@ -454,7 +454,7 @@ def validate_hierarchy_level(ingredient_id: int, allowed_levels: List[int], sess
         if ingredient.hierarchy_level in allowed_levels:
             return True
 
-        allowed_str = ", ".join(str(l) for l in allowed_levels)
+        allowed_str = ", ".join(str(lvl) for lvl in allowed_levels)
         raise HierarchyValidationError(
             f"Ingredient '{ingredient.display_name}' is at level {ingredient.hierarchy_level}, "
             f"but only levels [{allowed_str}] are allowed"
@@ -982,7 +982,7 @@ def rename_ingredient(ingredient_id: int, new_name: str, session=None) -> Dict:
             siblings = (
                 session.query(Ingredient)
                 .filter(
-                    Ingredient.parent_ingredient_id == None,
+                    Ingredient.parent_ingredient_id.is_(None),
                     Ingredient.hierarchy_level == ingredient.hierarchy_level,
                 )
                 .all()

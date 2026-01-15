@@ -6,7 +6,7 @@ Category/Subcategory hierarchy context pre-computed for efficient display.
 """
 
 from typing import List, Dict, Optional
-from sqlalchemy.orm import Session, joinedload
+from sqlalchemy.orm import joinedload
 
 from src.models.material import Material
 from src.models.material_subcategory import MaterialSubcategory
