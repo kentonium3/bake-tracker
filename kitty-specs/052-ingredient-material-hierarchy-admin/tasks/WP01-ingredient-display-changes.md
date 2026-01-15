@@ -9,7 +9,7 @@ subtasks:
   - "T006"
 title: "Ingredient Display Changes"
 phase: "Phase 1 - MVP Display"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "claude"
 shell_pid: ""
@@ -301,3 +301,4 @@ def get_all_leaf_ingredients_with_ancestors(self, session: Optional[Session] = N
 
 - 2026-01-14T15:00:00Z – system – lane=planned – Prompt created.
 - 2026-01-15T03:23:32Z – claude – lane=doing – Started implementation
+- 2026-01-15T03:34:40Z – claude – lane=for_review – Implementation complete: L2-only display with L0/L1 columns, 12 new tests pass
