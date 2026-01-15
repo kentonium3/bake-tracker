@@ -502,3 +502,151 @@ def rename_item(
         result = _impl(session)
         session.commit()
         return result
+
+
+def reparent_material(
+    material_id: int,
+    new_subcategory_id: int,
+    session=None,
+) -> Dict:
+    """
+    Move material to new subcategory.
+
+    Feature 052: Admin operation to move material between subcategories.
+
+    Args:
+        material_id: ID of material to move
+        new_subcategory_id: ID of new subcategory
+        session: Optional SQLAlchemy session
+
+    Returns:
+        Dictionary representation of updated Material
+
+    Raises:
+        ValueError: If material/subcategory not found, same parent, or duplicate name
+    """
+    from src.services import hierarchy_admin_service
+
+    def _impl(session):
+        # Find material
+        material = session.query(Material).filter(Material.id == material_id).first()
+
+        if not material:
+            raise ValueError(f"Material {material_id} not found")
+
+        # Find new subcategory
+        new_subcategory = (
+            session.query(MaterialSubcategory)
+            .filter(MaterialSubcategory.id == new_subcategory_id)
+            .first()
+        )
+
+        if not new_subcategory:
+            raise ValueError(f"Subcategory {new_subcategory_id} not found")
+
+        # Check if already under this subcategory
+        if material.subcategory_id == new_subcategory_id:
+            raise ValueError("Material is already under this subcategory")
+
+        # Validate unique name in new location
+        siblings = (
+            session.query(Material)
+            .filter(Material.subcategory_id == new_subcategory_id)
+            .all()
+        )
+
+        if not hierarchy_admin_service.validate_unique_sibling_name(
+            siblings, material.name, exclude_id=material_id
+        ):
+            raise ValueError(
+                f"A material named '{material.name}' already exists in the new subcategory"
+            )
+
+        # Perform move
+        material.subcategory_id = new_subcategory_id
+
+        session.flush()
+        return material.to_dict()
+
+    if session is not None:
+        return _impl(session)
+    with session_scope() as session:
+        result = _impl(session)
+        session.commit()
+        return result
+
+
+def reparent_subcategory(
+    subcategory_id: int,
+    new_category_id: int,
+    session=None,
+) -> Dict:
+    """
+    Move subcategory to new category.
+
+    Feature 052: Admin operation to move subcategory between categories.
+
+    Args:
+        subcategory_id: ID of subcategory to move
+        new_category_id: ID of new category
+        session: Optional SQLAlchemy session
+
+    Returns:
+        Dictionary representation of updated MaterialSubcategory
+
+    Raises:
+        ValueError: If subcategory/category not found, same parent, or duplicate name
+    """
+    from src.services import hierarchy_admin_service
+
+    def _impl(session):
+        # Find subcategory
+        subcategory = (
+            session.query(MaterialSubcategory)
+            .filter(MaterialSubcategory.id == subcategory_id)
+            .first()
+        )
+
+        if not subcategory:
+            raise ValueError(f"Subcategory {subcategory_id} not found")
+
+        # Find new category
+        new_category = (
+            session.query(MaterialCategory)
+            .filter(MaterialCategory.id == new_category_id)
+            .first()
+        )
+
+        if not new_category:
+            raise ValueError(f"Category {new_category_id} not found")
+
+        # Check if already under this category
+        if subcategory.category_id == new_category_id:
+            raise ValueError("Subcategory is already under this category")
+
+        # Validate unique name in new location
+        siblings = (
+            session.query(MaterialSubcategory)
+            .filter(MaterialSubcategory.category_id == new_category_id)
+            .all()
+        )
+
+        if not hierarchy_admin_service.validate_unique_sibling_name(
+            siblings, subcategory.name, exclude_id=subcategory_id
+        ):
+            raise ValueError(
+                f"A subcategory named '{subcategory.name}' already exists in the new category"
+            )
+
+        # Perform move
+        subcategory.category_id = new_category_id
+
+        session.flush()
+        return subcategory.to_dict()
+
+    if session is not None:
+        return _impl(session)
+    with session_scope() as session:
+        result = _impl(session)
+        session.commit()
+        return result

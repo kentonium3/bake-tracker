@@ -1027,3 +1027,90 @@ def rename_ingredient(ingredient_id: int, new_name: str, session=None) -> Dict:
         result = _impl(session)
         session.commit()
         return result
+
+
+def reparent_ingredient(ingredient_id: int, new_parent_id: int, session=None) -> Dict:
+    """
+    Move ingredient to new parent.
+
+    Feature 052: Admin operation to move ingredient.
+
+    Valid moves:
+    - L2 can move to any L1
+    - L1 can move to any L0
+
+    Args:
+        ingredient_id: ID of ingredient to move
+        new_parent_id: ID of new parent ingredient
+        session: Optional SQLAlchemy session
+
+    Returns:
+        Dictionary representation of updated Ingredient
+
+    Raises:
+        ValueError: If invalid move (wrong levels, cycle, duplicate name)
+    """
+    from src.services import hierarchy_admin_service
+
+    def _impl(session):
+        # Find ingredient
+        ingredient = session.query(Ingredient).filter(Ingredient.id == ingredient_id).first()
+
+        if not ingredient:
+            raise ValueError(f"Ingredient {ingredient_id} not found")
+
+        # Find new parent
+        new_parent = session.query(Ingredient).filter(Ingredient.id == new_parent_id).first()
+
+        if not new_parent:
+            raise ValueError(f"New parent ingredient {new_parent_id} not found")
+
+        # Validate level compatibility
+        if ingredient.hierarchy_level == 2:
+            # L2 must move to L1
+            if new_parent.hierarchy_level != 1:
+                raise ValueError("L2 ingredients can only move to L1 parents")
+        elif ingredient.hierarchy_level == 1:
+            # L1 must move to L0
+            if new_parent.hierarchy_level != 0:
+                raise ValueError("L1 ingredients can only move to L0 parents")
+        else:
+            # L0 cannot be moved
+            raise ValueError("L0 (root) ingredients cannot be reparented")
+
+        # Check if already under this parent
+        if ingredient.parent_ingredient_id == new_parent_id:
+            raise ValueError("Item is already under this parent")
+
+        # Validate no cycle (for L1 moving to L0, check descendants)
+        if ingredient.hierarchy_level == 1:
+            descendants = ingredient.get_descendants()
+            if not hierarchy_admin_service.validate_no_cycle(descendants, new_parent):
+                raise ValueError("Cannot move: would create circular reference")
+
+        # Validate unique name in new location
+        siblings = (
+            session.query(Ingredient)
+            .filter(Ingredient.parent_ingredient_id == new_parent_id)
+            .all()
+        )
+
+        if not hierarchy_admin_service.validate_unique_sibling_name(
+            siblings, ingredient.display_name, exclude_id=ingredient_id
+        ):
+            raise ValueError(
+                f"An ingredient named '{ingredient.display_name}' already exists under the new parent"
+            )
+
+        # Perform move
+        ingredient.parent_ingredient_id = new_parent_id
+
+        session.flush()
+        return ingredient.to_dict()
+
+    if session is not None:
+        return _impl(session)
+    with session_scope() as session:
+        result = _impl(session)
+        session.commit()
+        return result

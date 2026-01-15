@@ -214,7 +214,7 @@ class HierarchyAdminWindow(ctk.CTkToplevel):
             self.actions_frame,
             text="Move to...",
             command=self._on_reparent_click,
-            state="disabled",  # Enabled in WP07
+            state="normal",
         )
         self.reparent_btn.pack(fill="x", pady=2)
 
@@ -448,6 +448,81 @@ class HierarchyAdminWindow(ctk.CTkToplevel):
                         )
             return sorted(options, key=lambda x: x["display"])
 
+    def _get_valid_reparent_targets(self, node: dict) -> list:
+        """Get valid parent targets for reparent operation."""
+        if self.entity_type == "ingredient":
+            return self._get_valid_ingredient_parents(node)
+        else:
+            return self._get_valid_material_parents(node)
+
+    def _get_valid_ingredient_parents(self, node: dict) -> list:
+        """Get valid parent targets for ingredient reparent."""
+        ingredient = node.get("ingredient")
+        level = node.get("hierarchy_level", 0)
+        tree = self.hierarchy_service.get_ingredient_tree()
+
+        # Get current parent ID
+        current_parent_id = node.get("parent_ingredient_id")
+
+        options = []
+
+        if level == 2:
+            # L2 can move to any L1 (except current parent)
+            for l0 in tree:
+                l0_name = l0.get("display_name", l0.get("name", ""))
+                for l1 in l0.get("children", []):
+                    if l1["id"] == current_parent_id:
+                        continue  # Skip current parent
+                    l1_name = l1.get("display_name", l1.get("name", ""))
+                    options.append({"id": l1["id"], "display": f"{l0_name} > {l1_name}"})
+
+        elif level == 1:
+            # L1 can move to any L0 (except current parent)
+            for l0 in tree:
+                if l0["id"] == current_parent_id:
+                    continue  # Skip current parent
+                l0_name = l0.get("display_name", l0.get("name", ""))
+                options.append({"id": l0["id"], "display": l0_name})
+
+        # L0 cannot be reparented - return empty list
+
+        return sorted(options, key=lambda x: x["display"])
+
+    def _get_valid_material_parents(self, node: dict) -> list:
+        """Get valid parent targets for material reparent."""
+        item_type = node.get("type")
+        tree = self.hierarchy_service.get_hierarchy_tree()
+
+        options = []
+
+        if item_type == "material":
+            # Material can move to any subcategory (except current)
+            material = node.get("material", {})
+            current_subcat_id = material.get("subcategory_id") if isinstance(material, dict) else None
+
+            for cat in tree:
+                for subcat in cat.get("children", []):
+                    if subcat.get("type") == "subcategory":
+                        if subcat["id"] == current_subcat_id:
+                            continue
+                        options.append(
+                            {"id": subcat["id"], "display": f"{cat['name']} > {subcat['name']}"}
+                        )
+
+        elif item_type == "subcategory":
+            # Subcategory can move to any category (except current)
+            subcategory = node.get("subcategory", {})
+            current_cat_id = subcategory.get("category_id") if isinstance(subcategory, dict) else None
+
+            for cat in tree:
+                if cat["id"] == current_cat_id:
+                    continue
+                options.append({"id": cat["id"], "display": cat["name"]})
+
+        # Categories cannot be reparented (no parent)
+
+        return sorted(options, key=lambda x: x["display"])
+
     def _on_add_click(self):
         """Handle add button click - open add dialog."""
         parent_options = self._get_parent_options()
@@ -531,8 +606,119 @@ class HierarchyAdminWindow(ctk.CTkToplevel):
         RenameDialog(self, current_name, self.entity_type, on_save)
 
     def _on_reparent_click(self):
-        """Placeholder for reparent operation."""
-        pass  # Implemented in WP07
+        """Handle reparent button click - open reparent dialog."""
+        if not self.selected_item:
+            return
+
+        node = self.selected_item
+
+        # Check if item can be reparented
+        if self.entity_type == "ingredient":
+            level = node.get("hierarchy_level", 0)
+            if level == 0:
+                from tkinter import messagebox
+
+                messagebox.showwarning("Cannot Move", "Root categories (L0) cannot be moved.")
+                return
+        else:
+            item_type = node.get("type")
+            if item_type == "category":
+                from tkinter import messagebox
+
+                messagebox.showwarning("Cannot Move", "Top-level categories cannot be moved.")
+                return
+
+        valid_parents = self._get_valid_reparent_targets(node)
+
+        if not valid_parents:
+            from tkinter import messagebox
+
+            messagebox.showinfo(
+                "No Valid Targets", "No valid parent locations available for this item."
+            )
+            return
+
+        # Get item name
+        if self.entity_type == "ingredient":
+            item_name = node.get("display_name", node.get("name", "Unknown"))
+        else:
+            item_name = node.get("name", "Unknown")
+
+        # Get current parent name
+        current_parent_name = self._get_current_parent_name(node)
+
+        def on_save(new_parent_id: int):
+            """Callback when dialog saves."""
+            try:
+                if self.entity_type == "ingredient":
+                    self.hierarchy_service.reparent_ingredient(
+                        ingredient_id=node["id"], new_parent_id=new_parent_id
+                    )
+                else:
+                    item_type = node.get("type")
+                    if item_type == "material":
+                        self.hierarchy_service.reparent_material(
+                            material_id=node["id"], new_subcategory_id=new_parent_id
+                        )
+                    elif item_type == "subcategory":
+                        self.hierarchy_service.reparent_subcategory(
+                            subcategory_id=node["id"], new_category_id=new_parent_id
+                        )
+
+                # Refresh tree
+                self._load_tree()
+
+                # Clear selection (tree was rebuilt)
+                self._clear_detail_panel()
+
+                # Show success
+                from tkinter import messagebox
+
+                messagebox.showinfo("Success", "Item moved successfully!")
+
+            except ValueError as e:
+                raise  # Re-raise for dialog to display
+
+        ReparentDialog(
+            self,
+            item_name=item_name,
+            current_parent_name=current_parent_name,
+            valid_parents=valid_parents,
+            on_save=on_save,
+        )
+
+    def _get_current_parent_name(self, node: dict) -> str:
+        """Get the name of the item's current parent."""
+        if self.entity_type == "ingredient":
+            # For ingredients, walk up tree to find parent
+            for item_id, item_node in self._node_data.items():
+                if item_node is node:
+                    parent_item_id = self.tree.parent(item_id)
+                    if parent_item_id and parent_item_id in self._node_data:
+                        parent_node = self._node_data[parent_item_id]
+                        return parent_node.get("display_name", parent_node.get("name", "None"))
+            return "None"
+        else:
+            item_type = node.get("type")
+            if item_type == "material":
+                # Walk up tree to find subcategory
+                for item_id, item_node in self._node_data.items():
+                    if item_node is node:
+                        parent_item_id = self.tree.parent(item_id)
+                        if parent_item_id and parent_item_id in self._node_data:
+                            parent_node = self._node_data[parent_item_id]
+                            return parent_node.get("name", "None")
+                return "None"
+            elif item_type == "subcategory":
+                # Walk up tree to find category
+                for item_id, item_node in self._node_data.items():
+                    if item_node is node:
+                        parent_item_id = self.tree.parent(item_id)
+                        if parent_item_id and parent_item_id in self._node_data:
+                            parent_node = self._node_data[parent_item_id]
+                            return parent_node.get("name", "None")
+                return "None"
+            return "None"
 
 
 class AddItemDialog(ctk.CTkToplevel):
@@ -768,6 +954,121 @@ class RenameDialog(ctk.CTkToplevel):
 
         try:
             self.on_save(new_name)
+            self.destroy()
+        except ValueError as e:
+            self.error_label.configure(text=str(e))
+
+
+class ReparentDialog(ctk.CTkToplevel):
+    """
+    Dialog for moving an item to a new parent.
+
+    Feature 052: Modal dialog for reparent operations in Hierarchy Admin.
+    """
+
+    def __init__(
+        self,
+        parent,
+        item_name: str,
+        current_parent_name: str,
+        valid_parents: list,
+        on_save: Callable,
+    ):
+        super().__init__(parent)
+
+        self.on_save = on_save
+        self.result = None
+
+        # Window setup
+        self.title("Move Item")
+        self.geometry("450x280")
+        self.resizable(False, False)
+        self.transient(parent)
+        self.grab_set()
+
+        # Build form
+        self._create_form(item_name, current_parent_name, valid_parents)
+
+        # Center on parent
+        self.update_idletasks()
+        x = parent.winfo_x() + (parent.winfo_width() - self.winfo_width()) // 2
+        y = parent.winfo_y() + (parent.winfo_height() - self.winfo_height()) // 2
+        self.geometry(f"+{x}+{y}")
+
+    def _create_form(self, item_name: str, current_parent_name: str, valid_parents: list):
+        """Create the reparent form."""
+        # Item being moved
+        item_frame = ctk.CTkFrame(self)
+        item_frame.pack(fill="x", padx=20, pady=10)
+
+        ctk.CTkLabel(item_frame, text="Moving:").pack(anchor="w")
+        ctk.CTkLabel(
+            item_frame, text=item_name, font=ctk.CTkFont(weight="bold")
+        ).pack(anchor="w")
+
+        # Current parent
+        current_frame = ctk.CTkFrame(self)
+        current_frame.pack(fill="x", padx=20, pady=10)
+
+        ctk.CTkLabel(current_frame, text="Current Parent:").pack(anchor="w")
+        ctk.CTkLabel(current_frame, text=current_parent_name).pack(anchor="w")
+
+        # New parent selection
+        new_frame = ctk.CTkFrame(self)
+        new_frame.pack(fill="x", padx=20, pady=10)
+
+        ctk.CTkLabel(new_frame, text="Move to:").pack(anchor="w")
+
+        self.parent_var = ctk.StringVar()
+        self.parent_dropdown = ctk.CTkComboBox(
+            new_frame,
+            values=[p["display"] for p in valid_parents],
+            variable=self.parent_var,
+            state="readonly",
+            width=350,
+        )
+        self.parent_dropdown.pack(fill="x", pady=5)
+
+        # Set default selection if available
+        if valid_parents:
+            self.parent_var.set(valid_parents[0]["display"])
+
+        # Store mapping
+        self._parent_map = {p["display"]: p["id"] for p in valid_parents}
+
+        # Error label
+        self.error_label = ctk.CTkLabel(self, text="", text_color="red")
+        self.error_label.pack(pady=5)
+
+        # Buttons
+        btn_frame = ctk.CTkFrame(self)
+        btn_frame.pack(fill="x", padx=20, pady=10)
+
+        ctk.CTkButton(
+            btn_frame, text="Cancel", command=self.destroy, fg_color="gray", width=100
+        ).pack(side="right", padx=5)
+
+        ctk.CTkButton(btn_frame, text="Move", command=self._on_save, width=100).pack(
+            side="right", padx=5
+        )
+
+    def _on_save(self):
+        """Handle save button click."""
+        parent_display = self.parent_var.get()
+
+        if not parent_display:
+            self.error_label.configure(text="Please select a new parent")
+            return
+
+        new_parent_id = self._parent_map.get(parent_display)
+        if not new_parent_id:
+            self.error_label.configure(text="Invalid selection")
+            return
+
+        self.result = new_parent_id
+
+        try:
+            self.on_save(new_parent_id)
             self.destroy()
         except ValueError as e:
             self.error_label.configure(text=str(e))
