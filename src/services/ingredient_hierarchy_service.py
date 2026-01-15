@@ -250,6 +250,105 @@ def get_leaf_ingredients(parent_id: Optional[int] = None, session=None) -> List[
         return _impl(session)
 
 
+def get_all_leaf_ingredients_with_ancestors(
+    l0_filter_id: Optional[int] = None, session=None
+) -> List[Dict]:
+    """
+    Get all L2 (leaf) ingredients with pre-resolved L0 and L1 ancestor names.
+
+    Feature 052: Optimized method for Ingredients tab display that returns
+    leaf ingredients with their hierarchy context pre-computed to avoid
+    N+1 queries in the UI.
+
+    Args:
+        l0_filter_id: Optional - filter to descendants of this L0 root category
+        session: Optional SQLAlchemy session
+
+    Returns:
+        List of dicts with keys:
+        - l0_name: str - Root category (L0) display name
+        - l1_name: str - Subcategory (L1) display name
+        - l2_name: str - Ingredient (L2) display name
+        - ingredient: dict - Full ingredient dict from to_dict()
+    """
+
+    def _impl(session):
+        # Get all L2 ingredients
+        query = (
+            session.query(Ingredient)
+            .filter(Ingredient.hierarchy_level == 2)
+            .order_by(Ingredient.display_name)
+        )
+        ingredients = query.all()
+
+        result = []
+        for ing in ingredients:
+            # Walk up the parent chain to get L1 and L0 names
+            l1 = ing.parent
+            l0 = l1.parent if l1 else None
+
+            l0_name = l0.display_name if l0 else ""
+            l1_name = l1.display_name if l1 else ""
+
+            # Apply L0 filter if specified
+            if l0_filter_id is not None:
+                if l0 is None or l0.id != l0_filter_id:
+                    continue
+
+            result.append(
+                {
+                    "l0_name": l0_name,
+                    "l1_name": l1_name,
+                    "l2_name": ing.display_name,
+                    "ingredient": ing.to_dict(),
+                }
+            )
+
+        return result
+
+    if session is not None:
+        return _impl(session)
+    with session_scope() as session:
+        return _impl(session)
+
+
+def get_ingredient_with_ancestors(ingredient_id: int, session=None) -> Optional[Dict]:
+    """
+    Get a single ingredient with its L0 and L1 ancestor names resolved.
+
+    Feature 052: Helper for detailed ingredient display.
+
+    Args:
+        ingredient_id: ID of ingredient to retrieve
+        session: Optional SQLAlchemy session
+
+    Returns:
+        Dict with keys: l0_name, l1_name, l2_name, ingredient
+        Or None if ingredient not found
+    """
+
+    def _impl(session):
+        ingredient = session.query(Ingredient).filter(Ingredient.id == ingredient_id).first()
+
+        if not ingredient:
+            return None
+
+        l1 = ingredient.parent
+        l0 = l1.parent if l1 else None
+
+        return {
+            "l0_name": l0.display_name if l0 else "",
+            "l1_name": l1.display_name if l1 else "",
+            "l2_name": ingredient.display_name,
+            "ingredient": ingredient.to_dict(),
+        }
+
+    if session is not None:
+        return _impl(session)
+    with session_scope() as session:
+        return _impl(session)
+
+
 def get_ingredient_tree(session=None) -> List[Dict]:
     """
     Build a nested tree structure of all ingredients.

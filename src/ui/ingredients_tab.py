@@ -174,7 +174,8 @@ class IngredientsTab(ctk.CTkFrame):
         )
         self.l1_filter_dropdown.pack(side="left", padx=5, pady=5)
 
-        # Feature 042: Level filter dropdown (moved after hierarchy filters)
+        # Feature 052: Level filter dropdown hidden by default (only useful in tree view)
+        # In flat view we always show only L2 ingredients
         self.level_filter_var = ctk.StringVar(value="All Levels")
         self.level_filter_dropdown = ctk.CTkOptionMenu(
             filter_frame,
@@ -188,7 +189,8 @@ class IngredientsTab(ctk.CTkFrame):
             command=self._on_level_filter_change,
             width=160,
         )
-        self.level_filter_dropdown.pack(side="left", padx=(15, 5), pady=5)
+        # Hidden by default - only shown in tree view
+        # self.level_filter_dropdown.pack(side="left", padx=(15, 5), pady=5)
 
         # Feature 031: View toggle (Flat/Tree)
         self.view_var = ctk.StringVar(value="Flat")
@@ -278,7 +280,7 @@ class IngredientsTab(ctk.CTkFrame):
             command=lambda: self._on_header_click("l1"),
         )
         self.tree.heading(
-            "name", text="Name", anchor="w", command=lambda: self._on_header_click("name")
+            "name", text="Ingredient", anchor="w", command=lambda: self._on_header_click("name")
         )
         self.tree.heading(
             "density",
@@ -414,7 +416,10 @@ class IngredientsTab(ctk.CTkFrame):
         self.ingredient_tree.pack(fill="both", expand=True, padx=5, pady=5)
 
     def _on_view_change(self, value: str):
-        """Handle view toggle between Flat and Tree views (Feature 031)."""
+        """Handle view toggle between Flat and Tree views (Feature 031).
+
+        Feature 052: Flat view shows only L2 ingredients.
+        """
         if value == "Tree":
             self._view_mode = "tree"
             # Hide flat view, show tree view
@@ -428,8 +433,6 @@ class IngredientsTab(ctk.CTkFrame):
             )
             # Refresh tree
             self.ingredient_tree.refresh()
-            # Hide level filter (tree has its own navigation)
-            self.level_filter_dropdown.configure(state="disabled")
             self.update_status("Tree view - navigate hierarchy")
         else:
             self._view_mode = "flat"
@@ -442,8 +445,7 @@ class IngredientsTab(ctk.CTkFrame):
                 padx=PADDING_LARGE,
                 pady=PADDING_MEDIUM,
             )
-            # Re-enable level filter
-            self.level_filter_dropdown.configure(state="normal")
+            # Feature 052: Flat view shows only L2 ingredients
             self._update_ingredient_display()
 
     def _on_hierarchy_tree_select(self, ingredient: Dict[str, Any]):
@@ -478,7 +480,13 @@ class IngredientsTab(ctk.CTkFrame):
     def refresh(self):
         """Refresh the ingredient list from the database."""
         try:
-            # Get all ingredients from service
+            # Feature 052: Get only L2 (leaf) ingredients with pre-resolved ancestor names
+            # for the flat list view
+            self._leaf_ingredients_data = (
+                ingredient_hierarchy_service.get_all_leaf_ingredients_with_ancestors()
+            )
+
+            # Also get all ingredients for tree view and other operations
             self.ingredients = ingredient_service.get_all_ingredients()
 
             # Feature 042: Populate L0 (root categories) dropdown for cascading filters
@@ -489,10 +497,10 @@ class IngredientsTab(ctk.CTkFrame):
                 self.ingredient_tree.refresh()
                 self.update_status("Tree view refreshed")
             else:
-                # Update flat display
+                # Update flat display (L2 only)
                 self._update_ingredient_display()
                 # Update status
-                count = len(self.ingredients)
+                count = len(self._leaf_ingredients_data)
                 self.update_status(f"{count} ingredient{'s' if count != 1 else ''} loaded")
 
         except DatabaseError as e:
@@ -531,55 +539,40 @@ class IngredientsTab(ctk.CTkFrame):
         self.update_status("Loading...")
 
     def _update_ingredient_display(self):
-        """Update the displayed list of ingredients based on current filters."""
+        """Update the displayed list of ingredients based on current filters.
+
+        Feature 052: Shows ONLY L2 (leaf) ingredients with L0/L1 context columns.
+        """
         # Clear existing items
         for item in self.tree.get_children():
             self.tree.delete(item)
 
-        # F036 fix: Build hierarchy cache once per refresh (now returns L0/L1 separately)
-        self._hierarchy_path_cache = self._build_hierarchy_path_cache()
+        # Feature 052: Use pre-computed leaf ingredient data with ancestor names
+        # This data only contains L2 ingredients with their L0/L1 names already resolved
+        leaf_data = getattr(self, "_leaf_ingredients_data", [])
 
-        # Apply filters
-        filtered_ingredients = self._apply_filters(self.ingredients)
+        # Apply filters to leaf ingredients
+        filtered_data = self._apply_leaf_filters(leaf_data)
 
-        # Populate grid with all ingredients (Treeview handles large datasets well)
-        for ingredient in filtered_ingredients:
-            # F042 fix: Place ingredient name in correct column based on hierarchy level
-            # L0 (root): name in L0 column, L1 and Name blank
-            # L1 (subcategory): parent L0 in L0 column, name in L1 column, Name blank
-            # L2 (leaf): grandparent L0 in L0 column, parent L1 in L1 column, name in Name column
-            ing_id = ingredient.get("id")
-            hierarchy_level = ingredient.get("hierarchy_level", 2)
-            hierarchy_info = self._hierarchy_path_cache.get(ing_id, {"l0": "", "l1": ""})
+        # Populate grid with L2 ingredients only
+        for item in filtered_data:
+            ingredient = item.get("ingredient", {})
+            l0_name = item.get("l0_name", "")
+            l1_name = item.get("l1_name", "")
+            l2_name = item.get("l2_name", "")
 
-            name = ingredient.get("display_name") or ingredient.get("name", "Unknown")
             is_packaging = ingredient.get("is_packaging", False)
             density = ingredient.get("density_display", "—")
             if density == "Not set":
                 density = "—"
 
-            # Place name in the appropriate column based on hierarchy level
-            if hierarchy_level == 0:
-                # L0: name goes in L0 column
-                l0_value = name
-                l1_value = ""
-                name_value = ""
-            elif hierarchy_level == 1:
-                # L1: parent L0 in L0 column, name in L1 column
-                l0_value = hierarchy_info.get("l0", "")
-                l1_value = name
-                name_value = ""
-            else:
-                # L2: grandparent L0 in L0, parent L1 in L1, name in Name
-                l0_value = hierarchy_info.get("l0", "")
-                l1_value = hierarchy_info.get("l1", "")
-                name_value = name
-
-            values = (l0_value, l1_value, name_value, density)
+            values = (l0_name, l1_name, l2_name, density)
             tags = ("packaging",) if is_packaging else ()
 
             # Use slug as the item ID for easy lookup
-            self.tree.insert("", "end", iid=ingredient["slug"], values=values, tags=tags)
+            slug = ingredient.get("slug", "")
+            if slug:
+                self.tree.insert("", "end", iid=slug, values=values, tags=tags)
 
         # Restore selection if still present
         if self.selected_ingredient_slug:
@@ -594,8 +587,8 @@ class IngredientsTab(ctk.CTkFrame):
             self._disable_selection_buttons()
 
         # Update status with count
-        count = len(filtered_ingredients)
-        total = len(self.ingredients)
+        count = len(filtered_data)
+        total = len(leaf_data)
         if count < total:
             self.update_status(f"Showing {count} of {total} ingredients")
         else:
@@ -700,6 +693,63 @@ class IngredientsTab(ctk.CTkFrame):
             return ingredients
 
         return [ing for ing in ingredients if ing.get("id") in matching_ids]
+
+    def _apply_leaf_filters(self, leaf_data: List[dict]) -> List[dict]:
+        """Apply search and hierarchy filters to leaf ingredient data.
+
+        Feature 052: Filters for the L2-only display using pre-computed ancestor names.
+
+        Args:
+            leaf_data: List of dicts from get_all_leaf_ingredients_with_ancestors()
+                       Each dict has: l0_name, l1_name, l2_name, ingredient
+
+        Returns:
+            Filtered and sorted list of leaf ingredient data
+        """
+        filtered = leaf_data
+
+        # Apply L0/L1 hierarchy filters using pre-computed names
+        l0_val = self.l0_filter_var.get()
+        l1_val = self.l1_filter_var.get()
+
+        if l0_val != "All Categories":
+            filtered = [item for item in filtered if item.get("l0_name") == l0_val]
+
+        if l1_val != "All":
+            filtered = [item for item in filtered if item.get("l1_name") == l1_val]
+
+        # Apply search filter with diacritical normalization
+        search_text = normalize_for_search(self.search_entry.get())
+        if search_text:
+            filtered = [
+                item
+                for item in filtered
+                if search_text in normalize_for_search(item.get("l2_name", ""))
+                or search_text in normalize_for_search(item.get("l0_name", ""))
+                or search_text in normalize_for_search(item.get("l1_name", ""))
+            ]
+
+        # Sort by selected column
+        sort_key = getattr(self, "sort_column", "name")
+        ascending = getattr(self, "sort_ascending", True)
+
+        def get_sort_value(item):
+            """Get sortable value for leaf ingredient item."""
+            if sort_key == "l0":
+                return item.get("l0_name", "").lower()
+            elif sort_key == "l1":
+                return item.get("l1_name", "").lower()
+            elif sort_key == "name":
+                return item.get("l2_name", "").lower()
+            else:
+                # For other columns like density, look in the ingredient dict
+                ing = item.get("ingredient", {})
+                val = ing.get(sort_key, "")
+                return val.lower() if isinstance(val, str) else str(val)
+
+        filtered = sorted(filtered, key=get_sort_value, reverse=not ascending)
+
+        return filtered
 
     def _get_descendants(self, parent_id: int) -> set:
         """Get all descendant ingredient IDs under a parent.
