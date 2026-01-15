@@ -1,0 +1,2509 @@
+{
+  "version": "1.0",
+  "view_type": "recipes",
+  "export_date": "2026-01-15T14:54:19.793443+00:00Z",
+  "_meta": {
+    "editable_fields": [
+      "notes",
+      "source",
+      "estimated_time_minutes"
+    ],
+    "readonly_fields": [
+      "id",
+      "uuid",
+      "name",
+      "category",
+      "yield_quantity",
+      "yield_unit",
+      "yield_description",
+      "is_archived",
+      "is_production_ready",
+      "base_recipe_id",
+      "variant_name",
+      "ingredients",
+      "recipe_components",
+      "total_cost",
+      "cost_per_unit",
+      "date_added",
+      "last_modified"
+    ]
+  },
+  "records": [
+    {
+      "id": 1,
+      "uuid": "6381c0ce-e5a1-41a3-8316-351826e20e49",
+      "name": "Almond Biscotti",
+      "category": "Cookies",
+      "yield_quantity": 30.0,
+      "yield_unit": "slices",
+      "yield_description": null,
+      "is_archived": false,
+      "is_production_ready": false,
+      "base_recipe_id": null,
+      "variant_name": null,
+      "source": "Holiday Cooking 1982",
+      "estimated_time_minutes": null,
+      "notes": "Beat butter until softened. Add 1 cup flour, sugar, eggs, baking powder, vanilla; beat till combined. Stir in remaining flour and nuts. Divide in half. Shape into 9-inch logs, 2 inches wide. Place 4 inches apart on ungreased sheet. Bake 325°F for 1 hour. Cool 1 hour. Cut diagonally into ½-inch slices. Lay cut side down. Bake 325°F 8 minutes, turn, bake 8-10 minutes more till dry and crisp. Cool. Optional: melt chocolate with shortening, drizzle over cookies.",
+      "ingredients": [
+        {
+          "ingredient_id": 183,
+          "ingredient_slug": "butter_unsalted",
+          "ingredient_name": "Butter, unsalted",
+          "quantity": 0.5,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 230,
+          "ingredient_slug": "flour_all_purpose",
+          "ingredient_name": "Flour, all-purpose",
+          "quantity": 2.0,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 389,
+          "ingredient_slug": "sugar_granulated",
+          "ingredient_name": "Sugar, granulated",
+          "quantity": 0.67,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 120,
+          "ingredient_slug": "eggs_whole",
+          "ingredient_name": "Eggs, whole",
+          "quantity": 2.0,
+          "unit": "each",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 266,
+          "ingredient_slug": "baking_powder",
+          "ingredient_name": "Baking powder",
+          "quantity": 2.0,
+          "unit": "tsp",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 338,
+          "ingredient_slug": "vanilla_extract",
+          "ingredient_name": "Vanilla extract",
+          "quantity": 1.0,
+          "unit": "tsp",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 411,
+          "ingredient_slug": "almonds_sliced",
+          "ingredient_name": "Almonds, sliced",
+          "quantity": 1.5,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 89,
+          "ingredient_slug": "chocolate_chips_semi_sweet",
+          "ingredient_name": "Chocolate chips, semi-sweet",
+          "quantity": 1.0,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 197,
+          "ingredient_slug": "shortening",
+          "ingredient_name": "Shortening",
+          "quantity": 2.0,
+          "unit": "tbsp",
+          "notes": null,
+          "estimated_cost": null
+        }
+      ],
+      "recipe_components": [],
+      "total_cost": null,
+      "cost_per_unit": 0.0,
+      "date_added": "2026-01-15T14:14:12.443840",
+      "last_modified": "2026-01-15T14:14:12.443845"
+    },
+    {
+      "id": 2,
+      "uuid": "283a554b-e12c-4289-8a30-ef9eba45064f",
+      "name": "Almond Flour Brownies",
+      "category": "Brownies",
+      "yield_quantity": 12.0,
+      "yield_unit": "brownies",
+      "yield_description": null,
+      "is_archived": false,
+      "is_production_ready": false,
+      "base_recipe_id": null,
+      "variant_name": null,
+      "source": "King Arthur Baking (print)",
+      "estimated_time_minutes": null,
+      "notes": "Follow KA instructions; bake until set with a few moist crumbs.",
+      "ingredients": [
+        {
+          "ingredient_id": 183,
+          "ingredient_slug": "butter_unsalted",
+          "ingredient_name": "Butter, unsalted",
+          "quantity": 5.0,
+          "unit": "tbsp",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 389,
+          "ingredient_slug": "sugar_granulated",
+          "ingredient_name": "Sugar, granulated",
+          "quantity": 1.75,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 347,
+          "ingredient_slug": "salt_kosher",
+          "ingredient_name": "Salt, kosher",
+          "quantity": 0.5,
+          "unit": "tsp",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 338,
+          "ingredient_slug": "vanilla_extract",
+          "ingredient_name": "Vanilla extract",
+          "quantity": 1.0,
+          "unit": "tsp",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 108,
+          "ingredient_slug": "cocoa_powder_natural",
+          "ingredient_name": "Cocoa powder, natural",
+          "quantity": 0.75,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 211,
+          "ingredient_slug": "flour_almond",
+          "ingredient_name": "Flour, almond",
+          "quantity": 0.75,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 266,
+          "ingredient_slug": "baking_powder",
+          "ingredient_name": "Baking powder",
+          "quantity": 1.0,
+          "unit": "tsp",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 120,
+          "ingredient_slug": "eggs_whole",
+          "ingredient_name": "Eggs, whole",
+          "quantity": 3.0,
+          "unit": "each",
+          "notes": null,
+          "estimated_cost": null
+        }
+      ],
+      "recipe_components": [],
+      "total_cost": null,
+      "cost_per_unit": 0.0,
+      "date_added": "2026-01-15T14:14:12.451874",
+      "last_modified": "2026-01-15T14:14:12.451876"
+    },
+    {
+      "id": 3,
+      "uuid": "7fa431a1-8b63-49ec-baa8-85ba1cc1e491",
+      "name": "Anzac Cookies",
+      "category": "Cookies",
+      "yield_quantity": 30.0,
+      "yield_unit": "cookies",
+      "yield_description": null,
+      "is_archived": false,
+      "is_production_ready": false,
+      "base_recipe_id": null,
+      "variant_name": null,
+      "source": "Christmas Cookies 2006 (scan)",
+      "estimated_time_minutes": null,
+      "notes": null,
+      "ingredients": [
+        {
+          "ingredient_id": 230,
+          "ingredient_slug": "flour_all_purpose",
+          "ingredient_name": "Flour, all-purpose",
+          "quantity": 2.0,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 389,
+          "ingredient_slug": "sugar_granulated",
+          "ingredient_name": "Sugar, granulated",
+          "quantity": 2.0,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 218,
+          "ingredient_slug": "oats_rolled",
+          "ingredient_name": "Oats, rolled",
+          "quantity": 2.0,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 320,
+          "ingredient_slug": "coconut_shredded_sweetened",
+          "ingredient_name": "Coconut, shredded sweetened",
+          "quantity": 2.0,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 317,
+          "ingredient_slug": "walnuts",
+          "ingredient_name": "Walnuts",
+          "quantity": 2.0,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 347,
+          "ingredient_slug": "salt_kosher",
+          "ingredient_name": "Salt, kosher",
+          "quantity": 0.5,
+          "unit": "tsp",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 183,
+          "ingredient_slug": "butter_unsalted",
+          "ingredient_name": "Butter, unsalted",
+          "quantity": 1.0,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 400,
+          "ingredient_slug": "golden_syrup",
+          "ingredient_name": "Golden syrup",
+          "quantity": 0.33,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 284,
+          "ingredient_slug": "water",
+          "ingredient_name": "Water",
+          "quantity": 0.25,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 267,
+          "ingredient_slug": "baking_soda",
+          "ingredient_name": "Baking soda",
+          "quantity": 2.0,
+          "unit": "tsp",
+          "notes": null,
+          "estimated_cost": null
+        }
+      ],
+      "recipe_components": [],
+      "total_cost": null,
+      "cost_per_unit": 0.0,
+      "date_added": "2026-01-15T14:14:12.459026",
+      "last_modified": "2026-01-15T14:14:12.459029"
+    },
+    {
+      "id": 4,
+      "uuid": "80cabff0-6379-4f09-957c-e7ec9ab08153",
+      "name": "Butterscotch Pumpkin Cake",
+      "category": "Cakes",
+      "yield_quantity": 16.0,
+      "yield_unit": "servings",
+      "yield_description": null,
+      "is_archived": false,
+      "is_production_ready": false,
+      "base_recipe_id": null,
+      "variant_name": null,
+      "source": "NESTLÉ TOLL HOUSE",
+      "estimated_time_minutes": null,
+      "notes": "Preheat 350°F. Grease bundt pan. Microwave 1 cup butterscotch morsels MEDIUM HIGH 70% 1 min; stir till melted. Cool. Mix flour, sugar, baking powder, cinnamon, salt, nutmeg. Whisk melted morsels, pumpkin, oil, eggs, vanilla. Stir in flour. Pour into pan. Bake 40-50 min till pick clean. Cool 30 min, remove from pan. Dust with powdered sugar. Sauce: heat 1/3 cup evaporated milk to boil, remove. Add remaining morsels, stir smooth. Return to heat, bring to boil. Cool.",
+      "ingredients": [
+        {
+          "ingredient_id": 141,
+          "ingredient_slug": "butterscotch_chips",
+          "ingredient_name": "Butterscotch chips",
+          "quantity": 1.33,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 230,
+          "ingredient_slug": "flour_all_purpose",
+          "ingredient_name": "Flour, all-purpose",
+          "quantity": 2.0,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 389,
+          "ingredient_slug": "sugar_granulated",
+          "ingredient_name": "Sugar, granulated",
+          "quantity": 1.75,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 266,
+          "ingredient_slug": "baking_powder",
+          "ingredient_name": "Baking powder",
+          "quantity": 1.0,
+          "unit": "tbsp",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 364,
+          "ingredient_slug": "cinnamon_ground",
+          "ingredient_name": "Cinnamon, ground",
+          "quantity": 1.5,
+          "unit": "tsp",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 346,
+          "ingredient_slug": "salt_fine",
+          "ingredient_name": "Salt, fine",
+          "quantity": 1.0,
+          "unit": "tsp",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 367,
+          "ingredient_slug": "nutmeg_ground",
+          "ingredient_name": "Nutmeg, ground",
+          "quantity": 0.5,
+          "unit": "tsp",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 264,
+          "ingredient_slug": "pumpkin_puree",
+          "ingredient_name": "Pumpkin puree",
+          "quantity": 1.0,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 190,
+          "ingredient_slug": "oil_vegetable",
+          "ingredient_name": "Oil, vegetable",
+          "quantity": 0.5,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 120,
+          "ingredient_slug": "eggs_whole",
+          "ingredient_name": "Eggs, whole",
+          "quantity": 3.0,
+          "unit": "each",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 338,
+          "ingredient_slug": "vanilla_extract",
+          "ingredient_name": "Vanilla extract",
+          "quantity": 1.0,
+          "unit": "tsp",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 392,
+          "ingredient_slug": "sugar_powdered",
+          "ingredient_name": "Sugar, powdered",
+          "quantity": 3.0,
+          "unit": "tbsp",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 128,
+          "ingredient_slug": "milk_evaporated",
+          "ingredient_name": "Milk, evaporated",
+          "quantity": 0.33,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        }
+      ],
+      "recipe_components": [],
+      "total_cost": null,
+      "cost_per_unit": 0.0,
+      "date_added": "2026-01-15T14:14:12.467764",
+      "last_modified": "2026-01-15T14:14:12.467766"
+    },
+    {
+      "id": 5,
+      "uuid": "6f12f29e-ec8a-403b-92e1-0c3088253560",
+      "name": "Candy-Bar Fudge",
+      "category": "Fudge",
+      "yield_quantity": 64.0,
+      "yield_unit": "pieces",
+      "yield_description": null,
+      "is_archived": false,
+      "is_production_ready": false,
+      "base_recipe_id": null,
+      "variant_name": null,
+      "source": "Holiday Cooking Magazine (1992)",
+      "estimated_time_minutes": null,
+      "notes": "Microwave or stovetop method; fold peanuts and caramels before topping with semisweet chocolate.",
+      "ingredients": [
+        {
+          "ingredient_id": 183,
+          "ingredient_slug": "butter_unsalted",
+          "ingredient_name": "Butter, unsalted",
+          "quantity": 0.5,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 108,
+          "ingredient_slug": "cocoa_powder_natural",
+          "ingredient_name": "Cocoa powder, natural",
+          "quantity": 0.33,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 388,
+          "ingredient_slug": "sugar_brown_light",
+          "ingredient_name": "Sugar, brown light",
+          "quantity": 0.25,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 130,
+          "ingredient_slug": "milk_whole",
+          "ingredient_name": "Milk, whole",
+          "quantity": 0.25,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 392,
+          "ingredient_slug": "sugar_powdered",
+          "ingredient_name": "Sugar, powdered",
+          "quantity": 3.5,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 338,
+          "ingredient_slug": "vanilla_extract",
+          "ingredient_name": "Vanilla extract",
+          "quantity": 1.0,
+          "unit": "tsp",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 142,
+          "ingredient_slug": "caramel_bits",
+          "ingredient_name": "Caramel bits",
+          "quantity": 30.0,
+          "unit": "each",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 284,
+          "ingredient_slug": "water",
+          "ingredient_name": "Water",
+          "quantity": 1.0,
+          "unit": "tbsp",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 301,
+          "ingredient_slug": "peanuts",
+          "ingredient_name": "Peanuts",
+          "quantity": 2.0,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 89,
+          "ingredient_slug": "chocolate_chips_semi_sweet",
+          "ingredient_name": "Chocolate chips, semi-sweet",
+          "quantity": 1.0,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        }
+      ],
+      "recipe_components": [],
+      "total_cost": null,
+      "cost_per_unit": 0.0,
+      "date_added": "2026-01-15T14:14:12.478438",
+      "last_modified": "2026-01-15T14:14:12.478441"
+    },
+    {
+      "id": 6,
+      "uuid": "c3f15e42-ef88-494b-876e-b493bfcac1ae",
+      "name": "Chocolate Truffle Croquembouche",
+      "category": "Candies",
+      "yield_quantity": 76.0,
+      "yield_unit": "truffles",
+      "yield_description": null,
+      "is_archived": false,
+      "is_production_ready": false,
+      "base_recipe_id": null,
+      "variant_name": null,
+      "source": "Magazine",
+      "estimated_time_minutes": null,
+      "notes": "Boil cream and butter. Add 2.5 lb chocolate; whisk smooth. Whisk in sour cream, liqueur, orange peel. Pour into 9x13 dish, refrigerate 1 hr. Line 4 sheets: 2 with powdered sugar, 2 with cocoa. Scoop truffles onto sheets. Freeze 10 min. Roll in coating, then hands. Freeze 15 min. Melt white chocolate to 115°F. Dip sugar truffles, refrigerate 1 hr. Repeat for double coat. Melt 1.5 lb bittersweet to 115°F. Wave spoon over white truffles making zigzags. Repeat process for remaining truffles. Assemble on cone with toothpicks in spiral.",
+      "ingredients": [
+        {
+          "ingredient_id": 121,
+          "ingredient_slug": "cream_heavy",
+          "ingredient_name": "Cream, heavy",
+          "quantity": 1.125,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 183,
+          "ingredient_slug": "butter_unsalted",
+          "ingredient_name": "Butter, unsalted",
+          "quantity": 0.75,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 85,
+          "ingredient_slug": "chocolate_chips_bittersweet",
+          "ingredient_name": "Chocolate chips, bittersweet",
+          "quantity": 4.0,
+          "unit": "lb",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 134,
+          "ingredient_slug": "sour_cream",
+          "ingredient_name": "Sour cream",
+          "quantity": 0.75,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 289,
+          "ingredient_slug": "liqueur_orange",
+          "ingredient_name": "Liqueur, orange",
+          "quantity": 6.0,
+          "unit": "tbsp",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 409,
+          "ingredient_slug": "orange_zest",
+          "ingredient_name": "Orange zest",
+          "quantity": 1.5,
+          "unit": "tbsp",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 392,
+          "ingredient_slug": "sugar_powdered",
+          "ingredient_name": "Sugar, powdered",
+          "quantity": 1.5,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 108,
+          "ingredient_slug": "cocoa_powder_natural",
+          "ingredient_name": "Cocoa powder, natural",
+          "quantity": 1.5,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 91,
+          "ingredient_slug": "chocolate_chips_white",
+          "ingredient_name": "Chocolate chips, white",
+          "quantity": 1.75,
+          "unit": "lb",
+          "notes": null,
+          "estimated_cost": null
+        }
+      ],
+      "recipe_components": [],
+      "total_cost": null,
+      "cost_per_unit": 0.0,
+      "date_added": "2026-01-15T14:14:12.486927",
+      "last_modified": "2026-01-15T14:14:12.486929"
+    },
+    {
+      "id": 7,
+      "uuid": "23d97f7f-d297-4a03-ab21-85278d874e0b",
+      "name": "Gingerbread Chai Cookies",
+      "category": "Cookies",
+      "yield_quantity": 9.0,
+      "yield_unit": "cookies",
+      "yield_description": null,
+      "is_archived": false,
+      "is_production_ready": false,
+      "base_recipe_id": null,
+      "variant_name": null,
+      "source": "Magazine",
+      "estimated_time_minutes": null,
+      "notes": "Preheat 350°F. Beat butter, 2/3 cup sugar, vanilla till fluffy 2-3 min. Beat in egg, molasses. Whisk flour, cardamom (1/2 cup), cinnamon (2.5 tbsp), ginger (6 tsp total), cloves (2 tsp), pepper (2 tsp), baking soda, salt. Add to butter on low. Beat on medium 2 min. Roll dough 1/2 inch thick. Scoop into 2-inch balls. Roll in 1 cup sugar. Place 2.5 inches apart. Bake 15-16 min till cracked. Cool on pans.",
+      "ingredients": [
+        {
+          "ingredient_id": 183,
+          "ingredient_slug": "butter_unsalted",
+          "ingredient_name": "Butter, unsalted",
+          "quantity": 0.5,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 389,
+          "ingredient_slug": "sugar_granulated",
+          "ingredient_name": "Sugar, granulated",
+          "quantity": 1.67,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 338,
+          "ingredient_slug": "vanilla_extract",
+          "ingredient_name": "Vanilla extract",
+          "quantity": 1.0,
+          "unit": "tsp",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 120,
+          "ingredient_slug": "eggs_whole",
+          "ingredient_name": "Eggs, whole",
+          "quantity": 1.0,
+          "unit": "each",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 405,
+          "ingredient_slug": "molasses_light",
+          "ingredient_name": "Molasses, light",
+          "quantity": 0.25,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 230,
+          "ingredient_slug": "flour_all_purpose",
+          "ingredient_name": "Flour, all-purpose",
+          "quantity": 2.75,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 362,
+          "ingredient_slug": "cardamom_ground",
+          "ingredient_name": "Cardamom, ground",
+          "quantity": 0.5,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 364,
+          "ingredient_slug": "cinnamon_ground",
+          "ingredient_name": "Cinnamon, ground",
+          "quantity": 2.5,
+          "unit": "tbsp",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 366,
+          "ingredient_slug": "ginger_ground",
+          "ingredient_name": "Ginger, ground",
+          "quantity": 6.0,
+          "unit": "tsp",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 365,
+          "ingredient_slug": "cloves_ground",
+          "ingredient_name": "Cloves, ground",
+          "quantity": 2.0,
+          "unit": "tsp",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 346,
+          "ingredient_slug": "salt_fine",
+          "ingredient_name": "Salt, fine",
+          "quantity": 2.0,
+          "unit": "tsp",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 267,
+          "ingredient_slug": "baking_soda",
+          "ingredient_name": "Baking soda",
+          "quantity": 1.0,
+          "unit": "tsp",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 347,
+          "ingredient_slug": "salt_kosher",
+          "ingredient_name": "Salt, kosher",
+          "quantity": 0.5,
+          "unit": "tsp",
+          "notes": null,
+          "estimated_cost": null
+        }
+      ],
+      "recipe_components": [],
+      "total_cost": null,
+      "cost_per_unit": 0.0,
+      "date_added": "2026-01-15T14:14:12.494640",
+      "last_modified": "2026-01-15T14:14:12.494643"
+    },
+    {
+      "id": 8,
+      "uuid": "6e98165e-3ef7-4f05-8b70-04c3e91740d7",
+      "name": "Gluten-Free Almond Flour Shortbread Cookies",
+      "category": "Cookies",
+      "yield_quantity": 15.0,
+      "yield_unit": "cookies",
+      "yield_description": null,
+      "is_archived": false,
+      "is_production_ready": false,
+      "base_recipe_id": null,
+      "variant_name": null,
+      "source": "King Arthur Baking (print)",
+      "estimated_time_minutes": null,
+      "notes": "Combine; scoop 1\" balls; flatten with fork; bake 8–10 min.",
+      "ingredients": [
+        {
+          "ingredient_id": 211,
+          "ingredient_slug": "flour_almond",
+          "ingredient_name": "Flour, almond",
+          "quantity": 1.0,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 183,
+          "ingredient_slug": "butter_unsalted",
+          "ingredient_name": "Butter, unsalted",
+          "quantity": 3.0,
+          "unit": "tbsp",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 392,
+          "ingredient_slug": "sugar_powdered",
+          "ingredient_name": "Sugar, powdered",
+          "quantity": 3.0,
+          "unit": "tbsp",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 347,
+          "ingredient_slug": "salt_kosher",
+          "ingredient_name": "Salt, kosher",
+          "quantity": 0.125,
+          "unit": "tsp",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 338,
+          "ingredient_slug": "vanilla_extract",
+          "ingredient_name": "Vanilla extract",
+          "quantity": 0.5,
+          "unit": "tsp",
+          "notes": null,
+          "estimated_cost": null
+        }
+      ],
+      "recipe_components": [],
+      "total_cost": null,
+      "cost_per_unit": 0.0,
+      "date_added": "2026-01-15T14:14:12.505874",
+      "last_modified": "2026-01-15T14:14:12.505876"
+    },
+    {
+      "id": 9,
+      "uuid": "e7f1eff6-f7f4-4e3a-9fe6-b2e7362926eb",
+      "name": "Holiday Blossoms",
+      "category": "Cookies",
+      "yield_quantity": 24.0,
+      "yield_unit": "cookies",
+      "yield_description": null,
+      "is_archived": false,
+      "is_production_ready": false,
+      "base_recipe_id": null,
+      "variant_name": null,
+      "source": "Scan",
+      "estimated_time_minutes": null,
+      "notes": null,
+      "ingredients": [
+        {
+          "ingredient_id": 183,
+          "ingredient_slug": "butter_unsalted",
+          "ingredient_name": "Butter, unsalted",
+          "quantity": 0.5,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 117,
+          "ingredient_slug": "cream_cheese",
+          "ingredient_name": "Cream cheese",
+          "quantity": 3.0,
+          "unit": "oz",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 392,
+          "ingredient_slug": "sugar_powdered",
+          "ingredient_name": "Sugar, powdered",
+          "quantity": 1.5,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 266,
+          "ingredient_slug": "baking_powder",
+          "ingredient_name": "Baking powder",
+          "quantity": 0.5,
+          "unit": "tsp",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 347,
+          "ingredient_slug": "salt_kosher",
+          "ingredient_name": "Salt, kosher",
+          "quantity": 0.25,
+          "unit": "tsp",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 120,
+          "ingredient_slug": "eggs_whole",
+          "ingredient_name": "Eggs, whole",
+          "quantity": 1.0,
+          "unit": "each",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 338,
+          "ingredient_slug": "vanilla_extract",
+          "ingredient_name": "Vanilla extract",
+          "quantity": 0.5,
+          "unit": "tsp",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 230,
+          "ingredient_slug": "flour_all_purpose",
+          "ingredient_name": "Flour, all-purpose",
+          "quantity": 2.25,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 180,
+          "ingredient_slug": "sugar_sanding",
+          "ingredient_name": "Sugar, sanding",
+          "quantity": 1.0,
+          "unit": "tbsp",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 163,
+          "ingredient_slug": "peppermints",
+          "ingredient_name": "Peppermints",
+          "quantity": 24.0,
+          "unit": "each",
+          "notes": null,
+          "estimated_cost": null
+        }
+      ],
+      "recipe_components": [],
+      "total_cost": null,
+      "cost_per_unit": 0.0,
+      "date_added": "2026-01-15T14:14:12.511034",
+      "last_modified": "2026-01-15T14:14:12.511036"
+    },
+    {
+      "id": 10,
+      "uuid": "7ad21bef-f37e-4d87-a158-a67ea3b985d7",
+      "name": "Individual Orange and Poppy Seed Pound Cake",
+      "category": "Cakes",
+      "yield_quantity": 4.0,
+      "yield_unit": "cakes",
+      "yield_description": null,
+      "is_archived": false,
+      "is_production_ready": false,
+      "base_recipe_id": null,
+      "variant_name": null,
+      "source": "Magazine recipe",
+      "estimated_time_minutes": null,
+      "notes": "Preheat oven to 350°F. Butter and flour four 5¾x3¼x1⅞-inch loaf pans. Sift flour, baking powder and salt into medium bowl. Using electric mixer, beat sugar and unsalted butter in large bowl until light and fluffy. Add eggs 1 at a time, beating well after each addition. Beat in orange juice, grated orange peel and vanilla extract (batter may look curdled). Beat in flour mixture. Fold in poppy seeds. Divide batter equally among prepared pans (about 1½ cups each). Place pans in oven. Bake until tester inserted in center comes out clean, about 55 minutes. Transfer pans to racks. Cool cakes in pans 10 minutes. Turn cakes out onto wire racks and cool completely.",
+      "ingredients": [
+        {
+          "ingredient_id": 230,
+          "ingredient_slug": "flour_all_purpose",
+          "ingredient_name": "Flour, all-purpose",
+          "quantity": 2.0,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 266,
+          "ingredient_slug": "baking_powder",
+          "ingredient_name": "Baking powder",
+          "quantity": 1.0,
+          "unit": "tsp",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 346,
+          "ingredient_slug": "salt_fine",
+          "ingredient_name": "Salt, fine",
+          "quantity": 0.5,
+          "unit": "tsp",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 389,
+          "ingredient_slug": "sugar_granulated",
+          "ingredient_name": "Sugar, granulated",
+          "quantity": 1.75,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 183,
+          "ingredient_slug": "butter_unsalted",
+          "ingredient_name": "Butter, unsalted",
+          "quantity": 1.25,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 120,
+          "ingredient_slug": "eggs_whole",
+          "ingredient_name": "Eggs, whole",
+          "quantity": 5.0,
+          "unit": "each",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 256,
+          "ingredient_slug": "orange_whole",
+          "ingredient_name": "Orange, whole",
+          "quantity": 0.5,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 256,
+          "ingredient_slug": "orange_whole",
+          "ingredient_name": "Orange, whole",
+          "quantity": 1.0,
+          "unit": "tbsp",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 338,
+          "ingredient_slug": "vanilla_extract",
+          "ingredient_name": "Vanilla extract",
+          "quantity": 1.0,
+          "unit": "tsp",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 305,
+          "ingredient_slug": "poppy_seeds",
+          "ingredient_name": "Poppy seeds",
+          "quantity": 0.25,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        }
+      ],
+      "recipe_components": [],
+      "total_cost": null,
+      "cost_per_unit": 0.0,
+      "date_added": "2026-01-15T14:14:12.520072",
+      "last_modified": "2026-01-15T14:14:12.520075"
+    },
+    {
+      "id": 11,
+      "uuid": "5e747d8f-e211-454d-a2a5-547f3112fa9c",
+      "name": "Jumbles",
+      "category": "Cookies",
+      "yield_quantity": 36.0,
+      "yield_unit": "cookies",
+      "yield_description": null,
+      "is_archived": false,
+      "is_production_ready": false,
+      "base_recipe_id": null,
+      "variant_name": null,
+      "source": "Christmas Cookies 2006",
+      "estimated_time_minutes": null,
+      "notes": "Line sheet with parchment. Preheat 350°F. Mix flour, baking soda, salt. Beat butter 30 sec. Beat in sugars. Beat in eggs, vanilla. Beat in flour as much as possible. Stir in remaining flour. Stir in nuts, raisins, chocolate. Drop 1/4 cup dough 3 inches apart. Bake 12-15 min till golden and set. Stand 5 min. Transfer to rack; cool. Store in refrigerator up to 3 days or freeze up to 3 months.",
+      "ingredients": [
+        {
+          "ingredient_id": 230,
+          "ingredient_slug": "flour_all_purpose",
+          "ingredient_name": "Flour, all-purpose",
+          "quantity": 2.25,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 267,
+          "ingredient_slug": "baking_soda",
+          "ingredient_name": "Baking soda",
+          "quantity": 2.0,
+          "unit": "tsp",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 346,
+          "ingredient_slug": "salt_fine",
+          "ingredient_name": "Salt, fine",
+          "quantity": 0.5,
+          "unit": "tsp",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 183,
+          "ingredient_slug": "butter_unsalted",
+          "ingredient_name": "Butter, unsalted",
+          "quantity": 1.25,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 389,
+          "ingredient_slug": "sugar_granulated",
+          "ingredient_name": "Sugar, granulated",
+          "quantity": 1.0,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 388,
+          "ingredient_slug": "sugar_brown_light",
+          "ingredient_name": "Sugar, brown light",
+          "quantity": 0.67,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 120,
+          "ingredient_slug": "eggs_whole",
+          "ingredient_name": "Eggs, whole",
+          "quantity": 2.0,
+          "unit": "each",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 338,
+          "ingredient_slug": "vanilla_extract",
+          "ingredient_name": "Vanilla extract",
+          "quantity": 1.5,
+          "unit": "tsp",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 410,
+          "ingredient_slug": "almonds_whole",
+          "ingredient_name": "Almonds, whole",
+          "quantity": 1.25,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 412,
+          "ingredient_slug": "pecans_halves",
+          "ingredient_name": "Pecans, halves",
+          "quantity": 1.5,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 245,
+          "ingredient_slug": "raisins",
+          "ingredient_name": "Raisins",
+          "quantity": 2.0,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 89,
+          "ingredient_slug": "chocolate_chips_semi_sweet",
+          "ingredient_name": "Chocolate chips, semi-sweet",
+          "quantity": 2.0,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        }
+      ],
+      "recipe_components": [],
+      "total_cost": null,
+      "cost_per_unit": 0.0,
+      "date_added": "2026-01-15T14:14:12.528535",
+      "last_modified": "2026-01-15T14:14:12.528537"
+    },
+    {
+      "id": 12,
+      "uuid": "f30d4e7f-6726-40b2-b42a-6de3b250a4df",
+      "name": "Lavender-Lemon Cake with Honey Glaze",
+      "category": "Cake",
+      "yield_quantity": 16.0,
+      "yield_unit": "servings",
+      "yield_description": null,
+      "is_archived": false,
+      "is_production_ready": false,
+      "base_recipe_id": null,
+      "variant_name": null,
+      "source": "Flo Braker, The Simple Art of Perfect Baking (scan)",
+      "estimated_time_minutes": null,
+      "notes": "Non-discrete finished good per rule.",
+      "ingredients": [
+        {
+          "ingredient_id": 229,
+          "ingredient_slug": "cake_flour",
+          "ingredient_name": "Cake flour",
+          "quantity": 3.0,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 266,
+          "ingredient_slug": "baking_powder",
+          "ingredient_name": "Baking powder",
+          "quantity": 1.5,
+          "unit": "tsp",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 267,
+          "ingredient_slug": "baking_soda",
+          "ingredient_name": "Baking soda",
+          "quantity": 1.0,
+          "unit": "tsp",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 347,
+          "ingredient_slug": "salt_kosher",
+          "ingredient_name": "Salt, kosher",
+          "quantity": 0.25,
+          "unit": "tsp",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 183,
+          "ingredient_slug": "butter_unsalted",
+          "ingredient_name": "Butter, unsalted",
+          "quantity": 16.0,
+          "unit": "tbsp",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 389,
+          "ingredient_slug": "sugar_granulated",
+          "ingredient_name": "Sugar, granulated",
+          "quantity": 1.5,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 357,
+          "ingredient_slug": "lavender_culinary",
+          "ingredient_name": "Lavender, culinary",
+          "quantity": 1.0,
+          "unit": "tbsp",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 120,
+          "ingredient_slug": "eggs_whole",
+          "ingredient_name": "Eggs, whole",
+          "quantity": 4.0,
+          "unit": "each",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 332,
+          "ingredient_slug": "lemon_extract",
+          "ingredient_name": "Lemon extract",
+          "quantity": 0.5,
+          "unit": "tsp",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 338,
+          "ingredient_slug": "vanilla_extract",
+          "ingredient_name": "Vanilla extract",
+          "quantity": 0.5,
+          "unit": "tsp",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 136,
+          "ingredient_slug": "yogurt_plain",
+          "ingredient_name": "Yogurt, plain",
+          "quantity": 1.0,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 254,
+          "ingredient_slug": "lemon_whole",
+          "ingredient_name": "Lemon, whole",
+          "quantity": 1.0,
+          "unit": "each",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 385,
+          "ingredient_slug": "honey",
+          "ingredient_name": "Honey",
+          "quantity": 2.0,
+          "unit": "tbsp",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 392,
+          "ingredient_slug": "sugar_powdered",
+          "ingredient_name": "Sugar, powdered",
+          "quantity": 0.5,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 261,
+          "ingredient_slug": "lemon_juice",
+          "ingredient_name": "Lemon juice",
+          "quantity": 1.0,
+          "unit": "tbsp",
+          "notes": null,
+          "estimated_cost": null
+        }
+      ],
+      "recipe_components": [],
+      "total_cost": null,
+      "cost_per_unit": 0.0,
+      "date_added": "2026-01-15T14:14:12.538742",
+      "last_modified": "2026-01-15T14:14:12.538745"
+    },
+    {
+      "id": 13,
+      "uuid": "7a71a353-5a6d-4c79-8329-6cc91aed00f9",
+      "name": "Lemon Bliss Cake",
+      "category": "Cakes",
+      "yield_quantity": 1.0,
+      "yield_unit": "cake",
+      "yield_description": null,
+      "is_archived": false,
+      "is_production_ready": false,
+      "base_recipe_id": null,
+      "variant_name": null,
+      "source": "King Arthur Baking - 2017 Recipe of the Year",
+      "estimated_time_minutes": null,
+      "notes": "Preheat oven to 350°F. Beat butter, sugar, and salt until combined, then fluffy and lightened in color. Add eggs one at a time, beating well after each addition. Scrape sides and bottom once all eggs added, beat briefly to re-combine. Measure flour by gently spooning into cup, then sweeping off excess. Whisk baking powder into flour. Add flour mixture to batter in three parts alternately with milk, starting and ending with flour. Batter may look slightly curdled when you add milk - that's OK; it'll smooth out as you add flour. Mix until well combined; batter will look a bit rough, but shouldn't have large lumps. Stir in grated lemon rind or lemon oil. Thoroughly grease 10-12 cup Bundt pan. Spoon batter into prepared pan, leveling and smoothing top with spatula. Bake 45-60 minutes, until cake tester or toothpick comes out clean. Pan with dark interior will bake more quickly; start checking at 40 minutes. While cake bakes, make glaze by stirring together lemon juice and sugar. Microwave or heat over burner briefly, stirring to dissolve sugar. Don't cook lemon juice; microwave until very warm, but not uncomfortably hot - less than 1 minute. Remove cake from oven, carefully run knife between cake and pan all around edge. Place pan upside down on serving plate. Let cool 15 minutes before removing pan. Poke holes in warm cake with toothpick. Brush glaze over warm cake. Cool completely before serving.",
+      "ingredients": [
+        {
+          "ingredient_id": 183,
+          "ingredient_slug": "butter_unsalted",
+          "ingredient_name": "Butter, unsalted",
+          "quantity": 16.0,
+          "unit": "tbsp",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 389,
+          "ingredient_slug": "sugar_granulated",
+          "ingredient_name": "Sugar, granulated",
+          "quantity": 2.75,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 346,
+          "ingredient_slug": "salt_fine",
+          "ingredient_name": "Salt, fine",
+          "quantity": 1.0,
+          "unit": "tsp",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 120,
+          "ingredient_slug": "eggs_whole",
+          "ingredient_name": "Eggs, whole",
+          "quantity": 4.0,
+          "unit": "each",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 266,
+          "ingredient_slug": "baking_powder",
+          "ingredient_name": "Baking powder",
+          "quantity": 2.0,
+          "unit": "tsp",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 230,
+          "ingredient_slug": "flour_all_purpose",
+          "ingredient_name": "Flour, all-purpose",
+          "quantity": 3.0,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 130,
+          "ingredient_slug": "milk_whole",
+          "ingredient_name": "Milk, whole",
+          "quantity": 1.0,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 254,
+          "ingredient_slug": "lemon_whole",
+          "ingredient_name": "Lemon, whole",
+          "quantity": 2.0,
+          "unit": "each",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 254,
+          "ingredient_slug": "lemon_whole",
+          "ingredient_name": "Lemon, whole",
+          "quantity": 0.33,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        }
+      ],
+      "recipe_components": [],
+      "total_cost": null,
+      "cost_per_unit": 0.0,
+      "date_added": "2026-01-15T14:14:12.551331",
+      "last_modified": "2026-01-15T14:14:12.551334"
+    },
+    {
+      "id": 14,
+      "uuid": "6c6b39b0-1cb8-41dd-91e0-85f9f4277e23",
+      "name": "Marble Fruit Cake",
+      "category": "Cakes",
+      "yield_quantity": 1.0,
+      "yield_unit": "cake",
+      "yield_description": null,
+      "is_archived": false,
+      "is_production_ready": false,
+      "base_recipe_id": null,
+      "variant_name": null,
+      "source": "Cake Baker's Art",
+      "estimated_time_minutes": null,
+      "notes": "Sift flour, baking powder, salt, baking soda, cinnamon, ginger, nutmeg, and cloves onto wax paper. Cream butter or margarine with brown sugar until fluffy in a large bowl; beat in eggs, one at a time; stir in currant jelly and apple juice. Stir in flour mixture until blended, then candied fruits, dates, walnuts, and currants. Spoon half of batter into a greased 9-inch tube pan. Combine granulated sugar, lemon rind, and lemon sections; spoon over batter in pan. Top with remaining batter. Bake in slow oven (300°) for 1¾ hours, or until a long thin skewer inserted near center comes out clean. Cool completely in pan on a wire rack. Loosen around edge with a knife; turn out onto rack.",
+      "ingredients": [
+        {
+          "ingredient_id": 230,
+          "ingredient_slug": "flour_all_purpose",
+          "ingredient_name": "Flour, all-purpose",
+          "quantity": 3.0,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 266,
+          "ingredient_slug": "baking_powder",
+          "ingredient_name": "Baking powder",
+          "quantity": 2.0,
+          "unit": "tsp",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 346,
+          "ingredient_slug": "salt_fine",
+          "ingredient_name": "Salt, fine",
+          "quantity": 1.0,
+          "unit": "tsp",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 267,
+          "ingredient_slug": "baking_soda",
+          "ingredient_name": "Baking soda",
+          "quantity": 0.5,
+          "unit": "tsp",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 364,
+          "ingredient_slug": "cinnamon_ground",
+          "ingredient_name": "Cinnamon, ground",
+          "quantity": 0.5,
+          "unit": "tsp",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 366,
+          "ingredient_slug": "ginger_ground",
+          "ingredient_name": "Ginger, ground",
+          "quantity": 0.25,
+          "unit": "tsp",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 367,
+          "ingredient_slug": "nutmeg_ground",
+          "ingredient_name": "Nutmeg, ground",
+          "quantity": 0.25,
+          "unit": "tsp",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 365,
+          "ingredient_slug": "cloves_ground",
+          "ingredient_name": "Cloves, ground",
+          "quantity": 0.125,
+          "unit": "tsp",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 239,
+          "ingredient_slug": "dates_pitted",
+          "ingredient_name": "Dates, pitted",
+          "quantity": 0.5,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 317,
+          "ingredient_slug": "walnuts",
+          "ingredient_name": "Walnuts",
+          "quantity": 0.5,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 238,
+          "ingredient_slug": "currants_dried",
+          "ingredient_name": "Currants, dried",
+          "quantity": 0.5,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 183,
+          "ingredient_slug": "butter_unsalted",
+          "ingredient_name": "Butter, unsalted",
+          "quantity": 1.0,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 387,
+          "ingredient_slug": "sugar_brown_dark",
+          "ingredient_name": "Sugar, brown dark",
+          "quantity": 0.5,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 120,
+          "ingredient_slug": "eggs_whole",
+          "ingredient_name": "Eggs, whole",
+          "quantity": 4.0,
+          "unit": "each",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 385,
+          "ingredient_slug": "honey",
+          "ingredient_name": "Honey",
+          "quantity": 0.75,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 276,
+          "ingredient_slug": "apple_juice",
+          "ingredient_name": "Apple juice",
+          "quantity": 0.25,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 145,
+          "ingredient_slug": "candied_citrus_peel",
+          "ingredient_name": "Candied citrus peel",
+          "quantity": 0.5,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 145,
+          "ingredient_slug": "candied_citrus_peel",
+          "ingredient_name": "Candied citrus peel",
+          "quantity": 0.5,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 389,
+          "ingredient_slug": "sugar_granulated",
+          "ingredient_name": "Sugar, granulated",
+          "quantity": 0.75,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 254,
+          "ingredient_slug": "lemon_whole",
+          "ingredient_name": "Lemon, whole",
+          "quantity": 2.0,
+          "unit": "tsp",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 254,
+          "ingredient_slug": "lemon_whole",
+          "ingredient_name": "Lemon, whole",
+          "quantity": 0.25,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        }
+      ],
+      "recipe_components": [],
+      "total_cost": null,
+      "cost_per_unit": 0.0,
+      "date_added": "2026-01-15T14:14:12.559210",
+      "last_modified": "2026-01-15T14:14:12.559212"
+    },
+    {
+      "id": 15,
+      "uuid": "f260a561-fbf8-4131-a6da-e0e2f65faed3",
+      "name": "Mini Mincemeat Pies",
+      "category": "Pies",
+      "yield_quantity": 18.0,
+      "yield_unit": "pies",
+      "yield_description": null,
+      "is_archived": false,
+      "is_production_ready": false,
+      "base_recipe_id": null,
+      "variant_name": null,
+      "source": "Holiday Tea Party spread (scan)",
+      "estimated_time_minutes": null,
+      "notes": null,
+      "ingredients": [
+        {
+          "ingredient_id": 230,
+          "ingredient_slug": "flour_all_purpose",
+          "ingredient_name": "Flour, all-purpose",
+          "quantity": 1.25,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 392,
+          "ingredient_slug": "sugar_powdered",
+          "ingredient_name": "Sugar, powdered",
+          "quantity": 10.0,
+          "unit": "tbsp",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 256,
+          "ingredient_slug": "orange_whole",
+          "ingredient_name": "Orange, whole",
+          "quantity": 0.75,
+          "unit": "tsp",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 347,
+          "ingredient_slug": "salt_kosher",
+          "ingredient_name": "Salt, kosher",
+          "quantity": 0.25,
+          "unit": "tsp",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 183,
+          "ingredient_slug": "butter_unsalted",
+          "ingredient_name": "Butter, unsalted",
+          "quantity": 0.5,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 119,
+          "ingredient_slug": "egg_yolks",
+          "ingredient_name": "Egg yolks",
+          "quantity": 1.0,
+          "unit": "each",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 263,
+          "ingredient_slug": "orange_juice",
+          "ingredient_name": "Orange juice",
+          "quantity": 2.0,
+          "unit": "tbsp",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 245,
+          "ingredient_slug": "raisins",
+          "ingredient_name": "Raisins",
+          "quantity": 0.75,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 146,
+          "ingredient_slug": "candied_ginger",
+          "ingredient_name": "Candied ginger",
+          "quantity": 3.0,
+          "unit": "tbsp",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 364,
+          "ingredient_slug": "cinnamon_ground",
+          "ingredient_name": "Cinnamon, ground",
+          "quantity": 0.25,
+          "unit": "tsp",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 120,
+          "ingredient_slug": "eggs_whole",
+          "ingredient_name": "Eggs, whole",
+          "quantity": 1.0,
+          "unit": "each",
+          "notes": null,
+          "estimated_cost": null
+        }
+      ],
+      "recipe_components": [],
+      "total_cost": null,
+      "cost_per_unit": 0.0,
+      "date_added": "2026-01-15T14:14:12.577324",
+      "last_modified": "2026-01-15T14:14:12.577327"
+    },
+    {
+      "id": 16,
+      "uuid": "20eba633-0e65-464e-86fd-61aa311386cf",
+      "name": "Mocha-Toffee Truffles",
+      "category": "Cookies",
+      "yield_quantity": 30.0,
+      "yield_unit": "truffles",
+      "yield_description": null,
+      "is_archived": false,
+      "is_production_ready": false,
+      "base_recipe_id": null,
+      "variant_name": null,
+      "source": "Scan",
+      "estimated_time_minutes": null,
+      "notes": null,
+      "ingredients": [
+        {
+          "ingredient_id": 183,
+          "ingredient_slug": "butter_unsalted",
+          "ingredient_name": "Butter, unsalted",
+          "quantity": 0.5,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 89,
+          "ingredient_slug": "chocolate_chips_semi_sweet",
+          "ingredient_name": "Chocolate chips, semi-sweet",
+          "quantity": 0.5,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 343,
+          "ingredient_slug": "instant_coffee_granules",
+          "ingredient_name": "Instant coffee granules",
+          "quantity": 1.0,
+          "unit": "tbsp",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 389,
+          "ingredient_slug": "sugar_granulated",
+          "ingredient_name": "Sugar, granulated",
+          "quantity": 0.5,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 388,
+          "ingredient_slug": "sugar_brown_light",
+          "ingredient_name": "Sugar, brown light",
+          "quantity": 0.75,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 120,
+          "ingredient_slug": "eggs_whole",
+          "ingredient_name": "Eggs, whole",
+          "quantity": 2.0,
+          "unit": "each",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 338,
+          "ingredient_slug": "vanilla_extract",
+          "ingredient_name": "Vanilla extract",
+          "quantity": 2.0,
+          "unit": "tsp",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 230,
+          "ingredient_slug": "flour_all_purpose",
+          "ingredient_name": "Flour, all-purpose",
+          "quantity": 2.0,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 108,
+          "ingredient_slug": "cocoa_powder_natural",
+          "ingredient_name": "Cocoa powder, natural",
+          "quantity": 0.5,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 266,
+          "ingredient_slug": "baking_powder",
+          "ingredient_name": "Baking powder",
+          "quantity": 0.5,
+          "unit": "tsp",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 347,
+          "ingredient_slug": "salt_kosher",
+          "ingredient_name": "Salt, kosher",
+          "quantity": 0.5,
+          "unit": "tsp",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 156,
+          "ingredient_slug": "toffee_bits",
+          "ingredient_name": "Toffee bits",
+          "quantity": 4.5,
+          "unit": "oz",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 88,
+          "ingredient_slug": "chocolate_chips_milk",
+          "ingredient_name": "Chocolate chips, milk",
+          "quantity": 4.0,
+          "unit": "oz",
+          "notes": null,
+          "estimated_cost": null
+        }
+      ],
+      "recipe_components": [],
+      "total_cost": null,
+      "cost_per_unit": 0.0,
+      "date_added": "2026-01-15T14:14:12.586283",
+      "last_modified": "2026-01-15T14:14:12.586285"
+    },
+    {
+      "id": 17,
+      "uuid": "d6f8c76d-d30c-4a85-8af4-92f8364c10a7",
+      "name": "Noel Bell Fruit Cake",
+      "category": "Cakes",
+      "yield_quantity": 1.0,
+      "yield_unit": "loaf",
+      "yield_description": null,
+      "is_archived": false,
+      "is_production_ready": false,
+      "base_recipe_id": null,
+      "variant_name": null,
+      "source": "Cake Baker's Art",
+      "estimated_time_minutes": null,
+      "notes": "Grease a loaf pan, 9x5x3. Sift flour, baking powder, cinnamon, mace, and cloves onto wax paper. Cream butter or margarine with brown sugar until fluffy; light in a large bowl; beat in eggs, one at a time; stir in apricots and whiskey. Stir in flour mixture until blended, then raisins, mixed fruits, pecans, and cherries. Spoon into prepared pan; spread top even. Bake in slow oven (300°) 2 hours, or until a wooden pick inserted in center comes out clean. Cool completely in pan on a wire rack. Loosen cooled cake around the edges with a knife; turn out onto rack.",
+      "ingredients": [
+        {
+          "ingredient_id": 230,
+          "ingredient_slug": "flour_all_purpose",
+          "ingredient_name": "Flour, all-purpose",
+          "quantity": 2.0,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 266,
+          "ingredient_slug": "baking_powder",
+          "ingredient_name": "Baking powder",
+          "quantity": 1.0,
+          "unit": "tsp",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 364,
+          "ingredient_slug": "cinnamon_ground",
+          "ingredient_name": "Cinnamon, ground",
+          "quantity": 1.0,
+          "unit": "tsp",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 358,
+          "ingredient_slug": "mace_ground",
+          "ingredient_name": "Mace, ground",
+          "quantity": 1.0,
+          "unit": "tsp",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 365,
+          "ingredient_slug": "cloves_ground",
+          "ingredient_name": "Cloves, ground",
+          "quantity": 0.5,
+          "unit": "tsp",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 183,
+          "ingredient_slug": "butter_unsalted",
+          "ingredient_name": "Butter, unsalted",
+          "quantity": 0.75,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 388,
+          "ingredient_slug": "sugar_brown_light",
+          "ingredient_name": "Sugar, brown light",
+          "quantity": 0.75,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 120,
+          "ingredient_slug": "eggs_whole",
+          "ingredient_name": "Eggs, whole",
+          "quantity": 2.0,
+          "unit": "each",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 235,
+          "ingredient_slug": "apricots_dried",
+          "ingredient_name": "Apricots, dried",
+          "quantity": 1.0,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 293,
+          "ingredient_slug": "whiskey_irish",
+          "ingredient_name": "Whiskey, Irish",
+          "quantity": 0.5,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 245,
+          "ingredient_slug": "raisins",
+          "ingredient_name": "Raisins",
+          "quantity": 2.0,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 145,
+          "ingredient_slug": "candied_citrus_peel",
+          "ingredient_name": "Candied citrus peel",
+          "quantity": 1.0,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 412,
+          "ingredient_slug": "pecans_halves",
+          "ingredient_name": "Pecans, halves",
+          "quantity": 1.5,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 143,
+          "ingredient_slug": "candied_cherries",
+          "ingredient_name": "Candied cherries",
+          "quantity": 1.0,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 143,
+          "ingredient_slug": "candied_cherries",
+          "ingredient_name": "Candied cherries",
+          "quantity": 0.5,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        }
+      ],
+      "recipe_components": [],
+      "total_cost": null,
+      "cost_per_unit": 0.0,
+      "date_added": "2026-01-15T14:14:12.597619",
+      "last_modified": "2026-01-15T14:14:12.597622"
+    },
+    {
+      "id": 18,
+      "uuid": "78d49941-c878-447c-b2a2-a3542491ecef",
+      "name": "Pecan Shortbread Christmas Trees",
+      "category": "Cookies",
+      "yield_quantity": 18.0,
+      "yield_unit": "cookies",
+      "yield_description": null,
+      "is_archived": false,
+      "is_production_ready": false,
+      "base_recipe_id": null,
+      "variant_name": null,
+      "source": "Bake from Scratch magazine",
+      "estimated_time_minutes": null,
+      "notes": "In bowl of stand mixer fitted with paddle attachment, beat butter, confectioners' sugar, and salt at medium speed until light and creamy, 2 to 3 minutes, stopping to scrape sides of bowl. Beat in vanilla. In medium bowl, whisk together flours. With mixer on low speed, add flour mixture to butter mixture in two additions, beating just until combined after each addition. Turn out dough, and shape into a disk. Wrap in plastic wrap, and refrigerate until firm, about 2 hours, or up to overnight. Preheat oven to 325°F (170°C). Line baking sheets with parchment paper. On lightly floured surface, roll dough to ½-inch thickness. Using 4-inch tree-shaped cutter, cut dough, rerolling scraps as necessary. Place 1½ inches apart on prepared pans. Bake until edges are lightly browned, 20 to 25 minutes, rotating pans halfway through baking. Let cool on pans 10 minutes. Remove from pans, and let cool completely on wire racks. Spoon melted white chocolate into piping bag, and cut very small opening in tip. Pipe onto cookies to resemble garland; immediately garnish with nonpareils, if desired. Let stand until chocolate is set, about 1 hour. Store in airtight container up to 5 days.",
+      "ingredients": [
+        {
+          "ingredient_id": 183,
+          "ingredient_slug": "butter_unsalted",
+          "ingredient_name": "Butter, unsalted",
+          "quantity": 1.5,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 392,
+          "ingredient_slug": "sugar_powdered",
+          "ingredient_name": "Sugar, powdered",
+          "quantity": 1.0,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 347,
+          "ingredient_slug": "salt_kosher",
+          "ingredient_name": "Salt, kosher",
+          "quantity": 2.0,
+          "unit": "tsp",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 338,
+          "ingredient_slug": "vanilla_extract",
+          "ingredient_name": "Vanilla extract",
+          "quantity": 2.0,
+          "unit": "tsp",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 230,
+          "ingredient_slug": "flour_all_purpose",
+          "ingredient_name": "Flour, all-purpose",
+          "quantity": 3.25,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 413,
+          "ingredient_slug": "pecans_chopped",
+          "ingredient_name": "Pecans, chopped",
+          "quantity": 0.25,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 91,
+          "ingredient_slug": "chocolate_chips_white",
+          "ingredient_name": "Chocolate chips, white",
+          "quantity": 3.0,
+          "unit": "oz",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 180,
+          "ingredient_slug": "sugar_sanding",
+          "ingredient_name": "Sugar, sanding",
+          "quantity": 1.0,
+          "unit": "tbsp",
+          "notes": null,
+          "estimated_cost": null
+        }
+      ],
+      "recipe_components": [],
+      "total_cost": null,
+      "cost_per_unit": 0.0,
+      "date_added": "2026-01-15T14:14:12.612310",
+      "last_modified": "2026-01-15T14:14:12.612313"
+    },
+    {
+      "id": 19,
+      "uuid": "e40f4b53-27ce-4b4d-9697-d3533971571e",
+      "name": "Sour Cream-Chocolate Bundt Cake",
+      "category": "Cakes",
+      "yield_quantity": 16.0,
+      "yield_unit": "servings",
+      "yield_description": null,
+      "is_archived": false,
+      "is_production_ready": false,
+      "base_recipe_id": null,
+      "variant_name": null,
+      "source": "Williams-Sonoma",
+      "estimated_time_minutes": null,
+      "notes": "Room temp ingredients. Preheat 325°F. Grease flour bundt pan. Sift flour, cocoa, baking powder, baking soda, salt twice. Beat butter smooth 30-45 sec. Add 1.5 cups sugar on low. Beat medium-high till fluffy 3-5 min. Add eggs gradually till thick 1-2 min. Beat in vanilla. Fold in flour in 3 additions alternating with sour cream, beginning and ending with flour. Fold in 6 oz melted chocolate. Pour into pan. Bake 1 hour till pick clean. Cool 10 min. Glaze: heat 1 cup sugar, 1/2 cup milk till dissolved. Stir in 1 tbsp liqueur. Invert cake. Brush with glaze. Dust with powdered sugar. Serve with whipped cream.",
+      "ingredients": [
+        {
+          "ingredient_id": 230,
+          "ingredient_slug": "flour_all_purpose",
+          "ingredient_name": "Flour, all-purpose",
+          "quantity": 2.25,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 108,
+          "ingredient_slug": "cocoa_powder_natural",
+          "ingredient_name": "Cocoa powder, natural",
+          "quantity": 1.0,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 266,
+          "ingredient_slug": "baking_powder",
+          "ingredient_name": "Baking powder",
+          "quantity": 2.0,
+          "unit": "tsp",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 267,
+          "ingredient_slug": "baking_soda",
+          "ingredient_name": "Baking soda",
+          "quantity": 0.75,
+          "unit": "tsp",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 346,
+          "ingredient_slug": "salt_fine",
+          "ingredient_name": "Salt, fine",
+          "quantity": 0.25,
+          "unit": "tsp",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 183,
+          "ingredient_slug": "butter_unsalted",
+          "ingredient_name": "Butter, unsalted",
+          "quantity": 1.0,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 389,
+          "ingredient_slug": "sugar_granulated",
+          "ingredient_name": "Sugar, granulated",
+          "quantity": 2.5,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 120,
+          "ingredient_slug": "eggs_whole",
+          "ingredient_name": "Eggs, whole",
+          "quantity": 4.0,
+          "unit": "each",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 338,
+          "ingredient_slug": "vanilla_extract",
+          "ingredient_name": "Vanilla extract",
+          "quantity": 1.0,
+          "unit": "tsp",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 134,
+          "ingredient_slug": "sour_cream",
+          "ingredient_name": "Sour cream",
+          "quantity": 1.5,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 85,
+          "ingredient_slug": "chocolate_chips_bittersweet",
+          "ingredient_name": "Chocolate chips, bittersweet",
+          "quantity": 6.0,
+          "unit": "oz",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 130,
+          "ingredient_slug": "milk_whole",
+          "ingredient_name": "Milk, whole",
+          "quantity": 0.5,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 288,
+          "ingredient_slug": "liqueur_chocolate",
+          "ingredient_name": "Liqueur, chocolate",
+          "quantity": 1.0,
+          "unit": "tbsp",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 392,
+          "ingredient_slug": "sugar_powdered",
+          "ingredient_name": "Sugar, powdered",
+          "quantity": 0.25,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 121,
+          "ingredient_slug": "cream_heavy",
+          "ingredient_name": "Cream, heavy",
+          "quantity": 1.0,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        }
+      ],
+      "recipe_components": [],
+      "total_cost": null,
+      "cost_per_unit": 0.0,
+      "date_added": "2026-01-15T14:14:12.620768",
+      "last_modified": "2026-01-15T14:14:12.620773"
+    },
+    {
+      "id": 20,
+      "uuid": "c39aaa60-6492-46da-b346-99b29044c81e",
+      "name": "Toasted Almond Sablés",
+      "category": "Cookies",
+      "yield_quantity": 22.0,
+      "yield_unit": "cookies",
+      "yield_description": null,
+      "is_archived": false,
+      "is_production_ready": false,
+      "base_recipe_id": null,
+      "variant_name": null,
+      "source": "Bake from Scratch (print)",
+      "estimated_time_minutes": null,
+      "notes": "Toast sliced almonds; roll to 1/2-inch; chill dough for clean cuts.",
+      "ingredients": [
+        {
+          "ingredient_id": 411,
+          "ingredient_slug": "almonds_sliced",
+          "ingredient_name": "Almonds, sliced",
+          "quantity": 0.33,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 230,
+          "ingredient_slug": "flour_all_purpose",
+          "ingredient_name": "Flour, all-purpose",
+          "quantity": 2.0,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 183,
+          "ingredient_slug": "butter_unsalted",
+          "ingredient_name": "Butter, unsalted",
+          "quantity": 7.0,
+          "unit": "oz",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 392,
+          "ingredient_slug": "sugar_powdered",
+          "ingredient_name": "Sugar, powdered",
+          "quantity": 0.33,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 389,
+          "ingredient_slug": "sugar_granulated",
+          "ingredient_name": "Sugar, granulated",
+          "quantity": 1.25,
+          "unit": "cup",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 347,
+          "ingredient_slug": "salt_kosher",
+          "ingredient_name": "Salt, kosher",
+          "quantity": 1.0,
+          "unit": "tsp",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 381,
+          "ingredient_slug": "vanilla_bean",
+          "ingredient_name": "Vanilla bean",
+          "quantity": 1.0,
+          "unit": "each",
+          "notes": null,
+          "estimated_cost": null
+        },
+        {
+          "ingredient_id": 119,
+          "ingredient_slug": "egg_yolks",
+          "ingredient_name": "Egg yolks",
+          "quantity": 1.0,
+          "unit": "each",
+          "notes": null,
+          "estimated_cost": null
+        }
+      ],
+      "recipe_components": [],
+      "total_cost": null,
+      "cost_per_unit": 0.0,
+      "date_added": "2026-01-15T14:14:12.636556",
+      "last_modified": "2026-01-15T14:14:12.636560"
+    }
+  ]
+}

@@ -1,20 +1,20 @@
 # Feature Roadmap
 
 **Created:** 2025-12-03
-**Last Updated:** 2026-01-13
+**Last Updated:** 2026-01-15
 **Workflow:** Spec-Kitty driven development
 
 ---
 
 ## Executive Summary
 
-**Current Status**: All foundational features complete (F042-F051). Ready for User Testing Round 2.
+**Current Status**: All foundational features complete (F042-F051). F052 in progress, F053 specified.
 
 **Recent Milestone**: F047-F051 complete (Materials Management, Import/Export rationalization, Supplier slugs)
 
 **Test Suite**: 2238 tests
 
-**Next Step**: User Testing Round 2 - Complete Plan → Shop → Make → Assemble → Deliver workflow
+**Next Step**: F052 (Hierarchy Admin), F053 (Context-Rich Export Fixes), then User Testing Round 2
 
 ---
 
@@ -79,11 +79,20 @@
 
 ## In Progress
 
-*No features currently in progress. All foundational work complete.*
-
 | # | Name | Priority | Status |
 |---|------|----------|--------|
-| - | User Testing Round 2 | P0 | 🎯 NEXT |
+| 052 | Ingredient/Material Display Admin | P1 | IN PROGRESS |
+| 053 | Context-Rich Export Fixes | P2 | SPECIFIED |
+| 055 | CLI Import/Export Parity | P2 | SPECIFIED |
+
+---
+
+## Next Up
+
+| # | Name | Priority | Status | Notes |
+|---|------|----------|--------|-------|
+| 054 | UI Navigation Cleanup | P1 | SPECIFIED | Mode reordering, menu restructuring, UI cleanup |
+| - | User Testing Round 2 | P0 | PENDING | After F052-F055 complete |
 
 ---
 
@@ -117,7 +126,7 @@
 - ✅ F050: Supplier slug support for stable FK references
 - ✅ F051: Unified import dialog with purpose-based selection
 
-**Ready For**: User Testing Round 2 - Complete Plan → Shop → Make → Assemble → Deliver workflow
+**Ready For**: F052 (Hierarchy Admin), F053 (Context-Rich Export Fixes), F054 (UI Navigation Cleanup), then User Testing Round 2
 
 ---
 
@@ -164,10 +173,13 @@
 15. ~~**Feature 050** - Supplier Slug Support~~ ✅ (2026-01-12)
 16. ~~**Feature 051** - Import/Export UI Rationalization~~ ✅ (2026-01-13)
 
-**Phase 3: User Testing Round 2** 🎯 CURRENT
-17. **USER TESTING ROUND 2** - Complete Plan → Shop → Make → Assemble → Deliver cycle
-18. Prioritize F0XX features based on user feedback
-19. Plan Phase 4 (web migration) architecture
+**Phase 3: Polish & Final Fixes** 🎯 CURRENT
+17. **Feature 052** - Ingredient/Material Display Admin (IN PROGRESS)
+18. **Feature 053** - Context-Rich Export Fixes (SPECIFIED)
+19. **Feature 054** - UI Navigation Cleanup (SPECIFIED)
+20. **USER TESTING ROUND 2** - Complete Plan → Shop → Make → Assemble → Deliver cycle
+21. Prioritize F0XX features based on user feedback
+22. Plan Phase 4 (web migration) architecture
 
 ---
 
@@ -230,15 +242,48 @@
 - ✅ Consistent workflow across Catalog, Backup, Context-Rich imports
 - ✅ Improved error handling and log generation
 
+### After F052 (Hierarchy Admin)
+- [ ] Hierarchy Admin tab in CATALOG mode
+- [ ] Display name management for ingredients and materials
+- [ ] Category/subcategory display name management
+- [ ] Taxonomy structure management
+
+### After F053 (Context-Rich Export Fixes)
+- [ ] Files exported with "aug_" prefix
+- [ ] Products and Material Products exportable
+- [ ] Multi-select with checkboxes
+- [ ] "All" option to export all entity types
+- [ ] Button text reads "Export Context-Rich File"
+
+### After F054 (UI Navigation Cleanup)
+- [ ] Modes ordered: Observe, Catalog, Plan, Purchase, Make, Deliver
+- [ ] Catalog menu restructured with logical groupings
+- [ ] Purchase menu reordered: Inventory, Purchases, Shopping Lists
+- [ ] Broken top section removed
+- [ ] Tree view removed from Catalog/Inventory
+- [ ] Deliver mode placeholder present
+
+### After F055 (CLI Import/Export Parity)
+- [ ] Backup/restore CLI commands operational
+- [ ] Catalog import/export via CLI
+- [ ] Context-rich "aug" CLI commands
+- [ ] All 16 entities accessible via CLI
+- [ ] Materials CLI commands (4 entity types)
+- [ ] Supplier CLI commands
+- [ ] Purchase CLI commands
+- [ ] CLI parity with UI achieved
+- [ ] AI-assisted workflows fully supported
+- [ ] Mobile JSON ingestion enabled
+
 ### Ready for User Testing Round 2
-- ✅ All foundational workflows complete (F042-F051)
-- ✅ User can complete Plan → Shop → Make → Assemble → Deliver cycle
-- ✅ All tabs in all modes functional
-- ✅ Materials properly managed separate from ingredients
-- ✅ Import/export system complete with 16 entities
+- [ ] F052-F055 complete
+- [ ] User can complete Plan → Shop → Make → Assemble → Deliver cycle
+- [ ] All tabs in all modes functional and polished
+- [ ] Materials properly managed separate from ingredients
+- [ ] Import/export system complete and intuitive (UI + CLI)
+- [ ] CLI enables AI workflows and mobile integration
 
 ### Ready for F0XX (Future Features)
-- ✅ Foundational workflows solid and tested
 - User provides feedback on F0XX priorities
 - Mode structure validated with complete workflows
 - System ready for Phase 4 (web migration) planning
@@ -246,6 +291,25 @@
 ---
 
 ## Key Decisions
+
+### 2026-01-15 (F053 & F055 Specifications Created)
+- **F053 Inserted**: Context-Rich Export Fixes specification created based on user feedback from first export use
+- **F054 Created**: Original F053 (UI Navigation Cleanup) renumbered to F054
+- **F055 Created**: CLI Import/Export Parity specification addresses critical gap in CLI functionality after F047-F051 refactoring
+- **Issues Addressed in F053**: 
+  - File prefix "view_" → "aug_" (augmentation)
+  - Add missing Products and Material Products to export options
+  - Change radio buttons to checkboxes for multi-select
+  - Add "All" option to select/export all entity types
+  - Fix button text from "Export Context-Rich View" to "Export Context-Rich File"
+- **Issues Addressed in F055**:
+  - CLI missing materials entities (4 types)
+  - CLI missing supplier support despite F050/F051 backend
+  - CLI missing catalog import/export commands
+  - CLI missing context-rich "aug" export/import (F053 format)
+  - CLI missing backup/restore commands (16-entity coordinated export)
+  - CLI needed for AI-assisted workflows and mobile JSON ingestion
+  - First-class CLI principle: CLI should match UI capabilities
 
 ### 2026-01-13 (Foundational Work Complete)
 - **All Foundational Features Complete**: F042-F051 merged, covering UI polish, materials management, and import/export rationalization
@@ -377,3 +441,10 @@
   - Improved error handling and log file generation
   - All foundational features (F042-F051) now complete
   - Ready for User Testing Round 2
+- 2026-01-15: **F053 & F055 INSERTED** - Context-Rich Export Fixes & CLI Parity:
+  - Created F053 specification for context-rich export improvements based on first-use feedback
+  - Created F055 specification for CLI import/export parity after F047-F051 refactoring
+  - Renumbered: UI Navigation Cleanup (F053→F054)
+  - F053 fixes: file prefix (view→aug), missing entities (Products, Material Products), radio buttons→checkboxes, add "All" option, button text
+  - F055 adds: backup/restore CLI, catalog CLI, aug CLI, materials CLI (4 types), suppliers CLI, purchases CLI - achieving full UI parity
+  - F055 rationale: Enable AI-assisted workflows and mobile JSON ingestion via first-class CLI interface
