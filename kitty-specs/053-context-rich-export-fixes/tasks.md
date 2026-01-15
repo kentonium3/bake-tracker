@@ -22,10 +22,10 @@
 **Prompt**: `tasks/WP01-service-layer-refactoring.md`
 
 ### Included Subtasks
-- [ ] T001 [P] Rename `*_VIEW_EDITABLE` constants to `*_CONTEXT_RICH_EDITABLE` in `src/services/denormalized_export_service.py`
-- [ ] T002 [P] Rename `*_VIEW_READONLY` constants to `*_CONTEXT_RICH_READONLY` in `src/services/denormalized_export_service.py`
-- [ ] T003 Rename all `export_*_view()` methods to `export_*_context_rich()` in `src/services/denormalized_export_service.py`
-- [ ] T004 Change file prefix from `view_` to `aug_` in all export method file naming
+- [x] T001 [P] Rename `*_VIEW_EDITABLE` constants to `*_CONTEXT_RICH_EDITABLE` in `src/services/denormalized_export_service.py`
+- [x] T002 [P] Rename `*_VIEW_READONLY` constants to `*_CONTEXT_RICH_READONLY` in `src/services/denormalized_export_service.py`
+- [x] T003 Rename all `export_*_view()` methods to `export_*_context_rich()` in `src/services/denormalized_export_service.py`
+- [x] T004 Change file prefix from `view_` to `aug_` in all export method file naming
 
 ### Implementation Notes
 - Use find/replace for constant renaming (straightforward)
@@ -53,10 +53,10 @@
 **Prompt**: `tasks/WP02-service-layer-new-exports.md`
 
 ### Included Subtasks
-- [ ] T005 [P] Review and expose `export_products_context_rich()` with proper editable/readonly field definitions
-- [ ] T006 [P] Create `export_material_products_context_rich()` following products pattern
-- [ ] T007 [P] Create `export_finished_units_context_rich()` with recipe/yield context
-- [ ] T008 [P] Create `export_finished_goods_context_rich()` with component/assembly context
+- [x] T005 [P] Review and expose `export_products_context_rich()` with proper editable/readonly field definitions
+- [x] T006 [P] Create `export_material_products_context_rich()` following products pattern
+- [x] T007 [P] Create `export_finished_units_context_rich()` with recipe/yield context
+- [x] T008 [P] Create `export_finished_goods_context_rich()` with component/assembly context
 
 ### Implementation Notes
 - Follow existing patterns from `export_ingredients_context_rich()`
@@ -86,14 +86,14 @@
 **Prompt**: `tasks/WP03-ui-layer-multi-select.md`
 
 ### Included Subtasks
-- [ ] T009 Replace `ctk.CTkRadioButton` with `ctk.CTkCheckBox` widgets in `_setup_context_rich_tab()`
-- [ ] T010 Add "All" checkbox at top of entity list with visual separator
-- [ ] T011 Implement "All" checkbox toggle logic (check all / uncheck all)
-- [ ] T012 Implement individual checkbox sync (update "All" state when individual changes)
-- [ ] T013 Update entity list to include all 7 entity types with descriptions
-- [ ] T014 Update `_export_context_rich()` to iterate over selected entities
-- [ ] T015 Add validation requiring at least one entity selected
-- [ ] T016 Change button text from "Export Context-Rich View..." to "Export Context-Rich File..."
+- [x] T009 Replace `ctk.CTkRadioButton` with `ctk.CTkCheckBox` widgets in `_setup_context_rich_tab()`
+- [x] T010 Add "All" checkbox at top of entity list with visual separator
+- [x] T011 Implement "All" checkbox toggle logic (check all / uncheck all)
+- [x] T012 Implement individual checkbox sync (update "All" state when individual changes)
+- [x] T013 Update entity list to include all 7 entity types with descriptions
+- [x] T014 Update `_export_context_rich()` to iterate over selected entities
+- [x] T015 Add validation requiring at least one entity selected
+- [x] T016 Change button text from "Export Context-Rich View..." to "Export Context-Rich File..."
 
 ### Implementation Notes
 - Create dict `self.context_rich_checkboxes = {}` to store checkbox variables
