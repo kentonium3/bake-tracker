@@ -11,7 +11,7 @@ subtasks:
   - "T043"
 title: "Rename Operations"
 phase: "Phase 4 - Operations"
-lane: "doing"
+lane: "for_review"
 assignee: ""
 agent: "claude"
 shell_pid: ""
@@ -643,3 +643,4 @@ def test_rename_invalid_type(session, material):
 
 - 2026-01-14T15:00:00Z – system – lane=planned – Prompt created.
 - 2026-01-15T03:58:25Z – claude – lane=doing – Moved to doing
+- 2026-01-15T04:02:54Z – claude – lane=for_review – All subtasks complete, 19 rename tests passing
