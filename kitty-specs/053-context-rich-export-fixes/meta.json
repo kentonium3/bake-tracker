@@ -1,8 +1,26 @@
 {
+  "accept_commit": null,
+  "acceptance_history": [
+    {
+      "accepted_at": "2026-01-15T21:35:17Z",
+      "accepted_by": "claude",
+      "accepted_from_commit": "7a5f51648709216b9517b0ef184a3de81e4229e9",
+      "branch": "053-context-rich-export-fixes",
+      "mode": "local",
+      "validation_commands": [
+        "pytest src/tests/services/test_denormalized_export.py",
+        "Cursor independent code review"
+      ]
+    }
+  ],
+  "acceptance_mode": "local",
+  "accepted_at": "2026-01-15T21:35:17Z",
+  "accepted_by": "claude",
+  "accepted_from_commit": "7a5f51648709216b9517b0ef184a3de81e4229e9",
+  "created_at": "2026-01-15T13:00:00Z",
   "feature_number": "053",
-  "slug": "053-context-rich-export-fixes",
   "friendly_name": "Context-Rich Export Fixes",
   "mission": "software-dev",
-  "source_description": "See docs/design/F053_context_rich_export_fixes.md for this feature's input.",
-  "created_at": "2026-01-15T13:00:00Z"
+  "slug": "053-context-rich-export-fixes",
+  "source_description": "See docs/design/F053_context_rich_export_fixes.md for this feature's input."
 }
