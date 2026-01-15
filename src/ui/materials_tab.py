@@ -22,6 +22,7 @@ import unicodedata
 
 from src.services import (
     material_catalog_service,
+    material_hierarchy_service,
     material_purchase_service,
     material_unit_service,
     supplier_service,
@@ -1646,7 +1647,7 @@ class MaterialsCatalogTab:
         )
         self.l1_filter_dropdown.pack(side="left", padx=5, pady=5)
 
-        # Level filter dropdown (FR-004)
+        # Feature 052: Level filter dropdown hidden - only materials are shown now
         self.level_filter_var = ctk.StringVar(value="All Levels")
         self.level_filter_dropdown = ctk.CTkOptionMenu(
             filter_frame,
@@ -1660,7 +1661,8 @@ class MaterialsCatalogTab:
             command=self._on_level_filter_change,
             width=160,
         )
-        self.level_filter_dropdown.pack(side="left", padx=(15, 5), pady=5)
+        # Hidden by default - only materials are shown in flat view
+        # self.level_filter_dropdown.pack(side="left", padx=(15, 5), pady=5)
 
         # Clear button
         clear_button = ctk.CTkButton(
@@ -1767,78 +1769,19 @@ class MaterialsCatalogTab:
         )
 
     def refresh(self):
-        """Refresh the materials list from the database."""
+        """Refresh the materials list from the database.
+
+        Feature 052: Only loads materials (leaf level), not categories/subcategories.
+        """
         try:
-            # Load all materials with hierarchy info
-            self.materials = self._load_all_materials()
+            # Feature 052: Get only materials with pre-resolved parent names
+            self._materials_data = material_hierarchy_service.get_materials_with_parents()
             self._load_filter_dropdowns()
             self._update_display()
-            count = len(self.materials)
+            count = len(self._materials_data)
             self.update_status(f"{count} material{'s' if count != 1 else ''} loaded")
         except Exception as e:
             self.update_status(f"Error loading materials: {e}")
-
-    def _load_all_materials(self) -> List[Dict[str, Any]]:
-        """Load all materials with their hierarchy info.
-
-        FR-004: Include hierarchy_level for level filtering:
-        - Level 0: Categories
-        - Level 1: Subcategories
-        - Level 2: Leaf Materials
-        """
-        materials = []
-        try:
-            categories = material_catalog_service.list_categories()
-            for cat in categories:
-                cat_id = _get_value(cat, "id")
-                cat_name = _get_value(cat, "name") or ""
-                # Add L0 category
-                materials.append({
-                    "id": f"cat_{cat_id}",  # Prefix to avoid ID collision
-                    "name": "",  # Name column empty for L0
-                    "base_unit": "",
-                    "l0_name": cat_name,
-                    "l0_id": cat_id,
-                    "l1_name": "",
-                    "l1_id": None,
-                    "hierarchy_level": 0,
-                })
-
-                subcategories = material_catalog_service.list_subcategories(cat_id)
-                for subcat in subcategories:
-                    sub_id = _get_value(subcat, "id")
-                    sub_name = _get_value(subcat, "name") or ""
-                    # Add L1 subcategory
-                    materials.append({
-                        "id": f"subcat_{sub_id}",  # Prefix to avoid ID collision
-                        "name": "",  # Name column empty for L1
-                        "base_unit": "",
-                        "l0_name": cat_name,
-                        "l0_id": cat_id,
-                        "l1_name": sub_name,
-                        "l1_id": sub_id,
-                        "hierarchy_level": 1,
-                    })
-
-                    mats = material_catalog_service.list_materials(sub_id)
-                    for mat in mats:
-                        mat_id = _get_value(mat, "id")
-                        mat_name = _get_value(mat, "name")
-                        base_unit = mat.get("base_unit_type", "") if isinstance(mat, dict) else _get_value(mat, "base_unit_type") or ""
-                        # Add L2 material
-                        materials.append({
-                            "id": mat_id,
-                            "name": mat_name,
-                            "base_unit": base_unit,
-                            "l0_name": cat_name,
-                            "l0_id": cat_id,
-                            "l1_name": sub_name,
-                            "l1_id": sub_id,
-                            "hierarchy_level": 2,
-                        })
-        except Exception as e:
-            print(f"Error loading materials: {e}")
-        return materials
 
     def _load_filter_dropdowns(self):
         """Load data for filter dropdowns."""
@@ -1852,27 +1795,37 @@ class MaterialsCatalogTab:
             pass
 
     def _update_display(self):
-        """Update the displayed list based on current filters."""
+        """Update the displayed list based on current filters.
+
+        Feature 052: Shows ONLY materials with Category/Subcategory context columns.
+        """
         # Clear existing items
         for item in self.tree.get_children():
             self.tree.delete(item)
 
-        # Apply filters
-        filtered = self._apply_filters()
+        # Feature 052: Use pre-computed materials data with parent names
+        materials_data = getattr(self, "_materials_data", [])
 
-        # Populate grid
-        for mat in filtered:
+        # Apply filters to materials
+        filtered = self._apply_material_filters(materials_data)
+
+        # Populate grid with materials only
+        for item in filtered:
+            material = item.get("material", {})
             values = (
-                mat.get("l0_name", ""),
-                mat.get("l1_name", ""),
-                mat.get("name", ""),
-                mat.get("base_unit", ""),
+                item.get("category_name", ""),
+                item.get("subcategory_name", ""),
+                item.get("material_name", ""),
+                material.get("base_unit_type", ""),
             )
-            self.tree.insert("", "end", iid=str(mat["id"]), values=values)
+            # Use material ID as tree item ID
+            mat_id = material.get("id")
+            if mat_id:
+                self.tree.insert("", "end", iid=str(mat_id), values=values)
 
         # Update status
         count = len(filtered)
-        total = len(self.materials)
+        total = len(materials_data)
         if count < total:
             self.update_status(f"Showing {count} of {total} materials")
         else:
@@ -1923,6 +1876,61 @@ class MaterialsCatalogTab:
 
         return filtered
 
+    def _apply_material_filters(self, materials_data: List[Dict]) -> List[Dict]:
+        """Apply search and hierarchy filters to material data.
+
+        Feature 052: Filters for the material-only display using pre-computed parent names.
+
+        Args:
+            materials_data: List of dicts from get_materials_with_parents()
+                           Each dict has: category_name, subcategory_name, material_name, material
+
+        Returns:
+            Filtered and sorted list of material data
+        """
+        filtered = materials_data
+
+        # Apply Category filter
+        l0_filter = self.l0_filter_var.get()
+        if l0_filter and l0_filter != "All Categories":
+            filtered = [m for m in filtered if m.get("category_name") == l0_filter]
+
+        # Apply Subcategory filter
+        l1_filter = self.l1_filter_var.get()
+        if l1_filter and l1_filter != "All":
+            filtered = [m for m in filtered if m.get("subcategory_name") == l1_filter]
+
+        # Search filter - search across all name fields
+        search_text = normalize_for_search(self.search_entry.get())
+        if search_text:
+            filtered = [
+                m for m in filtered
+                if search_text in normalize_for_search(m.get("material_name", ""))
+                or search_text in normalize_for_search(m.get("category_name", ""))
+                or search_text in normalize_for_search(m.get("subcategory_name", ""))
+            ]
+
+        # Apply sorting
+        sort_key = self.sort_column
+
+        def get_sort_value(item):
+            """Get sortable value for material item."""
+            if sort_key == "l0":
+                return item.get("category_name", "").lower()
+            elif sort_key == "l1":
+                return item.get("subcategory_name", "").lower()
+            elif sort_key == "name":
+                return item.get("material_name", "").lower()
+            else:
+                # For other columns like base_unit, look in the material dict
+                mat = item.get("material", {})
+                val = mat.get(sort_key, "")
+                return val.lower() if isinstance(val, str) else str(val)
+
+        filtered = sorted(filtered, key=get_sort_value, reverse=not self.sort_ascending)
+
+        return filtered
+
     def _get_selected_level(self) -> Optional[int]:
         """Convert level filter dropdown value to hierarchy level number.
 
@@ -1945,15 +1953,19 @@ class MaterialsCatalogTab:
         self._update_display()
 
     def _on_l0_filter_change(self, value: str):
-        """Handle L0 category filter change."""
+        """Handle L0 category filter change.
+
+        Feature 052: Updated to work with new materials data structure.
+        """
         if value == "All Categories":
             self.l1_filter_dropdown.configure(values=["All"], state="disabled")
             self.l1_filter_var.set("All")
         else:
-            # Get subcategories for selected category (only from L1+ items with non-empty l1_name)
+            # Get subcategories for selected category from the new data structure
+            materials_data = getattr(self, "_materials_data", [])
             subcats = [
-                m["l1_name"] for m in self.materials
-                if m.get("l0_name") == value and m.get("l1_name")
+                m["subcategory_name"] for m in materials_data
+                if m.get("category_name") == value and m.get("subcategory_name")
             ]
             unique_subcats = sorted(set(subcats))
             self.l1_filter_dropdown.configure(

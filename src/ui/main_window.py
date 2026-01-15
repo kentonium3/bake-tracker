@@ -101,6 +101,16 @@ class MainWindow(ctk.CTk):
         file_menu.add_command(label="Exit", command=self._on_exit)
         self.menu_bar.add_cascade(label="File", menu=file_menu)
 
+        # Catalog menu (Feature 052: Hierarchy Admin access)
+        catalog_menu = tk.Menu(self.menu_bar, tearoff=0)
+        catalog_menu.add_command(
+            label="Ingredient Hierarchy...", command=self._open_ingredient_admin
+        )
+        catalog_menu.add_command(
+            label="Material Hierarchy...", command=self._open_material_admin
+        )
+        self.menu_bar.add_cascade(label="Catalog", menu=catalog_menu)
+
         # Tools menu
         tools_menu = tk.Menu(self.menu_bar, tearoff=0)
         tools_menu.add_command(label="Manage Suppliers...", command=self._show_manage_suppliers)
@@ -180,12 +190,14 @@ class MainWindow(ctk.CTk):
         self.recipes_tab = mode.recipes_tab
         self.finished_units_tab = mode.finished_units_tab
         self.packages_tab = mode.packages_tab
+        self.materials_tab = mode.materials_tab  # Feature 052: Added for admin refresh
 
         self._tab_refs["ingredients"] = self.ingredients_tab
         self._tab_refs["products"] = self.products_tab
         self._tab_refs["recipes"] = self.recipes_tab
         self._tab_refs["finished_units"] = self.finished_units_tab
         self._tab_refs["packages"] = self.packages_tab
+        self._tab_refs["materials"] = self.materials_tab  # Feature 052
 
         self.mode_manager.register_mode("CATALOG", mode)
 
@@ -312,6 +324,56 @@ class MainWindow(ctk.CTk):
         """Show the preferences dialog."""
         dialog = PreferencesDialog(self)
         self.wait_window(dialog)
+
+    def _open_ingredient_admin(self):
+        """Open Ingredient Hierarchy Admin window (Feature 052)."""
+        from src.ui.hierarchy_admin_window import HierarchyAdminWindow
+
+        # Prevent multiple windows
+        if (
+            hasattr(self, "_ingredient_admin_window")
+            and self._ingredient_admin_window is not None
+            and self._ingredient_admin_window.winfo_exists()
+        ):
+            self._ingredient_admin_window.focus()
+            self._ingredient_admin_window.lift()
+            return
+
+        def on_close():
+            """Handle admin window close."""
+            self._ingredient_admin_window = None
+            # Refresh ingredients tab if it exists
+            if hasattr(self, "ingredients_tab") and self.ingredients_tab:
+                self.ingredients_tab.refresh()
+
+        self._ingredient_admin_window = HierarchyAdminWindow(
+            self, entity_type="ingredient", on_close=on_close
+        )
+
+    def _open_material_admin(self):
+        """Open Material Hierarchy Admin window (Feature 052)."""
+        from src.ui.hierarchy_admin_window import HierarchyAdminWindow
+
+        # Prevent multiple windows
+        if (
+            hasattr(self, "_material_admin_window")
+            and self._material_admin_window is not None
+            and self._material_admin_window.winfo_exists()
+        ):
+            self._material_admin_window.focus()
+            self._material_admin_window.lift()
+            return
+
+        def on_close():
+            """Handle admin window close."""
+            self._material_admin_window = None
+            # Refresh materials tab if it exists
+            if hasattr(self, "materials_tab") and self.materials_tab:
+                self.materials_tab.refresh()
+
+        self._material_admin_window = HierarchyAdminWindow(
+            self, entity_type="material", on_close=on_close
+        )
 
     # Feature 051: Removed _show_catalog_import_dialog and _show_import_view_dialog
     # These are now handled by the unified ImportDialog via File > Import Data

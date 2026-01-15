@@ -250,6 +250,105 @@ def get_leaf_ingredients(parent_id: Optional[int] = None, session=None) -> List[
         return _impl(session)
 
 
+def get_all_leaf_ingredients_with_ancestors(
+    l0_filter_id: Optional[int] = None, session=None
+) -> List[Dict]:
+    """
+    Get all L2 (leaf) ingredients with pre-resolved L0 and L1 ancestor names.
+
+    Feature 052: Optimized method for Ingredients tab display that returns
+    leaf ingredients with their hierarchy context pre-computed to avoid
+    N+1 queries in the UI.
+
+    Args:
+        l0_filter_id: Optional - filter to descendants of this L0 root category
+        session: Optional SQLAlchemy session
+
+    Returns:
+        List of dicts with keys:
+        - l0_name: str - Root category (L0) display name
+        - l1_name: str - Subcategory (L1) display name
+        - l2_name: str - Ingredient (L2) display name
+        - ingredient: dict - Full ingredient dict from to_dict()
+    """
+
+    def _impl(session):
+        # Get all L2 ingredients
+        query = (
+            session.query(Ingredient)
+            .filter(Ingredient.hierarchy_level == 2)
+            .order_by(Ingredient.display_name)
+        )
+        ingredients = query.all()
+
+        result = []
+        for ing in ingredients:
+            # Walk up the parent chain to get L1 and L0 names
+            l1 = ing.parent
+            l0 = l1.parent if l1 else None
+
+            l0_name = l0.display_name if l0 else ""
+            l1_name = l1.display_name if l1 else ""
+
+            # Apply L0 filter if specified
+            if l0_filter_id is not None:
+                if l0 is None or l0.id != l0_filter_id:
+                    continue
+
+            result.append(
+                {
+                    "l0_name": l0_name,
+                    "l1_name": l1_name,
+                    "l2_name": ing.display_name,
+                    "ingredient": ing.to_dict(),
+                }
+            )
+
+        return result
+
+    if session is not None:
+        return _impl(session)
+    with session_scope() as session:
+        return _impl(session)
+
+
+def get_ingredient_with_ancestors(ingredient_id: int, session=None) -> Optional[Dict]:
+    """
+    Get a single ingredient with its L0 and L1 ancestor names resolved.
+
+    Feature 052: Helper for detailed ingredient display.
+
+    Args:
+        ingredient_id: ID of ingredient to retrieve
+        session: Optional SQLAlchemy session
+
+    Returns:
+        Dict with keys: l0_name, l1_name, l2_name, ingredient
+        Or None if ingredient not found
+    """
+
+    def _impl(session):
+        ingredient = session.query(Ingredient).filter(Ingredient.id == ingredient_id).first()
+
+        if not ingredient:
+            return None
+
+        l1 = ingredient.parent
+        l0 = l1.parent if l1 else None
+
+        return {
+            "l0_name": l0.display_name if l0 else "",
+            "l1_name": l1.display_name if l1 else "",
+            "l2_name": ingredient.display_name,
+            "ingredient": ingredient.to_dict(),
+        }
+
+    if session is not None:
+        return _impl(session)
+    with session_scope() as session:
+        return _impl(session)
+
+
 def get_ingredient_tree(session=None) -> List[Dict]:
     """
     Build a nested tree structure of all ingredients.
@@ -355,7 +454,7 @@ def validate_hierarchy_level(ingredient_id: int, allowed_levels: List[int], sess
         if ingredient.hierarchy_level in allowed_levels:
             return True
 
-        allowed_str = ", ".join(str(l) for l in allowed_levels)
+        allowed_str = ", ".join(str(lvl) for lvl in allowed_levels)
         raise HierarchyValidationError(
             f"Ingredient '{ingredient.display_name}' is at level {ingredient.hierarchy_level}, "
             f"but only levels [{allowed_str}] are allowed"
@@ -640,6 +739,124 @@ def get_product_count(ingredient_id: int, session=None) -> int:
         return _impl(session)
 
 
+def get_usage_counts(ingredient_id: int, session=None) -> Dict[str, int]:
+    """
+    Get product and recipe counts for an ingredient.
+
+    Feature 052: Used in Hierarchy Admin UI to show usage information
+    before performing rename/reparent/delete operations.
+
+    Args:
+        ingredient_id: ID of ingredient to check
+        session: Optional SQLAlchemy session
+
+    Returns:
+        {"product_count": int, "recipe_count": int}
+    """
+    # RecipeIngredient lives in recipe.py (no separate recipe_ingredient module)
+    from src.models.recipe import RecipeIngredient
+
+    def _impl(session):
+        product_count = session.query(Product).filter(Product.ingredient_id == ingredient_id).count()
+
+        recipe_count = (
+            session.query(RecipeIngredient).filter(RecipeIngredient.ingredient_id == ingredient_id).count()
+        )
+
+        return {
+            "product_count": product_count,
+            "recipe_count": recipe_count,
+        }
+
+    if session is not None:
+        return _impl(session)
+    with session_scope() as session:
+        return _impl(session)
+
+
+def get_aggregated_usage_counts(ingredient_id: int, session=None) -> Dict[str, int]:
+    """
+    Get aggregated product and recipe counts for an ingredient and all descendants.
+
+    Feature 052: Used in Hierarchy Admin UI to show total usage for L0/L1 nodes.
+    For L2 (leaf) ingredients, returns direct usage only.
+    For L1 ingredients, sums usage of all L2 children.
+    For L0 ingredients, sums usage of all L1 and L2 descendants.
+
+    Args:
+        ingredient_id: ID of ingredient to check
+        session: Optional SQLAlchemy session
+
+    Returns:
+        {"product_count": int, "recipe_count": int, "descendant_count": int}
+    """
+    from src.models.recipe import RecipeIngredient
+
+    def _impl(session):
+        ingredient = (
+            session.query(Ingredient).filter(Ingredient.id == ingredient_id).first()
+        )
+
+        if not ingredient:
+            return {"product_count": 0, "recipe_count": 0, "descendant_count": 0}
+
+        # Collect all ingredient IDs to count (self + descendants)
+        ingredient_ids = [ingredient_id]
+
+        if ingredient.hierarchy_level == 0:
+            # L0: Get all L1 children and their L2 children
+            l1_children = (
+                session.query(Ingredient)
+                .filter(Ingredient.parent_ingredient_id == ingredient_id)
+                .all()
+            )
+            for l1 in l1_children:
+                ingredient_ids.append(l1.id)
+                l2_children = (
+                    session.query(Ingredient)
+                    .filter(Ingredient.parent_ingredient_id == l1.id)
+                    .all()
+                )
+                ingredient_ids.extend([l2.id for l2 in l2_children])
+
+        elif ingredient.hierarchy_level == 1:
+            # L1: Get all L2 children
+            l2_children = (
+                session.query(Ingredient)
+                .filter(Ingredient.parent_ingredient_id == ingredient_id)
+                .all()
+            )
+            ingredient_ids.extend([l2.id for l2 in l2_children])
+
+        # L2: Just count self (already in list)
+
+        # Count products and recipes for all collected IDs
+        product_count = (
+            session.query(Product)
+            .filter(Product.ingredient_id.in_(ingredient_ids))
+            .count()
+        )
+
+        from sqlalchemy import func
+
+        recipe_count = (
+            session.query(func.count(func.distinct(RecipeIngredient.recipe_id)))
+            .filter(RecipeIngredient.ingredient_id.in_(ingredient_ids))
+            .scalar()
+        ) or 0
+
+        return {
+            "product_count": product_count,
+            "recipe_count": recipe_count,
+            "descendant_count": len(ingredient_ids) - 1,  # Exclude self
+        }
+
+    if session is not None:
+        return _impl(session)
+    with session_scope() as session:
+        return _impl(session)
+
+
 def can_change_parent(
     ingredient_id: int, new_parent_id: Optional[int], session=None
 ) -> Dict[str, Any]:
@@ -720,3 +937,264 @@ def can_change_parent(
         return _impl(session)
     with session_scope() as session:
         return _impl(session)
+
+
+def add_leaf_ingredient(parent_id: int, name: str, session=None) -> Dict:
+    """
+    Create new L2 (leaf) ingredient under L1 parent.
+
+    Feature 052: Admin operation to add new ingredient.
+
+    Args:
+        parent_id: ID of L1 parent ingredient
+        name: Display name for new ingredient
+        session: Optional SQLAlchemy session
+
+    Returns:
+        Dictionary representation of created Ingredient
+
+    Raises:
+        ValueError: If parent not found, parent not L1, name empty, or name not unique
+    """
+    from src.services import hierarchy_admin_service
+
+    def _impl(session):
+        # Validate name not empty
+        if not hierarchy_admin_service.validate_name_not_empty(name):
+            raise ValueError("Ingredient name cannot be empty")
+
+        # Trim name
+        trimmed_name = hierarchy_admin_service.trim_name(name)
+
+        # Validate parent exists and is L1
+        parent = session.query(Ingredient).filter(Ingredient.id == parent_id).first()
+
+        if not parent:
+            raise ValueError(f"Parent ingredient {parent_id} not found")
+
+        if parent.hierarchy_level != 1:
+            raise ValueError(
+                f"Parent must be L1 (level 1), got level {parent.hierarchy_level}"
+            )
+
+        # Get siblings for uniqueness check
+        siblings = (
+            session.query(Ingredient)
+            .filter(Ingredient.parent_ingredient_id == parent_id)
+            .all()
+        )
+
+        # Validate unique name
+        if not hierarchy_admin_service.validate_unique_sibling_name(siblings, trimmed_name):
+            raise ValueError(
+                f"An ingredient named '{trimmed_name}' already exists under this parent"
+            )
+
+        # Generate slug
+        slug = hierarchy_admin_service.generate_slug(trimmed_name)
+
+        # Check slug uniqueness globally
+        existing_slug = session.query(Ingredient).filter(Ingredient.slug == slug).first()
+        if existing_slug:
+            # Append parent slug for uniqueness
+            slug = f"{parent.slug}-{slug}"
+
+        # Create ingredient (inherit category from parent)
+        ingredient = Ingredient(
+            display_name=trimmed_name,
+            slug=slug,
+            parent_ingredient_id=parent_id,
+            hierarchy_level=2,
+            category=parent.category,
+        )
+
+        session.add(ingredient)
+        session.flush()  # Get ID
+
+        return ingredient.to_dict()
+
+    if session is not None:
+        return _impl(session)
+    with session_scope() as session:
+        result = _impl(session)
+        session.commit()
+        return result
+
+
+def rename_ingredient(ingredient_id: int, new_name: str, session=None) -> Dict:
+    """
+    Rename an ingredient (any level).
+
+    Feature 052: Admin operation to rename ingredient.
+
+    Args:
+        ingredient_id: ID of ingredient to rename
+        new_name: New display name
+        session: Optional SQLAlchemy session
+
+    Returns:
+        Dictionary representation of updated Ingredient
+
+    Raises:
+        ValueError: If ingredient not found, name empty, or name not unique among siblings
+    """
+    from src.services import hierarchy_admin_service
+
+    def _impl(session):
+        # Find ingredient
+        ingredient = session.query(Ingredient).filter(Ingredient.id == ingredient_id).first()
+
+        if not ingredient:
+            raise ValueError(f"Ingredient {ingredient_id} not found")
+
+        # Validate name not empty
+        if not hierarchy_admin_service.validate_name_not_empty(new_name):
+            raise ValueError("Name cannot be empty")
+
+        # Trim name
+        new_name_stripped = hierarchy_admin_service.trim_name(new_name)
+
+        # Get siblings for uniqueness check
+        if ingredient.parent_ingredient_id:
+            siblings = (
+                session.query(Ingredient)
+                .filter(Ingredient.parent_ingredient_id == ingredient.parent_ingredient_id)
+                .all()
+            )
+        else:
+            # Root level - siblings are other roots at same level
+            siblings = (
+                session.query(Ingredient)
+                .filter(
+                    Ingredient.parent_ingredient_id.is_(None),
+                    Ingredient.hierarchy_level == ingredient.hierarchy_level,
+                )
+                .all()
+            )
+
+        # Validate unique name (excluding self)
+        if not hierarchy_admin_service.validate_unique_sibling_name(
+            siblings, new_name_stripped, exclude_id=ingredient_id
+        ):
+            raise ValueError(
+                f"An ingredient named '{new_name_stripped}' already exists at this level"
+            )
+
+        # Update name
+        ingredient.display_name = new_name_stripped
+
+        # Regenerate slug
+        new_slug = hierarchy_admin_service.generate_slug(new_name_stripped)
+
+        # Check slug uniqueness globally (excluding self)
+        existing_slug = (
+            session.query(Ingredient)
+            .filter(Ingredient.slug == new_slug, Ingredient.id != ingredient_id)
+            .first()
+        )
+
+        if existing_slug:
+            # Append parent or level info for uniqueness
+            if ingredient.parent:
+                new_slug = f"{ingredient.parent.slug}-{new_slug}"
+            else:
+                new_slug = f"l{ingredient.hierarchy_level}-{new_slug}"
+
+        ingredient.slug = new_slug
+
+        session.flush()
+        return ingredient.to_dict()
+
+    if session is not None:
+        return _impl(session)
+    with session_scope() as session:
+        result = _impl(session)
+        session.commit()
+        return result
+
+
+def reparent_ingredient(ingredient_id: int, new_parent_id: int, session=None) -> Dict:
+    """
+    Move ingredient to new parent.
+
+    Feature 052: Admin operation to move ingredient.
+
+    Valid moves:
+    - L2 can move to any L1
+    - L1 can move to any L0
+
+    Args:
+        ingredient_id: ID of ingredient to move
+        new_parent_id: ID of new parent ingredient
+        session: Optional SQLAlchemy session
+
+    Returns:
+        Dictionary representation of updated Ingredient
+
+    Raises:
+        ValueError: If invalid move (wrong levels, cycle, duplicate name)
+    """
+    from src.services import hierarchy_admin_service
+
+    def _impl(session):
+        # Find ingredient
+        ingredient = session.query(Ingredient).filter(Ingredient.id == ingredient_id).first()
+
+        if not ingredient:
+            raise ValueError(f"Ingredient {ingredient_id} not found")
+
+        # Find new parent
+        new_parent = session.query(Ingredient).filter(Ingredient.id == new_parent_id).first()
+
+        if not new_parent:
+            raise ValueError(f"New parent ingredient {new_parent_id} not found")
+
+        # Validate level compatibility
+        if ingredient.hierarchy_level == 2:
+            # L2 must move to L1
+            if new_parent.hierarchy_level != 1:
+                raise ValueError("L2 ingredients can only move to L1 parents")
+        elif ingredient.hierarchy_level == 1:
+            # L1 must move to L0
+            if new_parent.hierarchy_level != 0:
+                raise ValueError("L1 ingredients can only move to L0 parents")
+        else:
+            # L0 cannot be moved
+            raise ValueError("L0 (root) ingredients cannot be reparented")
+
+        # Check if already under this parent
+        if ingredient.parent_ingredient_id == new_parent_id:
+            raise ValueError("Item is already under this parent")
+
+        # Validate no cycle (for L1 moving to L0, check descendants)
+        if ingredient.hierarchy_level == 1:
+            descendants = ingredient.get_descendants()
+            if not hierarchy_admin_service.validate_no_cycle(descendants, new_parent):
+                raise ValueError("Cannot move: would create circular reference")
+
+        # Validate unique name in new location
+        siblings = (
+            session.query(Ingredient)
+            .filter(Ingredient.parent_ingredient_id == new_parent_id)
+            .all()
+        )
+
+        if not hierarchy_admin_service.validate_unique_sibling_name(
+            siblings, ingredient.display_name, exclude_id=ingredient_id
+        ):
+            raise ValueError(
+                f"An ingredient named '{ingredient.display_name}' already exists under the new parent"
+            )
+
+        # Perform move
+        ingredient.parent_ingredient_id = new_parent_id
+
+        session.flush()
+        return ingredient.to_dict()
+
+    if session is not None:
+        return _impl(session)
+    with session_scope() as session:
+        result = _impl(session)
+        session.commit()
+        return result
