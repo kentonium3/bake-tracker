@@ -216,7 +216,7 @@ def _export_ingredients(output_dir: Path, session: Session) -> FileEntry:
             "is_packaging": i.is_packaging,
             # Hierarchy fields (Feature 031)
             "hierarchy_level": i.hierarchy_level,
-            "parent_ingredient_slug": i.parent.slug if i.parent else None,
+            "parent_slug": i.parent.slug if i.parent else None,
             # Density fields
             "density_volume_value": i.density_volume_value,
             "density_volume_unit": i.density_volume_unit,
@@ -1034,7 +1034,7 @@ def _import_entity_records(
             elif entity_type == "ingredients":
                 # Resolve parent FK by slug if present
                 parent_id = None
-                parent_slug = record.get("parent_ingredient_slug")
+                parent_slug = record.get("parent_slug")
                 if parent_slug:
                     parent = session.query(Ingredient).filter(
                         Ingredient.slug == parent_slug
