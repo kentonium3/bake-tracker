@@ -11,7 +11,7 @@ subtasks:
   - "T051"
 title: "Reparent Operations"
 phase: "Phase 4 - Operations"
-lane: "doing"
+lane: "done"
 assignee: ""
 agent: "claude"
 shell_pid: ""
@@ -844,3 +844,5 @@ def test_reparent_material_to_same_subcategory_fails(session, material):
 
 - 2026-01-14T15:00:00Z – system – lane=planned – Prompt created.
 - 2026-01-15T04:03:18Z – claude – lane=doing – Moved to doing
+- 2026-01-15T04:28:44Z – claude – lane=for_review – Reparent operations complete with 21 tests
+- 2026-01-15T05:36:46Z – claude – lane=done – Review approved: Reparent operations with level validation and 21 tests

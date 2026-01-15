@@ -10,7 +10,7 @@ subtasks:
   - "T028"
 title: "Hierarchy Admin UI Shell"
 phase: "Phase 3 - UI Shell"
-lane: "for_review"
+lane: "done"
 assignee: ""
 agent: "claude"
 shell_pid: ""
@@ -541,3 +541,4 @@ def _on_reparent_click(self):
 - 2026-01-14T15:00:00Z – system – lane=planned – Prompt created.
 - 2026-01-15T03:49:33Z – claude – lane=doing – Moved to doing
 - 2026-01-15T03:51:43Z – claude – lane=for_review – All subtasks complete - tree view, detail panel, action placeholders
+- 2026-01-15T05:36:28Z – claude – lane=done – Review approved: Admin window UI shell with tree view and detail panel

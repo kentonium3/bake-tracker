@@ -8,7 +8,7 @@ subtasks:
   - "T011"
 title: "Material Display Changes"
 phase: "Phase 1 - MVP Display"
-lane: "doing"
+lane: "done"
 assignee: ""
 agent: "claude"
 shell_pid: ""
@@ -242,3 +242,5 @@ material_hierarchy_service = MaterialHierarchyService()
 
 - 2026-01-14T15:00:00Z – system – lane=planned – Prompt created.
 - 2026-01-15T03:38:59Z – claude – lane=doing – Starting implementation
+- 2026-01-15T03:43:32Z – claude – lane=for_review – Implementation complete: materials-only display with Category/Subcategory columns, 14 new tests pass
+- 2026-01-15T05:36:11Z – claude – lane=done – Review approved: Materials-only display with hierarchy columns, tests pass

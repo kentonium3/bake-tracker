@@ -10,7 +10,7 @@ subtasks:
   - "T035"
 title: "Add Operations"
 phase: "Phase 4 - Operations"
-lane: "for_review"
+lane: "done"
 assignee: ""
 agent: "claude"
 shell_pid: ""
@@ -647,3 +647,4 @@ def test_add_material_duplicate_name(session, subcategory, material):
 - 2026-01-14T15:00:00Z – system – lane=planned – Prompt created.
 - 2026-01-15T03:51:54Z – claude – lane=doing – Moved to doing
 - 2026-01-15T03:58:05Z – claude – lane=for_review – All subtasks complete, 19 new tests passing
+- 2026-01-15T05:36:36Z – claude – lane=done – Review approved: Add operations with validation and 19 tests

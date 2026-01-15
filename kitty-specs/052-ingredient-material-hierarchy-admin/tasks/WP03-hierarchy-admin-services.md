@@ -13,7 +13,7 @@ subtasks:
   - "T021"
 title: "Hierarchy Admin Services"
 phase: "Phase 2 - Services"
-lane: "for_review"
+lane: "done"
 assignee: ""
 agent: "claude"
 shell_pid: ""
@@ -446,3 +446,4 @@ def get_usage_counts(self, material_id: int, session: Optional[Session] = None) 
 - 2026-01-14T15:00:00Z – system – lane=planned – Prompt created.
 - 2026-01-15T03:43:35Z – claude – lane=doing – Starting implementation
 - 2026-01-15T03:49:23Z – claude – lane=for_review – All subtasks complete, 127 tests passing
+- 2026-01-15T05:36:20Z – claude – lane=done – Review approved: Hierarchy admin services with shared utilities, tests pass
