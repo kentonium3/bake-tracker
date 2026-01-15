@@ -494,3 +494,120 @@ class TestAddMaterial:
             material_hierarchy_service.add_material(
                 subcategory_id=satin.id, name=existing.name.upper(), session=test_db
             )
+
+
+class TestRenameItem:
+    """Tests for rename_item() (Feature 052)."""
+
+    def test_rename_material_success(self, test_db):
+        """Test renaming a material."""
+        mat = test_db.query(Material).filter(Material.slug == "red-satin-1-inch").first()
+
+        result = material_hierarchy_service.rename_item(
+            item_type="material", item_id=mat.id, new_name="Crimson Satin", session=test_db
+        )
+
+        assert result["name"] == "Crimson Satin"
+        assert "crimson-satin" in result["slug"]
+
+    def test_rename_subcategory_success(self, test_db):
+        """Test renaming a subcategory."""
+        subcat = test_db.query(MaterialSubcategory).filter(MaterialSubcategory.slug == "satin").first()
+
+        result = material_hierarchy_service.rename_item(
+            item_type="subcategory",
+            item_id=subcat.id,
+            new_name="Silk Satin",
+            session=test_db,
+        )
+
+        assert result["name"] == "Silk Satin"
+        assert "silk-satin" in result["slug"]
+
+    def test_rename_category_success(self, test_db):
+        """Test renaming a category."""
+        cat = test_db.query(MaterialCategory).filter(MaterialCategory.slug == "ribbons").first()
+
+        result = material_hierarchy_service.rename_item(
+            item_type="category", item_id=cat.id, new_name="Fabric Ribbons", session=test_db
+        )
+
+        assert result["name"] == "Fabric Ribbons"
+        assert "fabric-ribbons" in result["slug"]
+
+    def test_rename_item_invalid_type(self, test_db):
+        """Test error for invalid item type."""
+        mat = test_db.query(Material).first()
+
+        with pytest.raises(ValueError, match="Invalid item type"):
+            material_hierarchy_service.rename_item(
+                item_type="invalid", item_id=mat.id, new_name="Test", session=test_db
+            )
+
+    def test_rename_item_empty_name(self, test_db):
+        """Test error for empty name."""
+        mat = test_db.query(Material).first()
+
+        with pytest.raises(ValueError, match="cannot be empty"):
+            material_hierarchy_service.rename_item(
+                item_type="material", item_id=mat.id, new_name="   ", session=test_db
+            )
+
+    def test_rename_material_not_found(self, test_db):
+        """Test error when material doesn't exist."""
+        with pytest.raises(ValueError, match="not found"):
+            material_hierarchy_service.rename_item(
+                item_type="material", item_id=99999, new_name="Test", session=test_db
+            )
+
+    def test_rename_category_not_found(self, test_db):
+        """Test error when category doesn't exist."""
+        with pytest.raises(ValueError, match="not found"):
+            material_hierarchy_service.rename_item(
+                item_type="category", item_id=99999, new_name="Test", session=test_db
+            )
+
+    def test_rename_subcategory_not_found(self, test_db):
+        """Test error when subcategory doesn't exist."""
+        with pytest.raises(ValueError, match="not found"):
+            material_hierarchy_service.rename_item(
+                item_type="subcategory", item_id=99999, new_name="Test", session=test_db
+            )
+
+    def test_rename_material_duplicate_in_subcategory(self, test_db):
+        """Test error when renaming to existing material name in same subcategory."""
+        satin = test_db.query(MaterialSubcategory).filter(MaterialSubcategory.slug == "satin").first()
+        materials = test_db.query(Material).filter(Material.subcategory_id == satin.id).all()
+
+        if len(materials) >= 2:
+            with pytest.raises(ValueError, match="already exists"):
+                material_hierarchy_service.rename_item(
+                    item_type="material",
+                    item_id=materials[0].id,
+                    new_name=materials[1].name,
+                    session=test_db,
+                )
+
+    def test_rename_item_trims_whitespace(self, test_db):
+        """Test that whitespace is trimmed on rename."""
+        mat = test_db.query(Material).first()
+
+        result = material_hierarchy_service.rename_item(
+            item_type="material",
+            item_id=mat.id,
+            new_name="  Trimmed Name  ",
+            session=test_db,
+        )
+
+        assert result["name"] == "Trimmed Name"
+
+    def test_rename_same_name_succeeds(self, test_db):
+        """Test that renaming to same name succeeds."""
+        mat = test_db.query(Material).first()
+        original_name = mat.name
+
+        result = material_hierarchy_service.rename_item(
+            item_type="material", item_id=mat.id, new_name=original_name, session=test_db
+        )
+
+        assert result["name"] == original_name

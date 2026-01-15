@@ -1414,3 +1414,108 @@ class TestAddLeafIngredient:
             ingredient_hierarchy_service.add_leaf_ingredient(
                 parent_id=dark_choc.id, name=existing.display_name.upper(), session=test_db
             )
+
+
+# =============================================================================
+# Feature 052: Rename Ingredient Tests
+# =============================================================================
+
+
+class TestRenameIngredient:
+    """Tests for rename_ingredient() (Feature 052)."""
+
+    def test_rename_ingredient_success(self, test_db):
+        """Test renaming an ingredient."""
+        semi_sweet = (
+            test_db.query(Ingredient).filter(Ingredient.slug == "semi-sweet-chips").first()
+        )
+
+        result = ingredient_hierarchy_service.rename_ingredient(
+            ingredient_id=semi_sweet.id, new_name="Extra Dark Chips", session=test_db
+        )
+
+        assert result["display_name"] == "Extra Dark Chips"
+        assert "extra-dark-chips" in result["slug"]
+
+    def test_rename_ingredient_same_name(self, test_db):
+        """Test keeping the same name (should succeed)."""
+        semi_sweet = (
+            test_db.query(Ingredient).filter(Ingredient.slug == "semi-sweet-chips").first()
+        )
+        original_name = semi_sweet.display_name
+
+        result = ingredient_hierarchy_service.rename_ingredient(
+            ingredient_id=semi_sweet.id, new_name=original_name, session=test_db
+        )
+
+        assert result["display_name"] == original_name
+
+    def test_rename_ingredient_trims_whitespace(self, test_db):
+        """Test that whitespace is trimmed on rename."""
+        semi_sweet = (
+            test_db.query(Ingredient).filter(Ingredient.slug == "semi-sweet-chips").first()
+        )
+
+        result = ingredient_hierarchy_service.rename_ingredient(
+            ingredient_id=semi_sweet.id, new_name="  Trimmed Name  ", session=test_db
+        )
+
+        assert result["display_name"] == "Trimmed Name"
+
+    def test_rename_ingredient_empty_name(self, test_db):
+        """Test error for empty name."""
+        semi_sweet = (
+            test_db.query(Ingredient).filter(Ingredient.slug == "semi-sweet-chips").first()
+        )
+
+        with pytest.raises(ValueError, match="cannot be empty"):
+            ingredient_hierarchy_service.rename_ingredient(
+                ingredient_id=semi_sweet.id, new_name="   ", session=test_db
+            )
+
+    def test_rename_ingredient_not_found(self, test_db):
+        """Test error when ingredient doesn't exist."""
+        with pytest.raises(ValueError, match="not found"):
+            ingredient_hierarchy_service.rename_ingredient(
+                ingredient_id=99999, new_name="Test", session=test_db
+            )
+
+    def test_rename_ingredient_duplicate_sibling(self, test_db):
+        """Test error when renaming to existing sibling name."""
+        semi_sweet = (
+            test_db.query(Ingredient).filter(Ingredient.slug == "semi-sweet-chips").first()
+        )
+        bittersweet = (
+            test_db.query(Ingredient).filter(Ingredient.slug == "bittersweet-chips").first()
+        )
+
+        with pytest.raises(ValueError, match="already exists"):
+            ingredient_hierarchy_service.rename_ingredient(
+                ingredient_id=semi_sweet.id,
+                new_name=bittersweet.display_name,
+                session=test_db,
+            )
+
+    def test_rename_l0_ingredient(self, test_db):
+        """Test renaming an L0 (root) ingredient."""
+        chocolate = test_db.query(Ingredient).filter(Ingredient.slug == "chocolate").first()
+
+        result = ingredient_hierarchy_service.rename_ingredient(
+            ingredient_id=chocolate.id, new_name="Cacao", session=test_db
+        )
+
+        assert result["display_name"] == "Cacao"
+        assert "cacao" in result["slug"]
+
+    def test_rename_l1_ingredient(self, test_db):
+        """Test renaming an L1 (mid-level) ingredient."""
+        dark_choc = (
+            test_db.query(Ingredient).filter(Ingredient.slug == "dark-chocolate").first()
+        )
+
+        result = ingredient_hierarchy_service.rename_ingredient(
+            ingredient_id=dark_choc.id, new_name="Very Dark Chocolate", session=test_db
+        )
+
+        assert result["display_name"] == "Very Dark Chocolate"
+        assert "very-dark-chocolate" in result["slug"]

@@ -374,3 +374,131 @@ def add_material(
         result = _impl(session)
         session.commit()
         return result
+
+
+def rename_item(
+    item_type: str, item_id: int, new_name: str, session=None
+) -> Dict:
+    """
+    Rename a category, subcategory, or material.
+
+    Feature 052: Admin operation to rename material hierarchy item.
+
+    Args:
+        item_type: "category", "subcategory", or "material"
+        item_id: ID of item to rename
+        new_name: New name
+        session: Optional SQLAlchemy session
+
+    Returns:
+        Dictionary representation of updated entity
+
+    Raises:
+        ValueError: If item not found, invalid type, name empty, or name not unique
+    """
+    from src.services import hierarchy_admin_service
+
+    VALID_TYPES = ("category", "subcategory", "material")
+
+    def _impl(session):
+        if item_type not in VALID_TYPES:
+            raise ValueError(
+                f"Invalid item type '{item_type}'. Must be one of: {VALID_TYPES}"
+            )
+
+        # Validate name not empty
+        if not hierarchy_admin_service.validate_name_not_empty(new_name):
+            raise ValueError("Name cannot be empty")
+
+        # Trim name
+        new_name_stripped = hierarchy_admin_service.trim_name(new_name)
+
+        # Get entity and siblings based on type
+        if item_type == "category":
+            entity = (
+                session.query(MaterialCategory)
+                .filter(MaterialCategory.id == item_id)
+                .first()
+            )
+            if not entity:
+                raise ValueError(f"Category {item_id} not found")
+            # Categories are unique globally
+            siblings = session.query(MaterialCategory).all()
+
+        elif item_type == "subcategory":
+            entity = (
+                session.query(MaterialSubcategory)
+                .filter(MaterialSubcategory.id == item_id)
+                .first()
+            )
+            if not entity:
+                raise ValueError(f"Subcategory {item_id} not found")
+            # Subcategories unique within category
+            siblings = (
+                session.query(MaterialSubcategory)
+                .filter(MaterialSubcategory.category_id == entity.category_id)
+                .all()
+            )
+
+        else:  # material
+            entity = session.query(Material).filter(Material.id == item_id).first()
+            if not entity:
+                raise ValueError(f"Material {item_id} not found")
+            # Materials unique within subcategory
+            siblings = (
+                session.query(Material)
+                .filter(Material.subcategory_id == entity.subcategory_id)
+                .all()
+            )
+
+        # Validate unique name (excluding self)
+        if not hierarchy_admin_service.validate_unique_sibling_name(
+            siblings, new_name_stripped, exclude_id=item_id
+        ):
+            raise ValueError(
+                f"A {item_type} named '{new_name_stripped}' already exists at this level"
+            )
+
+        # Update name
+        entity.name = new_name_stripped
+
+        # Regenerate slug
+        new_slug = hierarchy_admin_service.generate_slug(new_name_stripped)
+
+        # Check slug uniqueness based on type
+        if item_type == "category":
+            existing = (
+                session.query(MaterialCategory)
+                .filter(MaterialCategory.slug == new_slug, MaterialCategory.id != item_id)
+                .first()
+            )
+        elif item_type == "subcategory":
+            existing = (
+                session.query(MaterialSubcategory)
+                .filter(
+                    MaterialSubcategory.slug == new_slug, MaterialSubcategory.id != item_id
+                )
+                .first()
+            )
+        else:
+            existing = (
+                session.query(Material)
+                .filter(Material.slug == new_slug, Material.id != item_id)
+                .first()
+            )
+
+        if existing:
+            # Add prefix for uniqueness
+            new_slug = f"{item_type[0]}-{new_slug}"
+
+        entity.slug = new_slug
+
+        session.flush()
+        return entity.to_dict()
+
+    if session is not None:
+        return _impl(session)
+    with session_scope() as session:
+        result = _impl(session)
+        session.commit()
+        return result

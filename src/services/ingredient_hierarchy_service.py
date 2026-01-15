@@ -935,3 +935,95 @@ def add_leaf_ingredient(parent_id: int, name: str, session=None) -> Dict:
         result = _impl(session)
         session.commit()
         return result
+
+
+def rename_ingredient(ingredient_id: int, new_name: str, session=None) -> Dict:
+    """
+    Rename an ingredient (any level).
+
+    Feature 052: Admin operation to rename ingredient.
+
+    Args:
+        ingredient_id: ID of ingredient to rename
+        new_name: New display name
+        session: Optional SQLAlchemy session
+
+    Returns:
+        Dictionary representation of updated Ingredient
+
+    Raises:
+        ValueError: If ingredient not found, name empty, or name not unique among siblings
+    """
+    from src.services import hierarchy_admin_service
+
+    def _impl(session):
+        # Find ingredient
+        ingredient = session.query(Ingredient).filter(Ingredient.id == ingredient_id).first()
+
+        if not ingredient:
+            raise ValueError(f"Ingredient {ingredient_id} not found")
+
+        # Validate name not empty
+        if not hierarchy_admin_service.validate_name_not_empty(new_name):
+            raise ValueError("Name cannot be empty")
+
+        # Trim name
+        new_name_stripped = hierarchy_admin_service.trim_name(new_name)
+
+        # Get siblings for uniqueness check
+        if ingredient.parent_ingredient_id:
+            siblings = (
+                session.query(Ingredient)
+                .filter(Ingredient.parent_ingredient_id == ingredient.parent_ingredient_id)
+                .all()
+            )
+        else:
+            # Root level - siblings are other roots at same level
+            siblings = (
+                session.query(Ingredient)
+                .filter(
+                    Ingredient.parent_ingredient_id == None,
+                    Ingredient.hierarchy_level == ingredient.hierarchy_level,
+                )
+                .all()
+            )
+
+        # Validate unique name (excluding self)
+        if not hierarchy_admin_service.validate_unique_sibling_name(
+            siblings, new_name_stripped, exclude_id=ingredient_id
+        ):
+            raise ValueError(
+                f"An ingredient named '{new_name_stripped}' already exists at this level"
+            )
+
+        # Update name
+        ingredient.display_name = new_name_stripped
+
+        # Regenerate slug
+        new_slug = hierarchy_admin_service.generate_slug(new_name_stripped)
+
+        # Check slug uniqueness globally (excluding self)
+        existing_slug = (
+            session.query(Ingredient)
+            .filter(Ingredient.slug == new_slug, Ingredient.id != ingredient_id)
+            .first()
+        )
+
+        if existing_slug:
+            # Append parent or level info for uniqueness
+            if ingredient.parent:
+                new_slug = f"{ingredient.parent.slug}-{new_slug}"
+            else:
+                new_slug = f"l{ingredient.hierarchy_level}-{new_slug}"
+
+        ingredient.slug = new_slug
+
+        session.flush()
+        return ingredient.to_dict()
+
+    if session is not None:
+        return _impl(session)
+    with session_scope() as session:
+        result = _impl(session)
+        session.commit()
+        return result

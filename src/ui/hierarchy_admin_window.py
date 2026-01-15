@@ -205,7 +205,7 @@ class HierarchyAdminWindow(ctk.CTkToplevel):
             self.actions_frame,
             text="Rename...",
             command=self._on_rename_click,
-            state="disabled",  # Enabled in WP06
+            state="normal",
         )
         self.rename_btn.pack(fill="x", pady=2)
 
@@ -488,8 +488,47 @@ class HierarchyAdminWindow(ctk.CTkToplevel):
         AddItemDialog(self, self.entity_type, parent_options, on_save)
 
     def _on_rename_click(self):
-        """Placeholder for rename operation."""
-        pass  # Implemented in WP06
+        """Handle rename button click - open rename dialog."""
+        if not self.selected_item:
+            return
+
+        node = self.selected_item
+
+        # Get current name based on entity type
+        if self.entity_type == "ingredient":
+            current_name = node.get("display_name", node.get("name", ""))
+        else:
+            current_name = node.get("name", "")
+
+        def on_save(new_name: str):
+            """Callback when dialog saves."""
+            try:
+                if self.entity_type == "ingredient":
+                    self.hierarchy_service.rename_ingredient(
+                        ingredient_id=node["id"], new_name=new_name
+                    )
+                else:
+                    # Determine item type for materials
+                    item_type = node.get("type", "material")
+                    self.hierarchy_service.rename_item(
+                        item_type=item_type, item_id=node["id"], new_name=new_name
+                    )
+
+                # Refresh tree
+                self._load_tree()
+
+                # Clear selection (tree was rebuilt)
+                self._clear_detail_panel()
+
+                # Show success
+                from tkinter import messagebox
+
+                messagebox.showinfo("Success", "Item renamed successfully!")
+
+            except ValueError as e:
+                raise  # Re-raise for dialog to display
+
+        RenameDialog(self, current_name, self.entity_type, on_save)
 
     def _on_reparent_click(self):
         """Placeholder for reparent operation."""
@@ -633,6 +672,102 @@ class AddItemDialog(ctk.CTkToplevel):
         # Call save callback
         try:
             self.on_save(self.result)
+            self.destroy()
+        except ValueError as e:
+            self.error_label.configure(text=str(e))
+
+
+class RenameDialog(ctk.CTkToplevel):
+    """
+    Dialog for renaming an item.
+
+    Feature 052: Modal dialog for rename operations in Hierarchy Admin.
+    """
+
+    def __init__(
+        self,
+        parent,
+        current_name: str,
+        entity_type: str,
+        on_save: Callable,
+    ):
+        super().__init__(parent)
+
+        self.on_save = on_save
+        self.result = None
+
+        # Window setup
+        self.title(f"Rename {entity_type.title()}")
+        self.geometry("400x220")
+        self.resizable(False, False)
+        self.transient(parent)
+        self.grab_set()
+
+        # Build form
+        self._create_form(current_name)
+
+        # Center on parent
+        self.update_idletasks()
+        x = parent.winfo_x() + (parent.winfo_width() - self.winfo_width()) // 2
+        y = parent.winfo_y() + (parent.winfo_height() - self.winfo_height()) // 2
+        self.geometry(f"+{x}+{y}")
+
+        # Focus on name entry and select all after a brief delay
+        self.after(100, self._focus_entry)
+
+    def _focus_entry(self):
+        """Focus entry and select all text."""
+        self.name_entry.focus()
+        self.name_entry.select_range(0, "end")
+
+    def _create_form(self, current_name: str):
+        """Create the rename form."""
+        # Current name (read-only)
+        current_frame = ctk.CTkFrame(self)
+        current_frame.pack(fill="x", padx=20, pady=10)
+
+        ctk.CTkLabel(current_frame, text="Current Name:").pack(anchor="w")
+        ctk.CTkLabel(
+            current_frame, text=current_name, font=ctk.CTkFont(weight="bold")
+        ).pack(anchor="w")
+
+        # New name input
+        name_frame = ctk.CTkFrame(self)
+        name_frame.pack(fill="x", padx=20, pady=10)
+
+        ctk.CTkLabel(name_frame, text="New Name:").pack(anchor="w")
+        self.name_entry = ctk.CTkEntry(name_frame, width=340)
+        self.name_entry.pack(fill="x", pady=5)
+        self.name_entry.insert(0, current_name)  # Pre-populate
+
+        # Error label
+        self.error_label = ctk.CTkLabel(self, text="", text_color="red")
+        self.error_label.pack(pady=5)
+
+        # Buttons
+        btn_frame = ctk.CTkFrame(self)
+        btn_frame.pack(fill="x", padx=20, pady=10)
+
+        ctk.CTkButton(
+            btn_frame, text="Cancel", command=self.destroy, fg_color="gray", width=100
+        ).pack(side="right", padx=5)
+
+        ctk.CTkButton(btn_frame, text="Rename", command=self._on_save, width=100).pack(
+            side="right", padx=5
+        )
+
+    def _on_save(self):
+        """Handle save button click."""
+        new_name = self.name_entry.get().strip()
+
+        if not new_name:
+            self.error_label.configure(text="Name cannot be empty")
+            return
+
+        self.result = new_name
+
+        try:
+            self.on_save(new_name)
             self.destroy()
         except ValueError as e:
             self.error_label.configure(text=str(e))
