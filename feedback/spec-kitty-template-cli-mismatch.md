@@ -228,6 +228,68 @@ After applying the fix, run `/spec-kitty.specify` and verify:
 
 ### Status
 
-- [ ] AGENTS.md symlink fixed
+- [x] AGENTS.md symlink fixed (2026-01-15)
+- [x] Malformed frontmatter fixed in local templates (2026-01-15)
 - [ ] Skill loader verified to use local templates
 - [ ] `/spec-kitty.specify` tested and working
+
+---
+
+## Issue 3: Malformed YAML Frontmatter in Local Templates (NEW - 2026-01-15)
+
+### Summary
+
+Several local command templates in `.kittify/missions/software-dev/command-templates/` had **malformed YAML frontmatter** - they were missing the closing `---` delimiter. This likely caused skill loader parsing failures and fallback to package templates.
+
+### Templates Affected (FIXED)
+
+| Template | Issue |
+|----------|-------|
+| accept.md | Missing closing `---` |
+| analyze.md | Missing closing `---` |
+| checklist.md | Missing closing `---` |
+| clarify.md | Missing closing `---` |
+| merge.md | Missing closing `---` |
+
+### Example of the Problem
+
+**Before (malformed):**
+```yaml
+---
+description: Validate feature readiness and guide final acceptance steps.
+
+## User Input
+```
+
+**After (fixed):**
+```yaml
+---
+description: Validate feature readiness and guide final acceptance steps.
+---
+
+## User Input
+```
+
+### Root Cause
+
+Unknown. Possible causes:
+1. Manual template editing that accidentally removed the closing delimiter
+2. A spec-kitty upgrade that corrupted the files
+3. Template copying that truncated the frontmatter
+
+### Impact
+
+When YAML frontmatter is malformed, template parsers may:
+- Fail to parse the template entirely
+- Fall back to package templates (which have incorrect CLI syntax)
+- Treat the entire file content as frontmatter
+
+This contributed to the `/spec-kitty.accept` failures where the agent used `--actor` flags that don't exist on `spec-kitty agent feature accept`.
+
+### Resolution
+
+Fixed by adding the missing closing `---` delimiter to all affected templates.
+
+### This is NOT an Upstream Bug
+
+This appears to be local data corruption in the bake-tracker project, not a spec-kitty package issue. Fresh installs would not have this problem.

@@ -1,8 +1,9 @@
 # Suspected Issue: AGENTS.md Symlink Incorrectly Created in Main Repo
 
-**Status:** Suspected - needs further investigation
+**Status:** Workaround applied, likely NOT the primary cause
 **Discovered:** 2026-01-15
-**Priority:** Low (workaround applied)
+**Updated:** 2026-01-15
+**Priority:** Low (resolved locally, investigation optional)
 **Reporter:** bake-tracker project
 
 ---
@@ -70,3 +71,41 @@ A `spec-kitty upgrade` migration may have incorrectly converted the file to a sy
 ## Notes
 
 This issue was discovered while investigating why Claude Code's skill loader was using package templates instead of local templates. Fixing this symlink may or may not have resolved that issue - further testing required.
+
+---
+
+## Update: 2026-01-15 - Root Cause Clarified
+
+### Additional Issue Found
+
+Further investigation revealed that **malformed YAML frontmatter** in local templates was likely a more significant contributor to the package template fallback behavior than the AGENTS.md symlink issue.
+
+Five local templates were missing the closing `---` delimiter in their YAML frontmatter:
+- accept.md
+- analyze.md
+- checklist.md
+- clarify.md
+- merge.md
+
+### Current Assessment
+
+The command failures (e.g., `/spec-kitty.accept` using `--actor` flag) were caused by a **combination of factors**:
+
+1. **Malformed local templates** (primary cause) - Parsing failures caused fallback to package templates
+2. **Broken AGENTS.md symlink** (secondary/uncertain) - May have contributed to template discovery issues
+3. **Package template CLI mismatch** (upstream bug) - Package templates have `scripts:` frontmatter with incorrect commands
+
+### Resolution Status
+
+| Issue | Status |
+|-------|--------|
+| AGENTS.md symlink | Fixed (replaced with real file) |
+| Malformed frontmatter | Fixed (added closing `---` to 5 templates) |
+| Package CLI mismatch | Upstream bug - reported in `spec-kitty-template-cli-mismatch.md` |
+
+### Recommendation
+
+This symlink issue can be closed as "resolved locally". The upstream investigation (whether `spec-kitty init` creates broken symlinks) is low priority since:
+1. The workaround is simple (replace symlink with real file)
+2. The malformed frontmatter was the more likely cause of the failures
+3. Fresh projects may not encounter this issue
