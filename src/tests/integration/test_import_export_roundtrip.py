@@ -24,14 +24,14 @@ from src.models.recipe import Recipe
 from src.models.supplier import Supplier
 from src.services.database import session_scope
 from src.services.denormalized_export_service import (
-    export_ingredients_view,
-    export_materials_view,
-    export_recipes_view,
+    export_ingredients_context_rich,
+    export_materials_context_rich,
+    export_recipes_context_rich,
 )
 from src.services.enhanced_import_service import (
     FormatDetectionResult,
     detect_format,
-    import_context_rich_view,
+    import_context_rich,
 )
 
 
@@ -158,7 +158,7 @@ class TestFormatAutoDetection:
     def test_detect_context_rich_format(self, temp_export_dir):
         """Test detection of context-rich format."""
         data = {
-            "view_type": "ingredients",
+            "export_type": "ingredients",
             "_meta": {
                 "editable_fields": ["description", "notes"],
                 "readonly_fields": ["id", "slug", "display_name"],
@@ -174,7 +174,7 @@ class TestFormatAutoDetection:
         result = detect_format(str(file_path))
 
         assert result.format_type == "context_rich"
-        assert result.view_type == "ingredients"
+        assert result.export_type == "ingredients"
         assert "description" in result.editable_fields
 
     def test_detect_normalized_format(self, temp_export_dir):
@@ -327,14 +327,14 @@ class TestContextRichRoundtrip:
         6. Verify readonly fields unchanged
         """
         # 1. Export context-rich ingredients
-        export_path = str(temp_export_dir / "ingredients_view.json")
-        export_ingredients_view(export_path)
+        export_path = str(temp_export_dir / "aug_ingredients.json")
+        export_ingredients_context_rich(export_path)
 
         # 2. Load and verify export structure
         with open(export_path) as f:
             data = json.load(f)
 
-        assert data.get("view_type") == "ingredients"
+        assert data.get("export_type") == "ingredients"
         assert "_meta" in data
         assert "editable_fields" in data["_meta"]
 
@@ -361,7 +361,7 @@ class TestContextRichRoundtrip:
             json.dump(data, f)
 
         # 5. Import modified file
-        result = import_context_rich_view(export_path)
+        result = import_context_rich(export_path)
 
         assert result.merged >= 1, f"Expected merge, got: {result.get_summary()}"
 
@@ -386,14 +386,14 @@ class TestContextRichRoundtrip:
     ):
         """Test materials context-rich export -> modify -> import workflow."""
         # 1. Export context-rich materials
-        export_path = str(temp_export_dir / "materials_view.json")
-        export_materials_view(export_path)
+        export_path = str(temp_export_dir / "aug_materials.json")
+        export_materials_context_rich(export_path)
 
         # 2. Load and modify
         with open(export_path) as f:
             data = json.load(f)
 
-        assert data.get("view_type") == "materials"
+        assert data.get("export_type") == "materials"
 
         # Find test material
         test_record = None
@@ -412,7 +412,7 @@ class TestContextRichRoundtrip:
             json.dump(data, f)
 
         # 3. Import
-        result = import_context_rich_view(export_path)
+        result = import_context_rich(export_path)
 
         # 4. Verify
         with session_scope() as session:
@@ -439,14 +439,14 @@ class TestContextRichRoundtrip:
         Once Recipe model is updated to include slug, this test can be enabled.
         """
         # 1. Export context-rich recipes
-        export_path = str(temp_export_dir / "recipes_view.json")
-        export_recipes_view(export_path)
+        export_path = str(temp_export_dir / "aug_recipes.json")
+        export_recipes_context_rich(export_path)
 
         # 2. Load and modify
         with open(export_path) as f:
             data = json.load(f)
 
-        assert data.get("view_type") == "recipes"
+        assert data.get("export_type") == "recipes"
 
         # Find test recipe by name (recipes don't have slug)
         test_record = None
@@ -465,7 +465,7 @@ class TestContextRichRoundtrip:
             json.dump(data, f)
 
         # 3. Import - would fail because recipes don't have slug
-        result = import_context_rich_view(export_path)
+        result = import_context_rich(export_path)
 
         # 4. Verify
         with session_scope() as session:
@@ -486,7 +486,7 @@ class TestContextRichRoundtrip:
         """
         # Create a context-rich file with modified computed fields
         data = {
-            "view_type": "ingredients",
+            "export_type": "ingredients",
             "_meta": {
                 "editable_fields": ["description", "notes"],
                 "readonly_fields": [
@@ -519,7 +519,7 @@ class TestContextRichRoundtrip:
             json.dump(data, f)
 
         # Import
-        result = import_context_rich_view(str(file_path))
+        result = import_context_rich(str(file_path))
 
         assert result.merged == 1
 
@@ -544,7 +544,7 @@ class TestContextRichRoundtrip:
     ):
         """Test that dry_run mode previews changes without modifying database."""
         data = {
-            "view_type": "ingredients",
+            "export_type": "ingredients",
             "_meta": {
                 "editable_fields": ["description"],
                 "readonly_fields": ["slug"],
@@ -562,7 +562,7 @@ class TestContextRichRoundtrip:
             json.dump(data, f)
 
         # Import with dry_run=True
-        result = import_context_rich_view(str(file_path), dry_run=True)
+        result = import_context_rich(str(file_path), dry_run=True)
 
         assert result.dry_run is True
         assert result.merged >= 1  # Would have merged
@@ -833,7 +833,7 @@ class TestErrorHandlingAndRollback:
     def test_context_rich_import_handles_not_found(self, test_db, temp_export_dir):
         """Test that records not found in DB are handled gracefully."""
         data = {
-            "view_type": "ingredients",
+            "export_type": "ingredients",
             "_meta": {
                 "editable_fields": ["description"],
                 "readonly_fields": ["slug"],
@@ -850,7 +850,7 @@ class TestErrorHandlingAndRollback:
         with open(file_path, "w") as f:
             json.dump(data, f)
 
-        result = import_context_rich_view(str(file_path))
+        result = import_context_rich(str(file_path))
 
         # Should report not found, not crash
         assert result.not_found == 1
@@ -861,7 +861,7 @@ class TestErrorHandlingAndRollback:
     ):
         """Test that valid records are processed even when some fail."""
         data = {
-            "view_type": "ingredients",
+            "export_type": "ingredients",
             "_meta": {
                 "editable_fields": ["description"],
                 "readonly_fields": ["slug"],
@@ -884,7 +884,7 @@ class TestErrorHandlingAndRollback:
         with open(file_path, "w") as f:
             json.dump(data, f)
 
-        result = import_context_rich_view(str(file_path))
+        result = import_context_rich(str(file_path))
 
         # Valid record should be merged
         assert result.merged == 1

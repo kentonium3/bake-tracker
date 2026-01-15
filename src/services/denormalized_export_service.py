@@ -1,17 +1,17 @@
 """
-Denormalized Export Service - Export AI-friendly views with context fields.
+Denormalized Export Service - Export AI-friendly context-rich files with enriched fields.
 
 Provides denormalized exports for external augmentation by AI assistants.
-Each view includes:
+Each context-rich export includes:
 - All relevant fields from the primary entity
 - Context fields from related entities (names, categories, etc.)
 - _meta section documenting editable vs readonly fields
 
 Usage:
-    from src.services.denormalized_export_service import export_products_view
+    from src.services.denormalized_export_service import export_products_context_rich
 
-    # Export products view with context
-    result = export_products_view("view_products.json")
+    # Export products with context for AI augmentation
+    result = export_products_context_rich("aug_products.json")
     print(f"Exported {result.record_count} products")
 """
 
@@ -27,6 +27,9 @@ from sqlalchemy.orm import Session, joinedload
 
 from sqlalchemy import func
 
+from src.models.composition import Composition
+from src.models.finished_good import FinishedGood
+from src.models.finished_unit import FinishedUnit
 from src.models.ingredient import Ingredient
 from src.models.inventory_item import InventoryItem
 from src.models.material import Material
@@ -62,9 +65,9 @@ def _format_money(value) -> Optional[str]:
 
 @dataclass
 class ExportResult:
-    """Result of a view export operation."""
+    """Result of a context-rich export operation."""
 
-    view_type: str
+    export_type: str
     record_count: int
     output_path: str
     export_date: str
@@ -74,8 +77,8 @@ class ExportResult:
 # Constants - Editable/Readonly Field Definitions
 # ============================================================================
 
-# Products view field definitions
-PRODUCTS_VIEW_EDITABLE = [
+# Products context-rich field definitions
+PRODUCTS_CONTEXT_RICH_EDITABLE = [
     "brand",
     "product_name",
     "package_size",
@@ -89,7 +92,7 @@ PRODUCTS_VIEW_EDITABLE = [
     "is_hidden",
 ]
 
-PRODUCTS_VIEW_READONLY = [
+PRODUCTS_CONTEXT_RICH_READONLY = [
     "id",
     "uuid",
     "ingredient_id",
@@ -105,8 +108,8 @@ PRODUCTS_VIEW_READONLY = [
     "last_modified",
 ]
 
-# Inventory view field definitions
-INVENTORY_VIEW_EDITABLE = [
+# Inventory context-rich field definitions
+INVENTORY_CONTEXT_RICH_EDITABLE = [
     "quantity",
     "location",
     "expiration_date",
@@ -115,7 +118,7 @@ INVENTORY_VIEW_EDITABLE = [
     "lot_or_batch",
 ]
 
-INVENTORY_VIEW_READONLY = [
+INVENTORY_CONTEXT_RICH_READONLY = [
     "id",
     "uuid",
     "product_id",
@@ -133,12 +136,12 @@ INVENTORY_VIEW_READONLY = [
     "last_updated",
 ]
 
-# Purchases view field definitions
-PURCHASES_VIEW_EDITABLE = [
+# Purchases context-rich field definitions
+PURCHASES_CONTEXT_RICH_EDITABLE = [
     "notes",
 ]
 
-PURCHASES_VIEW_READONLY = [
+PURCHASES_CONTEXT_RICH_READONLY = [
     "id",
     "uuid",
     "product_id",
@@ -158,8 +161,8 @@ PURCHASES_VIEW_READONLY = [
     "created_at",
 ]
 
-# Ingredients view field definitions
-INGREDIENTS_VIEW_EDITABLE = [
+# Ingredients context-rich field definitions
+INGREDIENTS_CONTEXT_RICH_EDITABLE = [
     "description",
     "notes",
     "density_volume_value",
@@ -168,7 +171,7 @@ INGREDIENTS_VIEW_EDITABLE = [
     "density_weight_unit",
 ]
 
-INGREDIENTS_VIEW_READONLY = [
+INGREDIENTS_CONTEXT_RICH_READONLY = [
     "id",
     "uuid",
     "slug",
@@ -186,13 +189,13 @@ INGREDIENTS_VIEW_READONLY = [
     "last_modified",
 ]
 
-# Materials view field definitions
-MATERIALS_VIEW_EDITABLE = [
+# Materials context-rich field definitions
+MATERIALS_CONTEXT_RICH_EDITABLE = [
     "description",
     "notes",
 ]
 
-MATERIALS_VIEW_READONLY = [
+MATERIALS_CONTEXT_RICH_READONLY = [
     "id",
     "uuid",
     "slug",
@@ -206,14 +209,14 @@ MATERIALS_VIEW_READONLY = [
     "total_inventory_value",
 ]
 
-# Recipes view field definitions
-RECIPES_VIEW_EDITABLE = [
+# Recipes context-rich field definitions
+RECIPES_CONTEXT_RICH_EDITABLE = [
     "notes",
     "source",
     "estimated_time_minutes",
 ]
 
-RECIPES_VIEW_READONLY = [
+RECIPES_CONTEXT_RICH_READONLY = [
     "id",
     "uuid",
     "name",
@@ -231,6 +234,80 @@ RECIPES_VIEW_READONLY = [
     "cost_per_unit",
     "date_added",
     "last_modified",
+]
+
+# Material Products context-rich field definitions
+MATERIAL_PRODUCTS_CONTEXT_RICH_EDITABLE = [
+    "name",
+    "brand",
+    "package_quantity",
+    "package_unit",
+    "notes",
+    "is_hidden",
+]
+
+MATERIAL_PRODUCTS_CONTEXT_RICH_READONLY = [
+    "id",
+    "uuid",
+    "slug",
+    "material_id",
+    "material_slug",
+    "material_name",
+    "material_category",
+    "material_subcategory",
+    "supplier_id",
+    "supplier_name",
+    "sku",
+    "quantity_in_base_units",
+    "current_inventory",
+    "weighted_avg_cost",
+    "inventory_value",
+]
+
+# Finished Units context-rich field definitions
+FINISHED_UNITS_CONTEXT_RICH_EDITABLE = [
+    "description",
+    "production_notes",
+    "notes",
+]
+
+FINISHED_UNITS_CONTEXT_RICH_READONLY = [
+    "id",
+    "uuid",
+    "slug",
+    "display_name",
+    "recipe_id",
+    "recipe_slug",
+    "recipe_name",
+    "recipe_category",
+    "yield_mode",
+    "items_per_batch",
+    "item_unit",
+    "batch_percentage",
+    "portion_description",
+    "category",
+    "inventory_count",
+    "created_at",
+    "updated_at",
+]
+
+# Finished Goods context-rich field definitions
+FINISHED_GOODS_CONTEXT_RICH_EDITABLE = [
+    "description",
+    "packaging_instructions",
+    "notes",
+]
+
+FINISHED_GOODS_CONTEXT_RICH_READONLY = [
+    "id",
+    "uuid",
+    "slug",
+    "display_name",
+    "assembly_type",
+    "inventory_count",
+    "components",
+    "created_at",
+    "updated_at",
 ]
 
 
@@ -469,14 +546,14 @@ def _get_last_purchase_price(product: Product) -> Optional[str]:
 # ============================================================================
 
 
-def export_products_view(
+def export_products_context_rich(
     output_path: str,
     session: Optional[Session] = None,
 ) -> ExportResult:
     """
     Export products with ingredient and supplier context for AI augmentation.
 
-    Creates a view file with all product fields plus context fields:
+    Creates a context-rich file with all product fields plus context fields:
     - ingredient_slug, ingredient_name, ingredient_category
     - preferred_supplier_name (from preferred_supplier)
     - last_purchase_price, last_purchase_date (from most recent purchase)
@@ -490,13 +567,13 @@ def export_products_view(
         ExportResult with export metadata
     """
     if session is not None:
-        return _export_products_view_impl(output_path, session)
+        return _export_products_context_rich_impl(output_path, session)
     with session_scope() as sess:
-        return _export_products_view_impl(output_path, sess)
+        return _export_products_context_rich_impl(output_path, sess)
 
 
-def _export_products_view_impl(output_path: str, session: Session) -> ExportResult:
-    """Internal implementation of products view export."""
+def _export_products_context_rich_impl(output_path: str, session: Session) -> ExportResult:
+    """Internal implementation of products context-rich export."""
     # Query products with eager loading
     products = (
         session.query(Product)
@@ -559,13 +636,13 @@ def _export_products_view_impl(output_path: str, session: Session) -> ExportResu
             "last_modified": p.last_modified.isoformat() if p.last_modified else None,
         })
 
-    view_data = {
+    export_data = {
         "version": "1.0",
-        "view_type": "products",
+        "export_type": "products",
         "export_date": export_date,
         "_meta": {
-            "editable_fields": PRODUCTS_VIEW_EDITABLE,
-            "readonly_fields": PRODUCTS_VIEW_READONLY,
+            "editable_fields": PRODUCTS_CONTEXT_RICH_EDITABLE,
+            "readonly_fields": PRODUCTS_CONTEXT_RICH_READONLY,
         },
         "records": records,
     }
@@ -574,10 +651,10 @@ def _export_products_view_impl(output_path: str, session: Session) -> ExportResu
     output = Path(output_path)
     output.parent.mkdir(parents=True, exist_ok=True)
     with open(output, "w", encoding="utf-8") as f:
-        json.dump(view_data, f, indent=2, ensure_ascii=False, default=str)
+        json.dump(export_data, f, indent=2, ensure_ascii=False, default=str)
 
     return ExportResult(
-        view_type="products",
+        export_type="products",
         record_count=len(records),
         output_path=str(output),
         export_date=export_date,
@@ -589,14 +666,14 @@ def _export_products_view_impl(output_path: str, session: Session) -> ExportResu
 # ============================================================================
 
 
-def export_inventory_view(
+def export_inventory_context_rich(
     output_path: str,
     session: Optional[Session] = None,
 ) -> ExportResult:
     """
     Export inventory items with product and purchase context.
 
-    Creates a view file with all inventory fields plus context fields:
+    Creates a context-rich file with all inventory fields plus context fields:
     - product_slug, product_name, brand, package_unit
     - ingredient_slug, ingredient_name
     - purchase_date, unit_cost (from associated purchase if available)
@@ -609,13 +686,13 @@ def export_inventory_view(
         ExportResult with export metadata
     """
     if session is not None:
-        return _export_inventory_view_impl(output_path, session)
+        return _export_inventory_context_rich_impl(output_path, session)
     with session_scope() as sess:
-        return _export_inventory_view_impl(output_path, sess)
+        return _export_inventory_context_rich_impl(output_path, sess)
 
 
-def _export_inventory_view_impl(output_path: str, session: Session) -> ExportResult:
-    """Internal implementation of inventory view export."""
+def _export_inventory_context_rich_impl(output_path: str, session: Session) -> ExportResult:
+    """Internal implementation of inventory context-rich export."""
     # Query inventory items with eager loading
     items = (
         session.query(InventoryItem)
@@ -672,13 +749,13 @@ def _export_inventory_view_impl(output_path: str, session: Session) -> ExportRes
             ),
         })
 
-    view_data = {
+    export_data = {
         "version": "1.0",
-        "view_type": "inventory",
+        "export_type": "inventory",
         "export_date": export_date,
         "_meta": {
-            "editable_fields": INVENTORY_VIEW_EDITABLE,
-            "readonly_fields": INVENTORY_VIEW_READONLY,
+            "editable_fields": INVENTORY_CONTEXT_RICH_EDITABLE,
+            "readonly_fields": INVENTORY_CONTEXT_RICH_READONLY,
         },
         "records": records,
     }
@@ -687,10 +764,10 @@ def _export_inventory_view_impl(output_path: str, session: Session) -> ExportRes
     output = Path(output_path)
     output.parent.mkdir(parents=True, exist_ok=True)
     with open(output, "w", encoding="utf-8") as f:
-        json.dump(view_data, f, indent=2, ensure_ascii=False, default=str)
+        json.dump(export_data, f, indent=2, ensure_ascii=False, default=str)
 
     return ExportResult(
-        view_type="inventory",
+        export_type="inventory",
         record_count=len(records),
         output_path=str(output),
         export_date=export_date,
@@ -702,14 +779,14 @@ def _export_inventory_view_impl(output_path: str, session: Session) -> ExportRes
 # ============================================================================
 
 
-def export_purchases_view(
+def export_purchases_context_rich(
     output_path: str,
     session: Optional[Session] = None,
 ) -> ExportResult:
     """
     Export purchases with product and supplier details.
 
-    Creates a view file with all purchase fields plus context fields:
+    Creates a context-rich file with all purchase fields plus context fields:
     - product_slug, product_name, brand
     - ingredient_slug, ingredient_name
     - supplier_name, supplier_city, supplier_state
@@ -722,13 +799,13 @@ def export_purchases_view(
         ExportResult with export metadata
     """
     if session is not None:
-        return _export_purchases_view_impl(output_path, session)
+        return _export_purchases_context_rich_impl(output_path, session)
     with session_scope() as sess:
-        return _export_purchases_view_impl(output_path, sess)
+        return _export_purchases_context_rich_impl(output_path, sess)
 
 
-def _export_purchases_view_impl(output_path: str, session: Session) -> ExportResult:
-    """Internal implementation of purchases view export."""
+def _export_purchases_context_rich_impl(output_path: str, session: Session) -> ExportResult:
+    """Internal implementation of purchases context-rich export."""
     # Query purchases with eager loading
     purchases = (
         session.query(Purchase)
@@ -775,13 +852,13 @@ def _export_purchases_view_impl(output_path: str, session: Session) -> ExportRes
             "supplier_state": supplier.state if supplier else None,
         })
 
-    view_data = {
+    export_data = {
         "version": "1.0",
-        "view_type": "purchases",
+        "export_type": "purchases",
         "export_date": export_date,
         "_meta": {
-            "editable_fields": PURCHASES_VIEW_EDITABLE,
-            "readonly_fields": PURCHASES_VIEW_READONLY,
+            "editable_fields": PURCHASES_CONTEXT_RICH_EDITABLE,
+            "readonly_fields": PURCHASES_CONTEXT_RICH_READONLY,
         },
         "records": records,
     }
@@ -790,10 +867,10 @@ def _export_purchases_view_impl(output_path: str, session: Session) -> ExportRes
     output = Path(output_path)
     output.parent.mkdir(parents=True, exist_ok=True)
     with open(output, "w", encoding="utf-8") as f:
-        json.dump(view_data, f, indent=2, ensure_ascii=False, default=str)
+        json.dump(export_data, f, indent=2, ensure_ascii=False, default=str)
 
     return ExportResult(
-        view_type="purchases",
+        export_type="purchases",
         record_count=len(records),
         output_path=str(output),
         export_date=export_date,
@@ -805,14 +882,14 @@ def _export_purchases_view_impl(output_path: str, session: Session) -> ExportRes
 # ============================================================================
 
 
-def export_ingredients_view(
+def export_ingredients_context_rich(
     output_path: str,
     session: Optional[Session] = None,
 ) -> ExportResult:
     """
     Export ingredients with context for AI augmentation.
 
-    Creates a view file with all ingredient fields plus context fields:
+    Creates a context-rich file with all ingredient fields plus context fields:
     - category_hierarchy: Full path (e.g., "Chocolate > Dark Chocolate > Semi-Sweet Chips")
     - products: Nested array of related products with purchase info
     - inventory_total: Sum of inventory across all products
@@ -826,13 +903,13 @@ def export_ingredients_view(
         ExportResult with export metadata
     """
     if session is not None:
-        return _export_ingredients_view_impl(output_path, session)
+        return _export_ingredients_context_rich_impl(output_path, session)
     with session_scope() as sess:
-        return _export_ingredients_view_impl(output_path, sess)
+        return _export_ingredients_context_rich_impl(output_path, sess)
 
 
-def _export_ingredients_view_impl(output_path: str, session: Session) -> ExportResult:
-    """Internal implementation of ingredients view export."""
+def _export_ingredients_context_rich_impl(output_path: str, session: Session) -> ExportResult:
+    """Internal implementation of ingredients context-rich export."""
     # Query ingredients with eager loading
     ingredients = (
         session.query(Ingredient)
@@ -889,13 +966,13 @@ def _export_ingredients_view_impl(output_path: str, session: Session) -> ExportR
             "last_modified": ing.last_modified.isoformat() if ing.last_modified else None,
         })
 
-    view_data = {
+    export_data = {
         "version": "1.0",
-        "view_type": "ingredients",
+        "export_type": "ingredients",
         "export_date": export_date,
         "_meta": {
-            "editable_fields": INGREDIENTS_VIEW_EDITABLE,
-            "readonly_fields": INGREDIENTS_VIEW_READONLY,
+            "editable_fields": INGREDIENTS_CONTEXT_RICH_EDITABLE,
+            "readonly_fields": INGREDIENTS_CONTEXT_RICH_READONLY,
         },
         "records": records,
     }
@@ -904,10 +981,10 @@ def _export_ingredients_view_impl(output_path: str, session: Session) -> ExportR
     output = Path(output_path)
     output.parent.mkdir(parents=True, exist_ok=True)
     with open(output, "w", encoding="utf-8") as f:
-        json.dump(view_data, f, indent=2, ensure_ascii=False, default=str)
+        json.dump(export_data, f, indent=2, ensure_ascii=False, default=str)
 
     return ExportResult(
-        view_type="ingredients",
+        export_type="ingredients",
         record_count=len(records),
         output_path=str(output),
         export_date=export_date,
@@ -919,14 +996,14 @@ def _export_ingredients_view_impl(output_path: str, session: Session) -> ExportR
 # ============================================================================
 
 
-def export_materials_view(
+def export_materials_context_rich(
     output_path: str,
     session: Optional[Session] = None,
 ) -> ExportResult:
     """
     Export materials with context for AI augmentation.
 
-    Creates a view file with all material fields plus context fields:
+    Creates a context-rich file with all material fields plus context fields:
     - category_hierarchy: Full path (e.g., "Ribbons > Satin > Red Satin Ribbon")
     - products: Nested array of related products
     - total_inventory: Sum of inventory across all products (in base units)
@@ -940,13 +1017,13 @@ def export_materials_view(
         ExportResult with export metadata
     """
     if session is not None:
-        return _export_materials_view_impl(output_path, session)
+        return _export_materials_context_rich_impl(output_path, session)
     with session_scope() as sess:
-        return _export_materials_view_impl(output_path, sess)
+        return _export_materials_context_rich_impl(output_path, sess)
 
 
-def _export_materials_view_impl(output_path: str, session: Session) -> ExportResult:
-    """Internal implementation of materials view export."""
+def _export_materials_context_rich_impl(output_path: str, session: Session) -> ExportResult:
+    """Internal implementation of materials context-rich export."""
     # Query materials with eager loading
     materials = (
         session.query(Material)
@@ -996,13 +1073,13 @@ def _export_materials_view_impl(output_path: str, session: Session) -> ExportRes
             "total_inventory_value": _calculate_material_inventory_value(mat),
         })
 
-    view_data = {
+    export_data = {
         "version": "1.0",
-        "view_type": "materials",
+        "export_type": "materials",
         "export_date": export_date,
         "_meta": {
-            "editable_fields": MATERIALS_VIEW_EDITABLE,
-            "readonly_fields": MATERIALS_VIEW_READONLY,
+            "editable_fields": MATERIALS_CONTEXT_RICH_EDITABLE,
+            "readonly_fields": MATERIALS_CONTEXT_RICH_READONLY,
         },
         "records": records,
     }
@@ -1011,10 +1088,10 @@ def _export_materials_view_impl(output_path: str, session: Session) -> ExportRes
     output = Path(output_path)
     output.parent.mkdir(parents=True, exist_ok=True)
     with open(output, "w", encoding="utf-8") as f:
-        json.dump(view_data, f, indent=2, ensure_ascii=False, default=str)
+        json.dump(export_data, f, indent=2, ensure_ascii=False, default=str)
 
     return ExportResult(
-        view_type="materials",
+        export_type="materials",
         record_count=len(records),
         output_path=str(output),
         export_date=export_date,
@@ -1026,14 +1103,14 @@ def _export_materials_view_impl(output_path: str, session: Session) -> ExportRes
 # ============================================================================
 
 
-def export_recipes_view(
+def export_recipes_context_rich(
     output_path: str,
     session: Optional[Session] = None,
 ) -> ExportResult:
     """
     Export recipes with full ingredient details and computed costs.
 
-    Creates a view file with all recipe fields plus context fields:
+    Creates a context-rich file with all recipe fields plus context fields:
     - ingredients: Nested array with ingredient details and costs
     - recipe_components: Nested array of sub-recipes (if any)
     - total_cost: Computed total cost of all ingredients
@@ -1047,13 +1124,13 @@ def export_recipes_view(
         ExportResult with export metadata
     """
     if session is not None:
-        return _export_recipes_view_impl(output_path, session)
+        return _export_recipes_context_rich_impl(output_path, session)
     with session_scope() as sess:
-        return _export_recipes_view_impl(output_path, sess)
+        return _export_recipes_context_rich_impl(output_path, sess)
 
 
-def _export_recipes_view_impl(output_path: str, session: Session) -> ExportResult:
-    """Internal implementation of recipes view export."""
+def _export_recipes_context_rich_impl(output_path: str, session: Session) -> ExportResult:
+    """Internal implementation of recipes context-rich export."""
     # Query recipes with eager loading
     recipes = (
         session.query(Recipe)
@@ -1129,13 +1206,13 @@ def _export_recipes_view_impl(output_path: str, session: Session) -> ExportResul
             "last_modified": recipe.last_modified.isoformat() if recipe.last_modified else None,
         })
 
-    view_data = {
+    export_data = {
         "version": "1.0",
-        "view_type": "recipes",
+        "export_type": "recipes",
         "export_date": export_date,
         "_meta": {
-            "editable_fields": RECIPES_VIEW_EDITABLE,
-            "readonly_fields": RECIPES_VIEW_READONLY,
+            "editable_fields": RECIPES_CONTEXT_RICH_EDITABLE,
+            "readonly_fields": RECIPES_CONTEXT_RICH_READONLY,
         },
         "records": records,
     }
@@ -1144,10 +1221,323 @@ def _export_recipes_view_impl(output_path: str, session: Session) -> ExportResul
     output = Path(output_path)
     output.parent.mkdir(parents=True, exist_ok=True)
     with open(output, "w", encoding="utf-8") as f:
-        json.dump(view_data, f, indent=2, ensure_ascii=False, default=str)
+        json.dump(export_data, f, indent=2, ensure_ascii=False, default=str)
 
     return ExportResult(
-        view_type="recipes",
+        export_type="recipes",
+        record_count=len(records),
+        output_path=str(output),
+        export_date=export_date,
+    )
+
+
+# ============================================================================
+# Material Products Context-Rich Export
+# ============================================================================
+
+
+def export_material_products_context_rich(
+    output_path: str,
+    session: Optional[Session] = None,
+) -> ExportResult:
+    """
+    Export material products with context for AI augmentation.
+
+    Creates a context-rich file with all material product fields plus context fields:
+    - material_slug, material_name, material_category, material_subcategory
+    - supplier_name
+
+    Args:
+        output_path: Path for the output JSON file
+        session: Optional SQLAlchemy session for transactional composition
+
+    Returns:
+        ExportResult with export metadata
+    """
+    if session is not None:
+        return _export_material_products_context_rich_impl(output_path, session)
+    with session_scope() as sess:
+        return _export_material_products_context_rich_impl(output_path, sess)
+
+
+def _export_material_products_context_rich_impl(output_path: str, session: Session) -> ExportResult:
+    """Internal implementation of material products context-rich export."""
+    # Query material products with eager loading
+    products = (
+        session.query(MaterialProduct)
+        .options(
+            joinedload(MaterialProduct.material).joinedload(Material.subcategory).joinedload(MaterialSubcategory.category),
+            joinedload(MaterialProduct.supplier),
+        )
+        .all()
+    )
+
+    export_date = utc_now().isoformat() + "Z"
+    records = []
+
+    for p in products:
+        material = p.material
+        subcategory = material.subcategory if material else None
+        category = subcategory.category if subcategory else None
+        supplier = p.supplier
+
+        records.append({
+            # Primary fields (readonly)
+            "id": p.id,
+            "uuid": str(p.uuid) if p.uuid else None,
+            "slug": p.slug,
+            # Material context (readonly)
+            "material_id": p.material_id,
+            "material_slug": material.slug if material else None,
+            "material_name": material.name if material else None,
+            "material_category": category.name if category else None,
+            "material_subcategory": subcategory.name if subcategory else None,
+            # Supplier context (readonly)
+            "supplier_id": p.supplier_id,
+            "supplier_name": supplier.name if supplier else None,
+            # Editable fields
+            "name": p.name,
+            "brand": p.brand,
+            "package_quantity": p.package_quantity,
+            "package_unit": p.package_unit,
+            "notes": p.notes,
+            "is_hidden": p.is_hidden,
+            # Additional readonly fields
+            "sku": p.sku,
+            "quantity_in_base_units": p.quantity_in_base_units,
+            "current_inventory": p.current_inventory,
+            "weighted_avg_cost": str(p.weighted_avg_cost) if p.weighted_avg_cost else None,
+            "inventory_value": str(p.inventory_value) if p.inventory_value else None,
+        })
+
+    export_data = {
+        "version": "1.0",
+        "export_type": "material_products",
+        "export_date": export_date,
+        "_meta": {
+            "editable_fields": MATERIAL_PRODUCTS_CONTEXT_RICH_EDITABLE,
+            "readonly_fields": MATERIAL_PRODUCTS_CONTEXT_RICH_READONLY,
+        },
+        "records": records,
+    }
+
+    # Write to file
+    output = Path(output_path)
+    output.parent.mkdir(parents=True, exist_ok=True)
+    with open(output, "w", encoding="utf-8") as f:
+        json.dump(export_data, f, indent=2, ensure_ascii=False, default=str)
+
+    return ExportResult(
+        export_type="material_products",
+        record_count=len(records),
+        output_path=str(output),
+        export_date=export_date,
+    )
+
+
+# ============================================================================
+# Finished Units Context-Rich Export
+# ============================================================================
+
+
+def export_finished_units_context_rich(
+    output_path: str,
+    session: Optional[Session] = None,
+) -> ExportResult:
+    """
+    Export finished units with recipe context for AI augmentation.
+
+    Creates a context-rich file with all finished unit fields plus context fields:
+    - recipe_slug, recipe_name, recipe_category
+
+    Args:
+        output_path: Path for the output JSON file
+        session: Optional SQLAlchemy session for transactional composition
+
+    Returns:
+        ExportResult with export metadata
+    """
+    if session is not None:
+        return _export_finished_units_context_rich_impl(output_path, session)
+    with session_scope() as sess:
+        return _export_finished_units_context_rich_impl(output_path, sess)
+
+
+def _export_finished_units_context_rich_impl(output_path: str, session: Session) -> ExportResult:
+    """Internal implementation of finished units context-rich export."""
+    # Query finished units with eager loading
+    units = (
+        session.query(FinishedUnit)
+        .options(
+            joinedload(FinishedUnit.recipe),
+        )
+        .all()
+    )
+
+    export_date = utc_now().isoformat() + "Z"
+    records = []
+
+    for unit in units:
+        recipe = unit.recipe
+
+        records.append({
+            # Primary fields (readonly)
+            "id": unit.id,
+            "uuid": str(unit.uuid) if unit.uuid else None,
+            "slug": unit.slug,
+            "display_name": unit.display_name,
+            # Recipe context (readonly)
+            "recipe_id": unit.recipe_id,
+            "recipe_slug": recipe.slug if recipe and hasattr(recipe, 'slug') else None,
+            "recipe_name": recipe.name if recipe else None,
+            "recipe_category": recipe.category if recipe else None,
+            # Yield info (readonly)
+            "yield_mode": unit.yield_mode.value if unit.yield_mode else None,
+            "items_per_batch": unit.items_per_batch,
+            "item_unit": unit.item_unit,
+            "batch_percentage": float(unit.batch_percentage) if unit.batch_percentage else None,
+            "portion_description": unit.portion_description,
+            # Editable fields
+            "description": unit.description,
+            "production_notes": unit.production_notes,
+            "notes": unit.notes,
+            # Additional readonly fields
+            "category": unit.category,
+            "inventory_count": unit.inventory_count,
+            # Timestamps
+            "created_at": unit.created_at.isoformat() if unit.created_at else None,
+            "updated_at": unit.updated_at.isoformat() if unit.updated_at else None,
+        })
+
+    export_data = {
+        "version": "1.0",
+        "export_type": "finished_units",
+        "export_date": export_date,
+        "_meta": {
+            "editable_fields": FINISHED_UNITS_CONTEXT_RICH_EDITABLE,
+            "readonly_fields": FINISHED_UNITS_CONTEXT_RICH_READONLY,
+        },
+        "records": records,
+    }
+
+    # Write to file
+    output = Path(output_path)
+    output.parent.mkdir(parents=True, exist_ok=True)
+    with open(output, "w", encoding="utf-8") as f:
+        json.dump(export_data, f, indent=2, ensure_ascii=False, default=str)
+
+    return ExportResult(
+        export_type="finished_units",
+        record_count=len(records),
+        output_path=str(output),
+        export_date=export_date,
+    )
+
+
+# ============================================================================
+# Finished Goods Context-Rich Export
+# ============================================================================
+
+
+def export_finished_goods_context_rich(
+    output_path: str,
+    session: Optional[Session] = None,
+) -> ExportResult:
+    """
+    Export finished goods with component context for AI augmentation.
+
+    Creates a context-rich file with all finished good fields plus context fields:
+    - components: Nested array with component details
+
+    Args:
+        output_path: Path for the output JSON file
+        session: Optional SQLAlchemy session for transactional composition
+
+    Returns:
+        ExportResult with export metadata
+    """
+    if session is not None:
+        return _export_finished_goods_context_rich_impl(output_path, session)
+    with session_scope() as sess:
+        return _export_finished_goods_context_rich_impl(output_path, sess)
+
+
+def _export_finished_goods_context_rich_impl(output_path: str, session: Session) -> ExportResult:
+    """Internal implementation of finished goods context-rich export."""
+    # Query finished goods with eager loading
+    goods = (
+        session.query(FinishedGood)
+        .options(
+            joinedload(FinishedGood.components).joinedload(Composition.finished_unit_component),
+            joinedload(FinishedGood.components).joinedload(Composition.finished_good_component),
+        )
+        .all()
+    )
+
+    export_date = utc_now().isoformat() + "Z"
+    records = []
+
+    for good in goods:
+        # Build nested components array
+        components_data = []
+        for comp in good.components:
+            component_info = {
+                "composition_id": comp.id,
+                "quantity": comp.component_quantity,
+                "notes": comp.component_notes,
+                "sort_order": comp.sort_order,
+            }
+            if comp.finished_unit_component:
+                component_info["type"] = "finished_unit"
+                component_info["component_slug"] = comp.finished_unit_component.slug
+                component_info["component_name"] = comp.finished_unit_component.display_name
+            elif comp.finished_good_component:
+                component_info["type"] = "finished_good"
+                component_info["component_slug"] = comp.finished_good_component.slug
+                component_info["component_name"] = comp.finished_good_component.display_name
+            components_data.append(component_info)
+
+        # Sort components by sort_order
+        components_data.sort(key=lambda x: x.get("sort_order", 999))
+
+        records.append({
+            # Primary fields (readonly)
+            "id": good.id,
+            "uuid": str(good.uuid) if good.uuid else None,
+            "slug": good.slug,
+            "display_name": good.display_name,
+            "assembly_type": good.assembly_type.value if good.assembly_type else None,
+            # Editable fields
+            "description": good.description,
+            "packaging_instructions": good.packaging_instructions,
+            "notes": good.notes,
+            # Additional readonly fields
+            "inventory_count": good.inventory_count,
+            "components": components_data,
+            # Timestamps
+            "created_at": good.created_at.isoformat() if good.created_at else None,
+            "updated_at": good.updated_at.isoformat() if good.updated_at else None,
+        })
+
+    export_data = {
+        "version": "1.0",
+        "export_type": "finished_goods",
+        "export_date": export_date,
+        "_meta": {
+            "editable_fields": FINISHED_GOODS_CONTEXT_RICH_EDITABLE,
+            "readonly_fields": FINISHED_GOODS_CONTEXT_RICH_READONLY,
+        },
+        "records": records,
+    }
+
+    # Write to file
+    output = Path(output_path)
+    output.parent.mkdir(parents=True, exist_ok=True)
+    with open(output, "w", encoding="utf-8") as f:
+        json.dump(export_data, f, indent=2, ensure_ascii=False, default=str)
+
+    return ExportResult(
+        export_type="finished_goods",
         record_count=len(records),
         output_path=str(output),
         export_date=export_date,
@@ -1159,48 +1549,60 @@ def _export_recipes_view_impl(output_path: str, session: Session) -> ExportResul
 # ============================================================================
 
 
-def export_all_views(
+def export_all_context_rich(
     output_dir: str,
     session: Optional[Session] = None,
 ) -> Dict[str, ExportResult]:
     """
-    Export all denormalized views to a directory.
+    Export all context-rich files to a directory.
 
     Args:
         output_dir: Directory for output files
         session: Optional SQLAlchemy session for transactional composition
 
     Returns:
-        Dictionary mapping view_type to ExportResult
+        Dictionary mapping entity type to ExportResult
     """
     output_path = Path(output_dir)
     output_path.mkdir(parents=True, exist_ok=True)
 
     results = {}
 
-    # Export all views
-    results["products"] = export_products_view(
-        str(output_path / "view_products.json"),
+    # Export all context-rich files
+    results["products"] = export_products_context_rich(
+        str(output_path / "aug_products.json"),
         session=session,
     )
-    results["inventory"] = export_inventory_view(
-        str(output_path / "view_inventory.json"),
+    results["inventory"] = export_inventory_context_rich(
+        str(output_path / "aug_inventory.json"),
         session=session,
     )
-    results["purchases"] = export_purchases_view(
-        str(output_path / "view_purchases.json"),
+    results["purchases"] = export_purchases_context_rich(
+        str(output_path / "aug_purchases.json"),
         session=session,
     )
-    results["ingredients"] = export_ingredients_view(
-        str(output_path / "view_ingredients.json"),
+    results["ingredients"] = export_ingredients_context_rich(
+        str(output_path / "aug_ingredients.json"),
         session=session,
     )
-    results["materials"] = export_materials_view(
-        str(output_path / "view_materials.json"),
+    results["materials"] = export_materials_context_rich(
+        str(output_path / "aug_materials.json"),
         session=session,
     )
-    results["recipes"] = export_recipes_view(
-        str(output_path / "view_recipes.json"),
+    results["recipes"] = export_recipes_context_rich(
+        str(output_path / "aug_recipes.json"),
+        session=session,
+    )
+    results["material_products"] = export_material_products_context_rich(
+        str(output_path / "aug_material_products.json"),
+        session=session,
+    )
+    results["finished_units"] = export_finished_units_context_rich(
+        str(output_path / "aug_finished_units.json"),
+        session=session,
+    )
+    results["finished_goods"] = export_finished_goods_context_rich(
+        str(output_path / "aug_finished_goods.json"),
         session=session,
     )
 

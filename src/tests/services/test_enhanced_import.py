@@ -16,15 +16,15 @@ from src.services.enhanced_import_service import (
     EnhancedImportResult,
     FormatDetectionResult,
     FormatType,
-    _collect_missing_fks_for_view,
+    _collect_missing_fks,
     _detect_format_from_data,
     _find_existing_by_slug,
     _resolve_fk_by_slug,
-    _view_type_to_entity_type,
+    _export_type_to_entity_type,
     detect_format,
     extract_editable_fields,
-    import_context_rich_view,
-    import_view,
+    import_context_rich,
+    import_context_rich_export,
     merge_fields,
 )
 from src.services.fk_resolver_service import (
@@ -113,10 +113,10 @@ def sample_product(test_db, sample_ingredient, unique_id):
 
 @pytest.fixture
 def view_file_products(sample_ingredient, tmp_path, unique_id):
-    """Create a product view file for testing."""
-    view_data = {
+    """Create a product export file for testing."""
+    export_data = {
         "version": "1.0",
-        "view_type": "products",
+        "export_type": "products",
         "export_date": "2025-12-25T10:00:00Z",
         "_meta": {
             "editable_fields": ["brand", "product_name", "package_size", "upc_code"],
@@ -136,17 +136,17 @@ def view_file_products(sample_ingredient, tmp_path, unique_id):
 
     file_path = tmp_path / "view_products.json"
     with open(file_path, "w") as f:
-        json.dump(view_data, f)
+        json.dump(export_data, f)
 
     return str(file_path)
 
 
 @pytest.fixture
 def view_file_with_missing_fk(tmp_path, unique_id):
-    """Create a product view file with missing FK reference."""
-    view_data = {
+    """Create a product export file with missing FK reference."""
+    export_data = {
         "version": "1.0",
-        "view_type": "products",
+        "export_type": "products",
         "export_date": "2025-12-25T10:00:00Z",
         "_meta": {
             "editable_fields": ["brand", "product_name"],
@@ -166,7 +166,7 @@ def view_file_with_missing_fk(tmp_path, unique_id):
 
     file_path = tmp_path / "view_products_missing_fk.json"
     with open(file_path, "w") as f:
-        json.dump(view_data, f)
+        json.dump(export_data, f)
 
     return str(file_path)
 
@@ -289,27 +289,27 @@ class TestEnhancedImportResult:
 
 
 class TestViewTypeToEntityType:
-    """Tests for _view_type_to_entity_type."""
+    """Tests for _export_type_to_entity_type."""
 
     def test_products_mapping(self):
-        assert _view_type_to_entity_type("products") == "product"
-        assert _view_type_to_entity_type("product") == "product"
+        assert _export_type_to_entity_type("products") == "product"
+        assert _export_type_to_entity_type("product") == "product"
 
     def test_ingredients_mapping(self):
-        assert _view_type_to_entity_type("ingredients") == "ingredient"
-        assert _view_type_to_entity_type("ingredient") == "ingredient"
+        assert _export_type_to_entity_type("ingredients") == "ingredient"
+        assert _export_type_to_entity_type("ingredient") == "ingredient"
 
     def test_suppliers_mapping(self):
-        assert _view_type_to_entity_type("suppliers") == "supplier"
-        assert _view_type_to_entity_type("supplier") == "supplier"
+        assert _export_type_to_entity_type("suppliers") == "supplier"
+        assert _export_type_to_entity_type("supplier") == "supplier"
 
     def test_case_insensitive(self):
-        assert _view_type_to_entity_type("Products") == "product"
-        assert _view_type_to_entity_type("SUPPLIERS") == "supplier"
+        assert _export_type_to_entity_type("Products") == "product"
+        assert _export_type_to_entity_type("SUPPLIERS") == "supplier"
 
     def test_unknown_returns_none(self):
-        assert _view_type_to_entity_type("unknown") is None
-        assert _view_type_to_entity_type("") is None
+        assert _export_type_to_entity_type("unknown") is None
+        assert _export_type_to_entity_type("") is None
 
 
 class TestResolveFkBySlug:
@@ -396,7 +396,7 @@ class TestFindExistingBySlug:
 
 
 class TestCollectMissingFksForView:
-    """Tests for _collect_missing_fks_for_view."""
+    """Tests for _collect_missing_fks."""
 
     def test_collect_missing_ingredient_fk(self, test_db, unique_id):
         """Test collecting missing ingredient FK references."""
@@ -416,7 +416,7 @@ class TestCollectMissingFksForView:
         ]
 
         with session_scope() as session:
-            missing = _collect_missing_fks_for_view(records, "product", session)
+            missing = _collect_missing_fks(records, "product", session)
 
         assert len(missing) == 1
         assert missing[0].entity_type == "ingredient"
@@ -436,7 +436,7 @@ class TestCollectMissingFksForView:
         ]
 
         with session_scope() as session:
-            missing = _collect_missing_fks_for_view(records, "product", session)
+            missing = _collect_missing_fks(records, "product", session)
 
         assert len(missing) == 1
         assert missing[0].entity_type == "supplier"
@@ -454,7 +454,7 @@ class TestCollectMissingFksForView:
         ]
 
         with session_scope() as session:
-            missing = _collect_missing_fks_for_view(records, "product", session)
+            missing = _collect_missing_fks(records, "product", session)
 
         assert len(missing) == 0
 
@@ -471,23 +471,23 @@ class TestCollectMissingFksForView:
         ]
 
         with session_scope() as session:
-            missing = _collect_missing_fks_for_view(records, "product", session)
+            missing = _collect_missing_fks(records, "product", session)
 
         assert len(missing[0].sample_records) == 3
         assert missing[0].affected_record_count == 10
 
 
 # ============================================================================
-# Import View Tests
+# Import Context-Rich Export Tests
 # ============================================================================
 
 
 class TestImportViewBasic:
-    """Basic tests for import_view function."""
+    """Basic tests for import_context_rich_export function."""
 
     def test_import_file_not_found(self, test_db, tmp_path):
         """Test import with non-existent file."""
-        result = import_view(str(tmp_path / "nonexistent.json"))
+        result = import_context_rich_export(str(tmp_path / "nonexistent.json"))
 
         assert result.failed == 1
         assert "File not found" in result.errors[0]["message"]
@@ -497,27 +497,27 @@ class TestImportViewBasic:
         file_path = tmp_path / "invalid.json"
         file_path.write_text("not valid json")
 
-        result = import_view(str(file_path))
+        result = import_context_rich_export(str(file_path))
 
         assert result.failed == 1
         assert "Invalid JSON" in result.errors[0]["message"]
 
-    def test_import_missing_view_type(self, test_db, tmp_path):
-        """Test import with missing view_type."""
+    def test_import_missing_export_type(self, test_db, tmp_path):
+        """Test import with missing export_type."""
         file_path = tmp_path / "missing_type.json"
         file_path.write_text('{"records": []}')
 
-        result = import_view(str(file_path))
+        result = import_context_rich_export(str(file_path))
 
         assert result.failed == 1
-        assert "Missing view_type" in result.errors[0]["message"]
+        assert "Missing export_type" in result.errors[0]["message"]
 
     def test_import_empty_records(self, test_db, tmp_path):
         """Test import with empty records."""
         file_path = tmp_path / "empty.json"
-        file_path.write_text('{"view_type": "products", "records": []}')
+        file_path.write_text('{"export_type": "products", "records": []}')
 
-        result = import_view(str(file_path))
+        result = import_context_rich_export(str(file_path))
 
         assert len(result.warnings) == 1
         assert "No records" in result.warnings[0]["message"]
@@ -528,7 +528,7 @@ class TestImportViewMergeMode:
 
     def test_merge_adds_new_record(self, view_file_products, sample_ingredient):
         """Test that merge mode adds new records."""
-        result = import_view(view_file_products, mode="merge")
+        result = import_context_rich_export(view_file_products, mode="merge")
 
         assert result.successful >= 1
 
@@ -536,10 +536,10 @@ class TestImportViewMergeMode:
         self, sample_product, sample_ingredient, tmp_path, unique_id
     ):
         """Test that merge mode updates existing records."""
-        # Create view with updated data for existing product
-        view_data = {
+        # Create export file with updated data for existing product
+        export_data = {
             "version": "1.0",
-            "view_type": "products",
+            "export_type": "products",
             "_meta": {
                 "editable_fields": ["product_name", "upc_code"],
             },
@@ -556,9 +556,9 @@ class TestImportViewMergeMode:
 
         file_path = tmp_path / "view_update.json"
         with open(file_path, "w") as f:
-            json.dump(view_data, f)
+            json.dump(export_data, f)
 
-        result = import_view(str(file_path), mode="merge")
+        result = import_context_rich_export(str(file_path), mode="merge")
 
         assert result.successful >= 1
 
@@ -571,10 +571,10 @@ class TestImportViewMergeMode:
         self, sample_product, sample_ingredient, tmp_path
     ):
         """Test that merge mode skips unchanged records."""
-        # Create view with same data as existing product
-        view_data = {
+        # Create export file with same data as existing product
+        export_data = {
             "version": "1.0",
-            "view_type": "products",
+            "export_type": "products",
             "_meta": {
                 "editable_fields": ["product_name"],
             },
@@ -591,9 +591,9 @@ class TestImportViewMergeMode:
 
         file_path = tmp_path / "view_unchanged.json"
         with open(file_path, "w") as f:
-            json.dump(view_data, f)
+            json.dump(export_data, f)
 
-        result = import_view(str(file_path), mode="merge")
+        result = import_context_rich_export(str(file_path), mode="merge")
 
         assert result.skipped >= 1
 
@@ -603,7 +603,7 @@ class TestImportViewSkipExistingMode:
 
     def test_skip_existing_adds_new(self, view_file_products, sample_ingredient):
         """Test that skip_existing mode adds new records."""
-        result = import_view(view_file_products, mode="skip_existing")
+        result = import_context_rich_export(view_file_products, mode="skip_existing")
 
         assert result.successful >= 1
 
@@ -611,10 +611,10 @@ class TestImportViewSkipExistingMode:
         self, sample_product, sample_ingredient, tmp_path, unique_id
     ):
         """Test that skip_existing mode skips existing records."""
-        # Create view with existing product (different name to ensure it would update in merge mode)
-        view_data = {
+        # Create export file with existing product (different name to ensure it would update in merge mode)
+        export_data = {
             "version": "1.0",
-            "view_type": "products",
+            "export_type": "products",
             "_meta": {
                 "editable_fields": ["product_name"],
             },
@@ -631,9 +631,9 @@ class TestImportViewSkipExistingMode:
 
         file_path = tmp_path / "view_skip.json"
         with open(file_path, "w") as f:
-            json.dump(view_data, f)
+            json.dump(export_data, f)
 
-        result = import_view(str(file_path), mode="skip_existing")
+        result = import_context_rich_export(str(file_path), mode="skip_existing")
 
         assert result.skipped >= 1
 
@@ -648,9 +648,9 @@ class TestImportViewDryRun:
 
     def test_dry_run_makes_no_changes(self, sample_ingredient, tmp_path, unique_id):
         """Test that dry_run mode makes no database changes."""
-        view_data = {
+        export_data = {
             "version": "1.0",
-            "view_type": "products",
+            "export_type": "products",
             "_meta": {
                 "editable_fields": ["brand", "product_name"],
             },
@@ -667,13 +667,13 @@ class TestImportViewDryRun:
 
         file_path = tmp_path / "view_dryrun.json"
         with open(file_path, "w") as f:
-            json.dump(view_data, f)
+            json.dump(export_data, f)
 
         # Count products before
         with session_scope() as session:
             count_before = session.query(Product).count()
 
-        result = import_view(str(file_path), mode="merge", dry_run=True)
+        result = import_context_rich_export(str(file_path), mode="merge", dry_run=True)
 
         assert result.dry_run is True
         assert result.successful >= 1
@@ -688,7 +688,7 @@ class TestImportViewDryRun:
         self, view_file_products, sample_ingredient
     ):
         """Test that dry_run summary indicates no changes were made."""
-        result = import_view(view_file_products, dry_run=True)
+        result = import_context_rich_export(view_file_products, dry_run=True)
 
         summary = result.get_summary()
         assert "DRY RUN" in summary
@@ -701,9 +701,9 @@ class TestImportViewSkipOnError:
         self, sample_ingredient, tmp_path, unique_id
     ):
         """Test that skip_on_error imports valid records and skips invalid."""
-        view_data = {
+        export_data = {
             "version": "1.0",
-            "view_type": "products",
+            "export_type": "products",
             "_meta": {
                 "editable_fields": ["brand", "product_name"],
             },
@@ -729,18 +729,18 @@ class TestImportViewSkipOnError:
 
         file_path = tmp_path / "view_skip_error.json"
         with open(file_path, "w") as f:
-            json.dump(view_data, f)
+            json.dump(export_data, f)
 
-        result = import_view(str(file_path), mode="merge", skip_on_error=True)
+        result = import_context_rich_export(str(file_path), mode="merge", skip_on_error=True)
 
         assert result.successful >= 1
         assert result.skipped_due_to_fk >= 1
 
     def test_skip_on_error_writes_log_file(self, test_db, tmp_path, unique_id):
         """Test that skip_on_error writes skipped records log."""
-        view_data = {
+        export_data = {
             "version": "1.0",
-            "view_type": "products",
+            "export_type": "products",
             "_meta": {
                 "editable_fields": [],
             },
@@ -756,9 +756,9 @@ class TestImportViewSkipOnError:
 
         file_path = tmp_path / "view_log_test.json"
         with open(file_path, "w") as f:
-            json.dump(view_data, f)
+            json.dump(export_data, f)
 
-        result = import_view(str(file_path), mode="merge", skip_on_error=True)
+        result = import_context_rich_export(str(file_path), mode="merge", skip_on_error=True)
 
         assert result.skipped_records_path is not None
         assert Path(result.skipped_records_path).exists()
@@ -778,17 +778,17 @@ class TestImportViewFKResolution:
         self, test_db, view_file_with_missing_fk
     ):
         """Test that import fails with missing FK and no resolver."""
-        result = import_view(view_file_with_missing_fk, mode="merge")
+        result = import_context_rich_export(view_file_with_missing_fk, mode="merge")
 
         assert result.failed >= 1
         assert "Missing foreign key" in result.errors[0]["message"]
 
     def test_import_with_resolver_create(self, test_db, tmp_path, unique_id):
         """Test import with FK resolver choosing CREATE."""
-        # Create a view with missing ingredient
-        view_data = {
+        # Create an export file with missing ingredient
+        export_data = {
             "version": "1.0",
-            "view_type": "products",
+            "export_type": "products",
             "_meta": {
                 "editable_fields": ["brand"],
             },
@@ -804,7 +804,7 @@ class TestImportViewFKResolution:
 
         file_path = tmp_path / "view_resolve.json"
         with open(file_path, "w") as f:
-            json.dump(view_data, f)
+            json.dump(export_data, f)
 
         # Create a mock resolver that creates new entities
         mock_resolver = MagicMock()
@@ -819,16 +819,16 @@ class TestImportViewFKResolution:
             },
         )
 
-        result = import_view(str(file_path), mode="merge", resolver=mock_resolver)
+        result = import_context_rich_export(str(file_path), mode="merge", resolver=mock_resolver)
 
         assert mock_resolver.resolve.called
         assert result.created_entities.get("ingredient", 0) >= 1
 
     def test_import_with_resolver_skip(self, test_db, tmp_path, unique_id):
         """Test import with FK resolver choosing SKIP."""
-        view_data = {
+        export_data = {
             "version": "1.0",
-            "view_type": "products",
+            "export_type": "products",
             "_meta": {
                 "editable_fields": [],
             },
@@ -844,7 +844,7 @@ class TestImportViewFKResolution:
 
         file_path = tmp_path / "view_skip_fk.json"
         with open(file_path, "w") as f:
-            json.dump(view_data, f)
+            json.dump(export_data, f)
 
         # Create a mock resolver that skips
         mock_resolver = MagicMock()
@@ -854,15 +854,15 @@ class TestImportViewFKResolution:
             missing_value=f"skip_ingredient_{unique_id}",
         )
 
-        result = import_view(str(file_path), mode="merge", resolver=mock_resolver)
+        result = import_context_rich_export(str(file_path), mode="merge", resolver=mock_resolver)
 
         assert result.skipped_due_to_fk >= 1
 
     def test_import_with_resolver_map(self, sample_ingredient, tmp_path, unique_id):
         """Test import with FK resolver choosing MAP."""
-        view_data = {
+        export_data = {
             "version": "1.0",
-            "view_type": "products",
+            "export_type": "products",
             "_meta": {
                 "editable_fields": [],
             },
@@ -878,7 +878,7 @@ class TestImportViewFKResolution:
 
         file_path = tmp_path / "view_map_fk.json"
         with open(file_path, "w") as f:
-            json.dump(view_data, f)
+            json.dump(export_data, f)
 
         # Create a mock resolver that maps to existing
         mock_resolver = MagicMock()
@@ -889,7 +889,7 @@ class TestImportViewFKResolution:
             mapped_id=sample_ingredient["id"],
         )
 
-        result = import_view(str(file_path), mode="merge", resolver=mock_resolver)
+        result = import_context_rich_export(str(file_path), mode="merge", resolver=mock_resolver)
 
         assert result.mapped_entities.get("ingredient", 0) >= 1
 
@@ -899,9 +899,9 @@ class TestImportViewDuplicateHandling:
 
     def test_first_occurrence_wins(self, sample_ingredient, tmp_path, unique_id):
         """Test that first occurrence of duplicate records wins."""
-        view_data = {
+        export_data = {
             "version": "1.0",
-            "view_type": "products",
+            "export_type": "products",
             "_meta": {
                 "editable_fields": ["product_name"],
             },
@@ -927,9 +927,9 @@ class TestImportViewDuplicateHandling:
 
         file_path = tmp_path / "view_duplicate.json"
         with open(file_path, "w") as f:
-            json.dump(view_data, f)
+            json.dump(export_data, f)
 
-        result = import_view(str(file_path), mode="merge")
+        result = import_context_rich_export(str(file_path), mode="merge")
 
         # Should have processed both records
         assert result.total_records == 2
@@ -957,9 +957,9 @@ class TestFormatDetectionResult:
         """Test display name for context-rich format."""
         result = FormatDetectionResult(
             format_type="context_rich",
-            view_type="ingredients",
+            export_type="ingredients",
         )
-        assert result.display_name == "Context-Rich View (Ingredients)"
+        assert result.display_name == "Context-Rich (Ingredients)"
 
     def test_normalized_display_name(self):
         """Test display name for normalized format."""
@@ -988,12 +988,12 @@ class TestFormatDetectionResult:
         """Test that summary includes format and record count."""
         result = FormatDetectionResult(
             format_type="context_rich",
-            view_type="ingredients",
+            export_type="ingredients",
             entity_count=150,
             editable_fields=["description", "notes"],
         )
         summary = result.summary
-        assert "Context-Rich View" in summary
+        assert "Context-Rich" in summary
         assert "150" in summary
         assert "description" in summary
 
@@ -1004,7 +1004,7 @@ class TestDetectFormatFromData:
     def test_detect_context_rich_format(self):
         """Test detection of context-rich format by _meta.editable_fields."""
         data = {
-            "view_type": "ingredients",
+            "export_type": "ingredients",
             "_meta": {
                 "editable_fields": ["description", "notes"],
                 "readonly_fields": ["id", "slug"],
@@ -1014,7 +1014,7 @@ class TestDetectFormatFromData:
         result = _detect_format_from_data(data)
 
         assert result.format_type == "context_rich"
-        assert result.view_type == "ingredients"
+        assert result.export_type == "ingredients"
         assert result.editable_fields == ["description", "notes"]
         assert result.readonly_fields == ["id", "slug"]
         assert result.entity_count == 1
@@ -1094,11 +1094,11 @@ class TestDetectFormatFromData:
 
         assert result.format_type == "unknown"
         assert result.entity_count == 3  # Best guess from some_array
-        assert result.view_type == "some_array"
+        assert result.export_type == "some_array"
 
     def test_detect_format_preserves_raw_data(self):
         """Test that detection preserves raw data for subsequent import."""
-        data = {"view_type": "test", "_meta": {"editable_fields": []}, "records": []}
+        data = {"export_type": "test", "_meta": {"editable_fields": []}, "records": []}
         result = _detect_format_from_data(data)
 
         assert result.raw_data == data
@@ -1110,7 +1110,7 @@ class TestDetectFormatFromFile:
     def test_detect_format_context_rich_file(self, tmp_path):
         """Test format detection from context-rich file."""
         data = {
-            "view_type": "materials",
+            "export_type": "materials",
             "_meta": {
                 "editable_fields": ["description"],
                 "readonly_fields": ["id", "slug"],
@@ -1124,7 +1124,7 @@ class TestDetectFormatFromFile:
         result = detect_format(str(file_path))
 
         assert result.format_type == "context_rich"
-        assert result.view_type == "materials"
+        assert result.export_type == "materials"
 
     def test_detect_format_normalized_file(self, tmp_path):
         """Test format detection from normalized backup file."""
@@ -1330,7 +1330,7 @@ class TestContextRichImportResult:
 
 
 class TestImportContextRichView:
-    """Tests for import_context_rich_view function."""
+    """Tests for import_context_rich function."""
 
     def test_import_context_rich_merges_existing(
         self, test_db, sample_ingredient, tmp_path, unique_id
@@ -1338,7 +1338,7 @@ class TestImportContextRichView:
         """Test that context-rich import merges with existing records."""
         # Create context-rich file with updated description
         data = {
-            "view_type": "ingredients",
+            "export_type": "ingredients",
             "_meta": {
                 "editable_fields": ["description", "notes"],
                 "readonly_fields": ["id", "slug", "display_name", "product_count"],
@@ -1358,7 +1358,7 @@ class TestImportContextRichView:
         with open(file_path, "w") as f:
             json.dump(data, f)
 
-        result = import_context_rich_view(str(file_path))
+        result = import_context_rich(str(file_path))
 
         assert result.total_records == 1
         assert result.merged == 1
@@ -1380,7 +1380,7 @@ class TestImportContextRichView:
     ):
         """Test that computed/readonly fields are ignored during import."""
         data = {
-            "view_type": "ingredients",
+            "export_type": "ingredients",
             "_meta": {
                 "editable_fields": ["description"],
                 "readonly_fields": ["id", "slug", "display_name"],
@@ -1397,7 +1397,7 @@ class TestImportContextRichView:
         with open(file_path, "w") as f:
             json.dump(data, f)
 
-        result = import_context_rich_view(str(file_path))
+        result = import_context_rich(str(file_path))
 
         assert result.merged == 1
 
@@ -1414,7 +1414,7 @@ class TestImportContextRichView:
     def test_import_context_rich_skips_not_found(self, test_db, tmp_path, unique_id):
         """Test that records not found in database are tracked as not_found."""
         data = {
-            "view_type": "ingredients",
+            "export_type": "ingredients",
             "_meta": {
                 "editable_fields": ["description"],
                 "readonly_fields": ["slug"],
@@ -1430,7 +1430,7 @@ class TestImportContextRichView:
         with open(file_path, "w") as f:
             json.dump(data, f)
 
-        result = import_context_rich_view(str(file_path))
+        result = import_context_rich(str(file_path))
 
         assert result.total_records == 1
         assert result.not_found == 1
@@ -1441,7 +1441,7 @@ class TestImportContextRichView:
     ):
         """Test that dry_run mode makes no changes."""
         data = {
-            "view_type": "ingredients",
+            "export_type": "ingredients",
             "_meta": {
                 "editable_fields": ["description"],
                 "readonly_fields": ["slug"],
@@ -1457,7 +1457,7 @@ class TestImportContextRichView:
         with open(file_path, "w") as f:
             json.dump(data, f)
 
-        result = import_context_rich_view(str(file_path), dry_run=True)
+        result = import_context_rich(str(file_path), dry_run=True)
 
         assert result.dry_run is True
         assert result.merged == 1
@@ -1483,7 +1483,7 @@ class TestImportContextRichView:
         with open(file_path, "w") as f:
             json.dump(data, f)
 
-        result = import_context_rich_view(str(file_path))
+        result = import_context_rich(str(file_path))
 
         assert len(result.errors) >= 1
         assert "Expected context-rich" in result.errors[0]["reason"]
@@ -1504,7 +1504,7 @@ class TestImportContextRichView:
 
         # Now import with same description
         data = {
-            "view_type": "ingredients",
+            "export_type": "ingredients",
             "_meta": {
                 "editable_fields": ["description"],
                 "readonly_fields": ["slug"],
@@ -1520,21 +1520,21 @@ class TestImportContextRichView:
         with open(file_path, "w") as f:
             json.dump(data, f)
 
-        result = import_context_rich_view(str(file_path))
+        result = import_context_rich(str(file_path))
 
         assert result.skipped == 1
         assert result.merged == 0
 
 
 class TestViewTypeMappingExtended:
-    """Extended tests for view type mapping including materials and recipes."""
+    """Extended tests for export type mapping including materials and recipes."""
 
     def test_materials_mapping(self):
-        """Test materials view type mapping."""
-        assert _view_type_to_entity_type("materials") == "material"
-        assert _view_type_to_entity_type("material") == "material"
+        """Test materials export type mapping."""
+        assert _export_type_to_entity_type("materials") == "material"
+        assert _export_type_to_entity_type("material") == "material"
 
     def test_recipes_mapping(self):
-        """Test recipes view type mapping."""
-        assert _view_type_to_entity_type("recipes") == "recipe"
-        assert _view_type_to_entity_type("recipe") == "recipe"
+        """Test recipes export type mapping."""
+        assert _export_type_to_entity_type("recipes") == "recipe"
+        assert _export_type_to_entity_type("recipe") == "recipe"
