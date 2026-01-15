@@ -1308,6 +1308,64 @@ class TestGetUsageCounts:
         assert result["recipe_count"] == 0
 
 
+class TestGetAggregatedUsageCounts:
+    """Tests for get_aggregated_usage_counts() (Feature 052 - review fix)."""
+
+    def test_l2_returns_direct_counts(self, test_db):
+        """Test L2 ingredient returns direct counts only."""
+        semi_sweet = (
+            test_db.query(Ingredient).filter(Ingredient.slug == "semi-sweet-chips").first()
+        )
+
+        result = ingredient_hierarchy_service.get_aggregated_usage_counts(
+            semi_sweet.id, session=test_db
+        )
+
+        assert "product_count" in result
+        assert "recipe_count" in result
+        assert result["descendant_count"] == 0  # L2 has no descendants
+
+    def test_l1_aggregates_l2_children(self, test_db):
+        """Test L1 ingredient aggregates counts from L2 children."""
+        dark_choc = (
+            test_db.query(Ingredient).filter(Ingredient.slug == "dark-chocolate").first()
+        )
+
+        result = ingredient_hierarchy_service.get_aggregated_usage_counts(
+            dark_choc.id, session=test_db
+        )
+
+        assert "product_count" in result
+        assert "recipe_count" in result
+        # dark-chocolate has L2 children (semi-sweet-chips, bittersweet-chips)
+        assert result["descendant_count"] >= 1
+
+    def test_l0_aggregates_all_descendants(self, test_db):
+        """Test L0 ingredient aggregates counts from L1 and L2 descendants."""
+        chocolate = (
+            test_db.query(Ingredient).filter(Ingredient.slug == "chocolate").first()
+        )
+
+        result = ingredient_hierarchy_service.get_aggregated_usage_counts(
+            chocolate.id, session=test_db
+        )
+
+        assert "product_count" in result
+        assert "recipe_count" in result
+        # chocolate has multiple L1 and L2 descendants
+        assert result["descendant_count"] >= 2
+
+    def test_nonexistent_returns_zeros(self, test_db):
+        """Test nonexistent ingredient returns zero counts."""
+        result = ingredient_hierarchy_service.get_aggregated_usage_counts(
+            99999, session=test_db
+        )
+
+        assert result["product_count"] == 0
+        assert result["recipe_count"] == 0
+        assert result["descendant_count"] == 0
+
+
 # =============================================================================
 # Feature 052: Add Leaf Ingredient Tests
 # =============================================================================

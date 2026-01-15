@@ -282,6 +282,77 @@ def get_usage_counts(material_id: int, session=None) -> Dict[str, int]:
         return _impl(session)
 
 
+def get_aggregated_usage_counts(
+    item_type: str, item_id: int, session=None
+) -> Dict[str, int]:
+    """
+    Get aggregated product counts for a material, subcategory, or category.
+
+    Feature 052: Used in Hierarchy Admin UI to show total usage for non-leaf nodes.
+    For materials, returns direct usage only.
+    For subcategories, sums usage of all child materials.
+    For categories, sums usage of all materials in all subcategories.
+
+    Args:
+        item_type: 'material', 'subcategory', or 'category'
+        item_id: ID of the item to check
+        session: Optional SQLAlchemy session
+
+    Returns:
+        {"product_count": int, "material_count": int}
+    """
+    from src.models.material_product import MaterialProduct
+
+    def _impl(session):
+        material_ids = []
+
+        if item_type == "material":
+            material_ids = [item_id]
+
+        elif item_type == "subcategory":
+            # Get all materials in this subcategory
+            materials = (
+                session.query(Material)
+                .filter(Material.subcategory_id == item_id)
+                .all()
+            )
+            material_ids = [m.id for m in materials]
+
+        elif item_type == "category":
+            # Get all subcategories, then all materials
+            subcategories = (
+                session.query(MaterialSubcategory)
+                .filter(MaterialSubcategory.category_id == item_id)
+                .all()
+            )
+            for subcat in subcategories:
+                materials = (
+                    session.query(Material)
+                    .filter(Material.subcategory_id == subcat.id)
+                    .all()
+                )
+                material_ids.extend([m.id for m in materials])
+
+        if not material_ids:
+            return {"product_count": 0, "material_count": 0}
+
+        product_count = (
+            session.query(MaterialProduct)
+            .filter(MaterialProduct.material_id.in_(material_ids))
+            .count()
+        )
+
+        return {
+            "product_count": product_count,
+            "material_count": len(material_ids),
+        }
+
+    if session is not None:
+        return _impl(session)
+    with session_scope() as session:
+        return _impl(session)
+
+
 def add_material(
     subcategory_id: int,
     name: str,

@@ -387,6 +387,65 @@ class TestGetUsageCounts:
         assert isinstance(result["product_count"], int)
 
 
+class TestGetAggregatedUsageCounts:
+    """Tests for get_aggregated_usage_counts() (Feature 052 - review fix)."""
+
+    def test_material_returns_direct_count(self, test_db):
+        """Test material returns direct product count only."""
+        red_satin = test_db.query(Material).filter(Material.slug == "red-satin-1-inch").first()
+
+        result = material_hierarchy_service.get_aggregated_usage_counts(
+            "material", red_satin.id, session=test_db
+        )
+
+        assert "product_count" in result
+        assert result["material_count"] == 1  # Just itself
+
+    def test_subcategory_aggregates_materials(self, test_db):
+        """Test subcategory aggregates counts from all child materials."""
+        satin = test_db.query(MaterialSubcategory).filter(MaterialSubcategory.slug == "satin").first()
+
+        result = material_hierarchy_service.get_aggregated_usage_counts(
+            "subcategory", satin.id, session=test_db
+        )
+
+        assert "product_count" in result
+        # Satin has red and blue satin materials
+        assert result["material_count"] >= 2
+
+    def test_category_aggregates_all_materials(self, test_db):
+        """Test category aggregates counts from all subcategories and materials."""
+        ribbons = test_db.query(MaterialCategory).filter(MaterialCategory.slug == "ribbons").first()
+
+        result = material_hierarchy_service.get_aggregated_usage_counts(
+            "category", ribbons.id, session=test_db
+        )
+
+        assert "product_count" in result
+        # Ribbons has satin (2 materials) and grosgrain (1 material)
+        assert result["material_count"] >= 3
+
+    def test_empty_subcategory_returns_zeros(self, test_db):
+        """Test empty subcategory returns zero counts."""
+        # Create empty subcategory
+        ribbons = test_db.query(MaterialCategory).filter(MaterialCategory.slug == "ribbons").first()
+        empty_subcat = MaterialSubcategory(
+            name="Empty Subcategory",
+            slug="empty-subcategory",
+            category_id=ribbons.id,
+            sort_order=99,
+        )
+        test_db.add(empty_subcat)
+        test_db.flush()
+
+        result = material_hierarchy_service.get_aggregated_usage_counts(
+            "subcategory", empty_subcat.id, session=test_db
+        )
+
+        assert result["product_count"] == 0
+        assert result["material_count"] == 0
+
+
 class TestAddMaterial:
     """Tests for add_material() (Feature 052)."""
 

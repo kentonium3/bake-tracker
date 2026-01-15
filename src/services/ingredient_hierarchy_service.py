@@ -753,7 +753,8 @@ def get_usage_counts(ingredient_id: int, session=None) -> Dict[str, int]:
     Returns:
         {"product_count": int, "recipe_count": int}
     """
-    from src.models.recipe_ingredient import RecipeIngredient
+    # RecipeIngredient lives in recipe.py (no separate recipe_ingredient module)
+    from src.models.recipe import RecipeIngredient
 
     def _impl(session):
         product_count = session.query(Product).filter(Product.ingredient_id == ingredient_id).count()
@@ -765,6 +766,89 @@ def get_usage_counts(ingredient_id: int, session=None) -> Dict[str, int]:
         return {
             "product_count": product_count,
             "recipe_count": recipe_count,
+        }
+
+    if session is not None:
+        return _impl(session)
+    with session_scope() as session:
+        return _impl(session)
+
+
+def get_aggregated_usage_counts(ingredient_id: int, session=None) -> Dict[str, int]:
+    """
+    Get aggregated product and recipe counts for an ingredient and all descendants.
+
+    Feature 052: Used in Hierarchy Admin UI to show total usage for L0/L1 nodes.
+    For L2 (leaf) ingredients, returns direct usage only.
+    For L1 ingredients, sums usage of all L2 children.
+    For L0 ingredients, sums usage of all L1 and L2 descendants.
+
+    Args:
+        ingredient_id: ID of ingredient to check
+        session: Optional SQLAlchemy session
+
+    Returns:
+        {"product_count": int, "recipe_count": int, "descendant_count": int}
+    """
+    from src.models.recipe import RecipeIngredient
+
+    def _impl(session):
+        ingredient = (
+            session.query(Ingredient).filter(Ingredient.id == ingredient_id).first()
+        )
+
+        if not ingredient:
+            return {"product_count": 0, "recipe_count": 0, "descendant_count": 0}
+
+        # Collect all ingredient IDs to count (self + descendants)
+        ingredient_ids = [ingredient_id]
+
+        if ingredient.hierarchy_level == 0:
+            # L0: Get all L1 children and their L2 children
+            l1_children = (
+                session.query(Ingredient)
+                .filter(Ingredient.parent_ingredient_id == ingredient_id)
+                .all()
+            )
+            for l1 in l1_children:
+                ingredient_ids.append(l1.id)
+                l2_children = (
+                    session.query(Ingredient)
+                    .filter(Ingredient.parent_ingredient_id == l1.id)
+                    .all()
+                )
+                ingredient_ids.extend([l2.id for l2 in l2_children])
+
+        elif ingredient.hierarchy_level == 1:
+            # L1: Get all L2 children
+            l2_children = (
+                session.query(Ingredient)
+                .filter(Ingredient.parent_ingredient_id == ingredient_id)
+                .all()
+            )
+            ingredient_ids.extend([l2.id for l2 in l2_children])
+
+        # L2: Just count self (already in list)
+
+        # Count products and recipes for all collected IDs
+        product_count = (
+            session.query(Product)
+            .filter(Product.ingredient_id.in_(ingredient_ids))
+            .count()
+        )
+
+        from sqlalchemy import func
+
+        recipe_count = (
+            session.query(func.count(func.distinct(RecipeIngredient.recipe_id)))
+            .filter(RecipeIngredient.ingredient_id.in_(ingredient_ids))
+            .scalar()
+        ) or 0
+
+        return {
+            "product_count": product_count,
+            "recipe_count": recipe_count,
+            "descendant_count": len(ingredient_ids) - 1,  # Exclude self
         }
 
     if session is not None:

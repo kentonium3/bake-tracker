@@ -392,29 +392,41 @@ class HierarchyAdminWindow(ctk.CTkToplevel):
             return name
 
     def _update_usage_counts(self, node: dict):
-        """Fetch and display usage counts for selected item."""
+        """Fetch and display usage counts for selected item (including aggregated for non-leaf)."""
         if self.entity_type == "ingredient":
             level = node.get("hierarchy_level", 0)
-            if level != 2:
-                self.usage_label.configure(text="(Select L2 item for usage)")
+            item_id = node.get("id")
+
+            if not item_id:
+                self.usage_label.configure(text="-")
                 return
 
-            item_id = node.get("id")
-            if item_id:
-                counts = self.hierarchy_service.get_usage_counts(item_id)
-                text = f"Products: {counts['product_count']}, Recipes: {counts['recipe_count']}"
-                self.usage_label.configure(text=text)
+            # Use aggregated counts for all levels
+            counts = self.hierarchy_service.get_aggregated_usage_counts(item_id)
+            text = f"Products: {counts['product_count']}, Recipes: {counts['recipe_count']}"
+
+            # Add descendant info for L0/L1
+            if level < 2 and counts.get("descendant_count", 0) > 0:
+                text += f" (across {counts['descendant_count']} descendants)"
+
+            self.usage_label.configure(text=text)
         else:
             item_type = node.get("type")
-            if item_type != "material":
-                self.usage_label.configure(text="(Select material for usage)")
+            item_id = node.get("id")
+
+            if not item_id:
+                self.usage_label.configure(text="-")
                 return
 
-            item_id = node.get("id")
-            if item_id:
-                counts = self.hierarchy_service.get_usage_counts(item_id)
-                text = f"Products: {counts['product_count']}"
-                self.usage_label.configure(text=text)
+            # Use aggregated counts for all types
+            counts = self.hierarchy_service.get_aggregated_usage_counts(item_type, item_id)
+            text = f"Products: {counts['product_count']}"
+
+            # Add material count info for category/subcategory
+            if item_type != "material" and counts.get("material_count", 0) > 0:
+                text += f" (across {counts['material_count']} materials)"
+
+            self.usage_label.configure(text=text)
 
     def _clear_detail_panel(self):
         """Clear detail panel when nothing selected."""
