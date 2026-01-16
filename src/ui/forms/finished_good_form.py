@@ -541,3 +541,7 @@ class FinishedUnitFormDialog(ctk.CTkToplevel):
         """
         self.wait_window()
         return self.result
+
+
+# Backward compatibility alias - finished_goods_tab.py imports this name
+FinishedGoodFormDialog = FinishedUnitFormDialog
