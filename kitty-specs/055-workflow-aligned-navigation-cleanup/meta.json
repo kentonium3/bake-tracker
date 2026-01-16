@@ -1,0 +1,26 @@
+{
+  "accept_commit": null,
+  "acceptance_history": [
+    {
+      "accepted_at": "2026-01-16T04:41:57Z",
+      "accepted_by": "claude",
+      "accepted_from_commit": "2f1acfd291f110f9cae2dda2bfc22a914a608800",
+      "branch": "055-workflow-aligned-navigation-cleanup",
+      "mode": "local",
+      "validation_commands": [
+        "pytest",
+        "cursor review"
+      ]
+    }
+  ],
+  "acceptance_mode": "local",
+  "accepted_at": "2026-01-16T04:41:57Z",
+  "accepted_by": "claude",
+  "accepted_from_commit": "2f1acfd291f110f9cae2dda2bfc22a914a608800",
+  "created_at": "2026-01-15T20:30:00-05:00",
+  "feature_number": "055",
+  "friendly_name": "Workflow-Aligned Navigation Cleanup",
+  "mission": "software-dev",
+  "slug": "055-workflow-aligned-navigation-cleanup",
+  "source_description": "See docs/design/F055_ui_navigation_cleanup.md for the functional spec."
+}
