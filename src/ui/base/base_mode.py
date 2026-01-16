@@ -53,17 +53,22 @@ class BaseMode(ctk.CTkFrame, ABC):
         self._current_tab_index: int = 0
 
         # Configure grid for mode layout
+        # Feature 055: Dashboard header removed to maximize vertical space
         self.grid_columnconfigure(0, weight=1)
-        self.grid_rowconfigure(1, weight=1)  # Tabview row expands
+        self.grid_rowconfigure(0, weight=1)  # Tabview row expands (was row 1)
 
     def set_dashboard(self, dashboard: "BaseDashboard") -> None:
         """Set the mode's dashboard widget.
+
+        Note: Feature 055 removed dashboard display to maximize vertical space.
+        The dashboard object is retained for potential programmatic access
+        but is not placed in the UI.
 
         Args:
             dashboard: BaseDashboard instance for this mode
         """
         self.dashboard = dashboard
-        self.dashboard.grid(row=0, column=0, sticky="ew", padx=10, pady=(10, 5))
+        # Dashboard not gridded - removed per Feature 055 to save vertical space
 
     def create_tabview(self) -> ctk.CTkTabview:
         """Create and configure the mode's tabview.
@@ -72,7 +77,8 @@ class BaseMode(ctk.CTkFrame, ABC):
             The created CTkTabview instance
         """
         self.tabview = ctk.CTkTabview(self)
-        self.tabview.grid(row=1, column=0, sticky="nsew", padx=10, pady=(5, 10))
+        # Feature 055: Tabview now at row 0 (dashboard header removed)
+        self.tabview.grid(row=0, column=0, sticky="nsew", padx=10, pady=10)
 
         # Bind tab change event for state tracking
         self.tabview.configure(command=self._on_tab_changed)
