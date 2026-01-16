@@ -58,6 +58,7 @@ class HierarchyAdminWindow(ctk.CTkToplevel):
 
         # Build UI
         self._create_layout()
+        self._create_footer()
         self._load_tree()
 
         # Handle window close
@@ -180,6 +181,19 @@ class HierarchyAdminWindow(ctk.CTkToplevel):
 
         # Create action buttons
         self._create_action_buttons()
+
+    def _create_footer(self):
+        """Create footer with Close button."""
+        footer_frame = ctk.CTkFrame(self)
+        footer_frame.pack(fill="x", padx=10, pady=(0, 10))
+
+        close_btn = ctk.CTkButton(
+            footer_frame,
+            text="Close",
+            command=self._on_close,
+            width=100,
+        )
+        close_btn.pack(side="right", padx=5)
 
     def _create_action_buttons(self):
         """Create action buttons in detail panel."""
