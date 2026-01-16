@@ -131,12 +131,13 @@ from src.services.import_export_service import (
 )
 
 
-def check_cascade_delete_risks(import_data: dict, is_coordinated: bool = False) -> list:
-    """Check for potential cascade delete risks in import data.
+def check_import_risks(import_data: dict, is_coordinated: bool = False) -> dict:
+    """Check for potential import risks (CASCADE deletes and RESTRICT violations).
 
     When importing parent entities without their children in replace mode,
-    existing child records will be cascade-deleted. This function identifies
-    such risks.
+    existing child records will be cascade-deleted (CASCADE) or the import
+    will fail at the database level (RESTRICT). This function identifies
+    both types of risks.
 
     Args:
         import_data: The parsed import file data (dict with entity keys)
@@ -144,15 +145,18 @@ def check_cascade_delete_risks(import_data: dict, is_coordinated: bool = False) 
         is_coordinated: True if this is a coordinated (manifest-based) import
 
     Returns:
-        List of risk dictionaries with keys:
-        - parent_entity: Name of parent entity being imported
-        - child_entity: Name of child entity at risk
-        - child_count: Number of existing child records that will be deleted
+        Dict with keys:
+        - cascade_risks: List of CASCADE risk dicts (data loss if proceed)
+        - restrict_risks: List of RESTRICT risk dicts (import will fail)
     """
     from src.models.product import Product
     from src.models.material_product import MaterialProduct
+    from src.models.ingredient import Ingredient
+    from src.models.recipe import Recipe
+    from src.models.recipe_ingredient import RecipeIngredient
 
-    risks = []
+    cascade_risks = []
+    restrict_risks = []
 
     # Determine which entities are in the import
     if is_coordinated:
@@ -163,35 +167,108 @@ def check_cascade_delete_risks(import_data: dict, is_coordinated: bool = False) 
         entities_in_import = set(import_data.keys())
 
     with session_scope() as session:
-        # Check 1: Ingredients without Products
+        # CASCADE Check 1: Ingredients without Products
         has_ingredients = "ingredients" in entities_in_import
         has_products = "products" in entities_in_import
 
         if has_ingredients and not has_products:
             product_count = session.query(Product).count()
             if product_count > 0:
-                risks.append({
+                cascade_risks.append({
                     "parent_entity": "ingredients",
                     "child_entity": "products",
                     "child_count": product_count,
                     "warning": "Products and their inventory items will be permanently deleted.",
                 })
 
-        # Check 2: Materials without MaterialProducts
+        # CASCADE Check 2: Materials without MaterialProducts
         has_materials = "materials" in entities_in_import
         has_material_products = "material_products" in entities_in_import
 
         if has_materials and not has_material_products:
             mp_count = session.query(MaterialProduct).count()
             if mp_count > 0:
-                risks.append({
+                cascade_risks.append({
                     "parent_entity": "materials",
                     "child_entity": "material_products",
                     "child_count": mp_count,
                     "warning": "Material products will be permanently deleted.",
                 })
 
-    return risks
+        # RESTRICT Check: Ingredients referenced by recipes
+        # RecipeIngredient has ondelete="RESTRICT" on ingredient_id FK
+        has_recipes = "recipes" in entities_in_import
+
+        if has_ingredients and not has_recipes:
+            # Get ingredient slugs from the import file
+            if is_coordinated:
+                # For coordinated imports, we'd need to load the ingredients file
+                # For now, we assume all ingredients are provided (conservative)
+                import_ingredient_slugs = None
+            else:
+                # Get slugs from import data
+                ingredients_data = import_data.get("ingredients", [])
+                import_ingredient_slugs = {
+                    ing.get("slug") for ing in ingredients_data if ing.get("slug")
+                }
+
+            # Find ingredients in DB that are referenced by recipes
+            referenced_ingredients = (
+                session.query(Ingredient)
+                .join(RecipeIngredient)
+                .distinct()
+                .all()
+            )
+
+            if referenced_ingredients:
+                # Check which referenced ingredients are missing from import
+                if import_ingredient_slugs is not None:
+                    # For single-file imports, check what's missing
+                    missing_ingredients = [
+                        ing for ing in referenced_ingredients
+                        if ing.slug not in import_ingredient_slugs
+                    ]
+                else:
+                    # For coordinated imports, assume we have all needed ingredients
+                    missing_ingredients = []
+
+                if missing_ingredients:
+                    # Build details: ingredient -> recipes using it
+                    ingredient_recipe_map = {}
+                    for ing in missing_ingredients:
+                        recipes_using = (
+                            session.query(Recipe.name)
+                            .join(RecipeIngredient)
+                            .filter(RecipeIngredient.ingredient_id == ing.id)
+                            .all()
+                        )
+                        recipe_names = [r[0] for r in recipes_using]
+                        ingredient_recipe_map[ing.name] = recipe_names
+
+                    restrict_risks.append({
+                        "risk_type": "ingredient_recipe",
+                        "entity": "ingredients",
+                        "blocking_entity": "recipes",
+                        "missing_count": len(missing_ingredients),
+                        "blocking_count": len(set(
+                            r for recipes in ingredient_recipe_map.values() for r in recipes
+                        )),
+                        "details": ingredient_recipe_map,
+                        "warning": "Import will fail - database RESTRICT constraint prevents deleting ingredients used by recipes.",
+                        "remediation": [
+                            "Add the missing ingredients to your import file",
+                            "Include the recipes entity in the import (replaces recipes too)",
+                            "Delete the affected recipes from the database before import",
+                        ],
+                    })
+
+    return {"cascade_risks": cascade_risks, "restrict_risks": restrict_risks}
+
+
+# Backward compatibility alias
+def check_cascade_delete_risks(import_data: dict, is_coordinated: bool = False) -> list:
+    """Deprecated: Use check_import_risks instead. Returns cascade_risks only."""
+    return check_import_risks(import_data, is_coordinated)["cascade_risks"]
 
 
 def export_all(output_file: str):
@@ -590,13 +667,33 @@ def import_all(input_file: str, mode: str = "merge", force: bool = False):
         with open(input_file, "r", encoding="utf-8") as f:
             import_data = json.load(f)
 
-        # Check for cascade delete risks (only for replace mode)
+        # Check for import risks (only for replace mode)
         if mode == "replace" and not force:
-            risks = check_cascade_delete_risks(import_data, is_coordinated=False)
-            if risks:
+            risks = check_import_risks(import_data, is_coordinated=False)
+            cascade_risks = risks["cascade_risks"]
+            restrict_risks = risks["restrict_risks"]
+
+            # RESTRICT risks are blocking - import WILL fail at database level
+            if restrict_risks:
+                print("\nERROR: Import will fail due to RESTRICT constraint!")
+                print("=" * 60)
+                for risk in restrict_risks:
+                    print(f"\n  {risk['missing_count']} ingredients are used by {risk['blocking_count']} recipes")
+                    print(f"  {risk['warning']}")
+                    print("\n  Missing ingredients and their recipes:")
+                    for ing_name, recipe_names in risk['details'].items():
+                        print(f"    • {ing_name} → used by: {', '.join(recipe_names)}")
+                    print("\n  To fix (choose one):")
+                    for i, remedy in enumerate(risk['remediation'], 1):
+                        print(f"    {i}. {remedy}")
+                print("\n" + "=" * 60)
+                return 1
+
+            # CASCADE risks are warnings - data will be lost but import will succeed
+            if cascade_risks:
                 print("\nERROR: Import rejected due to cascade delete risk!")
                 print("=" * 60)
-                for risk in risks:
+                for risk in cascade_risks:
                     print(f"\n  Importing {risk['parent_entity']} without {risk['child_entity']}:")
                     print(f"  → {risk['child_count']} {risk['child_entity']} will be deleted")
                     print(f"  {risk['warning']}")
@@ -858,13 +955,33 @@ def restore_cmd(backup_dir: str, force: bool = False) -> int:
                 entity_types.append(entity_type)
         import_data = {"entity_types": entity_types}
 
-        # Check for cascade delete risks
+        # Check for import risks (CASCADE and RESTRICT)
         if not force:
-            risks = check_cascade_delete_risks(import_data, is_coordinated=True)
-            if risks:
+            risks = check_import_risks(import_data, is_coordinated=True)
+            cascade_risks = risks["cascade_risks"]
+            restrict_risks = risks["restrict_risks"]
+
+            # RESTRICT risks are blocking - restore WILL fail at database level
+            if restrict_risks:
+                print("\nERROR: Restore will fail due to RESTRICT constraint!")
+                print("=" * 60)
+                for risk in restrict_risks:
+                    print(f"\n  {risk['missing_count']} ingredients are used by {risk['blocking_count']} recipes")
+                    print(f"  {risk['warning']}")
+                    print("\n  Missing ingredients and their recipes:")
+                    for ing_name, recipe_names in risk['details'].items():
+                        print(f"    • {ing_name} → used by: {', '.join(recipe_names)}")
+                    print("\n  To fix (choose one):")
+                    for i, remedy in enumerate(risk['remediation'], 1):
+                        print(f"    {i}. {remedy}")
+                print("\n" + "=" * 60)
+                return 1
+
+            # CASCADE risks are warnings - data will be lost but restore will succeed
+            if cascade_risks:
                 print("\nERROR: Restore rejected due to cascade delete risk!")
                 print("=" * 60)
-                for risk in risks:
+                for risk in cascade_risks:
                     print(f"\n  Backup contains {risk['parent_entity']} but not {risk['child_entity']}:")
                     print(f"  → {risk['child_count']} {risk['child_entity']} will be deleted")
                     print(f"  {risk['warning']}")

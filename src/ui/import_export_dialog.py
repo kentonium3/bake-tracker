@@ -31,12 +31,12 @@ MAX_LOG_ENTRIES = 20
 logger = logging.getLogger(__name__)
 
 
-def _check_cascade_delete_risks(import_data: Dict, is_coordinated: bool = False) -> List[Dict]:
-    """Check for potential cascade delete risks in import data.
+def _check_import_risks(import_data: Dict, is_coordinated: bool = False) -> Dict[str, List[Dict]]:
+    """Check for potential risks in import data (CASCADE and RESTRICT).
 
-    When importing parent entities without their children in replace mode,
-    existing child records will be cascade-deleted. This function identifies
-    such risks.
+    Identifies two types of risks:
+    1. CASCADE risks: Parent entities without children will cause child deletion
+    2. RESTRICT risks: Missing ingredients referenced by recipes will block import
 
     Args:
         import_data: The parsed import file data (dict with entity keys)
@@ -44,38 +44,44 @@ def _check_cascade_delete_risks(import_data: Dict, is_coordinated: bool = False)
         is_coordinated: True if this is a coordinated (manifest-based) import
 
     Returns:
-        List of risk dictionaries with keys:
-        - parent_entity: Name of parent entity being imported
-        - child_entity: Name of child entity at risk
-        - child_count: Number of existing child records that will be deleted
-        - sample_names: List of up to 5 sample names of affected records
+        Dictionary with two lists:
+        - cascade_risks: Data loss warnings (products, material_products)
+        - restrict_risks: Import failure warnings (recipe ingredients)
     """
     from src.services.database import session_scope
     from src.models.product import Product
     from src.models.material_product import MaterialProduct
     from src.models.ingredient import Ingredient
     from src.models.material import Material
+    from src.models.recipe import Recipe, RecipeIngredient
 
-    risks = []
+    cascade_risks = []
+    restrict_risks = []
 
     # Determine which entities are in the import
     if is_coordinated:
-        # Coordinated import: check manifest files list
         entities_in_import = set(import_data.get("entity_types", []))
+        # For coordinated imports, we'd need to load the actual ingredient file
+        # to get the slugs - for now, just check entity presence
+        import_ingredient_slugs = None
     else:
-        # Single file: check top-level keys
         entities_in_import = set(import_data.keys())
+        # Extract ingredient slugs from import data
+        import_ingredients = import_data.get("ingredients", [])
+        import_ingredient_slugs = {ing.get("slug") for ing in import_ingredients if ing.get("slug")}
 
     with session_scope() as session:
-        # Check 1: Ingredients without Products
+        # =====================================================================
+        # CASCADE CHECKS (data loss)
+        # =====================================================================
+
+        # Check 1: Ingredients without Products (CASCADE)
         has_ingredients = "ingredients" in entities_in_import
         has_products = "products" in entities_in_import
 
         if has_ingredients and not has_products:
-            # Count existing products that would be orphaned
             product_count = session.query(Product).count()
             if product_count > 0:
-                # Get sample product names
                 samples = session.query(Product).limit(5).all()
                 sample_names = []
                 for p in samples:
@@ -86,7 +92,7 @@ def _check_cascade_delete_risks(import_data: Dict, is_coordinated: bool = False)
                         name += f" ({p.package_size})"
                     sample_names.append(name)
 
-                risks.append({
+                cascade_risks.append({
                     "parent_entity": "ingredients",
                     "child_entity": "products",
                     "child_count": product_count,
@@ -94,15 +100,13 @@ def _check_cascade_delete_risks(import_data: Dict, is_coordinated: bool = False)
                     "warning": "Products and their inventory items will be permanently deleted.",
                 })
 
-        # Check 2: Materials without MaterialProducts
+        # Check 2: Materials without MaterialProducts (CASCADE)
         has_materials = "materials" in entities_in_import
         has_material_products = "material_products" in entities_in_import
 
         if has_materials and not has_material_products:
-            # Count existing material products that would be orphaned
             mp_count = session.query(MaterialProduct).count()
             if mp_count > 0:
-                # Get sample material product names
                 samples = session.query(MaterialProduct).limit(5).all()
                 sample_names = []
                 for mp in samples:
@@ -111,7 +115,7 @@ def _check_cascade_delete_risks(import_data: Dict, is_coordinated: bool = False)
                     name = f"{mp.brand or 'Generic'} {mat_name}"
                     sample_names.append(name)
 
-                risks.append({
+                cascade_risks.append({
                     "parent_entity": "materials",
                     "child_entity": "material_products",
                     "child_count": mp_count,
@@ -119,26 +123,124 @@ def _check_cascade_delete_risks(import_data: Dict, is_coordinated: bool = False)
                     "warning": "Material products will be permanently deleted.",
                 })
 
-    return risks
+        # =====================================================================
+        # RESTRICT CHECKS (import will fail)
+        # =====================================================================
+
+        # Check 3: Ingredients referenced by Recipes (RESTRICT)
+        # This check applies when importing ingredients without recipes,
+        # and the import file doesn't include all ingredients used by existing recipes
+        has_recipes = "recipes" in entities_in_import
+
+        if has_ingredients and not has_recipes:
+            # Find all ingredients currently referenced by recipes
+            recipe_ingredient_ids = (
+                session.query(RecipeIngredient.ingredient_id)
+                .distinct()
+                .all()
+            )
+            recipe_ingredient_ids = {ri[0] for ri in recipe_ingredient_ids}
+
+            if recipe_ingredient_ids:
+                # Get those ingredients
+                referenced_ingredients = (
+                    session.query(Ingredient)
+                    .filter(Ingredient.id.in_(recipe_ingredient_ids))
+                    .all()
+                )
+
+                # Check which ones are NOT in the import file
+                missing_ingredients = []
+                for ing in referenced_ingredients:
+                    if import_ingredient_slugs is not None:
+                        # Single file: check by slug
+                        if ing.slug not in import_ingredient_slugs:
+                            missing_ingredients.append(ing)
+                    else:
+                        # Coordinated import: can't check individual slugs easily
+                        # For coordinated imports, if ingredients file exists,
+                        # assume it's complete (user can use --force if needed)
+                        pass
+
+                if missing_ingredients:
+                    # Find which recipes use each missing ingredient
+                    ingredient_recipe_map = {}
+                    for ing in missing_ingredients:
+                        recipes_using = (
+                            session.query(Recipe.name)
+                            .join(RecipeIngredient)
+                            .filter(RecipeIngredient.ingredient_id == ing.id)
+                            .distinct()
+                            .limit(5)
+                            .all()
+                        )
+                        recipe_names = [r[0] for r in recipes_using]
+                        ingredient_recipe_map[ing.display_name] = recipe_names
+
+                    # Build actionable details
+                    missing_details = []
+                    for ing_name, recipe_names in list(ingredient_recipe_map.items())[:5]:
+                        recipes_str = ", ".join(recipe_names[:3])
+                        if len(recipe_names) > 3:
+                            recipes_str += f" (+{len(recipe_names) - 3} more)"
+                        missing_details.append(f"{ing_name} → used by: {recipes_str}")
+
+                    # Get all affected recipe names
+                    all_affected_recipes = set()
+                    for recipes in ingredient_recipe_map.values():
+                        all_affected_recipes.update(recipes)
+
+                    restrict_risks.append({
+                        "constraint_type": "RESTRICT",
+                        "parent_entity": "ingredients",
+                        "referencing_entity": "recipes",
+                        "missing_count": len(missing_ingredients),
+                        "missing_details": missing_details,
+                        "affected_recipes": sorted(all_affected_recipes)[:10],
+                        "total_affected_recipes": len(all_affected_recipes),
+                        "warning": "Import will FAIL - database blocks deletion of ingredients used by recipes.",
+                        "remediation": [
+                            "Add missing ingredients to your import file",
+                            "Include recipes in the import (they'll be replaced too)",
+                            "Delete affected recipes from database before import",
+                        ],
+                    })
+
+    return {
+        "cascade_risks": cascade_risks,
+        "restrict_risks": restrict_risks,
+    }
 
 
-class CascadeDeleteWarningDialog(ctk.CTkToplevel):
-    """Dialog warning about cascade delete risks during import."""
+class ImportRiskWarningDialog(ctk.CTkToplevel):
+    """Dialog warning about import risks (CASCADE and RESTRICT)."""
 
-    def __init__(self, parent, risks: List[Dict]):
-        """Initialize the cascade delete warning dialog.
+    def __init__(self, parent, cascade_risks: List[Dict], restrict_risks: List[Dict]):
+        """Initialize the import risk warning dialog.
 
         Args:
             parent: Parent window
-            risks: List of risk dictionaries from _check_cascade_delete_risks()
+            cascade_risks: List of CASCADE risk dictionaries (data loss)
+            restrict_risks: List of RESTRICT risk dictionaries (import failure)
         """
         super().__init__(parent)
-        self.title("Import Warning: Potential Data Loss")
-        self.geometry("550x450")
-        self.resizable(False, False)
 
-        self.risks = risks
+        self.cascade_risks = cascade_risks
+        self.restrict_risks = restrict_risks
         self.confirmed = False
+
+        # Set title and size based on risk types
+        if restrict_risks and cascade_risks:
+            self.title("Import Warning: Multiple Issues Detected")
+            self.geometry("600x550")
+        elif restrict_risks:
+            self.title("Import Warning: Will Fail")
+            self.geometry("600x500")
+        else:
+            self.title("Import Warning: Potential Data Loss")
+            self.geometry("550x450")
+
+        self.resizable(False, False)
 
         self._setup_ui()
 
@@ -163,39 +265,51 @@ class CascadeDeleteWarningDialog(ctk.CTkToplevel):
         title_frame = ctk.CTkFrame(self, fg_color="transparent")
         title_frame.pack(fill="x", padx=20, pady=(15, 10))
 
+        if self.restrict_risks:
+            title_text = "⚠️ Import Warning: Issues Detected"
+            title_color = "red"
+        else:
+            title_text = "⚠️ Import Warning: Potential Data Loss"
+            title_color = "orange"
+
         warning_label = ctk.CTkLabel(
             title_frame,
-            text="⚠️ Import Warning: Potential Data Loss",
+            text=title_text,
             font=ctk.CTkFont(size=18, weight="bold"),
-            text_color="orange",
+            text_color=title_color,
         )
         warning_label.pack(anchor="w")
 
-        # Explanation
-        explain_label = ctk.CTkLabel(
-            self,
-            text="The import file is missing child entities that exist in your database.\n"
-                 "Proceeding will permanently delete these records via cascade delete.",
-            font=ctk.CTkFont(size=12),
-            justify="left",
-        )
-        explain_label.pack(anchor="w", padx=20, pady=(0, 10))
-
-        # Scrollable frame for risks
-        risks_frame = ctk.CTkScrollableFrame(self, height=200)
+        # Scrollable frame for all risks
+        risks_frame = ctk.CTkScrollableFrame(self, height=280)
         risks_frame.pack(fill="both", expand=True, padx=20, pady=10)
 
-        for risk in self.risks:
-            self._add_risk_section(risks_frame, risk)
+        # Show RESTRICT risks first (more severe - will cause failure)
+        if self.restrict_risks:
+            self._add_restrict_section(risks_frame)
+
+        # Show CASCADE risks
+        if self.cascade_risks:
+            if self.restrict_risks:
+                # Add separator
+                sep = ctk.CTkLabel(risks_frame, text="", height=10)
+                sep.pack()
+            self._add_cascade_section(risks_frame)
 
         # Recommendation
         rec_frame = ctk.CTkFrame(self, fg_color="transparent")
         rec_frame.pack(fill="x", padx=20, pady=10)
 
+        if self.restrict_risks:
+            rec_text = ("Recommendation: Cancel and fix the issues above.\n"
+                       "The import will fail at the database level if you proceed.")
+        else:
+            rec_text = ("Recommendation: Cancel and create an import file that includes\n"
+                       "both parent and child entities together.")
+
         rec_label = ctk.CTkLabel(
             rec_frame,
-            text="Recommendation: Cancel and create an import file that includes\n"
-                 "both parent and child entities together.",
+            text=rec_text,
             font=ctk.CTkFont(size=12, weight="bold"),
             justify="left",
         )
@@ -213,9 +327,10 @@ class CascadeDeleteWarningDialog(ctk.CTkToplevel):
         )
         cancel_btn.pack(side="left")
 
+        proceed_text = "Try Anyway" if self.restrict_risks else "Import Anyway"
         proceed_btn = ctk.CTkButton(
             btn_frame,
-            text="Import Anyway",
+            text=proceed_text,
             width=120,
             fg_color="darkred",
             hover_color="red",
@@ -223,50 +338,126 @@ class CascadeDeleteWarningDialog(ctk.CTkToplevel):
         )
         proceed_btn.pack(side="right")
 
-    def _add_risk_section(self, parent, risk: Dict):
-        """Add a risk section to the dialog."""
-        frame = ctk.CTkFrame(parent)
-        frame.pack(fill="x", pady=5)
+    def _add_restrict_section(self, parent):
+        """Add RESTRICT risk section (import will fail)."""
+        # Section header
+        header_frame = ctk.CTkFrame(parent, fg_color="#4a1010")
+        header_frame.pack(fill="x", pady=(0, 5))
 
-        # Header with counts
-        header = ctk.CTkLabel(
-            frame,
-            text=f"Importing {risk['parent_entity']} without {risk['child_entity']}:",
-            font=ctk.CTkFont(weight="bold"),
-        )
-        header.pack(anchor="w", padx=10, pady=(8, 2))
+        ctk.CTkLabel(
+            header_frame,
+            text="🚫 IMPORT WILL FAIL",
+            font=ctk.CTkFont(size=14, weight="bold"),
+            text_color="white",
+        ).pack(anchor="w", padx=10, pady=5)
 
-        count_label = ctk.CTkLabel(
-            frame,
-            text=f"→ {risk['child_count']} {risk['child_entity']} will be deleted",
-            font=ctk.CTkFont(size=12),
-            text_color="red",
-        )
-        count_label.pack(anchor="w", padx=20, pady=2)
+        for risk in self.restrict_risks:
+            frame = ctk.CTkFrame(parent)
+            frame.pack(fill="x", pady=5)
 
-        # Warning text
-        warning_label = ctk.CTkLabel(
-            frame,
-            text=risk["warning"],
-            font=ctk.CTkFont(size=11),
-            text_color="gray",
-        )
-        warning_label.pack(anchor="w", padx=20, pady=2)
-
-        # Sample names
-        if risk["sample_names"]:
-            samples_text = "Examples: " + ", ".join(risk["sample_names"][:3])
-            if risk["child_count"] > 3:
-                samples_text += f", ... and {risk['child_count'] - 3} more"
-
-            samples_label = ctk.CTkLabel(
+            # Header
+            ctk.CTkLabel(
                 frame,
-                text=samples_text,
+                text=f"Missing {risk['parent_entity']} referenced by {risk['referencing_entity']}:",
+                font=ctk.CTkFont(weight="bold"),
+            ).pack(anchor="w", padx=10, pady=(8, 2))
+
+            # Count
+            ctk.CTkLabel(
+                frame,
+                text=f"→ {risk['missing_count']} ingredients missing, {risk['total_affected_recipes']} recipes affected",
+                font=ctk.CTkFont(size=12),
+                text_color="red",
+            ).pack(anchor="w", padx=20, pady=2)
+
+            # Missing details
+            for detail in risk.get("missing_details", [])[:5]:
+                ctk.CTkLabel(
+                    frame,
+                    text=f"  • {detail}",
+                    font=ctk.CTkFont(size=11),
+                    text_color="gray",
+                    wraplength=520,
+                ).pack(anchor="w", padx=20, pady=1)
+
+            if risk["missing_count"] > 5:
+                ctk.CTkLabel(
+                    frame,
+                    text=f"  ... and {risk['missing_count'] - 5} more missing ingredients",
+                    font=ctk.CTkFont(size=11),
+                    text_color="gray",
+                ).pack(anchor="w", padx=20, pady=1)
+
+            # Remediation options
+            ctk.CTkLabel(
+                frame,
+                text="To fix:",
+                font=ctk.CTkFont(size=11, weight="bold"),
+            ).pack(anchor="w", padx=20, pady=(5, 2))
+
+            for i, remedy in enumerate(risk.get("remediation", []), 1):
+                ctk.CTkLabel(
+                    frame,
+                    text=f"  {i}. {remedy}",
+                    font=ctk.CTkFont(size=11),
+                    text_color="gray",
+                ).pack(anchor="w", padx=20, pady=1)
+
+            ctk.CTkLabel(frame, text="", height=5).pack()
+
+    def _add_cascade_section(self, parent):
+        """Add CASCADE risk section (data loss)."""
+        # Section header
+        header_frame = ctk.CTkFrame(parent, fg_color="#4a3510")
+        header_frame.pack(fill="x", pady=(0, 5))
+
+        ctk.CTkLabel(
+            header_frame,
+            text="⚠️ DATA WILL BE DELETED",
+            font=ctk.CTkFont(size=14, weight="bold"),
+            text_color="white",
+        ).pack(anchor="w", padx=10, pady=5)
+
+        for risk in self.cascade_risks:
+            frame = ctk.CTkFrame(parent)
+            frame.pack(fill="x", pady=5)
+
+            # Header
+            ctk.CTkLabel(
+                frame,
+                text=f"Importing {risk['parent_entity']} without {risk['child_entity']}:",
+                font=ctk.CTkFont(weight="bold"),
+            ).pack(anchor="w", padx=10, pady=(8, 2))
+
+            # Count
+            ctk.CTkLabel(
+                frame,
+                text=f"→ {risk['child_count']} {risk['child_entity']} will be deleted",
+                font=ctk.CTkFont(size=12),
+                text_color="orange",
+            ).pack(anchor="w", padx=20, pady=2)
+
+            # Warning
+            ctk.CTkLabel(
+                frame,
+                text=risk["warning"],
                 font=ctk.CTkFont(size=11),
                 text_color="gray",
-                wraplength=480,
-            )
-            samples_label.pack(anchor="w", padx=20, pady=(2, 8))
+            ).pack(anchor="w", padx=20, pady=2)
+
+            # Sample names
+            if risk.get("sample_names"):
+                samples_text = "Examples: " + ", ".join(risk["sample_names"][:3])
+                if risk["child_count"] > 3:
+                    samples_text += f", ... and {risk['child_count'] - 3} more"
+
+                ctk.CTkLabel(
+                    frame,
+                    text=samples_text,
+                    font=ctk.CTkFont(size=11),
+                    text_color="gray",
+                    wraplength=480,
+                ).pack(anchor="w", padx=20, pady=(2, 8))
 
     def _on_cancel(self):
         """Handle cancel button."""
@@ -277,6 +468,10 @@ class CascadeDeleteWarningDialog(ctk.CTkToplevel):
         """Handle proceed button."""
         self.confirmed = True
         self.destroy()
+
+
+# Backward compatibility alias
+CascadeDeleteWarningDialog = ImportRiskWarningDialog
 
 
 def _get_logs_dir() -> Path:
@@ -1164,12 +1359,14 @@ class ImportDialog(ctk.CTkToplevel):
             )
             return
 
-        # Check for cascade delete risks
-        cascade_risks = _check_cascade_delete_risks(import_data, is_coordinated=is_coordinated)
+        # Check for import risks (CASCADE deletes and RESTRICT violations)
+        risks = _check_import_risks(import_data, is_coordinated=is_coordinated)
+        cascade_risks = risks["cascade_risks"]
+        restrict_risks = risks["restrict_risks"]
 
-        if cascade_risks:
+        if cascade_risks or restrict_risks:
             # Show warning dialog
-            warning_dialog = CascadeDeleteWarningDialog(self, cascade_risks)
+            warning_dialog = ImportRiskWarningDialog(self, cascade_risks, restrict_risks)
             warning_dialog.wait_window()
 
             if not warning_dialog.confirmed:
