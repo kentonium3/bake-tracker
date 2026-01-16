@@ -1138,6 +1138,7 @@ def _import_recipes_impl(
             continue
 
         # Create the recipe
+        # Default is_production_ready to True for imports (backward compatibility)
         recipe = Recipe(
             name=recipe_name,
             category=item.get("category"),
@@ -1147,6 +1148,7 @@ def _import_recipes_impl(
             yield_description=item.get("yield_description"),
             estimated_time_minutes=item.get("estimated_time_minutes"),
             notes=item.get("notes"),
+            is_production_ready=item.get("is_production_ready", True),
         )
         session.add(recipe)
         session.flush()  # Get the recipe ID for FK references

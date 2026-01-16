@@ -324,6 +324,7 @@ def _export_recipes(output_dir: Path, session: Session) -> FileEntry:
             "estimated_time_minutes": r.estimated_time_minutes,
             "notes": r.notes,
             "is_archived": r.is_archived,
+            "is_production_ready": r.is_production_ready,
             # Nested data
             "ingredients": ingredients,
             "components": components,
