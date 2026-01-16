@@ -130,7 +130,7 @@ class IngredientsTab(ctk.CTkFrame):
         Feature 055: Removed Flat/Tree view toggle (F052 Hierarchy Admin replaces tree view).
         Layout: Search | L0 Dropdown | L1 Dropdown | Clear
         """
-        filter_frame = ctk.CTkFrame(self)
+        filter_frame = ctk.CTkFrame(self, fg_color="transparent")
         filter_frame.grid(row=1, column=0, sticky="ew", padx=5, pady=5)
 
         # Search entry (left)
@@ -216,7 +216,7 @@ class IngredientsTab(ctk.CTkFrame):
     def _create_ingredient_list(self):
         """Create the ingredient list using ttk.Treeview for performance."""
         # Container frame for grid and scrollbar
-        self.grid_container = ctk.CTkFrame(self)
+        self.grid_container = ctk.CTkFrame(self, fg_color="transparent")
         self.grid_container.grid(
             row=3,
             column=0,
