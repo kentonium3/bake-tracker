@@ -645,7 +645,7 @@ class RecipeFormDialog(ctk.CTkToplevel):
             pady=(PADDING_MEDIUM, 5),
         )
 
-        self.production_ready_var = ctk.BooleanVar(value=False)
+        self.production_ready_var = ctk.BooleanVar(value=True)
         self.production_ready_checkbox = ctk.CTkCheckBox(
             ready_frame,
             text="Production Ready",

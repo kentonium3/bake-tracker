@@ -613,7 +613,7 @@
       "category": "Cakes",
       "base_recipe_slug": "vanilla-cupcakes",
       "variant_name": "Chocolate Swirl",
-      "is_production_ready": false,
+      "is_production_ready": true,
       "finished_units": [],
       "ingredients": [
         {
