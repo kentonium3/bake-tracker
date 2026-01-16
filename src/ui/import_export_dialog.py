@@ -31,6 +31,254 @@ MAX_LOG_ENTRIES = 20
 logger = logging.getLogger(__name__)
 
 
+def _check_cascade_delete_risks(import_data: Dict, is_coordinated: bool = False) -> List[Dict]:
+    """Check for potential cascade delete risks in import data.
+
+    When importing parent entities without their children in replace mode,
+    existing child records will be cascade-deleted. This function identifies
+    such risks.
+
+    Args:
+        import_data: The parsed import file data (dict with entity keys)
+                    or manifest data for coordinated imports
+        is_coordinated: True if this is a coordinated (manifest-based) import
+
+    Returns:
+        List of risk dictionaries with keys:
+        - parent_entity: Name of parent entity being imported
+        - child_entity: Name of child entity at risk
+        - child_count: Number of existing child records that will be deleted
+        - sample_names: List of up to 5 sample names of affected records
+    """
+    from src.services.database import session_scope
+    from src.models.product import Product
+    from src.models.material_product import MaterialProduct
+    from src.models.ingredient import Ingredient
+    from src.models.material import Material
+
+    risks = []
+
+    # Determine which entities are in the import
+    if is_coordinated:
+        # Coordinated import: check manifest files list
+        entities_in_import = set(import_data.get("entity_types", []))
+    else:
+        # Single file: check top-level keys
+        entities_in_import = set(import_data.keys())
+
+    with session_scope() as session:
+        # Check 1: Ingredients without Products
+        has_ingredients = "ingredients" in entities_in_import
+        has_products = "products" in entities_in_import
+
+        if has_ingredients and not has_products:
+            # Count existing products that would be orphaned
+            product_count = session.query(Product).count()
+            if product_count > 0:
+                # Get sample product names
+                samples = session.query(Product).limit(5).all()
+                sample_names = []
+                for p in samples:
+                    ingredient = session.query(Ingredient).get(p.ingredient_id)
+                    ing_name = ingredient.display_name if ingredient else "Unknown"
+                    name = f"{p.brand or 'Generic'} {ing_name}"
+                    if p.package_size:
+                        name += f" ({p.package_size})"
+                    sample_names.append(name)
+
+                risks.append({
+                    "parent_entity": "ingredients",
+                    "child_entity": "products",
+                    "child_count": product_count,
+                    "sample_names": sample_names,
+                    "warning": "Products and their inventory items will be permanently deleted.",
+                })
+
+        # Check 2: Materials without MaterialProducts
+        has_materials = "materials" in entities_in_import
+        has_material_products = "material_products" in entities_in_import
+
+        if has_materials and not has_material_products:
+            # Count existing material products that would be orphaned
+            mp_count = session.query(MaterialProduct).count()
+            if mp_count > 0:
+                # Get sample material product names
+                samples = session.query(MaterialProduct).limit(5).all()
+                sample_names = []
+                for mp in samples:
+                    material = session.query(Material).get(mp.material_id)
+                    mat_name = material.name if material else "Unknown"
+                    name = f"{mp.brand or 'Generic'} {mat_name}"
+                    sample_names.append(name)
+
+                risks.append({
+                    "parent_entity": "materials",
+                    "child_entity": "material_products",
+                    "child_count": mp_count,
+                    "sample_names": sample_names,
+                    "warning": "Material products will be permanently deleted.",
+                })
+
+    return risks
+
+
+class CascadeDeleteWarningDialog(ctk.CTkToplevel):
+    """Dialog warning about cascade delete risks during import."""
+
+    def __init__(self, parent, risks: List[Dict]):
+        """Initialize the cascade delete warning dialog.
+
+        Args:
+            parent: Parent window
+            risks: List of risk dictionaries from _check_cascade_delete_risks()
+        """
+        super().__init__(parent)
+        self.title("Import Warning: Potential Data Loss")
+        self.geometry("550x450")
+        self.resizable(False, False)
+
+        self.risks = risks
+        self.confirmed = False
+
+        self._setup_ui()
+
+        # Modal behavior
+        self.transient(parent)
+        self.grab_set()
+
+        # Center on parent
+        self.update_idletasks()
+        x = parent.winfo_x() + (parent.winfo_width() - self.winfo_width()) // 2
+        y = parent.winfo_y() + (parent.winfo_height() - self.winfo_height()) // 2
+        self.geometry(f"+{x}+{y}")
+
+        # Bind Escape to cancel
+        self.bind("<Escape>", lambda e: self._on_cancel())
+
+        self.focus_force()
+
+    def _setup_ui(self):
+        """Set up the dialog UI."""
+        # Warning icon and title
+        title_frame = ctk.CTkFrame(self, fg_color="transparent")
+        title_frame.pack(fill="x", padx=20, pady=(15, 10))
+
+        warning_label = ctk.CTkLabel(
+            title_frame,
+            text="⚠️ Import Warning: Potential Data Loss",
+            font=ctk.CTkFont(size=18, weight="bold"),
+            text_color="orange",
+        )
+        warning_label.pack(anchor="w")
+
+        # Explanation
+        explain_label = ctk.CTkLabel(
+            self,
+            text="The import file is missing child entities that exist in your database.\n"
+                 "Proceeding will permanently delete these records via cascade delete.",
+            font=ctk.CTkFont(size=12),
+            justify="left",
+        )
+        explain_label.pack(anchor="w", padx=20, pady=(0, 10))
+
+        # Scrollable frame for risks
+        risks_frame = ctk.CTkScrollableFrame(self, height=200)
+        risks_frame.pack(fill="both", expand=True, padx=20, pady=10)
+
+        for risk in self.risks:
+            self._add_risk_section(risks_frame, risk)
+
+        # Recommendation
+        rec_frame = ctk.CTkFrame(self, fg_color="transparent")
+        rec_frame.pack(fill="x", padx=20, pady=10)
+
+        rec_label = ctk.CTkLabel(
+            rec_frame,
+            text="Recommendation: Cancel and create an import file that includes\n"
+                 "both parent and child entities together.",
+            font=ctk.CTkFont(size=12, weight="bold"),
+            justify="left",
+        )
+        rec_label.pack(anchor="w")
+
+        # Buttons
+        btn_frame = ctk.CTkFrame(self, fg_color="transparent")
+        btn_frame.pack(fill="x", padx=20, pady=(10, 15))
+
+        cancel_btn = ctk.CTkButton(
+            btn_frame,
+            text="Cancel (Recommended)",
+            width=160,
+            command=self._on_cancel,
+        )
+        cancel_btn.pack(side="left")
+
+        proceed_btn = ctk.CTkButton(
+            btn_frame,
+            text="Import Anyway",
+            width=120,
+            fg_color="darkred",
+            hover_color="red",
+            command=self._on_proceed,
+        )
+        proceed_btn.pack(side="right")
+
+    def _add_risk_section(self, parent, risk: Dict):
+        """Add a risk section to the dialog."""
+        frame = ctk.CTkFrame(parent)
+        frame.pack(fill="x", pady=5)
+
+        # Header with counts
+        header = ctk.CTkLabel(
+            frame,
+            text=f"Importing {risk['parent_entity']} without {risk['child_entity']}:",
+            font=ctk.CTkFont(weight="bold"),
+        )
+        header.pack(anchor="w", padx=10, pady=(8, 2))
+
+        count_label = ctk.CTkLabel(
+            frame,
+            text=f"→ {risk['child_count']} {risk['child_entity']} will be deleted",
+            font=ctk.CTkFont(size=12),
+            text_color="red",
+        )
+        count_label.pack(anchor="w", padx=20, pady=2)
+
+        # Warning text
+        warning_label = ctk.CTkLabel(
+            frame,
+            text=risk["warning"],
+            font=ctk.CTkFont(size=11),
+            text_color="gray",
+        )
+        warning_label.pack(anchor="w", padx=20, pady=2)
+
+        # Sample names
+        if risk["sample_names"]:
+            samples_text = "Examples: " + ", ".join(risk["sample_names"][:3])
+            if risk["child_count"] > 3:
+                samples_text += f", ... and {risk['child_count'] - 3} more"
+
+            samples_label = ctk.CTkLabel(
+                frame,
+                text=samples_text,
+                font=ctk.CTkFont(size=11),
+                text_color="gray",
+                wraplength=480,
+            )
+            samples_label.pack(anchor="w", padx=20, pady=(2, 8))
+
+    def _on_cancel(self):
+        """Handle cancel button."""
+        self.confirmed = False
+        self.destroy()
+
+    def _on_proceed(self):
+        """Handle proceed button."""
+        self.confirmed = True
+        self.destroy()
+
+
 def _get_logs_dir() -> Path:
     """Get the logs directory from preferences, creating it if needed."""
     logs_dir = preferences_service.get_logs_directory()
@@ -881,6 +1129,54 @@ class ImportDialog(ctk.CTkToplevel):
 
     def _do_backup_restore(self):
         """Execute full backup restore (replace mode)."""
+        import json
+
+        # Check if this is a coordinated backup (manifest.json)
+        file_path = Path(self.file_path)
+        is_coordinated = (
+            file_path.name == "manifest.json" or
+            (file_path.is_dir() and (file_path / "manifest.json").exists())
+        )
+
+        # Load file data to check for cascade risks
+        try:
+            if is_coordinated:
+                # Load manifest to get entity list
+                manifest_path = file_path if file_path.name == "manifest.json" else file_path / "manifest.json"
+                with open(manifest_path, "r", encoding="utf-8") as f:
+                    manifest_data = json.load(f)
+                # Extract entity types from manifest files list
+                entity_types = []
+                for file_info in manifest_data.get("files", []):
+                    entity_type = file_info.get("entity_type")
+                    if entity_type:
+                        entity_types.append(entity_type)
+                import_data = {"entity_types": entity_types}
+            else:
+                # Load single file
+                with open(self.file_path, "r", encoding="utf-8") as f:
+                    import_data = json.load(f)
+        except Exception as e:
+            messagebox.showerror(
+                "File Error",
+                f"Could not read import file:\n{str(e)}",
+                parent=self,
+            )
+            return
+
+        # Check for cascade delete risks
+        cascade_risks = _check_cascade_delete_risks(import_data, is_coordinated=is_coordinated)
+
+        if cascade_risks:
+            # Show warning dialog
+            warning_dialog = CascadeDeleteWarningDialog(self, cascade_risks)
+            warning_dialog.wait_window()
+
+            if not warning_dialog.confirmed:
+                # User cancelled
+                return
+
+        # Standard confirmation
         if not messagebox.askyesno(
             "Confirm Backup Restore",
             "This will DELETE all existing data and replace it with\n"
@@ -895,13 +1191,6 @@ class ImportDialog(ctk.CTkToplevel):
         self._show_progress("Restoring backup...")
 
         try:
-            # Check if this is a coordinated backup (manifest.json)
-            file_path = Path(self.file_path)
-            is_coordinated = (
-                file_path.name == "manifest.json" or
-                (file_path.is_dir() and (file_path / "manifest.json").exists())
-            )
-
             if is_coordinated:
                 # Use coordinated import for manifest-based backups
                 result = coordinated_export_service.import_complete(str(file_path))
@@ -925,11 +1214,8 @@ class ImportDialog(ctk.CTkToplevel):
                 summary_text = "\n".join(summary_lines)
             else:
                 # FR-012: Run schema validation before single-file backup restore
-                import json
-                with open(self.file_path, "r", encoding="utf-8") as f:
-                    raw_data = json.load(f)
-
-                validation_result = schema_validation_service.validate_import_file(raw_data)
+                # Note: import_data was already loaded above for cascade check
+                validation_result = schema_validation_service.validate_import_file(import_data)
 
                 if not validation_result.valid:
                     # Write validation failure log before showing dialog
