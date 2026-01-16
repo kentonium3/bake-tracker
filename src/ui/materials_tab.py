@@ -69,7 +69,7 @@ class MaterialsTab(ctk.CTkFrame):
 
     def __init__(self, parent):
         """Initialize the materials tab."""
-        super().__init__(parent)
+        super().__init__(parent, fg_color="transparent")
 
         self._data_loaded = False
 

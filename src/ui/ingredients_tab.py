@@ -79,7 +79,7 @@ class IngredientsTab(ctk.CTkFrame):
         Args:
             parent: Parent widget
         """
-        super().__init__(parent)
+        super().__init__(parent, fg_color="transparent")
 
         self.selected_ingredient_slug: Optional[str] = None
         self.selected_ingredient_id: Optional[int] = None  # Feature 031: Track by ID too
