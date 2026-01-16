@@ -2103,6 +2103,8 @@ def _import_catalog_impl(
                 data["suppliers"], mode, dry_run=False, session=session
             )
             result.merge(sup_result)
+            # Flush to make new suppliers visible to products import queries
+            session.flush()
 
     # Import ingredients
     if entities is None or "ingredients" in entities:
@@ -2111,6 +2113,8 @@ def _import_catalog_impl(
                 data["ingredients"], mode, dry_run=False, session=session
             )
             result.merge(ing_result)
+            # Flush to make new ingredients visible to products/recipes import queries
+            session.flush()
 
     # Import products (depends on ingredients and suppliers)
     if entities is None or "products" in entities:
@@ -2150,6 +2154,8 @@ def _import_catalog_impl(
                 data["material_categories"], mode, dry_run=False, session=session
             )
             result.merge(cat_result)
+            # Flush to make new categories visible to subcategory import queries
+            session.flush()
 
     # Import material subcategories (depends on categories)
     if entities is None or "material_subcategories" in entities:
@@ -2158,6 +2164,8 @@ def _import_catalog_impl(
                 data["material_subcategories"], mode, dry_run=False, session=session
             )
             result.merge(subcat_result)
+            # Flush to make new subcategories visible to materials import queries
+            session.flush()
 
     # Import materials (depends on subcategories)
     if entities is None or "materials" in entities:
@@ -2166,6 +2174,8 @@ def _import_catalog_impl(
                 data["materials"], mode, dry_run=False, session=session
             )
             result.merge(mat_result)
+            # Flush to make new materials visible to products/units import queries
+            session.flush()
 
     # Import material products (depends on materials, suppliers)
     if entities is None or "material_products" in entities:
