@@ -1497,7 +1497,7 @@ class ExportDialog(ctk.CTkToplevel):
         """Initialize the export dialog."""
         super().__init__(parent)
         self.title("Export Data")
-        self.geometry("550x480")
+        self.geometry("550x580")
         self.resizable(False, False)
 
         self.result = None
