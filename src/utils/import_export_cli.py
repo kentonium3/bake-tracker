@@ -4,7 +4,74 @@ Import/Export CLI Utility
 Simple command-line interface for exporting and importing data.
 No UI required - designed for programmatic and testing use.
 
-Usage Examples:
+BACKUP/RESTORE COMMANDS (16-entity coordinated backup):
+
+    # Create timestamped backup
+    python -m src.utils.import_export_cli backup -o ./backups/
+
+    # Create backup as ZIP archive
+    python -m src.utils.import_export_cli backup -o ./backups/ --zip
+
+    # Restore from backup (WARNING: replaces all existing data)
+    python -m src.utils.import_export_cli restore ./backups/backup_20260115/
+
+    # List available backups
+    python -m src.utils.import_export_cli backup-list --dir ./backups/
+
+    # Validate backup integrity
+    python -m src.utils.import_export_cli backup-validate ./backups/backup_20260115/
+
+CONTEXT-RICH AUG COMMANDS (AI workflow support):
+
+    # Export products with human-readable context
+    python -m src.utils.import_export_cli aug-export -t products -o aug_products.json
+
+    # Export all entity types
+    python -m src.utils.import_export_cli aug-export -t all -o ./aug_exports/
+
+    # Import with automatic FK resolution
+    python -m src.utils.import_export_cli aug-import aug_products.json
+
+    # Import with interactive FK resolution
+    python -m src.utils.import_export_cli aug-import aug_products.json --interactive
+
+    # Validate aug file format
+    python -m src.utils.import_export_cli aug-validate aug_products.json
+
+    AI Workflow Pattern:
+    1. Export: aug-export -t products -o aug_products.json
+    2. Modify: (external tool or AI modifies the JSON)
+    3. Import: aug-import aug_products.json --skip-on-error
+
+CATALOG COMMANDS (selective entity operations):
+
+    # Export specific catalog entities
+    python -m src.utils.import_export_cli catalog-export --entities ingredients,products
+
+    # Export all catalog entities (7 types)
+    python -m src.utils.import_export_cli catalog-export -o ./catalog/
+
+    # Import catalog with augment mode (update nulls + add new)
+    python -m src.utils.import_export_cli catalog-import ./catalog.json --mode augment
+
+    # Import catalog with dry-run preview
+    python -m src.utils.import_export_cli catalog-import ./catalog.json --dry-run
+
+    # Validate catalog before import
+    python -m src.utils.import_export_cli catalog-validate ./catalog.json
+
+ENTITY-SPECIFIC EXPORTS:
+
+    # Export individual entity types
+    python -m src.utils.import_export_cli export-materials materials.json
+    python -m src.utils.import_export_cli export-material-products material_products.json
+    python -m src.utils.import_export_cli export-material-categories categories.json
+    python -m src.utils.import_export_cli export-material-subcategories subcategories.json
+    python -m src.utils.import_export_cli export-suppliers suppliers.json
+    python -m src.utils.import_export_cli export-purchases purchases.json
+
+LEGACY COMMANDS (v3.2 format):
+
     # Export all data (v3.2 format)
     python -m src.utils.import_export_cli export test_data.json
 
@@ -17,29 +84,28 @@ Usage Examples:
     # Import with replace mode (clears existing data first)
     python -m src.utils.import_export_cli import test_data.json --mode replace
 
-    # Export complete database with manifest (F030)
+F030 COMMANDS (coordinated export/view):
+
+    # Export complete database with manifest
     python -m src.utils.import_export_cli export-complete -o ./export_dir
 
-    # Export complete database as ZIP (F030)
+    # Export complete database as ZIP
     python -m src.utils.import_export_cli export-complete -o ./export_dir --zip
 
-    # Export denormalized view (F030)
+    # Export denormalized view
     python -m src.utils.import_export_cli export-view -t products -o view_products.json
 
-    # Validate export checksums (F030)
+    # Validate export checksums
     python -m src.utils.import_export_cli validate-export ./export_dir
 
-    # Import denormalized view (F030)
+    # Import denormalized view
     python -m src.utils.import_export_cli import-view view_products.json
 
-    # Import view with interactive FK resolution (F030)
+    # Import view with interactive FK resolution
     python -m src.utils.import_export_cli import-view view_products.json --interactive
 
-    # Import view in dry-run mode (F030)
+    # Import view in dry-run mode
     python -m src.utils.import_export_cli import-view view_products.json --dry-run
-
-    # Import view, skipping records with errors (F030)
-    python -m src.utils.import_export_cli import-view view_products.json --skip-on-error
 """
 
 import sys
@@ -166,6 +232,278 @@ def export_events(output_file: str):
         return 0
     else:
         print(f"ERROR: {result.error}")
+        return 1
+
+
+# ============================================================================
+# F054 Entity-Specific Export Commands
+# ============================================================================
+
+
+def export_materials(output_file: str) -> int:
+    """Export materials only."""
+    import json
+    from src.models.base import session_scope
+    from src.models.material import Material
+    from sqlalchemy.orm import joinedload
+
+    print(f"Exporting materials to {output_file}...")
+
+    try:
+        with session_scope() as session:
+            materials = session.query(Material).options(
+                joinedload(Material.subcategory)
+            ).all()
+
+            records = []
+            for m in materials:
+                records.append({
+                    "uuid": str(m.uuid) if m.uuid else None,
+                    "subcategory_slug": m.subcategory.slug if m.subcategory else None,
+                    "slug": m.slug,
+                    "display_name": m.display_name,
+                    "description": m.description,
+                })
+
+            data = {
+                "version": "1.0",
+                "entity_type": "materials",
+                "records": records,
+            }
+
+            with open(output_file, "w", encoding="utf-8") as f:
+                json.dump(data, f, indent=2, ensure_ascii=False, default=str)
+
+        print(f"Exported {len(records)} materials to {output_file}")
+        return 0
+
+    except Exception as e:
+        print(f"ERROR: {e}")
+        return 1
+
+
+def export_material_products(output_file: str) -> int:
+    """Export material products only."""
+    import json
+    from src.models.base import session_scope
+    from src.models.material import MaterialProduct
+    from sqlalchemy.orm import joinedload
+
+    print(f"Exporting material products to {output_file}...")
+
+    try:
+        with session_scope() as session:
+            products = session.query(MaterialProduct).options(
+                joinedload(MaterialProduct.material),
+                joinedload(MaterialProduct.supplier),
+            ).all()
+
+            records = []
+            for p in products:
+                records.append({
+                    "uuid": str(p.uuid) if p.uuid else None,
+                    "material_slug": p.material.slug if p.material else None,
+                    "supplier_slug": p.supplier.slug if p.supplier else None,
+                    "brand": p.brand,
+                    "product_name": p.product_name,
+                    "package_size": p.package_size,
+                    "package_unit": p.package_unit,
+                    "price": float(p.price) if p.price else None,
+                    "upc": p.upc,
+                })
+
+            data = {
+                "version": "1.0",
+                "entity_type": "material_products",
+                "records": records,
+            }
+
+            with open(output_file, "w", encoding="utf-8") as f:
+                json.dump(data, f, indent=2, ensure_ascii=False, default=str)
+
+        print(f"Exported {len(records)} material products to {output_file}")
+        return 0
+
+    except Exception as e:
+        print(f"ERROR: {e}")
+        return 1
+
+
+def export_material_categories(output_file: str) -> int:
+    """Export material categories only."""
+    import json
+    from src.models.base import session_scope
+    from src.models.material import MaterialCategory
+
+    print(f"Exporting material categories to {output_file}...")
+
+    try:
+        with session_scope() as session:
+            categories = session.query(MaterialCategory).all()
+
+            records = []
+            for c in categories:
+                records.append({
+                    "uuid": str(c.uuid) if c.uuid else None,
+                    "name": c.name,
+                    "slug": c.slug,
+                    "description": c.description,
+                })
+
+            data = {
+                "version": "1.0",
+                "entity_type": "material_categories",
+                "records": records,
+            }
+
+            with open(output_file, "w", encoding="utf-8") as f:
+                json.dump(data, f, indent=2, ensure_ascii=False, default=str)
+
+        print(f"Exported {len(records)} material categories to {output_file}")
+        return 0
+
+    except Exception as e:
+        print(f"ERROR: {e}")
+        return 1
+
+
+def export_material_subcategories(output_file: str) -> int:
+    """Export material subcategories only."""
+    import json
+    from src.models.base import session_scope
+    from src.models.material import MaterialSubcategory
+    from sqlalchemy.orm import joinedload
+
+    print(f"Exporting material subcategories to {output_file}...")
+
+    try:
+        with session_scope() as session:
+            subcategories = session.query(MaterialSubcategory).options(
+                joinedload(MaterialSubcategory.category)
+            ).all()
+
+            records = []
+            for s in subcategories:
+                records.append({
+                    "uuid": str(s.uuid) if s.uuid else None,
+                    "category_slug": s.category.slug if s.category else None,
+                    "name": s.name,
+                    "slug": s.slug,
+                    "description": s.description,
+                })
+
+            data = {
+                "version": "1.0",
+                "entity_type": "material_subcategories",
+                "records": records,
+            }
+
+            with open(output_file, "w", encoding="utf-8") as f:
+                json.dump(data, f, indent=2, ensure_ascii=False, default=str)
+
+        print(f"Exported {len(records)} material subcategories to {output_file}")
+        return 0
+
+    except Exception as e:
+        print(f"ERROR: {e}")
+        return 1
+
+
+def export_suppliers(output_file: str) -> int:
+    """Export suppliers only."""
+    import json
+    from src.models.base import session_scope
+    from src.models.supplier import Supplier
+
+    print(f"Exporting suppliers to {output_file}...")
+
+    try:
+        with session_scope() as session:
+            suppliers = session.query(Supplier).all()
+
+            records = []
+            for s in suppliers:
+                records.append({
+                    "uuid": str(s.uuid) if s.uuid else None,
+                    "name": s.name,
+                    "slug": s.slug,
+                    "supplier_type": s.supplier_type,
+                    "website_url": s.website_url,
+                    "street_address": s.street_address,
+                    "city": s.city,
+                    "state": s.state,
+                    "zip_code": s.zip_code,
+                    "notes": s.notes,
+                    "is_active": s.is_active,
+                })
+
+            data = {
+                "version": "1.0",
+                "entity_type": "suppliers",
+                "records": records,
+            }
+
+            with open(output_file, "w", encoding="utf-8") as f:
+                json.dump(data, f, indent=2, ensure_ascii=False, default=str)
+
+        print(f"Exported {len(records)} suppliers to {output_file}")
+        return 0
+
+    except Exception as e:
+        print(f"ERROR: {e}")
+        return 1
+
+
+def export_purchases(output_file: str) -> int:
+    """Export purchases only."""
+    import json
+    from src.models.base import session_scope
+    from src.models.purchase import Purchase
+    from src.models.product import Product
+    from sqlalchemy.orm import joinedload
+
+    print(f"Exporting purchases to {output_file}...")
+
+    try:
+        with session_scope() as session:
+            purchases = session.query(Purchase).options(
+                joinedload(Purchase.product).joinedload(Product.ingredient),
+                joinedload(Purchase.supplier),
+            ).all()
+
+            records = []
+            for p in purchases:
+                # Build product resolution key
+                product_slug = None
+                if p.product and p.product.ingredient:
+                    product_slug = f"{p.product.ingredient.slug}:{p.product.slug}"
+
+                records.append({
+                    "uuid": str(p.uuid) if p.uuid else None,
+                    "product_slug": product_slug,
+                    "supplier_slug": p.supplier.slug if p.supplier else None,
+                    "purchase_date": p.purchase_date.isoformat() if p.purchase_date else None,
+                    "quantity": p.quantity,
+                    "unit_price": float(p.unit_price) if p.unit_price else None,
+                    "total_price": float(p.total_price) if p.total_price else None,
+                    "store_location": p.store_location,
+                    "notes": p.notes,
+                })
+
+            data = {
+                "version": "1.0",
+                "entity_type": "purchases",
+                "records": records,
+            }
+
+            with open(output_file, "w", encoding="utf-8") as f:
+                json.dump(data, f, indent=2, ensure_ascii=False, default=str)
+
+        print(f"Exported {len(records)} purchases to {output_file}")
+        return 0
+
+    except Exception as e:
+        print(f"ERROR: {e}")
         return 1
 
 
@@ -332,6 +670,648 @@ def validate_export_cmd(export_dir: str):
             return 1
 
     except Exception as e:
+        print(f"ERROR: {e}")
+        return 1
+
+
+# ============================================================================
+# F054 Backup/Restore Commands
+# ============================================================================
+
+
+def backup_cmd(output_dir: str = None, create_zip: bool = False) -> int:
+    """
+    Create timestamped 16-entity backup with manifest.
+
+    Args:
+        output_dir: Output directory (default: ./backups/backup_{timestamp})
+        create_zip: Whether to create a ZIP archive
+
+    Returns:
+        0 on success, 1 on failure
+    """
+    from src.services.coordinated_export_service import export_complete
+
+    # Generate default output directory
+    if output_dir is None:
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        output_dir = f"./backups/backup_{timestamp}"
+
+    print(f"Creating backup in {output_dir}...")
+
+    try:
+        manifest = export_complete(output_dir, create_zip=create_zip)
+
+        # Print summary
+        total_records = sum(f.record_count for f in manifest.files)
+        print(f"\nBackup Complete")
+        print(f"---------------")
+        print(f"Output directory: {output_dir}")
+        print(f"Export date: {manifest.export_date}")
+        print(f"Files exported: {len(manifest.files)}")
+        print(f"Total records: {total_records}")
+        print()
+        for f in manifest.files:
+            print(f"  {f.filename}: {f.record_count} records")
+
+        if create_zip:
+            zip_path = Path(output_dir).with_suffix(".zip")
+            print(f"\nZIP archive: {zip_path}")
+
+        return 0
+
+    except Exception as e:
+        print(f"ERROR: {e}")
+        return 1
+
+
+def restore_cmd(backup_dir: str) -> int:
+    """
+    Restore database from backup directory.
+
+    Uses replace mode - all existing data is cleared before import.
+    The import follows dependency order from manifest.json.
+
+    Args:
+        backup_dir: Path to backup directory with manifest.json
+
+    Returns:
+        0 on success, 1 on failure
+    """
+    from src.services.coordinated_export_service import import_complete
+
+    backup_path = Path(backup_dir)
+    if not backup_path.exists():
+        print(f"ERROR: Backup directory not found: {backup_dir}")
+        return 1
+
+    manifest_path = backup_path / "manifest.json"
+    if not manifest_path.exists():
+        print(f"ERROR: manifest.json not found in {backup_dir}")
+        return 1
+
+    print(f"Restoring from {backup_dir}...")
+    print("WARNING: This will replace all existing data!")
+
+    try:
+        result = import_complete(backup_dir)
+
+        if result.get("errors"):
+            print(f"\nRestore Failed")
+            print(f"--------------")
+            for error in result["errors"]:
+                print(f"  ERROR: {error}")
+            return 1
+
+        # Print summary
+        print(f"\nRestore Complete")
+        print(f"----------------")
+        print(f"Files imported: {result.get('files_imported', 0)}")
+        print(f"Total records: {result.get('successful', 0)}")
+        print()
+        entity_counts = result.get("entity_counts", {})
+        for entity, count in entity_counts.items():
+            print(f"  {entity}: {count} records")
+
+        return 0
+
+    except Exception as e:
+        print(f"ERROR: {e}")
+        return 1
+
+
+def backup_list_cmd(backups_dir: str = "./backups/") -> int:
+    """
+    List available backups by scanning for manifest.json files.
+
+    Args:
+        backups_dir: Directory to scan for backups
+
+    Returns:
+        0 on success, 1 on failure
+    """
+    import json
+
+    backups_path = Path(backups_dir)
+    if not backups_path.exists():
+        print(f"Directory not found: {backups_dir}")
+        return 1
+
+    backups = []
+    for subdir in backups_path.iterdir():
+        if subdir.is_dir():
+            manifest_path = subdir / "manifest.json"
+            if manifest_path.exists():
+                try:
+                    with open(manifest_path, "r", encoding="utf-8") as f:
+                        manifest = json.load(f)
+                    backups.append({
+                        "dir": subdir.name,
+                        "path": str(subdir),
+                        "date": manifest.get("export_date", "Unknown"),
+                        "files": len(manifest.get("files", [])),
+                        "records": sum(
+                            f.get("record_count", 0)
+                            for f in manifest.get("files", [])
+                        )
+                    })
+                except (json.JSONDecodeError, IOError) as e:
+                    print(f"Warning: Could not read {manifest_path}: {e}")
+
+    if not backups:
+        print(f"No backups found in {backups_dir}")
+        return 0
+
+    # Sort by date descending (newest first)
+    backups.sort(key=lambda x: x["date"], reverse=True)
+
+    print(f"Available Backups in {backups_dir}")
+    print("-" * 60)
+    for b in backups:
+        print(f"  {b['dir']}")
+        print(f"    Date: {b['date']}")
+        print(f"    Files: {b['files']}, Records: {b['records']}")
+
+    return 0
+
+
+def backup_validate_cmd(backup_dir: str) -> int:
+    """
+    Validate backup checksums.
+
+    Args:
+        backup_dir: Path to backup directory with manifest.json
+
+    Returns:
+        0 on success (all checksums valid), 1 on failure
+    """
+    from src.services.coordinated_export_service import validate_export
+
+    backup_path = Path(backup_dir)
+    if not backup_path.exists():
+        print(f"ERROR: Backup directory not found: {backup_dir}")
+        return 1
+
+    manifest_path = backup_path / "manifest.json"
+    if not manifest_path.exists():
+        print(f"ERROR: manifest.json not found in {backup_dir}")
+        return 1
+
+    print(f"Validating backup in {backup_dir}...")
+
+    try:
+        result = validate_export(backup_dir)
+
+        if result["valid"]:
+            print(f"\nValidation Passed")
+            print(f"-----------------")
+            print(f"Files checked: {result['files_checked']}")
+            print("All checksums valid.")
+            return 0
+        else:
+            print(f"\nValidation Failed")
+            print(f"-----------------")
+            print(f"Files checked: {result['files_checked']}")
+            print("Errors found:")
+            for error in result.get("errors", []):
+                print(f"  - {error}")
+            return 1
+
+    except Exception as e:
+        print(f"ERROR: {e}")
+        return 1
+
+
+# ============================================================================
+# F054 Context-Rich Aug Commands
+# ============================================================================
+
+
+def aug_export_cmd(entity_type: str, output_path: str = None) -> int:
+    """
+    Export context-rich data for AI workflows.
+
+    Creates files with aug_ prefix containing human-readable context
+    (resolved FK names, computed fields) for AI augmentation.
+
+    Args:
+        entity_type: Entity type to export (or "all")
+        output_path: Output file/directory path
+
+    Returns:
+        0 on success, 1 on failure
+    """
+    from src.services.denormalized_export_service import (
+        export_products_context_rich,
+        export_ingredients_context_rich,
+        export_materials_context_rich,
+        export_recipes_context_rich,
+        export_material_products_context_rich,
+        export_finished_units_context_rich,
+        export_finished_goods_context_rich,
+        export_all_context_rich,
+    )
+
+    # Map entity types to export functions
+    exporters = {
+        "products": export_products_context_rich,
+        "ingredients": export_ingredients_context_rich,
+        "recipes": export_recipes_context_rich,
+        "materials": export_materials_context_rich,
+        "material-products": export_material_products_context_rich,
+        "finished-units": export_finished_units_context_rich,
+        "finished-goods": export_finished_goods_context_rich,
+    }
+
+    # The 7 spec-defined aug entity types (excludes inventory, purchases)
+    AUG_SPEC_ENTITIES = {
+        "products", "ingredients", "recipes", "materials",
+        "material_products", "finished_units", "finished_goods"
+    }
+
+    try:
+        if entity_type == "all":
+            # Export all types to directory
+            output_dir = output_path or "."
+            print(f"Exporting all context-rich types to {output_dir}...")
+            all_results = export_all_context_rich(output_dir)
+
+            # Filter to only the 7 spec-defined entity types
+            results = {k: v for k, v in all_results.items() if k in AUG_SPEC_ENTITIES}
+
+            print(f"\nExport Complete")
+            print(f"---------------")
+            total_records = 0
+            for etype, result in results.items():
+                print(f"  {etype}: {result.record_count} records")
+                total_records += result.record_count
+            print(f"\nTotal: {total_records} records across {len(results)} files")
+
+            # Note about extra files if any were created
+            extra = set(all_results.keys()) - AUG_SPEC_ENTITIES
+            if extra:
+                print(f"\nNote: Additional files created: {', '.join(extra)}")
+
+            return 0
+        else:
+            # Single entity type
+            if output_path is None:
+                output_path = f"aug_{entity_type.replace('-', '_')}.json"
+
+            print(f"Exporting {entity_type} to {output_path}...")
+            result = exporters[entity_type](output_path)
+
+            print(f"\nExport Complete")
+            print(f"---------------")
+            print(f"Output file: {output_path}")
+            print(f"Records exported: {result.record_count}")
+            return 0
+
+    except Exception as e:
+        print(f"ERROR: {e}")
+        return 1
+
+
+def aug_import_cmd(
+    file_path: str,
+    interactive: bool = False,
+    skip_on_error: bool = False,
+) -> int:
+    """
+    Import context-rich data with FK resolution.
+
+    Imports context-rich export files, automatically resolving FK references
+    or prompting in interactive mode.
+
+    Args:
+        file_path: Path to aug JSON file
+        interactive: Enable interactive FK resolution prompts
+        skip_on_error: Skip records with errors instead of failing
+
+    Returns:
+        0 on success, 1 on failure
+    """
+    from src.services.enhanced_import_service import import_context_rich_export
+
+    input_path = Path(file_path)
+    if not input_path.exists():
+        print(f"ERROR: File not found: {file_path}")
+        return 1
+
+    mode_display = []
+    if interactive:
+        mode_display.append("interactive")
+    if skip_on_error:
+        mode_display.append("skip-on-error")
+    mode_str = f" ({', '.join(mode_display)})" if mode_display else ""
+
+    print(f"Importing from {file_path}{mode_str}...")
+
+    # Set up resolver if interactive
+    resolver = CLIFKResolver() if interactive else None
+
+    try:
+        result = import_context_rich_export(
+            file_path,
+            skip_on_error=skip_on_error,
+            resolver=resolver,
+        )
+
+        print("\n" + result.get_summary())
+        return 0 if result.base_result.failed == 0 else 1
+
+    except Exception as e:
+        print(f"ERROR: {e}")
+        return 1
+
+
+def aug_validate_cmd(file_path: str) -> int:
+    """
+    Validate aug file format and schema.
+
+    Detects the format of an aug file and reports validation results.
+
+    Args:
+        file_path: Path to aug JSON file to validate
+
+    Returns:
+        0 if valid, 1 if invalid or error
+    """
+    from src.services.enhanced_import_service import detect_format
+
+    input_path = Path(file_path)
+    if not input_path.exists():
+        print(f"ERROR: File not found: {file_path}")
+        return 1
+
+    print(f"Validating {file_path}...")
+
+    try:
+        format_info = detect_format(file_path)
+
+        print(f"\nValidation Results")
+        print(f"------------------")
+        print(f"File: {file_path}")
+        print(f"Format: {format_info.format_type.value}")
+        if format_info.export_type:
+            print(f"Entity type: {format_info.export_type}")
+        if format_info.version:
+            print(f"Version: {format_info.version}")
+        print(f"Record count: {format_info.entity_count}")
+
+        if format_info.editable_fields:
+            print(f"Editable fields: {len(format_info.editable_fields)}")
+        if format_info.readonly_fields:
+            print(f"Readonly fields: {len(format_info.readonly_fields)}")
+
+        print("\nStatus: VALID")
+        return 0
+
+    except Exception as e:
+        print(f"\nStatus: INVALID")
+        print(f"ERROR: {e}")
+        return 1
+
+
+# ============================================================================
+# F054 Catalog Commands
+# ============================================================================
+
+
+# Catalog entity types supported by export/import
+CATALOG_ENTITIES = [
+    "suppliers", "ingredients", "products", "recipes",
+    "finished-goods", "materials", "material-products"
+]
+
+
+def catalog_export_cmd(output_dir: str, entities_str: str = None) -> int:
+    """
+    Export catalog data to JSON files.
+
+    Exports the 7 catalog entity types to individual JSON files in the
+    specified output directory.
+
+    Args:
+        output_dir: Output directory path
+        entities_str: Comma-separated entity types (default: all)
+
+    Returns:
+        0 on success, 1 on failure
+    """
+    from src.services.import_export_service import (
+        export_ingredients_to_json,
+        export_recipes_to_json,
+        export_finished_goods_to_json,
+    )
+    from src.services.coordinated_export_service import (
+        _export_suppliers,
+        _export_products,
+        _export_materials,
+        _export_material_products,
+    )
+    from src.models.base import session_scope
+
+    # Parse entities to export
+    if entities_str:
+        entities = [e.strip() for e in entities_str.split(",")]
+        invalid = set(entities) - set(CATALOG_ENTITIES)
+        if invalid:
+            print(f"ERROR: Unknown entity types: {', '.join(invalid)}")
+            print(f"Valid types: {', '.join(CATALOG_ENTITIES)}")
+            return 1
+    else:
+        entities = CATALOG_ENTITIES
+
+    # Create output directory
+    output_path = Path(output_dir)
+    output_path.mkdir(parents=True, exist_ok=True)
+
+    print(f"Exporting catalog to {output_dir}...")
+    print(f"Entities: {', '.join(entities)}")
+
+    results = {}
+    try:
+        with session_scope() as session:
+            for entity in entities:
+                if entity == "suppliers":
+                    entry = _export_suppliers(output_path, session)
+                    results[entity] = entry.record_count
+                elif entity == "ingredients":
+                    file_path = str(output_path / "ingredients.json")
+                    result = export_ingredients_to_json(file_path)
+                    results[entity] = result.record_count
+                elif entity == "products":
+                    entry = _export_products(output_path, session)
+                    results[entity] = entry.record_count
+                elif entity == "recipes":
+                    file_path = str(output_path / "recipes.json")
+                    result = export_recipes_to_json(file_path)
+                    results[entity] = result.record_count
+                elif entity == "finished-goods":
+                    file_path = str(output_path / "finished_goods.json")
+                    result = export_finished_goods_to_json(file_path)
+                    results[entity] = result.record_count
+                elif entity == "materials":
+                    entry = _export_materials(output_path, session)
+                    results[entity] = entry.record_count
+                elif entity == "material-products":
+                    entry = _export_material_products(output_path, session)
+                    results[entity] = entry.record_count
+
+        # Create combined catalog.json for import compatibility
+        combined_path = output_path / "catalog.json"
+        combined_data = {"version": "1.0"}
+        for entity in entities:
+            # Map CLI entity names to file names and data keys
+            file_map = {
+                "suppliers": "suppliers.json",
+                "ingredients": "ingredients.json",
+                "products": "products.json",
+                "recipes": "recipes.json",
+                "finished-goods": "finished_goods.json",
+                "materials": "materials.json",
+                "material-products": "material_products.json",
+            }
+            data_key = entity.replace("-", "_")
+            entity_file = output_path / file_map.get(entity, f"{data_key}.json")
+            if entity_file.exists():
+                import json
+                with open(entity_file, "r", encoding="utf-8") as f:
+                    entity_data = json.load(f)
+                    # Handle different export formats
+                    if "records" in entity_data:
+                        combined_data[data_key] = entity_data["records"]
+                    elif isinstance(entity_data, list):
+                        combined_data[data_key] = entity_data
+                    else:
+                        combined_data[data_key] = entity_data
+
+        import json
+        with open(combined_path, "w", encoding="utf-8") as f:
+            json.dump(combined_data, f, indent=2, ensure_ascii=False, default=str)
+
+        print(f"\nCatalog Export Complete")
+        print(f"-----------------------")
+        print(f"Output directory: {output_dir}")
+        total_records = 0
+        for entity, count in results.items():
+            print(f"  {entity}: {count} records")
+            total_records += count
+        print(f"\nTotal: {total_records} records across {len(results)} files")
+        print(f"\nCombined file: {combined_path}")
+        print("  (Use this file with catalog-import)")
+        return 0
+
+    except Exception as e:
+        print(f"ERROR: {e}")
+        return 1
+
+
+def catalog_import_cmd(
+    input_file: str,
+    mode: str = "add",
+    dry_run: bool = False,
+) -> int:
+    """
+    Import catalog data from JSON file.
+
+    Imports catalog entities in dependency order using the specified mode.
+
+    Args:
+        input_file: Path to catalog JSON file
+        mode: Import mode ("add" or "augment")
+        dry_run: Preview changes without modifying database
+
+    Returns:
+        0 on success, 1 on failure
+    """
+    from src.services.catalog_import_service import import_catalog
+
+    input_path = Path(input_file)
+    if not input_path.exists():
+        print(f"ERROR: File not found: {input_file}")
+        return 1
+
+    mode_display = [f"mode: {mode}"]
+    if dry_run:
+        mode_display.append("DRY RUN")
+
+    print(f"Importing catalog from {input_file} ({', '.join(mode_display)})...")
+
+    try:
+        result = import_catalog(
+            input_file,
+            mode=mode,
+            dry_run=dry_run,
+        )
+
+        print("\n" + result.get_summary())
+
+        # Check for failures
+        total_failed = sum(
+            counts.failed for counts in result.entity_counts.values()
+        )
+        return 0 if total_failed == 0 else 1
+
+    except Exception as e:
+        print(f"ERROR: {e}")
+        return 1
+
+
+def catalog_validate_cmd(input_file: str) -> int:
+    """
+    Validate catalog file schema before import.
+
+    Checks JSON structure and required fields for each entity type.
+
+    Args:
+        input_file: Path to catalog JSON file to validate
+
+    Returns:
+        0 if valid, 1 if invalid
+    """
+    import json
+    from src.services.catalog_import_service import validate_catalog_file
+
+    input_path = Path(input_file)
+    if not input_path.exists():
+        print(f"ERROR: File not found: {input_file}")
+        return 1
+
+    print(f"Validating catalog file {input_file}...")
+
+    try:
+        # Use the service's validation function
+        data = validate_catalog_file(input_file)
+
+        # Count records per entity type
+        print(f"\nValidation Results")
+        print(f"------------------")
+        print(f"File: {input_file}")
+        print(f"Format: {data.get('format', 'Unknown')}")
+        print(f"Version: {data.get('version', 'Unknown')}")
+
+        # Count entities
+        entity_counts = {}
+        for key, value in data.items():
+            if isinstance(value, list) and key not in ['format', 'version', 'export_date', 'source']:
+                entity_counts[key] = len(value)
+
+        if entity_counts:
+            print(f"\nEntity counts:")
+            for entity, count in entity_counts.items():
+                print(f"  {entity}: {count} records")
+
+        print("\nStatus: VALID")
+        return 0
+
+    except json.JSONDecodeError as e:
+        print(f"\nStatus: INVALID")
+        print(f"ERROR: Invalid JSON - {e}")
+        return 1
+    except Exception as e:
+        print(f"\nStatus: INVALID")
         print(f"ERROR: {e}")
         return 1
 
@@ -601,6 +1581,9 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
+
+  === Legacy Commands ===
+
   Export all data (v3.2 format):
     python -m src.utils.import_export_cli export test_data.json
 
@@ -610,21 +1593,78 @@ Examples:
   Import with replace mode (clears existing data):
     python -m src.utils.import_export_cli import test_data.json --mode replace
 
-  Export complete database with manifest (F030):
+  === F030 Commands ===
+
+  Export complete database with manifest:
     python -m src.utils.import_export_cli export-complete -o ./export_dir
     python -m src.utils.import_export_cli export-complete -o ./export_dir --zip
 
-  Export denormalized view (F030):
+  Export denormalized view:
     python -m src.utils.import_export_cli export-view -t products -o view_products.json
 
-  Validate export checksums (F030):
+  Validate export checksums:
     python -m src.utils.import_export_cli validate-export ./export_dir
 
-  Import denormalized view (F030):
+  Import denormalized view:
     python -m src.utils.import_export_cli import-view view_products.json
     python -m src.utils.import_export_cli import-view view_products.json --interactive
     python -m src.utils.import_export_cli import-view view_products.json --dry-run
-    python -m src.utils.import_export_cli import-view view_products.json --skip-on-error
+
+  === F054 Backup/Restore Commands ===
+
+  Create timestamped backup:
+    python -m src.utils.import_export_cli backup
+    python -m src.utils.import_export_cli backup -o ./my_backup
+    python -m src.utils.import_export_cli backup --zip
+
+  Restore from backup:
+    python -m src.utils.import_export_cli restore ./backups/backup_20260115_120000
+
+  List available backups:
+    python -m src.utils.import_export_cli backup-list
+    python -m src.utils.import_export_cli backup-list --dir ./my_backups
+
+  Validate backup integrity:
+    python -m src.utils.import_export_cli backup-validate ./backups/backup_20260115_120000
+
+  === F054 Context-Rich Aug Commands ===
+
+  Export context-rich data for AI workflows:
+    python -m src.utils.import_export_cli aug-export -t products
+    python -m src.utils.import_export_cli aug-export -t recipes -o my_recipes.json
+    python -m src.utils.import_export_cli aug-export -t all -o ./aug_exports/
+
+  Import context-rich data:
+    python -m src.utils.import_export_cli aug-import aug_products.json
+    python -m src.utils.import_export_cli aug-import aug_recipes.json --interactive
+    python -m src.utils.import_export_cli aug-import aug_data.json --skip-on-error
+
+  Validate aug file format:
+    python -m src.utils.import_export_cli aug-validate aug_products.json
+
+  === F054 Catalog Commands ===
+
+  Export catalog data (creates per-entity files + combined catalog.json):
+    python -m src.utils.import_export_cli catalog-export
+    python -m src.utils.import_export_cli catalog-export -o ./catalog/
+    python -m src.utils.import_export_cli catalog-export --entities ingredients,recipes
+
+  Import catalog data (use the combined catalog.json file):
+    python -m src.utils.import_export_cli catalog-import ./catalog_export/catalog.json
+    python -m src.utils.import_export_cli catalog-import ./catalog/catalog.json --mode augment
+    python -m src.utils.import_export_cli catalog-import ./catalog/catalog.json --dry-run
+
+  Validate catalog file:
+    python -m src.utils.import_export_cli catalog-validate ./catalog_export/catalog.json
+
+  === Entity-Specific Exports ===
+
+  Export individual entity types:
+    python -m src.utils.import_export_cli export-ingredients ingredients.json
+    python -m src.utils.import_export_cli export-recipes recipes.json
+    python -m src.utils.import_export_cli export-materials materials.json
+    python -m src.utils.import_export_cli export-suppliers suppliers.json
+    python -m src.utils.import_export_cli export-purchases purchases.json
 
 Note: Individual entity imports (import-ingredients, etc.) are no longer
 supported. Use the 'import' command with a complete v3.2 format file.
@@ -640,6 +1680,14 @@ supported. Use the 'import' command with a complete v3.2 format file.
 
     # Legacy entity-specific export commands
     for entity in ["ingredients", "recipes", "finished-goods", "bundles", "packages", "recipients", "events"]:
+        entity_parser = subparsers.add_parser(
+            f"export-{entity}",
+            help=f"Export {entity} only"
+        )
+        entity_parser.add_argument("file", help="JSON file path")
+
+    # F054: Additional entity-specific export commands
+    for entity in ["materials", "material-products", "material-categories", "material-subcategories", "suppliers", "purchases"]:
         entity_parser = subparsers.add_parser(
             f"export-{entity}",
             help=f"Export {entity} only"
@@ -735,6 +1783,163 @@ supported. Use the 'import' command with a complete v3.2 format file.
         help="Preview changes without modifying database"
     )
 
+    # F054: Backup command
+    backup_parser = subparsers.add_parser(
+        "backup",
+        help="Create timestamped 16-entity backup with manifest"
+    )
+    backup_parser.add_argument(
+        "-o", "--output",
+        dest="output_dir",
+        help="Output directory (default: ./backups/backup_{timestamp})"
+    )
+    backup_parser.add_argument(
+        "--zip",
+        dest="create_zip",
+        action="store_true",
+        help="Create compressed ZIP archive"
+    )
+
+    # F054: Restore command
+    restore_parser = subparsers.add_parser(
+        "restore",
+        help="Restore database from backup (WARNING: replaces all data)"
+    )
+    restore_parser.add_argument(
+        "backup_dir",
+        help="Path to backup directory with manifest.json"
+    )
+    restore_parser.epilog = (
+        "NOTE: Restore uses replace mode - all existing data is cleared before import. "
+        "For selective import, use catalog-import with add/augment mode instead."
+    )
+
+    # F054: Backup-list command
+    backup_list_parser = subparsers.add_parser(
+        "backup-list",
+        help="List available backups in a directory"
+    )
+    backup_list_parser.add_argument(
+        "--dir",
+        dest="backups_dir",
+        default="./backups/",
+        help="Directory to scan for backups (default: ./backups/)"
+    )
+
+    # F054: Backup-validate command
+    backup_validate_parser = subparsers.add_parser(
+        "backup-validate",
+        help="Verify backup integrity via checksums"
+    )
+    backup_validate_parser.add_argument(
+        "backup_dir",
+        help="Path to backup directory with manifest.json"
+    )
+
+    # F054: Aug-export command (context-rich export for AI workflows)
+    aug_export_parser = subparsers.add_parser(
+        "aug-export",
+        help="Export context-rich data for AI workflows (aug_ prefix)"
+    )
+    aug_export_parser.add_argument(
+        "-t", "--type",
+        dest="entity_type",
+        choices=["ingredients", "products", "recipes", "materials",
+                 "material-products", "finished-units", "finished-goods", "all"],
+        required=True,
+        help="Entity type to export"
+    )
+    aug_export_parser.add_argument(
+        "-o", "--output",
+        dest="output_path",
+        help="Output file path (default: aug_{type}.json)"
+    )
+
+    # F054: Aug-import command (context-rich import with FK resolution)
+    aug_import_parser = subparsers.add_parser(
+        "aug-import",
+        help="Import context-rich data with FK resolution"
+    )
+    aug_import_parser.add_argument(
+        "file",
+        help="Input aug JSON file"
+    )
+    aug_import_parser.add_argument(
+        "-i", "--interactive",
+        action="store_true",
+        help="Enable interactive FK resolution"
+    )
+    aug_import_parser.add_argument(
+        "-s", "--skip-on-error",
+        dest="skip_on_error",
+        action="store_true",
+        help="Skip records with errors instead of failing"
+    )
+
+    # F054: Aug-validate command (validate aug file format)
+    aug_validate_parser = subparsers.add_parser(
+        "aug-validate",
+        help="Validate aug file format and schema"
+    )
+    aug_validate_parser.add_argument(
+        "file",
+        help="Aug JSON file to validate"
+    )
+
+    # F054: Catalog-export command
+    catalog_export_parser = subparsers.add_parser(
+        "catalog-export",
+        help="Export catalog data (7 entity types)"
+    )
+    catalog_export_parser.add_argument(
+        "-o", "--output",
+        dest="output_dir",
+        default="./catalog_export/",
+        help="Output directory (default: ./catalog_export/)"
+    )
+    catalog_export_parser.add_argument(
+        "--entities",
+        dest="entities",
+        help="Comma-separated entity types to export (default: all)"
+    )
+
+    # F054: Catalog-import command
+    catalog_import_parser = subparsers.add_parser(
+        "catalog-import",
+        help="Import catalog data with mode selection"
+    )
+    catalog_import_parser.add_argument(
+        "input_file",
+        help="Combined catalog JSON file (e.g., catalog.json from catalog-export)"
+    )
+    catalog_import_parser.add_argument(
+        "-m", "--mode",
+        dest="import_mode",
+        choices=["add", "augment"],
+        default="add",
+        help="Import mode: 'add' (default) skip existing, 'augment' update nulls"
+    )
+    catalog_import_parser.add_argument(
+        "-d", "--dry-run",
+        dest="dry_run",
+        action="store_true",
+        help="Preview changes without modifying database"
+    )
+    catalog_import_parser.epilog = (
+        "Use the catalog.json file created by catalog-export. "
+        "Example: catalog-import ./catalog_export/catalog.json"
+    )
+
+    # F054: Catalog-validate command
+    catalog_validate_parser = subparsers.add_parser(
+        "catalog-validate",
+        help="Validate catalog file schema"
+    )
+    catalog_validate_parser.add_argument(
+        "input_file",
+        help="Combined catalog JSON file to validate (e.g., catalog.json)"
+    )
+
     args = parser.parse_args()
 
     if args.command is None:
@@ -762,6 +1967,18 @@ supported. Use the 'import' command with a complete v3.2 format file.
         return export_recipients(args.file)
     elif args.command == "export-events":
         return export_events(args.file)
+    elif args.command == "export-materials":
+        return export_materials(args.file)
+    elif args.command == "export-material-products":
+        return export_material_products(args.file)
+    elif args.command == "export-material-categories":
+        return export_material_categories(args.file)
+    elif args.command == "export-material-subcategories":
+        return export_material_subcategories(args.file)
+    elif args.command == "export-suppliers":
+        return export_suppliers(args.file)
+    elif args.command == "export-purchases":
+        return export_purchases(args.file)
     elif args.command == "import":
         return import_all(args.file, mode=args.mode)
     elif args.command == "export-complete":
@@ -778,6 +1995,26 @@ supported. Use the 'import' command with a complete v3.2 format file.
             skip_on_error=args.skip_on_error,
             dry_run=args.dry_run,
         )
+    elif args.command == "backup":
+        return backup_cmd(args.output_dir, args.create_zip)
+    elif args.command == "restore":
+        return restore_cmd(args.backup_dir)
+    elif args.command == "backup-list":
+        return backup_list_cmd(args.backups_dir)
+    elif args.command == "backup-validate":
+        return backup_validate_cmd(args.backup_dir)
+    elif args.command == "aug-export":
+        return aug_export_cmd(args.entity_type, args.output_path)
+    elif args.command == "aug-import":
+        return aug_import_cmd(args.file, args.interactive, args.skip_on_error)
+    elif args.command == "aug-validate":
+        return aug_validate_cmd(args.file)
+    elif args.command == "catalog-export":
+        return catalog_export_cmd(args.output_dir, args.entities)
+    elif args.command == "catalog-import":
+        return catalog_import_cmd(args.input_file, args.import_mode, args.dry_run)
+    elif args.command == "catalog-validate":
+        return catalog_validate_cmd(args.input_file)
     else:
         print(f"Unknown command: {args.command}")
         return 1

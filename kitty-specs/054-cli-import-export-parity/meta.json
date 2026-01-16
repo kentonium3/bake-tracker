@@ -1,0 +1,26 @@
+{
+  "accept_commit": null,
+  "acceptance_history": [
+    {
+      "accepted_at": "2026-01-16T00:48:59Z",
+      "accepted_by": "claude",
+      "accepted_from_commit": "f027be5878184b4b0eebe705e958353aff5c8e2a",
+      "branch": "054-cli-import-export-parity",
+      "mode": "local",
+      "validation_commands": [
+        "pytest",
+        "cursor review"
+      ]
+    }
+  ],
+  "acceptance_mode": "local",
+  "accepted_at": "2026-01-16T00:48:59Z",
+  "accepted_by": "claude",
+  "accepted_from_commit": "f027be5878184b4b0eebe705e958353aff5c8e2a",
+  "created_at": "2026-01-15T17:30:00Z",
+  "feature_number": "054",
+  "friendly_name": "CLI Import/Export Parity",
+  "mission": "software-dev",
+  "slug": "054-cli-import-export-parity",
+  "source_description": "See docs/design/F054_cli_import_export_parity.md for this feature's inputs."
+}
