@@ -1074,6 +1074,25 @@ def _import_entity_records(
                 if not ingredient:
                     continue  # Skip if FK not resolved
 
+                # Resolve preferred_supplier FK - try slug first, fall back to ID
+                preferred_supplier_id = None
+                supplier_slug = record.get("preferred_supplier_slug")
+                if supplier_slug:
+                    supplier = session.query(Supplier).filter(
+                        Supplier.slug == supplier_slug
+                    ).first()
+                    if supplier:
+                        preferred_supplier_id = supplier.id
+                if not preferred_supplier_id:
+                    # Fall back to ID-based resolution (legacy support)
+                    old_supplier_id = record.get("preferred_supplier_id")
+                    if old_supplier_id:
+                        supplier = session.query(Supplier).filter(
+                            Supplier.id == old_supplier_id
+                        ).first()
+                        if supplier:
+                            preferred_supplier_id = supplier.id
+
                 obj = Product(
                     ingredient_id=ingredient.id,
                     brand=record.get("brand"),
@@ -1083,6 +1102,13 @@ def _import_entity_records(
                     package_size=record.get("package_size"),
                     upc_code=record.get("upc_code"),
                     gtin=record.get("gtin"),
+                    preferred_supplier_id=preferred_supplier_id,
+                    preferred=record.get("preferred", False),
+                    is_hidden=record.get("is_hidden", False),
+                    package_type=record.get("package_type"),
+                    supplier=record.get("supplier"),
+                    supplier_sku=record.get("supplier_sku"),
+                    notes=record.get("notes"),
                 )
                 session.add(obj)
                 imported_count += 1
