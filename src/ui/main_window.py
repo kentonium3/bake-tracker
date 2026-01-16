@@ -460,6 +460,7 @@ class MainWindow(ctk.CTk):
         self.ingredients_tab.refresh()
         self.products_tab.refresh()
         self.recipes_tab.refresh()
+        self.materials_tab.refresh()
         self.inventory_tab.refresh()
 
     def _refresh_all_tabs(self):
@@ -469,6 +470,7 @@ class MainWindow(ctk.CTk):
         self.inventory_tab.refresh()
         self.products_tab.refresh()
         self.recipes_tab.refresh()
+        self.materials_tab.refresh()
         self.finished_units_tab.refresh()
         self.packages_tab.refresh()
         self.recipients_tab.refresh()
