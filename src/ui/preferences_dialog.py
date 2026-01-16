@@ -30,13 +30,14 @@ class PreferencesDialog(ctk.CTkToplevel):
         """
         super().__init__(parent)
         self.title("Preferences")
-        self.geometry("550x520")
+        self.geometry("550x620")
         self.resizable(False, False)
 
         # Store original values for cancel
         self._import_dir = None
         self._export_dir = None
         self._logs_dir = None
+        self._backup_dir = None
 
         self._setup_ui()
         self._load_current_preferences()
@@ -136,6 +137,14 @@ class PreferencesDialog(ctk.CTkToplevel):
             "logs",
         )
 
+        # Backup Directory
+        self._create_directory_picker(
+            dirs_frame,
+            "Backup Directory",
+            "Default location for backup restore file browser",
+            "backup",
+        )
+
     def _create_directory_picker(
         self, parent, label: str, description: str, dir_type: str
     ):
@@ -198,6 +207,10 @@ class PreferencesDialog(ctk.CTkToplevel):
         # Logs directory
         self._logs_dir = preferences_service.get_logs_directory()
         self._update_entry("logs", self._logs_dir)
+
+        # Backup directory
+        self._backup_dir = preferences_service.get_backup_directory()
+        self._update_entry("backup", self._backup_dir)
 
     def _update_entry(self, dir_type: str, path: Path):
         """Update an entry field with a path.
@@ -278,6 +291,12 @@ class PreferencesDialog(ctk.CTkToplevel):
         elif not self._logs_dir.is_dir():
             errors.append(f"Logs path is not a directory: {self._logs_dir}")
 
+        # Validate backup directory
+        if not self._backup_dir or not self._backup_dir.exists():
+            errors.append(f"Backup directory does not exist: {self._backup_dir}")
+        elif not self._backup_dir.is_dir():
+            errors.append(f"Backup path is not a directory: {self._backup_dir}")
+
         if errors:
             messagebox.showerror(
                 "Validation Error",
@@ -291,6 +310,7 @@ class PreferencesDialog(ctk.CTkToplevel):
             preferences_service.set_import_directory(str(self._import_dir))
             preferences_service.set_export_directory(str(self._export_dir))
             preferences_service.set_logs_directory(str(self._logs_dir))
+            preferences_service.set_backup_directory(str(self._backup_dir))
 
             self.destroy()
 

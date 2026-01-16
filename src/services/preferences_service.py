@@ -45,6 +45,7 @@ logger = logging.getLogger(__name__)
 PREF_IMPORT_DIR = "import_directory"
 PREF_EXPORT_DIR = "export_directory"
 PREF_LOGS_DIR = "logs_directory"
+PREF_BACKUP_DIR = "backup_directory"
 
 # Config file location
 # Use platform-appropriate config directory
@@ -85,6 +86,11 @@ def _get_default_logs_dir() -> Path:
     # This is relative to the source file location
     project_root = Path(__file__).parent.parent.parent
     return project_root / "docs" / "user_testing"
+
+
+def _get_default_backup_dir() -> Path:
+    """Get the default backup directory."""
+    return Path.home() / "Documents" / "BakeTracker" / "backups"
 
 
 # ============================================================================
@@ -400,6 +406,75 @@ def set_logs_directory(path: str) -> bool:
 
 
 # ============================================================================
+# Backup Directory
+# ============================================================================
+
+
+def get_backup_directory() -> Path:
+    """
+    Get the configured backup directory.
+
+    Returns the stored preference if valid, otherwise returns the default.
+    Creates the default directory if it doesn't exist.
+
+    Returns:
+        Path to the backup directory
+    """
+    stored = _get_preference(PREF_BACKUP_DIR)
+
+    if stored:
+        stored_path = Path(stored)
+        if _validate_directory(stored_path):
+            return stored_path
+        else:
+            logger.warning(
+                f"Stored backup directory '{stored}' is not valid, "
+                f"falling back to default"
+            )
+
+    default = _get_default_backup_dir()
+
+    # Try to create default backup directory if it doesn't exist
+    try:
+        default.mkdir(parents=True, exist_ok=True)
+    except (IOError, OSError):
+        pass
+
+    # Validate default exists
+    if _validate_directory(default):
+        return default
+
+    # Fallback to Documents folder
+    docs = Path.home() / "Documents"
+    if _validate_directory(docs):
+        return docs
+
+    # Ultimate fallback to home directory
+    return Path.home()
+
+
+def set_backup_directory(path: str) -> bool:
+    """
+    Set the backup directory preference.
+
+    Args:
+        path: Path to the backup directory
+
+    Returns:
+        True if set successfully, False otherwise
+
+    Raises:
+        ValueError: If path is not a valid directory
+    """
+    dir_path = Path(path)
+
+    if not _validate_directory(dir_path):
+        raise ValueError(f"'{path}' is not a valid directory")
+
+    return _set_preference(PREF_BACKUP_DIR, str(dir_path))
+
+
+# ============================================================================
 # Reset
 # ============================================================================
 
@@ -442,6 +517,7 @@ def get_all_preferences() -> dict:
         PREF_IMPORT_DIR: str(get_import_directory()),
         PREF_EXPORT_DIR: str(get_export_directory()),
         PREF_LOGS_DIR: str(get_logs_directory()),
+        PREF_BACKUP_DIR: str(get_backup_directory()),
     }
 
 

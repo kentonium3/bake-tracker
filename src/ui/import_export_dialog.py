@@ -519,46 +519,13 @@ class ImportDialog(ctk.CTkToplevel):
         )
         title_label.pack(pady=(15, 5))
 
-        # File selection frame (at top for workflow)
-        file_frame = ctk.CTkFrame(self)
-        file_frame.pack(fill="x", padx=20, pady=10)
-
-        ctk.CTkLabel(
-            file_frame,
-            text="1. Select file to import:",
-            font=ctk.CTkFont(weight="bold"),
-        ).pack(anchor="w", padx=10, pady=(10, 5))
-
-        file_inner = ctk.CTkFrame(file_frame, fg_color="transparent")
-        file_inner.pack(fill="x", padx=10, pady=(0, 5))
-
-        self.file_entry = ctk.CTkEntry(file_inner, width=350, state="readonly")
-        self.file_entry.pack(side="left", padx=(0, 10))
-
-        browse_btn = ctk.CTkButton(
-            file_inner,
-            text="Browse...",
-            width=80,
-            command=self._browse_file,
-        )
-        browse_btn.pack(side="left")
-
-        # Detection result label
-        self.detection_label = ctk.CTkLabel(
-            file_frame,
-            text="",
-            font=ctk.CTkFont(size=11),
-            text_color="gray",
-        )
-        self.detection_label.pack(anchor="w", padx=10, pady=(0, 10))
-
-        # Purpose selection frame
+        # Purpose selection frame (STEP 1 - moved before file selection)
         purpose_frame = ctk.CTkFrame(self)
         purpose_frame.pack(fill="x", padx=20, pady=10)
 
         ctk.CTkLabel(
             purpose_frame,
-            text="2. What are you importing?",
+            text="1. What are you importing?",
             font=ctk.CTkFont(weight="bold"),
         ).pack(anchor="w", padx=10, pady=(10, 5))
 
@@ -594,11 +561,44 @@ class ImportDialog(ctk.CTkToplevel):
 
         ctk.CTkLabel(purpose_frame, text="").pack(pady=3)
 
-        # Options frame (changes based on purpose)
+        # Options frame (STEP 2 - changes based on purpose)
         self.options_frame = ctk.CTkFrame(self)
         self.options_frame.pack(fill="x", padx=20, pady=10)
 
         self._setup_catalog_options()  # Default
+
+        # File selection frame (STEP 3 - moved after purpose/options)
+        self.file_frame = ctk.CTkFrame(self)
+        self.file_frame.pack(fill="x", padx=20, pady=10)
+
+        ctk.CTkLabel(
+            self.file_frame,
+            text="3. Select file to import:",
+            font=ctk.CTkFont(weight="bold"),
+        ).pack(anchor="w", padx=10, pady=(10, 5))
+
+        file_inner = ctk.CTkFrame(self.file_frame, fg_color="transparent")
+        file_inner.pack(fill="x", padx=10, pady=(0, 5))
+
+        self.file_entry = ctk.CTkEntry(file_inner, width=350, state="readonly")
+        self.file_entry.pack(side="left", padx=(0, 10))
+
+        browse_btn = ctk.CTkButton(
+            file_inner,
+            text="Browse...",
+            width=80,
+            command=self._browse_file,
+        )
+        browse_btn.pack(side="left")
+
+        # Detection result label
+        self.detection_label = ctk.CTkLabel(
+            self.file_frame,
+            text="",
+            font=ctk.CTkFont(size=11),
+            text_color="gray",
+        )
+        self.detection_label.pack(anchor="w", padx=10, pady=(0, 10))
 
         # Progress bar
         self.progress = ctk.CTkProgressBar(self)
@@ -621,7 +621,7 @@ class ImportDialog(ctk.CTkToplevel):
 
         ctk.CTkLabel(
             self.options_frame,
-            text="3. Import mode:",
+            text="2. Import mode:",
             font=ctk.CTkFont(weight="bold"),
         ).pack(anchor="w", padx=10, pady=(10, 5))
 
@@ -654,21 +654,27 @@ class ImportDialog(ctk.CTkToplevel):
         for widget in self.options_frame.winfo_children():
             widget.destroy()
 
+        ctk.CTkLabel(
+            self.options_frame,
+            text="2. Backup restore mode:",
+            font=ctk.CTkFont(weight="bold"),
+        ).pack(anchor="w", padx=10, pady=(10, 5))
+
         warning = ctk.CTkLabel(
             self.options_frame,
             text="WARNING: This will replace ALL existing data!",
-            font=ctk.CTkFont(size=13, weight="bold"),
+            font=ctk.CTkFont(size=12, weight="bold"),
             text_color="red",
         )
-        warning.pack(pady=15)
+        warning.pack(anchor="w", padx=20, pady=(0, 3))
 
         info = ctk.CTkLabel(
             self.options_frame,
-            text="All current data will be deleted and replaced\n"
-                 "with the contents of the backup file.",
-            font=ctk.CTkFont(size=12),
+            text="All current data will be deleted and replaced with the backup contents.",
+            font=ctk.CTkFont(size=11),
+            text_color="gray",
         )
-        info.pack(pady=5)
+        info.pack(anchor="w", padx=20, pady=(0, 5))
 
     def _setup_transaction_options(self, transaction_type: str):
         """Set up options for purchase/adjustment import."""
@@ -676,23 +682,32 @@ class ImportDialog(ctk.CTkToplevel):
             widget.destroy()
 
         if transaction_type == "purchases":
+            header = "2. Purchase import:"
             info_text = (
                 "Import purchase records with product, price, and quantity.\n"
                 "Inventory will be increased for each purchase."
             )
         else:
+            header = "2. Adjustment import:"
             info_text = (
                 "Import inventory adjustments (negative quantities only).\n"
                 "Requires reason code: SPOILAGE, WASTE, DAMAGED, CORRECTION, OTHER."
             )
 
+        ctk.CTkLabel(
+            self.options_frame,
+            text=header,
+            font=ctk.CTkFont(weight="bold"),
+        ).pack(anchor="w", padx=10, pady=(10, 5))
+
         info = ctk.CTkLabel(
             self.options_frame,
             text=info_text,
-            font=ctk.CTkFont(size=12),
+            font=ctk.CTkFont(size=11),
+            text_color="gray",
             justify="left",
         )
-        info.pack(anchor="w", padx=10, pady=15)
+        info.pack(anchor="w", padx=20, pady=(0, 5))
 
     def _setup_context_rich_options(self):
         """Set up options for context-rich import."""
@@ -705,7 +720,7 @@ class ImportDialog(ctk.CTkToplevel):
 
         ctk.CTkLabel(
             self.options_frame,
-            text="3. Import behavior:",
+            text="2. Import behavior:",
             font=ctk.CTkFont(weight="bold"),
         ).pack(anchor="w", padx=10, pady=(10, 5))
 
@@ -746,8 +761,13 @@ class ImportDialog(ctk.CTkToplevel):
 
     def _browse_file(self):
         """Open file browser and auto-detect format."""
-        # FR-015: Use configured import directory as initial location
-        initial_dir = str(preferences_service.get_import_directory())
+        # FR-015: Use configured directory based on selected purpose
+        # Backup imports use the dedicated backup directory preference
+        if self.purpose_var.get() == "backup":
+            initial_dir = str(preferences_service.get_backup_directory())
+        else:
+            initial_dir = str(preferences_service.get_import_directory())
+
         file_path = filedialog.askopenfilename(
             title="Select Import File",
             initialdir=initial_dir,
