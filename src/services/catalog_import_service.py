@@ -1593,6 +1593,8 @@ def _import_materials_impl(
             sub_slug = item.get("subcategory_slug")
             if sub_slug:
                 subcategory = subcategory_by_slug.get(sub_slug)
+                if subcategory:
+                    subcategory_id = subcategory.id
 
         if subcategory is None:
             # Legacy path: category string "Category: Subcategory"

@@ -543,8 +543,7 @@ class TestExportComplete:
             assert len(data["records"]) == 1
             product = data["records"][0]
 
-            # Verify both ID and slug present for FK
-            assert "ingredient_id" in product
+            # Verify slug present for FK resolution (IDs not exported for portability)
             assert "ingredient_slug" in product
             assert product["ingredient_slug"] == "test_flour"
             assert product["brand"] == "Test Brand"
@@ -567,9 +566,8 @@ class TestExportComplete:
             assert "ingredients" in recipe
             assert len(recipe["ingredients"]) == 1
 
-            # Verify FK resolution fields in nested ingredients
+            # Verify FK resolution fields in nested ingredients (slug only, no IDs for portability)
             ing = recipe["ingredients"][0]
-            assert "ingredient_id" in ing
             assert "ingredient_slug" in ing
             assert ing["ingredient_slug"] == "test_flour"
 
@@ -587,13 +585,9 @@ class TestExportComplete:
             assert len(data["records"]) == 1
             purchase = data["records"][0]
 
-            # Verify product FK fields
-            assert "product_id" in purchase
+            # Verify FK resolution fields (slug only, no IDs for portability)
             assert "product_slug" in purchase
-
-            # Verify supplier FK fields
-            assert "supplier_id" in purchase
-            assert "supplier_name" in purchase
+            assert "supplier_slug" in purchase
 
     def test_export_checksums_match(self, test_db, sample_supplier, cleanup_test_data):
         """Test export checksums match actual file content."""
@@ -883,19 +877,17 @@ class TestExportEvents:
             assert event["name"] == "Test Holiday Event"
             assert event["year"] == 2025
 
-            # Verify production targets with FK fields
+            # Verify production targets with FK fields (slug/name only, no IDs for portability)
             assert "production_targets" in event
             assert len(event["production_targets"]) == 1
             pt = event["production_targets"][0]
-            assert "recipe_id" in pt
             assert "recipe_name" in pt
             assert pt["recipe_name"] == "Test Cookies"
 
-            # Verify assembly targets with FK fields
+            # Verify assembly targets with FK fields (slug only, no IDs for portability)
             assert "assembly_targets" in event
             assert len(event["assembly_targets"]) == 1
             at = event["assembly_targets"][0]
-            assert "finished_good_id" in at
             assert "finished_good_slug" in at
             assert at["finished_good_slug"] == "test_cookies_box"
 
@@ -940,12 +932,10 @@ class TestExportProductionRuns:
             assert run["expected_yield"] == 48
             assert run["actual_yield"] == 46
 
-            # Verify FK resolution fields (slugs not just IDs)
-            assert "recipe_id" in run
+            # Verify FK resolution fields (slug/name only, no IDs for portability)
             assert "recipe_name" in run
             assert run["recipe_name"] == "Test Cookies"
 
-            assert "event_id" in run
             assert "event_name" in run
             assert run["event_name"] == "Test Holiday Event"
 
@@ -993,8 +983,7 @@ class TestExportInventoryDepletions:
             assert depletion["depletion_reason"] == "production"
             assert depletion["notes"] == "Used in test batch"
 
-            # Verify FK resolution field present
-            assert "inventory_item_id" in depletion
+            # Verify FK resolution field present (ref only, no ID for portability)
             assert "inventory_item_ref" in depletion
 
 

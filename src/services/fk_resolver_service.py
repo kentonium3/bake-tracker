@@ -589,13 +589,17 @@ def _collect_missing_fks_impl(
     for field_name, target_type in fk_fields.items():
         if target_type not in existing:
             if target_type == "supplier":
-                # Feature 050: Collect slugs instead of names for supplier matching
-                existing["supplier"] = {
-                    s.slug
-                    for s in session.query(Supplier.slug)
-                    .filter(Supplier.is_active == True)  # noqa: E712
-                    .all()
-                }
+                # Feature 050: Collect both slugs and names for supplier matching
+                # (Import records may use either slug or name in supplier_name field)
+                supplier_values = set()
+                for s in session.query(Supplier.slug, Supplier.name).filter(
+                    Supplier.is_active == True  # noqa: E712
+                ).all():
+                    if s.slug:
+                        supplier_values.add(s.slug)
+                    if s.name:
+                        supplier_values.add(s.name)
+                existing["supplier"] = supplier_values
             elif target_type == "ingredient":
                 existing["ingredient"] = {
                     i.slug

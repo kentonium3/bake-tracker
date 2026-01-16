@@ -611,8 +611,12 @@ def _resolve_fk_by_slug(
         return ing.id if ing else None
 
     elif entity_type == "supplier":
-        # Feature 050: Use slug-based supplier resolution
+        # Feature 050: Use slug-based supplier resolution with name fallback
         sup = session.query(Supplier).filter(Supplier.slug == slug_value).first()
+        if sup:
+            return sup.id
+        # Fallback to name-based matching for backward compatibility
+        sup = session.query(Supplier).filter(Supplier.name == slug_value).first()
         return sup.id if sup else None
 
     elif entity_type == "product":

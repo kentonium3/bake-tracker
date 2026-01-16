@@ -594,16 +594,16 @@ def export_view_cmd(view_type: str, output_path: str = None):
         0 on success, 1 on failure
     """
     from src.services.denormalized_export_service import (
-        export_products_view,
-        export_inventory_view,
-        export_purchases_view,
+        export_products_context_rich,
+        export_inventory_context_rich,
+        export_purchases_context_rich,
     )
 
     # Map view types to export functions
     exporters = {
-        "products": export_products_view,
-        "inventory": export_inventory_view,
-        "purchases": export_purchases_view,
+        "products": export_products_context_rich,
+        "inventory": export_inventory_context_rich,
+        "purchases": export_purchases_context_rich,
     }
 
     if view_type not in exporters:
@@ -622,7 +622,7 @@ def export_view_cmd(view_type: str, output_path: str = None):
         # Print summary
         print(f"\nExport Complete")
         print(f"---------------")
-        print(f"View type: {result.view_type}")
+        print(f"View type: {result.export_type}")
         print(f"Output file: {result.output_path}")
         print(f"Records exported: {result.record_count}")
         print(f"Export date: {result.export_date}")
@@ -1537,7 +1537,7 @@ def import_view_cmd(
     Returns:
         0 on success, 1 on failure
     """
-    from src.services.enhanced_import_service import import_view
+    from src.services.enhanced_import_service import import_context_rich_export
 
     mode_display = f"mode: {mode}"
     if dry_run:
@@ -1555,7 +1555,7 @@ def import_view_cmd(
         resolver = CLIFKResolver()
 
     try:
-        result = import_view(
+        result = import_context_rich_export(
             file_path,
             mode=mode,
             dry_run=dry_run,

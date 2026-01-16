@@ -203,7 +203,7 @@ class TestExportViewCmd:
             with open(temp_path) as f:
                 data = json.load(f)
 
-            assert data["view_type"] == "products"
+            assert data["export_type"] == "products"
             assert "_meta" in data
             assert len(data["records"]) == 1
 
@@ -223,7 +223,7 @@ class TestExportViewCmd:
             with open(temp_path) as f:
                 data = json.load(f)
 
-            assert data["view_type"] == "inventory"
+            assert data["export_type"] == "inventory"
             assert len(data["records"]) == 1
 
         finally:
@@ -242,7 +242,7 @@ class TestExportViewCmd:
             with open(temp_path) as f:
                 data = json.load(f)
 
-            assert data["view_type"] == "purchases"
+            assert data["export_type"] == "purchases"
             assert len(data["records"]) == 1
 
         finally:
@@ -397,7 +397,7 @@ class TestImportViewCmd:
         with tempfile.NamedTemporaryFile(suffix=".json", delete=False, mode="w") as f:
             # Create a simple view file with existing ingredient
             view_data = {
-                "view_type": "products",
+                "export_type": "products",
                 "export_date": "2025-12-25T12:00:00Z",
                 "_meta": {
                     "editable_fields": ["product_name"],
@@ -434,7 +434,7 @@ class TestImportViewCmd:
         with tempfile.NamedTemporaryFile(suffix=".json", delete=False, mode="w") as f:
             # Create view with duplicate of existing product
             view_data = {
-                "view_type": "products",
+                "export_type": "products",
                 "export_date": "2025-12-25T12:00:00Z",
                 "_meta": {
                     "editable_fields": ["product_name"],
@@ -476,7 +476,7 @@ class TestImportViewCmd:
 
         with tempfile.NamedTemporaryFile(suffix=".json", delete=False, mode="w") as f:
             view_data = {
-                "view_type": "products",
+                "export_type": "products",
                 "export_date": "2025-12-25T12:00:00Z",
                 "_meta": {
                     "editable_fields": ["product_name"],
@@ -517,7 +517,7 @@ class TestImportViewCmd:
             # Create view file with missing FK
             view_path = Path(tmpdir) / "view.json"
             view_data = {
-                "view_type": "products",
+                "export_type": "products",
                 "export_date": "2025-12-25T12:00:00Z",
                 "_meta": {
                     "editable_fields": [],
@@ -552,7 +552,7 @@ class TestImportViewCmd:
         """Test import-view fails on missing FK without --interactive (fail-fast default)."""
         with tempfile.NamedTemporaryFile(suffix=".json", delete=False, mode="w") as f:
             view_data = {
-                "view_type": "products",
+                "export_type": "products",
                 "export_date": "2025-12-25T12:00:00Z",
                 "_meta": {
                     "editable_fields": [],
@@ -720,7 +720,7 @@ class TestImportViewCLIIntegration:
 
         with tempfile.NamedTemporaryFile(suffix=".json", delete=False, mode="w") as f:
             view_data = {
-                "view_type": "products",
+                "export_type": "products",
                 "export_date": "2025-12-25T12:00:00Z",
                 "_meta": {
                     "editable_fields": [],
@@ -755,7 +755,7 @@ class TestImportViewCLIIntegration:
 
         with tempfile.NamedTemporaryFile(suffix=".json", delete=False, mode="w") as f:
             view_data = {
-                "view_type": "products",
+                "export_type": "products",
                 "export_date": "2025-12-25T12:00:00Z",
                 "_meta": {
                     "editable_fields": [],
@@ -795,7 +795,7 @@ class TestImportViewCLIIntegration:
 
         with tempfile.NamedTemporaryFile(suffix=".json", delete=False, mode="w") as f:
             view_data = {
-                "view_type": "products",
+                "export_type": "products",
                 "export_date": "2025-12-25T12:00:00Z",
                 "_meta": {
                     "editable_fields": [],

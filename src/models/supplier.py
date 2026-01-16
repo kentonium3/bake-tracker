@@ -8,10 +8,43 @@ Example: "Costco" in "Waltham, MA" as a physical store supplier
          "King Arthur Baking" at "kingarthurbaking.com" as an online vendor
 """
 
-from sqlalchemy import Column, String, Boolean, Text, Index, CheckConstraint
+import re
+import unicodedata
+
+from sqlalchemy import Column, String, Boolean, Text, Index, CheckConstraint, event
 from sqlalchemy.orm import relationship
 
 from .base import BaseModel
+
+
+def _generate_slug_from_name(name: str, supplier_type: str, city: str = None, state: str = None) -> str:
+    """Generate a slug from supplier name and location.
+
+    For physical suppliers: {name}_{city}_{state}
+    For online suppliers: {name} only
+    """
+    if supplier_type == "online":
+        input_string = name
+    else:
+        parts = [name]
+        if city:
+            parts.append(city)
+        if state:
+            parts.append(state)
+        input_string = " ".join(parts)
+
+    # Normalize unicode and convert to lowercase
+    normalized = unicodedata.normalize("NFKD", input_string)
+    ascii_text = normalized.encode("ascii", "ignore").decode("ascii")
+    lowered = ascii_text.lower()
+
+    # Replace non-alphanumeric with underscores
+    slug = re.sub(r"[^a-z0-9]+", "_", lowered)
+
+    # Clean up leading/trailing/multiple underscores
+    slug = re.sub(r"_+", "_", slug).strip("_")
+
+    return slug or "supplier"
 
 
 class Supplier(BaseModel):
@@ -150,3 +183,15 @@ class Supplier(BaseModel):
         result["full_address"] = self.full_address
 
         return result
+
+
+@event.listens_for(Supplier, "before_insert")
+def _generate_slug_before_insert(mapper, connection, target):
+    """Auto-generate slug if not provided before inserting a new Supplier."""
+    if target.slug is None and target.name:
+        target.slug = _generate_slug_from_name(
+            target.name,
+            target.supplier_type or "physical",
+            target.city,
+            target.state
+        )
