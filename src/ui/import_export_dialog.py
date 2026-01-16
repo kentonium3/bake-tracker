@@ -1782,8 +1782,8 @@ class ExportDialog(ctk.CTkToplevel):
 
     def _export_full_backup(self):
         """Execute full backup export."""
-        # FR-015: Use configured export directory as initial location
-        initial_dir = str(preferences_service.get_export_directory())
+        # Use configured backup directory as initial location
+        initial_dir = str(preferences_service.get_backup_directory())
         dir_path = filedialog.askdirectory(
             title="Select Export Directory for Full Backup",
             initialdir=initial_dir,
