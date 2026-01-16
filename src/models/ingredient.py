@@ -301,6 +301,9 @@ class Ingredient(BaseModel):
         # is_leaf indicates whether this ingredient can be used in recipes/products
         result["is_leaf"] = self.hierarchy_level == 2
 
+        # Add computed density display for UI
+        result["density_display"] = self.format_density_display()
+
         if include_relationships:
             result["products"] = [p.to_dict(False) for p in self.products]
             result["preferred_product_id"] = (
