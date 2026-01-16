@@ -467,3 +467,11 @@
   - Import/export system now has comprehensive FK cascade protection in both UI and CLI
   - `e11f78c` feat: Add RESTRICT constraint detection for import risk warnings (ingredients used by recipes)
   - `579e748` fix: Add materials_tab to refresh methods after import (materials grid empty after restore)
+  - `9cee888` refactor: Restructure Recipe edit form for better UX:
+    - Combined Yield Information and Yield Types into single section
+    - YieldQty and YieldUnit now on same line (related fields)
+    - Yield Types (FinishedUnits) moved directly below yield qty/unit
+    - Prep Time moved below Sub-Recipes section
+    - Removed Cost Summary section (costs only meaningful at ProductionRun instantiation)
+    - Net ~100 line reduction
+  - `6bc36ff` fix: Default Production Ready checkbox to checked (new recipes assumed ready)
