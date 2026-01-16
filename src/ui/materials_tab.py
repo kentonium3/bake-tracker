@@ -94,13 +94,13 @@ class MaterialsTab(ctk.CTkFrame):
         )
         title_label.grid(
             row=0, column=0, sticky="w",
-            padx=PADDING_LARGE, pady=(PADDING_LARGE, PADDING_MEDIUM)
+            padx=PADDING_MEDIUM, pady=(PADDING_MEDIUM, 5)
         )
 
     def _create_tabview(self):
         """Create the 3-tab container for Materials, Products, and Units."""
         self.tabview = ctk.CTkTabview(self)
-        self.tabview.grid(row=1, column=0, sticky="nsew", padx=PADDING_LARGE, pady=PADDING_MEDIUM)
+        self.tabview.grid(row=1, column=0, sticky="nsew", padx=5, pady=5)
 
         # Add tabs
         self.tabview.add("Materials Catalog")

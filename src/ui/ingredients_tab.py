@@ -120,7 +120,7 @@ class IngredientsTab(ctk.CTkFrame):
             font=ctk.CTkFont(size=24, weight="bold"),
         )
         title_label.grid(
-            row=0, column=0, sticky="w", padx=PADDING_LARGE, pady=(PADDING_LARGE, PADDING_MEDIUM)
+            row=0, column=0, sticky="w", padx=PADDING_MEDIUM, pady=(PADDING_MEDIUM, 5)
         )
 
     def _create_search_filter(self):
@@ -131,7 +131,7 @@ class IngredientsTab(ctk.CTkFrame):
         Layout: Search | L0 Dropdown | L1 Dropdown | Clear
         """
         filter_frame = ctk.CTkFrame(self)
-        filter_frame.grid(row=1, column=0, sticky="ew", padx=PADDING_LARGE, pady=PADDING_MEDIUM)
+        filter_frame.grid(row=1, column=0, sticky="ew", padx=5, pady=5)
 
         # Search entry (left)
         search_label = ctk.CTkLabel(filter_frame, text="Search:")
@@ -190,7 +190,7 @@ class IngredientsTab(ctk.CTkFrame):
     def _create_action_buttons(self):
         """Create action buttons for CRUD operations."""
         button_frame = ctk.CTkFrame(self, fg_color="transparent")
-        button_frame.grid(row=2, column=0, sticky="ew", padx=PADDING_LARGE, pady=PADDING_MEDIUM)
+        button_frame.grid(row=2, column=0, sticky="ew", padx=5, pady=5)
 
         # Add button
         add_button = ctk.CTkButton(
@@ -221,8 +221,8 @@ class IngredientsTab(ctk.CTkFrame):
             row=3,
             column=0,
             sticky="nsew",
-            padx=PADDING_LARGE,
-            pady=PADDING_MEDIUM,
+            padx=5,
+            pady=5,
         )
         self.grid_container.grid_columnconfigure(0, weight=1)
         self.grid_container.grid_rowconfigure(0, weight=1)
@@ -383,8 +383,8 @@ class IngredientsTab(ctk.CTkFrame):
             row=4,
             column=0,
             sticky="ew",
-            padx=PADDING_LARGE,
-            pady=(PADDING_MEDIUM, PADDING_LARGE),
+            padx=5,
+            pady=(5, 10),
         )
 
     def refresh(self):
