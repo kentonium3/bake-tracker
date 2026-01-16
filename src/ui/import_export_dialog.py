@@ -534,7 +534,7 @@ class ImportDialog(ctk.CTkToplevel):
             ("backup", "Backup Restore", "Restore complete system from backup (replaces all data)"),
             ("catalog", "Catalog Data", "Add or update ingredients, products, recipes, materials"),
             ("purchases", "Purchases", "Import purchase transactions (from BT Mobile or spreadsheet)"),
-            ("adjustments", "Adjustments", "Import inventory adjustments (spoilage, waste, corrections)"),
+            ("adjustments", "Inventory", "Import inventory adjustments (spoilage, waste, corrections)"),
             ("context_rich", "Context-Rich", "Import AI-augmented files (aug_*.json) with preprocessing"),
         ]
 
@@ -688,10 +688,10 @@ class ImportDialog(ctk.CTkToplevel):
                 "Inventory will be increased for each purchase."
             )
         else:
-            header = "2. Adjustment import:"
+            header = "2. Inventory import:"
             info_text = (
                 "Import inventory adjustments (negative quantities only).\n"
-                "Requires reason code: SPOILAGE, WASTE, DAMAGED, CORRECTION, OTHER."
+                "Reason code defaults to CORRECTION if not specified."
             )
 
         ctk.CTkLabel(
@@ -1431,7 +1431,7 @@ class ImportDialog(ctk.CTkToplevel):
             self.result = result
             results_dialog = ImportResultsDialog(
                 self.master,
-                title="Adjustments Imported",
+                title="Inventory Imported",
                 summary_text=summary_text,
                 log_path=log_path,
             )

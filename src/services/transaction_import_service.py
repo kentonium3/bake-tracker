@@ -703,21 +703,16 @@ def _process_single_adjustment(
         return
 
     # -------------------------------------------------------------------------
-    # T040: Require reason_code field
+    # T040: Default reason_code to CORRECTION if not provided
     # -------------------------------------------------------------------------
     reason_code_raw = adj_data.get("reason_code")
 
+    # Default to "correction" if not specified (common case for manual adjustments)
     if not reason_code_raw:
-        result.add_error(
-            "adjustments",
-            identifier,
-            "Missing required field: reason_code",
-            suggestion=f"Valid codes: {', '.join(sorted(ALLOWED_REASON_CODES))}",
-        )
-        return
-
-    # Normalize to lowercase for case-insensitive matching (FR-021)
-    reason_code = reason_code_raw.lower()
+        reason_code = "correction"
+    else:
+        # Normalize to lowercase for case-insensitive matching (FR-021)
+        reason_code = reason_code_raw.lower()
 
     # -------------------------------------------------------------------------
     # T041: Validate reason_code against allowed list

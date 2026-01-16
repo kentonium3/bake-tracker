@@ -1095,10 +1095,10 @@ class TestImportAdjustmentsRejectsPositiveQuantity:
 # ============================================================================
 
 
-class TestImportAdjustmentsRequiresReasonCode:
-    """Test that reason_code is required (FR-021)."""
+class TestImportAdjustmentsReasonCode:
+    """Test reason_code handling (FR-021)."""
 
-    def test_import_adjustments_requires_reason_code(
+    def test_import_adjustments_defaults_reason_code_to_correction(
         self,
         test_db,
         cleanup_transaction_data,
@@ -1106,7 +1106,9 @@ class TestImportAdjustmentsRequiresReasonCode:
         sample_inventory_for_adjustment,
         create_adjustment_file,
     ):
-        """Verify missing reason_code produces error."""
+        """Verify missing reason_code defaults to 'correction'."""
+        from src.models.inventory_depletion import InventoryDepletion
+
         file_path = create_adjustment_file({
             "schema_version": "4.0",
             "import_type": "adjustments",
@@ -1115,18 +1117,21 @@ class TestImportAdjustmentsRequiresReasonCode:
                     "product_slug": sample_inventory_for_adjustment["product_slug"],
                     "adjusted_at": "2026-01-12T09:10:12Z",
                     "quantity": -5.0,
-                    # No reason_code
+                    # No reason_code - should default to "correction"
                 }
             ],
         })
 
         result = import_adjustments(file_path)
 
-        assert result.successful == 0
-        assert result.failed == 1
-        assert "reason_code" in result.errors[0]["message"]
-        # Suggestion should list valid codes
-        assert "spoilage" in result.errors[0]["suggestion"] or "Valid codes" in result.errors[0]["suggestion"]
+        assert result.successful == 1
+        assert result.failed == 0
+
+        # Verify the depletion record has "correction" as reason
+        session = test_db()
+        depletion = session.query(InventoryDepletion).first()
+        assert depletion is not None
+        assert depletion.depletion_reason == "correction"
 
     def test_import_adjustments_rejects_invalid_reason_code(
         self,
