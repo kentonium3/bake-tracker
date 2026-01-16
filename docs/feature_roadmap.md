@@ -1,7 +1,7 @@
 # Feature Roadmap
 
 **Created:** 2025-12-03
-**Last Updated:** 2026-01-15
+**Last Updated:** 2026-01-16
 **Workflow:** Spec-Kitty driven development
 
 ---
@@ -294,6 +294,17 @@
 
 ## Key Decisions
 
+### 2026-01-16 (Post-F055 Bug Fix Session)
+- **10 User Testing Issues Resolved**: All issues from continued user testing fixed and pushed
+- **Cascade Delete Protection Added**: Critical safety feature for import/export system
+  - UI shows warning dialog with affected record counts before proceeding
+  - CLI rejects risky imports by default, requires `--force` flag to override
+  - Protects against accidental data loss when importing ingredients without products or materials without material_products
+- **Backup Directory Preference**: Separate from import/export directory for better workflow
+- **Import Flow Reordered**: Type-first, file-second is more natural (app needs type to know which directory to open)
+- **Reason Code Default**: "CORRECTION" default for inventory adjustments reduces import friction
+- **Test Suite**: 2351 tests passing
+
 ### 2026-01-15 (F052-F054 Complete, F055 Next)
 - **F052 MERGED**: Ingredient/Material Hierarchy Admin - taxonomy management in CATALOG mode
 - **F053 MERGED**: Context-Rich Export Fixes - file prefix changed to "aug_", added Products/Material Products, multi-select checkboxes, "All" option
@@ -439,3 +450,14 @@
   - Renumbered: Original UI Navigation Cleanup (F053→F055)
   - Spec-Kitty symlink merge bug confirmed and filed as GitHub issue
   - Next: F055 (UI Navigation Cleanup), then User Testing Round 2
+- 2026-01-16: **POST-F055 BUG FIX SESSION** - User testing identified 10 issues, all resolved:
+  - `e320e3c` fix: Restore supplier FK resolution during product import (suppliers missing after backup restore)
+  - `3ee8d51` fix: Add Close button to Hierarchy Admin windows (no way to exit)
+  - `50a06db` fix: Double-click on recipe grid opens edit dialog (was showing unhelpful detail modal)
+  - `d44ab01` feat: Add separate backup directory preference and reorder import flow (backup location separate from import/export, type-first workflow)
+  - `17d2573` feat: Rename Adjustments to Inventory, default reason_code to CORRECTION
+  - `1e127e1` fix: Full backup export now uses backup directory preference
+  - `731137c` fix: Increase Export dialog height for Context-Rich options
+  - `280d01a` feat: Add cascade delete warning for backup restore imports (warns when importing ingredients without products)
+  - `a5a7abb` feat: Add cascade delete protection to CLI (rejects risky imports, --force to override)
+  - Import/export system now has comprehensive FK cascade protection in both UI and CLI
