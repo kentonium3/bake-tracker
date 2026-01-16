@@ -2066,11 +2066,16 @@ class MaterialsCatalogTab:
         if not self.selected_material_id:
             return
 
-        # Find material data by ID
+        # Find material data by ID in _materials_data
+        # Structure: {"category_name": ..., "subcategory_name": ..., "material": {...}}
         material_data = None
-        for mat in self.materials:
-            if mat["id"] == self.selected_material_id:
-                material_data = mat
+        for item in getattr(self, "_materials_data", []):
+            mat = item.get("material", {})
+            if mat.get("id") == self.selected_material_id:
+                # Combine material dict with parent names for the dialog
+                material_data = dict(mat)
+                material_data["l0_name"] = item.get("category_name", "")
+                material_data["l1_name"] = item.get("subcategory_name", "")
                 break
 
         if not material_data:
