@@ -39,6 +39,10 @@ from src.models.production_run import ProductionRun
 from src.models.assembly_run import AssemblyRun
 from src.models.event import EventProductionTarget, EventAssemblyTarget, FulfillmentStatus
 from src.models.recipe import Recipe, RecipeComponent
+from src.models.material import Material
+from src.models.material_product import MaterialProduct
+from src.models.material_category import MaterialCategory
+from src.models.material_subcategory import MaterialSubcategory
 from src.utils.constants import APP_NAME, APP_VERSION, ALL_UNITS, MEASUREMENT_UNITS, WEIGHT_UNITS, VOLUME_UNITS, COUNT_UNITS
 
 
@@ -1195,6 +1199,11 @@ def export_all_to_json(
             "production_records": production_records_data,
             "production_runs": production_runs_data,
             "assembly_runs": assembly_runs_data,
+            # Material entities (Feature 047)
+            "material_categories": [],
+            "material_subcategories": [],
+            "materials": [],
+            "material_products": [],
         }
 
         # Add ingredients (NEW SCHEMA: generic ingredient definitions)
@@ -1603,6 +1612,72 @@ def export_all_to_json(
 
                 export_data["event_recipient_packages"].append(assignment_data)
 
+        # Add material categories
+        with session_scope() as session:
+            categories = session.query(MaterialCategory).all()
+            for c in categories:
+                export_data["material_categories"].append({
+                    "uuid": str(c.uuid) if c.uuid else None,
+                    "name": c.name,
+                    "slug": c.slug,
+                    "description": c.description,
+                    "sort_order": c.sort_order,
+                })
+
+        # Add material subcategories
+        with session_scope() as session:
+            subcategories = session.query(MaterialSubcategory).options(
+                joinedload(MaterialSubcategory.category)
+            ).all()
+            for s in subcategories:
+                export_data["material_subcategories"].append({
+                    "uuid": str(s.uuid) if s.uuid else None,
+                    "category_slug": s.category.slug if s.category else None,
+                    "name": s.name,
+                    "slug": s.slug,
+                    "description": s.description,
+                    "sort_order": s.sort_order,
+                })
+
+        # Add materials
+        with session_scope() as session:
+            materials = session.query(Material).options(
+                joinedload(Material.subcategory)
+            ).all()
+            for m in materials:
+                export_data["materials"].append({
+                    "uuid": str(m.uuid) if m.uuid else None,
+                    "subcategory_slug": m.subcategory.slug if m.subcategory else None,
+                    "name": m.name,
+                    "slug": m.slug,
+                    "base_unit_type": m.base_unit_type,
+                    "description": m.description,
+                })
+
+        # Add material products
+        with session_scope() as session:
+            mat_products = session.query(MaterialProduct).options(
+                joinedload(MaterialProduct.material),
+                joinedload(MaterialProduct.supplier),
+            ).all()
+            for p in mat_products:
+                export_data["material_products"].append({
+                    "uuid": str(p.uuid) if p.uuid else None,
+                    "material_slug": p.material.slug if p.material else None,
+                    "name": p.name,
+                    "slug": p.slug,
+                    "brand": p.brand,
+                    "package_quantity": p.package_quantity,
+                    "package_unit": p.package_unit,
+                    "quantity_in_base_units": p.quantity_in_base_units,
+                    "supplier_slug": p.supplier.slug if p.supplier else None,
+                    "sku": p.sku,
+                    "current_inventory": p.current_inventory,
+                    "weighted_avg_cost": str(p.weighted_avg_cost) if p.weighted_avg_cost else None,
+                    "is_hidden": p.is_hidden,
+                    "notes": p.notes,
+                })
+
         # Filter entities if selective export requested
         if entities is not None:
             # Map UI entity names to export_data keys
@@ -1611,8 +1686,8 @@ def export_all_to_json(
                 "ingredients": ["ingredients"],
                 "products": ["products"],
                 "recipes": ["recipes", "finished_units", "compositions"],
-                "materials": ["ingredients"],  # Materials are a type of ingredient
-                "material_products": ["products"],  # Material products are products
+                "materials": ["material_categories", "material_subcategories", "materials"],
+                "material_products": ["material_products"],
             }
 
             # Build set of keys to keep
@@ -1651,6 +1726,11 @@ def export_all_to_json(
             + len(export_data["production_records"])
             + len(export_data["production_runs"])
             + len(export_data["assembly_runs"])
+            # Material entities (Feature 047)
+            + len(export_data["material_categories"])
+            + len(export_data["material_subcategories"])
+            + len(export_data["materials"])
+            + len(export_data["material_products"])
         )
 
         result = ExportResult(file_path, total_records)
@@ -1675,6 +1755,11 @@ def export_all_to_json(
         result.add_entity_count("production_records", len(export_data["production_records"]))
         result.add_entity_count("production_runs", len(export_data["production_runs"]))
         result.add_entity_count("assembly_runs", len(export_data["assembly_runs"]))
+        # Material entities (Feature 047)
+        result.add_entity_count("material_categories", len(export_data["material_categories"]))
+        result.add_entity_count("material_subcategories", len(export_data["material_subcategories"]))
+        result.add_entity_count("materials", len(export_data["materials"]))
+        result.add_entity_count("material_products", len(export_data["material_products"]))
 
         return result
 

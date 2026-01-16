@@ -1584,6 +1584,19 @@ class ExportDialog(ctk.CTkToplevel):
         """Set up Catalog tab - selective entity export."""
         tab = self.tabview.tab("Catalog")
 
+        # Pack button frame at bottom FIRST to ensure it's always visible
+        button_frame = ctk.CTkFrame(tab, fg_color="transparent")
+        button_frame.pack(side="bottom", fill="x", pady=(5, 10))
+
+        export_btn = ctk.CTkButton(
+            button_frame,
+            text="Export Catalog...",
+            width=200,
+            command=self._export_catalog,
+        )
+        export_btn.pack(pady=5)
+
+        # Now pack top content
         purpose = ctk.CTkLabel(
             tab,
             text="Export catalog data for sharing or partial backup.",
@@ -1602,6 +1615,20 @@ class ExportDialog(ctk.CTkToplevel):
             font=ctk.CTkFont(weight="bold"),
         ).pack(anchor="w", padx=10, pady=(10, 5))
 
+        # "All" checkbox
+        self.catalog_all_var = ctk.BooleanVar(value=False)
+        self.catalog_all_checkbox = ctk.CTkCheckBox(
+            entity_frame,
+            text="All",
+            variable=self.catalog_all_var,
+            command=self._on_catalog_all_checkbox_changed,
+        )
+        self.catalog_all_checkbox.pack(anchor="w", padx=20, pady=(5, 2))
+
+        # Separator
+        separator = ctk.CTkFrame(entity_frame, height=2, fg_color="gray50")
+        separator.pack(fill="x", padx=20, pady=5)
+
         self.entity_vars = {}
         # FR-003: Entities sorted alphabetically with Suppliers in correct position
         entities = [
@@ -1613,27 +1640,46 @@ class ExportDialog(ctk.CTkToplevel):
             ("suppliers", "Suppliers"),
         ]
         for key, label in entities:
-            var = ctk.BooleanVar(value=True)
+            var = ctk.BooleanVar(value=False)
             self.entity_vars[key] = var
-            cb = ctk.CTkCheckBox(entity_frame, text=label, variable=var)
+            cb = ctk.CTkCheckBox(
+                entity_frame,
+                text=label,
+                variable=var,
+                command=self._on_catalog_entity_checkbox_changed,
+            )
             cb.pack(anchor="w", padx=20, pady=2)
 
         # Spacer
         ctk.CTkLabel(entity_frame, text="").pack(pady=5)
 
-        # Export button
-        export_btn = ctk.CTkButton(
-            tab,
-            text="Export Catalog...",
-            width=200,
-            command=self._export_catalog,
-        )
-        export_btn.pack(pady=15)
-
     def _setup_context_rich_tab(self):
         """Set up Context-Rich tab - AI augmentation views with multi-select."""
         tab = self.tabview.tab("Context-Rich")
 
+        # Pack button frame at bottom FIRST to ensure it's always visible
+        button_frame = ctk.CTkFrame(tab, fg_color="transparent")
+        button_frame.pack(side="bottom", fill="x", pady=(5, 10))
+
+        export_btn = ctk.CTkButton(
+            button_frame,
+            text="Export Context-Rich File...",
+            width=200,
+            command=self._export_context_rich,
+        )
+        export_btn.pack(pady=5)
+
+        # Info about editable fields (above button)
+        info_label = ctk.CTkLabel(
+            tab,
+            text="Exported files include _meta section indicating which\n"
+                 "fields are editable vs. computed (readonly).",
+            font=ctk.CTkFont(size=11),
+            text_color="gray",
+        )
+        info_label.pack(side="bottom", pady=5)
+
+        # Now pack top content
         purpose = ctk.CTkLabel(
             tab,
             text="Export data with full context (hierarchy paths, computed values)\n"
@@ -1692,35 +1738,27 @@ class ExportDialog(ctk.CTkToplevel):
 
         ctk.CTkLabel(entity_frame, text="").pack(pady=3)
 
-        # Info about editable fields
-        info_label = ctk.CTkLabel(
-            tab,
-            text="Exported files include _meta section indicating which\n"
-                 "fields are editable vs. computed (readonly).",
-            font=ctk.CTkFont(size=11),
-            text_color="gray",
-        )
-        info_label.pack(pady=5)
-
-        # Export button
-        export_btn = ctk.CTkButton(
-            tab,
-            text="Export Context-Rich File...",
-            width=200,
-            command=self._export_context_rich,
-        )
-        export_btn.pack(pady=15)
-
     def _on_all_checkbox_changed(self):
-        """Handle All checkbox state change - toggle all entity checkboxes."""
+        """Handle All checkbox state change - toggle all entity checkboxes (Context-Rich)."""
         all_selected = self.context_rich_all_var.get()
         for var in self.context_rich_vars.values():
             var.set(all_selected)
 
     def _on_entity_checkbox_changed(self):
-        """Update All checkbox based on individual entity selections."""
+        """Update All checkbox based on individual entity selections (Context-Rich)."""
         all_selected = all(var.get() for var in self.context_rich_vars.values())
         self.context_rich_all_var.set(all_selected)
+
+    def _on_catalog_all_checkbox_changed(self):
+        """Handle All checkbox state change - toggle all entity checkboxes (Catalog)."""
+        all_selected = self.catalog_all_var.get()
+        for var in self.entity_vars.values():
+            var.set(all_selected)
+
+    def _on_catalog_entity_checkbox_changed(self):
+        """Update All checkbox based on individual entity selections (Catalog)."""
+        all_selected = all(var.get() for var in self.entity_vars.values())
+        self.catalog_all_var.set(all_selected)
 
     def _export_full_backup(self):
         """Execute full backup export."""

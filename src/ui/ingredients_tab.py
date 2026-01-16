@@ -291,9 +291,6 @@ class IngredientsTab(ctk.CTkFrame):
         y_scrollbar.grid(row=0, column=1, sticky="ns")
         x_scrollbar.grid(row=1, column=0, sticky="ew")
 
-        # Configure tag for packaging items
-        self.tree.tag_configure("packaging", foreground="#0066cc")
-
         # Bind events
         self.tree.bind("<Double-1>", self._on_double_click)
         self.tree.bind("<<TreeviewSelect>>", self._on_tree_select)
@@ -468,18 +465,16 @@ class IngredientsTab(ctk.CTkFrame):
             l1_name = item.get("l1_name", "")
             l2_name = item.get("l2_name", "")
 
-            is_packaging = ingredient.get("is_packaging", False)
             density = ingredient.get("density_display", "—")
             if density == "Not set":
                 density = "—"
 
             values = (l0_name, l1_name, l2_name, density)
-            tags = ("packaging",) if is_packaging else ()
 
             # Use slug as the item ID for easy lookup
             slug = ingredient.get("slug", "")
             if slug:
-                self.tree.insert("", "end", iid=slug, values=values, tags=tags)
+                self.tree.insert("", "end", iid=slug, values=values)
 
         # Restore selection if still present
         if self.selected_ingredient_slug:
@@ -1095,17 +1090,6 @@ class IngredientFormDialog(ctk.CTkToplevel):
             self.name_entry.grid(row=row, column=1, sticky="ew", padx=10, pady=(10, 5))
         row += 1
 
-        # Feature 011: Is Packaging checkbox
-        ctk.CTkLabel(form_frame, text="Type:").grid(row=row, column=0, sticky="w", padx=10, pady=5)
-        self.is_packaging_var = ctk.BooleanVar(value=False)
-        self.is_packaging_checkbox = ctk.CTkCheckBox(
-            form_frame,
-            text="This is a packaging material (bags, boxes, ribbon, etc.)",
-            variable=self.is_packaging_var,
-        )
-        self.is_packaging_checkbox.grid(row=row, column=1, sticky="w", padx=10, pady=5)
-        row += 1
-
         # Feature 033: Parent selection section header
         ctk.CTkLabel(
             form_frame,
@@ -1440,10 +1424,6 @@ class IngredientFormDialog(ctk.CTkToplevel):
 
         # Name is shown as read-only label in edit mode (set during _create_form)
 
-        # Feature 011: Set is_packaging checkbox
-        is_packaging = self.ingredient.get("is_packaging", False)
-        self.is_packaging_var.set(is_packaging)
-
         # Feature 033: Pre-populate hierarchy dropdowns based on ancestors
         level = self.ingredient.get("hierarchy_level", 2)
         ing_id = self.ingredient.get("id")
@@ -1544,8 +1524,6 @@ class IngredientFormDialog(ctk.CTkToplevel):
             # Edit mode - name is read-only, use existing name
             name = self.ingredient.get("name") or self.ingredient.get("display_name", "")
 
-        is_packaging = self.is_packaging_var.get()  # Feature 011
-
         # Feature 033: Determine hierarchy level and parent from dropdown selections
         hierarchy_level = self._compute_and_display_level()
         parent_ingredient_id = self._get_selected_parent_id()
@@ -1578,7 +1556,6 @@ class IngredientFormDialog(ctk.CTkToplevel):
         # Build result dict - Feature 032: Use hierarchy_level and parent_ingredient_id
         result: Dict[str, Any] = {
             "name": name,
-            "is_packaging": is_packaging,
             "hierarchy_level": hierarchy_level,
         }
 
