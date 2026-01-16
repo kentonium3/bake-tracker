@@ -477,3 +477,4 @@
   - `6bc36ff` fix: Default Production Ready checkbox to checked (new recipes assumed ready)
   - `75532e1` fix: Remove extra frame backgrounds from Ingredients/Materials tabs (fg_color="transparent")
   - `0826502` fix: Include is_production_ready in recipe export/import (field was missing, defaults to True for backward compatibility)
+  - `9e6b144` fix: Default is_production_ready to True in all recipe import paths (CLI backup restore, import_export_service)
