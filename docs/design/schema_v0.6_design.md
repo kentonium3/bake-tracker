@@ -1,4 +1,4 @@
-# Schema v0.6 Design - Event-Centric Production Model
+ # Schema v0.6 Design - Event-Centric Production Model
 
 **Purpose:** Add event-production linkage to enable progress tracking and fulfillment workflows. This addresses a fundamental structural gap where production runs were "orphaned" from events.
 
@@ -13,13 +13,13 @@
 
 The v0.6 schema has been fully implemented and extended with additional features:
 
-| Feature | Status | Notes |
-|---------|--------|-------|
+| Feature                             | Status     | Notes                                                    |
+| ----------------------------------- | ---------- | -------------------------------------------------------- |
 | F015/F016: Event-Centric Production | ✅ Complete | ProductionRun/AssemblyRun event_id, targets, fulfillment |
-| F025: Production Loss Tracking | ✅ Complete | ProductionLoss model, loss categories, status tracking |
-| F026: Packaging Bypass | ✅ Complete | CompositionAssignment, bypass flags on AssemblyRun |
-| F027: Product Catalog Management | ✅ Complete | Supplier, Purchase models, GTIN support |
-| F022: Unit Reference Table | ✅ Complete | Unit model for measurement standardization |
+| F025: Production Loss Tracking      | ✅ Complete | ProductionLoss model, loss categories, status tracking   |
+| F026: Packaging Bypass              | ✅ Complete | CompositionAssignment, bypass flags on AssemblyRun       |
+| F027: Product Catalog Management    | ✅ Complete | Supplier, Purchase models, GTIN support                  |
+| F022: Unit Reference Table          | ✅ Complete | Unit model for measurement standardization               |
 
 ---
 
@@ -60,8 +60,8 @@ ProductionRun and AssemblyRun have no `event_id`. When a user records "made 2 ba
 ALTER TABLE production_run ADD COLUMN event_id INTEGER REFERENCES event(id);
 ```
 
-| Column | Type | Constraints | Description |
-|--------|------|-------------|-------------|
+| Column     | Type    | Constraints              | Description                                             |
+| ---------- | ------- | ------------------------ | ------------------------------------------------------- |
 | `event_id` | Integer | FK → Event, **NULLABLE** | Which event this production was for (null = standalone) |
 
 **Model update:**
@@ -69,7 +69,7 @@ ALTER TABLE production_run ADD COLUMN event_id INTEGER REFERENCES event(id);
 class ProductionRun(BaseModel):
     # ... existing fields ...
     event_id = Column(Integer, ForeignKey("event.id"), nullable=True, index=True)
-    
+
     # Relationship
     event = relationship("Event", back_populates="production_runs")
 ```
@@ -81,8 +81,8 @@ class ProductionRun(BaseModel):
 ALTER TABLE assembly_run ADD COLUMN event_id INTEGER REFERENCES event(id);
 ```
 
-| Column | Type | Constraints | Description |
-|--------|------|-------------|-------------|
+| Column     | Type    | Constraints              | Description                                           |
+| ---------- | ------- | ------------------------ | ----------------------------------------------------- |
 | `event_id` | Integer | FK → Event, **NULLABLE** | Which event this assembly was for (null = standalone) |
 
 **Model update:**
@@ -90,7 +90,7 @@ ALTER TABLE assembly_run ADD COLUMN event_id INTEGER REFERENCES event(id);
 class AssemblyRun(BaseModel):
     # ... existing fields ...
     event_id = Column(Integer, ForeignKey("event.id"), nullable=True, index=True)
-    
+
     # Relationship
     event = relationship("Event", back_populates="assembly_runs")
 ```
@@ -102,8 +102,8 @@ class AssemblyRun(BaseModel):
 ALTER TABLE event_recipient_package ADD COLUMN fulfillment_status TEXT DEFAULT 'pending';
 ```
 
-| Column | Type | Constraints | Description |
-|--------|------|-------------|-------------|
+| Column               | Type       | Constraints                 | Description             |
+| -------------------- | ---------- | --------------------------- | ----------------------- |
 | `fulfillment_status` | String(20) | NOT NULL, DEFAULT 'pending' | Package workflow status |
 
 **Valid values:** `pending`, `ready`, `delivered`
@@ -118,8 +118,8 @@ class FulfillmentStatus(str, Enum):
 class EventRecipientPackage(BaseModel):
     # ... existing fields ...
     fulfillment_status = Column(
-        String(20), 
-        nullable=False, 
+        String(20),
+        nullable=False,
         default=FulfillmentStatus.PENDING.value
     )
 ```
@@ -130,7 +130,7 @@ class EventRecipientPackage(BaseModel):
 ```python
 class Event(BaseModel):
     # ... existing fields ...
-    
+
     # New relationships for v0.6
     production_runs = relationship("ProductionRun", back_populates="event")
     assembly_runs = relationship("AssemblyRun", back_populates="event")
@@ -163,16 +163,16 @@ CREATE INDEX idx_event_production_target_event ON event_production_target(event_
 CREATE INDEX idx_event_production_target_recipe ON event_production_target(recipe_id);
 ```
 
-| Column | Type | Constraints | Description |
-|--------|------|-------------|-------------|
-| `id` | Integer | PK, Auto | Unique identifier |
-| `uuid` | String | | UUID for distributed scenarios |
-| `event_id` | Integer | FK → Event, NOT NULL, CASCADE | Which event |
-| `recipe_id` | Integer | FK → Recipe, NOT NULL, RESTRICT | Which recipe |
-| `target_batches` | Integer | NOT NULL, > 0 | How many batches to produce |
-| `notes` | Text | | Planning notes |
-| `created_at` | DateTime | NOT NULL | When created |
-| `updated_at` | DateTime | NOT NULL | When last modified |
+| Column           | Type     | Constraints                     | Description                    |
+| ---------------- | -------- | ------------------------------- | ------------------------------ |
+| `id`             | Integer  | PK, Auto                        | Unique identifier              |
+| `uuid`           | String   |                                 | UUID for distributed scenarios |
+| `event_id`       | Integer  | FK → Event, NOT NULL, CASCADE   | Which event                    |
+| `recipe_id`      | Integer  | FK → Recipe, NOT NULL, RESTRICT | Which recipe                   |
+| `target_batches` | Integer  | NOT NULL, > 0                   | How many batches to produce    |
+| `notes`          | Text     |                                 | Planning notes                 |
+| `created_at`     | DateTime | NOT NULL                        | When created                   |
+| `updated_at`     | DateTime | NOT NULL                        | When last modified             |
 
 **Constraints:**
 - Unique on (event_id, recipe_id) - one target per recipe per event
@@ -183,16 +183,16 @@ CREATE INDEX idx_event_production_target_recipe ON event_production_target(recip
 ```python
 class EventProductionTarget(BaseModel):
     __tablename__ = "event_production_target"
-    
+
     event_id = Column(Integer, ForeignKey("event.id", ondelete="CASCADE"), nullable=False, index=True)
     recipe_id = Column(Integer, ForeignKey("recipe.id", ondelete="RESTRICT"), nullable=False, index=True)
     target_batches = Column(Integer, nullable=False)
     notes = Column(Text)
-    
+
     # Relationships
     event = relationship("Event", back_populates="production_targets")
     recipe = relationship("Recipe")
-    
+
     __table_args__ = (
         UniqueConstraint("event_id", "recipe_id", name="uq_event_recipe_target"),
         CheckConstraint("target_batches > 0", name="ck_target_batches_positive"),
@@ -220,16 +220,16 @@ CREATE INDEX idx_event_assembly_target_event ON event_assembly_target(event_id);
 CREATE INDEX idx_event_assembly_target_fg ON event_assembly_target(finished_good_id);
 ```
 
-| Column | Type | Constraints | Description |
-|--------|------|-------------|-------------|
-| `id` | Integer | PK, Auto | Unique identifier |
-| `uuid` | String | | UUID for distributed scenarios |
-| `event_id` | Integer | FK → Event, NOT NULL, CASCADE | Which event |
-| `finished_good_id` | Integer | FK → FinishedGood, NOT NULL, RESTRICT | Which finished good |
-| `target_quantity` | Integer | NOT NULL, > 0 | How many units to assemble |
-| `notes` | Text | | Planning notes |
-| `created_at` | DateTime | NOT NULL | When created |
-| `updated_at` | DateTime | NOT NULL | When last modified |
+| Column             | Type     | Constraints                           | Description                    |
+| ------------------ | -------- | ------------------------------------- | ------------------------------ |
+| `id`               | Integer  | PK, Auto                              | Unique identifier              |
+| `uuid`             | String   |                                       | UUID for distributed scenarios |
+| `event_id`         | Integer  | FK → Event, NOT NULL, CASCADE         | Which event                    |
+| `finished_good_id` | Integer  | FK → FinishedGood, NOT NULL, RESTRICT | Which finished good            |
+| `target_quantity`  | Integer  | NOT NULL, > 0                         | How many units to assemble     |
+| `notes`            | Text     |                                       | Planning notes                 |
+| `created_at`       | DateTime | NOT NULL                              | When created                   |
+| `updated_at`       | DateTime | NOT NULL                              | When last modified             |
 
 **Constraints:**
 - Unique on (event_id, finished_good_id) - one target per finished good per event
@@ -240,16 +240,16 @@ CREATE INDEX idx_event_assembly_target_fg ON event_assembly_target(finished_good
 ```python
 class EventAssemblyTarget(BaseModel):
     __tablename__ = "event_assembly_target"
-    
+
     event_id = Column(Integer, ForeignKey("event.id", ondelete="CASCADE"), nullable=False, index=True)
     finished_good_id = Column(Integer, ForeignKey("finished_good.id", ondelete="RESTRICT"), nullable=False, index=True)
     target_quantity = Column(Integer, nullable=False)
     notes = Column(Text)
-    
+
     # Relationships
     event = relationship("Event", back_populates="assembly_targets")
     finished_good = relationship("FinishedGood")
-    
+
     __table_args__ = (
         UniqueConstraint("event_id", "finished_good_id", name="uq_event_fg_target"),
         CheckConstraint("target_quantity > 0", name="ck_target_quantity_positive"),
@@ -284,14 +284,14 @@ CREATE TABLE production_losses (
 );
 ```
 
-| Column | Type | Constraints | Description |
-|--------|------|-------------|-------------|
-| `production_run_id` | Integer | FK → ProductionRun, SET NULL | Nullable for audit trail preservation |
-| `finished_unit_id` | Integer | FK → FinishedUnit, NOT NULL, RESTRICT | What was being produced |
-| `loss_category` | String(20) | NOT NULL, DEFAULT 'other' | LossCategory enum value |
-| `loss_quantity` | Integer | NOT NULL, > 0 | Number of units lost |
-| `per_unit_cost` | Numeric | NOT NULL | Cost snapshot at production time |
-| `total_loss_cost` | Numeric | NOT NULL | loss_quantity × per_unit_cost |
+| Column              | Type       | Constraints                           | Description                           |
+| ------------------- | ---------- | ------------------------------------- | ------------------------------------- |
+| `production_run_id` | Integer    | FK → ProductionRun, SET NULL          | Nullable for audit trail preservation |
+| `finished_unit_id`  | Integer    | FK → FinishedUnit, NOT NULL, RESTRICT | What was being produced               |
+| `loss_category`     | String(20) | NOT NULL, DEFAULT 'other'             | LossCategory enum value               |
+| `loss_quantity`     | Integer    | NOT NULL, > 0                         | Number of units lost                  |
+| `per_unit_cost`     | Numeric    | NOT NULL                              | Cost snapshot at production time      |
+| `total_loss_cost`   | Numeric    | NOT NULL                              | loss_quantity × per_unit_cost         |
 
 **LossCategory Enum Values:** `burnt`, `broken`, `contaminated`, `dropped`, `wrong_ingredients`, `other`
 
@@ -299,10 +299,10 @@ CREATE TABLE production_losses (
 
 Added columns for loss tracking:
 
-| Column | Type | Description |
-|--------|------|-------------|
+| Column              | Type       | Description                                 |
+| ------------------- | ---------- | ------------------------------------------- |
 | `production_status` | String(20) | `complete`, `partial_loss`, or `total_loss` |
-| `loss_quantity` | Integer | Total units lost in this run |
+| `loss_quantity`     | Integer    | Total units lost in this run                |
 
 **ProductionStatus Enum Values:** `complete`, `partial_loss`, `total_loss`
 
@@ -314,10 +314,10 @@ Allows assembly of finished goods without consuming packaging materials (for cus
 
 #### AssemblyRun Extensions
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `packaging_bypassed` | Boolean | True if packaging consumption was skipped |
-| `packaging_bypass_notes` | Text | Reason for bypass |
+| Column                   | Type    | Description                               |
+| ------------------------ | ------- | ----------------------------------------- |
+| `packaging_bypassed`     | Boolean | True if packaging consumption was skipped |
+| `packaging_bypass_notes` | Text    | Reason for bypass                         |
 
 #### CompositionAssignment Table
 
@@ -359,13 +359,13 @@ CREATE TABLE suppliers (
 );
 ```
 
-| Column | Type | Constraints | Description |
-|--------|------|-------------|-------------|
-| `name` | String(200) | NOT NULL | Supplier name (e.g., "Costco") |
-| `city` | String(100) | NOT NULL | City name |
-| `state` | String(2) | NOT NULL, 2-letter uppercase | State code (e.g., "MA") |
-| `zip_code` | String(10) | NOT NULL | ZIP code |
-| `is_active` | Boolean | NOT NULL, DEFAULT true | Soft delete flag |
+| Column      | Type        | Constraints                  | Description                    |
+| ----------- | ----------- | ---------------------------- | ------------------------------ |
+| `name`      | String(200) | NOT NULL                     | Supplier name (e.g., "Costco") |
+| `city`      | String(100) | NOT NULL                     | City name                      |
+| `state`     | String(2)   | NOT NULL, 2-letter uppercase | State code (e.g., "MA")        |
+| `zip_code`  | String(10)  | NOT NULL                     | ZIP code                       |
+| `is_active` | Boolean     | NOT NULL, DEFAULT true       | Soft delete flag               |
 
 #### Purchase Table
 
@@ -386,34 +386,34 @@ CREATE TABLE purchases (
 );
 ```
 
-| Column | Type | Constraints | Description |
-|--------|------|-------------|-------------|
-| `product_id` | Integer | FK → Product, NOT NULL, RESTRICT | What was purchased |
-| `supplier_id` | Integer | FK → Supplier, NOT NULL, RESTRICT | Where it was purchased |
-| `purchase_date` | Date | NOT NULL | When purchased |
-| `unit_price` | Numeric | NOT NULL, ≥ 0 | Price per package unit |
-| `quantity_purchased` | Integer | NOT NULL, > 0 | Number of packages bought |
+| Column               | Type    | Constraints                       | Description               |
+| -------------------- | ------- | --------------------------------- | ------------------------- |
+| `product_id`         | Integer | FK → Product, NOT NULL, RESTRICT  | What was purchased        |
+| `supplier_id`        | Integer | FK → Supplier, NOT NULL, RESTRICT | Where it was purchased    |
+| `purchase_date`      | Date    | NOT NULL                          | When purchased            |
+| `unit_price`         | Numeric | NOT NULL, ≥ 0                     | Price per package unit    |
+| `quantity_purchased` | Integer | NOT NULL, > 0                     | Number of packages bought |
 
 #### Product Extensions
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `preferred_supplier_id` | Integer | FK → Supplier (SET NULL on delete) |
-| `is_hidden` | Boolean | Hide from UI dropdowns |
-| `gtin` | String(20) | GS1 GTIN (unique, replaces upc_code) |
-| `brand_owner` | String(200) | Brand owner/manufacturer |
-| `gpc_brick_code` | String(20) | GS1 GPC category code |
-| `net_content_value` | Float | Net content from label |
-| `net_content_uom` | String(20) | Net content unit (g, kg, ml, oz) |
-| `country_of_sale` | String(3) | ISO 3166-1 alpha-3 country code |
-| `off_id` | String(50) | Open Food Facts product code |
+| Column                  | Type        | Description                          |
+| ----------------------- | ----------- | ------------------------------------ |
+| `preferred_supplier_id` | Integer     | FK → Supplier (SET NULL on delete)   |
+| `is_hidden`             | Boolean     | Hide from UI dropdowns               |
+| `gtin`                  | String(20)  | GS1 GTIN (unique, replaces upc_code) |
+| `brand_owner`           | String(200) | Brand owner/manufacturer             |
+| `gpc_brick_code`        | String(20)  | GS1 GPC category code                |
+| `net_content_value`     | Float       | Net content from label               |
+| `net_content_uom`       | String(20)  | Net content unit (g, kg, ml, oz)     |
+| `country_of_sale`       | String(3)   | ISO 3166-1 alpha-3 country code      |
+| `off_id`                | String(50)  | Open Food Facts product code         |
 
 #### InventoryItem Extensions
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `purchase_id` | Integer | FK → Purchase (nullable for migration) |
-| `lot_or_batch` | String(100) | Lot/batch number for tracking |
+| Column         | Type        | Description                            |
+| -------------- | ----------- | -------------------------------------- |
+| `purchase_id`  | Integer     | FK → Purchase (nullable for migration) |
+| `lot_or_batch` | String(100) | Lot/batch number for tracking          |
 
 ---
 
@@ -437,13 +437,13 @@ CREATE TABLE units (
 );
 ```
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `name` | String | Full name (e.g., "tablespoon") |
-| `abbreviation` | String | Short form (e.g., "tbsp") |
-| `unit_type` | String | Category (volume, weight, count) |
-| `base_unit_id` | Integer | FK to base unit for conversions |
-| `conversion_factor` | Float | Multiply by this to get base unit |
+| Column              | Type    | Description                       |
+| ------------------- | ------- | --------------------------------- |
+| `name`              | String  | Full name (e.g., "tablespoon")    |
+| `abbreviation`      | String  | Short form (e.g., "tbsp")         |
+| `unit_type`         | String  | Category (volume, weight, count)  |
+| `base_unit_id`      | Integer | FK to base unit for conversions   |
+| `conversion_factor` | Float   | Multiply by this to get base unit |
 
 ---
 
@@ -613,7 +613,7 @@ def record_batch_production(
 ) -> ProductionRun:
     """
     Record batch production, optionally linked to an event.
-    
+
     Args:
         event_id: Optional event this production is for. If provided,
                   production counts toward event progress.
@@ -635,7 +635,7 @@ def record_assembly(
 ) -> AssemblyRun:
     """
     Record assembly, optionally linked to an event.
-    
+
     Args:
         event_id: Optional event this assembly is for. If provided,
                   assembly counts toward event progress.
@@ -647,18 +647,18 @@ def record_assembly(
 ```python
 class EventService:
     # Existing methods...
-    
+
     # === TARGET MANAGEMENT ===
-    
+
     def set_production_target(
-        self, 
-        event_id: int, 
-        recipe_id: int, 
+        self,
+        event_id: int,
+        recipe_id: int,
         target_batches: int,
         notes: str = None
     ) -> EventProductionTarget:
         """Set or update production target for a recipe in an event."""
-    
+
     def set_assembly_target(
         self,
         event_id: int,
@@ -667,25 +667,25 @@ class EventService:
         notes: str = None
     ) -> EventAssemblyTarget:
         """Set or update assembly target for a finished good in an event."""
-    
+
     def get_production_targets(self, event_id: int) -> List[EventProductionTarget]:
         """Get all production targets for an event."""
-    
+
     def get_assembly_targets(self, event_id: int) -> List[EventAssemblyTarget]:
         """Get all assembly targets for an event."""
-    
+
     def delete_production_target(self, event_id: int, recipe_id: int) -> bool:
         """Remove a production target."""
-    
+
     def delete_assembly_target(self, event_id: int, finished_good_id: int) -> bool:
         """Remove an assembly target."""
-    
+
     # === PROGRESS TRACKING ===
-    
+
     def get_production_progress(self, event_id: int) -> List[dict]:
         """
         Get production progress for an event.
-        
+
         Returns list of:
         {
             'recipe': Recipe,
@@ -696,11 +696,11 @@ class EventService:
             'is_complete': bool
         }
         """
-    
+
     def get_assembly_progress(self, event_id: int) -> List[dict]:
         """
         Get assembly progress for an event.
-        
+
         Returns list of:
         {
             'finished_good': FinishedGood,
@@ -710,11 +710,11 @@ class EventService:
             'is_complete': bool
         }
         """
-    
+
     def get_event_overall_progress(self, event_id: int) -> dict:
         """
         Get overall event progress summary.
-        
+
         Returns:
         {
             'production_complete': bool,  # All recipes at target
@@ -724,16 +724,16 @@ class EventService:
             'packages_total': int
         }
         """
-    
+
     # === FULFILLMENT STATUS ===
-    
+
     def update_fulfillment_status(
         self,
         event_recipient_package_id: int,
         status: FulfillmentStatus
     ) -> EventRecipientPackage:
         """Update package fulfillment status (pending/ready/delivered)."""
-    
+
     def get_packages_by_status(
         self,
         event_id: int,

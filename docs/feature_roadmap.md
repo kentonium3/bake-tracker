@@ -8,13 +8,13 @@
 
 ## Executive Summary
 
-**Current Status**: All foundational features complete (F042-F051). F052 in progress, F053 specified.
+**Current Status**: F052-F054 complete. F055 (UI Navigation Cleanup) is next.
 
-**Recent Milestone**: F047-F051 complete (Materials Management, Import/Export rationalization, Supplier slugs)
+**Recent Milestone**: F052 (Hierarchy Admin), F053 (Context-Rich Export), F054 (CLI Parity) all merged
 
-**Test Suite**: 2238 tests
+**Test Suite**: 2373 tests
 
-**Next Step**: F052 (Hierarchy Admin), F053 (Context-Rich Export Fixes), then User Testing Round 2
+**Next Step**: F055 (UI Navigation Cleanup), then User Testing Round 2
 
 ---
 
@@ -74,6 +74,9 @@
 | 049 | Import/Export Phase 1 | MERGED | Complete 16-entity backup capability. Context-rich exports for all catalog entities. Materials catalog import support. Enhanced import service with FK resolution. |
 | 050 | Supplier Slug Support | MERGED | Added supplier_slug field for stable FK references. Import/export uses slugs instead of IDs. Backward-compatible with existing data. |
 | 051 | Import/Export UI Rationalization | MERGED | Unified import dialog with consistent workflow. Purpose-based import selection (Catalog, Backup, Context-Rich). Improved error handling and log file generation. |
+| 052 | Ingredient/Material Hierarchy Admin | MERGED | Hierarchy Admin tab in CATALOG mode for managing ingredient and material taxonomies. Display name management, category/subcategory editing. |
+| 053 | Context-Rich Export Fixes | MERGED | File prefix "view_" → "aug_", added Products and Material Products to exports, multi-select checkboxes, "All" option, fixed button text. |
+| 054 | CLI Import/Export Parity | MERGED | 16 new CLI commands for backup/restore, catalog, and aug (context-rich) operations. Full Materials support (4 entity types), Supplier CLI, Purchase CLI. Achieves CLI parity with UI for AI-assisted workflows. |
 
 ---
 
@@ -81,9 +84,7 @@
 
 | # | Name | Priority | Status |
 |---|------|----------|--------|
-| 052 | Ingredient/Material Display Admin | P1 | IN PROGRESS |
-| 053 | Context-Rich Export Fixes | P2 | SPECIFIED |
-| 055 | CLI Import/Export Parity | P2 | SPECIFIED |
+| 055 | UI Navigation Cleanup | P1 | NEXT |
 
 ---
 
@@ -91,8 +92,7 @@
 
 | # | Name | Priority | Status | Notes |
 |---|------|----------|--------|-------|
-| 054 | UI Navigation Cleanup | P1 | SPECIFIED | Mode reordering, menu restructuring, UI cleanup |
-| - | User Testing Round 2 | P0 | PENDING | After F052-F055 complete |
+| - | User Testing Round 2 | P0 | PENDING | After F055 complete |
 
 ---
 
@@ -126,7 +126,7 @@
 - ✅ F050: Supplier slug support for stable FK references
 - ✅ F051: Unified import dialog with purpose-based selection
 
-**Ready For**: F052 (Hierarchy Admin), F053 (Context-Rich Export Fixes), F054 (UI Navigation Cleanup), then User Testing Round 2
+**Ready For**: F055 (UI Navigation Cleanup), then User Testing Round 2
 
 ---
 
@@ -174,12 +174,13 @@
 16. ~~**Feature 051** - Import/Export UI Rationalization~~ ✅ (2026-01-13)
 
 **Phase 3: Polish & Final Fixes** 🎯 CURRENT
-17. **Feature 052** - Ingredient/Material Display Admin (IN PROGRESS)
-18. **Feature 053** - Context-Rich Export Fixes (SPECIFIED)
-19. **Feature 054** - UI Navigation Cleanup (SPECIFIED)
-20. **USER TESTING ROUND 2** - Complete Plan → Shop → Make → Assemble → Deliver cycle
-21. Prioritize F0XX features based on user feedback
-22. Plan Phase 4 (web migration) architecture
+17. ~~**Feature 052** - Ingredient/Material Hierarchy Admin~~ ✅ (2026-01-15)
+18. ~~**Feature 053** - Context-Rich Export Fixes~~ ✅ (2026-01-15)
+19. ~~**Feature 054** - CLI Import/Export Parity~~ ✅ (2026-01-15)
+20. **Feature 055** - UI Navigation Cleanup (NEXT)
+21. **USER TESTING ROUND 2** - Complete Plan → Shop → Make → Assemble → Deliver cycle
+22. Prioritize F0XX features based on user feedback
+23. Plan Phase 4 (web migration) architecture
 
 ---
 
@@ -242,20 +243,32 @@
 - ✅ Consistent workflow across Catalog, Backup, Context-Rich imports
 - ✅ Improved error handling and log generation
 
-### After F052 (Hierarchy Admin)
-- [ ] Hierarchy Admin tab in CATALOG mode
-- [ ] Display name management for ingredients and materials
-- [ ] Category/subcategory display name management
-- [ ] Taxonomy structure management
+### After F052 (Hierarchy Admin) - COMPLETE ✅
+- [x] Hierarchy Admin tab in CATALOG mode
+- [x] Display name management for ingredients and materials
+- [x] Category/subcategory display name management
+- [x] Taxonomy structure management
 
-### After F053 (Context-Rich Export Fixes)
-- [ ] Files exported with "aug_" prefix
-- [ ] Products and Material Products exportable
-- [ ] Multi-select with checkboxes
-- [ ] "All" option to export all entity types
-- [ ] Button text reads "Export Context-Rich File"
+### After F053 (Context-Rich Export Fixes) - COMPLETE ✅
+- [x] Files exported with "aug_" prefix
+- [x] Products and Material Products exportable
+- [x] Multi-select with checkboxes
+- [x] "All" option to export all entity types
+- [x] Button text reads "Export Context-Rich File"
 
-### After F054 (UI Navigation Cleanup)
+### After F054 (CLI Import/Export Parity) - COMPLETE ✅
+- [x] Backup/restore CLI commands operational
+- [x] Catalog import/export via CLI
+- [x] Context-rich "aug" CLI commands
+- [x] All 16 entities accessible via CLI
+- [x] Materials CLI commands (4 entity types)
+- [x] Supplier CLI commands
+- [x] Purchase CLI commands
+- [x] CLI parity with UI achieved
+- [x] AI-assisted workflows fully supported
+- [x] Mobile JSON ingestion enabled
+
+### After F055 (UI Navigation Cleanup)
 - [ ] Modes ordered: Observe, Catalog, Plan, Purchase, Make, Deliver
 - [ ] Catalog menu restructured with logical groupings
 - [ ] Purchase menu reordered: Inventory, Purchases, Shopping Lists
@@ -263,20 +276,9 @@
 - [ ] Tree view removed from Catalog/Inventory
 - [ ] Deliver mode placeholder present
 
-### After F055 (CLI Import/Export Parity)
-- [ ] Backup/restore CLI commands operational
-- [ ] Catalog import/export via CLI
-- [ ] Context-rich "aug" CLI commands
-- [ ] All 16 entities accessible via CLI
-- [ ] Materials CLI commands (4 entity types)
-- [ ] Supplier CLI commands
-- [ ] Purchase CLI commands
-- [ ] CLI parity with UI achieved
-- [ ] AI-assisted workflows fully supported
-- [ ] Mobile JSON ingestion enabled
-
 ### Ready for User Testing Round 2
-- [ ] F052-F055 complete
+- [x] F052 complete
+- [ ] F055 complete
 - [ ] User can complete Plan → Shop → Make → Assemble → Deliver cycle
 - [ ] All tabs in all modes functional and polished
 - [ ] Materials properly managed separate from ingredients
@@ -292,24 +294,13 @@
 
 ## Key Decisions
 
-### 2026-01-15 (F053 & F055 Specifications Created)
-- **F053 Inserted**: Context-Rich Export Fixes specification created based on user feedback from first export use
-- **F054 Created**: Original F053 (UI Navigation Cleanup) renumbered to F054
-- **F055 Created**: CLI Import/Export Parity specification addresses critical gap in CLI functionality after F047-F051 refactoring
-- **Issues Addressed in F053**: 
-  - File prefix "view_" → "aug_" (augmentation)
-  - Add missing Products and Material Products to export options
-  - Change radio buttons to checkboxes for multi-select
-  - Add "All" option to select/export all entity types
-  - Fix button text from "Export Context-Rich View" to "Export Context-Rich File"
-- **Issues Addressed in F055**:
-  - CLI missing materials entities (4 types)
-  - CLI missing supplier support despite F050/F051 backend
-  - CLI missing catalog import/export commands
-  - CLI missing context-rich "aug" export/import (F053 format)
-  - CLI missing backup/restore commands (16-entity coordinated export)
-  - CLI needed for AI-assisted workflows and mobile JSON ingestion
-  - First-class CLI principle: CLI should match UI capabilities
+### 2026-01-15 (F052-F054 Complete, F055 Next)
+- **F052 MERGED**: Ingredient/Material Hierarchy Admin - taxonomy management in CATALOG mode
+- **F053 MERGED**: Context-Rich Export Fixes - file prefix changed to "aug_", added Products/Material Products, multi-select checkboxes, "All" option
+- **F054 MERGED**: CLI Import/Export Parity - 16 new CLI commands achieving full UI parity for AI-assisted workflows
+- **F055 Next**: UI Navigation Cleanup - mode reordering, menu restructuring, Deliver placeholder
+- **Renumbering**: Original F053 (UI Navigation Cleanup) → F055
+- **Spec-Kitty Bug Filed**: Symlink merge bug confirmed and reported to GitHub (worktree symlinks overwrite main repo files)
 
 ### 2026-01-13 (Foundational Work Complete)
 - **All Foundational Features Complete**: F042-F051 merged, covering UI polish, materials management, and import/export rationalization
@@ -441,10 +432,10 @@
   - Improved error handling and log file generation
   - All foundational features (F042-F051) now complete
   - Ready for User Testing Round 2
-- 2026-01-15: **F053 & F055 INSERTED** - Context-Rich Export Fixes & CLI Parity:
-  - Created F053 specification for context-rich export improvements based on first-use feedback
-  - Created F055 specification for CLI import/export parity after F047-F051 refactoring
-  - Renumbered: UI Navigation Cleanup (F053→F054)
-  - F053 fixes: file prefix (view→aug), missing entities (Products, Material Products), radio buttons→checkboxes, add "All" option, button text
-  - F055 adds: backup/restore CLI, catalog CLI, aug CLI, materials CLI (4 types), suppliers CLI, purchases CLI - achieving full UI parity
-  - F055 rationale: Enable AI-assisted workflows and mobile JSON ingestion via first-class CLI interface
+- 2026-01-15: **F052-F054 COMPLETE** - Hierarchy Admin, Context-Rich Export, CLI Parity:
+  - F052 merged: Hierarchy Admin tab for ingredient/material taxonomy management
+  - F053 merged: file prefix (view→aug), added Products/Material Products, multi-select checkboxes, "All" option
+  - F054 merged: 16 new CLI commands for backup/restore, catalog, and aug operations achieving full UI parity
+  - Renumbered: Original UI Navigation Cleanup (F053→F055)
+  - Spec-Kitty symlink merge bug confirmed and filed as GitHub issue
+  - Next: F055 (UI Navigation Cleanup), then User Testing Round 2

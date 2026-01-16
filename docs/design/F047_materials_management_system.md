@@ -183,7 +183,7 @@ class Material(BaseModel):
     )
 ```
 
-**Examples**: "Red Satin Ribbon", "Small Gift Box 6x6x3", "6\" Cellophane Bag"
+**Examples**: "Red Satin Ribbon", "Small Gift Box 6x6x3", "6" Cellophane Bag"
 
 #### MaterialProduct
 
@@ -277,7 +277,7 @@ class MaterialUnit(BaseModel):
         return total_material_inventory / self.quantity_per_unit
 ```
 
-**Examples**: "6\" Red Ribbon", "6\" Cellophane Bag", "Small Gift Box"
+**Examples**: "6" Red Ribbon", "6" Cellophane Bag", "Small Gift Box"
 
 **Key Design Decision**: MaterialUnit has NO material_product_id
 - MaterialUnit is a DEFINITION (how much material per unit)
@@ -397,8 +397,8 @@ class Composition(BaseModel):
     __table_args__ = (
         CheckConstraint('quantity > 0', name='composition_quantity_positive'),
         CheckConstraint(
-            '(finished_unit_id IS NOT NULL AND material_unit_id IS NULL AND material_id IS NULL) OR '
-            '(finished_unit_id IS NULL AND material_unit_id IS NOT NULL AND material_id IS NULL) OR '
+            '(finished_unit_id IS NOT NULL AND material_unit_id IS NULL AND material_id IS NULL) OR ' \
+            '(finished_unit_id IS NULL AND material_unit_id IS NOT NULL AND material_id IS NULL) OR ' \
             '(finished_unit_id IS NULL AND material_unit_id IS NULL AND material_id IS NOT NULL)',
             name='composition_exactly_one_component'
         ),
@@ -906,7 +906,7 @@ class AssemblyService:
 ┌─────────────────────────────────────────────────────────────┐
 │ MATERIALS                                          [+ Add ▼]│
 ├─────────────────────────────────────────────────────────────┤
-│                                                               │
+│                                                               
 │ ┌─ Categories ──────────────┐ ┌─ Products ─────────────────┐│
 │ │                            │ │                             ││
 │ │ > Ribbons (45 products)    │ │ Material: Red Satin Ribbon  ││
@@ -920,20 +920,20 @@ class AssemblyService:
 │ │   > Paper Bags (10)        │ │                             ││
 │ │                            │ │ [Edit] [Purchase] [Adjust] ││
 │ │ [+ Category] [+ Material]  │ │                             ││
-│ └────────────────────────────┘ └─────────────────────────────┘│
-│                                                               │
+│ └────────────┘ └─────────────────────────────┘│
+│                                                               
 │ ┌─ Material Units ──────────────────────────────────────────┐│
-│ │ 6" Red Ribbon (linear_inches)                             ││
+│ │ 6" Red Ribbon (linear_inches)
 │ │   Available: 300 units (1800" across 2 products)          ││
 │ │   Current cost: $0.66/unit (weighted average)             ││
 │ │                                                            ││
-│ │ 12" Red Ribbon (linear_inches)                            ││
+│ │ 12" Red Ribbon (linear_inches)
 │ │   Available: 150 units (1800" across 2 products)          ││
 │ │   Current cost: $1.32/unit (weighted average)             ││
 │ │                                                            ││
 │ │ [+ Material Unit]                                          ││
 │ └────────────────────────────────────────────────────────────┘│
-│                                                               │
+│                                                               
 └─────────────────────────────────────────────────────────────┘
 
 Footer: "Materials catalog - costs are current weighted averages"
@@ -949,22 +949,22 @@ Footer: "Materials catalog - costs are current weighted averages"
 
 ```
 ┌─ Record Material Purchase ──────────────────────────────────┐
-│                                                               │
+│                                                               
 │ Material Product: [Michaels Red Satin 100ft Roll      ▼]    │
 │ Supplier:         [Michaels                           ▼]    │
-│                                                               │
+│                                                               
 │ Package Details:                                              │
 │   Unit count per package: [___100___] ft per roll            │
 │   Packages purchased:     [_____2___]                        │
 │   Total units:            1200 ft (calculated)               │
-│                                                               │
+│                                                               
 │ Cost:                                                         │
 │   Total cost:             [$__24.00_]                        │
 │   Unit cost:              $0.12/ft (calculated)              │
-│                                                               │
+│                                                               
 │ Purchased on: [2024-12-15 ▼]                                │
 │ Notes: [____________________________________]                 │
-│                                                               │
+│                                                               
 │                           [Cancel] [Record Purchase]         │
 └───────────────────────────────────────────────────────────────┘
 
@@ -977,21 +977,21 @@ After purchase:
 
 ```
 ┌─ Adjust Material Inventory ─────────────────────────────────┐
-│                                                               │
+│                                                               
 │ Product: Michaels Red Satin 100ft Roll                       │
 │ Current inventory: 1200 linear_inches (100 ft)               │
-│                                                               │
-│ Adjustment type:                                              │
+│                                                               
+│ Adjustment type:
 │   ○ Count adjustment (add/subtract specific amount)         │
 │   ● Percentage remaining                                     │
-│                                                               │
+│                                                               
 │ Percentage remaining: [____20____] %                         │
-│                                                               │
+│                                                               
 │ Calculated new inventory: 240 linear_inches (20 ft)          │
 │ Adjustment amount: -960 linear_inches                        │
-│                                                               │
+│                                                               
 │ Reason: [Used on personal project____________________]       │
-│                                                               │
+│                                                               
 │                           [Cancel] [Adjust Inventory]        │
 └───────────────────────────────────────────────────────────────┘
 ```
@@ -1000,14 +1000,14 @@ After purchase:
 
 ```
 ┌─ Edit Finished Good: Holiday Gift Box ──────────────────────┐
-│                                                               │
-│ Components:                                                   │
-│                                                               │
+│                                                               
+│ Components:
+│                                                               
 │ ┌─ Baked Goods ──────────────────────────────────────────┐  │
 │ │ 6 × Large Cookie                          [Edit] [Del] │  │
 │ │ 3 × Brownie                               [Edit] [Del] │  │
 │ └────────────────────────────────────────────────────────┘  │
-│                                                               │
+│                                                               
 │ ┌─ Materials ────────────────────────────────────────────┐  │
 │ │ 1 × 6" Cellophane Bag ⚠️               [Edit] [Del] │  │
 │ │     (Selection pending - 4 designs available)           │  │
@@ -1015,17 +1015,17 @@ After purchase:
 │ │ 2 × Tissue Paper Sheet ✓                [Edit] [Del] │  │
 │ │     (Specific: White Tissue 12x12)                      │  │
 │ └────────────────────────────────────────────────────────┘  │
-│                                                               │
+│                                                               
 │ [+ Add Component ▼]                                          │
 │   ├─ Finished Unit (baked good)                             │
 │   ├─ Material Unit (specific)                               │
 │   └─ Material (generic, defer decision)                     │
-│                                                               │
+│                                                               
 │ Cost Summary:                                                 │
 │   Food components:     $4.47 (actual)                        │
 │   Material components: $0.82 (estimated) + $0.10 (actual)    │
 │   Total:               $5.39 (estimated)                     │
-│                                                               │
+│                                                               
 │                           [Cancel] [Save]                    │
 └───────────────────────────────────────────────────────────────┘
 
@@ -1038,42 +1038,42 @@ Legend:
 
 ```
 ┌─ Add Material to Finished Good ─────────────────────────────┐
-│                                                               │
-│ Material Type:                                                │
+│                                                               
+│ Material Type:
 │   ● Specific Material Unit (ready for assembly)             │
 │   ○ Generic Material (defer decision to assembly)           │
-│                                                               │
+│                                                               
 │ Select Material Unit: [6" Cellophane Bag            ▼]      │
-│                                                               │
+│                                                               
 │ Available inventory: 82 units (4 designs)                    │
 │   - Snowflakes: 30 units                                     │
 │   - Holly: 25 units                                          │
 │   - Stars: 20 units                                          │
 │   - Snowmen: 7 units                                         │
-│                                                               │
+│                                                               
 │ Estimated cost: $0.25/unit (weighted average)                │
-│                                                               │
+│                                                               
 │ Quantity needed: [___1___] per finished good                 │
-│                                                               │
+│                                                               
 │                           [Cancel] [Add Material]            │
 └───────────────────────────────────────────────────────────────┘
 
 If "Generic Material" selected:
 ┌─ Add Generic Material to Finished Good ─────────────────────┐
-│                                                               │
-│ Material Type:                                                │
+│                                                               
+│ Material Type:
 │   ○ Specific Material Unit (ready for assembly)             │
 │   ● Generic Material (defer decision to assembly)           │
-│                                                               │
+│                                                               
 │ Select Material: [Cellophane Bag 6"                  ▼]     │
-│                                                               │
+│                                                               
 │ Available products: 4 designs (82 total units)               │
 │ Estimated cost: $0.25/unit (weighted average)                │
-│                                                               │
+│                                                               
 │ ⚠️ Decision will be required before assembly                 │
-│                                                               │
+│                                                               
 │ Quantity needed: [___1___] per finished good                 │
-│                                                               │
+│                                                               
 │                           [Cancel] [Add Material]            │
 └───────────────────────────────────────────────────────────────┘
 ```
@@ -1082,14 +1082,14 @@ If "Generic Material" selected:
 
 ```
 ┌─ Record Assembly: Holiday Gift Box ─────────────────────────┐
-│                                                               │
+│                                                               
 │ ⚠️ PACKAGING NOT FINALIZED                                   │
-│                                                               │
+│                                                               
 │ The following materials need specific product selection:     │
-│                                                               │
+│                                                               
 │ ┌─ 6" Cellophane Bag (50 needed) ────────────────────────┐  │
 │ │                                                          │  │
-│ │ Assign specific products:                               │  │
+│ │ Assign specific products:
 │ │   ☐ Snowflakes    Available: 30   Use: [_30_]         │  │
 │ │   ☑ Holly         Available: 25   Use: [_20_]         │  │
 │ │   ☐ Stars         Available: 20   Use: [____]         │  │
@@ -1097,16 +1097,16 @@ If "Generic Material" selected:
 │ │                                                          │  │
 │ │   Total assigned: 50 / 50 needed ✓                     │  │
 │ └──────────────────────────────────────────────────────────┘  │
-│                                                               │
+│                                                               
 │ Cost Summary:                                                 │
 │   Component costs:     $223.50 (actual)                      │
 │   Material costs:      $12.40 (actual - based on selection)  │
 │   Total assembly cost: $235.90                               │
 │   Per unit cost:       $4.72                                 │
-│                                                               │
+│                                                               
 │ Quantity to assemble: [___50___]                            │
 │ Assembled on: [2024-12-20 ▼]                                │
-│                                                               │
+│                                                               
 │ [Assembly Details] [Record Assembly Anyway] [Assign & Record]│
 └───────────────────────────────────────────────────────────────┘
 
@@ -1120,10 +1120,10 @@ After "Assign & Record":
 
 ```
 ┌─ Production Dashboard ───────────────────────────────────────┐
-│                                                               │
-│ In Progress Productions:                                      │
-│                                                               │
-│ ┌─ Holiday Gift Box (50 units) ──────────────────────────┐  │
+│                                                               
+│ In Progress Productions:
+│                                                               
+│ ┌─ Holiday Gift Box (50 units) ───────────────────────┐  │
 │ │ ├─ Baking: Complete ✓                                   │  │
 │ │ │   - 300 cookies baked                                 │  │
 │ │ │   - 150 brownies baked                                │  │
@@ -1131,13 +1131,13 @@ After "Assign & Record":
 │ │ │     └─ Packaging needs selection                      │  │
 │ │ └─ Delivery: Not started                                │  │
 │ └──────────────────────────────────────────────────────────┘  │
-│                                                               │
+│                                                               
 │ ┌─ Wedding Favor Boxes (100 units) ───────────────────────┐  │
 │ │ ├─ Baking: In Progress                                   │  │
 │ │ ├─ Assembly: Ready ✓                                    │  │
 │ │ └─ Delivery: Scheduled for 12/25                        │  │
 │ └──────────────────────────────────────────────────────────┘  │
-│                                                               │
+│                                                               
 └───────────────────────────────────────────────────────────────┘
 
 Legend:
@@ -1217,7 +1217,7 @@ def calculate_material_unit_cost(material_unit: MaterialUnit) -> Decimal:
 
 # Example:
 # Material "Red Ribbon" weighted avg: $0.1122/"
-# MaterialUnit "6\" Red Ribbon": 6 inches
+# MaterialUnit "6" Red Ribbon": 6 inches
 # Cost: $0.1122 × 6 = $0.6732
 ```
 
@@ -1323,7 +1323,7 @@ def capture_assembly_costs(assembly_run: AssemblyRun) -> None:
   "material_units": [
     {
       "material": "Red Satin Ribbon",
-      "display_name": "6\" Red Ribbon",
+      "display_name": "6" Red Ribbon",
       "quantity_per_unit": 6.0,
       "unit_type": "linear_inches",
       "notes": null
@@ -1370,7 +1370,7 @@ def capture_assembly_costs(assembly_run: AssemblyRun) -> None:
 
 ---
 
-## Implementation Plan
+### 3.6 Implementation Plan
 
 ### Phase 1: Data Models & Service Layer (12-14 hours)
 
@@ -1445,7 +1445,7 @@ def capture_assembly_costs(assembly_run: AssemblyRun) -> None:
 
 ---
 
-## Testing Strategy
+### 3.7 Testing Strategy
 
 ### Unit Tests
 
@@ -1511,59 +1511,12 @@ def capture_assembly_costs(assembly_run: AssemblyRun) -> None:
 4. Plan Christmas event with materials
 5. Record assembly with material selection
 6. Verify costs in event summary
-7. Query historical assembly (2 weeks later)
+7. Query historical assemblies (2 weeks later)
 8. Adjust material inventory (percentage)
 
 ---
 
-## Constitutional Compliance
-
-### Principle I: User-Centric Design
-✅ **Compliant**
-- Materials workflow mirrors ingredient workflow (users learn by analogy)
-- F026 deferred decision pattern validated with users
-- Visual indicators (⚠️/✓) provide clear feedback
-- Quick assignment interface resolves materials without leaving assembly screen
-
-### Principle II: Future-Proof Schema Design
-✅ **Compliant**
-- Three-level ontology supports future taxonomies
-- MaterialProduct separate from Material enables multi-sourcing
-- Identity snapshots enable historical queries without catalog dependency
-- Architecture supports web migration and e-commerce integration
-
-### Principle III: Data Integrity
-✅ **Compliant**
-- Immutable cost snapshots (MaterialPurchase, MaterialConsumption)
-- Immutable identity snapshots (display_name_snapshot)
-- Strict separation (materials != ingredients, shared Supplier only)
-- Inventory constraints (non-negative, cascade deletes)
-- Assembly hard stop prevents incomplete data
-
-### Principle IV: Layered Architecture Discipline
-✅ **Compliant**
-- Service layer encapsulates all business logic
-- Models contain NO business logic (pure data)
-- UI calls services only (never direct ORM)
-- Clear separation: Models → Services → UI
-
-### Principle V: Consistent Patterns
-✅ **Compliant**
-- Materials parallel Ingredients exactly (ontology, purchasing, inventory)
-- Definition/instantiation pattern (catalog vs transactional)
-- MaterialUnit parallels FinishedUnit (atomic consumption)
-- MaterialConsumption parallels ProductionConsumption (identity + cost)
-
-### Principle VI: Pragmatic Aspiration
-✅ **Compliant**
-- Delivers immediate value (materials in assemblies)
-- Defers advanced features (rich metadata, templates, analytics)
-- Balances flexibility (deferred decisions) with data quality (hard stop)
-- 28-32 hour estimate (significant but bounded scope)
-
----
-
-## Migration Notes
+### 3.8 Migration Notes
 
 **No migration required** - this is a new feature with no existing data.
 
@@ -1578,7 +1531,7 @@ def capture_assembly_costs(assembly_run: AssemblyRun) -> None:
 
 ---
 
-## Success Criteria
+### 3.9 Success Criteria
 
 ### Functional Requirements
 1. ✅ Materials ontology hierarchy operational (3 levels)
@@ -1615,7 +1568,7 @@ def capture_assembly_costs(assembly_run: AssemblyRun) -> None:
 
 ---
 
-## Risks & Mitigation
+### 3.10 Risks & Mitigation
 
 ### Risk 1: Complexity Underestimation
 **Risk**: Full parallel to Ingredient model + deferred decisions = significant scope
@@ -1631,7 +1584,7 @@ def capture_assembly_costs(assembly_run: AssemblyRun) -> None:
 **Likelihood**: Low
 **Impact**: Medium
 **Mitigation**:
-- Clear UI messaging ("Available: 450 units from 2700\" across 3 products")
+- Clear UI messaging ("Available: 450 units from 2700" across 3 products")
 - Documentation with examples
 - Pattern matches FinishedUnit (users already understand)
 
@@ -1655,13 +1608,13 @@ def capture_assembly_costs(assembly_run: AssemblyRun) -> None:
 
 ---
 
-## Open Questions
+### 3.11 Open Questions
 
 *None remaining - all resolved in requirements phase.*
 
 ---
 
-## References
+### 3.12 References
 
 - **Requirements**: docs/requirements/req_materials.md v2.1
 - **F026 Pattern**: docs/design/F026-deferred-packaging-decisions.md
