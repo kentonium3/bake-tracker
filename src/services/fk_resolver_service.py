@@ -228,7 +228,6 @@ def _create_ingredient(data: Dict[str, Any], session: Session) -> int:
             - display_name (required): Display name
             - category (required): Category name
             - description (optional): Description
-            - is_packaging (optional): Whether this is packaging, not food
 
         session: SQLAlchemy session
 
@@ -247,7 +246,6 @@ def _create_ingredient(data: Dict[str, Any], session: Session) -> int:
         display_name=data["display_name"],
         category=data["category"],
         description=data.get("description"),
-        is_packaging=data.get("is_packaging", False),
     )
     session.add(ingredient)
     session.flush()  # Get the ID

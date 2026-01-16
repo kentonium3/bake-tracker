@@ -180,7 +180,6 @@ INGREDIENTS_CONTEXT_RICH_READONLY = [
     "category_hierarchy",
     "hierarchy_level",
     "parent_ingredient_id",
-    "is_packaging",
     "product_count",
     "products",
     "inventory_total",
@@ -948,7 +947,6 @@ def _export_ingredients_context_rich_impl(output_path: str, session: Session) ->
             "category_hierarchy": _build_ingredient_hierarchy_path(ing),
             "hierarchy_level": ing.hierarchy_level,
             "parent_ingredient_id": ing.parent_ingredient_id,
-            "is_packaging": ing.is_packaging,
             # Editable fields
             "description": ing.description,
             "notes": ing.notes,

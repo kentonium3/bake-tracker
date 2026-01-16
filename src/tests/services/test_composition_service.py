@@ -24,7 +24,6 @@ from src.services.composition_service import (
     remove_packaging,
     get_packaging_product_usage_count,
     DuplicateCompositionError,
-    NotPackagingProductError,
 )
 from src.services.exceptions import ValidationError
 from src.services.ingredient_service import create_ingredient
@@ -42,7 +41,6 @@ def packaging_ingredient(test_db):
     return create_ingredient({
         "display_name": "Test Cellophane Bags",
         "category": "Bags",
-        "is_packaging": True,
     })
 
 @pytest.fixture
@@ -51,7 +49,6 @@ def food_ingredient(test_db):
     return create_ingredient({
         "display_name": "Test All-Purpose Flour",
         "category": "Flour",
-        "is_packaging": False,
     })
 
 @pytest.fixture
@@ -140,18 +137,6 @@ class TestAddPackagingToAssembly:
         assert composition.component_notes == "Use clear bags only"
         assert composition.sort_order == 5
 
-    def test_add_packaging_to_assembly_rejects_food_product(
-        self, test_db, finished_good, food_product
-    ):
-        """Reject adding non-packaging product to assembly."""
-        with pytest.raises(NotPackagingProductError) as excinfo:
-            add_packaging_to_assembly(
-                assembly_id=finished_good.id,
-                packaging_product_id=food_product.id,
-                quantity=1.0,
-            )
-        assert "not a packaging product" in str(excinfo.value)
-
     def test_add_packaging_to_assembly_rejects_invalid_assembly(self, test_db, packaging_product):
         """Reject adding to non-existent assembly."""
         with pytest.raises(ValidationError) as excinfo:
@@ -225,15 +210,6 @@ class TestAddPackagingToPackage:
         assert composition.packaging_product_id == packaging_product.id
         assert composition.component_quantity == 3.5
         assert composition.assembly_id is None
-
-    def test_add_packaging_to_package_rejects_food_product(self, test_db, package, food_product):
-        """Reject adding non-packaging product to package."""
-        with pytest.raises(NotPackagingProductError):
-            add_packaging_to_package(
-                package_id=package.id,
-                packaging_product_id=food_product.id,
-                quantity=1.0,
-            )
 
     def test_add_packaging_to_package_rejects_invalid_package(self, test_db, packaging_product):
         """Reject adding to non-existent package."""
@@ -309,12 +285,10 @@ class TestGetPackaging:
         ing1 = create_ingredient({
             "display_name": "Test Ribbon",
             "category": "Ribbon",
-            "is_packaging": True,
         })
         ing2 = create_ingredient({
             "display_name": "Test Labels",
             "category": "Labels",
-            "is_packaging": True,
         })
 
         prod1 = create_product(

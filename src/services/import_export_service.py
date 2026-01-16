@@ -1212,7 +1212,6 @@ def export_all_to_json(
                 "display_name": ingredient.display_name,
                 "slug": ingredient.slug,
                 "category": ingredient.category,
-                "is_packaging": ingredient.is_packaging,  # Feature 011
                 # Feature 031: Hierarchy fields
                 "hierarchy_level": ingredient.hierarchy_level,
             }
@@ -2824,7 +2823,6 @@ def import_all_from_json_v4(
                             category=ing.get("category"),
                             description=ing.get("description"),
                             notes=ing.get("notes"),
-                            is_packaging=ing.get("is_packaging", False),  # Feature 011
                             hierarchy_level=hierarchy_level,  # Feature 031
                             **density_args,
                         )

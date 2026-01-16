@@ -435,7 +435,6 @@ def validate_ingredient_schema(
         "langual_terms",
         "allergens",
         "description",
-        "is_packaging",
         "hierarchy_level",
     }
 

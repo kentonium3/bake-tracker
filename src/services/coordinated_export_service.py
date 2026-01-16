@@ -213,7 +213,6 @@ def _export_ingredients(output_dir: Path, session: Session) -> FileEntry:
             "category": i.category,
             "description": i.description,
             "notes": i.notes,
-            "is_packaging": i.is_packaging,
             # Hierarchy fields (Feature 031)
             "hierarchy_level": i.hierarchy_level,
             "parent_slug": i.parent.slug if i.parent else None,
@@ -1048,7 +1047,6 @@ def _import_entity_records(
                     category=record.get("category"),
                     description=record.get("description"),
                     notes=record.get("notes"),
-                    is_packaging=record.get("is_packaging", False),
                     hierarchy_level=record.get("hierarchy_level", 2),
                     parent_ingredient_id=parent_id,
                     # Density fields

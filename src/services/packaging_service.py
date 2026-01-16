@@ -122,13 +122,11 @@ def get_generic_products(*, session: Optional[Session] = None) -> List[str]:
 
     def _impl(s: Session) -> List[str]:
         # Query distinct product_name values from Products
-        # that are linked to ingredients where is_packaging=True
-        # and have inventory > 0
+        # that have inventory > 0
         result = (
             s.query(Product.product_name)
             .join(Ingredient, Product.ingredient_id == Ingredient.id)
             .join(InventoryItem, InventoryItem.product_id == Product.id)
-            .filter(Ingredient.is_packaging == True)
             .filter(Product.product_name.isnot(None))
             .filter(Product.product_name != "")
             .filter(InventoryItem.quantity > 0)
@@ -170,7 +168,6 @@ def get_generic_inventory_summary(
         products = (
             s.query(Product)
             .join(Ingredient, Product.ingredient_id == Ingredient.id)
-            .filter(Ingredient.is_packaging == True)
             .filter(Product.product_name == product_name)
             .all()
         )
@@ -241,7 +238,6 @@ def get_available_inventory_items(
         products = (
             s.query(Product)
             .join(Ingredient, Product.ingredient_id == Ingredient.id)
-            .filter(Ingredient.is_packaging == True)
             .filter(Product.product_name == product_name)
             .all()
         )
@@ -311,7 +307,6 @@ def get_estimated_cost(
         products = (
             s.query(Product)
             .join(Ingredient, Product.ingredient_id == Ingredient.id)
-            .filter(Ingredient.is_packaging == True)
             .filter(Product.product_name == product_name)
             .all()
         )

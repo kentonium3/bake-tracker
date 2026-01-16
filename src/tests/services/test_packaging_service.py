@@ -78,7 +78,6 @@ def packaging_ingredient(test_db):
         {
             "display_name": "Cellophane Bags 6x10",
             "category": "Bags",
-            "is_packaging": True,
         }
     )
 
@@ -90,7 +89,6 @@ def packaging_ingredient_2(test_db):
         {
             "display_name": "Gift Boxes Medium",
             "category": "Boxes",
-            "is_packaging": True,
         }
     )
 
@@ -102,7 +100,6 @@ def food_ingredient(test_db):
         {
             "display_name": "All-Purpose Flour",
             "category": "Flour",
-            "is_packaging": False,
         }
     )
 
@@ -258,33 +255,6 @@ class TestGetGenericProducts:
         result = get_generic_products(session=test_db)
 
         assert result == []
-
-    def test_excludes_non_packaging_products(self, test_db, food_ingredient, test_supplier):
-        """Only includes products linked to packaging ingredients."""
-        # Create food product with inventory
-        product = create_product(
-            food_ingredient.slug,
-            {
-                "brand": "King Arthur",
-                "package_size": "5 lb",
-                "package_unit": "lb",
-                "package_unit_quantity": 5,
-                "product_name": "All-Purpose Flour",
-            },
-        )
-
-        add_to_inventory(
-            product_id=product.id,
-            quantity=Decimal("10"),
-            supplier_id=test_supplier.id,
-            unit_price=Decimal("5.99"),
-            purchase_date=date(2025, 1, 1),
-        )
-
-        result = get_generic_products(session=test_db)
-
-        # Food products should not be included
-        assert "All-Purpose Flour" not in result
 
     def test_returns_sorted_list(
         self, test_db, packaging_product_a, packaging_product_box, inventory_a, test_supplier

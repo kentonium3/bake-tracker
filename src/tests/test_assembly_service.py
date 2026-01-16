@@ -77,7 +77,6 @@ def ingredient_cellophane(test_db):
         display_name="Cellophane Bags",
         slug="cellophane-bags",
         category="Packaging",
-        is_packaging=True,
     )
     session.add(ingredient)
     session.commit()

@@ -242,7 +242,6 @@ def sample_hierarchy_from_json(test_db):
             hierarchy_level=r.get("hierarchy_level", 2),
             parent_ingredient_id=mapped_parent_id,
             description=r.get("description"),
-            is_packaging=r.get("is_packaging", False),
         )
         session.add(ingredient)
         session.flush()  # Get the new ID

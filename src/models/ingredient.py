@@ -12,7 +12,7 @@ from datetime import datetime
 from typing import Optional
 
 from sqlalchemy import (
-    Column, String, Text, DateTime, Float, JSON, Index, Boolean,
+    Column, String, Text, DateTime, Float, JSON, Index,
     Integer, ForeignKey, CheckConstraint
 )
 from sqlalchemy.orm import relationship, backref
@@ -86,9 +86,6 @@ class Ingredient(BaseModel):
     # category field retained for rollback safety (deprecated - use hierarchy instead)
     category = Column(String(100), nullable=False, index=True)
 
-    # Packaging indicator (Feature 011)
-    is_packaging = Column(Boolean, nullable=False, default=False, index=True)
-
     # Additional information
     description = Column(Text, nullable=True)
     notes = Column(Text, nullable=True)
@@ -139,7 +136,6 @@ class Ingredient(BaseModel):
     __table_args__ = (
         Index("idx_ingredient_display_name", "display_name"),
         Index("idx_ingredient_category", "category"),
-        Index("idx_ingredient_is_packaging", "is_packaging"),
         # Hierarchy indexes for tree traversal performance (Feature 031)
         Index("idx_ingredient_parent", "parent_ingredient_id"),
         Index("idx_ingredient_hierarchy_level", "hierarchy_level"),

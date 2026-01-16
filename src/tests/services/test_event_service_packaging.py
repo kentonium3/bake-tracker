@@ -48,7 +48,6 @@ def packaging_ingredient(test_db):
     return create_ingredient({
         "display_name": "Test Cellophane Bags",
         "category": "Bags",
-        "is_packaging": True,
     })
 
 @pytest.fixture
@@ -57,7 +56,6 @@ def packaging_ingredient_2(test_db):
     return create_ingredient({
         "display_name": "Test Gift Boxes",
         "category": "Boxes",
-        "is_packaging": True,
     })
 
 @pytest.fixture

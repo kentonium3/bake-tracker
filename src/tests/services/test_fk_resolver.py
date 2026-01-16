@@ -69,7 +69,6 @@ def sample_ingredient_data():
         "display_name": f"Test Ingredient {unique_id}",
         "category": "Testing",
         "description": "An ingredient for testing",
-        "is_packaging": False,
     }
 
 

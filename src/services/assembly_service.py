@@ -389,14 +389,6 @@ def _record_assembly_impl(
             product = session.query(Product).filter_by(id=comp.packaging_product_id).first()
             if product and product.ingredient:
                 ingredient = product.ingredient
-
-                # Validate that the ingredient is marked as packaging material
-                if not getattr(ingredient, 'is_packaging', False):
-                    raise ValueError(
-                        f"Product '{product.display_name}' ({ingredient.display_name}) "
-                        f"is not marked as packaging material"
-                    )
-
                 ingredient_slug = ingredient.slug
                 needed = Decimal(str(comp.component_quantity * quantity))
                 # For packaging, target_unit is the product's package_unit

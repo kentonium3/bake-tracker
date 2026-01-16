@@ -58,19 +58,16 @@ class TestPackagingBOMFlow:
         bag_ingredient = create_ingredient({
             "display_name": "Cellophane Bags 4x6",
             "category": "Bags",
-            "is_packaging": True
         })
 
         box_ingredient = create_ingredient({
             "display_name": "Gift Box Medium",
             "category": "Boxes",
-            "is_packaging": True
         })
 
         ribbon_ingredient = create_ingredient({
             "display_name": "Satin Ribbon",
             "category": "Ribbon",
-            "is_packaging": True
         })
 
         # Create packaging products
@@ -279,7 +276,6 @@ class TestPackagingBOMFlow:
         bag_ingredient = create_ingredient({
             "display_name": "Test Bags",
             "category": "Bags",
-            "is_packaging": True
         })
         bag_product = create_product(
             bag_ingredient.slug,
@@ -341,58 +337,6 @@ class TestPackagingBOMFlow:
 class TestPackagingImportExport:
     """Integration tests for packaging data import/export (Feature 011 T046)."""
 
-    def test_export_import_preserves_packaging_ingredient(self, test_db):
-        """Export/import cycle preserves is_packaging flag on ingredients."""
-        import json
-        import tempfile
-        import os
-        from src.services.import_export_service import export_all_to_json, import_all_from_json_v4
-        from src.models import Ingredient
-        from src.models.base import Base
-        from sqlalchemy import create_engine
-        from sqlalchemy.orm import sessionmaker, scoped_session
-
-        # Create packaging ingredient
-        bag_ingredient = create_ingredient({
-            "display_name": "Export Test Bags",
-            "category": "Bags",
-            "is_packaging": True
-        })
-
-        # Create food ingredient for comparison
-        flour_ingredient = create_ingredient({
-            "display_name": "Export Test Flour",
-            "category": "Flour",
-            "is_packaging": False
-        })
-
-        # Export to temp file
-        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
-            temp_path = f.name
-
-        try:
-            result = export_all_to_json(temp_path)
-            assert result.success
-
-            # Verify export file contains is_packaging field
-            with open(temp_path, "r") as f:
-                data = json.load(f)
-
-            # Version is informational only; validate current spec structure
-            assert "version" in data
-
-            # Find exported ingredients
-            exported_ingredients = {i["slug"]: i for i in data["ingredients"]}
-            assert bag_ingredient.slug in exported_ingredients
-            assert exported_ingredients[bag_ingredient.slug]["is_packaging"] is True
-
-            assert flour_ingredient.slug in exported_ingredients
-            assert exported_ingredients[flour_ingredient.slug]["is_packaging"] is False
-
-        finally:
-            if os.path.exists(temp_path):
-                os.unlink(temp_path)
-
     def test_export_import_preserves_packaging_composition(self, test_db):
         """Export/import cycle preserves packaging compositions."""
         import json
@@ -405,7 +349,6 @@ class TestPackagingImportExport:
         bag_ingredient = create_ingredient({
             "display_name": "Composition Test Bags",
             "category": "Bags",
-            "is_packaging": True
         })
         bag_product = create_product(
             bag_ingredient.slug,
@@ -497,7 +440,6 @@ class TestPackagingImportExport:
         bag_ingredient = create_ingredient({
             "display_name": "Generic Export Test Bags",
             "category": "Bags",
-            "is_packaging": True
         })
         bag_product = create_product(
             bag_ingredient.slug,
@@ -578,30 +520,12 @@ class TestPackagingImportExport:
 class TestPackagingEdgeCases:
     """Edge case tests for packaging BOM (Feature 011 WP07)."""
 
-    def test_packaging_ingredient_without_products_allowed(self, test_db):
-        """T058: Packaging ingredient without products is allowed."""
-        # Create packaging ingredient with no products
-        ingredient = create_ingredient({
-            "display_name": "Empty Packaging Category",
-            "category": "Bags",
-            "is_packaging": True
-        })
-
-        # Should not raise
-        assert ingredient.is_packaging is True
-
-        # Should appear in packaging list
-        from src.services.ingredient_service import get_packaging_ingredients
-        packaging = get_packaging_ingredients()
-        assert any(i.id == ingredient.id for i in packaging)
-
     def test_fractional_packaging_quantities(self, test_db):
         """T059: Fractional quantities like 0.5 work correctly."""
         # Create packaging product
         ribbon_ingredient = create_ingredient({
             "display_name": "Fractional Test Ribbon",
             "category": "Ribbon",  # Use valid unit
-            "is_packaging": True
         })
         ribbon_product = create_product(
             ribbon_ingredient.slug,
@@ -646,7 +570,6 @@ class TestPackagingEdgeCases:
         ribbon_ingredient = create_ingredient({
             "display_name": "Aggregation Test Ribbon",
             "category": "Ribbon",
-            "is_packaging": True
         })
         ribbon_product = create_product(
             ribbon_ingredient.slug,
@@ -731,7 +654,6 @@ class TestPackagingEdgeCases:
         bag_ingredient = create_ingredient({
             "display_name": "Cascade Test Bags",
             "category": "Bags",
-            "is_packaging": True
         })
         bag_product = create_product(
             bag_ingredient.slug,
@@ -775,7 +697,6 @@ class TestPackagingEdgeCases:
         box_ingredient = create_ingredient({
             "display_name": "FG Cascade Test Boxes",
             "category": "Boxes",
-            "is_packaging": True
         })
         box_product = create_product(
             box_ingredient.slug,
@@ -823,7 +744,6 @@ class TestPackagingEdgeCases:
         bag_ingredient = create_ingredient({
             "display_name": "Delete Block Test Bags",
             "category": "Bags",
-            "is_packaging": True
         })
         bag_product = create_product(
             bag_ingredient.slug,
@@ -866,7 +786,6 @@ class TestPackagingEdgeCases:
         ribbon_ingredient = create_ingredient({
             "display_name": "RESTRICT Test Ribbon",
             "category": "Ribbon",
-            "is_packaging": True
         })
         ribbon_product = create_product(
             ribbon_ingredient.slug,

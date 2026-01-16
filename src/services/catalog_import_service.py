@@ -93,7 +93,6 @@ INGREDIENT_AUGMENTABLE_FIELDS = {
     "langual_terms",
     "allergens",
     "description",
-    "is_packaging",
     "hierarchy_level",  # Feature 031: Ingredient hierarchy
 }
 
@@ -615,7 +614,6 @@ def _import_ingredients_impl(
             display_name=item.get("display_name"),
             category=item.get("category"),
             description=item.get("description"),
-            is_packaging=item.get("is_packaging", False),
             hierarchy_level=hierarchy_level,
             # Density fields (4-field model)
             density_volume_value=item.get("density_volume_value"),

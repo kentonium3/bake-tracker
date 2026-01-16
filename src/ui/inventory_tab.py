@@ -308,9 +308,6 @@ class InventoryTab(ctk.CTkFrame):
         self.y_scrollbar.grid(row=0, column=1, sticky="ns")
         self.x_scrollbar.grid(row=1, column=0, sticky="ew")
 
-        # Configure tags for visual differentiation
-        self.tree.tag_configure("packaging", foreground="#0066cc")
-
         # Bind events
         self.tree.bind("<Double-1>", self._on_item_double_click)
         self.tree.bind("<<TreeviewSelect>>", self._on_item_select)
@@ -709,7 +706,6 @@ class InventoryTab(ctk.CTkFrame):
             # Use hierarchy dict from cache, fallback to ingredient name in l0
             default_hierarchy = {"l0": ingredient_name, "l1": "", "l2": ""}
             hierarchy = self._hierarchy_path_cache.get(ingredient_id, default_hierarchy) if ingredient_id else default_hierarchy
-            is_packaging = getattr(ingredient, "is_packaging", False) if ingredient else False
             brand = getattr(product, "brand", "") or ""
             product_name = getattr(product, "product_name", "") or ""
             package_qty = getattr(product, "package_unit_quantity", None)
@@ -766,9 +762,8 @@ class InventoryTab(ctk.CTkFrame):
                 'l1': hierarchy["l1"],
                 'l2': hierarchy["l2"],
                 'description': description,
-                'brand': f"📦 {brand}" if is_packaging else brand,
+                'brand': brand,
                 'qty_display': qty_display,
-                'is_packaging': is_packaging,
             })
 
         # Sort by hierarchy levels, then product description
@@ -776,7 +771,6 @@ class InventoryTab(ctk.CTkFrame):
 
         # Populate Treeview - no row limit needed, handles large datasets well
         for item_data in aggregated:
-            tags = ("packaging",) if item_data['is_packaging'] else ()
             self.tree.insert("", "end", values=(
                 item_data['l0'],
                 item_data['l1'],
@@ -784,7 +778,7 @@ class InventoryTab(ctk.CTkFrame):
                 item_data['description'],
                 item_data['brand'],
                 item_data['qty_display'],
-            ), tags=tags)
+            ))
 
     def _display_detail_view(self):
         """Display individual inventory items in Treeview (lots)."""
@@ -802,9 +796,6 @@ class InventoryTab(ctk.CTkFrame):
 
             # Brand
             brand = getattr(product_obj, "brand", "Unknown") if product_obj else "Unknown"
-            is_packaging = getattr(ingredient_obj, "is_packaging", False) if ingredient_obj else False
-            if is_packaging:
-                brand = f"📦 {brand}"
 
             # Product description and hierarchy dict
             product_name = getattr(product_obj, "product_name", None) or ""
@@ -873,17 +864,12 @@ class InventoryTab(ctk.CTkFrame):
             purchase_date = getattr(item, "purchase_date", None)
             purchase_str = purchase_date.strftime("%Y-%m-%d") if purchase_date else ""
 
-            # Tags for visual styling
-            tags = []
-            if is_packaging:
-                tags.append("packaging")
-
             # Column order: l0, l1, l2, product, brand, qty_remaining, purchased (7 columns)
             values = (hierarchy["l0"], hierarchy["l1"], hierarchy["l2"], description, brand, qty_display, purchase_str)
             item_id = getattr(item, "id", None)
 
             # Use item ID as the tree item ID for easy lookup
-            self.tree.insert("", "end", iid=str(item_id), values=values, tags=tuple(tags))
+            self.tree.insert("", "end", iid=str(item_id), values=values)
 
     def _on_item_double_click(self, event):
         """Handle double-click on inventory item to open edit dialog."""

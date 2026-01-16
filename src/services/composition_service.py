@@ -125,12 +125,6 @@ class IntegrityViolationError(ServiceError):
     pass
 
 
-class NotPackagingProductError(ServiceError):
-    """Raised when product is not a packaging product."""
-
-    pass
-
-
 class CompositionService:
     """
     Service for Composition operations and polymorphic relationship management.
@@ -1349,7 +1343,7 @@ class CompositionService:
     @staticmethod
     def _validate_packaging_product(session: Session, product_id: int) -> Product:
         """
-        Validate that product exists and is a packaging product.
+        Validate that product exists for use as packaging.
 
         Args:
             session: Database session
@@ -1360,17 +1354,10 @@ class CompositionService:
 
         Raises:
             ValidationError: If product not found
-            NotPackagingProductError: If product is not a packaging product
         """
         product = session.get(Product, product_id)
         if not product:
             raise ValidationError([f"Product with ID {product_id} not found"])
-
-        ingredient = session.get(Ingredient, product.ingredient_id)
-        if not ingredient or not ingredient.is_packaging:
-            raise NotPackagingProductError(
-                f"Product '{product.display_name}' is not a packaging product"
-            )
 
         return product
 
@@ -1399,8 +1386,7 @@ class CompositionService:
             Created Composition instance
 
         Raises:
-            ValidationError: If assembly not found or quantity invalid
-            NotPackagingProductError: If product is not a packaging product
+            ValidationError: If assembly not found, product not found, or quantity invalid
             DuplicateCompositionError: If packaging already exists in assembly
         """
         try:
@@ -1413,7 +1399,7 @@ class CompositionService:
                 if not assembly:
                     raise ValidationError([f"Assembly ID {assembly_id} not found"])
 
-                # Validate product is packaging
+                # Validate product exists
                 CompositionService._validate_packaging_product(session, packaging_product_id)
 
                 # Check for duplicate
@@ -1480,8 +1466,7 @@ class CompositionService:
             Created Composition instance
 
         Raises:
-            ValidationError: If package not found or quantity invalid
-            NotPackagingProductError: If product is not a packaging product
+            ValidationError: If package not found, product not found, or quantity invalid
             DuplicateCompositionError: If packaging already exists in package
         """
         try:
@@ -1494,7 +1479,7 @@ class CompositionService:
                 if not package:
                     raise ValidationError([f"Package ID {package_id} not found"])
 
-                # Validate product is packaging
+                # Validate product exists
                 CompositionService._validate_packaging_product(session, packaging_product_id)
 
                 # Check for duplicate

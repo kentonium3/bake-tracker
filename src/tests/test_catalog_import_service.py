@@ -37,7 +37,6 @@ def sample_ingredient_data():
             "display_name": "Test All-Purpose Flour",
             "category": "Flour",
             "description": "A test flour ingredient",
-            "is_packaging": False,
         },
         {
             "slug": "test_sugar",
@@ -49,7 +48,6 @@ def sample_ingredient_data():
             "slug": "test_butter",
             "display_name": "Test Unsalted Butter",
             "category": "Dairy",
-            "is_packaging": False,
             "density_volume_value": 1.0,
             "density_volume_unit": "cup",
             "density_weight_value": 8.0,
@@ -533,7 +531,6 @@ class TestImportIngredients:
                 "display_name": "Test Butter",
                 "category": "Dairy",
                 "description": "Unsalted butter for baking",
-                "is_packaging": False,
                 "density_volume_value": 1.0,
                 "density_volume_unit": "cup",
                 "density_weight_value": 8.0,
