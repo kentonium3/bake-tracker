@@ -663,7 +663,7 @@ class RecipeFormDialog(ctk.CTkToplevel):
         ready_hint.pack(side="left", padx=10)
         row += 1
 
-        # Yield section
+        # Yield Information section (combined yield qty/unit + yield types)
         yield_label = ctk.CTkLabel(
             parent,
             text="Yield Information",
@@ -679,45 +679,75 @@ class RecipeFormDialog(ctk.CTkToplevel):
         )
         row += 1
 
-        # Yield quantity (required)
-        yield_qty_label = ctk.CTkLabel(parent, text="Yield Quantity*:", anchor="w")
-        yield_qty_label.grid(row=row, column=0, sticky="w", padx=PADDING_MEDIUM, pady=5)
-
-        self.yield_quantity_entry = ctk.CTkEntry(
-            parent,
-            width=450,
-            placeholder_text="e.g., 24 (number of items produced)",
+        # Yield quantity and unit on same line (they are related)
+        yield_row_frame = ctk.CTkFrame(parent, fg_color="transparent")
+        yield_row_frame.grid(
+            row=row, column=0, columnspan=2, sticky="ew", padx=PADDING_MEDIUM, pady=5
         )
-        self.yield_quantity_entry.grid(row=row, column=1, sticky="ew", padx=PADDING_MEDIUM, pady=5)
         row += 1
 
-        # Yield unit (required)
-        yield_unit_label = ctk.CTkLabel(parent, text="Yield Unit*:", anchor="w")
-        yield_unit_label.grid(row=row, column=0, sticky="w", padx=PADDING_MEDIUM, pady=5)
+        yield_qty_label = ctk.CTkLabel(yield_row_frame, text="Yield*:", anchor="w")
+        yield_qty_label.pack(side="left", padx=(0, 5))
+
+        self.yield_quantity_entry = ctk.CTkEntry(
+            yield_row_frame,
+            width=80,
+            placeholder_text="24",
+        )
+        self.yield_quantity_entry.pack(side="left", padx=(0, 10))
 
         yield_units = (
             ["dozen", "each", "piece", "batch"] + COUNT_UNITS + WEIGHT_UNITS + VOLUME_UNITS
         )
         self.yield_unit_combo = ctk.CTkComboBox(
-            parent,
-            width=450,
+            yield_row_frame,
+            width=120,
             values=yield_units,
             state="readonly",
         )
         self.yield_unit_combo.set("each")
-        self.yield_unit_combo.grid(row=row, column=1, sticky="ew", padx=PADDING_MEDIUM, pady=5)
+        self.yield_unit_combo.pack(side="left", padx=(0, 20))
+
+        yield_hint = ctk.CTkLabel(
+            yield_row_frame,
+            text="(e.g., 24 each, 2 dozen)",
+            text_color="gray",
+        )
+        yield_hint.pack(side="left")
+
+        # Yield Types sub-section (FinishedUnits - different sizes/forms from this recipe)
+        yield_types_info = ctk.CTkLabel(
+            parent,
+            text="Yield Types - Define the finished products this recipe produces (e.g., Large Cookie, Small Cookie):",
+            text_color="gray",
+            font=ctk.CTkFont(size=11),
+        )
+        yield_types_info.grid(
+            row=row,
+            column=0,
+            columnspan=2,
+            sticky="w",
+            padx=PADDING_MEDIUM,
+            pady=(PADDING_MEDIUM, 5),
+        )
         row += 1
 
-        # Prep time (optional)
-        prep_time_label = ctk.CTkLabel(parent, text="Prep Time (min):", anchor="w")
-        prep_time_label.grid(row=row, column=0, sticky="w", padx=PADDING_MEDIUM, pady=5)
-
-        self.prep_time_entry = ctk.CTkEntry(
-            parent,
-            width=450,
-            placeholder_text="e.g., 30 (minutes)",
+        # Yield types container
+        self.yield_types_frame = ctk.CTkFrame(parent, fg_color="transparent")
+        self.yield_types_frame.grid(
+            row=row, column=0, columnspan=2, sticky="ew", padx=PADDING_MEDIUM, pady=5
         )
-        self.prep_time_entry.grid(row=row, column=1, sticky="ew", padx=PADDING_MEDIUM, pady=5)
+        self.yield_types_frame.grid_columnconfigure(0, weight=1)
+        row += 1
+
+        # Add yield type button
+        add_yield_type_button = ctk.CTkButton(
+            parent,
+            text="+ Add Yield Type",
+            command=self._add_yield_type_row,
+            width=150,
+        )
+        add_yield_type_button.grid(row=row, column=0, columnspan=2, padx=PADDING_MEDIUM, pady=5)
         row += 1
 
         # Ingredients section
@@ -752,57 +782,6 @@ class RecipeFormDialog(ctk.CTkToplevel):
             width=150,
         )
         add_ingredient_button.grid(row=row, column=0, columnspan=2, padx=PADDING_MEDIUM, pady=5)
-        row += 1
-
-        # Yield Types section (F044 - WP03)
-        yield_types_label = ctk.CTkLabel(
-            parent,
-            text="Yield Types",
-            font=ctk.CTkFont(size=14, weight="bold"),
-        )
-        yield_types_label.grid(
-            row=row,
-            column=0,
-            columnspan=2,
-            sticky="w",
-            padx=PADDING_MEDIUM,
-            pady=(PADDING_LARGE, PADDING_MEDIUM),
-        )
-        row += 1
-
-        # Yield types info label
-        yield_types_info = ctk.CTkLabel(
-            parent,
-            text="Define the finished products this recipe produces (e.g., Large Cookie, Small Cookie)",
-            text_color="gray",
-            font=ctk.CTkFont(size=11),
-        )
-        yield_types_info.grid(
-            row=row,
-            column=0,
-            columnspan=2,
-            sticky="w",
-            padx=PADDING_MEDIUM,
-            pady=(0, 5),
-        )
-        row += 1
-
-        # Yield types container
-        self.yield_types_frame = ctk.CTkFrame(parent, fg_color="transparent")
-        self.yield_types_frame.grid(
-            row=row, column=0, columnspan=2, sticky="ew", padx=PADDING_MEDIUM, pady=5
-        )
-        self.yield_types_frame.grid_columnconfigure(0, weight=1)
-        row += 1
-
-        # Add yield type button
-        add_yield_type_button = ctk.CTkButton(
-            parent,
-            text="+ Add Yield Type",
-            command=self._add_yield_type_row,
-            width=150,
-        )
-        add_yield_type_button.grid(row=row, column=0, columnspan=2, padx=PADDING_MEDIUM, pady=5)
         row += 1
 
         # Sub-Recipes Section (T034)
@@ -867,52 +846,21 @@ class RecipeFormDialog(ctk.CTkToplevel):
         self.subrecipes_list_frame.grid_columnconfigure(0, weight=1)
         row += 1
 
-        # Cost summary section (T040)
-        cost_label = ctk.CTkLabel(
+        # Prep time (optional) - moved here from Yield Information section
+        prep_time_label = ctk.CTkLabel(parent, text="Prep Time (min):", anchor="w")
+        prep_time_label.grid(
+            row=row, column=0, sticky="w", padx=PADDING_MEDIUM, pady=(PADDING_LARGE, 5)
+        )
+
+        self.prep_time_entry = ctk.CTkEntry(
             parent,
-            text="Cost Summary",
-            font=ctk.CTkFont(size=14, weight="bold"),
+            width=100,
+            placeholder_text="e.g., 30",
         )
-        cost_label.grid(
-            row=row,
-            column=0,
-            columnspan=2,
-            sticky="w",
-            padx=PADDING_MEDIUM,
-            pady=(PADDING_LARGE, PADDING_MEDIUM),
+        self.prep_time_entry.grid(
+            row=row, column=1, sticky="w", padx=PADDING_MEDIUM, pady=(PADDING_LARGE, 5)
         )
         row += 1
-
-        # Cost summary frame
-        self.cost_frame = ctk.CTkFrame(parent, fg_color="transparent")
-        self.cost_frame.grid(
-            row=row, column=0, columnspan=2, sticky="ew", padx=PADDING_MEDIUM, pady=5
-        )
-        row += 1
-
-        # Cost labels
-        self.direct_cost_label = ctk.CTkLabel(
-            self.cost_frame, text="Direct ingredients: $0.00", anchor="w"
-        )
-        self.direct_cost_label.pack(fill="x", padx=PADDING_MEDIUM)
-
-        self.component_cost_label = ctk.CTkLabel(
-            self.cost_frame, text="Sub-recipes: $0.00", anchor="w"
-        )
-        self.component_cost_label.pack(fill="x", padx=PADDING_MEDIUM)
-
-        self.total_cost_label = ctk.CTkLabel(
-            self.cost_frame,
-            text="Total: $0.00",
-            font=ctk.CTkFont(weight="bold"),
-            anchor="w",
-        )
-        self.total_cost_label.pack(fill="x", padx=PADDING_MEDIUM, pady=(5, 0))
-
-        self.per_unit_cost_label = ctk.CTkLabel(
-            self.cost_frame, text="Per unit: $0.00", anchor="w"
-        )
-        self.per_unit_cost_label.pack(fill="x", padx=PADDING_MEDIUM)
 
         # Notes (optional)
         notes_label = ctk.CTkLabel(parent, text="Notes:", anchor="w")
@@ -1044,7 +992,6 @@ class RecipeFormDialog(ctk.CTkToplevel):
 
         # Refresh display
         self._refresh_subrecipes_display()
-        self._update_cost_summary()
 
         # Reset inputs
         self.subrecipe_dropdown.set("")
@@ -1091,25 +1038,10 @@ class RecipeFormDialog(ctk.CTkToplevel):
         row_frame.grid(row=idx, column=0, sticky="ew", pady=2)
         row_frame.grid_columnconfigure(0, weight=1)
 
-        # Calculate cost if saved
-        cost = 0.0
-        if component["type"] == "saved" and self.recipe:
-            try:
-                cost_info = recipe_service.calculate_total_cost_with_components(
-                    component["recipe_id"]
-                )
-                cost = cost_info.get("total_cost", 0) * component["quantity"]
-            except Exception:
-                pass
-
         # Name and quantity label
         name_text = f"• {component['recipe_name']} ({component['quantity']}x)"
         name_label = ctk.CTkLabel(row_frame, text=name_text, anchor="w")
         name_label.grid(row=0, column=0, sticky="w", padx=5)
-
-        # Cost label
-        cost_label = ctk.CTkLabel(row_frame, text=f"${cost:.2f}", width=70, anchor="e")
-        cost_label.grid(row=0, column=1, padx=5)
 
         # Remove button (T039)
         comp_recipe_id = component["recipe_id"]
@@ -1141,36 +1073,6 @@ class RecipeFormDialog(ctk.CTkToplevel):
 
         # Refresh
         self._refresh_subrecipes_display()
-        self._update_cost_summary()
-
-    def _update_cost_summary(self):
-        """Update the cost summary display (T040)."""
-        if not self.recipe or not self.recipe.id:
-            # Can't calculate costs for unsaved recipe
-            self.direct_cost_label.configure(text="Direct ingredients: --")
-            self.component_cost_label.configure(text="Sub-recipes: --")
-            self.total_cost_label.configure(text="Total: --")
-            self.per_unit_cost_label.configure(text="Per unit: --")
-            return
-
-        try:
-            cost_info = recipe_service.calculate_total_cost_with_components(self.recipe.id)
-
-            direct_cost = cost_info.get("direct_ingredient_cost", 0)
-            component_cost = cost_info.get("total_component_cost", 0)
-            total_cost = cost_info.get("total_cost", 0)
-            per_unit = cost_info.get("cost_per_unit", 0)
-
-            self.direct_cost_label.configure(text=f"Direct ingredients: ${direct_cost:.2f}")
-            self.component_cost_label.configure(text=f"Sub-recipes: ${component_cost:.2f}")
-            self.total_cost_label.configure(text=f"Total: ${total_cost:.2f}")
-            self.per_unit_cost_label.configure(text=f"Per unit: ${per_unit:.2f}")
-        except Exception:
-            # Silently handle errors
-            self.direct_cost_label.configure(text="Direct ingredients: $0.00")
-            self.component_cost_label.configure(text="Sub-recipes: $0.00")
-            self.total_cost_label.configure(text="Total: $0.00")
-            self.per_unit_cost_label.configure(text="Per unit: $0.00")
 
     def _create_buttons(self):
         """Create dialog buttons."""
@@ -1331,7 +1233,6 @@ class RecipeFormDialog(ctk.CTkToplevel):
         try:
             self.current_components = recipe_service.get_recipe_components(self.recipe.id)
             self._refresh_subrecipes_display()
-            self._update_cost_summary()
         except Exception:
             pass
 
