@@ -117,7 +117,7 @@ from typing import Optional
 # Add parent directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from src.services.database import initialize_app_database
+from src.services.database import initialize_app_database, session_scope
 from src.services.import_export_service import (
     export_ingredients_to_json,
     export_recipes_to_json,
@@ -129,6 +129,69 @@ from src.services.import_export_service import (
     export_all_to_json,
     import_all_from_json_v4,
 )
+
+
+def check_cascade_delete_risks(import_data: dict, is_coordinated: bool = False) -> list:
+    """Check for potential cascade delete risks in import data.
+
+    When importing parent entities without their children in replace mode,
+    existing child records will be cascade-deleted. This function identifies
+    such risks.
+
+    Args:
+        import_data: The parsed import file data (dict with entity keys)
+                    or manifest data for coordinated imports
+        is_coordinated: True if this is a coordinated (manifest-based) import
+
+    Returns:
+        List of risk dictionaries with keys:
+        - parent_entity: Name of parent entity being imported
+        - child_entity: Name of child entity at risk
+        - child_count: Number of existing child records that will be deleted
+    """
+    from src.models.product import Product
+    from src.models.material_product import MaterialProduct
+
+    risks = []
+
+    # Determine which entities are in the import
+    if is_coordinated:
+        # Coordinated import: check manifest files list
+        entities_in_import = set(import_data.get("entity_types", []))
+    else:
+        # Single file: check top-level keys
+        entities_in_import = set(import_data.keys())
+
+    with session_scope() as session:
+        # Check 1: Ingredients without Products
+        has_ingredients = "ingredients" in entities_in_import
+        has_products = "products" in entities_in_import
+
+        if has_ingredients and not has_products:
+            product_count = session.query(Product).count()
+            if product_count > 0:
+                risks.append({
+                    "parent_entity": "ingredients",
+                    "child_entity": "products",
+                    "child_count": product_count,
+                    "warning": "Products and their inventory items will be permanently deleted.",
+                })
+
+        # Check 2: Materials without MaterialProducts
+        has_materials = "materials" in entities_in_import
+        has_material_products = "material_products" in entities_in_import
+
+        if has_materials and not has_material_products:
+            mp_count = session.query(MaterialProduct).count()
+            if mp_count > 0:
+                risks.append({
+                    "parent_entity": "materials",
+                    "child_entity": "material_products",
+                    "child_count": mp_count,
+                    "warning": "Material products will be permanently deleted.",
+                })
+
+    return risks
 
 
 def export_all(output_file: str):
@@ -507,11 +570,41 @@ def export_purchases(output_file: str) -> int:
         return 1
 
 
-def import_all(input_file: str, mode: str = "merge"):
-    """Import all data from the current import/export format file."""
+def import_all(input_file: str, mode: str = "merge", force: bool = False):
+    """Import all data from the current import/export format file.
+
+    Args:
+        input_file: Path to JSON file to import
+        mode: Import mode (merge, replace, etc.)
+        force: If True, bypass cascade delete protection
+
+    Returns:
+        0 on success, 1 on failure
+    """
+    import json
+
     print(f"Importing all data from {input_file} (mode: {mode})...")
 
     try:
+        # Load file to check for cascade risks
+        with open(input_file, "r", encoding="utf-8") as f:
+            import_data = json.load(f)
+
+        # Check for cascade delete risks (only for replace mode)
+        if mode == "replace" and not force:
+            risks = check_cascade_delete_risks(import_data, is_coordinated=False)
+            if risks:
+                print("\nERROR: Import rejected due to cascade delete risk!")
+                print("=" * 60)
+                for risk in risks:
+                    print(f"\n  Importing {risk['parent_entity']} without {risk['child_entity']}:")
+                    print(f"  → {risk['child_count']} {risk['child_entity']} will be deleted")
+                    print(f"  {risk['warning']}")
+                print("\n" + "=" * 60)
+                print("\nTo fix: Include both parent and child entities in your import file.")
+                print("To override: Use --force flag (data will be permanently lost)")
+                return 1
+
         result = import_all_from_json_v4(input_file, mode=mode)
         print(result.get_summary())
 
@@ -725,7 +818,7 @@ def backup_cmd(output_dir: str = None, create_zip: bool = False) -> int:
         return 1
 
 
-def restore_cmd(backup_dir: str) -> int:
+def restore_cmd(backup_dir: str, force: bool = False) -> int:
     """
     Restore database from backup directory.
 
@@ -734,10 +827,12 @@ def restore_cmd(backup_dir: str) -> int:
 
     Args:
         backup_dir: Path to backup directory with manifest.json
+        force: If True, bypass cascade delete protection
 
     Returns:
         0 on success, 1 on failure
     """
+    import json
     from src.services.coordinated_export_service import import_complete
 
     backup_path = Path(backup_dir)
@@ -748,6 +843,38 @@ def restore_cmd(backup_dir: str) -> int:
     manifest_path = backup_path / "manifest.json"
     if not manifest_path.exists():
         print(f"ERROR: manifest.json not found in {backup_dir}")
+        return 1
+
+    # Load manifest to check for cascade risks
+    try:
+        with open(manifest_path, "r", encoding="utf-8") as f:
+            manifest_data = json.load(f)
+
+        # Extract entity types from manifest
+        entity_types = []
+        for file_info in manifest_data.get("files", []):
+            entity_type = file_info.get("entity_type")
+            if entity_type:
+                entity_types.append(entity_type)
+        import_data = {"entity_types": entity_types}
+
+        # Check for cascade delete risks
+        if not force:
+            risks = check_cascade_delete_risks(import_data, is_coordinated=True)
+            if risks:
+                print("\nERROR: Restore rejected due to cascade delete risk!")
+                print("=" * 60)
+                for risk in risks:
+                    print(f"\n  Backup contains {risk['parent_entity']} but not {risk['child_entity']}:")
+                    print(f"  → {risk['child_count']} {risk['child_entity']} will be deleted")
+                    print(f"  {risk['warning']}")
+                print("\n" + "=" * 60)
+                print("\nTo fix: Ensure backup includes both parent and child entities.")
+                print("To override: Use --force flag (data will be permanently lost)")
+                return 1
+
+    except json.JSONDecodeError as e:
+        print(f"ERROR: Could not parse manifest.json: {e}")
         return 1
 
     print(f"Restoring from {backup_dir}...")
@@ -1703,6 +1830,11 @@ supported. Use the 'import' command with a complete v3.2 format file.
         default="merge",
         help="Import mode: 'merge' (default) adds new records, 'replace' clears existing data first",
     )
+    import_parser.add_argument(
+        "--force",
+        action="store_true",
+        help="Force import even if it would cause cascade deletes (use with caution)",
+    )
 
     # F030: export-complete command
     export_complete_parser = subparsers.add_parser(
@@ -1808,6 +1940,11 @@ supported. Use the 'import' command with a complete v3.2 format file.
     restore_parser.add_argument(
         "backup_dir",
         help="Path to backup directory with manifest.json"
+    )
+    restore_parser.add_argument(
+        "--force",
+        action="store_true",
+        help="Force restore even if it would cause cascade deletes (use with caution)",
     )
     restore_parser.epilog = (
         "NOTE: Restore uses replace mode - all existing data is cleared before import. "
@@ -1980,7 +2117,7 @@ supported. Use the 'import' command with a complete v3.2 format file.
     elif args.command == "export-purchases":
         return export_purchases(args.file)
     elif args.command == "import":
-        return import_all(args.file, mode=args.mode)
+        return import_all(args.file, mode=args.mode, force=args.force)
     elif args.command == "export-complete":
         return export_complete_cmd(args.output_dir, args.create_zip)
     elif args.command == "export-view":
@@ -1998,7 +2135,7 @@ supported. Use the 'import' command with a complete v3.2 format file.
     elif args.command == "backup":
         return backup_cmd(args.output_dir, args.create_zip)
     elif args.command == "restore":
-        return restore_cmd(args.backup_dir)
+        return restore_cmd(args.backup_dir, force=args.force)
     elif args.command == "backup-list":
         return backup_list_cmd(args.backups_dir)
     elif args.command == "backup-validate":
