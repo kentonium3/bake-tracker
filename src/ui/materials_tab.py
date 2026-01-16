@@ -2043,7 +2043,8 @@ class MaterialsCatalogTab:
             material=None,
             title="Add Material"
         )
-        self.parent_frame.wait_window(dialog)
+        if dialog.winfo_exists():
+            self.parent_frame.wait_window(dialog)
 
         if dialog.result:
             try:
@@ -2081,7 +2082,8 @@ class MaterialsCatalogTab:
             material=material_data,
             title="Edit Material"
         )
-        self.parent_frame.wait_window(dialog)
+        if dialog.winfo_exists():
+            self.parent_frame.wait_window(dialog)
 
         # Check if deleted
         if dialog.deleted:
@@ -2505,7 +2507,8 @@ class MaterialProductsTab:
             product=None,
             title="Add Product",
         )
-        self.parent_frame.wait_window(dialog)
+        if dialog.winfo_exists():
+            self.parent_frame.wait_window(dialog)
 
         if dialog.result:
             try:
@@ -2546,7 +2549,8 @@ class MaterialProductsTab:
             product=product_data,
             title="Edit Product",
         )
-        self.parent_frame.wait_window(dialog)
+        if dialog.winfo_exists():
+            self.parent_frame.wait_window(dialog)
 
         if dialog.result:
             try:
@@ -2586,7 +2590,8 @@ class MaterialProductsTab:
             self.parent_frame,
             product=product_data,
         )
-        self.parent_frame.wait_window(dialog)
+        if dialog.winfo_exists():
+            self.parent_frame.wait_window(dialog)
 
         if dialog.result:
             try:
@@ -2625,7 +2630,8 @@ class MaterialProductsTab:
             self.parent_frame,
             product=product_data,
         )
-        self.parent_frame.wait_window(dialog)
+        if dialog.winfo_exists():
+            self.parent_frame.wait_window(dialog)
 
         if dialog.result:
             try:
@@ -3026,7 +3032,8 @@ class MaterialUnitsTab:
             unit=None,
             title="Add Unit",
         )
-        self.parent_frame.wait_window(dialog)
+        if dialog.winfo_exists():
+            self.parent_frame.wait_window(dialog)
 
         if dialog.result:
             try:
@@ -3064,7 +3071,8 @@ class MaterialUnitsTab:
             unit=unit_data,
             title="Edit Unit",
         )
-        self.parent_frame.wait_window(dialog)
+        if dialog.winfo_exists():
+            self.parent_frame.wait_window(dialog)
 
         if dialog.result:
             try:
