@@ -12,7 +12,7 @@
 
 **Recent Milestone**: F052 (Hierarchy Admin), F053 (Context-Rich Export), F054 (CLI Parity) all merged
 
-**Test Suite**: 2373 tests
+**Test Suite**: 2336 tests
 
 **Next Step**: F055 (UI Navigation Cleanup), then User Testing Round 2
 
@@ -300,10 +300,14 @@
   - UI shows warning dialog with affected record counts before proceeding
   - CLI rejects risky imports by default, requires `--force` flag to override
   - Protects against accidental data loss when importing ingredients without products or materials without material_products
+- **RESTRICT Constraint Detection Added**: Prevents import failures before they happen
+  - Detects ingredients referenced by recipes that would cause database RESTRICT violation
+  - Shows actionable remediation options (add ingredients, include recipes, or delete affected recipes)
+  - Separate warning sections: CASCADE (orange, data loss) vs RESTRICT (red, import will fail)
 - **Backup Directory Preference**: Separate from import/export directory for better workflow
 - **Import Flow Reordered**: Type-first, file-second is more natural (app needs type to know which directory to open)
 - **Reason Code Default**: "CORRECTION" default for inventory adjustments reduces import friction
-- **Test Suite**: 2351 tests passing
+- **Test Suite**: 2336 tests passing
 
 ### 2026-01-15 (F052-F054 Complete, F055 Next)
 - **F052 MERGED**: Ingredient/Material Hierarchy Admin - taxonomy management in CATALOG mode
@@ -461,3 +465,5 @@
   - `280d01a` feat: Add cascade delete warning for backup restore imports (warns when importing ingredients without products)
   - `a5a7abb` feat: Add cascade delete protection to CLI (rejects risky imports, --force to override)
   - Import/export system now has comprehensive FK cascade protection in both UI and CLI
+  - `e11f78c` feat: Add RESTRICT constraint detection for import risk warnings (ingredients used by recipes)
+  - `579e748` fix: Add materials_tab to refresh methods after import (materials grid empty after restore)
