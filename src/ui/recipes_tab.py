@@ -259,13 +259,13 @@ class RecipesTab(ctk.CTkFrame):
 
     def _on_row_double_click(self, recipe: Recipe):
         """
-        Handle row double-click (view details).
+        Handle row double-click (opens edit dialog).
 
         Args:
             recipe: Double-clicked recipe
         """
         self.selected_recipe = recipe
-        self._view_details()
+        self._edit_recipe()
 
     def _add_recipe(self):
         """Show dialog to add a new recipe."""
