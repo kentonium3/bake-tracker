@@ -516,9 +516,14 @@ class RecipeFormDialog(ctk.CTkToplevel):
             # Convert to ingredient objects for compatibility with existing code
             from src.models.ingredient import Ingredient
             from src.services.database import session_scope
+            from sqlalchemy.orm import joinedload
             with session_scope() as session:
                 leaf_ids = [d.get("id") for d in leaf_dicts if d.get("id")]
-                self.available_ingredients = session.query(Ingredient).filter(
+                # Eager-load products relationship to avoid DetachedInstanceError
+                # when get_preferred_product() is called after session closes
+                self.available_ingredients = session.query(Ingredient).options(
+                    joinedload(Ingredient.products)
+                ).filter(
                     Ingredient.id.in_(leaf_ids)
                 ).all()
         except Exception:
