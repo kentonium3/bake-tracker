@@ -1125,6 +1125,7 @@ def _import_entity_records(
                     estimated_time_minutes=record.get("estimated_time_minutes"),
                     notes=record.get("notes"),
                     is_archived=record.get("is_archived", False),
+                    is_production_ready=record.get("is_production_ready", True),
                 )
                 session.add(obj)
                 session.flush()

@@ -3436,7 +3436,7 @@ def import_all_from_json_v4(
                             # F037 fields
                             base_recipe_id=base_recipe_id,
                             variant_name=recipe_data.get("variant_name"),
-                            is_production_ready=recipe_data.get("is_production_ready", False),
+                            is_production_ready=recipe_data.get("is_production_ready", True),
                         )
                         session.add(recipe)
                         session.flush()  # Get recipe ID
