@@ -1,9 +1,9 @@
 """ModeManager - Coordinates mode switching and state preservation.
 
 Implements FR-001 through FR-005:
-- FR-001: 5-mode workflow (CATALOG, PLAN, PURCHASE, MAKE, OBSERVE)
+- FR-001: 6-mode workflow (OBSERVE, CATALOG, PLAN, PURCHASE, MAKE, DELIVER)
 - FR-002: Visual highlighting of active mode
-- FR-003: Keyboard shortcuts Ctrl+1-5
+- FR-003: Keyboard shortcuts Ctrl+1-6
 - FR-004: Tab state preservation per mode
 - FR-005: OBSERVE as default mode on launch
 """
@@ -18,12 +18,13 @@ if TYPE_CHECKING:
 class ModeManager:
     """Coordinates mode switching and state preservation.
 
-    Manages the 5-mode workflow navigation:
-    - CATALOG (Ctrl+1): Ingredients, Products, Recipes, etc.
-    - PLAN (Ctrl+2): Events, Planning Workspace
-    - PURCHASE (Ctrl+3): Shopping Lists, Purchases, Inventory
-    - MAKE (Ctrl+4): Production Runs, Assembly, Packaging, Recipients
-    - OBSERVE (Ctrl+5): Dashboard, Event Status, Reports
+    Manages the 6-mode workflow navigation:
+    - OBSERVE (Ctrl+1): Dashboard, Event Status, Reports
+    - CATALOG (Ctrl+2): Ingredients, Products, Recipes, etc.
+    - PLAN (Ctrl+3): Events, Planning Workspace
+    - PURCHASE (Ctrl+4): Inventory, Purchases, Shopping Lists
+    - MAKE (Ctrl+5): Production Runs, Assembly, Packaging, Recipients
+    - DELIVER (Ctrl+6): Delivery workflows (placeholder)
 
     Attributes:
         current_mode: Name of the currently active mode
@@ -31,19 +32,20 @@ class ModeManager:
         mode_tab_state: Per-mode tab index for state preservation
     """
 
-    # Mode order matches Ctrl+1-5 shortcuts
-    MODE_ORDER = ["CATALOG", "PLAN", "PURCHASE", "MAKE", "OBSERVE"]
+    # Mode order matches Ctrl+1-6 shortcuts
+    MODE_ORDER = ["OBSERVE", "CATALOG", "PLAN", "PURCHASE", "MAKE", "DELIVER"]
 
     def __init__(self):
         """Initialize ModeManager."""
         self.current_mode: str = "OBSERVE"  # FR-005: Default mode
         self.modes: Dict[str, "BaseMode"] = {}
         self.mode_tab_state: Dict[str, int] = {
+            "OBSERVE": 0,
             "CATALOG": 0,
             "PLAN": 0,
             "PURCHASE": 0,
             "MAKE": 0,
-            "OBSERVE": 0,
+            "DELIVER": 0,
         }
         self._mode_buttons: Dict[str, ctk.CTkButton] = {}
         self._on_mode_change_callback: Optional[Callable[[str], None]] = None
@@ -212,7 +214,7 @@ class ModeManager:
             mode_name: Mode name
 
         Returns:
-            Index (1-5), or 0 if not found
+            Index (1-6), or 0 if not found
         """
         try:
             return self.MODE_ORDER.index(mode_name) + 1
@@ -220,10 +222,10 @@ class ModeManager:
             return 0
 
     def get_mode_by_index(self, index: int) -> Optional[str]:
-        """Get mode name by index (1-5).
+        """Get mode name by index (1-6).
 
         Args:
-            index: Mode index (1-5)
+            index: Mode index (1-6)
 
         Returns:
             Mode name, or None if invalid index

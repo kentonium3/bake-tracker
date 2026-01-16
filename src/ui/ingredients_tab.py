@@ -55,7 +55,8 @@ from src.utils.constants import (
     WEIGHT_UNITS,
     PACKAGE_TYPES,
 )
-from src.ui.widgets.ingredient_tree_widget import IngredientTreeWidget
+# Feature 055: IngredientTreeWidget removed from this file - tree view moved to Hierarchy Admin
+# The widget is still used in recipe_form.py for ingredient selection
 
 
 class IngredientsTab(ctk.CTkFrame):
@@ -84,7 +85,6 @@ class IngredientsTab(ctk.CTkFrame):
         self.selected_ingredient_id: Optional[int] = None  # Feature 031: Track by ID too
         self.ingredients: List[dict] = []
         self._data_loaded = False  # Lazy loading flag
-        self._view_mode = "flat"  # Feature 031: "flat" or "tree"
         self._hierarchy_path_cache: Dict[int, str] = {}  # Feature 033: Cache for hierarchy paths
         # Feature 042: Cascading filter state (matching Products tab pattern)
         self._l0_map: Dict[str, Dict[str, Any]] = {}  # L0 name -> ingredient dict
@@ -104,7 +104,6 @@ class IngredientsTab(ctk.CTkFrame):
         self._create_search_filter()
         self._create_action_buttons()
         self._create_ingredient_list()
-        self._create_tree_view()  # Feature 031
         self._create_status_bar()
 
         # Grid the frame
@@ -128,7 +127,8 @@ class IngredientsTab(ctk.CTkFrame):
         """Create search and filter controls with cascading hierarchy filters.
 
         Feature 042: Standardized filter layout matching Products tab pattern.
-        Layout: Search | L0 Dropdown | L1 Dropdown | View Toggle | Clear
+        Feature 055: Removed Flat/Tree view toggle (F052 Hierarchy Admin replaces tree view).
+        Layout: Search | L0 Dropdown | L1 Dropdown | Clear
         """
         filter_frame = ctk.CTkFrame(self)
         filter_frame.grid(row=1, column=0, sticky="ew", padx=PADDING_LARGE, pady=PADDING_MEDIUM)
@@ -174,34 +174,9 @@ class IngredientsTab(ctk.CTkFrame):
         )
         self.l1_filter_dropdown.pack(side="left", padx=5, pady=5)
 
-        # Feature 052: Level filter dropdown hidden by default (only useful in tree view)
-        # In flat view we always show only L2 ingredients
-        self.level_filter_var = ctk.StringVar(value="All Levels")
-        self.level_filter_dropdown = ctk.CTkOptionMenu(
-            filter_frame,
-            values=[
-                "All Levels",
-                "Root Categories (L0)",
-                "Subcategories (L1)",
-                "Leaf Ingredients (L2)",
-            ],
-            variable=self.level_filter_var,
-            command=self._on_level_filter_change,
-            width=160,
-        )
-        # Hidden by default - only shown in tree view
-        # self.level_filter_dropdown.pack(side="left", padx=(15, 5), pady=5)
-
-        # Feature 031: View toggle (Flat/Tree)
-        self.view_var = ctk.StringVar(value="Flat")
-        view_toggle = ctk.CTkSegmentedButton(
-            filter_frame,
-            values=["Flat", "Tree"],
-            variable=self.view_var,
-            command=self._on_view_change,
-            width=100,
-        )
-        view_toggle.pack(side="left", padx=(15, 5), pady=5)
+        # Feature 052/055: Level filter removed - we always show only L2 ingredients
+        # Tree view and level filtering moved to Hierarchy Admin (F052)
+        self.level_filter_var = ctk.StringVar(value="Leaf Ingredients (L2)")
 
         # Clear button (right side)
         clear_button = ctk.CTkButton(
@@ -399,68 +374,6 @@ class IngredientsTab(ctk.CTkFrame):
         else:
             self._disable_selection_buttons()
 
-    def _create_tree_view(self):
-        """Create the hierarchical tree view for ingredients (Feature 031)."""
-        # Container frame for tree widget (hidden by default)
-        self.tree_container = ctk.CTkFrame(self)
-        # Don't grid initially - will be shown when view mode is "Tree"
-
-        # Create the tree widget
-        self.ingredient_tree = IngredientTreeWidget(
-            self.tree_container,
-            on_select_callback=self._on_hierarchy_tree_select,
-            leaf_only=False,  # Allow selecting all ingredients in this view
-            show_search=False,  # Use our existing search
-            show_breadcrumb=True,
-        )
-        self.ingredient_tree.pack(fill="both", expand=True, padx=5, pady=5)
-
-    def _on_view_change(self, value: str):
-        """Handle view toggle between Flat and Tree views (Feature 031).
-
-        Feature 052: Flat view shows only L2 ingredients.
-        """
-        if value == "Tree":
-            self._view_mode = "tree"
-            # Hide flat view, show tree view
-            self.grid_container.grid_remove()
-            self.tree_container.grid(
-                row=3,
-                column=0,
-                sticky="nsew",
-                padx=PADDING_LARGE,
-                pady=PADDING_MEDIUM,
-            )
-            # Refresh tree
-            self.ingredient_tree.refresh()
-            self.update_status("Tree view - navigate hierarchy")
-        else:
-            self._view_mode = "flat"
-            # Hide tree view, show flat view
-            self.tree_container.grid_remove()
-            self.grid_container.grid(
-                row=3,
-                column=0,
-                sticky="nsew",
-                padx=PADDING_LARGE,
-                pady=PADDING_MEDIUM,
-            )
-            # Feature 052: Flat view shows only L2 ingredients
-            self._update_ingredient_display()
-
-    def _on_hierarchy_tree_select(self, ingredient: Dict[str, Any]):
-        """Handle selection in the hierarchy tree widget (Feature 031)."""
-        if ingredient:
-            self.selected_ingredient_slug = ingredient.get("slug")
-            self.selected_ingredient_id = ingredient.get("id")
-            self._enable_selection_buttons()
-            name = ingredient.get("display_name", "Unknown")
-            level = ingredient.get("hierarchy_level", 2)
-            level_names = {0: "Category", 1: "Group", 2: "Ingredient"}
-            self.update_status(f"Selected: {name} ({level_names.get(level, 'Unknown')})")
-        else:
-            self._disable_selection_buttons()
-
     def _create_status_bar(self):
         """Create status bar for displaying messages."""
         self.status_label = ctk.CTkLabel(
@@ -481,27 +394,21 @@ class IngredientsTab(ctk.CTkFrame):
         """Refresh the ingredient list from the database."""
         try:
             # Feature 052: Get only L2 (leaf) ingredients with pre-resolved ancestor names
-            # for the flat list view
             self._leaf_ingredients_data = (
                 ingredient_hierarchy_service.get_all_leaf_ingredients_with_ancestors()
             )
 
-            # Also get all ingredients for tree view and other operations
+            # Also get all ingredients for other operations (edit, delete, etc.)
             self.ingredients = ingredient_service.get_all_ingredients()
 
             # Feature 042: Populate L0 (root categories) dropdown for cascading filters
             self._load_filter_data()
 
-            # Feature 031: Refresh based on current view mode
-            if self._view_mode == "tree":
-                self.ingredient_tree.refresh()
-                self.update_status("Tree view refreshed")
-            else:
-                # Update flat display (L2 only)
-                self._update_ingredient_display()
-                # Update status
-                count = len(self._leaf_ingredients_data)
-                self.update_status(f"{count} ingredient{'s' if count != 1 else ''} loaded")
+            # Feature 055: Always show flat grid view (tree view moved to Hierarchy Admin)
+            self._update_ingredient_display()
+            # Update status
+            count = len(self._leaf_ingredients_data)
+            self.update_status(f"{count} ingredient{'s' if count != 1 else ''} loaded")
 
         except DatabaseError as e:
             messagebox.showerror("Database Error", f"Failed to load ingredients: {e}")
@@ -770,12 +677,8 @@ class IngredientsTab(ctk.CTkFrame):
 
     def _on_search(self, event=None):
         """Handle search text change."""
-        # Feature 031: Handle search based on view mode
-        if self._view_mode == "tree":
-            query = self.search_entry.get().strip()
-            self.ingredient_tree.search(query)
-        else:
-            self._update_ingredient_display()
+        # Feature 055: Always use flat grid view
+        self._update_ingredient_display()
 
     def _on_level_filter_change(self, level: str):
         """Handle level filter change (Feature 032)."""
@@ -845,6 +748,7 @@ class IngredientsTab(ctk.CTkFrame):
         """Clear all filters and refresh display.
 
         Feature 042: Reset cascading hierarchy filters to match Products tab pattern.
+        Feature 055: Removed tree view clear - always use flat grid.
         """
         # Use re-entry guard to prevent cascade callbacks
         self._updating_filters = True
@@ -862,16 +766,12 @@ class IngredientsTab(ctk.CTkFrame):
             # Disable child dropdown
             self.l1_filter_dropdown.configure(values=["All"], state="disabled")
 
-            # Reset level filter
-            self.level_filter_var.set("All Levels")
+            # Level filter is now always "Leaf Ingredients (L2)"
         finally:
             self._updating_filters = False
 
-        # Feature 031: Clear search based on view mode
-        if self._view_mode == "tree":
-            self.ingredient_tree.clear_search()
-        else:
-            self._update_ingredient_display()
+        # Feature 055: Always refresh flat grid view
+        self._update_ingredient_display()
 
     def select_ingredient(self, ingredient_slug: str) -> None:
         """

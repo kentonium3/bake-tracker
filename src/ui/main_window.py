@@ -1,12 +1,13 @@
 """
 Main application window for the Seasonal Baking Tracker.
 
-Provides the main window with 5-mode workflow navigation (F038):
+Provides the main window with 6-mode workflow navigation (F038, F055):
+- OBSERVE: Dashboard, Event Status, Reports (default)
 - CATALOG: Ingredients, Products, Recipes, Finished Units, Finished Goods, Packages
 - PLAN: Events, Planning Workspace
-- PURCHASE: Shopping Lists, Purchases, Inventory
+- PURCHASE: Inventory, Purchases, Shopping Lists
 - MAKE: Production Runs, Assembly, Packaging, Recipients
-- OBSERVE: Dashboard, Event Status, Reports
+- DELIVER: Delivery workflows (placeholder)
 """
 
 import tkinter as tk
@@ -21,6 +22,7 @@ from src.ui.modes.observe_mode import ObserveMode
 from src.ui.modes.plan_mode import PlanMode
 from src.ui.modes.purchase_mode import PurchaseMode
 from src.ui.modes.make_mode import MakeMode
+from src.ui.modes.deliver_mode import DeliverMode
 
 from src.ui.service_integration import check_service_integration_health
 from src.ui.preferences_dialog import PreferencesDialog
@@ -29,12 +31,12 @@ from src.ui.preferences_dialog import PreferencesDialog
 
 class MainWindow(ctk.CTk):
     """
-    Main application window with 5-mode workflow navigation.
+    Main application window with 6-mode workflow navigation.
 
     Implements FR-001 through FR-005:
-    - FR-001: 5-mode workflow (CATALOG, PLAN, PURCHASE, MAKE, OBSERVE)
+    - FR-001: 6-mode workflow (OBSERVE, CATALOG, PLAN, PURCHASE, MAKE, DELIVER)
     - FR-002: Visual highlighting of active mode
-    - FR-003: Keyboard shortcuts Ctrl+1-5
+    - FR-003: Keyboard shortcuts Ctrl+1-6
     - FR-004: Tab state preservation per mode
     - FR-005: OBSERVE as default mode on launch
     """
@@ -124,21 +126,22 @@ class MainWindow(ctk.CTk):
         self.menu_bar.add_cascade(label="Help", menu=help_menu)
 
     def _create_mode_bar(self):
-        """Create the horizontal mode bar with 5 mode buttons (FR-001)."""
+        """Create the horizontal mode bar with 6 mode buttons (FR-001, F055)."""
         self.mode_bar = ctk.CTkFrame(self, height=50)
         self.mode_bar.grid(row=1, column=0, sticky="ew", padx=10, pady=(10, 5))
 
-        # Configure grid for equal button distribution
-        for i in range(5):
+        # Configure grid for equal button distribution (6 columns)
+        for i in range(6):
             self.mode_bar.grid_columnconfigure(i, weight=1)
 
-        # Create mode buttons with keyboard shortcut hints
+        # Create mode buttons with keyboard shortcut hints (workflow order)
         mode_configs = [
-            ("CATALOG", "Ctrl+1"),
-            ("PLAN", "Ctrl+2"),
-            ("PURCHASE", "Ctrl+3"),
-            ("MAKE", "Ctrl+4"),
-            ("OBSERVE", "Ctrl+5"),
+            ("OBSERVE", "Ctrl+1"),
+            ("CATALOG", "Ctrl+2"),
+            ("PLAN", "Ctrl+3"),
+            ("PURCHASE", "Ctrl+4"),
+            ("MAKE", "Ctrl+5"),
+            ("DELIVER", "Ctrl+6"),
         ]
 
         for idx, (mode_name, shortcut) in enumerate(mode_configs):
@@ -164,7 +167,10 @@ class MainWindow(ctk.CTk):
         self.mode_manager.set_content_frame(self.mode_content)
 
     def _create_modes(self):
-        """Create all 5 modes with their tabs."""
+        """Create all 6 modes with their tabs (F055 workflow order)."""
+        # Create OBSERVE mode (3 tabs) - default mode
+        self._create_observe_mode()
+
         # Create CATALOG mode (6 tabs)
         self._create_catalog_mode()
 
@@ -177,27 +183,28 @@ class MainWindow(ctk.CTk):
         # Create MAKE mode (4 tabs)
         self._create_make_mode()
 
-        # Create OBSERVE mode (3 tabs)
-        self._create_observe_mode()
+        # Create DELIVER mode (placeholder)
+        self._create_deliver_mode()
 
     def _create_catalog_mode(self):
-        """Create CATALOG mode with 6 tabs using CatalogMode class."""
+        """Create CATALOG mode with 4 group tabs using CatalogMode class (F055)."""
         mode = CatalogMode(self.mode_content)
 
         # Store tab references for backward compatibility
-        self.ingredients_tab = mode.ingredients_tab
-        self.products_tab = mode.products_tab
-        self.recipes_tab = mode.recipes_tab
-        self.finished_units_tab = mode.finished_units_tab
-        self.packages_tab = mode.packages_tab
-        self.materials_tab = mode.materials_tab  # Feature 052: Added for admin refresh
+        # Access nested tabs through group tabs (F055 restructure)
+        self.ingredients_tab = mode.ingredients_group.ingredients_tab
+        self.products_tab = mode.ingredients_group.products_tab
+        self.recipes_tab = mode.recipes_group.recipes_tab
+        self.finished_units_tab = mode.recipes_group.finished_units_tab
+        self.packages_tab = mode.packaging_group.packages_tab
+        self.materials_tab = mode.materials_tab  # Not a group, still direct
 
         self._tab_refs["ingredients"] = self.ingredients_tab
         self._tab_refs["products"] = self.products_tab
         self._tab_refs["recipes"] = self.recipes_tab
         self._tab_refs["finished_units"] = self.finished_units_tab
         self._tab_refs["packages"] = self.packages_tab
-        self._tab_refs["materials"] = self.materials_tab  # Feature 052
+        self._tab_refs["materials"] = self.materials_tab
 
         self.mode_manager.register_mode("CATALOG", mode)
 
@@ -247,6 +254,11 @@ class MainWindow(ctk.CTk):
 
         self.mode_manager.register_mode("OBSERVE", mode)
 
+    def _create_deliver_mode(self):
+        """Create DELIVER mode with placeholder content (F055)."""
+        mode = DeliverMode(self.mode_content)
+        self.mode_manager.register_mode("DELIVER", mode)
+
     def _create_status_bar(self):
         """Create the status bar at the bottom."""
         status_frame = ctk.CTkFrame(self, height=30, corner_radius=0)
@@ -261,12 +273,13 @@ class MainWindow(ctk.CTk):
         self.status_label.grid(row=0, column=0, padx=10, pady=5, sticky="w")
 
     def _setup_keyboard_shortcuts(self):
-        """Set up keyboard shortcuts for mode switching (FR-003)."""
-        self.bind_all("<Control-Key-1>", lambda e: self._switch_mode("CATALOG"))
-        self.bind_all("<Control-Key-2>", lambda e: self._switch_mode("PLAN"))
-        self.bind_all("<Control-Key-3>", lambda e: self._switch_mode("PURCHASE"))
-        self.bind_all("<Control-Key-4>", lambda e: self._switch_mode("MAKE"))
-        self.bind_all("<Control-Key-5>", lambda e: self._switch_mode("OBSERVE"))
+        """Set up keyboard shortcuts for mode switching (FR-003, F055)."""
+        self.bind_all("<Control-Key-1>", lambda e: self._switch_mode("OBSERVE"))
+        self.bind_all("<Control-Key-2>", lambda e: self._switch_mode("CATALOG"))
+        self.bind_all("<Control-Key-3>", lambda e: self._switch_mode("PLAN"))
+        self.bind_all("<Control-Key-4>", lambda e: self._switch_mode("PURCHASE"))
+        self.bind_all("<Control-Key-5>", lambda e: self._switch_mode("MAKE"))
+        self.bind_all("<Control-Key-6>", lambda e: self._switch_mode("DELIVER"))
 
     def _switch_mode(self, mode_name: str):
         """Switch to a mode.
@@ -434,7 +447,7 @@ class MainWindow(ctk.CTk):
             f"{APP_NAME}\nVersion {APP_VERSION}\n\n"
             f"A tool for tracking seasonal baking inventory,\n"
             f"recipes, and event planning.\n\n"
-            f"Modes: CATALOG | PLAN | PURCHASE | MAKE | OBSERVE",
+            f"Modes: OBSERVE | CATALOG | PLAN | PURCHASE | MAKE | DELIVER",
             parent=self,
         )
 

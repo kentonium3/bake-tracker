@@ -1,9 +1,9 @@
 """PurchaseMode - Mode container for shopping and inventory management.
 
-PURCHASE mode contains 3 tabs for managing purchases and inventory:
-- Shopping Lists: Create and manage shopping lists (placeholder)
-- Purchases: Track purchases from suppliers (placeholder)
+PURCHASE mode contains 3 tabs for managing purchases and inventory (F055 workflow order):
 - Inventory: View and manage current inventory levels
+- Purchases: Track purchases from suppliers
+- Shopping Lists: Create and manage shopping lists
 
 Implements User Story 6: PURCHASE Mode for Inventory Management (Priority P2)
 """
@@ -51,20 +51,19 @@ class PurchaseMode(BaseMode):
         self.set_dashboard(dashboard)
 
     def setup_tabs(self) -> None:
-        """Set up all 3 tabs for PURCHASE mode."""
+        """Set up all 3 tabs for PURCHASE mode (F055 workflow order)."""
         from src.ui.inventory_tab import InventoryTab
 
         self.create_tabview()
 
-        # Shopping Lists tab (FR-023 placeholder)
-        shopping_lists_frame = self.tabview.add("Shopping Lists")
-        shopping_lists_frame.grid_columnconfigure(0, weight=1)
-        shopping_lists_frame.grid_rowconfigure(0, weight=1)
-        self.shopping_lists_tab = ShoppingListsTab(shopping_lists_frame)
-        self.shopping_lists_tab.grid(row=0, column=0, sticky="nsew")
-        self._tab_widgets["Shopping Lists"] = self.shopping_lists_tab
+        # Inventory tab - First: check what you have
+        inventory_frame = self.tabview.add("Inventory")
+        inventory_frame.grid_columnconfigure(0, weight=1)
+        inventory_frame.grid_rowconfigure(0, weight=1)
+        self.inventory_tab = InventoryTab(inventory_frame)
+        self._tab_widgets["Inventory"] = self.inventory_tab
 
-        # Purchases tab (FR-022 placeholder)
+        # Purchases tab - Second: record purchases
         purchases_frame = self.tabview.add("Purchases")
         purchases_frame.grid_columnconfigure(0, weight=1)
         purchases_frame.grid_rowconfigure(0, weight=1)
@@ -72,12 +71,13 @@ class PurchaseMode(BaseMode):
         self.purchases_tab.grid(row=0, column=0, sticky="nsew")
         self._tab_widgets["Purchases"] = self.purchases_tab
 
-        # Inventory tab (existing functionality)
-        inventory_frame = self.tabview.add("Inventory")
-        inventory_frame.grid_columnconfigure(0, weight=1)
-        inventory_frame.grid_rowconfigure(0, weight=1)
-        self.inventory_tab = InventoryTab(inventory_frame)
-        self._tab_widgets["Inventory"] = self.inventory_tab
+        # Shopping Lists tab - Third: plan what to buy
+        shopping_lists_frame = self.tabview.add("Shopping Lists")
+        shopping_lists_frame.grid_columnconfigure(0, weight=1)
+        shopping_lists_frame.grid_rowconfigure(0, weight=1)
+        self.shopping_lists_tab = ShoppingListsTab(shopping_lists_frame)
+        self.shopping_lists_tab.grid(row=0, column=0, sticky="nsew")
+        self._tab_widgets["Shopping Lists"] = self.shopping_lists_tab
 
     def activate(self) -> None:
         """Called when PURCHASE mode becomes active."""
