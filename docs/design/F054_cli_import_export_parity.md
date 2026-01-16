@@ -1,4 +1,4 @@
-# F055: CLI Import/Export Parity
+# F054: CLI Import/Export Parity
 
 **Version**: 1.0
 **Priority**: HIGH
@@ -536,7 +536,7 @@ python -m src.utils.import_export_cli backup  # includes purchases
 - Same service layer called by both interfaces
 - Identical file formats and validation
 
-**Rationale**: 
+**Rationale**:
 - AI-assisted workflows depend on CLI
 - Mobile JSON ingestion requires CLI
 - Testing and automation need CLI
@@ -550,7 +550,7 @@ python -m src.utils.import_export_cli backup  # includes purchases
 - Aug commands (context-rich workflows)
 - Entity-specific commands (granular access)
 
-**Rationale**: 
+**Rationale**:
 - Clear hierarchy aids discovery
 - Common workflows at top level
 - Granular control when needed
