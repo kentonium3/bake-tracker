@@ -19,10 +19,10 @@
 **Prompt**: `tasks/WP01-model-validation-foundation.md`
 
 ### Included Subtasks
-- [ ] T001 Make Recipe yield fields nullable in `src/models/recipe.py`
-- [ ] T002 [P] Add item_unit validation to FinishedUnit in `src/models/finished_unit.py`
-- [ ] T003 Add `validate_recipe_has_finished_unit()` to `src/services/recipe_service.py`
-- [ ] T004 [P] Add tests for recipe validation logic in `src/tests/test_recipe_service.py`
+- [x] T001 Make Recipe yield fields nullable in `src/models/recipe.py`
+- [x] T002 [P] Add item_unit validation to FinishedUnit in `src/models/finished_unit.py`
+- [x] T003 Add `validate_recipe_has_finished_unit()` to `src/services/recipe_service.py`
+- [x] T004 [P] Add tests for recipe validation logic in `src/tests/test_recipe_service.py`
 
 ### Implementation Notes
 - Change `nullable=False` to `nullable=True` for yield_quantity, yield_unit
@@ -49,10 +49,10 @@
 **Prompt**: `tasks/WP02-transformation-script.md`
 
 ### Included Subtasks
-- [ ] T005 Create `scripts/transform_yield_data.py` with core transformation logic
-- [ ] T006 Implement slug generation with collision handling
-- [ ] T007 Transform `test_data/sample_data_min.json`
-- [ ] T008 Transform `test_data/sample_data_all.json`
+- [x] T005 Create `scripts/transform_yield_data.py` with core transformation logic
+- [x] T006 Implement slug generation with collision handling
+- [x] T007 Transform `test_data/sample_data_min.json`
+- [x] T008 Transform `test_data/sample_data_all.json`
 
 ### Implementation Notes
 - Script reads JSON, transforms recipes, writes to output file
@@ -79,9 +79,9 @@
 **Prompt**: `tasks/WP03-export-service-updates.md`
 
 ### Included Subtasks
-- [ ] T009 Add `_export_finished_units()` function to `src/services/coordinated_export_service.py`
-- [ ] T010 Add "finished_units" to DEPENDENCY_ORDER after "recipes"
-- [ ] T011 [P] Add tests for FinishedUnit export in `src/tests/services/test_coordinated_export.py`
+- [x] T009 Add `_export_finished_units()` function to `src/services/coordinated_export_service.py`
+- [x] T010 Add "finished_units" to DEPENDENCY_ORDER after "recipes"
+- [x] T011 [P] Add tests for FinishedUnit export in `src/tests/services/test_coordinated_export.py`
 
 ### Implementation Notes
 - Export fields: uuid, slug, display_name, recipe_name, category, yield_mode, items_per_batch, item_unit, batch_percentage, portion_description, inventory_count, is_archived
@@ -106,10 +106,10 @@
 **Prompt**: `tasks/WP04-import-service-updates.md`
 
 ### Included Subtasks
-- [ ] T012 Add "finished_units" to VALID_ENTITIES in `src/services/catalog_import_service.py`
-- [ ] T013 Add `_import_finished_units_impl()` function
-- [ ] T014 Add legacy recipe yield handling (auto-create FinishedUnit when missing)
-- [ ] T015 [P] Add tests for FinishedUnit import and legacy handling in `src/tests/test_catalog_import_service.py`
+- [x] T012 Add "finished_units" to VALID_ENTITIES in `src/services/catalog_import_service.py`
+- [x] T013 Add `_import_finished_units_impl()` function
+- [x] T014 Add legacy recipe yield handling (auto-create FinishedUnit when missing)
+- [x] T015 [P] Add tests for FinishedUnit import and legacy handling in `src/tests/test_catalog_import_service.py`
 
 ### Implementation Notes
 - Import must resolve recipe_name to recipe_id
@@ -137,11 +137,11 @@
 **Prompt**: `tasks/WP05-ui-updates.md`
 
 ### Included Subtasks
-- [ ] T016 Add item_unit field to YieldTypeRow widget in `src/ui/forms/recipe_form.py`
-- [ ] T017 Remove legacy yield_quantity and yield_unit fields from recipe form
-- [ ] T018 Add validation requiring at least one complete yield type
-- [ ] T019 Disable Remove button when only one row exists
-- [ ] T020 [P] Verify Finished Units tab displays item_unit correctly in `src/ui/finished_units_tab.py`
+- [x] T016 Add item_unit field to YieldTypeRow widget in `src/ui/forms/recipe_form.py`
+- [x] T017 Remove legacy yield_quantity and yield_unit fields from recipe form
+- [x] T018 Add validation requiring at least one complete yield type
+- [x] T019 Disable Remove button when only one row exists
+- [x] T020 [P] Verify Finished Units tab displays item_unit correctly in `src/ui/finished_units_tab.py`
 
 ### Implementation Notes
 - YieldTypeRow needs: item_unit entry field (text input with common suggestions)
@@ -170,11 +170,11 @@
 **Prompt**: `tasks/WP06-integration-data-migration.md`
 
 ### Included Subtasks
-- [ ] T021 Run full export/transform/import workflow
-- [ ] T022 Verify Finished Units tab displays all records after import
-- [ ] T023 Test creating new recipe with yield types
-- [ ] T024 Test editing existing recipe yield types
-- [ ] T025 Verify batch calculation still works with FinishedUnit data
+- [x] T021 Run full export/transform/import workflow
+- [x] T022 Verify Finished Units tab displays all records after import
+- [x] T023 Test creating new recipe with yield types
+- [x] T024 Test editing existing recipe yield types
+- [x] T025 Verify batch calculation still works with FinishedUnit data
 
 ### Implementation Notes
 - Workflow: backup → transform → reset DB → import
