@@ -1526,6 +1526,388 @@ class TestImportRecipes:
 
 
 # ============================================================================
+# FinishedUnit Import Tests (Feature 056)
+# ============================================================================
+
+
+from src.models.finished_unit import FinishedUnit, YieldMode
+from src.services.catalog_import_service import (
+    import_finished_units,
+    _ensure_recipe_has_finished_unit,
+)
+
+
+@pytest.fixture
+def create_test_recipe_for_finished_units(test_db):
+    """Create a test recipe for FinishedUnit import tests."""
+    with session_scope() as session:
+        recipe = Recipe(
+            name="FU Test Recipe",
+            category="Test",
+            yield_quantity=24,
+            yield_unit="cookies",
+        )
+        session.add(recipe)
+    yield
+    # Cleanup handled by cleanup_test_data
+
+
+@pytest.fixture
+def cleanup_test_finished_units(test_db):
+    """Cleanup test FinishedUnits after each test."""
+    yield
+    with session_scope() as session:
+        # Delete FinishedUnits first (FK constraint)
+        session.query(FinishedUnit).filter(
+            FinishedUnit.slug.like("fu_test_%")
+        ).delete(synchronize_session=False)
+        # Delete test recipes
+        session.query(Recipe).filter(
+            Recipe.name.in_(["FU Test Recipe", "Legacy Recipe", "No Yield Recipe"])
+        ).delete(synchronize_session=False)
+
+
+class TestImportFinishedUnits:
+    """Tests for import_finished_units function (Feature 056)."""
+
+    def test_import_finished_units_creates_records(
+        self, create_test_recipe_for_finished_units, cleanup_test_finished_units
+    ):
+        """Test that new FinishedUnits are created correctly with valid FK."""
+        data = [
+            {
+                "slug": "fu_test_recipe_standard",
+                "display_name": "Standard FU Test Recipe",
+                "recipe_name": "FU Test Recipe",
+                "category": "Test",
+                "yield_mode": "discrete_count",
+                "items_per_batch": 24,
+                "item_unit": "cookie",
+            }
+        ]
+
+        result = import_finished_units(data, mode="add")
+
+        # Verify counts
+        assert result.entity_counts["finished_units"].added == 1
+        assert result.entity_counts["finished_units"].skipped == 0
+        assert result.entity_counts["finished_units"].failed == 0
+        assert result.has_errors is False
+
+        # Verify FinishedUnit exists in database with correct recipe_id
+        with session_scope() as session:
+            fu = (
+                session.query(FinishedUnit)
+                .filter(FinishedUnit.slug == "fu_test_recipe_standard")
+                .first()
+            )
+            assert fu is not None
+            assert fu.display_name == "Standard FU Test Recipe"
+            assert fu.yield_mode == YieldMode.DISCRETE_COUNT
+            assert fu.items_per_batch == 24
+            assert fu.item_unit == "cookie"
+            assert fu.recipe.name == "FU Test Recipe"
+
+    def test_import_finished_units_skips_duplicate_slugs(
+        self, create_test_recipe_for_finished_units, cleanup_test_finished_units
+    ):
+        """Test that existing FinishedUnits are skipped in ADD_ONLY mode."""
+        # Pre-create a FinishedUnit
+        with session_scope() as session:
+            recipe = session.query(Recipe).filter(Recipe.name == "FU Test Recipe").first()
+            fu = FinishedUnit(
+                slug="fu_test_existing",
+                display_name="Existing FU",
+                recipe_id=recipe.id,
+                yield_mode=YieldMode.DISCRETE_COUNT,
+                items_per_batch=12,
+                item_unit="piece",
+            )
+            session.add(fu)
+
+        # Try to import with same slug
+        data = [
+            {
+                "slug": "fu_test_existing",
+                "display_name": "Different Name",
+                "recipe_name": "FU Test Recipe",
+                "yield_mode": "discrete_count",
+                "items_per_batch": 24,
+                "item_unit": "cookie",
+            }
+        ]
+
+        result = import_finished_units(data, mode="add")
+
+        # Verify skipped
+        assert result.entity_counts["finished_units"].added == 0
+        assert result.entity_counts["finished_units"].skipped == 1
+        assert result.has_errors is False
+
+        # Verify original unchanged
+        with session_scope() as session:
+            fu = (
+                session.query(FinishedUnit)
+                .filter(FinishedUnit.slug == "fu_test_existing")
+                .first()
+            )
+            assert fu.display_name == "Existing FU"  # Not changed
+            assert fu.items_per_batch == 12  # Not changed
+
+    def test_import_finished_units_fk_validation_fails_on_missing_recipe(
+        self, cleanup_test_finished_units
+    ):
+        """Test that FK validation fails with actionable error when recipe not found."""
+        data = [
+            {
+                "slug": "fu_test_orphan",
+                "display_name": "Orphan FU",
+                "recipe_name": "Nonexistent Recipe",
+                "yield_mode": "discrete_count",
+                "items_per_batch": 24,
+                "item_unit": "cookie",
+            }
+        ]
+
+        result = import_finished_units(data, mode="add")
+
+        # Verify failed
+        assert result.entity_counts["finished_units"].added == 0
+        assert result.entity_counts["finished_units"].failed == 1
+        assert result.has_errors is True
+
+        # Verify error message format
+        error = result.errors[0]
+        assert error.error_type == "fk_missing"
+        assert "Nonexistent Recipe" in error.message
+        assert "Import the recipe first" in error.suggestion
+
+    def test_import_finished_units_validation_missing_slug(
+        self, create_test_recipe_for_finished_units, cleanup_test_finished_units
+    ):
+        """Test that missing slug triggers validation error."""
+        data = [
+            {
+                "display_name": "No Slug FU",
+                "recipe_name": "FU Test Recipe",
+                "yield_mode": "discrete_count",
+            }
+        ]
+
+        result = import_finished_units(data, mode="add")
+
+        assert result.entity_counts["finished_units"].failed == 1
+        assert "slug" in result.errors[0].message.lower()
+
+    def test_import_finished_units_validation_missing_recipe_name(
+        self, cleanup_test_finished_units
+    ):
+        """Test that missing recipe_name triggers validation error."""
+        data = [
+            {
+                "slug": "fu_test_no_recipe",
+                "display_name": "No Recipe FU",
+                "yield_mode": "discrete_count",
+            }
+        ]
+
+        result = import_finished_units(data, mode="add")
+
+        assert result.entity_counts["finished_units"].failed == 1
+        assert "recipe_name" in result.errors[0].message.lower()
+
+    def test_import_finished_units_handles_invalid_yield_mode(
+        self, create_test_recipe_for_finished_units, cleanup_test_finished_units
+    ):
+        """Test that invalid yield_mode defaults to DISCRETE_COUNT."""
+        data = [
+            {
+                "slug": "fu_test_invalid_mode",
+                "display_name": "Invalid Mode FU",
+                "recipe_name": "FU Test Recipe",
+                "yield_mode": "invalid_mode",  # Invalid value
+                "items_per_batch": 24,
+                "item_unit": "cookie",
+            }
+        ]
+
+        result = import_finished_units(data, mode="add")
+
+        # Should succeed with default yield_mode
+        assert result.entity_counts["finished_units"].added == 1
+        assert result.has_errors is False
+
+        # Verify default was applied
+        with session_scope() as session:
+            fu = (
+                session.query(FinishedUnit)
+                .filter(FinishedUnit.slug == "fu_test_invalid_mode")
+                .first()
+            )
+            assert fu is not None
+            assert fu.yield_mode == YieldMode.DISCRETE_COUNT
+
+    def test_import_finished_units_dry_run_no_commit(
+        self, create_test_recipe_for_finished_units, cleanup_test_finished_units
+    ):
+        """Test that dry_run does not commit changes to database."""
+        data = [
+            {
+                "slug": "fu_test_dry_run",
+                "display_name": "Dry Run FU",
+                "recipe_name": "FU Test Recipe",
+                "yield_mode": "discrete_count",
+                "items_per_batch": 24,
+                "item_unit": "cookie",
+            }
+        ]
+
+        result = import_finished_units(data, mode="add", dry_run=True)
+
+        assert result.entity_counts["finished_units"].added == 1
+        assert result.dry_run is True
+
+        # But nothing should be in the database
+        with session_scope() as session:
+            fu = (
+                session.query(FinishedUnit)
+                .filter(FinishedUnit.slug == "fu_test_dry_run")
+                .first()
+            )
+            assert fu is None
+
+
+class TestEnsureRecipeHasFinishedUnit:
+    """Tests for _ensure_recipe_has_finished_unit function (Feature 056)."""
+
+    def test_legacy_recipe_creates_finished_unit(self, cleanup_test_finished_units):
+        """Test that recipe with yield fields but no FinishedUnit creates one."""
+        with session_scope() as session:
+            # Create recipe with yield fields
+            recipe = Recipe(
+                name="Legacy Recipe",
+                category="Test",
+                yield_quantity=24,
+                yield_unit="cookies",
+                yield_description="2-inch cookies",
+            )
+            session.add(recipe)
+            session.flush()
+
+            # Call the function
+            created = _ensure_recipe_has_finished_unit(recipe, session)
+
+            assert created is True
+
+            # Verify FinishedUnit was created
+            fu = (
+                session.query(FinishedUnit)
+                .filter(FinishedUnit.recipe_id == recipe.id)
+                .first()
+            )
+            assert fu is not None
+            assert fu.display_name == "2-inch cookies"  # Uses yield_description
+            assert fu.items_per_batch == 24
+            assert fu.item_unit == "cookies"
+            assert fu.yield_mode == YieldMode.DISCRETE_COUNT
+            assert "legacy_recipe" in fu.slug  # Slug is generated from recipe name
+
+    def test_legacy_recipe_without_description_uses_default(self, cleanup_test_finished_units):
+        """Test that recipe without yield_description uses 'Standard {name}'."""
+        with session_scope() as session:
+            # Create recipe without yield_description
+            recipe = Recipe(
+                name="Legacy Recipe",
+                category="Test",
+                yield_quantity=24,
+                yield_unit="cookies",
+                yield_description=None,  # No description
+            )
+            session.add(recipe)
+            session.flush()
+
+            # Call the function
+            created = _ensure_recipe_has_finished_unit(recipe, session)
+
+            assert created is True
+
+            # Verify display_name
+            fu = (
+                session.query(FinishedUnit)
+                .filter(FinishedUnit.recipe_id == recipe.id)
+                .first()
+            )
+            assert fu is not None
+            assert fu.display_name == "Standard Legacy Recipe"
+
+    def test_recipe_without_yield_fields_does_not_create(self, cleanup_test_finished_units):
+        """Test that recipe without yield fields does NOT create FinishedUnit."""
+        with session_scope() as session:
+            # Create recipe without yield fields
+            recipe = Recipe(
+                name="No Yield Recipe",
+                category="Test",
+                yield_quantity=None,
+                yield_unit=None,
+            )
+            session.add(recipe)
+            session.flush()
+
+            # Call the function
+            created = _ensure_recipe_has_finished_unit(recipe, session)
+
+            assert created is False
+
+            # Verify no FinishedUnit was created
+            fu = (
+                session.query(FinishedUnit)
+                .filter(FinishedUnit.recipe_id == recipe.id)
+                .first()
+            )
+            assert fu is None
+
+    def test_recipe_with_existing_finished_unit_does_not_create(
+        self, cleanup_test_finished_units
+    ):
+        """Test that recipe with existing FinishedUnit does NOT create another."""
+        with session_scope() as session:
+            # Create recipe with yield fields
+            recipe = Recipe(
+                name="Legacy Recipe",
+                category="Test",
+                yield_quantity=24,
+                yield_unit="cookies",
+            )
+            session.add(recipe)
+            session.flush()
+
+            # Create existing FinishedUnit
+            fu = FinishedUnit(
+                slug="fu_test_existing",
+                display_name="Existing FU",
+                recipe_id=recipe.id,
+                yield_mode=YieldMode.DISCRETE_COUNT,
+                items_per_batch=12,
+                item_unit="piece",
+            )
+            session.add(fu)
+            session.flush()
+
+            # Call the function
+            created = _ensure_recipe_has_finished_unit(recipe, session)
+
+            assert created is False
+
+            # Verify only one FinishedUnit exists
+            count = (
+                session.query(FinishedUnit)
+                .filter(FinishedUnit.recipe_id == recipe.id)
+                .count()
+            )
+            assert count == 1
+
+
+# ============================================================================
 # Coordinator and Dry-Run Tests
 # ============================================================================
 

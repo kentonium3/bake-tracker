@@ -434,44 +434,52 @@ class TestDependencyOrder:
         assert "ingredients" in deps
         assert order == 3
 
+    # Feature 056: FinishedUnits dependency test
+    def test_finished_units_depend_on_recipes(self):
+        """Verify finished_units depend on recipes."""
+        order, deps = DEPENDENCY_ORDER["finished_units"]
+        assert "recipes" in deps
+        assert order == 5
+
     def test_purchases_depend_on_products_and_suppliers(self):
         """Verify purchases depend on products and suppliers."""
         order, deps = DEPENDENCY_ORDER["purchases"]
         assert "products" in deps
         assert "suppliers" in deps
-        assert order == 5
+        assert order == 6
 
     def test_inventory_items_depend_on_products(self):
         """Verify inventory items depend on products."""
         order, deps = DEPENDENCY_ORDER["inventory_items"]
         assert "products" in deps
-        assert order == 6
+        assert order == 7
 
     # Feature 049: New entity dependency tests
     def test_finished_goods_no_dependencies(self):
         """Verify finished_goods have no dependencies."""
         order, deps = DEPENDENCY_ORDER["finished_goods"]
         assert deps == []
-        assert order == 13
+        assert order == 14
 
     def test_events_no_dependencies(self):
         """Verify events have no dependencies."""
         order, deps = DEPENDENCY_ORDER["events"]
         assert deps == []
-        assert order == 14
+        assert order == 15
 
-    def test_production_runs_depend_on_recipes_and_events(self):
-        """Verify production_runs depend on recipes and events."""
+    def test_production_runs_depend_on_recipes_events_and_finished_units(self):
+        """Verify production_runs depend on recipes, events, and finished_units."""
         order, deps = DEPENDENCY_ORDER["production_runs"]
         assert "recipes" in deps
         assert "events" in deps
-        assert order == 15
+        assert "finished_units" in deps
+        assert order == 16
 
     def test_inventory_depletions_depend_on_inventory_items(self):
         """Verify inventory_depletions depend on inventory_items."""
         order, deps = DEPENDENCY_ORDER["inventory_depletions"]
         assert "inventory_items" in deps
-        assert order == 16
+        assert order == 17
 
 
 # ============================================================================
@@ -492,8 +500,8 @@ class TestExportComplete:
             assert manifest.export_date != ""
             assert "Seasonal Baking Tracker" in manifest.source
 
-            # Verify all entity files created (6 original + 6 material + 4 new = 16)
-            assert len(manifest.files) == 16
+            # Verify all entity files created (6 original + 1 finished_units + 6 material + 4 new = 17)
+            assert len(manifest.files) == 17
 
             # Verify files sorted by import_order
             orders = [f.import_order for f in manifest.files]
@@ -636,8 +644,8 @@ class TestExportComplete:
             with session_scope() as session:
                 manifest = export_complete(tmpdir, session=session)
 
-                # Verify export completed (6 original + 6 material + 4 new = 16)
-                assert len(manifest.files) == 16
+                # Verify export completed (6 original + 1 finished_units + 6 material + 4 new = 17)
+                assert len(manifest.files) == 17
 
                 # Verify ingredients exported
                 ing_entry = next(
@@ -661,7 +669,7 @@ class TestValidateExport:
             result = validate_export(tmpdir)
 
             assert result["valid"] is True
-            assert result["files_checked"] == 16  # 6 original + 6 material + 4 new
+            assert result["files_checked"] == 17  # 6 original + 1 finished_units + 6 material + 4 new
             assert result["errors"] == []
 
     def test_validate_export_missing_manifest(self, test_db):
@@ -716,7 +724,7 @@ class TestValidateExport:
             result = validate_export(str(zip_path))
 
             assert result["valid"] is True
-            assert result["files_checked"] == 16  # 6 original + 6 material + 4 new
+            assert result["files_checked"] == 17  # 6 original + 1 finished_units + 6 material + 4 new
 
 
 # ============================================================================
@@ -761,13 +769,15 @@ class TestExportRoundTrip:
         with tempfile.TemporaryDirectory() as tmpdir:
             manifest = export_complete(tmpdir)
 
-            # Check order - original entities, material entities, then new entities
+            # Check order - original entities, finished_units, material entities, then new entities
             entity_order = [f.entity_type for f in manifest.files]
             expected_order = [
                 "suppliers",
                 "ingredients",
                 "products",
                 "recipes",
+                # Feature 056: FinishedUnits after recipes (they reference recipes)
+                "finished_units",
                 "purchases",
                 "inventory_items",
                 # Feature 047: Material entities
@@ -804,7 +814,7 @@ class TestExportFinishedGoods:
             )
             assert fg_entry is not None
             assert fg_entry.record_count == 0
-            assert fg_entry.import_order == 13
+            assert fg_entry.import_order == 14
 
     def test_export_finished_goods_with_data(
         self, test_db, sample_finished_good, cleanup_test_data
@@ -833,6 +843,134 @@ class TestExportFinishedGoods:
             assert fg["packaging_instructions"] == "Pack 12 cookies per box"
 
 
+# ============================================================================
+# Feature 056: FinishedUnits Export Tests
+# ============================================================================
+
+
+class TestExportFinishedUnits:
+    """Tests for finished_units export functionality (Feature 056)."""
+
+    def test_export_finished_units_empty(self, test_db, cleanup_test_data):
+        """Test finished_units export with no records."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            manifest = export_complete(tmpdir)
+
+            fu_entry = next(
+                (f for f in manifest.files if f.entity_type == "finished_units"), None
+            )
+            assert fu_entry is not None
+            assert fu_entry.record_count == 0
+            assert fu_entry.import_order == 5  # After recipes
+
+    def test_export_finished_units_with_data(
+        self, test_db, sample_finished_unit, cleanup_test_data
+    ):
+        """Test finished_units export includes correct fields."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            manifest = export_complete(tmpdir)
+
+            fu_entry = next(
+                (f for f in manifest.files if f.entity_type == "finished_units"), None
+            )
+            assert fu_entry.record_count == 1
+
+            # Verify file content
+            fu_path = Path(tmpdir) / "finished_units.json"
+            with open(fu_path) as f:
+                data = json.load(f)
+
+            assert data["entity_type"] == "finished_units"
+            assert len(data["records"]) == 1
+
+            fu = data["records"][0]
+            assert fu["slug"] == "test_cookie"
+            assert fu["display_name"] == "Test Cookie"
+            assert fu["items_per_batch"] == 24
+            assert fu["item_unit"] == "cookie"
+
+    def test_export_finished_units_contains_required_fields(
+        self, test_db, sample_finished_unit, cleanup_test_data
+    ):
+        """Verify all required fields are exported for FinishedUnit."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            manifest = export_complete(tmpdir)
+
+            fu_path = Path(tmpdir) / "finished_units.json"
+            with open(fu_path) as f:
+                data = json.load(f)
+
+            record = data["records"][0]
+
+            # Verify required fields per spec
+            required_fields = [
+                "uuid",
+                "slug",
+                "display_name",
+                "recipe_name",
+                "category",
+                "yield_mode",
+                "items_per_batch",
+                "item_unit",
+                "batch_percentage",
+                "portion_description",
+                "inventory_count",
+                "description",
+                "notes",
+            ]
+            for field in required_fields:
+                assert field in record, f"Missing required field: {field}"
+
+    def test_export_finished_units_uses_recipe_name(
+        self, test_db, sample_finished_unit, cleanup_test_data
+    ):
+        """Verify export uses recipe.name for recipe_name field (not recipe_id)."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            manifest = export_complete(tmpdir)
+
+            fu_path = Path(tmpdir) / "finished_units.json"
+            with open(fu_path) as f:
+                data = json.load(f)
+
+            record = data["records"][0]
+
+            # Should use recipe name, not recipe_id
+            assert "recipe_name" in record
+            assert record["recipe_name"] == "Test Cookies"
+            assert "recipe_id" not in record  # Should NOT have raw ID
+
+    def test_export_finished_units_handles_null_fields(
+        self, test_db, sample_recipe, cleanup_test_data
+    ):
+        """Test export handles null optional fields gracefully."""
+        # Create a minimal finished unit with many null fields
+        with session_scope() as session:
+            fu = FinishedUnit(
+                slug="minimal_fu",
+                display_name="Minimal FU",
+                recipe_id=sample_recipe,
+                # Leave optional fields as None
+            )
+            session.add(fu)
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            manifest = export_complete(tmpdir)
+
+            fu_path = Path(tmpdir) / "finished_units.json"
+            with open(fu_path) as f:
+                data = json.load(f)
+
+            # Find the minimal_fu record
+            minimal = next(
+                (r for r in data["records"] if r["slug"] == "minimal_fu"), None
+            )
+            assert minimal is not None
+
+            # Null fields should be exported as null
+            assert minimal["batch_percentage"] is None
+            assert minimal["portion_description"] is None
+
+
 class TestExportEvents:
     """Tests for events export functionality."""
 
@@ -846,7 +984,7 @@ class TestExportEvents:
             )
             assert event_entry is not None
             assert event_entry.record_count == 0
-            assert event_entry.import_order == 14
+            assert event_entry.import_order == 15
 
     def test_export_events_with_data(
         self,
@@ -905,7 +1043,7 @@ class TestExportProductionRuns:
             )
             assert pr_entry is not None
             assert pr_entry.record_count == 0
-            assert pr_entry.import_order == 15
+            assert pr_entry.import_order == 16
 
     def test_export_production_runs_with_data(
         self, test_db, sample_production_run, cleanup_test_data
@@ -954,7 +1092,7 @@ class TestExportInventoryDepletions:
             )
             assert dep_entry is not None
             assert dep_entry.record_count == 0
-            assert dep_entry.import_order == 16
+            assert dep_entry.import_order == 17
 
     def test_export_inventory_depletions_with_data(
         self, test_db, sample_inventory_depletion, cleanup_test_data
@@ -990,15 +1128,15 @@ class TestExportInventoryDepletions:
 class TestNewEntitiesEmptyArrays:
     """Tests verifying empty entities export as empty arrays (T008)."""
 
-    def test_all_16_entities_export_with_empty_database(
+    def test_all_17_entities_export_with_empty_database(
         self, test_db, cleanup_test_data
     ):
-        """Verify all 16 entity types export as empty arrays when DB is empty."""
+        """Verify all 17 entity types export as empty arrays when DB is empty."""
         with tempfile.TemporaryDirectory() as tmpdir:
             manifest = export_complete(tmpdir)
 
-            # Verify all 16 files exist
-            assert len(manifest.files) == 16
+            # Verify all 17 files exist (6 original + 1 finished_units + 6 material + 4 new)
+            assert len(manifest.files) == 17
 
             # Verify each file has records: []
             for file_entry in manifest.files:

@@ -104,20 +104,21 @@ DEPENDENCY_ORDER = {
     "ingredients": (2, []),
     "products": (3, ["ingredients"]),
     "recipes": (4, ["ingredients"]),
-    "purchases": (5, ["products", "suppliers"]),
-    "inventory_items": (6, ["products", "purchases"]),
+    "finished_units": (5, ["recipes"]),  # Feature 056: Must be after recipes
+    "purchases": (6, ["products", "suppliers"]),
+    "inventory_items": (7, ["products", "purchases"]),
     # Feature 047: Materials Management System
-    "material_categories": (7, []),
-    "material_subcategories": (8, ["material_categories"]),
-    "materials": (9, ["material_subcategories"]),
-    "material_products": (10, ["materials", "suppliers"]),
-    "material_units": (11, ["materials"]),
-    "material_purchases": (12, ["material_products", "suppliers"]),
+    "material_categories": (8, []),
+    "material_subcategories": (9, ["material_categories"]),
+    "materials": (10, ["material_subcategories"]),
+    "material_products": (11, ["materials", "suppliers"]),
+    "material_units": (12, ["materials"]),
+    "material_purchases": (13, ["material_products", "suppliers"]),
     # Feature 049: Complete backup entities
-    "finished_goods": (13, []),
-    "events": (14, []),
-    "production_runs": (15, ["recipes", "events"]),
-    "inventory_depletions": (16, ["inventory_items"]),
+    "finished_goods": (14, []),
+    "events": (15, []),
+    "production_runs": (16, ["recipes", "events", "finished_units"]),
+    "inventory_depletions": (17, ["inventory_items"]),
 }
 
 
@@ -564,6 +565,38 @@ def _export_finished_goods(output_dir: Path, session: Session) -> FileEntry:
     return _write_entity_file(output_dir, "finished_goods", records)
 
 
+def _export_finished_units(output_dir: Path, session: Session) -> FileEntry:
+    """Export all finished units to JSON file with FK resolution.
+
+    Feature 056: FinishedUnits are the single source of truth for yield tracking.
+    Recipe reference uses recipe.name for lookup during import.
+    """
+    units = session.query(FinishedUnit).options(
+        joinedload(FinishedUnit.recipe)
+    ).all()
+
+    records = []
+    for fu in units:
+        records.append({
+            "uuid": str(fu.uuid) if fu.uuid else None,
+            "slug": fu.slug,
+            "display_name": fu.display_name,
+            # FK resolved by recipe name
+            "recipe_name": fu.recipe.name if fu.recipe else None,
+            "category": fu.category,
+            "yield_mode": fu.yield_mode.value if fu.yield_mode else None,
+            "items_per_batch": fu.items_per_batch,
+            "item_unit": fu.item_unit,
+            "batch_percentage": float(fu.batch_percentage) if fu.batch_percentage else None,
+            "portion_description": fu.portion_description,
+            "inventory_count": fu.inventory_count,
+            "description": fu.description,
+            "notes": fu.notes,
+        })
+
+    return _write_entity_file(output_dir, "finished_units", records)
+
+
 def _export_events(output_dir: Path, session: Session) -> FileEntry:
     """Export all events with production/assembly targets to JSON file."""
     events = session.query(Event).options(
@@ -730,6 +763,8 @@ def _export_complete_impl(
     manifest.files.append(_export_ingredients(output_dir, session))
     manifest.files.append(_export_products(output_dir, session))
     manifest.files.append(_export_recipes(output_dir, session))
+    # Feature 056: FinishedUnits after recipes (they reference recipes)
+    manifest.files.append(_export_finished_units(output_dir, session))
     manifest.files.append(_export_purchases(output_dir, session))
     manifest.files.append(_export_inventory_items(output_dir, session))
 
@@ -922,6 +957,7 @@ def _import_complete_impl(
     session.query(ProductionRun).delete()
     session.query(Event).delete()
     session.query(FinishedGood).delete()
+    session.query(FinishedUnit).delete()  # Feature 056: After ProductionRun (which references it)
     session.query(MaterialPurchase).delete()
     session.query(MaterialUnit).delete()
     session.query(MaterialProduct).delete()
@@ -1163,6 +1199,44 @@ def _import_entity_records(
                         )
                         session.add(rc_obj)
 
+                imported_count += 1
+
+            elif entity_type == "finished_units":
+                # Feature 056: Import FinishedUnit records
+                from src.models.finished_unit import YieldMode
+
+                # Resolve recipe FK by name
+                recipe_name = record.get("recipe_name")
+                recipe = session.query(Recipe).filter(
+                    Recipe.name == recipe_name
+                ).first()
+                if not recipe:
+                    continue  # Skip if recipe not found
+
+                # Parse yield_mode enum
+                yield_mode_str = record.get("yield_mode")
+                yield_mode = None
+                if yield_mode_str:
+                    try:
+                        yield_mode = YieldMode(yield_mode_str)
+                    except ValueError:
+                        yield_mode = YieldMode.DISCRETE_COUNT  # Default
+
+                obj = FinishedUnit(
+                    recipe_id=recipe.id,
+                    slug=record.get("slug"),
+                    display_name=record.get("display_name"),
+                    category=record.get("category"),
+                    yield_mode=yield_mode,
+                    items_per_batch=record.get("items_per_batch"),
+                    item_unit=record.get("item_unit"),
+                    batch_percentage=record.get("batch_percentage"),
+                    portion_description=record.get("portion_description"),
+                    inventory_count=record.get("inventory_count", 0),
+                    description=record.get("description"),
+                    notes=record.get("notes"),
+                )
+                session.add(obj)
                 imported_count += 1
 
             elif entity_type == "purchases":

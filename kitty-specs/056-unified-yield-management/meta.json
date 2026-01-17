@@ -1,0 +1,8 @@
+{
+  "feature_number": "056",
+  "slug": "056-unified-yield-management",
+  "friendly_name": "Unified Yield Management",
+  "mission": "software-dev",
+  "source_description": "See docs/design/F056_unified_yield_mgmt.md for this feature's input.",
+  "created_at": "2026-01-16T20:30:00Z"
+}

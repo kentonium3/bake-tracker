@@ -226,6 +226,31 @@ class FinishedUnit(BaseModel):
         self.updated_at = utc_now()  # Update timestamp
         return True
 
+    def validate_discrete_count_fields(self) -> list[str]:
+        """
+        Validate fields required for DISCRETE_COUNT mode.
+
+        This method provides model-level validation that can be called
+        before save operations. The service layer uses this for enforcement.
+
+        Returns:
+            List of validation error messages (empty if valid)
+        """
+        errors = []
+        if self.yield_mode == YieldMode.DISCRETE_COUNT:
+            if not self.items_per_batch or self.items_per_batch <= 0:
+                errors.append("items_per_batch required and must be > 0 for discrete count mode")
+            if not self.item_unit:
+                errors.append("item_unit required for discrete count mode")
+            if not self.display_name:
+                errors.append("display_name required")
+        elif self.yield_mode == YieldMode.BATCH_PORTION:
+            if not self.batch_percentage or self.batch_percentage <= 0:
+                errors.append("batch_percentage required and must be > 0 for batch portion mode")
+            if not self.display_name:
+                errors.append("display_name required")
+        return errors
+
     def to_dict(self, include_relationships: bool = False) -> dict:
         """
         Convert finished unit to dictionary.

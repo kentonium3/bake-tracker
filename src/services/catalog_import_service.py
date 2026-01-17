@@ -28,6 +28,7 @@ from src.services.database import session_scope
 from src.models.ingredient import Ingredient
 from src.models.product import Product
 from src.models.recipe import Recipe, RecipeIngredient, RecipeComponent
+from src.models.finished_unit import FinishedUnit, YieldMode
 from src.models.supplier import Supplier
 from src.models.material_category import MaterialCategory
 from src.models.material_subcategory import MaterialSubcategory
@@ -58,6 +59,8 @@ VALID_ENTITIES = {
     # Feature 051: Suppliers must be first (products reference suppliers)
     "suppliers",
     "ingredients", "products", "recipes",
+    # Feature 056: FinishedUnits after recipes (they reference recipes)
+    "finished_units",
     # Feature 047: Materials Management System
     "material_categories", "material_subcategories", "materials",
     "material_products", "material_units",
@@ -173,6 +176,8 @@ class CatalogImportResult:
             "ingredients": EntityImportCounts(),
             "products": EntityImportCounts(),
             "recipes": EntityImportCounts(),
+            # Feature 056: FinishedUnits after recipes (they reference recipes)
+            "finished_units": EntityImportCounts(),
             # Feature 047: Materials Management System
             "material_categories": EntityImportCounts(),
             "material_subcategories": EntityImportCounts(),
@@ -1318,6 +1323,244 @@ def _validate_recipe_data(item: Dict) -> Optional[Dict]:
 
 
 # ============================================================================
+# FinishedUnit Import Functions (Feature 056)
+# ============================================================================
+
+
+# Field classification for FinishedUnit AUGMENT mode
+FINISHED_UNIT_PROTECTED_FIELDS = {"slug", "recipe_id", "id"}
+FINISHED_UNIT_AUGMENTABLE_FIELDS = {
+    "display_name",
+    "category",
+    "yield_mode",
+    "items_per_batch",
+    "item_unit",
+    "batch_percentage",
+    "portion_description",
+    "description",
+    "notes",
+}
+
+
+def import_finished_units(
+    data: List[Dict],
+    mode: str = "add",
+    dry_run: bool = False,
+    session: Optional[Session] = None,
+) -> CatalogImportResult:
+    """
+    Import FinishedUnits from parsed data.
+
+    Validates recipe_name FK references before creating FinishedUnits.
+    Uses the session=None pattern for transactional composition.
+
+    Args:
+        data: List of FinishedUnit dictionaries from catalog file
+        mode: "add" (ADD_ONLY) or "augment" (AUGMENT mode)
+        dry_run: If True, validate and preview without committing
+        session: Optional SQLAlchemy session for transactional composition
+
+    Returns:
+        CatalogImportResult with counts and any errors
+    """
+    if session is not None:
+        return _import_finished_units_impl(data, mode, dry_run, session)
+    with session_scope() as sess:
+        return _import_finished_units_impl(data, mode, dry_run, sess)
+
+
+def _import_finished_units_impl(
+    data: List[Dict],
+    mode: str,
+    dry_run: bool,
+    session: Session,
+) -> CatalogImportResult:
+    """Internal implementation of FinishedUnit import."""
+    result = CatalogImportResult()
+    result.dry_run = dry_run
+    result.mode = mode
+
+    # Build recipe name -> id lookup for FK resolution
+    recipe_lookup = {
+        row.name: row.id
+        for row in session.query(Recipe.name, Recipe.id).all()
+    }
+
+    # Build existing finished_units lookup for duplicate detection
+    existing_finished_units = {
+        row.slug: row
+        for row in session.query(FinishedUnit).filter(FinishedUnit.slug.isnot(None)).all()
+    }
+    existing_slugs = set(existing_finished_units.keys())
+
+    for item in data:
+        slug = item.get("slug", "")
+        recipe_name = item.get("recipe_name", "")
+        identifier = slug or item.get("display_name", "unknown")
+
+        # Validate required fields
+        if not slug:
+            result.add_error(
+                "finished_units",
+                identifier,
+                "validation",
+                "Missing required field: slug",
+                "Add 'slug' field to FinishedUnit data",
+            )
+            continue
+
+        if not recipe_name:
+            result.add_error(
+                "finished_units",
+                identifier,
+                "validation",
+                "Missing required field: recipe_name",
+                "Add 'recipe_name' field referencing an existing recipe",
+            )
+            continue
+
+        # FK validation: check recipe exists
+        recipe_id = recipe_lookup.get(recipe_name)
+        if recipe_id is None:
+            result.add_error(
+                "finished_units",
+                identifier,
+                "fk_missing",
+                f"Recipe '{recipe_name}' not found",
+                "Import the recipe first or check the name spelling",
+            )
+            continue
+
+        # Check for existing slug
+        if slug in existing_slugs:
+            if mode == ImportMode.ADD_ONLY.value:
+                result.add_skip("finished_units", slug, "Already exists")
+                continue
+            # AUGMENT mode: update only null fields
+            existing_fu = existing_finished_units[slug]
+            updated_fields = []
+            for field in FINISHED_UNIT_AUGMENTABLE_FIELDS:
+                if field in item and item[field] is not None:
+                    # Handle yield_mode enum specially
+                    if field == "yield_mode":
+                        current_value = getattr(existing_fu, field, None)
+                        if current_value is None:
+                            try:
+                                new_value = YieldMode(item[field])
+                                setattr(existing_fu, field, new_value)
+                                updated_fields.append(field)
+                            except ValueError:
+                                pass  # Invalid enum value, skip
+                    else:
+                        current_value = getattr(existing_fu, field, None)
+                        if current_value is None:
+                            setattr(existing_fu, field, item[field])
+                            updated_fields.append(field)
+            if updated_fields:
+                result.add_augment("finished_units", slug, updated_fields)
+            else:
+                result.add_skip("finished_units", slug, "No null fields to update")
+            continue
+
+        # Parse yield_mode
+        yield_mode_str = item.get("yield_mode")
+        yield_mode = None
+        if yield_mode_str:
+            try:
+                yield_mode = YieldMode(yield_mode_str)
+            except ValueError:
+                yield_mode = YieldMode.DISCRETE_COUNT
+
+        # Create new FinishedUnit
+        fu = FinishedUnit(
+            recipe_id=recipe_id,
+            slug=slug,
+            display_name=item.get("display_name"),
+            category=item.get("category"),
+            yield_mode=yield_mode,
+            items_per_batch=item.get("items_per_batch"),
+            item_unit=item.get("item_unit"),
+            batch_percentage=item.get("batch_percentage"),
+            portion_description=item.get("portion_description"),
+            inventory_count=item.get("inventory_count", 0),
+            description=item.get("description"),
+            notes=item.get("notes"),
+        )
+        session.add(fu)
+        result.add_success("finished_units")
+
+        # Track for duplicate detection within same import
+        existing_slugs.add(slug)
+        existing_finished_units[slug] = fu
+
+    # Handle dry-run: rollback instead of commit
+    if dry_run:
+        session.rollback()
+
+    return result
+
+
+def _ensure_recipe_has_finished_unit(
+    recipe: Recipe,
+    session: Session,
+) -> bool:
+    """
+    Ensure a recipe has at least one FinishedUnit.
+    If not and the recipe has legacy yield fields, create one.
+
+    This handles backward compatibility with legacy export files that
+    have recipes with yield_quantity/yield_unit but no FinishedUnits.
+
+    Args:
+        recipe: Recipe model instance
+        session: SQLAlchemy session
+
+    Returns:
+        True if FinishedUnit was created, False otherwise
+    """
+    # Check if recipe already has FinishedUnits
+    existing_fu = session.query(FinishedUnit).filter_by(recipe_id=recipe.id).first()
+    if existing_fu:
+        return False
+
+    # Check if recipe has legacy yield data
+    if not recipe.yield_quantity or not recipe.yield_unit:
+        return False
+
+    # Generate slug using the slugify function
+    recipe_slug = slugify(recipe.name)
+    yield_suffix = slugify(recipe.yield_description) if recipe.yield_description else "standard"
+    base_slug = f"{recipe_slug}_{yield_suffix}"
+
+    # Check for collision
+    slug = base_slug
+    counter = 2
+    while session.query(FinishedUnit).filter_by(slug=slug).first():
+        slug = f"{base_slug}_{counter}"
+        counter += 1
+
+    # Generate display_name
+    if recipe.yield_description:
+        display_name = recipe.yield_description
+    else:
+        display_name = f"Standard {recipe.name}"
+
+    # Create FinishedUnit
+    fu = FinishedUnit(
+        recipe_id=recipe.id,
+        slug=slug,
+        display_name=display_name,
+        category=recipe.category,
+        yield_mode=YieldMode.DISCRETE_COUNT,
+        items_per_batch=int(recipe.yield_quantity),
+        item_unit=recipe.yield_unit,
+        inventory_count=0,
+    )
+    session.add(fu)
+    return True
+
+
+# ============================================================================
 # Material Import Functions (Feature 047)
 # ============================================================================
 
@@ -2141,6 +2384,30 @@ def _import_catalog_impl(
                 data["recipes"], mode, dry_run=False, session=session
             )
             result.merge(recipe_result)
+            # Flush to make new recipes visible to finished_units import queries
+            session.flush()
+
+    # =========================================================================
+    # Feature 056: FinishedUnits Import (depends on recipes)
+    # =========================================================================
+
+    # Import finished_units (depends on recipes)
+    if entities is None or "finished_units" in entities:
+        if "finished_units" in data:
+            fu_result = import_finished_units(
+                data["finished_units"], mode, dry_run=False, session=session
+            )
+            result.merge(fu_result)
+        else:
+            # Legacy handling: If no finished_units in data but recipes were imported,
+            # auto-create FinishedUnits for recipes that have yield fields but no FinishedUnit
+            if "recipes" in data:
+                for recipe_data in data["recipes"]:
+                    recipe_name = recipe_data.get("name")
+                    if recipe_name:
+                        recipe = session.query(Recipe).filter_by(name=recipe_name).first()
+                        if recipe:
+                            _ensure_recipe_has_finished_unit(recipe, session)
 
     # =========================================================================
     # Feature 047: Materials Management System

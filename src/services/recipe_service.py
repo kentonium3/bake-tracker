@@ -1088,6 +1088,86 @@ def get_recipe_category_list() -> List[str]:
 
 
 # ============================================================================
+# Recipe FinishedUnit Validation (Feature 056)
+# ============================================================================
+
+
+def validate_recipe_has_finished_unit(recipe_id: int, session=None) -> List[str]:
+    """
+    Validate that a recipe has at least one complete FinishedUnit.
+
+    A complete FinishedUnit has:
+    - display_name (non-empty)
+    - item_unit (non-empty for DISCRETE_COUNT mode)
+    - items_per_batch (> 0 for DISCRETE_COUNT mode)
+
+    For BATCH_PORTION mode:
+    - display_name (non-empty)
+    - batch_percentage (> 0)
+
+    Args:
+        recipe_id: The recipe to validate
+        session: Optional SQLAlchemy session. If provided, uses this session
+                 instead of creating a new one.
+
+    Returns:
+        List of validation error messages (empty if valid)
+    """
+    from src.models.finished_unit import YieldMode
+
+    def _impl(sess) -> List[str]:
+        errors = []
+
+        recipe = sess.query(Recipe).filter_by(id=recipe_id).first()
+        if not recipe:
+            return ["Recipe not found"]
+
+        finished_units = recipe.finished_units
+        if not finished_units:
+            return ["Recipe must have at least one yield type"]
+
+        complete_count = 0
+        for fu in finished_units:
+            fu_errors = []
+
+            if not fu.display_name:
+                fu_errors.append("Yield type missing name")
+
+            if fu.yield_mode == YieldMode.DISCRETE_COUNT:
+                if not fu.item_unit:
+                    fu_errors.append(
+                        f"Yield type '{fu.display_name or 'unnamed'}' missing unit"
+                    )
+                if not fu.items_per_batch or fu.items_per_batch <= 0:
+                    fu_errors.append(
+                        f"Yield type '{fu.display_name or 'unnamed'}' missing quantity"
+                    )
+            elif fu.yield_mode == YieldMode.BATCH_PORTION:
+                if not fu.batch_percentage or fu.batch_percentage <= 0:
+                    fu_errors.append(
+                        f"Yield type '{fu.display_name or 'unnamed'}' missing batch percentage"
+                    )
+
+            if not fu_errors:
+                complete_count += 1
+            errors.extend(fu_errors)
+
+        if complete_count == 0:
+            errors.append("At least one complete yield type required")
+
+        return errors
+
+    if session is not None:
+        return _impl(session)
+
+    try:
+        with session_scope() as sess:
+            return _impl(sess)
+    except SQLAlchemyError as e:
+        raise DatabaseError(f"Failed to validate recipe {recipe_id}", e)
+
+
+# ============================================================================
 # Recipe Component Management (Nested Recipes / Sub-Recipes)
 # ============================================================================
 
