@@ -339,15 +339,14 @@ def validate_recipe_data(data: dict) -> Tuple[bool, list]:  # noqa: C901
     if not is_valid:
         errors.append(error)
 
-    # Yield quantity (must be positive)
-    is_valid, error = validate_positive_number(data.get("yield_quantity"), "Yield Quantity")
-    if not is_valid:
-        errors.append(error)
+    # Yield quantity (optional - deprecated in F056, use FinishedUnit instead)
+    if data.get("yield_quantity") is not None:
+        is_valid, error = validate_positive_number(data.get("yield_quantity"), "Yield Quantity")
+        if not is_valid:
+            errors.append(error)
 
-    # Yield unit
-    is_valid, error = validate_required_string(data.get("yield_unit"), "Yield Unit")
-    if not is_valid:
-        errors.append(error)
+    # Yield unit (optional - deprecated in F056, use FinishedUnit instead)
+    # No validation needed - it's optional now
 
     # Optional fields with length limits
     if data.get("source"):

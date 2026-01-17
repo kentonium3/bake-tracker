@@ -104,11 +104,13 @@ def create_recipe(recipe_data: Dict, ingredients_data: List[Dict] = None) -> Rec
         with session_scope() as session:
             # Create recipe
             # T032 - Feature 037: is_production_ready defaults to False if not provided
+            # F056: yield_quantity, yield_unit, yield_description are deprecated
+            # Use FinishedUnit for yield information instead
             recipe = Recipe(
                 name=recipe_data["name"],
                 category=recipe_data["category"],
-                yield_quantity=recipe_data["yield_quantity"],
-                yield_unit=recipe_data["yield_unit"],
+                yield_quantity=recipe_data.get("yield_quantity"),
+                yield_unit=recipe_data.get("yield_unit"),
                 yield_description=recipe_data.get("yield_description"),
                 estimated_time_minutes=recipe_data.get("estimated_time_minutes"),
                 source=recipe_data.get("source"),
