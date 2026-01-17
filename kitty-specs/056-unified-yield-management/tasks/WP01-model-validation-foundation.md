@@ -8,9 +8,9 @@ subtasks:
 title: "Model & Validation Foundation"
 phase: "Phase 1 - Data Model & Validation"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude"
-shell_pid: ""
+shell_pid: "N/A"
 review_status: ""
 reviewed_by: ""
 history:

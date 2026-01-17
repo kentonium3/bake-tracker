@@ -9,9 +9,9 @@ subtasks:
 title: "Integration & Data Migration"
 phase: "Phase 5 - Integration & Cleanup"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude"
-shell_pid: ""
+shell_pid: "N/A"
 review_status: ""
 reviewed_by: ""
 history:

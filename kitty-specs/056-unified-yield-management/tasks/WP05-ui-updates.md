@@ -9,9 +9,9 @@ subtasks:
 title: "UI Updates"
 phase: "Phase 4 - UI Updates"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude"
-shell_pid: ""
+shell_pid: "N/A"
 review_status: ""
 reviewed_by: ""
 history:

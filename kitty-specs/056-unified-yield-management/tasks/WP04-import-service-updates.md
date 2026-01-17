@@ -8,9 +8,9 @@ subtasks:
 title: "Import Service Updates"
 phase: "Phase 3 - Import/Export Service Updates"
 lane: "done"
-assignee: ""
+assignee: "claude"
 agent: "claude"
-shell_pid: ""
+shell_pid: "N/A"
 review_status: ""
 reviewed_by: ""
 history:
