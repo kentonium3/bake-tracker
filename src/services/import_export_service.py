@@ -2705,13 +2705,14 @@ def _import_dry_run_preview(
                 result.add_success("inventory_item")
 
         # Preview recipes
+        # Note: Recipe model uses 'name' not 'slug' for identification
         if "recipes" in data:
             for recipe in data["recipes"]:
-                slug = recipe.get("slug", "unknown")
+                name = recipe.get("name", "unknown")
                 if skip_duplicates:
-                    existing = session.query(Recipe).filter_by(slug=slug).first()
+                    existing = session.query(Recipe).filter_by(name=name).first()
                     if existing:
-                        result.add_skip("recipe", slug, "Would skip (exists)")
+                        result.add_skip("recipe", name, "Would skip (exists)")
                         continue
                 result.add_success("recipe")
 

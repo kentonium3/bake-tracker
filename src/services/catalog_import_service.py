@@ -438,10 +438,19 @@ def _import_suppliers_impl(
     for item in data:
         name = item.get("name", "")
         slug = item.get("slug", "")
+        supplier_type = item.get("supplier_type", "physical")
+        city = item.get("city")
+        state = item.get("state")
 
         # Generate slug if not provided
         if not slug and name:
-            slug = generate_supplier_slug(name)
+            slug = generate_supplier_slug(
+                name=name,
+                supplier_type=supplier_type,
+                city=city,
+                state=state,
+                session=session,
+            )
 
         identifier = slug or name or "unknown"
 
@@ -499,9 +508,9 @@ def _import_suppliers_impl(
         supplier = Supplier(
             slug=slug,
             name=name,
-            supplier_type=item.get("supplier_type", "physical"),
-            city=item.get("city"),
-            state=item.get("state"),
+            supplier_type=supplier_type,
+            city=city,
+            state=state,
             zip_code=item.get("zip_code"),
             street_address=item.get("street_address"),
             website_url=item.get("website_url"),
