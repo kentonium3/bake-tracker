@@ -64,13 +64,14 @@ def event_thanksgiving(test_db):
 
 @pytest.fixture
 def recipe_cookies(test_db):
-    """Create a cookie recipe for testing."""
+    """Create a cookie recipe for testing.
+
+    F056: yield_quantity, yield_unit removed from Recipe model.
+    """
     session = test_db()
     recipe = Recipe(
         name="Sugar Cookies",
         category="Cookies",
-        yield_quantity=48.0,
-        yield_unit="cookies",
     )
     session.add(recipe)
     session.commit()
@@ -79,13 +80,14 @@ def recipe_cookies(test_db):
 
 @pytest.fixture
 def recipe_brownies(test_db):
-    """Create a brownie recipe for testing."""
+    """Create a brownie recipe for testing.
+
+    F056: yield_quantity, yield_unit removed from Recipe model.
+    """
     session = test_db()
     recipe = Recipe(
         name="Fudge Brownies",
         category="Brownies",
-        yield_quantity=24.0,
-        yield_unit="brownies",
     )
     session.add(recipe)
     session.commit()

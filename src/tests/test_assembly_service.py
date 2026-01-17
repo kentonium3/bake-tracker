@@ -40,13 +40,14 @@ from src.services.database import session_scope
 
 @pytest.fixture
 def recipe_cookies(test_db):
-    """Create cookie recipe."""
+    """Create cookie recipe.
+
+    F056: yield_quantity, yield_unit removed from Recipe model.
+    """
     session = test_db()
     recipe = Recipe(
         name="Sugar Cookies",
         category="Cookies",
-        yield_quantity=48.0,
-        yield_unit="cookies",
     )
     session.add(recipe)
     session.commit()

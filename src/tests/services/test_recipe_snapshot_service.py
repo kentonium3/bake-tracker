@@ -33,14 +33,15 @@ def sample_ingredient(test_db):
 
 @pytest.fixture
 def sample_recipe(test_db, sample_ingredient):
-    """Create a sample recipe with ingredients for testing."""
+    """Create a sample recipe with ingredients for testing.
+
+    F056: yield_quantity, yield_unit, yield_description removed from Recipe model.
+    Yield data is now on FinishedUnit (see sample_finished_unit fixture).
+    """
     session = test_db()
     recipe = Recipe(
         name="Test Cookie Recipe",
         category="Cookies",
-        yield_quantity=36,
-        yield_unit="cookies",
-        yield_description="2-inch cookies",
         estimated_time_minutes=45,
         notes="Test recipe for snapshots",
     )
@@ -63,13 +64,17 @@ def sample_recipe(test_db, sample_ingredient):
 
 @pytest.fixture
 def sample_finished_unit(test_db, sample_recipe):
-    """Create a sample finished unit."""
+    """Create a sample finished unit with yield data.
+
+    F056: Yield data (items_per_batch, item_unit, display_name) is now on FinishedUnit.
+    """
     session = test_db()
     finished_unit = FinishedUnit(
         recipe_id=sample_recipe.id,
         slug="test-cookie",
-        display_name="Test Cookie",
-        items_per_batch=36,
+        display_name="2-inch cookies",  # This serves as yield_description
+        items_per_batch=36,  # This serves as yield_quantity
+        item_unit="cookies",  # This serves as yield_unit
     )
     session.add(finished_unit)
     session.commit()
@@ -123,19 +128,24 @@ class TestCreateRecipeSnapshot:
     def test_create_snapshot_denormalizes_data(
         self, test_db, sample_recipe, sample_production_run, sample_ingredient
     ):
-        """Test that snapshot contains denormalized recipe data."""
+        """Test that snapshot contains denormalized recipe data.
+
+        F056: yield_quantity, yield_unit, yield_description are populated from
+        the recipe's FinishedUnit (sample_finished_unit fixture).
+        """
         result = recipe_snapshot_service.create_recipe_snapshot(
             recipe_id=sample_recipe.id,
             scale_factor=1.5,
             production_run_id=sample_production_run.id,
         )
 
-        # Check recipe_data
+        # Check recipe_data - yield data now comes from FinishedUnit
         recipe_data = result["recipe_data"]
         assert recipe_data["name"] == "Test Cookie Recipe"
         assert recipe_data["category"] == "Cookies"
-        assert recipe_data["yield_quantity"] == 36
-        assert recipe_data["yield_unit"] == "cookies"
+        assert recipe_data["yield_quantity"] == 36  # From FinishedUnit.items_per_batch
+        assert recipe_data["yield_unit"] == "cookies"  # From FinishedUnit.item_unit
+        assert recipe_data["yield_description"] == "2-inch cookies"  # From FinishedUnit.display_name
 
         # Check ingredients_data
         ingredients_data = result["ingredients_data"]
@@ -459,7 +469,11 @@ class TestCreateRecipeFromSnapshot:
     def test_create_recipe_from_snapshot_copies_yield_info(
         self, test_db, sample_recipe, sample_production_run
     ):
-        """Test that yield information is copied from snapshot."""
+        """Test that yield information is copied from snapshot to FinishedUnit.
+
+        F056: yield_quantity, yield_unit, yield_description removed from Recipe model.
+        Restored recipes now get a FinishedUnit created with the yield data.
+        """
         session = test_db()
 
         # Create snapshot
@@ -472,8 +486,13 @@ class TestCreateRecipeFromSnapshot:
         # Create recipe from snapshot
         result = recipe_snapshot_service.create_recipe_from_snapshot(snapshot["id"])
 
-        # Verify yield info copied
+        # Verify yield info copied to FinishedUnit
         restored_recipe = session.query(Recipe).filter_by(id=result["id"]).first()
-        assert restored_recipe.yield_quantity == 36
-        assert restored_recipe.yield_unit == "cookies"
-        assert restored_recipe.yield_description == "2-inch cookies"
+        assert restored_recipe is not None
+
+        # Check that a FinishedUnit was created with the yield data
+        fu = session.query(FinishedUnit).filter_by(recipe_id=restored_recipe.id).first()
+        assert fu is not None
+        assert fu.items_per_batch == 36
+        assert fu.item_unit == "cookies"
+        assert fu.display_name == "2-inch cookies"

@@ -318,12 +318,10 @@ class TestDeletionProtectionAndSlug:
         })
 
         # Create a Recipe and RecipeIngredient
-        # Recipe model uses: name, category, yield_quantity, yield_unit
+        # F056: yield_quantity, yield_unit removed from Recipe model
         recipe = Recipe(
             name="Test Vanilla Cake",
             category="Cakes",
-            yield_quantity=12.0,
-            yield_unit="servings"
         )
         session.add(recipe)
         session.flush()

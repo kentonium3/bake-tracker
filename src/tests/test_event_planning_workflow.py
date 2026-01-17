@@ -63,13 +63,12 @@ def sample_recipe(test_db):
     """Create a sample recipe for testing."""
     from src.models import Recipe
 
+    # F056: yield_quantity, yield_unit removed from Recipe model
     session = test_db()
 
     recipe = Recipe(
         name="Test Cookies",
         category="Cookies",
-        yield_quantity=24.0,
-        yield_unit="cookies",
         notes="Test recipe",
     )
     session.add(recipe)

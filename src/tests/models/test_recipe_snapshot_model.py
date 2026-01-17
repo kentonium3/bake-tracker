@@ -18,14 +18,14 @@ from src.models.finished_unit import FinishedUnit
 
 @pytest.fixture
 def sample_recipe(test_db):
-    """Create a sample recipe for testing."""
+    """Create a sample recipe for testing.
+
+    F056: yield_quantity, yield_unit, yield_description removed from Recipe model.
+    """
     session = test_db()
     recipe = Recipe(
         name="Test Thumbprint Cookies",
         category="Cookies",
-        yield_quantity=36,
-        yield_unit="cookies",
-        yield_description="2-inch cookies",
         estimated_time_minutes=45,
         notes="Test recipe for snapshots",
     )
@@ -36,13 +36,17 @@ def sample_recipe(test_db):
 
 @pytest.fixture
 def sample_finished_unit(test_db, sample_recipe):
-    """Create a sample finished unit for production runs."""
+    """Create a sample finished unit for production runs.
+
+    F056: This now holds the yield data that used to be on Recipe.
+    """
     session = test_db()
     finished_unit = FinishedUnit(
         recipe_id=sample_recipe.id,
         slug="test-thumbprint-cookie",
-        display_name="Thumbprint Cookie",
-        items_per_batch=36,
+        display_name="2-inch cookies",  # Was yield_description
+        items_per_batch=36,  # Was yield_quantity
+        item_unit="cookies",  # Was yield_unit
     )
     session.add(finished_unit)
     session.commit()
@@ -209,11 +213,10 @@ class TestRecipeSelfReferenceBlocked:
         """Test that base_recipe_id cannot equal recipe id."""
         session = test_db()
 
+        # F056: yield_quantity, yield_unit removed from Recipe model
         recipe = Recipe(
             name="Test Recipe",
             category="Cookies",
-            yield_quantity=36,
-            yield_unit="cookies",
         )
         session.add(recipe)
         session.commit()
@@ -233,22 +236,18 @@ class TestRecipeVariantRelationship:
         """Test that variant links to base correctly."""
         session = test_db()
 
-        # Create base recipe
+        # Create base recipe (F056: yield fields removed)
         base_recipe = Recipe(
             name="Thumbprint Cookies",
             category="Cookies",
-            yield_quantity=36,
-            yield_unit="cookies",
         )
         session.add(base_recipe)
         session.commit()
 
-        # Create variant
+        # Create variant (F056: yield fields removed)
         variant = Recipe(
             name="Raspberry Thumbprint Cookies",
             category="Cookies",
-            yield_quantity=36,
-            yield_unit="cookies",
             base_recipe_id=base_recipe.id,
             variant_name="Raspberry",
         )
@@ -269,23 +268,19 @@ class TestRecipeVariantRelationship:
         """Test that variant becomes standalone when base is deleted (SET NULL)."""
         session = test_db()
 
-        # Create base recipe
+        # Create base recipe (F056: yield fields removed)
         base_recipe = Recipe(
             name="Base Recipe",
             category="Cookies",
-            yield_quantity=36,
-            yield_unit="cookies",
         )
         session.add(base_recipe)
         session.commit()
         base_id = base_recipe.id
 
-        # Create variant
+        # Create variant (F056: yield fields removed)
         variant = Recipe(
             name="Variant Recipe",
             category="Cookies",
-            yield_quantity=36,
-            yield_unit="cookies",
             base_recipe_id=base_id,
             variant_name="Test Variant",
         )
@@ -310,11 +305,10 @@ class TestRecipeProductionReadyDefault:
         """Test that new recipes default to experimental (is_production_ready=False)."""
         session = test_db()
 
+        # F056: yield_quantity, yield_unit removed from Recipe model
         recipe = Recipe(
             name="New Recipe",
             category="Cookies",
-            yield_quantity=36,
-            yield_unit="cookies",
         )
         session.add(recipe)
         session.commit()
@@ -325,11 +319,10 @@ class TestRecipeProductionReadyDefault:
         """Test that is_production_ready can be toggled."""
         session = test_db()
 
+        # F056: yield_quantity, yield_unit removed from Recipe model
         recipe = Recipe(
             name="New Recipe",
             category="Cookies",
-            yield_quantity=36,
-            yield_unit="cookies",
         )
         session.add(recipe)
         session.commit()

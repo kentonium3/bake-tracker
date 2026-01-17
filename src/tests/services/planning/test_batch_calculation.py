@@ -199,32 +199,32 @@ class TestExplodeBundleRequirements:
         """Create a simple bundle with two FinishedUnit components."""
         session = test_db()
 
-        # Create recipes
+        # Create recipes (F056: yield fields removed from Recipe model)
         cookie_recipe = Recipe(
             name="Chocolate Chip Cookies",
             category="Cookies",
-            yield_quantity=48,
-            yield_unit="cookies",
         )
         brownie_recipe = Recipe(
             name="Fudge Brownies",
             category="Brownies",
-            yield_quantity=24,
-            yield_unit="brownies",
         )
         session.add_all([cookie_recipe, brownie_recipe])
         session.flush()
 
-        # Create FinishedUnits
+        # Create FinishedUnits (F056: items_per_batch/item_unit hold yield data)
         cookie_unit = FinishedUnit(
             display_name="Chocolate Chip Cookie",
             slug="chocolate-chip-cookie",
             recipe_id=cookie_recipe.id,
+            items_per_batch=48,  # Was Recipe.yield_quantity
+            item_unit="cookies",  # Was Recipe.yield_unit
         )
         brownie_unit = FinishedUnit(
             display_name="Fudge Brownie",
             slug="fudge-brownie",
             recipe_id=brownie_recipe.id,
+            items_per_batch=24,  # Was Recipe.yield_quantity
+            item_unit="brownies",  # Was Recipe.yield_unit
         )
         session.add_all([cookie_unit, brownie_unit])
         session.flush()
@@ -347,37 +347,40 @@ class TestAggregateByRecipe:
         """Create multiple FinishedUnits sharing recipes."""
         session = test_db()
 
-        # Create recipes
+        # Create recipes (F056: yield fields removed from Recipe model)
         cookie_recipe = Recipe(
             name="Sugar Cookies",
             category="Cookies",
-            yield_quantity=36,
-            yield_unit="cookies",
         )
         brownie_recipe = Recipe(
             name="Walnut Brownies",
             category="Brownies",
-            yield_quantity=16,
-            yield_unit="brownies",
         )
         session.add_all([cookie_recipe, brownie_recipe])
         session.flush()
 
         # Create multiple FinishedUnits - some sharing recipes
+        # F056: items_per_batch holds yield data (was Recipe.yield_quantity)
         large_cookie = FinishedUnit(
             display_name="Large Sugar Cookie",
             slug="large-sugar-cookie",
             recipe_id=cookie_recipe.id,
+            items_per_batch=36,  # From Recipe's former yield_quantity
+            item_unit="cookies",
         )
         small_cookie = FinishedUnit(
             display_name="Small Sugar Cookie",
             slug="small-sugar-cookie",
             recipe_id=cookie_recipe.id,  # Same recipe!
+            items_per_batch=36,
+            item_unit="cookies",
         )
         brownie = FinishedUnit(
             display_name="Walnut Brownie",
             slug="walnut-brownie",
             recipe_id=brownie_recipe.id,
+            items_per_batch=16,  # From Recipe's former yield_quantity
+            item_unit="brownies",
         )
         session.add_all([large_cookie, small_cookie, brownie])
         session.commit()

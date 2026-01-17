@@ -104,8 +104,6 @@ class TestCheckProductionFeasibility:
         cookie_recipe = Recipe(
             name="Chocolate Chip Cookies",
             category="Cookies",
-            yield_quantity=48,
-            yield_unit="cookies",
         )
         session.add(cookie_recipe)
         session.flush()
@@ -192,8 +190,6 @@ class TestCheckProductionFeasibility:
         brownie_recipe = Recipe(
             name="Fudge Brownies",
             category="Brownies",
-            yield_quantity=24,
-            yield_unit="brownies",
         )
         session.add(brownie_recipe)
         session.flush()
@@ -237,14 +233,10 @@ class TestCheckAssemblyFeasibility:
         cookie_recipe = Recipe(
             name="Sugar Cookies",
             category="Cookies",
-            yield_quantity=48,
-            yield_unit="cookies",
         )
         brownie_recipe = Recipe(
             name="Brownies",
             category="Brownies",
-            yield_quantity=24,
-            yield_unit="brownies",
         )
         session.add_all([cookie_recipe, brownie_recipe])
         session.flush()
@@ -401,10 +393,10 @@ class TestPartialAssemblyCalculation:
         """Create bundle with three components for partial testing."""
         session = test_db()
 
-        # Create recipes
-        cookie_recipe = Recipe(name="Cookies", category="Cookies", yield_quantity=48, yield_unit="cookies")
-        brownie_recipe = Recipe(name="Brownies", category="Brownies", yield_quantity=24, yield_unit="brownies")
-        truffle_recipe = Recipe(name="Truffles", category="Candy", yield_quantity=36, yield_unit="truffles")
+        # Create recipes (F056: yield fields removed from Recipe model)
+        cookie_recipe = Recipe(name="Cookies", category="Cookies")
+        brownie_recipe = Recipe(name="Brownies", category="Brownies")
+        truffle_recipe = Recipe(name="Truffles", category="Candy")
         session.add_all([cookie_recipe, brownie_recipe, truffle_recipe])
         session.flush()
 
@@ -558,7 +550,7 @@ class TestCheckSingleAssemblyFeasibility:
         """Create a simple bundle for testing."""
         session = test_db()
 
-        recipe = Recipe(name="Cookies", category="Cookies", yield_quantity=48, yield_unit="cookies")
+        recipe = Recipe(name="Cookies", category="Cookies")
         session.add(recipe)
         session.flush()
 
@@ -635,7 +627,7 @@ class TestMissingComponentsStructure:
         """Create bundle with insufficient inventory."""
         session = test_db()
 
-        recipe = Recipe(name="Cookies", category="Cookies", yield_quantity=48, yield_unit="cookies")
+        recipe = Recipe(name="Cookies", category="Cookies")
         session.add(recipe)
         session.flush()
 

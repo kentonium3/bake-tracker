@@ -80,13 +80,14 @@ def sample_ingredient_data():
 
 @pytest.fixture
 def sample_recipe_data():
-    """Sample valid recipe data."""
+    """Sample valid recipe data.
+
+    F056: yield_quantity, yield_unit, yield_description removed from Recipe.
+    Use FinishedUnit records for yield data.
+    """
     return {
         "name": "Chocolate Chip Cookies",
         "category": "Cookies",
-        "yield_quantity": 48,
-        "yield_unit": "cookies",
-        "yield_description": "2-inch cookies",
         "estimated_time_minutes": 45,
         "source": "Test Recipe",
         "notes": "Test notes",
@@ -312,7 +313,6 @@ class TestRecipeServiceCRUD:
         assert recipe.id is not None
         assert recipe.name == "Chocolate Chip Cookies"
         assert recipe.category == "Cookies"
-        assert recipe.yield_quantity == 48
 
     def test_create_recipe_with_ingredients(
         self, db_session, sample_recipe_data, sample_ingredient_data
@@ -345,11 +345,10 @@ class TestRecipeServiceCRUD:
 
     def test_create_recipe_validation_error(self, db_session):
         """Test creating recipe with invalid data."""
+        # F056: yield fields removed
         invalid_data = {
             "name": "",  # Invalid: empty name
             "category": "Test",
-            "yield_quantity": 24,
-            "yield_unit": "cookies",
         }
 
         with pytest.raises(ValidationError):
@@ -443,14 +442,15 @@ class TestRecipeServiceCRUD:
         created = recipe_service.create_recipe(sample_recipe_data)
 
         update_data = sample_recipe_data.copy()
-        update_data["yield_quantity"] = 60
+        # F056: yield_quantity removed
         update_data["notes"] = "Updated notes"
+        update_data["estimated_time_minutes"] = 60
 
         updated = recipe_service.update_recipe(created.id, update_data)
 
         assert updated.id == created.id
-        assert updated.yield_quantity == 60
         assert updated.notes == "Updated notes"
+        assert updated.estimated_time_minutes == 60
 
     def test_update_recipe_replace_ingredients(
         self, db_session, sample_recipe_data, sample_ingredient_data

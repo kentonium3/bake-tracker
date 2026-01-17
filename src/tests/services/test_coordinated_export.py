@@ -123,13 +123,14 @@ def sample_product(test_db, sample_ingredient):
 
 @pytest.fixture
 def sample_recipe(test_db, sample_ingredient):
-    """Create a sample recipe for tests."""
+    """Create a sample recipe for tests.
+
+    F056: yield_quantity, yield_unit removed from Recipe model.
+    """
     with session_scope() as session:
         recipe = Recipe(
             name="Test Cookies",
             category="Cookies",
-            yield_quantity=24,
-            yield_unit="cookies",
         )
         session.add(recipe)
         session.flush()

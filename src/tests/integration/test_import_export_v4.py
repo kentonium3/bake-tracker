@@ -103,22 +103,20 @@ def comprehensive_test_data(test_db):
     session.flush()
 
     # Base Recipe (with F037 fields) - Recipe uses `name` not `slug`
+    # F056: yield_quantity, yield_unit removed from Recipe
     base_recipe = Recipe(
         name="Sugar Cookie Base",
         category="Cookies",
-        yield_quantity=24,
-        yield_unit="cookies",
         is_production_ready=True,
     )
     session.add(base_recipe)
     session.flush()
 
     # Variant Recipe (F037) - Recipe uses `name` not `slug`
+    # F056: yield_quantity, yield_unit removed from Recipe
     variant_recipe = Recipe(
         name="Frosted Sugar Cookie",
         category="Cookies",
-        yield_quantity=24,
-        yield_unit="cookies",
         base_recipe_id=base_recipe.id,
         variant_name="Frosted",
         is_production_ready=False,
@@ -257,22 +255,20 @@ class TestRecipeVariantsRoundTrip:
         session = test_db()
 
         # Create base recipe (Recipe uses `name` not `slug`)
+        # F056: yield_quantity, yield_unit removed from Recipe
         base = Recipe(
             name="Sugar Cookie Base",
             category="Cookies",
-            yield_quantity=24,
-            yield_unit="cookies",
             is_production_ready=True,
         )
         session.add(base)
         session.flush()
 
         # Create variant
+        # F056: yield_quantity, yield_unit removed from Recipe
         variant = Recipe(
             name="Frosted Sugar Cookie",
             category="Cookies",
-            yield_quantity=24,
-            yield_unit="cookies",
             variant_name="Frosted",
             base_recipe_id=base.id,
             is_production_ready=False,
@@ -322,18 +318,15 @@ class TestRecipeVariantsRoundTrip:
         session = test_db()
 
         # Create recipes with different production readiness (Recipe uses `name` not `slug`)
+        # F056: yield_quantity, yield_unit removed from Recipe
         ready_recipe = Recipe(
             name="Ready Recipe",
             category="Cookies",
-            yield_quantity=24,
-            yield_unit="cookies",
             is_production_ready=True,
         )
         experimental_recipe = Recipe(
             name="Experimental Recipe",
             category="Cookies",
-            yield_quantity=24,
-            yield_unit="cookies",
             is_production_ready=False,
         )
         session.add_all([ready_recipe, experimental_recipe])

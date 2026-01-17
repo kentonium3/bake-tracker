@@ -19,6 +19,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
 
 from src.models import Recipe, RecipeIngredient, RecipeSnapshot
+from src.models.finished_unit import FinishedUnit, YieldMode
 from src.services.database import session_scope
 from src.utils.datetime_utils import utc_now
 
@@ -77,13 +78,24 @@ def _create_recipe_snapshot_impl(
         _ = ri.ingredient
 
     # Build recipe_data JSON
+    # F056: yield_quantity, yield_unit, yield_description removed from Recipe model.
+    # Get yield info from primary FinishedUnit if available.
+    yield_quantity = None
+    yield_unit = None
+    yield_description = None
+    if recipe.finished_units:
+        primary_fu = recipe.finished_units[0]
+        yield_quantity = primary_fu.items_per_batch
+        yield_unit = primary_fu.item_unit
+        yield_description = primary_fu.display_name
+
     recipe_data = {
         "name": recipe.name,
         "category": recipe.category,
         "source": recipe.source,
-        "yield_quantity": recipe.yield_quantity,
-        "yield_unit": recipe.yield_unit,
-        "yield_description": recipe.yield_description,
+        "yield_quantity": yield_quantity,
+        "yield_unit": yield_unit,
+        "yield_description": yield_description,
         "estimated_time_minutes": recipe.estimated_time_minutes,
         "notes": recipe.notes,
         "variant_name": getattr(recipe, "variant_name", None),
@@ -295,6 +307,7 @@ def _create_recipe_from_snapshot_impl(snapshot_id: int, session: Session) -> dic
     ingredients_data = snapshot.get_ingredients_data()
 
     # Create new recipe with restored data
+    # F056: yield_quantity, yield_unit, yield_description removed from Recipe model
     original_name = recipe_data.get("name", "Restored")
     date_str = datetime.now().strftime("%Y-%m-%d")
     new_name = f"{original_name} (restored {date_str})"
@@ -303,9 +316,6 @@ def _create_recipe_from_snapshot_impl(snapshot_id: int, session: Session) -> dic
         name=new_name,
         category=recipe_data.get("category", "Uncategorized"),
         source=recipe_data.get("source"),
-        yield_quantity=recipe_data.get("yield_quantity", 1),
-        yield_unit=recipe_data.get("yield_unit", "each"),
-        yield_description=recipe_data.get("yield_description"),
         estimated_time_minutes=recipe_data.get("estimated_time_minutes"),
         notes=_build_restored_notes(snapshot_id, recipe_data.get("notes", "")),
         is_production_ready=False,  # Restored recipes start experimental
@@ -313,6 +323,24 @@ def _create_recipe_from_snapshot_impl(snapshot_id: int, session: Session) -> dic
 
     session.add(recipe)
     session.flush()  # Get recipe ID
+
+    # F056: Create FinishedUnit from snapshot yield data if available
+    yield_quantity = recipe_data.get("yield_quantity")
+    yield_unit = recipe_data.get("yield_unit")
+    yield_description = recipe_data.get("yield_description")
+    if yield_quantity or yield_unit:
+        from src.services.finished_unit_service import FinishedUnitService
+        fu_display_name = yield_description or f"{new_name} Unit"
+        fu_slug = FinishedUnitService._generate_unique_slug(fu_display_name, session)
+        fu = FinishedUnit(
+            slug=fu_slug,
+            display_name=fu_display_name,
+            recipe_id=recipe.id,
+            yield_mode=YieldMode.DISCRETE_COUNT,
+            items_per_batch=yield_quantity or 1,
+            item_unit=yield_unit or "each",
+        )
+        session.add(fu)
 
     # Restore ingredients - only add those with valid ingredient_id
     for ing in ingredients_data:

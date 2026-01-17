@@ -416,13 +416,18 @@ class TestRecipeSchema:
         assert result.valid is False
         assert "name" in result.errors[0].field
 
-    def test_negative_yield_quantity(self):
-        """Test negative yield_quantity produces error."""
+    def test_deprecated_yield_quantity_ignored(self):
+        """Test yield_quantity is ignored (F056 deprecated).
+
+        yield_quantity field is deprecated and ignored during validation.
+        Use FinishedUnit records for yield data instead.
+        """
+        # F056: yield_quantity is ignored, so even negative values don't fail
         data = {"recipes": [{"name": "Cookies", "yield_quantity": -10}]}
         result = validate_recipe_schema(data)
 
-        assert result.valid is False
-        assert "positive" in result.errors[0].message.lower()
+        # Validation passes because yield_quantity is ignored
+        assert result.valid is True
 
     def test_recipe_ingredient_missing_identifier(self):
         """Test recipe ingredient without name or slug produces error."""
@@ -613,13 +618,16 @@ class TestEdgeCases:
 
         assert result.valid is False
 
-    def test_boolean_treated_as_wrong_type(self):
-        """Test boolean is not treated as number."""
+    def test_boolean_in_deprecated_field_ignored(self):
+        """Test boolean in deprecated yield_quantity field is ignored.
+
+        F056: yield_quantity is deprecated and ignored, so any value passes.
+        """
         data = {"recipes": [{"name": "Test", "yield_quantity": True}]}
         result = validate_recipe_schema(data)
 
-        assert result.valid is False
-        assert "positive number" in result.errors[0].expected
+        # Validation passes because yield_quantity is ignored
+        assert result.valid is True
 
     def test_string_number_not_valid(self):
         """Test string representation of number is not valid for numeric fields."""

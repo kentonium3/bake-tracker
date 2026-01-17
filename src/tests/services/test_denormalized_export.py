@@ -277,14 +277,12 @@ def sample_material_with_product(test_db, sample_material_hierarchy, sample_supp
 @pytest.fixture
 def sample_recipe(test_db, sample_ingredient):
     """Create a sample recipe with ingredients for tests."""
+    # F056: yield_quantity, yield_unit, yield_description removed from Recipe model
     with session_scope() as session:
         recipe = Recipe(
             name="Chocolate Chip Cookies",
             category="Cookies",
             source="Family Recipe",
-            yield_quantity=24,
-            yield_unit="cookies",
-            yield_description="2-inch cookies",
             estimated_time_minutes=45,
             notes="Classic recipe",
         )
@@ -1180,11 +1178,10 @@ class TestExportRecipesContextRich:
             recipe = data["records"][0]
 
             # Verify recipe fields
+            # F056: yield_quantity, yield_unit removed from Recipe model
             assert recipe["name"] == "Chocolate Chip Cookies"
             assert recipe["category"] == "Cookies"
             assert recipe["source"] == "Family Recipe"
-            assert recipe["yield_quantity"] == 24
-            assert recipe["yield_unit"] == "cookies"
             assert recipe["estimated_time_minutes"] == 45
 
         finally:

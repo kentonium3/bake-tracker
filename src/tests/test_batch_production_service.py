@@ -134,13 +134,14 @@ def inventory_sugar(test_db, product_sugar):
 
 @pytest.fixture
 def recipe_cookies(test_db, ingredient_flour, ingredient_sugar):
-    """Create simple cookie recipe requiring 2 cups flour and 1 cup sugar per batch."""
+    """Create simple cookie recipe requiring 2 cups flour and 1 cup sugar per batch.
+
+    F056: yield_quantity, yield_unit removed from Recipe model.
+    """
     session = test_db()
     recipe = Recipe(
         name="Chocolate Chip Cookies",
         category="Cookies",
-        yield_quantity=48.0,
-        yield_unit="cookies",
     )
     session.add(recipe)
     session.flush()
@@ -431,12 +432,10 @@ class TestRecordBatchProduction:
         recipe_id = recipe.id
         session = test_db()
 
-        # Create a different recipe
+        # Create a different recipe (F056: yield fields removed)
         other_recipe = Recipe(
             name="Sugar Cookies",
             category="Cookies",
-            yield_quantity=36.0,
-            yield_unit="cookies",
         )
         session.add(other_recipe)
         session.flush()

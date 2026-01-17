@@ -843,11 +843,10 @@ class TestForceDeleteProduct:
         session.flush()
 
         # Create a recipe that uses this ingredient
+        # F056: yield_quantity, yield_unit removed from Recipe model
         recipe = Recipe(
             name="Test Recipe",
             category="Cookies",
-            yield_quantity=12,
-            yield_unit="cookies",
         )
         session.add(recipe)
         session.flush()

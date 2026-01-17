@@ -96,8 +96,6 @@ class TestCalculateActualCost:
             {
                 "name": "FIFO Test Recipe",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             },
             [{"ingredient_id": ingredient.id, "quantity": 2.0, "unit": "cup"}]
         )
@@ -137,8 +135,6 @@ class TestCalculateActualCost:
             {
                 "name": "Inventory Test Recipe",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             },
             [{"ingredient_id": ingredient.id, "quantity": 3.0, "unit": "cup"}]
         )
@@ -202,8 +198,6 @@ class TestCalculateActualCost:
             {
                 "name": "Multi Ingredient Recipe",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             },
             [
                 {"ingredient_id": flour.id, "quantity": 2.0, "unit": "cup"},  # 2 * $0.10 = $0.20
@@ -227,8 +221,6 @@ class TestCalculateActualCost:
             {
                 "name": "Empty Recipe",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             },
             [],  # No ingredients
         )
@@ -284,8 +276,6 @@ class TestCalculateActualCost:
             {
                 "name": "Shortfall Recipe",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             },
             [{"ingredient_id": ingredient.id, "quantity": 3.0, "unit": "cup"}]
         )
@@ -327,8 +317,6 @@ class TestCalculateActualCost:
             {
                 "name": "No Inventory Recipe",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             },
             [{"ingredient_id": ingredient.id, "quantity": 3.0, "unit": "cup"}]
         )
@@ -362,8 +350,6 @@ class TestCalculateActualCost:
             {
                 "name": "No History Recipe",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             },
             [{"ingredient_id": ingredient.id, "quantity": 2.0, "unit": "cup"}]
         )
@@ -391,8 +377,6 @@ class TestCalculateActualCost:
             {
                 "name": "No Products Recipe",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             },
             [{"ingredient_id": ingredient.id, "quantity": 2.0, "unit": "cup"}]
         )
@@ -430,8 +414,6 @@ class TestCalculateActualCost:
             {
                 "name": "Precision Recipe",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             },
             [{"ingredient_id": ingredient.id, "quantity": 3.0, "unit": "cup"}]
         )
@@ -501,8 +483,6 @@ class TestCalculateEstimatedCost:
             {
                 "name": "Preferred Test Recipe",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             },
             [{"ingredient_id": ingredient.id, "quantity": 2.0, "unit": "cup"}]
         )
@@ -550,8 +530,6 @@ class TestCalculateEstimatedCost:
             {
                 "name": "Fallback Recipe",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             },
             [{"ingredient_id": ingredient.id, "quantity": 3.0, "unit": "cup"}]
         )
@@ -623,8 +601,6 @@ class TestCalculateEstimatedCost:
             {
                 "name": "Est Multi Recipe",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             },
             [
                 {"ingredient_id": flour.id, "quantity": 2.0, "unit": "cup"},  # 2 * $0.10 = $0.20
@@ -682,8 +658,6 @@ class TestCalculateEstimatedCost:
             {
                 "name": "Ignore Inventory Recipe",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             },
             [{"ingredient_id": ingredient.id, "quantity": 2.0, "unit": "cup"}]
         )
@@ -705,8 +679,6 @@ class TestCalculateEstimatedCost:
             {
                 "name": "Empty Est Recipe",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             },
             [],  # No ingredients
         )
@@ -742,8 +714,6 @@ class TestCalculateEstimatedCost:
             {
                 "name": "No Purchase Est Recipe",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             },
             [{"ingredient_id": ingredient.id, "quantity": 2.0, "unit": "cup"}]
         )
@@ -772,8 +742,6 @@ class TestCalculateEstimatedCost:
             {
                 "name": "No Products Est Recipe",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             },
             [{"ingredient_id": ingredient.id, "quantity": 2.0, "unit": "cup"}]
         )
@@ -828,8 +796,6 @@ class TestPartialInventoryScenarios:
             {
                 "name": "Full Coverage Recipe",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             },
             [{"ingredient_id": ingredient.id, "quantity": 2.0, "unit": "cup"}]
         )
@@ -942,8 +908,6 @@ class TestPartialInventoryScenarios:
             {
                 "name": "Mixed Coverage Recipe",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             },
             [
                 {"ingredient_id": flour.id, "quantity": 3.0, "unit": "cup"},  # 2 FIFO + 1 fallback
@@ -1006,8 +970,6 @@ class TestPartialInventoryScenarios:
             {
                 "name": "Exact Coverage Recipe",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             },
             [{"ingredient_id": ingredient.id, "quantity": 3.0, "unit": "cup"}]
         )
@@ -1061,8 +1023,6 @@ class TestPartialInventoryScenarios:
             {
                 "name": "Precision Recipe",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             },
             [{"ingredient_id": ingredient.id, "quantity": 2.5, "unit": "cup"}]
         )
@@ -1141,8 +1101,6 @@ class TestEdgeCases:
             {
                 "name": "Zero Qty Recipe",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             },
             [
                 {"ingredient_id": flour.id, "quantity": 2.0, "unit": "cup"},
@@ -1217,8 +1175,6 @@ class TestEdgeCases:
             {
                 "name": "Est Zero Qty Recipe",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             },
             [
                 {"ingredient_id": flour.id, "quantity": 2.0, "unit": "cup"},
@@ -1249,8 +1205,6 @@ class TestEdgeCases:
             {
                 "name": "Error Message Recipe",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             },
             [{"ingredient_id": ingredient.id, "quantity": 1.0, "unit": "tsp"}]
         )
@@ -1282,8 +1236,6 @@ class TestEdgeCases:
             {
                 "name": "No Purchase Recipe",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             },
             [{"ingredient_id": ingredient.id, "quantity": 1.0, "unit": "tsp"}]
         )
@@ -1310,16 +1262,12 @@ class TestAddRecipeComponent:
             {
                 "name": "Parent Recipe",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             }
         )
         child = recipe_service.create_recipe(
             {
                 "name": "Child Recipe",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             }
         )
 
@@ -1340,16 +1288,12 @@ class TestAddRecipeComponent:
             {
                 "name": "Default Qty Parent",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             }
         )
         child = recipe_service.create_recipe(
             {
                 "name": "Default Qty Child",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             }
         )
 
@@ -1363,16 +1307,12 @@ class TestAddRecipeComponent:
             {
                 "name": "Fractional Parent",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             }
         )
         child = recipe_service.create_recipe(
             {
                 "name": "Fractional Child",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             }
         )
 
@@ -1386,16 +1326,12 @@ class TestAddRecipeComponent:
             {
                 "name": "Zero Qty Parent",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             }
         )
         child = recipe_service.create_recipe(
             {
                 "name": "Zero Qty Child",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             }
         )
 
@@ -1408,16 +1344,12 @@ class TestAddRecipeComponent:
             {
                 "name": "Neg Qty Parent",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             }
         )
         child = recipe_service.create_recipe(
             {
                 "name": "Neg Qty Child",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             }
         )
 
@@ -1430,16 +1362,12 @@ class TestAddRecipeComponent:
             {
                 "name": "Duplicate Parent",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             }
         )
         child = recipe_service.create_recipe(
             {
                 "name": "Duplicate Child",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             }
         )
 
@@ -1458,8 +1386,6 @@ class TestAddRecipeComponent:
             {
                 "name": "Orphan Child",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             }
         )
 
@@ -1472,8 +1398,6 @@ class TestAddRecipeComponent:
             {
                 "name": "Missing Child Parent",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             }
         )
 
@@ -1486,24 +1410,18 @@ class TestAddRecipeComponent:
             {
                 "name": "Sort Order Parent",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             }
         )
         child1 = recipe_service.create_recipe(
             {
                 "name": "Sort Child 1",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             }
         )
         child2 = recipe_service.create_recipe(
             {
                 "name": "Sort Child 2",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             }
         )
 
@@ -1522,16 +1440,12 @@ class TestRemoveRecipeComponent:
             {
                 "name": "Remove Parent",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             }
         )
         child = recipe_service.create_recipe(
             {
                 "name": "Remove Child",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             }
         )
         recipe_service.add_recipe_component(parent.id, child.id)
@@ -1550,16 +1464,12 @@ class TestRemoveRecipeComponent:
             {
                 "name": "Remove NotFound Parent",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             }
         )
         child = recipe_service.create_recipe(
             {
                 "name": "Remove NotFound Child",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             }
         )
 
@@ -1574,8 +1484,6 @@ class TestRemoveRecipeComponent:
             {
                 "name": "Remove Orphan Child",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             }
         )
 
@@ -1591,16 +1499,12 @@ class TestUpdateRecipeComponent:
             {
                 "name": "Update Qty Parent",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             }
         )
         child = recipe_service.create_recipe(
             {
                 "name": "Update Qty Child",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             }
         )
         recipe_service.add_recipe_component(parent.id, child.id, quantity=1.0)
@@ -1615,16 +1519,12 @@ class TestUpdateRecipeComponent:
             {
                 "name": "Update Notes Parent",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             }
         )
         child = recipe_service.create_recipe(
             {
                 "name": "Update Notes Child",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             }
         )
         recipe_service.add_recipe_component(parent.id, child.id, notes="Original")
@@ -1639,16 +1539,12 @@ class TestUpdateRecipeComponent:
             {
                 "name": "Clear Notes Parent",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             }
         )
         child = recipe_service.create_recipe(
             {
                 "name": "Clear Notes Child",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             }
         )
         recipe_service.add_recipe_component(parent.id, child.id, notes="To be cleared")
@@ -1663,16 +1559,12 @@ class TestUpdateRecipeComponent:
             {
                 "name": "Invalid Update Parent",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             }
         )
         child = recipe_service.create_recipe(
             {
                 "name": "Invalid Update Child",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             }
         )
         recipe_service.add_recipe_component(parent.id, child.id)
@@ -1686,16 +1578,12 @@ class TestUpdateRecipeComponent:
             {
                 "name": "Update NotFound Parent",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             }
         )
         child = recipe_service.create_recipe(
             {
                 "name": "Update NotFound Child",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             }
         )
 
@@ -1713,32 +1601,24 @@ class TestGetRecipeComponents:
             {
                 "name": "Get Components Parent",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             }
         )
         child1 = recipe_service.create_recipe(
             {
                 "name": "Get Child 1",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             }
         )
         child2 = recipe_service.create_recipe(
             {
                 "name": "Get Child 2",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             }
         )
         child3 = recipe_service.create_recipe(
             {
                 "name": "Get Child 3",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             }
         )
 
@@ -1760,8 +1640,6 @@ class TestGetRecipeComponents:
             {
                 "name": "No Components Recipe",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             }
         )
 
@@ -1783,24 +1661,18 @@ class TestGetRecipesUsingComponent:
             {
                 "name": "Using Parent 1",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             }
         )
         parent2 = recipe_service.create_recipe(
             {
                 "name": "Using Parent 2",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             }
         )
         shared_child = recipe_service.create_recipe(
             {
                 "name": "Shared Child Recipe",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             }
         )
 
@@ -1820,8 +1692,6 @@ class TestGetRecipesUsingComponent:
             {
                 "name": "Unused Recipe",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             }
         )
 
@@ -1847,8 +1717,6 @@ class TestCircularReferenceDetection:
             {
                 "name": "Self Reference Recipe",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             }
         )
 
@@ -1863,16 +1731,12 @@ class TestCircularReferenceDetection:
             {
                 "name": "Cycle Recipe A",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             }
         )
         recipe_b = recipe_service.create_recipe(
             {
                 "name": "Cycle Recipe B",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             }
         )
 
@@ -1891,24 +1755,18 @@ class TestCircularReferenceDetection:
             {
                 "name": "Indirect A",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             }
         )
         recipe_b = recipe_service.create_recipe(
             {
                 "name": "Indirect B",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             }
         )
         recipe_c = recipe_service.create_recipe(
             {
                 "name": "Indirect C",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             }
         )
 
@@ -1928,24 +1786,18 @@ class TestCircularReferenceDetection:
             {
                 "name": "Diamond Top",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             }
         )
         recipe_b = recipe_service.create_recipe(
             {
                 "name": "Diamond Left",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             }
         )
         recipe_c = recipe_service.create_recipe(
             {
                 "name": "Diamond Right",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             }
         )
 
@@ -1966,24 +1818,18 @@ class TestDepthLimitEnforcement:
             {
                 "name": "Depth Level 1",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             }
         )
         recipe_b = recipe_service.create_recipe(
             {
                 "name": "Depth Level 2",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             }
         )
         recipe_c = recipe_service.create_recipe(
             {
                 "name": "Depth Level 3",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             }
         )
 
@@ -2001,32 +1847,24 @@ class TestDepthLimitEnforcement:
             {
                 "name": "Too Deep 1",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             }
         )
         recipe_b = recipe_service.create_recipe(
             {
                 "name": "Too Deep 2",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             }
         )
         recipe_c = recipe_service.create_recipe(
             {
                 "name": "Too Deep 3",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             }
         )
         recipe_d = recipe_service.create_recipe(
             {
                 "name": "Too Deep 4",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             }
         )
 
@@ -2046,24 +1884,18 @@ class TestDepthLimitEnforcement:
             {
                 "name": "Subtree Parent",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             }
         )
         recipe_b = recipe_service.create_recipe(
             {
                 "name": "Subtree Child",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             }
         )
         recipe_d = recipe_service.create_recipe(
             {
                 "name": "Subtree Grandchild",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             }
         )
 
@@ -2083,32 +1915,24 @@ class TestDepthLimitEnforcement:
             {
                 "name": "Wide Parent",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             }
         )
         child1 = recipe_service.create_recipe(
             {
                 "name": "Wide Child 1",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             }
         )
         child2 = recipe_service.create_recipe(
             {
                 "name": "Wide Child 2",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             }
         )
         child3 = recipe_service.create_recipe(
             {
                 "name": "Wide Child 3",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             }
         )
 
@@ -2129,16 +1953,12 @@ class TestDeletionProtection:
             {
                 "name": "Delete Protect Parent",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             }
         )
         recipe_child = recipe_service.create_recipe(
             {
                 "name": "Delete Protect Child",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             }
         )
 
@@ -2156,16 +1976,12 @@ class TestDeletionProtection:
             {
                 "name": "Cleanup Parent",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             }
         )
         recipe_child = recipe_service.create_recipe(
             {
                 "name": "Cleanup Child",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             }
         )
 
@@ -2182,8 +1998,6 @@ class TestDeletionProtection:
             {
                 "name": "Standalone Delete",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             }
         )
 
@@ -2196,16 +2010,12 @@ class TestDeletionProtection:
             {
                 "name": "Cascade Parent",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             }
         )
         recipe_child = recipe_service.create_recipe(
             {
                 "name": "Cascade Child",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             }
         )
 
@@ -2224,24 +2034,18 @@ class TestDeletionProtection:
             {
                 "name": "Multi Parent 1",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             }
         )
         parent2 = recipe_service.create_recipe(
             {
                 "name": "Multi Parent 2",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             }
         )
         shared_child = recipe_service.create_recipe(
             {
                 "name": "Multi Shared Child",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             }
         )
 
@@ -2277,8 +2081,6 @@ class TestGetAggregatedIngredients:
             {
                 "name": "Aggreg Simple Recipe",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             },
             [
                 {"ingredient_id": flour.id, "quantity": 2.0, "unit": "cup"},
@@ -2308,8 +2110,6 @@ class TestGetAggregatedIngredients:
             {
                 "name": "Comp Child Recipe",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             },
             [{"ingredient_id": butter.id, "quantity": 0.5, "unit": "cup"}]
         )
@@ -2319,8 +2119,6 @@ class TestGetAggregatedIngredients:
             {
                 "name": "Comp Parent Recipe",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             },
             [{"ingredient_id": flour.id, "quantity": 2.0, "unit": "cup"}]
         )
@@ -2346,8 +2144,6 @@ class TestGetAggregatedIngredients:
             {
                 "name": "Combine Child",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             },
             [{"ingredient_id": flour.id, "quantity": 1.0, "unit": "cup"}]
         )
@@ -2357,8 +2153,6 @@ class TestGetAggregatedIngredients:
             {
                 "name": "Combine Parent",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             },
             [{"ingredient_id": flour.id, "quantity": 2.0, "unit": "cup"}]
         )
@@ -2389,8 +2183,6 @@ class TestGetAggregatedIngredients:
             {
                 "name": "Three Level Grandchild",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             },
             [{"ingredient_id": salt.id, "quantity": 1.0, "unit": "tsp"}]
         )
@@ -2398,8 +2190,6 @@ class TestGetAggregatedIngredients:
             {
                 "name": "Three Level Child",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             },
             [{"ingredient_id": butter.id, "quantity": 1.0, "unit": "cup"}]
         )
@@ -2407,8 +2197,6 @@ class TestGetAggregatedIngredients:
             {
                 "name": "Three Level Parent",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             },
             [{"ingredient_id": flour.id, "quantity": 2.0, "unit": "cup"}]
         )
@@ -2434,8 +2222,6 @@ class TestGetAggregatedIngredients:
             {
                 "name": "Mult Recipe",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             },
             [{"ingredient_id": flour.id, "quantity": 2.0, "unit": "cup"}]
         )
@@ -2451,8 +2237,6 @@ class TestGetAggregatedIngredients:
             {
                 "name": "Empty Aggreg Recipe",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             },
             []
         )
@@ -2470,8 +2254,6 @@ class TestCalculateTotalCostWithComponents:
             {
                 "name": "Single Cost Recipe",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             },
             [],  # No ingredients - cost will be 0
         )
@@ -2489,8 +2271,6 @@ class TestCalculateTotalCostWithComponents:
             {
                 "name": "Cost Child",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             },
             []
         )
@@ -2498,8 +2278,6 @@ class TestCalculateTotalCostWithComponents:
             {
                 "name": "Cost Parent",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             },
             []
         )
@@ -2520,8 +2298,6 @@ class TestCalculateTotalCostWithComponents:
             {
                 "name": "Structure Parent",
                 "category": "Cookies",
-                "yield_quantity": 12,
-                "yield_unit": "cookies"
             },
             []
         )
@@ -2529,8 +2305,6 @@ class TestCalculateTotalCostWithComponents:
             {
                 "name": "Structure Child",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             },
             []
         )
@@ -2562,8 +2336,6 @@ class TestCalculateTotalCostWithComponents:
             {
                 "name": "Per Unit Recipe",
                 "category": "Cookies",
-                "yield_quantity": 24,
-                "yield_unit": "cookies"
             },
             []
         )
@@ -2587,8 +2359,6 @@ class TestGetRecipeWithCostsComponents:
             {
                 "name": "With Costs Parent",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             },
             []
         )
@@ -2596,8 +2366,6 @@ class TestGetRecipeWithCostsComponents:
             {
                 "name": "With Costs Child",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             },
             []
         )
@@ -2617,8 +2385,6 @@ class TestGetRecipeWithCostsComponents:
             {
                 "name": "No Comp Costs",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             },
             []
         )
@@ -2643,8 +2409,6 @@ class TestLeafOnlyIngredientValidation:
             {
                 "name": "Leaf Ingredient Recipe",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             },
             [{"ingredient_id": hierarchy_ingredients.leaf1.id, "quantity": 1.0, "unit": "cup"}]
         )
@@ -2661,8 +2425,6 @@ class TestLeafOnlyIngredientValidation:
                 {
                     "name": "Root Ingredient Recipe",
                     "category": "Cookies",
-                    "yield_quantity": 1,
-                    "yield_unit": "batch"
                 },
                 [{"ingredient_id": hierarchy_ingredients.root.id, "quantity": 1.0, "unit": "cup"}]
             )
@@ -2677,8 +2439,6 @@ class TestLeafOnlyIngredientValidation:
                 {
                     "name": "Mid Ingredient Recipe",
                     "category": "Cookies",
-                    "yield_quantity": 1,
-                    "yield_unit": "batch"
                 },
                 [{"ingredient_id": hierarchy_ingredients.mid.id, "quantity": 1.0, "unit": "cup"}]
             )
@@ -2690,8 +2450,6 @@ class TestLeafOnlyIngredientValidation:
             {
                 "name": "Add Leaf Test Recipe",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             },
             []
         )
@@ -2712,8 +2470,6 @@ class TestLeafOnlyIngredientValidation:
             {
                 "name": "Add Non-Leaf Test Recipe",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             },
             []
         )
@@ -2735,8 +2491,6 @@ class TestLeafOnlyIngredientValidation:
                 {
                     "name": "Suggestion Test Recipe",
                     "category": "Cookies",
-                    "yield_quantity": 1,
-                    "yield_unit": "batch"
                 },
                 [{"ingredient_id": hierarchy_ingredients.mid.id, "quantity": 1.0, "unit": "cup"}]
             )
@@ -2755,8 +2509,6 @@ class TestLeafOnlyIngredientValidation:
             {
                 "name": "Update Non-Leaf Test",
                 "category": "Cookies",
-                "yield_quantity": 1,
-                "yield_unit": "batch"
             },
             [{"ingredient_id": hierarchy_ingredients.leaf1.id, "quantity": 1.0, "unit": "cup"}]
         )
@@ -2768,8 +2520,6 @@ class TestLeafOnlyIngredientValidation:
                 {
                     "name": "Updated Recipe",
                     "category": "Cookies",
-                    "yield_quantity": 1,
-                    "yield_unit": "batch"
                 },
                 [{"ingredient_id": hierarchy_ingredients.root.id, "quantity": 1.0, "unit": "cup"}]
             )
@@ -2785,8 +2535,6 @@ class TestRecipeVariants:
             {
                 "name": "Thumbprint Cookies",
                 "category": "Cookies",
-                "yield_quantity": 24,
-                "yield_unit": "cookies"
             },
             []
         )
@@ -2804,8 +2552,6 @@ class TestRecipeVariants:
             {
                 "name": "Thumbprint Cookies",
                 "category": "Cookies",
-                "yield_quantity": 24,
-                "yield_unit": "cookies"
             },
             []
         )
@@ -2834,8 +2580,6 @@ class TestRecipeVariants:
             {
                 "name": "Sugar Cookies",
                 "category": "Cookies",
-                "yield_quantity": 36,
-                "yield_unit": "cookies",
                 "source": "Grandma's Recipe"
             },
             []
@@ -2865,8 +2609,6 @@ class TestRecipeVariants:
             {
                 "name": "Chocolate Cookies",
                 "category": "Cookies",
-                "yield_quantity": 24,
-                "yield_unit": "cookies"
             },
             [{"ingredient_id": hierarchy_ingredients.leaf1.id, "quantity": 2.0, "unit": "cup"}]
         )
@@ -2890,8 +2632,6 @@ class TestRecipeVariants:
             {
                 "name": "Chocolate Cookies",
                 "category": "Cookies",
-                "yield_quantity": 24,
-                "yield_unit": "cookies"
             },
             [{"ingredient_id": hierarchy_ingredients.leaf1.id, "quantity": 2.0, "unit": "cup"}]
         )
@@ -2911,8 +2651,6 @@ class TestRecipeVariants:
             {
                 "name": "Basic Cookies",
                 "category": "Cookies",
-                "yield_quantity": 24,
-                "yield_unit": "cookies"
             },
             []
         )
@@ -2940,8 +2678,6 @@ class TestRecipeVariants:
             {
                 "name": "Base To Delete",
                 "category": "Cookies",
-                "yield_quantity": 12,
-                "yield_unit": "cookies"
             },
             []
         )
@@ -2967,8 +2703,6 @@ class TestRecipeVariants:
             {
                 "name": "Thumbprint Cookies",
                 "category": "Cookies",
-                "yield_quantity": 24,
-                "yield_unit": "cookies"
             },
             []
         )
@@ -2982,8 +2716,6 @@ class TestRecipeVariants:
             {
                 "name": "Brownies",
                 "category": "Bars",
-                "yield_quantity": 16,
-                "yield_unit": "pieces"
             },
             []
         )
@@ -3014,8 +2746,6 @@ class TestRecipeVariants:
             {
                 "name": "Test Base",
                 "category": "Cookies",
-                "yield_quantity": 12,
-                "yield_unit": "cookies"
             },
             []
         )
@@ -3058,8 +2788,6 @@ class TestRecipeVariants:
             {
                 "name": "Cookie Base",
                 "category": "Cookies",
-                "yield_quantity": 24,
-                "yield_unit": "cookies"
             },
             []
         )
@@ -3070,8 +2798,6 @@ class TestRecipeVariants:
             {
                 "name": "Brownies",
                 "category": "Bars",
-                "yield_quantity": 16,
-                "yield_unit": "pieces"
             },
             []
         )
@@ -3100,8 +2826,6 @@ class TestRecipeFinishedUnitValidation:
             {
                 "name": "No Yields Recipe",
                 "category": "Test",
-                "yield_quantity": 12,
-                "yield_unit": "each"
             },
             []
         )
@@ -3121,8 +2845,6 @@ class TestRecipeFinishedUnitValidation:
         recipe = Recipe(
             name="Complete Yield Recipe",
             category="Cookies",
-            yield_quantity=24,
-            yield_unit="cookies"
         )
         session.add(recipe)
         session.flush()
@@ -3153,8 +2875,6 @@ class TestRecipeFinishedUnitValidation:
         recipe = Recipe(
             name="Missing Unit Recipe",
             category="Test",
-            yield_quantity=12,
-            yield_unit="each"
         )
         session.add(recipe)
         session.flush()
@@ -3186,8 +2906,6 @@ class TestRecipeFinishedUnitValidation:
         recipe = Recipe(
             name="Missing Quantity Recipe",
             category="Test",
-            yield_quantity=12,
-            yield_unit="each"
         )
         session.add(recipe)
         session.flush()
@@ -3219,8 +2937,6 @@ class TestRecipeFinishedUnitValidation:
         recipe = Recipe(
             name="Missing Name Recipe",
             category="Test",
-            yield_quantity=12,
-            yield_unit="each"
         )
         session.add(recipe)
         session.flush()
@@ -3255,8 +2971,6 @@ class TestRecipeFinishedUnitValidation:
         recipe = Recipe(
             name="Batch Portion Recipe",
             category="Cakes",
-            yield_quantity=1,
-            yield_unit="batch"
         )
         session.add(recipe)
         session.flush()
@@ -3287,8 +3001,6 @@ class TestRecipeFinishedUnitValidation:
         recipe = Recipe(
             name="Missing Percentage Recipe",
             category="Cakes",
-            yield_quantity=1,
-            yield_unit="batch"
         )
         session.add(recipe)
         session.flush()
@@ -3320,8 +3032,6 @@ class TestRecipeFinishedUnitValidation:
         recipe = Recipe(
             name="Multiple Yields Recipe",
             category="Cookies",
-            yield_quantity=24,
-            yield_unit="cookies"
         )
         session.add(recipe)
         session.flush()
@@ -3369,8 +3079,6 @@ class TestRecipeFinishedUnitValidation:
         recipe = Recipe(
             name="All Incomplete Recipe",
             category="Cookies",
-            yield_quantity=24,
-            yield_unit="cookies"
         )
         session.add(recipe)
         session.flush()
@@ -3413,8 +3121,6 @@ class TestRecipeFinishedUnitValidation:
         recipe = Recipe(
             name="Session Test Recipe",
             category="Cookies",
-            yield_quantity=24,
-            yield_unit="cookies"
         )
         session.add(recipe)
         session.flush()

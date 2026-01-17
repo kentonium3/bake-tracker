@@ -117,21 +117,21 @@ class TestCalculatePlan:
         session.add(event)
         session.flush()
 
-        # Create recipe
+        # Create recipe (F056: yield fields removed from Recipe model)
         cookie_recipe = Recipe(
             name="Sugar Cookies",
             category="Cookies",
-            yield_quantity=48,
-            yield_unit="cookies",
         )
         session.add(cookie_recipe)
         session.flush()
 
-        # Create FinishedUnit
+        # Create FinishedUnit (F056: items_per_batch holds yield data)
         cookie_unit = FinishedUnit(
             display_name="Sugar Cookie",
             slug="sugar-cookie",
             recipe_id=cookie_recipe.id,
+            items_per_batch=48,  # Was Recipe.yield_quantity
+            item_unit="cookies",  # Was Recipe.yield_unit
             inventory_count=0,
         )
         session.add(cookie_unit)
@@ -186,12 +186,10 @@ class TestCalculatePlan:
         session.add(event)
         session.flush()
 
-        # Create recipe
+        # Create recipe (F056: yield fields removed from Recipe model)
         brownie_recipe = Recipe(
             name="Fudge Brownies",
             category="Brownies",
-            yield_quantity=24,
-            yield_unit="brownies",
         )
         session.add(brownie_recipe)
         session.flush()
@@ -450,8 +448,6 @@ class TestGetRecipeBatches:
         recipe = Recipe(
             name="Test Cookies",
             category="Cookies",
-            yield_quantity=48,
-            yield_unit="cookies",
         )
         session.add(recipe)
         session.flush()
@@ -517,8 +513,6 @@ class TestGetAssemblyChecklist:
         recipe = Recipe(
             name="Cookies",
             category="Cookies",
-            yield_quantity=48,
-            yield_unit="cookies",
         )
         session.add(recipe)
         session.flush()
@@ -527,6 +521,8 @@ class TestGetAssemblyChecklist:
             display_name="Cookie",
             slug="cookie",
             recipe_id=recipe.id,
+            items_per_batch=48,  # F056: Was Recipe.yield_quantity
+            item_unit="cookies",
             inventory_count=100,
         )
         session.add(cookie_unit)
@@ -668,17 +664,17 @@ class TestIntegration:
         cookie_recipe = Recipe(
             name="Holiday Cookies",
             category="Cookies",
-            yield_quantity=48,
-            yield_unit="cookies",
         )
         session.add(cookie_recipe)
         session.flush()
 
-        # Create FinishedUnit
+        # Create FinishedUnit (F056: items_per_batch holds yield data)
         cookie = FinishedUnit(
             display_name="Holiday Cookie",
             slug="holiday-cookie",
             recipe_id=cookie_recipe.id,
+            items_per_batch=48,  # Was Recipe.yield_quantity
+            item_unit="cookies",
             inventory_count=0,
         )
         session.add(cookie)

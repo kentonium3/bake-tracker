@@ -90,13 +90,14 @@ def test_package(test_db):
 
 @pytest.fixture
 def test_recipe(test_db):
-    """Create a test recipe."""
+    """Create a test recipe.
+
+    F056: yield_quantity, yield_unit removed from Recipe model.
+    """
     session = test_db()
     recipe = Recipe(
         name="Sugar Cookies",
         category="Cookies",
-        yield_quantity=48.0,
-        yield_unit="cookies",
     )
     session.add(recipe)
     session.commit()

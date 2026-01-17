@@ -1177,12 +1177,11 @@ class TestImportRecipes:
         self, create_test_ingredients_for_recipes, cleanup_test_ingredients
     ):
         """Test that new recipes are created correctly with all relationships."""
+        # F056: yield_quantity, yield_unit removed - use FinishedUnit records
         data = [
             {
                 "name": "Test Chocolate Chip Cookies",
                 "category": "Cookies",
-                "yield_quantity": 24,
-                "yield_unit": "cookies",
                 "ingredients": [
                     {"ingredient_slug": "recipe_test_flour", "quantity": 2.0, "unit": "cup"},
                     {"ingredient_slug": "recipe_test_sugar", "quantity": 1.0, "unit": "cup"},
@@ -1207,20 +1206,17 @@ class TestImportRecipes:
             )
             assert recipe is not None
             assert recipe.category == "Cookies"
-            assert recipe.yield_quantity == 24
-            assert recipe.yield_unit == "cookies"
             assert len(recipe.recipe_ingredients) == 3
 
     def test_import_recipes_fk_validation_fails_on_missing_ingredient(
         self, cleanup_test_ingredients
     ):
         """Test that FK validation fails with actionable error when ingredient not found."""
+        # F056: yield_quantity, yield_unit removed
         data = [
             {
                 "name": "Test Sugar Cookies",
                 "category": "Cookies",
-                "yield_quantity": 12,
-                "yield_unit": "cookies",
                 "ingredients": [
                     {"ingredient_slug": "missing_vanilla", "quantity": 1.0, "unit": "tsp"},
                 ],
@@ -1244,24 +1240,21 @@ class TestImportRecipes:
     def test_import_recipes_collision_with_detailed_error(
         self, create_test_ingredients_for_recipes, cleanup_test_ingredients
     ):
-        """Test that collision error includes detailed info about both recipes."""
+        """Test that collision error includes error when recipe already exists."""
+        # F056: yield_quantity, yield_unit removed
         # Pre-create recipe with name "Test Chocolate Cake"
         with session_scope() as session:
             existing = Recipe(
                 name="Test Chocolate Cake",
                 category="Cakes",
-                yield_quantity=12,
-                yield_unit="servings",
             )
             session.add(existing)
 
-        # Try to import with same name but different yield
+        # Try to import with same name
         data = [
             {
                 "name": "Test Chocolate Cake",
                 "category": "Cakes",
-                "yield_quantity": 24,
-                "yield_unit": "pieces",
                 "ingredients": [],
             }
         ]
@@ -1272,37 +1265,31 @@ class TestImportRecipes:
         assert result.entity_counts["recipes"].failed == 1
         assert result.has_errors is True
 
-        # Verify collision error includes both yield infos
+        # Verify collision error
         error = result.errors[0]
         assert error.error_type == "collision"
-        assert "12" in error.message and "servings" in error.message  # Existing
-        assert "24" in error.message and "pieces" in error.message  # Import
+        assert "already exists" in error.message
 
     def test_import_recipes_circular_detection(self, cleanup_test_ingredients):
         """Test that circular references are detected."""
         # Create A -> B -> C -> A circular reference
+        # F056: yield_quantity, yield_unit removed
         data = [
             {
                 "name": "Recipe A",
                 "category": "Test",
-                "yield_quantity": 1,
-                "yield_unit": "batch",
                 "ingredients": [],
                 "components": [{"recipe_name": "Recipe B"}],
             },
             {
                 "name": "Recipe B",
                 "category": "Test",
-                "yield_quantity": 1,
-                "yield_unit": "batch",
                 "ingredients": [],
                 "components": [{"recipe_name": "Recipe C"}],
             },
             {
                 "name": "Recipe C",
                 "category": "Test",
-                "yield_quantity": 1,
-                "yield_unit": "batch",
                 "ingredients": [],
                 "components": [{"recipe_name": "Recipe A"}],
             },
@@ -1324,12 +1311,11 @@ class TestImportRecipes:
     ):
         """Test importing recipe with component recipes in correct order."""
         # Import frosting first, then cake that uses it
+        # F056: yield_quantity, yield_unit removed
         data = [
             {
                 "name": "Test Frosting",
                 "category": "Frostings",
-                "yield_quantity": 2,
-                "yield_unit": "cups",
                 "ingredients": [
                     {"ingredient_slug": "recipe_test_butter", "quantity": 0.5, "unit": "cup"},
                     {"ingredient_slug": "recipe_test_sugar", "quantity": 2.0, "unit": "cup"},
@@ -1338,8 +1324,6 @@ class TestImportRecipes:
             {
                 "name": "Test Vanilla Cake",
                 "category": "Cakes",
-                "yield_quantity": 12,
-                "yield_unit": "servings",
                 "ingredients": [
                     {"ingredient_slug": "recipe_test_flour", "quantity": 3.0, "unit": "cup"},
                     {"ingredient_slug": "recipe_test_sugar", "quantity": 1.5, "unit": "cup"},
@@ -1365,12 +1349,11 @@ class TestImportRecipes:
 
     def test_import_recipes_augment_mode_rejected(self, cleanup_test_ingredients):
         """Test that AUGMENT mode returns error for recipes."""
+        # F056: yield_quantity, yield_unit removed
         data = [
             {
                 "name": "Test Sugar Cookies",
                 "category": "Cookies",
-                "yield_quantity": 12,
-                "yield_unit": "cookies",
                 "ingredients": [],
             }
         ]
@@ -1385,11 +1368,10 @@ class TestImportRecipes:
 
     def test_import_recipes_validation_missing_name(self, cleanup_test_ingredients):
         """Test that missing name triggers validation error."""
+        # F056: yield_quantity, yield_unit removed
         data = [
             {
                 "category": "Cookies",
-                "yield_quantity": 12,
-                "yield_unit": "cookies",
                 "ingredients": [],
             }
         ]
@@ -1399,8 +1381,12 @@ class TestImportRecipes:
         assert result.entity_counts["recipes"].failed == 1
         assert "name" in result.errors[0].message.lower()
 
-    def test_import_recipes_validation_missing_yield(self, cleanup_test_ingredients):
-        """Test that missing yield fields trigger validation error."""
+    def test_import_recipes_without_yield_fields_succeeds(self, cleanup_test_ingredients):
+        """Test that recipes without yield fields are accepted (F056 deprecation).
+
+        F056: yield_quantity, yield_unit are deprecated. Recipes are imported
+        without yield validation. Use FinishedUnit records for yield data.
+        """
         data = [
             {
                 "name": "Test Cookies",
@@ -1411,19 +1397,19 @@ class TestImportRecipes:
 
         result = import_recipes(data, mode="add")
 
-        assert result.entity_counts["recipes"].failed == 1
-        assert "yield" in result.errors[0].message.lower()
+        # F056: No yield validation, so this should succeed
+        assert result.entity_counts["recipes"].added == 1
+        assert result.entity_counts["recipes"].failed == 0
 
     def test_import_recipes_partial_success(
         self, create_test_ingredients_for_recipes, cleanup_test_ingredients
     ):
         """Test that valid recipes are imported even when some fail."""
+        # F056: yield_quantity, yield_unit removed
         data = [
             {
                 "name": "Test Chocolate Chip Cookies",
                 "category": "Cookies",
-                "yield_quantity": 24,
-                "yield_unit": "cookies",
                 "ingredients": [
                     {"ingredient_slug": "recipe_test_flour", "quantity": 2.0, "unit": "cup"},
                 ],
@@ -1431,8 +1417,6 @@ class TestImportRecipes:
             {
                 "name": "Invalid Recipe",
                 "category": "Cookies",
-                "yield_quantity": 12,
-                "yield_unit": "cookies",
                 "ingredients": [
                     {"ingredient_slug": "nonexistent_ingredient", "quantity": 1.0, "unit": "cup"},
                 ],
@@ -1440,8 +1424,6 @@ class TestImportRecipes:
             {
                 "name": "Test Sugar Cookies",
                 "category": "Cookies",
-                "yield_quantity": 18,
-                "yield_unit": "cookies",
                 "ingredients": [
                     {"ingredient_slug": "recipe_test_sugar", "quantity": 1.0, "unit": "cup"},
                 ],
@@ -1462,8 +1444,6 @@ class TestImportRecipes:
             {
                 "name": "Test Chocolate Chip Cookies",
                 "category": "Cookies",
-                "yield_quantity": 24,
-                "yield_unit": "cookies",
                 "ingredients": [
                     {"ingredient_slug": "recipe_test_flour", "quantity": 2.0, "unit": "cup"},
                 ],
@@ -1487,15 +1467,15 @@ class TestImportRecipes:
     def test_import_recipes_with_optional_fields(
         self, create_test_ingredients_for_recipes, cleanup_test_ingredients
     ):
-        """Test import with all optional fields populated."""
+        """Test import with all optional fields populated.
+
+        F056: yield_quantity, yield_unit, yield_description removed from Recipe model.
+        """
         data = [
             {
                 "name": "Test Chocolate Chip Cookies",
                 "category": "Cookies",
                 "source": "Grandma's Recipe Box",
-                "yield_quantity": 24,
-                "yield_unit": "cookies",
-                "yield_description": "2-inch cookies",
                 "estimated_time_minutes": 45,
                 "notes": "Chill dough for best results",
                 "ingredients": [
@@ -1519,7 +1499,6 @@ class TestImportRecipes:
                 .first()
             )
             assert recipe.source == "Grandma's Recipe Box"
-            assert recipe.yield_description == "2-inch cookies"
             assert recipe.estimated_time_minutes == 45
             assert recipe.notes == "Chill dough for best results"
             assert recipe.recipe_ingredients[0].notes == "sifted"
@@ -1539,13 +1518,14 @@ from src.services.catalog_import_service import (
 
 @pytest.fixture
 def create_test_recipe_for_finished_units(test_db):
-    """Create a test recipe for FinishedUnit import tests."""
+    """Create a test recipe for FinishedUnit import tests.
+
+    F056: yield_quantity, yield_unit removed from Recipe model.
+    """
     with session_scope() as session:
         recipe = Recipe(
             name="FU Test Recipe",
             category="Test",
-            yield_quantity=24,
-            yield_unit="cookies",
         )
         session.add(recipe)
     yield
@@ -1778,77 +1758,69 @@ class TestImportFinishedUnits:
 
 
 class TestEnsureRecipeHasFinishedUnit:
-    """Tests for _ensure_recipe_has_finished_unit function (Feature 056)."""
+    """Tests for _ensure_recipe_has_finished_unit function (Feature 056).
 
-    def test_legacy_recipe_creates_finished_unit(self, cleanup_test_finished_units):
-        """Test that recipe with yield fields but no FinishedUnit creates one."""
+    F056: yield_quantity, yield_unit, yield_description removed from Recipe model.
+    The function now only checks if FinishedUnits exist, no longer creates them.
+    """
+
+    def test_recipe_with_finished_unit_returns_true(self, cleanup_test_finished_units):
+        """Test that recipe with FinishedUnit returns True."""
         with session_scope() as session:
-            # Create recipe with yield fields
+            # Create recipe without yield fields (F056 removal)
             recipe = Recipe(
-                name="Legacy Recipe",
+                name="Recipe With FU",
                 category="Test",
-                yield_quantity=24,
-                yield_unit="cookies",
-                yield_description="2-inch cookies",
             )
             session.add(recipe)
             session.flush()
 
-            # Call the function
-            created = _ensure_recipe_has_finished_unit(recipe, session)
-
-            assert created is True
-
-            # Verify FinishedUnit was created
-            fu = (
-                session.query(FinishedUnit)
-                .filter(FinishedUnit.recipe_id == recipe.id)
-                .first()
-            )
-            assert fu is not None
-            assert fu.display_name == "2-inch cookies"  # Uses yield_description
-            assert fu.items_per_batch == 24
-            assert fu.item_unit == "cookies"
-            assert fu.yield_mode == YieldMode.DISCRETE_COUNT
-            assert "legacy_recipe" in fu.slug  # Slug is generated from recipe name
-
-    def test_legacy_recipe_without_description_uses_default(self, cleanup_test_finished_units):
-        """Test that recipe without yield_description uses 'Standard {name}'."""
-        with session_scope() as session:
-            # Create recipe without yield_description
-            recipe = Recipe(
-                name="Legacy Recipe",
+            # Create a FinishedUnit for the recipe
+            from src.models.finished_unit import FinishedUnit, YieldMode
+            fu = FinishedUnit(
+                recipe_id=recipe.id,
+                slug="recipe_with_fu_cookies",
+                display_name="Cookies",
                 category="Test",
-                yield_quantity=24,
-                yield_unit="cookies",
-                yield_description=None,  # No description
+                yield_mode=YieldMode.DISCRETE_COUNT,
+                items_per_batch=24,
+                item_unit="cookies",
+            )
+            session.add(fu)
+            session.flush()
+
+            # Call the function - should return True (has FinishedUnit)
+            has_fu = _ensure_recipe_has_finished_unit(recipe, session)
+
+            assert has_fu is True
+
+    def test_recipe_without_finished_unit_returns_false(self, cleanup_test_finished_units):
+        """Test that recipe without FinishedUnit returns False."""
+        with session_scope() as session:
+            # Create recipe without yield fields (F056 removal)
+            recipe = Recipe(
+                name="Recipe Without FU",
+                category="Test",
             )
             session.add(recipe)
             session.flush()
 
-            # Call the function
-            created = _ensure_recipe_has_finished_unit(recipe, session)
+            # Call the function - should return False (no FinishedUnit)
+            has_fu = _ensure_recipe_has_finished_unit(recipe, session)
 
-            assert created is True
+            assert has_fu is False
 
-            # Verify display_name
-            fu = (
-                session.query(FinishedUnit)
-                .filter(FinishedUnit.recipe_id == recipe.id)
-                .first()
-            )
-            assert fu is not None
-            assert fu.display_name == "Standard Legacy Recipe"
+    def test_function_no_longer_creates_finished_units(self, cleanup_test_finished_units):
+        """Test that function no longer auto-creates FinishedUnits (F056).
 
-    def test_recipe_without_yield_fields_does_not_create(self, cleanup_test_finished_units):
-        """Test that recipe without yield fields does NOT create FinishedUnit."""
+        After F056, yield fields are removed from Recipe. The function only
+        checks if FinishedUnits exist, it does not create them.
+        """
         with session_scope() as session:
-            # Create recipe without yield fields
+            # Create recipe
             recipe = Recipe(
-                name="No Yield Recipe",
+                name="No Auto Create Recipe",
                 category="Test",
-                yield_quantity=None,
-                yield_unit=None,
             )
             session.add(recipe)
             session.flush()
@@ -1866,17 +1838,19 @@ class TestEnsureRecipeHasFinishedUnit:
             )
             assert fu is None
 
-    def test_recipe_with_existing_finished_unit_does_not_create(
+    def test_recipe_with_existing_finished_unit_returns_true(
         self, cleanup_test_finished_units
     ):
-        """Test that recipe with existing FinishedUnit does NOT create another."""
+        """Test that recipe with existing FinishedUnit returns True.
+
+        F056: yield_quantity, yield_unit removed from Recipe model.
+        The function now only checks if FinishedUnits exist, returns True if so.
+        """
         with session_scope() as session:
-            # Create recipe with yield fields
+            # Create recipe (without deprecated yield fields)
             recipe = Recipe(
                 name="Legacy Recipe",
                 category="Test",
-                yield_quantity=24,
-                yield_unit="cookies",
             )
             session.add(recipe)
             session.flush()
@@ -1893,12 +1867,12 @@ class TestEnsureRecipeHasFinishedUnit:
             session.add(fu)
             session.flush()
 
-            # Call the function
-            created = _ensure_recipe_has_finished_unit(recipe, session)
+            # Call the function - should return True since FU exists
+            has_finished_unit = _ensure_recipe_has_finished_unit(recipe, session)
 
-            assert created is False
+            assert has_finished_unit is True
 
-            # Verify only one FinishedUnit exists
+            # Verify only one FinishedUnit exists (function doesn't create more)
             count = (
                 session.query(FinishedUnit)
                 .filter(FinishedUnit.recipe_id == recipe.id)
