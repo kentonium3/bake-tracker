@@ -467,6 +467,7 @@ class FinishedUnitsTab(ctk.CTkFrame):
                 finished_unit_service.create_finished_unit(
                     display_name=data["display_name"],
                     recipe_id=recipe_id,
+                    item_unit=data.get("item_unit"),
                     items_per_batch=data["items_per_batch"],
                 )
             else:
@@ -475,6 +476,7 @@ class FinishedUnitsTab(ctk.CTkFrame):
                 finished_unit_service.update_finished_unit(
                     data["id"],
                     display_name=data["display_name"],
+                    item_unit=data.get("item_unit"),
                     items_per_batch=data["items_per_batch"],
                 )
 

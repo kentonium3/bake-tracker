@@ -396,6 +396,7 @@ class YieldTypeRow(ctk.CTkFrame):
         remove_callback,
         finished_unit_id: Optional[int] = None,
         display_name: str = "",
+        item_unit: str = "",
         items_per_batch: int = 1,
     ):
         """
@@ -405,7 +406,8 @@ class YieldTypeRow(ctk.CTkFrame):
             parent: Parent widget
             remove_callback: Callback to remove this row
             finished_unit_id: ID if editing existing (None for new)
-            display_name: Yield type name
+            display_name: Yield type name (e.g., "Large Cookie")
+            item_unit: Unit of the finished item (e.g., "cookie", "piece")
             items_per_batch: Number of items per batch
         """
         super().__init__(parent)
@@ -413,32 +415,44 @@ class YieldTypeRow(ctk.CTkFrame):
         self.remove_callback = remove_callback
         self.finished_unit_id = finished_unit_id
 
-        # Configure grid (Name / Items Per Batch / Remove)
+        # Configure grid (Name / Unit / Quantity / Remove)
         self.grid_columnconfigure(0, weight=3)  # Name (wider)
-        self.grid_columnconfigure(1, weight=1)  # Quantity
-        self.grid_columnconfigure(2, weight=0)  # Remove button
+        self.grid_columnconfigure(1, weight=1)  # Unit
+        self.grid_columnconfigure(2, weight=1)  # Quantity
+        self.grid_columnconfigure(3, weight=0)  # Remove button
 
-        # Name entry
+        # Name entry (Description)
         self.name_entry = ctk.CTkEntry(
             self,
-            width=250,
-            placeholder_text="Yield type name (e.g., Large Cookie)"
+            width=200,
+            placeholder_text="Description (e.g., Large Cookie)"
         )
         if display_name:
             self.name_entry.insert(0, display_name)
         self.name_entry.grid(row=0, column=0, padx=(0, PADDING_MEDIUM), pady=5, sticky="ew")
 
-        # Items per batch entry
-        self.quantity_entry = ctk.CTkEntry(
+        # Unit entry (Item Unit)
+        self.unit_entry = ctk.CTkEntry(
             self,
             width=100,
-            placeholder_text="Per batch"
+            placeholder_text="Unit (e.g., cookie)"
         )
-        self.quantity_entry.insert(0, str(items_per_batch))
-        self.quantity_entry.grid(row=0, column=1, padx=PADDING_MEDIUM, pady=5)
+        if item_unit:
+            self.unit_entry.insert(0, item_unit)
+        self.unit_entry.grid(row=0, column=1, padx=PADDING_MEDIUM, pady=5)
 
-        # Remove button
-        remove_button = ctk.CTkButton(
+        # Items per batch entry (Quantity)
+        self.quantity_entry = ctk.CTkEntry(
+            self,
+            width=80,
+            placeholder_text="Qty/batch"
+        )
+        if items_per_batch:
+            self.quantity_entry.insert(0, str(items_per_batch))
+        self.quantity_entry.grid(row=0, column=2, padx=PADDING_MEDIUM, pady=5)
+
+        # Remove button (exposed for T019 - disable when only one row)
+        self.remove_button = ctk.CTkButton(
             self,
             text="X",
             width=30,
@@ -446,20 +460,25 @@ class YieldTypeRow(ctk.CTkFrame):
             fg_color="darkred",
             hover_color="red",
         )
-        remove_button.grid(row=0, column=2, padx=(PADDING_MEDIUM, 0), pady=5)
+        self.remove_button.grid(row=0, column=3, padx=(PADDING_MEDIUM, 0), pady=5)
 
     def get_data(self) -> Optional[Dict[str, Any]]:
         """
         Get yield type data from this row.
 
         Returns:
-            Dictionary with id, display_name, items_per_batch, or None if invalid
+            Dictionary with id, display_name, item_unit, items_per_batch, or None if invalid
         """
         name = self.name_entry.get().strip()
+        unit = self.unit_entry.get().strip()
         quantity_str = self.quantity_entry.get().strip()
 
         # Validate name
         if not name:
+            return None
+
+        # Validate unit
+        if not unit:
             return None
 
         # Validate quantity
@@ -473,6 +492,7 @@ class YieldTypeRow(ctk.CTkFrame):
         return {
             "id": self.finished_unit_id,
             "display_name": name,
+            "item_unit": unit,
             "items_per_batch": items_per_batch,
         }
 
@@ -679,46 +699,11 @@ class RecipeFormDialog(ctk.CTkToplevel):
         )
         row += 1
 
-        # Yield quantity and unit on same line (they are related)
-        yield_row_frame = ctk.CTkFrame(parent, fg_color="transparent")
-        yield_row_frame.grid(
-            row=row, column=0, columnspan=2, sticky="ew", padx=PADDING_MEDIUM, pady=5
-        )
-        row += 1
-
-        yield_qty_label = ctk.CTkLabel(yield_row_frame, text="Yield*:", anchor="w")
-        yield_qty_label.pack(side="left", padx=(0, 5))
-
-        self.yield_quantity_entry = ctk.CTkEntry(
-            yield_row_frame,
-            width=80,
-            placeholder_text="24",
-        )
-        self.yield_quantity_entry.pack(side="left", padx=(0, 10))
-
-        yield_units = (
-            ["dozen", "each", "piece", "batch"] + COUNT_UNITS + WEIGHT_UNITS + VOLUME_UNITS
-        )
-        self.yield_unit_combo = ctk.CTkComboBox(
-            yield_row_frame,
-            width=120,
-            values=yield_units,
-            state="readonly",
-        )
-        self.yield_unit_combo.set("each")
-        self.yield_unit_combo.pack(side="left", padx=(0, 20))
-
-        yield_hint = ctk.CTkLabel(
-            yield_row_frame,
-            text="(e.g., 24 each, 2 dozen)",
-            text_color="gray",
-        )
-        yield_hint.pack(side="left")
-
-        # Yield Types sub-section (FinishedUnits - different sizes/forms from this recipe)
+        # Yield Types section (Feature 056 - FinishedUnits as single source of yield data)
+        # Each yield type specifies: Description, Unit, and Quantity per batch
         yield_types_info = ctk.CTkLabel(
             parent,
-            text="Yield Types - Define the finished products this recipe produces (e.g., Large Cookie, Small Cookie):",
+            text="Yield Types* - Each row defines a finished product from this recipe (Description, Unit, Qty/batch):",
             text_color="gray",
             font=ctk.CTkFont(size=11),
         )
@@ -1151,6 +1136,7 @@ class RecipeFormDialog(ctk.CTkToplevel):
         self,
         finished_unit_id: Optional[int] = None,
         display_name: str = "",
+        item_unit: str = "",
         items_per_batch: int = 1,
     ):
         """
@@ -1159,6 +1145,7 @@ class RecipeFormDialog(ctk.CTkToplevel):
         Args:
             finished_unit_id: ID if editing existing (None for new)
             display_name: Yield type name
+            item_unit: Unit of the finished item (e.g., "cookie", "piece")
             items_per_batch: Number of items per batch
         """
         row = YieldTypeRow(
@@ -1166,10 +1153,12 @@ class RecipeFormDialog(ctk.CTkToplevel):
             self._remove_yield_type_row,
             finished_unit_id,
             display_name,
+            item_unit,
             items_per_batch,
         )
         row.grid(row=len(self.yield_type_rows), column=0, sticky="ew", pady=2)
         self.yield_type_rows.append(row)
+        self._update_remove_buttons()
 
     def _remove_yield_type_row(self, row: YieldTypeRow):
         """
@@ -1199,6 +1188,22 @@ class RecipeFormDialog(ctk.CTkToplevel):
             # Re-grid remaining rows
             for idx, remaining_row in enumerate(self.yield_type_rows):
                 remaining_row.grid(row=idx, column=0, sticky="ew", pady=2)
+            # Update remove button states (T019)
+            self._update_remove_buttons()
+
+    def _update_remove_buttons(self):
+        """
+        Enable/disable Remove buttons based on row count.
+
+        When only one yield type row exists, disable its Remove button
+        to enforce the "at least one yield type" requirement.
+        """
+        row_count = len(self.yield_type_rows)
+        for row in self.yield_type_rows:
+            if row_count <= 1:
+                row.remove_button.configure(state="disabled")
+            else:
+                row.remove_button.configure(state="normal")
 
     def _populate_form(self):
         """Populate form fields with existing recipe data."""
@@ -1208,8 +1213,6 @@ class RecipeFormDialog(ctk.CTkToplevel):
         # Basic fields
         self.name_entry.insert(0, self.recipe.name)
         self.category_combo.set(self.recipe.category)
-        self.yield_quantity_entry.insert(0, str(self.recipe.yield_quantity))
-        self.yield_unit_combo.set(self.recipe.yield_unit)
         if self.recipe.estimated_time_minutes:
             self.prep_time_entry.insert(0, str(self.recipe.estimated_time_minutes))
         if self.recipe.notes:
@@ -1245,6 +1248,7 @@ class RecipeFormDialog(ctk.CTkToplevel):
                 self._add_yield_type_row(
                     finished_unit_id=yt.id,
                     display_name=yt.display_name,
+                    item_unit=yt.item_unit or "",
                     items_per_batch=yt.items_per_batch or 1,
                 )
         except Exception:
@@ -1260,8 +1264,6 @@ class RecipeFormDialog(ctk.CTkToplevel):
         # Get values
         name = self.name_entry.get().strip()
         category = self.category_combo.get()
-        yield_quantity_str = self.yield_quantity_entry.get().strip()
-        yield_unit = self.yield_unit_combo.get()
         prep_time_str = self.prep_time_entry.get().strip()
         notes = self.notes_text.get("1.0", "end-1c").strip() or None
 
@@ -1282,24 +1284,6 @@ class RecipeFormDialog(ctk.CTkToplevel):
             show_error(
                 "Validation Error",
                 f"Notes must be {MAX_NOTES_LENGTH} characters or less",
-                parent=self,
-            )
-            return None
-
-        # Validate yield quantity
-        try:
-            yield_quantity = float(yield_quantity_str)
-            if yield_quantity <= 0:
-                show_error(
-                    "Validation Error",
-                    "Yield quantity must be greater than zero",
-                    parent=self,
-                )
-                return None
-        except ValueError:
-            show_error(
-                "Validation Error",
-                "Yield quantity must be a valid number",
                 parent=self,
             )
             return None
@@ -1340,41 +1324,48 @@ class RecipeFormDialog(ctk.CTkToplevel):
             if not confirmed:
                 return None
 
-        # Validate yield types (F044 - WP03 T010: warning if none, error if invalid)
+        # Validate yield types (Feature 056 - T018: require at least one complete yield type)
         yield_types = []
         for idx, row in enumerate(self.yield_type_rows):
             # Get raw values for validation
-            name = row.name_entry.get().strip()
-            quantity_str = row.quantity_entry.get().strip()
+            row_name = row.name_entry.get().strip()
+            row_unit = row.unit_entry.get().strip()
+            row_quantity_str = row.quantity_entry.get().strip()
 
             # Skip completely empty rows (not an error, just not entered)
-            if not name and not quantity_str:
+            if not row_name and not row_unit and not row_quantity_str:
                 continue
 
-            # Validate name
-            if not name:
+            # Check for partial rows (some fields but not all)
+            has_name = bool(row_name)
+            has_unit = bool(row_unit)
+            has_qty = bool(row_quantity_str)
+
+            if not all([has_name, has_unit, has_qty]):
+                # Partial row - show specific error
+                missing_fields = []
+                if not has_name:
+                    missing_fields.append("Description")
+                if not has_unit:
+                    missing_fields.append("Unit")
+                if not has_qty:
+                    missing_fields.append("Quantity")
+
                 show_error(
                     "Validation Error",
-                    f"Yield type row {idx + 1}: Name is required.",
+                    f"Yield type row {idx + 1} is incomplete.\n"
+                    f"Missing: {', '.join(missing_fields)}",
                     parent=self,
                 )
                 return None
 
-            # Validate quantity
-            if not quantity_str:
-                show_error(
-                    "Validation Error",
-                    f"Yield type '{name}': Items per batch is required.",
-                    parent=self,
-                )
-                return None
-
+            # Validate quantity is a positive integer
             try:
-                items_per_batch = int(quantity_str)
+                items_per_batch = int(row_quantity_str)
             except ValueError:
                 show_error(
                     "Validation Error",
-                    f"Yield type '{name}': Items per batch must be a whole number.",
+                    f"Yield type '{row_name}': Quantity must be a whole number.",
                     parent=self,
                 )
                 return None
@@ -1382,35 +1373,33 @@ class RecipeFormDialog(ctk.CTkToplevel):
             if items_per_batch <= 0:
                 show_error(
                     "Validation Error",
-                    f"Yield type '{name}': Items per batch must be greater than zero.",
+                    f"Yield type '{row_name}': Quantity must be greater than zero.",
                     parent=self,
                 )
                 return None
 
             yield_types.append({
                 "id": row.finished_unit_id,
-                "display_name": name,
+                "display_name": row_name,
+                "item_unit": row_unit,
                 "items_per_batch": items_per_batch,
             })
 
+        # Feature 056 - T018: Require at least one complete yield type
         if not yield_types:
-            confirmed = show_confirmation(
-                "No Yield Types",
-                "This recipe has no yield types defined.\n\n"
-                "Yield types specify what finished products this recipe produces "
-                "(e.g., '30 Large Cookies per batch').\n\n"
-                "Continue without yield types?",
+            show_error(
+                "Validation Error",
+                "At least one yield type is required.\n\n"
+                "Add a row with Description (e.g., 'Large Cookie'), "
+                "Unit (e.g., 'cookie'), and Quantity per batch (e.g., 24).",
                 parent=self,
             )
-            if not confirmed:
-                return None
+            return None
 
-        # Return validated data (T041 - include pending components, F044 - include yield_types)
+        # Return validated data (T041 - include pending components, Feature 056 - yield_types only)
         return {
             "name": name,
             "category": category,
-            "yield_quantity": yield_quantity,
-            "yield_unit": yield_unit,
             "prep_time": prep_time,
             "notes": notes,
             "ingredients": ingredients,

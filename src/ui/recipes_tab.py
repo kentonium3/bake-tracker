@@ -469,6 +469,7 @@ class RecipesTab(ctk.CTkFrame):
                     finished_unit_service.create_finished_unit(
                         display_name=data["display_name"],
                         recipe_id=recipe_id,
+                        item_unit=data.get("item_unit"),
                         items_per_batch=data["items_per_batch"],
                     )
                 else:
@@ -477,6 +478,7 @@ class RecipesTab(ctk.CTkFrame):
                     finished_unit_service.update_finished_unit(
                         data["id"],
                         display_name=data["display_name"],
+                        item_unit=data.get("item_unit"),
                         items_per_batch=data["items_per_batch"],
                     )
 
@@ -506,7 +508,15 @@ class RecipesTab(ctk.CTkFrame):
             details = []
             details.append(f"Recipe: {recipe.name}")
             details.append(f"Category: {recipe.category}")
-            details.append(f"Yields: {recipe.yield_quantity} {recipe.yield_unit}")
+
+            # Show FinishedUnit yield types (Feature 056 - single source of truth)
+            yield_types = finished_unit_service.get_units_by_recipe(recipe.id)
+            if yield_types:
+                details.append("Yield Types:")
+                for yt in yield_types:
+                    details.append(f"  - {yt.display_name}: {yt.items_per_batch} {yt.item_unit}/batch")
+            else:
+                details.append("Yield Types: None defined (edit recipe to add)")
 
             if recipe.estimated_time_minutes:
                 details.append(f"Prep Time: {recipe.estimated_time_minutes} minutes")
@@ -514,7 +524,12 @@ class RecipesTab(ctk.CTkFrame):
             details.append("")
             details.append("Cost Breakdown:")
             details.append(f"  Total Cost: ${recipe_data['total_cost']:.2f}")
-            details.append(f"  Cost per {recipe.yield_unit}: ${recipe_data['cost_per_unit']:.4f}")
+            if yield_types:
+                # Show cost per unit for each yield type
+                for yt in yield_types:
+                    if yt.items_per_batch and yt.items_per_batch > 0:
+                        cost_per = recipe_data['total_cost'] / yt.items_per_batch
+                        details.append(f"  Cost per {yt.item_unit} ({yt.display_name}): ${cost_per:.4f}")
 
             details.append("")
             details.append("Ingredients:")

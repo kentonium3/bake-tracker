@@ -3082,3 +3082,355 @@ class TestRecipeVariants:
         # Assert: Only Cookies recipes
         assert all(r["category"] == "Cookies" for r in recipes)
         assert len(recipes) == 2  # Base + 1 variant
+
+
+class TestRecipeFinishedUnitValidation:
+    """Tests for validate_recipe_has_finished_unit() function (Feature 056)."""
+
+    def test_recipe_not_found_returns_error(self, test_db):
+        """Test: Non-existent recipe returns 'Recipe not found' error."""
+        errors = recipe_service.validate_recipe_has_finished_unit(99999)
+        assert len(errors) == 1
+        assert "not found" in errors[0].lower()
+
+    def test_recipe_without_finished_units_fails(self, test_db):
+        """Test: Recipe with no FinishedUnits fails validation."""
+        # Create a recipe without any finished units
+        recipe = recipe_service.create_recipe(
+            {
+                "name": "No Yields Recipe",
+                "category": "Test",
+                "yield_quantity": 12,
+                "yield_unit": "each"
+            },
+            []
+        )
+
+        errors = recipe_service.validate_recipe_has_finished_unit(recipe.id)
+        assert len(errors) == 1
+        assert "at least one yield type" in errors[0].lower()
+
+    def test_recipe_with_complete_discrete_count_passes(self, test_db):
+        """Test: Recipe with complete DISCRETE_COUNT FinishedUnit passes."""
+        from src.models.recipe import Recipe
+        from src.models.finished_unit import FinishedUnit, YieldMode
+
+        session = test_db()
+
+        # Create recipe directly (no slug field on Recipe)
+        recipe = Recipe(
+            name="Complete Yield Recipe",
+            category="Cookies",
+            yield_quantity=24,
+            yield_unit="cookies"
+        )
+        session.add(recipe)
+        session.flush()
+
+        # Add a complete FinishedUnit
+        fu = FinishedUnit(
+            recipe_id=recipe.id,
+            slug="complete_yield_recipe_standard",
+            display_name="Standard Cookies",
+            yield_mode=YieldMode.DISCRETE_COUNT,
+            items_per_batch=24,
+            item_unit="cookie"
+        )
+        session.add(fu)
+        session.commit()
+
+        errors = recipe_service.validate_recipe_has_finished_unit(recipe.id)
+        assert len(errors) == 0
+
+    def test_discrete_count_missing_item_unit_fails(self, test_db):
+        """Test: DISCRETE_COUNT FinishedUnit missing item_unit fails."""
+        from src.models.recipe import Recipe
+        from src.models.finished_unit import FinishedUnit, YieldMode
+
+        session = test_db()
+
+        # Create recipe
+        recipe = Recipe(
+            name="Missing Unit Recipe",
+            category="Test",
+            yield_quantity=12,
+            yield_unit="each"
+        )
+        session.add(recipe)
+        session.flush()
+
+        # Add FinishedUnit missing item_unit
+        fu = FinishedUnit(
+            recipe_id=recipe.id,
+            slug="missing_unit_standard",
+            display_name="Incomplete Cookies",
+            yield_mode=YieldMode.DISCRETE_COUNT,
+            items_per_batch=12,
+            item_unit=None  # Missing!
+        )
+        session.add(fu)
+        session.commit()
+
+        errors = recipe_service.validate_recipe_has_finished_unit(recipe.id)
+        assert len(errors) >= 1
+        assert any("unit" in e.lower() for e in errors)
+
+    def test_discrete_count_missing_items_per_batch_fails(self, test_db):
+        """Test: DISCRETE_COUNT FinishedUnit missing items_per_batch fails."""
+        from src.models.recipe import Recipe
+        from src.models.finished_unit import FinishedUnit, YieldMode
+
+        session = test_db()
+
+        # Create recipe
+        recipe = Recipe(
+            name="Missing Quantity Recipe",
+            category="Test",
+            yield_quantity=12,
+            yield_unit="each"
+        )
+        session.add(recipe)
+        session.flush()
+
+        # Add FinishedUnit missing items_per_batch
+        fu = FinishedUnit(
+            recipe_id=recipe.id,
+            slug="missing_qty_standard",
+            display_name="Incomplete Cookies",
+            yield_mode=YieldMode.DISCRETE_COUNT,
+            items_per_batch=None,  # Missing!
+            item_unit="cookie"
+        )
+        session.add(fu)
+        session.commit()
+
+        errors = recipe_service.validate_recipe_has_finished_unit(recipe.id)
+        assert len(errors) >= 1
+        assert any("quantity" in e.lower() for e in errors)
+
+    def test_discrete_count_missing_display_name_fails(self, test_db):
+        """Test: FinishedUnit missing display_name fails."""
+        from src.models.recipe import Recipe
+        from src.models.finished_unit import FinishedUnit, YieldMode
+
+        session = test_db()
+
+        # Create recipe
+        recipe = Recipe(
+            name="Missing Name Recipe",
+            category="Test",
+            yield_quantity=12,
+            yield_unit="each"
+        )
+        session.add(recipe)
+        session.flush()
+
+        # Add FinishedUnit without display_name
+        # Note: SQLAlchemy may not allow this due to nullable=False
+        # So we test by creating with empty string
+        fu = FinishedUnit(
+            recipe_id=recipe.id,
+            slug="missing_name_standard",
+            display_name="",  # Empty
+            yield_mode=YieldMode.DISCRETE_COUNT,
+            items_per_batch=12,
+            item_unit="cookie"
+        )
+        session.add(fu)
+        session.commit()
+
+        errors = recipe_service.validate_recipe_has_finished_unit(recipe.id)
+        assert len(errors) >= 1
+        assert any("name" in e.lower() for e in errors)
+
+    def test_batch_portion_complete_passes(self, test_db):
+        """Test: Recipe with complete BATCH_PORTION FinishedUnit passes."""
+        from src.models.recipe import Recipe
+        from src.models.finished_unit import FinishedUnit, YieldMode
+        from decimal import Decimal
+
+        session = test_db()
+
+        # Create recipe
+        recipe = Recipe(
+            name="Batch Portion Recipe",
+            category="Cakes",
+            yield_quantity=1,
+            yield_unit="batch"
+        )
+        session.add(recipe)
+        session.flush()
+
+        # Add complete BATCH_PORTION FinishedUnit
+        fu = FinishedUnit(
+            recipe_id=recipe.id,
+            slug="batch_portion_standard",
+            display_name="Full Cake",
+            yield_mode=YieldMode.BATCH_PORTION,
+            batch_percentage=Decimal("100.00"),
+            portion_description="9-inch round"
+        )
+        session.add(fu)
+        session.commit()
+
+        errors = recipe_service.validate_recipe_has_finished_unit(recipe.id)
+        assert len(errors) == 0
+
+    def test_batch_portion_missing_percentage_fails(self, test_db):
+        """Test: BATCH_PORTION FinishedUnit missing batch_percentage fails."""
+        from src.models.recipe import Recipe
+        from src.models.finished_unit import FinishedUnit, YieldMode
+
+        session = test_db()
+
+        # Create recipe
+        recipe = Recipe(
+            name="Missing Percentage Recipe",
+            category="Cakes",
+            yield_quantity=1,
+            yield_unit="batch"
+        )
+        session.add(recipe)
+        session.flush()
+
+        # Add BATCH_PORTION FinishedUnit missing batch_percentage
+        fu = FinishedUnit(
+            recipe_id=recipe.id,
+            slug="missing_pct_standard",
+            display_name="Incomplete Cake",
+            yield_mode=YieldMode.BATCH_PORTION,
+            batch_percentage=None,  # Missing!
+            portion_description="9-inch round"
+        )
+        session.add(fu)
+        session.commit()
+
+        errors = recipe_service.validate_recipe_has_finished_unit(recipe.id)
+        assert len(errors) >= 1
+        assert any("percentage" in e.lower() for e in errors)
+
+    def test_multiple_finished_units_one_complete_passes(self, test_db):
+        """Test: Recipe with multiple FUs, at least one complete, passes."""
+        from src.models.recipe import Recipe
+        from src.models.finished_unit import FinishedUnit, YieldMode
+
+        session = test_db()
+
+        # Create recipe
+        recipe = Recipe(
+            name="Multiple Yields Recipe",
+            category="Cookies",
+            yield_quantity=24,
+            yield_unit="cookies"
+        )
+        session.add(recipe)
+        session.flush()
+
+        # Add incomplete FinishedUnit
+        fu1 = FinishedUnit(
+            recipe_id=recipe.id,
+            slug="multiple_yields_incomplete",
+            display_name="Incomplete",
+            yield_mode=YieldMode.DISCRETE_COUNT,
+            items_per_batch=12,
+            item_unit=None  # Missing!
+        )
+        session.add(fu1)
+
+        # Add complete FinishedUnit
+        fu2 = FinishedUnit(
+            recipe_id=recipe.id,
+            slug="multiple_yields_complete",
+            display_name="Complete Cookies",
+            yield_mode=YieldMode.DISCRETE_COUNT,
+            items_per_batch=24,
+            item_unit="cookie"
+        )
+        session.add(fu2)
+        session.commit()
+
+        errors = recipe_service.validate_recipe_has_finished_unit(recipe.id)
+        # Should have errors for the incomplete one but still pass overall
+        # because at least one is complete
+        # Actually, checking the implementation - it collects ALL errors
+        # but the key is we have at least one complete_count
+        # Let's verify: if complete_count >= 1, we don't add "At least one complete yield type required"
+        has_critical_error = any("at least one complete" in e.lower() for e in errors)
+        assert not has_critical_error, "Should pass because one FU is complete"
+
+    def test_all_incomplete_fails_with_overall_error(self, test_db):
+        """Test: Recipe with all incomplete FUs fails with overall error."""
+        from src.models.recipe import Recipe
+        from src.models.finished_unit import FinishedUnit, YieldMode
+
+        session = test_db()
+
+        # Create recipe
+        recipe = Recipe(
+            name="All Incomplete Recipe",
+            category="Cookies",
+            yield_quantity=24,
+            yield_unit="cookies"
+        )
+        session.add(recipe)
+        session.flush()
+
+        # Add two incomplete FinishedUnits
+        fu1 = FinishedUnit(
+            recipe_id=recipe.id,
+            slug="incomplete_1",
+            display_name="Incomplete 1",
+            yield_mode=YieldMode.DISCRETE_COUNT,
+            items_per_batch=12,
+            item_unit=None  # Missing!
+        )
+        session.add(fu1)
+
+        fu2 = FinishedUnit(
+            recipe_id=recipe.id,
+            slug="incomplete_2",
+            display_name="Incomplete 2",
+            yield_mode=YieldMode.DISCRETE_COUNT,
+            items_per_batch=None,  # Missing!
+            item_unit="cookie"
+        )
+        session.add(fu2)
+        session.commit()
+
+        errors = recipe_service.validate_recipe_has_finished_unit(recipe.id)
+        assert len(errors) >= 1
+        # Should have the overall "at least one complete" error
+        assert any("at least one complete" in e.lower() for e in errors)
+
+    def test_validation_with_session_parameter(self, test_db):
+        """Test: Validation works correctly when session is passed."""
+        from src.models.recipe import Recipe
+        from src.models.finished_unit import FinishedUnit, YieldMode
+
+        session = test_db()
+
+        # Create recipe
+        recipe = Recipe(
+            name="Session Test Recipe",
+            category="Cookies",
+            yield_quantity=24,
+            yield_unit="cookies"
+        )
+        session.add(recipe)
+        session.flush()
+
+        # Add complete FinishedUnit
+        fu = FinishedUnit(
+            recipe_id=recipe.id,
+            slug="session_test_standard",
+            display_name="Session Test Cookies",
+            yield_mode=YieldMode.DISCRETE_COUNT,
+            items_per_batch=24,
+            item_unit="cookie"
+        )
+        session.add(fu)
+        session.flush()  # Don't commit yet
+
+        # Validate with session parameter (should see uncommitted data)
+        errors = recipe_service.validate_recipe_has_finished_unit(recipe.id, session=session)
+        assert len(errors) == 0

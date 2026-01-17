@@ -57,8 +57,16 @@ class Recipe(BaseModel):
     source = Column(String(500), nullable=True)
 
     # Yield information
-    yield_quantity = Column(Float, nullable=False)
-    yield_unit = Column(String(50), nullable=False)
+    # DEPRECATED: Use FinishedUnit.items_per_batch instead
+    # Kept nullable for backward compatibility during transition (Feature 056)
+    yield_quantity = Column(Float, nullable=True)
+
+    # DEPRECATED: Use FinishedUnit.item_unit instead
+    # Kept nullable for backward compatibility during transition (Feature 056)
+    yield_unit = Column(String(50), nullable=True)
+
+    # DEPRECATED: Use FinishedUnit.display_name instead
+    # Kept nullable for backward compatibility during transition (Feature 056)
     yield_description = Column(String(200), nullable=True)
 
     # Time and notes
@@ -163,9 +171,11 @@ class Recipe(BaseModel):
 
         Returns:
             Cost per unit (total_cost / yield_quantity)
+
+        Note: Returns 0.0 if yield_quantity is None or 0 (deprecated field).
         """
         total_cost = self.calculate_cost()
-        if self.yield_quantity == 0:
+        if not self.yield_quantity or self.yield_quantity == 0:
             return 0.0
         return total_cost / self.yield_quantity
 
