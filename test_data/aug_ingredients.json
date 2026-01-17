@@ -1,0 +1,32 @@
+{
+  "version": "1.0",
+  "export_type": "ingredients",
+  "export_date": "2026-01-16T21:57:14.303493+00:00Z",
+  "_meta": {
+    "editable_fields": [
+      "description",
+      "notes",
+      "density_volume_value",
+      "density_volume_unit",
+      "density_weight_value",
+      "density_weight_unit"
+    ],
+    "readonly_fields": [
+      "id",
+      "uuid",
+      "slug",
+      "display_name",
+      "category",
+      "category_hierarchy",
+      "hierarchy_level",
+      "parent_ingredient_id",
+      "product_count",
+      "products",
+      "inventory_total",
+      "average_cost",
+      "date_added",
+      "last_modified"
+    ]
+  },
+  "records": []
+}

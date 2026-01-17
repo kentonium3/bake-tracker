@@ -1,0 +1,36 @@
+{
+  "version": "1.0",
+  "export_type": "products",
+  "export_date": "2026-01-16T21:57:14.324700+00:00Z",
+  "_meta": {
+    "editable_fields": [
+      "brand",
+      "product_name",
+      "package_size",
+      "package_type",
+      "package_unit",
+      "package_unit_quantity",
+      "upc_code",
+      "gtin",
+      "notes",
+      "preferred",
+      "is_hidden"
+    ],
+    "readonly_fields": [
+      "id",
+      "uuid",
+      "ingredient_id",
+      "ingredient_slug",
+      "ingredient_name",
+      "ingredient_category",
+      "preferred_supplier_id",
+      "preferred_supplier_name",
+      "last_purchase_price",
+      "last_purchase_date",
+      "inventory_quantity",
+      "date_added",
+      "last_modified"
+    ]
+  },
+  "records": []
+}

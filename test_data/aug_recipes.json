@@ -1,0 +1,32 @@
+{
+  "version": "1.0",
+  "export_type": "recipes",
+  "export_date": "2026-01-16T21:57:14.334710+00:00Z",
+  "_meta": {
+    "editable_fields": [
+      "notes",
+      "source",
+      "estimated_time_minutes"
+    ],
+    "readonly_fields": [
+      "id",
+      "uuid",
+      "name",
+      "category",
+      "yield_quantity",
+      "yield_unit",
+      "yield_description",
+      "is_archived",
+      "is_production_ready",
+      "base_recipe_id",
+      "variant_name",
+      "ingredients",
+      "recipe_components",
+      "total_cost",
+      "cost_per_unit",
+      "date_added",
+      "last_modified"
+    ]
+  },
+  "records": []
+}

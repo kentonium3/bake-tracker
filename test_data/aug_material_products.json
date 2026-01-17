@@ -1,0 +1,33 @@
+{
+  "version": "1.0",
+  "export_type": "material_products",
+  "export_date": "2026-01-16T21:57:14.352823+00:00Z",
+  "_meta": {
+    "editable_fields": [
+      "name",
+      "brand",
+      "package_quantity",
+      "package_unit",
+      "notes",
+      "is_hidden"
+    ],
+    "readonly_fields": [
+      "id",
+      "uuid",
+      "slug",
+      "material_id",
+      "material_slug",
+      "material_name",
+      "material_category",
+      "material_subcategory",
+      "supplier_id",
+      "supplier_name",
+      "sku",
+      "quantity_in_base_units",
+      "current_inventory",
+      "weighted_avg_cost",
+      "inventory_value"
+    ]
+  },
+  "records": []
+}

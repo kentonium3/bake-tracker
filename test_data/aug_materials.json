@@ -1,0 +1,25 @@
+{
+  "version": "1.0",
+  "export_type": "materials",
+  "export_date": "2026-01-16T21:57:14.345473+00:00Z",
+  "_meta": {
+    "editable_fields": [
+      "description",
+      "notes"
+    ],
+    "readonly_fields": [
+      "id",
+      "uuid",
+      "slug",
+      "name",
+      "base_unit_type",
+      "category_hierarchy",
+      "subcategory_id",
+      "product_count",
+      "products",
+      "total_inventory",
+      "total_inventory_value"
+    ]
+  },
+  "records": []
+}
