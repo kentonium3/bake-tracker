@@ -112,6 +112,18 @@ Ensure `init --ai cursor` creates `.cursorrules` with appropriate project contex
 
 For `.cursorrules`, users can manually create the file by adapting `CLAUDE.md` content. However, the detection issue has no workaround - it will always show "not found" in `verify-setup`.
 
+## Related Issue: Upgrade Lost Agent Configuration
+
+During the upgrade from v0.10.x to v0.11.1, additional configuration was lost:
+
+- **`.kittify/memory/constitution.md`** - Replaced with a broken symlink pointing to `../../../.kittify/memory` (outside the repository). Required manual restoration from git history.
+- **`.kittify/AGENTS.md`** - Similarly replaced with a broken symlink.
+- **Gemini agent configuration** - The `.gemini/` directory was not preserved/recreated during upgrade. Only `.claude/` remained configured.
+
+The `spec-kitty upgrade` command updated templates but did not preserve or restore agent configurations. Running `spec-kitty init --here --ai claude,gemini,cursor --force` was required to restore full agent support.
+
+See also: `feedback/spec-kitty-symlink-merge-bug.md` for the underlying symlink issue.
+
 ## Notes
 
 - These issues do not prevent using Cursor with spec-kitty - the `.cursor/commands/` directory works correctly
