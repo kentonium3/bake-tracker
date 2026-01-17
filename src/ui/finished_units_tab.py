@@ -48,15 +48,6 @@ from src.ui.widgets.dialogs import (
 from src.ui.service_integration import get_ui_service_integrator, OperationType
 
 
-# Constants for UI sizing
-class ButtonWidths:
-    """Button width constants for consistent UI sizing."""
-
-    ADD_BUTTON = 180
-    STANDARD_BUTTON = 120
-    DETAILS_BUTTON = 150
-
-
 # Constants for status messages
 class StatusMessages:
     """Status message constants for internationalization and consistency."""
@@ -104,7 +95,6 @@ class FinishedUnitsTab(ctk.CTkFrame):
         self.selected_finished_unit: Optional[FinishedUnit] = None
         self.service_integrator = get_ui_service_integrator()
         self.recipe_categories = self._load_recipe_categories()
-        self.recipe_list = self._load_recipes()  # For recipe filter dropdown
 
         # Configure grid
         self.grid_columnconfigure(0, weight=1)
@@ -163,77 +153,20 @@ class FinishedUnitsTab(ctk.CTkFrame):
         except Exception:
             return []
 
-    def _load_recipes(self) -> list:
-        """Load recipes from database for filter dropdown."""
-        try:
-            with session_scope() as session:
-                recipes = session.query(Recipe.id, Recipe.name).order_by(Recipe.name).all()
-                return [(r.id, r.name) for r in recipes]
-        except Exception:
-            return []
-
     def _create_search_bar(self):
-        """Create the search bar with category and recipe filters."""
-        # Main search container
-        search_container = ctk.CTkFrame(self, fg_color="transparent")
-        search_container.grid(
-            row=0, column=0, sticky="ew", padx=PADDING_LARGE, pady=(PADDING_LARGE, PADDING_MEDIUM)
-        )
-        search_container.grid_columnconfigure(0, weight=1)
-
-        # Search bar with category filter
+        """Create the search bar with category filter."""
         self.search_bar = SearchBar(
-            search_container,
+            self,
             search_callback=self._on_search,
             categories=["All Categories"] + self.recipe_categories,
             placeholder="Search by finished unit name...",
         )
-        self.search_bar.grid(row=0, column=0, sticky="ew")
-
-        # Recipe filter frame
-        recipe_filter_frame = ctk.CTkFrame(search_container, fg_color="transparent")
-        recipe_filter_frame.grid(row=1, column=0, sticky="w", pady=(PADDING_MEDIUM, 0))
-
-        recipe_filter_label = ctk.CTkLabel(recipe_filter_frame, text="Filter by Recipe:")
-        recipe_filter_label.grid(row=0, column=0, padx=(0, PADDING_MEDIUM))
-
-        # Build recipe filter options
-        recipe_options = ["All Recipes"] + [name for _, name in self.recipe_list]
-        self.recipe_filter_var = ctk.StringVar(value="All Recipes")
-        self.recipe_filter_dropdown = ctk.CTkOptionMenu(
-            recipe_filter_frame,
-            values=recipe_options,
-            variable=self.recipe_filter_var,
-            command=self._on_recipe_filter_change,
-            width=200,
+        self.search_bar.grid(
+            row=0, column=0, sticky="ew", padx=PADDING_LARGE, pady=(PADDING_LARGE, PADDING_MEDIUM)
         )
-        self.recipe_filter_dropdown.grid(row=0, column=1)
-
-    def _on_recipe_filter_change(self, selected_recipe_name: str):
-        """Handle recipe filter dropdown change."""
-        self._apply_filters()
-
-    def _apply_filters(self):
-        """Apply all current filters (search, category, recipe)."""
-        # Get current search text and category from search bar
-        search_text = self.search_bar.get_search_text() if hasattr(self.search_bar, 'get_search_text') else ""
-        category = self.search_bar.get_category() if hasattr(self.search_bar, 'get_category') else None
-
-        # Get recipe filter
-        recipe_name = self.recipe_filter_var.get()
-        recipe_id = None
-        if recipe_name != "All Recipes":
-            # Find recipe ID by name
-            for rid, rname in self.recipe_list:
-                if rname == recipe_name:
-                    recipe_id = rid
-                    break
-
-        # Trigger search with all filters
-        self._on_search(search_text, category, recipe_id=recipe_id)
 
     def _create_action_buttons(self):
-        """Create action buttons (read-only mode - no Add/Edit/Delete)."""
+        """Create action buttons (read-only mode - info label only)."""
         button_frame = ctk.CTkFrame(self, fg_color="transparent")
         button_frame.grid(row=1, column=0, sticky="ew", padx=PADDING_LARGE, pady=PADDING_MEDIUM)
 
@@ -245,28 +178,6 @@ class FinishedUnitsTab(ctk.CTkFrame):
             font=ctk.CTkFont(size=12, slant="italic"),
         )
         info_label.grid(row=0, column=0, padx=PADDING_MEDIUM, sticky="w")
-
-        # Spacer to push buttons to the right
-        button_frame.grid_columnconfigure(1, weight=1)
-
-        # View Details button
-        self.details_button = ctk.CTkButton(
-            button_frame,
-            text="View Details",
-            command=self._view_details,
-            width=ButtonWidths.DETAILS_BUTTON,
-            state="disabled",
-        )
-        self.details_button.grid(row=0, column=2, padx=PADDING_MEDIUM)
-
-        # Refresh button
-        refresh_button = ctk.CTkButton(
-            button_frame,
-            text="Refresh",
-            command=self.refresh,
-            width=ButtonWidths.STANDARD_BUTTON,
-        )
-        refresh_button.grid(row=0, column=3, padx=PADDING_MEDIUM)
 
     def _create_data_table(self):
         """Create the data table for displaying finished goods."""
@@ -340,10 +251,6 @@ class FinishedUnitsTab(ctk.CTkFrame):
         """
         self.selected_finished_unit = finished_unit
 
-        # Enable/disable action buttons (read-only mode - only details button)
-        has_selection = finished_unit is not None
-        self.details_button.configure(state="normal" if has_selection else "disabled")
-
         if finished_unit:
             self._update_status(StatusMessages.selected_unit(finished_unit.display_name))
         else:
@@ -381,7 +288,7 @@ class FinishedUnitsTab(ctk.CTkFrame):
         from src.ui.widgets.dialogs import show_success
 
         try:
-            recipe = recipe_service.get_recipe_by_id(recipe_id)
+            recipe = recipe_service.get_recipe(recipe_id)
             if not recipe:
                 show_error(
                     "Recipe Not Found",
@@ -485,41 +392,6 @@ class FinishedUnitsTab(ctk.CTkFrame):
             if unit.id not in keeping_ids:
                 finished_unit_service.delete_finished_unit(unit.id)
 
-    def _view_details(self):
-        """Open the FinishedUnit detail dialog for the selected unit."""
-        if not self._validate_selected_unit():
-            return
-
-        try:
-            # Get finished unit with relationships using service integrator
-            fg = self.service_integrator.execute_service_operation(
-                operation_name="Load Finished Unit Details",
-                operation_type=OperationType.READ,
-                service_function=lambda: finished_unit_service.get_finished_unit_by_id(
-                    self.selected_finished_unit.id
-                ),
-                parent_widget=self,
-                error_context="Loading finished unit details",
-            )
-
-            if not fg:
-                return
-
-            # Open detail dialog with callback for inventory refresh
-            from src.ui.forms.finished_unit_detail import FinishedUnitDetailDialog
-
-            dialog = FinishedUnitDetailDialog(
-                self,
-                fg,
-                on_inventory_changed=self.refresh,
-            )
-            self.wait_window(dialog)
-
-        except Exception as e:
-            # Error already handled by service integrator
-            logging.exception("View details operation failed after service integrator handling")
-            pass
-
     def refresh(self):
         """
         Refresh the finished units list.
@@ -546,44 +418,6 @@ class FinishedUnitsTab(ctk.CTkFrame):
                 "Load finished units operation failed after service integrator handling"
             )
             self._update_status(StatusMessages.FAILED_TO_LOAD, error=True)
-
-    def _validate_selected_unit(self) -> bool:
-        """
-        Validate that the selected unit still exists to prevent race conditions.
-
-        Returns:
-            True if selection is valid, False otherwise
-        """
-        if not self.selected_finished_unit:
-            return False
-
-        try:
-            # Attempt to reload the selected unit to verify it still exists
-            unit = self.service_integrator.execute_service_operation(
-                operation_name="Validate Selected Unit",
-                operation_type=OperationType.READ,
-                service_function=lambda: finished_unit_service.get_finished_unit_by_id(
-                    self.selected_finished_unit.id
-                ),
-                parent_widget=self,
-                error_context="Validating selected unit",
-                suppress_exception=True,  # Don't show error dialogs for validation checks
-            )
-
-            if not unit:
-                # Clear stale selection
-                self.selected_finished_unit = None
-                self._update_status(StatusMessages.SELECTION_STALE, error=True)
-                return False
-
-            return True
-
-        except Exception as e:
-            # Selection is invalid, clear it
-            logging.debug(f"Selected unit validation failed: {e}")
-            self.selected_finished_unit = None
-            self._update_status(StatusMessages.SELECTION_STALE, error=True)
-            return False
 
     def _update_status(self, message: str, success: bool = False, error: bool = False):
         """

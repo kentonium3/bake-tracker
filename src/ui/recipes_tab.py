@@ -161,15 +161,6 @@ class RecipesTab(ctk.CTkFrame):
         )
         self.readiness_dropdown.grid(row=0, column=5, padx=PADDING_MEDIUM)
 
-        # Refresh button
-        refresh_button = ctk.CTkButton(
-            button_frame,
-            text="Refresh",
-            command=self.refresh,
-            width=120,
-        )
-        refresh_button.grid(row=0, column=6, padx=PADDING_MEDIUM)
-
     def _create_data_table(self):
         """Create the data table for displaying recipes."""
         self.data_table = RecipeDataTable(

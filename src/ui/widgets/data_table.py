@@ -405,10 +405,10 @@ class FinishedGoodDataTable(DataTable):
         """
         # Feature 045: Cost columns removed (costs tracked on instances, not definitions)
         columns = [
-            ("Name", 200),
-            ("Recipe", 180),
-            ("Category", 100),
-            ("Type", 120),
+            ("Name", 280),
+            ("Recipe", 220),
+            ("Category", 120),
+            ("Type", 100),
             ("Yield Info", 180),
         ]
         super().__init__(
