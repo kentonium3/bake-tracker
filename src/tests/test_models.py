@@ -252,13 +252,11 @@ class TestRecipeModel:
 
     def test_create_recipe(self, db_session):
         """Test creating a recipe."""
+        # F056: yield_quantity, yield_unit, yield_description removed
         recipe = Recipe(
             name="Chocolate Chip Cookies",
             category="Cookies",
             source="Test",
-            yield_quantity=48,
-            yield_unit="cookies",
-            yield_description="2-inch cookies",
             estimated_time_minutes=45
         )
         db_session.add(recipe)
@@ -266,7 +264,7 @@ class TestRecipeModel:
 
         assert recipe.id is not None
         assert recipe.name == "Chocolate Chip Cookies"
-        assert recipe.yield_quantity == 48
+        assert recipe.category == "Cookies"
 
     def test_recipe_with_ingredients(self, db_session):
         """Test recipe with ingredients (TD-001 schema)."""
@@ -279,12 +277,10 @@ class TestRecipeModel:
         db_session.add(flour)
         db_session.flush()
 
-        # Create recipe
+        # Create recipe (F056: yield fields removed)
         recipe = Recipe(
             name="Cookies",
             category="Cookies",
-            yield_quantity=24,
-            yield_unit="cookies"
         )
         db_session.add(recipe)
         db_session.flush()
@@ -305,11 +301,10 @@ class TestRecipeModel:
 
     def test_recipe_to_dict(self, db_session):
         """Test recipe dictionary serialization."""
+        # F056: yield fields removed
         recipe = Recipe(
             name="Test Recipe",
             category="Cookies",
-            yield_quantity=24,
-            yield_unit="cookies"
         )
         db_session.add(recipe)
         db_session.commit()
@@ -328,11 +323,10 @@ class TestRecipeIngredientModel:
             slug="flour",
             category="Flour"
         )
+        # F056: yield fields removed
         recipe = Recipe(
             name="Cookies",
             category="Cookies",
-            yield_quantity=24,
-            yield_unit="cookies"
         )
         db_session.add_all([ingredient, recipe])
         db_session.flush()
@@ -359,11 +353,10 @@ class TestRecipeIngredientModel:
             slug="sugar",
             category="Sugar"
         )
+        # F056: yield fields removed
         recipe = Recipe(
             name="Cake",
             category="Cakes",
-            yield_quantity=12,
-            yield_unit="slices"
         )
         db_session.add_all([ingredient, recipe])
         db_session.flush()
@@ -552,11 +545,10 @@ class TestModelRelationships:
             slug="flour",
             category="Flour"
         )
+        # F056: yield fields removed
         recipe = Recipe(
             name="Cookies",
             category="Cookies",
-            yield_quantity=24,
-            yield_unit="cookies"
         )
         db_session.add_all([ingredient, recipe])
         db_session.flush()
@@ -581,11 +573,10 @@ class TestModelRelationships:
             slug="flour",
             category="Flour"
         )
+        # F056: yield fields removed
         recipe = Recipe(
             name="Cookies",
             category="Cookies",
-            yield_quantity=24,
-            yield_unit="cookies"
         )
         db_session.add_all([ingredient, recipe])
         db_session.flush()

@@ -367,6 +367,7 @@ def calculate_cost_per_yield_unit(
     Args:
         total_recipe_cost: Total cost of all ingredients
         yield_quantity: Number of yield units produced
+                       (F056: Get from FinishedUnit.items_per_batch, not Recipe)
 
     Returns:
         Tuple of (success, cost_per_unit, error_message)

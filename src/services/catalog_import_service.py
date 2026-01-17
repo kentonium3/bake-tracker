@@ -1071,11 +1071,12 @@ def _import_recipes_impl(
         ).all()
     }
 
-    # Build recipe name -> (id, yield_quantity, yield_unit) lookup for collision detection and FK
+    # Build recipe name -> id lookup for collision detection and FK
+    # F056: yield_quantity, yield_unit removed from lookup
     existing_recipes = {
-        row.name: {"id": row.id, "yield_quantity": row.yield_quantity, "yield_unit": row.yield_unit}
+        row.name: {"id": row.id}
         for row in session.query(
-            Recipe.name, Recipe.id, Recipe.yield_quantity, Recipe.yield_unit
+            Recipe.name, Recipe.id
         ).all()
     }
 
@@ -1100,16 +1101,11 @@ def _import_recipes_impl(
 
         # Check for name collision with existing recipe
         if recipe_name in existing_recipes:
-            existing = existing_recipes[recipe_name]
-            import_yield_qty = item.get("yield_quantity", 0)
-            import_yield_unit = item.get("yield_unit", "")
             result.add_error(
                 "recipes",
                 recipe_name,
                 "collision",
-                f"Recipe '{recipe_name}' already exists. "
-                f"Existing: yields {existing['yield_quantity']} {existing['yield_unit']}. "
-                f"Import: yields {import_yield_qty} {import_yield_unit}.",
+                f"Recipe '{recipe_name}' already exists.",
                 "Delete existing recipe or rename import",
             )
             continue
@@ -1153,13 +1149,11 @@ def _import_recipes_impl(
 
         # Create the recipe
         # Default is_production_ready to True for imports (backward compatibility)
+        # F056: yield_quantity, yield_unit, yield_description removed
         recipe = Recipe(
             name=recipe_name,
             category=item.get("category"),
             source=item.get("source"),
-            yield_quantity=item.get("yield_quantity"),
-            yield_unit=item.get("yield_unit"),
-            yield_description=item.get("yield_description"),
             estimated_time_minutes=item.get("estimated_time_minutes"),
             notes=item.get("notes"),
             is_production_ready=item.get("is_production_ready", True),
@@ -1201,12 +1195,9 @@ def _import_recipes_impl(
         result.add_success("recipes")
 
         # Track new recipe for component FK resolution
+        # F056: yield_quantity, yield_unit removed
         new_recipe_ids[recipe_name] = recipe.id
-        existing_recipes[recipe_name] = {
-            "id": recipe.id,
-            "yield_quantity": recipe.yield_quantity,
-            "yield_unit": recipe.yield_unit,
-        }
+        existing_recipes[recipe_name] = {"id": recipe.id}
 
     # Handle dry-run: rollback instead of commit
     if dry_run:
@@ -1290,17 +1281,8 @@ def _validate_recipe_data(item: Dict) -> Optional[Dict]:
             "suggestion": "Add 'category' field to recipe data (e.g., 'Cookies', 'Cakes')",
         }
 
-    if item.get("yield_quantity") is None:
-        return {
-            "message": "Missing required field: yield_quantity",
-            "suggestion": "Add 'yield_quantity' field (e.g., 24, 12)",
-        }
-
-    if not item.get("yield_unit"):
-        return {
-            "message": "Missing required field: yield_unit",
-            "suggestion": "Add 'yield_unit' field (e.g., 'cookies', 'servings')",
-        }
+    # F056: yield_quantity, yield_unit validation removed
+    # These fields are deprecated - use FinishedUnit records for yield data
 
     # Validate ingredients have required fields
     for idx, ing in enumerate(item.get("ingredients", [])):
@@ -1514,59 +1496,23 @@ def _ensure_recipe_has_finished_unit(
     session: Session,
 ) -> bool:
     """
-    Ensure a recipe has at least one FinishedUnit.
-    If not and the recipe has legacy yield fields, create one.
+    Check if a recipe has at least one FinishedUnit.
 
-    This handles backward compatibility with legacy export files that
-    have recipes with yield_quantity/yield_unit but no FinishedUnits.
+    Note: This function previously created FinishedUnits from legacy
+    yield_quantity/yield_unit fields on Recipe. Those fields were removed
+    in F056. This function now only checks if FinishedUnits exist.
 
     Args:
         recipe: Recipe model instance
         session: SQLAlchemy session
 
     Returns:
-        True if FinishedUnit was created, False otherwise
+        True if recipe has FinishedUnits, False otherwise
     """
-    # Check if recipe already has FinishedUnits
+    # F056: Legacy yield fields removed from Recipe model
+    # This function no longer creates FinishedUnits from deprecated fields
     existing_fu = session.query(FinishedUnit).filter_by(recipe_id=recipe.id).first()
-    if existing_fu:
-        return False
-
-    # Check if recipe has legacy yield data
-    if not recipe.yield_quantity or not recipe.yield_unit:
-        return False
-
-    # Generate slug using the slugify function
-    recipe_slug = slugify(recipe.name)
-    yield_suffix = slugify(recipe.yield_description) if recipe.yield_description else "standard"
-    base_slug = f"{recipe_slug}_{yield_suffix}"
-
-    # Check for collision
-    slug = base_slug
-    counter = 2
-    while session.query(FinishedUnit).filter_by(slug=slug).first():
-        slug = f"{base_slug}_{counter}"
-        counter += 1
-
-    # Generate display_name
-    if recipe.yield_description:
-        display_name = recipe.yield_description
-    else:
-        display_name = f"Standard {recipe.name}"
-
-    # Create FinishedUnit
-    fu = FinishedUnit(
-        recipe_id=recipe.id,
-        slug=slug,
-        display_name=display_name,
-        category=recipe.category,
-        yield_mode=YieldMode.DISCRETE_COUNT,
-        items_per_batch=int(recipe.yield_quantity),
-        item_unit=recipe.yield_unit,
-        inventory_count=0,
-    )
-    session.add(fu)
-    return True
+    return existing_fu is not None
 
 
 # ============================================================================

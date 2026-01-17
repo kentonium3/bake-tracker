@@ -215,14 +215,13 @@ RECIPES_CONTEXT_RICH_EDITABLE = [
     "estimated_time_minutes",
 ]
 
+# F056: yield_quantity, yield_unit, yield_description removed
+# Yield data is now in FinishedUnit records
 RECIPES_CONTEXT_RICH_READONLY = [
     "id",
     "uuid",
     "name",
     "category",
-    "yield_quantity",
-    "yield_unit",
-    "yield_description",
     "is_archived",
     "is_production_ready",
     "base_recipe_id",
@@ -1112,7 +1111,7 @@ def export_recipes_context_rich(
     - ingredients: Nested array with ingredient details and costs
     - recipe_components: Nested array of sub-recipes (if any)
     - total_cost: Computed total cost of all ingredients
-    - cost_per_unit: Cost divided by yield_quantity
+    - cost_per_unit: Cost divided by items_per_batch (from FinishedUnit)
 
     Args:
         output_path: Path for the output JSON file
@@ -1170,21 +1169,20 @@ def _export_recipes_context_rich_impl(output_path: str, session: Session) -> Exp
 
         # Calculate costs
         total_cost = _calculate_recipe_cost(recipe, session)
-        cost_per_unit = (
-            round(total_cost / recipe.yield_quantity, 2)
-            if recipe.yield_quantity and recipe.yield_quantity > 0
-            else None
-        )
+        # F056: Use FinishedUnit.items_per_batch for cost_per_unit calculation
+        cost_per_unit = None
+        if recipe.finished_units:
+            primary_unit = recipe.finished_units[0]
+            if primary_unit.items_per_batch and primary_unit.items_per_batch > 0:
+                cost_per_unit = round(total_cost / primary_unit.items_per_batch, 2)
 
+        # F056: yield_quantity, yield_unit, yield_description removed
         records.append({
             # Primary fields (readonly)
             "id": recipe.id,
             "uuid": str(recipe.uuid) if recipe.uuid else None,
             "name": recipe.name,
             "category": recipe.category,
-            "yield_quantity": recipe.yield_quantity,
-            "yield_unit": recipe.yield_unit,
-            "yield_description": recipe.yield_description,
             "is_archived": recipe.is_archived,
             "is_production_ready": recipe.is_production_ready,
             "base_recipe_id": recipe.base_recipe_id,

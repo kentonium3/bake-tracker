@@ -307,8 +307,8 @@ class FinishedUnitFormDialog(ctk.CTkToplevel):
         """
         Handle recipe selection change.
 
-        Auto-populates items_per_batch field with recipe's yield_quantity
-        when in discrete count mode.
+        Auto-populates items_per_batch field with recipe's primary FinishedUnit's
+        items_per_batch when in discrete count mode.
 
         Args:
             recipe_name: Name of the selected recipe
@@ -326,18 +326,20 @@ class FinishedUnitFormDialog(ctk.CTkToplevel):
                     selected_recipe = recipe
                     break
 
-            # Auto-populate items_per_batch with recipe yield
-            if selected_recipe:
-                # Convert yield_quantity to int if it's a whole number, otherwise keep as float
-                yield_qty = selected_recipe.yield_quantity
-                if yield_qty == int(yield_qty):
-                    display_value = str(int(yield_qty))
-                else:
-                    display_value = str(yield_qty)
+            # F056: Auto-populate from existing FinishedUnit if available
+            if selected_recipe and selected_recipe.finished_units:
+                primary_unit = selected_recipe.finished_units[0]
+                yield_qty = primary_unit.items_per_batch
+                if yield_qty:
+                    # Convert to int if it's a whole number
+                    if yield_qty == int(yield_qty):
+                        display_value = str(int(yield_qty))
+                    else:
+                        display_value = str(yield_qty)
 
-                # Clear and update the field
-                self.items_per_batch_entry.delete(0, "end")
-                self.items_per_batch_entry.insert(0, display_value)
+                    # Clear and update the field
+                    self.items_per_batch_entry.delete(0, "end")
+                    self.items_per_batch_entry.insert(0, display_value)
 
     def _create_buttons(self):
         """Create dialog buttons."""

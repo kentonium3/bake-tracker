@@ -295,9 +295,15 @@ def aggregate_by_recipe(
             # Cache recipe info on first encounter
             recipe = session.get(Recipe, recipe_id)
             if recipe:
+                # F056: Use FinishedUnit.items_per_batch instead of deprecated yield_quantity
+                items_per_batch = 1
+                if recipe.finished_units:
+                    primary_unit = recipe.finished_units[0]
+                    if primary_unit.items_per_batch and primary_unit.items_per_batch > 0:
+                        items_per_batch = primary_unit.items_per_batch
                 recipe_info[recipe_id] = (
                     recipe.name,
-                    recipe.yield_quantity or 1,
+                    items_per_batch,
                 )
 
     # Create RecipeBatchResult for each recipe

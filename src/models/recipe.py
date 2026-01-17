@@ -39,14 +39,14 @@ class Recipe(BaseModel):
         name: Recipe name (required)
         category: Recipe category (e.g., "Cookies", "Cakes")
         source: Where recipe came from
-        yield_quantity: Number of items produced
-        yield_unit: Unit of yield (e.g., "cookies", "servings")
-        yield_description: Description of yield (e.g., "2-inch cookies")
         estimated_time_minutes: Prep + bake time in minutes
         notes: Additional notes
         is_archived: Whether the recipe is archived (soft delete)
         date_added: When recipe was added
         last_modified: Last modification timestamp
+
+    Note: Yield information (quantity, unit, description) was removed in F056.
+    Use FinishedUnit records for yield data instead.
     """
 
     __tablename__ = "recipes"
@@ -55,19 +55,6 @@ class Recipe(BaseModel):
     name = Column(String(200), nullable=False, index=True)
     category = Column(String(100), nullable=False, index=True)
     source = Column(String(500), nullable=True)
-
-    # Yield information
-    # DEPRECATED: Use FinishedUnit.items_per_batch instead
-    # Kept nullable for backward compatibility during transition (Feature 056)
-    yield_quantity = Column(Float, nullable=True)
-
-    # DEPRECATED: Use FinishedUnit.item_unit instead
-    # Kept nullable for backward compatibility during transition (Feature 056)
-    yield_unit = Column(String(50), nullable=True)
-
-    # DEPRECATED: Use FinishedUnit.display_name instead
-    # Kept nullable for backward compatibility during transition (Feature 056)
-    yield_description = Column(String(200), nullable=True)
 
     # Time and notes
     estimated_time_minutes = Column(Integer, nullable=True)
@@ -167,17 +154,20 @@ class Recipe(BaseModel):
 
     def get_cost_per_unit(self) -> float:
         """
-        Calculate cost per unit of yield.
+        Calculate cost per unit of yield using FinishedUnit data.
 
         Returns:
-            Cost per unit (total_cost / yield_quantity)
+            Cost per unit (total_cost / items_per_batch of primary FinishedUnit)
 
-        Note: Returns 0.0 if yield_quantity is None or 0 (deprecated field).
+        Note: Returns 0.0 if no FinishedUnits exist or items_per_batch is 0.
         """
         total_cost = self.calculate_cost()
-        if not self.yield_quantity or self.yield_quantity == 0:
-            return 0.0
-        return total_cost / self.yield_quantity
+        # Use the first FinishedUnit's items_per_batch for cost calculation
+        if self.finished_units:
+            primary_unit = self.finished_units[0]
+            if primary_unit.items_per_batch and primary_unit.items_per_batch > 0:
+                return total_cost / primary_unit.items_per_batch
+        return 0.0
 
     def to_dict(self, include_relationships: bool = False) -> dict:
         """

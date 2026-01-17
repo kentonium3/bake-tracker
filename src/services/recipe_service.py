@@ -104,14 +104,11 @@ def create_recipe(recipe_data: Dict, ingredients_data: List[Dict] = None) -> Rec
         with session_scope() as session:
             # Create recipe
             # T032 - Feature 037: is_production_ready defaults to False if not provided
-            # F056: yield_quantity, yield_unit, yield_description are deprecated
+            # F056: yield_quantity, yield_unit, yield_description removed
             # Use FinishedUnit for yield information instead
             recipe = Recipe(
                 name=recipe_data["name"],
                 category=recipe_data["category"],
-                yield_quantity=recipe_data.get("yield_quantity"),
-                yield_unit=recipe_data.get("yield_unit"),
-                yield_description=recipe_data.get("yield_description"),
                 estimated_time_minutes=recipe_data.get("estimated_time_minutes"),
                 source=recipe_data.get("source"),
                 notes=recipe_data.get("notes"),
@@ -713,7 +710,13 @@ def get_recipe_with_costs(recipe_id: int) -> Dict:
 
             # Calculate totals including components
             total_cost = direct_ingredient_cost + total_component_cost
-            cost_per_unit = total_cost / recipe.yield_quantity if recipe.yield_quantity > 0 else 0.0
+            # F056: Use FinishedUnit.items_per_batch for cost_per_unit calculation
+            items_per_batch = 1
+            if recipe.finished_units:
+                primary_unit = recipe.finished_units[0]
+                if primary_unit.items_per_batch and primary_unit.items_per_batch > 0:
+                    items_per_batch = primary_unit.items_per_batch
+            cost_per_unit = total_cost / items_per_batch
 
             return {
                 "recipe": recipe,
@@ -1840,7 +1843,13 @@ def calculate_total_cost_with_components(recipe_id: int) -> Dict:
                 total_component_cost += comp_total
 
             total_cost = direct_cost + total_component_cost
-            cost_per_unit = total_cost / recipe.yield_quantity if recipe.yield_quantity > 0 else 0.0
+            # F056: Use FinishedUnit.items_per_batch for cost_per_unit calculation
+            items_per_batch = 1
+            if recipe.finished_units:
+                primary_unit = recipe.finished_units[0]
+                if primary_unit.items_per_batch and primary_unit.items_per_batch > 0:
+                    items_per_batch = primary_unit.items_per_batch
+            cost_per_unit = total_cost / items_per_batch
 
             return {
                 "recipe_id": recipe_id,
@@ -1965,13 +1974,12 @@ def _create_recipe_variant_impl(
         name = f"{base.name} - {variant_name}"
 
     # Create variant
+    # F056: yield_quantity, yield_unit, yield_description removed
+    # FinishedUnits will be copied separately if needed
     variant = Recipe(
         name=name,
         category=base.category,
         source=base.source,
-        yield_quantity=base.yield_quantity,
-        yield_unit=base.yield_unit,
-        yield_description=base.yield_description,
         estimated_time_minutes=base.estimated_time_minutes,
         notes=f"Variant of {base.name}",
         base_recipe_id=base_recipe_id,
@@ -2061,6 +2069,7 @@ def get_all_recipes_grouped(
             recipes = query.all()
 
             # Convert to dicts
+            # F056: yield_quantity, yield_unit, yield_description removed
             recipe_dicts = []
             for r in recipes:
                 recipe_dicts.append({
@@ -2068,9 +2077,6 @@ def get_all_recipes_grouped(
                     "name": r.name,
                     "category": r.category,
                     "source": r.source,
-                    "yield_quantity": r.yield_quantity,
-                    "yield_unit": r.yield_unit,
-                    "yield_description": r.yield_description,
                     "estimated_time_minutes": r.estimated_time_minutes,
                     "notes": r.notes,
                     "is_archived": r.is_archived,

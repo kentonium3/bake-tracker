@@ -174,10 +174,13 @@ class RecipeHistoryView(ctk.CTkToplevel):
         details.append("")
         details.append(f"Recipe: {recipe_data.get('name', 'N/A')}")
         details.append(f"Category: {recipe_data.get('category', 'N/A')}")
-        details.append(
-            f"Yield: {recipe_data.get('yield_quantity', 0)} "
-            f"{recipe_data.get('yield_unit', '')}"
-        )
+        # F056: yield_quantity/yield_unit are deprecated but may exist in historical snapshots
+        yield_qty = recipe_data.get('yield_quantity')
+        yield_unit = recipe_data.get('yield_unit', '')
+        if yield_qty:
+            details.append(f"Yield: {yield_qty} {yield_unit}")
+        else:
+            details.append("Yield: (see finished units)")
         details.append("")
         details.append("Ingredients (as captured):")
 

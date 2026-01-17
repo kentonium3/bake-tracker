@@ -375,10 +375,17 @@ class RecipeDataTable(DataTable):
             List of formatted values
         """
         # Feature 045: Cost columns removed (costs tracked on instances, not definitions)
+        # F056: Use FinishedUnit for yield info instead of deprecated fields
+        yield_info = "No yield types"
+        if row_data.finished_units:
+            primary_unit = row_data.finished_units[0]
+            items = primary_unit.items_per_batch or 0
+            unit = primary_unit.item_unit or "each"
+            yield_info = f"{items:.0f} {unit}"
         return [
             row_data.name,
             row_data.category,
-            f"{row_data.yield_quantity:.0f} {row_data.yield_unit}",
+            yield_info,
         ]
 
 

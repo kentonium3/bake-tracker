@@ -794,12 +794,11 @@ def validate_recipe_schema(
         return ValidationResult(valid=False, errors=errors, warnings=warnings)
 
     # Define known fields for recipes
+    # F056: yield_quantity, yield_unit removed - use FinishedUnit records instead
     recipe_fields = {
         "name",
         "slug",
         "category",
-        "yield_quantity",
-        "yield_unit",
         "ingredients",
         "components",
         "instructions",
@@ -878,31 +877,9 @@ def validate_recipe_schema(
                     )
                 )
 
-        # Optional: yield_quantity (if present, must be positive number)
-        if "yield_quantity" in recipe and recipe["yield_quantity"] is not None:
-            if not _is_positive_number(recipe["yield_quantity"]):
-                errors.append(
-                    ValidationError(
-                        field=f"{prefix}.yield_quantity",
-                        message="Field 'yield_quantity' must be a positive number",
-                        record_number=record_num,
-                        expected="positive number",
-                        actual=str(recipe["yield_quantity"]),
-                    )
-                )
-
-        # Optional: yield_unit (if present, must be string)
-        if "yield_unit" in recipe and recipe["yield_unit"] is not None:
-            if not isinstance(recipe["yield_unit"], str):
-                errors.append(
-                    ValidationError(
-                        field=f"{prefix}.yield_unit",
-                        message="Field 'yield_unit' must be a string",
-                        record_number=record_num,
-                        expected="string",
-                        actual=_get_type_name(recipe["yield_unit"]),
-                    )
-                )
+        # F056: yield_quantity, yield_unit validation removed
+        # These fields are deprecated - use FinishedUnit records instead
+        # Legacy import files may still have these fields but they're ignored
 
         # Optional: ingredients (if present, must be array)
         if "ingredients" in recipe and recipe["ingredients"] is not None:

@@ -314,14 +314,13 @@ def _export_recipes(output_dir: Path, session: Session) -> FileEntry:
                 "sort_order": rc.sort_order,
             })
 
+        # F056: yield_quantity, yield_unit, yield_description removed
+        # Yield data is now in FinishedUnit records
         records.append({
             "uuid": str(r.uuid) if r.uuid else None,
             "name": r.name,
             "category": r.category,
             "source": r.source,
-            "yield_quantity": r.yield_quantity,
-            "yield_unit": r.yield_unit,
-            "yield_description": r.yield_description,
             "estimated_time_minutes": r.estimated_time_minutes,
             "notes": r.notes,
             "is_archived": r.is_archived,
@@ -1151,13 +1150,12 @@ def _import_entity_records(
                 imported_count += 1
 
             elif entity_type == "recipes":
+                # F056: yield_quantity, yield_unit, yield_description removed
+                # Import files may still have these for backward compat, but they're ignored
                 obj = Recipe(
                     name=record.get("name"),
                     category=record.get("category"),
                     source=record.get("source"),
-                    yield_quantity=record.get("yield_quantity"),
-                    yield_unit=record.get("yield_unit"),
-                    yield_description=record.get("yield_description"),
                     estimated_time_minutes=record.get("estimated_time_minutes"),
                     notes=record.get("notes"),
                     is_archived=record.get("is_archived", False),

@@ -432,19 +432,16 @@ def export_recipes_to_json(
         }
 
         for recipe in recipes:
+            # F056: yield_quantity, yield_unit, yield_description removed
+            # Yield data is now in FinishedUnit records
             recipe_data = {
                 "name": recipe.name,
                 "category": recipe.category,
-                "yield_quantity": recipe.yield_quantity,
-                "yield_unit": recipe.yield_unit,
             }
 
             # Optional fields
             if recipe.source:
                 recipe_data["source"] = recipe.source
-
-            if recipe.yield_description:
-                recipe_data["yield_description"] = recipe.yield_description
 
             if recipe.estimated_time_minutes:
                 recipe_data["estimated_time_minutes"] = recipe.estimated_time_minutes
@@ -1442,17 +1439,15 @@ def export_all_to_json(
 
         # Add recipes
         for recipe in recipes:
+            # F056: yield_quantity, yield_unit, yield_description removed
+            # Yield data is now in FinishedUnit records (exported as finished_units)
             recipe_data = {
                 "name": recipe.name,
                 "category": recipe.category,
-                "yield_quantity": recipe.yield_quantity,
-                "yield_unit": recipe.yield_unit,
             }
 
             if recipe.source:
                 recipe_data["source"] = recipe.source
-            if recipe.yield_description:
-                recipe_data["yield_description"] = recipe.yield_description
             if recipe.estimated_time_minutes:
                 recipe_data["estimated_time_minutes"] = recipe.estimated_time_minutes
             if recipe.notes:
@@ -3423,13 +3418,12 @@ def import_all_from_json_v4(
 
                         # Create recipe with F037 fields
                         # T008: Import variant_name and is_production_ready
+                        # F056: yield_quantity, yield_unit, yield_description removed
+                        # Import files may still have these fields for backward compat, but they're ignored
                         recipe = Recipe(
                             name=name,
                             category=recipe_data.get("category"),
                             source=recipe_data.get("source"),
-                            yield_quantity=recipe_data.get("yield_quantity"),
-                            yield_unit=recipe_data.get("yield_unit"),
-                            yield_description=recipe_data.get("yield_description"),
                             estimated_time_minutes=recipe_data.get("estimated_time_minutes",
                                                                    recipe_data.get("prep_time_minutes", 0) +
                                                                    recipe_data.get("cook_time_minutes", 0)),

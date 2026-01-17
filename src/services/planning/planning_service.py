@@ -367,12 +367,17 @@ def _calculate_bulk_requirements(
     for target in event.production_targets:
         recipe = session.get(Recipe, target.recipe_id)
         if recipe:
+            # F056: Use FinishedUnit.items_per_batch instead of deprecated yield_quantity
+            items_per_batch = 1
+            if recipe.finished_units:
+                primary_unit = recipe.finished_units[0]
+                if primary_unit.items_per_batch and primary_unit.items_per_batch > 0:
+                    items_per_batch = primary_unit.items_per_batch
             result = create_batch_result(
                 recipe_id=recipe.id,
                 recipe_name=recipe.name,
-                units_needed=target.target_batches
-                * (recipe.yield_quantity or 1),  # Convert batches to units
-                yield_per_batch=recipe.yield_quantity or 1,
+                units_needed=target.target_batches * items_per_batch,  # Convert batches to units
+                yield_per_batch=items_per_batch,
             )
             results.append(result)
     return results
