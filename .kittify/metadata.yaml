@@ -3,9 +3,9 @@
 # DO NOT EDIT MANUALLY
 
 spec_kitty:
-  version: 0.10.13
+  version: 0.11.1
   initialized_at: '2026-01-12T10:28:16.553014'
-  last_upgraded_at: '2026-01-12T23:24:10.237923'
+  last_upgraded_at: '2026-01-17T15:03:27.592273'
 environment:
   python_version: 3.13.11
   platform: darwin
@@ -16,3 +16,10 @@ migrations:
     applied_at: '2026-01-12T23:24:10.237910'
     result: success
     notes: Removed software-dev/constitution/
+  - id: 0.11.0_workspace_per_wp
+    applied_at: '2026-01-17T15:03:27.592246'
+    result: success
+    notes: Updated /Users/kentgale/Vaults-repos/bake-tracker/.kittify/missions/software-dev/command-templates/specify.md;
+      Updated /Users/kentgale/Vaults-repos/bake-tracker/.kittify/missions/software-dev/command-templates/plan.md;
+      Updated /Users/kentgale/Vaults-repos/bake-tracker/.kittify/missions/software-dev/command-templates/tasks.md;
+      Updated /Users/kentgale/Vaults-repos/bake-tracker/.kittify/missions/software-dev/command-templates/implement.md
