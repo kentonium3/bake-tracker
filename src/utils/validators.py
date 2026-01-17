@@ -339,26 +339,14 @@ def validate_recipe_data(data: dict) -> Tuple[bool, list]:  # noqa: C901
     if not is_valid:
         errors.append(error)
 
-    # Yield quantity (optional - deprecated in F056, use FinishedUnit instead)
-    if data.get("yield_quantity") is not None:
-        is_valid, error = validate_positive_number(data.get("yield_quantity"), "Yield Quantity")
-        if not is_valid:
-            errors.append(error)
-
-    # Yield unit (optional - deprecated in F056, use FinishedUnit instead)
-    # No validation needed - it's optional now
+    # F056: yield_quantity, yield_unit, yield_description are DEPRECATED
+    # Yield data is now stored in FinishedUnit records (yield_types)
+    # Validation of yield_types happens in the UI form before calling service layer
 
     # Optional fields with length limits
     if data.get("source"):
         is_valid, error = validate_string_length(
             data.get("source"), MAX_DESCRIPTION_LENGTH, "Source"
-        )
-        if not is_valid:
-            errors.append(error)
-
-    if data.get("yield_description"):
-        is_valid, error = validate_string_length(
-            data.get("yield_description"), MAX_DESCRIPTION_LENGTH, "Yield Description"
         )
         if not is_valid:
             errors.append(error)

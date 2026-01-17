@@ -295,11 +295,16 @@ class TestRecipeValidation:
         assert is_valid is False
 
     def test_validate_recipe_data_zero_yield(self):
-        """Test recipe validation with zero yield."""
+        """Test recipe validation with zero yield.
+
+        Note: yield_quantity is deprecated (F056). FinishedUnits are the
+        source of truth for yield data. This field is now ignored by validation.
+        """
         data = self.get_valid_recipe_data()
         data["yield_quantity"] = 0
         is_valid, errors = validators.validate_recipe_data(data)
-        assert is_valid is False
+        # yield_quantity is deprecated and ignored - validation should pass
+        assert is_valid is True
 
     def test_validate_recipe_data_negative_time(self):
         """Test recipe validation with negative time."""
