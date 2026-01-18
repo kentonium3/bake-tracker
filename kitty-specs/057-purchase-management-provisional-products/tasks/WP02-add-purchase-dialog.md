@@ -1,7 +1,7 @@
 ---
 work_package_id: WP02
 title: Add Purchase Dialog Enhancement
-lane: "doing"
+lane: "for_review"
 dependencies: []
 subtasks: [T007, T008, T009, T010, T011, T012]
 agent: "claude"
@@ -658,3 +658,4 @@ When reviewing this WP:
 ## Activity Log
 
 - 2026-01-18T02:12:23Z – claude – lane=doing – Starting implementation of Purchase Service Integration
+- 2026-01-18T02:16:14Z – claude – lane=for_review – Ready for review: Enhanced Add Purchase dialog with inline provisional product creation. Added product search detection, not-found message, cascading ingredient selector, brand prepopulation from search context, form validation, and seamless flow continuation after product creation.
