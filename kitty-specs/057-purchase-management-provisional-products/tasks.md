@@ -60,7 +60,7 @@ Enable purchase recording regardless of product catalog state by introducing pro
 **Dependencies**: WP01
 
 **Subtasks**:
-- [ ] T007: Add "Product not found" detection and inline expansion trigger
+- [x] T007: Add "Product not found" detection and inline expansion trigger
 - [ ] T008: Create provisional product form section with ingredient selector
 - [ ] T009: Implement brand/product name prepopulation from search context
 - [ ] T010: Add validation for provisional product minimum fields
