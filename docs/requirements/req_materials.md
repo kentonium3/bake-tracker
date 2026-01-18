@@ -1,11 +1,13 @@
 # Requirements: Materials Management System
 
 **Document ID**: REQ-MATERIALS-001
-**Version**: 2.1
-**Date**: 2026-01-10
-**Status**: Pending Approval
+**Version**: 3.0
+**Date**: 2026-01-18
+**Status**: Current
 **Feature ID**: F047 (Packaging Materials Foundation)
-**Changelog**: v2.1 - Added identity snapshot principle (REQ-M-042); Updated REQ-M-012, REQ-M-013, REQ-M-020, REQ-M-041 for complete identity capture
+**Changelog**: 
+- v3.0 - BREAKING CHANGES: LIFO inventory tracking (parallel to ingredients), strict definition/instantiation separation, MaterialInventoryItem table required, unit type inheritance model, auto-conversion to base units
+- v2.1 - Added identity snapshot principle (REQ-M-042); Updated REQ-M-012, REQ-M-013, REQ-M-020, REQ-M-041 for complete identity capture
 
 ---
 
@@ -13,20 +15,24 @@
 
 ### 1.1 Purpose
 
-Implement a comprehensive materials management system that parallels the existing ingredient management system, enabling proper handling of non-edible materials (ribbon, boxes, bags, tissue, etc.) used in baking assemblies.
+Implement a comprehensive materials management system that **strictly parallels** the existing ingredient management system, enabling proper handling of non-edible materials (ribbon, boxes, bags, tissue, etc.) used in baking assemblies with **LIFO inventory tracking** and **strict definition/instantiation separation**.
 
 ### 1.2 Problem Statement
 
-**Current State:**
-- Materials are incorrectly modeled as Ingredients (temporary workaround)
-- Cannot properly track packaging materials with appropriate metadata
-- Pollutes ingredient model with non-food items
-- Blocks complete FinishedGood assemblies (cannot add ribbon/boxes)
+**Current State (v2.1 Issues Identified):**
+- MaterialProduct has cost/inventory fields (violates definition/instantiation)
+- Weighted average costing used instead of LIFO (breaks parallelism with ingredients)
+- No MaterialInventoryItem table (inventory tracking incomplete)
+- Material.base_unit_type inheritance not clear in UI
+- MaterialUnit quantity_per_unit field confusing (no unit type shown)
+- Material purchase UI missing entirely
 
 **Required State:**
-- Separate materials ontology and product catalog
-- Materials purchasing, inventory, and consumption workflows
-- Materials integrated into assembly cost calculations
+- Separate materials ontology and product catalog (definitions only)
+- MaterialInventoryItem table for LIFO inventory tracking (parallel to ProductInventoryItem)
+- Materials purchasing creates inventory items with cost snapshots
+- Material.base_unit_type strictly inherited by products and units
+- Materials integrated into assembly cost calculations (LIFO actual costs)
 - Materials work alongside ingredients in all observability/reporting
 - **Flexible material decision timing** (catalog or assembly stage)
 
@@ -40,11 +46,18 @@ This is NOT a simple feature - it establishes a critical architectural pattern f
 - Dual supply chain management (food + materials)
 
 **Architectural Decision:**
-Materials MUST parallel Ingredient model exactly to ensure:
-- Consistent workflows (catalog, purchasing, inventory)
+Materials MUST **strictly parallel** Ingredient model to ensure:
+- **LIFO inventory tracking** (same as ingredients)
+- **Definition/instantiation separation** (same as ingredients)
+- Consistent workflows (catalog, purchasing, inventory, consumption)
 - Unified UI patterns (users understand one, understand both)
 - Observability parity (reports show food + materials side-by-side)
 - Extensibility for web/commerce features
+
+**Constitutional Compliance:**
+- **Principle II (Data Integrity & FIFO Accuracy)**: LIFO consumption for materials matches ingredient pattern
+- **Principle III (Definition/Instantiation)**: Strict separation maintained throughout materials domain
+- **Principle V (Layered Architecture)**: Clean separation between catalog (definition) and inventory (instantiation)
 
 ---
 
@@ -54,51 +67,54 @@ Materials MUST parallel Ingredient model exactly to ensure:
 
 **Data Model:**
 - ✅ Materials ontology hierarchy (3 levels: Category → Subcategory → Material)
-- ✅ MaterialProduct catalog (physical purchasable items)
+- ✅ MaterialProduct catalog (physical purchasable items - **DEFINITIONS ONLY, NO COST/INVENTORY**)
+- ✅ **MaterialInventoryItem table** (LIFO inventory tracking, parallel to ProductInventoryItem)
 - ✅ MaterialUnit model (atomic consumption units, parallel to FinishedUnit)
-- ✅ Materials purchasing workflow (packages → atomic units)
-- ✅ Materials inventory system (weighted average costing)
-- ✅ Materials consumption tracking in AssemblyRun
-- ✅ Materials cost calculations (alongside ingredient costs)
+- ✅ Materials purchasing workflow (creates MaterialInventoryItem records)
+- ✅ Materials inventory system (**LIFO costing**, not weighted average)
+- ✅ Materials consumption tracking in AssemblyRun (consumes from MaterialInventoryItem)
+- ✅ Materials cost calculations (LIFO actual costs)
 - ✅ **Deferred material decision workflow** (generic placeholders)
+- ✅ **Unit type inheritance** (Material → MaterialProduct → MaterialUnit)
+- ✅ **Auto-conversion to base units** (feet → inches, etc.)
 
 **Integration:**
 - ✅ FinishedGood compositions (FinishedUnits + MaterialUnits + Material placeholders)
-- ✅ AssemblyRun enhancements (component costs + material costs)
+- ✅ AssemblyRun enhancements (component costs + material costs, LIFO)
 - ✅ Event planning cost calculations (include materials, estimated vs actual)
-- ✅ Import/export (catalog + view data)
+- ✅ Import/export (catalog + view data, **first-class materials support**)
 - ✅ **Assembly hard stop** (enforce material resolution)
 
 **UI:**
 - ✅ Materials ontology management (categories, subcategories)
-- ✅ MaterialProduct catalog CRUD
-- ✅ MaterialUnit catalog CRUD
-- ✅ Materials purchasing workflow
-- ✅ Materials inventory view
-- ✅ Manual inventory adjustments
+- ✅ MaterialProduct catalog CRUD (**NO cost/inventory display in catalog**)
+- ✅ MaterialUnit catalog CRUD (shows inherited unit type)
+- ✅ Materials purchasing workflow (creates inventory items)
+- ✅ Materials inventory view (**Purchase mode**, shows MaterialInventoryItem lots)
+- ✅ Manual inventory adjustments (creates/updates MaterialInventoryItem)
 - ✅ Material selection in FinishedGood composition (specific/generic/none)
 - ✅ **Pending decision indicators** (⚠️ throughout workflow)
-- ✅ **Material assignment interface** (quick assign at assembly)
-- ✅ Materials costs in assembly recording (actual vs estimated)
+- ✅ **Material assignment interface** (quick assign at assembly, shows LIFO inventory)
+- ✅ Materials costs in assembly recording (LIFO actual costs)
 - ✅ Materials costs in event planning
 
 ### 2.2 Out of Scope (Deferred)
 
 **Deferred to Future Features:**
-- ❌ Rich metadata (structured dimensions, color, material_type fields)
-- ❌ Unit conversions beyond feet↔inches
+- ❌ Rich metadata (structured dimensions, color, material_type fields beyond notes)
+- ❌ Unit conversions beyond feet↔inches for imperial, cm↔m for metric
 - ❌ "Packaging" vs "Materials" differentiation (keep generic "Materials")
 - ❌ Materials-specific reporting/analytics (beyond cost reporting)
-- ❌ Lot tracking for materials (use aggregate inventory only)
-- ❌ FIFO costing for materials (use weighted average)
 - ❌ Low stock alerts
 - ❌ Automated reordering
 - ❌ **Automatic assignment algorithms** (F026 deferred)
 - ❌ **Packaging templates** (F026 deferred)
 - ❌ **Partial commitment** (F026 deferred)
+- ❌ Lot numbers for MaterialInventoryItem (not needed)
+- ❌ Expiration dates for MaterialInventoryItem (not needed)
 
 **Not Required:**
-- ❌ Migration from "packaging ingredients" (no existing data)
+- ❌ Migration from "packaging ingredients" (no existing data to migrate)
 - ❌ Sample data generation (user will provide JSON file separately)
 
 ---
@@ -118,20 +134,40 @@ MaterialCategory (Level 1)
 MaterialSubcategory (Level 2)
   Examples: "Satin Ribbon", "Grosgrain Ribbon", "Gift Boxes", "Cellophane Bags"
   ↓
-Material (Level 3 - Abstract)
+Material (Level 3 - Abstract Definition)
   Examples: "Red Satin Ribbon", "Small Gift Box 6x6x3", "6\" Cellophane Bag"
+  base_unit_type: "each" | "linear_cm" | "square_cm"
   ↓
-MaterialProduct (Physical - Purchasable)
+MaterialProduct (Physical Definition - Purchasable)
   Examples: "Michaels Red Satin 100ft Roll", "Amazon 6x6x3 White Box 50pk"
+  Inherits base_unit_type from Material
+  NO cost or inventory fields
+  ↓
+MaterialInventoryItem (Instantiation - Purchase Lot)
+  quantity_purchased, quantity_remaining, cost_per_unit (snapshot)
+  One item per purchase, LIFO consumption
 ```
 
-**REQ-M-002: Parallel to Ingredient Structure**
+**REQ-M-002: Strict Parallel to Ingredient Structure**
 
-The materials ontology SHALL exactly parallel the ingredient ontology structure:
-- MaterialCategory ↔ IngredientCategory
-- MaterialSubcategory ↔ IngredientSubcategory  
-- Material ↔ Ingredient
-- MaterialProduct ↔ Product
+The materials domain SHALL **exactly parallel** the ingredient domain structure:
+
+| Ingredient Domain | Material Domain | Purpose |
+|-------------------|-----------------|---------|
+| IngredientCategory | MaterialCategory | Level 1 hierarchy |
+| IngredientSubcategory | MaterialSubcategory | Level 2 hierarchy |
+| Ingredient | Material | Abstract definition (with base_unit_type) |
+| Product | MaterialProduct | Purchasable SKU definition (NO cost/inventory) |
+| ProductInventoryItem | **MaterialInventoryItem** | Purchase lot (LIFO tracking) |
+| Purchase | MaterialPurchase | Purchase transaction |
+| ProductionConsumption | MaterialConsumption | Consumption from inventory (LIFO) |
+| FinishedUnit | MaterialUnit | Consumption unit definition |
+
+**Rationale**: Strict parallelism ensures:
+- Users learn one system, understand both
+- Developers reference validated ingredient patterns
+- Future features (web, multi-user) apply equally to both domains
+- No architectural drift between food and material management
 
 **REQ-M-003: Shared Supplier Table**
 
@@ -142,529 +178,548 @@ Materials and ingredients SHALL share a single Suppliers table:
 
 ---
 
-### 3.2 MaterialProduct Catalog
+### 3.2 MaterialProduct Catalog (Definitions Only)
 
-**REQ-M-004: Product-Level Inventory Tracking**
+**REQ-M-004: MaterialProduct is DEFINITION ONLY**
 
-Inventory SHALL be tracked at MaterialProduct level (NOT Material level):
+MaterialProduct SHALL be a pure definition with **NO cost or inventory fields**:
+
+```python
+MaterialProduct:
+    # Definition fields
+    material_id: int (FK to Material, required)
+    supplier_id: int (FK to Supplier, optional)
+    name: str (required, e.g., "100ft Red Satin Roll")
+    slug: str (unique, for import/export stability)
+    brand: str (optional, e.g., "Michaels")
+    sku: str (optional, supplier SKU)
+    package_quantity: Decimal (e.g., 100.0)
+    package_unit: str (e.g., "feet")
+    quantity_in_base_units: Decimal (auto-calculated, e.g., 1200 inches)
+    is_hidden: bool (default False)
+    notes: str (freeform text)
+    
+    # NO cost fields ❌
+    # NO inventory fields ❌
 ```
-Material: "Red Satin Ribbon" (abstract)
-  ↓
-MaterialProduct: "Michaels Red Satin 100ft Roll"
-  - inventory_count: 250.0 (linear_feet)
-  - current_unit_cost: $0.12 (per linear_foot)
+
+**Rationale**: 
+- MaterialProduct defines "what can be purchased" (definition)
+- Cost/inventory are outcomes of purchasing (instantiation)
+- Strict definition/instantiation separation maintained
+
+**REQ-M-005: Inherited Unit Type**
+
+MaterialProduct SHALL inherit base_unit_type from parent Material:
+
+```
+Material "Red Ribbon":
+  base_unit_type: "linear_cm"
+  ↓ (inherited)
+MaterialProduct "Michaels 100ft Roll":
+  package_unit: "feet" (user enters)
+  package_quantity: 100.0 (user enters)
+  quantity_in_base_units: 3048 (auto-calculated: 100 feet × 30.48)
+  ↑ All quantities interpreted in linear_cm (inherited)
+```
+
+**REQ-M-006: Auto-Conversion to Base Units**
+
+System SHALL auto-convert package_unit to Material.base_unit_type:
+
+**Base Unit Types**:
+- **"each"**: No conversion, discrete items (bags, boxes, sheets)
+- **"linear_cm"**: Linear centimeters (recommended for ribbons, twine)
+- **"square_cm"**: Square centimeters (for flat materials like tissue paper)
+
+**Supported Input Units** (all converted to base units for storage):
+
+*For linear_cm base type:*
+- Metric: cm (1:1), meters (×100), mm (÷10)
+- Imperial: inches (×2.54), feet (×30.48), yards (×91.44)
+
+*For square_cm base type:*
+- Metric: square_cm (1:1), square_meters (×10000)
+- Imperial: square_inches (×6.4516), square_feet (×929.03)
+
+*For each base type:*
+- No conversion: package_quantity = quantity_in_base_units
+
+**Conversion Rules**:
+1. User enters: package_quantity + package_unit (dropdown)
+2. System validates: package_unit convertible to Material.base_unit_type
+3. System calculates: quantity_in_base_units (converted to base unit type)
+4. System stores: package values (for display) + base units (for inventory/consumption)
+
+**Example 1 - Metric Input**:
+```
+Material: "Red Ribbon" (base_unit_type: "linear_cm")
+MaterialProduct entry:
+  package_quantity: 15
+  package_unit: "cm" ← User enters metric
   
-MaterialProduct: "Amazon Red Satin 50ft Roll"  
-  - inventory_count: 100.0 (linear_feet)
-  - current_unit_cost: $0.10 (per linear_foot)
+System calculates:
+  quantity_in_base_units: 15 (no conversion needed)
+  
+Storage:
+  package_quantity: 15.0
+  package_unit: "cm"
+  quantity_in_base_units: 15.0
 ```
 
-**REQ-M-005: Essential Product Attributes**
+**Example 2 - Imperial Input**:
+```
+Material: "Red Ribbon" (base_unit_type: "linear_cm")
+MaterialProduct entry:
+  package_quantity: 100
+  package_unit: "feet" ← User enters imperial
+  
+System calculates:
+  quantity_in_base_units: 3048 (100 × 30.48)
+  
+Storage:
+  package_quantity: 100.0
+  package_unit: "feet"
+  quantity_in_base_units: 3048.0
+  
+Display (catalog):
+  "100 feet per package (3048 cm)"
+  
+Inventory calculations:
+  Use quantity_in_base_units (3048 cm)
+```
 
-MaterialProduct SHALL have:
-- display_name (required)
-- material_id (FK to Material, required)
-- default_unit (required: "each", "linear_inches", "square_feet")
-- inventory_count (aggregate, Decimal, default 0.0)
-- current_unit_cost (weighted average, Decimal)
-- supplier_id (FK to Supplier, optional)
-- notes (freeform text for dimensions, color, etc.)
+**Rationale**: 
+- Base storage in cm allows both metric and imperial inputs
+- User can enter materials in their preferred units
+- System handles conversion transparently
+- All inventory/consumption calculations use cm (consistent base)
 
-**REQ-M-006: Product Type Differentiation**
+**REQ-M-007: Product Type Differentiation**
 
-Product table SHALL have product_type field:
-- Values: "food", "material"
-- Enables unified Product table OR separate MaterialProduct table
-- Decision: Use separate MaterialProduct table for clarity
+MaterialProduct SHALL be a separate table from Product:
+- NO shared Product table with type discriminator
+- Clean separation enables future material-specific fields
+- Follows parallel architecture principle
 
 ---
 
-### 3.3 Materials Purchasing Workflow
+### 3.3 MaterialInventoryItem (LIFO Tracking)
 
-**REQ-M-007: Package-Based Purchasing**
+**REQ-M-008: MaterialInventoryItem Table**
 
-Materials purchasing SHALL track both package-level and atomic-level quantities:
+System SHALL track material inventory using MaterialInventoryItem table (parallel to ProductInventoryItem):
+
+```python
+class MaterialInventoryItem:
+    """
+    Represents a single purchase lot of a material product.
+    LIFO consumption: oldest items consumed first.
+    """
+    # Foreign keys
+    material_product_id: int  # FK to MaterialProduct (definition)
+    material_purchase_id: int  # FK to MaterialPurchase (transaction)
+    
+    # Quantity tracking
+    quantity_purchased: Decimal  # Original purchase quantity (in base units)
+    quantity_remaining: Decimal  # Current remaining (in base units)
+    
+    # Cost snapshot (immutable)
+    cost_per_unit: Decimal  # Cost per base unit at purchase time
+    
+    # Metadata
+    purchased_at: DateTime  # When purchased
+    
+    # NO lot_number field (not needed for materials)
+    # NO expiration_date field (not needed for materials)
+```
+
+**REQ-M-009: LIFO Consumption**
+
+MaterialConsumption SHALL consume from MaterialInventoryItem using LIFO (Last In, First Out):
+
+**Consumption Algorithm**:
+1. Get MaterialProduct for selected Material
+2. Query MaterialInventoryItem where material_product_id = X AND quantity_remaining > 0
+3. Order by purchased_at DESC (newest first = LIFO)
+4. Consume from items in LIFO order until quantity satisfied
+5. Create MaterialConsumption record(s) linking to consumed MaterialInventoryItem(s)
+6. Decrement MaterialInventoryItem.quantity_remaining
+
+**Example**:
+```
+MaterialInventoryItems for "Snowflake Bag 6\"":
+  Item A: purchased 2024-12-01, qty_remaining: 50, cost: $0.24/each
+  Item B: purchased 2024-12-10, qty_remaining: 30, cost: $0.26/each
+  Item C: purchased 2024-12-15, qty_remaining: 20, cost: $0.28/each
+
+Assembly needs: 40 bags
+
+LIFO consumption:
+  1. Consume 20 from Item C (newest) @ $0.28 = $5.60
+  2. Consume 20 from Item B (next newest) @ $0.26 = $5.20
+  Total cost: $10.80 (actual LIFO cost)
+
+MaterialConsumption records created:
+  - inventory_item_id: C, quantity: 20, cost_per_unit: $0.28
+  - inventory_item_id: B, quantity: 20, cost_per_unit: $0.26
+```
+
+**Rationale**: 
+- LIFO provides actual cost tracking (not weighted average)
+- Matches ingredient consumption pattern exactly
+- Enables accurate historical cost analysis
+
+**REQ-M-010: Inventory Aggregation**
+
+System SHALL calculate available inventory by aggregating MaterialInventoryItem.quantity_remaining:
+
+```python
+def get_available_inventory(material_product_id: int) -> Decimal:
+    """Get total available inventory for a material product."""
+    return sum(
+        item.quantity_remaining 
+        for item in MaterialInventoryItem.query
+        .filter_by(material_product_id=material_product_id)
+        .all()
+    )
+```
+
+**Display Locations**:
+- **Purchase > Inventory**: Shows MaterialInventoryItem lots (detail view, parallel to food inventory)
+- **Assembly**: Shows aggregate available inventory (summary view)
+- **Catalog**: NO inventory display (definitions only)
+
+**Service Layer**:
+- MaterialInventoryService provides primitives for querying inventory
+- Planning/production services call MaterialInventoryService for availability checks
+- Follows same pattern as food inventory (ProductInventoryItem)
+
+---
+
+### 3.4 Materials Purchasing Workflow
+
+**REQ-M-011: Purchase Creates Inventory Items**
+
+MaterialPurchase SHALL create MaterialInventoryItem records (parallel to Purchase → ProductInventoryItem):
 
 ```python
 MaterialPurchase:
-    material_product_id: int          # What was purchased
-    package_unit_count: Decimal       # e.g., 25 (bags per pack)
-    packages_purchased: Decimal       # e.g., 4 (packs bought)
-    total_units: Decimal              # 100 (calculated: 25 × 4)
-    calculated_unit_cost: Decimal     # $0.40/bag (calculated)
-    total_cost: Decimal               # $40.00 (entered by user)
-    purchased_at: DateTime            # When purchased
-    supplier_id: int                  # Optional supplier
+    # Package information (user enters)
+    material_product_id: int
+    package_unit_count: Decimal  # e.g., 25 bags per pack
+    packages_purchased: Decimal  # e.g., 4 packs
+    total_units: Decimal  # Calculated: 100 bags (in base units)
+    
+    # Cost information (user enters)
+    total_cost: Decimal  # e.g., $40.00
+    
+    # Calculated and stored
+    calculated_unit_cost: Decimal  # e.g., $0.40/bag (total_cost ÷ total_units)
+    
+    # Metadata
+    purchased_at: DateTime
+    supplier_id: int (optional)
+    notes: str (optional)
+
+# On purchase creation:
+MaterialInventoryItem.create(
+    material_product_id=purchase.material_product_id,
+    material_purchase_id=purchase.id,
+    quantity_purchased=purchase.total_units,
+    quantity_remaining=purchase.total_units,
+    cost_per_unit=purchase.calculated_unit_cost,  # Snapshot
+    purchased_at=purchase.purchased_at
+)
 ```
 
-**REQ-M-008: Unit Cost Calculation**
+**REQ-M-012: Unit Cost Calculation**
 
-Unit cost SHALL be stored in both locations:
-1. **MaterialPurchase.calculated_unit_cost**: Historical record per purchase
-2. **MaterialProduct.current_unit_cost**: Weighted average (updated on purchase)
-
-**REQ-M-009: Weighted Average Costing**
-
-MaterialProduct.current_unit_cost SHALL be recalculated on each purchase:
+Unit cost SHALL be calculated at purchase time and stored as immutable snapshot:
 
 ```
 Formula:
-new_weighted_avg = (
-    (old_inventory × old_unit_cost) + (purchased_units × purchase_unit_cost)
-) / (old_inventory + purchased_units)
+calculated_unit_cost = total_cost ÷ total_units
 
 Example:
-Current: 200 bags @ $0.35 = $70.00
-Purchase: 100 bags @ $0.40 = $40.00
-New: 300 bags @ $0.3667 = $110.00
+Package: 25 bags per pack
+Purchased: 4 packs
+Total: 100 bags
+Cost: $40.00
+Unit cost: $40.00 ÷ 100 = $0.40/bag
+
+MaterialInventoryItem created with:
+  cost_per_unit: $0.40 (immutable snapshot)
 ```
 
-**REQ-M-010: Purchase Workflow**
+**REQ-M-013: Purchase Workflow**
 
-User purchasing workflow SHALL:
-1. Select MaterialProduct
+Materials purchasing SHALL support multiple input methods:
+
+**Method 1: Manual UI Entry (Purchase Mode)**
+1. Select MaterialProduct (or create new)
 2. Enter package_unit_count (e.g., "25 bags per pack")
 3. Enter packages_purchased (e.g., "4 packs")
-4. System calculates total_units (100 bags)
+4. System calculates total_units (100 bags in base units)
 5. Enter total_cost ($40.00)
 6. System calculates unit_cost ($0.40/bag)
-7. System updates inventory_count (+100 bags)
-8. System recalculates weighted average unit_cost
+7. System creates MaterialPurchase record
+8. System creates MaterialInventoryItem record (quantity_purchased = total_units)
+9. User sees confirmation with calculated unit cost
+
+**Method 2: CLI-Assisted Entry (BT Mobile Integration)**
+
+CLI workflow SHALL support material purchases with provisional product creation:
+
+1. **Product Resolution Phase**:
+   - If MaterialProduct exists: Use existing product
+   - If MaterialProduct NOT found: Create in **provisional state**
+     - Provisional MaterialProduct fields: name, material_id, basic package info
+     - Missing fields: Complete catalog metadata (brand, SKU, supplier details)
+     - Marked with: `is_provisional = true` or equivalent flag
+
+2. **Purchase Transaction Phase**:
+   - CLI provides: product identifier, quantity purchased, total cost, purchase date
+   - System matches existing OR creates provisional MaterialProduct
+   - System creates MaterialPurchase record (links to product)
+   - System creates MaterialInventoryItem record (LIFO tracking starts immediately)
+   - Provisional products function identically to complete products for inventory/consumption
+
+3. **Catalog Enhancement Phase (Later)**:
+   - User enriches provisional MaterialProducts via Catalog UI (at desk)
+   - User adds: brand, supplier, complete package details, notes
+   - User removes provisional flag when metadata complete
+   - Historical MaterialPurchase records remain linked (by material_product_id)
+   - Historical MaterialInventoryItem records unchanged (immutable snapshots)
+
+**Rationale**: 
+- CLI workflow prioritizes speed during shopping (minimal data entry at store)
+- Provisional products enable immediate inventory tracking without blocking purchase
+- Catalog enrichment happens asynchronously (user convenience)
+- Parallels food purchase CLI workflow (consistent product lifecycle pattern)
 
 ---
 
+### 3.5 Definition/Instantiation Separation
 
----
+**REQ-M-014: Strict Definition/Instantiation Boundary**
 
-### 3.4 Definition/Instantiation Separation
+Materials SHALL follow strict definition/instantiation pattern (parallel to ingredients):
 
-**REQ-M-041: Definition/Instantiation Separation**
-
-Materials SHALL follow the same definition/instantiation pattern as ingredients:
-
-**Definition Layer (Catalog - NO stored costs):**
-- Material (abstract concept)
-- MaterialProduct (purchasable item)
-- MaterialUnit (consumption unit)
+**Definition Layer (Catalog - NO stored costs/inventory)**:
+- Material (abstract concept, includes base_unit_type)
+- MaterialProduct (purchasable SKU definition)
+- MaterialUnit (consumption unit definition)
 - FinishedGood with Material/MaterialUnit components
 
-Definition entities SHALL NOT store cost data. Cost calculations SHALL be dynamic:
-- MaterialProduct.current_unit_cost: Weighted average (recalculated on purchase)
-- MaterialUnit cost: Calculated from MaterialProduct.current_unit_cost
-- FinishedGood material cost: Calculated from MaterialUnit costs (actual or estimated)
-
-**Instantiation Layer (Transactional - Immutable cost snapshots):**
-- MaterialPurchase (records calculated_unit_cost at purchase time)
-- MaterialConsumption (records per_unit_cost at assembly time)
+**Instantiation Layer (Transactional - Cost/inventory snapshots)**:
+- MaterialInventoryItem (purchase lot, LIFO tracking)
+- MaterialPurchase (creates inventory items)
+- MaterialConsumption (consumes from inventory items, LIFO)
 - AssemblyRun (records total_material_cost at assembly time)
 
-**Cost Snapshot Rules:**
+**Forbidden**:
+- ❌ MaterialProduct.current_inventory field
+- ❌ MaterialProduct.weighted_avg_cost field
+- ❌ MaterialProduct.last_purchase_cost field
+- ❌ MaterialUnit.current_cost field (must calculate dynamically)
+- ❌ Any cost/inventory storage in definition layer
 
-1. **MaterialPurchase** captures cost at purchase time:
-   ```python
-   MaterialPurchase:
-       calculated_unit_cost: Decimal  # Snapshot: total_cost ÷ total_units
-       # Never recalculated, immutable historical record
-   ```
+**Allowed**:
+- ✅ Calculated current cost (query MaterialInventoryItem, LIFO order, take first)
+- ✅ Calculated available inventory (sum MaterialInventoryItem.quantity_remaining)
+- ✅ Display calculated values in Make mode (not Catalog mode)
 
-2. **MaterialConsumption** captures cost at assembly time:
-   ```python
-   MaterialConsumption:
-       per_unit_cost: Decimal  # Snapshot: MaterialProduct.current_unit_cost
-       # Frozen at assembly time, never updated
-   ```
+**REQ-M-015: Cost Snapshot Immutability**
 
-3. **AssemblyRun** captures aggregate material cost:
-   ```python
-   AssemblyRun:
-       total_material_cost: Decimal  # Sum of MaterialConsumption costs
-       # Immutable snapshot of material costs at assembly time
-   ```
+Instantiation costs SHALL be immutable snapshots:
 
-
-
-**Identity Snapshot Rules (Parallel to Cost Snapshots):**
-
-Materials instantiations SHALL capture complete identity information, enabling historical reconstruction without catalog dependency:
-
-1. **MaterialConsumption** captures identity at assembly time:
-   ```python
-   MaterialConsumption:
-       material_id: int              # Material type (immutable)
-       material_product_id: int      # Specific product (immutable)
-       quantity_per_unit: Decimal    # Unit size (immutable)
-       display_name_snapshot: str    # Name at consumption time (immutable)
-       # Never updated when catalog changes
-   ```
-
-2. **AssemblyConsumption** captures identity at assembly time:
-   ```python
-   AssemblyConsumption:
-       finished_unit_id: int         # Baked good consumed (immutable)
-       quantity_consumed: int        # Quantity (immutable)
-       per_unit_cost: Decimal        # Cost snapshot (immutable)
-   ```
-
-3. **Identity snapshot examples:**
-   ```
-   Year 1: Create MaterialProduct "Snowflake Bag 6""
-   Year 1: Assemble gift boxes, consume Snowflake bags
+1. **MaterialInventoryItem.cost_per_unit**: Snapshot at purchase time
+   - Never recalculated
+   - Immutable historical record
    
-   MaterialConsumption created:
-       display_name_snapshot: "Snowflake Bag 6""  (frozen)
+2. **MaterialConsumption.cost_per_unit**: Snapshot at assembly time
+   - Copied from MaterialInventoryItem.cost_per_unit (LIFO)
+   - Never updated when inventory costs change
    
-   Year 2: Rename MaterialProduct to "Winter Snowflake 6" Bag"
-   
-   # MaterialConsumption from Year 1 STILL shows "Snowflake Bag 6""
-   # User can see exactly what they used, as it was called then
-   ```
+3. **AssemblyRun.total_material_cost**: Sum of MaterialConsumption costs
+   - Immutable snapshot of material costs at assembly time
 
-**Historical Reconstruction:**
-
-User can answer years later:
-- ✅ "What finished good did I make?" (AssemblyRun.finished_good_id)
-- ✅ "Which recipe/variant?" (via FinishedGood → Recipe)
-- ✅ "What baked goods did I use?" (AssemblyConsumption.finished_unit_id)
-- ✅ "What materials did I use?" (MaterialConsumption.material_id, material_product_id)
-- ✅ "What size/type?" (MaterialConsumption.quantity_per_unit)
-- ✅ "What was it called then?" (MaterialConsumption.display_name_snapshot)
-- ✅ "How much did it cost?" (MaterialConsumption.per_unit_cost)
-
-**Parallel to Ingredients:**
-
-| Question | Ingredients (ProductionRun) | Materials (AssemblyRun) |
-|----------|----------------------------|------------------------|
-| What did I make? | recipe_id, finished_unit_id ✅ | finished_good_id ✅ |
-| Which variant? | recipe_variant_id ✅ | (via FinishedGood) ✅ |
-| What products used? | product_id ✅ | material_product_id ✅ |
-| What type/category? | (via Ingredient) ✅ | material_id ✅ |
-| What size/quantity? | quantity_consumed ✅ | quantity_per_unit + quantity_consumed ✅ |
-| What was it called? | (from Product, mutable) ⚠️ | display_name_snapshot ✅ |
-| How much did it cost? | per_unit_cost ✅ | per_unit_cost ✅ |
-
-**Examples:**
-
-**Definition (Current/Live Costs):**
+**Example**:
 ```
-MaterialProduct "6\" Snowflake Bag":
-  current_unit_cost: $0.25 (weighted average, recalculated on each purchase)
-  
-MaterialUnit "6\" Snowflake Bag":
-  cost: $0.25 (calculated from MaterialProduct, always current)
-  
-FinishedGood "Holiday Gift Box":
-  material component cost: $0.25 (calculated from MaterialUnit, always current)
+Year 1: Purchase "Snowflake Bag 6\"" @ $0.24/each
+  MaterialInventoryItem: cost_per_unit = $0.24 (immutable)
+
+Year 1: Assemble gift boxes, consume 50 bags
+  MaterialConsumption: cost_per_unit = $0.24 (snapshot from inventory item)
+  AssemblyRun: total_material_cost = $12.00 (50 × $0.24, immutable)
+
+Year 2: Purchase more "Snowflake Bag 6\"" @ $0.30/each
+  New MaterialInventoryItem: cost_per_unit = $0.30 (immutable)
+
+# Year 1 AssemblyRun STILL shows total_material_cost = $12.00
+# Cost does NOT change when new inventory purchased
 ```
 
-**Instantiation (Historical Snapshots):**
-```
-MaterialPurchase (Dec 1):
-  calculated_unit_cost: $0.24 (snapshot, never changes)
-  
-MaterialPurchase (Dec 15):
-  calculated_unit_cost: $0.27 (snapshot, never changes)
-  
-MaterialProduct.current_unit_cost: $0.25 (weighted average of both purchases)
-
-AssemblyRun (Dec 20):
-  MaterialConsumption:
-    per_unit_cost: $0.25 (snapshot from MaterialProduct at assembly time)
-  total_material_cost: $12.50 (50 units × $0.25, immutable)
-  
-MaterialPurchase (Dec 25):
-  calculated_unit_cost: $0.30 (new purchase, new snapshot)
-  
-MaterialProduct.current_unit_cost: $0.26 (recalculated weighted average)
-
-# AssemblyRun from Dec 20 STILL shows $12.50
-# Cost does NOT change when MaterialProduct.current_unit_cost updates
-```
-
-**Parallel to Ingredients:**
-
-| Ingredient System | Material System |
-|-------------------|-----------------|
-| **Definitions (no stored costs)** |
-| Ingredient | Material |
-| Product | MaterialProduct |
-| FinishedUnit (cost calculated) | MaterialUnit (cost calculated) |
-| **Instantiations (cost snapshots)** |
-| Purchase (cost_per_unit snapshot) | MaterialPurchase (calculated_unit_cost snapshot) |
-| ProductionConsumption (cost snapshot) | MaterialConsumption (per_unit_cost snapshot) |
-| ProductionRun (immutable costs) | AssemblyRun (immutable costs) |
-
-**Validation Rules:**
-
-System SHALL enforce:
-- Definition entities have NO cost fields (except weighted average on MaterialProduct)
-- MaterialProduct.current_unit_cost is ONLY field with stored cost in definition layer
-- MaterialProduct.current_unit_cost recalculated on EVERY purchase
-- MaterialUnit.cost ALWAYS calculated dynamically (never stored)
-- FinishedGood material cost ALWAYS calculated dynamically (never stored)
-- Instantiation entities (MaterialPurchase, MaterialConsumption, AssemblyRun) have immutable cost snapshots
-- Changing MaterialProduct.current_unit_cost does NOT affect historical MaterialConsumption or AssemblyRun costs
-
-**UI Implications:**
-
-1. **Catalog Mode (Definitions):**
-   - MaterialProduct shows current_unit_cost (live, recalculates)
-   - MaterialUnit shows calculated cost (live, from MaterialProduct)
-   - FinishedGood shows material cost (live, calculated from components)
-   - Footer note: "Current costs - may change with new purchases"
-
-2. **Make Mode (Instantiations):**
-   - MaterialPurchase shows calculated_unit_cost (historical, immutable)
-   - AssemblyRun shows total_material_cost (historical, immutable)
-   - MaterialConsumption shows per_unit_cost (historical, immutable)
-   - No "recalculate costs" button (costs are snapshots, not recalculated)
-
-**Constitutional Compliance:**
-
-This requirement directly supports:
-- **Principle III (Data Integrity)**: Immutable cost history prevents data corruption
-- **Principle II (Future-Proof Schema)**: Pattern supports future audit/compliance needs
-- **Principle VI (Consistency)**: Materials follow same pattern as ingredients
-
-**Rationale:**
-
-1. **Historical Accuracy**: AssemblyRun costs reflect actual costs at assembly time
-2. **Audit Trail**: MaterialPurchase preserves actual purchase costs
-3. **Cost Tracking**: Can analyze how material costs change over time
-4. **No Retroactive Changes**: Updating MaterialProduct costs doesn't corrupt historical data
-5. **Pattern Consistency**: Users understand material costing because it matches ingredient costing
-
-
-
----
-
-**REQ-M-042: Identity Snapshot Principle**
+**REQ-M-016: Identity Snapshot Principle**
 
 Materials instantiations SHALL capture complete identity information to enable historical reconstruction:
 
-**Requirements:**
+**MaterialConsumption SHALL record**:
+- Material type (material_id) - enables "what type of material"
+- Specific product (material_product_id) - enables "which specific design/brand"
+- Inventory item (inventory_item_id) - enables "which purchase lot"
+- Quantity consumed (quantity_consumed) - enables "how much was used"
+- Cost snapshot (cost_per_unit) - enables "how much did it cost"
+- Display name snapshot (display_name_snapshot) - enables "what was it called"
 
-1. **MaterialConsumption** SHALL record complete identity:
-   - Material type (material_id) - enables "what type of material"
-   - Specific product (material_product_id) - enables "which specific design/brand"
-   - Unit size (quantity_per_unit) - enables "what size was it"
-   - Display name snapshot (display_name_snapshot) - enables "what was it called"
-   - Quantity consumed - enables "how much was used"
-   - Cost snapshot - enables "how much did it cost"
-
-2. **AssemblyConsumption** SHALL record complete identity:
-   - Finished unit (finished_unit_id) - enables "which baked good"
-   - Quantity consumed - enables "how many"
-   - Cost snapshot - enables "how much did it cost"
-
-3. **AssemblyRun** SHALL record complete identity:
-   - Finished good (finished_good_id) - enables "what did I make"
-   - Quantity assembled - enables "how many"
-   - Cost totals - enables "total cost"
-   - Material reconciliation flag - enables "was this completed"
-
-4. **Display name snapshots** SHALL be immutable:
-   - Captured at consumption time
-   - Never updated when catalog definitions change
-   - Enables historical lookup without dependency on current catalog state
-
-5. **Identity fields** SHALL be non-nullable:
-   - All identity fields required at creation time
-   - No partial identity capture allowed
-   - Ensures complete historical record
-
-**Use Cases Enabled:**
-
-User can query years after assembly:
-- "What did I make for so-and-so's wedding?" → AssemblyRun.finished_good_id
-- "What baked goods did I use?" → AssemblyConsumption.finished_unit_id  
-- "What materials did I use?" → MaterialConsumption with all identity fields
-- "Which specific products?" → MaterialConsumption.material_product_id + display_name_snapshot
-- "What size were they?" → MaterialConsumption.quantity_per_unit
-- "How much did everything cost?" → Cost snapshots in consumption records
-
-**Example Query:**
-
-```sql
--- "What did I make for Christmas 2024 event and what materials did I use?"
-
-SELECT 
-    e.event_name,
-    ar.assembled_at,
-    fg.display_name as finished_good,
-    mc.display_name_snapshot as material_used,
-    mc.quantity_consumed as qty,
-    mc.per_unit_cost as cost_per_unit
-FROM events e
-JOIN packages pkg ON e.id = pkg.event_id
-JOIN assembly_runs ar ON pkg.finished_good_id = ar.finished_good_id
-JOIN finished_goods fg ON ar.finished_good_id = fg.id
-JOIN material_consumption mc ON ar.id = mc.assembly_run_id
-WHERE e.event_name = 'Christmas 2024'
-ORDER BY ar.assembled_at, mc.display_name_snapshot;
-
--- Result (even if catalog changed since 2024):
--- event_name    | assembled_at | finished_good      | material_used        | qty | cost
--- Christmas 2024| 2024-12-20   | Holiday Gift Box   | 6" Snowflake Bag    | 30  | 0.24
--- Christmas 2024| 2024-12-20   | Holiday Gift Box   | 6" Holly Bag        | 20  | 0.26
--- Christmas 2024| 2024-12-20   | Holiday Gift Box   | Red Ribbon 12"      | 50  | 0.15
-```
-
-**Constitutional Compliance:**
-
-This requirement directly supports:
-- **Principle III (Data Integrity)**: Immutable identity history prevents data loss
-- **Principle II (Future-Proof Schema)**: Enables audit trail and compliance reporting
-- **Principle VI (Consistency)**: Materials match ingredient pattern (identity + cost capture)
-
-**Rationale:**
-
-1. **User Need**: "What did I make 2 years ago?" requires complete identity capture
-2. **Catalog Independence**: Display name snapshots immune to catalog reorganization
-3. **Audit Trail**: Complete material provenance for quality/cost analysis
-4. **Pattern Consistency**: Parallels ProductionConsumption (ingredient tracking)
-5. **Historical Accuracy**: User sees materials "as they were" not "as they are now"
-
-
-### 3.5 MaterialUnit Model
-
-**REQ-M-011: MaterialUnit as Atomic Consumption Unit**
-
-MaterialUnit SHALL exist as parallel to FinishedUnit:
-
-```
-FinishedUnit: "Large Cookie" (produced from Recipe)
-  ↓ consumed in
-AssemblyConsumption
-
-MaterialUnit: "6\" Red Ribbon" (defined from Material)
-  ↓ consumed in  
-MaterialConsumption
-```
-
-**REQ-M-012: MaterialUnit Definition**
-
-MaterialUnit SHALL have:
-```python
-MaterialUnit:
-    display_name: str             # "6\" Red Ribbon"
-    material_id: int              # Links to Material (abstract)
-    quantity_per_unit: Decimal    # 6.0 (inches)
-    unit_type: str                # "each", "linear_inches"
-    notes: str                    # Optional
-    
-    # NOTE: No material_product_id - MaterialUnit is a DEFINITION
-    # Specific MaterialProduct selected at consumption time (assembly)
-```
-
-**Rationale:**
-- MaterialUnit defines "how much material per unit" (definition layer)
-- Specific MaterialProduct choice deferred until assembly (instantiation layer)
-- Supports F026 deferred decision pattern (user picks product at assembly)
-- MaterialConsumption captures actual product used (identity snapshot)
-
-**REQ-M-013: MaterialUnit Inventory**
-
-MaterialUnit inventory SHALL be calculated by aggregating ALL MaterialProducts of the associated Material:
-
-```python
-# MaterialUnit does NOT have its own inventory_count field
-# Instead, calculated by aggregating MaterialProduct inventories
-
-MaterialUnit "6\" Red Ribbon":
-    material: "Red Ribbon" (abstract)
-    quantity_per_unit: 6.0 inches
-    
-Available MaterialUnits = SUM(
-    MaterialProduct.inventory_count for each product of "Red Ribbon" material
-) / MaterialUnit.quantity_per_unit
-
-Example:
-Material "Red Ribbon" has 3 MaterialProducts:
-  - Michaels 100ft Roll: 1200 inches
-  - Amazon 50ft Roll: 600 inches  
-  - Joann's 75ft Roll: 900 inches
-  Total: 2700 inches
-
-MaterialUnit "6\" Red Ribbon" (6 inches per unit):
-  Available units: 2700 / 6 = 450 units
-
-Example:
-MaterialProduct inventory: 1200 linear_inches
-MaterialUnit needs: 6 inches
-Available MaterialUnits: 1200 / 6 = 200 units
-```
-
-**REQ-M-014: MaterialUnit Usage Types**
-
-MaterialUnits SHALL support two consumption types:
-
-1. **"Each" Materials** (discrete items):
-   - Example: "6\" Cellophane Bag", "Snowflake Sticker", "Small Gift Box"
-   - Consumed as whole units
-   - Inventory tracked as count
-
-2. **"Variable" Materials** (measured quantities):
-   - Example: "6\" Red Ribbon", "12\" Wax Paper", "18\" Bubble Wrap"  
-   - Consumed by measurement (linear_inches)
-   - Inventory tracked as continuous quantity
+**Purpose**: User can query years later:
+- "What materials did I use for so-and-so's wedding?"
+- "Which specific product design?"
+- "Which purchase lot (and cost)?"
+- "What was it called then?" (immune to catalog changes)
 
 ---
 
-### 3.6 Materials in FinishedGood Composition
+### 3.6 MaterialUnit Model
 
-**REQ-M-015: Polymorphic Composition with Three Target Types**
+**REQ-M-017: MaterialUnit as Consumption Definition**
+
+MaterialUnit SHALL define consumption quantity (parallel to FinishedUnit):
+
+```python
+MaterialUnit:
+    # Identity
+    material_id: int  # FK to Material (NOT MaterialProduct)
+    name: str  # e.g., "6-inch Red Ribbon"
+    slug: str  # For import/export stability
+    
+    # Consumption definition
+    quantity_per_unit: Decimal  # Interpreted in Material.base_unit_type
+    
+    # Display
+    description: str (optional)
+    
+    # NO material_product_id (product selection deferred to assembly)
+    # NO cost fields (calculated dynamically from inventory)
+    # NO inventory fields (calculated from MaterialInventoryItem)
+```
+
+**Rationale**:
+- MaterialUnit is a DEFINITION (template)
+- Specific MaterialProduct chosen at assembly time
+- Same unit can be fulfilled by multiple products
+- Cost calculated from current LIFO inventory (not stored)
+
+**REQ-M-018: Inherited Unit Type**
+
+MaterialUnit.quantity_per_unit SHALL be interpreted in Material.base_unit_type:
+
+```
+Material "Red Ribbon":
+  base_unit_type: "linear_inches"
+  ↓ (inherited)
+MaterialUnit "6-inch Red Ribbon":
+  quantity_per_unit: 6.0
+  ↑ Interpreted as: "6 linear_inches"
+
+MaterialUnit "12-inch Red Ribbon":
+  quantity_per_unit: 12.0
+  ↑ Interpreted as: "12 linear_inches"
+```
+
+**REQ-M-019: "Each" vs "Variable" Validation**
+
+System SHALL validate MaterialUnit.quantity_per_unit based on Material.base_unit_type:
+
+**For "each" Materials**:
+- MaterialUnit.quantity_per_unit MUST = 1
+- UI shows field as read-only: "1 (each type)"
+- Rationale: Discrete items always consumed as whole units
+
+**For "variable" Materials** (linear_inches, square_inches):
+- MaterialUnit.quantity_per_unit = user-defined (6.0, 12.0, etc.)
+- UI shows field with inherited unit: "Quantity (in linear_inches): [6.0]"
+- Rationale: Measured materials have variable consumption quantities
+
+**REQ-M-020: MaterialUnit Inventory Calculation**
+
+MaterialUnit available inventory SHALL be calculated by aggregating MaterialInventoryItem:
+
+```python
+def get_material_unit_inventory(material_unit_id: int) -> Decimal:
+    """
+    Calculate available inventory for a material unit.
+    Aggregates ALL MaterialProducts of the associated Material.
+    """
+    material = MaterialUnit.query.get(material_unit_id).material
+    quantity_per_unit = MaterialUnit.query.get(material_unit_id).quantity_per_unit
+    
+    # Sum inventory across ALL products of this material
+    total_base_units = sum(
+        item.quantity_remaining
+        for product in material.products
+        for item in product.inventory_items
+    )
+    
+    # Convert to material units
+    return total_base_units / quantity_per_unit
+
+# Example:
+# Material "Red Ribbon" has 3 MaterialProducts:
+#   - Michaels: 1200 inches remaining
+#   - Amazon: 600 inches remaining
+#   - Joann's: 900 inches remaining
+# Total: 2700 inches
+
+# MaterialUnit "6-inch Red Ribbon":
+#   quantity_per_unit: 6
+#   Available: 2700 / 6 = 450 units
+```
+
+---
+
+### 3.7 Materials in FinishedGood Composition
+
+**REQ-M-021: Polymorphic Composition**
 
 Composition table SHALL link to EITHER FinishedUnit OR MaterialUnit OR Material:
 
 ```python
 Composition:
     finished_good_id: int
-    finished_unit_id: int?        # Optional (if baked good)
-    material_unit_id: int?        # Optional (if specific material)
-    material_id: int?             # Optional (if generic placeholder)
-    quantity: int                 # Count of units
+    finished_unit_id: int?  # Optional (if baked good)
+    material_unit_id: int?  # Optional (if specific material)
+    material_id: int?  # Optional (if generic placeholder)
+    quantity: int  # Count of units
     
     # Constraint: EXACTLY ONE of finished_unit_id, material_unit_id, or material_id
 ```
 
-**REQ-M-016: FinishedGood Example**
+**REQ-M-022: Flexible Material Assignment Timing**
 
-```
-FinishedGood: "Holiday Gift Box"
-  Components (FinishedUnits):
-    - 6 × Large Cookie
-    - 3 × Brownie
-  Components (MaterialUnits - Specific):
-    - 2 × Tissue Paper Sheet (each)
-  Components (Material - Generic Placeholder):
-    - 1 × "6\" Cellophane Bag" (deferred decision)
-```
+Material selection SHALL support deferred decision workflow:
 
-**REQ-M-017: Flexible Material Assignment Timing** ⭐ **UPDATED WITH F026 PATTERN**
-
-Material selection SHALL support deferred decision workflow using Material-as-placeholder pattern:
-
-**Three material specification levels:**
+**Three material specification levels**:
 
 1. **MaterialUnit (Specific)**: Fully specified material
-   - Example: "6\" Snowflake Cellophane Bag" (specific MaterialProduct)
-   - Used when: Material choice already decided
-   - Cost: Actual unit cost from MaterialProduct
-   - Indicator: ✓ (ready for assembly)
+   - Example: "6\" Snowflake Cellophane Bag"
+   - Cost: Calculated from LIFO inventory
+   - Inventory: Calculated from MaterialInventoryItem
+   - Status: ✓ Ready for assembly
 
 2. **Material (Generic/Placeholder)**: Abstract material type
-   - Example: "6\" Cellophane Bag" (any MaterialProduct of this Material)
-   - Used when: Material choice deferred
-   - Cost: Weighted average across available MaterialProducts
-   - Indicator: ⚠️ "Selection needed"
+   - Example: "6\" Cellophane Bag" (any product of this material)
+   - Cost: Estimated from LIFO average of available products
+   - Inventory: Aggregate across all products
+   - Status: ⚠️ "Selection needed"
 
 3. **Unassigned (None)**: No material specified
-   - Used when: Material requirements completely unknown
    - Cost: Not calculated
-   - Indicator: ⚠️ "Material requirements needed"
+   - Inventory: Unknown
+   - Status: ⚠️ "Material requirements needed"
 
-**Assignment workflow:**
-
+**Assignment workflow**:
 ```
 CATALOG Mode (FinishedGood definition):
   User CAN specify:
@@ -674,424 +729,463 @@ CATALOG Mode (FinishedGood definition):
 
 PLAN Mode (Event planning):
   System shows:
-    - Specific: Actual cost, exact inventory
-    - Generic: Estimated cost, aggregate inventory ("82 bags, 4 designs")
+    - Specific: Actual cost (LIFO), exact inventory
+    - Generic: Estimated cost (LIFO average), aggregate inventory
     - Unassigned: Cost TBD, inventory unknown
-  
-  Visual indicators:
-    - Specific: ✓ (green check)
-    - Generic: ⚠️ (yellow warning) "Selection pending"
-    - Unassigned: ⚠️ (yellow warning) "Requirements needed"
-
-MAKE Mode (Production dashboard):
-  System shows:
-    - Pending indicator for productions with generic/unassigned materials
-    - Clickable link to assignment screen
-    - Production can continue, assembly blocked until resolved
 
 MAKE Mode (Assembly stage):
   System ENFORCES decision:
     - BLOCKS assembly if generic/unassigned materials remain
-    - User MUST assign specific MaterialProducts before recording assembly
-    - Quick assign interface provided
-    - "Record Assembly Anyway" bypass allowed (flags for later reconciliation)
+    - User MUST assign specific MaterialProducts
+    - Shows LIFO inventory for selection
+    - "Record Assembly Anyway" bypass allowed (flags for reconciliation)
 ```
-
-**Example progression:**
-
-```
-Day 1 - CATALOG mode:
-  Define FinishedGood "Holiday Gift Box"
-    Components: 6 cookies, 3 brownies
-    Materials: "6\" Cellophane Bag" (GENERIC - deferred)
-  
-Day 5 - PLAN mode:
-  Event: Christmas 2025, need 50 gift boxes
-  System shows:
-    - "6\" Cellophane Bag: 50 needed"
-    - "Available: 82 bags (4 designs) ✓"  
-    - "Est. cost: $12.50" (average of 4 designs)
-    - ⚠️ Indicator: "Selection pending"
-
-Day 10 - MAKE mode (Production):
-  Bake 300 cookies ✓
-  Bake 150 brownies ✓
-  Dashboard shows: ⚠️ "Packaging needs selection"
-
-Day 15 - MAKE mode (Assembly):
-  Record assembly: "50 Holiday Gift Boxes"
-  System BLOCKS: "⚠️ Packaging not finalized"
-  
-  Assignment interface:
-    ☐ Snowflake design (30 available) [30]
-    ☑ Holly design (25 available) [20]
-    ☐ Star design (20 available) [__]
-    Total: 50 / 50 ✓
-  
-  User assigns materials → Assembly proceeds
-  System records:
-    - MaterialConsumption: 30 Snowflake @ $0.24 = $7.20
-    - MaterialConsumption: 20 Holly @ $0.26 = $5.20
-    - Total material cost: $12.40 (actual, not estimated)
-```
-
-**Cost calculation rules:**
-
-1. **Specific MaterialUnit**: Use MaterialProduct.current_unit_cost
-2. **Generic Material**: Calculate weighted average across all MaterialProducts of that Material
-3. **Unassigned**: Cost = 0, flagged as incomplete
 
 ---
 
-### 3.7 Materials in Assembly Workflow
+### 3.8 Materials in Assembly Workflow
 
-**REQ-M-018: Auto-Calculated Material Consumption**
+**REQ-M-023: Material Service Primitives for Assembly**
 
-When recording an assembly, system SHALL:
-1. Read FinishedGood definition (FinishedUnits + MaterialUnits + Material placeholders)
-2. **If Material placeholders exist: BLOCK assembly, require resolution**
-3. Multiply MaterialUnit quantities by assembly quantity
-4. Check MaterialProduct inventory availability
-5. Capture current_unit_cost as snapshot (weighted average at assembly time)
-6. Create MaterialConsumption records
-7. Decrement MaterialProduct.inventory_count
+MaterialInventoryService and MaterialConsumptionService SHALL provide primitives to support assembly operations:
 
-**REQ-M-019: Enhanced AssemblyRun Model**
+**Service Primitives Required**:
+
+1. **get_lifo_inventory(material_product_id)**: Query MaterialInventoryItem in LIFO order
+   - Returns: List of inventory items ordered by purchased_at DESC
+   - Used by: AssemblyService to check availability
+
+2. **validate_inventory_availability(material_requirements)**: Check sufficient inventory
+   - Input: List of (material_product_id, quantity_needed) tuples
+   - Returns: bool (available/insufficient) + details
+   - Used by: AssemblyService pre-assembly validation
+
+3. **consume_material_lifo(material_product_id, quantity, assembly_run_id)**: Perform LIFO consumption
+   - Creates MaterialConsumption record(s) with inventory_item_id linkage
+   - Decrements MaterialInventoryItem.quantity_remaining
+   - Returns: Total cost (sum of LIFO costs), list of MaterialConsumption records
+   - Used by: AssemblyService during assembly execution
+
+4. **calculate_material_costs(material_consumption_records)**: Calculate cost totals
+   - Input: List of MaterialConsumption records
+   - Returns: Total material cost
+   - Used by: AssemblyService for AssemblyRun.total_material_cost
+
+**Assembly Service Responsibilities**:
+- Read FinishedGood definition (MaterialUnits + Material placeholders)
+- Enforce business rules (block if placeholders exist)
+- Call MaterialInventoryService.validate_inventory_availability()
+- For each MaterialUnit: Call MaterialInventoryService.consume_material_lifo()
+- Calculate AssemblyRun.total_material_cost using returned costs
+- Create AssemblyRun record with material cost totals
+
+**Separation of Concerns**:
+- **MaterialInventoryService**: Owns LIFO consumption logic, inventory tracking
+- **MaterialConsumptionService**: Owns MaterialConsumption records, cost snapshots
+- **AssemblyService** (future): Owns assembly workflow, business rules, orchestration
+
+**REQ-M-024: Enhanced AssemblyRun Model**
 
 AssemblyRun SHALL track costs separately:
 
 ```python
 AssemblyRun:
     # Existing (F046)
-    total_component_cost: Decimal     # FinishedUnit costs
-    per_assembly_cost: Decimal        # Components only (legacy)
+    total_component_cost: Decimal  # FinishedUnit costs (LIFO)
     
-    # NEW (F047)
-    total_material_cost: Decimal      # Material costs
-    total_assembly_cost: Decimal      # Components + materials
-    per_unit_assembly_cost: Decimal   # Total cost per assembled unit
+    # Materials (F047)
+    total_material_cost: Decimal  # Material costs (LIFO)
     
-    # NEW (F047 - deferred decision tracking)
+    # Totals
+    total_assembly_cost: Decimal  # Components + materials
+    per_unit_assembly_cost: Decimal  # Total cost per assembled unit
+    
+    # Reconciliation flag
     requires_material_reconciliation: bool  # True if "Record Anyway" bypass used
 ```
 
-**REQ-M-020: MaterialConsumption Model**
+**REQ-M-025: MaterialConsumption Model**
 
-MaterialConsumption SHALL track material usage with complete identity capture:
+MaterialConsumption SHALL track material usage with complete identity:
 
 ```python
 MaterialConsumption:
-    assembly_run_id: int
+    assembly_run_id: int  # FK to AssemblyRun
     
-    # IDENTITY CAPTURE (immutable snapshot)
-    material_id: int              # Material type (abstract)
-    material_product_id: int      # Specific product used
-    quantity_per_unit: Decimal    # Unit size (e.g., 6 inches)
-    display_name_snapshot: str    # Human-readable name at consumption time
+    # IDENTITY CAPTURE (immutable snapshots)
+    material_id: int  # Material type (abstract)
+    material_product_id: int  # Specific product used
+    inventory_item_id: int  # FK to MaterialInventoryItem (LIFO tracking)
+    display_name_snapshot: str  # Name at consumption time
     
     # QUANTITY
-    quantity_consumed: Decimal    # Units consumed
+    quantity_consumed: Decimal  # Units consumed (in base units)
     
-    # COST SNAPSHOT (immutable)
-    per_unit_cost: Decimal        # Cost at assembly time
+    # COST SNAPSHOT (immutable, from MaterialInventoryItem)
+    cost_per_unit: Decimal  # Cost at assembly time (LIFO)
 ```
 
-**Identity fields rationale:**
-- `material_id`: Enables lookup of material type without catalog dependency
-- `material_product_id`: Captures actual product used (may differ from any MaterialUnit default)
-- `quantity_per_unit`: Preserves unit size (was it 6" or 12" ribbon?)
-- `display_name_snapshot`: Human-readable identity, immune to catalog changes
-
-**Example:**
-```
-AssemblyRun #15 used:
-  MaterialConsumption record 1:
-    - material_id: "6\" Cellophane Bag"
-    - material_product_id: "Snowflake Design"
-    - quantity_per_unit: 1 (each)
-    - display_name_snapshot: "6\" Snowflake Bag"
-    - quantity_consumed: 30
-    - per_unit_cost: $0.24
-  
-  MaterialConsumption record 2:
-    - material_id: "6\" Cellophane Bag"
-    - material_product_id: "Holly Design"
-    - quantity_per_unit: 1 (each)
-    - display_name_snapshot: "6\" Holly Bag"
-    - quantity_consumed: 20
-    - per_unit_cost: $0.26
-```
-
-**User can query:** "What materials did I use in AssemblyRun #15 two years ago?"
-- Answer: "30 Snowflake bags and 20 Holly bags (6\" cellophane)"
-- No catalog dependency - all identity preserved in snapshot
-
-**REQ-M-021: Assembly Cost Example**
+**REQ-M-026: Assembly Cost Example**
 
 ```
 AssemblyRun: "Holiday Gift Box" × 50
 
-Component costs (FinishedUnits):
+Component costs (LIFO from FinishedUnits):
   300 cookies @ $0.42 = $126.00
   150 brownies @ $0.65 = $97.50
   Subtotal: $223.50
 
-Material costs (MaterialUnits):
-  50 gift boxes @ $0.80 = $40.00
-  50 ribbons (12") @ $0.72 = $36.00
-  100 tissue sheets @ $0.05 = $5.00
-  Subtotal: $81.00
+Material costs (LIFO from MaterialInventoryItem):
+  50 bags @ $0.28 (Item C, newest) = $14.00
+  100 tissue sheets @ $0.05 (Item A) = $5.00
+  Subtotal: $19.00
 
-Total assembly cost: $304.50
-Per unit cost: $6.09
+Total assembly cost: $242.50
+Per unit cost: $4.85
 ```
 
 ---
 
-### 3.8 Materials Inventory Management
+### 3.9 Materials Inventory Management
 
-**REQ-M-022: Aggregate Inventory Only**
+**REQ-M-027: Inventory View Location**
 
-Materials inventory SHALL use aggregate counts (no lot tracking):
-- MaterialProduct.inventory_count (single field)
-- No MaterialInventoryItem table (unlike ingredients)
-- Weighted average costing (not FIFO)
-- Rationale: Materials non-perishable, lot tracking unnecessary
+Materials inventory SHALL be displayed in Make mode ONLY (not Catalog):
 
-**REQ-M-023: Inventory Adjustments**
+**Make > Materials > Inventory**:
+- Shows MaterialInventoryItem lots (detail view)
+- Columns: Product, Purchase Date, Qty Purchased, Qty Remaining, Cost/Unit, Total Value
+- Sorted by: product_name, purchased_at DESC (newest first)
+- Enables manual adjustments (creates/updates MaterialInventoryItem)
 
-Manual inventory adjustments SHALL follow food pattern:
+**Catalog > Materials > Material Products**:
+- Shows product definitions ONLY
+- Columns: Name, Brand, SKU, Package Info, Supplier
+- NO cost columns ❌
+- NO inventory columns ❌
+- Link to "View Inventory" → redirects to Make mode
 
-**For "Each" Materials:**
+**REQ-M-028: Manual Inventory Adjustments**
+
+Manual inventory adjustments SHALL create/update MaterialInventoryItem records:
+
+**For "Each" Materials**:
 - Adjustment by count (+10 bags, -5 boxes)
-- Similar to food count adjustments
+- Creates MaterialInventoryItem with:
+  - quantity_purchased = adjustment quantity
+  - quantity_remaining = adjustment quantity
+  - cost_per_unit = 0 (or estimated)
+  - purchased_at = adjustment timestamp
 
-**For "Variable" Materials:**
+**For "Variable" Materials**:
 - Adjustment by percentage ("50% of roll remains")
-- Rationale: User cannot precisely measure remaining ribbon length
-- System calculates: new_inventory = current_inventory × percentage
+- Updates existing MaterialInventoryItem.quantity_remaining
+- Calculation: new_remaining = current_remaining × percentage
+- NO cost change (keeps original cost_per_unit)
 
-**REQ-M-024: Adjustment Workflow**
+**REQ-M-029: Adjustment Workflow**
 
 ```
-Material: "Red Ribbon"
-MaterialProduct: "Michaels Red Satin 100ft Roll"
-Current inventory: 800 linear_inches
+Material: "Red Ribbon" (base_unit_type: "linear_inches")
+MaterialProduct: "Michaels 100ft Roll"
+
+Current MaterialInventoryItem:
+  quantity_purchased: 1200 inches
+  quantity_remaining: 800 inches
+  cost_per_unit: $0.10/inch
 
 User adjusts: "Used ribbon on personal project, about 20% remaining"
 
 System calculates:
-800 × 0.20 = 160 linear_inches remaining
-Adjustment: -640 linear_inches
+  new_remaining = 800 × 0.20 = 160 inches
 
-New inventory: 160 linear_inches
+Updates MaterialInventoryItem:
+  quantity_remaining: 160 inches
+  cost_per_unit: $0.10/inch (unchanged)
 ```
 
 ---
 
-### 3.9 Materials in Cost Reporting
+### 3.10 Materials in Cost Reporting
 
-**REQ-M-025: Integrated Cost Reporting with Estimated vs Actual**
+**REQ-M-030: Integrated Cost Reporting**
 
-Materials costs SHALL appear alongside food costs in:
+Materials costs SHALL appear alongside food costs using LIFO actual costs:
 
-1. **FinishedGood BOM View:**
+1. **FinishedGood BOM View (estimated)**:
 ```
 Holiday Gift Box BOM:
-  Food components: $4.47 (actual)
-  Material components: $1.05 (estimated) ← If generic materials
-  Material components: $1.12 (actual) ← If specific materials
-  Total: $5.52 (estimated) or $5.59 (actual)
+  Food components: $4.47 (estimated, from current LIFO inventory)
+  Material components: $0.50 (estimated, weighted avg if generic)
+  Total: $4.97 (estimated)
 ```
 
-2. **Event Cost Summary:**
+2. **Event Cost Summary (estimated vs actual)**:
 ```
 Christmas 2025 Event:
-  Ingredient costs: $567.00 (actual)
-  Material costs: $143.00 (estimated) ← Before assembly
-  Material costs: $148.50 (actual) ← After assembly
-  Total event cost: $710.00 (estimated) or $715.50 (actual)
+  Ingredient costs: $567.00 (actual LIFO)
+  Material costs: $143.00 (estimated if generic, actual if specific)
+  Total event cost: $710.00
 ```
 
-3. **Assembly Cost Breakdown:**
+3. **Assembly Cost Breakdown (actual)**:
 ```
 AssemblyRun: 50 Holiday Gift Boxes
-  Component costs: $223.50 (actual)
-  Material costs: $81.00 (actual) ← Always actual in AssemblyRun
-  Total: $304.50 (actual)
+  Component costs: $223.50 (actual LIFO)
+  Material costs: $19.00 (actual LIFO)
+  Total: $242.50 (actual)
 ```
 
-**Cost labeling rules:**
-- Generic Material in FinishedGood: Label "estimated"
-- Specific MaterialUnit in FinishedGood: Calculate actual, label "actual"
-- MaterialConsumption in AssemblyRun: Always actual (snapshot)
-
-**REQ-M-026: No Separate Material Reports (Initially)**
+**REQ-M-031: No Separate Material Reports (Initially)**
 
 Dedicated material reports SHALL be deferred:
-- No material-specific inventory reports
-- No material purchase history reports (beyond basic list)
+- No material-specific inventory reports (beyond basic Make > Inventory view)
+- No material purchase history reports (beyond purchase list)
 - No material cost trend analysis
 - Rationale: Materials costs reported in context with food costs
 
 ---
 
-### 3.10 Materials UI Requirements
+### 3.12 Materials UI Requirements
 
-**REQ-M-027: Materials Tab (CATALOG Mode)**
+**REQ-M-034: Materials Tab (CATALOG Mode)**
 
 CATALOG mode SHALL have Materials tab with:
-- MaterialCategory management (CRUD)
-- MaterialSubcategory management (CRUD)
-- Material management (CRUD with ontology navigation)
-- MaterialProduct management (CRUD)
-- MaterialUnit management (CRUD)
+- MaterialProduct management (CRUD, NO cost/inventory display)
+- MaterialUnit management (CRUD, shows inherited unit type)
 
-**REQ-M-028: Materials Purchasing**
+**Note**: Material hierarchy management (Categories, Subcategories, Materials) already exists in **Catalog > Materials Hierarchy** menu.
 
-UI SHALL provide materials purchasing workflow:
-- Record MaterialPurchase (package quantities)
-- View purchase history (list with filters)
-- Purchase entry form mirrors food purchase form
+**Catalog > Materials > Material Products**:
+- Columns: Name, Brand, SKU, Package (qty + unit), Supplier, Actions
+- NO cost column ❌
+- NO inventory column ❌
+- Link button: "View Inventory" → Purchase > Inventory
 
-**REQ-M-029: Materials Inventory**
+**REQ-M-035: Materials Purchasing (PURCHASE Mode)**
 
-UI SHALL provide inventory management:
-- Current inventory view (list with quantities)
-- Manual adjustment dialog (count or percentage)
-- Inventory view mirrors food inventory view
+Purchase mode SHALL provide materials purchasing workflow:
+- Product type selector: ○ Food  ○ Material
+- When Material selected:
+  - MaterialProduct dropdown
+  - Package quantity fields (count + unit)
+  - Total cost field
+  - System calculates unit cost
+  - Creates MaterialPurchase + MaterialInventoryItem
 
-**REQ-M-030: Material Selection in FinishedGood** ⭐ **UPDATED**
+**REQ-M-036: Materials Inventory (PURCHASE Mode)**
 
-FinishedGood edit dialog SHALL allow:
+Purchase > Inventory SHALL show MaterialInventoryItem lots:
+- Columns: Product, Purchased Date, Qty Purchased, Qty Remaining, Cost/Unit, Total Value
+- Filter by: MaterialProduct, Date range
+- Sort by: Product name, Purchase date
+- Manual adjustment button (opens adjustment dialog)
+- Shows LIFO order visually (newest first)
+
+**REQ-M-037: Material Selection in FinishedGood**
+
+FinishedGood edit dialog SHALL allow material selection:
 - **Radio button choice**: ○ Specific MaterialUnit  ○ Generic Material  ○ None
-- If Specific MaterialUnit: Dropdown shows MaterialUnits, exact inventory
-- If Generic Material: Dropdown shows Materials, aggregate inventory display
-  - "Available: 82 bags (4 designs)"
-  - Shows designs: "Snowflakes (30), Holly (25), Stars (20), Snowmen (7)"
+- If Specific MaterialUnit:
+  - Dropdown shows MaterialUnits
+  - Shows calculated inventory (from MaterialInventoryItem aggregate)
+  - Shows calculated cost (LIFO)
+- If Generic Material:
+  - Dropdown shows Materials
+  - Shows aggregate inventory: "Available: 82 bags (across 4 products)"
   - Shows estimated cost (weighted average)
 - If None: No material selected (completely deferred)
-- Quantity entry (integer count)
 
-**REQ-M-031: Materials in Assembly Recording** ⭐ **UPDATED**
+**REQ-M-038: Materials in Assembly Recording**
 
 Assembly recording dialog SHALL:
 - **HARD STOP**: Block assembly if generic/unassigned materials remain
 - Display warning: "⚠️ Packaging not finalized"
 - Provide **quick assignment interface**:
   - List unassigned materials
-  - Checkbox selection of available MaterialProducts
-  - Quantity entry per product
+  - Show available MaterialProducts with LIFO inventory
+  - Checkbox selection + quantity entry
   - Running total: "Assigned: X / Y needed"
-  - Validation: Must assign total needed
 - Actions:
-  - "Assign Materials" button (completes assignment, proceeds with assembly)
-  - "Assembly Details" link (opens full assignment screen)
-  - "Record Assembly Anyway" button (bypass, flags requires_material_reconciliation)
-- Show material costs alongside component costs
+  - "Assign Materials" (completes assignment, proceeds)
+  - "Record Assembly Anyway" (bypass, sets requires_material_reconciliation = true)
+- Show material costs (LIFO actual costs)
 - Display total assembly cost (components + materials)
 
-**REQ-M-032: Materials in Event Planning** ⭐ **UPDATED**
+**REQ-M-039: Material Unit Type Display**
 
-Event planning (PLAN mode) SHALL show:
-- Material costs in package calculations (estimated or actual)
-- Material costs in event totals (estimated or actual)
-- Material inventory requirements
-- **Visual indicators**:
-  - ✓ Specific materials (ready)
-  - ⚠️ Generic materials (selection pending)
-  - ⚠️ Unassigned materials (requirements needed)
+Material Unit creation/edit dialog SHALL clearly show inherited unit type:
 
-**REQ-M-033: Production Dashboard Indicators** ⭐ **NEW**
+**When Material selected**:
+```
+Material: [Red Ribbon ▼]  ← Dropdown
+Unit type: linear_cm (inherited from Red Ribbon)  ← Read-only display
 
-Production dashboard SHALL display:
-- ⚠️ Icon on productions with pending material decisions
-- Clickable link to assignment screen
-- Tooltip: "Packaging needs selection"
-- Production can continue (not blocked)
-- Assembly blocked until materials resolved
+Quantity per unit (in linear_cm): [15.0]  ← Dynamic label
+Preview: "This unit will consume 15 cm of Red Ribbon"
+```
+
+**For "each" Materials**:
+```
+Material: [Gift Box 6x6x3 ▼]
+Unit type: each (inherited from Gift Box 6x6x3)
+
+Quantity per unit: 1 (each type)  ← Read-only, always 1
+Preview: "This unit will consume 1 Gift Box 6x6x3"
+```
 
 ---
 
-### 3.11 Materials Import/Export
+### 3.13 Materials Import/Export
 
-**REQ-M-034: Catalog Import/Export**
+**REQ-M-040: First-Class Import/Export Support**
 
-Materials catalog import/export SHALL work identically to ingredients:
+Materials import/export SHALL be equal to ingredients import/export:
 
-**Catalog Import (ADD_ONLY mode):**
+**Catalog Import (ADD_ONLY mode)**:
 - MaterialCategory import
 - MaterialSubcategory import (with category references)
-- Material import (with subcategory references)
-- MaterialProduct import (with material references)
+- Material import (with subcategory references, base_unit_type required)
+- MaterialProduct import (with material references, NO cost/inventory fields)
+- MaterialUnit import (with material references)
 
-**Export Format:**
+**View Import/Export**:
+- MaterialPurchase import/export (creates MaterialInventoryItem on import)
+- MaterialInventoryItem snapshot export (for backup/analysis)
+
+**Export Format v4.3**:
 ```json
 {
-  "version": "4.2",
+  "version": "4.3",
+  "exported_at": "2026-01-18T10:00:00Z",
   "material_categories": [...],
   "material_subcategories": [...],
-  "materials": [...],
-  "material_products": [...],
-  "material_units": [...]
+  "materials": [
+    {
+      "slug": "red-satin-ribbon",
+      "name": "Red Satin Ribbon",
+      "base_unit_type": "linear_cm",  // Required
+      "subcategory_slug": "satin-ribbons"
+    }
+  ],
+  "material_products": [
+    {
+      "slug": "michaels-red-satin-100ft",
+      "name": "100ft Red Satin Roll",
+      "material_slug": "red-satin-ribbon",
+      "package_quantity": 100.0,
+      "package_unit": "feet",
+      "quantity_in_base_units": 3048.0,  // Auto-calculated (100 ft × 30.48)
+      // NO cost fields
+      // NO inventory fields
+    }
+  ],
+  "material_units": [
+    {
+      "slug": "15cm-red-ribbon",
+      "name": "15cm Red Ribbon",
+      "material_slug": "red-satin-ribbon",
+      "quantity_per_unit": 15.0  // Interpreted in linear_cm
+    }
+  ]
 }
 ```
 
-**REQ-M-035: View Import/Export**
+**REQ-M-041: Import Validation**
 
-Materials view import/export SHALL work identically to ingredients:
-- MaterialPurchase import/export
-- MaterialInventory snapshot export
-- MaterialUnit definition export
+Material import SHALL validate:
+- base_unit_type is one of: "each", "linear_cm", "square_cm"
+- MaterialProduct.package_unit is convertible to Material.base_unit_type
+- MaterialProduct.quantity_in_base_units matches conversion (auto-correct if different)
+- MaterialUnit.quantity_per_unit = 1 if Material.base_unit_type = "each"
 
 ---
 
-### 3.12 Validation & Business Rules
+### 3.14 Validation & Business Rules
 
-**REQ-M-036: Inventory Constraints**
+**REQ-M-042: Inventory Constraints and Service Boundaries**
 
-System SHALL enforce:
-- MaterialProduct.inventory_count >= 0 (cannot go negative)
-- **Assembly blocked if insufficient material inventory**
-- **Assembly blocked if generic/unassigned materials exist** (unless bypassed)
-- Cannot delete MaterialProduct if inventory > 0
-- Cannot delete MaterialProduct if used in MaterialUnit
-- Cannot delete MaterialUnit if used in FinishedGood composition
-- Cannot delete Material if used in Composition as placeholder
+**MaterialInventoryService SHALL enforce**:
+- MaterialInventoryItem.quantity_remaining >= 0 (cannot go negative)
+- Provides `validate_sufficient_inventory(material_product_id, quantity)` primitive
+- Provides `can_delete_material_product(material_product_id)` check
+- Returns: False if MaterialInventoryItem records exist for product
 
-**REQ-M-037: Purchase Validation**
+**MaterialCatalogService SHALL enforce**:
+- Cannot delete MaterialProduct if MaterialInventoryItem exists (calls MaterialInventoryService)
+- Cannot delete MaterialProduct if used in MaterialUnit (calls MaterialUnitService)
+- Cannot delete MaterialUnit if used in FinishedGood composition (calls CompositionService)
+- Cannot delete Material if used in Composition as placeholder (calls CompositionService)
+
+**Assembly-Related Constraints** (enforced by future AssemblyService):
+- Check insufficient material inventory using MaterialInventoryService.validate_sufficient_inventory()
+- Check generic/unassigned materials using CompositionService.has_unresolved_materials()
+- AssemblyService owns business rules (when to block, when to allow bypass)
+- MaterialInventoryService provides data primitives only
+
+**Separation of Concerns**:
+- **MaterialInventoryService**: Data integrity, LIFO logic, inventory queries
+- **MaterialCatalogService**: Catalog operations, deletion constraints (delegates to other services)
+- **AssemblyService** (future): Assembly workflow, business rules, orchestration
+
+**REQ-M-043: Purchase Validation**
 
 System SHALL validate:
 - package_unit_count > 0
 - packages_purchased > 0
 - total_cost >= 0
 - calculated_unit_cost >= 0
+- package_unit is convertible to Material.base_unit_type
 
-**REQ-M-038: Composition Constraints**
+**REQ-M-044: Composition Constraints**
 
 System SHALL enforce:
 - Composition has EXACTLY ONE of finished_unit_id, material_unit_id, or material_id
 - quantity > 0
 - Cannot delete FinishedUnit/MaterialUnit/Material if used in active FinishedGood
 
-**REQ-M-039: Assembly Stage Enforcement** ⭐ **NEW**
+**REQ-M-045: Assembly Service Integration Requirements**
 
-System SHALL enforce at assembly time:
-- **BLOCK assembly** if any Composition has material_id (generic placeholder)
+**MaterialInventoryService SHALL provide** primitives for AssemblyService:
+
+1. **validate_material_availability(requirements)**:
+   - Input: List of (material_product_id, quantity_needed)
+   - Returns: `{available: bool, details: {...}}`
+   - Used by AssemblyService for pre-assembly validation
+
+2. **check_unresolved_materials(finished_good_id)**:
+   - Queries Composition table for material_id placeholders (generic materials)
+   - Returns: List of unresolved material references
+   - Used by AssemblyService to detect incomplete definitions
+
+3. **consume_materials_lifo(consumption_requests, assembly_run_id)**:
+   - Executes LIFO consumption for multiple materials
+   - Creates MaterialConsumption records
+   - Returns: Total cost, list of consumption records
+   - Called by AssemblyService during assembly execution
+
+**AssemblyService SHALL enforce** (business rules):
+- **BLOCK assembly** if check_unresolved_materials() returns any placeholders
 - **BLOCK assembly** if any Composition has NULL material references
+- **BLOCK assembly** if validate_material_availability() returns insufficient inventory
 - User MUST resolve to specific material_unit_id before proceeding
 - UNLESS user selects "Record Assembly Anyway" bypass:
   - AssemblyRun.requires_material_reconciliation = true
-  - System flags assembly for later review
   - Cost calculations exclude unassigned materials
+  - AssemblyService logs warning, proceeds with partial data
 
-**REQ-M-040: Strict Separation**
+**Separation of Concerns**:
+- **MaterialInventoryService**: Provides data queries, LIFO consumption primitives
+- **CompositionService**: Manages Composition records, provides unresolved material checks
+- **AssemblyService** (future): Owns assembly business logic, enforces workflow rules, orchestrates materials/components consumption
 
-Materials and Ingredients SHALL be strictly separated:
-- No shared tables (except Supplier)
-- MaterialProduct != Product (separate tables)
-- Material != Ingredient (separate tables)
-- Rationale: Data integrity, future extensibility
+**REQ-M-046: Unit Type Validation**
+
+System SHALL validate:
+- Material.base_unit_type in ("each", "linear_cm", "square_cm")
+- MaterialUnit.quantity_per_unit = 1 if Material.base_unit_type = "each"
+- MaterialProduct.package_unit convertible to Material.base_unit_type
+- MaterialProduct.quantity_in_base_units = package_quantity × conversion_factor
 
 ---
 
@@ -1101,44 +1195,50 @@ Materials and Ingredients SHALL be strictly separated:
 
 Feature F047 is considered complete when:
 
-1. ✅ Materials ontology hierarchy exists (3 levels)
-2. ✅ MaterialProduct catalog operational (CRUD + UI)
-3. ✅ MaterialUnit catalog operational (CRUD + UI)
-4. ✅ Can purchase materials, inventory updates correctly (weighted average)
-5. ✅ Can add MaterialUnits to FinishedGood composition
-6. ✅ **Can add generic Material placeholders to FinishedGood composition**
-7. ✅ **Planning shows estimated costs for generic materials**
-8. ✅ **Production dashboard shows ⚠️ pending indicators**
-9. ✅ **Assembly hard stop enforces material resolution**
-10. ✅ **Quick assignment interface functional at assembly stage**
-11. ✅ Can record assembly with materials, costs captured correctly
-12. ✅ AssemblyRun shows component costs + material costs separately
-13. ✅ MaterialProduct inventory decrements on assembly
-14. ✅ Cannot assemble if insufficient material inventory
-15. ✅ Materials costs appear in event planning (estimated and actual)
-16. ✅ Import/export works for materials catalog
-17. ✅ Manual inventory adjustment works (count and percentage)
+1. ✅ Materials ontology hierarchy exists (3 levels with base_unit_type)
+2. ✅ MaterialProduct catalog operational (CRUD + UI, NO cost/inventory display)
+3. ✅ **MaterialInventoryItem table exists and functional**
+4. ✅ MaterialUnit catalog operational (CRUD + UI, shows inherited unit type)
+5. ✅ **Can purchase materials, creates MaterialInventoryItem (LIFO)**
+6. ✅ **Unit type inheritance enforced** (Material → Product → Unit)
+7. ✅ **Auto-conversion to base units functional** (feet → inches)
+8. ✅ Can add MaterialUnits to FinishedGood composition
+9. ✅ Can add generic Material placeholders to FinishedGood composition
+10. ✅ Planning shows estimated costs for generic materials
+11. ✅ **Assembly hard stop enforces material resolution**
+12. ✅ **LIFO consumption from MaterialInventoryItem functional**
+13. ✅ Can record assembly with materials, **LIFO costs captured**
+14. ✅ AssemblyRun shows component costs + material costs separately (both LIFO)
+15. ✅ **MaterialInventoryItem.quantity_remaining decrements on assembly**
+16. ✅ Cannot assemble if insufficient material inventory (LIFO check)
+17. ✅ Materials costs appear in event planning (LIFO actual costs)
+18. ✅ **Import/export works for materials catalog (first-class support)**
+19. ✅ Manual inventory adjustment works (creates/updates MaterialInventoryItem)
+20. ✅ **Catalog UI shows NO cost/inventory** (definition layer clean)
+21. ✅ **Purchase > Inventory shows MaterialInventoryItem lots** (instantiation layer)
 
 ### 4.2 Quality Criteria
 
-1. ✅ Materials model exactly parallels Ingredient model (structural consistency)
-2. ✅ All business rules enforced (validation constraints)
-3. ✅ UI follows existing patterns (users understand by analogy)
-4. ✅ No material data in ingredient tables (strict separation)
-5. ✅ Cost calculations accurate (weighted average verified)
-6. ✅ Assembly workflow consistent (matches food pattern)
-7. ✅ **Deferred decision workflow matches F026 validated pattern**
-8. ✅ **Visual indicators clear and consistent (✓ vs ⚠️)**
-9. ✅ **Cost labeling accurate (estimated vs actual)**
+1. ✅ Materials model **strictly parallels** Ingredient model (LIFO, definition/instantiation)
+2. ✅ **MaterialInventoryItem structure matches ProductInventoryItem**
+3. ✅ **LIFO consumption logic identical to ingredients**
+4. ✅ All business rules enforced (validation constraints)
+5. ✅ UI follows existing patterns (users understand by analogy)
+6. ✅ No material data in ingredient tables (strict separation)
+7. ✅ **Cost calculations accurate (LIFO verified, not weighted average)**
+8. ✅ Assembly workflow consistent (matches food pattern)
+9. ✅ **Unit type inheritance clear in UI**
+10. ✅ **Auto-conversion calculations correct**
 
 ### 4.3 Documentation Criteria
 
-1. ✅ Materials ontology management documented in user guide
-2. ✅ Materials purchasing workflow documented
-3. ✅ MaterialUnit creation workflow documented
-4. ✅ Import/export format documented (with examples)
-5. ✅ **Deferred decision workflow documented (generic vs specific)**
-6. ✅ **Material assignment workflow documented (assembly stage)**
+1. ✅ Materials ontology management documented (with unit type inheritance)
+2. ✅ Materials purchasing workflow documented (LIFO inventory creation)
+3. ✅ MaterialUnit creation workflow documented (unit type inheritance)
+4. ✅ **LIFO consumption explained** (parallel to ingredients)
+5. ✅ **Definition/instantiation boundary documented**
+6. ✅ Import/export format documented (with base_unit_type, no cost/inventory)
+7. ✅ **Auto-conversion rules documented**
 
 ---
 
@@ -1148,12 +1248,13 @@ Feature F047 is considered complete when:
 
 - ✅ F046 (Finished Goods, Bundles & Assembly Tracking) - Complete
 - ✅ F026 (Deferred Packaging Decisions) - Pattern validated
+- ✅ Ingredient LIFO system - Functional (pattern to copy)
 
 ### 5.2 Enables
 
 - F048: Shopping Lists Tab Implementation (needs material requirements)
 - F049: Assembly Workflows Enhancement (needs material tracking)
-- Future: Multi-user web version (materials infrastructure ready)
+- Future: Multi-user web version (materials infrastructure ready, LIFO intact)
 - Future: E-commerce integration (dual supply chain ready)
 
 ### 5.3 Technical Constraints
@@ -1161,178 +1262,255 @@ Feature F047 is considered complete when:
 **Database:**
 - SQLite (current), PostgreSQL (web version)
 - Must support Decimal for cost accuracy
-- Must support weighted average calculation
+- Must support LIFO queries (ORDER BY purchased_at DESC)
 - Composition table requires THREE optional foreign keys (finished_unit_id, material_unit_id, material_id)
 
 **UI:**
 - CustomTkinter (current desktop)
 - Must follow existing catalog patterns
 - Must integrate into existing CATALOG/MAKE modes
-- **Must support ⚠️ indicators throughout workflow**
-- **Must support quick assignment interface (inline at assembly)**
+- **Must clearly separate Catalog (definitions) from Make (instantiations)**
+- **Must support LIFO inventory display**
 
 **Import/Export:**
 - JSON format (existing)
-- Must maintain version compatibility (v4.2)
+- Must maintain version compatibility (v4.3+)
+- **Must NOT import/export cost/inventory in catalog**
 
 ---
 
-## 6. Non-Functional Requirements
+## 6. Migration from v2.1 to v3.0
 
-### 6.1 Performance
+### 6.1 Breaking Changes
+
+**Schema Changes Required**:
+
+1. **DROP from MaterialProduct**:
+   ```sql
+   ALTER TABLE material_products DROP COLUMN current_inventory;
+   ALTER TABLE material_products DROP COLUMN weighted_avg_cost;
+   ```
+
+2. **CREATE MaterialInventoryItem table**:
+   ```sql
+   CREATE TABLE material_inventory_items (
+       id INTEGER PRIMARY KEY,
+       material_product_id INTEGER NOT NULL,
+       material_purchase_id INTEGER NOT NULL,
+       quantity_purchased DECIMAL(10,3) NOT NULL,
+       quantity_remaining DECIMAL(10,3) NOT NULL,
+       cost_per_unit DECIMAL(10,4) NOT NULL,
+       purchased_at DATETIME NOT NULL,
+       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+       updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+       FOREIGN KEY (material_product_id) REFERENCES material_products(id),
+       FOREIGN KEY (material_purchase_id) REFERENCES material_purchases(id)
+   );
+   ```
+
+3. **UPDATE MaterialConsumption**:
+   ```sql
+   ALTER TABLE material_consumption 
+   ADD COLUMN inventory_item_id INTEGER REFERENCES material_inventory_items(id);
+   ```
+
+### 6.2 Data Migration Strategy
+
+**Option A: Fresh Start (RECOMMENDED for v2.1 users)**:
+1. Export MaterialProduct catalog (definitions only)
+2. Reset database (drop materials tables)
+3. Import MaterialProduct catalog
+4. User re-enters MaterialPurchases (creates MaterialInventoryItem)
+
+**Option B: Historical Purchase Conversion**:
+1. For each MaterialPurchase in v2.1:
+   - Create MaterialInventoryItem with:
+     - quantity_purchased = total_units
+     - quantity_remaining = 0 (already consumed)
+     - cost_per_unit = calculated_unit_cost
+     - purchased_at = purchased_at
+2. Current inventory lost (acceptable - user does physical count)
+
+**Recommendation**: Option A - Clean migration, minimal risk
+
+---
+
+## 7. Non-Functional Requirements
+
+### 7.1 Performance
 
 - Materials catalog search: < 100ms for 1000+ products
-- Weighted average calculation: < 10ms per purchase
+- **LIFO inventory query: < 50ms for 100+ inventory items**
+- **MaterialInventoryItem aggregation: < 100ms**
 - Assembly cost calculation: < 500ms for 20+ materials
-- **Generic material aggregate inventory calculation: < 50ms**
-- **Assignment interface load: < 200ms for 100+ MaterialProducts**
+- Generic material aggregate inventory calculation: < 50ms
+- Assignment interface load: < 200ms for 100+ MaterialProducts
 
-### 6.2 Usability
+### 7.2 Usability
 
-- Materials UI mirrors ingredients UI (users learn by analogy)
+- Materials UI mirrors ingredients UI (LIFO patterns identical)
 - Ontology navigation follows same patterns
-- Purchase workflow familiar to existing users
-- **Visual indicators immediately recognizable (⚠️ = action needed)**
-- **Quick assignment interface intuitive (checkbox + quantity)**
+- Purchase workflow familiar (creates inventory items)
+- **Catalog clearly shows "definitions only" (no cost/inventory)**
+- **Make mode clearly shows "current state" (inventory lots)**
+- **Unit type inheritance visually clear**
+- **Auto-conversion transparent to user**
 
-### 6.3 Extensibility
+### 7.3 Extensibility
 
 - Architecture supports future e-commerce integration
-- Product_type field enables unified Product table (if needed)
-- Ontology structure supports future taxonomies
-- **Deferred decision pattern extensible (future: partial commitment, templates)**
+- LIFO pattern enables audit trail (web version)
+- MaterialInventoryItem supports future fields (color, dimensions)
+- **Strict definition/instantiation enables multi-user (web version)**
 
-### 6.4 Data Integrity
+### 7.4 Data Integrity
 
 - Strict separation prevents material/ingredient mixing
-- Weighted average costing maintains accuracy
-- Inventory constraints prevent negative stock
-- **Assembly enforcement prevents incomplete data**
+- **LIFO costing maintains accuracy (matches ingredients)**
+- Inventory constraints prevent negative stock (MaterialInventoryItem.quantity_remaining >= 0)
+- Assembly enforcement prevents incomplete data
 - **MaterialConsumption always has resolved material_unit_id (never material_id)**
+- **Cost snapshots immutable (historical accuracy preserved)**
 
 ---
 
-## 7. Assumptions
+## 8. Assumptions
 
 1. Users will manually enter package quantities (no barcode scanning)
-2. Weighted average costing sufficient (FIFO unnecessary for materials)
+2. **LIFO costing acceptable for materials** (matches ingredient pattern)
 3. Percentage-based adjustment sufficient for variable materials
-4. No existing "packaging ingredient" data to migrate
+4. No existing v2.1 materials data to migrate (or users accept fresh start)
 5. Sample data will be provided separately by user
-6. **Users comfortable with "estimated" vs "actual" cost distinction**
-7. **"Record Assembly Anyway" bypass rarely used (exceptional cases only)**
+6. Users comfortable with "estimated" vs "actual" cost distinction
+7. "Record Assembly Anyway" bypass rarely used (exceptional cases only)
+8. **Users understand Catalog = definitions, Make = current state**
+9. **Auto-conversion (feet → inches) acceptable to users**
 
 ---
 
-## 8. Risks & Mitigation
+## 9. Risks & Mitigation
 
-### Risk 1: Complexity Underestimation
+### Risk 1: Migration Complexity
 
-**Risk**: Full parallel to Ingredient model + deferred decision pattern = significant scope
-
-**Mitigation**:
-- Start with minimal UI (catalog CRUD only)
-- Defer advanced features (reporting, analytics, templates)
-- Follow existing patterns (leverage ingredient code, F026 pattern)
-- Estimated: 28-32 hours implementation (increased from 20-24 due to deferred decision complexity)
-
-### Risk 2: MaterialUnit Inventory Calculation
-
-**Risk**: Calculating MaterialUnit inventory from MaterialProduct may confuse users
+**Risk**: v2.1 → v3.0 migration requires MaterialInventoryItem creation
 
 **Mitigation**:
-- Clear UI messaging ("Available: 200 units based on 1200 inches in stock")
+- Recommend fresh start (export definitions, reset, import)
+- Provide clear migration documentation
+- User does physical inventory count post-migration
+- Estimated effort: 2-4 hours for migration script
+
+### Risk 2: LIFO Implementation Complexity
+
+**Risk**: LIFO consumption logic more complex than weighted average
+
+**Mitigation**:
+- Copy validated ingredient LIFO pattern (already works)
+- Comprehensive unit tests (parallel to ingredient tests)
+- User testing with sample assemblies before production use
+- Estimated effort: 4-6 hours for LIFO service layer
+
+### Risk 3: Unit Type Confusion
+
+**Risk**: Users may not understand Material.base_unit_type inheritance
+
+**Mitigation**:
+- Clear UI labels ("inherited from X")
+- Preview text showing interpretation
 - Documentation with examples
-- Consistent with FinishedUnit pattern (users already understand)
+- Validation prevents mismatches
 
-### Risk 3: Weighted Average Costing
+### Risk 4: Auto-Conversion Errors
 
-**Risk**: Users accustomed to FIFO may expect lot-level accuracy
-
-**Mitigation**:
-- Document cost methodology clearly
-- Show weighted average calculation in UI
-- Emphasize: "Materials non-perishable, weighted average sufficient"
-
-### Risk 4: Deferred Decision Workflow Confusion ⭐ **NEW**
-
-**Risk**: Users may not understand when to use generic vs specific materials
+**Risk**: Package unit conversion to base units may be incorrect
 
 **Mitigation**:
-- Clear UI labels: "Specific" vs "Generic (defer decision)"
-- ⚠️ Indicators provide clear feedback (action needed)
-- Documentation with workflow examples (F026 pattern validated)
-- Quick assignment interface at assembly makes resolution easy
+- Supported conversions only (feet↔inches, yards↔inches, etc.)
+- Show calculated quantity_in_base_units for verification
+- Unit tests for all conversion factors
+- User can verify in UI: "100 feet = 1200 inches"
 
-### Risk 5: Assembly Hard Stop Frustration ⭐ **NEW**
+### Risk 5: UI Complexity
 
-**Risk**: Users annoyed by assembly blocking when materials not resolved
+**Risk**: Catalog vs Make separation may confuse users
 
 **Mitigation**:
-- Clear error messaging: "Packaging not finalized" (not generic error)
-- Quick assignment interface (resolve without leaving screen)
-- "Record Assembly Anyway" bypass for exceptional cases
-- F026 pattern already validated with users (accepted workflow)
+- Clear mode labels (CATALOG vs MAKE)
+- Footer text: "Catalog shows definitions only"
+- "View Inventory" link connects concepts
+- User testing with Marianne validates clarity
 
 ---
 
-## 9. Open Questions & Decisions
+## 10. Open Questions & Decisions
 
-### 9.1 Resolved
+### 10.1 Resolved
 
-- ✅ Parallel to Ingredient model (Yes - foundational architecture)
+- ✅ Parallel to Ingredient model (Yes - **strict parallelism**, LIFO required)
+- ✅ MaterialInventoryItem needed (Yes - **separate table**, parallel to ProductInventoryItem)
 - ✅ MaterialUnit model needed (Yes)
-- ✅ Ontology levels (3: Category → Subcategory → Material)
-- ✅ Inventory at MaterialProduct level (Yes, like Product)
-- ✅ Package + atomic storage (Yes, store both)
-- ✅ Composition links to MaterialUnit (Yes)
+- ✅ Ontology levels (3: Category → Subcategory → Material with base_unit_type)
+- ✅ Inventory tracking (LIFO via MaterialInventoryItem, not weighted average)
+- ✅ Composition links (MaterialUnit OR Material, deferred decision)
 - ✅ Variable material adjustment (Percentage-based)
-- ✅ **Material decision timing (Flexible: catalog or assembly)**
-- ✅ **Deferred decision pattern (F026 generic placeholder approach)**
+- ✅ Material decision timing (Flexible: catalog or assembly)
+- ✅ **Definition/instantiation split** (Strict - MaterialProduct has NO cost/inventory)
+- ✅ **Unit type inheritance** (Material.base_unit_type → all products/units)
+- ✅ **Auto-conversion** (System converts package_unit to base_unit_type)
+- ✅ **MaterialUnit.quantity_per_unit** (1 for "each", user-defined for "variable")
 
-### 9.2 Deferred to Specification Phase
+### 10.2 Deferred to Specification Phase
 
-- Unit conversion details (feet↔inches mechanism)
+- **MaterialInventoryItem lot display details** (columns, sorting, filters)
+- **LIFO consumption UI** (how to show which lots consumed)
 - Specific UI layout/mockups
-- Import/export JSON schema details
 - Error message wording
 - Specific validation error codes
-- **Quick assignment interface detailed design**
-- **Aggregate inventory calculation implementation**
+- Quick assignment interface detailed design
+- Import/export JSON schema details (v4.3 format)
 
 ---
 
-## 10. Approval
+## 11. Approval
 
 **Requirements Author**: Claude (Anthropic AI)
 **Requirements Reviewer**: Kent Gale
-**Date**: 2026-01-10
+**Date**: 2026-01-18
 
-**Status**: ⏳ PENDING APPROVAL
+**Status**: ⏳ DRAFT - Under Review
 
-**Changes from v1.0:**
-- Updated REQ-M-015: Composition supports three target types (added material_id)
-- Updated REQ-M-012: Removed material_product_id from MaterialUnit (generic definition)
-- Updated REQ-M-013: MaterialUnit inventory aggregates across all MaterialProducts
-- Updated REQ-M-017: Flexible material assignment timing (F026 pattern)
-- Updated REQ-M-020: Added identity snapshot fields to MaterialConsumption
-- Updated REQ-M-041: Added identity capture to definition/instantiation principle
-- Added REQ-M-042: Identity snapshot principle (NEW)
-- Updated REQ-M-025: Estimated vs actual cost reporting
-- Updated REQ-M-030: Material selection UI (radio button specific/generic/none)
-- Updated REQ-M-031: Assembly hard stop + quick assignment interface
-- Updated REQ-M-032: Event planning visual indicators
-- Added REQ-M-033: Production dashboard indicators
-- Added REQ-M-039: Assembly stage enforcement
-- Updated success criteria (added deferred decision requirements)
-- Updated risks (added deferred decision risks)
-- Updated effort estimate (28-32 hours from 20-24 hours)
+**Changes from v2.1**:
+
+**BREAKING CHANGES**:
+- ✅ MaterialProduct: REMOVED current_inventory and weighted_avg_cost fields
+- ✅ MaterialInventoryItem: NEW table for LIFO inventory tracking
+- ✅ MaterialConsumption: Added inventory_item_id for LIFO linkage
+- ✅ Purchasing: Creates MaterialInventoryItem (not updating MaterialProduct fields)
+- ✅ Consumption: LIFO from MaterialInventoryItem (not weighted average)
+
+**NEW REQUIREMENTS**:
+- ✅ REQ-M-005: Inherited unit type (Material → MaterialProduct)
+- ✅ REQ-M-006: Auto-conversion to base units (cm-based storage, imperial/metric inputs)
+- ✅ REQ-M-008-010: MaterialInventoryItem table and LIFO consumption
+- ✅ REQ-M-014-016: Strict definition/instantiation separation
+- ✅ REQ-M-018-019: Unit type inheritance and validation
+- ✅ REQ-M-039: Material unit type display (UI shows inheritance)
+- ✅ REQ-M-040-041: First-class import/export (catalog only, no cost/inventory)
+
+**UPDATED REQUIREMENTS**:
+- Updated REQ-M-001: Added base_unit_type to Material
+- Updated REQ-M-004: MaterialProduct is definition only (removed cost/inventory)
+- Updated REQ-M-011-013: Purchasing creates MaterialInventoryItem
+- Updated REQ-M-023-026: Assembly uses LIFO consumption
+- Updated REQ-M-027-029: Inventory view in Make mode only
+- Updated REQ-M-034-036: UI requirements (Catalog vs Make separation)
 
 **Next Steps**:
-1. User reviews requirements v2.0
+1. Kent reviews requirements v3.0
 2. Approve or request changes
-3. Create F047 feature specification based on approved requirements
-4. Queue for implementation via spec-kitty
+3. Create F0XX migration specification (v2.1 → v3.0)
+4. Create F0XX materials LIFO implementation specification
+5. Queue for implementation via spec-kitty
 
 ---
 
