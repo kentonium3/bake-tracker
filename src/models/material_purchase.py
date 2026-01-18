@@ -84,6 +84,12 @@ class MaterialPurchase(BaseModel):
         "Supplier",
         foreign_keys=[supplier_id],
     )
+    # Feature 058: One purchase creates exactly one inventory item (1:1)
+    inventory_item = relationship(
+        "MaterialInventoryItem",
+        back_populates="purchase",
+        uselist=False,  # 1:1 relationship
+    )
 
     # Indexes and constraints
     __table_args__ = (

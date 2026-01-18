@@ -58,6 +58,9 @@ from .material_unit import MaterialUnit
 from .material_purchase import MaterialPurchase
 from .material_consumption import MaterialConsumption
 
+# Feature 058: Materials FIFO Foundation
+from .material_inventory_item import MaterialInventoryItem
+
 __all__ = [
     "Base",
     "BaseModel",
@@ -122,4 +125,6 @@ __all__ = [
     "MaterialUnit",
     "MaterialPurchase",
     "MaterialConsumption",
+    # Feature 058: Materials FIFO Foundation
+    "MaterialInventoryItem",
 ]

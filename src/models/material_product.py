@@ -104,6 +104,13 @@ class MaterialProduct(BaseModel):
         back_populates="product",
         lazy="select",
     )
+    # Feature 058: FIFO inventory tracking
+    inventory_items = relationship(
+        "MaterialInventoryItem",
+        back_populates="product",
+        cascade="all, delete-orphan",
+        lazy="select",
+    )
 
     # Indexes and constraints
     __table_args__ = (
