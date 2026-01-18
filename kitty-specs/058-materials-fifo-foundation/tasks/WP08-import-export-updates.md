@@ -6,12 +6,12 @@ subtasks:
   - "T035"
 title: "Import/Export Schema Handling"
 phase: "Phase 4 - Polish"
-lane: "planned"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
+lane: "doing"
+assignee: "claude-opus"
+agent: "claude-opus"
+shell_pid: "29350"
+review_status: "approved"
+reviewed_by: "Kent Gale"
 dependencies: ["WP02"]
 history:
   - timestamp: "2026-01-18T18:06:18Z"
@@ -19,6 +19,11 @@ history:
     agent: "system"
     shell_pid: ""
     action: "Prompt generated via /spec-kitty.tasks"
+  - timestamp: "2026-01-18T21:30:00Z"
+    lane: "done"
+    agent: "claude-opus"
+    shell_pid: ""
+    action: "Review passed: Import/export updated for deprecated field removal"
 ---
 
 # Work Package Prompt: WP08 – Import/Export Schema Handling
@@ -306,3 +311,6 @@ class TestMaterialProductRoundtrip:
 ## Activity Log
 
 - 2026-01-18T18:06:18Z – system – lane=planned – Prompt created.
+- 2026-01-18T19:20:33Z – gemini – lane=for_review – T033-T035 complete: Import/export handles deprecated fields
+- 2026-01-18T20:07:18Z – claude-opus – lane=done – Review passed: Import/export updated for deprecated field removal
+- 2026-01-18T21:35:20Z – claude-opus – shell_pid=29350 – lane=doing – Started review via workflow command
