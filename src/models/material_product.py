@@ -3,9 +3,10 @@ MaterialProduct model for specific purchasable material items.
 
 This model represents a specific purchasable item from a supplier
 (e.g., "Michaels Red Satin 100ft Roll"). Part of Feature 047: Materials Management System.
-"""
 
-from decimal import Decimal
+Feature 058: Removed current_inventory and weighted_avg_cost fields.
+Inventory and costing now tracked via MaterialInventoryItem (FIFO).
+"""
 
 from sqlalchemy import (
     Column,
@@ -17,7 +18,6 @@ from sqlalchemy import (
     ForeignKey,
     Index,
     CheckConstraint,
-    Numeric,
 )
 from sqlalchemy.orm import relationship
 
@@ -26,11 +26,11 @@ from .base import BaseModel
 
 class MaterialProduct(BaseModel):
     """
-    MaterialProduct model representing specific purchasable material items.
+    MaterialProduct model representing catalog definitions for purchasable material items.
 
     Each MaterialProduct is a specific item from a supplier that can be
-    purchased and tracked in inventory. Uses weighted average costing
-    (not FIFO) for non-perishable materials.
+    purchased. This is a DEFINITION entity - actual inventory and costing
+    are tracked in MaterialInventoryItem (FIFO pattern per Feature 058).
 
     Attributes:
         material_id: Foreign key to parent Material
@@ -41,9 +41,7 @@ class MaterialProduct(BaseModel):
         sku: Supplier SKU (nullable)
         package_quantity: Quantity per package (e.g., 100 for 100ft)
         package_unit: Unit of package (e.g., 'feet', 'yards', 'each')
-        quantity_in_base_units: Converted quantity in base units (e.g., 1200 inches)
-        current_inventory: Current inventory in base units
-        weighted_avg_cost: Weighted average cost per base unit
+        quantity_in_base_units: Converted quantity in base units (cm)
         is_hidden: Hide from selection lists
         notes: User notes
 
@@ -51,6 +49,7 @@ class MaterialProduct(BaseModel):
         material: Many-to-One with Material
         supplier: Many-to-One with Supplier (existing table)
         purchases: One-to-Many with MaterialPurchase
+        inventory_items: One-to-Many with MaterialInventoryItem (FIFO lots)
     """
 
     __tablename__ = "material_products"
@@ -80,9 +79,8 @@ class MaterialProduct(BaseModel):
     package_unit = Column(String(20), nullable=False)
     quantity_in_base_units = Column(Float, nullable=False)
 
-    # Inventory tracking
-    current_inventory = Column(Float, nullable=False, default=0)
-    weighted_avg_cost = Column(Numeric(10, 4), nullable=False, default=0)
+    # Feature 058: Removed current_inventory and weighted_avg_cost fields
+    # Inventory and costing now tracked via MaterialInventoryItem (FIFO)
 
     # Visibility
     is_hidden = Column(Boolean, nullable=False, default=False, index=True)
@@ -113,6 +111,7 @@ class MaterialProduct(BaseModel):
     )
 
     # Indexes and constraints
+    # Feature 058: Removed CheckConstraints for current_inventory and weighted_avg_cost
     __table_args__ = (
         Index("idx_material_product_material", "material_id"),
         Index("idx_material_product_supplier", "supplier_id"),
@@ -122,10 +121,6 @@ class MaterialProduct(BaseModel):
         CheckConstraint(
             "quantity_in_base_units > 0", name="ck_material_product_base_units_positive"
         ),
-        CheckConstraint(
-            "current_inventory >= 0", name="ck_material_product_inventory_non_negative"
-        ),
-        CheckConstraint("weighted_avg_cost >= 0", name="ck_material_product_cost_non_negative"),
     )
 
     def __repr__(self) -> str:
@@ -146,15 +141,8 @@ class MaterialProduct(BaseModel):
         parts.append(self.name)
         return " ".join(parts)
 
-    @property
-    def inventory_value(self) -> Decimal:
-        """
-        Calculate total value of current inventory.
-
-        Returns:
-            current_inventory * weighted_avg_cost
-        """
-        return Decimal(str(self.current_inventory)) * self.weighted_avg_cost
+    # Feature 058: Removed inventory_value property
+    # Inventory value now calculated from MaterialInventoryItem lots
 
     def to_dict(self, include_relationships: bool = False) -> dict:
         """
@@ -168,7 +156,7 @@ class MaterialProduct(BaseModel):
         """
         result = super().to_dict(include_relationships)
         result["display_name"] = self.display_name
-        result["inventory_value"] = str(self.inventory_value)
+        # Feature 058: Removed inventory_value from output
 
         if include_relationships:
             if self.material:
