@@ -1027,7 +1027,7 @@ def list_products(
             )
             # Compute weighted average cost
             total_cost = sum(
-                Decimal(str(item.quantity_remaining)) * Decimal(str(item.unit_cost))
+                Decimal(str(item.quantity_remaining)) * Decimal(str(item.cost_per_unit))
                 for item in inv_items
             )
             weighted_avg_cost = (

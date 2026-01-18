@@ -344,11 +344,21 @@ def _decrement_inventory(
     """
     from .material_inventory_service import consume_material_fifo
 
+    # Determine the correct target_unit based on material's base_unit_type (F058)
+    # Map base_unit_type to the self-referential unit name
+    base_unit_type = product.material.base_unit_type if product.material else "linear_cm"
+    target_unit_map = {
+        "linear_cm": "cm",
+        "square_cm": "square_cm",
+        "each": "each",
+    }
+    target_unit = target_unit_map.get(base_unit_type, "cm")
+
     # Use FIFO consumption from material_inventory_service (F058)
     result = consume_material_fifo(
         material_product_id=product.id,
         quantity_needed=Decimal(str(base_units_consumed)),
-        target_unit="cm",  # Base units are in cm
+        target_unit=target_unit,
         dry_run=False,
         session=session,
     )

@@ -134,7 +134,7 @@ class MaterialsTab(ctk.CTkFrame):
 
 
 # Valid base unit types for materials
-MATERIAL_BASE_UNITS = ["each", "linear_inches", "square_inches"]
+MATERIAL_BASE_UNITS = ["each", "linear_cm", "square_cm"]
 
 
 class MaterialFormDialog(ctk.CTkToplevel):
@@ -2237,16 +2237,18 @@ class MaterialProductsTab:
         )
         self.purchase_button.grid(row=0, column=2, padx=(0, PADDING_MEDIUM))
 
-        # Adjust Inventory button
-        self.adjust_button = ctk.CTkButton(
-            button_frame,
-            text="Adjust Inventory",
-            command=self._adjust_inventory,
-            width=130,
-            height=36,
-            state="disabled",
-        )
-        self.adjust_button.grid(row=0, column=3, padx=(0, PADDING_MEDIUM))
+        # Adjust Inventory button - REMOVED (F058)
+        # Legacy inventory adjustment is incompatible with FIFO tracking.
+        # A FIFO-compatible adjustment feature may be added in a future release.
+        # self.adjust_button = ctk.CTkButton(
+        #     button_frame,
+        #     text="Adjust Inventory",
+        #     command=self._adjust_inventory,
+        #     width=130,
+        #     height=36,
+        #     state="disabled",
+        # )
+        # self.adjust_button.grid(row=0, column=3, padx=(0, PADDING_MEDIUM))
 
     def _create_grid(self):
         """Create the products grid using ttk.Treeview."""
@@ -2609,52 +2611,17 @@ class MaterialProductsTab:
                 messagebox.showerror("Error", f"Failed to record purchase: {e}")
 
     def _adjust_inventory(self):
-        """Open dialog to adjust inventory for selected product."""
-        if not self.selected_product_id:
-            return
+        """Legacy inventory adjustment - disabled for FIFO (F058).
 
-        # Find product data by ID
-        product_data = None
-        for prod in self.products:
-            if prod["id"] == self.selected_product_id:
-                product_data = prod
-                break
-
-        if not product_data:
-            self.update_status("Product not found")
-            return
-
-        dialog = AdjustInventoryDialog(
-            self.parent_frame,
-            product=product_data,
+        Direct inventory adjustment is incompatible with FIFO lot tracking.
+        Inventory changes should be made through purchases or consumption.
+        """
+        messagebox.showinfo(
+            "Feature Not Available",
+            "Direct inventory adjustment is not available with FIFO tracking.\n\n"
+            "To add inventory: Record a new purchase.\n"
+            "To reduce inventory: Use material consumption through assemblies."
         )
-        if dialog.winfo_exists():
-            self.parent_frame.wait_window(dialog)
-
-        if dialog.result:
-            try:
-                mode = dialog.result["mode"]
-                value = dialog.result["value"]
-                notes = dialog.result.get("notes")
-
-                if mode == "set":
-                    material_purchase_service.adjust_inventory(
-                        product_id=dialog.result["product_id"],
-                        new_quantity=value,
-                        notes=notes,
-                    )
-                else:  # percentage
-                    material_purchase_service.adjust_inventory(
-                        product_id=dialog.result["product_id"],
-                        percentage=value,
-                        notes=notes,
-                    )
-                self.refresh()
-                self.update_status(f"Adjusted inventory for: {product_data['name']}")
-            except ValidationError as e:
-                messagebox.showerror("Error", str(e))
-            except Exception as e:
-                messagebox.showerror("Error", f"Failed to adjust inventory: {e}")
 
     def update_status(self, message: str):
         """Update the status bar message."""
