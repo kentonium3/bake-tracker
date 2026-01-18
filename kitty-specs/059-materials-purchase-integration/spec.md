@@ -18,6 +18,15 @@ This feature enables complete UI workflows for purchasing and managing materials
 
 **Primary User**: Non-technical user managing holiday baking materials
 
+## Clarifications
+
+### Session 2026-01-18
+
+- Q: For "each" material adjustments, should adjustment create a new lot or update existing? → A: Update the existing lot's quantity_remaining directly (consistent with variable materials)
+- Q: When user deletes MaterialProduct with existing inventory, what behavior? → A: Soft-delete (set is_hidden=True), hide from dropdowns, preserve inventory history. Consistent with existing Product pattern using hide_product()/unhide_product().
+- Q: What fields make a provisional MaterialProduct "complete"? → A: Required fields: name, brand, slug (if exposed in UI), purchase unit, package size, and linked material/ingredient. When all present, is_provisional=False.
+- Q: Does CLI purchase infrastructure currently exist? → A: Yes, CLI exists and supports food purchases. F059 extends existing CLI to support material purchases with provisional product creation.
+
 ## User Scenarios & Testing
 
 ### User Story 1 - Purchase Materials via UI (Priority: P1)
@@ -74,7 +83,7 @@ As a user who has used materials outside the tracked system or discovered invent
 
 2. **Given** I click "Adjust" on an inventory lot for a variable material (e.g., ribbon in cm), **When** the dialog opens, **Then** I see the current state and a percentage slider/input (0-100%) with a preview of the new quantity in cm.
 
-3. **Given** I have entered an adjustment and see the preview calculation, **When** I click Save, **Then** the inventory is updated (new lot for "each" materials, direct update for variable materials) and the inventory table reflects the change.
+3. **Given** I have entered an adjustment and see the preview calculation, **When** I click Save, **Then** the existing lot's quantity_remaining is updated directly and the inventory table reflects the change.
 
 4. **Given** I am adjusting inventory, **When** I enter a value that would result in negative quantity, **Then** validation prevents saving and displays an error.
 
@@ -138,7 +147,7 @@ As a user creating or editing MaterialUnits, I need to clearly see the inherited
 
 ### Edge Cases
 
-- What happens when a MaterialProduct is deleted that has existing inventory lots? (System should prevent deletion or cascade appropriately)
+- MaterialProduct with existing inventory: Soft-delete via is_hidden=True; product hidden from dropdowns but inventory/purchase history preserved (consistent with Product pattern)
 - How does the system handle unit conversion errors? (Display user-friendly error, don't save invalid data)
 - What happens if the user enters extremely large quantities? (Validate reasonable bounds)
 - What if the user changes product type (Food/Material) mid-form entry? (Clear the type-specific fields)
@@ -166,7 +175,7 @@ As a user creating or editing MaterialUnits, I need to clearly see the inherited
 - **FR-015**: CLI purchase workflow MUST support creating provisional MaterialProducts when product not found.
 - **FR-016**: Provisional products MUST have is_provisional=True flag and create inventory immediately.
 - **FR-017**: Catalog > Materials > Material Products MUST show indicator for provisional products.
-- **FR-018**: Edit dialog for provisional products MUST allow enrichment and clear is_provisional flag when complete.
+- **FR-018**: Edit dialog for provisional products MUST allow enrichment and clear is_provisional flag when complete. Completeness requires: name, brand, slug (if exposed), purchase unit, package size, and linked material.
 - **FR-019**: MaterialUnit create/edit dialog MUST display inherited unit type when Material is selected.
 - **FR-020**: MaterialUnit dialog MUST show dynamic quantity field label indicating the unit type.
 - **FR-021**: MaterialUnit dialog MUST display preview text showing consumption in concrete terms.
@@ -197,7 +206,7 @@ As a user creating or editing MaterialUnits, I need to clearly see the inherited
 
 - F058 MaterialInventoryService and unit conversion infrastructure is complete and working.
 - Existing Purchase form patterns (layout, validation, CTkToplevel dialogs) provide consistent UI foundation.
-- CLI infrastructure exists or will be created to support the provisional product workflow (FR-015, FR-016).
+- CLI infrastructure exists and supports food purchases; F059 extends it for material purchases (FR-015, FR-016).
 - Database schema already includes is_provisional field on MaterialProduct (or can be added via migration).
 
 ## Out of Scope
