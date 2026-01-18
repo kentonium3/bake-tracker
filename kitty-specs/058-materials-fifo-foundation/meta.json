@@ -1,0 +1,8 @@
+{
+  "feature_number": "058",
+  "slug": "058-materials-fifo-foundation",
+  "friendly_name": "Materials FIFO Foundation",
+  "mission": "software-dev",
+  "source_description": "See docs/design/F058_materials_fifo_foundation.md for inputs on this feature.",
+  "created_at": "2026-01-18T12:35:00Z"
+}
