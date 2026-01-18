@@ -164,19 +164,19 @@ A user records a purchase for a product that already exists in the catalog. The 
 
 ### Measurable Outcomes
 
-- **SC-001**: Users can record a purchase for an unknown product in under 2 minutes (including provisional product creation).
+- [x] **SC-001**: Users can record a purchase for an unknown product in under 2 minutes (including provisional product creation).
 
-- **SC-002**: 100% of purchases result in inventory updates (no orphaned purchases without inventory).
+- [x] **SC-002**: 100% of purchases result in inventory updates (no orphaned purchases without inventory).
 
-- **SC-003**: Users can identify and access provisional products requiring review within 3 clicks from any screen.
+- [x] **SC-003**: Users can identify and access provisional products requiring review within 3 clicks from any screen.
 
-- **SC-004**: JSON import of 50+ purchases completes and displays results within 30 seconds.
+- [x] **SC-004**: JSON import of 50+ purchases completes and displays results within 30 seconds.
 
-- **SC-005**: Purchase workflow is never blocked due to missing product catalog entries.
+- [x] **SC-005**: Purchase workflow is never blocked due to missing product catalog entries.
 
-- **SC-006**: All provisional products are visible in the review queue until explicitly marked as reviewed.
+- [x] **SC-006**: All provisional products are visible in the review queue until explicitly marked as reviewed.
 
-- **SC-007**: Service boundaries are enforced - purchase service contains no UPC matching, slug generation, or inventory calculation logic.
+- [x] **SC-007**: Service boundaries are enforced - purchase service contains no UPC matching, slug generation, or inventory calculation logic.
 
 ## Out of Scope
 
