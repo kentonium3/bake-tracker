@@ -266,6 +266,9 @@ def _export_products(output_dir: Path, session: Session) -> FileEntry:
                 p.preferred_supplier.slug if p.preferred_supplier else None
             ),
             "is_hidden": p.is_hidden,
+            # F057: Provisional product flag and slug
+            "is_provisional": p.is_provisional,
+            "slug": p.slug,
             # Industry standard fields
             "gtin": p.gtin,
             "brand_owner": p.brand_owner,
@@ -930,6 +933,8 @@ def _import_complete_impl(
         "files_imported": 0,
         "entity_counts": {},
         "errors": [],
+        # F057: Track provisional products created during import
+        "provisional_products_created": 0,
     }
 
     # Clear existing data first (replace mode)
@@ -1162,6 +1167,9 @@ def _import_entity_records(
                     preferred_supplier_id=preferred_supplier_id,
                     preferred=record.get("preferred", False),
                     is_hidden=record.get("is_hidden", False),
+                    # F057: Import provisional flag and slug
+                    is_provisional=record.get("is_provisional", False),
+                    slug=record.get("slug"),
                     package_type=record.get("package_type"),
                     supplier=record.get("supplier"),
                     supplier_sku=record.get("supplier_sku"),

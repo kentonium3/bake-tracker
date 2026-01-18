@@ -55,6 +55,86 @@ from .exceptions import (
 from .ingredient_service import get_ingredient
 from ..utils.validators import validate_product_data
 from sqlalchemy.orm import joinedload
+import re
+
+
+# ============================================================================
+# F057: Product Slug Generation
+# ============================================================================
+
+
+def _slugify_component(value: str) -> str:
+    """Convert a string component to a slug-safe format.
+
+    Args:
+        value: String to slugify
+
+    Returns:
+        Lowercase string with special chars replaced by underscores
+    """
+    if not value:
+        return "unknown"
+    slug = value.lower()
+    slug = re.sub(r"[\s\-]+", "_", slug)
+    slug = re.sub(r"[^a-z0-9_]", "", slug)
+    slug = re.sub(r"_+", "_", slug)
+    slug = slug.strip("_")
+    return slug or "unknown"
+
+
+def _generate_product_slug(
+    ingredient_slug: str,
+    brand: str,
+    package_unit_quantity: float,
+    package_unit: str,
+) -> str:
+    """Generate a product slug from its components.
+
+    Format: ingredient_slug:brand:qty:unit
+    Example: all_purpose_flour:king_arthur:5.0:lb
+
+    Args:
+        ingredient_slug: Slug of the parent ingredient
+        brand: Brand name
+        package_unit_quantity: Package quantity
+        package_unit: Package unit
+
+    Returns:
+        Composite slug string
+    """
+    brand_slug = _slugify_component(brand)
+    unit_slug = _slugify_component(package_unit)
+    return f"{ingredient_slug}:{brand_slug}:{package_unit_quantity}:{unit_slug}"
+
+
+def _generate_unique_product_slug(
+    base_slug: str,
+    session,
+    exclude_id: Optional[int] = None,
+) -> str:
+    """Generate a unique product slug by appending a suffix if needed.
+
+    Args:
+        base_slug: The base slug to make unique
+        session: Database session
+        exclude_id: ID to exclude from uniqueness check (for updates)
+
+    Returns:
+        Unique slug (e.g., "flour:brand:5.0:lb" or "flour:brand:5.0:lb-2")
+    """
+    slug = base_slug
+    counter = 1
+
+    while True:
+        query = session.query(Product).filter(Product.slug == slug)
+        if exclude_id is not None:
+            query = query.filter(Product.id != exclude_id)
+
+        if query.first() is None:
+            return slug
+
+        counter += 1
+        slug = f"{base_slug}-{counter}"
 
 
 # ============================================================================
@@ -198,6 +278,106 @@ def create_product(ingredient_slug: str, product_data: Dict[str, Any]) -> Produc
         raise
     except Exception as e:
         raise DatabaseError("Failed to create product", original_error=e)
+
+
+def create_provisional_product(
+    ingredient_id: int,
+    brand: str,
+    package_unit: str,
+    package_unit_quantity: float,
+    product_name: Optional[str] = None,
+    upc_code: Optional[str] = None,
+    session: Optional[Any] = None,
+) -> Product:
+    """Create a provisional product for immediate use during purchase entry.
+
+    Provisional products are created with is_provisional=True, indicating they
+    need review to complete missing information. They are fully functional for
+    purchases and inventory tracking.
+
+    Args:
+        ingredient_id: ID of the parent ingredient (required, must be leaf level)
+        brand: Brand name (required, can be "Unknown")
+        package_unit: Unit the package contains, e.g., "lb", "oz" (required)
+        package_unit_quantity: Quantity per package (required)
+        product_name: Optional variant name
+        upc_code: Optional UPC/barcode (may have from scanning)
+        session: Optional database session for transaction composability
+
+    Returns:
+        Product: Created product with is_provisional=True
+
+    Raises:
+        ValidationError: If ingredient_id invalid or not a leaf ingredient
+        NonLeafIngredientError: If ingredient is not a leaf (hierarchy_level != 2)
+        DatabaseError: If database operation fails
+
+    Example:
+        >>> product = create_provisional_product(
+        ...     ingredient_id=42,
+        ...     brand="King Arthur",
+        ...     package_unit="lb",
+        ...     package_unit_quantity=5.0,
+        ... )
+        >>> product.is_provisional
+        True
+    """
+    # Validate quantity is positive
+    if package_unit_quantity is None or package_unit_quantity <= 0:
+        raise ServiceValidationError(
+            f"package_unit_quantity must be positive, got {package_unit_quantity}"
+        )
+
+    from ..models import Ingredient
+
+    def _create_impl(sess):
+        # Validate ingredient exists
+        ingredient = sess.query(Ingredient).filter_by(id=ingredient_id).first()
+        if not ingredient:
+            raise ServiceValidationError(f"Ingredient with id {ingredient_id} not found")
+
+        # Validate leaf-only constraint (hierarchy_level == 2)
+        _validate_leaf_ingredient_for_product(ingredient, sess)
+
+        # Normalize empty product_name to None
+        normalized_product_name = product_name if product_name != "" else None
+
+        # F057: Generate unique slug for the product
+        base_slug = _generate_product_slug(
+            ingredient_slug=ingredient.slug,
+            brand=brand,
+            package_unit_quantity=package_unit_quantity,
+            package_unit=package_unit,
+        )
+        unique_slug = _generate_unique_product_slug(base_slug, sess)
+
+        # Create provisional product with minimal required fields
+        product = Product(
+            ingredient_id=ingredient_id,
+            brand=brand,
+            product_name=normalized_product_name,
+            package_unit=package_unit,
+            package_unit_quantity=package_unit_quantity,
+            upc_code=upc_code,
+            slug=unique_slug,  # F057: Unique slug for portability
+            is_provisional=True,  # Key flag for F057
+        )
+
+        sess.add(product)
+        sess.flush()  # Get ID before returning
+
+        return product
+
+    try:
+        if session is not None:
+            return _create_impl(session)
+        else:
+            with session_scope() as sess:
+                return _create_impl(sess)
+    except (ServiceValidationError, NonLeafIngredientError):
+        raise
+    except Exception as e:
+        raise DatabaseError("Failed to create provisional product", original_error=e)
 
 
 def get_product(product_id: int) -> Product:

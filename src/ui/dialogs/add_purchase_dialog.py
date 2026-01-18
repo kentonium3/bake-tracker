@@ -31,6 +31,9 @@ class AddPurchaseDialog(ctk.CTkToplevel):
 
     Provides form fields for all purchase details with validation,
     auto-fill from previous purchases, and live preview.
+
+    F057: Enhanced with inline provisional product creation when
+    product not found in catalog.
     """
 
     def __init__(
@@ -60,6 +63,15 @@ class AddPurchaseDialog(ctk.CTkToplevel):
         self.suppliers: List[Dict[str, Any]] = []
         self.product_map: Dict[str, Dict[str, Any]] = {}  # display_name -> product dict
         self.supplier_map: Dict[str, Dict[str, Any]] = {}  # name -> supplier dict
+
+        # F057: Provisional product state
+        self._provisional_expanded = False
+        self._provisional_frame = None
+        self.not_found_frame = None
+        self._last_search_text = ""
+        self._prov_l0_map = {}
+        self._prov_l1_map = {}
+        self._prov_l2_map = {}
 
         # Load data
         self._load_products()
@@ -321,6 +333,9 @@ class AddPurchaseDialog(ctk.CTkToplevel):
         self.qty_var.trace_add("write", lambda *args: self._update_preview())
         self.price_var.trace_add("write", lambda *args: self._update_preview())
 
+        # F057: Detect product search for "not found" handling
+        self.product_var.trace_add("write", self._on_product_search)
+
         # Escape to close
         self.bind("<Escape>", lambda e: self.destroy())
 
@@ -522,3 +537,434 @@ class AddPurchaseDialog(ctk.CTkToplevel):
 
         except Exception as e:
             self._show_error(f"Failed to save: {str(e)}")
+
+    # =========================================================================
+    # F057: Provisional Product Creation
+    # =========================================================================
+
+    def _on_product_search(self, *args) -> None:
+        """Handle product search - show 'not found' when no matches.
+
+        Called via trace when product_var changes (user types in combobox).
+        """
+        search_text = self.product_var.get().strip()
+
+        if not search_text:
+            self._hide_not_found()
+            return
+
+        # Check if search matches any product
+        matches = [
+            name for name in self.product_map.keys()
+            if search_text.lower() in name.lower()
+        ]
+
+        # Only show "not found" after 3+ characters and no matches
+        if not matches and len(search_text) >= 3:
+            self._show_not_found(search_text)
+        else:
+            self._hide_not_found()
+
+    def _show_not_found(self, search_text: str) -> None:
+        """Show 'product not found' message with create option."""
+        if not hasattr(self, 'not_found_frame') or self.not_found_frame is None:
+            self._create_not_found_widgets()
+
+        self.not_found_label.configure(
+            text=f'"{search_text}" not found in product catalog'
+        )
+        self.not_found_frame.pack(after=self.product_combo, fill="x", padx=10, pady=5)
+        self._last_search_text = search_text
+
+    def _hide_not_found(self) -> None:
+        """Hide the 'not found' message."""
+        if hasattr(self, 'not_found_frame') and self.not_found_frame:
+            self.not_found_frame.pack_forget()
+        # Also collapse provisional form if it was expanded
+        if self._provisional_expanded:
+            self._collapse_provisional_form()
+
+    def _create_not_found_widgets(self) -> None:
+        """Create the 'product not found' UI components."""
+        self.not_found_frame = ctk.CTkFrame(self.form_frame, fg_color="transparent")
+
+        self.not_found_label = ctk.CTkLabel(
+            self.not_found_frame,
+            text="",
+            text_color="orange"
+        )
+        self.not_found_label.pack(side="left", padx=5)
+
+        self.create_provisional_btn = ctk.CTkButton(
+            self.not_found_frame,
+            text="Create Provisional Product",
+            command=self._toggle_provisional_form,
+            width=180,
+            fg_color="#2B7A0B",  # Green accent
+        )
+        self.create_provisional_btn.pack(side="right", padx=5)
+
+    def _toggle_provisional_form(self) -> None:
+        """Toggle the provisional product form visibility."""
+        if self._provisional_expanded:
+            self._collapse_provisional_form()
+        else:
+            self._expand_provisional_form()
+
+    def _expand_provisional_form(self) -> None:
+        """Show the provisional product creation form."""
+        if self._provisional_frame is None:
+            self._create_provisional_form()
+
+        self._provisional_frame.pack(after=self.not_found_frame, fill="x", padx=10, pady=10)
+        self._provisional_expanded = True
+        self.create_provisional_btn.configure(text="Cancel")
+
+        # Resize dialog to accommodate form
+        self.geometry("500x900")
+
+        # Prepopulate brand from search text
+        self._prepopulate_from_search()
+
+    def _collapse_provisional_form(self) -> None:
+        """Hide the provisional product creation form."""
+        if self._provisional_frame:
+            self._provisional_frame.pack_forget()
+        self._provisional_expanded = False
+        if hasattr(self, 'create_provisional_btn'):
+            self.create_provisional_btn.configure(text="Create Provisional Product")
+        self.geometry("500x600")
+
+    def _create_provisional_form(self) -> None:
+        """Create the provisional product form widgets."""
+        self._provisional_frame = ctk.CTkFrame(self.form_frame)
+
+        # Header
+        header = ctk.CTkLabel(
+            self._provisional_frame,
+            text="Create Provisional Product",
+            font=ctk.CTkFont(size=14, weight="bold"),
+        )
+        header.pack(pady=(10, 5))
+
+        info_label = ctk.CTkLabel(
+            self._provisional_frame,
+            text="Fill in what you know. Missing details can be added later.",
+            font=ctk.CTkFont(size=10),
+            text_color="gray",
+        )
+        info_label.pack(pady=(0, 10))
+
+        # Ingredient selection (cascading L0 -> L1 -> L2)
+        ing_frame = ctk.CTkFrame(self._provisional_frame, fg_color="transparent")
+        ing_frame.pack(fill="x", padx=10, pady=5)
+
+        ctk.CTkLabel(ing_frame, text="Ingredient *", anchor="w").pack(anchor="w")
+
+        # L0 (Category) dropdown
+        self._prov_l0_var = ctk.StringVar(value="Select Category")
+        self._prov_l0_dropdown = ctk.CTkOptionMenu(
+            ing_frame,
+            variable=self._prov_l0_var,
+            values=["Select Category"],
+            command=self._on_prov_l0_change,
+            width=300,
+        )
+        self._prov_l0_dropdown.pack(anchor="w", pady=2)
+
+        # L1 (Subcategory) dropdown
+        self._prov_l1_var = ctk.StringVar(value="Select Subcategory")
+        self._prov_l1_dropdown = ctk.CTkOptionMenu(
+            ing_frame,
+            variable=self._prov_l1_var,
+            values=["Select Subcategory"],
+            command=self._on_prov_l1_change,
+            width=300,
+            state="disabled",
+        )
+        self._prov_l1_dropdown.pack(anchor="w", pady=2)
+
+        # L2 (Leaf ingredient) dropdown
+        self._prov_l2_var = ctk.StringVar(value="Select Ingredient")
+        self._prov_l2_dropdown = ctk.CTkOptionMenu(
+            ing_frame,
+            variable=self._prov_l2_var,
+            values=["Select Ingredient"],
+            width=300,
+            state="disabled",
+        )
+        self._prov_l2_dropdown.pack(anchor="w", pady=2)
+
+        # Brand entry
+        brand_frame = ctk.CTkFrame(self._provisional_frame, fg_color="transparent")
+        brand_frame.pack(fill="x", padx=10, pady=5)
+        ctk.CTkLabel(brand_frame, text="Brand *", anchor="w").pack(anchor="w")
+        self._prov_brand_var = ctk.StringVar()
+        self._prov_brand_entry = ctk.CTkEntry(
+            brand_frame,
+            textvariable=self._prov_brand_var,
+            width=300,
+            placeholder_text="e.g., King Arthur",
+        )
+        self._prov_brand_entry.pack(anchor="w", pady=2)
+
+        # Product name entry (optional)
+        name_frame = ctk.CTkFrame(self._provisional_frame, fg_color="transparent")
+        name_frame.pack(fill="x", padx=10, pady=5)
+        ctk.CTkLabel(name_frame, text="Product Name (optional)", anchor="w").pack(anchor="w")
+        self._prov_name_var = ctk.StringVar()
+        self._prov_name_entry = ctk.CTkEntry(
+            name_frame,
+            textvariable=self._prov_name_var,
+            width=300,
+            placeholder_text="e.g., Organic, Unbleached",
+        )
+        self._prov_name_entry.pack(anchor="w", pady=2)
+
+        # Package details
+        pkg_frame = ctk.CTkFrame(self._provisional_frame, fg_color="transparent")
+        pkg_frame.pack(fill="x", padx=10, pady=5)
+        ctk.CTkLabel(pkg_frame, text="Package *", anchor="w").pack(anchor="w")
+
+        pkg_inner = ctk.CTkFrame(pkg_frame, fg_color="transparent")
+        pkg_inner.pack(anchor="w", pady=2)
+
+        self._prov_pkg_qty_var = ctk.StringVar(value="1")
+        self._prov_pkg_qty_entry = ctk.CTkEntry(
+            pkg_inner,
+            textvariable=self._prov_pkg_qty_var,
+            width=80,
+            placeholder_text="1",
+        )
+        self._prov_pkg_qty_entry.pack(side="left", padx=(0, 5))
+
+        self._prov_pkg_unit_var = ctk.StringVar()
+        self._prov_pkg_unit_entry = ctk.CTkEntry(
+            pkg_inner,
+            textvariable=self._prov_pkg_unit_var,
+            width=100,
+            placeholder_text="lb, oz, each",
+        )
+        self._prov_pkg_unit_entry.pack(side="left")
+
+        # Create button
+        self._prov_create_btn = ctk.CTkButton(
+            self._provisional_frame,
+            text="Create & Use Product",
+            command=self._on_create_provisional,
+            width=180,
+        )
+        self._prov_create_btn.pack(pady=15)
+
+        # Error label for provisional form
+        self._prov_error_label = ctk.CTkLabel(
+            self._provisional_frame,
+            text="",
+            text_color="red",
+        )
+        self._prov_error_label.pack()
+
+        # Load ingredient hierarchy data
+        self._load_ingredient_hierarchy()
+
+    def _load_ingredient_hierarchy(self) -> None:
+        """Load ingredient hierarchy for dropdowns."""
+        from src.services import ingredient_hierarchy_service
+
+        try:
+            roots = ingredient_hierarchy_service.get_root_ingredients()
+            self._prov_l0_map = {
+                ing.get("display_name", ing.get("name", "?")): ing
+                for ing in roots
+            }
+            values = ["Select Category"] + sorted(self._prov_l0_map.keys())
+            self._prov_l0_dropdown.configure(values=values)
+            self._prov_l1_map = {}
+            self._prov_l2_map = {}
+        except Exception as e:
+            print(f"Warning: Failed to load ingredient hierarchy: {e}")
+
+    def _on_prov_l0_change(self, value: str) -> None:
+        """Handle L0 category selection."""
+        from src.services import ingredient_hierarchy_service
+
+        if value == "Select Category":
+            self._prov_l1_dropdown.configure(values=["Select Subcategory"], state="disabled")
+            self._prov_l2_dropdown.configure(values=["Select Ingredient"], state="disabled")
+            self._prov_l1_var.set("Select Subcategory")
+            self._prov_l2_var.set("Select Ingredient")
+            return
+
+        if value not in self._prov_l0_map:
+            return
+
+        l0_id = self._prov_l0_map[value].get("id")
+        try:
+            children = ingredient_hierarchy_service.get_children(l0_id)
+            self._prov_l1_map = {
+                child.get("display_name", "?"): child for child in children
+            }
+            values = ["Select Subcategory"] + sorted(self._prov_l1_map.keys())
+            self._prov_l1_dropdown.configure(values=values, state="normal")
+            self._prov_l1_var.set("Select Subcategory")
+
+            # Reset L2
+            self._prov_l2_map = {}
+            self._prov_l2_dropdown.configure(values=["Select Ingredient"], state="disabled")
+            self._prov_l2_var.set("Select Ingredient")
+        except Exception as e:
+            print(f"Warning: Failed to load subcategories: {e}")
+
+    def _on_prov_l1_change(self, value: str) -> None:
+        """Handle L1 subcategory selection."""
+        from src.services import ingredient_hierarchy_service
+
+        if value == "Select Subcategory":
+            self._prov_l2_dropdown.configure(values=["Select Ingredient"], state="disabled")
+            self._prov_l2_var.set("Select Ingredient")
+            return
+
+        if value not in self._prov_l1_map:
+            return
+
+        l1_id = self._prov_l1_map[value].get("id")
+        try:
+            children = ingredient_hierarchy_service.get_children(l1_id)
+            self._prov_l2_map = {
+                child.get("display_name", "?"): child for child in children
+            }
+            values = ["Select Ingredient"] + sorted(self._prov_l2_map.keys())
+            self._prov_l2_dropdown.configure(values=values, state="normal")
+            self._prov_l2_var.set("Select Ingredient")
+        except Exception as e:
+            print(f"Warning: Failed to load ingredients: {e}")
+
+    def _prepopulate_from_search(self) -> None:
+        """Attempt to prepopulate fields from the search text."""
+        search_text = getattr(self, '_last_search_text', '').strip()
+        if not search_text:
+            return
+
+        # Common brand patterns (capitalized words at start)
+        # E.g., "King Arthur flour" -> Brand: "King Arthur"
+        words = search_text.split()
+        if not words:
+            return
+
+        # Check if first word(s) look like a brand (capitalized)
+        brand_words = []
+        remaining_words = []
+        found_lowercase = False
+
+        for word in words:
+            # Stop collecting brand words when we hit a lowercase word
+            if word and word[0].islower() and not found_lowercase:
+                found_lowercase = True
+            if not found_lowercase and word and word[0].isupper():
+                brand_words.append(word)
+            else:
+                remaining_words.append(word)
+
+        if brand_words:
+            self._prov_brand_var.set(" ".join(brand_words))
+
+        if remaining_words:
+            self._prov_name_var.set(" ".join(remaining_words))
+
+    def _validate_provisional_form(self) -> tuple:
+        """Validate provisional product form fields.
+
+        Returns:
+            Tuple of (is_valid: bool, error_message: str)
+        """
+        # Check ingredient selected
+        l2_selection = self._prov_l2_var.get()
+        if l2_selection == "Select Ingredient" or l2_selection not in self._prov_l2_map:
+            return False, "Please select an ingredient"
+
+        # Check brand
+        brand = self._prov_brand_var.get().strip()
+        if not brand:
+            return False, "Brand is required (use 'Unknown' if not known)"
+
+        # Check package unit
+        pkg_unit = self._prov_pkg_unit_var.get().strip()
+        if not pkg_unit:
+            return False, "Package unit is required (e.g., lb, oz, each)"
+
+        # Check package quantity
+        try:
+            pkg_qty = float(self._prov_pkg_qty_var.get().strip())
+            if pkg_qty <= 0:
+                return False, "Package quantity must be greater than 0"
+        except ValueError:
+            return False, "Package quantity must be a number"
+
+        return True, ""
+
+    def _on_create_provisional(self) -> None:
+        """Handle provisional product creation."""
+        # Clear previous errors
+        self._prov_error_label.configure(text="")
+
+        # Validate
+        is_valid, error = self._validate_provisional_form()
+        if not is_valid:
+            self._prov_error_label.configure(text=error)
+            return
+
+        # Get values
+        ingredient = self._prov_l2_map[self._prov_l2_var.get()]
+        ingredient_id = ingredient.get("id")
+        brand = self._prov_brand_var.get().strip()
+        product_name = self._prov_name_var.get().strip() or None
+        pkg_unit = self._prov_pkg_unit_var.get().strip()
+        pkg_qty = float(self._prov_pkg_qty_var.get().strip())
+
+        try:
+            from src.services.product_service import create_provisional_product
+
+            product = create_provisional_product(
+                ingredient_id=ingredient_id,
+                brand=brand,
+                package_unit=pkg_unit,
+                package_unit_quantity=pkg_qty,
+                product_name=product_name,
+            )
+
+            # Success - use the new product
+            self._on_provisional_product_created(product)
+
+        except Exception as e:
+            self._prov_error_label.configure(text=f"Failed: {str(e)}")
+
+    def _on_provisional_product_created(self, product) -> None:
+        """Handle successful provisional product creation.
+
+        Collapses the form, selects the new product, and continues purchase flow.
+        """
+        # Reload products to include new one
+        self._load_products()
+
+        # Update dropdown values
+        product_names = sorted(self.product_map.keys())
+        self.product_combo.configure(values=product_names)
+
+        # Find and select the new product
+        display_name = product.display_name
+        if display_name in self.product_map:
+            self.product_var.set(display_name)
+            self._on_product_selected(display_name)
+
+        # Collapse provisional form
+        self._collapse_provisional_form()
+        self._hide_not_found()
+
+        # Show success message briefly
+        self.error_label.configure(
+            text=f"Created provisional product: {display_name}",
+            text_color="green"
+        )
+
+        # Focus on quantity field to continue
+        self.qty_entry.focus_set()

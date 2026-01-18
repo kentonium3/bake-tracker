@@ -980,3 +980,146 @@ def _force_delete_product_impl(
     )
 
     return deps
+
+
+# ============================================================================
+# F057: Provisional Product Support
+# ============================================================================
+
+
+def get_provisional_products(
+    session: Optional[Session] = None,
+) -> List[Dict[str, Any]]:
+    """Get all products where is_provisional=True.
+
+    Returns products that were created during purchase entry and need
+    review to complete their information.
+
+    Args:
+        session: Optional database session
+
+    Returns:
+        List[Dict[str, Any]]: Provisional products with enriched data
+            (same format as get_products())
+
+    Example:
+        >>> products = get_provisional_products()
+        >>> len(products)
+        3
+        >>> products[0]["is_provisional"]
+        True
+    """
+    if session is not None:
+        return _get_provisional_products_impl(session)
+    with session_scope() as session:
+        return _get_provisional_products_impl(session)
+
+
+def _get_provisional_products_impl(session: Session) -> List[Dict[str, Any]]:
+    """Implementation of get_provisional_products."""
+    query = session.query(Product).filter(
+        Product.is_provisional == True,
+        Product.is_hidden == False,
+    ).order_by(Product.date_added.desc())  # Most recent first
+
+    products = query.all()
+
+    # Enrich with same data as _get_products_impl
+    result = []
+    for p in products:
+        data = p.to_dict()
+        last_purchase = _get_last_purchase(p.id, session)
+        data["last_price"] = float(last_purchase["unit_price"]) if last_purchase and last_purchase["unit_price"] is not None else None
+        data["last_purchase_date"] = last_purchase["purchase_date"] if last_purchase else None
+
+        # Enrich with ingredient info
+        if p.ingredient:
+            data["ingredient_name"] = p.ingredient.display_name
+            data["category"] = p.ingredient.category
+        else:
+            data["ingredient_name"] = None
+            data["category"] = None
+
+        # Enrich with preferred supplier info
+        if p.preferred_supplier:
+            data["preferred_supplier_name"] = p.preferred_supplier.display_name
+        else:
+            data["preferred_supplier_name"] = None
+
+        result.append(data)
+    return result
+
+
+def get_provisional_count(
+    session: Optional[Session] = None,
+) -> int:
+    """Get count of provisional products for badge display.
+
+    Efficient count-only query for UI badge that shows number of
+    products needing review.
+
+    Args:
+        session: Optional database session
+
+    Returns:
+        int: Count of products where is_provisional=True
+
+    Example:
+        >>> count = get_provisional_count()
+        >>> count
+        3
+    """
+    if session is not None:
+        return _get_provisional_count_impl(session)
+    with session_scope() as session:
+        return _get_provisional_count_impl(session)
+
+
+def _get_provisional_count_impl(session: Session) -> int:
+    """Implementation of get_provisional_count."""
+    return session.query(func.count(Product.id)).filter(
+        Product.is_provisional == True,
+        Product.is_hidden == False,
+    ).scalar() or 0
+
+
+def mark_product_reviewed(
+    product_id: int,
+    session: Optional[Session] = None,
+) -> Dict[str, Any]:
+    """Clear is_provisional flag after user completes product details.
+
+    Marks a provisional product as reviewed, removing it from the
+    review queue. Does not validate that all fields are complete -
+    user decides when product info is sufficient.
+
+    Args:
+        product_id: Product ID to mark as reviewed
+        session: Optional database session
+
+    Returns:
+        Dict[str, Any]: Updated product as dictionary
+
+    Raises:
+        ProductNotFound: If product_id doesn't exist
+
+    Example:
+        >>> product = mark_product_reviewed(123)
+        >>> product["is_provisional"]
+        False
+    """
+    if session is not None:
+        return _mark_product_reviewed_impl(product_id, session)
+    with session_scope() as session:
+        return _mark_product_reviewed_impl(product_id, session)
+
+
+def _mark_product_reviewed_impl(product_id: int, session: Session) -> Dict[str, Any]:
+    """Implementation of mark_product_reviewed."""
+    product = session.query(Product).filter(Product.id == product_id).first()
+    if not product:
+        raise ProductNotFound(product_id)
+
+    product.is_provisional = False
+    session.flush()
+    return product.to_dict()
