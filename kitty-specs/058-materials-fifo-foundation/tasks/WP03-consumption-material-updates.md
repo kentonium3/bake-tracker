@@ -6,12 +6,12 @@ subtasks:
   - "T011"
 title: "Schema Changes - MaterialConsumption & Material Updates"
 phase: "Phase 1 - Foundation"
-lane: "planned"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
+lane: "doing"
+assignee: "claude-opus"
+agent: "claude-opus"
+shell_pid: "27637"
+review_status: "approved"
+reviewed_by: "Kent Gale"
 dependencies: ["WP01"]
 history:
   - timestamp: "2026-01-18T18:06:18Z"
@@ -19,6 +19,11 @@ history:
     agent: "system"
     shell_pid: ""
     action: "Prompt generated via /spec-kitty.tasks"
+  - timestamp: "2026-01-18T21:30:00Z"
+    lane: "done"
+    agent: "claude-opus"
+    shell_pid: ""
+    action: "Review passed: FIFO traceability added to MaterialConsumption"
 ---
 
 # Work Package Prompt: WP03 – Schema Changes - MaterialConsumption & Material Updates
@@ -205,3 +210,6 @@ def test_material_base_unit_type_metric():
 ## Activity Log
 
 - 2026-01-18T18:06:18Z – system – lane=planned – Prompt created.
+- 2026-01-18T19:09:03Z – unknown – lane=for_review – T009-T011 complete: Added FIFO traceability
+- 2026-01-18T20:07:04Z – claude-opus – lane=done – Review passed: MaterialConsumption traceability added with inventory_item_id FK
+- 2026-01-18T21:32:03Z – claude-opus – shell_pid=27637 – lane=doing – Started review via workflow command
