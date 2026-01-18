@@ -1,8 +1,26 @@
 {
+  "accept_commit": null,
+  "acceptance_history": [
+    {
+      "accepted_at": "2026-01-18T04:00:30Z",
+      "accepted_by": "claude",
+      "accepted_from_commit": "86ba29387d04d18e1beea992bb7a02376444f40c",
+      "branch": "main",
+      "mode": "local",
+      "validation_commands": [
+        "pytest src/tests/services/ -v (1341 passed, 1 skipped)",
+        "Cursor code review (docs/code-reviews/cursor-F057-review.md)"
+      ]
+    }
+  ],
+  "acceptance_mode": "local",
+  "accepted_at": "2026-01-18T04:00:30Z",
+  "accepted_by": "claude",
+  "accepted_from_commit": "86ba29387d04d18e1beea992bb7a02376444f40c",
+  "created_at": "2026-01-17T22:45:00Z",
   "feature_number": "057",
-  "slug": "057-purchase-management-provisional-products",
   "friendly_name": "Purchase Management with Provisional Products",
   "mission": "software-dev",
-  "source_description": "See docs/design/_F0XX_purchase_management_refactored.md for input on the next feature.",
-  "created_at": "2026-01-17T22:45:00Z"
+  "slug": "057-purchase-management-provisional-products",
+  "source_description": "See docs/design/_F0XX_purchase_management_refactored.md for input on the next feature."
 }
