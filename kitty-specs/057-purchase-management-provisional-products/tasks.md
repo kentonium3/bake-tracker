@@ -37,7 +37,7 @@ Enable purchase recording regardless of product catalog state by introducing pro
 - [x] T003: Add `get_provisional_products()` to product_catalog_service
 - [x] T004: Add `get_provisional_count()` to product_catalog_service
 - [x] T005: Add `mark_product_reviewed()` to product_catalog_service
-- [ ] T006: Write unit tests for all new service methods
+- [x] T006: Write unit tests for all new service methods
 
 **Implementation Notes**:
 - Schema change requires app restart with database reset/re-import per constitution VI
