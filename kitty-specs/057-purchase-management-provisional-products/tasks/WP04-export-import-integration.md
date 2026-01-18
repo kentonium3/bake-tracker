@@ -1,10 +1,11 @@
 ---
 work_package_id: WP04
 title: Export/Import Integration
-lane: "for_review"
+lane: "doing"
 dependencies: []
 subtasks: [T018, T019, T020, T021, T022]
 agent: "claude"
+shell_pid: "29466"
 history:
 - date: '2026-01-17'
   action: created
@@ -462,3 +463,4 @@ When reviewing this WP:
 
 - 2026-01-18T02:20:13Z – claude – lane=doing – Starting implementation of JSON Import Integration
 - 2026-01-18T02:31:24Z – claude – lane=for_review – Ready for review: Added is_provisional to product export, import handles missing field with False default, transaction import creates provisional products for unknown items if ingredient exists, ImportResult tracks provisional_products_created count.
+- 2026-01-18T03:54:18Z – claude – shell_pid=29466 – lane=doing – Started review via workflow command
