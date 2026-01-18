@@ -1,7 +1,13 @@
 """Tests for Material Purchase Service.
 
-Tests purchase recording, weighted average costing, inventory updates,
-and inventory adjustments for the Materials Management System (Feature 047).
+Tests purchase recording, FIFO inventory creation, and unit conversion
+for the Materials Management System (Feature 047, updated for Feature 058 FIFO).
+
+Feature 058 Changes:
+- MaterialProduct no longer has current_inventory or weighted_avg_cost fields
+- Inventory is tracked via MaterialInventoryItem (FIFO pattern)
+- Base unit types changed from imperial (linear_inches) to metric (linear_cm)
+- adjust_inventory() is deprecated (raises NotImplementedError)
 """
 
 import pytest
@@ -26,7 +32,7 @@ from src.services.material_catalog_service import (
     create_product,
 )
 from src.services.exceptions import ValidationError
-from src.models import Supplier
+from src.models import Supplier, MaterialInventoryItem
 
 
 @pytest.fixture
@@ -51,16 +57,17 @@ def sample_supplier(db_session):
 
 @pytest.fixture
 def sample_hierarchy(db_session):
-    """Create a sample material hierarchy for testing."""
+    """Create a sample material hierarchy for testing (Feature 058: metric units)."""
     cat = create_category("Ribbons", session=db_session)
     subcat = create_subcategory(cat.id, "Satin", session=db_session)
-    mat = create_material(subcat.id, "Red Satin", "linear_inches", session=db_session)
+    # Feature 058: Changed from linear_inches to linear_cm
+    mat = create_material(subcat.id, "Red Satin", "linear_cm", session=db_session)
     return {"category": cat, "subcategory": subcat, "material": mat}
 
 
 @pytest.fixture
 def sample_product(db_session, sample_hierarchy, sample_supplier):
-    """Create a sample product (100ft roll = 1200 inches)."""
+    """Create a sample product (100ft roll -> 3048 cm)."""
     prod = create_product(
         material_id=sample_hierarchy["material"].id,
         name="100ft Roll",
@@ -91,44 +98,44 @@ def sample_product_each(db_session, sample_supplier):
 
 
 class TestConvertToBaseUnits:
-    """Tests for unit conversion function."""
+    """Tests for unit conversion function (Feature 058: metric base units)."""
 
-    def test_convert_feet_to_inches(self):
-        """100 feet = 1200 inches."""
-        result = convert_to_base_units(100, "feet", "linear_inches")
-        assert result == 1200.0
+    def test_convert_feet_to_cm(self):
+        """100 feet = 3048 cm (100 * 30.48)."""
+        result = convert_to_base_units(100, "feet", "linear_cm")
+        assert result == 3048.0
 
-    def test_convert_yards_to_inches(self):
-        """50 yards = 1800 inches."""
-        result = convert_to_base_units(50, "yards", "linear_inches")
-        assert result == 1800.0
+    def test_convert_yards_to_cm(self):
+        """50 yards = 4572 cm (50 * 91.44)."""
+        result = convert_to_base_units(50, "yards", "linear_cm")
+        assert result == 4572.0
 
-    def test_convert_inches_to_inches(self):
-        """Inches remain unchanged."""
-        result = convert_to_base_units(100, "inches", "linear_inches")
-        assert result == 100.0
+    def test_convert_inches_to_cm(self):
+        """100 inches = 254 cm (100 * 2.54)."""
+        result = convert_to_base_units(100, "inches", "linear_cm")
+        assert result == 254.0
 
     def test_convert_each_type(self):
         """Each type needs no conversion."""
         result = convert_to_base_units(10, "each", "each")
         assert result == 10.0
 
-    def test_convert_square_feet_to_square_inches(self):
-        """1 square foot = 144 square inches."""
-        result = convert_to_base_units(2, "square_feet", "square_inches")
-        assert result == 288.0
+    def test_convert_square_feet_to_square_cm(self):
+        """2 square feet = 1858.0608 square cm."""
+        result = convert_to_base_units(2, "square_feet", "square_cm")
+        assert abs(result - 1858.0608) < 0.001
 
     def test_invalid_linear_unit(self):
-        """Invalid linear unit raises ValidationError."""
+        """Invalid/incompatible linear unit raises ValidationError."""
         with pytest.raises(ValidationError) as exc:
-            convert_to_base_units(10, "meters", "linear_inches")
-        assert "Cannot convert" in str(exc.value)
+            convert_to_base_units(10, "unknown_unit", "linear_cm")
+        assert "not compatible" in str(exc.value)
 
     def test_invalid_base_unit_type(self):
         """Invalid base_unit_type raises ValidationError."""
         with pytest.raises(ValidationError) as exc:
             convert_to_base_units(10, "feet", "invalid_type")
-        assert "Unknown base_unit_type" in str(exc.value)
+        assert "Unknown base unit type" in str(exc.value)
 
 
 class TestWeightedAverageCalculation:
@@ -187,13 +194,10 @@ class TestWeightedAverageCalculation:
 
 
 class TestRecordPurchase:
-    """Tests for record_purchase function."""
+    """Tests for record_purchase function (Feature 058: FIFO inventory)."""
 
     def test_first_purchase_creates_record(self, db_session, sample_product, sample_supplier):
-        """First purchase creates record and sets inventory."""
-        initial_inventory = sample_product.current_inventory
-        assert initial_inventory == 0
-
+        """First purchase creates record and MaterialInventoryItem."""
         purchase = record_purchase(
             product_id=sample_product.id,
             supplier_id=sample_supplier.id,
@@ -207,21 +211,28 @@ class TestRecordPurchase:
         assert purchase is not None
         assert purchase.packages_purchased == 2
         assert purchase.package_price == Decimal("12.00")
-        # 2 packages * 1200 inches/package = 2400 inches
-        assert purchase.units_added == 2400.0
-        # $12 per package / 1200 inches = $0.01/inch
-        assert purchase.unit_cost == Decimal("0.0100")
+        # 2 packages * 100 feet * 30.48 cm/foot = 6096 cm
+        assert purchase.units_added == 6096.0
+        # $24 total / 6096 cm = ~$0.00394/cm
+        expected_cost = Decimal("24.00") / Decimal("6096")
+        assert abs(float(purchase.unit_cost) - float(expected_cost)) < 0.0001
 
-        db_session.refresh(sample_product)
-        assert sample_product.current_inventory == 2400.0
-        assert sample_product.weighted_avg_cost == Decimal("0.0100")
+        # Feature 058: Verify MaterialInventoryItem was created
+        inventory_item = (
+            db_session.query(MaterialInventoryItem)
+            .filter_by(material_purchase_id=purchase.id)
+            .first()
+        )
+        assert inventory_item is not None
+        assert inventory_item.quantity_purchased == 6096.0
+        assert inventory_item.quantity_remaining == 6096.0
 
-    def test_second_purchase_updates_weighted_average(
+    def test_second_purchase_creates_separate_inventory_item(
         self, db_session, sample_product, sample_supplier
     ):
-        """Second purchase recalculates weighted average."""
-        # First purchase: 2400 inches at $0.01/inch
-        record_purchase(
+        """Second purchase creates separate FIFO lot (Feature 058)."""
+        # First purchase: 6096 cm
+        purchase1 = record_purchase(
             product_id=sample_product.id,
             supplier_id=sample_supplier.id,
             purchase_date=date.today() - timedelta(days=7),
@@ -230,26 +241,29 @@ class TestRecordPurchase:
             session=db_session,
         )
 
-        db_session.refresh(sample_product)
-        assert sample_product.current_inventory == 2400.0
-        assert sample_product.weighted_avg_cost == Decimal("0.0100")
-
-        # Second purchase: 1200 inches at $0.015/inch ($18 for 1 pack)
-        record_purchase(
+        # Second purchase: 3048 cm at different price
+        purchase2 = record_purchase(
             product_id=sample_product.id,
             supplier_id=sample_supplier.id,
             purchase_date=date.today(),
             packages_purchased=1,
-            package_price=Decimal("18.00"),  # $18 / 1200 = $0.015/inch
+            package_price=Decimal("18.00"),
             session=db_session,
         )
 
-        db_session.refresh(sample_product)
-        # 2400 + 1200 = 3600 inches
-        assert sample_product.current_inventory == 3600.0
-        # (2400 * 0.01 + 1200 * 0.015) / 3600 = (24 + 18) / 3600 = 0.01166...
-        expected_avg = Decimal("0.0117")  # Rounded to 4 decimal places
-        assert sample_product.weighted_avg_cost == expected_avg
+        # Feature 058: Verify separate inventory items
+        items = (
+            db_session.query(MaterialInventoryItem)
+            .filter_by(material_product_id=sample_product.id)
+            .order_by(MaterialInventoryItem.purchase_date)
+            .all()
+        )
+        assert len(items) == 2
+        assert items[0].material_purchase_id == purchase1.id
+        assert items[1].material_purchase_id == purchase2.id
+
+        # Each has its own cost
+        assert items[0].cost_per_unit != items[1].cost_per_unit
 
     def test_purchase_each_type_product(self, db_session, sample_product_each, sample_supplier):
         """Purchase of 'each' type product works correctly."""
@@ -258,16 +272,23 @@ class TestRecordPurchase:
             supplier_id=sample_supplier.id,
             purchase_date=date.today(),
             packages_purchased=3,  # 3 packs of 6 = 18 units
-            package_price=Decimal("9.00"),  # $9 per pack = $1.50/unit
+            package_price=Decimal("9.00"),  # $9 per pack
             session=db_session,
         )
 
         assert purchase.units_added == 18.0
+        # $27 total / 18 units = $1.50/unit
         assert purchase.unit_cost == Decimal("1.5000")
 
-        db_session.refresh(sample_product_each)
-        assert sample_product_each.current_inventory == 18.0
-        assert sample_product_each.weighted_avg_cost == Decimal("1.5000")
+        # Feature 058: Verify MaterialInventoryItem
+        inventory_item = (
+            db_session.query(MaterialInventoryItem)
+            .filter_by(material_purchase_id=purchase.id)
+            .first()
+        )
+        assert inventory_item is not None
+        assert inventory_item.quantity_remaining == 18.0
+        assert inventory_item.cost_per_unit == Decimal("1.5000")
 
     def test_purchase_invalid_product(self, db_session, sample_supplier):
         """Purchase with invalid product raises error."""
@@ -349,115 +370,23 @@ class TestRecordPurchase:
 
 
 class TestAdjustInventory:
-    """Tests for adjust_inventory function."""
+    """Tests for adjust_inventory function.
 
-    def test_adjust_to_absolute_value(self, db_session, sample_product, sample_supplier):
-        """Adjust inventory to specific value."""
-        # First create some inventory
-        record_purchase(
-            product_id=sample_product.id,
-            supplier_id=sample_supplier.id,
-            purchase_date=date.today(),
-            packages_purchased=2,
-            package_price=Decimal("12.00"),
-            session=db_session,
-        )
-        db_session.refresh(sample_product)
-        original_cost = sample_product.weighted_avg_cost
+    Feature 058: adjust_inventory is DEPRECATED. MaterialProduct no longer
+    tracks current_inventory or weighted_avg_cost. Inventory adjustments
+    should be done via MaterialInventoryItem operations.
+    """
 
-        # Adjust to 1000 units
-        updated = adjust_inventory(
-            product_id=sample_product.id,
-            new_quantity=1000.0,
-            notes="Physical count",
-            session=db_session,
-        )
-
-        assert updated.current_inventory == 1000.0
-        # Cost should remain unchanged
-        assert updated.weighted_avg_cost == original_cost
-
-    def test_adjust_by_percentage(self, db_session, sample_product, sample_supplier):
-        """Adjust inventory by percentage (shrinkage)."""
-        # Create inventory of 2400 units
-        record_purchase(
-            product_id=sample_product.id,
-            supplier_id=sample_supplier.id,
-            purchase_date=date.today(),
-            packages_purchased=2,
-            package_price=Decimal("12.00"),
-            session=db_session,
-        )
-        db_session.refresh(sample_product)
-        original_cost = sample_product.weighted_avg_cost
-
-        # Apply 50% reduction
-        updated = adjust_inventory(
-            product_id=sample_product.id,
-            percentage=0.5,
-            session=db_session,
-        )
-
-        assert updated.current_inventory == 1200.0  # 2400 * 0.5
-        assert updated.weighted_avg_cost == original_cost
-
-    def test_adjust_invalid_product(self, db_session):
-        """Adjust with invalid product raises error."""
-        with pytest.raises(MaterialProductNotFoundError):
-            adjust_inventory(
-                product_id=99999,
-                new_quantity=100,
-                session=db_session,
-            )
-
-    def test_adjust_neither_param(self, db_session, sample_product):
-        """Adjust without quantity or percentage raises error."""
-        with pytest.raises(ValidationError) as exc:
-            adjust_inventory(
-                product_id=sample_product.id,
-                session=db_session,
-            )
-        assert "exactly one" in str(exc.value)
-
-    def test_adjust_both_params(self, db_session, sample_product):
-        """Adjust with both quantity and percentage raises error."""
-        with pytest.raises(ValidationError) as exc:
+    def test_adjust_raises_not_implemented(self, db_session, sample_product):
+        """Feature 058: adjust_inventory raises NotImplementedError."""
+        with pytest.raises(NotImplementedError) as exc:
             adjust_inventory(
                 product_id=sample_product.id,
                 new_quantity=100,
-                percentage=0.5,
                 session=db_session,
             )
-        assert "exactly one" in str(exc.value)
-
-    def test_adjust_negative_quantity(self, db_session, sample_product):
-        """Adjust with negative quantity raises error."""
-        with pytest.raises(ValidationError) as exc:
-            adjust_inventory(
-                product_id=sample_product.id,
-                new_quantity=-100,
-                session=db_session,
-            )
-        assert "negative" in str(exc.value)
-
-    def test_adjust_to_zero(self, db_session, sample_product, sample_supplier):
-        """Adjust inventory to zero is allowed."""
-        record_purchase(
-            product_id=sample_product.id,
-            supplier_id=sample_supplier.id,
-            purchase_date=date.today(),
-            packages_purchased=1,
-            package_price=Decimal("12.00"),
-            session=db_session,
-        )
-
-        updated = adjust_inventory(
-            product_id=sample_product.id,
-            new_quantity=0,
-            notes="Cleared inventory",
-            session=db_session,
-        )
-        assert updated.current_inventory == 0
+        assert "DEPRECATED" in str(exc.value)
+        assert "Feature 058" in str(exc.value)
 
 
 class TestGetPurchase:
@@ -577,10 +506,10 @@ class TestListPurchases:
 
 
 class TestGetProductInventory:
-    """Tests for get_product_inventory function."""
+    """Tests for get_product_inventory function (Feature 058: FIFO aggregation)."""
 
     def test_get_inventory_details(self, db_session, sample_product, sample_supplier):
-        """Get detailed inventory information."""
+        """Get detailed inventory aggregated from FIFO lots."""
         record_purchase(
             product_id=sample_product.id,
             supplier_id=sample_supplier.id,
@@ -592,9 +521,12 @@ class TestGetProductInventory:
 
         info = get_product_inventory(sample_product.id, session=db_session)
         assert info["product_id"] == sample_product.id
-        assert info["current_inventory"] == 2400.0
-        assert info["weighted_avg_cost"] == Decimal("0.0100")
-        assert info["base_unit_type"] == "linear_inches"
+        # 2 packages * 100 feet * 30.48 cm/foot = 6096 cm
+        assert info["current_inventory"] == 6096.0
+        # Feature 058: Changed from linear_inches to linear_cm
+        assert info["base_unit_type"] == "linear_cm"
+        # Feature 058: New field showing number of FIFO lots
+        assert info["inventory_lots"] == 1
 
     def test_get_inventory_nonexistent_product(self, db_session):
         """Get inventory for nonexistent product raises error."""

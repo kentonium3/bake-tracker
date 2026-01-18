@@ -13,6 +13,7 @@ Session Management Pattern:
 """
 
 import re
+from decimal import Decimal
 from typing import List, Optional
 
 from sqlalchemy.orm import Session
@@ -524,7 +525,9 @@ def delete_subcategory(subcategory_id: int, session: Optional[Session] = None) -
 # ============================================================================
 
 
-VALID_BASE_UNIT_TYPES = {"each", "linear_inches", "square_inches"}
+# Feature 058: Updated to metric base units (cm, sq cm)
+# Matches Material model check constraint
+VALID_BASE_UNIT_TYPES = {"each", "linear_cm", "square_cm"}
 
 
 def create_material(
@@ -787,26 +790,8 @@ def delete_material(material_id: int, session: Optional[Session] = None) -> bool
 # ============================================================================
 
 
-# Unit conversion for material package units to base units (inches)
-LINEAR_UNIT_TO_INCHES = {
-    "inches": 1.0,
-    "inch": 1.0,
-    "in": 1.0,
-    "feet": 12.0,
-    "foot": 12.0,
-    "ft": 12.0,
-    "yards": 36.0,
-    "yard": 36.0,
-    "yd": 36.0,
-}
-
-SQUARE_UNIT_TO_SQUARE_INCHES = {
-    "square_inches": 1.0,
-    "sq_in": 1.0,
-    "square_feet": 144.0,
-    "sq_ft": 144.0,
-}
-
+# Feature 058: Use metric base units (cm, sq cm) via material_unit_converter
+# Count units remain unchanged
 COUNT_UNITS = {"each", "ea", "count", "piece", "pieces", "pc", "pcs"}
 
 
@@ -814,15 +799,18 @@ def _convert_to_base_units(
     package_quantity: float, package_unit: str, base_unit_type: str
 ) -> float:
     """
-    Convert package quantity and unit to base units.
+    Convert package quantity and unit to metric base units.
+
+    Feature 058: Updated to use material_unit_converter for metric base units
+    (linear_cm, square_cm) instead of imperial (linear_inches, square_inches).
 
     Args:
         package_quantity: Amount per package
         package_unit: Unit of the package (e.g., 'feet', 'yards', 'each')
-        base_unit_type: Material's base unit type
+        base_unit_type: Material's base unit type ('each', 'linear_cm', 'square_cm')
 
     Returns:
-        Quantity in base units
+        Quantity in base units (cm for linear, sq cm for area, count for each)
 
     Raises:
         ValidationError: If unit conversion is not possible
@@ -836,21 +824,26 @@ def _convert_to_base_units(
         # Allow numeric quantities even if unit isn't explicitly "each"
         return package_quantity
 
-    elif base_unit_type == "linear_inches":
-        if package_unit_lower in LINEAR_UNIT_TO_INCHES:
-            return package_quantity * LINEAR_UNIT_TO_INCHES[package_unit_lower]
-        raise ValidationError(
-            [f"Cannot convert '{package_unit}' to linear inches. Use feet, yards, or inches."]
-        )
+    # Feature 058: Use material_unit_converter for metric conversions
+    from . import material_unit_converter
 
-    elif base_unit_type == "square_inches":
-        if package_unit_lower in SQUARE_UNIT_TO_SQUARE_INCHES:
-            return package_quantity * SQUARE_UNIT_TO_SQUARE_INCHES[package_unit_lower]
-        raise ValidationError(
-            [f"Cannot convert '{package_unit}' to square inches. Use square_feet or square_inches."]
-        )
+    # Validate unit compatibility
+    is_valid, error = material_unit_converter.validate_unit_compatibility(
+        package_unit_lower, base_unit_type
+    )
+    if not is_valid:
+        raise ValidationError([error])
 
-    raise ValidationError([f"Unknown base_unit_type: {base_unit_type}"])
+    # Convert to base units
+    success, result, error = material_unit_converter.convert_to_base_units(
+        Decimal(str(package_quantity)),
+        package_unit_lower,
+        base_unit_type,
+    )
+    if not success:
+        raise ValidationError([error])
+
+    return float(result)
 
 
 def create_product(
@@ -924,6 +917,8 @@ def create_product(
             else:
                 product_slug = base_slug
 
+        # Feature 058: Removed current_inventory and weighted_avg_cost
+        # (now tracked via MaterialInventoryItem using FIFO)
         product = MaterialProduct(
             material_id=material_id,
             name=name.strip(),
@@ -935,8 +930,6 @@ def create_product(
             quantity_in_base_units=quantity_in_base_units,
             supplier_id=supplier_id,
             notes=notes,
-            current_inventory=0,
-            weighted_avg_cost=0,
         )
         sess.add(product)
         sess.flush()
