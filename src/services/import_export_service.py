@@ -1657,6 +1657,8 @@ def export_all_to_json(
                 joinedload(MaterialProduct.supplier),
             ).all()
             for p in mat_products:
+                # Feature 058: Removed current_inventory, weighted_avg_cost, inventory_value
+                # These are now tracked via MaterialInventoryItem (FIFO)
                 export_data["material_products"].append({
                     "uuid": str(p.uuid) if p.uuid else None,
                     "material_slug": p.material.slug if p.material else None,
@@ -1668,8 +1670,6 @@ def export_all_to_json(
                     "quantity_in_base_units": p.quantity_in_base_units,
                     "supplier_slug": p.supplier.slug if p.supplier else None,
                     "sku": p.sku,
-                    "current_inventory": p.current_inventory,
-                    "weighted_avg_cost": str(p.weighted_avg_cost) if p.weighted_avg_cost else None,
                     "is_hidden": p.is_hidden,
                     "notes": p.notes,
                 })

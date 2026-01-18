@@ -475,6 +475,8 @@ def _export_material_products(output_dir: Path, session: Session) -> FileEntry:
 
     records = []
     for p in products:
+        # Feature 058: Removed current_inventory, weighted_avg_cost, inventory_value
+        # These are now tracked via MaterialInventoryItem (FIFO)
         records.append({
             "uuid": str(p.uuid) if p.uuid else None,
             "material_slug": p.material.slug if p.material else None,
@@ -486,8 +488,6 @@ def _export_material_products(output_dir: Path, session: Session) -> FileEntry:
             "quantity_in_base_units": p.quantity_in_base_units,
             "supplier_slug": p.supplier.slug if p.supplier else None,
             "sku": p.sku,
-            "current_inventory": p.current_inventory,
-            "weighted_avg_cost": str(p.weighted_avg_cost) if p.weighted_avg_cost else None,
             "is_hidden": p.is_hidden,
             "notes": p.notes,
         })
@@ -1385,6 +1385,8 @@ def _import_entity_records(
                         if supplier:
                             supplier_id = supplier.id
 
+                    # Feature 058: Removed current_inventory, weighted_avg_cost
+                    # Old exports may contain these fields - they are ignored
                     obj = MaterialProduct(
                         material_id=material.id,
                         name=record.get("name"),
@@ -1395,8 +1397,6 @@ def _import_entity_records(
                         package_quantity=record.get("package_quantity"),
                         quantity_in_base_units=record.get("quantity_in_base_units"),
                         supplier_id=supplier_id,
-                        current_inventory=record.get("current_inventory", 0.0),
-                        weighted_avg_cost=record.get("weighted_avg_cost"),
                         is_hidden=record.get("is_hidden", False),
                         notes=record.get("notes"),
                     )
