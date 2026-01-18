@@ -10,7 +10,7 @@ phase: "Phase 1 - Foundation"
 lane: "doing"
 assignee: ""
 agent: "claude-opus"
-shell_pid: "87459"
+shell_pid: "9695"
 review_status: ""
 reviewed_by: ""
 dependencies: []
@@ -238,3 +238,5 @@ def test_material_inventory_item_can_be_created():
 
 - 2026-01-18T18:06:18Z – system – lane=planned – Prompt created.
 - 2026-01-18T18:32:26Z – claude-opus – shell_pid=87459 – lane=doing – Started implementation via workflow command
+- 2026-01-18T18:36:31Z – claude-opus – shell_pid=87459 – lane=for_review – Ready for review: MaterialInventoryItem model with all relationships. All 4 subtasks (T001-T004) complete.
+- 2026-01-18T20:06:28Z – claude-opus – shell_pid=9695 – lane=doing – Started review via workflow command
