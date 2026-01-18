@@ -88,7 +88,7 @@ Enable purchase recording regardless of product catalog state by introducing pro
 **Dependencies**: WP01
 
 **Subtasks**:
-- [ ] T013: Add "Needs Review" filter option to Products tab filters
+- [x] T013: Add "Needs Review" filter option to Products tab filters
 - [ ] T014: Add provisional count badge to filter area
 - [ ] T015: Add visual indicator for incomplete fields in product rows
 - [ ] T016: Add "Mark as Reviewed" action to product context menu
