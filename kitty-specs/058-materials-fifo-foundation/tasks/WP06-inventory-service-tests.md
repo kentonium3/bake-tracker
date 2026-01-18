@@ -8,6 +8,8 @@ subtasks:
   - "T026"
   - "T027"
   - "T028"
+  - "T044"
+  - "T045"
 title: "MaterialInventoryService Tests"
 phase: "Phase 2 - Services"
 lane: "planned"
@@ -522,6 +524,80 @@ class TestValidateInventoryAvailability:
 
 **Parallel?**: Yes
 
+### Subtask T044 – Test quantity_purchased immutability enforcement (FR-015)
+
+**Purpose**: Verify quantity_purchased cannot be modified after creation.
+
+**Steps**:
+1. Add test class:
+
+```python
+class TestImmutabilityEnforcement:
+    """Tests for immutable field enforcement (FR-015, FR-016)."""
+
+    def test_quantity_purchased_immutable(self, setup_two_lots):
+        """FR-015: Verify quantity_purchased cannot be changed after creation."""
+        with session_scope() as session:
+            lot = session.query(MaterialInventoryItem).filter_by(
+                id=setup_two_lots["lot_a_id"]
+            ).first()
+            original_qty = lot.quantity_purchased
+
+            # Attempt to modify quantity_purchased
+            with pytest.raises(AttributeError):
+                lot.quantity_purchased = 999.0
+
+            # Or if using a validator approach, verify the value is unchanged
+            session.refresh(lot)
+            assert lot.quantity_purchased == original_qty
+```
+
+**Files**:
+- Edit: `src/tests/test_material_inventory_service.py`
+
+**Parallel?**: Yes
+
+**Notes**:
+- The immutability may be enforced via:
+  - Property with no setter
+  - SQLAlchemy event listener
+  - Pydantic/validator on assignment
+- Test should verify the enforcement mechanism works
+
+### Subtask T045 – Test cost_per_unit immutability enforcement (FR-016)
+
+**Purpose**: Verify cost_per_unit cannot be modified after creation.
+
+**Steps**:
+1. Add to the TestImmutabilityEnforcement class:
+
+```python
+    def test_cost_per_unit_immutable(self, setup_two_lots):
+        """FR-016: Verify cost_per_unit cannot be changed after creation."""
+        with session_scope() as session:
+            lot = session.query(MaterialInventoryItem).filter_by(
+                id=setup_two_lots["lot_a_id"]
+            ).first()
+            original_cost = lot.cost_per_unit
+
+            # Attempt to modify cost_per_unit
+            with pytest.raises(AttributeError):
+                lot.cost_per_unit = Decimal("999.99")
+
+            # Or if using a validator approach, verify the value is unchanged
+            session.refresh(lot)
+            assert lot.cost_per_unit == original_cost
+```
+
+**Files**:
+- Edit: `src/tests/test_material_inventory_service.py`
+
+**Parallel?**: Yes
+
+**Notes**:
+- Same immutability pattern as quantity_purchased
+- These tests ensure cost snapshots remain accurate for FIFO costing
+
 ## Test Strategy
 
 Run tests with coverage:
@@ -548,6 +624,8 @@ Expected: >70% coverage
 - [ ] consume_material_fifo() multi-lot FIFO tests pass
 - [ ] consume_material_fifo() shortfall tests pass
 - [ ] validate_inventory_availability() tests pass
+- [ ] quantity_purchased immutability tests pass (FR-015)
+- [ ] cost_per_unit immutability tests pass (FR-016)
 - [ ] All tests pass: `pytest src/tests/test_material_inventory_service.py -v`
 - [ ] Coverage >70%
 
@@ -558,7 +636,8 @@ Expected: >70% coverage
 2. Verify FIFO order is tested (oldest consumed first)
 3. Verify dry_run doesn't modify database
 4. Verify edge cases: zero inventory, donated materials ($0 cost)
-5. Run coverage and verify >70%
+5. Verify immutability enforcement for quantity_purchased (FR-015) and cost_per_unit (FR-016)
+6. Run coverage and verify >70%
 
 ## Activity Log
 

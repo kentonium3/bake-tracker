@@ -112,14 +112,14 @@ Users can export and import material catalogs with the new schema, and old expor
 
 - **FR-001**: System MUST remove `current_inventory` field from MaterialProduct model
 - **FR-002**: System MUST remove `weighted_avg_cost` field from MaterialProduct model
-- **FR-003**: System MUST create MaterialInventoryItem table with fields: material_product_id, material_purchase_id, quantity_purchased, quantity_remaining, cost_per_unit, purchased_at, timestamps
+- **FR-003**: System MUST create MaterialInventoryItem table with fields: material_product_id, material_purchase_id, quantity_purchased, quantity_remaining, cost_per_unit, purchase_date, location, notes, timestamps
 - **FR-004**: System MUST add `inventory_item_id` FK to MaterialConsumption model for FIFO traceability
 - **FR-005**: System MUST change Material.base_unit_type to use metric values: "linear_cm", "square_cm", "each"
 
 #### Service Layer
 
 - **FR-006**: System MUST provide `get_fifo_inventory(material_product_id)` returning inventory items ordered by purchase date ascending (oldest first)
-- **FR-007**: System MUST provide `consume_material_fifo(material_product_id, quantity, context_id)` that consumes from oldest lots first
+- **FR-007**: System MUST provide `consume_material_fifo(material_product_id, quantity_needed, target_unit, context_id)` that consumes from oldest lots first
 - **FR-008**: System MUST provide `validate_inventory_availability(requirements)` to check if sufficient inventory exists
 - **FR-009**: System MUST provide `calculate_available_inventory(material_product_id)` summing quantity_remaining across all lots
 - **FR-010**: System MUST automatically create MaterialInventoryItem when MaterialPurchase is created

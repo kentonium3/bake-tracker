@@ -186,6 +186,8 @@ This is a single desktop application:
 - [ ] T026 Test consume_material_fifo() multi-lot FIFO scenario
 - [ ] T027 Test consume_material_fifo() with shortfall
 - [ ] T028 Test validate_inventory_availability() success and failure cases
+- [ ] T044 Test quantity_purchased immutability enforcement (FR-015)
+- [ ] T045 Test cost_per_unit immutability enforcement (FR-016)
 
 ### Implementation Notes
 - Use pytest fixtures for test data setup
@@ -391,3 +393,5 @@ WP04 (Unit Converter) ─┴──► WP05 (Inventory Service) ──► WP06 (S
 | T041 | Test multi-lot FIFO scenario | WP10 | P2 | Yes |
 | T042 | Test cost calculation accuracy | WP10 | P2 | Yes |
 | T043 | Test pattern consistency | WP10 | P2 | Yes |
+| T044 | Test quantity_purchased immutability (FR-015) | WP06 | P1 | Yes |
+| T045 | Test cost_per_unit immutability (FR-016) | WP06 | P1 | Yes |
