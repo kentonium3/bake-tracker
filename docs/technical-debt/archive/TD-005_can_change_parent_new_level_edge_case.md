@@ -3,9 +3,28 @@
 **Created:** 2026-01-02
 **Feature:** F033 (Phase 1 Ingredient Hierarchy Fixes)
 **Severity:** Very Low (edge case, cosmetic)
-**Status:** Open
+**Status:** Closed (Won't Fix)
+**Closed:** 2026-01-17
 
-## Description
+## Resolution
+
+**Closed as Won't Fix** - The edge case exists but has zero practical impact.
+
+Analysis on 2026-01-17 found that the `new_level` field is not consumed by the UI:
+
+| Location | Usage |
+|----------|-------|
+| `ingredient_hierarchy_service.py:900-906` | Sets the field |
+| `test_ingredient_hierarchy_service.py` | Tests valid scenarios only |
+| `ingredients_tab.py` | **Does not use it** |
+
+The UI computes level independently at `ingredients_tab.py:1293-1321` based on dropdown selections (L0/L1 vars), not from `can_change_parent()`. The `_check_parent_change_warnings()` method only reads `allowed`, `reason`, and `warnings` fields.
+
+Since the field isn't consumed, the edge case cannot manifest in the application. If `new_level` is ever needed by future code, the fix is trivial.
+
+---
+
+## Original Description
 
 The `can_change_parent()` function in `src/services/ingredient_hierarchy_service.py` returns `new_level: 0` when the provided `new_parent_id` does not exist in the database. This is technically incorrect - the level should be undefined/unknown when the parent is invalid.
 
@@ -74,6 +93,6 @@ if result["new_level"] is None:
 
 ## Related
 
-- `src/services/ingredient_hierarchy_service.py:683-706` - Current implementation
-- `src/ui/ingredients_tab.py:_compute_and_display_level()` - UI consumer
+- `src/services/ingredient_hierarchy_service.py:860-939` - Current implementation
+- `src/ui/ingredients_tab.py:_compute_and_display_level()` - Computes level independently
 - Cursor F033 Code Review (2026-01-02)
