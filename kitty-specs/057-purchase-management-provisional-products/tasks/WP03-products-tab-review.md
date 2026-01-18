@@ -1,9 +1,10 @@
 ---
 work_package_id: WP03
 title: Products Tab Review Queue
-lane: planned
+lane: "doing"
 dependencies: []
 subtasks: [T013, T014, T015, T016, T017]
+agent: "claude"
 history:
 - date: '2026-01-17'
   action: created
@@ -478,3 +479,7 @@ When reviewing this WP:
 3. Check keyboard shortcut doesn't conflict with existing bindings
 4. Ensure visual styling consistent with existing patterns
 5. Test with 0, 1, and many provisional products
+
+## Activity Log
+
+- 2026-01-18T02:16:22Z – claude – lane=doing – Starting implementation of Products Tab Review Queue
