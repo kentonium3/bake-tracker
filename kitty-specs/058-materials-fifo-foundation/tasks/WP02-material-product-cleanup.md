@@ -7,10 +7,10 @@ subtasks:
   - "T008"
 title: "Schema Changes - MaterialProduct Cleanup"
 phase: "Phase 1 - Foundation"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "claude-opus"
+shell_pid: "9761"
 review_status: ""
 reviewed_by: ""
 dependencies: ["WP01"]
@@ -209,3 +209,6 @@ def test_material_product_to_dict_no_inventory():
 ## Activity Log
 
 - 2026-01-18T18:06:18Z – system – lane=planned – Prompt created.
+- 2026-01-18T19:05:16Z – claude-opus – lane=doing – Starting MaterialProduct cleanup
+- 2026-01-18T19:09:02Z – claude-opus – lane=for_review – T005-T008 complete: Removed deprecated fields
+- 2026-01-18T20:06:36Z – claude-opus – shell_pid=9761 – lane=doing – Started review via workflow command
