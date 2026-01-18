@@ -1,7 +1,7 @@
 ---
 work_package_id: WP03
 title: Products Tab Review Queue
-lane: "doing"
+lane: "for_review"
 dependencies: []
 subtasks: [T013, T014, T015, T016, T017]
 agent: "claude"
@@ -483,3 +483,4 @@ When reviewing this WP:
 ## Activity Log
 
 - 2026-01-18T02:16:22Z – claude – lane=doing – Starting implementation of Products Tab Review Queue
+- 2026-01-18T02:20:05Z – claude – lane=for_review – Ready for review: Added Needs Review checkbox with orange badge showing provisional count, visual [REVIEW] indicator for provisional products in list, Mark as Reviewed context menu action that calls mark_product_reviewed() service. All filters cleared when Needs Review checked for focused view.
