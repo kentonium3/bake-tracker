@@ -2255,8 +2255,9 @@ class MaterialProductsTab:
         grid_container.grid_columnconfigure(0, weight=1)
         grid_container.grid_rowconfigure(0, weight=1)
 
-        # Define columns: material, name, inventory, unit_cost, supplier
-        columns = ("material", "name", "inventory", "unit_cost", "supplier")
+        # Define columns: material, name, sku, package, supplier
+        # Note: inventory/cost columns removed - these are now tracked in MaterialUnit
+        columns = ("material", "name", "sku", "package", "supplier")
         self.tree = ttk.Treeview(
             grid_container,
             columns=columns,
@@ -2274,12 +2275,12 @@ class MaterialProductsTab:
             command=lambda: self._on_header_click("name")
         )
         self.tree.heading(
-            "inventory", text="Inventory", anchor="e",
-            command=lambda: self._on_header_click("inventory")
+            "sku", text="SKU", anchor="w",
+            command=lambda: self._on_header_click("sku")
         )
         self.tree.heading(
-            "unit_cost", text="Unit Cost", anchor="e",
-            command=lambda: self._on_header_click("unit_cost")
+            "package", text="Package", anchor="w",
+            command=lambda: self._on_header_click("package")
         )
         self.tree.heading(
             "supplier", text="Supplier", anchor="w",
@@ -2287,11 +2288,11 @@ class MaterialProductsTab:
         )
 
         # Configure column widths
-        self.tree.column("material", width=150, minwidth=100)
-        self.tree.column("name", width=150, minwidth=100)
-        self.tree.column("inventory", width=120, minwidth=80, anchor="e")
-        self.tree.column("unit_cost", width=100, minwidth=80, anchor="e")
-        self.tree.column("supplier", width=120, minwidth=100)
+        self.tree.column("material", width=180, minwidth=120)
+        self.tree.column("name", width=200, minwidth=150)
+        self.tree.column("sku", width=120, minwidth=80)
+        self.tree.column("package", width=120, minwidth=80)
+        self.tree.column("supplier", width=150, minwidth=100)
 
         # Add vertical scrollbar
         y_scrollbar = ttk.Scrollbar(
@@ -2351,16 +2352,19 @@ class MaterialProductsTab:
                         mat_base_unit = _get_value(mat, "base_unit_type") or ""
                         prods = material_catalog_service.list_products(mat_id)
                         for prod in prods:
+                            # Note: current_inventory and weighted_avg_cost removed
+                            # Inventory is now tracked at MaterialUnit level via FIFO
+                            pkg_qty = _get_value(prod, "package_quantity") or 1
+                            pkg_unit = _get_value(prod, "package_unit") or mat_base_unit or "each"
                             products.append({
                                 "id": _get_value(prod, "id"),
                                 "name": _get_value(prod, "name"),
                                 "material_name": mat_name,
                                 "material_id": mat_id,
                                 "base_unit": mat_base_unit,
-                                "package_quantity": _get_value(prod, "package_quantity") or 1,
-                                "package_unit": _get_value(prod, "package_unit") or mat_base_unit or "each",
-                                "inventory": _get_value(prod, "current_inventory") or 0,
-                                "unit_cost": _get_value(prod, "weighted_avg_cost") or 0,
+                                "package_quantity": pkg_qty,
+                                "package_unit": pkg_unit,
+                                "package_display": f"{pkg_qty} {pkg_unit}",
                                 "supplier_name": _get_value(prod, "supplier_name") or "",
                                 "supplier_id": _get_value(prod, "supplier_id"),
                                 "sku": _get_value(prod, "sku") or "",
@@ -2390,20 +2394,11 @@ class MaterialProductsTab:
 
         # Populate grid
         for prod in filtered:
-            # Format inventory as "4,724.5 inches"
-            inventory = prod.get("inventory", 0) or 0
-            base_unit = prod.get("base_unit", "")
-            inventory_display = f"{inventory:,.1f} {base_unit}".strip()
-
-            # Format cost as "$0.0016" or "-"
-            unit_cost = prod.get("unit_cost", 0)
-            cost_display = f"${unit_cost:.4f}" if unit_cost else "-"
-
             values = (
                 prod.get("material_name", ""),
                 prod.get("name", ""),
-                inventory_display,
-                cost_display,
+                prod.get("sku", "") or "-",
+                prod.get("package_display", ""),
                 prod.get("supplier_name", "") or "-",
             )
             self.tree.insert("", "end", iid=str(prod["id"]), values=values)
@@ -2437,16 +2432,14 @@ class MaterialProductsTab:
         sort_key_map = {
             "material": "material_name",
             "name": "name",
-            "inventory": "inventory",
-            "unit_cost": "unit_cost",
+            "sku": "sku",
+            "package": "package_display",
             "supplier": "supplier_name",
         }
         sort_field = sort_key_map.get(self.sort_column, "name")
 
         def get_sort_value(p):
             val = p.get(sort_field)
-            if sort_field in ("inventory", "unit_cost"):
-                return val if val is not None else 0
             return (val or "").lower()
 
         filtered = sorted(filtered, key=get_sort_value, reverse=not self.sort_ascending)
