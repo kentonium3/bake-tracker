@@ -12,8 +12,6 @@ import json
 import pytest
 import tempfile
 from pathlib import Path
-from decimal import Decimal
-
 from src.models.supplier import Supplier
 from src.models.material_category import MaterialCategory
 from src.models.material_subcategory import MaterialSubcategory
@@ -27,6 +25,7 @@ from src.services.catalog_import_service import (
     import_material_products,
     import_material_units,
     CatalogImportResult,
+    MATERIAL_PRODUCT_DEPRECATED_FIELDS,
 )
 from src.services.coordinated_export_service import export_complete
 
@@ -80,23 +79,23 @@ def full_material_catalog(db_session, sample_supplier):
         subcategory_id=subcat.id,
         name="Red Satin",
         slug="red-satin",
-        base_unit_type="linear_inches",
+        base_unit_type="linear_cm",  # Valid values: 'each', 'linear_cm', 'square_cm'
         description="Red satin ribbon",
     )
     db_session.add(mat)
     db_session.flush()
 
     # Product
+    # Feature 058: Removed current_inventory, weighted_avg_cost fields
+    # Inventory and costing now tracked via MaterialInventoryItem (FIFO)
     prod = MaterialProduct(
         material_id=mat.id,
-        name="100ft Roll Red Satin",
+        name="30m Roll Red Satin",
         brand="Michaels",
-        package_quantity=1200,  # 100ft = 1200 inches
-        package_unit="inches",
-        quantity_in_base_units=1200,  # Same as package_quantity for inches
+        package_quantity=3000,  # 30m = 3000 cm
+        package_unit="cm",
+        quantity_in_base_units=3000,  # Same as package_quantity for cm
         supplier_id=sample_supplier.id,
-        current_inventory=600,
-        weighted_avg_cost=Decimal("0.08"),
     )
     db_session.add(prod)
     db_session.flush()
@@ -257,7 +256,7 @@ class TestMaterialImportFKResolution:
             "material_slug": "red-satin",
             "supplier_name": "Test Craft Store",
             "package_quantity": 2400,
-            "package_unit": "inches",
+            "package_unit": "cm",
         }]
 
         result = import_material_products(data, session=db_session)
@@ -390,3 +389,151 @@ class TestImportErrorHandling:
 
         assert result.entity_counts["material_units"].failed == 1
         assert any("quantity_per_unit" in e.message for e in result.errors)
+
+
+# =============================================================================
+# Feature 058: Deprecated Field Handling Tests
+# =============================================================================
+
+
+class TestMaterialProductDeprecatedFields:
+    """Tests for Feature 058 - deprecated field handling in import/export.
+
+    These tests verify that:
+    1. Export excludes current_inventory, weighted_avg_cost, inventory_value
+    2. Import ignores these fields if present in old files (backward compatibility)
+    3. Round-trip preserves data without these deprecated fields
+    """
+
+    def test_export_excludes_deprecated_fields(self, db_session, full_material_catalog):
+        """Export should not include current_inventory, weighted_avg_cost, or inventory_value."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            export_complete(tmpdir, session=db_session)
+
+            with open(Path(tmpdir) / "material_products.json") as f:
+                data = json.load(f)
+
+            assert len(data["records"]) >= 1
+            product = data["records"][0]
+
+            # Verify deprecated fields are NOT present
+            for deprecated_field in MATERIAL_PRODUCT_DEPRECATED_FIELDS:
+                assert deprecated_field not in product, (
+                    f"Deprecated field '{deprecated_field}' should not be in export"
+                )
+
+            # Verify expected fields ARE present
+            assert "name" in product
+            assert "material_slug" in product
+            assert "package_quantity" in product
+            assert "package_unit" in product
+
+    def test_import_ignores_deprecated_fields(self, db_session, full_material_catalog):
+        """Import should succeed when old files contain deprecated fields."""
+        # Simulate data from an old export that has deprecated fields
+        data = [{
+            "name": "New Ribbon Roll",
+            "material_slug": "red-satin",
+            "package_quantity": 500,
+            "package_unit": "cm",
+            # Deprecated fields from old exports:
+            "current_inventory": 250,
+            "weighted_avg_cost": "0.10",
+            "inventory_value": "25.00",
+        }]
+
+        result = import_material_products(data, session=db_session)
+
+        # Import should succeed
+        assert result.entity_counts["material_products"].added == 1
+        assert result.entity_counts["material_products"].failed == 0
+
+        # Verify the product was created
+        product = (
+            db_session.query(MaterialProduct)
+            .filter_by(name="New Ribbon Roll")
+            .first()
+        )
+        assert product is not None
+        assert product.package_quantity == 500
+        assert product.package_unit == "cm"
+
+        # Verify deprecated fields are NOT set (model no longer has them)
+        assert not hasattr(product, "current_inventory") or getattr(product, "current_inventory", None) is None
+        assert not hasattr(product, "weighted_avg_cost") or getattr(product, "weighted_avg_cost", None) is None
+        assert not hasattr(product, "inventory_value") or getattr(product, "inventory_value", None) is None
+
+    def test_import_works_without_deprecated_fields(self, db_session, full_material_catalog):
+        """Import should work normally when deprecated fields are absent."""
+        # Data without deprecated fields (new export format)
+        data = [{
+            "name": "Another Ribbon Roll",
+            "material_slug": "red-satin",
+            "package_quantity": 300,
+            "package_unit": "cm",
+        }]
+
+        result = import_material_products(data, session=db_session)
+
+        assert result.entity_counts["material_products"].added == 1
+        assert result.entity_counts["material_products"].failed == 0
+
+    def test_roundtrip_preserves_data_without_deprecated_fields(
+        self, db_session, full_material_catalog
+    ):
+        """Export then import should preserve all non-deprecated fields."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            # Export
+            export_complete(tmpdir, session=db_session)
+
+            # Read exported data
+            with open(Path(tmpdir) / "material_products.json") as f:
+                export_data = json.load(f)
+
+            original = export_data["records"][0]
+            original_name = original["name"]
+            original_package_qty = original["package_quantity"]
+            original_package_unit = original["package_unit"]
+
+            # Delete existing products
+            db_session.query(MaterialProduct).delete()
+            db_session.commit()
+
+            # Re-import
+            result = import_material_products(
+                export_data["records"], session=db_session
+            )
+
+            assert result.entity_counts["material_products"].added >= 1
+
+            # Verify data integrity
+            reimported = (
+                db_session.query(MaterialProduct)
+                .filter_by(name=original_name)
+                .first()
+            )
+            assert reimported is not None
+            assert reimported.package_quantity == original_package_qty
+            assert reimported.package_unit == original_package_unit
+
+    def test_import_logs_deprecated_fields(self, db_session, full_material_catalog, caplog):
+        """Import should log when deprecated fields are encountered."""
+        import logging
+
+        with caplog.at_level(logging.INFO, logger="src.services.catalog_import_service"):
+            data = [{
+                "name": "Logged Ribbon Roll",
+                "material_slug": "red-satin",
+                "package_quantity": 100,
+                "package_unit": "cm",
+                "current_inventory": 50,  # Deprecated
+            }]
+
+            import_material_products(data, session=db_session)
+
+            # Verify log message was generated
+            assert any(
+                "ignoring deprecated fields" in record.message.lower()
+                or "current_inventory" in record.message
+                for record in caplog.records
+            )

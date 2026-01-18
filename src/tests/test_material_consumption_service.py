@@ -17,6 +17,7 @@ from src.models import (
     FinishedGood,
     AssemblyRun,
     Supplier,
+    MaterialInventoryItem,
 )
 from src.models.assembly_type import AssemblyType
 from src.services.material_catalog_service import (
@@ -91,7 +92,7 @@ def material_hierarchy(db_session):
     """Create a complete material hierarchy for testing."""
     cat = create_category("Ribbons", session=db_session)
     subcat = create_subcategory(cat.id, "Satin", session=db_session)
-    mat = create_material(subcat.id, "Red Satin", "linear_inches", session=db_session)
+    mat = create_material(subcat.id, "Red Satin", "linear_cm", session=db_session)
     return {"category": cat, "subcategory": subcat, "material": mat}
 
 
@@ -327,7 +328,14 @@ class TestRecordMaterialConsumption:
     ):
         """Inventory decreases after consumption."""
         product_a = material_with_products["product_a"]
-        original_inventory = product_a.current_inventory
+
+        # Get original inventory from MaterialInventoryItem (F058 FIFO)
+        inv_items = (
+            db_session.query(MaterialInventoryItem)
+            .filter(MaterialInventoryItem.material_product_id == product_a.id)
+            .all()
+        )
+        original_inventory = sum(item.quantity_remaining for item in inv_items)
 
         record_material_consumption(
             assembly_run_id=sample_assembly_run.id,
@@ -336,8 +344,14 @@ class TestRecordMaterialConsumption:
             session=db_session,
         )
 
-        db_session.refresh(product_a)
-        assert product_a.current_inventory < original_inventory
+        # Check inventory from MaterialInventoryItem
+        inv_items = (
+            db_session.query(MaterialInventoryItem)
+            .filter(MaterialInventoryItem.material_product_id == product_a.id)
+            .all()
+        )
+        final_inventory = sum(item.quantity_remaining for item in inv_items)
+        assert final_inventory < original_inventory
 
     def test_raises_on_insufficient_inventory(
         self, db_session, sample_assembly_run, fg_with_material_unit
@@ -469,7 +483,14 @@ class TestAssemblyBlocking:
     ):
         """Failed consumption doesn't partially decrement inventory."""
         product_a = material_with_products["product_a"]
-        original_inventory = product_a.current_inventory
+
+        # Get original inventory from MaterialInventoryItem (F058 FIFO)
+        inv_items = (
+            db_session.query(MaterialInventoryItem)
+            .filter(MaterialInventoryItem.material_product_id == product_a.id)
+            .all()
+        )
+        original_inventory = sum(item.quantity_remaining for item in inv_items)
 
         try:
             record_material_consumption(
@@ -482,8 +503,13 @@ class TestAssemblyBlocking:
             pass
 
         # Inventory should be unchanged after failed attempt
-        db_session.refresh(product_a)
-        assert product_a.current_inventory == original_inventory
+        inv_items = (
+            db_session.query(MaterialInventoryItem)
+            .filter(MaterialInventoryItem.material_product_id == product_a.id)
+            .all()
+        )
+        final_inventory = sum(item.quantity_remaining for item in inv_items)
+        assert final_inventory == original_inventory
 
 
 # =============================================================================
@@ -555,24 +581,24 @@ class TestSplitAllocation:
         self, db_session, sample_finished_good, material_with_products
     ):
         """Validation fails when one product in split has insufficient inventory."""
-        product_a = material_with_products["product_a"]  # 800 inventory
-        product_b = material_with_products["product_b"]  # 400 inventory
+        product_a = material_with_products["product_a"]  # ~2032 cm (800 inches)
+        product_b = material_with_products["product_b"]  # ~1016 cm (400 inches)
         material = material_with_products["material"]
 
         comp = Composition(
             assembly_id=sample_finished_good.id,
             material_id=material.id,
-            component_quantity=1500,  # Needs 1500 total
+            component_quantity=3500,  # Needs 3500 cm total
             sort_order=1,
         )
         db_session.add(comp)
         db_session.flush()
 
-        # Request 700 from A (OK - has 800) but 800 from B (FAIL - has only 400)
+        # Request 2000 from A (OK - has ~2032) but 1500 from B (FAIL - has only ~1016)
         result = validate_material_availability(
             finished_good_id=sample_finished_good.id,
             assembly_quantity=1,
-            material_assignments={comp.id: {product_a.id: 700, product_b.id: 800}},
+            material_assignments={comp.id: {product_a.id: 2000, product_b.id: 1500}},
             session=db_session,
         )
 
@@ -619,8 +645,21 @@ class TestSplitAllocation:
         product_a = material_with_products["product_a"]
         product_b = material_with_products["product_b"]
         material = material_with_products["material"]
-        original_a = product_a.current_inventory
-        original_b = product_b.current_inventory
+
+        # Get original inventory from MaterialInventoryItem (F058 FIFO)
+        inv_items_a = (
+            db_session.query(MaterialInventoryItem)
+            .filter(MaterialInventoryItem.material_product_id == product_a.id)
+            .all()
+        )
+        original_a = sum(item.quantity_remaining for item in inv_items_a)
+
+        inv_items_b = (
+            db_session.query(MaterialInventoryItem)
+            .filter(MaterialInventoryItem.material_product_id == product_b.id)
+            .all()
+        )
+        original_b = sum(item.quantity_remaining for item in inv_items_b)
 
         comp = Composition(
             assembly_id=sample_finished_good.id,
@@ -639,11 +678,23 @@ class TestSplitAllocation:
             session=db_session,
         )
 
-        db_session.refresh(product_a)
-        db_session.refresh(product_b)
+        # Check inventory from MaterialInventoryItem
+        inv_items_a = (
+            db_session.query(MaterialInventoryItem)
+            .filter(MaterialInventoryItem.material_product_id == product_a.id)
+            .all()
+        )
+        final_a = sum(item.quantity_remaining for item in inv_items_a)
 
-        assert product_a.current_inventory == original_a - 30
-        assert product_b.current_inventory == original_b - 20
+        inv_items_b = (
+            db_session.query(MaterialInventoryItem)
+            .filter(MaterialInventoryItem.material_product_id == product_b.id)
+            .all()
+        )
+        final_b = sum(item.quantity_remaining for item in inv_items_b)
+
+        assert final_a == original_a - 30
+        assert final_b == original_b - 20
 
     def test_legacy_single_product_format_still_works(
         self, db_session, sample_assembly_run, sample_finished_good, material_with_products

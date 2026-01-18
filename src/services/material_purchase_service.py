@@ -1,13 +1,14 @@
-"""Material Purchase Service - Purchase recording and inventory management.
+"""Material Purchase Service - Purchase recording and FIFO inventory management.
 
-This module provides business logic for recording material purchases and managing
-inventory with weighted average costing. Part of Feature 047: Materials Management System.
+This module provides business logic for recording material purchases and creating
+MaterialInventoryItem records for FIFO costing. Part of Feature 047 (Materials Management)
+and Feature 058 (Materials FIFO Foundation).
 
 Key Features:
-- Purchase recording with automatic inventory updates
-- Weighted average cost recalculation
-- Inventory adjustments (by count or percentage)
-- Unit conversion from package units to base units
+- Purchase recording with automatic MaterialInventoryItem creation (FIFO)
+- Unit conversion from package units to metric base units (cm, sq cm)
+- Inventory adjustments (by count or percentage) - DEPRECATED for FIFO
+- Atomicity: Purchase and inventory item created in same transaction
 
 All functions accept optional session parameter per CLAUDE.md session management rules.
 """
@@ -18,9 +19,10 @@ from datetime import date
 
 from sqlalchemy.orm import Session
 
-from ..models import MaterialProduct, MaterialPurchase, Supplier
+from ..models import MaterialProduct, MaterialPurchase, MaterialInventoryItem, Supplier
 from .database import session_scope
 from .exceptions import ValidationError
+from . import material_unit_converter
 
 
 # =============================================================================
@@ -45,29 +47,8 @@ class SupplierNotFoundError(Exception):
 
 
 # =============================================================================
-# Unit Conversion
+# Unit Conversion (delegated to material_unit_converter)
 # =============================================================================
-
-# Linear unit conversions to inches
-LINEAR_UNIT_TO_INCHES = {
-    "inches": 1.0,
-    "inch": 1.0,
-    "in": 1.0,
-    "feet": 12.0,
-    "foot": 12.0,
-    "ft": 12.0,
-    "yards": 36.0,
-    "yard": 36.0,
-    "yd": 36.0,
-}
-
-# Area unit conversions to square inches
-AREA_UNIT_TO_SQUARE_INCHES = {
-    "square_inches": 1.0,
-    "sq_in": 1.0,
-    "square_feet": 144.0,
-    "sq_ft": 144.0,
-}
 
 
 def convert_to_base_units(
@@ -75,51 +56,38 @@ def convert_to_base_units(
     from_unit: str,
     base_unit_type: str,
 ) -> float:
-    """Convert quantity from package unit to base units.
+    """Convert quantity from package unit to metric base units.
+
+    This is a wrapper around material_unit_converter.convert_to_base_units()
+    that maintains backward compatibility with float quantities.
 
     Args:
         quantity: Quantity in package units
         from_unit: Package unit (e.g., 'feet', 'yards', 'each')
-        base_unit_type: Target base unit type ('each', 'linear_inches', 'square_inches')
+        base_unit_type: Target base unit type ('each', 'linear_cm', 'square_cm')
 
     Returns:
-        Converted quantity in base units
+        Converted quantity in base units (float)
 
     Raises:
-        ValidationError: If unit conversion is not recognized
+        ValidationError: If unit conversion is not recognized or incompatible
 
     Examples:
-        >>> convert_to_base_units(100, 'feet', 'linear_inches')
-        1200.0
-        >>> convert_to_base_units(50, 'yards', 'linear_inches')
-        1800.0
+        >>> convert_to_base_units(100, 'feet', 'linear_cm')
+        3048.0  # 100 feet = 3048 cm
+        >>> convert_to_base_units(50, 'yards', 'linear_cm')
+        4572.0  # 50 yards = 4572 cm
         >>> convert_to_base_units(10, 'each', 'each')
         10.0
     """
-    from_unit_lower = from_unit.lower()
-
-    if base_unit_type == "each":
-        # No conversion needed for 'each' type
-        return float(quantity)
-
-    elif base_unit_type == "linear_inches":
-        if from_unit_lower in LINEAR_UNIT_TO_INCHES:
-            return float(quantity) * LINEAR_UNIT_TO_INCHES[from_unit_lower]
-        raise ValidationError([
-            f"Cannot convert '{from_unit}' to linear_inches. "
-            f"Valid units: {', '.join(LINEAR_UNIT_TO_INCHES.keys())}"
-        ])
-
-    elif base_unit_type == "square_inches":
-        if from_unit_lower in AREA_UNIT_TO_SQUARE_INCHES:
-            return float(quantity) * AREA_UNIT_TO_SQUARE_INCHES[from_unit_lower]
-        raise ValidationError([
-            f"Cannot convert '{from_unit}' to square_inches. "
-            f"Valid units: {', '.join(AREA_UNIT_TO_SQUARE_INCHES.keys())}"
-        ])
-
-    else:
-        raise ValidationError([f"Unknown base_unit_type: {base_unit_type}"])
+    success, result, error = material_unit_converter.convert_to_base_units(
+        Decimal(str(quantity)),
+        from_unit,
+        base_unit_type,
+    )
+    if not success:
+        raise ValidationError([error])
+    return float(result)
 
 
 # =============================================================================
@@ -180,40 +148,70 @@ def calculate_weighted_average(
 # =============================================================================
 
 
+def _create_inventory_item_on_purchase(
+    purchase: MaterialPurchase,
+    product: MaterialProduct,
+    units_added: float,
+    unit_cost: Decimal,
+    session: Session,
+) -> MaterialInventoryItem:
+    """Create a MaterialInventoryItem for FIFO tracking on purchase.
+
+    This creates a new inventory lot record for the purchase. Each purchase
+    creates exactly one MaterialInventoryItem (1:1 relationship).
+
+    Args:
+        purchase: The MaterialPurchase record (must already be flushed with ID)
+        product: MaterialProduct being purchased
+        units_added: Number of base units added (in metric: cm, sq cm, or count)
+        unit_cost: Cost per base unit
+        session: Active database session
+
+    Returns:
+        Created MaterialInventoryItem
+
+    Note:
+        The purchase must be flushed before calling this function so that
+        purchase.id is available for the foreign key.
+    """
+    inventory_item = MaterialInventoryItem(
+        material_product_id=product.id,
+        material_purchase_id=purchase.id,
+        quantity_purchased=units_added,
+        quantity_remaining=units_added,
+        cost_per_unit=unit_cost,
+        purchase_date=purchase.purchase_date,
+        location=None,  # Can be set later via update
+        notes=purchase.notes,
+    )
+    session.add(inventory_item)
+    session.flush()
+    return inventory_item
+
+
+# DEPRECATED: Feature 058 removed weighted average tracking on MaterialProduct.
+# Kept for backward compatibility but no longer used by record_purchase().
 def _update_inventory_on_purchase(
     product: MaterialProduct,
     units_added: float,
     unit_cost: Decimal,
     session: Session,
 ) -> None:
-    """Update product inventory and weighted average cost atomically.
+    """DEPRECATED: Update product inventory and weighted average cost.
 
-    This internal function updates the product's current_inventory and
-    weighted_avg_cost in a single transaction. Called by record_purchase().
+    This function is deprecated as of Feature 058. MaterialProduct no longer
+    tracks current_inventory or weighted_avg_cost. Inventory is now tracked
+    via MaterialInventoryItem records using FIFO costing.
 
-    Args:
-        product: MaterialProduct to update
-        units_added: Number of base units added
-        unit_cost: Cost per base unit
-        session: Active database session
-
-    Note:
-        This modifies the product object in-place and flushes to ensure
-        the changes are part of the calling transaction.
+    This function is kept for backward compatibility with tests but will
+    raise an error if called on a product without inventory fields.
     """
-    # Calculate new weighted average
-    new_avg_cost = calculate_weighted_average(
-        current_quantity=product.current_inventory,
-        current_avg_cost=product.weighted_avg_cost,
-        added_quantity=units_added,
-        added_unit_cost=unit_cost,
+    # Feature 058: MaterialProduct no longer has current_inventory or weighted_avg_cost
+    # This function is deprecated and should not be called
+    raise NotImplementedError(
+        "DEPRECATED: Feature 058 moved inventory tracking to MaterialInventoryItem. "
+        "Use _create_inventory_item_on_purchase() instead."
     )
-
-    # Update product
-    product.current_inventory += units_added
-    product.weighted_avg_cost = new_avg_cost
-
-    session.flush()
 
 
 def _record_purchase_impl(
@@ -225,7 +223,11 @@ def _record_purchase_impl(
     notes: Optional[str],
     session: Session,
 ) -> MaterialPurchase:
-    """Implementation for record_purchase."""
+    """Implementation for record_purchase.
+
+    Feature 058: Now creates MaterialInventoryItem for FIFO tracking instead
+    of updating weighted average on MaterialProduct.
+    """
     # Validate product exists
     product = session.query(MaterialProduct).filter_by(id=product_id).first()
     if not product:
@@ -244,15 +246,40 @@ def _record_purchase_impl(
     if package_price < 0:
         raise ValidationError(["package_price cannot be negative"])
 
-    # Calculate units added from packages
-    units_added = packages_purchased * product.quantity_in_base_units
+    # Get the base unit type from the material
+    material = product.material
+    if not material:
+        raise ValidationError([f"Product {product_id} has no associated material"])
+
+    base_unit_type = material.base_unit_type
+
+    # Calculate units added with conversion to metric base units
+    # product.quantity_in_base_units is stored in the product's package_unit
+    # We need to convert to the material's base unit type (cm, sq cm, or each)
+    package_qty_in_source_units = packages_purchased * product.package_quantity
+
+    # Convert from package_unit to base units (cm for linear, sq cm for area, count for each)
+    # Validate unit compatibility first
+    is_valid, error = material_unit_converter.validate_unit_compatibility(
+        product.package_unit, base_unit_type
+    )
+    if not is_valid:
+        raise ValidationError([error])
+
+    # Convert to base units
+    units_added = convert_to_base_units(
+        package_qty_in_source_units,
+        product.package_unit,
+        base_unit_type,
+    )
 
     # Calculate unit cost (cost per base unit)
-    # unit_cost = package_price / quantity_in_base_units
-    if product.quantity_in_base_units > 0:
-        unit_cost = package_price / Decimal(str(product.quantity_in_base_units))
+    # Total cost for all packages / total base units
+    total_cost = package_price * packages_purchased
+    if units_added > 0:
+        unit_cost = total_cost / Decimal(str(units_added))
     else:
-        unit_cost = package_price
+        unit_cost = Decimal("0")
 
     # Create the purchase record
     purchase = MaterialPurchase(
@@ -266,10 +293,16 @@ def _record_purchase_impl(
         notes=notes,
     )
     session.add(purchase)
-    session.flush()
+    session.flush()  # Get purchase.id for the inventory item FK
 
-    # Update inventory atomically
-    _update_inventory_on_purchase(product, units_added, unit_cost, session)
+    # Feature 058: Create MaterialInventoryItem for FIFO tracking (atomically)
+    _create_inventory_item_on_purchase(
+        purchase=purchase,
+        product=product,
+        units_added=units_added,
+        unit_cost=unit_cost,
+        session=session,
+    )
 
     return purchase
 
@@ -281,31 +314,19 @@ def _adjust_inventory_impl(
     notes: Optional[str],
     session: Session,
 ) -> MaterialProduct:
-    """Implementation for adjust_inventory."""
-    # Validate exactly one parameter provided
-    if (new_quantity is None) == (percentage is None):
-        raise ValidationError(["Provide exactly one of: new_quantity or percentage"])
+    """DEPRECATED: Implementation for adjust_inventory.
 
-    # Get product
-    product = session.query(MaterialProduct).filter_by(id=product_id).first()
-    if not product:
-        raise MaterialProductNotFoundError(product_id)
+    Feature 058: MaterialProduct no longer tracks current_inventory.
+    This function now raises NotImplementedError.
 
-    # Apply adjustment
-    if new_quantity is not None:
-        if new_quantity < 0:
-            raise ValidationError(["new_quantity cannot be negative"])
-        product.current_inventory = new_quantity
-    else:
-        # percentage adjustment
-        if percentage < 0:
-            raise ValidationError(["percentage cannot be negative"])
-        product.current_inventory = product.current_inventory * percentage
-
-    # Note: weighted_avg_cost is NOT changed on adjustments
-    session.flush()
-
-    return product
+    For FIFO-based adjustments, use MaterialInventoryItem operations directly
+    or implement a new adjustment service that works with inventory items.
+    """
+    raise NotImplementedError(
+        "DEPRECATED: Feature 058 moved inventory tracking to MaterialInventoryItem. "
+        "Direct inventory adjustments on MaterialProduct are no longer supported. "
+        "Use MaterialInventoryItem operations for FIFO-based inventory management."
+    )
 
 
 def _get_purchase_impl(
@@ -355,19 +376,46 @@ def _get_product_inventory_impl(
     product_id: int,
     session: Session,
 ) -> dict:
-    """Implementation for get_product_inventory."""
+    """Implementation for get_product_inventory.
+
+    Feature 058: Now aggregates inventory from MaterialInventoryItem records
+    using FIFO pattern instead of reading from MaterialProduct fields.
+    """
     product = session.query(MaterialProduct).filter_by(id=product_id).first()
     if not product:
         raise MaterialProductNotFoundError(product_id)
 
+    # Aggregate inventory from all non-depleted inventory items (FIFO)
+    inventory_items = (
+        session.query(MaterialInventoryItem)
+        .filter(MaterialInventoryItem.material_product_id == product_id)
+        .filter(MaterialInventoryItem.quantity_remaining > 0.001)  # Non-depleted
+        .all()
+    )
+
+    # Calculate totals from inventory items
+    total_quantity = sum(item.quantity_remaining for item in inventory_items)
+    total_value = sum(
+        (Decimal(str(item.quantity_remaining)) * item.cost_per_unit
+         for item in inventory_items),
+        Decimal("0"),  # Start with Decimal(0) to ensure result is Decimal
+    )
+
+    # Calculate weighted average cost from FIFO items
+    if total_quantity > 0:
+        weighted_avg_cost = total_value / Decimal(str(total_quantity))
+    else:
+        weighted_avg_cost = Decimal("0")
+
     return {
         "product_id": product.id,
         "product_name": product.display_name,
-        "current_inventory": product.current_inventory,
-        "weighted_avg_cost": product.weighted_avg_cost,
-        "inventory_value": product.inventory_value,
+        "current_inventory": total_quantity,
+        "weighted_avg_cost": weighted_avg_cost.quantize(Decimal("0.0001")),
+        "inventory_value": total_value.quantize(Decimal("0.01")),
         "package_unit": product.package_unit,
         "base_unit_type": product.material.base_unit_type if product.material else None,
+        "inventory_lots": len(inventory_items),  # New: number of FIFO lots
     }
 
 

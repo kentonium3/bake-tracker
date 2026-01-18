@@ -71,6 +71,13 @@ class MaterialConsumption(BaseModel):
         nullable=True,
         index=True,
     )
+    # Feature 058: FIFO traceability
+    inventory_item_id = Column(
+        Integer,
+        ForeignKey("material_inventory_items.id", ondelete="RESTRICT"),
+        nullable=True,  # Nullable for backward compatibility with existing records
+        index=True,
+    )
 
     # Consumption data
     quantity_consumed = Column(Float, nullable=False)
@@ -93,11 +100,17 @@ class MaterialConsumption(BaseModel):
         "MaterialProduct",
         foreign_keys=[product_id],
     )
+    # Feature 058: Link to source inventory lot for FIFO traceability
+    inventory_item = relationship(
+        "MaterialInventoryItem",
+        back_populates="consumptions",
+    )
 
     # Indexes and constraints
     __table_args__ = (
         Index("idx_material_consumption_assembly_run", "assembly_run_id"),
         Index("idx_material_consumption_product", "product_id"),
+        Index("idx_material_consumption_inventory_item", "inventory_item_id"),
         CheckConstraint("quantity_consumed > 0", name="ck_material_consumption_quantity_positive"),
         CheckConstraint("total_cost >= 0", name="ck_material_consumption_cost_non_negative"),
     )
@@ -145,6 +158,15 @@ class MaterialConsumption(BaseModel):
                     "assembled_at": (
                         self.assembly_run.assembled_at.isoformat()
                         if self.assembly_run.assembled_at
+                        else None
+                    ),
+                }
+            if self.inventory_item:
+                result["inventory_item"] = {
+                    "id": self.inventory_item.id,
+                    "purchase_date": (
+                        self.inventory_item.purchase_date.isoformat()
+                        if self.inventory_item.purchase_date
                         else None
                     ),
                 }

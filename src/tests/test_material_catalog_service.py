@@ -70,7 +70,7 @@ def sample_material(test_db, sample_subcategory):
     return create_material(
         sample_subcategory.id,
         "Red Satin Ribbon",
-        "linear_inches",
+        "linear_cm",
         session=session,
     )
 
@@ -315,17 +315,17 @@ class TestSubcategoryOperations:
 class TestMaterialOperations:
     """Tests for material CRUD operations."""
 
-    def test_create_material_linear_inches(self, db_session, sample_subcategory):
-        """Can create material with linear_inches base unit."""
+    def test_create_material_linear_cm(self, db_session, sample_subcategory):
+        """Can create material with linear_cm base unit."""
         mat = create_material(
             sample_subcategory.id,
             "Blue Ribbon",
-            "linear_inches",
+            "linear_cm",
             session=db_session,
         )
 
         assert mat.id is not None
-        assert mat.base_unit_type == "linear_inches"
+        assert mat.base_unit_type == "linear_cm"
 
     def test_create_material_each(self, db_session, sample_subcategory):
         """Can create material with 'each' base unit."""
@@ -366,8 +366,8 @@ class TestMaterialOperations:
 
     def test_list_materials_by_subcategory(self, db_session, sample_subcategory):
         """Can filter materials by subcategory."""
-        create_material(sample_subcategory.id, "Red Ribbon", "linear_inches", session=db_session)
-        create_material(sample_subcategory.id, "Blue Ribbon", "linear_inches", session=db_session)
+        create_material(sample_subcategory.id, "Red Ribbon", "linear_cm", session=db_session)
+        create_material(sample_subcategory.id, "Blue Ribbon", "linear_cm", session=db_session)
 
         materials = list_materials(subcategory_id=sample_subcategory.id, session=db_session)
 
@@ -406,8 +406,8 @@ class TestMaterialOperations:
 class TestProductOperations:
     """Tests for product CRUD operations."""
 
-    def test_create_product_feet_to_inches(self, db_session, sample_material):
-        """Creates product and converts feet to inches."""
+    def test_create_product_feet_to_cm(self, db_session, sample_material):
+        """Creates product and converts feet to centimeters."""
         prod = create_product(
             sample_material.id,
             "100ft Roll",
@@ -419,10 +419,10 @@ class TestProductOperations:
         assert prod.id is not None
         assert prod.package_quantity == 100
         assert prod.package_unit == "feet"
-        assert prod.quantity_in_base_units == 1200  # 100 feet * 12 = 1200 inches
+        assert prod.quantity_in_base_units == 3048.0  # 100 feet * 30.48 = 3048 cm
 
-    def test_create_product_yards_to_inches(self, db_session, sample_material):
-        """Converts yards to inches correctly."""
+    def test_create_product_yards_to_cm(self, db_session, sample_material):
+        """Converts yards to centimeters correctly."""
         prod = create_product(
             sample_material.id,
             "10yd Roll",
@@ -431,7 +431,7 @@ class TestProductOperations:
             session=db_session,
         )
 
-        assert prod.quantity_in_base_units == 360  # 10 yards * 36 = 360 inches
+        assert prod.quantity_in_base_units == 914.4  # 10 yards * 91.44 = 914.4 cm
 
     def test_create_product_each(self, db_session, sample_subcategory):
         """Creates 'each' product without conversion."""
@@ -452,11 +452,11 @@ class TestProductOperations:
                 sample_material.id,
                 "Test",
                 100,
-                "gallons",  # gallons doesn't convert to linear_inches
+                "gallons",  # gallons doesn't convert to linear_cm
                 session=db_session,
             )
 
-        assert "convert" in str(exc_info.value).lower()
+        assert "compatible" in str(exc_info.value).lower()
 
     def test_create_product_with_brand(self, db_session, sample_material):
         """Can set brand on product."""
@@ -565,7 +565,7 @@ class TestHierarchyIntegration:
         mat = create_material(
             subcat.id,
             "Red Satin",
-            "linear_inches",
+            "linear_cm",
             session=db_session,
         )
         assert mat.subcategory_id == subcat.id
@@ -580,7 +580,7 @@ class TestHierarchyIntegration:
             session=db_session,
         )
         assert prod.material_id == mat.id
-        assert prod.quantity_in_base_units == 1200
+        assert prod.quantity_in_base_units == 3048.0  # 100 feet * 30.48 cm/ft
 
     def test_delete_requires_empty_children(self, db_session):
         """Deletion respects hierarchy constraints."""

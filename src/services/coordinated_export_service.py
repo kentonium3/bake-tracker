@@ -39,6 +39,7 @@ from src.models.material import Material
 from src.models.material_product import MaterialProduct
 from src.models.material_unit import MaterialUnit
 from src.models.material_purchase import MaterialPurchase
+from src.models.material_inventory_item import MaterialInventoryItem
 from src.models.finished_good import FinishedGood
 from src.models.finished_unit import FinishedUnit
 from src.models.event import Event, EventProductionTarget, EventAssemblyTarget
@@ -114,11 +115,13 @@ DEPENDENCY_ORDER = {
     "material_products": (11, ["materials", "suppliers"]),
     "material_units": (12, ["materials"]),
     "material_purchases": (13, ["material_products", "suppliers"]),
+    # Feature 058: Material inventory items (FIFO)
+    "material_inventory_items": (14, ["material_products", "material_purchases"]),
     # Feature 049: Complete backup entities
-    "finished_goods": (14, []),
-    "events": (15, []),
-    "production_runs": (16, ["recipes", "events", "finished_units"]),
-    "inventory_depletions": (17, ["inventory_items"]),
+    "finished_goods": (15, []),
+    "events": (16, []),
+    "production_runs": (17, ["recipes", "events", "finished_units"]),
+    "inventory_depletions": (18, ["inventory_items"]),
 }
 
 
@@ -475,6 +478,8 @@ def _export_material_products(output_dir: Path, session: Session) -> FileEntry:
 
     records = []
     for p in products:
+        # Feature 058: Removed current_inventory, weighted_avg_cost, inventory_value
+        # These are now tracked via MaterialInventoryItem (FIFO)
         records.append({
             "uuid": str(p.uuid) if p.uuid else None,
             "material_slug": p.material.slug if p.material else None,
@@ -486,8 +491,6 @@ def _export_material_products(output_dir: Path, session: Session) -> FileEntry:
             "quantity_in_base_units": p.quantity_in_base_units,
             "supplier_slug": p.supplier.slug if p.supplier else None,
             "sku": p.sku,
-            "current_inventory": p.current_inventory,
-            "weighted_avg_cost": str(p.weighted_avg_cost) if p.weighted_avg_cost else None,
             "is_hidden": p.is_hidden,
             "notes": p.notes,
         })
@@ -530,14 +533,42 @@ def _export_material_purchases(output_dir: Path, session: Session) -> FileEntry:
             "supplier_slug": p.supplier.slug if p.supplier else None,
             "purchase_date": p.purchase_date.isoformat() if p.purchase_date else None,
             "packages_purchased": p.packages_purchased,
-            "base_units_purchased": p.base_units_purchased,
-            "total_cost": str(p.total_cost) if p.total_cost else None,
-            "cost_per_base_unit": str(p.cost_per_base_unit) if p.cost_per_base_unit else None,
+            "package_price": str(p.package_price) if p.package_price else None,
+            "units_added": p.units_added,
+            "unit_cost": str(p.unit_cost) if p.unit_cost else None,
             "notes": p.notes,
             "created_at": p.created_at.isoformat() if p.created_at else None,
         })
 
     return _write_entity_file(output_dir, "material_purchases", records)
+
+
+def _export_material_inventory_items(output_dir: Path, session: Session) -> FileEntry:
+    """Export all material inventory items (FIFO lots) to JSON file with FK resolution.
+
+    Feature 058: MaterialInventoryItem tracks individual inventory lots for FIFO.
+    """
+    items = session.query(MaterialInventoryItem).options(
+        joinedload(MaterialInventoryItem.product),
+        joinedload(MaterialInventoryItem.purchase),
+    ).all()
+
+    records = []
+    for item in items:
+        records.append({
+            "uuid": str(item.uuid) if item.uuid else None,
+            "product_slug": item.product.slug if item.product else None,
+            "purchase_uuid": str(item.purchase.uuid) if item.purchase and item.purchase.uuid else None,
+            "quantity_purchased": item.quantity_purchased,
+            "quantity_remaining": item.quantity_remaining,
+            "cost_per_unit": str(item.cost_per_unit) if item.cost_per_unit else None,
+            "purchase_date": item.purchase_date.isoformat() if item.purchase_date else None,
+            "location": item.location,
+            "notes": item.notes,
+            "created_at": item.created_at.isoformat() if item.created_at else None,
+        })
+
+    return _write_entity_file(output_dir, "material_inventory_items", records)
 
 
 # ============================================================================
@@ -777,6 +808,7 @@ def _export_complete_impl(
     manifest.files.append(_export_material_products(output_dir, session))
     manifest.files.append(_export_material_units(output_dir, session))
     manifest.files.append(_export_material_purchases(output_dir, session))
+    manifest.files.append(_export_material_inventory_items(output_dir, session))
 
     # Feature 049: Complete backup entities
     manifest.files.append(_export_finished_goods(output_dir, session))
@@ -1057,6 +1089,7 @@ def _import_entity_records(
     from src.models.material_product import MaterialProduct
     from src.models.material_unit import MaterialUnit
     from src.models.material_purchase import MaterialPurchase
+    from src.models.material_inventory_item import MaterialInventoryItem
     from src.models.finished_good import FinishedGood
     from src.models.event import Event
     from src.models.production_run import ProductionRun
@@ -1385,6 +1418,8 @@ def _import_entity_records(
                         if supplier:
                             supplier_id = supplier.id
 
+                    # Feature 058: Removed current_inventory, weighted_avg_cost
+                    # Old exports may contain these fields - they are ignored
                     obj = MaterialProduct(
                         material_id=material.id,
                         name=record.get("name"),
@@ -1395,9 +1430,68 @@ def _import_entity_records(
                         package_quantity=record.get("package_quantity"),
                         quantity_in_base_units=record.get("quantity_in_base_units"),
                         supplier_id=supplier_id,
-                        current_inventory=record.get("current_inventory", 0.0),
-                        weighted_avg_cost=record.get("weighted_avg_cost"),
                         is_hidden=record.get("is_hidden", False),
+                        notes=record.get("notes"),
+                    )
+                    session.add(obj)
+                    imported_count += 1
+
+            elif entity_type == "material_purchases":
+                # Resolve product FK
+                product_slug = record.get("product_slug")
+                product = session.query(MaterialProduct).filter(
+                    MaterialProduct.slug == product_slug
+                ).first()
+                if product:
+                    # Resolve supplier FK
+                    supplier_id = None
+                    supplier_slug = record.get("supplier_slug")
+                    if supplier_slug:
+                        supplier = session.query(Supplier).filter(
+                            Supplier.slug == supplier_slug
+                        ).first()
+                        if supplier:
+                            supplier_id = supplier.id
+
+                    obj = MaterialPurchase(
+                        product_id=product.id,
+                        supplier_id=supplier_id,
+                        purchase_date=_parse_date(record.get("purchase_date")),
+                        packages_purchased=record.get("packages_purchased"),
+                        package_price=record.get("package_price"),
+                        units_added=record.get("units_added"),
+                        unit_cost=record.get("unit_cost"),
+                        notes=record.get("notes"),
+                    )
+                    session.add(obj)
+                    session.flush()  # Get ID for inventory item creation
+                    imported_count += 1
+
+            elif entity_type == "material_inventory_items":
+                # Resolve product FK
+                product_slug = record.get("product_slug")
+                product = session.query(MaterialProduct).filter(
+                    MaterialProduct.slug == product_slug
+                ).first()
+                if product:
+                    # Resolve purchase FK by UUID
+                    purchase_id = None
+                    purchase_uuid = record.get("purchase_uuid")
+                    if purchase_uuid:
+                        purchase = session.query(MaterialPurchase).filter(
+                            MaterialPurchase.uuid == purchase_uuid
+                        ).first()
+                        if purchase:
+                            purchase_id = purchase.id
+
+                    obj = MaterialInventoryItem(
+                        material_product_id=product.id,
+                        material_purchase_id=purchase_id,
+                        quantity_purchased=record.get("quantity_purchased"),
+                        quantity_remaining=record.get("quantity_remaining"),
+                        cost_per_unit=record.get("cost_per_unit"),
+                        purchase_date=_parse_date(record.get("purchase_date")),
+                        location=record.get("location"),
                         notes=record.get("notes"),
                     )
                     session.add(obj)

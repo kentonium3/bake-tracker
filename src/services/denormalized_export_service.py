@@ -204,8 +204,8 @@ MATERIALS_CONTEXT_RICH_READONLY = [
     "subcategory_id",
     "product_count",
     "products",
-    "total_inventory",
-    "total_inventory_value",
+    # Note: total_inventory and total_inventory_value removed
+    # Inventory is now tracked at MaterialUnit level via FIFO
 ]
 
 # Recipes context-rich field definitions
@@ -257,9 +257,8 @@ MATERIAL_PRODUCTS_CONTEXT_RICH_READONLY = [
     "supplier_name",
     "sku",
     "quantity_in_base_units",
-    "current_inventory",
-    "weighted_avg_cost",
-    "inventory_value",
+    # Note: current_inventory, weighted_avg_cost, inventory_value removed
+    # Inventory is now tracked at MaterialUnit level via FIFO
 ]
 
 # Finished Units context-rich field definitions
@@ -479,36 +478,40 @@ def _calculate_ingredient_average_cost(
 
 def _calculate_material_inventory_total(material: Material) -> float:
     """
-    Sum current inventory across all products for a material.
+    Calculate total inventory for a material from MaterialUnit records.
+
+    Note: As of Feature 058, inventory is tracked at MaterialUnit level via FIFO.
+    MaterialProduct no longer has current_inventory field.
 
     Args:
         material: The material to calculate inventory for
 
     Returns:
-        Total inventory in base units across all products
+        Total inventory in base units (currently returns 0.0 - to be implemented
+        when MaterialUnit query is available)
     """
-    if material is None:
-        return 0.0
-
-    total = sum(p.current_inventory for p in material.products if p.current_inventory)
-    return float(total)
+    # TODO: Implement MaterialUnit-based inventory query when service is available
+    # For now, return 0.0 since the old model fields have been removed
+    return 0.0
 
 
 def _calculate_material_inventory_value(material: Material) -> float:
     """
-    Sum inventory value across all products for a material.
+    Calculate total inventory value for a material from MaterialUnit records.
+
+    Note: As of Feature 058, inventory value is calculated from MaterialUnit FIFO costs.
+    MaterialProduct no longer has inventory_value field.
 
     Args:
         material: The material to calculate value for
 
     Returns:
-        Total inventory value across all products
+        Total inventory value (currently returns 0.0 - to be implemented
+        when MaterialUnit query is available)
     """
-    if material is None:
-        return 0.0
-
-    total = sum(float(p.inventory_value) for p in material.products)
-    return round(total, 2)
+    # TODO: Implement MaterialUnit-based value query when service is available
+    # For now, return 0.0 since the old model fields have been removed
+    return 0.0
 
 
 def _calculate_recipe_cost(recipe: Recipe, session: Session) -> float:
@@ -1003,8 +1006,9 @@ def export_materials_context_rich(
     Creates a context-rich file with all material fields plus context fields:
     - category_hierarchy: Full path (e.g., "Ribbons > Satin > Red Satin Ribbon")
     - products: Nested array of related products
-    - total_inventory: Sum of inventory across all products (in base units)
-    - total_inventory_value: Total value of inventory
+
+    Note: As of Feature 058, total_inventory and total_inventory_value are
+    no longer included. Inventory is tracked at MaterialUnit level via FIFO.
 
     Args:
         output_path: Path for the output JSON file
@@ -1036,6 +1040,8 @@ def _export_materials_context_rich_impl(output_path: str, session: Session) -> E
 
     for mat in materials:
         # Build nested products array
+        # Note: current_inventory and weighted_avg_cost removed from products
+        # Inventory is now tracked at MaterialUnit level via FIFO
         products_data = []
         for p in mat.products:
             products_data.append({
@@ -1046,8 +1052,6 @@ def _export_materials_context_rich_impl(output_path: str, session: Session) -> E
                 "sku": p.sku,
                 "package_quantity": p.package_quantity,
                 "package_unit": p.package_unit,
-                "current_inventory": p.current_inventory,
-                "weighted_avg_cost": str(p.weighted_avg_cost) if p.weighted_avg_cost else None,
                 "supplier_name": p.supplier.name if p.supplier else None,
             })
 
@@ -1066,8 +1070,8 @@ def _export_materials_context_rich_impl(output_path: str, session: Session) -> E
             # Computed fields (readonly)
             "product_count": len(mat.products),
             "products": products_data,
-            "total_inventory": _calculate_material_inventory_total(mat),
-            "total_inventory_value": _calculate_material_inventory_value(mat),
+            # Note: total_inventory and total_inventory_value removed
+            # Inventory is now tracked at MaterialUnit level via FIFO
         })
 
     export_data = {
@@ -1301,9 +1305,8 @@ def _export_material_products_context_rich_impl(output_path: str, session: Sessi
             # Additional readonly fields
             "sku": p.sku,
             "quantity_in_base_units": p.quantity_in_base_units,
-            "current_inventory": p.current_inventory,
-            "weighted_avg_cost": str(p.weighted_avg_cost) if p.weighted_avg_cost else None,
-            "inventory_value": str(p.inventory_value) if p.inventory_value else None,
+            # Note: current_inventory, weighted_avg_cost, inventory_value removed
+            # Inventory is now tracked at MaterialUnit level via FIFO
         })
 
     export_data = {

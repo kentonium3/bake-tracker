@@ -80,7 +80,7 @@ def sample_material(test_db, sample_material_category):
             subcategory_id=sample_material_category["subcategory_id"],
             name="Red Satin Ribbon",
             slug="red-satin-ribbon",
-            base_unit_type="linear_inches",
+            base_unit_type="linear_cm",
             description=None,  # Leave null for augment tests
         )
         session.add(material)
@@ -150,7 +150,7 @@ class TestImportMaterialsAddOnlyCreatesNew:
             {
                 "name": "Blue Grosgrain Ribbon",
                 "category": "Ribbons: Grosgrain",
-                "base_unit_type": "linear_inches",
+                "base_unit_type": "linear_cm",
                 "description": "A beautiful blue grosgrain ribbon",
             }
         ]
@@ -170,7 +170,7 @@ class TestImportMaterialsAddOnlyCreatesNew:
                 .first()
             )
             assert material is not None
-            assert material.base_unit_type == "linear_inches"
+            assert material.base_unit_type == "linear_cm"
             assert material.description == "A beautiful blue grosgrain ribbon"
             # Verify slug was auto-generated
             assert material.slug == "blue-grosgrain-ribbon"
@@ -255,7 +255,7 @@ class TestImportMaterialsAddOnlySkipsExisting:
                 "name": "Red Satin Ribbon",
                 "slug": sample_material["slug"],  # Same slug as existing
                 "category": "Ribbons: Satin",
-                "base_unit_type": "linear_inches",
+                "base_unit_type": "linear_cm",
                 "description": "This description should NOT be saved",
             }
         ]
@@ -286,7 +286,7 @@ class TestImportMaterialsAddOnlySkipsExisting:
                 "name": "Red Satin Ribbon",
                 "slug": sample_material["slug"],
                 "category": "Ribbons: Satin",
-                "base_unit_type": "linear_inches",
+                "base_unit_type": "linear_cm",
             },
             {
                 "name": "New Material",
@@ -318,7 +318,7 @@ class TestImportMaterialsAugmentUpdatesNullFields:
                 "name": "Red Satin Ribbon",
                 "slug": sample_material["slug"],
                 "category": "Ribbons: Satin",
-                "base_unit_type": "linear_inches",
+                "base_unit_type": "linear_cm",
                 "description": "Newly added description",
             }
         ]
@@ -409,7 +409,7 @@ class TestImportMaterialsAugmentPreservesProtectedFields:
                 "name": "MODIFIED NAME",  # Try to change name
                 "slug": sample_material["slug"],  # Must match for lookup
                 "category": "Ribbons: Satin",
-                "base_unit_type": "square_inches",  # Try to change base_unit_type
+                "base_unit_type": "square_cm",  # Try to change base_unit_type
                 "description": "Add description",
             }
         ]
@@ -428,7 +428,7 @@ class TestImportMaterialsAugmentPreservesProtectedFields:
             # Protected fields should be unchanged
             assert material.name == original_name
             assert material.slug == original_slug
-            assert material.base_unit_type == "linear_inches"  # Original value
+            assert material.base_unit_type == "linear_cm"  # Original value
             # Only null field should be updated
             assert material.description == "Add description"
 
@@ -525,7 +525,7 @@ class TestImportMaterialProductsResolvesSlug:
                 subcategory_id=subcat.id,
                 name="Red Satin Ribbon",  # Same display name
                 slug="red-satin-ribbon-wide",  # Different slug
-                base_unit_type="linear_inches",
+                base_unit_type="linear_cm",
             )
             session.add(other_material)
             session.flush()
@@ -626,14 +626,14 @@ class TestImportMaterialsResultCounts:
             {
                 "name": "New Blue Ribbon",
                 "category": "Ribbons: Satin",
-                "base_unit_type": "linear_inches",
+                "base_unit_type": "linear_cm",
             },
             # Should be skipped (existing slug)
             {
                 "name": "Red Satin Ribbon",
                 "slug": sample_material["slug"],
                 "category": "Ribbons: Satin",
-                "base_unit_type": "linear_inches",
+                "base_unit_type": "linear_cm",
             },
             # Should fail (missing category)
             {
@@ -681,7 +681,7 @@ class TestImportMaterialsResultCounts:
                 "name": "Red Satin Ribbon",
                 "slug": sample_material["slug"],
                 "category": "Ribbons: Satin",
-                "base_unit_type": "linear_inches",
+                "base_unit_type": "linear_cm",
                 "description": "Added description",
             },
             # Should be added (new)

@@ -86,7 +86,7 @@ def material_with_inventory(db_session, sample_supplier):
     """Create material with product and inventory."""
     cat = create_category("Ribbons", session=db_session)
     subcat = create_subcategory(cat.id, "Satin", session=db_session)
-    mat = create_material(subcat.id, "Red Satin", "linear_inches", session=db_session)
+    mat = create_material(subcat.id, "Red Satin", "linear_cm", session=db_session)
 
     prod = create_product(
         material_id=mat.id,

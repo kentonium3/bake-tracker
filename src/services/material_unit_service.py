@@ -18,7 +18,7 @@ import math
 
 from sqlalchemy.orm import Session
 
-from ..models import Material, MaterialProduct, MaterialUnit, Composition
+from ..models import Material, MaterialProduct, MaterialUnit, Composition, MaterialInventoryItem
 from .database import session_scope
 from .exceptions import ValidationError
 from .material_catalog_service import slugify
@@ -208,14 +208,26 @@ def _get_available_inventory_impl(
         .all()
     )
 
-    # Sum inventory across all products
-    total_inventory = sum(p.current_inventory for p in products)
+    # Sum inventory across all products using MaterialInventoryItem (F058 FIFO)
+    total_inventory = Decimal("0")
+    for product in products:
+        inv_items = (
+            session.query(MaterialInventoryItem)
+            .filter(
+                MaterialInventoryItem.material_product_id == product.id,
+                MaterialInventoryItem.quantity_remaining >= 0.001,
+            )
+            .all()
+        )
+        total_inventory += sum(
+            Decimal(str(item.quantity_remaining)) for item in inv_items
+        )
 
     # Calculate complete units available (floor)
     if unit.quantity_per_unit <= 0:
         return 0
 
-    return math.floor(total_inventory / unit.quantity_per_unit)
+    return math.floor(float(total_inventory) / unit.quantity_per_unit)
 
 
 def _get_current_cost_impl(
@@ -227,26 +239,35 @@ def _get_current_cost_impl(
     if not unit:
         raise MaterialUnitNotFoundError(unit_id)
 
-    # Get all products with inventory for this material
+    # Get all products for this material
     products = (
         session.query(MaterialProduct)
         .filter(MaterialProduct.material_id == unit.material_id)
-        .filter(MaterialProduct.current_inventory > 0)
         .all()
     )
 
     if not products:
         return Decimal("0")
 
-    # Calculate inventory-weighted average cost
+    # Calculate inventory-weighted average cost using MaterialInventoryItem (F058 FIFO)
     total_value = Decimal("0")
     total_inventory = Decimal("0")
 
     for product in products:
-        inv = Decimal(str(product.current_inventory))
-        cost = product.weighted_avg_cost or Decimal("0")
-        total_value += inv * cost
-        total_inventory += inv
+        inv_items = (
+            session.query(MaterialInventoryItem)
+            .filter(
+                MaterialInventoryItem.material_product_id == product.id,
+                MaterialInventoryItem.quantity_remaining >= 0.001,
+            )
+            .all()
+        )
+
+        for item in inv_items:
+            inv = Decimal(str(item.quantity_remaining))
+            cost = Decimal(str(item.cost_per_unit)) if item.cost_per_unit else Decimal("0")
+            total_value += inv * cost
+            total_inventory += inv
 
     if total_inventory == 0:
         return Decimal("0")
@@ -273,42 +294,75 @@ def _preview_consumption_impl(
     # Calculate total base units needed
     base_units_needed = quantity_needed * unit.quantity_per_unit
 
-    # Get products with inventory for this material
+    # Get products for this material
     products = (
         session.query(MaterialProduct)
         .filter(MaterialProduct.material_id == unit.material_id)
-        .filter(MaterialProduct.current_inventory > 0)
         .all()
     )
 
-    # Sum total available inventory
-    total_inventory = sum(p.current_inventory for p in products)
+    # Build inventory data per product using MaterialInventoryItem (F058 FIFO)
+    product_inventory = {}  # product_id -> (inventory, weighted_cost)
+    total_inventory = Decimal("0")
+
+    for product in products:
+        inv_items = (
+            session.query(MaterialInventoryItem)
+            .filter(
+                MaterialInventoryItem.material_product_id == product.id,
+                MaterialInventoryItem.quantity_remaining >= 0.001,
+            )
+            .all()
+        )
+
+        product_inv = Decimal("0")
+        product_value = Decimal("0")
+
+        for item in inv_items:
+            qty = Decimal(str(item.quantity_remaining))
+            cost = Decimal(str(item.cost_per_unit)) if item.cost_per_unit else Decimal("0")
+            product_inv += qty
+            product_value += qty * cost
+
+        if product_inv > 0:
+            weighted_cost = product_value / product_inv
+            product_inventory[product.id] = {
+                "product": product,
+                "inventory": float(product_inv),
+                "weighted_cost": weighted_cost,
+            }
+            total_inventory += product_inv
+
+    total_inv_float = float(total_inventory)
 
     # Determine if we can fulfill
-    can_fulfill = total_inventory >= base_units_needed
-    shortage = 0 if can_fulfill else base_units_needed - total_inventory
+    can_fulfill = total_inv_float >= base_units_needed
+    shortage = 0 if can_fulfill else base_units_needed - total_inv_float
 
     # Allocate proportionally across products
     allocations = []
     total_cost = Decimal("0")
 
-    if products and base_units_needed > 0:
-        units_to_allocate = min(base_units_needed, total_inventory)
+    if product_inventory and base_units_needed > 0:
+        units_to_allocate = min(base_units_needed, total_inv_float)
 
-        for product in products:
-            if total_inventory > 0:
+        for product_id, data in product_inventory.items():
+            product = data["product"]
+            product_inv = data["inventory"]
+            weighted_cost = data["weighted_cost"]
+
+            if total_inv_float > 0:
                 # Proportional allocation
-                proportion = product.current_inventory / total_inventory
+                proportion = product_inv / total_inv_float
                 base_units = proportion * units_to_allocate
 
-                unit_cost = product.weighted_avg_cost or Decimal("0")
-                line_cost = Decimal(str(base_units)) * unit_cost
+                line_cost = Decimal(str(base_units)) * weighted_cost
 
                 allocations.append({
                     "product_id": product.id,
                     "product_name": product.display_name,
                     "base_units_consumed": round(base_units, 2),
-                    "unit_cost": str(unit_cost),
+                    "unit_cost": str(weighted_cost.quantize(Decimal("0.0001"))),
                     "total_cost": str(line_cost.quantize(Decimal("0.01"))),
                 })
 
@@ -318,8 +372,8 @@ def _preview_consumption_impl(
         "can_fulfill": can_fulfill,
         "quantity_needed": quantity_needed,
         "base_units_needed": base_units_needed,
-        "available_base_units": total_inventory,
-        "available_units": math.floor(total_inventory / unit.quantity_per_unit) if unit.quantity_per_unit > 0 else 0,
+        "available_base_units": total_inv_float,
+        "available_units": math.floor(total_inv_float / unit.quantity_per_unit) if unit.quantity_per_unit > 0 else 0,
         "shortage_base_units": shortage,
         "shortage_units": math.ceil(shortage / unit.quantity_per_unit) if unit.quantity_per_unit > 0 and shortage > 0 else 0,
         "allocations": allocations,

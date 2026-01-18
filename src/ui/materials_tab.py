@@ -134,7 +134,7 @@ class MaterialsTab(ctk.CTkFrame):
 
 
 # Valid base unit types for materials
-MATERIAL_BASE_UNITS = ["each", "linear_inches", "square_inches"]
+MATERIAL_BASE_UNITS = ["each", "linear_cm", "square_cm"]
 
 
 class MaterialFormDialog(ctk.CTkToplevel):
@@ -2237,16 +2237,18 @@ class MaterialProductsTab:
         )
         self.purchase_button.grid(row=0, column=2, padx=(0, PADDING_MEDIUM))
 
-        # Adjust Inventory button
-        self.adjust_button = ctk.CTkButton(
-            button_frame,
-            text="Adjust Inventory",
-            command=self._adjust_inventory,
-            width=130,
-            height=36,
-            state="disabled",
-        )
-        self.adjust_button.grid(row=0, column=3, padx=(0, PADDING_MEDIUM))
+        # Adjust Inventory button - REMOVED (F058)
+        # Legacy inventory adjustment is incompatible with FIFO tracking.
+        # A FIFO-compatible adjustment feature may be added in a future release.
+        # self.adjust_button = ctk.CTkButton(
+        #     button_frame,
+        #     text="Adjust Inventory",
+        #     command=self._adjust_inventory,
+        #     width=130,
+        #     height=36,
+        #     state="disabled",
+        # )
+        # self.adjust_button.grid(row=0, column=3, padx=(0, PADDING_MEDIUM))
 
     def _create_grid(self):
         """Create the products grid using ttk.Treeview."""
@@ -2255,8 +2257,9 @@ class MaterialProductsTab:
         grid_container.grid_columnconfigure(0, weight=1)
         grid_container.grid_rowconfigure(0, weight=1)
 
-        # Define columns: material, name, inventory, unit_cost, supplier
-        columns = ("material", "name", "inventory", "unit_cost", "supplier")
+        # Define columns: material, name, sku, package, supplier
+        # Note: inventory/cost columns removed - these are now tracked in MaterialUnit
+        columns = ("material", "name", "sku", "package", "supplier")
         self.tree = ttk.Treeview(
             grid_container,
             columns=columns,
@@ -2274,12 +2277,12 @@ class MaterialProductsTab:
             command=lambda: self._on_header_click("name")
         )
         self.tree.heading(
-            "inventory", text="Inventory", anchor="e",
-            command=lambda: self._on_header_click("inventory")
+            "sku", text="SKU", anchor="w",
+            command=lambda: self._on_header_click("sku")
         )
         self.tree.heading(
-            "unit_cost", text="Unit Cost", anchor="e",
-            command=lambda: self._on_header_click("unit_cost")
+            "package", text="Package", anchor="w",
+            command=lambda: self._on_header_click("package")
         )
         self.tree.heading(
             "supplier", text="Supplier", anchor="w",
@@ -2287,11 +2290,11 @@ class MaterialProductsTab:
         )
 
         # Configure column widths
-        self.tree.column("material", width=150, minwidth=100)
-        self.tree.column("name", width=150, minwidth=100)
-        self.tree.column("inventory", width=120, minwidth=80, anchor="e")
-        self.tree.column("unit_cost", width=100, minwidth=80, anchor="e")
-        self.tree.column("supplier", width=120, minwidth=100)
+        self.tree.column("material", width=180, minwidth=120)
+        self.tree.column("name", width=200, minwidth=150)
+        self.tree.column("sku", width=120, minwidth=80)
+        self.tree.column("package", width=120, minwidth=80)
+        self.tree.column("supplier", width=150, minwidth=100)
 
         # Add vertical scrollbar
         y_scrollbar = ttk.Scrollbar(
@@ -2351,16 +2354,19 @@ class MaterialProductsTab:
                         mat_base_unit = _get_value(mat, "base_unit_type") or ""
                         prods = material_catalog_service.list_products(mat_id)
                         for prod in prods:
+                            # Note: current_inventory and weighted_avg_cost removed
+                            # Inventory is now tracked at MaterialUnit level via FIFO
+                            pkg_qty = _get_value(prod, "package_quantity") or 1
+                            pkg_unit = _get_value(prod, "package_unit") or mat_base_unit or "each"
                             products.append({
                                 "id": _get_value(prod, "id"),
                                 "name": _get_value(prod, "name"),
                                 "material_name": mat_name,
                                 "material_id": mat_id,
                                 "base_unit": mat_base_unit,
-                                "package_quantity": _get_value(prod, "package_quantity") or 1,
-                                "package_unit": _get_value(prod, "package_unit") or mat_base_unit or "each",
-                                "inventory": _get_value(prod, "current_inventory") or 0,
-                                "unit_cost": _get_value(prod, "weighted_avg_cost") or 0,
+                                "package_quantity": pkg_qty,
+                                "package_unit": pkg_unit,
+                                "package_display": f"{pkg_qty} {pkg_unit}",
                                 "supplier_name": _get_value(prod, "supplier_name") or "",
                                 "supplier_id": _get_value(prod, "supplier_id"),
                                 "sku": _get_value(prod, "sku") or "",
@@ -2390,20 +2396,11 @@ class MaterialProductsTab:
 
         # Populate grid
         for prod in filtered:
-            # Format inventory as "4,724.5 inches"
-            inventory = prod.get("inventory", 0) or 0
-            base_unit = prod.get("base_unit", "")
-            inventory_display = f"{inventory:,.1f} {base_unit}".strip()
-
-            # Format cost as "$0.0016" or "-"
-            unit_cost = prod.get("unit_cost", 0)
-            cost_display = f"${unit_cost:.4f}" if unit_cost else "-"
-
             values = (
                 prod.get("material_name", ""),
                 prod.get("name", ""),
-                inventory_display,
-                cost_display,
+                prod.get("sku", "") or "-",
+                prod.get("package_display", ""),
                 prod.get("supplier_name", "") or "-",
             )
             self.tree.insert("", "end", iid=str(prod["id"]), values=values)
@@ -2437,16 +2434,14 @@ class MaterialProductsTab:
         sort_key_map = {
             "material": "material_name",
             "name": "name",
-            "inventory": "inventory",
-            "unit_cost": "unit_cost",
+            "sku": "sku",
+            "package": "package_display",
             "supplier": "supplier_name",
         }
         sort_field = sort_key_map.get(self.sort_column, "name")
 
         def get_sort_value(p):
             val = p.get(sort_field)
-            if sort_field in ("inventory", "unit_cost"):
-                return val if val is not None else 0
             return (val or "").lower()
 
         filtered = sorted(filtered, key=get_sort_value, reverse=not self.sort_ascending)
@@ -2616,52 +2611,17 @@ class MaterialProductsTab:
                 messagebox.showerror("Error", f"Failed to record purchase: {e}")
 
     def _adjust_inventory(self):
-        """Open dialog to adjust inventory for selected product."""
-        if not self.selected_product_id:
-            return
+        """Legacy inventory adjustment - disabled for FIFO (F058).
 
-        # Find product data by ID
-        product_data = None
-        for prod in self.products:
-            if prod["id"] == self.selected_product_id:
-                product_data = prod
-                break
-
-        if not product_data:
-            self.update_status("Product not found")
-            return
-
-        dialog = AdjustInventoryDialog(
-            self.parent_frame,
-            product=product_data,
+        Direct inventory adjustment is incompatible with FIFO lot tracking.
+        Inventory changes should be made through purchases or consumption.
+        """
+        messagebox.showinfo(
+            "Feature Not Available",
+            "Direct inventory adjustment is not available with FIFO tracking.\n\n"
+            "To add inventory: Record a new purchase.\n"
+            "To reduce inventory: Use material consumption through assemblies."
         )
-        if dialog.winfo_exists():
-            self.parent_frame.wait_window(dialog)
-
-        if dialog.result:
-            try:
-                mode = dialog.result["mode"]
-                value = dialog.result["value"]
-                notes = dialog.result.get("notes")
-
-                if mode == "set":
-                    material_purchase_service.adjust_inventory(
-                        product_id=dialog.result["product_id"],
-                        new_quantity=value,
-                        notes=notes,
-                    )
-                else:  # percentage
-                    material_purchase_service.adjust_inventory(
-                        product_id=dialog.result["product_id"],
-                        percentage=value,
-                        notes=notes,
-                    )
-                self.refresh()
-                self.update_status(f"Adjusted inventory for: {product_data['name']}")
-            except ValidationError as e:
-                messagebox.showerror("Error", str(e))
-            except Exception as e:
-                messagebox.showerror("Error", f"Failed to adjust inventory: {e}")
 
     def update_status(self, message: str):
         """Update the status bar message."""

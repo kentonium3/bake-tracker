@@ -55,69 +55,43 @@ def sample_material(db_session):
     """Create a sample material hierarchy for testing."""
     cat = create_category("Ribbons", session=db_session)
     subcat = create_subcategory(cat.id, "Satin", session=db_session)
-    mat = create_material(subcat.id, "Red Satin", "linear_inches", session=db_session)
+    mat = create_material(subcat.id, "Red Satin", "linear_cm", session=db_session)
     return mat
 
 
 @pytest.fixture
 def material_with_products(db_session, sample_material, sample_supplier):
-    """Create material with two products totaling 1200 inches.
+    """Create material with two products totaling 1200 cm.
 
-    Product A: 800 inches at $0.10/inch
-    Product B: 400 inches at $0.14/inch
+    Product A: 800 cm at $0.10/cm
+    Product B: 400 cm at $0.14/cm
+
+    Note: Using cm directly as package_unit since base_unit_type is linear_cm (F058).
     """
-    # Create products - each 100ft roll = 1200 inches
+    from datetime import date
+
+    # Product A: 800 cm
     prod_a = create_product(
         material_id=sample_material.id,
-        name="100ft Roll A",
-        package_quantity=100,
-        package_unit="feet",
-        supplier_id=sample_supplier.id,
-        session=db_session,
-    )
-
-    prod_b = create_product(
-        material_id=sample_material.id,
-        name="100ft Roll B",
-        package_quantity=100,
-        package_unit="feet",
-        supplier_id=sample_supplier.id,
-        session=db_session,
-    )
-
-    # Record purchases to set inventory and cost
-    # Product A: 800 inches at $0.10/inch = $80 per 1200 inches
-    # We need to give it 800 inches: 800/1200 * 1 package...
-    # Actually let's use smaller packages
-
-    # Recreate with simpler packages for easier math
-    db_session.delete(prod_a)
-    db_session.delete(prod_b)
-    db_session.flush()
-
-    # Product A: 800 inches (package is 800 inches)
-    prod_a = create_product(
-        material_id=sample_material.id,
-        name="800in Roll",
+        name="800cm Roll",
         package_quantity=800,
-        package_unit="inches",
+        package_unit="cm",
         supplier_id=sample_supplier.id,
         session=db_session,
     )
 
-    # Product B: 400 inches (package is 400 inches)
+    # Product B: 400 cm
     prod_b = create_product(
         material_id=sample_material.id,
-        name="400in Roll",
+        name="400cm Roll",
         package_quantity=400,
-        package_unit="inches",
+        package_unit="cm",
         supplier_id=sample_supplier.id,
         session=db_session,
     )
 
     # Record purchases
-    # Product A: 1 package of 800in at $80 = $0.10/inch
-    from datetime import date
+    # Product A: 1 package of 800cm at $80 = $0.10/cm
     record_purchase(
         product_id=prod_a.id,
         supplier_id=sample_supplier.id,
@@ -127,7 +101,7 @@ def material_with_products(db_session, sample_material, sample_supplier):
         session=db_session,
     )
 
-    # Product B: 1 package of 400in at $56 = $0.14/inch
+    # Product B: 1 package of 400cm at $56 = $0.14/cm
     record_purchase(
         product_id=prod_b.id,
         supplier_id=sample_supplier.id,
@@ -383,10 +357,10 @@ class TestGetAvailableInventory:
 
     def test_available_inventory_calculation(self, db_session, material_with_products):
         """Available inventory aggregates across products."""
-        # Total inventory: 800 + 400 = 1200 inches
+        # Total inventory: 800 + 400 = 1200 cm
         unit = create_unit(
             material_id=material_with_products.id,
-            name="6-inch ribbon",
+            name="6-cm ribbon",
             quantity_per_unit=6,
             session=db_session,
         )
@@ -397,10 +371,10 @@ class TestGetAvailableInventory:
 
     def test_available_inventory_not_round(self, db_session, material_with_products):
         """Available inventory uses floor not round."""
-        # Total inventory: 1200 inches
+        # Total inventory: 1200 cm
         unit = create_unit(
             material_id=material_with_products.id,
-            name="7-inch ribbon",
+            name="7-cm ribbon",
             quantity_per_unit=7,
             session=db_session,
         )
@@ -413,7 +387,7 @@ class TestGetAvailableInventory:
         """No products returns 0 inventory."""
         unit = create_unit(
             material_id=sample_material.id,
-            name="6-inch ribbon",
+            name="6-cm ribbon",
             quantity_per_unit=6,
             session=db_session,
         )
@@ -432,13 +406,13 @@ class TestGetCurrentCost:
 
     def test_current_cost_weighted_average(self, db_session, material_with_products):
         """Cost uses inventory-weighted average."""
-        # Product A: 800 inches at $0.10/inch
-        # Product B: 400 inches at $0.14/inch
+        # Product A: 800 cm at $0.10/cm
+        # Product B: 400 cm at $0.14/cm
         # Weighted avg = (800*0.10 + 400*0.14) / 1200 = (80 + 56) / 1200 = 0.1133...
 
         unit = create_unit(
             material_id=material_with_products.id,
-            name="6-inch ribbon",
+            name="6-cm ribbon",
             quantity_per_unit=6,
             session=db_session,
         )
@@ -451,7 +425,7 @@ class TestGetCurrentCost:
         """No products returns 0 cost."""
         unit = create_unit(
             material_id=sample_material.id,
-            name="6-inch ribbon",
+            name="6-cm ribbon",
             quantity_per_unit=6,
             session=db_session,
         )
@@ -472,7 +446,7 @@ class TestPreviewConsumption:
         """Preview with sufficient inventory."""
         unit = create_unit(
             material_id=material_with_products.id,
-            name="6-inch ribbon",
+            name="6-cm ribbon",
             quantity_per_unit=6,
             session=db_session,
         )
@@ -489,7 +463,7 @@ class TestPreviewConsumption:
         """Preview with insufficient inventory."""
         unit = create_unit(
             material_id=material_with_products.id,
-            name="6-inch ribbon",
+            name="6-cm ribbon",
             quantity_per_unit=6,
             session=db_session,
         )
@@ -506,27 +480,27 @@ class TestPreviewConsumption:
         """Allocations are proportional to inventory."""
         unit = create_unit(
             material_id=material_with_products.id,
-            name="6-inch ribbon",
+            name="6-cm ribbon",
             quantity_per_unit=6,
             session=db_session,
         )
 
         preview = preview_consumption(unit.id, quantity_needed=100, session=db_session)
 
-        # Total inventory: 1200 inches (800 A + 400 B)
-        # Consuming 600 inches (100 * 6)
-        # Product A (800/1200 = 66.7%) should get 400 inches
-        # Product B (400/1200 = 33.3%) should get 200 inches
+        # Total inventory: 1200 cm (800 A + 400 B)
+        # Consuming 600 cm (100 * 6)
+        # Product A (800/1200 = 66.7%) should get 400 cm
+        # Product B (400/1200 = 33.3%) should get 200 cm
 
         allocations = {a['product_name']: a['base_units_consumed'] for a in preview['allocations']}
-        assert allocations['800in Roll'] == 400.0  # 66.7% of 600
-        assert allocations['400in Roll'] == 200.0  # 33.3% of 600
+        assert allocations['800cm Roll'] == 400.0  # 66.7% of 600
+        assert allocations['400cm Roll'] == 200.0  # 33.3% of 600
 
     def test_preview_no_inventory(self, db_session, sample_material):
         """Preview with no inventory."""
         unit = create_unit(
             material_id=sample_material.id,
-            name="6-inch ribbon",
+            name="6-cm ribbon",
             quantity_per_unit=6,
             session=db_session,
         )
@@ -546,7 +520,7 @@ class TestPreviewConsumption:
         """Preview includes cost calculation."""
         unit = create_unit(
             material_id=material_with_products.id,
-            name="6-inch ribbon",
+            name="6-cm ribbon",
             quantity_per_unit=6,
             session=db_session,
         )

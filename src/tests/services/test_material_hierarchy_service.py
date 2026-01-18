@@ -62,7 +62,7 @@ def test_db():
         subcategory_id=satin.id,
         name="Red Satin 1-inch",
         slug="red-satin-1-inch",
-        base_unit_type="linear_inches",
+        base_unit_type="linear_cm",
     )
     session.add(red_satin)
 
@@ -70,7 +70,7 @@ def test_db():
         subcategory_id=satin.id,
         name="Blue Satin 1-inch",
         slug="blue-satin-1-inch",
-        base_unit_type="linear_inches",
+        base_unit_type="linear_cm",
     )
     session.add(blue_satin)
 
@@ -87,7 +87,7 @@ def test_db():
         subcategory_id=grosgrain.id,
         name="White Grosgrain 5/8",
         slug="white-grosgrain-5-8",
-        base_unit_type="linear_inches",
+        base_unit_type="linear_cm",
     )
     session.add(white_grosgrain)
 
@@ -162,7 +162,7 @@ class TestGetMaterialsWithParents:
         assert "material" in red_satin
         assert red_satin["material"]["name"] == "Red Satin 1-inch"
         assert red_satin["material"]["slug"] == "red-satin-1-inch"
-        assert red_satin["material"]["base_unit_type"] == "linear_inches"
+        assert red_satin["material"]["base_unit_type"] == "linear_cm"
 
     def test_category_filter(self, test_db):
         """Test filtering by category name."""
@@ -230,7 +230,7 @@ class TestGetMaterialWithParents:
 
         assert "material" in result
         assert result["material"]["slug"] == "red-satin-1-inch"
-        assert result["material"]["base_unit_type"] == "linear_inches"
+        assert result["material"]["base_unit_type"] == "linear_cm"
 
     def test_nonexistent_material_returns_none(self, test_db):
         """Test that nonexistent material returns None."""
@@ -457,14 +457,14 @@ class TestAddMaterial:
         result = material_hierarchy_service.add_material(
             subcategory_id=satin.id,
             name="Green Satin 1-inch",
-            base_unit_type="linear_inches",
+            base_unit_type="linear_cm",
             session=test_db,
         )
 
         assert result is not None
         assert result["name"] == "Green Satin 1-inch"
         assert result["subcategory_id"] == satin.id
-        assert result["base_unit_type"] == "linear_inches"
+        assert result["base_unit_type"] == "linear_cm"
         assert "slug" in result
 
     def test_add_material_default_unit_type(self, test_db):
@@ -716,7 +716,7 @@ class TestReparentMaterial:
             name=red_satin.name,
             slug="dup-red-satin",
             subcategory_id=grosgrain.id,
-            base_unit_type="linear_inches",
+            base_unit_type="linear_cm",
         )
         test_db.add(duplicate)
         test_db.flush()

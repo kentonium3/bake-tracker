@@ -17,10 +17,13 @@ Usage:
 """
 
 import json
+import logging
 from pathlib import Path
 from typing import Dict, List, Optional
 from dataclasses import dataclass, field
 from enum import Enum
+
+logger = logging.getLogger(__name__)
 
 from sqlalchemy.orm import Session
 
@@ -132,6 +135,14 @@ SUPPLIER_AUGMENTABLE_FIELDS = {
     "website_url",
     "notes",
     "is_active",
+}
+
+# Feature 058: MaterialProduct deprecated fields to ignore on import
+# These fields existed in old exports but are now tracked via MaterialInventoryItem (FIFO)
+MATERIAL_PRODUCT_DEPRECATED_FIELDS = {
+    "current_inventory",
+    "weighted_avg_cost",
+    "inventory_value",
 }
 
 
@@ -1761,7 +1772,8 @@ def _import_materials_impl(
 
     existing_slugs = {row.slug: row for row in session.query(Material).all()}
 
-    valid_base_units = {"linear_inches", "square_inches", "each"}
+    # Valid base unit types per Material model constraint ck_material_base_unit_type
+    valid_base_units = {"each", "linear_cm", "square_cm"}
 
     for item in data:
         slug = item.get("slug", "")
@@ -1960,6 +1972,21 @@ def _import_material_products_impl(
             existing_slugs[row.slug] = row
 
     for item in data:
+        # Feature 058: Filter out deprecated fields from old exports
+        deprecated_found = [
+            field for field in MATERIAL_PRODUCT_DEPRECATED_FIELDS
+            if field in item
+        ]
+        if deprecated_found:
+            product_name = item.get("name") or item.get("display_name", "unknown")
+            logger.info(
+                "MaterialProduct '%s': ignoring deprecated fields %s "
+                "(now tracked via MaterialInventoryItem FIFO)",
+                product_name, deprecated_found
+            )
+            # Create clean item without deprecated fields
+            item = {k: v for k, v in item.items() if k not in MATERIAL_PRODUCT_DEPRECATED_FIELDS}
+
         # Accept material_slug or material (by display name)
         material_slug = item.get("material_slug", "")
         material_name = item.get("material", "")
