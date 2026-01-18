@@ -1,14 +1,41 @@
 # TD-009: Add Slug Field to Supplier Model for Portable Identification
 
 **Created**: 2026-01-12
-**Status**: Open
+**Status**: Closed (Resolved)
+**Closed**: 2026-01-17
 **Priority**: Medium
 **Related Features**: F049 (Import/Export), F027 (Suppliers)
 **Impact**: Data model, import/export, FK resolution
 
 ---
 
-## Problem Statement
+## Resolution
+
+**Closed as Resolved** - All core functionality has been implemented.
+
+Analysis on 2026-01-17 confirmed:
+
+| Phase | Status | Evidence |
+|-------|--------|----------|
+| Phase 1: Add slug field | Complete | `Supplier.slug` at `supplier.py:81` |
+| Phase 2: Update export | Complete | `preferred_supplier_slug` in product export (`import_export_service.py:1348`) |
+| Phase 3: Update import | Complete | Slug resolution with ID fallback (`import_export_service.py:2640-2647, 3038-3081`) |
+| Phase 4: Deprecation | Partial | Backward compat works; test data uses IDs but imports correctly |
+
+Key implementations:
+- `Supplier.slug` field with unique constraint and index
+- `generate_supplier_slug()` in supplier_service.py
+- `import_export_service.py` exports `preferred_supplier_slug` and resolves by slug first
+- `catalog_import_service.py` has full slug resolution support
+- Backward compatibility maintained for legacy files using IDs
+
+Minor remaining items (not blocking):
+- Test data files still use `preferred_supplier_id` (works via backward compat)
+- No deprecation warnings for ID-only imports
+
+---
+
+## Original Problem Statement
 
 The Supplier model currently lacks a portable identifier (slug) for cross-system identification. This creates fragility in import/export workflows:
 
@@ -28,26 +55,6 @@ The Supplier model currently lacks a portable identifier (slug) for cross-system
 - Products reference ingredients via `ingredient_slug`
 - Materials use `slug` for portable identification
 - Suppliers are the outlier without slug support
-
----
-
-## Current Behavior
-
-```python
-# Product references supplier by ID (not portable)
-class Product(BaseModel):
-    preferred_supplier_id = Column(Integer, ForeignKey("suppliers.id"))
-
-# Import must map IDs at runtime
-supplier_id_map = {}  # old_id -> new_id
-for supplier_data in data["suppliers"]:
-    # Match by name/city/state (fragile)
-    existing = session.query(Supplier).filter_by(
-        name=name, city=city, state=state
-    ).first()
-    if existing:
-        supplier_id_map[old_id] = existing.id
-```
 
 ---
 
