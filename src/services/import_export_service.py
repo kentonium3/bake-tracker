@@ -62,6 +62,8 @@ class ImportResult:
         self.errors = []
         self.warnings = []
         self.entity_counts: Dict[str, Dict[str, int]] = {}
+        # F057: Track provisional products created during import
+        self.provisional_products_created = 0
 
     def add_success(self, entity_type: str = None):
         """Record a successful import."""

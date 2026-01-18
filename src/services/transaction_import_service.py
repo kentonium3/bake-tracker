@@ -269,6 +269,84 @@ def _resolve_product_by_slug(
     return None, f"Could not resolve product_slug '{product_slug}'. Expected format: ingredient_slug:brand:qty:unit (e.g., all_purpose_flour:King Arthur:5.0:lb)"
 
 
+def _try_create_provisional_from_slug(
+    product_slug: str,
+    session: Session,
+    result: "ImportResult",
+) -> Optional[Product]:
+    """
+    F057: Try to create a provisional product from composite slug.
+
+    If the product_slug is in composite format (ingredient_slug:brand:qty:unit)
+    and the ingredient exists, creates a provisional product.
+
+    Args:
+        product_slug: Product identifier, ideally composite slug
+        session: Database session
+        result: ImportResult to update with provisional count
+
+    Returns:
+        Created Product or None if insufficient info
+    """
+    from src.services.product_service import create_provisional_product
+
+    # Only works with composite slug format
+    parts = product_slug.split(":")
+    if len(parts) < 4:
+        return None
+
+    ingredient_slug = parts[0]
+    brand = parts[1] if parts[1] else "Unknown"
+    try:
+        package_unit_quantity = float(parts[2])
+    except (ValueError, TypeError):
+        return None
+    package_unit = parts[3]
+
+    # Resolve ingredient - must exist and be a leaf
+    ingredient = session.query(Ingredient).filter(
+        Ingredient.slug == ingredient_slug
+    ).first()
+    if not ingredient:
+        return None
+
+    # Check if ingredient is a leaf (hierarchy_level == 2)
+    if getattr(ingredient, "hierarchy_level", None) != 2:
+        return None
+
+    try:
+        product = create_provisional_product(
+            ingredient_id=ingredient.id,
+            brand=brand,
+            package_unit=package_unit,
+            package_unit_quantity=package_unit_quantity,
+            session=session,
+        )
+        # Track provisional creation in result
+        if hasattr(result, "provisional_products_created"):
+            result.provisional_products_created += 1
+        else:
+            result.provisional_products_created = 1
+
+        # Log info about provisional product creation (using warning for visibility)
+        result.add_warning(
+            "products",
+            product_slug,
+            f"Created provisional product: {brand} {package_unit_quantity} {package_unit}",
+            suggestion="Review this product in Products tab > Needs Review",
+        )
+        return product
+
+    except Exception as e:
+        # Log but don't fail - just return None
+        result.add_warning(
+            "products",
+            product_slug,
+            f"Failed to create provisional product: {e}",
+        )
+        return None
+
+
 # ============================================================================
 # Main Import Function
 # ============================================================================
@@ -442,13 +520,16 @@ def _process_single_purchase(
     # Resolve product using composite slug or other identifiers
     product, error = _resolve_product_by_slug(product_slug, session)
     if not product:
-        result.add_error(
-            "purchases",
-            product_slug,
-            f"Product '{product_slug}' not found: {error}",
-            suggestion="Ensure product exists in catalog before importing purchases",
-        )
-        return
+        # F057: Try to create provisional product from slug if we have enough info
+        product = _try_create_provisional_from_slug(product_slug, session, result)
+        if not product:
+            result.add_error(
+                "purchases",
+                product_slug,
+                f"Product '{product_slug}' not found: {error}",
+                suggestion="Ensure product exists in catalog or provide enough info for provisional creation",
+            )
+            return
 
     # Parse purchase date
     purchased_at_str = purchase_data.get("purchased_at")

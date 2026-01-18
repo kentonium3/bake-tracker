@@ -222,6 +222,32 @@ class ProductsTab(ctk.CTkFrame):
         )
         self.show_hidden_cb.pack(side="left", padx=20, pady=5)
 
+        # F057: Needs Review checkbox with badge
+        review_frame = ctk.CTkFrame(search_frame, fg_color="transparent")
+        review_frame.pack(side="left", padx=10, pady=5)
+
+        self.needs_review_var = ctk.BooleanVar(value=False)
+        self.needs_review_cb = ctk.CTkCheckBox(
+            review_frame,
+            text="Needs Review",
+            variable=self.needs_review_var,
+            command=self._on_needs_review_change,
+        )
+        self.needs_review_cb.pack(side="left")
+
+        # Badge for count
+        self.review_badge = ctk.CTkLabel(
+            review_frame,
+            text="",
+            font=ctk.CTkFont(size=10, weight="bold"),
+            fg_color="#FF6B35",  # Orange badge
+            text_color="white",
+            corner_radius=10,
+            width=24,
+            height=20,
+        )
+        # Badge hidden by default, shown when count > 0
+
         # Product count label
         self.count_label = ctk.CTkLabel(
             search_frame,
@@ -291,6 +317,9 @@ class ProductsTab(ctk.CTkFrame):
         # Configure tag for hidden products (grayed out)
         self.tree.tag_configure("hidden", foreground="gray")
 
+        # F057: Configure tag for provisional products
+        self.tree.tag_configure("provisional", foreground="#FF6B35")  # Orange text
+
         # Bind events
         self.tree.bind("<Double-1>", self._on_product_double_click)
         self.tree.bind("<Button-3>", self._on_right_click)  # Right-click (macOS/Linux)
@@ -311,6 +340,9 @@ class ProductsTab(ctk.CTkFrame):
 
             # Load products
             self._load_products()
+
+            # F057: Update provisional badge
+            self._update_review_badge()
 
         except Exception as e:
             messagebox.showerror(
@@ -367,40 +399,54 @@ class ProductsTab(ctk.CTkFrame):
         for item in self.tree.get_children():
             self.tree.delete(item)
 
-        # Build filter params
-        params: Dict[str, Any] = {
-            "include_hidden": self.show_hidden_var.get(),
-        }
+        # F057: Check if Needs Review filter is active
+        if self.needs_review_var.get():
+            # Use dedicated service method for provisional products
+            try:
+                self.products = product_catalog_service.get_provisional_products()
+            except Exception as e:
+                messagebox.showerror(
+                    "Error",
+                    f"Failed to fetch provisional products: {str(e)}",
+                    parent=self,
+                )
+                self.products = []
+        else:
+            # Normal product fetch with filters
+            # Build filter params
+            params: Dict[str, Any] = {
+                "include_hidden": self.show_hidden_var.get(),
+            }
 
-        # Add supplier filter
-        if self.supplier_var.get() != "All":
-            supplier = self._get_supplier_by_name(self.supplier_var.get())
-            if supplier:
-                params["supplier_id"] = supplier["id"]
+            # Add supplier filter
+            if self.supplier_var.get() != "All":
+                supplier = self._get_supplier_by_name(self.supplier_var.get())
+                if supplier:
+                    params["supplier_id"] = supplier["id"]
 
-        # Add search
-        search = self.search_var.get().strip()
-        if search:
-            params["search"] = search
+            # Add search
+            search = self.search_var.get().strip()
+            if search:
+                params["search"] = search
 
-        # Fetch products from service
-        try:
-            self.products = product_catalog_service.get_products(**params)
-        except Exception as e:
-            messagebox.showerror(
-                "Error",
-                f"Failed to fetch products: {str(e)}",
-                parent=self,
-            )
-            self.products = []
+            # Fetch products from service
+            try:
+                self.products = product_catalog_service.get_products(**params)
+            except Exception as e:
+                messagebox.showerror(
+                    "Error",
+                    f"Failed to fetch products: {str(e)}",
+                    parent=self,
+                )
+                self.products = []
 
-        # Apply brand filter (not supported by service, filter in UI)
-        if self.brand_var.get() != "All":
-            selected_brand = self.brand_var.get()
-            self.products = [p for p in self.products if p.get("brand") == selected_brand]
+            # Apply brand filter (not supported by service, filter in UI)
+            if self.brand_var.get() != "All":
+                selected_brand = self.brand_var.get()
+                self.products = [p for p in self.products if p.get("brand") == selected_brand]
 
-        # Feature 032: Apply hierarchy filters
-        self.products = self._apply_hierarchy_filters(self.products)
+            # Feature 032: Apply hierarchy filters
+            self.products = self._apply_hierarchy_filters(self.products)
 
         # Populate grid - Feature 032: hierarchy_path replaces category
         for p in self.products:
@@ -422,15 +468,26 @@ class ProductsTab(ctk.CTkFrame):
             ingredient_id = p.get("ingredient_id")
             hierarchy_path = self._hierarchy_path_cache.get(ingredient_id, "--")
 
+            # F057: Add [REVIEW] indicator for provisional products
+            product_name = p.get("product_name", "")
+            if p.get("is_provisional"):
+                product_name = f"[REVIEW] {product_name}" if product_name else "[REVIEW]"
+
             values = (
                 hierarchy_path,
-                p.get("product_name", ""),
+                product_name,
                 p.get("brand", ""),
                 package_display,
                 p.get("preferred_supplier_name", "") or "",
             )
-            tags = ("hidden",) if p.get("is_hidden") else ()
-            self.tree.insert("", "end", iid=str(p["id"]), values=values, tags=tags)
+
+            # F057: Apply tags for styling
+            tags = []
+            if p.get("is_hidden"):
+                tags.append("hidden")
+            if p.get("is_provisional"):
+                tags.append("provisional")
+            self.tree.insert("", "end", iid=str(p["id"]), values=values, tags=tuple(tags))
 
         # Update count label
         visible_count = len([p for p in self.products if not p.get("is_hidden")])
@@ -442,6 +499,9 @@ class ProductsTab(ctk.CTkFrame):
             )
         else:
             self.count_label.configure(text=f"{len(self.products)} products")
+
+        # F057: Update provisional badge
+        self._update_review_badge()
 
     def _get_ingredient_by_name(self, name: str) -> Optional[Dict[str, Any]]:
         """Find ingredient by name."""
@@ -460,6 +520,42 @@ class ProductsTab(ctk.CTkFrame):
     def _on_filter_change(self, *args):
         """Handle filter dropdown or checkbox change."""
         self._load_products()
+
+    # F057: Provisional product support methods
+    def _on_needs_review_change(self, *args) -> None:
+        """Handle Needs Review checkbox change."""
+        # Clear other filters when checking Needs Review for focused view
+        if self.needs_review_var.get():
+            # Use re-entry guard to prevent cascade callbacks
+            self._updating_filters = True
+            try:
+                # Clear filters for unobstructed view of provisional products
+                self.l0_filter_var.set("All Categories")
+                self.l1_filter_var.set("All")
+                self.l2_filter_var.set("All")
+                self._l1_map = {}
+                self._l2_map = {}
+                self.l1_filter_dropdown.configure(values=["All"], state="disabled")
+                self.l2_filter_dropdown.configure(values=["All"], state="disabled")
+                self.brand_var.set("All")
+                self.supplier_var.set("All")
+                self.search_var.set("")
+            finally:
+                self._updating_filters = False
+
+        self._load_products()
+
+    def _update_review_badge(self) -> None:
+        """Update the provisional product count badge."""
+        try:
+            count = product_catalog_service.get_provisional_count()
+            if count > 0:
+                self.review_badge.configure(text=str(count))
+                self.review_badge.pack(side="left", padx=(5, 0))
+            else:
+                self.review_badge.pack_forget()
+        except Exception:
+            self.review_badge.pack_forget()
 
     # Feature 032: Hierarchy filter and path helper methods
     def _build_hierarchy_path_cache(self):
@@ -671,11 +767,23 @@ class ProductsTab(ctk.CTkFrame):
 
         # Get product info to determine Hide/Unhide label
         product = self._get_product_by_id(int(item))
-        is_hidden = product.get("is_hidden", False) if product else False
+        if not product:
+            return
+        is_hidden = product.get("is_hidden", False)
+        is_provisional = product.get("is_provisional", False)
 
         # Create context menu
         menu = tk.Menu(self, tearoff=0)
         menu.add_command(label="Edit", command=self._on_edit_product)
+
+        # F057: Add "Mark as Reviewed" for provisional products
+        if is_provisional:
+            menu.add_command(
+                label="Mark as Reviewed",
+                command=self._on_mark_reviewed,
+            )
+            menu.add_separator()
+
         menu.add_command(
             label="Unhide" if is_hidden else "Hide",
             command=self._on_toggle_hidden,
@@ -738,6 +846,37 @@ class ProductsTab(ctk.CTkFrame):
             messagebox.showerror(
                 "Error",
                 f"Failed to update product visibility: {str(e)}",
+                parent=self,
+            )
+
+    def _on_mark_reviewed(self) -> None:
+        """Mark selected provisional product as reviewed (F057)."""
+        selection = self.tree.selection()
+        if not selection:
+            return
+
+        product_id = int(selection[0])
+        product = self._get_product_by_id(product_id)
+        if not product:
+            return
+
+        try:
+            product_catalog_service.mark_product_reviewed(product_id)
+
+            product_name = product.get("product_name") or product.get("display_name", "Unknown")
+            messagebox.showinfo(
+                "Success",
+                f"'{product_name}' marked as reviewed.",
+                parent=self,
+            )
+
+            # Refresh to update display
+            self._load_products()
+
+        except Exception as e:
+            messagebox.showerror(
+                "Error",
+                f"Failed to mark product as reviewed: {str(e)}",
                 parent=self,
             )
 

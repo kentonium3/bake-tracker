@@ -1137,3 +1137,375 @@ class TestLeafOnlyProductCatalogValidation:
                 ingredient_id=hierarchy_ingredients_catalog.root.id,
                 session=session,
             )
+
+
+# =============================================================================
+# F057: Provisional Product Support Tests
+# =============================================================================
+
+
+@pytest.fixture
+def leaf_ingredient(session):
+    """Create a leaf-level ingredient for provisional product tests."""
+    ingredient = Ingredient(
+        display_name="Test Leaf Ingredient",
+        slug="test-leaf-ingredient",
+        category="Test",
+        hierarchy_level=2,  # Leaf level
+    )
+    session.add(ingredient)
+    session.flush()
+    return ingredient
+
+
+@pytest.fixture
+def category_ingredient(session):
+    """Create a non-leaf (category) ingredient for validation tests."""
+    ingredient = Ingredient(
+        display_name="Test Category Ingredient",
+        slug="test-category-ingredient",
+        category="Test",
+        hierarchy_level=0,  # Root level (not a leaf)
+    )
+    session.add(ingredient)
+    session.flush()
+    return ingredient
+
+
+@pytest.fixture
+def provisional_product(session, leaf_ingredient):
+    """Create a provisional product for testing."""
+    product = Product(
+        ingredient_id=leaf_ingredient.id,
+        brand="Test Provisional",
+        package_unit="oz",
+        package_unit_quantity=8.0,
+        is_provisional=True,
+    )
+    session.add(product)
+    session.flush()
+    return product
+
+
+@pytest.fixture
+def regular_product(session, leaf_ingredient):
+    """Create a regular (non-provisional) product for testing."""
+    product = Product(
+        ingredient_id=leaf_ingredient.id,
+        brand="Test Regular",
+        product_name="Regular Product",
+        package_unit="lb",
+        package_unit_quantity=5.0,
+        is_provisional=False,
+    )
+    session.add(product)
+    session.flush()
+    return product
+
+
+class TestCreateProvisionalProduct:
+    """Tests for create_provisional_product() in product_service."""
+
+    def test_creates_product_with_provisional_flag(self, session, leaf_ingredient):
+        """Provisional product should have is_provisional=True."""
+        from src.services.product_service import create_provisional_product
+
+        product = create_provisional_product(
+            ingredient_id=leaf_ingredient.id,
+            brand="Test Brand",
+            package_unit="lb",
+            package_unit_quantity=5.0,
+            session=session,
+        )
+        assert product.is_provisional is True
+
+    def test_requires_leaf_ingredient(self, session, category_ingredient):
+        """Should reject non-leaf ingredients."""
+        from src.services.product_service import create_provisional_product
+        from src.services.exceptions import NonLeafIngredientError
+
+        with pytest.raises(NonLeafIngredientError):
+            create_provisional_product(
+                ingredient_id=category_ingredient.id,
+                brand="Test",
+                package_unit="lb",
+                package_unit_quantity=1.0,
+                session=session,
+            )
+
+    def test_minimal_fields_sufficient(self, session, leaf_ingredient):
+        """Should create with only required fields."""
+        from src.services.product_service import create_provisional_product
+
+        product = create_provisional_product(
+            ingredient_id=leaf_ingredient.id,
+            brand="Unknown",
+            package_unit="each",
+            package_unit_quantity=1.0,
+            session=session,
+        )
+        assert product.id is not None
+        assert product.brand == "Unknown"
+        assert product.package_unit == "each"
+        assert product.package_unit_quantity == 1.0
+        assert product.is_provisional is True
+
+    def test_with_optional_fields(self, session, leaf_ingredient):
+        """Should accept optional product_name and upc_code."""
+        from src.services.product_service import create_provisional_product
+
+        product = create_provisional_product(
+            ingredient_id=leaf_ingredient.id,
+            brand="King Arthur",
+            package_unit="lb",
+            package_unit_quantity=5.0,
+            product_name="Bread Flour",
+            upc_code="012345678901",
+            session=session,
+        )
+        assert product.product_name == "Bread Flour"
+        assert product.upc_code == "012345678901"
+
+    def test_normalizes_empty_product_name(self, session, leaf_ingredient):
+        """Empty product_name should be normalized to None."""
+        from src.services.product_service import create_provisional_product
+
+        product = create_provisional_product(
+            ingredient_id=leaf_ingredient.id,
+            brand="Test",
+            package_unit="lb",
+            package_unit_quantity=1.0,
+            product_name="",  # Empty string
+            session=session,
+        )
+        assert product.product_name is None
+
+    def test_invalid_ingredient_id_raises_error(self, session):
+        """Should raise ValidationError for non-existent ingredient."""
+        from src.services.product_service import create_provisional_product
+        from src.services.exceptions import ValidationError
+
+        with pytest.raises(ValidationError) as exc_info:
+            create_provisional_product(
+                ingredient_id=99999,  # Non-existent
+                brand="Test",
+                package_unit="lb",
+                package_unit_quantity=1.0,
+                session=session,
+            )
+        # ValidationError formats strings with semicolons, so check the raw message
+        error_str = str(exc_info.value).lower().replace("; ", "")
+        assert "notfound" in error_str or "not found" in error_str
+
+    def test_rejects_zero_quantity(self, session, leaf_ingredient):
+        """Should reject package_unit_quantity of 0."""
+        from src.services.product_service import create_provisional_product
+        from src.services.exceptions import ValidationError
+
+        with pytest.raises(ValidationError) as exc_info:
+            create_provisional_product(
+                ingredient_id=leaf_ingredient.id,
+                brand="Test",
+                package_unit="lb",
+                package_unit_quantity=0,
+                session=session,
+            )
+        # ValidationError formats with semicolons, remove them for assertion
+        error_str = str(exc_info.value).lower().replace("; ", "")
+        assert "positive" in error_str
+
+    def test_rejects_negative_quantity(self, session, leaf_ingredient):
+        """Should reject negative package_unit_quantity."""
+        from src.services.product_service import create_provisional_product
+        from src.services.exceptions import ValidationError
+
+        with pytest.raises(ValidationError) as exc_info:
+            create_provisional_product(
+                ingredient_id=leaf_ingredient.id,
+                brand="Test",
+                package_unit="lb",
+                package_unit_quantity=-5.0,
+                session=session,
+            )
+        # ValidationError formats with semicolons, remove them for assertion
+        error_str = str(exc_info.value).lower().replace("; ", "")
+        assert "positive" in error_str
+
+    def test_generates_slug(self, session, leaf_ingredient):
+        """Should generate a unique slug for the product."""
+        from src.services.product_service import create_provisional_product
+
+        product = create_provisional_product(
+            ingredient_id=leaf_ingredient.id,
+            brand="King Arthur",
+            package_unit="lb",
+            package_unit_quantity=5.0,
+            session=session,
+        )
+        assert product.slug is not None
+        # Slug format: ingredient_slug:brand:qty:unit
+        assert leaf_ingredient.slug in product.slug
+        assert "king_arthur" in product.slug
+        assert "5.0" in product.slug
+        assert "lb" in product.slug
+
+    def test_slug_collision_appends_suffix(self, session, leaf_ingredient):
+        """Should append suffix when slug already exists."""
+        from src.services.product_service import create_provisional_product
+
+        # Create first product
+        product1 = create_provisional_product(
+            ingredient_id=leaf_ingredient.id,
+            brand="Test Brand",
+            package_unit="oz",
+            package_unit_quantity=8.0,
+            session=session,
+        )
+        slug1 = product1.slug
+
+        # Create second product with same parameters - should get suffix
+        product2 = create_provisional_product(
+            ingredient_id=leaf_ingredient.id,
+            brand="Test Brand",
+            package_unit="oz",
+            package_unit_quantity=8.0,
+            session=session,
+        )
+        slug2 = product2.slug
+
+        # Slugs should be different
+        assert slug1 != slug2
+        # Second slug should have suffix
+        assert slug2.endswith("-2")
+
+
+class TestProvisionalProducts:
+    """Tests for provisional product methods in product_catalog_service."""
+
+    def test_get_provisional_products_returns_only_provisional(
+        self, session, provisional_product, regular_product
+    ):
+        """Should return only products with is_provisional=True."""
+        results = product_catalog_service.get_provisional_products(session=session)
+        ids = [p["id"] for p in results]
+        assert provisional_product.id in ids
+        assert regular_product.id not in ids
+
+    def test_get_provisional_products_excludes_hidden(
+        self, session, leaf_ingredient
+    ):
+        """Should exclude hidden provisional products."""
+        # Create a hidden provisional product
+        hidden_provisional = Product(
+            ingredient_id=leaf_ingredient.id,
+            brand="Hidden Provisional",
+            package_unit="oz",
+            package_unit_quantity=4.0,
+            is_provisional=True,
+            is_hidden=True,
+        )
+        session.add(hidden_provisional)
+        session.flush()
+
+        results = product_catalog_service.get_provisional_products(session=session)
+        ids = [p["id"] for p in results]
+        assert hidden_provisional.id not in ids
+
+    def test_get_provisional_products_ordered_by_date_desc(
+        self, session, leaf_ingredient
+    ):
+        """Should return products ordered by date_added descending."""
+        from src.utils.datetime_utils import utc_now
+        from datetime import timedelta
+
+        # Create two provisional products with different dates
+        older = Product(
+            ingredient_id=leaf_ingredient.id,
+            brand="Older Product",
+            package_unit="oz",
+            package_unit_quantity=1.0,
+            is_provisional=True,
+            date_added=utc_now() - timedelta(days=1),
+        )
+        newer = Product(
+            ingredient_id=leaf_ingredient.id,
+            brand="Newer Product",
+            package_unit="oz",
+            package_unit_quantity=1.0,
+            is_provisional=True,
+            date_added=utc_now(),
+        )
+        session.add(older)
+        session.add(newer)
+        session.flush()
+
+        results = product_catalog_service.get_provisional_products(session=session)
+        # Newest should be first
+        assert results[0]["brand"] == "Newer Product"
+
+    def test_get_provisional_products_enriches_data(
+        self, session, provisional_product, leaf_ingredient
+    ):
+        """Should include enriched data like ingredient_name."""
+        results = product_catalog_service.get_provisional_products(session=session)
+        assert len(results) == 1
+        assert results[0]["ingredient_name"] == "Test Leaf Ingredient"
+        assert results[0]["is_provisional"] is True
+
+    def test_get_provisional_count(self, session, provisional_product, regular_product):
+        """Should return accurate count of provisional products."""
+        count = product_catalog_service.get_provisional_count(session=session)
+        assert count == 1  # Only the provisional_product
+
+    def test_get_provisional_count_excludes_hidden(
+        self, session, provisional_product, leaf_ingredient
+    ):
+        """Should exclude hidden products from count."""
+        # Add a hidden provisional product
+        hidden = Product(
+            ingredient_id=leaf_ingredient.id,
+            brand="Hidden",
+            package_unit="oz",
+            package_unit_quantity=1.0,
+            is_provisional=True,
+            is_hidden=True,
+        )
+        session.add(hidden)
+        session.flush()
+
+        count = product_catalog_service.get_provisional_count(session=session)
+        assert count == 1  # Only the visible provisional_product
+
+    def test_get_provisional_count_zero_when_none(self, session, regular_product):
+        """Should return 0 when no provisional products exist."""
+        count = product_catalog_service.get_provisional_count(session=session)
+        assert count == 0
+
+    def test_mark_product_reviewed_clears_flag(self, session, provisional_product):
+        """Should set is_provisional to False."""
+        result = product_catalog_service.mark_product_reviewed(
+            provisional_product.id, session=session
+        )
+        assert result["is_provisional"] is False
+
+        # Verify no longer in provisional list
+        provisionals = product_catalog_service.get_provisional_products(session=session)
+        ids = [p["id"] for p in provisionals]
+        assert provisional_product.id not in ids
+
+    def test_mark_product_reviewed_not_found(self, session):
+        """Should raise ProductNotFound for invalid ID."""
+        with pytest.raises(ProductNotFound):
+            product_catalog_service.mark_product_reviewed(99999, session=session)
+
+    def test_mark_product_reviewed_returns_updated_product(
+        self, session, provisional_product
+    ):
+        """Should return full product dictionary after update."""
+        result = product_catalog_service.mark_product_reviewed(
+            provisional_product.id, session=session
+        )
+        assert "id" in result
+        assert "brand" in result
+        assert result["brand"] == "Test Provisional"
+        assert result["is_provisional"] is False

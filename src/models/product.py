@@ -67,6 +67,14 @@ class Product(BaseModel):
     upc_code = Column(
         String(20), nullable=True, index=True
     )  # UPC/barcode (legacy name, use gtin for GS1)
+
+    # F057: Unique slug for portability and AI data augmentation
+    # Format: ingredient_slug:brand:qty:unit (with collision suffix if needed)
+    slug = Column(
+        String(200), nullable=True, unique=True, index=True,
+        comment="Unique human-readable identifier for export/import portability"
+    )
+
     supplier = Column(String(200), nullable=True)  # Where to buy
     supplier_sku = Column(String(100), nullable=True)  # Supplier's product code
 
@@ -94,6 +102,15 @@ class Product(BaseModel):
         index=True
     )
     is_hidden = Column(Boolean, nullable=False, default=False, index=True)
+
+    # F057: Provisional Product Support
+    is_provisional = Column(
+        Boolean,
+        default=False,
+        nullable=False,
+        index=True,
+        comment="True if product was created during purchase entry and needs review"
+    )
 
     # Additional information
     notes = Column(Text, nullable=True)
@@ -124,6 +141,8 @@ class Product(BaseModel):
         # Feature 027: Indexes for new columns
         Index("idx_product_preferred_supplier", "preferred_supplier_id"),
         Index("idx_product_hidden", "is_hidden"),
+        # F057: Index for provisional product filtering
+        Index("idx_product_provisional", "is_provisional"),
         # Unique constraint to prevent duplicate product variants
         # Note: SQLite treats NULL as distinct, so multiple products with NULL product_name are allowed
         UniqueConstraint(
