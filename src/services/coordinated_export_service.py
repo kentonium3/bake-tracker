@@ -1004,6 +1004,27 @@ def _import_complete_impl(
     return result
 
 
+def _parse_date(date_str: Optional[str]):
+    """Parse ISO date string to Python date object.
+
+    Args:
+        date_str: Date string in ISO format (YYYY-MM-DD) or None
+
+    Returns:
+        date object or None if input is None/empty
+    """
+    if not date_str:
+        return None
+    from datetime import date
+    # Handle both date-only and datetime strings
+    date_part = date_str.split("T")[0] if "T" in date_str else date_str
+    try:
+        parts = date_part.split("-")
+        return date(int(parts[0]), int(parts[1]), int(parts[2]))
+    except (ValueError, IndexError):
+        return None
+
+
 def _import_entity_records(
     entity_type: str,
     records: List[Dict],
@@ -1262,7 +1283,7 @@ def _import_entity_records(
                                     obj = Purchase(
                                         product_id=product.id,
                                         supplier_id=supplier.id,
-                                        purchase_date=record.get("purchase_date"),
+                                        purchase_date=_parse_date(record.get("purchase_date")),
                                         unit_price=record.get("unit_price"),
                                         quantity_purchased=record.get("quantity_purchased"),
                                         notes=record.get("notes"),
@@ -1290,8 +1311,8 @@ def _import_entity_records(
                                     product_id=product.id,
                                     quantity=record.get("quantity"),
                                     unit_cost=record.get("unit_cost"),
-                                    purchase_date=record.get("purchase_date"),
-                                    expiration_date=record.get("expiration_date"),
+                                    purchase_date=_parse_date(record.get("purchase_date")),
+                                    expiration_date=_parse_date(record.get("expiration_date")),
                                     location=record.get("location"),
                                 )
                                 session.add(obj)
@@ -1373,6 +1394,90 @@ def _import_entity_records(
                     )
                     session.add(obj)
                     imported_count += 1
+
+            elif entity_type == "finished_goods":
+                from src.models.finished_good import AssemblyType
+                # Parse assembly_type enum
+                assembly_type_str = record.get("assembly_type")
+                assembly_type = None
+                if assembly_type_str:
+                    try:
+                        assembly_type = AssemblyType(assembly_type_str)
+                    except ValueError:
+                        assembly_type = AssemblyType.SIMPLE
+
+                obj = FinishedGood(
+                    slug=record.get("slug"),
+                    display_name=record.get("display_name"),
+                    description=record.get("description"),
+                    assembly_type=assembly_type,
+                    packaging_instructions=record.get("packaging_instructions"),
+                    inventory_count=record.get("inventory_count", 0),
+                    notes=record.get("notes"),
+                )
+                session.add(obj)
+                imported_count += 1
+
+            elif entity_type == "events":
+                from src.models.event import OutputMode
+                # Parse output_mode enum
+                output_mode_str = record.get("output_mode")
+                output_mode = None
+                if output_mode_str:
+                    try:
+                        output_mode = OutputMode(output_mode_str)
+                    except ValueError:
+                        pass
+
+                obj = Event(
+                    name=record.get("name"),
+                    event_date=_parse_date(record.get("event_date")),
+                    year=record.get("year"),
+                    output_mode=output_mode,
+                    notes=record.get("notes"),
+                )
+                session.add(obj)
+                imported_count += 1
+
+            elif entity_type == "production_runs":
+                # Resolve FKs by name/slug
+                recipe_name = record.get("recipe_name")
+                recipe = session.query(Recipe).filter(
+                    Recipe.name == recipe_name
+                ).first() if recipe_name else None
+
+                finished_unit_slug = record.get("finished_unit_slug")
+                finished_unit = session.query(FinishedUnit).filter(
+                    FinishedUnit.slug == finished_unit_slug
+                ).first() if finished_unit_slug else None
+
+                event_name = record.get("event_name")
+                event = session.query(Event).filter(
+                    Event.name == event_name
+                ).first() if event_name else None
+
+                if recipe:
+                    obj = ProductionRun(
+                        recipe_id=recipe.id,
+                        finished_unit_id=finished_unit.id if finished_unit else None,
+                        event_id=event.id if event else None,
+                        num_batches=record.get("num_batches"),
+                        expected_yield=record.get("expected_yield"),
+                        actual_yield=record.get("actual_yield"),
+                        produced_at=_parse_date(record.get("produced_at")),
+                        notes=record.get("notes"),
+                        production_status=record.get("production_status"),
+                        loss_quantity=record.get("loss_quantity"),
+                        total_ingredient_cost=record.get("total_ingredient_cost"),
+                        per_unit_cost=record.get("per_unit_cost"),
+                    )
+                    session.add(obj)
+                    imported_count += 1
+
+            elif entity_type == "inventory_depletions":
+                # Inventory depletions reference inventory_items by complex key
+                # Skip for now as this requires complex FK resolution
+                pass
 
             session.flush()
 
