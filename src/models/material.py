@@ -75,7 +75,7 @@ class Material(BaseModel):
         Index("idx_material_slug", "slug"),
         Index("idx_material_name", "name"),
         CheckConstraint(
-            "base_unit_type IN ('each', 'linear_inches', 'square_inches')",
+            "base_unit_type IN ('each', 'linear_cm', 'square_cm')",
             name="ck_material_base_unit_type",
         ),
     )

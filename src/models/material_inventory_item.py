@@ -95,8 +95,10 @@ class MaterialInventoryItem(BaseModel):
         "MaterialPurchase",
         back_populates="inventory_item",
     )
-    # Note: consumptions relationship will be added in WP03 when
-    # MaterialConsumption gets the inventory_item_id FK (T009-T010)
+    consumptions = relationship(
+        "MaterialConsumption",
+        back_populates="inventory_item",
+    )
 
     # Table constraints and indexes
     __table_args__ = (
