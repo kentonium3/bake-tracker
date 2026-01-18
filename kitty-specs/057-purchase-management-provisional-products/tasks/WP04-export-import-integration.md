@@ -1,9 +1,10 @@
 ---
 work_package_id: WP04
 title: Export/Import Integration
-lane: planned
+lane: "doing"
 dependencies: []
 subtasks: [T018, T019, T020, T021, T022]
+agent: "claude"
 history:
 - date: '2026-01-17'
   action: created
@@ -456,3 +457,7 @@ When reviewing this WP:
 3. Check that import errors are logged clearly
 4. Test edge cases: empty brand, no ingredient data, duplicate UPC
 5. Verify results count accuracy
+
+## Activity Log
+
+- 2026-01-18T02:20:13Z – claude – lane=doing – Starting implementation of JSON Import Integration
