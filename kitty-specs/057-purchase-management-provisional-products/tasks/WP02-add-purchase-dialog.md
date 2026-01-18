@@ -1,9 +1,10 @@
 ---
 work_package_id: WP02
 title: Add Purchase Dialog Enhancement
-lane: planned
+lane: "doing"
 dependencies: []
 subtasks: [T007, T008, T009, T010, T011, T012]
+agent: "claude"
 history:
 - date: '2026-01-17'
   action: created
@@ -653,3 +654,7 @@ When reviewing this WP:
 3. Check that provisional product appears in dropdown immediately
 4. Verify ingredient cascade works correctly
 5. Test with edge cases: long brand names, special characters
+
+## Activity Log
+
+- 2026-01-18T02:12:23Z – claude – lane=doing – Starting implementation of Purchase Service Integration
