@@ -7,7 +7,7 @@ subtasks:
   - "T032"
 title: "Purchase Integration"
 phase: "Phase 3 - Integration"
-lane: "doing"
+lane: "done"
 assignee: "claude-opus"
 agent: "claude-opus"
 shell_pid: "29058"
@@ -342,3 +342,4 @@ class TestPurchaseCreatesInventoryItem:
 - 2026-01-18T19:20:31Z – gemini – lane=for_review – T029-T032 complete: Purchase creates inventory item
 - 2026-01-18T20:07:17Z – claude-opus – lane=done – Review passed: MaterialPurchaseService integration with FIFO inventory
 - 2026-01-18T21:34:53Z – claude-opus – shell_pid=29058 – lane=doing – Started review via workflow command
+- 2026-01-18T21:35:07Z – claude-opus – shell_pid=29058 – lane=done – Review passed: Purchase creates MaterialInventoryItem atomically, unit conversion, weighted average deprecated

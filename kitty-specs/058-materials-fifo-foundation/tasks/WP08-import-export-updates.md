@@ -6,7 +6,7 @@ subtasks:
   - "T035"
 title: "Import/Export Schema Handling"
 phase: "Phase 4 - Polish"
-lane: "doing"
+lane: "done"
 assignee: "claude-opus"
 agent: "claude-opus"
 shell_pid: "29350"
@@ -314,3 +314,4 @@ class TestMaterialProductRoundtrip:
 - 2026-01-18T19:20:33Z – gemini – lane=for_review – T033-T035 complete: Import/export handles deprecated fields
 - 2026-01-18T20:07:18Z – claude-opus – lane=done – Review passed: Import/export updated for deprecated field removal
 - 2026-01-18T21:35:20Z – claude-opus – shell_pid=29350 – lane=doing – Started review via workflow command
+- 2026-01-18T21:36:01Z – claude-opus – shell_pid=29350 – lane=done – Review passed: Export excludes deprecated fields, import ignores them, roundtrip tests pass

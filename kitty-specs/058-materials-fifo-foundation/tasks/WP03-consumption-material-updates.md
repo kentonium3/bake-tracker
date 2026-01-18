@@ -6,7 +6,7 @@ subtasks:
   - "T011"
 title: "Schema Changes - MaterialConsumption & Material Updates"
 phase: "Phase 1 - Foundation"
-lane: "doing"
+lane: "done"
 assignee: "claude-opus"
 agent: "claude-opus"
 shell_pid: "27637"
@@ -213,3 +213,4 @@ def test_material_base_unit_type_metric():
 - 2026-01-18T19:09:03Z – unknown – lane=for_review – T009-T011 complete: Added FIFO traceability
 - 2026-01-18T20:07:04Z – claude-opus – lane=done – Review passed: MaterialConsumption traceability added with inventory_item_id FK
 - 2026-01-18T21:32:03Z – claude-opus – shell_pid=27637 – lane=doing – Started review via workflow command
+- 2026-01-18T21:32:46Z – claude-opus – shell_pid=27637 – lane=done – Review passed: inventory_item_id FK and relationship added to MaterialConsumption, Material CHECK constraint uses metric values. Minor: docstring still mentions inches but constraint is correct.

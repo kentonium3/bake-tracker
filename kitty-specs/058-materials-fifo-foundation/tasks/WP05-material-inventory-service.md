@@ -8,7 +8,7 @@ subtasks:
   - "T021"
 title: "MaterialInventoryService Core"
 phase: "Phase 2 - Services"
-lane: "doing"
+lane: "done"
 assignee: "claude-opus"
 agent: "claude-opus"
 shell_pid: "28309"
@@ -513,3 +513,4 @@ lots = get_fifo_inventory(1)  # Should return empty list or lots
 - 2026-01-18T19:20:30Z – claude – lane=for_review – T017-T021 complete: MaterialInventoryService with FIFO operations
 - 2026-01-18T20:07:07Z – claude-opus – lane=done – Review passed: MaterialInventoryService with FIFO consumption operations
 - 2026-01-18T21:33:45Z – claude-opus – shell_pid=28309 – lane=doing – Started review via workflow command
+- 2026-01-18T21:34:00Z – claude-opus – shell_pid=28309 – lane=done – Review passed: MaterialInventoryService with FIFO consumption, availability validation, session pattern compliance

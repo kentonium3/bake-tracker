@@ -29,10 +29,10 @@ This is a single desktop application:
 **Agent Assignment**: Claude (core foundation)
 
 ### Included Subtasks
-- [ ] T001 [P] Create MaterialInventoryItem model in `src/models/material_inventory_item.py`
-- [ ] T002 Add MaterialInventoryItem to `src/models/__init__.py` exports
-- [ ] T003 Add inventory_items relationship to MaterialProduct model
-- [ ] T004 Add inventory_item relationship to MaterialPurchase model (1:1)
+- [x] T001 [P] Create MaterialInventoryItem model in `src/models/material_inventory_item.py`
+- [x] T002 Add MaterialInventoryItem to `src/models/__init__.py` exports
+- [x] T003 Add inventory_items relationship to MaterialProduct model
+- [x] T004 Add inventory_item relationship to MaterialPurchase model (1:1)
 
 ### Implementation Notes
 - Follow InventoryItem pattern exactly per research.md
@@ -59,10 +59,10 @@ This is a single desktop application:
 **Agent Assignment**: Claude (core schema)
 
 ### Included Subtasks
-- [ ] T005 Remove current_inventory field from MaterialProduct model
-- [ ] T006 Remove weighted_avg_cost field from MaterialProduct model
-- [ ] T007 Remove inventory_value property from MaterialProduct model
-- [ ] T008 Remove related CheckConstraints (ck_material_product_inventory_non_negative, ck_material_product_cost_non_negative)
+- [x] T005 Remove current_inventory field from MaterialProduct model
+- [x] T006 Remove weighted_avg_cost field from MaterialProduct model
+- [x] T007 Remove inventory_value property from MaterialProduct model
+- [x] T008 Remove related CheckConstraints (ck_material_product_inventory_non_negative, ck_material_product_cost_non_negative)
 
 ### Implementation Notes
 - This is a BREAKING CHANGE - users must export data before migration
@@ -88,9 +88,9 @@ This is a single desktop application:
 **Agent Assignment**: Claude (core schema)
 
 ### Included Subtasks
-- [ ] T009 Add inventory_item_id FK to MaterialConsumption model
-- [ ] T010 Add inventory_item relationship to MaterialConsumption
-- [ ] T011 Update Material.base_unit_type CHECK constraint to use metric values ('linear_cm', 'square_cm', 'each')
+- [x] T009 Add inventory_item_id FK to MaterialConsumption model
+- [x] T010 Add inventory_item relationship to MaterialConsumption
+- [x] T011 Update Material.base_unit_type CHECK constraint to use metric values ('linear_cm', 'square_cm', 'each')
 
 ### Implementation Notes
 - inventory_item_id is nullable for backward compatibility with existing records
@@ -116,11 +116,11 @@ This is a single desktop application:
 **Agent Assignment**: Gemini (independent module)
 
 ### Included Subtasks
-- [ ] T012 [P] Create `src/services/material_unit_converter.py` with conversion factor dictionaries
-- [ ] T013 [P] Implement `convert_to_base_units()` function
-- [ ] T014 [P] Implement `convert_from_base_units()` function
-- [ ] T015 [P] Implement `validate_unit_compatibility()` function
-- [ ] T016 [P] Create `src/tests/test_material_unit_converter.py` with comprehensive tests
+- [x] T012 [P] Create `src/services/material_unit_converter.py` with conversion factor dictionaries
+- [x] T013 [P] Implement `convert_to_base_units()` function
+- [x] T014 [P] Implement `convert_from_base_units()` function
+- [x] T015 [P] Implement `validate_unit_compatibility()` function
+- [x] T016 [P] Create `src/tests/test_material_unit_converter.py` with comprehensive tests
 
 ### Implementation Notes
 - Linear conversions to cm: feet (×30.48), inches (×2.54), yards (×91.44), meters (×100), mm (×0.1)
@@ -147,11 +147,11 @@ This is a single desktop application:
 **Agent Assignment**: Claude (core FIFO logic)
 
 ### Included Subtasks
-- [ ] T017 Create `src/services/material_inventory_service.py` structure
-- [ ] T018 Implement `get_fifo_inventory(material_product_id)` - returns lots ordered by purchase_date ASC
-- [ ] T019 Implement `calculate_available_inventory(material_product_id)` - sum of quantity_remaining
-- [ ] T020 Implement `consume_material_fifo()` algorithm with session pattern
-- [ ] T021 Implement `validate_inventory_availability(requirements)` function
+- [x] T017 Create `src/services/material_inventory_service.py` structure
+- [x] T018 Implement `get_fifo_inventory(material_product_id)` - returns lots ordered by purchase_date ASC
+- [x] T019 Implement `calculate_available_inventory(material_product_id)` - sum of quantity_remaining
+- [x] T020 Implement `consume_material_fifo()` algorithm with session pattern
+- [x] T021 Implement `validate_inventory_availability(requirements)` function
 
 ### Implementation Notes
 - Copy consume_fifo pattern from inventory_item_service.py exactly
@@ -179,15 +179,15 @@ This is a single desktop application:
 **Agent Assignment**: Claude (test quality)
 
 ### Included Subtasks
-- [ ] T022 Create `src/tests/test_material_inventory_service.py` test file
-- [ ] T023 Test get_fifo_inventory() ordering behavior
-- [ ] T024 Test calculate_available_inventory() aggregation
-- [ ] T025 Test consume_material_fifo() single-lot scenario
-- [ ] T026 Test consume_material_fifo() multi-lot FIFO scenario
-- [ ] T027 Test consume_material_fifo() with shortfall
-- [ ] T028 Test validate_inventory_availability() success and failure cases
-- [ ] T044 Test quantity_purchased immutability enforcement (FR-015)
-- [ ] T045 Test cost_per_unit immutability enforcement (FR-016)
+- [x] T022 Create `src/tests/test_material_inventory_service.py` test file
+- [x] T023 Test get_fifo_inventory() ordering behavior
+- [x] T024 Test calculate_available_inventory() aggregation
+- [x] T025 Test consume_material_fifo() single-lot scenario
+- [x] T026 Test consume_material_fifo() multi-lot FIFO scenario
+- [x] T027 Test consume_material_fifo() with shortfall
+- [x] T028 Test validate_inventory_availability() success and failure cases
+- [x] T044 Test quantity_purchased immutability enforcement (FR-015)
+- [x] T045 Test cost_per_unit immutability enforcement (FR-016)
 
 ### Implementation Notes
 - Use pytest fixtures for test data setup
@@ -213,10 +213,10 @@ This is a single desktop application:
 **Agent Assignment**: Claude (integration)
 
 ### Included Subtasks
-- [ ] T029 Update `material_purchase_service.py` to create MaterialInventoryItem on purchase
-- [ ] T030 Remove `_update_inventory_on_purchase()` weighted average logic
-- [ ] T031 Add unit conversion on purchase (imperial input → metric base units)
-- [ ] T032 Add purchase→inventory integration tests
+- [x] T029 Update `material_purchase_service.py` to create MaterialInventoryItem on purchase
+- [x] T030 Remove `_update_inventory_on_purchase()` weighted average logic
+- [x] T031 Add unit conversion on purchase (imperial input → metric base units)
+- [x] T032 Add purchase→inventory integration tests
 
 ### Implementation Notes
 - Convert: 100 feet → 3048 cm; $15/100ft → $0.00492/cm
@@ -243,9 +243,9 @@ This is a single desktop application:
 **Agent Assignment**: Gemini (independent)
 
 ### Included Subtasks
-- [ ] T033 Update MaterialProduct export to exclude current_inventory and weighted_avg_cost
-- [ ] T034 Update MaterialProduct import to gracefully ignore current_inventory and weighted_avg_cost
-- [ ] T035 Add import/export roundtrip tests for new schema
+- [x] T033 Update MaterialProduct export to exclude current_inventory and weighted_avg_cost
+- [x] T034 Update MaterialProduct import to gracefully ignore current_inventory and weighted_avg_cost
+- [x] T035 Add import/export roundtrip tests for new schema
 
 ### Implementation Notes
 - EXCLUDED_FIELDS = {"current_inventory", "weighted_avg_cost"}
@@ -271,9 +271,9 @@ This is a single desktop application:
 **Agent Assignment**: Claude (UI)
 
 ### Included Subtasks
-- [ ] T036 Remove cost/inventory columns from materials_tab.py product list
-- [ ] T037 Update any column width/layout calculations
-- [ ] T038 Remove inventory_value from denormalized export service (if present)
+- [x] T036 Remove cost/inventory columns from materials_tab.py product list
+- [x] T037 Update any column width/layout calculations
+- [x] T038 Remove inventory_value from denormalized export service (if present)
 
 ### Implementation Notes
 - Catalog should show: Name, Brand, SKU, Package (qty + unit), Supplier
@@ -299,11 +299,11 @@ This is a single desktop application:
 **Agent Assignment**: Claude (final validation)
 
 ### Included Subtasks
-- [ ] T039 Create `src/tests/test_material_fifo_integration.py`
-- [ ] T040 Test purchase→inventory item creation flow
-- [ ] T041 Test multi-lot FIFO consumption scenario (per spec acceptance criteria)
-- [ ] T042 Test cost calculation accuracy across multiple lots
-- [ ] T043 Test pattern consistency with ingredient FIFO system
+- [x] T039 Create `src/tests/test_material_fifo_integration.py`
+- [x] T040 Test purchase→inventory item creation flow
+- [x] T041 Test multi-lot FIFO consumption scenario (per spec acceptance criteria)
+- [x] T042 Test cost calculation accuracy across multiple lots
+- [x] T043 Test pattern consistency with ingredient FIFO system
 
 ### Implementation Notes
 - Acceptance scenario from spec: Lot A (100cm @ $0.10) + Lot B (100cm @ $0.15), consume 50cm → $5.00 from Lot A only

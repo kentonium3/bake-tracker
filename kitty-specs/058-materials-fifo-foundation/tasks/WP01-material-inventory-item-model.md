@@ -7,7 +7,7 @@ subtasks:
   - "T004"
 title: "Schema Changes - MaterialInventoryItem Model"
 phase: "Phase 1 - Foundation"
-lane: "doing"
+lane: "done"
 assignee: "claude-opus"
 agent: "claude-opus"
 shell_pid: "25073"
@@ -247,3 +247,4 @@ def test_material_inventory_item_can_be_created():
 - 2026-01-18T20:06:28Z – claude-opus – shell_pid=9695 – lane=doing – Started review via workflow command
 - 2026-01-18T20:06:52Z – claude-opus – shell_pid=9695 – lane=done – Review passed: MaterialInventoryItem model complete with all required fields, relationships, and helper methods
 - 2026-01-18T21:19:43Z – claude-opus – shell_pid=25073 – lane=doing – Started review via workflow command
+- 2026-01-18T21:24:36Z – claude-opus – shell_pid=25073 – lane=done – Review passed: MaterialInventoryItem model complete with all required fields, relationships, constraints, and indexes per data-model.md

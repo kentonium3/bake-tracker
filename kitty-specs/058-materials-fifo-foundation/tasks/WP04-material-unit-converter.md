@@ -8,7 +8,7 @@ subtasks:
   - "T016"
 title: "Material Unit Converter"
 phase: "Phase 2 - Services"
-lane: "doing"
+lane: "done"
 assignee: "claude-opus"
 agent: "claude-opus"
 shell_pid: "27987"
@@ -494,3 +494,4 @@ class TestValidateUnitCompatibility:
 - 2026-01-18T18:36:53Z – gemini-cli – lane=for_review – Ready for review: Material unit converter with 56 passing tests. All conversions (linear, area, each) implemented per FR-011 to FR-014.
 - 2026-01-18T20:07:06Z – claude-opus – lane=done – Review passed: material_unit_converter service with metric base units
 - 2026-01-18T21:32:59Z – claude-opus – shell_pid=27987 – lane=doing – Started review via workflow command
+- 2026-01-18T21:33:32Z – claude-opus – shell_pid=27987 – lane=done – Review passed: Unit converter with all linear/area conversions, validation, 56 tests passing

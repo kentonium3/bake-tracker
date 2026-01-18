@@ -12,7 +12,7 @@ subtasks:
   - "T045"
 title: "MaterialInventoryService Tests"
 phase: "Phase 2 - Services"
-lane: "doing"
+lane: "done"
 assignee: "claude-opus"
 agent: "claude-opus"
 shell_pid: "28682"
@@ -651,3 +651,4 @@ Expected: >70% coverage
 - 2026-01-18T19:32:05Z – claude – lane=for_review – T022-T028,T044-T045 complete: 26 tests, 90% coverage
 - 2026-01-18T20:07:15Z – claude-opus – lane=done – Review passed: Comprehensive MaterialInventoryService tests
 - 2026-01-18T21:34:14Z – claude-opus – shell_pid=28682 – lane=doing – Started review via workflow command
+- 2026-01-18T21:34:48Z – claude-opus – shell_pid=28682 – lane=done – Review passed: 26 tests covering FIFO consumption, availability validation, immutability, session management

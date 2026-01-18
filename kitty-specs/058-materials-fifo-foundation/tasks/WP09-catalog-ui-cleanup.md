@@ -6,7 +6,7 @@ subtasks:
   - "T038"
 title: "Catalog UI Cleanup"
 phase: "Phase 4 - Polish"
-lane: "doing"
+lane: "done"
 assignee: "claude-opus"
 agent: "claude-opus"
 shell_pid: "29661"
@@ -219,3 +219,4 @@ Manual testing:
 - 2026-01-18T19:32:06Z – gemini – lane=for_review – T036-T038 complete: UI cleanup done
 - 2026-01-18T20:07:20Z – claude-opus – lane=done – Review passed: UI updated to remove deprecated inventory fields
 - 2026-01-18T21:36:05Z – claude-opus – shell_pid=29661 – lane=doing – Started review via workflow command
+- 2026-01-18T21:36:31Z – claude-opus – shell_pid=29661 – lane=done – Review passed: UI uses metric base units, adjust_inventory disabled with FIFO explanation

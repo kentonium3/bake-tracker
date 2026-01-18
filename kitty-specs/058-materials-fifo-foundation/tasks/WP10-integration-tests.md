@@ -1,7 +1,7 @@
 ---
 work_package_id: WP10
 title: Integration Tests & Validation
-lane: "doing"
+lane: "done"
 dependencies: []
 subtasks:
 - T039
@@ -638,3 +638,4 @@ All tests should pass before marking F058 as complete.
 - 2026-01-18T20:01:07Z – claude-opus – lane=for_review – All 2384 tests pass; integration tests complete
 - 2026-01-18T20:07:21Z – claude-opus – lane=done – Review passed: All 2384 tests pass with FIFO integration tests
 - 2026-01-18T21:36:42Z – claude-opus – shell_pid=29933 – lane=doing – Started review via workflow command
+- 2026-01-18T21:41:23Z – claude-opus – shell_pid=29933 – lane=done – Review passed: 11 integration tests covering purchase-to-inventory flow, multi-lot FIFO consumption, cost calculation, pattern consistency
