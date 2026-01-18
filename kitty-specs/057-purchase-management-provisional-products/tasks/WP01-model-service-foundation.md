@@ -1,11 +1,13 @@
 ---
 work_package_id: "WP01"
 title: "Model & Service Foundation"
-lane: "planned"
+lane: "doing"
 dependencies: []
 subtasks: ["T001", "T002", "T003", "T004", "T005", "T006"]
 priority: "P0"
 estimated_lines: 350
+agent: "claude"
+shell_pid: "5204"
 history:
   - date: "2026-01-17"
     action: "created"
@@ -419,3 +421,7 @@ When reviewing this WP:
 3. Check that `create_provisional_product` validates leaf ingredients
 4. Ensure tests use fixtures, not hardcoded IDs
 5. Run full test suite to catch regressions
+
+## Activity Log
+
+- 2026-01-18T01:43:33Z – claude – shell_pid=5204 – lane=doing – Started implementation via workflow command
