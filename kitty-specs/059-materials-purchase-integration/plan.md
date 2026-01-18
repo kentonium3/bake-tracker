@@ -1,108 +1,209 @@
-# Implementation Plan: [FEATURE]
-*Path: [templates/plan-template.md](templates/plan-template.md)*
+# Implementation Plan: Materials Purchase Integration & Workflows
 
-
-**Branch**: `[###-feature-name]` | **Date**: [DATE] | **Spec**: [link]
-**Input**: Feature specification from `/kitty-specs/[###-feature-name]/spec.md`
-
-**Note**: This template is filled in by the `/spec-kitty.plan` command. See `.kittify/templates/commands/plan.md` for the execution workflow.
-
-The planner will not begin until all planning questions have been answered—capture those answers in this document before progressing to later phases.
+**Branch**: `059-materials-purchase-integration` | **Date**: 2026-01-18 | **Spec**: [spec.md](./spec.md)
+**Input**: Feature specification from `/kitty-specs/059-materials-purchase-integration/spec.md`
+**Research**: [research.md](./research.md)
 
 ## Summary
 
-[Extract from feature spec: primary requirement + technical approach from research]
+This feature enables complete UI workflows for purchasing and managing materials in Bake Tracker. F058 built the backend FIFO infrastructure, but no UI exists to use it.
+
+**Technical Approach** (from research):
+1. **Purchase Form**: Extend `AddPurchaseDialog` with product type radio selector; reuse F057 provisional pattern
+2. **Inventory Display**: Add Materials tab to `purchases_tab.py` using `ttk.Treeview` pattern from `inventory_tab.py`
+3. **Adjustment Dialog**: New `CTkToplevel` modal following existing dialog patterns
+4. **CLI Extension**: Add `purchase material` command to `import_export_cli.py` using argparse
+5. **MaterialUnit Enhancement**: Add unit type display to existing `MaterialUnitFormDialog`
 
 ## Technical Context
 
-<!--
-  ACTION REQUIRED: Replace the content in this section with the technical details
-  for the project. The structure here is presented in advisory capacity to guide
-  the iteration process.
--->
-
-**Language/Version**: [e.g., Python 3.11, Swift 5.9, Rust 1.75 or NEEDS CLARIFICATION]  
-**Primary Dependencies**: [e.g., FastAPI, UIKit, LLVM or NEEDS CLARIFICATION]  
-**Storage**: [if applicable, e.g., PostgreSQL, CoreData, files or N/A]  
-**Testing**: [e.g., pytest, XCTest, cargo test or NEEDS CLARIFICATION]  
-**Target Platform**: [e.g., Linux server, iOS 15+, WASM or NEEDS CLARIFICATION]
-**Project Type**: [single/web/mobile - determines source structure]  
-**Performance Goals**: [domain-specific, e.g., 1000 req/s, 10k lines/sec, 60 fps or NEEDS CLARIFICATION]  
-**Constraints**: [domain-specific, e.g., <200ms p95, <100MB memory, offline-capable or NEEDS CLARIFICATION]  
-**Scale/Scope**: [domain-specific, e.g., 10k users, 1M LOC, 50 screens or NEEDS CLARIFICATION]
+**Language/Version**: Python 3.10+ (per constitution)
+**Primary Dependencies**: CustomTkinter (UI), SQLAlchemy 2.x (ORM), tkinter.ttk (Treeview)
+**Storage**: SQLite with WAL mode
+**Testing**: pytest with >70% service coverage (per constitution)
+**Target Platform**: Desktop (Windows/macOS/Linux via PyInstaller)
+**Project Type**: Single desktop application
+**Performance Goals**: N/A (single-user desktop app)
+**Constraints**: UI must be intuitive for non-technical users
+**Scale/Scope**: Single user; ~6 new/modified UI components
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-[Gates determined based on constitution file]
+### Principle I: User-Centric Design & Workflow Validation
+- [x] Features solve actual user problems (material purchasing gap)
+- [x] UI intuitive for non-technical users (follows existing patterns)
+- [x] Workflows match natural processes (purchase → view → adjust)
+- [x] Data structures support complete workflows (F058 foundation)
+
+### Principle II: Data Integrity & FIFO Accuracy
+- [x] FIFO enforced via F058 MaterialInventoryService (not re-implemented)
+- [x] Unit conversions use F058 infrastructure
+- [x] Cost calculations reflect actual consumption
+- [x] Adjustments update existing lots (per clarification)
+
+### Principle III: Future-Proof Schema, Present-Simple Implementation
+- [x] Using existing schema (MaterialProduct, MaterialInventoryItem)
+- [x] is_provisional field for provisional products
+- [x] Only essential fields populated initially
+
+### Principle IV: Test-Driven Development
+- [x] Unit tests for all service methods
+- [x] Tests cover happy path, edge cases, and errors
+- [x] >70% coverage target for services
+
+### Principle V: Layered Architecture Discipline
+- [x] UI layer calls services only (no direct DB access)
+- [x] Services call models only
+- [x] Dependencies flow downward only
+
+### Principle VI: Schema Change Strategy
+- [x] No schema changes required (F058 models exist)
+- [x] is_provisional field may need migration if not present
+
+### Principle VII: Pragmatic Aspiration
+- [x] Does not block web deployment
+- [x] Service layer is UI-independent
+- [x] Supports AI-assisted JSON import (existing pattern)
+
+**Constitution Check: PASS**
 
 ## Project Structure
 
 ### Documentation (this feature)
 
 ```
-kitty-specs/[###-feature]/
-├── plan.md              # This file (/spec-kitty.plan command output)
-├── research.md          # Phase 0 output (/spec-kitty.plan command)
-├── data-model.md        # Phase 1 output (/spec-kitty.plan command)
-├── quickstart.md        # Phase 1 output (/spec-kitty.plan command)
-├── contracts/           # Phase 1 output (/spec-kitty.plan command)
-└── tasks.md             # Phase 2 output (/spec-kitty.tasks command - NOT created by /spec-kitty.plan)
+kitty-specs/059-materials-purchase-integration/
+├── spec.md              # Feature specification
+├── plan.md              # This file
+├── research.md          # Pattern research (complete)
+├── data-model.md        # Entity details (below)
+├── tasks.md             # Generated by /spec-kitty.tasks
+└── tasks/               # Work package files
 ```
 
 ### Source Code (repository root)
-<!--
-  ACTION REQUIRED: Replace the placeholder tree below with the concrete layout
-  for this feature. Delete unused options and expand the chosen structure with
-  real paths (e.g., apps/admin, packages/something). The delivered plan must
-  not include Option labels.
--->
 
 ```
-# [REMOVE IF UNUSED] Option 1: Single project (DEFAULT)
 src/
 ├── models/
+│   ├── material.py              # Material (exists - F058)
+│   ├── material_product.py      # MaterialProduct (exists - F058, add is_provisional)
+│   ├── material_inventory_item.py  # MaterialInventoryItem (exists - F058)
+│   ├── material_purchase.py     # MaterialPurchase (exists - F058)
+│   └── material_unit.py         # MaterialUnit (exists - F058)
 ├── services/
-├── cli/
-└── lib/
+│   ├── material_inventory_service.py  # FIFO operations (exists - F058)
+│   ├── material_purchase_service.py   # Purchase recording (exists - F058)
+│   ├── material_catalog_service.py    # Product CRUD (exists - F058, extend for provisional)
+│   └── material_unit_service.py       # Unit management (exists - F058)
+├── ui/
+│   ├── dialogs/
+│   │   ├── add_purchase_dialog.py     # MODIFY: Add product type selector
+│   │   └── material_adjustment_dialog.py  # NEW: Adjustment dialog
+│   ├── tabs/
+│   │   └── purchases_tab.py           # MODIFY: Add Materials inventory section
+│   └── materials_tab.py               # MODIFY: Enhance MaterialUnit form
+└── utils/
+    └── import_export_cli.py           # MODIFY: Add material purchase command
 
-tests/
-├── contract/
-├── integration/
-└── unit/
-
-# [REMOVE IF UNUSED] Option 2: Web application (when "frontend" + "backend" detected)
-backend/
-├── src/
-│   ├── models/
-│   ├── services/
-│   └── api/
-└── tests/
-
-frontend/
-├── src/
-│   ├── components/
-│   ├── pages/
-│   └── services/
-└── tests/
-
-# [REMOVE IF UNUSED] Option 3: Mobile + API (when "iOS/Android" detected)
-api/
-└── [same as backend above]
-
-ios/ or android/
-└── [platform-specific structure: feature modules, UI flows, platform tests]
+src/tests/
+├── services/
+│   ├── test_material_inventory_service.py  # Extend for adjustments
+│   └── test_material_catalog_service.py    # Add provisional tests
+└── ui/
+    └── test_material_adjustment_dialog.py  # NEW
 ```
 
-**Structure Decision**: [Document the selected structure and reference the real
-directories captured above]
+**Structure Decision**: Single project structure (existing). All changes are modifications to existing files or additions within established directories. No new top-level directories needed.
 
 ## Complexity Tracking
 
-*Fill ONLY if Constitution Check has violations that must be justified*
+*No constitution violations identified.*
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| [e.g., 4th project] | [current need] | [why 3 projects insufficient] |
-| [e.g., Repository pattern] | [specific problem] | [why direct DB access insufficient] |
+| (none) | N/A | N/A |
+
+## Parallel Work Analysis
+
+This feature has opportunities for parallel development after foundation work.
+
+### Dependency Graph
+
+```
+Foundation (WP01-02)
+├── Service layer prep (provisional support, adjustment methods)
+└── Must complete before UI work
+
+Wave 1 (WP03-05, parallel)
+├── Purchase Form (WP03) - AddPurchaseDialog modifications
+├── Inventory Display (WP04) - purchases_tab.py Materials section
+└── Adjustment Dialog (WP05) - new dialog component
+
+Wave 2 (WP06-07, parallel after Wave 1)
+├── CLI Extension (WP06) - import_export_cli.py
+└── MaterialUnit Enhancement (WP07) - materials_tab.py
+
+Integration (WP08)
+└── End-to-end testing, documentation
+```
+
+### Work Distribution
+
+- **Sequential work (WP01-02)**: Service layer modifications must complete first
+  - Add is_provisional support to MaterialCatalogService
+  - Add adjustment method to MaterialInventoryService
+
+- **Parallel streams (Wave 1)**:
+  - **Stream A (Purchase Form)**: `add_purchase_dialog.py` only
+  - **Stream B (Inventory)**: `purchases_tab.py` only
+  - **Stream C (Adjustment)**: New `material_adjustment_dialog.py`
+
+- **Parallel streams (Wave 2)**:
+  - **Stream D (CLI)**: `import_export_cli.py` only
+  - **Stream E (MaterialUnit)**: `materials_tab.py` only
+
+### Coordination Points
+
+- **After WP01-02**: Services ready for UI integration
+- **After Wave 1**: All core UI components complete
+- **After Wave 2**: Full feature complete
+- **Integration tests**: Run full test suite after each wave merge
+
+---
+
+## Implementation Notes
+
+### Key Service Methods (Existing)
+
+| Method | Location | F059 Usage |
+|--------|----------|------------|
+| `record_purchase()` | material_purchase_service.py | Purchase form submission |
+| `list_inventory_items()` | material_inventory_service.py | Inventory display |
+| `consume_fifo()` | material_inventory_service.py | Not used in F059 |
+| `create_product()` | material_catalog_service.py | Provisional creation |
+| `update_product()` | material_catalog_service.py | Enrichment |
+
+### New Service Methods Needed
+
+| Method | Location | Purpose |
+|--------|----------|---------|
+| `adjust_inventory()` | material_inventory_service.py | Manual adjustment (update quantity_remaining) |
+| `check_provisional_completeness()` | material_catalog_service.py | Validate enrichment |
+
+### UI Widget Decisions
+
+| Component | Widget | Rationale |
+|-----------|--------|-----------|
+| Product type selector | CTkRadioButton | Binary choice, always visible |
+| MaterialProduct dropdown | CTkComboBox | Consistent with existing form |
+| Inventory table | ttk.Treeview | Performance with large datasets |
+| Adjustment controls | CTkRadioButton + CTkEntry | "Each" materials |
+| Percentage input | CTkEntry | Variable materials |
+| Filters | CTkOptionMenu + CTkEntry | Consistent with inventory_tab |
+
+### Session Management Reminder
+
+From CLAUDE.md: All service methods that may be called from other services MUST accept `session=None` parameter. UI code should NOT pass sessions (let services manage their own transactions).
