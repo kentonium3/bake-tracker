@@ -133,13 +133,20 @@ The JSON format matches v3.3+ of the import/export specification. See `docs/desi
       "name": "Classic Chocolate Chip Cookies",
       "slug": "classic_chocolate_chip_cookies",
       "category": "Cookies",
-      "yield_quantity": 48.0,
-      "yield_unit": "cookies",
       "ingredients": [
         {
           "ingredient_slug": "all_purpose_flour",
           "quantity": 2.25,
           "unit": "cup"
+        }
+      ],
+      "finished_units": [
+        {
+          "slug": "classic_chocolate_chip_cookies_batch",
+          "display_name": "Chocolate Chip Cookies",
+          "yield_mode": "discrete_count",
+          "items_per_batch": 48,
+          "item_unit": "cookies"
         }
       ]
     }

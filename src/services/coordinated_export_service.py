@@ -1189,7 +1189,7 @@ def _import_entity_records(
                     ).first()
                     if component:
                         rc_obj = RecipeComponent(
-                            parent_recipe_id=obj.id,
+                            recipe_id=obj.id,
                             component_recipe_id=component.id,
                             quantity=rc.get("quantity"),
                             notes=rc.get("notes"),

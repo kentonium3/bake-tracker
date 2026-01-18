@@ -415,10 +415,7 @@
           "quantity": 12.0,
           "unit": "oz"
         }
-      ],
-      "yield_quantity": null,
-      "yield_unit": null,
-      "yield_description": null
+      ]
     },
     {
       "slug": "double-chocolate-chip-cookies",
@@ -487,10 +484,7 @@
           "quantity": 16.0,
           "unit": "oz"
         }
-      ],
-      "yield_quantity": null,
-      "yield_unit": null,
-      "yield_description": null
+      ]
     },
     {
       "slug": "fudge-brownies",
@@ -544,10 +538,7 @@
           "quantity": 0.5,
           "unit": "tsp"
         }
-      ],
-      "yield_quantity": null,
-      "yield_unit": null,
-      "yield_description": null
+      ]
     },
     {
       "slug": "vanilla-cupcakes",
@@ -606,10 +597,7 @@
           "quantity": 2.0,
           "unit": "tsp"
         }
-      ],
-      "yield_quantity": null,
-      "yield_unit": null,
-      "yield_description": null
+      ]
     },
     {
       "slug": "chocolate-vanilla-cupcakes",
@@ -665,10 +653,7 @@
           "quantity": 2.0,
           "unit": "tsp"
         }
-      ],
-      "yield_quantity": null,
-      "yield_unit": null,
-      "yield_description": null
+      ]
     },
     {
       "slug": "sugar-cookies",
@@ -722,10 +707,7 @@
           "quantity": 1.0,
           "unit": "tsp"
         }
-      ],
-      "yield_quantity": null,
-      "yield_unit": null,
-      "yield_description": null
+      ]
     },
     {
       "slug": "pumpkin-pie",
@@ -784,10 +766,7 @@
           "quantity": 0.5,
           "unit": "tsp"
         }
-      ],
-      "yield_quantity": null,
-      "yield_unit": null,
-      "yield_description": null
+      ]
     }
   ],
   "events": [
