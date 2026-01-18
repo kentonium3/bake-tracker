@@ -65,7 +65,7 @@ Enable purchase recording regardless of product catalog state by introducing pro
 - [x] T009: Implement brand/product name prepopulation from search context
 - [x] T010: Add validation for provisional product minimum fields
 - [x] T011: Wire form to `create_provisional_product()` service method
-- [ ] T012: Update dialog to continue purchase flow with newly created product
+- [x] T012: Update dialog to continue purchase flow with newly created product
 
 **Implementation Notes**:
 - Use existing `ctk.CTkFrame` for collapsible section
