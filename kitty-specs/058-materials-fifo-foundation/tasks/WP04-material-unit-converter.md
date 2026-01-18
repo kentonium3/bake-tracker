@@ -8,12 +8,12 @@ subtasks:
   - "T016"
 title: "Material Unit Converter"
 phase: "Phase 2 - Services"
-lane: "planned"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
+lane: "doing"
+assignee: "claude-opus"
+agent: "claude-opus"
+shell_pid: "27987"
+review_status: "approved"
+reviewed_by: "Kent Gale"
 dependencies: []
 history:
   - timestamp: "2026-01-18T18:06:18Z"
@@ -21,6 +21,11 @@ history:
     agent: "system"
     shell_pid: ""
     action: "Prompt generated via /spec-kitty.tasks"
+  - timestamp: "2026-01-18T21:30:00Z"
+    lane: "done"
+    agent: "claude-opus"
+    shell_pid: ""
+    action: "Review passed: material_unit_converter service with metric base units"
 ---
 
 # Work Package Prompt: WP04 – Material Unit Converter
@@ -486,3 +491,6 @@ class TestValidateUnitCompatibility:
 ## Activity Log
 
 - 2026-01-18T18:06:18Z – system – lane=planned – Prompt created.
+- 2026-01-18T18:36:53Z – gemini-cli – lane=for_review – Ready for review: Material unit converter with 56 passing tests. All conversions (linear, area, each) implemented per FR-011 to FR-014.
+- 2026-01-18T20:07:06Z – claude-opus – lane=done – Review passed: material_unit_converter service with metric base units
+- 2026-01-18T21:32:59Z – claude-opus – shell_pid=27987 – lane=doing – Started review via workflow command
