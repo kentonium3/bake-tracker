@@ -2,13 +2,32 @@
 
 | Attribute | Value |
 |-----------|-------|
-| **Status** | Open |
+| **Status** | Closed (Obsolete) |
 | **Priority** | Low |
 | **Created** | 2026-01-08 |
-| **Related Features** | F042 (UI Polish) |
-| **Location** | `src/ui/forms/ingredient_edit_form.py` (or equivalent dialog) |
+| **Closed** | 2026-01-17 |
+| **Related Features** | F042 (UI Polish), F033 (Hierarchy Redesign) |
+| **Location** | `src/ui/ingredients_tab.py:IngredientFormDialog` |
 
-## Description
+## Resolution
+
+**Closed as Obsolete** - The form was redesigned as part of F033 with proper hierarchy safeguards.
+
+Analysis on 2026-01-17 found the following safeguards now in place:
+
+| Feature | Implementation |
+|---------|---------------|
+| **Cascading dropdowns** | L0 selection populates L1; L1 disabled until L0 selected |
+| **Auto-computed level** | Level derived from dropdown selections (lines 1293-1321) |
+| **Level-aware pre-population** | L0: sets "(None - create root)", L1: shows parent L0, L2: shows L0+L1 ancestors (lines 1431-1460) |
+| **Real-time validation** | `_check_parent_change_warnings()` calls `can_change_parent()` on every change, shows red errors for disallowed changes (lines 1323-1350) |
+| **Save validation** | Validates L2 has proper L1 parent before saving (lines 1531-1538) |
+
+The implementation uses validation-based safeguards rather than option-hiding, which is more flexible while still preventing invalid states. Invalid parent selections trigger immediate red error messages via `can_change_parent()` service validation.
+
+---
+
+## Original Description
 
 The ingredient edit form does not apply appropriate safeguards based on the hierarchy level of the ingredient being edited. This leads to counter-intuitive UI behavior:
 
