@@ -119,7 +119,7 @@ Enable purchase recording regardless of product catalog state by introducing pro
 - [x] T019: Update import to handle missing `is_provisional` field (default False)
 - [x] T020: Add unknown product detection during transaction import
 - [x] T021: Create provisional products for unknown items with minimal required fields
-- [ ] T022: Return import results with provisional products count
+- [x] T022: Return import results with provisional products count
 
 **Implementation Notes**:
 - Import compatibility: missing field defaults to `False` for existing backups
