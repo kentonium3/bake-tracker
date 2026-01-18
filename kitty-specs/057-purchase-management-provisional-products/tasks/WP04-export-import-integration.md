@@ -1,7 +1,7 @@
 ---
 work_package_id: WP04
 title: Export/Import Integration
-lane: "doing"
+lane: "for_review"
 dependencies: []
 subtasks: [T018, T019, T020, T021, T022]
 agent: "claude"
@@ -461,3 +461,4 @@ When reviewing this WP:
 ## Activity Log
 
 - 2026-01-18T02:20:13Z – claude – lane=doing – Starting implementation of JSON Import Integration
+- 2026-01-18T02:31:24Z – claude – lane=for_review – Ready for review: Added is_provisional to product export, import handles missing field with False default, transaction import creates provisional products for unknown items if ingredient exists, ImportResult tracks provisional_products_created count.
