@@ -35,7 +35,7 @@ Enable purchase recording regardless of product catalog state by introducing pro
 - [x] T001: Add `is_provisional` field to Product model
 - [x] T002: Add `create_provisional_product()` to product_service
 - [x] T003: Add `get_provisional_products()` to product_catalog_service
-- [ ] T004: Add `get_provisional_count()` to product_catalog_service
+- [x] T004: Add `get_provisional_count()` to product_catalog_service
 - [ ] T005: Add `mark_product_reviewed()` to product_catalog_service
 - [ ] T006: Write unit tests for all new service methods
 
