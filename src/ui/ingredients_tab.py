@@ -309,9 +309,15 @@ class IngredientsTab(ctk.CTkFrame):
 
         F036 fix: Returns separate L0 and L1 values for display in separate columns.
 
+        TD-004 fix: Uses in-memory traversal via parent_ingredient_id instead of
+        per-ingredient get_ancestors() calls, eliminating N+1 query overhead.
+
         Returns:
             Dict mapping ingredient ID to {"l0": str, "l1": str}
         """
+        # Build lookup: id -> ingredient for in-memory parent traversal
+        id_to_ing = {ing["id"]: ing for ing in self.ingredients if ing.get("id")}
+
         cache: Dict[int, Dict[str, str]] = {}
         for ingredient in self.ingredients:
             ing_id = ingredient.get("id")
@@ -325,31 +331,25 @@ class IngredientsTab(ctk.CTkFrame):
                 cache[ing_id] = {"l0": "", "l1": ""}
             elif hierarchy_level == 1:
                 # L1 (subcategory) - has L0 parent
-                try:
-                    ancestors = ingredient_hierarchy_service.get_ancestors(ing_id)
-                    if ancestors:
-                        l0_name = ancestors[0].get("display_name", "")
-                        cache[ing_id] = {"l0": l0_name, "l1": ""}
-                    else:
-                        cache[ing_id] = {"l0": "", "l1": ""}
-                except Exception:
-                    cache[ing_id] = {"l0": "", "l1": ""}
+                parent_id = ingredient.get("parent_ingredient_id")
+                parent = id_to_ing.get(parent_id) if parent_id else None
+                l0_name = parent.get("display_name", "") if parent else ""
+                cache[ing_id] = {"l0": l0_name, "l1": ""}
             else:
                 # L2 (leaf) - has L1 parent and L0 grandparent
-                try:
-                    ancestors = ingredient_hierarchy_service.get_ancestors(ing_id)
-                    # ancestors[0] = immediate parent (L1), ancestors[1] = grandparent (L0)
-                    if len(ancestors) >= 2:
-                        l0_name = ancestors[1].get("display_name", "")
-                        l1_name = ancestors[0].get("display_name", "")
-                        cache[ing_id] = {"l0": l0_name, "l1": l1_name}
-                    elif len(ancestors) == 1:
-                        l1_name = ancestors[0].get("display_name", "")
-                        cache[ing_id] = {"l0": "", "l1": l1_name}
-                    else:
-                        cache[ing_id] = {"l0": "", "l1": ""}
-                except Exception:
-                    cache[ing_id] = {"l0": "", "l1": ""}
+                parent_id = ingredient.get("parent_ingredient_id")
+                parent = id_to_ing.get(parent_id) if parent_id else None
+
+                if parent:
+                    grandparent_id = parent.get("parent_ingredient_id")
+                    grandparent = id_to_ing.get(grandparent_id) if grandparent_id else None
+                    l1_name = parent.get("display_name", "")
+                    l0_name = grandparent.get("display_name", "") if grandparent else ""
+                else:
+                    l0_name = ""
+                    l1_name = ""
+
+                cache[ing_id] = {"l0": l0_name, "l1": l1_name}
 
         return cache
 
@@ -1027,7 +1027,7 @@ class IngredientFormDialog(ctk.CTkToplevel):
 
         # Configure window
         self.title(title)
-        self.geometry("550x600")  # Height for hierarchy fields
+        self.geometry("700x600")  # Width for all fields, height for hierarchy
         self.resizable(False, False)
 
         # Center on parent

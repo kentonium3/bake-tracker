@@ -3,7 +3,8 @@
 **Created:** 2026-01-02
 **Feature:** F033 (Phase 1 Ingredient Hierarchy Fixes)
 **Severity:** Low (performance optimization)
-**Status:** Open
+**Status:** Resolved
+**Resolved:** 2026-01-17
 
 ## Description
 
@@ -74,12 +75,21 @@ Only compute paths for visible rows (virtualized list), not entire dataset.
 
 ## Acceptance Criteria
 
-- [ ] Hierarchy path cache builds without per-ingredient DB calls
-- [ ] Refresh performance scales linearly with ingredient count
-- [ ] No visible UI lag with 500+ ingredients
+- [x] Hierarchy path cache builds without per-ingredient DB calls
+- [x] Refresh performance scales linearly with ingredient count
+- [x] No visible UI lag with 500+ ingredients
+
+## Resolution
+
+Implemented Option B (In-Memory Path Building) on 2026-01-17:
+
+- Built `id_to_ing` lookup dictionary from `self.ingredients` at start of method
+- Replaced `get_ancestors()` calls with in-memory traversal via `parent_ingredient_id`
+- Eliminated all N+1 database queries during cache building
+- All 2384 tests pass
 
 ## Related
 
-- `src/ui/ingredients_tab.py:285-334` - Current implementation
-- `src/services/ingredient_hierarchy_service.py:get_ancestors()` - Called per ingredient
+- `src/ui/ingredients_tab.py:307-351` - Fixed implementation
+- `src/services/ingredient_hierarchy_service.py:get_ancestors()` - No longer called in loop
 - Cursor F033 Code Review (2026-01-02)
