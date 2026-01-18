@@ -1,0 +1,8 @@
+{
+  "feature_number": "057",
+  "slug": "057-purchase-management-provisional-products",
+  "friendly_name": "Purchase Management with Provisional Products",
+  "mission": "software-dev",
+  "source_description": "See docs/design/_F0XX_purchase_management_refactored.md for input on the next feature.",
+  "created_at": "2026-01-17T22:45:00Z"
+}
