@@ -72,7 +72,7 @@ def sample_material(db_session):
     """Create a sample material hierarchy for testing."""
     cat = create_category("Ribbons", session=db_session)
     subcat = create_subcategory(cat.id, "Satin", session=db_session)
-    mat = create_material(subcat.id, "Red Satin", "linear_inches", session=db_session)
+    mat = create_material(subcat.id, "Red Satin", "linear_cm", session=db_session)
     return mat
 
 

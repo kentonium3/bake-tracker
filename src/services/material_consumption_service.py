@@ -26,6 +26,7 @@ from ..models import (
     MaterialProduct,
     MaterialUnit,
     MaterialConsumption,
+    MaterialInventoryItem,
 )
 from .database import session_scope
 from .exceptions import ValidationError
@@ -91,23 +92,41 @@ def _get_pending_materials_impl(
         if not material:
             continue
 
-        # Get available products for this material
+        # Get products for this material
         products = (
             session.query(MaterialProduct)
             .filter(MaterialProduct.material_id == material.id)
-            .filter(MaterialProduct.current_inventory > 0)
             .all()
         )
 
         available_products = []
         for prod in products:
-            # Calculate available units based on material's base unit
-            available_products.append({
-                "product_id": prod.id,
-                "name": prod.display_name,
-                "available_inventory": prod.current_inventory,
-                "unit_cost": prod.weighted_avg_cost or Decimal("0"),
-            })
+            # Get inventory from MaterialInventoryItem (F058 FIFO)
+            inv_items = (
+                session.query(MaterialInventoryItem)
+                .filter(
+                    MaterialInventoryItem.material_product_id == prod.id,
+                    MaterialInventoryItem.quantity_remaining >= 0.001,
+                )
+                .all()
+            )
+
+            product_inv = Decimal("0")
+            product_value = Decimal("0")
+            for item in inv_items:
+                qty = Decimal(str(item.quantity_remaining))
+                cost = Decimal(str(item.cost_per_unit)) if item.cost_per_unit else Decimal("0")
+                product_inv += qty
+                product_value += qty * cost
+
+            if product_inv > 0:
+                weighted_cost = product_value / product_inv
+                available_products.append({
+                    "product_id": prod.id,
+                    "name": prod.display_name,
+                    "available_inventory": float(product_inv),
+                    "unit_cost": weighted_cost,
+                })
 
         pending.append({
             "composition_id": comp.id,
@@ -261,20 +280,31 @@ def _validate_material_availability_impl(
                     all_sufficient = False
                     continue
 
-                if product.current_inventory < quantity_to_use:
+                # Get inventory from MaterialInventoryItem (F058 FIFO)
+                inv_items = (
+                    session.query(MaterialInventoryItem)
+                    .filter(
+                        MaterialInventoryItem.material_product_id == product.id,
+                        MaterialInventoryItem.quantity_remaining >= 0.001,
+                    )
+                    .all()
+                )
+                product_inventory = sum(item.quantity_remaining for item in inv_items)
+
+                if product_inventory < quantity_to_use:
                     errors.append(
                         f"Product '{product.display_name}' has insufficient inventory "
-                        f"(need {quantity_to_use}, have {product.current_inventory})"
+                        f"(need {quantity_to_use}, have {product_inventory})"
                     )
                     all_sufficient = False
 
-                total_available += product.current_inventory
+                total_available += product_inventory
                 allocation_details.append({
                     "product_id": product_id,
                     "product_name": product.display_name,
                     "quantity_to_use": quantity_to_use,
-                    "available": product.current_inventory,
-                    "sufficient": product.current_inventory >= quantity_to_use,
+                    "available": product_inventory,
+                    "sufficient": product_inventory >= quantity_to_use,
                 })
 
             material_requirements.append({
@@ -298,26 +328,50 @@ def _decrement_inventory(
     product: MaterialProduct,
     base_units_consumed: float,
     session: Session,
-) -> None:
-    """Decrease product inventory atomically.
+) -> Dict[str, Any]:
+    """Decrease product inventory atomically using FIFO.
 
     Args:
         product: MaterialProduct to decrement
-        base_units_consumed: Amount to decrement
+        base_units_consumed: Amount to decrement (in base units)
         session: Database session (ensures atomic operation)
+
+    Returns:
+        Dict with consumption details (breakdown, total_cost, inventory_item_id)
 
     Raises:
         InsufficientMaterialError: If inventory insufficient
     """
-    if product.current_inventory < base_units_consumed:
+    from .material_inventory_service import consume_material_fifo
+
+    # Use FIFO consumption from material_inventory_service (F058)
+    result = consume_material_fifo(
+        material_product_id=product.id,
+        quantity_needed=Decimal(str(base_units_consumed)),
+        target_unit="cm",  # Base units are in cm
+        dry_run=False,
+        session=session,
+    )
+
+    if not result["satisfied"]:
+        # Get current inventory for error message
+        inv_items = (
+            session.query(MaterialInventoryItem)
+            .filter(
+                MaterialInventoryItem.material_product_id == product.id,
+                MaterialInventoryItem.quantity_remaining >= 0.001,
+            )
+            .all()
+        )
+        product_inventory = sum(item.quantity_remaining for item in inv_items)
+
         raise InsufficientMaterialError(
             product.display_name,
             base_units_consumed,
-            product.current_inventory,
+            product_inventory,
         )
 
-    product.current_inventory -= base_units_consumed
-    session.flush()
+    return result
 
 
 def _record_material_consumption_impl(
@@ -384,52 +438,71 @@ def _record_material_consumption_impl(
             if not material:
                 continue
 
-            # Get products with inventory for proportional consumption
+            # Get products with inventory for FIFO consumption (F058)
             products = (
                 session.query(MaterialProduct)
                 .filter(MaterialProduct.material_id == material.id)
-                .filter(MaterialProduct.current_inventory > 0)
                 .all()
             )
 
-            if not products:
-                raise InsufficientMaterialError(unit.name, base_units_needed, 0)
+            # Calculate total available inventory from MaterialInventoryItem
+            total_inventory = 0
+            products_with_inventory = []
+            for product in products:
+                inv_items = (
+                    session.query(MaterialInventoryItem)
+                    .filter(
+                        MaterialInventoryItem.material_product_id == product.id,
+                        MaterialInventoryItem.quantity_remaining >= 0.001,
+                    )
+                    .all()
+                )
+                product_inv = sum(item.quantity_remaining for item in inv_items)
+                if product_inv > 0:
+                    products_with_inventory.append((product, product_inv))
+                    total_inventory += product_inv
 
-            # Calculate total available inventory
-            total_inventory = sum(p.current_inventory for p in products)
+            if not products_with_inventory:
+                raise InsufficientMaterialError(unit.name, base_units_needed, 0)
 
             if total_inventory < base_units_needed:
                 raise InsufficientMaterialError(unit.name, base_units_needed, total_inventory)
 
-            # Consume proportionally from each product
+            # Consume proportionally from each product using FIFO
             remaining_to_consume = base_units_needed
 
-            for product in products:
+            for product, product_inv in products_with_inventory:
                 if remaining_to_consume <= 0:
                     break
 
                 # Proportional allocation (consume from this product)
-                proportion = product.current_inventory / total_inventory
+                proportion = product_inv / total_inventory
                 to_consume = min(
                     proportion * base_units_needed,
-                    product.current_inventory,
+                    product_inv,
                     remaining_to_consume,
                 )
 
                 if to_consume <= 0:
                     continue
 
-                # Get unit cost
-                unit_cost = product.weighted_avg_cost or Decimal("0")
-                total_cost = unit_cost * Decimal(str(to_consume))
-
-                # Decrement inventory
-                _decrement_inventory(product, to_consume, session)
+                # Use FIFO decrement and get cost from the result
+                fifo_result = _decrement_inventory(product, to_consume, session)
+                unit_cost = fifo_result["total_cost"] / Decimal(str(to_consume)) if to_consume > 0 else Decimal("0")
+                total_cost = fifo_result["total_cost"]
 
                 # Create consumption record with full snapshot
+                # Get inventory_item_id from first breakdown entry if available
+                inv_item_id = (
+                    fifo_result["breakdown"][0]["inventory_item_id"]
+                    if fifo_result.get("breakdown")
+                    else None
+                )
+
                 consumption = MaterialConsumption(
                     assembly_run_id=assembly_run_id,
                     product_id=product.id,
+                    inventory_item_id=inv_item_id,  # F058: Link to FIFO lot
                     quantity_consumed=to_consume,
                     unit_cost=unit_cost,
                     total_cost=total_cost,
@@ -475,17 +548,23 @@ def _record_material_consumption_impl(
                 if not product:
                     raise ValidationError([f"Assigned product {product_id} not found"])
 
-                # Get unit cost
-                unit_cost = product.weighted_avg_cost or Decimal("0")
-                total_cost = unit_cost * Decimal(str(quantity_to_use))
+                # Use FIFO decrement and get cost from the result (F058)
+                fifo_result = _decrement_inventory(product, quantity_to_use, session)
+                unit_cost = fifo_result["total_cost"] / Decimal(str(quantity_to_use)) if quantity_to_use > 0 else Decimal("0")
+                total_cost = fifo_result["total_cost"]
 
-                # Decrement inventory
-                _decrement_inventory(product, quantity_to_use, session)
+                # Get inventory_item_id from first breakdown entry if available
+                inv_item_id = (
+                    fifo_result["breakdown"][0]["inventory_item_id"]
+                    if fifo_result.get("breakdown")
+                    else None
+                )
 
                 # Create consumption record with full snapshot
                 consumption = MaterialConsumption(
                     assembly_run_id=assembly_run_id,
                     product_id=product.id,
+                    inventory_item_id=inv_item_id,  # F058: Link to FIFO lot
                     quantity_consumed=quantity_to_use,
                     unit_cost=unit_cost,
                     total_cost=total_cost,

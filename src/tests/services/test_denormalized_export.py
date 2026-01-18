@@ -239,7 +239,7 @@ def sample_material_hierarchy(test_db):
             name="Red Satin Ribbon",
             slug="red-satin-ribbon",
             description="1-inch red satin ribbon",
-            base_unit_type="linear_inches",
+            base_unit_type="linear_cm",
         )
         session.add(material)
         session.flush()
@@ -1034,7 +1034,7 @@ class TestExportMaterialsContextRich:
             # Verify material fields
             assert material["slug"] == "red-satin-ribbon"
             assert material["name"] == "Red Satin Ribbon"
-            assert material["base_unit_type"] == "linear_inches"
+            assert material["base_unit_type"] == "linear_cm"
 
         finally:
             os.unlink(temp_path)

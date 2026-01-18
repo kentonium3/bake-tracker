@@ -23,6 +23,7 @@ from src.models import (
     MaterialSubcategory,
     Material,
     MaterialProduct,
+    MaterialInventoryItem,
     Composition,
 )
 from src.services.database import session_scope
@@ -751,8 +752,19 @@ def delete_material(material_id: int, session: Optional[Session] = None) -> bool
         if material is None:
             raise ValidationError([f"Material with ID {material_id} not found"])
 
-        # Check for products with inventory
-        products_with_inventory = [p for p in material.products if p.current_inventory > 0]
+        # Check for products with inventory (F058: query MaterialInventoryItem)
+        products_with_inventory = []
+        for p in material.products:
+            inv_total = (
+                sess.query(MaterialInventoryItem)
+                .filter(
+                    MaterialInventoryItem.material_product_id == p.id,
+                    MaterialInventoryItem.quantity_remaining > 0,
+                )
+                .count()
+            )
+            if inv_total > 0:
+                products_with_inventory.append(p)
         if products_with_inventory:
             raise ValidationError(
                 [
@@ -997,8 +1009,31 @@ def list_products(
 
         products = query.order_by(MaterialProduct.name).all()
         # Convert to dicts before session closes to avoid detachment issues
-        return [
-            {
+        # F058: Compute inventory and cost from MaterialInventoryItem
+        result = []
+        for prod in products:
+            # Query inventory items for this product
+            inv_items = (
+                sess.query(MaterialInventoryItem)
+                .filter(
+                    MaterialInventoryItem.material_product_id == prod.id,
+                    MaterialInventoryItem.quantity_remaining > 0,
+                )
+                .all()
+            )
+            # Sum inventory
+            current_inventory = sum(
+                Decimal(str(item.quantity_remaining)) for item in inv_items
+            )
+            # Compute weighted average cost
+            total_cost = sum(
+                Decimal(str(item.quantity_remaining)) * Decimal(str(item.unit_cost))
+                for item in inv_items
+            )
+            weighted_avg_cost = (
+                total_cost / current_inventory if current_inventory > 0 else Decimal("0")
+            )
+            result.append({
                 "id": prod.id,
                 "name": prod.name,
                 "slug": prod.slug,
@@ -1010,13 +1045,12 @@ def list_products(
                 "quantity_in_base_units": prod.quantity_in_base_units,
                 "supplier_id": prod.supplier_id,
                 "supplier_name": prod.supplier.name if prod.supplier else None,
-                "current_inventory": prod.current_inventory,
-                "weighted_avg_cost": prod.weighted_avg_cost,
+                "current_inventory": float(current_inventory),
+                "weighted_avg_cost": float(weighted_avg_cost),
                 "is_hidden": prod.is_hidden,
                 "notes": prod.notes,
-            }
-            for prod in products
-        ]
+            })
+        return result
 
     if session is not None:
         return _impl(session)
@@ -1093,7 +1127,7 @@ def update_product(
 
 def delete_product(product_id: int, session: Optional[Session] = None) -> bool:
     """
-    Delete product. Raises if current_inventory > 0.
+    Delete product. Raises if has inventory in MaterialInventoryItem.
 
     Args:
         product_id: Product ID to delete
@@ -1111,11 +1145,23 @@ def delete_product(product_id: int, session: Optional[Session] = None) -> bool:
         if product is None:
             raise ValidationError([f"Product with ID {product_id} not found"])
 
-        if product.current_inventory > 0:
+        # F058: Check inventory from MaterialInventoryItem
+        inv_items = (
+            sess.query(MaterialInventoryItem)
+            .filter(
+                MaterialInventoryItem.material_product_id == product_id,
+                MaterialInventoryItem.quantity_remaining > 0,
+            )
+            .all()
+        )
+        current_inventory = sum(
+            Decimal(str(item.quantity_remaining)) for item in inv_items
+        )
+        if current_inventory > 0:
             raise ValidationError(
                 [
                     f"Cannot delete product '{product.name}': "
-                    f"has {product.current_inventory} units in inventory"
+                    f"has {current_inventory} units in inventory"
                 ]
             )
 
