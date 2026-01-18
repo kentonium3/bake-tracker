@@ -1,7 +1,7 @@
 ---
 work_package_id: "WP01"
 title: "Model & Service Foundation"
-lane: "doing"
+lane: "for_review"
 dependencies: []
 subtasks: ["T001", "T002", "T003", "T004", "T005", "T006"]
 priority: "P0"
@@ -425,3 +425,4 @@ When reviewing this WP:
 ## Activity Log
 
 - 2026-01-18T01:43:33Z – claude – shell_pid=5204 – lane=doing – Started implementation via workflow command
+- 2026-01-18T01:57:28Z – claude – shell_pid=5204 – lane=for_review – Ready for review: Added is_provisional field to Product model, implemented create_provisional_product() in product_service, and get_provisional_products(), get_provisional_count(), mark_product_reviewed() in product_catalog_service. All 16 new tests pass, full test suite (2380 tests) passes.
