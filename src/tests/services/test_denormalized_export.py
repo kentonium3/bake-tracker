@@ -254,7 +254,11 @@ def sample_material_hierarchy(test_db):
 
 @pytest.fixture
 def sample_material_with_product(test_db, sample_material_hierarchy, sample_supplier):
-    """Create sample material with a product for tests."""
+    """Create sample material with a product for tests.
+
+    Note: F058 removed current_inventory and weighted_avg_cost from MaterialProduct.
+    Inventory is now tracked via MaterialInventoryItem (FIFO lots).
+    """
     with session_scope() as session:
         product = MaterialProduct(
             material_id=sample_material_hierarchy["material"],
@@ -265,8 +269,8 @@ def sample_material_with_product(test_db, sample_material_hierarchy, sample_supp
             package_quantity=100,
             package_unit="feet",
             quantity_in_base_units=1200,  # 100 feet = 1200 inches
-            current_inventory=600,  # 50 feet remaining
-            weighted_avg_cost=Decimal("0.05"),  # $0.05 per inch
+            # F058: current_inventory and weighted_avg_cost removed
+            # Inventory tracked via MaterialInventoryItem
         )
         session.add(product)
         session.flush()
@@ -1063,7 +1067,11 @@ class TestExportMaterialsContextRich:
     def test_export_includes_products_array(
         self, test_db, sample_material_with_product, cleanup_extended_test_data
     ):
-        """Test export includes nested products array."""
+        """Test export includes nested products array.
+
+        Note: F058 removed current_inventory from product exports.
+        Inventory is now tracked via MaterialInventoryItem (FIFO).
+        """
         with tempfile.NamedTemporaryFile(suffix=".json", delete=False) as f:
             temp_path = f.name
 
@@ -1081,15 +1089,20 @@ class TestExportMaterialsContextRich:
             product = material["products"][0]
             assert product["name"] == "100ft Red Satin Roll"
             assert product["brand"] == "Michaels"
-            assert product["current_inventory"] == 600
+            # F058: current_inventory removed - inventory tracked via FIFO
+            assert "current_inventory" not in product
 
         finally:
             os.unlink(temp_path)
 
-    def test_export_includes_inventory_totals(
+    def test_export_excludes_legacy_inventory_fields(
         self, test_db, sample_material_with_product, cleanup_extended_test_data
     ):
-        """Test export includes computed inventory totals."""
+        """Test export excludes removed inventory fields (F058).
+
+        Note: F058 removed total_inventory and total_inventory_value from
+        material exports. Inventory is now tracked via MaterialInventoryItem (FIFO).
+        """
         with tempfile.NamedTemporaryFile(suffix=".json", delete=False) as f:
             temp_path = f.name
 
@@ -1101,12 +1114,9 @@ class TestExportMaterialsContextRich:
 
             material = data["records"][0]
 
-            assert "total_inventory" in material
-            assert material["total_inventory"] == 600.0
-
-            assert "total_inventory_value" in material
-            # 600 inches * $0.05/inch = $30.00
-            assert material["total_inventory_value"] == 30.0
+            # F058: These fields were removed - inventory tracked via FIFO
+            assert "total_inventory" not in material
+            assert "total_inventory_value" not in material
 
         finally:
             os.unlink(temp_path)
@@ -1347,12 +1357,15 @@ class TestNewFieldDefinitions:
             assert field in MATERIALS_CONTEXT_RICH_EDITABLE
 
     def test_materials_readonly_includes_hierarchy(self):
-        """Verify materials readonly includes hierarchy and computed fields."""
+        """Verify materials readonly includes hierarchy and computed fields.
+
+        Note: F058 removed total_inventory and total_inventory_value.
+        Inventory is now tracked via MaterialInventoryItem (FIFO).
+        """
         context_fields = [
             "category_hierarchy",
             "product_count",
-            "total_inventory",
-            "total_inventory_value",
+            # F058: total_inventory, total_inventory_value removed
         ]
         for field in context_fields:
             assert field in MATERIALS_CONTEXT_RICH_READONLY

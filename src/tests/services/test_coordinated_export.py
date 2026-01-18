@@ -460,13 +460,13 @@ class TestDependencyOrder:
         """Verify finished_goods have no dependencies."""
         order, deps = DEPENDENCY_ORDER["finished_goods"]
         assert deps == []
-        assert order == 14
+        assert order == 15  # F058: Shifted by material_inventory_items
 
     def test_events_no_dependencies(self):
         """Verify events have no dependencies."""
         order, deps = DEPENDENCY_ORDER["events"]
         assert deps == []
-        assert order == 15
+        assert order == 16  # F058: Shifted by material_inventory_items
 
     def test_production_runs_depend_on_recipes_events_and_finished_units(self):
         """Verify production_runs depend on recipes, events, and finished_units."""
@@ -474,13 +474,13 @@ class TestDependencyOrder:
         assert "recipes" in deps
         assert "events" in deps
         assert "finished_units" in deps
-        assert order == 16
+        assert order == 17  # F058: Shifted by material_inventory_items
 
     def test_inventory_depletions_depend_on_inventory_items(self):
         """Verify inventory_depletions depend on inventory_items."""
         order, deps = DEPENDENCY_ORDER["inventory_depletions"]
         assert "inventory_items" in deps
-        assert order == 17
+        assert order == 18  # F058: Shifted by material_inventory_items
 
 
 # ============================================================================
@@ -501,8 +501,9 @@ class TestExportComplete:
             assert manifest.export_date != ""
             assert "Seasonal Baking Tracker" in manifest.source
 
-            # Verify all entity files created (6 original + 1 finished_units + 6 material + 4 new = 17)
-            assert len(manifest.files) == 17
+            # Verify all entity files created (6 original + 1 finished_units + 7 material + 4 new = 18)
+            # F058 added material_inventory_items
+            assert len(manifest.files) == 18
 
             # Verify files sorted by import_order
             orders = [f.import_order for f in manifest.files]
@@ -645,8 +646,9 @@ class TestExportComplete:
             with session_scope() as session:
                 manifest = export_complete(tmpdir, session=session)
 
-                # Verify export completed (6 original + 1 finished_units + 6 material + 4 new = 17)
-                assert len(manifest.files) == 17
+                # Verify export completed (6 original + 1 finished_units + 7 material + 4 new = 18)
+                # F058 added material_inventory_items
+                assert len(manifest.files) == 18
 
                 # Verify ingredients exported
                 ing_entry = next(
@@ -670,7 +672,7 @@ class TestValidateExport:
             result = validate_export(tmpdir)
 
             assert result["valid"] is True
-            assert result["files_checked"] == 17  # 6 original + 1 finished_units + 6 material + 4 new
+            assert result["files_checked"] == 18  # 6 original + 1 finished_units + 7 material + 4 new (F058)
             assert result["errors"] == []
 
     def test_validate_export_missing_manifest(self, test_db):
@@ -725,7 +727,7 @@ class TestValidateExport:
             result = validate_export(str(zip_path))
 
             assert result["valid"] is True
-            assert result["files_checked"] == 17  # 6 original + 1 finished_units + 6 material + 4 new
+            assert result["files_checked"] == 18  # 6 original + 1 finished_units + 7 material + 4 new (F058)
 
 
 # ============================================================================
@@ -788,6 +790,8 @@ class TestExportRoundTrip:
                 "material_products",
                 "material_units",
                 "material_purchases",
+                # Feature 058: Material inventory items (FIFO)
+                "material_inventory_items",
                 # Feature 049: Complete backup entities
                 "finished_goods",
                 "events",
@@ -815,7 +819,7 @@ class TestExportFinishedGoods:
             )
             assert fg_entry is not None
             assert fg_entry.record_count == 0
-            assert fg_entry.import_order == 14
+            assert fg_entry.import_order == 15  # F058: Shifted by material_inventory_items
 
     def test_export_finished_goods_with_data(
         self, test_db, sample_finished_good, cleanup_test_data
@@ -985,7 +989,7 @@ class TestExportEvents:
             )
             assert event_entry is not None
             assert event_entry.record_count == 0
-            assert event_entry.import_order == 15
+            assert event_entry.import_order == 16  # F058: Shifted by material_inventory_items
 
     def test_export_events_with_data(
         self,
@@ -1044,7 +1048,7 @@ class TestExportProductionRuns:
             )
             assert pr_entry is not None
             assert pr_entry.record_count == 0
-            assert pr_entry.import_order == 16
+            assert pr_entry.import_order == 17  # F058: Shifted by material_inventory_items
 
     def test_export_production_runs_with_data(
         self, test_db, sample_production_run, cleanup_test_data
@@ -1093,7 +1097,7 @@ class TestExportInventoryDepletions:
             )
             assert dep_entry is not None
             assert dep_entry.record_count == 0
-            assert dep_entry.import_order == 17
+            assert dep_entry.import_order == 18  # F058: Shifted by material_inventory_items
 
     def test_export_inventory_depletions_with_data(
         self, test_db, sample_inventory_depletion, cleanup_test_data
@@ -1136,8 +1140,9 @@ class TestNewEntitiesEmptyArrays:
         with tempfile.TemporaryDirectory() as tmpdir:
             manifest = export_complete(tmpdir)
 
-            # Verify all 17 files exist (6 original + 1 finished_units + 6 material + 4 new)
-            assert len(manifest.files) == 17
+            # Verify all 18 files exist (6 original + 1 finished_units + 7 material + 4 new)
+            # F058 added material_inventory_items
+            assert len(manifest.files) == 18
 
             # Verify each file has records: []
             for file_entry in manifest.files:

@@ -367,7 +367,8 @@ def add_material(
     Args:
         subcategory_id: ID of parent subcategory
         name: Display name for new material
-        base_unit_type: Unit type ('each', 'linear_inches', 'square_inches')
+        base_unit_type: Unit type ('each', 'linear_cm', 'area_sq_cm')
+            F058: Changed from imperial to metric base units
         session: Optional SQLAlchemy session
 
     Returns:
@@ -378,7 +379,8 @@ def add_material(
     """
     from src.services import hierarchy_admin_service
 
-    VALID_UNIT_TYPES = ("each", "linear_inches", "square_inches")
+    # F058: Metric base units (cm for linear, sq cm for area)
+    VALID_UNIT_TYPES = ("each", "linear_cm", "area_sq_cm")
 
     def _impl(session):
         # Validate name not empty

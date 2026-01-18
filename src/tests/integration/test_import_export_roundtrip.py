@@ -612,9 +612,10 @@ class TestFullBackupRoundtrip:
             with open(manifest_path) as f:
                 manifest_data = json.load(f)
 
-            # Should have 17 entity files (6 original + 1 finished_units + 6 material + 4 new)
+            # Should have 18 entity files (6 original + 1 finished_units + 7 material + 4 new)
+            # F058 added material_inventory_items
             assert "files" in manifest_data
-            assert len(manifest_data["files"]) == 17
+            assert len(manifest_data["files"]) == 18
 
             # Verify each file entry has required fields
             for file_entry in manifest_data["files"]:

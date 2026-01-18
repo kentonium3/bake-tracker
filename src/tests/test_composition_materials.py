@@ -78,11 +78,15 @@ def sample_material(db_session):
 
 @pytest.fixture
 def sample_material_unit(db_session, sample_material):
-    """Create a sample MaterialUnit."""
+    """Create a sample MaterialUnit.
+
+    Note: quantity_per_unit is in base units (cm for linear materials).
+    6 inches = 15.24 cm.
+    """
     return create_unit(
         material_id=sample_material.id,
         name="6-inch ribbon",
-        quantity_per_unit=6,
+        quantity_per_unit=15.24,  # 6 inches in cm (6 * 2.54)
         session=db_session,
     )
 
@@ -140,11 +144,14 @@ def material_with_inventory(db_session, sample_material, sample_supplier):
 
 @pytest.fixture
 def material_unit_with_inventory(db_session, material_with_inventory):
-    """Create a MaterialUnit for material with inventory."""
+    """Create a MaterialUnit for material with inventory.
+
+    quantity_per_unit is in base units (cm). 6 inches = 15.24 cm.
+    """
     return create_unit(
         material_id=material_with_inventory.id,
         name="6-inch ribbon",
-        quantity_per_unit=6,
+        quantity_per_unit=15.24,  # 6 inches in cm (6 * 2.54)
         session=db_session,
     )
 

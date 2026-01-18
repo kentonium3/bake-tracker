@@ -531,10 +531,39 @@ class TestProductOperations:
 
         assert result is True
 
-    def test_delete_product_with_inventory_fails(self, db_session, sample_product):
-        """Cannot delete product with inventory."""
-        # Manually set inventory (normally done by purchase service)
-        sample_product.current_inventory = 100
+    def test_delete_product_with_inventory_fails(self, db_session, sample_product, sample_supplier):
+        """Cannot delete product with inventory.
+
+        F058: Inventory is now tracked via MaterialInventoryItem (FIFO).
+        This test creates a MaterialPurchase and MaterialInventoryItem to represent inventory.
+        """
+        from datetime import date
+        from src.models.material_purchase import MaterialPurchase
+        from src.models.material_inventory_item import MaterialInventoryItem
+
+        # Create a purchase to link the inventory item to
+        purchase = MaterialPurchase(
+            product_id=sample_product.id,
+            supplier_id=sample_supplier.id,
+            purchase_date=date.today(),
+            packages_purchased=1,
+            package_price=Decimal("10.00"),
+            units_added=100.0,
+            unit_cost=Decimal("0.10"),
+        )
+        db_session.add(purchase)
+        db_session.flush()
+
+        # Create inventory item with quantity remaining (F058)
+        inv_item = MaterialInventoryItem(
+            material_product_id=sample_product.id,
+            material_purchase_id=purchase.id,
+            quantity_purchased=100.0,
+            quantity_remaining=100.0,  # Has inventory remaining
+            cost_per_unit=Decimal("0.10"),
+            purchase_date=date.today(),
+        )
+        db_session.add(inv_item)
         db_session.flush()
 
         with pytest.raises(ValidationError) as exc_info:

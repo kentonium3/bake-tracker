@@ -278,11 +278,11 @@ class Composition(BaseModel):
         """
         Estimate cost for a generic Material placeholder.
 
-        Calculates average weighted cost across all products for the material,
-        then multiplies by component_quantity as a rough estimate.
+        Calculates average weighted cost across all products for the material
+        using FIFO inventory items (Feature 058).
 
         Returns:
-            Estimated cost or 0.0 if no products
+            Estimated cost or 0.0 if no products/inventory
         """
         if not self.material_component:
             return 0.0
@@ -291,13 +291,14 @@ class Composition(BaseModel):
         if not products:
             return 0.0
 
-        # Calculate inventory-weighted average
+        # Calculate inventory-weighted average from MaterialInventoryItem records (F058)
         total_value = 0.0
         total_inventory = 0.0
         for product in products:
-            if product.current_inventory > 0:
-                total_value += product.current_inventory * float(product.weighted_avg_cost or 0)
-                total_inventory += product.current_inventory
+            for item in product.inventory_items:
+                if item.quantity_remaining > 0.001:  # Avoid float dust
+                    total_value += item.quantity_remaining * float(item.cost_per_unit or 0)
+                    total_inventory += item.quantity_remaining
 
         if total_inventory == 0:
             return 0.0
@@ -324,13 +325,14 @@ class Composition(BaseModel):
         if not products:
             return 0.0
 
-        # Calculate inventory-weighted average cost per base unit
+        # Calculate inventory-weighted average cost per base unit (F058: FIFO inventory)
         total_value = 0.0
         total_inventory = 0.0
         for product in products:
-            if product.current_inventory > 0:
-                total_value += product.current_inventory * float(product.weighted_avg_cost or 0)
-                total_inventory += product.current_inventory
+            for item in product.inventory_items:
+                if item.quantity_remaining > 0.001:  # Avoid float dust
+                    total_value += item.quantity_remaining * float(item.cost_per_unit or 0)
+                    total_inventory += item.quantity_remaining
 
         if total_inventory == 0:
             return 0.0
@@ -356,7 +358,12 @@ class Composition(BaseModel):
         if not products:
             return 0
 
-        total_base_units = sum(p.current_inventory for p in products)
+        # Sum remaining inventory across all FIFO lots (F058)
+        total_base_units = sum(
+            item.quantity_remaining
+            for p in products
+            for item in p.inventory_items
+        )
         quantity_per_unit = self.material_unit_component.quantity_per_unit
 
         if quantity_per_unit <= 0:

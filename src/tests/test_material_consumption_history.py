@@ -206,9 +206,27 @@ class TestSnapshotPreservation:
     def test_snapshot_preserves_cost_at_consumption_time(
         self, db_session, sample_assembly_run, sample_finished_good, material_unit_with_composition
     ):
-        """Snapshot preserves unit cost at time of consumption."""
+        """Snapshot preserves unit cost at time of consumption.
+
+        F058: weighted_avg_cost removed from MaterialProduct.
+        Now calculate weighted average from MaterialInventoryItem records.
+        """
+        from src.models.material_inventory_item import MaterialInventoryItem
+
         product = material_unit_with_composition["product"]
-        original_cost = product.weighted_avg_cost
+
+        # Calculate original weighted average from inventory items (F058)
+        inv_items = (
+            db_session.query(MaterialInventoryItem)
+            .filter(MaterialInventoryItem.material_product_id == product.id)
+            .all()
+        )
+        total_value = sum(
+            Decimal(str(item.quantity_remaining)) * item.cost_per_unit
+            for item in inv_items
+        )
+        total_qty = sum(Decimal(str(item.quantity_remaining)) for item in inv_items)
+        original_cost = total_value / total_qty if total_qty > 0 else Decimal("0")
 
         # Record consumption
         consumptions = record_material_consumption(
@@ -229,9 +247,21 @@ class TestSnapshotPreservation:
         )
 
         db_session.refresh(product)
-        new_cost = product.weighted_avg_cost
 
-        # Cost should have changed in catalog
+        # Calculate new weighted average from inventory items (F058)
+        inv_items_new = (
+            db_session.query(MaterialInventoryItem)
+            .filter(MaterialInventoryItem.material_product_id == product.id)
+            .all()
+        )
+        total_value_new = sum(
+            Decimal(str(item.quantity_remaining)) * item.cost_per_unit
+            for item in inv_items_new
+        )
+        total_qty_new = sum(Decimal(str(item.quantity_remaining)) for item in inv_items_new)
+        new_cost = total_value_new / total_qty_new if total_qty_new > 0 else Decimal("0")
+
+        # Cost should have changed (new inventory item at different price)
         assert new_cost != original_cost
 
         # But history should show original cost (to_dict returns unit_cost as string)
@@ -241,7 +271,10 @@ class TestSnapshotPreservation:
         )
 
         assert len(history) > 0
-        assert history[0]["unit_cost"] == str(original_cost)
+        # The consumption record's unit_cost is the cost from the FIFO lot consumed
+        # It should be close to the original cost (may have minor decimal differences)
+        history_cost = Decimal(history[0]["unit_cost"])
+        assert abs(history_cost - original_cost) < Decimal("0.0001")
 
 
 # =============================================================================
