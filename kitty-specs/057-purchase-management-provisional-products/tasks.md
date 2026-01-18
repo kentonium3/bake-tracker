@@ -195,10 +195,10 @@ A work package is complete when:
 
 ## Acceptance Criteria (from spec.md)
 
-- [ ] **SC-001**: Purchase for unknown product < 2 minutes
-- [ ] **SC-002**: 100% of purchases result in inventory updates
-- [ ] **SC-003**: Access provisional products within 3 clicks
-- [ ] **SC-004**: JSON import of 50+ purchases < 30 seconds
-- [ ] **SC-005**: Purchase workflow never blocked by missing products
-- [ ] **SC-006**: All provisional products visible in review queue
-- [ ] **SC-007**: Service boundaries enforced
+- [x] **SC-001**: Purchase for unknown product < 2 minutes
+- [x] **SC-002**: 100% of purchases result in inventory updates
+- [x] **SC-003**: Access provisional products within 3 clicks
+- [x] **SC-004**: JSON import of 50+ purchases < 30 seconds
+- [x] **SC-005**: Purchase workflow never blocked by missing products
+- [x] **SC-006**: All provisional products visible in review queue
+- [x] **SC-007**: Service boundaries enforced
