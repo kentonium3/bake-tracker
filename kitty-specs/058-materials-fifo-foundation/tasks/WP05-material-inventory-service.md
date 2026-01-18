@@ -8,12 +8,12 @@ subtasks:
   - "T021"
 title: "MaterialInventoryService Core"
 phase: "Phase 2 - Services"
-lane: "planned"
-assignee: ""
-agent: ""
-shell_pid: ""
-review_status: ""
-reviewed_by: ""
+lane: "doing"
+assignee: "claude-opus"
+agent: "claude-opus"
+shell_pid: "28309"
+review_status: "approved"
+reviewed_by: "Kent Gale"
 dependencies: ["WP01", "WP04"]
 history:
   - timestamp: "2026-01-18T18:06:18Z"
@@ -21,6 +21,11 @@ history:
     agent: "system"
     shell_pid: ""
     action: "Prompt generated via /spec-kitty.tasks"
+  - timestamp: "2026-01-18T21:30:00Z"
+    lane: "done"
+    agent: "claude-opus"
+    shell_pid: ""
+    action: "Review passed: MaterialInventoryService with FIFO consumption operations"
 ---
 
 # Work Package Prompt: WP05 – MaterialInventoryService Core
@@ -504,3 +509,7 @@ lots = get_fifo_inventory(1)  # Should return empty list or lots
 ## Activity Log
 
 - 2026-01-18T18:06:18Z – system – lane=planned – Prompt created.
+- 2026-01-18T19:09:59Z – claude – lane=doing – Starting MaterialInventoryService implementation
+- 2026-01-18T19:20:30Z – claude – lane=for_review – T017-T021 complete: MaterialInventoryService with FIFO operations
+- 2026-01-18T20:07:07Z – claude-opus – lane=done – Review passed: MaterialInventoryService with FIFO consumption operations
+- 2026-01-18T21:33:45Z – claude-opus – shell_pid=28309 – lane=doing – Started review via workflow command
