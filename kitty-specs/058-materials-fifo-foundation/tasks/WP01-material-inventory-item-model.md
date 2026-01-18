@@ -7,10 +7,10 @@ subtasks:
   - "T004"
 title: "Schema Changes - MaterialInventoryItem Model"
 phase: "Phase 1 - Foundation"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "claude-opus"
+shell_pid: "87459"
 review_status: ""
 reviewed_by: ""
 dependencies: []
@@ -237,3 +237,4 @@ def test_material_inventory_item_can_be_created():
 ## Activity Log
 
 - 2026-01-18T18:06:18Z – system – lane=planned – Prompt created.
+- 2026-01-18T18:32:26Z – claude-opus – shell_pid=87459 – lane=doing – Started implementation via workflow command
