@@ -10,10 +10,10 @@ subtasks:
   - "T017"
 title: "Purchase Form - Product Type Selector"
 phase: "Phase 1 - Wave 1"
-lane: "for_review"
+lane: "doing"
 assignee: ""
 agent: "claude-opus"
-shell_pid: "66253"
+shell_pid: "70998"
 review_status: ""
 reviewed_by: ""
 dependencies: ["WP01"]
@@ -563,3 +563,4 @@ Manual testing scenarios:
 - 2026-01-18T00:00:00Z - system - lane=planned - Prompt created.
 - 2026-01-19T00:23:32Z – claude-opus – shell_pid=66253 – lane=doing – Started implementation via workflow command
 - 2026-01-19T00:34:20Z – claude-opus – shell_pid=66253 – lane=for_review – All subtasks complete - F059 material purchase form integration implemented
+- 2026-01-19T00:37:52Z – claude-opus – shell_pid=70998 – lane=doing – Started implementation via workflow command
