@@ -10,10 +10,10 @@ subtasks:
   - "T031"
 title: "Manual Adjustment Dialog"
 phase: "Wave 1 - Core UI"
-lane: "for_review"
+lane: "doing"
 assignee: ""
 agent: "claude-opus"
-shell_pid: "84672"
+shell_pid: "89938"
 review_status: ""
 reviewed_by: ""
 dependencies:
@@ -761,3 +761,4 @@ Manual testing:
 - 2026-01-18T00:00:00Z - system - lane=planned - Prompt created.
 - 2026-01-19T01:34:29Z – claude-opus – shell_pid=84672 – lane=doing – Started implementation via workflow command
 - 2026-01-19T01:45:47Z – claude-opus – shell_pid=84672 – lane=for_review – MaterialAdjustmentDialog implemented with support for both 'each' (add/subtract/set) and 'variable' (percentage) materials. Live preview with color coding, validation, and notes field. Wired to PurchasesTab via context menu and double-click. All 2511 tests pass.
+- 2026-01-19T01:53:20Z – claude-opus – shell_pid=89938 – lane=doing – Started review via workflow command
