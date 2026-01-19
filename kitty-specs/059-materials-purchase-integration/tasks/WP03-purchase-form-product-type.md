@@ -10,10 +10,10 @@ subtasks:
   - "T017"
 title: "Purchase Form - Product Type Selector"
 phase: "Phase 1 - Wave 1"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "claude-opus"
+shell_pid: "66253"
 review_status: ""
 reviewed_by: ""
 dependencies: ["WP01"]
@@ -561,3 +561,4 @@ Manual testing scenarios:
 ## Activity Log
 
 - 2026-01-18T00:00:00Z - system - lane=planned - Prompt created.
+- 2026-01-19T00:23:32Z – claude-opus – shell_pid=66253 – lane=doing – Started implementation via workflow command
