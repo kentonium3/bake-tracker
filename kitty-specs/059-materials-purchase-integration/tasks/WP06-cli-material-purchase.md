@@ -8,7 +8,7 @@ subtasks:
   - "T036"
 title: "CLI Material Purchase Extension"
 phase: "Wave 2 - Extended Features"
-lane: "planned"
+lane: "doing"
 assignee: ""
 agent: "claude-opus"
 shell_pid: "97888"
@@ -614,3 +614,4 @@ python src/utils/import_export_cli.py purchase-material --name "Test" --qty 1 --
 - 2026-01-19T02:27:23Z – claude-opus – shell_pid=97888 – lane=doing – Started review via workflow command
 - 2026-01-19T02:30:41Z – claude-opus – shell_pid=97888 – lane=done – Review passed: CLI purchase-material command complete with product lookup (slug/name/partial), provisional product creation, service integration, and 9 comprehensive tests. All success criteria met.
 - 2026-01-19T02:36:37Z – claude-opus – shell_pid=97888 – lane=planned – Moved to planned
+- 2026-01-19T02:38:14Z – claude-opus – shell_pid=97888 – lane=doing – Addressing review feedback: Adding is_provisional field
