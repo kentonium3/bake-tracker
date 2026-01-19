@@ -7,10 +7,10 @@ subtasks:
   - "T040"
 title: "Provisional Product UI Indicators"
 phase: "Wave 2 - Extended Features"
-lane: "planned"
+lane: "doing"
 assignee: ""
-agent: ""
-shell_pid: ""
+agent: "claude-opus"
+shell_pid: "5334"
 review_status: ""
 reviewed_by: ""
 dependencies:
@@ -382,3 +382,4 @@ Manual testing:
 ## Activity Log
 
 - 2026-01-18T00:00:00Z - system - lane=planned - Prompt created.
+- 2026-01-19T02:57:34Z – claude-opus – shell_pid=5334 – lane=doing – Started implementation via workflow command
