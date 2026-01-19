@@ -24,6 +24,8 @@ from src.services.purchase_service import (
     get_last_price_at_supplier,
     get_last_price_any_supplier,
 )
+from src.services import material_catalog_service
+from src.services import material_purchase_service
 
 
 class AddPurchaseDialog(ctk.CTkToplevel):
@@ -73,9 +75,14 @@ class AddPurchaseDialog(ctk.CTkToplevel):
         self._prov_l1_map = {}
         self._prov_l2_map = {}
 
+        # F059: Material product data storage
+        self.material_products: List[Dict[str, Any]] = []
+        self.material_product_map: Dict[str, Dict[str, Any]] = {}  # name -> product dict
+
         # Load data
         self._load_products()
         self._load_suppliers()
+        self._load_material_products()
 
         # Create UI
         self._create_widgets()
@@ -129,6 +136,21 @@ class AddPurchaseDialog(ctk.CTkToplevel):
             self.suppliers = []
             self.supplier_map = {}
 
+    def _load_material_products(self) -> None:
+        """Load material products from service (F059)."""
+        try:
+            self.material_products = material_catalog_service.list_products(
+                include_hidden=False
+            )
+            self.material_product_map = {}
+            for p in self.material_products:
+                # Use display_name which combines brand + name
+                display_name = p.get("display_name", p.get("name", "Unknown"))
+                self.material_product_map[display_name] = p
+        except Exception:
+            self.material_products = []
+            self.material_product_map = {}
+
     def _create_widgets(self) -> None:
         """Create all dialog widgets."""
         # Title
@@ -140,6 +162,27 @@ class AddPurchaseDialog(ctk.CTkToplevel):
 
         # Form frame
         self.form_frame = ctk.CTkFrame(self)
+
+        # F059: Product Type Selection (Food/Material)
+        self.type_frame = ctk.CTkFrame(self.form_frame, fg_color="transparent")
+        ctk.CTkLabel(self.type_frame, text="Product Type:").pack(side="left", padx=(0, 10))
+        self.product_type_var = ctk.StringVar(value="food")
+        self.food_radio = ctk.CTkRadioButton(
+            self.type_frame,
+            text="Food",
+            variable=self.product_type_var,
+            value="food",
+            command=self._on_product_type_change
+        )
+        self.food_radio.pack(side="left", padx=5)
+        self.material_radio = ctk.CTkRadioButton(
+            self.type_frame,
+            text="Material",
+            variable=self.product_type_var,
+            value="material",
+            command=self._on_product_type_change
+        )
+        self.material_radio.pack(side="left", padx=5)
 
         # Product selection
         self.product_label = ctk.CTkLabel(
@@ -242,6 +285,9 @@ class AddPurchaseDialog(ctk.CTkToplevel):
             width=350
         )
 
+        # F059: Material-specific widgets
+        self._create_material_widgets()
+
         # Preview frame
         self.preview_frame = ctk.CTkFrame(self)
         self.preview_title = ctk.CTkLabel(
@@ -287,32 +333,38 @@ class AddPurchaseDialog(ctk.CTkToplevel):
         # Form frame
         self.form_frame.pack(fill="x", padx=20, pady=10)
 
-        # Product row
-        self.product_label.grid(row=0, column=0, sticky="w", padx=10, pady=(10, 2))
-        self.product_combo.grid(row=1, column=0, columnspan=3, sticky="w", padx=10, pady=(0, 10))
+        # F059: Product type selector row (always visible)
+        self.type_frame.grid(row=0, column=0, columnspan=3, sticky="w", padx=10, pady=(10, 10))
 
-        # Date row
-        self.date_label.grid(row=2, column=0, sticky="w", padx=10, pady=(10, 2))
-        self.date_entry.grid(row=3, column=0, sticky="w", padx=10, pady=(0, 2))
-        self.date_hint.grid(row=3, column=1, sticky="w", padx=5, pady=(0, 2))
+        # Food product row (will be hidden when Material is selected)
+        self.product_label.grid(row=2, column=0, sticky="w", padx=10, pady=(10, 2))
+        self.product_combo.grid(row=3, column=0, columnspan=3, sticky="w", padx=10, pady=(0, 10))
 
-        # Quantity row
+        # Date row (shared between food and material)
+        self.date_label.grid(row=14, column=0, sticky="w", padx=10, pady=(10, 2))
+        self.date_entry.grid(row=15, column=0, sticky="w", padx=10, pady=(0, 2))
+        self.date_hint.grid(row=15, column=1, sticky="w", padx=5, pady=(0, 2))
+
+        # Quantity row (food only)
         self.qty_label.grid(row=4, column=0, sticky="w", padx=10, pady=(10, 2))
         self.qty_entry.grid(row=5, column=0, sticky="w", padx=10, pady=(0, 10))
         self.qty_unit_label.grid(row=5, column=1, sticky="w", padx=5, pady=(0, 10))
 
-        # Price row
+        # Price row (food only)
         self.price_label.grid(row=6, column=0, sticky="w", padx=10, pady=(10, 2))
         self.price_entry.grid(row=7, column=0, sticky="w", padx=10, pady=(0, 2))
         self.price_hint.grid(row=7, column=1, columnspan=2, sticky="w", padx=5, pady=(0, 2))
 
-        # Supplier row
-        self.supplier_label.grid(row=8, column=0, sticky="w", padx=10, pady=(10, 2))
-        self.supplier_combo.grid(row=9, column=0, columnspan=2, sticky="w", padx=10, pady=(0, 10))
+        # Supplier row (shared between food and material)
+        self.supplier_label.grid(row=16, column=0, sticky="w", padx=10, pady=(10, 2))
+        self.supplier_combo.grid(row=17, column=0, columnspan=2, sticky="w", padx=10, pady=(0, 10))
 
-        # Notes row
-        self.notes_label.grid(row=10, column=0, sticky="w", padx=10, pady=(10, 2))
-        self.notes_text.grid(row=11, column=0, columnspan=3, sticky="w", padx=10, pady=(0, 10))
+        # Notes row (shared between food and material)
+        self.notes_label.grid(row=18, column=0, sticky="w", padx=10, pady=(10, 2))
+        self.notes_text.grid(row=19, column=0, columnspan=3, sticky="w", padx=10, pady=(0, 10))
+
+        # F059: Layout material widgets (initially hidden)
+        self._layout_material_widgets()
 
         # Preview frame
         self.preview_frame.pack(fill="x", padx=20, pady=10)
@@ -336,11 +388,343 @@ class AddPurchaseDialog(ctk.CTkToplevel):
         # F057: Detect product search for "not found" handling
         self.product_var.trace_add("write", self._on_product_search)
 
+        # F059: Update preview on material field changes
+        self.material_packages_var.trace_add(
+            "write", lambda *args: self._update_material_preview()
+        )
+        self.material_cost_var.trace_add(
+            "write", lambda *args: self._update_material_preview()
+        )
+
         # Escape to close
         self.bind("<Escape>", lambda e: self.destroy())
 
         # Enter to save
         self.bind("<Return>", lambda e: self._on_save())
+
+    # =========================================================================
+    # F059: Material Purchase Support
+    # =========================================================================
+
+    def _create_material_widgets(self) -> None:
+        """Create material-specific form widgets (F059).
+
+        These widgets are initially hidden and shown when user selects
+        'Material' product type.
+        """
+        # Material Product Selection
+        self.material_product_label = ctk.CTkLabel(
+            self.form_frame,
+            text="Material Product *",
+            anchor="w"
+        )
+        material_names = sorted(self.material_product_map.keys())
+        self.material_product_var = ctk.StringVar()
+        self.material_product_combo = ctk.CTkComboBox(
+            self.form_frame,
+            variable=self.material_product_var,
+            values=material_names if material_names else ["(No products)"],
+            width=350,
+            command=self._on_material_product_selected
+        )
+
+        # Package Quantity Entry
+        self.material_qty_label = ctk.CTkLabel(
+            self.form_frame,
+            text="Packages *",
+            anchor="w"
+        )
+        self.material_packages_var = ctk.StringVar(value="1")
+        self.material_packages_entry = ctk.CTkEntry(
+            self.form_frame,
+            textvariable=self.material_packages_var,
+            width=100
+        )
+        self.material_pkg_info_label = ctk.CTkLabel(
+            self.form_frame,
+            text="",  # Updated when product selected
+            text_color="gray"
+        )
+
+        # Total Cost Entry
+        self.material_cost_label = ctk.CTkLabel(
+            self.form_frame,
+            text="Total Cost *",
+            anchor="w"
+        )
+        self.material_cost_var = ctk.StringVar()
+        self.material_cost_entry = ctk.CTkEntry(
+            self.form_frame,
+            textvariable=self.material_cost_var,
+            width=100,
+            placeholder_text="0.00"
+        )
+        self.material_cost_prefix = ctk.CTkLabel(
+            self.form_frame,
+            text="$",
+            anchor="e"
+        )
+
+    def _layout_material_widgets(self) -> None:
+        """Layout material-specific widgets (F059).
+
+        Uses grid rows 8-13 (between food-specific fields and shared fields).
+        Initially hidden - shown when Material type selected.
+        """
+        # Material Product row (row 8-9)
+        self.material_product_label.grid(row=8, column=0, sticky="w", padx=10, pady=(10, 2))
+        self.material_product_combo.grid(
+            row=9, column=0, columnspan=3, sticky="w", padx=10, pady=(0, 10)
+        )
+
+        # Package Quantity row (row 10-11)
+        self.material_qty_label.grid(row=10, column=0, sticky="w", padx=10, pady=(10, 2))
+        self.material_packages_entry.grid(row=11, column=0, sticky="w", padx=10, pady=(0, 10))
+        self.material_pkg_info_label.grid(row=11, column=1, columnspan=2, sticky="w", padx=5, pady=(0, 10))
+
+        # Total Cost row (row 12-13)
+        self.material_cost_label.grid(row=12, column=0, sticky="w", padx=10, pady=(10, 2))
+        self.material_cost_prefix.grid(row=13, column=0, sticky="e", padx=(10, 0), pady=(0, 10))
+        self.material_cost_entry.grid(row=13, column=0, sticky="w", padx=(25, 0), pady=(0, 10))
+
+        # Initially hide material fields
+        self._hide_material_fields()
+
+    def _on_product_type_change(self) -> None:
+        """Handle product type radio button change (F059).
+
+        Shows/hides appropriate fields based on selection.
+        """
+        product_type = self.product_type_var.get()
+
+        if product_type == "material":
+            self._hide_food_fields()
+            self._show_material_fields()
+            self._clear_food_fields()
+        else:
+            self._hide_material_fields()
+            self._show_food_fields()
+            self._clear_material_fields()
+
+        # Reset preview
+        self._update_preview()
+
+    def _show_food_fields(self) -> None:
+        """Show food-specific form fields (F059)."""
+        self.product_label.grid()
+        self.product_combo.grid()
+        self.qty_label.grid()
+        self.qty_entry.grid()
+        self.qty_unit_label.grid()
+        self.price_label.grid()
+        self.price_entry.grid()
+        self.price_hint.grid()
+
+    def _hide_food_fields(self) -> None:
+        """Hide food-specific form fields (F059)."""
+        self.product_label.grid_remove()
+        self.product_combo.grid_remove()
+        self.qty_label.grid_remove()
+        self.qty_entry.grid_remove()
+        self.qty_unit_label.grid_remove()
+        self.price_label.grid_remove()
+        self.price_entry.grid_remove()
+        self.price_hint.grid_remove()
+        # Also hide provisional form if visible
+        self._hide_not_found()
+
+    def _show_material_fields(self) -> None:
+        """Show material-specific form fields (F059)."""
+        self.material_product_label.grid()
+        self.material_product_combo.grid()
+        self.material_qty_label.grid()
+        self.material_packages_entry.grid()
+        self.material_pkg_info_label.grid()
+        self.material_cost_label.grid()
+        self.material_cost_prefix.grid()
+        self.material_cost_entry.grid()
+
+    def _hide_material_fields(self) -> None:
+        """Hide material-specific form fields (F059)."""
+        self.material_product_label.grid_remove()
+        self.material_product_combo.grid_remove()
+        self.material_qty_label.grid_remove()
+        self.material_packages_entry.grid_remove()
+        self.material_pkg_info_label.grid_remove()
+        self.material_cost_label.grid_remove()
+        self.material_cost_prefix.grid_remove()
+        self.material_cost_entry.grid_remove()
+
+    def _clear_food_fields(self) -> None:
+        """Clear food-specific field values (F059)."""
+        self.product_var.set("")
+        self.qty_var.set("1")
+        self.price_var.set("")
+        self.price_hint.configure(text="")
+
+    def _clear_material_fields(self) -> None:
+        """Clear material-specific field values (F059)."""
+        self.material_product_var.set("")
+        self.material_packages_var.set("1")
+        self.material_cost_var.set("")
+        self.material_pkg_info_label.configure(text="")
+
+    def _on_material_product_selected(self, product_name: str) -> None:
+        """Handle material product selection (F059).
+
+        Updates the package info label with product details.
+        """
+        product = self.material_product_map.get(product_name)
+        if not product:
+            self.material_pkg_info_label.configure(text="")
+            return
+
+        # Show package info
+        pkg_qty = product.get("package_quantity", 1)
+        pkg_unit = product.get("package_unit", "units")
+        self.material_pkg_info_label.configure(
+            text=f"({pkg_qty} {pkg_unit} per package)"
+        )
+
+        # Auto-fill supplier if product has one and supplier not yet selected
+        if not self.supplier_var.get():
+            supplier_name = product.get("supplier_name")
+            if supplier_name and supplier_name in self.supplier_map:
+                self.supplier_var.set(supplier_name)
+
+        self._update_material_preview()
+
+    def _update_material_preview(self) -> None:
+        """Update preview with calculated total units and unit cost (F059)."""
+        try:
+            packages_str = self.material_packages_var.get().strip()
+            cost_str = self.material_cost_var.get().strip()
+
+            if not packages_str or not cost_str:
+                self.preview_label.configure(
+                    text="Enter packages and cost to see preview",
+                    text_color="gray"
+                )
+                return
+
+            packages = Decimal(packages_str)
+            total_cost = Decimal(cost_str)
+
+            if packages <= 0:
+                self.preview_label.configure(
+                    text="Packages must be greater than 0",
+                    text_color="orange"
+                )
+                return
+
+            # Get product info for calculation
+            product_name = self.material_product_var.get()
+            product = self.material_product_map.get(product_name)
+
+            if product:
+                pkg_qty = Decimal(str(product.get("package_quantity", 1)))
+                pkg_unit = product.get("package_unit", "units")
+                total_units = packages * pkg_qty
+
+                if total_units > 0 and total_cost >= 0:
+                    unit_cost = total_cost / total_units
+                    price_per_pkg = total_cost / packages
+
+                    preview_text = (
+                        f"Total: {total_units} {pkg_unit}\n"
+                        f"Price per package: ${price_per_pkg:.2f}\n"
+                        f"Unit cost: ${unit_cost:.4f}/{pkg_unit}"
+                    )
+                    self.preview_label.configure(text=preview_text, text_color="green")
+                else:
+                    self.preview_label.configure(
+                        text="Enter valid values",
+                        text_color="orange"
+                    )
+            else:
+                # No product selected yet
+                price_per_pkg = total_cost / packages if packages > 0 else Decimal("0")
+                self.preview_label.configure(
+                    text=f"Total Cost: ${total_cost:.2f}\nPrice per package: ${price_per_pkg:.2f}",
+                    text_color="gray"
+                )
+
+        except (InvalidOperation, ValueError):
+            self.preview_label.configure(
+                text="Enter valid numbers",
+                text_color="orange"
+            )
+
+    def _validate_material_purchase(self) -> tuple:
+        """Validate material-specific fields (F059).
+
+        Returns:
+            Tuple of (is_valid: bool, error_message: str)
+        """
+        # Product selected?
+        product_name = self.material_product_var.get()
+        if not product_name or product_name not in self.material_product_map:
+            return False, "Please select a material product"
+
+        # Packages > 0 and whole number?
+        packages_str = self.material_packages_var.get().strip()
+        try:
+            packages = Decimal(packages_str)
+            if packages <= 0:
+                return False, "Packages must be greater than 0"
+            if packages != packages.to_integral_value():
+                return False, "Packages must be a whole number"
+        except (InvalidOperation, ValueError):
+            return False, "Invalid package quantity - enter a number"
+
+        # Cost >= 0?
+        cost_str = self.material_cost_var.get().strip()
+        try:
+            cost = Decimal(cost_str)
+            if cost < 0:
+                return False, "Cost cannot be negative"
+        except (InvalidOperation, ValueError):
+            return False, "Invalid cost - enter a number"
+
+        # Date valid and not future? (shared validation)
+        date_str = self.date_var.get().strip()
+        try:
+            purchase_date = datetime.strptime(date_str, "%Y-%m-%d").date()
+            if purchase_date > date.today():
+                return False, "Purchase date cannot be in the future"
+        except ValueError:
+            return False, "Invalid date format (use YYYY-MM-DD)"
+
+        # Supplier selected?
+        supplier_name = self.supplier_var.get()
+        if not supplier_name or supplier_name not in self.supplier_map:
+            return False, "Please select a supplier"
+
+        return True, ""
+
+    def _save_material_purchase(self) -> None:
+        """Record a material purchase (F059).
+
+        Creates MaterialPurchase and MaterialInventoryItem records.
+        """
+        product = self.material_product_map[self.material_product_var.get()]
+        supplier = self.supplier_map[self.supplier_var.get()]
+        purchase_date = datetime.strptime(self.date_var.get().strip(), "%Y-%m-%d").date()
+        packages = int(Decimal(self.material_packages_var.get().strip()))
+        total_cost = Decimal(self.material_cost_var.get().strip())
+        notes = self.notes_text.get("1.0", "end-1c").strip() or None
+
+        # Calculate price per package
+        package_price = total_cost / packages
+
+        material_purchase_service.record_purchase(
+            product_id=product["id"],
+            supplier_id=supplier["id"],
+            purchase_date=purchase_date,
+            packages_purchased=packages,
+            package_price=package_price,
+            notes=notes,
+        )
 
     def _on_product_selected(self, product_name: str) -> None:
         """Handle product selection - auto-fill price and supplier."""
@@ -445,7 +829,20 @@ class AddPurchaseDialog(ctk.CTkToplevel):
             )
 
     def _validate(self) -> tuple:
-        """Validate all form fields.
+        """Validate form fields based on product type (F059).
+
+        Returns:
+            Tuple of (is_valid: bool, error_message: str)
+        """
+        product_type = self.product_type_var.get()
+
+        if product_type == "material":
+            return self._validate_material_purchase()
+        else:
+            return self._validate_food_purchase()
+
+    def _validate_food_purchase(self) -> tuple:
+        """Validate food-specific form fields.
 
         Returns:
             Tuple of (is_valid: bool, error_message: str)
@@ -501,7 +898,10 @@ class AddPurchaseDialog(ctk.CTkToplevel):
         self.error_label.configure(text="")
 
     def _on_save(self) -> None:
-        """Handle save button click."""
+        """Handle save button click (F059).
+
+        Dispatches to food or material save based on product type.
+        """
         self._clear_error()
 
         # Validate
@@ -510,24 +910,13 @@ class AddPurchaseDialog(ctk.CTkToplevel):
             self._show_error(error)
             return
 
-        # Get form values
-        product = self.product_map[self.product_var.get()]
-        supplier = self.supplier_map[self.supplier_var.get()]
-        purchase_date = datetime.strptime(self.date_var.get().strip(), "%Y-%m-%d").date()
-        quantity = Decimal(self.qty_var.get().strip())
-        unit_price = Decimal(self.price_var.get().strip())
-        notes = self.notes_text.get("1.0", "end-1c").strip() or None
-
         try:
-            # Record purchase using service
-            record_purchase(
-                product_id=product["id"],
-                quantity=quantity,
-                total_cost=quantity * unit_price,
-                purchase_date=purchase_date,
-                store=supplier["name"],
-                notes=notes
-            )
+            product_type = self.product_type_var.get()
+
+            if product_type == "material":
+                self._save_material_purchase()
+            else:
+                self._save_food_purchase()
 
             # Callback to refresh list
             if self.on_save:
@@ -537,6 +926,25 @@ class AddPurchaseDialog(ctk.CTkToplevel):
 
         except Exception as e:
             self._show_error(f"Failed to save: {str(e)}")
+
+    def _save_food_purchase(self) -> None:
+        """Save a food purchase (existing behavior)."""
+        product = self.product_map[self.product_var.get()]
+        supplier = self.supplier_map[self.supplier_var.get()]
+        purchase_date = datetime.strptime(self.date_var.get().strip(), "%Y-%m-%d").date()
+        quantity = Decimal(self.qty_var.get().strip())
+        unit_price = Decimal(self.price_var.get().strip())
+        notes = self.notes_text.get("1.0", "end-1c").strip() or None
+
+        # Record purchase using service
+        record_purchase(
+            product_id=product["id"],
+            quantity=quantity,
+            total_cost=quantity * unit_price,
+            purchase_date=purchase_date,
+            store=supplier["name"],
+            notes=notes
+        )
 
     # =========================================================================
     # F057: Provisional Product Creation
