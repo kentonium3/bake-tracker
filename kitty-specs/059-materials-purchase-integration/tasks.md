@@ -27,7 +27,7 @@
 - [x] T002 Update create_product() to accept is_provisional parameter
 - [x] T003 Add check_provisional_completeness() method to MaterialCatalogService
 - [x] T004 Update update_product() to auto-clear is_provisional when completeness criteria met
-- [ ] T005 Write unit tests for provisional product lifecycle
+- [x] T005 Write unit tests for provisional product lifecycle
 
 ### Implementation Notes
 - Completeness requires: name, brand, slug, package_quantity, package_unit, material_id (per clarification)
