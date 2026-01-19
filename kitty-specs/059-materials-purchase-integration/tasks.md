@@ -54,7 +54,7 @@
 
 ### Included Subtasks
 - [x] T006 Add adjust_inventory() method signature with session pattern
-- [ ] T007 Implement "each" materials adjustment (direct quantity update via Add/Subtract/Set)
+- [x] T007 Implement "each" materials adjustment (direct quantity update via Add/Subtract/Set)
 - [ ] T008 Implement "variable" materials adjustment (percentage-based calculation)
 - [ ] T009 Add notes field support for adjustment reason tracking
 - [ ] T010 Write unit tests for adjustment scenarios (happy path, edge cases, validation)
