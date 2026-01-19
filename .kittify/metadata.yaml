@@ -4,7 +4,7 @@
 
 spec_kitty:
   version: 0.11.1
-  initialized_at: '2026-01-17T15:53:36.459131'
+  initialized_at: '2026-01-19T10:58:28.686235'
   last_upgraded_at: null
 environment:
   python_version: 3.13.11
